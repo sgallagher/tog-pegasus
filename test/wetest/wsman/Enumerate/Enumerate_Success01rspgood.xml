@@ -20,11 +20,17 @@ uuid:00000000-0000-0000-0005-000000000001
 0
 </wsen:EnumerationContext>
 <wsen:Items>
-<class:TEST_Person xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_Person">
-<class:name>
-John
-</class:name>
-</class:TEST_Person>
+<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<class:keyProperty>
+key1
+</class:keyProperty>
+<class:prop1>
+prop1 value1
+</class:prop1>
+<class:prop2>
+prop2 value1
+</class:prop2>
+</class:WsmBase>
 </wsen:Items>
 </wsen:EnumerateResponse>
 </SOAP-ENV:Body>

@@ -26,11 +26,14 @@ http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous
 </wsa:Address>
 <wsa:ReferenceParameters>
 <wsman:ResourceURI>
-http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TST_Person
+http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase
 </wsman:ResourceURI>
 <wsman:SelectorSet>
-<wsman:Selector Name="name">
-Mike
+<wsman:Selector Name="__cimnamespace">
+root/WsmTest
+</wsman:Selector>
+<wsman:Selector Name="keyProperty">
+key1
 </wsman:Selector>
 </wsman:SelectorSet>
 </wsa:ReferenceParameters>
@@ -41,11 +44,14 @@ http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous
 </wsa:Address>
 <wsa:ReferenceParameters>
 <wsman:ResourceURI>
-http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TST_Person
+http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase
 </wsman:ResourceURI>
 <wsman:SelectorSet>
-<wsman:Selector Name="name">
-Saara
+<wsman:Selector Name="__cimnamespace">
+root/WsmTest
+</wsman:Selector>
+<wsman:Selector Name="keyProperty">
+key2
 </wsman:Selector>
 </wsman:SelectorSet>
 </wsa:ReferenceParameters>

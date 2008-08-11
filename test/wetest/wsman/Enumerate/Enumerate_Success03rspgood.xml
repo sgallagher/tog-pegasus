@@ -18,86 +18,118 @@ uuid:00000000-0000-0000-0005-000000000001
 <wsen:EnumerateResponse>
 <wsen:EnumerationContext />
 <wsen:Items>
-<class:TEST_Person xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_Person">
-<class:name>
-John
-</class:name>
-</class:TEST_Person>
-<class:TEST_Person xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_Person">
-<class:name>
-Nazerath
-</class:name>
-</class:TEST_Person>
-<class:TEST_Person xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_Person">
-<class:name>
-George
-</class:name>
-</class:TEST_Person>
-<class:TEST_Person xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_Person">
-<class:name>
-Mike
-</class:name>
-</class:TEST_Person>
-<class:TEST_Person xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_Person">
-<class:name>
-Joseph
-</class:name>
-</class:TEST_Person>
-<class:TEST_Person xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_Person">
-<class:name>
-Trish
-</class:name>
-</class:TEST_Person>
-<class:TEST_Person xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_Person">
-<class:name>
-Mathew
-</class:name>
-</class:TEST_Person>
-<class:TEST_Person xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_Person">
-<class:name>
-Francis
-</class:name>
-</class:TEST_Person>
-<class:TEST_PersonDynamic xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_PersonDynamic">
-<class:Name>
-Teacher
-</class:Name>
-</class:TEST_PersonDynamic>
-<class:TEST_PersonDynamic xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_PersonDynamic">
-<class:Name>
-Student
-</class:Name>
-</class:TEST_PersonDynamic>
-<class:TEST_PersonDynamic xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_PersonDynamic">
-<class:Name>
-Employee
-</class:Name>
-</class:TEST_PersonDynamic>
-<class:TEST_PersonDynamic xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_PersonDynamic">
-<class:Name>
-Manager
-</class:Name>
-</class:TEST_PersonDynamic>
-<class:TEST_PersonDynamic xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_PersonDynamic">
-<class:Name>
-Husband
-</class:Name>
-</class:TEST_PersonDynamic>
-<class:TEST_PersonDynamic xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_PersonDynamic">
-<class:Name>
-Wife
-</class:Name>
-</class:TEST_PersonDynamic>
-<class:TEST_PersonDynamic xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_PersonDynamic">
-<class:Name>
-Father
-</class:Name>
-</class:TEST_PersonDynamic>
-<class:TEST_PersonDynamic xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TEST_PersonDynamic">
-<class:Name>
-Child
-</class:Name>
-</class:TEST_PersonDynamic>
+<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<class:keyProperty>
+key1
+</class:keyProperty>
+<class:prop1>
+prop1 value1
+</class:prop1>
+<class:prop2>
+prop2 value1
+</class:prop2>
+</class:WsmBase>
+<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<class:keyProperty>
+key2
+</class:keyProperty>
+<class:prop1>
+prop1 value2
+</class:prop1>
+<class:prop2>
+prop2 value2
+</class:prop2>
+</class:WsmBase>
+<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<class:keyProperty>
+key3
+</class:keyProperty>
+<class:prop1>
+prop1 value3
+</class:prop1>
+<class:prop2>
+prop2 value3
+</class:prop2>
+</class:WsmBase>
+<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<class:keyProperty>
+key4
+</class:keyProperty>
+<class:prop1>
+prop1 value4
+</class:prop1>
+<class:prop2>
+prop2 value4
+</class:prop2>
+</class:WsmBase>
+<class:WsmDerived xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmDerived">
+<class:keyProperty>
+key5
+</class:keyProperty>
+<class:prop1>
+prop1 value5
+</class:prop1>
+<class:prop2>
+prop2 value5
+</class:prop2>
+<class:prop3>
+prop3 value5
+</class:prop3>
+<class:prop4>
+prop4 value5
+</class:prop4>
+</class:WsmDerived>
+<class:WsmDerived xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmDerived">
+<class:keyProperty>
+key6
+</class:keyProperty>
+<class:prop1>
+prop1 value6
+</class:prop1>
+<class:prop2>
+prop2 value6
+</class:prop2>
+<class:prop3>
+prop3 value6
+</class:prop3>
+<class:prop4>
+prop4 value6
+</class:prop4>
+</class:WsmDerived>
+<class:WsmDerived xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmDerived">
+<class:keyProperty>
+key7
+</class:keyProperty>
+<class:prop1>
+prop1 value7
+</class:prop1>
+<class:prop2>
+prop2 value7
+</class:prop2>
+<class:prop3>
+prop3 value7
+</class:prop3>
+<class:prop4>
+prop4 value7
+</class:prop4>
+</class:WsmDerived>
+<class:WsmDerived xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmDerived">
+<class:keyProperty>
+key8
+</class:keyProperty>
+<class:prop1>
+prop1 value8
+</class:prop1>
+<class:prop2>
+prop2 value8
+</class:prop2>
+<class:prop3>
+prop3 value8
+</class:prop3>
+<class:prop4>
+prop4 value8
+</class:prop4>
+</class:WsmDerived>
 <wsen:EndOfSequence />
 </wsen:Items>
 </wsen:EnumerateResponse>

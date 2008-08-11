@@ -19,7 +19,7 @@
 <a:MessageID>uuid:00000000-0000-0000-0005-000000000001</a:MessageID>
 <w:Locale xml:lang="en-US" s:mustUnderstand="false" />
 <w:SelectorSet>
-<w:Selector Name="__cimnamespace">test/WsmTest</w:Selector>
+<w:Selector Name="__cimnamespace">root/WsmTest</w:Selector>
 </w:SelectorSet>
 <w:OperationTimeout>PT60.000S</w:OperationTimeout>
 </s:Header>

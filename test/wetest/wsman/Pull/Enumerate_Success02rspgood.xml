@@ -17,7 +17,7 @@ uuid:00000000-0000-0000-0005-000000000001
 <SOAP-ENV:Body>
 <wsen:EnumerateResponse>
 <wsen:EnumerationContext>
-8
+7
 </wsen:EnumerationContext>
 </wsen:EnumerateResponse>
 </SOAP-ENV:Body>

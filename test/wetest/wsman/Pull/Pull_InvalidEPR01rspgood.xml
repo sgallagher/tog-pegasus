@@ -1,6 +1,6 @@
 HTTP/1.1 500 Internal Server Error
 Content-Type: application/soap+xml;charset=UTF-8
-content-length: 0000001613
+content-length: 0000001612
 SOAPAction: http://schemas.xmlsoap.org/ws/2004/08/addressing/fault
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -33,7 +33,7 @@ wsa:MessageInformationHeaderRequired
 </SOAP-ENV:Code>
 <SOAP-ENV:Reason>
 <SOAP-ENV:Text xml:lang="en-US">
-EPR of a Pull request does not match that of the enumeration context.
+EPR of a Pull request does not match that of an enumeration context.
 </SOAP-ENV:Text>
 </SOAP-ENV:Reason>
 </SOAP-ENV:Fault>

@@ -24,7 +24,7 @@ http://schemas.xmlsoap.org/ws/2004/09/enumeration/Pull
 </s:Header>
 <s:Body>
 <wse:Pull>
-<wse:EnumerationContext>8</wse:EnumerationContext>
+<wse:EnumerationContext>7</wse:EnumerationContext>
 <w:MaxElements>10</w:MaxElements>
 </wse:Pull>
 </s:Body>

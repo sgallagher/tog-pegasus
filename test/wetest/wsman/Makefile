@@ -44,9 +44,7 @@ ifdef PEGASUS_DEBUG
         Get \
         Put \
         Delete \
-        Enumerate \
-        Pull \
-        Release
+        Enumerate
 endif
 
 include $(PEGASUS_ROOT)/mak/recurse.mak

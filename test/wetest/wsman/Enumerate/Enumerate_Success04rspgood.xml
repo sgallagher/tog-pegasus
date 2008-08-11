@@ -30,7 +30,7 @@ http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase
 </wsman:ResourceURI>
 <wsman:SelectorSet>
 <wsman:Selector Name="__cimnamespace">
-root/WsmTest
+test/WsmTest
 </wsman:Selector>
 <wsman:Selector Name="keyProperty">
 key1
@@ -48,7 +48,7 @@ http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase
 </wsman:ResourceURI>
 <wsman:SelectorSet>
 <wsman:Selector Name="__cimnamespace">
-root/WsmTest
+test/WsmTest
 </wsman:Selector>
 <wsman:Selector Name="keyProperty">
 key2

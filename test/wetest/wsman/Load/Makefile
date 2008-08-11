@@ -44,8 +44,8 @@ include $(ROOT)/mak/configschema.mak
 # be loaded into the Sample Provider namespace.
 # Update the following variable to change the version.
 
-WSM_TEST_NS=root/WsmTest
-WSM_TEST_NS_DIRECTORY=$(REPOSITORY_ROOT)/root\#WsmTest
+WSM_TEST_NS=test/WsmTest
+WSM_TEST_NS_DIRECTORY=$(REPOSITORY_ROOT)/test\#WsmTest
 
 # Load the sample MOF with the local compiler. Cleans the existing repository
 # before reloading.

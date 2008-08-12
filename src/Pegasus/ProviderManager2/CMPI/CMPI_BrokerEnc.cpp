@@ -1155,7 +1155,7 @@ extern "C"
 
         if (msgId != NULL)
         {
-            parms->msg_id.assign(msgId);
+            parms->msg_id = msgId;
         }
 
         if ( defMsg != NULL )

@@ -167,8 +167,8 @@ public:
         LogFileType logFileType,
         const String& systemId,
         Uint32 logLevel,
-        const String& messageId,
-        const String& formatString,
+        const char* messageId,
+        const char* formatString,
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1,
         const Formatter::Arg& arg2,
@@ -186,8 +186,8 @@ public:
         LogFileType logFileType,
         const String& systemId,
         Uint32 logLevel,
-        const String& messageId,
-        const String& formatString);
+        const char* messageId,
+        const char* formatString);
 
     /** Optimized one-argument form of put_l().
     */
@@ -195,8 +195,8 @@ public:
         LogFileType logFileType,
         const String& systemId,
         Uint32 logLevel,
-        const String& messageId,
-        const String& formatString,
+        const char* messageId,
+        const char* formatString,
         const Formatter::Arg& arg0);
 
     /** Optimized two-argument form of put_l().
@@ -205,8 +205,8 @@ public:
         LogFileType logFileType,
         const String& systemId,
         Uint32 logLevel,
-        const String& messageId,
-        const String& formatString,
+        const char* messageId,
+        const char* formatString,
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1);
 
@@ -216,8 +216,8 @@ public:
         LogFileType logFileType,
         const String& systemId,
         Uint32 logLevel,
-        const String& messageId,
-        const String& formatString,
+        const char* messageId,
+        const char* formatString,
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1,
         const Formatter::Arg& arg2);
@@ -286,7 +286,7 @@ public:
         LogFileType logFileType,
         const String& systemId,
         const Uint32 logComponent,
-        const String& messageId,
+        const char* messageId,
         const String& formatString,
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1,
@@ -305,7 +305,7 @@ public:
         LogFileType logFileType,
         const String& systemId,
         const Uint32 logComponent,
-        const String& messageId,
+        const char* messageId,
         const String& formatString);
 
     /** Optimized one-argument form of trace_l().
@@ -314,7 +314,7 @@ public:
         LogFileType logFileType,
         const String& systemId,
         const Uint32 logComponent,
-        const String& messageId,
+        const char* messageId,
         const String& formatString,
         const Formatter::Arg& arg0);
 
@@ -324,7 +324,7 @@ public:
         LogFileType logFileType,
         const String& systemId,
         const Uint32 logComponent,
-        const String& messageId,
+        const char* messageId,
         const String& formatString,
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1);
@@ -335,7 +335,7 @@ public:
         LogFileType logFileType,
         const String& systemId,
         const Uint32 logComponent,
-        const String& messageId,
+        const char* messageId,
         const String& formatString,
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1,
@@ -388,7 +388,7 @@ private:
         const Uint32 logComponent,
         Uint32 logLevel,
         const String& formatString,
-        const String& messageId,
+        const char* messageId,
         const Formatter::Arg& arg0 = Formatter::DEFAULT_ARG,
         const Formatter::Arg& arg1 = Formatter::DEFAULT_ARG,
         const Formatter::Arg& arg2 = Formatter::DEFAULT_ARG,

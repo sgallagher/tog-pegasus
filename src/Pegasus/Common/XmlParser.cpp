@@ -210,7 +210,7 @@ static MessageLoaderParms _formMessage(
     const String& message)
 {
     String dftMsg = _xmlMessages[Uint32(code) - 1];
-    String key = _xmlKeys[Uint32(code) - 1];
+    const char* key = _xmlKeys[Uint32(code) - 1];
     String msg = message;
 
     dftMsg.append(": on line $0");
@@ -220,17 +220,17 @@ static MessageLoaderParms _formMessage(
         dftMsg.append("$1");
     }
 
-    return MessageLoaderParms(key, dftMsg, line ,msg);
+    return MessageLoaderParms(key, dftMsg.getCString(), line ,msg);
 }
 
 static MessageLoaderParms _formPartialMessage(Uint32 code, Uint32 line)
 {
     String dftMsg = _xmlMessages[Uint32(code) - 1];
-    String key = _xmlKeys[Uint32(code) - 1];
+    const char* key = _xmlKeys[Uint32(code) - 1];
 
     dftMsg.append(": on line $0");
 
-    return MessageLoaderParms(key, dftMsg, line);
+    return MessageLoaderParms(key, dftMsg.getCString(), line);
 }
 
 

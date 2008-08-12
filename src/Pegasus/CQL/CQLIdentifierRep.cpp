@@ -116,9 +116,9 @@ void CQLIdentifierRep::parse(String identifier)
         {
             //error
             MessageLoaderParms parms(
-                String("CQL.CQLIdentifier.HASH_ARRAY_SYMBOL_MISMATCH"),
-                String("The identifier contains a mismatched symbolic"
-                    " constant symbol and an array symbol: $0"),
+                "CQL.CQLIdentifier.HASH_ARRAY_SYMBOL_MISMATCH",
+                "The identifier contains a mismatched symbolic"
+                    " constant symbol and an array symbol: $0",
                 identifier);
             throw CQLIdentifierParseException(parms);
         }
@@ -144,9 +144,9 @@ void CQLIdentifierRep::parse(String identifier)
             {
                 // Basic query error
                 MessageLoaderParms parms(
-                    String("CQL.CQLIdentifier.TOO_MANY_ARRAY_INDICES"),
-                    String("The identifier contains one or more commas which"
-                        " is not allowed in CQL Basic query: $0"),
+                    "CQL.CQLIdentifier.TOO_MANY_ARRAY_INDICES",
+                    "The identifier contains one or more commas which"
+                        " is not allowed in CQL Basic query: $0",
                     identifier);
                 throw CQLIdentifierParseException(parms);
                 // 
@@ -167,8 +167,8 @@ void CQLIdentifierRep::parse(String identifier)
         {
           // error
             MessageLoaderParms parms(
-                String("CQL.CQLIdentifier.ARRAY_SYMBOL_MISMATCH"),
-                String("The identifier contains a mismatched array symbol: $0"),
+                "CQL.CQLIdentifier.ARRAY_SYMBOL_MISMATCH",
+                "The identifier contains a mismatched array symbol: $0",
                 identifier);
             throw CQLIdentifierParseException(parms);
         }
@@ -201,8 +201,8 @@ void CQLIdentifierRep::parse(String identifier)
         catch (Exception&)
         {
             MessageLoaderParms parms(
-                String("CQL.CQLIdentifier.INVALID_CIMNAME"),
-                String("The identifier contains an invalid CIMName: $0."),
+                "CQL.CQLIdentifier.INVALID_CIMNAME",
+                "The identifier contains an invalid CIMName: $0.",
                 identifier);
             throw CQLIdentifierParseException(parms);
         }

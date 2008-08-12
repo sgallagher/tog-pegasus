@@ -106,7 +106,7 @@ class cimmofMessages
         };
         typedef Array<String> arglist;
         static const arglist EMPTYLIST;
-        static const String &msgCodeToString(MsgCode code);
+        static const char* msgCodeToString(MsgCode code);
         static void getMessage(String &out, MsgCode code,
             const arglist &al =
             cimmofMessages::EMPTYLIST);

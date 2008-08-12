@@ -146,9 +146,10 @@ CQLValueRep::CQLValueRep(const String& inString,
      }
      break;
    default:
-     MessageLoaderParms mload(String("CQL.CQLValueRep.CONSTRUCTOR_FAILURE"),
-                  String("Undefined case:$0 in constructor."),
-                  inValueType);
+     MessageLoaderParms mload(
+         "CQL.CQLValueRep.CONSTRUCTOR_FAILURE",
+         "Undefined case:$0 in constructor.",
+         inValueType);
      throw CQLRuntimeException(mload);
      
      break;
@@ -590,10 +591,11 @@ Boolean CQLValueRep::operator==(const CQLValueRep& x)
       break;
       
     default:
-    MessageLoaderParms mload(String("CQL.CQLValueRep.CONSTRUCTOR_FAILURE"),
-                 String("Undefined case:$0 in constructor."),
-                 _valueType);
-    throw CQLRuntimeException(mload);
+      MessageLoaderParms mload(
+          "CQL.CQLValueRep.CONSTRUCTOR_FAILURE",
+          "Undefined case:$0 in constructor.",
+          _valueType);
+      throw CQLRuntimeException(mload);
       break;
     }
       return false;
@@ -773,9 +775,10 @@ Boolean CQLValueRep::operator<(const CQLValueRep& x)
       break;
 
     default:
-    MessageLoaderParms mload(String("CQL.CQLValueRep.CONSTRUCTOR_FAILURE"),
-                 String("Undefined case:$0 in constructor."));
-    throw CQLRuntimeException(mload);
+      MessageLoaderParms mload(
+          "CQL.CQLValueRep.CONSTRUCTOR_FAILURE",
+          "Undefined case: $0 in constructor.");
+      throw CQLRuntimeException(mload);
       break;
     }
   PEG_METHOD_EXIT();
@@ -813,8 +816,9 @@ CQLValueRep CQLValueRep::operator+(const CQLValueRep x)
        break;
        
      default:
-       MessageLoaderParms mload(String("CQL.CQLValueRep.CONSTRUCTOR_FAILURE"),
-           String("Undefined case:$0 in constructor."),
+       MessageLoaderParms mload(
+           "CQL.CQLValueRep.CONSTRUCTOR_FAILURE",
+           "Undefined case:$0 in constructor.",
            _valueType);
        throw CQLRuntimeException(mload);
        break;
@@ -895,8 +899,9 @@ Boolean CQLValueRep::isa(const CQLChainedIdentifier& inID,
   if(!_isResolved || 
      (_valueType != CQLValue::CIMObject_type))
     {
-      MessageLoaderParms mload(String("CQL.CQLValueRep.ISA_TYPE_MISMATCH"),
-        String("The type: $0 is not an object, or the object is not resolved"),
+      MessageLoaderParms mload(
+        "CQL.CQLValueRep.ISA_TYPE_MISMATCH",
+        "The type: $0 is not an object, or the object is not resolved",
         _valueType);
       throw CQLRuntimeException(mload);
     }
@@ -939,9 +944,10 @@ Boolean CQLValueRep::like(const CQLValueRep& inVal)
    if( _valueType != CQLValue::String_type ||
       inVal._valueType != CQLValue::String_type)
    {
-       MessageLoaderParms mload(String("CQL.CQLValueRep.LIKE_TYPE_MISMATCH"),
-            String("The following types may not be strings:$0,$1."),
-            _valueType,inVal._valueType);
+       MessageLoaderParms mload(
+           "CQL.CQLValueRep.LIKE_TYPE_MISMATCH",
+           "The following types may not be strings: $0, $1.",
+           _valueType, inVal._valueType);
        throw CQLRuntimeException(mload);
    }
    
@@ -972,10 +978,11 @@ Uint64 CQLValueRep::getUint()const
          if(_theValue.isArray())
             str = "array";
          else str = valueTypeToString(_valueType);
-       MessageLoaderParms mload(String("CQL.CQLValueRep.TYPE_MISMATCH"),
-                String("The type: $0 is not correct for $1 operation."),
-                str,
-                String("getUint"));
+       MessageLoaderParms mload(
+           "CQL.CQLValueRep.TYPE_MISMATCH",
+           "The type: $0 is not correct for $1 operation.",
+           str,
+           "getUint");
        throw CQLRuntimeException(mload);
    }
    Uint64 tmp;
@@ -994,10 +1001,11 @@ Boolean CQLValueRep::getBool()const
        if(_theValue.isArray())
           str = "array";
        else str = valueTypeToString(_valueType);
-       MessageLoaderParms mload(String("CQL.CQLValueRep.TYPE_MISMATCH"),
-            String("The type: $0 is not correct for $1 operation."),
-            str,
-            String("getBool"));
+       MessageLoaderParms mload(
+           "CQL.CQLValueRep.TYPE_MISMATCH",
+           "The type: $0 is not correct for $1 operation.",
+           str,
+           "getBool");
        throw CQLRuntimeException(mload);
    }
    Boolean tmp;
@@ -1017,10 +1025,11 @@ Sint64 CQLValueRep::getSint()const
        if(_theValue.isArray())
           str = "array";
        else str = valueTypeToString(_valueType);
-       MessageLoaderParms mload(String("CQL.CQLValueRep.TYPE_MISMATCH"),
-            String("The type: $0 is not correct for $1 operation."),
-            str,
-            String("getSint"));
+       MessageLoaderParms mload(
+           "CQL.CQLValueRep.TYPE_MISMATCH",
+           "The type: $0 is not correct for $1 operation.",
+           str,
+           "getSint");
        throw CQLRuntimeException(mload);
    }
    Sint64 tmp;
@@ -1039,10 +1048,11 @@ Real64 CQLValueRep::getReal()const
        if(_theValue.isArray())
           str = "array";
        else str = valueTypeToString(_valueType);
-       MessageLoaderParms mload(String("CQL.CQLValueRep.TYPE_MISMATCH"),
-            String("The type: $0 is not correct for $1 operation."),
-            str,
-            String("getReal"));
+       MessageLoaderParms mload(
+           "CQL.CQLValueRep.TYPE_MISMATCH",
+           "The type: $0 is not correct for $1 operation.",
+           str,
+           "getReal");
        throw CQLRuntimeException(mload);
    }
    Real64 tmp;
@@ -1060,10 +1070,11 @@ String CQLValueRep::getString()const
        if(_theValue.isArray())
           str = "array";
        else str = valueTypeToString(_valueType);
-       MessageLoaderParms mload(String("CQL.CQLValueRep.TYPE_MISMATCH"),
-            String("The type: $0 is not correct for $1 operation."),
-            str,
-            String("getString"));
+       MessageLoaderParms mload(
+           "CQL.CQLValueRep.TYPE_MISMATCH",
+           "The type: $0 is not correct for $1 operation.",
+           str,
+           "getString");
        throw CQLRuntimeException(mload);
    }
    String tmp;
@@ -1081,10 +1092,11 @@ CIMDateTime CQLValueRep::getDateTime()const
        if(_theValue.isArray())
           str = "array";
        else str = valueTypeToString(_valueType);
-       MessageLoaderParms mload(String("CQL.CQLValueRep.TYPE_MISMATCH"),
-            String("The type: $0 is not correct for $1 operation."),
-            str,
-            String("getDateTime"));
+       MessageLoaderParms mload(
+           "CQL.CQLValueRep.TYPE_MISMATCH",
+           "The type: $0 is not correct for $1 operation.",
+           str,
+           "getDateTime");
        throw CQLRuntimeException(mload);
    }
    CIMDateTime tmp;
@@ -1103,10 +1115,11 @@ CIMObjectPath CQLValueRep::getReference()const
        if(_theValue.isArray())
           str = "array";
        else str = valueTypeToString(_valueType);
-       MessageLoaderParms mload(String("CQL.CQLValueRep.TYPE_MISMATCH"),
-            String("The type: $0 is not correct for $1 operation."),
-            str,
-            String("getReference"));
+       MessageLoaderParms mload(
+           "CQL.CQLValueRep.TYPE_MISMATCH",
+           "The type: $0 is not correct for $1 operation.",
+           str,
+           "getReference");
        throw CQLRuntimeException(mload);
    }
    CIMObjectPath tmp;
@@ -1125,10 +1138,11 @@ CIMObject CQLValueRep::getObject()const
        if(_theValue.isArray())
           str = "array";
        else str = valueTypeToString(_valueType);
-       MessageLoaderParms mload(String("CQL.CQLValueRep.TYPE_MISMATCH"),
-            String("The type: $0 is not correct for $1 operation."),
-            str,
-            String("getObject"));
+       MessageLoaderParms mload(
+           "CQL.CQLValueRep.TYPE_MISMATCH",
+           "The type: $0 is not correct for $1 operation.",
+           str,
+           "getObject");
        throw CQLRuntimeException(mload);
    }
    CIMObject tmp;
@@ -1183,10 +1197,11 @@ void CQLValueRep::_validate(const CQLValueRep& x)
   // Do not allow an array value be compared to a non array value.
   if(x._theValue.isArray() != _theValue.isArray())
     {
-          MessageLoaderParms mload(String("CQL.CQLValueRep.OP_TYPE_MISMATCH"),
-                   String("Validation type mismatch error for type: $0"),
-                   String("ARRAY"));
-      throw CQLRuntimeException(mload);
+        MessageLoaderParms mload(
+            "CQL.CQLValueRep.OP_TYPE_MISMATCH",
+            "Validation type mismatch error for type: $0",
+            "ARRAY");
+        throw CQLRuntimeException(mload);
     }
 
   switch(_valueType)
@@ -1194,9 +1209,10 @@ void CQLValueRep::_validate(const CQLValueRep& x)
     case CQLValue::Boolean_type:
       if(x._valueType != CQLValue::Boolean_type)
     {
-      MessageLoaderParms mload(String("CQL.CQLValueRep.OP_TYPE_MISMATCH"),
-                   String("Validation type mismatch error for type: $0"),
-                   String("BOOLEAN"));
+        MessageLoaderParms mload(
+            "CQL.CQLValueRep.OP_TYPE_MISMATCH",
+            "Validation type mismatch error for type: $0",
+            "BOOLEAN");
       throw CQLRuntimeException(mload);
     }
       break;
@@ -1207,62 +1223,69 @@ void CQLValueRep::_validate(const CQLValueRep& x)
      x._valueType != CQLValue::Uint64_type &&
      x._valueType != CQLValue::Real_type)
     {
-      MessageLoaderParms mload(String("CQL.CQLValueRep.OP_TYPE_MISMATCH"),
-                   String("Validation type mismatch error for type: $0"),
-                   String("SINT64, UINT64, REAL64"));
+      MessageLoaderParms mload(
+          "CQL.CQLValueRep.OP_TYPE_MISMATCH",
+          "Validation type mismatch error for type: $0",
+          "SINT64, UINT64, REAL64");
       throw CQLRuntimeException(mload);
     }
       break;
     case CQLValue::String_type:
       if(x._valueType != CQLValue::String_type)
     {
-      MessageLoaderParms mload(String("CQL.CQLValueRep.OP_TYPE_MISMATCH"),
-                   String("Validation type mismatch error for type: $0"),
-                   String("STIRNG"));
+      MessageLoaderParms mload(
+          "CQL.CQLValueRep.OP_TYPE_MISMATCH",
+          "Validation type mismatch error for type: $0",
+          "STRING");
       throw CQLRuntimeException(mload);
     }
       break;
     case CQLValue::CIMDateTime_type:
       if(x._valueType != CQLValue::CIMDateTime_type)
     {
-      MessageLoaderParms mload(String("CQL.CQLValueRep.OP_TYPE_MISMATCH"),
-                   String("Validation type mismatch error for type: $0"),
-                   String("CIMDATETIME"));
+      MessageLoaderParms mload(
+          "CQL.CQLValueRep.OP_TYPE_MISMATCH",
+          "Validation type mismatch error for type: $0",
+          "CIMDATETIME");
       throw CQLRuntimeException(mload);
     }
       break;
     case CQLValue::CIMReference_type:
       if(x._valueType != CQLValue::CIMReference_type)
     {
-      MessageLoaderParms mload(String("CQL.CQLValueRep.OP_TYPE_MISMATCH"),
-                   String("Validation type mismatch error for type: $0"),
-                   String("CIMREFERENCE"));
+      MessageLoaderParms mload(
+          "CQL.CQLValueRep.OP_TYPE_MISMATCH",
+          "Validation type mismatch error for type: $0",
+          "CIMREFERENCE");
       throw CQLRuntimeException(mload);
     }
       break;
     case CQLValue::CIMObject_type:
       if(x._valueType != CQLValue::CIMObject_type)
     {
-      MessageLoaderParms mload(String("CQL.CQLValueRep.OP_TYPE_MISMATCH"),
-                   String("Validation type mismatch error for type: $0"),
-                   String("CIMOBJECT"));
+      MessageLoaderParms mload(
+          "CQL.CQLValueRep.OP_TYPE_MISMATCH",
+          "Validation type mismatch error for type: $0",
+          "CIMOBJECT");
       throw CQLRuntimeException(mload);
     }
       break;
     case CQLValue::CQLIdentifier_type:
       if(x._valueType != CQLValue::CQLIdentifier_type)
     {
-      MessageLoaderParms mload(String("CQL.CQLValueRep.OP_TYPE_MISMATCH"),
-                   String("Validation type mismatch error for type: $0"),
-                   String("CQLIDENTIFIER"));
+      MessageLoaderParms mload(
+          "CQL.CQLValueRep.OP_TYPE_MISMATCH",
+          "Validation type mismatch error for type: $0",
+          "CQLIDENTIFIER");
       throw CQLRuntimeException(mload);
     }
       break;
       
     default:
-      MessageLoaderParms mload(String("CQL.CQLValueRep.OP_TYPE_MISMATCH"),
-                   String("Validation type mismatch error for type: $0"),
-                   String("UNKNOWN"));
+      MessageLoaderParms mload(
+          "CQL.CQLValueRep.OP_TYPE_MISMATCH",
+          "Validation type mismatch error for type: $0",
+          "UNKNOWN");
       throw CQLRuntimeException(mload);
       break;
     }
@@ -1619,9 +1642,10 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 key)
       }
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     default:
-       MessageLoaderParms mload(String("CQL.CQLValueRep.SET_VALUE"),
-                    String("Unable to set internal object type: $0."),
-                    cv.getType());
+       MessageLoaderParms mload(
+           "CQL.CQLValueRep.SET_VALUE",
+           "Unable to set internal object type: $0.",
+           cv.getType());
        throw CQLRuntimeException(mload);
     } // switch statement 
     }
@@ -1762,9 +1786,10 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 key)
     } 
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     default:
-       MessageLoaderParms mload(String("CQL.CQLValueRep.SET_VALUE"),
-                    String("Unable to set internal object type: $0."),
-                    cv.getType());
+       MessageLoaderParms mload(
+           "CQL.CQLValueRep.SET_VALUE",
+           "Unable to set internal object type: $0.",
+           cv.getType());
        throw CQLRuntimeException(mload);
     }
 
@@ -1850,10 +1875,11 @@ void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
 
    if(propertyIndex == PEG_NOT_FOUND)
    {
-     MessageLoaderParms mload(String("CQL.CQLValueRep.PROP_NOT_FOUND"),
-                  String("Property $0 not found on class $1."),
-                  lid.getName().getString(),
-                  className.getString());
+     MessageLoaderParms mload(
+         "CQL.CQLValueRep.PROP_NOT_FOUND",
+         "Property $0 not found on class $1.",
+         lid.getName().getString(),
+         className.getString());
      throw CQLRuntimeException(mload);
    }
 
@@ -1867,11 +1893,12 @@ void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
    if(qualIndex == PEG_NOT_FOUND)
    {
       // This property can not be processed with a symbolic constant.
-     MessageLoaderParms mload(String("CQL.CQLValueRep.QUALIFIER_NOT_FOUND"),
-                  String("Qualifier $0 not found on Property $1 in class $2."),
-                  String("Values"),
-                  lid.getName().getString(),
-                  className.getString());
+     MessageLoaderParms mload(
+         "CQL.CQLValueRep.QUALIFIER_NOT_FOUND",
+         "Qualifier $0 not found on Property $1 in class $2.",
+         "Values",
+         lid.getName().getString(),
+         className.getString());
      throw CQLRuntimeException(mload);
    }
 
@@ -1903,9 +1930,9 @@ void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
        // The symbolic constant provided is not valid
        // for this property.
        MessageLoaderParms mload(
-            String("CQL.CQLValueRep.INVALID_SYMBOLIC_CONSTANT"),
-            String("Provided symbolic constant $0 is not valid for"
-                " property $1 in class $2."),
+            "CQL.CQLValueRep.INVALID_SYMBOLIC_CONSTANT",
+            "Provided symbolic constant $0 is not valid for"
+                " property $1 in class $2.",
             lid.getSymbolicConstantName(),
             lid.getName().getString(),
             className.getString());
@@ -1947,9 +1974,9 @@ void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
        // The symbolic constant provided is not valid
        // for this property.
        MessageLoaderParms mload(
-            String("CQL.CQLValueRep.INVALID_SYMBOLIC_CONSTANT"),
-            String("Provided symbolic constant $0 is not valid for property"
-                " $1 in class $2."),
+            "CQL.CQLValueRep.INVALID_SYMBOLIC_CONSTANT",
+            "Provided symbolic constant $0 is not valid for property"
+                " $1 in class $2.",
             lid.getSymbolicConstantName(),
             lid.getName().getString(),
             className.getString());
@@ -1963,9 +1990,9 @@ void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
        // The symbolic constant provided is not valid
        // for this property.
        MessageLoaderParms mload(
-            String("CQL.CQLValueRep.INVALID_SYMBOLIC_CONSTANT"),
-            String("Provided symbolic constant $0 is not valid for property"
-                " $1 in class $2."),
+            "CQL.CQLValueRep.INVALID_SYMBOLIC_CONSTANT",
+            "Provided symbolic constant $0 is not valid for property"
+                " $1 in class $2.",
             lid.getSymbolicConstantName(),
             lid.getName().getString(),
             className.getString());
@@ -2191,9 +2218,9 @@ Boolean CQLValueRep::_compareArray(const CQLValueRep& _in)
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     default:
       MessageLoaderParms mload(
-              String("CQL.CQLValueRep.INVALID_ARRAY_COMPARISON"),
-              String("Invalid array comparison type: $0."),
-              _in1.getType());
+          "CQL.CQLValueRep.INVALID_ARRAY_COMPARISON",
+          "Invalid array comparison type: $0.",
+          _in1.getType());
       throw CQLRuntimeException(mload); 
     } // switch statement 
   
@@ -2284,9 +2311,9 @@ Boolean CQLValueRep::_compareArray(const CQLValueRep& _in)
       }   
     default:
       MessageLoaderParms mload(
-              String("CQL.CQLValueRep.INVALID_ARRAY_COMPARISON"),
-              String("Invalid array comparison type: $0."),
-              _in2.getType());
+          "CQL.CQLValueRep.INVALID_ARRAY_COMPARISON",
+          "Invalid array comparison type: $0.",
+          _in2.getType());
       throw CQLRuntimeException(mload); 
     } // switch statement 
 

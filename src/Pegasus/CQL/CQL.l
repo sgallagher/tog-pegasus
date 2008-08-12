@@ -474,9 +474,9 @@ Z [Zz]
     {   
         CQL_DEBUG_TRACE("LEX: [STRING]-> BAD UTF\n");
         throw CQLSyntaxErrorException(
-            MessageLoaderParms(String("CQL.CQL_y.BAD_UTF8"),
-                String("Bad UTF8 encountered parsing rule $0 in position $1."),
-                String("literal_string"),
+            MessageLoaderParms("CQL.CQL_y.BAD_UTF8",
+                "Bad UTF8 encountered parsing rule $0 in position $1.",
+                "literal_string",
                 CQL_globalParserState->currentTokenPos));
     }
 

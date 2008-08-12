@@ -227,7 +227,7 @@ String MessageLoaderICU::extractICUMessage(
     int32_t msgLen = 0;
 
     const UChar* msg = ures_getStringByKey(
-        resbundl, (const char*)parms.msg_id.getCString(), &msgLen, &status);
+        resbundl, parms.msg_id, &msgLen, &status);
 
     if (U_FAILURE(status))
     {
@@ -415,7 +415,7 @@ AcceptLanguageList MessageLoader::_acceptlanguages;
 String MessageLoader::getMessage(MessageLoaderParms& parms)
 {
     PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::getMessage");
-    PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Message ID = " + parms.msg_id);
+    PEG_TRACE((TRC_L10N, Tracer::LEVEL4, "Message ID = %s", parms.msg_id));
 
     String msg;
 
@@ -761,8 +761,8 @@ MessageLoaderParms::MessageLoaderParms()
 }
 
 MessageLoaderParms::MessageLoaderParms(
-    const String& id,
-    const String& msg,
+    const char* id,
+    const char* msg,
     const Formatter::Arg& arg0_,
     const Formatter::Arg& arg1_,
     const Formatter::Arg& arg2_,
@@ -790,7 +790,16 @@ MessageLoaderParms::MessageLoaderParms(
 }
 
 MessageLoaderParms::MessageLoaderParms(
-    const String& id,
+    const char* id,
+    const char* msg)
+{
+    msg_id = id;
+    default_msg = msg;
+    _init();
+}
+
+MessageLoaderParms::MessageLoaderParms(
+    const char* id,
     const String& msg)
 {
     msg_id = id;
@@ -799,8 +808,8 @@ MessageLoaderParms::MessageLoaderParms(
 }
 
 MessageLoaderParms::MessageLoaderParms(
-    const String& id,
-    const String& msg,
+    const char* id,
+    const char* msg,
     const Formatter::Arg& arg0_)
 {
     msg_id = id;
@@ -810,8 +819,8 @@ MessageLoaderParms::MessageLoaderParms(
 }
 
 MessageLoaderParms::MessageLoaderParms(
-    const String& id,
-    const String& msg,
+    const char* id,
+    const char* msg,
     const Formatter::Arg& arg0_,
     const Formatter::Arg& arg1_)
 {
@@ -823,8 +832,8 @@ MessageLoaderParms::MessageLoaderParms(
 }
 
 MessageLoaderParms::MessageLoaderParms(
-    const String& id,
-    const String& msg,
+    const char* id,
+    const char* msg,
     const Formatter::Arg& arg0_,
     const Formatter::Arg& arg1_,
     const Formatter::Arg& arg2_)
@@ -838,8 +847,8 @@ MessageLoaderParms::MessageLoaderParms(
 }
 
 MessageLoaderParms::MessageLoaderParms(
-    const String& id,
-    const String& msg,
+    const char* id,
+    const char* msg,
     const Formatter::Arg& arg0_,
     const Formatter::Arg& arg1_,
     const Formatter::Arg& arg2_,
@@ -852,39 +861,6 @@ MessageLoaderParms::MessageLoaderParms(
     arg1 = arg1_;
     arg2 = arg2_;
     arg3 = arg3_;
-}
-
-MessageLoaderParms::MessageLoaderParms(
-    const char* id,
-    const char* msg)
-{
-    msg_id = id;
-    default_msg = msg;
-    _init();
-}
-
-MessageLoaderParms::MessageLoaderParms(
-    const char* id,
-    const char* msg,
-    const String& arg0_)
-{
-    msg_id = id;
-    default_msg = msg;
-    _init();
-    arg0 = arg0_;
-}
-
-MessageLoaderParms::MessageLoaderParms(
-    const char* id,
-    const char* msg,
-    const String& arg0_,
-    const String& arg1_)
-{
-    msg_id = id;
-    default_msg = msg;
-    _init();
-    arg0 = arg0_;
-    arg1 = arg1_;
 }
 
 void MessageLoaderParms::_init()
@@ -916,7 +892,9 @@ String MessageLoaderParms::toString()
     processLoc = (useProcessLocale) ? "true" : "false";
     threadLoc = (useThreadLocale) ? "true" : "false";
 
-    s.append("msg_id = " + msg_id + "\n");
+    s.append("msg_id = ");
+    s.append(msg_id);
+    s.append("\n");
     s.append("default_msg = " + default_msg + "\n");
     s.append("msg_src_path = " + msg_src_path + "\n");
     s.append("acceptlanguages = " +

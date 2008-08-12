@@ -44,7 +44,7 @@ PEGASUS_USING_STD;
 
 const cimmofMessages::arglist cimmofMessages::EMPTYLIST;
 
-static String _cimmofMessages[] =
+static const char* _cimmofMessages[] =
 {
     "OK", //CIM_ERR_SUCCESS
     "$0:$1: $2 before '$3'", //PARSER_SYNTAX_ERROR
@@ -121,7 +121,8 @@ static String _cimmofMessages[] =
     "Invalid $0 value: $1",    // INVALID_LITERAL_VALUE
     ""
 };
-static String _cimmofMessagesKeys [] =
+
+static const char* _cimmofMessagesKeys [] =
 {
     "Compiler.cimmofMessages.CIM_ERR_SUCCESS",
     "Compiler.cimmofMessages.PARSER_SYNTAX_ERROR",
@@ -176,7 +177,7 @@ static String _cimmofMessagesKeys [] =
 };
 
 
-const String & cimmofMessages::msgCodeToString(MsgCode code)
+const char* cimmofMessages::msgCodeToString(MsgCode code)
 {
     return _cimmofMessages[(unsigned int)code];
 }

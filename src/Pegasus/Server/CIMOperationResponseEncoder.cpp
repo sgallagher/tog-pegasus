@@ -51,10 +51,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-const String CIMOperationResponseEncoder::OUT_OF_MEMORY_MESSAGE =
-    "A System error has occurred. Please retry the CIM Operation at a "
-        "later time.";
-
 CIMOperationResponseEncoder::CIMOperationResponseEncoder()
     : Base(PEGASUS_QUEUENAME_OPRESPENCODER)
 {
@@ -70,10 +66,11 @@ void CIMOperationResponseEncoder::sendResponse(
     Boolean isImplicit,
     Buffer* bodygiven)
 {
-    static String funcname = "CIMOperationResponseEncoder::sendResponse: ";
-    static String funcnameClassS = String(funcname + "for class " + name);
-    static CString funcnameClass = funcnameClassS.getCString();
-    PEG_METHOD_ENTER(TRC_DISPATCHER, funcnameClass);
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMOperationResponseEncoder::sendResponse");
+    PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+        "name = %s",
+        (const char*)name.getCString()));
 
     if (! response)
     {
@@ -228,22 +225,18 @@ void CIMOperationResponseEncoder::sendResponse(
                 isFirst,
                 isLast);
         }
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
-        catch (std::bad_alloc&)
-#else
-        catch (bad_alloc&)
-#endif
+        catch (PEGASUS_STD(bad_alloc)&)
         {
-            Logger::put(
-                Logger::ERROR_LOG,
-                System::CIMSERVER,
-                Logger::WARNING,
-                funcname + OUT_OF_MEMORY_MESSAGE);
+            MessageLoaderParms parms(
+                "Server.CIMOperationResponseEncoder.OUT_OF_MEMORY",
+                "A System error has occurred. Please retry the CIM Operation "
+                    "at a later time.");
 
-            cimException = PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_FAILED, MessageLoaderParms(
-                    "Server.CIMOperationResponseEncoder.OUT_OF_MEMORY",
-                    OUT_OF_MEMORY_MESSAGE));
+            Logger::put(
+                Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+                MessageLoader::getMessage(parms));
+
+            cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
 
             // try again with new error and no body
             body.clear();

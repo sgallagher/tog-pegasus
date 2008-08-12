@@ -56,10 +56,10 @@ class PEGASUS_COMMON_LINKAGE MessageLoaderParms
 public:
 
     /**
-        String msg_id: unique message identifier for a particular
+        Unique message identifier for a particular
         message in a message resource
      */
-    String msg_id;
+    const char* msg_id;
 
     /**
         String default_msg: the default message to use if a message
@@ -138,8 +138,8 @@ public:
 
     /** Constructor */
     MessageLoaderParms(
-        const String& id,
-        const String& msg,
+        const char* id,
+        const char* msg,
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1,
         const Formatter::Arg& arg2,
@@ -153,53 +153,47 @@ public:
 
     /** Constructor */
     MessageLoaderParms(
-        const String& id,
+        const char* id,
+        const char* msg);
+
+    /**
+        Constructor with a String default message argument and no
+        substitutions.  This form is handy for cases like command usage
+        strings where the message is built up dynamically from component parts.
+    */
+    MessageLoaderParms(
+        const char* id,
         const String& msg);
 
     /** Constructor */
     MessageLoaderParms(
-        const String& id,
-        const String& msg,
+        const char* id,
+        const char* msg,
         const Formatter::Arg& arg0);
 
     /** Constructor */
     MessageLoaderParms(
-        const String& id,
-        const String& msg,
+        const char* id,
+        const char* msg,
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1);
 
     /** Constructor */
     MessageLoaderParms(
-        const String& id,
-        const String& msg,
+        const char* id,
+        const char* msg,
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1,
         const Formatter::Arg& arg2);
 
     /** Constructor */
     MessageLoaderParms(
-        const String& id,
-        const String& msg,
+        const char* id,
+        const char* msg,
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1,
         const Formatter::Arg& arg2,
         const Formatter::Arg& arg3);
-
-    MessageLoaderParms(
-        const char* id,
-        const char* msg);
-
-    MessageLoaderParms(
-        const char* id,
-        const char* msg,
-        const String& arg0);
-
-    MessageLoaderParms(
-        const char* id,
-        const char* msg,
-        const String& arg0,
-        const String& arg1);
 
     /** Converts to string. */
     String toString();

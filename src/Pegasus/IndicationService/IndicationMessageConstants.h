@@ -51,27 +51,20 @@ PEGASUS_NAMESPACE_BEGIN
 //  Message substrings used in exception messages
 //
 
-// l10n
-
 // some have been commented out and put directly in the code for localization
 
-// this one is tricky because it is used in _checkRequiredProperty with the two
-// below
-static const char _MSG_MISSING_REQUIRED [] = "Missing required ";
-
-static const char _MSG_KEY_PROPERTY [] = " key property";
+static const char _MSG_KEY_PROPERTY [] = "The key property $0 is missing.";
 
 static const char _MSG_KEY_PROPERTY_KEY [] =
    "IndicationService.IndicationService._MSG_KEY_PROPERTY";
 
-static const char _MSG_PROPERTY [] = " property";
+static const char _MSG_PROPERTY [] = "The required property $0 is missing.";
 
 static const char _MSG_PROPERTY_KEY [] =
    "IndicationService.IndicationService._MSG_PROPERTY";
 
-static const char _MSG_PROPERTY_PRESENT [] = " property present, but ";
-
-static const char _MSG_VALUE_NOT [] = " value not ";
+static const char _MSG_PROPERTY_PRESENT_BUT_VALUE_NOT[] =
+    "The $0 property is present, but the $1 value is not $2.";
 
 static const char _MSG_PROPERTY_PRESENT_BUT_VALUE_NOT_KEY [] =
    "IndicationService.IndicationService._MSG_PROPERTY_PRESENT_BUT_VALUE_NOT";
@@ -88,9 +81,9 @@ static const char _MSG_NOT_ACCEPTED [] =
 static const char _MSG_NOT_ACCEPTED_KEY [] =
     "IndicationService.IndicationService._MSG_NOT_ACCEPTED";
 
-static const char _MSG_INVALID_CLASSNAME [] = "Invalid indication class name ";
-
-static const char _MSG_IN_FROM [] = " in FROM clause of ";
+static const char _MSG_INVALID_CLASSNAME_IN_FROM_PROPERTY[] =
+    "The Indication class name $0 is not valid in the FROM clause of $1 $2 "
+        "property.";
 
 static const char _MSG_INVALID_CLASSNAME_IN_FROM_PROPERTY_KEY [] =
     "IndicationService.IndicationService."
@@ -108,25 +101,27 @@ static const char _MSG_REFERENCED [] =
 static const char _MSG_REFERENCED_KEY [] =
     "IndicationService.IndicationService._MSG_REFERENCED";
 
-static const char _MSG_INVALID_VALUE [] = "Invalid value ";
-
-static const char _MSG_INVALID_TYPE [] = "Invalid type ";
-
-static const char _MSG_UNSUPPORTED_VALUE [] = "Unsupported value ";
-
-static const char _MSG_FOR_PROPERTY [] = " for property ";
-
-static const char _MSG_ARRAY_OF [] = "array of ";
+static const char _MSG_INVALID_TYPE_FOR_PROPERTY[] =
+    "The value of type $0 is not valid for property $1.";
 
 static const char _MSG_INVALID_TYPE_FOR_PROPERTY_KEY [] =
     "IndicationService.IndicationService._MSG_INVALID_TYPE_FOR_PROPERTY";
+
+static const char _MSG_INVALID_TYPE_ARRAY_OF_FOR_PROPERTY[] =
+    "The value of an array of type $0 is not valid for property $1.";
 
 static const char _MSG_INVALID_TYPE_ARRAY_OF_FOR_PROPERTY_KEY [] =
     "IndicationService.IndicationService."
         "_MSG_INVALID_TYPE_ARRAY_OF_FOR_PROPERTY";
 
+static const char _MSG_INVALID_VALUE_FOR_PROPERTY[] =
+    "The value $0 is not valid for property $1.";
+
 static const char _MSG_INVALID_VALUE_FOR_PROPERTY_KEY [] =
     "IndicationService.IndicationService._MSG_INVALID_VALUE_FOR_PROPERTY";
+
+static const char _MSG_UNSUPPORTED_VALUE_FOR_PROPERTY[] =
+    "The value $0 is not supported for property $1.";
 
 static const char _MSG_UNSUPPORTED_VALUE_FOR_PROPERTY_KEY [] =
     "IndicationService.IndicationService._MSG_UNSUPPORTED_VALUE_FOR_PROPERTY";

@@ -213,7 +213,9 @@ private:
         @param   instance              instance to be validated
         @param   propertyName          name of property to be validated
         @param   expectedType          expected CIMType of property value
-        @param   message               message to be used in exception
+        @param   isKeyProperty         indicates whether the property is a key
+                                       property (used for selection of error
+                                       message)
         @param   isArray               indicates whether the validated
                                        property is array
 
@@ -224,8 +226,8 @@ private:
         CIMInstance& instance,
         const CIMName& propertyName,
         const CIMType expectedType,
-        const String& message,
-        const Boolean isArray = false);
+        Boolean isKeyProperty,
+        Boolean isArray = false);
 
     /**
         Validates the specified Uint16 (non-array) property and its

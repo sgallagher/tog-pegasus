@@ -309,7 +309,7 @@ void Logger::_putInternal(
     const Uint32 logComponent, // FUTURE: Support logComponent mask
     Uint32 logLevel,
     const String& formatString,
-    const String& messageId,
+    const char* messageId,
     const Formatter::Arg& arg0,
     const Formatter::Arg& arg1,
     const Formatter::Arg& arg2,
@@ -335,7 +335,7 @@ void Logger::_putInternal(
 
         // If the caller specified a messageId, then load the localized
         // message in the locale of the server process.
-        if (messageId != String::EMPTY)
+        if (messageId)
         {
             // A message ID was specified.  Use the MessageLoader.
             MessageLoaderParms msgParms(messageId, formatString);
@@ -404,7 +404,7 @@ void Logger::put(
     if (wouldLog(logLevel))
     {
         Logger::_putInternal(logFileType, systemId, 0, logLevel,
-            formatString, String::EMPTY, arg0, arg1, arg2, arg3,
+            formatString, 0, arg0, arg1, arg2, arg3,
             arg4, arg5, arg6, arg7, arg8, arg9);
     }
 }
@@ -418,7 +418,7 @@ void Logger::put(
     if (wouldLog(logLevel))
     {
         Logger::_putInternal(logFileType, systemId, 0, logLevel,
-            formatString, String::EMPTY);
+            formatString, 0);
     }
 }
 
@@ -432,7 +432,7 @@ void Logger::put(
     if (wouldLog(logLevel))
     {
         Logger::_putInternal(logFileType, systemId, 0, logLevel,
-            formatString, String::EMPTY, arg0);
+            formatString, 0, arg0);
     }
 }
 
@@ -447,7 +447,7 @@ void Logger::put(
     if (wouldLog(logLevel))
     {
         Logger::_putInternal(logFileType, systemId, 0, logLevel,
-            formatString, String::EMPTY, arg0, arg1);
+            formatString, 0, arg0, arg1);
     }
 }
 
@@ -463,7 +463,7 @@ void Logger::put(
     if (wouldLog(logLevel))
     {
         Logger::_putInternal(logFileType, systemId, 0, logLevel,
-            formatString, String::EMPTY, arg0, arg1, arg2);
+            formatString, 0, arg0, arg1, arg2);
     }
 }
 
@@ -471,8 +471,8 @@ void Logger::put_l(
     LogFileType logFileType,
     const String& systemId,
     Uint32 logLevel,
-    const String& messageId,
-    const String& formatString,
+    const char* messageId,
+    const char* formatString,
     const Formatter::Arg& arg0,
     const Formatter::Arg& arg1,
     const Formatter::Arg& arg2,
@@ -496,8 +496,8 @@ void Logger::put_l(
      LogFileType logFileType,
      const String& systemId,
      Uint32 logLevel,
-     const String& messageId,
-     const String& formatString)
+     const char* messageId,
+     const char* formatString)
 {
     if (wouldLog(logLevel))
     {
@@ -510,8 +510,8 @@ void Logger::put_l(
      LogFileType logFileType,
      const String& systemId,
      Uint32 logLevel,
-     const String& messageId,
-     const String& formatString,
+     const char* messageId,
+     const char* formatString,
      const Formatter::Arg& arg0)
 {
     if (wouldLog(logLevel))
@@ -525,8 +525,8 @@ void Logger::put_l(
      LogFileType logFileType,
      const String& systemId,
      Uint32 logLevel,
-     const String& messageId,
-     const String& formatString,
+     const char* messageId,
+     const char* formatString,
      const Formatter::Arg& arg0,
      const Formatter::Arg& arg1)
 {
@@ -541,8 +541,8 @@ void Logger::put_l(
      LogFileType logFileType,
      const String& systemId,
      Uint32 logLevel,
-     const String& messageId,
-     const String& formatString,
+     const char* messageId,
+     const char* formatString,
      const Formatter::Arg& arg0,
      const Formatter::Arg& arg1,
      const Formatter::Arg& arg2)
@@ -573,7 +573,7 @@ void Logger::trace(
     if (wouldLog(Logger::TRACE))
     {
         Logger::_putInternal(logFileType, systemId, logComponent, Logger::TRACE,
-            formatString, String::EMPTY, arg0, arg1, arg2, arg3, arg4, arg5,
+            formatString, 0, arg0, arg1, arg2, arg3, arg4, arg5,
             arg6, arg7, arg8, arg9);
     }
 }
@@ -587,7 +587,7 @@ void Logger::trace(
     if (wouldLog(Logger::TRACE))
     {
         Logger::_putInternal(logFileType, systemId, logComponent, Logger::TRACE,
-            formatString, String::EMPTY);
+            formatString, 0);
     }
 }
 
@@ -601,7 +601,7 @@ void Logger::trace(
     if (wouldLog(Logger::TRACE))
     {
         Logger::_putInternal(logFileType, systemId, logComponent, Logger::TRACE,
-            formatString, String::EMPTY, arg0);
+            formatString, 0, arg0);
     }
 }
 
@@ -616,7 +616,7 @@ void Logger::trace(
     if (wouldLog(Logger::TRACE))
     {
         Logger::_putInternal(logFileType, systemId, logComponent, Logger::TRACE,
-            formatString, String::EMPTY, arg0, arg1);
+            formatString, 0, arg0, arg1);
     }
 }
 
@@ -632,7 +632,7 @@ void Logger::trace(
     if (wouldLog(Logger::TRACE))
     {
         Logger::_putInternal(logFileType, systemId, logComponent, Logger::TRACE,
-            formatString, String::EMPTY, arg0, arg1, arg2);
+            formatString, 0, arg0, arg1, arg2);
     }
 }
 
@@ -640,7 +640,7 @@ void Logger::trace_l(
     LogFileType logFileType,
     const String& systemId,
     const Uint32 logComponent,
-    const String& messageId,
+    const char* messageId,
     const String& formatString,
     const Formatter::Arg& arg0,
     const Formatter::Arg& arg1,
@@ -665,7 +665,7 @@ void Logger::trace_l(
     LogFileType logFileType,
     const String& systemId,
     const Uint32 logComponent,
-    const String& messageId,
+    const char* messageId,
     const String& formatString)
 {
     if (wouldLog(Logger::TRACE))
@@ -679,7 +679,7 @@ void Logger::trace_l(
     LogFileType logFileType,
     const String& systemId,
     const Uint32 logComponent,
-    const String& messageId,
+    const char* messageId,
     const String& formatString,
     const Formatter::Arg& arg0)
 {
@@ -694,7 +694,7 @@ void Logger::trace_l(
     LogFileType logFileType,
     const String& systemId,
     const Uint32 logComponent,
-    const String& messageId,
+    const char* messageId,
     const String& formatString,
     const Formatter::Arg& arg0,
     const Formatter::Arg& arg1)
@@ -710,7 +710,7 @@ void Logger::trace_l(
     LogFileType logFileType,
     const String& systemId,
     const Uint32 logComponent,
-    const String& messageId,
+    const char* messageId,
     const String& formatString,
     const Formatter::Arg& arg0,
     const Formatter::Arg& arg1,

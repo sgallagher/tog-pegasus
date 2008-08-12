@@ -69,8 +69,8 @@ prop3 value8
 prop4 value8
 </class:prop4>
 </class:WsmDerived>
-<wsen:EndOfSequence />
 </wsen:Items>
+<wsen:EndOfSequence />
 </wsen:PullResponse>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

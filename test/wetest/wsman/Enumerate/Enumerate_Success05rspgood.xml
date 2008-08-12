@@ -106,8 +106,8 @@ prop1 value8
 prop2 value8
 </class:prop2>
 </class:WsmBase>
-<wsen:EndOfSequence />
 </wsen:Items>
+<wsen:EndOfSequence />
 </wsen:EnumerateResponse>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

@@ -24,8 +24,8 @@
 </s:Header>
 <s:Body>
 <wse:Pull>
-<wse:EnumerationContext>9</wse:EnumerationContext>
-<wse:MaxElements>50</wse:MaxElements>
+<wse:EnumerationContext>8</wse:EnumerationContext>
+<w:MaxElements>50</w:MaxElements>
 </wse:Pull>
 </s:Body>
 </s:Envelope>

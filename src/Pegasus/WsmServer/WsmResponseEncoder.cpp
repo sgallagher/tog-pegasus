@@ -394,9 +394,6 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
         WsmWriter::appendEmptyTag(
             bodyHeader, WsmNamespaces::WS_ENUMERATION, 
             STRLIT("EnumerationContext"));
-        WsmWriter::appendEmptyTag(
-            bodyTrailer, WsmNamespaces::WS_ENUMERATION, 
-            STRLIT("EndOfSequence"));
     }
 
     if (data.getSize() > 0)
@@ -405,6 +402,16 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
             bodyHeader, WsmNamespaces::WS_ENUMERATION, STRLIT("Items"));
         WsmWriter::appendEndTag(
             bodyTrailer, WsmNamespaces::WS_ENUMERATION, STRLIT("Items"));
+    }
+
+    Uint32 eosPos = bodyTrailer.size();
+    Uint32 eosSize = 0;
+    if (isComplete)
+    {
+        WsmWriter::appendEmptyTag(
+            bodyTrailer, WsmNamespaces::WS_ENUMERATION, 
+            STRLIT("EndOfSequence"));
+        eosSize = bodyTrailer.size() - eosPos;
     }
 
     WsmWriter::appendEndTag(
@@ -470,7 +477,7 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
         PEGASUS_ASSERT(0);
     }
 
-    // If the list is not empty, but none of the item have been successfully
+    // If the list is not empty, but none of the items have been successfully
     // added to the soapResponse, fault the request because it cannot be
     // encoded within the specified limits.
     if (data.getSize() > 0 && i == 0)
@@ -483,6 +490,13 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
     if (i != 0)
     {
         data.remove(0, i);
+    }
+
+    // The request is complete but could not be encoded with MaxEnvelopeSize.
+    // Clear EndOfSequence tag.
+    if (isComplete && data.getSize() > 0)
+    {
+        soapResponse.getBodyTrailer().remove(eosPos, eosSize);
     }
 
     return true;

@@ -17,20 +17,20 @@ uuid:00000000-0000-0000-0005-000000000001
 <SOAP-ENV:Body>
 <wsen:PullResponse>
 <wsen:EnumerationContext>
-11
+10
 </wsen:EnumerationContext>
 <wsen:Items>
-<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<p:keyProperty>
+<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<class:keyProperty>
 key1
-</p:keyProperty>
-<p:prop1>
+</class:keyProperty>
+<class:prop1>
 prop1 value1
-</p:prop1>
-<p:prop2>
+</class:prop1>
+<class:prop2>
 prop2 value1
-</p:prop2>
-</p:WsmBase>
+</class:prop2>
+</class:WsmBase>
 </wsen:Items>
 </wsen:PullResponse>
 </SOAP-ENV:Body>

@@ -328,7 +328,7 @@ void WsmProcessor::_handlePullRequest(WsenPullRequest* wsmRequest)
                 MessageLoaderParms(
                     "WsmServer.WsmProcessor.INVALID_PULL_EPR",
                     "EPR of a Pull request does not match that of "
-                    "an enumeration context."));
+                    "the enumeration context."));
         }
 
         AutoPtr<WsenPullResponse> wsmResponse(_splitPullResponse(
@@ -377,9 +377,9 @@ void WsmProcessor::_handleReleaseRequest(WsenReleaseRequest* wsmRequest)
             throw WsmFault(
                 WsmFault::wsa_MessageInformationHeaderRequired,
                 MessageLoaderParms(
-                    "WsmServer.WsmProcessor.INVALID_PULL_EPR",
-                    "EPR of a Pull request does not match that of "
-                    "an enumeration context."));
+                    "WsmServer.WsmProcessor.INVALID_RELEASE_EPR",
+                    "EPR of a Release request does not match that of "
+                    "the enumeration context."));
         }
 
         AutoPtr<WsenReleaseResponse> wsmResponse(new WsenReleaseResponse(

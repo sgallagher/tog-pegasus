@@ -71,6 +71,11 @@ public:
     Boolean appendBodyContent(Buffer& buf);
     Boolean appendBodyHeader(Buffer& buf);
     Boolean appendBodyTrailer(Buffer& buf);
+
+    Buffer& getBodyTrailer()
+    {
+        return _bodyTrailer;
+    }
     
 private:
 

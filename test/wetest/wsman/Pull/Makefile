@@ -39,6 +39,13 @@ XMLSCRIPTS = \
     Pull_Success02 \
     Pull_InvalidContext01 \
     Enumerate_Success02 \
-    Pull_InvalidEPR01
+    Pull_InvalidEPR01 \
+    Enumerate_Success03 \
+    Pull_Success03 \
+    Pull_Success04 \
+    Pull_Success05 \
+    Enumerate_MaxEnvSize01 \
+    Pull_MaxEnvSize01 \
+    Pull_MaxEnvSize02
 
 include $(ROOT)/test/configend.mak

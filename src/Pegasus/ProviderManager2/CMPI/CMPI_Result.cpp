@@ -217,7 +217,8 @@ extern "C"
 
                         CIMMethod methodDef(classDef.getMethod(methodIndex));
                         if (methodDef.findQualifier(
-                               CIMName("EmbeddedInstance")) != PEG_NOT_FOUND)
+                               PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE) 
+                            != PEG_NOT_FOUND)
                         {
                             PEGASUS_ASSERT(v.getType() == CIMTYPE_OBJECT);
                             CIMObject tmpObject;

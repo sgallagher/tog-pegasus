@@ -81,7 +81,7 @@ template<class CONTAINER>
 static int _getEmbeddedClassName(const CONTAINER& c, String& ecn)
 {
     ecn.clear();
-    Uint32 pos = c.findQualifier("EmbeddedInstance");
+    Uint32 pos = c.findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE);
 
     if (pos == PEG_NOT_FOUND)
         return 0;

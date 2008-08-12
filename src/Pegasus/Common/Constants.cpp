@@ -354,4 +354,13 @@ const CIMName PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES =
 const CIMName PEGASUS_CLASSNAME_PG_PROVIDERREFERENCEDPROFILES =
     CIMName ("PG_ProviderReferencedProfiles");
 
+/**
+    The qualifier name of embedded objects/instances.
+*/
+const CIMName PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT = 
+    CIMName ("EmbeddedObject");
+const CIMName PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE = 
+    CIMName ("EmbeddedInstance");
+
+
 PEGASUS_NAMESPACE_END

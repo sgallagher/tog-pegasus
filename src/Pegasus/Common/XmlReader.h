@@ -133,7 +133,14 @@ public:
         const XmlEntry& entry,
         const char* tagName);
 
-    static String getEmbeddedObjectAttribute(
+    typedef enum _embeddedObjectAttributeType
+    {
+        NO_EMBEDDED_OBJECT     = 0,
+        EMBEDDED_OBJECT_ATTR   = 1,
+        EMBEDDED_INSTANCE_ATTR = 2
+    } EmbeddedObjectAttributeType;
+
+    static EmbeddedObjectAttributeType getEmbeddedObjectAttribute(
         Uint32 lineNumber,
         const XmlEntry& entry,
         const char* tagName);

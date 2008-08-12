@@ -749,7 +749,7 @@ static unsigned char _isInnerElementChar[] =
     1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 };
 
 inline Boolean _getQName(char*& p, const char*& localName)
@@ -761,7 +761,9 @@ inline Boolean _getQName(char*& p, const char*& localName)
 
     p++;
 
-    while (*p && _isInnerElementChar[Uint8(*p)])
+    // No explicit test for NULL termination is needed. 
+    // On position 0 of the array false is returned. 
+    while (_isInnerElementChar[Uint8(*p)])
         p++;
 
     // We've validated the prefix, now validate the local name
@@ -773,8 +775,9 @@ inline Boolean _getQName(char*& p, const char*& localName)
             return false;
 
         p++;
-
-        while (*p && _isInnerElementChar[Uint8(*p)])
+        // No explicit test for NULL termination is needed. 
+        // On position 0 of the array false is returned. 
+        while (_isInnerElementChar[Uint8(*p)])
             p++;
     }
 
@@ -976,9 +979,7 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
 
         return;
     }
-    else if ((((*p >= 'A') && (*p <= 'Z')) ||
-              ((*p >= 'a') && (*p <= 'z')) ||
-              (*p == '_')))
+    else if (CharSet::isAlphaUnder(Uint8(*p)))
     {
         entry.type = XmlEntry::START_TAG;
         entry.text = p;

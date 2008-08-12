@@ -778,7 +778,8 @@ void BinaryStreamer::_unpackProperty(
     if (cimProperty.getType() == CIMTYPE_STRING)
     {
         CIMType realType = CIMTYPE_STRING;
-        if (cimProperty.findQualifier("EmbeddedInstance") != PEG_NOT_FOUND)
+        if (cimProperty.findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE) 
+            != PEG_NOT_FOUND)
         {
             // Note that this condition should only happen for properties in
             // class definitions, and only NULL values are recognized. We
@@ -787,7 +788,8 @@ void BinaryStreamer::_unpackProperty(
             PEGASUS_ASSERT(value.isNull());
             realType = CIMTYPE_INSTANCE;
         }
-        else if (cimProperty.findQualifier("EmbeddedObject") != PEG_NOT_FOUND)
+        else if (cimProperty.findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT)
+                 != PEG_NOT_FOUND)
         {
             // Note that this condition should only happen for properties in
             // class definitions, and only NULL values are recognized. We

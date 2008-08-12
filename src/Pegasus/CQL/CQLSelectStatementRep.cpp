@@ -34,6 +34,7 @@
 #include "CQLSelectStatement.h"
 #include "CQLSelectStatementRep.h"
 
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMProperty.h>
@@ -969,8 +970,9 @@ void CQLSelectStatementRep::validateProperty(
             if ((pos > startingPos) && (pos < (ids.size() - 1)))
             {
                 CIMProperty embObj = classDef.getProperty(propertyIndex);
-                CIMName qual("EmbeddedObject");
-                if (embObj.findQualifier(qual) == PEG_NOT_FOUND)
+                
+                if (embObj.findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT) 
+                        == PEG_NOT_FOUND)
                 {
                     PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL1,"prop not emb " +
                                     embObj.getName().getString());

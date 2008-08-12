@@ -179,7 +179,7 @@ void CIMQualifierList::resolve(
         // 3. If the qualifier is the EmbeddedInstance qualifier, then check
         // that the class specified by the qualifier exists in the namespace.
         //----------------------------------------------------------------------
-        if (q.getName().equal(CIMName("EmbeddedInstance")))
+        if (q.getName().equal(PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE))
         {
             String className;
             q.getValue().get(className);

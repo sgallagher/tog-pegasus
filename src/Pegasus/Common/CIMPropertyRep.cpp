@@ -149,14 +149,16 @@ void CIMPropertyRep::resolve(
         if (!(
             (inheritedProperty.getValue().getType() == CIMTYPE_OBJECT) &&
             (_value.getType() == CIMTYPE_STRING) &&
-            (_qualifiers.find(CIMName("EmbeddedObject")) != PEG_NOT_FOUND) &&
+            (_qualifiers.find(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT) 
+                 != PEG_NOT_FOUND) &&
             (inheritedProperty.getValue().isArray() == _value.isArray())
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             ) &&
             !(
             (inheritedProperty.getValue().getType() == CIMTYPE_INSTANCE) &&
             (_value.getType() == CIMTYPE_STRING) &&
-            (_qualifiers.find(CIMName("EmbeddedInstance")) != PEG_NOT_FOUND) &&
+            (_qualifiers.find(PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE) 
+                 != PEG_NOT_FOUND) &&
             (inheritedProperty.getValue().isArray() == _value.isArray())
 #endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             ))
@@ -188,7 +190,8 @@ void CIMPropertyRep::resolve(
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         if (_value.getType() == CIMTYPE_INSTANCE)
         {
-            Uint32 pos = inheritedProperty.findQualifier("EmbeddedInstance");
+            Uint32 pos = inheritedProperty.findQualifier(
+                             PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE);
             if (pos != PEG_NOT_FOUND)
             {
                 String qualStr;

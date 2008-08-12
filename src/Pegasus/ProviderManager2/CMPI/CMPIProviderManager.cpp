@@ -2213,7 +2213,8 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                     {
                         CIMConstParameter paramDef(
                             methodDef.getParameter(paramIndex));
-                        if (paramDef.findQualifier(CIMName("EmbeddedInstance"))
+                        if (paramDef.findQualifier(
+                                PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE)
                             != PEG_NOT_FOUND)
                         {
                             if (paramValue.isArray())

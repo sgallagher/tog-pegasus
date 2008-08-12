@@ -775,6 +775,15 @@ PEGASUS_COMMON_LINKAGE extern const CIMName
 PEGASUS_COMMON_LINKAGE extern const
     CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC;
 
+/**
+    The qualifier name of embedded objects/instances.
+*/
+PEGASUS_COMMON_LINKAGE extern const 
+    CIMName PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT;
+
+PEGASUS_COMMON_LINKAGE extern const 
+    CIMName PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE;
+
 PEGASUS_NAMESPACE_END
 
 #endif /* defined(__cplusplus) */

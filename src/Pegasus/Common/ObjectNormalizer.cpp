@@ -33,6 +33,7 @@
 
 #include <Pegasus/Common/ObjectNormalizer.h>
 #include <Pegasus/Common/ArrayInternal.h>
+#include <Pegasus/Common/Constants.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -193,8 +194,10 @@ CIMProperty ObjectNormalizer::_processProperty(
 #ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
     else if (referenceProperty.getType() == CIMTYPE_INSTANCE)
     {
-        Uin32 refPos = referenceProperty.findQualifier("EmbeddedInstance");
-        Uin32 cimPos = instProperty.findQualifier("EmbeddedInstance");
+        Uin32 refPos = referenceProperty.findQualifier(
+                           PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE);
+        Uin32 cimPos = instProperty.findQualifier(
+                           PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE);
         if (refPos != PEG_NOT_FOUND && cimPos == PEG_NOT_FOUND)
         {
             instProperty.addQualifier(refProperty.getQualifier(pos));
@@ -209,7 +212,8 @@ CIMProperty ObjectNormalizer::_processProperty(
     {
         if (referenceProperty.getType() == CIMTYPE_INSTANCE)
         {
-            Uint32 pos = referenceProperty.findQualifier("EmbeddedInstance");
+            Uint32 pos = referenceProperty.findQualifier(
+                             PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE);
 
             PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
 

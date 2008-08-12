@@ -222,124 +222,13 @@ public:
         const Formatter::Arg& arg1,
         const Formatter::Arg& arg2);
 
-    /** Puts a message to the define log. Should only be used for trace type
-        logs.
+    /** Puts a trace message into the specified log.
     */
     static void trace(
         LogFileType logFileType,
         const String& systemId,
         const Uint32 logComponent,
-        const String& formatString,
-        const Formatter::Arg& arg0,
-        const Formatter::Arg& arg1,
-        const Formatter::Arg& arg2,
-        const Formatter::Arg& arg3,
-        const Formatter::Arg& arg4 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg5 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg6 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg7 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg8 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg9 = Formatter::DEFAULT_ARG);
-
-    /** Optimized three-argument form of trace().
-    */
-    static void trace(
-        LogFileType logFileType,
-        const String& systemId,
-        const Uint32 logComponent,
-        const String& formatString);
-
-    /** Optimized one-argument form of trace().
-    */
-    static void trace(
-        LogFileType logFileType,
-        const String& systemId,
-        const Uint32 logComponent,
-        const String& formatString,
-        const Formatter::Arg& arg0);
-
-    /** Optimized two-argument form of trace().
-    */
-    static void trace(
-        LogFileType logFileType,
-        const String& systemId,
-        const Uint32 logComponent,
-        const String& formatString,
-        const Formatter::Arg& arg0,
-        const Formatter::Arg& arg1);
-
-    /** Optimized three-argument form of trace().
-    */
-    static void trace(
-        LogFileType logFileType,
-        const String& systemId,
-        const Uint32 logComponent,
-        const String& formatString,
-        const Formatter::Arg& arg0,
-        const Formatter::Arg& arg1,
-        const Formatter::Arg& arg2);
-
-    /** Puts a localized message to the log. Should only be used
-        for trace type logs.
-    */
-    static void trace_l(
-        LogFileType logFileType,
-        const String& systemId,
-        const Uint32 logComponent,
-        const char* messageId,
-        const String& formatString,
-        const Formatter::Arg& arg0,
-        const Formatter::Arg& arg1,
-        const Formatter::Arg& arg2,
-        const Formatter::Arg& arg3,
-        const Formatter::Arg& arg4 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg5 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg6 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg7 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg8 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg9 = Formatter::DEFAULT_ARG);
-
-    /** Optimized zero-argument form of trace_l().
-    */
-    static void trace_l(
-        LogFileType logFileType,
-        const String& systemId,
-        const Uint32 logComponent,
-        const char* messageId,
-        const String& formatString);
-
-    /** Optimized one-argument form of trace_l().
-    */
-    static void trace_l(
-        LogFileType logFileType,
-        const String& systemId,
-        const Uint32 logComponent,
-        const char* messageId,
-        const String& formatString,
-        const Formatter::Arg& arg0);
-
-    /** Optimized two-argument form of trace_l().
-    */
-    static void trace_l(
-        LogFileType logFileType,
-        const String& systemId,
-        const Uint32 logComponent,
-        const char* messageId,
-        const String& formatString,
-        const Formatter::Arg& arg0,
-        const Formatter::Arg& arg1);
-
-    /** Optimized three-argument form of trace_l().
-    */
-    static void trace_l(
-        LogFileType logFileType,
-        const String& systemId,
-        const Uint32 logComponent,
-        const char* messageId,
-        const String& formatString,
-        const Formatter::Arg& arg0,
-        const Formatter::Arg& arg1,
-        const Formatter::Arg& arg2);
+        const String& message);
 
     /** setHomeDirectory
     */

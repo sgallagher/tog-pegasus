@@ -1318,16 +1318,15 @@ extern "C"
 
     inline Uint32 mapTraceLevel(CMPILevel level)
     {
-        // There are no notion in CMPI spec about what 'level' means.
-        // So we are going to try to map . We don't want to map to LEVEL1
-        // as it requires the PEG_METHOD_ENTER and PEG_METHOD_EXIT macros.
+        // There is no notion in CMPI spec about what 'level' means.
+        // So we are going to try to map.
         switch (level)
         {
             case CMPI_LEV_INFO:
-                return Tracer::LEVEL2;
+                return Tracer::LEVEL3;
                 break;
             case CMPI_LEV_WARNING:
-                return Tracer::LEVEL3;
+                return Tracer::LEVEL2;
                 break;
             case CMPI_LEV_VERBOSE:
                 return Tracer::LEVEL4;

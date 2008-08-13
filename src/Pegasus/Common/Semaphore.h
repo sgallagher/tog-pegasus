@@ -119,14 +119,11 @@ public:
     */
     ~Semaphore();
 
-    /** Blocks until this Semaphore is in a signalled state.
-        @param ignoreInterrupt Indicates whether the wait operation should
-        continue (true) or an exception should be thrown (false) when an
-        interrupt is received.
+    /** Blocks until this Semaphore is in a signalled state.  Interrupt
+        signals are ignored.
         @exception WaitFailed If unable to block on the semaphore.
-        @exception WaitInterrupted If the operation is interrupted.
     */
-    void wait(Boolean ignoreInterrupt = true);
+    void wait();
 
     /** Waits for the Semaphore to be signalled for a specified time interval.
         This method returns normally if the Semaphore has a non-zero count or

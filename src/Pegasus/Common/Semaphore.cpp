@@ -122,7 +122,7 @@ static void semaphore_cleanup(void *arg)
 
 // block until this semaphore is in a signalled state or
 // throw an exception if the wait fails
-void Semaphore::wait(Boolean ignoreInterrupt)
+void Semaphore::wait()
 {
     // Acquire mutex to enter critical section.
     pthread_mutex_lock(&_rep.mutex);
@@ -282,7 +282,7 @@ Semaphore::~Semaphore()
 
 // block until this semaphore is in a signalled state, or
 // throw an exception if the wait fails
-void Semaphore::wait(Boolean ignoreInterrupt)
+void Semaphore::wait()
 {
     do
     {
@@ -290,17 +290,9 @@ void Semaphore::wait(Boolean ignoreInterrupt)
         if (rc == 0)
             break;
 
-        int e = errno;
-        if (e == EINTR)
+        if (errno != EINTR)
         {
-            if (ignoreInterrupt == false)
-            {
-                throw(WaitInterrupted(_rep.owner));
-            }
-        }
-        else
-        {
-            throw(WaitFailed(_rep.owner));
+            throw WaitFailed(_rep.owner);
         }
 
         // keep going if above conditions fail
@@ -398,8 +390,7 @@ Semaphore::~Semaphore()
 }
 
 // block until this semaphore is in a signalled state
-// note that windows does not support interrupt
-void Semaphore::wait(Boolean ignoreInterrupt)
+void Semaphore::wait()
 {
     DWORD errorcode = WaitForSingleObject(_rep.sem, INFINITE);
     if (errorcode != WAIT_FAILED)
@@ -408,7 +399,7 @@ void Semaphore::wait(Boolean ignoreInterrupt)
     }
     else
     {
-        throw(WaitFailed(Threads::self()));
+        throw WaitFailed(Threads::self());
     }
 }
 

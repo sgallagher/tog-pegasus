@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/Config.h>
@@ -38,7 +40,6 @@
 # include <errno.h>
 #endif
 #include "CIMName.h"
-#include "CIMNameCast.h"
 #include "XmlReader.h"
 #include "XmlWriter.h"
 #include "CIMQualifier.h"
@@ -53,6 +54,7 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include "CIMNameUnchecked.h"
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -204,7 +206,7 @@ Boolean XmlReader::expectContentOrCData(
     {
         MessageLoaderParms mlParms(
             "Common.XmlReader.EXPECTED_CDATA",
-            "Expected content or CDATA");
+            "Expected content of CDATA");
         throw XmlValidationError(parser.getLine(), mlParms);
     }
 
@@ -265,12 +267,9 @@ Boolean XmlReader::testStartTagOrEmptyTag(
     XmlEntry& entry,
     const char* tagName)
 {
-    if (!parser.next(entry))
-    {
-        return false;
-    }
-    if ((entry.type != XmlEntry::START_TAG &&
-         entry.type != XmlEntry::EMPTY_TAG) ||
+    if (!parser.next(entry) ||
+       (entry.type != XmlEntry::START_TAG &&
+        entry.type != XmlEntry::EMPTY_TAG) ||
         strcmp(entry.text, tagName) != 0)
     {
         parser.putBack(entry);
@@ -372,7 +371,7 @@ CIMName XmlReader::getCimNameAttribute(
     const char* elementName,
     Boolean acceptNull)
 {
-    const char* name;
+    String name;
 
     if (!entry.getAttributeValue("NAME", name))
     {
@@ -386,31 +385,30 @@ CIMName XmlReader::getCimNameAttribute(
         throw XmlValidationError(lineNumber, mlParms);
     }
 
-    if (acceptNull && *name == '\0')
-        return CIMName();
-
-    Uint32 size = CIMNameLegalASCII(name);
-
-    if (size)
-    {
-        String tmp(name, size);
-        return CIMName(CIMNameCast(tmp));
-    }
+    if (acceptNull && name.size() == 0)
+        return CIMName ();
 
     if (!CIMName::legal(name))
     {
-        char buffer[MESSAGE_SIZE];
-        sprintf(buffer, "%s.NAME", elementName);
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+    // In testing, replace illegal CIMName with this value to avoid the
+    // exception and let xml parsing continue.  THIS IS TEMP.
+    name = "BADNAMESUBSTITUTEDBYPEGASUSCLIENT";
+#else
 
-        MessageLoaderParms mlParms(
-            "Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE",
-            "Illegal value for $0 attribute",
-            buffer);
+    char buffer[MESSAGE_SIZE];
+    sprintf(buffer, "%s.NAME", elementName);
 
-        throw XmlSemanticError(lineNumber, mlParms);
+    MessageLoaderParms mlParms(
+        "Common.XmlReader.ILLEGAL_VALUE_FOR_ATTRIBUTE",
+        "Illegal value for $0 attribute",
+        buffer);
+
+    throw XmlSemanticError(lineNumber, mlParms);
+
+#endif
     }
-
-    return CIMNameCast(name);
+    return CIMNameUnchecked(name);
 }
 
 //------------------------------------------------------------------------------
@@ -474,17 +472,6 @@ CIMName XmlReader::getClassOriginAttribute(
     if (!entry.getAttributeValue("CLASSORIGIN", name))
         return CIMName();
 
-    /* Interoperability hack to make the C++ client of OpenPegasus able
-       to deal with the wbemservices CIMOM delivered with Sun Solaris.
-       The issue is that the wbemservices delivers Xml responses with
-       CLASSORIGIN=""
-       Originally this had been reported with Bug#537.
-    */
-    if (name.size()==0)
-    {
-        return CIMName();
-    }
-
     if (!CIMName::legal(name))
     {
         char buffer[MESSAGE_SIZE];
@@ -496,8 +483,8 @@ CIMName XmlReader::getClassOriginAttribute(
             buffer);
         throw XmlSemanticError(lineNumber, mlParms);
     }
-    // The CIMName was already checked with legal() + String()
-    return CIMNameCast(name);
+    // The CIMName was already checked with legal() + String() 
+    return CIMNameUnchecked(name);
 }
 
 //------------------------------------------------------------------------------
@@ -534,7 +521,7 @@ XmlReader::EmbeddedObjectAttributeType XmlReader::getEmbeddedObjectAttribute(
     {
         return EMBEDDED_OBJECT_ATTR;
     }
-
+        
     if (strcmp(embeddedObject, "instance") == 0)
     {
         return EMBEDDED_INSTANCE_ATTR;
@@ -548,7 +535,7 @@ XmlReader::EmbeddedObjectAttributeType XmlReader::getEmbeddedObjectAttribute(
         "Illegal value for $0 attribute",
         buffer);
     throw XmlSemanticError(lineNumber, mlParms);
-
+   
     return NO_EMBEDDED_OBJECT;
 }
 
@@ -572,6 +559,11 @@ CIMName XmlReader::getReferenceClassAttribute(
 
     if (!CIMName::legal(name))
     {
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+        name = "PEGASUS_SUBSTITUED_THIS_FOR_BAD_NAME";
+        return name;
+#endif
+
         char buffer[MESSAGE_SIZE];
         sprintf(buffer, "%s.REFERENCECLASS", elementName);
 
@@ -581,8 +573,8 @@ CIMName XmlReader::getReferenceClassAttribute(
             buffer);
         throw XmlSemanticError(lineNumber, mlParms);
     }
-    // The CIMName was already checked with legal() + String()
-    return CIMNameCast(name);
+    // The CIMName was already checked with legal() + String() 
+    return CIMNameUnchecked(name);
 }
 
 //------------------------------------------------------------------------------
@@ -614,8 +606,8 @@ CIMName XmlReader::getSuperClassAttribute(
             buffer);
         throw XmlSemanticError(lineNumber, mlParms);
     }
-    // The CIMName was already checked with legal() + String()
-    return CIMNameCast(superClass);
+    // The CIMName was already checked with legal() + String() 
+    return CIMNameUnchecked(superClass);
 }
 
 //------------------------------------------------------------------------------
@@ -780,7 +772,7 @@ String XmlReader::decodeURICharacters(String uriString)
 {
     Uint32 i;
 
-    Buffer utf8Chars;
+    Array<Uint8> utf8Chars;
 
     for (i=0; i<uriString.size(); i++)
     {
@@ -807,11 +799,11 @@ String XmlReader::decodeURICharacters(String uriString)
             }
 
             Uint16 decodedChar = Uint16(digit1<<4) + Uint16(digit2);
-            utf8Chars.append((char)decodedChar);
+            utf8Chars.append((Uint8)decodedChar);
         }
         else
         {
-            utf8Chars.append((char)uriString[i]);
+            utf8Chars.append((Uint8)uriString[i]);
         }
     }
 
@@ -819,12 +811,51 @@ String XmlReader::decodeURICharacters(String uriString)
     if (uriString.size() > 0)
     {
         // Convert UTF-8 to UTF-16 and return the String
-        return String(utf8Chars.getData(), utf8Chars.size());
+        utf8Chars.append('\0');
+        return String((char *)utf8Chars.getData());
     }
     else
     {
         return String();
     }
+}
+
+//------------------------------------------------------------------------------
+//
+// stringToSignedInteger
+//
+//      [ "+" | "-" ] ( positiveDecimalDigit *decimalDigit | "0" )
+//    or
+//      [ "+" | "-" ] ( "0x" | "0X" ) 1*hexDigit
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::stringToSignedInteger(
+    const char* stringValue,
+    Sint64& x)
+{
+    return (StringConversion::stringToSint64(
+                stringValue, StringConversion::decimalStringToUint64, x) ||
+            StringConversion::stringToSint64(
+                stringValue, StringConversion::hexStringToUint64, x));
+}
+
+//------------------------------------------------------------------------------
+//
+// stringToUnsignedInteger
+//
+//      ( positiveDecimalDigit *decimalDigit | "0" )
+//    or
+//      ( "0x" | "0X" ) 1*hexDigit
+//
+//------------------------------------------------------------------------------
+
+Boolean XmlReader::stringToUnsignedInteger(
+    const char* stringValue,
+    Uint64& x)
+{
+    return (StringConversion::decimalStringToUint64(stringValue, x) ||
+            StringConversion::hexStringToUint64(stringValue, x));
 }
 
 //------------------------------------------------------------------------------
@@ -843,19 +874,7 @@ CIMValue XmlReader::stringToValue(
     const char* valueString,
     CIMType type)
 {
-    return stringToValue(lineNumber, valueString, strlen(valueString), type);
-}
-
-CIMValue XmlReader::stringToValue(
-    Uint32 lineNumber,
-    const char* valueString,
-    Uint32 valueStringLen,
-    CIMType type)
-{
     // ATTN-B: accepting only UTF-8 for now! (affects string and char16):
-
-    // Char string must have been null terminated.
-    PEGASUS_ASSERT (!valueString[valueStringLen]);
 
     // Create value per type
     switch (type)
@@ -877,13 +896,13 @@ CIMValue XmlReader::stringToValue(
 
         case CIMTYPE_STRING:
         {
-            return CIMValue(String(valueString, valueStringLen));
+            return CIMValue(String(valueString));
         }
 
         case CIMTYPE_CHAR16:
         {
             // Converts UTF-8 to UTF-16
-            String tmp(valueString, valueStringLen);
+            String tmp(valueString);
             if (tmp.size() != 1)
             {
                 MessageLoaderParms mlParms(
@@ -902,7 +921,7 @@ CIMValue XmlReader::stringToValue(
         {
             Uint64 x;
 
-            if (!StringConversion::stringToUnsignedInteger(valueString, x))
+            if (!stringToUnsignedInteger(valueString, x))
             {
                 MessageLoaderParms mlParms(
                     "Common.XmlReader.INVALID_UI_VALUE",
@@ -957,7 +976,7 @@ CIMValue XmlReader::stringToValue(
         {
             Sint64 x;
 
-            if (!StringConversion::stringToSignedInteger(valueString, x))
+            if (!stringToSignedInteger(valueString, x))
             {
                 MessageLoaderParms mlParms(
                     "Common.XmlReader.INVALID_SI_VALUE",
@@ -1011,10 +1030,14 @@ CIMValue XmlReader::stringToValue(
 
             try
             {
-                if (valueStringLen != 0)
-                {
+                // KS 20021002 - Exception if no datetime value. Test for
+                // zero length and leave the NULL value in the variable
+                // Bugzilla 137  Adds the following if line.
+                // Expect this to become permanent but test only for now
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+                if (strlen(valueString) != 0)
+#endif
                     tmp.set(valueString);
-                }
             }
             catch (InvalidDateTimeFormatException&)
             {
@@ -1060,7 +1083,9 @@ CIMValue XmlReader::stringToValue(
 //  just a Pegasus internal representation of an embedded object. However,
 //  this case is used when decoding string representations of embedded objects.
         case CIMTYPE_OBJECT:
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         case CIMTYPE_INSTANCE:
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         {
             CIMObject x;
 
@@ -1077,8 +1102,8 @@ CIMValue XmlReader::stringToValue(
                 // just the value of the Embedded Object in String
                 // representation.
                 AutoArrayPtr<char> tmp_buffer(
-                    new char[valueStringLen + 1]);
-                memcpy(tmp_buffer.get(), valueString, valueStringLen + 1);
+                    new char[strlen(valueString) + 1]);
+                strcpy(tmp_buffer.get(), valueString);
                 XmlParser tmp_parser(tmp_buffer.get());
 
                 // The next bit of logic constructs a CIMObject from the
@@ -1089,8 +1114,10 @@ CIMValue XmlReader::stringToValue(
 
                 if (XmlReader::getInstanceElement(tmp_parser, cimInstance))
                 {
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                     if (type == CIMTYPE_INSTANCE)
                         return CIMValue(cimInstance);
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                     x = CIMObject(cimInstance);
                 }
                 else if (XmlReader::getClassElement(tmp_parser, cimClass))
@@ -1099,6 +1126,7 @@ CIMValue XmlReader::stringToValue(
                 }
                 else
                 {
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                     if (type == CIMTYPE_OBJECT)
                     {
                         // change "element" to "embedded object"
@@ -1116,6 +1144,13 @@ CIMValue XmlReader::stringToValue(
                             "Expected INSTANCE element");
                         throw XmlValidationError(lineNumber, mlParms);
                     }
+#else
+                    // change "element" to "embedded object"
+                    MessageLoaderParms mlParms(
+                        "Common.XmlReader.EXPECTED_INSTANCE_OR_CLASS_ELEMENT",
+                        "Expected INSTANCE or CLASS element");
+                    throw XmlValidationError(lineNumber, mlParms);
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                 }
                 // Ok, now we can delete the storage for the temporary
                 // XmlParser.
@@ -1192,18 +1227,24 @@ Boolean XmlReader::getValueElement(
     Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
 
     const char* valueString = "";
-    Uint32 valueStringLen = 0;
+
     if (!empty)
     {
         if (testContentOrCData(parser, entry))
         {
             valueString = entry.text;
-            valueStringLen = entry.textLen;
         }
 
         expectEndTag(parser, "VALUE");
     }
-    value = stringToValue(parser.getLine(),valueString,valueStringLen,type);
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+    // KS 20021004 - tries to put value in even if empty.
+    // Think this is general problem with empty value
+    // Need to check meaning of (#PCDATA) - Does it allow empty.
+    // Bugzilla tbd
+    if (!empty)
+#endif
+        value = stringToValue(parser.getLine(), valueString,type);
 
     return true;
 }
@@ -1238,20 +1279,16 @@ Boolean XmlReader::getStringValueElement(
     Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
 
     const char* valueString = "";
-    Uint32 valueStringLen = 0;
 
     if (!empty)
     {
         if (testContentOrCData(parser, entry))
-        {
             valueString = entry.text;
-            valueStringLen = entry.textLen;
-        }
 
         expectEndTag(parser, "VALUE");
     }
 
-    str = String(valueString, valueStringLen);
+    str = String(valueString);
     return true;
 }
 
@@ -1320,7 +1357,7 @@ Boolean XmlReader::getPropertyValue(
 template<class T>
 CIMValue StringArrayToValueAux(
     Uint32 lineNumber,
-    const Array<CharString>& stringArray,
+    const Array<const char*>& stringArray,
     CIMType type,
     T*)
 {
@@ -1329,10 +1366,7 @@ CIMValue StringArrayToValueAux(
     for (Uint32 i = 0, n = stringArray.size(); i < n; i++)
     {
         CIMValue value = XmlReader::stringToValue(
-            lineNumber,
-            stringArray[i].value,
-            stringArray[i].length,
-            type);
+            lineNumber, stringArray[i], type);
 
         T x;
         value.get(x);
@@ -1344,22 +1378,7 @@ CIMValue StringArrayToValueAux(
 
 CIMValue XmlReader::stringArrayToValue(
     Uint32 lineNumber,
-    const Array<const char*> &array,
-    CIMType type)
-{
-    Array<CharString> strArray;
-
-    for (Uint32 i = 0, n = array.size() ; i < n ; ++i)
-    {
-        strArray.append(CharString(array[i], strlen(array[i])));
-    }
-
-    return _stringArrayToValue(lineNumber, strArray, type);
-}
-
-CIMValue XmlReader::_stringArrayToValue(
-    Uint32 lineNumber,
-    const Array<CharString> &array,
+    const Array<const char*>& array,
     CIMType type)
 {
     switch (type)
@@ -1414,9 +1433,12 @@ CIMValue XmlReader::_stringArrayToValue(
         case CIMTYPE_OBJECT:
             return StringArrayToValueAux(
                 lineNumber, array, type, (CIMObject*)0);
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         case CIMTYPE_INSTANCE:
             return StringArrayToValueAux(
                 lineNumber, array, type, (CIMInstance*)0);
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+
         default:
             break;
     }
@@ -1446,7 +1468,7 @@ Boolean XmlReader::getValueArrayElement(
     // Get VALUE.ARRAY open tag:
 
     XmlEntry entry;
-    Array<CharString> stringArray;
+    Array<const char*> stringArray;
 
     // If no VALUE.ARRAY start tag, return false
     if (!testStartTagOrEmptyTag(parser, entry, "VALUE.ARRAY"))
@@ -1458,29 +1480,24 @@ Boolean XmlReader::getValueArrayElement(
 
         while (testStartTagOrEmptyTag(parser, entry, "VALUE"))
         {
-            // ATTN: NULL values in array will have VALUE.NULL subelement
-            // See DSP0201 Version 2.3.0, Section 5.2.3.2
             if (entry.type == XmlEntry::EMPTY_TAG)
             {
-                stringArray.append(CharString("", 0));
+                stringArray.append("");
                 continue;
             }
 
             if (testContentOrCData(parser, entry))
-            {
-                stringArray.append(CharString(entry.text, entry.textLen));
-            }
+                stringArray.append(entry.text);
             else
-            {
-                stringArray.append(CharString("", 0));
-            }
+                stringArray.append("");
+
             expectEndTag(parser, "VALUE");
         }
 
         expectEndTag(parser, "VALUE.ARRAY");
     }
 
-    value = _stringArrayToValue(parser.getLine(), stringArray, type);
+    value = stringArrayToValue(parser.getLine(), stringArray, type);
     return true;
 }
 
@@ -1747,7 +1764,7 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
 
     // Get PROPERTY.EmbeddedObject attribute:
 
-    EmbeddedObjectAttributeType embeddedObject =
+    EmbeddedObjectAttributeType embeddedObject = 
         getEmbeddedObjectAttribute(parser.getLine(), entry, "PROPERTY");
 
     // Get PROPERTY.TYPE attribute:
@@ -1774,6 +1791,7 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
     {
         property.getQualifier(ix).getValue().get(embeddedObjectQualifierValue);
     }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     String embeddedInstanceQualifierValue;
     ix = property.findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE);
     if (ix != PEG_NOT_FOUND)
@@ -1781,9 +1799,11 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
         property.getQualifier(ix).getValue().get(
             embeddedInstanceQualifierValue);
     }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     // If the EmbeddedObject attribute is present with value "object"
     // or the EmbeddedObject qualifier exists on this property with value "true"
     // then convert the EmbeddedObject-encoded string into a CIMObject
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     Boolean isEmbeddedObject = (embeddedObject == EMBEDDED_OBJECT_ATTR) ||
         embeddedObjectQualifierValue;
     Boolean isEmbeddedInstance = (embeddedObject == EMBEDDED_INSTANCE_ATTR) ||
@@ -1804,13 +1824,13 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
 
             // Copy the qualifiers from the String property to the CIMObject
             // property.
-            for (Uint32 i = 0; i < property.getQualifierCount(); ++i)
+            for (Uint32 ix = 0; ix < property.getQualifierCount(); ++ix)
             {
                 // All properties are copied, including the EmbeddedObject
                 // qualifier.  This way we don't have to keep track to know
                 // that the EmbeddedObject qualifier needs to be added back
                 // during the encode step.
-                new_property.addQualifier(property.getQualifier(i));
+                new_property.addQualifier(property.getQualifier(ix));
             }
 
             value = new_value;
@@ -1824,6 +1844,41 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
             throw XmlValidationError(parser.getLine(), mlParms);
         }
     }
+#else
+    if ((embeddedObject == EMBEDDED_OBJECT_ATTR)|| embeddedObjectQualifierValue)
+    {
+        // The EmbeddedObject attribute is only valid on Properties of type
+        // string
+        if (type == CIMTYPE_STRING)
+        {
+            type = CIMTYPE_OBJECT;
+            CIMValue new_value(type, false);
+            CIMProperty new_property = CIMProperty(
+                name, new_value, 0, CIMName(), classOrigin, propagated);
+
+            // Copy the qualifiers from the String property to the CIMObject
+            // property.
+            for (Uint32 ix = 0; ix < property.getQualifierCount(); ++ix)
+            {
+                // All properties are copied, including the EmbeddedObject
+                // qualifier.  This way we don't have to keep track to know
+                // that the EmbeddedObject qualifier needs to be added back
+                // during the encode step.
+                new_property.addQualifier(property.getQualifier(ix));
+            }
+
+            value = new_value;
+            property = new_property;
+        }
+        else
+        {
+            MessageLoaderParms mlParms(
+                "Common.XmlReader.INVALID_EMBEDDEDOBJECT_TYPE",
+                "The EmbeddedObject attribute is only valid on string types.");
+            throw XmlValidationError(parser.getLine(), mlParms);
+        }
+    }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     // Continue on to get property value, if not empty.
     if (!empty)
     {
@@ -1859,8 +1914,7 @@ Boolean XmlReader::getArraySizeAttribute(
 
     Uint64 arraySize;
 
-    if (!StringConversion::stringToUnsignedInteger(tmp, arraySize) ||
-        (arraySize == 0) ||
+    if (!stringToUnsignedInteger(tmp, arraySize) || (arraySize == 0) ||
         !StringConversion::checkUintBounds(arraySize, CIMTYPE_UINT32))
     {
         char message[128];
@@ -1958,6 +2012,7 @@ Boolean XmlReader::getPropertyArrayElement(
     {
         property.getQualifier(ix).getValue().get(embeddedObjectQualifierValue);
     }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     String embeddedInstanceQualifierValue;
     ix = property.findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE);
     if (ix != PEG_NOT_FOUND)
@@ -1965,10 +2020,12 @@ Boolean XmlReader::getPropertyArrayElement(
         property.getQualifier(ix).getValue().get(
             embeddedInstanceQualifierValue);
     }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     // If the EmbeddedObject attribute is present with value "object"
     // or the EmbeddedObject qualifier exists on this property with value "true"
     // then
     //     Convert the EmbeddedObject-encoded string into a CIMObject
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     Boolean isEmbeddedObject = (embeddedObject == EMBEDDED_OBJECT_ATTR) ||
         embeddedObjectQualifierValue;
     Boolean isEmbeddedInstance = (embeddedObject == EMBEDDED_INSTANCE_ATTR) ||
@@ -1989,13 +2046,13 @@ Boolean XmlReader::getPropertyArrayElement(
 
             // Copy the qualifiers from the String property to the CIMObject
             // property.
-            for (Uint32 i = 0; i < property.getQualifierCount(); ++i)
+            for (Uint32 ix = 0; ix < property.getQualifierCount(); ++ix)
             {
                 // All properties are copied, including the EmbeddedObject
                 // qualifier.  This way we don't have to keep track to know
                 // that the EmbeddedObject qualifier needs to be added back
                 // during the encode step.
-                new_property.addQualifier(property.getQualifier(i));
+                new_property.addQualifier(property.getQualifier(ix));
             }
 
             value = new_value;
@@ -2009,6 +2066,41 @@ Boolean XmlReader::getPropertyArrayElement(
             throw XmlValidationError(parser.getLine(), mlParms);
         }
     }
+#else
+    if ((embeddedObject == EMBEDDED_OBJECT_ATTR)||embeddedObjectQualifierValue)
+    {
+        // The EmbeddedObject attribute is only valid on Properties of type
+        // string
+        if (type == CIMTYPE_STRING)
+        {
+            type = CIMTYPE_OBJECT;
+            CIMValue new_value(type, true, arraySize);
+            CIMProperty new_property = CIMProperty(
+                name, new_value, arraySize, CIMName(), classOrigin, propagated);
+
+            // Copy the qualifiers from the String property to the CIMObject
+            // property.
+            for (Uint32 ix = 0; ix < property.getQualifierCount(); ++ix)
+            {
+                // All properties are copied, including the EmbeddedObject
+                // qualifier.  This way we don't have to keep track to know
+                // that the EmbeddedObject qualifier needs to be added back
+                // during the encode step.
+                new_property.addQualifier(property.getQualifier(ix));
+            }
+
+            value = new_value;
+            property = new_property;
+        }
+        else
+        {
+            MessageLoaderParms mlParms(
+                "Common.XmlReader.INVALID_EMBEDDEDOBJECT_TYPE",
+                "The EmbeddedObject attribute is only valid on string types.");
+            throw XmlValidationError(parser.getLine(), mlParms);
+        }
+    }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     // Continue on to get property array value, if not empty.
     // Else not an embedded object, if not empty, get the property array value.
     if (!empty)
@@ -2047,6 +2139,22 @@ Boolean XmlReader::getHostElement(
 
     if (!testStartTag(parser, entry, "HOST"))
         return false;
+#ifdef PEGASUS_SNIA_INTEROP_TEST
+    // Temp code to allow empty HOST field.
+    // SNIA CIMOMs return empty field particularly on enumerateinstance.
+    // Simply substitute a string for the empty.
+    if (!parser.next(entry))
+        throw XmlException(XmlException::UNCLOSED_TAGS, parser.getLine());
+
+    if (entry.type == XmlEntry::CONTENT)
+        host = String(entry.text);
+    else
+    {
+        parser.putBack(entry);
+        host = "HOSTNAMEINSERTEDBYPEGASUSCLIENT";
+    }
+
+#else
 
     if (!parser.next(entry) || entry.type != XmlEntry::CONTENT)
     {
@@ -2057,6 +2165,7 @@ Boolean XmlReader::getHostElement(
     }
 
     host = String(entry.text);
+#endif
     expectEndTag(parser, "HOST");
     return true;
 }
@@ -2389,18 +2498,7 @@ Boolean XmlReader::getInstanceNameElement(
     else
     {
         while (getKeyBindingElement(parser, name, value, type))
-        {
             keyBindings.append(CIMKeyBinding(name, value, type));
-            if (keyBindings.size() > PEGASUS_MAXELEMENTS_NUM)
-            {
-                MessageLoaderParms mlParms(
-                    "Common.XmlReader.TOO_MANY_KEYBINDINGS",
-                    "More than $0 key-value pairs per object path"
-                        " are not supported.",
-                    PEGASUS_MAXELEMENTS_NUM);
-                throw XmlValidationError(parser.getLine(), mlParms);
-            }
-        }
     }
 
     expectEndTag(parser, "INSTANCENAME");
@@ -2608,10 +2706,7 @@ Boolean XmlReader::getLocalClassPathElement(
 //
 //
 //------------------------------------------------------------------------------
-//
-// Parses the input to a CIMObjectPath.  Note that today the differences
-// between ClassPath and InstancePath are lost in this mapping because
-// Pegasus uses the existence of keys as separator . See BUG_3302
+
 Boolean XmlReader::getValueReferenceElement(
     XmlParser& parser,
     CIMObjectPath& reference)
@@ -3078,7 +3173,7 @@ Boolean XmlReader::getQualifierDeclElement(
     // Get ARRAYSIZE attribute:
 
     Uint32 arraySize = 0;
-    getArraySizeAttribute(parser.getLine(),
+    Boolean gotArraySize = getArraySizeAttribute(parser.getLine(),
         entry, "QUALIFIER.DECLARATION", arraySize);
 
     // Get flavor oriented attributes:
@@ -3865,8 +3960,6 @@ void XmlReader::getObjectArray(
 //
 //------------------------------------------------------------------------------
 
-// Returns true if ClassNameElement or false if InstanceNameElement
-// Parse errors always throw exception
 Boolean XmlReader::getObjectNameElement(
     XmlParser& parser,
     CIMObjectPath& objectName)
@@ -3876,8 +3969,6 @@ Boolean XmlReader::getObjectNameElement(
     if (getClassNameElement(parser, className, false))
     {
         objectName.set(String(), CIMNamespaceName(), className);
-
-        // Return flag indicating this is ClassNameElement
         return true;
     }
 
@@ -3889,8 +3980,7 @@ Boolean XmlReader::getObjectNameElement(
         throw XmlValidationError(parser.getLine(), mlParms);
     }
 
-    // Return flag indicating this is InstanceNameElement
-    return false;
+    return true;
 }
 
 //------------------------------------------------------------------------------
@@ -4142,7 +4232,7 @@ Boolean XmlReader::getParamValueElement(
                 type = CIMTYPE_REFERENCE;
                 gotType = true;
             }
-            else
+            else 
             {
                 gotType = false; // Can't distinguish array and non-array types
             }
@@ -4165,6 +4255,7 @@ Boolean XmlReader::getParamValueElement(
             // If the EmbeddedObject attribute is present with value "object"
             // then
             //     Convert the EmbeddedObject-encoded string into a CIMObject
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             if (embeddedObject != NO_EMBEDDED_OBJECT)
             {
                 // The EmbeddedObject attribute is only valid on Parameters
@@ -4188,6 +4279,27 @@ Boolean XmlReader::getParamValueElement(
                     throw XmlValidationError(parser.getLine(), mlParms);
                 }
             }
+#else
+            if (embeddedObject == EMBEDDED_OBJECT_ATTR)
+            {
+                // The EmbeddedObject attribute is only valid on Parameters
+                // of type string
+                // The type must have been specified.
+                if (gotType && (type == CIMTYPE_STRING))
+                {
+                    // Used below by getValueElement() or getValueArrayElement()
+                    effectiveType = CIMTYPE_OBJECT;
+                }
+                else
+                {
+                    MessageLoaderParms mlParms(
+                        "Common.XmlReader.INVALID_EMBEDDEDOBJECT_TYPE",
+                        "The EmbeddedObject attribute is only valid on "
+                            "string types.");
+                    throw XmlValidationError(parser.getLine(), mlParms);
+                }
+            }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
             if (!XmlReader::getValueArrayElement(parser, effectiveType, value)
                 && !XmlReader::getValueElement(parser, effectiveType, value))
@@ -4265,6 +4377,7 @@ Boolean XmlReader::getReturnValueElement(
             // If we don't know what type the value is, read it as a String
             type = CIMTYPE_STRING;
         }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         if (embeddedObject != NO_EMBEDDED_OBJECT)
         {
             if (gotType && (type == CIMTYPE_STRING))
@@ -4284,6 +4397,23 @@ Boolean XmlReader::getReturnValueElement(
                 throw XmlValidationError(parser.getLine(), mlParms);
             }
         }
+#else
+        if (embeddedObject == EMBEDDED_OBJECT_ATTR)
+        {
+            if (gotType && (type == CIMTYPE_STRING))
+            {
+                type = CIMTYPE_OBJECT;  // Used below by getValueElement()
+            }
+            else
+            {
+                MessageLoaderParms mlParms(
+                    "Common.XmlReader.INVALID_EMBEDDEDOBJECT_TYPE",
+                    "The EmbeddedObject attribute is only valid on string "
+                        "types.");
+                throw XmlValidationError(parser.getLine(), mlParms);
+            }
+        }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         if ( !XmlReader::getValueElement(parser, type, returnValue) )
         {
             MessageLoaderParms mlParms(
@@ -4302,22 +4432,22 @@ Boolean XmlReader::getReturnValueElement(
 //
 // The following is a common set of version tests used by the different
 // Pegasus Request and Response Decoders
-//
+// 
 //------------------------------------------------------------------------------
 //
 // isSupportedCIMVersion()
 // tests for valid CIMVersion number
 //
 // Reject cimVersion not in 2.[0-9]+
-//
+// 
 // CIMXML Secification, Version 2.2 Final, Sect 3.2.1.1
-// The CIMVERSION attribute defines the version of the CIM Specification to
-// which the XML Document conforms.  It MUST be in the form of "M.N".  Where
-// M is the Major Version of the specification in numeric form and N is the
-// minor version of the specification in numeric form.  For example, "2.0",
-// "2.1".  Implementations must only validate the major version as all minor
-// versions are backward compatible.  Implementations may look at the minor
-// version to determine additional capabilites.
+// The CIMVERSION attribute defines the version of the CIM Specification to 
+// which the XML Document conforms.  It MUST be in the form of "M.N".  Where 
+// M is the Major Version of the specification in numeric form and N is the 
+// minor version of the specification in numeric form.  For example, "2.0", 
+// "2.1".  Implementations must only validate the major version as all minor 
+// versions are backward compatible.  Implementations may look at the minor 
+// version to determine additional capabilites.  
 //
 //------------------------------------------------------------------------------
 Boolean XmlReader::isSupportedCIMVersion(
@@ -4359,7 +4489,7 @@ Boolean XmlReader::isSupportedCIMVersion(
 // Implementations must only validate the major version as all minor versions
 // are backward compatible. Implementations may look at the minor version to
 // determine additional capabilites.
-//
+// 
 //------------------------------------------------------------------------------
 Boolean XmlReader::isSupportedProtocolVersion(
     const String& protocolVersion)
@@ -4393,15 +4523,15 @@ Boolean XmlReader::isSupportedProtocolVersion(
 // isSupportedDTDVersion()
 // Tests for Valid dtdVersion number
 // We accept DTD version 2.[0-9]+ (see Bugzilla 1556)//
-//
+// 
 // CIM/XML Specification, V 2.2 Final, Section 3.2.1.1
-// The DTDVERSION attribute defines the version of the CIM XML Mapping to
-// which the XML Document conforms.  It MUST be in the form of "M.N".  Where
-// M is the Major Version of the specification in numeric form and N is the
-// minor version of the specification in numeric form.  For example, "2.0",
-// "2.1".  Implementations must only validate the major version as all minor
-// versions are backward compatible.  Implementations may look at the minor
-// version to determine additional capabilites.
+// The DTDVERSION attribute defines the version of the CIM XML Mapping to 
+// which the XML Document conforms.  It MUST be in the form of "M.N".  Where 
+// M is the Major Version of the specification in numeric form and N is the 
+// minor version of the specification in numeric form.  For example, "2.0", 
+// "2.1".  Implementations must only validate the major version as all minor 
+// versions are backward compatible.  Implementations may look at the minor 
+// version to determine additional capabilites. 
 //
 //------------------------------------------------------------------------------
 Boolean XmlReader::isSupportedDTDVersion(

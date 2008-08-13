@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -127,6 +129,17 @@ struct EntityReference
     char replacement;
 };
 
+// ATTN: Add support for more entity references
+static EntityReference _references[] =
+{
+    { "&amp;", 5, '&' },
+    { "&lt;", 4, '<' },
+    { "&gt;", 4, '>' },
+    { "&quot;", 6, '"' },
+    { "&apos;", 6, '\'' }
+};
+
+
 // Implements a check for a whitespace character, without calling
 // isspace( ).  The isspace( ) function is locale-sensitive,
 // and incorrectly flags some chars above 0x7f as whitespace.  This
@@ -140,6 +153,7 @@ static inline int _isspace(char c)
     return CharSet::isXmlWhiteSpace((Uint8)c);
 }
 
+static Uint32 _REFERENCES_SIZE = (sizeof(_references) / sizeof(_references[0]));
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -196,7 +210,7 @@ static MessageLoaderParms _formMessage(
     const String& message)
 {
     String dftMsg = _xmlMessages[Uint32(code) - 1];
-    const char* key = _xmlKeys[Uint32(code) - 1];
+    String key = _xmlKeys[Uint32(code) - 1];
     String msg = message;
 
     dftMsg.append(": on line $0");
@@ -206,17 +220,17 @@ static MessageLoaderParms _formMessage(
         dftMsg.append("$1");
     }
 
-    return MessageLoaderParms(key, dftMsg.getCString(), line ,msg);
+    return MessageLoaderParms(key, dftMsg, line ,msg);
 }
 
 static MessageLoaderParms _formPartialMessage(Uint32 code, Uint32 line)
 {
     String dftMsg = _xmlMessages[Uint32(code) - 1];
-    const char* key = _xmlKeys[Uint32(code) - 1];
+    String key = _xmlKeys[Uint32(code) - 1];
 
     dftMsg.append(": on line $0");
 
-    return MessageLoaderParms(key, dftMsg.getCString(), line);
+    return MessageLoaderParms(key, dftMsg, line);
 }
 
 
@@ -294,15 +308,14 @@ XmlSemanticError::XmlSemanticError(
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-XmlParser::XmlParser(char* text, XmlNamespace* ns, Boolean hideEmptyTags)
+XmlParser::XmlParser(char* text, XmlNamespace* ns)
     : _line(1),
       _current(text),
       _restoreChar('\0'),
       _foundRoot(false),
       _supportedNamespaces(ns),
       // Start valid indexes with -2. -1 is reserved for not found.
-      _currentUnsupportedNSType(-2),
-      _hideEmptyTags(hideEmptyTags)
+      _currentUnsupportedNSType(-2)
 {
 }
 
@@ -362,16 +375,14 @@ static int _getEntityRef(char*& p)
 #pragma optimize( "", on )
 #endif
 
-static inline int _getCharRef(char*& p)
+static inline int _getCharRef(char*& p, bool hex)
 {
     char* end;
     unsigned long ch;
-    Boolean hex = false;
 
-    if (*p == 'x')
+    if (hex)
     {
-        hex = true;
-        ch = strtoul(++p, &end, 16);
+        ch = strtoul(p, &end, 16);
     }
     else
     {
@@ -393,95 +404,7 @@ static inline int _getCharRef(char*& p)
     return ch;
 }
 
-// Parse an entity reference or a character reference
-static inline int _getRef(Uint32 line, char*& p)
-{
-    int ch;
-
-    if (*p == '#')
-    {
-        ch = _getCharRef(++p);
-    }
-    else
-    {
-        ch = _getEntityRef(p);
-    }
-
-    if (ch == -1)
-    {
-        throw XmlException(XmlException::MALFORMED_REFERENCE, line);
-    }
-
-    return ch;
-}
-
-static inline void _normalizeElementValue(
-    Uint32& line,
-    char*& p,
-    Uint32 &textLen)
-{
-    // Process one character at a time:
-
-    char* q = p;
-    char *start = p;
-
-    while (*p && (*p != '<'))
-    {
-        if (_isspace(*p))
-        {
-            // Trim whitespace from the end of the value, but do not compress
-            // whitespace within the value.
-
-            const char* start = p;
-
-            if (*p++ == '\n')
-            {
-                line++;
-            }
-
-            _skipWhitespace(line, p);
-
-            if (*p && (*p != '<'))
-            {
-                // Transfer internal whitespace to q without compressing it.
-                const char* i = start;
-                while (i < p)
-                {
-                    *q++ = *i++;
-                }
-            }
-            else
-            {
-                // Do not transfer trailing whitespace to q.
-                break;
-            }
-        }
-        else if (*p == '&')
-        {
-            // Process an entity reference or a character reference.
-
-            *q++ = _getRef(line, ++p);
-        }
-        else
-        {
-            *q++ = *p++;
-        }
-    }
-
-    // If q got behind p, it is safe and necessary to null-terminate q
-
-    if (q != p)
-    {
-        *q = '\0';
-    }
-    textLen = (Uint32)(q - start);
-}
-
-static inline void _normalizeAttributeValue(
-    Uint32& line,
-    char*& p,
-    char end_char,
-    char*& start)
+static void _normalize(Uint32& line, char*& p, char end_char, char*& start)
 {
     // Skip over leading whitespace:
 
@@ -510,9 +433,36 @@ static inline void _normalizeAttributeValue(
         }
         else if (*p == '&')
         {
-            // Process an entity reference or a character reference.
+            // Process entity characters and entity references:
 
-            *q++ = _getRef(line, ++p);
+            p++;
+            int ch;
+
+            if (*p == '#')
+            {
+                *p++;
+
+                if (*p == 'x')
+                {
+                    p++;
+                    ch = _getCharRef(p, true);
+                }
+                else
+                {
+                    ch = _getCharRef(p, false);
+                }
+            }
+            else
+            {
+                ch = _getEntityRef(p);
+            }
+
+            if (ch == -1)
+            {
+                throw XmlException(XmlException::MALFORMED_REFERENCE, line);
+            }
+
+            *q++ = ch;
         }
         else
         {
@@ -543,7 +493,7 @@ static inline void _normalizeAttributeValue(
     }
 }
 
-Boolean XmlParser::_next(
+Boolean XmlParser::next(
     XmlEntry& entry,
     Boolean includeComment)
 {
@@ -629,15 +579,13 @@ Boolean XmlParser::_next(
         {
             // Normalize the content:
 
-            char* start = _current;
-            Uint32 textLen;
-            _normalizeElementValue(_line, _current, textLen);
+            char* start;
+            _normalize(_line, _current, '<', start);
 
             // Get the content:
 
             entry.type = XmlEntry::CONTENT;
             entry.text = start;
-            entry.textLen = textLen;
 
             // Overwrite '<' with a null character (temporarily).
 
@@ -715,38 +663,6 @@ Boolean XmlParser::_next(
     }
 
     return true;
-}
-
-Boolean XmlParser::next(XmlEntry& entry, Boolean includeComment)
-{
-    if (_hideEmptyTags)
-    {
-        // Get the next tag.
-
-        if (!_next(entry, includeComment))
-            return false;
-
-        // If an EMPTY_TAG is encountered, then convert it to a START_TAG and 
-        // push a matching END_TAG on the put-back stack. This hides every
-        // EMPTY_TAG from the caller.
-
-        if (entry.type == XmlEntry::EMPTY_TAG)
-        {
-            entry.type = XmlEntry::START_TAG;
-
-            XmlEntry tmp;
-            tmp.type = XmlEntry::END_TAG;
-            tmp.text = entry.text;
-            tmp.nsType = entry.nsType;
-            tmp.localName = entry.localName;
-
-            _putBackStack.push(tmp);
-        }
-
-        return true;
-    }
-    else
-        return _next(entry, includeComment);
 }
 
 // Get the namespace type of the given tag
@@ -845,8 +761,8 @@ inline Boolean _getQName(char*& p, const char*& localName)
 
     p++;
 
-    // No explicit test for NULL termination is needed.
-    // On position 0 of the array false is returned.
+    // No explicit test for NULL termination is needed. 
+    // On position 0 of the array false is returned. 
     while (_isInnerElementChar[Uint8(*p)])
         p++;
 
@@ -859,8 +775,8 @@ inline Boolean _getQName(char*& p, const char*& localName)
             return false;
 
         p++;
-        // No explicit test for NULL termination is needed.
-        // On position 0 of the array false is returned.
+        // No explicit test for NULL termination is needed. 
+        // On position 0 of the array false is returned. 
         while (_isInnerElementChar[Uint8(*p)])
             p++;
     }
@@ -1042,7 +958,6 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
             entry.type = XmlEntry::CDATA;
             entry.text = p;
             _getCData(p);
-            entry.textLen = strlen(entry.text);
             return;
         }
         else if (memcmp(p, "DOCTYPE", 7) == 0)
@@ -1122,7 +1037,7 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
             char quote = *p++;
 
             char* start;
-            _normalizeAttributeValue(_line, p, quote, start);
+            _normalize(_line, p, quote, start);
             attr.value = start;
 
             if (*p != quote)
@@ -1207,12 +1122,12 @@ const XmlAttribute* XmlEntry::findAttribute(
 }
 
 const XmlAttribute* XmlEntry::findAttribute(
-    int attrNsType,
+    int nsType,
     const char* name) const
 {
     for (Uint32 i = 0, n = attributes.size(); i < n; i++)
     {
-        if ((attributes[i].nsType == attrNsType) &&
+        if ((attributes[i].nsType == nsType) &&
             (strcmp(attributes[i].localName, name) == 0))
         {
             return &attributes[i];

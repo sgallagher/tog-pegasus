@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +48,7 @@ PEGASUS_USING_STD;
 
 static CIMName _KEY("Key");
 
-CIMQualifierList::CIMQualifierList() :
+CIMQualifierList::CIMQualifierList() : 
                     _keyIndex(PEGASUS_ORDEREDSET_INDEX_UNKNOWN)
 {
 
@@ -71,9 +73,9 @@ CIMQualifierList& CIMQualifierList::add(const CIMQualifier& qualifier)
     }
 
     _qualifiers.append(qualifier);
-
+    
     // Update key index:
-    if (_keyIndex == PEGASUS_ORDEREDSET_INDEX_UNKNOWN &&
+    if (_keyIndex == PEGASUS_ORDEREDSET_INDEX_UNKNOWN && 
             qualifier._rep->_name == _KEY)
         _keyIndex = _qualifiers.size()-1;
 
@@ -124,7 +126,7 @@ void CIMQualifierList::resolve(
     CIMScope scope, // Scope of the entity being resolved.
     Boolean isInstancePart,
     CIMQualifierList& inheritedQualifiers,
-    Boolean propagateQualifiers)
+    Boolean propagateQualifiers)  // Apparently not used ks 24 mar 2002
 {
     _keyIndex = PEGASUS_ORDEREDSET_INDEX_UNKNOWN;
 
@@ -172,6 +174,7 @@ void CIMQualifierList::resolve(
             throw BadQualifierType(q.getName().getString ());
         }
 
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         //----------------------------------------------------------------------
         // 3. If the qualifier is the EmbeddedInstance qualifier, then check
         // that the class specified by the qualifier exists in the namespace.
@@ -181,15 +184,16 @@ void CIMQualifierList::resolve(
             String className;
             q.getValue().get(className);
             CIMClass classDef = declContext->lookupClass(nameSpace,
-                CIMName(className));
+                    CIMName(className));
             if (classDef.isUninitialized())
             {
+                String embeddedInstType("EmbeddedInstance(\"");
+                embeddedInstType = embeddedInstType + className + "\")";
                 PEG_METHOD_EXIT();
-                throw BadQualifierType(
-                     PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE.getString(),
-                     className);
+                throw BadQualifierType(embeddedInstType);
             }
         }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
         //----------------------------------------------------------------------
         // 4. Check the scope: Must be legal for this qualifier
@@ -258,7 +262,7 @@ void CIMQualifierList::resolve(
             }
 
             Resolver::resolveQualifierFlavor(
-                q, CIMFlavor (qd.getFlavor ()));
+                q, CIMFlavor (qd.getFlavor ()), false);
         }
         else  // qualifier exists in superclass
         {   ////// Make Const again
@@ -285,7 +289,7 @@ void CIMQualifierList::resolve(
             }
 
             Resolver::resolveQualifierFlavor(
-                q, CIMFlavor(iq.getFlavor()));
+                q, CIMFlavor(iq.getFlavor()), true);
         }
     }   // end of this objects qualifier loop
 
@@ -294,34 +298,34 @@ void CIMQualifierList::resolve(
     // already have those qualifiers:
     //--------------------------------------------------------------------------
 
-    if (propagateQualifiers)
+    for (Uint32 i = 0, n = inheritedQualifiers.getCount(); i < n; i++)
     {
-        for (Uint32 i = 0, n = inheritedQualifiers.getCount(); i < n; i++)
+        CIMQualifier iq = inheritedQualifiers.getQualifier(i);
+
+        if (isInstancePart)
         {
-            CIMQualifier iq = inheritedQualifiers.getQualifier(i);
-
-            if (isInstancePart)
-            {
-                if (!(iq.getFlavor().hasFlavor(CIMFlavor::TOINSTANCE)))
-                    continue;
-            }
-            else
-            {
-                if (!(iq.getFlavor().hasFlavor(CIMFlavor::TOSUBCLASS)))
-                    continue;
-            }
-
-            // If the qualifiers list does not already contain this qualifier,
-            // then propagate it (and set the propagated flag to true).  Else
-            // we keep current value. Note we have already eliminated any
-            // possibility that a nonoverridable qualifier can be in the list.
-            if (find(iq.getName()) != PEG_NOT_FOUND)
+            if (!(iq.getFlavor ().hasFlavor
+                  (CIMFlavor::TOINSTANCE)))
                 continue;
-
-            CIMQualifier q = iq.clone();
-            q.setPropagated(true);
-            _qualifiers.insert(0, q);
         }
+        else
+        {
+            if (!(iq.getFlavor ().hasFlavor
+                  (CIMFlavor::TOSUBCLASS)))
+                continue;
+        }
+
+        // If the qualifiers list does not already contain this qualifier,
+        // then propagate it (and set the propagated flag to true).  Else we
+        // keep current value. Note we have already eliminated any possibity
+        // that a nonoverridable qualifier can be in the list.
+        // Note that there is no exists() function ATTN:KS 25 Mar 2002
+        if (find(iq.getName()) != PEG_NOT_FOUND)
+            continue;
+
+        CIMQualifier q = iq.clone();
+        q.setPropagated(true);
+        _qualifiers.insert(0, q);
     }
     PEG_METHOD_EXIT();
 }
@@ -390,20 +394,6 @@ Boolean CIMQualifierList::isKey() const
     }
 
     return false;
-}
-
-CIMQualifierList& CIMQualifierList::addUnchecked(const CIMQualifier& qualifier)
-{
-    if (qualifier.isUninitialized())
-        throw UninitializedObjectException();
-
-    _qualifiers.append(qualifier);
-
-    if (_keyIndex == PEGASUS_ORDEREDSET_INDEX_UNKNOWN &&
-            qualifier._rep->_name == _KEY)
-        _keyIndex = _qualifiers.size()-1;
-
-    return *this;
 }
 
 PEGASUS_NAMESPACE_END

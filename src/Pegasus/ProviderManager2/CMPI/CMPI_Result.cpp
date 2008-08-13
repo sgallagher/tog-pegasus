@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,40 +45,103 @@
 #include <Pegasus/Common/Mutex.h>
 #include <string.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/ProviderManager2/CMPI/CMPI_ThreadContext.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 Mutex errorChainMutex;
 
-extern "C"
+CMPIStatus resolveEmbeddedInstanceTypes(
+    OperationResponseHandler * opRes,
+    CIMInstance & inst)
 {
-
-    // Gets the invaction flags from the thread context and sets them
-    // on an SCMOInstance object
-    PEGASUS_STATIC inline void appendInvocationFlags(SCMOInstance& inst)
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_Result:resolveEmbeddedInstanceTypes()");
+    CIMOperationRequestMessage * request =
+        dynamic_cast<CIMOperationRequestMessage *>(opRes->getRequest());
+    if (request->operationContext.contains(NormalizerContextContainer::NAME) &&
+        request->operationContext.contains(
+            CachedClassDefinitionContainer::NAME))
     {
-        const CMPIContext *ctx = CMPI_ThreadContext::getContext();
-        if (0!=ctx)
+        const NormalizerContextContainer * contextContainer =
+            dynamic_cast<const NormalizerContextContainer *>(
+            &(request->operationContext.get(
+            NormalizerContextContainer::NAME)));
+        PEGASUS_ASSERT(contextContainer);
+        const CachedClassDefinitionContainer * classContainer =
+            dynamic_cast<const CachedClassDefinitionContainer *>(
+            &(request->operationContext.get(
+            CachedClassDefinitionContainer::NAME)));
+        PEGASUS_ASSERT(classContainer);
+
+        CIMClass classDef(classContainer->getClass());
+        for (unsigned int i = 0, n = inst.getPropertyCount(); i < n; ++i)
         {
-            CMPIFlags flgs = ctx->ft->getEntry(
-                ctx,CMPIInvocationFlags,NULL).value.uint32;
-            if (flgs & CMPI_FLAG_IncludeQualifiers)
+            CIMConstProperty currentProp(inst.getProperty(i));
+            if (currentProp.getType() == CIMTYPE_OBJECT)
             {
-                inst.includeQualifiers();
-            }
-            if (flgs & CMPI_FLAG_IncludeClassOrigin)
-            {
-                inst.includeClassOrigins();
+                Uint32 propIndex = classDef.findProperty(
+                    currentProp.getName());
+                if (propIndex == PEG_NOT_FOUND)
+                {
+                    String message = 
+                        String("Could not find property ")
+                    + currentProp.getName().getString()
+                    + " in class definition";
+                    PEG_METHOD_EXIT();
+                    CMReturnWithString(CMPI_RC_ERR_FAILED,
+                        (CMPIString*)string2CMPIString(message));
+                }
+
+                CIMConstProperty propertyDef(
+                    classDef.getProperty(propIndex));
+
+                /**
+                  Normalize the property: this will ensure that the property
+                  and any embedded instance/object properties are consistent
+                  with the relevant class definitions.
+                */
+                CIMProperty normalizedProperty(
+                    ObjectNormalizer::_processProperty(
+                    propertyDef,
+                    currentProp,
+                    false,
+                    false,
+                    contextContainer->getContext(),
+                    request->nameSpace));
+
+                /**
+                   Remove the old property, add the new, and adjust the
+                   loop counters appropriately.
+                */
+                inst.removeProperty(i);
+                inst.addProperty(normalizedProperty);
+                --i;
+                --n;
             }
         }
     }
+    
+    /**
+      else
+      {
+       If the NormalizerContextContainer is not present, then the
+       ObjectNormalizer must be enabled for this operation and the
+       ObjectNormalizer will do the work in the above try block.
+      }
+     */
+    PEG_METHOD_EXIT();
+    CMReturn(CMPI_RC_OK);
+}
+
+extern "C"
+{
 
     PEGASUS_STATIC CMPIStatus resultReturnData(
         const CMPIResult* eRes,
         const CMPIValue* data,
-        const CMPIType type)
+        const CMPIType type) 
     {
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
@@ -113,6 +178,7 @@ extern "C"
                     res->processing();
                     ((CMPI_Result*)eRes)->flags|=RESULT_set;
                 }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
               /**
                  If the CMPI type is CMPI_instance, then the CIM return type
                  could be either an EmbeddedObject or EmbeddedInstance. We
@@ -137,7 +203,7 @@ extern "C"
                             CachedClassDefinitionContainer::NAME)));
                         PEGASUS_ASSERT(classContainer != 0);
 
-                        CIMConstClass classDef(classContainer->getClass());
+                        CIMClass classDef(classContainer->getClass());
                         Uint32 methodIndex = classDef.findMethod(
                             request->methodName);
                         if (methodIndex == PEG_NOT_FOUND)
@@ -149,10 +215,9 @@ extern "C"
                                 (CMPIString*)string2CMPIString(message));
                         }
 
-                        CIMConstMethod methodDef(
-                            classDef.getMethod(methodIndex));
+                        CIMMethod methodDef(classDef.getMethod(methodIndex));
                         if (methodDef.findQualifier(
-                               PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE)
+                               PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE) 
                             != PEG_NOT_FOUND)
                         {
                             PEGASUS_ASSERT(v.getType() == CIMTYPE_OBJECT);
@@ -168,6 +233,7 @@ extern "C"
                             (CMPIString*)string2CMPIString(e.getMessage()));
                     }
                 }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                 res->deliver(v);
             }
             else
@@ -183,9 +249,10 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                "CIMException: resultReturnData - msg: %s",
-                (const char*)e.getMessage().getCString()));
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Exception: resultReturnData - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -202,17 +269,14 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Result:resultReturnInstance()");
-        SimpleInstanceResponseHandler* res=
-            (SimpleInstanceResponseHandler*)eRes->hdl;
+        InstanceResponseHandler* res=(InstanceResponseHandler*)eRes->hdl;
         if ((res == NULL) || (eInst == NULL))
         {
-            PEG_TRACE((
+            PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                ((res==0) ? (Tracer::LEVEL1) : (Tracer::LEVEL3)),
-                "Invalid parameter res (%p) || eInst (%p) "
-                    "in CMPI_Result:resultReturnInstance",
-                res,
-                eInst));
+                Tracer::LEVEL1,
+                "Invalid parameter res || eInst in \
+                CMPI_Result:resultReturnInstance");
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
@@ -235,22 +299,51 @@ extern "C"
                 res->processing();
                 ((CMPI_Result*)eRes)->flags|=RESULT_set;
             }
-            SCMOInstance& inst=*(SCMOInstance*)(eInst->hdl);
+            CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
+            CMPI_Result *xRes=(CMPI_Result*)eRes;
+            const CIMObjectPath& op=inst.getPath();
+            CIMClass *cc=mbGetClass(xRes->xBroker,op);
+            CIMObjectPath iop=inst.buildPath(*cc);
+            iop.setNameSpace(op.getNameSpace());
+            inst.setPath(iop);
 
-            appendInvocationFlags(inst);
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+            /**
+              CMPI does not differentiate between EmbeddedInstances and
+              EmbeddedObjects, so any mismatches between the property type
+              in the instance and the property type in the class definition
+              must be resolved.
+           */
+            EnumerateInstancesResponseHandler * eiRes =
+                dynamic_cast<EnumerateInstancesResponseHandler *>(res);
+            GetInstanceResponseHandler * giRes = 0;
+            CMPIStatus status;
+            if (eiRes)
+            {
+                status = resolveEmbeddedInstanceTypes(eiRes, inst);
+            }
+            else
+            {
+                giRes = dynamic_cast<GetInstanceResponseHandler *>(res);
+                PEGASUS_ASSERT(giRes);
+                status = resolveEmbeddedInstanceTypes(giRes, inst);
+            }
 
-            // Ensure that the instance includes a valid ObjectPath with
-            // all key properties set, for which the according property
-            // has been set on the instance.
-            inst.buildKeyBindingsFromProperties();
+            if (status.rc != CMPI_RC_OK)
+            {
+                PEG_METHOD_EXIT();
+                return status;
+            }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
             res->deliver(inst);
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                "CIMException: resultReturnInstance - msg: %s",
-                (const char*)e.getMessage().getCString()));
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Exception: resultReturnInstance - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -267,18 +360,15 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Result:resultReturnObject()");
-        SimpleObjectResponseHandler* res=
-            (SimpleObjectResponseHandler*)eRes->hdl;
+        ObjectResponseHandler* res=(ObjectResponseHandler*)eRes->hdl;
 
         if ((res == NULL) || (eInst == NULL))
         {
-            PEG_TRACE((
+            PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                ((res==0) ? (Tracer::LEVEL1) : (Tracer::LEVEL3)),
-                "Invalid parameter res (%p) || eInst (%p) "
-                    "in CMPI_Result:resultReturnObject",
-                res,
-                eInst));
+                Tracer::LEVEL1,
+                "Invalid parameter res || eInst in \
+                CMPI_Result:resultReturnObject");
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
@@ -301,23 +391,90 @@ extern "C"
                 res->processing();
                 ((CMPI_Result*)eRes)->flags|=RESULT_set;
             }
-            SCMOInstance& inst=*(SCMOInstance*)(eInst->hdl);
+            CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
+            CMPI_Result *xRes=(CMPI_Result*)eRes;
+            const CIMObjectPath& op=inst.getPath();
+            CIMClass *cc=mbGetClass(xRes->xBroker,op);
+            CIMObjectPath iop=inst.buildPath(*cc);
+            iop.setNameSpace(op.getNameSpace());
+            inst.setPath(iop);
 
-            appendInvocationFlags(inst);
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+           /**
+             CMPI does not differentiate between EmbeddedInstances and
+             EmbeddedObjects, so any mismatches between the property type
+             in the instance and the property type in the class definition
+             must be resolved.
+            */
+            CMPIStatus status;
 
-            // Ensure that the instance includes a valid ObjectPath with
-            // all key properties set, for which the according property
-            // has been set on the instance.
-            inst.buildKeyBindingsFromProperties();
+            do
+            {
+                // Try EnumerateInstancesResponseHandler:
+
+                EnumerateInstancesResponseHandler * eiRes =
+                    dynamic_cast<EnumerateInstancesResponseHandler *>(res);
+
+                if (eiRes)
+                {
+                    status = resolveEmbeddedInstanceTypes(eiRes, inst);
+                    break;
+                }
+
+                // Try GetInstanceResponseHandler
+
+                GetInstanceResponseHandler * giRes = 0;
+                giRes = dynamic_cast<GetInstanceResponseHandler *>(res);
+
+                if (giRes)
+                {
+                    status = resolveEmbeddedInstanceTypes(giRes, inst);
+                    break;
+                }
+
+                // Try AssociatorsResponseHandler:
+
+                AssociatorsResponseHandler* aRes = 0;
+                aRes = dynamic_cast<AssociatorsResponseHandler*>(res);
+
+                if (aRes)
+                {
+                    status = resolveEmbeddedInstanceTypes(aRes, inst);
+                    break;
+                }
+
+                // Try AssociatorsResponseHandler:
+
+                ReferencesResponseHandler* rRes = 0;
+                rRes = dynamic_cast<ReferencesResponseHandler*>(res);
+
+                if (rRes)
+                {
+                    status = resolveEmbeddedInstanceTypes(rRes, inst);
+                    break;
+                }
+
+                // None of the above.
+
+                PEGASUS_ASSERT(0);
+            }
+            while (0);
+
+            if (status.rc != CMPI_RC_OK)
+            {
+                PEG_METHOD_EXIT();
+                return status;
+            }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
             res->deliver(inst);
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                "CIMException: resultReturnObject - msg: %s",
-                (const char*)e.getMessage().getCString()));
-
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Exception: resultReturnObject - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -337,13 +494,11 @@ extern "C"
         ExecQueryResponseHandler* res=(ExecQueryResponseHandler*)eRes->hdl;
         if ((res == NULL) || (eInst == NULL))
         {
-            PEG_TRACE((
+            PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                ((res==0) ? (Tracer::LEVEL1) : (Tracer::LEVEL3)),
-                "Invalid parameter res (%p) || eInst (%p) "
-                    "in CMPI_Result:resultReturnExecQuery",
-                res,
-                eInst));
+                Tracer::LEVEL1,
+                "Invalid parameter res || eInst in \
+                CMPI_Result:resultReturnExecQuery");
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
@@ -366,22 +521,16 @@ extern "C"
                 res->processing();
                 ((CMPI_Result*)eRes)->flags|=RESULT_set;
             }
-            SCMOInstance& inst=*(SCMOInstance*)(eInst->hdl);
-            
-            appendInvocationFlags(inst);
-
-            // Ensure that the instance includes a valid ObjectPath with
-            // all key properties set, for which the according property
-            // has been set on the instance.
-            inst.buildKeyBindingsFromProperties();
-
+            CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
+            CMPI_Result *xRes=(CMPI_Result*)eRes;
             res->deliver(inst);
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                "CIMException: resultReturnExecQuery - msg: %s",
-                (const char*)e.getMessage().getCString()));
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Exception: resultReturnExecQuery - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -397,18 +546,15 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Result:resultReturnObjectPath()");
-        SimpleObjectPathResponseHandler* res=
-            (SimpleObjectPathResponseHandler*)eRes->hdl;
+        ObjectPathResponseHandler* res=(ObjectPathResponseHandler*)eRes->hdl;
 
         if ((res == NULL) || (eRef == NULL))
         {
-            PEG_TRACE((
+            PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
-                ((res==0) ? (Tracer::LEVEL1) : (Tracer::LEVEL3)),
-                "Invalid parameter res (%p) || eRef (%p) "
-                    "in CMPI_Result:resultReturnObjectPath",
-                res,
-                eRef));
+                Tracer::LEVEL1,
+                "Invalid parameter res || eRef in \
+                CMPI_Result:resultReturnObjectPath");
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
@@ -430,15 +576,15 @@ extern "C"
                 res->processing();
                 ((CMPI_Result*)eRes)->flags|=RESULT_set;
             }
-            SCMOInstance& ref=*(SCMOInstance*)(eRef->hdl);
+            CIMObjectPath& ref=*(CIMObjectPath*)(eRef->hdl);
             res->deliver(ref);
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                "CIMException: resultReturnObjectPath - msg: %s",
-                (const char*)e.getMessage().getCString()));
-
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Exception: resultReturnObjectPath - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -474,10 +620,10 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                "CIMException: resultReturnInstDone - msg: %s",
-                (const char*)e.getMessage().getCString()));
-
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Exception: resultReturnInstDone - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -513,10 +659,10 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                "CIMException: resultReturnRefDone - msg: %s",
-                (const char*)e.getMessage().getCString()));
-
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Exception: resultReturnRefDone - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -552,10 +698,10 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                "CIMException: resultReturnDataDone - msg: %s",
-                (const char*)e.getMessage().getCString()));
-
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Exception: resultReturnDataDone - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -592,10 +738,10 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                "CIMException: resultReturnMethDone - msg: %s",
-                (const char*)e.getMessage().getCString()));
-
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Exception: resultReturnMethDone - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -631,10 +777,10 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                "CIMException: resultReturnObjDone - msg: %s",
-                (const char*)e.getMessage().getCString()));
-
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Exception: resultReturnObjDone - msg: " + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -670,10 +816,11 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                "CIMException: resultReturnExecQueryDone - msg: %s",
-                (const char*)e.getMessage().getCString()));
-
+            PEG_TRACE_STRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Exception: resultReturnExecQueryDone - msg: "
+                + e.getMessage());
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -846,7 +993,7 @@ CMPIResultFT *CMPI_ResultResponseOnStack_Ftab=&resultResponseOnStack_FT;
 CMPIResultFT *CMPI_ResultExecQueryOnStack_Ftab=&resultExecQueryOnStack_FT;
 
 CMPI_ResultOnStack::CMPI_ResultOnStack(
-    const SimpleObjectPathResponseHandler & handler,
+    const ObjectPathResponseHandler & handler,
     CMPI_Broker *xMb)
 {
     hdl=(void*)&handler;
@@ -857,7 +1004,7 @@ CMPI_ResultOnStack::CMPI_ResultOnStack(
 }
 
 CMPI_ResultOnStack::CMPI_ResultOnStack(
-    const SimpleInstanceResponseHandler& handler,
+    const InstanceResponseHandler& handler,
     CMPI_Broker *xMb)
 {
     hdl=(void*)&handler;
@@ -868,7 +1015,7 @@ CMPI_ResultOnStack::CMPI_ResultOnStack(
 }
 
 CMPI_ResultOnStack::CMPI_ResultOnStack(
-    const SimpleObjectResponseHandler& handler,
+    const ObjectResponseHandler& handler,
     CMPI_Broker *xMb)
 {
     hdl=(void*)&handler;
@@ -915,27 +1062,16 @@ CMPI_ResultOnStack::~CMPI_ResultOnStack()
 {
     try
     {
-        if (resError)
-        {
-            CMPI_Error* nextErr = NULL;
-            for (CMPI_Error* currErr=resError;
-                currErr!=NULL;
-                currErr=nextErr)
-            {
-                nextErr = currErr->nextError;
-                ((CMPIError*)currErr)->ft->release(currErr);
-            }
-        }
         if ((flags & RESULT_set)==0)
         {
             if (ft==CMPI_ResultRefOnStack_Ftab)
-               ((SimpleObjectPathResponseHandler*)hdl)->processing();
+               ((ObjectPathResponseHandler*)hdl)->processing();
             else
             if (ft==CMPI_ResultInstOnStack_Ftab)
-                ((SimpleInstanceResponseHandler*)hdl)->processing();
+                ((InstanceResponseHandler*)hdl)->processing();
             else
             if (ft==CMPI_ResultObjOnStack_Ftab)
-               ((SimpleObjectResponseHandler*)hdl)->processing();
+               ((ObjectResponseHandler*)hdl)->processing();
             else
             if (ft==CMPI_ResultMethOnStack_Ftab)
                ((MethodResultResponseHandler*)hdl)->processing();
@@ -945,19 +1081,19 @@ CMPI_ResultOnStack::~CMPI_ResultOnStack()
             else
             if (ft==CMPI_ResultExecQueryOnStack_Ftab)
                ((ExecQueryResponseHandler*)hdl)->processing();
-            else
+            else 
                ((ResponseHandler*)hdl)->processing();  // shoul not get here
         }
         if ((flags & RESULT_done)==0)
         {
             if (ft==CMPI_ResultRefOnStack_Ftab)
-               ((SimpleObjectPathResponseHandler*)hdl)->complete();
+               ((ObjectPathResponseHandler*)hdl)->complete();
             else
             if (ft==CMPI_ResultInstOnStack_Ftab)
-               ((SimpleInstanceResponseHandler*)hdl)->complete();
+               ((InstanceResponseHandler*)hdl)->complete();
             else
             if (ft==CMPI_ResultObjOnStack_Ftab)
-               ((SimpleObjectResponseHandler*)hdl)->complete();
+               ((ObjectResponseHandler*)hdl)->complete();
             else
             if (ft==CMPI_ResultMethOnStack_Ftab)
                ((MethodResultResponseHandler*)hdl)->complete();

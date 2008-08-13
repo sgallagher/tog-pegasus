@@ -838,14 +838,11 @@ endif
 #
 # PEGASUS_ENABLE_SLP and PEGASUS_DISABLE_SLP
 #
-# PEGASUS_DISABLE_SLP has been depracated. New use model is:
+# PEGASUS_DISABLE_SLP has been deprecated. New use model is:
 #
 # Use PEGASUS_ENABLE_SLP=true  to enable  compilation of SLP functions.
 #
 # Use PEGASUS_ENABLE_SLP=false to disable compilation of SLP functions.
-#
-# Currently (Aug. 12, 2005) Windows is the only platform that enables SLP
-# by default.
 #
 # NOTE. Effective with Bug # 2633 some platforms enable SLP.
 # To see which platforms look for platform make files that set
@@ -880,6 +877,14 @@ endif
 ############################################################################
 #
 # PEGASUS_USE_OPENSLP
+
+## NOTE: This variable has been deprecated and superceeded by the use of
+## PEGASUS_USE_EXTERNAL_SLP. The use of this variable may be 
+## removed from Pegasus in future releases. It is converted to the
+## PEGASUS_USE_EXTERNAL_SLP variable in the following function.
+## Do not allow PEGASUS_USE_EXTERNAL_SLP if PEGASUS_ENABLE_SLP not set and
+## insure that PEGASUS_USE_OPENSLP and PEGASUS_USE_EXTERNAL_SLP are not used
+## simultaneously
 #
 # Environment variable to set openslp as SLP environment to use
 # for SLP Directory and User Agents.
@@ -888,10 +893,7 @@ endif
 # internal pegasus slp agent.  Note that this does not disable the
 # compilation of the internal agent code, etc.  However, it assumes
 # openslp is installed on the platform and changes the interfaces
-# to match this.  At this moment, this is a change specifically for
-# adaptec but we expect to generalize it to provide openslp as a
-# generalized alternative to ldapslp.
-# to use this. To set this function up,
+# to match this.  
 #
 # Use this variable in conjunction with PEGASUS_OPENSLP_HOME
 # to enable OpenSlp as the slp implementation.
@@ -900,11 +902,17 @@ endif
 #
 
 ifdef PEGASUS_USE_OPENSLP
+  ifdef PEGASUS_USE_EXTERNAL_SLP
+    $(error Both PEGASUS_USE_OPENSLP and PEGASUS_USE_EXTERNAL_SLP defined. \
+      Please use PEGASUS_USE_EXTERNAL_SLP)
+  endif
   ifeq ($(PEGASUS_USE_OPENSLP),true)
     ifeq ($(PEGASUS_ENABLE_SLP),true)
-      DEFINES += -DPEGASUS_USE_OPENSLP
+      DEFINES += -DPEGASUS_USE_EXTERNAL_SLP=1
+      PEGASUS_USE_EXTERNAL_SLP=1
     else
-      $(error PEGASUS_USE_OPENSLP defined but PEGASUS_ENABLE_SLP is not true. Please correct this inconsistency)
+      $(error PEGASUS_USE_OPENSLP defined but PEGASUS_ENABLE_SLP is not true. \
+        Please correct this inconsistency)
     endif
   else
     ifneq ($(PEGASUS_USE_OPENSLP), false)
@@ -915,21 +923,72 @@ ifdef PEGASUS_USE_OPENSLP
   endif
 endif
 
+#########################################################################
 # PEP 267
 # SLP reregistration support.
 # PEGASUS_SLP_REG_TIMEOUT is defined as the SLP registration timeout
 # interval, in minutes.
 ifdef PEGASUS_SLP_REG_TIMEOUT
     ifeq ($(PEGASUS_ENABLE_SLP),true)
-       DEFINES += -DPEGASUS_SLP_REG_TIMEOUT=$(PEGASUS_SLP_REG_TIMEOUT)
+        DEFINES += -DPEGASUS_SLP_REG_TIMEOUT=$(PEGASUS_SLP_REG_TIMEOUT)
      else
-       $(error PEGASUS_SLP_REG_TIMEOUT defined but PEGASUS_ENABLE_SLP is not true. Please correct this inconsistency)
+        $(error PEGASUS_SLP_REG_TIMEOUT defined but PEGASUS_ENABLE_SLP is not true. \
+            Please correct this inconsistency)
      endif
  endif
 
 ############################################################################
 #
+# PEGASUS_USE_EXTERNAL_SLP
+
+# Environment variable to set an external slp implementation as the SLP
+# environment to use for SLP Directory Agents.
+
+# This allows setting any one of several possible external SLP SAs as the
+# interface for the SLP provider to communicate with in managing SLP templates
+# in place of the internal SLP agent provided with Pegasus.
+# Note: This does not disable the compilation of the internal agent code since
+# this is used for the SLP UA defined with the pegasus client.
+# Pegasus assumes that the external SLP defined is installed on the platform
+# and running when pegasus is started. It changes the interfaces from the SLP
+# provider to match the defined SLP implementation.
+
+# This environment variable superceedes the use of PEGASUS_USE_OPENSLP since
+# openslp is considered one of the valid external SLP environments usable by
+# pegasus.
+
+# The variable uses the value component to define a name for the external SLP
+# environment that must match one of the names defined below.
+
+# This variable is not allowed if the PEGASUS_ENABLE_SLP flag is not set.
+
+# Allow only predefined string values for the variable corresponding
+# to external slp types that pegasus knows.
+# Valid types are openslp (1) and solarisslp (2)
+EXTERNAL_SLP_TYPES = openslp solarisslp
+
+ifdef PEGASUS_USE_EXTERNAL_SLP
+  ifeq ($(PEGASUS_ENABLE_SLP),true)
+    ifeq ($(PEGASUS_USE_EXTERNAL_SLP),openslp)
+      DEFINES += -DPEGASUS_USE_EXTERNAL_SLP_TYPE=1
+    else
+      ifeq ($(PEGASUS_USE_EXTERNAL_SLP),solarisslp)
+         DEFINES += -DPEGASUS_USE_EXTERNAL_SLP_TYPE=2
+      else
+        $(error PEGASUS_USE_EXTERNAL_SLP value ($(PEGASUS_USE_EXTERNAL_SLP)) \
+          invalid. It must be one of valid SLP external types \
+          ($(EXTERNAL_SLP_TYPES)) )
+      endif
+    endif
+  endif
+endif
+
+############################################################################
+#
 # PEGASUS_OPENSLP_HOME
+#
+# PEGASUS_OPENSLP_HOME superceeded by PEGASUS_OPEN_EXTERNAL_SLP_HOME. If
+# PEGASUS_OPENSLP_HOME is encountered it will create PEGASUS_OPEN_EXTERNAL_SLP_HOME
 #
 # Environment variable to set home location for OpenSLP include and library
 # files if they are located somewhere other than /usr/include and /usr/lib.
@@ -944,7 +1003,35 @@ ifdef PEGASUS_SLP_REG_TIMEOUT
 #     then this environment variable should be set to /opt/OpenSLP.
 #
 
+ifdef PEGASUS_OPENSLP_HOME
+  ifdef PEGASUS_OPEN_EXTERNAL_SLP_HOME
+    $(error Both PEGASUS_OPENSLP_HOME and PEGASUS_OPEN_EXTERNAL_SLP_HOME defined. \
+      Please use PEGASUS_OPEN_EXTERNAL_SLP_HOME)
+  else
+      PEGASUS_EXTERNAL_SLP_HOME=$(PEGASUS_OPENSLP_HOME)
+   endif
+endif
+############################################################################
+#
+# PEGASUS_EXTERNAL_SLP_HOME
+#
+# Environment variable to set home location for External SLP include and library
+# files if they are located somewhere other than /usr/include and /usr/lib.
+#
+# This variable superceeds PEGASUS_OPENSLP_HOME to match the use of
+# PEGASUS_USE_EXTERNAL_SLP variable.
+#
+# PEGASUS_USE_EXTERNAL_SLP must also be defined for this environment variable
+# to have any effect.
+#
+# This is the directory level within which both the include and lib
+# directories holding the OpenSLP files will be found.
+#
+# EG: If the are located in /opt/OpenSLP/include and /opt/OpenSLP/lib
+#     then this environment variable should be set to /opt/OpenSLP.
+#
 
+############################################################################
 #
 # Enable this flag to allow the handshake to continue regardless of verification result
 #

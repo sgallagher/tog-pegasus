@@ -150,16 +150,16 @@ endif
 ##
 ## OpenSPL Settings
 ##
-##     To build for SSL, add PEGASUS_HAS_SSL=1 to environment
+##     Build for either OpenSlp or SolarisSLP.
 ##
 ##==============================================================================
 
-ifndef PEGASUS_OPENSLP_HOME
-  PEGASUS_OPENSLP_HOME=/usr
+ifndef PEGASUS_EXTERNAL_SLP_HOME
+  PEGASUS_EXTERNAL_SLP_HOME=/usr
 endif
 
-ifeq ($(PEGASUS_USE_OPENSLP),true)
-  FLAGS += -L$(PEGASUS_OPENSLP_HOME)/$(LIBBASE)
-  LD_LIBRARY_PATH+=:$(OPENSSL_HOME)/$(LIBBASE)
+ifeq ($(PEGASUS_USE_EXTERNAL_SLP),openslp)
+  FLAGS += -L$(PEGASUS_EXTERNAL_SLP_HOME)/$(LIBBASE)
+  LD_LIBRARY_PATH+=:$(PEGASUS_EXTERNAL_SLP_HOME)/$(LIBBASE)
   export LD_LIBRARY_PATH
 endif

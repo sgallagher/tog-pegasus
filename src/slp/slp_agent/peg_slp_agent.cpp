@@ -35,24 +35,29 @@
 #include <Pegasus/Common/FileSystem.h>
 #include "peg_slp_agent.h"
 
-#ifdef PEGASUS_USE_OPENSLP
+#ifdef PEGASUS_USE_EXTERNAL_SLP_TYPE
 #include <slp.h>
-#endif  /* PEGASUS_USE_OPENSLP */
+#endif  /* PEGASUS_USE_EXTERNAL_SLP_TYPE */
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-// The sun version of SLP requires the locale parameter to be set
-// the open source version allows the NULL option so that it can
-// select the locale. There is an issue with this fix in that it
-// assumes that in all cases the Sun SLP will be used on Solars
-// systems.  TBD - define more complete solution ks
-// 
+// The Solaris version of  external SLP requires the locale parameter to be set.
+// OpenSLP allows NULL so that it can select the locale.
+
+#ifdef PEGASUS_USE_EXTERNAL_SLP_TYPE
 #ifdef PEGASUS_OS_SOLARIS
-    const char* slp_service_agent::slp_lang = "en";
-#else
+//      If 2 (i.e. solarisslp). Set language.
+#if     PEGASUS_USE_EXTERNAL_SLP_TYPE == 2
+        const char* slp_service_agent::slp_lang = "en";
+#else   // any other external slp implementation
+        const char* slp_service_agent::slp_lang = NULL;
+#endif  
+#else   // NOT PEGASUS_OS_SOLARIS
     const char* slp_service_agent::slp_lang = NULL;
 #endif
+#endif  // PEGASUS_USE_EXTERNAL_SLP_TYPE
+
 class sa_reg_params
 {
 public:
@@ -129,7 +134,7 @@ sa_reg_params::~sa_reg_params()
     }
 }
 
-#ifdef PEGASUS_USE_OPENSLP
+#ifdef PEGASUS_USE_EXTERNAL_SLP_TYPE
 void SLPRegCallback(SLPHandle slp_handle, SLPError errcode, void* cookie)
 {
     /* return the error code in the cookie */
@@ -143,7 +148,7 @@ void SLPRegCallback(SLPHandle slp_handle, SLPError errcode, void* cookie)
         reading slp packets from the wire.
     */
 }
-#endif /* PEGASUS_USE_OPENSLP */
+#endif /* PEGASUS_USE_EXTERNAL_SLP_TYPE */
 
 
 slp_service_agent::slp_service_agent()
@@ -354,7 +359,7 @@ Boolean slp_service_agent::srv_register(
 
     _internal_regs.insert(url, rp);
 
-#if defined(PEGASUS_USE_OPENSLP) && !defined(PEGASUS_SLP_REG_TIMEOUT)
+#if defined(PEGASUS_USE_EXTERNAL_SLP_TYPE) && !defined(PEGASUS_SLP_REG_TIMEOUT)
     SLPHandle slp_handle = 0;
     SLPError  slpErr = SLP_OK;
     SLPError  callbackErr = SLP_OK;
@@ -383,7 +388,7 @@ Boolean slp_service_agent::srv_register(
         printf("Error Return SLPOpen 1 %d\n", slpErr);
         return false;
     }
-#endif /* PEGASUS_USE_OPENSLP */
+#endif /* PEGASUS_USE_EXTERNAL_SLP_TYPE */
 
     return true;
 }
@@ -407,21 +412,22 @@ void slp_service_agent::unregister()
         throw UninitializedObjectException();
     }
 
-#ifndef PEGASUS_USE_OPENSLP
+#ifndef PEGASUS_USE_EXTERNAL_SLP_TYPE
     _should_listen = 0;
 #ifdef PEGASUS_SLP_REG_TIMEOUT
     _update_reg_semaphore.signal();
 #endif
     _listen_thread.join();
-#endif  /* PEGASUS_USE_OPENSLP */
+#endif  /* PEGASUS_USE_EXTERNAL_SLP_TYPE */
 
     while (slp_reg_table::Iterator i = _internal_regs.start())
     {
         sa_reg_params *rp = i.value();
-#ifdef PEGASUS_USE_OPENSLP
+#ifdef PEGASUS_USE_EXTERNAL_SLP_TYPE
         SLPHandle slp_handle = 0;
         SLPError slpErr = SLP_OK;
         SLPError callbackErr=SLP_OK;
+
         if ((slpErr = SLPOpen(slp_lang, SLP_FALSE, &slp_handle)) == SLP_OK)
         {
             slpErr = SLPDereg(
@@ -523,12 +529,12 @@ void slp_service_agent::start_listener()
     {
         throw UninitializedObjectException();
     }
-#ifndef PEGASUS_USE_OPENSLP
+#ifndef PEGASUS_USE_EXTERNAL_SLP_TYPE
     _using_das = _find_das(_rep, NULL, "DEFAULT");
 
     _should_listen = 1;
     _listen_thread.run();
-#endif /* PEGASUS_USE_OPENSLP */
+#endif /* PEGASUS_USE_EXTERNAL_SLP_TYPE */
 
 }
 
@@ -541,8 +547,8 @@ void slp_service_agent::set_registration_callback(void (*ptr)())
 ThreadReturnType
 PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
 {
-#if !defined(PEGASUS_USE_OPENSLP) ||  \
-    (defined(PEGASUS_USE_OPENSLP) && defined(PEGASUS_SLP_REG_TIMEOUT))
+#if !defined(PEGASUS_USE_EXTERNAL_SLP_TYPE) ||  \
+    (defined(PEGASUS_USE_EXTERNAL_SLP_TYPE) && defined(PEGASUS_SLP_REG_TIMEOUT))
     Thread *myself = (Thread *)parm;
     if (myself == 0)
     {
@@ -566,7 +572,7 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
         {
             sa_reg_params *rp = i.value();
 
-#ifdef PEGASUS_USE_OPENSLP
+#ifdef PEGASUS_USE_EXTERNAL_SLP_TYPE
             SLPHandle slp_handle = 0;
             SLPError slpErr = SLP_OK;
             SLPError callbackErr=SLP_OK;
@@ -658,7 +664,7 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
         }
 #endif
     }
-#endif /* PEGASUS_USE_OPENSLP */
+#endif /* PEGASUS_USE_EXTERNAL_SLP_TYPE */
     return ThreadReturnType(0);
 }
 

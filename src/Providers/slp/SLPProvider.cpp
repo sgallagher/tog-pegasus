@@ -108,7 +108,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-    PEGASUS_USING_PEGASUS;
+PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 //******************************************************************
@@ -1248,8 +1248,9 @@ Boolean SLPProvider::populateRegistrationData(
 
     // Test the registration
 
-    CDEBUG("TEST_REG: " << (const char *)CServiceID 
-                        << " serviceName: " << serviceName);
+    CDEBUG("TEST_REG: ServiceId " << (const char *)CServiceID
+            << "\n serviceName: " << (const char *) serviceName
+            << "\n TEMPLATE = " << (const char *) CstrRegistration);
 
     Uint32 errorCode = slp_agent.test_registration((const char *)CServiceID ,
         (const char *)CstrRegistration,
@@ -1264,13 +1265,13 @@ Boolean SLPProvider::populateRegistrationData(
         return(false);
     }
 
-    CDEBUG("Tested Registration of instancd Good");
+    CDEBUG("Tested Registration of instance Good");
     // register this information.
     Boolean goodRtn = slp_agent.srv_register((const char *)CServiceID ,
         (const char *)CstrRegistration,
         (const char *)CfullServiceName,
         "DEFAULT",
-#if defined( PEGASUS_USE_OPENSLP ) && defined ( PEGASUS_SLP_REG_TIMEOUT )
+#if defined( PEGASUS_USE_EXTERNAL_SLP ) && defined ( PEGASUS_SLP_REG_TIMEOUT )
         PEGASUS_SLP_REG_TIMEOUT  * 60);
 #else
         0xffff);
@@ -1284,18 +1285,20 @@ Boolean SLPProvider::populateRegistrationData(
         return(false);
     }
     
-    // register for service-agent on each ip interface with Embedded SA
+    // register for service-agent on each ip interface with SA
 #ifndef PEGASUS_SLP_REG_TIMEOUT
     HostLocator locator(IPAddress);
     String agentURL = "service:service-agent://";
     agentURL.append(locator.getHost());
+
+    CDEBUG("REGISTER SVC " << (const char *) agentURL.getCString());
+
     slp_agent.srv_register((const char *)agentURL.getCString(),
         (const char *)"(service-type=*)",
         (const char *)"service:service-agent",
         "DEFAULT",
         0xffff);
 #endif
-
 
     // Add the registered instance to the current active list.
 
@@ -1645,7 +1648,7 @@ void SLPProvider::invokeMethod(
                 {
                 // PEP 267 ifdef is added to allow reregistrations.
                 // issueRegistration sets initFlag to true.   
-#if defined( PEGASUS_USE_OPENSLP ) && defined ( PEGASUS_SLP_REG_TIMEOUT )
+#if defined( PEGASUS_USE_EXTERNAL_SLP ) && defined ( PEGASUS_SLP_REG_TIMEOUT )
                    initFlag = false;
 #endif
                     response = 0;

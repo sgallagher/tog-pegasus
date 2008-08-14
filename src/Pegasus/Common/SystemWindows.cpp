@@ -162,6 +162,10 @@ Boolean System::removeFile(const char* path)
 
 Boolean System::renameFile(const char* oldPath, const char* newPath)
 {
+    if (exists(oldPath))
+    {
+        removeFile(newPath);
+    }
     return rename(oldPath, newPath) == 0;
 }
 

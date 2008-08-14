@@ -1200,7 +1200,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm)
                 "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
                 "CIM Server registration with External SLP Failed. "
                     "Exception: $0",
-                e.getMessage());
+                e.getMessage()));
 #else
         Logger::put_l(
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,

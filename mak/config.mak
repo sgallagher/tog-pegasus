@@ -909,7 +909,7 @@ ifdef PEGASUS_USE_OPENSLP
   ifeq ($(PEGASUS_USE_OPENSLP),true)
     ifeq ($(PEGASUS_ENABLE_SLP),true)
       DEFINES += -DPEGASUS_USE_EXTERNAL_SLP=1
-      PEGASUS_USE_EXTERNAL_SLP=1
+      PEGASUS_USE_EXTERNAL_SLP_TYPE=1
     else
       $(error PEGASUS_USE_OPENSLP defined but PEGASUS_ENABLE_SLP is not true. \
         Please correct this inconsistency)

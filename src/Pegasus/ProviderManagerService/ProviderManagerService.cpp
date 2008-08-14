@@ -748,9 +748,9 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
                         "recognized.",
                     interfaceType,
                     interfaceVersion);
-                Logger::put(
+                Logger::put_l(
                     Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                    MessageLoader::getMessage(parms));
+                    parms);
 
                 CIMResponseMessage* cimResponse = request->buildResponse();
                 cimResponse->cimException = PEGASUS_CIM_EXCEPTION_L(
@@ -1091,22 +1091,24 @@ void ProviderManagerService::providerModuleFailureCallback
 
     if (userContext == PG_PROVMODULE_USERCTXT_REQUESTOR)
     {
-        Logger::put_l (
+        Logger::put_l(
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            "ProviderManager.OOPProviderManagerRouter."
-                "OOP_PROVIDER_MODULE_USER_CTXT_FAILURE_DETECTED",
-            "A failure was detected in provider module $0 with"
-                " user context $1.",
-            moduleName, userName);
+            MessageLoaderParms(
+                "ProviderManager.OOPProviderManagerRouter."
+                    "OOP_PROVIDER_MODULE_USER_CTXT_FAILURE_DETECTED",
+                "A failure was detected in provider module $0 with "
+                    "user context $1.",
+                moduleName, userName));
     }
     else  //  not requestor context
     {
-        Logger::put_l (
+        Logger::put_l(
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            "ProviderManager.OOPProviderManagerRouter."
-                "OOP_PROVIDER_MODULE_FAILURE_DETECTED",
-            "A failure was detected in provider module $0.",
-            moduleName);
+            MessageLoaderParms(
+                "ProviderManager.OOPProviderManagerRouter."
+                    "OOP_PROVIDER_MODULE_FAILURE_DETECTED",
+                "A failure was detected in provider module $0.",
+                moduleName));
     }
 
     //
@@ -1201,15 +1203,16 @@ void ProviderManagerService::providerModuleFailureCallback
             //
             //  Log a warning message since subscriptions were affected
             //
-            Logger::put_l (
+            Logger::put_l(
                 Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                "ProviderManager.OOPProviderManagerRouter."
-                    "OOP_PROVIDER_MODULE_SUBSCRIPTIONS_AFFECTED",
-                "The generation of indications by providers in module $0 "
-                "may be affected.  To ensure these providers are serving "
-                "active subscriptions, disable and then re-enable this "
-                "module using the cimprovider command.",
-                moduleName);
+                MessageLoaderParms(
+                    "ProviderManager.OOPProviderManagerRouter."
+                        "OOP_PROVIDER_MODULE_SUBSCRIPTIONS_AFFECTED",
+                    "The generation of indications by providers in module $0 "
+                    "may be affected.  To ensure these providers are serving "
+                    "active subscriptions, disable and then re-enable this "
+                    "module using the cimprovider command.",
+                    moduleName));
         }
     }
 

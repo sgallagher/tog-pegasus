@@ -738,10 +738,11 @@ void ConfigManager::_loadConfigProperties()
                 {
                     Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
                         Logger::WARNING,
-                        "Config.ConfigManager.NOTSUPPORTED_CONFIG_PROPERTY",
-                        "Configuration property $0 is not supported. "
-                            "Setting ignored.",
-                        propertyName);
+                        MessageLoaderParms(
+                            "Config.ConfigManager.NOTSUPPORTED_CONFIG_PROPERTY",
+                            "Configuration property $0 is not supported. "
+                                "Setting ignored.",
+                            propertyName));
                 }
                 else
                 {

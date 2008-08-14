@@ -579,8 +579,9 @@ void IndicationService::_initialize()
             //
             Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
                 Logger::WARNING,
-                _MSG_INVALID_INSTANCE_KEY, _MSG_INVALID_INSTANCE,
-                e.getMessage());
+                MessageLoaderParms(
+                    _MSG_INVALID_INSTANCE_KEY, _MSG_INVALID_INSTANCE,
+                    e.getMessage()));
             continue;
         }
 
@@ -736,10 +737,12 @@ void IndicationService::_initialize()
                 //  Log a message for the subscription
                 //
                 Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
-                    Logger::WARNING, _MSG_NO_PROVIDER_KEY, _MSG_NO_PROVIDER,
-                    logString,
-                    activeSubscriptions[i].getPath().getNameSpace().
-                        getString());
+                    Logger::WARNING,
+                    MessageLoaderParms(
+                        _MSG_NO_PROVIDER_KEY, _MSG_NO_PROVIDER,
+                        logString,
+                        activeSubscriptions[i].getPath().getNameSpace().
+                            getString()));
             }
         }
         else
@@ -762,7 +765,8 @@ void IndicationService::_initialize()
     if (invalidInstance)
     {
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            _MSG_INVALID_INSTANCES_KEY, _MSG_INVALID_INSTANCES);
+            MessageLoaderParms(
+                _MSG_INVALID_INSTANCES_KEY, _MSG_INVALID_INSTANCES));
     }
 
     //
@@ -797,11 +801,12 @@ void IndicationService::_initialize()
 
             Logger::put_l(
                 Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                _MSG_NO_PROVIDER_KEY,
-                _MSG_NO_PROVIDER,
-                logString,
-                noProviderSubscriptions[i].getPath().getNameSpace().
-                    getString());
+                MessageLoaderParms(
+                    _MSG_NO_PROVIDER_KEY,
+                    _MSG_NO_PROVIDER,
+                    logString,
+                    noProviderSubscriptions[i].getPath().getNameSpace().
+                        getString()));
         }
     }
 
@@ -2482,10 +2487,12 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             String logString2 = _getSubscriptionLogString
                 (newSubscriptions[j]);
 
-            Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
-                Logger::WARNING, _MSG_PROVIDER_NOW_SERVING_KEY,
-                _MSG_PROVIDER_NOW_SERVING, logString1, logString2,
-                newSubscriptions[j].getPath ().getNameSpace ().getString ());
+            Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
+                Logger::WARNING,
+                MessageLoaderParms(
+                    _MSG_PROVIDER_NOW_SERVING_KEY,
+                    _MSG_PROVIDER_NOW_SERVING, logString1, logString2,
+                    newSubscriptions[j].getPath().getNameSpace().getString()));
         }
     }
 
@@ -2674,10 +2681,13 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             String logString2 = _getSubscriptionLogString
                 (formerSubscriptions[j]);
 
-            Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
-                Logger::WARNING, _MSG_PROVIDER_NO_LONGER_SERVING_KEY,
-                _MSG_PROVIDER_NO_LONGER_SERVING, logString1, logString2,
-                formerSubscriptions[j].getPath().getNameSpace().getString());
+            Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
+                Logger::WARNING,
+                MessageLoaderParms(
+                    _MSG_PROVIDER_NO_LONGER_SERVING_KEY,
+                    _MSG_PROVIDER_NO_LONGER_SERVING, logString1, logString2,
+                    formerSubscriptions[j].getPath().getNameSpace().
+                        getString()));
         }
     }
 
@@ -2765,11 +2775,13 @@ void IndicationService::_handleNotifyProviderTerminationRequest
                 String logString2 = _getSubscriptionLogString
                     (providerSubscriptions[j]);
 
-                Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
-                    Logger::WARNING, _MSG_PROVIDER_NO_LONGER_SERVING_KEY,
-                    _MSG_PROVIDER_NO_LONGER_SERVING, logString1, logString2,
-                    providerSubscriptions[j].getPath().getNameSpace().
-                        getString());
+                Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
+                    Logger::WARNING,
+                    MessageLoaderParms(
+                        _MSG_PROVIDER_NO_LONGER_SERVING_KEY,
+                        _MSG_PROVIDER_NO_LONGER_SERVING, logString1, logString2,
+                        providerSubscriptions[j].getPath().getNameSpace().
+                            getString()));
             }
         }
     }
@@ -3059,12 +3071,14 @@ void IndicationService::_handleNotifyProviderEnableRequest
                         //
                         //  Log a message for each subscription
                         //
-                        Logger::put_l (Logger::STANDARD_LOG,
+                        Logger::put_l(Logger::STANDARD_LOG,
                             System::CIMSERVER, Logger::WARNING,
-                            _MSG_PROVIDER_NOW_SERVING_KEY,
-                            _MSG_PROVIDER_NOW_SERVING, logString1, logString2,
-                            subscriptions[s].getPath().getNameSpace().
-                                getString());
+                            MessageLoaderParms(
+                                _MSG_PROVIDER_NOW_SERVING_KEY,
+                                _MSG_PROVIDER_NOW_SERVING,
+                                logString1, logString2,
+                                subscriptions[s].getPath().getNameSpace().
+                                    getString()));
                     }
                 }
             }  //  if any provider accepted the create subscription request

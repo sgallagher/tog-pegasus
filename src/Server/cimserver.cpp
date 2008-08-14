@@ -727,16 +727,16 @@ int CIMServerProcess::cimserver_run(
                 "Failed to set CCSID, server will stop.");
         cerr << MessageLoader::getMessage(parms) << endl;
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::FATAL,
-                "src.Server.cimserver.SET_CCSID_ERROR.PEGASUS_OS_PASE",
-                "Failed to set CCSID, server will stop.\n");
+                parms);
         exit (1);
     }
 
     char fullJobName[29];
     umeGetJobName(fullJobName, true);
     Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+        MessageLoaderParms(
             "src.Server.cimserver.SERVER_JOB_NAME.PEGASUS_OS_PASE",
-            "CIM Server's Job Name is: $0", fullJobName);
+            "CIM Server's Job Name is: $0", fullJobName));
 #endif
 
 #ifdef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
@@ -749,15 +749,13 @@ int CIMServerProcess::cimserver_run(
 
         if (!enableHttpConnection && !enableHttpsConnection)
         {
-            Logger::put_l(
-                Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                "src.Server.cimserver.HTTP_NOT_ENABLED_SERVER_NOT_STARTING",
-                "Neither HTTP nor HTTPS connection is enabled."
-                    "  CIMServer will not be started.");
             MessageLoaderParms parms(
                 "src.Server.cimserver.HTTP_NOT_ENABLED_SERVER_NOT_STARTING",
                 "Neither HTTP nor HTTPS connection is enabled."
                     "  CIMServer will not be started.");
+            Logger::put_l(
+                Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+                parms);
             cerr << MessageLoader::getMessage(parms) << endl;
             return 1;
         }
@@ -829,8 +827,8 @@ int CIMServerProcess::cimserver_run(
     {
         MessageLoaderParms parms("src.Server.cimserver.SERVER_NOT_STARTED",
             "cimserver not started: $0", e.getMessage());
-        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            MessageLoader::getMessage(parms));
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+            parms);
         cerr << MessageLoader::getMessage(parms) << endl;
 
         return 1;
@@ -878,9 +876,10 @@ int CIMServerProcess::cimserver_run(
     catch (InvalidAcceptLanguageHeader& e)
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "src.Server.cimserver.FAILED_TO_SET_PROCESS_LOCALE",
-            "Could not convert the system process locale into a valid "
-                "AcceptLanguage format.");
+            MessageLoaderParms(
+                "src.Server.cimserver.FAILED_TO_SET_PROCESS_LOCALE",
+                "Could not convert the system process locale into a valid "
+                    "AcceptLanguage format."));
         Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             e.getMessage());
     }
@@ -922,9 +921,9 @@ int CIMServerProcess::cimserver_run(
             MessageLoaderParms parms(
                 "src.Server.cimserver.UNABLE_TO_START_SERVER_ALREADY_RUNNING",
                 "Unable to start CIMServer. CIMServer is already running.");
-            Logger::put(
+            Logger::put_l(
                 Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
-                MessageLoader::getMessage(parms));
+                parms);
             cerr << MessageLoader::getMessage(parms) << endl;
 
             if (daemonOption)
@@ -980,9 +979,9 @@ int CIMServerProcess::cimserver_run(
             MessageLoaderParms parms(
                 "src.Server.cimserver.IPV6_STACK_NOT_ACTIVE",
                 "IPv6 stack is not active, using IPv4 socket.");
-            Logger::put(
+            Logger::put_l(
                 Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                MessageLoader::getMessage(parms));
+                parms);
 #if defined(PEGASUS_DEBUG)
             cout << MessageLoader::getMessage(parms) << endl;
 #endif
@@ -1047,9 +1046,9 @@ int CIMServerProcess::cimserver_run(
             MessageLoaderParms parms(
                 "src.Server.cimserver.LISTENING_ON_HTTP_PORT",
                 "Listening on HTTP port $0.", portNumberHttpStr);
-            Logger::put(
+            Logger::put_l(
                 Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                MessageLoader::getMessage(parms));
+                parms);
 #if defined(PEGASUS_DEBUG)
             cout << MessageLoader::getMessage(parms) << endl;
 #endif
@@ -1097,9 +1096,9 @@ int CIMServerProcess::cimserver_run(
             MessageLoaderParms parms(
                 "src.Server.cimserver.LISTENING_ON_HTTPS_PORT",
                 "Listening on HTTPS port $0.", portNumberHttpsStr);
-            Logger::put(
+            Logger::put_l(
                 Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                MessageLoader::getMessage(parms));
+                parms);
 #if defined(PEGASUS_DEBUG)
             cout << MessageLoader::getMessage(parms) << endl;
 #endif
@@ -1112,9 +1111,9 @@ int CIMServerProcess::cimserver_run(
             MessageLoaderParms parms(
                 "src.Server.cimserver.LISTENING_ON_LOCAL",
                 "Listening on local connection socket.");
-            Logger::put(
+            Logger::put_l(
                 Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                MessageLoader::getMessage(parms));
+                parms);
 # if defined(PEGASUS_DEBUG)
             cout << MessageLoader::getMessage(parms) << endl;
 # endif
@@ -1137,10 +1136,11 @@ int CIMServerProcess::cimserver_run(
         // Put server started message to the logger
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
             Logger::INFORMATION,
-            "src.Server.cimserver.STARTED_VERSION",
-            "Started $0 version $1.",
-            _cimServerProcess->getProductName(),
-            _cimServerProcess->getCompleteVersion());
+            MessageLoaderParms(
+                "src.Server.cimserver.STARTED_VERSION",
+                "Started $0 version $1.",
+                _cimServerProcess->getProductName(),
+                _cimServerProcess->getCompleteVersion()));
 
 #if defined(PEGASUS_OS_TYPE_UNIX) && !defined(PEGASUS_OS_ZOS)
         if (daemonOption && !debugOutputOption)
@@ -1160,8 +1160,8 @@ int CIMServerProcess::cimserver_run(
     {
         MessageLoaderParms parms("src.Server.cimserver.SERVER_NOT_STARTED",
             "cimserver not started: $0", e.getMessage());
-        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            MessageLoader::getMessage(parms));
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+            parms);
         cerr << MessageLoader::getMessage(parms) << endl;
 
         //
@@ -1218,9 +1218,11 @@ int CIMServerProcess::cimserver_run(
 #endif
 
         // Put server shutdown message to the logger
-        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
-            Logger::INFORMATION, "src.Server.cimserver.STOPPED",
-            "$0 stopped.", _cimServerProcess->getProductName());
+        Logger::put_l(
+            Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+            MessageLoaderParms(
+                "src.Server.cimserver.STOPPED",
+                "$0 stopped.", _cimServerProcess->getProductName()));
     }
     catch (Exception& e)
     {
@@ -1228,8 +1230,8 @@ int CIMServerProcess::cimserver_run(
             "src.Server.cimserver.ERROR",
             "Error: $0",
             e.getMessage());
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoader::getMessage(parms));
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            parms);
         cerr << MessageLoader::getMessage(parms) << endl;
 
         deleteCIMServer();

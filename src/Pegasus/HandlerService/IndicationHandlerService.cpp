@@ -308,10 +308,11 @@ IndicationHandlerService::_handleIndication(
     if (!handleIndicationSuccess)
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            "HandlerService.IndicationHandlerService."
-                "INDICATION_DELIVERY_FAILED",
-            "Failed to deliver an indication: $0",
-            cimException.getMessage());
+            MessageLoaderParms(
+                "HandlerService.IndicationHandlerService."
+                    "INDICATION_DELIVERY_FAILED",
+                "Failed to deliver an indication: $0",
+                cimException.getMessage()));
     }
 
     CIMHandleIndicationResponseMessage* response =

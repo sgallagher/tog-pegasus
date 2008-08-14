@@ -344,8 +344,9 @@ SocketHandle Socket::createSocket(int domain, int type, int protocol)
         {
             Logger::put_l(
                 Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                "Common.Socket.WAIT_FOR_TCPIP",
-                "TCP/IP temporary unavailable.");
+                MessageLoaderParms(
+                    "Common.Socket.WAIT_FOR_TCPIP",
+                    "TCP/IP temporary unavailable."));
             sendTcpipMsg = false;
         }
 

@@ -544,12 +544,11 @@ int CIMListenerProcess::cimserver_run(
     }
     catch (Exception& e)
     {
-        Logger::put_l(Logger::ERROR_LOG, System::CIMLISTENER, Logger::SEVERE,
-            "src.Server.cimserver.SERVER_NOT_STARTED",
-            "cimserver not started:  $0", e.getMessage());
-
         MessageLoaderParms parms("DynListener.cimlistener.LISTENER_NOT_STARTED",
                 "CIM Listener not started: $0", e.getMessage());
+
+        Logger::put_l(Logger::ERROR_LOG, System::CIMLISTENER, Logger::SEVERE,
+            parms);
 
         PEGASUS_STD(cerr) << argv[0] << ": " << MessageLoader::getMessage(parms)
             << PEGASUS_STD(endl);
@@ -756,9 +755,10 @@ MessageLoader::_useProcessLocale = false;
     catch(InvalidAcceptLanguageHeader& e)
     {
           Logger::put_l(Logger::ERROR_LOG, System::CIMLISTENER, Logger::SEVERE,
+              MessageLoaderParms(
                   "src.Server.cimserver.FAILED_TO_SET_PROCESS_LOCALE",
                   "Could not convert the system process"
-                  "locale into a valid AcceptLanguage format.");
+                  "locale into a valid AcceptLanguage format."));
           Logger::put(Logger::ERROR_LOG, System::CIMLISTENER, Logger::SEVERE,
                              e.getMessage());
     }
@@ -812,9 +812,10 @@ MessageLoader::_useProcessLocale = false;
 
         Logger::put_l(Logger::STANDARD_LOG, 
             System::CIMLISTENER, Logger::INFORMATION,
-            "DynListener.cimlistener.LISTENING_ON_PORT",
-            "The CIM listener is listening on port $0.",
-            listenerPort);
+            MessageLoaderParms(
+                "DynListener.cimlistener.LISTENING_ON_PORT",
+                "The CIM listener is listening on port $0.",
+                listenerPort));
 
 
 #if defined(PEGASUS_DEBUG)
@@ -864,10 +865,11 @@ MessageLoader::_useProcessLocale = false;
         // Put server started message to the logger
         Logger::put_l(Logger::STANDARD_LOG, System::CIMLISTENER,
             Logger::INFORMATION,
-            "src.Server.cimserver.STARTED_VERSION",
-            "Started $0 version $1.",
-            _cimListenerProcess->getProductName(),
-            _cimListenerProcess->getVersion());
+            MessageLoaderParms(
+                "src.Server.cimserver.STARTED_VERSION",
+                "Started $0 version $1.",
+                _cimListenerProcess->getProductName(),
+                _cimListenerProcess->getVersion()));
 
 #if defined(PEGASUS_OS_TYPE_UNIX)
         if (daemonOption && !debugOutputOption)
@@ -947,15 +949,18 @@ MessageLoader::_useProcessLocale = false;
 
         // Put server shutdown message to the logger
         Logger::put_l(Logger::STANDARD_LOG, System::CIMLISTENER,
-            Logger::INFORMATION, "src.Server.cimserver.STOPPED",
-            "$0 stopped.", _cimListenerProcess->getProductName());
+            Logger::INFORMATION,
+            MessageLoaderParms(
+                "src.Server.cimserver.STOPPED",
+                "$0 stopped.", _cimListenerProcess->getProductName()));
     }
     catch (Exception& e)
     {
         Logger::put_l(
             Logger::STANDARD_LOG, System::CIMLISTENER, Logger::WARNING,
-            "src.Server.cimserver.ERROR",
-            "Error: $0", e.getMessage());
+            MessageLoaderParms(
+                "src.Server.cimserver.ERROR",
+                "Error: $0", e.getMessage()));
 
         MessageLoaderParms parms("DynListener.cimlistener.ERROR",
             "CIM Listener error: $0");

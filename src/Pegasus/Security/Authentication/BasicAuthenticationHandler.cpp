@@ -124,9 +124,11 @@ Boolean BasicAuthenticationHandler::authenticate(
     {
         String badUserName = userName.subString(0, PEGASUS_MAX_USER_NAME_LEN);
 
-        Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
-                Logger::INFORMATION,  BASIC_AUTHENTICATION_FAILED_KEY, 
-                BASIC_AUTHENTICATION_FAILED, badUserName );
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
+            Logger::INFORMATION,
+            MessageLoaderParms(
+                BASIC_AUTHENTICATION_FAILED_KEY, 
+                BASIC_AUTHENTICATION_FAILED, badUserName));
         PEG_METHOD_EXIT();
         return false;
     }
@@ -169,9 +171,11 @@ Boolean BasicAuthenticationHandler::authenticate(
         //
         //  Log a message for basic authentication failure
         //
-        Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
-                       Logger::INFORMATION,  BASIC_AUTHENTICATION_FAILED_KEY, 
-                       BASIC_AUTHENTICATION_FAILED, userName );
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
+            Logger::INFORMATION,
+            MessageLoaderParms(
+                BASIC_AUTHENTICATION_FAILED_KEY,
+                BASIC_AUTHENTICATION_FAILED, userName));
     }
 #endif
 

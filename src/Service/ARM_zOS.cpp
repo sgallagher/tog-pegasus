@@ -135,10 +135,11 @@ void ARM_zOS::Register(void)
     if (arm_ret <= 0x04)
     {
        Logger::put_l(Logger::STANDARD_LOG, "CIM Server", Logger::INFORMATION,
-           "Common.ARM_zOS.ARM_READY",
-           "The CIM server successfully registered to ARM using element "
-               "name $0.",
-           arm_elemname);
+           MessageLoaderParms(
+               "Common.ARM_zOS.ARM_READY",
+               "The CIM server successfully registered to ARM using element "
+                   "name $0.",
+               arm_elemname));
 
         if (arm_ret == 0x00)
         {
@@ -185,12 +186,13 @@ void ARM_zOS::Register(void)
         char str_arm_res[8];
         sprintf(str_arm_res,"%04X",arm_res);
         Logger::put_l(Logger::STANDARD_LOG, "CIM Server", Logger::INFORMATION,
-            "Common.ARM_zOS.ARM_FAIL",
-            "The CIM server failed to register with ARM using element "
-                "name $0: return code 0x$1, reason code 0x$2.",
-                arm_elemname,
-                str_arm_ret,
-                str_arm_res);
+            MessageLoaderParms(
+                "Common.ARM_zOS.ARM_FAIL",
+                "The CIM server failed to register with ARM using element "
+                    "name $0: return code 0x$1, reason code 0x$2.",
+                    arm_elemname,
+                    str_arm_ret,
+                    str_arm_res);
 
         ARM_zOS_Status = NOT_REGISTERED;
     }                

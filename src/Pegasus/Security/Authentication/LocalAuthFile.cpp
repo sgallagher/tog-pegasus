@@ -182,9 +182,11 @@ String LocalAuthFile::create()
     {
         // unable to create file
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "Security.Authentication.LocalAuthFile.NO_CREATE",
-            "Creation of the local authentication security file"
-            " $0 failed: $1",filePath,strerror(errno));
+            MessageLoaderParms(
+                "Security.Authentication.LocalAuthFile.NO_CREATE",
+                "Creation of the local authentication security file"
+                    " $0 failed: $1",
+                filePath, strerror(errno)));
         PEG_METHOD_EXIT();
         throw CannotOpenFile (filePath);
     }
@@ -207,9 +209,11 @@ String LocalAuthFile::create()
         // Unable to change the local auth file permissions, remove the file
         // and throw CannotOpenFile error.
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "Security.Authentication.LocalAuthFile.NO_CHMOD",
-            "Changing permissions of the local authentication security file"
-            " $0 failed: $1",filePath,strerror(errno));
+            MessageLoaderParms(
+                "Security.Authentication.LocalAuthFile.NO_CHMOD",
+                "Changing permissions of the local authentication security "
+                    "file $0 failed: $1",
+                filePath, strerror(errno)));
 
         if (filePath.size())
         {
@@ -233,9 +237,11 @@ String LocalAuthFile::create()
     if (outfs.fail())
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "Security.Authentication.LocalAuthFile.NO_WRITE",
-            "Cannot write security token to the local authentication"
-            " security file $0.",filePath);
+            MessageLoaderParms(
+                "Security.Authentication.LocalAuthFile.NO_WRITE",
+                "Cannot write security token to the local authentication "
+                    "security file $0.",
+                filePath));
 
         if (filePath.size())
         {
@@ -266,9 +272,11 @@ String LocalAuthFile::create()
         // Unable to change the local auth file permissions, remove the file
         // and throw CannotOpenFile error.
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "Security.Authentication.LocalAuthFile.NO_CHMOD",
-            "Changing permissions of the local authentication security file"
-            " $0 failed: $1",filePath,strerror(errno));
+            MessageLoaderParms(
+                "Security.Authentication.LocalAuthFile.NO_CHMOD",
+                "Changing permissions of the local authentication security "
+                    "file $0 failed: $1",
+                filePath, strerror(errno)));
 
         if (filePath.size())
         {
@@ -292,10 +300,11 @@ String LocalAuthFile::create()
         // and throw CannotOpenFile error.
 
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "Security.Authentication.LocalAuthFile.NO_CHOWN_REQUSER",
-            "Changing ownership of the local authentication"
-            " security file $0 to the requesting user failed: $1"
-                      ,filePath,strerror(errno));
+            MessageLoaderParms(
+                "Security.Authentication.LocalAuthFile.NO_CHOWN_REQUSER",
+                "Changing ownership of the local authentication "
+                    "security file $0 to the requesting user failed: $1",
+                filePath, strerror(errno)));
 
         if (filePath.size())
         {
@@ -341,9 +350,10 @@ Boolean LocalAuthFile::remove()
         if (rc == -1)
         {
             Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-                "Security.Authentication.LocalAuthFile.NO_CHOWN",
-                "Changing ownership of the local authentication "
-                    "security file back to the CIMServer UserId failed.");
+                MessageLoaderParms(
+                    "Security.Authentication.LocalAuthFile.NO_CHOWN",
+                    "Changing ownership of the local authentication "
+                        "security file back to the CIMServer UserId failed."));
         }
 #endif
 

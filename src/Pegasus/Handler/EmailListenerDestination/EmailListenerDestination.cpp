@@ -181,11 +181,12 @@ void EmailListenerDestination::_sendViaEmail(
     if (access(SENDMAIL_CMD, X_OK) < 0)
     {
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            "Handler.EmailListenerDestination.EmailListenerDestination."
-                "_MSG_EXECUTE_ACCESS_FAILED",
-            "Cannot execute $0: $1",
-            SENDMAIL_CMD,
-            strerror(errno));
+            MessageLoaderParms(
+                "Handler.EmailListenerDestination.EmailListenerDestination."
+                    "_MSG_EXECUTE_ACCESS_FAILED",
+                "Cannot execute $0: $1",
+                SENDMAIL_CMD,
+                strerror(errno)));
 
         PEG_METHOD_EXIT();
         return;

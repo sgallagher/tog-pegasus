@@ -514,11 +514,9 @@ void AuditLogger::_writeAuditMessageToLog(
     Uint32 logLevel,
     MessageLoaderParms & msgParms)
 {
-    String localizedMsg = MessageLoader::getMessage(msgParms);
-
     String identifier = "cimserver audit";
 
-    Logger::put(Logger::AUDIT_LOG, identifier, logLevel, localizedMsg);
+    Logger::put_l(Logger::AUDIT_LOG, identifier, logLevel, msgParms);
 }
 
 String AuditLogger::_getModuleStatusValue(

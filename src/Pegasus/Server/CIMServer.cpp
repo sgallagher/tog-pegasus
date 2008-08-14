@@ -174,8 +174,9 @@ static void _synchronousSignalHandler(int s_n, PEGASUS_SIGINFO_T* s_info,
     mark = true;
 
     Logger::put_l(Logger::ERROR_LOG, "CIMServer", Logger::SEVERE,
-        "Pegasus.Server.CIMServer.RECEIVE_SYN_SIGNAL.PEGASUS_OS_PASE", \
-        "Synchronous signal received.");
+        MessageLoaderParms(
+            "Pegasus.Server.CIMServer.RECEIVE_SYN_SIGNAL.PEGASUS_OS_PASE",
+            "Synchronous signal received."));
 
     CIMServer::shutdownSignal();
 }
@@ -190,8 +191,9 @@ static void _asynchronousSignalHandler(int s_n, PEGASUS_SIGINFO_T* s_info,
     mark = true;
 
     Logger::put_l(Logger::ERROR_LOG, "CIMServer", Logger::SEVERE,
-        "Pegasus.Server.CIMServer.RECEIVE_ASYN_SIGNAL.PEGASUS_OS_PASE", \
-        "Asynchronous signal received.");
+        MessageLoaderParms(
+            "Pegasus.Server.CIMServer.RECEIVE_ASYN_SIGNAL.PEGASUS_OS_PASE",
+            "Asynchronous signal received."));
 
     CIMServer::shutdownSignal();
 }
@@ -1184,37 +1186,44 @@ ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm)
 
         Logger::put_l(
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-            "Pegasus.Server.SLP.SLP_REGISTRATION_INITIATED",
-            "SLP Registration Initiated");
+            MessageLoaderParms(
+                "Pegasus.Server.SLP.SLP_REGISTRATION_INITIATED",
+                "SLP Registration Initiated"));
     }
 
     catch(Exception& e)
     {
 #ifdef PEGASUS_SLP_REG_TIMEOUT
-         Logger::put_l(
-             Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-             "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
-             "CIM Server registration with External SLP Failed. Exception: $0",
-             e.getMessage());
+        Logger::put_l(
+            Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            MessageLoaderParms(
+                "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
+                "CIM Server registration with External SLP Failed. "
+                    "Exception: $0",
+                e.getMessage());
 #else
-        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            "Pegasus.Server.SLP.INTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
-            "CIM Server registration with Internal SLP Failed. Exception: $0",
-            e.getMessage());
+        Logger::put_l(
+            Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            MessageLoaderParms(
+                "Pegasus.Server.SLP.INTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
+                "CIM Server registration with Internal SLP Failed. "
+                    "Exception: $0",
+                e.getMessage());
 #endif
     }
 
     catch(...)
     {
 #ifdef PEGASUS_SLP_REG_TIMEOUT
-         Logger::put_l(
-             Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-             "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
-             "CIM Server registration with External SLP Failed.");
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            MessageLoaderParms(
+                "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
+                "CIM Server registration with External SLP Failed."));
 #else
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            "Pegasus.Server.SLP.INTERNAL_SLP_REGISTRATION_FAILED_ERROR",
-            "CIM Server registration with Internal SLP Failed.");
+            MessageLoaderParms(
+                "Pegasus.Server.SLP.INTERNAL_SLP_REGISTRATION_FAILED_ERROR",
+                "CIM Server registration with Internal SLP Failed."));
 #endif
     }
 

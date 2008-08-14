@@ -91,12 +91,14 @@ void ZOSConsoleManager::issueSyntaxError(const char* command)
         "ZOSConsoleManager::issueSyntaxError");
     Logger::put_l(
         Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-        "Server.ConsoleManager_zOS.CON_SYNTAX_ERR.PEGASUS_OS_ZOS",
-        "CIM MODIFY COMMAND REJECTED DUE TO SYNTAX ERROR");
+        MessageLoaderParms(
+            "Server.ConsoleManager_zOS.CON_SYNTAX_ERR.PEGASUS_OS_ZOS",
+            "CIM MODIFY COMMAND REJECTED DUE TO SYNTAX ERROR"));
     Logger::put_l(
         Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-        "Server.ConsoleManager_zOS.CON_MODIFY_SYNTAX.PEGASUS_OS_ZOS",
-        "Syntax is: MODIFY CFZCIM,APPL=CONFIG,<name>=<value>[,PLANNED]");
+        MessageLoaderParms(
+            "Server.ConsoleManager_zOS.CON_MODIFY_SYNTAX.PEGASUS_OS_ZOS",
+            "Syntax is: MODIFY CFZCIM,APPL=CONFIG,<name>=<value>[,PLANNED]"));
 
     PEG_METHOD_EXIT();
     return;
@@ -131,19 +133,21 @@ void ZOSConsoleManager::updateConfiguration( const String& configProperty,
             {
                 Logger::put_l(
                     Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                    "Server.ConsoleManager_zOS."
-                     "CON_MODIFY_FAILED.PEGASUS_OS_ZOS",
-                    "Failed to update CONFIG value.");
+                    MessageLoaderParms(
+                        "Server.ConsoleManager_zOS."
+                            "CON_MODIFY_FAILED.PEGASUS_OS_ZOS",
+                        "Failed to update CONFIG value."));
             }
             else
             {
                 Logger::put_l(
                     Logger::STANDARD_LOG, System::CIMSERVER,
                     Logger::INFORMATION,
-                    "Server.ConsoleManager_zOS."
-                     "CON_MODIFY_UPDATED.PEGASUS_OS_ZOS",
-                    "Updated current value for $0 to $1",
-                    configProperty, propertyValue);
+                    MessageLoaderParms(
+                        "Server.ConsoleManager_zOS."
+                            "CON_MODIFY_UPDATED.PEGASUS_OS_ZOS",
+                        "Updated current value for $0 to $1",
+                        configProperty, propertyValue));
             }
         }
         else
@@ -157,26 +161,29 @@ void ZOSConsoleManager::updateConfiguration( const String& configProperty,
             {
                 Logger::put_l(
                     Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                    "Server.ConsoleManager_zOS."
-                     "CON_MODIFY_FAILED.PEGASUS_OS_ZOS",
-                    "Failed to update CONFIG value.");
+                    MessageLoaderParms(
+                        "Server.ConsoleManager_zOS."
+                            "CON_MODIFY_FAILED.PEGASUS_OS_ZOS",
+                        "Failed to update CONFIG value."));
             }
             else
             {
                 Logger::put_l(
                     Logger::STANDARD_LOG, System::CIMSERVER,
                     Logger::INFORMATION,
-                    "Server.ConsoleManager_zOS."
-                     "CON_MODIFY_PLANNED.PEGASUS_OS_ZOS",
-                    "Updated planned value for $0 to $1",
-                    configProperty, propertyValue);
+                    MessageLoaderParms(
+                        "Server.ConsoleManager_zOS."
+                            "CON_MODIFY_PLANNED.PEGASUS_OS_ZOS",
+                        "Updated planned value for $0 to $1",
+                        configProperty, propertyValue));
                 Logger::put_l(
                     Logger::STANDARD_LOG, System::CIMSERVER,
                     Logger::INFORMATION,
-                    "Server.ConsoleManager_zOS."
-                     "CON_MODIFY_PLANNED2.PEGASUS_OS_ZOS",
-                    "This change will become effective "
-                    "after CIM Server restart.");
+                    MessageLoaderParms(
+                        "Server.ConsoleManager_zOS."
+                            "CON_MODIFY_PLANNED2.PEGASUS_OS_ZOS",
+                        "This change will become effective "
+                        "after CIM Server restart."));
             }
         }
 
@@ -206,25 +213,28 @@ void ZOSConsoleManager::updateConfiguration( const String& configProperty,
     {
         Logger::put_l(
             Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "Server.ConsoleManager_zOS.CON_MODIFY_ERR.PEGASUS_OS_ZOS",
-            "MODIFY command failed: \"$0\"",
-            ndcp.getMessage());
+            MessageLoaderParms(
+                "Server.ConsoleManager_zOS.CON_MODIFY_ERR.PEGASUS_OS_ZOS",
+                "MODIFY command failed: \"$0\"",
+                ndcp.getMessage()));
     }
     catch (const InvalidPropertyValue& ipv)
     {
         Logger::put_l(
             Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "Server.ConsoleManager_zOS.CON_MODIFY_ERR.PEGASUS_OS_ZOS",
-            "MODIFY command failed: \"$0\"",
-            ipv.getMessage());
+            MessageLoaderParms(
+                "Server.ConsoleManager_zOS.CON_MODIFY_ERR.PEGASUS_OS_ZOS",
+                "MODIFY command failed: \"$0\"",
+                ipv.getMessage()));
     }
     catch (const UnrecognizedConfigProperty&)
     {
         Logger::put_l(
             Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "Server.ConsoleManager_zOS.CON_MODIFY_INVALID.PEGASUS_OS_ZOS",
-            "$0 is not a valid configuration property",
-            configProperty);
+            MessageLoaderParms(
+                "Server.ConsoleManager_zOS.CON_MODIFY_INVALID.PEGASUS_OS_ZOS",
+                "$0 is not a valid configuration property",
+                configProperty));
     }
 
     PEG_METHOD_EXIT();
@@ -384,12 +394,13 @@ void ZOSConsoleManager::startConsoleWatchThread(void)
         char str_errno2[10];
         sprintf(str_errno2,"%08X",__errno2());
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "Server.ConsoleManager_zOS.NO_CONSOLE_THREAD.PEGASUS_OS_ZOS",
-            "CIM Server Console command thread cannot be created: "
-                "$0 ( errno $1, reason code 0x$2 ).",
-            strerror(errno),
-            errno,
-            str_errno2);
+            MessageLoaderParms(
+                "Server.ConsoleManager_zOS.NO_CONSOLE_THREAD.PEGASUS_OS_ZOS",
+                "CIM Server Console command thread cannot be created: "
+                    "$0 ( errno $1, reason code 0x$2 ).",
+                strerror(errno),
+                errno,
+                str_errno2));
     }
 
     PEG_METHOD_EXIT();
@@ -426,12 +437,13 @@ void* ZOSConsoleManager::consoleCommandWatchThread(void*)
 
             Logger::put_l(
                 Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                "Server.ConsoleManager_zOS.CONSOLE_ERROR.PEGASUS_OS_ZOS",
-                "Console Communication Service failed:"
-                "$0 ( errno $1, reason code 0x$2 ).",
-                strerror(errornumber),
-                errornumber,
-                str_errno2);
+                MessageLoaderParms(
+                    "Server.ConsoleManager_zOS.CONSOLE_ERROR.PEGASUS_OS_ZOS",
+                    "Console Communication Service failed:"
+                        "$0 ( errno $1, reason code 0x$2 ).",
+                    strerror(errornumber),
+                    errornumber,
+                    str_errno2));
 
             break;
         }
@@ -454,16 +466,19 @@ void* ZOSConsoleManager::consoleCommandWatchThread(void*)
             // not recognized and wait again for the stop command.
             Logger::put_l(
                 Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                "Server.ConsoleManager_zOS.CONSOLE_NO_MODIFY.PEGASUS_OS_ZOS",
-                "Command not recognized by CIM server.");
+                MessageLoaderParms(
+                    "Server.ConsoleManager_zOS.CONSOLE_NO_MODIFY."
+                        "PEGASUS_OS_ZOS",
+                    "Command not recognized by CIM server."));
         }
         else
         {
             Logger::put_l(
                 Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                "Server.ConsoleManager_zOS.CONSOLE_STOP.PEGASUS_OS_ZOS",
-                "STOP command received from z/OS console,"
-                    " initiating shutdown.");
+                MessageLoaderParms(
+                    "Server.ConsoleManager_zOS.CONSOLE_STOP.PEGASUS_OS_ZOS",
+                    "STOP command received from z/OS console,"
+                        " initiating shutdown."));
         }
 
     // keep on until we encounter an error or received a STOP

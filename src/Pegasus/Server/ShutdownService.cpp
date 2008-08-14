@@ -385,9 +385,10 @@ void ShutdownService::_shutdownProviders()
     if (response->cimException.getCode() != CIM_ERR_SUCCESS)
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "Server.ShutdownService.CIM_PROVIDER_SHUTDOWN",
-            "$0 - CIM provider shutdown exception has occurred.",
-            "ShutdownService::_shutdownProviders");
+            MessageLoaderParms(
+                "Server.ShutdownService.CIM_PROVIDER_SHUTDOWN",
+                "$0 - CIM provider shutdown exception has occurred.",
+                "ShutdownService::_shutdownProviders"));
 
         CIMException e = response->cimException;
         delete asyncRequest;

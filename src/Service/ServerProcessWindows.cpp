@@ -620,9 +620,9 @@ int ServerProcess::platform_run(
         MessageLoaderParms parms(
             "src.Server.cimserver.UNABLE_TO_START_SERVER_ALREADY_RUNNING",
             "Unable to start CIMServer.\nCIMServer is already running.");
-        Logger::put(
+        Logger::put_l(
             Logger::ERROR_LOG, "CIMServer", Logger::SEVERE,
-            MessageLoader::getMessage(parms));
+            parms);
         PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) <<
             PEGASUS_STD(endl);
         return 1;
@@ -655,9 +655,10 @@ int ServerProcess::platform_run(
         // todo: put into localized messages when messages unfreezes.
         Logger::put_l(
             Logger::ERROR_LOG, "CIMServer", Logger::SEVERE,
-            "src.Server.cimserver_windows.LISTENING_ON_HTTP_PORT",
-            "Error during service run: code = $0.",
-            status);
+            MessageLoaderParms(
+                "src.Server.cimserver_windows.LISTENING_ON_HTTP_PORT",
+                "Error during service run: code = $0.",
+                status));
         return 1;
     }
 

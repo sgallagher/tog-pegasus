@@ -102,11 +102,12 @@ Boolean AuthenticationManager::isRemotePrivilegedUserAccessAllowed(
     {
         Logger::put_l(
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-            "Security.Authentication.BasicAuthenticationHandler."
-                "PRIVILEGED_ACCESS_DISABLED",
-            "Authentication failed for user '$0' because "
-                "enableRemotePrivilegedUserAccess is not set to 'true'.",
-            userName);
+            MessageLoaderParms(
+                "Security.Authentication.BasicAuthenticationHandler."
+                    "PRIVILEGED_ACCESS_DISABLED",
+                "Authentication failed for user '$0' because "
+                    "enableRemotePrivilegedUserAccess is not set to 'true'.",
+                userName));
         return false;
     }
     return true;
@@ -349,16 +350,13 @@ Authenticator* AuthenticationManager::_getHttpAuthHandler()
             {
                 handler.reset(0);
             }
-            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                "Security.Authentication.AuthenticationManager."
-                    "AUTHENTICATION_HANDLER_KERBEROS_FAILED_TO_INITIALIZE",
-                "CIMOM server authentication handler for Kerberos failed to "
-                    "initialize properly.");
             MessageLoaderParms parms(
                 "Security.Authentication.AuthenticationManager."
                     "AUTHENTICATION_HANDLER_KERBEROS_FAILED_TO_INITIALIZE",
                 "CIMOM server authentication handler for Kerberos failed to "
                     "initialize properly.");
+            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                parms);
             throw Exception(parms);
         }
     }

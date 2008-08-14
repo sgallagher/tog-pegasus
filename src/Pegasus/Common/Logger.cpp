@@ -308,74 +308,26 @@ void Logger::_putInternal(
     const String& systemId,
     const Uint32 logComponent, // FUTURE: Support logComponent mask
     Uint32 logLevel,
-    const String& formatString,
-    const char* messageId,
-    const Formatter::Arg& arg0,
-    const Formatter::Arg& arg1,
-    const Formatter::Arg& arg2,
-    const Formatter::Arg& arg3,
-    const Formatter::Arg& arg4,
-    const Formatter::Arg& arg5,
-    const Formatter::Arg& arg6,
-    const Formatter::Arg& arg7,
-    const Formatter::Arg& arg8,
-    const Formatter::Arg& arg9)
+    const String& message)
 {
-    // Test for logLevel against severity mask to determine
-    // if we write this log.
-    if ((_severityMask & logLevel) != 0)
+    if (!_rep)
+       _rep = new LoggerRep(_homeDirectory);
+
+    // Call the actual logging routine is in LoggerRep.
+    _rep->log(logFileType, systemId, logLevel, message);
+    
+    // route log message to trace too -> component LogMessages
+    if (Logger::TRACE_LOG != logFileType)
     {
-        if (!_rep)
-           _rep = new LoggerRep(_homeDirectory);
-
-
-        // l10n start
-        // The localized message to be sent to the system log.
-        String localizedMsg;
-
-        // If the caller specified a messageId, then load the localized
-        // message in the locale of the server process.
-        if (messageId)
+        // do not write log message to trace when trace facility is
+        // the log to avoid double messages
+        if (Tracer::TRACE_FACILITY_LOG != Tracer::getTraceFacility())
         {
-            // A message ID was specified.  Use the MessageLoader.
-            MessageLoaderParms msgParms(messageId, formatString);
-            msgParms.useProcessLocale = true;
-            msgParms.arg0 = arg0;
-            msgParms.arg1 = arg1;
-            msgParms.arg2 = arg2;
-            msgParms.arg3 = arg3;
-            msgParms.arg4 = arg4;
-            msgParms.arg5 = arg5;
-            msgParms.arg6 = arg6;
-            msgParms.arg7 = arg7;
-            msgParms.arg8 = arg8;
-            msgParms.arg9 = arg9;
-
-            localizedMsg = MessageLoader::getMessage(msgParms);
+            PEG_TRACE_CSTRING(
+                TRC_LOGMSG,
+                Tracer::LEVEL1,
+                (const char*) message.getCString());
         }
-        else
-        {  // No message ID.  Use the Pegasus formatter
-              localizedMsg = Formatter::format(formatString,
-                arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
-        }
-// l10n end
-
-       // Call the actual logging routine is in LoggerRep.
-       _rep->log(logFileType, systemId, logLevel, localizedMsg);
-       
-       // route log message to trace too -> component LogMessages
-       if (Logger::TRACE_LOG != logFileType)
-       {
-           // do not write log message to trace when trace facility is
-           // the log to avoid double messages
-           if (Tracer::TRACE_FACILITY_LOG != Tracer::getTraceFacility())
-           {
-               PEG_TRACE_CSTRING(
-                   TRC_LOGMSG,
-                   Tracer::LEVEL1,
-                   (const char*) localizedMsg.getCString());
-           }
-       }
     }
 }
 
@@ -404,8 +356,8 @@ void Logger::put(
     if (wouldLog(logLevel))
     {
         Logger::_putInternal(logFileType, systemId, 0, logLevel,
-            formatString, 0, arg0, arg1, arg2, arg3,
-            arg4, arg5, arg6, arg7, arg8, arg9);
+            Formatter::format(formatString, arg0, arg1, arg2, arg3,
+                arg4, arg5, arg6, arg7, arg8, arg9));
     }
 }
 
@@ -417,8 +369,7 @@ void Logger::put(
 {
     if (wouldLog(logLevel))
     {
-        Logger::_putInternal(logFileType, systemId, 0, logLevel,
-            formatString, 0);
+        Logger::_putInternal(logFileType, systemId, 0, logLevel, formatString);
     }
 }
 
@@ -432,7 +383,7 @@ void Logger::put(
     if (wouldLog(logLevel))
     {
         Logger::_putInternal(logFileType, systemId, 0, logLevel,
-            formatString, 0, arg0);
+            Formatter::format(formatString, arg0));
     }
 }
 
@@ -447,7 +398,7 @@ void Logger::put(
     if (wouldLog(logLevel))
     {
         Logger::_putInternal(logFileType, systemId, 0, logLevel,
-            formatString, 0, arg0, arg1);
+            Formatter::format(formatString, arg0, arg1));
     }
 }
 
@@ -463,7 +414,7 @@ void Logger::put(
     if (wouldLog(logLevel))
     {
         Logger::_putInternal(logFileType, systemId, 0, logLevel,
-            formatString, 0, arg0, arg1, arg2);
+            Formatter::format(formatString, arg0, arg1, arg2));
     }
 }
 
@@ -471,86 +422,14 @@ void Logger::put_l(
     LogFileType logFileType,
     const String& systemId,
     Uint32 logLevel,
-    const char* messageId,
-    const char* formatString,
-    const Formatter::Arg& arg0,
-    const Formatter::Arg& arg1,
-    const Formatter::Arg& arg2,
-    const Formatter::Arg& arg3,
-    const Formatter::Arg& arg4,
-    const Formatter::Arg& arg5,
-    const Formatter::Arg& arg6,
-    const Formatter::Arg& arg7,
-    const Formatter::Arg& arg8,
-    const Formatter::Arg& arg9)
+    const MessageLoaderParms& msgParms)
 {
     if (wouldLog(logLevel))
     {
+        MessageLoaderParms parms = msgParms;
+        parms.useProcessLocale = true;
         Logger::_putInternal(logFileType, systemId, 0, logLevel,
-            formatString, messageId, arg0, arg1, arg2, arg3, arg4, arg5,
-            arg6, arg7, arg8, arg9);
-    }
-}
-
-void Logger::put_l(
-     LogFileType logFileType,
-     const String& systemId,
-     Uint32 logLevel,
-     const char* messageId,
-     const char* formatString)
-{
-    if (wouldLog(logLevel))
-    {
-        Logger::_putInternal(logFileType, systemId, 0, logLevel,
-        formatString, messageId);
-    }
-}
-
-void Logger::put_l(
-     LogFileType logFileType,
-     const String& systemId,
-     Uint32 logLevel,
-     const char* messageId,
-     const char* formatString,
-     const Formatter::Arg& arg0)
-{
-    if (wouldLog(logLevel))
-    {
-        Logger::_putInternal(logFileType, systemId, 0, logLevel,
-            formatString, messageId, arg0);
-    }
-}
-
-void Logger::put_l(
-     LogFileType logFileType,
-     const String& systemId,
-     Uint32 logLevel,
-     const char* messageId,
-     const char* formatString,
-     const Formatter::Arg& arg0,
-     const Formatter::Arg& arg1)
-{
-    if (wouldLog(logLevel))
-    {
-        Logger::_putInternal(logFileType, systemId, 0, logLevel,
-            formatString, messageId, arg0, arg1);
-    }
-}
-
-void Logger::put_l(
-     LogFileType logFileType,
-     const String& systemId,
-     Uint32 logLevel,
-     const char* messageId,
-     const char* formatString,
-     const Formatter::Arg& arg0,
-     const Formatter::Arg& arg1,
-     const Formatter::Arg& arg2)
-{
-    if (wouldLog(logLevel))
-    {
-        Logger::_putInternal(logFileType, systemId, 0, logLevel,
-            formatString, messageId, arg0, arg1, arg2);
+            MessageLoader::getMessage(parms));
     }
 }
 
@@ -563,7 +442,7 @@ void Logger::trace(
     if (wouldLog(Logger::TRACE))
     {
         Logger::_putInternal(logFileType, systemId, logComponent, Logger::TRACE,
-            message, 0);
+            message);
     }
 }
 

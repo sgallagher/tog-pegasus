@@ -232,9 +232,9 @@ void CIMOperationResponseEncoder::sendResponse(
                 "A System error has occurred. Please retry the CIM Operation "
                     "at a later time.");
 
-            Logger::put(
+            Logger::put_l(
                 Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-                MessageLoader::getMessage(parms));
+                parms);
 
             cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
 

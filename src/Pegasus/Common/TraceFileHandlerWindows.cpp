@@ -86,12 +86,12 @@ void TraceFileHandler::handleMessage(
             // Unable to write message to file
             // Log message
             Logger::put_l(
-                Logger::ERROR_LOG,
-                System::CIMSERVER,
-                Logger::WARNING,
-                "Common.TraceFileHandlerWindows.UNABLE_TO_WRITE_TRACE_TO_FILE",
-                "Unable to write trace message to File $0",
-                _fileName);
+                Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+                MessageLoaderParms(
+                    "Common.TraceFileHandlerWindows."
+                        "UNABLE_TO_WRITE_TRACE_TO_FILE",
+                    "Unable to write trace message to File $0",
+                    _fileName));
         }
         else
         {
@@ -103,12 +103,11 @@ void TraceFileHandler::handleMessage(
         // Invalid file handle
         // Log message
         Logger::put_l(
-            Logger::ERROR_LOG,
-            System::CIMSERVER,
-            Logger::WARNING,
-            "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
-            "Invalid file handle for file $0",
-            _fileName);
+            Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            MessageLoaderParms(
+                "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
+                "Invalid file handle for file $0",
+                _fileName));
     }
 }
 
@@ -138,12 +137,12 @@ void TraceFileHandler::handleMessage(const char* message)
             // Unable to write message to file
             // Log message
             Logger::put_l(
-                Logger::ERROR_LOG,
-                System::CIMSERVER,
-                Logger::WARNING,
-                "Common.TraceFileHandlerWindows.UNABLE_TO_WRITE_TRACE_TO_FILE",
-                "Unable to write trace message to File $0",
-                _fileName);
+                Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+                MessageLoaderParms(
+                    "Common.TraceFileHandlerWindows."
+                        "UNABLE_TO_WRITE_TRACE_TO_FILE",
+                    "Unable to write trace message to File $0",
+                    _fileName));
         }
         else
         {
@@ -155,12 +154,11 @@ void TraceFileHandler::handleMessage(const char* message)
         // Invalid file handle
         // Log message
         Logger::put_l(
-            Logger::ERROR_LOG,
-            System::CIMSERVER,
-            Logger::WARNING,
-            "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
-            "Invalid file handle for file $0",
-            _fileName);
+            Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            MessageLoaderParms(
+                "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
+                "Invalid file handle for file $0",
+                _fileName));
     }
 }
 

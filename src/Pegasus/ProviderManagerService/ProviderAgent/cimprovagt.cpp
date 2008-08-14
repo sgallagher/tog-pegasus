@@ -187,17 +187,20 @@ int main(int argc, char* argv[])
         char fullJobName[29];
         umeGetJobName(fullJobName, true);
         Logger::put_l(Logger::STANDARD_LOG, 
-                "Provider agent", Logger::INFORMATION,
+            "Provider agent", Logger::INFORMATION,
+            MessageLoaderParms(
                 "ProviderManager.ProviderAgent.cimprovagt."
                 "PROVAGT_JOB_NAME.PEGASUS_OS_PASE",
-                "Provider Agent's Job Name is: $0", fullJobName);
+                "Provider Agent's Job Name is: $0", fullJobName));
 
         if (_SETCCSID(1208) == -1)
         {
             Logger::put_l(Logger::ERROR_LOG, "Provider agent", Logger::SEVERE,
-                  "ProviderManager.ProviderAgent.cimprovagt."
-                  "SET_CCSID_ERROR.PEGASUS_OS_PASE",
-                  "Failed to set ccsid. The provider agent will be stopped.");
+                MessageLoaderParms(
+                    "ProviderManager.ProviderAgent.cimprovagt."
+                        "SET_CCSID_ERROR.PEGASUS_OS_PASE",
+                    "Failed to set ccsid. The provider agent will be "
+                        "stopped."));
             // so bad here. shut down. (return) 
             return 1;
         }
@@ -223,9 +226,10 @@ int main(int argc, char* argv[])
         catch (InvalidAcceptLanguageHeader& e)
         {
             Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                "src.Server.cimserver.FAILED_TO_SET_PROCESS_LOCALE",
-                "Could not convert the system process locale into a valid "
-                    "AcceptLanguage format.");  
+                MessageLoaderParms(
+                    "src.Server.cimserver.FAILED_TO_SET_PROCESS_LOCALE",
+                    "Could not convert the system process locale into a valid "
+                        "AcceptLanguage format."));
             Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
                 e.getMessage()); 
         }
@@ -239,15 +243,17 @@ int main(int argc, char* argv[])
     catch (Exception& e)
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "ProviderManager.ProviderAgent.cimprovagt.CIMPROVAGT_EXCEPTION",
-            "cimprovagt \"$0\" error: $1", moduleName, e.getMessage());
+            MessageLoaderParms(
+                "ProviderManager.ProviderAgent.cimprovagt.CIMPROVAGT_EXCEPTION",
+                "cimprovagt \"$0\" error: $1", moduleName, e.getMessage()));
         return 1;
     }
     catch (...)
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "ProviderManager.ProviderAgent.cimprovagt.CIMPROVAGT_ERROR",
-            "cimprovagt \"$0\" error.  Exiting.", moduleName);
+            MessageLoaderParms(
+                "ProviderManager.ProviderAgent.cimprovagt.CIMPROVAGT_ERROR",
+                "cimprovagt \"$0\" error.  Exiting.", moduleName));
         return 1;
     }
 

@@ -236,10 +236,11 @@ void UserFileHandler::_Update(
                     _mutex->unlock();
                     Logger::put_l(
                         Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                        "Security.UserManager.UserFileHandler."
-                            "ERROR_UPDATING_USER_INFO",
-                        "Error updating the user information for user $0.",
-                        userName);
+                        MessageLoaderParms(
+                            "Security.UserManager.UserFileHandler."
+                                "ERROR_UPDATING_USER_INFO",
+                            "Error updating the user information for user $0.",
+                            userName));
                     PEG_METHOD_EXIT();
                     throw PasswordCacheError();
                 }

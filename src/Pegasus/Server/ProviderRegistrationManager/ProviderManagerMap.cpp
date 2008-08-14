@@ -165,10 +165,11 @@ void ProviderManagerMap::initialize()
             {
                 Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER,
                     Logger::SEVERE,
-                    "Server.ProviderRegistrationManager.ProviderManagerMap."
-                    "LOAD_ERROR",
-                    "Error loading library $0: $1.",
-                    fullPath, dl.getLoadErrorMessage());
+                    MessageLoaderParms(
+                        "Server.ProviderRegistrationManager.ProviderManagerMap."
+                            "LOAD_ERROR",
+                        "Error loading library $0: $1.",
+                        fullPath, dl.getLoadErrorMessage()));
                 continue;    // to the next file
             }
 
@@ -179,11 +180,12 @@ void ProviderManagerMap::initialize()
             {
                 Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER,
                     Logger::SEVERE,
-                    "Server.ProviderRegistrationManager.ProviderManagerMap."
-                    "MISSING_GET_PG_VERSION",
-                    "Library $0 does not contain expected function "
-                    "'getPegasusVersion'.",
-                    fullPath); 
+                    MessageLoaderParms(
+                        "Server.ProviderRegistrationManager.ProviderManagerMap."
+                            "MISSING_GET_PG_VERSION",
+                        "Library $0 does not contain expected function "
+                            "'getPegasusVersion'.",
+                        fullPath));
                 continue;
             }
 
@@ -192,11 +194,12 @@ void ProviderManagerMap::initialize()
             {
                 Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, 
                     Logger::SEVERE, 
-                    "Server.ProviderRegistrationManager.ProviderManagerMap."
-                    "WRONG_VERSION",
-                    "Provider Manager $0 returned Pegasus "
-                    "version $1.  Expected $2.",
-                    fullPath, peg_ver, PEGASUS_VERSION_NUMBER); 
+                    MessageLoaderParms(
+                        "Server.ProviderRegistrationManager.ProviderManagerMap."
+                            "WRONG_VERSION",
+                        "Provider Manager $0 returned Pegasus "
+                            "version $1.  Expected $2.",
+                        fullPath, peg_ver, PEGASUS_VERSION_NUMBER));
                 continue; 
             }
 
@@ -209,22 +212,24 @@ void ProviderManagerMap::initialize()
             {
                 Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, 
                     Logger::SEVERE, 
-                    "Server.ProviderRegistrationManager.ProviderManagerMap."
-                    "MISSING_GET_IFC_NAMES",
-                    "Provider Manager $0 does not contain expected "
-                    "function 'getProviderManagerInterfaceNames'", 
-                    fullPath); 
+                    MessageLoaderParms(
+                        "Server.ProviderRegistrationManager.ProviderManagerMap."
+                            "MISSING_GET_IFC_NAMES",
+                        "Provider Manager $0 does not contain expected "
+                            "function 'getProviderManagerInterfaceNames'", 
+                        fullPath));
                 continue;    // to the next file
             }
             if (get_ver == 0)
             {
                 Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, 
                     Logger::SEVERE, 
-                    "Server.ProviderRegistrationManager.ProviderManagerMap."
-                    "MISSING_GET_IFC_VERSIONS",
-                    "Provider Manager $0 does not contain expected "
-                    "function 'getProviderManagerInterfaceVersions'", 
-                            fullPath); 
+                    MessageLoaderParms(
+                        "Server.ProviderRegistrationManager.ProviderManagerMap."
+                            "MISSING_GET_IFC_VERSIONS",
+                        "Provider Manager $0 does not contain expected "
+                            "function 'getProviderManagerInterfaceVersions'", 
+                        fullPath));
                 continue;    // to the next file
             }
 

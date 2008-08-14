@@ -121,9 +121,10 @@ int MP_Socket::ATTLS_zOS_query()
                Logger::put_l(
                    Logger::STANDARD_LOG, System::CIMSERVER, 
                    Logger::INFORMATION,
-                   "Pegasus.Common.SocketzOS_inline.CONNECTION_RESET_ERROR",
-                       "ATTLS reset the connection due to handshake failure. "
-                       "Connection closed.");
+                   MessageLoaderParms(
+                       "Pegasus.Common.SocketzOS_inline.CONNECTION_RESET_ERROR",
+                           "ATTLS reset the connection due to handshake "
+                           "failure. Connection closed."));
                PEG_METHOD_EXIT();
                // close socket
                return -1;
@@ -148,12 +149,13 @@ int MP_Socket::ATTLS_zOS_query()
                sprintf(str_errno2,"%08X",errno2Ioctl);
                Logger::put_l(
                    Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                   "Pegasus.Common.SocketzOS_inline.UNEXPECTED_ERROR",
-                   "An unexpected error occurs: $0 ( errno $1, reason code "
-                      "0x$2 ). Connection closed.",
-                   strerror(errnoIoctl),
-                   errnoIoctl,
-                   str_errno2);
+                   MessageLoaderParms(
+                       "Pegasus.Common.SocketzOS_inline.UNEXPECTED_ERROR",
+                       "An unexpected error occurs: $0 ( errno $1, reason code "
+                          "0x$2 ). Connection closed.",
+                       strerror(errnoIoctl),
+                       errnoIoctl,
+                       str_errno2));
                PEG_METHOD_EXIT();
                // close socket
                return -1;
@@ -169,10 +171,11 @@ int MP_Socket::ATTLS_zOS_query()
         {
             Logger::put_l(
                 Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                "Pegasus.Common.SocketzOS_inline.POLICY_OFF",
-                "ATTLS is not active for TCP-IP stack the CIM server "
-                    "is using for HTTPS connections. "
-                    "Communication not secured. Connection closed.");
+                MessageLoaderParms(
+                    "Pegasus.Common.SocketzOS_inline.POLICY_OFF",
+                    "ATTLS is not active for TCP-IP stack the CIM server "
+                        "is using for HTTPS connections. "
+                        "Communication not secured. Connection closed."));
             PEG_METHOD_EXIT();
             // close socket
             return -1;
@@ -181,10 +184,11 @@ int MP_Socket::ATTLS_zOS_query()
         {
             Logger::put_l(
                 Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                "Pegasus.Common.SocketzOS_inline.NO_POLICY",
-                "There is no ATTLS policy found for the CIM server "
-                    "HTTPS connections. "
-                    "Communication not secured. Connection closed.");
+                MessageLoaderParms(
+                    "Pegasus.Common.SocketzOS_inline.NO_POLICY",
+                    "There is no ATTLS policy found for the CIM server "
+                        "HTTPS connections. "
+                        "Communication not secured. Connection closed."));
             PEG_METHOD_EXIT();
             // close socket
             return -1;
@@ -193,9 +197,10 @@ int MP_Socket::ATTLS_zOS_query()
         {
             Logger::put_l(
                 Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                "Pegasus.Common.SocketzOS_inline.POLICY_NOT_ENABLED",
-                "ATTLS policy is not active for the CIM Server HTTPS port. "
-                    "Communication not secured. Connection closed.");
+                MessageLoaderParms(
+                    "Pegasus.Common.SocketzOS_inline.POLICY_NOT_ENABLED",
+                    "ATTLS policy is not active for the CIM Server HTTPS port. "
+                        "Communication not secured. Connection closed."));
             PEG_METHOD_EXIT();
             // close socket
             return -1;
@@ -210,9 +215,10 @@ int MP_Socket::ATTLS_zOS_query()
         {
             Logger::put_l(
                 Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                "Pegasus.Common.SocketzOS_inline.APPLCNTRL",
-                "ATTLS policy not valid for CIM Server. "
-                    "Set ApplicationControlled to OFF. Connection closed.");
+                MessageLoaderParms(
+                    "Pegasus.Common.SocketzOS_inline.APPLCNTRL",
+                    "ATTLS policy not valid for CIM Server. Set "
+                        "ApplicationControlled to OFF. Connection closed."));
             PEG_METHOD_EXIT();
             // close socket
             return -1;
@@ -249,10 +255,11 @@ int MP_Socket::ATTLS_zOS_query()
         {
             Logger::put_l(
                 Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                "Pegasus.Common.SocketzOS_inline.WRONG_ROLE",
-                "ATTLS policy specifies the wrong HandshakeRole for the "
-                    "CIM Server HTTPS port. Communication not secured. "
-                    "Connection closed.");
+                MessageLoaderParms(
+                    "Pegasus.Common.SocketzOS_inline.WRONG_ROLE",
+                    "ATTLS policy specifies the wrong HandshakeRole for the "
+                        "CIM Server HTTPS port. Communication not secured. "
+                        "Connection closed."));
             PEG_METHOD_EXIT();
             // close connection
             return -1;

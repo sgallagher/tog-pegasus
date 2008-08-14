@@ -76,12 +76,11 @@ void TraceFileHandler::prepareFileHandle(void)
             // Unable to re-open file, log a message
 
             Logger::put_l(
-                Logger::ERROR_LOG,
-                System::CIMSERVER,
-                Logger::WARNING,
-                "Common.TraceFileHandlerUnix.FAILED_TO_OPEN_FILE",
-                "Failed to open File $0",
-                _fileName);
+                Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+                MessageLoaderParms(
+                    "Common.TraceFileHandlerUnix.FAILED_TO_OPEN_FILE",
+                    "Failed to open File $0",
+                    _fileName));
             return;
         }
 
@@ -91,12 +90,12 @@ void TraceFileHandler::prepareFileHandle(void)
                 String(_fileName), (S_IRUSR | S_IWUSR)))
         {
             Logger::put_l(
-                Logger::ERROR_LOG,
-                System::CIMSERVER,
-                Logger::WARNING,
-                "Common.TraceFileHandlerUnix.FAILED_TO_SET_FILE_PERMISSIONS",
-                "Failed to set permissions on file $0",
-                _fileName);
+                Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+                MessageLoaderParms(
+                    "Common.TraceFileHandlerUnix."
+                        "FAILED_TO_SET_FILE_PERMISSIONS",
+                    "Failed to set permissions on file $0",
+                    _fileName));
             return;
         }
     }
@@ -198,12 +197,11 @@ void TraceFileHandler::prepareFileHandle(void)
             if (!_wroteToLog)
             {
                 Logger::put_l(
-                    Logger::ERROR_LOG,
-                    System::CIMSERVER,
-                    Logger::WARNING,
-                    "Common.TraceFileHandler.FAILED_TO_OPEN_FILE",
-                    "Failed to open File $0",
-                    _fileName);
+                    Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+                    MessageLoaderParms(
+                        "Common.TraceFileHandler.FAILED_TO_OPEN_FILE",
+                        "Failed to open File $0",
+                        _fileName));
                 _wroteToLog = true;
             }
             return;

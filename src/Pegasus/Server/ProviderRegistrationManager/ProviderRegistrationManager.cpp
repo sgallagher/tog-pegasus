@@ -3504,10 +3504,11 @@ void ProviderRegistrationManager::_addInitialInstancesToTable(
             " provider registration hash table.");
 
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            "Server.ProviderRegistrationManager."
-            "ProviderRegistrationManager.REPOSITORY_CORRUPTED",
-            "The CIM Repository in namespace root/PG_InterOp"
-            " has been corrupted.");
+            MessageLoaderParms(
+                "Server.ProviderRegistrationManager."
+                    "ProviderRegistrationManager.REPOSITORY_CORRUPTED",
+                "The CIM Repository in namespace root/PG_InterOp "
+                    "has been corrupted."));
     }
     PEG_METHOD_EXIT();
 }

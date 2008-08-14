@@ -86,13 +86,11 @@ void ServerShutdownClient::_waitForTerminationOrTimeout(Uint32 maxWaitTime)
 || defined (PEGASUS_OS_VMS)
         if (wasKilled)
         {
-            //l10n - TODO
-            Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+            MessageLoaderParms parms(
                 "src.Server.cimserver.TIMEOUT_EXPIRED_SERVER_KILLED",
                 "Shutdown timeout expired.  Forced shutdown initiated.");
-            MessageLoaderParms parms
-                ("src.Server.cimserver.TIMEOUT_EXPIRED_SERVER_KILLED",
-                "Shutdown timeout expired.  Forced shutdown initiated.");
+            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                parms);
             cout << MessageLoader::getMessage(parms) << endl;
             exit (0);
         }
@@ -179,10 +177,10 @@ void ServerShutdownClient::shutdown(Uint32 timeoutValue)
             //
             // Repository may be empty.
             //
-            //l10n - TODO
             Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                "src.Server.cimserver.SHUTDOWN_FAILED_REPOSITORY_EMPTY",
-                "Error in server shutdown: The repository may be empty.");
+                MessageLoaderParms(
+                    "src.Server.cimserver.SHUTDOWN_FAILED_REPOSITORY_EMPTY",
+                    "Error in server shutdown: The repository may be empty."));
             MessageLoaderParms parms(
                 "src.Server.cimserver.REPOSITORY_EMPTY",
                 "The repository may be empty.");
@@ -191,23 +189,21 @@ void ServerShutdownClient::shutdown(Uint32 timeoutValue)
         }
         else
         {
-            //l10n - TODO
             Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                "src.Server.cimserver.SHUTDOWN_FAILED",
-                "Error in server shutdown: $0", e.getMessage());
+                MessageLoaderParms(
+                    "src.Server.cimserver.SHUTDOWN_FAILED",
+                    "Error in server shutdown: $0", e.getMessage()));
             PEGASUS_STD(cerr) << e.getMessage() << PEGASUS_STD(endl);
         }
 
         // Kill the cimserver process
         if (_serverRunStatus->kill())
         {
-            //l10n - TODO
-            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                "src.Server.cimserver.SERVER_FORCED_SHUTDOWN",
-                "Forced shutdown initiated.");
             MessageLoaderParms parms(
                 "src.Server.cimserver.SERVER_FORCED_SHUTDOWN",
                 "Forced shutdown initiated.");
+            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                parms);
             PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) <<
                 PEGASUS_STD(endl);
         }

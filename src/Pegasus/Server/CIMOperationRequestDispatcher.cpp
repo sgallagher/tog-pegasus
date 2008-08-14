@@ -1876,12 +1876,12 @@ Array<ProviderInfo>
     }
     catch (...)
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
             "CIMOperationRequestDispatcher::lookupAllAssociationProvider "
-                "exception.  Namespace: $0  Object Name: $1  Assoc Class: $2",
-            nameSpace.getString(),
-            objectName.toString(),
-            assocClass.getString());
+                "exception.  Namespace: %s  Object Name: %s  Assoc Class: %s",
+            (const char*)nameSpace.getString().getCString(),
+            (const char*)objectName.toString().getCString(),
+            (const char*)assocClass.getString().getCString()));
         throw;
     }
 
@@ -2848,7 +2848,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
     {
         CIMResponseMessage* response = request->buildResponse();
         response->cimException =
-            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 
         _enqueueResponse(request, response);
     }
@@ -2972,7 +2972,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
     {
         CIMResponseMessage* response = request->buildResponse();
         response->cimException =
-            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
 
         _enqueueResponse(request, response);
     }

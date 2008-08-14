@@ -118,9 +118,10 @@ SecureBasicAuthenticator::SecureBasicAuthenticator()
     else
     {
         Logger::put_l(Logger::STANDARD_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
-            "Security.Authentication.SecureBasicAuthenticator"
-                 ".APPLID_OMVSAPPL.PEGASUS_OS_ZOS",
-            "CIM server authentication is using application ID OMVSAPPL.");
+            MessageLoaderParms(
+                "Security.Authentication.SecureBasicAuthenticator."
+                     "APPLID_OMVSAPPL.PEGASUS_OS_ZOS",
+                "CIM server authentication is using application ID OMVSAPPL."));
     }
 
     pthread_security_np(0,__USERID_IDENTITY,0,NULL,NULL,0);
@@ -132,9 +133,10 @@ SecureBasicAuthenticator::SecureBasicAuthenticator()
     {
         _zosAPPLID = "OMVSAPPL";
         Logger::put_l(Logger::STANDARD_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
-            "Security.Authentication.SecureBasicAuthenticator"
-                 ".APPLID_OMVSAPPL.PEGASUS_OS_ZOS",
-            "CIM server authentication is using application ID OMVSAPPL.");
+            MessageLoaderParms(
+                "Security.Authentication.SecureBasicAuthenticator."
+                     "APPLID_OMVSAPPL.PEGASUS_OS_ZOS",
+                "CIM server authentication is using application ID OMVSAPPL."));
     }
 #endif // end __TARGET_LIB__
 #endif // end PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
@@ -165,9 +167,10 @@ Boolean SecureBasicAuthenticator::authenticate(
     if ( password.size() == 0 )
     {               
          Logger::put_l(Logger::STANDARD_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
-             "Security.Authentication.SecureBasicAuthenticator"
-                  ".EMPTY_PASSWD.PEGASUS_OS_ZOS",
-             "Request UserID $0 misses password.",userName);
+             MessageLoaderParms(
+                 "Security.Authentication.SecureBasicAuthenticator."
+                     "EMPTY_PASSWD.PEGASUS_OS_ZOS",
+                 "Request UserID $0 misses password.", userName));
         PEG_METHOD_EXIT();
         return (false);
      }
@@ -191,14 +194,13 @@ Boolean SecureBasicAuthenticator::authenticate(
             authenticated = false;
             // no READ access to security resource profile CIMSERV CL(WBEM)
             Logger::put_l(
-                Logger::STANDARD_LOG,
-                ZOS_SECURITY_NAME,
-                Logger::WARNING,
-                "Security.Authentication.SecureBasicAuthenticator"
-                    ".NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS",
-                "Request UserID $0 misses READ permission "
-                    "to profile CIMSERV CL(WBEM).",
-                userName);
+                Logger::STANDARD_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
+                MessageLoaderParms(
+                    "Security.Authentication.SecureBasicAuthenticator."
+                        "NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS",
+                    "Request UserID $0 misses READ permission "
+                        "to profile CIMSERV CL(WBEM).",
+                    userName));
         }
 #else
         authenticated = true;

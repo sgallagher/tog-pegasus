@@ -1648,18 +1648,20 @@ void ProviderMessageHandler::_enableIndications()
     catch (Exception& e)
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            "ProviderManager.Default.DefaultProviderManager."
-                "ENABLE_INDICATIONS_FAILED",
-            "Failed to enable indications for provider $0: $1.",
-             _fullyQualifiedProviderName, e.getMessage());
+            MessageLoaderParms(
+                "ProviderManager.Default.DefaultProviderManager."
+                    "ENABLE_INDICATIONS_FAILED",
+                "Failed to enable indications for provider $0: $1.",
+                 _fullyQualifiedProviderName, e.getMessage()));
     }
     catch(...)
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            "ProviderManager.Default.DefaultProviderManager."
-                "ENABLE_INDICATIONS_FAILED_UNKNOWN",
-            "Failed to enable indications for provider $0.",
-            _fullyQualifiedProviderName);
+            MessageLoaderParms(
+                "ProviderManager.Default.DefaultProviderManager."
+                    "ENABLE_INDICATIONS_FAILED_UNKNOWN",
+                "Failed to enable indications for provider $0.",
+                _fullyQualifiedProviderName));
     }
 
     PEG_METHOD_EXIT();

@@ -258,10 +258,12 @@ Boolean ProviderAgent::_readAndProcessRequest()
         PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
             "Error reading from pipe. Exiting.");
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            "ProviderManager.ProviderAgent.ProviderAgent."
-                "CIMSERVER_COMMUNICATION_FAILED",
-            "cimprovagt \"$0\" communication with CIM Server failed.  Exiting.",
-            _agentId);
+            MessageLoaderParms(
+                "ProviderManager.ProviderAgent.ProviderAgent."
+                    "CIMSERVER_COMMUNICATION_FAILED",
+                "cimprovagt \"$0\" communication with CIM Server failed.  "
+                    "Exiting.",
+                _agentId));
         _terminating = true;
         PEG_METHOD_EXIT();
         return false;
@@ -337,11 +339,12 @@ Boolean ProviderAgent::_readAndProcessRequest()
         (request->getType() != CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE))
     {
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            "ProviderManager.ProviderAgent.ProviderAgent."
-            "PROVIDERAGENT_NOT_INITIALIZED",
-            "cimprovagt \"$0\" was not yet initialised"
-            " prior to receiving a request message. Exiting.",
-            _agentId);
+            MessageLoaderParms(
+                "ProviderManager.ProviderAgent.ProviderAgent."
+                    "PROVIDERAGENT_NOT_INITIALIZED",
+                "cimprovagt \"$0\" was not yet initialized "
+                    "prior to receiving a request message. Exiting.",
+                _agentId));
         _terminating = true;
         PEG_METHOD_EXIT();
         return false;
@@ -402,10 +405,11 @@ Boolean ProviderAgent::_readAndProcessRequest()
         if (!isZOSSecuritySetup())
         {
             Logger::put_l(Logger::ERROR_LOG, ZOS_SECURITY_NAME, Logger::FATAL,
-                          "ProviderManager.ProviderAgent.ProviderAgent."
-                          "UNINITIALIZED_SECURITY_SETUP.PEGASUS_OS_ZOS",
-                          "Security environment could not be initialised. "
-                          "Assume security fraud. Stopping Provider Agent.");
+                MessageLoaderParms(
+                    "ProviderManager.ProviderAgent.ProviderAgent."
+                        "UNINITIALIZED_SECURITY_SETUP.PEGASUS_OS_ZOS",
+                    "Security environment could not be initialised. "
+                        "Assume security fraud. Stopping Provider Agent."));
             exit(1);
         }
 #endif
@@ -596,11 +600,12 @@ void ProviderAgent::_writeResponse(Message* message)
             PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
                 "Error writing response to pipe.");
             Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-                "ProviderManager.ProviderAgent.ProviderAgent."
-                    "CIMSERVER_COMMUNICATION_FAILED",
-                "cimprovagt \"$0\" communication with CIM Server failed.  "
-                    "Exiting.",
-                _agentId);
+                MessageLoaderParms(
+                    "ProviderManager.ProviderAgent.ProviderAgent."
+                        "CIMSERVER_COMMUNICATION_FAILED",
+                    "cimprovagt \"$0\" communication with CIM Server failed.  "
+                        "Exiting.",
+                    _agentId));
             _terminating = true;
         }
     }
@@ -609,10 +614,12 @@ void ProviderAgent::_writeResponse(Message* message)
         PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
             "Caught exception while writing response.");
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            "ProviderManager.ProviderAgent.ProviderAgent."
-                "CIMSERVER_COMMUNICATION_FAILED",
-            "cimprovagt \"$0\" communication with CIM Server failed.  Exiting.",
-            _agentId);
+            MessageLoaderParms(
+                "ProviderManager.ProviderAgent.ProviderAgent."
+                    "CIMSERVER_COMMUNICATION_FAILED",
+                "cimprovagt \"$0\" communication with CIM Server failed.  "
+                    "Exiting.",
+                _agentId));
         _terminating = true;
     }
 
@@ -790,9 +797,10 @@ void ProviderAgent::_synchronousSignalHandler(
  
     char fullJobName[29];
     umeGetJobName(fullJobName, true);
-    Logger::put_l(Logger::ERROR_LOG, "provider agent", Logger::SEVERE, \
-        "ProviderManager.ProviderAgent.RECEIVE_SYN_SIGNAL.PEGASUS_OS_PASE", \
-        "$0 received synchronous signal: $1", fullJobName, s_n);
+    Logger::put_l(Logger::ERROR_LOG, "provider agent", Logger::SEVERE,
+        MessageLoaderParms(
+            "ProviderManager.ProviderAgent.RECEIVE_SYN_SIGNAL.PEGASUS_OS_PASE",
+            "$0 received synchronous signal: $1", fullJobName, s_n));
 }
 
 void ProviderAgent::_asynchronousSignalHandler(
@@ -811,9 +819,10 @@ void ProviderAgent::_asynchronousSignalHandler(
 
     char fullJobName[29];
     umeGetJobName(fullJobName, true);
-    Logger::put_l(Logger::ERROR_LOG, "provider agent", Logger::SEVERE, \
-        "ProviderManager.ProviderAgent.RECEIVE_ASYN_SIGNAL.PEGASUS_OS_PASE", \
-        "$0 received asynchronous signal: $1", fullJobName, s_n);
+    Logger::put_l(Logger::ERROR_LOG, "provider agent", Logger::SEVERE,
+        MessageLoaderParms(
+            "ProviderManager.ProviderAgent.RECEIVE_ASYN_SIGNAL.PEGASUS_OS_PASE",
+            "$0 received asynchronous signal: $1", fullJobName, s_n));
 }
 #endif
 

@@ -614,8 +614,9 @@ void AuditLogger::setEnabled(Boolean enable)
         {
             Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, 
                 Logger::INFORMATION,
-                "Common.AuditLogger.ENABLE_AUDIT_LOG",
-                "Audit logging is enabled.");
+                MessageLoaderParms(
+                    "Common.AuditLogger.ENABLE_AUDIT_LOG",
+                    "Audit logging is enabled."));
 
             // only call the audit intiialzation call back if set.
             if (_auditLogInitializeCallback != 0)
@@ -630,8 +631,9 @@ void AuditLogger::setEnabled(Boolean enable)
         {
             Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, 
                 Logger::INFORMATION,
-                "Common.AuditLogger.DISABLE_AUDIT_LOG",
-                "Audit logging is disabled.");
+                MessageLoaderParms(
+                    "Common.AuditLogger.DISABLE_AUDIT_LOG",
+                    "Audit logging is disabled."));
         }
     }
 

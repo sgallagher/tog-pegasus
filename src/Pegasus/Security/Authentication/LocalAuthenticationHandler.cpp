@@ -152,11 +152,12 @@ Boolean LocalAuthenticationHandler::authenticate(
     if (!CheckProfileCIMSERVclassWBEM(userName, __READ_RESOURCE))
     {
         Logger::put_l(Logger::STANDARD_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
-            "Security.Authentication.LocalAuthenticationHandler."
-                "NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS",
-            "Request UserID $0 doesn't have READ permission "
-                "to profile CIMSERV CL(WBEM).",
-            userName);
+            MessageLoaderParms(
+                "Security.Authentication.LocalAuthenticationHandler."
+                    "NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS",
+                "Request UserID $0 doesn't have READ permission "
+                    "to profile CIMSERV CL(WBEM).",
+                userName));
         return false;
     }
 #endif
@@ -178,13 +179,13 @@ Boolean LocalAuthenticationHandler::authenticate(
     else
     {
         // log a failed authentication
-        Logger::put_l(Logger::STANDARD_LOG,
-                      System::CIMSERVER,
-                      Logger::INFORMATION,
-                      "Security.Authentication.LocalAuthenticationHandler."
-                          "LOCAL_AUTHENTICATION_FAILED",
-                      "Local Authentication failed for user $0.",
-                      userName);
+        Logger::put_l(
+            Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+            MessageLoaderParms(
+                "Security.Authentication.LocalAuthenticationHandler."
+                    "LOCAL_AUTHENTICATION_FAILED",
+                "Local Authentication failed for user $0.",
+                userName));
     }
 
     PEG_AUDIT_LOG(logLocalAuthentication(userName, authenticated));

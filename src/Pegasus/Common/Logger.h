@@ -148,79 +148,17 @@ public:
         @param systemId  - ID of the system generating the log entry within
         Pegasus. This is user defined but generally breaks down into major
         Pegasus components.
-        @param level logLevel of the log entry. To be used both t0
+        @param level logLevel of the log entry. To be used both to
         mark the log entry and tested against a mask to determine if log
         entry should be written.
-        @param messageId Message ID of the format string to load from
-        the resource bundle.
-        @param formatString     Default format definition string. See the
-        Formatter for details.  This will be used as the default format string
-        in case the resource bundle cannot be found.
-        @param Arg0 - Arg 9 - Up to 9 arguments representing the variables
-        that go into the log entry.
-        <pre>
-        Logger::put(Logger::TRACE_LOG, System::CIMSERVER, Logger::WARNING,
-            "X=$0, Y=$1, Z=$2", 88,  "Hello World", 7.5);
-        </pre>
+        @param msgParms MessageLoaderParms object containing the localizable
+        message to log.
     */
     static void put_l(
         LogFileType logFileType,
         const String& systemId,
         Uint32 logLevel,
-        const char* messageId,
-        const char* formatString,
-        const Formatter::Arg& arg0,
-        const Formatter::Arg& arg1,
-        const Formatter::Arg& arg2,
-        const Formatter::Arg& arg3,
-        const Formatter::Arg& arg4 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg5 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg6 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg7 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg8 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg9 = Formatter::DEFAULT_ARG);
-
-    /** Optimized zero-argument form of put_l().
-    */
-    static void put_l(
-        LogFileType logFileType,
-        const String& systemId,
-        Uint32 logLevel,
-        const char* messageId,
-        const char* formatString);
-
-    /** Optimized one-argument form of put_l().
-    */
-    static void put_l(
-        LogFileType logFileType,
-        const String& systemId,
-        Uint32 logLevel,
-        const char* messageId,
-        const char* formatString,
-        const Formatter::Arg& arg0);
-
-    /** Optimized two-argument form of put_l().
-    */
-    static void put_l(
-        LogFileType logFileType,
-        const String& systemId,
-        Uint32 logLevel,
-        const char* messageId,
-        const char* formatString,
-        const Formatter::Arg& arg0,
-        const Formatter::Arg& arg1);
-
-    /** Optimized three-argument form of put_l().
-    */
-    static void put_l(
-        LogFileType logFileType,
-        const String& systemId,
-        Uint32 logLevel,
-        const char* messageId,
-        const char* formatString,
-        const Formatter::Arg& arg0,
-        const Formatter::Arg& arg1,
-        const Formatter::Arg& arg2);
+        const MessageLoaderParms& msgParms);
 
     /** Puts a trace message into the specified log.
     */
@@ -276,18 +214,7 @@ private:
         const String& systemId,
         const Uint32 logComponent,
         Uint32 logLevel,
-        const String& formatString,
-        const char* messageId,
-        const Formatter::Arg& arg0 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg1 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg2 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg3 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg4 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg5 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg6 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg7 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg8 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg9 = Formatter::DEFAULT_ARG);
+        const String& message);
 };
 
 PEGASUS_NAMESPACE_END

@@ -122,11 +122,11 @@ void snmpDeliverTrap_netsnmp::deliverTrap(
     }
     catch (Exception& e)
     {
-        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
-                      Logger::WARNING,
-                      _MSG_PACK_CIM_PROPERTY_TO_PDU_FAILED_KEY,
-                      _MSG_PACK_CIM_PROPERTY_TO_PDU_FAILED,
-                      e.getMessage());
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            MessageLoaderParms(
+                _MSG_PACK_CIM_PROPERTY_TO_PDU_FAILED_KEY,
+                _MSG_PACK_CIM_PROPERTY_TO_PDU_FAILED,
+                e.getMessage()));
     }
     catch (...)
     {
@@ -341,9 +341,10 @@ void snmpDeliverTrap_netsnmp::_createPdu(
             {
                 Logger::put_l(
                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                    _MSG_PACK_TRAP_INFO_INTO_PDU_FAILED_KEY,
-                    _MSG_PACK_TRAP_INFO_INTO_PDU_FAILED,
-                    e.getMessage());
+                    MessageLoaderParms(
+                        _MSG_PACK_TRAP_INFO_INTO_PDU_FAILED_KEY,
+                        _MSG_PACK_TRAP_INFO_INTO_PDU_FAILED,
+                        e.getMessage()));
             }
 
             break;
@@ -385,9 +386,10 @@ void snmpDeliverTrap_netsnmp::_createPdu(
 
                 Logger::put_l(
                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                    _MSG_ADD_SYSUPTIME_TO_PDU_FAILED_KEY,
-                    _MSG_ADD_SYSUPTIME_TO_PDU_FAILED,
-                    errMsg);
+                    MessageLoaderParms(
+                        _MSG_ADD_SYSUPTIME_TO_PDU_FAILED_KEY,
+                        _MSG_ADD_SYSUPTIME_TO_PDU_FAILED,
+                        errMsg));
             }
 
             // Add snmp trap to the PDU
@@ -405,9 +407,10 @@ void snmpDeliverTrap_netsnmp::_createPdu(
 
                 Logger::put_l(
                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                    _MSG_ADD_SNMP_TRAP_TO_PDU_FAILED_KEY,
-                    _MSG_ADD_SNMP_TRAP_TO_PDU_FAILED,
-                    errMsg);
+                    MessageLoaderParms(
+                        _MSG_ADD_SNMP_TRAP_TO_PDU_FAILED_KEY,
+                        _MSG_ADD_SNMP_TRAP_TO_PDU_FAILED,
+                        errMsg));
             }
 
             break;

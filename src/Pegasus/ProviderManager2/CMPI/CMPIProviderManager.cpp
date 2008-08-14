@@ -3453,9 +3453,10 @@ ProviderName CMPIProviderManager::_resolveProviderName(
         genericValue.get(location);
         String fullName = FileSystem::buildLibraryFileName(location);
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            "ProviderManager.CMPI.CMPIProviderManager.CANNOT_FIND_LIBRARY",
-            "For provider $0 library $1 was not found.", 
-            providerName, fullName);
+            MessageLoaderParms(
+                "ProviderManager.CMPI.CMPIProviderManager.CANNOT_FIND_LIBRARY",
+                "For provider $0 library $1 was not found.", 
+                providerName, fullName));
 
     }
     ProviderName name(moduleName, providerName, fileName);
@@ -3553,19 +3554,21 @@ void CMPIProviderManager::_callEnableIndications
     }
     catch (const Exception & e)
     {
-        Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            "ProviderManager.CMPI.CMPIProviderManager."
-            "ENABLE_INDICATIONS_FAILED",
-            "Failed to enable indications for provider $0: $1.",
-            ph.GetProvider ().getName (), e.getMessage ());
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            MessageLoaderParms(
+                "ProviderManager.CMPI.CMPIProviderManager."
+                    "ENABLE_INDICATIONS_FAILED",
+                "Failed to enable indications for provider $0: $1.",
+                ph.GetProvider().getName(), e.getMessage()));
     }
     catch (...)
     {
-        Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            "ProviderManager.CMPI.CMPIProviderManager."
-            "ENABLE_INDICATIONS_FAILED_UNKNOWN",
-            "Failed to enable indications for provider $0.",
-            ph.GetProvider ().getName ());
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            MessageLoaderParms(
+                "ProviderManager.CMPI.CMPIProviderManager."
+                    "ENABLE_INDICATIONS_FAILED_UNKNOWN",
+                "Failed to enable indications for provider $0.",
+                ph.GetProvider().getName()));
     }
 
     PEG_METHOD_EXIT ();
@@ -3642,19 +3645,21 @@ void CMPIProviderManager::_callDisableIndications
     }
     catch (const Exception & e)
     {
-        Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            "ProviderManager.CMPI.CMPIProviderManager."
-            "DISABLE_INDICATIONS_FAILED",
-            "Failed to disable indications for provider $0: $1.",
-            ph.GetProvider ().getName (), e.getMessage ());
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            MessageLoaderParms(
+                "ProviderManager.CMPI.CMPIProviderManager."
+                    "DISABLE_INDICATIONS_FAILED",
+                "Failed to disable indications for provider $0: $1.",
+                ph.GetProvider().getName(), e.getMessage()));
     }
     catch (...)
     {
-        Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            "ProviderManager.CMPI.CMPIProviderManager."
-            "DISABLE_INDICATIONS_FAILED_UNKNOWN",
-            "Failed to disable indications for provider $0.",
-            ph.GetProvider ().getName ());
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+            MessageLoaderParms(
+                "ProviderManager.CMPI.CMPIProviderManager."
+                    "DISABLE_INDICATIONS_FAILED_UNKNOWN",
+                "Failed to disable indications for provider $0.",
+                ph.GetProvider().getName()));
     }
 
     PEG_METHOD_EXIT ();

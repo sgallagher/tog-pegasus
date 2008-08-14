@@ -89,20 +89,16 @@ public:
 
         if (_manager == 0)
         {
+            MessageLoaderParms parms(
+                "ProviderManager.BasicProviderManagerRouter."
+                    "PROVIDERMANAGER_LOAD_FAILED",
+                "Failed to load the Provider Manager for interface "
+                    "type \"$0\" from library \"$1\".",
+                _interfaceName, _physicalName);
             Logger::put_l(
                 Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                "ProviderManager.BasicProviderManagerRouter."
-                    "PROVIDERMANAGER_LOAD_FAILED",
-                "Failed to load the Provider Manager for interface type \"$0\""
-                    " from library \"$1\".",
-                _interfaceName, _physicalName);
-
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-                "ProviderManager.BasicProviderManagerRouter."
-                    "PROVIDERMANAGER_LOAD_FAILED",
-                "Failed to load the Provider Manager for interface type \"$0\""
-                    " from library \"$1\".",
-                _interfaceName, _physicalName));
+                parms);
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
         }
 
         _manager->setIndicationCallback(indicationCallback);

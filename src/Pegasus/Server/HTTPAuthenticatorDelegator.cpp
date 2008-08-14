@@ -775,11 +775,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                    {
                        Logger::put_l(Logger::STANDARD_LOG, ZOS_SECURITY_NAME, 
                            Logger::WARNING,
-                           "Pegasus.Server.HTTPAuthenticatorDelegator."
-                               "ATTLS_NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS",
-                           "Request UserID $0 doesn't have READ permission"
-                           " to profile CIMSERV CL(WBEM).",
-                           connectionUserName);
+                           MessageLoaderParms(
+                               "Pegasus.Server.HTTPAuthenticatorDelegator."
+                                   "ATTLS_NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS",
+                               "Request UserID $0 doesn't have READ permission"
+                               " to profile CIMSERV CL(WBEM).",
+                               connectionUserName));
 
                        PEG_AUDIT_LOG(logCertificateBasedUserValidation(
                            connectionUserName,
@@ -875,13 +876,14 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                                Logger::put_l(Logger::STANDARD_LOG, 
                                    ZOS_SECURITY_NAME, 
                                    Logger::WARNING,
+                                   MessageLoaderParms(
                                    "Pegasus.Server.HTTPAuthenticatorDelegator."
                                        "UNIXSOCKET_NOREAD_CIMSERV_ACCESS."
                                        "PEGASUS_OS_ZOS",
                                    "Request UserID $0 doesn't have READ "
                                        "permission to profile "
                                        "CIMSERV CL(WBEM).",
-                                   requestUserName);
+                                   requestUserName));
 
                                _sendHttpError(
                                    queueId,

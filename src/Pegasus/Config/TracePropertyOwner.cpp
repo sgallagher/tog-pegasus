@@ -122,12 +122,11 @@ Boolean TracePropertyOwner::applyTraceFileConfigSetting() const
         if ( retCode == 1 )
         {
             Logger::put_l(
-                Logger::ERROR_LOG,
-                System::CIMSERVER,
-                Logger::WARNING,
-                "Config.TracePropertyOwner.UNABLE_TO_WRITE_TRACE_FILE",
-                "Unable to write to trace file $0",
-                (const char*)fileName);
+                Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+                MessageLoaderParms(
+                    "Config.TracePropertyOwner.UNABLE_TO_WRITE_TRACE_FILE",
+                    "Unable to write to trace file $0",
+                    (const char*)fileName));
             _traceFilePath->currentValue.clear();
 
             return false;

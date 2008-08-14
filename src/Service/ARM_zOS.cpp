@@ -190,9 +190,9 @@ void ARM_zOS::Register(void)
                 "Common.ARM_zOS.ARM_FAIL",
                 "The CIM server failed to register with ARM using element "
                     "name $0: return code 0x$1, reason code 0x$2.",
-                    arm_elemname,
-                    str_arm_ret,
-                    str_arm_res);
+                arm_elemname,
+                str_arm_ret,
+                str_arm_res));
 
         ARM_zOS_Status = NOT_REGISTERED;
     }                

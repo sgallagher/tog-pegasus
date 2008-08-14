@@ -1208,7 +1208,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm)
                 "Pegasus.Server.SLP.INTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
                 "CIM Server registration with Internal SLP Failed. "
                     "Exception: $0",
-                e.getMessage());
+                e.getMessage()));
 #endif
     }
 

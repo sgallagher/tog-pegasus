@@ -62,18 +62,10 @@ ReadWriteSem::~ReadWriteSem()
     }
 }
 
-void ReadWriteSem::wait(Uint32 mode, ThreadType caller)
+void ReadWriteSem::_wait(Boolean writeLock, ThreadType caller)
 {
     int errorcode;
-    if (mode == PEG_SEM_READ)
-    {
-        if (0 == (errorcode = pthread_rwlock_rdlock(&_rwlock.rwlock)))
-        {
-            _readers++;
-            return;
-        }
-    }
-    else if (mode == PEG_SEM_WRITE)
+    if (writeLock)
     {
         if (0 == (errorcode = pthread_rwlock_wrlock(&_rwlock.rwlock)))
         {
@@ -83,7 +75,13 @@ void ReadWriteSem::wait(Uint32 mode, ThreadType caller)
         }
     }
     else
-        throw(Permission(Threads::self()));
+    {
+        if (0 == (errorcode = pthread_rwlock_rdlock(&_rwlock.rwlock)))
+        {
+            _readers++;
+            return;
+        }
+    }
 
     if (errorcode == EDEADLK)
         throw(Deadlock(_rwlock.owner));
@@ -91,11 +89,11 @@ void ReadWriteSem::wait(Uint32 mode, ThreadType caller)
         throw(WaitFailed(Threads::self()));
 }
 
-void ReadWriteSem::unlock(Uint32 mode, ThreadType caller)
+void ReadWriteSem::_unlock(Boolean writeLock, ThreadType caller)
 {
     ThreadType owner;
 
-    if (mode == PEG_SEM_WRITE)
+    if (writeLock)
     {
         owner = _rwlock.owner;
         Threads::clear(_rwlock.owner);
@@ -105,7 +103,7 @@ void ReadWriteSem::unlock(Uint32 mode, ThreadType caller)
         _rwlock.owner = owner;
         throw(Permission(Threads::self()));
     }
-    if (mode == PEG_SEM_READ && _readers.get() != 0)
+    if (!writeLock && _readers.get() != 0)
         _readers--;
     else if (_writers.get() != 0)
         _writers--;
@@ -163,117 +161,77 @@ ReadWriteSem::~ReadWriteSem()
 }
 
 //---------------------------------------------------------------------
-void ReadWriteSem::wait(Uint32 mode, ThreadType caller)
+void ReadWriteSem::_wait(Boolean writeLock, ThreadType caller)
 {
 //-----------------------------------------------------------------
 // Lock this object to maintain integrity while we decide
 // exactly what to do next.
 //-----------------------------------------------------------------
-    // AutoPtr<IPCException> caught;
-    // IPCException caught((ThreadType)0);
-    // WaitFailed caughtWaitFailed((ThreadType)0);
-    // TimeOut caughtTimeOut((ThreadType)0);
-    // TooManyReaders caughtTooManyReaders((ThreadType)0);
+    _rwlock._internal_lock.lock();
 
-    ThreadType zero;
-    IPCException caught(zero);
-    WaitFailed caughtWaitFailed(zero);
-    TimeOut caughtTimeOut(zero);
-    TooManyReaders caughtTooManyReaders(zero);
-
-    // cleanup stack frame
+    if (writeLock)
     {
-        // Threads::cleanup_push(extricate_read_write, this);
-
-        try
-        {
-                _rwlock._internal_lock.lock();
-        }
-        catch (const IPCException & e)
-        {
-            caught = e;
-            goto throw_from_here;
-        }
-
-        if (mode == PEG_SEM_WRITE)
-        {
 //-----------------------------------------------------------------
 // Write Lock Step 1: lock the object and allow all the readers to exit
 //-----------------------------------------------------------------
-            while (_readers.get() > 0)
-                Threads::yield();
+        while (_readers.get() > 0)
+            Threads::yield();
 //-----------------------------------------------------------------
 // Write Lock Step 2: Obtain the Write Mutex
 //  Although there are no readers, there may be a writer
 //-----------------------------------------------------------------
-            try
-            {
-                _rwlock._wlock.lock();
-            }
-            catch (const IPCException & e)
-            {
-                _rwlock._internal_lock.unlock();
-                caught = e;
-                goto throw_from_here;
-            }
+        try
+        {
+            _rwlock._wlock.lock();
+        }
+        catch (const IPCException&)
+        {
+            _rwlock._internal_lock.unlock();
+            throw;
+        }
 //-----------------------------------------------------------------
 // Write Lock Step 3: set the writer count to one, unlock the object
 //   There are no readers and we are the only writer !
 //-----------------------------------------------------------------
-            _writers = 1;
-            // set the owner
-            _rwlock._owner = Threads::self();
-            // unlock the object
-            _rwlock._internal_lock.unlock();
-        }                       // PEG_SEM_WRITE
-        else
-        {
+        _writers = 1;
+        // set the owner
+        _rwlock._owner = Threads::self();
+        // unlock the object
+        _rwlock._internal_lock.unlock();
+    }
+    else
+    {
 //-----------------------------------------------------------------
 // Read Lock Step 1: Wait for the existing writer (if any) to clear
 //-----------------------------------------------------------------
-            while (_writers.get() > 0)
-                Threads::yield();
+        while (_writers.get() > 0)
+            Threads::yield();
 //-----------------------------------------------------------------
 // Read Lock Step 2: wait for a reader slot to open up, then return
 //  At this point there are no writers, but there may be too many
 //  readers.
 //-----------------------------------------------------------------
-            try
-            {
-                _rwlock._rlock.wait();
-            }
-            catch (const IPCException & e)
-            {
-                _rwlock._internal_lock.unlock();
-                caught = e;
-                goto throw_from_here;
-            }
+        try
+        {
+            _rwlock._rlock.wait();
+        }
+        catch (const IPCException&)
+        {
+            _rwlock._internal_lock.unlock();
+            throw;
+        }
 //-----------------------------------------------------------------
 // Read Lock Step 3: increment the number of readers, unlock the object,
 // return
 //-----------------------------------------------------------------
-            _readers++;
-            _rwlock._internal_lock.unlock();
-        }
-      throw_from_here:
-        // ATTN:
-        Threads::cleanup_pop(0);
+        _readers++;
+        _rwlock._internal_lock.unlock();
     }
-    if (!Threads::null(caught.get_owner()))
-        throw caught;
-    if (!Threads::null(caughtWaitFailed.get_owner()))
-        throw caughtWaitFailed;
-    if (!Threads::null(caughtTimeOut.get_owner()))
-        throw caughtTimeOut;
-    if (!Threads::null(caughtTooManyReaders.get_owner()))
-
-        throw caughtTooManyReaders;
-    return;
 }
 
-void ReadWriteSem::unlock(Uint32 mode, ThreadType caller)
+void ReadWriteSem::_unlock(Boolean writeLock, ThreadType caller)
 {
-    if (mode == PEG_SEM_WRITE && _writers.get() != 0)
+    if (writeLock && _writers.get() != 0)
     {
         _writers = 0;
         _rwlock._wlock.unlock();

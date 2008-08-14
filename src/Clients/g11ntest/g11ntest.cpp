@@ -2062,9 +2062,12 @@ static void TestLocalizedIndications( CIMClient& client,
     if (!listenerError)
     {
       cout << "Waiting to receive the indication (timeout is 10sec)" << endl;
-      try
-      {
-    indicationReceived.time_wait(10 * 1000);
+
+    if (!indicationReceived.time_wait(10 * 1000))
+    {
+        throw Exception("Timed out waiting for indication.");
+    }
+
     cout << "Received the indication" << endl;
 
     // Verify that the UTF-16  properties in the indication got to our
@@ -2100,11 +2103,6 @@ static void TestLocalizedIndications( CIMClient& client,
       indicationContext.get(ContentLanguageListContainer::NAME);
     ContentLanguageList cl = cntr.getLanguages();
     MYASSERT(cl == expectedCL);
-      }
-      catch (const TimeOut&)
-      {
-          throw Exception("Timed out waiting for indication.");
-      }
     }  // endif !skiplistener
 
     // Clean up the listener

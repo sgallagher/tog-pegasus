@@ -163,7 +163,7 @@ void Semaphore::wait()
     pthread_mutex_unlock(&_rep.mutex);
 }
 
-void Semaphore::time_wait(Uint32 milliseconds)
+Boolean Semaphore::time_wait(Uint32 milliseconds)
 {
     // Acquire mutex to enter critical section.
     pthread_mutex_lock(&_rep.mutex);
@@ -219,10 +219,7 @@ void Semaphore::time_wait(Uint32 milliseconds)
     // Release mutex to leave critical section.
     pthread_mutex_unlock(&_rep.mutex);
 
-    if (timedOut)
-    {
-        throw TimeOut(Threads::self());
-    }
+    return !timedOut;
 }
 
 // increment the count of the semaphore
@@ -303,7 +300,7 @@ void Semaphore::wait()
 
 // wait for milliseconds and throw an exception
 // if wait times out without gaining the semaphore
-void Semaphore::time_wait(Uint32 milliseconds)
+Boolean Semaphore::time_wait(Uint32 milliseconds)
 {
     int retcode;
 
@@ -327,21 +324,23 @@ void Semaphore::time_wait(Uint32 milliseconds)
 
         if (retcode == 0)
         {
-            return;
+            break;
         }
 
         if (retcode == -1 && errno != EAGAIN)
         {
-            throw IPCException(Threads::self());
+            throw WaitFailed(Threads::self());
         }
 
         gettimeofday(&now, NULL);
         if (Time::subtract(&remaining, &finish, &now))
         {
-            throw TimeOut(Threads::self());
+            return false;
         }
         Threads::yield();
     }
+
+    return true;
 }
 
 // increment the count of the semaphore
@@ -403,16 +402,22 @@ void Semaphore::wait()
     }
 }
 
-// wait for milliseconds and throw an exception
-// if wait times out without gaining the semaphore
 void Semaphore::time_wait(Uint32 milliseconds)
 {
     DWORD errorcode = WaitForSingleObject(_rep.sem, milliseconds);
-    if (errorcode == WAIT_TIMEOUT || errorcode == WAIT_FAILED)
+
+    if (errorcode == WAIT_TIMEOUT)
     {
-        throw(TimeOut(Threads::self()));
+        return false;
     }
+
+    if (errorcode == WAIT_FAILED)
+    {
+        throw WaitFailed(Threads::self());
+    }
+
     _count--;
+    return true;
 }
 
 // increment the count of the semaphore

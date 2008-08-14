@@ -139,7 +139,7 @@ public:
 
     // send a message to another module via another service
     // @exception Permission
-    // @exception DeadLock
+    // @exception Deadlock
     // @exception IPCException
     AsyncReply* ModuleSendWait(
         const RegisteredModuleHandle& handle,
@@ -149,7 +149,7 @@ public:
 
     // send an async message to another service
     // @exception Permission
-    // @exception DeadLock
+    // @exception Deadlock
     // @exception IPCException
     Boolean ModuleSendAsync(
         const RegisteredModuleHandle& handle,

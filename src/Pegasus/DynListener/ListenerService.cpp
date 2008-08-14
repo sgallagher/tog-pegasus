@@ -298,20 +298,17 @@ ThreadReturnType PEGASUS_THREAD_CDECL
 
     while (true)
     {
-        try
+        //do a timed wait so we do can process a shutdown signal immediately
+        if (listenerService->_shutdownSem->time_wait(
+            listenerService->_consumerManager->getIdleTimeout()))
         {
-            //do a timed wait so we do can process a shutdown signal immediately
-            listenerService->_shutdownSem->time_wait(
-                listenerService->_consumerManager->getIdleTimeout());
-
             if (listenerService->_dieNow)
             {
                 //shutdown
                 break;
             }
-
         }
-        catch (TimeOut&)
+        else
         {
             //time to check for idle consumers
             PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL3,

@@ -606,17 +606,16 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
         Uint32 waitTime = life * 1000;
         try
         {
-            agent->_update_reg_semaphore.time_wait(waitTime);
+            if (!agent->_update_reg_semaphore.time_wait(waitTime))
+            {
+                // PEGASUS_SLP_REG_TIMEOUT expired, re-register with
+                // external SLP SA.
+            }
             // semaphore is signalled means we have to update registrations.
-            if (agent->_should_listen.get())
+            else if (agent->_should_listen.get())
             {
                 agent->update_registrations();
             }
-        }
-        catch (const TimeOut&)
-        {
-            // PEGASUS_SLP_REG_TIMEOUT expired , re-register with
-            // external SLP SA.
         }
         catch(...)
         {

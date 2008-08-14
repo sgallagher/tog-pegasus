@@ -103,7 +103,13 @@ public:
 
     void try_lock();
 
-    void timed_lock(Uint32 milliseconds);
+    /**
+        Attempts to lock the mutex within the specified time.
+        @param milliseconds The maximum time to block while attempting to
+            acquire the lock.
+        @return A Boolean indicating whether the lock was acquired.
+    */
+    Boolean timed_lock(Uint32 milliseconds);
 
     void unlock();
 

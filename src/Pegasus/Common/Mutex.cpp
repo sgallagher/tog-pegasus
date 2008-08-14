@@ -127,7 +127,7 @@ void Mutex::try_lock()
     }
 }
 
-void Mutex::timed_lock(Uint32 milliseconds)
+Boolean Mutex::timed_lock(Uint32 milliseconds)
 {
     PEGASUS_DEBUG_ASSERT(_magic);
 
@@ -149,29 +149,32 @@ void Mutex::timed_lock(Uint32 milliseconds)
         int r=pthread_mutex_trylock(&_rep.mutex);
         if (r == -1)
             r = errno;
-        switch (r)
+
+        if (r == 0)
         {
-            case 0:
-#if defined(PEGASUS_DEBUG)
-                _rep.count++;
-#endif
-                return;
+            break;
+        }
+        else if (r == EBUSY)
+        {
+            gettimeofday(&now, NULL);
 
-            case EBUSY:
+            if (Time::subtract(&remaining, &finish, &now))
             {
-                gettimeofday(&now, NULL);
-
-                if (Time::subtract(&remaining, &finish, &now))
-                    throw TimeOut(Threads::self());
-
-                Threads::yield();
-                break;
+                return false;
             }
 
-            default:
-                throw WaitFailed(Threads::self());
+            Threads::yield();
+        }
+        else
+        {
+            throw WaitFailed(Threads::self());
         }
     }
+
+#if defined(PEGASUS_DEBUG)
+    _rep.count++;
+#endif
+    return true;
 }
 
 void Mutex::unlock()
@@ -264,19 +267,20 @@ void Mutex::try_lock()
     _rep.count++;
 }
 
-void Mutex::timed_lock(Uint32 milliseconds)
+Boolean Mutex::timed_lock(Uint32 milliseconds)
 {
     PEGASUS_DEBUG_ASSERT(_magic);
 
     DWORD rc = WaitForSingleObject(_rep.handle, milliseconds);
 
     if (rc == WAIT_TIMEOUT)
-        throw TimeOut(Threads::self());
+        return false;
 
     if (rc == WAIT_FAILED)
         throw WaitFailed(Threads::self());
 
     _rep.count++;
+    return true;
 }
 
 void Mutex::unlock()

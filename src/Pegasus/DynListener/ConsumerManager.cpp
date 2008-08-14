@@ -823,20 +823,11 @@ void ConsumerManager::_unloadConsumers(
             "Unloading consumer " + consumersToUnload[i]->getName());
 
         //wait for the consumer worker thread to end
-        try
+        Semaphore* _shutdownSemaphore = 
+            consumersToUnload[i]->getShutdownSemaphore();
+        if (_shutdownSemaphore && !_shutdownSemaphore->time_wait(10000))
         {
-            Semaphore* _shutdownSemaphore = 
-                consumersToUnload[i]->getShutdownSemaphore();
-            if (_shutdownSemaphore)
-            {
-                _shutdownSemaphore->time_wait(10000); 
-            }
-
-        } catch (TimeOut &)
-        {
-            PEG_TRACE_CSTRING(
-                TRC_LISTENER,
-                Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL2,
                 "Timed out while attempting to stop consumer thread.");
         }
 
@@ -1106,214 +1097,13 @@ ThreadReturnType PEGASUS_THREAD_CDECL
 
     while (true)
     {
-        try
+        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4,
+            "_worker_routine::waiting " + name);
+
+        //wait to be signalled
+        if (!myself->_check_queue->time_wait(DEFAULT_RETRY_LAPSE))
         {
-            PEG_TRACE_STRING(
-                TRC_LISTENER,
-                Tracer::LEVEL4,
-                "_worker_routine::waiting " + name);
-
-            //wait to be signalled
-            myself->_check_queue->time_wait(DEFAULT_RETRY_LAPSE);
-
-            PEG_TRACE_STRING(
-                TRC_LISTENER,
-                Tracer::LEVEL4,
-                "_worker_routine::signalled " + name);
-
-            //check whether we received the shutdown signal
-            if (myself->_dieNow)
-            {
-                PEG_TRACE_STRING(
-                    TRC_LISTENER,
-                    Tracer::LEVEL4,
-                    "_worker_routine::shutdown received " + name);
-                break;
-            }
-
-            //create a temporary queue to store failed indications
-            tmpEventQueue.clear();
-
-            //continue processing events until the queue is empty
-            //make sure to check for the shutdown signal before every iteration
-            // Note that any time during our processing of events the Listener
-            // may be enqueueing NEW events for us to process.
-            // Because we are popping off the front and new events are being
-            // thrown on the back if events are failing when we start
-            // But are succeeding by the end of the processing, events may be
-            // sent out of chronological order.
-            // However. Once we complete the current queue of events, we will
-            // always send old events to be retried before sending any
-            // new events added afterwards.
-            while (myself->_eventqueue.size())
-            {
-                //check for shutdown signal
-                //this only breaks us out of the queue loop, but we will
-                //immediately get through the next wait from
-                //the shutdown signal itself, at which time we break
-                //out of the main loop
-                if (myself->_dieNow)
-                {
-                    PEG_TRACE_STRING(
-                        TRC_LISTENER,
-                        Tracer::LEVEL4,
-                        "Received signal to shutdown,"
-                            " jumping out of queue loop " + name);
-                    break;
-                }
-
-                //pop next indication off the queue
-                IndicationDispatchEvent* event = 0;
-                //what exceptions/errors can this throw?
-                event = myself->_eventqueue.remove_front();
-
-                if (!event)
-                {
-                    //this should never happen
-                    continue;
-                }
-
-                PEG_TRACE_STRING(
-                    TRC_LISTENER,
-                    Tracer::LEVEL4,
-                    "_worker_routine::consumeIndication " + name);
-
-                try
-                {
-                    myself->consumeIndication(event->getContext(),
-                                              event->getURL(),
-                                              event->getIndicationInstance());
-
-                    PEG_TRACE_STRING(
-                        TRC_LISTENER,
-                        Tracer::LEVEL4,
-                        "_worker_routine::processed indication successfully. "
-                            + name);
-
-                    delete event;
-                    continue;
-
-                } catch (CIMException & ce)
-                {
-                    //check for failure
-                    if (ce.getCode() == CIM_ERR_FAILED)
-                    {
-                        PEG_TRACE_STRING(
-                            TRC_LISTENER,
-                            Tracer::LEVEL2, 
-                            "_worker_routine::consumeIndication() temporary"
-                                " failure: " + ce.getMessage() + " " + name);
-                        
-                        // Here we simply determine if we should increment
-                        // the retry count or not.
-                        // We don't want to count a forced retry from a new
-                        // event to count as a retry. 
-                        // We just have to do it for order's sake.
-                        // If the retry Lapse has lapsed on this event,
-                        // then increment the counter.
-                        if (event->getRetries() > 0)
-                        {
-                            Sint64 differenceInMicroseconds = 
-                                CIMDateTime::getDifference(
-                                    event->getLastAttemptTime(),
-                                    CIMDateTime::getCurrentDateTime());
-
-                            if (differenceInMicroseconds >= 
-                                    (DEFAULT_RETRY_LAPSE * 1000))
-                            {
-                                event->increaseRetries();
-                            }
-                        }
-                        else
-                        {
-                            event->increaseRetries();
-                        }
-
-                        //determine if we have hit the max retry count
-                        if (event->getRetries() >= DEFAULT_MAX_RETRY_COUNT)
-                        {
-                            PEG_TRACE_CSTRING(
-                                TRC_LISTENER,
-                                Tracer::LEVEL1,
-                                "Error: the maximum retry count has been "
-                                    "exceeded.  Removing the event from "
-                                        "the queue.");
-
-                            Logger::put(
-                                Logger::ERROR_LOG,
-                                System::CIMLISTENER,
-                                Logger::SEVERE,
-                                "The following indication did not get "
-                                    "processed successfully: $0",
-                          event->getIndicationInstance().getPath().toString());
-
-                            delete event;
-                            continue;
-
-                        } else
-                        {
-                            PEG_TRACE_CSTRING(
-                                TRC_LISTENER,
-                                Tracer::LEVEL4,
-                                "_worker_routine::placing failed indication "
-                                    "back in queue");
-                            tmpEventQueue.insert_back(event);
-                        }
-
-                    } else
-                    {
-                        PEG_TRACE_STRING(
-                            TRC_LISTENER,
-                            Tracer::LEVEL1,
-                            "Error: consumeIndication() permanent failure: "
-                                + ce.getMessage());
-                        delete event;
-                        continue;
-                    }
-
-                } catch (Exception & ex)
-                {
-                    PEG_TRACE_STRING(
-                        TRC_LISTENER,
-                        Tracer::LEVEL1,
-                        "Error: consumeIndication() permanent failure: "
-                            + ex.getMessage());
-                    delete event;
-                    continue;
-
-                } catch (...)
-                {
-                    PEG_TRACE_CSTRING(
-                        TRC_LISTENER,
-                        Tracer::LEVEL1,
-                        "Error: consumeIndication() failed: "
-                            "Unknown exception.");
-                    delete event;
-                    continue;
-                } //end try
-
-            } //while eventqueue
-
-            // Copy the failed indications back to the main queue
-            // We now lock the queue while adding the retries on to the queue
-            // so that new events can't get in in front
-            // Of those events we are retrying. Retried events happened before
-            // any new events coming in.
-            IndicationDispatchEvent* tmpEvent = 0;
-            myself->_eventqueue.try_lock();
-            while (tmpEventQueue.size())
-            {
-                tmpEvent = tmpEventQueue.remove_front();
-                myself->_eventqueue.insert_back(tmpEvent);
-                
-            }
-            myself->_eventqueue.unlock();
-
-        } catch (TimeOut&)
-        {
-            PEG_TRACE_CSTRING(
-                TRC_LISTENER,
-                Tracer::LEVEL4,
+            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4,
                 "_worker_routine::Time to retry any outstanding indications.");
 
             // signal the queue in the same way we would,
@@ -1321,9 +1111,180 @@ ThreadReturnType PEGASUS_THREAD_CDECL
             // this allows the thread to fall into the queue processing code
             myself->_check_queue->signal();
 
-        } //time_wait
+            continue;
+        }
 
+        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4,
+            "_worker_routine::signalled " + name);
 
+        //check whether we received the shutdown signal
+        if (myself->_dieNow)
+        {
+            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4,
+                "_worker_routine::shutdown received " + name);
+            break;
+        }
+
+        //create a temporary queue to store failed indications
+        tmpEventQueue.clear();
+
+        //continue processing events until the queue is empty
+        //make sure to check for the shutdown signal before every iteration
+        // Note that any time during our processing of events the Listener
+        // may be enqueueing NEW events for us to process.
+        // Because we are popping off the front and new events are being
+        // thrown on the back if events are failing when we start
+        // But are succeeding by the end of the processing, events may be
+        // sent out of chronological order.
+        // However. Once we complete the current queue of events, we will
+        // always send old events to be retried before sending any
+        // new events added afterwards.
+        while (myself->_eventqueue.size())
+        {
+            //check for shutdown signal
+            //this only breaks us out of the queue loop, but we will
+            //immediately get through the next wait from
+            //the shutdown signal itself, at which time we break
+            //out of the main loop
+            if (myself->_dieNow)
+            {
+                PEG_TRACE_STRING(
+                    TRC_LISTENER,
+                    Tracer::LEVEL4,
+                    "Received signal to shutdown,"
+                        " jumping out of queue loop " + name);
+                break;
+            }
+
+            //pop next indication off the queue
+            IndicationDispatchEvent* event = 0;
+            //what exceptions/errors can this throw?
+            event = myself->_eventqueue.remove_front();
+
+            if (!event)
+            {
+                //this should never happen
+                continue;
+            }
+
+            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4,
+                "_worker_routine::consumeIndication " + name);
+
+            try
+            {
+                myself->consumeIndication(event->getContext(),
+                                          event->getURL(),
+                                          event->getIndicationInstance());
+
+                PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4,
+                    "_worker_routine::processed indication successfully. "
+                        + name);
+
+                delete event;
+                continue;
+            }
+            catch (CIMException & ce)
+            {
+                //check for failure
+                if (ce.getCode() == CIM_ERR_FAILED)
+                {
+                    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, 
+                        "_worker_routine::consumeIndication() temporary"
+                            " failure: " + ce.getMessage() + " " + name);
+                    
+                    // Here we simply determine if we should increment
+                    // the retry count or not.
+                    // We don't want to count a forced retry from a new
+                    // event to count as a retry. 
+                    // We just have to do it for order's sake.
+                    // If the retry Lapse has lapsed on this event,
+                    // then increment the counter.
+                    if (event->getRetries() > 0)
+                    {
+                        Sint64 differenceInMicroseconds = 
+                            CIMDateTime::getDifference(
+                                event->getLastAttemptTime(),
+                                CIMDateTime::getCurrentDateTime());
+
+                        if (differenceInMicroseconds >= 
+                                (DEFAULT_RETRY_LAPSE * 1000))
+                        {
+                            event->increaseRetries();
+                        }
+                    }
+                    else
+                    {
+                        event->increaseRetries();
+                    }
+
+                    //determine if we have hit the max retry count
+                    if (event->getRetries() >= DEFAULT_MAX_RETRY_COUNT)
+                    {
+                        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL1,
+                            "Error: the maximum retry count has been "
+                                "exceeded.  Removing the event from "
+                                "the queue.");
+
+                        Logger::put(
+                            Logger::ERROR_LOG,
+                            System::CIMLISTENER,
+                            Logger::SEVERE,
+                            "The following indication did not get "
+                                "processed successfully: $0",
+                        event->getIndicationInstance().getPath().toString());
+
+                        delete event;
+                        continue;
+                    }
+                    else
+                    {
+                        PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4,
+                            "_worker_routine::placing failed indication "
+                                "back in queue");
+                        tmpEventQueue.insert_back(event);
+                    }
+                }
+                else
+                {
+                    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL1,
+                        "Error: consumeIndication() permanent failure: "
+                            + ce.getMessage());
+                    delete event;
+                    continue;
+                }
+            }
+            catch (Exception & ex)
+            {
+                PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL1,
+                    "Error: consumeIndication() permanent failure: "
+                        + ex.getMessage());
+                delete event;
+                continue;
+            }
+            catch (...)
+            {
+                PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL1,
+                    "Error: consumeIndication() failed: Unknown exception.");
+                delete event;
+                continue;
+            } //end try
+
+        } //while eventqueue
+
+        // Copy the failed indications back to the main queue
+        // We now lock the queue while adding the retries on to the queue
+        // so that new events can't get in in front
+        // Of those events we are retrying. Retried events happened before
+        // any new events coming in.
+        IndicationDispatchEvent* tmpEvent = 0;
+        myself->_eventqueue.try_lock();
+        while (tmpEventQueue.size())
+        {
+            tmpEvent = tmpEventQueue.remove_front();
+            myself->_eventqueue.insert_back(tmpEvent);
+            
+        }
+        myself->_eventqueue.unlock();
     } //shutdown
 
     PEG_METHOD_EXIT();

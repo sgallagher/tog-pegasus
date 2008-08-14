@@ -557,11 +557,7 @@ void CIMListenerRep::stop()
         // The thread could be delivering an export, so give it 3sec.
         // Note that _listener_routine deletes the CIMListenerService,
         // so no need to delete _svc.
-        try
-        {
-            _listener_sem->time_wait(3000);
-        }
-        catch(const TimeOut &)
+        if (!_listener_sem->time_wait(3000))
         {
             // No need to do anything, the thread pool will be deleted below
             // to cancel the _listener_routine thread if it is still running.

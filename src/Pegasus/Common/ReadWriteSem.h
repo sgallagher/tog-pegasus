@@ -40,9 +40,6 @@
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/AtomicInt.h>
 
-#define PEG_SEM_READ 1
-#define PEG_SEM_WRITE 2
-
 PEGASUS_NAMESPACE_BEGIN
 
 //==============================================================================
@@ -123,7 +120,7 @@ public:
     // @exception WaitFailed
     inline void wait_read(ThreadType caller)
     {
-        wait(PEG_SEM_READ, caller );
+        _wait(false, caller);
     }
 
     // @exception Deadlock
@@ -131,38 +128,36 @@ public:
     // @exception WaitFailed
     inline void wait_write(ThreadType caller)
     {
-        wait(PEG_SEM_WRITE, caller);
+        _wait(true, caller);
     }
 
     // @exception Permission
     inline void unlock_read(ThreadType caller)
     {
-        unlock(PEG_SEM_READ, caller);
+        _unlock(false, caller);
     }
 
     // @exception Permission
     inline void unlock_write(ThreadType caller)
     {
-        unlock(PEG_SEM_WRITE, caller);
+        _unlock(true, caller);
     }
 
     int read_count() const;
     int write_count() const;
 
+private:
     // @exception Deadlock
     // @exception Permission
     // @exception WaitFailed
-    // @exception TooManyReaders
-    void wait(Uint32 mode, ThreadType caller);
+    void _wait(Boolean writeLock, ThreadType caller);
 
     // @exception Permission
-    void unlock(Uint32 mode, ThreadType caller);
+    void _unlock(Boolean writeLock, ThreadType caller);
 
-private:
     AtomicInt _readers;
     AtomicInt _writers;
     ReadWriteSemRep _rwlock;
-    friend void extricate_read_write(void *);
 };
 
 //==============================================================================

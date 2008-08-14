@@ -273,20 +273,24 @@ CIMResponseMessage* InternalCIMOMHandleRep::do_request(
     {
         if (timeout)
         {
-            _msg_avail.time_wait(timeout);
+            if (!_msg_avail.time_wait(timeout))
+            {
+                PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+                    "timeout waiting for response");
+                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                    MessageLoaderParms(
+                        "Provider.CIMOMHandle.EMPTY_CIM_RESPONSE",
+                        "Empty CIM Response"));
+            }
         }
         else
         {
             _msg_avail.wait();
         }
     }
-    catch (TimeOut&)
+    catch (CIMException&)
     {
-        PEG_TRACE_CSTRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
-                        "timeout waiting for response");
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-            "Provider.CIMOMHandle.EMPTY_CIM_RESPONSE",
-            "Empty CIM Response"));
+        throw;
     }
     catch (...)
     {

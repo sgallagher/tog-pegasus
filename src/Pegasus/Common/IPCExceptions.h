@@ -64,14 +64,6 @@ private:
     AlreadyLocked();
 };
 
-class PEGASUS_COMMON_LINKAGE TimeOut: public IPCException
-{
-public:
-    TimeOut(ThreadType owner) : IPCException(owner) {}
-private:
-    TimeOut();
-};
-
 class PEGASUS_COMMON_LINKAGE Permission: public IPCException
 {
 public:
@@ -87,23 +79,6 @@ public:
 private:
     WaitFailed();
 };
-
-class PEGASUS_COMMON_LINKAGE WaitInterrupted: public IPCException
-{
-public:
-    WaitInterrupted(ThreadType owner) : IPCException(owner) {}
-private:
-    WaitInterrupted();
-};
-
-class PEGASUS_COMMON_LINKAGE TooManyReaders: public IPCException
-{
-public:
-    TooManyReaders(ThreadType owner) : IPCException(owner) { }
-private:
-    TooManyReaders();
-};
-
 
 class PEGASUS_COMMON_LINKAGE ListFull: public IPCException
 {

@@ -186,18 +186,18 @@ void UserFileHandler::_Update(
 
     try
     {
-        _mutex->timed_lock(_MUTEX_TIMEOUT);
-    }
-    catch (TimeOut&)
-    {
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms(
-                "Security.UserManager.UserFileHandler.TIMEOUT",
-                "Timed out while attempting to perform the requested "
-                    "operation. Try the operation again."));
+        if (!_mutex->timed_lock(_MUTEX_TIMEOUT))
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "Security.UserManager.UserFileHandler.TIMEOUT",
+                    "Timed out while attempting to perform the requested "
+                        "operation. Try the operation again."));
+        }
     }
     catch (WaitFailed&)
     {
+        // ATTN: This is an error case, not a timeout scenario
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
                 "Security.UserManager.UserFileHandler.TIMEOUT",

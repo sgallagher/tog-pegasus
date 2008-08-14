@@ -129,10 +129,12 @@ public:
         This method returns normally if the Semaphore has a non-zero count or
         it is signalled during the specified time interval.
         @param milliseconds The time interval to wait (in milliseconds).
+        @return True if the Semaphore has a non-zero count or is signalled
+            during the specified time interval, false otherwise.
         @exception TimeOut If the wait operation does not succeed within
         the specified time interval.
     */
-    void time_wait(Uint32 milliseconds);
+    Boolean time_wait(Uint32 milliseconds);
 
     /** Increments the count of the semaphore.
     */

@@ -48,14 +48,6 @@ private:
     ThreadType _owner;
 };
 
-class PEGASUS_COMMON_LINKAGE Deadlock: public IPCException
-{
-public:
-    Deadlock(ThreadType owner) : IPCException(owner) {}
-private:
-    Deadlock();
-};
-
 class PEGASUS_COMMON_LINKAGE Permission: public IPCException
 {
 public:

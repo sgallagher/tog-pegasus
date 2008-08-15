@@ -345,7 +345,6 @@ AsyncReply* ModuleController::_send_wait(
 
 
 // sendwait to another module controlled by another service.
-// throws Deadlock() if destination_q is this->queue_id
 AsyncReply* ModuleController::ModuleSendWait(
     const RegisteredModuleHandle& handle,
     Uint32 destination_q,

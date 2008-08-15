@@ -204,14 +204,6 @@ void UserFileHandler::_Update(
                 "Timed out while attempting to perform the requested "
                     "operation. Try the operation again."));
     }
-    catch (Deadlock&)
-    {
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms(
-                "Security.UserManager.UserFileHandler.DEADLOCK",
-                "Deadlock encountered while attempting to perform the "
-                    "requested operation.  Try the operation again."));
-    }
 
     switch (operation)
     {

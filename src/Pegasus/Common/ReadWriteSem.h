@@ -115,7 +115,6 @@ public:
 
     ~ReadWriteSem();
 
-    // @exception Deadlock
     // @exception Permission
     // @exception WaitFailed
     inline void wait_read(ThreadType caller)
@@ -123,7 +122,6 @@ public:
         _wait(false, caller);
     }
 
-    // @exception Deadlock
     // @exception Permission
     // @exception WaitFailed
     inline void wait_write(ThreadType caller)
@@ -147,7 +145,6 @@ public:
     int write_count() const;
 
 private:
-    // @exception Deadlock
     // @exception Permission
     // @exception WaitFailed
     void _wait(Boolean writeLock, ThreadType caller);

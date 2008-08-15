@@ -824,6 +824,10 @@ en:table {
 
         Security.UserManager.UserFileHandler.TIMEOUT:string {"PGS01800: Timed out while attempting to perform the requested operation. Try the operation again."}
 
+         /**
+         * @note PGS01801:
+         *       This message is no longer used as of version 2.9.0
+         */
         Security.UserManager.UserFileHandler.DEADLOCK:string {"PGS01801: Deadlock encountered while attempting to perform the requested operation.  Try the operation again."}
 
         /**

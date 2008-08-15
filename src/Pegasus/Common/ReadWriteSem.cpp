@@ -64,10 +64,9 @@ ReadWriteSem::~ReadWriteSem()
 
 void ReadWriteSem::_wait(Boolean writeLock, ThreadType caller)
 {
-    int errorcode;
     if (writeLock)
     {
-        if (0 == (errorcode = pthread_rwlock_wrlock(&_rwlock.rwlock)))
+        if (0 == pthread_rwlock_wrlock(&_rwlock.rwlock))
         {
             _rwlock.owner = caller;
             _writers++;
@@ -76,17 +75,14 @@ void ReadWriteSem::_wait(Boolean writeLock, ThreadType caller)
     }
     else
     {
-        if (0 == (errorcode = pthread_rwlock_rdlock(&_rwlock.rwlock)))
+        if (0 == pthread_rwlock_rdlock(&_rwlock.rwlock))
         {
             _readers++;
             return;
         }
     }
 
-    if (errorcode == EDEADLK)
-        throw(Deadlock(_rwlock.owner));
-    else
-        throw(WaitFailed(Threads::self()));
+    throw WaitFailed(Threads::self());
 }
 
 void ReadWriteSem::_unlock(Boolean writeLock, ThreadType caller)
@@ -144,10 +140,6 @@ ReadWriteSem::~ReadWriteSem()
     try
     {
         _rwlock._internal_lock.lock();
-    }
-    catch (Deadlock &)
-    {
-        // no problem - we own the lock, which is what we want
     }
     catch (IPCException &)
     {

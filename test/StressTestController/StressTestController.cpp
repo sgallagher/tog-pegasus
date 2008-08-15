@@ -159,7 +159,7 @@ static int *prev_clientStatus;
 /**
   Client Instance
 */
-static int *clientInstance;
+static Uint32* clientInstance;
 
 /**
   Indicates if client is Active
@@ -1120,7 +1120,7 @@ Uint32 StressTestControllerCommand::execute (
     //
     if(_clientCount > 0)
     {
-        clientInstance = new int[_clientCount];
+        clientInstance = new Uint32[_clientCount];
         clientStartMilliseconds.reset(new Uint64[_clientCount]);
         clientStopMilliseconds.reset(new Uint64[_clientCount]);
         clientDelayMilliseconds.reset(new Uint64[_clientCount]);
@@ -1235,7 +1235,7 @@ Uint32 StressTestControllerCommand::execute (
                         ErrReport.append(clientInst);
                         throw StressTestControllerException(ErrReport);
                     }
-                    clientInstance[j] = atoi(clientInst.getCString());
+                    clientInstance[j] = (Uint32)atoi(clientInst.getCString());
 
                     //
                     // Acquire and set client specific duration

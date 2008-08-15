@@ -475,17 +475,24 @@ Array<IndicationDispatchEvent>
 
     try
     {
-        _eventqueue.try_lock();
-        temp = _eventqueue.front();
-        while (temp)
+        if (_eventqueue.try_lock())
         {
-            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "retrieving");
-            indications.append(*temp);
-            temp = _eventqueue.next_of(temp);
+            temp = _eventqueue.front();
+            while (temp)
+            {
+                PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "retrieving");
+                indications.append(*temp);
+                temp = _eventqueue.next_of(temp);
+            }
+            _eventqueue.unlock();
         }
-        _eventqueue.unlock();
-
-    } catch (...)
+        else
+        {
+            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL3,
+                "Failed to lock _eventqueue");
+        }
+    }
+    catch (...)
     {
         PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "Unknown Exception");
     }

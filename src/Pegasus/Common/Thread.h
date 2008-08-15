@@ -315,14 +315,18 @@ public:
     }
 
     // @exception IPCException
-    inline void *try_reference_tsd(const char *key)
+    inline Boolean try_reference_tsd(const char *key, void** data)
     {
-        _tsd.try_lock();
+        if (!_tsd.try_lock())
+        {
+            return false;
+        }
         thread_data *tsd = _tsd.find(thread_data::equal, key);
         if (tsd != NULL)
-            return (void *) (tsd->_data);
+            *data = (void*) (tsd->_data);
         else
-            return NULL;
+            *data = NULL;
+        return true;
     }
 
 

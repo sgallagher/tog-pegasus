@@ -101,7 +101,11 @@ public:
 
     void lock();
 
-    void try_lock();
+    /**
+        Attempts to lock the mutex without blocking.
+        @return A Boolean indicating whether the lock was acquired.
+    */
+    Boolean try_lock();
 
     /**
         Attempts to lock the mutex within the specified time.

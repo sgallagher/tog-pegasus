@@ -55,7 +55,7 @@ public:
 
     /** no-op try_lock().
     */
-    void try_lock() { }
+    Boolean try_lock() { return true; }
 
     /** no-op unlock().
     */
@@ -471,9 +471,10 @@ public:
     */
     void lock() { _lock.lock(); }
 
-    /** Try to lock the list.
+    /** Try to lock the list without blocking.
+        @return A Boolean indicating whether the lock was acquired.
     */
-    void try_lock() { _lock.try_lock(); }
+    Boolean try_lock() { return _lock.try_lock(); }
 
     /** Unlock the list.
     */

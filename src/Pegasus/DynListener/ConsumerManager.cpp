@@ -1277,14 +1277,21 @@ ThreadReturnType PEGASUS_THREAD_CDECL
         // Of those events we are retrying. Retried events happened before
         // any new events coming in.
         IndicationDispatchEvent* tmpEvent = 0;
-        myself->_eventqueue.try_lock();
-        while (tmpEventQueue.size())
+        if (myself->_eventqueue.try_lock())
         {
-            tmpEvent = tmpEventQueue.remove_front();
-            myself->_eventqueue.insert_back(tmpEvent);
-            
+            while (tmpEventQueue.size())
+            {
+                tmpEvent = tmpEventQueue.remove_front();
+                myself->_eventqueue.insert_back(tmpEvent);
+            }
+
+            myself->_eventqueue.unlock();
         }
-        myself->_eventqueue.unlock();
+        else
+        {
+            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL3,
+                "Failed to lock _eventqueue");
+        }
     } //shutdown
 
     PEG_METHOD_EXIT();

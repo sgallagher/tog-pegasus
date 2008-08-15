@@ -56,14 +56,6 @@ private:
     Deadlock();
 };
 
-class PEGASUS_COMMON_LINKAGE AlreadyLocked: public IPCException
-{
-public:
-    AlreadyLocked(ThreadType owner) : IPCException(owner) {}
-private:
-    AlreadyLocked();
-};
-
 class PEGASUS_COMMON_LINKAGE Permission: public IPCException
 {
 public:

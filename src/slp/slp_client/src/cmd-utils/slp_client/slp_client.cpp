@@ -1230,7 +1230,7 @@ static void _slp_set_local_addr(struct slp_client *client, int af)
     family and target address.
 */
 static BOOL _slp_can_make_request(struct slp_client *client, int af,
-    char *addr)
+    const char *addr)
 {
     // Check if we have direct target_addr
     if (af == AF_UNSPEC)

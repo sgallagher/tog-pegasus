@@ -36,7 +36,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.l,v 1.5 2008/02/20 06:06:25 venkat.puvvada Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.l,v 1.6 2008/08/15 17:17:26 kumpf Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -75,7 +75,7 @@
 #include <stdarg.h>
 
 #define urlless yyless
-void urlerror(char *, ...);
+void urlerror(const char *, ...);
 
 static int16 heapIndex;
 static char heap[2052];
@@ -265,7 +265,7 @@ static char *_lslp_strdup(const char *s)
   return(p);
 }
 
-void urlerror(char *s, ...)
+void urlerror(const char *s, ...)
 {
  return;
 }	

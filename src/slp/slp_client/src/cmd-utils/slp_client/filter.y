@@ -70,7 +70,7 @@
 #include "slp_client.h"
 
 /* prototypes and globals go here */
-  void filtererror(char *, ...);
+  void filtererror(const char *, ...);
 
   int32 filterlex(void);
 

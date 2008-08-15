@@ -36,7 +36,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.y,v 1.7 2008/03/17 05:52:47 venkat.puvvada Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.y,v 1.8 2008/08/15 17:17:26 kumpf Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -71,7 +71,7 @@
 
 
 /* prototypes and globals go here */
-void urlerror(char *, ...);
+void urlerror(const char *, ...);
 int32 urlwrap(void);
 int32 urllex(void);   
 int32 urlparse(void);

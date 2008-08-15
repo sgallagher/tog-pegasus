@@ -143,7 +143,7 @@
 
 
 /* prototypes and globals go here */
-void urlerror(char *, ...);
+void urlerror(const char *, ...);
 int32 urlwrap(void);
 int32 urllex(void);   
 int32 urlparse(void);

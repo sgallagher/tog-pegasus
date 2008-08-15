@@ -1,4 +1,4 @@
-/*//%2006////////////////////////////////////////////////////////////////////////
+/*//%2006///////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -28,15 +28,14 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //============================================================================*/
+
 /*****************************************************************************
  *  Description: encode/decode/eval LDAP Filters
  *
  *  Originated: April 04, 2002
- *	Original Author: Mike Day md@soft-hackle.net
- *                                mdd@us.ibm.com
+ *  Original Author: Mike Day md@soft-hackle.net
+ *                            mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/filter.l,v 1.3 2006/01/31 15:03:55 karl Exp $ 	                                                            
- *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
  *                                                                           
@@ -76,12 +75,13 @@
 #include <stdarg.h>
 
 #define filterless yyless
-void filtererror(char *, ...);
+void filtererror(const char *, ...);
 
 /*
 extern char *lslp_logPath;
 
-#define yyerror(s) 	_lslpMsgOut(lslp_logPath, lslpPrintSem, LSLP_LOG_ERRORS, NULL, 0, (s), __FILE__, __LINE__);
+#define yyerror(s) _lslpMsgOut(lslp_logPath, lslpPrintSem, LSLP_LOG_ERRORS, \
+    NULL, 0, (s), __FILE__, __LINE__);
 */
 static int16 heapIndex;
 static char heap[2052];
@@ -95,8 +95,8 @@ size_t filter_init_lexer(const char *s);
 %}
 
 /* regex macros for the lexer */
-hexdigit		[0-9a-fA-F]
-reserved                [()\&|!=<>~\n] /* newline in reserved set for convinience */
+hexdigit                [0-9a-fA-F]
+reserved                [()\&|!=<>~\n] /* newline is reserved for convenience */
 not_reserved            [^()\&|!=<>~\n] 
 
 
@@ -108,38 +108,41 @@ not_reserved            [^()\&|!=<>~\n]
 %option noyywrap prefix="filter"
 %%
 
-"\""                          { BEGIN QUOTED_STRING; filterless(0); }
+"\""                { BEGIN QUOTED_STRING; filterless(0); }
 <QUOTED_STRING>[^()\&|!=<>~\n]+  {
-                                 BEGIN INITIAL; 
-                                 if(NULL != (filterlval.filter_string =  _lslp_strdup(filtertext)))
-                                    return(OPERAND) ; 
-                                 else 
-                                    return(0L) ;
-                              }
+                        BEGIN INITIAL; 
+                        if (NULL != (filterlval.filter_string =
+                                         _lslp_strdup(filtertext)))
+                            return OPERAND; 
+                        else 
+                            return 0L;
+                    }
 
 
-[ \t\v\f]*                    { ; }
-"("                           { filterlval.filter_int = L_PAREN; return L_PAREN ; }
-")"                           { filterlval.filter_int = R_PAREN; return R_PAREN ; }
-"&"                           { filterlval.filter_int = OP_AND; return OP_AND ; }
-"|"                           { filterlval.filter_int = OP_OR; return OP_OR ; }
-"!"                           { filterlval.filter_int = OP_NOT; return OP_NOT ; }
-"="                           { filterlval.filter_int = OP_EQU; return OP_EQU ; }
-">="                          { filterlval.filter_int = OP_GT; return OP_GT ; }
-"<="                          { filterlval.filter_int = OP_LT; return OP_LT ; }
-"=*"                          { filterlval.filter_int = OP_PRESENT; return OP_PRESENT ; }
-"~="                          { filterlval.filter_int = OP_APPROX; return OP_APPROX ;  }
+[ \t\v\f]*          { ; }
+"("                 { filterlval.filter_int = L_PAREN; return L_PAREN ; }
+")"                 { filterlval.filter_int = R_PAREN; return R_PAREN ; }
+"&"                 { filterlval.filter_int = OP_AND; return OP_AND ; }
+"|"                 { filterlval.filter_int = OP_OR; return OP_OR ; }
+"!"                 { filterlval.filter_int = OP_NOT; return OP_NOT ; }
+"="                 { filterlval.filter_int = OP_EQU; return OP_EQU ; }
+">="                { filterlval.filter_int = OP_GT; return OP_GT ; }
+"<="                { filterlval.filter_int = OP_LT; return OP_LT ; }
+"=*"                { filterlval.filter_int = OP_PRESENT; return OP_PRESENT ; }
+"~="                { filterlval.filter_int = OP_APPROX; return OP_APPROX ;  }
 
 
 [-+][0-9]+                  |
 [-+]"0"[xX]{hexdigit}+      { 
-                              filterlval.filter_int = strtol(filtertext, (char **) 0, 0) ;
+                              filterlval.filter_int =
+                                strtol(filtertext, (char **) 0, 0) ;
                               return VAL_INT;
                             }
 
 [0-9]+                      |
 "0"[xX]{hexdigit}+          { 
-                              filterlval.filter_int = strtoul(filtertext, (char **) 0, 0);
+                              filterlval.filter_int =
+                                strtoul(filtertext, (char **) 0, 0);
                               return VAL_INT;
                             }
 
@@ -154,9 +157,10 @@ not_reserved            [^()\&|!=<>~\n]
 
 
 [^()\&|!=<>~ \t\v\f]+       {
-                                 if(NULL != (filterlval.filter_string =  _lslp_strdup(filtertext)))
+                                if (NULL != (filterlval.filter_string =
+                                                 _lslp_strdup(filtertext)))
                                     return(OPERAND) ; 
-                                 else 
+                                else 
                                     return(0L) ;
                             }
 
@@ -184,7 +188,11 @@ size_t filter_init_lexer(const char *s)
 static char *_lslp_strdup(const char *s)
 {
   char *p = &heap[heapIndex];
-  do { heap[heapIndex++] = *s; } while ((*s != 0x00) && (heapIndex < 2049) && (++s));
+  do
+  {
+    heap[heapIndex++] = *s;
+  }
+  while ((*s != 0x00) && (heapIndex < 2049) && (++s));
   return(p);
 }
 
@@ -192,22 +200,26 @@ static char *_lslp_strdup(const char *s)
 static char *_lslp_strdup_strip_quotes(char *s)
 {
   char *p = &heap[heapIndex];
-  do { if(*s != '"') heap[heapIndex++] = *s; } while ((*s != 0x00) && (heapIndex < 2049) && (++s));
+  do
+  {
+    if(*s != '"') heap[heapIndex++] = *s;
+  }
+  while ((*s != 0x00) && (heapIndex < 2049) && (++s));
   return(p);
 }
 
 ******/
 
-void filtererror(char *s, ...)
+void filtererror(const char *s, ...)
 {
-	return;
-}	
+    return;
+}
 
 /*
 int main(int argc, char *argv[])
 {
 
-}	
+}
 
 */
 

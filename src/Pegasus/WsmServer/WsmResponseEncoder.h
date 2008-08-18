@@ -72,7 +72,7 @@ private:
     Boolean _encodeEnumerationData(
         SoapResponse& soapResponse,
         Buffer& headers,
-        StrLit responseName,
+        WsmOperationType operation,
         Uint64 contextId,
         Boolean isComplete,
         WsenEnumerationData& data);

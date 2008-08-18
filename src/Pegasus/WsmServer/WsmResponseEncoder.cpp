@@ -334,7 +334,7 @@ void WsmResponseEncoder::_encodeWsenEnumerateResponse(
     if (!_encodeEnumerationData(
             soapResponse, 
             headers, 
-            STRLIT("EnumerateResponse"),
+            WS_ENUMERATION_ENUMERATE,
             response->getEnumerationContext(),
             response->isComplete(),
             response->getEnumerationData()))
@@ -354,7 +354,7 @@ void WsmResponseEncoder::_encodeWsenPullResponse(WsenPullResponse* response)
     if (!_encodeEnumerationData(
             soapResponse, 
             headers, 
-            STRLIT("PullResponse"),
+            WS_ENUMERATION_PULL,
             response->getEnumerationContext(),
             response->isComplete(),
             response->getEnumerationData()))
@@ -369,15 +369,20 @@ void WsmResponseEncoder::_encodeWsenPullResponse(WsenPullResponse* response)
 Boolean WsmResponseEncoder::_encodeEnumerationData(
     SoapResponse& soapResponse,
     Buffer& headers,
-    StrLit responseName,
+    WsmOperationType operation,
     Uint64 contextId,
     Boolean isComplete,
     WsenEnumerationData& data)
 {
     Buffer bodyHeader, bodyTrailer;
 
+    PEGASUS_ASSERT(operation == WS_ENUMERATION_ENUMERATE ||
+        operation == WS_ENUMERATION_PULL);
+
     WsmWriter::appendStartTag(
-        bodyHeader, WsmNamespaces::WS_ENUMERATION, responseName);
+        bodyHeader, WsmNamespaces::WS_ENUMERATION, 
+        operation == WS_ENUMERATION_ENUMERATE ? 
+            STRLIT("EnumerateResponse") : STRLIT("PullResponse"));
 
     if (!isComplete)
     {
@@ -409,14 +414,17 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
     if (isComplete)
     {
         WsmWriter::appendEmptyTag(
-            bodyTrailer, WsmNamespaces::WS_ENUMERATION, 
+            bodyTrailer, 
+            operation == WS_ENUMERATION_ENUMERATE ? 
+                WsmNamespaces::WS_MAN : WsmNamespaces::WS_ENUMERATION, 
             STRLIT("EndOfSequence"));
         eosSize = bodyTrailer.size() - eosPos;
     }
 
     WsmWriter::appendEndTag(
         bodyTrailer, WsmNamespaces::WS_ENUMERATION, 
-        responseName);
+        operation == WS_ENUMERATION_ENUMERATE ? 
+            STRLIT("EnumerateResponse") : STRLIT("PullResponse"));
 
     // Fault the request if it can't be encoded within the limits
     if (!soapResponse.appendHeader(headers) ||

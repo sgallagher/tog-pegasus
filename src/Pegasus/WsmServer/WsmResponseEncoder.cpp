@@ -404,9 +404,15 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
     if (data.getSize() > 0)
     {
         WsmWriter::appendStartTag(
-            bodyHeader, WsmNamespaces::WS_ENUMERATION, STRLIT("Items"));
+            bodyHeader, 
+            operation == WS_ENUMERATION_ENUMERATE ? 
+                WsmNamespaces::WS_MAN : WsmNamespaces::WS_ENUMERATION, 
+            STRLIT("Items"));
         WsmWriter::appendEndTag(
-            bodyTrailer, WsmNamespaces::WS_ENUMERATION, STRLIT("Items"));
+            bodyTrailer, 
+            operation == WS_ENUMERATION_ENUMERATE ? 
+                WsmNamespaces::WS_MAN : WsmNamespaces::WS_ENUMERATION, 
+            STRLIT("Items"));
     }
 
     Uint32 eosPos = bodyTrailer.size();

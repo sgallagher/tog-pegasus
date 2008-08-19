@@ -119,7 +119,7 @@ ifeq ($(PEGASUS_ENABLE_CQL),true)
       libCIMQueryCapabilitiesProvider
 endif
 
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER),true)
 PEGASUS_LIBRARIES += \
    libcmpiCppImpl
 PEGASUS_PROVIDER_MANAGERS += \
@@ -172,7 +172,7 @@ PEGASUS_ADMIN_CMDS = \
    cimtrust \
    repupgrade
 
-ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
    PEGASUS_ADMIN_CMDS += \
       cimservermain \
       cimshutdown
@@ -875,7 +875,7 @@ _append_preSectionToSpecFile: FORCE
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-pre.spec \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
 	@$(ECHO-E) "# When Privilege Separation is enabled, create the" \
             "'$(CIMSERVERMAIN_USR)' user and ">> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# '$(CIMSERVERMAIN_GRP)' group which are used" \
@@ -926,14 +926,14 @@ _append_postSectionToSpecFile: FORCE
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "       %PEGASUS_SBIN_DIR/repupgrade >> %PEGASUS_INSTALL_LOG 2>&1" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
 	@$(ECHO-E) "       chown -R $(CIMSERVERMAIN_USR) %PEGASUS_REPOSITORY_DIR" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "       chgrp -R $(CIMSERVERMAIN_GRP) %PEGASUS_REPOSITORY_DIR" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 endif
 	@$(ECHO-E) "   fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
 	@$(ECHO-E) "   if [ -f %PEGASUS_TRACE_FILE_PATH ]; then" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "     /bin/mv %PEGASUS_TRACE_FILE_PATH" \
@@ -1006,7 +1006,7 @@ _append_postunSectionToSpecFile: FORCE
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-postun.spec \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
+ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
 	@$(ECHO-E) "# When Privilege Separation is enabled, delete the" \
             "'$(CIMSERVERMAIN_USR)' user and ">> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# '$(CIMSERVERMAIN_GRP)' group which are used" \

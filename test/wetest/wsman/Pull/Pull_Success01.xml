@@ -25,7 +25,7 @@
 <s:Body>
 <wse:Pull>
 <wse:EnumerationContext>6</wse:EnumerationContext>
-<w:MaxElements>5</w:MaxElements>
+<wse:MaxElements>5</wse:MaxElements>
 </wse:Pull>
 </s:Body>
 </s:Envelope>

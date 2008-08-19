@@ -19,7 +19,7 @@ uuid:00000000-0000-0000-0005-000000000001
 <wsen:EnumerationContext>
 3
 </wsen:EnumerationContext>
-<wsen:Items>
+<wsman:Items>
 <wsa:EndpointReference>
 <wsa:Address>
 http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous
@@ -56,7 +56,7 @@ key2
 </wsman:SelectorSet>
 </wsa:ReferenceParameters>
 </wsa:EndpointReference>
-</wsen:Items>
+</wsman:Items>
 </wsen:EnumerateResponse>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

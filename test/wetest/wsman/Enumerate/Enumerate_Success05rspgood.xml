@@ -17,7 +17,7 @@ uuid:00000000-0000-0000-0005-000000000001
 <SOAP-ENV:Body>
 <wsen:EnumerateResponse>
 <wsen:EnumerationContext />
-<wsen:Items>
+<wsman:Items>
 <class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
 <class:keyProperty>
 key1
@@ -106,8 +106,8 @@ prop1 value8
 prop2 value8
 </class:prop2>
 </class:WsmBase>
-</wsen:Items>
-<wsen:EndOfSequence />
+</wsman:Items>
+<wsman:EndOfSequence />
 </wsen:EnumerateResponse>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

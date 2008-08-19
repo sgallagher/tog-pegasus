@@ -19,7 +19,7 @@ uuid:00000000-0000-0000-0005-000000000001
 <wsen:EnumerationContext>
 0
 </wsen:EnumerationContext>
-<wsen:Items>
+<wsman:Items>
 <class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
 <class:keyProperty>
 key1
@@ -31,7 +31,7 @@ prop1 value1
 prop2 value1
 </class:prop2>
 </class:WsmBase>
-</wsen:Items>
+</wsman:Items>
 </wsen:EnumerateResponse>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

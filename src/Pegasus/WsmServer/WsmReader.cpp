@@ -1202,7 +1202,7 @@ void WsmReader::decodePullBody(
                 checkDuplicateHeader(entry.text, maxCharacters > 0);
                 maxCharacters = getUint32ElementContent(entry, "MaxCharacters");
             }
-            else if ((nsType == WsmNamespaces::WS_MAN) &&
+            else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
                 (strcmp(elementName, "MaxElements") == 0))
             {
                 checkDuplicateHeader(entry.text, maxElements > 0);

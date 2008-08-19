@@ -82,36 +82,35 @@ void Test01(Uint32 mode)
 
     // Enumerate the class names:
     Array<CIMName> classNames =
-    r.enumerateClassNames(NAMESPACE, CIMName (), true);
+        r.enumerateClassNames(NAMESPACE, CIMName(), true);
 
     BubbleSort(classNames);
 
     PEGASUS_TEST_ASSERT(classNames.size() == 2);
-    // ATTN-RK-20020729: Remove CIMName cast when Repository uses CIMName
-    PEGASUS_TEST_ASSERT(CIMName(classNames[0]).equal(CIMName ("Class1")));
-    PEGASUS_TEST_ASSERT(CIMName(classNames[1]).equal(CIMName ("Class2")));
+    PEGASUS_TEST_ASSERT(classNames[0] == "Class1");
+    PEGASUS_TEST_ASSERT(classNames[1] == "Class2");
 
     // Get the classes and determine if they are identical with input
 
-    CIMClass c1 =  r.getClass(NAMESPACE, CIMName ("Class1"), true, true, true);
-    CIMClass c2 =  r.getClass(NAMESPACE, CIMName ("Class2"), true, true, true);
+    CIMClass c1 = r.getClass(NAMESPACE, CIMName ("Class1"), true, true, true);
+    CIMClass c2 = r.getClass(NAMESPACE, CIMName ("Class2"), true, true, true);
 
     PEGASUS_TEST_ASSERT(c1.identical(class1));
     PEGASUS_TEST_ASSERT(c1.identical(class1));
 
     Array<CIMClass> classes =
-    r.enumerateClasses(NAMESPACE, CIMName (), true, true, true);
+        r.enumerateClasses(NAMESPACE, CIMName (), true, true, true);
 
     // Attempt to delete Class1. It should fail since the class has
     // children.
 
     try
     {
-    r.deleteClass(NAMESPACE, CIMName ("Class1"));
+        r.deleteClass(NAMESPACE, CIMName ("Class1"));
     }
     catch (CIMException& e)
     {
-    PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_CLASS_HAS_CHILDREN);
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_CLASS_HAS_CHILDREN);
     }
 
     // Delete all classes created here:
@@ -119,13 +118,29 @@ void Test01(Uint32 mode)
     r.deleteClass(NAMESPACE, CIMName ("Class2"));
     r.deleteClass(NAMESPACE, CIMName ("Class1"));
 
-    // Be sure the class files are really gone:
+    // Be sure the classes are really gone:
 
-    Array<String> tmp;
-    String classesDir (repositoryRoot);
-    classesDir.append("/zzz/classes");
-    PEGASUS_TEST_ASSERT(FileSystem::getDirectoryContents (classesDir, tmp));
-    PEGASUS_TEST_ASSERT(tmp.size() == 0);
+    try
+    {
+        CIMClass c1 = r.getClass(
+            NAMESPACE, CIMName ("Class1"), true, true, true);
+        PEGASUS_ASSERT(false);
+    }
+    catch (CIMException& e)
+    {
+        PEGASUS_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
+    }
+
+    try
+    {
+        CIMClass c2 = r.getClass(
+            NAMESPACE, CIMName ("Class2"), true, true, true);
+        PEGASUS_ASSERT(false);
+    }
+    catch (CIMException& e)
+    {
+        PEGASUS_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
+    }
 }
 
 int main(int argc, char** argv)

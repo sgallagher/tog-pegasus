@@ -289,26 +289,15 @@ public:
     typedef HashTable <String, String, EqualNoCaseFunc, HashLowerCaseFunc>
         NameSpaceAttributes;
 
-    /** CIMMethod createNameSpace - Creates a new namespace in the repository
-        @param String with the name of the namespace
-        @exception - Throws "Already_Exists if the Namespace exits.
-        Throws "CannotCreateDirectory" if there are problems in the
-        creation.
-    */
-
     void createNameSpace(const CIMNamespaceName& nameSpace,
         const NameSpaceAttributes& attributes = NameSpaceAttributes());
 
     void modifyNameSpace(const CIMNamespaceName& nameSpace,
         const NameSpaceAttributes& attributes = NameSpaceAttributes());
 
-    /** CIMMethod enumerateNameSpaces - Get all of the namespaces in the
-        repository. \Ref{NAMESPACE}
-        @return Array of strings with the namespaces
-    */
     Array<CIMNamespaceName> enumerateNameSpaces() const;
 
-    /** CIMMethod deleteNameSpace - Deletes a namespace in the repository.
+    /** Deletes a namespace in the repository.
         The deleteNameSpace method will only delete a namespace if there are
         no classed defined in the namespace.  Today this is a Pegasus
         characteristics and not defined as part of the DMTF standards.

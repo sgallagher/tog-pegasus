@@ -35,36 +35,36 @@
 #define Pegasus_NameSpaceManager_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Repository/InheritanceTree.h>
 #include <Pegasus/Repository/Linkage.h>
-#include <Pegasus/Common/MessageLoader.h>
+
+#include <Pegasus/Repository/FileBasedStore.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 struct NameSpaceManagerRep;
 class NameSpace;
 
-enum NameSpaceIntendedOp
-{
-    NameSpaceRead,
-    NameSpaceWrite,
-    NameSpaceDelete
-};
-
 /** The NameSpaceManager class manages a collection of NameSpace objects.
+
+    The shared schema support is based on these tenets:
+
+    1.  A primary namespace is a namespace with no parent namespace.
+    2.  A secondary namespace is a namespace with a parent namespace.
+    3.  A secondary namespace derives all the schema from its parent namespace.
+    4.  A primary namespace is not read-only.
+    5.  A read-only namespace contains no schema of its own, but it may
+        contain instances.
+    6.  The parent of a secondary read-write namespace must be a primary
+        namespace.
 */
 class PEGASUS_REPOSITORY_LINKAGE NameSpaceManager
 {
     friend class NameSpace;
 public:
 
-    /** Constructor.
-        @param repositoryRoot path to directory called "repository".
-        @exception NoSuchDirectory if repositoryRoot not a valid directory.
-    */
-    NameSpaceManager(const String& repositoryRoot);
+    NameSpaceManager(
+        FileBasedStore* persistentStore);
 
     /** Destructor.
     */
@@ -76,19 +76,29 @@ public:
     */
     Boolean nameSpaceExists(const CIMNamespaceName& nameSpaceName) const;
 
-    typedef HashTable <String, String, EqualNoCaseFunc, HashLowerCaseFunc>
-        NameSpaceAttributes;
+    /** Checks whether the specified namespace may be created.
+        @param nameSpaceName name of namespace to be created.
+        @exception CIMException If the namespace may not be created as specified
+    */
+    void checkCreateNameSpace(
+        const CIMNamespaceName& nameSpaceName,
+        Boolean shareable,
+        Boolean updatesAllowed,
+        const String& parent);
 
     /** Creates the given namespace.
         @param nameSpaceName name of namespace to be created.
-        @exception CIMException(CIM_ERR_ALREADY_EXISTS)
-        @exception CannotCreateDirectory
     */
-    void createNameSpace(const CIMNamespaceName& nameSpaceName,
-         const NameSpaceAttributes& attributes);
+    void createNameSpace(
+        const CIMNamespaceName& nameSpaceName,
+        Boolean shareable,
+        Boolean updatesAllowed,
+        const String& parent);
 
-    void modifyNameSpace(const CIMNamespaceName& nameSpaceName,
-         const NameSpaceAttributes& attributes);
+    void modifyNameSpace(
+        const CIMNamespaceName& nameSpaceName,
+        Boolean shareable,
+        Boolean updatesAllowed);
 
     /** Deletes the given namespace.
         @param nameSpaceName name of namespace to be deleted.
@@ -109,58 +119,89 @@ public:
 
     Boolean getNameSpaceAttributes(
         const CIMNamespaceName& nameSpace,
-        NameSpaceAttributes& attributes);
+        Boolean& shareable,
+        Boolean& updatesAllowed,
+        String& parent);
 
-    /** Get path to the class file for the given class.
-        @param nameSpaceName name of the namespace.
-        @param className name of class.
-        @exception CIMException(CIM_ERR_INVALID_NAMESPACE)
-        @exception CIMException(CIM_ERR_INVALID_CLASS)
+    void validateNameSpace(
+        const CIMNamespaceName& nameSpaceName) const;
+
+    /** Gets a list of names of namespaces that are directly dependent on the
+        specified namespace.  The specified namespace is also included in the
+        list.  The list contains all derived read-write namespaces (and
+        perhaps some read-only ones as well), but not necessarily all
+        derived read-only namespaces.  This makes it insufficient to find all
+        instances of a given class in derived namespaces, as it is currently
+        being used.
+        @param nameSpaceName name of the origin namespace.
+        @return An Array of namespace names that depend on the origin namespace.
     */
-    String getClassFilePath(
-        NameSpace* nameSpace,
-        const CIMName& className,
-        NameSpaceIntendedOp op) const;
+    Array<CIMNamespaceName> getDependentSchemaNameSpaceNames(
+        const CIMNamespaceName& nameSpaceName) const;
 
-    String getClassFilePath(
-        const CIMNamespaceName& nameSpaceName,
-        const CIMName& className,
-        NameSpaceIntendedOp op) const;
-
-    /** Get path to the qualifier file for the given class.
-        @param nameSpaceName name of the namespace.
-        @param qualifierName name of qualifier.
-        @exception CIMException(CIM_ERR_INVALID_NAMESPACE)
-        @exception CIMException(CIM_ERR_NOT_FOUND)
+    /** Determines whether a specified namespace has one or more dependent
+        namespaces.  If so, the name of one of the dependents is returned.
+        @param nameSpaceName Name of the namespace to check for dependents.
+        @param nameSpaceName (Output) Name of a dependent namespace, if found.
+        @return A Boolean indicating whether the namespace has a dependent
+            namespace.
     */
-    String getQualifierFilePath(
+    Boolean hasDependentNameSpace(
         const CIMNamespaceName& nameSpaceName,
-        const CIMName& qualifierName,
-        NameSpaceIntendedOp op) const;
+        CIMNamespaceName& dependentNameSpaceName) const;
 
-    String getInstanceDataFileBase(
+    /** Lists the names of namespaces whose schema is accessible from the
+        specified namespace.  The list contains all R/W parent namespaces
+        of the specified namespace, as well as the specified namespace if it
+        is R/W.  Since a R/W namespace may depend only on a primary namespace,
+        the maximum length of the returned list is 2.
+        @param nameSpaceName name of the origin namespace.
+        @return An Array of namespace names whose schema is accessible from
+            the specified namespace.
+    */
+    Array<CIMNamespaceName> getSchemaNameSpaceNames(
+        const CIMNamespaceName& nameSpaceName) const;
+
+    /**
+        Validates that the specified class exists in the specified namespace
+        (or one of its parent namespaces).  It is intended for use on instance
+        operations.
+        @param nameSpaceName The name of the namespace to check for the class.
+        @param className The name of the class for which to validate existence.
+        @exception CIMException Error code CIM_ERR_INVALID_CLASS if the class
+            does not exist.
+    */
+    void validateClass(
         const CIMNamespaceName& nameSpaceName,
         const CIMName& className) const;
 
-    String getInstanceDataFileBase(
-        const NameSpace* nameSpace,
+    CIMName getSuperClassName(
+        const CIMNamespaceName& nameSpaceName,
         const CIMName& className) const;
 
-    /** Get path to the directory containing qualifiers:
-        @param nameSpaceName name of the namespace.
-    */
-    String getQualifiersRoot(const CIMNamespaceName& nameSpaceName) const;
+    void locateClass(
+        const CIMNamespaceName& nameSpaceName,
+        const CIMName& className,
+        CIMNamespaceName& actualNameSpaceName,
+        CIMName& superClassName) const;
 
-    /** Get path to the file containing association classes:
-        @param nameSpaceName name of the namespace.
+    /** Check whether the specified class may be deleted
+        @param nameSpaceName Namespace in which the class exists.
+        @param className Name of class to be deleted.
+        @exception CIMException If the class may not be deleted
     */
-    Array<String> getAssocClassPath(const CIMNamespaceName& nameSpaceName,
-        NameSpaceIntendedOp op) const;
+    void checkDeleteClass(
+        const CIMNamespaceName& nameSpaceName,
+        const CIMName& className) const;
 
-    /** Get path to the file containing association instances:
-        @param nameSpaceName name of the namespace.
+    /** Check whether the specified qualifier may be deleted
+        @param nameSpaceName Namespace in which the qualifier exists.
+        @param qualifierName Name of qualifier to be deleted.
+        @exception CIMException If the class may not be deleted
     */
-    String getAssocInstPath(const CIMNamespaceName& nameSpaceName) const;
+    void checkSetOrDeleteQualifier(
+        const CIMNamespaceName& nameSpaceName,
+        const CIMName& qualifierName) const;
 
     /** Deletes the class file for the given class.
         @param nameSpaceName name of namespace.
@@ -176,34 +217,40 @@ public:
     /** Print out the namespaces. */
     void print(PEGASUS_STD(ostream)& os) const;
 
+    /** Checks whether it is okay to create a new class.
+        @param nameSpaceName namespace to contain class.
+        @param className name of class
+        @param superClassName name of superClassName
+    */
+    void checkCreateClass(
+        const CIMNamespaceName& nameSpaceName,
+        const CIMName& className,
+        const CIMName& superClassName);
+
     /** Creates an entry for a new class.
         @param nameSpaceName namespace to contain class.
         @param className name of class
         @param superClassName name of superClassName
-        @param classFilePath path of file to contain class itself.
     */
     void createClass(
         const CIMNamespaceName& nameSpaceName,
         const CIMName& className,
-        const CIMName& superClassName,
-        String& classFilePath);
+        const CIMName& superClassName);
 
-    /** Checks if it is okay to modify this class.
+    /** Checks whether it is okay to modify this class.
         @param nameSpaceName namespace.
         @param className name of class being modified.
         @param superClassName superclass of class being modified.
-        @param classFilePath full path to file containing class.
         @exception CIMException(CIM_ERR_INVALID_CLASS)
         @exception CIMException(CIM_ERR_FAILED) if there is an attempt
             to change the superclass of this class.
         @exception CIMException(CIM_ERR_CLASS_HAS_CHILDREN) if class
             has any children.
     */
-    void checkModify(
+    void checkModifyClass(
         const CIMNamespaceName& nameSpaceName,
         const CIMName& className,
-        const CIMName& superClassName,
-        String& classFilePath);
+        const CIMName& superClassName);
 
     /** Get subclass names of the given class in the given namespace.
         @param nameSpaceName
@@ -229,16 +276,6 @@ public:
         const CIMName& className,
         Array<CIMName>& subClassNames) const;
 
-    Boolean classHasInstances(
-        NameSpace* nameSpace,
-        const CIMName& className,
-        Boolean throwExcp=false) const;
-
-    Boolean classHasInstances(
-        const CIMNamespaceName& nameSpaceName,
-        const CIMName& className,
-        Boolean throwExcp=false) const;
-
     Boolean classExists(
         NameSpace* nameSpace,
         const CIMName& className,
@@ -248,11 +285,11 @@ public:
         const CIMNamespaceName& nameSpaceName,
         const CIMName& className) const;
 
-    String getInstanceDirRoot(const CIMNamespaceName& nameSpaceName) const;
-
 private:
-    NameSpace* lookupNameSpace(String&);
-    String _repositoryRoot;
+
+    NameSpace* _getNameSpace(const CIMNamespaceName& ns) const;
+    NameSpace* _lookupNameSpace(const String& ns);
+
     NameSpaceManagerRep* _rep;
 };
 

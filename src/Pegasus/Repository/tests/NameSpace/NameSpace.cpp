@@ -33,6 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/XmlStreamer.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_USING_PEGASUS;
@@ -90,7 +91,10 @@ void test(Uint32 mode)
     BubbleSort(arr1);
     PEGASUS_TEST_ASSERT(arr1 == arr2);
 
-        NameSpaceManager nsm (repositoryRoot);
+        XmlStreamer xmlStreamer;
+        AutoPtr<FileBasedStore> persistentStore(new FileBasedStore(
+            repositoryRoot, &xmlStreamer, false));
+        NameSpaceManager nsm(persistentStore.get());
 
         if (verbose)
             nsm.print(cout);

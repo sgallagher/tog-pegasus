@@ -30,7 +30,9 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
 #include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/XmlStreamer.h>
 #include <Pegasus/Repository/InheritanceTree.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
@@ -63,28 +65,13 @@ void createNameSpaces(NameSpaceManager& nsm)
 
      // create the namespaces
 
-     NameSpaceManager::NameSpaceAttributes nsa;
+     nsm.createNameSpace(arr1[0], true, true, String::EMPTY);
 
-     nsa.insert("shareable","true");
-     nsm.createNameSpace(arr1[0],nsa);
+     nsm.createNameSpace(arr1[1], true, true, arr1[0].getString());
 
-     nsa.clear();
-     nsa.insert("parent",arr1[0].getString());
-     nsa.insert("shareable","true");
-     nsa.insert("updatesAllowed","true");
-     nsm.createNameSpace(arr1[1],nsa);
+     nsm.createNameSpace(arr1[2], true, false, arr1[1].getString());
 
-     nsa.clear();
-     nsa.insert("parent",arr1[1].getString());
-     nsa.insert("shareable","true");
-     nsa.insert("updatesAllowed","false");
-     nsm.createNameSpace(arr1[2],nsa);
-
-     nsa.clear();
-     nsa.insert("parent",arr1[2].getString());
-     nsa.insert("shareable","true");
-     nsa.insert("updatesAllowed","false");
-     nsm.createNameSpace(arr1[3],nsa);
+     nsm.createNameSpace(arr1[3], true, false, arr1[2].getString());
 }
 //
 
@@ -112,26 +99,25 @@ void createNameSpaces(NameSpaceManager& nsm)
 
 void test01(NameSpaceManager& nsm)
 {
-    String outPath;
-    nsm.createClass (arr1[0], "Class1Ns1", CIMName(), outPath);
+    nsm.createClass (arr1[0], "Class1Ns1", CIMName());
      Ns1SubClasses.append("Class1Ns1");
      Sns1NoDiSubClasses.append("Class1Ns1");
 
-    nsm.createClass (arr1[0], "Class2Ns1", CIMName(), outPath);
+    nsm.createClass (arr1[0], "Class2Ns1", CIMName());
      Ns1SubClasses.append("Class2Ns1");
      Sns1NoDiSubClasses.append("Class2Ns1");
 
-    nsm.createClass (arr1[0], "Sub1Class1Ns1", CIMName("Class1Ns1"), outPath);
+    nsm.createClass (arr1[0], "Sub1Class1Ns1", CIMName("Class1Ns1"));
      Ns1SubClasses.append("Sub1Class1Ns1");
 
-    nsm.createClass (arr1[0], "Sub2Class1Ns1", CIMName("Class1Ns1"), outPath);
+    nsm.createClass (arr1[0], "Sub2Class1Ns1", CIMName("Class1Ns1"));
      Ns1SubClasses.append("Sub2Class1Ns1");
 
-    nsm.createClass (arr1[0], "Sub1Class2Ns1", CIMName("Class2Ns1"), outPath);
+    nsm.createClass (arr1[0], "Sub1Class2Ns1", CIMName("Class2Ns1"));
      Ns1SubClasses.append("Sub1Class2Ns1");
      Class2Ns1SubClasses.append("Sub1Class2Ns1");
 
-    nsm.createClass (arr1[0], "Sub2Class2Ns1", CIMName("Class2Ns1"), outPath);
+    nsm.createClass (arr1[0], "Sub2Class2Ns1", CIMName("Class2Ns1"));
      Ns1SubClasses.append("Sub2Class2Ns1");
      Class2Ns1SubClasses.append("Sub2Class2Ns1");
 
@@ -139,30 +125,29 @@ void test01(NameSpaceManager& nsm)
     Srw1Ns1SubClasses=Ns1SubClasses;
 
 
-    nsm.createClass (arr1[1], "Class1Sns1", CIMName(), outPath);
+    nsm.createClass (arr1[1], "Class1Sns1", CIMName());
      Srw1Ns1SubClasses.append("Class1Sns1");
      Sns1NoDiSubClasses.append("Class1Sns1");
 
-    nsm.createClass (arr1[1], "Sub1Class1Sns1", CIMName("Class1Sns1"), outPath);
+    nsm.createClass (arr1[1], "Sub1Class1Sns1", CIMName("Class1Sns1"));
      Srw1Ns1SubClasses.append("Sub1Class1Sns1");
      Class1Sns1SubClasses.append("Sub1Class1Sns1");
 
-    nsm.createClass (arr1[1], "Sub2Class1Sns1", CIMName("Class1Sns1"), outPath);
+    nsm.createClass (arr1[1], "Sub2Class1Sns1", CIMName("Class1Sns1"));
      Srw1Ns1SubClasses.append("Sub2Class1Sns1");
      Class1Sns1SubClasses.append("Sub2Class1Sns1");
 
     nsm.createClass (arr1[1], "Sub3Sub1Class2Ns1",
-            CIMName("Sub1Class2Ns1"), outPath); //
+            CIMName("Sub1Class2Ns1")); //
      Srw1Ns1SubClasses.append("Sub3Sub1Class2Ns1");
      Class2Ns1SubClasses.append("Sub3Sub1Class2Ns1");
 
-    nsm.createClass (arr1[1], "Sub4Sub1Class2Ns1", CIMName("Sub1Class2Ns1"),
-        outPath); //
+    nsm.createClass (arr1[1], "Sub4Sub1Class2Ns1", CIMName("Sub1Class2Ns1")); //
      Srw1Ns1SubClasses.append("Sub4Sub1Class2Ns1");
      Class2Ns1SubClasses.append("Sub4Sub1Class2Ns1");
 
     nsm.createClass (arr1[1], "Sub1Sub4Sub1Class2Ns1",
-        CIMName("Sub4Sub1Class2Ns1"), outPath);
+        CIMName("Sub4Sub1Class2Ns1"));
      Srw1Ns1SubClasses.append("Sub1Sub4Sub1Class2Ns1");
      Class2Ns1SubClasses.append("Sub1Sub4Sub1Class2Ns1");
      Sub1Sub4Sub1Class2Ns1SuperClasses.append("Sub4Sub1Class2Ns1");
@@ -274,7 +259,10 @@ int main(int argc, char** argv)
     }
     repositoryRoot.append("/repository");
 
-    NameSpaceManager nsm (repositoryRoot);
+    XmlStreamer xmlStreamer;
+    AutoPtr<FileBasedStore> persistentStore(new FileBasedStore(
+        repositoryRoot, &xmlStreamer, false));
+    NameSpaceManager nsm(persistentStore.get());
 
     try {
     createNameSpaces(nsm);

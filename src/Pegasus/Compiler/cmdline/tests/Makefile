@@ -53,7 +53,7 @@ StrippedDiff:
 	$(COMPARERESULTS)
 
 NewTests: 
-	@$(RMDIRHIER) $(REPOSITORYDIR)/repository
+	@$(RMREPOSITORY) $(REPOSITORYDIR)/repository
 	@cimmofl "$(NAMESPACE)" "-R$(REPOSITORYDIR)" "-I$(MOF_PATH)" $(MOF_PATH)/CIM_Core25.mof
 	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) ValidMof4.mof"
 	@cimmofl "$(NAMESPACE)" "-R$(REPOSITORYDIR)" ValidMof4.mof
@@ -84,7 +84,7 @@ NewTests:
 clean:
 	@$(RM) $(TMPFILE)
 	@$(RM) $(RESULTFILE)
-	@$(RMDIRHIER) $(REPOSITORYDIR)/repository
+	@$(RMREPOSITORY) $(REPOSITORYDIR)/repository
 
 hangdefects:
 	@$(ECHO) " " >> $(RESULTFILE)

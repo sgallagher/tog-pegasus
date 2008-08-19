@@ -46,9 +46,9 @@ SOURCES = AuthorizationHandler.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	$(MKDIRHIER) $(TMP_DIR)/repository
+	$(RMREPOSITORY) $(TMP_DIR)/repository
 	$(PROGRAM)
-	$(RMDIRHIER) $(TMP_DIR)/repository
+	$(RMREPOSITORY) $(TMP_DIR)/repository
 	$(RM) *.passwd
 
 poststarttests:

@@ -774,16 +774,7 @@ Boolean InstanceIndexFile::_lookupEntry(
     sizeOut = 0;
     entryOffset = 0;
 
-    // For for bugzilla 1508. Hostname and namespace are not included
-    // in the comparison here. Instances in the repository index file
-    // are generally stored without hostname and namespace. If the hostname
-    // and namespace of the instance to look up would not match, we would have
-    // not gotten here at all.
-    CIMObjectPath shortInstanceName = instanceName;
-    shortInstanceName.setNameSpace(CIMNamespaceName());
-    shortInstanceName.setHost(String::EMPTY);
-
-    Uint32 targetHashCode = shortInstanceName.makeHashCode();
+    Uint32 targetHashCode = instanceName.makeHashCode();
     Buffer line;
     Uint32 freeFlag;
     Uint32 hashCode;
@@ -807,11 +798,11 @@ Boolean InstanceIndexFile::_lookupEntry(
         // are not normalized, then the hashcodes cannot be used for
         // the look up (because the hash is based on the normalized path).
         if (freeFlag == 0 &&
-            _convertKeyToInstanceName(instanceNameTmp) == shortInstanceName)
+            _convertKeyToInstanceName(instanceNameTmp) == instanceName)
 #else
         if (freeFlag == 0 &&
             hashCode == targetHashCode &&
-            _convertKeyToInstanceName(instanceNameTmp) == shortInstanceName)
+            _convertKeyToInstanceName(instanceNameTmp) == instanceName)
 #endif
         {
             indexOut = index;

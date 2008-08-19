@@ -31,31 +31,22 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 /*
-    This test exercies the methods in NameSapcemanager.h.
-    It defines a repository
-    puts namespaces in the repository manipulates them and then deletes the
-    namespaces through the namespacemanager interface.
+    This test exercises the NameSpaceManager class.
+    It creates namespaces, adds and deletes classes, and deletes namespaces.
     The method it tests includes:
     constructor
-    NamespaceAttributes - Incomplete testing at this point
     createNamespace
-    get
-    nameSpaceExists
-    createClass
     deleteNameSpace
     getNameSpaceNames
-    modifyNameSpace
-    getClassFilePath
+    nameSpaceExists
+    createClass
+    deleteClass
+    getSuperClassName
 
     The functions it DOES NOT test today includes:
     isRemoteNameSpace
-    getQualifierFilePath
-    getInstanceDataFileBase
-    deleteClassName
-    getQualifiersRoot
-    getAssocClassPath
-    getAssocInstancePath
     checkModify
+    modifyNameSpace
     getSubClassNames
     GetSuperClassNames
     classHasInstances
@@ -66,8 +57,9 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/XmlStreamer.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Repository/NameSpaceManager.h>
-#include <Pegasus/Common/FileSystem.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -78,13 +70,14 @@ String repositoryRoot;
 
 Array<CIMNamespaceName> _nameSpaceNames;
 
-#define NUM_NAMSPACE_NAMES _nameSpaceNames.size()
+#define NUM_NAMESPACE_NAMES _nameSpaceNames.size()
 
 void test01()
 {
-    NameSpaceManager nsm (repositoryRoot);
-    NameSpaceManager::NameSpaceAttributes nsa;
-    nsa.insert("shareable","true");
+    XmlStreamer xmlStreamer;
+    AutoPtr<FileBasedStore> persistentStore(new FileBasedStore(
+        repositoryRoot, &xmlStreamer, false));
+    NameSpaceManager nsm(persistentStore.get());
     if (verbose)
         nsm.print (cout);
 
@@ -98,19 +91,13 @@ void test01()
 
     for (Uint32 j = 0; j < _nameSpaceNames.size(); j++)
     {
-        if (!_nameSpaceNames[j].equal(CIMNamespaceName("root")))
+        // NOTE: The "root" namespace is created by CIMRepository, which is not
+        // used by this test program.  So the "root" namespace is not expected
+        // to be created automatically in this case.
+        //if (!_nameSpaceNames[j].equal(CIMNamespaceName("root")))
         {
-            String dir (repositoryRoot);
-            dir.append("/");
-            dir.append(
-                (const char*)_nameSpaceNames[j].getString().getCString());
-
-            FileSystem::removeDirectoryHier (dir);
-            if (verbose)
-                cout << "Directory Hiearchy= " << dir << endl;
-
             // Create a namespace
-           nsm.createNameSpace (_nameSpaceNames[j], nsa);
+            nsm.createNameSpace(_nameSpaceNames[j], true, true, String::EMPTY);
         }
     }
 
@@ -118,34 +105,37 @@ void test01()
     nsm.getNameSpaceNames(nameSpaceNames);
     if (verbose)
         nsm.print(cout);
-    PEGASUS_TEST_ASSERT(nameSpaceNames.size() == NUM_NAMSPACE_NAMES);
+    PEGASUS_TEST_ASSERT(nameSpaceNames.size() == NUM_NAMESPACE_NAMES);
     BubbleSort(nameSpaceNames);
 
-    for (Uint32 i = 0; i < NUM_NAMSPACE_NAMES; i++)
+    for (Uint32 i = 0; i < NUM_NAMESPACE_NAMES; i++)
     {
-    PEGASUS_TEST_ASSERT(_nameSpaceNames[i] == nameSpaceNames[i]);
-    PEGASUS_TEST_ASSERT(nsm.nameSpaceExists(nameSpaceNames[i]));
+        PEGASUS_TEST_ASSERT(_nameSpaceNames[i] == nameSpaceNames[i]);
+        PEGASUS_TEST_ASSERT(nsm.nameSpaceExists(nameSpaceNames[i]));
     }
 
     nsm.deleteNameSpace(CIMNamespaceName("lmnop/qrstuv"));
     nsm.getNameSpaceNames(nameSpaceNames);
-    PEGASUS_TEST_ASSERT(nameSpaceNames.size() == NUM_NAMSPACE_NAMES - 1);
+    PEGASUS_TEST_ASSERT(nameSpaceNames.size() == NUM_NAMESPACE_NAMES - 1);
 
     // Create and delete a class to test these functions
-    String outPath;
-    nsm.createClass(CIMNamespaceName("aa/bb"), "MyClass", CIMName(), outPath);
-    String classFilePath = nsm.getClassFilePath(CIMNamespaceName("aa/bb"),
-        "MyClass",NameSpaceRead);
-    String cfp (repositoryRoot);
-    cfp.append("/aa#bb/classes/MyClass.#");
-    PEGASUS_TEST_ASSERT (classFilePath == cfp);
+    nsm.createClass(CIMNamespaceName("aa/bb"), "MySuperClass", CIMName());
+    nsm.createClass(CIMNamespaceName("aa/bb"), "MyClass", "MySuperClass");
+    PEGASUS_ASSERT(
+        nsm.getSuperClassName(CIMNamespaceName("aa/bb"), "MySuperClass") ==
+        CIMName());
+    PEGASUS_ASSERT(
+        nsm.getSuperClassName(CIMNamespaceName("aa/bb"), "MyClass") ==
+        "MySuperClass");
+    nsm.deleteClass(CIMNamespaceName("aa/bb"), "MyClass");
+    nsm.deleteClass(CIMNamespaceName("aa/bb"), "MySuperClass");
 
     for (Uint32 j = 0; j < _nameSpaceNames.size(); j++)
     {
-        if (!_nameSpaceNames[j].equal(CIMNamespaceName("root")))
+        if (!_nameSpaceNames[j].equal(CIMNamespaceName("root")) &&
+            !_nameSpaceNames[j].equal(CIMNamespaceName("lmnop/qrstuv")))
         {
-            if(nsm.nameSpaceExists(_nameSpaceNames[j]))
-                nsm.deleteNameSpace(CIMNamespaceName(_nameSpaceNames[j]));
+            nsm.deleteNameSpace(CIMNamespaceName(_nameSpaceNames[j]));
         }
     }
     nsm.getNameSpaceNames(nameSpaceNames);
@@ -176,11 +166,11 @@ int main(int argc, char** argv)
 
     try
     {
-    test01();
+        test01();
     }
     catch (Exception& e)
     {
-      cout << argv[0] << e.getMessage() << endl;
+        cout << argv[0] << ": " << e.getMessage() << endl;
         exit (1);
     }
 

@@ -33,8 +33,6 @@
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/Dir.h>
-#include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/CIMNameUnchecked.h>
 #include "InheritanceTree.h"
 
@@ -51,20 +49,6 @@ PEGASUS_USING_STD;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// NoCaseEqualFunc
-//
-////////////////////////////////////////////////////////////////////////////////
-
-struct NoCaseEqualFunc
-{
-    static Boolean equal(const String& x, const String& y)
-    {
-        return String::equalNoCase(x, y);
-    }
-};
-
-////////////////////////////////////////////////////////////////////////////////
-//
 // InheritanceTreeRep
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -74,7 +58,7 @@ struct InheritanceTreeNode;
 struct InheritanceTreeRep
 {
     typedef HashTable<
-        String, InheritanceTreeNode*, NoCaseEqualFunc, HashLowerCaseFunc> Table;
+        String, InheritanceTreeNode*, EqualNoCaseFunc, HashLowerCaseFunc> Table;
     Table table;
 
     // Tradeoff: chosing a larger value decreases hash lookup time but
@@ -355,52 +339,6 @@ void InheritanceTree::insert(
 
     if (superClassNode)
         superClassNode->addSubClass(classNode);
-}
-
-void InheritanceTree::insertFromPath(const String& path,
-      InheritanceTree* parentTree,
-      NameSpace* ns)
-{
-    for (Dir dir(path); dir.more(); dir.next())
-    {
-        String fileName = dir.getName();
-
-        // Ignore the current and parent directories.
-
-        if (fileName == "." || fileName == "..")
-            continue;
-
-        Uint32 dot = fileName.find('.');
-
-        // Ignore files without dots in them:
-
-        if (dot == PEG_NOT_FOUND)
-            continue;
-
-        String className = fileName.subString(0, dot);
-        String superClassName = fileName.subString(dot + 1);
-
-        if (superClassName == "#")
-            superClassName.clear();
-
-
-#ifdef PEGASUS_REPOSITORY_ESCAPE_UTF8
-        if (ns)
-            insert(
-                escapeStringDecoder(className),
-                escapeStringDecoder(superClassName),
-                *parentTree, ns);
-        else
-            insert(
-                escapeStringDecoder(className),
-                escapeStringDecoder(superClassName));
-#else
-        if (ns)
-            insert(className, superClassName, *parentTree, ns);
-        else
-            insert(className, superClassName);
-#endif
-    }
 }
 
 void InheritanceTree::check() const

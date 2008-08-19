@@ -117,42 +117,6 @@ class NameSpace;
     In this case, check() throws an InvalidInheritanceTree exception.
 
     The InheritanceTree may be printed by calling the print() method.
-
-    The insertFromPath() method is used to build up an InheritanceTree from
-    the file names in a certain directory as used by the CIMRepository. The
-    CIMRepository contains a disk file per class and the name has this form:
-
-        <pre>
-        <ClassName>.<SuperClassName>
-        </pre>
-
-    For example, a class called "ThisClass" with super class "ThatClass"
-    has this name:
-
-        <pre>
-        ThisClass.ThisClass
-        </pre>
-
-    The file or course contains the XML encoding of the ThisClass class (which
-    is irrelevant for the InheritanceTree). A root class (with no superclass
-    has the following form):
-
-        <pre>
-        <ClassName>.#
-        </pre>
-
-    Suppose that ThatClass is a root class; then its file name is:
-
-        <pre>
-        ThatClass.#
-        </pre>
-
-    It must be obvious by now that the insertFromPath() method just scans
-    the file names in a directory and calls insert() for each one (splitting
-    the class name from superclass name and translating '#' to an empty string).
-
-    The insertFromPath() method does NOT call check(), so it still must be
-    called to verify the InheritanceTree.
 */
 class PEGASUS_REPOSITORY_LINKAGE InheritanceTree
 {
@@ -177,18 +141,6 @@ public:
        const String& superClassName,
        InheritanceTree& parentTree,
        NameSpace* parent);
-
-    /** Scan directory for file names of the form <ClassName>.<SuperClass> and
-        call insert on insert for each one. Note that root classes (classes with
-        no superclass) will use "#" for a SuperClass name.
-        @param path - directory that contains files describing inheritance
-            infoformation.
-        @exception throws CannotOpenDirectory is invalid path specifies an
-            invalid directory.
-    */
-    void insertFromPath(const String& path,
-        InheritanceTree* parentTree = NULL,
-        NameSpace* ns = NULL);
 
     /** Checks that every superClassName passed to insert() was also passed
         as a className argument to insert(). In other words, it checks that

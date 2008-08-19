@@ -174,7 +174,7 @@ doc:
 repositoryServer: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	$(SLEEP) 5
-	$(RMDIRHIER) $(REPOSITORY_ROOT)
+	$(RMREPOSITORY) $(REPOSITORY_ROOT)
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart
 	$(SLEEP) 5
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryServer

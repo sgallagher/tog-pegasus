@@ -326,8 +326,6 @@ int main(int argc, char** argv)
         }
         repositoryPath.append("/repository");
 
-        PEGASUS_TEST_ASSERT(FileSystem::isDirectory(repositoryPath));
-
         CIMRepository* repository = new CIMRepository(repositoryPath);
 
         // -- Create a UserManager object:

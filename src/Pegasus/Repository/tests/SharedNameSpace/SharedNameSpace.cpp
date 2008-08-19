@@ -34,6 +34,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Common/XmlStreamer.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -141,44 +142,48 @@ void test(Uint32 mode)
     BubbleSort(arr1);
     PEGASUS_TEST_ASSERT(arr1 == arr2);
 
-        NameSpaceManager nsm (repositoryRoot);
+        XmlStreamer xmlStreamer;
+        AutoPtr<FileBasedStore> persistentStore(new FileBasedStore(
+            repositoryRoot, &xmlStreamer, false));
+        NameSpaceManager nsm(persistentStore.get());
 
         if (verbose)
             nsm.print(cout);
 
-    CIMRepository::NameSpaceAttributes attributes;
-
-    if (verbose)
-    {
-        for (Uint32 i = 0; i < arr1.size(); i++)
+        if (verbose)
         {
-            r.getNameSpaceAttributes(arr1[i], attributes);
-            cout << "-----------------" << endl;
-            for (CIMRepository::NameSpaceAttributes::Iterator j =
-                    attributes.start(); j; j++)
+            for (Uint32 i = 0; i < arr1.size(); i++)
             {
-                cout << "--- " << j.key() << ": " << j.value() << endl;
+                CIMRepository::NameSpaceAttributes attributes;
+                r.getNameSpaceAttributes(arr1[i], attributes);
+                cout << "-----------------" << endl;
+                for (CIMRepository::NameSpaceAttributes::Iterator j =
+                         attributes.start();
+                     j; j++)
+                {
+                    cout << "--- " << j.key() << ": " << j.value() << endl;
+                }
             }
         }
-    }
 
-    // Delete the namespaces test. Put in when delete installed
+        // Delete the namespaces test. Put in when delete installed
 
-    arro.prepend(CIMNamespaceName ("root"));
-    for (int i = arro.size()-1; i>=0;  i--) {
+        arro.prepend(CIMNamespaceName ("root"));
+        for (int i = arro.size()-1; i>=0;  i--)
+        {
             if (verbose) cout<<"--- delete "<<arro[i].getString()<<endl;
-        r.deleteNameSpace(arro[i]);
+            r.deleteNameSpace(arro[i]);
         }
 
-    //enumerate the namespaces
-    Array<CIMNamespaceName> arr3 = r.enumerateNameSpaces();
+        //enumerate the namespaces
+        Array<CIMNamespaceName> arr3 = r.enumerateNameSpaces();
         if (verbose) cout<<"--- arr3.size(): "<<arr3.size()<<endl;
         PEGASUS_TEST_ASSERT(arr3.size() == 0);
 
     }
     catch (AlreadyExistsException&)
     {
-    cout << "ignored already exists exception" << endl;
+        cout << "ignored already exists exception" << endl;
     }
 }
 

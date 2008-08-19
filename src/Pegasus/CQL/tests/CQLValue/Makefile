@@ -52,12 +52,12 @@ SOURCES = CQLValue.cpp
 include $(ROOT)/mak/program.mak
 
 cleantests:
-	@ $(RMDIRHIER) ./repository
+	@ $(RMREPOSITORY) ./repository
 	 
 tests:
 	@ TestCQLValue unittests
-	@ $(RMDIRHIER) ./repository
+	@ $(RMREPOSITORY) ./repository
 
 poststarttests:
 	@ TestCQLValue poststarttests
-	@ $(RMDIRHIER) ./repository
+	@ $(RMREPOSITORY) ./repository

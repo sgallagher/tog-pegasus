@@ -44,11 +44,11 @@ MOF_PATH = $(ROOT)/Schemas/CIM29
 REPOSITORYDIR = $(TMP_DIR)
 
 tests:
-	@ $(RMDIRHIER) $(REPOSITORYDIR)/repository
+	@ $(RMREPOSITORY) $(REPOSITORYDIR)/repository
 	@ cimmofl "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" "-I$(MOF_PATH)" -nroot $(MOF_PATH)/CIM_Core.mof
 	@ cimmofl "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" "-I$(MOF_PATH)" -nroot $(MOF_PATH)/CIM_Interop.mof
 	@ cimmofl "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" -nroot InstAlias.mof
 	@ $(PROGRAM)
-	@ $(RMDIRHIER) $(REPOSITORYDIR)/repository
+	@ $(RMREPOSITORY) $(REPOSITORYDIR)/repository
 
 poststarttests:

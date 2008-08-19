@@ -29,7 +29,6 @@
 //
 //==============================================================================
 #include <Pegasus/Common/PegasusAssert.h>
-#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Repository/InheritanceTree.h>
 
 PEGASUS_USING_PEGASUS;
@@ -137,59 +136,43 @@ int main(int argc, char** argv)
     exit(1);
     }
 
-    String path;
     try
     {
-    const char* tmpDir = getenv("PEGASUS_TMP"); 
-    if (tmpDir == NULL)
-    {
-        tmpDir = ".";
-    }
+        // build a valid inheritance tree
+        InheritanceTree it;
 
-    path = tmpDir + String("/tmp_classes"); 
+        it.insert("H", "");
+        it.insert("I", "H");
+        it.insert("J", "H");
+        it.insert("K", "I");
+        it.insert("L", "I");
+        it.insert("M", "J");
+        it.insert("N", "J");
+        it.insert("O", "J");
+        it.insert("P", "J");
 
-    FileSystem::makeDirectory(path); 
-    Array<String> files;  
-    files.append("H.#"); 
-    files.append("I.H"); 
-    files.append("J.H"); 
-    files.append("K.I"); 
-    files.append("L.I"); 
-    files.append("M.J"); 
-    files.append("N.J"); 
-    files.append("O.J"); 
-    files.append("P.J"); 
-    for (size_t i = 0; i < files.size(); ++i)
-    {
-        String file = path + "/" + files[i]; 
-        ofstream os; 
-        Open(os, file); 
-        os.close();
-    }
-    InheritanceTree it;
-    it.insertFromPath(path); 
-    it.check();
+        it.check();
         if (verbose)
-        it.print(cout);
-    FileSystem::removeDirectoryHier(path); 
+            it.print(cout);
     }
     catch (Exception& e)
     {
-    FileSystem::removeDirectoryHier(path); 
-    cerr << e.getMessage() << endl;
-    exit(1);
+        cerr << e.getMessage() << endl;
+        exit(1);
     }
 
     try
     {
         // build an invalid inheritance tree
-    InheritanceTree it;
+        InheritanceTree it;
         it.insert("D", "B");
         it.insert("E", "B");
         it.insert("C", "A");
         it.insert("F", "C");
         it.insert("A", "");
         it.check();
+        // check() should have thrown an InvalidInheritanceTree exception.
+        PEGASUS_ASSERT(false);
     }
     catch (InvalidInheritanceTree& e)
     {
@@ -198,16 +181,9 @@ int main(int argc, char** argv)
     }
     catch (Exception& e)
     {
-    cerr << e.getMessage() << endl;
-    exit(1);
+        cerr << e.getMessage() << endl;
+        exit(1);
     }
-
-#if 0
-    InheritanceTree it;
-    it.insertFromPath("e:/tog/pegasus_home/repository/root#cimv2/classes");
-    it.check();
-    it.print(cout);
-#endif
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

@@ -90,7 +90,7 @@ Boolean cimom::route_async(AsyncOpNode *op)
     if (_routed_queue_shutdown.get() > 0)
         return false;
 
-    _routed_ops.enqueue_wait(op);
+    _routed_ops.enqueue(op);
 
     return true;
 }
@@ -117,7 +117,7 @@ void cimom::_shutdown_routed_queue()
     msg->op->_op_dest = _global_this;
     msg->op->_request.reset(msg.get());
 
-    _routed_ops.enqueue_wait(msg->op);
+    _routed_ops.enqueue(msg->op);
     _routing_thread.join();
     msg.release();
 }

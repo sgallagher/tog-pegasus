@@ -90,7 +90,7 @@ static ThreadReturnType PEGASUS_THREAD_CDECL _writer(void* self_)
 
     for (Uint32 i = 0; i < ITERATIONS; i++)
     {
-        queue->enqueue_wait(new TestMessage(i));
+        queue->enqueue(new TestMessage(i));
 // special dish of the day for Sun Solaris
 // reports say that running as root causes
 // the thread not being scheduled-out
@@ -106,17 +106,15 @@ static ThreadReturnType PEGASUS_THREAD_CDECL _writer(void* self_)
 
 void testAsyncQueue()
 {
-    AsyncQueue<TestMessage>* queue = new AsyncQueue<TestMessage>(100);
+    AsyncQueue<TestMessage> queue;
 
-    Thread reader(_reader, queue, false);
-    Thread writer(_writer, queue, false);
+    Thread reader(_reader, &queue, false);
+    Thread writer(_writer, &queue, false);
     reader.run();
     writer.run();
 
     reader.join();
     writer.join();
-
-    delete queue;
 }
 
 PEGASUS_NAMESPACE_END

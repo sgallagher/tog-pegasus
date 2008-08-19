@@ -42,7 +42,6 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/MessageQueueService.h>
-#include <Pegasus/Common/AsyncQueue.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/AsyncOpNode.h>

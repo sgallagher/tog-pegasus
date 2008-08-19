@@ -101,14 +101,6 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest* request)
         {
             _msg_q.enqueue(request->op);
         }
-        catch (ListFull&)
-        {
-            PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
-                "List Full.");
-            Base::_handle_async_request(request);
-            PEG_METHOD_EXIT();
-            return;
-        }
         catch (...)
         {
             PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,

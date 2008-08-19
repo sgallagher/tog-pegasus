@@ -311,7 +311,7 @@ void MessageQueueService::_shutdown_incoming_queue()
     msg->op->_request.reset(msg);
     try
     {
-        _incoming.enqueue_wait(msg->op);
+        _incoming.enqueue(msg->op);
         _polling_sem.signal();
     }
     catch (const ListClosed&)
@@ -662,7 +662,7 @@ Boolean MessageQueueService::accept_async(AsyncOpNode* op)
     if ((rq != 0 && (true == messageOK(rq))) ||
         (rp != 0 && (true == messageOK(rp))) && _die.get() == 0)
     {
-        _incoming.enqueue_wait(op);
+        _incoming.enqueue(op);
         _polling_sem.signal();
         return true;
     }

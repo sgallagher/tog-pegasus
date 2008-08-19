@@ -47,9 +47,9 @@ class AsyncQueue
 {
 public:
 
-    /** Constructor (zero means unlimited capacity).
+    /** Constructor.
     */
-    AsyncQueue(size_t capacity = 0);
+    AsyncQueue();
 
     /** Destructor.
     */
@@ -63,10 +63,6 @@ public:
     /** Enqueue an element at the back of queue.
     */
     void enqueue(ElemType *element);
-
-    /** Enqueue an element at the back of queue (wait if the queue is full).
-    */
-    void enqueue_wait(ElemType *element);
 
     /** Dequeue an element from the front of the queue. Return null immediately
         if queue is empty.
@@ -84,23 +80,11 @@ public:
 
     /** Return number of element in queue.
     */
-    Uint32 count() const { return _size.get(); }
-
-    /** Get capacity.
-    */
-    Uint32 capacity() const { return _capacity.get(); }
-
-    /** Return number of element in queue.
-    */
-    Uint32 size() const { return _size.get(); }
+    Uint32 count() const { return _rep.size(); }
 
     /** Return true is queue is empty (has zero elements).
     */
-    Boolean is_empty() const { return _size.get() == 0; }
-
-    /** Return true if the queue is full.
-    */
-    Boolean is_full() const { return _size.get() == _capacity.get(); }
+    Boolean is_empty() const { return _rep.size() == 0; }
 
     /** Return true if the queue has been closed (in which case no new
         elements may be enqueued).
@@ -111,20 +95,15 @@ private:
 
     Mutex _mutex;
     Condition _not_empty;
-    Condition _not_full;
-    AtomicInt _capacity;
-    AtomicInt _size;
     AtomicInt _closed;
     typedef List<ElemType,NullLock> Rep;
     Rep _rep;
 };
 
 template<class ElemType>
-AsyncQueue<ElemType>::AsyncQueue(size_t capacity) :
-    _mutex(Mutex::NON_RECURSIVE), _capacity(capacity)
+AsyncQueue<ElemType>::AsyncQueue() :
+    _mutex(Mutex::NON_RECURSIVE)
 {
-    if (capacity == 0)
-        _capacity.set(0x7FFFFFFF);
 }
 
 template<class ElemType>
@@ -140,7 +119,6 @@ void AsyncQueue<ElemType>::close()
     if (!is_closed())
     {
         _closed++;
-        _not_full.signal();
         _not_empty.signal();
     }
 }
@@ -155,35 +133,7 @@ void AsyncQueue<ElemType>::enqueue(ElemType *element)
         if (is_closed())
             throw ListClosed();
 
-        if (is_full())
-            throw ListFull(_capacity.get());
-
         _rep.insert_back(element);
-        _size++;
-        _not_empty.signal();
-    }
-}
-
-template<class ElemType>
-void AsyncQueue<ElemType>::enqueue_wait(ElemType *element)
-{
-    if (element)
-    {
-        AutoMutex auto_mutex(_mutex);
-
-        while (is_full())
-        {
-            if (is_closed())
-                throw ListClosed();
-
-            _not_full.wait(_mutex);
-        }
-
-        if (is_closed())
-            throw ListClosed();
-
-        _rep.insert_back(element);
-        _size++;
         _not_empty.signal();
     }
 }
@@ -193,8 +143,6 @@ void AsyncQueue<ElemType>::clear()
 {
     AutoMutex auto_mutex(_mutex);
     _rep.clear();
-    _size = 0;
-    _not_full.signal();
 }
 
 template<class ElemType>
@@ -205,15 +153,7 @@ ElemType* AsyncQueue<ElemType>::dequeue()
     if (is_closed())
         throw ListClosed();
 
-    ElemType* p = _rep.remove_front();
-
-    if (p)
-    {
-        _size--;
-        _not_full.signal();
-    }
-
-    return p;
+    return _rep.remove_front();
 }
 
 template<class ElemType>
@@ -234,8 +174,6 @@ ElemType* AsyncQueue<ElemType>::dequeue_wait()
 
     ElemType* p = _rep.remove_front();
     PEGASUS_DEBUG_ASSERT(p != 0);
-    _size--;
-    _not_full.signal();
 
     return p;
 }

@@ -64,24 +64,6 @@ private:
     WaitFailed();
 };
 
-class PEGASUS_COMMON_LINKAGE ListFull: public IPCException
-{
-public:
-    ListFull(Uint32 count) : IPCException(Threads::self())
-    {
-        _capacity = count;
-    }
-
-    Uint32 get_capacity() const throw()
-    {
-        return _capacity;
-    }
-
-private:
-    ListFull();
-    Uint32 _capacity;
-};
-
 class PEGASUS_COMMON_LINKAGE ListClosed: public IPCException
 {
 public:

@@ -48,8 +48,7 @@ PEGASUS_NAMESPACE_BEGIN
 InternalCIMOMHandleMessageQueue::InternalCIMOMHandleMessageQueue()
     : MessageQueue(PEGASUS_QUEUENAME_INTERNALCLIENT),
     _output_qid(0),
-    _return_qid(0),
-    _response(0)
+    _return_qid(0)
 {
     // output queue is the binary message handler
     MessageQueue* out = MessageQueue::lookup(PEGASUS_QUEUENAME_BINARY_HANDLER);

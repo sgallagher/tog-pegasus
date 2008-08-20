@@ -1,33 +1,35 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 
-// NOCHKSRC
+//NOCHKSRC
 
 /* A Bison parser, made by GNU Bison 2.3.  */
 
@@ -139,7 +141,7 @@
 
 
 /* Copy the first part of user declarations.  */
-#line 66 "filter.y"
+#line 68 "filter.y"
 
 
 #include "slp_client.h"
@@ -150,7 +152,7 @@
   int32 filterlex(void);
 
 int32 filterparse(void);
-void filter_close_lexer(size_t handle);
+void filter_close_lexer(uint32 handle);
 size_t filter_init_lexer(const char *s);
 
 /* have a place to put attributes and the filter while the parser is working */
@@ -183,13 +185,13 @@ size_t filter_init_lexer(const char *s);
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 92 "filter.y"
+#line 94 "filter.y"
 {
   int32 filter_int;
   char *filter_string;
   lslpLDAPFilter *filter_filter;
 }
-/* Line 187 of yacc.c.  */
+/* Line 193 of yacc.c.  */
 #line 163 "y_filter.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -491,8 +493,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   111,   111,   112,   115,   133,   142,   145,   148,   149,
-     150,   155,   164,   174,   184,   195,   196,   197,   198
+       0,   113,   113,   114,   117,   135,   144,   147,   150,   151,
+     152,   157,   166,   176,   186,   197,   198,   199,   200
 };
 #endif
 
@@ -1404,7 +1406,7 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 115 "filter.y"
+#line 117 "filter.y"
     {
             if(NULL != ((yyval.filter_filter) = lslpAllocFilter((yyvsp[(2) - (4)].filter_int)))) {
 	      (yyval.filter_filter)->nestingLevel = nesting_level;
@@ -1425,7 +1427,7 @@ yyreduce:
     break;
 
   case 5:
-#line 133 "filter.y"
+#line 135 "filter.y"
     {
 	   (yyval.filter_filter) = (yyvsp[(2) - (3)].filter_filter);
 	   if((yyvsp[(2) - (3)].filter_filter) != NULL) {
@@ -1436,22 +1438,22 @@ yyreduce:
     break;
 
   case 6:
-#line 142 "filter.y"
+#line 144 "filter.y"
     { nesting_level++; ;}
     break;
 
   case 7:
-#line 145 "filter.y"
+#line 147 "filter.y"
     { nesting_level--; ;}
     break;
 
   case 10:
-#line 151 "filter.y"
+#line 153 "filter.y"
     { (yyval.filter_int) = filterlval.filter_int; ;}
     break;
 
   case 11:
-#line 155 "filter.y"
+#line 157 "filter.y"
     {      /* presence test binds to single operand */
              if(NULL != ((yyval.filter_filter) = lslpAllocFilter(expr_present))) {
 	       lslpAttrList *attr = lslpAllocAttr((yyvsp[(1) - (2)].filter_string), string, "*", (int16)strlen("*") + 1);
@@ -1463,7 +1465,7 @@ yyreduce:
     break;
 
   case 12:
-#line 164 "filter.y"
+#line 166 "filter.y"
     {  /* must be an int or a bool */
 	   /* remember to touch up the token values to match the enum in lslp.h */
 	   if(NULL != ((yyval.filter_filter) = lslpAllocFilter((yyvsp[(2) - (3)].filter_int)))) {
@@ -1476,7 +1478,7 @@ yyreduce:
     break;
 
   case 13:
-#line 174 "filter.y"
+#line 176 "filter.y"
     {  /* must be an int or a bool */
 	   /* remember to touch up the token values to match the enum in lslp.h */
 	   if(NULL != ((yyval.filter_filter) = lslpAllocFilter((yyvsp[(2) - (3)].filter_int)))) {
@@ -1489,7 +1491,7 @@ yyreduce:
     break;
 
   case 14:
-#line 184 "filter.y"
+#line 186 "filter.y"
     {   /* both operands are strings */
 	   if(NULL != ((yyval.filter_filter) = lslpAllocFilter((yyvsp[(2) - (3)].filter_int)))) {
 	     lslpAttrList *attr = lslpAllocAttr((yyvsp[(1) - (3)].filter_string), string, (yyvsp[(3) - (3)].filter_string), (int16)strlen((yyvsp[(3) - (3)].filter_string)) + 1 );
@@ -1501,7 +1503,7 @@ yyreduce:
     break;
 
   case 18:
-#line 199 "filter.y"
+#line 201 "filter.y"
     { (yyval.filter_int) = filterlval.filter_int; ;}
     break;
 
@@ -1721,7 +1723,7 @@ yyreturn:
 }
 
 
-#line 202 "filter.y"
+#line 204 "filter.y"
 
 
 
@@ -1764,7 +1766,7 @@ void lslpFreeFilter(lslpLDAPFilter *filter)
 
 void lslpFreeFilterList(lslpLDAPFilter *head, BOOL static_flag)
 {
-  PEGASUS_ASSERT((head != NULL) && (_LSLP_IS_HEAD(head)));
+  assert((head != NULL) && (_LSLP_IS_HEAD(head)));
   while(! (_LSLP_IS_EMPTY(head))) {
     lslpLDAPFilter *temp = head->next;
     _LSLP_UNLINK(temp);
@@ -1792,8 +1794,8 @@ lslpLDAPFilter *_lslpDecodeLDAPFilter(char *filter)
 {
 
   lslpLDAPFilter *temp = NULL;
-  size_t lexer = 0;
-  PEGASUS_ASSERT(filter != NULL && strlen(filter));
+  uint32 lexer = 0;
+  assert(filter != NULL && strlen(filter));
   lslpInitFilterList();
   nesting_level = 1;
   if(0 != (lexer = filter_init_lexer(filter))) {

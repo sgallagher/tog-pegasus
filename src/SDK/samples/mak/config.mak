@@ -1,18 +1,124 @@
-PLATFORM_FILES=$(wildcard $(ROOT)/mak/platform*.mak)
-PLATFORM_TEMP=$(subst $(ROOT)/mak/platform_,, $(PLATFORM_FILES))
-VALID_PLATFORMS=$(subst .mak,  , $(PLATFORM_TEMP))
+#//%2006////////////////////////////////////////////////////////////////////////
+#//
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
+#//
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
+#// 
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#//
+#//==============================================================================
+
+VALID_PLATFORMS = \
+    SOLARIS_X86_CC \
+    SOLARIS_X86_64_CC \
+    SOLARIS_SPARC_CC \
+    SOLARIS_SPARC_64_CC \
+    WIN32_IX86_MSVC \
+    WIN64_IA64_MSVC \
+    WIN64_X86_64_MSVC \
+    LINUX_IX86_GNU \
+    LINUX_PPC_GNU \
+    LINUX_PPC64_GNU \
+    LINUX_IA64_GNU \
+    LINUX_X86_64_GNU \
+    LINUX_ZSERIES_GNU \
+    LINUX_ZSERIES64_GNU \
+    AIX_RS_IBMCXX \
+    HPUX_PARISC_ACC \
+    HPUX_IA64_ACC 
 
 ifndef PEGASUS_PLATFORM
     $(error PEGASUS_PLATFORM environment variable undefined. Please set to\
         one of the following:$(VALID_PLATFORMS))
 endif
 
-PLATFORM_FILE = $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
-ifneq ($(wildcard $(PLATFORM_FILE)), )
-    include $(PLATFORM_FILE)
-else
-  $(error  PEGASUS_PLATFORM environment variable must be set to one of\
-        the following:$(VALID_PLATFORMS))
+ifeq ($(PEGASUS_PLATFORM),SOLARIS_X86_CC)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),SOLARIS_X86_64_CC)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_64_CC)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),WIN64_IA64_MSVC)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),WIN64_X86_64_MSVC)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),LINUX_PPC_GNU)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),LINUX_PPC64_GNU)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),LINUX_X86_64_GNU)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),LINUX_ZSERIES_GNU)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),LINUX_ZSERIES64_GNU)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
 endif
 
 include $(ROOT)/mak/SDKEnvVar.mak

@@ -1,31 +1,33 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
+#//%2006////////////////////////////////////////////////////////////////////////
 #//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
 #//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
+#// 
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
-#//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
+#//==============================================================================
 ################################################################################
 ##
 ## Get external environment variables. Note that all external environment
@@ -98,24 +100,16 @@ endif
 ## source files in $PEGASUS_ROOT/src/Pegasus/Common.  Each source-level
 ## Makefile includes a DIR value that defines this common path (e.g.,
 ## Pegasus/Common). In a small number of cases, source files are built
-## multiple times with difference compile options.
+## multiple times with difference compile options.  
 ## To handle this situation, the ALT_OBJ_DIR variable can be used to
 ## specify an alternative object directory for use in building the
 ## objects defined in the Makefile.
 ##
 
 ifndef ALT_OBJ_DIR
-  ifeq ($(PEGASUS_INTERNAL_ENABLE_32BIT_PROVIDER_SUPPORT),true)
-    OBJ_DIR = $(HOME_DIR)/obj32/$(DIR)
-  else
     OBJ_DIR = $(HOME_DIR)/obj/$(DIR)
-  endif
 else
-  ifeq ($(PEGASUS_INTERNAL_ENABLE_32BIT_PROVIDER_SUPPORT),true)
-    OBJ_DIR = $(HOME_DIR)/obj/$(ALT_OBJ_DIR)32
-  else
     OBJ_DIR = $(HOME_DIR)/obj/$(ALT_OBJ_DIR)
-  endif
 endif
 
 #############################################################################
@@ -126,12 +120,7 @@ ifdef PEGASUS_TEST_VALGRIND_LOG_DIR
 else
     BIN_DIR = $(HOME_DIR)/bin
 endif
-
-ifeq ($(PEGASUS_INTERNAL_ENABLE_32BIT_PROVIDER_SUPPORT),true)
-  LIB_DIR = $(HOME_DIR)/lib32
-else
-  LIB_DIR = $(HOME_DIR)/lib
-endif
+LIB_DIR = $(HOME_DIR)/lib
 
 # l10n
 # define the location for the compiled messages
@@ -235,11 +224,8 @@ endif
 # option of the mof compiler needs to be set.
 # *****
 
-## Sets default CIM Schema if PEGASUS_CIM_SCHEMA not defined.
-## NOTE: If the default below is changed, please update the definition
-## of default for this variable in pegasus/doc/BuildAndReleaseOptions.html
 ifndef PEGASUS_CIM_SCHEMA
-    PEGASUS_CIM_SCHEMA=CIM236
+    PEGASUS_CIM_SCHEMA=CIM217
 endif
 
 CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)
@@ -344,7 +330,7 @@ endif
 ################################################################################
 
 ############################################################################
-# OpenPegasus relies on the existence of an external set of libraries to
+# OpenPegasus relies on the existence of an external set of libraries to  
 # support localized messages.  Today, the only supported package is
 # the International Components for Unicode (ICU) OSS project,
 # http://oss.software.ibm.com/icu.  If PEGASUS_HAS_ICU is true,
@@ -381,9 +367,21 @@ ifdef PEGASUS_HAS_MESSAGES
     endif
 endif
 
-
 ifeq ($(PEGASUS_HAS_ICU),true)
     DEFINES += -DPEGASUS_HAS_ICU
+
+    ##################################
+    ##
+    ## ICU_NO_UPPERCASE_ROOT if set, specifies NOT to uppercase the root
+    ## resource bundle, default is to uppercase the root resource bundle
+    ##
+    ##################################
+
+    ifdef ICU_NO_UPPERCASE_ROOT
+        CNV_ROOT_FLAGS =
+    else
+        CNV_ROOT_FLAGS = -u
+    endif
 
     ####################################
     ##
@@ -446,8 +444,8 @@ ifeq ($(PEGASUS_HAS_ICU),true)
         else
             ifeq ($(OS),zos)
                 EXTRA_LIBRARIES += \
-                    $(ICU_INSTALL)/lib/libicui18n$(DYNLIB_SUFFIX) \
-                    $(ICU_INSTALL)/lib/libicuuc$(DYNLIB_SUFFIX)
+                    $(ICU_INSTALL)/lib/libicui18n.x \
+                    $(ICU_INSTALL)/lib/libicuuc.x
             else
                 EXTRA_LIBRARIES += -licuuc -licui18n
                 ifeq ($(OS),linux)
@@ -480,9 +478,47 @@ ifdef PEGASUS_MAX_THREADS_PER_SVC_QUEUE
   DEFINES += -DMAX_THREADS_PER_SVC_QUEUE=$(PEGASUS_MAX_THREADS_PER_SVC_QUEUE)
 endif
 
+##############################################################################
+##
+## PEGASUS_INDICATIONS_Q_THRESHOLD
+##
+## Controls if indications providers are stalled if the indications
+## service queue is too large.
+##
+##      defaults to not set.
+##
+## 	It can be set to any positive value.
+##
+## If not set providers are never stalled. This implies that the
+## indications service queue may become as large as neccesary to hold all
+## the indicaitons generated.
+##
+## If set to any value then providers are stalled by forcing them to sleep
+## when they try to deliver an indication and the indications service queue
+## exceeds this value. They are resumed when the queue count falls 10 percent
+## below this value.
+##
+## Stall and resume log entries are made to inform the administrator
+## the condition has occured.
+##
+## WARNING: This also affects the Out of Process Providers (OOP Providers)
+##    The OOP Providers use two one way pipes for communication.
+##    By stalling the Provider this prevents the pipe from being read
+##    which will cause the pipe to fill up and the remote side will block.
+##    OOP Prividers mix indications and operations on these two pipes.
+##    This means the operations will also be blocked as a side effect of
+##    the indications being stalled.
+##
+##
+
+ifdef PEGASUS_INDICATIONS_Q_THRESHOLD
+  DEFINES += -DPEGASUS_INDICATIONS_Q_THRESHOLD=$(PEGASUS_INDICATIONS_Q_THRESHOLD)
+endif
+
+
 # Allow PEGASUS_ASSERT statements to be disabled.
 ifdef PEGASUS_NOASSERTS
-    DEFINES += -DNDEBUG -DPEGASUS_NOASSERTS
+    DEFINES += -DNDEBUG
 endif
 
 # do not compile trace code. sometimes it causes problems debugging
@@ -490,19 +526,6 @@ ifdef PEGASUS_REMOVE_TRACE
     DEFINES += -DPEGASUS_REMOVE_TRACE
 endif
 
-
-ifdef PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT
-   PLATFORM_FILE_32 = $(ROOT)/mak/platform_$(PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT).mak
-   ifeq ($(wildcard $(PLATFORM_FILE_32)), )
-      $(error  PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT  environment variable must be set to one of\
-        the following:$(VALID_PLATFORMS))
-   endif
-     DEFINES += -DPEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT
-   ifdef PEGASUS_PROVIDER_MANAGER_32BIT_LIB_DIR
-       DEFINES += -DPEGASUS_PROVIDER_MANAGER_32BIT_LIB_DIR=\"$(PEGASUS_PROVIDER_MANAGER_32BIT_LIB_DIR)\"
-   endif
-endif
-  
 # PEP 315
 # Control whether compile with or without method entertexit trace code.
 # A value other than 'true' or 'false' will cause a make error.
@@ -516,41 +539,8 @@ ifdef PEGASUS_REMOVE_METHODTRACE
   endif
 endif
 
-# Control whether the class definitions in the repository contain elements
-# propagated from superclass definitions.
-
-ifndef PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES
-    PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES = false
-endif
-
-ifeq ($(PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES),true)
-    DEFINES += -DPEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES
-else
-    ifneq ($(PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES),false)
-        $(error PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES ($(PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES)) invalid, must be true or false)
-    endif
-endif
-
-# SQLite repository support
-
-ifndef PEGASUS_USE_SQLITE_REPOSITORY
-    PEGASUS_USE_SQLITE_REPOSITORY = false
-endif
-
-ifeq ($(PEGASUS_USE_SQLITE_REPOSITORY),true)
-    ifeq ($(PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES),true)
-        $(error PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES may not be set to true when PEGASUS_USE_SQLITE_REPOSITORY is true)
-    endif
-    DEFINES += -DPEGASUS_USE_SQLITE_REPOSITORY
-else
-    ifneq ($(PEGASUS_USE_SQLITE_REPOSITORY),false)
-        $(error PEGASUS_USE_SQLITE_REPOSITORY ($(PEGASUS_USE_SQLITE_REPOSITORY)) invalid, must be true or false)
-    endif
-endif
-
 # PEP 161
-# Control whether utf-8 filenames are supported by the repository.
-# Note: These options only apply to the file-based repository, not SQLite.
+# Control whether utf-8 filenames are supported by the repository
 ifdef PEGASUS_SUPPORT_UTF8_FILENAME
     DEFINES += -DPEGASUS_SUPPORT_UTF8_FILENAME
 
@@ -587,7 +577,7 @@ ifdef PEGASUS_DISABLE_CQL
 endif
 
 ifndef PEGASUS_ENABLE_CQL
-    # Default is true. CQL is enabled normally on all platforms unless specifically defined
+    # Default is true. CQL is enabled normally on all platforms unless specifically defined 
     PEGASUS_ENABLE_CQL=true
 endif
 
@@ -601,7 +591,7 @@ endif
 
 ############################################################################
 #
-# PEGASUS_OVERRIDE_PRODUCT_ID
+# PEGASUS_OVERRIDE_PRODUCT_ID 
 # PEP 186
 # Allow override of product name/version/status.  A file
 # pegasus/src/Pegasus/Common/ProductVersion.h must exist when this
@@ -661,6 +651,22 @@ ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     DEFINES += -DPEGASUS_ENABLE_OBJECT_NORMALIZATION
 endif
 
+# PEP 233
+# Controls support for EmbeddedInstance properties
+# and parameters
+ifndef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    PEGASUS_EMBEDDED_INSTANCE_SUPPORT = true
+endif
+
+ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
+    DEFINES += -DPEGASUS_EMBEDDED_INSTANCE_SUPPORT
+else
+    ifneq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), false)
+        $(error PEGASUS_EMBEDDED_INSTANCE_SUPPORT ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT)) invalid, must be true or false)
+    endif
+endif
+
+
 # Allow ExecQuery functionality to be enabled
 ifndef PEGASUS_ENABLE_EXECQUERY
     DEFINES += -DPEGASUS_DISABLE_EXECQUERY
@@ -682,37 +688,12 @@ ifdef PEGASUS_DISABLE_INSTANCE_QUALIFIERS
 endif
 
 # Controls snmp indication handler to use NET-SNMP to deliver trap
-ifdef PEGASUS_USE_NET_SNMP   
-   ifeq ($(PEGASUS_USE_NET_SNMP),true)
-      DEFINES += -DPEGASUS_USE_NET_SNMP
-   else
-      ifneq ($(PEGASUS_USE_NET_SNMP),false)
-         $(error PEGASUS_USE_NET_SNMP ($(PEGASUS_USE_NET_SNMP)) invalid, must be true or false)
-      endif
-   endif
-endif
-# Controls snmp indication handler to use NET-SNMP V3 features. 
-ifndef PEGASUS_ENABLE_NET_SNMPV3
-    ifeq ($(PEGASUS_USE_NET_SNMP),true)
-       PEGASUS_ENABLE_NET_SNMPV3=true
-    else
-        PEGASUS_ENABLE_NET_SNMPV3=false
-    endif
-endif
-
-ifeq ($(PEGASUS_ENABLE_NET_SNMPV3),true)
-    ifneq ($(PEGASUS_USE_NET_SNMP),true)
-        $(error PEGASUS_USE_NET_SNMP should be set to true when PEGASUS_ENABLE_NET_SNMPV3 is true)
-    endif
-    DEFINES += -DPEGASUS_ENABLE_NET_SNMPV3
-else
-    ifneq ($(PEGASUS_ENABLE_NET_SNMPV3),false)
-        $(error PEGASUS_ENABLE_NET_SNMPV3 ($(PEGASUS_ENABLE_NET_SNMPV3)) invalid, must be true or false)
-    endif
+ifdef PEGASUS_USE_NET_SNMP
+  DEFINES += -DPEGASUS_USE_NET_SNMP
 endif
 
 ifdef PEGASUS_HAS_SSL
-    DEFINES += -DPEGASUS_HAS_SSL
+    DEFINES += -DPEGASUS_HAS_SSL 
 
     # Enable SSL Random file by default.
     ifndef PEGASUS_USE_SSL_RANDOMFILE
@@ -828,7 +809,7 @@ ifdef PEGASUS_TEST_IPV6
        invalid, must be true or false)
     endif
   endif
-else
+else 
   PEGASUS_TEST_IPV6 = $(PEGASUS_ENABLE_IPV6)
 endif
 
@@ -898,7 +879,7 @@ endif
 # PEGASUS_USE_OPENSLP
 
 ## NOTE: This variable has been deprecated and superceeded by the use of
-## PEGASUS_USE_EXTERNAL_SLP. The use of this variable may be
+## PEGASUS_USE_EXTERNAL_SLP. The use of this variable may be 
 ## removed from Pegasus in future releases. It is converted to the
 ## PEGASUS_USE_EXTERNAL_SLP variable in the following function.
 ## Do not allow PEGASUS_USE_EXTERNAL_SLP if PEGASUS_ENABLE_SLP not set and
@@ -912,7 +893,7 @@ endif
 # internal pegasus slp agent.  Note that this does not disable the
 # compilation of the internal agent code, etc.  However, it assumes
 # openslp is installed on the platform and changes the interfaces
-# to match this.
+# to match this.  
 #
 # Use this variable in conjunction with PEGASUS_OPENSLP_HOME
 # to enable OpenSlp as the slp implementation.
@@ -922,15 +903,14 @@ endif
 
 ifdef PEGASUS_USE_OPENSLP
   ifdef PEGASUS_USE_EXTERNAL_SLP
-      $(error Both PEGASUS_USE_OPENSLP and PEGASUS_USE_EXTERNAL_SLP defined. \
-          Please use PEGASUS_USE_EXTERNAL_SLP)
+    $(error Both PEGASUS_USE_OPENSLP and PEGASUS_USE_EXTERNAL_SLP defined. \
+      Please use PEGASUS_USE_EXTERNAL_SLP)
   endif
   ## if PEGASUS_USE_OPENSLP used, convert to EXTERNAL_SLP variables
-  ## as defined for openslp
   ifeq ($(PEGASUS_USE_OPENSLP),true)
     ifeq ($(PEGASUS_ENABLE_SLP),true)
-      export PEGASUS_USE_EXTERNAL_SLP=openslp
-      PEGASUS_USE_OPENSLP=
+      ###DEFINES += -DPEGASUS_USE_EXTERNAL_SLP_TYPE=1
+      PEGASUS_USE_EXTERNAL_SLP_TYPE=openslp
     else
       $(error PEGASUS_USE_OPENSLP defined but PEGASUS_ENABLE_SLP is not true. \
         Please correct this inconsistency)
@@ -1029,7 +1009,7 @@ ifdef PEGASUS_OPENSLP_HOME
     $(error Both PEGASUS_OPENSLP_HOME and PEGASUS_OPEN_EXTERNAL_SLP_HOME defined. \
       Please use PEGASUS_OPEN_EXTERNAL_SLP_HOME)
   else
-      export PEGASUS_EXTERNAL_SLP_HOME=$(PEGASUS_OPENSLP_HOME)
+      PEGASUS_EXTERNAL_SLP_HOME=$(PEGASUS_OPENSLP_HOME)
    endif
 endif
 ############################################################################
@@ -1096,6 +1076,16 @@ ifndef PEGASUS_DISABLE_PERFINST
     endif
 endif
 
+ifdef PEGASUS_ENABLE_INTEROP_PROVIDER
+    ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
+        DEFINES += -DPEGASUS_ENABLE_INTEROP_PROVIDER
+    else
+        ifneq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),false)
+            $(error PEGASUS_ENABLE_INTEROP_PROVIDER ($(PEGASUS_ENABLE_INTEROP_PROVIDER)) invalid, must be true or false)
+        endif
+    endif
+endif
+
 #
 ## PEP 323, DMTF Indications Profile support, stage 1
 #
@@ -1108,24 +1098,13 @@ ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
                 $(error PEGASUS_ENABLE_INTEROP_PROVIDER ($(PEGASUS_ENABLE_INTEROP_PROVIDER)) invalid, must be true if DMTF Indications profile support is enabled)
             endif
         endif
-        DEFINES += -DPEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT -DPEGASUS_ENABLE_INDICATION_ORDERING
+        DEFINES += -DPEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
     else
         ifneq ($(PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT),false)
             $(error PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT ($(PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT)) invalid, must be true or false)
         endif
     endif
 endif
-
-ifdef PEGASUS_ENABLE_INTEROP_PROVIDER
-    ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
-        DEFINES += -DPEGASUS_ENABLE_INTEROP_PROVIDER
-    else
-        ifneq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),false)
-            $(error PEGASUS_ENABLE_INTEROP_PROVIDER ($(PEGASUS_ENABLE_INTEROP_PROVIDER)) invalid, must be true or false)
-        endif
-    endif
-endif
-
 
 ############################################################################
 # set PEGASUS_DEBUG into the DEFINES if it exists.
@@ -1146,6 +1125,10 @@ ifdef PEGASUS_DEBUG
         DEFINES += -DPEGASUS_INDICATION_HASHTRACE
     endif
 
+    # Setup the conditional compile for client displays.
+    ifdef PEGASUS_CLIENT_TRACE_ENABLE
+        DEFINES += -DPEGASUS_CLIENT_TRACE_ENABLE
+    endif
 endif
 
 # compile in the experimental APIs
@@ -1183,23 +1166,6 @@ endif
 ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
     ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
         DEFINES += -DPEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
-        ifndef PEGASUS_JAVA_CLASSPATH_DELIMITER
-            PEGASUS_JAVA_CLASSPATH_DELIMITER = :
-        endif
-
-        ifndef PEGASUS_JVM
-            PEGASUS_JVM = sun
-        endif
-        ifeq ($(PEGASUS_JVM),gcj)
-            PEGASUS_JAVA_COMPILER           = gcj -C
-            PEGASUS_JAVA_JAR                = fastjar
-            PEGASUS_JAVA_INTERPRETER        = gij
-        else
-            PEGASUS_JAVA_COMPILER           = javac -target 1.4 -source 1.4
-            PEGASUS_JAVA_JAR                = jar
-            PEGASUS_JAVA_INTERPRETER        = java
-        endif
-
     else
         ifneq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), false)
             $(error PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER \
@@ -1212,6 +1178,16 @@ endif
 # Allow remote CMPI functionality to be enabled
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
     DEFINES += -DPEGASUS_ENABLE_REMOTE_CMPI
+endif
+
+############################################################
+#
+# Set any vendor-specific compile flags
+#
+############################################################
+
+ifdef PEGASUS_VENDOR_HP
+    DEFINES+= -DPEGASUS_VENDOR_HP
 endif
 
 
@@ -1228,17 +1204,8 @@ endif
 #
 RMREPOSITORY = $(RMDIRHIER)
 
-ifndef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-   PEGASUS_USE_RELEASE_CONFIG_OPTIONS=false
-endif
-
-ifeq ($(PEGASUS_USE_RELEASE_CONFIG_OPTIONS),true)
-   DEFINES += -DPEGASUS_USE_RELEASE_CONFIG_OPTIONS
-else
-   ifneq ($(PEGASUS_USE_RELEASE_CONFIG_OPTIONS),false)
-      $(error PEGASUS_USE_RELEASE_CONFIG_OPTIONS \
-          ($(PEGASUS_USE_RELEASE_CONFIG_OPTIONS)) invalid, must be true or false)
-   endif
+ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+    DEFINES += -DPEGASUS_USE_RELEASE_CONFIG_OPTIONS
 endif
 
 ifdef PEGASUS_USE_RELEASE_DIRS
@@ -1304,14 +1271,12 @@ endif
 ##==============================================================================
 
 ifdef PEGASUS_USE_STATIC_LIBRARIES
-    ifeq ($(OS_TYPE),windows)
-        $(error PEGASUS_USE_STATIC_LIBRARIES is not support on windows.)
-    else
-        ifneq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
-            $(error PEGASUS_USE_STATIC_LIBRARIES \
-                ($(PEGASUS_USE_STATIC_LIBRARIES)) invalid, must be true.)
-        endif
+  ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
+  else
+    ifneq ($(PEGASUS_USE_STATIC_LIBRARIES),false)
+      $(error PEGASUS_USE_STATIC_LIBRARIES ($(PEGASUS_USE_STATIC_LIBRARIES)) invalid, must be true or false)
     endif
+  endif
 endif
 
 ##==============================================================================
@@ -1362,41 +1327,6 @@ endif
 
 ##==============================================================================
 ##
-## PEGASUS_PAM_SESSION_SECURITY
-##
-## This is a new method to handle authentication with PAM in case it is required
-## to keep the PAM session established by pam_start() open across an
-## entire CIM request.
-##
-## This feature contradicts PEGASUS_PAM_AUTHENTICATION and
-## PEGASUS_USE_PAM_STANDALONE_PROC
-## Because of the additional process this feature is not compatible with
-## Privilege Separation.
-##
-##==============================================================================
-
-ifeq ($(PEGASUS_PAM_SESSION_SECURITY),true)
-    ifdef PEGASUS_PAM_AUTHENTICATION
-        $(error "PEGASUS_PAM_AUTHENTICATION must NOT be defined when PEGASUS_PAM_SESSION_SECURITY is defined")
-    endif
-    ifdef PEGASUS_USE_PAM_STANDALONE_PROC
-        $(error "PEGASUS_USE_PAM_STANDALONE_PROC must NOT be defined when PEGASUS_PAM_SESSION_SECURITY is defined")
-    endif
-    ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
-        $(error "PEGASUS_ENABLE_PRIVILEGE_SEPARATION must NOT be defined when PEGASUS_PAM_SESSION_SECURITY is defined")
-    endif
-    # Compile in the code required for PAM 
-    # and compile out the code that uses the password file.
-    DEFINES += -DPEGASUS_PAM_SESSION_SECURITY -DPEGASUS_NO_PASSWORDFILE
-    # Link with libpam only where it is needed.
-    ifeq ($(HAS_PAM_DEPENDENCY),true)
-        SYS_LIBS += -lpam
-    endif
-endif
-
-
-##==============================================================================
-##
 ## PEGASUS_PAM_AUTHENTICATION
 ##
 ##==============================================================================
@@ -1419,13 +1349,27 @@ endif
 ##==============================================================================
 
 ifdef PEGASUS_USE_PAM_STANDALONE_PROC
-   ifndef PEGASUS_PAM_AUTHENTICATION
-       $(error "PEGASUS_PAM_AUTHENTICATION must be defined when PEGASUS_USE_PAM_STANDALONE_PROC is defined")
-   endif
-   DEFINES += -DPEGASUS_USE_PAM_STANDALONE_PROC
+  DEFINES += -DPEGASUS_USE_PAM_STANDALONE_PROC
 endif
 
 ##==============================================================================
+
+ifndef PEGASUS_JAVA_CLASSPATH_DELIMITER
+    PEGASUS_JAVA_CLASSPATH_DELIMITER = :
+endif
+
+ifndef PEGASUS_JVM
+	PEGASUS_JVM = sun
+endif
+ifeq ($(PEGASUS_JVM),gcj)
+	PEGASUS_JAVA_COMPILER		= gcj -C
+	PEGASUS_JAVA_JAR		= fastjar
+	PEGASUS_JAVA_INTERPRETER	= gij
+else
+	PEGASUS_JAVA_COMPILER		= javac -target 1.4 -source 1.4
+	PEGASUS_JAVA_JAR		= jar
+	PEGASUS_JAVA_INTERPRETER	= java
+endif
 
 # Disable client timeouts when we're doing a valgrind build
 ifdef PEGASUS_TEST_VALGRIND_LOG_DIR
@@ -1435,7 +1379,7 @@ endif
 ## ======================================================================
 ##
 ## PEGASUS_ALLOW_ABSOLUTEPATH_IN_PROVIDERMODULE
-## This controls allowing the path specified in the Location property of
+## This controls allowing the path specified in the Location property of 
 ## PG_ProviderModule class.
 ##
 ##   Set to "true", It allows the absolute path specified in the Location property
@@ -1459,113 +1403,3 @@ ifdef PEGASUS_ALLOW_ABSOLUTEPATH_IN_PROVIDERMODULE
   endif
 endif
 
-##==============================================================================
-##
-## PEGASUS_ENABLE_PROTOCOL_BINARY
-##
-##     Enables the binary protocol between clients and cimserver. With provider
-##     agent, both requests and responses are binary. For "ordinary" clients,
-##     requests are XML and responses are binary. By default, this only affects
-##     the protocol used over local domain sockets.
-##
-##==============================================================================
-
-ifndef PEGASUS_ENABLE_PROTOCOL_BINARY
-  PEGASUS_ENABLE_PROTOCOL_BINARY=false
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_BINARY),true)
-  DEFINES += -DPEGASUS_ENABLE_PROTOCOL_BINARY
-else
-  ifneq ($(PEGASUS_ENABLE_PROTOCOL_BINARY),false)
-    $(error "PEGASUS_ENABLE_PROTOCOL_BINARY must be true or false")
-  endif
-endif
-
-
-##==============================================================================
-##
-## PEGASUS_ENABLE_PROTOCOL_WEB
-##
-##     Enables the GET-Method for files in order to act as a web-server
-##
-##
-##
-##
-##==============================================================================
-ifndef PEGASUS_ENABLE_PROTOCOL_WEB
-  PEGASUS_ENABLE_PROTOCOL_WEB = true
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB),true)
-  DEFINES += -DPEGASUS_ENABLE_PROTOCOL_WEB
-else
-  ifneq ($(PEGASUS_ENABLE_PROTOCOL_WEB),false)
-    $(error "PEGASUS_ENABLE_PROTOCOL_WEB must be true or false")
-  endif
-endif
-
-## ======================================================================
-##
-## PLATFORM_CORE_PATTERN
-## This variable describes the pattern used to search for core files.
-## If not defined, this variable will be set to core*.
-## Only wildcard characters supported by the make wildcard function
-## may be used.
-
-ifndef PLATFORM_CORE_PATTERN
-    PLATFORM_CORE_PATTERN = core*
-endif
-
-ifdef PEGASUS_FLAVOR
-  ifdef PEGASUS_USE_RELEASE_DIRS
-    ifndef PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS
-      $(error "PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS must be defined when both PEGASUS_FLAVOR and PEGASUS_USE_RELEASE_DIRS options are used")
-    endif
-  endif
-  ifneq ($(PEGASUS_FLAVOR), tog)
-      DEFINES += -DPEGASUS_FLAVOR=\"$(PEGASUS_FLAVOR)\"
-  endif
-endif
-
-ifdef PEGASUS_EXTRA_PROVIDER_LIB_DIR
-   ifndef PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS
-      $(error "PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS must be defined when PEGASUS_EXTRA_PROVIDER_LIB_DIR defined.")
-   endif
-   DEFINES += -DPEGASUS_EXTRA_PROVIDER_LIB_DIR=\"$(PEGASUS_EXTRA_PROVIDER_LIB_DIR):\"
-else
-   DEFINES += -DPEGASUS_EXTRA_PROVIDER_LIB_DIR=\"\"
-endif
-
-################################################################################
-##
-## PEGASUS_INITIAL_THREADSTACK_SIZE
-##
-##     This environment variable sets the initial size of the stack on new threads.
-##     When it is undefined, the size defaults to something relatively small
-##     (see src/Pegasus/Common/Config.h or if overridden by platform see
-##      src/Pegasus/Common/Platform_$(PEGASUS_PLATFORM).h).
-##     Value is specified in number of bytes.
-##
-################################################################################
-
-ifdef PEGASUS_INITIAL_THREADSTACK_SIZE
-DEFINES += -DPEGASUS_INITIAL_THREADSTACK_SIZE=$(PEGASUS_INITIAL_THREADSTACK_SIZE)
-endif
-
-ifndef PEGASUS_INTEROP_NAMESPACE
-    PEGASUS_INTEROP_NAMESPACE=root/PG_InterOp
-else
-ifeq ($(PEGASUS_INTEROP_NAMESPACE),root/interop)
-DEFINES += -DNS_ROOT_INTEROP
-    endif
-ifeq ($(PEGASUS_INTEROP_NAMESPACE),interop)
-DEFINES += -DNS_INTEROP
-endif
-endif
-
-##These namespaces will be used in Makefiles.
-
-NAMESPACE_INTEROP = interop
-
-NAMESPACE_ROOT_INTEROP = root/interop

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,10 +35,10 @@
 #define Pegasus_NameSpaceManager_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Pair.h>
 #include <Pegasus/Repository/InheritanceTree.h>
-#include <Pegasus/Repository/PersistentStoreData.h>
 #include <Pegasus/Repository/Linkage.h>
+
+#include <Pegasus/Repository/FileBasedStore.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -58,32 +60,31 @@ class NameSpace;
 */
 class PEGASUS_REPOSITORY_LINKAGE NameSpaceManager
 {
+    friend class NameSpace;
 public:
 
-    /** Constructor.
-    */
-    NameSpaceManager();
+    NameSpaceManager(
+        FileBasedStore* persistentStore);
 
     /** Destructor.
     */
     ~NameSpaceManager();
 
-    /** Initializes the namespace definition in the NameSpaceManager.  If the
-        namespace has a parent namespace, the the caller MUST ensure that the
-        parent namespace is already initialized.
-        @param nameSpace The namespace definition to initialize.
-        @param classList An Array of class names and superclass names that are
-            defined in the namespace.
-    */
-    void initializeNameSpace(
-        const NamespaceDefinition& nameSpace,
-        const Array<Pair<String, String> >& classList);
-
-    /** Indicates whether the specified namespace exists.
+    /** Determines whether the given namespace exists:
         @param nameSpaceName name of namespace.
-        @return true if namespace exists; false otherwise.
+        @return true if namespace eixsts; false otherwise.
     */
     Boolean nameSpaceExists(const CIMNamespaceName& nameSpaceName) const;
+
+    /** Checks whether the specified namespace may be created.
+        @param nameSpaceName name of namespace to be created.
+        @exception CIMException If the namespace may not be created as specified
+    */
+    void checkCreateNameSpace(
+        const CIMNamespaceName& nameSpaceName,
+        Boolean shareable,
+        Boolean updatesAllowed,
+        const String& parent);
 
     /** Creates the given namespace.
         @param nameSpaceName name of namespace to be created.
@@ -92,18 +93,13 @@ public:
         const CIMNamespaceName& nameSpaceName,
         Boolean shareable,
         Boolean updatesAllowed,
-        const String& parent,
-        const String& remoteInfo = String::EMPTY);
+        const String& parent);
 
     void modifyNameSpace(
         const CIMNamespaceName& nameSpaceName,
         Boolean shareable,
         Boolean updatesAllowed);
 
-    void modifyNameSpaceName(
-        const CIMNamespaceName& nameSpaceName,
-        const CIMNamespaceName& newNameSpaceName);
-    
     /** Deletes the given namespace.
         @param nameSpaceName name of namespace to be deleted.
         @exception CIMException(CIM_ERR_INVALID_NAMESPACE)
@@ -125,8 +121,7 @@ public:
         const CIMNamespaceName& nameSpace,
         Boolean& shareable,
         Boolean& updatesAllowed,
-        String& parent,
-        String& remoteInfo);
+        String& parent);
 
     void validateNameSpace(
         const CIMNamespaceName& nameSpaceName) const;
@@ -199,12 +194,14 @@ public:
         const CIMNamespaceName& nameSpaceName,
         const CIMName& className) const;
 
-    /** Check whether update to namespace allowed.
+    /** Check whether the specified qualifier may be deleted
         @param nameSpaceName Namespace in which the qualifier exists.
-        @exception CIMException If the updates not allowed
+        @param qualifierName Name of qualifier to be deleted.
+        @exception CIMException If the class may not be deleted
     */
-    void checkNameSpaceUpdateAllowed(
-        const CIMNamespaceName& nameSpaceName) const;
+    void checkSetOrDeleteQualifier(
+        const CIMNamespaceName& nameSpaceName,
+        const CIMName& qualifierName) const;
 
     /** Deletes the class file for the given class.
         @param nameSpaceName name of namespace.
@@ -244,8 +241,6 @@ public:
         @param nameSpaceName namespace.
         @param className name of class being modified.
         @param superClassName superclass of class being modified.
-        @param oldSuperClassName Output name of existing superclass of class
-            being modified.
         @exception CIMException(CIM_ERR_INVALID_CLASS)
         @exception CIMException(CIM_ERR_FAILED) if there is an attempt
             to change the superclass of this class.
@@ -255,9 +250,7 @@ public:
     void checkModifyClass(
         const CIMNamespaceName& nameSpaceName,
         const CIMName& className,
-        const CIMName& superClassName,
-        CIMName& oldSuperClassName,
-        Boolean allowNonLeafModification);
+        const CIMName& superClassName);
 
     /** Get subclass names of the given class in the given namespace.
         @param nameSpaceName

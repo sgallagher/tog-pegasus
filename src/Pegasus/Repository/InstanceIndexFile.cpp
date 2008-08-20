@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +70,7 @@ static Uint32 getOffset( streampos sp )
 //
 // Converts a CIMObjectPath to a form that can be used as a key in the index
 // file.  Newline and carriage return characters are escaped to prevent
-// problems with the line-based file format.
+// problems with the line-based file format. 
 //
 
 static String _convertInstanceNameToKey(const CIMObjectPath& instanceName)
@@ -132,6 +134,60 @@ static CIMObjectPath _convertKeyToInstanceName(const char* key)
     return CIMObjectPath(keyString);
 }
 
+//
+// Gets one line from the given file.
+//
+
+static Boolean _GetLine(fstream& fs, Buffer& x)
+{
+    const Uint32 buffersize = 1023 + 1;
+    Uint32 xcount = 0;
+    Uint32 gcount = 0;
+
+    x.clear();
+    x.reserveCapacity(buffersize);
+
+    // The general idea is, we will read the stream at buffersize each time.
+    // if we get exactly buffersize-1, that means we didn't hit a \n
+    // so we loop again to read more,
+    // until we get a buffer that's not completely full.
+    // That means we hit a \n so we exit the loop.
+    do
+    {
+        char input[buffersize];
+
+        // This will read up to buffersize-1 char,
+        // but stop as soon as it hit \n.
+        // This will NOT consume the \n at the end.
+        fs.get(input, buffersize, '\n');
+
+        gcount = (Uint32)fs.gcount();
+        x.append(input, gcount);
+        xcount += gcount;
+
+    } while (gcount == buffersize-1 && fs.rdstate() != istream::failbit);
+
+    // if we read 0 byte in the last call, that's because the read buffer is
+    // exactly multiple of the input line.
+    // So the 2nd last get() read everything up to the \n and
+    // the last get() read 0 char and set the failbit on the
+    // stream.  The clear() call will set the stream to ready state.
+    if (gcount == 0)
+    {
+        fs.clear();
+    }
+
+    if (!fs.eof())
+    {
+        // we need to consume the '\n', because get() doesn't
+        char c = 0;
+        fs.get(c);
+    }
+
+    // if xcount is non zero, then we have read something from the buffer.
+    return (xcount != 0);
+}
+
 inline void _SkipWhitespace(char*& p)
 {
     while (*p && isspace(*p))
@@ -144,7 +200,7 @@ inline void _SkipWhitespace(char*& p)
 //
 
 Boolean _GetIntField(
-    const char*& ptr,
+    char*& ptr,
     Boolean& errorOccurred,
     Uint32& value,
     int base)
@@ -192,14 +248,14 @@ static Boolean _GetNextRecord(
     // Get next line:
     //
 
-    if (!GetLine(fs, line))
+    if (!_GetLine(fs, line))
         return false;
 
     //
     // Get the free flag field:
     //
 
-    const char* end = (char*)line.getData();
+    char* end = (char*)line.getData();
 
     if (!_GetIntField(end, errorOccurred, freeFlag, 10))
         return false;
@@ -951,50 +1007,24 @@ Boolean InstanceIndexFile::beginTransaction(const String& path)
     // copied back to the index file.
     //
 
-    do
+    if (!FileSystem::renameFileNoCase(path, rollbackPath))
     {
-        if (!FileSystem::renameFileNoCase(path, rollbackPath))
-        {
-            break;
-        }
-
-        if (!FileSystem::copyFile(rollbackPath, path))
-        {
-            break;
-        }
-
         PEG_METHOD_EXIT();
-        return true;
+        return false;
     }
-    while(0);
 
-    // Try to restore the initial state
-    undoBeginTransaction(path);
-
-    PEG_METHOD_EXIT();
-    return false;
-}
-
-void InstanceIndexFile::undoBeginTransaction(const String& path)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY,
-        "InstanceIndexFile::undoBeginTransaction()");
-
-    String rollbackPath = path;
-    rollbackPath.append(".rollback");
-
-    //
-    // Remove the original index file and
-    // Rename the rollback file to the original file
-    // If the rollback file is present, this function has no effect
-    //
-    if(FileSystem::existsNoCase(rollbackPath))
+    if (!FileSystem::copyFile(rollbackPath, path))
     {
+        // Try to restore the initial state
         FileSystem::removeFileNoCase(path);
         FileSystem::renameFileNoCase(rollbackPath, path);
+
+        PEG_METHOD_EXIT();
+        return false;
     }
 
     PEG_METHOD_EXIT();
+    return true;
 }
 
 Boolean InstanceIndexFile::rollbackTransaction(const String& path)

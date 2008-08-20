@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 /*
@@ -55,6 +57,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/XmlStreamer.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Repository/NameSpaceManager.h>
 
@@ -63,21 +66,28 @@ PEGASUS_USING_PEGASUS;
 
 static Boolean verbose;
 
+String repositoryRoot;
+
 Array<CIMNamespaceName> _nameSpaceNames;
 
 #define NUM_NAMESPACE_NAMES _nameSpaceNames.size()
 
 void test01()
 {
-    NameSpaceManager nsm;
+    XmlStreamer xmlStreamer;
+    AutoPtr<FileBasedStore> persistentStore(new FileBasedStore(
+        repositoryRoot, &xmlStreamer, false));
+    NameSpaceManager nsm(persistentStore.get());
+    if (verbose)
+        nsm.print (cout);
 
-    _nameSpaceNames.append(CIMNamespaceName("aa"));
-    _nameSpaceNames.append(CIMNamespaceName("aa/bb"));
-    _nameSpaceNames.append(CIMNamespaceName("aa/bb/cc"));
-    _nameSpaceNames.append(CIMNamespaceName("/lmnop/qrstuv"));
-    _nameSpaceNames.append(CIMNamespaceName("root"));
-    _nameSpaceNames.append(CIMNamespaceName("xx"));
-    _nameSpaceNames.append(CIMNamespaceName("xx/yy"));
+   _nameSpaceNames.append(CIMNamespaceName("aa"));
+   _nameSpaceNames.append(CIMNamespaceName("aa/bb"));
+   _nameSpaceNames.append(CIMNamespaceName("aa/bb/cc"));
+   _nameSpaceNames.append(CIMNamespaceName("/lmnop/qrstuv"));
+   _nameSpaceNames.append(CIMNamespaceName("root"));
+   _nameSpaceNames.append(CIMNamespaceName("xx"));
+   _nameSpaceNames.append(CIMNamespaceName("xx/yy"));
 
     for (Uint32 j = 0; j < _nameSpaceNames.size(); j++)
     {
@@ -111,10 +121,10 @@ void test01()
     // Create and delete a class to test these functions
     nsm.createClass(CIMNamespaceName("aa/bb"), "MySuperClass", CIMName());
     nsm.createClass(CIMNamespaceName("aa/bb"), "MyClass", "MySuperClass");
-    PEGASUS_TEST_ASSERT(
+    PEGASUS_ASSERT(
         nsm.getSuperClassName(CIMNamespaceName("aa/bb"), "MySuperClass") ==
         CIMName());
-    PEGASUS_TEST_ASSERT(
+    PEGASUS_ASSERT(
         nsm.getSuperClassName(CIMNamespaceName("aa/bb"), "MyClass") ==
         "MySuperClass");
     nsm.deleteClass(CIMNamespaceName("aa/bb"), "MyClass");
@@ -138,11 +148,21 @@ void test01()
     PEGASUS_TEST_ASSERT(nameSpaceNames.size() == 0);
 }
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
-
     verbose = getenv ("PEGASUS_TEST_VERBOSE") ? true : false;
     if (verbose) cout << argv[0] << ": started" << endl;
+
+    const char* tmpDir = getenv ("PEGASUS_TMP");
+    if (tmpDir == NULL)
+    {
+        repositoryRoot = ".";
+    }
+    else
+    {
+        repositoryRoot = tmpDir;
+    }
+    repositoryRoot.append("/repository");
 
     try
     {
@@ -155,5 +175,6 @@ int main(int, char** argv)
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;
+
     return 0;
 }

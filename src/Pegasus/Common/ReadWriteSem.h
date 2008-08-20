@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,19 +42,35 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/**
-    Every platform should decide which implementation for read/write locks
-    should be used in OpenPegasus by defining one of the following:
-    1.) PEGASUS_USE_POSIX_RWLOCK - POSIX standard based implementation
-    2.) PEGASUS_USE_SEMAPHORE_RWLOCK - mutex based implementation
+//==============================================================================
+//
+// Select the read-write-lock implementation for your platform:
+//
+//     PEGASUS_USE_POSIX_RWLOCK
+//     PEGASUS_USE_SEMAPHORE_RWLOCK
+//
+//==============================================================================
 
-    The definition for each platform can be found in the according platform
-    header file: pegasus/src/Pegasus/Common/Platform_<Platform>.h
-*/
-
-#if !defined(PEGASUS_USE_POSIX_RWLOCK) && !defined(PEGASUS_USE_SEMAPHORE_RWLOCK)
-# error "Unsupported platform: ReadWriteSem.h implementation type missing"
-
+#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+# define PEGASUS_USE_POSIX_RWLOCK
+#elif defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
+# define PEGASUS_USE_POSIX_RWLOCK
+#elif defined(PEGASUS_PLATFORM_HPUX_ACC)
+# define PEGASUS_USE_POSIX_RWLOCK
+#elif defined(PEGASUS_OS_SOLARIS)
+# define PEGASUS_USE_POSIX_RWLOCK
+#elif defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
+# define PEGASUS_USE_POSIX_RWLOCK
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+# define PEGASUS_USE_POSIX_RWLOCK
+#elif defined(PEGASUS_PLATFORM_VMS_IA64_DECCXX)
+# define PEGASUS_USE_POSIX_RWLOCK
+#elif defined(PEGASUS_PLATFORM_VMS_ALPHA_DECCXX)
+# define PEGASUS_USE_POSIX_RWLOCK
+#elif defined(PEGASUS_PLATFORM_LINUX_X86_64_GNU)
+# define PEGASUS_USE_POSIX_RWLOCK
+#else
+# define PEGASUS_USE_SEMAPHORE_RWLOCK
 #endif
 
 //==============================================================================
@@ -65,6 +83,7 @@ PEGASUS_NAMESPACE_BEGIN
 struct ReadWriteSemRep
 {
     pthread_rwlock_t rwlock;
+    ThreadType owner;
 };
 #endif /* PEGASUS_USE_POSIX_RWLOCK */
 
@@ -74,10 +93,9 @@ struct ReadWriteSemRep
     Semaphore _rlock;
     Mutex _wlock;
     Mutex _internal_lock;
-    AtomicInt _readers;
-    AtomicInt _writers;
+    ThreadType _owner;
     ReadWriteSemRep() :
-        _rlock(10), _wlock(), _internal_lock(), _readers(0), _writers(0)
+        _rlock(10), _wlock(), _internal_lock(), _owner(Threads::self())
     {
     }
 };
@@ -97,16 +115,46 @@ public:
 
     ~ReadWriteSem();
 
-    void waitRead();
+    // @exception Permission
+    // @exception WaitFailed
+    inline void wait_read(ThreadType caller)
+    {
+        _wait(false, caller);
+    }
 
-    void waitWrite();
+    // @exception Permission
+    // @exception WaitFailed
+    inline void wait_write(ThreadType caller)
+    {
+        _wait(true, caller);
+    }
 
-    void unlockRead();
+    // @exception Permission
+    inline void unlock_read(ThreadType caller)
+    {
+        _unlock(false, caller);
+    }
 
-    void unlockWrite();
+    // @exception Permission
+    inline void unlock_write(ThreadType caller)
+    {
+        _unlock(true, caller);
+    }
+
+    int read_count() const;
+    int write_count() const;
 
 private:
 
+    // @exception Permission
+    // @exception WaitFailed
+    void _wait(Boolean writeLock, ThreadType caller);
+
+    // @exception Permission
+    void _unlock(Boolean writeLock, ThreadType caller);
+
+    AtomicInt _readers;
+    AtomicInt _writers;
     ReadWriteSemRep _rwlock;
 };
 
@@ -122,12 +170,12 @@ public:
 
     ReadLock(ReadWriteSem& rwsem) : _rwsem(rwsem)
     {
-        _rwsem.waitRead();
+        _rwsem.wait_read(Threads::self());
     }
 
     ~ReadLock()
     {
-        _rwsem.unlockRead();
+        _rwsem.unlock_read(Threads::self());
     }
 
 private:
@@ -146,12 +194,12 @@ public:
 
     WriteLock(ReadWriteSem& rwsem) : _rwsem(rwsem)
     {
-        _rwsem.waitWrite();
+        _rwsem.wait_write(Threads::self());
     }
 
     ~WriteLock()
     {
-        _rwsem.unlockWrite();
+        _rwsem.unlock_write(Threads::self());
     }
 
 private:

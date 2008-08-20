@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 
 //NOCHKSRC
 
@@ -133,7 +135,7 @@
 
 
 /* Copy the first part of user declarations.  */
-#line 63 "url.y"
+#line 67 "url.y"
 
 
 #include "slp_client.h"
@@ -143,9 +145,9 @@
 /* prototypes and globals go here */
 void urlerror(const char *, ...);
 int32 urlwrap(void);
-int32 urllex(void);
+int32 urllex(void);   
 int32 urlparse(void);
-void url_close_lexer(size_t handle);
+void url_close_lexer(uint32 handle);
 size_t url_init_lexer(const char *s);
 
 
@@ -154,7 +156,7 @@ static lslpAtomList siteHead = {&siteHead, &siteHead, TRUE, NULL, 0};
 static lslpAtomList pathHead = {&pathHead, &pathHead, TRUE, NULL, 0};
 static lslpAtomList attrHead = {&attrHead, &attrHead, TRUE, NULL, 0};
 
-lslpAtomizedURL urlHead =
+lslpAtomizedURL urlHead = 
 {
     &urlHead,
     &urlHead,
@@ -189,14 +191,14 @@ lslpAtomizedURL urlHead =
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 101 "url.y"
+#line 105 "url.y"
 {
 	int32 _i;
 	char *_s;
 	lslpAtomList *_atl;
 	lslpAtomizedURL *_aturl;
 }
-/* Line 187 of yacc.c.  */
+/* Line 193 of yacc.c.  */
 #line 170 "y_url.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -505,10 +507,10 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   121,   121,   215,   223,   232,   250,   272,   279,   288,
-     301,   314,   328,   346,   349,   358,   369,   374,   379,   392,
-     398,   413,   416,   421,   424,   427,   432,   439,   449,   453,
-     471,   488,   506,   513,   522,   539
+       0,   125,   125,   219,   227,   236,   254,   276,   283,   292,
+     305,   318,   332,   350,   353,   362,   373,   378,   383,   396,
+     402,   417,   420,   425,   428,   431,   436,   443,   453,   457,
+     475,   492,   510,   517,   526,   543
 };
 #endif
 
@@ -1441,7 +1443,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 121 "url.y"
+#line 125 "url.y"
     {
 			if (NULL != ((yyval._aturl) = (lslpAtomizedURL *)calloc(1, sizeof(lslpAtomizedURL))))
 			{
@@ -1538,7 +1540,7 @@ yyreduce:
     break;
 
   case 3:
-#line 215 "url.y"
+#line 219 "url.y"
     {
 			(yyval._atl) = &srvcHead;
 			if ((yyvsp[(1) - (1)]._atl) != NULL)
@@ -1549,7 +1551,7 @@ yyreduce:
     break;
 
   case 4:
-#line 223 "url.y"
+#line 227 "url.y"
     {
 			(yyval._atl) = &srvcHead;
 			if ((yyvsp[(2) - (2)]._atl) != NULL)
@@ -1560,7 +1562,7 @@ yyreduce:
     break;
 
   case 5:
-#line 232 "url.y"
+#line 236 "url.y"
     {
 			if (NULL != ((yyval._atl) = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
@@ -1582,7 +1584,7 @@ yyreduce:
     break;
 
   case 6:
-#line 250 "url.y"
+#line 254 "url.y"
     {
 			if (NULL != ((yyval._atl) = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
@@ -1606,7 +1608,7 @@ yyreduce:
     break;
 
   case 7:
-#line 272 "url.y"
+#line 276 "url.y"
     {
 			(yyval._atl) = &siteHead;
 			if ((yyvsp[(1) - (1)]._atl) != NULL)
@@ -1617,7 +1619,7 @@ yyreduce:
     break;
 
   case 8:
-#line 279 "url.y"
+#line 283 "url.y"
     {
 			(yyval._atl) = &siteHead;
 			if ((yyvsp[(1) - (2)]._atl) != NULL)
@@ -1628,7 +1630,7 @@ yyreduce:
     break;
 
   case 9:
-#line 288 "url.y"
+#line 292 "url.y"
     {
 			if ((yyvsp[(1) - (1)]._s) != NULL)
 			{
@@ -1645,7 +1647,7 @@ yyreduce:
     break;
 
   case 10:
-#line 301 "url.y"
+#line 305 "url.y"
     {
 			if ((yyvsp[(1) - (1)]._s) != NULL)
 			{
@@ -1662,7 +1664,7 @@ yyreduce:
     break;
 
   case 11:
-#line 314 "url.y"
+#line 318 "url.y"
     {
 			if ((yyvsp[(1) - (1)]._s) != NULL)
 			{
@@ -1679,9 +1681,9 @@ yyreduce:
     break;
 
   case 12:
-#line 328 "url.y"
+#line 332 "url.y"
     {
-
+  
 			if ((yyvsp[(1) - (1)]._s) != NULL)
 			{
 				if(NULL != ((yyval._atl) = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
@@ -1693,19 +1695,19 @@ yyreduce:
 			}
 			else
 				(yyval._atl) = NULL;
-
+  
 ;}
     break;
 
   case 13:
-#line 346 "url.y"
+#line 350 "url.y"
     {
 			(yyval._s) = strdup("//");
 		;}
     break;
 
   case 14:
-#line 349 "url.y"
+#line 353 "url.y"
     {
 			if(NULL != (yyvsp[(3) - (3)]._s) && (NULL !=((yyval._s) = (char *)calloc(3 + strlen((yyvsp[(3) - (3)]._s)), sizeof(char)))))
 			{
@@ -1718,7 +1720,7 @@ yyreduce:
     break;
 
   case 15:
-#line 358 "url.y"
+#line 362 "url.y"
     {
 			if(NULL != (yyvsp[(5) - (5)]._s) && (NULL !=((yyval._s) = (char *)calloc(4 + strlen((yyvsp[(3) - (5)]._s)) + strlen((yyvsp[(5) - (5)]._s)), sizeof(char)))))
 			{
@@ -1731,21 +1733,21 @@ yyreduce:
     break;
 
   case 16:
-#line 369 "url.y"
+#line 373 "url.y"
     {
 	  (yyval._s) = strdup((yyvsp[(1) - (1)]._s));
 	;}
     break;
 
   case 17:
-#line 374 "url.y"
+#line 378 "url.y"
     {
 			(yyval._s) = (yyvsp[(1) - (1)]._s);
 		;}
     break;
 
   case 18:
-#line 379 "url.y"
+#line 383 "url.y"
     {
 			if(NULL != ((yyval._s) = (char *)calloc(strlen((yyvsp[(1) - (6)]._s)) + strlen((yyvsp[(2) - (6)]._s)) + strlen((yyvsp[(4) - (6)]._s)) + strlen((yyvsp[(6) - (6)]._s)) + 3, sizeof(char))))
 			{
@@ -1760,7 +1762,7 @@ yyreduce:
     break;
 
   case 19:
-#line 392 "url.y"
+#line 396 "url.y"
     {
                         if (NULL != ((yyval._s) = (char *)calloc(strlen((yyvsp[(1) - (1)]._s)) + 2, sizeof(char))))
                         {
@@ -1770,7 +1772,7 @@ yyreduce:
     break;
 
   case 20:
-#line 398 "url.y"
+#line 402 "url.y"
     {
 			if ((yyvsp[(1) - (3)]._s) != NULL)
 			{
@@ -1787,42 +1789,42 @@ yyreduce:
     break;
 
   case 21:
-#line 413 "url.y"
+#line 417 "url.y"
     {
 			(yyval._s) = (yyvsp[(1) - (1)]._s);
 		;}
     break;
 
   case 22:
-#line 416 "url.y"
+#line 420 "url.y"
     {
 			(yyval._s) = (yyvsp[(1) - (1)]._s);
 		;}
     break;
 
   case 23:
-#line 421 "url.y"
+#line 425 "url.y"
     {
 			;	
 		;}
     break;
 
   case 24:
-#line 424 "url.y"
+#line 428 "url.y"
     {
 			;		
 		;}
     break;
 
   case 25:
-#line 427 "url.y"
+#line 431 "url.y"
     {
 			;
 		;}
     break;
 
   case 26:
-#line 432 "url.y"
+#line 436 "url.y"
     {
 			(yyval._atl) = &pathHead;
 			if ((yyvsp[(1) - (1)]._atl) != NULL)
@@ -1833,7 +1835,7 @@ yyreduce:
     break;
 
   case 27:
-#line 439 "url.y"
+#line 443 "url.y"
     {
 			(yyval._atl) = &pathHead;
 			if ((yyvsp[(2) - (2)]._atl) != NULL)
@@ -1844,7 +1846,7 @@ yyreduce:
     break;
 
   case 28:
-#line 449 "url.y"
+#line 453 "url.y"
     {
 			 /* dangling path slash - do nothing */
 			 (yyval._atl) = NULL;
@@ -1852,7 +1854,7 @@ yyreduce:
     break;
 
   case 29:
-#line 453 "url.y"
+#line 457 "url.y"
     {
 			if(NULL != ((yyval._atl) = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
@@ -1874,7 +1876,7 @@ yyreduce:
     break;
 
   case 30:
-#line 471 "url.y"
+#line 475 "url.y"
     {
 			if(NULL != ((yyval._atl) = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
@@ -1895,7 +1897,7 @@ yyreduce:
     break;
 
   case 31:
-#line 488 "url.y"
+#line 492 "url.y"
     {
 			if(NULL != ((yyval._atl) = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
@@ -1915,7 +1917,7 @@ yyreduce:
     break;
 
   case 32:
-#line 506 "url.y"
+#line 510 "url.y"
     {
 			(yyval._atl) = &attrHead;
 			if ((yyvsp[(1) - (1)]._atl) != NULL)
@@ -1926,7 +1928,7 @@ yyreduce:
     break;
 
   case 33:
-#line 513 "url.y"
+#line 517 "url.y"
     {
 			(yyval._atl) = &attrHead;
 			if ((yyvsp[(2) - (2)]._atl) != NULL)
@@ -1937,7 +1939,7 @@ yyreduce:
     break;
 
   case 34:
-#line 522 "url.y"
+#line 526 "url.y"
     {
 			if(NULL != ((yyval._atl) = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
@@ -1957,7 +1959,7 @@ yyreduce:
     break;
 
   case 35:
-#line 539 "url.y"
+#line 543 "url.y"
     {
 			if(NULL != ((yyval._atl) = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
 			{
@@ -2194,8 +2196,8 @@ yyreturn:
 }
 
 
-#line 559 "url.y"
-
+#line 563 "url.y"
+ 
 
 
 lslpAtomList *lslpAllocAtom(void)
@@ -2210,7 +2212,7 @@ lslpAtomList *lslpAllocAtom(void)
 
 lslpAtomList *lslpAllocAtomList(void)
 {
-	lslpAtomList *temp =lslpAllocAtom();
+	lslpAtomList *temp =lslpAllocAtom(); 
 	if (temp != NULL)
 		temp->isHead = TRUE;
 	return(temp);
@@ -2218,7 +2220,7 @@ lslpAtomList *lslpAllocAtomList(void)
 
 void lslpFreeAtom(lslpAtomList *a )
 {
-	PEGASUS_ASSERT(a != NULL);
+	assert(a != NULL);
 	if (a->str != NULL)
 		free(a->str);
 	free(a);
@@ -2228,13 +2230,13 @@ void lslpFreeAtom(lslpAtomList *a )
 void lslpFreeAtomList(lslpAtomList *l, int32 flag)
 {
 	lslpAtomList *temp;
-	PEGASUS_ASSERT(l != NULL);
-	PEGASUS_ASSERT(_LSLP_IS_HEAD(l));
+	assert(l != NULL);
+	assert(_LSLP_IS_HEAD(l));
 	while (! _LSLP_IS_EMPTY(l))
 	{
 		temp = l->next;
 		temp->prev->next = temp->next;
-		temp->next->prev = temp->prev;
+		temp->next->prev = temp->prev; 
 		lslpFreeAtom(temp);
 	}
 	if (flag)
@@ -2264,7 +2266,7 @@ lslpAtomizedURL *lslpAllocAtomizedURLList(void)
 
 void lslpFreeAtomizedURL(lslpAtomizedURL *u)
 {
-	PEGASUS_ASSERT(u != NULL);
+	assert(u != NULL);
 	if (u->url != NULL)
 		free(u->url);
 	if (! _LSLP_IS_EMPTY(&(u->srvcs)))
@@ -2282,8 +2284,8 @@ void lslpFreeAtomizedURL(lslpAtomizedURL *u)
 void lslpFreeAtomizedURLList(lslpAtomizedURL *l, int32 flag)
 {
 	lslpAtomizedURL *temp;
-	PEGASUS_ASSERT(l != NULL);
-	PEGASUS_ASSERT(_LSLP_IS_HEAD(l));
+	assert(l != NULL);
+	assert(_LSLP_IS_HEAD(l));
 	while (! (_LSLP_IS_HEAD(l->next)))
 	{
 		temp = l->next;
@@ -2315,7 +2317,7 @@ void lslpInitURLList(void)
 
 void lslpCleanUpURLLists(void)
 {
-
+  
   lslpFreeAtomList(&srvcHead, 0);
   lslpFreeAtomList(&siteHead, 0);
   lslpFreeAtomList(&pathHead, 0);
@@ -2326,13 +2328,13 @@ void lslpCleanUpURLLists(void)
 lslpAtomizedURL *_lslpDecodeURLs(char *u[], int32 count)
 {
   int32 i;
-
-  size_t lexer = 0;
+  
+  uint32 lexer = 0;
   lslpAtomizedURL *temp = NULL;
-  PEGASUS_ASSERT(u != NULL && u[count - 1] != NULL);
+  assert(u != NULL && u[count - 1] != NULL);
   lslpInitURLList();
   lslpInitAtomLists();
-
+  
   for (i = 0; i < count; i++) {
     if (NULL == u[i])
       break;
@@ -2347,8 +2349,8 @@ lslpAtomizedURL *_lslpDecodeURLs(char *u[], int32 count)
       _LSLP_LINK_HEAD(temp, &urlHead);
     }
   }
-
+  
   return(temp);	
-}	
+}	 
 
 

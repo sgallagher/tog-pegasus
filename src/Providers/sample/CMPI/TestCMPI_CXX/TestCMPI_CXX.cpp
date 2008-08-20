@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -67,7 +69,7 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, CMPISint64 i)
 
 static Buffer& operator<<(Buffer& out, const char* x)
 {
-    out.append(x, (Uint32)strlen(x));
+    out.append(x, strlen(x));
     return out;
 }
 
@@ -75,7 +77,7 @@ static Buffer& operator<<(Buffer& out, Uint32 x)
 {
     char buffer[32];
     sprintf(buffer, "%u", x);
-    out.append(buffer, (Uint32)strlen(buffer));
+    out.append(buffer, strlen(buffer));
     return out;
 }
 
@@ -123,7 +125,7 @@ convertTime (CmpiDateTime& dtTime)
    time_t      tTime;
 
    ui64Time = dtTime.getDateTime ();
-   tTime    = (time_t)(ui64Time / 1000000);
+   tTime    = ui64Time / 1000000;
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
    return ctime (&tTime);
@@ -234,8 +236,7 @@ printData (const CmpiData& d)
    case CMPI_instance:
    {
       L;CmpiInstance v = d.getInstance ();
-      cout << "Instance:";
-      printInstance(v);
+      cout << "Instance";
       break;
    }
    case CMPI_ref:
@@ -421,7 +422,6 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
             CMPIUint64 alignment;
             char achData1[3];
         };
-        alignment = 0;
         strcpy(achData1, "13");
 
         L;CmpiDateTime   dtData1;
@@ -893,7 +893,7 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
         L;CmpiDateTime dtData4 ("20070501152143.164592-300");
         // echo `date --date='2007-05-01 15:21:43' +%s`*1000000+164592 | bc
         // 1178050903164592LL
-        L;CmpiDateTime dtData5
+        L;CmpiDateTime dtData5 
             (PEGASUS_UINT64_LITERAL(1178050903164592), false);
         L;CmpiDateTime dtData6 ("00000011125959.123456:000");
         L;CmpiDateTime dtData7 (PEGASUS_UINT64_LITERAL(997199123456), true);
@@ -1071,7 +1071,7 @@ TestCMPI_CXX::enumInstances (const CmpiContext&     ctx,
                              const CmpiObjectPath&  cop,
                              const char*           *properties)
 {
-   return CmpiStatus
+   return CmpiStatus 
        (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot enumInstances");
 }
 
@@ -1081,7 +1081,7 @@ TestCMPI_CXX::getInstance (const CmpiContext&     ctx,
                            const CmpiObjectPath&  cop,
                            const char*           *properties)
 {
-    return CmpiStatus
+    return CmpiStatus 
         (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot getInstance");
 }
 
@@ -1092,7 +1092,7 @@ TestCMPI_CXX::setInstance (const CmpiContext&     ctx,
                            const CmpiInstance&    inst,
                            const char*           *properties)
 {
-    return CmpiStatus
+    return CmpiStatus 
         (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot setInstance");
 }
 
@@ -1102,7 +1102,7 @@ TestCMPI_CXX::createInstance (const CmpiContext&    ctx,
                               const CmpiObjectPath& cop,
                               const CmpiInstance&   inst)
 {
-    return CmpiStatus
+    return CmpiStatus 
         (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot createInstance");
 }
 
@@ -1111,6 +1111,6 @@ TestCMPI_CXX::deleteInstance (const CmpiContext&    ctx,
                               CmpiResult&           rslt,
                               const CmpiObjectPath& cop)
 {
-    return CmpiStatus
+    return CmpiStatus 
         (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot deleteInstance");
 }

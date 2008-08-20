@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,11 +35,6 @@
 #include "Time.h"
 #include "PegasusAssert.h"
 #include "Once.h"
-#include "Exception.h"
-#include "System.h"
-
-#define MUTEX_LOCK_FAILED_KEY "Common.InternalException.MUTEX_LOCK_FAILED"
-#define MUTEX_LOCK_FAILED_MSG "Failed to acquire mutex lock: $0"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -94,26 +91,16 @@ void Mutex::lock()
 {
     PEGASUS_DEBUG_ASSERT(_magic);
 
-    int r = pthread_mutex_lock(&_rep.mutex);
-
-    if (r == 0)
+    switch (pthread_mutex_lock(&_rep.mutex))
     {
+        case 0:
 #if defined(PEGASUS_DEBUG)
-        _rep.count++;
+            _rep.count++;
 #endif
-    }
-    else
-    {
-        if (r != -1)
-        {
-            // Special behavior for Single UNIX Specification, Version 3
-            errno = r;
-        }
+            break;
 
-        throw Exception(MessageLoaderParms(
-            MUTEX_LOCK_FAILED_KEY,
-            MUTEX_LOCK_FAILED_MSG,
-            PEGASUS_SYSTEM_ERRORMSG_NLS));
+        default:
+            throw WaitFailed(Threads::self());
     }
 }
 
@@ -122,6 +109,8 @@ Boolean Mutex::try_lock()
     PEGASUS_DEBUG_ASSERT(_magic);
 
     int r = pthread_mutex_trylock(&_rep.mutex);
+    if (r == -1)
+        r=errno;
 
     if (r == 0)
     {
@@ -131,25 +120,18 @@ Boolean Mutex::try_lock()
         return true;
     }
 
-    if (r != -1)
-    {
-        // Special behavior for Single UNIX Specification, Version 3
-        errno = r;
-    }
-
-    if (errno == EBUSY)
+    if (r == EBUSY)
     {
         return false;
     }
 
-    throw Exception(MessageLoaderParms(
-        MUTEX_LOCK_FAILED_KEY,
-        MUTEX_LOCK_FAILED_MSG,
-        PEGASUS_SYSTEM_ERRORMSG_NLS));
+    throw WaitFailed(Threads::self());
 }
 
 Boolean Mutex::timed_lock(Uint32 milliseconds)
 {
+    PEGASUS_DEBUG_ASSERT(_magic);
+
     struct timeval now;
     struct timeval finish;
     struct timeval remaining;
@@ -163,18 +145,36 @@ Boolean Mutex::timed_lock(Uint32 milliseconds)
         finish.tv_usec = usec % 1000000;
     }
 
-    while (!try_lock())
+    for (;;)
     {
-        gettimeofday(&now, NULL);
+        int r=pthread_mutex_trylock(&_rep.mutex);
+        if (r == -1)
+            r = errno;
 
-        if (Time::subtract(&remaining, &finish, &now))
+        if (r == 0)
         {
-            return false;
+            break;
         }
+        else if (r == EBUSY)
+        {
+            gettimeofday(&now, NULL);
 
-        Threads::yield();
+            if (Time::subtract(&remaining, &finish, &now))
+            {
+                return false;
+            }
+
+            Threads::yield();
+        }
+        else
+        {
+            throw WaitFailed(Threads::self());
+        }
     }
 
+#if defined(PEGASUS_DEBUG)
+    _rep.count++;
+#endif
     return true;
 }
 
@@ -187,11 +187,12 @@ void Mutex::unlock()
     _rep.count--;
 #endif
 
-    // All documented error codes represent coding errors.
-    PEGASUS_FCT_EXECUTE_AND_ASSERT(0, pthread_mutex_unlock(&_rep.mutex));
+    if (pthread_mutex_unlock(&_rep.mutex) != 0)
+        throw Permission(Threads::self());
 }
 
-#if defined(PEGASUS_OS_LINUX)
+#if defined(PEGASUS_OS_LINUX) || \
+    (defined(PEGASUS_OS_ZOS) && !(__TARGET_LIB__ < 0x41090000))
 void Mutex::reinitialize()
 {
     pthread_mutex_init(&_rep.mutex, &_attr);
@@ -214,13 +215,6 @@ void Mutex::reinitialize()
 static inline void _initialize(MutexRep& rep)
 {
     rep.handle = CreateMutex(NULL, FALSE, NULL);
-    if (rep.handle == NULL)
-    {
-        throw Exception(MessageLoaderParms(
-            "Common.InternalException.CREATE_MUTEX_FAILED",
-            "CreateMutex failed : $0",
-            PEGASUS_SYSTEM_ERRORMSG_NLS));
-    }
     rep.count = 0;
 }
 
@@ -254,12 +248,7 @@ void Mutex::lock()
     DWORD rc = WaitForSingleObject(_rep.handle, INFINITE);
 
     if (rc == WAIT_FAILED)
-    {
-        throw Exception(MessageLoaderParms(
-            MUTEX_LOCK_FAILED_KEY,
-            MUTEX_LOCK_FAILED_MSG,
-            PEGASUS_SYSTEM_ERRORMSG_NLS));
-    }
+        throw WaitFailed(Threads::self());
 
     _rep.count++;
 }
@@ -277,10 +266,7 @@ Boolean Mutex::try_lock()
 
     if (rc == WAIT_FAILED)
     {
-        throw Exception(MessageLoaderParms(
-            MUTEX_LOCK_FAILED_KEY,
-            MUTEX_LOCK_FAILED_MSG,
-            PEGASUS_SYSTEM_ERRORMSG_NLS));
+        throw WaitFailed(Threads::self());
     }
 
     _rep.count++;
@@ -297,12 +283,7 @@ Boolean Mutex::timed_lock(Uint32 milliseconds)
         return false;
 
     if (rc == WAIT_FAILED)
-    {
-        throw Exception(MessageLoaderParms(
-            MUTEX_LOCK_FAILED_KEY,
-            MUTEX_LOCK_FAILED_MSG,
-            PEGASUS_SYSTEM_ERRORMSG_NLS));
-    }
+        throw WaitFailed(Threads::self());
 
     _rep.count++;
     return true;

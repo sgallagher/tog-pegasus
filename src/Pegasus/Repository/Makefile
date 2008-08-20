@@ -1,42 +1,38 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
+#//%2006////////////////////////////////////////////////////////////////////////
 #//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
 #//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
+#// 
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
-#//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
+#//==============================================================================
 ROOT = ../../..
 
 DIR = Pegasus/Repository
 
 include $(ROOT)/mak/config.mak
-
-ifeq ($(PEGASUS_USE_SQLITE_REPOSITORY),true)
-    ifdef SQLITE_HOME
-        SYS_INCLUDES += -I$(SQLITE_HOME)/include
-    endif
-endif
 
 EXTRA_INCLUDES = -I..
 
@@ -46,17 +42,6 @@ LIBRARIES = pegcommon pegquerycommon pegconfig
 
 ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
 EXTRA_LIBRARIES += -lCstd
-endif
-
-ifeq ($(PEGASUS_USE_SQLITE_REPOSITORY),true)
-    ifeq ($(OS_TYPE),windows)
-        SYS_LIBS += /libpath:$(SQLITE_HOME)/lib libsqlite3.lib
-    else
-        ifdef SQLITE_HOME
-            EXTRA_LIBRARIES += -L$(SQLITE_HOME)/lib
-        endif
-        EXTRA_LIBRARIES += -lsqlite3
-    endif
 endif
 
 ##
@@ -114,11 +99,7 @@ SOURCES = \
     ObjectCache.cpp \
     InheritanceTree.cpp \
     RepositoryDeclContext.cpp \
-    RepositoryQueryContext.cpp \
-    AutoStreamer.cpp \
-    BinaryStreamer.cpp \
-    Packer.cpp \
-    XmlStreamer.cpp  
+    RepositoryQueryContext.cpp
 
 ifdef PEGASUS_ENABLE_MRR
     SOURCES += MRRSerialization.cpp
@@ -130,12 +111,8 @@ else
     SOURCES += AssocInstTable.cpp
     SOURCES += InstanceIndexFile.cpp
     SOURCES += InstanceDataFile.cpp
-    SOURCES += PersistentStore.cpp
     SOURCES += FileBasedStore.cpp
     SOURCES += CIMRepository.cpp
-    ifeq ($(PEGASUS_USE_SQLITE_REPOSITORY),true)
-        SOURCES += SQLiteStore.cpp
-    endif
 endif
 
 include $(ROOT)/mak/library.mak

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,8 +35,6 @@
 #include "Time.h"
 #include "PegasusAssert.h"
 #include "Threads.h"
-#include "Exception.h"
-#include "System.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -46,9 +46,10 @@ PEGASUS_NAMESPACE_BEGIN
 
 #ifdef PEGASUS_USE_POSIX_RWLOCK
 
-ReadWriteSem::ReadWriteSem()
+ReadWriteSem::ReadWriteSem():_readers(0), _writers(0)
 {
     pthread_rwlock_init(&_rwlock.rwlock, NULL);
+    Threads::clear(_rwlock.owner);
 }
 
 ReadWriteSem::~ReadWriteSem()
@@ -61,54 +62,57 @@ ReadWriteSem::~ReadWriteSem()
     }
 }
 
-void ReadWriteSem::waitRead()
+void ReadWriteSem::_wait(Boolean writeLock, ThreadType caller)
 {
-    int r = pthread_rwlock_rdlock(&_rwlock.rwlock);
-
-    if (r != 0)
+    if (writeLock)
     {
-        if (r != -1)
+        if (0 == pthread_rwlock_wrlock(&_rwlock.rwlock))
         {
-            // Special behavior for Single UNIX Specification, Version 3
-            errno = r;
+            _rwlock.owner = caller;
+            _writers++;
+            return;
         }
-
-        throw Exception(MessageLoaderParms(
-            "Common.InternalException.READ_LOCK_FAILED",
-            "Failed to acquire read lock: $0",
-            PEGASUS_SYSTEM_ERRORMSG_NLS));
     }
-}
-
-void ReadWriteSem::waitWrite()
-{
-    int r = pthread_rwlock_wrlock(&_rwlock.rwlock);
-
-    if (r != 0)
+    else
     {
-        if (r != -1)
+        if (0 == pthread_rwlock_rdlock(&_rwlock.rwlock))
         {
-            // Special behavior for Single UNIX Specification, Version 3
-            errno = r;
+            _readers++;
+            return;
         }
-
-        throw Exception(MessageLoaderParms(
-            "Common.InternalException.WRITE_LOCK_FAILED",
-            "Failed to acquire write lock: $0",
-            PEGASUS_SYSTEM_ERRORMSG_NLS));
     }
+
+    throw WaitFailed(Threads::self());
 }
 
-void ReadWriteSem::unlockRead()
+void ReadWriteSem::_unlock(Boolean writeLock, ThreadType caller)
 {
-    // All documented error codes represent coding errors.
-    PEGASUS_FCT_EXECUTE_AND_ASSERT(0, pthread_rwlock_unlock(&_rwlock.rwlock));
+    ThreadType owner;
+
+    if (writeLock)
+    {
+        owner = _rwlock.owner;
+        Threads::clear(_rwlock.owner);
+    }
+    if (0 != pthread_rwlock_unlock(&_rwlock.rwlock))
+    {
+        _rwlock.owner = owner;
+        throw(Permission(Threads::self()));
+    }
+    if (!writeLock && _readers.get() != 0)
+        _readers--;
+    else if (_writers.get() != 0)
+        _writers--;
 }
 
-void ReadWriteSem::unlockWrite()
+int ReadWriteSem::read_count() const
 {
-    // All documented error codes represent coding errors.
-    PEGASUS_FCT_EXECUTE_AND_ASSERT(0, pthread_rwlock_unlock(&_rwlock.rwlock));
+    return _readers.get();
+}
+
+int ReadWriteSem::write_count() const
+{
+    return _writers.get();
 }
 
 #endif /* PEGASUS_USE_POSIX_RWLOCK */
@@ -126,7 +130,7 @@ void ReadWriteSem::unlockWrite()
 // 2) I do not hold the write lock
 // 3) I am not using a reader slot
 
-ReadWriteSem::ReadWriteSem() : _rwlock()
+ReadWriteSem::ReadWriteSem():_readers(0), _writers(0), _rwlock()
 {
 }
 
@@ -137,65 +141,108 @@ ReadWriteSem::~ReadWriteSem()
     {
         _rwlock._internal_lock.lock();
     }
-    catch (...)
+    catch (IPCException &)
     {
         PEGASUS_ASSERT(0);
     }
-    while (_rwlock._readers.get() > 0 || _rwlock._writers.get() > 0)
+    while (_readers.get() > 0 || _writers.get() > 0)
     {
         Threads::yield();
     }
     _rwlock._internal_lock.unlock();
 }
 
-void ReadWriteSem::waitRead()
+//---------------------------------------------------------------------
+void ReadWriteSem::_wait(Boolean writeLock, ThreadType caller)
 {
-    // Lock the internal mutex to ensure only one waiter is processed at a time.
-    AutoMutex lock(_rwlock._internal_lock);
+//-----------------------------------------------------------------
+// Lock this object to maintain integrity while we decide
+// exactly what to do next.
+//-----------------------------------------------------------------
+    _rwlock._internal_lock.lock();
 
-    // Wait for the existing writer (if any) to clear.
-    while (_rwlock._writers.get() > 0)
+    if (writeLock)
     {
-        Threads::yield();
+//-----------------------------------------------------------------
+// Write Lock Step 1: lock the object and allow all the readers to exit
+//-----------------------------------------------------------------
+        while (_readers.get() > 0)
+            Threads::yield();
+//-----------------------------------------------------------------
+// Write Lock Step 2: Obtain the Write Mutex
+//  Although there are no readers, there may be a writer
+//-----------------------------------------------------------------
+        try
+        {
+            _rwlock._wlock.lock();
+        }
+        catch (const IPCException&)
+        {
+            _rwlock._internal_lock.unlock();
+            throw;
+        }
+//-----------------------------------------------------------------
+// Write Lock Step 3: set the writer count to one, unlock the object
+//   There are no readers and we are the only writer !
+//-----------------------------------------------------------------
+        _writers = 1;
+        // set the owner
+        _rwlock._owner = Threads::self();
+        // unlock the object
+        _rwlock._internal_lock.unlock();
     }
-
-    // Wait for a reader slot to open up.
-    _rwlock._rlock.wait();
-
-    // Increment the number of readers.
-    _rwlock._readers++;
-}
-
-void ReadWriteSem::waitWrite()
-{
-    // Lock the internal mutex to ensure only one waiter is processed at a time.
-    AutoMutex lock(_rwlock._internal_lock);
-
-    // Allow all the readers to exit.
-    while (_rwlock._readers.get() > 0)
+    else
     {
-        Threads::yield();
+//-----------------------------------------------------------------
+// Read Lock Step 1: Wait for the existing writer (if any) to clear
+//-----------------------------------------------------------------
+        while (_writers.get() > 0)
+            Threads::yield();
+//-----------------------------------------------------------------
+// Read Lock Step 2: wait for a reader slot to open up, then return
+//  At this point there are no writers, but there may be too many
+//  readers.
+//-----------------------------------------------------------------
+        try
+        {
+            _rwlock._rlock.wait();
+        }
+        catch (const IPCException&)
+        {
+            _rwlock._internal_lock.unlock();
+            throw;
+        }
+//-----------------------------------------------------------------
+// Read Lock Step 3: increment the number of readers, unlock the object,
+// return
+//-----------------------------------------------------------------
+        _readers++;
+        _rwlock._internal_lock.unlock();
     }
-
-    // Obtain the write mutex.
-    _rwlock._wlock.lock();
-
-    // Set the writer count to one.
-    _rwlock._writers = 1;
 }
 
-void ReadWriteSem::unlockRead()
+void ReadWriteSem::_unlock(Boolean writeLock, ThreadType caller)
 {
-    PEGASUS_ASSERT(_rwlock._readers.get() > 0);
-    _rwlock._readers--;
-    _rwlock._rlock.signal();
+    if (writeLock && _writers.get() != 0)
+    {
+        _writers = 0;
+        _rwlock._wlock.unlock();
+    }
+    else if (_readers.get() != 0)
+    {
+        _readers--;
+        _rwlock._rlock.signal();
+    }
 }
 
-void ReadWriteSem::unlockWrite()
+int ReadWriteSem::read_count() const
 {
-    PEGASUS_ASSERT(_rwlock._writers.get() == 1);
-    _rwlock._writers = 0;
-    _rwlock._wlock.unlock();
+    return _readers.get();
+}
+
+int ReadWriteSem::write_count() const
+{
+    return _writers.get();
 }
 
 #endif /* !PEGASUS_USE_SEMAPHORE_RWLOCK */

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -175,9 +177,15 @@ public:
 
     static void exit(ThreadReturnType rc);
 
+    static void cancel(ThreadType th, ThreadReturnType rc);
+
     static void yield();
 
     static void sleep(int msec);
+
+    static void cleanup_push(void (*start)(void*), void* arg);
+
+    static void cleanup_pop(int execute);
 
     static ThreadId id(const ThreadType& x = Threads::self());
 
@@ -207,6 +215,11 @@ inline void Threads::exit(ThreadReturnType rc)
     pthread_exit(rc);
 }
 
+inline void Threads::cancel(ThreadType th, ThreadReturnType rc)
+{
+    pthread_cancel(th.thread);
+}
+
 inline void Threads::yield()
 {
 #ifdef PEGASUS_OS_LINUX
@@ -216,11 +229,26 @@ inline void Threads::yield()
 #endif
 }
 
+inline void Threads::cleanup_push(void (*func)(void*), void* arg)
+{
+    // ATTN: it is doubtful whether cleanup handlers ever really worked.
+    //       They are only used in two places and not used in many other
+    //       places where mutexes are obtained. Further, they are only
+    //       implemented correctly on one or two platforms. For now, we
+    //       will defer their implementation until we can find a way to
+    //       implement them on all platforms (using thread local storage).
+}
+
+inline void Threads::cleanup_pop(int execute)
+{
+    // ATTN: not implemented.
+}
+
 inline ThreadId Threads::id(const ThreadType& x)
 {
     ThreadId tid = { { 0 } };
 
-#if defined(PEGASUS_OS_ZOS)
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     const char* s = x.thread.__;
     sprintf(tid.buffer, "%X%X%X%X%X%X%X%X",
         s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7]);
@@ -234,7 +262,7 @@ inline ThreadId Threads::id(const ThreadType& x)
 
 inline bool Threads::null(const ThreadType& x)
 {
-#if defined(PEGASUS_OS_ZOS)
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     Uint64 tmp;
     memcpy(&tmp, x.thread.__, sizeof(Uint64));
     return tmp == 0;
@@ -275,9 +303,24 @@ inline void Threads::exit(ThreadReturnType rc)
     _endthreadex(rc);
 }
 
+inline void Threads::cancel(ThreadType th, ThreadReturnType rc)
+{
+    TerminateThread(th.handle, rc);
+}
+
 inline void Threads::yield()
 {
     Sleep(0);
+}
+
+inline void Threads::cleanup_push(void (*func)(void*), void* arg)
+{
+    // ATTN: Not implemented on Windows.
+}
+
+inline void Threads::cleanup_pop(int execute)
+{
+    // ATTN: Not implemented on Windows.
 }
 
 inline ThreadId Threads::id(const ThreadType& x)

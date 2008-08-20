@@ -1,37 +1,39 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/CIMNameCast.h>
+#include <Pegasus/Common/CIMNameUnchecked.h>
 #include "InheritanceTree.h"
 
 #if 0
@@ -271,7 +273,7 @@ void InheritanceTree::insert(
         !parentTree._rep->table.lookup(superClassName, superClassNode))
     {
         superClassNode =
-            new InheritanceTreeNode(CIMNameCast(superClassName));
+            new InheritanceTreeNode(CIMNameUnchecked(superClassName));
         parentTree._rep->table.insert(superClassName, superClassNode);
     }
 
@@ -279,7 +281,7 @@ void InheritanceTree::insert(
 
     if (!parentTree._rep->table.lookup(className, extNode))
     {
-        extNode = new InheritanceTreeNode(CIMNameCast(className));
+        extNode = new InheritanceTreeNode(CIMNameUnchecked(className));
         parentTree._rep->table.insert(className, extNode);
         extNode->extension=true;
         extNode->extNodes=new Array<InheritanceTreeExt*>;
@@ -317,7 +319,7 @@ void InheritanceTree::insert(
         !_rep->table.lookup(superClassName, superClassNode))
     {
         superClassNode =
-            new InheritanceTreeNode(CIMNameCast(superClassName));
+            new InheritanceTreeNode(CIMNameUnchecked(superClassName));
         _rep->table.insert(superClassName, superClassNode);
     }
 
@@ -327,7 +329,7 @@ void InheritanceTree::insert(
 
     if (!_rep->table.lookup(className, classNode))
     {
-        classNode = new InheritanceTreeNode(CIMNameCast(className));
+        classNode = new InheritanceTreeNode(CIMNameUnchecked(className));
         _rep->table.insert(className, classNode);
     }
 
@@ -374,12 +376,12 @@ Boolean InheritanceTree::getSubClassNames(
                         InheritanceTreeNode* itxn=itx->node;
                         if (deepInheritance)
                         {
-                            subClassNames.append(CIMNameCast(i.key()));
+                            subClassNames.append(CIMNameUnchecked(i.key()));
                             itxn->getSubClassNames(
                                 subClassNames, deepInheritance, ns);
                         }
                         else if (!i.value()->superClass)
-                            subClassNames.append(CIMNameCast(i.key()));
+                            subClassNames.append(CIMNameUnchecked(i.key()));
                         break;
                     }
                 }
@@ -387,12 +389,12 @@ Boolean InheritanceTree::getSubClassNames(
             else if (deepInheritance)
             {
                 // Append all classes:
-                subClassNames.append(CIMNameCast(i.key()));
+                subClassNames.append(CIMNameUnchecked(i.key()));
             }
             else if (!i.value()->superClass)
             {
                 // Just append root classes:
-                subClassNames.append(CIMNameCast(i.key()));
+                subClassNames.append(CIMNameUnchecked(i.key()));
             }
         }
         return true;
@@ -403,7 +405,7 @@ Boolean InheritanceTree::getSubClassNames(
 
     for (InheritanceTreeRep::Table::Iterator i = _rep->table.start(); i; i++)
     {
-        if (className.equal (CIMNameCast(i.key())))
+        if (className.equal (CIMNameUnchecked(i.key())))
         {
             i.value()->getSubClassNames(subClassNames, deepInheritance, ns);
             return true;
@@ -531,21 +533,21 @@ void InheritanceTree::remove(
         }
         else
         {
-            PEGASUS_FCT_EXECUTE_AND_ASSERT(
-                true,
-                superClass->removeSubClass(node));
+            Boolean result = superClass->removeSubClass(node);
+            PEGASUS_ASSERT(result);
         }
     }
     else if (superClass)
     {
-        PEGASUS_FCT_EXECUTE_AND_ASSERT(true,superClass->removeSubClass(node));
+        Boolean result = superClass->removeSubClass(node);
+        PEGASUS_ASSERT(result);
     }
 
-    // -- Remove from the hash table and delete:
-    PEGASUS_FCT_EXECUTE_AND_ASSERT(
-        true,
-        _rep->table.remove(className.getString()));
 
+    // -- Remove from the hash table and delete:
+
+    Boolean result = _rep->table.remove(className.getString());
+    PEGASUS_ASSERT(result);
     delete node;
 }
 

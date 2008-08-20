@@ -402,7 +402,7 @@ void Semaphore::wait()
     }
 }
 
-void Semaphore::time_wait(Uint32 milliseconds)
+Boolean Semaphore::time_wait(Uint32 milliseconds)
 {
     DWORD errorcode = WaitForSingleObject(_rep.sem, milliseconds);
 

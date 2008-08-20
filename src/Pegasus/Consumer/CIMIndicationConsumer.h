@@ -56,14 +56,19 @@ public:
     virtual ~CIMIndicationConsumer() { };
 
     /**
+        Delivers an indication for consumption.
         @param context contains security and locale information relevant for
-        the lifetime of this operation.
-        @param url
-        @param indicationInstance
+            the lifetime of this operation.
+        @param destinationPath A String containing the path suffix from the
+            destination URI.  The path in the destination URI is expected to
+            begin with "/CIMListener".  This parameter value contains the
+            remainder of the path.
+        @param indicationInstance A CIMInstance containing the indication
+            being delivered.
     */
     virtual void consumeIndication(
         const OperationContext& context,
-        const String& url,
+        const String& destinationPath,
         const CIMInstance& indicationInstance) = 0;
 };
 

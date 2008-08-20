@@ -1842,18 +1842,15 @@ void FileBasedStore::getClassAssociatorNames(
 
     String assocFileName = _getAssocClassPath(nameSpace);
 
-    for (int i = 0, m = assocFileName.size(); i < m; i++)
-    {
-        // ATTN: Return value is ignored
-        AssocClassTable::getAssociatorNames(
-            assocFileName,
-            classList,
-            assocClassList,
-            resultClassList,
-            role,
-            resultRole,
-            associatorNames);
-    }
+    // ATTN: Return value is ignored
+    AssocClassTable::getAssociatorNames(
+        assocFileName,
+        classList,
+        assocClassList,
+        resultClassList,
+        role,
+        resultRole,
+        associatorNames);
 
     PEG_METHOD_EXIT();
 }
@@ -1869,19 +1866,13 @@ void FileBasedStore::getClassReferenceNames(
 
     String assocFileName = _getAssocClassPath(nameSpace);
 
-    Boolean refs = false;
-    for (int i = 0, m = assocFileName.size(); !refs && i < m; i++)
-    {
-        if (AssocClassTable::getReferenceNames(
-            assocFileName,
-            classList,
-            resultClassList,
-            role,
-            referenceNames))
-        {
-            refs = true;
-        }
-    }
+    // ATTN: Return value is ignored
+    AssocClassTable::getReferenceNames(
+         assocFileName,
+         classList,
+         resultClassList,
+         role,
+         referenceNames);
 
     PEG_METHOD_EXIT();
 }

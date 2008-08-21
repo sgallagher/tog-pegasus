@@ -69,7 +69,7 @@ AtomicInt errorsEncountered(0);
 class T_Parms
 {
 public:
-    AutoPtr<CIMClient> client;
+    CIMClient* client;
     Uint32 indicationSendCount;
     Uint32 uniqueID;
 };
@@ -552,8 +552,8 @@ static void _testEnd(const String& uniqueID, const double elapsedTime)
 ThreadReturnType PEGASUS_THREAD_CDECL _executeTests(void *parm)
 {
     Thread *my_thread = (Thread *)parm;
-    T_Parms *parms = (T_Parms *)my_thread->get_parm();
-    CIMClient *client = parms->client.get();
+    AutoPtr<T_Parms> parms((T_Parms *)my_thread->get_parm());
+    CIMClient* client = parms->client;
     Uint32 indicationSendCount = parms->indicationSendCount;
     Uint32 id = parms->uniqueID;
     char id_[4];
@@ -596,7 +596,7 @@ Thread * _runTestThreads(
 {
     // package parameters, create thread and run...
     AutoPtr<T_Parms> parms(new T_Parms());
-    parms->client.reset(client);
+    parms->client = client;
     parms->indicationSendCount = indicationSendCount;
     parms->uniqueID = uniqueID;
     AutoPtr<Thread> t(new Thread(_executeTests, (void*)parms.release(), false));
@@ -808,6 +808,7 @@ void _receiveExpectedTraps(
     for(Uint32 i=0; i< runClientThreadCount; i++)
     {
         clientThreads[i]->join();
+        delete clientThreads[i];
     }
 
     delete[] clientConnections;

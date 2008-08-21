@@ -187,8 +187,9 @@ void Mutex::unlock()
     _rep.count--;
 #endif
 
-    if (pthread_mutex_unlock(&_rep.mutex) != 0)
-        throw Permission(Threads::self());
+    int rc = pthread_mutex_unlock(&_rep.mutex);
+    // All documented error codes represent coding errors.
+    PEGASUS_ASSERT(rc == 0);
 }
 
 #if defined(PEGASUS_OS_LINUX) || \

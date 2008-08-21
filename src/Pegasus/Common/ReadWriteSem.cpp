@@ -87,22 +87,21 @@ void ReadWriteSem::_wait(Boolean writeLock, ThreadType caller)
 
 void ReadWriteSem::_unlock(Boolean writeLock, ThreadType caller)
 {
-    ThreadType owner;
-
     if (writeLock)
     {
-        owner = _rwlock.owner;
         Threads::clear(_rwlock.owner);
+        PEGASUS_ASSERT(_writers.get() == 1);
+        _writers = 0;
     }
-    if (0 != pthread_rwlock_unlock(&_rwlock.rwlock))
+    else
     {
-        _rwlock.owner = owner;
-        throw(Permission(Threads::self()));
-    }
-    if (!writeLock && _readers.get() != 0)
+        PEGASUS_ASSERT(_readers.get() > 0);
         _readers--;
-    else if (_writers.get() != 0)
-        _writers--;
+    }
+
+    int rc = pthread_rwlock_unlock(&_rwlock.rwlock);
+    // All documented error codes represent coding errors.
+    PEGASUS_ASSERT(rc == 0);
 }
 
 int ReadWriteSem::read_count() const
@@ -223,13 +222,15 @@ void ReadWriteSem::_wait(Boolean writeLock, ThreadType caller)
 
 void ReadWriteSem::_unlock(Boolean writeLock, ThreadType caller)
 {
-    if (writeLock && _writers.get() != 0)
+    if (writeLock)
     {
+        PEGASUS_ASSERT(_writers.get() == 1);
         _writers = 0;
         _rwlock._wlock.unlock();
     }
-    else if (_readers.get() != 0)
+    else
     {
+        PEGASUS_ASSERT(_readers.get() > 0);
         _readers--;
         _rwlock._rlock.signal();
     }

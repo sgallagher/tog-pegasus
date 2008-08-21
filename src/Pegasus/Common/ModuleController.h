@@ -115,22 +115,20 @@ public:
         void (*async_callback)(Uint32, Message *, void *),
         RegisteredModuleHandle** instance = 0);
 
-    // @exception Permission
+    // @exception IPCException
     Boolean deregister_module(const String& module_name);
 
-    // @exception Permission
+    // @exception IPCException
     Uint32 find_service(
         const RegisteredModuleHandle& handle,
         const String& name);
 
-    // @exception Permission
     // @exception IPCException
     Uint32 find_module_in_service(
         const RegisteredModuleHandle& handle,
         const String& module_name);
 
     // send a message to another service
-    // @exception Permission
     // @exception IPCException
     AsyncReply* ModuleSendWait(
         const RegisteredModuleHandle& handle,
@@ -138,7 +136,6 @@ public:
         AsyncRequest* request);
 
     // send a message to another module via another service
-    // @exception Permission
     // @exception IPCException
     AsyncReply* ModuleSendWait(
         const RegisteredModuleHandle& handle,
@@ -147,7 +144,6 @@ public:
         AsyncRequest* message);
 
     // send an async message to another service
-    // @exception Permission
     // @exception IPCException
     Boolean ModuleSendAsync(
         const RegisteredModuleHandle& handle,
@@ -157,7 +153,6 @@ public:
         void* callback_parm);
 
     // send an async message to another module via another service
-    // @exception Permission
     // @exception IPCException
     Boolean ModuleSendAsync(
         const RegisteredModuleHandle& handle,
@@ -167,14 +162,12 @@ public:
         AsyncRequest* message,
         void* callback_parm);
 
-    // @exception Permission
     // @exception IPCException
     Boolean ModuleSendForget(
         const RegisteredModuleHandle& handle,
         Uint32 destination_q,
         AsyncRequest* message);
 
-    // @exception Permission
     // @exception IPCException
     Boolean ModuleSendForget(
         const RegisteredModuleHandle & handle,
@@ -182,19 +175,18 @@ public:
         const String & destination_module,
         AsyncRequest* message);
 
-    Boolean verify_handle(RegisteredModuleHandle *);
+    // @exception IPCException if the handle is not valid.
+    void verify_handle(RegisteredModuleHandle *);
 
     static ModuleController* getModuleController();
 
     // send a message to another service
-    // @exception Permission
     // @exception IPCException
     AsyncReply* ClientSendWait(
         Uint32 destination_q,
         AsyncRequest* request);
 
     // send a message to another module via another service
-    // @exception Permission
     // @exception IPCException
     AsyncReply* ClientSendWait(
         Uint32 destination_q,
@@ -202,7 +194,6 @@ public:
         AsyncRequest* message);
 
     // send an async message to another service
-    // @exception Permission
     // @exception IPCException
     Boolean ClientSendAsync(
         Uint32 msg_handle,
@@ -212,7 +203,6 @@ public:
         void* callback_parm);
 
     // send an async message to another module via another service
-    // @exception Permission
     // @exception IPCException
     Boolean ClientSendAsync(
         Uint32 msg_handle,
@@ -222,13 +212,11 @@ public:
         void (*async_callback)(Uint32, Message *, void *),
         void* callback_parm);
 
-    // @exception Permission
     // @exception IPCException
     Boolean ClientSendForget(
         Uint32 destination_q,
         AsyncRequest* message);
 
-    // @exception Permission
     // @exception IPCException
     Boolean ClientSendForget(
         Uint32 destination_q,

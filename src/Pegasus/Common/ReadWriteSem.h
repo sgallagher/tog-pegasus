@@ -115,14 +115,12 @@ public:
 
     ~ReadWriteSem();
 
-    // @exception Permission
     // @exception WaitFailed
     inline void wait_read(ThreadType caller)
     {
         _wait(false, caller);
     }
 
-    // @exception Permission
     // @exception WaitFailed
     inline void wait_write(ThreadType caller)
     {
@@ -145,7 +143,6 @@ public:
     int write_count() const;
 
 private:
-    // @exception Permission
     // @exception WaitFailed
     void _wait(Boolean writeLock, ThreadType caller);
 

@@ -50,7 +50,6 @@
 #include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/LanguageParser.h>
-#include <Pegasus/Common/IPCExceptions.h>
 #include <Pegasus/Common/HostLocator.h>
 
 PEGASUS_USING_PEGASUS;

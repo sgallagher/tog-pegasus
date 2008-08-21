@@ -321,12 +321,7 @@ void MessageQueueService::_shutdown_incoming_queue()
         // processed.
         delete msg;
     }
-    catch (const Permission&)
-    {
-        delete msg;
-    }
 }
-
 
 
 void MessageQueueService::enqueue(Message* msg)

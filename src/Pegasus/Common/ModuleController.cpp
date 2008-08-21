@@ -230,12 +230,12 @@ Boolean ModuleController::deregister_module(const String& module_name)
     return false;
 }
 
-Boolean ModuleController::verify_handle(RegisteredModuleHandle* handle)
+void ModuleController::verify_handle(RegisteredModuleHandle* handle)
 {
     RegisteredModuleHandle *module;
 
     if (handle->_module_address == (void *)this)
-        return true;
+        return;
 
     _module_lock lock(&_modules);
 
@@ -244,11 +244,12 @@ Boolean ModuleController::verify_handle(RegisteredModuleHandle* handle)
     {
         if ( module == handle)
         {
-            return true;
+            return;
         }
         module = _modules.next_of(module);
     }
-    return false;
+
+    throw IPCException(Threads::self());
 }
 
 // given a name, find a service's queue id
@@ -256,8 +257,7 @@ Uint32 ModuleController::find_service(
     const RegisteredModuleHandle& handle,
     const String& name)
 {
-    if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
-        throw Permission(Threads::self());
+    verify_handle(const_cast<RegisteredModuleHandle *>(&handle));
     Array<Uint32> services;
     Base::find_services(name, 0, 0, &services);
     return services[0];
@@ -271,8 +271,7 @@ Uint32 ModuleController::find_module_in_service(
     const RegisteredModuleHandle& handle,
     const String& name)
 {
-    if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
-        throw(Permission(Threads::self()));
+    verify_handle(const_cast<RegisteredModuleHandle *>(&handle));
 
     Uint32 result = 0;
 
@@ -307,8 +306,7 @@ AsyncReply* ModuleController::ModuleSendWait(
     Uint32 destination_q,
     AsyncRequest* request)
 {
-    if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
-        throw(Permission(Threads::self()));
+    verify_handle(const_cast<RegisteredModuleHandle *>(&handle));
 
     return _send_wait(destination_q, request);
 }
@@ -351,8 +349,7 @@ AsyncReply* ModuleController::ModuleSendWait(
     const String& destination_module,
     AsyncRequest* message)
 {
-    if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
-        throw(Permission(Threads::self()));
+    verify_handle(const_cast<RegisteredModuleHandle *>(&handle));
 
     return _send_wait(destination_q, destination_module, message);
 }
@@ -411,8 +408,7 @@ Boolean ModuleController::ModuleSendAsync(
     AsyncRequest* message,
     void* callback_parm)
 {
-    if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
-        throw(Permission(Threads::self()));
+    verify_handle(const_cast<RegisteredModuleHandle *>(&handle));
 
     if (message->op == NULL)
     {
@@ -445,8 +441,7 @@ Boolean ModuleController::ModuleSendAsync(
     AsyncRequest* message,
     void* callback_parm)
 {
-    if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
-        throw(Permission(Threads::self()));
+    verify_handle(const_cast<RegisteredModuleHandle *>(&handle));
 
     AsyncOpNode *op = get_op();
     AsyncModuleOperationStart *request = new AsyncModuleOperationStart(
@@ -500,8 +495,7 @@ Boolean ModuleController::ModuleSendForget(
     Uint32 destination_q,
     AsyncRequest* message)
 {
-    if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
-        throw(Permission(Threads::self()));
+    verify_handle(const_cast<RegisteredModuleHandle *>(&handle));
 
     return _send_forget(destination_q, message);
 }
@@ -512,8 +506,7 @@ Boolean ModuleController::ModuleSendForget(
     const String& destination_module,
     AsyncRequest* message)
 {
-    if (false == verify_handle(const_cast<RegisteredModuleHandle *>(&handle)))
-        throw(Permission(Threads::self()));
+    verify_handle(const_cast<RegisteredModuleHandle *>(&handle));
     return _send_forget(destination_q, destination_module, message);
 }
 

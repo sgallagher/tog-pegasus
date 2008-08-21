@@ -48,14 +48,6 @@ private:
     ThreadType _owner;
 };
 
-class PEGASUS_COMMON_LINKAGE Permission: public IPCException
-{
-public:
-    Permission(ThreadType owner) : IPCException(owner) {}
-private:
-    Permission();
-};
-
 class PEGASUS_COMMON_LINKAGE WaitFailed: public IPCException
 {
 public:

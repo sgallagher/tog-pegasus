@@ -156,14 +156,7 @@ test_module::~test_module()
 {
    if(_controller)
    {
-      try 
-      {
-     _controller->deregister_module(_name);
-      }
-      catch(Permission &)
-      {
-     ;
-      }
+       _controller->deregister_module(_name);
    }
 }
 

@@ -76,16 +76,6 @@ public:
     {
     }
 
-    void _createAssocInstEntries(
-        const CIMNamespaceName& nameSpace,
-        const CIMConstClass& cimClass,
-        const CIMInstance& cimInstance,
-        const CIMObjectPath& instanceName);
-
-    void _createAssocClassEntries(
-        const CIMNamespaceName& nameSpace,
-        const CIMConstClass& assocClass);
-
     /**
         Checks whether an instance with the specified key values exists in the
         class hierarchy of the specified class.
@@ -424,6 +414,179 @@ static void _filterInstance(
     {
         _removeClassOrigins(cimInstance);
     }
+}
+
+static Array<ClassAssociation> _buildClassAssociationEntries(
+    const CIMConstClass& assocClass)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "_buildClassAssociationEntries");
+
+    Array<ClassAssociation> classAssocEntries;
+
+    // Get the association's class name:
+
+    CIMName assocClassName = assocClass.getClassName();
+
+    // For each property:
+
+    Uint32 n = assocClass.getPropertyCount();
+
+    for (Uint32 i = 0; i < n; i++)
+    {
+        CIMConstProperty fromProp = assocClass.getProperty(i);
+
+        if (fromProp.getType() == CIMTYPE_REFERENCE)
+        {
+            for (Uint32 j = 0; j < n; j++)
+            {
+                CIMConstProperty toProp = assocClass.getProperty(j);
+
+                if (toProp.getType() == CIMTYPE_REFERENCE &&
+                    (!fromProp.getName().equal(toProp.getName())))
+                {
+                    classAssocEntries.append(ClassAssociation(
+                        assocClassName,
+                        fromProp.getReferenceClassName(),
+                        fromProp.getName(),
+                        toProp.getReferenceClassName(),
+                        toProp.getName()));
+                }
+            }
+        }
+    }
+
+    PEG_METHOD_EXIT();
+    return classAssocEntries;
+}
+
+/*
+    This routine does the following:
+
+        1.  Creates two entries in the association file for each relationship
+            formed by this new association instance. A binary association
+            (one with two references) ties two instances together. Suppose
+            there are two instances: I1 and I2. Then two entries are created:
+
+                I2 -> I1
+                I1 -> I2
+
+            For a ternary relationship, six entries will be created. Suppose
+            there are three instances: I1, I2, and I3:
+
+                I1 -> I2
+                I1 -> I3
+                I2 -> I1
+                I2 -> I3
+                I3 -> I1
+                I3 -> I2
+
+            So for an N-ary relationship, there will be N! entries created.
+
+        2.  Verifies that the association instance refers to real objects.
+            (note that an association reference may refer to either an instance
+            or a class). Throws an exception if one of the references does not
+            refer to a valid object.
+*/
+static Array<InstanceAssociation> _buildInstanceAssociationEntries(
+    const CIMNamespaceName& nameSpace,
+    const CIMConstClass& cimClass,
+    const CIMInstance& cimInstance,
+    const CIMObjectPath& instanceName)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "_buildInstanceAssociationEntries");
+
+    Array<InstanceAssociation> instanceAssocEntries;
+
+    // Get the association's instance name and class name:
+
+    String assocInstanceName = instanceName.toString();
+    CIMName assocClassName = instanceName.getClassName();
+
+    // For each property:
+
+    for (Uint32 i = 0, n = cimInstance.getPropertyCount(); i < n; i++)
+    {
+        CIMConstProperty fromProp = cimInstance.getProperty(i);
+
+        // If a reference property:
+
+        if (fromProp.getType() == CIMTYPE_REFERENCE)
+        {
+            // For each property:
+
+            for (Uint32 j = 0, m = cimInstance.getPropertyCount(); j < m; j++)
+            {
+                CIMConstProperty toProp = cimInstance.getProperty(j);
+
+                // If a reference property and not the same property:
+
+                if (toProp.getType() == CIMTYPE_REFERENCE &&
+                    (!fromProp.getName().equal (toProp.getName())))
+                {
+                    CIMObjectPath fromRef;
+                    fromProp.getValue().get(fromRef);
+
+                    CIMObjectPath toRef;
+                    toProp.getValue().get(toRef);
+
+
+                    // Fix for bugzilla 667:
+                    // Strip off the hostname if it is the same as the
+                    // local host
+                    if ((fromRef.getHost() != String::EMPTY) &&
+                        (System::isLocalHost(fromRef.getHost())))
+                    {
+                        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                            "Stripping off local hostName from fromRef");
+                        fromRef.setHost(String::EMPTY);
+                    }
+
+                    // Strip off the namespace when it is the same as the
+                    // one this instance is created in.
+                    if ((fromRef.getHost() == String::EMPTY) &&
+                        (fromRef.getNameSpace() == nameSpace))
+                    {
+                        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                            "Stripping off local nameSpace from fromRef");
+                        fromRef.setNameSpace(CIMNamespaceName());
+                    }
+
+                    // Strip off the hostname if it is the same as the
+                    // local host
+                    if ((toRef.getHost() != String::EMPTY) &&
+                        (System::isLocalHost(toRef.getHost())))
+                    {
+                        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                            "Stripping off local hostName from toRef");
+                        toRef.setHost(String::EMPTY);
+                    }
+
+                    // Strip off the namespace when it is the same as the
+                    // one this instance is created in.
+                    if ((toRef.getHost() == String::EMPTY) &&
+                        (toRef.getNameSpace() == nameSpace))
+                    {
+                        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
+                            "Stripping off local nameSpace from toRef");
+                        toRef.setNameSpace(CIMNamespaceName());
+                    }
+
+                    instanceAssocEntries.append(InstanceAssociation(
+                        assocInstanceName,
+                        assocClassName,
+                        fromRef.toString(),
+                        fromRef.getClassName(),
+                        fromProp.getName(),
+                        toRef.toString(),
+                        toRef.getClassName(),
+                        toProp.getName()));
+                }
+            }
+        }
+    }
+
+    PEG_METHOD_EXIT();
+    return instanceAssocEntries;
 }
 
 /**
@@ -888,17 +1051,6 @@ void CIMRepository::deleteClass(
         }
     }
 
-    //
-    // Delete all instances of this class in this namespace and in all
-    // dependent namespaces.  (Note: This is just for clean-up purposes,
-    // since it was already checked that no instances exist.)
-    //
-
-    for (Uint32 i = 0; i < dependentNameSpaceNames.size(); i++)
-    {
-        _rep->_persistentStore->deleteAllInstances(nameSpace, className);
-    }
-
 #ifdef PEGASUS_USE_CLASS_CACHE
 
     _classCache.evict(_getCacheKey(nameSpace, className));
@@ -915,16 +1067,12 @@ void CIMRepository::deleteClass(
 
     _rep->_nameSpaceManager->deleteClass(nameSpace, className);
 
-    _rep->_persistentStore->deleteClass(nameSpace, className, superClassName);
-
-    //
-    // Remove associations:
-    //
-
-    if (isAssociation)
-    {
-        _rep->_persistentStore->removeClassAssociation(nameSpace, className);
-    }
+    _rep->_persistentStore->deleteClass(
+        nameSpace,
+        className,
+        superClassName,
+        isAssociation,
+        dependentNameSpaceNames);
 
     PEG_METHOD_EXIT();
 }
@@ -945,57 +1093,6 @@ void CIMRepository::deleteInstance(
     AutoFileLock fileLock(_rep->_lockFile);
 
     _rep->_persistentStore->deleteInstance(nameSpace, normalizedInstanceName);
-
-    //
-    // Delete from assocation table (if an assocation).
-    //
-
-    _rep->_persistentStore->removeInstanceAssociation(nameSpace, instanceName);
-
-    PEG_METHOD_EXIT();
-}
-
-void CIMRepositoryRep::_createAssocClassEntries(
-    const CIMNamespaceName& nameSpace,
-    const CIMConstClass& assocClass)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_createAssocClassEntries");
-
-    Array<ClassAssociation> classAssocEntries;
-
-    // Get the association's class name:
-
-    CIMName assocClassName = assocClass.getClassName();
-
-    // For each property:
-
-    Uint32 n = assocClass.getPropertyCount();
-
-    for (Uint32 i = 0; i < n; i++)
-    {
-        CIMConstProperty fromProp = assocClass.getProperty(i);
-
-        if (fromProp.getType() == CIMTYPE_REFERENCE)
-        {
-            for (Uint32 j = 0; j < n; j++)
-            {
-                CIMConstProperty toProp = assocClass.getProperty(j);
-
-                if (toProp.getType() == CIMTYPE_REFERENCE &&
-                    (!fromProp.getName().equal(toProp.getName())))
-                {
-                    classAssocEntries.append(ClassAssociation(
-                        assocClassName,
-                        fromProp.getReferenceClassName(),
-                        fromProp.getName(),
-                        toProp.getReferenceClassName(),
-                        toProp.getName()));
-                }
-            }
-        }
-    }
-
-    _persistentStore->addClassAssociations(nameSpace, classAssocEntries);
 
     PEG_METHOD_EXIT();
 }
@@ -1031,158 +1128,23 @@ void CIMRepository::_createClass(
     _rep->_nameSpaceManager->checkCreateClass(
         nameSpace, cimClass.getClassName(), cimClass.getSuperClassName());
 
-    // -- Create the class declaration:
+    // -- If an association class, build association entries:
 
-    _rep->_persistentStore->createClass(nameSpace, cimClass);
-
-    // -- If an association, populate associations file:
+    Array<ClassAssociation> classAssocEntries;
 
     if (cimClass.isAssociation())
-        _rep->_createAssocClassEntries(nameSpace, cimClass);
+    {
+        classAssocEntries = _buildClassAssociationEntries(cimClass);
+    }
+
+    // -- Create the class declaration:
+
+    _rep->_persistentStore->createClass(nameSpace, cimClass, classAssocEntries);
 
     // -- Create namespace manager entry:
 
     _rep->_nameSpaceManager->createClass(
         nameSpace, cimClass.getClassName(), cimClass.getSuperClassName());
-
-    PEG_METHOD_EXIT();
-}
-
-/*------------------------------------------------------------------------------
-
-    This routine does the following:
-
-        1.  Creates two entries in the association file for each relationship
-            formed by this new assocation instance. A binary association
-            (one with two references) ties two instances together. Suppose
-            there are two instances: I1 and I2. Then two entries are created:
-
-                I2 -> I1
-                I1 -> I2
-
-            For a ternary relationship, six entries will be created. Suppose
-            there are three instances: I1, I2, and I3:
-
-                I1 -> I2
-                I1 -> I3
-                I2 -> I1
-                I2 -> I3
-                I3 -> I1
-                I3 -> I2
-
-            So for an N-ary relationship, there will be 2*N entries created.
-
-        2.  Verifies that the association instance refers to real objects.
-            (note that an association reference may refer to either an instance
-            or a class). Throws an exception if one of the references does not
-            refer to a valid object.
-
-------------------------------------------------------------------------------*/
-
-
-void CIMRepositoryRep::_createAssocInstEntries(
-    const CIMNamespaceName& nameSpace,
-    const CIMConstClass& cimClass,
-    const CIMInstance& cimInstance,
-    const CIMObjectPath& instanceName)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_createAssocInstEntries");
-
-    Array<InstanceAssociation> instanceAssocEntries;
-
-    // Get the association's instance name and class name:
-
-    String assocInstanceName = instanceName.toString();
-    CIMName assocClassName = instanceName.getClassName();
-
-    // For each property:
-
-    for (Uint32 i = 0, n = cimInstance.getPropertyCount(); i < n; i++)
-    {
-        CIMConstProperty fromProp = cimInstance.getProperty(i);
-
-        // If a reference property:
-
-        if (fromProp.getType() == CIMTYPE_REFERENCE)
-        {
-            // For each property:
-
-            for (Uint32 j = 0, m = cimInstance.getPropertyCount(); j < m; j++)
-            {
-                CIMConstProperty toProp = cimInstance.getProperty(j);
-
-                // If a reference property and not the same property:
-
-                if (toProp.getType() == CIMTYPE_REFERENCE &&
-                    (!fromProp.getName().equal (toProp.getName())))
-                {
-                    CIMObjectPath fromRef;
-                    fromProp.getValue().get(fromRef);
-
-                    CIMObjectPath toRef;
-                    toProp.getValue().get(toRef);
-
-
-                    // Fix for bugzilla 667:
-                    // Strip off the hostname if it is the same as the
-                    // local host
-                    if ((fromRef.getHost() != String::EMPTY) &&
-                        (System::isLocalHost(fromRef.getHost())))
-                    {
-                        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
-                            "_createAssocInstEntries() - Stripping off local "
-                                "hostName from fromRef");
-                       fromRef.setHost(String::EMPTY);
-                    }
-
-                    // Strip off the namespace when it is the same as the
-                    // one this instance is created in.
-                    if ((fromRef.getHost() == String::EMPTY) &&
-                        (fromRef.getNameSpace() == nameSpace))
-                    {
-                        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
-                            "_createAssocInstEntries() - Stripping off "
-                                "local nameSpace from fromRef");
-                        fromRef.setNameSpace(CIMNamespaceName());
-                    }
-
-                    // Strip off the hostname if it is the same as the
-                    // local host
-                    if ((toRef.getHost() != String::EMPTY) &&
-                        (System::isLocalHost(toRef.getHost())))
-                    {
-                        PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
-                            "_createAssocInstEntries() - Stripping off "
-                                "local hostName from toRef");
-                        toRef.setHost(String::EMPTY);
-                    }
-
-                    // Strip off the namespace when it is the same as the
-                    // one this instance is created in.
-                    if ((toRef.getHost() == String::EMPTY) &&
-                        (toRef.getNameSpace() == nameSpace))
-                    {
-                       PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
-                           "_createAssocInstEntries() - Stripping off "
-                               "local nameSpace from toRef");
-                       toRef.setNameSpace(CIMNamespaceName());
-                    }
-
-                    instanceAssocEntries.append(InstanceAssociation(
-                        assocInstanceName,
-                        assocClassName,
-                        fromRef.toString(),
-                        fromRef.getClassName(),
-                        fromProp.getName(),
-                        toRef.toString(),
-                        toRef.getClassName(),
-                        toProp.getName()));
-                }
-            }
-        }
-    }
-
-    _persistentStore->addInstanceAssociations(nameSpace, instanceAssocEntries);
 
     PEG_METHOD_EXIT();
 }
@@ -1245,15 +1207,23 @@ CIMObjectPath CIMRepository::_createInstance(
     }
 
     //
-    // Create association entries if an association instance.
+    // Build association entries if an association instance.
     //
 
+    Array<InstanceAssociation> instAssocEntries;
+
     if (cimClass.isAssociation())
-        _rep->_createAssocInstEntries(nameSpace, cimClass, cimInstance, 
-            instanceName);
+    {
+        instAssocEntries = _buildInstanceAssociationEntries(
+            nameSpace, cimClass, cimInstance, instanceName);
+    }
+
+    //
+    // Create the instance
+    //
 
     _rep->_persistentStore->createInstance(
-        nameSpace, instanceName, cimInstance);
+        nameSpace, instanceName, cimInstance, instAssocEntries);
 
     // ATTN: Why does this come after the create has completed?
     Resolver::resolveInstance (
@@ -1312,19 +1282,16 @@ void CIMRepository::_modifyClass(
 
 #endif /* PEGASUS_USE_CLASS_CACHE */
 
-    _rep->_persistentStore->modifyClass(nameSpace, cimClass);
+    Boolean isAssociation = cimClass.isAssociation();
+    Array<ClassAssociation> classAssocEntries;
 
-    if (cimClass.isAssociation())
+    if (isAssociation)
     {
-        // Remove from Association
-        if (_rep->_persistentStore->removeClassAssociation(
-                nameSpace, cimClass.getClassName()))
-        {
-            // Create the association again.
-            _rep->_createAssocClassEntries(nameSpace, cimClass);
-        }
+        classAssocEntries = _buildClassAssociationEntries(cimClass);
     }
 
+    _rep->_persistentStore->modifyClass(
+        nameSpace, cimClass, isAssociation, classAssocEntries);
 
     //
     // Cache this class:

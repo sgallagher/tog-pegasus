@@ -186,16 +186,36 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         const CIMName& superClassName);
+    /**
+        Creates a class definition.  If the class is an association class,
+        the class association entries are also added.
+    */
     void createClass(
         const CIMNamespaceName& nameSpace,
-        const CIMClass& newClass);
+        const CIMClass& newClass,
+        const Array<ClassAssociation>& classAssocEntries);
+    /**
+        Modifies a class definition.  If the class is an association class,
+        the class association entries are also updated to the specified set.
+    */
     void modifyClass(
         const CIMNamespaceName& nameSpace,
-        const CIMClass& modifiedClass);
+        const CIMClass& modifiedClass,
+        Boolean isAssociation,
+        const Array<ClassAssociation>& classAssocEntries);
+    /**
+        Deletes a class definition.  If the class is an association class,
+        the class association entries are also deleted.  It is expected to
+        have already been verified that no instances of this class exist.  A
+        list of dependent namespace names is provided to allow appropriate
+        clean-up of instance files, if necessary.
+    */
     void deleteClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        const CIMName& superClassName);
+        const CIMName& superClassName,
+        Boolean isAssociation,
+        const Array<CIMNamespaceName>& dependentNameSpaceNames);
 
     Array<CIMObjectPath> enumerateInstanceNamesForClass(
         const CIMNamespaceName& nameSpace,
@@ -206,30 +226,30 @@ public:
     CIMInstance getInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName);
+    /**
+        Creates an instance definition.  If it is an association instance,
+        the instance association entries are also added.
+    */
     void createInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
-        const CIMInstance& cimInstance);
+        const CIMInstance& cimInstance,
+        const Array<InstanceAssociation>& instAssocEntries);
     void modifyInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         const CIMInstance& cimInstance);
+    /**
+        Deletes an instance definition.  If it is an association instance,
+        the instance association entries are also deleted.
+    */
     void deleteInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName);
-    void deleteAllInstances(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className);
     Boolean instanceExists(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName);
 
-    void addClassAssociations(
-        const CIMNamespaceName& nameSpace,
-        const Array<ClassAssociation>& classAssocEntries);
-    Boolean removeClassAssociation(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& assocClassName);
     void getClassAssociatorNames(
         const CIMNamespaceName& nameSpace,
         const Array<CIMName>& classList,
@@ -245,12 +265,6 @@ public:
         const String& role,
         Array<String>& referenceNames);
 
-    void addInstanceAssociations(
-        const CIMNamespaceName& nameSpace,
-        const Array<InstanceAssociation>& instanceAssocEntries);
-    void removeInstanceAssociation(
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& assocInstanceName);
     void getInstanceAssociatorNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
@@ -363,6 +377,20 @@ private:
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Array<CIMInstance>& namedInstances);
+
+    void _addClassAssociationEntries(
+        const CIMNamespaceName& nameSpace,
+        const Array<ClassAssociation>& classAssocEntries);
+    void _removeClassAssociationEntries(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& assocClassName);
+
+    void _addInstanceAssociationEntries(
+        const CIMNamespaceName& nameSpace,
+        const Array<InstanceAssociation>& instanceAssocEntries);
+    void _removeInstanceAssociationEntries(
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& assocInstanceName);
 
     String _repositoryPath;
     ObjectStreamer* _streamer;

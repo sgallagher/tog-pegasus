@@ -1320,7 +1320,8 @@ CIMClass FileBasedStore::getClass(
 
 void FileBasedStore::createClass(
     const CIMNamespaceName& nameSpace,
-    const CIMClass& newClass)
+    const CIMClass& newClass,
+    const Array<ClassAssociation>& classAssocEntries)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "FileBasedStore::createClass");
 
@@ -1345,12 +1346,19 @@ void FileBasedStore::createClass(
     _streamer->encode(classXml, newClass);
     _SaveObject(classFilePath, classXml, _streamer);
 
+    if (classAssocEntries.size())
+    {
+        _addClassAssociationEntries(nameSpace, classAssocEntries);
+    }
+
     PEG_METHOD_EXIT();
 }
 
 void FileBasedStore::modifyClass(
     const CIMNamespaceName& nameSpace,
-    const CIMClass& modifiedClass)
+    const CIMClass& modifiedClass,
+    Boolean isAssociation,
+    const Array<ClassAssociation>& classAssocEntries)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "FileBasedStore::modifyClass");
 
@@ -1382,15 +1390,46 @@ void FileBasedStore::modifyClass(
     _streamer->encode(classXml, modifiedClass);
     _SaveObject(classFilePath, classXml, _streamer);
 
+    //
+    // Update the association entries
+    //
+
+    if (isAssociation)
+    {
+        _removeClassAssociationEntries(nameSpace, modifiedClass.getClassName());
+        if (classAssocEntries.size())
+        {
+            _addClassAssociationEntries(nameSpace, classAssocEntries);
+        }
+    }
+
     PEG_METHOD_EXIT();
 }
 
 void FileBasedStore::deleteClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
-    const CIMName& superClassName)
+    const CIMName& superClassName,
+    Boolean isAssociation,
+    const Array<CIMNamespaceName>& dependentNameSpaceNames)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "FileBasedStore::deleteClass");
+
+    //
+    // Clean up the instance files in this namespace and in all dependent
+    // namespaces.  (It was already checked that no instances exist.)
+    //
+
+    for (Uint32 i = 0; i < dependentNameSpaceNames.size(); i++)
+    {
+        String indexFilePath =
+            _getInstanceIndexFilePath(nameSpace, className);
+        String dataFilePath =
+            _getInstanceDataFilePath(nameSpace, className);
+
+        FileSystem::removeFileNoCase(indexFilePath);
+        FileSystem::removeFileNoCase(dataFilePath);
+    }
 
     // Remove class file
 
@@ -1401,6 +1440,15 @@ void FileBasedStore::deleteClass(
     {
         PEG_METHOD_EXIT();
         throw CannotRemoveFile(classFilePath);
+    }
+
+    //
+    // Remove association entries
+    //
+
+    if (isAssociation)
+    {
+        _removeClassAssociationEntries(nameSpace, className);
     }
 
     PEG_METHOD_EXIT();
@@ -1520,7 +1568,8 @@ CIMInstance FileBasedStore::getInstance(
 void FileBasedStore::createInstance(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
-    const CIMInstance& cimInstance)
+    const CIMInstance& cimInstance,
+    const Array<InstanceAssociation>& instAssocEntries)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "FileBasedStore::createInstance");
 
@@ -1580,6 +1629,15 @@ void FileBasedStore::createInstance(
     }
 
     transaction.complete();
+
+    //
+    // Create association entries if an association instance.
+    //
+
+    if (instAssocEntries.size())
+    {
+        _addInstanceAssociationEntries(nameSpace, instAssocEntries);
+    }
 
     PEG_METHOD_EXIT();
 }
@@ -1742,22 +1800,11 @@ void FileBasedStore::deleteInstance(
 
     transaction.complete();
 
-    PEG_METHOD_EXIT();
-}
+    //
+    // Delete from association table (if an association).
+    //
 
-void FileBasedStore::deleteAllInstances(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "FileBasedStore::deleteAllInstances");
-
-    String indexFilePath =
-        _getInstanceIndexFilePath(nameSpace, className);
-    String dataFilePath =
-        _getInstanceDataFilePath(nameSpace, className);
-
-    FileSystem::removeFileNoCase(indexFilePath);
-    FileSystem::removeFileNoCase(dataFilePath);
+    _removeInstanceAssociationEntries(nameSpace, instanceName);
 
     PEG_METHOD_EXIT();
 }
@@ -1783,11 +1830,12 @@ Boolean FileBasedStore::instanceExists(
     return false;
 }
 
-void FileBasedStore::addClassAssociations(
+void FileBasedStore::_addClassAssociationEntries(
     const CIMNamespaceName& nameSpace,
     const Array<ClassAssociation>& classAssocEntries)
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "FileBasedStore::addClassAssociations");
+    PEG_METHOD_ENTER(TRC_REPOSITORY,
+        "FileBasedStore::_addClassAssociationEntries");
 
     String assocFileName = _getAssocClassPath(nameSpace);
     PEGASUS_STD(ofstream) os;
@@ -1813,19 +1861,17 @@ void FileBasedStore::addClassAssociations(
     PEG_METHOD_EXIT();
 }
 
-Boolean FileBasedStore::removeClassAssociation(
+void FileBasedStore::_removeClassAssociationEntries(
     const CIMNamespaceName& nameSpace,
     const CIMName& assocClassName)
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "FileBasedStore::removeClassAssociation");
+    PEG_METHOD_ENTER(TRC_REPOSITORY,
+        "FileBasedStore::_removeClassAssociationEntries");
 
     String assocFileName = _getAssocClassPath(nameSpace);
-
-    Boolean returnStatus =
-        AssocClassTable::deleteAssociation(assocFileName, assocClassName);
+    AssocClassTable::deleteAssociation(assocFileName, assocClassName);
 
     PEG_METHOD_EXIT();
-    return returnStatus;
 }
 
 void FileBasedStore::getClassAssociatorNames(
@@ -1877,11 +1923,12 @@ void FileBasedStore::getClassReferenceNames(
     PEG_METHOD_EXIT();
 }
 
-void FileBasedStore::addInstanceAssociations(
+void FileBasedStore::_addInstanceAssociationEntries(
     const CIMNamespaceName& nameSpace,
     const Array<InstanceAssociation>& instanceAssocEntries)
 {
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "FileBasedStore::addInstanceAssociations");
+    PEG_METHOD_ENTER(TRC_REPOSITORY,
+        "FileBasedStore::_addInstanceAssociationEntries");
 
     String assocFileName = _getAssocInstPath(nameSpace);
     PEGASUS_STD(ofstream) os;
@@ -1909,12 +1956,12 @@ void FileBasedStore::addInstanceAssociations(
     PEG_METHOD_EXIT();
 }
 
-void FileBasedStore::removeInstanceAssociation(
+void FileBasedStore::_removeInstanceAssociationEntries(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& assocInstanceName)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY,
-        "FileBasedStore::removeInstanceAssociation");
+        "FileBasedStore::_removeInstanceAssociationEntries");
 
     String assocFileName = _getAssocInstPath(nameSpace);
     AssocInstTable::deleteAssociation(assocFileName, assocInstanceName);

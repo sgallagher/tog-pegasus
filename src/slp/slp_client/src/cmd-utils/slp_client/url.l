@@ -36,7 +36,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.l,v 1.5.14.1 2008/08/20 23:06:00 karl Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/url.l,v 1.5.14.2 2008/08/21 13:29:43 karl Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -265,7 +265,7 @@ static char *_lslp_strdup(const char *s)
   return(p);
 }
 
-void urlerror(char *s, ...)
+void urlerror(const char *s, ...)
 {
  return;
 }	

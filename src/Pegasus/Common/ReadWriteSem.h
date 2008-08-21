@@ -145,7 +145,6 @@ public:
     int write_count() const;
 
 private:
-
     // @exception Permission
     // @exception WaitFailed
     void _wait(Boolean writeLock, ThreadType caller);

@@ -71,11 +71,6 @@ class CIMRepositoryRep
 {
 public:
 
-    CIMRepositoryRep()
-        : _resolveInstance(true)
-    {
-    }
-
     /**
         Checks whether an instance with the specified key values exists in the
         class hierarchy of the specified class.
@@ -89,11 +84,6 @@ public:
     Boolean _checkInstanceAlreadyExists(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName) const;
-
-    /** Used by getInstance(); indicates whether instance should be resolved
-        after it is retrieved from the file.
-    */
-    Boolean _resolveInstance;
 
     // This must be initialized in the constructor using values from the
     // ConfigManager.
@@ -961,7 +951,8 @@ CIMInstance CIMRepository::getInstance(
         localOnly,
         includeQualifiers,
         includeClassOrigin,
-        propertyList);
+        propertyList,
+        true);
 
     PEG_METHOD_EXIT();
     return cimInstance;
@@ -973,7 +964,8 @@ CIMInstance CIMRepository::_getInstance(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList,
+    Boolean resolveInstance)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_getInstance");
 
@@ -994,7 +986,7 @@ CIMInstance CIMRepository::_getInstance(
     // Resolve the instance (if requested):
     //
 
-    if (_rep->_resolveInstance)
+    if (resolveInstance)
     {
         CIMConstClass cimClass;
         Resolver::resolveInstance (
@@ -1344,17 +1336,14 @@ void CIMRepository::modifyInstance(
             // original qualifiers on the instance and on the properties
             //
 
-            _rep->_resolveInstance = false;
-
             cimInstance = _getInstance(
                 nameSpace,
                 modifiedInstance.getPath (),
                 false,
                 true,
                 true,
-                CIMPropertyList());
-
-            _rep->_resolveInstance = true;
+                CIMPropertyList(),
+                false);
 
             CIMInstance newInstance(
                 modifiedInstance.getPath ().getClassName());
@@ -1412,12 +1401,14 @@ void CIMRepository::modifyInstance(
         // Replace only the properties specified in the given instance
         //
 
-        _rep->_resolveInstance = false;
-
-        cimInstance = _getInstance(nameSpace,
-            modifiedInstance.getPath (), false, true, true, CIMPropertyList());
-
-        _rep->_resolveInstance = true;
+        cimInstance = _getInstance(
+            nameSpace,
+            modifiedInstance.getPath(),
+            false,
+            true,
+            true,
+            CIMPropertyList(),
+            false);
 
         CIMInstance givenInstance = modifiedInstance;
 
@@ -1824,7 +1815,8 @@ Array<CIMObject> CIMRepository::associators(
                 false,
                 includeQualifiers,
                 includeClassOrigin,
-                propertyList);
+                propertyList,
+                true);
 
             CIMObject cimObject(cimInstance);
             cimObject.setPath (names[i]);
@@ -2015,7 +2007,8 @@ Array<CIMObject> CIMRepository::references(
                 false,
                 includeQualifiers,
                 includeClassOrigin,
-                propertyList);
+                propertyList,
+                true);
 
             CIMObject cimObject = CIMObject (instance);
             cimObject.setPath (names[i]);
@@ -2155,7 +2148,7 @@ CIMValue CIMRepository::getProperty(
     //
 
     CIMInstance cimInstance = _getInstance(
-        nameSpace, instanceName, false, true, true, CIMPropertyList());
+        nameSpace, instanceName, false, true, true, CIMPropertyList(), true);
 
     //
     // Get the requested property from the instance

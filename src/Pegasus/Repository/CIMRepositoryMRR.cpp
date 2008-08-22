@@ -1935,7 +1935,8 @@ CIMInstance CIMRepository::_getInstance(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList,
+    Boolean resolveInstance)
 {
     return getInstance(nameSpace, instanceName, localOnly, includeQualifiers,
         includeClassOrigin, propertyList);

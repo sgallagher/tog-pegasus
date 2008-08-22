@@ -366,7 +366,8 @@ protected:
         Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList);
+        const CIMPropertyList& propertyList,
+        Boolean resolveInstance);
 
     /// Internal createClass implementation that does not do access control
     void _createClass(

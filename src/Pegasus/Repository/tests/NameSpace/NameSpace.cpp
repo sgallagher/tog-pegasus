@@ -91,14 +91,6 @@ void test(Uint32 mode)
     BubbleSort(arr1);
     PEGASUS_TEST_ASSERT(arr1 == arr2);
 
-        XmlStreamer xmlStreamer;
-        AutoPtr<FileBasedStore> persistentStore(new FileBasedStore(
-            repositoryRoot, &xmlStreamer, false));
-        NameSpaceManager nsm(persistentStore.get());
-
-        if (verbose)
-            nsm.print(cout);
-
     // Delete the namespaces test. Put in when delete installed
     for (Uint32 i = 0; i < arr1.size(); i++)
         r.deleteNameSpace(arr1[i]);

@@ -142,13 +142,7 @@ void test(Uint32 mode)
     BubbleSort(arr1);
     PEGASUS_TEST_ASSERT(arr1 == arr2);
 
-        XmlStreamer xmlStreamer;
-        AutoPtr<FileBasedStore> persistentStore(new FileBasedStore(
-            repositoryRoot, &xmlStreamer, false));
-        NameSpaceManager nsm(persistentStore.get());
-
-        if (verbose)
-            nsm.print(cout);
+        NameSpaceManager nsm;
 
         if (verbose)
         {

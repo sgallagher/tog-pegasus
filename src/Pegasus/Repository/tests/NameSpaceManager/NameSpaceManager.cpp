@@ -74,20 +74,15 @@ Array<CIMNamespaceName> _nameSpaceNames;
 
 void test01()
 {
-    XmlStreamer xmlStreamer;
-    AutoPtr<FileBasedStore> persistentStore(new FileBasedStore(
-        repositoryRoot, &xmlStreamer, false));
-    NameSpaceManager nsm(persistentStore.get());
-    if (verbose)
-        nsm.print (cout);
+    NameSpaceManager nsm;
 
-   _nameSpaceNames.append(CIMNamespaceName("aa"));
-   _nameSpaceNames.append(CIMNamespaceName("aa/bb"));
-   _nameSpaceNames.append(CIMNamespaceName("aa/bb/cc"));
-   _nameSpaceNames.append(CIMNamespaceName("/lmnop/qrstuv"));
-   _nameSpaceNames.append(CIMNamespaceName("root"));
-   _nameSpaceNames.append(CIMNamespaceName("xx"));
-   _nameSpaceNames.append(CIMNamespaceName("xx/yy"));
+    _nameSpaceNames.append(CIMNamespaceName("aa"));
+    _nameSpaceNames.append(CIMNamespaceName("aa/bb"));
+    _nameSpaceNames.append(CIMNamespaceName("aa/bb/cc"));
+    _nameSpaceNames.append(CIMNamespaceName("/lmnop/qrstuv"));
+    _nameSpaceNames.append(CIMNamespaceName("root"));
+    _nameSpaceNames.append(CIMNamespaceName("xx"));
+    _nameSpaceNames.append(CIMNamespaceName("xx/yy"));
 
     for (Uint32 j = 0; j < _nameSpaceNames.size(); j++)
     {

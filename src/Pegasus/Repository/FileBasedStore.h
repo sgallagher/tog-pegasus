@@ -113,15 +113,8 @@ public:
         : name(name_),
           shareable(false),
           updatesAllowed(true),
-          parentNameSpace()
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
-          ,shared(false),
-          remote(false),
-          remoteId(),
-          remoteHost(),
-          remotePort(),
+          parentNameSpace(),
           remoteInfo()
-#endif
     {
     }
 
@@ -129,15 +122,7 @@ public:
     Boolean shareable;
     Boolean updatesAllowed;
     CIMNamespaceName parentNameSpace;
-
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
-    Boolean shared;
-    Boolean remote;
-    String remoteId;
-    String remoteHost;
-    String remotePort;
-    String remoteInfo;
-#endif
+    String remoteInfo;    // Only used with Remote CMPI
 };
 
 class PEGASUS_REPOSITORY_LINKAGE FileBasedStore

@@ -259,10 +259,7 @@ int main(int argc, char** argv)
     }
     repositoryRoot.append("/repository");
 
-    XmlStreamer xmlStreamer;
-    AutoPtr<FileBasedStore> persistentStore(new FileBasedStore(
-        repositoryRoot, &xmlStreamer, false));
-    NameSpaceManager nsm(persistentStore.get());
+    NameSpaceManager nsm;
 
     try {
     createNameSpaces(nsm);

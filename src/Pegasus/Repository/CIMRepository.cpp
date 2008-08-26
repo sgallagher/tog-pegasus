@@ -93,7 +93,7 @@ public:
 
     AutoPtr<FileBasedStore> _persistentStore;
 
-    AutoPtr<NameSpaceManager> _nameSpaceManager;
+    NameSpaceManager _nameSpaceManager;
 
     ReadWriteSem _lock;
 
@@ -697,19 +697,60 @@ CIMRepository::CIMRepository(
     _rep->_lockFile = ConfigManager::getInstance()->getHomedPath(
         PEGASUS_REPOSITORY_LOCK_FILE).getCString();
 
+    _rep->_persistentStore.reset(new FileBasedStore(
+        repositoryRoot,
+        _rep->_streamer.get(),
+        compressMode));
+
+    // Initialize the NameSpaceManager
+
+    Array<NamespaceDefinition> nameSpaces =
+        _rep->_persistentStore->enumerateNameSpaces();
+
+    Uint32 i = 0;
+    while (i < nameSpaces.size())
     {
-        AutoFileLock fileLock(_rep->_lockFile);
+        if (nameSpaces[i].parentNameSpace.isNull() ||
+            _rep->_nameSpaceManager.nameSpaceExists(
+                nameSpaces[i].parentNameSpace))
+        {
+            // Parent namespace exists; go ahead and initialize this namespace
+            _rep->_nameSpaceManager.initializeNameSpace(
+                nameSpaces[i],
+                _rep->_persistentStore->enumerateClassNames(
+                    nameSpaces[i].name));
+            i++;
+        }
+        else
+        {
+            // If the parent namespace appears later in the list, swap the
+            // entries and repeat this iteration
+            Boolean swapped = false;
+            for (Uint32 j = i + 1; j < nameSpaces.size(); j++)
+            {
+                if (nameSpaces[i].parentNameSpace == nameSpaces[j].name)
+                {
+                    NamespaceDefinition tmp = nameSpaces[j];
+                    nameSpaces[j] = nameSpaces[i];
+                    nameSpaces[i] = tmp;
+                    swapped = true;
+                    break;
+                }
+            }
 
-        _rep->_persistentStore.reset(new FileBasedStore(
-            repositoryRoot,
-            _rep->_streamer.get(),
-            compressMode));
-
-        _rep->_nameSpaceManager.reset(
-            new NameSpaceManager(_rep->_persistentStore.get()));
+            if (!swapped)
+            {
+                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                    "Namespace: %s ignored - parent namespace %s not found",
+                    (const char*)nameSpaces[i].name.getString().getCString(),
+                    (const char*)nameSpaces[i].parentNameSpace.getString().
+                        getCString()));
+                nameSpaces.remove(i);
+            }
+        }
     }
 
-    if (!_rep->_nameSpaceManager->nameSpaceExists("root"))
+    if (!_rep->_nameSpaceManager.nameSpaceExists("root"))
     {
         // Create a root namespace per ...
         // Specification for CIM Operations over HTTP
@@ -798,7 +839,7 @@ CIMClass CIMRepository::_getClass(
 
         CIMNamespaceName actualNameSpaceName;
         CIMName superClassName;
-        _rep->_nameSpaceManager->locateClass(
+        _rep->_nameSpaceManager.locateClass(
             nameSpace, className, actualNameSpaceName, superClassName);
 
         cimClass = _rep->_persistentStore->getClass(
@@ -907,8 +948,8 @@ Boolean CIMRepositoryRep::_checkInstanceAlreadyExists(
     Array<CIMName> classNames;
     CIMName className = instanceName.getClassName();
     classNames.append(className);
-    _nameSpaceManager->getSubClassNames(nameSpace, className, true, classNames);
-    _nameSpaceManager->getSuperClassNames(nameSpace, className, classNames);
+    _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
+    _nameSpaceManager.getSuperClassNames(nameSpace, className, classNames);
 
     //
     // Search for an instance with the specified key values
@@ -972,7 +1013,7 @@ CIMInstance CIMRepository::_getInstance(
     CIMObjectPath normalizedInstanceName =
         _stripInstanceName(nameSpace, instanceName);
 
-    if (!_rep->_nameSpaceManager->classExists(
+    if (!_rep->_nameSpaceManager.classExists(
         nameSpace, instanceName.getClassName()))
     {
         throw PEGASUS_CIM_EXCEPTION(
@@ -1021,10 +1062,10 @@ void CIMRepository::deleteClass(
         nameSpace, className, false, true, false, CIMPropertyList());
     Boolean isAssociation = cimClass.isAssociation();
 
-    _rep->_nameSpaceManager->checkDeleteClass(nameSpace, className);
+    _rep->_nameSpaceManager.checkDeleteClass(nameSpace, className);
 
     Array<CIMNamespaceName> dependentNameSpaceNames =
-        _rep->_nameSpaceManager->getDependentSchemaNameSpaceNames(nameSpace);
+        _rep->_nameSpaceManager.getDependentSchemaNameSpaceNames(nameSpace);
 
     //
     // Ensure no instances of this class exist in the repository.
@@ -1055,9 +1096,9 @@ void CIMRepository::deleteClass(
     //
 
     CIMName superClassName =
-        _rep->_nameSpaceManager->getSuperClassName(nameSpace, className);
+        _rep->_nameSpaceManager.getSuperClassName(nameSpace, className);
 
-    _rep->_nameSpaceManager->deleteClass(nameSpace, className);
+    _rep->_nameSpaceManager.deleteClass(nameSpace, className);
 
     _rep->_persistentStore->deleteClass(
         nameSpace,
@@ -1075,7 +1116,7 @@ void CIMRepository::deleteInstance(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::deleteInstance");
 
-    _rep->_nameSpaceManager->validateClass(
+    _rep->_nameSpaceManager.validateClass(
         nameSpace, instanceName.getClassName());
 
     CIMObjectPath normalizedInstanceName =
@@ -1117,7 +1158,7 @@ void CIMRepository::_createClass(
 
     // -- Check whether the class may be created:
 
-    _rep->_nameSpaceManager->checkCreateClass(
+    _rep->_nameSpaceManager.checkCreateClass(
         nameSpace, cimClass.getClassName(), cimClass.getSuperClassName());
 
     // -- If an association class, build association entries:
@@ -1135,7 +1176,7 @@ void CIMRepository::_createClass(
 
     // -- Create namespace manager entry:
 
-    _rep->_nameSpaceManager->createClass(
+    _rep->_nameSpaceManager.createClass(
         nameSpace, cimClass.getClassName(), cimClass.getSuperClassName());
 
     PEG_METHOD_EXIT();
@@ -1256,7 +1297,7 @@ void CIMRepository::_modifyClass(
     // Check to see if it is okay to modify this class:
     //
 
-    _rep->_nameSpaceManager->checkModifyClass(
+    _rep->_nameSpaceManager.checkModifyClass(
         nameSpace, cimClass.getClassName(), cimClass.getSuperClassName());
 
     //
@@ -1565,7 +1606,7 @@ Array<CIMClass> CIMRepository::enumerateClasses(
 
     Array<CIMName> classNames;
 
-    _rep->_nameSpaceManager->getSubClassNames(
+    _rep->_nameSpaceManager.getSubClassNames(
         nameSpace, className, deepInheritance, classNames);
 
     Array<CIMClass> result;
@@ -1591,7 +1632,7 @@ Array<CIMName> CIMRepository::enumerateClassNames(
 
     Array<CIMName> classNames;
 
-    _rep->_nameSpaceManager->getSubClassNames(
+    _rep->_nameSpaceManager.getSubClassNames(
         nameSpace, className, deepInheritance, classNames,true);
 
     PEG_METHOD_EXIT();
@@ -1620,7 +1661,7 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
 
     Array<CIMName> classNames;
     classNames.append(className);
-    _rep->_nameSpaceManager->getSubClassNames(
+    _rep->_nameSpaceManager.getSubClassNames(
         nameSpace, className, true, classNames);
 
     //
@@ -1664,7 +1705,7 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
 
     ReadLock lock(_rep->_lock);
 
-    _rep->_nameSpaceManager->validateClass(nameSpace, className);
+    _rep->_nameSpaceManager.validateClass(nameSpace, className);
 
     //
     // Get all instances for this class
@@ -1709,7 +1750,7 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNamesForSubtree(
 
     Array<CIMName> classNames;
     classNames.append(className);
-    _rep->_nameSpaceManager->getSubClassNames(
+    _rep->_nameSpaceManager.getSubClassNames(
         nameSpace, className, true, classNames);
 
     //
@@ -1736,7 +1777,7 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNamesForClass(
 
     ReadLock lock(_rep->_lock);
 
-    _rep->_nameSpaceManager->validateClass(nameSpace, className);
+    _rep->_nameSpaceManager.validateClass(nameSpace, className);
 
     Array<CIMObjectPath> instanceNames =
         _rep->_persistentStore->enumerateInstanceNamesForClass(
@@ -1862,7 +1903,7 @@ Array<CIMObjectPath> CIMRepository::_associatorNames(
     Array<CIMName> assocClassList;
     if (!assocClass.isNull())
     {
-        _rep->_nameSpaceManager->getSubClassNames(
+        _rep->_nameSpaceManager.getSubClassNames(
             nameSpace, assocClass, true, assocClassList);
         assocClassList.append(assocClass);
     }
@@ -1871,7 +1912,7 @@ Array<CIMObjectPath> CIMRepository::_associatorNames(
     Array<CIMName> resultClassList;
     if (!resultClass.isNull())
     {
-        _rep->_nameSpaceManager->getSubClassNames(
+        _rep->_nameSpaceManager.getSubClassNames(
             nameSpace, resultClass, true, resultClassList);
         resultClassList.append(resultClass);
     }
@@ -1887,12 +1928,12 @@ Array<CIMObjectPath> CIMRepository::_associatorNames(
         CIMName className = objectName.getClassName();
 
         Array<CIMName> classList;
-        _rep->_nameSpaceManager->getSuperClassNames(
+        _rep->_nameSpaceManager.getSuperClassNames(
             nameSpace, className, classList);
         classList.append(className);
 
         Array<CIMNamespaceName> nameSpaceList =
-            _rep->_nameSpaceManager->getSchemaNameSpaceNames(nameSpace);
+            _rep->_nameSpaceManager.getSchemaNameSpaceNames(nameSpace);
 
         for (Uint32 i = 0; i < nameSpaceList.size(); i++)
         {
@@ -1912,7 +1953,7 @@ Array<CIMObjectPath> CIMRepository::_associatorNames(
     }
     else
     {
-        _rep->_nameSpaceManager->validateClass(
+        _rep->_nameSpaceManager.validateClass(
             nameSpace, objectName.getClassName());
 
         _rep->_persistentStore->getInstanceAssociatorNames(
@@ -2053,7 +2094,7 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
     {
         if (!resultClass.isNull())
         {
-            _rep->_nameSpaceManager->getSubClassNames(
+            _rep->_nameSpaceManager.getSubClassNames(
                 nameSpace, resultClass, true, resultClassList);
             resultClassList.append(resultClass);
         }
@@ -2068,12 +2109,12 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
             CIMName className = objectName.getClassName();
 
             Array<CIMName> classList;
-            _rep->_nameSpaceManager->getSuperClassNames(
+            _rep->_nameSpaceManager.getSuperClassNames(
                 nameSpace, className, classList);
             classList.append(className);
 
             Array<CIMNamespaceName> nameSpaceList =
-                _rep->_nameSpaceManager->getSchemaNameSpaceNames(nameSpace);
+                _rep->_nameSpaceManager.getSchemaNameSpaceNames(nameSpace);
 
             for (Uint32 i = 0; i < nameSpaceList.size(); i++)
             {
@@ -2091,7 +2132,7 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
         }
         else
         {
-            _rep->_nameSpaceManager->validateClass(
+            _rep->_nameSpaceManager.validateClass(
                 nameSpace, objectName.getClassName());
 
             _rep->_persistentStore->getInstanceReferenceNames(
@@ -2241,7 +2282,7 @@ CIMQualifierDecl CIMRepository::_getQualifier(
         // Not in cache so load from disk:
 
         Array<CIMNamespaceName> nameSpaceList =
-            _rep->_nameSpaceManager->getSchemaNameSpaceNames(nameSpace);
+            _rep->_nameSpaceManager.getSchemaNameSpaceNames(nameSpace);
 
         for (Uint32 i = 0; i < nameSpaceList.size(); i++)
         {
@@ -2287,7 +2328,7 @@ void CIMRepository::_setQualifier(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_setQualifier");
 
-    _rep->_nameSpaceManager->checkSetOrDeleteQualifier(
+    _rep->_nameSpaceManager.checkSetOrDeleteQualifier(
         nameSpace, qualifierDecl.getName());
 
     _rep->_persistentStore->setQualifier(nameSpace, qualifierDecl);
@@ -2308,7 +2349,7 @@ void CIMRepository::deleteQualifier(
     WriteLock lock(_rep->_lock);
     AutoFileLock fileLock(_rep->_lockFile);
 
-    _rep->_nameSpaceManager->checkSetOrDeleteQualifier(
+    _rep->_nameSpaceManager.checkSetOrDeleteQualifier(
         nameSpace, qualifierName);
 
     _rep->_persistentStore->deleteQualifier(nameSpace, qualifierName);
@@ -2328,7 +2369,7 @@ Array<CIMQualifierDecl> CIMRepository::enumerateQualifiers(
 
     Array<CIMQualifierDecl> qualifiers;
 
-    _rep->_nameSpaceManager->validateNameSpace(nameSpace);
+    _rep->_nameSpaceManager.validateNameSpace(nameSpace);
 
     qualifiers = _rep->_persistentStore->enumerateQualifiers(nameSpace);
 
@@ -2375,7 +2416,7 @@ void CIMRepository::createNameSpace(
         }
     }
 
-    _rep->_nameSpaceManager->createNameSpace(
+    _rep->_nameSpaceManager.createNameSpace(
         nameSpace, shareable, updatesAllowed, parentNameSpace);
 
     try
@@ -2385,7 +2426,7 @@ void CIMRepository::createNameSpace(
     }
     catch (...)
     {
-        _rep->_nameSpaceManager->deleteNameSpace(nameSpace);
+        _rep->_nameSpaceManager.deleteNameSpace(nameSpace);
         throw;
     }
 
@@ -2425,7 +2466,7 @@ void CIMRepository::modifyNameSpace(
         }
     }
 
-    _rep->_nameSpaceManager->validateNameSpace(nameSpace);
+    _rep->_nameSpaceManager.validateNameSpace(nameSpace);
 
     if (!shareable)
     {
@@ -2433,7 +2474,7 @@ void CIMRepository::modifyNameSpace(
 
         CIMNamespaceName dependentNameSpaceName;
 
-        if (_rep->_nameSpaceManager->hasDependentNameSpace(
+        if (_rep->_nameSpaceManager.hasDependentNameSpace(
                 nameSpace, dependentNameSpaceName))
         {
             PEG_METHOD_EXIT();
@@ -2447,7 +2488,7 @@ void CIMRepository::modifyNameSpace(
     _rep->_persistentStore->modifyNameSpace(
         nameSpace, shareable, updatesAllowed);
 
-    _rep->_nameSpaceManager->modifyNameSpace(
+    _rep->_nameSpaceManager.modifyNameSpace(
         nameSpace, shareable, updatesAllowed);
 
     PEG_METHOD_EXIT();
@@ -2460,7 +2501,7 @@ Array<CIMNamespaceName> CIMRepository::enumerateNameSpaces() const
     ReadLock lock(const_cast<ReadWriteSem&>(_rep->_lock));
 
     Array<CIMNamespaceName> nameSpaceNames;
-    _rep->_nameSpaceManager->getNameSpaceNames(nameSpaceNames);
+    _rep->_nameSpaceManager.getNameSpaceNames(nameSpaceNames);
 
     PEG_METHOD_EXIT();
     return nameSpaceNames;
@@ -2477,7 +2518,7 @@ void CIMRepository::deleteNameSpace(const CIMNamespaceName& nameSpace)
 
     CIMNamespaceName dependentNameSpaceName;
 
-    if (_rep->_nameSpaceManager->hasDependentNameSpace(
+    if (_rep->_nameSpaceManager.hasDependentNameSpace(
             nameSpace, dependentNameSpaceName))
     {
         PEG_METHOD_EXIT();
@@ -2497,7 +2538,7 @@ void CIMRepository::deleteNameSpace(const CIMNamespaceName& nameSpace)
 
     _rep->_persistentStore->deleteNameSpace(nameSpace);
 
-    _rep->_nameSpaceManager->deleteNameSpace(nameSpace);
+    _rep->_nameSpaceManager.deleteNameSpace(nameSpace);
 
     PEG_METHOD_EXIT();
 }
@@ -2514,7 +2555,7 @@ Boolean CIMRepository::getNameSpaceAttributes(const CIMNamespaceName& nameSpace,
     Boolean updatesAllowed;
     String parent;
 
-    if (!_rep->_nameSpaceManager->getNameSpaceAttributes(
+    if (!_rep->_nameSpaceManager.getNameSpaceAttributes(
         nameSpace, shareable, updatesAllowed, parent))
     {
         PEG_METHOD_EXIT();
@@ -2547,7 +2588,7 @@ Boolean CIMRepository::isRemoteNameSpace(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::isRemoteNamespace");
     ReadLock lock(const_cast<ReadWriteSem&>(_rep->_lock));
     PEG_METHOD_EXIT();
-    return _rep->_nameSpaceManager->isRemoteNameSpace(
+    return _rep->_nameSpaceManager.isRemoteNameSpace(
         nameSpaceName, remoteInfo);
 }
 
@@ -2570,7 +2611,7 @@ void CIMRepository::getSubClassNames(
     Array<CIMName>& subClassNames) const
 {
     ReadLock lock(const_cast<ReadWriteSem&>(_rep->_lock));
-    _rep->_nameSpaceManager->getSubClassNames(
+    _rep->_nameSpaceManager.getSubClassNames(
         nameSpaceName, className, deepInheritance, subClassNames);
 }
 
@@ -2580,7 +2621,7 @@ void CIMRepository::getSuperClassNames(
     Array<CIMName>& subClassNames) const
 {
     ReadLock lock(const_cast<ReadWriteSem&>(_rep->_lock));
-    _rep->_nameSpaceManager->getSuperClassNames(
+    _rep->_nameSpaceManager.getSuperClassNames(
         nameSpaceName, className, subClassNames);
 }
 

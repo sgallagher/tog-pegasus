@@ -60,19 +60,30 @@ class NameSpace;
 */
 class PEGASUS_REPOSITORY_LINKAGE NameSpaceManager
 {
-    friend class NameSpace;
 public:
 
-    NameSpaceManager(
-        FileBasedStore* persistentStore);
+    /** Constructor.
+    */
+    NameSpaceManager();
 
     /** Destructor.
     */
     ~NameSpaceManager();
 
-    /** Determines whether the given namespace exists:
+    /** Initializes the namespace definition in the NameSpaceManager.  If the
+        namespace has a parent namespace, the the caller MUST ensure that the
+        parent namespace is already initialized.
+        @param nameSpace The namespace definition to initialize.
+        @param classList An Array of class names and superclass names that are
+            defined in the namespace.
+    */
+    void initializeNameSpace(
+        const NamespaceDefinition& nameSpace,
+        const Array<Pair<String, String> >& classList);
+
+    /** Indicates whether the specified namespace exists.
         @param nameSpaceName name of namespace.
-        @return true if namespace eixsts; false otherwise.
+        @return true if namespace exists; false otherwise.
     */
     Boolean nameSpaceExists(const CIMNamespaceName& nameSpaceName) const;
 

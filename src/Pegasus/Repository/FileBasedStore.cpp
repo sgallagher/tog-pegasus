@@ -918,10 +918,6 @@ Array<NamespaceDefinition> FileBasedStore::enumerateNameSpaces()
                     {
                         nsdef.parentNameSpace = _dirNameToNamespaceName(parent);
                     }
-
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
-                    nsdef.shared = true;
-#endif
                 }
                 else
                 {
@@ -939,21 +935,10 @@ Array<NamespaceDefinition> FileBasedStore::enumerateNameSpaces()
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
             else if (tmp[0] == 'r')
             {
-                nsdef.remote = true;
-                nsdef.remoteId = tmp.subString(1, 2);
-
-                Uint32 pos = nameSpaceSubDirName.find('@');
-                if (pos != PEG_NOT_FOUND)
-                {
-                    nsdef.remoteHost = nameSpaceSubDirName.subString(3, pos-3);
-                    nsdef.remotePort = nameSpaceSubDirName.subString(pos+1);
-                }
-                else
-                {
-                    nsdef.remoteHost = nameSpaceSubDirName.subString(3);
-                }
-
+                // remoteInfo format is "ridhost[@port]" where "id" is a lower
+                // case two-character identifier
                 nsdef.remoteInfo = nameSpaceSubDirName;
+
                 PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
                     "Remote namespace: " + nameSpaceDirName + " >" +
                         nameSpaceSubDirName);

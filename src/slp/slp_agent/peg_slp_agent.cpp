@@ -46,13 +46,17 @@ PEGASUS_NAMESPACE_BEGIN
 // OpenSLP allows NULL so that it can select the locale.
 
 #ifdef PEGASUS_USE_EXTERNAL_SLP_TYPE
+// language typing for slp call only applies to SOLARIS
 #ifdef PEGASUS_OS_SOLARIS
-//      If 2 (i.e. solarisslp). Set language.
+        // If 2 (i.e. solarisslp). Set language.
 #if     PEGASUS_USE_EXTERNAL_SLP_TYPE == 2
-        const char* slp_service_agent::slp_lang = "en";
-#else   // any other external slp implementation
+        const char* slp_serviceagent::slp_lang = "en";
+        // if 1, openslp and let slp set language        
+#elif PEGASUS_USE_EXTERNAL_SLP_TYPE == 1
+    _   const char* slp_serviceagent::slp_lang = NULL;
+#else   // Some other implementation
         const char* slp_service_agent::slp_lang = NULL;
-#endif  
+#endif  // End PEGASUS_USE_EXTERNAL_SLP_TYPE 
 #else   // NOT PEGASUS_OS_SOLARIS
     const char* slp_service_agent::slp_lang = NULL;
 #endif

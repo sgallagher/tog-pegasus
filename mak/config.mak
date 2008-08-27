@@ -907,10 +907,11 @@ ifdef PEGASUS_USE_OPENSLP
       Please use PEGASUS_USE_EXTERNAL_SLP)
   endif
   ## if PEGASUS_USE_OPENSLP used, convert to EXTERNAL_SLP variables
+  ## as defined for openslp
   ifeq ($(PEGASUS_USE_OPENSLP),true)
     ifeq ($(PEGASUS_ENABLE_SLP),true)
-      ###DEFINES += -DPEGASUS_USE_EXTERNAL_SLP_TYPE=1
-      PEGASUS_USE_EXTERNAL_SLP_TYPE=openslp
+      DEFINES += -DPEGASUS_USE_EXTERNAL_SLP_TYPE=1
+      PEGASUS_USE_EXTERNAL_SLP=openslp
     else
       $(error PEGASUS_USE_OPENSLP defined but PEGASUS_ENABLE_SLP is not true. \
         Please correct this inconsistency)

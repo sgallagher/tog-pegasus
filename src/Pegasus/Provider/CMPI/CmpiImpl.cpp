@@ -2223,7 +2223,7 @@ CMPIrc CmpiStatus::rc() const
 
 const char*  CmpiStatus::msg() const
 {
-    return st.msg ? CMGetCharPtr(st.msg) : 0;
+    return st.msg ? CMGetCharsPtr(st.msg,NULL) : 0;
 }
 
 CmpiStatus::CmpiStatus()
@@ -2309,7 +2309,7 @@ void *CmpiObjectPath::makeObjectPath(
     const char *cls)
 {
     CMPIStatus rc={CMPI_RC_OK,NULL};
-    void *op=mb->eft->newObjectPath(mb,CMGetCharPtr(ns.getEnc()),cls,&rc);
+    void *op=mb->eft->newObjectPath(mb,CMGetCharsPtr(ns.getEnc(),NULL),cls,&rc);
     if (rc.rc != CMPI_RC_OK)
     {
         throw CmpiStatus(rc);

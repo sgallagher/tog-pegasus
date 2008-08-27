@@ -214,7 +214,7 @@ CMPIStatus cmpiPerf_TestClassAProviderInvokeMethod(
 
     className = CMGetClassName(ref, &rc);
 
-    if (strcasecmp(CMGetCharPtr(className), _ClassName) == 0 &&
+    if (strcasecmp(CMGetCharsPtr(className, NULL), _ClassName) == 0 &&
         strcasecmp("SetPowerState",methodName) == 0)
     {
         CMSetStatusWithChars(

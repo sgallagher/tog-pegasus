@@ -811,7 +811,7 @@ extern "C"
                 reinterpret_cast<const CMPIArgs*>(eCtx),i,&name,NULL);
             CMPI_Args_Ftab->addArg(
                 reinterpret_cast<CMPIArgs*>(neCtx),
-                CMGetCharPtr(name),
+                CMGetCharsPtr(name,NULL),
                 &data.value,data.type);
         }
         PEG_METHOD_EXIT();

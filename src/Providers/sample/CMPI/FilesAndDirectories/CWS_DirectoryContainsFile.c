@@ -185,12 +185,12 @@ CMPIStatus CWS_DirectoryContainsFileAssociatorNames( CMPIAssociationMI * mi,
     clsname = CMGetClassName(cop,NULL);
     if (clsname)
     {
-        if (strcasecmp(DIRECTORYCLASS, CMGetCharPtr(clsname)) == 0)
+        if (strcasecmp(DIRECTORYCLASS, CMGetCharsPtr(clsname,NULL)) == 0)
         {
             /* we have a directory and can return the children */
             data = CMGetKey(cop,"Name",NULL);
 
-            enumhdl = CWS_Begin_Enum(CMGetCharPtr(data.value.string),
+            enumhdl = CWS_Begin_Enum(CMGetCharsPtr(data.value.string,NULL),
                 CWS_TYPE_PLAIN);
 
             if (enumhdl == NULL)
@@ -206,7 +206,7 @@ CMPIStatus CWS_DirectoryContainsFileAssociatorNames( CMPIAssociationMI * mi,
                     /* build object path from file buffer */
                     op = makePath(_broker,
                         FILECLASS,
-                        CMGetCharPtr(CMGetNameSpace(cop,NULL)),
+                        CMGetCharsPtr(CMGetNameSpace(cop,NULL),NULL),
                         &filebuf);  CMSetHostname(op,CSName());
                     if (CMIsNullObject(op))
                     {
@@ -221,19 +221,19 @@ CMPIStatus CWS_DirectoryContainsFileAssociatorNames( CMPIAssociationMI * mi,
 
         }
 
-        if (strcasecmp(FILECLASS, CMGetCharPtr(clsname)) == 0 ||
-            strcasecmp(DIRECTORYCLASS, CMGetCharPtr(clsname)) == 0)
+        if (strcasecmp(FILECLASS, CMGetCharsPtr(clsname,NULL)) == 0 ||
+            strcasecmp(DIRECTORYCLASS, CMGetCharsPtr(clsname,NULL)) == 0)
         {
             /* we can always return the parent */
             data = CMGetKey(cop,"Name",NULL);
-            tmpdirname = strdup(CMGetCharPtr(data.value.string));
+            tmpdirname = strdup(CMGetCharsPtr(data.value.string,NULL));
             retCode = CWS_Get_File(dirname(tmpdirname),&filebuf);
             free(tmpdirname);
             if (retCode)
             {
                 op = makePath(_broker,
                     DIRECTORYCLASS,
-                    CMGetCharPtr(CMGetNameSpace(cop,NULL)),
+                    CMGetCharsPtr(CMGetNameSpace(cop,NULL),NULL),
                     &filebuf);  CMSetHostname(op,CSName());
                 if (CMIsNullObject(op))
                 {
@@ -302,12 +302,12 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
     clsname = CMGetClassName(cop,NULL);
     if (clsname)
     {
-        if (strcasecmp(DIRECTORYCLASS, CMGetCharPtr(clsname)) == 0)
+        if (strcasecmp(DIRECTORYCLASS, CMGetCharsPtr(clsname,NULL)) == 0)
         {
             /* we have a directory and can return the children */
             data = CMGetKey(cop,"Name",NULL);
 
-            enumhdl = CWS_Begin_Enum(CMGetCharPtr(data.value.string),
+            enumhdl = CWS_Begin_Enum(CMGetCharsPtr(data.value.string,NULL),
                 CWS_TYPE_PLAIN);
 
             if (enumhdl == NULL)
@@ -323,7 +323,7 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
                     /* build object path from file buffer */
                     op = makePath(_broker,
                         FILECLASS,
-                        CMGetCharPtr(CMGetNameSpace(cop,NULL)),
+                        CMGetCharsPtr(CMGetNameSpace(cop,NULL),NULL),
                         &filebuf);
                     if (CMIsNullObject(op))
                     {
@@ -333,7 +333,7 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
                     }
                     /* make reference object path */
                     opRef = CMNewObjectPath(_broker,
-                        CMGetCharPtr(CMGetNameSpace(cop,NULL)),
+                        CMGetCharsPtr(CMGetNameSpace(cop,NULL),NULL),
                         LOCALCLASSNAME,
                         NULL);  CMSetHostname(opRef,CSName());
                     if (CMIsNullObject(op))
@@ -351,19 +351,19 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
 
         }
 
-        if (strcasecmp(FILECLASS, CMGetCharPtr(clsname)) == 0 ||
-            strcasecmp(DIRECTORYCLASS, CMGetCharPtr(clsname)) == 0)
+        if (strcasecmp(FILECLASS, CMGetCharsPtr(clsname,NULL)) == 0 ||
+            strcasecmp(DIRECTORYCLASS, CMGetCharsPtr(clsname,NULL)) == 0)
         {
             /* we can always return the parent */
             data = CMGetKey(cop,"Name",NULL);
-            tmpdirname = strdup(CMGetCharPtr(data.value.string));
+            tmpdirname = strdup(CMGetCharsPtr(data.value.string,NULL));
             retCode = CWS_Get_File(dirname(tmpdirname),&filebuf);
             free(tmpdirname);
             if (retCode)
             {
                 op = makePath(_broker,
                     DIRECTORYCLASS,
-                    CMGetCharPtr(CMGetNameSpace(cop,NULL)),
+                    CMGetCharsPtr(CMGetNameSpace(cop,NULL),NULL),
                     &filebuf);
                 if (CMIsNullObject(op))
                 {
@@ -373,7 +373,7 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
                 }
                 /* make reference object path */
                 opRef = CMNewObjectPath(_broker,
-                    CMGetCharPtr(CMGetNameSpace(cop,NULL)),
+                    CMGetCharsPtr(CMGetNameSpace(cop,NULL),NULL),
                     LOCALCLASSNAME,
                     NULL);  CMSetHostname(opRef,CSName());
                 if (CMIsNullObject(op))

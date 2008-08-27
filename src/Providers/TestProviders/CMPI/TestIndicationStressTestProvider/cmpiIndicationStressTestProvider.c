@@ -233,7 +233,7 @@ CMPIStatus TestCMPIIndicationStressTestProviderInvokeMethod(
     data = CMGetArgAt (in, 1, NULL, NULL);
     if (data.type == CMPI_string)
     {
-        namespaceName = strdup(CMGetCharPtr (data.value.string));
+        namespaceName = strdup(CMGetCharsPtr (data.value.string,NULL));
     }
     else
     {

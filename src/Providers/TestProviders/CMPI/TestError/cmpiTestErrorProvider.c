@@ -132,7 +132,7 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   class_name = CMGetClassName (ref, &rc);
 
   PROV_LOG ("InvokeMethod: checking for correct classname [%s]",
-            CMGetCharPtr (class_name));
+            CMGetCharsPtr (class_name,NULL));
 
   PROV_LOG ("Calling CMNewCMPIError");
   cmpiError = CMNewCMPIError(_broker, inOwningEntity, inMsgID, inMsg,
@@ -206,22 +206,22 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   PROV_LOG ("Calling CMGetOtherErrorType");
   outOtherErrType = CMGetOtherErrorType(cmpiErrorClone, &rc);
   PROV_LOG ("++++ (%s) CMGetOtherErrorType (%s)", strCMPIStatus (rc), 
-      CMGetCharPtr(outOtherErrType));
+      CMGetCharsPtr(outOtherErrType,NULL));
 
   PROV_LOG ("Calling CMGetOwningEntity");
   outOwningEntity = CMGetOwningEntity(cmpiErrorClone, &rc);
   PROV_LOG ("++++ (%s) CMGetOwningEntity (%s)", strCMPIStatus (rc), 
-      CMGetCharPtr(outOwningEntity));
+      CMGetCharsPtr(outOwningEntity,NULL));
 
   PROV_LOG ("Calling CMGetMessageID");
   outMsgID = CMGetMessageID(cmpiErrorClone, &rc);
   PROV_LOG ("++++ (%s) CMGetMessageID (%s)", strCMPIStatus (rc), 
-      CMGetCharPtr(outMsgID));
+      CMGetCharsPtr(outMsgID,NULL));
 
   PROV_LOG ("Calling CMGetErrorMessage");
   outMsg = CMGetErrorMessage(cmpiErrorClone, &rc);
   PROV_LOG ("++++ (%s) CMGetErrorMessage (%s)", strCMPIStatus (rc), 
-      CMGetCharPtr(outMsg));
+      CMGetCharsPtr(outMsg,NULL));
 
   PROV_LOG ("Calling CMGetPerceivedSeverity");
   outSev = CMGetPerceivedSeverity(cmpiErrorClone, &rc);
@@ -237,7 +237,7 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   outPcd = CMGetProbableCauseDescription(cmpiErrorClone, &rc);
   PROV_LOG ("++++ (%s) CMGetProbableCauseDescription (%s)",
       strCMPIStatus (rc),
-      CMGetCharPtr(outPcd));
+      CMGetCharsPtr(outPcd,NULL));
 
   PROV_LOG ("Calling CMGetRecommendedActions");
   outRecActions = CMGetRecommendedActions(cmpiErrorClone, &rc);
@@ -248,13 +248,13 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   {
       CMPIData dta = CMGetArrayElementAt(outRecActions, i, &rc);
       PROV_LOG ("++++ (%s) CMGetArrayElementAt (%d:%s)", strCMPIStatus (rc),
-          i, CMGetCharPtr(dta.value.string));
+          i, CMGetCharsPtr(dta.value.string,NULL));
   }
 
   PROV_LOG ("Calling CMGetErrorSource");
   outErrSource = CMGetErrorSource(cmpiErrorClone, &rc);
   PROV_LOG ("++++ (%s) CMGetErrorSource (%s)", strCMPIStatus (rc),
-      CMGetCharPtr(outErrSource));
+      CMGetCharsPtr(outErrSource,NULL));
 
   PROV_LOG ("Calling CMGetErrorSourceFormat");
   outErrSourceFormat = CMGetErrorSourceFormat(cmpiErrorClone, &rc);
@@ -264,7 +264,7 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   PROV_LOG ("Calling CMGetOtherErrorSourceFormat");
   outOtherErrSourceFormat = CMGetOtherErrorSourceFormat(cmpiErrorClone, &rc);
   PROV_LOG ("++++ (%s) CMGetOtherErrorSourceFormat (%s)", strCMPIStatus (rc),
-      CMGetCharPtr(outOtherErrSourceFormat));
+      CMGetCharsPtr(outOtherErrSourceFormat,NULL));
 
   PROV_LOG ("Calling CMGetCIMStatusCode");
   outCIMStatusCode = CMGetCIMStatusCode(cmpiErrorClone, &rc);
@@ -274,7 +274,7 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   PROV_LOG ("Calling CMGetCIMStatusCodeDescription");
   outCIMStatusCodeDesc = CMGetCIMStatusCodeDescription(cmpiErrorClone, &rc);
   PROV_LOG ("++++ (%s) CMGetCIMStatusCodeDescription (%s)", strCMPIStatus (rc),
-      CMGetCharPtr(outCIMStatusCodeDesc));
+      CMGetCharsPtr(outCIMStatusCodeDesc,NULL));
 
   PROV_LOG ("Calling CMGetMessageArguments");
   outMsgArgs = CMGetMessageArguments(cmpiErrorClone, &rc);
@@ -285,7 +285,7 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   {
       CMPIData dta = CMGetArrayElementAt(outMsgArgs, i, &rc);
       PROV_LOG ("++++ (%s) CMGetArrayElementAt (%d:%s)", strCMPIStatus (rc),
-          i, CMGetCharPtr(dta.value.string));
+          i, CMGetCharsPtr(dta.value.string,NULL));
   }
 
   PROV_LOG ("Calling CMPIResultFT.returnData");

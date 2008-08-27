@@ -1048,7 +1048,7 @@ extern "C"
         {
             if (rc.rc == CMPI_RC_OK)
             {
-                const char* accLangs = CMGetCharPtr(data.value.string);
+                const char* accLangs = CMGetCharsPtr(data.value.string, NULL);
                 if ((accLangs != NULL) && (accLangs[0] != '\0'))
                 {
                     parms->acceptlanguages =
@@ -1403,7 +1403,7 @@ extern "C"
             // Create the CIMOMHandle wrapper.
             CIMOMHandle *cm_handle = CM_CIMOM (mb);
             CIMOMHandleQueryContext qcontext(
-                CIMNamespaceName(CMGetCharPtr(data.value.string)),
+                CIMNamespaceName(CMGetCharsPtr(data.value.string,NULL)),
                 *cm_handle);
 
             String sLang (lang);
@@ -1530,7 +1530,7 @@ extern "C"
             // Create the CIMOMHandle wrapper.
             CIMOMHandle *cm_handle = CM_CIMOM (mb);
             CIMOMHandleQueryContext qcontext(
-                CIMNamespaceName(CMGetCharPtr(data.value.string)),
+                CIMNamespaceName(CMGetCharsPtr(data.value.string, NULL)),
                 *cm_handle);
 
             String sLang (lang);

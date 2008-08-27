@@ -1471,6 +1471,8 @@ inline static CMPICount CMGetArgCount(const CMPIArgs * as, CMPIStatus * rc)
 
 // CMPIString Macros
 
+// CMGetCharPtr is deprecated. It will be removed in the 
+// future versions.
 #define CMGetCharPtr(st)    ((st)->ft->getCharPtr((st),NULL))
 
 #ifdef CMPI_INLINE

@@ -346,7 +346,7 @@ CMPIStatus TestCMPIEnumerationProviderInvokeMethod (CMPIMethodMI * mi,
     class = CMGetClassName (ref, &rc);
 
     PROV_LOG ("InvokeMethod: checking for correct classname [%s]",
-        CMGetCharPtr (class));
+        CMGetCharsPtr (class,NULL));
 
     PROV_LOG ("Calling CMGetArgCount");
     arg_cnt = CMGetArgCount (in, &rc);
@@ -366,27 +366,30 @@ CMPIStatus TestCMPIEnumerationProviderInvokeMethod (CMPIMethodMI * mi,
             {
                 PROV_LOG ("#%d: %s (uint32), value: %d",
                     index,
-                    CMGetCharPtr (argName),
+                    CMGetCharsPtr (argName,NULL),
                     data.value.uint32);
             }
             else if (data.type == CMPI_string)
             {
                 PROV_LOG ("#%d: %s (string) value: %s",
                     index,
-                    CMGetCharPtr (argName),
-                    CMGetCharPtr (data.value.string));
+                    CMGetCharsPtr (argName,NULL),
+                    CMGetCharsPtr (data.value.string,NULL));
             }
             else
             {
                 PROV_LOG ("#%d: %s (type: %x)",
                     index,
-                    CMGetCharPtr (argName),
+                    CMGetCharsPtr (argName,NULL),
                     data.type);
             }
             CMRelease (argName);
         }
     }
-    if (strncmp (CMGetCharPtr (class), _ClassName, strlen (_ClassName)) == 0)
+    if (strncmp(
+        CMGetCharsPtr (class,NULL),
+        _ClassName,
+        strlen (_ClassName)) == 0)
     {
         if (strncmp("testEnumeration", 
             methodName,

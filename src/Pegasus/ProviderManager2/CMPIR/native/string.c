@@ -41,9 +41,6 @@
 
     It is part of a native broker implementation that simulates CMPI data
     types rather than interacting with the entities in a full-grown CIMOM.
-
-    \todo Once CMGetCharPtr() macro uses the appropriate function call instead
-    of casting the internal hdl, store "CMPIString" type in there.
 */
 
 #include <string.h>

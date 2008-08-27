@@ -71,12 +71,12 @@ const char * _assoc_targetClass_Name(
             "Could not get classname of source object path.");
         return NULL;
     }
-    if ( strcmp(CMGetCharPtr(sourceClass), _RefLeftClass ) == 0 )
+    if ( strcmp(CMGetCharsPtr(sourceClass, NULL), _RefLeftClass ) == 0 )
     {
         /* pathName = left end -> get right end */
         return _RefRightClass;
     }
-    else if ( strcmp(CMGetCharPtr(sourceClass), _RefRightClass ) == 0 )
+    else if ( strcmp(CMGetCharsPtr(sourceClass, NULL), _RefRightClass ) == 0 )
     {
         /* pathName = right end -> get left end */
         return _RefLeftClass;
@@ -130,7 +130,7 @@ CMPIObjectPath * _assoc_targetClass_OP(
     {
         op = CMNewObjectPath(
                  _broker,
-                 CMGetCharPtr(CMGetNameSpace(ref,rc)),
+                 CMGetCharsPtr(CMGetNameSpace(ref,rc), NULL),
                  targetName,
                  rc);
         if (CMIsNullObject(op))
@@ -175,16 +175,16 @@ int _assoc_check_parameter_const(
     sourceClass = CMGetClassName(cop, rc);
     scop=CMNewObjectPath(
              _broker,
-             CMGetCharPtr(CMGetNameSpace(cop,rc)),
-             CMGetCharPtr(sourceClass),
+             CMGetCharsPtr(CMGetNameSpace(cop,rc), NULL),
+             CMGetCharsPtr(sourceClass, NULL),
              rc);
 
-    if (strcasecmp(CMGetCharPtr(sourceClass),_RefLeftClass) == 0 ||
+    if (strcasecmp(CMGetCharsPtr(sourceClass, NULL),_RefLeftClass) == 0 ||
         CMClassPathIsA(_broker,scop,_RefLeftClass,rc) == 1)
     {
         intrc = 1;
     }
-    else if (strcasecmp(CMGetCharPtr(sourceClass),_RefRightClass) == 0 ||
+    else if (strcasecmp(CMGetCharsPtr(sourceClass, NULL),_RefRightClass) == 0 ||
              CMClassPathIsA(_broker,scop,_RefRightClass,rc) == 1)
     {
         intrc = 1;
@@ -202,21 +202,23 @@ int _assoc_check_parameter_const(
     /* or the class itself of the target class */
     if (resultClass)
     {
-        if (strcasecmp(CMGetCharPtr(sourceClass),_RefLeftClass) == 0 ||
+        if (strcasecmp(CMGetCharsPtr(sourceClass, NULL),_RefLeftClass) == 0 ||
             CMClassPathIsA(_broker,scop,_RefLeftClass,rc) == 1)
         {
             op = CMNewObjectPath(
                      _broker,
-                     CMGetCharPtr(CMGetNameSpace(cop,rc)),
+                     CMGetCharsPtr(CMGetNameSpace(cop,rc), NULL),
                      _RefRightClass,
                      rc);
         }
-        else if (strcasecmp(CMGetCharPtr(sourceClass),_RefRightClass)==0 ||
-                 CMClassPathIsA(_broker,scop,_RefRightClass,rc) == 1)
+        else if (strcasecmp(
+            CMGetCharsPtr(sourceClass, NULL),
+            _RefRightClass)==0 ||
+            CMClassPathIsA(_broker,scop,_RefRightClass,rc) == 1)
         {
             op=CMNewObjectPath(
                    _broker,
-                   CMGetCharPtr(CMGetNameSpace(cop,rc)),
+                   CMGetCharsPtr(CMGetNameSpace(cop,rc), NULL),
                    _RefLeftClass,
                    rc);
         }
@@ -227,7 +229,7 @@ int _assoc_check_parameter_const(
 
         rcop=CMNewObjectPath(
                  _broker,
-                 CMGetCharPtr(CMGetNameSpace(cop,rc)),
+                 CMGetCharsPtr(CMGetNameSpace(cop,rc), NULL),
                  resultClass,
                  rc);
 
@@ -236,16 +238,16 @@ int _assoc_check_parameter_const(
             intrc = 1;
         }
         else if ((CMClassPathIsA(_broker,rcop,_RefRightClass,rc) == 1 &&
-                  strcasecmp(CMGetCharPtr(sourceClass),_RefLeftClass)==0) ||
-                 (CMClassPathIsA(_broker,rcop,_RefRightClass,rc) == 1 &&
-                  CMClassPathIsA(_broker,scop,_RefLeftClass,rc) == 1 ))
+            strcasecmp(CMGetCharsPtr(sourceClass, NULL),_RefLeftClass)==0) ||
+            (CMClassPathIsA(_broker,rcop,_RefRightClass,rc) == 1 &&
+            CMClassPathIsA(_broker,scop,_RefLeftClass,rc) == 1 ))
         {
             intrc = 1;
         }
         else if ((CMClassPathIsA(_broker,rcop,_RefLeftClass,rc) == 1 &&
-                  strcasecmp(CMGetCharPtr(sourceClass),_RefRightClass)==0) ||
-                 (CMClassPathIsA(_broker,rcop,_RefLeftClass,rc) == 1 &&
-                  CMClassPathIsA(_broker,scop,_RefRightClass,rc) == 1 ))
+            strcasecmp(CMGetCharsPtr(sourceClass, NULL), _RefRightClass)==0) ||
+            (CMClassPathIsA(_broker,rcop,_RefLeftClass,rc) == 1 &&
+            CMClassPathIsA(_broker,scop,_RefRightClass,rc) == 1 ))
         {
             intrc = 1;
         }
@@ -259,7 +261,8 @@ int _assoc_check_parameter_const(
      * parameter 'role' within this association */
     if (role)
     {
-        if (strcasecmp(CMGetCharPtr(sourceClass),_RefLeftClass) == 0 ||
+        if (strcasecmp(
+            CMGetCharsPtr(sourceClass, NULL),_RefLeftClass) == 0 ||
             CMClassPathIsA(_broker,scop,_RefLeftClass,rc) == 1)
         {
             if (strcasecmp(role,_RefLeft) != 0)
@@ -271,8 +274,9 @@ int _assoc_check_parameter_const(
                 intrc = 1;
             }
         }
-        else if (strcasecmp(CMGetCharPtr(sourceClass),_RefRightClass) == 0 ||
-                 CMClassPathIsA(_broker,scop,_RefRightClass,rc) == 1)
+        else if (strcasecmp(
+            CMGetCharsPtr(sourceClass, NULL),_RefRightClass) == 0 ||
+            CMClassPathIsA(_broker,scop,_RefRightClass,rc) == 1)
         {
             if (strcasecmp(role,_RefRight) != 0)
             {
@@ -293,7 +297,8 @@ int _assoc_check_parameter_const(
      * parameter 'resultRole' within this association */
     if (resultRole)
     {
-        if (strcasecmp(CMGetCharPtr(sourceClass),_RefLeftClass) == 0 ||
+        if (strcasecmp(
+            CMGetCharsPtr(sourceClass, NULL),_RefLeftClass) == 0 ||
             CMClassPathIsA(_broker,scop,_RefLeftClass,rc) == 1)
         {
             if (strcasecmp(resultRole,_RefRight) != 0)
@@ -305,8 +310,9 @@ int _assoc_check_parameter_const(
                 intrc = 1;
             }
         }
-        else if (strcasecmp(CMGetCharPtr(sourceClass),_RefRightClass) == 0 ||
-                 CMClassPathIsA(_broker,scop,_RefRightClass,rc) == 1)
+        else if (strcasecmp(
+            CMGetCharsPtr(sourceClass, NULL),_RefRightClass) == 0 ||
+            CMClassPathIsA(_broker,scop,_RefRightClass,rc) == 1)
         {
             if (strcasecmp(resultRole,_RefLeft) != 0)
             {
@@ -356,7 +362,7 @@ CMPIInstance * _assoc_get_inst(
         return ci;
     }
 
-    CMSetNameSpace(dtl.value.ref,CMGetCharPtr(CMGetNameSpace(cop,rc)));
+    CMSetNameSpace(dtl.value.ref,CMGetCharsPtr(CMGetNameSpace(cop,rc), NULL));
     ci = CBGetInstance(_broker, ctx, dtl.value.ref, NULL, rc);
     if (ci == NULL)
     {
@@ -390,7 +396,7 @@ CMPIInstance * _assoc_get_inst(
         return ci;
     }
 
-    CMSetNameSpace(dtr.value.ref,CMGetCharPtr(CMGetNameSpace(cop,rc)));
+    CMSetNameSpace(dtr.value.ref,CMGetCharsPtr(CMGetNameSpace(cop,rc), NULL));
     ci = CBGetInstance(_broker, ctx, dtr.value.ref, NULL, rc);
     if (ci == NULL)
     {
@@ -415,7 +421,7 @@ CMPIInstance * _assoc_get_inst(
 
     op = CMNewObjectPath(
              _broker,
-             CMGetCharPtr(CMGetNameSpace(cop,rc)),
+             CMGetCharsPtr(CMGetNameSpace(cop,rc), NULL),
              _ClassName,
              rc);
     if (CMIsNullObject(op))
@@ -533,7 +539,7 @@ int _assoc_create_refs_1toN(
 
     rop = CMNewObjectPath(
               _broker,
-              CMGetCharPtr(CMGetNameSpace(ref,rc)),
+              CMGetCharsPtr(CMGetNameSpace(ref,rc), NULL),
               _ClassName,
               rc);
     if (CMIsNullObject(rop))
@@ -556,7 +562,7 @@ int _assoc_create_refs_1toN(
                 _broker,
                 rc,
                 CMPI_RC_ERR_FAILED,
-                CMGetCharPtr(rc->msg));
+                CMGetCharsPtr(rc->msg, NULL));
             return -1;
         }
         while (CMHasNext( en, rc))
@@ -584,7 +590,7 @@ int _assoc_create_refs_1toN(
                 _broker,
                 rc,
                 CMPI_RC_ERR_FAILED,
-                CMGetCharPtr(rc->msg));
+                CMGetCharsPtr(rc->msg, NULL));
             return -1;
         }
 
@@ -650,7 +656,9 @@ int _assoc_create_refs_1toN(
                             "CMGetObjectPath(ci,rc)" );
                         return -1;
                     }
-                    CMSetNameSpace(cop,CMGetCharPtr(CMGetNameSpace(ref,rc)));
+                    CMSetNameSpace(
+                        cop,
+                        CMGetCharsPtr(CMGetNameSpace(ref,rc), NULL));
                     CMReturnObjectPath( rslt, cop );
                     CMRelease( cop );
                 }
@@ -720,7 +728,7 @@ int _assoc_create_inst_1toN(
     {
         op = CMNewObjectPath(
                  _broker,
-                 CMGetCharPtr(CMGetNameSpace(cop,rc)),
+                 CMGetCharsPtr(CMGetNameSpace(cop,rc), NULL),
                  _RefRightClass,
                  rc);
     }
@@ -728,7 +736,7 @@ int _assoc_create_inst_1toN(
     { /* left == 1 */
         op = CMNewObjectPath(
                  _broker,
-                 CMGetCharPtr(CMGetNameSpace(cop,rc)),
+                 CMGetCharsPtr(CMGetNameSpace(cop,rc), NULL),
                  _RefLeftClass,
                  rc);
     }
@@ -749,7 +757,7 @@ int _assoc_create_inst_1toN(
             _broker,
             rc,
             CMPI_RC_ERR_FAILED,
-            CMGetCharPtr(rc->msg));
+            CMGetCharsPtr(rc->msg, NULL));
         return -1;
     }
 

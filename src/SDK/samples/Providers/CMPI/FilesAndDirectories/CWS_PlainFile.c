@@ -94,7 +94,7 @@ CMPIStatus CWS_PlainFileEnumInstanceNames( CMPIInstanceMI * mi,
       /* build object path from file buffer */
       op = makePath(_broker,
             LOCALCLASSNAME,
-            CMGetCharPtr(CMGetNameSpace(ref,NULL)),
+            CMGetCharsPtr(CMGetNameSpace(ref,NULL), NULL ),
             &filebuf);
       if (CMIsNullObject(op)) {
     CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
@@ -142,7 +142,7 @@ CMPIStatus CWS_PlainFileEnumInstances( CMPIInstanceMI * mi,
       /* build instance from file buffer */
       in = makeInstance(_broker,
             LOCALCLASSNAME,
-            CMGetCharPtr(CMGetNameSpace(ref,NULL)),
+            CMGetCharsPtr(CMGetNameSpace(ref,NULL), NULL),
             &filebuf);
       if (CMIsNullObject(in)) {
     CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
@@ -181,10 +181,10 @@ CMPIStatus CWS_PlainFileGetInstance( CMPIInstanceMI * mi,
 
   if (st.rc == CMPI_RC_OK &&
       nd.type == CMPI_string &&
-      CWS_Get_File(CMGetCharPtr(nd.value.string),&filebuf))
+      CWS_Get_File(CMGetCharsPtr(nd.value.string, NULL),&filebuf))
     in = makeInstance(_broker,
               LOCALCLASSNAME,
-              CMGetCharPtr(CMGetNameSpace(cop,NULL)),
+              CMGetCharsPtr(CMGetNameSpace(cop,NULL), NULL),
               &filebuf);
 
   if (CMIsNullObject(in)) {
@@ -249,7 +249,7 @@ CMPIStatus CWS_PlainFileSetInstance( CMPIInstanceMI * mi,
           }
           else if (!CWS_Update_FileSize(
                         &filebuf,
-                        CMGetCharPtr(dt.value.string)))
+                        CMGetCharsPtr(dt.value.string, NULL)))
           {
               CMSetStatusWithChars(_broker,&st,CMPI_RC_ERR_FAILED,
                        "Could not update filesize in instance");
@@ -351,7 +351,7 @@ CMPIStatus CWS_PlainFileInvokeMethod( CMPIMethodMI * mi,
   if (st.rc != CMPI_RC_OK) {
     CMSetStatusWithChars(_broker,&st,CMPI_RC_ERR_FAILED,
              "Could not get instance name");
-  } else if (CWS_Get_FileType(CMGetCharPtr(dt.value.string),typebuf,
+  } else if (CWS_Get_FileType(CMGetCharsPtr(dt.value.string, NULL),typebuf,
                   sizeof(typebuf))) {
     CMSetStatusWithChars(_broker,&st,CMPI_RC_ERR_FAILED,
              "Could not get type");

@@ -72,15 +72,17 @@ const char * get_assoc_targetClass_Name(
     
     op = CMNewObjectPath(
         broker,
-        CMGetCharPtr(CMGetNameSpace(ref,rc)),
+        CMGetCharsPtr(CMGetNameSpace(ref,rc), NULL),
         _RefLeftClass,
         rc );
 
-    if (strcmp(CMGetCharPtr(sourceClass),"CMPI_TEST_Person") == 0 )
+    if (strcmp(CMGetCharsPtr(sourceClass, NULL),"CMPI_TEST_Person") == 0 )
     {
         return "CMPI_TEST_Vehicle"; 
     }
-    else if ( strcmp(CMGetCharPtr(sourceClass),"CMPI_TEST_Vehicle") == 0 )
+    else if ( strcmp(
+        CMGetCharsPtr(sourceClass, NULL),
+        "CMPI_TEST_Vehicle") == 0 )
     {
         return "CMPI_TEST_Person";
     }
@@ -114,7 +116,7 @@ CMPIObjectPath* get_assoc_targetClass_ObjectPath(
         /* create new object path of the target class */
         op = CMNewObjectPath(
             broker,
-            CMGetCharPtr(CMGetNameSpace(ref,rc)),
+            CMGetCharsPtr(CMGetNameSpace(ref,rc), NULL),
             targetName,
             rc);
     }
@@ -168,10 +170,10 @@ CMPIStatus TestCMPIAssociationProviderAssociators(
         &rc);
 
     sourceClass = CMGetClassName(op,&rc);
-    PROV_LOG(" target class: %s ",CMGetCharPtr(sourceClass));
+    PROV_LOG(" target class: %s ",CMGetCharsPtr(sourceClass,NULL));
     
     PROV_LOG (" New Object Path [%s]",
-                CMGetCharPtr (CMGetNameSpace (ref, &rc)));
+                CMGetCharsPtr (CMGetNameSpace (ref, &rc),NULL));
 
     /* Call to Associators */
     /* upcall to CIMOM; call enumInstances() of the target class */
@@ -224,12 +226,12 @@ CMPIStatus TestCMPIAssociationProviderAssociatorNames(
         &rc);
 
     PROV_LOG (" New Object Path [%s]",
-        CMGetCharPtr (CMGetNameSpace (ref, &rc)));                
+        CMGetCharsPtr (CMGetNameSpace (ref, &rc),NULL));                
 
     /* create new object path of association */
     rop = CMNewObjectPath(
         _broker,
-        CMGetCharPtr(CMGetNameSpace(ref,&rc)),
+        CMGetCharsPtr(CMGetNameSpace(ref,&rc),NULL),
         _ClassName,
         &rc );
 
@@ -290,12 +292,12 @@ CMPIStatus TestCMPIAssociationProviderReferences(
         &rc);
 
     PROV_LOG (" New Object Path [%s]",
-        CMGetCharPtr (CMGetNameSpace (ref, &rc)));
+        CMGetCharsPtr (CMGetNameSpace (ref, &rc),NULL));
 
     /* create new object path of association */
     rop = CMNewObjectPath(
         _broker,
-        CMGetCharPtr(CMGetNameSpace(ref,&rc)),
+        CMGetCharsPtr(CMGetNameSpace(ref,&rc),NULL),
         _thisClassName,
         &rc );
 
@@ -388,12 +390,12 @@ CMPIStatus TestCMPIAssociationProviderReferenceNames(
         &rc);
 
     PROV_LOG (" New Object Path [%s]",
-    CMGetCharPtr (CMGetNameSpace (ref, &rc)));                
+    CMGetCharsPtr (CMGetNameSpace (ref, &rc),NULL));                
 
     /* create new object path of association */
     rop = CMNewObjectPath(
         _broker,
-        CMGetCharPtr(CMGetNameSpace(ref,&rc)),
+        CMGetCharsPtr(CMGetNameSpace(ref,&rc),NULL),
         _thisClassName,
         &rc );
 
@@ -445,7 +447,7 @@ CMPIStatus TestCMPIAssociationProviderReferenceNames(
         cop = CMGetObjectPath(ci,&rc);
 
         /* set namespace in object path of association */
-        CMSetNameSpace(cop,CMGetCharPtr(CMGetNameSpace(ref,&rc)));
+        CMSetNameSpace(cop,CMGetCharsPtr(CMGetNameSpace(ref,&rc),NULL));
 
         /* and return the association object path as result of the
          * referenceNames() call

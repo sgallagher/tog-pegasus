@@ -198,7 +198,9 @@ extern "C"
             {
                 data.type = CMPI_chars;
                 data.state = CMPI_goodValue;
-                data.value.chars = (char*)CMGetCharPtr(dta[pos+1].value.string);
+                data.value.chars = (char*)CMGetCharsPtr(
+                    dta[pos+1].value.string,
+                    NULL);
                 return data;
             }
             else

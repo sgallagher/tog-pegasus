@@ -55,7 +55,7 @@ CMPIObjectPath * _makePath_TestClass(
 
     op = CMNewObjectPath(
              _broker,
-             CMGetCharPtr(CMGetNameSpace(ref,rc)),
+             CMGetCharsPtr(CMGetNameSpace(ref,rc), NULL),
              _ClassName, rc );
 
     if (CMIsNullObject(op))
@@ -106,7 +106,7 @@ CMPIInstance * _makeInst_TestClass(
 //
     op = CMNewObjectPath(
              _broker,
-             CMGetCharPtr(CMGetNameSpace(ref,rc)),
+             CMGetCharsPtr(CMGetNameSpace(ref,rc), NULL),
              _ClassName,
              rc);
     if (CMIsNullObject(op))

@@ -80,7 +80,7 @@ CMPIStatus CWS_DirectoryEnumInstanceNames( CMPIInstanceMI * mi,
       /* build object path from file buffer */
       op = makePath(_broker,
             LOCALCLASSNAME,
-            CMGetCharPtr(CMGetNameSpace(ref,NULL)),
+            CMGetCharsPtr(CMGetNameSpace(ref,NULL), NULL),
             &filebuf);
       if (CMIsNullObject(op)) {
     CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
@@ -120,7 +120,7 @@ CMPIStatus CWS_DirectoryEnumInstances( CMPIInstanceMI * mi,
       /* build instance from file buffer */
       in = makeInstance(_broker,
             LOCALCLASSNAME,
-            CMGetCharPtr(CMGetNameSpace(ref,NULL)),
+            CMGetCharsPtr(CMGetNameSpace(ref,NULL), NULL),
             &filebuf);
       if (CMIsNullObject(in)) {
     CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
@@ -151,10 +151,10 @@ CMPIStatus CWS_DirectoryGetInstance( CMPIInstanceMI * mi,
 
   if (st.rc == CMPI_RC_OK &&
       nd.type == CMPI_string &&
-      CWS_Get_File(CMGetCharPtr(nd.value.string),&filebuf))
+      CWS_Get_File(CMGetCharsPtr(nd.value.string, NULL),&filebuf))
     in = makeInstance(_broker,
               LOCALCLASSNAME,
-              CMGetCharPtr(CMGetNameSpace(cop,NULL)),
+              CMGetCharsPtr(CMGetNameSpace(cop,NULL), NULL),
               &filebuf);
 
   if (CMIsNullObject(in)) {
@@ -181,8 +181,8 @@ CMPIStatus CWS_DirectoryCreateInstance( CMPIInstanceMI * mi,
   if (!silentMode()) fprintf(stderr,"--- CWS_DirectoryCreateInstance() \n");
 
   data = CMGetProperty(ci,"Name",NULL);
-  if (!CMGetCharPtr(data.value.string) ||
-      strncmp(CMGetCharPtr(data.value.string),CWS_FILEROOT,
+  if (!CMGetCharsPtr(data.value.string, NULL) ||
+      strncmp(CMGetCharsPtr(data.value.string, NULL),CWS_FILEROOT,
           strlen(CWS_FILEROOT))) {
     CMSetStatusWithChars(_broker,&st,CMPI_RC_ERR_FAILED,
              "Invalid path name");

@@ -248,7 +248,7 @@ CMPIStatus cmpiPerf_TestAssocClassProviderAssociators(
     {
         op = CMNewObjectPath(
                  _broker,
-                 CMGetCharPtr(CMGetNameSpace(cop,&rc)),
+                 CMGetCharsPtr(CMGetNameSpace(cop,&rc), NULL),
                  _ClassName,
                  &rc );
 
@@ -323,7 +323,7 @@ CMPIStatus cmpiPerf_TestAssocClassProviderAssociatorNames(
     {
         op = CMNewObjectPath(
                  _broker,
-                 CMGetCharPtr(CMGetNameSpace(cop,&rc)),
+                 CMGetCharsPtr(CMGetNameSpace(cop,&rc), NULL),
                  _ClassName,
                  &rc );
         if (op==NULL)
@@ -394,7 +394,7 @@ CMPIStatus cmpiPerf_TestAssocClassProviderReferences(
     {
         op=CMNewObjectPath(
                _broker,
-               CMGetCharPtr(CMGetNameSpace(cop,&rc)),
+               CMGetCharsPtr(CMGetNameSpace(cop,&rc), NULL),
                _ClassName,
                &rc);
 
@@ -464,7 +464,7 @@ CMPIStatus cmpiPerf_TestAssocClassProviderReferenceNames(
     {
         op=CMNewObjectPath(
                _broker,
-               CMGetCharPtr(CMGetNameSpace(cop,&rc)),
+               CMGetCharsPtr(CMGetNameSpace(cop,&rc), NULL),
                _ClassName,
                &rc);
         if (op==NULL)

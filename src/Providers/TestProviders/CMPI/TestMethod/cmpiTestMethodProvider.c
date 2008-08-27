@@ -114,9 +114,9 @@ _CDGetType (const void *o, char **result)
   type = CDGetType (_broker, o, &rc);
   if (type)
     {
-      PROV_LOG ("++++ %s (%s)", CMGetCharPtr (type), strCMPIStatus (rc));
+      PROV_LOG ("++++ %s (%s)", CMGetCharsPtr (type,NULL), strCMPIStatus (rc));
       // The result of the call is put in 'result' parameter.
-      *result = (char *) strdup ((const char *) CMGetCharPtr (type));
+      *result = (char *) strdup ((const char *) CMGetCharsPtr (type,NULL));
       CMRelease (type);
     }
   else
@@ -140,7 +140,7 @@ _CDToString (const void *o, char **result)
   type = CDToString (_broker, o, &rc);
   if (type)
     {
-      p = CMGetCharPtr (type);
+      p = CMGetCharsPtr (type,NULL);
       // The pointer to the null value.
       q = p + strlen (p);
       // The first couple of bytes are the address of the data. We don't want
@@ -294,8 +294,8 @@ _CMGetMessage (char **result)
   PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
   if (str)
     {
-      PROV_LOG ("++++ [%s]", CMGetCharPtr (str));
-      *result = strdup (CMGetCharPtr (str));
+      PROV_LOG ("++++ [%s]", CMGetCharsPtr (str,NULL));
+      *result = strdup (CMGetCharsPtr (str,NULL));
     }
   if (rc.rc == CMPI_RC_OK)
     return 0;
@@ -322,8 +322,8 @@ static int _CMGetMessage2 (char **result, const char* msgFile,
     PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
     if (str)
     {
-        PROV_LOG ("++++ [%s]", CMGetCharPtr (str));
-        *result = strdup (CMGetCharPtr (str));
+        PROV_LOG ("++++ [%s]", CMGetCharsPtr (str,NULL));
+        *result = strdup (CMGetCharsPtr (str,NULL));
     }
 
     PROV_LOG ("++++ #C CMCloseMessageFile");
@@ -416,7 +416,7 @@ _createInstance()
   PROV_LOG ("---- (rc:%s)", strCMPIStatus (rc));
 
   objName = CMObjectPathToString(temp_objPath, &rc);
-  PROV_LOG ("---- Object path is %s (rc:%s)", CMGetCharPtr(objName),
+  PROV_LOG ("---- Object path is %s (rc:%s)", CMGetCharsPtr(objName,NULL),
       strCMPIStatus (rc));
 
   // Create a new ObjectPath, in a different namespace.
@@ -429,12 +429,12 @@ _createInstance()
   PROV_LOG ("---- (%s)", strCMPIStatus (rc));
   
   objName = CMObjectPathToString(fake_objPath, &rc);
-  PROV_LOG ("---- Object path: %s (rc:%s)", CMGetCharPtr(objName),
+  PROV_LOG ("---- Object path: %s (rc:%s)", CMGetCharsPtr(objName,NULL),
       strCMPIStatus (rc));
 
   // Setting objPath to fake_ObjPath
   PROV_LOG("Calling CMSetObjectPath with object path: %s",
-      CMGetCharPtr(objName));
+      CMGetCharsPtr(objName,NULL));
   rc = CMSetObjectPath(inst, fake_objPath);
   PROV_LOG ("---- (%s)", strCMPIStatus (rc));
 
@@ -443,7 +443,7 @@ _createInstance()
   temp_objPath = CMGetObjectPath(inst, &rc);
   PROV_LOG ("---- (rc:%s)", strCMPIStatus (rc));
   objName = CMObjectPathToString(temp_objPath, &rc);
-  PROV_LOG ("---- Object path is %s (rc:%s)", CMGetCharPtr(objName),
+  PROV_LOG ("---- Object path is %s (rc:%s)", CMGetCharsPtr(objName,NULL),
       strCMPIStatus (rc));
 
   return inst;  
@@ -3075,7 +3075,7 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
   class = CMGetClassName (ref, &rc);
 
   PROV_LOG ("InvokeMethod: checking for correct classname [%s]",
-            CMGetCharPtr (class));
+            CMGetCharsPtr (class,NULL));
 
   PROV_LOG ("Calling CMGetArgCount");
   arg_cnt = CMGetArgCount (in, &rc);
@@ -3092,23 +3092,28 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
           if (data.type == CMPI_uint32)
             {
               PROV_LOG ("#%d: %s (uint32), value: %d", index,
-                        CMGetCharPtr (argName), data.value.uint32);
+                        CMGetCharsPtr (argName,NULL), data.value.uint32);
             }
           else if (data.type == CMPI_string)
             {
               PROV_LOG ("#%d: %s (string) value: %s", index,
-                        CMGetCharPtr (argName),
-                        CMGetCharPtr (data.value.string));
+                        CMGetCharsPtr (argName,NULL),
+                        CMGetCharsPtr (data.value.string,NULL));
             }
           else
-            {
-              PROV_LOG ("#%d: %s (type: %x)", index, CMGetCharPtr (argName),
-                        data.type);
-            }
+          {
+              PROV_LOG ("#%d: %s (type: %x)",
+                  index,
+                  CMGetCharsPtr (argName,NULL),
+                  data.type);
+          }
           CMRelease (argName);
         }
     }
-  if (strncmp (CMGetCharPtr (class), _ClassName, strlen (_ClassName)) == 0)
+  if (strncmp(
+      CMGetCharsPtr (class,NULL),
+      _ClassName,
+      strlen (_ClassName)) == 0)
     {
       if (strncmp ("TestCMPIBroker", methodName, strlen ("TestCMPIBroker")) ==
           0)
@@ -3165,9 +3170,9 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
                       insert2Data = CMGetArg (in, "insert2", &rc);
                       PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
                       value.uint32 = _CMGetMessage2 (&result,
-                          CMGetCharPtr(msgFileData.value.string),
-                          CMGetCharPtr(msgIdData.value.string),
-                          CMGetCharPtr(insert1Data.value.string),
+                          CMGetCharsPtr(msgFileData.value.string, NULL),
+                          CMGetCharsPtr(msgIdData.value.string, NULL),
+                          CMGetCharsPtr(insert1Data.value.string, NULL),
                           insert2Data.value.uint32
                           );
                       break;

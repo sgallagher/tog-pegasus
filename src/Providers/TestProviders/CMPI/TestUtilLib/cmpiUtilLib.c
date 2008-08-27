@@ -201,8 +201,8 @@ int _CMSameValue( CMPIData value1, CMPIData value2 )
         case CMPI_string: {
                 if (CMIsNullObject(v1.string) || CMIsNullObject(v2.string))
                     return 0;
-                return(0 == strcmp(CMGetCharPtr(v1.string), 
-                                   CMGetCharPtr(v2.string)));
+                return(0 == strcmp(CMGetCharsPtr(v1.string,NULL), 
+                                   CMGetCharsPtr(v2.string,NULL)));
             }
         case CMPI_dateTime: {
                 /* Compare dateTime's using their binary representation */
@@ -266,8 +266,12 @@ int _CMSameObject(const CMPIObjectPath * object1,
     namespace2 = CMGetNameSpace(object2, &status);
     if ((status.rc != CMPI_RC_OK) || CMIsNullObject(namespace2))
         return 0;
-    if (strcmp(CMGetCharPtr(namespace1), CMGetCharPtr(namespace2)) != 0)
+    if (strcmp(
+        CMGetCharsPtr(namespace1,NULL),
+        CMGetCharsPtr(namespace2,NULL)) != 0)
+    {
         return 0;
+    }
 
     /* Check if the two object paths have the same class */
     classname1 = CMGetClassName(object1, &status);
@@ -276,9 +280,12 @@ int _CMSameObject(const CMPIObjectPath * object1,
     classname2 = CMGetClassName(object2, &status);
     if ((status.rc != CMPI_RC_OK) || CMIsNullObject(classname2))
         return 0;
-    if (strcmp(CMGetCharPtr(classname1), CMGetCharPtr(classname2)) != 0)
+    if (strcmp(
+        CMGetCharsPtr(classname1,NULL),
+        CMGetCharsPtr(classname2,NULL)) != 0)
+    {
         return 0;
-
+    }
     /* Check if the two object paths have the same number of keys */
     numkeys1 = CMGetKeyCount(object1, &status);
     if (status.rc != CMPI_RC_OK) return 0;
@@ -294,7 +301,7 @@ int _CMSameObject(const CMPIObjectPath * object1,
         key1 = CMGetKeyAt(object1, i, &keyname, &status);
         if ((status.rc != CMPI_RC_OK) || CMIsNullObject(keyname))
             return 0;
-        key2 = CMGetKey(object2, CMGetCharPtr(keyname), &status);
+        key2 = CMGetKey(object2, CMGetCharsPtr(keyname,NULL), &status);
         if (status.rc != CMPI_RC_OK) return 0;
 
         /* Check if both keys are not nullValue and have the same value */
@@ -351,7 +358,7 @@ int _CMSameInstance( const CMPIInstance * instance1,
         if ((status.rc != CMPI_RC_OK) || CMIsNullObject(propertyname))
             return 0;
         property2 = CMGetProperty(instance2, 
-                                  CMGetCharPtr(propertyname), 
+                                  CMGetCharsPtr(propertyname,NULL), 
                                   &status);
 
         if (status.rc != CMPI_RC_OK) return 0;
@@ -553,7 +560,7 @@ char * _CMPIValueToString (CMPIData data)
             return valuestring;
         case CMPI_string: {
                 if (CMIsNullObject(data.value.string)) return NULL;
-                str = CMGetCharPtr(data.value.string);
+                str = CMGetCharsPtr(data.value.string,NULL);
                 if (str == NULL) return NULL;
                 valuestring = strdup(str);
                 return valuestring;
@@ -576,7 +583,7 @@ char * _CMPIValueToString (CMPIData data)
                 datetimestr = CMGetStringFormat(data.value.dateTime, &status);
                 if ((status.rc != CMPI_RC_OK) || CMIsNullObject(datetimestr)) 
                     return NULL;
-                valuestring = strdup(CMGetCharPtr(datetimestr));
+                valuestring = strdup(CMGetCharsPtr(datetimestr,NULL));
                 return valuestring;
             }
 

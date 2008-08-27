@@ -168,7 +168,7 @@ strCMPIValue (CMPIValue value)
 {
   /* This function only handles string values */
   if (value.string != NULL)
-    return CMGetCharPtr (value.string);
+    return CMGetCharsPtr (value.string,NULL);
   return "No value";
 }
 
@@ -347,7 +347,7 @@ TestCMPIInstanceProviderEnumInstanceNames (CMPIInstanceMI * mi,
 
   op = make_ObjectPath(
       _broker,
-      CMGetCharPtr(CMGetNameSpace (ref, &rc)),
+      CMGetCharsPtr(CMGetNameSpace (ref, &rc)),
       _ClassName);
 
   /* Just one key */
@@ -387,11 +387,11 @@ TestCMPIInstanceProviderEnumInstances (CMPIInstanceMI * mi,
 
   op = make_ObjectPath(
       _broker,
-      CMGetCharPtr(CMGetNameSpace (ref, &rc)),
+      CMGetCharsPtr(CMGetNameSpace (ref, &rc)),
       _ClassName);
 
   PROV_LOG (" New Object Path [%s]",
-            CMGetCharPtr (CMGetNameSpace (ref, &rc)));
+            CMGetCharsPtr (CMGetNameSpace (ref, &rc)));
 
   ci = make_Instance (op);
   if (ci != NULL)
@@ -587,10 +587,12 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
   PROV_LOG("--- #2 CDGetType");
   type = CDGetType (_broker, inst, &rc_Inst);
   if (type)
-    {
-      PROV_LOG ("---- %s (%s)", CMGetCharPtr (type), strCMPIStatus (rc_Inst));
+  {
+      PROV_LOG ("---- %s (%s)",
+          CMGetCharsPtr (type,NULL),
+          strCMPIStatus (rc_Inst));
       CMRelease (type);
-    }
+  }
 
   // Here the fun starts;
   PROV_LOG ("-- #3 CMNewSelectExp");
@@ -628,11 +630,11 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
               if (data.type == CMPI_string)
                 {
                   PROV_LOG ("---- %s (string)",
-                            CMGetCharPtr (data.value.string));
+                            CMGetCharsPtr (data.value.string,NULL));
                   // The _setProperty is a simple function to set _only_ 
                   // properties that are needed.
                   rc_setProperty =
-                    _setProperty (inst, CMGetCharPtr (data.value.string));
+                    _setProperty (inst, CMGetCharsPtr (data.value.string,NULL));
                   if (rc_setProperty)
                     PROV_LOG ("--- Error finding the property");
                 }
@@ -679,10 +681,10 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
               if (data.type == CMPI_string)
                 {
                   PROV_LOG ("---- %s (string)",
-                            CMGetCharPtr (data.value.string));
+                            CMGetCharsPtr (data.value.string,NULL));
                   // This is just done for test-purpose. The previous 
                   // if (se) loop would have take care of this.
-                  _setProperty (inst, CMGetCharPtr (data.value.string));
+                  _setProperty (inst, CMGetCharsPtr (data.value.string,NULL));
                 }
             }
         }

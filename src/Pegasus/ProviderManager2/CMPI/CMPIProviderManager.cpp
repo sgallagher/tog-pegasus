@@ -512,7 +512,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
                 ContentLanguageListContainer(
                 ContentLanguageList(
                 LanguageParser::parseContentLanguageHeader(
-                CMGetCharPtr(cldata.value.string)))));
+                CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
 
@@ -520,7 +520,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
         {
             CIMException cimException(
                 (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
 
             if (eRes.resError)
             {
@@ -658,7 +658,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
                 ContentLanguageListContainer(
                 ContentLanguageList(
                 LanguageParser::parseContentLanguageHeader(
-                CMGetCharPtr(cldata.value.string)))));
+                CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
 
@@ -666,7 +666,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
         {
             CIMException cimException(
                 (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
 
             if (eRes.resError)
             {
@@ -791,7 +791,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
                 ContentLanguageListContainer(
                 ContentLanguageList(
                 LanguageParser::parseContentLanguageHeader(
-                CMGetCharPtr(cldata.value.string)))));
+                CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
 
@@ -799,7 +799,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
         {
             CIMException cimException(
                 (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
 
             if (eRes.resError)
             {
@@ -931,7 +931,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
                 ContentLanguageListContainer(
                 ContentLanguageList(
                 LanguageParser::parseContentLanguageHeader(
-                CMGetCharPtr(cldata.value.string)))));
+                CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
 
@@ -939,7 +939,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
         {
             CIMException cimException(
                 (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
 
             if (eRes.resError)
             {
@@ -1071,7 +1071,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
                 ContentLanguageListContainer(
                 ContentLanguageList(
                 LanguageParser::parseContentLanguageHeader(
-                CMGetCharPtr(cldata.value.string)))));
+                CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
 
@@ -1079,7 +1079,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
         {
             CIMException cimException(
                 (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
 
             if (eRes.resError)
             {
@@ -1206,7 +1206,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
                 ContentLanguageListContainer(
                 ContentLanguageList(
                 LanguageParser::parseContentLanguageHeader(
-                CMGetCharPtr(cldata.value.string)))));
+                CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
 
@@ -1214,7 +1214,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
         {
             CIMException cimException(
                 (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
 
             if (eRes.resError)
             {
@@ -1348,7 +1348,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
                 ContentLanguageListContainer(
                 ContentLanguageList(
                 LanguageParser::parseContentLanguageHeader(
-                CMGetCharPtr(cldata.value.string)))));
+                CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
 
@@ -1356,7 +1356,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         {
             CIMException cimException(
                 (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
 
             if (eRes.resError)
             {
@@ -1518,7 +1518,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
                 ContentLanguageListContainer(
                 ContentLanguageList(
                 LanguageParser::parseContentLanguageHeader(
-                CMGetCharPtr(cldata.value.string)))));
+                CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
 
@@ -1526,7 +1526,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         {
             CIMException cimException(
                 (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
 
             if (eRes.resError)
             {
@@ -1674,7 +1674,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
                 ContentLanguageListContainer(
                 ContentLanguageList(
                 LanguageParser::parseContentLanguageHeader(
-                CMGetCharPtr(cldata.value.string)))));
+                CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
 
@@ -1682,7 +1682,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
         {
             CIMException cimException(
                 (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
 
             if (eRes.resError)
             {
@@ -1833,7 +1833,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
                 ContentLanguageListContainer(
                 ContentLanguageList(
                 LanguageParser::parseContentLanguageHeader(
-                CMGetCharPtr(cldata.value.string)))));
+                CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
 
@@ -1841,7 +1841,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         {
             CIMException cimException(
                 (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
 
             if (eRes.resError)
             {
@@ -1983,7 +1983,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
                 ContentLanguageListContainer(
                 ContentLanguageList(
                 LanguageParser::parseContentLanguageHeader(
-                CMGetCharPtr(cldata.value.string)))));
+                CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
 
@@ -1991,7 +1991,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
         {
             CIMException cimException(
                 (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
 
             if (eRes.resError)
             {
@@ -2138,7 +2138,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                 ContentLanguageListContainer(
                 ContentLanguageList(
                 LanguageParser::parseContentLanguageHeader(
-                CMGetCharPtr(cldata.value.string)))));
+                CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
 
@@ -2146,7 +2146,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
         {
             CIMException cimException(
                 (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
 
             if (eRes.resError)
             {
@@ -2500,7 +2500,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
                 ContentLanguageListContainer(
                 ContentLanguageList(
                 LanguageParser::parseContentLanguageHeader(
-                CMGetCharPtr(cldata.value.string)))));
+                CMGetCharsPtr(cldata.value.string, NULL)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
@@ -2515,7 +2515,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
                 delete srec;
             }
             throw CIMException((CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
         }
         else
         {
@@ -2713,13 +2713,13 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
                 ContentLanguageListContainer(
                 ContentLanguageList(
                 LanguageParser::parseContentLanguageHeader(
-                CMGetCharPtr(cldata.value.string)))));
+                CMGetCharsPtr(cldata.value.string, NULL)))));
         }
 
         if (rc.rc!=CMPI_RC_OK)
         {
             throw CIMException((CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
         }
         else
         {
@@ -3160,7 +3160,7 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
                 ContentLanguageListContainer(
                 ContentLanguageList(
                 LanguageParser::parseContentLanguageHeader(
-                CMGetCharPtr(cldata.value.string)))));
+                CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
 
@@ -3168,7 +3168,7 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         {
             CIMException cimException(
                 (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
 
             if (eRes.resError)
             {
@@ -3368,7 +3368,7 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
                 ContentLanguageListContainer(
                 ContentLanguageList(
                 LanguageParser::parseContentLanguageHeader(
-                CMGetCharPtr(cldata.value.string)))));
+                CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
 
@@ -3376,7 +3376,7 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
         {
             CIMException cimException(
                 (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg,NULL) : String::EMPTY);
+                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
 
             if (eRes.resError)
             {

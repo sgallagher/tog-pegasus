@@ -322,9 +322,12 @@ static CMPIObjectPath * __ift_getObjectPath(
         for (e = 0; e < m; e++)
         {
             CMPIString *n = kl->ft->getElementAt(kl, e, NULL).value.string;
-            d = propertyFT.getDataProperty(i->props, CMGetCharPtr(n), &tmp);
+            d = propertyFT.getDataProperty(
+                 i->props,
+                 CMGetCharsPtr(n,NULL),
+                 &tmp);
             if (tmp.rc == CMPI_RC_OK)
-                CMAddKey(cop, CMGetCharPtr(n), &d.value, d.type);
+                CMAddKey(cop, CMGetCharsPtr(n,NULL), &d.value, d.type);
         }
     }
 #endif

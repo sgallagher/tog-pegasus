@@ -32,9 +32,8 @@ ROOT = ../../../..
 
 OLD_REPOSITORY_PATH = $(TMP_DIR)/
 NEW_REPOSITORY_PATH = $(TMP_DIR)/newRepository
-RESULTDIR           = $(TMP_DIR)/newRepository/test\#repupgrade
 TESTNAMESPACE       = test/repupgrade
-RESULTFILE 	    =  $(TMP_DIR)/result
+RESULTFILE          = $(TMP_DIR)/result
 MASTERRESULTFILE    = $(ROOT)/src/$(DIR)/result.master
 
 DIR = Clients/repupgrade/tests
@@ -56,7 +55,7 @@ include $(ROOT)/mak/test.mak
 
 tests:
 ifndef PEGASUS_USE_RELEASE_DIRS
-	@$(RMREPOSITORY) $(OLD_REPOSITORY_PATH)repository/test#repupgrade
+	@$(RMREPOSITORY) $(OLD_REPOSITORY_PATH)repository
 	@$(RMREPOSITORY) $(NEW_REPOSITORY_PATH)
 	@ cimmofl "-R$(OLD_REPOSITORY_PATH)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTNAMESPACE)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
 	@ cimmofl "-R$(OLD_REPOSITORY_PATH)" "-M$(REPOSITORY_MODE)" "-n$(TESTNAMESPACE)" $(ROOT)/src/Providers/TestProviders/Load/TST_Family.mof

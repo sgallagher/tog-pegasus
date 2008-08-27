@@ -31,76 +31,104 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/System.h>
-#include <Pegasus/Common/FileSystem.h>
-#include <Clients/repupgrade/SSPModuleTable.h>
+#include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_USING_STD;
-
 PEGASUS_USING_PEGASUS;
 
-static char const* UPGRADE_TEST_FILE_LIST[] =
+const CIMNamespaceName TESTNS = CIMNamespaceName("test/repupgrade");
+
+void testQualifierTransfer(
+    CIMRepository& oldRepository,
+    CIMRepository& newRepository,
+    const CIMNamespaceName& ns,
+    const CIMName& qualifierName)
 {
-    "test#repupgrade/qualifiers/ASSOCIATION",
-    "test#repupgrade/qualifiers/Description",
-    "test#repupgrade/qualifiers/Key",
-    "test#repupgrade/qualifiers/Version",
-    "test#repupgrade/classes/TST_LabeledLineage.#",
-    "test#repupgrade/classes/TST_LabeledLineageDynamic.#",
-    "test#repupgrade/classes/TST_Lineage.#",
-    "test#repupgrade/classes/TST_LineageDynamic.#",
-    "test#repupgrade/classes/TST_LineageDynamicSubClass.#",
-    "test#repupgrade/classes/TST_Person.#",
-    "test#repupgrade/classes/TST_PersonDynamic.TST_Person",
-    "test#repupgrade/classes/TST_PersonDynamicSubClass.TST_PersonDynamic",
-    "test#repupgrade/classes/TST_PersonS.TST_Person",
-    "test#repupgrade/classes/associations",
-    "test#repupgrade/instances/TST_Person.idx",
-    "test#repupgrade/instances/TST_Person.instances",
-    "test#repupgrade/instances/TST_PersonS.idx",
-    "test#repupgrade/instances/TST_PersonS.instances",
-};
+    CIMQualifierDecl q1 = oldRepository.getQualifier(ns, qualifierName);
+    CIMQualifierDecl q2 = newRepository.getQualifier(ns, qualifierName);
+
+    PEGASUS_TEST_ASSERT(q1.identical(q2));
+}
+
+void testClassTransfer(
+    CIMRepository& oldRepository,
+    CIMRepository& newRepository,
+    const CIMNamespaceName& ns,
+    const CIMName& className)
+{
+    CIMClass c1 = oldRepository.getClass(ns, className);
+    CIMClass c2 = newRepository.getClass(ns, className);
+
+    PEGASUS_TEST_ASSERT(c1.identical(c2));
+}
+
+void testInstancesTransfer(
+    CIMRepository& oldRepository,
+    CIMRepository& newRepository,
+    const CIMNamespaceName& ns,
+    const CIMName& className)
+{
+    Array<CIMInstance> i1 =
+        oldRepository.enumerateInstancesForClass(ns, className);
+    Array<CIMInstance> i2 =
+        newRepository.enumerateInstancesForClass(ns, className);
+
+    PEGASUS_TEST_ASSERT(i1.size() == i2.size());
+
+    for (Uint32 i = 0; i < i1.size(); i++)
+    {
+        Boolean found = false;
+
+        for (Uint32 j = 0; j < i2.size(); j++)
+        {
+            if (i1[i].identical(i2[j]))
+            {
+                found = true;
+                break;
+            }
+        }
+
+        PEGASUS_TEST_ASSERT(found);
+    }
+}
 
 int main(int argc, char** argv)
 {
     String  oldRepositoryPath = argv[1];
     String  newRepositoryPath = argv[2];
-    Boolean     fileNotFound      = false;
-    Uint32      i         = 0;
-    Uint32  count             = 0;
     Boolean bVerbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
-    count = sizeof(UPGRADE_TEST_FILE_LIST)/sizeof(UPGRADE_TEST_FILE_LIST[0]);
+    CIMRepository oldRepository(oldRepositoryPath);
+    CIMRepository newRepository(newRepositoryPath);
 
-    for ( i = 0; i < count  && fileNotFound == false ; i++ )
-    {
-        String fileName = newRepositoryPath + "/" + UPGRADE_TEST_FILE_LIST[i];
+    testQualifierTransfer(oldRepository, newRepository, TESTNS, "ASSOCIATION");
+    testQualifierTransfer(oldRepository, newRepository, TESTNS, "Description");
+    testQualifierTransfer(oldRepository, newRepository, TESTNS, "Key");
+    testQualifierTransfer(oldRepository, newRepository, TESTNS, "Version");
 
-        if (bVerbose)
-        {
-            cout << "Now checking for file : " 
-                 << UPGRADE_TEST_FILE_LIST[i] << endl;
-        }
-        //
-        // Check if the file has been created in the new repository.
-        //
-        if (!FileSystem::exists(fileName))
-        {
-            fileNotFound = true;
+    testClassTransfer(
+        oldRepository, newRepository, TESTNS, "TST_LabeledLineage");
+    testClassTransfer(
+        oldRepository, newRepository, TESTNS, "TST_LabeledLineageDynamic");
+    testClassTransfer(
+        oldRepository, newRepository, TESTNS, "TST_Lineage");
+    testClassTransfer(
+        oldRepository, newRepository, TESTNS, "TST_LineageDynamic");
+    testClassTransfer(
+        oldRepository, newRepository, TESTNS, "TST_LineageDynamicSubClass");
+    testClassTransfer(
+        oldRepository, newRepository, TESTNS, "TST_Person");
+    testClassTransfer(
+        oldRepository, newRepository, TESTNS, "TST_PersonDynamic");
+    testClassTransfer(
+        oldRepository, newRepository, TESTNS, "TST_PersonDynamicSubClass");
+    testClassTransfer(
+        oldRepository, newRepository, TESTNS, "TST_PersonS");
 
-            if (bVerbose)
-            {
-                cout << "Failed to find file : " << fileName 
-                     << " in the new repository. " << endl;
-            }
-        }
-    }
- 
-    if (fileNotFound)
-    {
-        cout << "Upgrade test failed. " << endl;
-        return 1;
-    }
+    testInstancesTransfer(
+        oldRepository, newRepository, TESTNS, "TST_Person");
+    testInstancesTransfer(
+        oldRepository, newRepository, TESTNS, "TST_PersonS");
 
     cout << argv[0] << " +++++ passed all tests" << endl;
     return 0;

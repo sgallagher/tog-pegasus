@@ -38,9 +38,9 @@ DIRS = \
    modifyInstances \
    lookupInstanceProvider \
    lookupMethodProvider \
+   lookupIndicationProvider \
    wildCardNamespaceNames \
    providerManagerMap
 
-#   lookupIndicationProvider \
 
 include $(ROOT)/mak/recurse.mak

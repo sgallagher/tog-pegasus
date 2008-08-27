@@ -200,7 +200,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
     //
     String _providerName;
     String _providerModuleName2;
-    Array <String> requiredProperties;
+    Array <CIMName> requiredProperties;
 
     Array <CIMInstance> providerIns;
     Array <CIMInstance> providerModuleIns;
@@ -217,11 +217,27 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
                                          providerIns,
                                          providerModuleIns))
     {
-    return (true);
+        String _providerModuleName;
+        String _providerModuleName2;
+        for(Uint32 i = 0; i < providerIns.size() ; ++i)
+        {
+            providerIns[i].getProperty(providerIns[i].findProperty(
+                CIMName ("ProviderModuleName"))).getValue().get(
+                    _providerModuleName);
+
+            providerModuleIns[i].getProperty(providerModuleIns[i].findProperty(
+                CIMName ("Name"))).getValue().get(_providerModuleName2);
+
+            if (!String::equal(_providerModuleName, _providerModuleName2))
+            {
+                return false;
+            }
+        }
+        return true;
     }
     else
     {
-    return (false);
+        return false;
     }
 }
 

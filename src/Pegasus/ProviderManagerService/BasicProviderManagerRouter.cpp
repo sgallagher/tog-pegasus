@@ -320,9 +320,33 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         }
         catch (const CIMException& e)
         {
-            CIMResponseMessage* cimResponse = request->buildResponse();
-            cimResponse->cimException = e;
-            response = cimResponse;
+            // This is not an error incase of CIMEnableModuleRequestMessage or
+            // CIMDisableModuleRequestMessage. This means there is no provider
+            // to enable or disable.
+            if (request->getType() == CIM_ENABLE_MODULE_REQUEST_MESSAGE)
+            {
+                CIMEnableModuleResponseMessage* emResponse =
+                    dynamic_cast<CIMEnableModuleResponseMessage*>(
+                        request->buildResponse());
+                emResponse->operationalStatus.append(
+                    CIM_MSE_OPSTATUS_VALUE_OK);
+                response = emResponse;
+            }
+            else if (request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
+            {
+                CIMDisableModuleResponseMessage* dmResponse =
+                    dynamic_cast<CIMDisableModuleResponseMessage*>(
+                        request->buildResponse());
+                dmResponse->operationalStatus.append(
+                    CIM_MSE_OPSTATUS_VALUE_STOPPED);
+                response = dmResponse;
+            }
+            else
+            {
+                CIMResponseMessage *cimResponse = request->buildResponse();
+                cimResponse->cimException = e;
+                response = cimResponse;
+            }
             gotError = true;
         }
 

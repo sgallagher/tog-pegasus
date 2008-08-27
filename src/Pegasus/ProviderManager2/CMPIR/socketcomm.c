@@ -212,10 +212,27 @@ void socketcomm_serialize_context (
     CONST CMPIContext * ctx )
 {
     unsigned int size = CMGetContextEntryCount ( ctx, NULL ), i;
+    CMPIBoolean hasContainers = 0; 
+    CMPIString *entryName = 0;
+    // Check for Containers.
+    CMPIData data = CMGetContextEntry (ctx, "SnmpTrapOidContainer", NULL);
+    if (data.state != CMPI_nullValue)
+    {
+        size++;
+        hasContainers = 1;  
+        CMGetContextEntryAt (ctx, 0, &entryName, NULL);
+    } 
 
     TRACE_NORMAL(("serializing context with %d entries", size ));
 
     sft->serialize_UINT32 ( socket, size );
+
+    if (hasContainers)
+    {
+         sft->serialize_CMPIString(socket, entryName);
+         sft->serialize_CMPIData(socket, data);
+         size--;
+    }
 
     for (i = 0; i < size; i++)
     {

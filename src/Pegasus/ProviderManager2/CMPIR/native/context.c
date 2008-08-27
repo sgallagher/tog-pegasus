@@ -67,6 +67,8 @@ struct native_context
                             represents a cloned object */
 
     struct native_property * entries;   /*!< context content */
+   struct native_property * containers; // Holds containers
+                                  // ex "SnmpTrapOidContainer"
 };
 
 
@@ -100,6 +102,7 @@ static CMPIData __cft_getEntry (
     CMPIStatus * rc )
 {
     struct native_context * c = (struct native_context *) ctx;
+    struct native_property *p = c->entries;
 
     CMPIData data = checkArgsReturnData(ctx, rc);
 
@@ -107,8 +110,13 @@ static CMPIData __cft_getEntry (
     {
         return data;
     }
+    // Check for containers
+    if (!strcmp (name, "SnmpTrapOidContainer") )
+    {
+        p = c->containers;
+    }
 
-    return propertyFT.getDataProperty ( c->entries, name, rc );
+    return propertyFT.getDataProperty(p, name, rc);
 }
 
 
@@ -152,6 +160,7 @@ static CMPIStatus __cft_addEntry (
     CONST CMPIType type )
 {
     struct native_context * c = (struct native_context *) ctx;
+    struct native_property **p = &c->entries;
 
     CMPIStatus rc = checkArgsReturnStatus(ctx);
 
@@ -159,9 +168,14 @@ static CMPIStatus __cft_addEntry (
     {
         return rc;
     }
-
+    // Check for containers, this method should be in sync with
+    // contextAddEntry method on MB side.
+    if (!strcmp (name, "SnmpTrapOidContainer") )
+    {
+        p = &c->containers;
+    }
     CMReturn ( ( propertyFT.addProperty ( 
-        &c->entries,
+        p,
         c->mem_state,
         name,
         type,

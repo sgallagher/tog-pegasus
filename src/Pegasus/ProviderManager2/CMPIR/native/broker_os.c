@@ -161,7 +161,7 @@ static CMPI_THREAD_TYPE newThread(
         pthread_create(&t, NULL, (void *(*)(void *)) _start_wrapper, wparm);
     }
 
-    return(CMPI_THREAD_TYPE) &t;
+    return(CMPI_THREAD_TYPE) t;
 #elif defined PEGASUS_OS_TYPE_WINDOWS
 
     unsigned threadid = 0;
@@ -178,6 +178,48 @@ static CMPI_THREAD_TYPE newThread(
 # error Platform for Remote CMPI daemon not yet supported
 #endif
 }
+
+static int joinThread (
+    CMPI_THREAD_TYPE hdlThread,
+    CMPI_THREAD_RETURN *returnCode)
+{
+#if defined(PEGASUS_OS_TYPE_UNIX)
+   return pthread_join((pthread_t)hdlThread, returnCode);
+#elif defined(PEGASUS_OS_TYPE_WINDOWS)
+   WaitForSingleObject(hdlThread,INFINITE);
+   GetExitCodeThread(hdlThread,returnCode);
+   return CloseHandle(hdlThread);
+#else
+   #error Platform for Remote CMPI daemon not yet supported
+#endif
+}
+
+static int exitThread (CMPI_THREAD_RETURN returnCode)
+{
+
+#if defined(PEGASUS_OS_TYPE_UNIX)
+    pthread_exit (returnCode);
+    return 0;
+#elif defined(PEGASUS_OS_TYPE_WINDOWS)
+    returnCode=0;
+    _endthread();
+    return 0;  /* should never reach here */
+#else
+   #error Platform for Remote CMPI daemon not yet supported
+#endif
+}
+
+static int cancelThread (CMPI_THREAD_TYPE hdlThread)
+{
+#if defined(PEGASUS_OS_TYPE_UNIX)
+    return pthread_cancel ((pthread_t)hdlThread);
+#elif defined(PEGASUS_OS_TYPE_WINDOWS)
+    return TerminateThread(hdlThread,0);
+#else
+   #error Platform for Remote CMPI daemon not yet supported
+#endif
+}
+
 
 #ifdef CMPI_PLATFORM_ZOS_ZSERIES_IBM
 static int threadOnce (pthread_once_t *once, void (*init)(void))
@@ -444,7 +486,7 @@ static int condWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m)
 #endif
 }
 
-static void threadSleep(int msec)
+static int threadSleep(CMPIUint32 msec)
 {
 #if defined(PEGASUS_HAVE_NANOSLEEP)
 
@@ -466,7 +508,7 @@ static void threadSleep(int msec)
     if (msec == 0)
     {
         Sleep(0);
-        return;
+        return 0;
     }
 
 
@@ -500,15 +542,16 @@ static void threadSleep(int msec)
     sleep(msec / 1000);
 
 #endif
+    return 0;
 }
 
 static CMPIBrokerExtFT brokerExt_FT={
     CMPICurrentVersion,
     resolveFileName,
     newThread,
-    NULL,                      // Join not implemented yet
-    NULL,                      // exit not implemented yet
-    NULL,                      // cancel not implemented yet
+    joinThread,                   
+    exitThread, 
+    cancelThread,
     threadSleep,
     threadOnce,
 

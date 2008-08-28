@@ -40,7 +40,7 @@ include $(ROOT)/mak/config.mak
 # Defines subdirectorys to go to recursively
 
 # DIRS = src cgi
-DIRS = src  Schemas
+DIRS = src
 
 TEST_DIRS = test
 

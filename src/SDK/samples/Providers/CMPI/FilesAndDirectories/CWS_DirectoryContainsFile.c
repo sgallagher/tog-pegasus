@@ -206,8 +206,9 @@ CMPIStatus CWS_DirectoryContainsFileAssociatorNames( CMPIAssociationMI * mi,
                     /* build object path from file buffer */
                     op = makePath(_broker,
                         FILECLASS,
-                        CMGetCharsPtr(CMGetNameSpace(cop,NULL)),
-                        &filebuf);  CMSetHostname(op,CSName());
+                        CMGetCharsPtr(CMGetNameSpace(cop,NULL), NULL),
+                        &filebuf);
+                    CMSetHostname(op,CSName());
                     if (CMIsNullObject(op))
                     {
                         CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,

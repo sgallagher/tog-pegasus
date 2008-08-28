@@ -204,13 +204,14 @@ void _LoadObject(
 
     if (!FileSystem::existsNoCase(path, realPath))
     {
-        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL1,
-            path + " does not exist.");
+        PEG_TRACE((TRC_REPOSITORY, Tracer::LEVEL1,
+            "%s does not exist.",(const char*)path.getCString()));
         PEG_METHOD_EXIT();
         throw CannotOpenFile(path);
     }
 
-    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "realpath = " + realPath);
+    PEG_TRACE((TRC_REPOSITORY, Tracer::LEVEL4, "realpath = %s",
+        (const char*)realPath.getCString()));
 
     // Load file into memory:
 
@@ -885,9 +886,10 @@ Array<NamespaceDefinition> FileBasedStore::enumerateNameSpaces()
             !FileSystem::isDirectory(nameSpacePath + _INSTANCES_SUFFIX) ||
             !FileSystem::isDirectory(nameSpacePath + _QUALIFIERS_SUFFIX))
         {
-            PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL2,
-                "Namespace: " + nameSpaceDirName +
-                    " ignored -- subdirectories are not correctly formed");
+            PEG_TRACE((TRC_REPOSITORY, Tracer::LEVEL2,
+                "Namespace: %s ignored -- "
+                "subdirectories are not correctly formed",
+                (const char*)nameSpaceDirName.getCString()));
             continue;
         }
 
@@ -921,11 +923,12 @@ Array<NamespaceDefinition> FileBasedStore::enumerateNameSpaces()
                 }
                 else
                 {
-                    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL2,
-                        "Namespace " + nameSpaceDirName +
-                        " ignored - using incorrect parent namespace "
-                            "specification: " +
-                        nameSpaceSubDirName);
+                    PEG_TRACE((TRC_REPOSITORY, Tracer::LEVEL2,
+                        "Namespace %s ignored - "
+                        "using incorrect parent namespace specification: %s",
+                        (const char*)nameSpaceDirName.getCString(),
+                        (const char*)nameSpaceSubDirName.getCString()));
+
                     skipThisNamespace = true;
                 }
 #ifndef PEGASUS_ENABLE_REMOTE_CMPI
@@ -939,9 +942,10 @@ Array<NamespaceDefinition> FileBasedStore::enumerateNameSpaces()
                 // case two-character identifier
                 nsdef.remoteInfo = nameSpaceSubDirName;
 
-                PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
-                    "Remote namespace: " + nameSpaceDirName + " >" +
-                        nameSpaceSubDirName);
+                PEG_TRACE((TRC_REPOSITORY, Tracer::LEVEL4,
+                    "Remote namespace: %s >%s",
+                    (const char*)nameSpaceDirName.getCString(),
+                    (const char*)nameSpaceSubDirName.getCString()));
             }
 #endif
         }

@@ -249,10 +249,9 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Exception: resultReturnData - msg: " + e.getMessage());
+            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                "CIMException: resultReturnData - msg: %s",
+                (const char*)e.getMessage().getCString()));
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -340,10 +339,9 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Exception: resultReturnInstance - msg: " + e.getMessage());
+            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                "CIMException: resultReturnInstance - msg: %s",
+                (const char*)e.getMessage().getCString()));
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -471,10 +469,10 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Exception: resultReturnObject - msg: " + e.getMessage());
+            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                "CIMException: resultReturnObject - msg: %s",
+                (const char*)e.getMessage().getCString()));
+
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -527,10 +525,9 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Exception: resultReturnExecQuery - msg: " + e.getMessage());
+            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                "CIMException: resultReturnExecQuery - msg: %s",
+                (const char*)e.getMessage().getCString()));
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -581,10 +578,10 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Exception: resultReturnObjectPath - msg: " + e.getMessage());
+            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                "CIMException: resultReturnObjectPath - msg: %s",
+                (const char*)e.getMessage().getCString()));
+
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -620,10 +617,10 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Exception: resultReturnInstDone - msg: " + e.getMessage());
+            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                "CIMException: resultReturnInstDone - msg: %s",
+                (const char*)e.getMessage().getCString()));
+
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -659,10 +656,10 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Exception: resultReturnRefDone - msg: " + e.getMessage());
+            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                "CIMException: resultReturnRefDone - msg: %s",
+                (const char*)e.getMessage().getCString()));
+
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -698,10 +695,10 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Exception: resultReturnDataDone - msg: " + e.getMessage());
+            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                "CIMException: resultReturnDataDone - msg: %s",
+                (const char*)e.getMessage().getCString()));
+
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -738,10 +735,10 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Exception: resultReturnMethDone - msg: " + e.getMessage());
+            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                "CIMException: resultReturnMethDone - msg: %s",
+                (const char*)e.getMessage().getCString()));
+
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -777,10 +774,10 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Exception: resultReturnObjDone - msg: " + e.getMessage());
+            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                "CIMException: resultReturnObjDone - msg: %s",
+                (const char*)e.getMessage().getCString()));
+
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,
@@ -816,11 +813,10 @@ extern "C"
         }
         catch (const CIMException &e)
         {
-            PEG_TRACE_STRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Exception: resultReturnExecQueryDone - msg: "
-                + e.getMessage());
+            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                "CIMException: resultReturnExecQueryDone - msg: %s",
+                (const char*)e.getMessage().getCString()));
+
             PEG_METHOD_EXIT();
             CMReturnWithString(
                 CMPI_RC_ERR_FAILED,

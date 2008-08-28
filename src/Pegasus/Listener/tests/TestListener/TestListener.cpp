@@ -85,7 +85,8 @@ void MyIndicationConsumer::consumeIndication(
     String msg = "Consumer <" + name + "> received " +
         indicationInstance.getPath().toString();
 
-    PEG_TRACE_STRING(TRC_LISTENER,Tracer::LEVEL4,msg);
+    PEG_TRACE_CSTRING(TRC_LISTENER,Tracer::LEVEL4,
+        (const char*)msg.getCString());
     PEGASUS_STD(cerr) << msg << PEGASUS_STD(endl);
     }
 

@@ -152,9 +152,10 @@ NameSpace::NameSpace(
 
     if (remoteInfo.size())
     {
-        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
-            "Remote namespace: " + nameSpaceName.getString() + " >" +
-            remoteInfo);
+        PEG_TRACE((TRC_REPOSITORY, Tracer::LEVEL4,
+            "Remote namespace: %s >%s",
+            (const char*)nameSpaceName.getString().getCString(),
+            (const char*)remoteInfo.getCString()));
     }
 
     PEG_METHOD_EXIT();

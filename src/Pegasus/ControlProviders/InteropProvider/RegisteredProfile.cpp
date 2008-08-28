@@ -193,11 +193,9 @@ void InteropProvider::sendUpdateRegMessageToSLPProvider(
     }
     catch(const Exception &e)
     {
-        PEG_TRACE_STRING(
-            TRC_CONTROLPROVIDER,
-            Tracer::LEVEL1,
-            "Exception caught while invoking SLPProvider 'update' method: " +
-                e.getMessage());
+        PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL1,
+            "Exception caught while invoking SLPProvider 'update' method: %s",
+            (const char*)e.getMessage().getCString()));
     }
     catch(...)
     {

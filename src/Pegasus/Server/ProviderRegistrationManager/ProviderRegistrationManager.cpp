@@ -283,10 +283,11 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
     else {
         capabilityKey = _generateKey(nameSpaceKey, className, ASSO_PROVIDER);
     }
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                     "nameSpace = " + nameSpace.getString() +
-                     "; className = " + className.getString() +
-                     "; capabilityKey = " + capabilityKey);
+    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "nameSpace = %s; className = %s; className = %s",
+        (const char*)nameSpace.getString().getCString(),
+        (const char*)className.getString().getCString(),
+        (const char*)capabilityKey.getCString()));
 
     try
     {
@@ -610,8 +611,9 @@ Boolean ProviderRegistrationManager::lookupAssociationProvider(
         {
             pInstance.getProperty(pos).getValue().get(providerName);
 
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "providerName = " + providerName + " found.");
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "providerName = %s found.",
+                 (const char*)providerName.getCString()));
             providers.append(pInstance);
             providerModules.append(pmInstance);
         }
@@ -886,9 +888,10 @@ Boolean ProviderRegistrationManager::lookupIndicationConsumer(
     // create the key by using destinationPath and providerType
     //
     String consumerKey = _generateKey(destinationPath, CON_PROVIDER);
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "destinationPath = " + destinationPath +
-        "; consumerKey = " + consumerKey);
+    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "destinationPath = %s; consumerKey = %s",
+        (const char*)destinationPath.getCString(),
+        (const char*)consumerKey.getCString()));
 
     try
     {
@@ -1633,8 +1636,9 @@ Boolean ProviderRegistrationManager::updateProviderModuleStatus(
     }
     catch (const Exception & e)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to update provider module status: " + e.getMessage());
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Failed to update provider module status: %s",
+            (const char*)e.getMessage().getCString()));
         return false;
     }
     catch (...)
@@ -3434,7 +3438,8 @@ void ProviderRegistrationManager::_addInstancesToTable(
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderRegistrationManager::_addInstancesToTable");
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "key = " + key);
+    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4, "key = %s",
+        (const char*)key.getCString()));
 
     ProviderRegistrationTable* elementInfo = 0;
 
@@ -3477,7 +3482,8 @@ void ProviderRegistrationManager::_addInitialInstancesToTable(
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderRegistrationManager::_addInitialInstancesToTable");
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "key = " + key);
+    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4, "key = %s",
+        (const char*)key.getCString()));
 
     ProviderRegistrationTable* elementInfo = 0;
 

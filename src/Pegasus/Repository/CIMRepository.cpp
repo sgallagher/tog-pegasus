@@ -818,12 +818,14 @@ CIMClass CIMRepository::_getClass(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_getClass");
 
-    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, "nameSpace= " +
-                     nameSpace.getString() + ", className= " +
-                     className.getString() +
-                     ", localOnly= " + _toString(localOnly) +
-                     ", includeQualifiers= " + _toString(includeQualifiers) +
-                     ", includeClassOrigin= " + _toString(includeClassOrigin));
+    PEG_TRACE((TRC_REPOSITORY, Tracer::LEVEL4,
+           "nameSpace= %s, className= %s, localOnly= %s"
+           ", includeQualifiers=  %s, includeClassOrigin= %s",
+           (const char*)nameSpace.getString().getCString(),
+           (const char*)className.getString().getCString(),
+           (localOnly?"true":"false"),
+           (includeQualifiers?"true":"false"),
+           (includeClassOrigin?"true":"false")));
 
     CIMClass cimClass;
 

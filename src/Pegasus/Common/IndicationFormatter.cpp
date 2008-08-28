@@ -1012,8 +1012,9 @@ String IndicationFormatter::_formatIndicationText(
             }
             catch (CIMException& c)
             {
-                PEG_TRACE_STRING(TRC_IND_FORMATTER, Tracer::LEVEL2,
-                    c.getMessage());
+                PEG_TRACE((TRC_IND_FORMATTER, Tracer::LEVEL2,
+                    "Exception at parsing indication property: %s",
+                    (const char*)c.getMessage().getCString()));
                 propertyValue = "UNKNOWN";
             }
 

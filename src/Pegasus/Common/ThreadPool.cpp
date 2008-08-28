@@ -227,15 +227,14 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
             }
             catch (Exception& e)
             {
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                    String("Exception from work in ThreadPool::_loop: ") +
-                        e.getMessage());
+                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                    "Exception from work in ThreadPool::_loop: %s",
+                    (const char*)e.getMessage().getCString()));
             }
             catch (const exception& e)
             {
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                    String("Exception from work in ThreadPool::_loop: ") +
-                        e.what());
+                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                    "Exception from work in ThreadPool::_loop: %s",e.what()));
             }
             catch (...)
             {
@@ -268,8 +267,9 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
     }
     catch (const Exception & e)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Caught exception: \"" + e.getMessage() + "\".  Exiting _loop.");
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Caught exception: \"%s\".  Exiting _loop.",
+            (const char*)e.getMessage().getCString()));
     }
     catch (...)
     {

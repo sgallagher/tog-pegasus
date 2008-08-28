@@ -157,16 +157,16 @@ Message* DefaultProviderManager::processMessage(Message* message)
     }
     catch (CIMException& e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-            "CIMException: " + e.getMessage());
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,"CIMException: %s",
+            (const char*)e.getMessage().getCString()));
         response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION_LANG(
             e.getContentLanguages(), e.getCode(), e.getMessage());
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-            "Exception: " + e.getMessage());
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,"Exception: %s",
+            (const char*)e.getMessage().getCString()));
         response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION_LANG(
             e.getContentLanguages(), CIM_ERR_FAILED, e.getMessage());
@@ -241,14 +241,14 @@ CIMResponseMessage* DefaultProviderManager::_handleDisableModuleRequest(
     }
     catch (CIMException& e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-                         "Exception: " + e.getMessage());
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,"CIMException: %s",
+            (const char*)e.getMessage().getCString()));
         cimException = e;
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-            "Exception: " + e.getMessage());
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,"Exception: %s",
+            (const char*)e.getMessage().getCString()));
         cimException = CIMException(CIM_ERR_FAILED, e.getMessage());
     }
     catch (...)
@@ -418,8 +418,8 @@ ProviderOperationCounter DefaultProviderManager::_getProvider(
 
     ProviderOperationCounter poc(pr);
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Returning Provider " + providerName);
+    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,"Returning Provider %s",
+        (const char*)providerName.getCString()));
 
     PEG_METHOD_EXIT();
     return poc;
@@ -447,8 +447,9 @@ ProviderMessageHandler* DefaultProviderManager::_lookupProvider(
     ProviderMessageHandler* pr = 0;
     if (_providers.lookup(key, pr))
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Found Provider " + providerName + " in Provider Manager Cache");
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Found Provider %s in Provider Manager Cache",
+            (const char*)providerName.getCString()));
     }
     else
     {
@@ -461,8 +462,8 @@ ProviderMessageHandler* DefaultProviderManager::_lookupProvider(
         // insert provider in provider table
         _providers.insert(key, pr);
 
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Created provider " + pr->getName());
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,"Created provider %s",
+            (const char*)pr->getName().getCString()));
     }
 
     PEG_METHOD_EXIT();
@@ -491,8 +492,9 @@ ProviderMessageHandler* DefaultProviderManager::_initProvider(
         return provider;
     }
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Loading/Linking Provider Module " + moduleFileName);
+    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+        "Loading/Linking Provider Module %s",
+        (const char*)moduleFileName.getCString()));
 
     // load the provider
     try
@@ -501,16 +503,16 @@ ProviderMessageHandler* DefaultProviderManager::_initProvider(
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
-            "Exception caught Loading/Linking Provider Module " +
-            moduleFileName);
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
+            "Exception caught Loading/Linking Provider Module %s",
+            (const char*)moduleFileName.getCString()));
         PEG_METHOD_EXIT();
         throw;
     }
 
     // initialize the provider
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-        "Initializing Provider " + provider->getName());
+    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2, "Initializing Provider %s",
+        (const char*)provider->getName().getCString()));
 
     CIMOMHandle* cimomHandle = new CIMOMHandle();
     provider->status.setCIMOMHandle(cimomHandle);
@@ -574,15 +576,16 @@ ProviderModule* DefaultProviderManager::_lookupModule(
     if (_modules.lookup(moduleFileName, module))
     {
         // found provider module in cache
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Found Provider Module " + moduleFileName +
-            " in Provider Manager Cache");
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Found Provider Module %s in Provider Manager Cache",
+            (const char*)moduleFileName.getCString()));
     }
     else
     {
         // provider module not found in cache, create provider module
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Creating Provider Module " + moduleFileName);
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Creating Provider Module %s",
+            (const char*)moduleFileName.getCString()));
 
         module = new ProviderModule(moduleFileName);
 
@@ -664,16 +667,18 @@ void DefaultProviderManager::unloadIdleProviders()
             struct timeval providerTime = {0, 0};
             provider->status.getLastOperationEndTime(&providerTime);
 
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "provider->status.isIdle() returns: " +
-                CIMValue(provider->status.isIdle()).toString());
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "provider->status.isIdle() returns: %s",
+                (const char*)CIMValue(provider->status.isIdle())
+                       .toString().getCString()));
 
             if (provider->status.isIdle() &&
                 ((now.tv_sec - providerTime.tv_sec) >
                  ((Sint32)PEGASUS_PROVIDER_IDLE_TIMEOUT_SECONDS)))
             {
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-                    "Unloading idle provider: " + provider->getName());
+                PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+                    "Unloading idle provider: %s",
+                    (const char*)provider->getName().getCString()));
                 _unloadProvider(provider);
             }
         }
@@ -731,14 +736,15 @@ Sint16 DefaultProviderManager::_disableProvider(
     ProviderMessageHandler* pr = _lookupProvider(moduleName, providerName);
     if (!pr->status.isInitialized())
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "Provider " + providerName + " is not loaded");
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Provider %s is not loaded",
+            (const char*)providerName.getCString()));
         PEG_METHOD_EXIT();
         return 1;
     }
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Disable Provider " + pr->getName());
+    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,"Disable Provider %s",
+        (const char*)pr->getName().getCString()));
     //
     // Check to see if there are pending requests. If there are pending
     // requests and the disable timeout has not expired, loop and wait one
@@ -767,15 +773,17 @@ Sint16 DefaultProviderManager::_disableProvider(
 
         if (pr->status.isInitialized())
         {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "Unloading Provider " + pr->getName());
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "Unloading Provider %s",
+                (const char*)pr->getName().getCString()));
             _unloadProvider(pr);
         }
     }
     catch (...)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            "Unload provider failed " + pr->getName());
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            "Unload provider failed %s",
+            (const char*)pr->getName().getCString()));
         PEG_METHOD_EXIT();
         return -1;
     }
@@ -797,28 +805,28 @@ void DefaultProviderManager::_unloadProvider(ProviderMessageHandler* provider)
 
     if (provider->status.numCurrentOperations() > 0)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Provider cannot be unloaded due to pending operations: " +
-            provider->getName());
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Provider cannot be unloaded due to pending operations: %s",
+            (const char*)provider->getName().getCString()));
     }
     else
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Terminating Provider " + provider->getName());
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Terminating Provider %s",
+            (const char*)provider->getName().getCString()));
 
         provider->terminate();
 
         // unload provider module
         PEGASUS_ASSERT(provider->status.getModule() != 0);
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-            "Unloading provider module: " + provider->getName());
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+            "Unloading provider module: %s",
+            (const char*)provider->getName().getCString()));
         provider->status.getModule()->unloadModule();
 
-        PEG_TRACE((
-            TRC_PROVIDERMANAGER,
-            Tracer::LEVEL3,
-            "DefaultProviderManager:  Unloaded provider %s",
-            (const char*) provider->getName().getCString()));
+        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
+            "DefaultProviderManager: Unloaded provider %s",
+            (const char*)provider->getName().getCString()));
 
         // NOTE: The "delete provider->status.getCIMOMHandle()" operation
         //   was moved to be called after the unloadModule() call above
@@ -832,8 +840,9 @@ void DefaultProviderManager::_unloadProvider(ProviderMessageHandler* provider)
         //   above the unloadModule() call. See bugzilla 3669 for details.
 
         // delete the cimom handle
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Destroying provider's CIMOMHandle: " + provider->getName());
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Destroying provider's CIMOMHandle: %s",
+            (const char*)provider->getName().getCString()));
         delete provider->status.getCIMOMHandle();
 
         // set provider status to uninitialized

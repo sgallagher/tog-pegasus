@@ -1845,11 +1845,9 @@ void ProviderRegistrationProvider::_sendUpdateCacheMessagetoInteropProvider(
     }
     catch(const Exception &e)
     {
-        PEG_TRACE_STRING(
-            TRC_CONTROLPROVIDER,
-            Tracer::LEVEL1,
+        PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL1,
             "Exception caught while invoking InteropProvider 'updateCache'"
-                " method: " + e.getMessage());
+                " method: %s",(const char*)e.getMessage().getCString()));
     }
     catch(...)
     {

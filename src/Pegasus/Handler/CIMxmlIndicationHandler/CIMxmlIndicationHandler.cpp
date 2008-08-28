@@ -106,12 +106,13 @@ public:
                 "Malformed CIM-XML handler instance, "
                     "\'Destination\' property is not found.");
 
-            String msg = String(MessageLoader::getMessage(param));
-
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1, msg);
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                "Malformed CIM-XML handler instance,"
+                "\'Destination\' property is not found.");
 
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, msg);
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+                      MessageLoader::getMessage(param));
         }
 
         CIMProperty prop = indicationHandlerInstance.getProperty(pos);
@@ -129,12 +130,13 @@ public:
                 "Malformed CIM-XML handler instance, "
                     "\'Destination\' property type mismatch.");
 
-            String msg = MessageLoader::getMessage(param);
-
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1, msg);
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1, 
+                "Malformed CIM-XML handler instance, "
+                "\'Destination\' property type mismatch.");
 
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, msg);
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+                      MessageLoader::getMessage(param));
         }
 
         PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
@@ -211,10 +213,9 @@ public:
                 {
                     String msg = _getMalformedExceptionMsg(dest);
 
-                    PEG_TRACE_STRING(
-                        TRC_DISCARDED_DATA,
-                        Tracer::LEVEL1,
-                        msg+dest);
+                    PEG_TRACE((TRC_DISCARDED_DATA,Tracer::LEVEL1,"%s%s",
+                        (const char*)msg.getCString(),
+                        (const char*)dest.getCString()));
 
                     PEG_METHOD_EXIT();
                     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
@@ -225,7 +226,9 @@ public:
             {
                 String msg = _getMalformedExceptionMsg(dest);
 
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,msg + dest);
+                    PEG_TRACE((TRC_DISCARDED_DATA,Tracer::LEVEL1,"%s%s",
+                        (const char*)msg.getCString(),
+                        (const char*)dest.getCString()));
 
                 PEG_METHOD_EXIT();
                 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg);
@@ -241,7 +244,9 @@ public:
             {
                 String msg = _getMalformedExceptionMsg(dest);
 
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,msg + dest);
+                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,"%s%s",
+                    (const char*)msg.getCString(),
+                    (const char*)dest.getCString()));
 
                 PEG_METHOD_EXIT();
                 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg);
@@ -271,7 +276,9 @@ public:
             {
                 String msg = _getMalformedExceptionMsg(dest);
 
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,msg + dest);
+                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,"%s%s",
+                    (const char*)msg.getCString(),
+                    (const char*)dest.getCString()));
 
                 PEG_METHOD_EXIT();
                 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, msg);
@@ -342,9 +349,10 @@ public:
             // as Indication delivery failed.
             String msg = e.getMessage();
 
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "CIMxmlIndicationHandler::handleIndication failed to deliver "
-                "indication due to Exception: " + e.getMessage ());
+                "indication due to Exception: %s",
+                (const char*)e.getMessage().getCString()));
 
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, msg);

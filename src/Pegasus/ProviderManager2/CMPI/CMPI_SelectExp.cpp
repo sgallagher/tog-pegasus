@@ -150,10 +150,10 @@ extern "C"
             }
             catch( const Exception &e )
             {
-                PEG_TRACE_STRING(
-                    TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL1,
-                    "Exception: _check_WQL - msg: " + e.getMessage());
+                PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                    "Exception: _check_WQL - msg: %s",
+                    (const char*)e.getMessage().getCString()));
+
                 if( rc ) 
                 {
                     CMSetStatusWithString(
@@ -217,10 +217,10 @@ extern "C"
             }
             catch( const Exception &e )
             {
-                PEG_TRACE_STRING(
-                    TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL1,
-                    "Exception: _check_CQL - msg: " + e.getMessage());
+                PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                    "Exception: _check_CQL - msg: %s",
+                    (const char*)e.getMessage().getCString()));
+
                 if( rc )
                 {
                     CMSetStatusWithString(
@@ -300,10 +300,10 @@ extern "C"
                 }
                 catch( const Exception &e )
                 {
-                    PEG_TRACE_STRING(
-                        TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL1,
-                        "Exception: selxEvaluate - msg: " + e.getMessage());
+                    PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                        "Exception: selxEvaluateWQL - msg: %s",
+                        (const char*)e.getMessage().getCString()));
+
                     if( rc )
                     {
                         CMSetStatusWithString(rc,CMPI_RC_ERR_FAILED,
@@ -347,10 +347,10 @@ extern "C"
                 }
                 catch( const Exception &e )
                 {
-                    PEG_TRACE_STRING(
-                        TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL1,
-                        "Exception: selxEvaluate - msg: " + e.getMessage());
+                    PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                        "Exception: selxEvaluateCQL - msg: %s",
+                        (const char*)e.getMessage().getCString()));
+
                     if( rc )
                     {
                         CMSetStatusWithString(
@@ -422,11 +422,10 @@ extern "C"
                 }
                 catch( const Exception &e )
                 {
-                    PEG_TRACE_STRING(
-                        TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL1,
-                        "Exception: selxEvaluateUsingAccessor - msg: " +
-                        e.getMessage());
+                    PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                        "Exception: selxEvaluateUsingAccessorWQL - msg: %s",
+                        (const char*)e.getMessage().getCString()));
+
                     if( rc )
                     {
                         CMSetStatusWithString(
@@ -472,11 +471,10 @@ extern "C"
                 }
                 catch( const Exception &e )
                 {
-                    PEG_TRACE_STRING(
-                        TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL1,
-                        "Exception: selxEvaluateUsingAccessor - msg: " +
-                        e.getMessage());
+                    PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                        "Exception: selxEvaluateUsingAccessorCQL - msg: %s",
+                        (const char*)e.getMessage().getCString()));
+
                     if( rc )
                     {
                         CMSetStatusWithString(rc,CMPI_RC_ERR_FAILED,
@@ -544,11 +542,10 @@ extern "C"
                 }
                 catch( const Exception &e )
                 {
-                    PEG_TRACE_STRING(
-                        TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL1,
-                        "Exception: selxGetDOC - msg: " +
-                        e.getMessage());
+                    PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                        "Exception: selxGetDOCWQL - msg: %s",
+                        (const char*)e.getMessage().getCString()));
+
                     if( rc )
                     {
                         CMSetStatusWithString(
@@ -596,11 +593,10 @@ extern "C"
                 }
                 catch( const Exception &e )
                 {
-                    PEG_TRACE_STRING(
-                        TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL1,
-                        "Exception: selxGetDOC - msg: " +
-                        e.getMessage());
+                    PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                        "Exception: selxGetDOCCQL - msg: %s",
+                        (const char*)e.getMessage().getCString()));
+
                     if( rc ) CMSetStatusWithString(rc,CMPI_RC_ERR_FAILED,
                         (CMPIString*)string2CMPIString(e.getMessage()));
                     if( dnf )

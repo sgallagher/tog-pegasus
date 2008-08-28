@@ -131,8 +131,9 @@ ConfigFileHandler::ConfigFileHandler(
         if (!is)
         {
             // unable to create file
-            PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL1,
-                "Failed to create config file: " + cFile);
+            PEG_TRACE((TRC_CONFIG, Tracer::LEVEL1,
+                "Failed to create config file: %s",
+                 (const char*)cFile.getCString()));
             throw NoSuchFile(cFile);
         }
 
@@ -260,17 +261,17 @@ Boolean ConfigFileHandler::updateCurrentValue(
         // Back up creation failed
         // FUTURE: Log this message in a log file.
         //
-        PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL1,
-            "Backup configuration file creation failed: " +
-            e.getMessage() + ", " + strerror(errno));
+        PEG_TRACE((TRC_CONFIG, Tracer::LEVEL1,
+            "Backup configuration file creation failed: %s",
+            (const char*)e.getMessage().getCString()));
 
         return false;
     }
     catch (CannotOpenFile& cof)
     {
-        PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL1,
-            "Setting permissions on current configuration file failed: " +
-            cof.getMessage() + ", " + strerror(errno));
+        PEG_TRACE((TRC_CONFIG, Tracer::LEVEL1,
+            "Setting permissions on current configuration file failed: %s",
+            (const char*)cof.getMessage().getCString()));
 
         return false;
     }
@@ -330,9 +331,9 @@ Boolean ConfigFileHandler::updatePlannedValue(
 
             if (!fs)
             {
-                PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL1,
-                    "Failed to create config file: " + pFile + ", " +
-                        strerror(errno));
+                PEG_TRACE((TRC_CONFIG, Tracer::LEVEL1,
+                    "Failed to create config file: %s",
+                    (const char*)pFile.getCString()));
                 throw NoSuchFile(pFile);
             }
 
@@ -351,17 +352,17 @@ Boolean ConfigFileHandler::updatePlannedValue(
         // Back up creation failed
         // FUTURE: Log this message in a log file.
         //
-        PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL1,
-            "Backup configuration file creation failed: " +
-                e.getMessage() + ", " + strerror(errno));
+        PEG_TRACE((TRC_CONFIG, Tracer::LEVEL1,
+            "Backup configuration file creation failed: %s",
+             (const char*)e.getMessage().getCString()));
 
         return false;
     }
     catch (CannotOpenFile& cof)
     {
-        PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL1,
-            "Setting permissions on planned configuration file failed: " +
-                cof.getMessage() + ", " + strerror(errno));
+        PEG_TRACE((TRC_CONFIG, Tracer::LEVEL1,
+            "Setting permissions on planned configuration file failed: %s",
+            (const char*)cof.getMessage().getCString()));
 
         return false;
     }

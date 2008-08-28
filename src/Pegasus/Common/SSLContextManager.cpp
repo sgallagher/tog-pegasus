@@ -145,8 +145,9 @@ static X509_STORE* _getNewX509Store(const String& storePath)
     //
     // reload certificates from the specified store
     //
-    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
-        "Reloading certificates from the store: " + storePath);
+    PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
+        "Reloading certificates from the store: %s",
+        (const char*)storePath.getCString()));
 
     X509_STORE* newStore = X509_STORE_new();
     if (newStore == NULL)
@@ -312,7 +313,8 @@ void SSLContextManager::reloadCRLStore()
         throw SSLException(parms);
     }
 
-    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "CRL store path is " + crlPath);
+    PEG_TRACE((TRC_SSL, Tracer::LEVEL4, 
+        "CRL store path is %s",(const char*)crlPath.getCString()));
 
     // update the CRL store
 

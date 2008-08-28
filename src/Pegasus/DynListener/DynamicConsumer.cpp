@@ -150,11 +150,9 @@ void DynamicConsumer::initialize()
 
         } catch (...)
         {
-            PEG_TRACE_STRING(
-                TRC_LISTENER,
-                Tracer::LEVEL1,
-                "Exception caught in DynamicConsumerFacade::initialize"
-                    " for " + _name);
+            PEG_TRACE((TRC_LISTENER,Tracer::LEVEL1,
+                "Exception caught in DynamicConsumerFacade::initialize for %s",
+                (const char*)_name.getCString()));
             throw;
         }
     }
@@ -199,11 +197,9 @@ void DynamicConsumer::terminate(void)
 
         } catch (...)
         {
-            PEG_TRACE_STRING(
-                TRC_LISTENER,
-                Tracer::LEVEL2,
-                "Exception caught in "
-                    "DynamicConsumerFacade::Terminate for " + _name);
+            PEG_TRACE((TRC_LISTENER,Tracer::LEVEL1,
+                "Exception caught in DynamicConsumerFacade::Terminate for %s",
+                (const char*)_name.getCString()));
             throw;
         }
 
@@ -296,29 +292,28 @@ void DynamicConsumer::enqueueEvent(IndicationDispatchEvent* event)
 
     try
     {
-        PEG_TRACE_STRING(
-            TRC_LISTENER,
-            Tracer::LEVEL4,
-            "enqueueEvent before " + _name);
+        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
+            "enqueueEvent before %s",(const char*)_name.getCString()));
+
         // Our event queue is first in first out.
         _eventqueue.insert_back(event);
         _check_queue->signal();
 
-        PEG_TRACE_STRING(
-            TRC_LISTENER,
-            Tracer::LEVEL4,
-            "enqueueEvent after " + _name);
+        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
+            "enqueueEvent after %s",(const char*)_name.getCString()));
 
     } catch (Exception& ex)
     {
         //ATTN: Log missed indication
-        PEGASUS_STD(cout) << "Error enqueueing event" 
-                          << ex.getMessage() << "\n";
+        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL1,
+            "Exception at enqueueingEvent: %s", 
+            (const char*)ex.getMessage().getCString()));
 
     } catch (...)
     {
         //ATTN: Log missed indication
-        PEGASUS_STD(cout) << "Unknown exception";
+        PEG_TRACE_CSTRING(TRC_LISTENER,Tracer::LEVEL1,
+            "Unknow exception at enqueueingEvent!");
     }
 
     PEG_METHOD_EXIT();
@@ -560,10 +555,8 @@ void IndicationDispatchEvent::increaseRetries()
     PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL4, "Increasing retries\n");
     _retries++;
     _lastAttemptTime = CIMDateTime::getCurrentDateTime();
-    PEG_TRACE_STRING(
-        TRC_LISTENER,
-        Tracer::LEVEL4,
-        "Last attempt time " + _lastAttemptTime.toString());
+    PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,"Last attempt time %s",
+        (const char*)_lastAttemptTime.toString().getCString()));
 }
 
 CIMDateTime IndicationDispatchEvent::getLastAttemptTime()

@@ -147,11 +147,10 @@ HandlerTable::~HandlerTable()
         }
         catch (...)
         {
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "Unknown error caught from %s terminate() method",
+                (const char*)_handlers[i].handlerId.getCString()));
             PEGASUS_ASSERT(0);
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "Unknown error caught from " +
-                    _handlers[i].handlerId +
-                    " terminate() method");
         }
 
         delete _handlers[i].handler;

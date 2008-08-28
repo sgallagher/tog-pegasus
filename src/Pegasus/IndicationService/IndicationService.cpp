@@ -159,9 +159,10 @@ IndicationService::IndicationService(
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL1,
-           "Exception caught in attempting to initialize Indication Service: " +
-            e.getMessage());
+        PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL1,
+           "Exception caught in attempting to "
+           "initialize Indication Service: %s",
+           (const char*)e.getMessage().getCString()));
     }
 }
 
@@ -2227,10 +2228,10 @@ void IndicationService::_handleIndicationCallBack (
 
     if (handlerResponse->cimException.getCode () != CIM_ERR_SUCCESS)
     {
-        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Sending Indication and HandlerService returns "
-            "CIMException: " +
-            handlerResponse->cimException.getMessage ());
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Sending Indication and HandlerService returns CIMException: %s",
+            (const char*)
+                handlerResponse->cimException.getMessage().getCString()));
 
         //
         //  ATTN-CAKG-P1-20020326: Implement subscription's OnFatalErrorPolicy
@@ -2617,10 +2618,11 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                         }
                         else
                         {
-                            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
+                            PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL,
                                 Tracer::LEVEL1,
-                                "Class " + className.getString() +
-                                " not found in tableValue.providers");
+                                "Class %s not found in tableValue.providers",
+                                (const char*)className.getString().getCString()
+                                ));
                         }
                     }
                 }
@@ -2868,9 +2870,9 @@ void IndicationService::_handleNotifyProviderEnableRequest
             //
             //  Error getting information from Capabilities instance
             //
-            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL1,
-               "Exception caught in handling provider enable notification: " +
-                exception.getMessage ());
+            PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL1,
+               "Exception caught in handling provider enable notification: %s",
+                (const char*)exception.getMessage().getCString()));
 
             cimException = CIMException(CIM_ERR_FAILED, exception.getMessage());
             break;
@@ -5934,10 +5936,10 @@ void IndicationService::_sendAsyncCreateRequests(
 
             default:
             {
-                PEG_TRACE_STRING(TRC_INDICATION_SERVICE_INTERNAL,
-                    Tracer::LEVEL1, "Unexpected origRequest type " +
-                    String(MessageTypeToString(origRequest->getType())) +
-                    " in _sendAsyncCreateRequests");
+                PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL,Tracer::LEVEL1,
+                    "Unexpected origRequest type %s "
+                    "in _sendAsyncCreateRequests",
+                    MessageTypeToString(origRequest->getType())));
                 PEGASUS_ASSERT(false);
                 break;
             }
@@ -6131,11 +6133,11 @@ Array<ProviderClassList> IndicationService::_sendWaitCreateRequests(
             //
             //  Provider rejected the subscription
             //
-            PEG_TRACE_STRING(TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-                "Provider (" +
-                indicationProviders[i].provider.getPath().toString() +
-                ") rejected create subscription: " +
-                response->cimException.getMessage());
+            PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+                "Provider (%s) rejected create subscription: %s",
+                (const char*)indicationProviders[i].provider.getPath()
+                       .toString().getCString(),
+                (const char*)response->cimException.getMessage().getCString()));
         }
 
         delete response;
@@ -6240,11 +6242,11 @@ void IndicationService::_sendWaitModifyRequests(
             //
             //  Provider rejected the subscription
             //
-            PEG_TRACE_STRING(TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-                "Provider (" +
-                indicationProviders[i].provider.getPath().toString() +
-                ") rejected modify subscription: " +
-                response->cimException.getMessage());
+            PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+                "Provider (%s) rejected modify subscription: %s",
+                (const char*)indicationProviders[i].provider.getPath()
+                       .toString().getCString(),
+                (const char*)response->cimException.getMessage().getCString()));
         }
 
         delete response;
@@ -6324,10 +6326,10 @@ void IndicationService::_sendAsyncDeleteRequests(
 
             default:
             {
-                PEG_TRACE_STRING(TRC_INDICATION_SERVICE_INTERNAL,
-                    Tracer::LEVEL1, "Unexpected origRequest type " +
-                    String(MessageTypeToString(origRequest->getType())) +
-                    " in _sendAsyncDeleteRequests");
+                PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL,Tracer::LEVEL1, 
+                    "Unexpected origRequest type %s "
+                    "in _sendAsyncDeleteRequests",
+                    MessageTypeToString(origRequest->getType())));
                 PEGASUS_ASSERT(false);
                 break;
             }
@@ -6477,11 +6479,11 @@ void IndicationService::_sendWaitDeleteRequests(
             //
             //  Provider rejected the subscription
             //
-            PEG_TRACE_STRING(TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-                "Provider (" +
-                indicationProviders[i].provider.getPath().toString() +
-                ") rejected delete subscription: " +
-                response->cimException.getMessage());
+            PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+                "Provider (%s) rejected delete subscription: %s",
+                (const char*)indicationProviders[i].provider.getPath()
+                       .toString().getCString(),
+                (const char*)response->cimException.getMessage().getCString()));
         }
 
         delete response;
@@ -6566,10 +6568,11 @@ void IndicationService::_handleOperationResponseAggregation(
 
         default:
         {
-            PEG_TRACE_STRING(TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL1,
-                "Unexpected request type " + String(MessageTypeToString(
-                    operationAggregate->getRequest(0)->getType())) +
-                " in _handleOperationResponseAggregation");
+            PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL1,
+                "Unexpected request type %s "
+                "in _handleOperationResponseAggregation",
+                MessageTypeToString(
+                    operationAggregate->getRequest(0)->getType())));
             PEGASUS_ASSERT(false);
             break;
         }
@@ -6618,10 +6621,11 @@ void IndicationService::_handleCreateResponseAggregation(
         }
         else
         {
-            PEG_TRACE_STRING(TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-                "Provider (" + provider.provider.getPath().toString() +
-                ") rejected create subscription: " +
-                response->cimException.getMessage());
+            PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+                "Provider (%s) rejected create subscription: %s",
+                (const char*)
+                     provider.provider.getPath().toString().getCString(),
+                (const char*)response->cimException.getMessage().getCString()));
         }
     }
 
@@ -6801,10 +6805,11 @@ void IndicationService::_handleDeleteResponseAggregation(
             //
             //  Log a trace message
             //
-            PEG_TRACE_STRING(TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-                "Provider (" + provider.provider.getPath().toString() +
-                ") rejected delete subscription: " +
-                response->cimException.getMessage());
+            PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+                "Provider (%s) rejected delete subscription: %s",
+                (const char*)
+                     provider.provider.getPath().toString().getCString(),
+                (const char*)response->cimException.getMessage().getCString()));
         }
     }
 
@@ -6952,16 +6957,18 @@ void IndicationService::_sendAlerts(
 
     CIMInstance current;
 
-    PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4,
-        "Sending alert: " + alertInstance.getClassName().getString());
+    PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+        "Sending alert: %s",
+        (const char*)alertInstance.getClassName().getString().getCString()));
 
     //
     //  Get list of unique handler instances for all subscriptions in list
     //
     for (Uint32 i = 0; i < subscriptions.size(); i++)
     {
-        PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4,
-            "Alert subscription: " + subscriptions[i].getPath().toString());
+        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+            "Alert subscription: %s",
+            (const char*)subscriptions[i].getPath().toString().getCString()));
 
         //
         //  Get handler instance
@@ -7535,8 +7542,9 @@ Boolean IndicationService::_formatIndication(
     catch (QueryRuntimePropertyException& re)
     {
         // The indication was missing a required property.
-        PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL1,
-            "Apply Projection error: " + re.getMessage());
+        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
+            "Apply Projection error: %s",
+            (const char*)re.getMessage().getCString()));
         PEG_METHOD_EXIT();
         return false; 
     }
@@ -7600,13 +7608,12 @@ void IndicationService::_forwardIndToHandler(
         handler_request,
         _queueId);
 
-    PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL4,
-        "Sending (SendAsync) Indication to " +
-        ((MessageQueue::lookup(_handlerService)) ?
-        String(((MessageQueue::lookup
-        (_handlerService))->getQueueName())) :
-        String("BAD queue name")) +
-        " via CIMHandleIndicationRequestMessage");
+    PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+        "Sending (SendAsync) Indication to %s "
+        "via CIMHandleIndicationRequestMessage",
+        (MessageQueue::lookup(_handlerService) ?
+         MessageQueue::lookup(_handlerService)->getQueueName() :
+        "BAD queue name")));
 
     SendAsync (op,
                _handlerService,

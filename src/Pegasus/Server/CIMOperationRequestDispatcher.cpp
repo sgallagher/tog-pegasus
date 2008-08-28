@@ -1338,9 +1338,10 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
             0,
             provider,
             service);
-    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-        "Internal provider  Service = " + service + " provider " + provider +
-            " found.");
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+        "Internal provider Service = %s provider %s found.",
+        (const char*)service.getCString(),
+        (const char*)provider.getCString()));
 
     PEG_METHOD_EXIT();
     return (router != 0);
@@ -1474,14 +1475,12 @@ Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
         {
             providerCount++;
 
-            PEG_TRACE_STRING(
-                TRC_DISPATCHER,
-                Tracer::LEVEL4,
-                "Provider found for class = " +
-                    providerInfo.className.getString() +
-                    " servicename = " + providerInfo.serviceName +
-                    " controlProviderName = " +
-                    providerInfo.controlProviderName);
+            PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+                "Provider found for class = %s servicename = %s "
+                "controlProviderName = %s",
+                (const char*)providerInfo.className.getString().getCString(),
+                (const char*)providerInfo.serviceName.getCString(),
+                (const char*)providerInfo.controlProviderName.getCString()));
         }
 
         providerInfoList.append(providerInfo);
@@ -1525,10 +1524,8 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
 
     if (router)
     {
-       PEG_TRACE_STRING(
-           TRC_DISPATCHER,
-           Tracer::LEVEL4,
-           "providerName = " + providerName + " found.");
+       PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+           "providerName = %s found.",(const char*)providerName.getCString()));
 
        providerInfo.serviceName = serviceName;
        providerInfo.controlProviderName = providerName;
@@ -1654,13 +1651,11 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
                 }
             }
 
-            PEG_TRACE_STRING(
-                TRC_DISPATCHER,
-                Tracer::LEVEL4,
-                "Normalization for provider module " + moduleName + " is " +
-                    (providerInfo.hasProviderNormalization ?
-                        "enabled" : "disabled") +
-                    ".");
+            PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
+                "Normalization for provider module %s is %s.",
+                (const char*)moduleName.getCString(),
+                (providerInfo.hasProviderNormalization ? 
+                     "enabled" : "disabled")));
         }
 #endif
         PEG_METHOD_EXIT();
@@ -1668,10 +1663,9 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
         return providerInfo;
     }
 
-    PEG_TRACE_STRING(
-        TRC_DISPATCHER,
-        Tracer::LEVEL2,
-        "Provider for " + className.getString() + " not found.");
+    PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL2,
+        "Provider for %s not found.",
+        (const char*)className.getString().getCString()));
 
     PEG_METHOD_EXIT();
 
@@ -1762,8 +1756,8 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
             serviceName);
     if (router)
     {
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-            "providerName = " + providerName + " found.");
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+            "providerName = %s found.",(const char*)providerName.getCString()));
         PEG_METHOD_EXIT();
         return providerName;
     }
@@ -1841,9 +1835,10 @@ Array<ProviderInfo>
     Array<ProviderInfo> providerInfoList;
 
     CIMName className = objectName.getClassName();
-    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-        "Association Class Lookup for Class " + className.getString() +
-            " and assocClass " + assocClass.getString());
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+        "Association Class Lookup for Class %s  and assocClass %s",
+        (const char*)className.getString().getCString(),
+        (const char*)assocClass.getString().getCString()));
 
     // The association class is the basis for association registration.
     // When an association class request is received by the CIMOM the target
@@ -2073,9 +2068,10 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
             {
                 pInstances[i].getProperty(pos).getValue().get(providerName);
 
-                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-                    "Association providerName = " + providerName + " found." +
-                        " for Class " + assocClass.getString());
+                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                    "Association providerName = %s found for Class %s",
+                    (const char*)providerName.getCString(),
+                    (const char*)assocClass.getString().getCString()));
                 providerNames.append(providerName);
             }
         }
@@ -2083,13 +2079,10 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
 
     if (providerNames.size() == 0)
     {
-        PEG_TRACE_STRING(
-            TRC_DISPATCHER, 
-            Tracer::LEVEL2,
-            "Association Provider NOT found for Class " + 
-                assocClass.getString() +
-                " in nameSpace " + 
-                nameSpace.getString());
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL2,
+            "Association Provider NOT found for Class %s in nameSpace %s",
+            (const char*)assocClass.getString().getCString(),
+            (const char*)nameSpace.getString().getCString()));
     }
     PEG_METHOD_EXIT();
     return providerNames;
@@ -2269,13 +2262,13 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
 
     asyncRequest->dest = serviceIds[0];
 
-    PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3,
-        "Forwarding " + String(MessageTypeToString(request->getType())) +
-            " to service " + serviceName + ". Response should go to queue " +
-            ((MessageQueue::lookup(request->queueIds.top())) ?
-                String(((MessageQueue::lookup(
-                    request->queueIds.top()))->getQueueName()) ) :
-                String("BAD queue name")));
+    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
+        "Forwarding %s to service %s. Response should go to queue %s.",
+        MessageTypeToString(request->getType()),
+        (const char*)serviceName.getCString(),
+        ((MessageQueue::lookup(request->queueIds.top())) ?
+        ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
+               "BAD queue name")));
 
     SendAsync(
         op,
@@ -2332,14 +2325,13 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
                 request,
                 this->getQueueId());
 
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3,
-            "Forwarding " + String(MessageTypeToString(request->getType())) +
-                " to service " + serviceName +
-                ". Response should go to queue " +
-                ((MessageQueue::lookup(request->queueIds.top())) ?
-                    String(((MessageQueue::lookup(
-                        request->queueIds.top()))->getQueueName())) :
-                    String("BAD queue name")));
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
+            "Forwarding %s to service %s. Response should go to queue %s.",
+            MessageTypeToString(request->getType()),
+            (const char*)serviceName.getCString(),
+            ((MessageQueue::lookup(request->queueIds.top())) ?
+            ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
+                   "BAD queue name")));
 
         SendAsync(
             op,
@@ -2359,14 +2351,15 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
                controlProviderName,
                request);
 
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3,
-            "Forwarding " + String(MessageTypeToString(request->getType())) +
-                " to service " + serviceName + ", control provider " +
-                controlProviderName + ". Response should go to queue " +
-                ((MessageQueue::lookup(request->queueIds.top())) ?
-                    String(((MessageQueue::lookup(
-                        request->queueIds.top()))->getQueueName())) :
-                String("BAD queue name")));
+       PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
+           "Forwarding %s to service %s, control provider %s. "
+           "Response should go to queue %s.",
+           MessageTypeToString(request->getType()),
+           (const char*)serviceName.getCString(),
+           (const char*)controlProviderName.getCString(),
+           ((MessageQueue::lookup(request->queueIds.top())) ?
+           ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
+                  "BAD queue name")));
 
        SendAsync(
            op,
@@ -2416,14 +2409,15 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
 
         asyncRequest->dest = serviceIds[0];
 
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3,
-            "Forwarding " + String(MessageTypeToString(request->getType())) +
-                " on class " + className.getString() + " to service " +
-                serviceName + ". Response should go to queue " +
-                ((MessageQueue::lookup(request->queueIds.top())) ?
-                    String(((MessageQueue::lookup(
-                        request->queueIds.top()))->getQueueName())) :
-                    String("BAD queue name")));
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
+            "Forwarding %s on class %s to service %s. "
+            "Response should go to queue %s.",
+            MessageTypeToString(request->getType()),
+            (const char*)className.getString().getCString(),
+            (const char*)serviceName.getCString(),
+            ((MessageQueue::lookup(request->queueIds.top())) ?
+            ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
+                   "BAD queue name")));
 
         SendAsync(
             op,
@@ -2443,15 +2437,17 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
                 controlProviderName,
                 request);
 
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL3,
-            "Forwarding " + String(MessageTypeToString(request->getType())) +
-                " on class " + className.getString() + " to service " +
-                serviceName + ", control provider " + controlProviderName +
-                ". Response should go to queue " +
-                    ((MessageQueue::lookup(request->queueIds.top())) ?
-                        String(((MessageQueue::lookup(
-                            request->queueIds.top()))->getQueueName())) :
-                        String("BAD queue name")));
+
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
+            "Forwarding %s on class %s to service %s, control provider %s. "
+            "Response should go to queue %s.",
+            MessageTypeToString(request->getType()),
+            (const char*)className.getString().getCString(),
+            (const char*)serviceName.getCString(),
+            (const char*)controlProviderName.getCString(),
+            ((MessageQueue::lookup(request->queueIds.top())) ?
+            ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
+                   "BAD queue name")));
 
        // Send to the Control provider
        SendAsync(
@@ -3361,9 +3357,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             return;
         }
 
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-            String("PropertyList = ") +
-                _showPropertyList(request->propertyList));
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,"PropertyList = %s",
+            (const char*)
+                _showPropertyList(request->propertyList).getCString()));
 
         // If DeepInheritance==false and no PropertyList was specified by the
         // client, the provider PropertyList should contain all the properties
@@ -3404,10 +3400,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
     if ((providerCount == 0) && !(_repository->isDefaultInstanceProvider()))
     {
-        PEG_TRACE_STRING(
-            TRC_DISPATCHER,
-            Tracer::LEVEL1,
-            "CIM_ERROR_NOT_SUPPORTED for " + request->className.getString());
+        PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL1,
+            "CIM_ERROR_NOT_SUPPORTED for %s",
+            (const char*)request->className.getString().getCString()));
 
         CIMResponseMessage* response = request->buildResponse();
         response->cimException =
@@ -3585,9 +3580,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
         if (checkClassException.getCode() == CIM_ERR_SUCCESS)
         {
-            PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-                String("PropertyList = ") +
-                    _showPropertyList(requestCopy->propertyList));
+            PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,"PropertyList = %s",
+                (const char*)
+                    _showPropertyList(requestCopy->propertyList).getCString()));
 
             _forwardRequestForAggregation(
                 providerInfo.serviceName,
@@ -3677,10 +3672,9 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     // return CIM_ERR_NOT_SUPPORTED
     if ((providerCount == 0) && !(_repository->isDefaultInstanceProvider()))
     {
-        PEG_TRACE_STRING(
-            TRC_DISPATCHER,
-            Tracer::LEVEL1,
-            "CIM_ERROR_NOT_SUPPORTED for " + request->className.getString());
+        PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL1,
+            "CIM_ERROR_NOT_SUPPORTED for %s",
+            (const char*)request->className.getString().getCString()));
 
         CIMResponseMessage* response = request->buildResponse();
         response->cimException =
@@ -4016,9 +4010,9 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                 // No provider is registered and the repository isn't the
                 // default.  Return CIM_ERR_NOT_SUPPORTED.
 
-                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL1,
-                    "CIM_ERR_NOT_SUPPORTED for " +
-                        request->className.getString());
+                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
+                    "CIM_ERR_NOT_SUPPORTED for %s",
+                    (const char*)request->className.getString().getCString()));
 
                 response.reset(dynamic_cast<CIMAssociatorsResponseMessage*>(
                     request->buildResponse()));
@@ -4077,9 +4071,10 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                     requestCopy->operationContext.insert(
                         *(providerInfos[i].providerIdContainer.get()));
 
-                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-                    "Forwarding to provider for class " +
-                    providerInfos[i].className.getString());
+                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                    "Forwarding to provider for class %s",
+                    (const char*)
+                        providerInfos[i].className.getString().getCString()));
                 _forwardRequestForAggregation(providerInfos[i].serviceName,
                     providerInfos[i].controlProviderName, requestCopy, poA);
                 // Note: poA must not be referenced after last "forwardRequest"
@@ -4248,9 +4243,9 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                 // No provider is registered and the repository isn't the
                 // default.  Return CIM_ERR_NOT_SUPPORTED.
 
-                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL1,
-                    "CIM_ERR_NOT_SUPPORTED for " +
-                        request->className.getString());
+                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
+                    "CIM_ERR_NOT_SUPPORTED for %s",
+                    (const char*)request->className.getString().getCString()));
 
                 response.reset(
                     dynamic_cast<CIMAssociatorNamesResponseMessage*>(
@@ -4310,9 +4305,10 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                     requestCopy->operationContext.insert(
                         *(providerInfos[i].providerIdContainer.get()));
 
-                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-                    "Forwarding to provider for class " +
-                    providerInfos[i].className.getString());
+                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                    "Forwarding to provider for class %s",
+                    (const char*)
+                        providerInfos[i].className.getString().getCString()));
                 _forwardRequestForAggregation(providerInfos[i].serviceName,
                     providerInfos[i].controlProviderName, requestCopy, poA);
                 // Note: poA must not be referenced after last "forwardRequest"
@@ -4469,9 +4465,9 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                 // No provider is registered and the repository isn't the
                 // default.  Return CIM_ERR_NOT_SUPPORTED.
 
-                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL1,
-                    "CIM_ERR_NOT_SUPPORTED for " +
-                        request->className.getString());
+                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
+                    "CIM_ERR_NOT_SUPPORTED for %s",
+                    (const char*)request->className.getString().getCString()));
 
                 response.reset(dynamic_cast<CIMReferencesResponseMessage*>(
                     request->buildResponse()));
@@ -4530,9 +4526,10 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                     requestCopy->operationContext.insert(
                         *(providerInfos[i].providerIdContainer.get()));
 
-                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-                    "Forwarding to provider for class " +
-                    providerInfos[i].className.getString());
+                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                    "Forwarding to provider for class %s",
+                    (const char*)
+                        providerInfos[i].className.getString().getCString()));
                 _forwardRequestForAggregation(providerInfos[i].serviceName,
                     providerInfos[i].controlProviderName, requestCopy, poA);
                 // Note: poA must not be referenced after last "forwardRequest"
@@ -4691,9 +4688,9 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                 // No provider is registered and the repository isn't the
                 // default.  Return CIM_ERR_NOT_SUPPORTED.
 
-                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL1,
-                    "CIM_ERR_NOT_SUPPORTED for " +
-                        request->className.getString());
+                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL1,
+                    "CIM_ERR_NOT_SUPPORTED for %s",
+                    (const char*)request->className.getString().getCString()));
 
                 response.reset(dynamic_cast<CIMReferenceNamesResponseMessage*>(
                     request->buildResponse()));
@@ -4751,9 +4748,10 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                     requestCopy->operationContext.insert(
                         *(providerInfos[i].providerIdContainer.get()));
 
-                PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL4,
-                    "Forwarding to provider for class " +
-                    providerInfos[i].className.getString());
+                PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+                    "Forwarding to provider for class %s",
+                    (const char*)
+                        providerInfos[i].className.getString().getCString()));
                 _forwardRequestForAggregation(providerInfos[i].serviceName,
                     providerInfos[i].controlProviderName, requestCopy, poA);
                 // Note: poA must not be referenced after last "forwardRequest"

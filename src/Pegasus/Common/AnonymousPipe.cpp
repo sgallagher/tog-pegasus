@@ -67,8 +67,9 @@ AnonymousPipe::Status AnonymousPipe::writeMessage (CIMMessage * message)
     }
     catch (Exception & e)
     {
-        PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-            "Failed to serialize message: " + e.getMessage ());
+        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            "Failed to serialize message: %s", 
+            (const char*)e.getMessage().getCString()));
         PEG_METHOD_EXIT ();
         throw;
     }
@@ -150,8 +151,9 @@ AnonymousPipe::Status AnonymousPipe::readMessage (CIMMessage * & message)
         //
         //  De-serialization failed
         //
-        PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-            "Failed to de-serialize message: " + e.getMessage ());
+        PEG_TRACE ((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+            "Failed to de-serialize message: %s",
+            (const char*)e.getMessage().getCString()));
         PEG_METHOD_EXIT ();
         throw;
     }

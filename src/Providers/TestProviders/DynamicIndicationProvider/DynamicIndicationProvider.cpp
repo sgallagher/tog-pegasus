@@ -222,10 +222,10 @@ void DynamicIndicationProvider::invokeMethod(
     String description;
     char buf[256];
 
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "Class " + objectReference.toString());
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "Method " + methodName.getString());
+    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,"Class %s",
+        (const char*)objectReference.toString().getCString()));
+    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,"Method %s",
+        (const char*)methodName.getString().getCString()));
 
     handler.processing();
 
@@ -322,8 +322,8 @@ void DynamicIndicationProvider::sendIndication(
     MofWriter::appendInstanceElement(buffer, instance);
 
     PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, buffer.getData());
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        instance.getPath().toString());
+    PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+        (const char*)instance.getPath().toString().getCString());
 
     CIMIndication cimIndication(instance);
     _pHandler->deliver(cimIndication);

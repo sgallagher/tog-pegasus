@@ -239,9 +239,11 @@ void ConfigFile::load(ConfigTable* confTable)
             // Duplicate property, ignore the new property value.
             // FUTURE: Log this message in a log file.
             //
-            PEG_TRACE_STRING(TRC_CONFIG, Tracer::LEVEL2,
-                "Duplicate property '" + name + "', value '" + value +
-                    "' is ignored.");
+            PEG_TRACE((TRC_CONFIG, Tracer::LEVEL2,
+                "Duplicate property '%s', value '%s' is ignored.",
+                (const char*)name.getCString(),
+                (const char*)value.getCString()));
+
         }
     }
 

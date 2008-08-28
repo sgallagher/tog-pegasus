@@ -67,8 +67,9 @@ public:
         }
         catch (Exception& e)
         {
-            PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
-                String("Unexpected Exception: ") + e.getMessage());
+            PEG_TRACE((TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+                "Unexpected Exception: %s",
+                (const char*)e.getMessage().getCString()));
             throw;
         }
         catch (...)
@@ -88,8 +89,9 @@ public:
         }
         catch (Exception& e)
         {
-            PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
-                String("Ignoring Exception: ") + e.getMessage());
+            PEG_TRACE((TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+                "Ignoring Exception: %s",
+                (const char*)e.getMessage().getCString()));
         }
         catch (...)
         {
@@ -230,8 +232,9 @@ public:
         }
         catch (Exception& e)
         {
-            PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL1,
-                String("Ignoring Exception: ") + e.getMessage());
+            PEG_TRACE((TRC_CIMOM_HANDLE, Tracer::LEVEL1,
+                "Ignoring Exception: %s",
+                (const char*)e.getMessage().getCString()));
         }
         catch (...)
         {

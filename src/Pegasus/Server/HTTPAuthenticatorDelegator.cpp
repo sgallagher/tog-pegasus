@@ -524,9 +524,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                             PEG_METHOD_EXIT();
                             return;
                         }
-                        PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4,
-                            "Certificate toString " +
-                                clientCertificate->toString());
+                        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+                            "Certificate toString %s",
+                            (const char*)
+                                clientCertificate->toString().getCString()));
 
                         // Get certificate properties
                         issuerName = clientCertificate->getIssuerName();
@@ -560,9 +561,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                             PEGASUS_CLASSNAME_CERTIFICATE,
                             keyBindings);
 
-                        PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL4,
-                            "Client Certificate COP: " +
-                                cimObjectPath.toString());
+                        PEG_TRACE((TRC_HTTP, Tracer::LEVEL4,
+                            "Client Certificate COP: %s",
+                            (const char*)
+                                cimObjectPath.toString().getCString()));
 
                         CIMInstance cimInstance;
                         CIMValue value;
@@ -592,9 +594,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                                 //
                                 if (userName.size())
                                 {
-                                    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3,
-                                        "User name for certificate is " +
-                                            userName);
+                                    PEG_TRACE((TRC_HTTP, Tracer::LEVEL3,
+                                        "User name for certificate is %s",
+                                        (const char*)userName.getCString()));
                                     certUserName = userName;
                                     break;
                                 }

@@ -246,10 +246,8 @@ void CMPI_Cql2Dnf::_populateTableau()
 
     _tableau.reserveCapacity(pred_Array.size());
 
-    PEG_TRACE_STRING(
-        TRC_CMPIPROVIDERINTERFACE,
-        Tracer::LEVEL4,
-        "Expression: " + cqs.toString());
+    PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL4,
+        "Expression: %s",(const char*)cqs.toString().getCString()));
 
     CMPI_TableauRow tr;
     CQLValue dummy("");

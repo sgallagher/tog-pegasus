@@ -225,12 +225,12 @@ IndicationHandlerService::_handleIndication(
                     _queueId));
                 exportmessage.release();
 
-                PEG_TRACE_STRING(TRC_IND_HANDLE, Tracer::LEVEL4,
-                    "Indication handler forwarding message to " +
+                PEG_TRACE((TRC_IND_HANDLE, Tracer::LEVEL4,
+                    "Indication handler forwarding message to %s",
                         ((MessageQueue::lookup(exportServer[0])) ?
-                            String(((MessageQueue::lookup(exportServer[0]))->
-                                getQueueName())) :
-                            String("BAD queue name")));
+                            ((MessageQueue::lookup(exportServer[0]))->
+                                getQueueName()):
+                            "BAD queue name")));
                 PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
                     "Sending %s Indication %s to destination %s",
                     (const char*) (indication.getClassName().getString().

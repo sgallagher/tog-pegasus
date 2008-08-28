@@ -248,11 +248,9 @@ Boolean CMPIProvider::tryTerminate()
         }
         catch (...)
         {
-            PEG_TRACE_STRING(
-                TRC_PROVIDERMANAGER,
-                Tracer::LEVEL1,
-                "Exception caught in CMPIProviderFacade::tryTerminate() for " +
-                getName());
+            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
+                "Exception caught in CMPIProviderFacade::tryTerminate() for %s",
+                (const char*)getName().getCString()));
             terminated = false;
 
         }
@@ -421,11 +419,9 @@ void CMPIProvider::terminate()
         }
         catch (...)
         {
-            PEG_TRACE_STRING(
-                TRC_PROVIDERMANAGER,
-                Tracer::LEVEL1,
-                "Exception caught in CMPIProviderFacade::Terminate for " +
-                getName());
+            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
+                "Exception caught in CMPIProviderFacade::Terminate for %s",
+                (const char*)getName().getCString()));
             throw;
         }
     }

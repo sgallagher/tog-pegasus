@@ -137,8 +137,9 @@ void ProviderManagerMap::initialize()
             "providerManagerDir");
     dirName = ConfigManager::getHomedPath(dirName); 
 
-    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-        "Looking for ProviderManagers in " + dirName + "."); 
+    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+        "Looking for ProviderManagers in %s.",
+        (const char*)dirName.getCString())); 
 
     // check to make sure that this ifc type is handled by one of the
     // provider managers in the directory
@@ -157,9 +158,9 @@ void ProviderManagerMap::initialize()
         {
             String fullPath = dirName + "/" + filename;
             // found a file... assume it's a ProviderManager library
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "Found file " + fullPath + ".  Checking to see if it is "
-                "a ProviderManager."); 
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                "Found file %s. Checking to see if it is a ProviderManager.",
+                (const char*)fullPath.getCString())); 
             DynamicLibrary dl(fullPath);
             if (!dl.load())
             {
@@ -249,10 +250,11 @@ void ProviderManagerMap::initialize()
                     for (int j=0; ifcVersions[j]!=NULL; j++)
                     {
                         entry.ifcVersions.append(String(ifcVersions[j]));
-                        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-                            String("Adding Provider type " + String(ifcName) + 
-                                " version " + String(ifcVersions[j]) + 
-                                " handled by ProviderManager " + fullPath)); 
+                        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+                            "Adding Provider type %s version %s "
+                            "handled by ProviderManager %s",
+                             ifcName,ifcVersions[j],
+                             (const char*)fullPath.getCString())); 
                     }
                     _pmArray.append(entry);
                 }

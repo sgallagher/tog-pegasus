@@ -85,19 +85,16 @@ ConsumerManager::ConsumerManager(
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::ConsumerManager");
 
-    PEG_TRACE_STRING(
-        TRC_LISTENER, 
-        Tracer::LEVEL4,
-        "Consumer library directory: " + consumerDir);
-    PEG_TRACE_STRING(
-        TRC_LISTENER,
-        Tracer::LEVEL4,
-        "Consumer configuration directory: " + consumerConfigDir);
+    PEG_TRACE((TRC_LISTENER, Tracer::LEVEL4,
+        "Consumer library directory: %s",
+        (const char*)consumerDir.getCString()));
+    PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
+        "Consumer configuration directory: %s",
+        (const char*)consumerConfigDir.getCString()));
 
     PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
-                  "Consumer unload enabled %d: idle timeout %d",
-                  enableConsumerUnload,
-                  idleTimeout));
+        "Consumer unload enabled %d: idle timeout %d",
+         enableConsumerUnload,idleTimeout));
 
 
     //ATTN: Bugzilla 3765 - Uncomment when OptionManager has a reset capability
@@ -160,19 +157,16 @@ void ConsumerManager::_init()
 
                 try
                 {
-                    PEG_TRACE_STRING(
-                        TRC_LISTENER,
-                        Tracer::LEVEL4,
-                        "Attempting to load indication for!" + 
-                            consumerName + "!");
+                    PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
+                        "Attempting to load indication for '%s'",
+                        (const char*)consumerName.getCString()));
                     getConsumer(consumerName);
 
                 } catch (...)
                 {
-                    PEG_TRACE_STRING(
-                        TRC_LISTENER,
-                        Tracer::LEVEL1,
-                        "Cannot load consumer from file " + files[i]);
+                    PEG_TRACE((TRC_LISTENER,Tracer::LEVEL1,
+                        "Cannot load consumer from file '%s'",
+                        (const char*)files[i].getCString()));
                 }
             }
         }
@@ -225,17 +219,14 @@ String ConsumerManager::_getConsumerLibraryName(const String & consumerName)
     String configFile = FileSystem::getAbsolutePath(
                             (const char*)_consumerConfigDir.getCString(),
                             String(consumerName + ".conf"));
-    PEG_TRACE_STRING(
-        TRC_LISTENER, 
-        Tracer::LEVEL4,
-        "Looking for config file " + configFile);
+    PEG_TRACE((TRC_LISTENER, Tracer::LEVEL4,
+        "Looking for config file %s",(const char*)configFile.getCString()));
 
     if (FileSystem::exists(configFile) && FileSystem::canRead(configFile))
     {
-        PEG_TRACE_STRING(
-            TRC_LISTENER,
-            Tracer::LEVEL4,
-            "Found config file for consumer " + consumerName);
+        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
+            "Found config file for consumer %s",
+            (const char*)consumerName.getCString()));
 
         try
         {
@@ -250,11 +241,9 @@ String ConsumerManager::_getConsumerLibraryName(const String & consumerName)
             if (!_optionMgr.lookupValue("location", libraryName) || 
                 (libraryName == String::EMPTY))
             {
-                PEG_TRACE_STRING(
-                    TRC_LISTENER,
-                    Tracer::LEVEL2,
+                PEG_TRACE((TRC_LISTENER,Tracer::LEVEL2,
                     "Warning: Using default library name since none was "
-                        "specified in " + configFile); 
+                    "specified in %s",(const char*)configFile.getCString())); 
                 libraryName = consumerName;
             }
 
@@ -269,16 +258,15 @@ String ConsumerManager::_getConsumerLibraryName(const String & consumerName)
         }
     } else
     {
-        PEG_TRACE_STRING(
-            TRC_LISTENER,
-            Tracer::LEVEL4,
-            "No config file exists for " + consumerName);
+        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
+            "No config file exists for %s",
+            (const char*)consumerName.getCString()));
     }
 
-    PEG_TRACE_STRING(
-        TRC_LISTENER,
-        Tracer::LEVEL4,
-        "The library name for " + consumerName + " is " + libraryName);
+    PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
+        "The library name for %s is %s",
+        (const char*)consumerName.getCString(),
+        (const char*)libraryName.getCString()));
 
     PEG_METHOD_EXIT();
     return libraryName;
@@ -308,19 +296,16 @@ DynamicConsumer* ConsumerManager::getConsumer(const String& consumerName)
 
         if (consumer && consumer->isLoaded())
         {
-            PEG_TRACE_STRING(
-                TRC_LISTENER,
-                Tracer::LEVEL4,
-                "Consumer exists in the cache and"
-                    " is already loaded: " + consumerName);
+            PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
+                "Consumer exists in the cache and is already loaded: %s",
+                (const char*)consumerName.getCString()));
             cached = true;
         }
     } else
     {
-        PEG_TRACE_STRING(
-            TRC_LISTENER,
-            Tracer::LEVEL3,
-            "Consumer not found in cache, creating " + consumerName);
+        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL3,
+            "Consumer not found in cache, creating %s",
+            (const char*)consumerName.getCString()));
         consumer = new DynamicConsumer(consumerName);
         //ATTN: The above is a memory leak if _initConsumer throws an exception
         //need to delete it in that case
@@ -365,10 +350,8 @@ void ConsumerManager::_initConsumer(
     String libraryPath = FileSystem::getAbsolutePath(
                              (const char*)_consumerDir.getCString(),
                              FileSystem::buildLibraryFileName(libraryName));
-    PEG_TRACE_STRING(
-        TRC_LISTENER,
-        Tracer::LEVEL4,
-        "Loading library: " + libraryPath);
+    PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,"Loading library: %s",
+        (const char*)libraryPath.getCString()));
 
     //load module
     try
@@ -378,10 +361,9 @@ void ConsumerManager::_initConsumer(
 
     } catch (Exception& ex)
     {
-        PEG_TRACE_STRING(
-            TRC_LISTENER,
-            Tracer::LEVEL1, 
-            "Error loading consumer module: " + ex.getMessage());
+        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL1, 
+            "Error loading consumer module: %s",
+            (const char*)ex.getMessage().getCString()));
 
         throw Exception(
                   MessageLoaderParms(
@@ -399,18 +381,15 @@ void ConsumerManager::_initConsumer(
                       libraryName));
     }
 
-    PEG_TRACE_STRING(
-        TRC_LISTENER,
-        Tracer::LEVEL4,
-        "Successfully loaded consumer module " + libraryName);
+    PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
+        "Successfully loaded consumer module %s",
+        (const char*)libraryName.getCString()));
 
     //initialize consumer
     try
     {
-        PEG_TRACE_STRING(
-            TRC_LISTENER,
-            Tracer::LEVEL4,
-            "Initializing Consumer " +  consumerName);
+        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,"Initializing Consumer %s",
+            (const char*)consumerName.getCString()));
 
         consumer->initialize();
 
@@ -452,10 +431,9 @@ void ConsumerManager::_initConsumer(
             consumer->_loadOutstandingIndications(outstandingIndications);
         }
 
-        PEG_TRACE_STRING(
-            TRC_LISTENER,
-            Tracer::LEVEL4,
-            "Successfully initialized consumer " + consumerName);
+        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
+            "Successfully initialized consumer %s",
+            (const char*)consumerName.getCString()));
 
     } catch (...)
     {
@@ -489,18 +467,15 @@ ConsumerModule* ConsumerManager::_lookupModule(const String & libraryName)
     //see if consumer module is cached
     if (_modules.lookup(libraryName, module))
     {
-        PEG_TRACE_STRING(
-            TRC_LISTENER,
-            Tracer::LEVEL4,
-            "Found Consumer Module" + 
-                libraryName + " in Consumer Manager Cache");
+        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
+            "Found Consumer Module %s in Consumer Manager Cache", 
+            (const char*)libraryName.getCString()));
 
     } else
     {
-        PEG_TRACE_STRING(
-            TRC_LISTENER,
-            Tracer::LEVEL4,
-            "Creating Consumer Provider Module " + libraryName);
+        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
+            "Creating Consumer Provider Module %s",
+            (const char*)libraryName.getCString()));
 
         module = new ConsumerModule(); 
         _modules.insert(libraryName, module);
@@ -529,10 +504,9 @@ Boolean ConsumerManager::hasActiveConsumers()
                 consumer->isLoaded() && 
                 (consumer->getPendingIndications() > 0))
             {
-                PEG_TRACE_STRING(
-                    TRC_LISTENER,
-                    Tracer::LEVEL4,
-                    "Found active consumer: " + consumer->_name);
+                PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
+                    "Found active consumer: %s" ,
+                    (const char*)consumer->_name.getCString()));
                 PEG_METHOD_EXIT();
                 return true;
             }
@@ -540,9 +514,7 @@ Boolean ConsumerManager::hasActiveConsumers()
     } catch (...)
     {
         // Unexpected exception; do not assume that no providers are loaded
-        PEG_TRACE_CSTRING(
-            TRC_LISTENER,
-            Tracer::LEVEL1,
+        PEG_TRACE_CSTRING(TRC_LISTENER,Tracer::LEVEL1,
             "Unexpected Exception in hasActiveConsumers.");
         PEG_METHOD_EXIT();
         return true;
@@ -569,10 +541,9 @@ Boolean ConsumerManager::hasLoadedConsumers()
 
             if (consumer && consumer->isLoaded())
             {
-                PEG_TRACE_STRING(
-                    TRC_LISTENER,
-                    Tracer::LEVEL4,
-                    "Found loaded consumer: " + consumer->_name);
+                PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
+                     "Found loaded consumer: %s",
+                     (const char*)consumer->_name.getCString()));
                 PEG_METHOD_EXIT();
                 return true;
             }
@@ -580,9 +551,7 @@ Boolean ConsumerManager::hasLoadedConsumers()
     } catch (...)
     {
         // Unexpected exception; do not assume that no providers are loaded
-        PEG_TRACE_CSTRING(
-            TRC_LISTENER,
-            Tracer::LEVEL1,
+        PEG_TRACE_CSTRING(TRC_LISTENER,Tracer::LEVEL1,
             "Unexpected Exception in hasLoadedConsumers.");
         PEG_METHOD_EXIT();
         return true;
@@ -754,10 +723,9 @@ void ConsumerManager::unloadConsumer(const String& consumerName)
     //check whether the consumer exists
     if (!_consumers.lookup(consumerName, consumer))
     {
-        PEG_TRACE_STRING(
-            TRC_LISTENER,
-            Tracer::LEVEL2,
-            "Error: cannot unload consumer, unknown consumer " + consumerName);
+        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL2,
+            "Error: cannot unload consumer, unknown consumer %s",
+            (const char*)consumerName.getCString()));
         return;
     }
 
@@ -774,18 +742,15 @@ void ConsumerManager::unloadConsumer(const String& consumerName)
 
         } catch (Exception&)
         {
-            PEG_TRACE_CSTRING(
-                TRC_LISTENER, 
-                Tracer::LEVEL1,
+            PEG_TRACE_CSTRING(TRC_LISTENER, Tracer::LEVEL1,
                 "Error unloading consumers.");
         }
 
     } else
     {
-        PEG_TRACE_STRING(
-            TRC_LISTENER,
-            Tracer::LEVEL2,
-            "Error: cannot unload the not loaded consumer " + consumerName);
+        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL2,
+            "Error: cannot unload the not loaded consumer %s",
+            (const char*)consumerName.getCString()));
     }
 
     PEG_METHOD_EXIT();
@@ -805,9 +770,7 @@ void ConsumerManager::_unloadConsumers(
         consumersToUnload[i]->sendShutdownSignal();
     }
 
-    PEG_TRACE_CSTRING(
-        TRC_LISTENER,
-        Tracer::LEVEL3,
+    PEG_TRACE_CSTRING(TRC_LISTENER,Tracer::LEVEL3,
         "Sent shutdown signal to all consumers.");
 
     // wait for all the consumer worker threads to complete
@@ -817,10 +780,8 @@ void ConsumerManager::_unloadConsumers(
     // for the busiest consumer to stop processing its requests.
     for (Uint32 i = 0; i < consumersToUnload.size(); i++)
     {
-        PEG_TRACE_STRING(
-            TRC_LISTENER, 
-            Tracer::LEVEL4, 
-            "Unloading consumer " + consumersToUnload[i]->getName());
+        PEG_TRACE((TRC_LISTENER, Tracer::LEVEL4,"Unloading consumer %s",
+            (const char*)consumersToUnload[i]->getName().getCString()));
 
         //wait for the consumer worker thread to end
         Semaphore* _shutdownSemaphore = 
@@ -831,10 +792,7 @@ void ConsumerManager::_unloadConsumers(
                 "Timed out while attempting to stop consumer thread.");
         }
 
-        PEG_TRACE_CSTRING(
-            TRC_LISTENER,
-            Tracer::LEVEL2, 
-            "Terminating consumer.");
+        PEG_TRACE_CSTRING(TRC_LISTENER,Tracer::LEVEL2,"Terminating consumer.");
 
         try
         {
@@ -853,17 +811,14 @@ void ConsumerManager::_unloadConsumers(
             //reset the consumer
             consumersToUnload[i]->reset();
 
-            PEG_TRACE_CSTRING(
-                TRC_LISTENER,
-                Tracer::LEVEL2,
+            PEG_TRACE_CSTRING(TRC_LISTENER,Tracer::LEVEL2,
                 "Consumer library successfully unloaded.");
 
         } catch (Exception& e)
         {
-            PEG_TRACE_STRING(
-                TRC_LISTENER, 
-                Tracer::LEVEL1, 
-                "Error unloading consumer: " + e.getMessage()); 
+            PEG_TRACE((TRC_LISTENER, Tracer::LEVEL1, 
+                "Error unloading consumer: %s",
+                (const char*)e.getMessage().getCString())); 
             //ATTN: throw exception? log warning?
         }
     }
@@ -890,10 +845,8 @@ void ConsumerManager::_serializeOutstandingIndications(
     String fileName = FileSystem::getAbsolutePath(
                           (const char*)_consumerConfigDir.getCString(),
                           String(consumerName + ".dat"));
-    PEG_TRACE_STRING(
-        TRC_LISTENER,
-        Tracer::LEVEL4,
-        "Consumer dat file: " + fileName);
+    PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,"Consumer dat file: %s",
+        (const char*)fileName.getCString()));
 
     Buffer buffer;
 
@@ -903,10 +856,9 @@ void ConsumerManager::_serializeOutstandingIndications(
 
     if (!fileHandle)
     {
-        PEG_TRACE_STRING(
-            TRC_LISTENER,
-            Tracer::LEVEL1,
-            "Unable to open log file for " + consumerName);
+        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL1,
+            "Unable to open log file for %s",
+            (const char*)consumerName.getCString()));
 
     } else
     {
@@ -955,10 +907,8 @@ Array<IndicationDispatchEvent>
     String fileName = FileSystem::getAbsolutePath(
                           (const char*)_consumerConfigDir.getCString(),
                           String(consumerName + ".dat"));
-    PEG_TRACE_STRING(
-        TRC_LISTENER,
-        Tracer::LEVEL4,
-        "Consumer dat file: " + fileName);
+    PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
+        "Consumer dat file: %s",(const char*)fileName.getCString()));
 
     Array<CIMInstance> cimInstances;
     Array<String>      urlStrings;
@@ -1016,18 +966,16 @@ Array<IndicationDispatchEvent>
 
         } catch (Exception& ex)
         {
-            PEG_TRACE_STRING(
-                TRC_LISTENER,
-                Tracer::LEVEL1,
-                "Error parsing dat file: " + 
-                    ex.getMessage() + " " + consumerName);
+            PEG_TRACE((TRC_LISTENER,Tracer::LEVEL1,
+                "Error parsing dat file for consumer %s: %s",
+                (const char*)consumerName.getCString(),
+                (const char*)ex.getMessage().getCString()));
 
         } catch (...)
         {
-            PEG_TRACE_STRING(
-                TRC_LISTENER,
-                Tracer::LEVEL1,
-                "Error parsing dat file: Unknown Exception " + consumerName);
+            PEG_TRACE((TRC_LISTENER,Tracer::LEVEL1,
+                "Error parsing dat file for consumer %s: Unknown Exception",
+                (const char*)consumerName.getCString()));
         }
     }
 
@@ -1088,17 +1036,17 @@ ThreadReturnType PEGASUS_THREAD_CDECL
     String name = myself->getName();
     List<IndicationDispatchEvent,Mutex> tmpEventQueue;
 
-    PEG_TRACE_STRING(
-        TRC_LISTENER,
-        Tracer::LEVEL3,
-        "_worker_routine::entering loop for " + name);
+    PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
+        "_worker_routine::entering loop for %s",
+        (const char*)name.getCString()));
 
     myself->_listeningSemaphore->signal();
 
     while (true)
     {
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4,
-            "_worker_routine::waiting " + name);
+        PEG_TRACE((TRC_LISTENER, Tracer::LEVEL4,"_worker_routine::waiting %s", 
+            (const char*)name.getCString()));
+
 
         //wait to be signalled
         if (!myself->_check_queue->time_wait(DEFAULT_RETRY_LAPSE))
@@ -1114,14 +1062,15 @@ ThreadReturnType PEGASUS_THREAD_CDECL
             continue;
         }
 
-        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4,
-            "_worker_routine::signalled " + name);
+        PEG_TRACE((TRC_LISTENER, Tracer::LEVEL4,
+            "_worker_routine::signalled %s",(const char*)name.getCString()));
 
         //check whether we received the shutdown signal
         if (myself->_dieNow)
         {
-            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4,
-                "_worker_routine::shutdown received " + name);
+            PEG_TRACE((TRC_LISTENER, Tracer::LEVEL4,
+                "_worker_routine::shutdown received %s",
+                (const char*)name.getCString()));
             break;
         }
 
@@ -1148,11 +1097,9 @@ ThreadReturnType PEGASUS_THREAD_CDECL
             //out of the main loop
             if (myself->_dieNow)
             {
-                PEG_TRACE_STRING(
-                    TRC_LISTENER,
-                    Tracer::LEVEL4,
-                    "Received signal to shutdown,"
-                        " jumping out of queue loop " + name);
+                PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
+                    "Received signal to shutdown, jumping out of queue loop %s",
+                    (const char*)name.getCString()));
                 break;
             }
 
@@ -1167,8 +1114,9 @@ ThreadReturnType PEGASUS_THREAD_CDECL
                 continue;
             }
 
-            PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4,
-                "_worker_routine::consumeIndication " + name);
+            PEG_TRACE((TRC_LISTENER, Tracer::LEVEL4,
+                "_worker_routine::consumeIndication %s",
+                (const char*)name.getCString()));
 
             try
             {
@@ -1176,9 +1124,9 @@ ThreadReturnType PEGASUS_THREAD_CDECL
                                           event->getURL(),
                                           event->getIndicationInstance());
 
-                PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4,
-                    "_worker_routine::processed indication successfully. "
-                        + name);
+                PEG_TRACE((TRC_LISTENER, Tracer::LEVEL4,
+                    "_worker_routine::processed indication successfully. %s",
+                    (const char*)name.getCString()));
 
                 delete event;
                 continue;
@@ -1188,9 +1136,11 @@ ThreadReturnType PEGASUS_THREAD_CDECL
                 //check for failure
                 if (ce.getCode() == CIM_ERR_FAILED)
                 {
-                    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, 
+                    PEG_TRACE((TRC_LISTENER, Tracer::LEVEL2, 
                         "_worker_routine::consumeIndication() temporary"
-                            " failure: " + ce.getMessage() + " " + name);
+                            " failure %s : %s",
+                        (const char*)name.getCString(),
+                        (const char*)ce.getMessage().getCString()));
                     
                     // Here we simply determine if we should increment
                     // the retry count or not.
@@ -1246,18 +1196,18 @@ ThreadReturnType PEGASUS_THREAD_CDECL
                 }
                 else
                 {
-                    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL1,
-                        "Error: consumeIndication() permanent failure: "
-                            + ce.getMessage());
+                    PEG_TRACE((TRC_LISTENER, Tracer::LEVEL1,
+                        "Error: consumeIndication() permanent failure: %s",
+                        (const char*)ce.getMessage().getCString()));
                     delete event;
                     continue;
                 }
             }
             catch (Exception & ex)
             {
-                PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL1,
-                    "Error: consumeIndication() permanent failure: "
-                        + ex.getMessage());
+                PEG_TRACE((TRC_LISTENER, Tracer::LEVEL1,
+                    "Error: consumeIndication() permanent failure: %s",
+                    (const char*)ex.getMessage().getCString()));
                 delete event;
                 continue;
             }

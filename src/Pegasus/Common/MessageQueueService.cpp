@@ -375,9 +375,9 @@ ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
     }
     catch (const Exception& e)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            String("Caught exception: \"") + e.getMessage() +
-                "\".  Exiting _req_proc.");
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Caught exception: \"%s\".  Exiting _req_proc.",
+            (const char*)e.getMessage().getCString()));
     }
     catch (...)
     {

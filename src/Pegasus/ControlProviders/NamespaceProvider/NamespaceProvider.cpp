@@ -289,11 +289,12 @@ void NamespaceProvider::createInstance(
        _getKeyValue(myInstance, childNamespaceName, isRelativeName);
         CIMNamespaceName parentNamespaceName = instanceReference.getNameSpace();
 
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-               "childNamespaceName = " + childNamespaceName.getString() +
-               ", isRelativeName = " +
-               (isRelativeName?String("true"):String("false")) +
-               ", parentNamespaceName = " + parentNamespaceName.getString());
+        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+               "childNamespaceName = %s, isRelativeName = %s, "
+               "parentNamespaceName = %s",
+               (const char*)childNamespaceName.getString().getCString(),
+               (isRelativeName?"true":"false"),
+               (const char*)parentNamespaceName.getString().getCString()));
 
        // begin processing the request
        handler.processing();
@@ -308,9 +309,9 @@ void NamespaceProvider::createInstance(
 
        _repository->createNameSpace(newNamespaceName);
 
-       PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-           "Namespace = " + newNamespaceName.getString() +
-           " successfully created.");
+       PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+           "Namespace = %s successfully created.",
+           (const char*)newNamespaceName.getString().getCString()));
 
        // return key (i.e., CIMObjectPath) for newly created namespace
 
@@ -367,10 +368,12 @@ void NamespaceProvider::deleteInstance(
        _getKeyValue(instanceName, childNamespaceName, isRelativeName);
        CIMNamespaceName parentNamespaceName = instanceName.getNameSpace();
 
-       PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-               "childNamespaceName = " + childNamespaceName.getString() +
-               (isRelativeName?String("true"):String("false")) +
-               ", parentNamespaceName = " + parentNamespaceName.getString());
+       PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+              "childNamespaceName = %s, isRelativeName = %s, "
+              "parentNamespaceName = %s",
+              (const char*)childNamespaceName.getString().getCString(),
+              (isRelativeName?"true":"false"),
+              (const char*)parentNamespaceName.getString().getCString()));
 
        // begin processing the request
        handler.processing();
@@ -393,9 +396,9 @@ void NamespaceProvider::deleteInstance(
 
        _repository->deleteNameSpace(deleteNamespaceName);
 
-       PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-           "Namespace = " + deleteNamespaceName.getString() +
-           " successfully deleted.");
+       PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+           "Namespace = %s successfully deleted.",
+           (const char*)deleteNamespaceName.getString().getCString()));
 
        // complete processing the request
        handler.complete();
@@ -444,10 +447,12 @@ void NamespaceProvider::getInstance(
        _getKeyValue(instanceName, childNamespaceName, isRelativeName);
        CIMNamespaceName parentNamespaceName = instanceName.getNameSpace();
 
-       PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-               "childNamespaceName = " + childNamespaceName.getString() +
-               (isRelativeName?String("true"):String("false")) +
-               ", parentNamespaceName = " + parentNamespaceName.getString());
+       PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+              "childNamespaceName = %s, isRelativeName = %s, "
+              "parentNamespaceName = %s",
+              (const char*)childNamespaceName.getString().getCString(),
+              (isRelativeName?"true":"false"),
+              (const char*)parentNamespaceName.getString().getCString()));
 
        // begin processing the request
        handler.processing();
@@ -469,9 +474,9 @@ void NamespaceProvider::getInstance(
                getNamespaceName.getString()));
        }
 
-       PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-           "Namespace = " + getNamespaceName.getString() +
-           " successfully found.");
+       PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+           "Namespace = %s successfully found.",
+           (const char*)getNamespaceName.getString().getCString()));
 
        //Set name of class
        CIMInstance instance(NAMESPACE_CLASSNAME);
@@ -530,8 +535,9 @@ void NamespaceProvider::enumerateInstances(
 
        CIMNamespaceName parentNamespaceName = ref.getNameSpace();
 
-       PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-               "parentNamespaceName = " + parentNamespaceName.getString());
+       PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+               "parentNamespaceName = %s",
+                (const char*)parentNamespaceName.getString().getCString()));
 
        // begin processing the request
        handler.processing();
@@ -571,8 +577,9 @@ void NamespaceProvider::enumerateInstances(
                instance.setPath(instanceName);
 
                instanceArray.append(instance);
-               PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                   "childNamespace = " + namespaceNames[i].getString());
+               PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+                   "childNamespace = %s",
+                   (const char*)namespaceNames[i].getString().getCString()));
            }
        }
 
@@ -617,8 +624,9 @@ void NamespaceProvider::enumerateInstanceNames(
         }
 
         CIMNamespaceName parentNamespaceName = classReference.getNameSpace();
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-            "parentNamespaceName = " + parentNamespaceName.getString());
+        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+            "parentNamespaceName = %s",
+            (const char*)parentNamespaceName.getString().getCString()));
 
         Array<CIMObjectPath> instanceRefs;
 
@@ -648,8 +656,9 @@ void NamespaceProvider::enumerateInstanceNames(
                     NAMESPACE_CLASSNAME,
                     keyBindings);
                 instanceRefs.append(ref);
-                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                    "childNamespace = " + namespaceNames[i].getString());
+                PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+                    "childNamespace = %s",
+                     (const char*)namespaceNames[i].getString().getCString()));
             }
         }
 

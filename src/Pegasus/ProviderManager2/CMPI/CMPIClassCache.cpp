@@ -91,10 +91,8 @@ CIMClass* CMPIClassCache::getClass(
     }
     catch (const CIMException &e)
     {
-        PEG_TRACE_STRING(
-            TRC_CMPIPROVIDERINTERFACE,
-            Tracer::LEVEL1,
-            "Exception: " + e.getMessage());
+        PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+            "CIMException: ",(const char*)e.getMessage().getCString()));
     }
     return 0;
 }

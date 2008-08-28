@@ -666,9 +666,9 @@ void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
                      _outstandingRequestTable.start();
                  i != 0; i++)
             {
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    String("Completing messageId \"") + i.key() +
-                        "\" with a null response.");
+                PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                    "Completing messageId \"%s\" with a null response.",
+                    (const char*)i.key().getCString()));
                 i.value()->responseMessage = response;
                 i.value()->responseReady->signal();
             }
@@ -860,9 +860,9 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
             //
             try
             {
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-                    String("Sending request to agent with messageId ") +
-                        uniqueMessageId);
+                PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+                    "Sending request to agent with messageId %s",
+                    (const char*)uniqueMessageId.getCString()));
 
                 request->messageId = uniqueMessageId;
                 AnonymousPipe::Status writeStatus =
@@ -977,15 +977,17 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
     }
     catch (CIMException& e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            String("Caught exception: ") + e.getMessage());
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
+            "Caught CIMException: %s",
+            (const char*)e.getMessage().getCString()));
         response = request->buildResponse();
         response->cimException = e;
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-            String("Caught exception: ") + e.getMessage());
+        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
+            "Caught Exception: %s",
+            (const char*)e.getMessage().getCString()));
         response = request->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION(
             CIM_ERR_FAILED, e.getMessage());
@@ -1126,8 +1128,9 @@ void ProviderAgentContainer::_processResponses()
         }
         catch (Exception& e)
         {
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                String("Ignoring exception: ") + e.getMessage());
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "Ignoring exception: %s",
+                (const char*)e.getMessage().getCString()));
         }
         catch (...)
         {

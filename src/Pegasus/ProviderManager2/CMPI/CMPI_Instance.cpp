@@ -290,10 +290,9 @@ extern "C"
             }
             catch (const Exception &e)
             {
-                PEG_TRACE_STRING(
-                    TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL1,
-                    "  " + e.getMessage() + " exception for " + name);
+                PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                    "Exception for %s: %s",name,
+                    (const char*)e.getMessage().getCString()));
                 if (getenv("PEGASUS_CMPI_CHECKTYPES")!=NULL)
                 {
                     PEG_TRACE_CSTRING(

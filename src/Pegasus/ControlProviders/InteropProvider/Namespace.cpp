@@ -320,8 +320,9 @@ String buildNamespacePath(
 
     if(propIndex == PEG_NOT_FOUND)
     {
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL1,
-            "Invalid CIM_Namespace Key Property " +  propertyName.getString());
+        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL1,
+            "Invalid CIM_Namespace Key Property %s",
+            (const char*)propertyName.getString().getCString()));
         PEG_METHOD_EXIT();
         throw CIMInvalidParameterException(
             "Invalid CIM_Namespace key property: " + propertyName.getString());
@@ -450,9 +451,9 @@ void InteropProvider::deleteNamespace(
 
     repository->deleteNameSpace(deleteNamespaceName);
 
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "Namespace = " + deleteNamespaceName.getString() +
-            " successfully deleted.");
+    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+        "Namespace = %s successfully deleted.",
+        (const char*)deleteNamespaceName.getString().getCString()));
 
     PEG_METHOD_EXIT();
 }
@@ -472,9 +473,9 @@ CIMObjectPath InteropProvider::createNamespace(
 
     // Create the new namespace
 
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "Namespace = " + newNamespaceName.getString() +
-            " to be created.");
+    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+        "Namespace = %s to be created.",
+        (const char*)newNamespaceName.getString().getCString()));
 
     CIMRepository::NameSpaceAttributes attributes;
 

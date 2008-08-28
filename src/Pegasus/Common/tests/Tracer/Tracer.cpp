@@ -630,8 +630,8 @@ Uint32 test22()
 
     PEG_METHOD_ENTER(TRC_CONFIG, METHOD_NAME);
 
-    PEG_TRACE_STRING(TRC_CONFIG,Tracer::LEVEL4,
-                     String("Test message for Level4 in test22."));
+    PEG_TRACE_CSTRING(TRC_CONFIG,Tracer::LEVEL4,
+        "Test message for Level4 in test22.");
 
     return(compare(FILE4,"Test message for Level4 in test22."));
 }

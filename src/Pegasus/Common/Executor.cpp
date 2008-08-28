@@ -174,20 +174,33 @@ public:
         const char* path,
         int mode)
     {
+        FILE* fhandle = NULL;
         switch (mode)
         {
             case 'r':
-                return fopen(path, "r");
+                fhandle = fopen(path, "r");
+                break;
 
             case 'w':
-                return fopen(path, "w");
+                fhandle = fopen(path, "w");
+                break;
 
             case 'a':
-                return fopen(path, "a+");
+                fhandle = fopen(path, "a+");
+                break;
 
             default:
-                return NULL;
+                PEGASUS_ASSERT(fhandle);
+                break;
         }
+
+        if(!fhandle)
+        {
+            PEG_TRACE((TRC_SERVER, Tracer::LEVEL1,
+                "Open of file %s in mode %c failed: %s",path,mode,
+                (const char*) PEGASUS_SYSTEM_ERRORMSG.getCString()));
+        }
+        return fhandle;
     }
 
     virtual int renameFile(

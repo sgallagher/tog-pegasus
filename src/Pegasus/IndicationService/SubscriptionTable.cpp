@@ -77,9 +77,9 @@ Boolean SubscriptionTable::getSubscriptionEntry (
         //
         //  Subscription not found in Active Subscriptions table
         //
-        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL1,
-            "Subscription (" + activeSubscriptionsKey +
-            ") not found in ActiveSubscriptionsTable");
+        PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL1,
+            "Subscription (%s) not found in ActiveSubscriptionsTable",
+            (const char*)activeSubscriptionsKey.getCString()));
     }
 
     PEG_METHOD_EXIT ();
@@ -235,20 +235,18 @@ Array <CIMInstance> SubscriptionTable::reflectProviderDisable (
                 }
                 else
                 {
-                    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
-                        Tracer::LEVEL2,
-                        "Provider (" + provider.getPath().toString() +
-                        ") not found in list for Subscription (" +
-                        activeSubscriptionsKey +
-                        ") in ActiveSubscriptionsTable");
+                    PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL,Tracer::LEVEL2,
+                        "Provider (%s) not found in list for Subscription (%s)"
+                        " in ActiveSubscriptionsTable", 
+                        (const char*)provider.getPath().toString().getCString(),
+                        (const char*)activeSubscriptionsKey.getCString()));
                 }
             }
             else
             {
-                PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
-                    Tracer::LEVEL2,
-                    "Subscription (" + activeSubscriptionsKey +
-                    ") not found in ActiveSubscriptionsTable");
+                PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL,Tracer::LEVEL2,
+                    "Subscription (%s) not found in ActiveSubscriptionsTable",
+                    (const char*)activeSubscriptionsKey.getCString()));
                 //
                 //  The subscription may have been deleted in the mean time
                 //  If so, no further update is required
@@ -521,8 +519,9 @@ void SubscriptionTable::_insertActiveSubscriptionsEntry (
         }
     }
 
-    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL4,
-        "INSERTED _activeSubscriptionsTable entry: " + traceString);
+    PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL4,
+        "INSERTED _activeSubscriptionsTable entry: %s",
+        (const char*)traceString.getCString()));
 #endif
 
     PEG_METHOD_EXIT ();
@@ -541,10 +540,9 @@ void SubscriptionTable::_removeActiveSubscriptionsEntry (
     PEGASUS_ASSERT (succeeded);
 
 #ifdef PEGASUS_INDICATION_HASHTRACE
-    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
-                      Tracer::LEVEL4,
-                      "REMOVED _activeSubscriptionsTable entry: " +
-                      key);
+    PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL,Tracer::LEVEL4,
+         "REMOVED _activeSubscriptionsTable entry: %s",
+         (const char*)key.getCString()));
 #endif
 
     PEG_METHOD_EXIT ();
@@ -610,8 +608,9 @@ void SubscriptionTable::_insertSubscriptionClassesEntry (
         traceString.append ("  ");
     }
 
-    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL4,
-        "INSERTED _subscriptionClassesTable entry: " + traceString);
+    PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL4,
+        "INSERTED _subscriptionClassesTable entry: %s",
+        (const char*)traceString.getCString()));
 #endif
 
     PEG_METHOD_EXIT ();
@@ -630,8 +629,9 @@ void SubscriptionTable::_removeSubscriptionClassesEntry (
     PEGASUS_ASSERT (succeeded);
 
 #ifdef PEGASUS_INDICATION_HASHTRACE
-    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL4,
-        "REMOVED _subscriptionClassesTable entry: " + key);
+    PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL4,
+        "REMOVED _subscriptionClassesTable entry: %s",
+        (const char*)key.getCString()));
 #endif
 
     PEG_METHOD_EXIT ();
@@ -828,13 +828,12 @@ void SubscriptionTable::updateProviders (
                 else
                 {
                     CIMInstance p = provider.provider;
-                    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
-                        Tracer::LEVEL2,
-                        "Provider " +
-                        IndicationService::getProviderLogString (p) +
-                        " already in list for Subscription (" +
-                        activeSubscriptionsKey +
-                        ") in ActiveSubscriptionsTable");
+                    PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL,Tracer::LEVEL2,
+                        "Provider %s already in list for Subscription (%s) "
+                        "in ActiveSubscriptionsTable",
+                        (const char*)IndicationService::getProviderLogString(p)
+                        .getCString(),
+                        (const char*)activeSubscriptionsKey.getCString()));
                 }
             }
             else
@@ -850,21 +849,20 @@ void SubscriptionTable::updateProviders (
                 else
                 {
                     CIMInstance p = provider.provider;
-                    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
-                        Tracer::LEVEL2,
-                        "Provider " +
-                        IndicationService::getProviderLogString (p) +
-                        " not found in list for Subscription (" +
-                        activeSubscriptionsKey +
-                        ") in ActiveSubscriptionsTable");
+                    PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL,Tracer::LEVEL2,
+                        "Provider %s not found in list for Subscription (%s) "
+                        "in ActiveSubscriptionsTable",
+                        (const char*)IndicationService::getProviderLogString(p)
+                        .getCString(),
+                        (const char*)activeSubscriptionsKey.getCString()));
                 }
             }
         }
         else
         {
-            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-                "Subscription (" + activeSubscriptionsKey +
-                ") not found in ActiveSubscriptionsTable");
+            PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+                "Subscription (%s) not found in ActiveSubscriptionsTable",
+                (const char*)activeSubscriptionsKey.getCString()));
 
             //
             //  The subscription may have been deleted in the mean time
@@ -923,12 +921,11 @@ void SubscriptionTable::updateClasses (
             }
             else
             {
-                PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
-                    Tracer::LEVEL2,
-                    "Provider (" + provider.getPath ().toString () +
-                    ") not found in list for Subscription (" +
-                    activeSubscriptionsKey +
-                    ") in ActiveSubscriptionsTable");
+                PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL,Tracer::LEVEL2,
+                    "Provider (%s) not found in list for Subscription (%s) in "
+                    "ActiveSubscriptionsTable",
+                    (const char*)provider.getPath().toString().getCString(),
+                    (const char*)activeSubscriptionsKey.getCString()));
             }
         }
         else
@@ -1016,11 +1013,10 @@ void SubscriptionTable::removeSubscription (
                 //
                 //  Entry not found in Subscription Classes table
                 //
-                PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
-                    Tracer::LEVEL2,
-                    "Indication subclass and namespace (" +
-                    subscriptionClassesKey +
-                    ") not found in SubscriptionClassesTable");
+                PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL,Tracer::LEVEL2,
+                    "Indication subclass and namespace (%s) not found "
+                    "in SubscriptionClassesTable",
+                    (const char*)subscriptionClassesKey.getCString()));
             }
         }
     }

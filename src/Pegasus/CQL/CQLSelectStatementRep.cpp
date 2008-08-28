@@ -223,8 +223,8 @@ void CQLSelectStatementRep::applyProjection(
     // Build the tree below the root.
     for (Uint32 i = 0; i < _selectIdentifiers.size(); i++)
     {
-        PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"select chained id = " +
-                          _selectIdentifiers[i].toString());
+        PEG_TRACE((TRC_CQL, Tracer::LEVEL4,"select chained id = %s",
+            (const char*)_selectIdentifiers[i].toString().getCString()));
         
         // Get the chain elements
         Array<CQLIdentifier> ids = _selectIdentifiers[i].getSubIdentifiers();
@@ -240,10 +240,10 @@ void CQLSelectStatementRep::applyProjection(
         // ie. it will become a child node of the current node.
         for (Uint32 j = 1; j < ids.size(); j++)
         {
-            PEG_TRACE_STRING (TRC_CQL, 
-                  Tracer::LEVEL4,"curNode = " + curNode->name.getString());
-            PEG_TRACE_STRING (TRC_CQL,
-                  Tracer::LEVEL4,"id = " + ids[j].toString());
+            PEG_TRACE((TRC_CQL,Tracer::LEVEL4,"curNode = %s",
+                (const char*)curNode->name.getString().getCString()));
+            PEG_TRACE((TRC_CQL,Tracer::LEVEL4,"id = %s",
+                (const char*)ids[j].toString().getCString()));
             
             // If the child is wildcarded, then every property exposed by the
             // class of the instance at the current node is required.
@@ -268,8 +268,8 @@ void CQLSelectStatementRep::applyProjection(
                   scope = ids[j].getScope();
                 }
     
-                PEG_TRACE_STRING (TRC_CQL, 
-                        Tracer::LEVEL4,"scope to compare = " + scope);
+                PEG_TRACE((TRC_CQL,Tracer::LEVEL4,"scope to compare = %s",
+                    (const char*)scope.getCString()));
         
                 if (curChild->name == ids[j].getName() &&
                     String::equalNoCase(curChild->scope.getString(), scope))
@@ -290,8 +290,8 @@ void CQLSelectStatementRep::applyProjection(
             {
                 // The identifier is not already a child node.
                 // Create a node and add it as a child to the current node.
-                PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"new child" +
-                                  ids[j].getName().getString());
+                PEG_TRACE((TRC_CQL, Tracer::LEVEL4,"new child %s",
+                    (const char*)ids[j].getName().getString().getCString()));
                 curChild = new PropertyNode;
                 curChild->sibling.reset(curNode->firstChild.release());
                 curChild->name = ids[j].getName();
@@ -306,9 +306,9 @@ void CQLSelectStatementRep::applyProjection(
             {
                 // Child node has a scoping class
                 PEGASUS_ASSERT(ids[j].getScope().size() > 0);
-                PEG_TRACE_STRING (TRC_CQL, 
-                        Tracer::LEVEL4,"child set with scoping class: " +
-                        ids[j].getScope());
+                PEG_TRACE((TRC_CQL,Tracer::LEVEL4,
+                    "child set with scoping class: %s",
+                    (const char*)ids[j].getScope().getCString()));
                 curChild->scope =  CIMName(ids[j].getScope());
             }
             else
@@ -316,9 +316,10 @@ void CQLSelectStatementRep::applyProjection(
                 // Not scoped.  The scope is the FROM class.
                 PEGASUS_ASSERT(j == 1);
                 PEGASUS_ASSERT(fromList[0].getName().getString().size() > 0);
-                PEG_TRACE_STRING (TRC_CQL, 
-                        Tracer::LEVEL4,"child set with scoping class: " +
-                        fromList[0].getName().getString());
+                PEG_TRACE((TRC_CQL,Tracer::LEVEL4,
+                    "child set with scoping class: %s",
+                    (const char*)fromList[0].getName()
+                           .getString().getCString()));
                 curChild->scope = fromList[0].getName();
             }
     
@@ -347,8 +348,8 @@ void CQLSelectStatementRep::applyProjection(
     PropertyNode* childNode = rootNode->firstChild.get();
     while (childNode != NULL)
     {
-        PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,
-            "project childNode = " + childNode->name.getString());
+        PEG_TRACE((TRC_CQL, Tracer::LEVEL4,"project childNode = %s",
+            (const char*)childNode->name.getString().getCString()));
         
         // Determine if the instance passed in meets the class scoping
         // rules for the current child node.
@@ -371,8 +372,8 @@ void CQLSelectStatementRep::applyProjection(
             // the instance passed in, project on that embedded instance 
             // property, and then add the projected
             // embedded instance property back to the instance passed in.
-            PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,
-                "about to recurse: " + childNode->name.getString());
+            PEG_TRACE((TRC_CQL, Tracer::LEVEL4,"about to recurse: %s",
+                (const char*)childNode->name.getString().getCString()));
             Uint32 index = inCI.findProperty(childNode->name);
             if (index != PEG_NOT_FOUND)
             {
@@ -401,8 +402,8 @@ void CQLSelectStatementRep::applyProjection(
         // then add the current child to the list if it is still required.
         if (filterable && childRequired)
         {
-          PEG_TRACE_STRING (TRC_CQL,
-              Tracer::LEVEL4,"add req prop: " + childNode->name.getString());
+          PEG_TRACE((TRC_CQL,Tracer::LEVEL4,"add req prop: %s",
+              (const char*)childNode->name.getString().getCString()));
           requiredProps.append(childNode->name);
         }
 
@@ -548,8 +549,8 @@ Boolean CQLSelectStatementRep::applyProjection(
     PropertyNode * curChild = node->firstChild.get();
     while (curChild != NULL)
     {
-        PEG_TRACE_STRING (TRC_CQL, 
-            Tracer::LEVEL4,"project childNode = " + curChild->name.getString());
+        PEG_TRACE((TRC_CQL,Tracer::LEVEL4,"project childNode = %s",
+            (const char*)curChild->name.getString().getCString()));
         
         // Determine if the embedded instance meets the class scoping
         // rules for the current child node
@@ -572,8 +573,8 @@ Boolean CQLSelectStatementRep::applyProjection(
             // the current instance, project on that embedded instance 
             // property, and then add the projected
             // embedded instance property back to the current instance.
-            PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,
-                "about to recurse: " + curChild->name.getString());
+            PEG_TRACE((TRC_CQL, Tracer::LEVEL4,"about to recurse: %s",
+                (const char*)curChild->name.getString().getCString()));
             Uint32 index = nodeInst.findProperty(curChild->name);
             if (index != PEG_NOT_FOUND)
             {
@@ -605,8 +606,8 @@ Boolean CQLSelectStatementRep::applyProjection(
         {
             // The instance is filterable, add the property to the 
             // required list.
-            PEG_TRACE_STRING (TRC_CQL,
-                Tracer::LEVEL4,"add req prop: " + curChild->name.getString());
+            PEG_TRACE((TRC_CQL,Tracer::LEVEL4,"add req prop: %s",
+                (const char*)curChild->name.getString().getCString()));
             requiredProps.append(curChild->name);
         }
 
@@ -657,10 +658,10 @@ Boolean CQLSelectStatementRep::isFilterable(
     PropertyNode* node) const
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::isFilterable");
-    PEG_TRACE_STRING (TRC_CQL,
-      Tracer::LEVEL4,"instance = " + inst.getClassName().getString());
-    PEG_TRACE_STRING (TRC_CQL,
-      Tracer::LEVEL4,"scope = " + node->scope.getString());
+    PEG_TRACE((TRC_CQL,Tracer::LEVEL4,"instance = %s",
+        (const char*)inst.getClassName().getString().getCString()));
+    PEG_TRACE((TRC_CQL,Tracer::LEVEL4,"scope = %s",
+        (const char*)node->scope.getString().getCString()));
     
     //
     // Determine if an instance is filterable for a scoped property (ie. its
@@ -727,10 +728,10 @@ void CQLSelectStatementRep::filterInstance(CIMInstance& inst,
                                            Boolean allowMissing) const
 {
     PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::filterInstance");
-    PEG_TRACE_STRING (TRC_CQL, 
-        Tracer::LEVEL4,"instance = " + inst.getClassName().getString());
-    PEG_TRACE_STRING (TRC_CQL, 
-        Tracer::LEVEL4,"allPropsClass = " + allPropsClass.getString());
+    PEG_TRACE((TRC_CQL,Tracer::LEVEL4,"instance = %s",
+        (const char*)inst.getClassName().getString().getCString()));
+    PEG_TRACE((TRC_CQL,Tracer::LEVEL4,"allPropsClass = %s",
+        (const char*)allPropsClass.getString().getCString()));
     
     // Implementation note:
     // Scoping operator before a wildcard is not allowed:
@@ -779,8 +780,8 @@ void CQLSelectStatementRep::filterInstance(CIMInstance& inst,
         {
             if (!containsProperty(requiredProps[i], supportedProps))
             {
-                PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL1,"missing:" + 
-                    requiredProps[i].getString());
+                PEG_TRACE((TRC_CQL, Tracer::LEVEL1,"missing: %s",
+                    (const char*)requiredProps[i].getString().getCString()));
                 PEG_METHOD_EXIT();
                 MessageLoaderParms parms(
                     "CQL.CQLSelectStatementRep.PROJ_MISSING_PROP",
@@ -802,8 +803,8 @@ void CQLSelectStatementRep::filterInstance(CIMInstance& inst,
             {
                 Uint32 index = inst.findProperty(supportedProps[i]);
                 PEGASUS_ASSERT(index != PEG_NOT_FOUND);
-                PEG_TRACE_STRING (TRC_CQL,
-                    Tracer::LEVEL4,"removing:" + supportedProps[i].getString());
+                PEG_TRACE((TRC_CQL,Tracer::LEVEL4,"removing: %s",
+                    (const char*)supportedProps[i].getString().getCString()));
                 inst.removeProperty(index);
             }
         }
@@ -878,8 +879,8 @@ void CQLSelectStatementRep::validateProperty(
             curContext = ids[0].getName();
         }
 
-        PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"current context: " +
-                           curContext.getString());
+        PEG_TRACE((TRC_CQL, Tracer::LEVEL4,"current context: %s",
+            (const char*)curContext.getString().getCString()));
         
         // Get the class definition of the current class context
         // Note: keep this code here so that class existence is always
@@ -926,9 +927,8 @@ void CQLSelectStatementRep::validateProperty(
             Uint32 propertyIndex = classDef.findProperty(ids[pos].getName());
             if (propertyIndex == PEG_NOT_FOUND)
             {
-                PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL1,
-                    "prop not on context " +
-                    ids[pos].getName().getString());
+                PEG_TRACE((TRC_CQL, Tracer::LEVEL1,"prop not on context %s",
+                    (const char*)ids[pos].getName().getString().getCString()));
                 PEG_METHOD_EXIT();
                 MessageLoaderParms parms(
                     "CQL.CQLSelectStatementRep.VAL_PROP_NOT_ON_CLASS",
@@ -952,9 +952,10 @@ void CQLSelectStatementRep::validateProperty(
                 if (_ctx->getClassRelation(ids[0].getName(), curContext) == 
                         QueryContext::NOTRELATED)
                 {
-                    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL1,
-                        "scope violation for:"+
-                        ids[0].getName().getString());
+                    PEG_TRACE((TRC_CQL, Tracer::LEVEL1,
+                        "scope violation for: %s",
+                        (const char*)ids[0].getName()
+                              .getString().getCString()));
                     PEG_METHOD_EXIT();
                     MessageLoaderParms parms(
                       "CQL.CQLSelectStatementRep.VAL_SCOPE_VIOLATION",
@@ -974,8 +975,9 @@ void CQLSelectStatementRep::validateProperty(
                 if (embObj.findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT) 
                         == PEG_NOT_FOUND)
                 {
-                    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL1,"prop not emb " +
-                                    embObj.getName().getString());
+                    PEG_TRACE((TRC_CQL, Tracer::LEVEL1,"prop not emb %s",
+                        (const char*)embObj.getName()
+                              .getString().getCString()));
                     PEG_METHOD_EXIT();
                     MessageLoaderParms parms(
                         "CQL.CQLSelectStatementRep.PROP_NOT_EMB",
@@ -1252,7 +1254,8 @@ Boolean CQLSelectStatementRep::addRequiredProperty(
         return false;
     }
     
-    PEG_TRACE_STRING(TRC_CQL, Tracer::LEVEL4,"id[1] = " + ids[1].toString());
+    PEG_TRACE((TRC_CQL, Tracer::LEVEL4,"id[1] = %s",
+        (const char*)ids[1].toString().getCString()));
     
     if (ids[1].isSymbolicConstant())
     {
@@ -1562,7 +1565,8 @@ void CQLSelectStatementRep::checkWellFormedIdentifier(
         throw CQLSyntaxErrorException(parms);
     }
     
-    PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"chain =" + chainId.toString());
+    PEG_TRACE((TRC_CQL, Tracer::LEVEL4,"chain = %s",
+        (const char*)chainId.toString().getCString()));
     
     if (ids.size() == 1 && isSelectListId)
     {

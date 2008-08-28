@@ -288,8 +288,8 @@ void HTTPAcceptor::_bind()
     orig_ccsid = _SETCCSID(-1);
     if (orig_ccsid == -1)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            String("HTTPAcceptor::_bind: Can not get current PASE CCSID."));
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "HTTPAcceptor::_bind: Can not get current PASE CCSID.");
         orig_ccsid = 1208;
     }
     PaseCcsid ccsid(819, orig_ccsid);

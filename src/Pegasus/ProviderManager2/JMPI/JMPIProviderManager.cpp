@@ -675,14 +675,14 @@ void JMPIProviderManager::unloadIdleProviders()
 
 #define HandlerCatch(handler) \
     catch(CIMException & e)  \
-    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1, \
-                "Exception: " + e.getMessage()); \
+    {   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,"CIMException: %s", \
+            (const char*)e.getMessage().getCString())); \
         handler.setStatus(e.getCode(), e.getContentLanguages(), \
         e.getMessage()); \
     } \
     catch(Exception & e) \
-    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1, \
-                "Exception: " + e.getMessage()); \
+    {   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,"Exception: %s", \
+            (const char*)e.getMessage().getCString())); \
         handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), \
         e.getMessage()); \
     } \

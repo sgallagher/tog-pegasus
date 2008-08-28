@@ -420,13 +420,15 @@ void snmpIndicationHandler::handleIndication(
     }
     catch (CIMException& c)
     {
-        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL1, c.getMessage());
+        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL1, "CIMException %s",
+            (const char*)c.getMessage().getCString()));
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, c.getMessage());
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_IND_HANDLER, Tracer::LEVEL1, e.getMessage());
+        PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL1, "Exception %s",
+            (const char*)e.getMessage().getCString()));
         PEG_METHOD_EXIT();
 
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());

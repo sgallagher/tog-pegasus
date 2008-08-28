@@ -60,8 +60,6 @@ void testExecutorLoopbackImpl()
     file = Executor::openFile(fileName, 'a');
     PEGASUS_TEST_ASSERT(file != NULL);
     fclose(file);
-    file = Executor::openFile(fileName, 'z');
-    PEGASUS_TEST_ASSERT(file == NULL);
 
     PEGASUS_TEST_ASSERT(Executor::renameFile(fileName, newFileName) == 0);
     PEGASUS_TEST_ASSERT(Executor::renameFile(fileName, newFileName) == -1);

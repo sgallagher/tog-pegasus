@@ -68,10 +68,10 @@ static const CMPIUint32 MB_CAPABILITIES =
 #define HandlerCatchSetStatus(rc, returnvalue) \
     catch (const CIMException &e) \
     { \
-        PEG_TRACE_STRING( \
+        PEG_TRACE(( \
             TRC_CMPIPROVIDERINTERFACE, \
-            Tracer::LEVEL2, \
-            "CIMException: " + e.getMessage()); \
+            Tracer::LEVEL1, \
+            "CIMException: %s",(const char*)e.getMessage().getCString())); \
         CMSetStatusWithString( \
             rc, \
             (CMPIrc)e.getCode(), \
@@ -109,10 +109,10 @@ static const CMPIUint32 MB_CAPABILITIES =
 #define HandlerCatchReturnStatus() \
     catch (const CIMException &e) \
     { \
-        PEG_TRACE_STRING( \
+        PEG_TRACE(( \
             TRC_CMPIPROVIDERINTERFACE, \
             Tracer::LEVEL2, \
-            "CIMException: " + e.getMessage()); \
+            "CIMException: %s",(const char*)e.getMessage().getCString())); \
         PEG_METHOD_EXIT(); \
         CMReturnWithString( \
             (CMPIrc)e.getCode(), \
@@ -876,10 +876,9 @@ extern "C"
                 }
                 catch (const Exception &e)
                 {
-                    PEG_TRACE_STRING(
-                        TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL1,
-                        "Exception: " + e.getMessage());
+                    PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                        "Exception: %s",
+                        (const char*)e.getMessage().getCString()));
                     Array<CIMObjectPath> subscriptionInstanceNames;
                     context->insert(
                         SubscriptionInstanceNamesContainer(

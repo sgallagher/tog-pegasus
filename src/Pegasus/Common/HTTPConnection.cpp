@@ -143,7 +143,8 @@ static void _throwEventFailure(const String &status, const String &detail,
     const char *file , Uint32 line)
 {
     String message = status + httpDetailDelimiter + detail;
-    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL1, message);
+    PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL1, 
+         (const char*)message.getCString());
     if (status == httpStatusInternal)
         throw AssertionFailureException(file, line, message);
     else throw Exception(message);
@@ -235,8 +236,8 @@ HTTPConnection::HTTPConnection(
     _connectionRequestCount = 0;
     _transferEncodingChunkOffset = 0;
 
-    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3,
-        "Connection IP address = " + _ipAddress);
+    PEG_TRACE((TRC_HTTP, Tracer::LEVEL3,
+        "Connection IP address = %s",(const char*)_ipAddress.getCString()));
 
     _authInfo->setIpAddress(_ipAddress);
 
@@ -1863,9 +1864,12 @@ void HTTPConnection::_handleReadEventFailure(
             delimiterFound + httpDetailDelimiter.size());
     }
 
-    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
-        httpStatus + httpDetailDelimiter + httpDetail +
-            httpDetailDelimiter + cimError);
+    PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,"%s%s%s%s%s",
+        (const char*)httpStatus.getCString(),
+        (const char*)httpDetailDelimiter.getCString(),
+        (const char*)httpDetail.getCString(),
+        (const char*)httpDetailDelimiter.getCString(),
+        (const char*)cimError.getCString()));
 
     Buffer message;
     message = XmlWriter::formatHttpErrorRspMessage(httpStatus, cimError,

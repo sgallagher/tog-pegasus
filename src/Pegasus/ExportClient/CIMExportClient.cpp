@@ -314,8 +314,9 @@ void CIMExportClient::exportIndication(
     }
     catch (const Exception& e)
     {
-        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to export indication: " + e.getMessage ());
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Failed to export indication: %s",
+            (const char*)e.getMessage().getCString()));
         throw;
     }
     catch (...)
@@ -350,8 +351,9 @@ Message* CIMExportClient::_doRequest(
         }
         catch (const Exception& e)
         {
-            PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL1,
-                "Failed to connect to indication listener: " + e.getMessage());
+            PEG_TRACE((TRC_EXPORT_CLIENT, Tracer::LEVEL1,
+                "Failed to connect to indication listener: ",
+                (const char*)e.getMessage().getCString()));
             PEG_METHOD_EXIT();
             throw;
         }
@@ -528,7 +530,8 @@ Message* CIMExportClient::_doRequest(
 
                 CIMClientResponseException responseException(mlString);
 
-                PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL1, mlString);
+                PEG_TRACE((TRC_EXPORT_CLIENT, Tracer::LEVEL1, 
+                           (const char*)mlString.getCString()));
 
                 PEG_METHOD_EXIT();
                 throw responseException;

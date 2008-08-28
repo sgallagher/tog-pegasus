@@ -439,9 +439,9 @@ BinaryMessageHandler::handle_binary_message(void* parm)
     }
     catch (const Exception& e)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Caught exception: \"" + e.getMessage() +
-                "\".  Exiting handle_binary_message.");
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Exiting handle_binary_message. Caught exception: %s",
+            (const char*)e.getMessage().getCString()));
     }
     catch (...)
     {

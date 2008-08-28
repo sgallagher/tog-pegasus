@@ -300,8 +300,9 @@ ProviderManagerService::handleCimOperation(void* arg)
     }
     catch (const Exception& e)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Unexpected exception in handleCimOperation: " + e.getMessage());
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Unexpected exception in handleCimOperation: %s",
+            (const char*)e.getMessage().getCString()));
     }
     catch (...)
     {
@@ -622,15 +623,15 @@ void ProviderManagerService::responseChunkCallback(
     }
     catch (Exception &e)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Exception in ProviderManagerService::responseChunkCallback: " +
-                e.getMessage() + ".  Chunk not delivered.");
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Exception in ProviderManagerService::responseChunkCallback: %s"
+            ". Chunk not delivered.",(const char*)e.getMessage().getCString()));
     }
     catch (...)
     {
         PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Exception in ProviderManagerService::responseChunkCallback.  "
-                "Chunk not delivered.");
+            "Unknown exception in ProviderManagerService::"
+            "responseChunkCallback. Chunk not delivered.");
     }
 
     PEG_METHOD_EXIT();
@@ -1154,9 +1155,9 @@ void ProviderManagerService::providerModuleFailureCallback
 
     if (response->cimException.getCode () != CIM_ERR_SUCCESS)
     {
-        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "Unexpected exception in providerModuleFailureCallback: " +
-            response->cimException.getMessage ());
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Unexpected exception in providerModuleFailureCallback: %s",
+            (const char*)response->cimException.getMessage().getCString()));
     }
     else
     {
@@ -1195,9 +1196,9 @@ void ProviderManagerService::providerModuleFailureCallback
             }
             catch (const Exception & e)
             {
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                    "Failed to update provider module status: " +
-                    e.getMessage());
+                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                    "Failed to update provider module status: %s",
+                    (const char*)e.getMessage().getCString()));
             }
 
             //

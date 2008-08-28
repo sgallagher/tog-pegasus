@@ -466,9 +466,9 @@ void CertificateProvider::getInstance(
             _repository->getInstance(cimObjectPath.getNameSpace(),
                     cimObjectPath);
 
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-            String("Returning certificate COP " +
-                cimInstance.getPath().toString()));
+        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+            "Returning certificate COP %s",
+            (const char*)cimInstance.getPath().toString().getCString()));
 
         // Deliver instance
         handler.deliver(cimInstance);
@@ -675,16 +675,18 @@ void CertificateProvider::enumerateInstances(
                 }
 
                 // Deliver instance
-                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                    String("Delivering CIMInstance " +
-                        cimInstances[i].getPath().toString()));
+                PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+                    "Delivering CIMInstance %s",
+                    (const char*)
+                        cimInstances[i].getPath().toString().getCString()));
                 handler.deliver(cimInstances[i]);
             }
             else
             {
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL3,
-                    String("Ignoring CIMInstance " +
-                        cimInstances[i].getPath().toString()));
+                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL3,
+                    "Ignoring CIMInstance %s",
+                    (const char*)
+                        cimInstances[i].getPath().toString().getCString()));
             }
         }
 
@@ -714,8 +716,8 @@ void CertificateProvider::enumerateInstances(
                 {
                     String filename = crlFiles[i];
 
-                    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                        String("Filename " + filename));
+                    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+                        "Filename %s",(const char*)filename.getCString()));
 
                     // ATTN: Is this a two-way hash?  If so, I don't need to
                     // read in the CRL just to determine the issuer name
@@ -750,10 +752,10 @@ void CertificateProvider::enumerateInstances(
                                 cimObjectPath.getHost(),
                                 cimObjectPath.getNameSpace());
 
-                            PEG_TRACE_STRING(TRC_CONTROLPROVIDER,
-                                Tracer::LEVEL4,
-                                String("Delivering CIMInstance: " +
-                                    cimInstance.getPath().toString()));
+                            PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL4,
+                                "Delivering CIMInstance: %s",
+                                (const char*)cimInstance.getPath().
+                                                 toString().getCString()));
 
                             // Deliver instance
                             handler.deliver(cimInstance);
@@ -858,8 +860,9 @@ void CertificateProvider::enumerateInstanceNames(
                 //
                 // Retrieve the truststore type
                 //
-                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                    String("Property name : " + kb[j].getName().getString()));
+                PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+                    "Property name : %s",
+                    (const char*)kb[j].getName().getString().getCString()));
                 if ( kb[j].getName() == TRUSTSTORE_TYPE_PROPERTY )
                 {
                     truststoreType = kb[j].getValue();
@@ -874,18 +877,18 @@ void CertificateProvider::enumerateInstanceNames(
 
             if ( truststoreType == PG_SSLCERTIFICATE_TSTYPE_VALUE_SERVER)
             {
-                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                    String("Delivering CIMObjectPath: " +
-                        instanceNames[i].toString()));
+                PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+                    "Delivering CIMObjectPath: %s",
+                    (const char*)instanceNames[i].toString().getCString()));
 
                 // Deliver object path
                 handler.deliver(instanceNames[i]);
             }
             else
             {
-                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL3,
-                    String("Ignoring CIMObjectPath: " +
-                        instanceNames[i].toString()));
+                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL3,
+                    "Ignoring CIMObjectPath: %s",
+                    (const char*)instanceNames[i].toString().getCString()));
             }
         }
 
@@ -916,8 +919,8 @@ void CertificateProvider::enumerateInstanceNames(
                 {
                     String filename = crlFiles[i];
 
-                    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3,
-                        String("Filename " + filename));
+                    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL3,
+                        "Filename %s",(const char*)filename.getCString()));
 
                     // ATTN: Is this a two-way hash?  If so, I don't need
                     // to read in the CRL just to determine the issuer name
@@ -967,9 +970,10 @@ void CertificateProvider::enumerateInstanceNames(
                                 cimObjectPath.getNameSpace(),
                                 PEGASUS_CLASSNAME_CRL, keys);
 
-                            PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
-                                String("Instance Name: " +
-                                    instanceName.toString()));
+                            PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL4,
+                                "Instance Name: %s",
+                                (const char*)instanceName.toString()
+                                                 .getCString()));
 
                             handler.deliver(instanceName);
                         }
@@ -1119,8 +1123,8 @@ void CertificateProvider::deleteInstance(
             serialNumSet = false;
         }
 
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-            String("issuerName: " + certIssuer));
+        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+            "issuerName: %s",(const char*)certIssuer.getCString()));
 
         //
         // Check if the subject and issuer were specified.
@@ -1129,8 +1133,8 @@ void CertificateProvider::deleteInstance(
         {
             PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
                 "Subject and issuer specified.");
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                String("subjectName :" + certSubject));
+            PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+                "subjectName: %s",(const char*)certSubject.getCString()));
 
             Array<CIMInstance> certificateNamedInstances;
 
@@ -1156,9 +1160,10 @@ void CertificateProvider::deleteInstance(
                 CIMInstance& certificateInstance =
                     certificateNamedInstances[i];
 
-                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                    String("Comparing instance: " +
-                        certificateInstance.getPath().toString()));
+                PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+                    "Comparing instance: %s",
+                    (const char*)
+                        certificateInstance.getPath().toString().getCString()));
 
                 //
                 // Retrieve the truststore type
@@ -1199,9 +1204,10 @@ void CertificateProvider::deleteInstance(
                 }
                 else
                 {
-                     PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                         String("Ignoring instance : " +
-                             certificateInstance.getPath().toString()));
+                     PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+                         "Ignoring instance: %s",
+                         (const char*)certificateInstance.getPath().
+                                          toString().getCString()));
                 }
             }
 
@@ -1222,8 +1228,8 @@ void CertificateProvider::deleteInstance(
             PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
                 "issuer and serial number specified.");
 
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                String("serial number :" + certSerialNum));
+            PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+                "serial number: %s",(const char*)certSerialNum.getCString()));
 
             CIMObjectPath tmpPath = cimObjectPath;
 
@@ -1261,9 +1267,9 @@ void CertificateProvider::deleteInstance(
             }
             catch (Exception&)
             {
-                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL1,
-                    String("The certificate does not exist: " +
-                        tmpPath.toString()));
+                PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL1,
+                    "The certificate does not exist: %s",
+                    (const char*)tmpPath.toString().getCString()));
                 MessageLoaderParms parms(
                     "ControlProviders.CertificateProvider.CERT_DNE",
                     "The certificate does not exist.");
@@ -1301,10 +1307,10 @@ void CertificateProvider::deleteInstance(
             issuerName = keys[0].getValue();
         }
 
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-            String("CRL COP" + cimObjectPath.toString()));
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-            String("Issuer Name " + issuerName));
+        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,"CRL COP %s",
+            (const char*)cimObjectPath.toString().getCString()));
+        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,"Issuer Name %s",
+            (const char*)issuerName.getCString()));
 
         // ATTN: it would nice to be able to do this by getting the hash
         // directly from the issuerName
@@ -1328,8 +1334,9 @@ void CertificateProvider::deleteInstance(
         {
             if (Executor::removeFile(crlFileName.getCString()) == 0)
             {
-                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3,
-                    String("Successfully deleted CRL file " + crlFileName));
+                PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL3,
+                    "Successfully deleted CRL file %s",
+                    (const char*)crlFileName.getCString()));
 
                 if (_sslClientVerificationNotDisabled)
                 {
@@ -1399,8 +1406,9 @@ void CertificateProvider::_removeCert (Array<CIMInstance> cimInstances)
             certificateInstance.findProperty(FILE_NAME_PROPERTY));
         cimProperty.getValue().get(certificateFileName);
 
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-            String("Certificate file name " + certificateFileName));
+        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+            "Certificate file name %s",
+            (const char*)certificateFileName.getCString()));
 
         // Issuer name
         cimProperty = certificateInstance.getProperty(
@@ -1417,11 +1425,11 @@ void CertificateProvider::_removeCert (Array<CIMInstance> cimInstances)
             certificateInstance.findProperty(SERIAL_NUMBER_PROPERTY));
         cimProperty.getValue().get(serialNumber);
 
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-            String("Issuer name " + issuerName));
+        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,"Issuer name %s",
+            (const char*)issuerName.getCString()));
 
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-            String("serial number " + serialNumber));
+        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,"serial number %s",
+            (const char*)serialNumber.getCString()));
 
         if (userName == String::EMPTY)
         {
@@ -1430,8 +1438,8 @@ void CertificateProvider::_removeCert (Array<CIMInstance> cimInstances)
         }
         else
         {
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                String("User name " + userName));
+            PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,"User name %s",
+                (const char*)userName.getCString()));
         }
 
         AutoMutex lock(_trustStoreMutex);
@@ -1463,9 +1471,9 @@ void CertificateProvider::_removeCert (Array<CIMInstance> cimInstances)
             throw CIMException(CIM_ERR_FAILED, parms);
         }
 
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL3,
-            String("Successfully deleted certificate file " +
-                certificateFileName));
+        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL3,
+            "Successfully deleted certificate file %s",
+            (const char*)certificateFileName.getCString()));
 
         Array<CIMKeyBinding> kbArray;
         CIMKeyBinding kb;
@@ -1493,8 +1501,8 @@ void CertificateProvider::_removeCert (Array<CIMInstance> cimInstances)
             String::EMPTY, PEGASUS_NAMESPACENAME_CERTIFICATE,
             PEGASUS_CLASSNAME_CERTIFICATE, kbArray);
 
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-            String("keys are: " + reference.toString()));
+        PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,"keys are: %s",
+            (const char*)reference.toString().getCString()));
 
         // Delete from repository.
         _repository->deleteInstance(
@@ -1533,8 +1541,9 @@ void CertificateProvider::_removeCert (Array<CIMInstance> cimInstances)
         }
         catch (SSLException& ex)
         {
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL1,
-                String("Trust store reload failed, " + ex.getMessage()));
+            PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL1,
+                "Trust store reload failed: %s",
+                (const char*)ex.getMessage().getCString()));
 
             MessageLoaderParms parms(
                 "ControlProviders.CertificateProvider.TRUSTSTORE_RELOAD_FAILED",
@@ -1580,8 +1589,10 @@ String CertificateProvider::_getCRLFileName(
             (const char*)crlStore.getCString(),
             (const char*)hashString.getCString());
 
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        String("Searching for files like " + hashString + "in " + crlStore));
+    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+        "Searching for files like %s in %s",
+        (const char*)hashString.getCString(),
+        (const char*)crlStore.getCString()));
 
     FileSystem::translateSlashes(crlStore);
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
@@ -1649,8 +1660,8 @@ String CertificateProvider::_getNewCertificateFileName(
         }
     }
 
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        String("Searching for files like " + hashString));
+    PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+        "Searching for files like %s",(const char*)hashString.getCString()));
 
     Uint32 index = 0;
     FileSystem::translateSlashes(trustStore);
@@ -1799,10 +1810,11 @@ void CertificateProvider::invokeMethod(
 
             PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
                 "Certificate parameters:\n");
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
-                String("\tcertificateContents:" + certificateContents));
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
-                String("\tcertificateType:" + certType));
+            PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL4,
+                "\tcertificateContents: %s",
+                (const char*)certificateContents.getCString()));
+            PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL4,
+                "\tcertificateType: %d",certType));
             if (userName == String::EMPTY)
             {
                 PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
@@ -1810,8 +1822,8 @@ void CertificateProvider::invokeMethod(
             }
             else
             {
-                PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
-                    String("\tuserName:" + userName));
+                PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL4,
+                    "\tuserName: %s",(const char*)userName.getCString()));
             }
 
             // Check for a valid username if one is specified
@@ -1925,16 +1937,17 @@ void CertificateProvider::invokeMethod(
             notBefore = getDateTime(X509_get_notBefore(xCert.get()));
             notAfter = getDateTime(X509_get_notAfter(xCert.get()));
 
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
-                String("IssuerName:" + issuerName));
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
-                String("SerialNumber:" + serialNumber));
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
-                String("SubjectName:" + subjectName));
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
-                String("NotBefore:" + notBefore.toString()));
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
-                String("NotAfter:" + notAfter.toString()));
+            PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL4,
+                "IssuerName: %s",(const char*)issuerName.getCString()));
+            PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL4,
+                "SerialNumber: %s",(const char*)serialNumber.getCString()));
+            PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL4,
+                "SubjectName: %s",(const char*)subjectName.getCString()));
+            PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL4,
+                "NotBefore: %s",
+                (const char*)notBefore.toString().getCString()));
+            PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL4,
+                "NotAfter: %s",(const char*)notAfter.toString().getCString()));
 
             // Check validity with current datetime.
             // openssl will reject the certificate if it's not valid even if
@@ -1983,15 +1996,17 @@ void CertificateProvider::invokeMethod(
                 X509_subject_name_hash(xCert.get()));
             if (userName != String::EMPTY)
             {
-                PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
-                    String("Certificate " + certificateFileName +
-                        " registered to " + userName));
+                PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL4,
+                    "Certificate %s registered to %s",
+                    (const char*)certificateFileName.getCString(),
+                    (const char*)userName.getCString()));
             }
             else
             {
-                PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
-                    String("Certificate " + certificateFileName +
-                        " does not have a user name associated with it"));
+                PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL4,
+                    "Certificate %s does not have a user name "
+                    "associated with it",
+                    (const char*)certificateFileName.getCString()));
             }
 
             // Build instance
@@ -2040,9 +2055,9 @@ void CertificateProvider::invokeMethod(
                 cimObjectPath.getNameSpace(),
                 PEGASUS_CLASSNAME_CERTIFICATE, keys));
 
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
-                String("New certificate COP: " +
-                    cimInstance.getPath().toString()));
+            PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL4,
+                "New certificate COP: %s",
+                (const char*)cimInstance.getPath().toString().getCString()));
 
             // Attempt to add the instance to the repository first; that way if
             // this instance already exist it will take care of throwing
@@ -2140,8 +2155,9 @@ void CertificateProvider::invokeMethod(
             cimValue = inParams[0].getValue();
             cimValue.get(crlContents);
 
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                String("inparam CRL contents:" + crlContents));
+            PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+                "inparam CRL contents: %s",
+                (const char*)crlContents.getCString()));
 
             // Check for a valid CRL. Read in the CRL contents
             BIO* mem = BIO_new(BIO_s_mem());
@@ -2256,10 +2272,10 @@ void CertificateProvider::invokeMethod(
             String crlFileName = _getCRLFileName(
                 _crlStore, X509_NAME_hash(X509_CRL_get_issuer(xCrl.get())));
 
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
-                String("IssuerName:" + issuerName));
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
-                String("FileName: " + crlFileName));
+            PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL4,
+                "IssuerName: %s",(const char*)issuerName.getCString()));
+            PEG_TRACE((TRC_CONTROLPROVIDER,Tracer::LEVEL4,
+                "FileName: %s",(const char*)crlFileName.getCString()));
 
             // ATTN: Take care of this conversion
             // For some reason i cannot do this in the BIO_write_filename call

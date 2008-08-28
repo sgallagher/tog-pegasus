@@ -580,8 +580,8 @@ SSLContext* CIMServer::_getSSLContext()
         trustStore = ConfigManager::getHomedPath(trustStore);
     }
 
-    PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL4,
-        "Server trust store name: " + trustStore);
+    PEG_TRACE((TRC_SERVER, Tracer::LEVEL4,"Server trust store name: %s",
+        (const char*)trustStore.getCString()));
 
     //
     // Get the sslTrustStoreUserName property from the Config Manager.

@@ -51,8 +51,8 @@ PaseCcsid::PaseCcsid(int to, int back)
     _paseCcsidMutex.lock();
    if (_SETCCSID(_to) == -1)
    {
-       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-               String("PaseCcsid::PaseCcsid: Can not change PASE CCSID."));
+       PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+               "PaseCcsid::PaseCcsid: Can not change PASE CCSID.");
    }
 }
 
@@ -60,8 +60,8 @@ PaseCcsid::~PaseCcsid()
 {
     if (_SETCCSID(_back) == -1)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                String("PaseCcsid::~PaseCcsid: Can not change PASE CCSID."));
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                "PaseCcsid::~PaseCcsid: Can not change PASE CCSID.");
     }
     _paseCcsidMutex.unlock();
 }

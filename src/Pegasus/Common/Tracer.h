@@ -440,7 +440,6 @@ inline Uint32 Tracer::getTraceFacility()
 
 # define PEG_METHOD_ENTER(comp,meth)
 # define PEG_METHOD_EXIT()
-# define PEG_TRACE_STRING(comp,level,string)
 # define PEG_TRACE(VAR_ARGS)
 # define PEG_TRACE_CSTRING(comp,level,chars)
 
@@ -470,23 +469,6 @@ inline Uint32 Tracer::getTraceFacility()
     } \
     while (0)
 # endif 
-
-// Macro for Trace String.  the do construct allows this to appear
-// as a single statement.
-# define PEG_TRACE_STRING(comp, level, string) \
-    do \
-    { \
-        if (Tracer::isTraceOn()) \
-        { \
-            if (Tracer::isTraceEnabled(comp, level)) \
-            { \
-                Tracer::traceCString(PEGASUS_FILE_LINE_COMMA \
-                                     comp, \
-                                     (const char*) (string).getCString()); \
-            } \
-        } \
-    } \
-    while (0)
 
 // Macro to trace character lists.  the do construct allows this to appear
 // as a single statement.

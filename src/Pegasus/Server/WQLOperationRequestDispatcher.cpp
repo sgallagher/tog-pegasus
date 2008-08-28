@@ -312,8 +312,9 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
     // return CIM_ERR_NOT_SUPPORTED
     if ((providerCount == 0) && !(_repository->isDefaultInstanceProvider()))
     {
-        PEG_TRACE_STRING(TRC_DISPATCHER, Tracer::LEVEL2,
-            "CIM_ERROR_NOT_SUPPORTED for " + request->className.getString());
+        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL2,
+            "CIM_ERROR_NOT_SUPPORTED for %s",
+            (const char*)request->className.getString().getCString()));
 
         CIMResponseMessage* response = request->buildResponse();
         response->cimException =

@@ -166,8 +166,9 @@ void ShutdownService::shutdown(
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_SHUTDOWN, Tracer::LEVEL2,
-            "Error occurred during CIMServer shutdown: " + e.getMessage());
+        PEG_TRACE((TRC_SHUTDOWN, Tracer::LEVEL2,
+            "Error occurred during CIMServer shutdown: %s",
+            (const char*)e.getMessage().getCString()));
     }
     catch (...)
     {

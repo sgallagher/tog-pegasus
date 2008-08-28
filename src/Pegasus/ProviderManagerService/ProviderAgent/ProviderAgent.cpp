@@ -165,9 +165,9 @@ void ProviderAgent::run()
         }
         catch (Exception& e)
         {
-            PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
-                String("Unexpected exception from _readAndProcessRequest(): ") +
-                    e.getMessage());
+            PEG_TRACE((TRC_PROVIDERAGENT, Tracer::LEVEL1,
+                "Unexpected Exception from _readAndProcessRequest(): %s",
+                (const char*)e.getMessage().getCString()));
             _terminating = true;
         }
         catch (...)
@@ -295,9 +295,9 @@ Boolean ProviderAgent::_readAndProcessRequest()
         return false;
     }
 
-    PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL3,
-        String("Received request from server with messageId ") +
-            request->messageId);
+    PEG_TRACE((TRC_PROVIDERAGENT, Tracer::LEVEL3,
+        "Received request from server with messageId %s",
+        (const char*)request->messageId.getCString()));
 
     // Get the ProviderIdContainer to complete the provider module instance
     // optimization.  If the provider module instance is blank (optimized
@@ -555,9 +555,9 @@ Message* ProviderAgent::_processRequest(CIMRequestMessage* request)
     }
     catch (Exception& e)
     {
-        PEG_TRACE_STRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
-            String("Caught exception while processing request: ") +
-                e.getMessage());
+        PEG_TRACE((TRC_PROVIDERAGENT, Tracer::LEVEL1,
+            "Caught exception while processing request: %s",
+            (const char*)e.getMessage().getCString()));
         CIMResponseMessage* cimResponse = request->buildResponse();
         cimResponse->cimException = PEGASUS_CIM_EXCEPTION(
             CIM_ERR_FAILED, e.getMessage());
@@ -654,9 +654,9 @@ ProviderAgent::_processRequestAndWriteResponse(void* arg)
     }
     catch (const Exception& e)
     {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Caught exception: \"" + e.getMessage() +
-                "\".  Exiting _processRequestAndWriteResponse.");
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Exiting _processRequestAndWriteResponse. Caught Exception: %s",
+            (const char*)e.getMessage().getCString()));
     }
     catch (...)
     {

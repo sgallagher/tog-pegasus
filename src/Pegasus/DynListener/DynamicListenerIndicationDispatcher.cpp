@@ -29,10 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Dong Xiang, EMC Corporation (xiang_dong@emc.com)
-//
-// Modified By: Heather Sterling, IBM (hsterl@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "DynamicListenerIndicationDispatcher.h"
@@ -162,11 +158,9 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
                 // unsupported message type
                 // it should not get here; 
                 // this error is caught in the request decoder
-                PEG_TRACE_STRING(
-                    TRC_LISTENER,
-                    Tracer::LEVEL2, 
-                    "Unsupported msg type: " + 
-                        String(MessageTypeToString(message->getType())));
+                PEG_TRACE((TRC_LISTENER,Tracer::LEVEL2, 
+                    "Unsupported msg type: %s",
+                    MessageTypeToString(message->getType())));
 
                 CIMRequestMessage* cimRequest = 
                     dynamic_cast<CIMRequestMessage*>(message);
@@ -201,7 +195,8 @@ void DynamicListenerIndicationDispatcher::_handleIndicationRequest(
     String url = request->destinationPath;
     CIMInstance instance = request->indicationInstance;
 
-    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "URL is " + url);
+    PEG_TRACE((TRC_LISTENER, Tracer::LEVEL4, "URL is %s",
+        (const char*)url.getCString()));
 
     Uint32 slash = url.find("/");
     if (slash == PEG_NOT_FOUND)
@@ -230,10 +225,9 @@ void DynamicListenerIndicationDispatcher::_handleIndicationRequest(
     if (trailingSlash != PEG_NOT_FOUND)
     {
         consumerName = consumerName.subString(0, trailingSlash);
-        PEG_TRACE_STRING(
-            TRC_LISTENER,
-            Tracer::LEVEL4,
-            "The consumer name with slash removed is!" + consumerName + "!");
+        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
+            "The consumer name with slash removed is '%s'!",
+            (const char*)consumerName.getCString()));
     }
     
     //get consumer

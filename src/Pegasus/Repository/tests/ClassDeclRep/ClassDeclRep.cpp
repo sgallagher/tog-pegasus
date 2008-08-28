@@ -56,6 +56,8 @@ void Test01(Uint32 mode)
 
     repositoryRoot.append("/repository");
 
+    FileSystem::removeDirectoryHier(repositoryRoot);
+
     CIMRepository r (repositoryRoot, mode);
 
     // Create a namespace:
@@ -141,6 +143,8 @@ void Test01(Uint32 mode)
     {
         PEGASUS_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
     }
+
+    FileSystem::removeDirectoryHier(repositoryRoot);
 }
 
 int main(int argc, char** argv)

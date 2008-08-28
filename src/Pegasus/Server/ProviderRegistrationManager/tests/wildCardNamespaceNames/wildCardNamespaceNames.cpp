@@ -33,6 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Client/CIMClient.h>
 #include \
@@ -61,9 +62,13 @@ int main(int argc, char** argv)
         repositoryRootPath = tmpDir;
 
     repositoryRootPath.append("/repository");
-    CIMRepository _repository(repositoryRootPath);
 
-    try {
+    FileSystem::removeDirectoryHier(repositoryRootPath);
+
+    try
+    {
+       CIMRepository _repository(repositoryRootPath);
+
        CIMNamespaceName ok1(WildCardNamespaceNames::add(String("root/ci*")));
        if (verbose) cout<<argv[0]<<" --- ok1: "<<ok1.getString()<<endl;
 
@@ -98,13 +103,15 @@ int main(int argc, char** argv)
        }
 
     }
-
-    catch(Exception& e) {
+    catch(Exception& e)
+    {
         PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
         PEGASUS_STD (cout) << argv[0] << " +++++ modify instances failed"
                            << PEGASUS_STD (endl);
         exit(-1);
     }
+
+    FileSystem::removeDirectoryHier(repositoryRootPath);
 
     PEGASUS_STD(cout) << argv[0] <<  " +++++ passed all tests" 
                       << PEGASUS_STD(endl);

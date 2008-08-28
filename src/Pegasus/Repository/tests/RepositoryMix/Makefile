@@ -41,25 +41,18 @@ SOURCES = RepositoryMix.cpp
 include $(ROOT)/mak/program.mak
 
 tests: testxml testbin testbinmix testxmlmix
-	@ $(RMREPOSITORY) "$(TMP_DIR)/repository"
-	@ $(ECHO) $(PROGRAM) +++++ passed all tests
 
 testxml:
-	@ $(RMREPOSITORY) "$(TMP_DIR)/repository"
 	$(PROGRAM) "XML"
 
 testbin:
-	@ $(RMREPOSITORY) "$(TMP_DIR)/repository"
 	$(PROGRAM) "BIN"
 
 testbinmix:
-	@ $(RMREPOSITORY) "$(TMP_DIR)/repository"
 	$(PROGRAM) "BINMIX"
 
 testxmlmix:
-	@ $(RMREPOSITORY) "$(TMP_DIR)/repository"
 	$(PROGRAM) "XMLMIX"
-
 
 poststarttests:
 

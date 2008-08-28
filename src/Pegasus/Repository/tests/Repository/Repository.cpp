@@ -41,6 +41,7 @@
 */
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_USING_PEGASUS;
@@ -228,6 +229,8 @@ int main(int argc, char** argv)
     }
     repositoryRoot.append("/repository");
 
+    FileSystem::removeDirectoryHier(repositoryRoot);
+
     try
     {
       Uint32 mode;
@@ -262,6 +265,8 @@ int main(int argc, char** argv)
     cout << argv[0] << " " << argv[1] << " " << e.getMessage() << endl;
     exit(1);
     }
+
+    FileSystem::removeDirectoryHier(repositoryRoot);
 
     cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;
 

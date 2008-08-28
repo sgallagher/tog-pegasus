@@ -33,8 +33,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// The repository contains empty class files (don't try to read them in).
-//
 // The inheritance structure for this test is:
 //
 //  Class1
@@ -51,8 +49,10 @@
 //    Z
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_USING_PEGASUS;
@@ -236,6 +236,8 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    FileSystem::removeDirectoryHier(repositoryRoot);
+
     CIMRepository r (repositoryRoot, mode);
 
     try
@@ -263,6 +265,8 @@ int main(int argc, char** argv)
         cout << "Exception " << e.getMessage() << endl;
         PEGASUS_TEST_ASSERT(false);
     }
+
+    FileSystem::removeDirectoryHier(repositoryRoot);
 
     cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;
 

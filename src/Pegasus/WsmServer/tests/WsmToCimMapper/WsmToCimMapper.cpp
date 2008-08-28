@@ -30,6 +30,7 @@
 //=============================================================================
 
 #include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/WsmServer/WsmConstants.h>
 #include <Pegasus/WsmServer/WsmUtils.h>
 #include <Pegasus/WsmServer/WsmReader.h>
@@ -987,6 +988,8 @@ int main(int argc, char** argv)
     }
     repositoryRoot.append("/repository");
 
+    FileSystem::removeDirectoryHier(repositoryRoot);
+
     try
     {
         if (verbose)
@@ -1023,6 +1026,8 @@ int main(int argc, char** argv)
         cerr << "Error: " << f.getSubcode() << " " << f.getReason() << endl;
         exit(1);
     }
+
+    FileSystem::removeDirectoryHier(repositoryRoot);
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

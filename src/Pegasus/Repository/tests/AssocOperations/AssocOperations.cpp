@@ -41,13 +41,13 @@
 */
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
-#include <Pegasus/Common/XmlWriter.h>
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-static Boolean verbose;
 
+static Boolean verbose;
 
 const String NAMESPACE = "aa";
 const String targetClass = "MY_targetClass";
@@ -266,6 +266,8 @@ int main(int argc, char** argv)
     }
     repositoryRoot.append("/repository");
 
+    FileSystem::removeDirectoryHier(repositoryRoot);
+
     Uint32 mode;
     try
     {
@@ -299,6 +301,8 @@ int main(int argc, char** argv)
     cout << argv[0] << " " << argv[1] << " " << e.getMessage() << endl;
     exit(1);
     }
+
+    FileSystem::removeDirectoryHier(repositoryRoot);
 
     cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;
 

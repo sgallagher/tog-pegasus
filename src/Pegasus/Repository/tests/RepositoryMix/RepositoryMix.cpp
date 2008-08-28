@@ -37,6 +37,7 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/MofWriter.h>
 #include <Pegasus/Common/CIMPropertyList.h>
+#include <Pegasus/Common/FileSystem.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -395,6 +396,8 @@ int main(int argc, char** argv)
     }
     repositoryRoot.append("/repository");
 
+    FileSystem::removeDirectoryHier(repositoryRoot);
+
     try
     {
       Uint32 mode;
@@ -487,6 +490,8 @@ int main(int argc, char** argv)
     cout << argv[0] << " " << argv[1] << " " << e.getMessage() << endl;
     exit(1);
     }
+
+    FileSystem::removeDirectoryHier(repositoryRoot);
 
     cout << ProgName << " " << argv[1] << " +++++ passed all tests" << endl;
 

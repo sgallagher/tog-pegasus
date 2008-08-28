@@ -41,16 +41,11 @@ SOURCES = AssocOperations.cpp
 include $(ROOT)/mak/program.mak
 
 tests: testxml testbin
-	@ $(RMREPOSITORY) "$(TMP_DIR)/repository"
-	@ $(ECHO) $(PROGRAM) +++++ passed all tests
-	@ $(RMREPOSITORY) "$(TMP_DIR)/repository"
 
 testxml:
-	@ $(RMREPOSITORY) "$(TMP_DIR)/repository"
 	$(PROGRAM) "XML"
 
 testbin:
-	@ $(RMREPOSITORY) "$(TMP_DIR)/repository"	
 	$(PROGRAM) "BIN"
 
 

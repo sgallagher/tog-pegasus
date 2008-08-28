@@ -326,6 +326,8 @@ int main(int argc, char** argv)
         }
         repositoryPath.append("/repository");
 
+        FileSystem::removeDirectoryHier(repositoryPath);
+
         CIMRepository* repository = new CIMRepository(repositoryPath);
 
         // -- Create a UserManager object:
@@ -348,6 +350,10 @@ int main(int argc, char** argv)
 
         if (verbose) cout << "Doing testAuthenticationSuccess()...." << endl;
         testAuthenticationSuccess();
+
+        UserManager::destroy();
+        delete repository;
+        FileSystem::removeDirectoryHier(repositoryPath);
     }
     catch(Exception& e)
     {

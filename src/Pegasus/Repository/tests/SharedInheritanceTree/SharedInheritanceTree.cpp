@@ -32,9 +32,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
-#include <Pegasus/Common/XmlStreamer.h>
-#include <Pegasus/Repository/InheritanceTree.h>
-#include <Pegasus/Repository/CIMRepository.h>
+#include <Pegasus/Repository/NameSpaceManager.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -49,8 +47,6 @@ Array<CIMName> Sns1NoDiSubClasses;
 Array<CIMName> Class2Ns1SubClasses;
 Array<CIMName> Sub1Sub4Sub1Class2Ns1SuperClasses;
 Array<CIMName> Class1Sns1SubClasses;
-
-String repositoryRoot;
 
 void createNameSpaces(NameSpaceManager& nsm)
 {
@@ -250,14 +246,6 @@ void test02(NameSpaceManager& nsm) {
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
-    const char* tmpDir = getenv ("PEGASUS_TMP");
-    if (tmpDir == NULL) {
-        repositoryRoot = ".";
-    }
-    else {
-        repositoryRoot = tmpDir;
-    }
-    repositoryRoot.append("/repository");
 
     NameSpaceManager nsm;
 

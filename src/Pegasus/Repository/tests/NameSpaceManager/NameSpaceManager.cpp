@@ -57,7 +57,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
-#include <Pegasus/Common/XmlStreamer.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Repository/NameSpaceManager.h>
 
@@ -65,8 +64,6 @@ PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
 static Boolean verbose;
-
-String repositoryRoot;
 
 Array<CIMNamespaceName> _nameSpaceNames;
 
@@ -147,17 +144,6 @@ int main(int argc, char** argv)
 {
     verbose = getenv ("PEGASUS_TEST_VERBOSE") ? true : false;
     if (verbose) cout << argv[0] << ": started" << endl;
-
-    const char* tmpDir = getenv ("PEGASUS_TMP");
-    if (tmpDir == NULL)
-    {
-        repositoryRoot = ".";
-    }
-    else
-    {
-        repositoryRoot = tmpDir;
-    }
-    repositoryRoot.append("/repository");
 
     try
     {

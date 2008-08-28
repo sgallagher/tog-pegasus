@@ -80,6 +80,8 @@ int main(int argc, char** argv)
     }
     repositoryPath.append("/repository");
 
+    FileSystem::removeDirectoryHier(repositoryPath);
+
     CIMRepository* repository = new CIMRepository(repositoryPath);
 
     // -- Create a UserManager object:
@@ -139,6 +141,10 @@ int main(int argc, char** argv)
         cout << argv[0] << " Exception: " << e.getMessage() << endl;
         PEGASUS_TEST_ASSERT(0);
     }
+
+    UserManager::destroy();
+    delete repository;
+    FileSystem::removeDirectoryHier(repositoryPath);
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

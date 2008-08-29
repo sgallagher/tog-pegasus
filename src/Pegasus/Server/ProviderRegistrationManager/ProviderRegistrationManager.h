@@ -120,11 +120,6 @@ static const CIMName _PROPERTY_SUPPORTEDPROPERTIES =
 static const CIMName _PROPERTY_SUPPORTEDMETHODS = CIMName ("SupportedMethods");
 
 /**
-   The name of the Name property for PG_Provider class
-*/
-static const CIMName _PROPERTY_PROVIDER_NAME = CIMName ("Name");
-
-/**
    The name of the Destinations property for PG_ConsumerCapabilities class
 */
 static const CIMName _PROPERTY_INDICATIONDESTINATIONS =

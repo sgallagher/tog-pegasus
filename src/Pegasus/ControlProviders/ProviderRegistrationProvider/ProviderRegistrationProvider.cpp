@@ -750,7 +750,7 @@ void ProviderRegistrationProvider::createInstance(
         // Name and ProviderModuleName properties must be set
         //
         if (instanceObject.findProperty
-                (_PROPERTY_PROVIDER_NAME) == PEG_NOT_FOUND)
+                (PEGASUS_PROPERTYNAME_NAME) == PEG_NOT_FOUND)
         {
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
                 MessageLoaderParms(
@@ -1619,7 +1619,7 @@ Sint16 ProviderRegistrationProvider::_enableModule(
                     //
                     // get provider name from reference
                     //
-                    if(keys[j].getName().equal (_PROPERTY_PROVIDER_NAME))
+                    if(keys[j].getName().equal (PEGASUS_PROPERTYNAME_NAME))
                     {
                         _providerName = keys[j].getValue();
                     }
@@ -1722,7 +1722,7 @@ Boolean ProviderRegistrationProvider::_isIndicationProvider(
 {
     // get provider name
     String providerName;
-    Uint32 pos = instance.findProperty(_PROPERTY_PROVIDER_NAME);
+    Uint32 pos = instance.findProperty(PEGASUS_PROPERTYNAME_NAME);
     if (pos != PEG_NOT_FOUND)
     {
         instance.getProperty(pos).getValue().get(providerName); 
@@ -1742,7 +1742,7 @@ Array<CIMInstance> ProviderRegistrationProvider::_getIndicationCapInstances(
 {
     // get provider name
     String providerName;
-    Uint32 pos = instance.findProperty(CIMName (_PROPERTY_PROVIDER_NAME));
+    Uint32 pos = instance.findProperty(PEGASUS_PROPERTYNAME_NAME);
     if (pos != PEG_NOT_FOUND)
     {
         instance.getProperty(pos).getValue().get(providerName); 

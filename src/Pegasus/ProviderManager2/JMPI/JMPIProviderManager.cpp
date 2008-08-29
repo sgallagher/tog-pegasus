@@ -8265,7 +8265,7 @@ int LocateIndicationProviderNames(
     String& providerName,
     String& location)
 {
-    Uint32 pos = pInstance.findProperty(CIMName ("Name"));
+    Uint32 pos = pInstance.findProperty(PEGASUS_PROPERTYNAME_NAME);
     pInstance.getProperty(pos).getValue().get(providerName);
 
     pos = pmInstance.findProperty(CIMName ("Location"));
@@ -9029,7 +9029,7 @@ Message * JMPIProviderManager::handleDisableModuleRequest(
     // get provider module name
     String moduleName;
     CIMInstance mInstance = request->providerModule;
-    Uint32 pos = mInstance.findProperty(CIMName ("Name"));
+    Uint32 pos = mInstance.findProperty(PEGASUS_PROPERTYNAME_NAME);
 
     if(pos != PEG_NOT_FOUND)
     {
@@ -9180,11 +9180,13 @@ ProviderName JMPIProviderManager::_resolveProviderName(
     CIMValue genericValue;
 
     genericValue = providerId.getModule().getProperty(
-        providerId.getModule().findProperty("Name")).getValue();
+        providerId.getModule().findProperty(
+            PEGASUS_PROPERTYNAME_NAME)).getValue();
     genericValue.get(moduleName);
 
     genericValue = providerId.getProvider().getProperty(
-        providerId.getProvider().findProperty("Name")).getValue();
+        providerId.getProvider().findProperty(
+            PEGASUS_PROPERTYNAME_NAME)).getValue();
     genericValue.get(providerName);
 
     genericValue = providerId.getModule().getProperty(

@@ -941,7 +941,7 @@ void ProviderManagerService::_updateProviderModuleStatus(
     Array<Uint16> operationalStatus;
     String providerModuleName;
 
-    Uint32 pos = providerModule.findProperty(CIMName("Name"));
+    Uint32 pos = providerModule.findProperty(PEGASUS_PROPERTYNAME_NAME);
     PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
     providerModule.getProperty(pos).getValue().get(providerModuleName);
 

@@ -2249,7 +2249,7 @@ int LocateIndicationProviderNames(
    PEG_METHOD_ENTER(
         TRC_PROVIDERMANAGER,
         "CMPIProviderManager:LocateIndicationProviderNames()");
-    Uint32 pos = pInstance.findProperty(CIMName ("Name"));
+    Uint32 pos = pInstance.findProperty(PEGASUS_PROPERTYNAME_NAME);
     pInstance.getProperty(pos).getValue().get(providerName);
 
     pos = pmInstance.findProperty(CIMName ("Location"));
@@ -2742,10 +2742,10 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
     for (Uint32 i = 0, n = _pInstances.size(); i < n; i++)
     {
         String providerName;
-        _pInstances [i].getProperty (_pInstances [i].findProperty
-            (CIMName ("Name"))).getValue ().get (providerName);
+        _pInstances[i].getProperty(_pInstances [i].findProperty
+            (PEGASUS_PROPERTYNAME_NAME)).getValue().get(providerName);
 
-        Uint32 pos = _pInstances[i].findProperty("Name");
+        Uint32 pos = _pInstances[i].findProperty(PEGASUS_PROPERTYNAME_NAME);
 
         if (!providerManager.isProviderActive(providerName))
         {
@@ -2755,7 +2755,7 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
         Boolean unloadOk = providerManager.unloadProvider(
             physicalName, 
             _pInstances[i].getProperty(
-                _pInstances[i].findProperty("Name")
+                _pInstances[i].findProperty(PEGASUS_PROPERTYNAME_NAME)
                 ).getValue ().toString ());
 
         if (!unloadOk)
@@ -3385,11 +3385,13 @@ ProviderName CMPIProviderManager::_resolveProviderName(
         "CMPIProviderManager::_resolveProviderName()");
 
     genericValue = providerId.getModule().getProperty(
-        providerId.getModule().findProperty("Name")).getValue();
+        providerId.getModule().findProperty(
+            PEGASUS_PROPERTYNAME_NAME)).getValue();
     genericValue.get(moduleName);
 
     genericValue = providerId.getProvider().getProperty(
-        providerId.getProvider().findProperty("Name")).getValue();
+        providerId.getProvider().findProperty(
+            PEGASUS_PROPERTYNAME_NAME)).getValue();
     genericValue.get(providerName);
 
     genericValue = providerId.getModule().getProperty(

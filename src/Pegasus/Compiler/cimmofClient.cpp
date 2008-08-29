@@ -32,6 +32,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "cimmofClient.h"
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/CIMInstance.h>
@@ -39,7 +40,6 @@
 PEGASUS_USING_PEGASUS;
 
 static const char NAMESPACE_CLASS [] = "__NameSpace";
-static const char NAMESPACE_PROPERTY_NAME [] = "Name";
 
 cimmofClient::cimmofClient() :
     _ot(compilerCommonDefs::USE_REPOSITORY),
@@ -112,7 +112,7 @@ void cimmofClient::createNameSpace(const CIMNamespaceName &nameSpace) const
     // the name of the created namespace will be the
     // target namespace.
     CIMInstance newInstance = CIMName (NAMESPACE_CLASS);
-    newInstance.addProperty(CIMProperty(CIMName (NAMESPACE_PROPERTY_NAME),
+    newInstance.addProperty(CIMProperty(PEGASUS_PROPERTYNAME_NAME,
                                         String::EMPTY));
     _client->createInstance(nameSpace, newInstance);
 }

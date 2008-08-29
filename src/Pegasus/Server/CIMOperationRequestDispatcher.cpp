@@ -376,7 +376,7 @@ void CIMOperationRequestDispatcher::_getProviderName(
         }
 
         CIMConstInstance provider = pidc.getProvider();
-        pos = provider.findProperty("Name");
+        pos = provider.findProperty(PEGASUS_PROPERTYNAME_NAME);
         if (pos != PEG_NOT_FOUND)
         {
             provider.getProperty(pos).getValue().get(providerName);
@@ -1632,8 +1632,9 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
 
             String moduleName;
 
-            // get the provder module name
-            if ((pos = pmInstance.findProperty("Name")) != PEG_NOT_FOUND)
+            // get the provider module name
+            if ((pos = pmInstance.findProperty(PEGASUS_PROPERTYNAME_NAME)) != 
+                    PEG_NOT_FOUND)
             {
                 pmInstance.getProperty(pos).getValue().get(moduleName);
             }
@@ -1783,7 +1784,7 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
 #endif
         (*providerIdContainer) = providercontainer;
         // get the provder name
-        Uint32 pos = pInstance.findProperty(CIMName ("Name"));
+        Uint32 pos = pInstance.findProperty(PEGASUS_PROPERTYNAME_NAME);
 
         if (pos != PEG_NOT_FOUND)
         {
@@ -2062,7 +2063,7 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
                 (*providerIdContainer) = providercontainer;
             }
             // get the provider name
-            Uint32 pos = pInstances[i].findProperty(CIMName ("Name"));
+            Uint32 pos = pInstances[i].findProperty(PEGASUS_PROPERTYNAME_NAME);
 
             if ( pos != PEG_NOT_FOUND )
             {
@@ -5921,7 +5922,7 @@ CIMClass CIMOperationRequestDispatcher::_getClass(
         CIMClass __namespaceClass(PEGASUS_CLASSNAME___NAMESPACE);
         // ATTN: Qualifiers not added here, but they shouldn't be needed
         __namespaceClass.addProperty(
-            CIMProperty(CIMName("Name"), String::EMPTY));
+            CIMProperty(PEGASUS_PROPERTYNAME_NAME, String::EMPTY));
         return __namespaceClass;
     }
 

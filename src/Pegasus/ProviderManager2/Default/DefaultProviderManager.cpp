@@ -202,7 +202,7 @@ CIMResponseMessage* DefaultProviderManager::_handleDisableModuleRequest(
         // get provider module name
         String moduleName;
         CIMInstance mInstance = request->providerModule;
-        Uint32 pos = mInstance.findProperty(CIMName("Name"));
+        Uint32 pos = mInstance.findProperty(PEGASUS_PROPERTYNAME_NAME);
         PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
         mInstance.getProperty(pos).getValue().get(moduleName);
 
@@ -215,7 +215,7 @@ CIMResponseMessage* DefaultProviderManager::_handleDisableModuleRequest(
         {
             String pName;
             providerInstances[i].getProperty(
-                providerInstances[i].findProperty("Name")).
+                providerInstances[i].findProperty(PEGASUS_PROPERTYNAME_NAME)).
                     getValue().get(pName);
 
             Sint16 ret_value = _disableProvider(moduleName, pName);
@@ -367,11 +367,13 @@ ProviderName DefaultProviderManager::_resolveProviderName(
     CIMValue genericValue;
 
     genericValue = providerId.getModule().getProperty(
-        providerId.getModule().findProperty("Name")).getValue();
+        providerId.getModule().findProperty(
+            PEGASUS_PROPERTYNAME_NAME)).getValue();
     genericValue.get(moduleName);
 
     genericValue = providerId.getProvider().getProperty(
-        providerId.getProvider().findProperty("Name")).getValue();
+        providerId.getProvider().findProperty(
+            PEGASUS_PROPERTYNAME_NAME)).getValue();
     genericValue.get(providerName);
 
     genericValue = providerId.getModule().getProperty(

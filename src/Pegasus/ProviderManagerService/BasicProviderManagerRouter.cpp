@@ -298,7 +298,7 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         // Get ProviderModule name.
         String providerModuleName;
         CIMValue nameValue = providerModule.getProperty(
-            providerModule.findProperty("Name")).getValue();
+            providerModule.findProperty(PEGASUS_PROPERTYNAME_NAME)).getValue();
         nameValue.get(providerModuleName); 
         // Get providerManager path
         String provMgrPath;

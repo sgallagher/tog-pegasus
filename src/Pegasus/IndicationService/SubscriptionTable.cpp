@@ -1524,7 +1524,7 @@ CIMObjectPath SubscriptionTable::_buildFilterPath(const String& filterName)
         PEGASUS_CLASSNAME_INDFILTER.getString(),
         CIMKeyBinding::STRING));
     filterKeys.append(CIMKeyBinding(
-        "Name",
+        PEGASUS_PROPERTYNAME_NAME,
         name,
         CIMKeyBinding::STRING));
 
@@ -1576,7 +1576,7 @@ CIMObjectPath SubscriptionTable::_buildHandlerPath(const String& handlerName)
         classname,
         CIMKeyBinding::STRING));
     handlerKeys.append(CIMKeyBinding(
-        "Name",
+        PEGASUS_PROPERTYNAME_NAME,
         name,
         CIMKeyBinding::STRING));
 

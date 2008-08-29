@@ -49,6 +49,7 @@
 #include "ProviderRegistrationTable.h"
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/Constants.h>
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderManagerMap.h>
 
@@ -605,7 +606,7 @@ Boolean ProviderRegistrationManager::lookupAssociationProvider(
         nameSpace, assocClassName, pInstance, pmInstance, true))
     {
         // get the provider name
-        Uint32 pos = pInstance.findProperty(CIMName ("Name"));
+        Uint32 pos = pInstance.findProperty(PEGASUS_PROPERTYNAME_NAME);
 
         if ( pos != PEG_NOT_FOUND )
         {
@@ -1158,7 +1159,7 @@ CIMInstance ProviderRegistrationManager::getInstance(
                  moduleName = keys[m].getValue();
             }
 
-            if(keys[m].getName().equal(_PROPERTY_PROVIDER_NAME))
+            if(keys[m].getName().equal(PEGASUS_PROPERTYNAME_NAME))
             {
                  providerName = keys[m].getValue();
             }
@@ -1178,7 +1179,7 @@ CIMInstance ProviderRegistrationManager::getInstance(
                 Uint32 pos1 = instances[j].findProperty(
                     _PROPERTY_PROVIDERMODULENAME);
                 Uint32 pos2 = instances[j].findProperty(
-                    _PROPERTY_PROVIDER_NAME);
+                    PEGASUS_PROPERTYNAME_NAME);
 
                 if (pos1 != PEG_NOT_FOUND && pos2 != PEG_NOT_FOUND)
                 {
@@ -1906,7 +1907,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 
             // get provider name
             instance.getProperty(instance.findProperty
-                (_PROPERTY_PROVIDER_NAME)).getValue().get(providerName);
+                (PEGASUS_PROPERTYNAME_NAME)).getValue().get(providerName);
 
             //
             // create the key by using providerModuleName and providerName
@@ -2300,7 +2301,7 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
             _PROPERTY_PROVIDERMODULENAME)).getValue().get(providerModuleName);
         // get provider name
         instance.getProperty(instance.findProperty(
-            _PROPERTY_PROVIDER_NAME)).getValue().get(providerName);
+            PEGASUS_PROPERTYNAME_NAME)).getValue().get(providerName);
 
         //
         // create the key by using providerModuleName and providerName
@@ -3054,7 +3055,7 @@ void ProviderRegistrationManager::_deleteInstance(
         // get the provider name
         //
         instance.getProperty(instance.findProperty(
-            _PROPERTY_PROVIDER_NAME)).getValue().get(deletedProviderName);
+            PEGASUS_PROPERTYNAME_NAME)).getValue().get(deletedProviderName);
 
         //
         // create the key by using deletedModuleName and deletedProviderName

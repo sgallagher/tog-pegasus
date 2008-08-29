@@ -1293,7 +1293,7 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
         // Retrieve the provider module name
         String moduleName;
         CIMValue nameValue = providerModule.getProperty(
-            providerModule.findProperty("Name")).getValue();
+            providerModule.findProperty(PEGASUS_PROPERTYNAME_NAME)).getValue();
         nameValue.get(moduleName);
 
         // Look up the Provider Agents for this module
@@ -1363,7 +1363,7 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
         // Retrieve the provider module name
         String moduleName;
         CIMValue nameValue = providerModule.getProperty(
-            providerModule.findProperty("Name")).getValue();
+            providerModule.findProperty(PEGASUS_PROPERTYNAME_NAME)).getValue();
         nameValue.get(moduleName);
 
         // Look up the Provider Agents for this module
@@ -1449,7 +1449,7 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
     // Retrieve the provider module name
     String moduleName;
     CIMValue nameValue = providerModule.getProperty(
-        providerModule.findProperty("Name")).getValue();
+        providerModule.findProperty(PEGASUS_PROPERTYNAME_NAME)).getValue();
     nameValue.get(moduleName);
 
     // Retrieve the provider user context configuration

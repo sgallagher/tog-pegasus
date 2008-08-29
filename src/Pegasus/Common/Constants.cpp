@@ -249,8 +249,7 @@ const CIMName PEGASUS_PROPERTYNAME_QUERYLANGUAGE =
     CIMName ("QueryLanguage");
 
 /**
-    The name of the Name property for indication filter and indications handler
-    classes
+    The name of the Name property
  */
     const CIMName PEGASUS_PROPERTYNAME_NAME =
         CIMName ("Name");

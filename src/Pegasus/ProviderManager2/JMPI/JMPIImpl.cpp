@@ -3159,7 +3159,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMClient__1createNameSpace
    normalizeNs (ns, nsBase, lastNsComp);
 
    CIMInstance newInstance (CIMName ("__Namespace"));
-   newInstance.addProperty (CIMProperty (CIMName ("name"), lastNsComp));
+   newInstance.addProperty(CIMProperty(PEGASUS_PROPERTYNAME_NAME, lastNsComp));
 
    try {
       cCc->createInstance (CIMNamespaceName (nsBase), newInstance);
@@ -3225,7 +3225,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMClient__1deleteNameSpace
                              CIMName ("__Namespace"));
    Array<CIMKeyBinding> kb;
 
-   kb.append (CIMKeyBinding (("Name"),CIMValue (lastNsComp)));
+   kb.append (CIMKeyBinding (PEGASUS_PROPERTYNAME_NAME,CIMValue (lastNsComp)));
    cop.setKeyBindings (kb);
 
    try {

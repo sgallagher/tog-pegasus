@@ -55,4 +55,7 @@
 #define _SOCKADDR_LEN 1
 #endif
 
+/* use POSIX read-write locks on this platform */
+#define PEGASUS_USE_POSIX_RWLOCK
+
 #endif  /* Pegasus_Platform_VMS_h */

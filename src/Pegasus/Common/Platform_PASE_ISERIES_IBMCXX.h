@@ -85,4 +85,8 @@
 #define PEGASUS_ORIG_PASE_CCSID "PEGASUS_ORIG_PASE_CCSID"
 
 #define PEGASUS_HAVE_PTHREADS
+
+/* use POSIX read-write locks on this platform */
+#define PEGASUS_USE_POSIX_RWLOCK
+
 #endif /* Pegasus_Platform_PASE_ISERIES_IBMCXX_h */

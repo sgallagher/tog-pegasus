@@ -58,4 +58,7 @@
 
 #define PEGASUS_HAVE_PTHREADS
 
+/* use POSIX read-write locks on this platform */
+#define PEGASUS_USE_POSIX_RWLOCK
+
 #endif /* Pegasus_Platform_SOLARIS_SPARC_GNU_h */

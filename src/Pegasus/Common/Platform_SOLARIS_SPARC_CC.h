@@ -73,4 +73,7 @@ using namespace std;
 
 #define PEGASUS_HAS_SIGNALS
 
+/* use POSIX read-write locks on this platform */
+#define PEGASUS_USE_POSIX_RWLOCK
+
 #endif /* Pegasus_Platform_SOLARIS_SPARC_CC_h */

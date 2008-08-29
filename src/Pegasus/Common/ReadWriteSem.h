@@ -42,35 +42,18 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-//==============================================================================
-//
-// Select the read-write-lock implementation for your platform:
-//
-//     PEGASUS_USE_POSIX_RWLOCK
-//     PEGASUS_USE_SEMAPHORE_RWLOCK
-//
-//==============================================================================
+/**
+    Every platform should decide which implementation for read/write locks
+    should be used in OpenPegasus by defining one of the following:
+    1.) PEGASUS_USE_POSIX_RWLOCK - POSIX standard based implementation
+    2.) PEGASUS_USE_SEMAPHORE_RWLOCK - mutex based implementation
+ 
+    The definition for each platform can be found in the according platform
+    header file: pegasus/src/Pegasus/Common/Platform_<Platform>.h
+*/
 
-#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-# define PEGASUS_USE_POSIX_RWLOCK
-#elif defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
-# define PEGASUS_USE_POSIX_RWLOCK
-#elif defined(PEGASUS_PLATFORM_HPUX_ACC)
-# define PEGASUS_USE_POSIX_RWLOCK
-#elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
-# define PEGASUS_USE_POSIX_RWLOCK
-#elif defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
-# define PEGASUS_USE_POSIX_RWLOCK
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-# define PEGASUS_USE_POSIX_RWLOCK
-#elif defined(PEGASUS_PLATFORM_VMS_IA64_DECCXX)
-# define PEGASUS_USE_POSIX_RWLOCK
-#elif defined(PEGASUS_PLATFORM_VMS_ALPHA_DECCXX)
-# define PEGASUS_USE_POSIX_RWLOCK
-#elif defined(PEGASUS_PLATFORM_LINUX_X86_64_GNU)
-# define PEGASUS_USE_POSIX_RWLOCK
-#else
-# define PEGASUS_USE_SEMAPHORE_RWLOCK
+#if !defined(PEGASUS_USE_POSIX_RWLOCK) && !defined(PEGASUS_USE_SEMAPHORE_RWLOCK)
+# error "Unsupported platform: ReadWriteSem.h implementation type missing"
 #endif
 
 //==============================================================================

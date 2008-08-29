@@ -70,5 +70,7 @@
 #define PEGASUS_HAVE_BROKEN_GLOBAL_CONSTRUCTION
 
 #define PEGASUS_HAVE_PTHREADS
+/* use POSIX read-write locks on this platform */
+#define PEGASUS_USE_POSIX_RWLOCK
 
 #endif /* Pegasus_Platform_ZOS_ZSERIES_IBM_h */

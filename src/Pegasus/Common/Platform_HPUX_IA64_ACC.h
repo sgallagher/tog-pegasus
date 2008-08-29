@@ -68,4 +68,7 @@
 
 #define PEGASUS_SUPPRESS_UNREACHABLE_STATEMENTS
 
+/* use POSIX read-write locks on this platform */
+#define PEGASUS_USE_POSIX_RWLOCK
+
 #endif /* Pegasus_Platform_HPUX_IA64_ACC_h */

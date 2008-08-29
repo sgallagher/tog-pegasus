@@ -136,4 +136,7 @@ namespace std
 
 #define PEGASUS_HAVE_WINDOWS_THREADS
 
+/* use OpenPegasus semaphore based read/write locking mechanism */
+#define PEGASUS_USE_SEMAPHORE_RWLOCK
+
 #endif /* Pegasus_Platform_WIN64_X86_64_MSVC_h */

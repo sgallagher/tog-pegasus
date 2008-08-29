@@ -91,4 +91,7 @@
 # define PEGASUS_HAS_GETIFADDRS
 #endif
 
+/* use POSIX read-write locks on this platform */
+#define PEGASUS_USE_POSIX_RWLOCK
+
 #endif /* Pegasus_Platform_LINUX_IX86_GNU_h */

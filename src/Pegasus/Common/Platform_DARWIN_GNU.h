@@ -64,4 +64,7 @@
 
 #define PEGASUS_HAVE_NANOSLEEP
 
+/* use POSIX read-write locks on this platform */
+#define PEGASUS_USE_POSIX_RWLOCK
+
 #endif /* Pegasus_Platform_DARWIN_GNU_h */

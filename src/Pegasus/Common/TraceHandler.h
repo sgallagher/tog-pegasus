@@ -51,17 +51,21 @@ public:
 
     /** Writes message with format string to the tracing facility
         @param    message  message to be written
+        @param    msgLen   lenght of message without terminating '\0'
         @param    fmt      printf style format string
         @param    argList  variable argument list
      */
     virtual void handleMessage(const char* message,
+                               Uint32 msgLen,
                                const char* fmt,
                                va_list argList) = 0;
 
     /** Writes simple message to the tracing facility.
         @param    message  message to be written
+        @param    msgLen   lenght of message without terminating '\0'
      */
-    virtual void handleMessage(const char* message) = 0;
+    virtual void handleMessage(const char* message,
+                               Uint32 msgLen) = 0;
 
 
     /** Sets and prepares the destination (e.g. traceFileName) for the
@@ -79,6 +83,10 @@ public:
      */
     virtual Boolean isValidMessageDestination(const char* destination) 
         {return true;};
+    
+    /** Flushes the trace
+     */
+    virtual void flushTrace() {return;};
     
     TraceHandler() {};
 

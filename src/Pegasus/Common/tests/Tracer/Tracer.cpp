@@ -35,6 +35,7 @@
 #include <cstring>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/TraceMemoryHandler.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/SharedPtr.h>
 #include <Pegasus/Common/CIMClass.h>
@@ -55,7 +56,6 @@ const Uint32 PEGASUS_TRACER_LEVEL0 =  0;
 const Uint32 PEGASUS_TRACER_LEVEL5 = (1 << 4);
 
 
-
 // Trace files for test purposes
 // Will be created in the $(PEGASUS_TMP) directory, or if not set,
 // in the current directory
@@ -63,6 +63,11 @@ CString FILE1;
 CString FILE2;
 CString FILE3;
 CString FILE4;
+CString FILE5;
+
+// A message string for testing the tracer with variable arguments
+#define VAR_TEST_MESSAGE "Variable length part of message"
+
 
 // 
 // Reads the last trace message from a given trace file and compares the 
@@ -113,11 +118,11 @@ Uint32 compare(const char* fileName, const char* expectedMessage)
     // Compare the expected and actual messages
     Uint32 retCode = strcmp(expectedMessage, actualMessage.get());
 
-    /* Diagnostic to determine string differences
+    // Diagnostic to determine string differences
     if (retCode)
         cout << "Compare Error: expectedMessage= \n\"" << expectedMessage <<
             "\". actualMessage= \n\"" << actualMessage.get() << "\"" << endl;
-    */
+    
 
     return retCode;
 }
@@ -821,6 +826,204 @@ Uint32 test27()
     return(compare(FILE4, testStr.getCString()));
 }
 
+
+//----------------------------------------------------------
+// Tests for the traceMemoryHandler
+//----------------------------------------------------------
+typedef struct TTTParmType
+{
+    Thread *trd;
+    TraceMemoryHandler *trcHandler;
+    const char* trcMessage;
+    Uint32 msgLen;
+    Uint32 number;
+    Boolean isVariableMsg;
+} TTTParm;
+
+
+void traceVariableArgs( TraceMemoryHandler *trcHdler,
+                        const char* msg, Uint32 msgLen, const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    trcHdler->handleMessage(msg, msgLen, fmt, ap);
+    va_end(ap);
+}
+
+ThreadReturnType PEGASUS_THREAD_CDECL tracerThread( void* parm )
+{
+    Thread *my_handle = (Thread *)parm;
+    TTTParm * my_parm = (TTTParm *)my_handle->get_parm();
+   
+    Threads::sleep(1);
+    for (Uint32 x=0; x < my_parm->number; x++)
+    {
+        if (x % 911 == 0 )
+        {
+            // Give other threads time to run.
+            Threads::sleep(1);
+        }
+        if (my_parm->isVariableMsg)
+        {
+            traceVariableArgs(my_parm->trcHandler,
+                              my_parm->trcMessage,
+                              my_parm->msgLen,
+                              my_parm->trcMessage,
+                              VAR_TEST_MESSAGE);
+        }
+        else
+        {
+            my_parm->trcHandler->handleMessage(my_parm->trcMessage,
+                                               my_parm->msgLen);
+        }                                           
+    }
+    
+    return ThreadReturnType(0);
+}
+
+Uint32 testMemoryHandler(const char* filename)
+{
+    #define NUM_TEST_THREADS 99
+    Uint32 rc = 0;
+
+    TraceMemoryHandler *trcHdler = new TraceMemoryHandler();
+    
+    const char* trcMsg1 = "1START A short trace message. END1";
+    const char* trcMsg2 = "2START A trace message which is a little longer "
+                          "than the previous trace message. END2";
+    const char* trcMsg3 = "3START A trace message which is much longer than "
+                          "the previous trace messages, which were small and a "
+                          "little larger, but this one is at least double the "
+                          "size as both others together. END3";
+    const char* trcMsg4 = "4START <%s> END4";
+    const char* trcMsgs[] = { trcMsg1, trcMsg2, trcMsg3, trcMsg4 };
+    Uint32 numMsgs = sizeof(trcMsgs) / sizeof(const char*);
+
+    TTTParm *tttParms[NUM_TEST_THREADS];
+    
+    for (int x=0; x < NUM_TEST_THREADS; x++)
+    {
+        Uint32 msgNumber = x%numMsgs;
+        tttParms[x] = new TTTParm();
+        tttParms[x]->trd = 0;
+        tttParms[x]->trcHandler = trcHdler;
+        tttParms[x]->trcMessage = trcMsgs[msgNumber];
+        tttParms[x]->msgLen = strlen(trcMsgs[msgNumber]);
+        tttParms[x]->number = 100000;
+        // Is the message a variable one (= the last in the list)?
+        tttParms[x]->isVariableMsg = (msgNumber == (numMsgs-1));
+    }
+    
+    for (int x=0; x < NUM_TEST_THREADS; x++)
+    {
+        tttParms[x]->trd = new Thread(tracerThread, tttParms[x], false);
+        tttParms[x]->trd->run();
+    }
+
+    for (int x=0; x < NUM_TEST_THREADS; x++)
+    {
+        tttParms[x]->trd->join();
+    }
+    
+    
+    if (!trcHdler->isValidMessageDestination(filename))
+    {
+        cout << "Failure in call to isValidMessageDestination for file \""
+                << filename << "\"\n" << endl;
+        PEGASUS_TEST_ASSERT(0);
+    }
+    trcHdler->setMessageDestination(filename);
+    trcHdler->flushTrace();
+    
+    // To test the variable messages, we replace the variable message
+    // in the list with a resolved copy.
+    Uint32 lastMsg = numMsgs-1;
+    char resolvedMsg[1024];
+    memcpy( resolvedMsg, trcMsgs[lastMsg], strlen(trcMsgs[lastMsg]) );
+    sprintf( resolvedMsg+strlen(trcMsgs[lastMsg]),
+             trcMsgs[lastMsg],
+             VAR_TEST_MESSAGE );
+    trcMsgs[lastMsg] = resolvedMsg;
+    
+
+    
+    // Now analyze the dumped buffer content, to ensure no messages
+    // were damaged.
+    // For this we read the buffer content line by line and check if it 
+    // matches one of the messages from the list above.
+    {
+        fstream file;
+        file.open(filename, fstream::in);
+        if (!file.good())
+        {
+            cout << "Failed to open file \"" << filename << "\"\n" << endl;
+            PEGASUS_TEST_ASSERT(0);
+        }
+    
+        // Keep the first line on the side, since this is probably the 
+        // wrapped remainder of the very last messsage in the buffer.
+        char firstLine[256];
+        file.getline( firstLine, 256 );
+
+        char currentLine[256];
+        file.getline( currentLine, 256 );
+
+        while( !file.eof() )
+        {
+            Boolean found = false;
+            for (Uint32 x=0; x < numMsgs; x++)
+            {
+                if ( strcmp(trcMsgs[x], currentLine) == 0 )
+                {
+                    found = true;
+                    continue;
+                }
+            }
+            if ( !found )
+            {
+                if ( strncmp(currentLine, "*EOTRACE*", strlen("*EOTRACE*")) )
+                {
+                    // if we got here, this is either an error, or we reached
+                    // the end of the trace buffer, where it had wrapped.
+                    // To check this we paste together the message in the
+                    // first line we read, and which is supposed to be the 
+                    // remainder of the wrapped message.
+                    strcat(currentLine, firstLine);
+                    for (Uint32 x=0; x < numMsgs; x++)
+                    {
+                        if ( strcmp(trcMsgs[x], currentLine) == 0 )
+                        {
+                            found = true;
+                            continue;
+                        }
+                    }
+                    if ( !found )
+                    {
+                        // Diagnostics about the error
+                        cout << "Compare Error: unexpected message= \n\""
+                             << currentLine << "\"\n" << endl;
+                        PEGASUS_TEST_ASSERT(0);
+                    }
+                }
+            }
+            file.getline( currentLine, 256 );
+        }
+        file.close();
+    }
+
+
+    for (int x=0; x < NUM_TEST_THREADS; x++)
+    {
+        delete( tttParms[x]->trd );
+        delete( tttParms[x] );
+    }
+
+    delete( trcHdler );
+    return rc;
+}
+
+
+
 int main(int argc, char** argv)
 {
 
@@ -848,11 +1051,15 @@ int main(int argc, char** argv)
     String f4 (tmpDir);
     f4.append("/testtracer4.trace");
     FILE4 = f4.getCString();
+    String f5 (tmpDir);
+    f5.append("/testtracer5.trace");
+    FILE5 = f5.getCString();
 
     System::removeFile(FILE1);
     System::removeFile(FILE2);
     System::removeFile(FILE3);
     System::removeFile(FILE4);
+    System::removeFile(FILE5);
     if (test1() != 0)
     {
        cout << "Tracer test (test1) failed" << endl;
@@ -999,11 +1206,19 @@ int main(int argc, char** argv)
        exit(1);
     }
 
+    if (testMemoryHandler(FILE5) != 0)
+    {
+       cout << "Tracer test (testMemoryHandler) failed" << endl;
+       exit(1);
+    }
+
+
     cout << argv[0] << " +++++ passed all tests" << endl;
     System::removeFile(FILE1);
     System::removeFile(FILE2);
     System::removeFile(FILE3);
     System::removeFile(FILE4);
+    System::removeFile(FILE5);
     return 0;
 #endif
 }

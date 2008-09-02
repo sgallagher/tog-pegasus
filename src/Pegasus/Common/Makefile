@@ -181,6 +181,7 @@ SOURCES2 = \
     TLS.cpp \
     TraceFileHandler.cpp \
     TraceLogHandler.cpp \
+    TraceMemoryHandler.cpp \
     Tracer.cpp \
     Thread.cpp \
     ThreadPool.cpp \

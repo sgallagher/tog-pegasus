@@ -63,6 +63,7 @@ TraceLogHandler::~TraceLogHandler()
 ////////////////////////////////////////////////////////////////////////////////
 void TraceLogHandler::handleMessage(
     const char *message,
+    Uint32 msgLen,
     const char *fmt, va_list argList)
 {
     if (Logger::wouldLog(Logger::TRACE))
@@ -77,7 +78,7 @@ void TraceLogHandler::handleMessage(
         vsnprintf(buffer, 4095, fmt, argList);
 #endif        
         String completeMsg(buffer);
-        completeMsg.append(message);
+        completeMsg.append(message, msgLen);
         
         Logger::trace( Logger::TRACE_LOG, 
                        System::CIMSERVER, 
@@ -89,7 +90,7 @@ void TraceLogHandler::handleMessage(
 ////////////////////////////////////////////////////////////////////////////////
 //  Sends a simple trace message to the Logger
 ////////////////////////////////////////////////////////////////////////////////
-void TraceLogHandler::handleMessage(const char *message)
+void TraceLogHandler::handleMessage(const char *message, Uint32 msgLen)
 {
     if (Logger::wouldLog(Logger::TRACE))
     {

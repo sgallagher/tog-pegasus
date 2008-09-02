@@ -72,7 +72,8 @@ public:
     enum TRACE_FACILITY_INDEX
     {
         TRACE_FACILITY_FILE = 0,
-        TRACE_FACILITY_LOG  = 1
+        TRACE_FACILITY_LOG  = 1,
+        TRACE_FACILITY_MEMORY = 2
     };
 
 
@@ -167,6 +168,17 @@ public:
                 TRACE_FACILITY_LOG - if trace facility is the log
     */
     static Uint32 getTraceFacility();
+
+    /** Set buffer size to be used for the memory tracing facility
+        @param bufferSize buffer size in Kbyte to be used for memory tracing
+        @return true   if function was successfully.
+    */
+    static Boolean setTraceMemoryBufferSize(Uint32 bufferSize);
+
+    /** Flushes the trace buffer to traceFilePath. This method will only
+        have an effect when traceFacility=Memory.
+    */
+    static void flushTrace();
 
     /** Traces method entry.
         @param token           TracerToken
@@ -266,11 +278,12 @@ private:
     static const Uint32 _STRLEN_MAX_UNSIGNED_INT;
     static const Uint32 _STRLEN_MAX_PID_TID;
     AutoArrayPtr<Boolean> _traceComponentMask;
+    Uint32                _traceMemoryBufferSize;
     Uint32                _traceFacility;
     //Is true if any components are set at the component mask
     Boolean               _componentsAreSet;
     Uint32                _traceLevelMask;
-    AutoPtr<TraceHandler> _traceHandler;
+    TraceHandler*         _traceHandler;
     String              _moduleName;
     static Tracer*      _tracerInstance;
 
@@ -281,9 +294,7 @@ private:
     // Factory function to create an instance of the matching trace handler
     // for the given type of traceFacility.
     // @param    traceFacility  type of trace handler to create
-    // @return   an instance of a trace handler class. For invalid trace 
-    //           facilities always creates a traceFileHandler.
-    TraceHandler* getTraceHandler( Uint32 traceFacility );
+    void _setTraceHandler( Uint32 traceFacility );
 
     // Traces the given message. Overloaded to include the file name and the
     // line number as one of the parameters.
@@ -365,6 +376,11 @@ private:
 
 #ifdef PEGASUS_REMOVE_TRACE
 
+inline void Tracer::setTraceHandler( Uint32 traceFacility );
+{
+    // empty function
+}
+
 inline void Tracer::traceCString(
     const char* fileName,
     const Uint32 lineNum,
@@ -416,6 +432,18 @@ inline Uint32 Tracer::getTraceFacility()
 {
     // empty function
     return 0;
+}
+
+inline static Boolean Trace::setTraceMemoryBufferSize(Uint32 bufferSize)
+{
+    // empty function
+    return true;
+}
+
+inline void Tracer::flushTrace()
+{
+    // empty function
+    return;
 }
 
 #endif /* PEGASUS_REMOVE_TRACE */

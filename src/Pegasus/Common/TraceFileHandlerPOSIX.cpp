@@ -105,6 +105,7 @@ void TraceFileHandler::prepareFileHandle(void)
 
 void TraceFileHandler::handleMessage(
     const char *message,
+    Uint32 msgLen,
     const char *fmt, va_list argList)
 {
     Sint32 retCode;
@@ -132,7 +133,7 @@ void TraceFileHandler::handleMessage(
     return;
 }
 
-void TraceFileHandler::handleMessage(const char *message)
+void TraceFileHandler::handleMessage(const char *message, Uint32 msgLen)
 {
     Sint32 retCode;
     Sint32 fileDesc;
@@ -212,6 +213,7 @@ void TraceFileHandler::prepareFileHandle(void)
 
 void TraceFileHandler::handleMessage(
     const char *message,
+    Uint32 msgLen,
     const char *fmt, va_list argList)
 {
     if (!_fileHandle)
@@ -234,7 +236,7 @@ void TraceFileHandler::handleMessage(
     // ---- END CRITICAL SECTION
 }
 
-void TraceFileHandler::handleMessage(const char *message)
+void TraceFileHandler::handleMessage(const char *message, Uint32 msgLen)
 {
     if (!_fileHandle)
     {

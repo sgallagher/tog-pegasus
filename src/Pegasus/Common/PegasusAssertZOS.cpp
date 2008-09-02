@@ -35,6 +35,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <unistd.h>
+//#include <Pegasus/Common/Tracer.h>
 
 void __pegasus_assert_zOS(const char* file, int line, const char* cond)
 {
@@ -46,6 +47,13 @@ void __pegasus_assert_zOS(const char* file, int line, const char* cond)
 
     // generate stacktace
     ctrace(msgBuffer);
+    
+    // flush trace buffers
+    // TODO: RK 2008/08/15
+    //       Dump the in memory trace buffer. Not yet done due the implications
+    //       this has on libary linkage!!!
+    //Pegasus::Tracer::flushTrace();
+    
     // If env vars are set, a SYSM dump is generated.
     kill(getpid(),SIGDUMP);
 }

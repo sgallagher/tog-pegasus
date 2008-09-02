@@ -64,6 +64,7 @@ void TraceFileHandler::prepareFileHandle(void)
 ////////////////////////////////////////////////////////////////////////////////
 void TraceFileHandler::handleMessage(
     const char* message,
+    Uint32 msgLen,
     const char* fmt,
     va_list argList)
 {
@@ -119,7 +120,7 @@ void TraceFileHandler::handleMessage(
 //         Will have to be enhanced to support synchronous write operations to
 //         the same file.
 ////////////////////////////////////////////////////////////////////////////////
-void TraceFileHandler::handleMessage(const char* message)
+void TraceFileHandler::handleMessage(const char* message, Uint32 msgLen)
 {
     Uint32 retCode;
 

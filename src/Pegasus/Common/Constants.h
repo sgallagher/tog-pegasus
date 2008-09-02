@@ -433,6 +433,14 @@
 #endif
 
 /*
+   Defines the min/max size of the memory trace buffer
+*/
+#define PEGASUS_TRC_BUFFER_MAX_SIZE_KB 1024*1024
+#define PEGASUS_TRC_BUFFER_MIN_SIZE_KB 16
+
+
+
+/*
 **==============================================================================
 **
 **  C++ Section

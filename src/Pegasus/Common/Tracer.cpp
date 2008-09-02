@@ -35,10 +35,11 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 #include <Pegasus/Common/TraceLogHandler.h>
+#include <Pegasus/Common/TraceMemoryHandler.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/HTTPMessage.h>
-
+#include <Pegasus/Common/StringConversion.h>
 
 PEGASUS_USING_STD;
 
@@ -52,6 +53,7 @@ char const* Tracer::TRACE_FACILITY_LIST[] =
 {
     "File",
     "Log",
+    "Memory",
     0
 };
     
@@ -97,12 +99,13 @@ Boolean Tracer::_traceOn = false;
 ////////////////////////////////////////////////////////////////////////////////
 Tracer::Tracer()
     : _traceComponentMask(new Boolean[_NUM_COMPONENTS]),
+      _traceMemoryBufferSize(PEGASUS_TRC_DEFAULT_BUFFER_SIZE_KB),
       _traceFacility(TRACE_FACILITY_FILE),
       _traceLevelMask(0),
       _traceHandler(0)
 {
     // Instantiate trace handler according to configured facility
-    _traceHandler.reset( getTraceHandler(_traceFacility) );
+    _setTraceHandler(_traceFacility);
 
     // Initialize ComponentMask array to false
     for (Uint32 index=0;index < _NUM_COMPONENTS;
@@ -117,6 +120,7 @@ Tracer::Tracer()
 ////////////////////////////////////////////////////////////////////////////////
 Tracer::~Tracer()
 {
+    delete _traceHandler;
     delete _tracerInstance;
 }
 
@@ -124,21 +128,29 @@ Tracer::~Tracer()
 ////////////////////////////////////////////////////////////////////////////////
 //Factory function for the trace handler instances.
 ////////////////////////////////////////////////////////////////////////////////
-TraceHandler* Tracer::getTraceHandler( Uint32 traceFacility )
+void Tracer::_setTraceHandler( Uint32 traceFacility )
 {
-    TraceHandler * trcHandler;
+    TraceHandler * oldTrcHandler = _traceHandler;
+
     switch(traceFacility)
     {
         case TRACE_FACILITY_LOG:
-            trcHandler = new TraceLogHandler();
+            _traceFacility = TRACE_FACILITY_LOG;
+            _traceHandler = new TraceLogHandler();
+            break;
+
+        case TRACE_FACILITY_MEMORY:
+            _traceFacility = TRACE_FACILITY_MEMORY;
+            _traceHandler = new TraceMemoryHandler(_traceMemoryBufferSize);
             break;
 
         case TRACE_FACILITY_FILE:
         default:
-            trcHandler = new TraceFileHandler();
+            _traceFacility = TRACE_FACILITY_FILE;
+            _traceHandler = new TraceFileHandler();
     }
 
-    return trcHandler;
+    delete oldTrcHandler;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -289,10 +301,11 @@ void Tracer::_trace(
     va_list argList)
 {
     char* msgHeader;
+    Uint32 msgLen;
+    Uint32 usec,sec;
 
     // Get the current system time and prepend to message
-    String currentTime = System::getCurrentASCIITime();
-    CString timeStamp = currentTime.getCString();
+    System::getCurrentTimeUsec(sec,usec);
 
     //
     // Allocate messageHeader.
@@ -302,42 +315,36 @@ void Tracer::_trace(
     // Construct the message header
     // The message header is in the following format
     // timestamp: <component name> [file name:line number]
+    //
+    // Format string length calculation: 
+    //        11(sec)+ 2('s-')+11(usec)+4('us: ')+1(' ')+1(\0) = 30
     if (*message != '\0')
     {
-       // << Wed Jul 16 10:58:40 2003 mdd >> _STRLEN_MAX_PID_TID is not used
-       // in this format string
        msgHeader = new char [strlen(message) +
-           strlen(TRACE_COMPONENT_LIST[traceComponent]) +
-           strlen(timeStamp) + _STRLEN_MAX_PID_TID + 5];
+           strlen(TRACE_COMPONENT_LIST[traceComponent]) + 30];
 
-        sprintf(msgHeader, "%s: %s %s", (const char*)timeStamp,
+        msgLen = sprintf(msgHeader, "%us-%uus: %s %s", sec, usec,
             TRACE_COMPONENT_LIST[traceComponent], message);
     }
     else
     {
         //
-        // Since the message is blank, form a string using the pid and tid
-        //
-        char* tmpBuffer;
-
-        //
         // Allocate messageHeader.
         // Needs to be updated if additional info is added
         //
-        tmpBuffer = new char[2 * _STRLEN_MAX_PID_TID + 6];
-        sprintf(tmpBuffer, "[%u:%s]: ",
-            System::getPID(), Threads::id().buffer);
-        msgHeader = new char[strlen(timeStamp) +
-            strlen(TRACE_COMPONENT_LIST[traceComponent]) +
-            strlen(tmpBuffer) + 1  + 5];
+        // Format string length calculation: 
+        //        11(sec)+2('s-')+11(usec)+4('us: ')+
+        //        +2(' [')+1(':')+3(']: ')+1(\0) = 35
+        msgHeader = new char[2 * _STRLEN_MAX_PID_TID + 
+            strlen(TRACE_COMPONENT_LIST[traceComponent]) + 35];
 
-        sprintf(msgHeader, "%s: %s %s ", (const char*)timeStamp,
-            TRACE_COMPONENT_LIST[traceComponent], tmpBuffer);
-        delete [] tmpBuffer;
+        msgLen = sprintf(msgHeader, "%us-%uus: %s [%u:%s]: ", sec, usec,
+            TRACE_COMPONENT_LIST[traceComponent], 
+            System::getPID(), Threads::id().buffer);
     }
 
     // Call trace file handler to write message
-    _getInstance()->_traceHandler->handleMessage(msgHeader,fmt,argList);
+    _getInstance()->_traceHandler->handleMessage(msgHeader,msgLen,fmt,argList);
 
     delete [] msgHeader;
 }
@@ -352,10 +359,12 @@ void Tracer::_traceCString(
     const char* cstring)
 {
     char* completeMessage;
+    Uint32 msgLen;
+    Uint32 usec,sec;
 
     // Get the current system time and prepend to message
-    String currentTime = System::getCurrentASCIITime();
-    CString timeStamp = currentTime.getCString();
+    System::getCurrentTimeUsec(sec,usec);
+
     //
     // Allocate completeMessage.
     // Needs to be updated if additional info is added
@@ -364,16 +373,16 @@ void Tracer::_traceCString(
     // Construct the message header
     // The message header is in the following format
     // timestamp: <component name> [file name:line number]
+    //
+    // Format string length calculation: 
+    //        11(sec)+ 2('s-')+11(usec)+4('us: ')+1(' ')+1(\0) = 30
     if (*message != '\0')
     {
-       // << Wed Jul 16 10:58:40 2003 mdd >> _STRLEN_MAX_PID_TID is not used
-       // in this format string
        completeMessage = new char [strlen(message) +
            strlen(TRACE_COMPONENT_LIST[traceComponent]) +
-           strlen(timeStamp) + _STRLEN_MAX_PID_TID + 5 +
-           strlen(cstring) ];
+           strlen(cstring) + 30];
 
-        sprintf(completeMessage, "%s: %s %s%s", (const char*)timeStamp,
+        msgLen = sprintf(completeMessage, "%us-%uus: %s %s%s", sec, usec,
             TRACE_COMPONENT_LIST[traceComponent], message, cstring);
     }
     else
@@ -387,22 +396,21 @@ void Tracer::_traceCString(
         // Allocate messageHeader.
         // Needs to be updated if additional info is added
         //
-        tmpBuffer = new char[2 * _STRLEN_MAX_PID_TID + 6];
-        sprintf(tmpBuffer, "[%u:%s]: ",
-            System::getPID(), Threads::id().buffer);
-
-        completeMessage = new char[strlen(timeStamp) +
+        // Format string length calculation: 
+        //        11(sec)+2('s-')+11(usec)+4('us: ')+
+        //        +2(' [')+1(':')+3(']: ')+1(\0) = 35
+        completeMessage = new char[2 * _STRLEN_MAX_PID_TID +
             strlen(TRACE_COMPONENT_LIST[traceComponent]) +
-            strlen(tmpBuffer) + 1  + 5 +
-            strlen(cstring)];
+            strlen(cstring) +35];
 
-        sprintf(completeMessage, "%s: %s %s %s", (const char*)timeStamp,
-            TRACE_COMPONENT_LIST[traceComponent], tmpBuffer, cstring);
-        delete [] tmpBuffer;
+        msgLen = sprintf(completeMessage, "%us-%uus: %s [%u:%s] %s", sec, usec,
+            TRACE_COMPONENT_LIST[traceComponent], 
+            System::getPID(), Threads::id().buffer, 
+            cstring);
     }
 
     // Call trace file handler to write message
-    _getInstance()->_traceHandler->handleMessage(completeMessage);
+    _getInstance()->_traceHandler->handleMessage(completeMessage,msgLen);
 
     delete [] completeMessage;
 }
@@ -532,7 +540,7 @@ Boolean Tracer::isValidTraceFacility(const String& traceFacility)
         Uint32 index = 0;
         while (TRACE_FACILITY_LIST[index] != 0 )
         {
-            if (String::equalNoCase( traceFacility,TRACE_FACILITY_LIST[index]))
+            if (String::equalNoCase(traceFacility,TRACE_FACILITY_LIST[index]))
             {
                 retCode = true;
                 break;
@@ -745,9 +753,7 @@ Uint32 Tracer::setTraceFacility(const String& traceFacility)
             {
                 if (index != instance->_traceFacility)
                 {
-                    instance->_traceFacility = index;
-                    instance->_traceHandler.reset( 
-                        instance->getTraceHandler(instance->_traceFacility));
+                    instance->_setTraceHandler(index);
                 }
                 retCode = 1;
                 break;
@@ -766,6 +772,30 @@ Uint32 Tracer::getTraceFacility()
 {
     return _getInstance()->_traceFacility;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Set the size of the memory trace buffer
+////////////////////////////////////////////////////////////////////////////////
+Boolean Tracer::setTraceMemoryBufferSize(Uint32 bufferSize)
+{
+    Tracer* instance = _getInstance();
+    instance->_traceMemoryBufferSize = bufferSize;
+    
+    // If we decide to dynamically change the trace buffer size,
+    // this is where it needs to be implemented.
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Flushes the trace buffer to traceFilePath. This method will only
+// have an effect when traceFacility=Memory.
+////////////////////////////////////////////////////////////////////////////////
+void Tracer::flushTrace()
+{
+    _getInstance()->_traceHandler->flushTrace();
+    return;
+}
+
 
 void Tracer::traceEnter(
     TracerToken& token,
@@ -808,21 +838,34 @@ void Tracer::traceCString(
 {
     char* message;
 
+    Uint32 msgLen;
+    Uint32 usec,sec;
+
+    // Get the current system time
+    System::getCurrentTimeUsec(sec,usec);
+  
     //
     // Allocate memory for the message string
     // Needs to be updated if additional info is added
     //
-    message = new char[strlen(fileName) +
-        _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8];
-    sprintf(
-        message,
-        "[%u:%s:%s:%u]: ",
+    message = new char [strlen(fileName) +
+        _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 +
+        strlen(TRACE_COMPONENT_LIST[traceComponent]) + 
+        strlen(cstring) + 30];
+
+    msgLen = sprintf(message, "%us-%uus: %s [%u:%s:%s:%u]: %s",
+        sec, 
+        usec,
+        TRACE_COMPONENT_LIST[traceComponent], 
         System::getPID(),
         Threads::id().buffer,
         fileName,
-        lineNum);
+        lineNum,
+        cstring);
 
-    _traceCString(traceComponent, message, cstring);
+    // Call trace file handler to write message
+    _getInstance()->_traceHandler->handleMessage(message,msgLen);
+
     delete [] message;
 }
 

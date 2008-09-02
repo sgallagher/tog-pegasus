@@ -93,9 +93,9 @@ void TraceMemoryHandler::_initialize( Uint32 traceAreaSize )
     
     // The final buffer size is the size of the allocated area, less the
     // size of the header struct, less one byte reseved for a terminating 0
-    _traceArea->bufferSize = traceAreaSize - sizeof(struct traceArea_t);
-    _traceArea->bufferSize--;
+    _traceArea->bufferSize = traceAreaSize - sizeof(struct traceArea_t) - 1;
     _traceArea->nextPos = 0;
+    _traceArea->traceBuffer = (char*) (&(_traceArea->traceBuffer) + 1);
     _leftBytesInBuffer = _traceArea->bufferSize-1;
     
     memcpy(_traceArea->eyeCatcher, 

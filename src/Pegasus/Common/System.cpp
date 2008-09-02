@@ -596,8 +596,12 @@ Boolean System::isLoopBack(int af, void *binIPAddress)
             return !memcmp(&ip6, binIPAddress, sizeof (ip6));
 #endif
         case AF_INET:
-            Uint32 n = ntohl( *(Uint32*)binIPAddress);
+        {
+            Uint32 tmp;
+            memcpy(&tmp, binIPAddress, sizeof(Uint32));
+            Uint32 n = ntohl(tmp);
             return !memcmp(&ip4, &n, sizeof (ip4));       
+        }
     }
 
     return false;

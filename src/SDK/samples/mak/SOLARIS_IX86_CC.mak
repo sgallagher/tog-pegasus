@@ -28,50 +28,37 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../../..
 
-DIR = slp/slp_agent
-
-include $(ROOT)/mak/config.mak
-
-EXTRA_INCLUDES = $(SYS_INCLUDES)
-
-########################################################################
-
-ifdef PEGASUS_USE_EXTERNAL_SLP
-ifdef PEGASUS_EXTERNAL_SLP_HOME
-	EXTRA_INCLUDES += -I$(PEGASUS_EXTERNAL_SLP_HOME)/include
-
-	EXTRA_LIBRARIES += -L$(PEGASUS_EXTERNAL_SLP_HOME)/lib
-endif
-	EXTRA_LIBRARIES += -lslp
-endif
+ECHO = echo
+MKDIRHIER = mkdir -p
+RM = rm -f
+TOUCH = touch
 
 
-###########################################################################
+SYM_LINK_LIB = $(PEGASUS_PROVIDER_LIB_DIR)/lib$(LIBRARY)
 
-LOCAL_DEFINES = -DPEGASUS_SLP_INTERNAL
+SYS_LIBS = -lpthread -lrt
 
-LIBRARY = pegslp
+OBJ_SUFFIX = .o
+LINK_OUT = -o
+PLATFORM_LIB_SUFFIX = so
 
-PRE_DEPEND_INCLUDES = -I./depends
-
-ifneq ($PEGASUS_SUPPORTS_DYNLIB,yes)
-    LIBRARIES = pegcommon
+ifdef PEGASUS_DEBUG
+FLAGS = -g -KPIC -mt -xs -xildoff +w
+else
+FLAGS = -O4 -KPIC -mt -xildoff -s -xipo=1 +w
 endif
 
-SOURCES = peg_slp_agent.cpp 
+DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 
-include $(ROOT)/mak/library.mak
+PROGRAM_COMPILE_OPTIONS = $(FLAGS) 
 
-#ifeq ($(PEGASUS_ENABLE_SLP),true)
-#$(SOURCES): common
-#common :
-#	@ $(MAKE) -SC $(ROOT)/src/Pegasus/Common
-#ifeq ($(OS_TYPE),windows)
-#SYS_LIBS = ws2_32.lib advapi32.lib
-#endif
-#endif
+PROGRAM_LINK_OPTIONS = $(PROGRAM_COMPILE_OPTIONS)
 
-run:
-	Server $(REPOSITORY_ROOT)
+COMPILE_CXX_COMMAND = CC
+COMPILE_C_COMMAND = cc
+LIBRARY_LINK_COMMAND = $(COMPILE_CXX_COMMAND)
+PROGRAM_LINK_COMMAND =  $(COMPILE_CXX_COMMAND)
+
+LIBRARY_COMPILE_OPTIONS = $(PROGRAM_COMPILE_OPTIONS)
+LIBRARY_LINK_OPTIONS = $(PROGRAM_LINK_OPTIONS) -G

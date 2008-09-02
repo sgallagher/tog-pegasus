@@ -56,6 +56,11 @@
 # error "<Pegasus/Common/Threads.h>: not implemented"
 #endif
 
+#if defined(PEGASUS_OS_SOLARIS)
+# include <string.h>
+# include <stdio.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 //==============================================================================
@@ -241,7 +246,7 @@ inline void Threads::cleanup_pop(int execute)
 
 inline ThreadId Threads::id(const ThreadType& x)
 {
-    ThreadId tid;
+    ThreadId tid = { { 0 } };
 
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     const char* s = x.thread.__;

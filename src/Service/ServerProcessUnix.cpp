@@ -80,7 +80,7 @@ int ServerProcess::cimserver_wait()
     errno = 0;
     do
     {
-#if defined(PEGASUS_OS_ZOS) || defined(PEGASUS_OS_SOLARIS)
+#if defined(PEGASUS_OS_ZOS)
         sig = sigwait(&set);
 #else // else for platforms = LINUX, HPUX, AIX
         sigwait(&set, &sig);

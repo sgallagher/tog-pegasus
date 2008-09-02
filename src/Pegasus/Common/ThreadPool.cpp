@@ -461,7 +461,8 @@ Boolean ThreadPool::_timeIntervalExpired(
     struct timeval now, finish, remaining;
     Uint32 usec;
     Time::gettimeofday(&now);
-    Time::gettimeofday(&remaining);     // Avoid valgrind error
+
+    memset(&remaining, 0, sizeof(remaining));
 
     finish.tv_sec = start->tv_sec + interval->tv_sec;
     usec = start->tv_usec + interval->tv_usec;

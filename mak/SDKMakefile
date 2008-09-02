@@ -120,6 +120,14 @@ INCLUDE_FILES = \
    Pegasus/Provider/Linkage.h \
    Pegasus/Provider/ProviderException.h
 
+## Common Platform Include for SOLARIS platform. 
+## Add Platorm_SOLARIS_CC.h file
+ifdef PEGASUS_OS_SOLARIS
+   ifeq ($(findstring _CC, $(PEGASUS_PLATFORM)), _CC)
+      INCLUDE_FILES += Pegasus/Common/Platform_SOLARIS_CC.h
+   endif
+endif
+
 # CMPI header files
 INCLUDE_FILES += \
    Pegasus/Provider/CMPI/cmpift.h \

@@ -28,7 +28,7 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../../..
 DIRCLIENT = Pegasus/Client
 DIR = Pegasus/Client/tests/slp
 include $(ROOT)/mak/config.mak

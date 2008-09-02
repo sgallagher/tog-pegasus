@@ -155,7 +155,7 @@ endif
 
 ifeq ($(COMPILER),CC)
   LINK_COMMAND = CC
-  LINK_ARGUMENTS = -G -KPIC -mt -h lib$(LIBRARY).so
+  LINK_ARGUMENTS = -G -KPIC -mt -h lib$(LIBRARY).so $(LINK_MACHINE_OPTIONS)
   LINK_OUT = -o
   EXTRA_LIBRARIES += $(LIBRARY_SYS_LIBS)
 endif

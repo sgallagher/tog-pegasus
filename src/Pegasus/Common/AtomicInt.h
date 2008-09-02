@@ -842,6 +842,71 @@ PEGASUS_NAMESPACE_END
 
 //==============================================================================
 //
+// PEGASUS_OS_SOLARIS
+//
+//==============================================================================
+
+#if defined(PEGASUS_OS_SOLARIS)
+# define PEGASUS_ATOMIC_INT_DEFINED
+
+#include <atomic.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+struct AtomicType
+{
+    volatile uint32_t n;
+};
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+{
+    _rep.n = n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+{
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+{
+    return _rep.n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+{
+    _rep.n = n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    atomic_inc_32(&_rep.n);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    atomic_dec_32(&_rep.n);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
+{
+    return atomic_dec_32_nv(&_rep.n) == 0;
+}
+
+typedef AtomicIntTemplate<AtomicType> AtomicInt;
+
+PEGASUS_NAMESPACE_END
+
+#endif
+
+//==============================================================================
+//
 // Generic Implementation
 //
 //==============================================================================

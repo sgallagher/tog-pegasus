@@ -28,7 +28,7 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../../..
 DIR = Pegasus/Common/tests/Abstract
 include $(ROOT)/mak/config.mak
 include ../libraries.mak

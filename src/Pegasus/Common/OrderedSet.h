@@ -111,7 +111,7 @@ public:
 
     void reserveCapacity(Uint32 capacity)
     {
-        _array.reserveCapacity(capacity * sizeof(Node));
+        _array.reserveCapacity(capacity * Uint32(sizeof(Node)));
     }
 
     Uint32 find(const CIMName& name, Uint32 nameTag) const;
@@ -257,7 +257,7 @@ inline void OrderedSet<T, R, N>::append(const T& x)
     // which following have to be _reorganized
     Boolean reOrg = (_array.capacity() < sizeof(Node) + _array.size());
     if (reOrg)
-        reserveCapacity((_size + 1) << 1);
+        reserveCapacity(Uint32((_size + 1) << 1));
 
     // First append to _array(dynamic, ordered list):
     {
@@ -266,7 +266,7 @@ inline void OrderedSet<T, R, N>::append(const T& x)
         node.index = _size;
         node.next = (*_table)[code];
 
-        _array.append((const char*) &node, sizeof(node));
+        _array.append((const char*) &node, Uint32(sizeof(node)));
     }
         
     // Now add to hash table
@@ -296,7 +296,7 @@ inline void OrderedSet<T, R, N>::remove(Uint32 index)
         Node* node = (Node*) _array.getData() + index;
         node->rep->decreaseOwnerCount();
         Dec(node->rep);
-        _array.remove(index * sizeof(Node), sizeof(Node));
+        _array.remove(index * Uint32(sizeof(Node)), Uint32(sizeof(Node)));
         _size--;
     }
 
@@ -335,7 +335,8 @@ inline void OrderedSet<T, R, N>::insert(Uint32 index, const T& x)
         Node node;
         node.rep = layout->rep;
         node.index = _size;
-        _array.insert(index * sizeof(Node), (const char*) &node, sizeof(node));
+        _array.insert(index * Uint32(sizeof(Node)), (const char*) &node, 
+            Uint32(sizeof(node)));
         layout->rep->increaseOwnerCount();
         Inc(layout->rep);
         _size++;

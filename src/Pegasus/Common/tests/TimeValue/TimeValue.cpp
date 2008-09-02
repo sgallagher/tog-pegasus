@@ -50,7 +50,7 @@ int main(int argc, char** argv)
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     TimeValue tv0( 3, 100000);   // set to 3 sec, 100,000 microseconds
-    Uint32 ms = tv0.toMilliseconds();
+    Uint64 ms = tv0.toMilliseconds();
     if (verbose)
     {
         cout << "milliseconds=" << ms << endl;
@@ -91,7 +91,7 @@ int main(int argc, char** argv)
              << " total milliseconds" <<  endl;
     }
 
-    Uint32 milliseconds = tv2.toMilliseconds() - tv1.toMilliseconds();
+    Uint64 milliseconds = tv2.toMilliseconds() - tv1.toMilliseconds();
 
     if (verbose)
         cout << "milliseconds=" << milliseconds << endl;

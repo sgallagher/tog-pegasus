@@ -44,6 +44,8 @@
 #  include "PAMBasicAuthenticatorUnix.cpp"
 # elif defined(PEGASUS_OS_PASE)
 #  include "PAMBasicAuthenticatorUnix.cpp"
+# elif defined(PEGASUS_OS_SOLARIS)
+#  include "PAMBasicAuthenticatorUnix.cpp"
 # else
 #  include "PAMBasicAuthenticatorStub.cpp"
 # endif

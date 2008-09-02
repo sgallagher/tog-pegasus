@@ -250,7 +250,7 @@ typedef int SocketHandle;
 //
 //------------------------------------------------------------------------------
 
-#if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU) || \
+#if defined(PEGASUS_OS_SOLARIS) || \
     defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX) || \
     defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
@@ -265,9 +265,6 @@ typedef int SocketHandle;
     typedef int SocketLength;
 #elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) && \
     !defined(_XOPEN_SOURCE_EXTENDED)
-    typedef int SocketLength;
-#elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) && \
-    defined(SUNOS_5_6)
     typedef int SocketLength;
 #else
     typedef socklen_t SocketLength;

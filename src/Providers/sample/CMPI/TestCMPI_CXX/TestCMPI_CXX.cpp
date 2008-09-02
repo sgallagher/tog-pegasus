@@ -416,7 +416,14 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
         L;CMPIReal32     r32Data1   = 10;
         L;CMPIReal64     r64Data1   = 11;
         L;CmpiString     strData1   = "12";
-        L;const char     achData1[] = { '1', '3', '\0' };
+
+        union
+        {
+            CMPIUint64 alignment;
+            char achData1[3];
+        };
+        strcpy(achData1, "13");
+
         L;CmpiDateTime   dtData1;
         L;CmpiObjectPath copData1 ("root/SampleProvider", "CWS_PlainFile_CXX");
         L;CmpiInstance   ciData1 (copData1);

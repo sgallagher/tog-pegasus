@@ -1,4 +1,3 @@
-/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -31,27 +30,47 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
-*/
 
-#ifndef Pegasus_FixedPropertyTable_h
-#define Pegasus_FixedPropertyTable_h
+#ifndef Pegasus_Platform_SOLARIS_CC_h
+#define Pegasus_Platform_SOLARIS_CC_h
 
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-#include "FixedPropertyTableLinux.h"
-#elif defined(PEGASUS_OS_SOLARIS)
-# include "FixedPropertyTableSolaris.h"
-#elif PEGASUS_PLATFORM_HPUX_ACC
-#include "FixedPropertyTableHpux.h"
-#elif defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
-#include "FixedPropertyTablePase.h"
-#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-#include "FixedPropertyTableAix.h"
-#elif defined (PEGASUS_OS_VMS)
-#include "FixedPropertyTableVms.h"
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-#include "FixedPropertyTablezOS.h"
-#else
-    {"bogus", "MyBogusValue"} // Remove this line if others are added
+#ifndef PEGASUS_OS_SOLARIS
+# define PEGASUS_OS_SOLARIS
 #endif
 
-#endif /* Pegasus_FixedPropertyTable_h */
+#include <limits.h>
+
+#ifdef __cplusplus
+# include <cstdio>
+# include <cstddef>
+# ifdef PEGASUS_INTERNALONLY 
+  using namespace std;
+# endif
+#endif
+
+#define PEGASUS_OS_TYPE_UNIX
+
+#define PEGASUS_COMPILER_CC
+
+#define PEGASUS_UINT64 unsigned long long
+
+#define PEGASUS_SINT64 long long
+
+#define SEM_VALUE_MAX _POSIX_SEM_VALUE_MAX
+
+#define PEGASUS_HAVE_NAMESPACES
+
+#define PEGASUS_HAVE_FOR_SCOPE
+
+#define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
+
+#define PEGASUS_DISABLE_INTERNAL_INLINES
+
+#define PEGASUS_HAVE_PTHREADS
+
+#define PEGASUS_HAS_SIGNALS
+
+/* use POSIX read-write locks on this platform */
+#define PEGASUS_USE_POSIX_RWLOCK
+
+#endif /* Pegasus_Platform_SOLARIS_CC_h */

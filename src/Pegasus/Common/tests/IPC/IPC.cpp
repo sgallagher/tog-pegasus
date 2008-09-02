@@ -125,10 +125,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL deq(void * parm)
     while (type != CLOSE_CONNECTION_MESSAGE)
     {
         message = mq->dequeue();
-        while (!message) {
-#if defined PEGASUS_OS_SOLARIS && defined SUNOS_5_6
-        Threads::sleep(1);
-#endif
+        while (!message) 
+        {
             message = mq->dequeue();
         }
 

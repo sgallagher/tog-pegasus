@@ -56,6 +56,10 @@ extern char** environ;
 
 #ifdef PEGASUS_ENABLE_AUDIT_LOGGER
 
+#if defined(PEGASUS_OS_SOLARIS)
+extern char** environ;
+#endif
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN

@@ -68,14 +68,19 @@ static ThreadReturnType PEGASUS_THREAD_CDECL _reader(void* self_)
             printf("iterations: %05u\n", message->x);
         }
 
-#ifdef PEGASUS_OS_SOLARIS
+// The following was a noted issue for earlier versions of
+// Solaris (ex. 5.8) It has been commented out for later
+// version (ex. 10 and 11). NOTE: if we are to guarantee
+// compatibility with earlier versions this may have to be
+// reinstated for those versions.
+//#ifdef PEGASUS_OS_SOLARIS
         // special dish of the day for Sun Solaris
         // reports say that running as root causes
         // the thread not being scheduled-out
         // until this is resolved the yield()
         // will stay here just for Solaris
-        Threads::yield();
-#endif
+//        Threads::yield();
+//#endif
 
         delete message;
     }
@@ -91,14 +96,19 @@ static ThreadReturnType PEGASUS_THREAD_CDECL _writer(void* self_)
     for (Uint32 i = 0; i < ITERATIONS; i++)
     {
         queue->enqueue(new TestMessage(i));
+// The following was a noted issue for earlier versions of
+// Solaris (ex. 5.8) It has been commented out for later
+// version (ex. 10 and 11). NOTE: if we are to guarantee
+// compatibility with earlier versions this may have to be
+// reinstated for those versions.
 // special dish of the day for Sun Solaris
 // reports say that running as root causes
 // the thread not being scheduled-out
 // until this is resolved the yield()
 // will stay here just for Solaris
-#ifdef PEGASUS_OS_SOLARIS
-        Threads::yield();
-#endif
+//#ifdef PEGASUS_OS_SOLARIS
+//        Threads::yield();
+//#endif
     }
 
     return ThreadReturnType(0);

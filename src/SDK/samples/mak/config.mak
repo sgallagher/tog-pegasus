@@ -30,6 +30,10 @@
 #//==============================================================================
 
 VALID_PLATFORMS = \
+    SOLARIS_X86_CC \
+    SOLARIS_X86_64_CC \
+    SOLARIS_SPARC_CC \
+    SOLARIS_SPARC_64_CC \
     WIN32_IX86_MSVC \
     WIN64_IA64_MSVC \
     WIN64_X86_64_MSVC \
@@ -47,6 +51,22 @@ VALID_PLATFORMS = \
 ifndef PEGASUS_PLATFORM
     $(error PEGASUS_PLATFORM environment variable undefined. Please set to\
         one of the following:$(VALID_PLATFORMS))
+endif
+
+ifeq ($(PEGASUS_PLATFORM),SOLARIS_X86_CC)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),SOLARIS_X86_64_CC)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+endif
+
+ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_64_CC)
+  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
 endif
 
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)

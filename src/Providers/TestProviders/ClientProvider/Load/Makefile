@@ -29,11 +29,8 @@
 #//
 #//==============================================================================
 # Makefile builds a Test Provider Namepspace
-# ATTN: Today this makefile is implementation dependent.
-#       It assumes that the repository is a set of directories
-#       that can be removed by removing the directories.
-#       This must be updated to an implementation independent repository
-#       remove function.
+# Note: For best results, ensure that the root/TestProvider namespace does not
+#       exist before calling this Makefile.
 
 ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
@@ -48,13 +45,8 @@ CIM_SCHEMA_DIR=CIM$(CIM_SCHEMA_VER)
 CIM_MOF_PATH = $(ROOT)/Schemas/$(CIM_SCHEMA_DIR)
 
 TESTPROVIDERNS=root/TestProvider
-TESTPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/root\#TestProvider
 
 repository:
-	@ $(ECHO) +++++ Removing existing repository named $(TESTPROVIDERNS)
-	@$(RMREPOSITORY) $(TESTPROVIDERNSDIRECTORY)
-	@ $(ECHO) +++++ Removing existing repository named $(TESTPROVIDERNS)
-	@$(RMREPOSITORY) $(TESTPROVIDERNSDIRECTORY)
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_MOF_PATH)" "-n$(TESTPROVIDERNS)" $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading TestProvider class definitions into $(TESTPROVIDERNS) namespace ...
@@ -67,10 +59,6 @@ repositoryServer:
 	@ cimmof "-I$(CIM_MOF_PATH)" "-n$(TESTPROVIDERNS)" $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ cimmof "-n$(TESTPROVIDERNS)" ClientProviderSchema.mof
 	@ cimmof "-n$(INTEROPNS)" ClientProviderSchemaR.mof
-
-removerepository:
-	@ $(ECHO) +++++ Removing existing repository named $(TESTPROVIDERNS)
-	@ $(RMREPOSITORY) $(TESTPROVIDERNSDIRECTORY)
 
 unregister:
 	$(MAKE) -i unregisterproviders

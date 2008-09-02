@@ -39,10 +39,6 @@ CIMSUBTESTNS=test/CimsubTestNS0
 CIMSUBTESTNS1=test/CimsubTestNS1
 CIMSUBTESTNS2=test/CimsubTestNS2
 CIMSUBTESTNS3=test/CimsubTestNS3
-CIMSUBTESTNSDIRECTORY=$(REPOSITORY_ROOT)/test\#CimsubTestNS0
-CIMSUBTESTNS1DIRECTORY=$(REPOSITORY_ROOT)/test\#CimsubTestNS1
-CIMSUBTESTNS2DIRECTORY=$(REPOSITORY_ROOT)/test\#CimsubTestNS2
-CIMSUBTESTNS3DIRECTORY=$(REPOSITORY_ROOT)/test\#CimsubTestNS3
 
 DIR = Clients/cimsub/tests/testscript
 
@@ -58,10 +54,9 @@ MASTERRESULTFILE_EMAIL = $(ROOT)/src/$(DIR)/result.master.email
 MASTERRESULTFILE_SYSLOG = $(ROOT)/src/$(DIR)/result.master.syslog
 
 ##
-## Clean the existing repository and load the test MOF with cimmofl.
+## Load the test MOF with cimmofl.
 ##
 repository:
-	@$(MAKE) -i -s removerepository
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(CIMSUBTESTNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(CIMSUBTESTNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(CIMSUBTESTNS) namespace ...
@@ -103,7 +98,7 @@ repository:
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(PG_INTEROP_MOF_PATH)" "-n$(CIMSUBTESTNS3)" $(ALLOW_EXPERIMENTAL) $(PG_INTEROP_MOF_PATH)/PG_Events$(PG_INTEROP_SCHEMA_VER).mof
 
 ##
-## Load the test MOF with cimmof. Do not remove the current version.
+## Load the test MOF with cimmof.
 ##
 repositoryServer:
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(CIMSUBTESTNS) namespace ...
@@ -153,13 +148,6 @@ cleanup:
 
 clean:
 	@$(RM) $(RESULTFILE) $(RESULTFILE_EMAIL) $(RESULTFILE_SYSLOG)
-
-removerepository:
-	@ $(ECHO) +++++ Removing existing repository named $(CIMSUBTESTNS), $(CIMSUBTESTNS1), $(CIMSUBTESTNS2), and $(CIMSUBTESTNS3)
-	@ $(RMREPOSITORY) $(CIMSUBTESTNSDIRECTORY)
-	@ $(RMREPOSITORY) $(CIMSUBTESTNS1DIRECTORY)
-	@ $(RMREPOSITORY) $(CIMSUBTESTNS2DIRECTORY)
-	@ $(RMREPOSITORY) $(CIMSUBTESTNS3DIRECTORY)
 
 #
 # Create filters,handlers,and subscriptions required for running the tests

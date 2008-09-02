@@ -44,8 +44,8 @@ SOURCES = lookupInstanceProvider.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	@$(MAKE) -f../load/Makefile localrep
+	@$(MAKE) -f../load/Makefile localrep REPOSITORYDIR=$(TMP_DIR)
 	@$(PROGRAM)
-	$(RMREPOSITORY) $(TMP_DIR)/repository
+	@$(MAKE) -f../load/Makefile clean REPOSITORYDIR=$(TMP_DIR)
 
 poststarttests:

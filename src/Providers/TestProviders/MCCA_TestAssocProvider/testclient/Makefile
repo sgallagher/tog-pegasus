@@ -55,7 +55,7 @@ include $(ROOT)/mak/program.mak
 
 tests:
 
-## Create repsoitory namespaces for this test and
+## Create repository namespaces for this test and
 ## execute tests. Remove repository when complete.
 
 poststarttests: repository
@@ -63,8 +63,7 @@ poststarttests: repository
 	$(PROGRAM) 1
 	$(MAKE) -i unregister
 
-# Load the sample MOF with the local compiler. Cleans the existing repository
-# before reloading.
+# Load the sample MOF with the local compiler.
 repository:
 
 # Loading Core mof into the two new test namespaces	

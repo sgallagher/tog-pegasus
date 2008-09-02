@@ -29,11 +29,8 @@
 #//
 #//==============================================================================
 # Makefile builds a test cimv2 namespace
-# ATTN: Today this makefile is implementation dependent.
-#       It assumes that the repository is a set of directories
-#       that can be removed by removing the directories.
-#       This must be updated to an implementation independent repository
-#       remove function.
+# Note: For best results, ensure that the test/cimv2 namespace does not
+#       exist before calling this Makefile.
 
 ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
@@ -44,7 +41,6 @@ include $(ROOT)/mak/configschema.mak
 # Update the following variable to change the version.
 
 TESTCIMV2NS=test/cimv2
-TESTCIMV2NSDIRECTORY=$(REPOSITORY_ROOT)/test\#cimv2
 
 CIM_SCHEMA_VER=25
 CIM_SCHEMA_DIR=$(PEGASUS_ROOT)/Schemas/CIM25
@@ -63,18 +59,12 @@ ALLOW_EXPERIMENTAL =
 endif
 
 repository:
-	@ $(ECHO) +++++ Removing existing repository named $(TESTCIMV2NS)
-	@$(RMREPOSITORY) $(TESTCIMV2NSDIRECTORY)
 	@ $(ECHO) +++++ Loading CIM_Schema$(CIM_SCHEMA_VER) into $(TESTCIMV2NS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" -n$(TESTCIMV2NS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof
 
 repositoryServer:
 	@ $(ECHO) +++++ Loading CIM_Schema$(CIM_SCHEMA_VER) into $(TESTCIMV2NS) namespace ...
 	@ cimmof "-I$(CIM_SCHEMA_DIR)" -n$(TESTCIMV2NS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof
-
-removerepository:
-	@ $(ECHO) +++++ Removing existing repository named $(TESTCIMV2NS)
-	@$(RMREPOSITORY) $(TESTCIMV2NSDIRECTORY)
 
 clean:
 

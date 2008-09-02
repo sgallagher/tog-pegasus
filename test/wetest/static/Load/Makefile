@@ -29,11 +29,8 @@
 #//
 #//==============================================================================
 # Makefile builds a static test Namepspace 
-# ATTN: Today this makefile is implementation dependent.
-#       It assumes that the repository is a set of directories
-#       that can be removed by removing the directories.
-#       This must be updated to an implementation independent repository
-#       remove function.
+# Note: For best results, ensure that the test/static namespace does not
+#       exist before calling this Makefile.
 
 ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
@@ -44,11 +41,8 @@ include $(ROOT)/mak/configschema.mak
 # Update the following variable to change the version.
 
 STATICTESTNS=test/static
-STATICTESTNSDIRECTORY=$(REPOSITORY_ROOT)/test\#static
 
 repository:
-	@ $(ECHO) +++++ Removing existing repository named $(STATICTESTNS)
-	@$(RMREPOSITORY) "$(STATICTESTNSDIRECTORY)"
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(STATICTESTNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" -n$(STATICTESTNS) \
                      $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
@@ -68,10 +62,6 @@ repositoryServer:
 	@ cimmof -n$(STATICTESTNS) StaticTestSchema.mof
 	@ $(ECHO) +++++ Registering Static Tests Schema Providers  ...
 	@ cimmof -n$(INTEROPNS) StaticTestSchemaR.mof
-
-removerepository:
-	@ $(ECHO) +++++ Removing existing repository named $(STATICTESTNS)
-	@$(RMREPOSITORY) "$(STATICTESTNSDIRECTORY)"
 
 clean:
 

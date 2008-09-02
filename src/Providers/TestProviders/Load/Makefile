@@ -29,33 +29,22 @@
 #//
 #//==============================================================================
 # Makefile builds a TestProvider Namespace
-# ATTN: Today this makefile is implementation dependent.
-#       It assumes that the repository is a set of directories
-#       that can be removed by removing the directories.
-#       This must be updated to an implementation independent repository
-#       remove function.
-#       Note that this is, in fact, the RMREPOSITORY function
-#       which we should be able to replace with an executable
-#       making this probably implementation independent.
+# Note: For best results, ensure that the test/TestProvider namespace does not
+#       exist before calling this Makefile.
 
 ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/configschema.mak
 
-# Loads the sample MOF into a separate namespace.
-# The following variable determine the version of the Schema to
-# be loaded into the TestProvider namespace.
-# Update the following variable to change the version.
-# The following variables determine the Namespace into which the
+# Loads the test MOF into a separate namespace.
+# The following variable determines the Namespace into which the
 # TestProvider classes are to be loaded.
 
 TESTPROVIDERNS=test/TestProvider
-TESTPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/test\#TestProvider
 
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
 CREATE_REMOTE_NAMESPACE = CreateExtNS
 REMOTE_TESTPROVIDERNS = test/Remote/Localhost
-REMOTE_TESTPROVIDERNSDIRECTORY = $(REPOSITORY_ROOT)/test\#Remote\#Localhost
 endif
 
 # Create a single variable to control schema compile
@@ -66,19 +55,16 @@ ifndef PEGASUS_DISABLE_PERFINST
 	PEGASUS_BUILD_INTEROP=TRUE
 endif
 
+# The following variable determines the version of the Schema to
+# be loaded into the TestProvider namespace for EmbeddedInstance tests.
 EI_SCHEMA_DIR = $(ROOT)/Schemas/CIM2131
 EI_DYNAMIC_TEST_NAMESPACE = test/EmbeddedInstance/Dynamic
 EI_STATIC_TEST_NAMESPACE = test/EmbeddedInstance/Static
+
 ##
-## Clean the existing repository and load the test MOF with cimmofl.
+## Load the test MOF with cimmofl.
 ##
 repository:
-	@ $(ECHO) +++++ Removing existing repository named $(TESTPROVIDERNS)
-	@$(RMREPOSITORY) $(TESTPROVIDERNSDIRECTORY)
-ifdef PEGASUS_ENABLE_REMOTE_CMPI
-	@ $(ECHO) +++++ Removing existing repository named $(REMOTE_TESTPROVIDERNS)
-	@$(RMREPOSITORY) $(REMOTE_TESTPROVIDERNSDIRECTORY)
-endif
 	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(TESTPROVIDERNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(TESTPROVIDERNS) namespace ...
@@ -213,7 +199,7 @@ ifdef PEGASUS_ENABLE_REMOTE_CMPI
 endif
 
 ##
-## Load the test MOF with cimmof.  (Do not remove the existing repository.)
+## Load the test MOF with cimmof.
 ##
 repositoryServer:
 	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(TESTPROVIDERNS) namespace ...
@@ -325,18 +311,6 @@ ifdef PEGASUS_ENABLE_REMOTE_CMPI
 	@ echo +++++ Creating remote namespace ...
 	@ $(CREATE_REMOTE_NAMESPACE) -r $(REPOSITORY_NAME) -n $(REMOTE_TESTPROVIDERNS) -p $(TESTPROVIDERNS) -l localhost
 endif
-
-##
-##
-##
-removerepository:
-	@ $(ECHO) +++++ Removing existing repository named $(TESTPROVIDERNS), $(REMOTE_TESTPROVIDERNS), $(EI_DYNAMIC_TEST_NAMESPACE), and $(EI_STATIC_TEST_NAMESPACE)
-	@ $(RMREPOSITORY) $(TESTPROVIDERNSDIRECTORY)
-ifdef PEGASUS_ENABLE_REMOTE_CMPI
-	@ $(RMREPOSITORY) $(REMOTE_TESTPROVIDERNSDIRECTORY)
-endif
-	@ $(RMREPOSITORY) $(EI_DYNAMIC_TEST_NAMESPACE) 
-	@ $(RMREPOSITORY) $(EI_STATIC_TEST_NAMESPACE)
 
 
 unregister:

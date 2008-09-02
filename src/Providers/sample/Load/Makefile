@@ -29,11 +29,8 @@
 #//
 #//==============================================================================
 # Makefile builds a Sample Provider Namespace
-# ATTN: Today this makefile is implementation dependent.
-#       It assumes that the repository is a set of directories
-#       that can be removed by removing the directories.
-#       This must be updated to an implementation independent repository
-#       remove function.
+# Note: For best results, ensure that the InterOp namespace does not
+#       exist before calling this Makefile.
 
 ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
@@ -45,14 +42,9 @@ include $(ROOT)/mak/configschema.mak
 # Update the following variable to change the version.
 
 SAMPLEPROVIDERNS=root/SampleProvider
-SAMPLEPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/root\#SampleProvider
 
-# Load the sample MOF with the local compiler. Cleans the existing repository
-# before reloading.
-# NOTE: I believe that the remove is duplicated for some reason.
+# Load the sample MOF with the local compiler.
 repository:
-	@ $(ECHO) +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
-	@$(RMREPOSITORY) "$(SAMPLEPROVIDERNSDIRECTORY)"
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(SAMPLEPROVIDERNS)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
@@ -102,8 +94,7 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" CMPISampleProviderSchemaR.mof
 endif
 
-# Load the sample mof through the Client interface compiler but do not
-# clean out the existing version.
+# Load the sample mof through the Client interface compiler.
 repositoryServer:
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(SAMPLEPROVIDERNS)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
@@ -154,10 +145,6 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	@ $(ECHO) +++++ Registering CMPI Sample Providers  ...
 	@ cimmofl "-n$(INTEROPNS)" CMPISampleProviderSchemaR.mof
 endif
-
-removerepository:
-	@ $(ECHO) +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
-	@ $(RMREPOSITORY) "$(SAMPLEPROVIDERNSDIRECTORY)"
 
 unregister:
 	$(MAKE) -i unregisterproviders

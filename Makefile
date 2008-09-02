@@ -37,9 +37,8 @@ include $(ROOT)/env_var.status
 include $(ROOT)/mak/config.mak
 
 # This is a recurse make file
-# Defines subdirectorys to go to recursively
+# Defines subdirectories to go to recursively
 
-# DIRS = src cgi
 DIRS = src
 
 TEST_DIRS = test
@@ -88,7 +87,6 @@ usage: FORCE
 	$(USAGE)"repository          - builds the base repository. Does not remove other"
 	$(USAGE)"                      namespaces than the base namespaces."  
 	$(USAGE)"testrepository      - builds items for the test suites into the repository"
-	$(USAGE)"removetestrepository- removes test items from the repository"
 	$(USAGE)"repositoryclean     - removes the complete repository"
 	$(USAGE)"listplatforms       - List all valid platforms"
 	$(USAGE)
@@ -250,13 +248,13 @@ clobber: FORCE
 
 
 #---------------------
-# The repository Target removes and rebuilds the base repository. It
-# does not remove all possible namespaces.  See
-# Schemas/Pegasus/Makefile for details. The repository clean has the
-# same limitation
+# The repository target removes the entire repository and rebuilds the Pegasus
+# namespaces.  The repositoryServer target does not remove the repository
+# before building the Pegasus namespaces.  (The repositoryServer target in
+# TestMakefile *does* remove the repository first.)
 
 # Note: Arguments must be quoted to preserve upper case characters in VMS.
-repository: FORCE
+repository: repositoryclean
 	@ $(MAKE) "-SC" Schemas/Pegasus repository
 
 repositoryclean: FORCE
@@ -264,6 +262,10 @@ repositoryclean: FORCE
 
 repositoryServer: FORCE
 	@ $(MAKE) "-SC" Schemas/Pegasus repositoryServer
+
+#---------------------
+# The testrepository and testrepositoryServer targets build the Pegasus test
+# namespaces.  A pre-existing repository is not removed.
 
 testrepository: FORCE
 	@ $(MAKE) "-SC" src/Providers/sample/Load repository
@@ -296,13 +298,6 @@ ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
 endif
 	@ $(MAKE) --directory=$(PEGASUS_ROOT)/src/Clients/cimsub/tests/testscript \
             -f Makefile repositoryServer
-
-removetestrepository: FORCE
-	@ $(MAKE) "-SC" src/Providers/sample/Load removerepository
-	@ $(MAKE) "-SC" test/wetest removerepository
-	@ $(MAKE) "-SC" src/Clients/benchmarkTest/Load removerepository
-	@ $(MAKE) "-SC" src/Providers/TestProviders/Load removerepository
-	@ $(MAKE) "-SC" src/Clients/cimsub/tests/testscript removerepository
 
 config:
 	@ $(ROOT)/SetConfig_EnvVar

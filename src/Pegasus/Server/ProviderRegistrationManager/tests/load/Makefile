@@ -28,19 +28,16 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-# Makefile builds a test namespace in the local directory.
-# ATTN: Today this makefile is implementation dependent.
-#       It assumes that the repository is a set of directories
-#       that can be removed by removing the directories.
-#       This must be updated to an implementation independent repository
-#       remove function.
+# Makefile builds a test repository in a specified directory.
 
 ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
 
-REPOSITORYDIR = $(TMP_DIR)
+ifndef REPOSITORYDIR
+    $(error REPOSITORYDIR must be defined)
+endif
+
 NAMESPACENAME = root/PG_InterOp
-NAMESPACEDIR = $(REPOSITORYDIR)/repository/root\#PG_InterOp
 
 # Update the following two environment variables to change the version
 # of the PG_Schema to be loaded in the namespace.
@@ -53,17 +50,15 @@ all:
 
 # Delete and rebuild the repository using the MOF compiler.
 
-localrep:
-	@ $(ECHO) +++++ Removing existing repository named $(NAMESPACEDIR)
-	@ $(RMREPOSITORY) $(NAMESPACEDIR)
-	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(NAMESPACEDIR) namespace ...
+localrep: clean
+	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(NAMESPACENAME) namespace ...
 	@ cimmofl "-I$(CIM_SCHEMA_DIR)" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" "-n$(NAMESPACENAME)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
-	@ $(ECHO) +++++ Loading PG_ProviderModule$(PG_SCHEMA_VER) into $(NAMESPACEDIR) namespace ...
+	@ $(ECHO) +++++ Loading PG_ProviderModule$(PG_SCHEMA_VER) into $(NAMESPACENAME) namespace ...
 	@ cimmofl "-I$(PG_MOF_PATH)" "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" "-n$(NAMESPACENAME)" $(PG_MOF_PATH)/PG_ProviderModule$(PG_SCHEMA_VER).mof
 
 clean:
-	@ $(ECHO) +++++ Removing existing CIM Repository named $(NAMESPACEDIR)
-	@ $(RMREPOSITORY) $(NAMESPACEDIR)
+	@ $(ECHO) +++++ Removing CIM Repository $(REPOSITORYDIR)/repository
+	@ $(RMREPOSITORY) $(REPOSITORYDIR)/repository
 
 depend:
 

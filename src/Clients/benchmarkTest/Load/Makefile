@@ -45,8 +45,6 @@ PROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/root\#benchmark
 CIMMOFL = cimmofl
 
 repository:
-	@ $(ECHO) +++++ Removing existing repository named $(PROVIDERNS)
-	@$(RMREPOSITORY) "$(PROVIDERNSDIRECTORY)"
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(PROVIDERNS) namespace ...
 	@ $(CIMMOFL) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" \
               "-n$(PROVIDERNS)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
@@ -63,10 +61,6 @@ repositoryServer:
 	@ $(ECHO) +++++ Registering benchmark Provider   ...
 	@ cimmof "-n$(INTEROPNS)" $(BenchmarkMOF_NAME)R.mof
 
-removerepository:
-	@ $(ECHO) +++++ Removing existing repository named $(PROVIDERNS)
-	@ $(RMREPOSITORY) "$(PROVIDERNSDIRECTORY)"
-
 registerproviders:
 	@ $(ECHO) +++++ Registering benchmark Provider   ...
 	@ cimmof "-n$(INTEROPNS)" benchmarkProviderR.mof
@@ -80,9 +74,6 @@ unregisterproviders:
 changeconfig:
 	$(MAKE) -i cimstart
 	$(MAKE) unregister
-	$(MAKE) -i cimstop
-	$(MAKE) removerepository
-	$(MAKE) cimstart
 ifdef TESTID
 	$(MAKE) repositoryServer TESTID=$(TESTID)
 else

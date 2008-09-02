@@ -29,11 +29,8 @@
 #//
 #//==============================================================================
 # Makefile builds the Pegasus Internal Namepspace
-# ATTN: Today this makefile is implementation dependent.
-#       It assumes that the repository is a set of directories
-#       that can be removed by removing the directories.
-#       This must be updated to an implementation independent repository
-#       remove function.
+# Note: For best results, ensure that the Internal namespace does not
+#       exist before calling this Makefile.
 
 ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
@@ -52,8 +49,6 @@ all:
 # Delete and rebuild the repository using the MOF compiler.
 
 repository:
-	@ $(ECHO) +++++ Removing existing repository named $(INTERNALNS)
-	@ $(RMREPOSITORY) "$(INTERNALNSDIRECTORY)"
 	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(INTERNALNS) namespace ...
 	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTERNALNS)" "$(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof"
 	@ $(ECHO) +++++ Loading PG_InternalSchema$(PG_SCHEMA_VER).mof into $(INTERNALNS) namespace...
@@ -75,9 +70,6 @@ ifeq ($(PEGASUS_ENABLE_SLP),true)
 endif
 
 clean:
-	@ $(ECHO) +++++ Removing existing CIM Repository named $(REPOSITORY_ROOT)
-	@ $(RMREPOSITORY) "$(INTERNALNSDIRECTORY)"
-
 
 depend:
 

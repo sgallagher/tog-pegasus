@@ -28,12 +28,9 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-# Makefile builds the Pegasus InterOp Namepspace
-# ATTN: Today this makefile is implementation dependent.
-#       It assumes that the repository is a set of directories
-#       that can be removed by removing the directories.
-#       This must be updated to an implementation independent repository
-#       remove function.
+# Makefile builds the Pegasus InterOp Namespace
+# Note: For best results, ensure that the InterOp namespace does not
+#       exist before calling this Makefile.
 
 ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
@@ -48,8 +45,6 @@ all:
 # Delete and rebuild the repository using the MOF compiler.
 
 repository:
-	@$(ECHO) +++++ Removing existing repository named $(INTEROPNS)
-	@$(RMREPOSITORY) "$(INTEROPNSDIRECTORY)"
 	@$(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...
 	@$(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(INTEROPNS)" $(ALLOW_EXPERIMENTAL) "$(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof"
 	@$(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...
@@ -128,9 +123,6 @@ endif
 
 
 clean:
-	@$(ECHO) +++++ Removing existing CIM Repository named $(INTEROPNS)
-	@$(RMREPOSITORY) "$(INTEROPNSDIRECTORY)"
-
 
 depend:
 

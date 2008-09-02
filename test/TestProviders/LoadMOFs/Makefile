@@ -51,19 +51,13 @@ include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/configschema.mak
 
 # Loads the sample MOF into a separate namespace.
-# The following variable determine the version of the Schema to be loaded into 
-# the Sample Provider namespace. Update this to change the Schema version
-#CIM_SCHEMA_DIR=///
 
 SAMPLEPROVIDERNS=root/SampleProvider
-SAMPLEPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/root\#SampleProvider
 
 # Load the sample MOF with the local compiler. Cleans the existing repository
 # before reloading.
 
 repository:
-	@ $(ECHO) +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
-	@$(RMREPOSITORY) $(SAMPLEPROVIDERNSDIRECTORY)
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
@@ -103,10 +97,6 @@ repositoryServer:
 	@ cimmof -n$(INTEROPNS) MultithreadingSampleProviderR.mof
 	@ cimmof -n$(INTEROPNS) ExceptionsTestR.mof
 	@ cimmof -n$(INTEROPNS) TimingProviderR.mof
-
-removerepository:
-	@ $(ECHO) +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
-	@ $(RMREPOSITORY) $(SAMPLEPROVIDERNSDIRECTORY)
 
 unregister:
 	$(MAKE) -i unregisterproviders

@@ -28,12 +28,9 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-# Makefile builds a Managed System Namepspace 
-# ATTN: Today this makefile is implementation dependent.
-#       It assumes that the repository is a set of directories
-#       that can be removed by removing the directories.
-#       This must be updated to an implementation independent repository
-#       remove function.
+# Makefile builds a ManagedSystem Namespace 
+# Note: For best results, ensure that the ManagedSystem namespace does not
+#       exist before calling this Makefile.
 
 ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
@@ -64,8 +61,6 @@ endif
 
 ifeq ($(MANAGEDSYSTEM_NS_SUPPORTED),true)
 repository:
-	@ $(ECHO) +++++ Removing existing repository named $(MANAGEDSYSTEMNS)
-	@ $(RMREPOSITORY) "$(MANAGEDSYSTEMNSDIRECTORY)"
 	@ $(ECHO) +++++ Loading CIM_Schema$(CIM_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
 	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(MANAGEDSYSTEMNS)" $(ALLOW_EXPERIMENTAL) "$(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof"
 	@ $(ECHO) +++++ Loading PG_Events$(PG_INTEROP_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
@@ -116,18 +111,13 @@ ifeq ($(PEGASUS_ENABLE_SLP),true)
 	@ $(ECHO) +++++ Registering the SLPProvider in $(MANAGEDSYSTEMNS) namespace ...
 	@ cimmof "-I$(PG_MOF_PATH)" "-n$(INTEROPNS)" "$(PG_MOF_PATH)/PG_SLPProvider$(PG_SCHEMA_VER)R.mof"
 endif
-
-clean:
-	@ $(ECHO) +++++ Removing existing Repository named $(MANAGEDSYSTEMNS)
-	@ $(RMREPOSITORY) "$(MANAGEDSYSTEMNSDIRECTORY)"
 else
 repository:
 	@ $(ECHO) +++++ No Managed System Namespace defined for this platform ++++
-
-clean:
-
 endif
 
+
+clean:
 
 depend:
 

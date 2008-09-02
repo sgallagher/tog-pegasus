@@ -127,7 +127,7 @@ private:
         char eyeCatcher[PEGASUS_TRC_BUFFER_EYE_CATCHER_LEN];
         Uint32 bufferSize;
         Uint32 nextPos;
-        char traceBuffer[];
+        char* traceBuffer;
     };
 
     char* _overflowBuffer;

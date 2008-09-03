@@ -1270,8 +1270,13 @@ CIMInstance ProviderRegistrationManager::getInstance(
                         &&
                         String::equalNoCase(_capabilityID, capabilityID))
                     {
-                        PEG_METHOD_EXIT();
-                        return (instances[j]);
+                        // Make sure that we return correct instance
+                        // for the class.
+                        if(instances[j].getClassName().equal(className))
+                        {
+                            PEG_METHOD_EXIT();
+                            return (instances[j]);
+                        }
                     }
                 }
             }

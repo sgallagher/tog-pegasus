@@ -59,8 +59,8 @@ PEGASUS_NAMESPACE_BEGIN
 TraceMemoryHandler::TraceMemoryHandler()
 {
     Uint32 traceAreaSize = PEGASUS_TRC_DEFAULT_BUFFER_SIZE_KB * 1024;
-    
-    _initialize(traceAreaSize);    
+
+    _initialize(traceAreaSize);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,8 +69,8 @@ TraceMemoryHandler::TraceMemoryHandler()
 TraceMemoryHandler::TraceMemoryHandler( Uint32 bufferSize )
 {
     Uint32 traceAreaSize = bufferSize * 1024;
-    
-    _initialize(traceAreaSize);    
+
+    _initialize(traceAreaSize);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -88,21 +88,21 @@ void TraceMemoryHandler::_initialize( Uint32 traceAreaSize )
 
     _overflowBuffer = 0;
     _overflowBufferSize = 0;
-    
+
     _traceArea = (struct traceArea_t*) new char[traceAreaSize];
-    
+
     // The final buffer size is the size of the allocated area, less the
     // size of the header struct, less one byte reseved for a terminating 0
     _traceArea->bufferSize = traceAreaSize - sizeof(struct traceArea_t) - 1;
     _traceArea->nextPos = 0;
     _traceArea->traceBuffer = (char*) (&(_traceArea->traceBuffer) + 1);
     _leftBytesInBuffer = _traceArea->bufferSize-1;
-    
-    memcpy(_traceArea->eyeCatcher, 
+
+    memcpy(_traceArea->eyeCatcher,
            PEGASUS_TRC_BUFFER_EYE_CATCHER,
            PEGASUS_TRC_BUFFER_EYE_CATCHER_LEN);
-           
-    _appendMarker();       
+
+    _appendMarker();
 
     // The end of the trace buffer is always null terminated
     _traceArea->traceBuffer[_traceArea->bufferSize] = '\0';
@@ -114,25 +114,25 @@ void TraceMemoryHandler::_initialize( Uint32 traceAreaSize )
 TraceMemoryHandler::~TraceMemoryHandler()
 {
     // Signal to all callers and work in progress that this instance
-    // will be destroyed soon. 
+    // will be destroyed soon.
     // As from now, no other caller can get the the lock. They are blocked out.
     die();
-    
+
     // Debug code for the time being
     // dumpTraceBuffer("cimserver.memorydump.trc");
-                      
+
     // Wait until all users have left the critical section
     while ( _inUseCounter.get() > 0 )
     {
         // In any case, lock the buffer unconditional
-        _lockCounter.set(0);        
+        _lockCounter.set(0);
         // Wait for 10ms, to give other therads to finish work.
         Threads::sleep(10);
     }
 
     delete[] _overflowBuffer;
     delete[] _traceArea;
-    
+
     delete[] _traceFileName;
 }
 
@@ -145,7 +145,7 @@ TraceMemoryHandler::~TraceMemoryHandler()
 //  and incremented again until we end up at 1.
 //  To be able to replace in instance of the TraceMemoryHandler, two flags
 //  are kept around to control the lock processing:
-//  _dying: This flag indicates that the traceMemoryHandler will soon be 
+//  _dying: This flag indicates that the traceMemoryHandler will soon be
 //          destroyed and cannot be used any more. Active attempts to obtain
 //          a lock are given up, leaving the spin loop.
 //  _inUseCounter: Keeps track of how many callers are trying to obtain a lock
@@ -157,46 +157,46 @@ inline Boolean TraceMemoryHandler::_lockBufferAccess()
 {
     if ( _dying )
     {
-        // The memory tracing is about to end. 
+        // The memory tracing is about to end.
         // The caller will never get the lock.
         return false;
     }
 
     // Keep track of work in progress
     _inUseCounter.inc();
-    
+
     // The lock is implemented as a spin loop, since the action to append
     // a trace message to the memory buffer is very short.
     while ( true )
     {
         if ( _dying )
         {
-            // The memory tracing is about to end. 
+            // The memory tracing is about to end.
             // The caller will never get the lock.
             _inUseCounter.dec();
-            return false;
+            break;
         }
 
         // If the lock counter not 1,an other caller is in the critical section.
         if ( _lockCounter.get() == 1 )
         {
             // Decrement the atomic lock counter and test if we do have lock:
-            // _lockCounter == 0 
+            // _lockCounter == 0
             if ( _lockCounter.decAndTestIfZero() )
             {
-                // We do have lock! 
+                // We do have lock!
                 _numberOfLocksObtained++;
                 return true;
             }
         }
         // I did not get the lock. So signal the scheduer to change the active
-        // thread to allow other threads to proceed. This also prevents from 
-        // looping in a tight loop that causes a dead look due to the 
+        // thread to allow other threads to proceed. This also prevents from
+        // looping in a tight loop that causes a dead look due to the
         // lock optaining thread does not get any time ot finsh his work.
         Threads::yield();
         _contentionCount.inc();
-    } 
-    
+    }
+
     return false;
 }
 
@@ -205,7 +205,7 @@ inline Boolean TraceMemoryHandler::_lockBufferAccess()
 ////////////////////////////////////////////////////////////////////////////////
 inline void TraceMemoryHandler::_unlockBufferAccess()
 {
-    // set the lock counter to 1 to allow one next user to enter 
+    // set the lock counter to 1 to allow one next user to enter
     // the critical section.
     _lockCounter.set(1);
     _inUseCounter.dec();
@@ -223,7 +223,7 @@ inline void TraceMemoryHandler::die()
 
 ////////////////////////////////////////////////////////////////////////////////
 // Appends a marker after the last trace message in the buffer
-// The pointer for loction of the next message is not moved, 
+// The pointer for loction of the next message is not moved,
 // because the marker must be overwritten by the next message it self.
 ////////////////////////////////////////////////////////////////////////////////
 void TraceMemoryHandler::_appendMarker()
@@ -273,7 +273,7 @@ void TraceMemoryHandler::dumpTraceBuffer(const char* filename)
             _unlockBufferAccess();
         }
 
-        ofile.close();    
+        ofile.close();
    }
 }
 
@@ -284,7 +284,7 @@ void TraceMemoryHandler::dumpTraceBuffer(const char* filename)
 //           Callers have to lock the buffer prior to calling this method.
 ////////////////////////////////////////////////////////////////////////////////
 inline void TraceMemoryHandler::_appendSimpleMessage(
-    const char* message, 
+    const char* message,
     Uint32 msgLen )
 {
     if (_leftBytesInBuffer >= msgLen )
@@ -292,7 +292,7 @@ inline void TraceMemoryHandler::_appendSimpleMessage(
         memcpy(&(_traceArea->traceBuffer[_traceArea->nextPos]),
                message,
                msgLen);
-        
+
         _traceArea->nextPos += msgLen;
         _leftBytesInBuffer -= msgLen;
     }
@@ -300,7 +300,7 @@ inline void TraceMemoryHandler::_appendSimpleMessage(
     {
         // Message doesn't completely fit into buffer, so we need to wrap
         // it around.
-        
+
         // First fill the buffer till the end ...
         memcpy(&(_traceArea->traceBuffer[_traceArea->nextPos]),
                message,
@@ -311,7 +311,7 @@ inline void TraceMemoryHandler::_appendSimpleMessage(
         memcpy(&(_traceArea->traceBuffer[0]),
               message + _leftBytesInBuffer,
               msgLen );
-        
+
         _traceArea->nextPos = msgLen;
         _leftBytesInBuffer = _traceArea->bufferSize - msgLen;
     }
@@ -333,10 +333,10 @@ void TraceMemoryHandler::handleMessage(
         // Give up, buffer is going to be destroyed
         return;
     }
-    
+
     // Handle the static part of the message
     _appendSimpleMessage(message, msgLen);
-    
+
     if (_leftBytesInBuffer == 0)
     {
         // Wrap the buffer
@@ -345,35 +345,35 @@ void TraceMemoryHandler::handleMessage(
     }
 
 
-    // In case the buffer is too short, we need to invoke vsnprintf twice and 
+    // In case the buffer is too short, we need to invoke vsnprintf twice and
     // for this need a copy of the argList.
     va_list argListCopy;
     va_copy(argListCopy, argList);
 
-    
+
     // We just use vsnprintf to format the variable right into the buffer,
     // up to the amount of bytes left.
 #ifdef PEGASUS_OS_TYPE_WINDOWS
         // Windows until VC 8 does not support vsnprintf
         // need to use Windows equivalent function with the underscore
-    int ttlMsgLen = 
-        _vsnprintf(&(_traceArea->traceBuffer[_traceArea->nextPos]), 
-                   _leftBytesInBuffer, 
-                   fmt, 
+    int ttlMsgLen =
+        _vsnprintf(&(_traceArea->traceBuffer[_traceArea->nextPos]),
+                   _leftBytesInBuffer,
+                   fmt,
                    argList);
 #else
-    int ttlMsgLen = 
-        vsnprintf(&(_traceArea->traceBuffer[_traceArea->nextPos]), 
-                  _leftBytesInBuffer, 
-                  fmt, 
+    int ttlMsgLen =
+        vsnprintf(&(_traceArea->traceBuffer[_traceArea->nextPos]),
+                  _leftBytesInBuffer,
+                  fmt,
                   argList);
-#endif        
-    
+#endif
+
     if (((Uint32)ttlMsgLen < _leftBytesInBuffer) &&
         (ttlMsgLen != -1))
     {
         ttlMsgLen++;  //Include the '/0'
-        
+
         _traceArea->nextPos += ttlMsgLen;
         _leftBytesInBuffer -= ttlMsgLen;
     }
@@ -385,7 +385,7 @@ void TraceMemoryHandler::handleMessage(
         //
         // To do this we format the message to the overflow buffer, and copy
         // the rest of the message from there to the beginning of the trace
-        // buffer. 
+        // buffer.
         // To save memory allocations, the overflow buffer is kept around
         // until it becomes to small and needs to be reallocated.
         if ((Uint32)ttlMsgLen > _overflowBufferSize)
@@ -397,7 +397,7 @@ void TraceMemoryHandler::handleMessage(
             _overflowBufferSize = ttlMsgLen;
             _overflowBuffer = new char[_overflowBufferSize];
         }
-        
+
 #ifdef PEGASUS_OS_TYPE_WINDOWS
         // Windows until VC 8 does not support vsnprintf
         // need to use Windows equivalent function with the underscore
@@ -410,13 +410,13 @@ void TraceMemoryHandler::handleMessage(
                               _overflowBufferSize,
                               fmt,
                               argListCopy);
-#endif        
-    
+#endif
+
 
         // Now calculate how much data we have to copy from the overflow
         // buffer back to the trace buffer.
         ttlMsgLen -= _leftBytesInBuffer;
-        
+
         // Copy the remainder of the trace message to the trace buffer
         memcpy(&(_traceArea->traceBuffer[0]),
                &(_overflowBuffer[_leftBytesInBuffer]),
@@ -430,7 +430,7 @@ void TraceMemoryHandler::handleMessage(
     _traceArea->traceBuffer[_traceArea->nextPos-1] = '\n';
 
     _appendMarker();
-    
+
     _unlockBufferAccess();
 }
 
@@ -444,7 +444,7 @@ void TraceMemoryHandler::handleMessage(const char *message, Uint32 msgLen)
         // Give up, buffer is going to be destroyed
         return;
     }
-    
+
     // We include the terminating 0 in the message for easier handling
     msgLen++;
 
@@ -476,7 +476,7 @@ Boolean TraceMemoryHandler::isValidMessageDestination(const char* traceFileName)
 Uint32 TraceMemoryHandler::setMessageDestination(const char* destination)
 {
     delete[] _traceFileName;
-    
+
     _traceFileName = new char[strlen(destination)+1];
     strcpy(_traceFileName, destination);
 

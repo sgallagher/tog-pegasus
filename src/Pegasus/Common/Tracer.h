@@ -117,17 +117,17 @@ public:
         const CIMException& cimException);
 
     /** Gets an HTTP request message.
-        
+
         Given an HTTP request message, this method checks if the
-        message contains a "Basic" authorization header. 
-   
+        message contains a "Basic" authorization header.
+
         If true, the username/passwd is suppressed and returned.
         Otherwise the request message is returned without any changes.
 
         @param requestMessage  requestMessage to be checked
- 
+
         @return request message
- 
+
     */
     static SharedArrayPtr<char> getHTTPRequestMessage(
         const Buffer& requestMessage);
@@ -157,7 +157,7 @@ public:
 
     /** Set trace facility to be used
         @param traceFacility facility to be used for tracing,
-               for example Log or File.    
+               for example Log or File.
         @return 0      if trace facility is valid
                 1      if trace facility is invalid
     */
@@ -234,7 +234,7 @@ public:
                 0        if the trace facility is invalid
      */
     static Boolean isValidTraceFacility( const String& traceFacility );
-    
+
     /** Specify the name of the module being traced.  If non-empty, this
         value is used as an extension to the name of the trace file.
         @param  moduleName Name of the module being traced.
@@ -321,13 +321,13 @@ private:
 
     // Called by all the trace interfaces to log message
     // consisting of a single character string to the trace file
-    // @param    traceComponent  component being traced    
+    // @param    traceComponent  component being traced
     // @param    cstring         the string to be traced
     static void _traceCString(
         const Uint32 traceComponent,
         const char* message,
         const char* cstring);
-    
+
     // Called by all the trace interfaces to log message
     // with variable number of arguments to the trace file
     // @param    traceComponent  component being traced
@@ -375,11 +375,6 @@ private:
 //==============================================================================
 
 #ifdef PEGASUS_REMOVE_TRACE
-
-inline void Tracer::setTraceHandler( Uint32 traceFacility );
-{
-    // empty function
-}
 
 inline void Tracer::traceCString(
     const char* fileName,
@@ -434,7 +429,7 @@ inline Uint32 Tracer::getTraceFacility()
     return 0;
 }
 
-inline static Boolean Trace::setTraceMemoryBufferSize(Uint32 bufferSize)
+inline Boolean Tracer::setTraceMemoryBufferSize(Uint32 bufferSize)
 {
     // empty function
     return true;
@@ -477,7 +472,7 @@ inline void Tracer::flushTrace()
 # ifdef  PEGASUS_REMOVE_METHODTRACE
 #  define PEG_METHOD_ENTER(comp,meth)
 #  define PEG_METHOD_EXIT()
-# else 
+# else
 #  define PEG_METHOD_ENTER(comp, meth) \
     TracerToken __tracerToken; \
     __tracerToken.method = 0; \
@@ -496,7 +491,7 @@ inline void Tracer::flushTrace()
             Tracer::traceExit(__tracerToken PEGASUS_COMMA_FILE_LINE); \
     } \
     while (0)
-# endif 
+# endif
 
 // Macro to trace character lists.  the do construct allows this to appear
 // as a single statement.
@@ -527,17 +522,17 @@ public:
 
     const char* file;
     Uint32 line;
-    
+
     TraceCallFrame(const char* file_, Uint32 line_) : file(file_), line(line_)
     {
     }
-    
+
     PEGASUS_FORMAT(4, 5)
     inline void invoke(
         const Uint32 component,
         const Uint32 level,
         const char* format,
-        ...) 
+        ...)
     {
         if (Tracer::isTraceEnabled(component, level))
         {
@@ -553,8 +548,8 @@ public:
     }
 };
 //
-// This macro is a wrapper for calling the printf-style form of the 
-// Tracer::trace() function. Since macros cannot have a varying number of 
+// This macro is a wrapper for calling the printf-style form of the
+// Tracer::trace() function. Since macros cannot have a varying number of
 // arguments, PEG_TRACE() must be invoked with double parentheses. For
 // example:
 //

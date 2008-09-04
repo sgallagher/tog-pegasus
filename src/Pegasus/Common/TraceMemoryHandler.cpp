@@ -31,15 +31,26 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+// This _ISOC99_SOURCE definition and inclusion of stdio.h and stdarg.h
+// must precede the other file contents on z/OS.
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#define _ISOC99_SOURCE
+# define _ISOC99_SOURCE
+#endif
 #include <stdio.h>
 #include <stdarg.h>
-#endif
 
 #include <Pegasus/Common/TraceMemoryHandler.h>
 #include <iostream>
 #include <fstream>
+
+// ATTN: This is a workaround to allow HP-UX builds to succeed.  It appears to
+// work, but it may not be reliable.  A better solution would be preferred.
+// Windows platforms appear to have a similar problem with va_copy not defined.
+#ifdef PEGASUS_OS_HPUX
+# ifndef va_copy
+#  define va_copy(dest, src) (void)((dest) = (src))
+# endif
+#endif
 
 #define PEGASUS_TRC_BUFFER_WRAP_MARKER ""
 #define PEGASUS_TRC_BUFFER_EOT_MARKER "*EOTRACE*"

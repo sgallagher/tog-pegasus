@@ -315,12 +315,17 @@ void Logger::_putInternal(
 
     // Call the actual logging routine is in LoggerRep.
     _rep->log(logFileType, systemId, logLevel, message);
-    
-    // route log message to trace too -> component LogMessages
+       
+    // PEP 315
+    // The trace can be routed into the log. The logged trace messages are
+    // logged with logFileType of Logger::TRACE_LOG. 
+    // To avoid a cirular writing of these messages, log messages with
+    // logFileType of Logger::TRACE_LOG are never send to the trace.
     if (Logger::TRACE_LOG != logFileType)
     {
-        // do not write log message to trace when trace facility is
-        // the log to avoid double messages
+        // For all other logFileType's send the log messages to the trace.
+        // But do not write log messages to trace when the trace facility is
+        // set to log. This avoids double messages.
         if (Tracer::TRACE_FACILITY_LOG != Tracer::getTraceFacility())
         {
             PEG_TRACE_CSTRING(

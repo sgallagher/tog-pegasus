@@ -399,6 +399,16 @@ void TraceMemoryHandler::handleMessage(
         // buffer.
         // To save memory allocations, the overflow buffer is kept around
         // until it becomes to small and needs to be reallocated.
+
+        if (ttlMsgLen == -1)
+        {
+            // The vsnprintf failed and did not return the bytes needed for the
+            // message.  A fixed message size is used in this case.  The
+            // vsnprintf will write not more than 4096 bytes (including
+            // trailing '\0') into the buffer.  The rest is truncated.
+            ttlMsgLen = 4096;
+        }
+
         if ((Uint32)ttlMsgLen > _overflowBufferSize)
         {
             if (_overflowBuffer != NULL )

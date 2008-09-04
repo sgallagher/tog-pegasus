@@ -83,6 +83,32 @@ String _status;
 Array<Uint16> _operationalStatus;
 Array<String> _statusDescriptions;
 
+#ifdef HPUX_USE_IPMI_ID
+// Macros/Structs used for the IPMI specific ioctl requests/responses.
+//ipmi.h is the standard IPMI headerfile
+# include <ipmi.h>
+# define HPUX_MAX_UUID 64
+# define HPUX_MAX_SN 32
+
+# define HPUX_OEM_NETFN1 0x32
+# define HPUX_CMD_GET_PHYS_SYS_VAR 0x59
+// Structure used for passing the ioctl request
+typedef struct 
+{
+    BYTE subCmd;
+} IpmiGetPhysSysVarReqT;
+
+// Structure used for passing the ioctl response
+typedef struct 
+{
+    BYTE status;
+    BYTE data[18];
+} IpmiGetPhysSysVarRetT;
+
+# define HPUX_UUID 0x00
+# define HPUX_SERIAL_NUMBER 0x01
+#endif
+
 ComputerSystem::ComputerSystem()
 {
 }
@@ -348,6 +374,80 @@ Boolean ComputerSystem::getElementName(CIMProperty& p)
     return true;
 }
 
+#ifdef HPUX_USE_IPMI_ID
+//Generic function to fetch the Physical Serial number 
+//and UUID from the IPMI Interface
+//using the ioctl calls.
+int getPhysSysVar(int fd, BYTE varCmd, BYTE * buf, int len)
+{
+    BYTE    reqBuffer[MAX_BUFFER_SIZE];
+    BYTE    respBuffer[MAX_BUFFER_SIZE];
+
+    //These are the standard Request and Response structures defined in ipmi.h
+    ImbRequestBuffer *imbReq = (ImbRequestBuffer *)reqBuffer;
+    ImbResponseBuffer *imbResp = (ImbResponseBuffer *)respBuffer;
+
+    uint32_t bytesreturned = 0;
+    ipmi_data_t data;
+    int status = 0;
+
+    BYTE cCode;
+
+    /* request data */
+    IpmiGetPhysSysVarReqT * getSysVar =
+        (IpmiGetPhysSysVarReqT *) imbReq->req.data;
+
+    /* response data */
+    IpmiGetPhysSysVarRetT *sysVar =
+        (IpmiGetPhysSysVarRetT *) imbResp;
+    data.InBuffer = (caddr_t)imbReq;
+    data.InBufferLength = MIN_IMB_REQ_BUF_SIZE + sizeof(*getSysVar );
+    data.OutBuffer = (caddr_t)imbResp;
+    data.OutBufferLength = sizeof(respBuffer);
+    data.BytesReturned = &bytesreturned;
+    data.status = 0x00;
+
+    imbReq->flags = 0x00;
+    imbReq->timeOut = DEFAULT_MESSAGE_TIMEOUT * 3;
+    imbReq->req.rsSa = BMC_SA;
+    imbReq->req.netFn = HPUX_OEM_NETFN1;
+    imbReq->req.rsLun = BMC_LUN;
+
+    imbResp->cCode = 0xff;
+
+    imbReq->req.cmd = HPUX_CMD_GET_PHYS_SYS_VAR;
+
+    getSysVar->subCmd = varCmd;
+
+    imbReq->req.dataLength = sizeof(*getSysVar);
+
+    // IOCTL system call to get the physical information(Serial Number and UUID)
+    status = ioctl(fd,IOCTL_IMB_SEND_MESSAGE,&data);
+
+    if (status != 0)
+    {
+        return -1;
+    }
+
+
+    /* The ioctl returned okay */
+    cCode = imbResp->cCode;
+
+    /* Check the completion code for the SEND MESSAGE */
+    if (cCode != CCODE_OK)
+    {
+        return -1;
+    }
+
+    if (buf) 
+    {
+        memcpy(buf, sysVar->data, len);
+    }
+
+    return sysVar->status;
+}
+#endif
+
 void ComputerSystem::initialize()
 {
     // fills in the values of all properties that are not
@@ -371,24 +471,106 @@ void ComputerSystem::initialize()
 
     size_t bufSize;
 
-    // get serial number using confstr  
-    bufSize = confstr(_CS_MACHINE_SERIAL, NULL, 0);
-    if (bufSize != 0)
+#ifdef HPUX_USE_IPMI_ID
+
+    int fd, interface;
+    int i;
+    BYTE physUuid[HPUX_MAX_UUID];
+    BYTE physSn[HPUX_MAX_SN];
+    char physUuidStr[HPUX_MAX_UUID];
+    char uuid[HPUX_MAX_UUID];
+    char sn[HPUX_MAX_SN];
+    /*Serial Number(SN) not implemented on this platform firmware*/
+    Boolean ipmiSNSupported=false;
+    /*UUID not implemented on this platform firmware*/
+    Boolean ipmiUUIDSupported=false;
+
+    /* First try to get the Physical information from the IPMI interface.
+    /* open ipmi device file */
+    fd=open("/dev/ipmi",O_RDONLY);
+    if (fd >= 0)
     {
-        char* serialNumber = new char[bufSize];
-        try
+        interface = sysconf(_SC_IPMI_INTERFACE);
+        if (interface != -1)
         {
-            if (confstr(_CS_MACHINE_SERIAL, serialNumber, bufSize) != 0)
+            /* Get the physical Serial Number from IPMI */
+            if (getPhysSysVar(fd, HPUX_SERIAL_NUMBER, physSn, HPUX_MAX_SN) == 0)
             {
-                _serialNumber.set(String(serialNumber));
+                // We are able to get the serial number from IPMI interface
+                ipmiSNSupported=true;
+                _serialNumber.set(String((char*)physSn));
+            }
+            /* Get the physical UUID from IPMI */
+            if (getPhysSysVar(fd, HPUX_UUID, physUuid, HPUX_MAX_UUID) == 0)
+            {
+                // We are able to get the UUID from IPMI interface
+                ipmiUUIDSupported = true;
+                /* sprintf the bytes in the UUID format */
+                sprintf(
+                   physUuidStr,
+                   "%2.2x%2.2x%2.2x%2.2x-%2.2x%2.2x-%2.2x%2.2x"
+                     "-%2.2x%2.2x-%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x",
+                   physUuid[0],physUuid[1],physUuid[2],physUuid[3],
+                   physUuid[4],physUuid[5],physUuid[6],physUuid[7],
+                   physUuid[8],physUuid[9],physUuid[10],physUuid[11],
+                   physUuid[12],physUuid[13],physUuid[14],physUuid[15]);
+
+                _uuid.set(String(physUuidStr));
             }
         }
-        catch(...)
+        // close the fd opened for /dev/ipmi
+        close(fd);
+    }
+    /* We want the failure to be transperant to the user.
+       If fetching data from IPMI is failed get the data using confstr.
+     */
+    if (!ipmiSNSupported)
+#endif
+    {
+        // get serial number using confstr  
+        bufSize = confstr(_CS_MACHINE_SERIAL, NULL, 0);
+        if (bufSize != 0)
         {
+            char* serialNumber = new char[bufSize];
+            try
+            {
+                if (confstr(_CS_MACHINE_SERIAL, serialNumber, bufSize) != 0)
+                {
+                    _serialNumber.set(String(serialNumber));
+                }
+            }
+            catch(...)
+            {
+                delete [] serialNumber;
+                throw;
+            }
             delete [] serialNumber;
-            throw;
         }
-        delete [] serialNumber;
+    } 
+#ifdef HPUX_USE_IPMI_ID
+    // If fetching the UUID from IPMI fails get the UUID from confstr
+    if (!ipmiUUIDSupported)
+#endif
+    {
+        // get system UUID using confstr.  
+        bufSize = confstr(_CS_MACHINE_IDENT, NULL, 0);
+        if (bufSize != 0)
+        {
+            char* uuid = new char[bufSize];
+            try
+            {
+                if (confstr(_CS_MACHINE_IDENT, uuid, bufSize) != 0)
+                {
+                    _uuid.set(String(uuid));
+                }
+            }
+            catch(...)
+            {
+                delete [] uuid;
+                throw;
+            }
+            delete [] uuid;
+        }
     }
 
     // get model using command
@@ -401,25 +583,6 @@ void ComputerSystem::initialize()
     pclose(s);
     _model = String(buf);
 
-    // get system UUID using confstr.  
-    bufSize = confstr(_CS_MACHINE_IDENT, NULL, 0);
-    if (bufSize != 0)
-    {
-        char* uuid = new char[bufSize];
-        try
-        {
-            if (confstr(_CS_MACHINE_IDENT, uuid, bufSize) != 0)
-            {
-                _uuid.set(String(uuid));
-            }
-        }
-        catch(...)
-        {
-            delete [] uuid;
-            throw;
-        }
-        delete [] uuid;
-    }
 
     // InstallDate
     /*

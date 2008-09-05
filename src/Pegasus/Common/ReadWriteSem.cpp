@@ -49,7 +49,6 @@ PEGASUS_NAMESPACE_BEGIN
 ReadWriteSem::ReadWriteSem():_readers(0), _writers(0)
 {
     pthread_rwlock_init(&_rwlock.rwlock, NULL);
-    Threads::clear(_rwlock.owner);
 }
 
 ReadWriteSem::~ReadWriteSem()
@@ -68,7 +67,6 @@ void ReadWriteSem::_wait(Boolean writeLock, ThreadType caller)
     {
         if (0 == pthread_rwlock_wrlock(&_rwlock.rwlock))
         {
-            _rwlock.owner = caller;
             _writers++;
             return;
         }
@@ -89,7 +87,6 @@ void ReadWriteSem::_unlock(Boolean writeLock, ThreadType caller)
 {
     if (writeLock)
     {
-        Threads::clear(_rwlock.owner);
         PEGASUS_ASSERT(_writers.get() == 1);
         _writers = 0;
     }
@@ -185,8 +182,6 @@ void ReadWriteSem::_wait(Boolean writeLock, ThreadType caller)
 //   There are no readers and we are the only writer !
 //-----------------------------------------------------------------
         _writers = 1;
-        // set the owner
-        _rwlock._owner = Threads::self();
         // unlock the object
         _rwlock._internal_lock.unlock();
     }

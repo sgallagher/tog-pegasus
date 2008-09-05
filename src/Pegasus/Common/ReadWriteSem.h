@@ -67,7 +67,6 @@ PEGASUS_NAMESPACE_BEGIN
 struct ReadWriteSemRep
 {
     pthread_rwlock_t rwlock;
-    ThreadType owner;
 };
 #endif /* PEGASUS_USE_POSIX_RWLOCK */
 
@@ -77,9 +76,8 @@ struct ReadWriteSemRep
     Semaphore _rlock;
     Mutex _wlock;
     Mutex _internal_lock;
-    ThreadType _owner;
     ReadWriteSemRep() :
-        _rlock(10), _wlock(), _internal_lock(), _owner(Threads::self())
+        _rlock(10), _wlock(), _internal_lock()
     {
     }
 };

@@ -178,6 +178,9 @@ protected:
     void _callDisableIndications(
         OpProviderHolder & ph, 
         const char *remoteInfo);
+
+    CIMObjectPath _getFilterPath(
+        const CIMInstance &instance);
 };
 
 PEGASUS_NAMESPACE_END

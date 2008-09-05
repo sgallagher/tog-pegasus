@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -211,7 +213,7 @@ static void _removePropagatedQualifiers(CIMClass& cimClass)
         }
     }
 
-    // remove nonlocal qualifiers from the properties
+    // remove  non localOnly qualifiers from the properties
     for (Uint32 i = 0; i < cimClass.getPropertyCount(); i++)
     {
         CIMProperty p = cimClass.getProperty(i);
@@ -227,7 +229,7 @@ static void _removePropagatedQualifiers(CIMClass& cimClass)
         }
     }
 
-    // remove nonlocal qualifiers from the methods and parameters
+    // remove non LocalOnly qualifiers from the methods and parameters
     for (Uint32 i = 0; i < cimClass.getMethodCount(); i++)
     {
         CIMMethod m = cimClass.getMethod(i);
@@ -262,24 +264,40 @@ static void _removePropagatedQualifiers(CIMClass& cimClass)
 /* remove the properties from an instance based on attributes.
     @param Instance from which properties will be removed.
     @param propertyList PropertyList is used in the removal algorithm
+    @param localOnly - Boolean used in the removal.
     NOTE: This could be logical to move to CIMInstance since the
     usage is more general than just in the repository
 */
 static void _removeProperties(
     CIMInstance& cimInstance,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList,
+    Boolean localOnly)
 {
-    if (!propertyList.isNull())
+    Boolean propertyListNull = propertyList.isNull();
+    if ((!propertyListNull) || localOnly)
     {
         // Loop through properties to remove those that do not filter through
         // local only attribute and are not in the property list.
+        Uint32 count = cimInstance.getPropertyCount();
         // Work backwards because removal may be cheaper. Sint32 covers count=0
-        for (Sint32 i = (cimInstance.getPropertyCount() - 1); i >= 0; i--)
+        for (Sint32 i = (count - 1); i >= 0; i--)
         {
-            // Since the propertyList is not NULL, only properties in the list
-            // should be included in the instance.
-            if (!_containsProperty(cimInstance.getProperty(i), propertyList))
+            CIMProperty p = cimInstance.getProperty(i);
+
+            // if localOnly == true, ignore properties defined in super class
+            if (localOnly && (p.getPropagated()))
+            {
                 cimInstance.removeProperty(i);
+                continue;
+            }
+
+            // propertyList NULL means deliver properties.  PropertyList
+            // empty, none.
+            // Test for removal if propertyList not NULL. The empty list option
+            // is covered by fact that property is not in the list.
+            if (!propertyListNull)
+                if (!_containsProperty(p, propertyList))
+                    cimInstance.removeProperty(i);
         }
     }
 }
@@ -324,26 +342,26 @@ void _removeClassOrigins(CIMInstance& cimInstance)
 }
 
 /* Filters the properties, qualifiers, and classorigin out of a single instance.
-    Based on the parameters provided for propertyList, includeQualifiers,
+    Based on the parameters provided for localOnly, includeQualifiers,
     and includeClassOrigin, this function simply filters the properties
     qualifiers, and classOrigins out of a single instance.  This function
     was created to have a single piece of code that processes getinstance
     and enumerateInstances returns.
     @param cimInstance reference to instance to be processed.
+    @param localOnly defines if request is for localOnly parameters.
     @param includeQualifiers Boolean defining if qualifiers to be returned.
     @param includeClassOrigin Boolean defining if ClassOrigin attribute to
-        be removed from properties.
-    @param propertyList If not null, defines the properties to be included in
-        the instance.
+    be removed from properties.
 */
 static void _filterInstance(
     CIMInstance& cimInstance,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    // Remove properties based on propertyList
-    _removeProperties(cimInstance, propertyList);
+    // Remove properties based on propertyList and localOnly flag
+    _removeProperties(cimInstance, propertyList, localOnly);
 
     // If includequalifiers false, remove all qualifiers from
     // properties.
@@ -477,12 +495,12 @@ static void _applyModifiedInstance(
         {
             // Reject attempts to add properties not in class:
 
-            const MRRFeature* sf = FindFeature(sc,
+            const MRRFeature* sf = FindFeature(sc, 
                 *Str(cp.getName()), MRR_FLAG_PROPERTY|MRR_FLAG_REFERENCE);
 
             if (!sf)
             {
-                Throw((CIM_ERR_NOT_FOUND,
+                Throw((CIM_ERR_NOT_FOUND, 
                     "modifyInstance() failed: unknown property: %s",
                     *Str(cp.getName())));
             }
@@ -562,7 +580,7 @@ static bool _isSubClass(const MRRClass* super, const MRRClass* sub)
 }
 
 static inline bool _isDirectSubClass(
-    const MRRClass* super,
+    const MRRClass* super, 
     const MRRClass* sub)
 {
     return sub->super == super;
@@ -632,7 +650,7 @@ static void _associators(
     // Lookup source class:
 
     const MRRClass* sc = FindClass(ns, *Str(className));
-
+    
     if (!sc)
         Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className)));
 
@@ -748,7 +766,7 @@ static void _references(
     // Lookup source class:
 
     const MRRClass* sc = FindClass(ns, *Str(className));
-
+    
     if (!sc)
         Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className)));
 
@@ -848,7 +866,7 @@ static Array<CIMName> _enumerateClassNames(
     // Lookup class:
 
     const MRRClass* super = 0;
-
+    
     if (!className.isNull())
     {
         super = FindClass(ns, *Str(className));
@@ -924,7 +942,7 @@ static Array<CIMObject> _associatorClasses(
         const MRRClass* sc = mcs[i];
         CIMClass cc;
 
-        if (MakeClass(_getHostName(), ns, sc, false, includeQualifiers,
+        if (MakeClass(_getHostName(), ns, sc, false, includeQualifiers, 
             includeClassOrigin, pl, cc) != 0)
         {
             _freePropertyList(pl);
@@ -1000,7 +1018,7 @@ static Array<CIMObject> _referenceClasses(
         const MRRClass* sc = mcs[i];
         CIMClass cc;
 
-        if (MakeClass(_getHostName(), ns, sc, false, includeQualifiers,
+        if (MakeClass(_getHostName(), ns, sc, false, includeQualifiers, 
             includeClassOrigin, pl, cc) != 0)
         {
             _freePropertyList(pl);
@@ -1056,9 +1074,9 @@ static CIMQualifierDecl _getQualifier(
     // Lookup qualifier:
 
     const MRRQualifierDecl* mqd = FindQualifierDecl(ns, *Str(qualifierName));
-
+    
     if (!mqd)
-        Throw((CIM_ERR_NOT_FOUND,
+        Throw((CIM_ERR_NOT_FOUND, 
             "unknown qualifier: %s", *Str(qualifierName)));
 
     // Make the qualifier declaration:
@@ -1134,7 +1152,7 @@ static void _getSuperClassNames(
     // Lookup class:
 
     const MRRClass* sc = FindClass(ns, *Str(className));
-
+    
     if (!sc)
         Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className)));
 
@@ -1214,7 +1232,7 @@ CIMClass CIMRepository::getClass(
 
     CIMClass cc;
 
-    if (MakeClass(_getHostName(), ns, sc, localOnly, includeQualifiers,
+    if (MakeClass(_getHostName(), ns, sc, localOnly, includeQualifiers, 
         includeClassOrigin, pl, cc) != 0)
     {
         _freePropertyList(pl);
@@ -1228,6 +1246,7 @@ CIMClass CIMRepository::getClass(
 CIMInstance CIMRepository::getInstance(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
@@ -1241,6 +1260,7 @@ CIMInstance CIMRepository::getInstance(
 
     _filterInstance(
         cimInstance,
+        localOnly,
         includeQualifiers,
         includeClassOrigin,
         propertyList);
@@ -1270,14 +1290,16 @@ void CIMRepository::deleteInstance(
 
 void CIMRepository::createClass(
     const CIMNamespaceName& nameSpace,
-    const CIMClass& newClass)
+    const CIMClass& newClass,
+    const ContentLanguageList& contentLangs)
 {
     Throw((CIM_ERR_NOT_SUPPORTED, "createClass()"));
 }
 
 CIMObjectPath CIMRepository::createInstance(
     const CIMNamespaceName& nameSpace,
-    const CIMInstance& newInstance)
+    const CIMInstance& newInstance,
+    const ContentLanguageList& contentLangs)
 {
     // Resolve the instance first:
 
@@ -1305,7 +1327,8 @@ CIMObjectPath CIMRepository::createInstance(
 
 void CIMRepository::modifyClass(
     const CIMNamespaceName& nameSpace,
-    const CIMClass& modifiedClass)
+    const CIMClass& modifiedClass,
+    const ContentLanguageList& contentLangs)
 {
     Throw((CIM_ERR_NOT_SUPPORTED, "modifyClass()"));
 }
@@ -1314,7 +1337,8 @@ void CIMRepository::modifyInstance(
     const CIMNamespaceName& nameSpace,
     const CIMInstance& modifiedInstance,
     Boolean includeQualifiers,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList,
+    const ContentLanguageList& contentLangs)
 {
     const CIMObjectPath& cop = modifiedInstance.getPath();
     CIMName className = cop.getClassName();
@@ -1325,7 +1349,7 @@ void CIMRepository::modifyInstance(
 
     if (!sc)
     {
-        Throw((CIM_ERR_FAILED,
+        Throw((CIM_ERR_FAILED, 
             "modifyInstance() failed: unknown class: %s:%s",
             *Str(nameSpace), *Str(className)));
     }
@@ -1336,7 +1360,7 @@ void CIMRepository::modifyInstance(
 
     if (pos == PEG_NOT_FOUND)
     {
-        Throw((CIM_ERR_NOT_FOUND,
+        Throw((CIM_ERR_NOT_FOUND, 
             "modifyInstance() failed: unknown instance: %s",
             *Str(cop.toString())));
     }
@@ -1378,7 +1402,7 @@ Array<CIMClass> CIMRepository::enumerateClasses(
     // Lookup class:
 
     const MRRClass* super = 0;
-
+    
     if (!className.isNull())
     {
         super = FindClass(ns, *Str(className));
@@ -1412,7 +1436,7 @@ Array<CIMClass> CIMRepository::enumerateClasses(
         {
             CIMClass cc;
 
-            if (MakeClass(_getHostName(), ns, sc, localOnly, includeQualifiers,
+            if (MakeClass(_getHostName(), ns, sc, localOnly, includeQualifiers, 
                 includeClassOrigin, 0, cc) != 0)
             {
                 Throw((CIM_ERR_FAILED, "conversion failed: %s", sc->name));
@@ -1436,6 +1460,8 @@ Array<CIMName> CIMRepository::enumerateClassNames(
 Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
+    Boolean deepInheritance,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
@@ -1453,13 +1479,14 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
         Array<CIMInstance> instances = enumerateInstancesForClass(
-            nameSpace, classNames[i], false, includeQualifiers,
+            nameSpace, classNames[i], false, includeQualifiers, 
             includeClassOrigin, propertyList);
 
         for (Uint32 i = 0 ; i < instances.size(); i++)
         {
             _filterInstance(
                 instances[i],
+                localOnly,
                 includeQualifiers,
                 includeClassOrigin,
                 propertyList);
@@ -1474,6 +1501,7 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
 Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
@@ -1493,6 +1521,7 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
 
             _filterInstance(
                 tmp,
+                localOnly,
                 includeQualifiers,
                 includeClassOrigin,
                 propertyList);
@@ -1659,7 +1688,7 @@ CIMValue CIMRepository::getProperty(
     const CIMName& propertyName)
 {
     CIMInstance ci = getInstance(
-        nameSpace, instanceName, true, true, CIMPropertyList());
+        nameSpace, instanceName, false, true, true, CIMPropertyList());
 
     Uint32 pos = ci.findProperty(propertyName);
 
@@ -1675,7 +1704,8 @@ void CIMRepository::setProperty(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
     const CIMName& propertyName,
-    const CIMValue& newValue)
+    const CIMValue& newValue,
+    const ContentLanguageList& contentLangs)
 {
     CIMInstance ci(instanceName.getClassName());
     ci.addProperty(CIMProperty(propertyName, newValue));
@@ -1685,7 +1715,7 @@ void CIMRepository::setProperty(
     tmp.append(propertyName);
     CIMPropertyList properties(tmp);
 
-    modifyInstance(nameSpace, ci, false, properties);
+    modifyInstance(nameSpace, ci, false, properties, ContentLanguageList());
 }
 
 CIMQualifierDecl CIMRepository::getQualifier(
@@ -1697,7 +1727,8 @@ CIMQualifierDecl CIMRepository::getQualifier(
 
 void CIMRepository::setQualifier(
     const CIMNamespaceName& nameSpace,
-    const CIMQualifierDecl& qualifierDecl)
+    const CIMQualifierDecl& qualifierDecl,
+    const ContentLanguageList& contentLangs)
 {
     Throw((CIM_ERR_NOT_SUPPORTED, "setQualifier()"));
 }
@@ -1901,12 +1932,13 @@ CIMClass CIMRepository::_getClass(
 CIMInstance CIMRepository::_getInstance(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList,
     Boolean resolveInstance)
 {
-    return getInstance(nameSpace, instanceName, includeQualifiers,
+    return getInstance(nameSpace, instanceName, localOnly, includeQualifiers,
         includeClassOrigin, propertyList);
 }
 

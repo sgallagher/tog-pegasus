@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,13 +35,9 @@
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/General/Stopwatch.h>
+#include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/HostAddress.h>
-#ifdef PEGASUS_USE_NET_SNMP
-# include <net-snmp/net-snmp-config.h>
-# include <net-snmp/net-snmp-includes.h>
-#endif
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -53,10 +51,9 @@ const String INDICATION_CLASS_NAME = "Test_IndicationProviderClass";
 const String SNMPV1_HANDLER_NAME = "SNMPHandler01";
 const String SNMPV2C_HANDLER_NAME = "SNMPHandler02";
 const String SNMPV2C_IPV6_HANDLER_NAME = "SNMPHandler03";
-const String SNMPV3_HANDLER_NAME = "SNMPHandler04";
-const String FILTER_NAME = "SNMPIPFilter01";
+const String FILTER_NAME = "IPFilter01";
 
-enum SNMPVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3, _SNMPV3_TRAP=5};
+enum SNMPVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3};
 enum TargetHostFormat {_HOST_NAME = 2, _IPV4_ADDRESS = 3, _IPV6_ADDRESS = 4};
 
 #define PORT_NUMBER 2006
@@ -133,13 +130,7 @@ CIMObjectPath _createHandlerInstance(
     const String & targetHost,
     const String & securityName,
     const Uint16 targetHostFormat,
-    const Uint16 snmpVersion,
-    const String & snmpEngineID,
-    const Uint8 & snmpSecLevel,
-    const Uint8 & snmpSecAuthProto,
-    const String & snmpSecAuthKey,
-    const Uint8 & snmpSecPrivProto,
-    const String & snmpSecPrivKey)
+    const Uint16 snmpVersion)
 {
     CIMInstance handlerInstance (PEGASUS_CLASSNAME_INDHANDLER_SNMP);
     handlerInstance.addProperty (CIMProperty (CIMName
@@ -159,119 +150,6 @@ CIMObjectPath _createHandlerInstance(
         CIMValue ((Uint16) snmpVersion)));
     handlerInstance.addProperty (CIMProperty (CIMName ("PortNumber"),
         CIMValue ((Uint32) PORT_NUMBER)));
-
-#ifdef PEGASUS_ENABLE_NET_SNMPV3
-    if(snmpVersion == _SNMPV3_TRAP)
-    {
-
-        handlerInstance.addProperty (CIMProperty (
-            CIMName ("SNMPEngineID"),snmpEngineID));
-        handlerInstance.addProperty (CIMProperty (
-            CIMName ("SNMPSecurityLevel"),snmpSecLevel)); //AuthPriv
-        handlerInstance.addProperty (CIMProperty (
-            CIMName ("SNMPSecurityAuthProtocol"),snmpSecAuthProto));
-
-        size_t snmpSecAuthProtoLen=0;
- 
-        oid *snmpSecAuthProtoOid = NULL;
-        if(snmpSecAuthKey.size() > 0)
-        {
-           if(snmpSecAuthProto == 1)
-            {
-                snmpSecAuthProtoOid = snmp_duplicate_objid(
-                    usmHMACMD5AuthProtocol,
-                    USM_AUTH_PROTO_MD5_LEN);
-                snmpSecAuthProtoLen = USM_AUTH_PROTO_MD5_LEN;
-            }
-            else if(snmpSecAuthProto == 2)
-            {
-                snmpSecAuthProtoOid = snmp_duplicate_objid(
-                    usmHMACSHA1AuthProtocol,
-                    USM_AUTH_PROTO_SHA_LEN);
-                snmpSecAuthProtoLen = USM_AUTH_PROTO_SHA_LEN;
-            }
-            else 
-            {
-                cout << "Invalid authentication protocol specified to " << 
-                    "create handler." << endl;
-                PEGASUS_TEST_ASSERT(false);
-            }
-
-            CString snmpSecAuthKeyCstr = snmpSecAuthKey.getCString();
-            size_t authKeyLen = snmpSecAuthKey.size();
-            u_char * snmpSecAuthKeyPtr = (u_char *)malloc(authKeyLen);
-            u_char * encryptedSecurityAuthKey = (u_char *)malloc(authKeyLen);
-            size_t securityAuthKeyLen = USM_AUTH_KU_LEN;
-            memcpy(snmpSecAuthKeyPtr,(const char *)snmpSecAuthKeyCstr,
-                strlen(snmpSecAuthKeyCstr));
-            snmpSecAuthKeyPtr[authKeyLen] = '\0';
- 
-            if(generate_Ku(snmpSecAuthProtoOid,
-                snmpSecAuthProtoLen,
-                snmpSecAuthKeyPtr,
-                strlen(snmpSecAuthKeyCstr),
-                encryptedSecurityAuthKey,
-                &securityAuthKeyLen) != SNMPERR_SUCCESS)
-            {
-                cout << "Failed to generate the snmp authentication key" 
-                    << endl;
-                free(snmpSecAuthKeyPtr);
-                free(encryptedSecurityAuthKey);
-                PEGASUS_TEST_ASSERT(false);
-            }
-
-            Array<Uint8> authKey;
-            for(Uint32 i=0; i<securityAuthKeyLen; i++)
-            {
-                authKey.append(encryptedSecurityAuthKey[i]);
-            }
-            handlerInstance.addProperty (CIMProperty (
-                CIMName ("SNMPSecurityAuthKey"),
-                authKey));
-            free(snmpSecAuthKeyPtr);
-            free(encryptedSecurityAuthKey);
-        }
-
-        handlerInstance.addProperty (CIMProperty (
-            CIMName ("SNMPSecurityPrivProtocol"),snmpSecPrivProto)); 
- 
-        if(snmpSecPrivKey.size() > 0 )
-        {
-            CString snmpSecPrivKeyCstr = snmpSecPrivKey.getCString();
-            u_char * snmpSecPrivKeyPtr = (u_char *)malloc(USM_PRIV_KU_LEN);
-            u_char * encryptedSecurityPrivKey = 
-                (u_char *)malloc(USM_PRIV_KU_LEN);
-            size_t securityPrivKeyLen = USM_PRIV_KU_LEN;
-            memcpy(snmpSecPrivKeyPtr,(const char *)snmpSecPrivKeyCstr,
-                USM_PRIV_KU_LEN);
-            if(generate_Ku(snmpSecAuthProtoOid,
-                snmpSecAuthProtoLen,
-                snmpSecPrivKeyPtr,
-                strlen(snmpSecPrivKeyCstr),
-                encryptedSecurityPrivKey,
-                &securityPrivKeyLen) != SNMPERR_SUCCESS)
-            {
-                cout << "Failed to generate the snmp privacy key" 
-                    << endl;
-                free(snmpSecPrivKeyPtr);
-                free(encryptedSecurityPrivKey);
-                PEGASUS_TEST_ASSERT(false);
-            }
-     
-            Array<Uint8> privKey;
-            for(Uint32 i=0; i<securityPrivKeyLen; i++)
-            {
-                privKey.append(encryptedSecurityPrivKey[i]);
-            }
-
-            handlerInstance.addProperty (CIMProperty (
-                CIMName ("SNMPSecurityPrivKey"),
-                privKey));
-            free(snmpSecPrivKeyPtr);
-            free(encryptedSecurityPrivKey);
-        }  
-    }
-#endif // ifdef PEGASUS_ENABLE_NET_SNMPV3
 
     return client.createInstance(
         PEGASUS_NAMESPACENAME_INTEROP, handlerInstance);
@@ -387,14 +265,7 @@ void _usage()
         << "       <threads> is an optional number of client threads to\n"
         << "            create, default is one." << endl
         << "    TestSnmpHandler cleanup\n"
-        << "    TestSnmpHandler removelog\n\n"
-        << "Note :\n"
-        << "For running snmp v3 tests create an user by name \"sahana\" in\n"
-        << "smpd.conf and snmptrapd.conf with the following credentials :- \n"
-        << "engineId = 0x80001f88808a67e858ee38ec4c \n"
-        << "Authentication protocol = MD5 \n"
-        << "Privacy Protocol = DES \n"
-        << "Authentication key = setup_passphrase \n"
+        << "    TestSnmpHandler removelog"
         << endl << endl;
 }
 
@@ -404,7 +275,6 @@ void _setup (CIMClient & client, const String& qlang)
     CIMObjectPath snmpv1HandlerObjectPath;
     CIMObjectPath snmpv2HandlerObjectPath;
     CIMObjectPath snmpv2IPV6HandlerObjectPath;
-    CIMObjectPath snmpv3HandlerObjectPath;
 
     try
     {
@@ -435,8 +305,7 @@ void _setup (CIMClient & client, const String& qlang)
             System::getFullyQualifiedHostName(),
             "",
             _HOST_NAME,
-            _SNMPV1_TRAP,
-            String(),0,1,String(),1,String());
+            _SNMPV1_TRAP);
     }
     catch (CIMException& e)
     {
@@ -485,8 +354,7 @@ void _setup (CIMClient & client, const String& qlang)
             ipAddress,
             "public",
             af == AF_INET ? _IPV4_ADDRESS : _IPV6_ADDRESS,
-            _SNMPV2C_TRAP,
-            String(),0,1,String(),1,String());
+            _SNMPV2C_TRAP);
     }
     catch (CIMException& e)
     {
@@ -534,9 +402,8 @@ void _setup (CIMClient & client, const String& qlang)
             String("::1"),
             "public",
             _IPV6_ADDRESS,
-            _SNMPV2C_TRAP,
-            String(),0,1,String(),1,String());
-    }
+            _SNMPV2C_TRAP);
+    } 
     catch (CIMException& e)
     {
         if (e.getCode() == CIM_ERR_ALREADY_EXISTS)
@@ -573,65 +440,6 @@ void _setup (CIMClient & client, const String& qlang)
         }
     }
 #endif
-
-#ifdef PEGASUS_ENABLE_NET_SNMPV3
-    // create a snmp V3 trap handler.
-    try
-    {
-        String ipAddress;
-        int af;
-        System::getHostIP(System::getFullyQualifiedHostName (), &af, ipAddress);
-        // Create SNMPv3 trap handler
-        snmpv3HandlerObjectPath = _createHandlerInstance (client,
-            SNMPV3_HANDLER_NAME,
-            System::getFullyQualifiedHostName(),
-            "sahana",
-            _HOST_NAME,
-            _SNMPV3_TRAP, 
-            "0x80001f88808a67e858ee38ec4c",
-            3,
-            1,
-            "setup_passphrase",
-            1,
-            "setup_passphrase");
-
-    }
-    catch (CIMException& e)
-    {
-        if (e.getCode() == CIM_ERR_ALREADY_EXISTS)
-        {
-            snmpv3HandlerObjectPath = _getHandlerObjectPath(
-                SNMPV2C_IPV6_HANDLER_NAME);
-            cerr << "----- Warning: SNMPv3 Trap Handler Instance "
-                "Not Created: " << e.getMessage () << endl;
-        }
-        else
-        {
-            cerr << "----- Error: SNMPv3 Trap Handler Instance Not "
-                "Created: " << endl;
-            throw;
-        }
-    }
-
-    try
-    {
-        _createSubscriptionInstance (client, filterObjectPath,
-             snmpv3HandlerObjectPath);
-    }
-    catch (CIMException& e)
-    {
-        if (e.getCode() == CIM_ERR_ALREADY_EXISTS)
-        {
-            cerr << "----- Warning: Client Subscription Instance: "
-                << e.getMessage () << endl;
-        }
-        else
-        {
-            cerr << "----- Error: Client Subscription Instance: " << endl;
-            throw;
-        }
-    }
-#endif // ifdef PEGASUS_ENABLE_NET_SNMPV3
 }
 
 void _cleanup (CIMClient & client)
@@ -666,27 +474,10 @@ void _cleanup (CIMClient & client)
     }
 
 #if defined(PEGASUS_ENABLE_IPV6)
-    try
+    try     
     {
         _deleteSubscriptionInstance (client, FILTER_NAME,
             SNMPV2C_IPV6_HANDLER_NAME);
-    }
-    catch (CIMException& e)
-    {
-        if (e.getCode() != CIM_ERR_NOT_FOUND)
-        {
-            cerr << "----- Error: deleteSubscriptionInstance failure: "
-                 << endl;
-            throw;
-        }
-    }
-#endif
-
-#ifdef PEGASUS_ENABLE_NET_SNMPV3
-    try
-    {
-        _deleteSubscriptionInstance (client, FILTER_NAME,
-            SNMPV3_HANDLER_NAME);
     }
     catch (CIMException& e)
     {
@@ -740,21 +531,6 @@ void _cleanup (CIMClient & client)
     try
     {
         _deleteHandlerInstance (client, SNMPV2C_IPV6_HANDLER_NAME);
-    }
-    catch (CIMException& e)
-    {
-        if (e.getCode() != CIM_ERR_NOT_FOUND)
-        {
-            cerr << "----- Error: deleteHandlerInstance failure: " << endl;
-            throw;
-        }
-    }
-#endif
-
-#ifdef PEGASUS_ENABLE_NET_SNMPV3
-    try
-    {
-        _deleteHandlerInstance (client, SNMPV3_HANDLER_NAME);
     }
     catch (CIMException& e)
     {
@@ -832,13 +608,9 @@ Uint32 _getReceivedTrapCount(Uint16 snmpVersion, const String& logFile)
 {
     String trap1 = "Trap Info: TRAP, SNMP v1, community public";
     String trap2 = "Trap Info: TRAP2, SNMP v2c, community public";
-    String trap3 = "Trap Info: TRAP2, SNMP v3, user sahana, context ";
 
     Uint32 receivedTrap1Count = 0;
     Uint32 receivedTrap2Count = 0;
-#ifdef PEGASUS_ENABLE_NET_SNMPV3
-    Uint32 receivedTrap3Count = 0;
-#endif
 
     ifstream ifs(logFile.getCString());
     if (!ifs)
@@ -857,12 +629,6 @@ Uint32 _getReceivedTrapCount(Uint16 snmpVersion, const String& logFile)
         {
             receivedTrap2Count++;
         }
-#ifdef PEGASUS_ENABLE_NET_SNMPV3
-        if (String::compare(line, trap3) == 0)
-        {
-            receivedTrap3Count++;
-        }
-#endif
     }
 
     ifs.close();
@@ -877,12 +643,6 @@ Uint32 _getReceivedTrapCount(Uint16 snmpVersion, const String& logFile)
         {
             return (receivedTrap2Count);
         }
-#ifdef PEGASUS_ENABLE_NET_SNMPV3
-        case _SNMPV3_TRAP:
-        {
-            return (receivedTrap3Count);
-        }
-#endif
         default:
         {
             return (0);
@@ -1002,7 +762,6 @@ void _receiveExpectedTraps(
 {
     Uint32 indicationTrapV1SendCount = 0;
     Uint32 indicationTrapV2SendCount = 0;
-    Uint32 indicationTrapV3SendCount = 0;
 
     CIMClient * clientConnections = new CIMClient[runClientThreadCount];
 
@@ -1012,14 +771,9 @@ void _receiveExpectedTraps(
 
     // if IPV6 is enabled, an additional SNMPv2c trap is sent to IPV6 address
 #if defined(PEGASUS_ENABLE_IPV6)
-    indicationTrapV2SendCount = 2 * indicationTrapV1SendCount;
+    indicationTrapV2SendCount = 2 * indicationTrapV1SendCount; 
 #else
     indicationTrapV2SendCount = indicationTrapV1SendCount;
-#endif
-
-#ifdef PEGASUS_ENABLE_NET_SNMPV3
-    indicationTrapV3SendCount =
-        indicationSendCount * runClientThreadCount;
 #endif
 
     // calculate the timeout based on the total send count allowing
@@ -1073,10 +827,8 @@ void _receiveExpectedTraps(
     Uint32 noChangeIterations = 0;
     Uint32 priorReceivedTrap1Count = 0;
     Uint32 priorReceivedTrap2Count = 0;
-    Uint32 priorReceivedTrap3Count = 0;
     Uint32 currentReceivedTrap1Count = 0;
     Uint32 currentReceivedTrap2Count = 0;
-    Uint32 currentReceivedTrap3Count = 0;
     Uint32 totalIterations = 0;
 
     //
@@ -1095,18 +847,15 @@ void _receiveExpectedTraps(
     Boolean receivedTrapCountComplete = false;
     Boolean receiverTrap1NoChange = true;
     Boolean receiverTrap2NoChange = true;
-    Boolean receiverTrap3NoChange = true;
 
     while (noChangeIterations <= MAX_NO_CHANGE_ITERATIONS)
     {
         totalIterations++;
 
-        currentReceivedTrap1Count =
+        currentReceivedTrap1Count = 
             _getReceivedTrapCount(_SNMPV1_TRAP, logFile);
-        currentReceivedTrap2Count =
+        currentReceivedTrap2Count = 
             _getReceivedTrapCount(_SNMPV2C_TRAP, logFile);
-        currentReceivedTrap3Count =
-            _getReceivedTrapCount(_SNMPV3_TRAP,logFile);
 
         if (totalIterations % COUT_TIME_INTERVAL == 1 &&
             !(receivedTrapCountComplete))
@@ -1119,15 +868,10 @@ void _receiveExpectedTraps(
             << currentReceivedTrap2Count << " of "
             << indicationTrapV2SendCount << " SNMPv2c trap."
             << endl;
-            cout << "++++ The trap receiver has received "
-            << currentReceivedTrap3Count<< " of "
-            << indicationTrapV3SendCount << " SNMPv3 trap."
-            << endl;
         }
 
         if ((indicationTrapV1SendCount == currentReceivedTrap1Count) &&
-            (indicationTrapV2SendCount == currentReceivedTrap2Count) &&
-            (indicationTrapV3SendCount == currentReceivedTrap3Count))
+            (indicationTrapV2SendCount == currentReceivedTrap2Count))
         {
              receivedTrapCountComplete = true;
              trapReceiverElapsedTime.stop();
@@ -1143,11 +887,6 @@ void _receiveExpectedTraps(
         {
              priorReceivedTrap2Count = currentReceivedTrap2Count;
         }
-        if (!(receiverTrap3NoChange =
-                (priorReceivedTrap3Count == currentReceivedTrap3Count)))
-        {
-             priorReceivedTrap3Count = currentReceivedTrap3Count;
-        }
 
         if (receivedTrapCountComplete)
         {
@@ -1159,16 +898,10 @@ void _receiveExpectedTraps(
             << currentReceivedTrap2Count << " of "
             << indicationTrapV2SendCount << " SNMPv2c trap."
             << endl;
-            cout << "++++ The trap receiver has received "
-            << currentReceivedTrap3Count << " of "
-            << indicationTrapV3SendCount<< " SNMPv3 trap."
-            << endl;
 
             break;
         }
-        if (receiverTrap1NoChange || 
-            receiverTrap2NoChange || 
-            receiverTrap3NoChange)
+        if (receiverTrap1NoChange || receiverTrap2NoChange)
         {
            noChangeIterations++;
         }
@@ -1190,8 +923,6 @@ void _receiveExpectedTraps(
        currentReceivedTrap1Count);
     PEGASUS_TEST_ASSERT(indicationTrapV2SendCount ==
        currentReceivedTrap2Count);
-    PEGASUS_TEST_ASSERT(indicationTrapV3SendCount ==
-       currentReceivedTrap3Count);
 }
 
 int _beginTest(CIMClient& workClient,

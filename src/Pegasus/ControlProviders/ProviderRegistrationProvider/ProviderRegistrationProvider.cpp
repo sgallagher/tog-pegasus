@@ -50,17 +50,17 @@ PEGASUS_NAMESPACE_BEGIN
 /**
    The name of the CapabilityID property for provider capabilities class
 */
-static const CIMName _PROPERTY_CAPABILITYID  = CIMName ("CapabilityID");
+static const CIMName _PROPERTY_CAPABILITYID = CIMNameUnchecked("CapabilityID");
 
 /**
    stopping provider method
 */
-static const CIMName _STOP_PROVIDER     = CIMName ("Stop");
+static const CIMName _STOP_PROVIDER = CIMNameUnchecked("Stop");
 
 /**
    starting provider method
 */
-static const CIMName _START_PROVIDER   = CIMName ("Start");
+static const CIMName _START_PROVIDER = CIMNameUnchecked("Start");
 
 ProviderRegistrationProvider::ProviderRegistrationProvider(
     ProviderRegistrationManager * providerRegistrationManager)  

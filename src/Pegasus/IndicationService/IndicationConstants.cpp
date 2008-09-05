@@ -31,6 +31,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/CIMNameUnchecked.h>
 #include "IndicationConstants.h"
 
 
@@ -42,7 +43,7 @@ PEGASUS_NAMESPACE_BEGIN
 //  ATTN: Update once CimomShutdownAlertIndication has been defined
 //
 const CIMName _CLASS_CIMOM_SHUTDOWN_ALERT =
-    CIMName("CIM_AlertIndication");
+    CIMNameUnchecked("CIM_AlertIndication");
 
 /**
     The name of the No Provider alert indication class
@@ -50,7 +51,8 @@ const CIMName _CLASS_CIMOM_SHUTDOWN_ALERT =
 //
 //  ATTN: Update once NoProviderAlertIndication has been defined
 //
-const CIMName _CLASS_NO_PROVIDER_ALERT = CIMName("CIM_AlertIndication");
+const CIMName _CLASS_NO_PROVIDER_ALERT =
+    CIMNameUnchecked("CIM_AlertIndication");
 
 /**
     The name of the CIMOM shutdown alert indication class
@@ -59,7 +61,7 @@ const CIMName _CLASS_NO_PROVIDER_ALERT = CIMName("CIM_AlertIndication");
 //  ATTN: Update once ProviderTerminatedAlertIndication has been defined
 //
 const CIMName _CLASS_PROVIDER_TERMINATED_ALERT =
-    CIMName("CIM_AlertIndication");
+    CIMNameUnchecked("CIM_AlertIndication");
 
 
 //
@@ -70,182 +72,182 @@ const CIMName _CLASS_PROVIDER_TERMINATED_ALERT =
     The name of the Other Subscription State property for Indication
     Subscription class
  */
-const CIMName _PROPERTY_OTHERSTATE = CIMName("OtherSubscriptionState");
+const CIMName _PROPERTY_OTHERSTATE = CIMNameUnchecked("OtherSubscriptionState");
 
 /**
     The name of the Repeat Notification Policy property for indication
     subscription class
  */
 const CIMName _PROPERTY_REPEATNOTIFICATIONPOLICY =
-    CIMName("RepeatNotificationPolicy");
+    CIMNameUnchecked("RepeatNotificationPolicy");
 
 /**
     The name of the Other Repeat Notification Policy property for
     indication subscription class
  */
 const CIMName _PROPERTY_OTHERREPEATNOTIFICATIONPOLICY =
-    CIMName("OtherRepeatNotificationPolicy");
+    CIMNameUnchecked("OtherRepeatNotificationPolicy");
 
 /**
     The name of the On Fatal Error Policy property for Indication Subscription
     class
  */
 const CIMName _PROPERTY_ONFATALERRORPOLICY =
-    CIMName("OnFatalErrorPolicy");
+    CIMNameUnchecked("OnFatalErrorPolicy");
 
 /**
     The name of the Other On Fatal Error Policy property for Indication
     Subscription class
  */
 const CIMName _PROPERTY_OTHERONFATALERRORPOLICY =
-    CIMName("OtherOnFatalErrorPolicy");
+    CIMNameUnchecked("OtherOnFatalErrorPolicy");
 
 /**
     The name of the Failure Trigger Time Interval property for Indication
     Subscription class
  */
 const CIMName _PROPERTY_FAILURETRIGGERTIMEINTERVAL =
-    CIMName("FailureTriggerTimeInterval");
+    CIMNameUnchecked("FailureTriggerTimeInterval");
 
 /**
     The name of the Time Of Last State Change property for Indication
     Subscription class
  */
-const CIMName _PROPERTY_LASTCHANGE = CIMName("TimeOfLastStateChange");
+const CIMName _PROPERTY_LASTCHANGE = CIMNameUnchecked("TimeOfLastStateChange");
 
 /**
     The name of the Subscription Start Time property for Indication
     Subscription class
  */
-const CIMName _PROPERTY_STARTTIME = CIMName("SubscriptionStartTime");
+const CIMName _PROPERTY_STARTTIME = CIMNameUnchecked("SubscriptionStartTime");
 
 /**
     The name of the Subscription Duration property for Indication
     Subscription class
  */
-const CIMName _PROPERTY_DURATION = CIMName("SubscriptionDuration");
+const CIMName _PROPERTY_DURATION = CIMNameUnchecked("SubscriptionDuration");
 
 /**
     The name of the Subscription Time Remaining property for Indication
     Subscription class
  */
 const CIMName _PROPERTY_TIMEREMAINING =
-    CIMName("SubscriptionTimeRemaining");
+    CIMNameUnchecked("SubscriptionTimeRemaining");
 
 /**
     The name of the Repeat Notification Interval property for indication
     subscription class
  */
 const CIMName _PROPERTY_REPEATNOTIFICATIONINTERVAL =
-    CIMName("RepeatNotificationInterval");
+    CIMNameUnchecked("RepeatNotificationInterval");
 
 /**
     The name of the Repeat Notification Gap property for indication
     subscription class
  */
 const CIMName _PROPERTY_REPEATNOTIFICATIONGAP =
-    CIMName("RepeatNotificationGap");
+    CIMNameUnchecked("RepeatNotificationGap");
 
 /**
     The name of the Repeat Notification Count property for indication
     subscription class
  */
 const CIMName _PROPERTY_REPEATNOTIFICATIONCOUNT =
-    CIMName("RepeatNotificationCount");
+    CIMNameUnchecked("RepeatNotificationCount");
 
 /**
     The name of the TextFormatOwningEntity property for Formatted Indication
     Subscription class
 */
 const CIMName _PROPERTY_TEXTFORMATOWNINGENTITY =
-    CIMName("TextFormatOwningEntity");
+    CIMNameUnchecked("TextFormatOwningEntity");
 
 /**
     The name of the TextFormatID property for Formatted Indication
     Subscription class
 */
-const CIMName _PROPERTY_TEXTFORMATID = CIMName("TextFormatID");
+const CIMName _PROPERTY_TEXTFORMATID = CIMNameUnchecked("TextFormatID");
 
 /**
     The name of the Caption property for Managed Element class
  */
-const CIMName _PROPERTY_CAPTION = CIMName("Caption");
+const CIMName _PROPERTY_CAPTION = CIMNameUnchecked("Caption");
 
 /**
     The name of the Description property for Managed Element class
  */
-const CIMName _PROPERTY_DESCRIPTION = CIMName("Description");
+const CIMName _PROPERTY_DESCRIPTION = CIMNameUnchecked("Description");
 
 /**
     The name of the ElementName property for Managed Element class
  */
-const CIMName _PROPERTY_ELEMENTNAME = CIMName("ElementName");
+const CIMName _PROPERTY_ELEMENTNAME = CIMNameUnchecked("ElementName");
 
 /**
     The name of the Source Namespace property for indication filter class
  */
-const CIMName _PROPERTY_SOURCENAMESPACE = CIMName("SourceNamespace");
+const CIMName _PROPERTY_SOURCENAMESPACE = CIMNameUnchecked("SourceNamespace");
 
 /**
     The name of the System Name property for indication filter and indications
     handler classes
  */
-const CIMName _PROPERTY_SYSTEMNAME = CIMName("SystemName");
+const CIMName _PROPERTY_SYSTEMNAME = CIMNameUnchecked("SystemName");
 
 /**
     The name of the System Creation Class Name property for indication filter
     and indications handler classes
  */
 const CIMName _PROPERTY_SYSTEMCREATIONCLASSNAME =
-    CIMName("SystemCreationClassName");
+    CIMNameUnchecked("SystemCreationClassName");
 
 /**
     The name of the Other Persistence Type property for Indication Handler
     class
  */
 const CIMName _PROPERTY_OTHERPERSISTENCETYPE =
-    CIMName("OtherPersistenceType");
+    CIMNameUnchecked("OtherPersistenceType");
 
 /**
     The name of the Owner property for Indication Handler class
  */
-const CIMName _PROPERTY_OWNER = CIMName("Owner");
+const CIMName _PROPERTY_OWNER = CIMNameUnchecked("Owner");
 
 /**
     The name of the TargetHostFormat property for SNMP Mapper Indication
     Handler subclass
  */
-const CIMName _PROPERTY_TARGETHOSTFORMAT = CIMName("TargetHostFormat");
+const CIMName _PROPERTY_TARGETHOSTFORMAT = CIMNameUnchecked("TargetHostFormat");
 
 /**
     The name of the OtherTargetHostFormat property for SNMP Mapper Indication
     Handler subclass
  */
 const CIMName _PROPERTY_OTHERTARGETHOSTFORMAT =
-    CIMName("OtherTargetHostFormat");
+    CIMNameUnchecked("OtherTargetHostFormat");
 
 /**
     The name of the Port Number property for SNMP Mapper Indication Handler
     subclass
  */
-const CIMName _PROPERTY_PORTNUMBER = CIMName("PortNumber");
+const CIMName _PROPERTY_PORTNUMBER = CIMNameUnchecked("PortNumber");
 
 /**
     The name of the SNMP Security Name property for SNMP Mapper Indication
     Handler subclass
  */
-const CIMName _PROPERTY_SNMPSECURITYNAME = CIMName("SNMPSecurityName");
+const CIMName _PROPERTY_SNMPSECURITYNAME = CIMNameUnchecked("SNMPSecurityName");
 
 /**
     The name of the SNMP Engine ID property for SNMP Mapper Indication Handler
     subclass
  */
-const CIMName _PROPERTY_SNMPENGINEID = CIMName("SNMPEngineID");
+const CIMName _PROPERTY_SNMPENGINEID = CIMNameUnchecked("SNMPEngineID");
 
 /**
     The name of the Alert Type property for Alert Indication class
  */
-const CIMName _PROPERTY_ALERTTYPE = CIMName("AlertType");
+const CIMName _PROPERTY_ALERTTYPE = CIMNameUnchecked("AlertType");
 
 /**
     The name of the Other Alert Type property for Alert Indication class
@@ -256,124 +258,124 @@ const CIMName _PROPERTY_OTHERALERTTYPE = CIMName("OtherAlertType");
     The name of the Perceived Severity property for Alert Indication class
  */
 const CIMName _PROPERTY_PERCEIVEDSEVERITY =
-    CIMName("PerceivedSeverity");
+    CIMNameUnchecked("PerceivedSeverity");
 
 /**
     The name of the Probable Cause property for Alert Indication class
  */
-const CIMName _PROPERTY_PROBABLECAUSE = CIMName("ProbableCause");
+const CIMName _PROPERTY_PROBABLECAUSE = CIMNameUnchecked("ProbableCause");
 
 /**
     The name of the CreationClassName property of CIM_Service class.
 */
 const CIMName _PROPERTY_CREATIONCLASSNAME =
-    CIMName("CreationClassName");
+    CIMNameUnchecked("CreationClassName");
 
 /**
     The name of the Name property of CIM_Service class.
 */
-const CIMName _PROPERTY_NAME = CIMName("Name");
+const CIMName _PROPERTY_NAME = CIMNameUnchecked("Name");
 
 /**
     The name of the Started property of CIM_Service class.
 */
-const CIMName _PROPERTY_STARTED = CIMName("Started");
+const CIMName _PROPERTY_STARTED = CIMNameUnchecked("Started");
 
 /**
     The name of the  InstanceID property of CIM_Capabilities
     class.
 */
-const CIMName _PROPERTY_INSTANCEID = CIMName("InstanceID");
+const CIMName _PROPERTY_INSTANCEID = CIMNameUnchecked("InstanceID");
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
 /**
     The name of the FilterCreationEnabled property of IndicationService class.
 */
 const CIMName _PROPERTY_FILTERCREATIONENABLED =
-    CIMName("FilterCreationEnabled");
+    CIMNameUnchecked("FilterCreationEnabled");
 
 /**
     The name of the SubscriptionRemovalAction property of IndicationService
     class.
 */
 const CIMName _PROPERTY_SUBSCRIPTIONREMOVALACTION =
-    CIMName("SubscriptionRemovalAction");
+    CIMNameUnchecked("SubscriptionRemovalAction");
 
 /**
     The name of the SubscriptionRemovalTimeInterval property of
     IndicationService class.
 */
 const CIMName _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL =
-    CIMName("SubscriptionRemovalTimeInterval");
+    CIMNameUnchecked("SubscriptionRemovalTimeInterval");
 
 /**
     The name of the DeliveryRetryAttempts property of
     IndicationService class.
 */
 const CIMName _PROPERTY_DELIVERYRETRYATTEMPTS =
-    CIMName("DeliveryRetryAttempts");
+    CIMNameUnchecked("DeliveryRetryAttempts");
 
 /**
     The name of the DeliveryRetryInterval property of
     IndicationService class.
 */
 const CIMName _PROPERTY_DELIVERYRETRYINTERVAL =
-    CIMName("DeliveryRetryInterval");
+    CIMNameUnchecked("DeliveryRetryInterval");
 /**
     The name of the FilterCreationEnabledIsSettable property of
     IndicationServiceCapabilities class.
 */
 const CIMName _PROPERTY_FILTERCREATIONENABLEDISSETTABLE =
-    CIMName("FilterCreationEnabledIsSettable");
+    CIMNameUnchecked("FilterCreationEnabledIsSettable");
 
 /**
     The name of the DeliveryRetryAttemptsIsSettable property of
     IndicationServiceCapabilities class.
 */
 const CIMName _PROPERTY_DELIVERYRETRYATTEMPTSISSETTABLE =
-    CIMName("DeliveryRetryAttemptsIsSettable");
+    CIMNameUnchecked("DeliveryRetryAttemptsIsSettable");
 
 /**
     The name of the DeliveryRetryIntervalIsSettable property of
     IndicationServiceCapabilities class.
 */
 const CIMName _PROPERTY_DELIVERYRETRYINTERVALISSETTABLE =
-    CIMName("DeliveryRetryIntervalIsSettable");
+    CIMNameUnchecked("DeliveryRetryIntervalIsSettable");
 
 /**
     The name of the SubscriptionRemovalActionIsSettable property of
     IndicationServiceCapabilities class.
 */
 const CIMName _PROPERTY_SUBSCRIPTIONREMOVALACTIONISSETTABLE =
-    CIMName("SubscriptionRemovalActionIsSettable");
+    CIMNameUnchecked("SubscriptionRemovalActionIsSettable");
 
 /**
     The name of the SubscriptionRemovalTimeIntervalIsSettable property of
     IndicationServiceCapabilities class.
 */
 const CIMName _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVALISSETTABLE =
-    CIMName("SubscriptionRemovalTimeIntervalIsSettable");
+    CIMNameUnchecked("SubscriptionRemovalTimeIntervalIsSettable");
 
 /**
     The name of the MaxListenerDestinations property of
     IndicationServiceCapabilities class.
 */
 const CIMName _PROPERTY_MAXLISTENERDESTINATIONS =
-    CIMName("MaxListenerDestinations");
+    CIMNameUnchecked("MaxListenerDestinations");
 
 /**
     The name of the MaxActiveSubscriptions property of
     IndicationServiceCapabilities class.
 */
 const CIMName _PROPERTY_MAXACTIVESUBSCRIPTIONS =
-    CIMName("MaxActiveSubscriptions");
+    CIMNameUnchecked("MaxActiveSubscriptions");
 
 /**
     The name of the SubscriptionsPersisted property of
     IndicationServiceCapabilities class.
 */
 const CIMName _PROPERTY_SUBSCRIPTIONSPERSISTED =
-    CIMName("SubscriptionsPersisted");
+    CIMNameUnchecked("SubscriptionsPersisted");
 
 #endif
 
@@ -384,7 +386,7 @@ const CIMName _PROPERTY_SUBSCRIPTIONSPERSISTED =
 /**
     The name of the Indication qualifier for classes
  */
-const CIMName _QUALIFIER_INDICATION = CIMName("INDICATION");
+const CIMName _QUALIFIER_INDICATION = CIMNameUnchecked("INDICATION");
 
 
 //

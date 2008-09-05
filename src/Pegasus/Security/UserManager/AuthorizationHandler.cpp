@@ -44,6 +44,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/CIMNameUnchecked.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlWriter.h>
 
@@ -63,17 +64,18 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // This constant represents the  User name property in the schema
 //
-static const CIMName PROPERTY_NAME_USERNAME = CIMName("Username");
+static const CIMName PROPERTY_NAME_USERNAME = CIMNameUnchecked("Username");
 
 //
 // This constant represents the Namespace property in the schema
 //
-static const CIMName PROPERTY_NAME_NAMESPACE = CIMName("Namespace");
+static const CIMName PROPERTY_NAME_NAMESPACE = CIMNameUnchecked("Namespace");
 
 //
 // This constant represents the Authorizations property in the schema
 //
-static const CIMName PROPERTY_NAME_AUTHORIZATION = CIMName("Authorization");
+static const CIMName PROPERTY_NAME_AUTHORIZATION =
+    CIMNameUnchecked("Authorization");
 
 
 //

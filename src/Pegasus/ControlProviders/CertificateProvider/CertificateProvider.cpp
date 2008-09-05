@@ -54,6 +54,7 @@
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/XmlParser.h>
+#include <Pegasus/Common/CIMNameUnchecked.h>
 
 #include <stdlib.h>
 
@@ -67,27 +68,44 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 // PG_SSLCertificate property names
-static const CIMName ISSUER_NAME_PROPERTY           = "IssuerName";
-static const CIMName SERIAL_NUMBER_PROPERTY         = "SerialNumber";
-static const CIMName SUBJECT_NAME_PROPERTY          = "SubjectName";
-static const CIMName USER_NAME_PROPERTY             = "RegisteredUserName";
-static const CIMName TRUSTSTORE_TYPE_PROPERTY       = "TruststoreType";
-static const CIMName FILE_NAME_PROPERTY             = "TruststorePath";
-static const CIMName NOT_BEFORE_PROPERTY            = "NotBefore";
-static const CIMName NOT_AFTER_PROPERTY             = "NotAfter";
-static const CIMName CERTIFICATE_TYPE_PROPERTY      = "CertificateType";
+static const CIMName ISSUER_NAME_PROPERTY      =
+    CIMNameUnchecked("IssuerName");
+static const CIMName SERIAL_NUMBER_PROPERTY    =
+    CIMNameUnchecked("SerialNumber");
+static const CIMName SUBJECT_NAME_PROPERTY     =
+    CIMNameUnchecked("SubjectName");
+static const CIMName USER_NAME_PROPERTY        =
+    CIMNameUnchecked("RegisteredUserName");
+static const CIMName TRUSTSTORE_TYPE_PROPERTY  =
+    CIMNameUnchecked("TruststoreType");
+static const CIMName FILE_NAME_PROPERTY        =
+    CIMNameUnchecked("TruststorePath");
+static const CIMName NOT_BEFORE_PROPERTY       =
+    CIMNameUnchecked("NotBefore");
+static const CIMName NOT_AFTER_PROPERTY        =
+    CIMNameUnchecked("NotAfter");
+static const CIMName CERTIFICATE_TYPE_PROPERTY =
+    CIMNameUnchecked("CertificateType");
 
 // PG_SSLCertificateRevocationList property names also has IssuerName
-static const CIMName LAST_UPDATE_PROPERTY           = "LastUpdate";
-static const CIMName NEXT_UPDATE_PROPERTY           = "NextUpdate";
-static const CIMName REVOKED_SERIAL_NUMBERS_PROPERTY  = "RevokedSerialNumbers";
-static const CIMName REVOCATION_DATES_PROPERTY      = "RevocationDates";
+static const CIMName LAST_UPDATE_PROPERTY            =
+    CIMNameUnchecked("LastUpdate");
+static const CIMName NEXT_UPDATE_PROPERTY            =
+    CIMNameUnchecked("NextUpdate");
+static const CIMName REVOKED_SERIAL_NUMBERS_PROPERTY =
+    CIMNameUnchecked("RevokedSerialNumbers");
+static const CIMName REVOCATION_DATES_PROPERTY       =
+    CIMNameUnchecked("RevocationDates");
 
 // Method names for PG_SSLCertificate
-static const CIMName METHOD_ADD_CERTIFICATE         = "addCertificate";
-static const CIMName PARAMETER_CERT_CONTENTS        = "certificateContents";
-static const CIMName PARAMETER_USERNAME             = "userName";
-static const CIMName PARAMETER_TYPE                 = "certificateType";
+static const CIMName METHOD_ADD_CERTIFICATE  =
+    CIMNameUnchecked("addCertificate");
+static const CIMName PARAMETER_CERT_CONTENTS =
+    CIMNameUnchecked("certificateContents");
+static const CIMName PARAMETER_USERNAME      =
+    CIMNameUnchecked("userName");
+static const CIMName PARAMETER_TYPE          =
+    CIMNameUnchecked("certificateType");
 
 static const String TYPE_AUTHORITY                  = "a";
 static const String TYPE_AUTHORITY_END_ENTITY       = "e";
@@ -96,8 +114,9 @@ static const String TYPE_SELF_SIGNED_IDENTITY       = "s";
 static const Uint16 CERT_TYPE_UNKNOWN                    = 0;
 
 // Method names for PG_SSLCertificateRevocationList
-static const CIMName METHOD_ADD_CRL         = "addCertificateRevocationList";
-static const CIMName PARAMETER_CRL_CONTENTS         = "CRLContents";
+static const CIMName METHOD_ADD_CRL =
+    CIMNameUnchecked("addCertificateRevocationList");
+static const CIMName PARAMETER_CRL_CONTENTS = CIMNameUnchecked("CRLContents");
 
 // Truststore and crlstore directory mutexes
 static Mutex _trustStoreMutex;

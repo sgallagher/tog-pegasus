@@ -43,6 +43,7 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/CIMNameUnchecked.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -56,79 +57,83 @@ struct ClassNamespaceTable;
    class and PG_Provider class
 */
 static const CIMName _PROPERTY_PROVIDERMODULENAME = 
-    CIMName ("ProviderModuleName");
+    CIMNameUnchecked("ProviderModuleName");
 
 /**
    The name of the Vendor property for PG_ProviderModule class
 */
-static const CIMName _PROPERTY_VENDOR  = CIMName ("Vendor");
+static const CIMName _PROPERTY_VENDOR = CIMNameUnchecked("Vendor");
 
 /**
    The name of the Version property for PG_ProviderModule class
 */
-static const CIMName _PROPERTY_VERSION  = CIMName ("Version");
+static const CIMName _PROPERTY_VERSION = CIMNameUnchecked("Version");
 
 /**
    The name of the interface type property for PG_ProviderModule class
 */
-static const CIMName _PROPERTY_INTERFACETYPE  = CIMName ("InterfaceType");
+static const CIMName _PROPERTY_INTERFACETYPE =
+    CIMNameUnchecked("InterfaceType");
 
 /**
    The name of the interface version property for PG_ProviderModule class
 */
-static const CIMName _PROPERTY_INTERFACEVERSION  = CIMName ("InterfaceVersion");
+static const CIMName _PROPERTY_INTERFACEVERSION =
+    CIMNameUnchecked("InterfaceVersion");
 
 /**
    The name of the location property for PG_ProviderModule class
 */
-static const CIMName _PROPERTY_LOCATION  = CIMName ("Location");
+static const CIMName _PROPERTY_LOCATION = CIMNameUnchecked("Location");
 
 /**
    The name of the CapabilitiesID property for provider capabilities class
 */
-static const CIMName _PROPERTY_CAPABILITIESID = CIMName ("CapabilityID");
+static const CIMName _PROPERTY_CAPABILITIESID =
+    CIMNameUnchecked("CapabilityID");
 
 /**
    The name of the provider name  property for provider capabilities class
 */
-static const CIMName _PROPERTY_PROVIDERNAME = CIMName ("ProviderName");
+static const CIMName _PROPERTY_PROVIDERNAME = CIMNameUnchecked("ProviderName");
 
 /**
    The name of the classname property for provider capabilities class
 */
-static const CIMName _PROPERTY_CLASSNAME = CIMName ("ClassName");
+static const CIMName _PROPERTY_CLASSNAME = CIMNameUnchecked("ClassName");
 
 /**
    The name of the Namespace property for provider capabilities class
 */
-static const CIMName _PROPERTY_NAMESPACES = CIMName ("Namespaces");
+static const CIMName _PROPERTY_NAMESPACES = CIMNameUnchecked("Namespaces");
 
 /**
    The name of the provider type  property for provider capabilities class
 */
-static const CIMName _PROPERTY_PROVIDERTYPE = CIMName ("ProviderType");
+static const CIMName _PROPERTY_PROVIDERTYPE = CIMNameUnchecked("ProviderType");
 
 /**
    The name of the supported properties property for provider capabilities class
 */
 static const CIMName _PROPERTY_SUPPORTEDPROPERTIES = 
-    CIMName ("SupportedProperties");
+    CIMNameUnchecked("SupportedProperties");
 
 /**
    The name of the supported methods property for provider capabilities class
 */
-static const CIMName _PROPERTY_SUPPORTEDMETHODS = CIMName ("SupportedMethods");
+static const CIMName _PROPERTY_SUPPORTEDMETHODS =
+    CIMNameUnchecked("SupportedMethods");
 
 /**
    The name of the Destinations property for PG_ConsumerCapabilities class
 */
 static const CIMName _PROPERTY_INDICATIONDESTINATIONS =
-                                                CIMName ("Destinations");
+    CIMNameUnchecked("Destinations");
 
 /**
    The name of the AutoStart property for PG_Provider class
 */
-static const CIMName _PROPERTY_AUTOSTART = CIMName ("AutoStart");
+static const CIMName _PROPERTY_AUTOSTART = CIMNameUnchecked("AutoStart");
 
 /**
    Registered instance provider type

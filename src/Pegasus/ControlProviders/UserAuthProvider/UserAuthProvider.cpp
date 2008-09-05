@@ -49,6 +49,7 @@
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/CIMStatusCode.h>
+#include <Pegasus/Common/CIMNameUnchecked.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
@@ -70,33 +71,38 @@ PEGASUS_NAMESPACE_BEGIN
     The constants representing the Username and Password properties in the
     schema.
 */
-static const CIMName PROPERTY_NAME_USERNAME       = CIMName ("Username");
+static const CIMName PROPERTY_NAME_USERNAME = CIMNameUnchecked("Username");
 
-static const CIMName PROPERTY_NAME_PASSWORD       = CIMName ("Password");
+static const CIMName PROPERTY_NAME_PASSWORD = CIMNameUnchecked("Password");
 
-static const char OLD_PASSWORD []                 = "OldPassword";
+static const char OLD_PASSWORD[] = "OldPassword";
 
-static const char NEW_PASSWORD []                 = "NewPassword";
+static const char NEW_PASSWORD[] = "NewPassword";
 
 /**
     The constants representing the namespace and authorization
     in the schema.
 */
-static const CIMName PROPERTY_NAME_NAMESPACE       = CIMName ("Namespace");
+static const CIMName PROPERTY_NAME_NAMESPACE       =
+    CIMNameUnchecked("Namespace");
 
-static const CIMName PROPERTY_NAME_AUTHORIZATION   = CIMName ("Authorization");
+static const CIMName PROPERTY_NAME_AUTHORIZATION   =
+    CIMNameUnchecked("Authorization");
 
 /**
     The constant representing the User class name.
 */
-static const CIMName CLASS_NAME_PG_USER            = CIMName ("PG_User");
+static const CIMName CLASS_NAME_PG_USER            =
+    CIMNameUnchecked("PG_User");
 
-static const CIMName METHOD_NAME_MODIFY_PASSWORD   = CIMName ("modifyPassword");
+static const CIMName METHOD_NAME_MODIFY_PASSWORD   =
+    CIMNameUnchecked("modifyPassword");
 
 /**
     The constant representing the authorization class name
 */
-static const CIMName CLASS_NAME_PG_AUTHORIZATION = CIMName ("PG_Authorization");
+static const CIMName CLASS_NAME_PG_AUTHORIZATION =
+    CIMNameUnchecked("PG_Authorization");
 
 //
 // Verify user authorization

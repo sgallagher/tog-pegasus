@@ -58,6 +58,7 @@
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/CIMStatusCode.h>
+#include <Pegasus/Common/CIMNameUnchecked.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Config/ConfigManager.h>
@@ -102,8 +103,8 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     The constant representing the __namespace class name
 */
-static const CIMName NAMESPACE_CLASSNAME  = CIMName ("__Namespace");
-static const CIMName NAMESPACE_PROPERTYNAME  = CIMName ("Name");
+static const CIMName NAMESPACE_CLASSNAME = CIMNameUnchecked("__Namespace");
+static const CIMName NAMESPACE_PROPERTYNAME = CIMNameUnchecked("Name");
 static const CIMNamespaceName ROOTNS  = CIMNamespaceName ("root");
 
 static Boolean _isChild(

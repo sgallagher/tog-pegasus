@@ -52,15 +52,13 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/IndicationFormatter.h>
-// NOCHKSRC
-#include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
-// DOCHKSRC
+#include <Pegasus/Server/ProviderRegistrationManager/\
+ProviderRegistrationManager.h>
 #include <Pegasus/Query/QueryExpression/QueryExpression.h>
 #include <Pegasus/Query/QueryCommon/QueryException.h>
 #include <Pegasus/Repository/RepositoryQueryContext.h>
 
 #include "IndicationConstants.h"
-#include "IndicationMessageConstants.h"
 #include "SubscriptionRepository.h"
 #include "SubscriptionTable.h"
 #include "IndicationService.h"
@@ -69,6 +67,67 @@
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+//
+// Message constants
+//
+
+static const char _MSG_PROPERTY_KEY[] =
+   "IndicationService.IndicationService._MSG_PROPERTY";
+static const char _MSG_PROPERTY[] = "The required property $0 is missing.";
+
+static const char _MSG_NO_PROVIDERS_KEY[] =
+    "IndicationService.IndicationService._MSG_NO_PROVIDERS";
+static const char _MSG_NO_PROVIDERS[] =
+    "No providers are capable of servicing the subscription.";
+
+static const char _MSG_INVALID_TYPE_FOR_PROPERTY_KEY[] =
+    "IndicationService.IndicationService._MSG_INVALID_TYPE_FOR_PROPERTY";
+static const char _MSG_INVALID_TYPE_FOR_PROPERTY[] =
+    "The value of type $0 is not valid for property $1.";
+
+static const char _MSG_INVALID_TYPE_ARRAY_OF_FOR_PROPERTY_KEY[] =
+    "IndicationService.IndicationService."
+        "_MSG_INVALID_TYPE_ARRAY_OF_FOR_PROPERTY";
+static const char _MSG_INVALID_TYPE_ARRAY_OF_FOR_PROPERTY[] =
+    "The value of an array of type $0 is not valid for property $1.";
+
+static const char _MSG_INVALID_VALUE_FOR_PROPERTY_KEY[] =
+    "IndicationService.IndicationService._MSG_INVALID_VALUE_FOR_PROPERTY";
+static const char _MSG_INVALID_VALUE_FOR_PROPERTY[] =
+    "The value $0 is not valid for property $1.";
+
+static const char _MSG_UNSUPPORTED_VALUE_FOR_PROPERTY_KEY[] =
+    "IndicationService.IndicationService._MSG_UNSUPPORTED_VALUE_FOR_PROPERTY";
+static const char _MSG_UNSUPPORTED_VALUE_FOR_PROPERTY[] =
+    "The value $0 is not supported for property $1.";
+
+static const char _MSG_CLASS_NOT_SERVED_KEY[] =
+    "IndicationService.IndicationService._MSG_CLASS_NOT_SERVED";
+static const char _MSG_CLASS_NOT_SERVED[] =
+    "The specified class is not serviced by the CIM Indication service.";
+
+static const char _MSG_INVALID_INSTANCES_KEY[] =
+    "IndicationService.IndicationService."
+        "INVALID_SUBSCRIPTION_INSTANCES_IGNORED";
+static const char _MSG_INVALID_INSTANCES[] =
+    "One or more subscription instances are not valid and are ignored.";
+
+static const char _MSG_PROVIDER_NO_LONGER_SERVING_KEY[] =
+    "IndicationService.IndicationService._MSG_PROVIDER_NO_LONGER_SERVING";
+static const char _MSG_PROVIDER_NO_LONGER_SERVING[] =
+    "Provider ($0) is no longer serving subscription ($1) in namespace $2";
+
+static const char _MSG_PROVIDER_NOW_SERVING_KEY[] =
+    "IndicationService.IndicationService._MSG_PROVIDER_NOW_SERVING";
+static const char _MSG_PROVIDER_NOW_SERVING[] =
+    "Provider ($0) is now serving subscription ($1) in namespace $2";
+
+static const char _MSG_NO_PROVIDER_KEY[] =
+    "IndicationService.IndicationService._MSG_NO_PROVIDER";
+static const char _MSG_NO_PROVIDER[] =
+    "Subscription ($0) in namespace $1 has no provider";
+
 
 // ATTN-RK-20020730: Temporary hack to fix Windows build
 Boolean ContainsCIMName(const Array<CIMName>& a, const CIMName& x)
@@ -581,7 +640,9 @@ void IndicationService::_initialize()
             Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
                 Logger::WARNING,
                 MessageLoaderParms(
-                    _MSG_INVALID_INSTANCE_KEY, _MSG_INVALID_INSTANCE,
+                    "IndicationService.IndicationService."
+                        "INVALID_SUBSCRIPTION_INSTANCE_IGNORED",
+                    "An invalid Subscription instance was ignored: $0.",
                     e.getMessage()));
             continue;
         }
@@ -893,8 +954,11 @@ void IndicationService::_checkNonprivilegedAuthorization(
             (const char*) userName.getCString()));
         if (!System::isPrivilegedUser(userName))
         {
-            MessageLoaderParms parms(_MSG_NON_PRIVILEGED_ACCESS_DISABLED_KEY,
-                _MSG_NON_PRIVILEGED_ACCESS_DISABLED, userName);
+            MessageLoaderParms parms(
+                "IndicationService.IndicationService."
+                    "_MSG_NON_PRIVILEGED_ACCESS_DISABLED",
+                "User ($0) is not authorized to perform this operation.",
+                userName);
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, parms);
         }
@@ -1503,8 +1567,11 @@ void IndicationService::_handleModifyInstanceRequest(const Message* message)
 
                 PEG_METHOD_EXIT();
 
-                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
-                    MessageLoaderParms(_MSG_EXPIRED_KEY, _MSG_EXPIRED));
+                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                    MessageLoaderParms(
+                        "IndicationService.IndicationService._MSG_EXPIRED",
+                        "An expired subscription cannot be modified:  the "
+                            "subscription is deleted."));
             }
         }
         catch (DateTimeOutOfRangeException&)
@@ -3850,8 +3917,8 @@ void IndicationService::_checkRequiredProperty(
             throw PEGASUS_CIM_EXCEPTION_L(
                 CIM_ERR_INVALID_PARAMETER,
                 MessageLoaderParms(
-                    _MSG_KEY_PROPERTY_KEY,
-                    _MSG_KEY_PROPERTY,
+                    "IndicationService.IndicationService._MSG_KEY_PROPERTY",
+                    "The key property $0 is missing.",
                     propertyName.getString()));
         }
         else
@@ -4045,8 +4112,10 @@ void IndicationService::_checkPropertyWithOther (
                 throw PEGASUS_CIM_EXCEPTION_L(
                     CIM_ERR_INVALID_PARAMETER,
                     MessageLoaderParms(
-                        _MSG_PROPERTY_PRESENT_BUT_VALUE_NOT_KEY,
-                        _MSG_PROPERTY_PRESENT_BUT_VALUE_NOT,
+                        "IndicationService.IndicationService."
+                            "_MSG_PROPERTY_PRESENT_BUT_VALUE_NOT",
+                        "The $0 property is present, but the $1 value is "
+                            "not $2.",
                         otherPropertyName.getString(),
                         propertyName.getString(),
                         CIMValue(otherValue).toString()));
@@ -4299,9 +4368,11 @@ void IndicationService::_checkSupportedProperties (
             //  Throw an exception if an unknown, unsupported property was found
             //
             PEG_METHOD_EXIT ();
-            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
-                MessageLoaderParms (_MSG_PROPERTY_NOT_SUPPORTED_KEY,
-                    _MSG_PROPERTY_NOT_SUPPORTED,
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
+                MessageLoaderParms(
+                    "IndicationService.IndicationService."
+                        "_MSG_PROPERTY_NOT_SUPPORTED",
+                    "Property $0 is not supported in class $1",
                     instance.getProperty (i).getName ().getString (),
                     className.getString ()));
         }
@@ -4635,9 +4706,12 @@ Boolean IndicationService::_canDelete (
                 if (iref == path)
                 {
                     PEG_METHOD_EXIT ();
-                    throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
-                        MessageLoaderParms
-                            (_MSG_REFERENCED_KEY, _MSG_REFERENCED));
+                    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                        MessageLoaderParms(
+                            "IndicationService.IndicationService."
+                                "_MSG_REFERENCED",
+                            "A filter or handler referenced by a subscription "
+                                "cannot be deleted."));
                 }
             }
         }
@@ -5104,8 +5178,10 @@ CIMName IndicationService::_getIndicationClassName (
         throw PEGASUS_CIM_EXCEPTION_L(
             CIM_ERR_INVALID_PARAMETER,
             MessageLoaderParms(
-                _MSG_INVALID_CLASSNAME_IN_FROM_PROPERTY_KEY,
-                _MSG_INVALID_CLASSNAME_IN_FROM_PROPERTY,
+                "IndicationService.IndicationService."
+                    "_MSG_INVALID_CLASSNAME_IN_FROM_PROPERTY",
+                "The Indication class name $0 is not valid in the FROM clause "
+                    "of $1 $2 property.",
                 indicationClassName.getString(),
                 PEGASUS_CLASSNAME_INDFILTER.getString(),
                 PEGASUS_PROPERTYNAME_QUERY.getString()));
@@ -6650,9 +6726,10 @@ void IndicationService::_handleCreateResponseAggregation(
             //  For Create Instance or Modify Instance request, set CIM
             //  exception for response
             //
-            // l10n
             cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
-                MessageLoaderParms(_MSG_NOT_ACCEPTED_KEY, _MSG_NOT_ACCEPTED));
+                MessageLoaderParms(
+                    "IndicationService.IndicationService._MSG_NOT_ACCEPTED",
+                    "No providers accepted the subscription."));
         }
     }
 

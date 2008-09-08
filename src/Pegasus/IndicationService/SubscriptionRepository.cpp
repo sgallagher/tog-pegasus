@@ -38,7 +38,6 @@
 
 #include "IndicationConstants.h"
 #include "SubscriptionRepository.h"
-#include "IndicationMessageConstants.h"
 
 PEGASUS_USING_STD;
 
@@ -85,8 +84,12 @@ void SubscriptionRepository::beginCreateSubscription(
                 subPath.toString());
         }
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                  MessageLoaderParms(_MSG_DUPLICATE_SUBSCRIPTION_REQUEST_KEY,
-                      _MSG_DUPLICATE_SUBSCRIPTION_REQUEST, subPath.toString()));
+            MessageLoaderParms(
+                "IndicationService.IndicationService."
+                    "_MSG_DUPLICATE_SUBSCRIPTION_REQUEST",
+                "Similar create subscription request is being processed. "
+                    "Subscription path : $0",
+                subPath.toString()));
     }
     _normalizedSubscriptionTable->add(subPath, false);
 }

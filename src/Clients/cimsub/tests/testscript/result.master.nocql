@@ -887,7 +887,7 @@ test/CimsubTestNS0:Filter02  "SELECT IndicationTime, IndicationIdentifier, Corre
 
 Try to remove test filter.
     The filter is still referenced by a suscription.
-CIM_ERR_FAILED: A Filter or Handler referenced by a subscription may not be deleted
+CIM_ERR_FAILED: A filter or handler referenced by a subscription cannot be deleted.
 
 List test subscription.
     This is the only reference to the test filter.
@@ -913,7 +913,7 @@ PersistenceType:   Permanent
 
 Try to remove persistent test handler.
     The handler is still referenced by a subscription.
-CIM_ERR_FAILED: A Filter or Handler referenced by a subscription may not be deleted
+CIM_ERR_FAILED: A filter or handler referenced by a subscription cannot be deleted.
 
 List test subscription.
     This is the only reference to the persistent test handler.
@@ -1020,7 +1020,7 @@ SubscriptionState: Enabled
 -----------------------------------------
 
 Disable an expired subscription.
-CIM_ERR_FAILED: Expired subscription may not be modified; has been deleted
+CIM_ERR_FAILED: An expired subscription cannot be modified:  the subscription is deleted.
 
 List an expired subscription.
 The subscription should have been removed.

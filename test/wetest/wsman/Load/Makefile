@@ -29,11 +29,8 @@
 #//
 #//==============================================================================
 # Makefile builds a Sample Provider Namespace
-# ATTN: Today this makefile is implementation dependent.
-#       It assumes that the repository is a set of directories
-#       that can be removed by removing the directories.
-#       This must be updated to an implementation independent repository
-#       remove function.
+# Note: For best results, ensure that the test/WsmTest namespace does not
+#       exist before calling this Makefile.
 
 ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
@@ -45,14 +42,11 @@ include $(ROOT)/mak/configschema.mak
 # Update the following variable to change the version.
 
 WSM_TEST_NS=test/WsmTest
-WSM_TEST_NS_DIRECTORY=$(REPOSITORY_ROOT)/test\#WsmTest
 
 # Load the sample MOF with the local compiler. Cleans the existing repository
 # before reloading.
 # NOTE: I believe that the remove is duplicated for some reason.
 repository:
-	@ $(ECHO) +++++ Removing existing repository named $(WSM_TEST_NS)
-	@$(RMREPOSITORY) "$(WSM_TEST_NS_DIRECTORY)"
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(WSM_TEST_NS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(WSM_TEST_NS)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading Wsm test class definitions into $(WSM_TEST_NS) namespace ...
@@ -65,10 +59,6 @@ repositoryServer:
 	@ cimmof "-I$(CIM_SCHEMA_DIR)" "-n$(WSM_TEST_NS)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading Wsm test class definitions into $(WSM_TEST_NS) namespace ...
 	@ cimmof "-n$(WSM_TEST_NS)" WsmTest.mof
-
-removerepository:
-	@ $(ECHO) +++++ Removing existing repository named $(WSM_TEST_NS)
-	@ $(RMREPOSITORY) "$(WSM_TEST_NS_DIRECTORY)"
 
 unregister:
 

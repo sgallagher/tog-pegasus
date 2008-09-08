@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,6 +50,8 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+// Maximum logfile size is defined as 32 MB = 32 * 1024 * 1024
+# define PEGASUS_MAX_LOGFILE_SIZE 0X2000000
 
 const Uint32 Logger::TRACE = (1 << 0);
 const Uint32 Logger::INFORMATION = (1 << 1);
@@ -71,7 +75,6 @@ const Uint32 Logger::_NUM_LOGLEVEL = 5;
 
 Uint32 Logger::_severityMask;
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // LoggerRep
@@ -84,7 +87,7 @@ class LoggerRep
 {
 public:
 
-    LoggerRep(const String&)
+    LoggerRep(const String& homeDirectory)
     {
 # ifdef PEGASUS_OS_ZOS
         logIdentity = strdup(System::CIMSERVER.getCString());
@@ -102,7 +105,7 @@ public:
     }
 
     // Actual logging is done in this routine
-    void log(Logger::LogFileType,
+    void log(Logger::LogFileType logFileType,
         const String& systemId,
         Uint32 logLevel,
         const String localizedMsg)
@@ -207,7 +210,7 @@ public:
     void log(Logger::LogFileType logFileType,
         const String& systemId,
         Uint32 logLevel,
-        const String &localizedMsg)
+        const String localizedMsg)
     {
         // Prepend the systemId to the incoming message
         String messageString(systemId);
@@ -226,7 +229,7 @@ public:
         if (logLevel & Logger::FATAL) tmp =       "FATAL   ";
 
 # ifndef PEGASUS_OS_VMS
-        // Acquire AutoMutex (for thread sync)
+        // Acquire AutoMutex (for thread sync) 
         // and AutoFileLock (for Process Sync).
         AutoMutex am(_mutex);
         AutoFileLock fileLock(_loggerLockFileName);
@@ -234,11 +237,11 @@ public:
         Uint32  logFileSize = 0;
 
         // Read logFileSize to check if the logfile needs to be pruned.
-        FileSystem::getFileSize(String(_logFileNames[logFileType]),
+        FileSystem::getFileSize(String(_logFileNames[logFileType]), 
                                        logFileSize);
 
-        // Check if the size of the logfile is exceeding _maxLogFileSizeBytes.
-        if ( logFileSize > _maxLogFileSizeBytes)
+        // Check if the size of the logfile is exceeding 32MB.
+        if ( logFileSize > PEGASUS_MAX_LOGFILE_SIZE)
         {
             // Prepare appropriate file name based on the logFileType.
             // Eg: if Logfile name is PegasusStandard.log, pruned logfile name
@@ -253,9 +256,9 @@ public:
             // info to the file name.
 
             String timeStamp = System::getCurrentASCIITime();
-            for ( unsigned int i = 0; i < timeStamp.size(); i++ )
+            for (unsigned int i=0; i<=timeStamp.size(); i++)
             {
-                if( timeStamp[i] == '/' || timeStamp[i] == ':')
+                if(timeStamp[i] == '/' || timeStamp[i] == ':')
                 {
                     timeStamp.remove(i, 1);
                 }
@@ -281,22 +284,15 @@ public:
         logFileStream.close();
     }
 
-    static void setMaxLogFileSize(Uint32 maxLogFileSizeBytes)
-    {
-        _maxLogFileSizeBytes = maxLogFileSizeBytes;
-    }
 private:
 
     CString _logFileNames[int(Logger::NUM_LOGS)];
 
-    static Uint32 _maxLogFileSizeBytes;
 # ifndef PEGASUS_OS_VMS
     CString _loggerLockFileName;
     Mutex _mutex;
 # endif
 };
-
-Uint32 LoggerRep::_maxLogFileSizeBytes;
 
 #endif    // !defined(PEGASUS_USE_SYSLOGS)
 
@@ -310,32 +306,81 @@ Uint32 LoggerRep::_maxLogFileSizeBytes;
 void Logger::_putInternal(
     LogFileType logFileType,
     const String& systemId,
+    const Uint32 logComponent, // FUTURE: Support logComponent mask
     Uint32 logLevel,
-    const String& message)
+    const String& formatString,
+    const String& messageId,
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1,
+    const Formatter::Arg& arg2,
+    const Formatter::Arg& arg3,
+    const Formatter::Arg& arg4,
+    const Formatter::Arg& arg5,
+    const Formatter::Arg& arg6,
+    const Formatter::Arg& arg7,
+    const Formatter::Arg& arg8,
+    const Formatter::Arg& arg9)
 {
-    if (!_rep)
-       _rep = new LoggerRep(_homeDirectory);
-
-    // Call the actual logging routine is in LoggerRep.
-    _rep->log(logFileType, systemId, logLevel, message);
-
-    // PEP 315
-    // The trace can be routed into the log. The logged trace messages are
-    // logged with logFileType of Logger::TRACE_LOG.
-    // To avoid a cirular writing of these messages, log messages with
-    // logFileType of Logger::TRACE_LOG are never send to the trace.
-    if (Logger::TRACE_LOG != logFileType)
+    // Test for logLevel against severity mask to determine
+    // if we write this log.
+    if ((_severityMask & logLevel) != 0)
     {
-        // For all other logFileType's send the log messages to the trace.
-        // But do not write log messages to trace when the trace facility is
-        // set to log. This avoids double messages.
-        if (Tracer::TRACE_FACILITY_LOG != Tracer::getTraceFacility())
+        if (!_rep)
+           _rep = new LoggerRep(_homeDirectory);
+
+
+        // l10n start
+        // The localized message to be sent to the system log.
+        String localizedMsg;
+
+        // If the caller specified a messageId, then load the localized
+        // message in the locale of the server process.
+        if (messageId != String::EMPTY)
         {
-            PEG_TRACE_CSTRING(
-                TRC_LOGMSG,
-                Tracer::LEVEL1,
-                (const char*) message.getCString());
+            // A message ID was specified.  Use the MessageLoader.
+            MessageLoaderParms msgParms(messageId, formatString);
+            msgParms.useProcessLocale = true;
+            msgParms.arg0 = arg0;
+            msgParms.arg1 = arg1;
+            msgParms.arg2 = arg2;
+            msgParms.arg3 = arg3;
+            msgParms.arg4 = arg4;
+            msgParms.arg5 = arg5;
+            msgParms.arg6 = arg6;
+            msgParms.arg7 = arg7;
+            msgParms.arg8 = arg8;
+            msgParms.arg9 = arg9;
+
+            localizedMsg = MessageLoader::getMessage(msgParms);
         }
+        else
+        {  // No message ID.  Use the Pegasus formatter
+              localizedMsg = Formatter::format(formatString,
+                arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+        }
+// l10n end
+
+       // Call the actual logging routine is in LoggerRep.
+       _rep->log(logFileType, systemId, logLevel, localizedMsg);
+                
+       // PEP 315
+       // The trace can be routed into the log. The logged trace messages are
+       // logged with logFileType of Logger::TRACE_LOG. 
+       // To avoid a cirular writing of these messages, log messages with
+       // logFileType of Logger::TRACE_LOG are never send to the trace.
+       if (Logger::TRACE_LOG != logFileType)
+       {
+           // For all other logFileType's send the log messages to the trace.
+           // But do not write log messages to trace when the trace facility is
+           // set to log. This avoids double messages.
+           if (Tracer::TRACE_FACILITY_LOG != Tracer::getTraceFacility())
+           {
+               PEG_TRACE_CSTRING(
+                   TRC_LOGMSG,
+                   Tracer::LEVEL1,
+                   (const char*) localizedMsg.getCString());
+           }
+       }
     }
 }
 
@@ -363,9 +408,9 @@ void Logger::put(
 {
     if (wouldLog(logLevel))
     {
-        Logger::_putInternal(logFileType, systemId, logLevel,
-            Formatter::format(formatString, arg0, arg1, arg2, arg3,
-                arg4, arg5, arg6, arg7, arg8, arg9));
+        Logger::_putInternal(logFileType, systemId, 0, logLevel,
+            formatString, String::EMPTY, arg0, arg1, arg2, arg3,
+            arg4, arg5, arg6, arg7, arg8, arg9);
     }
 }
 
@@ -377,7 +422,8 @@ void Logger::put(
 {
     if (wouldLog(logLevel))
     {
-        Logger::_putInternal(logFileType, systemId, logLevel, formatString);
+        Logger::_putInternal(logFileType, systemId, 0, logLevel,
+            formatString, String::EMPTY);
     }
 }
 
@@ -390,8 +436,8 @@ void Logger::put(
 {
     if (wouldLog(logLevel))
     {
-        Logger::_putInternal(logFileType, systemId, logLevel,
-            Formatter::format(formatString, arg0));
+        Logger::_putInternal(logFileType, systemId, 0, logLevel,
+            formatString, String::EMPTY, arg0);
     }
 }
 
@@ -405,8 +451,8 @@ void Logger::put(
 {
     if (wouldLog(logLevel))
     {
-        Logger::_putInternal(logFileType, systemId, logLevel,
-            Formatter::format(formatString, arg0, arg1));
+        Logger::_putInternal(logFileType, systemId, 0, logLevel,
+            formatString, String::EMPTY, arg0, arg1);
     }
 }
 
@@ -421,8 +467,8 @@ void Logger::put(
 {
     if (wouldLog(logLevel))
     {
-        Logger::_putInternal(logFileType, systemId, logLevel,
-            Formatter::format(formatString, arg0, arg1, arg2));
+        Logger::_putInternal(logFileType, systemId, 0, logLevel,
+            formatString, String::EMPTY, arg0, arg1, arg2);
     }
 }
 
@@ -430,26 +476,255 @@ void Logger::put_l(
     LogFileType logFileType,
     const String& systemId,
     Uint32 logLevel,
-    const MessageLoaderParms& msgParms)
+    const String& messageId,
+    const String& formatString,
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1,
+    const Formatter::Arg& arg2,
+    const Formatter::Arg& arg3,
+    const Formatter::Arg& arg4,
+    const Formatter::Arg& arg5,
+    const Formatter::Arg& arg6,
+    const Formatter::Arg& arg7,
+    const Formatter::Arg& arg8,
+    const Formatter::Arg& arg9)
 {
     if (wouldLog(logLevel))
     {
-        MessageLoaderParms parms = msgParms;
-        parms.useProcessLocale = true;
-        Logger::_putInternal(logFileType, systemId, logLevel,
-            MessageLoader::getMessage(parms));
+        Logger::_putInternal(logFileType, systemId, 0, logLevel,
+            formatString, messageId, arg0, arg1, arg2, arg3, arg4, arg5,
+            arg6, arg7, arg8, arg9);
+    }
+}
+
+void Logger::put_l(
+     LogFileType logFileType,
+     const String& systemId,
+     Uint32 logLevel,
+     const String& messageId,
+     const String& formatString)
+{
+    if (wouldLog(logLevel))
+    {
+        Logger::_putInternal(logFileType, systemId, 0, logLevel,
+        formatString, messageId);
+    }
+}
+
+void Logger::put_l(
+     LogFileType logFileType,
+     const String& systemId,
+     Uint32 logLevel,
+     const String& messageId,
+     const String& formatString,
+     const Formatter::Arg& arg0)
+{
+    if (wouldLog(logLevel))
+    {
+        Logger::_putInternal(logFileType, systemId, 0, logLevel,
+            formatString, messageId, arg0);
+    }
+}
+
+void Logger::put_l(
+     LogFileType logFileType,
+     const String& systemId,
+     Uint32 logLevel,
+     const String& messageId,
+     const String& formatString,
+     const Formatter::Arg& arg0,
+     const Formatter::Arg& arg1)
+{
+    if (wouldLog(logLevel))
+    {
+        Logger::_putInternal(logFileType, systemId, 0, logLevel,
+            formatString, messageId, arg0, arg1);
+    }
+}
+
+void Logger::put_l(
+     LogFileType logFileType,
+     const String& systemId,
+     Uint32 logLevel,
+     const String& messageId,
+     const String& formatString,
+     const Formatter::Arg& arg0,
+     const Formatter::Arg& arg1,
+     const Formatter::Arg& arg2)
+{
+    if (wouldLog(logLevel))
+    {
+        Logger::_putInternal(logFileType, systemId, 0, logLevel,
+            formatString, messageId, arg0, arg1, arg2);
     }
 }
 
 void Logger::trace(
     LogFileType logFileType,
     const String& systemId,
-    const String& message)
+    const Uint32 logComponent,
+    const String& formatString,
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1,
+    const Formatter::Arg& arg2,
+    const Formatter::Arg& arg3,
+    const Formatter::Arg& arg4,
+    const Formatter::Arg& arg5,
+    const Formatter::Arg& arg6,
+    const Formatter::Arg& arg7,
+    const Formatter::Arg& arg8,
+    const Formatter::Arg& arg9)
 {
     if (wouldLog(Logger::TRACE))
     {
-        Logger::_putInternal(logFileType, systemId, Logger::TRACE,
-            message);
+        Logger::_putInternal(logFileType, systemId, logComponent, Logger::TRACE,
+            formatString, String::EMPTY, arg0, arg1, arg2, arg3, arg4, arg5,
+            arg6, arg7, arg8, arg9);
+    }
+}
+
+void Logger::trace(
+    LogFileType logFileType,
+    const String& systemId,
+    const Uint32 logComponent,
+    const String& formatString)
+{
+    if (wouldLog(Logger::TRACE))
+    {
+        Logger::_putInternal(logFileType, systemId, logComponent, Logger::TRACE,
+            formatString, String::EMPTY);
+    }
+}
+
+void Logger::trace(
+    LogFileType logFileType,
+    const String& systemId,
+    const Uint32 logComponent,
+    const String& formatString,
+    const Formatter::Arg& arg0)
+{
+    if (wouldLog(Logger::TRACE))
+    {
+        Logger::_putInternal(logFileType, systemId, logComponent, Logger::TRACE,
+            formatString, String::EMPTY, arg0);
+    }
+}
+
+void Logger::trace(
+    LogFileType logFileType,
+    const String& systemId,
+    const Uint32 logComponent,
+    const String& formatString,
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1)
+{
+    if (wouldLog(Logger::TRACE))
+    {
+        Logger::_putInternal(logFileType, systemId, logComponent, Logger::TRACE,
+            formatString, String::EMPTY, arg0, arg1);
+    }
+}
+
+void Logger::trace(
+    LogFileType logFileType,
+    const String& systemId,
+    const Uint32 logComponent,
+    const String& formatString,
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1,
+    const Formatter::Arg& arg2)
+{
+    if (wouldLog(Logger::TRACE))
+    {
+        Logger::_putInternal(logFileType, systemId, logComponent, Logger::TRACE,
+            formatString, String::EMPTY, arg0, arg1, arg2);
+    }
+}
+
+void Logger::trace_l(
+    LogFileType logFileType,
+    const String& systemId,
+    const Uint32 logComponent,
+    const String& messageId,
+    const String& formatString,
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1,
+    const Formatter::Arg& arg2,
+    const Formatter::Arg& arg3,
+    const Formatter::Arg& arg4,
+    const Formatter::Arg& arg5,
+    const Formatter::Arg& arg6,
+    const Formatter::Arg& arg7,
+    const Formatter::Arg& arg8,
+    const Formatter::Arg& arg9)
+{
+    if (wouldLog(Logger::TRACE))
+    {
+        Logger::_putInternal(logFileType, systemId, logComponent, Logger::TRACE,
+            formatString, messageId, arg0, arg1, arg2, arg3, arg4, arg5, arg6,
+            arg7, arg8, arg9);
+    }
+}
+
+void Logger::trace_l(
+    LogFileType logFileType,
+    const String& systemId,
+    const Uint32 logComponent,
+    const String& messageId,
+    const String& formatString)
+{
+    if (wouldLog(Logger::TRACE))
+    {
+        Logger::_putInternal(logFileType, systemId, logComponent, Logger::TRACE,
+            formatString, messageId);
+    }
+}
+
+void Logger::trace_l(
+    LogFileType logFileType,
+    const String& systemId,
+    const Uint32 logComponent,
+    const String& messageId,
+    const String& formatString,
+    const Formatter::Arg& arg0)
+{
+    if (wouldLog(Logger::TRACE))
+    {
+        Logger::_putInternal(logFileType, systemId, logComponent, Logger::TRACE,
+            formatString, messageId, arg0);
+    }
+}
+
+void Logger::trace_l(
+    LogFileType logFileType,
+    const String& systemId,
+    const Uint32 logComponent,
+    const String& messageId,
+    const String& formatString,
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1)
+{
+    if (wouldLog(Logger::TRACE))
+    {
+        Logger::_putInternal(logFileType, systemId, logComponent, Logger::TRACE,
+            formatString, messageId, arg0, arg1);
+    }
+}
+
+void Logger::trace_l(
+    LogFileType logFileType,
+    const String& systemId,
+    const Uint32 logComponent,
+    const String& messageId,
+    const String& formatString,
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1,
+    const Formatter::Arg& arg2)
+{
+    if (wouldLog(Logger::TRACE))
+    {
+        Logger::_putInternal(logFileType, systemId, logComponent, Logger::TRACE,
+            formatString, messageId, arg0, arg1, arg2);
     }
 }
 
@@ -458,7 +733,7 @@ void Logger::setHomeDirectory(const String& homeDirectory)
     _homeDirectory = homeDirectory;
 }
 
-void Logger::setlogLevelMask( const String &logLevelList )
+void Logger::setlogLevelMask( const String logLevelList )
 {
     Uint32 logLevelType = 0;
     String logLevelName      = logLevelList;
@@ -520,7 +795,7 @@ void Logger::setlogLevelMask( const String &logLevelList )
     }
 }
 
-Boolean Logger::isValidlogLevel(const String &logLevel)
+Boolean Logger::isValidlogLevel(const String logLevel)
 {
     // Validate the logLevel and modify the logLevel argument
     // to reflect the invalid logLevel
@@ -559,12 +834,5 @@ Boolean Logger::isValidlogLevel(const String &logLevel)
 
     return validlogLevel;
 }
-
-#if !defined (PEGASUS_USE_SYSLOGS)
-void Logger::setMaxLogFileSize(Uint32 maxLogFileSizeBytes)
-{
-     LoggerRep::setMaxLogFileSize(maxLogFileSizeBytes);
-}
-#endif
 
 PEGASUS_NAMESPACE_END

@@ -55,6 +55,25 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+const CIMName _PROPERTY_PROVIDERMODULENAME =
+    CIMNameUnchecked("ProviderModuleName");
+const CIMName _PROPERTY_VENDOR = CIMNameUnchecked("Vendor");
+const CIMName _PROPERTY_VERSION = CIMNameUnchecked("Version");
+const CIMName _PROPERTY_INTERFACETYPE = CIMNameUnchecked("InterfaceType");
+const CIMName _PROPERTY_INTERFACEVERSION = CIMNameUnchecked("InterfaceVersion");
+const CIMName _PROPERTY_LOCATION = CIMNameUnchecked("Location");
+const CIMName _PROPERTY_CAPABILITIESID = CIMNameUnchecked("CapabilityID");
+const CIMName _PROPERTY_PROVIDERNAME = CIMNameUnchecked("ProviderName");
+const CIMName _PROPERTY_CLASSNAME = CIMNameUnchecked("ClassName");
+const CIMName _PROPERTY_NAMESPACES = CIMNameUnchecked("Namespaces");
+const CIMName _PROPERTY_PROVIDERTYPE = CIMNameUnchecked("ProviderType");
+const CIMName _PROPERTY_SUPPORTEDPROPERTIES =
+    CIMNameUnchecked("SupportedProperties");
+const CIMName _PROPERTY_SUPPORTEDMETHODS =
+    CIMNameUnchecked("SupportedMethods");
+const CIMName _PROPERTY_INDICATIONDESTINATIONS =
+    CIMNameUnchecked("Destinations");
+
 /**
     ProviderRegistration table is used to keep track of provider registration
     data.
@@ -157,7 +176,7 @@ static const char ASSO_PROVIDER [] = "Association";
 static const char IND_PROVIDER [] = "Indication";
 
 /**
-   Registered Method provider
+   Registered Instance Query provider
 */
 static const char INSTANCE_QUERY_PROVIDER [] = "InstanceQuery";
 

@@ -76,8 +76,10 @@ struct ReadWriteSemRep
     Semaphore _rlock;
     Mutex _wlock;
     Mutex _internal_lock;
+    AtomicInt _readers;
+    AtomicInt _writers;
     ReadWriteSemRep() :
-        _rlock(10), _wlock(), _internal_lock()
+        _rlock(10), _wlock(), _internal_lock(), _readers(0), _writers(0)
     {
     }
 };
@@ -98,41 +100,17 @@ public:
     ~ReadWriteSem();
 
     // @exception WaitFailed
-    inline void wait_read(ThreadType caller)
-    {
-        _wait(false, caller);
-    }
+    void waitRead();
 
     // @exception WaitFailed
-    inline void wait_write(ThreadType caller)
-    {
-        _wait(true, caller);
-    }
+    void waitWrite();
 
-    // @exception Permission
-    inline void unlock_read(ThreadType caller)
-    {
-        _unlock(false, caller);
-    }
+    void unlockRead();
 
-    // @exception Permission
-    inline void unlock_write(ThreadType caller)
-    {
-        _unlock(true, caller);
-    }
-
-    int read_count() const;
-    int write_count() const;
+    void unlockWrite();
 
 private:
-    // @exception WaitFailed
-    void _wait(Boolean writeLock, ThreadType caller);
 
-    // @exception Permission
-    void _unlock(Boolean writeLock, ThreadType caller);
-
-    AtomicInt _readers;
-    AtomicInt _writers;
     ReadWriteSemRep _rwlock;
 };
 
@@ -148,12 +126,12 @@ public:
 
     ReadLock(ReadWriteSem& rwsem) : _rwsem(rwsem)
     {
-        _rwsem.wait_read(Threads::self());
+        _rwsem.waitRead();
     }
 
     ~ReadLock()
     {
-        _rwsem.unlock_read(Threads::self());
+        _rwsem.unlockRead();
     }
 
 private:
@@ -172,12 +150,12 @@ public:
 
     WriteLock(ReadWriteSem& rwsem) : _rwsem(rwsem)
     {
-        _rwsem.wait_write(Threads::self());
+        _rwsem.waitWrite();
     }
 
     ~WriteLock()
     {
-        _rwsem.unlock_write(Threads::self());
+        _rwsem.unlockWrite();
     }
 
 private:

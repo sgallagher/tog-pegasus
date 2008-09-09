@@ -297,7 +297,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
 
       try
       {
-          my_parm->wait_read(myself);
+          my_parm->waitRead();
       }
       catch (IPCException&)
       {
@@ -341,7 +341,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       }
       try 
       {
-         my_parm->unlock_read(myself);
+         my_parm->unlockRead();
       }
       catch (IPCException&)
       {
@@ -380,7 +380,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL writing_thread(void *parm)
    {
       try 
       {
-         my_parm->wait_write(myself);
+         my_parm->waitWrite();
       }
       catch (IPCException&)
       {
@@ -392,7 +392,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL writing_thread(void *parm)
       my_handle->sleep(1);
       try 
       {
-         my_parm->unlock_write(myself);
+         my_parm->unlockWrite();
       }
       catch (IPCException&)
       {

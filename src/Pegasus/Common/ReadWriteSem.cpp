@@ -46,7 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 #ifdef PEGASUS_USE_POSIX_RWLOCK
 
-ReadWriteSem::ReadWriteSem():_readers(0), _writers(0)
+ReadWriteSem::ReadWriteSem()
 {
     pthread_rwlock_init(&_rwlock.rwlock, NULL);
 }
@@ -61,54 +61,34 @@ ReadWriteSem::~ReadWriteSem()
     }
 }
 
-void ReadWriteSem::_wait(Boolean writeLock, ThreadType caller)
+void ReadWriteSem::waitRead()
 {
-    if (writeLock)
+    if (pthread_rwlock_rdlock(&_rwlock.rwlock) != 0)
     {
-        if (0 == pthread_rwlock_wrlock(&_rwlock.rwlock))
-        {
-            _writers++;
-            return;
-        }
+        throw WaitFailed(Threads::self());
     }
-    else
-    {
-        if (0 == pthread_rwlock_rdlock(&_rwlock.rwlock))
-        {
-            _readers++;
-            return;
-        }
-    }
-
-    throw WaitFailed(Threads::self());
 }
 
-void ReadWriteSem::_unlock(Boolean writeLock, ThreadType caller)
+void ReadWriteSem::waitWrite()
 {
-    if (writeLock)
+    if (pthread_rwlock_wrlock(&_rwlock.rwlock) != 0)
     {
-        PEGASUS_ASSERT(_writers.get() == 1);
-        _writers = 0;
+        throw WaitFailed(Threads::self());
     }
-    else
-    {
-        PEGASUS_ASSERT(_readers.get() > 0);
-        _readers--;
-    }
+}
 
+void ReadWriteSem::unlockRead()
+{
     int rc = pthread_rwlock_unlock(&_rwlock.rwlock);
     // All documented error codes represent coding errors.
     PEGASUS_ASSERT(rc == 0);
 }
 
-int ReadWriteSem::read_count() const
+void ReadWriteSem::unlockWrite()
 {
-    return _readers.get();
-}
-
-int ReadWriteSem::write_count() const
-{
-    return _writers.get();
+    int rc = pthread_rwlock_unlock(&_rwlock.rwlock);
+    // All documented error codes represent coding errors.
+    PEGASUS_ASSERT(rc == 0);
 }
 
 #endif /* PEGASUS_USE_POSIX_RWLOCK */
@@ -126,7 +106,7 @@ int ReadWriteSem::write_count() const
 // 2) I do not hold the write lock
 // 3) I am not using a reader slot
 
-ReadWriteSem::ReadWriteSem():_readers(0), _writers(0), _rwlock()
+ReadWriteSem::ReadWriteSem() : _rwlock()
 {
 }
 
@@ -141,104 +121,61 @@ ReadWriteSem::~ReadWriteSem()
     {
         PEGASUS_ASSERT(0);
     }
-    while (_readers.get() > 0 || _writers.get() > 0)
+    while (_rwlock._readers.get() > 0 || _rwlock._writers.get() > 0)
     {
         Threads::yield();
     }
     _rwlock._internal_lock.unlock();
 }
 
-//---------------------------------------------------------------------
-void ReadWriteSem::_wait(Boolean writeLock, ThreadType caller)
+void ReadWriteSem::waitRead()
 {
-//-----------------------------------------------------------------
-// Lock this object to maintain integrity while we decide
-// exactly what to do next.
-//-----------------------------------------------------------------
-    _rwlock._internal_lock.lock();
+    // Lock the internal mutex to ensure only one waiter is processed at a time.
+    AutoMutex lock(_rwlock._internal_lock);
 
-    if (writeLock)
+    // Wait for the existing writer (if any) to clear.
+    while (_rwlock._writers.get() > 0)
     {
-//-----------------------------------------------------------------
-// Write Lock Step 1: lock the object and allow all the readers to exit
-//-----------------------------------------------------------------
-        while (_readers.get() > 0)
-            Threads::yield();
-//-----------------------------------------------------------------
-// Write Lock Step 2: Obtain the Write Mutex
-//  Although there are no readers, there may be a writer
-//-----------------------------------------------------------------
-        try
-        {
-            _rwlock._wlock.lock();
-        }
-        catch (const IPCException&)
-        {
-            _rwlock._internal_lock.unlock();
-            throw;
-        }
-//-----------------------------------------------------------------
-// Write Lock Step 3: set the writer count to one, unlock the object
-//   There are no readers and we are the only writer !
-//-----------------------------------------------------------------
-        _writers = 1;
-        // unlock the object
-        _rwlock._internal_lock.unlock();
+        Threads::yield();
     }
-    else
-    {
-//-----------------------------------------------------------------
-// Read Lock Step 1: Wait for the existing writer (if any) to clear
-//-----------------------------------------------------------------
-        while (_writers.get() > 0)
-            Threads::yield();
-//-----------------------------------------------------------------
-// Read Lock Step 2: wait for a reader slot to open up, then return
-//  At this point there are no writers, but there may be too many
-//  readers.
-//-----------------------------------------------------------------
-        try
-        {
-            _rwlock._rlock.wait();
-        }
-        catch (const IPCException&)
-        {
-            _rwlock._internal_lock.unlock();
-            throw;
-        }
-//-----------------------------------------------------------------
-// Read Lock Step 3: increment the number of readers, unlock the object,
-// return
-//-----------------------------------------------------------------
-        _readers++;
-        _rwlock._internal_lock.unlock();
-    }
+
+    // Wait for a reader slot to open up.
+    _rwlock._rlock.wait();
+
+    // Increment the number of readers.
+    _rwlock._readers++;
 }
 
-void ReadWriteSem::_unlock(Boolean writeLock, ThreadType caller)
+void ReadWriteSem::waitWrite()
 {
-    if (writeLock)
+    // Lock the internal mutex to ensure only one waiter is processed at a time.
+    AutoMutex lock(_rwlock._internal_lock);
+
+    // Allow all the readers to exit.
+    while (_rwlock._readers.get() > 0)
     {
-        PEGASUS_ASSERT(_writers.get() == 1);
-        _writers = 0;
-        _rwlock._wlock.unlock();
+        Threads::yield();
     }
-    else
-    {
-        PEGASUS_ASSERT(_readers.get() > 0);
-        _readers--;
-        _rwlock._rlock.signal();
-    }
+
+    // Obtain the write mutex.
+    _rwlock._wlock.lock();
+
+    // Set the writer count to one.
+    _rwlock._writers = 1;
 }
 
-int ReadWriteSem::read_count() const
+void ReadWriteSem::unlockRead()
 {
-    return _readers.get();
+    PEGASUS_ASSERT(_rwlock._readers.get() > 0);
+    _rwlock._readers--;
+    _rwlock._rlock.signal();
 }
 
-int ReadWriteSem::write_count() const
+void ReadWriteSem::unlockWrite()
 {
-    return _writers.get();
+    PEGASUS_ASSERT(_rwlock._writers.get() == 1);
+    _rwlock._writers = 0;
+    _rwlock._wlock.unlock();
 }
 
 #endif /* !PEGASUS_USE_SEMAPHORE_RWLOCK */

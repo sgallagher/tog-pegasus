@@ -855,13 +855,13 @@ ThreadReturnType PEGASUS_THREAD_CDECL tracerThread( void* parm )
     Thread *my_handle = (Thread *)parm;
     TTTParm * my_parm = (TTTParm *)my_handle->get_parm();
    
-    Threads::sleep(1);
+    Threads::yield();
     for (Uint32 x=0; x < my_parm->number; x++)
     {
         if (x % 911 == 0 )
         {
             // Give other threads time to run.
-            Threads::sleep(1);
+            Threads::yield();
         }
         if (my_parm->isVariableMsg)
         {

@@ -409,13 +409,13 @@ void TraceMemoryHandler::handleMessage(
             ttlMsgLen = 4096;
         }
 
-        if ((Uint32)ttlMsgLen > _overflowBufferSize)
+        if ((Uint32)ttlMsgLen >= _overflowBufferSize)
         {
             if (_overflowBuffer != NULL )
             {
                 delete[] _overflowBuffer;
             }
-            _overflowBufferSize = ttlMsgLen;
+            _overflowBufferSize = ttlMsgLen+1;
             _overflowBuffer = new char[_overflowBufferSize];
         }
 
@@ -433,14 +433,17 @@ void TraceMemoryHandler::handleMessage(
                               argListCopy);
 #endif
 
+        // The actual number of characters written to the buffer is the
+        // number of bytes left in the buffer minus the trailing '/0'.
+        Uint32 numCharsWritten = _leftBytesInBuffer-1;
 
         // Now calculate how much data we have to copy from the overflow
         // buffer back to the trace buffer.
-        ttlMsgLen -= _leftBytesInBuffer;
+        ttlMsgLen -= numCharsWritten;
 
         // Copy the remainder of the trace message to the trace buffer
         memcpy(&(_traceArea->traceBuffer[0]),
-               &(_overflowBuffer[_leftBytesInBuffer]),
+               &(_overflowBuffer[numCharsWritten]),
                ttlMsgLen );
 
         _traceArea->nextPos = ttlMsgLen+1;

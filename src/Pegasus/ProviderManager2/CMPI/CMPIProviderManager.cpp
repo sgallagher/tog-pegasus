@@ -299,6 +299,24 @@ void CMPIProviderManager::unloadIdleProviders()
     providerManager.unloadIdleProviders();
 }
 
+CIMObjectPath CMPIProviderManager::_getFilterPath(
+    const CIMInstance &instance)
+{
+    CIMConstProperty filterProperty = instance.getProperty(
+        instance.findProperty (PEGASUS_PROPERTYNAME_FILTER));
+    CIMValue filterValue = filterProperty.getValue();
+    CIMObjectPath filterPath;
+    filterValue.get(filterPath);
+    // Remove host tag
+    filterPath.setHost(String::EMPTY);
+    // Set subscription's namespace if namespace is not found in filter path.
+    if (filterPath.getNameSpace().equal(CIMNamespaceName()))
+    {
+        filterPath.setNameSpace(instance.getPath().getNameSpace());
+    }
+
+    return filterPath;
+}
 
 #define CHARS(cstring) (char*)(strlen(cstring)?(const char*)cstring:NULL)
 
@@ -2333,18 +2351,19 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
         //
         ph.GetProvider ().setProviderInstance (req_provider);
 
-        const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
+        const CIMObjectPath &filterPath = _getFilterPath(
+            request->subscriptionInstance);
 
         indSelectRecord *srec=NULL;
 
         {
             WriteLock writeLock(rwSemSelxTab);
-            selxTab.lookup(sPath,srec);
+            selxTab.lookup(filterPath,srec);
             if (srec) srec->count++;
             else
             {
                 srec=new indSelectRecord();
-                selxTab.insert(sPath,srec);
+                selxTab.insert(filterPath,srec);
             }
         }
 
@@ -2480,7 +2499,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             WriteLock lock(rwSemSelxTab);
             if (--srec->count<=0)
             {
-                selxTab.remove(sPath);
+                selxTab.remove(filterPath);
                 delete _context;
                 delete eSelx;
                 delete srec;
@@ -2576,10 +2595,11 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
         }
 
         indSelectRecord *srec=NULL;
-        const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
+        const CIMObjectPath &filterPath = _getFilterPath(
+            request->subscriptionInstance);
 
         WriteLock writeLock(rwSemSelxTab);
-        if (!selxTab.lookup(sPath,srec))
+        if (!selxTab.lookup(filterPath,srec))
         {
             MessageLoaderParms parms(
                 "ProviderManager.CMPI.CMPIProviderManager."
@@ -2595,7 +2615,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
         CMPI_ObjectPathOnStack eRef(eSelx->classNames[0]);
         if (--srec->count<=0)
         {
-            selxTab.remove(sPath);
+            selxTab.remove(filterPath);
         }
 
         // convert arguments

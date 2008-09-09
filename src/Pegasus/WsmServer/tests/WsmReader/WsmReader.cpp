@@ -1075,7 +1075,7 @@ static void _testPullBodyErrors(WsmReader& reader)
         reader.decodePullBody(enumerationContext, 
             maxTime, maxElements, maxCharacters);
 
-        throw Exception("Expected duplicate headers fault");
+        throw Exception("Expected invalid enumeration context fault");
     }
     catch (WsmFault& fault)
     {

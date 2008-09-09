@@ -18,7 +18,7 @@
 <wsen:EnumerationContext>22</wsen:EnumerationContext>
 <wsen:MaxTime>PT123S</wsen:MaxTime>
 <wsen:MaxCharacters>2222</wsen:MaxCharacters>
-<wsman:MaxElements>222</wsman:MaxElements>
+<wsen:MaxElements>222</wsen:MaxElements>
 </wsen:Pull>
 
 
@@ -37,7 +37,7 @@
 
 <!--Test invalid MaxElements-->
 <wsen:Pull>
-<wsman:MaxElements>222ds</wsman:MaxElements>
+<wsen:MaxElements>222ds</wsen:MaxElements>
 </wsen:Pull>
 
 </SOAP-ENV:Envelope>

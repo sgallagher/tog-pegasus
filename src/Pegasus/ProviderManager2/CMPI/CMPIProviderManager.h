@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +36,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/General/SubscriptionKey.h>
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
 #include <Pegasus/Common/OperationContextInternal.h>
@@ -45,137 +46,11 @@
 #include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
 #include <Pegasus/ProviderManager2/CMPI/Linkage.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPI_ContextArgs.h>
-#include <Pegasus/ProviderManager2/CMPI/CMPI_Error.h>
-#include <Pegasus/ProviderManager2/CMPI/CMPI_SelectExp.h>
 
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 PEGASUS_NAMESPACE_BEGIN
 
-
-/**
-    This record is created for each indication provider to keep track of
-    CMPI_SelectExp objects they are servicing.
-*/
-class PEGASUS_CMPIPM_LINKAGE IndProvRecord
-{
-public:
-    IndProvRecord() : _handler(0), selectExpTab(4)
-    {
-    }
-
-    ~IndProvRecord()    
-    {
-        CMPI_SelectExp *eSelx = 0;
-        for (SelectExpTab::Iterator i = selectExpTab.start(); i; i++)
-        {
-            selectExpTab.lookup(i.key(), eSelx);
-            delete eSelx;
-        }
-        delete _handler;
-    }
-
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
-    void setRemoteInfo(const String &remoteInfo)
-    {
-        _remoteInfo = remoteInfo;
-    }
-
-    String getRemoteInfo()
-    {
-        return _remoteInfo;
-    }
-#endif
-
-    void setHandler(EnableIndicationsResponseHandler *handler)
-    {
-        _handler = handler;
-    }
-
-    EnableIndicationsResponseHandler* getHandler()
-    {
-        return _handler;
-    }
-
-    Boolean isEnabled()
-    {
-        return _handler != 0;
-    }
-
-    Boolean getSelectExpCount()
-    {
-        return selectExpTab.size();
-    }
-
-    Boolean lookupSelectExp(
-        const CIMObjectPath &path,
-        const CIMNamespaceName &nameSpace,
-        CMPI_SelectExp *&eSelx)
-    {
-        return selectExpTab.lookup(_getKey(path, nameSpace), eSelx);
-    }
-
-    Boolean addSelectExp(
-        const CIMObjectPath &path,
-        const CIMNamespaceName &nameSpace,
-        CMPI_SelectExp *eSelx)
-    {
-        return selectExpTab.insert(_getKey(path, nameSpace), eSelx);
-    }
-
-    Boolean deleteSelectExp(
-        const CIMObjectPath &path,
-        const CIMNamespaceName &nameSpace)
-    {
-        return selectExpTab.remove(_getKey(path, nameSpace));
-    }
-
-    struct IndProvRecKey
-    {
-        CIMNamespaceName sourceNamespace;
-        SubscriptionKey subscriptionKey;
-    };
-
-    struct IndProvRecKeyHash
-    {
-        static Uint32 hash (const IndProvRecKey &key)
-        {
-            return SubscriptionKeyHashFunc::hash(key.subscriptionKey) +
-                HashLowerCaseFunc::hash(key.sourceNamespace.getString());
-        }
-    };
-
-    struct IndProvRecKeyEqual
-    {
-        static Boolean equal (const IndProvRecKey &x, const IndProvRecKey &y)
-        {
-            return (x.sourceNamespace == y.sourceNamespace) &&
-                SubscriptionKeyEqualFunc::equal(
-                    x.subscriptionKey,
-                    y.subscriptionKey);
-        }
-    };
-
-private:
-    IndProvRecKey _getKey(
-        const CIMObjectPath &path,
-        const CIMNamespaceName &nameSpace)
-    {
-        IndProvRecKey key;
-        key.subscriptionKey = SubscriptionKey(path);
-        key.sourceNamespace = nameSpace;
-        return key;
-    }
-
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
-    String _remoteInfo;
-#endif
-    EnableIndicationsResponseHandler* _handler;
-
-    typedef HashTable<IndProvRecKey, CMPI_SelectExp*,
-        IndProvRecKeyEqual, IndProvRecKeyHash > SelectExpTab;
-
-    SelectExpTab selectExpTab;
-};
+struct CMPI_SelectExp;
 
 class PEGASUS_CMPIPM_LINKAGE CMPIProviderManager : public ProviderManager
 {
@@ -193,29 +68,50 @@ public:
         return true;
     }
 
-    typedef HashTable<String, IndProvRecord*,
-        EqualFunc<String>,HashFunc<String> > IndProvTab;
+    struct indProvRecord
+    {
+        indProvRecord() : enabled(false), count(1), handler(NULL)
+        {
+        }
+        Boolean enabled;
+        int count;
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+        String remoteInfo; 
+#endif
+        EnableIndicationsResponseHandler* handler;
+    };
 
-    static IndProvTab indProvTab;
-    static ReadWriteSem rwSemProvTab;
+    struct indSelectRecord
+    {
+        indSelectRecord() : eSelx(NULL), count(1)
+        {
+        }
+        CMPI_SelectExp *eSelx;
+        CIMOMHandleQueryContext *qContext;
+        int count;
+    };
+
+    typedef HashTable<String,indProvRecord*, \
+        EqualFunc<String>,HashFunc<String> > IndProvTab;
+    typedef HashTable<CIMObjectPath,indSelectRecord*, \
+        EqualFunc<CIMObjectPath>,HashFunc<CIMObjectPath> > IndSelectTab;
+
+    static IndProvTab provTab;
+    static ReadWriteSem  rwSemProvTab;
+    static IndSelectTab selxTab;
+    static ReadWriteSem  rwSemSelxTab;
 protected:
     CMPILocalProviderManager providerManager;
 
     void _setupCMPIContexts(
         CMPI_ContextOnStack * eCtx,
         OperationContext * context,
-        const CString * nameSpace,
-        const CString * remoteInfo,
+        ProviderIdContainer * pidc,
+        const String & nameSpace,
         Boolean remote,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
         Boolean setFlags = false);
-
-    CMPIProvider & _resolveAndGetProvider(
-        OperationContext * context,
-        OpProviderHolder * ph,
-        CString * remoteInfo,
-        Boolean & isRemote);
 
     Message * handleUnsupportedRequest(const Message * message);
 
@@ -249,12 +145,11 @@ protected:
     Message * handleEnableModuleRequest(const Message * message);
     Message * handleStopAllProvidersRequest(const Message * message);
     Message * handleSubscriptionInitCompleteRequest (const Message * message);
-    Message * handleIndicationServiceDisabledRequest (Message * message);
 
     ProviderName _resolveProviderName(const ProviderIdContainer & providerId);
 
     /**
-        Calls the provider's enableIndications() method, if the provider
+        Calls the provider's enableIndications() method, if the provider 
         version supports enableIndications().
 
         Note that since an exception thrown by the provider's
@@ -281,35 +176,14 @@ protected:
         @param remoteInfo Remote Information
      */
     void _callDisableIndications(
-        OpProviderHolder & ph,
+        OpProviderHolder & ph, 
         const char *remoteInfo);
 
-    String _getClassNameFromQuery(
-        CIMOMHandleQueryContext *context,
-        String &query,
-        String &lang);
-
-    void _throwCIMException(
-        CMPIStatus code,
-        CMPI_Error* cmpiError);
-
-    SCMOInstance* getSCMOClassFromRequest(
-        CString& nameSpace,
-        CString& className );
-
-    SCMOInstance* getSCMOObjectPathFromRequest(
-        CString& nameSpace,
-        CString& className,
-        CIMObjectPath& cimObjPath );
-    
-    SCMOInstance* getSCMOInstanceFromRequest(
-        CString& nameSpace,
-        CString& className,
-        CIMInstance& cimInstance );
-
+    CIMObjectPath _getFilterPath(
+        const CIMInstance &instance);
 };
 
 PEGASUS_NAMESPACE_END
 
 #endif
-
+    

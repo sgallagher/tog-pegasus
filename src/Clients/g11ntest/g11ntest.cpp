@@ -440,14 +440,14 @@ static void TestUTFRepository( CIMClient& client,
         cout << endl << "Cleaning up the repository" << endl;
 
         if (verboseTest)
-        cout << "Delete the qualifier" << endl;
-
-        client.deleteQualifier(NAMESPACE, qualDeclName);
-
-        if (verboseTest)
         cout << "Deleting the class" << endl;
 
         client.deleteClass(NAMESPACE, className);
+
+        if (verboseTest)
+        cout << "Delete the qualifier" << endl;
+
+        client.deleteQualifier(NAMESPACE, qualDeclName);
 
         //
         //  TEST 3 - Create namespace

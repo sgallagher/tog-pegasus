@@ -72,7 +72,7 @@ void test01(Uint32 mode)
 
     c.addProperty(
     CIMProperty(CIMName ("key"), Uint32(0))
-        .addQualifier(CIMQualifier(CIMName ("key"), true)))
+        .addQualifier(CIMQualifier(CIMName("key"), true, CIMFlavor::DEFAULTS)))
     .addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)))
     .addProperty(CIMProperty(CIMName ("message"), String("Hello World")));
 
@@ -80,7 +80,7 @@ void test01(Uint32 mode)
 
     CIMConstClass cc;
     cc = r.getClass(CIMNamespaceName ("aa/bb"), CIMName ("MyClass"),
-        false,true, true);
+        false, true, false);
 
     PEGASUS_TEST_ASSERT(c.identical(cc));
     PEGASUS_TEST_ASSERT(cc.identical(c));
@@ -132,6 +132,9 @@ void test02(Uint32 mode)
     CIMClass subClass(SUBCLASS, SUPERCLASS);
     subClass.addProperty(CIMProperty(CIMName ("Role"), String()));
     r.createClass(NAMESPACE, subClass);
+
+    // Get back a resolved copy of the class definition
+    subClass = r.getClass(NAMESPACE, SUBCLASS, false, true);
 
     //--------------------------------------------------------------------------
     // Create Instance (of SubClass):

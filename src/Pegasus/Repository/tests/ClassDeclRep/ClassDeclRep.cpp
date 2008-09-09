@@ -76,7 +76,8 @@ void Test01(Uint32 mode)
     // Create two simple classes:
 
     CIMClass class1(CIMName ("Class1"));
-    class1.addQualifier(CIMQualifier(CIMName ("abstract"), true));
+    class1.addQualifier(
+        CIMQualifier(CIMName ("abstract"), true, CIMFlavor::DEFAULTS));
     CIMClass class2(CIMName ("Class2"), CIMName ("Class1"));
 
     r.createClass(NAMESPACE, class1);
@@ -94,8 +95,8 @@ void Test01(Uint32 mode)
 
     // Get the classes and determine if they are identical with input
 
-    CIMClass c1 = r.getClass(NAMESPACE, CIMName ("Class1"), true, true, true);
-    CIMClass c2 = r.getClass(NAMESPACE, CIMName ("Class2"), true, true, true);
+    CIMClass c1 = r.getClass(NAMESPACE, CIMName ("Class1"), true, true, false);
+    CIMClass c2 = r.getClass(NAMESPACE, CIMName ("Class2"), true, true, false);
 
     PEGASUS_TEST_ASSERT(c1.identical(class1));
     PEGASUS_TEST_ASSERT(c1.identical(class1));

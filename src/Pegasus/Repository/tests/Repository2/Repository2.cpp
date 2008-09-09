@@ -127,11 +127,12 @@ void TestCreateClass(Uint32 mode)
     // Updated test to ensure it works with enabled PEGASUS_REMOVE_DESCRIPTIONS
     // as well as not enabled.
 
-    CIMQualifier d(CIMName("description"), String("*REMOVED*"));
+    CIMQualifier d(
+        CIMName("description"), String("*REMOVED*"), CIMFlavor::DEFAULTS);
     CIMClass c1(CIMName ("SuperClass"));
     c1.addQualifier(d);
     c1.addProperty(CIMProperty(CIMName ("key"), Uint32(0))
-           .addQualifier(CIMQualifier(CIMName ("key"), true)));
+        .addQualifier(CIMQualifier(CIMName("key"), true, CIMFlavor::DEFAULTS)));
 
     c1.addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)));
     c1.addProperty(CIMProperty(CIMName ("message"), String("Hello World")));
@@ -141,7 +142,7 @@ void TestCreateClass(Uint32 mode)
     //
     r.createClass(NS, c1);
     CIMConstClass cc1;
-    cc1 = r.getClass(NS, CIMName ("SuperClass"),true,true, true);
+    cc1 = r.getClass(NS, CIMName("SuperClass"), true, true, false);
     PEGASUS_TEST_ASSERT(c1.identical(cc1));
     PEGASUS_TEST_ASSERT(cc1.identical(c1));
 
@@ -154,13 +155,14 @@ void TestCreateClass(Uint32 mode)
     //
     // Add new qualifier that will be local
     //
-    CIMQualifier jq(CIMName("junk"), String("TestQualifier"));
+    CIMQualifier jq(
+        CIMName("junk"), String("TestQualifier"), CIMFlavor::DEFAULTS);
     c2.addQualifier(jq);
 
     c2.addProperty(CIMProperty(CIMName ("junk"), Real32(66.66)));
     r.createClass(NS, c2);
     CIMConstClass cc2;
-    cc2 = r.getClass(NS, CIMName ("SubClass"), false, true, true);
+    cc2 = r.getClass(NS, CIMName ("SubClass"), true, true, false);
     //XmlWriter::printClassElement(c2);
     //XmlWriter::printClassElement(cc2);
 
@@ -172,7 +174,7 @@ void TestCreateClass(Uint32 mode)
     //
     c2.addProperty(CIMProperty(CIMName ("newProperty"), Uint32(888)));
     r.modifyClass(NS, c2);
-    cc2 = r.getClass(NS, CIMName ("SubClass"), false, true, true);
+    cc2 = r.getClass(NS, CIMName ("SubClass"), true, true, false);
     PEGASUS_TEST_ASSERT(c2.identical(cc2));
     PEGASUS_TEST_ASSERT(cc2.identical(c2));
     // should test for this new property on subclass also.
@@ -695,17 +697,18 @@ void TestCreateClass(Uint32 mode)
     r.deleteInstance(NS, CIMObjectPath ("SubClass.key=222"));
 
     //
+    // -- Clean up classes:
+    //
+    r.deleteClass(NS, CIMName ("SubClass"));
+    r.deleteClass(NS, CIMName ("SuperClass"));
+
+    //
     // -- Delete the qualifier:
     //
     r.deleteQualifier(NS, CIMName ("key"));
     r.deleteQualifier(NS, CIMName ("description"));
     r.deleteQualifier(NS, CIMName ("junk"));
 
-    //
-    // -- Clean up classes:
-    //
-    r.deleteClass(NS, CIMName ("SubClass"));
-    r.deleteClass(NS, CIMName ("SuperClass"));
     r.deleteNameSpace(NS);
 }
 

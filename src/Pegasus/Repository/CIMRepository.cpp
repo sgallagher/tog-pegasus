@@ -1153,10 +1153,9 @@ void CIMRepository::_createClass(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_createClass");
 
     // -- Resolve the class:
-    // ATTN: This casts away constness
-    CIMClass cimClass(newClass);
 
-    Resolver::resolveClass (cimClass, _rep->_context, nameSpace);
+    CIMClass cimClass(newClass.clone());
+    Resolver::resolveClass(cimClass, _rep->_context, nameSpace);
 
     // -- Check whether the class may be created:
 
@@ -1292,7 +1291,7 @@ void CIMRepository::_modifyClass(
     // Resolve the class:
     //
 
-    CIMClass cimClass(modifiedClass);
+    CIMClass cimClass(modifiedClass.clone());
     Resolver::resolveClass(cimClass, _rep->_context, nameSpace);
 
     //

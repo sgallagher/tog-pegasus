@@ -54,7 +54,8 @@ static Boolean verbose;
 String repositoryRoot;
 CIMRepository *r;
 const CIMNamespaceName NS = CIMNamespaceName ("TestCreateClass");
-CIMQualifier d(CIMName("description"), String("*REMOVED*"));
+CIMQualifier d(
+    CIMName("description"), String("*REMOVED*"), CIMFlavor::DEFAULTS);
 
 const char *ProgName;
 
@@ -110,8 +111,8 @@ void TestCreateClass()
     CIMClass c1(CIMName ("SuperClass"));
     c1.addQualifier(d);
     c1.addProperty(
-           CIMProperty(CIMName ("key"), Uint32(0))
-           .addQualifier(CIMQualifier(CIMName ("key"), true)));
+        CIMProperty(CIMName ("key"), Uint32(0))
+        .addQualifier(CIMQualifier(CIMName("key"), true, CIMFlavor::DEFAULTS)));
 
     c1.addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)));
     c1.addProperty(CIMProperty(CIMName ("message"), String("Hello World")));
@@ -119,7 +120,7 @@ void TestCreateClass()
     // -- Create the class (get it back and compare):
     r->createClass(NS, c1);
     CIMConstClass cc1;
-    cc1 = r->getClass(NS, CIMName ("SuperClass"),true,true, true);
+    cc1 = r->getClass(NS, CIMName("SuperClass"), true, true, false);
     PEGASUS_TEST_ASSERT(c1.identical(cc1));
     PEGASUS_TEST_ASSERT(cc1.identical(c1));
 
@@ -128,13 +129,14 @@ void TestCreateClass()
 
     CIMClass c2(CIMName ("SubClass"), CIMName ("SuperClass"));
     // Add new qualifier that will be local
-    CIMQualifier j(CIMName("junk"), String("TestQualifier"));
+    CIMQualifier j(
+        CIMName("junk"), String("TestQualifier"), CIMFlavor::DEFAULTS);
     c2.addQualifier(j);
 
     c2.addProperty(CIMProperty(CIMName ("junk"), Real32(66.66)));
     r->createClass(NS, c2);
     CIMConstClass cc2;
-    cc2 = r->getClass(NS, CIMName ("SubClass"), false, true, true);
+    cc2 = r->getClass(NS, CIMName("SubClass"), true, true, false);
     //XmlWriter::printClassElement(c2);
     //XmlWriter::printClassElement(cc2);
 
@@ -145,7 +147,7 @@ void TestCreateClass()
 
     c2.addProperty(CIMProperty(CIMName ("newProperty"), Uint32(888)));
     r->modifyClass(NS, c2);
-    cc2 = r->getClass(NS, CIMName ("SubClass"), false, true, true);
+    cc2 = r->getClass(NS, CIMName ("SubClass"), true, true, false);
     PEGASUS_TEST_ASSERT(c2.identical(cc2));
     PEGASUS_TEST_ASSERT(cc2.identical(c2));
     // should test for this new property on "SubClass" also.

@@ -41,7 +41,6 @@
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/TraceComponents.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Server/Linkage.h>

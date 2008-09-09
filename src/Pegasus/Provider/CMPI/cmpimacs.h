@@ -651,8 +651,8 @@ inline static CMPIStatus CMLogMessage(
     @param mb Broker this pointer
     @param level The level of the log message. 1 is for info, 2 is for warning,
     and 3 is for verbose.
-    @param component The component name to use for logging. The available 
-    facilities are defined in TraceComponents.h file.
+    @param component The component name to use for tracing. The components are
+    defined in the TraceComponentId enumeration in Pegasus/Common/Tracer.h.
     @param text The message. If not NULL, is the message text to be logged.
     @param string The message. If not NULL,  is the message text to be logged. 
     string will be ignored when text is not NULL.

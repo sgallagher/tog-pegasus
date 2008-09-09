@@ -39,18 +39,70 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/TraceComponents.h>
 #include <Pegasus/Common/TraceHandler.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/SharedPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
+/**
+    Trace component identifiers.  This list must be kept in sync with the
+    TRACE_COMPONENT_LIST in Tracer.cpp.
+*/
+enum TraceComponentId
+{
+    TRC_XML_PARSER,
+    TRC_XML_WRITER,
+    TRC_XML_READER,
+    TRC_XML_IO,
+    TRC_HTTP,
+    TRC_CIM_DATA,
+    TRC_REPOSITORY,
+    TRC_DISPATCHER,
+    TRC_OS_ABSTRACTION,
+    TRC_CONFIG,
+    TRC_IND_HANDLER,
+    TRC_AUTHENTICATION,
+    TRC_AUTHORIZATION,
+    TRC_USER_MANAGER,
+    TRC_REGISTRATION,
+    TRC_SHUTDOWN,
+    TRC_SERVER,
+    TRC_INDICATION_SERVICE,
+    TRC_INDICATION_SERVICE_INTERNAL,
+    TRC_MESSAGEQUEUESERVICE,
+    TRC_PROVIDERMANAGER,
+    TRC_OBJECTRESOLUTION,
+    TRC_WQL,
+    TRC_CQL,
+    TRC_THREAD,
+    TRC_IPC,
+    TRC_IND_HANDLE,
+    TRC_EXP_REQUEST_DISP,
+    TRC_SSL,
+    TRC_CONTROLPROVIDER,
+    TRC_CIMOM_HANDLE,
+    TRC_BINARY_MSG_HANDLER,
+    TRC_L10N,
+    TRC_EXPORT_CLIENT,
+    TRC_LISTENER,
+    TRC_DISCARDED_DATA,
+    TRC_PROVIDERAGENT,
+    TRC_IND_FORMATTER,
+    TRC_STATISTICAL_DATA,
+    TRC_CMPIPROVIDER,
+    TRC_INDICATION_GENERATION,
+    TRC_INDICATION_RECEIPT,
+    TRC_CMPIPROVIDERINTERFACE,
+    TRC_WSMSERVER,
+    TRC_LOGMSG
+};
+
 /** Token used for tracing functions.
 */
 struct TracerToken
 {
-    Uint32 component;
+    TraceComponentId component;
     const char* method;
 };
 
@@ -59,7 +111,6 @@ struct TracerToken
 class PEGASUS_COMMON_LINKAGE Tracer
 {
 public:
-
 
     /** Trace facilities
         File - tracing occurs to the trace file
@@ -101,7 +152,7 @@ public:
     static void traceCString(
         const char* fileName,
         const Uint32 lineNum,
-        const Uint32 traceComponent,
+        const TraceComponentId traceComponent,
         const char* cstring);
 
     /** Traces the message in the given CIMException object.  The message
@@ -112,7 +163,7 @@ public:
         @param cimException    the CIMException to be traced.
      */
     static void traceCIMException(
-        const Uint32 traceComponent,
+        const TraceComponentId traceComponent,
         const Uint32 level,
         const CIMException& cimException);
 
@@ -191,7 +242,7 @@ public:
         TracerToken& token,
         const char* file,
         size_t line,
-        Uint32 component,
+        TraceComponentId traceComponent,
         const char* method);
 
     /** Traces method exit.
@@ -251,7 +302,7 @@ public:
     // @return   0               if the component and level are not enabled
     //           1               if the component and level are enabled
     static Boolean isTraceEnabled(
-        const Uint32 traceComponent,
+        const TraceComponentId traceComponent,
         const Uint32 level);
 
 private:
@@ -305,7 +356,7 @@ private:
     static void _trace(
         const char* fileName,
         const Uint32 lineNum,
-        const Uint32 traceComponent,
+        const TraceComponentId traceComponent,
         const char* fmt,
         va_list argList);
 
@@ -316,7 +367,7 @@ private:
     //  @param    CIMException    the CIMException to be traced.
     //
     static void _traceCIMException(
-        const Uint32 traceComponent,
+        const TraceComponentId traceComponent,
         const CIMException& cimException);
 
     // Called by all the trace interfaces to log message
@@ -324,7 +375,7 @@ private:
     // @param    traceComponent  component being traced
     // @param    cstring         the string to be traced
     static void _traceCString(
-        const Uint32 traceComponent,
+        const TraceComponentId traceComponent,
         const char* message,
         const char* cstring);
 
@@ -334,7 +385,7 @@ private:
     // @param    *fmt            printf style format string
     // @param    argList         variable argument list
     static void _trace(
-        const Uint32 traceComponent,
+        const TraceComponentId traceComponent,
         const char* message,
         const char* fmt,
         va_list argList);
@@ -347,7 +398,7 @@ private:
     static void _traceMethod(
         const char* fileName,
         const Uint32 lineNum,
-        const Uint32 traceComponent,
+        const TraceComponentId traceComponent,
         const char* methodEntryExit,
         const char* method);
 
@@ -379,14 +430,14 @@ private:
 inline void Tracer::traceCString(
     const char* fileName,
     const Uint32 lineNum,
-    const Uint32 traceComponent,
+    const TraceComponentId traceComponent,
     const char* cstring)
 {
     // empty function
 }
 
 inline void Tracer::traceCIMException(
-    const Uint32 traceComponent,
+    const TraceComponentId traceComponent,
     const Uint32 level,
     const CIMException& cimException)
 {
@@ -529,7 +580,7 @@ public:
 
     PEGASUS_FORMAT(4, 5)
     inline void invoke(
-        const Uint32 component,
+        const TraceComponentId component,
         const Uint32 level,
         const char* format,
         ...)

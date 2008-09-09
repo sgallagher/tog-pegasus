@@ -49,7 +49,6 @@
 #endif
 #if defined(CMPI_VER_100)
 #include <Pegasus/Common/Logger.h>
-#include <Pegasus/Common/TraceComponents.h>
 #include <Pegasus/Common/Tracer.h>
 #endif
 

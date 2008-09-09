@@ -45,6 +45,68 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+/**
+    String constants for naming the various Trace components.
+    These strings will used when turning on tracing for the respective
+    components.  The component list must be kept in sync with the
+    TraceComponentId enumeration.
+
+    The following example shows the usage of trace component names.
+    The setTraceComponents method is used to turn on tracing for the
+    components: Config and Repository. The component names are passed as a
+    comma separated list.
+
+       Tracer::setTraceComponents("Config,Repository");
+*/
+static char const* TRACE_COMPONENT_LIST[] =
+{
+    "XmlParser",
+    "XmlWriter",
+    "XmlReader",
+    "XmlIO",
+    "Http",
+    "CimData",
+    "Repository",
+    "Dispatcher",
+    "OsAbstraction",
+    "Config",
+    "IndHandler",
+    "Authentication",
+    "Authorization",
+    "UserManager",
+    "Registration",
+    "Shutdown",
+    "Server",
+    "IndicationService",
+    "IndicationServiceInternal",
+    "MessageQueueService",
+    "ProviderManager",
+    "ObjectResolution",
+    "WQL",
+    "CQL",
+    "Thread",
+    "IPC",
+    "IndicationHandlerService",
+    "CIMExportRequestDispatcher",
+    "SSL",
+    "ControlProvider",
+    "CIMOMHandle",
+    "BinaryMessageHandler",
+    "L10N",
+    "ExportClient",
+    "Listener",
+    "DiscardedData",
+    "ProviderAgent",
+    "IndicationFormatter",
+    "StatisticalData",
+    "CMPIProvider",
+    "IndicationGeneration",
+    "IndicationReceipt",
+    "CMPIProviderInterface",
+    "WsmServer",
+    "LogMessages"
+};
+
 
 // Defines the value values for trace facilities
 // Keep the TRACE_FACILITY_LIST in sync with the TRACE_FACILITY_INDEX,
@@ -159,7 +221,7 @@ void Tracer::_setTraceHandler( Uint32 traceFacility )
 void Tracer::_trace(
     const char* fileName,
     const Uint32 lineNum,
-    const Uint32 traceComponent,
+    const TraceComponentId traceComponent,
     const char* fmt,
     va_list argList)
 {
@@ -186,7 +248,7 @@ void Tracer::_trace(
 //Traces the message in the given CIMException object.
 ////////////////////////////////////////////////////////////////////////////////
 void Tracer::_traceCIMException(
-    const Uint32 traceComponent,
+    const TraceComponentId traceComponent,
     const CIMException& cimException)
 {        
     // get the CIMException trace message string
@@ -243,7 +305,7 @@ SharedArrayPtr<char> Tracer::getHTTPRequestMessage(
 void Tracer::_traceMethod(
     const char* fileName,
     const Uint32 lineNum,
-    const Uint32 traceComponent,
+    const TraceComponentId traceComponent,
     const char* methodEntryExit,
     const char* method)
 {
@@ -278,11 +340,11 @@ void Tracer::_traceMethod(
 //Checks if trace is enabled for the given component and level
 ////////////////////////////////////////////////////////////////////////////////
 Boolean Tracer::isTraceEnabled(
-    const Uint32 traceComponent,
+    const TraceComponentId traceComponent,
     const Uint32 traceLevel)
 {
     Tracer* instance = _getInstance();
-    if (traceComponent >= _NUM_COMPONENTS)
+    if (Uint32(traceComponent) >= _NUM_COMPONENTS)
     {
         return false;
     }
@@ -295,7 +357,7 @@ Boolean Tracer::isTraceEnabled(
 //to log message to trace file
 ////////////////////////////////////////////////////////////////////////////////
 void Tracer::_trace(
-    const Uint32 traceComponent,
+    const TraceComponentId traceComponent,
     const char* message,
     const char* fmt,
     va_list argList)
@@ -354,7 +416,7 @@ void Tracer::_trace(
 //to log message to trace file
 ////////////////////////////////////////////////////////////////////////////////
 void Tracer::_traceCString(
-    const Uint32 traceComponent,
+    const TraceComponentId traceComponent,
     const char* message,
     const char* cstring)
 {
@@ -801,7 +863,7 @@ void Tracer::traceEnter(
     TracerToken& token,
     const char* file,
     size_t line,
-    Uint32 traceComponent,
+    TraceComponentId traceComponent,
     const char* method)
 {
     token.component = traceComponent;
@@ -833,7 +895,7 @@ void Tracer::traceExit(
 void Tracer::traceCString(
     const char* fileName,
     const Uint32 lineNum,
-    const Uint32 traceComponent,
+    const TraceComponentId traceComponent,
     const char* cstring)
 {
     char* message;
@@ -870,7 +932,7 @@ void Tracer::traceCString(
 }
 
 void Tracer::traceCIMException(
-    const Uint32 traceComponent,
+    const TraceComponentId traceComponent,
     const Uint32 traceLevel,
     const CIMException& cimException)
 {

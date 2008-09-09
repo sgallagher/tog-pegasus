@@ -229,10 +229,17 @@ extern "C" {
       CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
       CMPI_Result *xRes=(CMPI_Result*)eRes;
       const CIMObjectPath& op=inst.getPath();
-      CIMClass *cc=mbGetClass(xRes->xBroker,op);
-      CIMObjectPath iop=inst.buildPath(*cc);
-      iop.setNameSpace(op.getNameSpace());
-      inst.setPath(iop);
+
+      //Build objectpath if keybindings are not found. This will happen
+      //when this instance is created with empty ObjectPath and Provider
+      //did not set objectpath in the instance.
+      if (op.getKeyBindings().size() == 0)
+      {
+           CIMClass *cc=mbGetClass(xRes->xBroker,op);
+           CIMObjectPath iop=inst.buildPath(*cc);
+           iop.setNameSpace(op.getNameSpace());
+           inst.setPath(iop);
+      }
 
       // Check if a property filter has been set. If yes throw out
       // all properties which are not found in the filter list.
@@ -316,10 +323,17 @@ extern "C" {
       CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
       CMPI_Result *xRes=(CMPI_Result*)eRes;
       const CIMObjectPath& op=inst.getPath();
-      CIMClass *cc=mbGetClass(xRes->xBroker,op);
-      CIMObjectPath iop=inst.buildPath(*cc);
-      iop.setNameSpace(op.getNameSpace());
-      inst.setPath(iop);
+     
+      //Build objectpath if keybindings are not found. This will happen
+      //when this instance is created with empty ObjectPath and Provider
+      //did not set objectpath in the instance.
+      if (op.getKeyBindings().size() == 0)
+      {
+           CIMClass *cc=mbGetClass(xRes->xBroker,op);
+           CIMObjectPath iop=inst.buildPath(*cc);
+           iop.setNameSpace(op.getNameSpace());
+           inst.setPath(iop);
+      }
 
 #ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
       // CMPI does not differentiate between EmbeddedInstances and

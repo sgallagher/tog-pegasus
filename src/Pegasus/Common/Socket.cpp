@@ -73,9 +73,15 @@ Boolean Socket::timedConnect(
             { timeoutMilliseconds/1000, timeoutMilliseconds%1000*1000 };
         int selectResult = -1;
 
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+        PEGASUS_RETRY_SYSTEM_CALL(
+            select(FD_SETSIZE, NULL, &fdwrite, &fdwrite, &timeoutValue),
+            selectResult);
+#else
         PEGASUS_RETRY_SYSTEM_CALL(
             select(FD_SETSIZE, NULL, &fdwrite, NULL, &timeoutValue),
             selectResult);
+#endif
         if (selectResult == 0)
         {
             PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL1,

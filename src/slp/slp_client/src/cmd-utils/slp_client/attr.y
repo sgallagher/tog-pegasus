@@ -38,8 +38,6 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/attr.y,v 1.5 2008/03/10 06:16:39 venkat.puvvada Exp $
- *
  *  Copyright (c) 2001 - 2003  IBM
  *  Copyright (c) 2000 - 2003 Michael Day
  *

@@ -1071,6 +1071,7 @@ Uint32 CIMConfigCommand::execute(
                                 CANNOT_DETERMINE_CURRENT_VALUE_CIM_RUNNING_KEY,
                                 CANNOT_DETERMINE_CURRENT_VALUE_CIM_RUNNING) 
                         << endl;
+                    return RC_ERROR;
                 }
             }
 
@@ -1090,6 +1091,7 @@ Uint32 CIMConfigCommand::execute(
                                CANNOT_DETERMINE_PLANNED_VALUE_CIM_RUNNING_KEY,
                                CANNOT_DETERMINE_PLANNED_VALUE_CIM_RUNNING) 
                         << endl;
+                    return RC_ERROR;
                 }
             }
 
@@ -1405,7 +1407,7 @@ Uint32 CIMConfigCommand::execute(
                             CURRENT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING_KEY,
                             CURRENT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING)
                             << endl;
-                        break;
+                        return RC_ERROR;
                     }
                 }
 

@@ -43,10 +43,10 @@
 #include <iostream>
 #include <fstream>
 
-// ATTN: This is a workaround to allow HP-UX builds to succeed.  It appears to
-// work, but it may not be reliable.  A better solution would be preferred.
-// Windows platforms appear to have a similar problem with va_copy not defined.
-#ifdef PEGASUS_OS_HPUX
+// ATTN: This is a workaround to allow HP-UX and Windows builds to succeed.
+// It appears to work, but it may not be reliable.  A better solution would be
+// preferred.
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_TYPE_WINDOWS)
 # ifndef va_copy
 #  define va_copy(dest, src) (void)((dest) = (src))
 # endif

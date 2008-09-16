@@ -35,6 +35,11 @@
 #include "Time.h"
 #include "PegasusAssert.h"
 #include "Once.h"
+#include "Exception.h"
+#include "System.h"
+
+#define MUTEX_LOCK_FAILED_KEY "Common.InternalException.MUTEX_LOCK_FAILED"
+#define MUTEX_LOCK_FAILED_MSG "Failed to acquire mutex lock: $0"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -91,16 +96,26 @@ void Mutex::lock()
 {
     PEGASUS_DEBUG_ASSERT(_magic);
 
-    switch (pthread_mutex_lock(&_rep.mutex))
-    {
-        case 0:
-#if defined(PEGASUS_DEBUG)
-            _rep.count++;
-#endif
-            break;
+    int r = pthread_mutex_lock(&_rep.mutex);
 
-        default:
-            throw WaitFailed(Threads::self());
+    if (r == 0)
+    {
+#if defined(PEGASUS_DEBUG)
+        _rep.count++;
+#endif
+    }
+    else
+    {
+        if (r != -1)
+        {
+            // Special behavior for Single UNIX Specification, Version 3
+            errno = r;
+        }
+
+        throw Exception(MessageLoaderParms(
+            MUTEX_LOCK_FAILED_KEY,
+            MUTEX_LOCK_FAILED_MSG,
+            PEGASUS_SYSTEM_ERRORMSG_NLS));
     }
 }
 
@@ -109,8 +124,6 @@ Boolean Mutex::try_lock()
     PEGASUS_DEBUG_ASSERT(_magic);
 
     int r = pthread_mutex_trylock(&_rep.mutex);
-    if (r == -1)
-        r=errno;
 
     if (r == 0)
     {
@@ -120,18 +133,25 @@ Boolean Mutex::try_lock()
         return true;
     }
 
-    if (r == EBUSY)
+    if (r != -1)
+    {
+        // Special behavior for Single UNIX Specification, Version 3
+        errno = r;
+    }
+
+    if (errno == EBUSY)
     {
         return false;
     }
 
-    throw WaitFailed(Threads::self());
+    throw Exception(MessageLoaderParms(
+        MUTEX_LOCK_FAILED_KEY,
+        MUTEX_LOCK_FAILED_MSG,
+        PEGASUS_SYSTEM_ERRORMSG_NLS));
 }
 
 Boolean Mutex::timed_lock(Uint32 milliseconds)
 {
-    PEGASUS_DEBUG_ASSERT(_magic);
-
     struct timeval now;
     struct timeval finish;
     struct timeval remaining;
@@ -145,36 +165,18 @@ Boolean Mutex::timed_lock(Uint32 milliseconds)
         finish.tv_usec = usec % 1000000;
     }
 
-    for (;;)
+    while (!try_lock())
     {
-        int r=pthread_mutex_trylock(&_rep.mutex);
-        if (r == -1)
-            r = errno;
+        gettimeofday(&now, NULL);
 
-        if (r == 0)
+        if (Time::subtract(&remaining, &finish, &now))
         {
-            break;
+            return false;
         }
-        else if (r == EBUSY)
-        {
-            gettimeofday(&now, NULL);
 
-            if (Time::subtract(&remaining, &finish, &now))
-            {
-                return false;
-            }
-
-            Threads::yield();
-        }
-        else
-        {
-            throw WaitFailed(Threads::self());
-        }
+        Threads::yield();
     }
 
-#if defined(PEGASUS_DEBUG)
-    _rep.count++;
-#endif
     return true;
 }
 
@@ -249,7 +251,12 @@ void Mutex::lock()
     DWORD rc = WaitForSingleObject(_rep.handle, INFINITE);
 
     if (rc == WAIT_FAILED)
-        throw WaitFailed(Threads::self());
+    {
+        throw Exception(MessageLoaderParms(
+            MUTEX_LOCK_FAILED_KEY,
+            MUTEX_LOCK_FAILED_MSG,
+            PEGASUS_SYSTEM_ERRORMSG_NLS));
+    }
 
     _rep.count++;
 }
@@ -267,7 +274,10 @@ Boolean Mutex::try_lock()
 
     if (rc == WAIT_FAILED)
     {
-        throw WaitFailed(Threads::self());
+        throw Exception(MessageLoaderParms(
+            MUTEX_LOCK_FAILED_KEY,
+            MUTEX_LOCK_FAILED_MSG,
+            PEGASUS_SYSTEM_ERRORMSG_NLS));
     }
 
     _rep.count++;
@@ -284,7 +294,12 @@ Boolean Mutex::timed_lock(Uint32 milliseconds)
         return false;
 
     if (rc == WAIT_FAILED)
-        throw WaitFailed(Threads::self());
+    {
+        throw Exception(MessageLoaderParms(
+            MUTEX_LOCK_FAILED_KEY,
+            MUTEX_LOCK_FAILED_MSG,
+            PEGASUS_SYSTEM_ERRORMSG_NLS));
+    }
 
     _rep.count++;
     return true;

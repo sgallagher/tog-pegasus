@@ -374,6 +374,42 @@ en:table {
 
         Common.InternalException.UNAUTHORIZED_ACCESS:string {"PGS00233: Unauthorized access."}
 
+        /**
+        * @note PGS00234:
+        *     Substitution {0} is an error message string
+        */
+        Common.InternalException.MUTEX_LOCK_FAILED:string {"PGS00234: Failed to acquire mutex lock: {0}"}
+
+        /**
+        * @note PGS00235:
+        *     Substitution {0} is an error message string
+        */
+        Common.InternalException.READ_LOCK_FAILED:string {"PGS00235: Failed to acquire read lock: {0}"}
+
+        /**
+        * @note PGS00236:
+        *     Substitution {0} is an error message string
+        */
+        Common.InternalException.WRITE_LOCK_FAILED:string {"PGS00236: Failed to acquire write lock: {0}"}
+
+        /**
+        * @note PGS00237:
+        *     Substitution {0} is an error message string
+        */
+        Common.InternalException.SEMAPHORE_INIT_FAILED:string {"PGS00237: Semaphore initialization failed: {0}"}
+
+        /**
+        * @note PGS00238:
+        *     Substitution {0} is an error message string
+        */
+        Common.InternalException.SEMAPHORE_WAIT_FAILED:string {"PGS00238: Semaphore wait failed: {0}"}
+
+        /**
+        * @note PGS00239:
+        *     Substitution {0} is an error message string
+        */
+        Common.InternalException.SEMAPHORE_SIGNAL_FAILED:string {"PGS00239: Failed to signal semaphore: {0}"}
+
 
         // ==========================================================
         // Messages for Exception

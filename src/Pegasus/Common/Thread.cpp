@@ -329,7 +329,7 @@ void Thread::cleanup_pop(Boolean execute)
     {
         cu.reset(_cleanup.remove_front());
     }
-    catch (IPCException &)
+    catch (...)
     {
         PEGASUS_ASSERT(0);
     }
@@ -351,7 +351,7 @@ void Thread::exit_self(ThreadReturnType exit_code)
         {
             cleanup_pop(true);
         }
-        catch (IPCException &)
+        catch (...)
         {
             PEGASUS_ASSERT(0);
             break;

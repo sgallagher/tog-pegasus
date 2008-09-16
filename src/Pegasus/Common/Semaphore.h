@@ -77,6 +77,7 @@ PEGASUS_NAMESPACE_BEGIN
 #if defined(PEGASUS_USE_PTHREAD_SEMAPHORE)
 struct SemaphoreRep
 {
+    int count;
     Uint32 waiters;
     pthread_mutex_t mutex;
     pthread_cond_t cond;
@@ -121,7 +122,7 @@ public:
 
     /** Blocks until this Semaphore is in a signalled state.  Interrupt
         signals are ignored.
-        @exception WaitFailed If unable to block on the semaphore.
+        @exception Exception If unable to block on the semaphore.
     */
     void wait();
 
@@ -131,8 +132,6 @@ public:
         @param milliseconds The time interval to wait (in milliseconds).
         @return True if the Semaphore has a non-zero count or is signalled
             during the specified time interval, false otherwise.
-        @exception TimeOut If the wait operation does not succeed within
-        the specified time interval.
     */
     Boolean time_wait(Uint32 milliseconds);
 
@@ -140,16 +139,11 @@ public:
     */
     void signal();
 
-    /** Return the count of the semaphore.
-    */
-    int count() const;
-
 private:
 
     Semaphore(const Semaphore& x); // Unimplemented
     Semaphore& operator=(const Semaphore& x); // Unimplemented
 
-    mutable int _count;
     mutable SemaphoreRep _rep;
     friend class Condition;
 };

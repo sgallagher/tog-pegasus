@@ -37,6 +37,7 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/List.h>
 #include <Pegasus/Common/Condition.h>
+#include <Pegasus/Common/IPCExceptions.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

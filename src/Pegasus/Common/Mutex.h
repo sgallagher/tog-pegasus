@@ -36,7 +36,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/IPCExceptions.h>
 #include <Pegasus/Common/Magic.h>
 #include <Pegasus/Common/Threads.h>
 

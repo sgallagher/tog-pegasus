@@ -99,10 +99,8 @@ public:
 
     ~ReadWriteSem();
 
-    // @exception WaitFailed
     void waitRead();
 
-    // @exception WaitFailed
     void waitWrite();
 
     void unlockRead();

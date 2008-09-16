@@ -32,7 +32,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Time.h>
-#include <Pegasus/Common/IPCExceptions.h>
+#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/System.h>
 #include "Semaphore.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -54,11 +55,11 @@ Semaphore::Semaphore(Uint32 initial)
 
     if (initial > PEGASUS_SEM_VALUE_MAX)
     {
-        _count = PEGASUS_SEM_VALUE_MAX - 1;
+        _rep.count = PEGASUS_SEM_VALUE_MAX - 1;
     }
     else
     {
-        _count = initial;
+        _rep.count = initial;
     }
 
     _rep.owner = Threads::self();
@@ -139,7 +140,7 @@ void Semaphore::wait()
 
     // Wait until the semaphore count is > 0, then atomically release
     // <lock_> and wait for <count_nonzero_> to be signaled.
-    while (_count == 0)
+    while (_rep.count == 0)
     {
         pthread_cond_wait(&_rep.cond, &_rep.mutex);
     }
@@ -150,7 +151,7 @@ void Semaphore::wait()
     _rep.waiters--;
 
     // Decrement the semaphore's count.
-    _count--;
+    _rep.count--;
 
     // Since we push an unlock onto the cleanup stack
     // We will pop it off to release the mutex when leaving the critical
@@ -188,12 +189,12 @@ Boolean Semaphore::time_wait(Uint32 milliseconds)
     waittime.tv_nsec = (waittime.tv_nsec % 1000000);    // the "seconds" part
     waittime.tv_nsec = waittime.tv_nsec * 1000; // convert to nanoseconds
 
-    while ((_count == 0) && !timedOut)
+    while ((_rep.count == 0) && !timedOut)
     {
         int r = pthread_cond_timedwait(&_rep.cond, &_rep.mutex, &waittime);
 
         if (((r == -1 && errno == ETIMEDOUT) || (r == ETIMEDOUT)) &&
-            _count == 0)
+            _rep.count == 0)
         {
             timedOut = true;
         }
@@ -202,7 +203,7 @@ Boolean Semaphore::time_wait(Uint32 milliseconds)
     if (!timedOut)
     {
         // Decrement the semaphore's count.
-        _count--;
+        _rep.count--;
     }
 
     // Decrement the waiters count.
@@ -234,15 +235,9 @@ void Semaphore::signal()
     }
 
     // Increment the semaphore's count.
-    _count++;
+    _rep.count++;
 
     pthread_mutex_unlock(&_rep.mutex);
-}
-
-// return the count of the semaphore
-int Semaphore::count() const
-{
-    return _count;
 }
 
 #endif /* PEGASUS_USE_PTHREAD_SEMAPHORE */
@@ -265,7 +260,10 @@ Semaphore::Semaphore(Uint32 initial)
     _rep.owner = Threads::self();
     if (sem_init(&_rep.sem, 0, initial) == -1)
     {
-        throw(IPCException(_rep.owner));
+        throw Exception(MessageLoaderParms(
+            "Common.InternalException.SEMAPHORE_INIT_FAILED",
+            "Semaphore initialization failed: $0",
+            PEGASUS_SYSTEM_ERRORMSG_NLS));
     }
 }
 
@@ -289,7 +287,10 @@ void Semaphore::wait()
 
         if (errno != EINTR)
         {
-            throw WaitFailed(_rep.owner);
+            throw Exception(MessageLoaderParms(
+                "Common.InternalException.SEMAPHORE_WAIT_FAILED",
+                "Semaphore wait failed: $0",
+                PEGASUS_SYSTEM_ERRORMSG_NLS));
         }
 
         // keep going if above conditions fail
@@ -329,7 +330,10 @@ Boolean Semaphore::time_wait(Uint32 milliseconds)
 
         if (retcode == -1 && errno != EAGAIN)
         {
-            throw WaitFailed(Threads::self());
+            throw Exception(MessageLoaderParms(
+                "Common.InternalException.SEMAPHORE_WAIT_FAILED",
+                "Semaphore wait failed: $0",
+                PEGASUS_SYSTEM_ERRORMSG_NLS));
         }
 
         gettimeofday(&now, NULL);
@@ -348,18 +352,11 @@ void Semaphore::signal()
 {
     if (sem_post(&_rep.sem) == -1)
     {
-        throw(IPCException(_rep.owner));
+        throw Exception(MessageLoaderParms(
+            "Common.InternalException.SEMAPHORE_SIGNAL_FAILED",
+            "Failed to signal semaphore: $0",
+            PEGASUS_SYSTEM_ERRORMSG_NLS));
     }
-}
-
-// return the count of the semaphore
-int Semaphore::count() const
-{
-    if (sem_getvalue(&_rep.sem, &_count) == -1)
-    {
-        throw(IPCException(_rep.owner));
-    }
-    return _count;
 }
 
 #endif /* PEGASUS_USE_POSIX_SEMAPHORE */
@@ -378,7 +375,6 @@ Semaphore::Semaphore(Uint32 initial)
     {
         initial = PEGASUS_SEM_VALUE_MAX - 1;
     }
-    _count = initial;
     _rep.owner = Threads::self();
     _rep.sem = CreateSemaphore(NULL, initial, PEGASUS_SEM_VALUE_MAX, NULL);
 }
@@ -392,13 +388,12 @@ Semaphore::~Semaphore()
 void Semaphore::wait()
 {
     DWORD errorcode = WaitForSingleObject(_rep.sem, INFINITE);
-    if (errorcode != WAIT_FAILED)
+    if (errorcode == WAIT_FAILED)
     {
-        _count--;
-    }
-    else
-    {
-        throw WaitFailed(Threads::self());
+        throw Exception(MessageLoaderParms(
+            "Common.InternalException.SEMAPHORE_WAIT_FAILED",
+            "Semaphore wait failed: $0",
+            PEGASUS_SYSTEM_ERRORMSG_NLS));
     }
 }
 
@@ -413,24 +408,19 @@ Boolean Semaphore::time_wait(Uint32 milliseconds)
 
     if (errorcode == WAIT_FAILED)
     {
-        throw WaitFailed(Threads::self());
+        throw Exception(MessageLoaderParms(
+            "Common.InternalException.SEMAPHORE_WAIT_FAILED",
+            "Semaphore wait failed: $0",
+            PEGASUS_SYSTEM_ERRORMSG_NLS));
     }
 
-    _count--;
     return true;
 }
 
 // increment the count of the semaphore
 void Semaphore::signal()
 {
-    _count++;
     ReleaseSemaphore(_rep.sem, 1, NULL);
-}
-
-// return the count of the semaphore
-int Semaphore::count() const
-{
-    return _count;
 }
 
 #endif /* PEGASUS_USE_WINDOWS_SEMAPHORE */

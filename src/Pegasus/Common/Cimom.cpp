@@ -539,7 +539,7 @@ void cimom::register_module(RegisterCimService *msg)
             {
                 _modules.insert_front(new_mod.get());
             }
-            catch (IPCException&)
+            catch (...)
             {
                 result = async_results::INTERNAL_ERROR;
                 new_mod.reset();
@@ -656,12 +656,12 @@ void cimom::ioctl(AsyncIoctl* msg)
             // empty out the queue
             while (1)
             {
-                AsyncOpNode *operation;
+                AsyncOpNode* operation = 0;
                 try
                 {
                     operation = service->_routed_ops.dequeue();
                 }
-                catch (IPCException&)
+                catch (...)
                 {
                     break;
                 }

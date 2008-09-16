@@ -48,14 +48,6 @@ private:
     ThreadType _owner;
 };
 
-class PEGASUS_COMMON_LINKAGE WaitFailed: public IPCException
-{
-public:
-    WaitFailed(ThreadType owner) : IPCException(owner) {}
-private:
-    WaitFailed();
-};
-
 class PEGASUS_COMMON_LINKAGE ListClosed: public IPCException
 {
 public:

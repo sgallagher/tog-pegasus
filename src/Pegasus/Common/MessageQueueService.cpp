@@ -720,12 +720,12 @@ void MessageQueueService::handle_AsyncIoctl(AsyncIoctl* req)
             // empty out the queue
             while (1)
             {
-                AsyncOpNode *operation;
+                AsyncOpNode* operation = 0;
                 try
                 {
                     operation = service->_incoming.dequeue();
                 }
-                catch (IPCException&)
+                catch (...)
                 {
                     break;
                 }

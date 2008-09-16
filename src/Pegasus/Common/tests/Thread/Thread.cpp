@@ -211,9 +211,8 @@ void deref(void *parm)
    {
       my_handle->dereference_tsd();
    }
-   catch(IPCException& e)
+   catch(...)
    {
-      e = e;
       cout << "exception dereferencing the tsd " << endl;
       abort();
    }
@@ -252,7 +251,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
    {
       my_handle->cleanup_push(exit_one , my_handle );
    }
-   catch (IPCException&)
+   catch (...)
    {
       cout << "Exception while trying to push cleanup handler" << endl;
       abort();
@@ -263,7 +262,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       my_handle->cleanup_push(exit_two , my_handle );
    }
    
-   catch (IPCException&)
+   catch (...)
    {
       cout << "Exception while trying to push cleanup handler" << endl;
       abort();
@@ -288,7 +287,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
                             256, my_storage);              
 #endif
       }
-      catch (IPCException&)
+      catch (...)
       {
           cout << "Exception while trying to put local storage: " 
               << Threads::id(myself).buffer << endl;
@@ -299,7 +298,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       {
           my_parm->waitRead();
       }
-      catch (IPCException&)
+      catch (...)
       {
          cout << "Exception while trying to get a read lock" << endl;
          abort();
@@ -313,7 +312,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       {
           my_handle->cleanup_push(deref , my_handle );
       }
-      catch (IPCException&)
+      catch (...)
       {
          cout << "Exception while trying to push cleanup handler" << endl;
          abort();
@@ -324,7 +323,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
          my_handle->reference_tsd(keys[i % 4]);
       }
       
-      catch (IPCException&)
+      catch (...)
       {
          cout << "Exception while trying to reference local storage" << endl;
          abort();
@@ -334,7 +333,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       {
          my_handle->cleanup_pop(true);
       }
-      catch (IPCException&)
+      catch (...)
       {
          cout << "Exception while trying to pop cleanup handler" << endl;
          abort();
@@ -343,7 +342,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       {
          my_parm->unlockRead();
       }
-      catch (IPCException&)
+      catch (...)
       {
          cout << "Exception while trying to release a read lock" << endl;
          abort();
@@ -353,7 +352,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       {
           my_handle->delete_tsd(keys[i % 4]);
       }
-      catch (IPCException&)
+      catch (...)
       {
          cout << "Exception while trying to delete local storage: " 
                  << Threads::id(myself).buffer << endl;
@@ -382,7 +381,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL writing_thread(void *parm)
       {
          my_parm->waitWrite();
       }
-      catch (IPCException&)
+      catch (...)
       {
          cout << "Exception while trying to get a write lock" << endl;
          abort();
@@ -394,7 +393,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL writing_thread(void *parm)
       {
          my_parm->unlockWrite();
       }
-      catch (IPCException&)
+      catch (...)
       {
          cout << "Exception while trying to release a write  lock" << endl;
          abort();

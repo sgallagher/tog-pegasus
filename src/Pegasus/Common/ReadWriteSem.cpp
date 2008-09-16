@@ -35,6 +35,8 @@
 #include "Time.h"
 #include "PegasusAssert.h"
 #include "Threads.h"
+#include "Exception.h"
+#include "System.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -63,17 +65,39 @@ ReadWriteSem::~ReadWriteSem()
 
 void ReadWriteSem::waitRead()
 {
-    if (pthread_rwlock_rdlock(&_rwlock.rwlock) != 0)
+    int r = pthread_rwlock_rdlock(&_rwlock.rwlock);
+
+    if (r != 0)
     {
-        throw WaitFailed(Threads::self());
+        if (r != -1)
+        {
+            // Special behavior for Single UNIX Specification, Version 3
+            errno = r;
+        }
+
+        throw Exception(MessageLoaderParms(
+            "Common.InternalException.READ_LOCK_FAILED",
+            "Failed to acquire read lock: $0",
+            PEGASUS_SYSTEM_ERRORMSG_NLS));
     }
 }
 
 void ReadWriteSem::waitWrite()
 {
-    if (pthread_rwlock_wrlock(&_rwlock.rwlock) != 0)
+    int r = pthread_rwlock_wrlock(&_rwlock.rwlock);
+
+    if (r != 0)
     {
-        throw WaitFailed(Threads::self());
+        if (r != -1)
+        {
+            // Special behavior for Single UNIX Specification, Version 3
+            errno = r;
+        }
+
+        throw Exception(MessageLoaderParms(
+            "Common.InternalException.WRITE_LOCK_FAILED",
+            "Failed to acquire write lock: $0",
+            PEGASUS_SYSTEM_ERRORMSG_NLS));
     }
 }
 
@@ -117,7 +141,7 @@ ReadWriteSem::~ReadWriteSem()
     {
         _rwlock._internal_lock.lock();
     }
-    catch (IPCException &)
+    catch (...)
     {
         PEGASUS_ASSERT(0);
     }

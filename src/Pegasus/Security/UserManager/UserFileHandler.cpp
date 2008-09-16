@@ -42,7 +42,6 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/IPCExceptions.h>
 
 #include <Pegasus/Config/ConfigManager.h>
 
@@ -184,20 +183,8 @@ void UserFileHandler::_Update(
     // at any given time
     //
 
-    try
+    if (!_mutex->timed_lock(_MUTEX_TIMEOUT))
     {
-        if (!_mutex->timed_lock(_MUTEX_TIMEOUT))
-        {
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                MessageLoaderParms(
-                    "Security.UserManager.UserFileHandler.TIMEOUT",
-                    "Timed out while attempting to perform the requested "
-                        "operation. Try the operation again."));
-        }
-    }
-    catch (WaitFailed&)
-    {
-        // ATTN: This is an error case, not a timeout scenario
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
                 "Security.UserManager.UserFileHandler.TIMEOUT",

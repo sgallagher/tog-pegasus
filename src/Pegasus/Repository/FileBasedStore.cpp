@@ -57,6 +57,8 @@
 # include <sstream>
 #endif
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
 static const char _CLASSES_DIR[] = "classes";
@@ -67,6 +69,10 @@ static const char _CLASSES_SUFFIX[] = "/classes";
 static const char _INSTANCES_SUFFIX[] = "/instances";
 static const char _QUALIFIERS_SUFFIX[] = "/qualifiers";
 static const char _ASSOCIATIONS_SUFFIX[] = "/associations";
+
+// The config file name is selected such that it cannot collide with a
+// namespace directory name.  Namespace directories may not contain a '.'.
+static const char _CONFIGFILE_NAME[] = "repository.conf";
 
 static const Uint32 _MAX_FREE_COUNT = 16;
 
@@ -492,6 +498,82 @@ FileBasedStore::FileBasedStore(
         }
     }
 
+    // Initialize the _storeCompleteClasses member based on the existing
+    // repository configuration (if it already exists) or the build option.
+
+#ifdef PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES
+    _storeCompleteClasses = true;
+#else
+    _storeCompleteClasses = false;
+#endif
+
+    String configFilePath = _repositoryPath + "/" + _CONFIGFILE_NAME;
+
+    if (!FileSystem::isDirectory(_repositoryPath + "/root"))
+    {
+        // The root namespace does not exist so this must be a new repository
+        // instance.  Use the setting defined by the build option.
+
+#ifndef PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES
+        PEGASUS_STD(ofstream) os;
+        if (!OpenAppend(os, configFilePath))
+        {
+            PEG_METHOD_EXIT();
+            throw CannotOpenFile(configFilePath);
+        }
+        os << "storeCompleteClasses=false" << endl;
+#endif
+    }
+    else
+    {
+        // Repository existed previously.  Determine whether its classes are
+        // complete.
+
+        if (FileSystem::exists(configFilePath))
+        {
+            ifstream ifs(configFilePath.getCString());
+
+            if (!ifs)
+            {
+                PEG_METHOD_EXIT();
+                throw CannotOpenFile(configFilePath);
+            }
+
+            // Config file exists.  Read storeCompleteClasses property.
+            // For now, this is the only thing that may appear in the file,
+            // so the parsing is easy.
+            String line;
+            if (GetLine(ifs, line))
+            {
+                if (String::equal(line, "storeCompleteClasses=false"))
+                {
+                    _storeCompleteClasses = false;
+                }
+                else
+                {
+                    throw Exception(MessageLoaderParms(
+                        "Repository.CIMRepository.INVALID_CONFIG_FILE_ENTRY",
+                        "File $0 contains an invalid entry: \"$1\".",
+                        (const char*)configFilePath.getCString(),
+                        (const char*)line.getCString()));
+                }
+            }
+            else
+            {
+                throw Exception(MessageLoaderParms(
+                    "Repository.CIMRepository.EMPTY_CONFIG_FILE",
+                    "File $0 is empty.",
+                    (const char*)configFilePath.getCString()));
+            }
+        }
+        else
+        {
+            // An existing repository without a config file indicates the
+            // legacy behavior.
+            _storeCompleteClasses = true;
+        }
+    }
+
     _rollbackIncompleteTransactions();
 
     PEG_METHOD_EXIT();
@@ -532,7 +614,9 @@ void FileBasedStore::_rollbackIncompleteTransactions()
     for (Dir dir(_repositoryPath); dir.more(); dir.next())
     {
         String nameSpaceDirName = dir.getName();
-        if (nameSpaceDirName == ".." || nameSpaceDirName == ".")
+        if ((nameSpaceDirName == "..") ||
+            (nameSpaceDirName == ".") ||
+            (nameSpaceDirName == _CONFIGFILE_NAME))
         {
             continue;
         }
@@ -875,7 +959,9 @@ Array<NamespaceDefinition> FileBasedStore::enumerateNameSpaces()
     for (Dir dir(_repositoryPath); dir.more(); dir.next())
     {
         String nameSpaceDirName = dir.getName();
-        if (nameSpaceDirName == ".." || nameSpaceDirName == ".")
+        if ((nameSpaceDirName == "..") ||
+            (nameSpaceDirName == ".") ||
+            (nameSpaceDirName == _CONFIGFILE_NAME))
         {
             continue;
         }
@@ -1346,6 +1432,7 @@ void FileBasedStore::createClass(
 void FileBasedStore::modifyClass(
     const CIMNamespaceName& nameSpace,
     const CIMClass& modifiedClass,
+    const CIMName& oldSuperClassName,
     Boolean isAssociation,
     const Array<ClassAssociation>& classAssocEntries)
 {
@@ -1356,11 +1443,16 @@ void FileBasedStore::modifyClass(
         modifiedClass.getClassName(),
         modifiedClass.getSuperClassName());
 
+    String oldClassFilePath = _getClassFilePath(
+        nameSpace,
+        modifiedClass.getClassName(),
+        oldSuperClassName);
+
     //
     // Delete the old file containing the class:
     //
 
-    if (!FileSystem::removeFileNoCase(classFilePath))
+    if (!FileSystem::removeFileNoCase(oldClassFilePath))
     {
         PEG_METHOD_EXIT();
         // ATTN: Parameter should be file name, not method name.
@@ -1368,7 +1460,7 @@ void FileBasedStore::modifyClass(
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
             MessageLoaderParms(
                 "Repository.CIMRepository.FAILED_TO_REMOVE_FILE",
-                "failed to remove file in $0", str));
+                "failed to remove file in $0", classFilePath /*str*/));
     }
 
     //

@@ -252,6 +252,8 @@ public:
         @param nameSpaceName namespace.
         @param className name of class being modified.
         @param superClassName superclass of class being modified.
+        @param oldSuperClassName Output name of existing superclass of class
+            being modified.
         @exception CIMException(CIM_ERR_INVALID_CLASS)
         @exception CIMException(CIM_ERR_FAILED) if there is an attempt
             to change the superclass of this class.
@@ -261,7 +263,9 @@ public:
     void checkModifyClass(
         const CIMNamespaceName& nameSpaceName,
         const CIMName& className,
-        const CIMName& superClassName);
+        const CIMName& superClassName,
+        CIMName& oldSuperClassName,
+        Boolean allowNonLeafModification);
 
     /** Get subclass names of the given class in the given namespace.
         @param nameSpaceName

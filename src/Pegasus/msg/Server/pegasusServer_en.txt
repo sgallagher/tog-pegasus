@@ -689,6 +689,19 @@ en:table {
 
         Repository.CIMRepository.INDEX_COMPACT_FAILED:string {"PGS01215: Failed to compact the Repository Instance Index file."}
 
+        /**
+        * @note  PGS01216:
+        *    Substitution {0} is a file name (a string)
+        *    Substitution {1} is a file entry (a string)
+        */
+        Repository.CIMRepository.INVALID_CONFIG_FILE_ENTRY:string {"PGS01216: File {0} contains an invalid entry: ''{1}''."}
+
+        /**
+        * @note  PGS01217:
+        *    Substitution {0} is a file name (a string)
+        */
+        Repository.CIMRepository.EMPTY_CONFIG_FILE:string {"PGS01217: File {0} is empty."}
+
 
         // ==========================================================
         // Messages for Security  UserExceptions

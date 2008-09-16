@@ -93,6 +93,12 @@ public:
 
     AutoPtr<FileBasedStore> _persistentStore;
 
+    /**
+        Indicates whether the class definitions in the persistent store are
+        complete (contain propagated elements).
+    */
+    Boolean _storeCompleteClassDefinitions;
+
     NameSpaceManager _nameSpaceManager;
 
     ReadWriteSem _lock;
@@ -116,7 +122,7 @@ public:
 #define PEGASUS_QUALIFIER_CACHE_SIZE 80
 
 #if !defined(PEGASUS_CLASS_CACHE_SIZE)
-# define PEGASUS_CLASS_CACHE_SIZE 8
+# define PEGASUS_CLASS_CACHE_SIZE 32
 #endif
 
 #if (PEGASUS_CLASS_CACHE_SIZE != 0)
@@ -153,7 +159,7 @@ static String _getCacheKey(
     @return true if the property is in the list otherwise false.
 */
 static Boolean _containsProperty(
-    CIMProperty& property,
+    const CIMProperty& property,
     const CIMPropertyList& propertyList)
 {
     //  For each property in the propertly list
@@ -214,74 +220,77 @@ static void _removeAllQualifiers(CIMClass& cimClass)
 
 /////////////////////////////////////////////////////////////////////////
 //
-// _removePropagatedQualifiers - Removes all qualifiers from the class
-// that are marked propagated
+// _stripPropagatedElements
 //
 /////////////////////////////////////////////////////////////////////////
 
-/* removes propagatedQualifiers from the defined CIMClass.
-   This function removes the qualifiers from the class,
-   from each of the properties, from the methods and
-   the parameters if the qualifiers are marked propagated.
-   NOTE: This could be logical to be moved to CIMClass since it may be
-   more general than the usage here.
+/* Removes propagated elements from the CIMClass, including properties,
+   methods, and qualifiers attached to the class, properties, methods, and
+   parameters.
 */
-static void _removePropagatedQualifiers(CIMClass& cimClass)
+static void _stripPropagatedElements(CIMClass& cimClass)
 {
-    Uint32 count = cimClass.getQualifierCount();
-    // Remove nonlocal qualifiers from Class
-    for (Sint32 i = (count - 1); i >= 0; i--)
+    // Remove the propagated qualifiers from the class.
+    // Work backwards because removal may be cheaper. Sint32 covers count=0
+    for (Sint32 i = cimClass.getQualifierCount() - 1; i >= 0; i--)
     {
-        CIMQualifier q = cimClass.getQualifier(i);
-        if (q.getPropagated())
+        if (cimClass.getQualifier(i).getPropagated())
         {
             cimClass.removeQualifier(i);
         }
     }
 
-    // remove  non localOnly qualifiers from the properties
-    for (Uint32 i = 0; i < cimClass.getPropertyCount(); i++)
+    // Remove the propagated properties.
+    for (Sint32 i = cimClass.getPropertyCount() - 1; i >= 0; i--)
     {
         CIMProperty p = cimClass.getProperty(i);
-        // loop to search qualifiers for nonlocal parameters
-        count = p.getQualifierCount();
-        for (Sint32 j = (count - 1); j >= 0; j--)
+        if (p.getPropagated())
         {
-            CIMQualifier q = p.getQualifier(j);
-            if (q.getPropagated())
+            cimClass.removeProperty(i);
+        }
+        else
+        {
+            // Remove the propagated qualifiers from the property.
+            for (Sint32 j = p.getQualifierCount() - 1; j >= 0; j--)
             {
-                p.removeQualifier(j);
+                if (p.getQualifier(j).getPropagated())
+                {
+                    p.removeQualifier(j);
+                }
             }
         }
     }
 
-    // remove non LocalOnly qualifiers from the methods and parameters
-    for (Uint32 i = 0; i < cimClass.getMethodCount(); i++)
+    // Remove the propagated methods.
+    for (Sint32 i = cimClass.getMethodCount() - 1; i >= 0; i--)
     {
         CIMMethod m = cimClass.getMethod(i);
-        // Remove  nonlocal qualifiers from all parameters
-        for (Uint32 j = 0 ; j < m.getParameterCount(); j++)
+        if (m.getPropagated())
         {
-            CIMParameter p = m.getParameter(j);
-            count = p.getQualifierCount();
-            for (Sint32 k = (count - 1); k >= 0; k--)
+            cimClass.removeMethod(i);
+        }
+        else
+        {
+            // Remove the propagated qualifiers from the method.
+            for (Sint32 j = m.getQualifierCount() - 1; j >= 0; j--)
             {
-                CIMQualifier q = p.getQualifier(k);
-                if (q.getPropagated())
+                if (m.getQualifier(j).getPropagated())
                 {
-                    p.removeQualifier(k);
+                    m.removeQualifier(j);
                 }
             }
-        }
 
-        // remove nonlocal qualifiers from the method
-        count = m.getQualifierCount();
-        for (Sint32 j = (count - 1); j >= 0; j--)
-        {
-            CIMQualifier q = m.getQualifier(j);
-            if (q.getPropagated())
+            // Remove the propagated qualifiers from the method parameters.
+            for (Sint32 j = m.getParameterCount() - 1; j >= 0; j--)
             {
-                m.removeQualifier(j);
+                CIMParameter p = m.getParameter(j);
+                for (Sint32 k = p.getQualifierCount() - 1; k >= 0; k--)
+                {
+                    if (p.getQualifier(k).getPropagated())
+                    {
+                        p.removeQualifier(k);
+                    }
+                }
             }
         }
     }
@@ -702,6 +711,9 @@ CIMRepository::CIMRepository(
         _rep->_streamer.get(),
         compressMode));
 
+    _rep->_storeCompleteClassDefinitions =
+        _rep->_persistentStore->storeCompleteClassDefinitions();
+
     // Initialize the NameSpaceManager
 
     Array<NamespaceDefinition> nameSpaces =
@@ -854,66 +866,38 @@ CIMClass CIMRepository::_getClass(
     }
 #endif
 
-    // Remove properties based on propertylist and localOnly flag (Bug 565)
-    Boolean propertyListNull = propertyList.isNull();
-
-    // if localOnly OR there is a property list, process properties
-    if ((!propertyListNull) || localOnly)
+    if (_rep->_storeCompleteClassDefinitions)
     {
-        // Loop through properties to remove those that do not filter through
-        // local only attribute and are not in the property list.
-        Uint32 count = cimClass.getPropertyCount();
-        // Work backwards because removal may be cheaper. Sint32 covers count=0
-        for (Sint32 i = (count - 1); i >= 0; i--)
+        if (localOnly)
         {
-            CIMProperty p = cimClass.getProperty(i);
-            // if localOnly==true, ignore properties defined in super class
-            if (localOnly && (p.getPropagated()))
+            _stripPropagatedElements(cimClass);
+        }
+    }
+    else if (!localOnly)
+    {
+        // Propagate the superclass elements to this class.
+        Resolver::resolveClass(cimClass, _rep->_context, nameSpace);
+    }
+
+    // Remove properties based on propertyList
+    if (!propertyList.isNull())
+    {
+        // Remove properties that are not in the property list.
+        // Work backwards because removal may be cheaper. Sint32 covers count=0
+        for (Sint32 i = cimClass.getPropertyCount() - 1; i >= 0; i--)
+        {
+            if (!_containsProperty(cimClass.getProperty(i), propertyList))
             {
                 cimClass.removeProperty(i);
-                continue;
             }
-
-            // propertyList NULL means all properties.  PropertyList
-            // empty, none.
-            // Test for removal if propertyList not NULL. The empty list option
-            // is covered by fact that property is not in the list.
-            if (!propertyListNull)
-                if (!_containsProperty(p, propertyList))
-                    cimClass.removeProperty(i);
         }
     }
 
-    // remove methods based on localOnly flag
-    if (localOnly)
-    {
-        Uint32 count = cimClass.getMethodCount();
-        // Work backwards because removal may be cheaper.
-        for (Sint32 i = (count - 1); i >= 0; i--)
-        {
-            CIMMethod m = cimClass.getMethod(i);
-
-            // if localOnly==true, ignore properties defined in super class
-            if (localOnly && (m.getPropagated()))
-                cimClass.removeMethod(i);
-        }
-
-    }
     // If includequalifiers false, remove all qualifiers from
     // properties, methods and parameters.
     if (!includeQualifiers)
     {
-
         _removeAllQualifiers(cimClass);
-    }
-    else
-    {
-        // if includequalifiers and localOnly, remove nonLocal qualifiers
-        if (localOnly)
-        {
-            _removePropagatedQualifiers(cimClass);
-        }
-
     }
 
     // if ClassOrigin Flag false, remove classOrigin info from class object
@@ -1160,7 +1144,7 @@ void CIMRepository::_createClass(
     // -- Check whether the class may be created:
 
     _rep->_nameSpaceManager.checkCreateClass(
-        nameSpace, cimClass.getClassName(), cimClass.getSuperClassName());
+        nameSpace, newClass.getClassName(), newClass.getSuperClassName());
 
     // -- If an association class, build association entries:
 
@@ -1169,6 +1153,13 @@ void CIMRepository::_createClass(
     if (cimClass.isAssociation())
     {
         classAssocEntries = _buildClassAssociationEntries(cimClass);
+    }
+
+    // -- Strip the propagated elements, if required
+
+    if (!_rep->_storeCompleteClassDefinitions)
+    {
+        _stripPropagatedElements(cimClass);
     }
 
     // -- Create the class declaration:
@@ -1298,8 +1289,14 @@ void CIMRepository::_modifyClass(
     // Check to see if it is okay to modify this class:
     //
 
+    CIMName oldSuperClassName;
+
     _rep->_nameSpaceManager.checkModifyClass(
-        nameSpace, cimClass.getClassName(), cimClass.getSuperClassName());
+        nameSpace,
+        modifiedClass.getClassName(),
+        modifiedClass.getSuperClassName(),
+        oldSuperClassName,
+        !_rep->_storeCompleteClassDefinitions);
 
     //
     // ATTN: KS
@@ -1324,8 +1321,19 @@ void CIMRepository::_modifyClass(
         classAssocEntries = _buildClassAssociationEntries(cimClass);
     }
 
+    // Strip the propagated elements, if required
+
+    if (!_rep->_storeCompleteClassDefinitions)
+    {
+        _stripPropagatedElements(cimClass);
+    }
+
     _rep->_persistentStore->modifyClass(
-        nameSpace, cimClass, isAssociation, classAssocEntries);
+        nameSpace,
+        cimClass,
+        oldSuperClassName,
+        isAssociation,
+        classAssocEntries);
 
     //
     // Cache this class:

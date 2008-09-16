@@ -1518,44 +1518,34 @@ static void TestServerMessages( CIMClient& client,
         for (int i = 0; i < 100; i ++)
         {
             //
-            // TEST 1 - Cause
-            // Repository.NameSpaceManager.ATTEMPT_TO_CHANGE_SUPERCLASS
-            // error message
+            // TEST 1 - Cause localized error message.
             //
-            // Attempt a modifyClass operation which invalidly changes
-            // the superclass.
-            // Expect the error message to be returned in the language specified
-            // by the user.
+            // Attempt to create a PG_ProviderModule instance with no Name
+            // property.  Expect the error message to be returned in the
+            // language specified by the user.
             //
 
             try
             {
-                CIMClass rtnClass = client.getClass(
-                    "test/TestProvider",
-                    "CIM_ManagedSystemElement",
-                    true,
-                    true,
-                    false);
-
-                rtnClass.setSuperClassName("CIM_Process");
-
                 client.setRequestAcceptLanguages(acceptLangs1);
 
-                client.modifyClass("test/TestProvider", rtnClass);
+                CIMInstance inst("PG_ProviderModule");
+                client.createInstance("root/PG_InterOp", inst);
 
                 // should not get here
-                throw Exception("did not get expected getClass exception");
+                throw Exception(
+                    "did not get expected exception for missing Name property");
             }
             catch (CIMException& ce)
             {
-                if (ce.getCode() == CIM_ERR_FAILED)
+                if (ce.getCode() == CIM_ERR_INVALID_PARAMETER)
                 {
                     if ((String::compare(
                             ce.getMessage(),
-                            "CIM_ERR_FAILED",
-                            strlen("CIM_ERR_FAILED")) != 0) ||
+                            "CIM_ERR_INVALID_PARAMETER",
+                            strlen("CIM_ERR_INVALID_PARAMETER")) != 0) ||
                         (ce.getMessage().size() ==
-                            strlen("CIM_ERR_FAILED")))
+                            strlen("CIM_ERR_INVALID_PARAMETER")))
                     {
                         throw;
                     }

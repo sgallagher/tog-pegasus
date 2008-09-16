@@ -135,6 +135,11 @@ public:
 
     ~FileBasedStore();
 
+    Boolean storeCompleteClassDefinitions()
+    {
+        return _storeCompleteClasses;
+    }
+
     Array<NamespaceDefinition> enumerateNameSpaces();
     void createNameSpace(
         const CIMNamespaceName& nameSpace,
@@ -186,6 +191,7 @@ public:
     void modifyClass(
         const CIMNamespaceName& nameSpace,
         const CIMClass& modifiedClass,
+        const CIMName& oldSuperClassName,
         Boolean isAssociation,
         const Array<ClassAssociation>& classAssocEntries);
     /**
@@ -380,6 +386,7 @@ private:
     String _repositoryPath;
     ObjectStreamer* _streamer;
     Boolean _compressMode;
+    Boolean _storeCompleteClasses;
 
     /**
         Maps namespace names to directory paths

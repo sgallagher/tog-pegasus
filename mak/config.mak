@@ -539,6 +539,21 @@ ifdef PEGASUS_REMOVE_METHODTRACE
   endif
 endif
 
+# Control whether the class definitions in the repository contain elements
+# propagated from superclass definitions.
+
+ifndef PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES
+    PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES = false
+endif
+
+ifeq ($(PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES),true)
+    DEFINES += -DPEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES
+else
+    ifneq ($(PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES),false)
+        $(error PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES ($(PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES)) invalid, must be true or false)
+    endif
+endif
+
 # PEP 161
 # Control whether utf-8 filenames are supported by the repository
 ifdef PEGASUS_SUPPORT_UTF8_FILENAME

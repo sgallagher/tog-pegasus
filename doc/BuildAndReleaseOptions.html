@@ -1317,6 +1317,26 @@ additional information.</p>
   <b>Required:&nbsp;</b>No<p>&nbsp;</p>
 </ul>
 
+<h5>PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES</h5>
+<ul>
+  <b>Description:&nbsp;</b>This variable defines the default contents of a
+     class definition in the repository store when a new repository is created.
+     Specifically, when set to true, propagated elements are included in a
+     class definition in the persistent store.  The contents of a class
+     definition returned from the repository interface is not affected by this
+     option.<br>
+  <b>Default Value:&nbsp;</b>false<br>
+  <b>Recommended Value (Development Build):&nbsp;</b>false<br>
+  <b>Recommended Value (Release Build):&nbsp;</b>false<br>
+  <b>Required:&nbsp;</b>No<p>&nbsp;</p>
+  <b>Considerations:&nbsp;</b>A repository which stores complete class
+     definitions does not allow modifications to non-leaf classes or changes
+     to a superclass designation.  Complete classes use more storage space,
+     often twice as much as local (incomplete) classes.  Class retrieval may
+     be more expensive when local classes are stored.  No specific mechanism
+     is available to change this setting in an existing repository.<br>
+</ul>
+
 <h5>PEGASUS_SLP_REG_TIMEOUT</h5>
 <ul>
   <b>Description:&nbsp;</b>Most SLP implementations allow a lifetime

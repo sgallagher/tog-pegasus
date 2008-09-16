@@ -38,8 +38,15 @@ XMLSCRIPTS = \
     ModifyClass43001 \
     ModifyClass43003 \
     ModifyClass43004 \
-    ModifyClass43005 \
     ModifyClass43006
+
+ifeq ($(PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES),true)
+    XMLSCRIPTS += \
+        ModifyClass43005
+else
+    XMLSCRIPTS += \
+        ModifyClass43005a
+endif
 
 ifndef SECURITY_ENABLED
 XMLSCRIPTS += \

@@ -794,17 +794,15 @@ void NameSpaceManager::createClass(
 void NameSpaceManager::checkModifyClass(
     const CIMNamespaceName& nameSpaceName,
     const CIMName& className,
-    const CIMName& superClassName)
+    const CIMName& superClassName,
+    CIMName& oldSuperClassName,
+    Boolean allowNonLeafModification)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::checkModifyClass");
 
     NameSpace* nameSpace = _getNameSpace(nameSpaceName);
 
     InheritanceTree& it = nameSpace->getInheritanceTree();
-
-    // -- Disallow changing of superclass:
-
-    CIMName oldSuperClassName;
 
     if (!it.getSuperClass(className, oldSuperClassName))
     {
@@ -813,25 +811,58 @@ void NameSpaceManager::checkModifyClass(
             CIM_ERR_NOT_FOUND, className.getString());
     }
 
-    if (!superClassName.equal(oldSuperClassName))
+    if (allowNonLeafModification)
     {
-        PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms(
-                "Repository.NameSpaceManager.ATTEMPT_TO_CHANGE_SUPERCLASS",
-                "attempt to change superclass"));
+        if (!superClassName.isNull())
+        {
+            Array<CIMName> superClassNames;
+
+            // Make sure the new superclass exists and is not a subclass of the
+            // class being modified.
+
+            if (!it.getSuperClassNames(superClassName, superClassNames))
+            {
+                PEG_METHOD_EXIT();
+                throw PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_INVALID_SUPERCLASS, superClassName.getString());
+            }
+
+            for (Uint32 i = 0; i < superClassNames.size(); i++)
+            {
+                if (superClassNames[i] == className)
+                {
+                    // The modified class is a parent of the new superclass!
+                    PEG_METHOD_EXIT();
+                    throw PEGASUS_CIM_EXCEPTION(
+                        CIM_ERR_INVALID_SUPERCLASS, superClassName.getString());
+                }
+            }
+        }
     }
-
-    // -- Disallow modification of class with subclasses:
-
-    Boolean hasSubClasses;
-    it.hasSubClasses(className, hasSubClasses);
-
-    if (hasSubClasses)
+    else
     {
-        PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_CLASS_HAS_CHILDREN, className.getString());
+        // -- Disallow changing of superclass:
+
+        if (!superClassName.equal(oldSuperClassName))
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "Repository.NameSpaceManager.ATTEMPT_TO_CHANGE_SUPERCLASS",
+                    "attempt to change superclass"));
+        }
+
+        // -- Disallow modification of class with subclasses:
+
+        Boolean hasSubClasses;
+        it.hasSubClasses(className, hasSubClasses);
+
+        if (hasSubClasses)
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_CLASS_HAS_CHILDREN, className.getString());
+        }
     }
 
     PEG_METHOD_EXIT();

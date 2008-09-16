@@ -375,14 +375,16 @@ static int _getEntityRef(char*& p)
 #pragma optimize( "", on )
 #endif
 
-static inline int _getCharRef(char*& p, bool hex)
+static inline int _getCharRef(char*& p)
 {
     char* end;
     unsigned long ch;
+    Boolean hex = false;
 
-    if (hex)
+    if (*p == 'x')
     {
-        ch = strtoul(p, &end, 16);
+        hex = true;
+        ch = strtoul(++p, &end, 16);
     }
     else
     {
@@ -404,7 +406,92 @@ static inline int _getCharRef(char*& p, bool hex)
     return ch;
 }
 
-static void _normalize(Uint32& line, char*& p, char end_char, char*& start)
+// Parse an entity reference or a character reference
+static inline int _getRef(Uint32 line, char*& p)
+{
+    int ch;
+
+    if (*p == '#')
+    {
+        ch = _getCharRef(++p);
+    }
+    else
+    {
+        ch = _getEntityRef(p);
+    }
+
+    if (ch == -1)
+    {
+        throw XmlException(XmlException::MALFORMED_REFERENCE, line);
+    }
+
+    return ch;
+}
+
+static inline void _normalizeElementValue(
+    Uint32& line,
+    char*& p)
+{
+    // Process one character at a time:
+
+    char* q = p;
+
+    while (*p && (*p != '<'))
+    {
+        if (_isspace(*p))
+        {
+            // Trim whitespace from the end of the value, but do not compress
+            // whitespace within the value.
+
+            const char* start = p;
+
+            if (*p++ == '\n')
+            {
+                line++;
+            }
+
+            _skipWhitespace(line, p);
+
+            if (*p && (*p != '<'))
+            {
+                // Transfer internal whitespace to q without compressing it.
+                const char* i = start;
+                while (i < p)
+                {
+                    *q++ = *i++;
+                }
+            }
+            else
+            {
+                // Do not transfer trailing whitespace to q.
+                break;
+            }
+        }
+        else if (*p == '&')
+        {
+            // Process an entity reference or a character reference.
+
+            *q++ = _getRef(line, ++p);
+        }
+        else
+        {
+            *q++ = *p++;
+        }
+    }
+
+    // If q got behind p, it is safe and necessary to null-terminate q
+
+    if (q != p)
+    {
+        *q = '\0';
+    }
+}
+
+static inline void _normalizeAttributeValue(
+    Uint32& line,
+    char*& p,
+    char end_char,
+    char*& start)
 {
     // Skip over leading whitespace:
 
@@ -433,36 +520,9 @@ static void _normalize(Uint32& line, char*& p, char end_char, char*& start)
         }
         else if (*p == '&')
         {
-            // Process entity characters and entity references:
+            // Process an entity reference or a character reference.
 
-            p++;
-            int ch;
-
-            if (*p == '#')
-            {
-                *p++;
-
-                if (*p == 'x')
-                {
-                    p++;
-                    ch = _getCharRef(p, true);
-                }
-                else
-                {
-                    ch = _getCharRef(p, false);
-                }
-            }
-            else
-            {
-                ch = _getEntityRef(p);
-            }
-
-            if (ch == -1)
-            {
-                throw XmlException(XmlException::MALFORMED_REFERENCE, line);
-            }
-
-            *q++ = ch;
+            *q++ = _getRef(line, ++p);
         }
         else
         {
@@ -579,8 +639,8 @@ Boolean XmlParser::next(
         {
             // Normalize the content:
 
-            char* start;
-            _normalize(_line, _current, '<', start);
+            char* start = _current;
+            _normalizeElementValue(_line, _current);
 
             // Get the content:
 
@@ -1037,7 +1097,7 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
             char quote = *p++;
 
             char* start;
-            _normalize(_line, p, quote, start);
+            _normalizeAttributeValue(_line, p, quote, start);
             attr.value = start;
 
             if (*p != quote)

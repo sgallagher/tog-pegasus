@@ -279,24 +279,25 @@ void testNamespaceSupport()
     }
 }
 
-// Test case for 7581: XML parser leaves trailing spaces in entry content.
-static void _trailingSpace()
+static void testWhitespaceHandling()
 {
-    char text[] = "<tag>\r\nvalue  </tag>";
+    char text[] = "<tag attr=\"\r\nvalue  +  \">\r\nvalue  +  </tag>";
     XmlParser parser(text);
     XmlEntry entry;
 
-    while (parser.next(entry))
-    {
-        // Make sure content entries have no trailing spaces
-        int len = strlen(entry.text);
-        if (entry.type == XmlEntry::CONTENT &&
-            entry.text[len - 1] == ' ')
-        {
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
-                "Unexpected trailing space in XmlEntry::CONTENT.");
-        }
-    }
+    // Make sure attribute value has whitespace normalized.
+
+    parser.next(entry);
+    const char* attrValue;
+    PEGASUS_TEST_ASSERT(entry.getAttributeValue("attr", attrValue));
+    PEGASUS_TEST_ASSERT(strcmp(attrValue, "value +") == 0);
+
+    // Make sure element value has leading and trailing whitespace trimmed,
+    // but internal whitespace is not compressed.
+
+    parser.next(entry);
+    PEGASUS_TEST_ASSERT(entry.type == XmlEntry::CONTENT);
+    PEGASUS_TEST_ASSERT(strcmp(entry.text, "value  +") == 0);
 }
 
 int main(int argc, char** argv)
@@ -323,7 +324,7 @@ int main(int argc, char** argv)
         }
     }
 
-    _trailingSpace();
+    testWhitespaceHandling();
 
     testNamespaceSupport();
 

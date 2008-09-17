@@ -1136,15 +1136,15 @@ void CIMRepository::_createClass(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_createClass");
 
-    // -- Resolve the class:
-
-    CIMClass cimClass(newClass.clone());
-    Resolver::resolveClass(cimClass, _rep->_context, nameSpace);
-
     // -- Check whether the class may be created:
 
     _rep->_nameSpaceManager.checkCreateClass(
         nameSpace, newClass.getClassName(), newClass.getSuperClassName());
+
+    // -- Resolve the class:
+
+    CIMClass cimClass(newClass.clone());
+    Resolver::resolveClass(cimClass, _rep->_context, nameSpace);
 
     // -- If an association class, build association entries:
 
@@ -1279,13 +1279,6 @@ void CIMRepository::_modifyClass(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_modifyClass");
 
     //
-    // Resolve the class:
-    //
-
-    CIMClass cimClass(modifiedClass.clone());
-    Resolver::resolveClass(cimClass, _rep->_context, nameSpace);
-
-    //
     // Check to see if it is okay to modify this class:
     //
 
@@ -1297,6 +1290,13 @@ void CIMRepository::_modifyClass(
         modifiedClass.getSuperClassName(),
         oldSuperClassName,
         !_rep->_storeCompleteClassDefinitions);
+
+    //
+    // Resolve the class:
+    //
+
+    CIMClass cimClass(modifiedClass.clone());
+    Resolver::resolveClass(cimClass, _rep->_context, nameSpace);
 
     //
     // ATTN: KS

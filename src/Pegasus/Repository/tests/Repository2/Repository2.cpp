@@ -712,6 +712,31 @@ void TestCreateClass(Uint32 mode)
     r.deleteNameSpace(NS);
 }
 
+void TestModifyClass(Uint32 mode)
+{
+    //
+    // -- Create repository and test namespace:
+    //
+    CIMRepository r(repositoryRoot, mode);
+    const CIMNamespaceName NS = CIMNamespaceName("TestModifyClass");
+
+    r.createNameSpace(NS);
+
+    // Test NOT_FOUND error when modifying a non-existent class
+
+    CIMClass c("PG_NonExistent", "PG_NonExistentParent");
+    try
+    {
+        r.modifyClass(NS, c);
+        // Should not get here.
+        PEGASUS_TEST_ASSERT(false);
+    }
+    catch (CIMException& e)
+    {
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
+    }
+}
+
 void TestQualifiers(Uint32 mode)
 {
   //
@@ -797,6 +822,7 @@ int main(int argc, char** argv)
 
     TestNameSpaces(mode);
     TestCreateClass(mode);
+    TestModifyClass(mode);
     TestQualifiers(mode);
 
     }

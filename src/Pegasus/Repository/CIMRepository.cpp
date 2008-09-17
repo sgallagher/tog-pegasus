@@ -654,7 +654,7 @@ CIMRepository::CIMRepository(
     Boolean compressMode = false;
 
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY    // PEP214
-    Boolean compressMode = true;
+    compressMode = true;
     char* s = getenv("PEGASUS_ENABLE_COMPRESSED_REPOSITORY");
     if (s && (strcmp(s, "build_non_compressed") == 0))
     {

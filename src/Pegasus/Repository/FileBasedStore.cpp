@@ -242,12 +242,13 @@ void _LoadObject(
 static void _SaveObject(
     const String& path,
     Buffer& objectXml,
-    ObjectStreamer* streamer)
+    ObjectStreamer* streamer,
+    Boolean compressMode)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "FileBasedStore::_SaveObject");
 
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
-    if (_compressMode)            // PEP214
+    if (compressMode)            // PEP214
     {
         PEGASUS_STD(ostringstream) os;
         streamer->write(os, objectXml);
@@ -1310,7 +1311,7 @@ void FileBasedStore::setQualifier(
 
     Buffer qualifierDeclXml;
     _streamer->encode(qualifierDeclXml, qualifierDecl);
-    _SaveObject(qualifierFilePath, qualifierDeclXml, _streamer);
+    _SaveObject(qualifierFilePath, qualifierDeclXml, _streamer, _compressMode);
 
     PEG_METHOD_EXIT();
 }
@@ -1419,7 +1420,7 @@ void FileBasedStore::createClass(
         nameSpace, newClass.getClassName(), newClass.getSuperClassName());
     Buffer classXml;
     _streamer->encode(classXml, newClass);
-    _SaveObject(classFilePath, classXml, _streamer);
+    _SaveObject(classFilePath, classXml, _streamer, _compressMode);
 
     if (classAssocEntries.size())
     {
@@ -1469,7 +1470,7 @@ void FileBasedStore::modifyClass(
 
     Buffer classXml;
     _streamer->encode(classXml, modifiedClass);
-    _SaveObject(classFilePath, classXml, _streamer);
+    _SaveObject(classFilePath, classXml, _streamer, _compressMode);
 
     //
     // Update the association entries

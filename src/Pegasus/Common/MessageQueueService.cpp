@@ -801,42 +801,6 @@ void MessageQueueService::handle_AsyncOperationResult(AsyncOperationResult* req)
 {
 }
 
-
-void MessageQueueService::handle_AsyncLegacyOperationStart(
-    AsyncLegacyOperationStart* req)
-{
-    // remove the legacy message from the request and enqueue it to its
-    // destination
-    Uint32 result = async_results::CIM_NAK;
-
-    Message* legacy = req->_act;
-    if (legacy != 0)
-    {
-        MessageQueue* queue = MessageQueue::lookup(req->_legacy_destination);
-        if (queue != 0)
-        {
-            if (queue->isAsync() == true)
-            {
-                (static_cast<MessageQueueService *>(queue))->handleEnqueue(
-                    legacy);
-            }
-            else
-            {
-                // Enqueue the response:
-                queue->enqueue(req->get_action());
-            }
-
-            result = async_results::OK;
-        }
-    }
-    _make_response(req, result);
-}
-
-void MessageQueueService::handle_AsyncLegacyOperationResult(
-    AsyncLegacyOperationResult* rep)
-{
-}
-
 AsyncOpNode* MessageQueueService::get_op()
 {
    AsyncOpNode* op = new AsyncOpNode();
@@ -923,8 +887,7 @@ Boolean MessageQueueService::SendAsync(
         AsyncLegacyOperationStart *wrapper = new AsyncLegacyOperationStart(
             op,
             destination,
-            msg,
-            destination);
+            msg);
     }
     else
     {

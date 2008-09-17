@@ -3912,8 +3912,7 @@ void ProviderRegistrationManager::_sendMessageToSubscription(
             new AsyncLegacyOperationStart(
                 NULL,
                 _queueId,
-                notify_req,
-                _queueId);
+                notify_req);
 
         //
         // The IndicationService logs errors that may result from this

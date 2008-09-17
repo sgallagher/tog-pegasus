@@ -6089,8 +6089,7 @@ void IndicationService::_sendAsyncCreateRequests(
             new AsyncLegacyOperationStart(
                 op,
                 _providerManager,
-                request,
-                _queueId);
+                request);
 
         SendAsync(
             op,
@@ -6186,8 +6185,7 @@ Array<ProviderClassList> IndicationService::_sendWaitCreateRequests(
             new AsyncLegacyOperationStart(
                 0,
                 _providerManager,
-                request,
-                _queueId);
+                request);
 
         AsyncReply * asyncReply = SendWait(asyncRequest);
 
@@ -6303,8 +6301,7 @@ void IndicationService::_sendWaitModifyRequests(
             new AsyncLegacyOperationStart(
                 0,
                 _providerManager,
-                request,
-                _queueId);
+                request);
 
         AsyncReply * asyncReply = SendWait(asyncRequest);
 
@@ -6470,8 +6467,7 @@ void IndicationService::_sendAsyncDeleteRequests(
             new AsyncLegacyOperationStart(
                 op,
                 _providerManager,
-                request,
-                _queueId);
+                request);
 
         SendAsync(
             op,
@@ -6540,8 +6536,7 @@ void IndicationService::_sendWaitDeleteRequests(
             new AsyncLegacyOperationStart(
                 0,
                 _providerManager,
-                request,
-                _queueId);
+                request);
 
         AsyncReply * asyncReply = SendWait(asyncRequest);
 
@@ -7108,8 +7103,7 @@ void IndicationService::_sendSubscriptionInitComplete()
         new AsyncLegacyOperationStart(
             0,
             _providerManager,
-            request,
-            _queueId);
+            request);
 
     AutoPtr<AsyncReply> asyncReply(SendWait(asyncRequest));
     //
@@ -7682,8 +7676,7 @@ void IndicationService::_forwardIndToHandler(
         new AsyncLegacyOperationStart(
         op,
         _handlerService,
-        handler_request,
-        _queueId);
+        handler_request);
 
     PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
         "Sending (SendAsync) Indication to %s "

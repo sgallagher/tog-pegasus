@@ -454,8 +454,7 @@ public:
     AsyncLegacyOperationStart(
         AsyncOpNode* operation,
         Uint32 destination,
-        Message* action,
-        Uint32 actionDestination);
+        Message* action);
 
     virtual ~AsyncLegacyOperationStart()
     {
@@ -468,7 +467,6 @@ private:
     friend class MessageQueueService;
     friend class cimom;
     Message* _act;
-    Uint32 _legacy_destination;
 };
 
 class PEGASUS_COMMON_LINKAGE AsyncLegacyOperationResult : public AsyncReply

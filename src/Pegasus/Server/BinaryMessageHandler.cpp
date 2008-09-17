@@ -75,8 +75,7 @@ void BinaryMessageHandler::handleEnqueue(Message* message)
     asyncRequest = new AsyncLegacyOperationStart(
         op,
         this->getQueueId(),
-        message,
-        this->getQueueId());
+        message);
     op->_flags |= ASYNC_OPFLAGS_FIRE_AND_FORGET;
 
     _handle_async_request(asyncRequest);

@@ -387,14 +387,12 @@ Message* AsyncModuleOperationResult::get_result()
 AsyncLegacyOperationStart::AsyncLegacyOperationStart(
     AsyncOpNode* operation,
     Uint32 destination,
-    Message* action,
-    Uint32 actionDestination)
+    Message* action)
     : AsyncRequest(
           ASYNC_ASYNC_LEGACY_OP_START,
           0,
           operation, destination, CIMOM_Q_ID, false),
-      _act(action),
-      _legacy_destination(actionDestination)
+      _act(action)
 {
     _act->put_async(this);
 }

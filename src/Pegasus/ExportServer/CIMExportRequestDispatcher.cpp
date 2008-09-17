@@ -226,8 +226,7 @@ CIMExportRequestDispatcher::_handleExportIndicationRequest(
         new AsyncLegacyOperationStart(
             op,
             serviceIds[0],
-            new CIMExportIndicationRequestMessage(*request),
-            this->getQueueId());
+            new CIMExportIndicationRequestMessage(*request));
 
     asyncRequest->dest = serviceIds[0];
 

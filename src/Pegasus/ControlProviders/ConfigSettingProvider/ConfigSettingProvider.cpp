@@ -650,8 +650,7 @@ void ConfigSettingProvider::_sendNotifyConfigChangeMessage(
         AsyncLegacyOperationStart asyncRequest(
             NULL,
             service->getQueueId(),
-            notify_req,
-            service->getQueueId());
+            notify_req);
 
         AutoPtr<AsyncReply> asyncReply( 
             controller->ClientSendWait(service->getQueueId(), &asyncRequest));

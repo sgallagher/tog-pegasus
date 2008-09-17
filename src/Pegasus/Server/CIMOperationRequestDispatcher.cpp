@@ -2258,8 +2258,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
         new AsyncLegacyOperationStart(
             op,
             serviceIds[0],
-            request,
-            this->getQueueId());
+            request);
 
     asyncRequest->dest = serviceIds[0];
 
@@ -2323,8 +2322,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
             new AsyncLegacyOperationStart(
                 op,
                 serviceIds[0],
-                request,
-                this->getQueueId());
+                request);
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
             "Forwarding %s to service %s. Response should go to queue %s.",
@@ -2405,8 +2403,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
             new AsyncLegacyOperationStart(
                 op,
                 serviceIds[0],
-                request,
-                this->getQueueId());
+                request);
 
         asyncRequest->dest = serviceIds[0];
 

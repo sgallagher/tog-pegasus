@@ -479,8 +479,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
     AsyncLegacyOperationStart *req = new AsyncLegacyOperationStart(
         0,
         services[0],
-        legacy,
-        q_client->getQueueId());
+        legacy);
     reply = q_client->SendWait(req);
     delete req;
     delete reply;
@@ -495,8 +494,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
     req = new AsyncLegacyOperationStart(
         0,
         services[0],
-        legacy,
-        q_client->getQueueId());
+        legacy);
 
     q_client->SendForget(req);
 

@@ -370,8 +370,7 @@ void ShutdownService::_shutdownProviders()
         new AsyncLegacyOperationStart(
             NULL,
             _queueId,
-            stopRequest,
-            _queueId);
+            stopRequest);
 
     // Use SendWait, which is serialized and waits. Do not use asynchronous
     // callback as the response might be received _after_ the provider or

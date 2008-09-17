@@ -221,8 +221,8 @@ IndicationHandlerService::_handleIndication(
                     new AsyncLegacyOperationStart(
                     op.get(),
                     exportServer[0],
-                    exportmessage.get(),
-                    _queueId));
+                    exportmessage.get()));
+
                 exportmessage.release();
 
                 PEG_TRACE((TRC_IND_HANDLE, Tracer::LEVEL4,

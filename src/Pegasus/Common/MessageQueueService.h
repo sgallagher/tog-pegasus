@@ -140,10 +140,6 @@ protected:
 
     virtual void handle_AsyncOperationStart(AsyncOperationStart* req);
     virtual void handle_AsyncOperationResult(AsyncOperationResult* rep);
-    virtual void handle_AsyncLegacyOperationStart(
-        AsyncLegacyOperationStart* req);
-    virtual void handle_AsyncLegacyOperationResult(
-        AsyncLegacyOperationResult* rep);
 
     void _completeAsyncResponse(
         AsyncRequest* request,

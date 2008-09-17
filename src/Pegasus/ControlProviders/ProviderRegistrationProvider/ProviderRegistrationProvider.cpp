@@ -1140,8 +1140,7 @@ Array<Uint16>
         new AsyncLegacyOperationStart (
             NULL,
             _queueId,
-            disable_req,
-            _queueId);
+            disable_req);
 
     AsyncReply * asyncReply =
         _controller->ClientSendWait(_queueId, asyncRequest);
@@ -1178,8 +1177,7 @@ Array<Uint16> ProviderRegistrationProvider::_sendEnableMessageToProviderManager(
         new AsyncLegacyOperationStart (
             NULL,
             _queueId,
-            enable_req,
-            _queueId);
+            enable_req);
 
     AsyncReply * asyncReply =
         _controller->ClientSendWait(_queueId, asyncRequest);
@@ -1290,8 +1288,7 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
         AsyncLegacyOperationStart asyncRequest(
             NULL,
             _queueId,
-            termination_req,
-            _queueId);
+            termination_req);
 
         AutoPtr <AsyncReply> asyncReply(
             _controller->ClientSendWait(_queueId, &asyncRequest));
@@ -1688,8 +1685,7 @@ void ProviderRegistrationProvider::_sendEnableMessageToSubscription(
             new AsyncLegacyOperationStart (
                 NULL,
                 _queueId,
-                enable_req,
-                _queueId);
+                enable_req);
             
         AsyncReply * asyncReply = 
             _controller->ClientSendWait(_queueId, asyncRequest);

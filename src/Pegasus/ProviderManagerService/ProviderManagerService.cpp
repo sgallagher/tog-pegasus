@@ -181,8 +181,7 @@ void ProviderManagerService::handleEnqueue(Message * message)
         asyncRequest = new AsyncLegacyOperationStart(
             0,
             this->getQueueId(),
-            message,
-            this->getQueueId());
+            message);
     }
 
     _handle_async_request(asyncRequest);
@@ -1001,8 +1000,7 @@ void ProviderManagerService::indicationCallback(
         new AsyncLegacyOperationStart(
         0,
         _indicationServiceQueueId,
-        request,
-        _indicationServiceQueueId);
+        request);
 
     providerManagerService->SendForget(asyncRequest);
 
@@ -1142,8 +1140,7 @@ void ProviderManagerService::providerModuleFailureCallback
     AsyncLegacyOperationStart asyncRequest(
         0,
         _indicationServiceQueueId,
-        request,
-        _indicationServiceQueueId);
+        request);
 
     AutoPtr <AsyncReply> asyncReply
         (providerManagerService->SendWait (&asyncRequest));

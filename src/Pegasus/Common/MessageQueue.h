@@ -103,7 +103,6 @@ public:
     /** Enques a message (places it at the back of the queue).
     @param message pointer to message to be enqueued.
     @exception  NullPointer exception if message parameter is null.
-    @exception  IPCException if socket call has an error
     */
     virtual void enqueue(Message* message);
 
@@ -114,7 +113,6 @@ public:
 
     /** Dequeues a message (removes it from the front of the queue).
     @return pointer to message or zero if queue is empty.
-    @exception IPCException Thrown if an IPC error occurs.
     */
     virtual Message* dequeue();
 
@@ -151,19 +149,16 @@ public:
     virtual Boolean messageOK(const Message *msg) { return true ;}
 
     /** Lookup a message queue from a queue id. Note this is an O(1) operation.
-    @exception IPCException Thrown if an IPC error occurs.
      */
     static MessageQueue* lookup(Uint32 queueId);
 
     /** Lookup a message given a queue name. NOte this is an O(N) operation.
-    @exception IPCException Thrown if an IPC error occurs.
      */
     static MessageQueue* lookup(const char *name);
 
     /** Get the next available queue id. It always returns a non-zero
     queue id an monotonically increases and finally wraps (to one)
     after reaching the maximum unsigned 32 bit integer.
-    @exception IPCException Thrown if an IPC error occurs.
     */
     static Uint32 getNextQueueId();
 

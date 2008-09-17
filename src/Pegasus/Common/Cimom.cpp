@@ -90,9 +90,7 @@ Boolean cimom::route_async(AsyncOpNode *op)
     if (_routed_queue_shutdown.get() > 0)
         return false;
 
-    _routed_ops.enqueue(op);
-
-    return true;
+    return _routed_ops.enqueue(op);
 }
 
 void cimom::_shutdown_routed_queue()
@@ -117,9 +115,12 @@ void cimom::_shutdown_routed_queue()
     msg->op->_op_dest = _global_this;
     msg->op->_request.reset(msg.get());
 
-    _routed_ops.enqueue(msg->op);
+    if (_routed_ops.enqueue(msg->op))
+    {
+        msg.release();
+    }
+
     _routing_thread.join();
-    msg.release();
 }
 
 
@@ -131,14 +132,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 
     while (dispatcher->_die.get() == 0)
     {
-        try
-        {
-            op = dispatcher->_routed_ops.dequeue_wait();
-        }
-        catch (ListClosed &)
-        {
-            break;
-        }
+        op = dispatcher->_routed_ops.dequeue_wait();
 
         if (op == 0)
         {

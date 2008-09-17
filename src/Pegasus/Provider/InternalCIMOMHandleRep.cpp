@@ -48,7 +48,9 @@ PEGASUS_NAMESPACE_BEGIN
 InternalCIMOMHandleMessageQueue::InternalCIMOMHandleMessageQueue()
     : MessageQueue(PEGASUS_QUEUENAME_INTERNALCLIENT),
     _output_qid(0),
-    _return_qid(0)
+    _return_qid(0),
+    _responseReady(0),
+    _response(0)
 {
     // output queue is the binary message handler
     MessageQueue* out = MessageQueue::lookup(PEGASUS_QUEUENAME_BINARY_HANDLER);
@@ -63,14 +65,6 @@ InternalCIMOMHandleMessageQueue::InternalCIMOMHandleMessageQueue()
 
 InternalCIMOMHandleMessageQueue::~InternalCIMOMHandleMessageQueue()
 {
-    try
-    {
-        // ATTN: release any unprocessed responses
-        _response.clear();
-    }
-    catch (...)
-    {
-    }
 }
 
 void InternalCIMOMHandleMessageQueue::handleEnqueue()
@@ -127,8 +121,8 @@ void InternalCIMOMHandleMessageQueue::handleEnqueue()
     case CIM_GET_PROPERTY_RESPONSE_MESSAGE:
     case CIM_SET_PROPERTY_RESPONSE_MESSAGE:
     case CIM_INVOKE_METHOD_RESPONSE_MESSAGE:
-        _response.enqueue(message);
-
+        _response = message;
+        _responseReady.signal();
         break;
     default:
         PEG_TRACE_CSTRING(
@@ -171,8 +165,9 @@ CIMResponseMessage* InternalCIMOMHandleMessageQueue::sendRequest(
     }
 
     // wait for response
-    CIMResponseMessage* response =
-        dynamic_cast<CIMResponseMessage *>(_response.dequeue_wait());
+    _responseReady.wait();
+    CIMResponseMessage* response = dynamic_cast<CIMResponseMessage*>(_response);
+    _response = 0;
 
     PEG_METHOD_EXIT();
     return response;

@@ -272,18 +272,12 @@ MessageQueueService::~MessageQueueService()
             _thread_pool = 0;
         }
     } // mutex unlocks here
-    // Clean up in case there are extra stuff on the queue.
-    while (_incoming.count())
+
+    // Clean up any extra stuff on the queue.
+    AsyncOpNode* op = 0;
+    while ((op = _incoming.dequeue()))
     {
-        try
-        {
-            delete _incoming.dequeue();
-        }
-        catch (const ListClosed&)
-        {
-            // If the list is closed, there is nothing we can do.
-            break;
-        }
+        delete op;
     }
 }
 
@@ -309,12 +303,11 @@ void MessageQueueService::_shutdown_incoming_queue()
 
     msg->op->_op_dest = this;
     msg->op->_request.reset(msg);
-    try
+    if (_incoming.enqueue(msg->op))
     {
-        _incoming.enqueue(msg->op);
         _polling_sem.signal();
     }
-    catch (const ListClosed&)
+    else
     {
         // This means the queue has already been shut-down (happens  when there
         // are two AsyncIoctrl::IO_CLOSE messages generated and one got first
@@ -354,17 +347,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
         // many operations may have been queued.
         do
         {
-            try
-            {
-                operation = service->_incoming.dequeue();
-            }
-            catch (ListClosed&)
-            {
-                // ATTN: This appears to be a common loop exit path.
-                //PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                //    "Caught ListClosed exception.  Exiting _req_proc.");
-                break;
-            }
+            operation = service->_incoming.dequeue();
 
             if (operation)
             {
@@ -657,9 +640,11 @@ Boolean MessageQueueService::accept_async(AsyncOpNode* op)
     if ((rq != 0 && (true == messageOK(rq))) ||
         (rp != 0 && (true == messageOK(rp))) && _die.get() == 0)
     {
-        _incoming.enqueue(op);
-        _polling_sem.signal();
-        return true;
+        if (_incoming.enqueue(op))
+        {
+            _polling_sem.signal();
+            return true;
+        }
     }
     return false;
 }

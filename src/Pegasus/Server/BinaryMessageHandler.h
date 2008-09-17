@@ -36,7 +36,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/AsyncOpNode.h>
-#include <Pegasus/Common/AsyncQueue.h>
+#include <Pegasus/Common/List.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/CIMMessage.h>
@@ -270,8 +270,7 @@ private:
 
     MessageQueueService* _outputQueue;
 
-    // Flag to indicate whether or not the CIMServer is shutting down.
-    AsyncQueue<AsyncOpNode> _msg_q;
+    List<AsyncOpNode, Mutex> _msg_q;
 };
 
 PEGASUS_NAMESPACE_END

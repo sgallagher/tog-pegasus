@@ -85,7 +85,6 @@ public:
                 could not be setup properly. PEGASUS_THREAD_UNAVAILABLE
                 if this service is shutting down and no more threads can
                 be allocated.
-        @exception IPCException
      */
     ThreadStatus allocate_and_awaken(
         void* parm,
@@ -97,7 +96,6 @@ public:
         deallocate_wait configuration and more than the configured
         minimum number of threads is running.
         @return The number of threads that were cleaned up.
-        @exception IPCException
      */
     Uint32 cleanupIdleThreads();
 

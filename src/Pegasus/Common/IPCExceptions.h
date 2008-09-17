@@ -48,14 +48,6 @@ private:
     ThreadType _owner;
 };
 
-class PEGASUS_COMMON_LINKAGE ListClosed: public IPCException
-{
-public:
-    ListClosed() : IPCException(Threads::self())
-    {
-    }
-};
-
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_IPCExceptions_h */

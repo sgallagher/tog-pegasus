@@ -286,14 +286,11 @@ public:
 
     // stack of functions to be called when thread terminates
     // will be called last in first out (LIFO)
-    // @exception IPCException
     void cleanup_push(void (*routine) (void *), void* parm);
 
-    // @exception IPCException
     void cleanup_pop(Boolean execute = true);
 
     // create and initialize a tsd
-    // @exception IPCException
     inline void create_tsd(const char* key, int size, void* buffer)
     {
         AutoPtr<thread_data> tsd(new thread_data(key, size, buffer));
@@ -303,7 +300,6 @@ public:
 
     // get the buffer associated with the key
     // NOTE: this call leaves the tsd LOCKED !!!!
-    // @exception IPCException
     inline void *reference_tsd(const char* key)
     {
         _tsd.lock();
@@ -314,7 +310,6 @@ public:
             return NULL;
     }
 
-    // @exception IPCException
     inline Boolean try_reference_tsd(const char *key, void** data)
     {
         if (!_tsd.try_lock())
@@ -332,20 +327,17 @@ public:
 
     // release the lock held on the tsd
     // NOTE: assumes a corresponding and prior call to reference_tsd() !!!
-    // @exception IPCException
     inline void dereference_tsd()
     {
         _tsd.unlock();
     }
 
     // delete the tsd associated with the key
-    // @exception IPCException
     inline void delete_tsd(const char *key)
     {
         AutoPtr < thread_data > tsd(_tsd.remove(thread_data::equal, key));
     }
 
-    // @exception IPCException
     inline void empty_tsd()
     {
         _tsd.clear();
@@ -353,7 +345,6 @@ public:
 
     // create or re-initialize tsd associated with the key
     // if the tsd already exists, delete the existing buffer
-    // @exception IPCException
     void put_tsd(
         const char* key,
         void (*delete_func) (void *),
@@ -362,12 +353,10 @@ public:
     {
         PEGASUS_ASSERT(key != NULL);
         AutoPtr<thread_data> tsd;
-        // This may throw an IPCException
         tsd.reset(_tsd.remove(thread_data::equal, key));
         tsd.reset();
         AutoPtr<thread_data> ntsd(new thread_data(key));
         ntsd->put_data(delete_func, size, value);
-        // This may throw an IPCException
         _tsd.insert_front(ntsd.get());
         ntsd.release();
     }
@@ -428,7 +417,6 @@ private:
 
     static Sint8 initializeKey();
 
-    // @exception IPCException
     inline void create_tsd(const char *key)
     {
         AutoPtr<thread_data> tsd(new thread_data(key));

@@ -34,7 +34,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContext.h>
-#include <Pegasus/Common/AsyncQueue.h>
+#include <Pegasus/Common/Semaphore.h>
 #include <Pegasus/Common/MessageQueueService.h>
 
 #include "CIMOMHandleRep.h"
@@ -56,7 +56,8 @@ private:
     Uint32 _return_qid;
 
     Mutex _mutex;
-    AsyncQueue<Message> _response;
+    Semaphore _responseReady;
+    Message* _response;
 
 };
 

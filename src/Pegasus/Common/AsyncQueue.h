@@ -37,7 +37,6 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/List.h>
 #include <Pegasus/Common/Condition.h>
-#include <Pegasus/Common/IPCExceptions.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -56,22 +55,28 @@ public:
     */
     virtual ~AsyncQueue();
 
-    /** Close the queue so that subsequent enqueue() and dequeue() requests
-        result in ListClosed() exceptions.
+    /** Close the queue.
     */
     void close();
 
     /** Enqueue an element at the back of queue.
+        @param element The element to enqueue.
+        @return True if the element is successfully enqueued, false if the
+            queue is closed.
     */
-    void enqueue(ElemType *element);
+    Boolean enqueue(ElemType *element);
 
     /** Dequeue an element from the front of the queue. Return null immediately
-        if queue is empty.
+        if queue is empty or closed.
+        @return A pointer to the element that was dequeued, or null if the
+            queue is empty or closed.
     */
     ElemType *dequeue();
 
     /** Dequeue an element from the front of the queue (wait if the queue is
         empty).
+        @return A pointer to the element that was dequeued, or null if the
+            queue is closed (either before or while waiting for an element).
     */
     ElemType *dequeue_wait();
 
@@ -125,18 +130,22 @@ void AsyncQueue<ElemType>::close()
 }
 
 template<class ElemType>
-void AsyncQueue<ElemType>::enqueue(ElemType *element)
+Boolean AsyncQueue<ElemType>::enqueue(ElemType *element)
 {
     if (element)
     {
         AutoMutex auto_mutex(_mutex);
 
         if (is_closed())
-            throw ListClosed();
+        {
+            return false;
+        }
 
         _rep.insert_back(element);
         _not_empty.signal();
     }
+
+    return true;
 }
 
 template<class ElemType>
@@ -152,7 +161,9 @@ ElemType* AsyncQueue<ElemType>::dequeue()
     AutoMutex auto_mutex(_mutex);
 
     if (is_closed())
-        throw ListClosed();
+    {
+        return 0;
+    }
 
     return _rep.remove_front();
 }
@@ -165,13 +176,17 @@ ElemType* AsyncQueue<ElemType>::dequeue_wait()
     while (is_empty())
     {
         if (is_closed())
-            throw ListClosed();
+        {
+            return 0;
+        }
 
         _not_empty.wait(_mutex);
     }
 
     if (is_closed())
-        throw ListClosed();
+    {
+        return 0;
+    }
 
     ElemType* p = _rep.remove_front();
     PEGASUS_DEBUG_ASSERT(p != 0);

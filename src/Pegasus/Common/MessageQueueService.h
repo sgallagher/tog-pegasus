@@ -73,7 +73,6 @@ public:
 
     virtual Boolean isAsync() const {  return true;  }
 
-    // enqueue may throw an IPCException
     virtual void enqueue(Message *);
 
     AsyncReply* SendWait(AsyncRequest* request);

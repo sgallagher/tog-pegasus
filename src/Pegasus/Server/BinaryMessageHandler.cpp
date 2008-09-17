@@ -98,7 +98,7 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest* request)
 
         try
         {
-            _msg_q.enqueue(request->op);
+            _msg_q.insert_back(request->op);
         }
         catch (...)
         {
@@ -122,7 +122,7 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest* request)
                     "Could not allocate thread for %s. "
                     "Queue has %d messages waiting. ",
                 getQueueName(),
-                _msg_q.count()));
+                _msg_q.size()));
         }
     }
     else if (request->getType() == ASYNC_CIMSERVICE_STOP)
@@ -160,7 +160,7 @@ BinaryMessageHandler::handle_binary_message(void* parm)
     AsyncOpNode* op;
     try
     {
-        op = myself->_msg_q.dequeue();
+        op = myself->_msg_q.remove_front();
     }
     catch (...)
     {

@@ -37,6 +37,13 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+Boolean ObjectNormalizer::_enableNormalization = false;
+
+void ObjectNormalizer::setEnableNormalization(Boolean value)
+{
+    _enableNormalization = value;
+}
+
 CIMQualifier _processQualifier(
     CIMConstQualifier& referenceQualifier,
     CIMConstQualifier& cimQualifier)
@@ -80,7 +87,7 @@ CIMQualifier _processQualifier(
     return normalizedQualifier;
 }
 
-CIMProperty ObjectNormalizer::_processProperty(
+CIMProperty ObjectNormalizer::processProperty(
     CIMConstProperty& referenceProperty,
     CIMConstProperty& instProperty,
     Boolean includeQualifiers,
@@ -378,7 +385,7 @@ CIMObjectPath ObjectNormalizer::processClassObjectPath(
     const CIMObjectPath& cimObjectPath) const
 {
     // pre-check
-    if (_cimClass.isUninitialized())
+    if (!_enableNormalization || _cimClass.isUninitialized())
     {
         // do nothing
         return cimObjectPath;
@@ -435,7 +442,7 @@ CIMObjectPath ObjectNormalizer::processInstanceObjectPath(
     const CIMObjectPath& cimObjectPath) const
 {
     // pre-check
-    if (_cimClass.isUninitialized())
+    if (!_enableNormalization || _cimClass.isUninitialized())
     {
         // do nothing
         return cimObjectPath;
@@ -538,7 +545,7 @@ CIMInstance ObjectNormalizer::processInstance(
     const CIMInstance& cimInstance) const
 {
     // pre-checks
-    if (_cimClass.isUninitialized())
+    if (!_enableNormalization || _cimClass.isUninitialized())
     {
         // do nothing
         return cimInstance;
@@ -603,7 +610,7 @@ CIMInstance ObjectNormalizer::processInstance(
             CIMConstProperty cimProperty = _cimClass.getProperty(pos);
 
             CIMProperty normalizedProperty =
-                _processProperty(
+                processProperty(
                     cimProperty,
                     instProperty,
                     _includeQualifiers,

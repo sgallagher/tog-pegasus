@@ -79,13 +79,15 @@ public:
     CIMInstance processInstance(const CIMInstance& cimInstance) const;
     //CIMIndication processIndication(const CIMIndication& cimIndication);
 
-    static CIMProperty _processProperty(
+    static CIMProperty processProperty(
         CIMConstProperty& referenceProperty,
         CIMConstProperty& cimProperty,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         NormalizerContext * context,
         const CIMNamespaceName& nameSpace);
+
+    static void setEnableNormalization(Boolean value);
 
 private:
     CIMClass _cimClass;
@@ -94,6 +96,7 @@ private:
     Boolean _includeClassOrigin;
     SharedPtr<NormalizerContext> _context;
     CIMNamespaceName _nameSpace;
+    static Boolean _enableNormalization;
 };
 
 PEGASUS_NAMESPACE_END

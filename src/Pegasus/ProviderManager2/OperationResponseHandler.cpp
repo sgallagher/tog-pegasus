@@ -37,8 +37,36 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/SharedPtr.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
+#include <Pegasus/Config/ConfigManager.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+static void _initializeNormalizer(
+    CIMOperationRequestMessage *request,
+    Boolean includeQualifiers,
+    Boolean includeClassOrigin,
+    ObjectNormalizer &normalizer)
+{
+    // Attempt to get the cached class definition, normalization is disabled 
+    // if it does not exist.
+    if (request->operationContext.contains(
+            CachedClassDefinitionContainer::NAME))
+    {
+        CIMClass cimClass;
+        CachedClassDefinitionContainer container =
+            request->operationContext.get(
+                CachedClassDefinitionContainer::NAME);
+        cimClass = container.getClass();
+        SharedPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
+        ObjectNormalizer tmpNormalizer(
+            cimClass,
+            includeQualifiers,
+            includeClassOrigin,
+            request->nameSpace,
+            tmpContext);
+        normalizer = tmpNormalizer;
+    }
+}
 
 //
 // OperationResponseHandler
@@ -285,31 +313,11 @@ GetInstanceResponseHandler::GetInstanceResponseHandler(
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
     : OperationResponseHandler(request, response, responseChunkCallback)
 {
-#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-    // Attempt to get the cached class definition used to validate results of
-    // this operation. If it does not exist, then this feature is disabled
-    // for this operation.
-    CIMClass cimClass;
-
-    if (request->operationContext.contains(
-            CachedClassDefinitionContainer::NAME))
-    {
-        CachedClassDefinitionContainer container =
-            request->operationContext.get(
-                CachedClassDefinitionContainer::NAME);
-
-        cimClass = container.getClass();
-    }
-
-    SharedPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
-    ObjectNormalizer tmpNormalizer(
-        cimClass,
+    _initializeNormalizer(
+        request,
         request->includeQualifiers,
         request->includeClassOrigin,
-        request->nameSpace,
-        tmpContext);
-    _normalizer = tmpNormalizer;
-#endif
+        _normalizer);
 }
 
 void GetInstanceResponseHandler::deliver(const CIMInstance& cimInstance)
@@ -332,24 +340,20 @@ void GetInstanceResponseHandler::deliver(const CIMInstance& cimInstance)
         throw CIMException(CIM_ERR_FAILED, message);
     }
 
+    CIMInstance localInstance(cimInstance);
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     // The normalizer expects an object path embedded in instances even
     // though it is not required by this operation. Use the requested
     // object path is missing from the instance.
-    CIMInstance localInstance(cimInstance);
-
     if (localInstance.getPath().getKeyBindings().size() == 0)
     {
         // ATTN: should clone before modification
         localInstance.setPath(static_cast<CIMGetInstanceRequestMessage*>(
             getRequest())->instanceName);
     }
-
+#endif
     SimpleInstanceResponseHandler::deliver(
         _normalizer.processInstance(localInstance));
-#else
-    SimpleInstanceResponseHandler::deliver(cimInstance);
-#endif
 }
 
 void GetInstanceResponseHandler::complete()
@@ -403,30 +407,11 @@ EnumerateInstancesResponseHandler::EnumerateInstancesResponseHandler(
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
     : OperationResponseHandler(request, response, responseChunkCallback)
 {
-#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-    // Attempt to get the cached class definition used to validate results of
-    // this operation. If it does not exist, then this feature is disabled
-    // for this operation.
-    CIMClass cimClass;
-
-    if (request->operationContext.contains(
-            CachedClassDefinitionContainer::NAME))
-    {
-        CachedClassDefinitionContainer container =
-            request->operationContext.get(
-                CachedClassDefinitionContainer::NAME);
-        cimClass = container.getClass();
-    }
-
-    SharedPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
-    ObjectNormalizer tmpNormalizer(
-        cimClass,
+    _initializeNormalizer(
+        request,
         request->includeQualifiers,
         request->includeClassOrigin,
-        request->nameSpace,
-        tmpContext);
-    _normalizer = tmpNormalizer;
-#endif
+        _normalizer);
 }
 
 void EnumerateInstancesResponseHandler::deliver(const CIMInstance& cimInstance)
@@ -440,12 +425,8 @@ void EnumerateInstancesResponseHandler::deliver(const CIMInstance& cimInstance)
         throw CIMException(CIM_ERR_FAILED, message);
     }
 
-#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     SimpleInstanceResponseHandler::deliver(
         _normalizer.processInstance(cimInstance));
-#else
-    SimpleInstanceResponseHandler::deliver(cimInstance);
-#endif
 }
 
 String EnumerateInstancesResponseHandler::getClass() const
@@ -471,31 +452,11 @@ EnumerateInstanceNamesResponseHandler::EnumerateInstanceNamesResponseHandler(
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback)
     : OperationResponseHandler(request, response, responseChunkCallback)
 {
-#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-    // Attempt to get the cached class definition used to validate results of
-    // this operation. If it does not exist, then this feature is disabled
-    // for this operation.
-    CIMClass cimClass;
-
-    if (request->operationContext.contains(
-            CachedClassDefinitionContainer::NAME))
-    {
-        CachedClassDefinitionContainer container =
-            request->operationContext.get(
-                CachedClassDefinitionContainer::NAME);
-
-        cimClass = container.getClass();
-    }
-
-    SharedPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
-    ObjectNormalizer tmpNormalizer(
-        cimClass,
+    _initializeNormalizer(
+        request,
         false,
         false,
-        request->nameSpace,
-        tmpContext);
-    _normalizer = tmpNormalizer;
-#endif
+        _normalizer);
 }
 
 void EnumerateInstanceNamesResponseHandler::deliver(
@@ -510,12 +471,8 @@ void EnumerateInstanceNamesResponseHandler::deliver(
         throw CIMException(CIM_ERR_FAILED, message);
     }
 
-#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     SimpleObjectPathResponseHandler::deliver(
         _normalizer.processInstanceObjectPath(cimObjectPath));
-#else
-    SimpleObjectPathResponseHandler::deliver(cimObjectPath);
-#endif
 }
 
 String EnumerateInstanceNamesResponseHandler::getClass() const

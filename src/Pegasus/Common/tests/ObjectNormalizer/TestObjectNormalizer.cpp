@@ -1352,6 +1352,7 @@ int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
+    ObjectNormalizer::setEnableNormalization(true);
     repository = new LocalRepository();
 
     if(verbose)

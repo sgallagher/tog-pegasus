@@ -52,11 +52,6 @@
 # endif
 #endif
 
-#define PEGASUS_TRC_BUFFER_WRAP_MARKER ""
-#define PEGASUS_TRC_BUFFER_EOT_MARKER "*EOTRACE*"
-#define PEGASUS_TRC_BUFFER_EOT_MARKER_LEN 9
-
-
 //#define DBG(output) output
 #define DBG(output)
 
@@ -345,6 +340,7 @@ void TraceMemoryHandler::handleMessage(
         return;
     }
 
+    Uint32 msgStart =  _traceArea->nextPos;
     // Handle the static part of the message
     _appendSimpleMessage(message, msgLen);
 
@@ -399,56 +395,113 @@ void TraceMemoryHandler::handleMessage(
         // buffer.
         // To save memory allocations, the overflow buffer is kept around
         // until it becomes to small and needs to be reallocated.
-
-        if (ttlMsgLen == -1)
+        if (ttlMsgLen == -1 || (msgLen + ttlMsgLen) > _traceArea->bufferSize)
         {
-            // The vsnprintf failed and did not return the bytes needed for the
-            // message.  A fixed message size is used in this case.  The
-            // vsnprintf will write not more than 4096 bytes (including
-            // trailing '\0') into the buffer.  The rest is truncated.
-            ttlMsgLen = 4096;
-        }
+            // The message does not fit in the remaining buffer and 
+            // vsnprintf() did not return the bytes needed 
+            // or the message is larger then the treace Buffer.
+           
+            // The message does not fit in the remaining buffer,
+            // clean up the the message fragment.
+            _traceArea->traceBuffer[msgStart] = 0;
+            
+            // Wrap the buffer
+            _traceArea->nextPos = 0;
+            _leftBytesInBuffer = _traceArea->bufferSize;
 
-        if ((Uint32)ttlMsgLen >= _overflowBufferSize)
-        {
-            if (_overflowBuffer != NULL )
+            // Rewrite the static part of the message
+            _appendSimpleMessage(message, msgLen);
+
+            // Rewrite the variable part of the message
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+            // Windows until VC 8 does not support vsnprintf
+            // need to use Windows equivalent function with the underscore
+            ttlMsgLen =
+            _vsnprintf(&(_traceArea->traceBuffer[_traceArea->nextPos]),
+                       _leftBytesInBuffer,
+                       fmt,
+                       argListCopy);
+#else
+            ttlMsgLen =
+            vsnprintf(&(_traceArea->traceBuffer[_traceArea->nextPos]),
+                      _leftBytesInBuffer,
+                      fmt,
+                      argListCopy);
+#endif
+            if (ttlMsgLen == -1 || 
+                (msgLen + ttlMsgLen) > _traceArea->bufferSize)
             {
-                delete[] _overflowBuffer;
+                // The message still does not fit in the buffer, but know 
+                // we know that the most part of the message is in the buffer.
+                // Truncate the message using the truncation marker and leave
+                // space for the EOT marker + '\n'.
+                _leftBytesInBuffer = PEGASUS_TRC_BUFFER_TRUNC_MARKER_LEN +
+                    PEGASUS_TRC_BUFFER_EOT_MARKER_LEN + 1 ;
+
+                _traceArea->nextPos = 
+                    _traceArea->bufferSize - _leftBytesInBuffer ;
+
+                // copy the marker including the trailing '0' !
+                memcpy(&(_traceArea->traceBuffer[_traceArea->nextPos]),
+                    PEGASUS_TRC_BUFFER_TRUNC_MARKER,
+                    PEGASUS_TRC_BUFFER_TRUNC_MARKER_LEN + 1 );
+
+                _traceArea->nextPos += PEGASUS_TRC_BUFFER_TRUNC_MARKER_LEN + 1;
+            } 
+            else
+            {
+                // Now the message fits into the buffer. 
+                ttlMsgLen++;  //Include the '/0'
+
+                _traceArea->nextPos += ttlMsgLen;
+                _leftBytesInBuffer -= ttlMsgLen;
             }
-            _overflowBufferSize = ttlMsgLen+1;
-            _overflowBuffer = new char[_overflowBufferSize];
-        }
+        } // End of vsnprintf() == -1 or message > buffer size
+        else
+        { 
+            // vsnprintf() retuns number of bytes of the variable message and 
+            // the Message fits in the buffer.
+            if ((Uint32)ttlMsgLen >= _overflowBufferSize)
+            {
+                if (_overflowBuffer != NULL )
+                {
+                    delete[] _overflowBuffer;
+                }
+                _overflowBufferSize = ttlMsgLen+1;
+                _overflowBuffer = new char[_overflowBufferSize];
+            }
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-        // Windows until VC 8 does not support vsnprintf
-        // need to use Windows equivalent function with the underscore
-        ttlMsgLen = _vsnprintf(_overflowBuffer,
-                               _overflowBufferSize,
-                               fmt,
-                               argListCopy);
+            // Windows until VC 8 does not support vsnprintf
+            // need to use Windows equivalent function with the underscore
+            ttlMsgLen = _vsnprintf(_overflowBuffer,
+                                   _overflowBufferSize,
+                                   fmt,
+                                   argListCopy);
 #else
-        ttlMsgLen = vsnprintf(_overflowBuffer,
-                              _overflowBufferSize,
-                              fmt,
-                              argListCopy);
+            ttlMsgLen = vsnprintf(_overflowBuffer,
+                                  _overflowBufferSize,
+                                  fmt,
+                                  argListCopy);
 #endif
 
-        // The actual number of characters written to the buffer is the
-        // number of bytes left in the buffer minus the trailing '/0'.
-        Uint32 numCharsWritten = _leftBytesInBuffer-1;
+            // The actual number of characters written to the buffer is the
+            // number of bytes left in the buffer minus the trailing '/0'.
+            Uint32 numCharsWritten = _leftBytesInBuffer-1;
 
-        // Now calculate how much data we have to copy from the overflow
-        // buffer back to the trace buffer.
-        ttlMsgLen -= numCharsWritten;
+            // Now calculate how much data we have to copy from the overflow
+            // buffer back to the trace buffer.
+            ttlMsgLen -= numCharsWritten;
 
-        // Copy the remainder of the trace message to the trace buffer
-        memcpy(&(_traceArea->traceBuffer[0]),
-               &(_overflowBuffer[numCharsWritten]),
-               ttlMsgLen );
+            // Copy the remainder of the trace message to the trace buffer
+            memcpy(&(_traceArea->traceBuffer[0]),
+                   &(_overflowBuffer[numCharsWritten]),
+                   ttlMsgLen );
 
-        _traceArea->nextPos = ttlMsgLen+1;
-        _leftBytesInBuffer = _traceArea->bufferSize - _traceArea->nextPos;
-    }
+            _traceArea->nextPos = ttlMsgLen+1;
+            _leftBytesInBuffer = _traceArea->bufferSize - _traceArea->nextPos;
+        } 
+    } // End of reached end of buffer and need to wrap.
 
     // replace null terminator with line break
     _traceArea->traceBuffer[_traceArea->nextPos-1] = '\n';

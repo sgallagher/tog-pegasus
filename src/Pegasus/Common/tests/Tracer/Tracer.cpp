@@ -1018,6 +1018,136 @@ Uint32 testMemoryHandler(const char* filename)
         delete( tttParms[x] );
     }
 
+    // test the wrapping of a too long message:
+    {
+        #define FIX_PART_OF_MESSAGE "LongMsg:"
+
+        // The trace buffer is not at that size used for tracing 
+        // then it is defined with PEGASUS_TRC_DEFAULT_BUFFER_SIZE_KB*1024
+        // The resulting message is shriked by:
+        // * the controll structure traceArea_t ( privat of TraceMemoryHandler)
+        // * the fixed message part
+        // * the markers,  '\n' and '\0'
+        Uint32 bufferDelta = 2* sizeof(Uint32)+ sizeof(char*) 
+                           + PEGASUS_TRC_BUFFER_EYE_CATCHER_LEN 
+                           + strlen(FIX_PART_OF_MESSAGE)
+                           + strlen(PEGASUS_TRC_BUFFER_TRUNC_MARKER) + 1
+                           + strlen(PEGASUS_TRC_BUFFER_EOT_MARKER)+ 1 
+                           // this adds the '2' before the truncation marker 
+                           // should appear in the message
+                           + 1;
+
+        Uint32 sizeOfVeryLongMSG=PEGASUS_TRC_DEFAULT_BUFFER_SIZE_KB*1024;
+
+        // Construct the big message:
+        //  LongMsg:111...11122222222222222
+        char* veryLongMSG = (char *)malloc(sizeOfVeryLongMSG);
+        memset((void*)veryLongMSG,'1',sizeOfVeryLongMSG-bufferDelta);
+        memset((void*)&(veryLongMSG[sizeOfVeryLongMSG-bufferDelta]),
+               '2',bufferDelta);
+        veryLongMSG[sizeOfVeryLongMSG-1] = 0 ;
+
+        traceVariableArgs(trcHdler,
+                          FIX_PART_OF_MESSAGE,
+                          strlen(FIX_PART_OF_MESSAGE),
+                         "%s",
+                          veryLongMSG);
+
+        trcHdler->setMessageDestination(filename);
+        trcHdler->flushTrace();
+
+        // resuse the buffer for reading the result file.
+        memset((void*)veryLongMSG,0,sizeOfVeryLongMSG);
+
+        fstream file;
+        file.open(filename, fstream::in);
+        if (!file.good())
+        {
+            cout << "Failed to open file \"" << filename << "\"\n" << endl;
+            PEGASUS_TEST_ASSERT(0);
+        }
+
+        // The first line must be the trucated big message.
+        file.getline( veryLongMSG, sizeOfVeryLongMSG );
+
+        // The second line must be the end of trace marker
+        char lastLine[256];
+        file.getline( lastLine, 256 );
+
+        // The result must be in the two lines. Close the file
+        file.close();
+
+        // the last line must be only the end of trace marker.
+        if ( strncmp(lastLine, "*EOTRACE*", strlen("*EOTRACE*")) )
+        {
+                cout << "Compare Error: unexpected message= \n\""
+                     << lastLine << "\"\n" << endl;
+                PEGASUS_TEST_ASSERT(0);
+        }
+
+        char* cursor = veryLongMSG;
+
+        // The big messsage has the format: 
+        //  LongMsg:111...1112*TRUNC*
+        // To validate that the message is truncated at the right position,
+        // only one '2' has to show up before the truncation marker.
+        
+        if ( strncmp(cursor, FIX_PART_OF_MESSAGE
+                     , strlen(FIX_PART_OF_MESSAGE)) )
+        {
+                cout << "Compare Error: unexpected message= \n\""
+                     << cursor << "\"\n" << endl;
+                PEGASUS_TEST_ASSERT(0);
+        }
+
+        cursor = cursor + strlen(FIX_PART_OF_MESSAGE);
+        int noErrors = 0;
+        for (int i = 0 ; i < (int)(sizeOfVeryLongMSG-bufferDelta); i++)
+        {
+            if (cursor[i] != '1')
+            {
+                noErrors++;
+                cout << "Compare Error: unexpected char '"
+                     <<  cursor[i] << "' at position " 
+                     << strlen(FIX_PART_OF_MESSAGE) + i
+                     << " expecting '1'." << endl;
+                // limmit the number of printed errors to 20
+                if (noErrors > 20 )
+                {
+                    cout << "Too manny missmatches. Abort long message test"
+                         << endl;
+                    PEGASUS_TEST_ASSERT(0);
+                }
+
+            }
+        }
+
+        // If any error occures in the above test, exit the test.
+        if (noErrors != 0)
+        {
+          PEGASUS_TEST_ASSERT(0);
+        }
+
+        if (cursor[(sizeOfVeryLongMSG-bufferDelta)] != '2')
+        {
+            cout << "Compare Error: unexpected char '"
+                 << cursor[(sizeOfVeryLongMSG-bufferDelta)] << "' at position " 
+                 << strlen(FIX_PART_OF_MESSAGE) + 
+                       (sizeOfVeryLongMSG-bufferDelta)
+                 << " expecting '2'." << endl;
+        }
+
+        cursor = cursor + (sizeOfVeryLongMSG-bufferDelta) + 1;
+        if ( strcmp(cursor, "*TRUNC*") )
+        {
+                cout << "Compare Error: unexpected message= \n\""
+                     << cursor << "\"\n" << endl;
+                PEGASUS_TEST_ASSERT(0);
+        }
+
+        free(veryLongMSG);
+    }
+
     delete( trcHdler );
     return rc;
 }

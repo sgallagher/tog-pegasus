@@ -78,6 +78,7 @@ private:
     /* Flag to track writing of message to log
      */
     Boolean _wroteToLog;
+    Boolean _configHasChanged;
 
 public:
 
@@ -100,20 +101,10 @@ public:
                                Uint32 msgLen);
 
 
-    /** Sets and prepares the destination (e.g. traceFileName) for the
-        trace handler.
-        @param    destination tracer destination, e.g. file
-        @return   0           if the function is successful
-                  1           if an error occurs
+    /** Informs the message handler that the configuraion 
+        of the trace has been updated.
      */
-    virtual Uint32 setMessageDestination(const char* traceFileName);
-
-    /** Validates the File Path for the trace File
-        @param    filePath full path of the file
-        @return   1        if the file path is valid
-                  0        if the file path is invalid
-     */
-    virtual Boolean isValidMessageDestination(const char* traceFileName);
+    virtual void configurationUpdated();
 
     TraceFileHandler();
 
@@ -125,6 +116,7 @@ private:
         Implementation of this function is platform specific
      */
     void prepareFileHandle(void);
+    void _reConfigure(void);
 
 };
 

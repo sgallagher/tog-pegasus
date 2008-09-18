@@ -32,6 +32,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 #include <Pegasus/Common/TraceLogHandler.h>
@@ -40,6 +41,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/StringConversion.h>
+#include <Pegasus/Common/FileSystem.h>
 
 PEGASUS_USING_STD;
 
@@ -163,6 +165,7 @@ Tracer::Tracer()
     : _traceComponentMask(new Boolean[_NUM_COMPONENTS]),
       _traceMemoryBufferSize(PEGASUS_TRC_DEFAULT_BUFFER_SIZE_KB),
       _traceFacility(TRACE_FACILITY_FILE),
+      _runningOOP(false),
       _traceLevelMask(0),
       _traceHandler(0)
 {
@@ -203,7 +206,7 @@ void Tracer::_setTraceHandler( Uint32 traceFacility )
 
         case TRACE_FACILITY_MEMORY:
             _traceFacility = TRACE_FACILITY_MEMORY;
-            _traceHandler = new TraceMemoryHandler(_traceMemoryBufferSize);
+            _traceHandler = new TraceMemoryHandler();
             break;
 
         case TRACE_FACILITY_FILE:
@@ -211,8 +214,54 @@ void Tracer::_setTraceHandler( Uint32 traceFacility )
             _traceFacility = TRACE_FACILITY_FILE;
             _traceHandler = new TraceFileHandler();
     }
-
     delete oldTrcHandler;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Validates if a given file path if it is eligible for writing traces.
+////////////////////////////////////////////////////////////////////////////////
+Boolean Tracer::_isValidTraceFile(String fileName)
+{
+    // Check if the file path is a directory
+    FileSystem::translateSlashes(fileName);
+    if (FileSystem::isDirectory(fileName))
+    {
+        return false;
+    }
+
+    // Check if the file exists and is writable
+    if (FileSystem::exists(fileName))
+    {
+        return FileSystem::canWrite(fileName);
+    }
+
+    // Check if directory is writable
+    Uint32 index = fileName.reverseFind('/');
+
+    if (index != PEG_NOT_FOUND)
+    {
+        String dirName = fileName.subString(0,index);
+
+        if (dirName.size() == 0)
+        {
+            dirName = "/";
+        }
+
+        if (!FileSystem::isDirectory(dirName))
+        {
+            return false;
+        }
+
+        return FileSystem::canWrite(dirName);
+    }
+
+    String currentDir;
+
+    // Check if there is permission to write in the
+    // current working directory
+    FileSystem::getCurrentDirectory(currentDir);
+
+    return FileSystem::canWrite(currentDir);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -483,18 +532,16 @@ void Tracer::_traceCString(
 ////////////////////////////////////////////////////////////////////////////////
 Boolean Tracer::isValidFileName(const char* filePath)
 {
-    String moduleName = _getInstance()->_moduleName;
-    if (moduleName == String::EMPTY)
+    Tracer* instance = _getInstance();
+    String testTraceFile(filePath);
+
+    if (instance->_runningOOP)
     {
-        return 
-           _getInstance()->_traceHandler->isValidMessageDestination(filePath);
+        testTraceFile.append(".");
+        testTraceFile.append(instance->_oopTraceFileExtension);
     }
-    else
-    {
-        String extendedFilePath = String(filePath) + "." + moduleName;
-        return _getInstance()->_traceHandler->isValidMessageDestination(
-            extendedFilePath.getCString());
-    }
+
+    return _isValidTraceFile(testTraceFile);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -615,11 +662,16 @@ Boolean Tracer::isValidTraceFacility(const String& traceFacility)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//Set the name of the module being traced
+// Notify the trare running out of process and provide the trace file extension 
+// for the out of process trace file.
 ////////////////////////////////////////////////////////////////////////////////
-void Tracer::setModuleName(const String& moduleName)
+void Tracer::setOOPTraceFileExtension(const String& oopTraceFileExtension)
 {
-    _getInstance()->_moduleName = moduleName;
+    Tracer* instance = _getInstance();
+    instance->_oopTraceFileExtension = oopTraceFileExtension;
+    instance->_runningOOP=true;
+    instance->_traceMemoryBufferSize /= PEGASUS_TRC_BUFFER_OOP_SIZE_DEVISOR;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -651,17 +703,28 @@ Uint32 Tracer::setTraceFile(const char* traceFile)
         return 1;
     }
 
-    String moduleName = _getInstance()->_moduleName;
-    if (moduleName == String::EMPTY)
+    Tracer* instance = _getInstance();
+    String newTraceFile(traceFile);
+
+    if (instance->_runningOOP)
     {
-        return _getInstance()->_traceHandler->setMessageDestination(traceFile);
+        newTraceFile.append(".");
+        newTraceFile.append(instance->_oopTraceFileExtension);
+    }
+
+    if (_isValidTraceFile(newTraceFile))
+    {
+        instance->_traceFile = newTraceFile;
+        instance->_traceHandler->configurationUpdated();
     }
     else
     {
-        String extendedTraceFile = String(traceFile) + "." + moduleName;
-        return _getInstance()->_traceHandler->setMessageDestination(
-            extendedTraceFile.getCString());
+        return 0;
     }
+
+
+    return 1;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -805,7 +868,7 @@ Uint32 Tracer::setTraceFacility(const String& traceFacility)
 {
     Uint32 retCode = 0;
     Tracer* instance = _getInstance();
-    
+
     if (traceFacility.size() != 0)
     {
         Uint32 index = 0;
@@ -841,8 +904,18 @@ Uint32 Tracer::getTraceFacility()
 Boolean Tracer::setTraceMemoryBufferSize(Uint32 bufferSize)
 {
     Tracer* instance = _getInstance();
-    instance->_traceMemoryBufferSize = bufferSize;
-    
+    if (instance->_runningOOP)
+    {
+        // in OOP we reduce the trace memory buffer by factor
+        // PEGASUS_TRC_BUFFER_OOP_SIZE_DEVISOR
+        instance->_traceMemoryBufferSize = 
+            bufferSize / PEGASUS_TRC_BUFFER_OOP_SIZE_DEVISOR;
+    } 
+    else
+    {
+        instance->_traceMemoryBufferSize = bufferSize;
+    }
+
     // If we decide to dynamically change the trace buffer size,
     // this is where it needs to be implemented.
     return true;

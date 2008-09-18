@@ -70,6 +70,11 @@ void TraceFileHandler::handleMessage(
 {
     Uint32 retCode;
 
+    if (_configHasChanged)
+    {
+        _reConfigure()
+    }
+
     if (_fileHandle)
     {
         AutoMutex writeLock(writeMutex);

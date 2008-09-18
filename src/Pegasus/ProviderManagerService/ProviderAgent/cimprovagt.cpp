@@ -206,7 +206,7 @@ int main(int argc, char* argv[])
         }
 #endif
 
-        Tracer::setModuleName(String(moduleName) + "." + userName);
+        Tracer::setOOPTraceFileExtension(String(moduleName) + "." + userName);
 
         // Set message loading not to use process locale
         MessageLoader::_useProcessLocale = false;

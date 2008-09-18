@@ -2975,6 +2975,7 @@ en:table {
         /**
         * @note  PGS09400:
         *    Substitution {0} is the name of the file (a string)
+        *    This message is no longer used as of version 2.9.0
         */
         Common.TraceFileHandler.FAILED_TO_OPEN_FILE:string {"PGS09400: Failed to open file {0}."}
 
@@ -3028,6 +3029,13 @@ en:table {
         */
         Common.TraceFileHandler.UNEXPECTED_FILE_OWNER:string {"PGS09408: File {0} is not owned by user {1}."}
 
+        /**
+        * @note  PGS09409:
+        * @version 2.9
+        *    Substitution {0} is the name of the file (a string)
+        *    Substitution {1} is the error message of the OS
+        */
+        Common.TraceFileHandler.FAILED_TO_OPEN_FILE_SYSMSG:string {"PGS09409: Failed to open file {0}: {1}"}
 
         // ==========================================================
         // Messages for XmlReader

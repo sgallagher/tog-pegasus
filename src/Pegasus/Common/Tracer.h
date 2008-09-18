@@ -217,6 +217,7 @@ public:
     /** Get trace facility currently in use
         @return TRACE_FACILITY_FILE - if trace facility is file
                 TRACE_FACILITY_LOG - if trace facility is the log
+                TRACE_FACILITY_MEMORY - if trace facility is memory tracing
     */
     static Uint32 getTraceFacility();
 
@@ -286,11 +287,12 @@ public:
      */
     static Boolean isValidTraceFacility( const String& traceFacility );
 
-    /** Specify the name of the module being traced.  If non-empty, this
+    /** Signals the trace to be running OOP and provides the file name 
+        extension of  the trace file.  If non-empty, this
         value is used as an extension to the name of the trace file.
-        @param  moduleName Name of the module being traced.
+        @param  oopTraceFileExtension Trace file extension.
      */
-    static void setModuleName(const String& moduleName);
+    static void setOOPTraceFileExtension(const String& oopTraceFileExtension);
 
     /**
     */
@@ -333,10 +335,12 @@ private:
     Uint32                _traceFacility;
     //Is true if any components are set at the component mask
     Boolean               _componentsAreSet;
+    Boolean               _runningOOP;
     Uint32                _traceLevelMask;
     TraceHandler*         _traceHandler;
-    String              _moduleName;
-    static Tracer*      _tracerInstance;
+    String                _traceFile;
+    String                _oopTraceFileExtension;
+    static Tracer*        _tracerInstance;
 
     // Message Strings for function Entry and Exit
     static const char _METHOD_ENTER_MSG[];
@@ -346,6 +350,10 @@ private:
     // for the given type of traceFacility.
     // @param    traceFacility  type of trace handler to create
     void _setTraceHandler( Uint32 traceFacility );
+
+    // Validates if the given file path if it is eligible for writing traces.
+    // @param    fileName      a file intended to be used to write traces
+    static Boolean _isValidTraceFile(String fileName);
 
     // Traces the given message. Overloaded to include the file name and the
     // line number as one of the parameters.
@@ -416,6 +424,8 @@ private:
 
     friend class TraceCallFrame;
     friend class TracePropertyOwner;
+    friend class TraceMemoryHandler;
+    friend class TraceFileHandler;
 };
 
 //==============================================================================
@@ -468,7 +478,7 @@ inline void Tracer::setTraceComponents(const String& traceComponents)
     // empty function
 }
 
-inline Uint32 Tracer::setTraceFacility(const String& traceComponents)
+inline Uint32 Tracer::setTraceFacility(const String& traceFacility)
 {
     // empty function
     return 0;

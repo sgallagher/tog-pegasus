@@ -32,6 +32,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
@@ -56,6 +57,7 @@ TraceFileHandler::TraceFileHandler()
     _fileName = 0;
     _fileHandle = 0;
     _wroteToLog = false;
+    _configHasChanged = true;
 #ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
     _baseFileName = 0;
     _fileCount = 0;
@@ -73,51 +75,75 @@ TraceFileHandler::~TraceFileHandler()
     {
         fclose(_fileHandle);
     }
-    delete [] _fileName;
+    free(_fileName);
 #ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-    delete [] _baseFileName;
+    free(_baseFileName);
 #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//  Sets the filename to the given filename and opens the file in append
-//  mode
+// The configuration of the trace has been updated. 
+// At the next trace write, change to the new configuration.
 ////////////////////////////////////////////////////////////////////////////////
-
-Uint32 TraceFileHandler::setMessageDestination(const char* fileName)
+void TraceFileHandler::configurationUpdated()
 {
-    // If a file is already open, close it
+    _configHasChanged = true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// If the trace configuration has been updated,
+// close the old file and open the new file.
+////////////////////////////////////////////////////////////////////////////////
+void TraceFileHandler::_reConfigure()
+{
+    AutoMutex writeLock(writeMutex);
+
+    if(!_configHasChanged)
+    {
+        // An other thread does already the re-configuration.
+        // do nothing.
+        return;
+    }
+
+    free(_fileName);
+    _fileName = 0;
+#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+    free(_baseFileName);
+    _baseFileName = 0;
+#endif
+
+    if (!(const char*)Tracer::_getInstance() ->_traceFile.getCString())
+    {
+        // if the file name is empty/NULL pointer do nothing
+        return;
+    }
+
+    _fileName = strdup((const char*)Tracer::_getInstance()
+                            ->_traceFile.getCString());
+
+    // If a file is already open, close it.
     if (_fileHandle)
     {
         fclose(_fileHandle);
         _fileHandle = 0;
     }
 
-    delete [] _fileName;
-    _fileName = 0;
-#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-    delete [] _baseFileName;
-    _baseFileName = 0;
-#endif
-
-    if (!isValidMessageDestination(fileName))
-    {
-        return 1;
-    }
-    _fileHandle = _openFile(fileName);
+    _fileHandle = _openFile(_fileName);
     if (!_fileHandle)
     {
-        return 1;
+        // return with no message. _openFile() already wrote one.
+        free(_fileName);
+        _fileName = 0;
+        return;
     }
 
-    _fileName = new char[strlen(fileName)+1];
-    strcpy(_fileName, fileName);
-#ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
-    _baseFileName = new char[strlen(fileName)+1];
-    strcpy(_baseFileName, fileName);
-#endif
+    #ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+    _baseFileName = strdup(_fileName);
+    #endif
 
-    return 0;
+    _configHasChanged=false;
+
+    return;
 }
 
 FILE* TraceFileHandler::_openFile(const char* fileName)
@@ -131,12 +157,11 @@ FILE* TraceFileHandler::_openFile(const char* fileName)
     if (!fileHandle)
     {
         // Unable to open file, log a message
-        Logger::put_l(
-            Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             MessageLoaderParms(
-                "Common.TraceFileHandler.FAILED_TO_OPEN_FILE",
-                "Failed to open file $0",
-                fileName));
+                "Common.TraceFileHandler.FAILED_TO_OPEN_FILE_SYSMSG",
+                "Failed to open file $0: $1",
+                fileName,PEGASUS_SYSTEM_ERRORMSG_NLS));
         return 0;
     }
 
@@ -180,49 +205,4 @@ FILE* TraceFileHandler::_openFile(const char* fileName)
     return fileHandle;
 }
 
-Boolean TraceFileHandler::isValidMessageDestination(const char* filePath)
-{
-    String fileName = String(filePath);
-
-    // Check if the file path is a directory
-    FileSystem::translateSlashes(fileName);
-    if (FileSystem::isDirectory(fileName))
-    {
-        return false;
-    }
-
-    // Check if the file exists and is writable
-    if (FileSystem::exists(fileName))
-    {
-        return FileSystem::canWrite(fileName);
-    }
-
-    // Check if directory is writable
-    Uint32 index = fileName.reverseFind('/');
-
-    if (index != PEG_NOT_FOUND)
-    {
-        String dirName = fileName.subString(0,index);
-
-        if (dirName.size() == 0)
-        {
-            dirName = "/";
-        }
-
-        if (!FileSystem::isDirectory(dirName))
-        {
-            return false;
-        }
-
-        return FileSystem::canWrite(dirName);
-    }
-
-    String currentDir;
-
-    // Check if there is permission to write in the
-    // current working directory
-    FileSystem::getCurrentDirectory(currentDir);
-
-    return FileSystem::canWrite(currentDir);
-}
 PEGASUS_NAMESPACE_END

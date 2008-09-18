@@ -143,35 +143,6 @@ Boolean TracePropertyOwner::toUint32TraceMemoryBufferSize(
     return retCode;
 }
 
-Boolean TracePropertyOwner::applyTraceFileConfigSetting() const
-{
-    //
-    // Make sure the tracer has the trace file set with the current
-    // value from the config manager and issue a warning, if the
-    // traceFile cannot be used for tracing.
-    //
-    CString fileName = ConfigManager::getHomedPath(
-        _traceFilePath->currentValue).getCString();
-    if (Tracer::isValidFileName(fileName))
-    {
-        Uint32 retCode = Tracer::setTraceFile(fileName);
-        // Check whether the filepath was set
-        if ( retCode == 1 )
-        {
-            Logger::put_l(
-                Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-                MessageLoaderParms(
-                    "Config.TracePropertyOwner.UNABLE_TO_WRITE_TRACE_FILE",
-                    "Unable to write to trace file $0",
-                    (const char*)fileName));
-            _traceFilePath->currentValue.clear();
-
-            return false;
-        }
-    }
-    return true;
-}
-
 //
 // Get the appropriate trace level
 //
@@ -259,6 +230,11 @@ void TracePropertyOwner::initialize()
             _traceFilePath->domainSize = properties[i].domainSize;
             _traceFilePath->externallyVisible =
                 properties[i].externallyVisible;
+
+            // set the default value in the Trace
+            Tracer::setTraceFile(ConfigManager::getHomedPath(
+                _traceFilePath->defaultValue).getCString());
+
         }
         else if (String::equalNoCase(
                      properties[i].propertyName, "traceFacility"))
@@ -417,11 +393,6 @@ void TracePropertyOwner::initCurrentValue(
 {
     if (String::equalNoCase(_traceComponents->propertyName, name))
     {
-        if (_traceFilePath->currentValue.size() != 0 &&
-            value != String::EMPTY)
-        {
-            applyTraceFileConfigSetting();
-        }
         _traceComponents->currentValue = value;
         Tracer::setTraceComponents(_traceComponents->currentValue);
     }
@@ -429,40 +400,27 @@ void TracePropertyOwner::initCurrentValue(
     {
         _traceLevel->currentValue = value;
         Uint32 traceLevel = getTraceLevel(_traceLevel->currentValue);
-        if ( traceLevel > 0 )
-        {
-            applyTraceFileConfigSetting();
-        }
         Tracer::setTraceLevel(traceLevel);
     }
     else if (String::equalNoCase(_traceFilePath->propertyName, name))
     {
         _traceFilePath->currentValue = value;
-        if (_traceFilePath->currentValue.size() != 0 &&
-            _traceComponents->currentValue.size() != 0)
-        {
-            applyTraceFileConfigSetting();
-        }
+        
+        Tracer::setTraceFile(ConfigManager::getHomedPath(
+            _traceFilePath->currentValue).getCString());
     }
     else if (String::equalNoCase(_traceFacility->propertyName, name))
     {
         _traceFacility->currentValue = value;
         Tracer::setTraceFacility(value); 
-        if (String::equalNoCase( value,
-                Tracer::TRACE_FACILITY_LIST[Tracer::TRACE_FACILITY_FILE]))
-        {
-            applyTraceFileConfigSetting();
-        }
     }
     else if (String::equalNoCase(_traceMemoryBufferKbytes->propertyName, name))
     {
         Uint32 bufferSize;
 
-        toUint32TraceMemoryBufferSize( value, bufferSize );
-
         _traceMemoryBufferKbytes->currentValue = value;
 
-
+        toUint32TraceMemoryBufferSize( value, bufferSize );
         Tracer::setTraceMemoryBufferSize(bufferSize); 
     }
     else
@@ -560,7 +518,7 @@ Boolean TracePropertyOwner::isValid(
         // string when a trace file cannot be opened successfully.
         //
         if ((value != String::EMPTY) &&
-            !Tracer::isValidFileName(value.getCString()))
+            !Tracer::isValidFileName((const char*)value.getCString()))
         {
             throw InvalidPropertyValue(name, value);
         }

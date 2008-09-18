@@ -166,7 +166,7 @@ Uint32 test2()
     PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
     PEG_TRACE((TRC_CONFIG,Tracer::LEVEL2,"%s %d",
         "This message should not appear value=",123));
-    Uint32 fileSize;
+    Uint32 fileSize = 0;
     System::getFileSize(FILE1, fileSize);
     return (fileSize == 0) ? 0 : 1;
 }
@@ -189,7 +189,7 @@ Uint32 test3()
     PEG_METHOD_ENTER(TRC_CONFIG,METHOD_NAME);
     PEG_TRACE((TRC_CONFIG,Tracer::LEVEL2,"%s",
         "This message should not appear"));
-    Uint32 fileSize;
+    Uint32 fileSize = 0;
     System::getFileSize(FILE1, fileSize);
     return (fileSize == 0) ? 0 : 1;
 }
@@ -887,7 +887,7 @@ Uint32 testMemoryHandler(const char* filename)
     Uint32 rc = 0;
 
     TraceMemoryHandler *trcHdler = new TraceMemoryHandler();
-    
+
     const char* trcMsg1 = "1START A short trace message. END1";
     const char* trcMsg2 = "2START A trace message which is a little longer "
                           "than the previous trace message. END2";
@@ -926,13 +926,13 @@ Uint32 testMemoryHandler(const char* filename)
     }
     
     
-    if (!trcHdler->isValidMessageDestination(filename))
+    if (!Tracer::setTraceFile(filename))
     {
-        cout << "Failure in call to isValidMessageDestination for file \""
+        cout << "Failure in call to setTraceFile for file \""
                 << filename << "\"\n" << endl;
         PEGASUS_TEST_ASSERT(0);
     }
-    trcHdler->setMessageDestination(filename);
+    
     trcHdler->flushTrace();
     
     // To test the variable messages, we replace the variable message
@@ -1053,7 +1053,7 @@ Uint32 testMemoryHandler(const char* filename)
                          "%s",
                           veryLongMSG);
 
-        trcHdler->setMessageDestination(filename);
+        Tracer::setTraceFile(filename);
         trcHdler->flushTrace();
 
         // resuse the buffer for reading the result file.

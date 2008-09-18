@@ -52,48 +52,43 @@
 # endif
 #endif
 
-//#define DBG(output) output
-#define DBG(output)
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////
-//  Constructs TraceMemoryHandler with a default buffer size
-////////////////////////////////////////////////////////////////////////////////
-TraceMemoryHandler::TraceMemoryHandler()
-{
-    Uint32 traceAreaSize = PEGASUS_TRC_DEFAULT_BUFFER_SIZE_KB * 1024;
-
-    _initialize(traceAreaSize);
-}
-
-////////////////////////////////////////////////////////////////////////////////
 //  Constructs TraceMemoryHandler with a custom buffer size
 ////////////////////////////////////////////////////////////////////////////////
-TraceMemoryHandler::TraceMemoryHandler( Uint32 bufferSize )
+TraceMemoryHandler::TraceMemoryHandler():
+    _overflowBuffer(0),
+    _overflowBufferSize(0),
+    _traceArea(0),
+    _leftBytesInBuffer(0),
+    _inUseCounter(0),
+    _lockCounter(1),
+    _dying(false),
+    _contentionCount(0),
+    _numberOfLocksObtained(0),
+    _traceFileName(0)
 {
-    Uint32 traceAreaSize = bufferSize * 1024;
 
-    _initialize(traceAreaSize);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 //  Private method to (re-)initialize the memory buffer
 ////////////////////////////////////////////////////////////////////////////////
-void TraceMemoryHandler::_initialize( Uint32 traceAreaSize )
+void TraceMemoryHandler::_initializeTraceArea()
 {
-    _dying = false;
-    _inUseCounter = 0;
-    _lockCounter  = 1;
-    _contentionCount = 0;
-    _numberOfLocksObtained = 0;
-    _traceFileName = 0;
-
-
-    _overflowBuffer = 0;
-    _overflowBufferSize = 0;
+    if (_traceArea)
+    {
+        delete _traceArea;
+    }
+    
+    // get the memory buffer size from the tracer instance.
+    Uint32 traceAreaSize = 
+        Tracer::_getInstance()->_traceMemoryBufferSize * 1024;
 
     _traceArea = (struct traceArea_t*) new char[traceAreaSize];
 
@@ -264,10 +259,17 @@ void TraceMemoryHandler::_appendMarker()
 ////////////////////////////////////////////////////////////////////////////////
 void TraceMemoryHandler::dumpTraceBuffer(const char* filename)
 {
+    if (!filename)
+    {
+        // if the file name is empty/NULL pointer do nothing
+        return;
+    }
+#ifdef PEGASUS_DEBUG
     cerr << "Number of lock contentions is <"<< _contentionCount.get()
          << ">" << endl;
     cerr << "Number of obtained locks is <"<< _numberOfLocksObtained
          << ">" << endl;
+#endif
 
     ofstream ofile(filename,ios::app&ios::out);
     if( ofile.good() )
@@ -338,6 +340,13 @@ void TraceMemoryHandler::handleMessage(
     {
         // Give up, buffer is going to be destroyed
         return;
+    }
+
+
+    // If the trace memory is not initialized.
+    if(!_traceArea)
+    {
+        _initializeTraceArea();
     }
 
     Uint32 msgStart =  _traceArea->nextPos;
@@ -461,46 +470,46 @@ void TraceMemoryHandler::handleMessage(
         { 
             // vsnprintf() retuns number of bytes of the variable message and 
             // the Message fits in the buffer.
-            if ((Uint32)ttlMsgLen >= _overflowBufferSize)
+        if ((Uint32)ttlMsgLen >= _overflowBufferSize)
+        {
+            if (_overflowBuffer != NULL )
             {
-                if (_overflowBuffer != NULL )
-                {
-                    delete[] _overflowBuffer;
-                }
-                _overflowBufferSize = ttlMsgLen+1;
-                _overflowBuffer = new char[_overflowBufferSize];
+                delete[] _overflowBuffer;
             }
+            _overflowBufferSize = ttlMsgLen+1;
+            _overflowBuffer = new char[_overflowBufferSize];
+        }
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-            // Windows until VC 8 does not support vsnprintf
-            // need to use Windows equivalent function with the underscore
-            ttlMsgLen = _vsnprintf(_overflowBuffer,
-                                   _overflowBufferSize,
-                                   fmt,
-                                   argListCopy);
+        // Windows until VC 8 does not support vsnprintf
+        // need to use Windows equivalent function with the underscore
+        ttlMsgLen = _vsnprintf(_overflowBuffer,
+                               _overflowBufferSize,
+                               fmt,
+                               argListCopy);
 #else
-            ttlMsgLen = vsnprintf(_overflowBuffer,
-                                  _overflowBufferSize,
-                                  fmt,
-                                  argListCopy);
+        ttlMsgLen = vsnprintf(_overflowBuffer,
+                              _overflowBufferSize,
+                              fmt,
+                              argListCopy);
 #endif
 
-            // The actual number of characters written to the buffer is the
-            // number of bytes left in the buffer minus the trailing '/0'.
-            Uint32 numCharsWritten = _leftBytesInBuffer-1;
+        // The actual number of characters written to the buffer is the
+        // number of bytes left in the buffer minus the trailing '/0'.
+        Uint32 numCharsWritten = _leftBytesInBuffer-1;
 
-            // Now calculate how much data we have to copy from the overflow
-            // buffer back to the trace buffer.
-            ttlMsgLen -= numCharsWritten;
+        // Now calculate how much data we have to copy from the overflow
+        // buffer back to the trace buffer.
+        ttlMsgLen -= numCharsWritten;
 
-            // Copy the remainder of the trace message to the trace buffer
-            memcpy(&(_traceArea->traceBuffer[0]),
-                   &(_overflowBuffer[numCharsWritten]),
-                   ttlMsgLen );
+        // Copy the remainder of the trace message to the trace buffer
+        memcpy(&(_traceArea->traceBuffer[0]),
+               &(_overflowBuffer[numCharsWritten]),
+               ttlMsgLen );
 
-            _traceArea->nextPos = ttlMsgLen+1;
-            _leftBytesInBuffer = _traceArea->bufferSize - _traceArea->nextPos;
-        } 
+        _traceArea->nextPos = ttlMsgLen+1;
+        _leftBytesInBuffer = _traceArea->bufferSize - _traceArea->nextPos;
+    }
     } // End of reached end of buffer and need to wrap.
 
     // replace null terminator with line break
@@ -522,6 +531,12 @@ void TraceMemoryHandler::handleMessage(const char *message, Uint32 msgLen)
         return;
     }
 
+    // If the trace memory is not initialized.
+    if(!_traceArea)
+    {
+        _initializeTraceArea();
+    }
+
     // We include the terminating 0 in the message for easier handling
     msgLen++;
 
@@ -537,35 +552,12 @@ void TraceMemoryHandler::handleMessage(const char *message, Uint32 msgLen)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//  Checks if a given message file is usable
-////////////////////////////////////////////////////////////////////////////////
-Boolean TraceMemoryHandler::isValidMessageDestination(const char* traceFileName)
-{
-    TraceFileHandler traceFileHandler;
-
-    return traceFileHandler.isValidMessageDestination( traceFileName );
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-//  Sets the message file in case we need to flush out the trace
-////////////////////////////////////////////////////////////////////////////////
-Uint32 TraceMemoryHandler::setMessageDestination(const char* destination)
-{
-    delete[] _traceFileName;
-
-    _traceFileName = new char[strlen(destination)+1];
-    strcpy(_traceFileName, destination);
-
-    return 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 //  Flushes the trace
 ////////////////////////////////////////////////////////////////////////////////
 void TraceMemoryHandler::flushTrace()
 {
-    dumpTraceBuffer(_traceFileName);
+    dumpTraceBuffer((const char*)Tracer::_getInstance()
+                          ->_traceFile.getCString());
 }
 
 PEGASUS_NAMESPACE_END

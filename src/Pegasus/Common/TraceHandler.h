@@ -68,22 +68,11 @@ public:
                                Uint32 msgLen) = 0;
 
 
-    /** Sets and prepares the destination (e.g. traceFileName) for the
-        trace handler.
-        @param    destination tracer destination, e.g. file
-        @return   0           if the function is successful
-                  1           if an error occurs
+    /** Informs the message handler that the configuraion 
+        of the trace has been updated.
      */
-    virtual Uint32 setMessageDestination(const char* destination) {return 0;};
+    virtual void configurationUpdated() {return;};
 
-    /** Validates the File Path for the trace File
-        @param    filePath full path of the file
-        @return   1        if the file path is valid
-                  0        if the file path is invalid
-     */
-    virtual Boolean isValidMessageDestination(const char* destination) 
-        {return true;};
-    
     /** Flushes the trace
      */
     virtual void flushTrace() {return;};

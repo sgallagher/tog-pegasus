@@ -39,6 +39,7 @@
 #include <cstdio>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/TraceHandler.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 #include <Pegasus/Common/Mutex.h>
@@ -55,8 +56,6 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_TRC_BUFFER_TRUNC_MARKER_LEN 7
 #define PEGASUS_TRC_BUFFER_EOT_MARKER "*EOTRACE*"
 #define PEGASUS_TRC_BUFFER_EOT_MARKER_LEN 9
-
-
 
 class PEGASUS_COMMON_LINKAGE TraceMemoryHandler: public TraceHandler
 {
@@ -79,22 +78,6 @@ public:
     virtual void handleMessage(const char* message,
                                Uint32 msgLen);
 
-    /** Validates the File Path for the trace File
-        @param    filePath full path of the file
-        @return   1        if the file path is valid
-                  0        if the file path is invalid
-     */
-    virtual Boolean isValidMessageDestination(const char* traceFileName);
-
-    /** Sets the filename for the trace handler. In this implementation
-        we just keep the name around in case we have to flush the trace
-        buffer later on to somewhere.
-        @param    destination tracer destination, e.g. file
-        @return   0           if the function is successful
-                  1           if an error occurs
-     */
-    virtual Uint32 setMessageDestination(const char* destination);
-
     /** Flushes the trace
      */
     virtual void flushTrace();
@@ -109,14 +92,10 @@ public:
      */
     void die();
 
-    /** Constructs a TraceMemoryHandler with a default buffer size.
-     */
+    /*
+        Constructs a TraceMemoryHandler. No trace memory allocated.
+    */
     TraceMemoryHandler();
-
-    /** Constructs a TraceMemoryHandler with a custom buffer size.
-        @param    bufferSize  size of the trace buffer in Kbyte
-     */
-    TraceMemoryHandler(Uint32 bufferSize);
 
     virtual ~TraceMemoryHandler();
     
@@ -171,10 +150,9 @@ private:
     */
     void _appendMarker();
     
-    /** Memory buffer initialization routine
-        @param    traceAreaSize    the size of the used trace buffer
+    /** Memory buffer initialization routine       
     */
-    void _initialize( Uint32 traceAreaSize );
+    void _initializeTraceArea();
     
 };
 

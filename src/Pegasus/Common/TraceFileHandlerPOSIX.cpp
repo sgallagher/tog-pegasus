@@ -56,6 +56,12 @@ PEGASUS_FORK_SAFE_MUTEX(writeMutex)
 void TraceFileHandler::prepareFileHandle(void)
 {
     Sint32 retCode;
+
+    if (_configHasChanged)
+    {
+        _reConfigure();
+    }
+
     // Check if the file has been deleted, if so re-open the file and
     // continue
     if (!System::exists(_fileName))
@@ -162,7 +168,7 @@ void TraceFileHandler::handleMessage(const char *message, Uint32 msgLen)
 #else /* PEGASUS_OS_VMS */
 
 void TraceFileHandler::prepareFileHandle(void)
-{
+{    
     // If the file has been deleted, re-open it and continue
     if (!System::exists(_fileName))
     {
@@ -216,6 +222,11 @@ void TraceFileHandler::handleMessage(
     Uint32 msgLen,
     const char *fmt, va_list argList)
 {
+    if (_configHasChanged)
+    {
+        _reConfigure();
+    }
+
     if (!_fileHandle)
     {
         // The trace file is not open, which means an earlier fopen() was
@@ -238,6 +249,11 @@ void TraceFileHandler::handleMessage(
 
 void TraceFileHandler::handleMessage(const char *message, Uint32 msgLen)
 {
+    if (_configHasChanged)
+    {
+        _reConfigure();
+    }
+
     if (!_fileHandle)
     {
         // The trace file is not open, which means an earlier fopen() was

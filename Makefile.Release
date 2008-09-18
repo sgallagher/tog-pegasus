@@ -199,12 +199,6 @@ PEGASUS_SCRIPT_FILES = \
    $(PEGASUS_GENERATED_SCRIPTS) \
    $(PEGASUS_CVS_SCRIPTS)
  
-PEGASUS_REPOSITORY_DIRS = \
-   root\
-   root\#PG_Internal \
-   root\#PG_InterOp \
-   root\#cimv2
-
 PEGASUS_UNIX_MAN_USER_PAGES = \
    cimmof.1 \
    cimprovider.1 \
@@ -327,26 +321,12 @@ setpermissions_PegasusUserCmdsDirectoryFiles: FORCE
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)
 	$(foreach i, $(PEGASUS_USER_CMDS), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)/$(i)$(EXE);)
 
-stage_RepositoryNamespaceDirectory: FORCE
-	$(CPDIRHIER) $(NAMESPACE_DIR_NAME) $(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)
-
-setpermissions_RepositoryNamespaceDirectory: FORCE
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release sethierpermissions PERMISSIONS="$(Prwx______)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/classes
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwx______)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/classes
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release sethierpermissions PERMISSIONS="$(Prwx______)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/classes
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwx______)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/instances
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release sethierpermissions PERMISSIONS="$(Prwx______)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/instances
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwx______)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/qualifiers
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release sethierpermissions PERMISSIONS="$(Prwx______)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)/$(NAMESPACE_DIR_NAME)/qualifiers
-
-stage_PegasusRepositoryDirectories: FORCE
+stage_PegasusRepository: FORCE
 	$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)
-	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)
-	$(foreach i, $(PEGASUS_REPOSITORY_DIRS), $(MAKE) --directory=$(PEGASUS_HOME)/repository -f $(ROOT)/Makefile.Release stage_RepositoryNamespaceDirectory NAMESPACE_DIR_NAME=$(i);)
+	$(CPDIRHIER) $(PEGASUS_HOME)/repository $(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_PARENT_DIR)
 
-setpermissions_PegasusRepositoryDirectories: FORCE
+setpermissions_PegasusRepository: FORCE
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release sethierpermissions PERMISSIONS="$(Prwx______)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_REPOSITORY_DIR)
-	$(foreach i, $(PEGASUS_REPOSITORY_DIRS), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_RepositoryNamespaceDirectory NAMESPACE_DIR_NAME=$(i);)
 
 stage_PegasusUnixManPageDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_UNIX_MAN_USER_PAGES), $(COPY) $(ROOT)/rpm/manLinux/man1.Z/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MANUSER_DIR)/$(i);)
@@ -418,7 +398,7 @@ stage_PegasusFiles: FORCE
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusAdminCmdsDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusUserCmdsDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusVarDataDirectoryFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusRepositoryDirectories
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusRepository
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusUnixManPageDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusDocFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusMOFDirectoryFiles
@@ -431,7 +411,7 @@ setpermissions_PegasusFiles: FORCE
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusAdminCmdsDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusUserCmdsDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusVarDataDirectoryFiles
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusRepositoryDirectories
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusRepository
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusUnixManPageDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusDocFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusMOFDirectoryFiles
@@ -607,8 +587,6 @@ create_ProductInstallationVerificationScript: FORCE
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "ls -ld $(PEGASUS_PROVIDER_MANAGER_LIB_DIR)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
-	@$(ECHO-E) "ls -ld $(PEGASUS_REPOSITORY_DIR)" \
-             >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "ls -ld $(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS DOCUMENT FILES\"" \
@@ -657,9 +635,8 @@ create_ProductInstallationVerificationScript: FORCE
              >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS REPOSITORY FILES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
-	@$(foreach i, $(PEGASUS_REPOSITORY_DIRS), $(ECHO-E) \
-             "ls -ld $(PEGASUS_REPOSITORY_DIR)/$(i)" \
-             >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
+	@$(ECHO-E) "ls -lR $(PEGASUS_REPOSITORY_DIR)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS MAN FILES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(foreach i, $(PEGASUS_UNIX_MAN_ADMIN_PAGES), $(ECHO-E) \

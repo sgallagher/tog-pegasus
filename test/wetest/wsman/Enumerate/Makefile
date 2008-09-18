@@ -43,6 +43,7 @@ XMLSCRIPTS = \
     Enumerate_Success03 \
     Enumerate_Success04 \
     Enumerate_Success05 \
+    Enumerate_Success06 \
     Enumerate_MaxEnvSize01
 
 include $(ROOT)/test/configend.mak

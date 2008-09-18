@@ -24,7 +24,7 @@
 </s:Header>
 <s:Body>
 <wse:Pull>
-<wse:EnumerationContext>6</wse:EnumerationContext>
+<wse:EnumerationContext>7</wse:EnumerationContext>
 <w:MaxElements>5</w:MaxElements>
 </wse:Pull>
 </s:Body>

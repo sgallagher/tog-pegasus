@@ -1089,12 +1089,10 @@ void WsmReader::decodeEnumerateBody(
                 {
                     enumerationMode = WSEN_EM_EPR;
                 }
-#if 0
                 else if (strcmp(content, "EnumerateObjectAndEPR") == 0)
                 {
                     enumerationMode = WSEN_EM_OBJECT_AND_EPR;
                 }
-#endif
                 else
                 {
                     throw WsmFault(

@@ -17,7 +17,7 @@ uuid:00000000-0000-0000-0005-000000000001
 <SOAP-ENV:Body>
 <wsen:PullResponse>
 <wsen:EnumerationContext>
-10
+11
 </wsen:EnumerationContext>
 <wsen:Items>
 <class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">

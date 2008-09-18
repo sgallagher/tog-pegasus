@@ -351,6 +351,16 @@ public:
     {
     }
     WsenEnumerationData(const Array<WsmInstance>& inst, 
+        const Array<WsmEndpointReference> EPRs,
+        WsmbPolymorphismMode pm, const String& uri)
+        : instances(inst),
+          eprs(EPRs),
+          enumerationMode(WSEN_EM_OBJECT_AND_EPR),
+          polymorphismMode(pm),
+          classUri(uri)
+    {
+    }
+    WsenEnumerationData(const Array<WsmInstance>& inst, 
         WsmbPolymorphismMode pm, const String& uri)
         : instances(inst),
           enumerationMode(WSEN_EM_OBJECT),
@@ -374,7 +384,8 @@ public:
     }
     Uint32 getSize()
     {
-        if (enumerationMode == WSEN_EM_OBJECT)
+        if (enumerationMode == WSEN_EM_OBJECT || 
+            enumerationMode == WSEN_EM_OBJECT_AND_EPR)
         {
             return instances.size();
         }
@@ -398,6 +409,11 @@ public:
         {
             eprs.remove(index, size);
         }
+        else if (enumerationMode == WSEN_EM_OBJECT_AND_EPR)
+        {
+            instances.remove(index, size);
+            eprs.remove(index, size);
+        }        
         else
         {
             PEGASUS_ASSERT(0);
@@ -411,6 +427,11 @@ public:
         }
         else if (enumerationMode == WSEN_EM_EPR)
         {
+            eprs.appendArray(data.eprs);
+        }
+        else if (enumerationMode == WSEN_EM_OBJECT_AND_EPR)
+        {
+            instances.appendArray(data.instances);
             eprs.appendArray(data.eprs);
         }
         else
@@ -446,6 +467,21 @@ public:
             }
             if (i != 0)
             {
+                eprs.remove(0, i);
+            }
+        }
+        else if (enumerationMode == WSEN_EM_OBJECT_AND_EPR)
+        {
+            Uint32 i;
+            for (i = 0; i < num && i < instances.size(); i++)
+            {
+                data.instances.append(instances[i]);
+                data.eprs.append(eprs[i]);
+            }
+
+            if (i != 0)
+            {
+                instances.remove(0, i);
                 eprs.remove(0, i);
             }
         }
@@ -534,6 +570,26 @@ class WsenEnumerateResponse : public WsmResponse
 {
 public:
 
+    WsenEnumerateResponse(
+        const Array<WsmInstance>& inst,
+        const Array<WsmEndpointReference>& epr,
+        Uint32 itemCount,
+        const WsenEnumerateRequest* request,
+        const ContentLanguageList& contentLanguages)
+        : WsmResponse(
+              WS_ENUMERATION_ENUMERATE,
+              request,
+              contentLanguages),
+          _enumerationContext((Uint64) -1),
+          _isComplete(false),
+          _requestItemCount(request->requestItemCount),
+          _itemCount(itemCount),
+          _enumerationData(inst, epr, request->polymorphismMode,
+              request->epr.resourceUri)
+    {
+        PEGASUS_ASSERT(request->enumerationMode == WSEN_EM_OBJECT ||
+            request->enumerationMode == WSEN_EM_OBJECT_AND_EPR);
+    }
     WsenEnumerateResponse(
         const Array<WsmInstance>& inst,
         Uint32 itemCount,

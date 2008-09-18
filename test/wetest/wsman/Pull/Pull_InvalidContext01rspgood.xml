@@ -33,7 +33,7 @@ wsen:InvalidEnumerationContext
 </SOAP-ENV:Code>
 <SOAP-ENV:Reason>
 <SOAP-ENV:Text xml:lang="en-US">
-Enumeration context &quot;6&quot; is not valid.
+Enumeration context &quot;7&quot; is not valid.
 </SOAP-ENV:Text>
 </SOAP-ENV:Reason>
 </SOAP-ENV:Fault>

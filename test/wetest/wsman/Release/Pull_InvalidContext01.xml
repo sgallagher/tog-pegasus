@@ -24,7 +24,7 @@
 </s:Header>
 <s:Body>
 <wse:Pull>
-<wse:EnumerationContext>10</wse:EnumerationContext>
+<wse:EnumerationContext>11</wse:EnumerationContext>
 </wse:Pull>
 </s:Body>
 </s:Envelope>

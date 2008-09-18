@@ -83,10 +83,13 @@ private:
     WxfDeleteResponse* _mapToWxfDeleteResponse(
         const WxfDeleteRequest* wsmRequest,
         const CIMDeleteInstanceResponseMessage* response);
-    WsenEnumerateResponse* _mapToWsenEnumerateResponse(
+    WsenEnumerateResponse* _mapToWsenEnumerateResponseObject(
         const WsenEnumerateRequest* wsmRequest,
         const CIMEnumerateInstancesResponseMessage* response);
-    WsenEnumerateResponse* _mapToWsenEnumerateResponse(
+    WsenEnumerateResponse* _mapToWsenEnumerateResponseObjectAndEPR(
+        const WsenEnumerateRequest* wsmRequest,
+        const CIMEnumerateInstancesResponseMessage* response);
+    WsenEnumerateResponse* _mapToWsenEnumerateResponseEPR(
         const WsenEnumerateRequest* wsmRequest,
         const CIMEnumerateInstanceNamesResponseMessage* response);
     WsmFaultResponse* _mapToWsmFaultResponse(

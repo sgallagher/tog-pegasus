@@ -24,7 +24,7 @@ http://schemas.xmlsoap.org/ws/2004/09/enumeration/Release
 </s:Header>
 <s:Body>
 <wse:Release>
-<wse:EnumerationContext>10</wse:EnumerationContext>
+<wse:EnumerationContext>11</wse:EnumerationContext>
 </wse:Release>
 </s:Body>
 </s:Envelope>

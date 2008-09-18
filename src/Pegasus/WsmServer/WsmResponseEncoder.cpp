@@ -471,6 +471,7 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
         for (i = 0; i < data.eprs.size(); i++)
         {
             Buffer body;
+
             WsmWriter::appendStartTag(
                 body, 
                 WsmNamespaces::WS_ADDRESSING, 
@@ -480,6 +481,50 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
                 body, 
                 WsmNamespaces::WS_ADDRESSING, 
                 STRLIT("EndpointReference"));
+            if (!soapResponse.appendBodyContent(body))
+            {
+                break;
+            }
+        }
+    }
+    else if (data.enumerationMode == WSEN_EM_OBJECT_AND_EPR)
+    {
+        for (i = 0; i < data.instances.size(); i++)
+        {
+            Buffer body;
+
+            WsmWriter::appendStartTag(
+                body, 
+                WsmNamespaces::WS_MAN, 
+                STRLIT("Item"));
+
+            if (data.polymorphismMode == WSMB_PM_EXCLUDE_SUBCLASS_PROPERTIES)
+            {
+                // The response does not contain the subclass properties, but
+                // the class name is still that of the subclass. 
+                // Replace it here.
+                data.instances[i].setClassName(
+                    WsmToCimRequestMapper::convertResourceUriToClassName(
+                        data.classUri).getString());
+            }
+
+            WsmWriter::appendInstanceElement(body, data.instances[i]);
+ 
+            WsmWriter::appendStartTag(
+                body, 
+                WsmNamespaces::WS_ADDRESSING, 
+                STRLIT("EndpointReference"));
+            WsmWriter::appendEPRElement(body, data.eprs[i]);
+            WsmWriter::appendEndTag(
+                body, 
+                WsmNamespaces::WS_ADDRESSING, 
+                STRLIT("EndpointReference"));
+
+            WsmWriter::appendEndTag(
+                body, 
+                WsmNamespaces::WS_MAN, 
+                STRLIT("Item"));
+
             if (!soapResponse.appendBodyContent(body))
             {
                 break;

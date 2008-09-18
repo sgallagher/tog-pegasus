@@ -85,7 +85,9 @@ CIMOperationRequestMessage* WsmToCimRequestMapper::mapToCimRequest(
 
         case WS_ENUMERATION_ENUMERATE:
             if (((WsenEnumerateRequest*) request)->enumerationMode == 
-                WSEN_EM_OBJECT)
+                WSEN_EM_OBJECT ||
+                ((WsenEnumerateRequest*) request)->enumerationMode == 
+                WSEN_EM_OBJECT_AND_EPR)
             {
                 cimRequest.reset(mapToCimEnumerateInstancesRequest(
                     (WsenEnumerateRequest*) request));

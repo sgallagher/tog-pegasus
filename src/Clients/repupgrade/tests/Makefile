@@ -41,8 +41,9 @@ DIR = Clients/repupgrade/tests
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
-    pegcommon \
-    pegrepository 
+    pegrepository \
+    pegconfig \
+    pegcommon
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 

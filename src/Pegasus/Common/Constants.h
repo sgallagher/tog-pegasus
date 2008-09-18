@@ -358,7 +358,12 @@
 #endif
 
 /* Use the PID file as a semaphore for repository access */
+/* Use the configuration file instead of the PID file on Windows*/
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+#define PEGASUS_REPOSITORY_LOCK_FILE PEGASUS_PLANNED_CONFIG_FILE_PATH
+#else
 #define PEGASUS_REPOSITORY_LOCK_FILE PEGASUS_CIMSERVER_START_FILE
+#endif
 
 /*
  * Miscellaneous Constants

@@ -72,7 +72,7 @@ void TraceFileHandler::handleMessage(
 
     if (_configHasChanged)
     {
-        _reConfigure()
+        _reConfigure();
     }
 
     if (_fileHandle)

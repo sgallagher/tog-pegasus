@@ -52,6 +52,7 @@
     {"traceFilePath",       PEGASUS_TRACE_FILE_PATH},
 #  if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir",              PEGASUS_LOG_DIR},
+    {"maxLogFileSizeKBytes",      "32768"},/* 32768 * 1024 = 33554432 (32MB)*/
 #  endif
     {"passwordFilePath",     PEGASUS_CONFIG_DIR"/cimserver.passwd"},
     {"sslCertificateFilePath", PEGASUS_SSL_CERT_FILE_PATH},

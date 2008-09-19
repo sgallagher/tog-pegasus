@@ -93,6 +93,8 @@ static struct OwnerEntry _properties[] =
 #if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir",
          (ConfigPropertyOwner*)&ConfigManager::logOwner},
+    {"maxLogFileSizeKBytes",
+         (ConfigPropertyOwner*)&ConfigManager::logOwner},
 #endif
     {"logLevel",
          (ConfigPropertyOwner*)&ConfigManager::logOwner},

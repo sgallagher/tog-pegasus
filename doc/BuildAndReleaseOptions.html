@@ -2565,6 +2565,19 @@ configuration properties.</p>
      Pegsus/Config/LogPropertyOwner.cpp<p>&nbsp;</p>
 </ul>
 
+<h5>maxLogFileSizeKBytes</h5>
+<ul>
+  <b>Description:&nbsp;</b>Specifies the maximum size of the logfile in Kilo 
+     Bytes. If the logfile size exceeds maxLogFileSizeKBytes logfile will be pruned.<br>
+  <b>Default Value:&nbsp;</b>32768<br>
+  <b>Recommended Default Value (Development Build):&nbsp;</b> 32768<br>
+  <b>Recommended Default Value (Release Build):&nbsp;</b>32768<br>
+  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
+  <b>Recommend To Be Fixed/Hidden (Release Build):</b>&nbsp;No/No<br>
+  <b>Dynamic?:</b>&nbsp;Yes<br>
+  <b>Considerations:</b> This option is not supported if PEGASUS_USE_SYSLOGS is defined. Minimum accepted value is 32 KB.&nbsp;<br>
+  <b>Source Configuration File:</b>&nbsp; Pegsus/Config/LogPropertyOwner.cpp<p>&nbsp;</p>
+</ul>
 <h5>maxProviderProcesses</h5>
 <ul>
   <b>Description:</b>&nbsp;Limits the number of provider

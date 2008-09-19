@@ -196,7 +196,7 @@ private:
     */
     AutoPtr<struct ConfigProperty>      _logdir; //PEP101
     AutoPtr<struct ConfigProperty>      _logLevel; //PEP101
-
+    AutoPtr<struct ConfigProperty>      _maxLogFileSizeKBytes;
 };
 
 PEGASUS_NAMESPACE_END

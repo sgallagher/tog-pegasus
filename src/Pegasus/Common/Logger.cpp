@@ -50,8 +50,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-// Maximum logfile size is defined as 32 MB = 32 * 1024 * 1024
-# define PEGASUS_MAX_LOGFILE_SIZE 0X2000000
 
 const Uint32 Logger::TRACE = (1 << 0);
 const Uint32 Logger::INFORMATION = (1 << 1);
@@ -74,6 +72,7 @@ String Logger::_homeDirectory = ".";
 const Uint32 Logger::_NUM_LOGLEVEL = 5;
 
 Uint32 Logger::_severityMask;
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -240,8 +239,8 @@ public:
         FileSystem::getFileSize(String(_logFileNames[logFileType]), 
                                        logFileSize);
 
-        // Check if the size of the logfile is exceeding 32MB.
-        if ( logFileSize > PEGASUS_MAX_LOGFILE_SIZE)
+        // Check if the size of the logfile is exceeding _maxLogFileSizeBytes.
+        if ( logFileSize > _maxLogFileSizeBytes)
         {
             // Prepare appropriate file name based on the logFileType.
             // Eg: if Logfile name is PegasusStandard.log, pruned logfile name
@@ -284,15 +283,22 @@ public:
         logFileStream.close();
     }
 
+    static void setMaxLogFileSize(Uint32 maxLogFileSizeBytes)
+    {
+        _maxLogFileSizeBytes = maxLogFileSizeBytes;
+    }
 private:
 
     CString _logFileNames[int(Logger::NUM_LOGS)];
 
+    static Uint32 _maxLogFileSizeBytes;
 # ifndef PEGASUS_OS_VMS
     CString _loggerLockFileName;
     Mutex _mutex;
 # endif
 };
+
+Uint32 LoggerRep::_maxLogFileSizeBytes;
 
 #endif    // !defined(PEGASUS_USE_SYSLOGS)
 
@@ -557,5 +563,12 @@ Boolean Logger::isValidlogLevel(const String logLevel)
 
     return validlogLevel;
 }
+
+#if !defined (PEGASUS_USE_SYSLOGS)
+void Logger::setMaxLogFileSize(Uint32 maxLogFileSizeBytes)
+{
+     LoggerRep::setMaxLogFileSize(maxLogFileSizeBytes);
+}
+#endif
 
 PEGASUS_NAMESPACE_END

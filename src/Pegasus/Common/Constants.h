@@ -449,7 +449,12 @@
 # define PEGASUS_TRC_BUFFER_OOP_SIZE_DEVISOR 10
 #endif
 
-
+/*
+ * Minimum value for maxLogFileSizeKBytes config property.
+*/
+#if !defined(PEGASUS_USE_SYSLOGS)
+#define PEGASUS_MAXLOGFILESIZEKBYTES_CONFIG_PROPERTY_MINIMUM_VALUE 32
+#endif
 
 
 /*

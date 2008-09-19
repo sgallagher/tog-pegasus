@@ -40,7 +40,8 @@
 
 #include "LogPropertyOwner.h"
 #include <Pegasus/Common/Logger.h>
-
+#include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/StringConversion.h>
 
 PEGASUS_USING_STD;
 
@@ -55,25 +56,30 @@ static struct ConfigPropertyRow properties[] =
 #if defined(PEGASUS_OS_ZOS) && defined(PEGASUS_USE_RELEASE_DIRS)
 # if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir", "/var/wbem/logs", IS_DYNAMIC, 0, 0, IS_HIDDEN},
+    {"maxLogFileSizeKBytes", "32678", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 # endif    
     {"logLevel", "INFORMATION", IS_DYNAMIC, 0, 0, IS_VISIBLE} 
 #elif defined(PEGASUS_OS_PASE)
 # if defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
         {"logdir", "/QOpenSys/QIBM/UserData/UME/Pegasus/logs", IS_DYNAMIC, 
             0, 0, IS_VISIBLE},
+        {"maxLogFileSizeKBytes", "32678", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 # else 
         {"logdir", "./logs", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+        {"maxLogFileSizeKBytes", "32678", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 # endif
     {"logLevel", "INFORMATION", IS_DYNAMIC, 0, 0, IS_VISIBLE}
 #else
 # if defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
 #  if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir", "./logs", IS_DYNAMIC, 0, 0, IS_HIDDEN},
+    {"maxLogFileSizeKBytes", "32678", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #  endif
     {"logLevel", "SEVERE", IS_DYNAMIC, 0, 0, IS_HIDDEN}
 # else
 #  if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir", "./logs", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"maxLogFileSizeKBytes", "32678", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #  endif
     {"logLevel", "INFORMATION", IS_DYNAMIC, 0, 0, IS_VISIBLE}
 # endif
@@ -88,6 +94,7 @@ LogPropertyOwner::LogPropertyOwner()
 {
 #if !defined(PEGASUS_USE_SYSLOGS)
     _logdir.reset(new ConfigProperty);
+    _maxLogFileSizeKBytes.reset(new ConfigProperty);
 #endif
     _logLevel.reset(new ConfigProperty);
 }
@@ -116,6 +123,27 @@ void LogPropertyOwner::initialize()
             _logdir->externallyVisible = properties[i].externallyVisible;
         }
         else
+        if (String::equalNoCase(
+                properties[i].propertyName, "maxLogFileSizeKBytes"))
+        {
+            _maxLogFileSizeKBytes->propertyName = properties[i].propertyName;
+            _maxLogFileSizeKBytes->defaultValue = properties[i].defaultValue;
+            _maxLogFileSizeKBytes->currentValue = properties[i].defaultValue;
+            _maxLogFileSizeKBytes->plannedValue = properties[i].defaultValue;
+            _maxLogFileSizeKBytes->dynamic = properties[i].dynamic;
+            _maxLogFileSizeKBytes->domain = properties[i].domain;
+            _maxLogFileSizeKBytes->domainSize = properties[i].domainSize;
+            _maxLogFileSizeKBytes->externallyVisible =
+                properties[i].externallyVisible;
+
+            Uint64 logFileSize;
+            StringConversion::decimalStringToUint64(
+                _maxLogFileSizeKBytes->currentValue.getCString(),
+                logFileSize);
+
+            Logger::setMaxLogFileSize((Uint32)(logFileSize *1024));
+        }
+        else
 #endif
         if (String::equalNoCase(properties[i].propertyName, "logLevel"))
         {
@@ -140,6 +168,11 @@ struct ConfigProperty* LogPropertyOwner::_lookupConfigProperty(
     if (String::equalNoCase(_logdir->propertyName, name))
     {
         return _logdir.get();
+    }
+    else
+    if (String::equalNoCase(_maxLogFileSizeKBytes->propertyName, name))
+    {
+        return _maxLogFileSizeKBytes.get();
     }
     else
 #endif
@@ -230,6 +263,27 @@ void LogPropertyOwner::initCurrentValue(
         Logger::setlogLevelMask(_logLevel->currentValue);
     }
     else
+#if !defined(PEGASUS_USE_SYSLOGS)
+    if (String::equalNoCase(_maxLogFileSizeKBytes->propertyName,name))
+    {
+        Boolean status = false;
+        Uint64 maxLogFileSizeKBytes=0;
+
+        status = StringConversion::decimalStringToUint64(
+            value.getCString(),
+            maxLogFileSizeKBytes);
+
+        if (!status||(maxLogFileSizeKBytes < 
+            PEGASUS_MAXLOGFILESIZEKBYTES_CONFIG_PROPERTY_MINIMUM_VALUE))
+        {
+            throw InvalidPropertyValue(name, value);
+        }
+        _maxLogFileSizeKBytes->currentValue = value;
+
+        Logger::setMaxLogFileSize((Uint32)(maxLogFileSizeKBytes*1024));
+    }
+    else
+#endif
     {
         struct ConfigProperty* configProperty = _lookupConfigProperty(name);
         configProperty->currentValue = value;

@@ -201,12 +201,15 @@ public:
         return (_severityMask & logLevel) != 0;
     }
 
+#if !defined(PEGASUS_USE_SYSLOGS)
+    static void setMaxLogFileSize (Uint32 maxLogFileSizeBytes);
+#endif
+
 private:
 
     static LoggerRep* _rep;
     static String _homeDirectory;
     static Uint32 _severityMask;
-
     static const Uint32 _NUM_LOGLEVEL;
 
     static void _putInternal(

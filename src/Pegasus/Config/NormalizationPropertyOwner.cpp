@@ -31,6 +31,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include<Pegasus/Common/ObjectNormalizer.h>
 #include "NormalizationPropertyOwner.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -76,6 +77,8 @@ void NormalizationPropertyOwner::initialize()
                 properties[i].domainSize;
             _providerObjectNormalizationEnabled->externallyVisible =
                 properties[i].externallyVisible;
+            ObjectNormalizer::setEnableNormalization(
+                String::equalNoCase(properties[i].defaultValue, "true"));
         }
         else if (String::equalNoCase(properties[i].propertyName,
                      "excludeModulesFromNormalization"))
@@ -160,6 +163,8 @@ void NormalizationPropertyOwner::initCurrentValue(
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
     configProperty->currentValue = value;
+    ObjectNormalizer::setEnableNormalization(
+        String::equalNoCase(value,"true"));
 }
 
 void NormalizationPropertyOwner::initPlannedValue(

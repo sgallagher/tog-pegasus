@@ -1,40 +1,42 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/ObjectNormalizer.h>
-#include <Pegasus/Common/XmlWriter.h>
-
-#include <Pegasus/General/Stopwatch.h>
-
 #include "LocalRepository.h"
+
+#include <Pegasus/Common/ObjectNormalizer.h>
+
+#include <Pegasus/Common/Stopwatch.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -606,7 +608,7 @@ void Test003e(void)
 
     _stopwatch.start();
 
-    CIMObjectPath normalizedObjectPath =
+    CIMObjectPath normalizedObjectPath = 
         normalizer.processInstanceObjectPath(cimObjectPath);
 
     _stopwatch.stop();
@@ -656,7 +658,7 @@ void Test004a(void)
     {
         _stopwatch.start();
 
-        CIMInstance normalizedInstance =
+        CIMInstance normalizedInstance = 
             normalizer.processInstance(cimInstance);
 
         _stopwatch.stop();
@@ -917,7 +919,7 @@ void Test005c(void)
     CIMInstance cimInstance(cimClass.getClassName());
 
     cimInstance.addQualifier(
-        CIMQualifier("Description",
+        CIMQualifier("Description", 
              String("This object qualifier value comes from the instance")));
 
     // all properties
@@ -932,7 +934,7 @@ void Test005c(void)
                           CIMValue(String("Pegasus TestObjectNormalizer")));
 
     property4.addQualifier(CIMQualifier(
-        "Description",
+        "Description", 
         String("This property qualifier value comes from the instance")));
 
     cimInstance.addProperty(property4);
@@ -1039,13 +1041,13 @@ void Test005d(void)
 
     if(verbose)
     {
-        cout << normalizedInstance.getPath().toString()
+        cout << normalizedInstance.getPath().toString() 
             << endl;
 
         XmlWriter::printInstanceElement(normalizedInstance);
     }
 
-    PRINT("*** " << _stopwatch.getElapsed()
+    PRINT("*** " << _stopwatch.getElapsed() 
           << " milliseconds.");
 }
 
@@ -1253,7 +1255,7 @@ void Test101b(void)
 
         _stopwatch.start();
 
-        CIMInstance normalizedInstance =
+        CIMInstance normalizedInstance = 
             normalizer.processInstance(cimInstance);
 
         _stopwatch.stop();
@@ -1346,7 +1348,7 @@ void Test101c(void)
     PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
@@ -1407,7 +1409,7 @@ int main(int, char** argv)
     }
     catch(CIMException & e)
     {
-        cout << "CIMException: " << e.getCode() << " " << e.getMessage()
+        cout << "CIMException: " << e.getCode() << " " << e.getMessage() 
             << endl;
 
         return(1);

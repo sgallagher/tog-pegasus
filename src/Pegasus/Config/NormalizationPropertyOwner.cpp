@@ -1,50 +1,49 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include<Pegasus/Common/ObjectNormalizer.h>
-#include "ConfigManager.h"
 #include "NormalizationPropertyOwner.h"
-#include "ConfigExceptions.h"
-
 
 PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    { "enableNormalization", "false", IS_DYNAMIC, IS_VISIBLE },
+    { "enableNormalization", "false", IS_STATIC, 0, 0, IS_VISIBLE },
 #else
-    { "enableNormalization", "true", IS_DYNAMIC, IS_VISIBLE },
+    { "enableNormalization", "true", IS_STATIC, 0, 0, IS_VISIBLE },
 #endif
-    { "excludeModulesFromNormalization", "", IS_STATIC, IS_VISIBLE }
+    { "excludeModulesFromNormalization", "", IS_STATIC, 0, 0, IS_VISIBLE }
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -59,7 +58,7 @@ void NormalizationPropertyOwner::initialize()
 {
     for (Uint8 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equal(
+        if (String::equalNoCase(
                 properties[i].propertyName, "enableNormalization"))
         {
             _providerObjectNormalizationEnabled->propertyName =
@@ -72,12 +71,16 @@ void NormalizationPropertyOwner::initialize()
                 properties[i].defaultValue;
             _providerObjectNormalizationEnabled->dynamic =
                 properties[i].dynamic;
+            _providerObjectNormalizationEnabled->domain =
+                properties[i].domain;
+            _providerObjectNormalizationEnabled->domainSize =
+                properties[i].domainSize;
             _providerObjectNormalizationEnabled->externallyVisible =
                 properties[i].externallyVisible;
             ObjectNormalizer::setEnableNormalization(
-                ConfigManager::parseBooleanValue(properties[i].defaultValue));
+                String::equalNoCase(properties[i].defaultValue, "true"));
         }
-        else if (String::equal(properties[i].propertyName,
+        else if (String::equalNoCase(properties[i].propertyName,
                      "excludeModulesFromNormalization"))
         {
             _providerObjectNormalizationModuleExclusions->propertyName =
@@ -90,6 +93,10 @@ void NormalizationPropertyOwner::initialize()
                 properties[i].defaultValue;
             _providerObjectNormalizationModuleExclusions->dynamic =
                 properties[i].dynamic;
+            _providerObjectNormalizationModuleExclusions->domain =
+                properties[i].domain;
+            _providerObjectNormalizationModuleExclusions->domainSize =
+                properties[i].domainSize;
             _providerObjectNormalizationModuleExclusions->externallyVisible =
                 properties[i].externallyVisible;
         }
@@ -102,7 +109,30 @@ void NormalizationPropertyOwner::getPropertyInfo(
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
-    buildPropertyInfo(name, configProperty, propertyInfo);
+    propertyInfo.clear();
+
+    propertyInfo.append(configProperty->propertyName);
+    propertyInfo.append(configProperty->defaultValue);
+    propertyInfo.append(configProperty->currentValue);
+    propertyInfo.append(configProperty->plannedValue);
+
+    if (configProperty->dynamic == IS_DYNAMIC)
+    {
+        propertyInfo.append(STRING_TRUE);
+    }
+    else
+    {
+        propertyInfo.append(STRING_FALSE);
+    }
+
+    if (configProperty->externallyVisible == IS_VISIBLE)
+    {
+        propertyInfo.append(STRING_TRUE);
+    }
+    else
+    {
+        propertyInfo.append(STRING_FALSE);
+    }
 }
 
 String NormalizationPropertyOwner::getDefaultValue(const String& name) const
@@ -134,7 +164,7 @@ void NormalizationPropertyOwner::initCurrentValue(
 
     configProperty->currentValue = value;
     ObjectNormalizer::setEnableNormalization(
-        ConfigManager::parseBooleanValue(value));
+        String::equalNoCase(value,"true"));
 }
 
 void NormalizationPropertyOwner::initPlannedValue(
@@ -148,23 +178,17 @@ void NormalizationPropertyOwner::initPlannedValue(
 
 void NormalizationPropertyOwner::updateCurrentValue(
     const String& name,
-    const String& value,
-    const String& userName,
-    Uint32 timeoutSeconds)
+    const String& value)
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-
     // make sure the property is dynamic before updating the value.
-    if (configProperty->dynamic != IS_DYNAMIC)
+    if (!isDynamic(name))
     {
         throw NonDynamicConfigProperty(name);
     }
 
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
+
     configProperty->currentValue = value;
-    ObjectNormalizer::setEnableNormalization(
-        ConfigManager::parseBooleanValue(value));
-
-
 }
 
 void NormalizationPropertyOwner::updatePlannedValue(
@@ -180,12 +204,15 @@ Boolean NormalizationPropertyOwner::isValid(
     const String& name,
     const String& value) const
 {
-    if (String::equal(name, "enableNormalization"))
+    if (String::equalNoCase(name, "enableNormalization"))
     {
         // valid values are "true" and "false"
-        return ConfigManager::isValidBooleanValue(value);
+        if (String::equal(value, "true") || String::equal(value, "false"))
+        {
+            return true;
+        }
     }
-    else if (String::equal(name, "excludeModulesFromNormalization"))
+    else if (String::equalNoCase(name, "excludeModulesFromNormalization"))
     {
         // valid values must be in the form "n.n.n"
 
@@ -207,12 +234,12 @@ Boolean NormalizationPropertyOwner::isDynamic(const String& name) const
 struct ConfigProperty* NormalizationPropertyOwner::_lookupConfigProperty(
     const String& name) const
 {
-    if (String::equal(
+    if (String::equalNoCase(
             name, _providerObjectNormalizationEnabled->propertyName))
     {
         return _providerObjectNormalizationEnabled.get();
     }
-    else if (String::equal(
+    else if (String::equalNoCase(
         name, _providerObjectNormalizationModuleExclusions->propertyName))
     {
         return _providerObjectNormalizationModuleExclusions.get();

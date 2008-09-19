@@ -103,7 +103,7 @@ CMPIStatus resolveEmbeddedInstanceTypes(
                   with the relevant class definitions.
                 */
                 CIMProperty normalizedProperty(
-                    ObjectNormalizer::_processProperty(
+                    ObjectNormalizer::processProperty(
                     propertyDef,
                     currentProp,
                     false,

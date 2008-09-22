@@ -150,6 +150,8 @@ void snmpDeliverTrap_netsnmp::deliverTrap(
 
         free(errStr);
 
+        snmp_free_pdu(snmpPdu);
+
         _destroySession(sessionHandle);
 
         PEG_METHOD_EXIT();
@@ -218,6 +220,8 @@ void snmpDeliverTrap_netsnmp::_createSession(
 
         free(errStr);
 
+        free(snmpSession.peername);
+
         PEG_METHOD_EXIT();
 
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
@@ -238,6 +242,8 @@ void snmpDeliverTrap_netsnmp::_createSession(
             exceptionStr.append(errStr);
 
             free(errStr);
+
+            free(snmpSession.peername);
 
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
                 _MSG_GET_SESSION_POINTER_FAILED_KEY,

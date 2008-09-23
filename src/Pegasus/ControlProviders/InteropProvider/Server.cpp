@@ -186,8 +186,13 @@ CIMInstance InteropProvider::buildCIMXMLCommunicationMechanismInstance(
         PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM.getString());
 
     // Name Property
+    String nameProperty(STRLIT_ARGS("PEGASUSCOMM"));
+    nameProperty.append(namespaceType);
+    nameProperty.append(Char16('+'));
+    nameProperty.append(IPAddress);
+
     setPropertyValue(instance, CIMXMLCOMMMECH_PROPERTY_NAME,
-        (String("PEGASUSCOMM") + namespaceType));
+        nameProperty);
 
     // CommunicationMechanism Property - Force to 2.
     setPropertyValue(instance, CIMXMLCOMMMECH_PROPERTY_COMMUNICATIONMECHANISM,

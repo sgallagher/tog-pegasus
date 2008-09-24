@@ -56,10 +56,12 @@ SOURCES = \
 # that were created for this embedded cim server.
 # Note that GoodbyeProvider and HelloProvider are simple example 
 # providers
-
 LIBRARIES += \
     pegcimserver \
     pegserver \
+    CIMxmlIndicationHandler \
+    pegclient \
+    pegexportclient \
     pegslp \
     pegslp_client \
     pegservice \
@@ -90,7 +92,7 @@ LIBRARIES += \
     pegconfig \
     pegcommon
 
-#INCLUDE_CIMPLE_PROVIDERS=1
+INCLUDE_CIMPLE_PROVIDERS=1
 
 ifeq ($(INCLUDE_CIMPLE_PROVIDERS),1)
   LIBRARIES += \

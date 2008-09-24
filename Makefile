@@ -71,6 +71,9 @@ ifeq ($(OS_TYPE),vxworks)
         src/slp/slp_client/src/cmd-utils/slp_client \
         src/slp/slp_agent \
         src/Pegasus/Server \
+        src/Pegasus/Handler/CIMxmlIndicationHandler \
+        src/Pegasus/ExportClient \
+        src/Pegasus/Client \
         src/Server
 else
     DIRS = src test Schemas

@@ -14,6 +14,9 @@ proj:
 	mkdir -p proj
 	cp pegasus.cdf proj
 	( cd proj; vxprj create iq8134x $(TOOL) vxsim.wpj )
+	( cd proj; vxprj parameter set NUM_SYS_MBLKS 200 )
+	( cd proj; vxprj parameter set NUM_SYS_CLBLKS 200 )
+	( cd proj; vxprj parameter set NUM_SYS_512 500 )
 
 clean:
 	rm -rf proj file.pem server.pem romfs

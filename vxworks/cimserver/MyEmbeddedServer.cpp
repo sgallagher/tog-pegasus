@@ -54,6 +54,7 @@ extern "C" class CIMProvider* PegasusCreateProviderMain(
     const String& providerName)
 {
     CString cstr(providerName.getCString());
+    printf("PegasusCreateProviderMain(): %s\n", (const char*)cstr);
 
 #if defined(INCLUDE_CIMPLE_PROVIDERS)
     return PegasusCreateProvider(providerName);
@@ -143,6 +144,16 @@ void MyEmbeddedServer::initialize()
     {
         fprintf(stderr, "***** registerProvider() failed: Employee\n");
     }
+
+    if (!registerProvider(
+        nameSpaces,
+        "Alert", /* classname */
+        MyEmbeddedServer::INDICATION_PROVIDER_TYPE))
+    {
+        fprintf(stderr, "***** registerProvider() failed: Alert\n");
+    }
+
+    printf("==== Registered providers\n");
 
 #endif /* defined(INCLUDE_CIMPLE_PROVIDERS) */
 }

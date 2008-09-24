@@ -23,3 +23,9 @@ class EmployeeLink
     [Key] Employee REF Parent;
     [Key] Employee REF Child;
 };
+
+[Indication]
+class Alert : CIM_Indication
+{
+    String Msg;
+};

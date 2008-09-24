@@ -5,13 +5,16 @@ include $(ROOT)/mak/config.mak
 LIBRARY = EmployeeProvider
 
 SOURCES = \
-    module.cpp \
-    Resource.cpp \
+    Alert.cpp \
+    Alert_Provider.cpp \
+    CIM_Indication.cpp \
     Employee.cpp \
-    Employee_Provider.cpp \
     EmployeeLink.cpp \
     EmployeeLink_Provider.cpp \
-    repository.cpp
+    Employee_Provider.cpp \
+    module.cpp \
+    repository.cpp \
+    Resource.cpp
 
 LOCAL_DEFINES += -DCIMPLE_PEGASUS_MODULE
 
@@ -24,4 +27,4 @@ include $(ROOT)/mak/library.mak
 regmod:
 
 gen:
-	genproj Static Employee EmployeeLink
+	genproj Static Alert Employee EmployeeLink

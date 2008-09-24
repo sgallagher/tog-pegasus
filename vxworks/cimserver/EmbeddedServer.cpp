@@ -248,6 +248,9 @@ static void* _lookupSymbolCallback(
 
     for (Symbol* p = rep->symbols; p; p = p->next)
     {
+        if (p->name == name)
+            return p->address;
+
         if (p->path == path && p->name == name)
             return p->address;
     }
@@ -267,6 +270,29 @@ const Uint32 EmbeddedServer::ASSOCIATION_PROVIDER_TYPE = 2;
 const Uint32 EmbeddedServer::INDICATION_PROVIDER_TYPE = 4;
 const Uint32 EmbeddedServer::METHOD_PROVIDER_TYPE = 8;
 const Uint32 EmbeddedServer::INSTANCE_QUERY_PROVIDER_TYPE = 16;
+
+static Boolean _addSymbol(
+    EmbeddedServerRep* rep,
+    const String& path,
+    const String& name,
+    void* address)
+{
+
+    if (_lookupSymbolCallback(path.getCString(), name.getCString(), rep))
+        return false;
+
+    Symbol* symbol = new Symbol;
+    symbol->path = path;
+    symbol->name = name;
+    symbol->address = address;
+
+    symbol->next = rep->symbols;
+    rep->symbols = symbol;
+    
+    return true;
+}
+
+extern "C" class CIMHandler* PegasusCreateHandler(const String& handlerName);
 
 EmbeddedServer::EmbeddedServer() : _createdStaticProviderModule(false)
 {
@@ -291,6 +317,9 @@ EmbeddedServer::EmbeddedServer() : _createdStaticProviderModule(false)
 
     pegasusAuthCallback = _authCallback;
     pegasusAuthData = this;
+
+    _addSymbol(rep, "CIMXMLHandler", "PegasusCreateHandler", 
+        (void*)PegasusCreateHandler);
 }
 
 EmbeddedServer::~EmbeddedServer()
@@ -404,7 +433,10 @@ Boolean EmbeddedServer::_create_PG_ProviderModule(
     // Reject if repository is null at this point.
 
     if (!rep->mrr)
+    {
+printf("ZZZ1\n");
         return false;
+    }
 
     //
     // Create instance of PG_ProviderModule:
@@ -424,9 +456,9 @@ Boolean EmbeddedServer::_create_PG_ProviderModule(
     ci.addProperty(CIMProperty("Name", moduleName));
     ci.addProperty(CIMProperty("Vendor", String("OpenPegasus")));
 
-    ci.addProperty(CIMProperty("Version", "2.6.0"));
-    ci.addProperty(CIMProperty("InterfaceType", "C++Default"));
-    ci.addProperty(CIMProperty("InterfaceVersion", "2.6.0"));
+    ci.addProperty(CIMProperty("Version", String("2.6.0")));
+    ci.addProperty(CIMProperty("InterfaceType", String("C++Default")));
+    ci.addProperty(CIMProperty("InterfaceVersion", String("2.6.0")));
     ci.addProperty(CIMProperty("Location", location));
 
     try
@@ -676,27 +708,6 @@ Boolean EmbeddedServer::registerProvider(
         return false;
     }
 
-    return true;
-}
-
-static Boolean _addSymbol(
-    EmbeddedServerRep* rep,
-    const String& path,
-    const String& name,
-    void* address)
-{
-
-    if (_lookupSymbolCallback(path.getCString(), name.getCString(), rep))
-        return false;
-
-    Symbol* symbol = new Symbol;
-    symbol->path = path;
-    symbol->name = name;
-    symbol->address = address;
-
-    symbol->next = rep->symbols;
-    rep->symbols = symbol;
-    
     return true;
 }
 

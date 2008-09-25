@@ -625,9 +625,20 @@ void Monitor::run(Uint32 milliseconds)
                         Message* msg = new SocketMessage(
                             entries[indx].socket, events);
                         entries[indx]._status = _MonitorEntry::BUSY;
+                        SocketHandle sock = entries[indx].socket;
                         _entry_mut.unlock();
                         q->enqueue(msg);
                         _entry_mut.lock();
+
+                        // If _entries[indx] no longer refers to the same 
+                        // socket, then another thread has changed _entries[].
+                        // We must return now and skip the code below that
+                        // updates _entries[indx].
+                        if (Uint32(indx) >= _entries.size() ||
+                            _entries[indx].socket != sock)
+                        {
+                            return;
+                        }
 
                         // After enqueue a message and the autoEntryMutex has
                         // been released and locked again, the array of

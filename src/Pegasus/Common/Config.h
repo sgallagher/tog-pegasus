@@ -315,4 +315,16 @@ PEGASUS_NAMESPACE_END
 #define PEGTRACE \
     printf("PEGTRACE: %s(%d): %s\n", __FILE__, __LINE__, __FUNCTION__)
 
+/*
+**==============================================================================
+**
+** Includee allocation hooks for selecte platforms.
+**
+**==============================================================================
+*/
+
+#if defined(PEGASUS_OS_VXWORKS)
+# include "Alloc.h"
+#endif
+
 #endif  /* Pegasus_Config_h */

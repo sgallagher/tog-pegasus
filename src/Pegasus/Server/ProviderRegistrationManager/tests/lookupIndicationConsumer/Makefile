@@ -28,20 +28,25 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../../../../..
+ROOT = ../../../../../..
+DIR = Pegasus/Server/ProviderRegistrationManager/tests/lookupIndicationConsumer
 
-#inlcude $(ROOT)/mak/config.mak
+include $(ROOT)/mak/config.mak
+include ../libraries.mak
 
-DIRS = \
-   createInstances \
-   deleteInstances \
-   modifyInstances \
-   lookupInstanceProvider \
-   lookupMethodProvider \
-   lookupIndicationProvider \
-   lookupIndicationConsumer \
-   wildCardNamespaceNames \
-   providerManagerMap
+EXTRA_INCLUDES = $(SYS_INCLUDES)
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-include $(ROOT)/mak/recurse.mak
+PROGRAM = TestPrvRegMgrLookupIndicationConsumer
+
+SOURCES = TestPrvRegMgrLookupIndicationConsumer.cpp 
+
+include $(ROOT)/mak/program.mak
+
+tests:
+	@$(MAKE) -f../load/Makefile localrep REPOSITORYDIR=$(TMP_DIR)
+	@$(PROGRAM)
+	@$(MAKE) -f../load/Makefile clean REPOSITORYDIR=$(TMP_DIR)
+
+poststarttests:

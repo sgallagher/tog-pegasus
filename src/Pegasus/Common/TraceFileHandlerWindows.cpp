@@ -129,6 +129,11 @@ void TraceFileHandler::handleMessage(const char* message, Uint32 msgLen)
 {
     Uint32 retCode;
 
+    if (_configHasChanged)
+    {
+        _reConfigure();
+    }
+
     if (_fileHandle)
     {
         AutoMutex writeLock(writeMutex);

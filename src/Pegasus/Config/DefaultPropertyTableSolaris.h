@@ -1,4 +1,3 @@
-/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -31,27 +30,48 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
-*/
 
-#ifndef Pegasus_FixedPropertyTable_h
-#define Pegasus_FixedPropertyTable_h
+#ifndef Pegasus_DefaultPropertyTableSolaris_h
+#define Pegasus_DefaultPropertyTableSolaris_h
 
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-#include "FixedPropertyTableLinux.h"
-#elif defined(PEGASUS_OS_SOLARIS)
-# include "FixedPropertyTableSolaris.h"
-#elif PEGASUS_PLATFORM_HPUX_ACC
-#include "FixedPropertyTableHpux.h"
-#elif defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
-#include "FixedPropertyTablePase.h"
-#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-#include "FixedPropertyTableAix.h"
-#elif defined (PEGASUS_OS_VMS)
-#include "FixedPropertyTableVms.h"
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-#include "FixedPropertyTablezOS.h"
+#ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+    {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpsConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"home", "", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"daemon", "true", IS_STATIC, 0, 0, IS_HIDDEN},
+    {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+# ifdef PEGASUS_DEFAULT_ENABLE_OOP
+    {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+# else
+    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+# endif
+# ifdef PEGASUS_ENABLE_AUDIT_LOGGER
+    {"enableAuditLog", "false", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+# endif
+    {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
 #else
-    {"bogus", "MyBogusValue"} // Remove this line if others are added
+    {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpsConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"home", "./", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"daemon", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+# ifdef PEGASUS_DEFAULT_ENABLE_OOP
+    {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+# else
+    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+# endif
+# ifdef PEGASUS_ENABLE_AUDIT_LOGGER
+    {"enableAuditLog", "false", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+# endif
+    {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
 #endif
 
-#endif /* Pegasus_FixedPropertyTable_h */
+#endif /* Pegasus_DefaultPropertyTableSolaris_h */

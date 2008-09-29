@@ -1,4 +1,3 @@
-/*
 //%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -31,27 +30,12 @@
 //==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
-*/
 
-#ifndef Pegasus_FixedPropertyTable_h
-#define Pegasus_FixedPropertyTable_h
+#ifndef Pegasus_Platform_SOLARIS_IX86_CC_h
+#define Pegasus_Platform_SOLARIS_IX86_CC_h
 
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-#include "FixedPropertyTableLinux.h"
-#elif defined(PEGASUS_OS_SOLARIS)
-# include "FixedPropertyTableSolaris.h"
-#elif PEGASUS_PLATFORM_HPUX_ACC
-#include "FixedPropertyTableHpux.h"
-#elif defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
-#include "FixedPropertyTablePase.h"
-#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-#include "FixedPropertyTableAix.h"
-#elif defined (PEGASUS_OS_VMS)
-#include "FixedPropertyTableVms.h"
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-#include "FixedPropertyTablezOS.h"
-#else
-    {"bogus", "MyBogusValue"} // Remove this line if others are added
-#endif
+#include <Pegasus/Common/Platform_SOLARIS_CC.h>
 
-#endif /* Pegasus_FixedPropertyTable_h */
+#define PEGASUS_ARCHITECTURE_IX86
+
+#endif /* Pegasus_Platform_SOLARIS_IX86_CC_h */

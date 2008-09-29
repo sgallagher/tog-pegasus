@@ -57,6 +57,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 #if !defined(PEGASUS_USE_POSIX_RWLOCK) && !defined(PEGASUS_USE_SEMAPHORE_RWLOCK)
 # error "Unsupported platform: ReadWriteSem.h implementation type missing"
+
 #endif
 
 //==============================================================================

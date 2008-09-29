@@ -34,6 +34,10 @@
 #ifndef Pegasus_Platform_SOLARIS_SPARC_GNU_h
 #define Pegasus_Platform_SOLARIS_SPARC_GNU_h
 
+#ifndef PEGASUS_OS_SOLARIS
+# define PEGASUS_OS_SOLARIS
+#endif
+
 #include <limits.h>
 #ifdef __cplusplus
 #include <cstdio>

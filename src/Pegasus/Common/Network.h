@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -69,12 +71,16 @@
 #       include <winsock2.h>
 #   endif
 #   include <wincrypt.h>
+#   ifdef PEGASUS_ENABLE_IPV6
 #   include <ws2tcpip.h>
+#   endif   
 #endif
 
+#ifdef PEGASUS_ENABLE_IPV6
 #    ifdef PEGASUS_HAS_GETIFADDRS
 #       include <ifaddrs.h>
 #    endif
+#endif
 
 //------------------------------------------------------------------------------
 //
@@ -92,32 +98,21 @@
 #   include <arpa/inet.h>
 #   include <sys/socket.h>
 #   include <sys/time.h>
+#   ifndef PEGASUS_OS_HPUX
+#       include <net/if.h>
+#   endif
 #   include <sys/ioctl.h>
 #   ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
 #       include <unistd.h>
 #       include <sys/un.h>
 #   endif
 #   include <unistd.h>
-#   ifdef PEGASUS_OS_ZOS
+#   ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #       ifndef TCP_NODELAY
 #           define TCP_NODELAY 1
 #       endif
 #   else
 #       include <netinet/tcp.h>
-#   endif
-//------------------------------------------------------------------------------
-// 
-// if_nametoindex() in libC on HP_UX does not support name mangling.
-// Therefore, have "C" linkage for if.h on HP-UX.
-// 
-//------------------------------------------------------------------------------
-#   ifdef PEGASUS_OS_HPUX
-extern "C"
-{
-#       include <net/if.h>
-}
-#   else
-#       include <net/if.h>
 #   endif
 #endif
 
@@ -262,20 +257,13 @@ typedef int SocketHandle;
     defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
     typedef int SocketLength;
 #elif defined(PEGASUS_PLATFORM_VMS_ALPHA_DECCXX) || \
-    defined(PEGASUS_PLATFORM_VMS_IA64_DECCXX)
+    defined(PEGASUS_PLATFORM_VMS_IA64_DECCXX) || \
+    defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
     typedef size_t SocketLength;
-#elif defined(PEGASUS_OS_ZOS)
-    typedef socklen_t SocketLength;
 #elif defined(PEGASUS_PLATFORM_HPUX_IA64_ACC) && \
     !defined(_XOPEN_SOURCE_EXTENDED)
     typedef int SocketLength;
-#elif defined(PEGASUS_PLATFORM_HPUX_IA64_GNU) && \
-    !defined(_XOPEN_SOURCE_EXTENDED)
-    typedef int SocketLength;
 #elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) && \
-    !defined(_XOPEN_SOURCE_EXTENDED)
-    typedef int SocketLength;
-#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_GNU) && \
     !defined(_XOPEN_SOURCE_EXTENDED)
     typedef int SocketLength;
 #else

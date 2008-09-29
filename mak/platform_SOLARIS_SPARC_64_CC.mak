@@ -27,51 +27,16 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
-ROOT = ../../..
+#//=============================================================================
 
-DIR = slp/slp_agent
+#PEGASUS_SOLARIS_NEED_PTO=1
 
-include $(ROOT)/mak/config.mak
+LIBBASE=lib/64
 
-EXTRA_INCLUDES = $(SYS_INCLUDES)
+include $(ROOT)/mak/platform_SOLARIS_CC.mak
 
-########################################################################
+ARCHITECTURE = sparc
 
-ifdef PEGASUS_USE_EXTERNAL_SLP
-ifdef PEGASUS_EXTERNAL_SLP_HOME
-	EXTRA_INCLUDES += -I$(PEGASUS_EXTERNAL_SLP_HOME)/include
+LINK_MACHINE_OPTIONS += -m64
 
-	EXTRA_LIBRARIES += -L$(PEGASUS_EXTERNAL_SLP_HOME)/lib
-endif
-	EXTRA_LIBRARIES += -lslp
-endif
-
-
-###########################################################################
-
-LOCAL_DEFINES = -DPEGASUS_SLP_INTERNAL
-
-LIBRARY = pegslp
-
-PRE_DEPEND_INCLUDES = -I./depends
-
-ifneq ($PEGASUS_SUPPORTS_DYNLIB,yes)
-    LIBRARIES = pegcommon
-endif
-
-SOURCES = peg_slp_agent.cpp 
-
-include $(ROOT)/mak/library.mak
-
-#ifeq ($(PEGASUS_ENABLE_SLP),true)
-#$(SOURCES): common
-#common :
-#	@ $(MAKE) -SC $(ROOT)/src/Pegasus/Common
-#ifeq ($(OS_TYPE),windows)
-#SYS_LIBS = ws2_32.lib advapi32.lib
-#endif
-#endif
-
-run:
-	Server $(REPOSITORY_ROOT)
+FLAGS += -m64

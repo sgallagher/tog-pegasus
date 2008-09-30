@@ -216,6 +216,12 @@ static sigset_t *block_signal_mask(sigset_t * sig)
     return sig;
 }
 
+/*
+ATTN: remove this!
+*/
+static Uint32 _num_threads = 0;
+static Mutex _num_threads_mutex;
+
 Thread::Thread(
     ThreadReturnType(PEGASUS_THREAD_CDECL* start) (void*),
     void* parameter,
@@ -229,11 +235,31 @@ Thread::Thread(
       _thread_parm(parameter),
       _exit_code(0)
 {
+/*
+ATTN: remove this!
+*/
+    Uint32 num_threads;
+    _num_threads_mutex.lock();
+    _num_threads++;
+    num_threads = _num_threads;
+    _num_threads_mutex.unlock();
+    printf("Thread::Thread(): num_threads=%u\n", num_threads);
+
     Threads::clear(_handle.thid);
 }
 
 Thread::~Thread()
 {
+/*
+ATTN: remove this!
+*/
+    Uint32 num_threads;
+    _num_threads_mutex.lock();
+    _num_threads--;
+    num_threads = _num_threads;
+    _num_threads_mutex.unlock();
+    printf("Thread::~Thread(): num_threads=%u\n", num_threads);
+
     try
     {
         join();

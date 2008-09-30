@@ -115,8 +115,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
                 service->_threads++;
                 try
                 {
-printf("WWW ThreadPool::allocate_and_awaken(%s:%u)\n",
-    service->getQueueName(), max_threads_per_svc_queue);
                     rtn = _thread_pool->allocate_and_awaken(
                         service, _req_proc, &_polling_sem);
                 }

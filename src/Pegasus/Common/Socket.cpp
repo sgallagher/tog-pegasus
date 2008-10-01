@@ -39,6 +39,7 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Threads.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -51,8 +52,25 @@ Boolean Socket::timedConnect(
     Uint32 timeoutMilliseconds)
 {
     int connectResult;
-    PEGASUS_RETRY_SYSTEM_CALL(
-        ::connect(socket, address, addressLength), connectResult);
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    connectResult = ::connect(socket, address, addressLength);
+#else
+    Boolean connectionAlreadyRefused = false;
+    Uint32 maxConnectAttempts = 100;
+    // Retry the connect() until it succeeds or it fails with an error other
+    // than EINTR, EAGAIN (for Linux), or the first ECONNREFUSED (for HP-UX).
+    while (((connectResult = ::connect(socket, address, addressLength)) == -1)
+           && (maxConnectAttempts-- > 0)
+           && ((errno == EINTR) || (errno == EAGAIN) ||
+               ((errno == ECONNREFUSED) && !connectionAlreadyRefused)))
+    {
+        if (errno == ECONNREFUSED)
+        {
+            connectionAlreadyRefused = true;
+        }
+        Threads::sleep(1);
+    }
+#endif
 
     if (connectResult == 0)
     {

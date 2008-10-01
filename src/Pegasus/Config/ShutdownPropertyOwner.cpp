@@ -251,7 +251,7 @@ Boolean ShutdownPropertyOwner::isValid(
     {
         // Check if the timeout value is greater than the minimum allowed
         //
-        if ( timeoutValue > MIN_SHUTDOWN_TIMEOUT )
+        if ( timeoutValue >= MIN_SHUTDOWN_TIMEOUT )
         {
             return true;
         }

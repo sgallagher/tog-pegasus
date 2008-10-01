@@ -35,9 +35,7 @@
 #include <cstdio>
 #include <cctype>
 #include "CIMValue.h"
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 #include "CIMInstance.h"
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 #include "Union.h"
 #include "XmlWriter.h"
 #include "CommonUTF.h"
@@ -165,12 +163,10 @@ inline void _toString(Buffer& out, const CIMObject& x)
 {
     out << x.toString();
 }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 inline void _toString(Buffer& out, const CIMInstance& x)
 {
     out << CIMObject(x).toString();
 }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
 template<class T>
 void _toString(Buffer& out, const T* p, Uint32 size)
@@ -259,11 +255,9 @@ void CIMValueRep::release()
             case CIMTYPE_OBJECT:
                 CIMValueType<CIMObject>::destructArray(this);
                 break;
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
                 CIMValueType<CIMInstance>::destructArray(this);
                 break;
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         }
     }
     else
@@ -299,11 +293,9 @@ void CIMValueRep::release()
             case CIMTYPE_OBJECT:
                 CIMValueType<CIMObject>::destruct(this);
                 break;
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
                 CIMValueType<CIMInstance>::destruct(this);
                 break;
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         }
     }
 }
@@ -394,11 +386,9 @@ CIMValue::CIMValue(CIMType type, Boolean isArray, Uint32 arraySize)
         case CIMTYPE_OBJECT:
             CIMValueType<CIMObject>::setNull(_rep, type, isArray, arraySize);
             break;
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         case CIMTYPE_INSTANCE:
             CIMValueType<CIMInstance>::setNull(_rep, type, isArray, arraySize);
             break;
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
         default:
             PEGASUS_ASSERT(0);
@@ -506,7 +496,6 @@ CIMValue::CIMValue(const CIMObject& x)
     _rep = new CIMValueRep;
     CIMValueType<CIMObject>::set(_rep, x.clone());
 }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 CIMValue::CIMValue(const CIMInstance& x)
 {
     if (x.isUninitialized())
@@ -518,7 +507,6 @@ CIMValue::CIMValue(const CIMInstance& x)
     _rep = new CIMValueRep;
     CIMValueType<CIMInstance>::set(_rep, x.clone());
 }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 CIMValue::CIMValue(const Array<Boolean>& x)
 {
     _rep = new CIMValueRep;
@@ -629,7 +617,6 @@ CIMValue::CIMValue(const Array<CIMObject>& x)
     CIMValueType<CIMObject>::setArray(_rep, tmp);
 }
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 CIMValue::CIMValue(const Array<CIMInstance>& x)
 {
     Array<CIMInstance> tmp;
@@ -648,7 +635,6 @@ CIMValue::CIMValue(const Array<CIMInstance>& x)
     _rep = new CIMValueRep;
     CIMValueType<CIMInstance>::setArray(_rep, tmp);
 }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
 void CIMValue::clear()
 {
@@ -735,10 +721,8 @@ Uint32 CIMValue::getArraySize() const
 
         case CIMTYPE_OBJECT:
             return CIMValueType<CIMObject>::arraySize(_rep);
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         case CIMTYPE_INSTANCE:
         return CIMValueType<CIMInstance>::arraySize(_rep);
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         default:
             PEGASUS_ASSERT(0);
     }
@@ -823,11 +807,9 @@ void CIMValue::setNullValue(CIMType type, Boolean isArray, Uint32 arraySize)
         case CIMTYPE_OBJECT:
             CIMValueType<CIMObject>::setNull(_rep, type, isArray, arraySize);
             break;
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         case CIMTYPE_INSTANCE:
             CIMValueType<CIMInstance>::setNull(_rep, type, isArray, arraySize);
             break;
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         default:
             PEGASUS_ASSERT(0);
     }
@@ -934,7 +916,6 @@ void CIMValue::set(const CIMObject& x)
     _release(_rep);
     CIMValueType<CIMObject>::set(_rep, x.clone());
 }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 void CIMValue::set(const CIMInstance& x)
 {
     if (x.isUninitialized())
@@ -946,7 +927,6 @@ void CIMValue::set(const CIMInstance& x)
     _release(_rep);
     CIMValueType<CIMInstance>::set(_rep, x.clone());
 }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 void CIMValue::set(const Array<Boolean>& x)
 {
     _release(_rep);
@@ -1055,7 +1035,6 @@ void CIMValue::set(const Array<CIMObject>& a)
     _release(_rep);
     CIMValueType<CIMObject>::setArray(_rep, tmp);
 }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 void CIMValue::set(const Array<CIMInstance>& a)
 {
     Array<CIMInstance> tmp;
@@ -1074,7 +1053,6 @@ void CIMValue::set(const Array<CIMInstance>& a)
     _release(_rep);
     CIMValueType<CIMInstance>::setArray(_rep, tmp);
 }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 void CIMValue::get(Boolean& x) const
 {
     if (_rep->type != CIMTYPE_BOOLEAN || _rep->isArray)
@@ -1222,7 +1200,6 @@ void CIMValue::get(CIMObject& x) const
         // changing the one we refer to as well.
         x = CIMValueType<CIMObject>::ref(_rep).clone();
 }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 void CIMValue::get(CIMInstance& x) const
 {
     if (_rep->type != CIMTYPE_INSTANCE || _rep->isArray)
@@ -1236,7 +1213,6 @@ void CIMValue::get(CIMInstance& x) const
         x = CIMValueType<CIMInstance>::ref(_rep).clone();
     }
 }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 void CIMValue::get(Array<Boolean>& x) const
 {
     if (_rep->type != CIMTYPE_BOOLEAN || !_rep->isArray)
@@ -1392,7 +1368,6 @@ void CIMValue::get(Array<CIMObject>& x) const
     }
 }
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 void CIMValue::get(Array<CIMInstance>& x) const
 {
     if (_rep->type != CIMTYPE_INSTANCE || !_rep->isArray)
@@ -1412,7 +1387,6 @@ void CIMValue::get(Array<CIMInstance>& x) const
         }
     }
 }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
 Boolean CIMValue::equal(const CIMValue& x) const
 {
@@ -1476,10 +1450,8 @@ Boolean CIMValue::equal(const CIMValue& x) const
 
             case CIMTYPE_OBJECT:
                 return CIMValueType<CIMObject>::equalArray(_rep, x._rep);
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
                 return CIMValueType<CIMInstance>::equalArray(_rep, x._rep);
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             default:
                 PEGASUS_ASSERT(0);
         }
@@ -1536,11 +1508,9 @@ Boolean CIMValue::equal(const CIMValue& x) const
             case CIMTYPE_OBJECT:
                 return CIMValueType<CIMObject>::ref(_rep).identical(
                     CIMValueType<CIMObject>::ref(x._rep));
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
                 return CIMValueType<CIMInstance>::ref(_rep).identical(
                     CIMValueType<CIMInstance>::ref(x._rep));
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             default:
                 PEGASUS_ASSERT(0);
         }
@@ -1682,7 +1652,6 @@ String CIMValue::toString() const
                 _toString(out, a.getData(), a.size());
                 break;
             }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
             {
                 const Array<CIMInstance>& a =
@@ -1690,7 +1659,6 @@ String CIMValue::toString() const
                 _toString(out, a.getData(), a.size());
                 break;
             }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             default:
                 PEGASUS_ASSERT(0);
         }
@@ -1762,11 +1730,9 @@ String CIMValue::toString() const
             case CIMTYPE_OBJECT:
                 _toString(out, CIMValueType<CIMObject>::ref(_rep));
                 break;
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
                 _toString(out, CIMValueType<CIMInstance>::ref(_rep));
                 break;
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             default:
                 PEGASUS_ASSERT(0);
         }

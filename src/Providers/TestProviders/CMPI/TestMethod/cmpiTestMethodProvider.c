@@ -465,10 +465,8 @@ static int _testArrayClone(const CMPIContext* ctx)
         {CMPI_dateTime,
         "CMPI_dateTime"},
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         {CMPI_instance,
         "CMPI_instance"},
-#endif
 
         {CMPI_args,
         "CMPI_args"},
@@ -510,9 +508,6 @@ static int _testArrayClone(const CMPIContext* ctx)
 
 //Size of the array_types array set at the time of preprocessing
     size = 7;
-#ifndef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-    size = 6;
-#endif
 
     PROV_LOG("++++  Entering testArrayClone");
 
@@ -536,7 +531,6 @@ static int _testArrayClone(const CMPIContext* ctx)
                     &rc);
                 break;
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CMPI_instance:
                 value.inst = make_Instance(objPath);
                 value1.uint32 = 20;
@@ -545,7 +539,6 @@ static int _testArrayClone(const CMPIContext* ctx)
                     &value1,
                     CMPI_uint32);
                 break;
-#endif
 
             case CMPI_args:
                 value.args = CMNewArgs(_broker, &rc);
@@ -690,7 +683,6 @@ static int _testArrayClone(const CMPIContext* ctx)
                     strCMPIStatus(rc));
                 break;
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CMPI_instance:
                 data = CMGetProperty(arr_data.value.inst,
                     "Property1", &rc);
@@ -712,7 +704,6 @@ static int _testArrayClone(const CMPIContext* ctx)
                 PROV_LOG("++++ Status of CMRelease(value.inst) : (%s)",
                     strCMPIStatus(rc));
                 break;
-#endif
 
             case CMPI_args:
                 data = CMGetArg(arr_data.value.args, "Argument", &rc);
@@ -958,13 +949,11 @@ static int _testArrayTypes()
         "CMPI_refA", 
         "CMPI_ref_array"},
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT            
         {CMPI_instance,
         CMPI_instanceA,
         "CMPI_instance",
         "CMPI_instanceA",
         "CMPI_instance_array"},
-#endif
 //Test case for covering default case in CMPI_Value.cpp 
 // value2CIMValue() function
         {CMPI_null,
@@ -994,9 +983,6 @@ static int _testArrayTypes()
 
 //Size of the array_types array set at the time of preprocessing
     size = 17;
-#ifndef PEGASUS_EMBEDDED_INSTANCE_SUPPORT            
-    size = 16;
-#endif    
       
     PROV_LOG("++++  Entering testArrayTypes");
         
@@ -1076,7 +1062,6 @@ static int _testArrayTypes()
                 value.args = NULL;
                 break;
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CMPI_instance:
                 value.inst = make_Instance(objPath);
                 value1.uint32 = 20;
@@ -1085,7 +1070,6 @@ static int _testArrayTypes()
                     &value1, 
                     CMPI_uint32);
                 break;
-#endif
         }
 
         PROV_LOG("++++  Testing for %s type", types_arr[i].typeAName);
@@ -1273,7 +1257,6 @@ static int _testArrayTypes()
                         strCMPIStatus(rc));
                     break;
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                 case CMPI_instance:
                     retDataInst = CMGetProperty(arr_data.value.inst,
                         "Property1", &rc);
@@ -1286,7 +1269,6 @@ static int _testArrayTypes()
                     PROV_LOG("++++ Status of CMRelease(value.inst) : (%s)", 
                         strCMPIStatus(rc));
                     break;
-#endif
             }
             if (data.type == types_arr[i].typeA && flag)
             {
@@ -1331,19 +1313,14 @@ static int _testSimpleTypes()
         char* args_name;
     }types_arr[] = {
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         {CMPI_instance,
         "CMPI_instance",
         "CMPI_instance"},
-#endif
         {CMPI_ref,
         "CMPI_ref",
         "CMPI_ref"}};
 
     size = 2;
-#ifndef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-    size = 1;
-#endif
 
     flag = 1;
     for ( i = 0 ; i < size; i++)
@@ -1361,7 +1338,6 @@ static int _testSimpleTypes()
                     &rc); 
                 break;
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CMPI_instance:
                 value.inst = make_Instance(objPath);
                 value1.uint32 = 20;
@@ -1370,7 +1346,6 @@ static int _testSimpleTypes()
                     &value1, 
                     CMPI_uint32);
                 break;
-#endif
         }
         PROV_LOG("++++  Testing for %s type", types_arr[i].typeName);
         rc = CMAddArg (args_ptr,
@@ -1420,7 +1395,6 @@ static int _testSimpleTypes()
                     strCMPIStatus(rc));
                 break;
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CMPI_instance:
                 retDataInst = CMGetProperty(data.value.inst,
                     "Property1", &rc);
@@ -1433,7 +1407,6 @@ static int _testSimpleTypes()
                 PROV_LOG("++++ Status of CMRelease(value.inst) : (%s)", 
                 strCMPIStatus(rc));
                 break;
-#endif
         }
         if (data.type == types_arr[i].element_type && flag)
         {
@@ -1461,7 +1434,6 @@ static int _testErrorPaths()
     PROV_LOG("++++ Status of CMNewArgs : (%s)",
         strCMPIStatus (rc));
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     PROV_LOG("++++  Testing for CMPI_instance type");
     rc = CMAddArg (args_ptr,
         "EmptyInstance",
@@ -1469,7 +1441,6 @@ static int _testErrorPaths()
         CMPI_instance);
     PROV_LOG("++++ Status of CMAddArg with name EmptyInstance : (%s)",
         strCMPIStatus (rc));
-#endif
 
     value.ref = NULL;
     PROV_LOG("++++  Testing for CMPI_ref type");
@@ -3283,7 +3254,6 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
           CMReturnData (rslt, (CMPIValue *) & dateTime, CMPI_dateTime);
           CMReturnDone (rslt);
         }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     else if(strncmp("processEmbeddedInstance", methodName,
       strlen ("processEmbeddedInstance"))== 0)
     {
@@ -3372,7 +3342,6 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
         inst2->ft->release(inst2);
         inst3->ft->release(inst3);
     }
-#endif
     else if (
         strncmp("testArrayTypes", methodName, strlen ("testArrayTypes"))== 0)
     {
@@ -3401,9 +3370,6 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
         CMReturnData (rslt, &value, CMPI_uint32);
         CMReturnDone (rslt);
     }
-
-
-
       else
         {
           PROV_LOG ("++++ Could not find the %s operation", methodName);

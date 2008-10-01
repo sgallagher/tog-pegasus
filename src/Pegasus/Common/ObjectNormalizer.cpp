@@ -111,14 +111,12 @@ CIMProperty ObjectNormalizer::processProperty(
     CIMType instPropType = instProperty.getType();
     if (referencePropType != instPropType)
     {
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         // CMPI Providers cannot return a CIMTYPE_INSTANCE, so if the
         // referenceProperty type is CIMTYPE_INSTANCE and the instProperty
         // type is CIMTYPE_OBJECT, ignore the mismatch. The Normalizer
         // will correct it.
         if (referencePropType != CIMTYPE_INSTANCE ||
             instPropType != CIMTYPE_OBJECT)
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         {
             MessageLoaderParms message(
                 "Common.ObjectNormalizer.INVALID_PROPERTY_TYPE",
@@ -144,7 +142,6 @@ CIMProperty ObjectNormalizer::processProperty(
     // update value
     if (!instProperty.getValue().isNull())
     {
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         // This happens ONLY when the referencePropType is CIMTYPE_INSTANCE
         // and the cimPropType is CIMTYPE_OBJECT, otherwise an exception
         // would have been thrown. Correct the mismatch here.
@@ -155,7 +152,6 @@ CIMProperty ObjectNormalizer::processProperty(
             normalizedProperty.setValue(CIMInstance(tmpObject));
         }
         else
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         {
             normalizedProperty.setValue(instProperty.getValue());
         }
@@ -197,7 +193,6 @@ CIMProperty ObjectNormalizer::processProperty(
             }
         }
     }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 #ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
     else if (referenceProperty.getType() == CIMTYPE_INSTANCE)
     {
@@ -309,8 +304,6 @@ CIMProperty ObjectNormalizer::processProperty(
             }
         }
     }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-
     return normalizedProperty;
 }
 

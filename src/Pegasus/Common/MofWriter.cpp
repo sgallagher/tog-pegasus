@@ -377,7 +377,6 @@ void MofWriter::appendValueElement(
                 _mofWriter_appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
             {
                 Array<CIMInstance> a;
@@ -385,7 +384,6 @@ void MofWriter::appendValueElement(
                 _mofWriter_appendValueArrayMof(out, a.getData(), a.size());
                 break;
             }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             default:
                 PEGASUS_ASSERT(false);
         }
@@ -521,7 +519,6 @@ void MofWriter::appendValueElement(
                 _mofWriter_appendValue(out, v);
                 break;
             }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
             {
                 CIMInstance v;
@@ -529,7 +526,6 @@ void MofWriter::appendValueElement(
                 _mofWriter_appendValue(out, v);
                 break;
             }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             default:
                 PEGASUS_ASSERT(false);
         }

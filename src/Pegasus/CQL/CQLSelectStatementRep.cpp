@@ -442,10 +442,7 @@ Boolean CQLSelectStatementRep::applyProjection(
     CIMValue nodeVal = nodeProp.getValue();
     CIMType nodeValType = nodeVal.getType();
     if (nodeValType != CIMTYPE_OBJECT
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-    && nodeValType != CIMTYPE_INSTANCE
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-        )
+        && nodeValType != CIMTYPE_INSTANCE )
     {
         PEG_TRACE_CSTRING (TRC_CQL, Tracer::LEVEL1,"not emb");
         PEG_METHOD_EXIT();
@@ -490,10 +487,8 @@ Boolean CQLSelectStatementRep::applyProjection(
 
     CIMObject nodeObj;  // this starts uninitialized
     CIMInstance nodeInst;
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     if(nodeValType == CIMTYPE_OBJECT)
     {
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     nodeVal.get(nodeObj);
     if (nodeObj.isUninitialized())
     {
@@ -517,7 +512,6 @@ Boolean CQLSelectStatementRep::applyProjection(
         throw CQLRuntimeException(parms);
     }
     nodeInst = CIMInstance(nodeObj);
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     }
 
     else if(nodeValType == CIMTYPE_INSTANCE)
@@ -535,7 +529,6 @@ Boolean CQLSelectStatementRep::applyProjection(
             throw CQLRuntimeException(parms);
         }
     }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     //
     // Do the projection.
     //
@@ -628,13 +621,11 @@ Boolean CQLSelectStatementRep::applyProjection(
                  allowMissing);
 
     // Put the projected instance back into the property.
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     if(nodeValType == CIMTYPE_INSTANCE)
     {
         nodeProp.setValue(nodeInst);
     }
     else
-#endif
     {
         CIMObject newNodeObj(nodeInst);
         CIMValue newNodeVal(newNodeObj);

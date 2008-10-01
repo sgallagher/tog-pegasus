@@ -643,7 +643,6 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
     // Add CachedClassDefinitionContainer here needed by CMPIProviderManager
     // to correct mismatches between Embedded Instances/Objects.
 #ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     switch(request->getType())
     {
         case CIM_GET_INSTANCE_REQUEST_MESSAGE:
@@ -681,7 +680,6 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
         default:
             ; // Do nothing.
     }
-#endif
 #endif
 
     if ((request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||

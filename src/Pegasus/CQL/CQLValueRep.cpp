@@ -329,7 +329,6 @@ void CQLValueRep::resolve(const CIMInstance& CI,
           _isResolved = true;
       return;
     }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT     
     CIMType propObjType = propObj.getType();   
     if(index == IdSize-1)
     {
@@ -354,22 +353,6 @@ void CQLValueRep::resolve(const CIMInstance& CI,
         propValue = CIMValue((CIMObject)tmpInst);
     }
     propValue.get(objectContext);
-#else
-    if(index == IdSize-1)
-    {
-        _process_value(propObj,Idstrings[index],inQueryCtx);
-        return;
-    }
-    else if((propObj.getType() != CIMTYPE_OBJECT) ||
-        (propObj.getValue().isNull()))
-    {
-        // Object is not embedded.
-        _valueType = CQLValue::Null_type;
-        _isResolved = true;
-        return;
-    }
-    propObj.getValue().get(objectContext);
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         if(!objectContext.isInstance())
         {
             MessageLoaderParms mparms(
@@ -395,7 +378,6 @@ void CQLValueRep::_process_value(CIMProperty& propObj,
       _valueType = CQLValue::CIMObject_type;
       _isResolved = true;
     }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
   else if(propObj.getType() == CIMTYPE_INSTANCE) 
   {
       CIMInstance cimInstance;
@@ -405,7 +387,6 @@ void CQLValueRep::_process_value(CIMProperty& propObj,
       _valueType = CQLValue::CIMObject_type;
       _isResolved = true;
   }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
   else // Primitive
     {
       if(_id.isArray())
@@ -867,9 +848,7 @@ CQLValue::CQLValueType CQLValueRep::_getCQLType(const CIMType &type)
             return CQLValue::CIMReference_type;
 
         case CIMTYPE_OBJECT:
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         case CIMTYPE_INSTANCE:
-#endif
             return CQLValue::CIMObject_type;
         default:
             return CQLValue::Null_type;
@@ -1598,7 +1577,6 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 key)
             break;
       }
     case CIMTYPE_OBJECT:
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     case CIMTYPE_INSTANCE:
     {
         Boolean isInstance = cv.getType() == CIMTYPE_INSTANCE;
@@ -1625,22 +1603,6 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 key)
         _valueType = CQLValue::CIMObject_type;
         break;
     } 
-#else 
-    {
-        if(key == -1)
-          {
-        _theValue = cv;
-          }
-        else
-          {
-        Array<CIMObject> _obj;
-        cv.get(_obj);
-        _theValue.set(_obj[index]);
-          }
-            _valueType = CQLValue::CIMObject_type;
-            break;
-      }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     default:
        MessageLoaderParms mload(
            "CQL.CQLValueRep.SET_VALUE",
@@ -1772,7 +1734,6 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 key)
             _valueType = CQLValue::CIMObject_type;
             break;
       }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     case CIMTYPE_INSTANCE:
     {
         // Convert the value into an Object value
@@ -1784,7 +1745,6 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 key)
         _valueType = CQLValue::CIMObject_type;
         break;
     } 
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     default:
        MessageLoaderParms mload(
            "CQL.CQLValueRep.SET_VALUE",
@@ -2204,7 +2164,6 @@ Boolean CQLValueRep::_compareArray(const CQLValueRep& _in)
       }
     break;
       }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     case CIMTYPE_INSTANCE:
     {
         Array<CIMInstance> tmpInst;
@@ -2215,7 +2174,6 @@ Boolean CQLValueRep::_compareArray(const CQLValueRep& _in)
         }
         break;
     } 
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     default:
       MessageLoaderParms mload(
           "CQL.CQLValueRep.INVALID_ARRAY_COMPARISON",
@@ -2296,7 +2254,6 @@ Boolean CQLValueRep::_compareArray(const CQLValueRep& _in)
       {
         _cqlVal2.append(CQLValue(_obj2[i]));
       }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     case CIMTYPE_INSTANCE:
     {
         Array<CIMObject> tmpInst;
@@ -2306,7 +2263,6 @@ Boolean CQLValueRep::_compareArray(const CQLValueRep& _in)
             _cqlVal2.append(CQLValue((CIMObject)tmpInst[i]));
         }
     }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     break;
       }   
     default:

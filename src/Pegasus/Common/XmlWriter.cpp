@@ -547,7 +547,6 @@ void XmlWriter::appendValueElement(
                 _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
             {
                 Array<CIMInstance> a;
@@ -555,7 +554,6 @@ void XmlWriter::appendValueElement(
                 _xmlWritter_appendValueArray(out, a.getData(), a.size());
                 break;
             }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             default:
                 PEGASUS_ASSERT(false);
         }
@@ -692,7 +690,6 @@ void XmlWriter::appendValueElement(
                 _xmlWritter_appendValue(out, v);
                 break;
             }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
             {
                 CIMInstance v;
@@ -700,7 +697,6 @@ void XmlWriter::appendValueElement(
                 _xmlWritter_appendValue(out, v);
                 break;
             }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             default:
                 PEGASUS_ASSERT(false);
         }
@@ -1049,7 +1045,6 @@ void XmlWriter::appendPropertyElement(
                 }
             }
         }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         else if (rep->getValue().getType() == CIMTYPE_INSTANCE)
         {
             // If the property array type is CIMInstance, then
@@ -1088,7 +1083,6 @@ void XmlWriter::appendPropertyElement(
 # endif
             }
         }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         else
         {
             out << STRLIT(" TYPE=\"")
@@ -1212,7 +1206,6 @@ void XmlWriter::appendPropertyElement(
                 }
             }
         }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         else if (rep->getValue().getType() == CIMTYPE_INSTANCE)
         {
             CIMInstance a;
@@ -1236,7 +1229,6 @@ void XmlWriter::appendPropertyElement(
             }
 # endif
         }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         else
         {
             out << STRLIT(" TYPE=\"")
@@ -2189,14 +2181,12 @@ void XmlWriter::appendParamTypeAndEmbeddedObjAttrib(
         out << STRLIT(" EmbeddedObject=\"object\"");
         out << STRLIT(" EMBEDDEDOBJECT=\"object\"");
     }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     else if (type == CIMTYPE_INSTANCE)
     {
         out << STRLIT(" PARAMTYPE=\"string\"");
         out << STRLIT(" EmbeddedObject=\"instance\"");
         out << STRLIT(" EMBEDDEDOBJECT=\"instance\"");
     }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     else
     {
         out << STRLIT(" PARAMTYPE=\"") << cimTypeToString (type);

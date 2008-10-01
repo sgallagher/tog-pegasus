@@ -215,7 +215,6 @@ extern "C"
                CIMTYPE_INSTANCE, and the value's type is CIMTYPE_OBJECT, then
                we convert the value's type to match the property's type.
             */
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             if (cp.getType() == CIMTYPE_INSTANCE && 
                 v.getType() == CIMTYPE_OBJECT)
             {
@@ -249,7 +248,6 @@ extern "C"
                         v.set(CIMInstance(co));
                 }
             }
-#endif
             try
             {
                 cp.setValue(v);

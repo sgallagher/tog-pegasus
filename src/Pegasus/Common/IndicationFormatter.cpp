@@ -166,12 +166,10 @@ public:
         return value.toString();
     }
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     String getLocalizedValue(const CIMInstance& value) const
     {
         return CIMObject(value).toString();
     }
-#endif
 
 private:
 
@@ -1218,14 +1216,12 @@ String IndicationFormatter::_getArrayValues(
             break;
         }
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         case CIMTYPE_INSTANCE:
         {
             appendArrayValue<CIMInstance>(
                 arrayValues, value, arrayIndex, cimValueLocalizer);
             break;
         }
-#endif
 
         default:
         {

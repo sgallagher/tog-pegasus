@@ -152,7 +152,6 @@ void CIMPropertyRep::resolve(
             (_qualifiers.find(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT) 
                  != PEG_NOT_FOUND) &&
             (inheritedProperty.getValue().isArray() == _value.isArray())
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             ) &&
             !(
             (inheritedProperty.getValue().getType() == CIMTYPE_INSTANCE) &&
@@ -160,7 +159,6 @@ void CIMPropertyRep::resolve(
             (_qualifiers.find(PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE) 
                  != PEG_NOT_FOUND) &&
             (inheritedProperty.getValue().isArray() == _value.isArray())
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             ))
         {
             throw TypeMismatchException();
@@ -177,17 +175,12 @@ void CIMPropertyRep::resolve(
         scope = CIMScope::REFERENCE;
 
     // Test the reference class name against the inherited property
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     if (_value.getType() == CIMTYPE_REFERENCE || 
         _value.getType() == CIMTYPE_INSTANCE)
-#else // !PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-    if (_value.getType() == CIMTYPE_REFERENCE)
-#endif // end PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     {
         CIMName inheritedClassName;
         Array<CIMName> classNames;
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         if (_value.getType() == CIMTYPE_INSTANCE)
         {
             Uint32 pos = inheritedProperty.findQualifier(
@@ -216,7 +209,6 @@ void CIMPropertyRep::resolve(
             }
         }
         else
-#endif // end PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         {
             CIMName referenceClass;
             if (_referenceClassName.isNull())

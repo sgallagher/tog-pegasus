@@ -471,12 +471,10 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         AutoPtr<NormalizerContext> tmpNormalizerContext(
             new CIMOMHandleContext(*pr.getCIMOMHandle()));
         request->operationContext.insert(
             NormalizerContextContainer(tmpNormalizerContext));
-#endif
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "Calling provider.getInstance: %s",
@@ -614,12 +612,10 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         AutoPtr<NormalizerContext> tmpNormalizerContext(
             new CIMOMHandleContext(*pr.getCIMOMHandle()));
         request->operationContext.insert(
             NormalizerContextContainer(tmpNormalizerContext));
-#endif
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "Calling provider.enumerateInstances: %s",
@@ -1438,12 +1434,10 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         AutoPtr<NormalizerContext> tmpNormalizerContext(
             new CIMOMHandleContext(*pr.getCIMOMHandle()));
         request->operationContext.insert(
             NormalizerContextContainer(tmpNormalizerContext));
-#endif
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "Calling provider.associators: %s",
@@ -1752,12 +1746,10 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         AutoPtr<NormalizerContext> tmpNormalizerContext(
             new CIMOMHandleContext(*pr.getCIMOMHandle()));
         request->operationContext.insert(
             NormalizerContextContainer(tmpNormalizerContext));
-#endif
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "Calling provider.references: %s",
@@ -2055,12 +2047,10 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         AutoPtr<NormalizerContext> tmpNormalizerContext(
             new CIMOMHandleContext(*pr.getCIMOMHandle()));
         request->operationContext.insert(
             NormalizerContextContainer(tmpNormalizerContext));
-#endif
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "Calling provider.invokeMethod: %s",
@@ -2138,7 +2128,6 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
             throw cimException;
         }
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         // Even if external normalization is enabled we don't normalize the 
         // Embedded instances present in output args. Normalize them here.
         {
@@ -2243,12 +2232,6 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                 }
             }
         }
-#else
-        for (int i=0,s=outArgs.size(); i<s; i++)
-        {
-            handler.deliverParamValue(outArgs[i]);
-        }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         handler.complete();
     }
     HandlerCatch(handler);
@@ -3075,12 +3058,10 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         AutoPtr<NormalizerContext> tmpNormalizerContext(
             new CIMOMHandleContext(*pr.getCIMOMHandle()));
         request->operationContext.insert(
             NormalizerContextContainer(tmpNormalizerContext));
-#endif
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "Calling provider.getInstance via getProperty: %s",

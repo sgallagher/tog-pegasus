@@ -578,9 +578,7 @@ int main(int argc, char** argv)
     test01(CIMObject(instance1));
 
     testEmbeddedValue<CIMObject>(instance1);
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     testEmbeddedValue<CIMInstance>(instance1);
-#endif
 
     // Test CIMValue arrays
 
@@ -680,9 +678,7 @@ int main(int argc, char** argv)
     test02(arr15);
 
     testEmbeddedValueArray<CIMObject>(instance1, NAMESPACE, context);
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     testEmbeddedValueArray<CIMInstance>(instance1, NAMESPACE, context);
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
     // Calling remaining  Array tests..
     CIMDateTime D1("19991224120000.000000+100");

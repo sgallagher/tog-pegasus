@@ -432,9 +432,7 @@ CIMValue* valueFactory::_buildArrayValue(
              //  CIM datatype, just a Pegasus internal representation
              //  of an embedded object, so it won't be found here.
         case CIMTYPE_OBJECT:
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         case CIMTYPE_INSTANCE:
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                              break;
     }  // end switch
     return 0;
@@ -485,9 +483,7 @@ CIMValue * valueFactory::createValue(CIMType type, int arrayDimension,
 //  Pegasus internal representation of an embedded object, so it won't be
 //  found here.
     case CIMTYPE_OBJECT:
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     case CIMTYPE_INSTANCE:
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         break;
     }
     return(new CIMValue((Uint32) 0));    // default

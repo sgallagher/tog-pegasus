@@ -456,7 +456,6 @@ void CimToWsmResponseMapper::convertCimToWsmValue(
                 break;
             }
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
             {
                 Array<WsmInstance> wsmInstances;
@@ -471,7 +470,6 @@ void CimToWsmResponseMapper::convertCimToWsmValue(
                 wsmValue.set(wsmInstances);
                 break;
             }
-#endif
 
             default:
             {
@@ -558,7 +556,6 @@ void CimToWsmResponseMapper::convertCimToWsmValue(
                 }
                 break;
             }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
             {
                 WsmInstance wsmInstance;
@@ -568,7 +565,6 @@ void CimToWsmResponseMapper::convertCimToWsmValue(
                 wsmValue.set(wsmInstance);
                 break;
             }
-#endif
             default:
             {
                 PEGASUS_ASSERT(0);

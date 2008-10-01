@@ -225,11 +225,9 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
                 case CMPI_dateTime:
                     CopyToEncArray(CIMDateTime,dateTime);
                     break;
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                 case CMPI_instance:
                     CopyToEncArray(CIMObject,inst);
                     break;
-#endif
                 case CMPI_boolean:
                     CopyToArray(Boolean,boolean);
                     break;
@@ -499,7 +497,6 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                 case CMPI_dateTime:
                     CopyFromEncArray(CIMDateTime,CMPIDateTime,dateTime);
                     break;
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                 case CMPI_instance:
                     if (v.getType() == CIMTYPE_OBJECT)
                     {
@@ -516,7 +513,6 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                         CopyFromEncArray(CIMInstance,CMPIInstance,inst);
                     }
                     break;
-#endif
                 case CMPI_boolean:
                     CopyFromArray(Boolean,boolean);
                     break;
@@ -628,11 +624,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                     }
                     else
                     {
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                         v.get(inst);
-#else
-                        return CMPI_RC_ERR_NOT_SUPPORTED;
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                     }
 
                     data->value.inst = reinterpret_cast<CMPIInstance*>(
@@ -691,10 +683,8 @@ CMPIType type2CMPIType(CIMType pt, int array)
         CMPI_string,     // STRING,
         CMPI_dateTime,   // DATETIME,
         CMPI_ref,        // REFERENCE
-        CMPI_instance    // Embedded Object
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-        , CMPI_instance  // Embedded Instance
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+        CMPI_instance,    // Embedded Object
+        CMPI_instance  // Embedded Instance
     };
     int t=types[pt];
     if( array )
@@ -762,10 +752,8 @@ CIMType type2CIMType(CMPIType pt)
 
         case CMPI_ref:
             return CIMTYPE_REFERENCE;
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         case CMPI_instance:
             return CIMTYPE_INSTANCE;
-#endif
         default:
             return(CIMType)0;
     }

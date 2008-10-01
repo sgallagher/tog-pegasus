@@ -101,12 +101,8 @@ void printProperty(
 
     CIMValue val = prop.getValue();
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     CIMType valType = val.getType();
     if (valType != CIMTYPE_OBJECT && valType != CIMTYPE_INSTANCE)
-#else
-    if (val.getType() != CIMTYPE_OBJECT)
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     {
         // Not embedded object
         if (val.isNull())
@@ -122,7 +118,6 @@ void printProperty(
     {
         // Embedded object, or array of objects
         Array<CIMObject> embObjs;
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         if (val.isArray())
         {
             if (valType == CIMTYPE_INSTANCE)
@@ -155,18 +150,6 @@ void printProperty(
             embObjs.append(tmpObj);
         }
     }
-#else
-    if (val.isArray())
-    {
-        val.get(embObjs);
-    }
-    else
-    {
-        CIMObject tmpObj;
-        val.get(tmpObj);
-        embObjs.append(tmpObj);
-    }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
     for (Uint32 j = 0; j < embObjs.size(); j++)
     {

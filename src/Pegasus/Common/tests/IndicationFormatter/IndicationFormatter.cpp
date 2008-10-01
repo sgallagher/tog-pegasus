@@ -253,9 +253,7 @@ CIMInstance _createIndicationInstance2(CIMType type)
     case CIMTYPE_DATETIME:
     case CIMTYPE_REFERENCE:
     case CIMTYPE_OBJECT:
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     case CIMTYPE_INSTANCE:
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         {
             break;
         }

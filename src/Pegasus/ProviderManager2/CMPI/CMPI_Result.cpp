@@ -178,7 +178,6 @@ extern "C"
                     res->processing();
                     ((CMPI_Result*)eRes)->flags|=RESULT_set;
                 }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
               /**
                  If the CMPI type is CMPI_instance, then the CIM return type
                  could be either an EmbeddedObject or EmbeddedInstance. We
@@ -233,7 +232,6 @@ extern "C"
                             (CMPIString*)string2CMPIString(e.getMessage()));
                     }
                 }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                 res->deliver(v);
             }
             else
@@ -311,7 +309,6 @@ extern "C"
                 iop.setNameSpace(op.getNameSpace());
                 inst.setPath(iop);
             }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             /**
               CMPI does not differentiate between EmbeddedInstances and
               EmbeddedObjects, so any mismatches between the property type
@@ -338,7 +335,6 @@ extern "C"
                 PEG_METHOD_EXIT();
                 return status;
             }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
             res->deliver(inst);
         }
@@ -408,7 +404,6 @@ extern "C"
                 inst.setPath(iop);
             }
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
            /**
              CMPI does not differentiate between EmbeddedInstances and
              EmbeddedObjects, so any mismatches between the property type
@@ -474,7 +469,6 @@ extern "C"
                 PEG_METHOD_EXIT();
                 return status;
             }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
             res->deliver(inst);
         }

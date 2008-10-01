@@ -129,6 +129,7 @@ void ProviderManagerMap::initialize()
     defaultPMEntry.ifcVersions.append(String("2.3.0"));
     defaultPMEntry.ifcVersions.append(String("2.5.0"));
     defaultPMEntry.ifcVersions.append(String("2.6.0"));
+    defaultPMEntry.ifcVersions.append(String("2.9.0"));
     _pmArray.append(defaultPMEntry);
 
     // now check for plugins

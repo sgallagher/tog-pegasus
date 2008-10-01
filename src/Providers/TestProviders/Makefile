@@ -66,17 +66,13 @@ TEST_DIRS = \
 	TestAggregationOutputProvider/testclient \
 	LocalizedProvider \
 	LocalizedProvider/msg \
-	PerformanceTests
+	PerformanceTests \
+        EmbeddedInstanceProvider \
+        EmbeddedInstanceProvider/testClient
 
 ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
 TEST_DIRS += \
 	TestServerProfileProviders
-endif
-
-ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
-TEST_DIRS += \
-	EmbeddedInstanceProvider \
-	EmbeddedInstanceProvider/testClient
 endif
 
 ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)

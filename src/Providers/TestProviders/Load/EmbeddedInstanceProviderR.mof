@@ -39,7 +39,7 @@ instance of PG_ProviderModule
     Vendor = "Pegasus";
     Version = "2.6.0";
     InterfaceType = "C++Default";
-    InterfaceVersion = "2.6.0";
+    InterfaceVersion = "2.9.0";
     Location = "EmbeddedInstanceProvider";
 };
 

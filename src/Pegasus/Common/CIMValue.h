@@ -48,11 +48,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMValueRep;
 class CIMObject;
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 class CIMInstance;
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 /**
     The CIMValue class represents a value of any of the CIM data types.
@@ -178,8 +174,6 @@ public:
     */
     CIMValue(const CIMObject& x);
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     /**
         Constructs a CIMValue with the specified value and inferred type.
         Note: The CIMInstance argument is cloned to prevent subsequent
@@ -189,8 +183,6 @@ public:
             uninitialized.
     */
     CIMValue(const CIMInstance& x);
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
     /**
         Constructs a CIMValue with the specified value and inferred type.
@@ -292,8 +284,6 @@ public:
     */
     CIMValue(const Array<CIMObject>& x);
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     /**
         Constructs a CIMValue with the specified value and inferred type.
         Note: The CIMInstances in the Array argument are cloned to prevent
@@ -303,8 +293,6 @@ public:
             the Array are uninitialized.
     */
     CIMValue(const Array<CIMInstance>& x);
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
     /**
         Constructs a CIMValue by copying another CIMValue object.
@@ -488,8 +476,6 @@ public:
     */
     void set(const CIMObject& x);
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     /**
         Sets the CIMValue to the specified value and inferred type.
         Note: The CIMInstance argument is cloned to prevent subsequent
@@ -499,8 +485,6 @@ public:
             uninitialized.
     */
     void set(const CIMInstance& x);
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
     /**
         Sets the CIMValue to the specified value and inferred type.
@@ -602,8 +586,6 @@ public:
     */
     void set(const Array<CIMObject>& x);
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     /**
         Sets the CIMValue to the specified value and inferred type.
         Note: The CIMInstances in the Array argument are cloned to prevent
@@ -613,8 +595,6 @@ public:
             the Array are uninitialized.
     */
     void set(const Array<CIMInstance>& x);
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
@@ -782,8 +762,6 @@ public:
     */
     void get(CIMObject& x) const;
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     /**
         Gets the value of the CIMValue.  The caller should first verify that
         the value is of the expected type and is not null.  The behavior is
@@ -793,8 +771,6 @@ public:
             output parameter.
     */
     void get(CIMInstance& x) const;
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
     /**
         Gets the value of the CIMValue.  The caller should first verify that
@@ -956,8 +932,6 @@ public:
     */
     void get(Array<CIMObject>& x) const;
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     /**
         Gets the value of the CIMValue.  The caller should first verify that
         the value is of the expected type and is not null.  The behavior is
@@ -967,8 +941,6 @@ public:
             output parameter.
     */
     void get(Array<CIMInstance>& x) const;
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
     /**
         Compares with another CIMValue object for equality.

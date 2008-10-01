@@ -121,9 +121,7 @@ inline CIMType TypeOf(String*) { return CIMTYPE_STRING; }
 inline CIMType TypeOf(CIMDateTime*) { return CIMTYPE_DATETIME; }
 inline CIMType TypeOf(CIMObjectPath*) { return CIMTYPE_REFERENCE; }
 inline CIMType TypeOf(CIMObject*) { return CIMTYPE_OBJECT; }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 inline CIMType TypeOf(CIMInstance*) { return CIMTYPE_INSTANCE; }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
 inline bool IsRaw(Boolean*) { return true; }
 inline bool IsRaw(Uint8*) { return true; }
@@ -141,9 +139,7 @@ inline bool IsRaw(String*) { return false; }
 inline bool IsRaw(CIMDateTime*) { return false; }
 inline bool IsRaw(CIMObjectPath*) { return false; }
 inline bool IsRaw(CIMObject*) { return false; }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 inline bool IsRaw(CIMInstance*) { return false; }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
 template<class T>
 struct CIMValueType

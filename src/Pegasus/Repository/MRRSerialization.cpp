@@ -494,8 +494,6 @@ static int _PutValue(Buffer& out, const CIMValue& cv)
                 }
                 break;
             }
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-# ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
             {
                 Array<CIMInstance> x;
@@ -506,8 +504,6 @@ static int _PutValue(Buffer& out, const CIMValue& cv)
                     MRRSerializeInstance(out, x[i]);
                 break;
             }
-# endif /* PEGASUS_EMBEDDED_INSTANCE_SUPPORT */
-#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
         }
     }
     else
@@ -632,8 +628,6 @@ static int _PutValue(Buffer& out, const CIMValue& cv)
                 MRRSerializeInstance(out, ci);
                 break;
             }
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-# ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
             {
                 CIMInstance ci;
@@ -641,8 +635,6 @@ static int _PutValue(Buffer& out, const CIMValue& cv)
                 MRRSerializeInstance(out, ci);
                 break;
             }
-# endif /* PEGASUS_EMBEDDED_INSTANCE_SUPPORT */
-#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
         }
     }
 
@@ -1077,8 +1069,6 @@ static int _GetValue(
                 value.set(a);
                 break;
             }
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-# ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
             {
                 Array<CIMInstance> a;
@@ -1095,8 +1085,6 @@ static int _GetValue(
                 value.set(a);
                 break;
             }
-# endif /* PEGASUS_EMBEDDED_INSTANCE_SUPPORT */
-#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
             default:
                 RETURN_FAILURE;
         }
@@ -1265,8 +1253,6 @@ static int _GetValue(
                 value.set(CIMObject(x));
                 break;
             }
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-# ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
             case CIMTYPE_INSTANCE:
             {
                 CIMInstance x;
@@ -1277,8 +1263,6 @@ static int _GetValue(
                 value.set(x);
                 break;
             }
-# endif /* PEGASUS_EMBEDDED_INSTANCE_SUPPORT */
-#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
             default:
                 RETURN_FAILURE;
         }

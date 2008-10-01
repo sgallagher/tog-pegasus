@@ -174,7 +174,6 @@ void CIMQualifierList::resolve(
             throw BadQualifierType(q.getName().getString ());
         }
 
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         //----------------------------------------------------------------------
         // 3. If the qualifier is the EmbeddedInstance qualifier, then check
         // that the class specified by the qualifier exists in the namespace.
@@ -193,7 +192,6 @@ void CIMQualifierList::resolve(
                 throw BadQualifierType(embeddedInstType);
             }
         }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
         //----------------------------------------------------------------------
         // 4. Check the scope: Must be legal for this qualifier

@@ -39,10 +39,7 @@ static const char* _typeStrings[] =
 {
     "boolean", "uint8", "sint8", "uint16", "sint16", "uint32", "sint32",
     "uint64", "sint64", "real32", "real64", "char16", "string", "datetime",
-    "reference", "object"
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-    , "instance"
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    "reference", "object", "instance"
 };
 
 static const Uint32 _NUM_TYPES = sizeof(_typeStrings) / sizeof(_typeStrings[0]);

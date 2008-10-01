@@ -666,22 +666,6 @@ ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     DEFINES += -DPEGASUS_ENABLE_OBJECT_NORMALIZATION
 endif
 
-# PEP 233
-# Controls support for EmbeddedInstance properties
-# and parameters
-ifndef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-    PEGASUS_EMBEDDED_INSTANCE_SUPPORT = true
-endif
-
-ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
-    DEFINES += -DPEGASUS_EMBEDDED_INSTANCE_SUPPORT
-else
-    ifneq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), false)
-        $(error PEGASUS_EMBEDDED_INSTANCE_SUPPORT ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT)) invalid, must be true or false)
-    endif
-endif
-
-
 # Allow ExecQuery functionality to be enabled
 ifndef PEGASUS_ENABLE_EXECQUERY
     DEFINES += -DPEGASUS_DISABLE_EXECQUERY

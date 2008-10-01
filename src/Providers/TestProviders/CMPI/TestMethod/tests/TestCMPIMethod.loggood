@@ -786,6 +786,21 @@
  ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
  ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
  ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++ make_Instance: CMNewInstance
+ ++++  CMNewInstance : (CMPI_RC_OK)
+ ++++  Testing for CMPI_instanceA type
+ ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_instanceA)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMAddArg with name CMPI_instance_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_instance_array : (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of CMRelease(value.inst) : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_instance_array is of type CMPI_instanceA 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
  ++++  Testing for InvalidArray type
  ++++ Status of CMAddArg with name EmptyArray : (CMPI_RC_OK)
  ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (InvalidArray)
@@ -800,6 +815,8 @@
  ++++ (CMPI_RC_OK)
  InvokeMethod: We have 0 arguments for operation [testErrorPaths]: 
  ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++  Testing for CMPI_instance type
+ ++++ Status of CMAddArg with name EmptyInstance : (CMPI_RC_OK)
  ++++  Testing for CMPI_ref type
  ++++ Status of CMAddArg with name EmptyRef : (CMPI_RC_OK)
  ++++  Testing for CMPI_datetime type
@@ -821,6 +838,16 @@
  InvokeMethod: We have 0 arguments for operation [testSimpleTypes]: 
  ++++  make_ObjectPath: CMNewObjectPath
  ++++  CMNewObjectPath : (CMPI_RC_OK)
+ ++++ Status of CMNewArgs : (CMPI_RC_OK)
+ ++++ make_Instance: CMNewInstance
+ ++++  CMNewInstance : (CMPI_RC_OK)
+ ++++  Testing for CMPI_instance type
+ ++++ Status of CMAddArg with name CMPI_instance : (CMPI_RC_OK)
+ ++++ Status of CMGetArg with name CMPI_instance : (CMPI_RC_OK)
+ ++++ Status of CMRelease(value.inst) : (CMPI_RC_OK)
+ ++++  CMGetArg : Name - CMPI_instance is of type CMPI_instance 
+ ++++ Status of CMGetArg : (CMPI_RC_OK)
+ ++++ Status of CMRelease(args_ptr) : (CMPI_RC_OK)
  ++++ Status of CMNewArgs : (CMPI_RC_OK)
  ++++  Testing for CMPI_ref type
  ++++ Status of CMAddArg with name CMPI_ref : (CMPI_RC_OK)
@@ -865,6 +892,22 @@
  ++++ Status of CMGetArrayType of Array: (CMPI_RC_OK)
  ++++ Status of CMRelease(value.dateTime) : (CMPI_RC_OK)
  ++++  Cloning of array of type CMPI_dateTime is Successful
+ ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
+ ++++ Status of CMRelease(arrClone) : (CMPI_RC_OK)
+ ++++ make_Instance: CMNewInstance
+ ++++  CMNewInstance : (CMPI_RC_OK)
+ ++++  Testing for CMPI_instance type
+ ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type (CMPI_instance)
+ ++++ Status of CMSetArrayElementAt : (CMPI_RC_OK)
+ ++++ Status of Cloning CMPIArray : (CMPI_RC_OK) of type (CMPI_instance)
+ ++++ Status of CMGetArrayCount of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayCount of Cloned Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayElementAt of Cloned Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayType of Array: (CMPI_RC_OK)
+ ++++ Status of CMGetArrayType of Array: (CMPI_RC_OK)
+ ++++ Status of CMRelease(value.inst) : (CMPI_RC_OK)
+ ++++  Cloning of array of type CMPI_instance is Successful
  ++++ Status of CMRelease(arr) : (CMPI_RC_OK)
  ++++ Status of CMRelease(arrClone) : (CMPI_RC_OK)
  ++++  Testing for CMPI_args type
@@ -933,4 +976,124 @@
  ++++ Status of creation of CMPIArray : (CMPI_RC_OK) of type CMPI_uint32
  ++++ Error Status of CMSetArrayElementAt with NULL value: (CMPI_RC_ERR_INVALID_PARAMETER)
  ++++ Error Status of CMSetArrayElementAt with wrong position: (CMPI_RC_ERR_NO_SUCH_PROPERTY)
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 0 arguments for operation [returnInstance]: 
+ Calling CMNewObjectPath for TestCMPI_Method
+ ---- (rc:CMPI_RC_OK)
+ Calling CMNewInstance 
+ ---- (rc:CMPI_RC_OK)
+ Calling CMGetObjectPath
+ ---- (rc:CMPI_RC_OK)
+ ---- Object path is test/TestProvider:TestCMPI_Instance.ElementName="ObjPath" (rc:CMPI_RC_OK)
+ Calling CMNewObjectPath for TestCMPI_Instance
+ ---- (CMPI_RC_OK)
+ ---- Object path: root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath" (rc:CMPI_RC_OK)
+ Calling CMSetObjectPath with object path: root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath"
+ ---- (CMPI_RC_OK)
+ Calling CMGetObjectPath
+ ---- (rc:CMPI_RC_OK)
+ ---- Object path is root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath" (rc:CMPI_RC_OK)
+ ++++ Calling CMReturnData+Done on returnInstance operation
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 1 arguments for operation [processEmbeddedInstance]: 
+ Calling CMGetArgAt
+ #0: inputInstance (type: 1000)
+ ++++ Creating instance for processEmbeddedInstance
+ Calling CMNewObjectPath for TestCMPI_Method
+ ---- (rc:CMPI_RC_OK)
+ Calling CMNewInstance 
+ ---- (rc:CMPI_RC_OK)
+ Calling CMGetObjectPath
+ ---- (rc:CMPI_RC_OK)
+ ---- Object path is test/TestProvider:TestCMPI_Instance.ElementName="ObjPath" (rc:CMPI_RC_OK)
+ Calling CMNewObjectPath for TestCMPI_Instance
+ ---- (CMPI_RC_OK)
+ ---- Object path: root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath" (rc:CMPI_RC_OK)
+ Calling CMSetObjectPath with object path: root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath"
+ ---- (CMPI_RC_OK)
+ Calling CMGetObjectPath
+ ---- (rc:CMPI_RC_OK)
+ ---- Object path is root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath" (rc:CMPI_RC_OK)
+ ++++ Getting inputInstance arg
+ ++++ (CMPI_RC_OK)
+ ++++ Cloning inputInstance arg
+ ++++ (CMPI_RC_OK)
+ ++++ Setting outputInstance arg
+ ++++ (CMPI_RC_OK)
+ ++++ Calling CMReturnData on processEmbeddedInstance operation
+ ++++ Calling CMReturnDone on processEmbeddedInstance operation
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 0 arguments for operation [returnInstance]: 
+ Calling CMNewObjectPath for TestCMPI_Method
+ ---- (rc:CMPI_RC_OK)
+ Calling CMNewInstance 
+ ---- (rc:CMPI_RC_OK)
+ Calling CMGetObjectPath
+ ---- (rc:CMPI_RC_OK)
+ ---- Object path is test/TestProvider:TestCMPI_Instance.ElementName="ObjPath" (rc:CMPI_RC_OK)
+ Calling CMNewObjectPath for TestCMPI_Instance
+ ---- (CMPI_RC_OK)
+ ---- Object path: root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath" (rc:CMPI_RC_OK)
+ Calling CMSetObjectPath with object path: root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath"
+ ---- (CMPI_RC_OK)
+ Calling CMGetObjectPath
+ ---- (rc:CMPI_RC_OK)
+ ---- Object path is root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath" (rc:CMPI_RC_OK)
+ ++++ Calling CMReturnData+Done on returnInstance operation
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 1 arguments for operation [processArrayEmbeddedInstance]: 
+ Calling CMGetArgAt
+ #0: inputInstances (type: 3000)
+ ++++ Creating instance for processArryEmbeddedInstance
+ Calling CMNewObjectPath for TestCMPI_Method
+ ---- (rc:CMPI_RC_OK)
+ Calling CMNewInstance 
+ ---- (rc:CMPI_RC_OK)
+ Calling CMGetObjectPath
+ ---- (rc:CMPI_RC_OK)
+ ---- Object path is test/TestProvider:TestCMPI_Instance.ElementName="ObjPath" (rc:CMPI_RC_OK)
+ Calling CMNewObjectPath for TestCMPI_Instance
+ ---- (CMPI_RC_OK)
+ ---- Object path: root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath" (rc:CMPI_RC_OK)
+ Calling CMSetObjectPath with object path: root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath"
+ ---- (CMPI_RC_OK)
+ Calling CMGetObjectPath
+ ---- (rc:CMPI_RC_OK)
+ ---- Object path is root/cimv2:TestCMPI_Instance.ElementName="Fake_ObjPath" (rc:CMPI_RC_OK)
+ ++++ Getting inputInstance arg
+ ++++ (CMPI_RC_OK)
+ ++++ Getting Array elements.
+ ++++ 1 (CMPI_RC_OK)
+ ++++ 2 (CMPI_RC_OK)
+ ++++ 3 (CMPI_RC_OK)
+ ++++ Cloning input arg array elements
+ ++++ 1 (CMPI_RC_OK)
+ ++++ 2 (CMPI_RC_OK)
+ ++++ 3 (CMPI_RC_OK)
+ ++++ Creating output  arg array elements
+ ++++ 1 (CMPI_RC_OK)
+ ++++ 2 (CMPI_RC_OK)
+ ++++ 3 (CMPI_RC_OK)
+ ++++ Setting outputInstance arg
+ ++++ (CMPI_RC_OK)
+ ++++ Setting outputObject arg
+ ++++ (CMPI_RC_OK)
+ ++++ Calling CMReturnData on processArrayEmbeddedInstance operation
+ ++++ Calling CMReturnDone on processArrayEmbeddedInstance operation
  --- TestCMPI_Method CMPI InvokeMethod() exited

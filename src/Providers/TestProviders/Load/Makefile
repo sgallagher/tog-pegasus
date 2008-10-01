@@ -174,7 +174,6 @@ ifdef PEGASUS_BUILD_INTEROP
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" TestServerProfileR.mof
 endif
 
-ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
 	@ $(ECHO) +++++ EmbeddedInstanceTest provider class definitions into $(EI_DYNAMIC_TEST_NAMESPACE) and $(EI_STATIC_TEST_NAMESPACE) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(EI_DYNAMIC_TEST_NAMESPACE) $(EI_SCHEMA_DIR)/Core_Qualifiers.mof
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" CIMError.mof
@@ -191,7 +190,6 @@ ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" EmbeddedInstanceProviderSchema.mof
 
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" EmbeddedInstanceProviderR.mof
-endif
 # create remote namespace for Remote CMPI test providers
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
 	@ echo +++++ Creating remote namespace ...
@@ -288,7 +286,6 @@ ifdef PEGASUS_BUILD_INTEROP
 	@ cimmof "-n$(INTEROPNS)" TestServerProfileR.mof
 endif
 
-ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
 	@ $(ECHO) +++++ EmbeddedInstanceTest provider class definitions into $(EI_DYNAMIC_TEST_NAMESPACE) and $(EI_STATIC_TEST_NAMESPACE) namespace ...
 	@ cimmof -n$(EI_DYNAMIC_TEST_NAMESPACE) $(EI_SCHEMA_DIR)/Core_Qualifiers.mof
 	@ cimmof "-I$(EI_SCHEMA_DIR)" "-n$(EI_DYNAMIC_TEST_NAMESPACE)" "-aE" CIMError.mof
@@ -305,7 +302,6 @@ ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
 	@ cimmof "-I$(EI_SCHEMA_DIR)" "-n$(EI_STATIC_TEST_NAMESPACE)" "-aE" EmbeddedInstanceProviderSchema.mof
 
 	@ cimmof "-n$(INTEROPNS)" EmbeddedInstanceProviderR.mof
-endif
 # create remote namespace for Remote CMPI test providers
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
 	@ echo +++++ Creating remote namespace ...
@@ -345,9 +341,7 @@ ifndef PEGASUS_DISABLE_PROV_USERCTXT
 	cimprovider -r -m UserContextCIMServerModule
 endif
 
-ifeq ($(PEGASUS_EMBEDDED_INSTANCE_SUPPORT), true)
 	cimprovider -r -m EmbeddedInstanceProviderModule
-endif
 
 depend:
 

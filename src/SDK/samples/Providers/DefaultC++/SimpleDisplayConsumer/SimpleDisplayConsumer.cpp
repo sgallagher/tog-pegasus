@@ -363,7 +363,6 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     break;
                 }
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                 case CIMTYPE_INSTANCE:
                 {
                     CIMInstance propertyValueInstance;
@@ -383,7 +382,6 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     break;
                 }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
                 case CIMTYPE_REFERENCE:
                 {
                     //

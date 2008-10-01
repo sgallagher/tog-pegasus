@@ -675,7 +675,6 @@ test08 (CIMClient & client)
  * Method Provider. It first invokes the returnInstance() method to retrieve
  * an instance that can be used 
  */
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 void test09 (CIMClient & client)
 {
   CIMObjectPath instanceName;
@@ -754,7 +753,6 @@ void test09 (CIMClient & client)
     PEGASUS_TEST_ASSERT(outputProp.getValue() == inputProp.getValue());
   }
 }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
 void test10 (CIMClient &client)
 {
@@ -957,15 +955,12 @@ void _test (CIMClient & client)
     test11 (client);
     test12 (client);
     test13 (client);
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     // Don't run against the remote-namespace, not yet suppoted. 
     if (providerNamespace == "test/TestProvider")
     {
         test09 (client); // Embedded Instance Test
         test14(client); // Embedded Instance Array Test
     }
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
-    
   }
   catch (Exception & e)
   {

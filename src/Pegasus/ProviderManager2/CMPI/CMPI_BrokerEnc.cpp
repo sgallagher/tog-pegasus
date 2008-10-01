@@ -113,10 +113,8 @@ static String typeToString(CIMType t)
             return "reference";
         case CIMTYPE_OBJECT:
             return "object";
-#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         case CIMTYPE_INSTANCE:
             return "instance";
-#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
         default:
             return "???";
     }

@@ -33,8 +33,9 @@ include $(PEGASUS_ROOT)/mak/config.mak
 DIR = Pegasus/ProviderManager2/Default/tests/ResponseHandler
 
 LIBRARIES = \
-    pegprovider \
     pegprovidermanager \
+    pegprovider \
+    pegclient \
     pegprm \
     pegconfig \
     pegcommon

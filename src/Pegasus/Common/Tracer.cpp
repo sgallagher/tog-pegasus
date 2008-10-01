@@ -719,11 +719,11 @@ Uint32 Tracer::setTraceFile(const char* traceFile)
     }
     else
     {
-        return 0;
+        return 1;
     }
 
 
-    return 1;
+    return 0;
 
 }
 

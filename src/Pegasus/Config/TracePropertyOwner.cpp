@@ -39,6 +39,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/StringConversion.h>
@@ -232,9 +233,18 @@ void TracePropertyOwner::initialize()
                 properties[i].externallyVisible;
 
             // set the default value in the Trace
-            Tracer::setTraceFile(ConfigManager::getHomedPath(
+            Uint32 retCode = Tracer::setTraceFile(ConfigManager::getHomedPath(
                 _traceFilePath->defaultValue).getCString());
-
+            if ( retCode == 1 )
+            {
+                Logger::put_l(
+                    Logger::ERROR_LOG,System::CIMSERVER,Logger::WARNING,
+                    MessageLoaderParms(
+                    "Config.TracePropertyOwner.UNABLE_TO_WRITE_TRACE_FILE",
+                    "Unable to write to trace file $0",
+                    _traceFilePath->defaultValue));
+                _traceFilePath->currentValue.clear();
+            }
         }
         else if (String::equalNoCase(
                      properties[i].propertyName, "traceFacility"))
@@ -406,8 +416,18 @@ void TracePropertyOwner::initCurrentValue(
     {
         _traceFilePath->currentValue = value;
         
-        Tracer::setTraceFile(ConfigManager::getHomedPath(
+        Uint32 retCode = Tracer::setTraceFile(ConfigManager::getHomedPath(
             _traceFilePath->currentValue).getCString());
+        if ( retCode == 1 )
+        {
+            Logger::put_l(
+                Logger::ERROR_LOG,System::CIMSERVER,Logger::WARNING,
+                MessageLoaderParms(
+                "Config.TracePropertyOwner.UNABLE_TO_WRITE_TRACE_FILE",
+                "Unable to write to trace file $0",
+                _traceFilePath->currentValue));
+            _traceFilePath->currentValue.clear();
+        }
     }
     else if (String::equalNoCase(_traceFacility->propertyName, name))
     {

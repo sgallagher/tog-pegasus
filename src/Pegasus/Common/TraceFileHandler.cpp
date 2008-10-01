@@ -112,9 +112,11 @@ void TraceFileHandler::_reConfigure()
     _baseFileName = 0;
 #endif
 
-    if (!(const char*)Tracer::_getInstance() ->_traceFile.getCString())
+    if (Tracer::_getInstance() ->_traceFile.size() == 0)
     {
         // if the file name is empty/NULL pointer do nothing
+        // wait for a new trace file.
+        _configHasChanged=false;
         return;
     }
 
@@ -134,6 +136,8 @@ void TraceFileHandler::_reConfigure()
         // return with no message. _openFile() already wrote one.
         free(_fileName);
         _fileName = 0;
+        // wait for a new trace file
+        _configHasChanged=false;
         return;
     }
 

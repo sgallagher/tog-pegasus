@@ -36,6 +36,12 @@ ROOT = .
 include $(ROOT)/env_var.status
 include $(ROOT)/mak/config.mak
 
+## Include mu in the clean structure
+## This required because mu is not part of the hiearchial build
+##structure.  It is built with the buildmu target.  Adding this
+## variable allows it to be cleaned with the normal clean target.
+RECURSE_EXTRA_CLEAN_DIRS += src/utils/mu
+
 # This is a recurse make file
 # Defines subdirectories to go to recursively
 
@@ -225,7 +231,10 @@ stresstests:
 #
 #---------------------
 # buildmu target: build mu the make utility that among other things
-#                 includes depend
+# includes a depend implementation. This is a separate target because
+# it must be build before anything else and before the depend target is used
+# on some platforms. Note that mu is not used on all platforms.
+# 
 buildmu: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/mu -f Makefile
 

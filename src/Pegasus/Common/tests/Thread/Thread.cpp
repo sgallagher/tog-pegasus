@@ -46,40 +46,31 @@
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
-//#include <malloc>
-
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 Boolean die = false;
-Boolean alwaysTrue = true;
 
-ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm);
-ThreadReturnType PEGASUS_THREAD_CDECL writing_thread(void *parm);
-ThreadReturnType PEGASUS_THREAD_CDECL test1_thread( void* parm );
-ThreadReturnType PEGASUS_THREAD_CDECL test2_thread( void* parm );
 //ThreadReturnType PEGASUS_THREAD_CDECL test3_thread( void* parm );
-ThreadReturnType PEGASUS_THREAD_CDECL testdeadlock_thread( void* parm );
 
-#define  THREAD_NR 500
-AtomicInt read_count ;
-AtomicInt write_count ;
 AtomicInt testval1(0);
+
 Boolean verbose = false;
 
-struct TestThreadData
-{
-    char chars[2];
-};
-
+////////////////////////////////////////////////////////////////////
+//
+// testDeadlocThread()
+// 
+// ////////////////////////////////////////////////////////////////
+ThreadReturnType PEGASUS_THREAD_CDECL testDeadlockThread( void* parm );
 static Mutex deadLockSemaphore(Mutex::NON_RECURSIVE);
 static Condition deadLockCondition;
 
 void testCancelDeadLockedThread(const char * commandName)
 {
     // Test deadlocked thread handling
-    Thread t(testdeadlock_thread, 0, false);
+    Thread t(testDeadlockThread, 0, false);
     t.run();
     // give the deadlock thread time to actually lock and wait for condition
     // signal
@@ -103,36 +94,100 @@ void testCancelDeadLockedThread(const char * commandName)
 }
 
 
-int main(int argc, char **argv)
-{
-    int i;
-    verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
-    // cout << argv[0] << endl;
+// The following thread trys to get the lock on an already reserved semaphore
+// means the thread will just deadlock and wait
+ThreadReturnType PEGASUS_THREAD_CDECL testDeadlockThread( void* parm )
+{   
+    // Lock the semaphore the deadlocked thread will wait for
+    if (verbose) cout << "DeadLock Thread going to lock Semaphore" << endl;
+    deadLockSemaphore.lock();
+    if (verbose) cout << "DeadLock Thread waiting for Condition" << endl;
+    deadLockCondition.wait(deadLockSemaphore);
+    if (verbose) cout << "DeadLock Thread got Semaphore free signal" << endl;
+    if (verbose) cout << "This should not ever happen..." << endl;
+    abort();
+    return ThreadReturnType(52);
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Test run, join, sleep,type return for a single thread
+ThreadReturnType PEGASUS_THREAD_CDECL test1_thread( void* parm );
+
+void testOneThread()
+{    
+    if (verbose)
     {
-        // Test return code
-        Thread t( test1_thread, 0, false );
-        t.run();
-        t.join();
-        if( t.get_exit() != (ThreadReturnType)32 )
-        {
-            cerr << "Error test return code" << endl;
-            return 1;
-        }
+        cout << "testOneThread" << endl;
+    }
+    // Test return code
+    Thread t( test1_thread, 0, false );
+    t.run();
+    if (t.run()!=PEGASUS_THREAD_OK)
+    {
+        cerr << "Error. Thread Run returned Error "
+            << endl;
+        abort();
     }
 
+    t.join();
+    if( t.get_exit() != (ThreadReturnType)32 )
     {
-    // There shouldn't be a memory leak here
+        cerr << "Error test return code mismatch" << endl;
+        abort();
+    }
+    // TODO: Programatically check
+    //Threads::sleep( 10000 );
+}
+
+// Thread execution function for TestOneThread()
+ThreadReturnType PEGASUS_THREAD_CDECL test1_thread( void* parm )
+{
+    Threads::sleep( 1000 );
+    return ThreadReturnType(32);
+}
+
+///////////////////////////////////////////////////////////////////
+// 
+// Test multiple threads including TSD
+// 
+///////////////////////////////////////////////////
+
+// define number of threads to create
+#define  THREAD_NR 500
+
+struct TestThreadData
+{
+    char chars[2];
+    Uint32 lInteger;
+    Array<Uint32> lArray;
+};
+
+// thread function definition for testMultipleThreads
+ThreadReturnType PEGASUS_THREAD_CDECL testMultipleThread( void* parm );
+
+void testMultipleThreads()
+{
+    if (verbose)
+    {
+        cout << "testMultipleThreads" << endl;
+    }
+    // Test creating THREAD_NR Threads with
+    // thread specific data.
     Thread* threads[THREAD_NR];
     int max_threads = THREAD_NR;    
-    for( i = 0; i < THREAD_NR; i++ )
+    for( int i = 0; i < THREAD_NR; i++ )
     {
-        threads[i] = new Thread( test2_thread, 0, false );
+        threads[i] = new Thread( testMultipleThread, 0, false );
         TestThreadData* data = NULL;
         try {
             data = new struct TestThreadData;
-        } catch (bad_alloc&)
+        }
+        // if there was a bad allocation, test with reduced
+        // number of threads
+        catch (bad_alloc&)
         {
-            cerr << "Not enough memory. Changing the amount of threads used."
+            cerr << "Not enough memory. Reducing Number of threads used to "
+                 << i << "."
                 << endl;
             max_threads = i;
             delete threads[i];
@@ -140,68 +195,129 @@ int main(int argc, char **argv)
         }
         data->chars[0] = 'B';
         data->chars[1] = 'E';
+    data->lInteger = 3456;
+        data->lArray.append(1);
+        data->lArray.append(9999);
+        
         threads[i]->put_tsd( "test2", thread_data::default_delete, 2, data );
         if (threads[i]->run()!=PEGASUS_THREAD_OK)
         {
-            cerr << "Not enough memory. Changing the amount of threads used."
+            cerr << "Not enough memory. Reducing Number of threads used to "
+                << i << "."
                 << endl;
             max_threads = i;
             delete threads[i];
             break;
         }
     }
-    for( i = 0; i < max_threads; i++ )
-        threads[i]->join();
-    for( i = 0; i < max_threads; i++ )
-        delete threads[i];
-    // TODO: Programatically check
-    //Threads::sleep( 10000 );
-    }
-
-    // Check for a thread deadlock handling Bug
-    testCancelDeadLockedThread(argv[0]);
-
-    ReadWriteSem *rw = new ReadWriteSem();
-    Thread *readers[40];
-    Thread *writers[10];
-    
-    for(i = 0; i < 40; i++)
+    for( int i = 0; i < max_threads; i++ )
     {
-       readers[i] = new Thread(reading_thread, rw, false);
+            threads[i]->join();
+            if( threads[i]->get_exit() != (ThreadReturnType)32 )
+            {
+                cerr << "Error test return code mismatch" << endl;
+                exit (1);
+            }
+    }
+    for( int i = 0; i < max_threads; i++ )
+        delete threads[i];
+}
+
+// Thread function for testMultipleThreads. simply tests the 
+// thread local data validity and derefences the data
+//
+ThreadReturnType PEGASUS_THREAD_CDECL testMultipleThread( void* parm )
+{
+    Thread* thread = (Thread*)parm;
+    TestThreadData* data = (TestThreadData*)thread->reference_tsd("test2");
+    PEGASUS_TEST_ASSERT (data != NULL);
+
+    PEGASUS_TEST_ASSERT (data->chars[0] == 'B');
+    PEGASUS_TEST_ASSERT (data->chars[1] == 'E');
+    PEGASUS_TEST_ASSERT (data->lInteger == 3456);
+    PEGASUS_TEST_ASSERT (data->lArray.size() == 2);
+    PEGASUS_TEST_ASSERT (data->lArray[0] == 1);
+    PEGASUS_TEST_ASSERT (data->lArray[1] == 9999);
+
+    thread->dereference_tsd();  
+
+    return ThreadReturnType(32);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//
+//  testReadWriteThreads
+// 
+/////////////////////////////////////////////////////////////////////////
+
+AtomicInt read_count ;
+AtomicInt write_count ;
+
+#define READER_COUNT 40
+#define WRITER_COUNT 10
+
+ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm);
+ThreadReturnType PEGASUS_THREAD_CDECL writing_thread(void *parm);
+
+void testReadWriteThreads()
+{
+    if (verbose)
+    {
+        cout << "testReadWriteThreads" << endl;
+    }
+    ReadWriteSem *rwSem = new ReadWriteSem();
+    Thread *readers[READER_COUNT];
+    Thread *writers[WRITER_COUNT];
+    
+    for(int i = 0; i < READER_COUNT; i++)
+    {
+       readers[i] = new Thread(reading_thread, rwSem, false);
        readers[i]->run();
     }
     
-    for( i = 0; i < 10; i++)
+    for( int i = 0; i < WRITER_COUNT; i++)
     {
-       writers[i] = new Thread(writing_thread, rw, false);
+       writers[i] = new Thread(writing_thread, rwSem, false);
        writers[i]->run();
     }
     Threads::sleep(20000); 
     die = true;
    
-    for(i = 0; i < 40; i++)
+    for( int i = 0; i < 40; i++)
     {
       readers[i]->join();
        delete readers[i];
     }
  
-    for(i = 0; i < 10; i++)
+    for( int i = 0; i < 10; i++)
     {
        writers[i]->join();
        delete writers[i];
     }
  
-    delete rw;
+    delete rwSem;
     if (verbose)
     {
-        cout << endl << "read operations: " << read_count.get() << endl;
-        cout << "write operations: " << write_count.get() << endl;
+        cout << endl 
+             << "read operations: " << read_count.get() << endl
+             << "write operations: " << write_count.get() << endl;
     }
-    
-    cout << argv[0] << " +++++ passed all tests" << endl;
-    return(0);
+}
+void exit_one(void *parm)
+{
+   
+   Thread *my_handle = (Thread *)parm;
+   if (verbose)
+       cout << "1";
 }
 
+void exit_two(void *parm)
+{
+   
+   Thread *my_handle = (Thread *)parm;
+   if (verbose)
+       cout << "2";
+}
 
 void deref(void *parm)
 {
@@ -219,19 +335,6 @@ void deref(void *parm)
    return;
 }
 
-void exit_one(void *parm)
-{
-   
-   Thread *my_handle = (Thread *)parm;
-   if (verbose) cout << "1";
-}
-
-void exit_two(void *parm)
-{
-   
-   Thread *my_handle = (Thread *)parm;
-   if (verbose) cout << "2";
-}
 
 ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
 {
@@ -240,7 +343,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
    
    ThreadType myself = Threads::self();
    
-   if (verbose) cout << "r";
+   if (verbose)
+       cout << "r";
    
    const char *keys[] = 
       {
@@ -281,7 +385,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       try 
       {
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-     my_handle->put_tsd(keys[i % 4], free, 256, my_storage);
+         my_handle->put_tsd(keys[i % 4], free, 256, my_storage);
 #else
          my_handle->put_tsd(keys[i % 4], ::operator delete,
                             256, my_storage);              
@@ -305,7 +409,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       }
       
       read_count++;
-      if (verbose) cout << "+";
+      //if (verbose)
+      //    cout << "+";
       my_handle->sleep(1);
 
       try
@@ -373,7 +478,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL writing_thread(void *parm)
    
    ThreadType myself = Threads::self();
    
-   if (verbose) cout << "w";
+   if (verbose)
+       cout << "w";
    
    while(die == false) 
    {
@@ -387,7 +493,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL writing_thread(void *parm)
          abort();
       }
       write_count++;
-      if (verbose) cout << "*";
+      if (verbose)
+          cout << "*";
       my_handle->sleep(1);
       try 
       {
@@ -403,24 +510,27 @@ ThreadReturnType PEGASUS_THREAD_CDECL writing_thread(void *parm)
    return ThreadReturnType(0);
 }
 
-ThreadReturnType PEGASUS_THREAD_CDECL test1_thread( void* parm )
+/////////////////////////////////////////////////////////////////////////
+//
+// Main
+// 
+// //////////////////////////////////////////////////////////////////////
+int main(int argc, char **argv)
 {
-    Threads::sleep( 1000 );
-    return ThreadReturnType(32);
-}
+    int i;
+    verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
 
-ThreadReturnType PEGASUS_THREAD_CDECL test2_thread( void* parm )
-{
-    Thread* thread = (Thread*)parm;
-    TestThreadData* data = (TestThreadData*)thread->reference_tsd("test2");
-    PEGASUS_TEST_ASSERT (data != NULL);
+    testOneThread();
 
-    PEGASUS_TEST_ASSERT (data->chars[0] == 'B');
-    PEGASUS_TEST_ASSERT (data->chars[1] == 'E');
+    testMultipleThreads();
 
-    thread->dereference_tsd();  
+    // Check for a thread deadlock handling Bug
+    testCancelDeadLockedThread(argv[0]);
 
-    return ThreadReturnType(32);
+    testReadWriteThreads();
+    
+    cout << argv[0] << " +++++ passed all tests" << endl;
+    return(0);
 }
 
 void test3_thread_cleanup1(void*)
@@ -429,17 +539,3 @@ void test3_thread_cleanup1(void*)
 }
 
 
-// The following thread try to get the lock on an already reserved semaphore
-// means the thread will just deadlock and wait
-ThreadReturnType PEGASUS_THREAD_CDECL testdeadlock_thread( void* parm )
-{   
-    // Lock the semaphore the deadlocked thread will wait for
-    if (verbose) cout << "DeadLock Thread going to lock Semaphore" << endl;
-    deadLockSemaphore.lock();
-    if (verbose) cout << "DeadLock Thread waiting for Condition" << endl;
-    deadLockCondition.wait(deadLockSemaphore);
-    if (verbose) cout << "DeadLock Thread got Semaphore free signal" << endl;
-    if (verbose) cout << "This should not ever happen..." << endl;
-    abort();
-    return ThreadReturnType(52);
-}

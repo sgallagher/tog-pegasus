@@ -122,9 +122,10 @@ void testloopDestructAsThreadCompletes()
     {
         int done = 0;
         const int limit = 10000;
+        const int display = limit / 10;
         while (done < limit)
         {
-            if (verbose || (done % 1000 == 0))
+            if (verbose && (done % display == 0))
             {
                 printf("testDestructAsThreadCompletes: iteration %d of %d\n",
                     done+1, limit);
@@ -278,14 +279,18 @@ void testHighWorkload()
 
         for (Uint32 i = 0; i < 50; i++)
         {
-        ThreadStatus rc = PEGASUS_THREAD_OK;
+            ThreadStatus rc = PEGASUS_THREAD_OK;
             while ( (rc =threadPool->allocate_and_awaken(
                 &counter, funcIncrementCounter)) != PEGASUS_THREAD_OK)
             {
-        if (rc == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+                if (rc == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+                {
                     Threads::yield();
-        else
-            throw Exception("Coudl not allocate a thread for counter.");    
+                }
+                else
+                {
+                    throw Exception("Could not allocate a thread for counter");
+                }
             }
         }
 
@@ -334,16 +339,20 @@ void testBlockingThread()
         struct timeval deallocateWait = { 5, 0 };
         ThreadPool threadPool(0, "test blocking", 0, 6, deallocateWait);
         Semaphore blocking(0);
-    ThreadStatus rt = PEGASUS_THREAD_OK;
+        ThreadStatus rt = PEGASUS_THREAD_OK;
         while ( (rt =threadPool.allocate_and_awaken(
             (void*)16, funcSleepSpecifiedMilliseconds, &blocking)) !=
                 PEGASUS_THREAD_OK)
         {
-      if (rt == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-            Threads::yield();
-      else
-       throw Exception("Could not allocate thread for"
-               " funcSleepSpecifiedMilliseconds function.");
+            if (rt == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+            {
+                    Threads::yield();
+            }
+            else
+            {
+                    throw Exception("Could not allocate thread for"
+                        " funcSleepSpecifiedMilliseconds function.");
+            }
         }
 
         blocking.wait();

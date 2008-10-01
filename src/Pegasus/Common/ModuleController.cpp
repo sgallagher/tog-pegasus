@@ -34,7 +34,6 @@
 #include "ModuleController.h"
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/IPCExceptions.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -250,7 +249,7 @@ void ModuleController::verify_handle(RegisteredModuleHandle* handle)
         module = _modules.next_of(module);
     }
 
-    throw IPCException(Threads::self());
+    PEGASUS_ASSERT(0);
 }
 
 // given a name, find a service's queue id

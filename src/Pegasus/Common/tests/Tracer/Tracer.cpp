@@ -69,8 +69,8 @@ CString FILE5;
 #define VAR_TEST_MESSAGE "Variable length part of message"
 
 
-// 
-// Reads the last trace message from a given trace file and compares the 
+//
+// Reads the last trace message from a given trace file and compares the
 // given string with the string read from file
 //
 // return 0 if the strings match
@@ -122,7 +122,6 @@ Uint32 compare(const char* fileName, const char* expectedMessage)
     if (retCode)
         cout << "Compare Error: expectedMessage= \n\"" << expectedMessage <<
             "\". actualMessage= \n\"" << actualMessage.get() << "\"" << endl;
-    
 
     return retCode;
 }
@@ -133,7 +132,7 @@ Uint32 compare(const char* fileName, const char* expectedMessage)
 // Should not log a trace message
 //
 // Type:
-// Negative 
+// Negative
 //
 // return 0 if the test passed
 // return 1 if the test failed
@@ -154,7 +153,7 @@ Uint32 test1()
 // Should not log a trace message
 //
 // Type:
-// Negative 
+// Negative
 //
 // return 0 if the test passed
 // return 1 if the test failed
@@ -177,7 +176,7 @@ Uint32 test2()
 // Should not log a trace message
 //
 // Type:
-// Negative 
+// Negative
 //
 // return 0 if the test passed
 // return 1 if the test failed
@@ -200,7 +199,7 @@ Uint32 test3()
 // should log a trace message
 //
 // Type:
-// Positive 
+// Positive
 //
 // return 0 if the test passed
 // return 1 if the test failed
@@ -220,7 +219,7 @@ Uint32 test4()
 // should not log a trace message
 //
 // Type:
-// Negative 
+// Negative
 //
 // return 0 if the test passed
 // return 1 if the test failed
@@ -238,11 +237,11 @@ Uint32 test5()
 
 //
 // Description:
-// Trace level is set to LEVEL 2 and logs a LEVEL 4 message 
+// Trace level is set to LEVEL 2 and logs a LEVEL 4 message
 // should not log a trace message
 //
 // Type:
-// Negative 
+// Negative
 //
 // return 0 if the test passed
 // return 1 if the test failed
@@ -268,7 +267,7 @@ Uint32 test6()
 // should not log a trace message
 //
 // Type:
-// Negative 
+// Negative
 //
 // return 0 if the test passed
 // return 1 if the test failed
@@ -284,10 +283,10 @@ Uint32 test7()
 
 //
 // Description:
-// Changes the trace file to FILE2 
+// Changes the trace file to FILE2
 //
 // Type:
-// Positive 
+// Positive
 //
 // return 0 if the test passed
 // return 1 if the test failed
@@ -310,7 +309,7 @@ Uint32 test9()
 // should not log a trace message
 //
 // Type:
-// Negative 
+// Negative
 //
 // return 0 if the test passed
 // return 1 if the test failed
@@ -355,7 +354,7 @@ Uint32 test11()
 // should log a trace message
 //
 // Type:
-// Positive 
+// Positive
 //
 // return 0 if the test passed
 // return 1 if the test failed
@@ -377,7 +376,7 @@ Uint32 test12()
 // should log a trace message
 //
 // Type:
-// Positive 
+// Positive
 //
 // return 0 if the test passed
 // return 1 if the test failed
@@ -399,7 +398,7 @@ Uint32 test13()
 // should log a trace message
 //
 // Type:
-// Positive 
+// Positive
 //
 // return 0 if the test passed
 // return 1 if the test failed
@@ -422,7 +421,7 @@ Uint32 test14()
 // should log a trace message
 //
 // Type:
-// Positive 
+// Positive
 //
 // return 0 if the test passed
 // return 1 if the test failed
@@ -444,7 +443,7 @@ Uint32 test15()
 // should log a trace message
 //
 // Type:
-// Positive 
+// Positive
 //
 // return 0 if the test passed
 // return 1 if the test failed
@@ -465,7 +464,7 @@ Uint32 test15a()
 // should log a trace message
 //
 // Type:
-// Positive 
+// Positive
 //
 // return 0 if the test passed
 // return 1 if the test failed
@@ -487,7 +486,7 @@ Uint32 test15b()
 // should not log a trace message
 //
 // Type:
-// Negative 
+// Negative
 //
 // return 0 if the test passed
 // return 1 if the test failed
@@ -498,7 +497,7 @@ Uint32 test16()
     const char* METHOD_NAME = "test16";
     Tracer::setTraceComponents("ALL");
     Tracer::setTraceLevel(PEGASUS_TRACER_LEVEL5);
-    PEG_TRACE_CSTRING(TRC_CONFIG,Tracer::LEVEL4,"test16 - check value");    
+    PEG_TRACE_CSTRING(TRC_CONFIG,Tracer::LEVEL4,"test16 - check value");
     Tracer::setTraceComponents("");
     Tracer::setTraceLevel(Tracer::LEVEL4);
     PEG_TRACE((TRC_CONFIG,Tracer::LEVEL4,"%s %s",
@@ -512,7 +511,7 @@ Uint32 test16()
 // should log a trace message
 //
 // Type:
-// Negative 
+// Negative
 //
 // return 0 if the test passed
 // return 1 if the test failed
@@ -523,7 +522,7 @@ Uint32 test17()
     const char* METHOD_NAME = "test17";
     Tracer::setTraceComponents("ALL");
     Tracer::setTraceLevel(PEGASUS_TRACER_LEVEL5);
-    PEG_TRACE_CSTRING(TRC_CONFIG,Tracer::LEVEL4,"test17 - check value");    
+    PEG_TRACE_CSTRING(TRC_CONFIG,Tracer::LEVEL4,"test17 - check value");
     Tracer::setTraceComponents("InvalidComp");
     Tracer::setTraceLevel(Tracer::LEVEL4);
     PEG_TRACE((TRC_CONFIG,Tracer::LEVEL4,"%s %s",
@@ -604,7 +603,7 @@ Uint32 test21()
     try
     {
         throw PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_NOT_SUPPORTED, 
+            CIM_ERR_NOT_SUPPORTED,
             "CIM Exception Message for Level4 in test21.");
     }
     catch (CIMException& e)
@@ -717,7 +716,7 @@ Uint32 test25()
     return(compare(FILE4,"Test message for traceFacility=File in test25."));
 }
 
-// 
+//
 // Description:
 // Test the getHTTPRequestMessage method.
 //
@@ -739,15 +738,15 @@ Uint32 test26()
     CIMPropertyList propertyList;
     Buffer params;
     AcceptLanguageList al;
-    ContentLanguageList cl; 
+    ContentLanguageList cl;
 
     XmlWriter::appendClassNameIParameter(
         params, "ClassName", CIMName("testclass"));
     Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(
         "localhost",
-        CIMNamespaceName("test/cimv2"), 
+        CIMNamespaceName("test/cimv2"),
         CIMName ("EnumerateInstanceNames"),
-        "12345", 
+        "12345",
         HTTP_METHOD__POST,
         "Basic: Authorization AAAAA",
         al,
@@ -758,30 +757,30 @@ Uint32 test26()
             buffer));
 
     PEG_TRACE((
-        TRC_XML_IO, 
+        TRC_XML_IO,
         Tracer::LEVEL2,
         "<!-- Request: queue id: %u -->\n%s",
         queueId,
         reqMsg.get()));
 
     return(compare(FILE4, buffer.getData()));
-} 
-    
-// 
+}
+
+//
 // Description:
 // Test the getHTTPRequestMessage method.
 //
 // Type:
 // Positive
 // Tests with a HTTP Request that contains a Basic authorization header.
-// The user/password info in the message is suppressed before writing it to 
+// The user/password info in the message is suppressed before writing it to
 // the trace file.
 //
 // return 0 if the test passed
 // return 1 if the test failed
 //
 Uint32 test27()
-{   
+{
     Tracer::setTraceFile(FILE4);
     Tracer::setTraceComponents("xmlio");
     Tracer::setTraceLevel(Tracer::LEVEL2);
@@ -795,14 +794,14 @@ Uint32 test27()
     String MSGID = "32423424";
 
     XmlWriter::appendClassNameIParameter(
-        params, 
-        "ClassName", 
+        params,
+        "ClassName",
         CIMName("testclass"));
     Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(
         "localhost",
-        CIMNamespaceName("test/cimv2"), 
+        CIMNamespaceName("test/cimv2"),
         CIMName ("EnumerateInstanceNames"),
-        MSGID, 
+        MSGID,
         HTTP_METHOD__POST,
         authHeader,
         al,
@@ -810,16 +809,16 @@ Uint32 test27()
         params);
 
     PEG_TRACE((
-        TRC_XML_IO, 
+        TRC_XML_IO,
         Tracer::LEVEL2,
         "<!-- Request: queue id: %u -->\n%s",
         queueId,
         Tracer::getHTTPRequestMessage(
             buffer).get()));
-    
+
     String testStr(buffer.getData());
     Uint32 pos = testStr.find("ABCDEABCDE==");
-    
+
     for ( Uint32 i = pos; i < pos+strlen("ABCDEABCDE=="); i++)
         testStr[i] = 'X';
 
@@ -854,7 +853,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL tracerThread( void* parm )
 {
     Thread *my_handle = (Thread *)parm;
     TTTParm * my_parm = (TTTParm *)my_handle->get_parm();
-   
+
     Threads::yield();
     for (Uint32 x=0; x < my_parm->number; x++)
     {
@@ -875,9 +874,9 @@ ThreadReturnType PEGASUS_THREAD_CDECL tracerThread( void* parm )
         {
             my_parm->trcHandler->handleMessage(my_parm->trcMessage,
                                                my_parm->msgLen);
-        }                                           
+        }
     }
-    
+
     return ThreadReturnType(0);
 }
 
@@ -900,7 +899,7 @@ Uint32 testMemoryHandler(const char* filename)
     Uint32 numMsgs = sizeof(trcMsgs) / sizeof(const char*);
 
     TTTParm *tttParms[NUM_TEST_THREADS];
-    
+
     for (int x=0; x < NUM_TEST_THREADS; x++)
     {
         Uint32 msgNumber = x%numMsgs;
@@ -913,7 +912,7 @@ Uint32 testMemoryHandler(const char* filename)
         // Is the message a variable one (= the last in the list)?
         tttParms[x]->isVariableMsg = (msgNumber == (numMsgs-1));
     }
-    
+
     for (int x=0; x < NUM_TEST_THREADS; x++)
     {
         tttParms[x]->trd = new Thread(tracerThread, tttParms[x], false);
@@ -924,17 +923,19 @@ Uint32 testMemoryHandler(const char* filename)
     {
         tttParms[x]->trd->join();
     }
-    
-    
-    if (!Tracer::setTraceFile(filename))
+
+    // Setting a null trace file should fail.
+    PEGASUS_TEST_ASSERT(Tracer::setTraceFile(0));
+
+    if (Tracer::setTraceFile(filename))
     {
         cout << "Failure in call to setTraceFile for file \""
                 << filename << "\"\n" << endl;
         PEGASUS_TEST_ASSERT(0);
     }
-    
+
     trcHdler->flushTrace();
-    
+
     // To test the variable messages, we replace the variable message
     // in the list with a resolved copy.
     Uint32 lastMsg = numMsgs-1;
@@ -944,12 +945,11 @@ Uint32 testMemoryHandler(const char* filename)
              trcMsgs[lastMsg],
              VAR_TEST_MESSAGE );
     trcMsgs[lastMsg] = resolvedMsg;
-    
 
-    
+
     // Now analyze the dumped buffer content, to ensure no messages
     // were damaged.
-    // For this we read the buffer content line by line and check if it 
+    // For this we read the buffer content line by line and check if it
     // matches one of the messages from the list above.
     {
         fstream file;
@@ -959,8 +959,8 @@ Uint32 testMemoryHandler(const char* filename)
             cout << "Failed to open file \"" << filename << "\"\n" << endl;
             PEGASUS_TEST_ASSERT(0);
         }
-    
-        // Keep the first line on the side, since this is probably the 
+
+        // Keep the first line on the side, since this is probably the
         // wrapped remainder of the very last messsage in the buffer.
         char firstLine[256];
         file.getline( firstLine, 256 );
@@ -986,7 +986,7 @@ Uint32 testMemoryHandler(const char* filename)
                     // if we got here, this is either an error, or we reached
                     // the end of the trace buffer, where it had wrapped.
                     // To check this we paste together the message in the
-                    // first line we read, and which is supposed to be the 
+                    // first line we read, and which is supposed to be the
                     // remainder of the wrapped message.
                     strcat(currentLine, firstLine);
                     for (Uint32 x=0; x < numMsgs; x++)
@@ -1022,18 +1022,18 @@ Uint32 testMemoryHandler(const char* filename)
     {
         #define FIX_PART_OF_MESSAGE "LongMsg:"
 
-        // The trace buffer is not at that size used for tracing 
+        // The trace buffer is not at that size used for tracing
         // then it is defined with PEGASUS_TRC_DEFAULT_BUFFER_SIZE_KB*1024
         // The resulting message is shriked by:
         // * the controll structure traceArea_t ( privat of TraceMemoryHandler)
         // * the fixed message part
         // * the markers,  '\n' and '\0'
-        Uint32 bufferDelta = 2* sizeof(Uint32)+ sizeof(char*) 
-                           + PEGASUS_TRC_BUFFER_EYE_CATCHER_LEN 
+        Uint32 bufferDelta = 2* sizeof(Uint32)+ sizeof(char*)
+                           + PEGASUS_TRC_BUFFER_EYE_CATCHER_LEN
                            + strlen(FIX_PART_OF_MESSAGE)
                            + strlen(PEGASUS_TRC_BUFFER_TRUNC_MARKER) + 1
-                           + strlen(PEGASUS_TRC_BUFFER_EOT_MARKER)+ 1 
-                           // this adds the '2' before the truncation marker 
+                           + strlen(PEGASUS_TRC_BUFFER_EOT_MARKER)+ 1
+                           // this adds the '2' before the truncation marker
                            // should appear in the message
                            + 1;
 
@@ -1087,11 +1087,11 @@ Uint32 testMemoryHandler(const char* filename)
 
         char* cursor = veryLongMSG;
 
-        // The big messsage has the format: 
+        // The big messsage has the format:
         //  LongMsg:111...1112*TRUNC*
         // To validate that the message is truncated at the right position,
         // only one '2' has to show up before the truncation marker.
-        
+
         if ( strncmp(cursor, FIX_PART_OF_MESSAGE
                      , strlen(FIX_PART_OF_MESSAGE)) )
         {
@@ -1108,7 +1108,7 @@ Uint32 testMemoryHandler(const char* filename)
             {
                 noErrors++;
                 cout << "Compare Error: unexpected char '"
-                     <<  cursor[i] << "' at position " 
+                     <<  cursor[i] << "' at position "
                      << strlen(FIX_PART_OF_MESSAGE) + i
                      << " expecting '1'." << endl;
                 // limmit the number of printed errors to 20
@@ -1131,8 +1131,8 @@ Uint32 testMemoryHandler(const char* filename)
         if (cursor[(sizeOfVeryLongMSG-bufferDelta)] != '2')
         {
             cout << "Compare Error: unexpected char '"
-                 << cursor[(sizeOfVeryLongMSG-bufferDelta)] << "' at position " 
-                 << strlen(FIX_PART_OF_MESSAGE) + 
+                 << cursor[(sizeOfVeryLongMSG-bufferDelta)] << "' at position "
+                 << strlen(FIX_PART_OF_MESSAGE) +
                        (sizeOfVeryLongMSG-bufferDelta)
                  << " expecting '2'." << endl;
         }
@@ -1230,7 +1230,7 @@ int main(int argc, char** argv)
        cout << "Tracer test (test9) failed" << endl;
        exit(1);
     }
-    /*************************** 
+    /***************************
        Test 10 bypassed when tests changed to
        use macros.  It did an invalid call which is
        not possible with macros

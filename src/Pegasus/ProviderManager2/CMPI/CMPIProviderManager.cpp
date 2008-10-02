@@ -471,11 +471,6 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-        AutoPtr<NormalizerContext> tmpNormalizerContext(
-            new CIMOMHandleContext(*pr.getCIMOMHandle()));
-        request->operationContext.insert(
-            NormalizerContextContainer(tmpNormalizerContext));
-
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "Calling provider.getInstance: %s",
             (const char*)pr.getName().getCString()));
@@ -611,11 +606,6 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
 
         // forward request
         CMPIProvider & pr=ph.GetProvider();
-
-        AutoPtr<NormalizerContext> tmpNormalizerContext(
-            new CIMOMHandleContext(*pr.getCIMOMHandle()));
-        request->operationContext.insert(
-            NormalizerContextContainer(tmpNormalizerContext));
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "Calling provider.enumerateInstances: %s",
@@ -1434,11 +1424,6 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-        AutoPtr<NormalizerContext> tmpNormalizerContext(
-            new CIMOMHandleContext(*pr.getCIMOMHandle()));
-        request->operationContext.insert(
-            NormalizerContextContainer(tmpNormalizerContext));
-
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "Calling provider.associators: %s",
             (const char*)pr.getName().getCString()));
@@ -1746,11 +1731,6 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-        AutoPtr<NormalizerContext> tmpNormalizerContext(
-            new CIMOMHandleContext(*pr.getCIMOMHandle()));
-        request->operationContext.insert(
-            NormalizerContextContainer(tmpNormalizerContext));
-
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "Calling provider.references: %s",
             (const char*)pr.getName().getCString()));
@@ -2047,11 +2027,6 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-        AutoPtr<NormalizerContext> tmpNormalizerContext(
-            new CIMOMHandleContext(*pr.getCIMOMHandle()));
-        request->operationContext.insert(
-            NormalizerContextContainer(tmpNormalizerContext));
-
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "Calling provider.invokeMethod: %s",
             (const char*)pr.getName().getCString()));
@@ -2138,11 +2113,6 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                 &request->operationContext.get(
                 CachedClassDefinitionContainer::NAME));
             PEGASUS_ASSERT(classCont != 0);
-            const NormalizerContextContainer * contextCont =
-                dynamic_cast<const NormalizerContextContainer*>(
-                &request->operationContext.get(
-                NormalizerContextContainer::NAME));
-            PEGASUS_ASSERT(contextCont != 0);
 
             CIMClass classDef(classCont->getClass());
             Uint32 methodIndex = classDef.findMethod(request->methodName);
@@ -2199,9 +2169,6 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                                 {
                                     paramInstArr.append(
                                         CIMInstance(paramObjectArr[j]));
-                                    // resolve each embedded instance.
-                                    resolveEmbeddedInstanceTypes(
-                                        &handler, paramInstArr[j]);
                                 }
                                 currentParam = CIMParamValue(currentParamName,
                                     CIMValue(paramInstArr));
@@ -2211,8 +2178,6 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                                 CIMObject paramObject;
                                 paramValue.get(paramObject);
                                 CIMInstance paramInst(paramObject);
-                                resolveEmbeddedInstanceTypes(&handler,
-                                    paramInst);
                                 currentParam = CIMParamValue(currentParamName,
                                     CIMValue(paramInst));
                             }

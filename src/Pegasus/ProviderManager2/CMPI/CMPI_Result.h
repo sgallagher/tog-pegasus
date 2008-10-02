@@ -89,10 +89,6 @@ struct CMPI_ResultOnStack : CMPIResult
 
 CIMClass *mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop);
 
-CMPIStatus resolveEmbeddedInstanceTypes(
-    OperationResponseHandler * opRes,
-    CIMInstance & inst);
-
 PEGASUS_NAMESPACE_END
 
 #endif

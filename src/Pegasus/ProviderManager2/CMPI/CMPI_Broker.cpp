@@ -365,18 +365,22 @@ extern "C"
 
             CMSetStatus(rc,CMPI_RC_OK);
 
-            // Workaround for bugzilla 4677
+            // Workaround for bugzilla 4620
             // When running out of process the returned instances don't contain
             // a name space. Create a writable copy of the array and add the
             // namespace from the input parameters.
 
             Array<CIMInstance> * aInst = new Array<CIMInstance>(en);
-            for (unsigned int index=0; index < aInst->size(); index++)
+            Uint32 arrSize = aInst->size();
+            if (arrSize && (*aInst)[0].getPath().getNameSpace().
+                getString().size() == 0)
             {
-                CIMInstance& myInst = (*aInst)[index];
-                CIMObjectPath orgCop = myInst.getPath();
-                orgCop.setNameSpace(CM_ObjectPath(cop)->getNameSpace());
-                (*aInst)[index].setPath(orgCop);
+                for (Uint32 index = 0; index < arrSize; index++)
+                {
+                    CIMObjectPath orgCop = (*aInst)[index].getPath();
+                    orgCop.setNameSpace(CM_ObjectPath(cop)->getNameSpace());
+                    (*aInst)[index].setPath(orgCop);
+                }
             }
 
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
@@ -412,14 +416,18 @@ extern "C"
             // When running out of process the returned instances don't contain
             // a name space. Create a writable copy of the array and add the
             // namespace from the input parameters.
-            Array<CIMObjectPath> * aObj = new Array<CIMObjectPath>(en);
-            for (unsigned int index=0; index < aObj->size(); index++)
-            {
-                (*aObj)[index].setNameSpace(
-                    CM_ObjectPath(cop)->getNameSpace());
+            Array<CIMObjectPath> * aRef = new Array<CIMObjectPath>(en);
+            Uint32 arrSize = aRef->size();
+            if (arrSize && (*aRef)[0].getNameSpace().getString().size() == 0)
+            { 
+                for (Uint32 index = 0; index < arrSize; index++)
+                {
+                    (*aRef)[index].setNameSpace(
+                        CM_ObjectPath(cop)->getNameSpace());
+                }
             }
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
-                new CMPI_Object(new CMPI_OpEnumeration(aObj)));
+                new CMPI_Object(new CMPI_OpEnumeration(aRef)));
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
@@ -478,20 +486,25 @@ extern "C"
 
             CMSetStatus(rc,CMPI_RC_OK);
 
-            // Workaround for bugzilla 4677
+            // Workaround for bugzilla 4620
             // When running out of process the returned instances don't contain
             // a name space. Create a writable copy of the array and add the
             // namespace from the input parameters.
-            Array<CIMObject> * aInst = new Array<CIMObject>(en);
-            for (unsigned int index=0; index < aInst->size(); index++)
+            Array<CIMObject> * aObj = new Array<CIMObject>(en);
+            Uint32 arrSize = aObj->size();
+            if (arrSize && (*aObj)[0].getPath().getNameSpace().
+                getString().size() == 0)
             {
-                CIMObject& myInst = (*aInst)[index];
-                CIMObjectPath orgCop = myInst.getPath();
-                orgCop.setNameSpace(CM_ObjectPath(cop)->getNameSpace());
-                (*aInst)[index].setPath(orgCop);
+                for (Uint32 index = 0; index < arrSize; index++)
+                {
+                    CIMObjectPath orgCop = (*aObj)[index].getPath();
+                    orgCop.setNameSpace(CM_ObjectPath(cop)->getNameSpace());
+                    (*aObj)[index].setPath(orgCop);
+                }
             }
+
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
-                new CMPI_Object(new CMPI_ObjEnumeration(aInst)));
+                new CMPI_Object(new CMPI_ObjEnumeration(aObj)));
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
@@ -545,14 +558,19 @@ extern "C"
             // When running out of process the returned instances don't contain
             // a name space. Create a writable copy of the array and add the
             // namespace from the input parameters.
-            Array<CIMObjectPath> * aObj = new Array<CIMObjectPath>(en);
-            for (unsigned int index=0; index < aObj->size(); index++)
+            Array<CIMObjectPath> * aRef = new Array<CIMObjectPath>(en);
+            Uint32 arrSize = aRef->size();
+            if (arrSize && (*aRef)[0].getNameSpace().getString().size() == 0)
             {
-                (*aObj)[index].setNameSpace(
-                    CM_ObjectPath(cop)->getNameSpace());
+                for (Uint32 index = 0; index < arrSize; index++)
+                {
+                    (*aRef)[index].setNameSpace(
+                        CM_ObjectPath(cop)->getNameSpace());
+                }
             }
+
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
-                new CMPI_Object(new CMPI_OpEnumeration(aObj)));
+                new CMPI_Object(new CMPI_OpEnumeration(aRef)));
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
@@ -607,20 +625,25 @@ extern "C"
                     props);
 
             CMSetStatus(rc,CMPI_RC_OK);
-            // Workaround for bugzilla 4677
+            // Workaround for bugzilla 4620
             // When running out of process the returned instances don't contain
             // a name space. Create a writable copy of the array and add the
             // namespace from the input parameters.
-            Array<CIMObject> * aInst = new Array<CIMObject>(en);
-            for (unsigned int index=0; index < aInst->size(); index++)
+            Array<CIMObject> * aObj = new Array<CIMObject>(en);
+            Uint32 arrSize = aObj->size();
+            if (arrSize && (*aObj)[0].getPath().getNameSpace().
+                getString().size() == 0)
             {
-                CIMObject& myInst = (*aInst)[index];
-                CIMObjectPath orgCop = myInst.getPath();
-                orgCop.setNameSpace(CM_ObjectPath(cop)->getNameSpace());
-                (*aInst)[index].setPath(orgCop);
+                for (Uint32 index = 0; index < arrSize; index++)
+                {
+                    CIMObjectPath orgCop = (*aObj)[index].getPath();
+                    orgCop.setNameSpace(CM_ObjectPath(cop)->getNameSpace());
+                    (*aObj)[index].setPath(orgCop);
+                }
             }
+
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
-                new CMPI_Object(new CMPI_ObjEnumeration(aInst)));
+                new CMPI_Object(new CMPI_ObjEnumeration(aObj)));
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
@@ -671,14 +694,19 @@ extern "C"
             // When running out of process the returned instances don't contain
             // a name space. Create a writable copy of the array and add the
             // namespace from the input parameters.
-            Array<CIMObjectPath> * aObj = new Array<CIMObjectPath>(en);
-            for (unsigned int index=0; index < aObj->size(); index++)
+            Array<CIMObjectPath> * aRef = new Array<CIMObjectPath>(en);
+            Uint32 arrSize = aRef->size();
+            if (arrSize && (*aRef)[0].getNameSpace().getString().size() == 0)
             {
-                (*aObj)[index].setNameSpace(
-                    CM_ObjectPath(cop)->getNameSpace());
+                for (Uint32 index = 0; index < arrSize; index++)
+                {
+                    (*aRef)[index].setNameSpace(
+                        CM_ObjectPath(cop)->getNameSpace());
+                }
             }
+
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
-                new CMPI_Object(new CMPI_OpEnumeration(aObj)));
+                new CMPI_Object(new CMPI_OpEnumeration(aRef)));
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }

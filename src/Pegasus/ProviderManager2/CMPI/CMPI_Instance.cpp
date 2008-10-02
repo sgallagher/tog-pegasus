@@ -570,12 +570,19 @@ extern "C"
            property filters or have to filter for themselves.
            Removing properties from the CIMInstance here helps to effectively
            avoid the need to carry a property list around in the CMPI layer.
+           
+           A (propertyList == 0) means the property list is null and there
+           should be no filtering.
+           
+           An empty propertylist(no property to be returned) is represented by
+           a valid propertyList pointer pointing to a null pointer, i.e.
+           (*propertyList == 0)
         */
 
         CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
-        if (propertyList && *propertyList)
+        if (propertyList)
         {
-            if (!(keys && *keys))
+            if (!keys)
             {
                 filterCIMInstance(propertyList, 0, inst);
             }

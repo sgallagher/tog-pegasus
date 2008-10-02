@@ -53,7 +53,9 @@ int main(int argc, char** argv)
     Uint64 ms = tv0.toMilliseconds();
     if (verbose)
     {
-        cout << "milliseconds=" << ms << endl;
+        char buffer[22];
+        Uint32 size;
+        cout << "milliseconds=" << Uint64ToString(buffer, ms, size) << endl;
     }
     PEGASUS_TEST_ASSERT(ms == (3 * 1000) + 100);
 
@@ -76,6 +78,8 @@ int main(int argc, char** argv)
     System::sleep(5);
     TimeValue tv2 = TimeValue::getCurrentTime();
 
+    Uint64 milliseconds = tv2.toMilliseconds() - tv1.toMilliseconds();
+
     if (verbose)
     {
         char buffer[22];
@@ -89,12 +93,9 @@ int main(int argc, char** argv)
              << tv2.getMicroseconds() << " microseconds "
              << Uint64ToString(buffer, tv2.toMilliseconds(), size)
              << " total milliseconds" <<  endl;
+        cout << "milliseconds=" << Uint64ToString(buffer, milliseconds, size)
+             << endl;
     }
-
-    Uint64 milliseconds = tv2.toMilliseconds() - tv1.toMilliseconds();
-
-    if (verbose)
-        cout << "milliseconds=" << milliseconds << endl;
 
     PEGASUS_TEST_ASSERT(milliseconds >= 4500 && milliseconds <= 5500);
 

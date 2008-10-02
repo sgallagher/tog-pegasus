@@ -924,8 +924,8 @@ Uint32 testMemoryHandler(const char* filename)
         tttParms[x]->trd->join();
     }
 
-    // Setting a null trace file should fail.
-    PEGASUS_TEST_ASSERT(Tracer::setTraceFile(0));
+    // Setting an empty trace file name should fail.
+    PEGASUS_TEST_ASSERT(Tracer::setTraceFile(""));
 
     if (Tracer::setTraceFile(filename))
     {

@@ -479,9 +479,9 @@ CIMObjectPath ObjectNormalizer::processInstanceObjectPath(
     }
 
     CIMObjectPath normalizedObjectPath(
-        _cimClass.getPath().getHost(),
-        _cimClass.getPath().getNameSpace(),
-        _cimClass.getClassName());
+        cimObjectPath.getHost(),
+        cimObjectPath.getNameSpace(),
+        cimObjectPath.getClassName());
 
     Array<CIMKeyBinding> normalizedKeys;
 

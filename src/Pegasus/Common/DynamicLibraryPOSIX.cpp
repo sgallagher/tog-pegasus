@@ -80,7 +80,12 @@ DynamicLibrary::DynamicSymbolHandle DynamicLibrary::getSymbol(
 {
     PEGASUS_ASSERT(isLoaded());
 
+#if defined(PEGASUS_OS_VMS)
+    String str = symbolName.subString(0, 31);
+    CString cstr = str.getCString();
+#else
     CString cstr = symbolName.getCString();
+#endif
 
     DynamicSymbolHandle func =
         (DynamicSymbolHandle) dlsym(_handle, (const char *)cstr);

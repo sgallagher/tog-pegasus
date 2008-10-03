@@ -237,27 +237,30 @@ $VmsVec:
 $ ! 
 $ ! Looking for "VMS_VECTOR"
 $ ! of compiler generated .opt file for the dll_export case.
+$ ! Could be comma separated list of vectors
 $ ! 
 $  if "''want_dllexport'" .eqs. "" 
 $  Then
 $    if P6 .eqs. ""
 $    Then
 $      vecsym = "SYMBOL_VECTOR=(" + "''tmp_vecsym'" + "=PROCEDURE)"
+$      'MyOut "%VMSCROPT -  vecsym = ''vecsym'"
+$      write/error=optfile_writeerror optfile "''vecsym'"
 $    Else
 $      'MyOut "%VMSCROPT - VMS_VECTOR defined"
-$      vecsym = "SYMBOL_VECTOR=(" + "''P6'" + "=PROCEDURE)"
+$      vec_num = 0
+$VmsVec10:
+$      vec = f$edit(f$element(vec_num, ",", P6), "TRIM")
+$      if (vec .nes. ",")
+$      Then
+$         vecsym = "SYMBOL_VECTOR=(" + "''vec'" + "=PROCEDURE)"
+$         'MyOut "%VMSCROPT -  vecsym = ''vecsym'"
+$         write/error=optfile_writeerror optfile "''vecsym'"
+$         vec_num = vec_num + 1
+$         goto VmsVec10
+$      Endif
 $    Endif
 $  Endif
-$ ! 
-$Write_vmsvec:
-$ ! 
-$  'MyOut "%VMSCROPT -  vecsym = ''vecsym'"
-$ ! 
-$ ! Write it to the option file
-$ ! 
-$  write/error=optfile_writeerror optfile "''vecsym'"
-$ !
-$Done_vmsvec:
 $ ! 
 $ ! Close the options file.
 $ ! 

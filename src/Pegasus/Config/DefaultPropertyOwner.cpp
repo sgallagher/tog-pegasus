@@ -298,8 +298,15 @@ Boolean DefaultPropertyOwner::isValid(
     // per property.
     //
     if (String::equalNoCase(name, "socketWriteTimeout") ||
-        String::equalNoCase(name, "idleConnectionTimeout") ||
-        String::equalNoCase(name, "maxProviderProcesses"))
+        String::equalNoCase(name, "idleConnectionTimeout")
+    {
+        Uint64 v;
+        return 
+            StringConversion::decimalStringToUint64(value.getCString(), v) &&
+            StringConversion::checkUintBounds(v, CIMTYPE_UINT32) &&
+            (v != 0);
+    }
+    if (String::equalNoCase(name, "maxProviderProcesses"))
     {
         Uint64 v;
         return 

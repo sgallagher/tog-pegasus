@@ -298,7 +298,7 @@ Boolean DefaultPropertyOwner::isValid(
     // per property.
     //
     if (String::equalNoCase(name, "socketWriteTimeout") ||
-        String::equalNoCase(name, "idleConnectionTimeout")
+        String::equalNoCase(name, "idleConnectionTimeout"))
     {
         Uint64 v;
         return 

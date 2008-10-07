@@ -179,12 +179,21 @@ bool RemoveDir(const string& path)
 //
 // RemoveFile
 //
+// Note: RemoveFile will remove all versions of a file on
+//       OpenVMS because it is trying to be like a Unix environment.
+//
+//       mu rmdirhier will not work unless all versions of a file
+//       can be removed.
 //-
 
 bool RemoveFile(const string& path)
 {
+    string tmpstr;
+
     strcpy(cstr, (char *) path.c_str());
-    return remove(path.c_str()) == 0;
+    tmpstr = path + ";*"; // Remove all copies
+
+    return remove (tmpstr.c_str()) == 0;
 }
 
 //+

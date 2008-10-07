@@ -148,7 +148,6 @@ bool GetCwd(string& path)
         return false;
     }
     path = tmp;
-    strcpy(cstr, (char *) path.c_str());
     return true;
 }
 
@@ -160,7 +159,6 @@ bool GetCwd(string& path)
 
 bool ChangeDir(const string& path)
 {
-    strcpy(cstr, (char *) path.c_str());
     return chdir(path.c_str()) == 0;
 }
 
@@ -172,7 +170,6 @@ bool ChangeDir(const string& path)
 
 bool RemoveDir(const string& path)
 {
-    strcpy(cstr, (char *) path.c_str());
     return rmdir(path.c_str()) == 0;
 }
 
@@ -199,8 +196,6 @@ bool RemoveFile(const string& path)
 
     static char *iso_latin = " !\"#%&\'()+,:;<=>@[\\]^`{|}~"; // $-_ don't need
                                                               // escape char
-    strcpy(cstr, (char *) path.c_str());
-
     tmpstr = path + ";*"; // remove all copies
     iStat = remove (tmpstr.c_str());
 
@@ -255,7 +250,6 @@ bool RemoveFile(const string& path)
 
 bool MakeDir(const string& path)
 {
-    strcpy(cstr, (char *) path.c_str());
     return mkdir(path.c_str(), 0777) == 0;
 }
 
@@ -270,8 +264,6 @@ bool GetDirEntries(const string& path, vector<string>& filenames)
     //
     // Make a list of all the files at this directory level.
     //
-
-    strcpy(cstr, (char *) path.c_str());
 
     filenames.erase(filenames.begin(), filenames.end());
 
@@ -447,7 +439,6 @@ bool GetFileSize(const string& path, size_t& size)
 {
     struct stat st;
 
-    strcpy (cstr, (char *) path.c_str());
     if (stat(path.c_str(), &st) != 0)
     {
         return false;
@@ -465,7 +456,6 @@ bool GetFileSize(const string& path, size_t& size)
 
 bool Exists(const string& path)
 {
-    strcpy(cstr, (char *) path.c_str());
     return access(path.c_str(), F_OK) == 0;
 }
 
@@ -477,7 +467,6 @@ bool Exists(const string& path)
 
 bool Readable(const string& path)
 {
-    strcpy (cstr, (char *) path.c_str());
     return access(path.c_str(), R_OK) == 0;
 }
 
@@ -489,7 +478,6 @@ bool Readable(const string& path)
 
 bool Writable(const string& path)
 {
-    strcpy(cstr, (char *) path.c_str());
     return access (path.c_str(), W_OK) == 0;
 }
 
@@ -502,7 +490,6 @@ bool Writable(const string& path)
 bool IsDir(const string& path)
 {
     struct stat st;
-    strcpy(cstr, (char *) path.c_str());
     return stat(path.c_str(), &st) == 0 && S_ISDIR(st.st_mode);
 }
 
@@ -531,7 +518,6 @@ bool parse_name(const string& name)
 
     /* do $PARSE and $SEARCH here */
 
-    strcpy(cstr, (char *) name.c_str());
     status = sys$parse(&Fab);
 
     check_rms_status(status, Fab.fab$l_stv, "sys$parse", "parse_name");

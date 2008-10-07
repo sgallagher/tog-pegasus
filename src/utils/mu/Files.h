@@ -38,10 +38,6 @@
 #include <string>
 #include <vector>
 
-#if defined (OS_VMS)
-char cstr[256];
-#endif
-
 bool GetCwd(string& path);
 
 bool ChangeDir(const string& path);

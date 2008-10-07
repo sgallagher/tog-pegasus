@@ -35,12 +35,5 @@ include $(ROOT)/mak/config.mak
 DIRS = \
     CLIClientLib \
     CLI
-    
-TEST_DIRS = \
-    EnumerateInstances \
-    EnumerateInstanceNames \
-    GetInstance \
-    DeleteInstance \
-    CreateInstance
-    
+
 include $(ROOT)/mak/recurse.mak

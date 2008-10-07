@@ -1139,7 +1139,7 @@ void CMPILocalProviderManager::_unloadProvider (
         { 
             PEG_TRACE_STRING(
                 TRC_PROVIDERMANAGER,
-                Tracer::LEVEL1,
+                Tracer::LEVEL2,
                 "Terminating Provider with pending operations " +
                     provider->getName());
         }

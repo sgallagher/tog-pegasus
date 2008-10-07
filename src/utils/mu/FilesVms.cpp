@@ -45,6 +45,7 @@
 #include <unistd.h>
 #include <stdlib>
 #include <stdio>
+#include <errno.h>
 #include <gen64def.h>
 #include <iosbdef.h>
 #include <stsdef.h>
@@ -184,16 +185,66 @@ bool RemoveDir(const string& path)
 //
 //       mu rmdirhier will not work unless all versions of a file
 //       can be removed.
+//
+//       Treat iso latin-1 characters as a special case.  The file is passed
+//       in without an escape character so one needs to be added.
 //-
 
 bool RemoveFile(const string& path)
 {
     string tmpstr;
+    int  start;
+    int  loc;
+    int  iStat;
 
+    static char *iso_latin = " !\"#%&\'()+,:;<=>@[\\]^`{|}~"; // $-_ don't need
+                                                              // escape char
     strcpy(cstr, (char *) path.c_str());
-    tmpstr = path + ";*"; // Remove all copies
 
-    return remove (tmpstr.c_str()) == 0;
+    tmpstr = path + ";*"; // remove all copies
+    iStat = remove (tmpstr.c_str());
+
+    // These errnos will be returned if the file doesn't exist or perhaps
+    // an ISO latin-1 character is in the filename.
+
+    if (iStat && ((errno == 2) || (errno == 6) || (errno == 65535)))
+    {
+        start = 0;
+        do
+        {
+            loc = path.find_first_of (iso_latin, start);
+            if (loc != string::npos)
+            {
+                if (loc > start)
+                    tmpstr += path.substr (start, loc - start);
+                tmpstr += '^'; // add escape character
+                tmpstr += path[loc]; // add iso-latin character
+                start = loc + 1;
+            }
+        } while (loc != string::npos);
+        tmpstr += path.substr(start);
+        tmpstr += ";*"; // remove all copies
+        iStat = remove (tmpstr.c_str());
+    }
+    if (iStat)
+    {
+        if (errno != 2) // > 0 argv[iStat] is the parameter number which failed.
+        {               // The reason for the failure is in errno
+                        // Alpha VMS 8.2 (but not IA64 8.2)
+                        // iStat == -1 is permission denied.
+                        //
+                        // Ignore the following errno values:
+                        // errno == 2 file or directory not found
+            cout << "mu: Info-filesvms.cpp-RemoveFile() Unable to remove file: "
+                 << path.c_str ()
+                 << " iStat=" << iStat
+                 << " errno=" << errno
+                 << " "
+                 << strerror(errno)
+                 << endl;
+        }
+    }
+    return iStat == 0;
 }
 
 //+

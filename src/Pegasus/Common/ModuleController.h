@@ -51,8 +51,7 @@ public:
     RegisteredModuleHandle(
         const String& name,
         void* module_address,
-        Message* (*receive_message)(Message *, void *),
-        void (*async_callback)(Uint32, Message *, void *));
+        Message* (*receive_message)(Message *, void *));
 
     virtual ~RegisteredModuleHandle();
 
@@ -65,12 +64,9 @@ private:
     RegisteredModuleHandle& operator=(const RegisteredModuleHandle&);
 
     Message* _receive_message(Message* msg);
-    void _send_async_callback(Uint32 msg_handle, Message* msg, void* parm);
-
     String _name;
     void* _module_address;
     Message* (*_module_receive_message)(Message *, void *);
-    void (*_async_callback)(Uint32, Message *, void *);
 
     friend class ModuleController;
 };
@@ -80,93 +76,14 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 {
 public:
     typedef MessageQueueService Base;
-
-    class callback_handle
-    {
-    public:
-        callback_handle(RegisteredModuleHandle* module, void* parm)
-           : _module(module), _parm(parm)
-        {
-        }
-
-        ~callback_handle()
-        {
-            if (_module->get_name() == String(PEGASUS_MODULENAME_TEMP))
-                _module.reset();
-        }
-
-        AutoPtr<RegisteredModuleHandle> _module;
-        void* _parm;
-    };
-
-public:
     ModuleController(const char *name);
 
     ~ModuleController();
 
-    // module api
-    // @exception AlreadyExistsException
-    // @exception IncompatibleTypesException
-    static ModuleController& register_module(
-        const String & controller_name,
+    void register_module(
         const String& module_name,
         void* module_address,
-        Message* (*receive_message)(Message *, void *),
-        void (*async_callback)(Uint32, Message *, void *),
-        RegisteredModuleHandle** instance = 0);
-
-    Boolean deregister_module(const String& module_name);
-
-    Uint32 find_service(
-        const RegisteredModuleHandle& handle,
-        const String& name);
-
-    Uint32 find_module_in_service(
-        const RegisteredModuleHandle& handle,
-        const String& module_name);
-
-    // send a message to another service
-    AsyncReply* ModuleSendWait(
-        const RegisteredModuleHandle& handle,
-        Uint32 destination_q,
-        AsyncRequest* request);
-
-    // send a message to another module via another service
-    AsyncReply* ModuleSendWait(
-        const RegisteredModuleHandle& handle,
-        Uint32 destination_q,
-        const String& destination_module,
-        AsyncRequest* message);
-
-    // send an async message to another service
-    Boolean ModuleSendAsync(
-        const RegisteredModuleHandle& handle,
-        Uint32 msg_handle,
-        Uint32 destination_q,
-        AsyncRequest* message,
-        void* callback_parm);
-
-    // send an async message to another module via another service
-    Boolean ModuleSendAsync(
-        const RegisteredModuleHandle& handle,
-        Uint32 msg_handle,
-        Uint32 destination_q,
-        const String& destination_module,
-        AsyncRequest* message,
-        void* callback_parm);
-
-    Boolean ModuleSendForget(
-        const RegisteredModuleHandle& handle,
-        Uint32 destination_q,
-        AsyncRequest* message);
-
-    Boolean ModuleSendForget(
-        const RegisteredModuleHandle & handle,
-        Uint32 destination_q,
-        const String & destination_module,
-        AsyncRequest* message);
-
-    void verify_handle(RegisteredModuleHandle *);
+        Message* (*receive_message)(Message *, void *));
 
     static ModuleController* getModuleController();
 
@@ -175,36 +92,8 @@ public:
         Uint32 destination_q,
         AsyncRequest* request);
 
-    // send a message to another module via another service
-    AsyncReply* ClientSendWait(
-        Uint32 destination_q,
-        String& destination_module,
-        AsyncRequest* message);
-
-    // send an async message to another service
-    Boolean ClientSendAsync(
-        Uint32 msg_handle,
-        Uint32 destination_q,
-        AsyncRequest* message,
-        void (*async_callback)(Uint32, Message *, void *),
-        void* callback_parm);
-
-    // send an async message to another module via another service
-    Boolean ClientSendAsync(
-        Uint32 msg_handle,
-        Uint32 destination_q,
-        const String& destination_module,
-        AsyncRequest* message,
-        void (*async_callback)(Uint32, Message *, void *),
-        void* callback_parm);
-
     Boolean ClientSendForget(
         Uint32 destination_q,
-        AsyncRequest* message);
-
-    Boolean ClientSendForget(
-        Uint32 destination_q,
-        const String& destination_module,
         AsyncRequest* message);
 
 protected:
@@ -215,38 +104,8 @@ protected:
     virtual void _handle_async_callback(AsyncOpNode *op);
 
 private:
-    class _module_lock
-    {
-    public:
-        _module_lock(List<RegisteredModuleHandle, Mutex> * list)
-           :_list(list)
-        {
-           _list->lock();
-        }
-
-        ~_module_lock()
-        {
-           _list->unlock();
-        }
-
-    private:
-        _module_lock();
-        List<RegisteredModuleHandle, Mutex> * _list;
-    };
-
-
-    static void _async_handleEnqueue(
-        AsyncOpNode* h,
-        MessageQueue* q,
-        void* parm);
-
-    List<RegisteredModuleHandle, Mutex> _modules;
-    AsyncReply *_send_wait(Uint32, AsyncRequest *);
-    AsyncReply *_send_wait(Uint32, const String &, AsyncRequest *);
-
-    Boolean _send_forget(Uint32, AsyncRequest *);
-
-    Boolean _send_forget(Uint32, const String &, AsyncRequest *);
+    typedef List<RegisteredModuleHandle, Mutex> RegisteredModulesList;
+    RegisteredModulesList _modules;
 };
 
 PEGASUS_NAMESPACE_END

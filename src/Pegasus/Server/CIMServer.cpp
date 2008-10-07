@@ -295,24 +295,20 @@ void CIMServer::_init()
         new ConfigSettingProvider(), 0, 0, false);
 
     _controlProviders.append(configProvider);
-    ModuleController::register_module(
-        PEGASUS_QUEUENAME_CONTROLSERVICE,
+    _controlService->register_module(
         PEGASUS_MODULENAME_CONFIGPROVIDER,
         configProvider,
-        controlProviderReceiveMessageCallback,
-        0);
+        controlProviderReceiveMessageCallback);
 
     // Create the User/Authorization control provider
     ProviderMessageHandler* userAuthProvider = new ProviderMessageHandler(
         "CIMServerControlProvider", "UserAuthProvider",
         new UserAuthProvider(_repository), 0, 0, false);
     _controlProviders.append(userAuthProvider);
-    ModuleController::register_module(
-        PEGASUS_QUEUENAME_CONTROLSERVICE,
+    _controlService->register_module(
         PEGASUS_MODULENAME_USERAUTHPROVIDER,
         userAuthProvider,
-        controlProviderReceiveMessageCallback,
-        0);
+        controlProviderReceiveMessageCallback);
 
     // Create the Provider Registration control provider
     ProviderMessageHandler* provRegProvider = new ProviderMessageHandler(
@@ -322,36 +318,30 @@ void CIMServer::_init()
     // Warning: The ProviderRegistrationProvider destructor deletes
     // _providerRegistrationManager
     _controlProviders.append(provRegProvider);
-    ModuleController::register_module(
-        PEGASUS_QUEUENAME_CONTROLSERVICE,
+    _controlService->register_module(
         PEGASUS_MODULENAME_PROVREGPROVIDER,
         provRegProvider,
-        controlProviderReceiveMessageCallback,
-        0);
+        controlProviderReceiveMessageCallback);
 
     // Create the Shutdown control provider
     ProviderMessageHandler* shutdownProvider = new ProviderMessageHandler(
         "CIMServerControlProvider", "ShutdownProvider",
         new ShutdownProvider(this), 0, 0, false);
     _controlProviders.append(shutdownProvider);
-    ModuleController::register_module(
-        PEGASUS_QUEUENAME_CONTROLSERVICE,
+    _controlService->register_module(
         PEGASUS_MODULENAME_SHUTDOWNPROVIDER,
         shutdownProvider,
-        controlProviderReceiveMessageCallback,
-        0);
+        controlProviderReceiveMessageCallback);
 
     // Create the namespace control provider
     ProviderMessageHandler* namespaceProvider = new ProviderMessageHandler(
         "CIMServerControlProvider", "NamespaceProvider",
         new NamespaceProvider(_repository), 0, 0, false);
     _controlProviders.append(namespaceProvider);
-    ModuleController::register_module(
-        PEGASUS_QUEUENAME_CONTROLSERVICE,
+    _controlService->register_module(
         PEGASUS_MODULENAME_NAMESPACEPROVIDER,
         namespaceProvider,
-        controlProviderReceiveMessageCallback,
-        0);
+        controlProviderReceiveMessageCallback);
 
     //
     // Create a SSLContextManager object
@@ -367,12 +357,10 @@ void CIMServer::_init()
         new CertificateProvider(_repository, _sslContextMgr),
         0, 0, false);
     _controlProviders.append(certificateProvider);
-    ModuleController::register_module(
-        PEGASUS_QUEUENAME_CONTROLSERVICE,
+    _controlService->register_module(
         PEGASUS_MODULENAME_CERTIFICATEPROVIDER,
         certificateProvider,
-        controlProviderReceiveMessageCallback,
-        0);
+        controlProviderReceiveMessageCallback);
 #endif
 
 #ifndef PEGASUS_DISABLE_PERFINST
@@ -381,12 +369,10 @@ void CIMServer::_init()
         "CIMServerControlProvider", "CIMOMStatDataProvider",
         new CIMOMStatDataProvider(), 0, 0, false);
     _controlProviders.append(cimomstatdataProvider);
-    ModuleController::register_module(
-        PEGASUS_QUEUENAME_CONTROLSERVICE,
+    _controlService->register_module(
         PEGASUS_MODULENAME_CIMOMSTATDATAPROVIDER,
         cimomstatdataProvider,
-        controlProviderReceiveMessageCallback,
-        0);
+        controlProviderReceiveMessageCallback);
 #endif
 
 #ifdef PEGASUS_ENABLE_CQL
@@ -397,12 +383,10 @@ void CIMServer::_init()
         new CIMQueryCapabilitiesProvider(),
         0, 0, false);
     _controlProviders.append(cimquerycapprovider);
-    ModuleController::register_module(
-        PEGASUS_QUEUENAME_CONTROLSERVICE,
+    _controlService->register_module(
         PEGASUS_MODULENAME_CIMQUERYCAPPROVIDER,
         cimquerycapprovider,
-        controlProviderReceiveMessageCallback,
-        0);
+        controlProviderReceiveMessageCallback);
 #endif
 
 #if defined PEGASUS_ENABLE_INTEROP_PROVIDER
@@ -412,12 +396,10 @@ void CIMServer::_init()
         "CIMServerControlProvider", "InteropProvider",
         new InteropProvider(_repository), 0, 0, false);
     _controlProviders.append(interopProvider);
-    ModuleController::register_module(
-        PEGASUS_QUEUENAME_CONTROLSERVICE,
+    _controlService->register_module(
         PEGASUS_MODULENAME_INTEROPPROVIDER,
         interopProvider,
-        controlProviderReceiveMessageCallback,
-        0);
+        controlProviderReceiveMessageCallback);
 #endif
 
     _cimOperationResponseEncoder = new CIMOperationResponseEncoder;

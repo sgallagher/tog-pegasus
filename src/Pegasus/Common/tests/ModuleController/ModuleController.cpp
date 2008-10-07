@@ -27,10 +27,6 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -47,574 +43,251 @@
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
-
 #include <Pegasus/Common/ModuleController.h>
+#include <Pegasus/Common/CIMMessage.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
-static char * verbose;
+#define CONTROLLER_NAME "ControlService"
+#define TESTSERVICE_NAME "TestService"
 
-#define SERVICE_NAME "peg_test_service"
-#define CONTROLLER_NAME "peg_test_module_controller"
+class TestService;
+class TestModuleMessageHandler;
 
+AtomicInt responsesReceived;
+ModuleController *controlService;
+TestService *testService;
+Array<TestModuleMessageHandler*> registeredModules;
+const Uint32 REQUESTS_ISSUED = 50;
 
-class test_request : public AsyncRequest
+class TestResponseMessage : public CIMResponseMessage
 {
-  
-   public:
-      typedef AsyncRequest Base;
-      
-      test_request(
-           AsyncOpNode *op, 
-           Uint32 destination, 
-           Uint32 response,
-           const char *message)
-     : Base(CIM_GET_CLASS_REQUEST_MESSAGE,
-        0, 
-        op, 
-        destination, 
-        response, 
-        true),
-       greeting(message) 
-      {   
-      }
-      
-      virtual ~test_request() 
-      {
-      }
-      
-      String greeting;
+public:
+    TestResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_, 
+        Uint32 id_,
+        const QueueIdStack &queueIds_)
+    : CIMResponseMessage(DUMMY_MESSAGE,
+        messageId_,
+        cimException_,
+        queueIds_),
+      id(id_)
+    {
+    }
+    Uint32 id;
+};
+
+class TestRequestMessage : public CIMRequestMessage
+{
+public:
+    TestRequestMessage(
+        const String& messageId_,
+        Uint32 id_,
+        const QueueIdStack &queueIds_)
+    : CIMRequestMessage(DUMMY_MESSAGE,
+        messageId_,
+        queueIds_),
+      id(id_)
+    {    
+    }
+    CIMResponseMessage *buildResponse() const
+    {
+        TestResponseMessage *response = new TestResponseMessage(
+            messageId,
+            CIMException(),
+            id,
+            queueIds.copyAndPop());
+        return response;
+    }
+    Uint32 id;
 };
 
 
-class test_response : public AsyncReply
+class TestService : public MessageQueueService
 {
-   public:
-      typedef AsyncReply Base;
-      
-
-      test_response(
-            AsyncOpNode *op, 
-            Uint32 result,
-            Uint32 destination, 
-            const char *message)
-     : Base(CIM_GET_CLASS_RESPONSE_MESSAGE,
-        0, 
-        op, 
-        result, 
-        destination,
-        true), 
-       greeting(message) 
-      {  
-     
-      }
-      
-      virtual ~test_response()
-      {
-     
-      }
-      
-      String greeting;
+public:
+    typedef MessageQueueService Base;
+    TestService(const char *name);
+    virtual ~TestService();
+    static void _testServiceCallback(
+        AsyncOpNode* op,
+        MessageQueue* q,
+        void* userParameter);
+    virtual void handleEnqueue() {}
+    virtual void handleEnqueue(Message *msg) {}
+private:
+    TestService();
+    TestService(const TestService &);
+    TestService & operator =(const TestService &);
 };
 
-
-class test_module 
+TestService::TestService(const char *name)
+         : Base(name)
 {
-   public:
-      test_module(const char *name, const char *controller_name);
-      ~test_module();
-      
-      static Message *receive_msg(Message *msg, void *parm);
-      static void async_callback(Uint32 msg_id, Message *msg, void *parm);
-      static ThreadReturnType PEGASUS_THREAD_CDECL thread_func(void *);
-      ModuleController *get_controller();
-      RegisteredModuleHandle *get_mod_handle();
+}
 
-   private:
-      test_module();
-      test_module(const test_module &);
-      test_module & operator =(const test_module &);
-      ModuleController *_controller;
-      RegisteredModuleHandle *_module_handle;
-      AtomicInt _msg_rx;
-      AtomicInt _msg_tx;
-      AtomicInt _thread_ex;
-      String _name;
-      String _controller_name;
+TestService::~TestService()
+{
+}
+
+void TestService::_testServiceCallback(
+    AsyncOpNode* op,
+    MessageQueue* q,
+    void* userParameter)
+{
+    TestService* service =
+        static_cast<TestService*>(q);
+
+    AsyncRequest* asyncRequest = static_cast<AsyncRequest*>(op->getRequest());
+    AsyncReply* asyncReply = static_cast<AsyncReply*>(op->removeResponse());
+    TestResponseMessage* response = 0;
+    MessageType msgType = asyncReply->getType();
+    if (msgType == ASYNC_ASYNC_MODULE_OP_RESULT)
+    {
+        response = reinterpret_cast<TestResponseMessage*>(
+            (static_cast<AsyncModuleOperationResult*>(asyncReply))->
+                get_result());
+    }
+    else
+    {
+        PEGASUS_TEST_ASSERT(0);
+    }
+    delete asyncReply;
+    op->removeRequest();
+    delete asyncRequest;
+    op->release();
+    service->return_op(op);
+    delete response;
+    responsesReceived++;
+}
+
+class TestModuleMessageHandler
+{
+public:
+    TestModuleMessageHandler(const String moduleName): moduleName(moduleName)
+    {
+    }
+    ~TestModuleMessageHandler()
+    {
+    }
+    Message* processMessage(Message *msg);
+private:
+    String moduleName;
 };
 
-
-test_module::test_module(const char *name, const char *controller_name)
-   : _controller(0), _module_handle(0),
-     _msg_rx(0), _msg_tx(0), _thread_ex(0), _name(name), 
-     _controller_name(controller_name)
+Message* TestModuleMessageHandler::processMessage(Message *msg)
 {
+    CIMRequestMessage *request = dynamic_cast<CIMRequestMessage*>(msg);
+    PEGASUS_TEST_ASSERT(request);
+    CIMResponseMessage* response = 0;
+    if (msg->getType() ==  DUMMY_MESSAGE)
+    {
+        response = request->buildResponse();
+    }
+    return response;
 }
 
-test_module::~test_module()
+static Message* receiveMessageCallback(
+    Message* message,
+    void* instance)
 {
-   if(_controller)
-   {
-       _controller->deregister_module(_name);
-   }
-}
+    TestModuleMessageHandler* mh =
+        reinterpret_cast<TestModuleMessageHandler*>(instance);
 
-
-Message *test_module::receive_msg(Message *msg, void *parm)
-{
-   test_module *myself = reinterpret_cast<test_module *>(parm);
-   if (msg && msg->getType() == CIM_GET_CLASS_REQUEST_MESSAGE)
-   {
-      cout << "received msg from peer " << endl;
-      
-      myself->_msg_rx++;
-      return new test_response(
-               static_cast<AsyncRequest *>(msg)->op, 
-               async_results::OK,  
-               msg->dest, 
-               "i am a test response"); 
-   }
-   return NULL;
+    return mh->processMessage(message);
 }
 
 
-void test_module::async_callback(Uint32 id, Message *msg, void *parm)
+void testRegisterModule(const char *moduleName)
 {
+    // Register the module with control Service.
+    TestModuleMessageHandler *module = 
+        new TestModuleMessageHandler(moduleName);
+    registeredModules.append(module);
+    controlService->register_module(
+        moduleName,
+        module,
+        receiveMessageCallback);
 
-   test_module *myself = reinterpret_cast<test_module *>(parm);
-   if (msg &&
-       (msg->getType() == CIM_GET_CLASS_RESPONSE_MESSAGE ||
-        msg->getType() == CIM_GET_CLASS_REQUEST_MESSAGE))
-   {
-      cout << "module async callback " << endl;
-      
-      (myself->_msg_rx)++;
-      delete msg;
-   }
+    // Try registering the same module, should get exception.
+    try
+    {
+        controlService->register_module(
+            moduleName,
+            module,
+            receiveMessageCallback);
+        PEGASUS_TEST_ASSERT(0);
+    }
+    catch(AlreadyExistsException&)
+    {
+    }
 }
 
-ThreadReturnType PEGASUS_THREAD_CDECL test_module::thread_func(void *parm)
+void _testModuleController()
 {
-   test_module *myself = reinterpret_cast<test_module *>(parm);
-   (myself->_thread_ex)++;
-   return 0;
-   
+    Uint32 cqid = controlService->getQueueId();
+    Uint32 tqid = testService->getQueueId();
+
+    String testModule1("testmodule1");
+    String testModule2("testmodule2");
+    for (Uint32 i = 1; i <= REQUESTS_ISSUED ; ++i)
+    {
+        TestRequestMessage *request = new TestRequestMessage(
+            String::EMPTY,
+            i,
+            QueueIdStack(cqid,tqid));
+
+        AsyncOpNode *op = controlService->get_op();
+
+        AsyncModuleOperationStart* mReq = new AsyncModuleOperationStart(
+            op,
+            cqid,
+            tqid,
+            true,
+            i % 2 ? testModule1 : testModule2,
+            request);
+
+        testService->SendAsync(
+            op,
+            cqid,
+            TestService::_testServiceCallback,        
+            testService,
+            0);
+    }
 }
-
-
-ModuleController *test_module::get_controller()
-{
-   if(_controller == NULL)
-   {
-      try 
-      {
-     
-     _controller = &(ModuleController::register_module(_controller_name, 
-                               _name,
-                               this,
-                               receive_msg,
-                               async_callback,
-                               &_module_handle));
-      }
-      catch(AlreadyExistsException &)
-      {
-     ;
-      }
-      
-   }
-   return _controller;
-}
-
-RegisteredModuleHandle *test_module::get_mod_handle()
-{
-   if(_controller == NULL)
-   {
-      try 
-      {
-     
-     _controller = &(ModuleController::register_module(_controller_name, 
-                               _name,
-                               this,
-                               receive_msg,
-                               async_callback,
-                               &_module_handle));
-      }
-      catch(AlreadyExistsException &)
-      {
-     ;
-      }
-      
-   }
-   return _module_handle;
-}
-
-
-class test_service : public MessageQueueService
-{
-   public:
-      typedef MessageQueueService Base;
-
-      test_service(const char *name);
-
-      virtual ~test_service();
-
-      virtual void _handle_incoming_operation(AsyncOpNode *operation);
-      virtual Boolean messageOK(const Message *msg);
-      void handle_test_request(AsyncRequest *msg);
-      virtual void _handle_async_request(AsyncRequest *req);
-      virtual void handleEnqueue()
-      {
-      }
-      virtual void handleEnqueue(Message *msg)
-      {
-      }
-      
-      
-   private:
-      test_service();
-      test_service(const test_service &);
-      test_service & operator =(const test_service &);
-};
-
-
-test_service::test_service(const char *name)
-         : Base(name, 0, 
-        MessageMask::ha_request | 
-        MessageMask::ha_reply | 
-        MessageMask::ha_async ) 
-{
-}
-
-test_service::~test_service()
-{
-}
-
-void test_service::_handle_incoming_operation(AsyncOpNode *operation)
-{
-   if ( operation != 0 )
-   {
-      Message* rq = operation->getRequest();
-
-      PEGASUS_TEST_ASSERT(rq != 0 );
-      if ( rq && (rq->getMask() & MessageMask::ha_async))
-      {
-     _handle_async_request(static_cast<AsyncRequest *>(rq));
-      }
-      else 
-      {
-     delete rq;
-     operation->release();
-     return_op(operation);
-      }
-   }
-   return;
-}
-
-
-Boolean test_service::messageOK(const Message *msg)
-{
-   return true;
-}
-
-void test_service::handle_test_request(AsyncRequest *msg)
-{
-   cout << "service received test request" << endl;
-   
-   if (msg->getType() == CIM_GET_CLASS_REQUEST_MESSAGE)
-   {
-       test_response *resp = 
-           new test_response(
-               msg->op, 
-               async_results::OK,  
-               msg->dest, 
-               "i am a test response");
-       _completeAsyncResponse(msg, resp, ASYNC_OPSTATE_COMPLETE, 0);
-   }
-}
-
-void test_service::_handle_async_request(AsyncRequest *req)
-{
-   if (req->getType() == CIM_GET_CLASS_REQUEST_MESSAGE)
-   {
-      req->op->processing();
-      handle_test_request(req);
-   }
-   else
-      Base::_handle_async_request(req);
-}
-
-
-typedef struct _test_module_parms 
-{
-      _test_module_parms(
-          const char *controller,
-          const char *peer,
-          const char *me)
-      {
-     _controller = strdup(controller);
-     _peer = strdup(peer);
-     _me = strdup(me);
-      }
-      
-      char *_controller;
-      char *_peer;
-      char *_me;
-      ~_test_module_parms()
-      {
-     delete _controller;
-     delete _peer;
-     delete _me;
-      }
-      
-} MODULE_PARMS;
-
-
-ThreadReturnType PEGASUS_THREAD_CDECL module_func(void *parm)
-{
-   Thread *myself = reinterpret_cast<Thread *>(parm);
-   MODULE_PARMS *parms = reinterpret_cast<MODULE_PARMS *>(myself->get_parm());
-      
-   test_module *my_module = new test_module(parms->_me, parms->_controller);
-   my_module->get_controller();
-   my_module->get_mod_handle();
-   
-   Uint32 svc_qid = 
-      my_module->get_controller()->find_service(*(my_module->get_mod_handle())
-                                                , SERVICE_NAME);
-   MessageQueue *svce = MessageQueue::lookup(svc_qid);
-   if(svce)
-      cout << "Found Service " << SERVICE_NAME << " at " << svce << endl;
-   Uint32 peer_qid;
-   do 
-   {  
-      peer_qid = 
-     my_module->get_controller()->find_module_in_service(
-         *(my_module->get_mod_handle()), String(parms->_peer));
-
-      if((svce = MessageQueue::lookup(peer_qid)) == NULL)
-     Threads::sleep(1);
-   } while( svce == NULL);
-   
-   cout << "Found Peer Module " << parms->_peer << " at " << svce << endl;
-   
-   Threads::sleep(1);
-   
-   test_request *req;
-   Boolean success;
-
-   req = 
-      new test_request(
-               0, //MessageQueueService::get_op(), 
-               svc_qid,
-               my_module->get_controller()->getQueueId(),
-               "hello");
-
-   AsyncMessage *response = 
-       my_module->get_controller()->ModuleSendWait(
-                                *(my_module->get_mod_handle()),
-                                    svc_qid,
-                                    req);
-   if (response && response->getType() == CIM_GET_CLASS_RESPONSE_MESSAGE)
-       cout << " ModuleSendWait to service successful" << endl;
-   
-   delete req;
-   delete response;
-   
-   Threads::sleep(1);
-
-   req = 
-      new test_request(
-               0, //MessageQueueService::get_op(), 
-               peer_qid,
-               my_module->get_controller()->getQueueId(),
-               "hello");
-   
- 
-   response = my_module->get_controller()->
-                    ModuleSendWait(*(my_module->get_mod_handle()),
-                              peer_qid,
-                              String(parms->_peer),
-                              req);
-   
-   delete req; 
-   delete response;
-   Threads::sleep(1);
-   cout << " ModuleSendWait to module  successfull " << endl;
-   
-   req = 
-      new test_request(
-               0, //MessageQueueService::get_op(), 
-               svc_qid,
-               my_module->get_controller()->getQueueId(),
-               "hello");
-
-   success = my_module->get_controller()->
-                    ModuleSendAsync( (*my_module->get_mod_handle()),
-                                   0, 
-                                   svc_qid,
-                                   req,
-                                   my_module);
-   if(success == true )
-      cout << "SendAsync to service successful" << endl;
-
-   delete req;
-   Threads::sleep(1);
-   req = 
-      new test_request(
-               0, //MessageQueueService::get_op(), 
-               peer_qid,
-               my_module->get_controller()->getQueueId(),
-               "hello");
-
-   
-   success = my_module->get_controller()->
-                        ModuleSendAsync( (*my_module->get_mod_handle()),
-                               0,  
-                               peer_qid,
-                               String(parms->_peer),
-                               req,
-                               my_module);
-   
-   delete req;
-   
-   if(success == true )
-      cout << "SendAsync to module successful" << endl;
-
-
-   req = 
-      new test_request(
-               0, //MessageQueueService::get_op(), 
-               peer_qid,
-               my_module->get_controller()->getQueueId(),
-               "hello");
-
-   success = my_module->get_controller()->ClientSendAsync(
-                               0, 
-                               svc_qid,
-                               req,
-                               test_module::async_callback,
-                               my_module);
-   
-   delete req;
-   if(success == true )
-      cout << "ClientSendAsync to service successful" << endl;
-
-   req = 
-      new test_request(
-               0, //MessageQueueService::get_op(), 
-               peer_qid,
-               my_module->get_controller()->getQueueId(),
-               "hello");
-   
-   success = my_module->get_controller()->ClientSendAsync(
-                               0, 
-                               peer_qid,
-                               String(parms->_peer),
-                               req,
-                               test_module::async_callback,
-                               my_module);
-   
-   delete req;
-   if(success == true )
-      cout << "ClientSendAsync to module successful" << endl;
-
-
-
-   req = 
-      new test_request(
-               0, //MessageQueueService::get_op(), 
-               peer_qid,
-               my_module->get_controller()->getQueueId(),
-               "hello");
-   
-   success = my_module->get_controller()->
-                        ModuleSendForget( (*my_module->get_mod_handle()),
-                                svc_qid,
-                                req);
-   
-   if(success == true )
-      cout << "ModuleSendForget to service successful" << endl;
-
-
-
-   req = 
-      new test_request(
-               0, //MessageQueueService::get_op(), 
-               peer_qid,
-               my_module->get_controller()->getQueueId(),
-               "hello");
-   
-   success = my_module->get_controller()->ModuleSendForget(
-                        (*my_module->get_mod_handle()),
-                                peer_qid,
-                                String(parms->_peer),
-                                req);
-   
-   if(success == true )
-      cout << "ModuleSendForget to module successful" << endl;
-
-
-
-   req = 
-      new test_request(
-               0, //MessageQueueService::get_op(), 
-               peer_qid,
-               my_module->get_controller()->getQueueId(),
-               "hello");
-   
-   success = my_module->get_controller()->ClientSendForget(
-                                svc_qid,
-                                req);
-   
-   if(success == true )
-      cout << "ClientSendForget to service successful" << endl;
-
-
-
-   req = 
-      new test_request(
-               0, //MessageQueueService::get_op(), 
-               peer_qid, 
-               my_module->get_controller()->getQueueId(),
-               "hello");
-   
-   success = my_module->get_controller()->ClientSendForget(
-                                peer_qid,
-                                String(parms->_peer),
-                                req);
-   
-   if(success == true )
-      cout << "ClientSendForget to module successful" << endl;
-
-   Threads::sleep(1000);
-   delete my_module;
-   cout << "module deleted" << endl;
-   
-   return 0;
-}
-
-
-ModuleController internal_controller(CONTROLLER_NAME);
-test_service internal_service(SERVICE_NAME);
 
 int main(int argc, char **argv)
 {
-   cout << "module controller at " << internal_controller.getQueueId() << endl;
-   cout << "service at " << internal_service.getQueueId() << endl;
+    controlService = new ModuleController(CONTROLLER_NAME);
+    testService = new TestService(TESTSERVICE_NAME);
+    cout << "controller queue id " << controlService->getQueueId() << endl;
+    cout << "test service queue id " << testService->getQueueId() << endl;
 
-   MODULE_PARMS parms_one(CONTROLLER_NAME, "two", "one");
-   MODULE_PARMS parms_two(CONTROLLER_NAME, "one", "two");
-   
-   Thread one(module_func, (void *)&parms_one, false);
-   Thread two(module_func, (void *)&parms_two, false);
-   two.run();
-   one.run();
+    cout << "testing module registration " << endl;
+    testRegisterModule("testmodule1");
+    testRegisterModule("testmodule2");
+  
+    
+    cout << "testing module message dispatch " << endl;
+    _testModuleController();
 
-   
-   one.join();
-   two.join(); 
-   cout << " joined" << endl;
-   return(0);
+    // wait until we get all responses.
+    while (REQUESTS_ISSUED != responsesReceived.get())
+    {
+        Threads::sleep(10);
+    }
+
+    delete controlService;
+    delete testService;
+    
+    cout << "deleting modules " << endl;
+    for (Uint32 i = 0, n = registeredModules.size() ; i < n ; ++i)
+    {
+        delete registeredModules[i];
+    }
+
+    return 0;
 }
 

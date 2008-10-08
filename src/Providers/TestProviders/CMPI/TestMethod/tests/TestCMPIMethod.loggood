@@ -1090,9 +1090,32 @@
  ++++ 1 (CMPI_RC_OK)
  ++++ 2 (CMPI_RC_OK)
  ++++ 3 (CMPI_RC_OK)
+ ++++  Creating ObjectPath for TestCMPI_Embedded instance
+ CMNewObjectPath status (CMPI_RC_OK)
+ ++++ CMAddKey (CMPI_RC_OK)
+ ++++  Creating TestCMPI_Embedded instance
+ CMNewInstance status (CMPI_RC_OK)
+ ++++ Setting TestCMPI_Embedded instance properties
+ ++++ CMSetProperty  (CMPI_RC_OK)
+ ++++ CMSetProperty  (CMPI_RC_OK)
+ ++++ CMSetProperty  (CMPI_RC_OK)
+ ++++ clone 1 (CMPI_RC_OK)
+ ++++ CMSetProperty  (CMPI_RC_OK)
+ ++++ CMAddKey (CMPI_RC_OK)
+ ++++ CMSetObjectPath  (CMPI_RC_OK)
+ ++++ clone 2 (CMPI_RC_OK)
+ ++++ CMSetProperty  (CMPI_RC_OK)
+ ++++ CMAddKey (CMPI_RC_OK)
+ ++++ CMSetObjectPath  (CMPI_RC_OK)
  ++++ Setting outputInstance arg
  ++++ (CMPI_RC_OK)
  ++++ Setting outputObject arg
+ ++++ (CMPI_RC_OK)
+ ++++ Setting outputEmbeddedObject arg
+ ++++ Creating output  arg array elements
+ ++++ 1 (CMPI_RC_OK)
+ ++++ 2 (CMPI_RC_OK)
+ ++++ 3 (CMPI_RC_OK)
  ++++ (CMPI_RC_OK)
  ++++ Calling CMReturnData on processArrayEmbeddedInstance operation
  ++++ Calling CMReturnDone on processArrayEmbeddedInstance operation

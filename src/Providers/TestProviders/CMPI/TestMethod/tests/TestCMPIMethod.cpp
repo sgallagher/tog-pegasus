@@ -889,7 +889,7 @@ void test14 (CIMClient & client)
     }
 
     // Now test the output parameters
-    PEGASUS_TEST_ASSERT(outParams.size() == 2);
+    PEGASUS_TEST_ASSERT(outParams.size() == 3);
     CIMValue outParamValue = outParams[0].getValue();
     PEGASUS_TEST_ASSERT(outParamValue.isArray());
     PEGASUS_TEST_ASSERT(!outParamValue.isNull());
@@ -937,6 +937,31 @@ void test14 (CIMClient & client)
             PEGASUS_TEST_ASSERT(outputProp.getValue() == inputProp.getValue());
         }
     }
+
+    outParamValue = outParams[2].getValue();
+    PEGASUS_TEST_ASSERT(outParamValue.isArray());
+    PEGASUS_TEST_ASSERT(!outParamValue.isNull());
+
+    outParamValue.get(objs);
+
+    for (Uint32 j = 0, m = objs.size(); j < m ; ++j)
+    {
+        outputInstance = CIMInstance(objs[j]);
+        Uint32 id;
+        CIMInstance emInstance;
+        CIMObject emObject;
+        outputInstance.getProperty(
+            outputInstance.findProperty("id")).getValue().get(id);
+        outputInstance.getProperty(
+            outputInstance.findProperty("emInstance")).
+                getValue().get(emInstance);
+        outputInstance.getProperty(
+            outputInstance.findProperty("emObject")).getValue().get(emObject);
+        PEGASUS_TEST_ASSERT(eObjs[j].identical(emInstance));
+        PEGASUS_TEST_ASSERT(eObjs[j].identical(CIMInstance(emObject)));
+        PEGASUS_TEST_ASSERT(id == j+1);
+    }
+
 }
 
 void _test (CIMClient & client)

@@ -3287,6 +3287,9 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
     {
         CMPIData data1, data2, data3;
         CMPIInstance *inst1, *inst2, *inst3;
+        CMPIInstance *emInst1, *emInst2, *emInst3;
+        CMPIObjectPath *objPath;
+        CMPIValue value;
         CMPIArray *outArray = CMNewArray (_broker, 3, CMPI_instance, NULL);
         PROV_LOG("++++ Creating instance for processArryEmbeddedInstance");
         instance = _createInstance();
@@ -3319,6 +3322,46 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
         rc = CMSetArrayElementAt(outArray, 2, &inst3, CMPI_instance);
         PROV_LOG("++++ 3 (%s)", strCMPIStatus (rc));
 
+        PROV_LOG ("++++  Creating ObjectPath for TestCMPI_Embedded instance");
+        objPath = CMNewObjectPath (
+            _broker,
+            "test/TestProvider",
+            "TestCMPI_Embedded",
+            &rc);
+        PROV_LOG("CMNewObjectPath status (%s)", strCMPIStatus (rc));
+        value.uint32 = 1;
+        rc = CMAddKey(objPath,"id",&value, CMPI_uint32);
+        PROV_LOG("++++ CMAddKey (%s)", strCMPIStatus (rc));
+        PROV_LOG ("++++  Creating TestCMPI_Embedded instance");
+        emInst1 = CMNewInstance(_broker, objPath, &rc);
+        PROV_LOG("CMNewInstance status (%s)", strCMPIStatus (rc));
+        PROV_LOG("++++ Setting TestCMPI_Embedded instance properties");
+        rc = CMSetProperty(emInst1, "id", &value, CMPI_uint32);
+        PROV_LOG("++++ CMSetProperty  (%s)", strCMPIStatus (rc));
+        value.inst = inst1;
+        rc = CMSetProperty(emInst1, "emInstance", &value, CMPI_instance);
+        PROV_LOG("++++ CMSetProperty  (%s)", strCMPIStatus (rc));
+        rc = CMSetProperty(emInst1, "emObject", &value, CMPI_instance);
+        PROV_LOG("++++ CMSetProperty  (%s)", strCMPIStatus (rc));
+        emInst2 = emInst1->ft->clone(emInst1, &rc);
+        PROV_LOG("++++ clone 1 (%s)", strCMPIStatus (rc));
+        value.uint32 = 2;
+        rc = CMSetProperty(emInst2, "id", &value, CMPI_uint32);
+        PROV_LOG("++++ CMSetProperty  (%s)", strCMPIStatus (rc));
+        rc = CMAddKey(objPath,"id",&value, CMPI_uint32);
+        PROV_LOG("++++ CMAddKey (%s)", strCMPIStatus (rc));
+        rc = CMSetObjectPath(emInst2, objPath);
+        PROV_LOG("++++ CMSetObjectPath  (%s)", strCMPIStatus (rc));
+        emInst3 = emInst1->ft->clone(emInst1, &rc);
+        PROV_LOG("++++ clone 2 (%s)", strCMPIStatus (rc));
+        value.uint32 = 3;
+        rc = CMSetProperty(emInst3, "id", &value, CMPI_uint32);
+        PROV_LOG("++++ CMSetProperty  (%s)", strCMPIStatus (rc));
+        rc = CMAddKey(objPath,"id",&value, CMPI_uint32);
+        PROV_LOG("++++ CMAddKey (%s)", strCMPIStatus (rc));
+        rc = CMSetObjectPath(emInst3, objPath);
+        PROV_LOG("++++ CMSetObjectPath  (%s)", strCMPIStatus (rc));
+
         PROV_LOG("++++ Setting outputInstance arg");
         rc = CMAddArg (out, "outputInstances",
           (CMPIValue *) &outArray, CMPI_instanceA);
@@ -3326,6 +3369,20 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
 
         PROV_LOG("++++ Setting outputObject arg");
         rc = CMAddArg (out, "outputObjects",
+          (CMPIValue *) &outArray, CMPI_instanceA);
+        PROV_LOG("++++ (%s)", strCMPIStatus (rc));
+
+        PROV_LOG("++++ Setting outputEmbeddedObject arg");
+
+        PROV_LOG("++++ Creating output  arg array elements");
+        rc = CMSetArrayElementAt(outArray, 0,&emInst1, CMPI_instance);
+        PROV_LOG("++++ 1 (%s)", strCMPIStatus (rc));
+        rc = CMSetArrayElementAt(outArray, 1, &emInst2, CMPI_instance);
+        PROV_LOG("++++ 2 (%s)", strCMPIStatus (rc));
+        rc = CMSetArrayElementAt(outArray, 2, &emInst3, CMPI_instance);
+        PROV_LOG("++++ 3 (%s)", strCMPIStatus (rc));
+
+        rc = CMAddArg (out, "outputEmbeddedObjects",
           (CMPIValue *) &outArray, CMPI_instanceA);
         PROV_LOG("++++ (%s)", strCMPIStatus (rc));
 

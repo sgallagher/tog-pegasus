@@ -88,6 +88,16 @@ class TestCMPI_ExecQuery : TestCMPI_Instance
     sint8  s8;
 };
 
+class TestCMPI_Embedded
+{
+    [key]
+    uint32 id;
+    [EmbeddedInstance("TestCMPI_Parent")]
+    string emInstance;
+    [EmbeddedObject]
+    string emObject;
+};
+
 class TestCMPI_Method : TestCMPI_Parent
 {
 	uint32 TestCMPIBroker (
@@ -124,7 +134,10 @@ class TestCMPI_Method : TestCMPI_Parent
         [OUT, EmbeddedInstance("TestCMPI_Parent")]
         string outputInstances[],
         [OUT, EmbeddedObject("TestCMPI_Parent")]
-        string outputObjects[]);
+        string outputObjects[],
+        [OUT, EmbeddedObject("TestCMPI_Embedded")]
+        string outputEmbeddedObjects[]);
+        
         
     uint64 firstPropertyName;
     uint64 secondPropertyName;

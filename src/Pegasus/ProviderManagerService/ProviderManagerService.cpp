@@ -94,14 +94,6 @@ ProviderManagerService::ProviderManagerService(
     _basicProviderManagerRouter = 0;
     _oopProviderManagerRouter = 0;
 
-/*
-ATTN: put ifdef's around this!
-*/
-
-    // Limit the number of threads that the provider manager service
-    // can create at once.
-    _thread_pool->setMaxThreads(5);
-
     // Determine which ProviderManagerRouter(s) to use
 
     _forceProviderProcesses = ConfigManager::parseBooleanValue(

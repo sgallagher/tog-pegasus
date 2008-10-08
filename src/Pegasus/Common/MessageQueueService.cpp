@@ -41,7 +41,12 @@ cimom *MessageQueueService::_meta_dispatcher = 0;
 AtomicInt MessageQueueService::_service_count(0);
 Mutex MessageQueueService::_meta_dispatcher_mutex;
 
-static struct timeval deallocateWait = {300, 0};
+static struct timeval deallocateWait = {30, 0};
+
+// set max threads in a single thread pool. Since there is only
+// a single threadpool, this sets the maximum threads that can
+// be used minus permanent threads and provider added threads.
+const Uint32 maximumThreadsInPool = 20;
 
 ThreadPool *MessageQueueService::_thread_pool = 0;
 
@@ -204,8 +209,9 @@ MessageQueueService::MessageQueueService(
         //  _thread_pool = new ThreadPool(initial_cnt, "MessageQueueService",
         //   minimum_cnt, maximum_cnt, deallocateWait);
         //
-        _thread_pool =
-            new ThreadPool(0, "MessageQueueService", 0, 0, deallocateWait);
+
+        _thread_pool = new ThreadPool(0, "MessageQueueService", 0,
+                               maximumThreadsInPool, deallocateWait);
     }
     _service_count++;
 

@@ -111,20 +111,12 @@ CIMProperty ObjectNormalizer::processProperty(
     CIMType instPropType = instProperty.getType();
     if (referencePropType != instPropType)
     {
-        // CMPI Providers cannot return a CIMTYPE_INSTANCE, so if the
-        // referenceProperty type is CIMTYPE_INSTANCE and the instProperty
-        // type is CIMTYPE_OBJECT, ignore the mismatch. The Normalizer
-        // will correct it.
-        if (referencePropType != CIMTYPE_INSTANCE ||
-            instPropType != CIMTYPE_OBJECT)
-        {
-            MessageLoaderParms message(
-                "Common.ObjectNormalizer.INVALID_PROPERTY_TYPE",
-                "Invalid property type: $0",
-                instProperty.getName().getString());
+        MessageLoaderParms message(
+            "Common.ObjectNormalizer.INVALID_PROPERTY_TYPE",
+            "Invalid property type: $0",
+            instProperty.getName().getString());
 
-            throw CIMException(CIM_ERR_FAILED, message);
-        }
+        throw CIMException(CIM_ERR_FAILED, message);
     }
 
     // TODO: check array size?
@@ -142,19 +134,7 @@ CIMProperty ObjectNormalizer::processProperty(
     // update value
     if (!instProperty.getValue().isNull())
     {
-        // This happens ONLY when the referencePropType is CIMTYPE_INSTANCE
-        // and the cimPropType is CIMTYPE_OBJECT, otherwise an exception
-        // would have been thrown. Correct the mismatch here.
-        if (referencePropType != instPropType)
-        {
-            CIMObject tmpObject;
-            instProperty.getValue().get(tmpObject);
-            normalizedProperty.setValue(CIMInstance(tmpObject));
-        }
-        else
-        {
-            normalizedProperty.setValue(instProperty.getValue());
-        }
+        normalizedProperty.setValue(instProperty.getValue());
     }
 
     // update class origin

@@ -38,7 +38,9 @@
     {"httpsPort",           "5989"},
     {"home",                ""},
     {"daemon",              "true"},
+#ifdef PEGASUS_ENABLE_SLP
     {"slp",                 "false"},
+#endif
     {"enableAuthentication", "true"},
     {"enableAssociationTraversal", "true"},
     {"enableIndicationService", "true"},

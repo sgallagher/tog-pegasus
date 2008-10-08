@@ -48,6 +48,8 @@
 # endif
     {"home", "/QOpenSys/QIBM/UserData/UME/Pegasus", IS_STATIC, 
         0, 0, IS_VISIBLE},
+#ifdef PEGASUS_ENABLE_SLP
     {"slp", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+#endif
     
 #endif /* Pegasus_DefaultPropertyTablePase_h */

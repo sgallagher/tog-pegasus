@@ -110,8 +110,10 @@ static struct OwnerEntry _properties[] =
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"daemon",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
+#ifdef PEGASUS_ENABLE_SLP
     {"slp",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
+#endif
     {"enableAssociationTraversal",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"enableIndicationService",

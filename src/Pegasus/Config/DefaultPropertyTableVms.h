@@ -45,7 +45,9 @@
 #endif
     {"home", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"daemon", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+#ifdef PEGASUS_ENABLE_SLP
     {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+#endif
     {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 #ifdef PEGASUS_DEFAULT_ENABLE_OOP

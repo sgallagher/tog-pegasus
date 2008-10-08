@@ -60,7 +60,7 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     Constant representing the Basic authentication challenge header.
 */
-static const String BASIC_CHALLENGE_HEADER = "WWW-Authenticate: Basic \"";
+static const String BASIC_CHALLENGE_HEADER = "WWW-Authenticate: Basic ";
 
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 # if (__TARGET_LIB__ < 0x410A0000) 
@@ -78,27 +78,15 @@ SecureBasicAuthenticator::SecureBasicAuthenticator()
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "SecureBasicAuthenticator::SecureBasicAuthenticator()");
 
-    //
-    // get the local system name
-    //
-    _realm.assign(System::getHostName());
+    // Build Authentication parameter realm required for Basic Challenge
+    // e.g. realm="HostName"
+    
+    _realm.assign("realm=");
+    _realm.append(Char16('"'));
+    _realm.append(System::getHostName());
+    _realm.append(Char16('"'));
 
-    //
-    // get the configured port number
-    //
-    ConfigManager* configManager = ConfigManager::getInstance();
-
-    String port = configManager->getCurrentValue("httpPort");
-
-    //
-    // Create realm that will be used for Basic challenges
-    //
-    _realm.append(":");
-    _realm.append(port);
-
-    //
     // Get a user manager instance handler
-    //
     _userManager = UserManager::getInstance();
                                        
 #ifdef PEGASUS_OS_ZOS
@@ -317,7 +305,6 @@ String SecureBasicAuthenticator::getAuthResponseHeader()
     //
     String responseHeader = BASIC_CHALLENGE_HEADER;
     responseHeader.append(_realm);
-    responseHeader.append("\"");
 
     PEG_METHOD_EXIT();
 

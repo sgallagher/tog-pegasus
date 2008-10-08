@@ -45,19 +45,13 @@ PAMBasicAuthenticator::PAMBasicAuthenticator()
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::PAMBasicAuthenticator()");
 
-    // Build up realm: <hostname>:<port>
+    // Build Authentication parameter realm required for Basic Challenge
+    // e.g. realm="HostName"
 
-    _realm.assign(System::getHostName());
-
-    // get the configured port number
-    ConfigManager* configManager = ConfigManager::getInstance();
-    String port = configManager->getCurrentValue("httpPort");
-
-    //
-    // Create realm that will be used for Basic challenges
-    //
-    _realm.append(":");
-    _realm.append(port);
+    _realm.assign("realm=");
+    _realm.append(Char16('"'));
+    _realm.append(System::getHostName());
+    _realm.append(Char16('"'));
 
     PEG_METHOD_EXIT();
 }
@@ -105,11 +99,10 @@ String PAMBasicAuthenticator::getAuthResponseHeader()
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::getAuthResponseHeader()");
 
-    // Build response header: WWW-Authenticate: Basic "<hostname>:<port>"
+    // Build response header: WWW-Authenticate: Basic realm="HostName"
 
-    String responseHeader = "WWW-Authenticate: Basic \"";
+    String responseHeader = "WWW-Authenticate: Basic ";
     responseHeader.append(_realm);
-    responseHeader.append("\"");
 
     PEG_METHOD_EXIT();
     return responseHeader;

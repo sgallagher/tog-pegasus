@@ -106,7 +106,7 @@ void testAuthHeader()
 
     String respHeader = basicAuthHandler.getAuthResponseHeader();
 
-    if (verbose) cout << "realm = " << respHeader << endl;
+    if (verbose) cout << "Challenge Header = " << respHeader << endl;
 
     PEGASUS_TEST_ASSERT(respHeader.size() != 0);
 }

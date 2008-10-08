@@ -1848,7 +1848,7 @@ void XmlWriter::appendHttpErrorResponseHeader(
 //     Returns unauthorized message in the following format:
 //
 //        HTTP/1.1 401 Unauthorized
-//        WWW-Authenticate: Basic "hostname:80"
+//        WWW-Authenticate: Basic realm="HostName"
 //        <HTML><HEAD>
 //        <TITLE>401 Unauthorized</TITLE>
 //        </HEAD><BODY BGCOLOR="#99cc99">

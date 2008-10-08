@@ -45,7 +45,7 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     Constant representing the Basic authentication challenge header.
 */
-static const String BASIC_CHALLENGE_HEADER = "WWW-Authenticate: Basic \"";
+static const String BASIC_CHALLENGE_HEADER = "WWW-Authenticate: Basic ";
 
 /* constructor. */
 PAMBasicAuthenticator::PAMBasicAuthenticator() 
@@ -53,23 +53,13 @@ PAMBasicAuthenticator::PAMBasicAuthenticator()
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::PAMBasicAuthenticator()");
 
-    //
-    // get the local system name
-    //
-    _realm.assign(System::getHostName());
+    // Build Authentication parameter realm required for Basic Challenge
+    // e.g. realm="HostName"
 
-    //
-    // get the configured port number
-    //
-    ConfigManager* configManager = ConfigManager::getInstance();
-
-    String port = configManager->getCurrentValue("httpPort");
-
-    //
-    // Create realm that will be used for Basic challenges
-    //
-    _realm.append(":");
-    _realm.append(port);
+    _realm.assign("realm=");
+    _realm.append(Char16('"'));
+    _realm.append(System::getHostName());
+    _realm.append(Char16('"'));
 
     PEG_METHOD_EXIT();
 }
@@ -131,7 +121,6 @@ String PAMBasicAuthenticator::getAuthResponseHeader()
     //
     String responseHeader = BASIC_CHALLENGE_HEADER;
     responseHeader.append(_realm);
-    responseHeader.append("\"");
 
     PEG_METHOD_EXIT();
 

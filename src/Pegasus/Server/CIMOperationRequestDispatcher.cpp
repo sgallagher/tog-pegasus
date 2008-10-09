@@ -955,9 +955,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                     MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
                 PEGASUS_QUEUENAME_CONTROLSERVICE);
-#endif  // PEGASUS_ENABLE_INTEROP_PROVIDER
 
-#ifdef PEGASUS_ENABLE_SLP
             _routing_table.insert_record(
                 PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM,
                 PEGASUS_NAMESPACENAME_INTEROP,
@@ -1117,7 +1115,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                     MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
                 PEGASUS_QUEUENAME_CONTROLSERVICE);
-#endif // PEGASUS_ENABLE_SLP
+#endif  // PEGASUS_ENABLE_INTEROP_PROVIDER
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
             _routing_table.insert_record(

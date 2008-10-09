@@ -90,7 +90,8 @@ SecureBasicAuthenticator::SecureBasicAuthenticator()
     _userManager = UserManager::getInstance();
                                        
 #ifdef PEGASUS_OS_ZOS
-
+    ConfigManager* configManager = ConfigManager::getInstance();
+    
     if (String::equalNoCase(
         configManager->getCurrentValue("enableCFZAPPLID"),"true"))
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM

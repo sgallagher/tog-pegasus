@@ -547,7 +547,8 @@ endif
 ##         we are providing a dummy password. 
 ##
 ###############################################################################
-SSL_IPV4_TS1_CONFIG_OPTIONS = enableHttpsConnection=true 
+SSL_IPV4_TS1_CONFIG_OPTIONS = enableHttpsConnection=true \
+      enableAuthentication=false
 SSL_IPV4_TS1_CMD_1 = \
         osinfo -s -w notapassword -h 127.0.0.1 -p 5989
 SSL_IPV4_TS1_CMD_2 = \
@@ -581,7 +582,8 @@ endif
 ##         on certain versions. 
 ##
 ###############################################################################
-SSL_IPV6_TS1_CONFIG_OPTIONS = enableHttpsConnection=true 
+SSL_IPV6_TS1_CONFIG_OPTIONS = enableHttpsConnection=true \
+      enableAuthentication=false
 SSL_IPV6_TS1_CMD_1 = \
         osinfo -s -w notapassword -h ::1 -p 5989
 SSL_IPV6_TS1_CMD_2 = \

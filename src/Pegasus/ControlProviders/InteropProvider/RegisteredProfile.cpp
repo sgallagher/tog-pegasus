@@ -133,8 +133,7 @@ CIMInstance InteropProvider::buildRegisteredProfile(
     // Determine if SLP is currently enabled in the server. If so, specify
     // SLP as the advertise type.
     Array<Uint16> advertiseTypes;
-    ConfigManager* configManager = ConfigManager::getInstance();
-    if (String::equal(configManager->getCurrentValue("slp"), "true"))
+    if (enableSLP)
     {
         advertiseTypes.append(3); // Advertised via SLP
     }

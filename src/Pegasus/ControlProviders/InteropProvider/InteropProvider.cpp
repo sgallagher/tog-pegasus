@@ -96,6 +96,13 @@ InteropProvider::InteropProvider(CIMRepository * rep) : repository(rep),
     }
 #endif
 
+#ifdef PEGASUS_ENABLE_SLP
+    enableSLP = ConfigManager::parseBooleanValue(
+        ConfigManager::getInstance()->getCurrentValue("slp"));
+#else
+    enableSLP = false;
+#endif
+    
     PEG_METHOD_EXIT();
 }
 

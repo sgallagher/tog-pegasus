@@ -392,6 +392,8 @@ private:
     Array<String> profileIds;
     Array<CIMNameArray> conformingElements;
     Array<CIMNamespaceArray> elementNamespaces;
+
+    Boolean enableSLP;
 };
 
 PEGASUS_NAMESPACE_END

@@ -268,8 +268,7 @@ CIMInstance InteropProvider::buildCIMXMLCommunicationMechanismInstance(
 
     // AdvertiseTypes property
     Array<Uint16> advertiseTypes;
-    ConfigManager* configManager = ConfigManager::getInstance();
-    if (String::equal(configManager->getCurrentValue("slp"), "true"))
+    if (enableSLP)
     {
         advertiseTypes.append(3); // Advertised via SLP
     }

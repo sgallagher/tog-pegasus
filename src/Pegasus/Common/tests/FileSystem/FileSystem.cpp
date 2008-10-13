@@ -115,7 +115,7 @@ int main(int argc, char** argv)
 
     PEGASUS_TEST_ASSERT(FileSystem::glob(path ,  "*", globList));
     _printArray("glob 1 . *" , globList);
-    PEGASUS_TEST_ASSERT(globList.size() >= 4);
+    PEGASUS_TEST_ASSERT(globList.size() >= 3);
 
     PEGASUS_TEST_ASSERT(FileSystem::glob( ".",  "*.cpp", globList));
     PEGASUS_TEST_ASSERT(globList.size() == 1);

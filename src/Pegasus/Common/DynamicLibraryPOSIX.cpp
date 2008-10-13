@@ -31,33 +31,66 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Platform_VMS_h
-#define Pegasus_Platform_VMS_h
+#include "DynamicLibrary.h"
 
-//#pragma message disable codcauunr
-//#pragma message disable unscomzer
-//#pragma message disable unrintunr
-#if defined(PEGASUS_PLATFORM_VMS_ALPHA_DECCXX)
-#pragma message disable labelnotreach
-#endif
-//#pragma message disable longextern
-//#pragma message disable missingreturn
+#include <dlfcn.h>
 
-#define BadCreateHandler BADCREATEHANDLER
-#define PegasusCreateProvider PEGASUSCREATEPROVIDER
-#define PegasusCreateHandler PEGASUSCREATEHANDLER
-#define PegasusCreateProviderAdapter PEGASUSCREATEPROVIDERADAPTER
-#define PegasusCreateProviderManager PEGASUSCREATEPROVIDERMANAGER
-#define getProviderManagerInterfaceNames GETPROVIDERMANAGERINTERFACENAME
-#define getProviderManagerInterfaceVersions GETPROVIDERMANAGERINTERFACEVERS
-#define callme CALLME
-
-// BSD 4.3 is the default. _SOCKADDR_LEN changes to BSD 4.4 for IPV6 support.
-#ifndef _SOCKADDR_LEN
-#define _SOCKADDR_LEN 1
+#if defined(PEGASUS_ZOS_SECURITY)
+# include <sys/stat.h>
+# include "DynamicLibraryzOS_inline.h"
 #endif
 
-/* use POSIX read-write locks on this platform */
-#define PEGASUS_USE_POSIX_RWLOCK
+PEGASUS_NAMESPACE_BEGIN
 
-#endif  /* Pegasus_Platform_VMS_h */
+Boolean DynamicLibrary::_load()
+{
+    CString cstr = _fileName.getCString();
+
+#if defined(PEGASUS_ZOS_SECURITY)
+    if (!hasProgramControl(cstr))
+    {
+        return false;
+    }
+#endif
+
+#if defined(PEGASUS_OS_ZOS)
+    _handle = dlopen(cstr, RTLD_LAZY | RTLD_GLOBAL);
+#elif defined(PEGASUS_OS_VMS)
+    _handle = dlopen(cstr, RTLD_NOW);
+#else
+    _handle = dlopen(cstr, RTLD_NOW | RTLD_GLOBAL);
+#endif
+
+    if (_handle == 0)
+    {
+        // Record the load error message
+        _loadErrorMessage = dlerror();
+    }
+
+    return isLoaded();
+}
+
+void DynamicLibrary::_unload()
+{
+    dlclose(_handle);
+}
+
+DynamicLibrary::DynamicSymbolHandle DynamicLibrary::getSymbol(
+    const String& symbolName)
+{
+    PEGASUS_ASSERT(isLoaded());
+
+#if defined(PEGASUS_OS_VMS)
+    String str = symbolName.subString(0, 31);
+    CString cstr = str.getCString();
+#else
+    CString cstr = symbolName.getCString();
+#endif
+
+    DynamicSymbolHandle func =
+        (DynamicSymbolHandle) dlsym(_handle, (const char *)cstr);
+
+    return func;
+}
+
+PEGASUS_NAMESPACE_END

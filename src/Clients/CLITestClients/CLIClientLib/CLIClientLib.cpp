@@ -2512,7 +2512,7 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 
     // process localOnly and !localOnly parameters
     opts.localOnly = om.isTrue("localOnly");
-    if (om.isTrue("!localOnly") || om.isTrue("notNocalOnly"))
+    if (om.isTrue("!localOnly") || om.isTrue("notLocalOnly"))
     {
         opts.localOnly = false;
     }

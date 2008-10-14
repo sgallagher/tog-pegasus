@@ -41,6 +41,7 @@
 #include "DefaultPropertyOwner.h"
 #include "ConfigManager.h"
 #include <Pegasus/Common/AuditLogger.h>
+#include <Pegasus/Common/StringConversion.h>
 
 PEGASUS_USING_STD;
 
@@ -299,11 +300,18 @@ Boolean DefaultPropertyOwner::isValid(
     if (String::equalNoCase(name, "socketWriteTimeout") ||
         String::equalNoCase(name, "idleConnectionTimeout"))
     {
-        Uint32 timeoutValue;
-        char dummyChar;
-        int numConversions =
-            sscanf(value.getCString(), "%u%c", &timeoutValue, &dummyChar);
-        return ((timeoutValue != 0) && (numConversions == 1));
+        Uint64 v;
+        return
+            StringConversion::decimalStringToUint64(value.getCString(), v) &&
+            StringConversion::checkUintBounds(v, CIMTYPE_UINT32) &&
+            (v != 0);
+    }
+    if (String::equalNoCase(name, "maxProviderProcesses"))
+    {
+        Uint64 v;
+        return
+            StringConversion::decimalStringToUint64(value.getCString(), v) &&
+            StringConversion::checkUintBounds(v, CIMTYPE_UINT32);
     }
 #ifdef PEGASUS_ENABLE_AUDIT_LOGGER
     else if (String::equal(name, "enableAuditLog"))

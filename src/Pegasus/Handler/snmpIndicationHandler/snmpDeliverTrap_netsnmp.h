@@ -35,6 +35,7 @@
 
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
+#include <net-snmp/config_api.h>
 #include <Pegasus/Common/Mutex.h>
 #include "snmpDeliverTrap.h"
 

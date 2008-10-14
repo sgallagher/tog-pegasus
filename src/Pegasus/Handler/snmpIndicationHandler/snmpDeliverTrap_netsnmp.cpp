@@ -60,6 +60,12 @@ void snmpDeliverTrap_netsnmp::initialize()
     // Initializes the SNMP library
     init_snmp("snmpIndicationHandler");
 
+    // don't load/save persistent file
+#ifdef NETSNMP_DS_LIB_DONT_PERSIST_STATE
+    netsnmp_ds_set_boolean(NETSNMP_DS_LIBRARY_ID,
+        NETSNMP_DS_LIB_DONT_PERSIST_STATE, 1);
+#endif
+
     // windows32 specific initialization (is a NOOP on unix)
     SOCK_STARTUP;
 

@@ -72,6 +72,14 @@ void master(char testProgram[])
 {
     // Master process
 
+    // Change to a temporary directory, if configured
+
+    const char* tmpDir = getenv ("PEGASUS_TMP");
+    if (tmpDir != NULL)
+    {
+        FileSystem::changeDirectory(tmpDir);
+    }
+
     // Create the lock file
 
     fstream fs;

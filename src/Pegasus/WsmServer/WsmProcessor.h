@@ -46,6 +46,36 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class EnumerationContext
+{
+public:
+    EnumerationContext() {}
+    EnumerationContext(
+        Uint64 contextId_, 
+        WsenEnumerationMode enumerationMode_,
+        CIMDateTime expiration_,
+        WsmEndpointReference epr_,
+        WsenEnumerateResponse* response_)
+        : contextId(contextId_),
+          enumerationMode(enumerationMode_),
+          expiration(expiration_),
+          epr(epr_),
+          response(response_) {}
+    
+    Uint64 contextId;
+    WsenEnumerationMode enumerationMode;
+    CIMDateTime expiration;
+    WsmEndpointReference epr;
+    WsenEnumerateResponse* response;
+};
+
+
+PEGASUS_TEMPLATE_SPECIALIZATION struct HashFunc<Uint64>
+{
+    static Uint32 hash(Uint64 x) { return (Uint32) x + 13; }
+};
+
+
 /**
     Processes WsmRequest messages and produces WsmResponse messages.
 */
@@ -75,7 +105,27 @@ public:
         _wsmRequestDecoder.setServerTerminating(flag);
     }
 
+    void cleanupExpiredContexts();
+
 private:
+
+    void _handlePullRequest(WsenPullRequest* wsmRequest);
+    void _handleReleaseRequest(WsenReleaseRequest* wsmRequest);
+    void _handleEnumerateResponse(
+        CIMResponseMessage* cimResponse,
+        WsenEnumerateRequest* wsmRequest);
+    void _handleDefaultResponse(
+        CIMResponseMessage* cimResponse,
+        WsmRequest* wsmRequest);
+    WsenEnumerateResponse* _splitEnumerateResponse(
+        WsenEnumerateRequest* request, 
+        WsenEnumerateResponse* response, 
+        Uint32 num);
+    WsenPullResponse* _splitPullResponse(
+        WsenPullRequest* request, 
+        WsenEnumerateResponse* response, 
+        Uint32 num);
+    void _getExpirationDatetime(const String& wsmDT, CIMDateTime& cimDT);
 
     WsmResponseEncoder _wsmResponseEncoder;
     WsmRequestDecoder _wsmRequestDecoder;
@@ -105,6 +155,13 @@ private:
         is used as the hash key.
     */
     RequestTable _requestTable;
+
+    typedef HashTable<Uint64, EnumerationContext, 
+        EqualFunc<Uint64>, HashFunc<Uint64> > EnumerationContextTable;
+
+    EnumerationContextTable _enumerationContextTable;
+    Mutex _enumerationContextTableLock;
+    static Uint64 _currentEnumContext;
 };
 
 PEGASUS_NAMESPACE_END

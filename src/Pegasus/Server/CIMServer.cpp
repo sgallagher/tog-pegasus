@@ -691,6 +691,10 @@ void CIMServer::runForever()
             {
                 _providerManager->unloadIdleProviders();
                 MessageQueueService::get_thread_pool()->cleanupIdleThreads();
+#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
+                _wsmProcessor->cleanupExpiredContexts();
+#endif
+
             }
             catch (...)
             {

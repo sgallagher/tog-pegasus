@@ -93,7 +93,8 @@ public:
         wse_UnableToRenew,
         wse_UnsupportedExpirationType,
         wsen_UnsupportedExpirationType,
-        wsman_UnsupportedFeature
+        wsman_UnsupportedFeature,
+        wsmb_PolymorphismModeNotSupported
     };
 
     struct FaultTableEntry

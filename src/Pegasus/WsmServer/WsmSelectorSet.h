@@ -76,6 +76,15 @@ public:
     Array<WsmSelector> selectors;
 };
 
+
+PEGASUS_WSMSERVER_LINKAGE Boolean operator==(
+    const WsmSelectorSet& set1,
+    const WsmSelectorSet& set2);
+
+PEGASUS_WSMSERVER_LINKAGE Boolean operator==(
+    const WsmSelector& sel1,
+    const WsmSelector& sel2);
+
 PEGASUS_NAMESPACE_END
 
 #endif /* _Pegasus_WsmSelectorSet_h */

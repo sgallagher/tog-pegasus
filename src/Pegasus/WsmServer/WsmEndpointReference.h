@@ -52,10 +52,20 @@ public:
 
     WsmEndpointReference& operator=(const WsmEndpointReference& epr);
 
+    const String& getNamespace() const;
+
     String address;
     String resourceUri;
     WsmSelectorSet* selectorSet;
 };
+
+PEGASUS_WSMSERVER_LINKAGE Boolean operator==(
+    const WsmEndpointReference& epr1,
+    const WsmEndpointReference& epr2);
+
+PEGASUS_WSMSERVER_LINKAGE Boolean operator!=(
+    const WsmEndpointReference& epr1,
+    const WsmEndpointReference& epr2);
 
 PEGASUS_NAMESPACE_END
 

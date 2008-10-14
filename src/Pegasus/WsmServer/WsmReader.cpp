@@ -322,6 +322,51 @@ const char* WsmReader::getElementContent(XmlEntry& entry)
     return entry.text;
 }
 
+Uint64 WsmReader::getEnumerationContext(XmlEntry& entry)
+{
+    const char* content = getElementContent(entry);
+    if (*content == '+')
+    {
+        content++;
+    }
+
+    Uint64 value;
+    if (!StringConversion::decimalStringToUint64(content, value))
+    {
+        throw WsmFault(
+            WsmFault::wsen_InvalidEnumerationContext,
+            MessageLoaderParms(
+                "WsmServer.WsmReader.INVALID_ENUMERATION_CONTEXT",
+                "Enumeration context \"$1\" is not valid.",
+                content));
+    }
+    return value;
+}
+
+Uint32 WsmReader::getUint32ElementContent(XmlEntry& entry, const char* name)
+{
+    const char* content = getElementContent(entry);
+    if (*content == '+')
+    {
+        content++;
+    }
+
+    Uint64 value;
+    if (!StringConversion::decimalStringToUint64(content, value) ||
+        (value == 0) || (value > 0xFFFFFFFF))
+    {
+        throw WsmFault(
+            WsmFault::wsa_InvalidMessageInformationHeader,
+            MessageLoaderParms(
+                "WsmServer.WsmReader.INVALID_UINT32_VALUE",
+                "The $0 value \"$1\" is not a valid "
+                "positive integer.",
+                name, content));
+    }
+
+    return value & 0xFFFFFFFF;
+}
+
 Boolean WsmReader::getSelectorElement(WsmSelector& selector)
 {
     XmlEntry entry;
@@ -521,7 +566,8 @@ void WsmReader::decodeRequestSoapHeaders(
     WsmSelectorSet& wsmSelectorSet,
     Uint32& wsmMaxEnvelopeSize,
     AcceptLanguageList& wsmLocale,
-    Boolean& wsmRequestEpr)
+    Boolean& wsmRequestEpr,
+    Boolean& wsmRequestItemCount)
 {
     // Note: This method does not collect headers that should appear only in
     // responses: wsa:RelatesTo, wsman:RequestedEPR.
@@ -639,23 +685,8 @@ void WsmReader::decodeRequestSoapHeaders(
 
             // DSP0226 R6.2-3: If the mustUnderstand attribute is set to
             // "false", the service may ignore the header.
-            const char* content = getElementContent(entry);
-            if (*content == '+')
-            {
-                content++;
-            }
-            Uint64 value;
-            if (!StringConversion::decimalStringToUint64(content, value) ||
-                (value == 0) || (value > 0xFFFFFFFF))
-            {
-                throw WsmFault(
-                    WsmFault::wsa_InvalidMessageInformationHeader,
-                    MessageLoaderParms(
-                        "WsmServer.WsmReader.INVALID_MAXENVELOPESIZE_VALUE",
-                        "The MaxEnvelopeSize value \"$0\" is not a valid "
-                            "positive integer.",
-                        content));
-            }
+            wsmMaxEnvelopeSize = 
+                getUint32ElementContent(entry, "MaxEnvelopeSize");
 
             // DSP0226 R6.2-4:  Services should reject any MaxEnvelopeSize
             // value less than 8192 octets.  This number is the safe minimum
@@ -666,7 +697,7 @@ void WsmReader::decodeRequestSoapHeaders(
             //     http://schemas.dmtf.org/wbem/wsman/1/wsman/faultDetail/
             //         MinimumEnvelopeLimit
 
-            if (value < WSM_MIN_MAXENVELOPESIZE_VALUE)
+            if (wsmMaxEnvelopeSize < WSM_MIN_MAXENVELOPESIZE_VALUE)
             {
                 throw WsmFault(
                     WsmFault::wsman_EncodingLimit,
@@ -674,11 +705,9 @@ void WsmReader::decodeRequestSoapHeaders(
                         "WsmServer.WsmReader.MAXENVELOPESIZE_TOO_SMALL",
                         "The MaxEnvelopeSize $0 is less than "
                             "minimum allowable value of $1.",
-                        value, WSM_MIN_MAXENVELOPESIZE_VALUE),
+                        wsmMaxEnvelopeSize, WSM_MIN_MAXENVELOPESIZE_VALUE),
                     WSMAN_FAULTDETAIL_MINIMUMENVELOPELIMIT);
             }
-            
-            wsmMaxEnvelopeSize = value & 0xFFFFFFFF;
         }
         else if ((nsType == WsmNamespaces::WS_MAN) &&
             (strcmp(elementName, "Locale") == 0))
@@ -747,6 +776,12 @@ void WsmReader::decodeRequestSoapHeaders(
         {
             checkDuplicateHeader(entry.text, wsmRequestEpr);
             wsmRequestEpr = true;
+        }
+        else if ((nsType == WsmNamespaces::WS_MAN) &&
+            (strcmp(elementName, "RequestTotalItemsCountEstimate") == 0))
+        {
+            checkDuplicateHeader(entry.text, wsmRequestItemCount);
+            wsmRequestItemCount = true;
         }
         else if ((nsType == WsmNamespaces::WS_MAN) &&
             (strcmp(elementName, "FragmentTransfer") == 0))
@@ -975,6 +1010,283 @@ void WsmReader::getValueElement(
             }
         }
         expectEndTag(nsType, propNameTag);
+    }
+}
+
+void WsmReader::decodeEnumerateBody(
+    String& expiration, 
+    WsmbPolymorphismMode& polymorphismMode, 
+    WsenEnumerationMode& enumerationMode, 
+    Boolean& optimized, 
+    Uint32& maxElements)
+{
+    XmlEntry entry;
+    expectStartOrEmptyTag(
+        entry, WsmNamespaces::WS_ENUMERATION, "Enumerate");
+    if (entry.type != XmlEntry::EMPTY_TAG)
+    {
+        Boolean gotEntry;
+        while ((gotEntry = _parser.next(entry)) &&
+               ((entry.type == XmlEntry::START_TAG) ||
+                (entry.type == XmlEntry::EMPTY_TAG)))
+        {
+            int nsType = entry.nsType;
+            const char* elementName = entry.localName;
+            Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
+        
+            if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+                (strcmp(elementName, "EndTo") == 0))
+            {
+                // DSP0226 R5.2.1-1: A conformant service is NOT REQUIRED to 
+                // accept a wsen:Enumerate message with an EndTo address as 
+                // R5.1-4 recommends not supporting the EndEnumerate message,
+                // and may issue a wsman:UnsupportedFeature fault with a detail
+                // code:
+                //     http://schemas.dmtf.org/wbem/wsman/1/wsman/
+                //         faultDetail/AddressingMode
+                throw WsmFault(
+                    WsmFault::wsman_UnsupportedFeature,
+                    MessageLoaderParms(
+                        "WsmServer.WsmReader.ENUMERATE_END_TO_UNSUPPORTED",
+                        "Alternate destinations for EnumerationEnd messages "
+                        "are not supported."),
+                    WSMAN_FAULTDETAIL_ADDRESSINGMODE);
+            }
+            else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+                (strcmp(elementName, "Expires") == 0))
+            {
+                checkDuplicateHeader(entry.text, expiration.size());
+                expiration = getElementContent(entry);
+            }
+            else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+                (strcmp(elementName, "Filter") == 0))
+            {
+                throw WsmFault(
+                    WsmFault::wsen_FilteringNotSupported,
+                    MessageLoaderParms(
+                        "WsmServer.WsmReader.ENUMERATE_FILTERING_UNSUPPORTED",
+                        "Filtered enumerations are not supported."));
+            }
+            else if ((nsType == WsmNamespaces::WS_MAN) &&
+                (strcmp(elementName, "OptimizeEnumeration") == 0))
+            {
+                checkDuplicateHeader(entry.text, optimized);
+                optimized = true;
+            }
+            else if ((nsType == WsmNamespaces::WS_MAN) &&
+                (strcmp(elementName, "MaxElements") == 0))
+            {
+                checkDuplicateHeader(entry.text, maxElements > 0);
+                maxElements = getUint32ElementContent(entry, "MaxElements");
+            }
+            else if ((nsType == WsmNamespaces::WS_MAN) &&
+                (strcmp(elementName, "EnumerationMode") == 0))
+            {
+                checkDuplicateHeader(entry.text, 
+                    enumerationMode != WSEN_EM_UNKNOWN);
+                const char* content = getElementContent(entry);
+                if (strcmp(content, "EnumerateEPR") == 0)
+                {
+                    enumerationMode = WSEN_EM_EPR;
+                }
+                else if (strcmp(content, "EnumerateObjectAndEPR") == 0)
+                {
+                    enumerationMode = WSEN_EM_OBJECT_AND_EPR;
+                }
+                else
+                {
+                    throw WsmFault(
+                        WsmFault::wsman_UnsupportedFeature,
+                        MessageLoaderParms(
+                            "WsmServer.WsmReader.ENUMERATE_"
+                                "ENUM_MODE_UNSUPPORTED",
+                            "Enumeration mode \"$0\" is not supported.", 
+                            content),
+                        WSMAN_FAULTDETAIL_ENUMERATION_MODE_UNSUPPORTED);
+                }
+            }
+            else if ((nsType == WsmNamespaces::WS_CIM_BINDING) &&
+                (strcmp(elementName, "PolymorphismMode") == 0))
+            {
+                checkDuplicateHeader(entry.text, 
+                    polymorphismMode != WSMB_PM_UNKNOWN);
+                const char* content = getElementContent(entry);
+                if (strcmp(content, "ExcludeSubClassProperties") == 0)
+                {
+                    polymorphismMode = WSMB_PM_EXCLUDE_SUBCLASS_PROPERTIES;
+                }
+                else if (strcmp(content, "IncludeSubClassProperties") == 0)
+                {
+                    polymorphismMode = WSMB_PM_INCLUDE_SUBCLASS_PROPERTIES;
+                }
+                else
+                {
+                    throw WsmFault(
+                        WsmFault::wsmb_PolymorphismModeNotSupported,
+                        MessageLoaderParms(
+                            "WsmServer.WsmReader.ENUMERATE_"
+                                "POLYMORPHISM_MODE_UNSUPPORTED",
+                            "Polymorphism mode \"$0\" is not supported.", 
+                            content));
+                }
+            }
+            else if (mustUnderstand(entry))
+            {
+                // DSP0226 R5.2-2: If a service cannot comply with a header
+                // marked with mustUnderstand="true", it shall issue an
+                // s:NotUnderstood fault.
+                throw SoapNotUnderstoodFault(
+                    _parser.getNamespace(nsType)->extendedName, elementName);
+            }
+            else
+            {
+                skipElement(entry);
+                // The end tag, if any, has already been consumed.
+                needEndTag = false;
+            }
+
+            if (needEndTag)
+            {
+                expectEndTag(nsType, elementName);
+            }
+        }
+
+        if (gotEntry)
+        {
+            _parser.putBack(entry);
+        }
+
+        expectEndTag(WsmNamespaces::WS_ENUMERATION, "Enumerate");
+    }
+}
+
+void WsmReader::decodePullBody(
+    Uint64& enumerationContext, 
+    String& maxTime, 
+    Uint32& maxElements,
+    Uint32& maxCharacters)
+{
+    Boolean seenEnumContext = false;
+    XmlEntry entry;
+    expectStartOrEmptyTag(
+        entry, WsmNamespaces::WS_ENUMERATION, "Pull");
+    if (entry.type != XmlEntry::EMPTY_TAG)
+    {
+        Boolean gotEntry;
+        while ((gotEntry = _parser.next(entry)) &&
+               ((entry.type == XmlEntry::START_TAG) ||
+                (entry.type == XmlEntry::EMPTY_TAG)))
+        {
+            int nsType = entry.nsType;
+            const char* elementName = entry.localName;
+            Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
+        
+            if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+                (strcmp(elementName, "EnumerationContext") == 0))
+            {
+                checkDuplicateHeader(entry.text, seenEnumContext);
+                seenEnumContext = true;
+                enumerationContext = getEnumerationContext(entry);
+            }
+            else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+                (strcmp(elementName, "MaxTime") == 0))
+            {
+                checkDuplicateHeader(entry.text, maxTime.size());
+                maxTime = getElementContent(entry);
+            }
+            else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+                (strcmp(elementName, "MaxCharacters") == 0))
+            {
+                checkDuplicateHeader(entry.text, maxCharacters > 0);
+                maxCharacters = getUint32ElementContent(entry, "MaxCharacters");
+            }
+            else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+                (strcmp(elementName, "MaxElements") == 0))
+            {
+                checkDuplicateHeader(entry.text, maxElements > 0);
+                maxElements = getUint32ElementContent(entry, "MaxElements");
+            }
+            else if (mustUnderstand(entry))
+            {
+                // DSP0226 R5.2-2: If a service cannot comply with a header
+                // marked with mustUnderstand="true", it shall issue an
+                // s:NotUnderstood fault.
+                throw SoapNotUnderstoodFault(
+                    _parser.getNamespace(nsType)->extendedName, elementName);
+            }
+            else
+            {
+                skipElement(entry);
+                // The end tag, if any, has already been consumed.
+                needEndTag = false;
+            }
+
+            if (needEndTag)
+            {
+                expectEndTag(nsType, elementName);
+            }
+        }
+
+        if (gotEntry)
+        {
+            _parser.putBack(entry);
+        }
+
+        expectEndTag(WsmNamespaces::WS_ENUMERATION, "Pull");
+    }
+}
+
+void WsmReader::decodeReleaseBody(Uint64& enumerationContext)
+{
+    Boolean seenEnumContext = false;
+    XmlEntry entry;
+    expectStartOrEmptyTag(
+        entry, WsmNamespaces::WS_ENUMERATION, "Release");
+    if (entry.type != XmlEntry::EMPTY_TAG)
+    {
+        Boolean gotEntry;
+        while ((gotEntry = _parser.next(entry)) &&
+               ((entry.type == XmlEntry::START_TAG) ||
+                (entry.type == XmlEntry::EMPTY_TAG)))
+        {
+            int nsType = entry.nsType;
+            const char* elementName = entry.localName;
+            Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
+        
+            if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+                (strcmp(elementName, "EnumerationContext") == 0))
+            {
+                checkDuplicateHeader(entry.text, seenEnumContext);
+                seenEnumContext = true;
+                enumerationContext = getEnumerationContext(entry);
+            }
+            else if (mustUnderstand(entry))
+            {
+                // DSP0226 R5.2-2: If a service cannot comply with a header
+                // marked with mustUnderstand="true", it shall issue an
+                // s:NotUnderstood fault.
+                throw SoapNotUnderstoodFault(
+                    _parser.getNamespace(nsType)->extendedName, elementName);
+            }
+            else
+            {
+                skipElement(entry);
+                // The end tag, if any, has already been consumed.
+                needEndTag = false;
+            }
+
+            if (needEndTag)
+            {
+                expectEndTag(nsType, elementName);
+            }
+        }
+
+        if (gotEntry)
+        {
+            _parser.putBack(entry);
+        }
+
+        expectEndTag(WsmNamespaces::WS_ENUMERATION, "Release");
     }
 }
 

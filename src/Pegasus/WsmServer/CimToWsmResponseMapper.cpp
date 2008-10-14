@@ -74,30 +74,59 @@ WsmResponse* CimToWsmResponseMapper::mapToWsmResponse(
     }
     else
     {
-        switch (message->getType())
+        switch (wsmRequest->getType())
         {
-            case CIM_GET_INSTANCE_RESPONSE_MESSAGE:
-                wsmResponse.reset(_mapToWsmGetResponse(
-                    (WsmGetRequest*) wsmRequest,
+            case WS_TRANSFER_GET:
+                wsmResponse.reset(_mapToWxfGetResponse(
+                    (WxfGetRequest*) wsmRequest,
                     (CIMGetInstanceResponseMessage*) message));
                 break;
 
-            case CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE:
-                wsmResponse.reset(_mapToWsmPutResponse(
-                    (WsmPutRequest*) wsmRequest,
+            case WS_TRANSFER_PUT:
+                wsmResponse.reset(_mapToWxfPutResponse(
+                    (WxfPutRequest*) wsmRequest,
                     (CIMModifyInstanceResponseMessage*) message));
                 break;
 
-            case CIM_CREATE_INSTANCE_RESPONSE_MESSAGE:
-                wsmResponse.reset(_mapToWsmCreateResponse(
-                    (WsmCreateRequest*) wsmRequest,
+            case WS_TRANSFER_CREATE:
+                wsmResponse.reset(_mapToWxfCreateResponse(
+                    (WxfCreateRequest*) wsmRequest,
                     (CIMCreateInstanceResponseMessage*) message));
                 break;
 
-            case CIM_DELETE_INSTANCE_RESPONSE_MESSAGE:
-                wsmResponse.reset(_mapToWsmDeleteResponse(
-                    (WsmDeleteRequest*) wsmRequest,
+            case WS_TRANSFER_DELETE:
+                wsmResponse.reset(_mapToWxfDeleteResponse(
+                    (WxfDeleteRequest*) wsmRequest,
                     (CIMDeleteInstanceResponseMessage*) message));
+                break;
+
+            case WS_ENUMERATION_ENUMERATE:
+                if (((WsenEnumerateRequest*) wsmRequest)->enumerationMode == 
+                    WSEN_EM_OBJECT)
+                {
+                    wsmResponse.reset(_mapToWsenEnumerateResponseObject(
+                        (WsenEnumerateRequest*) wsmRequest,
+                        (CIMEnumerateInstancesResponseMessage*) message));
+                }
+                else if (((WsenEnumerateRequest*) 
+                              wsmRequest)->enumerationMode == 
+                         WSEN_EM_OBJECT_AND_EPR)
+                {
+                    wsmResponse.reset(_mapToWsenEnumerateResponseObjectAndEPR(
+                        (WsenEnumerateRequest*) wsmRequest,
+                        (CIMEnumerateInstancesResponseMessage*) message));
+                }
+                else if (((WsenEnumerateRequest*) wsmRequest)->
+                         enumerationMode == WSEN_EM_EPR)
+                {
+                    wsmResponse.reset(_mapToWsenEnumerateResponseEPR(
+                        (WsenEnumerateRequest*) wsmRequest,
+                        (CIMEnumerateInstanceNamesResponseMessage*) message));
+                }
+                else
+                {
+                    PEGASUS_ASSERT(0);
+                }
                 break;
 
             default:
@@ -205,16 +234,17 @@ WsmFault CimToWsmResponseMapper::mapCimExceptionToWsmFault(
     return WsmFault(subcode, reason, languageList, faultDetail);
 }
 
-WsmGetResponse* CimToWsmResponseMapper::_mapToWsmGetResponse(
-    const WsmGetRequest* wsmRequest,
+WxfGetResponse* CimToWsmResponseMapper::_mapToWxfGetResponse(
+    const WxfGetRequest* wsmRequest,
     const CIMGetInstanceResponseMessage* response)
 {
     WsmInstance wsmInstance;
 
-    convertCimToWsmInstance(response->cimInstance, wsmInstance);
+    convertCimToWsmInstance(response->cimInstance, wsmInstance, 
+        wsmRequest->epr.getNamespace());
 
-    WsmGetResponse* wsmResponse =
-        new WsmGetResponse(
+    WxfGetResponse* wsmResponse =
+        new WxfGetResponse(
             wsmInstance,
             wsmRequest,
             _getContentLanguages(response->operationContext));
@@ -222,28 +252,29 @@ WsmGetResponse* CimToWsmResponseMapper::_mapToWsmGetResponse(
     return wsmResponse;
 }
 
-WsmPutResponse* CimToWsmResponseMapper::_mapToWsmPutResponse(
-    const WsmPutRequest* wsmRequest,
+WxfPutResponse* CimToWsmResponseMapper::_mapToWxfPutResponse(
+    const WxfPutRequest* wsmRequest,
     const CIMModifyInstanceResponseMessage* response)
 {
-    WsmPutResponse* wsmResponse =
-        new WsmPutResponse(
+    WxfPutResponse* wsmResponse =
+        new WxfPutResponse(
             wsmRequest,
             _getContentLanguages(response->operationContext));
 
     return wsmResponse;
 }
 
-WsmCreateResponse* CimToWsmResponseMapper::_mapToWsmCreateResponse(
-    const WsmCreateRequest* wsmRequest,
+WxfCreateResponse* CimToWsmResponseMapper::_mapToWxfCreateResponse(
+    const WxfCreateRequest* wsmRequest,
     const CIMCreateInstanceResponseMessage* response)
 {
     WsmEndpointReference epr;
 
-    convertObjPathToEPR(response->instanceName, epr);
+    convertObjPathToEPR(response->instanceName, epr,
+        wsmRequest->epr.getNamespace());
 
-    WsmCreateResponse* wsmResponse =
-        new WsmCreateResponse(
+    WxfCreateResponse* wsmResponse =
+        new WxfCreateResponse(
             epr,
             wsmRequest,
             _getContentLanguages(response->operationContext));
@@ -251,12 +282,92 @@ WsmCreateResponse* CimToWsmResponseMapper::_mapToWsmCreateResponse(
     return wsmResponse;
 }
 
-WsmDeleteResponse* CimToWsmResponseMapper::_mapToWsmDeleteResponse(
-    const WsmDeleteRequest* wsmRequest,
+WxfDeleteResponse* CimToWsmResponseMapper::_mapToWxfDeleteResponse(
+    const WxfDeleteRequest* wsmRequest,
     const CIMDeleteInstanceResponseMessage* response)
 {
-    WsmDeleteResponse* wsmResponse =
-        new WsmDeleteResponse(
+    WxfDeleteResponse* wsmResponse =
+        new WxfDeleteResponse(
+            wsmRequest,
+            _getContentLanguages(response->operationContext));
+
+    return wsmResponse;
+}
+
+WsenEnumerateResponse* 
+    CimToWsmResponseMapper::_mapToWsenEnumerateResponseObject(
+    const WsenEnumerateRequest* wsmRequest,
+    const CIMEnumerateInstancesResponseMessage* response)
+{
+    Array<WsmInstance> instances;
+    Array<WsmEndpointReference> EPRs;
+    for (Uint32 i = 0; i < response->cimNamedInstances.size(); i++)
+    {
+        WsmInstance wsmInstance;
+        convertCimToWsmInstance(response->cimNamedInstances[i], wsmInstance,
+            wsmRequest->epr.getNamespace());
+        instances.append(wsmInstance);
+    }
+
+    WsenEnumerateResponse* wsmResponse =
+        new WsenEnumerateResponse(
+            instances,
+            instances.size(),
+            wsmRequest,
+            _getContentLanguages(response->operationContext));
+
+    return wsmResponse;
+}
+
+WsenEnumerateResponse* 
+    CimToWsmResponseMapper::_mapToWsenEnumerateResponseObjectAndEPR(
+    const WsenEnumerateRequest* wsmRequest,
+    const CIMEnumerateInstancesResponseMessage* response)
+{
+    Array<WsmInstance> instances;
+    Array<WsmEndpointReference> EPRs;
+    for (Uint32 i = 0; i < response->cimNamedInstances.size(); i++)
+    {
+        WsmInstance wsmInstance;
+        convertCimToWsmInstance(response->cimNamedInstances[i], wsmInstance,
+            wsmRequest->epr.getNamespace());
+        instances.append(wsmInstance);
+
+        WsmEndpointReference epr;
+        convertObjPathToEPR(response->cimNamedInstances[i].getPath(), epr,
+            wsmRequest->epr.getNamespace());
+        EPRs.append(epr);
+    }
+
+    WsenEnumerateResponse* wsmResponse =
+        new WsenEnumerateResponse(
+            instances,
+            EPRs,
+            instances.size(),
+            wsmRequest,
+            _getContentLanguages(response->operationContext));
+
+    return wsmResponse;
+}
+
+WsenEnumerateResponse* 
+CimToWsmResponseMapper::_mapToWsenEnumerateResponseEPR(
+    const WsenEnumerateRequest* wsmRequest,
+    const CIMEnumerateInstanceNamesResponseMessage* response)
+{
+    Array<WsmEndpointReference> EPRs;
+    for (Uint32 i = 0; i < response->instanceNames.size(); i++)
+    {
+        WsmEndpointReference epr;
+        convertObjPathToEPR(response->instanceNames[i], epr,
+            wsmRequest->epr.getNamespace());
+        EPRs.append(epr);
+    }
+
+    WsenEnumerateResponse* wsmResponse =
+        new WsenEnumerateResponse(
+            EPRs,
+            EPRs.size(),
             wsmRequest,
             _getContentLanguages(response->operationContext));
 
@@ -265,7 +376,8 @@ WsmDeleteResponse* CimToWsmResponseMapper::_mapToWsmDeleteResponse(
 
 void CimToWsmResponseMapper::convertCimToWsmInstance(
     const CIMInstance& cimInstance,
-    WsmInstance& wsmInstance)
+    WsmInstance& wsmInstance,
+    const String& nameSpace)
 {
     wsmInstance.setClassName(cimInstance.getClassName().getString());
 
@@ -276,7 +388,7 @@ void CimToWsmResponseMapper::convertCimToWsmInstance(
         const CIMValue& cimValue = cimProperty.getValue();
 
         WsmValue wsmValue;
-        convertCimToWsmValue(cimValue, wsmValue);
+        convertCimToWsmValue(cimValue, wsmValue, nameSpace);
 
         WsmProperty wsmProperty(propertyName, wsmValue);
         wsmInstance.addProperty(wsmProperty);
@@ -307,7 +419,8 @@ static void _convertCimToWsmArrayValue(
 
 void CimToWsmResponseMapper::convertCimToWsmValue(
      const CIMValue& cimValue,
-     WsmValue& wsmValue)
+     WsmValue& wsmValue,
+     const String& nameSpace)
 {
     if (cimValue.isNull())
     {
@@ -421,7 +534,7 @@ void CimToWsmResponseMapper::convertCimToWsmValue(
                 for (Uint32 i = 0, n = objPaths.size(); i < n; i++)
                 {
                     WsmEndpointReference epr;
-                    convertObjPathToEPR(objPaths[i], epr);
+                    convertObjPathToEPR(objPaths[i], epr, nameSpace);
                     eprs.append(epr);
                 }
                 wsmValue.set(eprs);
@@ -439,7 +552,9 @@ void CimToWsmResponseMapper::convertCimToWsmValue(
                     {
                         WsmInstance wsmInstance;
                         convertCimToWsmInstance(
-                            CIMInstance(cimObjects[i]), wsmInstance);
+                            CIMInstance(cimObjects[i]), 
+                            wsmInstance, 
+                            nameSpace);
                         wsmInstances.append(wsmInstance);
                     }
                     else
@@ -464,7 +579,8 @@ void CimToWsmResponseMapper::convertCimToWsmValue(
                 for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
                 {
                     WsmInstance wsmInstance;
-                    convertCimToWsmInstance(cimInstances[i], wsmInstance);
+                    convertCimToWsmInstance(
+                        cimInstances[i], wsmInstance, nameSpace);
                     wsmInstances.append(wsmInstance);
                 }
                 wsmValue.set(wsmInstances);
@@ -530,7 +646,7 @@ void CimToWsmResponseMapper::convertCimToWsmValue(
                 WsmEndpointReference epr;
                 CIMObjectPath objPath;
                 cimValue.get(objPath);
-                convertObjPathToEPR(objPath, epr);
+                convertObjPathToEPR(objPath, epr, nameSpace);
                 wsmValue.set(epr);
                 break;
             }
@@ -542,7 +658,7 @@ void CimToWsmResponseMapper::convertCimToWsmValue(
                 {
                     WsmInstance wsmInstance;
                     convertCimToWsmInstance(
-                        CIMInstance(cimObject), wsmInstance);
+                        CIMInstance(cimObject), wsmInstance, nameSpace);
                     wsmValue.set(wsmInstance);
                 }
                 else
@@ -561,7 +677,7 @@ void CimToWsmResponseMapper::convertCimToWsmValue(
                 WsmInstance wsmInstance;
                 CIMInstance cimInstance;
                 cimValue.get(cimInstance);
-                convertCimToWsmInstance(cimInstance, wsmInstance);
+                convertCimToWsmInstance(cimInstance, wsmInstance, nameSpace);
                 wsmValue.set(wsmInstance);
                 break;
             }
@@ -575,7 +691,8 @@ void CimToWsmResponseMapper::convertCimToWsmValue(
 
 void CimToWsmResponseMapper::convertObjPathToEPR(
     const CIMObjectPath& objPath,
-    WsmEndpointReference& epr)
+    WsmEndpointReference& epr,
+    const String& nameSpace)
 {
     // Since the connection protocol is unknown at this point, we assume
     // it's http and form an EPR address by concatenating "http://" with
@@ -594,6 +711,11 @@ void CimToWsmResponseMapper::convertObjPathToEPR(
         WsmSelector selector(String("__cimnamespace"), cimNS.getString());
         epr.selectorSet->selectors.append(selector);
     }
+    else
+    {
+        WsmSelector selector(String("__cimnamespace"), nameSpace);
+        epr.selectorSet->selectors.append(selector);
+    }
 
     const Array<CIMKeyBinding>& keyBindings = objPath.getKeyBindings();
     for (Uint32 i = 0, n = keyBindings.size(); i < n; i++)
@@ -603,7 +725,7 @@ void CimToWsmResponseMapper::convertObjPathToEPR(
         {
             CIMObjectPath cimRef = binding.getValue();
             WsmEndpointReference wsmRef;
-            convertObjPathToEPR(cimRef, wsmRef);
+            convertObjPathToEPR(cimRef, wsmRef, nameSpace);
             WsmSelector selector(binding.getName().getString(), wsmRef);
             epr.selectorSet->selectors.append(selector);
         }

@@ -67,24 +67,13 @@ Buffer WsmWriter::formatHttpErrorRspMessage(
     return XmlWriter::formatHttpErrorRspMessage(status, cimError, errorDetail);
 }
 
-Buffer WsmWriter::formatSoapFault(
+void WsmWriter::appendSoapFaultHeaders(
+    Buffer& out,
     const SoapNotUnderstoodFault& fault,
+    const String& action,
     const String& messageId,
-    const String& relatesTo,
-    HttpMethod httpMethod,
-    Uint32& httpHeaderSize)
+    const String& relatesTo)
 {
-    Buffer out(WSM_MIN_MAXENVELOPESIZE_VALUE);
-    String action = String(WsmNamespaces::supportedNamespaces[
-        WsmNamespaces::WS_ADDRESSING].extendedName) + String("/fault");
-    ContentLanguageList msgLang = fault.getMessageLanguage();
-
-    _appendHTTPResponseHeader(out, action, httpMethod, msgLang, true);
-    httpHeaderSize = out.size();
-
-    _appendSoapEnvelopeStart(out);
-    _appendSoapHeaderStart(out);
-
     // Append the 'NotUnderstood' tag
     out << STRLIT("<");
     out << WsmNamespaces::supportedNamespaces[
@@ -96,9 +85,14 @@ Buffer WsmWriter::formatSoapFault(
     out << STRLIT("\"/>");
     _writeNewlineForReadability(out);
 
-    _appendSoapHeader(out, action, messageId, relatesTo);
-    _appendSoapHeaderEnd(out);
-    _appendSoapBodyStart(out);
+    appendSoapHeader(out, action, messageId, relatesTo);
+}
+
+void WsmWriter::appendSoapFaultBody(
+    Buffer& out,
+    const SoapNotUnderstoodFault& fault)
+{
+    ContentLanguageList msgLang = fault.getMessageLanguage();
 
     appendStartTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Fault"));
     appendStartTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Code"));
@@ -124,30 +118,13 @@ Buffer WsmWriter::formatSoapFault(
     }
 
     appendEndTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Fault"));
-    _appendSoapBodyEnd(out);
-    _appendSoapEnvelopeEnd(out);
-    return out;
 }
 
-Buffer WsmWriter::formatWsmFault(
-    const WsmFault& fault,
-    const String& messageId,
-    const String& relatesTo,
-    HttpMethod httpMethod,
-    Uint32& httpHeaderSize)
+void WsmWriter::appendWsmFaultBody(
+    Buffer& out,
+    const WsmFault& fault)
 {
-    Buffer out(WSM_MIN_MAXENVELOPESIZE_VALUE);
-    String action(fault.getAction());
     ContentLanguageList reasonLang = fault.getReasonLanguage();
-
-    _appendHTTPResponseHeader(out, action, httpMethod, reasonLang, true);
-    httpHeaderSize = out.size();
-
-    _appendSoapEnvelopeStart(out);
-    _appendSoapHeaderStart(out);
-    _appendSoapHeader(out, action, messageId, relatesTo);
-    _appendSoapHeaderEnd(out);
-    _appendSoapBodyStart(out);
 
     appendStartTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Fault"));
     appendStartTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Code"));
@@ -184,38 +161,6 @@ Buffer WsmWriter::formatWsmFault(
     }
 
     appendEndTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Fault"));
-    _appendSoapBodyEnd(out);
-    _appendSoapEnvelopeEnd(out);
-    return out;
-}
-
-Buffer WsmWriter::formatWsmRspMessage(
-    const String& action,
-    const String& messageId,
-    const String& relatesTo,
-    HttpMethod httpMethod,
-    const ContentLanguageList& contentLanguages,
-    const Buffer& body,
-    const Buffer& headers,
-    Uint32& httpHeaderSize)
-{
-    Buffer out(WSM_MIN_MAXENVELOPESIZE_VALUE);
-
-    _appendHTTPResponseHeader(
-        out, action, httpMethod, contentLanguages, false);
-    httpHeaderSize = out.size();
-
-    _appendSoapEnvelopeStart(out, contentLanguages);
-    _appendSoapHeaderStart(out);
-    _appendSoapHeader(out, action, messageId, relatesTo);
-    out << headers;
-    _appendSoapHeaderEnd(out);
-    _appendSoapBodyStart(out);
-    out << body;
-    _appendSoapBodyEnd(out);
-    _appendSoapEnvelopeEnd(out);
-
-    return out;
 }
 
 void WsmWriter::appendInstanceElement(
@@ -451,6 +396,17 @@ void WsmWriter::appendEndTag(
     _writeNewlineForReadability(out);
 }
 
+void WsmWriter::appendEmptyTag(
+    Buffer& out,
+    WsmNamespaces::Type nsType,
+    const StrLit& tagName)
+{
+    out << STRLIT("<");
+    out << WsmNamespaces::supportedNamespaces[nsType].localName;
+    out << STRLIT(":") << tagName << STRLIT("/>");
+    _writeNewlineForReadability(out);
+}
+
 void WsmWriter::appendTagValue(
     Buffer& out,
     WsmNamespaces::Type nsType,
@@ -465,7 +421,7 @@ void WsmWriter::appendTagValue(
     appendEndTag(out, nsType, tagName);
 }
 
-void WsmWriter::_appendHTTPResponseHeader(
+void WsmWriter::appendHTTPResponseHeader(
     Buffer& out,
     const String& action,
     HttpMethod httpMethod,
@@ -511,7 +467,7 @@ void WsmWriter::_appendHTTPResponseHeader(
     _writeNewlineForReadability(out);
 }
 
-void WsmWriter::_appendSoapEnvelopeStart(
+void WsmWriter::appendSoapEnvelopeStart(
     Buffer& out,
     const ContentLanguageList& contentLanguages)
 {
@@ -547,32 +503,32 @@ void WsmWriter::_appendSoapEnvelopeStart(
     _writeNewlineForReadability(out);
 }
 
-void WsmWriter::_appendSoapEnvelopeEnd(Buffer& out)
+void WsmWriter::appendSoapEnvelopeEnd(Buffer& out)
 {
     appendEndTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Envelope"));
 }
 
-void WsmWriter::_appendSoapHeaderStart(Buffer& out)
+void WsmWriter::appendSoapHeaderStart(Buffer& out)
 {
     appendStartTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Header"));
 }
 
-void WsmWriter::_appendSoapHeaderEnd(Buffer& out)
+void WsmWriter::appendSoapHeaderEnd(Buffer& out)
 {
     appendEndTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Header"));
 }
 
-void WsmWriter::_appendSoapBodyStart(Buffer& out)
+void WsmWriter::appendSoapBodyStart(Buffer& out)
 {
     appendStartTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Body"));
 }
 
-void WsmWriter::_appendSoapBodyEnd(Buffer& out)
+void WsmWriter::appendSoapBodyEnd(Buffer& out)
 {
     appendEndTag(out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Body"));
 }
 
-void WsmWriter::_appendSoapHeader(
+void WsmWriter::appendSoapHeader(
     Buffer& out,
     const String& action,
     const String& messageId,

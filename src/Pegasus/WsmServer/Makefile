@@ -50,6 +50,7 @@ SOURCES = \
     WsmConstants.cpp \
     WsmUtils.cpp \
     WsmEndpointReference.cpp \
+    WsmSelectorSet.cpp \
     WsmValue.cpp \
     WsmProperty.cpp \
     WsmInstance.cpp \
@@ -60,6 +61,7 @@ SOURCES = \
     WsmResponseEncoder.cpp \
     WsmToCimRequestMapper.cpp \
     CimToWsmResponseMapper.cpp \
-    WsmProcessor.cpp
+    WsmProcessor.cpp \
+    SoapResponse.cpp
 
 include $(ROOT)/mak/library.mak

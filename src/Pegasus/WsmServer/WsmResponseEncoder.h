@@ -39,6 +39,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class WsmResponse;
+class SoapResponse;
+
 /** This class encodes WS-Man operation requests and passes them up-stream.
  */
 class WsmResponseEncoder
@@ -48,22 +51,31 @@ public:
     WsmResponseEncoder();
     ~WsmResponseEncoder();
 
-    void sendResponse(
-        WsmResponse* response,
-        const String& action = String::EMPTY,
-        Buffer* bodygiven = 0,
-        Buffer* extraHeaders = 0);
-
     void enqueue(WsmResponse* response);
 
 private:
 
-    void _encodeGetResponse(WsmGetResponse* response);
-    void _encodePutResponse(WsmPutResponse* response);
-    void _encodeCreateResponse(WsmCreateResponse* response);
-    void _encodeDeleteResponse(WsmDeleteResponse* response);
+    void _sendResponse(SoapResponse* response);
+    void _sendUnreportableSuccess(WsmResponse* response);
+    void _sendEncodingLimitFault(WsmResponse* response);
+
+    void _encodeWxfGetResponse(WxfGetResponse* response);
+    void _encodeWxfPutResponse(WxfPutResponse* response);
+    void _encodeWxfCreateResponse(WxfCreateResponse* response);
+    void _encodeWxfDeleteResponse(WxfDeleteResponse* response);
+    void _encodeWsenEnumerateResponse(WsenEnumerateResponse* response);
+    void _encodeWsenPullResponse(WsenPullResponse* response);
+    void _encodeWsenReleaseResponse(WsenReleaseResponse* response);
     void _encodeWsmFaultResponse(WsmFaultResponse* response);
     void _encodeSoapFaultResponse(SoapFaultResponse* response);
+
+    Boolean _encodeEnumerationData(
+        SoapResponse& soapResponse,
+        Buffer& headers,
+        WsmOperationType operation,
+        Uint64 contextId,
+        Boolean isComplete,
+        WsenEnumerationData& data);
 };
 
 PEGASUS_NAMESPACE_END

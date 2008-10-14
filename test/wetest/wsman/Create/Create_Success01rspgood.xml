@@ -24,6 +24,9 @@ http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous
 http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/PG_TestPropertyTypes
 </wsman:ResourceURI>
 <wsman:SelectorSet>
+<wsman:Selector Name="__cimnamespace">
+test/static
+</wsman:Selector>
 <wsman:Selector Name="CreationClassName">
 PG_TestPropertyTypes
 </wsman:Selector>

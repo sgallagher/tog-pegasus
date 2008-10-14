@@ -310,6 +310,13 @@ WsmFault::FaultTableEntry WsmFault::_faultTable[] =
         WsmNamespaces::WS_MAN,
         "UnsupportedFeature",
         // The specified feature is not supported.
+    },
+    {
+        WsmFault::s_Sender,
+        wsmb_PolymorphismModeNotSupported,
+        WsmNamespaces::WS_CIM_BINDING,
+        "PolymorphismModeNotSupported",
+        // The specified polymorphism mode is not supported.
     }
 };
 

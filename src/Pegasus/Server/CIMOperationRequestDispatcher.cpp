@@ -34,6 +34,7 @@
 #include "CIMOperationRequestDispatcher.h"
 
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/WsmServer/WsmConstants.h>
 #include <Pegasus/Common/XmlReader.h> // stringToValue(), stringArrayToValue()
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/MessageLoader.h>
@@ -720,7 +721,8 @@ Boolean CIMOperationRequestDispatcher::_enqueueResponse(
         const char* name = q ? q->getQueueName() : 0;
         Boolean isDestinationQueueAsync = !(name &&
             (strcmp(name, PEGASUS_QUEUENAME_BINARY_HANDLER) == 0 ||
-             strcmp(name, PEGASUS_QUEUENAME_INTERNALCLIENT) == 0));
+             strcmp(name, PEGASUS_QUEUENAME_INTERNALCLIENT) == 0 ||
+             strcmp(name, PEGASUS_QUEUENAME_WSMPROCESSOR) == 0));
 
         // for non-async queues, we'll just keep appending until all responses
         // have come in

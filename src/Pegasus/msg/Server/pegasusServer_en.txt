@@ -6919,9 +6919,10 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note PGS20005:
-        *    Substitution {0} is a string value that could not be converted to a positive integer
+        *    Substitution {0} is element name
+        *    Substitution {1} is a string value that could not be converted to a positive integer
         */
-        WsmServer.WsmReader.INVALID_MAXENVELOPESIZE_VALUE:string {"PGS20005: The MaxEnvelopeSize value ''{0}'' is not a valid positive integer."}
+        WsmServer.WsmReader.INVALID_UINT32_VALUE:string {"PGS20005: The {0} value ''{1}'' is not a valid positive integer."}
 
         /**
         * @note PGS20006:
@@ -6953,6 +6954,38 @@ CIM server listening on HTTPS port {0}."}
         */
         WsmServer.WsmReader.MAXENVELOPESIZE_TOO_SMALL:string {"PGS20010: The MaxEnvelopeSize {0} is less than minimum allowable value of {1}."}
 
+        /**
+        * @note PGS20011:
+        */
+        WsmServer.WsmReader.ENUMERATE_END_TO_UNSUPPORTED:string {"PGS20011: Alternate destinations for EnumerationEnd messages are not supported."}
+
+        /**
+        * @note PGS20012:
+        */
+        WsmServer.WsmReader.ENUMERATE_FILTERING_UNSUPPORTED:string {"PGS20012: Filtered enumerations are not supported."}
+
+        /**
+        * @note PGS20013:
+        *    Substitution {0} is the polymorphism mode (a string)
+        */
+        WsmServer.WsmReader.ENUMERATE_POLYMORPHISM_MODE_UNSUPPORTED:string {"PGS20013: Polymorphism mode ''{0}'' is not supported."}
+
+        /**
+        * @note PGS20014:
+        */
+        WsmServer.WsmReader.ENUMERATE_POLYMORPHISM_INCLUDE_SUBCLASS:string {"PGS20014: \"All classes\" resource URI requires IncludeSubClassProperties polymorphism mode."}
+
+        /**
+        * @note PGS20015:
+        *    Substitution {0} is the polymorphism mode (a string)
+        */
+        WsmServer.WsmReader.ENUMERATE_ENUM_MODE_UNSUPPORTED:string {"PGS20015: Enumeration mode ''{0}'' is not supported."}
+
+        /**
+        * @note PGS20016:
+        *    Substitution {0} is the enumeration context (a string)
+        */
+        WsmServer.WsmReader.INVALID_ENUMERATION_CONTEXT:string {"PGS20016: Enumeration context ''{0}'' is not valid."}
 
         // ==========================================================
         // Messages for WsmRequestDecoder
@@ -6999,6 +7032,8 @@ CIM server listening on HTTPS port {0}."}
         */
         WsmServer.WsmRequestDecoder.ACTION_NOT_SUPPORTED:string {"PGS20207: The wsa:Action value ''{0}'' is not supported."}
 
+        WsmServer.WsmRequestDecoder.UNEXPECTED_SELECTORS:string {"PGS20208: The operation allows only the __cimnamespace seletor to be present."}
+
 
         // ==========================================================
         // Messages for WsmResponseEncoder
@@ -7009,7 +7044,9 @@ CIM server listening on HTTPS port {0}."}
 
         WsmServer.WsmResponseEncoder.FAULT_MAX_ENV_SIZE_EXCEEDED:string {"PGS20401: Fault response could not be encoded within requested envelope size limits."}
 
-        WsmServer.WsmResponseEncoder.UNREPORTABLE_SUCCESS:string {"PGS20402: Success response could not be encoded within requested envelope size limits."}
+        WsmServer.WsmResponseEncoder.MAX_ENV_SIZE_EXCEEDED:string {"PGS20402: Response could not be encoded within requested envelope size limits."}
+
+        WsmServer.WsmResponseEncoder.UNREPORTABLE_SUCCESS:string {"PGS20403: Success response could not be encoded within requested envelope size limits."}
 
 
         // ==========================================================
@@ -7096,10 +7133,26 @@ CIM server listening on HTTPS port {0}."}
 
         // ==========================================================
         // Messages for CimToWsmResponseMapper
-        //  Please use message prefix "PGS21000 - PGS21199"
+        //  Please use message prefix "PGS21000 - PGS21099"
         // ==========================================================
 
         WsmServer.CimToWsmResponseMapper.EMBEDDED_CLASS_NOT_SUPPORTED:string {"PGS21000: Embedded class objects in WS-Management responses are not supported."}
+
+
+        // ==========================================================
+        // Messages for WsmProcessor
+        //  Please use message prefix "PGS21100 - PGS21199"
+        // ==========================================================
+
+        /**
+        * @note PGS21100:
+        *    Substitution {0} is the enumeration context (a Uint64)
+        */
+        WsmServer.WsmProcessor.INVALID_ENUMERATION_CONTEXT:string {"PGS21100: Enumeration context ''{0}'' is not valid."}
+
+        WsmServer.WsmProcessor.INVALID_PULL_EPR:string {"PGS21101: EPR of a Pull request does not match that of the enumeration context."}
+
+        WsmServer.WsmProcessor.INVALID_RELEASE_EPR:string {"PGS21102: EPR of a Release request does not match that of the enumeration context."}
 
 
         // ==========================================================

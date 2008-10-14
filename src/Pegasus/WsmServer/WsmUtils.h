@@ -87,7 +87,6 @@ private:
     WsmUtils();
 };
 
-
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_WsmUtils_h */

@@ -54,15 +54,19 @@ public:
     CIMOperationRequestMessage* mapToCimRequest(WsmRequest* request);
 
     CIMGetInstanceRequestMessage* mapToCimGetInstanceRequest(
-        WsmGetRequest* request);
+        WxfGetRequest* request);
     CIMModifyInstanceRequestMessage* mapToCimModifyInstanceRequest(
-        WsmPutRequest* request);
+        WxfPutRequest* request);
     CIMCreateInstanceRequestMessage* mapToCimCreateInstanceRequest(
-        WsmCreateRequest* request);
+        WxfCreateRequest* request);
     CIMDeleteInstanceRequestMessage* mapToCimDeleteInstanceRequest(
-        WsmDeleteRequest* request);
+        WxfDeleteRequest* request);
+    CIMEnumerateInstancesRequestMessage* mapToCimEnumerateInstancesRequest(
+        WsenEnumerateRequest* request);
+    CIMEnumerateInstanceNamesRequestMessage* 
+        mapToCimEnumerateInstanceNamesRequest(WsenEnumerateRequest* request);
 
-    CIMName convertResourceUriToClassName(const String& resourceUri);
+    static CIMName convertResourceUriToClassName(const String& resourceUri);
     String convertEPRAddressToHostname(const String& addr);
 
     static Boolean stringToReal64(const char* stringValue, Real64& x);

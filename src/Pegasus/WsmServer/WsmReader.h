@@ -86,6 +86,8 @@ public:
 
     Boolean mustUnderstand(XmlEntry& entry);
 
+    Uint64 getEnumerationContext(XmlEntry& entry);
+    Uint32 getUint32ElementContent(XmlEntry& entry, const char* name);
     const char* getElementContent(XmlEntry& entry);
     Boolean getElementStringValue(
         int nsType,
@@ -113,7 +115,23 @@ public:
         WsmSelectorSet& wsmSelectorSet,
         Uint32& wsmMaxEnvelopeSize,
         AcceptLanguageList& wsmLocale,
-        Boolean& wsmRequestEpr);
+        Boolean& wsmRequestEpr,
+        Boolean& wsmRequestItemCount);
+
+    void decodeEnumerateBody(
+        String& expiration, 
+        WsmbPolymorphismMode& polymorphismMode, 
+        WsenEnumerationMode& enumerationMode, 
+        Boolean& optimized, 
+        Uint32& maxElements);
+
+    void decodePullBody(
+        Uint64& enumerationContext, 
+        String& maxTime, 
+        Uint32& maxElements,
+        Uint32& maxCharacters);
+
+    void decodeReleaseBody(Uint64& enumerationContext);
 
     void getInstanceElement(WsmInstance& instance);
     Boolean getPropertyElement(

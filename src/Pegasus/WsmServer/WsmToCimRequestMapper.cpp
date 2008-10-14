@@ -65,22 +65,49 @@ CIMOperationRequestMessage* WsmToCimRequestMapper::mapToCimRequest(
     {
         case WS_TRANSFER_GET:
             cimRequest.reset(mapToCimGetInstanceRequest(
-                (WsmGetRequest*) request));
+                (WxfGetRequest*) request));
             break;
 
         case WS_TRANSFER_PUT:
             cimRequest.reset(mapToCimModifyInstanceRequest(
-                (WsmPutRequest*) request));
+                (WxfPutRequest*) request));
             break;
 
         case WS_TRANSFER_CREATE:
             cimRequest.reset(mapToCimCreateInstanceRequest(
-                (WsmCreateRequest*) request));
+                (WxfCreateRequest*) request));
             break;
 
         case WS_TRANSFER_DELETE:
             cimRequest.reset(mapToCimDeleteInstanceRequest(
-                (WsmDeleteRequest*) request));
+                (WxfDeleteRequest*) request));
+            break;
+
+        case WS_ENUMERATION_ENUMERATE:
+            if (((WsenEnumerateRequest*) request)->enumerationMode == 
+                WSEN_EM_OBJECT ||
+                ((WsenEnumerateRequest*) request)->enumerationMode == 
+                WSEN_EM_OBJECT_AND_EPR)
+            {
+                cimRequest.reset(mapToCimEnumerateInstancesRequest(
+                    (WsenEnumerateRequest*) request));
+            }
+            else if (((WsenEnumerateRequest*) request)->enumerationMode == 
+                     WSEN_EM_EPR)
+            {
+                cimRequest.reset(mapToCimEnumerateInstanceNamesRequest(
+                    (WsenEnumerateRequest*) request));
+            }
+            else
+            {
+                PEGASUS_ASSERT(0);
+            }
+            break;
+
+        case WS_ENUMERATION_PULL:
+            break;
+
+        case WS_ENUMERATION_RELEASE:
             break;
 
         default:
@@ -104,7 +131,7 @@ CIMOperationRequestMessage* WsmToCimRequestMapper::mapToCimRequest(
 
 CIMGetInstanceRequestMessage*
     WsmToCimRequestMapper::mapToCimGetInstanceRequest(
-        WsmGetRequest* request)
+        WxfGetRequest* request)
 {
     CIMNamespaceName nameSpace;
     CIMObjectPath instanceName;
@@ -139,7 +166,7 @@ CIMGetInstanceRequestMessage*
 
 CIMModifyInstanceRequestMessage*
     WsmToCimRequestMapper::mapToCimModifyInstanceRequest(
-        WsmPutRequest* request)
+        WxfPutRequest* request)
 {
     CIMNamespaceName nameSpace;
     CIMObjectPath instanceName;
@@ -177,7 +204,7 @@ CIMModifyInstanceRequestMessage*
 
 CIMCreateInstanceRequestMessage*
     WsmToCimRequestMapper::mapToCimCreateInstanceRequest(
-        WsmCreateRequest* request)
+        WxfCreateRequest* request)
 {
     CIMNamespaceName nameSpace;
     CIMObjectPath instanceName;
@@ -209,7 +236,7 @@ CIMCreateInstanceRequestMessage*
 
 CIMDeleteInstanceRequestMessage*
     WsmToCimRequestMapper::mapToCimDeleteInstanceRequest(
-        WsmDeleteRequest* request)
+        WxfDeleteRequest* request)
 {
     CIMNamespaceName nameSpace;
     CIMObjectPath instanceName;
@@ -230,6 +257,51 @@ CIMDeleteInstanceRequestMessage*
             XmlWriter::getNextMessageId(),
             nameSpace,
             instanceName,
+            QueueIdStack(request->queueId),
+            request->authType,
+            request->userName);
+    cimRequest->ipAddress = request->ipAddress;
+
+    return cimRequest;
+}
+
+CIMEnumerateInstancesRequestMessage*
+    WsmToCimRequestMapper::mapToCimEnumerateInstancesRequest(
+        WsenEnumerateRequest* request)
+{
+    CIMObjectPath objPath;
+    convertEPRToObjectPath(request->epr, objPath);
+
+    CIMEnumerateInstancesRequestMessage* cimRequest = 
+        new CIMEnumerateInstancesRequestMessage(
+            XmlWriter::getNextMessageId(),
+            objPath.getNameSpace(),
+            objPath.getClassName(),
+            request->polymorphismMode == WSMB_PM_INCLUDE_SUBCLASS_PROPERTIES,
+            false, // LocalOnly
+            false, // includeQualifiers
+            false, // includeClassOrigin
+            CIMPropertyList(),
+            QueueIdStack(request->queueId),
+            request->authType,
+            request->userName);
+    cimRequest->ipAddress = request->ipAddress;
+
+    return cimRequest;
+}
+
+CIMEnumerateInstanceNamesRequestMessage*
+    WsmToCimRequestMapper::mapToCimEnumerateInstanceNamesRequest(
+        WsenEnumerateRequest* request)
+{
+    CIMObjectPath objPath;
+    convertEPRToObjectPath(request->epr, objPath);
+
+    CIMEnumerateInstanceNamesRequestMessage* cimRequest = 
+        new CIMEnumerateInstanceNamesRequestMessage(
+            XmlWriter::getNextMessageId(),
+            objPath.getNameSpace(),
+            objPath.getClassName(),
             QueueIdStack(request->queueId),
             request->authType,
             request->userName);

@@ -44,7 +44,11 @@ endif
 
 LOADDIRS = \
    cimv2/Load \
-   static/Load 
+   static/Load
+
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
+    LOADDIRS += wsman/Load
+endif
 
 # This is a recurse make file
 

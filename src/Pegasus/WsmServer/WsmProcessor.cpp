@@ -36,11 +36,16 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include "WsmConstants.h"
 #include "WsmProcessor.h"
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
+
+Uint64 WsmProcessor::_currentEnumContext = 0;
 
 WsmProcessor::WsmProcessor(
     MessageQueueService* cimOperationProcessorQueue,
@@ -89,13 +94,35 @@ void WsmProcessor::handleRequest(WsmRequest* wsmRequest)
         CIMOperationRequestMessage* cimRequest =
             _wsmToCimRequestMapper.mapToCimRequest(wsmRequest);
 
-        // Save the request until the response comes back.
-        // Note that the CIM request has its own unique message ID.
-        _requestTable.insert(cimRequest->messageId, wsmRequest);
-        wsmRequestDestroyer.release();
+        // Requests that do not have a CIM representation are mapped to NULL
+        // and are meant to be handled by the WSM processor itself.
+        if (cimRequest)
+        {
+            // Save the request until the response comes back.
+            // Note that the CIM request has its own unique message ID.
+            _requestTable.insert(cimRequest->messageId, wsmRequest);
 
-        cimRequest->queueIds.push(getQueueId());
-        _cimOperationProcessorQueue->enqueue(cimRequest);
+            cimRequest->queueIds.push(getQueueId());
+            _cimOperationProcessorQueue->enqueue(cimRequest);
+        }
+        else
+        {
+            switch (wsmRequest->getType())
+            {
+                case WS_ENUMERATION_PULL:
+                    _handlePullRequest((WsenPullRequest*) wsmRequest);
+                    break;
+
+                case WS_ENUMERATION_RELEASE:
+                    _handleReleaseRequest((WsenReleaseRequest*) wsmRequest);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        wsmRequestDestroyer.release();
     }
     catch (WsmFault& fault)
     {
@@ -152,16 +179,22 @@ void WsmProcessor::handleResponse(CIMResponseMessage* cimResponse)
         _requestTable.lookup(cimResponse->messageId, wsmRequest);
     PEGASUS_ASSERT(gotRequest);
     AutoPtr<WsmRequest> wsmRequestDestroyer(wsmRequest);
-    _requestTable.remove(wsmRequest->messageId);
+    _requestTable.remove(cimResponse->messageId);
 
     try
     {
-        AutoPtr<WsmResponse> wsmResponse(
-            _cimToWsmResponseMapper.mapToWsmResponse(wsmRequest, cimResponse));
+        switch (wsmRequest->getType())
+        {
+            case WS_ENUMERATION_ENUMERATE:
+                _handleEnumerateResponse(
+                    cimResponse,
+                    (WsenEnumerateRequest*) wsmRequest);
+                break;
 
-        cimResponse->updateThreadLanguages();
-        cimResponse->queueIds.pop();
-        _wsmResponseEncoder.enqueue(wsmResponse.get());
+            default:
+                _handleDefaultResponse(cimResponse, wsmRequest);
+                break;
+        }
     }
     catch (WsmFault& fault)
     {
@@ -211,6 +244,275 @@ void WsmProcessor::sendResponse(WsmResponse* wsmResponse)
 Uint32 WsmProcessor::getWsmRequestDecoderQueueId()
 {
     return _wsmRequestDecoder.getQueueId();
+}
+
+void WsmProcessor::_handleEnumerateResponse(
+    CIMResponseMessage* cimResponse,
+    WsenEnumerateRequest* wsmRequest)
+{
+    if (cimResponse->cimException.getCode() != CIM_ERR_SUCCESS)
+    {
+        _handleDefaultResponse(cimResponse, wsmRequest);
+    }
+    else
+    {
+        AutoMutex lock(_enumerationContextTableLock);
+
+        AutoPtr<WsenEnumerateResponse> wsmResponse(
+            (WsenEnumerateResponse*) _cimToWsmResponseMapper.
+                mapToWsmResponse(wsmRequest, cimResponse));
+
+        // Get the enumeration expiration time
+        CIMDateTime expiration;
+        _getExpirationDatetime(wsmRequest->expiration, expiration);
+
+        // Create a new context
+        Uint64 contextId = _currentEnumContext++;
+        _enumerationContextTable.insert(
+            contextId,
+            EnumerationContext(
+                contextId,
+                wsmRequest->enumerationMode,
+                expiration, 
+                wsmRequest->epr,
+                wsmResponse.get()));
+        wsmResponse->setEnumerationContext(contextId);
+
+        // Get the requsted chunk of results
+        AutoPtr<WsenEnumerateResponse> splitResponse(
+            _splitEnumerateResponse(wsmRequest, wsmResponse.get(), 
+                wsmRequest->optimized ? wsmRequest->maxElements : 0));
+        splitResponse->setEnumerationContext(contextId);
+
+        // If no items are left in the orignal response, mark split 
+        // response as complete
+        if (wsmResponse->getSize() == 0)
+        {
+            splitResponse->setComplete();
+        }
+
+        _wsmResponseEncoder.enqueue(splitResponse.get());
+        if (splitResponse->getSize() > 0)
+        {
+            // Add unprocessed items back to the context
+            wsmResponse->merge(splitResponse.get());
+        }
+
+        // Remove the context if there are no instances left
+        if (wsmResponse->getSize() == 0)
+        {
+            _enumerationContextTable.remove(contextId);
+        }
+        else
+        {
+            // If the context is not removed, the pointer to the response is
+            // now owned by the context
+            wsmResponse.release();
+        }
+    }
+}
+
+void WsmProcessor::_handlePullRequest(WsenPullRequest* wsmRequest)
+{
+    EnumerationContext* enumContext;
+    AutoMutex lock(_enumerationContextTableLock);
+
+    if (_enumerationContextTable.lookupReference(
+            wsmRequest->enumerationContext, enumContext))
+    {
+        // EPRs of the request and the enumeration context must match
+        if (wsmRequest->epr != enumContext->epr)
+        {
+            throw WsmFault(
+                WsmFault::wsa_MessageInformationHeaderRequired,
+                MessageLoaderParms(
+                    "WsmServer.WsmProcessor.INVALID_PULL_EPR",
+                    "EPR of a Pull request does not match that of "
+                    "the enumeration context."));
+        }
+
+        AutoPtr<WsenPullResponse> wsmResponse(_splitPullResponse(
+            wsmRequest, enumContext->response, wsmRequest->maxElements));
+        wsmResponse->setEnumerationContext(enumContext->contextId);
+        if (enumContext->response->getSize() == 0)
+        {
+            wsmResponse->setComplete();
+        }
+
+        _wsmResponseEncoder.enqueue(wsmResponse.get());
+        if (wsmResponse->getSize() > 0)
+        {
+            // Add unprocessed items back to the context
+            enumContext->response->merge(wsmResponse.get());
+        }
+
+        // Remove the context if there are no instances left
+        if (enumContext->response->getSize() == 0)
+        {
+            delete enumContext->response;
+            _enumerationContextTable.remove(wsmRequest->enumerationContext);
+        }
+    }
+    else
+    {
+        throw WsmFault(
+            WsmFault::wsen_InvalidEnumerationContext,
+            MessageLoaderParms(
+                "WsmServer.WsmProcessor.INVALID_ENUMERATION_CONTEXT",
+                "Enumeration context \"$0\" is not valid.",
+                wsmRequest->enumerationContext));
+    }
+}
+
+void WsmProcessor::_handleReleaseRequest(WsenReleaseRequest* wsmRequest)
+{
+    EnumerationContext enumContext;
+    AutoMutex lock(_enumerationContextTableLock);
+    if (_enumerationContextTable.lookup(
+            wsmRequest->enumerationContext, enumContext))
+    {
+        // EPRs of the request and the enumeration context must match
+        if (wsmRequest->epr != enumContext.epr)
+        {
+            throw WsmFault(
+                WsmFault::wsa_MessageInformationHeaderRequired,
+                MessageLoaderParms(
+                    "WsmServer.WsmProcessor.INVALID_RELEASE_EPR",
+                    "EPR of a Release request does not match that of "
+                    "the enumeration context."));
+        }
+
+        AutoPtr<WsenReleaseResponse> wsmResponse(new WsenReleaseResponse(
+            wsmRequest, enumContext.response->getContentLanguages()));
+
+        _enumerationContextTable.remove(wsmRequest->enumerationContext);
+
+        _wsmResponseEncoder.enqueue(wsmResponse.get());
+    }
+    else
+    {
+        throw WsmFault(
+            WsmFault::wsen_InvalidEnumerationContext,
+            MessageLoaderParms(
+                "WsmServer.WsmProcessor.INVALID_ENUMERATION_CONTEXT",
+                "Enumeration context \"$0\" is not valid.",
+                wsmRequest->enumerationContext));
+    }
+}
+
+void WsmProcessor::_handleDefaultResponse(
+    CIMResponseMessage* cimResponse, WsmRequest* wsmRequest)
+{
+    AutoPtr<WsmResponse> wsmResponse(
+        _cimToWsmResponseMapper.mapToWsmResponse(wsmRequest, cimResponse));
+
+    cimResponse->updateThreadLanguages();
+    cimResponse->queueIds.pop();
+
+    _wsmResponseEncoder.enqueue(wsmResponse.get());
+}
+
+WsenEnumerateResponse* WsmProcessor::_splitEnumerateResponse(
+    WsenEnumerateRequest* request, WsenEnumerateResponse* response, Uint32 num)
+{
+    WsenEnumerationData splitData;
+    response->getEnumerationData().split(splitData, num);
+
+    return new WsenEnumerateResponse(splitData, response->getItemCount(),
+        request, response->getContentLanguages());
+}
+
+WsenPullResponse* WsmProcessor::_splitPullResponse(
+    WsenPullRequest* request, WsenEnumerateResponse* response, Uint32 num)
+{
+    WsenEnumerationData splitData;
+    response->getEnumerationData().split(splitData, num);
+
+    return new WsenPullResponse(splitData, request, 
+        response->getContentLanguages());
+}
+
+void WsmProcessor::_getExpirationDatetime(
+    const String& wsmDT, CIMDateTime& cimDT)
+{
+    CIMDateTime dt, currentDT;
+
+    // Default expiration interval = 10 mins 
+    // ATTN WSMAN: what should the value be?
+    CIMDateTime maxInterval(0, 0, 10, 0, 0, 6);
+
+    // If expiration is not set, use the dafault.
+    if (wsmDT == String::EMPTY)
+    {
+        dt = maxInterval;
+    }
+    else
+    {
+        try
+        {
+            WsmToCimRequestMapper::convertWsmToCimDatetime(wsmDT, dt);
+        }
+        catch (...)
+        {
+            throw WsmFault(
+                WsmFault::wsen_InvalidExpirationTime,
+            MessageLoaderParms(
+                "WsmServer.WsmToCimRequestMapper.INVALID_EXPIRATION_TIME",
+                "The expiration time \"$0\" is not valid", wsmDT));
+        }
+    }
+
+    currentDT = CIMDateTime::getCurrentDateTime();
+    if (dt.isInterval())
+    {
+        if (dt > maxInterval)
+        {
+            dt = maxInterval;
+        }
+        cimDT = currentDT + dt;
+    }
+    else
+    {
+        if ((dt <= currentDT))
+        {
+            throw WsmFault(
+                WsmFault::wsen_InvalidExpirationTime,
+            MessageLoaderParms(
+                "WsmServer.WsmToCimRequestMapper.INVALID_EXPIRATION_TIME",
+                "The expiration time \"$0\" is not valid", wsmDT));
+        }
+
+        if (dt - currentDT > maxInterval)
+        {
+            cimDT = currentDT + maxInterval;
+        }
+        else
+        {
+            cimDT = dt;
+        }
+    }
+}
+
+void WsmProcessor::cleanupExpiredContexts()
+{
+    CIMDateTime currentDT = CIMDateTime::getCurrentDateTime();
+    Array<Uint64> expired;
+
+    AutoMutex lock(_enumerationContextTableLock);
+    for (EnumerationContextTable::Iterator i =
+             _enumerationContextTable.start (); i; i++)
+    {
+        EnumerationContext context = i.value();
+        if (context.expiration < currentDT)
+        {
+            expired.append(context.contextId);
+        }
+    }
+
+    for (Uint32 i = 0; i < expired.size(); i++)
+    {
+        _enumerationContextTable.remove(expired[i]);
+    }
 }
 
 PEGASUS_NAMESPACE_END

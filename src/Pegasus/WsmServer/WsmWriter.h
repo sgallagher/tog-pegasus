@@ -57,34 +57,24 @@ class PEGASUS_WSMSERVER_LINKAGE WsmWriter : public XmlGenerator
 {
 public:
 
-    static Buffer formatSoapFault(
+    static void appendSoapFaultHeaders(
+        Buffer& out, 
         const SoapNotUnderstoodFault& fault,
+        const String& action,
         const String& messageId,
-        const String& relatesTo,
-        HttpMethod httpMethod,
-        Uint32& httpHeaderSize);
+        const String& relatesTo);
+    static void appendSoapFaultBody(
+        Buffer& out, 
+        const SoapNotUnderstoodFault& fault);
 
-    static Buffer formatWsmFault(
-        const WsmFault& fault,
-        const String& messageId,
-        const String& relatesTo,
-        HttpMethod httpMethod,
-        Uint32& httpHeaderSize);
+    static void appendWsmFaultBody(
+        Buffer& out,
+        const WsmFault& fault);
 
     static Buffer formatHttpErrorRspMessage(
         const String& status,
         const String& cimError = String::EMPTY,
         const String& errorDetail = String::EMPTY);
-
-    static Buffer formatWsmRspMessage(
-        const String& action,
-        const String& messageId,
-        const String& relatesTo,
-        HttpMethod httpMethod,
-        const ContentLanguageList& contentLanguages,
-        const Buffer& body,
-        const Buffer& headers,
-        Uint32& httpHeaderSize);
 
     static void appendInstanceElement(
         Buffer& out, WsmInstance& instance, Boolean isEmbedded = false);
@@ -105,6 +95,10 @@ public:
         Buffer& out,
         WsmNamespaces::Type nsType,
         const StrLit& tagName);
+    static void appendEmptyTag(
+        Buffer& out,
+        WsmNamespaces::Type nsType,
+        const StrLit& tagName);
     static void appendTagValue(
         Buffer& out,
         WsmNamespaces::Type nsType,
@@ -113,11 +107,7 @@ public:
         const char* attrName = 0,
         const String& attrValue = String::EMPTY);
 
-private:
-
-    WsmWriter();
-
-    static void _appendHTTPResponseHeader(
+    static void appendHTTPResponseHeader(
         Buffer& out,
         const String& action,
         HttpMethod httpMethod,
@@ -125,20 +115,24 @@ private:
         Boolean isFault,
         Uint32 contentLength = 0);
 
-    static void _appendSoapEnvelopeStart(
+    static void appendSoapEnvelopeStart(
         Buffer& out,
         const ContentLanguageList& contentLanguages = ContentLanguageList());
-    static void _appendSoapEnvelopeEnd(Buffer& out);
-    static void _appendSoapHeaderStart(Buffer& out);
-    static void _appendSoapHeaderEnd(Buffer& out);
-    static void _appendSoapBodyStart(Buffer& out);
-    static void _appendSoapBodyEnd(Buffer& out);
+    static void appendSoapEnvelopeEnd(Buffer& out);
+    static void appendSoapHeaderStart(Buffer& out);
+    static void appendSoapHeaderEnd(Buffer& out);
+    static void appendSoapBodyStart(Buffer& out);
+    static void appendSoapBodyEnd(Buffer& out);
 
-    static void _appendSoapHeader(
+    static void appendSoapHeader(
         Buffer& out,
         const String& action,
         const String& messageId,
         const String& relatesTo);
+
+private:
+
+    WsmWriter();
 };
 
 PEGASUS_NAMESPACE_END

@@ -96,22 +96,41 @@ private:
         const char* headerName,
         Boolean headerSpecified);
 
-    WsmGetRequest* _decodeWSTransferGet(
+    void _checkNoSelectorsEPR(const WsmEndpointReference& epr);
+
+    WxfGetRequest* _decodeWSTransferGet(
         WsmReader& wsmReader,
         const String& messageId,
         const WsmEndpointReference& epr);
 
-    WsmPutRequest* _decodeWSTransferPut(
+    WxfPutRequest* _decodeWSTransferPut(
         WsmReader& wsmReader,
         const String& messageId,
         const WsmEndpointReference& epr);
 
-    WsmCreateRequest* _decodeWSTransferCreate(
+    WxfCreateRequest* _decodeWSTransferCreate(
         WsmReader& wsmReader,
         const String& messageId,
         const WsmEndpointReference& epr);
 
-    WsmDeleteRequest* _decodeWSTransferDelete(
+    WxfDeleteRequest* _decodeWSTransferDelete(
+        WsmReader& wsmReader,
+        const String& messageId,
+        const WsmEndpointReference& epr);
+
+    WsenEnumerateRequest* _decodeWSEnumerationEnumerate(
+        WsmReader& wsmReader,
+        const String& messageId,
+        const WsmEndpointReference& epr,
+        Boolean requestItemCount);
+
+    WsenPullRequest* _decodeWSEnumerationPull(
+        WsmReader& wsmReader,
+        const String& messageId,
+        const WsmEndpointReference& epr,
+        Boolean requestItemCount);
+
+    WsenReleaseRequest* _decodeWSEnumerationRelease(
         WsmReader& wsmReader,
         const String& messageId,
         const WsmEndpointReference& epr);

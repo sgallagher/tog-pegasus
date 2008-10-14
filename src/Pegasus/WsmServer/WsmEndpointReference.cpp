@@ -62,6 +62,23 @@ WsmEndpointReference::WsmEndpointReference(const WsmEndpointReference& epr)
     }
 }
 
+const String& WsmEndpointReference::getNamespace() const
+{
+    if (selectorSet)
+    {
+        for (Uint32 i = 0; i < selectorSet->selectors.size(); i++)
+        {
+            if (selectorSet->selectors[i].type == WsmSelector::VALUE &&
+                selectorSet->selectors[i].name == "__cimnamespace")
+            {
+                return selectorSet->selectors[i].value;
+            }
+        }
+    }
+
+    return String::EMPTY;
+}
+
 WsmEndpointReference& WsmEndpointReference::operator=(
     const WsmEndpointReference& epr)
 {
@@ -83,6 +100,33 @@ WsmEndpointReference& WsmEndpointReference::operator=(
     }
 
     return *this;
+}
+
+Boolean operator==(
+    const WsmEndpointReference& epr1,
+    const WsmEndpointReference& epr2)
+{
+    if (epr1.address != epr2.address ||
+        epr1.resourceUri != epr2.resourceUri ||
+        (epr1.selectorSet && !epr2.selectorSet) ||
+        (!epr1.selectorSet && epr2.selectorSet))
+    {
+        return false;
+    }
+
+    if (epr1.selectorSet && epr2.selectorSet)
+    {
+        return *epr1.selectorSet == *epr2.selectorSet;
+    }
+
+    return true;
+}
+
+Boolean operator!=(
+    const WsmEndpointReference& epr1,
+    const WsmEndpointReference& epr2)
+{
+    return !(epr1 == epr2);
 }
 
 PEGASUS_NAMESPACE_END

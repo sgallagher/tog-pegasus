@@ -171,6 +171,26 @@
 #define WSMAN_FAULTDETAIL_UNREPORTABLESUCCESS \
     "http://schemas.dmtf.org/wbem/wsman/1/wsman/faultDetail/UnreportableSuccess"
 
+#define WSMAN_FAULTDETAIL_ENUMERATION_MODE_UNSUPPORTED \
+    "http://schemas.dmtf.org/wbem/wsman/1/wsman/faultDetail/EnumerationMode"
+
+enum WsmbPolymorphismMode
+{
+    WSMB_PM_UNKNOWN,
+    WSMB_PM_NONE,
+    WSMB_PM_EXCLUDE_SUBCLASS_PROPERTIES,
+    WSMB_PM_INCLUDE_SUBCLASS_PROPERTIES
+};
+
+enum WsenEnumerationMode
+{
+    WSEN_EM_UNKNOWN,
+    WSEN_EM_OBJECT,
+    WSEN_EM_EPR,
+    WSEN_EM_OBJECT_AND_EPR
+}; 
+
+
 PEGASUS_NAMESPACE_BEGIN
 
 //

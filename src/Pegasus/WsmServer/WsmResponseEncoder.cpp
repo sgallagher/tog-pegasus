@@ -44,6 +44,8 @@
 #include "WsmReader.h"
 #include "WsmWriter.h"
 #include "WsmResponseEncoder.h"
+#include "WsmToCimRequestMapper.h"
+#include "SoapResponse.h"
 
 PEGASUS_USING_STD;
 
@@ -57,16 +59,11 @@ WsmResponseEncoder::~WsmResponseEncoder()
 {
 }
 
-void WsmResponseEncoder::sendResponse(
-    WsmResponse* response,
-    const String& action,
-    Buffer* bodygiven,
-    Buffer* extraHeaders)
+void WsmResponseEncoder::_sendResponse(SoapResponse* response)
 {
     PEG_METHOD_ENTER(TRC_WSMSERVER, "WsmResponseEncoder::sendResponse");
     PEG_TRACE((TRC_WSMSERVER, Tracer::LEVEL3,
-        "WsmResponseEncoder::sendResponse(): action = %s",
-        (const char*)action.getCString()));
+        "WsmResponseEncoder::sendResponse()"));
 
     if (!response)
     {
@@ -92,124 +89,7 @@ void WsmResponseEncoder::sendResponse(
     }
     PEGASUS_ASSERT(dynamic_cast<HTTPConnection*>(queue) != 0);
 
-    HttpMethod httpMethod = response->getHttpMethod();
-    String messageId = response->getMessageId();
-    String relatesTo = response->getRelatesTo();
-    Buffer message;
-
-    // Note: the language is ALWAYS passed empty to the xml formatters because
-    // it is HTTPConnection that needs to make the decision of whether to add
-    // the languages to the HTTP message.
-    ContentLanguageList contentLanguage;
-
-    Uint32 httpHeaderSize = 0;
-    Buffer bodylocal, headerslocal;
-    Buffer& body = bodygiven ? *bodygiven : bodylocal;
-    Buffer& headers = extraHeaders ? *extraHeaders : headerslocal;
-
-    if (response->getType() == SOAP_FAULT)
-    {
-        message = WsmWriter::formatSoapFault(
-            ((SoapFaultResponse*) response)->getFault(),
-            messageId,
-            relatesTo,
-            httpMethod,
-            httpHeaderSize);
-    }
-    else if (response->getType() == WSM_FAULT)
-    {
-        message = WsmWriter::formatWsmFault(
-            ((WsmFaultResponse*) response)->getFault(),
-            messageId,
-            relatesTo,
-            httpMethod,
-            httpHeaderSize);
-    }
-    else
-    {
-        // else non-error condition
-        try
-        {
-            message = WsmWriter::formatWsmRspMessage(
-                action,
-                messageId,
-                relatesTo,
-                httpMethod,
-                contentLanguage,
-                body,
-                headers,
-                httpHeaderSize);
-        }
-        catch (PEGASUS_STD(bad_alloc)&)
-        {
-            WsmFault fault(WsmFault::wsman_InternalError,
-                MessageLoaderParms(
-                    "WsmServer.WsmResponseEncoder.OUT_OF_MEMORY",
-                    "A System error has occurred. Please retry the "
-                        "WS-Management operation at a later time."));
-            WsmFaultResponse outofmem(relatesTo, queueId, httpMethod,
-                httpCloseConnect, fault);
-
-            // try again with new error and no body
-            body.clear();
-            sendResponse(&outofmem);
-            PEG_METHOD_EXIT();
-            return;
-        }
-    }
-
-    // If MaxEnvelopeSize is not set, it's never been specified 
-    // in the request
-    if (response->getMaxEnvelopeSize() &&
-        message.size() - httpHeaderSize > response->getMaxEnvelopeSize())
-    {
-        // try again with new error and no body
-        body.clear();
-
-        if (response->getType() == WSM_FAULT ||
-            response->getType() == SOAP_FAULT)
-        {
-            WsmFault fault(WsmFault::wsman_EncodingLimit,
-                MessageLoaderParms(
-                    "WsmServer.WsmResponseEncoder.FAULT_MAX_ENV_SIZE_EXCEEDED",
-                    "Fault response could not be encoded within requested "
-                    "envelope size limits."),
-                WSMAN_FAULTDETAIL_MAXENVELOPESIZE);
-            WsmFaultResponse faultResponse(relatesTo, queueId, httpMethod,
-                httpCloseConnect, fault);
-
-            sendResponse(&faultResponse);
-        }
-        else
-        {
-            // DSP0226 R6.2-2:  If the mustUnderstand attribute is set to
-            // "true", the service shall comply with the request.  If the
-            // response would exceed the maximum size, the service should
-            // return a wsman:EncodingLimit fault.  Because a service might
-            // execute the operation prior to knowing the response size, the
-            // service should undo any effects of the operation before
-            // issuing the fault.  If the operation cannot be reversed (such
-            // as a destructive wxf:Put or wxf:Delete, or a wxf:Create), the
-            // service shall indicate that the operation succeeded in the
-            // wsman:EncodingLimit fault with the following detail code:
-            //     http://schemas.dmtf.org/wbem/wsman/1/wsman/faultDetail/
-            //         UnreportableSuccess
-
-            WsmFault fault(WsmFault::wsman_EncodingLimit,
-                MessageLoaderParms(
-                    "WsmServer.WsmResponseEncoder.UNREPORTABLE_SUCCESS",
-                    "Success response could not be encoded within "
-                    "requested envelope size limits."),
-                WSMAN_FAULTDETAIL_UNREPORTABLESUCCESS);
-            WsmFaultResponse faultResponse(relatesTo, queueId, httpMethod,
-                httpCloseConnect, fault);
-
-            sendResponse(&faultResponse);
-        }
-
-        PEG_METHOD_EXIT();
-        return;
-    }
+    Buffer message = response->getResponseContent();
 
     // Note: WS-Management responses are never sent in chunks, so there is no
     // need to check dynamic_cast<HTTPConnection*>(queue)->isChunkRequested().
@@ -217,25 +97,61 @@ void WsmResponseEncoder::sendResponse(
 
     AutoPtr<HTTPMessage> httpMessage(new HTTPMessage(message));
 
-    if (response->getType() == SOAP_FAULT)
-    {
-        httpMessage->contentLanguages =
-            ((SoapFaultResponse*) response)->getFault().getMessageLanguage();
-    }
-    else if (response->getType() == WSM_FAULT)
-    {
-        httpMessage->contentLanguages =
-            ((WsmFaultResponse*) response)->getFault().getReasonLanguage();
-    }
-    else
-    {
-        httpMessage->contentLanguages = response->getContentLanguages();
-    }
-
     httpMessage->setCloseConnect(httpCloseConnect);
     queue->enqueue(httpMessage.release());
 
     PEG_METHOD_EXIT();
+}
+
+void WsmResponseEncoder::_sendUnreportableSuccess(WsmResponse* response)
+{
+    // DSP0226 R6.2-2:  If the mustUnderstand attribute is set to
+    // "true", the service shall comply with the request.  If the
+    // response would exceed the maximum size, the service should
+    // return a wsman:EncodingLimit fault.  Because a service might
+    // execute the operation prior to knowing the response size, the
+    // service should undo any effects of the operation before
+    // issuing the fault.  If the operation cannot be reversed (such
+    // as a destructive wxf:Put or wxf:Delete, or a wxf:Create), the
+    // service shall indicate that the operation succeeded in the
+    // wsman:EncodingLimit fault with the following detail code:
+    //     http://schemas.dmtf.org/wbem/wsman/1/wsman/faultDetail/
+    //         UnreportableSuccess
+
+    WsmFault fault(WsmFault::wsman_EncodingLimit,
+        MessageLoaderParms(
+            "WsmServer.WsmResponseEncoder.UNREPORTABLE_SUCCESS",
+            "Success response could not be encoded within "
+            "requested envelope size limits."),
+        WSMAN_FAULTDETAIL_UNREPORTABLESUCCESS);
+    WsmFaultResponse faultResponse(
+        response->getRelatesTo(), 
+        response->getQueueId(), 
+        response->getHttpMethod(),
+        response->getHttpCloseConnect(), 
+        fault);
+
+    SoapResponse soapResponse(&faultResponse);
+    _sendResponse(&soapResponse);
+}
+
+void WsmResponseEncoder::_sendEncodingLimitFault(WsmResponse* response)
+{
+    WsmFault fault(WsmFault::wsman_EncodingLimit,
+        MessageLoaderParms(
+            "WsmServer.WsmResponseEncoder.MAX_ENV_SIZE_EXCEEDED",
+            "Response could not be encoded within requested "
+            "envelope size limits."),
+        WSMAN_FAULTDETAIL_MAXENVELOPESIZE);
+    WsmFaultResponse faultResponse(
+        response->getRelatesTo(), 
+        response->getQueueId(), 
+        response->getHttpMethod(),
+        response->getHttpCloseConnect(), 
+        fault);
+
+    SoapResponse soapResponse(&faultResponse);
+    _sendResponse(&soapResponse);
 }
 
 void WsmResponseEncoder::enqueue(WsmResponse* response)
@@ -248,51 +164,89 @@ void WsmResponseEncoder::enqueue(WsmResponse* response)
             "response->getHttpCloseConnect() returned %d",
         response->getHttpCloseConnect()));
 
-    switch (response->getType())
+    try 
     {
-        case WS_TRANSFER_GET:
-            _encodeGetResponse((WsmGetResponse*) response);
-            break;
+        switch (response->getType())
+        {
+            case WS_TRANSFER_GET:
+                _encodeWxfGetResponse((WxfGetResponse*) response);
+                break;
 
-        case WS_TRANSFER_PUT:
-            _encodePutResponse((WsmPutResponse*) response);
-            break;
+            case WS_TRANSFER_PUT:
+                _encodeWxfPutResponse((WxfPutResponse*) response);
+                break;
 
-        case WS_TRANSFER_CREATE:
-            _encodeCreateResponse((WsmCreateResponse*) response);
-            break;
+            case WS_TRANSFER_CREATE:
+                _encodeWxfCreateResponse((WxfCreateResponse*) response);
+                break;
 
-        case WS_TRANSFER_DELETE:
-            _encodeDeleteResponse((WsmDeleteResponse*) response);
-            break;
+            case WS_TRANSFER_DELETE:
+                _encodeWxfDeleteResponse((WxfDeleteResponse*) response);
+                break;
 
-        case WSM_FAULT:
-            _encodeWsmFaultResponse((WsmFaultResponse*) response);
-            break;
+            case WS_ENUMERATION_ENUMERATE:
+                _encodeWsenEnumerateResponse((WsenEnumerateResponse*) response);
+                break;
 
-        case SOAP_FAULT:
-            _encodeSoapFaultResponse((SoapFaultResponse*) response);
-            break;
+            case WS_ENUMERATION_PULL:
+                _encodeWsenPullResponse((WsenPullResponse*) response);
+                break;
 
-        default:
-            // Unexpected message type
-            PEGASUS_ASSERT(0);
-            break;
+            case WS_ENUMERATION_RELEASE:
+                _encodeWsenReleaseResponse((WsenReleaseResponse*) response);
+                break;
+
+            case WSM_FAULT:
+                _encodeWsmFaultResponse((WsmFaultResponse*) response);
+                break;
+
+            case SOAP_FAULT:
+                _encodeSoapFaultResponse((SoapFaultResponse*) response);
+                break;
+
+            default:
+                // Unexpected message type
+                PEGASUS_ASSERT(0);
+                break;
+        }
+    }
+    catch (PEGASUS_STD(bad_alloc)&)
+    {
+        WsmFault fault(WsmFault::wsman_InternalError,
+            MessageLoaderParms(
+                "WsmServer.WsmResponseEncoder.OUT_OF_MEMORY",
+                "A System error has occurred. Please retry the "
+                    "WS-Management operation at a later time."));
+        WsmFaultResponse outofmem(
+            response->getRelatesTo(), 
+            response->getQueueId(), 
+            response->getHttpMethod(),
+            response->getHttpCloseConnect(), 
+            fault);
+        _encodeWsmFaultResponse(&outofmem);
     }
 
     PEG_METHOD_EXIT();
 }
 
-void WsmResponseEncoder::_encodeGetResponse(WsmGetResponse* response)
+void WsmResponseEncoder::_encodeWxfGetResponse(WxfGetResponse* response)
 {
+    SoapResponse soapResponse(response);
     Buffer body;
     WsmWriter::appendInstanceElement(body, response->getInstance());
-    sendResponse(response, WSM_ACTION_GET_RESPONSE, &body);
+    if (soapResponse.appendBodyContent(body))
+    {
+        _sendResponse(&soapResponse);
+    }
+    else
+    {
+        _sendUnreportableSuccess(response);
+    }
 }
 
-void WsmResponseEncoder::_encodePutResponse(WsmPutResponse* response)
+void WsmResponseEncoder::_encodeWxfPutResponse(WxfPutResponse* response)
 {
-    Buffer body;
+    SoapResponse soapResponse(response);
     Buffer headers;
 
     // DSP0226 R6.5-1:  A service receiving a message that contains the
@@ -315,40 +269,315 @@ void WsmResponseEncoder::_encodePutResponse(WsmPutResponse* response)
         WsmWriter::appendStartTag(
             headers, WsmNamespaces::WS_MAN, STRLIT("RequestedEPR"));
         WsmWriter::appendStartTag(
-            headers, WsmNamespaces::WS_ADDRESSING, STRLIT("EndpointReference"));
+            headers, 
+            WsmNamespaces::WS_ADDRESSING, STRLIT("EndpointReference"));
         WsmWriter::appendEPRElement(headers, response->getEPR());
         WsmWriter::appendEndTag(
-            headers, WsmNamespaces::WS_ADDRESSING, STRLIT("EndpointReference"));
+            headers, 
+            WsmNamespaces::WS_ADDRESSING, STRLIT("EndpointReference"));
         WsmWriter::appendEndTag(
             headers, WsmNamespaces::WS_MAN, STRLIT("RequestedEPR"));
     }
-    sendResponse(response, WSM_ACTION_PUT_RESPONSE, &body, &headers);
+
+    if (soapResponse.appendHeader(headers))
+    {
+        _sendResponse(&soapResponse);
+    }
+    else
+    {
+        _sendUnreportableSuccess(response);
+    }
 }
 
-void WsmResponseEncoder::_encodeCreateResponse(WsmCreateResponse* response)
+void WsmResponseEncoder::_encodeWxfCreateResponse(WxfCreateResponse* response)
 {
+    SoapResponse soapResponse(response);
     Buffer body;
+
     WsmWriter::appendStartTag(
         body, WsmNamespaces::WS_TRANSFER, STRLIT("ResourceCreated"));
     WsmWriter::appendEPRElement(body, response->getEPR());
     WsmWriter::appendEndTag(
         body, WsmNamespaces::WS_TRANSFER, STRLIT("ResourceCreated"));
-    sendResponse(response, WSM_ACTION_CREATE_RESPONSE, &body);
+
+    if (soapResponse.appendBodyContent(body))
+    {
+        _sendResponse(&soapResponse);
+    }
+    else
+    {
+        _sendUnreportableSuccess(response);
+    }
 }
 
-void WsmResponseEncoder::_encodeDeleteResponse(WsmDeleteResponse* response)
+void WsmResponseEncoder::_encodeWxfDeleteResponse(WxfDeleteResponse* response)
 {
-    sendResponse(response, WSM_ACTION_DELETE_RESPONSE);
+    SoapResponse soapResponse(response);
+    _sendResponse(&soapResponse);
+}
+
+void WsmResponseEncoder::_encodeWsenEnumerateResponse(
+    WsenEnumerateResponse* response)
+{
+    SoapResponse soapResponse(response);
+    Buffer headers;
+
+    if (response->requestedItemCount())
+    {
+        WsmWriter::appendStartTag(
+            headers, WsmNamespaces::WS_MAN, STRLIT("TotalItemsCountEstimate"));
+        WsmWriter::append(headers, response->getItemCount());
+        WsmWriter::appendEndTag(
+            headers, WsmNamespaces::WS_MAN, STRLIT("TotalItemsCountEstimate"));
+    }
+
+    if (!_encodeEnumerationData(
+            soapResponse, 
+            headers, 
+            WS_ENUMERATION_ENUMERATE,
+            response->getEnumerationContext(),
+            response->isComplete(),
+            response->getEnumerationData()))
+    {
+        _sendEncodingLimitFault(response);
+        return;
+    }
+
+    _sendResponse(&soapResponse);
+}
+
+void WsmResponseEncoder::_encodeWsenPullResponse(WsenPullResponse* response)
+{
+    SoapResponse soapResponse(response);
+    Buffer headers;
+
+    if (!_encodeEnumerationData(
+            soapResponse, 
+            headers, 
+            WS_ENUMERATION_PULL,
+            response->getEnumerationContext(),
+            response->isComplete(),
+            response->getEnumerationData()))
+    {
+        _sendEncodingLimitFault(response);
+        return;
+    }
+
+    _sendResponse(&soapResponse);
+}
+
+Boolean WsmResponseEncoder::_encodeEnumerationData(
+    SoapResponse& soapResponse,
+    Buffer& headers,
+    WsmOperationType operation,
+    Uint64 contextId,
+    Boolean isComplete,
+    WsenEnumerationData& data)
+{
+    Buffer bodyHeader, bodyTrailer;
+
+    PEGASUS_ASSERT(operation == WS_ENUMERATION_ENUMERATE ||
+        operation == WS_ENUMERATION_PULL);
+
+    WsmWriter::appendStartTag(
+        bodyHeader, WsmNamespaces::WS_ENUMERATION, 
+        operation == WS_ENUMERATION_ENUMERATE ? 
+            STRLIT("EnumerateResponse") : STRLIT("PullResponse"));
+
+    if (!isComplete)
+    {
+        WsmWriter::appendStartTag(
+            bodyHeader, WsmNamespaces::WS_ENUMERATION, 
+            STRLIT("EnumerationContext"));
+        WsmWriter::append(bodyHeader, contextId);
+        WsmWriter::appendEndTag(
+            bodyHeader, WsmNamespaces::WS_ENUMERATION, 
+            STRLIT("EnumerationContext"));
+    }
+    else
+    {
+        WsmWriter::appendEmptyTag(
+            bodyHeader, WsmNamespaces::WS_ENUMERATION, 
+            STRLIT("EnumerationContext"));
+    }
+
+    if (data.getSize() > 0)
+    {
+        WsmWriter::appendStartTag(
+            bodyHeader, 
+            operation == WS_ENUMERATION_ENUMERATE ? 
+                WsmNamespaces::WS_MAN : WsmNamespaces::WS_ENUMERATION, 
+            STRLIT("Items"));
+        WsmWriter::appendEndTag(
+            bodyTrailer, 
+            operation == WS_ENUMERATION_ENUMERATE ? 
+                WsmNamespaces::WS_MAN : WsmNamespaces::WS_ENUMERATION, 
+            STRLIT("Items"));
+    }
+
+    Uint32 eosPos = bodyTrailer.size();
+    Uint32 eosSize = 0;
+    if (isComplete)
+    {
+        WsmWriter::appendEmptyTag(
+            bodyTrailer, 
+            operation == WS_ENUMERATION_ENUMERATE ? 
+                WsmNamespaces::WS_MAN : WsmNamespaces::WS_ENUMERATION, 
+            STRLIT("EndOfSequence"));
+        eosSize = bodyTrailer.size() - eosPos;
+    }
+
+    WsmWriter::appendEndTag(
+        bodyTrailer, WsmNamespaces::WS_ENUMERATION, 
+        operation == WS_ENUMERATION_ENUMERATE ? 
+            STRLIT("EnumerateResponse") : STRLIT("PullResponse"));
+
+    // Fault the request if it can't be encoded within the limits
+    if (!soapResponse.appendHeader(headers) ||
+        !soapResponse.appendBodyHeader(bodyHeader) ||
+        !soapResponse.appendBodyTrailer(bodyTrailer))
+    {
+        return false;
+    }
+
+    // Now add the list of items
+    Uint32 i;
+
+    if (data.enumerationMode == WSEN_EM_OBJECT)
+    {
+        for (i = 0; i < data.instances.size(); i++)
+        {
+            Buffer body;
+
+            if (data.polymorphismMode == WSMB_PM_EXCLUDE_SUBCLASS_PROPERTIES)
+            {
+                // The response does not contain the subclass properties, but
+                // the class name is still that of the subclass. 
+                // Replace it here.
+                data.instances[i].setClassName(
+                    WsmToCimRequestMapper::convertResourceUriToClassName(
+                        data.classUri).getString());
+            }
+
+            WsmWriter::appendInstanceElement(body, data.instances[i]);
+            if (!soapResponse.appendBodyContent(body))
+            {
+                break;
+            }
+        }
+    }
+    else if (data.enumerationMode == WSEN_EM_EPR)
+    {
+        for (i = 0; i < data.eprs.size(); i++)
+        {
+            Buffer body;
+
+            WsmWriter::appendStartTag(
+                body, 
+                WsmNamespaces::WS_ADDRESSING, 
+                STRLIT("EndpointReference"));
+            WsmWriter::appendEPRElement(body, data.eprs[i]);
+            WsmWriter::appendEndTag(
+                body, 
+                WsmNamespaces::WS_ADDRESSING, 
+                STRLIT("EndpointReference"));
+            if (!soapResponse.appendBodyContent(body))
+            {
+                break;
+            }
+        }
+    }
+    else if (data.enumerationMode == WSEN_EM_OBJECT_AND_EPR)
+    {
+        for (i = 0; i < data.instances.size(); i++)
+        {
+            Buffer body;
+
+            WsmWriter::appendStartTag(
+                body, 
+                WsmNamespaces::WS_MAN, 
+                STRLIT("Item"));
+
+            if (data.polymorphismMode == WSMB_PM_EXCLUDE_SUBCLASS_PROPERTIES)
+            {
+                // The response does not contain the subclass properties, but
+                // the class name is still that of the subclass. 
+                // Replace it here.
+                data.instances[i].setClassName(
+                    WsmToCimRequestMapper::convertResourceUriToClassName(
+                        data.classUri).getString());
+            }
+
+            WsmWriter::appendInstanceElement(body, data.instances[i]);
+ 
+            WsmWriter::appendStartTag(
+                body, 
+                WsmNamespaces::WS_ADDRESSING, 
+                STRLIT("EndpointReference"));
+            WsmWriter::appendEPRElement(body, data.eprs[i]);
+            WsmWriter::appendEndTag(
+                body, 
+                WsmNamespaces::WS_ADDRESSING, 
+                STRLIT("EndpointReference"));
+
+            WsmWriter::appendEndTag(
+                body, 
+                WsmNamespaces::WS_MAN, 
+                STRLIT("Item"));
+
+            if (!soapResponse.appendBodyContent(body))
+            {
+                break;
+            }
+        }
+    }
+    else
+    {
+        PEGASUS_ASSERT(0);
+    }
+
+    // If the list is not empty, but none of the items have been successfully
+    // added to the soapResponse, fault the request because it cannot be
+    // encoded within the specified limits.
+    if (data.getSize() > 0 && i == 0)
+    {
+        return false;
+    }
+
+    // Remove the items we processed. The rest will be added back 
+    // to the context
+    if (i != 0)
+    {
+        data.remove(0, i);
+    }
+
+    // The request is complete but could not be encoded with MaxEnvelopeSize.
+    // Clear EndOfSequence tag.
+    if (isComplete && data.getSize() > 0)
+    {
+        soapResponse.getBodyTrailer().remove(eosPos, eosSize);
+    }
+
+    return true;
+}
+
+void WsmResponseEncoder::_encodeWsenReleaseResponse(
+    WsenReleaseResponse* response)
+{
+    SoapResponse soapResponse(response);
+    _sendResponse(&soapResponse);
 }
 
 void WsmResponseEncoder::_encodeWsmFaultResponse(WsmFaultResponse* response)
 {
-    sendResponse(response);
+    SoapResponse soapResponse(response);
+    _sendResponse(&soapResponse);
 }
 
 void WsmResponseEncoder::_encodeSoapFaultResponse(SoapFaultResponse* response)
 {
-    sendResponse(response);
+    SoapResponse soapResponse(response);
+    _sendResponse(&soapResponse);
 }
 
 PEGASUS_NAMESPACE_END

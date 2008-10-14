@@ -368,6 +368,7 @@ void WsmRequestDecoder::handleWsmMessage(
         Uint32 wsmMaxEnvelopeSize = 0;
         AcceptLanguageList wsmLocale;
         Boolean wsmRequestEpr = false;
+        Boolean wsmRequestItemCount = false;
 
         try
         {
@@ -382,7 +383,8 @@ void WsmRequestDecoder::handleWsmMessage(
                 *epr.selectorSet,
                 wsmMaxEnvelopeSize,
                 wsmLocale,
-                wsmRequestEpr);
+                wsmRequestEpr,
+                wsmRequestItemCount);
         }
         catch (XmlException&)
         {
@@ -496,6 +498,29 @@ void WsmRequestDecoder::handleWsmMessage(
                 wsaMessageId,
                 epr));
         }
+        else if (wsaAction == WSM_ACTION_ENUMERATE)
+        {
+            request.reset(_decodeWSEnumerationEnumerate(
+                wsmReader,
+                wsaMessageId,
+                epr,
+                wsmRequestItemCount));
+        }
+        else if (wsaAction == WSM_ACTION_PULL)
+        {
+            request.reset(_decodeWSEnumerationPull(
+                wsmReader,
+                wsaMessageId,
+                epr,
+                wsmRequestItemCount));
+        }
+        else if (wsaAction == WSM_ACTION_RELEASE)
+        {
+            request.reset(_decodeWSEnumerationRelease(
+                wsmReader,
+                wsaMessageId,
+                epr));
+        }
         else
         {
             throw WsmFault(
@@ -593,7 +618,27 @@ void WsmRequestDecoder::_checkRequiredHeader(
     }
 }
 
-WsmGetRequest* WsmRequestDecoder::_decodeWSTransferGet(
+void WsmRequestDecoder::_checkNoSelectorsEPR(const WsmEndpointReference& epr)
+{
+    // Make sure that at most __cimnamespace seletor is present
+    if (epr.selectorSet)
+    {
+        if (epr.selectorSet->selectors.size() > 1 ||
+            epr.selectorSet->selectors[0].type != WsmSelector::VALUE ||
+            epr.selectorSet->selectors[0].name != "__cimnamespace")
+        {
+            throw WsmFault(
+                WsmFault::wsman_InvalidSelectors,
+                MessageLoaderParms(
+                    "WsmServer.WsmRequestDecoder.UNEXPECTED_SELECTORS",
+                    "The operation allows only the __cimnamespace seletor to "
+                    "be present."),
+                WSMAN_FAULTDETAIL_UNEXPECTEDSELECTORS);
+        }
+    }
+}
+
+WxfGetRequest* WsmRequestDecoder::_decodeWSTransferGet(
     WsmReader& wsmReader,
     const String& messageId,
     const WsmEndpointReference& epr)
@@ -608,10 +653,10 @@ WsmGetRequest* WsmRequestDecoder::_decodeWSTransferGet(
         wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
     }
 
-    return new WsmGetRequest(messageId, epr);
+    return new WxfGetRequest(messageId, epr);
 }
 
-WsmPutRequest* WsmRequestDecoder::_decodeWSTransferPut(
+WxfPutRequest* WsmRequestDecoder::_decodeWSTransferPut(
     WsmReader& wsmReader,
     const String& messageId,
     const WsmEndpointReference& epr)
@@ -627,15 +672,16 @@ WsmPutRequest* WsmRequestDecoder::_decodeWSTransferPut(
 
     wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
 
-    return new WsmPutRequest(messageId, epr, instance);
+    return new WxfPutRequest(messageId, epr, instance);
 }
 
-WsmCreateRequest* WsmRequestDecoder::_decodeWSTransferCreate(
+WxfCreateRequest* WsmRequestDecoder::_decodeWSTransferCreate(
     WsmReader& wsmReader,
     const String& messageId,
     const WsmEndpointReference& epr)
 {
     _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
+    _checkNoSelectorsEPR(epr);
 
     XmlEntry entry;
     wsmReader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
@@ -646,10 +692,10 @@ WsmCreateRequest* WsmRequestDecoder::_decodeWSTransferCreate(
 
     wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
 
-    return new WsmCreateRequest(messageId, epr, instance);
+    return new WxfCreateRequest(messageId, epr, instance);
 }
 
-WsmDeleteRequest* WsmRequestDecoder::_decodeWSTransferDelete(
+WxfDeleteRequest* WsmRequestDecoder::_decodeWSTransferDelete(
     WsmReader& wsmReader,
     const String& messageId,
     const WsmEndpointReference& epr)
@@ -664,7 +710,150 @@ WsmDeleteRequest* WsmRequestDecoder::_decodeWSTransferDelete(
         wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
     }
 
-    return new WsmDeleteRequest(messageId, epr);
+    return new WxfDeleteRequest(messageId, epr);
+}
+
+WsenEnumerateRequest* WsmRequestDecoder::_decodeWSEnumerationEnumerate(
+    WsmReader& wsmReader,
+    const String& messageId,
+    const WsmEndpointReference& epr,
+    Boolean requestItemCount)
+{
+    _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
+    _checkNoSelectorsEPR(epr);
+
+    String expiration;
+    WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
+    WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
+    Boolean optimized = false;
+    Uint32 maxElements = 0;
+
+    XmlEntry entry;
+    wsmReader.expectStartOrEmptyTag(
+        entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
+    if (entry.type != XmlEntry::EMPTY_TAG)
+    {
+        wsmReader.decodeEnumerateBody(expiration, polymorphismMode, 
+            enumerationMode, optimized, maxElements);
+        wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
+    }
+
+    // If PolymorphismMode header is not specified, set it to default
+    if (polymorphismMode == WSMB_PM_UNKNOWN)
+    {
+        // DSP0227, R8.1-4: A service MAY optionally support the 
+        // wsmb:PolymorphismMode modifier element with a value of 
+        // IncludeSubClassProperties, which returns instances of the base 
+        // class and derived classes using the actual classs GED and XSD 
+        // type. This is the same as not specifying the polymorphism mode.
+        polymorphismMode = WSMB_PM_INCLUDE_SUBCLASS_PROPERTIES;
+    }
+    else
+    {
+        // DSP0227, R8.1-6: The service SHOULD also return a 
+        // wsmb:PolymorphismModeNotSupported fault for requests using the 
+        // all classes ResourceURI if the PolymorphismMode is present and 
+        // does not equal IncludeSubClassProperties.
+        if (epr.resourceUri == WSM_RESOURCEURI_ALLCLASSES &&
+            polymorphismMode != WSMB_PM_INCLUDE_SUBCLASS_PROPERTIES)
+        {
+            throw WsmFault(
+                WsmFault::wsmb_PolymorphismModeNotSupported,
+                MessageLoaderParms(
+                    "WsmServer.WsmReader.ENUMERATE_"
+                        "POLYMORPHISM_INCLUDE_SUBCLASS",
+                    "\"All classes\" resource URI requires "
+                        "IncludeSubClassProperties polymorphism mode."));
+        }
+    }
+
+    // If EnumerationMode header is not specified, set it to default
+    if (enumerationMode == WSEN_EM_UNKNOWN)
+    {
+        enumerationMode = WSEN_EM_OBJECT;
+    }
+
+    // If optimized enumeration is requested but maxElements is not specified,
+    // set it to default value of 1.
+    if (optimized && maxElements == 0)
+    {
+        maxElements = 1;
+    }
+
+    return new WsenEnumerateRequest(
+        messageId, 
+        epr, 
+        expiration, 
+        requestItemCount, 
+        optimized, 
+        maxElements, 
+        enumerationMode, 
+        polymorphismMode);
+}
+
+WsenPullRequest* WsmRequestDecoder::_decodeWSEnumerationPull(
+    WsmReader& wsmReader,
+    const String& messageId,
+    const WsmEndpointReference& epr,
+    Boolean requestItemCount)
+{
+    _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
+    _checkNoSelectorsEPR(epr);
+
+    Uint64 enumerationContext;
+    String maxTime;
+    Uint32 maxElements = 0;
+    Uint32 maxCharacters = 0;
+
+    XmlEntry entry;
+    wsmReader.expectStartOrEmptyTag(
+        entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
+    if (entry.type != XmlEntry::EMPTY_TAG)
+    {
+        wsmReader.decodePullBody(enumerationContext, maxTime, 
+            maxElements, maxCharacters);
+        wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
+    }
+
+    // If maxElements is not specified, set it to default value of 1.
+    if (maxElements == 0)
+    {
+        maxElements = 1;
+    }
+
+    return new WsenPullRequest(
+        messageId, 
+        epr, 
+        enumerationContext,
+        maxTime,
+        requestItemCount, 
+        maxElements,
+        maxCharacters);
+}
+
+WsenReleaseRequest* WsmRequestDecoder::_decodeWSEnumerationRelease(
+    WsmReader& wsmReader,
+    const String& messageId,
+    const WsmEndpointReference& epr)
+{
+    _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
+    _checkNoSelectorsEPR(epr);
+
+    Uint64 enumerationContext;
+
+    XmlEntry entry;
+    wsmReader.expectStartOrEmptyTag(
+        entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
+    if (entry.type != XmlEntry::EMPTY_TAG)
+    {
+        wsmReader.decodeReleaseBody(enumerationContext);
+        wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
+    }
+
+    return new WsenReleaseRequest(
+        messageId, 
+        epr, 
+        enumerationContext);
 }
 
 PEGASUS_NAMESPACE_END

@@ -40,6 +40,7 @@
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/Message.h>
+#include <Pegasus/WsmServer/WsmConstants.h>
 #include <Pegasus/WsmServer/WsmSelectorSet.h>
 #include <Pegasus/WsmServer/WsmInstance.h>
 
@@ -71,6 +72,11 @@ public:
         WsmOperationType type,
         const String& messageId_)
         : messageId(messageId_),
+          httpMethod(HTTP_METHOD__POST),
+          httpCloseConnect(false),
+          queueId(0),
+          requestEpr(false),
+          maxEnvelopeSize(0),
           _type(type)
     {
     }
@@ -101,11 +107,11 @@ private:
     WsmOperationType _type;
 };
 
-class WsmGetRequest : public WsmRequest
+class WxfGetRequest : public WsmRequest
 {
 public:
 
-    WsmGetRequest(
+    WxfGetRequest(
         const String& messageId,
         const WsmEndpointReference& epr_)
         : WsmRequest(WS_TRANSFER_GET, messageId),
@@ -116,11 +122,11 @@ public:
     WsmEndpointReference epr;
 };
 
-class WsmPutRequest : public WsmRequest
+class WxfPutRequest : public WsmRequest
 {
 public:
 
-    WsmPutRequest(
+    WxfPutRequest(
         const String& messageId,
         const WsmEndpointReference& epr_,
         const WsmInstance& instance_)
@@ -134,11 +140,11 @@ public:
     WsmInstance instance;
 };
 
-class WsmCreateRequest : public WsmRequest
+class WxfCreateRequest : public WsmRequest
 {
 public:
 
-    WsmCreateRequest(
+    WxfCreateRequest(
         const String& messageId,
         const WsmEndpointReference& epr_,
         const WsmInstance& instance_)
@@ -152,11 +158,11 @@ public:
     WsmInstance instance;
 };
 
-class WsmDeleteRequest : public WsmRequest
+class WxfDeleteRequest : public WsmRequest
 {
 public:
 
-    WsmDeleteRequest(
+    WxfDeleteRequest(
         const String& messageId,
         const WsmEndpointReference& epr_)
         : WsmRequest(WS_TRANSFER_DELETE, messageId),
@@ -165,6 +171,87 @@ public:
     }
 
     WsmEndpointReference epr;
+};
+
+class WsenEnumerateRequest : public WsmRequest
+{
+public:
+
+    WsenEnumerateRequest(
+        const String& messageId,
+        const WsmEndpointReference& epr_,
+        const String& expiration_,
+        Boolean requestItemCount_,
+        Boolean optimized_,
+        Uint32 maxElements_,
+        WsenEnumerationMode enumerationMode_,
+        WsmbPolymorphismMode polymorphismMode_)
+        : WsmRequest(WS_ENUMERATION_ENUMERATE, messageId),
+          epr(epr_),
+          expiration(expiration_),
+          requestItemCount(requestItemCount_),
+          optimized(optimized_),
+          maxElements(maxElements_),
+          enumerationMode(enumerationMode_),
+          polymorphismMode(polymorphismMode_)
+    {
+    }
+
+    WsmEndpointReference epr;
+    String expiration;
+    Boolean requestItemCount;
+    Boolean optimized;
+    Uint32 maxElements;
+    WsenEnumerationMode enumerationMode;
+    WsmbPolymorphismMode polymorphismMode;
+};
+
+class WsenPullRequest : public WsmRequest
+{
+public:
+
+    WsenPullRequest(
+        const String& messageId,
+        const WsmEndpointReference& epr_,
+        Uint64 enumerationContext_,
+        const String& maxTime_,
+        Boolean requestItemCount_,
+        Uint32 maxElements_,
+        Uint32 maxCharacters_)
+        : WsmRequest(WS_ENUMERATION_PULL, messageId),
+          epr(epr_),
+          enumerationContext(enumerationContext_),
+          maxTime(maxTime_),
+          requestItemCount(requestItemCount_),
+          maxElements(maxElements_),
+          maxCharacters(maxCharacters_)
+    {
+    }
+
+    WsmEndpointReference epr;
+    Uint64 enumerationContext;
+    String maxTime;
+    Boolean requestItemCount;
+    Uint32 maxElements;
+    Uint32 maxCharacters;
+};
+
+class WsenReleaseRequest : public WsmRequest
+{
+public:
+
+    WsenReleaseRequest(
+        const String& messageId,
+        const WsmEndpointReference& epr_,
+        Uint64 enumerationContext_)
+        : WsmRequest(WS_ENUMERATION_RELEASE, messageId),
+          epr(epr_),
+          enumerationContext(enumerationContext_)
+    {
+    }
+
+    WsmEndpointReference epr;
+    Uint64 enumerationContext;    
 };
 
 PEGASUS_NAMESPACE_END

@@ -223,13 +223,13 @@ private:
     SoapNotUnderstoodFault _fault;
 };
 
-class WsmGetResponse : public WsmResponse
+class WxfGetResponse : public WsmResponse
 {
 public:
 
-    WsmGetResponse(
+    WxfGetResponse(
         const WsmInstance& inst,
-        const WsmGetRequest* request,
+        const WxfGetRequest* request,
         const ContentLanguageList& contentLanguages)
         : WsmResponse(
               WS_TRANSFER_GET,
@@ -239,7 +239,7 @@ public:
     {
     }
 
-    ~WsmGetResponse()
+    ~WxfGetResponse()
     {
     }
 
@@ -253,12 +253,12 @@ private:
     WsmInstance _instance;
 };
 
-class WsmPutResponse : public WsmResponse
+class WxfPutResponse : public WsmResponse
 {
 public:
 
-    WsmPutResponse(
-        const WsmPutRequest* request,
+    WxfPutResponse(
+        const WxfPutRequest* request,
         const ContentLanguageList& contentLanguages)
         : WsmResponse(
               WS_TRANSFER_PUT,
@@ -269,7 +269,7 @@ public:
     {
     }
 
-    ~WsmPutResponse()
+    ~WxfPutResponse()
     {
     }
 
@@ -293,13 +293,13 @@ private:
     Boolean _requestedEPR;
 };
 
-class WsmCreateResponse : public WsmResponse
+class WxfCreateResponse : public WsmResponse
 {
 public:
 
-    WsmCreateResponse(
+    WxfCreateResponse(
         const WsmEndpointReference& ref,
-        const WsmCreateRequest* request,
+        const WxfCreateRequest* request,
         const ContentLanguageList& contentLanguages)
         : WsmResponse(
               WS_TRANSFER_CREATE,
@@ -309,7 +309,7 @@ public:
     {
     }
 
-    ~WsmCreateResponse()
+    ~WxfCreateResponse()
     {
     }
 
@@ -323,12 +323,12 @@ private:
     WsmEndpointReference _reference;
 };
 
-class WsmDeleteResponse : public WsmResponse
+class WxfDeleteResponse : public WsmResponse
 {
 public:
 
-    WsmDeleteResponse(
-        const WsmDeleteRequest* request,
+    WxfDeleteResponse(
+        const WxfDeleteRequest* request,
         const ContentLanguageList& contentLanguages)
         : WsmResponse(
               WS_TRANSFER_DELETE,
@@ -337,7 +337,403 @@ public:
     {
     }
 
-    ~WsmDeleteResponse()
+    ~WxfDeleteResponse()
+    {
+    }
+};
+
+class WsenEnumerationData
+{
+public:
+
+    WsenEnumerationData()
+        : enumerationMode(WSEN_EM_UNKNOWN)
+    {
+    }
+    WsenEnumerationData(const Array<WsmInstance>& inst, 
+        const Array<WsmEndpointReference> EPRs,
+        WsmbPolymorphismMode pm, const String& uri)
+        : instances(inst),
+          eprs(EPRs),
+          enumerationMode(WSEN_EM_OBJECT_AND_EPR),
+          polymorphismMode(pm),
+          classUri(uri)
+    {
+    }
+    WsenEnumerationData(const Array<WsmInstance>& inst, 
+        WsmbPolymorphismMode pm, const String& uri)
+        : instances(inst),
+          enumerationMode(WSEN_EM_OBJECT),
+          polymorphismMode(pm),
+          classUri(uri)
+    {
+    }
+    WsenEnumerationData(const Array<WsmEndpointReference>& epr)
+        : eprs(epr),
+          enumerationMode(WSEN_EM_EPR),
+          polymorphismMode(WSMB_PM_UNKNOWN)
+    {
+    }
+    WsenEnumerationData(const WsenEnumerationData& data)
+        : instances(data.instances),
+          eprs(data.eprs),
+          enumerationMode(data.enumerationMode),
+          polymorphismMode(data.polymorphismMode),
+          classUri(data.classUri)
+    {
+    }
+    Uint32 getSize()
+    {
+        if (enumerationMode == WSEN_EM_OBJECT || 
+            enumerationMode == WSEN_EM_OBJECT_AND_EPR)
+        {
+            return instances.size();
+        }
+        else if (enumerationMode == WSEN_EM_EPR)
+        {
+            return eprs.size();
+        }
+        else
+        {
+            PEGASUS_ASSERT(0);
+            return 0;
+        }
+    }
+    void remove(Uint32 index, Uint32 size)
+    {
+        if (enumerationMode == WSEN_EM_OBJECT)
+        {
+            instances.remove(index, size);
+        }
+        else if (enumerationMode == WSEN_EM_EPR)
+        {
+            eprs.remove(index, size);
+        }
+        else if (enumerationMode == WSEN_EM_OBJECT_AND_EPR)
+        {
+            instances.remove(index, size);
+            eprs.remove(index, size);
+        }        
+        else
+        {
+            PEGASUS_ASSERT(0);
+        }
+    }
+    void merge(const WsenEnumerationData& data)
+    {
+        if (enumerationMode == WSEN_EM_OBJECT)
+        {
+            instances.appendArray(data.instances);
+        }
+        else if (enumerationMode == WSEN_EM_EPR)
+        {
+            eprs.appendArray(data.eprs);
+        }
+        else if (enumerationMode == WSEN_EM_OBJECT_AND_EPR)
+        {
+            instances.appendArray(data.instances);
+            eprs.appendArray(data.eprs);
+        }
+        else
+        {
+            PEGASUS_ASSERT(0);
+        }
+    }
+    void split(WsenEnumerationData& data, Uint32 num)
+    {
+        data.enumerationMode = enumerationMode;
+        data.polymorphismMode = polymorphismMode;
+        data.classUri = classUri;
+
+        if (enumerationMode == WSEN_EM_OBJECT)
+        {
+            Uint32 i;
+            for (i = 0; i < num && i < instances.size(); i++)
+            {
+                data.instances.append(instances[i]);
+            }
+
+            if (i != 0)
+            {
+                instances.remove(0, i);
+            }
+        }
+        else if (enumerationMode == WSEN_EM_EPR)
+        {
+            Uint32 i;
+            for (i = 0; i < num && i < eprs.size(); i++)
+            {
+                data.eprs.append(eprs[i]);
+            }
+            if (i != 0)
+            {
+                eprs.remove(0, i);
+            }
+        }
+        else if (enumerationMode == WSEN_EM_OBJECT_AND_EPR)
+        {
+            Uint32 i;
+            for (i = 0; i < num && i < instances.size(); i++)
+            {
+                data.instances.append(instances[i]);
+                data.eprs.append(eprs[i]);
+            }
+
+            if (i != 0)
+            {
+                instances.remove(0, i);
+                eprs.remove(0, i);
+            }
+        }
+        else
+        {
+            PEGASUS_ASSERT(0);
+        }
+    }
+
+    Array<WsmInstance> instances;
+    Array<WsmEndpointReference> eprs;
+    WsenEnumerationMode enumerationMode;
+    WsmbPolymorphismMode polymorphismMode;
+    String classUri;
+};
+
+class WsenPullResponse : public WsmResponse
+{
+public:
+
+    WsenPullResponse(
+        const WsenEnumerationData& data,
+        const WsenPullRequest* request,
+        const ContentLanguageList& contentLanguages)
+        : WsmResponse(
+              WS_ENUMERATION_PULL,
+              request,
+              contentLanguages),
+          _enumerationContext((Uint64) -1),
+          _isComplete(false),
+          _enumerationData(data)
+    {
+    }
+    ~WsenPullResponse()
+    {
+    }
+    Array<WsmInstance>& getInstances()
+    {
+        return _enumerationData.instances;
+    }
+    Array<WsmEndpointReference>& getEPRs()
+    {
+        return _enumerationData.eprs;
+    }
+    WsenEnumerationData& getEnumerationData()
+    {
+        return _enumerationData;
+    }
+    Uint32 getSize()
+    {
+        return _enumerationData.getSize();
+    }
+    void remove(Uint32 index, Uint32 size)
+    {
+        _enumerationData.remove(index, size);
+    }
+    void setComplete()
+    {
+        _isComplete = true;
+    }
+    Boolean isComplete()
+    {
+        return _isComplete;
+    }
+    WsenEnumerationMode getEnumerationMode()
+    {
+        return _enumerationData.enumerationMode;
+    }
+    Uint64 getEnumerationContext()
+    {
+        return _enumerationContext;
+    }
+    void setEnumerationContext(Uint64 context)
+    {
+        _enumerationContext = context;
+    }
+
+private:
+
+    Uint64 _enumerationContext;
+    Boolean _isComplete;
+    WsenEnumerationData _enumerationData;
+};
+
+class WsenEnumerateResponse : public WsmResponse
+{
+public:
+
+    WsenEnumerateResponse(
+        const Array<WsmInstance>& inst,
+        const Array<WsmEndpointReference>& epr,
+        Uint32 itemCount,
+        const WsenEnumerateRequest* request,
+        const ContentLanguageList& contentLanguages)
+        : WsmResponse(
+              WS_ENUMERATION_ENUMERATE,
+              request,
+              contentLanguages),
+          _enumerationContext((Uint64) -1),
+          _isComplete(false),
+          _requestItemCount(request->requestItemCount),
+          _itemCount(itemCount),
+          _enumerationData(inst, epr, request->polymorphismMode,
+              request->epr.resourceUri)
+    {
+        PEGASUS_ASSERT(request->enumerationMode == WSEN_EM_OBJECT ||
+            request->enumerationMode == WSEN_EM_OBJECT_AND_EPR);
+    }
+    WsenEnumerateResponse(
+        const Array<WsmInstance>& inst,
+        Uint32 itemCount,
+        const WsenEnumerateRequest* request,
+        const ContentLanguageList& contentLanguages)
+        : WsmResponse(
+              WS_ENUMERATION_ENUMERATE,
+              request,
+              contentLanguages),
+          _enumerationContext((Uint64) -1),
+          _isComplete(false),
+          _requestItemCount(request->requestItemCount),
+          _itemCount(itemCount),
+          _enumerationData(inst, request->polymorphismMode,
+              request->epr.resourceUri)
+    {
+        PEGASUS_ASSERT(request->enumerationMode == WSEN_EM_OBJECT);
+    }
+    WsenEnumerateResponse(
+        const Array<WsmEndpointReference>& epr,
+        Uint32 itemCount,
+        const WsenEnumerateRequest* request,
+        const ContentLanguageList& contentLanguages)
+        : WsmResponse(
+              WS_ENUMERATION_ENUMERATE,
+              request,
+              contentLanguages),
+          _enumerationContext((Uint64) -1),
+          _isComplete(false),
+          _requestItemCount(request->requestItemCount),
+          _itemCount(itemCount),
+          _enumerationData(epr)
+    {
+        PEGASUS_ASSERT(request->enumerationMode == WSEN_EM_EPR);
+    }
+    WsenEnumerateResponse(
+        const WsenEnumerationData data,
+        Uint32 itemCount,
+        const WsenEnumerateRequest* request,
+        const ContentLanguageList& contentLanguages)
+        : WsmResponse(
+              WS_ENUMERATION_ENUMERATE,
+              request,
+              contentLanguages),
+          _enumerationContext((Uint64) -1),
+          _isComplete(false),
+          _requestItemCount(request->requestItemCount),
+          _itemCount(itemCount),
+          _enumerationData(data)
+    {
+        PEGASUS_ASSERT(request->enumerationMode == data.enumerationMode);
+    }
+    ~WsenEnumerateResponse()
+    {
+    }
+    Array<WsmInstance>& getInstances()
+    {
+        return _enumerationData.instances;
+    }
+    Array<WsmEndpointReference>& getEPRs()
+    {
+        return _enumerationData.eprs;
+    }
+    WsenEnumerationData& getEnumerationData()
+    {
+        return _enumerationData;
+    }
+    Uint32 getSize()
+    {
+        return _enumerationData.getSize();
+    }
+    void merge(WsenEnumerateResponse* response)
+    {
+        PEGASUS_ASSERT(_enumerationData.enumerationMode == 
+            response->_enumerationData.enumerationMode);
+        _enumerationData.merge(response->getEnumerationData());
+    }
+    void merge(WsenPullResponse* response)
+    {
+        PEGASUS_ASSERT(_enumerationData.enumerationMode == 
+            response->getEnumerationData().enumerationMode);
+        _enumerationData.merge(response->getEnumerationData());
+    }
+    void remove(Uint32 index, Uint32 size)
+    {
+        _enumerationData.remove(index, size);
+    }
+    void setComplete()
+    {
+        _isComplete = true;
+    }
+    Boolean isComplete()
+    {
+        return _isComplete;
+    }
+    Boolean requestedItemCount()
+    {
+        return _requestItemCount;
+    }
+    void setItemCount(Uint32 count)
+    {
+        _itemCount = count;
+    }
+    Uint32 getItemCount()
+    {
+        return _itemCount;
+    }
+    WsenEnumerationMode getEnumerationMode()
+    {
+        return _enumerationData.enumerationMode;
+    }
+    Uint64 getEnumerationContext()
+    {
+        return _enumerationContext;
+    }
+    void setEnumerationContext(Uint64 context)
+    {
+        _enumerationContext = context;
+    }
+
+private:
+
+    Uint64 _enumerationContext;
+    Boolean _isComplete;
+    Boolean _requestItemCount;
+    Uint32 _itemCount;
+    WsenEnumerationData _enumerationData;
+};
+
+class WsenReleaseResponse : public WsmResponse
+{
+public:
+
+    WsenReleaseResponse(
+        const WsenReleaseRequest* request,
+        const ContentLanguageList& contentLanguages)
+        : WsmResponse(
+              WS_ENUMERATION_RELEASE,
+              request,
+              contentLanguages)
+    {
+    }
+
+    ~WsenReleaseResponse()
     {
     }
 };

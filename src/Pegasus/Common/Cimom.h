@@ -66,43 +66,6 @@ public:
     static Uint32 module_controller;
 };
 
-class PEGASUS_COMMON_LINKAGE message_module : public Linkable
-{
-public:
-    message_module() : _name(), _capabilities(0), _mask(0), _q_id(0) { }
-
-    message_module(
-        const String & name,
-        Uint32 capabilities,
-        Uint32 mask,
-        Uint32 queue)
-        : _name(name), _modules(), _capabilities(capabilities),
-          _mask(mask), _q_id(queue)  { }
-
-    Boolean operator==(const message_module* mm) const;
-    Boolean operator==(const String& name) const;
-    Boolean operator==(Uint32) const;
-    const String& get_name() const;
-    Uint32 get_capabilities() const;
-    Uint32 get_mask() const;
-    Uint32 get_queue() const;
-
-    void put_name(String& name);
-    void put_capabilities(Uint32 capabilities);
-    void put_mask(Uint32 mask);
-    void put_queue(Uint32 queue);
-
-private:
-    String _name;
-    Array<String> _modules;
-    Uint32 _capabilities;
-    Uint32 _mask;
-    struct timeval _heartbeat;
-
-    Uint32 _q_id;
-    friend class cimom;
-};
-
 class MessageQueueService;
 
 class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue
@@ -111,19 +74,9 @@ public:
     cimom();
     virtual ~cimom();
 
-    Boolean moduleChange(struct timeval last);
-
-    Uint32 getModuleCount();
-    Uint32 getModuleIDs(Uint32* ids, Uint32 count);
-
     AsyncOpNode* get_cached_op();
     void cache_op(AsyncOpNode* op);
-
-    void set_default_op_timeout(const struct timeval* buffer);
-    void get_default_op_timeout(struct timeval* timeout) const;
-
 protected:
-      Uint32 get_module_q(const String& name);
       static void _make_response(Message* req, Uint32 code);
       static void _completeAsyncResponse(
           AsyncRequest* request,
@@ -138,10 +91,6 @@ protected:
       static void _default_callback(AsyncOpNode*, MessageQueue*, void*);
 
 private:
-    struct timeval _default_op_timeout;
-    struct timeval _last_module_change;
-    List<message_module, Mutex> _modules;
-
     AsyncQueue<AsyncOpNode> _routed_ops;
 
     static ThreadReturnType PEGASUS_THREAD_CDECL _routing_proc(void*);
@@ -155,19 +104,10 @@ private:
     Uint32 _ioctl(Uint32, Uint32, void*);
 
     virtual void handleEnqueue();
-    void register_module(RegisterCimService* msg);
-    void deregister_module(Uint32 quid);
-    void update_module(UpdateCimService* msg);
     void ioctl(AsyncIoctl* msg);
 
-    void find_service_q(FindServiceQueue* msg);
-    void enumerate_service(EnumerateService* msg);
     Boolean route_async(AsyncOpNode* operation);
     void _shutdown_routed_queue();
-
-    void _registered_module_in_service(RegisteredModule* msg);
-    void _deregistered_module_in_service(DeRegisteredModule* msg);
-    void _find_module_in_service(FindModuleInService* msg);
 
     AtomicInt _die;
     AtomicInt _routed_queue_shutdown;

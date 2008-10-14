@@ -2859,6 +2859,9 @@ en:table {
         */
         Common.MessageQueueService.STOPPING_SERVICE:string {"PGS08601: Stopping the {0} service."}
 
+        /**
+        *   This message is no longer used as of version 2.9.0
+        */
         Common.MessageQueueService.UNABLE_TO_REGISTER:string {"PGS08602: CIM base message queue service is unable to register with the CIMOM dispatcher."}
 
         Common.MessageQueueService.NOT_ENOUGH_THREAD:string {"PGS08603: Could not allocate thread for the polling thread."}

@@ -2248,19 +2248,17 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestToService");
 
-    Array<Uint32> serviceIds;
-    find_services(serviceName, 0, 0, &serviceIds);
-    PEGASUS_ASSERT(serviceIds.size() != 0);
+    Uint32 serviceId =  find_service_qid(serviceName);
 
     AsyncOpNode* op = this->get_op();
 
     AsyncLegacyOperationStart* asyncRequest =
         new AsyncLegacyOperationStart(
             op,
-            serviceIds[0],
+            serviceId,
             request);
 
-    asyncRequest->dest = serviceIds[0];
+    asyncRequest->dest = serviceId;
 
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "Forwarding %s to service %s. Response should go to queue %s.",
@@ -2272,7 +2270,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
 
     SendAsync(
         op,
-        serviceIds[0],
+        serviceId,
         CIMOperationRequestDispatcher::_forwardRequestCallback,
         this,
         requestCopy);
@@ -2296,9 +2294,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
         TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestForAggregation");
 
-    Array<Uint32> serviceIds;
-    find_services(serviceName, 0, 0, &serviceIds);
-    PEGASUS_ASSERT(serviceIds.size() != 0);
+    Uint32 serviceId = find_service_qid(serviceName);
 
     AsyncOpNode* op = this->get_op();
 
@@ -2321,7 +2317,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
         AsyncLegacyOperationStart* asyncRequest =
             new AsyncLegacyOperationStart(
                 op,
-                serviceIds[0],
+                serviceId,
                 request);
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
@@ -2334,7 +2330,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
 
         SendAsync(
             op,
-            serviceIds[0],
+            serviceId,
             CIMOperationRequestDispatcher::_forwardForAggregationCallback,
             this,
             poA);
@@ -2344,7 +2340,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
        AsyncModuleOperationStart* moduleControllerRequest =
            new AsyncModuleOperationStart(
                op,
-               serviceIds[0],
+               serviceId,
                this->getQueueId(),
                true,
                controlProviderName,
@@ -2362,7 +2358,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
 
        SendAsync(
            op,
-           serviceIds[0],
+           serviceId,
            CIMOperationRequestDispatcher::_forwardForAggregationCallback,
            this,
            poA);
@@ -2390,9 +2386,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestToProviderManager");
 
-    Array<Uint32> serviceIds;
-    find_services(serviceName, 0, 0, &serviceIds);
-    PEGASUS_ASSERT(serviceIds.size() != 0);
+    Uint32 serviceId = find_service_qid(serviceName);
 
     AsyncOpNode* op = this->get_op();
 
@@ -2402,10 +2396,10 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
         AsyncLegacyOperationStart* asyncRequest =
             new AsyncLegacyOperationStart(
                 op,
-                serviceIds[0],
+                serviceId,
                 request);
 
-        asyncRequest->dest = serviceIds[0];
+        asyncRequest->dest = serviceId;
 
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
             "Forwarding %s on class %s to service %s. "
@@ -2419,7 +2413,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
 
         SendAsync(
             op,
-            serviceIds[0],
+            serviceId,
             CIMOperationRequestDispatcher::_forwardRequestCallback,
             this,
             requestCopy);
@@ -2429,7 +2423,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
         AsyncModuleOperationStart* moduleControllerRequest =
             new AsyncModuleOperationStart(
                 op,
-                serviceIds[0],
+                serviceId,
                 this->getQueueId(),
                 true,
                 controlProviderName,
@@ -2450,7 +2444,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
        // Send to the Control provider
        SendAsync(
            op,
-           serviceIds[0],
+           serviceId,
            CIMOperationRequestDispatcher::_forwardRequestCallback,
            this,
            requestCopy);

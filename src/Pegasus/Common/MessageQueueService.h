@@ -82,25 +82,12 @@ public:
         MessageQueue* callback_q,
         void* callback_ptr);
 
-    Boolean SendAsync(Message *msg,
-        Uint32 destination,
-        void (*callback)(Message* response, void* handle, void* parameter),
-        void* handle,
-        void* parameter);
-
     Boolean SendForget(Message* msg);
 
-
-    Boolean register_service(String name, Uint32 capabilities, Uint32 mask);
     Boolean update_service(Uint32 capabilities, Uint32 mask);
     Boolean deregister_service();
 
-    void find_services(
-        String name,
-        Uint32 capabilities,
-        Uint32 mask,
-        Array<Uint32>* results);
-    void enumerate_service(Uint32 queue, message_module* result);
+    Uint32 find_service_qid(const String &name);
     static AsyncOpNode* get_op();
     void return_op(AsyncOpNode* op);
 
@@ -118,27 +105,15 @@ protected:
     virtual void handleEnqueue() = 0;
     virtual void handleEnqueue(Message *) = 0;
     Boolean _enqueueResponse(Message *, Message *);
-//  virtual void _handle_incoming_operation(
-//      AsyncOpNode* operation,
-//      Thread* thread,
-//      MessageQueue* queue);
     virtual void _handle_incoming_operation(AsyncOpNode *);
 
     virtual void _handle_async_request(AsyncRequest* req);
     virtual void _handle_async_callback(AsyncOpNode* operation);
     virtual void _make_response(Message* req, Uint32 code);
 
-    virtual void handle_heartbeat_request(AsyncRequest* req);
-    virtual void handle_heartbeat_reply(AsyncReply* rep);
-
     virtual void handle_AsyncIoctl(AsyncIoctl* req);
     virtual void handle_CimServiceStart(CimServiceStart* req);
     virtual void handle_CimServiceStop(CimServiceStop* req);
-    virtual void handle_CimServicePause(CimServicePause* req);
-    virtual void handle_CimServiceResume(CimServiceResume* req);
-
-    virtual void handle_AsyncOperationStart(AsyncOperationStart* req);
-    virtual void handle_AsyncOperationResult(AsyncOperationResult* rep);
 
     void _completeAsyncResponse(
         AsyncRequest* request,
@@ -171,8 +146,6 @@ private:
     static void _sendwait_callback(AsyncOpNode *, MessageQueue *, void *);
 
     AtomicInt _incoming_queue_shutdown;
-
-    struct timeval _default_op_timeout;
 
     friend class cimom;
 };

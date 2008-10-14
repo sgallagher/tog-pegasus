@@ -194,10 +194,8 @@ IndicationHandlerService::_handleIndication(
 //compared index 10 is not :
             else if (destination.subString(0, 10) == String("localhost/"))
             {
-                Array<Uint32> exportServer;
-
-                    find_services(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER, 0, 0,
-                          &exportServer);
+                Uint32 exportServer =
+                    find_service_qid(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER);
 
                 // Listener is build with Cimom, so send message to ExportServer
                AutoPtr<CIMExportIndicationRequestMessage> exportmessage( 
@@ -206,7 +204,7 @@ IndicationHandlerService::_handleIndication(
                         //taking localhost/CIMListener portion out from reg
                         destination.subString(21),
                         indication,
-                        QueueIdStack(exportServer[0], getQueueId()),
+                        QueueIdStack(exportServer, getQueueId()),
                         String::EMPTY,
                         String::EMPTY));
 
@@ -220,15 +218,15 @@ IndicationHandlerService::_handleIndication(
                 AutoPtr<AsyncLegacyOperationStart> asyncRequest(
                     new AsyncLegacyOperationStart(
                     op.get(),
-                    exportServer[0],
+                    exportServer,
                     exportmessage.get()));
 
                 exportmessage.release();
 
                 PEG_TRACE((TRC_IND_HANDLE, Tracer::LEVEL4,
                     "Indication handler forwarding message to %s",
-                        ((MessageQueue::lookup(exportServer[0])) ?
-                            ((MessageQueue::lookup(exportServer[0]))->
+                        ((MessageQueue::lookup(exportServer)) ?
+                            ((MessageQueue::lookup(exportServer))->
                                 getQueueName()):
                             "BAD queue name")));
                 PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,

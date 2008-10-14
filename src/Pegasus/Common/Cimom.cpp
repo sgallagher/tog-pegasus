@@ -52,36 +52,6 @@ Uint32 module_capabilities::paused  =           0x00000008;
 Uint32 module_capabilities::stopped =           0x00000010;
 Uint32 module_capabilities::module_controller = 0x00000020;
 
-
-
-const String & message_module::get_name() const { return _name ; }
-Uint32 message_module::get_capabilities() const { return _capabilities ; }
-Uint32 message_module::get_mask() const { return _mask ; }
-Uint32 message_module::get_queue() const { return _q_id ; }
-void message_module::put_name(String & name) { _name.clear(); _name = name; }
-void message_module::put_capabilities(Uint32 capabilities)
-{
-    _capabilities = capabilities;
-}
-void message_module::put_mask(Uint32 mask) { _mask = mask; }
-void message_module::put_queue(Uint32 queue) {  _q_id = queue; }
-
-
-Boolean message_module::operator==(Uint32 q) const
-{
-    return (this->_q_id == q);
-}
-
-Boolean message_module::operator==(const message_module *mm) const
-{
-    return (this == mm);
-}
-
-Boolean message_module::operator==(const String& name) const
-{
-   return (name == this->_name);
-}
-
 Boolean cimom::route_async(AsyncOpNode *op)
 {
     if (_die.get() > 0)
@@ -233,7 +203,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 
 cimom::cimom()
     : MessageQueue(PEGASUS_QUEUENAME_METADISPATCHER, true, CIMOM_Q_ID),
-      _modules(),
       _routed_ops(),
       _routing_thread(_routing_proc, this, false),
       _die(0),
@@ -243,9 +212,6 @@ cimom::cimom()
 
     _global_this = static_cast<cimom *>(MessageQueue::lookup(CIMOM_Q_ID));
 
-    Time::gettimeofday(&_last_module_change);
-    _default_op_timeout.tv_sec = 30;
-    _default_op_timeout.tv_usec = 100;
     ThreadStatus tr = PEGASUS_THREAD_OK;
     while ((tr = _routing_thread.run()) != PEGASUS_THREAD_OK)
     {
@@ -267,8 +233,6 @@ cimom::~cimom()
     if (_routed_queue_shutdown.get() == 0)
         _routed_ops.close();
     _routing_thread.join();
-
-    _modules.clear();
 }
 
 void cimom::_make_response(Message *req, Uint32 code)
@@ -446,12 +410,8 @@ void cimom::_complete_op_node(
 
 void cimom::handleEnqueue()
 {
-    Message* msg = dequeue();
-
-    if (!msg)
-       return;
-
-    return;
+    //ATTN: We should never get legacy messages directly.
+    PEGASUS_ASSERT(0);
 }
 
 
@@ -483,136 +443,19 @@ void cimom::_handle_cimom_op(
         op->processing();
 
         MessageType type = msg->getType();
-        if (type == ASYNC_REGISTER_CIM_SERVICE)
-            register_module(static_cast<RegisterCimService *>(msg));
-        else if (type == ASYNC_UPDATE_CIM_SERVICE)
-            update_module(static_cast<UpdateCimService *>(msg));
-        else if (type == ASYNC_IOCTL)
+        if (type == ASYNC_IOCTL)
+        {
             ioctl(static_cast<AsyncIoctl *>(msg));
-        else if (type == ASYNC_FIND_SERVICE_Q)
-            find_service_q(static_cast<FindServiceQueue *>(msg));
-        else if (type == ASYNC_ENUMERATE_SERVICE)
-            enumerate_service(static_cast<EnumerateService *>(msg));
-        else if (type == ASYNC_FIND_MODULE_IN_SERVICE)
-            _find_module_in_service(static_cast<FindModuleInService *>(msg));
-        else if (type == ASYNC_REGISTERED_MODULE)
-            _registered_module_in_service(static_cast<RegisteredModule *>(msg));
-        else if (type == ASYNC_DEREGISTERED_MODULE)
-            _deregistered_module_in_service(
-                static_cast<DeRegisteredModule *>(msg));
+        }
         else
+        {
             _make_response(msg, async_results::CIM_NAK);
+        }
     }
     else
     {
         _make_response(msg, async_results::CIM_NAK);
     }
-}
-
-
-void cimom::register_module(RegisterCimService *msg)
-{
-    // first see if the module is already registered
-    Uint32 result = async_results::OK;
-
-    if (0 != get_module_q(msg->name))
-        result = async_results::MODULE_ALREADY_REGISTERED;
-    else
-    {
-        AutoPtr<message_module> new_mod(new message_module(
-            msg->name,
-            msg->capabilities,
-            msg->mask,
-            msg->queue));
-
-        if (new_mod.get() == 0)
-            result = async_results::INTERNAL_ERROR;
-        else
-        {
-            try
-            {
-                _modules.insert_front(new_mod.get());
-            }
-            catch (...)
-            {
-                result = async_results::INTERNAL_ERROR;
-                new_mod.reset();
-            }
-        }
-        new_mod.release();
-    }
-
-    AutoPtr<AsyncReply> reply(new AsyncReply(
-        ASYNC_REPLY,
-        0,
-        msg->op,
-        result,
-        msg->resp,
-        msg->block));
-
-    _completeAsyncResponse(
-        static_cast<AsyncRequest *>(msg),
-        reply.get(),
-        ASYNC_OPSTATE_COMPLETE,
-        0);
-    reply.release();
-    return;
-}
-
-
-void cimom::deregister_module(Uint32 quid)
-{
-    _modules.lock();
-
-    message_module *temp = _modules.front();
-    while (temp != 0)
-    {
-        if (temp->_q_id == quid)
-        {
-            _modules.remove(temp);
-            delete temp;
-            break;
-        }
-        temp = _modules.next_of(temp);
-    }
-    _modules.unlock();
-}
-
-
-void cimom::update_module(UpdateCimService* msg)
-{
-    Uint32 result = async_results::MODULE_NOT_FOUND;
-
-    _modules.lock();
-    message_module *temp = _modules.front();
-    while (temp != 0)
-    {
-        if (temp->_q_id == msg->queue )
-        {
-            temp->_capabilities = msg->capabilities;
-            temp->_mask = msg->mask;
-            Time::gettimeofday(&(temp->_heartbeat));
-            result = async_results::OK;
-            break;
-        }
-        temp = _modules.next_of(temp);
-    }
-    _modules.unlock();
-
-    AutoPtr<AsyncReply> reply(new AsyncReply(
-        ASYNC_REPLY,
-        0,
-        msg->op,
-        result,
-        msg->resp,
-        msg->block));
-    _completeAsyncResponse(
-        static_cast<AsyncRequest *>(msg),
-        reply.get(),
-        ASYNC_OPSTATE_COMPLETE,
-        0);
-    reply.release();
-    return;
 }
 
 
@@ -693,180 +536,9 @@ void cimom::ioctl(AsyncIoctl* msg)
     }
 }
 
-
 Uint32 cimom::_ioctl(Uint32 code, Uint32 int_param, void *pointer_param)
 {
     return async_results::OK;
-}
-
-// fill an array with queue IDs of as many registered services
-// as match the request message parameters
-void cimom::find_service_q(FindServiceQueue* msg)
-{
-    Array<Uint32> found;
-
-    _modules.lock();
-    message_module *ret = _modules.front();
-    while (ret != 0)
-    {
-        if (msg->name.size() > 0)
-        {
-            if (msg->name != ret->_name)
-            {
-                ret = _modules.next_of(ret);
-                continue;
-            }
-        }
-
-        if (msg->capabilities != 0)
-        {
-            if (!(msg->capabilities & ret->_capabilities))
-            {
-                ret = _modules.next_of(ret);
-                continue;
-            }
-        }
-        if (msg->mask != 0)
-        {
-            if (!(msg->mask & ret->_mask))
-            {
-                ret = _modules.next_of(ret);
-                continue;
-            }
-        }
-
-        // if we get to here, we "found" this service
-
-        found.append(ret->_q_id);
-        ret = _modules.next_of(ret);
-    }
-    _modules.unlock();
-
-    AutoPtr<FindServiceQueueResult> reply(new FindServiceQueueResult(
-        msg->op,
-        async_results::OK,
-        msg->resp,
-        msg->block,
-        found));
-
-    _completeAsyncResponse(
-        static_cast<AsyncRequest *>(msg),
-        reply.get(),
-        ASYNC_OPSTATE_COMPLETE,
-        0);
-    reply.release();
-    return;
-}
-
-
-// given a service Queue ID, return all registation data for
-// that service
-void cimom::enumerate_service(EnumerateService* msg)
-{
-    AutoPtr<EnumerateServiceResponse> reply;
-    _modules.lock();
-    message_module *ret = _modules.front();
-
-    while (ret != 0)
-    {
-        if (ret->_q_id == msg->qid)
-        {
-            reply.reset(new EnumerateServiceResponse(
-                msg->op,
-                async_results::OK,
-                msg->resp,
-                msg->block,
-                ret->_name,
-                ret->_capabilities,
-                ret->_mask,
-                ret->_q_id));
-            break;
-        }
-        ret = _modules.next_of(ret);
-    }
-    _modules.unlock();
-
-    if (reply.get() == 0)
-    {
-        reply.reset(new EnumerateServiceResponse(
-            msg->op,
-            async_results::MODULE_NOT_FOUND,
-            msg->resp,
-            msg->block,
-            String(),
-            0, 0, 0));
-    }
-
-    _completeAsyncResponse(
-        static_cast<AsyncRequest *>(msg),
-        reply.get(),
-        ASYNC_OPSTATE_COMPLETE,
-        0);
-    reply.release();
-
-    return;
-}
-
-Uint32 cimom::get_module_q(const String& name)
-{
-    _modules.lock();
-    message_module *ret = _modules.front();
-    while (ret != 0)
-    {
-        if (ret->_name == name)
-            break;
-        ret = _modules.next_of(ret);
-    }
-
-    _modules.unlock();
-    if (ret != 0)
-        return ret->_q_id;
-    else
-        return 0;
-}
-
-
-
-// returns true if the list of registered modules changes since the parameter
-Boolean cimom::moduleChange(struct timeval last)
-{
-    if (last.tv_sec >= _last_module_change.tv_sec)
-        if (last.tv_usec >= _last_module_change.tv_usec)
-            return false;
-    return true;
-}
-
-
-Uint32 cimom::getModuleCount()
-{
-    return _modules.size();
-}
-
-Uint32 cimom::getModuleIDs(Uint32* ids, Uint32 count)
-{
-    if (ids == 0)
-        return 0;
-
-    message_module *temp = 0;
-    _modules.lock();
-    temp = _modules.front();
-    while (temp != 0 && count > 0)
-    {
-        *ids = temp->_q_id;
-        ids++;
-        count--;
-        temp = _modules.next_of(temp);
-    }
-    _modules.unlock();
-
-    while (count > 0)
-    {
-        *ids = 0;
-        ids++;
-        count--;
-    }
-
-    return _modules.size();
 }
 
 AsyncOpNode* cimom::get_cached_op()
@@ -884,125 +556,6 @@ void cimom::cache_op(AsyncOpNode* op)
 {
     PEGASUS_ASSERT(op->_state & ASYNC_OPSTATE_RELEASED);
     delete op;
-}
-
-void cimom::set_default_op_timeout(const struct timeval* buffer)
-{
-    if (buffer != 0)
-    {
-        _default_op_timeout.tv_sec = buffer->tv_sec;
-        _default_op_timeout.tv_usec = buffer->tv_usec;
-    }
-}
-
-void cimom::get_default_op_timeout(struct timeval* timeout) const
-{
-    if (timeout != 0)
-    {
-        timeout->tv_sec = _default_op_timeout.tv_sec;
-        timeout->tv_usec = _default_op_timeout.tv_usec;
-    }
-}
-
-void cimom::_registered_module_in_service(RegisteredModule* msg)
-{
-    Uint32 result = async_results::MODULE_NOT_FOUND;
-
-    _modules.lock();
-    message_module *ret = _modules.front();
-    while (ret != 0)
-    {
-        if (ret->_q_id == msg->resp)
-        {
-            // see if the module is already registered
-            Uint32 i = 0;
-            for (; i < ret->_modules.size(); i++)
-            {
-                if (ret->_modules[i] == msg->_module)
-                {
-                    result = async_results::MODULE_ALREADY_REGISTERED;
-                    break;
-                }
-            }
-            if (result != async_results::MODULE_ALREADY_REGISTERED)
-            {
-                ret->_modules.append(msg->_module);
-                result = async_results::OK;
-            }
-            break;
-        }
-        ret = _modules.next_of(ret);
-    }
-    _modules.unlock();
-    _make_response(msg, result);
-}
-
-void cimom::_deregistered_module_in_service(DeRegisteredModule* msg)
-{
-    Uint32 result = async_results::MODULE_NOT_FOUND;
-
-    _modules.lock();
-    message_module *ret = _modules.front();
-    while (ret != 0)
-    {
-        if (ret->_q_id == msg->resp)
-        {
-            Uint32 i = 0;
-            for (; i < ret->_modules.size(); i++)
-            {
-                if (ret->_modules[i] == msg->_module)
-                {
-                    ret->_modules.remove(i);
-                    result = async_results::OK;
-                    break;
-                }
-            }
-        }
-        ret = _modules.next_of(ret);
-    }
-    _modules.unlock();
-    _make_response(msg, result);
-}
-
-void cimom::_find_module_in_service(FindModuleInService* msg)
-{
-    Uint32 result = async_results::MODULE_NOT_FOUND;
-    Uint32 q_id = 0;
-
-    _modules.lock();
-    message_module *ret = _modules.front();
-    while (ret != 0)
-    {
-        if (ret->get_capabilities() & module_capabilities::module_controller)
-        {
-            // see if the module is in this service
-            Uint32 i = 0;
-            for (; i < ret->_modules.size(); i++)
-            {
-                if (ret->_modules[i] == msg->_module)
-                {
-                    result = async_results::OK;
-                    q_id = ret->_q_id;
-                    break;
-                }
-            }
-        }
-        ret = _modules.next_of(ret);
-    }
-    _modules.unlock();
-
-    FindModuleInServiceResponse *response = new FindModuleInServiceResponse(
-        msg->op,
-        result,
-        msg->resp,
-        msg->block,
-        q_id);
-
-    _complete_op_node(
-        msg->op,
-        ASYNC_OPSTATE_COMPLETE,
-        0,
-        result);
 }
 
 PEGASUS_NAMESPACE_END

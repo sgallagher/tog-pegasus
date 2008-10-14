@@ -282,18 +282,17 @@ void ShutdownService::_sendShutdownRequestToService(const char* serviceName)
 {
     MessageQueueService* _mqs = static_cast<MessageQueueService*>(_controller);
 
-    Array<Uint32> _services;
+    MessageQueue *queue = MessageQueue::lookup(serviceName);
     Uint32 _queueId;
-
-    _mqs->find_services(String(serviceName), 0, 0, &_services);
-
-    if (_services.size() == 0 )
+    if (queue)
+    {
+        _queueId =  queue->getQueueId();
+    }
+    else
     {
         // service not found, just return
         return;
     }
-    _queueId = _services[0];
-
     // send a Stop (this is a legacy message that in some of the MQS does
     // termination of its internal stuff. Then follow it with a Stop (to
     // open up its incoming queue), and then with a AsyncIoctl::IO_CLOSE

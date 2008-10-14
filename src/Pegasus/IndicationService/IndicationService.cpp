@@ -435,18 +435,8 @@ void IndicationService::_initialize()
 
     //
     //  Find required services
-    //  NOTE: Indication Service expects to find exactly one Provider Manager
-    //  Service and exactly one Handler Manager Service
-    //
-    Array<Uint32> pmservices;
-    find_services(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, 0, 0, &pmservices);
-    PEGASUS_ASSERT(pmservices.size() == 1);
-    _providerManager = pmservices[0];
-
-    Array<Uint32> hmservices;
-    find_services(PEGASUS_QUEUENAME_INDHANDLERMANAGER, 0, 0, &hmservices);
-    PEGASUS_ASSERT(hmservices.size() == 1);
-    _handlerService = hmservices[0];
+    _providerManager = find_service_qid(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
+    _handlerService = find_service_qid(PEGASUS_QUEUENAME_INDHANDLERMANAGER);
 
     //
     //  Set arrays of valid and supported property values

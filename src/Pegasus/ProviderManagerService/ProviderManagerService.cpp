@@ -966,13 +966,8 @@ void ProviderManagerService::indicationCallback(
 
     if (_indicationServiceQueueId == PEG_NOT_FOUND)
     {
-        Array<Uint32> serviceIds;
-
-        providerManagerService->find_services(
-            PEGASUS_QUEUENAME_INDICATIONSERVICE, 0, 0, &serviceIds);
-        PEGASUS_ASSERT(serviceIds.size() != 0);
-
-        _indicationServiceQueueId = serviceIds[0];
+        _indicationServiceQueueId = providerManagerService->find_service_qid(
+            PEGASUS_QUEUENAME_INDICATIONSERVICE);
     }
 
     request->queueIds = QueueIdStack(
@@ -1107,13 +1102,8 @@ void ProviderManagerService::providerModuleFailureCallback
     //
     if (_indicationServiceQueueId == PEG_NOT_FOUND)
     {
-        Array <Uint32> serviceIds;
-
-        providerManagerService->find_services
-            (PEGASUS_QUEUENAME_INDICATIONSERVICE, 0, 0, &serviceIds);
-        PEGASUS_ASSERT (serviceIds.size () != 0);
-
-        _indicationServiceQueueId = serviceIds [0];
+        _indicationServiceQueueId = providerManagerService->find_service_qid(
+            PEGASUS_QUEUENAME_INDICATIONSERVICE);
     }
 
     request->queueIds = QueueIdStack

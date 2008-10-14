@@ -105,120 +105,6 @@ AsyncReply::AsyncReply(
         op->setResponse(this);
 }
 
-RegisterCimService::RegisterCimService(
-    AsyncOpNode* operation,
-    Boolean blocking,
-    const String& serviceName,
-    Uint32 serviceCapabilities,
-    Uint32 serviceMask,
-    Uint32 serviceQueue)
-    : AsyncRequest(
-          ASYNC_REGISTER_CIM_SERVICE,
-          0, operation, CIMOM_Q_ID,
-          serviceQueue, blocking),
-      name(serviceName),
-      capabilities(serviceCapabilities),
-      mask(serviceMask),
-      queue(serviceQueue)
-{
-}
-
-
-DeRegisterCimService::DeRegisterCimService(
-    AsyncOpNode* operation,
-    Boolean blocking,
-    Uint32 serviceQueue)
-    : AsyncRequest(
-          ASYNC_DEREGISTER_CIM_SERVICE,
-          0, operation, CIMOM_Q_ID,
-          serviceQueue, blocking),
-      queue(serviceQueue)
-{
-}
-
-
-UpdateCimService::UpdateCimService(
-    AsyncOpNode* operation,
-    Boolean blocking,
-    Uint32 serviceQueue,
-    Uint32 serviceCapabilities,
-    Uint32 serviceMask)
-    : AsyncRequest(
-          ASYNC_UPDATE_CIM_SERVICE,
-          0, operation, CIMOM_Q_ID,
-          serviceQueue, blocking),
-      queue(serviceQueue),
-      capabilities(serviceCapabilities),
-      mask(serviceMask)
-{
-}
-
-RegisteredModule::RegisteredModule(
-    AsyncOpNode* operation,
-    Boolean blocking,
-    Uint32 serviceQueue,
-    const String& newModule)
-    : AsyncRequest(
-          ASYNC_REGISTERED_MODULE,
-          0,
-          operation,
-          CIMOM_Q_ID,
-          serviceQueue,
-          blocking),
-      _module(newModule)
-{
-}
-
-DeRegisteredModule::DeRegisteredModule(
-    AsyncOpNode* operation,
-    Boolean blocking,
-    Uint32 serviceQueue,
-    const String& removedModule)
-    : AsyncRequest(
-          ASYNC_DEREGISTERED_MODULE,
-          0,
-          operation,
-          CIMOM_Q_ID,
-          serviceQueue,
-          blocking),
-      _module(removedModule)
-{
-}
-
-
-FindModuleInService::FindModuleInService(
-    AsyncOpNode* operation,
-    Boolean blocking,
-    Uint32 responseQueue,
-    const String& module)
-    : AsyncRequest(
-          ASYNC_FIND_MODULE_IN_SERVICE,
-          0,
-          operation,
-          CIMOM_Q_ID,
-          responseQueue,
-          blocking),
-      _module(module)
-{
-}
-
-FindModuleInServiceResponse::FindModuleInServiceResponse(
-    AsyncOpNode* operation,
-    Uint32 resultCode,
-    Uint32 destination,
-    Boolean blocking,
-    Uint32 moduleServiceQueue)
-    : AsyncReply(
-          ASYNC_FIND_MODULE_IN_SERVICE_RESPONSE,
-          0,
-          operation,
-          resultCode,
-          destination,
-          blocking),
-      _module_service_queue(moduleServiceQueue)
-{
-}
-
 AsyncIoctl::AsyncIoctl(
     AsyncOpNode* operation,
     Uint32 destination,
@@ -236,7 +122,6 @@ AsyncIoctl::AsyncIoctl(
       voidp(pParam)
 {
 }
-
 
 CimServiceStart::CimServiceStart(
     AsyncOpNode* operation,
@@ -258,32 +143,6 @@ CimServiceStop::CimServiceStop(
     Boolean blocking)
     : AsyncRequest(
           ASYNC_CIMSERVICE_STOP,
-          0, operation, destination,
-          response, blocking)
-{
-}
-
-
-CimServicePause::CimServicePause(
-    AsyncOpNode* operation,
-    Uint32 destination,
-    Uint32 response,
-    Boolean blocking)
-    : AsyncRequest(
-          ASYNC_CIMSERVICE_PAUSE,
-          0, operation, destination,
-          response, blocking)
-{
-}
-
-
-CimServiceResume::CimServiceResume(
-    AsyncOpNode* operation,
-    Uint32 destination,
-    Uint32 response,
-    Boolean blocking)
-    : AsyncRequest(
-          ASYNC_CIMSERVICE_RESUME,
           0, operation, destination,
           response, blocking)
 {
@@ -425,79 +284,6 @@ Message* AsyncLegacyOperationResult::get_result()
     _res = 0;
 //    ret->put_async(0);
     return ret;
-}
-
-FindServiceQueue::FindServiceQueue(
-    AsyncOpNode* operation,
-    Uint32 response,
-    Boolean blocking,
-    const String& serviceName,
-    Uint32 serviceCapabilities,
-    Uint32 serviceMask)
-    : AsyncRequest(
-          ASYNC_FIND_SERVICE_Q,
-          0, operation,
-          CIMOM_Q_ID,
-          response,
-          blocking),
-      name(serviceName),
-      capabilities(serviceCapabilities),
-      mask(serviceMask)
-{
-}
-
-
-FindServiceQueueResult::FindServiceQueueResult(
-    AsyncOpNode* operation,
-    Uint32 resultCode,
-    Uint32 destination,
-    Boolean blocking,
-    Array<Uint32> queueIds)
-    : AsyncReply(
-          ASYNC_FIND_SERVICE_Q_RESULT,
-          0, operation,
-          resultCode, destination, blocking),
-      qids(queueIds)
-{
-}
-
-EnumerateService::EnumerateService(
-    AsyncOpNode* operation,
-    Uint32 response,
-    Boolean blocking,
-    Uint32 queueId)
-    : AsyncRequest(
-          ASYNC_ENUMERATE_SERVICE,
-          0,
-          operation,
-          CIMOM_Q_ID,
-          response,
-          blocking),
-      qid(queueId)
-{
-}
-
-EnumerateServiceResponse::EnumerateServiceResponse(
-    AsyncOpNode* operation,
-    Uint32 resultCode,
-    Uint32 response,
-    Boolean blocking,
-    const String& serviceName,
-    Uint32 serviceCapabilities,
-    Uint32 serviceMask,
-    Uint32 serviceQid)
-    : AsyncReply(
-          ASYNC_ENUMERATE_SERVICE_RESULT,
-          0,
-          operation,
-          resultCode,
-          response,
-          blocking),
-      name(serviceName),
-      capabilities(serviceCapabilities),
-      mask(serviceMask),
-      qid(serviceQid)
-{
 }
 
 AsyncMessage::~AsyncMessage()

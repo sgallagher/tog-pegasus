@@ -247,10 +247,10 @@ client_func (void *parm)
     test_async_queue *client = new test_async_queue (test_async_queue::CLIENT);
 
     // find the server 
-    Array < Uint32 > services;
-    while (services.size () == 0)
+    MessageQueue *serverQueue = 0;
+    while (serverQueue == 0)
     {
-        client->find_services (String ("server"), 0, 0, &services);
+        serverQueue = MessageQueue::lookup("server");
         // It is a good idea to yield to other threads. You should do this,
         // but this test-case stresses situations in which does not happen.
         //Threads::yield ();
@@ -277,13 +277,13 @@ client_func (void *parm)
             AsyncOperationStart *async_rq =
                 new AsyncOperationStart(
                     op,
-                    services[0],
+                    serverQueue->getQueueId(),
                     client->getQueueId(),
                     false,
                     cim_rq);
             client->SendAsync(
                 op,
-                services[0],
+                serverQueue->getQueueId(),
                 test_async_queue::async_handleEnqueue,
                 client,
                 (void *) 0);
@@ -320,40 +320,6 @@ client_func (void *parm)
 
     if (verbose)
     {
-        cout << "testing fast safe async send" << endl;
-    }
-
-    test_async_queue::msg_count = 0;
-    requestCount = 0; 
-    while (requestCount < 10000)
-    {
-        // The problem on multi-processor machines is that if we make it
-        // continue on sending the messages, and the MessageQueueService
-        // does not get to pick up the messages, the machine can crawl to
-        // halt with about 300-400 threads and ever-continuing number of
-        // them created.
-        try 
-        {
-            Message *cim_rq = new Message(CIM_GET_INSTANCE_REQUEST_MESSAGE);
-
-            client->SendAsync(
-                cim_rq,
-                services[0],
-                test_async_queue::async_handleSafeEnqueue,
-                client,
-                (void *) NULL);
-        }
-        catch (const PEGASUS_STD(bad_alloc) &)
-        {
-            cerr <<" Out of memory! Continuing tests." << endl;
-            continue;
-        }
-        requestCount++;
-        //Threads::yield ();
-    }
-
-    if (verbose)
-    {
         cout << "Waiting until all messages are flushed. " << endl;
     }
     while (test_async_queue::msg_count.get() != requestCount)
@@ -377,7 +343,7 @@ client_func (void *parm)
     {
         CimServiceStop *stop = new CimServiceStop(
             0,
-            services[0],
+            serverQueue->getQueueId(),
             client->getQueueId (),
             true);
 
@@ -391,9 +357,9 @@ client_func (void *parm)
     }
 
     // wait for the server to shut down 
-    while (services.size () > 0)
+    while (serverQueue)
     {
-        client->find_services (String ("server"), 0, 0, &services);
+        serverQueue = MessageQueue::lookup("server");
         Threads::yield ();
     }
 
@@ -401,8 +367,6 @@ client_func (void *parm)
     {
         cout << "shutting down client" << endl;
     }
-
-    client->deregister_service();
 
     delete client;
     return ThreadReturnType(0);
@@ -422,8 +386,6 @@ server_func (void *parm)
     }
   if (verbose)
     cout << "server shutting down" << endl;
-
-  server->deregister_service ();
 
   delete server;
 

@@ -43,7 +43,6 @@ DIRS = \
     Buffer \
     CIMError\
     CIMName \
-    Cimom \
     ClassDecl \
     Compare \
     Config \

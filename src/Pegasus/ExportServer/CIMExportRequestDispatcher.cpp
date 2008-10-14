@@ -210,9 +210,7 @@ CIMExportRequestDispatcher::_handleExportIndicationRequest(
 
     CIMException cimException;
 
-    Array<Uint32> serviceIds;
-    find_services(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP, 0, 0, &serviceIds);
-    PEGASUS_ASSERT(serviceIds.size() != 0);
+    Uint32 serviceId =find_service_qid(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
 
     PEG_TRACE ((TRC_INDICATION_RECEIPT, Tracer::LEVEL4,
         "%s Indication %s received in export server for destination %s",
@@ -225,10 +223,10 @@ CIMExportRequestDispatcher::_handleExportIndicationRequest(
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart(
             op,
-            serviceIds[0],
+            serviceId,
             new CIMExportIndicationRequestMessage(*request));
 
-    asyncRequest->dest = serviceIds[0];
+    asyncRequest->dest = serviceId;
 
     //SendAsync(op,
     //          serviceIds[0],

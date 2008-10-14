@@ -447,22 +447,24 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
     while (client_count.get() < 3)
         Threads::yield();
 
+    MessageQueue *serverQueue = 0;
     Array<Uint32> services;
 
-    while (services.size() == 0)
+    while (serverQueue == 0)
     {
-        q_client->find_services(String("test server"), 0, 0, &services);
+        serverQueue = MessageQueue::lookup("test server");
         Threads::yield();
     }
 
     if (verbose)
     {
-        cout << "found server at " << services[0] << endl;
+        cout << "found server at " << serverQueue->getQueueId() << endl;
     }
 
     while (msg_count.get() < 1500)
     {
-        q_client->sendTestRequestMessage("i am the test client" , services[0]);
+        q_client->sendTestRequestMessage("i am the test client" , 
+            serverQueue->getQueueId());
     }
     // now that we have sent and received all of our responses, tell
     // the server thread to stop
@@ -478,7 +480,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
 
     AsyncLegacyOperationStart *req = new AsyncLegacyOperationStart(
         0,
-        services[0],
+        serverQueue->getQueueId(),
         legacy);
     reply = q_client->SendWait(req);
     delete req;
@@ -493,18 +495,18 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
 
     req = new AsyncLegacyOperationStart(
         0,
-        services[0],
+        serverQueue->getQueueId(),
         legacy);
 
     q_client->SendForget(req);
 
     legacy = new Message(CIM_CREATE_CLASS_REQUEST_MESSAGE);
-    legacy->dest = services[0];
+    legacy->dest = serverQueue->getQueueId();
 
     q_client->SendForget(legacy);
 
-    MessageQueueService * server =
-        static_cast<MessageQueueService *>(MessageQueue::lookup(services[0]));
+    MessageQueueService * server = static_cast<MessageQueueService *>(
+        MessageQueue::lookup(serverQueue->getQueueId()));
 
 #if 0
     legacy = new Message(CIM_CREATE_CLASS_REQUEST_MESSAGE);
@@ -520,7 +522,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
 
     CimServiceStop *stop = new CimServiceStop(
         0,
-        services[0],
+        serverQueue->getQueueId(),
         q_client->get_qid(),
         true);
 
@@ -532,8 +534,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
     {
         cout << "deregistering client qid " << q_client->getQueueId() << endl;
     }
-
-    q_client->deregister_service();
 
     if (verbose)
     {
@@ -561,13 +561,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL server_func(void *parm)
     {
         Threads::yield();
     }
-
-    if (verbose)
-    {
-        cout << "deregistering server qid " << q_server->getQueueId() << endl;
-    }
-
-    q_server->deregister_service();
 
     if (verbose)
     {

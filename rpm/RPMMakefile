@@ -234,7 +234,9 @@ cleanRPM:
 	-$(RPM) -e $(filter tog-pegasus-devel%,$(TOG_INSTALLED_RPMS))
 	-$(RPM) -e $(filter tog-pegasus-2%,$(TOG_INSTALLED_RPMS))
 	-$(RM) -Rf tog-pegasus-$(PEGASUS_PRODUCT_VERSION).old
-	-$(MV) tog-pegasus-$(PEGASUS_PRODUCT_VERSION) tog-pegasus-$(PEGASUS_PRODUCT_VERSION).old
+	@if test -d tog-pegasus-$(PEGASUS_RPM_VERSION); then \
+	$(MV) tog-pegasus-$(PEGASUS_PRODUCT_VERSION) tog-pegasus-$(PEGASUS_PRODUCT_VERSION).old; \
+	fi
 
 buildRPM: cleanRPM createSRCRPM createBINRPM
 

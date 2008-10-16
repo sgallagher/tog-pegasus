@@ -63,7 +63,7 @@ LIBRARIES = \
 	ProviderRegistrationProvider\
 	NamespaceProvider
 
-ifeq ($(PEGASUS_ENABLE_SLP),true)
+ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
 LIBRARIES += \
 	InteropProvider
 ifdef PEGASUS_SLP_REG_TIMEOUT

@@ -61,6 +61,12 @@ WsmProcessor::WsmProcessor(
 
 WsmProcessor::~WsmProcessor()
 {
+    // Clean up enumeration responses that have not been pulled or released.
+    for (EnumerationContextTable::Iterator i =
+             _enumerationContextTable.start(); i; i++)
+    {
+        delete i.value().response;
+    }
 }
 
 void WsmProcessor::handleEnqueue(Message* message)
@@ -104,6 +110,8 @@ void WsmProcessor::handleRequest(WsmRequest* wsmRequest)
 
             cimRequest->queueIds.push(getQueueId());
             _cimOperationProcessorQueue->enqueue(cimRequest);
+
+            wsmRequestDestroyer.release();
         }
         else
         {
@@ -121,8 +129,6 @@ void WsmProcessor::handleRequest(WsmRequest* wsmRequest)
                     break;
             }
         }
-
-        wsmRequestDestroyer.release();
     }
     catch (WsmFault& fault)
     {
@@ -385,6 +391,7 @@ void WsmProcessor::_handleReleaseRequest(WsenReleaseRequest* wsmRequest)
         AutoPtr<WsenReleaseResponse> wsmResponse(new WsenReleaseResponse(
             wsmRequest, enumContext.response->getContentLanguages()));
 
+        delete enumContext.response;
         _enumerationContextTable.remove(wsmRequest->enumerationContext);
 
         _wsmResponseEncoder.enqueue(wsmResponse.get());
@@ -496,7 +503,8 @@ void WsmProcessor::_getExpirationDatetime(
 void WsmProcessor::cleanupExpiredContexts()
 {
     CIMDateTime currentDT = CIMDateTime::getCurrentDateTime();
-    Array<Uint64> expired;
+    Array<Uint64> expiredContextIds;
+    Array<WsenEnumerateResponse*> expiredResponses;
 
     AutoMutex lock(_enumerationContextTableLock);
     for (EnumerationContextTable::Iterator i =
@@ -505,13 +513,15 @@ void WsmProcessor::cleanupExpiredContexts()
         EnumerationContext context = i.value();
         if (context.expiration < currentDT)
         {
-            expired.append(context.contextId);
+            expiredContextIds.append(context.contextId);
+            expiredResponses.append(context.response);
         }
     }
 
-    for (Uint32 i = 0; i < expired.size(); i++)
+    for (Uint32 i = 0; i < expiredContextIds.size(); i++)
     {
-        _enumerationContextTable.remove(expired[i]);
+        delete expiredResponses[i];
+        _enumerationContextTable.remove(expiredContextIds[i]);
     }
 }
 

@@ -1076,16 +1076,6 @@ ifndef PEGASUS_DISABLE_PERFINST
     endif
 endif
 
-ifdef PEGASUS_ENABLE_INTEROP_PROVIDER
-    ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
-        DEFINES += -DPEGASUS_ENABLE_INTEROP_PROVIDER
-    else
-        ifneq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),false)
-            $(error PEGASUS_ENABLE_INTEROP_PROVIDER ($(PEGASUS_ENABLE_INTEROP_PROVIDER)) invalid, must be true or false)
-        endif
-    endif
-endif
-
 #
 ## PEP 323, DMTF Indications Profile support, stage 1
 #
@@ -1105,6 +1095,17 @@ ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
         endif
     endif
 endif
+
+ifdef PEGASUS_ENABLE_INTEROP_PROVIDER
+    ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
+        DEFINES += -DPEGASUS_ENABLE_INTEROP_PROVIDER
+    else
+        ifneq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),false)
+            $(error PEGASUS_ENABLE_INTEROP_PROVIDER ($(PEGASUS_ENABLE_INTEROP_PROVIDER)) invalid, must be true or false)
+        endif
+    endif
+endif
+
 
 ############################################################################
 # set PEGASUS_DEBUG into the DEFINES if it exists.

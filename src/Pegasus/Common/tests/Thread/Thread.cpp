@@ -162,6 +162,11 @@ struct TestThreadData
     Array<Uint32> lArray;
 };
 
+void deleteTestThreadData(void* data)
+{
+    delete reinterpret_cast<TestThreadData*>(data);
+}
+
 // thread function definition for testMultipleThreads
 ThreadReturnType PEGASUS_THREAD_CDECL testMultipleThread( void* parm );
 
@@ -191,15 +196,16 @@ void testMultipleThreads()
                 << endl;
             max_threads = i;
             delete threads[i];
+            delete data;
             break;
         }
         data->chars[0] = 'B';
         data->chars[1] = 'E';
-    data->lInteger = 3456;
+        data->lInteger = 3456;
         data->lArray.append(1);
         data->lArray.append(9999);
         
-        threads[i]->put_tsd( "test2", thread_data::default_delete, 2, data );
+        threads[i]->put_tsd("test2", deleteTestThreadData, 2, data);
         if (threads[i]->run()!=PEGASUS_THREAD_OK)
         {
             cerr << "Not enough memory. Reducing Number of threads used to "

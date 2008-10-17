@@ -210,7 +210,7 @@ HTTPConnection::HTTPConnection(
 
     _authInfo.reset(new AuthenticationInfo(true));
 
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifndef PEGASUS_OS_ZOS
     // Add SSL verification information to the authentication information
     if (_socket->isSecure())
     {
@@ -1931,7 +1931,7 @@ void HTTPConnection::_handleReadEvent()
         }
         else
         {
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifndef PEGASUS_OS_ZOS
         // Add SSL verification information to the authentication information
             if (_socket->isSecure())
             {

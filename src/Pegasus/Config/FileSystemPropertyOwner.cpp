@@ -67,7 +67,7 @@ static struct ConfigPropertyRow properties[] =
 #endif
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
     {"providerManagerDir", "bin", IS_STATIC, 0, 0, IS_VISIBLE},
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#elif defined(PEGASUS_OS_ZOS)
     {"providerManagerDir", "lib", IS_STATIC, 0, 0, IS_VISIBLE},
 #elif defined(PEGASUS_OS_PASE) && defined(PEGASUS_USE_RELEASE_DIRS)
     {"providerManagerDir", 

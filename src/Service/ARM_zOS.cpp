@@ -44,7 +44,11 @@
 
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h>
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #include "AutoRestartMgr_ZOS_ZSERIES_IBM.h"
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES64_IBM)
+#include "AutoRestartMgr_ZOS_ZSERIES64_IBM.h"
+#endif
 #include "ARM_zOS.h"
 
 
@@ -92,6 +96,7 @@ void ARM_zOS::Register(void)
                                         // the element name 
     int rc;
 
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES64_IBM
     rc = __osname(&uts);
     if(rc < 0)
     {
@@ -127,7 +132,7 @@ void ARM_zOS::Register(void)
     // module in EBCDIC
     __atoe(arm_elemname); 
 
-    __register_arm(arm_elemname, arm_buffer, &arm_ret, &arm_res); 
+    __register_arm(arm_elemname, arm_buffer, &arm_ret, &arm_res);
 
     // convert back to ascii for further processing.
     __etoa(arm_elemname);
@@ -196,7 +201,7 @@ void ARM_zOS::Register(void)
 
         ARM_zOS_Status = NOT_REGISTERED;
     }                
-
+#endif
     return;
 }
 
@@ -222,6 +227,7 @@ void ARM_zOS::DeRegister(void)
     int arm_ret=0;                     // ARM return code 
     int arm_res=0;                     // ARM reason code 
     
+#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES64_IBM
     // If CIM Server is not not registeres -> if it is REGISTERED or RESTARTED.
     if(ARM_zOS_Status != NOT_REGISTERED)
     {
@@ -242,6 +248,7 @@ void ARM_zOS::DeRegister(void)
         }
         ARM_zOS_Status = NOT_REGISTERED;
     }// End if
+#endif
 }
 
 PEGASUS_NAMESPACE_END

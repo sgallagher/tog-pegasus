@@ -111,7 +111,7 @@ int gettimeofday (struct timeval *t,void * );
 #endif
 
 
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
 # define atoll(X) strtoll(X, NULL, 10)
 #endif
 

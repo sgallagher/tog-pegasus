@@ -524,7 +524,7 @@ static int threadSleep(CMPIUint32 msec)
     }
     while (end.millitm > now.millitm && end.time >= now.time);
 
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#elif defined(PEGASUS_OS_ZOS)
     int seconds;
     if (msec < 1000)
     {

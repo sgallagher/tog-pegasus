@@ -97,7 +97,7 @@
 #include <Service/ServerShutdownClient.h>
 #include <Service/ServerRunStatus.h>
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_OS_ZOS)
 #include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
 #include <Service/ARM_zOS.h>
 # ifdef PEGASUS_ZOS_SECURITY
@@ -470,7 +470,7 @@ int main(int argc, char** argv)
     const char *tmp = getenv("PEGASUS_HOME");
     pegasusHome = (tmp == 0) ? PASE_DEFAULT_PEGASUS_HOME : tmp;
 # elif !defined(PEGASUS_USE_RELEASE_DIRS) || \
-    defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    defined(PEGASUS_OS_ZOS)
     const char* tmp = getenv("PEGASUS_HOME");
 
     if (tmp)
@@ -834,7 +834,7 @@ int CIMServerProcess::cimserver_run(
         return 1;
     }
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && defined(PEGASUS_ZOS_SECURITY)
+#if defined(PEGASUS_OS_ZOS) && defined(PEGASUS_ZOS_SECURITY)
     startupCheckBPXServer(true);
     startupCheckProfileCIMSERVclassWBEM();
     startupEnableMSC();
@@ -1178,7 +1178,7 @@ int CIMServerProcess::cimserver_run(
 
     try
     {
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_OS_ZOS)
 
         // ARM is a z/OS internal restart facility.
         // This is a z/OS specific change.
@@ -1207,7 +1207,7 @@ int CIMServerProcess::cimserver_run(
         // normal termination
         //
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_OS_ZOS)
 
         // ARM is a z/OS internal restart facility.
         // This is a z/OS specific change.

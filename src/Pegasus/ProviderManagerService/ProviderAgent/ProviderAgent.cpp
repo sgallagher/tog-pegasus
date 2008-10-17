@@ -40,7 +40,7 @@
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/ProviderManager2/Default/DefaultProviderManager.h>
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && defined(PEGASUS_ZOS_SECURITY)
+#if defined(PEGASUS_OS_ZOS) && defined(PEGASUS_ZOS_SECURITY)
 // This include file will not be provided in the OpenGroup CVS for now.
 // Do NOT try to include it in your compile
 #include <Pegasus/Common/safCheckzOS_inline.h>
@@ -397,7 +397,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
         Uint32 messageLength = 0;
         _pipeToServer->writeBuffer((const char*)&messageLength, sizeof(Uint32));
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && defined(PEGASUS_ZOS_SECURITY)
+#if defined(PEGASUS_OS_ZOS) && defined(PEGASUS_ZOS_SECURITY)
         // prepare and setup the thread-level security environment on z/OS
         // if security initialization fails
         startupCheckBPXServer(false);

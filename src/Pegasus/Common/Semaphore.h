@@ -48,7 +48,7 @@
 //
 //==============================================================================
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || \
+#if defined(PEGASUS_OS_ZOS) || \
     defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || \
     defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX) || \
     defined(PEGASUS_OS_DARWIN) || \

@@ -72,10 +72,10 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <pthread.h>
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifndef PEGASUS_OS_ZOS
 # include <semaphore.h>
 #endif
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
 # include <netdb.h>
 # include <strings.h>
 #endif
@@ -115,7 +115,7 @@ void  hug_num_to_ascii(uint64 val, char *buf, int32 radix, BOOL is_neg);
 
 typedef int SOCKETD;
 
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
 # define _LSLP_SLEEP(m) \
   { \
       if (m) \
@@ -155,7 +155,7 @@ typedef int SOCKETD;
 
 /** void *(*start)(void *), ustacksize, void *arg  **/
 
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifndef PEGASUS_OS_ZOS
 # define _LSLP_STRTOK(n, d, s) strtok_r((n), (d), (s))
 #else
 # define _LSLP_STRTOK(n, d, s) strtok((n), (d) )

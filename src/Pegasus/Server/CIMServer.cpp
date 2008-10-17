@@ -67,7 +67,7 @@
 #include <Pegasus/ProviderManagerService/ProviderManagerService.h>
 #include <Pegasus/ProviderManager2/Default/DefaultProviderManager.h>
 
-#if defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#if defined PEGASUS_OS_ZOS
 # include "ConsoleManager_zOS.h"
 #endif
 
@@ -493,7 +493,7 @@ void CIMServer::_init()
     // Set up an additional thread waiting for commands from the
     // system console
     //
-#if defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#if defined PEGASUS_OS_ZOS
     ZOSConsoleManager::startConsoleWatchThread();
 #endif
 

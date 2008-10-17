@@ -226,7 +226,7 @@ ifdef PEGASUS_HAS_SSL
     endif
 endif
 
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+ifeq ($(OS),zos)
     ifdef PEGASUS_ZOS_SECURITY
         SOURCES += $(SOURCES_SECURITY_ZOS)
     endif

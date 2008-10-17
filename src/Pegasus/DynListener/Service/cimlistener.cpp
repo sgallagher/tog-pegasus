@@ -609,7 +609,7 @@ int CIMListenerProcess::cimserver_run(
         //cimserver_kill(1);
 #else
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) \
-        || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) \
+        || defined(PEGASUS_OS_ZOS) \
         || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_PASE) \
         || defined(PEGASUS_OS_SOLARIS) \
         || defined(PEGASUS_OS_VMS)
@@ -764,7 +764,7 @@ MessageLoader::_useProcessLocale = false;
     }
 
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) \
-|| defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) \
+|| defined(PEGASUS_OS_ZOS) || defined(PEGASUS_OS_AIX) \
 || defined(PEGASUS_OS_PASE) \
 || defined(PEGASUS_OS_SOLARIS) || defined (PEGASUS_OS_VMS)
     umask(S_IWGRP|S_IWOTH);
@@ -848,7 +848,7 @@ MessageLoader::_useProcessLocale = false;
     time_t last = 0;
 
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || \
-    defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) || \
+    defined(PEGASUS_OS_ZOS) || defined(PEGASUS_OS_AIX) || \
     defined(PEGASUS_OS_PASE) || \
     defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_VMS)
         //

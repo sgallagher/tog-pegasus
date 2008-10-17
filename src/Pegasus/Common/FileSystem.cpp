@@ -473,6 +473,8 @@ String FileSystem::getDynamicLibraryExtension()
     return String(".dylib");
 #elif defined(PEGASUS_OS_VMS)
     return String(".exe");
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES64_IBM)
+    return String("64.so");
 #else
     return String(".so");
 #endif
@@ -483,7 +485,7 @@ Boolean GetLine(PEGASUS_STD(istream)& is, String& line)
     line.clear();
 
     Boolean gotChar = false;
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
     char input[1000];
     is.getline(input,1000);
     line.assign(input);

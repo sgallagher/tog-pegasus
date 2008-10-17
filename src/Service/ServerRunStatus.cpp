@@ -45,7 +45,7 @@
 # include <libgen.h>
 #endif
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_OS_ZOS)
 # include <sys/ps.h>
 #endif
 
@@ -189,7 +189,7 @@ Boolean ServerRunStatus::kill()
 #if defined(PEGASUS_OS_HPUX) || \
     defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
     defined(PEGASUS_OS_SOLARIS) || \
-    defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || \
+    defined(PEGASUS_OS_ZOS) || \
     defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_PASE)
 
     ::kill(pid, SIGKILL);
@@ -200,7 +200,7 @@ Boolean ServerRunStatus::kill()
     return true;
 }
 
-# if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+# if defined(PEGASUS_OS_ZOS)
 
 ///////////////////////////////////////////////////////
 // z/OS implementation of _isServerProcess

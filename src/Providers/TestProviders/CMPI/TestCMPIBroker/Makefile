@@ -35,7 +35,7 @@ DIR = Providers/TestProviders/CMPI/TestCMPIBroker
 
 include $(ROOT)/mak/config.mak
 
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+ifeq ($(OS),zos)
     CXX = cc
     FLAGS += -W"c,SSCOMM"
 endif

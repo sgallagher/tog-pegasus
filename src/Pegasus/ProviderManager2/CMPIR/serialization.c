@@ -61,7 +61,7 @@
 # include <windows.h>
 # include <winsock2.h>
 #else
-# if defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+# if defined (PEGASUS_OS_ZOS)
 #  include <arpa/inet.h>
 # else
 #  include <error.h>

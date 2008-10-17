@@ -830,7 +830,7 @@ extern "C"
     void free_da_list_node(struct da_list *da);
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS) || \
-    defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(_NUCLEUS)
+    defined(PEGASUS_OS_ZOS) || defined(_NUCLEUS)
     int gethostbyname_r(
         const char *name,
         struct hostent *resultbuf,

@@ -62,7 +62,7 @@ static struct ConfigPropertyRow properties[] =
     {"repositoryIsDefaultInstanceProvider",
          "true", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifndef PEGASUS_OS_ZOS
     {"enableBinaryRepository", "false", IS_STATIC, 0, 0, IS_VISIBLE}
 #else
     {"enableBinaryRepository", "true", IS_STATIC, 0, 0, IS_VISIBLE}

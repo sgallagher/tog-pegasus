@@ -107,7 +107,7 @@
 #       include <sys/un.h>
 #   endif
 #   include <unistd.h>
-#   ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#   ifdef PEGASUS_OS_ZOS
 #       ifndef TCP_NODELAY
 #           define TCP_NODELAY 1
 #       endif
@@ -257,9 +257,10 @@ typedef int SocketHandle;
     defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
     typedef int SocketLength;
 #elif defined(PEGASUS_PLATFORM_VMS_ALPHA_DECCXX) || \
-    defined(PEGASUS_PLATFORM_VMS_IA64_DECCXX) || \
-    defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    defined(PEGASUS_PLATFORM_VMS_IA64_DECCXX)
     typedef size_t SocketLength;
+#elif defined(PEGASUS_OS_ZOS)
+    typedef socklen_t SocketLength;
 #elif defined(PEGASUS_PLATFORM_HPUX_IA64_ACC) && \
     !defined(_XOPEN_SOURCE_EXTENDED)
     typedef int SocketLength;

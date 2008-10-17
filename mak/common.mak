@@ -48,9 +48,9 @@ else
     endif
 endif
 
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+ifeq ($(OS),zos)
     DYNAMIC_LIBRARIES = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), \
-	$(addsuffix .x, $(LIBRARIES)))
+	$(addsuffix $(DYNLIB_SUFFIX), $(LIBRARIES)))
 else
     DYNAMIC_LIBRARIES = $(addprefix -l, $(LIBRARIES))
 endif

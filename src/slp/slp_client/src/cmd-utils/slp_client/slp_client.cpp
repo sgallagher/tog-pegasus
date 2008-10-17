@@ -329,7 +329,7 @@ int Gethostbyname_r(
     }
     return(0);
 }
-#elif defined ( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM )
+#elif defined ( PEGASUS_OS_ZOS )
 int Gethostbyname_r(
     const char *name,
     struct hostent *resultbuf,
@@ -857,7 +857,7 @@ void make_srv_ack(
             local_address = client->_local_addr;
         }
 
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
         struct slp_if_addr* ptr_addr;
         ptr_addr = client->_local_addr_list[idx];
         while (ptr_addr->af != AF_UNSPEC)
@@ -872,7 +872,7 @@ void make_srv_ack(
                     remote, addr_len);
             }
             _LSLP_CLOSESOCKET(sock);
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
             ptr_addr++;
         } // end of while loop around all local network interfaces
 #endif
@@ -2768,7 +2768,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR *remote)
                 local_address = client->_local_addr;
             }
 
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
             struct slp_if_addr *ptr_addr;
             ptr_addr = client->_local_addr_list[idx];
 
@@ -2793,7 +2793,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR *remote)
                         addr_len);
                 }
                 _LSLP_CLOSESOCKET(sock);
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
                 ptr_addr++;
             } // end of while loop around all local network interfaces
 #endif
@@ -3004,7 +3004,7 @@ BOOL send_rcv_udp(struct slp_client *client, BOOL retry)
                 ((_LSLP_GETFLAGS(client->_msg_buf)) & LSLP_FLAGS_MCAST) ? 1:0;
             if (bcast)
             {
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
                 int ttl = 0;
                 int sockopt = 0;
                 unsigned char my_ttl = 128;
@@ -4259,7 +4259,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR *remote)
                                     local_address = client->_local_addr;
                                 }
 
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
                                 struct slp_if_addr* ptr_addr;
                                 ptr_addr = client->_local_addr_list[idx];
                                 while (ptr_addr->af != AF_UNSPEC)
@@ -4280,7 +4280,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR *remote)
                                     }
                                     _LSLP_CLOSESOCKET(sock);
 
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
                                     ptr_addr++;
                                     // end of while loop around all local
                                     // network interfaces
@@ -5256,7 +5256,7 @@ BOOL lslp_scope_intersection(lslpScopeList *a, lslpScopeList *b)
         {
             b = b->next;
             PEGASUS_ASSERT((a->scope != NULL) && (b->scope != NULL));
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifndef PEGASUS_OS_ZOS
             if (! strcasecmp(a->scope, b->scope))
             {
 #else
@@ -5637,7 +5637,7 @@ lslpAuthBlock *lslpUnstuffAuthList(char **buf, int16 *len, int16 *err)
                     *len -= 10;
                     if (*len >= (temp->spiLen))
                     {
-#if defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM ) || defined(PEGASUS_OS_SOLARIS)
+#if defined( PEGASUS_OS_ZOS ) || defined(PEGASUS_OS_SOLARIS)
                         if (NULL !=
                             (temp->spi =
                             (char*)calloc(temp->spiLen + 1,sizeof(char))))
@@ -5654,7 +5654,7 @@ lslpAuthBlock *lslpUnstuffAuthList(char **buf, int16 *len, int16 *err)
                             if (*len >= (temp->len - (10 + temp->spiLen)))
                             {
                                 if (NULL != (temp->block =
-#if defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM ) || defined( PEGASUS_OS_SOLARIS)
+#if defined( PEGASUS_OS_ZOS ) || defined( PEGASUS_OS_SOLARIS)
                                     (char *)calloc(
                                     (temp->len - (10 + temp->spiLen)) + 1,
 #else

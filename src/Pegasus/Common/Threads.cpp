@@ -178,7 +178,7 @@ int Threads::create(
 
     if (type == DETACHED)
     {
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_OS_ZOS)
         int ds = 1;
         pthread_attr_setdetachstate(&attr, &ds);
 #else

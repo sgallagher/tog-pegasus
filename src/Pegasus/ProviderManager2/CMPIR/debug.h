@@ -56,7 +56,7 @@
 
 #ifdef PEGASUS_OS_TYPE_UNIX
 # include <unistd.h>
-# if defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+# if defined PEGASUS_OS_ZOS
 #  include <strings.h>
 # else
 #  include <string.h>

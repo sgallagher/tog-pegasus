@@ -38,7 +38,7 @@
 
 #ifdef PEGASUS_OS_TYPE_UNIX
 # include <dlfcn.h>
-# ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+# ifndef PEGASUS_OS_ZOS
 #  include <error.h>
 # endif
 #elif defined PEGASUS_OS_TYPE_WINDOWS

@@ -299,7 +299,7 @@
 #  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH   /* Not used */
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/wbem_var/opt/wbem/bin/cimprovagt"
 #  undef PEGASUS_DEFAULT_MESSAGE_SOURCE     /* Not defined */
-# elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+# elif defined(PEGASUS_OS_ZOS)
 #  define PEGASUS_CIMSERVER_START_FILE      "/var/wbem/cimserver.pid"
 #  define PEGASUS_CIMSERVER_START_LOCK_FILE "/var/wbem/cimserver_start.lock"
 #  define PEGASUS_REPOSITORY_DIR            "/var/wbem/repository"
@@ -443,7 +443,7 @@
 #define PEGASUS_TRC_BUFFER_MAX_SIZE_KB 1024*1024
 #define PEGASUS_TRC_BUFFER_MIN_SIZE_KB 16
 
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
 # define PEGASUS_TRC_BUFFER_OOP_SIZE_DEVISOR 1
 #else
 # define PEGASUS_TRC_BUFFER_OOP_SIZE_DEVISOR 10

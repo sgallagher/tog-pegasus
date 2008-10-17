@@ -44,7 +44,7 @@ ifeq ($(OS_TYPE),windows)
    EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include -I$(JAVA_SDK)/include/win32
    EXTRA_LIBRARIES += $(JAVA_SDK)/lib/jvm.lib
 else
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+ifeq ($(OS),zos)
    SYS_INCLUDES += -I${JAVA_SDK}/include
    EXTRA_LIBRARIES += ${JAVA_SDK}/bin/classic/libjvm.x
 else

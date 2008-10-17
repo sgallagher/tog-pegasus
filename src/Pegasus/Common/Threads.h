@@ -248,7 +248,7 @@ inline ThreadId Threads::id(const ThreadType& x)
 {
     ThreadId tid = { { 0 } };
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_OS_ZOS)
     const char* s = x.thread.__;
     sprintf(tid.buffer, "%X%X%X%X%X%X%X%X",
         s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7]);
@@ -262,7 +262,7 @@ inline ThreadId Threads::id(const ThreadType& x)
 
 inline bool Threads::null(const ThreadType& x)
 {
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_OS_ZOS)
     Uint64 tmp;
     memcpy(&tmp, x.thread.__, sizeof(Uint64));
     return tmp == 0;

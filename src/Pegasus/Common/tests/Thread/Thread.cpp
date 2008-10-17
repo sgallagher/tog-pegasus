@@ -382,7 +382,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
    {
       int i = 0;
       
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifndef PEGASUS_OS_ZOS
       char *my_storage = (char *)calloc(256, sizeof(char));
 #else
       char *my_storage = (char *)::operator new(256);
@@ -390,7 +390,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
       //    sprintf(my_storage, "%ld", myself + i);
       try 
       {
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifndef PEGASUS_OS_ZOS
          my_handle->put_tsd(keys[i % 4], free, 256, my_storage);
 #else
          my_handle->put_tsd(keys[i % 4], ::operator delete,

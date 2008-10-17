@@ -179,7 +179,7 @@ void Audit_zOS_SMF::_preInitRecordHeaderSection( _smf86_header* recordHeader )
     recordHeader->SMF86TRN=2;            // Both triplets are used
                                          // set system identifyter
     memcpy(recordHeader->SMF86SSI,CFZ_EBCDIC,
-           sizeof(CFZ_EBCDIC));
+           strlen(CFZ_EBCDIC));
 
                                          // start of product section
     recordHeader->SMF86PRO=sizeof(_smf86_header);
@@ -190,7 +190,6 @@ void Audit_zOS_SMF::_preInitRecordHeaderSection( _smf86_header* recordHeader )
     recordHeader->SMF86STO=sizeof(_smf86_header)+
         sizeof(_smf86_product);
     recordHeader->SMF86STN=1;            // one subtype section
-
 }
 
 void Audit_zOS_SMF::_preInitRecordProductSection ( 
@@ -206,7 +205,7 @@ void Audit_zOS_SMF::_preInitRecordProductSection (
 
     // set system identifyter
     memcpy(recordProductSec->SMF86SSI,CFZ_EBCDIC,
-           sizeof(CFZ_EBCDIC));
+           strlen(CFZ_EBCDIC));
 
     // set pegasus VRM
     setEBCDICRecordField( recordProductSec->SMF86VRM, 

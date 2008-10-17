@@ -80,7 +80,7 @@ void Thread::cancel()
 
 void Thread::thread_switch()
 {
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_OS_ZOS)
     pthread_yield(NULL);
 #else
     sched_yield();
@@ -103,7 +103,7 @@ void Thread::join()
 void Thread::detach()
 {
     _is_detached = true;
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_OS_ZOS)
     pthread_t  thread_id=_handle.thid.thread;
     pthread_detach(&thread_id);
 #else

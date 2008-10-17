@@ -234,7 +234,7 @@ CIMName namePropertyName = "name";
 //
 // NOTE: The name of the provider must be correct to be loadable.
 
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
 const int MAXPATHLEN=2000;
 #endif
 

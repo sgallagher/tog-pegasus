@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,37 +31,48 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#if defined(PEGASUS_OS_ZOS)
-#define _XOPEN_SOURCE_EXTENDED 1
-#endif
-PEGASUS_USING_STD;
+#ifndef Pegasus_Platform_ZOS_ZSERIES64_IBM_h
+#define Pegasus_Platform_ZOS_ZSERIES64_IBM_h
 
-PEGASUS_NAMESPACE_BEGIN
+// added for Native ASCII Support
+#pragma runopts("FILETAG(AUTOCVT,AUTOTAG)")
 
-String Guid::getGuid(const String &prefix)
-{
-  Uint32 seconds(0), milliSeconds(0);
-  System::getCurrentTime(seconds, milliSeconds);
-  CIMValue secondsValue(seconds);
-  CIMValue milliSecondsValue(milliSeconds);
-  String ipAddress;
-  int af;
-  String hostName(System::getHostName());
-  if (!System::getHostIP(hostName, &af, ipAddress))
-  {
-      // set default address if everything else failed
-      ipAddress = String("127.0.0.1");
-  }
-  // change the dots to dashes
-  for (Uint32 i=0; i<ipAddress.size(); i++)
-    {
-      if (ipAddress[i] == Char16('.'))
-        ipAddress[i] = Char16('-');
-    }
+#define PEGASUS_OS_TYPE_UNIX
 
-  return secondsValue.toString() + milliSecondsValue.toString() + "-" +
-      ipAddress;
-}
+#define PEGASUS_OS_ZOS 1
 
-PEGASUS_NAMESPACE_END
-// END_OF_FILE
+#define PEGASUS_ARCHITECTURE_ZSERIES
+
+#define PEGASUS_POINTER_64BIT
+
+#define PEGASUS_COMPILER_IBM
+
+#define PEGASUS_UINT64 unsigned long long
+
+#define PEGASUS_SINT64 long long
+
+#define PEGASUS_HAVE_NAMESPACES
+
+#define PEGASUS_HAVE_FOR_SCOPE
+
+#define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
+
+#define PEGASUS_HAS_SIGNALS
+
+#define PEGASUS_MAXHOSTNAMELEN  256
+
+#define PEGASUS_NO_PASSWORDFILE
+
+//#define snprintf(sptr,len,form,data) sprintf(sptr,form,data)
+
+#define ZOS_SECURITY_NAME "CIMServer Security"
+
+#define ZOS_DEFAULT_PEGASUS_REPOSITORY "/var/wbem"
+
+#define PEGASUS_HAVE_BROKEN_GLOBAL_CONSTRUCTION
+
+#define PEGASUS_HAVE_PTHREADS
+/* use POSIX read-write locks on this platform */
+#define PEGASUS_USE_POSIX_RWLOCK
+
+#endif /* Pegasus_Platform_ZOS_ZSERIES_IBM_h */

@@ -83,7 +83,7 @@ static struct ConfigPropertyRow properties[] =
     {"traceFacility", "File", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #endif
 #endif
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_OS_ZOS)
 # if defined(PEGASUS_USE_RELEASE_DIRS)
     {"traceFilePath", "/tmp/cimserver.trc", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 # else

@@ -174,6 +174,7 @@ private:
 
 #if !defined(PEGASUS_HAVE_PTHREADS) || \
     (defined(PEGASUS_OS_ZOS) && (__TARGET_LIB__ < 0x41090000)) || \
+    defined(PEGASUS_PLATFORM_ZOS_ZSERIES64_IBM) || \
     defined(PEGASUS_OS_VMS)
 
 # define PEGASUS_FORK_SAFE_MUTEX(mutex)

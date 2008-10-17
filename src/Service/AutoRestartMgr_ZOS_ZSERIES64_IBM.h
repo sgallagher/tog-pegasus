@@ -29,74 +29,56 @@
 //
 //==============================================================================
 //
+// Author: Thilo Boehm (tboehm@de.ibm.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#if defined(PEGASUS_OS_ZOS)
-#define _ISOC99_SOURCE
-#include <stdio.h>
-#include <stdarg.h>
+#ifndef AutoRestartMgr_ZOS_ZSERIES64_IBM_h
+#define AutoRestartMgr_ZOS_ZSERIES64_IBM_h
+
+////////////////////////////////////////////////////////////////////////////////
+// internal prototypes for the assembler services called 
+////////////////////////////////////////////////////////////////////////////////
+ 
+#ifdef __cplusplus
+extern "OS_NOSTACK" {
 #endif
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/TraceLogHandler.h>
-
-PEGASUS_USING_STD;
-
-PEGASUS_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////
-//  Constructs TraceLogHandler
+// assembler routine which registers with ARM 
 ////////////////////////////////////////////////////////////////////////////////
-TraceLogHandler::TraceLogHandler()
-{
+
+#pragma map    (__register_arm,"REGARM")
+void __register_arm (char * elemname,  // elementname (16bytes) right-padded
+                                     // with blanks 
+                  char * buffer,     // must point to a local buffer which has
+                                     // a length of least 128 bytes 
+                  int * retcode,     // contains returncode on return 
+                  int * reasoncode); // contains reasoncode on return
+
+////////////////////////////////////////////////////////////////////////////////
+// assembler routine put element as READY with ARM 
+////////////////////////////////////////////////////////////////////////////////
+
+#pragma map    (__ready_arm,"READYARM")
+void __ready_arm ( char * buffer,   // must point to a local buffer which has
+                                    // a length of least 128 bytes 
+                 int * retcode,     // contains returncode on return 
+                 int * reasoncode); // contains reasoncode on return
+
+////////////////////////////////////////////////////////////////////////////////
+// assembler routine which deregisters element from ARM
+////////////////////////////////////////////////////////////////////////////////
+
+#pragma map    (__deregister_arm,"DEREGARM")
+void __deregister_arm ( char * buffer, // must point to a local buffer which has
+                                    // a length of least 128 bytes 
+                 int * retcode,     // contains returncode on return 
+                 int * reasoncode); // contains reasoncode on return
+
+#ifdef __cplusplus
 }
+#endif
 
-////////////////////////////////////////////////////////////////////////////////
-//  Destructs TraceLogHandler
-////////////////////////////////////////////////////////////////////////////////
-TraceLogHandler::~TraceLogHandler()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//  Sends a trace message with format string to the Logger
-////////////////////////////////////////////////////////////////////////////////
-void TraceLogHandler::handleMessage(
-    const char *message,
-    Uint32 msgLen,
-    const char *fmt, va_list argList)
-{
-    if (Logger::wouldLog(Logger::TRACE))
-    {
-        char buffer[4096];
-        
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-        // Windows until VC 8 does not support vsnprintf
-        // need to use Windows equivalent function with the underscore
-        _vsnprintf(buffer, 4095, fmt, argList);
-#else
-        vsnprintf(buffer, 4095, fmt, argList);
-#endif        
-        String completeMsg(buffer);
-        completeMsg.append(message, msgLen);
-        
-        Logger::trace( Logger::TRACE_LOG, 
-                       System::CIMSERVER, 
-                       Logger::TRACE,
-                       completeMsg );
-    }    
-}
-
-////////////////////////////////////////////////////////////////////////////////
-//  Sends a simple trace message to the Logger
-////////////////////////////////////////////////////////////////////////////////
-void TraceLogHandler::handleMessage(const char *message, Uint32 msgLen)
-{
-    if (Logger::wouldLog(Logger::TRACE))
-    {
-        Logger::trace( Logger::TRACE_LOG, System::CIMSERVER, Logger::TRACE,
-                       String(message) );
-    }    
-}
-PEGASUS_NAMESPACE_END
+#endif  /* ifndef ARM_H */

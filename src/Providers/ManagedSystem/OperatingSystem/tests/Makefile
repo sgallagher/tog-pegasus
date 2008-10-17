@@ -48,7 +48,7 @@ WBEMEXECOPTIONS = $(HOSTNAME) $(PORT) $(HTTPMETHOD) $(HTTPVERSION) $(USER) $(PAS
 
 %.rsp: %.xml
 
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+ifeq ($(OS),zos)
 	@chtag -tc IBM-1047 ./PG_OS_Fail*.xml
 endif
 	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $(TMP_DIR)/$*.rsp || cd .

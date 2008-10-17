@@ -256,7 +256,7 @@ static CMPIString * __dtft_getStringFormat (
         }
 
         tzset ();
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
         sprintf ( 
             us_utc_time, 
             "%6.6ld%+4.3ld",
@@ -592,7 +592,7 @@ CMPIDateTime * native_new_CMPIDateTime_fromChars (
 
         memset ( &tmp, 0, sizeof ( struct tm ) );
         tzset ();
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifndef PEGASUS_OS_ZOS
 # ifdef PEGASUS_OS_TYPE_UNIX
         tmp.tm_gmtoff = timezone;
 # endif

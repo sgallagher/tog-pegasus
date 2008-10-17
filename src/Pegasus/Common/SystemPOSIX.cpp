@@ -31,7 +31,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_OS_ZOS)
 # define _OPEN_SYS_EXT
 # include <sys/ps.h>
 # include <sys/__messag.h>
@@ -57,7 +57,7 @@
 #endif
 
 #if !defined(PEGASUS_OS_VMS) && \
-    !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && \
+    !defined(PEGASUS_OS_ZOS) && \
     !defined(PEGASUS_OS_DARWIN)
 # include <crypt.h>
 #endif

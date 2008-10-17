@@ -69,7 +69,7 @@ poststarttests: poststarttests1
 
 poststarttests1: FORCE
 	@$(RM) $(RESULTFILE)
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+ifeq ($(OS),zos)
 	@$(RM) ./emptyfile
 	@touch $(RESULTFILE)
 	@touch ./emptyfile

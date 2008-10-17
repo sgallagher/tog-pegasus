@@ -94,8 +94,8 @@ SecureBasicAuthenticator::SecureBasicAuthenticator()
     
     if (String::equalNoCase(
         configManager->getCurrentValue("enableCFZAPPLID"),"true"))
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 # if (__TARGET_LIB__ < 0x410A0000) 
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
     {
 
         //
@@ -115,6 +115,9 @@ SecureBasicAuthenticator::SecureBasicAuthenticator()
 
     pthread_security_np(0,__USERID_IDENTITY,0,NULL,NULL,0);
 #else
+#error APPLID support is not available in 64-bit compilation mode before V1R10
+#endif //PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#else
     {
         _zosAPPLID = "CFZAPPL";
     }
@@ -128,7 +131,6 @@ SecureBasicAuthenticator::SecureBasicAuthenticator()
                 "CIM server authentication is using application ID OMVSAPPL."));
     }
 #endif // end __TARGET_LIB__
-#endif // end PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #endif // end PEGASUS_OS_ZOS
 
     PEG_METHOD_EXIT();

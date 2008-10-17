@@ -43,7 +43,7 @@
 #if defined PEGASUS_OS_TYPE_WINDOWS
 # include <winsock2.h>
 #else
-# if defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+# if defined PEGASUS_OS_ZOS
 #  include <arpa/inet.h>
 #else
 #  include <error.h>
@@ -91,7 +91,7 @@ static struct hostent * _getHostByName (
     struct hostent  *hptr;
     int herr=0,rc=0;
 
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
     extern int h_errno;
 #endif
 
@@ -122,7 +122,7 @@ static struct hostent * _getHostByName (
 #endif
 
         error_at_line (0, 0, __FILE__, __LINE__,
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
             strerror (h_errno));
 #elif defined PEGASUS_OS_TYPE_WINDOWS
             (char *)lpMsgBuf);
@@ -151,7 +151,7 @@ int open_connection ( const char * address, int port, int print_errmsg )
     struct hostent hbuf;
     char tempbuf[8192];
 // masking unability to transform an ip-address via gethostbyname()
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
     extern int h_errno;
     in_addr_t broker_ip_address;
     broker_ip_address = inet_addr(address);
@@ -184,7 +184,7 @@ int open_connection ( const char * address, int port, int print_errmsg )
             return -1;
         }
 // masking end of if case for differing between ip-address and host
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
     }
 #endif
 
@@ -196,7 +196,7 @@ int open_connection ( const char * address, int port, int print_errmsg )
     if (( sockfd = socket (
         PF_INET,
         SOCK_STREAM,
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
         0 ) ) == -1)
 #else
         IPPROTO_TCP ) ) == PEGASUS_CMPIR_INVALID_SOCKET)
@@ -270,7 +270,7 @@ PEGASUS_EXPORT void accept_connections (
     sin.sin_port = htons ( port );
 
     if (bind ( listen_socket, (struct sockaddr *) &sin, sin_len ) ||
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
         listen ( listen_socket, 15 ))
     {
 #else

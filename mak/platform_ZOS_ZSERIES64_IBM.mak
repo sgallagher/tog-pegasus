@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,94 +28,12 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../../..
+include $(ROOT)/mak/platform_ZOS_ZSERIES_IBM.mak
 
-DIR = Pegasus/Server
+FLAGS += -W"c,LP64" -W"l,LP64"
+PR_FLAGS += -W"c,LP64" -W"l,LP64"
 
-include $(ROOT)/mak/config.mak
+LIB_SUFFIX = 64.so
+DYNLIB_SUFFIX = 64.x
 
-EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY
-
-STATIC=1
-LIBRARY = pegserver
-
-LIBRARIES = \
-	pegcommon \
-	pegrepository \
-	pegprovider \
-	pegexportserver \
-	pegpmservice \
-	pegprovidermanager \
-	pegconfig \
-	peguser \
-	pegauthentication \
-	peghandlerservice \
-	pegindicationservice \
-	pegquerycommon \
-	pegwql \
-	pegclient \
-	pegprm \
-	DefaultProviderManager \
-	ConfigSettingProvider \
-	UserAuthProvider \
-	ProviderRegistrationProvider\
-	NamespaceProvider
-
-ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
-LIBRARIES += \
-	InteropProvider
-ifdef PEGASUS_SLP_REG_TIMEOUT
-LIBRARIES += \
-	pegslp_client
-endif
-endif
-
-ifndef PEGASUS_DISABLE_PERFINST
-LIBRARIES += \
-	CIMOMStatDataProvider \
-	InteropProvider
-endif
-
-ifeq ($(PEGASUS_ENABLE_CQL),true)
-LIBRARIES += \
-	CIMQueryCapabilitiesProvider
-endif
-
-ifdef PEGASUS_HAS_SSL
-LIBRARIES += \
-	CertificateProvider
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-    LIBRARIES += pegwsmserver
-endif
-
-PRE_DEPEND_INCLUDES = -I./depends
-
-SOURCES = \
-	CIMOperationRequestDecoder.cpp \
-	CIMOperationResponseEncoder.cpp \
-	CIMOperationRequestDispatcher.cpp \
-	CIMOperationRequestAuthorizer.cpp \
-	HTTPAuthenticatorDelegator.cpp \
-	ShutdownProvider.cpp \
-	ShutdownService.cpp \
-	CIMServer.cpp \
-	CIMServerState.cpp \
-	BinaryMessageHandler.cpp \
-	reg_table.cpp \
-	QuerySupportRouter.cpp \
-	WQLOperationRequestDispatcher.cpp
-
-ifeq ($(OS),zos)
-SOURCES += \
-	ConsoleManager_zOS.cpp
-endif
-
-ifeq ($(OS_TYPE),windows)
-SYS_LIBS = ws2_32.lib advapi32.lib
-endif
-
-include $(ROOT)/mak/library.mak

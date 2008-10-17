@@ -42,7 +42,7 @@ SOURCES = XmlReader.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+ifeq ($(OS),zos)
 	@chtag -tc IBM-1047 ./getErrorElement.xml
 	@chtag -tc IBM-1047 ./getInstanceElement.xml
 	@chtag -tc IBM-1047 ./getInstanceElement2.xml

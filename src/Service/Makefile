@@ -50,9 +50,17 @@ SOURCES = \
     ServerShutdownClient.cpp
 
 
-SOURCES_ZOS = ARM_zOS.cpp AutoRestartMgr_ZOS_ZSERIES_IBM.s
+SOURCES_ZOS = ARM_zOS.cpp
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+  SOURCES_ZOS += AutoRestartMgr_ZOS_ZSERIES_IBM.s
+endif
+
+#ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES64_IBM)
+#  SOURCES_ZOS += AutoRestartMgr_ZOS_ZSERIES64_IBM.s
+#endif
+
+ifeq ($(OS),zos)
    SOURCES += $(SOURCES_ZOS)
 endif
 

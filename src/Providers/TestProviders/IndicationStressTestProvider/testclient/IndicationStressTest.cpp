@@ -48,6 +48,7 @@
 #include <Pegasus/Consumer/CIMIndicationConsumer.h>
 #include <Pegasus/Listener/CIMListener.h>
 
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
@@ -1469,7 +1470,7 @@ int _beginTest(CIMClient& workClient, const char* opt,
                 currentServerResidentIndicationCount);
             if (expectedSenderIdentity != String::EMPTY)
             {
-                assert(indicationSendCountTotal ==
+                PEGASUS_TEST_ASSERT(indicationSendCountTotal ==
                     currentServerResidentIdentityIndicationCount);
             }
         }

@@ -389,7 +389,7 @@ static void applyDefaults(mofCompilerOptions &cmdlinedata)
     if (cmdlinedata.is_local())
     {
 #if defined(PEGASUS_USE_RELEASE_DIRS) && \
-        defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+        defined(PEGASUS_OS_ZOS)
         cmdlinedata.set_repository_name(ZOS_DEFAULT_PEGASUS_REPOSITORY);
 #elif defined(PEGASUS_OS_PASE)
         cmdlinedata.set_repository(PASE_DEFAULT_PEGASUS_HOME);
@@ -402,7 +402,7 @@ static void applyDefaults(mofCompilerOptions &cmdlinedata)
         {
         }
 #endif // end of #if defined(PEGASUS_USE_RELEASE_DIRS) &&
-       // defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+       // defined(PEGASUS_OS_ZOS)
     }
     else
     {

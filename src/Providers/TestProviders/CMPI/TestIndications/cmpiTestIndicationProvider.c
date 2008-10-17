@@ -36,7 +36,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifdef PEGASUS_OS_ZOS
 #include <pthread.h>
 #endif
 

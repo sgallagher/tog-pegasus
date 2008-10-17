@@ -33,7 +33,7 @@
 
 // This _ISOC99_SOURCE definition and inclusion of stdio.h and stdarg.h
 // must precede the other file contents on z/OS.
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#if defined(PEGASUS_OS_ZOS)
 # define _ISOC99_SOURCE
 #endif
 #include <stdio.h>

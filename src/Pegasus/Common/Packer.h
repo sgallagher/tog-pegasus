@@ -124,7 +124,7 @@ inline bool Packer::isLittleEndian()
     return true;
 #elif defined(PEGASUS_PLATFORM_LINUX_X86_GNU)
     return true;
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#elif defined(PEGASUS_OS_ZOS)
     return false;
 #else
     // You can add your platform above to avoid this calculation.

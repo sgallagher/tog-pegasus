@@ -456,7 +456,7 @@ void HTTPAcceptor::_bind()
     //
 #if !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET) && \
      (defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || \
-      defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || \
+      defined(PEGASUS_OS_ZOS) || \
       defined(PEGASUS_OS_PASE))
     if (_connectionType == LOCAL_CONNECTION)
     {

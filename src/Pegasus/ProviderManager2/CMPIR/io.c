@@ -44,7 +44,7 @@
 # include <winsock2.h>
 # include <sys/types.h>
 #else
-# ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+# ifndef PEGASUS_OS_ZOS
 #  include <error.h>
 # endif
 #endif
@@ -107,7 +107,7 @@ int io_read_fixed_length (
         else
         {
             count -= bytes;
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifndef PEGASUS_OS_ZOS
             buf   += bytes;
 #else
             buf   = (void*) ((long) buf + (long) bytes);
@@ -170,7 +170,7 @@ int io_write_fixed_length (
         else
         {
             count -= bytes;
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#ifndef PEGASUS_OS_ZOS
             buf += bytes;
 #else
             buf = (void*) ((long) buf + (long) bytes);

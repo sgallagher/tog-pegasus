@@ -55,7 +55,7 @@
 # include <Windows.h>
 #else
 # include <dlfcn.h>
-# ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+# ifndef PEGASUS_OS_ZOS
 #  include <error.h>
 # endif
 #endif

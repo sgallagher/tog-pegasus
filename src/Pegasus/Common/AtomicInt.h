@@ -501,11 +501,11 @@ PEGASUS_NAMESPACE_END
 
 //==============================================================================
 //
-// PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+// PEGASUS_OS_ZOS
 //
 //==============================================================================
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#if defined(PEGASUS_OS_ZOS)
 # define PEGASUS_ATOMIC_INT_DEFINED
 
 PEGASUS_NAMESPACE_BEGIN
@@ -585,7 +585,7 @@ typedef AtomicIntTemplate<AtomicType> AtomicInt;
 
 PEGASUS_NAMESPACE_END
 
-#endif /* PEGASUS_PLATFORM_ZOS_ZSERIES_IBM */
+#endif /* PEGASUS_OS_ZOS */
 
 //==============================================================================
 //

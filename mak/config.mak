@@ -444,8 +444,8 @@ ifeq ($(PEGASUS_HAS_ICU),true)
         else
             ifeq ($(OS),zos)
                 EXTRA_LIBRARIES += \
-                    $(ICU_INSTALL)/lib/libicui18n.x \
-                    $(ICU_INSTALL)/lib/libicuuc.x
+                    $(ICU_INSTALL)/lib/libicui18n$(DYNLIB_SUFFIX) \
+                    $(ICU_INSTALL)/lib/libicuuc$(DYNLIB_SUFFIX)
             else
                 EXTRA_LIBRARIES += -licuuc -licui18n
                 ifeq ($(OS),linux)

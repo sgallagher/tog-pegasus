@@ -414,8 +414,8 @@ public:
     /** Converts the given CIMKeyBinding type to one of the following:
         "boolean", "string", or "numeric"
     */
-    static const char* keyBindingTypeToString (CIMKeyBinding::Type type);
-
+    static const StrLit keyBindingTypeToString (CIMKeyBinding::Type type);
+    
 private:
 
     static void _appendMessageElementBegin(

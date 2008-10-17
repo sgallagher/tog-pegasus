@@ -1207,9 +1207,10 @@ Array<String> System::getInterfaceAddrs()
     {
         return ips;
     }
-
+    Boolean ipFound;
     for( addrs = array; addrs != NULL; addrs = addrs->ifa_next)
     {
+        ipFound = false;
         switch(addrs->ifa_addr->sa_family)
         {
             case AF_INET :
@@ -1222,7 +1223,7 @@ Array<String> System::getInterfaceAddrs()
                 HostAddress::convertBinaryToText(AF_INET, 
                     &((struct sockaddr_in *)addrs->ifa_addr)->sin_addr,
                     buff, sizeof(buff));
-                ips.append(buff);
+                ipFound = true;
                 break;
             case AF_INET6 :
                 if (System::isLoopBack(AF_INET6,
@@ -1233,8 +1234,26 @@ Array<String> System::getInterfaceAddrs()
                 HostAddress::convertBinaryToText(AF_INET6,
                     &((struct sockaddr_in6 *)addrs->ifa_addr)->sin6_addr,
                     buff, sizeof(buff));
-                ips.append(buff);
+                ipFound = true;
                 break;
+        }
+        //ATTN: Some Linux implementations of getifaddrs() returning duplicate
+        // IPv6 Link-local unicast addresses. Filter the duplicates IPs.
+        if (ipFound)
+        {
+            Boolean duplicateFound = false;
+            for (Uint32 i = 0, n = ips.size(); i < n ; ++i)
+            {
+                if (String::equal(ips[i], buff))
+                {
+                    duplicateFound = true;
+                    break;
+                }
+            }
+            if (!duplicateFound)
+            {
+                 ips.append(buff);
+            }
         }
     }
     if(array)

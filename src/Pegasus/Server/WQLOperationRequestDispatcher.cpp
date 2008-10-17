@@ -407,7 +407,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
             handleEnumerateInstancesResponseAggregation(poA);
             CIMResponseMessage* response = poA->removeResponse(0);
             _forwardRequestForAggregation(
-                String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
+                getQueueId(),
                 String(),
                 new CIMExecQueryRequestMessage(*request),
                 poA, response);
@@ -434,7 +434,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
                 "service \"%s\" for control provider \"%s\".  "
                 "Class # %u of %u, aggregation SN %u.",
             (const char*)providerInfo.className.getString().getCString(),
-            (const char*)providerInfo.serviceName.getCString(),
+            lookup(providerInfo.serviceId)->getQueueName(),
             (const char*)providerInfo.controlProviderName.getCString(),
             (unsigned int)(i + 1),
             (unsigned int)numClasses,
@@ -467,7 +467,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
                 context->insert(*providerIdContainer);
             context->insert(identityContainer);
             _forwardRequestForAggregation(
-                 providerInfo.serviceName,
+                 providerInfo.serviceId,
                  providerInfo.controlProviderName,
                  enumReq.release(), poA);
         }
@@ -484,7 +484,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
             requestCopy->className = providerInfo.className;
 
             _forwardRequestForAggregation(
-                providerInfo.serviceName,
+                providerInfo.serviceId,
                 providerInfo.controlProviderName,
                 requestCopy.release(), poA);
         }

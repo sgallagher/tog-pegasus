@@ -42,66 +42,68 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Server/Linkage.h>
+#include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class reg_table_rep;
+class RegTableRecord
+{
+public:
+    RegTableRecord(
+        const CIMName& className,
+        const CIMNamespaceName& namespaceName,
+        const String& providerName,
+        Uint32 serviceId);
+    ~RegTableRecord();
+
+    CIMName className;
+    CIMNamespaceName namespaceName;
+    String providerName;
+    Uint32 serviceId;
+private:
+    RegTableRecord(const RegTableRecord&);
+    RegTableRecord& operator=(const RegTableRecord&);
+};
 
 class PEGASUS_SERVER_LINKAGE DynamicRoutingTable
 {
 public:
+    ~DynamicRoutingTable();
+
+    static DynamicRoutingTable* getRoutingTable();
+
+    // get a single service that can route this spec.
+    Boolean getRouting(
+        const CIMName& className,
+        const CIMNamespaceName& namespaceName,
+        String& provider,
+        Uint32 &serviceId) const;
+
+    void insertRecord(
+        const CIMName& className,
+        const CIMNamespaceName& namespaceName,
+        const String& provider,
+        Uint32 serviceId);
+#ifdef PEGASUS_DEBUG
+    void dumpRegTable();
+#endif
+private:
     DynamicRoutingTable();
     DynamicRoutingTable(const DynamicRoutingTable& table);
     DynamicRoutingTable& operator=(const DynamicRoutingTable& table);
-    ~DynamicRoutingTable();
 
-    static DynamicRoutingTable get_rw_routing_table();
+    String DynamicRoutingTable::_getRoutingKey(
+        const CIMName& className,
+        const CIMNamespaceName& namespaceName) const;
 
-    // get a single service that can route this spec.
-    MessageQueueService* get_routing(
-        const CIMName& classname,
-        const CIMNamespaceName& ns,
-        Uint32 type,
-        Uint32 flags,
-        String& provider,
-        String& module) const;
+    String DynamicRoutingTable::_getWildRoutingKey(
+        const CIMName& className) const;
 
-    Boolean insert_record(
-        const CIMName& classname,
-        const CIMNamespaceName& ns,
-        Uint32 type,
-        Uint32 flags,
-        MessageQueueService* svce);
+    typedef HashTable<String, RegTableRecord*, 
+        EqualNoCaseFunc, HashFunc<String> > RoutingTable;
+    RoutingTable _routingTable;
 
-    Boolean insert_record(
-        const CIMName& classname,
-        const CIMNamespaceName& ns,
-        Uint32 type,
-        Uint32 flags,
-        MessageQueueService* svce,
-        const String& provider,
-        const String& module);
-
-    /**
-        Router "types". These are actually keys used in the routing table.
-        A provider manager (or other service provider) that can route messages
-        must register as being of a certain type. These types classify the
-        routers according to function and also make queries faster.
-
-        Most of the current types correspond to provider interfaces. However,
-        some are generic pegasus services, and others are specific services.
-        The extended type is an escape mechanism that allows unlimited
-        expansion of "types" in the future.
-    */
-    static const Uint32 INTERNAL; // "control providers"
-    static const Uint32 METHOD;
-    static const Uint32 INSTANCE;
-    static const Uint32 CLASS;
-
-    void dump_table();
-
-private:
-    reg_table_rep* _rep;
+    static AutoPtr<DynamicRoutingTable> _this;
 };
 
 PEGASUS_NAMESPACE_END

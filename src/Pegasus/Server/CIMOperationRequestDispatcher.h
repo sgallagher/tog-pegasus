@@ -49,6 +49,7 @@
 #include \
     <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/Server/Linkage.h>
+#include <Pegasus/Server/reg_table.h>
 
 #include <Pegasus/Common/QueryExpressionRep.h>
 
@@ -70,10 +71,10 @@ public:
 
     ProviderInfo(
         const CIMName& className_,
-        const String& serviceName_,
+        Uint32 serviceId_,
         const String& controlProviderName_)
         : className(className_),
-          serviceName(serviceName_),
+          serviceId(serviceId_),
           controlProviderName(controlProviderName_),
           hasProvider(false),
           hasProviderNormalization(false),
@@ -83,7 +84,7 @@ public:
 
     ProviderInfo(const ProviderInfo& providerInfo)
         : className(providerInfo.className),
-          serviceName(providerInfo.serviceName),
+          serviceId(providerInfo.serviceId),
           controlProviderName(providerInfo.controlProviderName),
           hasProvider(providerInfo.hasProvider),
           hasProviderNormalization(providerInfo.hasProviderNormalization),
@@ -101,7 +102,7 @@ public:
         if (&providerInfo != this)
         {
             className = providerInfo.className;
-            serviceName = providerInfo.serviceName;
+            serviceId = providerInfo.serviceId;
             controlProviderName = providerInfo.controlProviderName;
             hasProvider = providerInfo.hasProvider;
             hasProviderNormalization = providerInfo.hasProviderNormalization;
@@ -120,7 +121,7 @@ public:
     }
 
     CIMName className;
-    String serviceName;
+    Uint32 serviceId;
     String controlProviderName;
     Boolean hasProvider;
     Boolean hasProviderNormalization;
@@ -358,7 +359,7 @@ protected:
     Boolean _lookupInternalProvider(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        String& service,
+        Uint32 &serviceId,
         String& provider);
 
     /* Boolean _lookupNewQueryProvider(
@@ -402,7 +403,7 @@ protected:
     Boolean _lookupNewAssociationProvider(
         const CIMNamespaceName& nameSpace,
         const CIMName& assocClass,
-        String& serviceName,
+        Uint32 &serviceId,
         String& controlProviderName,
         ProviderIdContainer** container);
 
@@ -418,12 +419,12 @@ protected:
         ProviderIdContainer** providerIdContainer);
 
     void _forwardRequestToService(
-        const String& serviceName,
+        Uint32 serviceId,
         CIMRequestMessage* request,
         CIMRequestMessage* requestCopy);
 
     void _forwardRequestForAggregation(
-        const String& serviceName,
+        Uint32 serviceId,
         const String& controlProviderName,
         CIMRequestMessage* request,
         OperationAggregate* poA,
@@ -431,7 +432,7 @@ protected:
 
     void _forwardRequestToProviderManager(
         const CIMName& className,
-        const String& serviceName,
+        Uint32 serviceId,
         const String& controlProviderName,
         CIMRequestMessage* request,
         CIMRequestMessage* requestCopy);
@@ -499,7 +500,7 @@ protected:
     Boolean _enableIndicationService;
     Uint32 _maximumEnumerateBreadth;
     static Uint64 cimOperationAggregationSN;
-
+    Uint32 _providerManagerServiceId;
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
     Boolean _enableNormalization;
     Array<String> _excludeModulesFromNormalization;
@@ -523,6 +524,7 @@ protected:
 private:
     static void _handle_enqueue_callback(AsyncOpNode*, MessageQueue*, void*);
 
+    DynamicRoutingTable *_routing_table;
 };
 
 PEGASUS_NAMESPACE_END

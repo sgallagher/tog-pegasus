@@ -48,7 +48,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 #define CSTRING(ARG) (const char*) ARG.getCString()
 
-static DynamicRoutingTable _routing_table;
 
 // Local save for host name. save host name here.  NOTE: Problem if hostname
 // changes.
@@ -342,7 +341,10 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     }
 #endif
 
-    _routing_table = DynamicRoutingTable::get_rw_routing_table();
+    _routing_table = DynamicRoutingTable::getRoutingTable();
+
+    _providerManagerServiceId = 
+        lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP)->getQueueId();
 
     cimAggregationLocalHost = System::getHostName();
 
@@ -806,7 +808,7 @@ void CIMOperationRequestDispatcher::_handle_async_request(AsyncRequest* req)
 Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
-    String& service,
+    Uint32 &serviceId,
     String& provider)
 {
     static AtomicInt _initialized(0);
@@ -816,7 +818,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         "CIMOperationRequestDispatcher::_lookupInternalProvider");
     // Clear the strings since used as test later. Poor code but true now
 
-    service = String::EMPTY;
+    serviceId = 0;
     provider = String::EMPTY;
     CIMNamespaceName _wild;
     if (_initialized.get() == 0)
@@ -824,527 +826,345 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         AutoMutex autoMut(_monitor);
         if (_initialized.get() == 0)
         {
-            _routing_table.insert_record(
+            Uint32 controlServiceId = lookup(
+                PEGASUS_QUEUENAME_CONTROLSERVICE)->getQueueId();
+
+            Uint32 indicationServiceId = lookup(
+                PEGASUS_QUEUENAME_INDICATIONSERVICE)->getQueueId();
+
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_CONFIGSETTING,
                 PEGASUS_NAMESPACENAME_CONFIG,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_CONFIGPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_AUTHORIZATION,
                 PEGASUS_NAMESPACENAME_AUTHORIZATION,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_USERAUTHPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_USER,
                 PEGASUS_NAMESPACENAME_USER,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_USERAUTHPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_SHUTDOWN,
                 PEGASUS_NAMESPACENAME_SHUTDOWN,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_SHUTDOWNPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME___NAMESPACE,
                 _wild,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_NAMESPACEPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
 #ifdef PEGASUS_HAS_SSL
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_CERTIFICATE,
                 PEGASUS_NAMESPACENAME_CERTIFICATE,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_CERTIFICATEPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_CRL,
                 PEGASUS_NAMESPACENAME_CERTIFICATE,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_CERTIFICATEPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 #endif
 
 #ifndef PEGASUS_DISABLE_PERFINST
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_CIMOMSTATDATA,
                 PEGASUS_NAMESPACENAME_CIMOMSTATDATA,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_CIMOMSTATDATAPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 #endif
 
 #ifdef PEGASUS_ENABLE_CQL
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_CIMQUERYCAPABILITIES,
                 //PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES,
                 _wild,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_CIMQUERYCAPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 #endif
 
 #if defined PEGASUS_ENABLE_INTEROP_PROVIDER
             // InteropProvider ObjectManager Class
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PG_OBJECTMANAGER,
                 PEGASUS_NAMESPACENAME_INTEROP,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
             // CIM_Namespace - Implemented to assure that it does not
             // access the repository and to allow  access to
             // common class CIM_Namespace for namespace creation.
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_CIMNAMESPACE,
                 _wild,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
             // PG_NAMESPACE - Implements subclass of CIM_Namespace managed by
             // InteropProvider.
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PGNAMESPACE,
                 _wild,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM,
                 PEGASUS_NAMESPACENAME_INTEROP,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PG_COMMMECHANISMFORMANAGER,
                 PEGASUS_NAMESPACENAME_INTEROP,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PG_COMPUTERSYSTEM,
                 PEGASUS_NAMESPACENAME_INTEROP,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PG_HOSTEDOBJECTMANAGER,
                 PEGASUS_NAMESPACENAME_INTEROP,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PG_HOSTEDACCESSPOINT,
                 PEGASUS_NAMESPACENAME_INTEROP,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PG_NAMESPACEINMANAGER,
                 PEGASUS_NAMESPACENAME_INTEROP,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
                 PEGASUS_NAMESPACENAME_INTEROP,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
                 PEGASUS_NAMESPACENAME_INTEROP,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PG_REFERENCEDPROFILE,
                 PEGASUS_NAMESPACENAME_INTEROP,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                  PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE,
                 _wild,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                  PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE_RP_RP,
                 _wild,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                  PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES,
                 _wild,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                  PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE,
                 PEGASUS_NAMESPACENAME_INTEROP,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
                 PEGASUS_NAMESPACENAME_INTEROP,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PG_ELEMENTSOFTWAREIDENTITY,
                 PEGASUS_NAMESPACENAME_INTEROP,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PG_INSTALLEDSOFTWAREIDENTITY,
                 PEGASUS_NAMESPACENAME_INTEROP,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 #endif  // PEGASUS_ENABLE_INTEROP_PROVIDER
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PG_ELEMENTCAPABILITIES,
                 PEGASUS_NAMESPACENAME_INTEROP,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PG_HOSTEDINDICATIONSERVICE,
                 PEGASUS_NAMESPACENAME_INTEROP,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT,
                 PEGASUS_NAMESPACENAME_INTEROP,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_INTEROPPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 #endif
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PROVIDERMODULE,
                 PEGASUS_NAMESPACENAME_PROVIDERREG,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_PROVREGPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PROVIDER,
                 PEGASUS_NAMESPACENAME_PROVIDERREG,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_PROVREGPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_PROVIDERCAPABILITIES,
                 PEGASUS_NAMESPACENAME_PROVIDERREG,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_PROVREGPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
-            _routing_table.insert_record(
+            _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_CONSUMERCAPABILITIES,
                 PEGASUS_NAMESPACENAME_PROVIDERREG,
-                DynamicRoutingTable::INTERNAL,
-                0,
-                static_cast<MessageQueueService*>(
-                    MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
                 PEGASUS_MODULENAME_PROVREGPROVIDER,
-                PEGASUS_QUEUENAME_CONTROLSERVICE);
+                controlServiceId);
 
             if (_enableIndicationService)
             {
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-                _routing_table.insert_record(
+                _routing_table->insertRecord(
                     PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE,
                     PEGASUS_NAMESPACENAME_INTEROP,
-                    DynamicRoutingTable::INTERNAL,
-                    0,
-                    static_cast<MessageQueueService*>(MessageQueue::lookup(
-                        PEGASUS_QUEUENAME_INDICATIONSERVICE)),
                     String::EMPTY,
-                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+                    indicationServiceId);
 
-                _routing_table.insert_record(
+                _routing_table->insertRecord(
                     PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES,
                     PEGASUS_NAMESPACENAME_INTEROP,
-                    DynamicRoutingTable::INTERNAL,
-                    0,
-                    static_cast<MessageQueueService*>(MessageQueue::lookup(
-                        PEGASUS_QUEUENAME_INDICATIONSERVICE)),
                     String::EMPTY,
-                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+                    indicationServiceId);
 #endif
-                _routing_table.insert_record(
+                _routing_table->insertRecord(
                     PEGASUS_CLASSNAME_INDSUBSCRIPTION,
                     _wild,
-                    DynamicRoutingTable::INTERNAL,
-                    0,
-                    static_cast<MessageQueueService*>(MessageQueue::lookup(
-                        PEGASUS_QUEUENAME_INDICATIONSERVICE)),
                     String::EMPTY,
-                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+                    indicationServiceId);
 
-                _routing_table.insert_record(
+                _routing_table->insertRecord(
                     PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION,
                     _wild,
-                    DynamicRoutingTable::INTERNAL,
-                    0,
-                    static_cast<MessageQueueService*>(MessageQueue::lookup(
-                        PEGASUS_QUEUENAME_INDICATIONSERVICE)),
                     String::EMPTY,
-                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+                    indicationServiceId);
 
-                _routing_table.insert_record(
+                _routing_table->insertRecord(
                     PEGASUS_CLASSNAME_INDHANDLER,
                     _wild,
-                    DynamicRoutingTable::INTERNAL,
-                    0,
-                    static_cast<MessageQueueService*>(MessageQueue::lookup(
-                        PEGASUS_QUEUENAME_INDICATIONSERVICE)),
                     String::EMPTY,
-                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+                    indicationServiceId);
 
-                        _routing_table.insert_record(
+                _routing_table->insertRecord(
                     PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
                     _wild,
-                    DynamicRoutingTable::INTERNAL,
-                    0,
-                    static_cast<MessageQueueService*>(MessageQueue::lookup(
-                        PEGASUS_QUEUENAME_INDICATIONSERVICE)),
                     String::EMPTY,
-                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+                    indicationServiceId);
 
-                _routing_table.insert_record(
+                _routing_table->insertRecord(
                     PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
                     _wild,
-                    DynamicRoutingTable::INTERNAL,
-                    0,
-                    static_cast<MessageQueueService*>(MessageQueue::lookup(
-                        PEGASUS_QUEUENAME_INDICATIONSERVICE)),
                     String::EMPTY,
-                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+                    indicationServiceId);
 
-                _routing_table.insert_record(
+                _routing_table->insertRecord(
                     PEGASUS_CLASSNAME_INDHANDLER_SNMP,
                     _wild,
-                    DynamicRoutingTable::INTERNAL,
-                    0,
-                    static_cast<MessageQueueService*>(MessageQueue::lookup(
-                        PEGASUS_QUEUENAME_INDICATIONSERVICE)),
                     String::EMPTY,
-                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+                    indicationServiceId);
 
-                _routing_table.insert_record(
+                _routing_table->insertRecord(
                     PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG,
                     _wild,
-                    DynamicRoutingTable::INTERNAL,
-                    0,
-                    static_cast<MessageQueueService*>(MessageQueue::lookup(
-                        PEGASUS_QUEUENAME_INDICATIONSERVICE)),
                     String::EMPTY,
-                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+                    indicationServiceId);
 
-                _routing_table.insert_record(
+                _routing_table->insertRecord(
                     PEGASUS_CLASSNAME_LSTNRDST_EMAIL,
                     _wild,
-                    DynamicRoutingTable::INTERNAL,
-                    0,
-                    static_cast<MessageQueueService*>(MessageQueue::lookup(
-                        PEGASUS_QUEUENAME_INDICATIONSERVICE)),
                     String::EMPTY,
-                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+                    indicationServiceId);
 
-                _routing_table.insert_record(
+                _routing_table->insertRecord(
                     PEGASUS_CLASSNAME_INDFILTER,
                     _wild,
-                    DynamicRoutingTable::INTERNAL,
-                    0,
-                    static_cast<MessageQueueService*>(MessageQueue::lookup(
-                        PEGASUS_QUEUENAME_INDICATIONSERVICE)),
                     String::EMPTY,
-                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+                    indicationServiceId);
 
 #ifdef PEGASUS_ENABLE_INDICATION_COUNT
-                _routing_table.insert_record(
+                _routing_table->insertRecord(
                     PEGASUS_CLASSNAME_PROVIDERINDDATA,
                     PEGASUS_NAMESPACENAME_INTERNAL,
-                    DynamicRoutingTable::INTERNAL,
-                    0,
-                    static_cast<MessageQueueService*>(MessageQueue::lookup(
-                        PEGASUS_QUEUENAME_INDICATIONSERVICE)),
                     String::EMPTY,
-                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+                    indicationServiceId);
 
-                _routing_table.insert_record(
+                _routing_table->insertRecord(
                     PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA,
                     PEGASUS_NAMESPACENAME_INTERNAL,
-                    DynamicRoutingTable::INTERNAL,
-                    0,
-                    static_cast<MessageQueueService*>(MessageQueue::lookup(
-                        PEGASUS_QUEUENAME_INDICATIONSERVICE)),
                     String::EMPTY,
-                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+                    indicationServiceId);
 #endif
             }
             _initialized = 1;
         }
     }
 
-    MessageQueueService* router =
-        _routing_table.get_routing(
+    Boolean gotRouting =
+        _routing_table->getRouting(
             className,
             nameSpace,
-            DynamicRoutingTable::INTERNAL,
-            0,
             provider,
-            service);
-    PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
+            serviceId);
+
+    if (gotRouting)
+    {
+        PEG_TRACE((
+        TRC_DISPATCHER,
+        Tracer::LEVEL4,
         "Internal provider Service = %s provider %s found.",
-        (const char*)service.getCString(),
+        lookup(serviceId)->getQueueName(),
         (const char*)provider.getCString()));
+    }
 
     PEG_METHOD_EXIT();
-    return (router != 0);
+    return gotRouting;
 }
 
 /**
@@ -1479,7 +1299,7 @@ Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
                 "Provider found for class = %s servicename = %s "
                 "controlProviderName = %s",
                 (const char*)providerInfo.className.getString().getCString(),
-                (const char*)providerInfo.serviceName.getCString(),
+                lookup(providerInfo.serviceId)->getQueueName(),
                 (const char*)providerInfo.controlProviderName.getCString()));
         }
 
@@ -1510,31 +1330,6 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
 
     ProviderInfo providerInfo(className);
 
-    String providerName;
-    String serviceName;
-
-    MessageQueueService* router =
-       _routing_table.get_routing(
-           className,
-           nameSpace,
-           DynamicRoutingTable::INSTANCE,
-           0,
-           providerName,
-           serviceName);
-
-    if (router)
-    {
-       PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
-           "providerName = %s found.",(const char*)providerName.getCString()));
-
-       providerInfo.serviceName = serviceName;
-       providerInfo.controlProviderName = providerName;
-
-       PEG_METHOD_EXIT();
-
-       return providerInfo;
-    }
-
     CIMInstance pInstance;
     CIMInstance pmInstance;
     Boolean hasNoQuery = true;
@@ -1550,8 +1345,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
 
     if (hasProvider)
     {
-        providerInfo.serviceName = PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP;
-
+        providerInfo.serviceId = _providerManagerServiceId;
         providerInfo.hasProvider = true;
         providerInfo.hasNoQuery = hasNoQuery;
 
@@ -1674,7 +1468,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
 }
 
 /* _lookupNewInstanceProvider - Looks up the internal and/or instance provider
-    for the defined namespace and class and returns the serviceName and
+    for the defined namespace and class and returns the serviceId and
     control provider name if a provider is found.
     @return true if a service, control provider, or instance provider is found
     for the defined class and namespace.
@@ -1691,7 +1485,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupNewInstanceProvider(
 
     ProviderInfo providerInfo(className);
 
-    String serviceName;
+    Uint32 serviceId;
     String controlProviderName;
 
     // Check for class provided by an internal provider
@@ -1699,12 +1493,12 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupNewInstanceProvider(
         _lookupInternalProvider(
             nameSpace,
             className,
-            serviceName,
+            serviceId,
             controlProviderName);
 
     if (hasControlProvider)
     {
-        providerInfo.serviceName = serviceName;
+        providerInfo.serviceId = serviceId;
         providerInfo.controlProviderName = controlProviderName;
         providerInfo.hasProvider = true;
     }
@@ -1725,7 +1519,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupNewInstanceProvider(
             "Provider Name: %s found. hasProvider = %s",
         CSTRING(nameSpace.getString()),
         CSTRING(className.getString()),
-        CSTRING(providerInfo.serviceName),
+        lookup(providerInfo.serviceId)->getQueueName(),
         CSTRING(providerInfo.controlProviderName),
         (providerInfo.hasProvider ? "true" : "false")));
 
@@ -1746,23 +1540,6 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
     CIMInstance pInstance;
     CIMInstance pmInstance;
     String providerName;
-    String serviceName;
-
-    MessageQueueService* router =
-        _routing_table.get_routing(className,
-            nameSpace,
-            DynamicRoutingTable::METHOD,
-            0,
-            providerName,
-            serviceName);
-    if (router)
-    {
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
-            "providerName = %s found.",(const char*)providerName.getCString()));
-        PEG_METHOD_EXIT();
-        return providerName;
-    }
-
 
     if (_providerRegistrationManager->lookupMethodProvider(
             nameSpace, className, methodName, pInstance, pmInstance))
@@ -1898,7 +1675,7 @@ Array<ProviderInfo>
     // there are any
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
-        String serviceName;
+        Uint32 serviceId;
         String controlProviderName;
         ProviderInfo pi(classNames[i]);
         ProviderIdContainer* container=NULL;
@@ -1907,9 +1684,9 @@ Array<ProviderInfo>
         // under the assumption that the registration is for the
         // association class, not the target class
         if (_lookupNewAssociationProvider(nameSpace, classNames[i],
-            serviceName, controlProviderName,&container))
+            serviceId, controlProviderName,&container))
         {
-            pi.serviceName = serviceName;
+            pi.serviceId = serviceId;
             pi.controlProviderName = controlProviderName;
             pi.hasProvider = true;
             pi.providerIdContainer.reset(container);
@@ -1928,11 +1705,11 @@ Array<ProviderInfo>
 }
 
 /* _lookupNewAssociationProvider - Looks up the internal and/or instance
-    provider for the defined namespace and class and returns the serviceName
+    provider for the defined namespace and class and returns the serviceId
     and control provider name if a provider is found.
     @param nameSpace
     @param assocClass
-    @param serviceName
+    @param serviceId
     @param controlProviderName
     @return true if an service, control provider, or instance provider is found
     for the defined class and namespace.
@@ -1942,7 +1719,7 @@ Array<ProviderInfo>
 Boolean CIMOperationRequestDispatcher::_lookupNewAssociationProvider(
     const CIMNamespaceName& nameSpace,
     const CIMName& assocClass,
-    String& serviceName,
+    Uint32 &serviceId,
     String& controlProviderName,
     ProviderIdContainer** providerIdContainer)
 {
@@ -1953,7 +1730,7 @@ Boolean CIMOperationRequestDispatcher::_lookupNewAssociationProvider(
     String providerName;
     // Check for class provided by an internal provider
     if (_lookupInternalProvider(
-            nameSpace, assocClass, serviceName, controlProviderName))
+            nameSpace, assocClass, serviceId, controlProviderName))
     {
         hasProvider = true;
     }
@@ -1974,7 +1751,8 @@ Boolean CIMOperationRequestDispatcher::_lookupNewAssociationProvider(
 
     if (0 != providerName.size())
     {
-        serviceName = PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP;
+        serviceId = _providerManagerServiceId;
+
         hasProvider = true;
     }
 
@@ -1986,7 +1764,7 @@ Boolean CIMOperationRequestDispatcher::_lookupNewAssociationProvider(
         (hasProvider? "found" : "NOT found"),
         CSTRING(assocClass.getString()),
         CSTRING(nameSpace.getString()),
-        CSTRING(serviceName),
+        lookup(serviceId)->getQueueName(),
         (providerName.size() ? CSTRING(providerName) : "none"),
         (controlProviderName.size() ? CSTRING(controlProviderName) : "none")));
 
@@ -2241,14 +2019,12 @@ void CIMOperationRequestDispatcher::_forwardRequestCallback(
 
 
 void CIMOperationRequestDispatcher::_forwardRequestToService(
-    const String& serviceName,
+    Uint32 serviceId,
     CIMRequestMessage* request,
     CIMRequestMessage* requestCopy)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestToService");
-
-    Uint32 serviceId =  find_service_qid(serviceName);
 
     AsyncOpNode* op = this->get_op();
 
@@ -2263,7 +2039,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "Forwarding %s to service %s. Response should go to queue %s.",
         MessageTypeToString(request->getType()),
-        (const char*)serviceName.getCString(),
+        lookup(serviceId)->getQueueName(),
         ((MessageQueue::lookup(request->queueIds.top())) ?
         ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
                "BAD queue name")));
@@ -2284,7 +2060,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
     This function specifically forwards requests for response aggregation.
 */
 void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
-    const String& serviceName,
+    Uint32 serviceId,
     const String& controlProviderName,
     CIMRequestMessage* request,
     OperationAggregate* poA,
@@ -2293,8 +2069,6 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
     PEG_METHOD_ENTER(
         TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestForAggregation");
-
-    Uint32 serviceId = find_service_qid(serviceName);
 
     AsyncOpNode* op = this->get_op();
 
@@ -2323,7 +2097,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
             "Forwarding %s to service %s. Response should go to queue %s.",
             MessageTypeToString(request->getType()),
-            (const char*)serviceName.getCString(),
+            lookup(serviceId)->getQueueName(),
             ((MessageQueue::lookup(request->queueIds.top())) ?
             ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
                    "BAD queue name")));
@@ -2350,7 +2124,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
            "Forwarding %s to service %s, control provider %s. "
            "Response should go to queue %s.",
            MessageTypeToString(request->getType()),
-           (const char*)serviceName.getCString(),
+           lookup(serviceId)->getQueueName(),
            (const char*)controlProviderName.getCString(),
            ((MessageQueue::lookup(request->queueIds.top())) ?
            ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
@@ -2378,15 +2152,13 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
 */
 void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
     const CIMName& className,        // only for diagnostic
-    const String& serviceName,
+    Uint32 serviceId,
     const String& controlProviderName,
     CIMRequestMessage* request,
     CIMRequestMessage* requestCopy)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestToProviderManager");
-
-    Uint32 serviceId = find_service_qid(serviceName);
 
     AsyncOpNode* op = this->get_op();
 
@@ -2406,7 +2178,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
             "Response should go to queue %s.",
             MessageTypeToString(request->getType()),
             (const char*)className.getString().getCString(),
-            (const char*)serviceName.getCString(),
+            lookup(serviceId)->getQueueName(),
             ((MessageQueue::lookup(request->queueIds.top())) ?
             ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
                    "BAD queue name")));
@@ -2435,7 +2207,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
             "Response should go to queue %s.",
             MessageTypeToString(request->getType()),
             (const char*)className.getString().getCString(),
-            (const char*)serviceName.getCString(),
+            lookup(serviceId)->getQueueName(),
             (const char*)controlProviderName.getCString(),
             ((MessageQueue::lookup(request->queueIds.top())) ?
             ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
@@ -2803,7 +2575,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
         _forwardRequestToProviderManager(
             providerInfo.className,
-            providerInfo.serviceName,
+            providerInfo.serviceId,
             providerInfo.controlProviderName,
             requestCopy,
             requestCallbackCopy);
@@ -2928,7 +2700,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
         _forwardRequestToProviderManager(
             providerInfo.className,
-            providerInfo.serviceName,
+            providerInfo.serviceId,
             providerInfo.controlProviderName,
             requestCopy,
             requestCallbackCopy);
@@ -3055,7 +2827,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
         _forwardRequestToProviderManager(
             providerInfo.className,
-            providerInfo.serviceName,
+            providerInfo.serviceId,
             providerInfo.controlProviderName,
             requestCopy,
             requestCallbackCopy);
@@ -3178,7 +2950,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
         _forwardRequestToProviderManager(
             providerInfo.className,
-            providerInfo.serviceName,
+            providerInfo.serviceId,
             providerInfo.controlProviderName,
             requestCopy,
             requestCallbackCopy);
@@ -3494,7 +3266,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             CIMResponseMessage* response = poA->removeResponse(0);
 
             _forwardRequestForAggregation(
-                String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
+                getQueueId(),
                 String(),
                 new CIMEnumerateInstancesRequestMessage(*request),
                 poA,
@@ -3525,7 +3297,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                 "service \"%s\" for control provider \"%s\".  "
                 "Class # %u of %u, aggregation SN %u.",
             (const char*)providerInfo.className.getString().getCString(),
-            (const char*)providerInfo.serviceName.getCString(),
+            lookup(providerInfo.serviceId)->getQueueName(),
             (const char*)providerInfo.controlProviderName.getCString(),
             (unsigned int)(i + 1),
             (unsigned int)(numClasses),
@@ -3549,7 +3321,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             CIMResponseMessage* response = request->buildResponse();
 
             _forwardRequestForAggregation(
-                String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
+                getQueueId(),
                 String(),
                 new CIMEnumerateInstancesRequestMessage(*request),
                 poA,
@@ -3577,7 +3349,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                     _showPropertyList(requestCopy->propertyList).getCString()));
 
             _forwardRequestForAggregation(
-                providerInfo.serviceName,
+                providerInfo.serviceId,
                 providerInfo.controlProviderName,
                 requestCopy,
                 poA);
@@ -3752,7 +3524,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
             CIMResponseMessage* response = poA->removeResponse(0);
 
             _forwardRequestForAggregation(
-                String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
+                getQueueId(),
                 String(),
                 new CIMEnumerateInstanceNamesRequestMessage(*request),
                 poA,
@@ -3779,7 +3551,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
                 "service \"%s\" for control provider \"%s\".  "
                 "Class # %u of %u, aggregation SN %u.",
             (const char*)providerInfo.className.getString().getCString(),
-            (const char*)providerInfo.serviceName.getCString(),
+            lookup(providerInfo.serviceId)->getQueueName(),
             (const char*)providerInfo.controlProviderName.getCString(),
             (unsigned int)(i + 1),
             (unsigned int)(numClasses),
@@ -3804,7 +3576,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
             CIMResponseMessage* response = request->buildResponse();
 
             _forwardRequestForAggregation(
-                String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
+                getQueueId(),
                 String(),
                 new CIMEnumerateInstanceNamesRequestMessage(*request),
                 poA,
@@ -3828,7 +3600,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
         if (checkClassException.getCode() == CIM_ERR_SUCCESS)
         {
             _forwardRequestForAggregation(
-                providerInfo.serviceName,
+                providerInfo.serviceId,
                 providerInfo.controlProviderName,
                 requestCopy,
                 poA);
@@ -4038,7 +3810,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
             poA->setTotalIssued(providerCount+1);
             // send the repository's results
             _forwardRequestForAggregation(
-                String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
+                getQueueId(),
                 String(),
                 new CIMAssociatorsRequestMessage(*request),
                 poA,
@@ -4067,7 +3839,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                     "Forwarding to provider for class %s",
                     (const char*)
                         providerInfos[i].className.getString().getCString()));
-                _forwardRequestForAggregation(providerInfos[i].serviceName,
+                _forwardRequestForAggregation(providerInfos[i].serviceId,
                     providerInfos[i].controlProviderName, requestCopy, poA);
                 // Note: poA must not be referenced after last "forwardRequest"
             }
@@ -4272,7 +4044,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
             poA->setTotalIssued(providerCount+1);
             // send the repository's results
             _forwardRequestForAggregation(
-                String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
+                getQueueId(),
                 String(),
                 new CIMAssociatorNamesRequestMessage(*request),
                 poA,
@@ -4301,7 +4073,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                     "Forwarding to provider for class %s",
                     (const char*)
                         providerInfos[i].className.getString().getCString()));
-                _forwardRequestForAggregation(providerInfos[i].serviceName,
+                _forwardRequestForAggregation(providerInfos[i].serviceId,
                     providerInfos[i].controlProviderName, requestCopy, poA);
                 // Note: poA must not be referenced after last "forwardRequest"
             }
@@ -4493,7 +4265,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
             poA->setTotalIssued(providerCount+1);
             // send the repository's results
             _forwardRequestForAggregation(
-                String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
+                getQueueId(),
                 String(),
                 new CIMReferencesRequestMessage(*request),
                 poA,
@@ -4522,7 +4294,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                     "Forwarding to provider for class %s",
                     (const char*)
                         providerInfos[i].className.getString().getCString()));
-                _forwardRequestForAggregation(providerInfos[i].serviceName,
+                _forwardRequestForAggregation(providerInfos[i].serviceId,
                     providerInfos[i].controlProviderName, requestCopy, poA);
                 // Note: poA must not be referenced after last "forwardRequest"
             }
@@ -4715,7 +4487,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         {
             poA->setTotalIssued(providerCount+1);
             _forwardRequestForAggregation(
-                String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
+                getQueueId(),
                 String(),
                 new CIMReferenceNamesRequestMessage(*request),
                 poA,
@@ -4744,7 +4516,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                     "Forwarding to provider for class %s",
                     (const char*)
                         providerInfos[i].className.getString().getCString()));
-                _forwardRequestForAggregation(providerInfos[i].serviceName,
+                _forwardRequestForAggregation(providerInfos[i].serviceId,
                     providerInfos[i].controlProviderName, requestCopy, poA);
                 // Note: poA must not be referenced after last "forwardRequest"
             }
@@ -4787,7 +4559,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 
         _forwardRequestToProviderManager(
             providerInfo.className,
-            providerInfo.serviceName,
+            providerInfo.serviceId,
             providerInfo.controlProviderName,
             requestCopy,
             requestCallbackCopy);
@@ -4853,7 +4625,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
         _forwardRequestToProviderManager(
             providerInfo.className,
-            providerInfo.serviceName,
+            providerInfo.serviceId,
             providerInfo.controlProviderName,
             requestCopy,
             requestCallbackCopy);
@@ -5108,12 +4880,12 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
             CIM_ERR_NOT_FOUND, className.getString());
     }
 
-    String serviceName;
+    Uint32 serviceId;
     String controlProviderName;
 
     // Check for class provided by an internal provider
     if (_lookupInternalProvider(
-            request->nameSpace, className, serviceName, controlProviderName))
+            request->nameSpace, className, serviceId, controlProviderName))
     {
         CIMInvokeMethodRequestMessage* requestCopy =
             new CIMInvokeMethodRequestMessage(*request);
@@ -5123,7 +4895,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
         _forwardRequestToProviderManager(
             className,
-            serviceName,
+            serviceId,
             controlProviderName,
             requestCopy,
             requestCallbackCopy);
@@ -5157,7 +4929,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
             new CIMInvokeMethodRequestMessage(*requestCopy);
 
         _forwardRequestToService(
-            PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP,
+            _providerManagerServiceId,
             requestCopy,
             requestCallbackCopy);
 

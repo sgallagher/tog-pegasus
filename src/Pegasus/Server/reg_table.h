@@ -92,11 +92,11 @@ private:
     DynamicRoutingTable(const DynamicRoutingTable& table);
     DynamicRoutingTable& operator=(const DynamicRoutingTable& table);
 
-    String DynamicRoutingTable::_getRoutingKey(
+    String _getRoutingKey(
         const CIMName& className,
         const CIMNamespaceName& namespaceName) const;
 
-    String DynamicRoutingTable::_getWildRoutingKey(
+    String _getWildRoutingKey(
         const CIMName& className) const;
 
     typedef HashTable<String, RegTableRecord*, 

@@ -312,24 +312,16 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
         PEGASUS_NAMESPACENAME_INTEROP,
         PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM, false, true, false);
 
+    Array<String> ips;
+#ifdef PEGASUS_ENABLE_IPV6
+    ips = System::getInterfaceAddrs();
+#endif
     if (enableHttpConnection)
     {
         // Build the CommunicationMechanism instance for the HTTP protocol
         namespaceAccessProtocol = 2;
         namespaceType = "http";
-        String httpPort = configManager->getCurrentValue("httpPort");
-        if (httpPort == String::EMPTY)
-        {
-            Uint32 portNumberHttp = System::lookupPort(
-                WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_HTTP_PORT);
-            char buffer[32];
-            sprintf(buffer, "%u", portNumberHttp);
-            httpPort.assign(buffer);
-        }
         CIMInstance instance;
-        Array<String> ips;
-#ifdef PEGASUS_ENABLE_IPV6
-        ips = System::getInterfaceAddrs();
         for (Uint32 i = 0; i < ips.size() ; ++i)
         {
             String addr = ips[i];
@@ -348,7 +340,6 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
                     commMechClass);
             instances.append(instance);
         }
-#endif
         // If System::getInterfaceAddrs() fails add ip4 addr here.
         if (!ips.size())
         {
@@ -366,19 +357,7 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
         // Build the CommunicationMechanism instance for the HTTPS protocol
         namespaceAccessProtocol = 3;
         namespaceType = "https";
-        String httpsPort = configManager->getCurrentValue("httpsPort");
-        if (httpsPort == String::EMPTY)
-        {
-            Uint32 portNumberHttps = System::lookupPort(
-                WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
-            char buffer[32];
-            sprintf(buffer, "%u", portNumberHttps);
-            httpsPort.assign(buffer);
-        }
         CIMInstance instance;
-        Array<String> ips;
-#ifdef PEGASUS_ENABLE_IPV6
-        ips = System::getInterfaceAddrs();
         for (Uint32 i = 0; i < ips.size() ; ++i)
         {
             String addr = ips[i];
@@ -396,7 +375,6 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
                     commMechClass);
             instances.append(instance);
         }
-#endif
         // If System::getInterfaceAddrs() fails add ip4 addr here.
         if (!ips.size())
         {

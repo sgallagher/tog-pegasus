@@ -394,6 +394,8 @@ private:
     Array<CIMNamespaceArray> elementNamespaces;
 
     Boolean enableSLP;
+    String httpPort;
+    String httpsPort;
 };
 
 PEGASUS_NAMESPACE_END

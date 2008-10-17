@@ -59,6 +59,7 @@
 #include "InteropConstants.h"
 
 #include <Pegasus/Common/StatisticalData.h>
+#include <Pegasus/Common/StringConversion.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -84,6 +85,37 @@ InteropProvider::InteropProvider(CIMRepository * rep) : repository(rep),
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,"InteropProvider::InteropProvider");
 
+    ConfigManager *configManager = ConfigManager::getInstance();
+#ifdef PEGASUS_ENABLE_SLP
+    enableSLP = ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("slp"));
+#else
+    enableSLP = false;
+#endif
+
+    httpPort = configManager->getCurrentValue("httpPort");
+    if (httpPort.size() == 0)
+    {
+        Uint32 portNumberHttp = System::lookupPort(
+            WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_HTTP_PORT);
+        char buffer[32];
+        Uint32 n;
+        const char *output = Uint32ToString(buffer, portNumberHttp, n);
+        httpPort.assign(output, n);
+    }
+
+    httpsPort = configManager->getCurrentValue("httpsPort");
+    if (httpsPort.size() == 0)
+    {
+        Uint32 portNumberHttps = System::lookupPort(
+            WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
+        char buffer[32];
+        Uint32 n;
+        const char *output = Uint32ToString(buffer, portNumberHttps, n);
+        httpsPort.assign(output, n);
+    }
+
+
 #ifndef PEGASUS_DISABLE_PERFINST
     try
     {
@@ -96,13 +128,6 @@ InteropProvider::InteropProvider(CIMRepository * rep) : repository(rep),
     }
 #endif
 
-#ifdef PEGASUS_ENABLE_SLP
-    enableSLP = ConfigManager::parseBooleanValue(
-        ConfigManager::getInstance()->getCurrentValue("slp"));
-#else
-    enableSLP = false;
-#endif
-    
     PEG_METHOD_EXIT();
 }
 

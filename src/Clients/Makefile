@@ -33,7 +33,7 @@ ROOT = $(PEGASUS_ROOT)
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-    CLITestClients \
+    cimcli \
     cliutils \
     cimconfig \
     cimuser \

@@ -243,9 +243,21 @@ Uint32 System::lookupPort(
 
     if ( (serv = getservbyname_r(serviceName, TCP, &serv_result,
                                  buf, SERV_BUFF_SIZE)) != NULL )
-#else // PEGASUS_OS_SOLARIS
+#elif defined(PEGASUS_OS_LINUX)
+# define SERV_BUFF_SIZE 1024
+    struct servent serv_result;
+    char buf[SERV_BUFF_SIZE];
+    int ret = getservbyname_r(
+        serviceName, 
+        TCP,  
+        &serv_result,
+        buf,
+        SERV_BUFF_SIZE,
+        &serv);
+    if (ret == 0 && serv != NULL)
+#else
     if ( (serv = getservbyname(serviceName, TCP)) != NULL )
-#endif // PEGASUS_OS_SOLARIS
+#endif
     {
         localPort = htons((uint16_t)serv->s_port);
     }

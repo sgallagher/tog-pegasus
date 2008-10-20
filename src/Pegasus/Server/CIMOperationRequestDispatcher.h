@@ -63,6 +63,7 @@ class PEGASUS_SERVER_LINKAGE ProviderInfo
 public:
     ProviderInfo(const CIMName& className_)
         : className(className_),
+          serviceId(0),
           hasProvider(false),
           hasProviderNormalization(false),
           hasNoQuery(true)

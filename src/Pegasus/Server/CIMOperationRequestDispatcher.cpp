@@ -65,6 +65,13 @@ void removePropagatedAndOriginAttributes(ObjectClass& newObject);
 // can be used to determine lost aggregations.
 Uint64 CIMOperationRequestDispatcher::cimOperationAggregationSN = 0;
 
+static const char* _getServiceName(Uint32 serviceId)
+{
+    MessageQueue *queue = MessageQueue::lookup(serviceId);
+
+    return queue ? queue->getQueueName() : "none";
+}
+
 OperationAggregate::OperationAggregate(
     CIMRequestMessage* request,
     MessageType msgRequestType,
@@ -1159,7 +1166,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
         TRC_DISPATCHER,
         Tracer::LEVEL4,
         "Internal provider Service = %s provider %s found.",
-        lookup(serviceId)->getQueueName(),
+        _getServiceName(serviceId),
         (const char*)provider.getCString()));
     }
 
@@ -1299,7 +1306,7 @@ Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
                 "Provider found for class = %s servicename = %s "
                 "controlProviderName = %s",
                 (const char*)providerInfo.className.getString().getCString(),
-                lookup(providerInfo.serviceId)->getQueueName(),
+                _getServiceName(providerInfo.serviceId),
                 (const char*)providerInfo.controlProviderName.getCString()));
         }
 
@@ -1519,7 +1526,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupNewInstanceProvider(
             "Provider Name: %s found. hasProvider = %s",
         CSTRING(nameSpace.getString()),
         CSTRING(className.getString()),
-        lookup(providerInfo.serviceId)->getQueueName(),
+        _getServiceName(providerInfo.serviceId),
         CSTRING(providerInfo.controlProviderName),
         (providerInfo.hasProvider ? "true" : "false")));
 
@@ -1764,7 +1771,7 @@ Boolean CIMOperationRequestDispatcher::_lookupNewAssociationProvider(
         (hasProvider? "found" : "NOT found"),
         CSTRING(assocClass.getString()),
         CSTRING(nameSpace.getString()),
-        lookup(serviceId)->getQueueName(),
+        _getServiceName(serviceId),
         (providerName.size() ? CSTRING(providerName) : "none"),
         (controlProviderName.size() ? CSTRING(controlProviderName) : "none")));
 
@@ -2026,6 +2033,8 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestToService");
 
+    PEGASUS_ASSERT(serviceId);
+
     AsyncOpNode* op = this->get_op();
 
     AsyncLegacyOperationStart* asyncRequest =
@@ -2039,7 +2048,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToService(
     PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
         "Forwarding %s to service %s. Response should go to queue %s.",
         MessageTypeToString(request->getType()),
-        lookup(serviceId)->getQueueName(),
+        _getServiceName(serviceId),
         ((MessageQueue::lookup(request->queueIds.top())) ?
         ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
                "BAD queue name")));
@@ -2070,6 +2079,8 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
         TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestForAggregation");
 
+    PEGASUS_ASSERT(serviceId);
+
     AsyncOpNode* op = this->get_op();
 
     // if a response is given, this means the caller wants to run only the
@@ -2097,7 +2108,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
         PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL3,
             "Forwarding %s to service %s. Response should go to queue %s.",
             MessageTypeToString(request->getType()),
-            lookup(serviceId)->getQueueName(),
+            _getServiceName(serviceId),
             ((MessageQueue::lookup(request->queueIds.top())) ?
             ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
                    "BAD queue name")));
@@ -2124,7 +2135,7 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
            "Forwarding %s to service %s, control provider %s. "
            "Response should go to queue %s.",
            MessageTypeToString(request->getType()),
-           lookup(serviceId)->getQueueName(),
+           _getServiceName(serviceId),
            (const char*)controlProviderName.getCString(),
            ((MessageQueue::lookup(request->queueIds.top())) ?
            ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
@@ -2160,6 +2171,8 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_forwardRequestToProviderManager");
 
+    PEGASUS_ASSERT(serviceId);
+
     AsyncOpNode* op = this->get_op();
 
     // If ControlProviderName empty, forward to service.
@@ -2178,7 +2191,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
             "Response should go to queue %s.",
             MessageTypeToString(request->getType()),
             (const char*)className.getString().getCString(),
-            lookup(serviceId)->getQueueName(),
+            _getServiceName(serviceId),
             ((MessageQueue::lookup(request->queueIds.top())) ?
             ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
                    "BAD queue name")));
@@ -2207,7 +2220,7 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
             "Response should go to queue %s.",
             MessageTypeToString(request->getType()),
             (const char*)className.getString().getCString(),
-            lookup(serviceId)->getQueueName(),
+            _getServiceName(serviceId),
             (const char*)controlProviderName.getCString(),
             ((MessageQueue::lookup(request->queueIds.top())) ?
             ((MessageQueue::lookup(request->queueIds.top()))->getQueueName()) :
@@ -3297,7 +3310,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                 "service \"%s\" for control provider \"%s\".  "
                 "Class # %u of %u, aggregation SN %u.",
             (const char*)providerInfo.className.getString().getCString(),
-            lookup(providerInfo.serviceId)->getQueueName(),
+            _getServiceName(providerInfo.serviceId),
             (const char*)providerInfo.controlProviderName.getCString(),
             (unsigned int)(i + 1),
             (unsigned int)(numClasses),
@@ -3551,7 +3564,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
                 "service \"%s\" for control provider \"%s\".  "
                 "Class # %u of %u, aggregation SN %u.",
             (const char*)providerInfo.className.getString().getCString(),
-            lookup(providerInfo.serviceId)->getQueueName(),
+            _getServiceName(providerInfo.serviceId),
             (const char*)providerInfo.controlProviderName.getCString(),
             (unsigned int)(i + 1),
             (unsigned int)(numClasses),

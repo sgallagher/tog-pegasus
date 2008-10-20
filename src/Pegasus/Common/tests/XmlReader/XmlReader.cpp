@@ -237,13 +237,19 @@ static void testGetInstanceElement2(const char* testDataFile)
             String checkStringValue;
             cimValue.get(checkStringValue);
             if (uniqueId == 1)
+            {
                 PEGASUS_TEST_ASSERT(strcmp(
                     checkStringValue.getCString(), "createInstance") == 0);
+            }
             else if (uniqueId == 2)
+            {
                 PEGASUS_TEST_ASSERT(strcmp(
                     checkStringValue.getCString(), "deleteInstance") == 0);
+            }
             else
+            {
                 PEGASUS_TEST_ASSERT(false);
+            }
         }
     }
 }

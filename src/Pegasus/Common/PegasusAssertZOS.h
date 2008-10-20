@@ -64,7 +64,7 @@ void __pegasus_assert_zOS(const char* file, int line, const char* cond);
           {                                                                 \
              __pegasus_assert_zOS( __FILE__, __LINE__, #COND );             \
           }                                                                 \
-      } while (0);
+      } while (0)
 
 /* 
    Define PEGASUS_DEBUG_ASSERT assertion statement. 
@@ -87,7 +87,7 @@ void __pegasus_assert_zOS(const char* file, int line, const char* cond);
              kill(getpid(),SIGDUMP);                                        \
              abort();                                                       \
           }                                                                 \
-      } while (0);
+      } while (0)
 #else
 # define PEGASUS_DEBUG_ASSERT(COND)
 #endif
@@ -105,5 +105,5 @@ void __pegasus_assert_zOS(const char* file, int line, const char* cond);
             kill(getpid(),SIGDUMP);                                        \
             abort();                                                       \
         }                                                                  \
-    } while (0);
+    } while (0)
 #endif  /* Pegasus_Assert_ZOS_h */

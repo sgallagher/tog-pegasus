@@ -128,6 +128,7 @@ CORE_RPM:=tog-pegasus-$(VERSION).$(PEGASUS_DISTRO_SUFFIX).$(PLATFORM).rpm
 SDK_RPM:=tog-pegasus-devel-$(VERSION).$(PEGASUS_DISTRO_SUFFIX).$(PLATFORM).rpm
 TEST_RPM:=tog-pegasus-test-$(VERSION).$(PEGASUS_DISTRO_SUFFIX).$(PLATFORM).rpm
 SRC_RPM:=tog-pegasus-$(VERSION).src.rpm
+RPM_SRC_DIR:=$(shell echo tog-pegasus-$(PEGASUS_PRODUCT_VERSION))
 
 USAGE = @$(ECHO) $(1)
 
@@ -160,9 +161,10 @@ ifndef PEGASUS_PRODUCT_VERSION
 	@$(ECHO) "PEGASUS_PRODUCT_VERSION is not defined"
 	@exit 2
 endif
-	@$(MV) pegasus tog-pegasus-$(PEGASUS_PRODUCT_VERSION)
-	@$(CP) tog-pegasus-$(PEGASUS_PRODUCT_VERSION)/rpm/tog-pegasus.spec $(PEGASUS_RPM_DIRECTORY)/SPECS 
-	@tar czf tog-pegasus-$(VERSION).tar.gz tog-pegasus-$(PEGASUS_PRODUCT_VERSION)
+	@$(MV) pegasus $(RPM_SRC_DIR)
+	@$(CP) $(RPM_SRC_DIR)/rpm/tog-pegasus.spec \
+            $(PEGASUS_RPM_DIRECTORY)/SPECS 
+	@tar czf tog-pegasus-$(VERSION).tar.gz $(RPM_SRC_DIR)
 	@$(CP) tog-pegasus-$(VERSION).tar.gz $(PEGASUS_RPM_DIRECTORY)/SOURCES/$(TOG_PEGASUS_DIR)
 	@$(RPMBUILD) -bs $(PEGASUS_RPM_DIRECTORY)/SPECS/tog-pegasus.spec
 
@@ -233,10 +235,10 @@ cleanRPM:
 	-$(RPM) -e $(filter tog-pegasus-test%,$(TOG_INSTALLED_RPMS))
 	-$(RPM) -e $(filter tog-pegasus-devel%,$(TOG_INSTALLED_RPMS))
 	-$(RPM) -e $(filter tog-pegasus-2%,$(TOG_INSTALLED_RPMS))
-	-$(RM) -Rf tog-pegasus-$(PEGASUS_PRODUCT_VERSION).old
-	@if test -d tog-pegasus-$(PEGASUS_RPM_VERSION); then \
-	$(MV) tog-pegasus-$(PEGASUS_PRODUCT_VERSION) tog-pegasus-$(PEGASUS_PRODUCT_VERSION).old; \
-	fi
+	-$(RM) -Rf $(RPM_SRC_DIR).old
+ifneq ($(wildcard $(RPM_SRC_DIR)), )
+	$(MV) $(RPM_SRC_DIR) $(RPM_SRC_DIR).old
+endif
 
 buildRPM: cleanRPM createSRCRPM createBINRPM
 

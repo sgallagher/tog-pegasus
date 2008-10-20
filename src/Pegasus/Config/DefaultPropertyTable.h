@@ -54,7 +54,6 @@
     {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableHttpsConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"home", "./", IS_STATIC, 0, 0, IS_VISIBLE},
     {"daemon", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 #ifdef PEGASUS_ENABLE_SLP
     {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},

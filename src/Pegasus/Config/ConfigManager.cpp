@@ -106,8 +106,6 @@ static struct OwnerEntry _properties[] =
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"httpsPort",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
-    {"home",
-         (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
     {"daemon",
          (ConfigPropertyOwner*)&ConfigManager::defaultOwner},
 #ifdef PEGASUS_ENABLE_SLP

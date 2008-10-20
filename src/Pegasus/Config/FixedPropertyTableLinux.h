@@ -41,7 +41,6 @@
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
     {"httpPort",            "5988"},
     {"httpsPort",           "5989"},
-    {"home",                ""},
 #ifdef PEGASUS_ENABLE_SLP
     {"slp",                 "false"},
 #endif

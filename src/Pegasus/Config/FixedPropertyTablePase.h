@@ -44,7 +44,6 @@
     {"slp",                                      "true"},
 #endif
     {"authorizedUserGroups",                          ""},
-    {"home",                  "/QOpenSys/QIBM/UserData/UME/Pegasus"},
     {"repositoryDir",         "/QOpenSys/QIBM/UserData/UME/Pegasus/repository"},
 #endif
 

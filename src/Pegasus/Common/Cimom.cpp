@@ -76,12 +76,9 @@ void cimom::_shutdown_routed_queue()
         AsyncIoctl::IO_CLOSE,
         0,
         0));
-    msg->op = get_cached_op();
 
-    msg->op->_flags |= ASYNC_OPFLAGS_FIRE_AND_FORGET;
-    msg->op->_flags &= ~(ASYNC_OPFLAGS_CALLBACK | ASYNC_OPFLAGS_SAFE_CALLBACK |
-        ASYNC_OPFLAGS_SIMPLE_STATUS);
-    msg->op->_state &= ~ASYNC_OPSTATE_COMPLETE;
+    msg->op = get_cached_op();
+    msg->op->_flags = ASYNC_OPFLAGS_FIRE_AND_FORGET;
     msg->op->_op_dest = _global_this;
     msg->op->_request.reset(msg.get());
 
@@ -110,18 +107,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
         }
         else
         {
-//          ATTN: optimization
-//          <<< Sun Feb 17 18:26:39 2002 mdd >>>
-//          once the opnode is enqueued on the cimom's list, the cimom owns it
-//          and no one is allowed to write to it but the cimom.
-//          services are only allowed to read status bits
-//          this can eliminate the need for the lock/unlock
-//          unless reading/writing status bits
-
-            op->lock();
             MessageQueue *dest_q = op->_op_dest;
             Uint32 dest_qid = dest_q->getQueueId();
-            op->unlock();
 
             Boolean accepted = false;
 
@@ -132,17 +119,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
             }
             else
             {
-//              ATTN: optimization
-//              <<< Sun Feb 17 18:29:26 2002 mdd >>>
-//              this lock/loop/unlock is really just a safety check to ensure
-//              the service is registered with the meta dispatcher.
-//              if speed is an issue we can remove this lookup
-//              because we have converted to MessageQueueService from
-//              MessageQueue, and because we register in the constructor,
-//              the safety check is unecessary
-//
-//              << Tue Feb 19 11:40:37 2002 mdd >>
-//              moved the lookup to sendwait/nowait/forget/forward functions.
+                //<< Tue Feb 19 11:40:37 2002 mdd >>
+                // moved the lookup to sendwait/nowait/forget/forward functions.
 
                 MessageQueueService *dest_svc = 0;
 
@@ -154,29 +132,19 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
                 if (dest_svc != 0)
                 {
                    if (dest_svc->get_capabilities() &
-                           module_capabilities::paused ||
-                       dest_svc->get_capabilities() &
                            module_capabilities::stopped)
                    {
                        // the target is stopped or paused
                        // unless the message is a start or resume
                        // just handle it from here.
-                       op->lock();
                        AsyncRequest *request =
                            static_cast<AsyncRequest *>(op->_request.get());
-                       op->unlock();
                        MessageType messageType = request->getType();
 
-                       if (messageType != ASYNC_CIMSERVICE_START  &&
-                           messageType != ASYNC_CIMSERVICE_RESUME)
+                       if (messageType != ASYNC_CIMSERVICE_START)
                        {
-                          if (dest_svc->get_capabilities() &
-                                  module_capabilities::paused)
-                              dispatcher->_make_response(
-                                  request, async_results::CIM_PAUSED);
-                          else
-                              dispatcher->_make_response(
-                                  request, async_results::CIM_STOPPED);
+                          dispatcher->_make_response(
+                              request, async_results::CIM_STOPPED);
                           accepted = true;
                        }
                        else // deliver the start or resume message
@@ -244,30 +212,22 @@ void cimom::_make_response(Message *req, Uint32 code)
         return;
     }
 
-    if ((static_cast<AsyncRequest *>(req))->op->_flags &
-            ASYNC_OPFLAGS_FIRE_AND_FORGET)
+    Uint32 flags = static_cast<AsyncRequest *>(req)->op->_flags;
+
+    if (flags == ASYNC_OPFLAGS_FIRE_AND_FORGET)
     {
-        // destructor empties request list
-        delete (static_cast<AsyncRequest *>(req))->op;
+        _global_this->cache_op(static_cast<AsyncRequest *>(req)->op);
         return;
     }
 
     AutoPtr<AsyncReply> reply;
-    if (!((static_cast<AsyncRequest *>(req))->op->_flags &
-            ASYNC_OPFLAGS_SIMPLE_STATUS))
-    {
-        reply.reset(new AsyncReply(
-            ASYNC_REPLY,
-            0,
-            (static_cast<AsyncRequest *>(req))->op,
-            code,
-            (static_cast<AsyncRequest *>(req))->resp,
-            false));
-    }
-    else
-        (static_cast<AsyncRequest *>(req))->op->_completion_code = code;
-        // sender does not want a reply message, just the
-        // _completion_code field in the AsyncOpNode.
+    reply.reset(new AsyncReply(
+        ASYNC_REPLY,
+        0,
+        (static_cast<AsyncRequest *>(req))->op,
+        code,
+        (static_cast<AsyncRequest *>(req))->resp,
+        false));
 
     _completeAsyncResponse(static_cast<AsyncRequest*>(req),
         reply.get(), ASYNC_OPSTATE_COMPLETE, 0);
@@ -281,21 +241,11 @@ void cimom::_completeAsyncResponse(
     Uint32 flag)
 {
     PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE, "cimom::_completeAsyncResponse");
-
     PEGASUS_ASSERT(request != 0);
 
-    Boolean haveLock = false;
-
     AsyncOpNode *op = request->op;
-    op->lock();
-    haveLock = true;
-
-    if ((op->_flags & ASYNC_OPFLAGS_CALLBACK ||
-             op->_flags & ASYNC_OPFLAGS_SAFE_CALLBACK) &&
-        (!(op->_flags & ASYNC_OPFLAGS_PSEUDO_CALLBACK)))
+    if (op->_flags == ASYNC_OPFLAGS_CALLBACK)
     {
-        op->unlock();
-        haveLock = false;
         if (reply != 0)
         {
             op->_response.reset(reply);
@@ -303,44 +253,18 @@ void cimom::_completeAsyncResponse(
         _complete_op_node(op, state, flag, (reply ? reply->result : 0 ));
         return;
     }
-
-    if (op->_flags & ASYNC_OPFLAGS_FIRE_AND_FORGET)
+    else if (op->_flags == ASYNC_OPFLAGS_FIRE_AND_FORGET)
     {
-        // destructor empties request list
-        op->unlock();
-        haveLock = false;
-
-        op->release();
+        PEGASUS_ASSERT(op->_state == ASYNC_OPSTATE_UNKNOWN);
         _global_this->cache_op(op);
-
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    op->_state |= (state | ASYNC_OPSTATE_COMPLETE);
-    op->_flags |= flag;
-    if ( op->_flags & ASYNC_OPFLAGS_SIMPLE_STATUS )
-    {
-        PEGASUS_ASSERT(reply != 0 );
-
-        op->_completion_code = reply->result;
-        PEG_METHOD_EXIT();
-        delete reply;
     }
     else
     {
-        if (reply != 0)
-        {
-            op->_response.reset(reply);
-        }
+        PEGASUS_ASSERT (op->_flags == ASYNC_OPFLAGS_PSEUDO_CALLBACK);
+        PEGASUS_ASSERT(op->_state == ASYNC_OPSTATE_UNKNOWN);
+        op->_state = ASYNC_OPSTATE_COMPLETE;
+        op->_client_sem.signal();
     }
-
-    if (haveLock)
-    {
-        op->unlock();
-        haveLock = false;
-    }
-    op->_client_sem.signal();
     PEG_METHOD_EXIT();
 }
 
@@ -360,51 +284,40 @@ void cimom::_complete_op_node(
     Uint32 flag,
     Uint32 code)
 {
-    Uint32 flags;
+    Uint32 flags = op->_flags;
 
-    op->lock();
+    PEGASUS_ASSERT(op->_state == ASYNC_OPSTATE_UNKNOWN);
 
-    op->_completion_code = code;
-    op->_state |= (state | ASYNC_OPSTATE_COMPLETE);
-    flags = (op->_flags |= flag);
-    op->unlock();
-    if ( flags & ASYNC_OPFLAGS_FIRE_AND_FORGET )
+    op->_state = ASYNC_OPSTATE_COMPLETE;
+    if (flags ==  ASYNC_OPFLAGS_FIRE_AND_FORGET )
     {
-        delete op;
+        _global_this->cache_op(op);
         return;
     }
 
-    if ((flags & ASYNC_OPFLAGS_CALLBACK) &&
-        (!(flags & ASYNC_OPFLAGS_PSEUDO_CALLBACK)))
+    if (flags ==  ASYNC_OPFLAGS_PSEUDO_CALLBACK)
     {
-        // << Wed Oct  8 12:29:32 2003 mdd >>
-        // check to see if the response queue is stopped or paused
-        if (op->_callback_response_q == 0 ||
-            op->_callback_response_q->get_capabilities() &
-                module_capabilities::paused ||
-            op->_callback_response_q->get_capabilities() &
-                module_capabilities::stopped)
-        {
-            // delete, respondent is paused or stopped
-            delete op;
-            return;
-        }
+        op->_client_sem.signal();
+        return;
+    }
 
+    PEGASUS_ASSERT(flags == ASYNC_OPFLAGS_CALLBACK);
+
+    // << Wed Oct  8 12:29:32 2003 mdd >>
+    // check to see if the response queue is stopped
+    if (op->_callback_response_q == 0 ||
+        op->_callback_response_q->get_capabilities() &
+            module_capabilities::stopped)
+    {
+        // delete, respondent is stopped
+        _global_this->cache_op(op);
+    }
+    else
+    {
         // send this node to the response queue
         op->_op_dest = op->_callback_response_q;
         _global_this->route_async(op);
-        return;
     }
-
-    if ((flags & ASYNC_OPFLAGS_SAFE_CALLBACK) &&
-        (!(flags & ASYNC_OPFLAGS_PSEUDO_CALLBACK)))
-    {
-        op->_op_dest = op->_callback_response_q;
-        _global_this->route_async(op);
-        return;
-    }
-    op->_client_sem.signal();
-    return;
 }
 
 
@@ -440,8 +353,6 @@ void cimom::_handle_cimom_op(
 
     if (mask & MessageMask::ha_request)
     {
-        op->processing();
-
         MessageType type = msg->getType();
         if (type == ASYNC_IOCTL)
         {
@@ -546,15 +457,13 @@ AsyncOpNode* cimom::get_cached_op()
     AutoPtr<AsyncOpNode> op(new AsyncOpNode());
 
     op->_state = ASYNC_OPSTATE_UNKNOWN;
-    op->_flags = ASYNC_OPFLAGS_SINGLE | ASYNC_OPFLAGS_NORMAL |
-        ASYNC_OPFLAGS_META_DISPATCHER;
+    op->_flags = ASYNC_OPFLAGS_UNKNOWN;
 
     return op.release();
 }
 
 void cimom::cache_op(AsyncOpNode* op)
 {
-    PEGASUS_ASSERT(op->_state & ASYNC_OPSTATE_RELEASED);
     delete op;
 }
 

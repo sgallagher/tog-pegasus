@@ -238,17 +238,14 @@ void MessageQueueServer::_handle_async_request(AsyncRequest *req)
 {
     if (req->getType() == CIM_DELETE_CLASS_REQUEST_MESSAGE)
     {
-        req->op->processing();
         handleTestRequestMessage(req);
     }
     else if (req->getType() == ASYNC_CIMSERVICE_STOP)
     {
-        req->op->processing();
         handleCimServiceStop(static_cast<CimServiceStop *>(req));
     }
     else if (req->getType() == ASYNC_ASYNC_LEGACY_OP_START)
     {
-        req->op->processing();
         handleLegacyOpStart(static_cast<AsyncLegacyOperationStart *>(req));
     }
     else

@@ -284,10 +284,7 @@ void MessageQueueService::_shutdown_incoming_queue()
         0);
 
     msg->op = get_op();
-    msg->op->_flags |= ASYNC_OPFLAGS_FIRE_AND_FORGET;
-    msg->op->_flags &= ~(ASYNC_OPFLAGS_CALLBACK | ASYNC_OPFLAGS_SAFE_CALLBACK
-        | ASYNC_OPFLAGS_SIMPLE_STATUS);
-    msg->op->_state &= ~ASYNC_OPSTATE_COMPLETE;
+    msg->op->_flags = ASYNC_OPFLAGS_FIRE_AND_FORGET;
 
     msg->op->_op_dest = this;
     msg->op->_request.reset(msg);
@@ -373,68 +370,12 @@ void MessageQueueService::_sendwait_callback(
 // including op, op->_callback_node, and op->_callback_ptr
 void MessageQueueService::_handle_async_callback(AsyncOpNode* op)
 {
-    if (op->_flags & ASYNC_OPFLAGS_SAFE_CALLBACK)
-    {
-        Message *msg = op->removeRequest();
-        if (msg && (msg->getMask() & MessageMask::ha_async))
-        {
-            if (msg->getType() == ASYNC_ASYNC_LEGACY_OP_START)
-            {
-                AsyncLegacyOperationStart *wrapper =
-                    static_cast<AsyncLegacyOperationStart *>(msg);
-                msg = wrapper->get_action();
-                delete wrapper;
-            }
-            else if (msg->getType() == ASYNC_ASYNC_MODULE_OP_START)
-            {
-                AsyncModuleOperationStart *wrapper =
-                    static_cast<AsyncModuleOperationStart *>(msg);
-                msg = wrapper->get_action();
-                delete wrapper;
-            }
-            else if (msg->getType() == ASYNC_ASYNC_OP_START)
-            {
-                AsyncOperationStart *wrapper =
-                    static_cast<AsyncOperationStart *>(msg);
-                msg = wrapper->get_action();
-                delete wrapper;
-            }
-            delete msg;
-        }
-
-        msg = op->removeResponse();
-        if (msg && (msg->getMask() & MessageMask::ha_async))
-        {
-            if (msg->getType() == ASYNC_ASYNC_LEGACY_OP_RESULT)
-            {
-                AsyncLegacyOperationResult *wrapper =
-                    static_cast<AsyncLegacyOperationResult *>(msg);
-                msg = wrapper->get_result();
-                delete wrapper;
-            }
-            else if (msg->getType() == ASYNC_ASYNC_MODULE_OP_RESULT)
-            {
-                AsyncModuleOperationResult *wrapper =
-                    static_cast<AsyncModuleOperationResult *>(msg);
-                msg = wrapper->get_result();
-                delete wrapper;
-            }
-        }
-        void (*callback)(Message *, void *, void *) = op->__async_callback;
-        void *handle = op->_callback_handle;
-        void *parm = op->_callback_parameter;
-        op->release();
-        return_op(op);
-        callback(msg, handle, parm);
-    }
-    else if (op->_flags & ASYNC_OPFLAGS_CALLBACK)
-    {
-        // note that _callback_node may be different from op
-        // op->_callback_response_q is a "this" pointer we can use for
-        // static callback methods
-        op->_async_callback(
-            op->_callback_node, op->_callback_response_q, op->_callback_ptr);
-    }
+    PEGASUS_ASSERT(op->_flags == ASYNC_OPFLAGS_CALLBACK);
+    // note that _callback_node may be different from op
+    // op->_callback_response_q is a "this" pointer we can use for
+    // static callback methods
+    op->_async_callback(
+        op->_callback_node, op->_callback_response_q, op->_callback_ptr);
 }
 
 
@@ -442,11 +383,6 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode* operation)
 {
     if (operation != 0)
     {
-
-// ATTN: optimization
-// << Tue Feb 19 14:10:38 2002 mdd >>
-        operation->lock();
-
         Message *rq = operation->_request.get();
 
 // optimization <<< Thu Mar  7 21:04:05 2002 mdd >>>
@@ -457,26 +393,20 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode* operation)
         if ((rq != 0) && (!(rq->getMask() & MessageMask::ha_async)))
         {
             operation->_request.release();
-            operation->unlock();
             // delete the op node
-            operation->release();
             return_op(operation);
-
             handleEnqueue(rq);
             return;
         }
 
-        if ((operation->_flags & ASYNC_OPFLAGS_CALLBACK ||
-             operation->_flags & ASYNC_OPFLAGS_SAFE_CALLBACK) &&
+        if ((operation->_flags & ASYNC_OPFLAGS_CALLBACK) &&
             (operation->_state & ASYNC_OPSTATE_COMPLETE))
         {
-            operation->unlock();
             _handle_async_callback(operation);
         }
         else
         {
             PEGASUS_ASSERT(rq != 0);
-            operation->unlock();
             _handle_async_request(static_cast<AsyncRequest *>(rq));
         }
     }
@@ -485,25 +415,25 @@ void MessageQueueService::_handle_incoming_operation(AsyncOpNode* operation)
 
 void MessageQueueService::_handle_async_request(AsyncRequest *req)
 {
-    if (req != 0)
+    MessageType type = req->getType();
+    if (type == ASYNC_IOCTL)
     {
-        req->op->processing();
-
-        MessageType type = req->getType();
-        if (type == ASYNC_IOCTL)
-            handle_AsyncIoctl(static_cast<AsyncIoctl *>(req));
-        else if (type == ASYNC_CIMSERVICE_START)
-            handle_CimServiceStart(static_cast<CimServiceStart *>(req));
-        else if (type == ASYNC_CIMSERVICE_STOP)
-            handle_CimServiceStop(static_cast<CimServiceStop *>(req));
-        else
-        {
-            // we don't handle this request message
-            _make_response(req, async_results::CIM_NAK);
-        }
+        handle_AsyncIoctl(static_cast<AsyncIoctl *>(req));
+    }
+    else if (type == ASYNC_CIMSERVICE_START)
+    {
+        handle_CimServiceStart(static_cast<CimServiceStart *>(req));
+    }
+    else if (type == ASYNC_CIMSERVICE_STOP)
+    {
+        handle_CimServiceStop(static_cast<CimServiceStop *>(req));
+    }
+    else
+    {
+        // we don't handle this request message
+        _make_response(req, async_results::CIM_NAK);
     }
 }
-
 
 Boolean MessageQueueService::_enqueueResponse(
     Message* request,
@@ -612,10 +542,8 @@ Boolean MessageQueueService::accept_async(AsyncOpNode* op)
     }
 // ATTN optimization remove the message checking altogether in the base
 // << Mon Feb 18 14:02:20 2002 mdd >>
-    op->lock();
     Message *rq = op->_request.get();
     Message *rp = op->_response.get();
-    op->unlock();
 
     if ((rq != 0 && (true == messageOK(rq))) ||
         (rp != 0 && (true == messageOK(rp))) && _die.get() == 0)
@@ -721,14 +649,13 @@ AsyncOpNode* MessageQueueService::get_op()
    AsyncOpNode* op = new AsyncOpNode();
 
    op->_state = ASYNC_OPSTATE_UNKNOWN;
-   op->_flags = ASYNC_OPFLAGS_SINGLE | ASYNC_OPFLAGS_NORMAL;
+   op->_flags = ASYNC_OPFLAGS_UNKNOWN;
 
    return op;
 }
 
 void MessageQueueService::return_op(AsyncOpNode* op)
 {
-    PEGASUS_ASSERT(op->_state & ASYNC_OPSTATE_RELEASED);
     delete op;
 }
 
@@ -740,15 +667,33 @@ Boolean MessageQueueService::SendAsync(
     MessageQueue* callback_response_q,
     void* callback_ptr)
 {
+    return _sendAsync(
+        op,
+        destination,
+        callback,
+        callback_response_q,
+        callback_ptr,
+        ASYNC_OPFLAGS_CALLBACK);
+
+}
+
+Boolean MessageQueueService::_sendAsync(
+    AsyncOpNode* op,
+    Uint32 destination,
+    void (*callback)(AsyncOpNode*, MessageQueue*, void*),
+    MessageQueue* callback_response_q,
+    void* callback_ptr,
+    Uint32 flags)
+{
     PEGASUS_ASSERT(op != 0 && callback != 0);
 
-    // get the queue handle for the destination
-
-    op->lock();
     // destination of this message
     op->_op_dest = MessageQueue::lookup(destination);
-    op->_flags |= ASYNC_OPFLAGS_CALLBACK;
-    op->_flags &= ~(ASYNC_OPFLAGS_FIRE_AND_FORGET);
+    if (op->_op_dest == 0)
+    {
+        return false;
+    }
+    op->_flags = flags;
     // initialize the callback data
     // callback function to be executed by recpt. of response
     op->_async_callback = callback;
@@ -760,10 +705,6 @@ Boolean MessageQueueService::SendAsync(
     op->_callback_ptr = callback_ptr;
     // I am the originator of this request
     op->_callback_request_q = this;
-
-    op->unlock();
-    if (op->_op_dest == 0)
-        return false;
 
     return  _meta_dispatcher->route_async(op);
 }
@@ -787,17 +728,17 @@ Boolean MessageQueueService::SendForget(Message* msg)
             (static_cast<AsyncMessage *>(msg))->op = op;
         }
     }
+
+    PEGASUS_ASSERT(op->_flags == ASYNC_OPFLAGS_UNKNOWN);
+    PEGASUS_ASSERT(op->_state == ASYNC_OPSTATE_UNKNOWN);
     op->_op_dest = MessageQueue::lookup(msg->dest);
-    op->_flags |= ASYNC_OPFLAGS_FIRE_AND_FORGET;
-    op->_flags &= ~(ASYNC_OPFLAGS_CALLBACK | ASYNC_OPFLAGS_SAFE_CALLBACK
-        | ASYNC_OPFLAGS_SIMPLE_STATUS);
-    op->_state &= ~ASYNC_OPSTATE_COMPLETE;
     if (op->_op_dest == 0)
     {
-        op->release();
         return_op(op);
         return false;
     }
+
+    op->_flags = ASYNC_OPFLAGS_FIRE_AND_FORGET;
 
     // now see if the meta dispatcher will take it
     return  _meta_dispatcher->route_async(op);
@@ -817,15 +758,18 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest* request)
         request->op->_request.reset(request);
         destroy_op = true;
     }
+    
+    PEGASUS_ASSERT(request->op->_flags == ASYNC_OPFLAGS_UNKNOWN);
+    PEGASUS_ASSERT(request->op->_state == ASYNC_OPSTATE_UNKNOWN);
 
     request->block = false;
-    request->op->_flags |= ASYNC_OPFLAGS_PSEUDO_CALLBACK;
-    SendAsync(
+    _sendAsync(
         request->op,
         request->dest,
         _sendwait_callback,
         this,
-        (void *)0);
+        (void *)0,
+        ASYNC_OPFLAGS_PSEUDO_CALLBACK);
 
     request->op->_client_sem.wait();
 
@@ -834,10 +778,7 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest* request)
 
     if (destroy_op == true)
     {
-        request->op->lock();
         request->op->_request.release();
-        request->op->_state |= ASYNC_OPSTATE_RELEASED;
-        request->op->unlock();
         return_op(request->op);
         request->op = 0;
     }

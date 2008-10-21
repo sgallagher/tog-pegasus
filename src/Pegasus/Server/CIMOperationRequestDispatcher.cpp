@@ -796,8 +796,6 @@ void CIMOperationRequestDispatcher::_handle_async_request(AsyncRequest* req)
     // pass legacy operations to handleEnqueue
     if (req->getType() == ASYNC_ASYNC_LEGACY_OP_START)
     {
-        req->op->processing();
-
         Message* message =
             static_cast<AsyncLegacyOperationStart*>(req)->get_action();
 
@@ -1932,7 +1930,6 @@ void CIMOperationRequestDispatcher::_forwardForAggregationCallback(
         "Provider response is complete.");
         op->removeRequest();
         delete asyncRequest;
-        op->release();
         service->return_op(op);
     }
     else
@@ -2017,7 +2014,6 @@ void CIMOperationRequestDispatcher::_forwardRequestCallback(
         delete request;
         delete asyncRequest;
         delete asyncReply;
-        op->release();
         service->return_op(op);
     }
 

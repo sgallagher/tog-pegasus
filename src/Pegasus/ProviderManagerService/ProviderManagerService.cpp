@@ -196,8 +196,6 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
 
     if (request->getType() == ASYNC_ASYNC_LEGACY_OP_START)
     {
-        request->op->processing();
-
         _incomingQueue.insert_back(request->op);
         ThreadStatus rtn = PEGASUS_THREAD_OK;
         while ((rtn = _thread_pool->allocate_and_awaken(

@@ -45,19 +45,12 @@
 PEGASUS_NAMESPACE_BEGIN
 
 #define ASYNC_OPFLAGS_UNKNOWN           0x00000000
-#define ASYNC_OPFLAGS_NORMAL            0x00000000
-#define ASYNC_OPFLAGS_SINGLE            0x00000008
-#define ASYNC_OPFLAGS_META_DISPATCHER   0x00000040
-#define ASYNC_OPFLAGS_FIRE_AND_FORGET   0x00000080
-#define ASYNC_OPFLAGS_SIMPLE_STATUS     0x00000100
-#define ASYNC_OPFLAGS_CALLBACK          0x00000200
-#define ASYNC_OPFLAGS_PSEUDO_CALLBACK   0x00000400
-#define ASYNC_OPFLAGS_SAFE_CALLBACK     0x00000800
+#define ASYNC_OPFLAGS_FIRE_AND_FORGET   0x00000001
+#define ASYNC_OPFLAGS_CALLBACK          0x00000002
+#define ASYNC_OPFLAGS_PSEUDO_CALLBACK   0x00000004
 
 #define ASYNC_OPSTATE_UNKNOWN           0x00000000
-#define ASYNC_OPSTATE_PROCESSING        0x00000008
-#define ASYNC_OPSTATE_COMPLETE          0x00000040
-#define ASYNC_OPSTATE_RELEASED          0x00002000
+#define ASYNC_OPSTATE_COMPLETE          0x00000001
 
 class PEGASUS_COMMON_LINKAGE AsyncOpNode : public Linkable
 {
@@ -73,40 +66,27 @@ public:
     void setResponse(Message* response);
     Message* getResponse();
     Message* removeResponse();
-
-    Uint32 getState();
-
-    void lock();
-    void unlock();
-
-    void processing();
     void complete();
-    void release();
-
+    Uint32 getState();
 private:
     AsyncOpNode(const AsyncOpNode&);
     AsyncOpNode& operator=(const AsyncOpNode&);
 
     Semaphore _client_sem;
-    Mutex _mut;
     AutoPtr<Message> _request;
     AutoPtr<Message> _response;
 
     Uint32 _state;
     Uint32 _flags;
-    Uint32 _completion_code;
     MessageQueue *_op_dest;
 
     void (*_async_callback)(AsyncOpNode *, MessageQueue *, void *);
-    void (*__async_callback)(Message *, void *, void *);
 
     // pointers for async callbacks  - don't use
     AsyncOpNode *_callback_node;
     MessageQueue *_callback_request_q;
     MessageQueue *_callback_response_q;
     void *_callback_ptr;
-    void *_callback_parameter;
-    void *_callback_handle;
 
     // pointers to help static class message handlers - don't use
     MessageQueue *_service_ptr;
@@ -121,7 +101,6 @@ private:
 
 inline void AsyncOpNode::setRequest(Message* request)
 {
-    AutoMutex autoMut(_mut);
     PEGASUS_ASSERT(_request.get() == 0);
     PEGASUS_ASSERT(request != 0);
     _request.reset(request);
@@ -129,14 +108,12 @@ inline void AsyncOpNode::setRequest(Message* request)
 
 inline Message* AsyncOpNode::getRequest()
 {
-    AutoMutex autoMut(_mut);
     PEGASUS_ASSERT(_request.get() != 0);
     return _request.get();
 }
 
 inline Message* AsyncOpNode::removeRequest()
 {
-    AutoMutex autoMut(_mut);
     PEGASUS_ASSERT(_request.get() != 0);
     Message* request = _request.get();
     _request.release();
@@ -145,7 +122,6 @@ inline Message* AsyncOpNode::removeRequest()
 
 inline void AsyncOpNode::setResponse(Message* response)
 {
-    AutoMutex autoMut(_mut);
     PEGASUS_ASSERT(_response.get() == 0);
     PEGASUS_ASSERT(response != 0);
     _response.reset(response);
@@ -153,52 +129,26 @@ inline void AsyncOpNode::setResponse(Message* response)
 
 inline Message* AsyncOpNode::getResponse()
 {
-    AutoMutex autoMut(_mut);
     PEGASUS_ASSERT(_response.get() != 0);
     return _response.get();
 }
 
 inline Message* AsyncOpNode::removeResponse()
 {
-    AutoMutex autoMut(_mut);
     PEGASUS_ASSERT(_response.get() != 0);
     Message* response = _response.get();
     _response.release();
     return response;
 }
 
-inline Uint32 AsyncOpNode::getState()
-{
-    AutoMutex autoMut(_mut);
-    return _state;
-}
-
-inline void AsyncOpNode::lock()
-{
-    _mut.lock();
-}
-
-inline void AsyncOpNode::unlock()
-{
-    _mut.unlock();
-}
-
-inline void AsyncOpNode::processing()
-{
-    AutoMutex autoMut(_mut);
-    _state |= ASYNC_OPSTATE_PROCESSING;
-}
-
 inline void AsyncOpNode::complete()
 {
-    AutoMutex autoMut(_mut);
-    _state |= ASYNC_OPSTATE_COMPLETE;
+    _state = ASYNC_OPSTATE_COMPLETE;
 }
 
-inline void AsyncOpNode::release()
+inline Uint32 AsyncOpNode::getState()
 {
-    AutoMutex autoMut(_mut);
-    _state |= ASYNC_OPSTATE_RELEASED;
+    return _state;
 }
 
 PEGASUS_NAMESPACE_END

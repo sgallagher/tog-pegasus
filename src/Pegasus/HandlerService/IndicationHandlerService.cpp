@@ -59,12 +59,10 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest* req)
 {
     if (req->getType() == ASYNC_CIMSERVICE_STOP)
     {
-        req->op->processing();
         handle_CimServiceStop(static_cast<CimServiceStop *>(req));
     }
     else if (req->getType() == ASYNC_ASYNC_LEGACY_OP_START)
     {
-        req->op->processing();
         AutoPtr<Message> legacy(
             static_cast<AsyncLegacyOperationStart *>(req)->get_action());
         if (legacy->getType() == CIM_HANDLE_INDICATION_REQUEST_MESSAGE)
@@ -252,7 +250,6 @@ IndicationHandlerService::_handleIndication(
                             asyncReply.get()))->get_result()));
                 cimException = exportResponse->cimException;
 
-                op->release();
                 this->return_op(op.release());
             }
             else

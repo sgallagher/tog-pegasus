@@ -39,16 +39,12 @@ AsyncOpNode::AsyncOpNode()
     : _client_sem(0),
       _state(0),
       _flags(0),
-      _completion_code(0),
       _op_dest(0),
       _async_callback(0),
-      __async_callback(0),
       _callback_node(0),
       _callback_request_q(0),
       _callback_response_q(0),
-      _callback_ptr(0),
-      _callback_parameter(0),
-      _callback_handle(0)
+      _callback_ptr(0)
 {
 }
 

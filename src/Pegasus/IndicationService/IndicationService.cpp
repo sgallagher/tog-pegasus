@@ -239,8 +239,6 @@ void IndicationService::_handle_async_request(AsyncRequest *req)
 {
     if (req->getType() == ASYNC_CIMSERVICE_STOP)
     {
-        req->op->processing();
-
         //
         //  Call _terminate
         //
@@ -250,15 +248,12 @@ void IndicationService::_handle_async_request(AsyncRequest *req)
     }
     else if (req->getType() == ASYNC_CIMSERVICE_START)
     {
-        req->op->processing();
-
         handle_CimServiceStart(static_cast<CimServiceStart *>(req));
     }
     else if (req->getType() == ASYNC_ASYNC_LEGACY_OP_START)
     {
         try
         {
-            req->op->processing();
             Message* legacy =
                 static_cast<AsyncLegacyOperationStart *>(req)->get_action();
             legacy->put_async(req);
@@ -2298,7 +2293,6 @@ void IndicationService::_handleIndicationCallBack (
 
     delete handlerResponse;
     delete asyncReply;
-    operation->release ();
     service->return_op (operation);
 
     PEG_METHOD_EXIT ();
@@ -6595,7 +6589,6 @@ void IndicationService::_aggregationCallBack(
 
     delete asyncRequest;
     delete asyncReply;
-    op->release();
     service->return_op(op);
 
     Boolean isDoneAggregation = operationAggregate->appendResponse(response);

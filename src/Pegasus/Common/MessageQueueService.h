@@ -128,6 +128,13 @@ protected:
     static ThreadPool* _thread_pool;
 
 private:
+    Boolean _sendAsync(AsyncOpNode* op,
+        Uint32 destination,
+        void (*callback)(AsyncOpNode*, MessageQueue*, void*),
+        MessageQueue* callback_q,
+        void* callback_ptr,
+        Uint32 flags);
+
     static ThreadReturnType PEGASUS_THREAD_CDECL polling_routine(void *);
 
     AsyncQueue<AsyncOpNode> _incoming;

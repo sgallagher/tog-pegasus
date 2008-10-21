@@ -157,7 +157,6 @@ void TestService::_testServiceCallback(
     delete asyncReply;
     op->removeRequest();
     delete asyncRequest;
-    op->release();
     service->return_op(op);
     delete response;
     responsesReceived++;

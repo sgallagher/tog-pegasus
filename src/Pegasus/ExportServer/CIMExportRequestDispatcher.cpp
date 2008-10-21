@@ -68,12 +68,10 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
 
     if (req->getType() == ASYNC_CIMSERVICE_STOP)
     {
-        req->op->processing();
         handle_CimServiceStop(static_cast<CimServiceStop *>(req));
     }
     else if (req->getType() == ASYNC_ASYNC_LEGACY_OP_START)
     {
-        req->op->processing();
         Message *legacy =
             (static_cast<AsyncLegacyOperationStart *>(req)->get_action());
         if (legacy->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
@@ -242,7 +240,6 @@ CIMExportRequestDispatcher::_handleExportIndicationRequest(
     response->dest = request->queueIds.top();
 
     delete asyncReply;    // Recipient deletes request
-    op->release();
     this->return_op(op);
 
     PEG_METHOD_EXIT();

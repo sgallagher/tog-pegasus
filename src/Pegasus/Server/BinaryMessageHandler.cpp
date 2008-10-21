@@ -94,8 +94,6 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest* request)
     {
         PEG_TRACE_CSTRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
             "Processing ASYNC_LEGACY_OP_* Message.");
-        request->op->processing();
-
         try
         {
             _msg_q.insert_back(request->op);

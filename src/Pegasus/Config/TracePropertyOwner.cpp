@@ -71,17 +71,17 @@ static struct ConfigPropertyRow properties[] =
     {"traceMemoryBufferKbytes", "10240", IS_STATIC, 0, 0, IS_VISIBLE},
     {"traceFacility", "File", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #else
-#if defined (PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
-    {"traceLevel", "1", IS_DYNAMIC, 0, 0, IS_HIDDEN},
+# if defined (PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
+    {"traceLevel", "0", IS_DYNAMIC, 0, 0, IS_HIDDEN},
     {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_HIDDEN},
     {"traceMemoryBufferKbytes", "10240", IS_STATIC, 0, 0, IS_HIDDEN},
     {"traceFacility", "File", IS_DYNAMIC, 0, 0, IS_HIDDEN},
-#else
-    {"traceLevel", "1", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+# else
+    {"traceLevel", "0", IS_DYNAMIC, 0, 0, IS_VISIBLE},
     {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_VISIBLE},
     {"traceMemoryBufferKbytes", "10240", IS_STATIC, 0, 0, IS_VISIBLE},
     {"traceFacility", "File", IS_DYNAMIC, 0, 0, IS_VISIBLE},
-#endif
+# endif
 #endif
 #if defined(PEGASUS_OS_ZOS)
 # if defined(PEGASUS_USE_RELEASE_DIRS)
@@ -149,7 +149,7 @@ Boolean TracePropertyOwner::toUint32TraceMemoryBufferSize(
 //
 Uint32 TracePropertyOwner::getTraceLevel(const String& traceLevel)
 {
-    if ( traceLevel == "0" )
+    if ( traceLevel == "0")
     {
         return Tracer::LEVEL0;
     }
@@ -169,14 +169,19 @@ Uint32 TracePropertyOwner::getTraceLevel(const String& traceLevel)
     {
         return Tracer::LEVEL4;
     }
-    else
+    else if ( traceLevel == "5" )
     {
         return Tracer::LEVEL5;
+    }
+    else 
+    {
+        return Tracer::LEVEL0;
     }
 }
 
 /** Constructors  */
-TracePropertyOwner::TracePropertyOwner()
+TracePropertyOwner::TracePropertyOwner():
+   _initialized(false)
 {
     _traceLevel.reset(new ConfigProperty);
     _traceFilePath.reset(new ConfigProperty);
@@ -190,11 +195,16 @@ TracePropertyOwner::TracePropertyOwner()
 */
 void TracePropertyOwner::initialize()
 {
+    //
+    // Initialize the properties with default values only once !
+    //
+    if (_initialized)
+    {
+        return;
+    }
+
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        //
-        // Initialize the properties with default values
-        //
         if (String::equalNoCase(properties[i].propertyName, "traceComponents"))
         {
             _traceComponents->propertyName = properties[i].propertyName;
@@ -206,6 +216,8 @@ void TracePropertyOwner::initialize()
             _traceComponents->domainSize = properties[i].domainSize;
             _traceComponents->externallyVisible =
                 properties[i].externallyVisible;
+
+            Tracer::setTraceComponents(_traceComponents->defaultValue);
         }
         else if (String::equalNoCase(properties[i].propertyName, "traceLevel"))
         {
@@ -218,6 +230,11 @@ void TracePropertyOwner::initialize()
             _traceLevel->domainSize = properties[i].domainSize;
             _traceLevel->externallyVisible =
                 properties[i].externallyVisible;
+
+            PEGASUS_ASSERT(_traceLevel->defaultValue.size()!= 0);
+
+            Tracer::setTraceLevel(getTraceLevel(_traceLevel->defaultValue));
+            
         }
         else if (String::equalNoCase(
                      properties[i].propertyName, "traceFilePath"))
@@ -245,19 +262,7 @@ void TracePropertyOwner::initialize()
                     _traceFilePath->defaultValue));
                 _traceFilePath->currentValue.clear();
             }
-        }
-        else if (String::equalNoCase(
-                     properties[i].propertyName, "traceFacility"))
-        {
-            _traceFacility->propertyName = properties[i].propertyName;
-            _traceFacility->defaultValue = properties[i].defaultValue;
-            _traceFacility->currentValue = properties[i].defaultValue;
-            _traceFacility->plannedValue = properties[i].defaultValue;
-            _traceFacility->dynamic = properties[i].dynamic;
-            _traceFacility->domain = properties[i].domain;
-            _traceFacility->domainSize = properties[i].domainSize;
-            _traceFacility->externallyVisible =
-                properties[i].externallyVisible;
+
         }
         else if (String::equalNoCase(
                      properties[i].propertyName, "traceMemoryBufferKbytes"))
@@ -271,38 +276,34 @@ void TracePropertyOwner::initialize()
             _traceMemoryBufferKbytes->domainSize = properties[i].domainSize;
             _traceMemoryBufferKbytes->externallyVisible =
                 properties[i].externallyVisible;
+
+            PEGASUS_ASSERT(_traceMemoryBufferKbytes->defaultValue.size()!= 0);
+
+            Uint32 bufferSize;
+            toUint32TraceMemoryBufferSize( 
+                _traceMemoryBufferKbytes->defaultValue, bufferSize );
+            Tracer::setTraceMemoryBufferSize(bufferSize); 
+            
+        }
+        else if (String::equalNoCase(
+                     properties[i].propertyName, "traceFacility"))
+        {
+            _traceFacility->propertyName = properties[i].propertyName;
+            _traceFacility->defaultValue = properties[i].defaultValue;
+            _traceFacility->currentValue = properties[i].defaultValue;
+            _traceFacility->plannedValue = properties[i].defaultValue;
+            _traceFacility->dynamic = properties[i].dynamic;
+            _traceFacility->domain = properties[i].domain;
+            _traceFacility->domainSize = properties[i].domainSize;
+            _traceFacility->externallyVisible =
+                properties[i].externallyVisible;
+
+            PEGASUS_ASSERT(_traceFacility->defaultValue.size()!= 0);
+
+            Tracer::setTraceFacility(_traceFacility->defaultValue);
         }
     }
-
-    Tracer::setTraceFacility(_traceFacility->defaultValue);
-
-    if (_traceLevel->defaultValue != String::EMPTY)
-    {
-        if (_traceLevel->defaultValue == "0")
-        {
-            Tracer::setTraceLevel(Tracer::LEVEL0);
-        }
-        else if (_traceLevel->defaultValue == "1")
-        {
-            Tracer::setTraceLevel(Tracer::LEVEL1);
-        }
-        else if (_traceLevel->defaultValue == "2")
-        {
-            Tracer::setTraceLevel(Tracer::LEVEL2);
-        }
-        else if (_traceLevel->defaultValue == "3")
-        {
-            Tracer::setTraceLevel(Tracer::LEVEL3);
-        }
-        else if (_traceLevel->defaultValue == "4")
-        {
-            Tracer::setTraceLevel(Tracer::LEVEL4);
-        }
-        else if (_traceLevel->defaultValue == "5")
-        {
-            Tracer::setTraceLevel(Tracer::LEVEL5);
-        }
-    }
+    _initialized = true;
 }
 
 struct ConfigProperty* TracePropertyOwner::_lookupConfigProperty(
@@ -415,7 +416,6 @@ void TracePropertyOwner::initCurrentValue(
     else if (String::equalNoCase(_traceFilePath->propertyName, name))
     {
         _traceFilePath->currentValue = value;
-        
         Uint32 retCode = Tracer::setTraceFile(ConfigManager::getHomedPath(
             _traceFilePath->currentValue).getCString());
         if ( retCode == 1 )

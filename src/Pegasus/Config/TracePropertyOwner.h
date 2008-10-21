@@ -234,6 +234,11 @@ private:
 
     AutoPtr<struct ConfigProperty>      _traceMemoryBufferKbytes; //PEP316
 
+    /**
+    Remember if configproperties are already initialized.
+    */
+    Boolean _initialized;
+
 };
 
 PEGASUS_NAMESPACE_END

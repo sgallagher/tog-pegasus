@@ -303,9 +303,9 @@ String System::getPassword(const char* prompt)
     termb otermb;
     termb ntermb;
 
-    static long ichan;          // Gets channel number for TT:
+    short int ichan;            // Gets channel number for TT:
 
-    register int errorcode;
+    int errorcode;
     int kbdflgs;                // saved keyboard fd flags
     int kbdpoll;                // in O_NDELAY mode
     int kbdqp = false;          // there is a char in kbdq
@@ -321,113 +321,129 @@ String System::getPassword(const char* prompt)
 
     $DESCRIPTOR(inpdev, "TT");  // Terminal to use for input
 
-    // Get a channel for the terminal
-
     buf[0] = 0;
 
-    errorcode = sys$assign(&inpdev,     // Device name
-                           &ichan,      // Channel assigned
-                           0,   // request KERNEL mode access
-                           0);  // No mailbox assigned
+    ichan = 0;
 
-    if (errorcode != SS$_NORMAL)
+    try
     {
-        return buf;
+        // Get a channel for the terminal
+
+        errorcode = sys$assign(&inpdev,     // Device name
+                               &ichan,      // Channel assigned
+                               0,   // request KERNEL mode access
+                               0);  // No mailbox assigned
+
+        if (errorcode != SS$_NORMAL)
+        {
+            throw Exception("sys$assign failure");
+        }
+
+        // Read current terminal settings
+
+        errorcode = sys$qiow(0,     // Wait on event flag zero
+                             ichan, // Channel to input terminal
+                             IO$_SENSEMODE, // Function - Sense Mode
+                             &iostatus,     // Status after operation
+                             0, 0,  // No AST service
+                             &otermb,       // [P1] Address of Char Buffer
+                             sizeof (otermb),       // [P2] Size of Char Buffer
+                             0, 0, 0, 0);   // [P3] - [P6]
+
+        if (errorcode != SS$_NORMAL)
+        {
+            throw Exception("sys$qiow IO$_SENSEMODE failure");
+        }
+
+        // setup new settings
+
+        ntermb = otermb;
+
+        // turn on passthru and nobroadcast
+
+        ntermb.t_extend |= TT2$M_PASTHRU;
+        ntermb.t_mandl |= TT$M_NOBRDCST;
+
+        // Write out new terminal settings
+
+        errorcode = sys$qiow(0,     // Wait on event flag zero
+                             ichan, // Channel to input terminal
+                             IO$_SETMODE,   // Function - Set Mode
+                             &iostatus,     // Status after operation
+                             0, 0,  // No AST service
+                             &ntermb,       // [P1] Address of Char Buffer
+                             sizeof (ntermb),       // [P2] Size of Char Buffer
+                             0, 0, 0, 0);   // [P3] - [P6]
+
+        if (errorcode != SS$_NORMAL)
+        {
+            throw Exception("sys$qiow IO$_SETMODE failure");
+        }
+
+        // Write a prompt, read characters from the terminal, performing no
+        // editing
+        // and doing no echo at all.
+
+        psize = strlen(prompt);
+
+        errorcode = sys$qiow(0,     // Event flag
+                             ichan, // Input channel
+                             IO$_READPROMPT | IO$M_NOECHO | IO$M_NOFILTR |
+                             IO$M_TRMNOECHO,
+                             // Read with prompt, no echo, no translate, no
+                             // termination character echo
+                             &iostatus,     // I/O status block
+                             NULL,  // AST block (none)
+                             0,     // AST parameter
+                             &buf,  // P1 - input buffer
+                             MAX_PASS_LEN,  // P2 - buffer length
+                             0,     // P3 - ignored (timeout)
+                             0,     // P4 - ignored (terminator char set)
+                             prompt,        // P5 - prompt buffer
+                             psize);        // P6 - prompt size
+
+        if (errorcode != SS$_NORMAL)
+        {
+            throw Exception("sys$qiow IO$_READPROMPT failure:");
+        }
+
+        // Write out old terminal settings
+        errorcode = sys$qiow(0,     // Wait on event flag zero
+                             ichan, // Channel to input terminal
+                             IO$_SETMODE,   // Function - Set Mode
+                             &iostatus,     // Status after operation
+                             0, 0,  // No AST service
+                             &otermb,       // [P1] Address of Char Buffer
+                             sizeof (otermb),       // [P2] Size of Char Buffer
+                             0, 0, 0, 0);   // [P3] - [P6]
+
+        if (errorcode != SS$_NORMAL)
+        {
+            throw Exception("sys$qiow IO$_SETMODE failure");
+        }
+
+        // Start new line
+
+        const int CR = 0x0d;
+        const int LF = 0x0a;
+        fputc(CR, stdout);
+        fputc(LF, stdout);
+
+        // Remove the termination character
+        psize = strlen(buf);
+        buf[psize - 1] = 0;
     }
 
-    // Read current terminal settings
-
-    errorcode = sys$qiow(0,     // Wait on event flag zero
-                         ichan, // Channel to input terminal
-                         IO$_SENSEMODE, // Function - Sense Mode
-                         &iostatus,     // Status after operation
-                         0, 0,  // No AST service
-                         &otermb,       // [P1] Address of Char Buffer
-                         sizeof (otermb),       // [P2] Size of Char Buffer
-                         0, 0, 0, 0);   // [P3] - [P6]
-
-    if (errorcode != SS$_NORMAL)
+    catch (Exception &e)
     {
-        return buf;
+        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1, "%s: %s",
+            (const char *) (e.getMessage()).getCString(),
+            strerror(EVMSERR, errorcode)));
     }
 
-    // setup new settings
+    // Deassign the channel
 
-    ntermb = otermb;
-
-    // turn on passthru and nobroadcast
-
-    ntermb.t_extend |= TT2$M_PASTHRU;
-    ntermb.t_mandl |= TT$M_NOBRDCST;
-
-    // Write out new terminal settings
-
-    errorcode = sys$qiow(0,     // Wait on event flag zero
-                         ichan, // Channel to input terminal
-                         IO$_SETMODE,   // Function - Set Mode
-                         &iostatus,     // Status after operation
-                         0, 0,  // No AST service
-                         &ntermb,       // [P1] Address of Char Buffer
-                         sizeof (ntermb),       // [P2] Size of Char Buffer
-                         0, 0, 0, 0);   // [P3] - [P6]
-
-    if (errorcode != SS$_NORMAL)
-    {
-        return buf;
-    }
-
-    // Write a prompt, read characters from the terminal, performing no
-    // editing
-    // and doing no echo at all.
-
-    psize = strlen(prompt);
-
-    errorcode = sys$qiow(0,     // Event flag
-                         ichan, // Input channel
-                         IO$_READPROMPT | IO$M_NOECHO | IO$M_NOFILTR |
-                         IO$M_TRMNOECHO,
-                         // Read with prompt, no echo, no translate, no
-                         // termination character echo
-                         &iostatus,     // I/O status block
-                         NULL,  // AST block (none)
-                         0,     // AST parameter
-                         &buf,  // P1 - input buffer
-                         MAX_PASS_LEN,  // P2 - buffer length
-                         0,     // P3 - ignored (timeout)
-                         0,     // P4 - ignored (terminator char set)
-                         prompt,        // P5 - prompt buffer
-                         psize);        // P6 - prompt size
-
-    if (errorcode != SS$_NORMAL)
-    {
-        return buf;
-    }
-
-    // Write out old terminal settings
-    errorcode = sys$qiow(0,     // Wait on event flag zero
-                         ichan, // Channel to input terminal
-                         IO$_SETMODE,   // Function - Set Mode
-                         &iostatus,     // Status after operation
-                         0, 0,  // No AST service
-                         &otermb,       // [P1] Address of Char Buffer
-                         sizeof (otermb),       // [P2] Size of Char Buffer
-                         0, 0, 0, 0);   // [P3] - [P6]
-
-    if (errorcode != SS$_NORMAL)
-    {
-        return buf;
-    }
-
-    // Start new line
-
-    const int CR = 0x0d;
-    const int LF = 0x0a;
-    fputc(CR, stdout);
-    fputc(LF, stdout);
-
-    // Remove the termination character
-    psize = strlen(buf);
-    buf[psize - 1] = 0;
+    if (ichan) sys$dassgn(ichan);
 
     return buf;
 

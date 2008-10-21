@@ -360,8 +360,8 @@ Boolean ProviderAgent::_readAndProcessRequest()
             dynamic_cast<CIMInitializeProviderAgentRequestMessage*>(request));
         PEGASUS_ASSERT(ipaRequest.get() != 0);
 
+        ConfigManager::setPegasusHome(ipaRequest->pegasusHome);
         ConfigManager* configManager = ConfigManager::getInstance();
-        configManager->setPegasusHome(ipaRequest->pegasusHome);
 
         // Initialize the configuration properties
         for (Uint32 i = 0; i < ipaRequest->configProperties.size(); i++)

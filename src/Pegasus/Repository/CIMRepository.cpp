@@ -1013,8 +1013,13 @@ CIMInstance CIMRepository::_getInstance(
     // Resolve the instance (if requested):
     //
 
-    if (resolveInstance)
+    if (resolveInstance && includeQualifiers)
     {
+        // Instances are resolved in persistent storage by the
+        // createInstance and modifyInstance operations, but qualifiers
+        // are not propagated.  The only reason to perform resolution
+        // here is if qualifiers are requested in the instance.
+
         CIMConstClass cimClass;
         Resolver::resolveInstance (
             cimInstance, _rep->_context, nameSpace, cimClass, true);
@@ -1249,10 +1254,6 @@ CIMObjectPath CIMRepository::_createInstance(
 
     _rep->_persistentStore->createInstance(
         nameSpace, instanceName, cimInstance, instAssocEntries);
-
-    // ATTN: Why does this come after the create has completed?
-    Resolver::resolveInstance (
-        cimInstance, _rep->_context, nameSpace, cimClass, true);
 
     PEG_METHOD_EXIT();
     return instanceName;
@@ -1590,14 +1591,6 @@ void CIMRepository::modifyInstance(
     _rep->_persistentStore->modifyInstance(
         nameSpace, normalizedInstanceName, cimInstance);
 
-    //
-    // Resolve the instance:
-    //
-
-    // ATTN: Why does this come after the modify has completed?
-    Resolver::resolveInstance (
-        cimInstance, _rep->_context, nameSpace, cimClass, true);
-
     PEG_METHOD_EXIT();
 }
 
@@ -1685,15 +1678,12 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
             enumerateInstancesForClass(nameSpace, classNames[i],
                 false, includeQualifiers, includeClassOrigin, propertyList);
 
-        // ATTN: Handles everything but deepInheritance.
-        for (Uint32 j = 0 ; j < localNamedInstances.size(); j++)
-        {
-            _filterInstance(localNamedInstances[j],
-                propertyList,
-                localOnly,
-                includeQualifiers,
-                includeClassOrigin);
-        }
+        // The propertyList, includeQualifiers, and includeClassOrigin 
+        // filtering is done in enumerateInstancesForClass.  localOnly
+        // filtering is not performed, since this flag is deprecated and
+        // is not supported for instance operations.
+        // ATTN: deepInheritance filtering is not performed.
+
         namedInstances.appendArray(localNamedInstances);
     }
 
@@ -1728,8 +1718,15 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
     // on the returned instances.
     for (Uint32 i = 0 ; i < namedInstances.size(); i++)
     {
-        Resolver::resolveInstance(
-            namedInstances[i], _rep->_context, nameSpace, true);
+        if (includeQualifiers)
+        {
+            // Instances are resolved in persistent storage by the
+            // createInstance and modifyInstance operations, but qualifiers
+            // are not propagated.  The only reason to perform resolution
+            // here is if qualifiers are requested in the instance.
+            Resolver::resolveInstance(
+                namedInstances[i], _rep->_context, nameSpace, true);
+        }
 
         _filterInstance(namedInstances[i],
             propertyList,
@@ -2198,7 +2195,7 @@ CIMValue CIMRepository::getProperty(
     //
 
     CIMInstance cimInstance = _getInstance(
-        nameSpace, instanceName, false, true, true, CIMPropertyList(), true);
+        nameSpace, instanceName, false, true, true, CIMPropertyList(), false);
 
     //
     // Get the requested property from the instance

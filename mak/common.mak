@@ -49,8 +49,17 @@ else
 endif
 
 ifeq ($(OS),zos)
-    DYNAMIC_LIBRARIES = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), \
-	$(addsuffix $(DYNLIB_SUFFIX), $(LIBRARIES)))
+    ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
+        _P1 = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), $(LIBRARIES))
+        _P2 = $(addsuffix $(STATLIB_SUFFIX), $(_P1))
+        _P3 = $(addsuffix $(DYNLIB_SUFFIX), $(_P1))
+        P4 = $(shell echo $(_P2) $(_P3))
+        DYNAMIC_LIBRARIES = $(foreach linkfile, $(_P4), $(wildcard $(linkfile)))
+        FULL_LIBRARIES = $(foreach linkfile, $(_P4), $(wildcard $(linkfile)))
+    else	
+        DYNAMIC_LIBRARIES = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), \
+            $(addsuffix $(DYNLIB_SUFFIX), $(LIBRARIES)))
+    endif
 else
     DYNAMIC_LIBRARIES = $(addprefix -l, $(LIBRARIES))
 endif

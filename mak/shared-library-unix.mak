@@ -193,7 +193,7 @@ $(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) \
     endif
 
     ifeq ($(OS),zos)
-	$(LINK_COMMAND) $(LINK_ARGUMENTS) -L$(LIB_DIR) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(EXTRA_LIBRARIES) $(SYS_LIBS) > lib$(LIBRARY).llst
+	$(LINK_COMMAND) $(LINK_ARGUMENTS) -L$(LIB_DIR) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(EXTRA_LIBRARIES) $(SYS_LIBS) $(DYNAMIC_LIBRARIES) > lib$(LIBRARY).llst
 	@ $(ZIP) -a -m $(FULL_LIB).llst.zip lib$(LIBRARY).llst
       ## z/OS needs side definition files to link executables to
       ## dynamic libraries, so we have to copy them into the lib_dir

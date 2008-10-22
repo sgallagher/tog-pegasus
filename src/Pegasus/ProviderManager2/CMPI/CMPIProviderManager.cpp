@@ -491,8 +491,6 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
-
         PEG_TRACE((
             TRC_PROVIDERMANAGER,
             Tracer::LEVEL2,
@@ -500,6 +498,8 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
             (const char*)pr.getName().getCString()));
 
         {
+            AutoPThreadSecurity threadLevelSecurity(request->operationContext);
+
             StatProviderTimeMeasurement providerTime(response);
 
             rc = pr.getInstMI()->ft->getInstance(
@@ -635,8 +635,6 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
-
         PEG_TRACE((
             TRC_PROVIDERMANAGER,
             Tracer::LEVEL2,
@@ -644,6 +642,8 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
              (const char*)pr.getName().getCString()));
 
         {
+            AutoPThreadSecurity threadLevelSecurity(request->operationContext);
+
             StatProviderTimeMeasurement providerTime(response);
 
             rc = pr.getInstMI()->ft->enumerateInstances(
@@ -774,8 +774,6 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
-
         PEG_TRACE((
             TRC_PROVIDERMANAGER,
             Tracer::LEVEL2,
@@ -783,6 +781,8 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
             (const char*)pr.getName().getCString()));
 
         {
+            AutoPThreadSecurity threadLevelSecurity(request->operationContext);
+
             StatProviderTimeMeasurement providerTime(response);
 
             rc = pr.getInstMI()->ft->enumerateInstanceNames(
@@ -917,8 +917,6 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
-
         PEG_TRACE((
             TRC_PROVIDERMANAGER,
             Tracer::LEVEL2,
@@ -926,6 +924,8 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
             (const char*)ph.GetProvider().getName().getCString()));
 
         {
+            AutoPThreadSecurity threadLevelSecurity(request->operationContext);
+
             StatProviderTimeMeasurement providerTime(response);
 
             rc = pr.getInstMI()->ft->createInstance(
@@ -1061,8 +1061,6 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
-
         PEG_TRACE((
             TRC_PROVIDERMANAGER,
             Tracer::LEVEL2,
@@ -1070,6 +1068,8 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
             (const char*)pr.getName().getCString()));
 
         {
+            AutoPThreadSecurity threadLevelSecurity(request->operationContext);
+
             StatProviderTimeMeasurement providerTime(response);
 
             rc = pr.getInstMI()->ft->modifyInstance(
@@ -1203,8 +1203,6 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
-
         PEG_TRACE((
             TRC_PROVIDERMANAGER,
             Tracer::LEVEL2,
@@ -1212,6 +1210,8 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
             (const char*)pr.getName().getCString()));
 
         {
+            AutoPThreadSecurity threadLevelSecurity(request->operationContext);
+
             StatProviderTimeMeasurement providerTime(response);
 
             rc = pr.getInstMI()->ft->deleteInstance(
@@ -1348,8 +1348,6 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
-
         PEG_TRACE((
             TRC_PROVIDERMANAGER,
             Tracer::LEVEL2,
@@ -1357,6 +1355,8 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
             (const char*)pr.getName().getCString()));
 
         {
+            AutoPThreadSecurity threadLevelSecurity(request->operationContext);
+
             StatProviderTimeMeasurement providerTime(response);
 
             rc = pr.getInstMI()->ft->execQuery(
@@ -1509,8 +1509,6 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
-
         PEG_TRACE((
             TRC_PROVIDERMANAGER,
             Tracer::LEVEL2,
@@ -1518,6 +1516,8 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
             (const char*)pr.getName().getCString()));
 
         {
+            AutoPThreadSecurity threadLevelSecurity(request->operationContext);
+
             StatProviderTimeMeasurement providerTime(response);
 
             rc = pr.getAssocMI()->ft->associators(
@@ -1672,8 +1672,6 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
-
         PEG_TRACE((
             TRC_PROVIDERMANAGER,
             Tracer::LEVEL2,
@@ -1681,6 +1679,8 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
             (const char*)pr.getName().getCString()));
 
         {
+            AutoPThreadSecurity threadLevelSecurity(request->operationContext);
+
             StatProviderTimeMeasurement providerTime(response);
 
             rc = pr.getAssocMI()->ft->associatorNames(
@@ -1830,8 +1830,6 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
-
         PEG_TRACE((
             TRC_PROVIDERMANAGER,
             Tracer::LEVEL2,
@@ -1839,6 +1837,8 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
             (const char*)pr.getName().getCString()));
 
         {
+            AutoPThreadSecurity threadLevelSecurity(request->operationContext);
+
             StatProviderTimeMeasurement providerTime(response);
 
             rc = pr.getAssocMI()->ft->references(
@@ -1985,8 +1985,6 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
-
         PEG_TRACE((
             TRC_PROVIDERMANAGER,
             Tracer::LEVEL2,
@@ -1994,6 +1992,8 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
             (const char*)pr.getName().getCString()));
 
         {
+            AutoPThreadSecurity threadLevelSecurity(request->operationContext);
+
             StatProviderTimeMeasurement providerTime(response);
 
             rc = pr.getAssocMI()->ft->referenceNames(
@@ -2137,8 +2137,6 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
-
         PEG_TRACE((
             TRC_PROVIDERMANAGER,
             Tracer::LEVEL2,
@@ -2146,6 +2144,8 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
             (const char*)pr.getName().getCString()));
 
         {
+            AutoPThreadSecurity threadLevelSecurity(request->operationContext);
+
             StatProviderTimeMeasurement providerTime(response);
 
             rc = pr.getMethMI()->ft->invokeMethod(
@@ -2480,8 +2480,6 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
-
         PEG_TRACE((
             TRC_PROVIDERMANAGER,
             Tracer::LEVEL2,
@@ -2489,6 +2487,8 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             (const char*)pr.getName().getCString()));
 
         {
+            AutoPThreadSecurity threadLevelSecurity(request->operationContext);
+
             StatProviderTimeMeasurement providerTime(response);
 
             if (pr.getIndMI()->ft->ftVersion >= 100)
@@ -2691,8 +2691,6 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
-
         PEG_TRACE((
             TRC_PROVIDERMANAGER,
             Tracer::LEVEL2,
@@ -2700,6 +2698,8 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
             (const char*)pr.getName().getCString()));
 
         {
+            AutoPThreadSecurity threadLevelSecurity(request->operationContext);
+
             StatProviderTimeMeasurement providerTime(response);
 
             if (pr.getIndMI()->ft->ftVersion >= 100)
@@ -3164,8 +3164,6 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
-
         PEG_TRACE((
             TRC_PROVIDERMANAGER,
             Tracer::LEVEL2,
@@ -3173,6 +3171,8 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
             (const char*)pr.getName().getCString()));
 
         {
+            AutoPThreadSecurity threadLevelSecurity(request->operationContext);
+
             StatProviderTimeMeasurement providerTime(response);
 
             rc = pr.getInstMI()->ft->getInstance(
@@ -3376,8 +3376,6 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        AutoPThreadSecurity threadLevelSecurity(request->operationContext);
-
         PEG_TRACE((
             TRC_PROVIDERMANAGER,
             Tracer::LEVEL2,
@@ -3385,6 +3383,8 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
             (const char*)pr.getName().getCString()));
 
         {
+            AutoPThreadSecurity threadLevelSecurity(request->operationContext);
+
             StatProviderTimeMeasurement providerTime(response);
 
             rc = pr.getInstMI()->ft->modifyInstance(

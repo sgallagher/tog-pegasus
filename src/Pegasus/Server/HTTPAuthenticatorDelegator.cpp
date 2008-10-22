@@ -292,7 +292,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
     PEG_TRACE_CSTRING(
         TRC_HTTP,
-        Tracer::LEVEL2,
+        Tracer::LEVEL3,
         "HTTPAuthenticatorDelegator - HTTP processing start");
 
 

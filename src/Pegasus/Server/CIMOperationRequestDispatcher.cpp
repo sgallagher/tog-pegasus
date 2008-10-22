@@ -1863,7 +1863,9 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
 
     if (providerNames.size() == 0)
     {
-        PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL2,
+        PEG_TRACE((
+            TRC_DISPATCHER,
+            Tracer::LEVEL3,
             "Association Provider NOT found for Class %s in nameSpace %s",
             (const char*)assocClass.getString().getCString(),
             (const char*)nameSpace.getString().getCString()));

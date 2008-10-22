@@ -471,10 +471,6 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "Calling provider.getInstance: %s",
-            (const char*)pr.getName().getCString()));
-
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
@@ -497,6 +493,12 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
 
         AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Calling provider.getInstance: %s",
+            (const char*)pr.getName().getCString()));
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -507,6 +509,12 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
                 &eRef,
                 (const char **)props.getList());
         }
+
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Returning from provider.getInstance: %s",
+            (const char*)pr.getName().getCString()));
 
 //      Need to save ContentLanguage value into operation context of response
 //      Do this before checking rc from provider to throw exception in case 
@@ -607,10 +615,6 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "Calling provider.enumerateInstances: %s",
-             (const char*)pr.getName().getCString()));
-
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
@@ -633,6 +637,12 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
 
         AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Calling provider.enumerateInstances: %s",
+             (const char*)pr.getName().getCString()));
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -643,6 +653,12 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
                 &eRef,
                 (const char **)props.getList());
         }
+
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Returning from provider.enumerateInstances: %s",
+             (const char*)pr.getName().getCString()));
 
 //      Need to save ContentLanguage value into operation context of response
 //      Do this before checking rc from provider to throw exception in case 
@@ -740,10 +756,6 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
             request->operationContext.get(ContentLanguageListContainer::NAME));
         CMPIProvider & pr=ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "Calling provider.enumerateInstanceNames: %s",
-            (const char*)pr.getName().getCString()));
-
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
@@ -764,6 +776,12 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
         AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Calling provider.enumerateInstanceNames: %s",
+            (const char*)pr.getName().getCString()));
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -773,6 +791,12 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
                 &eRes,
                 &eRef);
         }
+
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Returning from provider.enumerateInstanceNames: %s",
+            (const char*)pr.getName().getCString()));
 
 //      Need to save ContentLanguage value into operation context of response
 //      Do this before checking rc from provider to throw exception in case 
@@ -874,10 +898,6 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "Calling provider.createInstance: %s",
-            (const char*)ph.GetProvider().getName().getCString()));
-
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
@@ -899,6 +919,12 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
 
         AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Calling provider.createInstance: %s",
+            (const char*)ph.GetProvider().getName().getCString()));
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -909,6 +935,12 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
                 &eRef,
                 &eInst);
         }
+
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Returning from provider.createInstance: %s",
+            (const char*)ph.GetProvider().getName().getCString()));
 
 //      Need to save ContentLanguage value into operation context of response
 //      Do this before checking rc from provider to throw exception in case 
@@ -1008,10 +1040,6 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "Calling provider.modifyInstance: %s",
-            (const char*)pr.getName().getCString()));
-
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
@@ -1035,6 +1063,12 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
 
         AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Calling provider.modifyInstance: %s",
+            (const char*)pr.getName().getCString()));
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -1046,6 +1080,12 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
                 &eInst,
                 (const char **)props.getList());
         }
+
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Returning from provider.modifyInstance: %s",
+            (const char*)pr.getName().getCString()));
 
 //      Need to save ContentLanguage value into operation context of response
 //      Do this before checking rc from provider to throw exception in case 
@@ -1145,10 +1185,6 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "Calling provider.deleteInstance: %s",
-            (const char*)pr.getName().getCString()));
-
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
@@ -1169,6 +1205,12 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
 
         AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Calling provider.deleteInstance: %s",
+            (const char*)pr.getName().getCString()));
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -1178,6 +1220,12 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
                 &eRes,
                 &eRef);
         }
+
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Returning from provider.deleteInstance: %s",
+            (const char*)pr.getName().getCString()));
 
 //      Need to save ContentLanguage value into operation context of response
 //      Do this before checking rc from provider to throw exception in case 
@@ -1277,10 +1325,6 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "Calling provider.execQuery: %s",
-            (const char*)pr.getName().getCString()));
-
         const char **props=NULL;
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
@@ -1306,6 +1350,12 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 
         AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Calling provider.execQuery: %s",
+            (const char*)pr.getName().getCString()));
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -1317,6 +1367,12 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
                 CHARS(queryLan),
                 CHARS(query));
         }
+
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Returning from provider.execQuery: %s",
+            (const char*)pr.getName().getCString()));
 
 //      Need to save ContentLanguage value into operation context of response
 //      Do this before checking rc from provider to throw exception in case 
@@ -1425,10 +1481,6 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "Calling provider.associators: %s",
-            (const char*)pr.getName().getCString()));
-
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "--- CMPIProviderManager::associators < role: > %s%s",
             (const char*)request->role.getCString(),
             (const char*)request->assocClass.getString().getCString()));
@@ -1459,6 +1511,12 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Calling provider.associators: %s",
+            (const char*)pr.getName().getCString()));
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -1473,6 +1531,12 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
                 CHARS(resRole),
                 (const char **)props.getList());
         }
+
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Returning from provider.associators: %s",
+            (const char*)pr.getName().getCString()));
 
 //      Need to save ContentLanguage value into operation context of response
 //      Do this before checking rc from provider to throw exception in case 
@@ -1582,10 +1646,6 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
         CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "Calling provider.associatorNames: %s",
-            (const char*)pr.getName().getCString()));
-
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "--- CMPIProviderManager::associatorNames --  role: %s< aCls %s", 
             (const char*)request->role.getCString(),
             (const char*)request->assocClass.getString().getCString()));
@@ -1614,6 +1674,12 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
 
         AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Calling provider.associatorNames: %s",
+            (const char*)pr.getName().getCString()));
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -1627,6 +1693,12 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
                 CHARS(rRole),
                 CHARS(resRole));
         }
+
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Returning from provider.associatorNames: %s",
+            (const char*)pr.getName().getCString()));
 
 //      Need to save ContentLanguage value into operation context of response
 //      Do this before checking rc from provider to throw exception in case 
@@ -1732,10 +1804,6 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "Calling provider.references: %s",
-            (const char*)pr.getName().getCString()));
-
-        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "--- CMPIProviderManager::references -- role:%s< aCls %s",
             (const char*)request->role.getCString(),
             (const char*)request->resultClass.getString().getCString()));
@@ -1764,6 +1832,12 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 
         AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Calling provider.references: %s",
+            (const char*)pr.getName().getCString()));
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -1776,6 +1850,12 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
                 CHARS(rRole),
                 (const char **)props.getList());
         }
+
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Returning from provider.references: %s",
+            (const char*)pr.getName().getCString()));
 
 //      Need to save ContentLanguage value into operation context of response
 //      Do this before checking rc from provider to throw exception in case 
@@ -1881,10 +1961,6 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
         CMPIProvider & pr=ph.GetProvider();
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "Calling provider.referenceNames: %s",
-            (const char*)pr.getName().getCString()));
-
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "--- CMPIProviderManager::referenceNames -- role: %s< aCls %s",
             (const char*)request->role.getCString(),
             (const char*)request->resultClass.getString().getCString()));
@@ -1911,6 +1987,12 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
 
         AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Calling provider.referenceNames: %s",
+            (const char*)pr.getName().getCString()));
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -1922,6 +2004,12 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
                 CHARS(rClass),
                 CHARS(rRole));
         }
+
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Returning from provider.referenceNames: %s",
+            (const char*)pr.getName().getCString()));
 
 //      Need to save ContentLanguage value into operation context of response
 //      Do this before checking rc from provider to throw exception in case 
@@ -2027,10 +2115,6 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "Calling provider.invokeMethod: %s",
-            (const char*)pr.getName().getCString()));
-
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
@@ -2055,6 +2139,12 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
 
         AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Calling provider.invokeMethod: %s",
+            (const char*)pr.getName().getCString()));
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -2067,6 +2157,12 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                 &eArgsIn,
                 &eArgsOut);
         }
+
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Returning from provider.invokeMethod: %s",
+            (const char*)pr.getName().getCString()));
 
 //      Need to save ContentLanguage value into operation context of response
 //      Do this before checking rc from provider to throw exception in case 
@@ -2348,10 +2444,6 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
 
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "Calling provider.createSubscriptionRequest: %s",
-            (const char*)pr.getName().getCString()));
-
         for (Uint32 i = 0, n = request->classNames.size(); i < n; i++)
         {
             CIMObjectPath className(
@@ -2390,6 +2482,12 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
 
         AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Calling provider.createSubscriptionRequest: %s",
+            (const char*)pr.getName().getCString()));
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -2416,6 +2514,12 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
                     getCString()),&eRef,false);
             }
         }
+
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Returning from provider.createSubscriptionRequest: %s",
+            (const char*)pr.getName().getCString()));
 
 //      Need to save ContentLanguage value into operation context of response
 //      Do this before checking rc from provider to throw exception in case 
@@ -2576,10 +2680,6 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
         CMPI_ContextOnStack eCtx(context);
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "Calling provider.deleteSubscriptionRequest: %s",
-            (const char*)pr.getName().getCString()));
-
         // includeQualifiers and includeClassOrigin not of interest for
         // this type of request
         _setupCMPIContexts(
@@ -2592,6 +2692,12 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
         AutoPThreadSecurity threadLevelSecurity(request->operationContext);
+
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Calling provider.deleteSubscriptionRequest: %s",
+            (const char*)pr.getName().getCString()));
 
         {
             StatProviderTimeMeasurement providerTime(response);
@@ -2620,6 +2726,12 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
                     getCString()),&eRef,prec==NULL);
             }
         }
+
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Returning from provider.deleteSubscriptionRequest: %s",
+            (const char*)pr.getName().getCString()));
 
         if (srec->count<=0)
         {
@@ -3028,10 +3140,6 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         request->operationContext.insert(
             NormalizerContextContainer(tmpNormalizerContext));
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "Calling provider.getInstance via getProperty: %s",
-            (const char*)pr.getName().getCString()));
-
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
@@ -3058,6 +3166,12 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
 
         AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Calling provider.getInstance via getProperty: %s",
+            (const char*)pr.getName().getCString()));
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -3068,6 +3182,12 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
                 &eRef,
                 (const char **)props.getList());
         }
+
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Returning from provider.getInstance via getProperty: %s",
+            (const char*)pr.getName().getCString()));
 
 //      Need to save ContentLanguage value into operation context of response
 //      Do this before checking rc from provider to throw exception in case 
@@ -3234,10 +3354,6 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
         // forward request
         CMPIProvider & pr=ph.GetProvider();
 
-        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "Calling provider.modifyInstance via setProperty: %s",
-            (const char*)pr.getName().getCString()));
-
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(context);
         CMPI_ObjectPathOnStack eRef(objectPath);
@@ -3262,6 +3378,12 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
 
         AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Calling provider.modifyInstance via setProperty: %s",
+            (const char*)pr.getName().getCString()));
+
         {
             StatProviderTimeMeasurement providerTime(response);
 
@@ -3273,6 +3395,12 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
                 &eInst,
                 (const char **)props.getList());
         }
+
+        PEG_TRACE((
+            TRC_PROVIDERMANAGER,
+            Tracer::LEVEL2,
+            "Returning from provider.modifyInstance via setProperty: %s",
+            (const char*)pr.getName().getCString()));
 
 //      Need to save ContentLanguage value into operation context of response
 //      Do this before checking rc from provider to throw exception in case 
@@ -3443,7 +3571,9 @@ void CMPIProviderManager::_callEnableIndications
                     (CMPIValue*)(const char*)remoteInfo,CMPI_chars);
             }
 
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
+            PEG_TRACE((
+                TRC_PROVIDERMANAGER,
+                Tracer::LEVEL2,
                 "Calling provider.enableIndications: %s",
                 (const char*)pr.getName().getCString()));
 
@@ -3460,10 +3590,19 @@ void CMPIProviderManager::_callEnableIndications
             // there really isn't a user to which the problem should be
             // reported.
             pr.getIndMI()->ft->enableIndications(pr.getIndMI(),&eCtx);
+
+            PEG_TRACE((
+                TRC_PROVIDERMANAGER,
+                Tracer::LEVEL2,
+                "Returning from provider.enableIndications: %s",
+                (const char*)pr.getName().getCString()));
+
         }
         else
         {
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
+            PEG_TRACE((
+                TRC_PROVIDERMANAGER,
+                Tracer::LEVEL2,
                 "Not calling provider.enableIndications: %s routine as it is "
                 "an earlier version that does not support this function",
                  (const char*)pr.getName().getCString()));
@@ -3529,7 +3668,7 @@ void CMPIProviderManager::_callDisableIndications
             }
             CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
+            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL2,
                 "Calling provider.disableIndications: %s",
                 (const char*)pr.getName().getCString()));
 
@@ -3547,10 +3686,15 @@ void CMPIProviderManager::_callDisableIndications
                 &eCtx);
 
             pr.unprotect();
+
+            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL2,
+                "Returning from provider.disableIndications: %s",
+                (const char*)pr.getName().getCString()));
+
         }
         else
         {
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
+            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL2,
                 "Not calling provider.disableIndications: %s routine as it is "
                 "an earlier version that does not support this function",
                 (const char*)pr.getName().getCString()));

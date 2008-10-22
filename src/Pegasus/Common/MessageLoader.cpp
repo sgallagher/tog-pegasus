@@ -211,9 +211,11 @@ void MessageLoaderICU::openICUMessageFile(MessageLoaderParms& parms)
          }   
     }
 
-    PEG_TRACE_CSTRING(TRC_L10N, Tracer::LEVEL2,
+    PEG_TRACE_CSTRING(
+        TRC_L10N,
+        Tracer::LEVEL3,
         "Exact match message file NOT FOUND. "
-             "Attempting to open default message file bundle."); 
+             "Attempting to open default message file bundle.");
     _openICUDefaultLocaleMessageFile(resbundl_path_ICU, parms);
     PEG_METHOD_EXIT();
     return;

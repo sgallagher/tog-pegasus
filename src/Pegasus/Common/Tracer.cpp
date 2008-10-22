@@ -53,6 +53,11 @@ PEGASUS_NAMESPACE_BEGIN
     components.  The component list must be kept in sync with the
     TraceComponentId enumeration.
 
+    The tracer uses the _traceComponentMask in form of a 64bit field to mask
+    the user configured components.
+    Please ensure that no more than 64 components are specified in the
+    TRACE_COMPONENT_LIST.
+
     The following example shows the usage of trace component names.
     The setTraceComponents method is used to turn on tracing for the
     components: Config and Repository. The component names are passed as a
@@ -154,7 +159,9 @@ const Uint32 Tracer::_STRLEN_MAX_UNSIGNED_INT = 21;
 const Uint32 Tracer::_STRLEN_MAX_PID_TID = 21;
 
 // Initialize public indicator of trace state
-Boolean Tracer::_traceOn = false;
+Boolean Tracer::_traceOn=false;
+Uint32  Tracer::_traceLevelMask=0;
+Uint64  Tracer::_traceComponentMask=(Uint64)0;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Tracer constructor
@@ -162,22 +169,19 @@ Boolean Tracer::_traceOn = false;
 // Single Instance of Tracer is maintained for each process.
 ////////////////////////////////////////////////////////////////////////////////
 Tracer::Tracer()
-    : _traceComponentMask(new Boolean[_NUM_COMPONENTS]),
-      _traceMemoryBufferSize(PEGASUS_TRC_DEFAULT_BUFFER_SIZE_KB),
+    : _traceMemoryBufferSize(PEGASUS_TRC_DEFAULT_BUFFER_SIZE_KB),
       _traceFacility(TRACE_FACILITY_FILE),
       _runningOOP(false),
-      _traceLevelMask(0),
       _traceHandler(0)
 {
+
+    // The tracer uses a 64bit field to mask the user configured components.
+    // This assert ensures that no more than 64 components are specified in the
+    // TRACE_COMPONENT_LIST.
+    PEGASUS_ASSERT(_NUM_COMPONENTS <= 64);
+
     // Instantiate trace handler according to configured facility
     _setTraceHandler(_traceFacility);
-
-    // Initialize ComponentMask array to false
-    for (Uint32 index=0;index < _NUM_COMPONENTS;
-        (_traceComponentMask.get())[index++]=false);
-
-    // NO componets are set
-    _componentsAreSet=false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -299,7 +303,7 @@ void Tracer::_trace(
 void Tracer::_traceCIMException(
     const TraceComponentId traceComponent,
     const CIMException& cimException)
-{        
+{
     // get the CIMException trace message string
     CString traceMsg =
         TraceableCIMException(cimException).getTraceDescription().getCString();
@@ -335,8 +339,8 @@ SharedArrayPtr<char> Tracer::getHTTPRequestMessage(
         {
             // Suppress the user/passwd info
             HTTPMessage::skipHeaderWhitespace(line);
-            for ( char* userpass = (char*)line ; 
-                userpass < sep; 
+            for ( char* userpass = (char*)line ;
+                userpass < sep;
                 *userpass = 'X', userpass++);
 
             break;
@@ -367,7 +371,7 @@ void Tracer::_traceMethod(
     // assume Method entry/exit string 15 characters long
     // +1 space character
     message = new char[ strlen(fileName) +
-        _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 
+        _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8
         + 16];
 
     sprintf(
@@ -382,23 +386,6 @@ void Tracer::_traceMethod(
     _traceCString(traceComponent, message, method);
 
     delete [] message;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-//Checks if trace is enabled for the given component and level
-////////////////////////////////////////////////////////////////////////////////
-Boolean Tracer::isTraceEnabled(
-    const TraceComponentId traceComponent,
-    const Uint32 traceLevel)
-{
-    Tracer* instance = _getInstance();
-    if (Uint32(traceComponent) >= _NUM_COMPONENTS)
-    {
-        return false;
-    }
-    return (((instance->_traceComponentMask.get())[traceComponent]) &&
-            (traceLevel & instance->_traceLevelMask));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -443,10 +430,10 @@ void Tracer::_trace(
         // Allocate messageHeader.
         // Needs to be updated if additional info is added
         //
-        // Format string length calculation: 
+        // Format string length calculation:
         //        11(sec)+2('s-')+11(usec)+4('us: ')+
         //        +2(' [')+1(':')+3(']: ')+1(\0) = 35
-        msgHeader = new char[2 * _STRLEN_MAX_PID_TID + 
+        msgHeader = new char[2 * _STRLEN_MAX_PID_TID +
             strlen(TRACE_COMPONENT_LIST[traceComponent]) + 35];
 
         msgLen = sprintf(msgHeader, "%us-%uus: %s [%u:%s]: ", sec, usec,
@@ -485,7 +472,7 @@ void Tracer::_traceCString(
     // The message header is in the following format
     // timestamp: <component name> [file name:line number]
     //
-    // Format string length calculation: 
+    // Format string length calculation:
     //        11(sec)+ 2('s-')+11(usec)+4('us: ')+1(' ')+1(\0) = 30
     if (*message != '\0')
     {
@@ -515,8 +502,8 @@ void Tracer::_traceCString(
             strlen(cstring) +35];
 
         msgLen = sprintf(completeMessage, "%us-%uus: %s [%u:%s] %s", sec, usec,
-            TRACE_COMPONENT_LIST[traceComponent], 
-            System::getPID(), Threads::id().buffer, 
+            TRACE_COMPONENT_LIST[traceComponent],
+            System::getPID(), Threads::id().buffer,
             cstring);
     }
 
@@ -737,43 +724,37 @@ Uint32 Tracer::setTraceLevel(const Uint32 traceLevel)
     switch (traceLevel)
     {
         case LEVEL0:
-            _getInstance()->_traceLevelMask = 0x00;
+            _traceLevelMask = 0x00;
             break;
 
         case LEVEL1:
-            _getInstance()->_traceLevelMask = 0x01;
+            _traceLevelMask = 0x01;
             break;
 
         case LEVEL2:
-            _getInstance()->_traceLevelMask = 0x03;
+            _traceLevelMask = 0x03;
             break;
 
         case LEVEL3:
-            _getInstance()->_traceLevelMask = 0x07;
+            _traceLevelMask = 0x07;
             break;
 
         case LEVEL4:
-            _getInstance()->_traceLevelMask = 0x0F;
+            _traceLevelMask = 0x0F;
             break;
 
         case LEVEL5:
-            _getInstance()->_traceLevelMask = 0x1F;
+            _traceLevelMask = 0x1F;
             break;
 
         default:
-            _getInstance()->_traceLevelMask = 0x00;
+            _traceLevelMask = 0x00;
             retCode = 1;
     }
 
-    if (_getInstance()->_componentsAreSet && 
-        _getInstance()->_traceLevelMask )
-    {
-        _traceOn = true;
-    } 
-    else
-    {
-        _traceOn = false;
-    }
+    // If one of the components was set for tracing and the traceLevel
+    // is not zero, then turn on tracing.
+    _traceOn=((_traceComponentMask!=(Uint64)0)&&(_traceLevelMask!=LEVEL0));
 
     return retCode;
 }
@@ -783,33 +764,23 @@ Uint32 Tracer::setTraceLevel(const Uint32 traceLevel)
 ////////////////////////////////////////////////////////////////////////////////
 void Tracer::setTraceComponents(const String& traceComponents)
 {
-    Tracer* instance = _getInstance();
-
     // Check if ALL is specified
     if (String::equalNoCase(traceComponents,"ALL"))
     {
-        for (Uint32 index = 0; index < _NUM_COMPONENTS; index++)
-        {
-            (instance->_traceComponentMask.get())[index] = true;
-        }
-
-        instance->_componentsAreSet=true;
-
+        // initialize ComponentMask bit array to true
+        _traceComponentMask = (Uint64)-1;
+        
         // If tracing isn't turned off by a traceLevel of zero, let's
         // turn on the flag that activates tracing.
-        _traceOn = (instance->_traceLevelMask != LEVEL0);
+        _traceOn = (_traceLevelMask != LEVEL0);
 
         return;
     }
 
-    // initialize ComponentMask array to False
-    for (Uint32 index = 0; index < _NUM_COMPONENTS; index++)
-    {
-        (instance->_traceComponentMask.get())[index] = false;
-    }
+    // initialize ComponentMask bit array to false
+    _traceComponentMask = (Uint64)0;
     _traceOn = false;
-    instance->_componentsAreSet=false;
-
+    
     if (traceComponents != String::EMPTY)
     {
         Uint32 index = 0;
@@ -835,10 +806,7 @@ void Tracer::setTraceComponents(const String& traceComponents)
                 if (String::equalNoCase(
                     componentName,TRACE_COMPONENT_LIST[index]))
                 {
-                    (instance->_traceComponentMask.get())[index] = true;
-
-                    instance->_componentsAreSet=true;
-
+                    _traceComponentMask=_traceComponentMask|((Uint64)1<<index);
                     // Found component, break from the loop
                     break;
                 }
@@ -847,15 +815,12 @@ void Tracer::setTraceComponents(const String& traceComponents)
                     index++;
                 }
             }
-
             // Remove the searched componentname from the traceComponents
             componentStr.remove(0,position+1);
         }
-
         // If one of the components was set for tracing and the traceLevel
         // is not zero, then turn on tracing.
-        _traceOn = (instance->_componentsAreSet &&
-                   (instance->_traceLevelMask != LEVEL0));
+        _traceOn=((_traceComponentMask!=(Uint64)0)&&(_traceLevelMask!=LEVEL0));
     }
 
     return ;
@@ -985,13 +950,13 @@ void Tracer::traceCString(
     //
     message = new char [strlen(fileName) +
         _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 +
-        strlen(TRACE_COMPONENT_LIST[traceComponent]) + 
+        strlen(TRACE_COMPONENT_LIST[traceComponent]) +
         strlen(cstring) + 30];
 
     msgLen = sprintf(message, "%us-%uus: %s [%u:%s:%s:%u]: %s",
         sec, 
         usec,
-        TRACE_COMPONENT_LIST[traceComponent], 
+        TRACE_COMPONENT_LIST[traceComponent],
         System::getPID(),
         Threads::id().buffer,
         fileName,

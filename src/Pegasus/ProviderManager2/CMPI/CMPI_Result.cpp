@@ -185,11 +185,13 @@ extern "C"
         InstanceResponseHandler* res=(InstanceResponseHandler*)eRes->hdl;
         if ((res == NULL) || (eInst == NULL))
         {
-            PEG_TRACE_CSTRING(
+            PEG_TRACE((
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Invalid parameter res || eInst in \
-                CMPI_Result:resultReturnInstance");
+                ((res==0) ? (Tracer::LEVEL1) : (Tracer::LEVEL3)),
+                "Invalid parameter res (%p) || eInst (%p) "
+                    "in CMPI_Result:resultReturnInstance",
+                res,
+                eInst));
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
@@ -253,11 +255,13 @@ extern "C"
 
         if ((res == NULL) || (eInst == NULL))
         {
-            PEG_TRACE_CSTRING(
+            PEG_TRACE((
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Invalid parameter res || eInst in \
-                CMPI_Result:resultReturnObject");
+                ((res==0) ? (Tracer::LEVEL1) : (Tracer::LEVEL3)),
+                "Invalid parameter res (%p) || eInst (%p) "
+                    "in CMPI_Result:resultReturnObject",
+                res,
+                eInst));
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
@@ -321,11 +325,13 @@ extern "C"
         ExecQueryResponseHandler* res=(ExecQueryResponseHandler*)eRes->hdl;
         if ((res == NULL) || (eInst == NULL))
         {
-            PEG_TRACE_CSTRING(
+            PEG_TRACE((
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Invalid parameter res || eInst in \
-                CMPI_Result:resultReturnExecQuery");
+                ((res==0) ? (Tracer::LEVEL1) : (Tracer::LEVEL3)),
+                "Invalid parameter res (%p) || eInst (%p) "
+                    "in CMPI_Result:resultReturnExecQuery",
+                res,
+                eInst));
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
@@ -376,11 +382,13 @@ extern "C"
 
         if ((res == NULL) || (eRef == NULL))
         {
-            PEG_TRACE_CSTRING(
+            PEG_TRACE((
                 TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Invalid parameter res || eRef in \
-                CMPI_Result:resultReturnObjectPath");
+                ((res==0) ? (Tracer::LEVEL1) : (Tracer::LEVEL3)),
+                "Invalid parameter res (%p) || eRef (%p) "
+                    "in CMPI_Result:resultReturnObjectPath",
+                res,
+                eRef));
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }

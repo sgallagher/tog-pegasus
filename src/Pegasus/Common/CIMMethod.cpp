@@ -53,7 +53,9 @@ CIMMethod::CIMMethod()
 
 CIMMethod::CIMMethod(const CIMMethod& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMMethod::CIMMethod(
@@ -72,15 +74,19 @@ CIMMethod::CIMMethod(CIMMethodRep* rep)
 
 CIMMethod::~CIMMethod()
 {
-    Dec(_rep);
+    if (_rep)
+        _rep->Dec();
 }
 
 CIMMethod& CIMMethod::operator=(const CIMMethod& x)
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+        if (_rep)
+            _rep->Inc();
     }
     return *this;
 }
@@ -238,12 +244,16 @@ CIMConstMethod::CIMConstMethod()
 
 CIMConstMethod::CIMConstMethod(const CIMConstMethod& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMConstMethod::CIMConstMethod(const CIMMethod& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMConstMethod::CIMConstMethod(
@@ -257,15 +267,19 @@ CIMConstMethod::CIMConstMethod(
 
 CIMConstMethod::~CIMConstMethod()
 {
-    Dec(_rep);
+    if (_rep)
+        _rep->Dec();
 }
 
 CIMConstMethod& CIMConstMethod::operator=(const CIMConstMethod& x)
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+        if (_rep)
+            _rep->Inc();
     }
     return *this;
 }
@@ -274,8 +288,11 @@ CIMConstMethod& CIMConstMethod::operator=(const CIMMethod& x)
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+        if (_rep)
+            _rep->Inc();
     }
     return *this;
 }

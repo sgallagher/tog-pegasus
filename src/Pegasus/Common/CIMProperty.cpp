@@ -54,7 +54,9 @@ CIMProperty::CIMProperty()
 
 CIMProperty::CIMProperty(const CIMProperty& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMProperty::CIMProperty(
@@ -76,15 +78,20 @@ CIMProperty::CIMProperty(CIMPropertyRep* rep)
 
 CIMProperty::~CIMProperty()
 {
-    Dec(_rep);
+    if (_rep)
+        _rep->Dec();
 }
 
 CIMProperty& CIMProperty::operator=(const CIMProperty& x)
 {
+
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+       if (_rep)
+           _rep->Dec();
+       _rep = x._rep;
+       if (_rep)
+           _rep->Inc();
     }
     return *this;
 }
@@ -229,12 +236,16 @@ CIMConstProperty::CIMConstProperty()
 
 CIMConstProperty::CIMConstProperty(const CIMConstProperty& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMConstProperty::CIMConstProperty(const CIMProperty& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMConstProperty::CIMConstProperty(
@@ -251,15 +262,19 @@ CIMConstProperty::CIMConstProperty(
 
 CIMConstProperty::~CIMConstProperty()
 {
-    Dec(_rep);
+    if (_rep)
+        _rep->Dec();
 }
 
 CIMConstProperty& CIMConstProperty::operator=(const CIMConstProperty& x)
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+        if (_rep)
+            _rep->Inc();
     }
     return *this;
 }
@@ -268,8 +283,11 @@ CIMConstProperty& CIMConstProperty::operator=(const CIMProperty& x)
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+        if (_rep)
+            _rep->Inc();
     }
     return *this;
 }

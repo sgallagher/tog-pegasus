@@ -38,7 +38,6 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMValue.h>
-#include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/CIMFlavor.h>
@@ -50,7 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMConstQualifierDecl;
 class CIMQualifierDecl;
 
-class CIMQualifierDeclRep : public Sharable
+class CIMQualifierDeclRep
 {
 public:
 
@@ -60,10 +59,6 @@ public:
         const CIMScope & scope,
         const CIMFlavor & flavor,
         Uint32 arraySize);
-
-    virtual ~CIMQualifierDeclRep()
-    {
-    }
 
     const CIMName& getName() const
     {
@@ -115,6 +110,17 @@ public:
         return new CIMQualifierDeclRep(*this);
     }
 
+    void Inc()
+    {
+       _refCounter++;
+    }
+
+    void Dec()
+    {
+        if (_refCounter.decAndTestIfZero())
+            delete this;
+    }
+
 private:
 
     CIMQualifierDeclRep(const CIMQualifierDeclRep& x);
@@ -128,6 +134,11 @@ private:
     CIMScope _scope;
     CIMFlavor _flavor;
     Uint32 _arraySize;
+
+    // reference counter as member to avoid
+    // virtual function resolution overhead
+    AtomicInt _refCounter;
+
 };
 
 PEGASUS_NAMESPACE_END

@@ -42,13 +42,13 @@
 PEGASUS_NAMESPACE_BEGIN
 
 CIMParameterRep::CIMParameterRep(const CIMParameterRep& x) :
-    Sharable(),
     _name(x._name),
     _type(x._type),
     _isArray(x._isArray),
     _arraySize(x._arraySize),
     _referenceClassName(x._referenceClassName),
-    _ownerCount(0)
+    _refCounter(1),
+    _ownerCount(0)    
 {
     x._qualifiers.cloneTo(_qualifiers);
     // Set the CIM name tag.
@@ -64,6 +64,7 @@ CIMParameterRep::CIMParameterRep(
     : _name(name), _type(type),
     _isArray(isArray), _arraySize(arraySize),
     _referenceClassName(referenceClassName),
+    _refCounter(1),
     _ownerCount(0)
 {    
     // ensure name is not null

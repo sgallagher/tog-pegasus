@@ -44,15 +44,14 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMPropertyRep::CIMPropertyRep(
     const CIMPropertyRep& x,
-    Boolean propagateQualifiers)
-    :
-    Sharable(),
+    Boolean propagateQualifiers):
     _name(x._name),
     _value(x._value),
     _arraySize(x._arraySize),
     _referenceClassName(x._referenceClassName),
     _classOrigin(x._classOrigin),
     _propagated(x._propagated),
+    _refCounter(1),
     _ownerCount(0)
 {
     // Set the CIM name tag.
@@ -72,7 +71,7 @@ CIMPropertyRep::CIMPropertyRep(
     :
     _name(name), _value(value), _arraySize(arraySize),
     _referenceClassName(referenceClassName), _classOrigin(classOrigin),
-    _propagated(propagated), _ownerCount(0)
+    _propagated(propagated), _refCounter(1), _ownerCount(0)
 {
     // ensure name is not null
     if (name.isNull())

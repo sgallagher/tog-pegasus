@@ -57,7 +57,8 @@ CIMQualifierDeclRep::CIMQualifierDeclRep(
     _value(value),
     _scope(scope),
     _flavor(flavor),
-    _arraySize(arraySize)
+    _arraySize(arraySize),
+    _refCounter(1)
 {
     // ensure name is not null
     if (name.isNull())
@@ -98,12 +99,12 @@ void CIMQualifierDeclRep::setName(const CIMName& name)
 }
 
 CIMQualifierDeclRep::CIMQualifierDeclRep(const CIMQualifierDeclRep& x) :
-    Sharable(),
     _name(x._name),
     _value(x._value),
     _scope(x._scope),
     _flavor(x._flavor),
-    _arraySize(x._arraySize)
+    _arraySize(x._arraySize),
+    _refCounter(1)
 {
 
 }

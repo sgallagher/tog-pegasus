@@ -43,12 +43,12 @@
 PEGASUS_NAMESPACE_BEGIN
 
 CIMMethodRep::CIMMethodRep(const CIMMethodRep& x) :
-    Sharable(),
     _name(x._name),
     _type(x._type),
     _classOrigin(x._classOrigin),
     _propagated(x._propagated),
-    _ownerCount(0)
+    _ownerCount(0),
+    _refCounter(1)
 {
     x._qualifiers.cloneTo(_qualifiers);
     // Set the CIM name tag.
@@ -70,7 +70,8 @@ CIMMethodRep::CIMMethodRep(
     : _name(name), _type(type),
     _classOrigin(classOrigin),
     _propagated(propagated),
-    _ownerCount(0)
+    _ownerCount(0),
+    _refCounter(1)
 {
     // ensure name is not null
     if (name.isNull())

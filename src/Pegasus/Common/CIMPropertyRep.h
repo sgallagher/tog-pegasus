@@ -42,7 +42,6 @@
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMQualifierList.h>
-#include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/OrderedSet.h>
 
@@ -53,7 +52,7 @@ class CIMProperty;
 class CIMConstProperty;
 class DeclContext;
 
-class CIMPropertyRep : public Sharable
+class CIMPropertyRep
 {
 public:
 
@@ -64,10 +63,6 @@ public:
         const CIMName& referenceClassName,
         const CIMName& classOrigin,
         Boolean propagated);
-
-    ~CIMPropertyRep()
-    {
-    }
 
     const CIMName& getName() const
     {
@@ -87,7 +82,7 @@ public:
 
     void decreaseOwnerCount()
     {
-        _ownerCount++;
+        _ownerCount--;
         return;
     }
 
@@ -180,6 +175,17 @@ public:
         return new CIMPropertyRep(*this, true);
     }
 
+    void Inc()
+    {
+        _refCounter++;
+    }
+
+    void Dec()
+    {
+        if (_refCounter.decAndTestIfZero())
+            delete this;
+    }
+
 private:
 
     // Cloning constructor:
@@ -198,6 +204,10 @@ private:
     Boolean _propagated;
     CIMQualifierList _qualifiers;
     Uint32 _nameTag;
+
+    // reference counter as member to avoid
+    // virtual function resolution overhead
+    AtomicInt _refCounter;
 
     // Number of containers in which this property is a member. Adding a
     // property to a container increments this count. Removing a property

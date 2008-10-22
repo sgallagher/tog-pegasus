@@ -39,7 +39,6 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMValue.h>
-#include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/InternalException.h>
@@ -52,7 +51,7 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMConstQualifier;
 class CIMQualifier;
 
-class CIMQualifierRep : public Sharable
+class CIMQualifierRep
 {
 public:
 
@@ -61,10 +60,6 @@ public:
         const CIMValue& value,
         const CIMFlavor& flavor,
         Boolean propagated);
-
-    virtual ~CIMQualifierRep()
-    {
-    }
 
     const CIMName& getName() const
     {
@@ -84,7 +79,7 @@ public:
 
     void decreaseOwnerCount()
     {
-        _ownerCount++;
+        _ownerCount--;
         return;
     }
 
@@ -144,6 +139,17 @@ public:
         return new CIMQualifierRep(*this);
     }
 
+    void Inc()
+    {
+         _refCounter++;
+    }
+
+    void Dec()
+    {
+        if (_refCounter.decAndTestIfZero())
+            delete this;
+    }
+
 private:
 
     // Cloning constructor:
@@ -158,8 +164,12 @@ private:
     CIMFlavor _flavor;
     Boolean _propagated;
     Uint32 _nameTag;
-    Uint32 _ownerCount;
 
+    // reference counter as member to avoid
+    // virtual function resolution overhead
+    AtomicInt _refCounter;
+    Uint32 _ownerCount;
+    
     friend class CIMQualifierList;
 };
 

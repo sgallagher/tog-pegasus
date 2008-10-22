@@ -74,7 +74,8 @@ inline Uint32 generateCIMNameTag(const CIMName& name)
 
     Requirements on template argument R:
 
-        - Must be derived from Sharable.
+        - Must have the public function's Inc() and Dec() for reference 
+          counting.
         - Must have a public function CIMName getName() returning the name.
         - Must have a public function Uint32 getNameTag() returning the nameTag
 
@@ -174,7 +175,7 @@ inline OrderedSet<T, R, N>::~OrderedSet()
         for (Uint32 i = 0; i < _size; i++)
         {
             data[i].rep->decreaseOwnerCount();
-            Dec(data[i].rep);
+            data[i].rep->Dec();
         }
     }
     free(_table);
@@ -194,7 +195,7 @@ inline void OrderedSet<T, R, N>::clear()
         for (Uint32 i = 0; i < _size; i++)
         {
             data[i].rep->decreaseOwnerCount();
-            Dec(data[i].rep);
+            data[i].rep->Dec();
         }
         _size = 0;
         _array.clear();
@@ -276,7 +277,7 @@ inline void OrderedSet<T, R, N>::append(const T& x)
     }
 
     layout->rep->increaseOwnerCount();
-    Inc(layout->rep);
+    layout->rep->Inc();
     _size++;
     
     // Reorganize hash table to reflect state of dynamic, ordered list
@@ -295,7 +296,7 @@ inline void OrderedSet<T, R, N>::remove(Uint32 index)
     {
         Node* node = (Node*) _array.getData() + index;
         node->rep->decreaseOwnerCount();
-        Dec(node->rep);
+        node->rep->Dec();
         _array.remove(index * Uint32(sizeof(Node)), Uint32(sizeof(Node)));
         _size--;
     }
@@ -338,7 +339,7 @@ inline void OrderedSet<T, R, N>::insert(Uint32 index, const T& x)
         _array.insert(index * Uint32(sizeof(Node)), (const char*) &node, 
             Uint32(sizeof(node)));
         layout->rep->increaseOwnerCount();
-        Inc(layout->rep);
+        layout->rep->Inc();
         _size++;
     }
 

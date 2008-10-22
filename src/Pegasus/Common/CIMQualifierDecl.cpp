@@ -53,7 +53,9 @@ CIMQualifierDecl::CIMQualifierDecl()
 
 CIMQualifierDecl::CIMQualifierDecl(const CIMQualifierDecl& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+     if (_rep)
+         _rep->Inc();
 }
 
 CIMQualifierDecl::CIMQualifierDecl(
@@ -73,15 +75,19 @@ CIMQualifierDecl::CIMQualifierDecl(CIMQualifierDeclRep* rep)
 
 CIMQualifierDecl::~CIMQualifierDecl()
 {
-    Dec(_rep);
+    if (_rep)
+        _rep->Dec();
 }
 
 CIMQualifierDecl& CIMQualifierDecl::operator=(const CIMQualifierDecl& x)
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+         if (_rep)
+             _rep->Inc();
     }
 
     return *this;
@@ -172,12 +178,16 @@ CIMConstQualifierDecl::CIMConstQualifierDecl()
 
 CIMConstQualifierDecl::CIMConstQualifierDecl(const CIMConstQualifierDecl& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+     if (_rep)
+         _rep->Inc();
 }
 
 CIMConstQualifierDecl::CIMConstQualifierDecl(const CIMQualifierDecl& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+     if (_rep)
+         _rep->Inc();
 }
 
 CIMConstQualifierDecl::CIMConstQualifierDecl(
@@ -192,7 +202,8 @@ CIMConstQualifierDecl::CIMConstQualifierDecl(
 
 CIMConstQualifierDecl::~CIMConstQualifierDecl()
 {
-    Dec(_rep);
+    if (_rep)
+        _rep->Dec();
 }
 
 CIMConstQualifierDecl& CIMConstQualifierDecl::operator=(
@@ -200,8 +211,11 @@ CIMConstQualifierDecl& CIMConstQualifierDecl::operator=(
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+         if (_rep)
+             _rep->Inc();
     }
 
     return *this;
@@ -212,8 +226,11 @@ CIMConstQualifierDecl& CIMConstQualifierDecl::operator=(
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+         if (_rep)
+             _rep->Inc();
     }
 
     return *this;

@@ -47,12 +47,12 @@ PEGASUS_USING_STD;
 ////////////////////////////////////////////////////////////////////////////////
 
 CIMQualifierRep::CIMQualifierRep(const CIMQualifierRep& x) :
-    Sharable(),
     _name(x._name),
     _value(x._value),
     _flavor(x._flavor),
     _propagated(x._propagated),
     _nameTag(x._nameTag),
+    _refCounter(1),
     _ownerCount(0)
 {
 }
@@ -67,6 +67,7 @@ CIMQualifierRep::CIMQualifierRep(
     _value(value),
     _flavor(flavor),
     _propagated(propagated),
+    _refCounter(1),
     _ownerCount(0)
 {
     // ensure name is not null

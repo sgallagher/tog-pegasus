@@ -42,7 +42,8 @@ CIMParamValueRep::CIMParamValueRep(
     String parameterName,
     CIMValue value,
     Boolean isTyped)
-    : _parameterName(parameterName), _value(value), _isTyped(isTyped)
+    : _parameterName(parameterName), _value(value), _isTyped(isTyped),
+      _refCounter(1)
 {
     // ensure parameterName is not null
     if (parameterName.size() == 0)
@@ -51,15 +52,11 @@ CIMParamValueRep::CIMParamValueRep(
     }
 }
 
-CIMParamValueRep::~CIMParamValueRep()
-{
-}
-
 CIMParamValueRep::CIMParamValueRep(const CIMParamValueRep& x) :
-    Sharable(),
     _parameterName(x._parameterName),
     _value(x._value),
-    _isTyped(x._isTyped)
+    _isTyped(x._isTyped),
+    _refCounter(1)
 {
 }
 

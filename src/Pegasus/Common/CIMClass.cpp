@@ -53,14 +53,16 @@ CIMClass::CIMClass()
 
 CIMClass::CIMClass(const CIMClass& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMClass::CIMClass(const CIMObject& x)
 {
     if (!(_rep = dynamic_cast<CIMClassRep*>(x._rep)))
         throw DynamicCastFailedException();
-    Inc(_rep);
+    _rep->Inc();
 }
 
 CIMClass::CIMClass(
@@ -79,15 +81,19 @@ CIMClass& CIMClass::operator=(const CIMClass& x)
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+         if (_rep)
+             _rep->Inc();
     }
     return *this;
 }
 
 CIMClass::~CIMClass()
 {
-    Dec(_rep);
+    if (_rep)
+    _rep->Dec();
 }
 
 Boolean CIMClass::isAssociation() const
@@ -295,26 +301,30 @@ CIMConstClass::CIMConstClass()
 
 CIMConstClass::CIMConstClass(const CIMConstClass& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+     if (_rep)
+         _rep->Inc();
 }
 
 CIMConstClass::CIMConstClass(const CIMClass& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+     if (_rep)
+         _rep->Inc();
 }
 
 CIMConstClass::CIMConstClass(const CIMObject& x)
 {
     if (!(_rep = dynamic_cast<CIMClassRep*>(x._rep)))
         throw DynamicCastFailedException();
-    Inc(_rep);
+    _rep->Inc();
 }
 
 CIMConstClass::CIMConstClass(const CIMConstObject& x)
 {
     if (!(_rep = dynamic_cast<CIMClassRep*>(x._rep)))
         throw DynamicCastFailedException();
-    Inc(_rep);
+    _rep->Inc();
 }
 
 CIMConstClass::CIMConstClass(
@@ -328,8 +338,11 @@ CIMConstClass& CIMConstClass::operator=(const CIMConstClass& x)
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+         if (_rep)
+             _rep->Inc();
     }
     return *this;
 }
@@ -338,15 +351,19 @@ CIMConstClass& CIMConstClass::operator=(const CIMClass& x)
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+         if (_rep)
+             _rep->Inc();
     }
     return *this;
 }
 
 CIMConstClass::~CIMConstClass()
 {
-    Dec(_rep);
+    if (_rep)
+        _rep->Dec();
 }
 
 Boolean CIMConstClass::isAssociation() const

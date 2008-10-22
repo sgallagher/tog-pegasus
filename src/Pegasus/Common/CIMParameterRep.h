@@ -39,7 +39,6 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMQualifierList.h>
@@ -51,7 +50,7 @@ class DeclContext;
 class CIMConstParameter;
 class CIMParameter;
 
-class CIMParameterRep : public Sharable
+class CIMParameterRep 
 {
 public:
 
@@ -62,10 +61,6 @@ public:
         Uint32 arraySize,
         const CIMName& referenceClassName);
 
-    ~CIMParameterRep()
-    {
-    }
-
     const CIMName& getName() const
     {
         return _name;
@@ -75,7 +70,7 @@ public:
     {
         return _nameTag;
     }
-
+    
     void increaseOwnerCount()
     {
         _ownerCount++;
@@ -84,7 +79,7 @@ public:
 
     void decreaseOwnerCount()
     {
-        _ownerCount++;
+        _ownerCount--;
         return;
     }
     
@@ -150,6 +145,17 @@ public:
         return new CIMParameterRep(*this);
     }
 
+    void Inc()
+    {
+        _refCounter++;
+    }
+
+    void Dec()
+    {
+        if (_refCounter.decAndTestIfZero())
+            delete this;
+    }
+
 private:
 
     CIMParameterRep(const CIMParameterRep& x);
@@ -164,7 +170,12 @@ private:
     CIMName _referenceClassName;
     CIMQualifierList _qualifiers;
     Uint32 _nameTag;
+
+    // reference counter as member to avoid
+    // virtual function resolution overhead
+    AtomicInt _refCounter;
     Uint32 _ownerCount;
+
 };
 
 PEGASUS_NAMESPACE_END

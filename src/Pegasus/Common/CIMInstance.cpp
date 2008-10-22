@@ -57,14 +57,16 @@ CIMInstance::CIMInstance()
 
 CIMInstance::CIMInstance(const CIMInstance& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMInstance::CIMInstance(const CIMObject& x)
 {
     if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
         throw DynamicCastFailedException();
-    Inc(_rep);
+    _rep->Inc();
 }
 
 CIMInstance::CIMInstance(const CIMName& className)
@@ -82,15 +84,19 @@ CIMInstance& CIMInstance::operator=(const CIMInstance& x)
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+        if (_rep)
+            _rep->Inc();
     }
     return *this;
 }
 
 CIMInstance::~CIMInstance()
 {
-    Dec(_rep);
+    if (_rep)
+        _rep->Dec();
 }
 
 const CIMName& CIMInstance::getClassName() const
@@ -228,26 +234,30 @@ CIMConstInstance::CIMConstInstance()
 
 CIMConstInstance::CIMConstInstance(const CIMConstInstance& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMConstInstance::CIMConstInstance(const CIMInstance& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMConstInstance::CIMConstInstance(const CIMObject& x)
 {
     if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
         throw DynamicCastFailedException();
-    Inc(_rep);
+    _rep->Inc();
 }
 
 CIMConstInstance::CIMConstInstance(const CIMConstObject& x)
 {
     if (!(_rep = dynamic_cast<CIMInstanceRep*>(x._rep)))
         throw DynamicCastFailedException();
-    Inc(_rep);
+    _rep->Inc();
 }
 
 CIMConstInstance::CIMConstInstance(const CIMName& className)
@@ -260,8 +270,11 @@ CIMConstInstance& CIMConstInstance::operator=(const CIMConstInstance& x)
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+        if (_rep)
+            _rep->Inc();
     }
     return *this;
 }
@@ -270,15 +283,19 @@ CIMConstInstance& CIMConstInstance::operator=(const CIMInstance& x)
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+        if (_rep)
+            _rep->Inc();
     }
     return *this;
 }
 
 CIMConstInstance::~CIMConstInstance()
 {
-    Dec(_rep);
+    if (_rep)
+        _rep->Dec();
 }
 
 const CIMName& CIMConstInstance::getClassName() const

@@ -48,7 +48,9 @@ CIMParamValue::CIMParamValue()
 
 CIMParamValue::CIMParamValue(const CIMParamValue& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMParamValue::CIMParamValue(CIMParamValueRep* rep)
@@ -60,8 +62,11 @@ CIMParamValue& CIMParamValue::operator=(const CIMParamValue& x)
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+        if (_rep)
+            _rep->Inc();
     }
     return *this;
 }
@@ -76,7 +81,8 @@ CIMParamValue::CIMParamValue(
 
 CIMParamValue::~CIMParamValue()
 {
-    Dec(_rep);
+    if (_rep)
+        _rep->Dec();
 }
 
 String CIMParamValue::getParameterName() const

@@ -58,17 +58,23 @@ CIMObject::CIMObject()
 
 CIMObject::CIMObject(const CIMObject& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMObject::CIMObject(const CIMClass& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMObject::CIMObject(const CIMInstance& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMObject::CIMObject(CIMObjectRep* rep)
@@ -80,15 +86,19 @@ CIMObject& CIMObject::operator=(const CIMObject& x)
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+        if (_rep)
+            _rep->Inc();
     }
     return *this;
 }
 
 CIMObject::~CIMObject()
 {
-    Dec(_rep);
+    if (_rep)
+        _rep->Dec();
 }
 
 const CIMName& CIMObject::getClassName() const
@@ -235,47 +245,63 @@ CIMConstObject::CIMConstObject()
 
 CIMConstObject::CIMConstObject(const CIMConstObject& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMConstObject::CIMConstObject(const CIMObject& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMConstObject::CIMConstObject(const CIMClass& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMConstObject::CIMConstObject(const CIMConstClass& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMConstObject::CIMConstObject(const CIMInstance& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMConstObject::CIMConstObject(const CIMConstInstance& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMConstObject& CIMConstObject::operator=(const CIMConstObject& x)
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+        if (_rep)
+            _rep->Inc();
     }
     return *this;
 }
 
 CIMConstObject::~CIMConstObject()
 {
-    Dec(_rep);
+    if (_rep)
+        _rep->Dec();
 }
 
 const CIMName& CIMConstObject::getClassName() const

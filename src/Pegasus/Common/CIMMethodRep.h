@@ -44,7 +44,6 @@
 #include <Pegasus/Common/CIMQualifierList.h>
 #include <Pegasus/Common/CIMParameter.h>
 #include <Pegasus/Common/CIMParameterRep.h>
-#include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/OrderedSet.h>
 
@@ -53,7 +52,7 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMConstMethod;
 class DeclContext;
 
-class CIMMethodRep : public Sharable
+class CIMMethodRep
 {
 public:
 
@@ -63,11 +62,7 @@ public:
         const CIMName& classOrigin,
         Boolean propagated);
 
-    ~CIMMethodRep()
-    {
-    }
-
-    virtual const CIMName& getName() const
+    const CIMName& getName() const
     {
         return _name;
     }
@@ -85,7 +80,7 @@ public:
 
     void decreaseOwnerCount()
     {
-        _ownerCount++;
+        _ownerCount--;
         return;
     }
     
@@ -196,6 +191,17 @@ public:
         return new CIMMethodRep(*this);
     }
 
+    void Inc()
+    {
+        _refCounter++;
+    }
+
+    void Dec()
+    {
+        if (_refCounter.decAndTestIfZero())
+            delete this;
+    }
+
 private:
 
     CIMMethodRep(const CIMMethodRep& x);
@@ -210,6 +216,10 @@ private:
     CIMQualifierList _qualifiers;
     Uint32 _nameTag;
     Uint32 _ownerCount;
+
+    // reference counter as member to avoid
+    // virtual function resolution overhead
+    AtomicInt _refCounter;
 
     typedef OrderedSet<CIMParameter,
                        CIMParameterRep,

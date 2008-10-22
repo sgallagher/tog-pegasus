@@ -37,14 +37,13 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMParamValueRep : public Sharable
+class CIMParamValueRep
 {
 public:
 
@@ -52,8 +51,6 @@ public:
         String parameterName,
         CIMValue value,
         Boolean isTyped=true);
-
-    ~CIMParamValueRep();
 
     const String & getParameterName() const
     {
@@ -81,6 +78,17 @@ public:
         return new CIMParamValueRep(*this);
     }
 
+    void Inc()
+    {
+       _refCounter++;
+    }
+
+    void Dec()
+    {
+        if (_refCounter.decAndTestIfZero())
+            delete this;
+    }
+
 private:
 
     CIMParamValueRep(const CIMParamValueRep& x);
@@ -91,6 +99,11 @@ private:
     String _parameterName;
     CIMValue _value;
     Boolean _isTyped;
+
+    // reference counter as member to avoid
+    // virtual function resolution overhead
+    AtomicInt _refCounter;
+
 };
 
 PEGASUS_NAMESPACE_END

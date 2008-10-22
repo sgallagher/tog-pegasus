@@ -37,7 +37,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMQualifier.h>
@@ -55,7 +54,7 @@ PEGASUS_NAMESPACE_BEGIN
 
     This class contains what is common to CIMClass and CIMInstance.
 */
-class CIMObjectRep : public Sharable
+class CIMObjectRep 
 {
 public:
 
@@ -150,6 +149,17 @@ public:
 
     virtual CIMObjectRep* clone() const = 0;
 
+    void Inc()
+    {
+       _refCounter++;
+    }
+
+    void Dec()
+    {
+        if (_refCounter.decAndTestIfZero())
+            delete this;
+    }
+
 protected:
 
     CIMObjectRep(const CIMObjectRep& x);
@@ -165,6 +175,10 @@ private:
 
     CIMObjectRep();    // Unimplemented
     CIMObjectRep& operator=(const CIMObjectRep& x);    // Unimplemented
+
+    // reference counter as member to avoid
+    // virtual function resolution overhead
+    AtomicInt _refCounter;
 
     friend class CIMObject;
     friend class BinaryStreamer;

@@ -53,7 +53,9 @@ CIMParameter::CIMParameter()
 
 CIMParameter::CIMParameter(const CIMParameter& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMParameter::CIMParameter(
@@ -74,15 +76,19 @@ CIMParameter::CIMParameter(CIMParameterRep* rep)
 
 CIMParameter::~CIMParameter()
 {
-    Dec(_rep);
+    if (_rep)
+        _rep->Dec();
 }
 
 CIMParameter& CIMParameter::operator=(const CIMParameter& x)
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+        if (_rep)
+            _rep->Inc();
     }
     return *this;
 }
@@ -191,12 +197,16 @@ CIMConstParameter::CIMConstParameter()
 
 CIMConstParameter::CIMConstParameter(const CIMConstParameter& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMConstParameter::CIMConstParameter(const CIMParameter& x)
 {
-    Inc(_rep = x._rep);
+    _rep = x._rep;
+    if (_rep)
+        _rep->Inc();
 }
 
 CIMConstParameter::CIMConstParameter(
@@ -212,15 +222,20 @@ CIMConstParameter::CIMConstParameter(
 
 CIMConstParameter::~CIMConstParameter()
 {
-    Dec(_rep);
+    if (_rep)
+        _rep->Dec();
 }
 
 CIMConstParameter& CIMConstParameter::operator=(const CIMConstParameter& x)
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+        if (_rep)
+            _rep->Inc();
+
     }
     return *this;
 }
@@ -229,8 +244,11 @@ CIMConstParameter& CIMConstParameter::operator=(const CIMParameter& x)
 {
     if (x._rep != _rep)
     {
-        Dec(_rep);
-        Inc(_rep = x._rep);
+        if (_rep)
+            _rep->Dec();
+        _rep = x._rep;
+        if (_rep)
+            _rep->Inc();
     }
     return *this;
 }

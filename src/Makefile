@@ -39,6 +39,10 @@ ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
     TEST_DIRS  +=  Executor/tests
 endif
 
+ifeq ($(PEGASUS_ENABLE_SLP),true)
+    DIRS += slp/slp_client
+endif
+
 DIRS += \
     Platforms \
     utils \

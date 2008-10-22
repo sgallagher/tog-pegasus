@@ -52,6 +52,8 @@ LIBRARIES = \
 ifeq ($(PEGASUS_ENABLE_SLP),true)
     ifneq ($(OS_TYPE),windows)
         LIBRARIES += pegslp_client
+    else
+        SYS_LIBS = $(PEGASUS_HOME)/lib/pegslp_client.lib
     endif
 endif
 
@@ -77,14 +79,5 @@ endif
 include $(ROOT)/mak/dynamic-library.mak
 
 ifeq ($(OS_TYPE),windows)
-    SYS_LIBS = ws2_32.lib advapi32.lib
-endif
-
-ifeq ($(PEGASUS_ENABLE_SLP),true)
-$(SOURCES): slp_client
-slp_client :
-	@ $(MAKE) -SC $(ROOT)/src/slp/slp_client
-    ifeq ($(OS_TYPE),windows)
-        SYS_LIBS += $(PEGASUS_HOME)/lib/pegslp_client.lib
-    endif
+    SYS_LIBS += ws2_32.lib advapi32.lib
 endif

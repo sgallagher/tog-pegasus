@@ -232,9 +232,36 @@ Boolean DNSService::getDNSName(String & name)
              "'" << endl;
 #endif
         name.assign(dnsName);
-        return true;
     }
-    else return false;
+    else 
+    {
+        // initialize dnsName to root domain(" ")
+        dnsName.assign(" ");
+
+        //It is suggested to use sysconf and get the Max hostname
+        // length than using the MAXHOSTNAMELEN 
+        char *host=NULL;
+        Uint32 hostNameLength=0;
+        hostNameLength = sysconf(_SC_HOST_NAME_MAX);
+
+        host =(char *) malloc(hostNameLength+1);
+        if (gethostname(host,hostNameLength+1) == 0)
+        {
+            if(host != NULL)
+            {
+                String hostName(host);
+                Uint32 domainIndex =0;
+
+                if( (domainIndex=hostName.find('.')) != PEG_NOT_FOUND)
+                {
+                    dnsName=hostName.subString(domainIndex+1,PEG_NOT_FOUND);
+                }
+            }
+        }
+        free(host);
+        name.assign(dnsName);
+    }
+    return true;
 }
 
 //------------------------------------------------------------------------------
@@ -307,8 +334,8 @@ DNSService::getDNSInfo()
            String::equalNoCase(strBuffer, DNS_ROLE_SEARCH) ||
            String::equalNoCase(strBuffer, DNS_ROLE_NAMESERVER) )
              count++;
-
-        if (count >= 2)
+        //A minimum of one key should exist
+        if (count >= 1)
         {
             ok = true;
             break;
@@ -331,10 +358,14 @@ DNSService::getDNSInfo()
     while(!feof(fp)) {
         memset(buffer, 0, sizeof(buffer));
         fscanf(fp, "%511s", buffer);
-
         if(!strlen(buffer))
+            continue; 
+        if( buffer[0] == '#' )
+        {
+            // If it is a comment line then read the whole line and continue
+            fgets(buffer,512,fp);
             continue;
-
+        }
         strBuffer.assign(buffer);
 
         // Verify if key is domain name

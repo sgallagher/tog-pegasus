@@ -53,7 +53,7 @@ ifeq ($(OS),zos)
         _P1 = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), $(LIBRARIES))
         _P2 = $(addsuffix $(STATLIB_SUFFIX), $(_P1))
         _P3 = $(addsuffix $(DYNLIB_SUFFIX), $(_P1))
-        P4 = $(shell echo $(_P2) $(_P3))
+        _P4 = $(shell echo $(_P2) $(_P3))
         DYNAMIC_LIBRARIES = $(foreach linkfile, $(_P4), $(wildcard $(linkfile)))
         FULL_LIBRARIES = $(foreach linkfile, $(_P4), $(wildcard $(linkfile)))
     else	

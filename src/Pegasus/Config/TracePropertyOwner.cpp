@@ -61,12 +61,12 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
 #ifdef PEGASUS_OS_HPUX
-    {"traceLevel", "1", IS_DYNAMIC, 0, 0, IS_HIDDEN},
+    {"traceLevel", "0", IS_DYNAMIC, 0, 0, IS_HIDDEN},
     {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_HIDDEN},
     {"traceMemoryBufferKbytes", "10240", IS_STATIC, 0, 0, IS_HIDDEN},
     {"traceFacility", "File", IS_DYNAMIC, 0, 0, IS_HIDDEN},
 #elif defined(PEGASUS_OS_PASE)
-    {"traceLevel", "1", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"traceLevel", "0", IS_DYNAMIC, 0, 0, IS_VISIBLE},
     {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_VISIBLE},
     {"traceMemoryBufferKbytes", "10240", IS_STATIC, 0, 0, IS_VISIBLE},
     {"traceFacility", "File", IS_DYNAMIC, 0, 0, IS_VISIBLE},

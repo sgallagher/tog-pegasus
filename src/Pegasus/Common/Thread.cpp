@@ -219,8 +219,10 @@ static sigset_t *block_signal_mask(sigset_t * sig)
 /*
 ATTN: remove this!
 */
+#if 1
 static Uint32 _num_threads = 0;
 static Mutex _num_threads_mutex;
+#endif
 
 Thread::Thread(
     ThreadReturnType(PEGASUS_THREAD_CDECL* start) (void*),
@@ -238,12 +240,14 @@ Thread::Thread(
 /*
 ATTN: remove this!
 */
+#if 1
     Uint32 num_threads;
     _num_threads_mutex.lock();
     _num_threads++;
     num_threads = _num_threads;
+    printf("Thread::Thread(): num_threads=%u\n", num_threads);
     _num_threads_mutex.unlock();
-    //printf("Thread::Thread(): num_threads=%u\n", num_threads);
+#endif
 
     Threads::clear(_handle.thid);
 }
@@ -253,12 +257,18 @@ Thread::~Thread()
 /*
 ATTN: remove this!
 */
+#if 1
     Uint32 num_threads;
     _num_threads_mutex.lock();
     _num_threads--;
     num_threads = _num_threads;
+    printf("Thread::~Thread(): num_threads=%u\n", num_threads);
     _num_threads_mutex.unlock();
+<<<<<<< Thread.cpp
+#endif
+=======
     //printf("Thread::~Thread(): num_threads=%u\n", num_threads);
+>>>>>>> 1.100.2.4
 
     try
     {

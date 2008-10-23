@@ -41,6 +41,8 @@ include $(ROOT)/mak/configschema.mak
 
 RESULTFILE = $(ROOT)/src/$(DIR)/result
 MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
+TABLEFORMATFILE = $(ROOT)/src/$(DIR)/tableformat
+MASTERTABLEFORMATFILE = $(ROOT)/src/$(DIR)/tableformat.master
 
 # sampleprovider\Load puts the sample MOF into a separate namespace.
 # The following variable defines this namespace. Note that
@@ -62,6 +64,7 @@ messages:
 poststarttests:
 
 	@$(RM) $(RESULTFILE)
+	@$(RM) $(TABLEFORMATFILE)
 	@$(ECHO) 1. +++++ Test For Reference params
 
 	@cimcli im Test_CLITestProviderClass  ReferenceParamTest -n "$(PROVIDERNS)" -ip a=[class.k1=v1,k2=v2,k3=v3]
@@ -76,7 +79,20 @@ poststarttests:
 	
 	@$(DIFF) $(MASTERRESULTFILE) $(RESULTFILE)
 	@$(ECHO) +++++ TST_Person Instances GetProperty and SetProperty tests Passed.
+	@$(ECHO)
+
+	@$(ECHO) 4. +++++ Test table output format
+
+	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass Id=Norman Name=Susan
+	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass Id=Thomas Name=Peter
+	@cimcli ei -n "$(PROVIDERNS)" -o table Test_CLITestProviderClass >> $(TABLEFORMATFILE) 
+	@$(DIFF) $(MASTERTABLEFORMATFILE) $(TABLEFORMATFILE)
+	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Norman\"
+	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Thomas\"
+	@$(ECHO) +++++ Test table output format Passed.
 
 clean:
+	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Norman\"
+	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Thomas\"
 
 # END_OF_FILE

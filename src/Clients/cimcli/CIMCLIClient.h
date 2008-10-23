@@ -56,6 +56,7 @@ const OutputType    OUTPUT_XML                  = 1;
 const OutputType    OUTPUT_MOF                  = 2;
 const OutputType    OUTPUT_TEXT                 = 3;
 const OutputType    OUTPUT_FILE                 = 4;
+const OutputType    OUTPUT_TABLE                = 5;
 
 const CommandID ID_EnumerateInstanceNames       = 1;
 const CommandID ID_EnumerateInstances           = 2;
@@ -101,7 +102,8 @@ static OUTPUT_STRUCT OutputTable[] =
     // Output Type      OutputName              
     {   OUTPUT_XML,     "xml"   },
     {   OUTPUT_MOF,     "mof"   },
-    {   OUTPUT_TEXT,    "txt"   }
+    {   OUTPUT_TEXT,    "txt"   },
+    {   OUTPUT_TABLE,   "table" }
 };
 static const Uint32 NUM_OUTPUTS = sizeof(OutputTable) / sizeof(OutputTable[0]);
     
@@ -247,11 +249,20 @@ struct  OPTION_STRUCT
 
 typedef struct OPTION_STRUCT Options;
 
+//
+//  String entries for each column in the output
+//
+typedef Array <String> ColumnEntry;
+
 Array<String> PEGASUS_CLI_LINKAGE _tokenize(const String& input,
                                             const Char16 separator);
 
 CIMParamValue PEGASUS_CLI_LINKAGE _createMethodParamValue(const String& input, 
                                                           const Options& opts);
+
+void PEGASUS_CLI_LINKAGE _printTables(const Array<Uint32>& maxColumnWidth,
+                                      const Array<ColumnEntry>& outputTable,
+                                      PEGASUS_STD(ostream)& outPrintWriter);
 
 void PEGASUS_CLI_LINKAGE showCommands(const char* pgmName);
 
@@ -273,6 +284,9 @@ int PEGASUS_CLI_LINKAGE CheckCommonOptionValues(OptionManager& om, char** argv,
 
 void PEGASUS_CLI_LINKAGE mofFormat(PEGASUS_STD(ostream)& os, const char* text,
      Uint32 indentSize);
+
+void PEGASUS_CLI_LINKAGE tableFormat(PEGASUS_STD(ostream)& outPrintWriter,
+    const Array<CIMInstance>& instances);
 
 // ************* CIMClient Functions
 int PEGASUS_CLI_LINKAGE enumerateClassNames(CIMClient& client, Options& opts);

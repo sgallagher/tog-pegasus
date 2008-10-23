@@ -28,12 +28,6 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-#//
-#// Author: Muni s Reddy (mreddy@in.ibm.com)   for bug #4792
-#//
-#// Modified By:
-#//
-#///////////////////////////////////////////////////////////////////////////////
 ROOT = $(PEGASUS_ROOT)
 
 DIR = Providers/TestProviders/CLITestProvider

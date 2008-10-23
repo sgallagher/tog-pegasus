@@ -830,6 +830,12 @@ int enumerateInstances(CIMClient& client, Options& opts)
     }
     else
     {
+        if (instances.size() > 0 && opts.outputType == OUTPUT_TABLE)
+        {
+            tableFormat(cout, instances);
+            return(0);
+        }
+
         // Output the returned instances
         for (Uint32 i = 0; i < instances.size(); i++)
         {
@@ -999,8 +1005,18 @@ int getInstance(CIMClient& client, Options& opts)
     }
     else
     {
-        outputFormatInstance(opts.outputType, cimInstance);
+        if (opts.outputType == OUTPUT_TABLE)
+        {
+            Array<CIMInstance> instances;
+            instances.append(cimInstance);
+            tableFormat(cout, instances);
+        }
+        else
+        {
+            outputFormatInstance(opts.outputType, cimInstance);
+        }
     }
+
     return(0);
 }
 
@@ -2027,7 +2043,7 @@ void GetOptions(
     char** argv,
     const String& testHome)
 {
-    static const char* outputFormats[] = { "xml", "mof", "txt"};
+    static const char* outputFormats[] = { "xml", "mof", "txt", "table"};
     static const Uint32 NUM_OUTPUTFORMATS = sizeof(outputFormats) /
                                             sizeof(outputFormats[0]);
 
@@ -2129,7 +2145,7 @@ void GetOptions(
         // Deprecate this function.
         {"outputformats", "mof", false, Option::STRING, 0,NUM_OUTPUTFORMATS,
             "o",
-            "Output in xml, mof, txt"},
+            "Output in xml, mof, txt, table"},
 
         {"xmlOutput", "false", false, Option::BOOLEAN, 0,0, "x",
             "Output objects in xml instead of mof format"},
@@ -2813,6 +2829,66 @@ void mofFormat(
 
     }
     delete [] var;
+}
+
+void _printTables(
+    const Array<Uint32>& maxColumnWidth,
+    const Array<ColumnEntry>& outputTable,
+    PEGASUS_STD(ostream)& outPrintWriter)
+{
+    for (Uint32 i = 0; i < outputTable[0].size(); i++)
+    {
+        for (Uint32 column = 0; column < maxColumnWidth.size() - 1; column++)   
+        {
+            Uint32 fillerLen = maxColumnWidth[column] - 
+                outputTable[column][i].size();
+
+            outPrintWriter << outputTable[column][i];
+
+            for (Uint32 j = 0; j < fillerLen + 2; j++)
+            {
+                 outPrintWriter << ' ';
+            }
+        }
+        outPrintWriter << outputTable[maxColumnWidth.size() - 1][i] << endl;
+    }    
+}
+
+/* Format the output stream to be table format
+*/
+void tableFormat(
+    PEGASUS_STD(ostream)& outPrintWriter,
+    const Array<CIMInstance>& instances)
+{
+    Array<ColumnEntry> outputTable;
+    Array<Uint32> maxColumnWidth;    
+
+    for (Uint32 i = 0; i < instances[0].getPropertyCount(); i++)
+    {
+        Array<String> property;
+
+        String propertyNameStr = 
+            instances[0].getProperty(i).getName().getString();
+        property.append(propertyNameStr);
+
+        maxColumnWidth.append(propertyNameStr.size());
+
+        for (Uint32 j = 0; j < instances.size(); j++)
+        {
+            String propertyValueStr = 
+                instances[j].getProperty(i).getValue().toString();
+            property.append(propertyValueStr);
+
+            if (propertyValueStr.size() > maxColumnWidth[i])
+            {
+                maxColumnWidth[i] = propertyValueStr.size();
+            }
+        }
+
+        outputTable.append(property);
+    }
+
+    _printTables(maxColumnWidth, outputTable, outPrintWriter);
 }
 
 PEGASUS_NAMESPACE_END

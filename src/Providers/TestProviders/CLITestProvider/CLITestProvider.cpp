@@ -33,10 +33,12 @@
 
 #include "CLITestProvider.h"
 #include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Common/Mutex.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+static Mutex instanceArrayMutex;
 
 CLITestProvider::CLITestProvider()
 {
@@ -275,14 +277,82 @@ void CLITestProvider::createInstance(
     const CIMInstance & instanceObject,
     ObjectPathResponseHandler & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    CIMObjectPath newInstanceRef =
+        CIMObjectPath(
+            String::EMPTY,
+            instanceReference.getNameSpace(),
+            instanceReference.getClassName(),
+            instanceReference.getKeyBindings());
+
+    if (newInstanceRef.getKeyBindings().size() == 0)
+    {
+        Array<CIMKeyBinding> keys;
+    
+        Uint32 pos = instanceObject.findProperty("Id");
+
+        if (pos != PEG_NOT_FOUND)
+        {
+            CIMConstProperty cimProperty = instanceObject.getProperty(pos);
+
+            keys.append(CIMKeyBinding(cimProperty.getName(),
+                                      cimProperty.getValue()));
+            
+            newInstanceRef.setKeyBindings(keys);
+        }
+        else
+        {
+            throw CIMPropertyNotFoundException("Id");
+        }
+    }
+
+    AutoMutex autoMut(instanceArrayMutex);
+     
+    for (Uint32 i = 0; i < _instances.size(); i++)
+    {
+        if (newInstanceRef == _instances[i].getPath())
+        {
+            throw CIMObjectAlreadyExistsException(
+                newInstanceRef.toString());
+        }
+    }
+    
+    handler.processing();
+
+    CIMInstance newInstance(instanceObject);
+    newInstance.setPath(newInstanceRef);
+
+    _instances.append(newInstance);
+
+    handler.deliver(_instances[_instances.size() -1].getPath());
+
+    handler.complete();
 }
 
 void CLITestProvider::deleteInstance(
     const OperationContext & context,
     const CIMObjectPath & instanceReference,
-    ResponseHandler & hadler)
+    ResponseHandler & handler)
 {
-    throw CIMException(CIM_ERR_NOT_SUPPORTED);
+    CIMObjectPath newInstanceRef =
+        CIMObjectPath(
+            String::EMPTY,
+            instanceReference.getNameSpace(),
+            instanceReference.getClassName(),
+            instanceReference.getKeyBindings());
+
+    AutoMutex autoMut(instanceArrayMutex);
+     
+    handler.processing();
+
+    for (Uint32 i = 0; i < _instances.size(); i++)
+    {
+        if (newInstanceRef == _instances[i].getPath())
+        {
+            _instances.remove(i);
+            break;
+        }
+    }
+    
+    handler.complete();    
 }
 

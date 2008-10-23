@@ -40,53 +40,25 @@
 #include <Pegasus/Common/Linkage.h>
 #include <stdlib.h>
 #include <malloc.h>
-
 #if defined(__cplusplus)
 # include <new>
+#endif
 
-extern "C" PEGASUS_COMMON_LINKAGE void* pegasus_malloc(size_t size);
-extern "C" PEGASUS_COMMON_LINKAGE void (*pegasus_malloc_notifier)(size_t total);
-extern "C" PEGASUS_COMMON_LINKAGE void* pegasus_realloc(void* ptr, size_t size);
-extern "C" PEGASUS_COMMON_LINKAGE void pegasus_free(void* ptr);
-
-inline void* operator new(size_t size) throw(std::bad_alloc)
+#if defined(__cplusplus)
+extern "C" 
 {
-    return pegasus_malloc(size);
-}
-
-inline void* operator new[](size_t size) throw(std::bad_alloc)
-{
-    return pegasus_malloc(size);
-}
-
-inline void operator delete(void* ptr)
-{
-    pegasus_free(ptr);
-}
-
-inline void operator delete[](void* ptr)
-{
-    pegasus_free(ptr);
-}
-
-inline void operator delete(void* ptr, size_t)
-{
-    pegasus_free(ptr);
-}
-
-inline void operator delete[](void* ptr, size_t)
-{
-    pegasus_free(ptr);
-}
-
-#else /* defined(__cplusplus) */
+#endif
 
 PEGASUS_COMMON_LINKAGE void* pegasus_malloc(size_t size);
-PEGASUS_COMMON_LINKAGE void (*pegasus_malloc_notifier)(size_t total);
 PEGASUS_COMMON_LINKAGE void* pegasus_realloc(void* ptr, size_t size);
 PEGASUS_COMMON_LINKAGE void pegasus_free(void* ptr);
+PEGASUS_COMMON_LINKAGE void pegasus_free(void* ptr);
 
-#endif /* !defined(__cplusplus) */
+#if defined(__cplusplus)
+}
+#endif
+
+extern PEGASUS_COMMON_LINKAGE void (*pegasus_malloc_notifier)(size_t total);
 
 #ifndef PEGASUS_INSIDE_ALLOC_CPP
 # define malloc pegasus_malloc

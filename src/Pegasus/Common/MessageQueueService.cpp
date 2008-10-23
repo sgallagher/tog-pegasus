@@ -648,7 +648,6 @@ Boolean MessageQueueService::accept_async(AsyncOpNode* op)
         return false;
     if (_polling_thread == NULL)
     {
-printf("===== NEW3\n");
         _polling_thread = new Thread(
             polling_routine,
             reinterpret_cast<void *>(_get_polling_list()),

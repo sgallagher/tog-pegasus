@@ -264,11 +264,7 @@ ATTN: remove this!
     num_threads = _num_threads;
     printf("Thread::~Thread(): num_threads=%u\n", num_threads);
     _num_threads_mutex.unlock();
-<<<<<<< Thread.cpp
 #endif
-=======
-    //printf("Thread::~Thread(): num_threads=%u\n", num_threads);
->>>>>>> 1.100.2.4
 
     try
     {

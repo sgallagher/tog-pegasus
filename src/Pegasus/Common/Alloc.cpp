@@ -264,3 +264,33 @@ extern "C" void pegasus_free(void* ptr)
     assert(block->magic == BLOCK_MAGIC);
     free(block);
 }
+
+void* operator new(size_t size) throw(std::bad_alloc)
+{
+    return pegasus_malloc(size);
+}
+
+void* operator new[](size_t size) throw(std::bad_alloc)
+{
+    return pegasus_malloc(size);
+}
+
+void operator delete(void* ptr)
+{
+    pegasus_free(ptr);
+}
+
+void operator delete[](void* ptr)
+{
+    pegasus_free(ptr);
+}
+
+void operator delete(void* ptr, size_t)
+{
+    pegasus_free(ptr);
+}
+
+void operator delete[](void* ptr, size_t)
+{
+    pegasus_free(ptr);
+}

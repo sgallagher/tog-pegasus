@@ -45,7 +45,6 @@ LIBRARIES = \
 	pegcommon \
 	pegrepository \
 	pegprovider \
-	pegexportserver \
 	pegpmservice \
 	pegprovidermanager \
 	pegconfig \
@@ -70,6 +69,13 @@ ifdef PEGASUS_SLP_REG_TIMEOUT
 LIBRARIES += \
 	pegslp_client
 endif
+endif
+
+## include the exportserver library of
+## this feature in the cimserver is enabled
+ifeq ($(PEGASUS_ENABLE_EXPORTSERVER),true)
+LIBRARIES += \
+	pegexportserver
 endif
 
 ifndef PEGASUS_DISABLE_PERFINST

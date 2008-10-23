@@ -432,6 +432,25 @@ ifdef PEGASUS_DISABLE_CQL
     DEFINES += -DPEGASUS_DISABLE_CQL
 endif
 
+###################################################
+# Allow EXPORT Server within cimserver to be disabled
+# default - enabled
+# true - enabled
+# false - disabled and not referenced within server
+
+ifdef PEGASUS_ENABLE_EXPORTSERVER
+  ifeq ($(PEGASUS_ENABLE_EXPORTSERVER),true)
+    DEFINES += -DPEGASUS_ENABLE_EXPORTSERVER
+  else
+    ifneq ($(PEGASUS_ENABLE_EXPORTSERVER),false)
+      $(error PEGASUS_ENABLE_EXPORTSERVER ($(PEGASUS_ENABLE_EXPORTSERVER)) invalid, must be true or false)
+    endif
+  endif
+else
+  DEFINES += -DPEGASUS_ENABLE_EXPORTSERVER
+  PEGASUS_ENABLE_EXPORTSERVER=true
+endif
+
 #
 # PEP 186
 # Allow override of product name/version/status.  A file

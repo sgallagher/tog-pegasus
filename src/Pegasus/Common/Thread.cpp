@@ -243,7 +243,7 @@ ATTN: remove this!
     _num_threads++;
     num_threads = _num_threads;
     _num_threads_mutex.unlock();
-    printf("Thread::Thread(): num_threads=%u\n", num_threads);
+    //printf("Thread::Thread(): num_threads=%u\n", num_threads);
 
     Threads::clear(_handle.thid);
 }
@@ -258,7 +258,7 @@ ATTN: remove this!
     _num_threads--;
     num_threads = _num_threads;
     _num_threads_mutex.unlock();
-    printf("Thread::~Thread(): num_threads=%u\n", num_threads);
+    //printf("Thread::~Thread(): num_threads=%u\n", num_threads);
 
     try
     {

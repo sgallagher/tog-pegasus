@@ -145,6 +145,12 @@ PEGASUS_USE_STATIC_LIBRARIES=true
 
 PEGASUS_BUILD_CIMSERVER_LIBRARY=true
 
+## disable the Export server in the server
+## not needed or used in the vxworks environment
+## today.
+
+PEGASUS_ENABLE_EXPORTSERVER=false
+
 ifdef PEGASUS_PAM_AUTHENTICATION
     $(error "vxworks does not support PAM authenticaiton")
 endif

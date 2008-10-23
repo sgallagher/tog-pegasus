@@ -1205,12 +1205,20 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             MessageQueue* queue =
                 MessageQueue::lookup(_exportMessageQueueId);
 
+        // if there is a queue, queue the message. Else, discard it 
             if (queue)
             {
                 httpMessage->dest = queue->getQueueId();
 
                 queue->enqueue(httpMessage);
                 deleteMessage = false;
+            }
+            else
+            {
+                Logger::put(
+                    Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                    "HTTPAuthenticatorDelegator - CIMExport: $0 Not Accepted "
+                        ,cimOperation);
             }
         }
         else

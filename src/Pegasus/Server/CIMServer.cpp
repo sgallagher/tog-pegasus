@@ -59,9 +59,13 @@
 #include <Pegasus/Common/MessageLoader.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
+
+#ifdef PEGASUS_ENABLE_EXPORTSERVER
 #include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
 #include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
+#endif
+
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/HandlerService/IndicationHandlerService.h>
@@ -503,7 +507,7 @@ void CIMServer::_init()
             _cimOperationRequestDispatcher,
             _cimOperationResponseEncoder->getQueueId());
     }
-
+#ifdef PEGASUS_ENABLE_EXPORTSERVER
     _cimExportRequestDispatcher = new CIMExportRequestDispatcher();
 
     _cimExportResponseEncoder = new CIMExportResponseEncoder;
@@ -516,6 +520,12 @@ void CIMServer::_init()
         _cimOperationRequestDecoder->getQueueId(),
         _cimExportRequestDecoder->getQueueId(),
         _repository);
+#else
+    _httpAuthenticatorDelegator = new HTTPAuthenticatorDelegator(
+        _cimOperationRequestDecoder->getQueueId(),
+        0,
+        _repository);
+#endif
 
     // IMPORTANT-NU-20020513: Indication service must start after ExportService
     // otherwise HandlerService started by indicationService will never
@@ -602,13 +612,15 @@ CIMServer::~CIMServer ()
 
     // HTTPAuthenticationDelegator depends on CIMRepository,
     // CIMOperationRequestDecoder and CIMExportRequestDecoder
-    delete _httpAuthenticatorDelegator;
 
+    delete _httpAuthenticatorDelegator;
+#ifdef PEGASUS_ENABLE_EXPORTSERVER
     delete _cimExportRequestDecoder;
 
     delete _cimExportResponseEncoder;
 
     delete _cimExportRequestDispatcher;
+#endif
 
     // CIMOperationRequestDecoder depends on CIMOperationRequestAuthorizer
     // and CIMOperationResponseEncoder
@@ -864,8 +876,9 @@ void CIMServer::setState(Uint32 state)
     {
         // tell decoder that CIMServer is terminating
         _cimOperationRequestDecoder->setServerTerminating(true);
+#ifdef PEGASUS_ENABLE_EXPORTSERVER
         _cimExportRequestDecoder->setServerTerminating(true);
-
+#endif
         // tell authorizer that CIMServer is terminating ONLY if
         // authentication and authorization are enabled
         //
@@ -878,8 +891,9 @@ void CIMServer::setState(Uint32 state)
     {
         // tell decoder that CIMServer is not terminating
         _cimOperationRequestDecoder->setServerTerminating(false);
+#ifdef PEGASUS_ENABLE_EXPORTSERVER
         _cimExportRequestDecoder->setServerTerminating(false);
-
+#endif
         // tell authorizer that CIMServer is terminating ONLY if
         // authentication and authorization are enabled
         //

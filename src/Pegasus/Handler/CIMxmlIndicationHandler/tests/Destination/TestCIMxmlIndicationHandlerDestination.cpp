@@ -63,7 +63,7 @@ static void TestDestination(
     CIMStatusCode statusCode)
 {
     OperationContext context;
-    CIMInstance indicationInstance;
+    CIMInstance indicationInstance(CIMName("CIM_ProcessIndication"));
     CIMInstance indicationSubscriptionInstance;
     ContentLanguageList contentLanguages;
 

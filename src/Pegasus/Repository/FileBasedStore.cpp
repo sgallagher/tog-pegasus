@@ -427,13 +427,37 @@ static void _rollbackInstanceTransaction(
 //
 // InstanceTransactionHandler
 //
-//      This class is used to manage a repository instance transaction.  The
-//      transaction is started when the class is instantiated, committed when
-//      the complete() method is called, and rolled back if the destructor is
-//      called without a prior call to complete().
+//      This class uses a simple recovery scheme to avoid corruption of the
+//      instance repository during a "write" operation.  A transaction is
+//      started when the class is instantiated, committed when the complete()
+//      method is called, and rolled back if the destructor is called without
+//      a prior call to complete().
 //
 //      The appropriate repository write locks must be owned while an
 //      InstanceTransactionHandler instance exists.
+//
+//      This algorithm is used to allow recovery on an operation failure:
+//
+//      1.  Check to see if any rollback files exist for instances of the
+//          given class. If so, perform rollback
+//      2.  Create a rollback file for the instance file. The rollback file
+//          contains the original size of the instance file.
+//      3.  Create a rollback file for the index file. The rollback file is a
+//          copy of the instance file.
+//      4.  Update the instance file to perform the operation.
+//      5.  Update the index file to perform the operation.
+//      6.  Increment the free count in the index file if necessary, and
+//          perform reorganization if the limit is reached.
+//      7.  Delete the rollback files.
+//
+//      The recoverability algorithm itself works as follows:
+//
+//      1.  Delete the index file.
+//      2.  Rename the index rollback file to have the same name as the
+//          index file.
+//      3.  Truncate the instance file to have the same number of bytes as
+//          indicated in the instance rollback file.
+//      4.  Delete the rollback files.
 //
 ////////////////////////////////////////////////////////////////////////////////
 

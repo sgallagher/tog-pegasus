@@ -47,28 +47,63 @@ PEGASUS_NAMESPACE_BEGIN
     instance names to offsets of the instances contained in the "instance
     data file".
 
-    The first line of this file is a free count, expressed as eight hex
+    All files belonging to the instance repository are stored under the
+    repository/instances directory. For each class, two files are maintained:
+    an index file (with a ".idx" extension) and an instance file which bears
+    the name of the class whose instances it contains. For example, suppose
+    there is a class called "Zebra". Then two files are used to manage its
+    instances:
+
+        <pre>
+        repository/instances/Zebra.idx (called the index file)
+        repository/instances/Zebra (called the instance file)
+        </pre>
+
+    The first line of the index file is a free count, expressed as eight hex
     digits followed by a newline. The free count indicates how many instances
     are free (but not reclaimed). When instances are deleted or modified, the
     corresponding entry in this index file is marked as free (by changing the
-    first column of the entry from '0' to '1'). When the free count reaches
-    some upper bound, reclamation is performed which involves removing free
-    entries (from both the index file and the data file).
+    first column of the entry from '0' to '1'). To improve performance,
+    reclamation of unused space in the instance file (called gaps) is
+    postponed until there are m gaps.
+
+    Reorganization is expensive: the entire instance file and index file must
+    be rewritten. The time complexity is O(n) where n is the number of
+    instances in the file. By postponing reorganization, the time complexity
+    may be reduced to O(1).
 
     All subsequent lines contain an entry with the following form:
 
     <pre>
-        <free> <hash-code> <index> <size> ClassName.key1=val1,...,keyN=valN
+        <free> <hash-code> <offset> <size> ClassName.key1=val1,...,keyN=valN
     </pre>
 
-    The free column is a flag (either '0' or '1') which indicates whether
-    the entry is no longer used (in which case it can be removed during
-    reclamation).
-
-    The hash-code is an eight digit hex number, the index is the byte
-    location of the instance record in the instance file, the size is the
-    record size of the instance record, and instance name is a CIM style
-    object name.
+    <ul>
+    <li>
+    free - '1' if the corresponding instance was deleted, '0' otherwise.
+        When instances are deleted, the corresponding entry in the index file
+        is marked as free and a gap is left in the instance file until
+        reorganization time.
+    </li>
+    <li>
+    hash-code - hash code for the key field below. This field is provided to
+        speed lookup of index entries. When looking up an entry, compute the
+        hash code of the key and look for entries with the same hash code.
+        It is still necessary to compare the keys when the hash codes are
+        the same (since collisions are possible), but only when they are the
+        same which is rare and hence this scheme saves many comparisons.
+    </li>
+    <li>
+    offset - offset within the instance file to where the instance begins.
+    </li>
+    <li>
+    size - size in bytes of the instance itself (as it appears in the instance
+        file).
+    </li>
+    <li>
+    key - the compound key of the instance (including all key binding pairs).
+    </li>
+    </ul>
 
     Here's an example of an index file:
 
@@ -78,14 +113,36 @@ PEGASUS_NAMESPACE_BEGIN
         1 A6BA08B1 1425 1430 Employee.ssn=555667777
     </pre>
 
+    Notice that the dirty count is equal to one and that one entry is marked
+    as deleted (these quantities must be equal). This indicates that the
+    instance file has one instance which is no longer used. The space used by
+    this instance will be reclaimed during reorganization.
+
+    The layout of the instance file is trivial. Instances are always appended
+    to the instance file. The instances are kept end-to-end in the file.
+
     To lookup an entry in the index file, first take the hash code of the
     target key. Then find the first non-free entry whose hash code and key
     are the same as the target hash code and key. Note that an entry may
     usually be ruled out by comparing the hash codes (except in the case of
     clashes).
 
-    Methods are provided for managing the instance index file: adding,
-    removing, and modifying.
+    There are three operations which may be performed on the instance
+    repository: create, modify, and delete.
+
+    Creation. During creation, the instance is appended to the instance file
+    and an entry is appended to the index file. If an instance with the same
+    key is found, then the operation is disallowed.
+
+    Deletion. To delete an instance, the corresponding entry in the index file
+    is marked as deleted (by changing the first column from '0' to '1'). And
+    then the dirty count is incremented and updated. If the dirty count has
+    reached the configured threshold, the index and instance files are
+    reogranized.
+
+    Modification. To modify an instance, the new modified instance is appended
+    to the instance file. Next the old entry with the same key is marked as
+    deleted.  Finally, a new entry is inserted into the index file.
 */
 class PEGASUS_REPOSITORY_LINKAGE InstanceIndexFile
 {

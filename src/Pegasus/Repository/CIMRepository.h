@@ -40,7 +40,6 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
-#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Repository/NameSpaceManager.h>
 #include <Pegasus/Repository/Linkage.h>
@@ -108,28 +107,24 @@ public:
     /// createClass
     void createClass(
         const CIMNamespaceName& nameSpace,
-        const CIMClass& newClass,
-        const ContentLanguageList& contentLangs = ContentLanguageList());
+        const CIMClass& newClass);
 
     /// createInstance
     CIMObjectPath createInstance(
         const CIMNamespaceName& nameSpace,
-        const CIMInstance& newInstance,
-        const ContentLanguageList& contentLangs = ContentLanguageList());
+        const CIMInstance& newInstance);
 
     /// modifyClass
     void modifyClass(
         const CIMNamespaceName& nameSpace,
-        const CIMClass& modifiedClass,
-        const ContentLanguageList& contentLangs = ContentLanguageList());
+        const CIMClass& modifiedClass);
 
     /// modifyInstance
     void modifyInstance(
         const CIMNamespaceName& nameSpace,
         const CIMInstance& modifiedInstance,
         Boolean includeQualifiers = true,
-        const CIMPropertyList& propertyList = CIMPropertyList(),
-        const ContentLanguageList& contentLangs = ContentLanguageList());
+        const CIMPropertyList& propertyList = CIMPropertyList());
 
     /// enumerateClasses
     Array<CIMClass> enumerateClasses(
@@ -263,8 +258,7 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         const CIMName& propertyName,
-        const CIMValue& newValue = CIMValue(),
-        const ContentLanguageList& contentLangs = ContentLanguageList());
+        const CIMValue& newValue = CIMValue());
 
     /// getQualifier
     CIMQualifierDecl getQualifier(
@@ -274,8 +268,7 @@ public:
     /// setQualifier
     void setQualifier(
         const CIMNamespaceName& nameSpace,
-        const CIMQualifierDecl& qualifierDecl,
-        const ContentLanguageList& contentLangs = ContentLanguageList());
+        const CIMQualifierDecl& qualifierDecl);
 
     /// deleteQualifier
     void deleteQualifier(

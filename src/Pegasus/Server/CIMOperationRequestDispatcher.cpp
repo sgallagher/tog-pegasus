@@ -2765,11 +2765,7 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 
     removePropagatedAndOriginAttributes(request->newClass);
 
-    _repository->createClass(
-        request->nameSpace,
-        request->newClass,
-        ((ContentLanguageListContainer)request->operationContext.get(
-            ContentLanguageListContainer::NAME)).getLanguages());
+    _repository->createClass(request->nameSpace, request->newClass);
 
     PEG_TRACE((
         TRC_DISPATCHER,
@@ -2852,12 +2848,9 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
     {
         removePropagatedAndOriginAttributes(request->newInstance);
 
-        CIMObjectPath instanceName =
-            _repository->createInstance(
-                request->nameSpace,
-                request->newInstance,
-                ((ContentLanguageListContainer)request->operationContext.get(
-                    ContentLanguageListContainer::NAME)).getLanguages());
+        CIMObjectPath instanceName = _repository->createInstance(
+            request->nameSpace,
+            request->newInstance);
         
         PEG_TRACE((
             TRC_DISPATCHER,
@@ -2899,11 +2892,7 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
 
     removePropagatedAndOriginAttributes(request->modifiedClass);
 
-    _repository->modifyClass(
-        request->nameSpace,
-        request->modifiedClass,
-        ((ContentLanguageListContainer)request->operationContext.get(
-            ContentLanguageListContainer::NAME)).getLanguages());
+    _repository->modifyClass(request->nameSpace, request->modifiedClass);
 
     AutoPtr<CIMModifyClassResponseMessage> response(
         dynamic_cast<CIMModifyClassResponseMessage*>(
@@ -2978,9 +2967,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
         _repository->modifyInstance(
             request->nameSpace,
             request->modifiedInstance,
-            request->includeQualifiers,request->propertyList,
-            ((ContentLanguageListContainer)request->operationContext.get(
-                ContentLanguageListContainer::NAME)).getLanguages());
+            request->includeQualifiers,request->propertyList);
 
         PEG_TRACE((
             TRC_DISPATCHER,
@@ -4649,9 +4636,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
             request->nameSpace,
             request->instanceName,
             request->propertyName,
-            request->newValue,
-            ((ContentLanguageListContainer)request->operationContext.get(
-                ContentLanguageListContainer::NAME)).getLanguages());
+            request->newValue);
 
         PEG_TRACE((
             TRC_DISPATCHER,
@@ -4727,9 +4712,7 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 
     _repository->setQualifier(
         request->nameSpace,
-        request->qualifierDeclaration,
-        ((ContentLanguageListContainer)request->operationContext.get(
-            ContentLanguageListContainer::NAME)).getLanguages());
+        request->qualifierDeclaration);
 
     PEG_TRACE((
         TRC_DISPATCHER,

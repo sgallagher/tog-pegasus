@@ -1290,16 +1290,14 @@ void CIMRepository::deleteInstance(
 
 void CIMRepository::createClass(
     const CIMNamespaceName& nameSpace,
-    const CIMClass& newClass,
-    const ContentLanguageList& contentLangs)
+    const CIMClass& newClass)
 {
     Throw((CIM_ERR_NOT_SUPPORTED, "createClass()"));
 }
 
 CIMObjectPath CIMRepository::createInstance(
     const CIMNamespaceName& nameSpace,
-    const CIMInstance& newInstance,
-    const ContentLanguageList& contentLangs)
+    const CIMInstance& newInstance)
 {
     // Resolve the instance first:
 
@@ -1327,8 +1325,7 @@ CIMObjectPath CIMRepository::createInstance(
 
 void CIMRepository::modifyClass(
     const CIMNamespaceName& nameSpace,
-    const CIMClass& modifiedClass,
-    const ContentLanguageList& contentLangs)
+    const CIMClass& modifiedClass)
 {
     Throw((CIM_ERR_NOT_SUPPORTED, "modifyClass()"));
 }
@@ -1337,8 +1334,7 @@ void CIMRepository::modifyInstance(
     const CIMNamespaceName& nameSpace,
     const CIMInstance& modifiedInstance,
     Boolean includeQualifiers,
-    const CIMPropertyList& propertyList,
-    const ContentLanguageList& contentLangs)
+    const CIMPropertyList& propertyList)
 {
     const CIMObjectPath& cop = modifiedInstance.getPath();
     CIMName className = cop.getClassName();
@@ -1704,8 +1700,7 @@ void CIMRepository::setProperty(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
     const CIMName& propertyName,
-    const CIMValue& newValue,
-    const ContentLanguageList& contentLangs)
+    const CIMValue& newValue)
 {
     CIMInstance ci(instanceName.getClassName());
     ci.addProperty(CIMProperty(propertyName, newValue));
@@ -1715,7 +1710,7 @@ void CIMRepository::setProperty(
     tmp.append(propertyName);
     CIMPropertyList properties(tmp);
 
-    modifyInstance(nameSpace, ci, false, properties, ContentLanguageList());
+    modifyInstance(nameSpace, ci, false, properties);
 }
 
 CIMQualifierDecl CIMRepository::getQualifier(
@@ -1727,8 +1722,7 @@ CIMQualifierDecl CIMRepository::getQualifier(
 
 void CIMRepository::setQualifier(
     const CIMNamespaceName& nameSpace,
-    const CIMQualifierDecl& qualifierDecl,
-    const ContentLanguageList& contentLangs)
+    const CIMQualifierDecl& qualifierDecl)
 {
     Throw((CIM_ERR_NOT_SUPPORTED, "setQualifier()"));
 }

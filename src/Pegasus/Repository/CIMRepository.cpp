@@ -1123,8 +1123,7 @@ void CIMRepository::deleteInstance(
 
 void CIMRepository::createClass(
     const CIMNamespaceName& nameSpace,
-    const CIMClass& newClass,
-    const ContentLanguageList& contentLangs)
+    const CIMClass& newClass)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createClass");
 
@@ -1181,8 +1180,7 @@ void CIMRepository::_createClass(
 
 CIMObjectPath CIMRepository::createInstance(
     const CIMNamespaceName& nameSpace,
-    const CIMInstance& newInstance,
-    const ContentLanguageList& contentLangs)
+    const CIMInstance& newInstance)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createInstance");
 
@@ -1261,8 +1259,7 @@ CIMObjectPath CIMRepository::_createInstance(
 
 void CIMRepository::modifyClass(
     const CIMNamespaceName& nameSpace,
-    const CIMClass& modifiedClass,
-    const ContentLanguageList& contentLangs)
+    const CIMClass& modifiedClass)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyClass");
 
@@ -1353,8 +1350,7 @@ void CIMRepository::modifyInstance(
     const CIMNamespaceName& nameSpace,
     const CIMInstance& modifiedInstance,
     Boolean includeQualifiers,
-    const CIMPropertyList& propertyList,
-    const ContentLanguageList& contentLangs)
+    const CIMPropertyList& propertyList)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyInstance");
 
@@ -2226,8 +2222,7 @@ void CIMRepository::setProperty(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
     const CIMName& propertyName,
-    const CIMValue& newValue,
-    const ContentLanguageList& contentLangs)
+    const CIMValue& newValue)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setProperty");
 
@@ -2316,8 +2311,7 @@ CIMQualifierDecl CIMRepository::_getQualifier(
 
 void CIMRepository::setQualifier(
     const CIMNamespaceName& nameSpace,
-    const CIMQualifierDecl& qualifierDecl,
-    const ContentLanguageList& contentLangs)
+    const CIMQualifierDecl& qualifierDecl)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setQualifier");
 

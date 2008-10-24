@@ -158,17 +158,14 @@ AtomicInt MessageQueueService::_stop_polling(0);
 
 MessageQueueService::MessageQueueService(
     const char* name,
-    Uint32 queueID,
-    Uint32 capabilities,
-    Uint32 mask)
+    Uint32 queueID)
     : Base(name, true,  queueID),
-      _mask(mask),
       _die(0),
       _threads(0),
       _incoming(),
       _incoming_queue_shutdown(0)
 {
-    _capabilities = (capabilities | module_capabilities::async);
+    _isRunning = true;
 
     max_threads_per_svc_queue = MAX_THREADS_PER_SVC_QUEUE;
 
@@ -628,9 +625,8 @@ void MessageQueueService::handle_CimServiceStart(CimServiceStart* req)
     PEGASUS_STD(cout) << getQueueName() << "received START" <<
         PEGASUS_STD(endl);
 #endif
-
-    // clear the stoped bit and update
-    _capabilities &= (~(module_capabilities::stopped));
+    PEGASUS_ASSERT(!_isRunning);
+    _isRunning = true;
     _make_response(req, async_results::OK);
 }
 
@@ -639,8 +635,8 @@ void MessageQueueService::handle_CimServiceStop(CimServiceStop* req)
 #ifdef MESSAGEQUEUESERVICE_DEBUG
     PEGASUS_STD(cout) << getQueueName() << "received STOP" << PEGASUS_STD(endl);
 #endif
-    // set the stopeed bit and update
-    _capabilities |= module_capabilities::stopped;
+    PEGASUS_ASSERT(_isRunning);
+    _isRunning = false;
     _make_response(req, async_results::CIM_STOPPED);
 }
 

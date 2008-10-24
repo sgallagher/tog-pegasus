@@ -125,11 +125,6 @@ public:
     /** Retrieve the queue id for this queue. */
     Uint32 getQueueId() const throw() { return _queueId; }
 
-    Uint32 get_capabilities() const throw()
-    {
-        return _capabilities;
-    }
-
     /** Provide a string name for this queue to be used by the print method.
      */
     const char* getQueueName() const;
@@ -169,7 +164,6 @@ public:
 protected:
     Uint32 _queueId;
     char *_name;
-    Uint32 _capabilities;
 
 private:
     List<Message, Mutex> _messageList;

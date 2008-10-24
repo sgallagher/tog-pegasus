@@ -65,9 +65,7 @@ Message* RegisteredModuleHandle::_receive_message(Message* msg)
 }
 
 ModuleController::ModuleController(const char* name)
-    : Base(name, MessageQueue::getNextQueueId(),
-           module_capabilities::module_controller |
-           module_capabilities::async),
+    : Base(name),
       _modules()
 {
 }
@@ -193,8 +191,6 @@ ModuleController* ModuleController::getModuleController()
     MessageQueueService* service =
         dynamic_cast<MessageQueueService*>(messageQueue);
     PEGASUS_ASSERT(service != 0);
-    PEGASUS_ASSERT(
-        service->get_capabilities() & module_capabilities::module_controller);
 
     return static_cast<ModuleController*>(service);
 }

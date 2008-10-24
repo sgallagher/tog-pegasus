@@ -64,7 +64,7 @@ MessageQueue::MessageQueue(
     const char* name,
     Boolean async,
     Uint32 queueId)
-   : _queueId(queueId), _capabilities(0), _async(async)
+   : _queueId(queueId), _async(async)
 {
     //
     // Copy the name:

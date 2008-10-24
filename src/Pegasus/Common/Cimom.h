@@ -55,17 +55,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 extern const Uint32 CIMOM_Q_ID;
 
-class PEGASUS_COMMON_LINKAGE module_capabilities
-{
-public:
-    static Uint32 async;
-    static Uint32 remote;
-    static Uint32 trusted;
-    static Uint32 paused;
-    static Uint32 stopped;
-    static Uint32 module_controller;
-};
-
 class MessageQueueService;
 
 class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue

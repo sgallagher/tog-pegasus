@@ -63,11 +63,7 @@ public:
 
     MessageQueueService(
         const char* name,
-        Uint32 queueID = MessageQueue::getNextQueueId(),
-        Uint32 capabilities = 0,
-        Uint32 mask = MessageMask::ha_request |
-            MessageMask::ha_reply |
-            MessageMask::ha_async);
+        Uint32 queueID = MessageQueue::getNextQueueId());
 
     virtual ~MessageQueueService();
 
@@ -90,10 +86,10 @@ public:
     Uint32 find_service_qid(const String &name);
     static AsyncOpNode* get_op();
     void return_op(AsyncOpNode* op);
+    Boolean isRunning() const { return _isRunning; }
 
     static ThreadPool* get_thread_pool();
 
-    Uint32 _mask;
     AtomicInt _die;
     AtomicInt _threads;
     Uint32 getIncomingCount() {return _incoming.count(); }
@@ -126,7 +122,7 @@ protected:
     static AtomicInt _service_count;
     static Mutex _meta_dispatcher_mutex;
     static ThreadPool* _thread_pool;
-
+    Boolean _isRunning;
 private:
     Boolean _sendAsync(AsyncOpNode* op,
         Uint32 destination,

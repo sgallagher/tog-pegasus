@@ -45,13 +45,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 const Uint32 CIMOM_Q_ID = 1;
 
-Uint32 module_capabilities::async =             0x00000001;
-Uint32 module_capabilities::remote =            0x00000002;
-Uint32 module_capabilities::trusted =           0x00000004;
-Uint32 module_capabilities::paused  =           0x00000008;
-Uint32 module_capabilities::stopped =           0x00000010;
-Uint32 module_capabilities::module_controller = 0x00000020;
-
 Boolean cimom::route_async(AsyncOpNode *op)
 {
     if (_die.get() > 0)
@@ -123,37 +116,36 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
                 // moved the lookup to sendwait/nowait/forget/forward functions.
 
                 MessageQueueService *dest_svc = 0;
+                // ATTN: We should only get async queues for message dispatch.
+                PEGASUS_ASSERT(dest_q->isAsync());
+                dest_svc= static_cast<MessageQueueService *>(dest_q);
 
-                if (dest_q->get_capabilities()  & module_capabilities::async)
+                if (!dest_svc->isRunning())
                 {
-                    dest_svc= static_cast<MessageQueueService *>(dest_q);
+                    // the target is stopped, unless the message is a start
+                    // just handle it from here.
+                    AsyncRequest *request =
+                        static_cast<AsyncRequest *>(op->_request.get());
+                    MessageType messageType = request->getType();
+
+                    if (messageType != ASYNC_CIMSERVICE_START)
+                    {
+                       dispatcher->_make_response(
+                           request, async_results::CIM_STOPPED);
+                       accepted = true;
+                    }
+                    else
+                    {
+                        // deliver the start message
+                        if (dest_svc->_die.get() == 0)
+                        {
+                            accepted = dest_svc->accept_async(op);
+                        }
+                    }
                 }
-
-                if (dest_svc != 0)
+                else if (dest_svc->_die.get() == 0)
                 {
-                   if (dest_svc->get_capabilities() &
-                           module_capabilities::stopped)
-                   {
-                       // the target is stopped or paused
-                       // unless the message is a start or resume
-                       // just handle it from here.
-                       AsyncRequest *request =
-                           static_cast<AsyncRequest *>(op->_request.get());
-                       MessageType messageType = request->getType();
-
-                       if (messageType != ASYNC_CIMSERVICE_START)
-                       {
-                          dispatcher->_make_response(
-                              request, async_results::CIM_STOPPED);
-                          accepted = true;
-                       }
-                       else // deliver the start or resume message
-                           if (dest_svc->_die.get() == 0)
-                               accepted = dest_svc->accept_async(op);
-                   }
-                   else
-                       if (dest_svc->_die.get() == 0)
-                           accepted = dest_svc->accept_async(op);
+                    accepted = dest_svc->accept_async(op);
                 }
 
                 if (accepted == false)
@@ -176,8 +168,6 @@ cimom::cimom()
       _die(0),
       _routed_queue_shutdown(0)
 {
-    _capabilities |= module_capabilities::async;
-
     _global_this = static_cast<cimom *>(MessageQueue::lookup(CIMOM_Q_ID));
 
     ThreadStatus tr = PEGASUS_THREAD_OK;
@@ -306,8 +296,8 @@ void cimom::_complete_op_node(
     // << Wed Oct  8 12:29:32 2003 mdd >>
     // check to see if the response queue is stopped
     if (op->_callback_response_q == 0 ||
-        op->_callback_response_q->get_capabilities() &
-            module_capabilities::stopped)
+        !(static_cast<MessageQueueService*> (
+            op->_callback_response_q))->isRunning())
     {
         // delete, respondent is stopped
         _global_this->cache_op(op);

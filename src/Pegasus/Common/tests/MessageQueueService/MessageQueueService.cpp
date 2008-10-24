@@ -116,11 +116,7 @@ class MessageQueueServer : public MessageQueueService
 public:
     typedef MessageQueueService Base;
     MessageQueueServer(const char *name)
-    : Base(
-        name, MessageQueue::getNextQueueId(), 0,
-            MessageMask::ha_request |
-            MessageMask::ha_reply |
-            MessageMask::ha_async),
+    : Base(name),
       dienow(0)
     {
     }
@@ -160,14 +156,9 @@ class MessageQueueClient : public MessageQueueService
       typedef MessageQueueService Base;
 
       MessageQueueClient(const char *name)
-         : Base(name, MessageQueue::getNextQueueId(), 0,
-                MessageMask::ha_request |
-                MessageMask::ha_reply |
-                MessageMask::ha_async),
+         : Base(name),
            client_xid(1)
       {
-         _client_capabilities = Base::_capabilities;
-         _client_mask = Base::_mask;
       }
 
       virtual ~MessageQueueClient()
@@ -190,9 +181,6 @@ class MessageQueueClient : public MessageQueueService
 
       void sendTestRequestMessage(const char *greeting, Uint32 qid);
       Uint32 get_qid();
-
-      Uint32 _client_capabilities;
-      Uint32 _client_mask;
 
       virtual void _handle_async_request(AsyncRequest *req);
       AtomicInt client_xid;

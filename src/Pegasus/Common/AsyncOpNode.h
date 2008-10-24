@@ -95,7 +95,6 @@ private:
     friend class cimom;
     friend class MessageQueueService;
     friend class ProviderManagerService;
-    friend class BinaryMessageHandler;
 };
 
 

@@ -1164,7 +1164,6 @@ tracecomp: FORCE
 	$(USAGE)"ControlProvider"
 	$(USAGE)"AsyncOpNode"
 	$(USAGE)"CIMOMHandle"
-	$(USAGE)"BinaryMessageHandler"
 	$(USAGE)"L10N"
 	$(USAGE)"ExportClient"
 	$(USAGE)"Listener"

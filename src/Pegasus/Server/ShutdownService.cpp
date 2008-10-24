@@ -260,11 +260,6 @@ void ShutdownService::shutdownCimomServices()
     _sendShutdownRequestToService(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER);
 
     //
-    // shutdown binary message handler
-    //
-    _sendShutdownRequestToService(PEGASUS_QUEUENAME_BINARY_HANDLER);
-
-    //
     // shutdown  CIM Operation Request Dispatcher Service
     //
     _sendShutdownRequestToService(PEGASUS_QUEUENAME_OPREQDISPATCHER);

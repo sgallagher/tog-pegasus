@@ -52,8 +52,8 @@ InternalCIMOMHandleMessageQueue::InternalCIMOMHandleMessageQueue()
     _responseReady(0),
     _response(0)
 {
-    // output queue is the binary message handler
-    MessageQueue* out = MessageQueue::lookup(PEGASUS_QUEUENAME_BINARY_HANDLER);
+    // output queue is the request dispatcher
+    MessageQueue* out = MessageQueue::lookup(PEGASUS_QUEUENAME_OPREQDISPATCHER);
 
     PEGASUS_ASSERT(out != 0);
 
@@ -148,7 +148,6 @@ CIMResponseMessage* InternalCIMOMHandleMessageQueue::sendRequest(
     // update message to include routing information
     request->dest = _output_qid;
     request->queueIds.push(_return_qid);
-    request->queueIds.push(_output_qid);
 
     // locate destination
     MessageQueueService* service =
@@ -158,11 +157,7 @@ CIMResponseMessage* InternalCIMOMHandleMessageQueue::sendRequest(
     PEGASUS_ASSERT(service != 0);
 
     // forward request
-    if (service->SendForget(request) == false)
-    {
-        PEG_METHOD_EXIT();
-        throw Exception("Failed to send message");
-    }
+    service->enqueue(request);
 
     // wait for response
     _responseReady.wait();
@@ -246,7 +241,6 @@ CIMResponseMessage* InternalCIMOMHandleRep::do_request(
     CIMRequestMessage* request)
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::do_request");
-
     /*
     Uint32 timeout = 0;
 

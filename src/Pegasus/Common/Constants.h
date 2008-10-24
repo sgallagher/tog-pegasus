@@ -81,7 +81,6 @@
 
 #define PEGASUS_QUEUENAME_WBEMEXECCLIENT      "WbemExecClient"
 #define PEGASUS_QUEUENAME_INTERNALCLIENT       "InternalClient"
-#define PEGASUS_QUEUENAME_BINARY_HANDLER       "BinaryMessageHandler"
 
 
 /*

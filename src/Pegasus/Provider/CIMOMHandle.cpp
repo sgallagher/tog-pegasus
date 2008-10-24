@@ -45,16 +45,17 @@ PEGASUS_NAMESPACE_BEGIN
 
 CIMOMHandle::CIMOMHandle()
 {
-    // The existence of a BinaryMessageHandler determines which Rep to use
-    MessageQueue* bmh = MessageQueue::lookup(PEGASUS_QUEUENAME_BINARY_HANDLER);
-    if (bmh != 0)
+    // The existence of a RequestDispatcher determines which Rep to use
+    MessageQueue* dispatcher =
+        MessageQueue::lookup(PEGASUS_QUEUENAME_OPREQDISPATCHER);
+    if (dispatcher != 0)
     {
-        // A BinaryMessageHandler exists.  We can use InternalCIMOMHandleRep
+        // RequestDispatcher exists.  We can use InternalCIMOMHandleRep
         _rep = new InternalCIMOMHandleRep();
     }
     else
     {
-        // No BinaryMessageHandler exists.  We must use ClientCIMOMHandleRep
+        // No RequestDispatcher exists.  We must use ClientCIMOMHandleRep
         _rep = new ClientCIMOMHandleRep();
     }
 }

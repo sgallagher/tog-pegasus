@@ -98,7 +98,6 @@ static char const* TRACE_COMPONENT_LIST[] =
     "SSL",
     "ControlProvider",
     "CIMOMHandle",
-    "BinaryMessageHandler",
     "L10N",
     "ExportClient",
     "Listener",

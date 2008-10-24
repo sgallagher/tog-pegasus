@@ -83,7 +83,6 @@
 #include "HTTPAuthenticatorDelegator.h"
 #include "ShutdownProvider.h"
 #include "ShutdownService.h"
-#include "BinaryMessageHandler.h"
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
 #include <Pegasus/ControlProviders/ConfigSettingProvider/\
@@ -280,8 +279,6 @@ void CIMServer::_init()
 
     _cimOperationRequestDispatcher = new CIMOperationRequestDispatcher(
         _repository, _providerRegistrationManager);
-    _binaryMessageHandler =
-        new BinaryMessageHandler(_cimOperationRequestDispatcher);
 
     // Create the control service
     _controlService = new ModuleController(PEGASUS_QUEUENAME_CONTROLSERVICE);
@@ -561,9 +558,6 @@ CIMServer::~CIMServer ()
     // CIMRepository
     delete _wsmProcessor;
 #endif
-
-    // BinaryMessageHandler depends on CIMOperationRequestDispatcher
-    delete _binaryMessageHandler;
 
     // CIMOperationRequestAuthorizer depends on
     // CIMOperationRequestDispatcher

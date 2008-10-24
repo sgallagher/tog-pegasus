@@ -62,7 +62,6 @@ class IndicationHandlerService;
 class IndicationService;
 class ProviderManagerService;
 class ProviderRegistrationManager;
-class BinaryMessageHandler;
 class SSLContextManager;
 
 
@@ -180,7 +179,6 @@ private:
     IndicationService* _indicationService;
     ProviderManagerService* _providerManager;
     ProviderRegistrationManager* _providerRegistrationManager;
-    BinaryMessageHandler* _binaryMessageHandler;
     SSLContextManager* _sslContextMgr;
 
     void _init();

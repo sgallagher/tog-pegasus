@@ -89,10 +89,14 @@ poststarttests:
 	@$(DIFF) $(MASTERTABLEFORMATFILE) $(TABLEFORMATFILE)
 	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Norman\"
 	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Thomas\"
+	@$(RM) $(RESULTFILE)
+	@$(RM) $(TABLEFORMATFILE)
 	@$(ECHO) +++++ Test table output format Passed.
 
 clean:
 	-@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Norman\"
 	-@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Thomas\"
+	@$(RM) $(RESULTFILE)
+	@$(RM) $(TABLEFORMATFILE)
 
 # END_OF_FILE

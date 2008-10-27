@@ -1,35 +1,37 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Repository/Packer.h>
+#include <Pegasus/Common/Packer.h>
 #include <Pegasus/Common/Tracer.h>
 #include "snmpDeliverTrap_netsnmp.h"
 
@@ -43,8 +45,13 @@ void snmpDeliverTrap_netsnmp::initialize()
     // loaded and loading them can cause some stderr;
     // use environment variable MIBS to override the default MIB modules.
     // If there is no MIBS environment variable, add it in.
+    char* envVar;
+    envVar = getenv("MIBS");
 
-    setenv("MIBS", "", 0);
+    if (envVar == NULL)
+    {
+        putenv("MIBS=");
+    }
 
     // Initialize the mib reader
     netsnmp_set_mib_directory("");
@@ -52,12 +59,6 @@ void snmpDeliverTrap_netsnmp::initialize()
 
     // Initializes the SNMP library
     init_snmp("snmpIndicationHandler");
-
-    // don't load/save persistent file
-#ifdef NETSNMP_DS_LIB_DONT_PERSIST_STATE
-    netsnmp_ds_set_boolean(NETSNMP_DS_LIBRARY_ID,
-        NETSNMP_DS_LIB_DONT_PERSIST_STATE, 1);
-#endif
 
     // windows32 specific initialization (is a NOOP on unix)
     SOCK_STARTUP;
@@ -71,7 +72,7 @@ void snmpDeliverTrap_netsnmp::terminate()
 
     // Shuts down the application, and appropriate clean up
     snmp_shutdown("snmpIndicationHandler");
-
+   
     SOCK_CLEANUP;
 
     PEG_METHOD_EXIT();
@@ -86,11 +87,6 @@ void snmpDeliverTrap_netsnmp::deliverTrap(
     const Uint32& portNumber,
     const Uint16& snmpVersion,
     const String& engineID,
-    const Uint8& snmpSecLevel,
-    const Uint8& snmpSecAuthProto,
-    const Array<Uint8>& snmpSecAuthKey,
-    const Uint8& snmpSecPrivProto,
-    const Array<Uint8>& snmpSecPrivKey, 
     const Array<String>& vbOids,
     const Array<String>& vbTypes,
     const Array<String>& vbValues)
@@ -104,20 +100,8 @@ void snmpDeliverTrap_netsnmp::deliverTrap(
     struct snmp_pdu* snmpPdu;
 
     // Creates a SNMP session
-    _createSession(
-        targetHost, 
-        targetHostFormat,
-        portNumber,
-        securityName,
-        snmpVersion,
-        engineID,
-        snmpSecLevel,
-        snmpSecAuthProto,
-        snmpSecAuthKey,
-        snmpSecPrivProto,
-        snmpSecPrivKey,
-        sessionHandle,
-        sessionPtr);
+    _createSession(targetHost, targetHostFormat, portNumber, securityName,
+                   sessionHandle, sessionPtr);
 
     try
     {
@@ -138,11 +122,11 @@ void snmpDeliverTrap_netsnmp::deliverTrap(
     }
     catch (Exception& e)
     {
-        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoaderParms(
-                _MSG_PACK_CIM_PROPERTY_TO_PDU_FAILED_KEY,
-                _MSG_PACK_CIM_PROPERTY_TO_PDU_FAILED,
-                e.getMessage()));
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
+                      Logger::WARNING,
+                      _MSG_PACK_CIM_PROPERTY_TO_PDU_FAILED_KEY,
+                      _MSG_PACK_CIM_PROPERTY_TO_PDU_FAILED,
+                      e.getMessage());
     }
     catch (...)
     {
@@ -187,13 +171,6 @@ void snmpDeliverTrap_netsnmp::_createSession(
     Uint16 targetHostFormat,
     Uint32 portNumber,
     const String& securityName,
-    Uint16 snmpVersion,
-    const String& engineID,
-    const Uint8& snmpSecLevel,
-    const Uint8& snmpSecAuthProto,
-    const Array<Uint8>& snmpSecAuthKey,
-    const Uint8& snmpSecPrivProto,
-    const Array<Uint8>& snmpSecPrivKey,
     void*& sessionHandle,
     snmp_session*& sessionPtr)
 {
@@ -214,7 +191,7 @@ void snmpDeliverTrap_netsnmp::_createSession(
 
         // peername has format: targetHost:portNumber
         snmpSession.peername =
-            (char*)calloc(1,strlen(targetHostCStr) + 1 + 32);
+            (char*)malloc((size_t)(strlen(targetHostCStr) + 1 + 32));
 
         if (targetHostFormat == _IPV6_ADDRESS)
         {
@@ -273,138 +250,29 @@ void snmpDeliverTrap_netsnmp::_createSession(
                 exceptionStr));
         }
 
-        free(snmpSession.peername);
-
-        switch (snmpVersion)
+        // Community Name, default is public
+        String communityName;
+        if (securityName.size() == 0)
         {
-            case _SNMPv1_TRAP:
-            {
-                sessionPtr->version = SNMP_VERSION_1;
-                _addCommunity(sessionPtr,securityName);
-               break;
- 
-            }
-            case _SNMPv2C_TRAP:
-            {
-                sessionPtr->version = SNMP_VERSION_2c;
-                _addCommunity(sessionPtr,securityName);
-                break;
-            }
-#ifdef PEGASUS_ENABLE_NET_SNMPV3 
-            case _SNMPv3_TRAP:
-            {
-                sessionPtr->version = SNMP_VERSION_3;
-                CString securityNameCStr = securityName.getCString();
-                size_t securityNameLen = strlen(securityNameCStr);
-                SNMP_FREE(sessionPtr->securityName);
-                sessionPtr->securityName = (char *)calloc(1,securityNameLen+1);
-                sessionPtr->securityNameLen = securityNameLen;
-                memcpy(sessionPtr->securityName, (const char*)securityNameCStr,
-                    securityNameLen);
-
-                CString engineIdCStr = engineID.getCString();
-                size_t engineIdHexLen = strlen(engineIdCStr);
-                size_t engineIdBinLen = 0;
-                u_char *engineIdBin = (u_char *)calloc(1,engineIdHexLen);
-                free(sessionPtr->securityEngineID);
-                if(!snmp_hex_to_binary(&engineIdBin, &engineIdHexLen, 
-                    &engineIdBinLen, 1,engineIdCStr))
-                {
-                    PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                        "Snmp Indication Handler failed to generate binary"
-                            " engine ID for sending the SNMPv3 trap.");
-                    throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
-                        MessageLoaderParms(
-                            "Handler.snmpIndicationHandler."
-                                "snmpIndicationHandler."
-                            "FAILED_TO_DELIVER_TRAP",
-                        "Failed to deliver trap."));
-                }
-                sessionPtr->securityEngineIDLen = engineIdBinLen;
-                sessionPtr->securityEngineID = engineIdBin; 
-
-                switch(snmpSecLevel)
-                {
-                    case 1:
-                        sessionPtr->securityLevel = SNMP_SEC_LEVEL_NOAUTH;
-                        break;
-                    case 2:
-                        sessionPtr->securityLevel = SNMP_SEC_LEVEL_AUTHNOPRIV;
-                        break;
-                    case 3:
-                        sessionPtr->securityLevel = SNMP_SEC_LEVEL_AUTHPRIV;
-                        break;
-                    default:
-                        //use the dedault in the net-snmp conf file.
-                        break;
-                }
- 
-                SNMP_FREE(sessionPtr->securityAuthProto);
-                if(snmpSecAuthProto == 1) // MD5
-                {
-                    sessionPtr->securityAuthProto = snmp_duplicate_objid(
-                        usmHMACMD5AuthProtocol,
-                        USM_AUTH_PROTO_MD5_LEN);
-                    sessionPtr->securityAuthProtoLen = USM_AUTH_PROTO_MD5_LEN;
-                }
-                else if(snmpSecAuthProto == 2)// SHA
-                {
-                    sessionPtr->securityAuthProto = snmp_duplicate_objid(
-                        usmHMACSHA1AuthProtocol,
-                        USM_AUTH_PROTO_SHA_LEN);
-                    sessionPtr->securityAuthProtoLen = USM_AUTH_PROTO_SHA_LEN;
-                }
-                // use the default in net-snmp conf files.
-
-                if(snmpSecAuthKey.size() > 0)
-                {
-                    for(Uint32 i=0;i<snmpSecAuthKey.size();i++)
-                    {
-                        sessionPtr->securityAuthKey[i] = snmpSecAuthKey[i];
-                    }
-                    sessionPtr->securityAuthKeyLen = snmpSecAuthKey.size();
-                }
-
-                SNMP_FREE(sessionPtr->securityPrivProto);
-                //Privacy
-                if(snmpSecPrivProto == 1) //DES
-                {
-                    sessionPtr->securityPrivProto = snmp_duplicate_objid(
-                        usmDESPrivProtocol,
-                        USM_PRIV_PROTO_DES_LEN);
-                    sessionPtr->securityPrivProtoLen = USM_PRIV_PROTO_DES_LEN;
-                }
-                else if(snmpSecPrivProto == 2) // AES
-                {
-                    sessionPtr->securityPrivProto = snmp_duplicate_objid(
-                        usmAESPrivProtocol,
-                        USM_PRIV_PROTO_AES_LEN);
-                    sessionPtr->securityPrivProtoLen = USM_PRIV_PROTO_AES_LEN;
-                }
-                // use the defaults in net-snmp conf files
- 
-                // Privacy Key
-                if(snmpSecPrivKey.size() > 0)
-                {
-                    for(Uint32 j=0;j<snmpSecPrivKey.size();j++)
-                    {
-                        sessionPtr->securityPrivKey[j] = snmpSecPrivKey[j];
-                    }
-                    sessionPtr->securityPrivKeyLen = snmpSecPrivKey.size();
-                }
-                break;
-            }
-#endif // ifdef PEGASUS_ENABLE_NET_SNMPV3 
-            default:
-            {
-                PEG_METHOD_EXIT();
-                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED,
-                    MessageLoaderParms(
-                        _MSG_VERSION_NOT_SUPPORTED_KEY,
-                        _MSG_VERSION_NOT_SUPPORTED));
-            }
+            communityName.assign("public");
+        }
+        else
+        {
+            communityName = securityName;
         }
 
+        free(snmpSession.peername);
+
+        free(sessionPtr->community);
+
+        CString communityNameCStr = communityName.getCString();
+        size_t communityNameLen = strlen(communityNameCStr);
+
+        sessionPtr->community = (u_char*)malloc(communityNameLen);
+
+        memcpy(sessionPtr->community, (const char*)communityNameCStr,
+               communityNameLen);
+        sessionPtr->community_len = communityNameLen;
     }
     catch (...)
     {
@@ -416,38 +284,6 @@ void snmpDeliverTrap_netsnmp::_createSession(
 
     PEG_METHOD_EXIT();
 }
-
-void snmpDeliverTrap_netsnmp::_addCommunity(
-    struct snmp_session*& sessionPtr,
-    const String& securityName)
-{
-    PEG_METHOD_ENTER(TRC_IND_HANDLER,
-        "snmpDeliverTrap_netsnmp::_addCommunity");
-
-    // Community Name, default is public
-    String communityName;
-    if (securityName.size() == 0)
-    {
-        communityName.assign("public");
-    }
-    else
-    {
-        communityName = securityName;
-    }
-
-    free(sessionPtr->community);
-              
-    CString communityNameCStr = communityName.getCString();
-    size_t communityNameLen = strlen(communityNameCStr);
-
-    sessionPtr->community = (u_char*)calloc(1,communityNameLen+1);
-
-    memcpy(sessionPtr->community, (const char*)communityNameCStr,
-        communityNameLen);
-
-    sessionPtr->community_len = communityNameLen;
-    PEG_METHOD_EXIT();
-} 
 
 // Creates a SNMP session
 void snmpDeliverTrap_netsnmp::_destroySession(
@@ -479,6 +315,9 @@ void snmpDeliverTrap_netsnmp::_createPdu(
     {
         case _SNMPv1_TRAP:
         {
+
+            sessionPtr->version = SNMP_VERSION_1;
+
             // Create the PDU
             snmpPdu = snmp_pdu_create(SNMP_MSG_TRAP);
 
@@ -508,17 +347,17 @@ void snmpDeliverTrap_netsnmp::_createPdu(
             {
                 Logger::put_l(
                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                    MessageLoaderParms(
-                        _MSG_PACK_TRAP_INFO_INTO_PDU_FAILED_KEY,
-                        _MSG_PACK_TRAP_INFO_INTO_PDU_FAILED,
-                        e.getMessage()));
+                    _MSG_PACK_TRAP_INFO_INTO_PDU_FAILED_KEY,
+                    _MSG_PACK_TRAP_INFO_INTO_PDU_FAILED,
+                    e.getMessage());
             }
 
             break;
         }
         case _SNMPv2C_TRAP:
-        case _SNMPv3_TRAP:
         {
+            sessionPtr->version = SNMP_VERSION_2c;
+
             // Create the PDU
             snmpPdu = snmp_pdu_create(SNMP_MSG_TRAP2);
 
@@ -552,10 +391,9 @@ void snmpDeliverTrap_netsnmp::_createPdu(
 
                 Logger::put_l(
                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                    MessageLoaderParms(
-                        _MSG_ADD_SYSUPTIME_TO_PDU_FAILED_KEY,
-                        _MSG_ADD_SYSUPTIME_TO_PDU_FAILED,
-                        errMsg));
+                    _MSG_ADD_SYSUPTIME_TO_PDU_FAILED_KEY,
+                    _MSG_ADD_SYSUPTIME_TO_PDU_FAILED,
+                    errMsg);
             }
 
             // Add snmp trap to the PDU
@@ -573,10 +411,9 @@ void snmpDeliverTrap_netsnmp::_createPdu(
 
                 Logger::put_l(
                     Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                    MessageLoaderParms(
-                        _MSG_ADD_SNMP_TRAP_TO_PDU_FAILED_KEY,
-                        _MSG_ADD_SNMP_TRAP_TO_PDU_FAILED,
-                        errMsg));
+                    _MSG_ADD_SNMP_TRAP_TO_PDU_FAILED_KEY,
+                    _MSG_ADD_SNMP_TRAP_TO_PDU_FAILED,
+                    errMsg);
             }
 
             break;
@@ -621,7 +458,7 @@ void snmpDeliverTrap_netsnmp::_packTrapInfoIntoPdu(
     CString trapOidCStr = trapOid.getCString();
 
     char* trapOidCopy = strdup(trapOidCStr);
-    char* numericEntOid = (char*) malloc(strlen(trapOidCStr)+1);
+    char* numericEntOid = (char*) malloc(strlen(trapOidCStr));
 
     try
     {
@@ -636,6 +473,9 @@ void snmpDeliverTrap_netsnmp::_packTrapInfoIntoPdu(
         {
             oidSubIdentifiers.append(p);
         }
+
+        long genTrap = 0;
+        long specTrap = 0;
 
         enterpriseOidLength = MAX_OID_LEN;
 
@@ -718,9 +558,8 @@ void snmpDeliverTrap_netsnmp::_packTrapInfoIntoPdu(
 
         }
 
-        SNMP_FREE(snmpPdu->enterprise);
         snmpPdu->enterprise = (oid*) malloc(enterpriseOidLength * sizeof(oid));
-        memcpy(snmpPdu->enterprise, enterpriseOid, 
+        memcpy(snmpPdu->enterprise, enterpriseOid,
             enterpriseOidLength * sizeof(oid));
 
         snmpPdu->enterprise_length = enterpriseOidLength;

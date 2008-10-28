@@ -38,55 +38,55 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/ArrayInternal.h>
+#include <Pegasus/Repository/PersistentStoreData.h>
+#include <Pegasus/Repository/AssocClassCache.h>
 #include <Pegasus/Repository/Linkage.h>
-#include <Pegasus/Common/ReadWriteSem.h>
-#include "AssocClassCache.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** Maintains all associations for a given namesspace.
+/** Handles persistent storage and lookup of class association data.
 */
 class PEGASUS_REPOSITORY_LINKAGE AssocClassTable
 {
 public:
 
+    AssocClassTable()
+    {
+    }
+
+    ~AssocClassTable()
+    {
+    }
+
     /** Appends a row into the association class table. There is no checking
         for duplicate entries (the caller ensures this). The case of
         the arguments doesn't matter. They are ignored during comparison.
     */
-    static void append(
+    void append(
         PEGASUS_STD(ofstream)& os,
         const String& path,
-        const CIMName& assocClassName,
-        const CIMName& fromClassName,
-        const CIMName& fromPropertyName,
-        const CIMName& toClassName,
-        const CIMName& toPropertyName);
+        const ClassAssociation& classAssociation);
 
     /** Appends a row into the association class table. There is no checking
         for duplicate entries (the caller ensures this). The case of the
         arguments doesn't matter. Case is ignored during comparison.
     */
-    static void append(
+    void append(
         const String& path,
-        const CIMName& assocClassName,
-        const CIMName& fromClassName,
-        const CIMName& fromPropertyName,
-        const CIMName& toClassName,
-        const CIMName& toPropertyName);
+        const ClassAssociation& classAssociation);
 
     /** Deletes the given association from the table by removing every entry
         with the given assocClassName.
         @returns true if such an association was found.
     */
-    static Boolean deleteAssociation(
+    Boolean deleteAssociation(
         const String& path,
         const CIMName& assocClassName);
 
     /** Finds all associators of the given class. See
         CIMOperations::associators() for a full description.
     */
-    static Boolean getAssociatorNames(
+    Boolean getAssociatorNames(
         const String& path,
         const Array<CIMName>& classList,
         const Array<CIMName>& assocClassList,
@@ -99,24 +99,20 @@ public:
         given class involved. See CIMOperations::referenceNames() for a
         full description.
     */
-    static Boolean getReferenceNames(
+    Boolean getReferenceNames(
         const String& path,
         const Array<CIMName>& classList,
         const Array<CIMName>& resultClassList,
         const String& role,
         Array<String>& referenceNames);
 
-
-    static void removeCaches();
-
 private:
 
-    static Boolean _InitializeCache(
+    Boolean _InitializeCache(
         AssocClassCache* cache,
         const String& path);
 
-    AssocClassTable() { /* private */ }
-    static ReadWriteSem _classCacheLock;
+    AssocClassCacheManager _assocClassCacheManager;
 };
 
 PEGASUS_NAMESPACE_END

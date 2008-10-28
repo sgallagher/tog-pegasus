@@ -43,87 +43,10 @@
 #include <Pegasus/Common/AutoStreamer.h>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Repository/PersistentStoreData.h>
+#include <Pegasus/Repository/AssocClassTable.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-class ClassAssociation
-{
-public:
-
-    ClassAssociation(
-        const CIMName& assocClassName_,
-        const CIMName& fromClassName_,
-        const CIMName& fromPropertyName_,
-        const CIMName& toClassName_,
-        const CIMName& toPropertyName_)
-        : assocClassName(assocClassName_),
-          fromClassName(fromClassName_),
-          fromPropertyName(fromPropertyName_),
-          toClassName(toClassName_),
-          toPropertyName(toPropertyName_)
-    {
-    }
-
-    CIMName assocClassName;
-    CIMName fromClassName;
-    CIMName fromPropertyName;
-    CIMName toClassName;
-    CIMName toPropertyName;
-};
-
-class InstanceAssociation
-{
-public:
-
-    InstanceAssociation(
-        const String& assocInstanceName_,
-        const CIMName& assocClassName_,
-        const String& fromInstanceName_,
-        const CIMName& fromClassName_,
-        const CIMName& fromPropertyName_,
-        const String& toInstanceName_,
-        const CIMName& toClassName_,
-        const CIMName& toPropertyName_)
-        : assocInstanceName(assocInstanceName_),
-          assocClassName(assocClassName_),
-          fromInstanceName(fromInstanceName_),
-          fromClassName(fromClassName_),
-          fromPropertyName(fromPropertyName_),
-          toInstanceName(toInstanceName_),
-          toClassName(toClassName_),
-          toPropertyName(toPropertyName_)
-    {
-    }
-
-    String assocInstanceName;
-    CIMName assocClassName;
-    String fromInstanceName;
-    CIMName fromClassName;
-    CIMName fromPropertyName;
-    String toInstanceName;
-    CIMName toClassName;
-    CIMName toPropertyName;
-};
-
-class NamespaceDefinition
-{
-public:
-
-    NamespaceDefinition(const CIMNamespaceName& name_)
-        : name(name_),
-          shareable(false),
-          updatesAllowed(true),
-          parentNameSpace(),
-          remoteInfo()
-    {
-    }
-
-    CIMNamespaceName name;
-    Boolean shareable;
-    Boolean updatesAllowed;
-    CIMNamespaceName parentNameSpace;
-    String remoteInfo;    // Only used with Remote CMPI
-};
 
 class PEGASUS_REPOSITORY_LINKAGE FileBasedStore
 {
@@ -393,6 +316,13 @@ private:
     */
     HashTable<String, String, EqualNoCaseFunc, HashLowerCaseFunc>
         _nameSpacePathTable;
+
+    /**
+        This table must be managed dynamically per repository because it
+        caches class association data in addition to handling persistent
+        storage and lookup.
+    */
+    AssocClassTable _assocClassTable;
 };
 
 PEGASUS_NAMESPACE_END

@@ -48,7 +48,6 @@
 #include "InstanceIndexFile.h"
 #include "InstanceDataFile.h"
 #include "AssocInstTable.h"
-#include "AssocClassTable.h"
 #include "FileBasedStore.h"
 
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
@@ -606,7 +605,6 @@ FileBasedStore::FileBasedStore(
 
 FileBasedStore::~FileBasedStore()
 {
-    AssocClassTable::removeCaches();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1954,14 +1952,10 @@ void FileBasedStore::_addClassAssociationEntries(
 
     for (Uint32 i = 0; i < classAssocEntries.size(); i++)
     {
-        AssocClassTable::append(
+        _assocClassTable.append(
             os,
             assocFileName,
-            classAssocEntries[i].assocClassName,
-            classAssocEntries[i].fromClassName,
-            classAssocEntries[i].fromPropertyName,
-            classAssocEntries[i].toClassName,
-            classAssocEntries[i].toPropertyName);
+            classAssocEntries[i]);
     }
 
     PEG_METHOD_EXIT();
@@ -1975,7 +1969,7 @@ void FileBasedStore::_removeClassAssociationEntries(
         "FileBasedStore::_removeClassAssociationEntries");
 
     String assocFileName = _getAssocClassPath(nameSpace);
-    AssocClassTable::deleteAssociation(assocFileName, assocClassName);
+    _assocClassTable.deleteAssociation(assocFileName, assocClassName);
 
     PEG_METHOD_EXIT();
 }
@@ -1995,7 +1989,7 @@ void FileBasedStore::getClassAssociatorNames(
     String assocFileName = _getAssocClassPath(nameSpace);
 
     // ATTN: Return value is ignored
-    AssocClassTable::getAssociatorNames(
+    _assocClassTable.getAssociatorNames(
         assocFileName,
         classList,
         assocClassList,
@@ -2019,7 +2013,7 @@ void FileBasedStore::getClassReferenceNames(
     String assocFileName = _getAssocClassPath(nameSpace);
 
     // ATTN: Return value is ignored
-    AssocClassTable::getReferenceNames(
+    _assocClassTable.getReferenceNames(
          assocFileName,
          classList,
          resultClassList,

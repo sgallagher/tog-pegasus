@@ -38,30 +38,34 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define ASSOC_CLASS_NAME_INDEX 0
-#define FROM_CLASS_NAME_INDEX 1
-#define FROM_PROPERTY_NAME_INDEX 2
-#define TO_CLASS_NAME_INDEX 3
-#define TO_PROPERTY_NAME_INDEX 4
-#define NUM_FIELDS 5
+AssocClassCacheManager::AssocClassCacheManager()
+{
+}
 
-Array<AssocClassCache*> AssocClassCache::_assocClassCacheList;
-
+AssocClassCacheManager::~AssocClassCacheManager()
+{
+    for (Uint32 i = _assocClassCacheList.size(); i > 0; i--)
+    {
+        delete _assocClassCacheList[i-1];
+        _assocClassCacheList.remove(i-1);
+    }
+}
 
 /**
     Retrieves a singleton instance of the class cache for the given namespace.
 */
-AssocClassCache* AssocClassCache::getAssocClassCache(const String& nameSpace)
+AssocClassCache* AssocClassCacheManager::getAssocClassCache(
+    const String& nameSpace)
 {
-    for (Uint16 idx=0; idx<_assocClassCacheList.size(); idx++)
+    for (Uint32 i = 0; i < _assocClassCacheList.size(); i++)
     {
-        if (nameSpace == _assocClassCacheList[idx]->_nameSpace)
+        if (nameSpace == _assocClassCacheList[i]->getNameSpace())
         {
-            return _assocClassCacheList[idx];
+            return _assocClassCacheList[i];
         }
     }
 
-    // If we got here, no cache exists for the the given namespace so far,
+    // If we got here, no cache exists for the given namespace so far,
     // so we will create a new one.
     AssocClassCache* newCache = new AssocClassCache(nameSpace);
     _assocClassCacheList.append(newCache);
@@ -69,23 +73,15 @@ AssocClassCache* AssocClassCache::getAssocClassCache(const String& nameSpace)
     return newCache;
 }
 
-void AssocClassCache::cleanupAssocClassCaches()
-{
-    for (Uint16 idx=_assocClassCacheList.size(); idx>0; idx--)
-    {
-        delete(_assocClassCacheList[idx-1]);
-        _assocClassCacheList.remove(idx-1);
-    }
-}
 
 /** Retrieve the list of entries for a from class through direct
     access via the from class name.
 */
 Boolean AssocClassCache::getAssocClassEntry(
-    const String& fromClassName,
-    Array< Array<String> >& entryList)
+    const CIMName& fromClassName,
+    Array<ClassAssociation>& entryList)
 {
-    return _assocClassCache->lookup(fromClassName,entryList);
+    return _assocTable.lookup(fromClassName.getString(), entryList);
 }
 
 /** Add a new record to the association cache.
@@ -94,55 +90,54 @@ Boolean AssocClassCache::getAssocClassEntry(
     is added to the cache.
 */
 Boolean AssocClassCache::addRecord(
-    const String& fromClassName,
-    Array<String> assocClassRecord)
+    const CIMName& fromClassName,
+    const ClassAssociation& assocClassRecord)
 {
-    Array< Array<String> > oldAssocClassEntryList;
+    Array<ClassAssociation> oldAssocClassEntryList;
 
-    if (_assocClassCache->lookup(fromClassName, oldAssocClassEntryList))
+    if (_assocTable.lookup(fromClassName.getString(), oldAssocClassEntryList))
     {
-        _assocClassCache->remove(fromClassName);
+        _assocTable.remove(fromClassName.getString());
     }
 
     oldAssocClassEntryList.append(assocClassRecord);
 
-    return _assocClassCache->insert(fromClassName,oldAssocClassEntryList);
+    return _assocTable.insert(
+        fromClassName.getString(), oldAssocClassEntryList);
 }
 
 /** Remove an entry from the association cache specified by the given
      from class name.
 */
-Boolean AssocClassCache::removeEntry(const String& fromClassName)
+Boolean AssocClassCache::removeEntry(const CIMName& fromClassName)
 {
-    return _assocClassCache->remove(fromClassName);
+    return _assocTable.remove(fromClassName.getString());
 }
 
 /** Remove an association record from the association cache specified by the
     given from class name and association name.
 */
 Boolean AssocClassCache::removeRecord(
-    const String& fromClassName,
-    const String& assocClassName)
+    const CIMName& fromClassName,
+    const CIMName& assocClassName)
 {
-    Array< Array<String> > oldAssocClassEntryList;
+    Array<ClassAssociation> oldAssocClassEntryList;
 
-    if (_assocClassCache->lookup(fromClassName, oldAssocClassEntryList))
+    if (_assocTable.lookup(fromClassName.getString(), oldAssocClassEntryList))
     {
-        for (Uint16 idx=0; idx < oldAssocClassEntryList.size(); idx++ )
+        for (Uint32 idx=0; idx < oldAssocClassEntryList.size(); idx++)
         {
             // The first entry in each record is the association class
             // name. Find the record for the association class and remove
             // it from the cache entry.
-            if (String::equalNoCase(
-                    oldAssocClassEntryList[idx][ASSOC_CLASS_NAME_INDEX],
-                    assocClassName))
+            if (oldAssocClassEntryList[idx].assocClassName == assocClassName)
             {
-                _assocClassCache->remove(fromClassName);
+                _assocTable.remove(fromClassName.getString());
                 if (oldAssocClassEntryList.size() > 1)
                 {
                     oldAssocClassEntryList.remove(idx);
-                    _assocClassCache->insert(
-                        fromClassName, oldAssocClassEntryList);
+                    _assocTable.insert(
+                        fromClassName.getString(), oldAssocClassEntryList);
                 }
                 return true;
             }
@@ -167,14 +162,13 @@ void AssocClassCache::setActive(Boolean flag)
 
 AssocClassCache::~AssocClassCache()
 {
-    delete(_assocClassCache);
 }
 
 AssocClassCache::AssocClassCache(const String& nameSpace)
+    : _nameSpace(nameSpace),
+      _isInitialized(false),
+      _assocTable(1000)
 {
-    _isInitialized = false;
-    _nameSpace = nameSpace;
-    _assocClassCache = new AssocClassCacheHashTableType(1000);
 }
 
 PEGASUS_NAMESPACE_END

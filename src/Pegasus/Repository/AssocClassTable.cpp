@@ -35,58 +35,41 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/ReadWriteSem.h>
+#include <Pegasus/Common/CIMNameUnchecked.h>
 #include "AssocClassTable.h"
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define ASSOC_CLASS_NAME_INDEX 0
-#define FROM_CLASS_NAME_INDEX 1
-#define FROM_PROPERTY_NAME_INDEX 2
-#define TO_CLASS_NAME_INDEX 3
-#define TO_PROPERTY_NAME_INDEX 4
-#define NUM_FIELDS 5
-
-
-ReadWriteSem AssocClassTable::_classCacheLock;
-
-
 static inline Boolean _MatchNoCase(const String& x, const String& pattern)
 {
     return pattern.size() == 0 || String::equalNoCase(x, pattern);
 }
 
-static inline Boolean _ContainsClass(
-    const Array<CIMName>& classNames,
-    const String& match)
+static Boolean _GetRecord(ifstream& is, ClassAssociation& record)
 {
-    Uint32 n = classNames.size();
-
-    for (Uint32 i = 0; i < n; i++)
-    {
-        if (_MatchNoCase(classNames[i].getString(), match))
-            return true;
-    }
-
-    return false;
-}
-
-static Boolean _GetRecord(ifstream& is, Array<String>& fields)
-{
-    fields.clear();
     String line;
 
-    for (Uint32 i = 0; i < NUM_FIELDS; i++)
-    {
-        if (!GetLine(is, line))
-            return false;
+    if (!GetLine(is, line))
+        return false;
+    record.assocClassName = CIMNameUnchecked(line);
 
-        fields.append(line);
-        //Association names are not supposed to contain escapes
-        //fields.append(_Unescape(line));
-    }
+    if (!GetLine(is, line))
+        return false;
+    record.fromClassName = CIMNameUnchecked(line);
+
+    if (!GetLine(is, line))
+        return false;
+    record.fromPropertyName = CIMNameUnchecked(line);
+
+    if (!GetLine(is, line))
+        return false;
+    record.toClassName = CIMNameUnchecked(line);
+
+    if (!GetLine(is, line))
+        return false;
+    record.toPropertyName = CIMNameUnchecked(line);
 
     // Skip the blank line:
 
@@ -96,61 +79,45 @@ static Boolean _GetRecord(ifstream& is, Array<String>& fields)
     return true;
 }
 
-static void _PutRecord(ofstream& os, Array<String>& fields)
+static inline void _PutField(ofstream& os, const CIMName& field)
 {
-    for (Uint32 i = 0, n = fields.size(); i < n; i++)
-    {
-        // Write the field in UTF-8.  Call write() to ensure no data
-        // conversion by the stream.  Since all the fields contain CIM names,
-        // it is not necessary to escape CR/LF characters.
-        CString buffer = fields[i].getCString();
-        os.write((const char *)buffer,
-            static_cast<streamsize>(strlen((const char *)buffer)));
-        os << endl;
-    }
+    // Write the field in UTF-8.  Call write() to ensure no data
+    // conversion by the stream.  Since all the fields contain CIM names,
+    // it is not necessary to escape CR/LF characters.
+    CString buffer = field.getString().getCString();
+    os.write((const char *)buffer,
+        static_cast<streamsize>(strlen((const char *)buffer)));
+    os << endl;
+}
+
+static void _PutRecord(ofstream& os, const ClassAssociation& record)
+{
+    _PutField(os, record.assocClassName);
+    _PutField(os, record.fromClassName);
+    _PutField(os, record.fromPropertyName);
+    _PutField(os, record.toClassName);
+    _PutField(os, record.toPropertyName);
     os << endl;
 }
 
 void AssocClassTable::append(
     PEGASUS_STD(ofstream)& os,
     const String& path,
-    const CIMName& assocClassName,
-    const CIMName& fromClassName,
-    const CIMName& fromPropertyName,
-    const CIMName& toClassName,
-    const CIMName& toPropertyName)
+    const ClassAssociation& classAssociation)
 {
-    Array<String> fields;
-    fields.reserveCapacity(5);
-    fields.append(assocClassName.getString());
-    fields.append(fromClassName.getString());
-    fields.append(fromPropertyName.getString());
-    fields.append(toClassName.getString());
-    fields.append(toPropertyName.getString());
-
-
-    _PutRecord(os, fields);
+    _PutRecord(os, classAssociation);
 
     // Update cache
-    AssocClassCache* cache = AssocClassCache::getAssocClassCache(path);
-    if (cache != 0)
+    AssocClassCache* cache = _assocClassCacheManager.getAssocClassCache(path);
+    if (cache->isActive())
     {
-        if (cache->isActive())
-        {
-            WriteLock lock(_classCacheLock);
-            cache->addRecord(fields[FROM_CLASS_NAME_INDEX],
-                             fields);
-        }
+        cache->addRecord(classAssociation.fromClassName, classAssociation);
     }
 }
 
 void AssocClassTable::append(
     const String& path,
-    const CIMName& assocClassName,
-    const CIMName& fromClassName,
-    const CIMName& fromPropertyName,
-    const CIMName& toClassName,
-    const CIMName& toPropertyName)
+    const ClassAssociation& classAssociation)
 {
     // Open input file:
 
@@ -159,29 +126,13 @@ void AssocClassTable::append(
     if (!OpenAppend(os, path))
         throw CannotOpenFile(path);
 
-    // Insert the entry:
-
-    Array<String> fields;
-    fields.reserveCapacity(5);
-    fields.append(assocClassName.getString());
-    fields.append(fromClassName.getString());
-    fields.append(fromPropertyName.getString());
-    fields.append(toClassName.getString());
-    fields.append(toPropertyName.getString());
-
-
-    _PutRecord(os, fields);
+    _PutRecord(os, classAssociation);
 
     // Update cache
-    AssocClassCache* cache = AssocClassCache::getAssocClassCache(path);
-    if (cache != 0)
+    AssocClassCache* cache = _assocClassCacheManager.getAssocClassCache(path);
+    if (cache->isActive())
     {
-        if (cache->isActive())
-        {
-            WriteLock lock(_classCacheLock);
-            cache->addRecord(fields[FROM_CLASS_NAME_INDEX],
-                             fields);
-        }
+        cache->addRecord(classAssociation.fromClassName, classAssociation);
     }
 }
 
@@ -213,20 +164,20 @@ Boolean AssocClassTable::deleteAssociation(
 
     // Copy over all lines except ones with the given association instance name:
 
-    Array<String> fields;
-    Array<String> fieldsToDelete;
+    ClassAssociation classAssociation;
+    ClassAssociation classAssociationToDelete;
     Boolean found = false;
 
-    while (_GetRecord(is, fields))
+    while (_GetRecord(is, classAssociation))
     {
-        if (assocClassName.getString() != fields[ASSOC_CLASS_NAME_INDEX])
+        if (assocClassName.getString() != classAssociation.assocClassName)
         {
-            _PutRecord(os, fields);
+            _PutRecord(os, classAssociation);
             found = true;
         }
         else
         {
-            fieldsToDelete = fields;
+            classAssociationToDelete = classAssociation;
         }
     }
 
@@ -244,15 +195,12 @@ Boolean AssocClassTable::deleteAssociation(
     // Update cache
     if (found)
     {
-        AssocClassCache* cache = AssocClassCache::getAssocClassCache(path);
-        if (cache != 0)
+        AssocClassCache* cache =
+        _assocClassCacheManager.getAssocClassCache(path);
+        if (cache->isActive())
         {
-            if (cache->isActive())
-            {
-                WriteLock lock(_classCacheLock);
-                cache->removeRecord(fieldsToDelete[FROM_CLASS_NAME_INDEX],
-                                    fieldsToDelete[ASSOC_CLASS_NAME_INDEX]);
-            }
+            cache->removeRecord(classAssociationToDelete.fromClassName,
+                                classAssociationToDelete.assocClassName);
         }
     }
 
@@ -280,37 +228,38 @@ Boolean AssocClassTable::getAssociatorNames(
         throw CannotOpenFile(path);
     }
 
-    Array<String> fields;
+    ClassAssociation classAssociation;
     Boolean found = false;
 
     // For each line in the associations table:
-    while (_GetRecord(is, fields))
+    while (_GetRecord(is, classAssociation))
     {
         // Process associations from the right end class and with right roles
-        if (_ContainsClass(classList, fields[FROM_CLASS_NAME_INDEX]) &&
-            _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role) &&
-            _MatchNoCase(fields[TO_PROPERTY_NAME_INDEX], resultRole))
+        if (Contains(classList, classAssociation.fromClassName) &&
+            _MatchNoCase(classAssociation.fromPropertyName.getString(), role) &&
+            _MatchNoCase(
+                classAssociation.toPropertyName.getString(), resultRole))
         {
             // Skip classes that do not appear in the association class list
             if ((assocClassList.size() != 0) &&
-                (!_ContainsClass(assocClassList,
-                                 fields[ASSOC_CLASS_NAME_INDEX])))
+                (!Contains(assocClassList, classAssociation.assocClassName)))
             {
                 continue;
             }
 
             // Skip classes that do not appear in the result class list
             if ((resultClassList.size() != 0) &&
-                (!_ContainsClass(resultClassList,
-                                 fields[TO_CLASS_NAME_INDEX])))
+                (!Contains(resultClassList, classAssociation.toClassName)))
             {
                 continue;
             }
 
             // This class qualifies; add it to the list (skipping duplicates)
-            if (!Contains(associatorNames, fields[TO_CLASS_NAME_INDEX]))
+            if (!Contains(
+                    associatorNames, classAssociation.toClassName.getString()))
             {
-                associatorNames.append(fields[TO_CLASS_NAME_INDEX]);
+                associatorNames.append(
+                    classAssociation.toClassName.getString());
             }
             found = true;
         }
@@ -323,8 +272,6 @@ Boolean AssocClassTable::_InitializeCache(
     AssocClassCache* cache,
     const String& path)
 {
-    WriteLock lock(_classCacheLock);
-
     if (!cache->isActive())
     {
 
@@ -340,27 +287,19 @@ Boolean AssocClassTable::_InitializeCache(
             throw CannotOpenFile(path);
         }
 
-        Array<String> fields;
+        ClassAssociation classAssociation;
 
         // For each line in the associations table:
-        while (_GetRecord(is, fields))
+        while (_GetRecord(is, classAssociation))
         {
-            cache->addRecord(fields[FROM_CLASS_NAME_INDEX],
-                             fields);
+            cache->addRecord(classAssociation.fromClassName,
+                             classAssociation);
         }
 
         cache->setActive(true);
     }
 
     return true;
-}
-
-void AssocClassTable::removeCaches()
-{
-    WriteLock lock(_classCacheLock);
-    AssocClassCache::cleanupAssocClassCaches();
-
-    return;
 }
 
 Boolean AssocClassTable::getReferenceNames(
@@ -372,9 +311,7 @@ Boolean AssocClassTable::getReferenceNames(
 {
 
     // First see if we can get the information from the association class cache.
-    AssocClassCache* cache = AssocClassCache::getAssocClassCache(path);
-    if (cache == 0)
-        return false;
+    AssocClassCache* cache = _assocClassCacheManager.getAssocClassCache(path);
 
     if (!cache->isActive())
     {
@@ -382,7 +319,7 @@ Boolean AssocClassTable::getReferenceNames(
             return false;
     }
 
-    Array< Array<String> > records;
+    Array<ClassAssociation> records;
     Boolean found = false;
 
 
@@ -391,7 +328,6 @@ Boolean AssocClassTable::getReferenceNames(
     // The cache uses the from class name as an index and returns all
     // association class records having that from class.
 
-    ReadLock lock(_classCacheLock);
     for (Uint16 idx=0; idx < classList.size(); idx++)
     {
         String fromClassName = classList[idx].getString();
@@ -399,12 +335,13 @@ Boolean AssocClassTable::getReferenceNames(
         {
             for (Uint16 rx=0; rx <records.size(); rx++)
             {
-                if (_MatchNoCase(records[rx][FROM_PROPERTY_NAME_INDEX], role))
+                if (_MatchNoCase(
+                        records[rx].fromPropertyName.getString(), role))
                 {
                     // Skip classes that do not appear in the result class list
                     if ((resultClassList.size() != 0) &&
-                        (!_ContainsClass(resultClassList,
-                             records[rx][ASSOC_CLASS_NAME_INDEX])))
+                        (!Contains(resultClassList,
+                             records[rx].assocClassName)))
                     {
                         continue;
                     }
@@ -412,10 +349,10 @@ Boolean AssocClassTable::getReferenceNames(
                     // This class qualifies; add it to the list (skipping
                     // duplicates)
                     if (!Contains(referenceNames,
-                            records[rx][ASSOC_CLASS_NAME_INDEX]))
+                            records[rx].assocClassName.getString()))
                     {
                         referenceNames.append(
-                            records[rx][ASSOC_CLASS_NAME_INDEX]);
+                            records[rx].assocClassName.getString());
                     }
                     found = true;
                 }

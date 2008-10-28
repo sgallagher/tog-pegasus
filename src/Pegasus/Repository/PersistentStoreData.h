@@ -31,93 +31,98 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_AssocClassCache_h
-#define Pegasus_AssocClassCache_h
+#ifndef Pegasus_PersistentStoreData_h
+#define Pegasus_PersistentStoreData_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Repository/PersistentStoreData.h>
-#include <Pegasus/Repository/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class AssocClassCache;
-
-/** Maintains association class caches for all namespaces.
-*/
-class PEGASUS_REPOSITORY_LINKAGE AssocClassCacheManager
+class ClassAssociation
 {
 public:
 
-    AssocClassCacheManager();
-    ~AssocClassCacheManager();
-
-    /** Retrieves the association class cache for the given namespace.
-    */
-    AssocClassCache* getAssocClassCache(const String& nameSpace);
-
-private:
-
-    Array<AssocClassCache*> _assocClassCacheList;
-};
-
-/** Maintains a cache for all association classes in a namespace.
-*/
-class PEGASUS_REPOSITORY_LINKAGE AssocClassCache
-{
-public:
-
-    AssocClassCache(const String& nameSpace);
-    ~AssocClassCache();
-
-    const String& getNameSpace()
+    ClassAssociation(
+        const CIMName& assocClassName_,
+        const CIMName& fromClassName_,
+        const CIMName& fromPropertyName_,
+        const CIMName& toClassName_,
+        const CIMName& toPropertyName_)
+        : assocClassName(assocClassName_),
+          fromClassName(fromClassName_),
+          fromPropertyName(fromPropertyName_),
+          toClassName(toClassName_),
+          toPropertyName(toPropertyName_)
     {
-        return _nameSpace;
     }
 
-    /** Retrieve an entry for an association class through direct
-        access via the from class name.
-    */
-    Boolean getAssocClassEntry(
-        const CIMName& fromClassName,
-        Array<ClassAssociation>& entryList);
+    ClassAssociation()
+    {
+    }
 
-    /** Add a new entry to the association cache.
-    */
-    Boolean addRecord(
-        const CIMName& fromClassName,
-        const ClassAssociation& assocClassEntry);
+    CIMName assocClassName;
+    CIMName fromClassName;
+    CIMName fromPropertyName;
+    CIMName toClassName;
+    CIMName toPropertyName;
+};
 
-    /** Remove an entry from the association cache specified by the given
-        association class name.
-    */
-    Boolean removeEntry(const CIMName& fromClassName);
+class InstanceAssociation
+{
+public:
 
-   /** Remove an association record from the association cache specified by
-       the given from class name and association name.
-    */
-    Boolean removeRecord(
-        const CIMName& fromClassName,
-        const CIMName& assocClassName);
+    InstanceAssociation(
+        const String& assocInstanceName_,
+        const CIMName& assocClassName_,
+        const String& fromInstanceName_,
+        const CIMName& fromClassName_,
+        const CIMName& fromPropertyName_,
+        const String& toInstanceName_,
+        const CIMName& toClassName_,
+        const CIMName& toPropertyName_)
+        : assocInstanceName(assocInstanceName_),
+          assocClassName(assocClassName_),
+          fromInstanceName(fromInstanceName_),
+          fromClassName(fromClassName_),
+          fromPropertyName(fromPropertyName_),
+          toInstanceName(toInstanceName_),
+          toClassName(toClassName_),
+          toPropertyName(toPropertyName_)
+    {
+    }
 
-    /** Check if the cache is loaded with objects already.
-    */
-    Boolean isActive();
-    void setActive(Boolean flag);
+    String assocInstanceName;
+    CIMName assocClassName;
+    String fromInstanceName;
+    CIMName fromClassName;
+    CIMName fromPropertyName;
+    String toInstanceName;
+    CIMName toClassName;
+    CIMName toPropertyName;
+};
 
-private:
-    String _nameSpace;
-    Boolean _isInitialized;
+class NamespaceDefinition
+{
+public:
 
-    typedef HashTable<String, Array<ClassAssociation>,
-        EqualNoCaseFunc, HashLowerCaseFunc > AssocClassCacheHashTableType;
+    NamespaceDefinition(const CIMNamespaceName& name_)
+        : name(name_),
+          shareable(false),
+          updatesAllowed(true),
+          parentNameSpace(),
+          remoteInfo()
+    {
+    }
 
-    AssocClassCacheHashTableType _assocTable;
+    CIMNamespaceName name;
+    Boolean shareable;
+    Boolean updatesAllowed;
+    CIMNamespaceName parentNameSpace;
+    String remoteInfo;    // Only used with Remote CMPI
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_AssocClassCache_h */
+#endif /* Pegasus_PersistentStoreData_h */

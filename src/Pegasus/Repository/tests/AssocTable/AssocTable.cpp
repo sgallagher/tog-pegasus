@@ -51,23 +51,26 @@ int main(int argc, char** argv)
     }
     assocTablePath.append("/associations.tbl");
 
+    AssocClassTable _assocClassTable;
+
     //
     // create class association
     //
-    AssocClassTable::append(
+    _assocClassTable.append(
         assocTablePath,
-    CIMName ("Lineage"),
-    CIMName ("Person"),
-    CIMName ("parent"),
-    CIMName ("Person"),
-    CIMName ("child"));
+        ClassAssociation(
+            CIMName("Lineage"),
+            CIMName("Person"),
+            CIMName("parent"),
+            CIMName("Person"),
+            CIMName("child")));
 
     //
     // delete class association
     //
-    AssocClassTable::deleteAssociation(
+    _assocClassTable.deleteAssociation(
         assocTablePath,
-        CIMName ("Lineage"));
+        CIMName("Lineage"));
 
     //
     // create instance association
@@ -93,7 +96,5 @@ int main(int argc, char** argv)
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 
-    // Avoid a memory leak
-    AssocClassCache::cleanupAssocClassCaches();
     return 0;
 }

@@ -156,7 +156,7 @@ void test02(Uint32 mode)
 
     CIMObjectPath instanceName1 = subClassInstance.buildPath(subClass);
 
-    CIMInstance tmp = r.getInstance(NAMESPACE, instanceName1,false,true,true);
+    CIMInstance tmp = r.getInstance(NAMESPACE, instanceName1);
 
     PEGASUS_TEST_ASSERT(subClassInstance.identical(tmp));
 
@@ -177,10 +177,6 @@ void test02(Uint32 mode)
         testFailed=true;
     }
     PEGASUS_TEST_ASSERT(testFailed);
-
-//    ATTN:2.0:ENHANCE:DEFERRED:getProviderName() is not supported.
-//    String providerName = r.getProviderName();
-//    PEGASUS_TEST_ASSERT (providerName == "repository");
 
     Array<CIMName> subClassNames;
     r.getSubClassNames(NAMESPACE, SUPERCLASS, true, subClassNames);

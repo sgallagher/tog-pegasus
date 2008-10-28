@@ -1362,7 +1362,8 @@ CIMObjectPath ProviderRegistrationManager::createInstance(
 {
     WriteLock lock(_registrationTableLock);
 
-    CIMObjectPath cimRef = _createInstance(ref, instance, OP_CREATE);
+    CIMInstance createdInstance = instance.clone();
+    CIMObjectPath cimRef = _createInstance(ref, createdInstance, OP_CREATE);
 
     PEG_TRACE((
         TRC_PROVIDERMANAGER,
@@ -2272,7 +2273,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
 // register a provider
 CIMObjectPath ProviderRegistrationManager::_createInstance(
     const CIMObjectPath & ref,
-    const CIMInstance & instance,
+    CIMInstance& instance,
     Operation flag)
 {
     CIMObjectPath cimRef;
@@ -2294,6 +2295,10 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 
         cimRef = _repository->createInstance(
             PEGASUS_NAMESPACENAME_INTEROP, instance);
+
+        // Get the resolved instance that was created
+        instance = _repository->getInstance(
+            PEGASUS_NAMESPACENAME_INTEROP, cimRef, false);
 
         //
         // get provider module name
@@ -2349,6 +2354,10 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
             //
             cimRef = _repository->createInstance(
                 PEGASUS_NAMESPACENAME_INTEROP, instance);
+
+            // Get the resolved instance that was created
+            instance = _repository->getInstance(
+                PEGASUS_NAMESPACENAME_INTEROP, cimRef, false);
 
             //
             // add the instance to the hash table
@@ -2475,6 +2484,10 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 
             cimRef = _repository->createInstance(
                 PEGASUS_NAMESPACENAME_INTEROP, instance);
+
+            // Get the resolved instance that was created
+            instance = _repository->getInstance(
+                PEGASUS_NAMESPACENAME_INTEROP, cimRef, false);
 
             PEG_METHOD_EXIT();
             return cimRef;
@@ -2892,6 +2905,10 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 
             cimRef = _repository->createInstance(
                 PEGASUS_NAMESPACENAME_INTEROP, instance);
+
+            // Get the resolved instance that was created
+            instance = _repository->getInstance(
+                PEGASUS_NAMESPACENAME_INTEROP, cimRef, false);
 
             PEG_METHOD_EXIT();
             return cimRef;

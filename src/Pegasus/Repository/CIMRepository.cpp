@@ -1203,7 +1203,7 @@ CIMObjectPath CIMRepository::_createInstance(
     // not the qualifiers.
     //
 
-    CIMInstance cimInstance(newInstance);
+    CIMInstance cimInstance(newInstance.clone());
     CIMConstClass cimClass;
     Resolver::resolveInstance (cimInstance, _rep->_context, nameSpace, cimClass,
         false);
@@ -1374,7 +1374,7 @@ void CIMRepository::modifyInstance(
             // Replace the entire instance with the given instance
             // (this is the default behavior)
             //
-            cimInstance = modifiedInstance;
+            cimInstance = modifiedInstance.clone();
         }
         else
         {
@@ -1395,7 +1395,7 @@ void CIMRepository::modifyInstance(
             CIMInstance newInstance(
                 modifiedInstance.getPath ().getClassName());
 
-            CIMInstance givenInstance = modifiedInstance;
+            CIMConstInstance givenInstance = modifiedInstance;
 
             //
             // Copy over the original instance qualifiers
@@ -1413,7 +1413,7 @@ void CIMRepository::modifyInstance(
             for (Uint32 i=0; i<givenInstance.getPropertyCount(); i++)
             {
                 // Copy the given property value (not qualifiers)
-                CIMProperty givenProperty = givenInstance.getProperty(i);
+                CIMConstProperty givenProperty = givenInstance.getProperty(i);
                 CIMProperty newProperty(
                     givenProperty.getName(),
                     givenProperty.getValue(),
@@ -1457,7 +1457,7 @@ void CIMRepository::modifyInstance(
             CIMPropertyList(),
             false);
 
-        CIMInstance givenInstance = modifiedInstance;
+        CIMConstInstance givenInstance = modifiedInstance;
 
         // NOTE: Instance qualifiers are not changed when a property list
         // is specified.  Property qualifiers are replaced with the
@@ -1482,7 +1482,7 @@ void CIMRepository::modifyInstance(
                 if (givenPropPos != PEG_NOT_FOUND)
                 {
                     // Case: Property set in original and given
-                    CIMProperty givenProperty =
+                    CIMConstProperty givenProperty =
                         givenInstance.getProperty(givenPropPos);
 
                     // Copy over the property from the given to the original
@@ -1490,7 +1490,7 @@ void CIMRepository::modifyInstance(
                     {
                         // Case: Total property replacement
                         cimInstance.removeProperty(origPropPos);
-                        cimInstance.addProperty(givenProperty);
+                        cimInstance.addProperty(givenProperty.clone());
                     }
                     else
                     {
@@ -1517,14 +1517,14 @@ void CIMRepository::modifyInstance(
                 if (givenPropPos != PEG_NOT_FOUND)
                 {
                     // Case: Property set in given and not in original
-                    CIMProperty givenProperty =
+                    CIMConstProperty givenProperty =
                         givenInstance.getProperty(givenPropPos);
 
                     // Copy over the property from the given to the original
                     if (includeQualifiers)
                     {
                         // Case: Total property copy
-                        cimInstance.addProperty(givenProperty);
+                        cimInstance.addProperty(givenProperty.clone());
                     }
                     else
                     {

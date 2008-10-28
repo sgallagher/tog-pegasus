@@ -6726,7 +6726,7 @@ void IndicationService::_handleCreateResponseAggregation(
                 (CIMCreateInstanceRequestMessage *)
                     operationAggregate->getOrigRequest();
 
-            CIMInstance instance = request->subscriptionInstance;
+            CIMInstance instance;
             try
             {
                 instanceRef = _subscriptionRepository->createInstance(
@@ -6740,6 +6740,8 @@ void IndicationService::_handleCreateResponseAggregation(
                         true);
                 instanceRef.setNameSpace(
                     request->subscriptionInstance.getPath().getNameSpace());
+                instance = _subscriptionRepository->getInstance(
+                    origRequest->nameSpace, instanceRef, false);
                 instance.setPath(instanceRef);
             }
             catch (CIMException& exception)

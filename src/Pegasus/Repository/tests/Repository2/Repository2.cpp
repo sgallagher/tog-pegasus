@@ -216,7 +216,7 @@ void TestCreateClass(Uint32 mode)
     // Test to assure that propagated class qualifier removed and
     // local one not removed
     // The following test does not work because propagated, etc. not set.
-    //PEGASUS_TEST_ASSERT (cc2.findQualifier("Description") == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT (cc2.findQualifier("Description") == PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT (cc2.findQualifier("junk") != PEG_NOT_FOUND);
 
     // test for qualifier on the junk property.
@@ -362,41 +362,65 @@ void TestCreateClass(Uint32 mode)
     //
     // -- Enumerate instances:
     //
-    Array<CIMInstance> namedInstances = r.enumerateInstancesForSubtree(NS,
-        CIMName ("SuperClass"),true, false, true, true);
+    Array<CIMInstance> namedInstances = r.enumerateInstancesForSubtree(
+        NS, CIMName("SuperClass"));
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
     //XmlWriter::printInstanceElement(namedInstances[0], cout);
     //XmlWriter::printInstanceElement(inst0, cout);
     //XmlWriter::printInstanceElement(inst1, cout);
-    PEGASUS_TEST_ASSERT(
-    namedInstances[0].identical(inst0) ||
-    namedInstances[0].identical(inst1));
 
-    PEGASUS_TEST_ASSERT(
-    namedInstances[1].identical(inst0) ||
-    namedInstances[1].identical(inst1));
+    for (Uint32 i = 0; i < namedInstances.size(); i++)
+    {
+        if (namedInstances[i].getClassName() == CIMName("SuperClass"))
+        {
+            PEGASUS_TEST_ASSERT(namedInstances[i].getProperty(
+                namedInstances[i].findProperty("key")).getValue() ==
+                CIMValue(Uint32(111)));
+        }
+        else
+        {
+            PEGASUS_TEST_ASSERT(namedInstances[i].getClassName() ==
+                CIMName("SubClass"));
+            PEGASUS_TEST_ASSERT(namedInstances[i].getProperty(
+                namedInstances[i].findProperty("key")).getValue() ==
+                CIMValue(Uint32(222)));
+        }
+
+        // Test propagated properties
+        PEGASUS_TEST_ASSERT(namedInstances[i].getProperty(
+            namedInstances[i].findProperty("ratio")).getValue() ==
+            CIMValue(Real32(1.5)));
+        PEGASUS_TEST_ASSERT(namedInstances[i].getProperty(
+            namedInstances[i].findProperty("ratio")).getPropagated());
+        PEGASUS_TEST_ASSERT(namedInstances[i].getProperty(
+            namedInstances[i].findProperty("message")).getValue() ==
+            CIMValue(String("Hello World")));
+        PEGASUS_TEST_ASSERT(namedInstances[i].getProperty(
+            namedInstances[i].findProperty("message")).getPropagated());
+    }
 
     //
     // Repeat the above tests for the enumerateInstancesForClass function
     //
-    namedInstances = r.enumerateInstancesForClass(NS,
-        CIMName("SuperClass"), false, true, true);
+    namedInstances = r.enumerateInstancesForClass(NS, CIMName("SuperClass"));
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 1);
 
     //XmlWriter::printInstanceElement(namedInstances[0], cout);
     //XmlWriter::printInstanceElement(inst0, cout);
-    //XmlWriter::printInstanceElement(inst1, cout);
-    PEGASUS_TEST_ASSERT( namedInstances[0].identical(inst0));
 
-    namedInstances = r.enumerateInstancesForClass(NS,
-        CIMName("SubClass"), false, true, true);
+    PEGASUS_TEST_ASSERT(namedInstances[0] == inst0);
+
+    namedInstances = r.enumerateInstancesForClass(NS, CIMName("SubClass"));
 
     PEGASUS_TEST_ASSERT(namedInstances.size() == 1);
 
-    PEGASUS_TEST_ASSERT(namedInstances[0].identical(inst1));
+    //XmlWriter::printInstanceElement(namedInstances[0], cout);
+    //XmlWriter::printInstanceElement(inst1, cout);
+
+    PEGASUS_TEST_ASSERT(namedInstances[0] == inst1);
 
     //
     // Test enumerating with classOrigin false
@@ -633,6 +657,10 @@ void TestCreateClass(Uint32 mode)
     // -- Modify one of the instances:
     //
 
+    CIMInstance premodifyInst = r.getInstance(NS, instanceNames[0],
+        false, true, true);
+    premodifyInst.setPath(instanceNames[0]);
+
     CIMInstance modifiedInst0(CIMName ("SuperClass"));
     modifiedInst0.addProperty(CIMProperty(CIMName ("key"), Uint32(111)));
     modifiedInst0.addProperty(
@@ -643,13 +671,21 @@ void TestCreateClass(Uint32 mode)
     //
     // -- Get instance back and see that it is the same as modified one:
     //
-    CIMInstance tmpInstance = r.getInstance(NS, CIMObjectPath
-        ("SuperClass.key=111"), false, true, true);
-    tmpInstance.setPath (instanceNames[0]);
+    CIMInstance tmpInstance = r.getInstance(NS, instanceNames[0],
+        false, true, true);
+    tmpInstance.setPath(instanceNames[0]);
+    //XmlWriter::printInstanceElement(premodifyInst, cout);
     //XmlWriter::printInstanceElement(tmpInstance, cout);
-    //XmlWriter::printInstanceElement(modifiedInst0, cout);
 
-    PEGASUS_TEST_ASSERT(tmpInstance.identical(modifiedInst0));
+    PEGASUS_TEST_ASSERT(
+        tmpInstance.getProperty(tmpInstance.findProperty("message")).getValue()
+            == String("Goodbye World"));
+    PEGASUS_TEST_ASSERT(
+        tmpInstance.getProperty(tmpInstance.findProperty("ratio")).identical(
+            premodifyInst.getProperty(premodifyInst.findProperty("ratio"))));
+    PEGASUS_TEST_ASSERT(
+        tmpInstance.getProperty(tmpInstance.findProperty("key")).identical(
+            premodifyInst.getProperty(premodifyInst.findProperty("key"))));
 
     //
     // -- Now modify the "message" property:

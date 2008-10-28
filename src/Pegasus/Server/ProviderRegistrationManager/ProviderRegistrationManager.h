@@ -361,10 +361,13 @@ private:
     /**
         Register a provider.  The caller must first lock
         _registrationTableLock for write access.
+
+        The instance parameter is modified to contain the instance that was
+        actually created.
     */
     CIMObjectPath _createInstance(
         const CIMObjectPath & ref,
-        const CIMInstance & instance,
+        CIMInstance & instance,
         Operation flag);
 
     /**

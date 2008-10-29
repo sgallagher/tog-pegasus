@@ -352,7 +352,7 @@ Message* CIMExportClient::_doRequest(
         catch (const Exception& e)
         {
             PEG_TRACE((TRC_EXPORT_CLIENT, Tracer::LEVEL1,
-                "Failed to connect to indication listener: ",
+                "Failed to connect to indication listener: %s",
                 (const char*)e.getMessage().getCString()));
             PEG_METHOD_EXIT();
             throw;

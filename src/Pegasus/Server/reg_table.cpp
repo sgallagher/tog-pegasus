@@ -111,7 +111,7 @@ Boolean DynamicRoutingTable::getRouting(
     String& providerName,
     Uint32 &serviceId) const
 {
-    RegTableRecord* routing;
+    RegTableRecord* routing = 0;
     if (_routingTable.lookup(_getRoutingKey(className, namespaceName), routing))
     {
         providerName= routing->providerName;

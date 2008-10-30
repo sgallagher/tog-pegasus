@@ -392,14 +392,15 @@ Uint32 ThreadPool::cleanupIdleThreads()
             break;
         }
 
-        struct timeval *lastActivityTime;
-        if (!thread->try_reference_tsd(
-                "last activity time", (void**)&lastActivityTime))
+        void* tsd = 0;
+        if (!thread->try_reference_tsd("last activity time", &tsd))
         {
             PEGASUS_ASSERT(false);
             _idleThreads.insert_back(thread);
             break;
         }
+        struct timeval *lastActivityTime =
+            reinterpret_cast<struct timeval*>(tsd);
         PEGASUS_ASSERT(lastActivityTime != 0);
 
         Boolean cleanupThisThread =

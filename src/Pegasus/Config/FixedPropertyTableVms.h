@@ -51,7 +51,7 @@
 #ifdef PEGASUS_USE_RELEASE_DIRS
     {"traceFilePath",       "/wbem_var/opt/wbem/trace/cimserver.trc"},
     {"passwordFilePath",    "/wbem_etc/opt/wbem/cimserver.passwd"},
-    {"sslCertificateFilePath", "/wbem_etc/opt/hp/sslshare/cert.pem"},
+    {"sslCertificateFilePath", "/wbem_etc/opt/hp/sslshare/server.pem"},
     {"sslKeyFilePath",      "/wbem_etc/opt/hp/sslshare/file.pem"},
 //
     {"sslTrustStore",       "/wbem_etc/opt/hp/sslshare/cimserver_trust"},

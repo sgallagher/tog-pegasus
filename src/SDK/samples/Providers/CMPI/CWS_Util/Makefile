@@ -31,6 +31,8 @@
 ROOT = ../../..
 include $(ROOT)/mak/config.mak
 
+PEGASUS_PROVIDER_LIBRARY = false
+
 LIBRARY = SDKcmpiCWS_Util
 
 SOURCE_DIR = Providers/CMPI/CWS_Util

@@ -47,15 +47,19 @@ $(PATHED_LIBRARY): $(PEGASUS_SAMPLE_OBJ_DIR)/target $(PEGASUS_SAMPLE_LIB_DIR)/ta
 	$(LIBRARY_LINK_COMMAND) $(LIBRARY_LINK_OPTIONS) $(DEFINES) \
              $(LINK_OUT)$@ $(PATHED_OBJECTS) $(SYS_LIBS) \
              $(DYNAMIC_LIBRARIES) $(EXTRA_LINK_ARGUMENTS)
+ifneq ($(PEGASUS_PROVIDER_LIBRARY),false)
 	$(MAKE) -i unlink
 	ln -f -s $(PATHED_LIBRARY) $(SYM_LINK_LIB).$(PLATFORM_LIB_SUFFIX)
+endif
 
 unlink:
 	$(RM) $(SYM_LINK_LIB).$(PLATFORM_LIB_SUFFIX)
 
 clean:
 	$(foreach i, $(PATHED_OBJECTS), $(RM) $(i);)
+ifneq ($(PEGASUS_PROVIDER_LIBRARY),false)
 	$(MAKE) -i unlink
+endif
 	$(RM) $(PATHED_LIBRARY)
 	$(foreach i, $(XMLRESPONSES), $(RM) $(i);)
 	$(foreach i, $(ADDITIONAL_CLEAN_FILES), $(RM) $(i);)

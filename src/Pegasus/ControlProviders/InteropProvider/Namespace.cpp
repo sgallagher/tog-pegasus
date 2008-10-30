@@ -127,7 +127,7 @@ Array<CIMInstance> InteropProvider::enumNamespaceInManagerInstances()
 
     CIMInstance instanceskel = buildInstanceSkeleton(
         PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_NAMESPACEINMANAGER, targetClass);
+        PEGASUS_CLASSNAME_PG_NAMESPACEINMANAGER, true, targetClass);
     // Build and instance for each namespace instance.
     for (Uint32 i = 0 ; i < namespaceInstances.size() ; i++)
     {
@@ -160,7 +160,7 @@ CIMInstance InteropProvider::buildNamespaceInstance(
     CIMClass targetClass;
     CIMInstance instance = buildInstanceSkeleton(
         PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PGNAMESPACE,
-        targetClass);
+        true, targetClass);
 
     setCommonKeys(instance);
 

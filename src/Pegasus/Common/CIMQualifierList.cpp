@@ -126,7 +126,7 @@ void CIMQualifierList::resolve(
     CIMScope scope, // Scope of the entity being resolved.
     Boolean isInstancePart,
     CIMQualifierList& inheritedQualifiers,
-    Boolean propagateQualifiers)  // Apparently not used ks 24 mar 2002
+    Boolean propagateQualifiers)
 {
     _keyIndex = PEGASUS_ORDEREDSET_INDEX_UNKNOWN;
 
@@ -296,34 +296,34 @@ void CIMQualifierList::resolve(
     // already have those qualifiers:
     //--------------------------------------------------------------------------
 
-    for (Uint32 i = 0, n = inheritedQualifiers.getCount(); i < n; i++)
+    if (propagateQualifiers)
     {
-        CIMQualifier iq = inheritedQualifiers.getQualifier(i);
-
-        if (isInstancePart)
+        for (Uint32 i = 0, n = inheritedQualifiers.getCount(); i < n; i++)
         {
-            if (!(iq.getFlavor ().hasFlavor
-                  (CIMFlavor::TOINSTANCE)))
-                continue;
-        }
-        else
-        {
-            if (!(iq.getFlavor ().hasFlavor
-                  (CIMFlavor::TOSUBCLASS)))
-                continue;
-        }
+            CIMQualifier iq = inheritedQualifiers.getQualifier(i);
 
-        // If the qualifiers list does not already contain this qualifier,
-        // then propagate it (and set the propagated flag to true).  Else we
-        // keep current value. Note we have already eliminated any possibity
-        // that a nonoverridable qualifier can be in the list.
-        // Note that there is no exists() function ATTN:KS 25 Mar 2002
-        if (find(iq.getName()) != PEG_NOT_FOUND)
-            continue;
+            if (isInstancePart)
+            {
+                if (!(iq.getFlavor().hasFlavor(CIMFlavor::TOINSTANCE)))
+                    continue;
+            }
+            else
+            {
+                if (!(iq.getFlavor().hasFlavor(CIMFlavor::TOSUBCLASS)))
+                    continue;
+            }
 
-        CIMQualifier q = iq.clone();
-        q.setPropagated(true);
-        _qualifiers.insert(0, q);
+            // If the qualifiers list does not already contain this qualifier,
+            // then propagate it (and set the propagated flag to true).  Else
+            // we keep current value. Note we have already eliminated any
+            // possibility that a nonoverridable qualifier can be in the list.
+            if (find(iq.getName()) != PEG_NOT_FOUND)
+                continue;
+
+            CIMQualifier q = iq.clone();
+            q.setPropagated(true);
+            _qualifiers.insert(0, q);
+        }
     }
     PEG_METHOD_EXIT();
 }

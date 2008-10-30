@@ -206,6 +206,7 @@ private:
     CIMInstance buildInstanceSkeleton(
         const CIMNamespaceName & nameSpace,
         const CIMName& className,
+        Boolean includeQualifiers,
         CIMClass& returnedClass);
 
     CIMInstance buildCIMXMLCommunicationMechanismInstance(

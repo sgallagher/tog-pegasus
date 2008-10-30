@@ -589,6 +589,7 @@ Array<CIMInstance> InteropProvider::enumInstalledSoftwareIdentityInstances()
     CIMInstance skeletonInst =  buildInstanceSkeleton(
         PEGASUS_NAMESPACENAME_INTEROP,
         PEGASUS_CLASSNAME_PG_INSTALLEDSOFTWAREIDENTITY, 
+        true,
         installedSoftwareClass);
     for (Uint32 i = 0, n = softwareInstances.size(); i < n; ++i)
     {

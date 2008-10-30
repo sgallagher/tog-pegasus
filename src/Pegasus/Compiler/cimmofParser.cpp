@@ -1212,7 +1212,15 @@ CIMProperty * cimmofParser::PropertyFromInstance(CIMInstance &instance,
         Uint32 pos = c.findProperty(propertyName);
         if (pos != PEG_NOT_FOUND)
         {
-            return new CIMProperty(c.getProperty(pos));
+            // Return a copy of the property without qualifiers.
+            CIMProperty p = c.getProperty(pos);
+            return new CIMProperty(
+                p.getName(),
+                p.getValue(),
+                p.getArraySize(),
+                p.getReferenceClassName(),
+                p.getClassOrigin(),
+                p.getPropagated());
         }
     }
     catch (Exception &e)

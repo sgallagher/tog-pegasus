@@ -183,7 +183,21 @@ void CIMInstanceRep::resolve(
 
         if (!found)
         {
-            CIMProperty p = property.clone();
+            CIMProperty p;
+            if (propagateQualifiers)
+            {
+                p = property.clone();
+            }
+            else
+            {
+                p = CIMProperty(
+                    property.getName(),
+                    property.getValue(),
+                    property.getArraySize(),
+                    property.getReferenceClassName(),
+                    property.getClassOrigin(),
+                    property.getPropagated());
+            }
             p.setPropagated(true);
             _properties.insert(m++, p);
         }

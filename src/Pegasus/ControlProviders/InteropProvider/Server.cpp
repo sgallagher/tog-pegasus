@@ -431,7 +431,7 @@ CIMInstance InteropProvider::getObjectManagerInstance()
         //
         CIMClass omClass;
         instance = buildInstanceSkeleton(PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PG_OBJECTMANAGER, omClass);
+            PEGASUS_CLASSNAME_PG_OBJECTMANAGER, false, omClass);
 
         // Set the common key properties
         setCommonKeys(instance);
@@ -484,6 +484,9 @@ CIMInstance InteropProvider::getObjectManagerInstance()
         // write instance to the repository
         CIMObjectPath instancePath = repository->createInstance(
             PEGASUS_NAMESPACENAME_INTEROP, instance);
+        // Get an updated copy of the instance that was saved
+        instance = repository->getInstance(
+            PEGASUS_NAMESPACENAME_INTEROP, instancePath, false);
         instance.setPath(instancePath);
     }
 
@@ -708,7 +711,7 @@ Array<CIMInstance> InteropProvider::enumCommMechanismForManagerInstances()
     CIMClass targetClass;
     CIMInstance instanceskel = buildInstanceSkeleton(
         PEGASUS_NAMESPACENAME_INTEROP, 
-        PEGASUS_CLASSNAME_PG_COMMMECHANISMFORMANAGER, targetClass);
+        PEGASUS_CLASSNAME_PG_COMMMECHANISMFORMANAGER, true, targetClass);
     for (Uint32 i = 0, n = commInstances.size(); i < n; ++i)
     {
         CIMInstance instance = instanceskel.clone();

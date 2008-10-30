@@ -836,6 +836,7 @@ Array<CIMInstance> InteropProvider::localReferences(
 CIMInstance InteropProvider::buildInstanceSkeleton(
       const CIMNamespaceName & nameSpace,
       const CIMName& className,
+      Boolean includeQualifiers,
       CIMClass& returnedClass)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
@@ -843,8 +844,8 @@ CIMInstance InteropProvider::buildInstanceSkeleton(
     // get class with lo = false, qualifier = true classorig = true
     returnedClass = repository->getClass(nameSpace,
         className, false, true, true);
-    CIMInstance skeleton = returnedClass.buildInstance(true,true,
-        CIMPropertyList());
+    CIMInstance skeleton = returnedClass.buildInstance(
+        includeQualifiers, true, CIMPropertyList());
 
     PEG_METHOD_EXIT();
     return skeleton;

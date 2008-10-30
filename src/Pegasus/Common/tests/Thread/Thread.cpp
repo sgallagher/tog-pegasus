@@ -121,7 +121,6 @@ void testOneThread()
     }
     // Test return code
     Thread t( test1_thread, 0, false );
-    t.run();
     if (t.run()!=PEGASUS_THREAD_OK)
     {
         cerr << "Error. Thread Run returned Error "

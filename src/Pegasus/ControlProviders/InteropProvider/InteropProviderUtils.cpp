@@ -421,8 +421,6 @@ Boolean validateRequiredProperty(
 //
 TARGET_CLASS translateClassInput(const CIMName& className)
 {
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-        "InteropProvider::translateClassInput");
     if(className.equal(PEGASUS_CLASSNAME_PG_OBJECTMANAGER))
         return PG_OBJECTMANAGER;
 
@@ -498,7 +496,6 @@ TARGET_CLASS translateClassInput(const CIMName& className)
         throw CIMNotSupportedException
             (className.getString() + " not supported by Interop Provider");
 
-    PEG_METHOD_EXIT();
     return PG_NAMESPACE;
 }
 
@@ -507,9 +504,6 @@ TARGET_CLASS translateClassInput(const CIMName& className)
 //
 TARGET_CLASS translateAssocClassInput(const CIMName & className)
 {
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-            "InteropProvider::translateAssocClassInput");
-
     if(className.equal(PEGASUS_CLASSNAME_PG_NAMESPACEINMANAGER))
         return PG_NAMESPACEINMANAGER;
 
@@ -537,7 +531,6 @@ TARGET_CLASS translateAssocClassInput(const CIMName & className)
           " not supported by association operations in the Interop Provider");
     }
 
-    PEG_METHOD_EXIT();
     return PG_SUBPROFILEREQUIRESPROFILE;
 }
 

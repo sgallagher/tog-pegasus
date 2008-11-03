@@ -219,16 +219,15 @@ void cimom::_make_response(Message *req, Uint32 code)
         (static_cast<AsyncRequest *>(req))->resp,
         false));
 
-    _completeAsyncResponse(static_cast<AsyncRequest*>(req),
-        reply.get(), ASYNC_OPSTATE_COMPLETE, 0);
+    _completeAsyncResponse(
+        static_cast<AsyncRequest*>(req),
+        reply.get());
     reply.release();
 }
 
 void cimom::_completeAsyncResponse(
     AsyncRequest *request,
-    AsyncReply *reply,
-    Uint32 state,
-    Uint32 flag)
+    AsyncReply *reply)
 {
     PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE, "cimom::_completeAsyncResponse");
     PEGASUS_ASSERT(request != 0);
@@ -240,7 +239,7 @@ void cimom::_completeAsyncResponse(
         {
             op->_response.reset(reply);
         }
-        _complete_op_node(op, state, flag, (reply ? reply->result : 0 ));
+        _complete_op_node(op);
         return;
     }
     else if (op->_flags == ASYNC_OPFLAGS_FIRE_AND_FORGET)
@@ -269,10 +268,7 @@ void cimom::_default_callback(AsyncOpNode *op, MessageQueue *q, void *ptr)
 
 
 void cimom::_complete_op_node(
-    AsyncOpNode *op,
-    Uint32 state,
-    Uint32 flag,
-    Uint32 code)
+    AsyncOpNode *op)
 {
     Uint32 flags = op->_flags;
 
@@ -377,10 +373,10 @@ void cimom::ioctl(AsyncIoctl* msg)
                                              async_results::OK,
                                              msg->resp,
                                              msg->block));
-            _completeAsyncResponse(static_cast<AsyncRequest *>(msg),
-                                reply.get(),
-                                ASYNC_OPSTATE_COMPLETE,
-                                0);
+            _completeAsyncResponse(
+                static_cast<AsyncRequest *>(msg),
+                reply.get());
+
             reply.release();
             // ensure we do not accept any further messages
 
@@ -428,10 +424,9 @@ void cimom::ioctl(AsyncIoctl* msg)
                 result,
                 msg->resp,
                 msg->block));
-            _completeAsyncResponse(static_cast<AsyncRequest *>(msg),
-                                reply.get(),
-                                ASYNC_OPSTATE_COMPLETE,
-                                0);
+            _completeAsyncResponse(
+                static_cast<AsyncRequest *>(msg),
+                reply.get());
             reply.release();
         }
     }

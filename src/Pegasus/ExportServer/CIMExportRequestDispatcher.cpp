@@ -83,7 +83,7 @@ void CIMExportRequestDispatcher::_handle_async_request(AsyncRequest *req)
                     req->op,
                     legacy_response);
 
-            _complete_op_node(req->op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+            _complete_op_node(req->op);
             delete legacy;
         }
         else

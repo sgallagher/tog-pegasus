@@ -170,7 +170,7 @@ void ModuleController::_handle_async_request(AsyncRequest* rq)
             false,
             static_cast<AsyncModuleOperationStart *>(rq)->_target_module,
             module_result);
-        _complete_op_node(rq->op, 0, 0, 0);
+        _complete_op_node(rq->op);
     }
     else
         Base::_handle_async_request(rq);

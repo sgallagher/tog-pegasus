@@ -575,7 +575,7 @@ void ProviderManagerService::handleCimRequest(
         op,
         response);
 
-    _complete_op_node(op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+    _complete_op_node(op);
 
     PEG_METHOD_EXIT();
 }

@@ -215,7 +215,7 @@ void MessageQueueServer::_handle_incoming_operation(AsyncOpNode *operation)
                     cout << " caught a hacked legacy message " << endl;
                 }
             }
-            _complete_op_node(operation, ASYNC_OPSTATE_COMPLETE, 0, 0);
+            _complete_op_node(operation);
         }
     }
 
@@ -274,7 +274,7 @@ void MessageQueueServer::handleLegacyOpStart(AsyncLegacyOperationStart *req)
             async_results::OK,
             req->resp,
             req->block);
-    _completeAsyncResponse(req, resp, ASYNC_OPSTATE_COMPLETE, 0);
+    _completeAsyncResponse(req, resp);
 
     if (verbose)
     {
@@ -295,7 +295,7 @@ void MessageQueueServer::handleTestRequestMessage(AsyncRequest *msg)
             async_results::OK,
             msg->dest,
             "i am a test response");
-       _completeAsyncResponse(msg, resp, ASYNC_OPSTATE_COMPLETE, 0);
+       _completeAsyncResponse(msg, resp);
    }
 }
 
@@ -309,7 +309,7 @@ void MessageQueueServer::handleCimServiceStop(CimServiceStop *req)
             async_results::CIM_SERVICE_STOPPED,
             req->resp,
             req->block);
-    _completeAsyncResponse(req, resp, ASYNC_OPSTATE_COMPLETE, 0);
+    _completeAsyncResponse(req, resp);
 
     if (verbose)
     {

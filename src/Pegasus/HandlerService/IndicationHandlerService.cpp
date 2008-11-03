@@ -76,7 +76,7 @@ void IndicationHandlerService::_handle_async_request(AsyncRequest* req)
                     legacy_response.get()));
             legacy_response.release();
             async_result.release();
-            _complete_op_node(req->op, ASYNC_OPSTATE_COMPLETE, 0, 0);
+            _complete_op_node(req->op);
         }
         else
         {

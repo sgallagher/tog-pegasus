@@ -445,8 +445,8 @@ Boolean MessageQueueService::_enqueueResponse(
         {
             _completeAsyncResponse(
                 static_cast<AsyncRequest *>(request),
-                static_cast<AsyncReply *>(response),
-                ASYNC_OPSTATE_COMPLETE, 0);
+                static_cast<AsyncReply *>(response));
+
             PEG_METHOD_EXIT();
             return true;
         }
@@ -473,9 +473,8 @@ Boolean MessageQueueService::_enqueueResponse(
                 response);
         _completeAsyncResponse(
             asyncRequest,
-            async_result,
-            ASYNC_OPSTATE_COMPLETE,
-            0);
+            async_result);
+
         PEG_METHOD_EXIT();
         return true;
     }
@@ -493,26 +492,21 @@ void MessageQueueService::_make_response(Message* req, Uint32 code)
 
 void MessageQueueService::_completeAsyncResponse(
     AsyncRequest* request,
-    AsyncReply* reply,
-    Uint32 state,
-    Uint32 flag)
+    AsyncReply* reply)
 {
     PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,
         "MessageQueueService::_completeAsyncResponse");
 
-    cimom::_completeAsyncResponse(request, reply, state, flag);
+    cimom::_completeAsyncResponse(request, reply);
 
     PEG_METHOD_EXIT();
 }
 
 
 void MessageQueueService::_complete_op_node(
-    AsyncOpNode* op,
-    Uint32 state,
-    Uint32 flag,
-    Uint32 code)
+    AsyncOpNode* op)
 {
-    cimom::_complete_op_node(op, state, flag, code);
+    cimom::_complete_op_node(op);
 }
 
 

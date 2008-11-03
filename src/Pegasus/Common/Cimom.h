@@ -69,14 +69,8 @@ protected:
       static void _make_response(Message* req, Uint32 code);
       static void _completeAsyncResponse(
           AsyncRequest* request,
-          AsyncReply* reply,
-          Uint32 state,
-          Uint32 flag);
-      static void _complete_op_node(
-          AsyncOpNode* op,
-          Uint32 state,
-          Uint32 flag,
-          Uint32 code);
+          AsyncReply* reply);
+      static void _complete_op_node(AsyncOpNode* op);
       static void _default_callback(AsyncOpNode*, MessageQueue*, void*);
 
 private:

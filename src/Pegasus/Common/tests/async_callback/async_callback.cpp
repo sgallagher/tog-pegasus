@@ -114,7 +114,7 @@ test_async_queue::_handle_async_request (AsyncRequest * rq)
         new async_complete (static_cast < async_start & >(*rq),
                             async_results::OK,
                             response_data);
-      _complete_op_node (rq->op, 0, 0, async_results::ASYNC_COMPLETE);
+      _complete_op_node (rq->op);
     } catch (const PEGASUS_STD(bad_alloc) &)
     {
         cerr <<" Out of memory!" << endl;
@@ -193,7 +193,7 @@ test_async_queue::_handle_stop (CimServiceStop * stop)
                                      async_results::CIM_SERVICE_STOPPED,
                                      stop->resp,
                                      stop->block);
-  _completeAsyncResponse (stop, resp, ASYNC_OPSTATE_COMPLETE, 0);
+  _completeAsyncResponse (stop, resp);
   _die_now = 1;
   } catch (const PEGASUS_STD(bad_alloc) &) {
     cerr << "Out of memory in _handle_stop. Continuing tests .. " << endl;

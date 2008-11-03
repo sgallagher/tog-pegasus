@@ -113,10 +113,8 @@ protected:
 
     void _completeAsyncResponse(
         AsyncRequest* request,
-        AsyncReply* reply,
-        Uint32 state,
-        Uint32 flag);
-    void _complete_op_node(AsyncOpNode *, Uint32, Uint32, Uint32);
+        AsyncReply* reply);
+    void _complete_op_node(AsyncOpNode *);
 
     static cimom* _meta_dispatcher;
     static AtomicInt _service_count;

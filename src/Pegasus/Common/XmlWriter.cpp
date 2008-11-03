@@ -2120,7 +2120,7 @@ void XmlWriter::_appendErrorElement(
     Buffer& out,
     const CIMException& cimException)
 {
-    Tracer::traceCIMException(TRC_XML_WRITER, Tracer::LEVEL2, cimException);
+    Tracer::traceCIMException(TRC_XML, Tracer::LEVEL2, cimException);
 
     out << STRLIT("<ERROR CODE=\"") << Uint32(cimException.getCode());
     out.append('"');

@@ -47,7 +47,7 @@ NormalizedSubscriptionTable::NormalizedSubscriptionTable(
     {
         if (!add(subscriptions[i].getPath()))
         {
-            PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+            PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL2,
                 "Subscription already exists : %s",
                 (const char*)
                      subscriptions[i].getPath().toString().getCString()));

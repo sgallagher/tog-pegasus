@@ -429,8 +429,7 @@ Boolean SubscriptionRepository::getState (
             (stateIndex).getValue ();
         if (stateValue.isNull ())
         {
-            PEG_TRACE_CSTRING (TRC_INDICATION_SERVICE_INTERNAL,
-                Tracer::LEVEL1,
+            PEG_TRACE_CSTRING (TRC_INDICATION_SERVICE,Tracer::LEVEL1,
                 "Null SubscriptionState property value");
 
             //
@@ -441,9 +440,7 @@ Boolean SubscriptionRepository::getState (
         else if ((stateValue.getType () != CIMTYPE_UINT16) ||
             (stateValue.isArray ()))
         {
-            PEG_TRACE((
-                TRC_INDICATION_SERVICE_INTERNAL,
-                Tracer::LEVEL1,
+            PEG_TRACE((TRC_INDICATION_SERVICE,Tracer::LEVEL1,
                 "SubscriptionState property value of incorrect type:%s %s",
                 (stateValue.isArray()) ? " array of" : " ",
                 cimTypeToString(stateValue.getType())));
@@ -460,8 +457,7 @@ Boolean SubscriptionRepository::getState (
     }
     else
     {
-        PEG_TRACE_CSTRING (TRC_INDICATION_SERVICE_INTERNAL,
-            Tracer::LEVEL1,
+        PEG_TRACE_CSTRING(TRC_INDICATION_SERVICE,Tracer::LEVEL1,
             "Missing SubscriptionState property");
 
         //
@@ -494,7 +490,7 @@ CIMInstance SubscriptionRepository::deleteSubscription (
     }
     catch (Exception & exception)
     {
-        PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL1,
+        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
             "Exception caught in retrieving subscription (%s): %s",
             (const char*)subscriptionInstance.getPath().toString().getCString(),
             (const char*)exception.getMessage().getCString()));
@@ -516,7 +512,7 @@ CIMInstance SubscriptionRepository::deleteSubscription (
     }
     catch (Exception & exception)
     {
-        PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL1,
+        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
             "Exception caught in deleting subscription (%s): %s",
             (const char*)subscriptionInstance.getPath().toString().getCString(),
             (const char*)exception.getMessage().getCString()));
@@ -619,7 +615,7 @@ Array <CIMInstance> SubscriptionRepository::deleteReferencingSubscriptions (
                     //
                     //  Deletion of referencing subscription failed
                     //
-                    PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL1,
+                    PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
                         "Exception caught deleting referencing "
                         "subscription (%s): %s",
                         (const char*)subscriptions [i].getPath().toString()
@@ -857,7 +853,7 @@ void SubscriptionRepository::getFilterProperties (
     }
     catch (const Exception & exception)
     {
-        PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL1,
+        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
             "Exception caught in getting filter instance (%s): %s",
             (const char*)filterReference.toString().getCString(),
             (const char*)exception.getMessage().getCString()));
@@ -908,7 +904,7 @@ void SubscriptionRepository::getFilterProperties (
     }
     catch (const Exception & exception)
     {
-        PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL1,
+        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
             "Exception caught in getting filter instance (%s): %s",
             (const char*)filterReference.toString().getCString(),
             (const char*)exception.getMessage().getCString()));
@@ -1220,7 +1216,7 @@ void SubscriptionRepository::_disableSubscription (
     }
     catch (Exception & exception)
     {
-        PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL1,
+        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
            "Exception caught in attempting to disable a subscription: %s",
             (const char*)exception.getMessage().getCString()));
     }
@@ -1245,7 +1241,7 @@ void SubscriptionRepository::_deleteSubscription (
     }
     catch (Exception & exception)
     {
-        PEG_TRACE((TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL1,
+        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
            "Exception caught in attempting to delete a subscription: %s",
            (const char*)exception.getMessage().getCString()));
     }

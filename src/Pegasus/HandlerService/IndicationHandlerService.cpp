@@ -138,7 +138,7 @@ CIMHandleIndicationResponseMessage*
 IndicationHandlerService::_handleIndication(
     CIMHandleIndicationRequestMessage* request)
 {
-    PEG_METHOD_ENTER(TRC_IND_HANDLE,
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
         "IndicationHandlerService::_handleIndication()");
 
     Boolean handleIndicationSuccess = true;
@@ -221,7 +221,7 @@ IndicationHandlerService::_handleIndication(
 
                 exportmessage.release();
 
-                PEG_TRACE((TRC_IND_HANDLE, Tracer::LEVEL4,
+                PEG_TRACE((TRC_IND_HANDLER, Tracer::LEVEL4,
                     "Indication handler forwarding message to %s",
                         ((MessageQueue::lookup(exportServer)) ?
                             ((MessageQueue::lookup(exportServer))->
@@ -324,7 +324,7 @@ Boolean IndicationHandlerService::_loadHandler(
     CIMHandleIndicationRequestMessage* request,
     CIMException& cimException)
 {
-    PEG_METHOD_ENTER(TRC_IND_HANDLE,
+    PEG_METHOD_ENTER(TRC_IND_HANDLER,
         "IndicationHandlerService::__loadHandler()");
 
     CIMName className = request->handlerInstance.getClassName();
@@ -379,7 +379,7 @@ Boolean IndicationHandlerService::_loadHandler(
 CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
    const CIMName& className)
 {
-   PEG_METHOD_ENTER(TRC_IND_HANDLE,
+   PEG_METHOD_ENTER(TRC_IND_HANDLER,
         "IndicationHandlerService::_lookupHandlerForClass()");
 
    String handlerId;

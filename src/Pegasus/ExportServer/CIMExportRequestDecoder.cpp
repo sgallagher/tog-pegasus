@@ -760,9 +760,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
     }
     catch (XmlValidationError& e)
     {
-        PEG_TRACE((
-            TRC_XML_PARSER,
-            Tracer::LEVEL1,
+        PEG_TRACE((TRC_XML,Tracer::LEVEL1,
             "CIMExportRequestDecoder::handleMethodRequest - "
             "XmlValidationError exception has occurred. Message: %s",
             (const char*) e.getMessage().getCString()));
@@ -777,9 +775,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
     }
     catch (XmlSemanticError& e)
     {
-        PEG_TRACE((
-            TRC_XML_PARSER,
-            Tracer::LEVEL1,
+        PEG_TRACE((TRC_XML,Tracer::LEVEL1,
             "CIMExportRequestDecoder::handleMethodRequest - "
             "XmlSemanticError exception has occurred. Message: %s",
             (const char*) e.getMessage().getCString()));
@@ -794,9 +790,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
     }
     catch (XmlException& e)
     {
-        PEG_TRACE((
-            TRC_XML_PARSER,
-            Tracer::LEVEL1,
+        PEG_TRACE((TRC_XML,Tracer::LEVEL1,
             "CIMExportRequestDecoder::handleMethodRequest - "
             "XmlException has occurred. Message: %s",
             (const char*) e.getMessage().getCString()));

@@ -70,6 +70,11 @@ static struct ConfigPropertyRow properties[] =
     {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_VISIBLE},
     {"traceMemoryBufferKbytes", "10240", IS_STATIC, 0, 0, IS_VISIBLE},
     {"traceFacility", "File", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+#elif defined(PEGASUS_OS_ZOS)
+    {"traceLevel", "2", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"traceComponents", "All", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"traceMemoryBufferKbytes", "10240", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"traceFacility", "Memory", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #else
 # if defined (PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
     {"traceLevel", "0", IS_DYNAMIC, 0, 0, IS_HIDDEN},

@@ -631,7 +631,7 @@ void MessageQueueService::handle_CimServiceStop(CimServiceStop* req)
 #endif
     PEGASUS_ASSERT(_isRunning);
     _isRunning = false;
-    _make_response(req, async_results::CIM_STOPPED);
+    _make_response(req, async_results::CIM_SERVICE_STOPPED);
 }
 
 AsyncOpNode* MessageQueueService::get_op()

@@ -36,31 +36,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 const Uint32 async_results::OK =                        0x00000000;
-const Uint32 async_results::PARAMETER_ERROR =           0x00000001;
-const Uint32 async_results::MODULE_ALREADY_REGISTERED = 0x00000002;
-const Uint32 async_results::MODULE_NOT_FOUND =          0x00000003;
-const Uint32 async_results::INTERNAL_ERROR =            0x00000004;
-
-const Uint32 async_results::ASYNC_STARTED =             0x00000005;
-const Uint32 async_results::ASYNC_PROCESSING =          0x00000006;
-const Uint32 async_results::ASYNC_COMPLETE =            0x00000007;
-const Uint32 async_results::ASYNC_CANCELLED =           0x00000008;
-const Uint32 async_results::ASYNC_PAUSED =              0x00000009;
-const Uint32 async_results::ASYNC_RESUMED =             0x0000000a;
-
-const Uint32 async_results::CIM_SERVICE_STARTED =       0x0000000b;
-const Uint32 async_results::CIM_SERVICE_STOPPED  =      0x0000000c;
-
-const Uint32 async_results::CIM_SERVICE_PAUSED  =       0x0000000d;
-const Uint32 async_results::CIM_SERVICE_RESUMED =       0x0000000e;
-const Uint32 async_results::CIM_NAK =                   0x0000000f;
-
-const Uint32 async_results::ASYNC_PHASE_COMPLETE =      0x00000010;
-const Uint32 async_results::ASYNC_CHILD_COMPLETE =      0x00000011;
-const Uint32 async_results::ASYNC_PHASE_STARTED =       0x00000012;
-const Uint32 async_results::ASYNC_CHILD_STARTED =       0x00000013;
-const Uint32 async_results::CIM_PAUSED =                0x00000014;
-const Uint32 async_results::CIM_STOPPED =               0x00000015;
+const Uint32 async_results::CIM_NAK =                   0x00000001;
+const Uint32 async_results::CIM_SERVICE_STOPPED =       0x00000002;
 
 
 AsyncMessage::AsyncMessage(

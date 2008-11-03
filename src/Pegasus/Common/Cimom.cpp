@@ -131,7 +131,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
                     if (messageType != ASYNC_CIMSERVICE_START)
                     {
                        dispatcher->_make_response(
-                           request, async_results::CIM_STOPPED);
+                           request, async_results::CIM_SERVICE_STOPPED);
                        accepted = true;
                     }
                     else

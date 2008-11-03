@@ -54,31 +54,8 @@ class PEGASUS_COMMON_LINKAGE async_results
 {
 public:
     static const Uint32 OK;
-    static const Uint32 PARAMETER_ERROR;
-    static const Uint32 MODULE_ALREADY_REGISTERED;
-    static const Uint32 MODULE_NOT_FOUND;
-    static const Uint32 INTERNAL_ERROR;
-
-    static const Uint32 ASYNC_STARTED;
-    static const Uint32 ASYNC_PROCESSING;
-    static const Uint32 ASYNC_COMPLETE;
-    static const Uint32 ASYNC_CANCELLED;
-    static const Uint32 ASYNC_PAUSED;
-    static const Uint32 ASYNC_RESUMED;
-
-    static const Uint32 CIM_SERVICE_STARTED;
-    static const Uint32 CIM_SERVICE_STOPPED;
-    static const Uint32 CIM_SERVICE_PAUSED;
-
-    static const Uint32 CIM_SERVICE_RESUMED;
     static const Uint32 CIM_NAK;
-
-    static const Uint32 ASYNC_PHASE_COMPLETE;
-    static const Uint32 ASYNC_CHILD_COMPLETE;
-    static const Uint32 ASYNC_PHASE_STARTED;
-    static const Uint32 ASYNC_CHILD_STARTED;
-    static const Uint32 CIM_PAUSED;
-    static const Uint32 CIM_STOPPED;
+    static const Uint32 CIM_SERVICE_STOPPED;
 };
 
 // Overloaded message types

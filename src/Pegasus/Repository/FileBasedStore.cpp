@@ -501,6 +501,13 @@ private:
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+Boolean FileBasedStore::isExistingRepository(const String& repositoryRoot)
+{
+    // If this is an existing FileBasedStore repository directory, a "root"
+    // subdirectory will exist.
+    return FileSystem::isDirectory(repositoryRoot + "/root");
+}
+
 FileBasedStore::FileBasedStore(
     const String& repositoryPath,
     ObjectStreamer* streamer,
@@ -533,10 +540,10 @@ FileBasedStore::FileBasedStore(
 
     String configFilePath = _repositoryPath + "/" + _CONFIGFILE_NAME;
 
-    if (!FileSystem::isDirectory(_repositoryPath + "/root"))
+    if (!FileBasedStore::isExistingRepository(_repositoryPath))
     {
-        // The root namespace does not exist so this must be a new repository
-        // instance.  Use the setting defined by the build option.
+        // This is a new repository instance.  Use the setting defined by
+        // the build option.
 
 #ifndef PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES
         PEGASUS_STD(ofstream) os;

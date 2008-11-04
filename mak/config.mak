@@ -554,8 +554,26 @@ else
     endif
 endif
 
+# SQLite repository support
+
+ifndef PEGASUS_USE_SQLITE_REPOSITORY
+    PEGASUS_USE_SQLITE_REPOSITORY = false
+endif
+
+ifeq ($(PEGASUS_USE_SQLITE_REPOSITORY),true)
+    ifeq ($(PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES),true)
+        $(error PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES may not be set to true when PEGASUS_USE_SQLITE_REPOSITORY is true)
+    endif
+    DEFINES += -DPEGASUS_USE_SQLITE_REPOSITORY
+else
+    ifneq ($(PEGASUS_USE_SQLITE_REPOSITORY),false)
+        $(error PEGASUS_USE_SQLITE_REPOSITORY ($(PEGASUS_USE_SQLITE_REPOSITORY)) invalid, must be true or false)
+    endif
+endif
+
 # PEP 161
-# Control whether utf-8 filenames are supported by the repository
+# Control whether utf-8 filenames are supported by the repository.
+# Note: These options only apply to the file-based repository, not SQLite.
 ifdef PEGASUS_SUPPORT_UTF8_FILENAME
     DEFINES += -DPEGASUS_SUPPORT_UTF8_FILENAME
 

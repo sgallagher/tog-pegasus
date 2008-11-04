@@ -1658,6 +1658,22 @@ additional information.</p>
      titled "Configuration Properties" for additional detail.<br>
 </ul>
 
+<h5>PEGASUS_USE_SQLITE_REPOSITORY</h5>
+<ul>
+  <b>Description:&nbsp;</b>If true, new repository stores are created
+     using a SQLite database.  Existing file-based stores will continue
+     to be recognized and operate seamlessly.<br>
+  <b>Default Value:&nbsp;</b>false<br>
+  <b>Recommended Value (Development Build):&nbsp;</b>true<br>
+  <b>Recommended Value (Release Build):&nbsp;</b>true<br>
+  <b>Required:&nbsp;</b>No<br>
+  <b>Considerations:&nbsp;</b>If PEGASUS_USE_SQLITE_REPOSITORY is set to true
+     and SQLite files are not installed in default search locations,
+     SQLITE_HOME must also be configured.
+     PEGASUS_REPOSITORY_STORE_COMPLETE_CLASSES may not be set to true when
+     PEGASUS_USE_SQLITE_REPOSITORY is set to true.
+</ul>
+
 <h5>PEGASUS_USE_SYSLOGS</h5>
 <ul>
   <b>Description:&nbsp;</b>If set, OpenPegasus will be built
@@ -1686,6 +1702,23 @@ additional information.</p>
      No Specific Recommendation<br>
   <b>Required:&nbsp;</b>Yes, if building on Windows with a
      compiler version &lt; 1300.<br>
+</ul>
+
+<h5>SQLITE_HOME</h5>
+<ul>
+  <b>Description:&nbsp;</b>Specifies the location of the SQLite SDK directory.
+     This directory must contain sqlite3.h in the $(SQLITE_HOME)/include
+     directory, and libsqlite3 in the $(SQLITE_HOME)/lib directory.<br>
+  <b>Default Value:&nbsp;</b>Not Set<br>
+  <b>Recommended Value (Development Build):&nbsp;</b>
+     No Specific Recommendation<br>
+  <b>Recommended Value (Release Build):&nbsp;</b>
+     No Specific Recommendation<br>
+  <b>Required:&nbsp;</b>Yes, if PEGASUS_USE_SQLITE_REPOSITORY is set to true
+     and the SQLite files are not installed in locations that are searched by
+     default.<br>
+  <b>Considerations:&nbsp;</b>This environment variable is only used if
+     PEGASUS_USE_SQLITE_REPOSITORY is set to true.
 </ul>
 
 <h4>Examples Building a Linux IA32 (#IA64) Development/Debug Version</h4>

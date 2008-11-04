@@ -594,6 +594,8 @@ private:
     String _toStringCanonical() const;
 
     CIMObjectPathRep* _rep;
+
+    friend class SQLiteStore;
 };
 
 /**

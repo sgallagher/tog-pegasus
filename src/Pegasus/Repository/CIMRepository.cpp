@@ -53,7 +53,7 @@
 #include "RepositoryDeclContext.h"
 #include "ObjectCache.h"
 
-#include "FileBasedStore.h"
+#include "PersistentStore.h"
 
 #if 0
 #undef PEG_METHOD_ENTER
@@ -91,7 +91,7 @@ public:
 
     AutoPtr<ObjectStreamer> _streamer;
 
-    AutoPtr<FileBasedStore> _persistentStore;
+    AutoPtr<PersistentStore> _persistentStore;
 
     /**
         Indicates whether the class definitions in the persistent store are
@@ -706,7 +706,7 @@ CIMRepository::CIMRepository(
     _rep->_lockFile = ConfigManager::getInstance()->getHomedPath(
         PEGASUS_REPOSITORY_LOCK_FILE).getCString();
 
-    _rep->_persistentStore.reset(new FileBasedStore(
+    _rep->_persistentStore.reset(PersistentStore::createPersistentStore(
         repositoryRoot,
         _rep->_streamer.get(),
         compressMode));

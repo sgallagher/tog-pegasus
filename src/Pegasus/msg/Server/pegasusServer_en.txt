@@ -7196,7 +7196,6 @@ CIM server listening on HTTPS port {0}."}
         */
         Server.ProviderRegistrationManager.ProviderManagerMap.MISSING_GET_IFC_VERSIONS:string {"PGS21203: Provider Manager {0} does not contain expected function 'getProviderManagerInterfaceVersions'."}
 
-
         /**
         *  @note PGS21204
         *     Substitution {0} is a file name (a string)
@@ -7204,6 +7203,32 @@ CIM server listening on HTTPS port {0}."}
         *  @version 2.8
         */
         Server.ProviderRegistrationManager.ProviderManagerMap.MISSING_GET_PG_VERSION:string {"PGS21204: Library {0} does not contain expected function 'getPegasusVersion'."}
+
+
+        // ==========================================================
+        // Messages for SQLiteStore
+        //  Please use message prefix "PGS21400 - PGS21599"
+        // ==========================================================
+
+        /**
+        *  @note PGS21400
+        *     Substitution {0} is a file name (a string)
+        */
+        Repository.SQLiteStore.DB_OPEN_ERROR:string {"PGS21400: Failed to open repository SQLite database file ''{0}''."}
+
+        /**
+        *  @note PGS21401
+        *     Substitution {0} is an integer error code
+        *     Substitution {1} is an error message (a string)
+        */
+        Repository.SQLiteStore.DB_OP_ERROR:string {"PGS21401: Repository SQLite database operation failed with error {0}: {1}"}
+
+        /**
+        *  @note PGS21402
+        *     Substitution {0} is a namespace name (a string)
+        *     Substitution {1} is a file path (a string)
+        */
+        Repository.SQLiteStore.DB_FILE_ALREADY_EXISTS:string {"PGS21402: Cannot create namespace {0}: SQLite database file ''{1}'' already exists in the repository."}
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE

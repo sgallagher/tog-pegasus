@@ -34,6 +34,12 @@ DIR = Pegasus/Repository
 
 include $(ROOT)/mak/config.mak
 
+ifeq ($(PEGASUS_USE_SQLITE_REPOSITORY),true)
+    ifdef SQLITE_HOME
+        SYS_INCLUDES += -I$(SQLITE_HOME)/include
+    endif
+endif
+
 EXTRA_INCLUDES = -I..
 
 LOCAL_DEFINES = -DPEGASUS_REPOSITORY_INTERNAL -DPEGASUS_INTERNALONLY
@@ -42,6 +48,17 @@ LIBRARIES = pegcommon pegquerycommon pegconfig
 
 ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
 EXTRA_LIBRARIES += -lCstd
+endif
+
+ifeq ($(PEGASUS_USE_SQLITE_REPOSITORY),true)
+    ifeq ($(OS_TYPE),windows)
+        SYS_LIBS += /libpath:$(SQLITE_HOME)/lib libsqlite3.lib
+    else
+        ifdef SQLITE_HOME
+            EXTRA_LIBRARIES += -L$(SQLITE_HOME)/lib
+        endif
+        EXTRA_LIBRARIES += -lsqlite3
+    endif
 endif
 
 ##
@@ -111,8 +128,12 @@ else
     SOURCES += AssocInstTable.cpp
     SOURCES += InstanceIndexFile.cpp
     SOURCES += InstanceDataFile.cpp
+    SOURCES += PersistentStore.cpp
     SOURCES += FileBasedStore.cpp
     SOURCES += CIMRepository.cpp
+    ifeq ($(PEGASUS_USE_SQLITE_REPOSITORY),true)
+        SOURCES += SQLiteStore.cpp
+    endif
 endif
 
 include $(ROOT)/mak/library.mak

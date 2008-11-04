@@ -35,10 +35,10 @@
 #define Pegasus_NameSpaceManager_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Pair.h>
 #include <Pegasus/Repository/InheritanceTree.h>
+#include <Pegasus/Repository/PersistentStoreData.h>
 #include <Pegasus/Repository/Linkage.h>
-
-#include <Pegasus/Repository/FileBasedStore.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

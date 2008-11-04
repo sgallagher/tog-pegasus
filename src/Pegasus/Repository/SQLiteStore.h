@@ -31,34 +31,33 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_FileBasedStore_h
-#define Pegasus_FileBasedStore_h
+#ifndef Pegasus_SQLiteStore_h
+#define Pegasus_SQLiteStore_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Repository/PersistentStore.h>
-#include <Pegasus/Repository/PersistentStoreData.h>
-#include <Pegasus/Repository/AssocClassTable.h>
 #include <Pegasus/Repository/Linkage.h>
+
+#include <sqlite3.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_REPOSITORY_LINKAGE FileBasedStore : public PersistentStore
+class PEGASUS_REPOSITORY_LINKAGE SQLiteStore : public PersistentStore
 {
 public:
 
     static Boolean isExistingRepository(const String& repositoryRoot);
 
-    FileBasedStore(
-        const String& repositoryPath,
-        ObjectStreamer* streamer,
-        Boolean compressMode);
+    SQLiteStore(
+        const String& repositoryRoot,
+        ObjectStreamer* streamer);
 
-    ~FileBasedStore();
+    ~SQLiteStore();
 
     Boolean storeCompleteClassDefinitions()
     {
-        return _storeCompleteClasses;
+        return false;
     }
 
     Array<NamespaceDefinition> enumerateNameSpaces();
@@ -66,7 +65,7 @@ public:
         const CIMNamespaceName& nameSpace,
         Boolean shareable,
         Boolean updatesAllowed,
-        const String& parent);
+        const String& parentNameSpace);
     void modifyNameSpace(
         const CIMNamespaceName& nameSpace,
         Boolean shareable,
@@ -97,38 +96,22 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         const CIMName& superClassName);
-    /**
-        Creates a class definition.  If the class is an association class,
-        the class association entries are also added.
-    */
     void createClass(
         const CIMNamespaceName& nameSpace,
         const CIMClass& newClass,
         const Array<ClassAssociation>& classAssocEntries);
-    /**
-        Modifies a class definition.  If the class is an association class,
-        the class association entries are also updated to the specified set.
-    */
     void modifyClass(
         const CIMNamespaceName& nameSpace,
         const CIMClass& modifiedClass,
         const CIMName& oldSuperClassName,
         Boolean isAssociation,
         const Array<ClassAssociation>& classAssocEntries);
-    /**
-        Deletes a class definition.  If the class is an association class,
-        the class association entries are also deleted.  It is expected to
-        have already been verified that no instances of this class exist.  A
-        list of dependent namespace names is provided to allow appropriate
-        clean-up of instance files, if necessary.
-    */
     void deleteClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         const CIMName& superClassName,
         Boolean isAssociation,
         const Array<CIMNamespaceName>& dependentNameSpaceNames);
-
     Array<CIMObjectPath> enumerateInstanceNamesForClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
@@ -138,10 +121,6 @@ public:
     CIMInstance getInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName);
-    /**
-        Creates an instance definition.  If it is an association instance,
-        the instance association entries are also added.
-    */
     void createInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
@@ -151,10 +130,6 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         const CIMInstance& cimInstance);
-    /**
-        Deletes an instance definition.  If it is an association instance,
-        the instance association entries are also deleted.
-    */
     void deleteInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName);
@@ -194,135 +169,63 @@ public:
 
 private:
 
-    void _rollbackIncompleteTransactions();
+    sqlite3* _openDb(const char* fileName);
+    sqlite3* _openDb(const CIMNamespaceName& nameSpace);
 
-    /**
-        Converts a namespace name into a directory path.  The specified
-        namespace name is not required to match the case of the namespace
-        name that was originally created.
+    void _execDbStatement(
+        sqlite3* db,
+        const char* sqlStatement);
 
-        @param nameSpace The namespace for which to determine the directory
-            path.
-        @return A string containing the directory path for the namespace.
-     */
-    String _getNameSpaceDirPath(const CIMNamespaceName& nameSpace) const;
+    void _initSchema(sqlite3* db);
 
-    /** Returns the path of the qualifier file.
+    void _beginTransaction(sqlite3* db);
+    void _commitTransaction(sqlite3* db);
 
-        @param   nameSpace      the namespace of the qualifier
-        @param   qualifierName  the name of the qualifier
+    String _getNormalizedName(const CIMName& className)
+    {
+        String cn = className.getString();
+        cn.toLower();
+        return cn;
+    }
 
-        @return  a string containing the qualifier file path
-     */
-    String _getQualifierFilePath(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& qualifierName) const;
+    String _getDbPath(const CIMNamespaceName& nameSpace)
+    {
+        String dbFileName = nameSpace.getString();
+        dbFileName.toLower();
 
-    /** Returns the path of the class file.
+        for (Uint32 i = 0; i < dbFileName.size(); i++)
+        {
+            if (dbFileName[i] == '/')
+            {
+                dbFileName[i] = '#';
+            }
+        }
 
-        @param   nameSpace  the namespace of the class
-        @param   className  the name of the class
-
-        @return  a string containing the class file path
-     */
-    String _getClassFilePath(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        const CIMName& superClassName) const;
-
-    /** Returns the path of the instance index file.
-
-        @param   nameSpace      the namespace of the instance
-        @param   className      the name of the class
-
-        @return  a string containing the index file path
-     */
-    String _getInstanceIndexFilePath(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className) const;
-
-    /** Returns the path of the instance file.
-
-        @param   nameSpace      the namespace of the instance
-        @param   className      the name of the class
-
-        @return  a string containing the instance file path
-     */
-    String _getInstanceDataFilePath(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className) const;
-
-    /** Returns the path of the class association file.
-
-        @param   nameSpace      the namespace of the associations
-
-        @return  a string containing the class association file path
-     */
-    String _getAssocClassPath(const CIMNamespaceName& nameSpace) const;
-
-    /** Returns the path of the instance association file.
-
-        @param   nameSpace      the namespace of the associations
-
-        @return  a string containing the instance association file path
-     */
-    String _getAssocInstPath(const CIMNamespaceName& nameSpace) const;
-
-    Boolean _loadInstance(
-        const String& path,
-        CIMInstance& object,
-        Uint32 index,
-        Uint32 size);
-
-    /** loads all the instance objects from disk to memeory.  Returns true
-        on success.
-
-        @param   nameSpace      the namespace of the instances to be loaded
-        @param   className      the class of the instances to be loaded
-        @param   namedInstances an array of CIMInstance objects to which
-                                the loaded instances are appended
-
-        @return  true      if successful
-                 false     if an error occurs in loading the instances
-     */
-    Boolean _loadAllInstances(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Array<CIMInstance>& namedInstances);
+        return _repositoryRoot + "/" + escapeStringEncoder(dbFileName) + ".db";
+    }
 
     void _addClassAssociationEntries(
+        sqlite3* db,
         const CIMNamespaceName& nameSpace,
         const Array<ClassAssociation>& classAssocEntries);
     void _removeClassAssociationEntries(
+        sqlite3* db,
         const CIMNamespaceName& nameSpace,
         const CIMName& assocClassName);
 
     void _addInstanceAssociationEntries(
+        sqlite3* db,
         const CIMNamespaceName& nameSpace,
         const Array<InstanceAssociation>& instanceAssocEntries);
     void _removeInstanceAssociationEntries(
+        sqlite3* db,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& assocInstanceName);
 
-    String _repositoryPath;
+    String _repositoryRoot;
     ObjectStreamer* _streamer;
-    Boolean _compressMode;
-    Boolean _storeCompleteClasses;
-
-    /**
-        Maps namespace names to directory paths
-    */
-    HashTable<String, String, EqualNoCaseFunc, HashLowerCaseFunc>
-        _nameSpacePathTable;
-
-    /**
-        This table must be managed dynamically per repository because it
-        caches class association data in addition to handling persistent
-        storage and lookup.
-    */
-    AssocClassTable _assocClassTable;
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_FileBasedStore_h */
+#endif /* Pegasus_SQLiteStore_h */

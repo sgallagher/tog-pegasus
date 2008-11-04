@@ -1292,9 +1292,10 @@ Array<String> System::getInterfaceAddrs()
         freeifaddrs(array);
     }
 #elif defined(PEGASUS_OS_AIX)
-
     struct ifconf ifc;
-    int sd=socket(AF_INET6, SOCK_DGRAM, 0);
+    SocketHandle sd=socket(AF_INET6, SOCK_DGRAM, 0);
+    // Use an AutoPtr to ensure the socket handle is closed on exception
+    AutoPtr<SocketHandle, CloseSocketHandle> sockPtr(&sd);
     int bsz=sizeof(struct ifreq);
     int prevsz=bsz;
     ifc.ifc_req=0;
@@ -1304,14 +1305,12 @@ Array<String> System::getInterfaceAddrs()
         ifc.ifc_req=(struct ifreq *)realloc(ifc.ifc_req, bsz);
         if (!ifc.ifc_req)
         {
-            close(sd);
             return ips;
         }
         ifc.ifc_len=bsz;
         if (ioctl(sd, SIOCGIFCONF, (caddr_t)&ifc) == -1)
         {
             free(ifc.ifc_req);
-            close(sd);
             return ips;
         }
         if (prevsz==ifc.ifc_len)
@@ -1324,7 +1323,6 @@ Array<String> System::getInterfaceAddrs()
             prevsz=(0==ifc.ifc_len ? bsz : ifc.ifc_len);
         }
     } while (1);
-    close(sd);
 
     ifc.ifc_req=(struct ifreq *)realloc(ifc.ifc_req, prevsz);
 

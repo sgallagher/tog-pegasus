@@ -150,18 +150,6 @@ ProviderManagerService::~ProviderManagerService(void)
     providerManagerService=NULL;
 }
 
-Boolean ProviderManagerService::messageOK(const Message * message)
-{
-    PEGASUS_ASSERT(message != 0);
-
-    if (_isSupportedRequestType(message))
-    {
-        return MessageQueueService::messageOK(message);
-    }
-
-    return false;
-}
-
 void ProviderManagerService::handleEnqueue(void)
 {
     Message * message = dequeue();

@@ -76,30 +76,6 @@ test_async_queue::test_async_queue (ROLE role):Base (
 
 }
 
-
-
-
-Boolean test_async_queue::messageOK (const Message * msg)
-{
-  if (msg->getMask () & MessageMask::ha_async)
-    {
-      if (_role == CLIENT)
-        {
-          if (msg->getType () == ASYNC_ASYNC_OP_RESULT)
-            return true;
-        }
-      else
-        {
-          if (msg->getType () == ASYNC_ASYNC_OP_START)
-            return true;
-          if (msg->getType () == ASYNC_CIMSERVICE_STOP)
-            return true;
-        }
-    }
-  return true;
-}
-
-
 void
 test_async_queue::_handle_async_request (AsyncRequest * rq)
 {

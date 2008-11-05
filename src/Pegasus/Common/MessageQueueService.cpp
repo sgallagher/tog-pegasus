@@ -531,13 +531,7 @@ Boolean MessageQueueService::accept_async(AsyncOpNode* op)
                     "Could not allocate thread for the polling thread."));
         }
     }
-// ATTN optimization remove the message checking altogether in the base
-// << Mon Feb 18 14:02:20 2002 mdd >>
-    Message *rq = op->_request.get();
-    Message *rp = op->_response.get();
-
-    if ((rq != 0 && (true == messageOK(rq))) ||
-        (rp != 0 && (true == messageOK(rp))) && _die.get() == 0)
+    if (_die.get() == 0)
     {
         if (_incoming.enqueue(op))
         {
@@ -546,13 +540,6 @@ Boolean MessageQueueService::accept_async(AsyncOpNode* op)
         }
     }
     return false;
-}
-
-Boolean MessageQueueService::messageOK(const Message* msg)
-{
-    if (_incoming_queue_shutdown.get() > 0)
-        return false;
-    return true;
 }
 
 void MessageQueueService::handle_AsyncIoctl(AsyncIoctl* req)

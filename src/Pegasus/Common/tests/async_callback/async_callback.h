@@ -129,7 +129,6 @@ class test_async_queue : public MessageQueueService
       static AtomicInt msg_count;
       AtomicInt _die_now;
    protected:
-      virtual Boolean messageOK(const Message *);
       virtual void _handle_async_request(AsyncRequest *req);
       virtual void _handle_async_callback(AsyncOpNode *operation);
 

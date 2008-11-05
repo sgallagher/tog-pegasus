@@ -127,8 +127,6 @@ public:
 
     virtual void _handle_incoming_operation(AsyncOpNode *operation);
 
-    virtual Boolean messageOK(const Message *msg);
-
     virtual void handleEnqueue()
     {
         // This method is pure abstract in the superclass
@@ -164,8 +162,6 @@ class MessageQueueClient : public MessageQueueService
       virtual ~MessageQueueClient()
       {
       }
-
-      virtual Boolean messageOK(const Message *msg);
 
       virtual void handleEnqueue()
       {
@@ -242,21 +238,6 @@ void MessageQueueServer::_handle_async_request(AsyncRequest *req)
     }
 }
 
-Boolean MessageQueueServer::messageOK(const Message *msg)
-{
-    if (msg->getType() == CIM_DELETE_CLASS_REQUEST_MESSAGE ||
-        msg->getType() == ASYNC_CIMSERVICE_STOP ||
-        msg->getType() == ASYNC_CIMSERVICE_PAUSE ||
-        msg->getType() == ASYNC_ASYNC_LEGACY_OP_START ||
-        msg->getType() == ASYNC_CIMSERVICE_RESUME ||
-        msg->getType() == CIM_CREATE_CLASS_REQUEST_MESSAGE)
-    {
-        return true;
-    }
-
-    return false;
-}
-
 void MessageQueueServer::handleLegacyOpStart(AsyncLegacyOperationStart *req)
 {
     Message *legacy = req->get_action();
@@ -324,21 +305,6 @@ void MessageQueueClient::_handle_async_request(AsyncRequest *req)
 {
     Base::_handle_async_request(req);
 }
-
-
-Boolean MessageQueueClient::messageOK(const Message *msg)
-{
-   if(msg->getMask() & MessageMask::ha_async)
-   {
-      if (msg->getType() == CIM_DELETE_CLASS_RESPONSE_MESSAGE ||
-          msg->getType() == ASYNC_CIMSERVICE_STOP ||
-          msg->getType() == ASYNC_CIMSERVICE_PAUSE ||
-          msg->getType() == ASYNC_CIMSERVICE_RESUME)
-      return true;
-   }
-   return false;
-}
-
 
 void MessageQueueClient::sendTestRequestMessage(
     const char *greeting,

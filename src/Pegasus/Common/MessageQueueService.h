@@ -97,7 +97,6 @@ public:
 protected:
     virtual void _shutdown_incoming_queue();
     virtual Boolean accept_async(AsyncOpNode* op);
-    virtual Boolean messageOK(const Message* msg);
     virtual void handleEnqueue() = 0;
     virtual void handleEnqueue(Message *) = 0;
     Boolean _enqueueResponse(Message *, Message *);

@@ -76,7 +76,6 @@ public:
 private:
     ProviderManagerService();
 
-    virtual Boolean messageOK(const Message* message);
     virtual void handleEnqueue();
     virtual void handleEnqueue(Message* message);
 

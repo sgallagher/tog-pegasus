@@ -196,8 +196,9 @@ bool RemoveFile(const string& path)
 
     static char *iso_latin = " !\"#%&\'()+,:;<=>@[\\]^`{|}~"; // $-_ don't need
                                                               // escape char
-    tmpstr = path + ";*"; // remove all copies
-    iStat = remove (tmpstr.c_str());
+    tmpstr = path;
+    tmpstr.append(";*"); // remove all copies
+    iStat = remove(tmpstr.c_str());
 
     // These errnos will be returned if the file doesn't exist or perhaps
     // an ISO latin-1 character is in the filename.
@@ -205,31 +206,35 @@ bool RemoveFile(const string& path)
     if (iStat && ((errno == 2) || (errno == 6) || (errno == 65535)))
     {
         start = 0;
+        tmpstr.clear();
         do
         {
-            loc = path.find_first_of (iso_latin, start);
+            loc = path.find_first_of(iso_latin, start);
             if (loc != string::npos)
             {
                 if (loc > start)
-                    tmpstr += path.substr (start, loc - start);
-                tmpstr += '^'; // add escape character
-                tmpstr += path[loc]; // add iso-latin character
+                    tmpstr.append(path.substr(start, loc - start));
+                tmpstr.append(1, '^'); // add escape character
+                tmpstr.append(1, path[loc]); // add iso-latin character
                 start = loc + 1;
             }
         } while (loc != string::npos);
-        tmpstr += path.substr(start);
-        tmpstr += ";*"; // remove all copies
-        iStat = remove (tmpstr.c_str());
+        tmpstr.append(path.substr(start));
+        tmpstr.append(";*"); // remove all copies
+        iStat = remove(tmpstr.c_str());
     }
     if (iStat)
     {
-        if (errno != 2) // > 0 argv[iStat] is the parameter number which failed.
+        if ((errno != 2) && (errno != 65535))
+                        // > 0 argv[iStat] is the parameter number which failed.
         {               // The reason for the failure is in errno
                         // Alpha VMS 8.2 (but not IA64 8.2)
                         // iStat == -1 is permission denied.
                         //
                         // Ignore the following errno values:
                         // errno == 2 file or directory not found
+                        // errno == 65535 invalid wildcard operation also
+                        // returned when the file or dir doesn't exist
             cout << "mu: Info-filesvms.cpp-RemoveFile() Unable to remove file: "
                  << path.c_str ()
                  << " iStat=" << iStat

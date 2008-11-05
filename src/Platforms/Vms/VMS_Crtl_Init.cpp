@@ -65,14 +65,18 @@ static void set(char *name, int value)
 
 static void set_coe(void)
 {
+  int logname_cache = 60; // 60 seconds = 1 min. cache.
+ 
   set ("DECC$ARGV_PARSE_STYLE", TRUE);
-  set ("DECC$ENABLE_GETENV_CACHE", TRUE);
+  set ("DECC$ENABLE_GETENV_CACHE", TRUE); 
+  set ("DECC$ENABLE_TO_VMS_LOGNAME_CACHE", logname_cache); 
   set ("DECC$FILE_SHARING", TRUE);
   set ("DECC$DISABLE_TO_VMS_LOGNAME_TRANSLATION", TRUE);
   set ("DECC$EFS_CASE_PRESERVE", TRUE);
   set ("DECC$EFS_CHARSET", TRUE);
   set ("DECC$EFS_FILE_TIMESTAMPS", TRUE);
   set ("DECC$FILENAME_UNIX_NO_VERSION", TRUE);
+  set ("DECC$STDIO_CTX_EOL", TRUE);
 #if !defined FILENAME_UNIX_REPORT_FALSE
   set ("DECC$FILENAME_UNIX_REPORT", TRUE);
 #else
@@ -83,6 +87,32 @@ static void set_coe(void)
   set ("DECC$READDIR_DROPDOTNOTYPE", TRUE);
   set ("DECC$FILENAME_UNIX_ONLY", FALSE);
   set ("DECC$UMASK", 027);
+  set ("DECC$RENAME_NO_INHERIT", TRUE);
+//  set ("DECC$PIPE_BUFFER_QUOTA", 4096);
+  set ("DECC$PIPE_BUFFER_SIZE", 4096);
+
+// 11JAN07 [cbh] With _USE_STD_STAT defined, POSIX_STYLE_UID can be enabled.
+//               false (the default) is required because getpwnam_r()
+//               always returns the UIC style group name which will not
+//               be found by getgrgid_r in POSIX (not UIC) mode
+//               when POSIX_STYLE_UID is enabled.
+  set ("DECC$POSIX_STYLE_UID", FALSE);
+
+// PTR 75-109-857: Set DECC$SETVBUF_BUFFERRED
+// crtl_internal note 2232.
+// for one-char-per-line problem where lines are greater than 256.
+//
+// Note: SETVBUF_BUFFERED requires OpenVMS 8.3 or you get a message
+//       like this at run-time:
+// $ TestXmlPrint x.xml
+// DECC$SETVBUF_BUFFERED: no such file or directory
+//
+// 1-Feb-08 [cbh] Enable since only 8.3 or later is now supported.
+// 9-Aug-06 [cbh] Comment out SETVBUF_BUFFERED until we see a case
+//                where we fail without it since it causes problems on
+//                pre-OpenVMS 8.3 and I don't know if it will go in any
+//                tima kits and don't know what happens on Alpha.
+  set ("DECC$SETVBUF_BUFFERED", TRUE);
 }
 
 

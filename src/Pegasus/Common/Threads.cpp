@@ -150,6 +150,8 @@ static inline int _get_stack_multiplier()
     return _multiplier;
 #elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
     return 2;
+#elif defined(PEGASUS_OS_AIX)
+    return 2;
 #else
     return 1;
 #endif

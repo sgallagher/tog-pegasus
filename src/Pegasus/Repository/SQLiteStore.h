@@ -36,12 +36,82 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CommonUTF.h>
+#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Repository/PersistentStore.h>
 #include <Pegasus/Repository/Linkage.h>
 
 #include <sqlite3.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+/**
+    The DbConnectionManager caches database handles for reuse.
+    It has a fixed maximum cache size (currently 4) and uses an LRU algorithm
+    to determine which entry to evict when a new handle is returned to the
+    cache.  Note that multiple handles may be cached for a single namespace
+    (database file).
+*/
+class DbConnectionManager
+{
+public:
+    DbConnectionManager(const String& repositoryRoot)
+        : _repositoryRoot(repositoryRoot)
+    {
+    }
+
+    ~DbConnectionManager();
+
+    /**
+        Gets a database connection handle for the specified namespace.  It may
+        return a handle removed from its cache or a newly opened one.  The
+        caller is responsible for cleaning up the dynamic resources for the
+        database connection or returning it to the cache.
+    */
+    sqlite3* getDbConnection(const CIMNamespaceName& nameSpace);
+
+    /**
+        Add a database connection handle to the cache.  If the cache is full,
+        the least recently used handle is evicted.
+    */
+    void cacheDbConnection(
+        const CIMNamespaceName& nameSpace,
+        sqlite3* db);
+
+    /**
+        Converts a namespace name to the database file path which contains
+        the namespace data.
+    */
+    String getDbPath(const CIMNamespaceName& nameSpace);
+
+    /**
+        Opens a database handle for the specified file path.  This handle is
+        not cached.
+    */
+    static sqlite3* openDb(const char* fileName);
+
+private:
+
+    class CacheEntry
+    {
+    public:
+        CacheEntry(const CIMNamespaceName& nameSpace_, sqlite3* db_)
+            : nameSpace(nameSpace_),
+              db(db_)
+        {
+        }
+
+        // Note: The default copy constructor and assignment operator are used.
+        // The caller is responsible for ensuring proper pointer management.
+
+        CIMNamespaceName nameSpace;
+        sqlite3* db;
+    };
+
+    Array<CacheEntry> _cache;
+    Mutex _cacheLock;
+    String _repositoryRoot;
+};
+
 
 class PEGASUS_REPOSITORY_LINKAGE SQLiteStore : public PersistentStore
 {
@@ -169,9 +239,6 @@ public:
 
 private:
 
-    sqlite3* _openDb(const char* fileName);
-    sqlite3* _openDb(const CIMNamespaceName& nameSpace);
-
     void _execDbStatement(
         sqlite3* db,
         const char* sqlStatement);
@@ -186,22 +253,6 @@ private:
         String cn = className.getString();
         cn.toLower();
         return cn;
-    }
-
-    String _getDbPath(const CIMNamespaceName& nameSpace)
-    {
-        String dbFileName = nameSpace.getString();
-        dbFileName.toLower();
-
-        for (Uint32 i = 0; i < dbFileName.size(); i++)
-        {
-            if (dbFileName[i] == '/')
-            {
-                dbFileName[i] = '#';
-            }
-        }
-
-        return _repositoryRoot + "/" + escapeStringEncoder(dbFileName) + ".db";
     }
 
     void _addClassAssociationEntries(
@@ -223,6 +274,7 @@ private:
         const CIMObjectPath& assocInstanceName);
 
     String _repositoryRoot;
+    DbConnectionManager _dbcm;
     ObjectStreamer* _streamer;
 };
 

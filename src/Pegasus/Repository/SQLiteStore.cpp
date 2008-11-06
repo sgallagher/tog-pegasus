@@ -73,6 +73,157 @@ struct FinalizeSQLiteStatement
     }
 };
 
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// DbConnectionManager
+//
+///////////////////////////////////////////////////////////////////////////////
+
+static const Uint32 MAX_CONNECTION_CACHE_SIZE = 4;
+
+DbConnectionManager::~DbConnectionManager()
+{
+    for (Uint32 i = 0; i < _cache.size(); i++)
+    {
+        sqlite3_close(_cache[i].db);
+    }
+}
+
+sqlite3* DbConnectionManager::getDbConnection(const CIMNamespaceName& nameSpace)
+{
+    AutoMutex lock(_cacheLock);
+
+    // Get the database connection handle from the cache, if available
+
+    for (Uint32 i = 0; i < _cache.size(); i++)
+    {
+        if (_cache[i].nameSpace == nameSpace)
+        {
+            sqlite3* db = _cache[i].db;
+            _cache.remove(i);
+            return db;
+        }
+    }
+
+    // Create a database connection handle for this namespace
+
+    return openDb(getDbPath(nameSpace).getCString());
+}
+
+void DbConnectionManager::cacheDbConnection(
+    const CIMNamespaceName& nameSpace,
+    sqlite3* db)
+{
+    AutoMutex lock(_cacheLock);
+
+    // Make room in the cache
+
+    if (_cache.size() == MAX_CONNECTION_CACHE_SIZE)
+    {
+        int rc = sqlite3_close(_cache[0].db);
+
+        // It is expected that all prepared statements are finalized.
+        PEGASUS_ASSERT(rc == SQLITE_OK);
+
+        _cache.remove(0);
+    }
+
+    _cache.append(CacheEntry(nameSpace, db));
+}
+
+String DbConnectionManager::getDbPath(const CIMNamespaceName& nameSpace)
+{
+    String dbFileName = nameSpace.getString();
+    dbFileName.toLower();
+
+    for (Uint32 i = 0; i < dbFileName.size(); i++)
+    {
+        if (dbFileName[i] == '/')
+        {
+            dbFileName[i] = '#';
+        }
+    }
+
+    return _repositoryRoot + "/" + escapeStringEncoder(dbFileName) + ".db";
+}
+
+sqlite3* DbConnectionManager::openDb(const char* fileName)
+{
+    sqlite3* db;
+
+    int rc = sqlite3_open(fileName, &db);
+    if (rc != SQLITE_OK)
+    {
+        sqlite3_close(db);
+        throw Exception(MessageLoaderParms(
+            "Repository.SQLiteStore.DB_OPEN_ERROR",
+            "Failed to open SQLite repository database file \"$0\".",
+            fileName));
+    }
+
+    return db;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// DbConnection
+//
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+    The DbConnection class provides scope-based management of database
+    connection handles.  It provides a simple mechanism for closing a database
+    connection and when an error occurs and caching it for reuse otherwise.
+    The release() method must be called before the object is destructed to
+    allow the connection to be reused.
+*/
+class DbConnection
+{
+public:
+    DbConnection(DbConnectionManager& dbcm, const CIMNamespaceName& nameSpace)
+        : _dbcm(dbcm),
+          _nameSpace(nameSpace)
+    {
+        _db = _dbcm.getDbConnection(nameSpace);
+    }
+
+    ~DbConnection()
+    {
+        if (_db)
+        {
+            int rc = sqlite3_close(_db);
+
+            // It is expected that all prepared statements are finalized.
+            PEGASUS_ASSERT(rc == SQLITE_OK);
+        }
+    }
+
+    sqlite3* get()
+    {
+        return _db;
+    }
+
+    void release()
+    {
+        _dbcm.cacheDbConnection(_nameSpace, _db);
+        _db = 0;
+    }
+
+private:
+    DbConnectionManager& _dbcm;
+    CIMNamespaceName _nameSpace;
+    sqlite3* _db;
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// SQLiteStore
+//
+///////////////////////////////////////////////////////////////////////////////
+
 // Size optimization:  Keep the exception throwing logic in a function so it
 // does not get replicated with each error check.
 static void _throwSQLiteOperationException(sqlite3* db)
@@ -108,6 +259,7 @@ Boolean SQLiteStore::isExistingRepository(const String& repositoryRoot)
 SQLiteStore::SQLiteStore(
     const String& repositoryRoot,
     ObjectStreamer* streamer)
+    : _dbcm(repositoryRoot)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "SQLiteStore::SQLiteStore");
 
@@ -130,28 +282,6 @@ SQLiteStore::SQLiteStore(
 
 SQLiteStore::~SQLiteStore()
 {
-}
-
-sqlite3* SQLiteStore::_openDb(const char* fileName)
-{
-    sqlite3* db;
-
-    int rc = sqlite3_open(fileName, &db);
-    if (rc != SQLITE_OK)
-    {
-        sqlite3_close(db);
-        throw Exception(MessageLoaderParms(
-            "Repository.SQLiteStore.DB_OPEN_ERROR",
-            "Failed to open SQLite repository database file \"$0\".",
-            fileName));
-    }
-
-    return db;
-}
-
-sqlite3* SQLiteStore::_openDb(const CIMNamespaceName& nameSpace)
-{
-    return _openDb(_getDbPath(nameSpace).getCString());
 }
 
 void SQLiteStore::_execDbStatement(
@@ -280,8 +410,8 @@ Array<NamespaceDefinition> SQLiteStore::enumerateNameSpaces()
 
     for (Uint32 i = 0; i < dbFileNames.size(); i++)
     {
-        AutoPtr<sqlite3, CloseSQLiteDb> db(
-            _openDb((_repositoryRoot + "/" + dbFileNames[i]).getCString()));
+        AutoPtr<sqlite3, CloseSQLiteDb> db(DbConnectionManager::openDb(
+            (_repositoryRoot + "/" + dbFileNames[i]).getCString()));
 
         sqlite3_stmt* stmt = 0;
         CHECK_RC_OK(
@@ -332,7 +462,7 @@ void SQLiteStore::createNameSpace(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "SQLiteStore::createNameSpace");
 
-    String dbPath = _getDbPath(nameSpace);
+    String dbPath = _dbcm.getDbPath(nameSpace);
 
     if (FileSystem::exists(dbPath))
     {
@@ -344,7 +474,8 @@ void SQLiteStore::createNameSpace(
 
     try
     {
-        AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(dbPath.getCString()));
+        AutoPtr<sqlite3, CloseSQLiteDb> db(
+            DbConnectionManager::openDb(dbPath.getCString()));
 
         _initSchema(db.get());
 
@@ -405,7 +536,7 @@ void SQLiteStore::modifyNameSpace(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "SQLiteStore::modifyNameSpace");
 
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     // The NamespaceTable contains only a single row, so no WHERE clause is
     // needed.
@@ -423,6 +554,8 @@ void SQLiteStore::modifyNameSpace(
 
     CHECK_RC_DONE(sqlite3_step(stmt), db.get());
 
+    db.release();
+
     PEG_METHOD_EXIT();
 }
 
@@ -430,7 +563,7 @@ void SQLiteStore::deleteNameSpace(const CIMNamespaceName& nameSpace)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "SQLiteStore::deleteNameSpace");
 
-    String dbPath = _getDbPath(nameSpace);
+    String dbPath = _dbcm.getDbPath(nameSpace);
 
     if (!FileSystem::removeFile(dbPath))
     {
@@ -458,7 +591,7 @@ Array<CIMQualifierDecl> SQLiteStore::enumerateQualifiers(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "SQLiteStore::enumerateQualifiers");
 
     Array<CIMQualifierDecl> qualifiers;
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     const char* sqlStatement = "SELECT rep FROM QualifierTable;";
 
@@ -481,6 +614,8 @@ Array<CIMQualifierDecl> SQLiteStore::enumerateQualifiers(
 
     CHECK_RC_DONE(rc, db.get());
 
+    db.release();
+
     PEG_METHOD_EXIT();
     return qualifiers;
 }
@@ -493,7 +628,7 @@ CIMQualifierDecl SQLiteStore::getQualifier(
 
     CIMQualifierDecl qualifier;
 
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     const char* sqlStatement = "SELECT rep FROM QualifierTable "
         "WHERE normqualname=?;";
@@ -527,12 +662,11 @@ CIMQualifierDecl SQLiteStore::getQualifier(
     }
     else
     {
-        CHECK_RC_DONE(rc, db.get());
-
         // SQLITE_DONE here means the qualifier is not found
-        PEG_METHOD_EXIT();
-        return CIMQualifierDecl();
+        CHECK_RC_DONE(rc, db.get());
     }
+
+    db.release();
 
     PEG_METHOD_EXIT();
     return qualifier;
@@ -544,12 +678,15 @@ void SQLiteStore::setQualifier(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "SQLiteStore::setQualifier");
 
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
-
     // Note: This is a relatively inefficient way to determine the existence
     // of a qualifier, but setting a qualifier is expected to be an infrequent
     // operation.
-    if (getQualifier(nameSpace, qualifierDecl.getName()).isUninitialized())
+    Boolean qualifierExists =
+        getQualifier(nameSpace, qualifierDecl.getName()).isUninitialized();
+
+    DbConnection db(_dbcm, nameSpace);
+
+    if (qualifierExists)
     {
         // Qualifier does not exist yet; create it
         const char* sqlStatement =
@@ -630,6 +767,8 @@ void SQLiteStore::setQualifier(
         CHECK_RC_DONE(sqlite3_step(stmt), db.get());
     }
 
+    db.release();
+
     PEG_METHOD_EXIT();
 }
 
@@ -649,7 +788,7 @@ void SQLiteStore::deleteQualifier(
             CIM_ERR_NOT_FOUND, qualifierName.getString());
     }
 
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     const char* sqlStatement = "DELETE FROM QualifierTable "
         "WHERE normqualname=?;";
@@ -673,6 +812,8 @@ void SQLiteStore::deleteQualifier(
 
     CHECK_RC_DONE(sqlite3_step(stmt), db.get());
 
+    db.release();
+
     PEG_METHOD_EXIT();
 }
 
@@ -682,7 +823,7 @@ Array<Pair<String, String> > SQLiteStore::enumerateClassNames(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "SQLiteStore::enumerateClassNames");
 
     Array<Pair<String, String> > classList;
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     const char* sqlStatement = "SELECT classname, superclassname "
         "FROM ClassTable;";
@@ -707,6 +848,8 @@ Array<Pair<String, String> > SQLiteStore::enumerateClassNames(
 
     CHECK_RC_DONE(rc, db.get());
 
+    db.release();
+
     PEG_METHOD_EXIT();
     return classList;
 }
@@ -719,7 +862,7 @@ CIMClass SQLiteStore::getClass(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "SQLiteStore::getClass");
 
     CIMClass cimClass;
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     const char* sqlStatement = "SELECT rep FROM ClassTable "
         "WHERE normclassname=?;";
@@ -754,9 +897,13 @@ CIMClass SQLiteStore::getClass(
     {
         CHECK_RC_DONE(rc, db.get());
 
+        db.release();
+
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, className.getString());
     }
+
+    db.release();
 
     PEG_METHOD_EXIT();
     return cimClass;
@@ -769,7 +916,7 @@ void SQLiteStore::createClass(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "SQLiteStore::createClass");
 
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     _beginTransaction(db.get());
 
@@ -825,6 +972,8 @@ void SQLiteStore::createClass(
 
     _commitTransaction(db.get());
 
+    db.release();
+
     PEG_METHOD_EXIT();
 }
 
@@ -837,7 +986,7 @@ void SQLiteStore::modifyClass(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "SQLiteStore::modifyClass");
 
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     _beginTransaction(db.get());
 
@@ -884,6 +1033,8 @@ void SQLiteStore::modifyClass(
 
     _commitTransaction(db.get());
 
+    db.release();
+
     PEG_METHOD_EXIT();
 }
 
@@ -900,7 +1051,7 @@ void SQLiteStore::deleteClass(
     // class, but deleting a class is expected to be an infrequent operation.
     CIMClass dummy = getClass(nameSpace, className, superClassName);
 
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     _beginTransaction(db.get());
 
@@ -937,6 +1088,8 @@ void SQLiteStore::deleteClass(
 
     _commitTransaction(db.get());
 
+    db.release();
+
     PEG_METHOD_EXIT();
 }
 
@@ -948,7 +1101,7 @@ Array<CIMObjectPath> SQLiteStore::enumerateInstanceNamesForClass(
         "SQLiteStore::enumerateInstanceNamesForClass");
 
     Array<CIMObjectPath> instanceNames;
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     const char* sqlStatement = "SELECT instname FROM InstanceTable "
         "WHERE normclassname=?;";
@@ -980,6 +1133,8 @@ Array<CIMObjectPath> SQLiteStore::enumerateInstanceNamesForClass(
 
     CHECK_RC_DONE(rc, db.get());
 
+    db.release();
+
     PEG_METHOD_EXIT();
     return instanceNames;
 }
@@ -993,7 +1148,7 @@ Array<CIMInstance> SQLiteStore::enumerateInstancesForClass(
 
     Array<CIMInstance> cimInstances;
 
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     const char* sqlStatement = "SELECT instname, rep FROM InstanceTable "
         "WHERE normclassname=?;";
@@ -1033,6 +1188,8 @@ Array<CIMInstance> SQLiteStore::enumerateInstancesForClass(
 
     CHECK_RC_DONE(rc, db.get());
 
+    db.release();
+
     PEG_METHOD_EXIT();
     return cimInstances;
 }
@@ -1046,7 +1203,7 @@ CIMInstance SQLiteStore::getInstance(
     CIMInstance cimInstance;
     Boolean foundInstance = false;
 
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     const char* sqlStatement = "SELECT instname, rep FROM InstanceTable "
         "WHERE norminstname=?;";
@@ -1081,9 +1238,13 @@ CIMInstance SQLiteStore::getInstance(
     {
         CHECK_RC_DONE(rc, db.get());
 
+        db.release();
+
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
     }
+
+    db.release();
 
     PEG_METHOD_EXIT();
     return cimInstance;
@@ -1097,7 +1258,7 @@ void SQLiteStore::createInstance(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "SQLiteStore::createInstance");
 
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     _beginTransaction(db.get());
 
@@ -1156,6 +1317,8 @@ void SQLiteStore::createInstance(
 
     _commitTransaction(db.get());
 
+    db.release();
+
     PEG_METHOD_EXIT();
 }
 
@@ -1172,7 +1335,7 @@ void SQLiteStore::modifyInstance(
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
     }
 
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     const char* sqlStatement = "UPDATE InstanceTable SET rep=? "
         "WHERE norminstname=?;";
@@ -1201,6 +1364,8 @@ void SQLiteStore::modifyInstance(
 
     CHECK_RC_DONE(sqlite3_step(stmt), db.get());
 
+    db.release();
+
     PEG_METHOD_EXIT();
 }
 
@@ -1215,7 +1380,7 @@ void SQLiteStore::deleteInstance(
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
     }
 
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     _beginTransaction(db.get());
 
@@ -1249,6 +1414,8 @@ void SQLiteStore::deleteInstance(
 
     _commitTransaction(db.get());
 
+    db.release();
+
     PEG_METHOD_EXIT();
 }
 
@@ -1259,7 +1426,7 @@ Boolean SQLiteStore::instanceExists(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "SQLiteStore::instanceExists");
 
     Boolean foundInstance = false;
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     const char* sqlStatement = "SELECT instname FROM InstanceTable "
         "WHERE norminstname=?;";
@@ -1282,17 +1449,21 @@ Boolean SQLiteStore::instanceExists(
         db.get());
 
     int rc = sqlite3_step(stmt);
+    Boolean found = false;
 
     if (rc == SQLITE_ROW)
     {
-        PEG_METHOD_EXIT();
-        return true;
+        found = true;
+    }
+    else
+    {
+        CHECK_RC_DONE(rc, db.get());
     }
 
-    CHECK_RC_DONE(rc, db.get());
+    db.release();
 
     PEG_METHOD_EXIT();
-    return false;
+    return found;
 }
 
 void SQLiteStore::_addClassAssociationEntries(
@@ -1441,7 +1612,7 @@ void SQLiteStore::getClassAssociatorNames(
     PEG_METHOD_ENTER(TRC_REPOSITORY,
         "SQLiteStore::getClassAssociatorNames");
 
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     String sqlStatement =
         "SELECT DISTINCT toclassname FROM ClassAssocTable WHERE (";
@@ -1592,6 +1763,8 @@ void SQLiteStore::getClassAssociatorNames(
 
     CHECK_RC_DONE(rc, db.get());
 
+    db.release();
+
     PEG_METHOD_EXIT();
 }
 
@@ -1605,7 +1778,7 @@ void SQLiteStore::getClassReferenceNames(
     PEG_METHOD_ENTER(TRC_REPOSITORY,
         "SQLiteStore::getClassReferenceNames");
 
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     String sqlStatement =
         "SELECT DISTINCT assocclassname FROM ClassAssocTable WHERE (";
@@ -1704,6 +1877,8 @@ void SQLiteStore::getClassReferenceNames(
     }
 
     CHECK_RC_DONE(rc, db.get());
+
+    db.release();
 
     PEG_METHOD_EXIT();
 }
@@ -1866,7 +2041,7 @@ void SQLiteStore::getInstanceAssociatorNames(
     PEG_METHOD_ENTER(TRC_REPOSITORY,
         "SQLiteStore::getInstanceAssociatorNames");
 
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     String sqlStatement = "SELECT DISTINCT toinstname "
         "FROM InstanceAssocTable WHERE normfrominstname=?";
@@ -2002,6 +2177,8 @@ void SQLiteStore::getInstanceAssociatorNames(
 
     CHECK_RC_DONE(rc, db.get());
 
+    db.release();
+
     PEG_METHOD_EXIT();
 }
 
@@ -2015,7 +2192,7 @@ void SQLiteStore::getInstanceReferenceNames(
     PEG_METHOD_ENTER(TRC_REPOSITORY,
         "SQLiteStore::getInstanceReferenceNames");
 
-    AutoPtr<sqlite3, CloseSQLiteDb> db(_openDb(nameSpace));
+    DbConnection db(_dbcm, nameSpace);
 
     String sqlStatement = "SELECT DISTINCT associnstname "
         "FROM InstanceAssocTable WHERE normfrominstname=?";
@@ -2099,6 +2276,8 @@ void SQLiteStore::getInstanceReferenceNames(
     }
 
     CHECK_RC_DONE(rc, db.get());
+
+    db.release();
 
     PEG_METHOD_EXIT();
 }

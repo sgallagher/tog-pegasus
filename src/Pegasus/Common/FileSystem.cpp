@@ -76,7 +76,9 @@ Boolean FileSystem::getCurrentDirectory(String& path)
 
 Boolean FileSystem::existsNoCase(const String& path, String& realPath)
 {
-#if !defined(PEGASUS_OS_VMS) && !defined(PEGASUS_OS_TYPE_WINDOWS)
+#if !defined(PEGASUS_OS_VMS) && \
+    !defined(PEGASUS_OS_TYPE_WINDOWS) && \
+    !defined(PEGASUS_OS_DARWIN)
 
     // If a file exists that has the same case as the path parmater,
     // then we can bypass the expensive directory scanning below.

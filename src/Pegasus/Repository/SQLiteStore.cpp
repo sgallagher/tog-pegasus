@@ -554,6 +554,7 @@ void SQLiteStore::modifyNameSpace(
 
     CHECK_RC_DONE(sqlite3_step(stmt), db.get());
 
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -614,6 +615,7 @@ Array<CIMQualifierDecl> SQLiteStore::enumerateQualifiers(
 
     CHECK_RC_DONE(rc, db.get());
 
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -666,6 +668,7 @@ CIMQualifierDecl SQLiteStore::getQualifier(
         CHECK_RC_DONE(rc, db.get());
     }
 
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -812,6 +815,7 @@ void SQLiteStore::deleteQualifier(
 
     CHECK_RC_DONE(sqlite3_step(stmt), db.get());
 
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -848,6 +852,7 @@ Array<Pair<String, String> > SQLiteStore::enumerateClassNames(
 
     CHECK_RC_DONE(rc, db.get());
 
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -886,23 +891,25 @@ CIMClass SQLiteStore::getClass(
 
     int rc = sqlite3_step(stmt);
 
-    if (rc == SQLITE_ROW)
-    {
-        Buffer data(
-            (const char*)sqlite3_column_blob(stmt, 0),
-            (Uint32)sqlite3_column_bytes(stmt, 0));
-        _streamer->decode(data, 0, cimClass);
-    }
-    else
+    if (rc != SQLITE_ROW)
     {
         CHECK_RC_DONE(rc, db.get());
 
+        stmtDestroyer.reset();
         db.release();
 
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, className.getString());
     }
 
+    Buffer data(
+        (const char*)sqlite3_column_blob(stmt, 0),
+        (Uint32)sqlite3_column_bytes(stmt, 0));
+    _streamer->decode(data, 0, cimClass);
+
+    PEGASUS_ASSERT(sqlite3_step(stmt) == SQLITE_DONE);
+
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -972,6 +979,7 @@ void SQLiteStore::createClass(
 
     _commitTransaction(db.get());
 
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -1033,6 +1041,7 @@ void SQLiteStore::modifyClass(
 
     _commitTransaction(db.get());
 
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -1088,6 +1097,7 @@ void SQLiteStore::deleteClass(
 
     _commitTransaction(db.get());
 
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -1133,6 +1143,7 @@ Array<CIMObjectPath> SQLiteStore::enumerateInstanceNamesForClass(
 
     CHECK_RC_DONE(rc, db.get());
 
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -1188,6 +1199,7 @@ Array<CIMInstance> SQLiteStore::enumerateInstancesForClass(
 
     CHECK_RC_DONE(rc, db.get());
 
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -1227,23 +1239,25 @@ CIMInstance SQLiteStore::getInstance(
 
     int rc = sqlite3_step(stmt);
 
-    if (rc == SQLITE_ROW)
-    {
-        Buffer data(
-            (const char*)sqlite3_column_blob(stmt, 1),
-            (Uint32)sqlite3_column_bytes(stmt, 1));
-        _streamer->decode(data, 0, cimInstance);
-    }
-    else
+    if (rc != SQLITE_ROW)
     {
         CHECK_RC_DONE(rc, db.get());
 
+        stmtDestroyer.reset();
         db.release();
 
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_FOUND, instanceName.toString());
     }
 
+    Buffer data(
+        (const char*)sqlite3_column_blob(stmt, 1),
+        (Uint32)sqlite3_column_bytes(stmt, 1));
+    _streamer->decode(data, 0, cimInstance);
+
+    PEGASUS_ASSERT(sqlite3_step(stmt) == SQLITE_DONE);
+
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -1317,6 +1331,7 @@ void SQLiteStore::createInstance(
 
     _commitTransaction(db.get());
 
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -1364,6 +1379,7 @@ void SQLiteStore::modifyInstance(
 
     CHECK_RC_DONE(sqlite3_step(stmt), db.get());
 
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -1414,6 +1430,7 @@ void SQLiteStore::deleteInstance(
 
     _commitTransaction(db.get());
 
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -1460,6 +1477,7 @@ Boolean SQLiteStore::instanceExists(
         CHECK_RC_DONE(rc, db.get());
     }
 
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -1763,6 +1781,7 @@ void SQLiteStore::getClassAssociatorNames(
 
     CHECK_RC_DONE(rc, db.get());
 
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -1878,6 +1897,7 @@ void SQLiteStore::getClassReferenceNames(
 
     CHECK_RC_DONE(rc, db.get());
 
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -2177,6 +2197,7 @@ void SQLiteStore::getInstanceAssociatorNames(
 
     CHECK_RC_DONE(rc, db.get());
 
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();
@@ -2277,6 +2298,7 @@ void SQLiteStore::getInstanceReferenceNames(
 
     CHECK_RC_DONE(rc, db.get());
 
+    stmtDestroyer.reset();
     db.release();
 
     PEG_METHOD_EXIT();

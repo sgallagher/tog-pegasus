@@ -33,6 +33,11 @@
 // from the internal notes file: cxxc_bugs 11466.4
 //
 #include <unixlib.h>      // decc$feature_get_index(), set_value()
+
+#if defined __USE_STD_IOSTREAM
+#include <iostream>       // cout.sync_with_stdio(false), etc.
+#endif
+
 #include <stdio.h>        // perror()
 #include <errno.h>        // errno
 
@@ -115,6 +120,44 @@ static void set_coe(void)
   set ("DECC$SETVBUF_BUFFERED", TRUE);
 }
 
+//
+// unsync_streams_from_stdout
+//
+// When applications are run with the output directed to a file,
+// the output can be broken up across multiple lines.
+//
+// On Unix, output files are streams, not record oriented. On OpenVMS
+// you will see this problem when under circumstances such as:
+//
+// - A batch job (all output goes to the .log file)
+// - spawn/out=a.log
+// - A subprocess
+// - set host/log=a.log
+//
+// This code fixes that problem.
+//
+// Note: This fix only works for __USE_STD_IOSTREAM.
+// Note: This routine is called as part of LIB$INITIALIZE 
+//       (not LIB$INITIALIZD_)
+// Note: See also: 75-109-857
+// Note: 75-109-857 reply 41 says that lib$initializd_ is called before
+//       lib$initialize.
+// 
+#if defined __USE_STD_IOSTREAM
+
+static void unsync_streams_from_stdout(void)
+{
+
+  cout.sync_with_stdio(false);
+  cerr.sync_with_stdio(false);
+  cerr.unsetf(ios::unitbuf);
+
+  wcout.sync_with_stdio(false);
+  wcerr.sync_with_stdio(false);
+  wcerr.unsetf(ios::unitbuf);
+
+}
+#endif
 
 fptr_t x = LIB$INITIALIZE;
 
@@ -122,6 +165,11 @@ fptr_t x = LIB$INITIALIZE;
 
 #pragma extern_model strict_refdef "LIB$INITIALIZD_" gbl,noexe,nowrt,noshr,long
   extern const fptr_t y = set_coe;
+
+#if defined __USE_STD_IOSTREAM
+#pragma extern_model strict_refdef "LIB$INITIALIZE$" gbl,noexe,nowrt,noshr,long
+  extern const fptr_t r = unsync_streams_from_stdout;
+#endif
 
 #pragma extern_model restore
 

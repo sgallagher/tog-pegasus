@@ -60,6 +60,8 @@
 #include <Pegasus/ProviderManager2/AutoPThreadSecurity.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
+#include <Pegasus/Query/QueryExpression/QueryExpression.h>
+#include <Pegasus/Query/QueryCommon/QueryException.h>
 
 PEGASUS_USING_STD;
 
@@ -291,24 +293,6 @@ void CMPIProviderManager::unloadIdleProviders()
     providerManager.unloadIdleProviders();
 }
 
-CIMObjectPath CMPIProviderManager::_getFilterPath(
-    const CIMInstance &instance)
-{
-    CIMConstProperty filterProperty = instance.getProperty(
-        instance.findProperty (PEGASUS_PROPERTYNAME_FILTER));
-    CIMValue filterValue = filterProperty.getValue();
-    CIMObjectPath filterPath;
-    filterValue.get(filterPath);
-    // Remove host tag
-    filterPath.setHost(String::EMPTY);
-    // Set subscription's namespace if namespace is not found in filter path.
-    if (filterPath.getNameSpace().equal(CIMNamespaceName()))
-    {
-        filterPath.setNameSpace(instance.getPath().getNameSpace());
-    }
-
-    return filterPath;
-}
 
 #define CHARS(cstring) (char*)(strlen(cstring)?(const char*)cstring:NULL)
 
@@ -2320,6 +2304,28 @@ int LocateIndicationProviderNames(
     return 0;
 }
 
+String CMPIProviderManager::_getClassNameFromQuery(
+    CIMOMHandleQueryContext *context,
+    String &query,
+    String &lang)
+{
+    try
+    {
+        QueryExpression qe(lang, query, *context);
+        // Neither WQL nor CQL support joins, we should get only
+        // one class path here.
+        PEGASUS_ASSERT(qe.getClassPathList().size() == 1);
+        return qe.getClassPathList()[0].getClassName().getString();
+    }
+    catch(QueryException&)
+    {
+        // We should never get query parsing exceptions, IndicationService
+        // already performed this checking.
+        PEGASUS_ASSERT(0);
+    }
+    PEGASUS_UNREACHABLE(return String::EMPTY);
+}
+
 Message * CMPIProviderManager::handleCreateSubscriptionRequest(
     const Message * message)
 {
@@ -2387,19 +2393,18 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
         //
         ph.GetProvider ().setProviderInstance (req_provider);
 
-        const CIMObjectPath &filterPath = _getFilterPath(
-            request->subscriptionInstance);
+        const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
 
         indSelectRecord *srec=NULL;
 
         {
             WriteLock writeLock(rwSemSelxTab);
-            selxTab.lookup(filterPath,srec);
+            selxTab.lookup(sPath,srec);
             if (srec) srec->count++;
             else
             {
                 srec=new indSelectRecord();
-                selxTab.insert(filterPath,srec);
+                selxTab.insert(sPath,srec);
             }
         }
 
@@ -2444,15 +2449,18 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
 
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
-        for (Uint32 i = 0, n = request->classNames.size(); i < n; i++)
-        {
-            CIMObjectPath className(
-                System::getHostName(),
-                request->nameSpace,
-                request->classNames[i]);
-            eSelx->classNames.append(className);
-        }
-        CMPI_ObjectPathOnStack eRef(eSelx->classNames[0]);
+        String lang(sub_cntr.getQueryLanguage());
+        CString className = _getClassNameFromQuery(
+            _context, 
+            request->query,
+            lang).getCString();
+    
+        CIMObjectPath indClassPath(
+            System::getHostName(),
+            request->nameSpace,
+            (const char*)className);
+
+        eSelx->classNames.append(indClassPath);
 
         CIMPropertyList propertyList = request->propertyList;
         if (!propertyList.isNull())
@@ -2486,32 +2494,69 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             "Calling provider.createSubscriptionRequest: %s",
             (const char*)pr.getName().getCString()));
 
+        Boolean filterActivated = false;
         {
             AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
             StatProviderTimeMeasurement providerTime(response);
-
-            if (pr.getIndMI()->ft->ftVersion >= 100)
+            // Call activateFilter() on each subclass name, Check if atleast one
+            // filter can be activated for any of the subclasses.
+            for (Uint32 i = 0, n = request->classNames.size(); i < n; i++)
             {
-                rc = pr.getIndMI()->ft->activateFilter(
-                    pr.getIndMI(),
-                    &eCtx,eSelx,
-                    CHARS(eSelx->classNames[0].getClassName().getString().
-                        getCString()),
-                    &eRef,
-                    false);
-            }
-            else
-            {
-                // Older version of (pre 1.00) also pass in a CMPIResult
+                CIMObjectPath classPath(
+                    System::getHostName(),
+                    request->nameSpace,
+                    request->classNames[i]);
 
-                rc = ((CMPIStatus (*)(CMPIIndicationMI*, CMPIContext*,
-                    CMPIResult*, CMPISelectExp*,
-                    const char *, CMPIObjectPath*, CMPIBoolean))
-                    pr.getIndMI()->ft->activateFilter)
-                (pr.getIndMI(),&eCtx,NULL,eSelx,
-                    CHARS(eSelx->classNames[0].getClassName().getString().
-                    getCString()),&eRef,false);
+                CMPI_ObjectPathOnStack eRef(classPath);
+
+                if (pr.getIndMI()->ft->ftVersion >= 100)
+                {
+                    rc = pr.getIndMI()->ft->activateFilter(
+                        pr.getIndMI(),
+                        &eCtx,
+                        eSelx,
+                        CHARS(className),
+                        &eRef,
+                        false);
+                }
+                else
+                {
+                    // Older version of (pre 1.00) also pass in a CMPIResult
+
+                    rc = ((CMPIStatus (*)(
+                             CMPIIndicationMI*,
+                             CMPIContext*,
+                             CMPIResult*,
+                             CMPISelectExp*,
+                             const char *,
+                             CMPIObjectPath*,
+                             CMPIBoolean))pr.getIndMI()->ft->activateFilter)
+                                 (pr.getIndMI(),
+                                  &eCtx,
+                                  NULL,
+                                  eSelx,
+                                  CHARS(className),
+                                  &eRef,
+                                  false);
+                }
+                if (rc.rc == CMPI_RC_OK)
+                {
+                    filterActivated = true;
+                    eSelx->classNames.append(classPath);
+                }
+                else
+                {
+                    PEG_TRACE((
+                        TRC_PROVIDERMANAGER,
+                        Tracer::LEVEL2,
+                        "activateFilter() for class %s in namespace %s "
+                            "failed. Error : %s",
+                        CHARS(classPath.getClassName().
+                            getString().getCString()),
+                        CHARS(request->nameSpace.getString().getCString()),
+                        rc.msg ? CMGetCharsPtr(rc.msg, NULL) : "Unknown"));
+                }
             }
         }
 
@@ -2536,13 +2581,13 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
                 CMGetCharsPtr(cldata.value.string, NULL)))));
         }
 
-        if (rc.rc!=CMPI_RC_OK)
+        if (!filterActivated)
         {
             //  Removed the select expression from the cache
             WriteLock lock(rwSemSelxTab);
             if (--srec->count<=0)
             {
-                selxTab.remove(filterPath);
+                selxTab.remove(sPath);
                 delete _context;
                 delete eSelx;
                 delete srec;
@@ -2638,11 +2683,10 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
         }
 
         indSelectRecord *srec=NULL;
-        const CIMObjectPath &filterPath = _getFilterPath(
-            request->subscriptionInstance);
+        const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
 
         WriteLock writeLock(rwSemSelxTab);
-        if (!selxTab.lookup(filterPath,srec))
+        if (!selxTab.lookup(sPath,srec))
         {
             MessageLoaderParms parms(
                 "ProviderManager.CMPI.CMPIProviderManager."
@@ -2655,10 +2699,12 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
         CMPI_SelectExp *eSelx=srec->eSelx;
         CIMOMHandleQueryContext *qContext=srec->qContext;
 
-        CMPI_ObjectPathOnStack eRef(eSelx->classNames[0]);
+        CString className = eSelx->classNames[0].getClassName().
+            getString().getCString();
+
         if (--srec->count<=0)
         {
-            selxTab.remove(filterPath);
+            selxTab.remove(sPath);
         }
 
         // convert arguments
@@ -2702,28 +2748,56 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
 
             StatProviderTimeMeasurement providerTime(response);
 
-            if (pr.getIndMI()->ft->ftVersion >= 100)
+            Array<CIMObjectPath> subClassPaths = eSelx->classNames;
+            // Call deactivateFilter() for each subclass name those were
+            // activated previously using activateFilter().
+            // Note: Start from Index 1, first name is actual class name in
+            // the FROM clause of filter query.
+            for (Uint32 i = 1, n = eSelx->classNames.size(); i < n ; ++i)
             {
-                rc = pr.getIndMI()->ft->deActivateFilter(
-                    pr.getIndMI(),
-                    &eCtx,
-                    eSelx,
-                    CHARS(eSelx->classNames[0].getClassName().getString().
-                        getCString()),
-                    &eRef,
-                    prec==NULL);
-            }
-            else
-            {
-                // Older version of (pre 1.00) also pass in a CMPIResult
+                CMPI_ObjectPathOnStack eRef(eSelx->classNames[i]);
+                if (pr.getIndMI()->ft->ftVersion >= 100)
+                {
+                    rc = pr.getIndMI()->ft->deActivateFilter(
+                        pr.getIndMI(),
+                        &eCtx,
+                        eSelx,
+                        CHARS(className),
+                        &eRef,
+                        prec==NULL);
+                }
+                else
+                {
+                    // Older version of (pre 1.00) also pass in a CMPIResult
 
-                rc = ((CMPIStatus (*)(CMPIIndicationMI*, CMPIContext*,
-                    CMPIResult*, CMPISelectExp*,
-                    const char *, CMPIObjectPath*, CMPIBoolean))
-                    pr.getIndMI()->ft->deActivateFilter)
-                (pr.getIndMI(),&eCtx,NULL,eSelx,
-                    CHARS(eSelx->classNames[0].getClassName().getString().
-                    getCString()),&eRef,prec==NULL);
+                    rc = ((CMPIStatus (*)(
+                        CMPIIndicationMI*,
+                        CMPIContext*,
+                        CMPIResult*,
+                        CMPISelectExp*,
+                        const char *, 
+                        CMPIObjectPath*,
+                        CMPIBoolean)) pr.getIndMI()->ft->deActivateFilter)(
+                            pr.getIndMI(),
+                            &eCtx,
+                            NULL,
+                            eSelx,
+                            CHARS(className),
+                            &eRef,
+                            prec==NULL);
+                }
+                if (rc.rc != CMPI_RC_OK)
+                {
+                    PEG_TRACE((
+                        TRC_PROVIDERMANAGER,
+                        Tracer::LEVEL2,
+                        "deactivateFilter() for class %s in namespace %s"
+                            "failed. Error : %s",
+                        CHARS(eSelx->classNames[i].getClassName().
+                            getString().getCString()),
+                        CHARS(request->nameSpace.getString().getCString()),
+                        rc.msg ? CMGetCharsPtr(rc.msg, NULL) : "Unknown"));
+                }
             }
         }
 

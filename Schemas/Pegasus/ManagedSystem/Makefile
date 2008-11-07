@@ -59,6 +59,12 @@ ifeq ($(OS), VMS)
 FILE_PREFIX=HPUX
 endif
 
+ifeq ($(OS), linux)
+  ifndef PEGASUS_DISABLE_PROV_USERCTXT
+    SET_USER_CONTEXT_TO_REQUESTOR = true
+  endif
+endif
+
 ifeq ($(MANAGEDSYSTEM_NS_SUPPORTED),true)
 repository:
 	@ $(ECHO) +++++ Loading CIM_Schema$(CIM_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
@@ -67,7 +73,7 @@ repository:
 	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(PG_INTEROP_MOF_PATH)" "-n$(MANAGEDSYSTEMNS)" "$(PG_INTEROP_MOF_PATH)/PG_Events$(PG_INTEROP_SCHEMA_VER).mof"
 	@ $(ECHO) +++++ Loading PG_ManagedSystemSchema$(PG_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
 	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(PG_MOF_PATH)" "-n$(MANAGEDSYSTEMNS)" "$(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER).mof"
-ifdef PEGASUS_DISABLE_PROV_USERCTXT
+ifndef SET_USER_CONTEXT_TO_REQUESTOR 
 	@ $(ECHO) +++++ Registering Providers for PG_ManagedSystemSchema$(PG_SCHEMA_VER) ...
 	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(PG_MOF_PATH)" "-n$(INTEROPNS)" "$(PG_MOF_PATH)/PG_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof"
 else

@@ -1,41 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
-//
-// This example of how to call lib$initialize from C++ was taken
+//==============================================================================
+// 
+// This example of how to call lib$initialize from C++ was taken 
 // from the internal notes file: cxxc_bugs 11466.4
 //
 #include <unixlib.h>      // decc$feature_get_index(), set_value()
-
-#if defined __USE_STD_IOSTREAM
-#include <iostream>       // cout.sync_with_stdio(false), etc.
-#endif
-
 #include <stdio.h>        // perror()
 #include <errno.h>        // errno
 
@@ -45,6 +42,8 @@ extern "C" {
 
 
 typedef void (*fptr_t)(void);
+
+void LIB$INITIALIZE();
 
 //
 // Sets current value for a feature
@@ -56,8 +55,8 @@ static void set(char *name, int value)
 
   index = decc$feature_get_index(name);
 
-  if (index == -1 ||
-      (decc$feature_set_value(index, 1, value) == -1 &&
+  if (index == -1 || 
+      (decc$feature_set_value(index, 1, value) == -1 && 
        errno != 0))
   {
     perror(name);
@@ -67,10 +66,10 @@ static void set(char *name, int value)
 static void set_coe(void)
 {
   int logname_cache = 60; // 60 seconds = 1 min. cache.
-
+ 
   set ("DECC$ARGV_PARSE_STYLE", TRUE);
-  set ("DECC$ENABLE_GETENV_CACHE", TRUE);
-  set ("DECC$ENABLE_TO_VMS_LOGNAME_CACHE", logname_cache);
+  set ("DECC$ENABLE_GETENV_CACHE", TRUE); 
+  set ("DECC$ENABLE_TO_VMS_LOGNAME_CACHE", logname_cache); 
   set ("DECC$FILE_SHARING", TRUE);
   set ("DECC$DISABLE_TO_VMS_LOGNAME_TRANSLATION", TRUE);
   set ("DECC$EFS_CASE_PRESERVE", TRUE);
@@ -116,53 +115,13 @@ static void set_coe(void)
   set ("DECC$SETVBUF_BUFFERED", TRUE);
 }
 
-//
-// unsync_streams_from_stdout
-//
-// When applications are run with the output directed to a file,
-// the output can be broken up across multiple lines.
-//
-// On Unix, output files are streams, not record oriented. On OpenVMS
-// you will see this problem when under circumstances such as:
-//
-// - A batch job (all output goes to the .log file)
-// - spawn/out=a.log
-// - A subprocess
-// - set host/log=a.log
-//
-// This code fixes that problem.
-//
-// Note: This fix only works for __USE_STD_IOSTREAM.
-// Note: See also: 75-109-857
-//
-#if defined __USE_STD_IOSTREAM
 
-static void unsync_streams_from_stdout(void)
-{
-
-  cout.sync_with_stdio(false);
-  cerr.sync_with_stdio(false);
-  cerr.unsetf(ios::unitbuf);
-
-  wcout.sync_with_stdio(false);
-  wcerr.sync_with_stdio(false);
-  wcerr.unsetf(ios::unitbuf);
-
-}
-#endif
-
-static void init_lib(void)
-{
-  set_coe();
-#if defined __USE_STD_IOSTREAM
-  unsync_streams_from_stdout();
-#endif
-}
+fptr_t x = LIB$INITIALIZE;
 
 #pragma extern_model save
 
-#pragma extern_model strict_refdef "LIB$INITIALIZE" gbl,noexe,nowrt,noshr,long
-  extern const fptr_t y = init_lib;
+#pragma extern_model strict_refdef "LIB$INITIALIZD_" gbl,noexe,nowrt,noshr,long
+  extern const fptr_t y = set_coe;
 
 #pragma extern_model restore
 

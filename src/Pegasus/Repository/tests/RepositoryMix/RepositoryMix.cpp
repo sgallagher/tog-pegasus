@@ -486,6 +486,7 @@ int main(int argc, char** argv)
       TestEnumerateInstancesForClass(5);
       TestQualifiers();
 
+      TestCloseRepo();
     }
     catch (const Exception& e)
     {

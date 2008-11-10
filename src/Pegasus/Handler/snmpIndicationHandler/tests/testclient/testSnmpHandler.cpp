@@ -51,7 +51,7 @@ const String INDICATION_CLASS_NAME = "Test_IndicationProviderClass";
 const String SNMPV1_HANDLER_NAME = "SNMPHandler01";
 const String SNMPV2C_HANDLER_NAME = "SNMPHandler02";
 const String SNMPV2C_IPV6_HANDLER_NAME = "SNMPHandler03";
-const String FILTER_NAME = "IPFilter01";
+const String FILTER_NAME = "SNMPIPFilter01";
 
 enum SNMPVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3};
 enum TargetHostFormat {_HOST_NAME = 2, _IPV4_ADDRESS = 3, _IPV6_ADDRESS = 4};

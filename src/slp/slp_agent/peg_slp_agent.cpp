@@ -50,10 +50,10 @@ PEGASUS_NAMESPACE_BEGIN
 #ifdef PEGASUS_OS_SOLARIS
         // If 2 (i.e. solarisslp). Set language.
 #if     PEGASUS_USE_EXTERNAL_SLP_TYPE == 2
-        const char* slp_serviceagent::slp_lang = "en";
+        const char* slp_service_agent::slp_lang = "en";
         // if 1, openslp and let slp set language        
 #elif PEGASUS_USE_EXTERNAL_SLP_TYPE == 1
-    _   const char* slp_serviceagent::slp_lang = NULL;
+    _   const char* slp_service_agent::slp_lang = NULL;
 #else   // Some other implementation
         const char* slp_service_agent::slp_lang = NULL;
 #endif  // End PEGASUS_USE_EXTERNAL_SLP_TYPE 

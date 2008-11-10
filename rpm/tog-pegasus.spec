@@ -512,10 +512,23 @@ fi
 %if %{PEGASUS_BUILD_TEST_RPM}
 %files test
 %defattr(-,root,pegasus,-)
-/usr/share/Pegasus/test
+
+%dir /usr/share/Pegasus/test
+%dir /usr/share/Pegasus/test/bin
+%dir /usr/share/Pegasus/test/%PEGASUS_ARCH_LIB
+%dir /usr/share/Pegasus/test/mak
+%dir /usr/share/Pegasus/test/tmp
+
 %ghost /usr/share/Pegasus/test/tmp/procIdFile
 %ghost /usr/share/Pegasus/test/tmp/trapLogFile
 %ghost /usr/share/Pegasus/test/tmp/IndicationStressTestLog
+%ghost /usr/share/Pegasus/test/tmp/oldIndicationStressTestLog
+
+%attr(744,root,pegasus) /usr/share/Pegasus/test/bin/*
+%attr(744,root,pegasus) /usr/share/Pegasus/test/%PEGASUS_ARCH_LIB/*
+%attr(744,root,pegasus) /usr/share/Pegasus/test/mak/*
+%attr(644,root,pegasus) /usr/share/Pegasus/test/Makefile
+
 %defattr(600,cimsrvr, cimsrvr,700)
 /var/lib/Pegasus/testrepository
 %endif

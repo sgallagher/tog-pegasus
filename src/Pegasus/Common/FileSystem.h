@@ -36,6 +36,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/System.h>
@@ -494,7 +495,15 @@ inline String FileSystem::getPathDelimiter()
 
 /** Get the next line from the input file.
 */
-PEGASUS_COMMON_LINKAGE Boolean GetLine(PEGASUS_STD(istream)& is, String& line);
+PEGASUS_COMMON_LINKAGE Boolean GetLine(PEGASUS_STD(istream)& is, Buffer& line);
+
+inline Boolean GetLine(PEGASUS_STD(istream)& is, String& line)
+{
+    Buffer lineBuffer;
+    Boolean result = GetLine(is, lineBuffer);
+    line = String(lineBuffer.getData(), lineBuffer.size());
+    return result;
+}
 
 PEGASUS_NAMESPACE_END
 

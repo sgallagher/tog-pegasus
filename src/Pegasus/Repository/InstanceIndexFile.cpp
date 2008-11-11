@@ -134,60 +134,6 @@ static CIMObjectPath _convertKeyToInstanceName(const char* key)
     return CIMObjectPath(keyString);
 }
 
-//
-// Gets one line from the given file.
-//
-
-static Boolean _GetLine(fstream& fs, Buffer& x)
-{
-    const Uint32 buffersize = 1023 + 1;
-    Uint32 xcount = 0;
-    Uint32 gcount = 0;
-
-    x.clear();
-    x.reserveCapacity(buffersize);
-
-    // The general idea is, we will read the stream at buffersize each time.
-    // if we get exactly buffersize-1, that means we didn't hit a \n
-    // so we loop again to read more,
-    // until we get a buffer that's not completely full.
-    // That means we hit a \n so we exit the loop.
-    do
-    {
-        char input[buffersize];
-
-        // This will read up to buffersize-1 char,
-        // but stop as soon as it hit \n.
-        // This will NOT consume the \n at the end.
-        fs.get(input, buffersize, '\n');
-
-        gcount = (Uint32)fs.gcount();
-        x.append(input, gcount);
-        xcount += gcount;
-
-    } while (gcount == buffersize-1 && fs.rdstate() != istream::failbit);
-
-    // if we read 0 byte in the last call, that's because the read buffer is
-    // exactly multiple of the input line.
-    // So the 2nd last get() read everything up to the \n and
-    // the last get() read 0 char and set the failbit on the
-    // stream.  The clear() call will set the stream to ready state.
-    if (gcount == 0)
-    {
-        fs.clear();
-    }
-
-    if (!fs.eof())
-    {
-        // we need to consume the '\n', because get() doesn't
-        char c = 0;
-        fs.get(c);
-    }
-
-    // if xcount is non zero, then we have read something from the buffer.
-    return (xcount != 0);
-}
-
 inline void _SkipWhitespace(char*& p)
 {
     while (*p && isspace(*p))
@@ -248,7 +194,7 @@ static Boolean _GetNextRecord(
     // Get next line:
     //
 
-    if (!_GetLine(fs, line))
+    if (!GetLine(fs, line))
         return false;
 
     //

@@ -482,32 +482,43 @@ String FileSystem::getDynamicLibraryExtension()
 #endif
 }
 
-Boolean GetLine(PEGASUS_STD(istream)& is, String& line)
+Boolean GetLine(PEGASUS_STD(istream)& is, Buffer& line)
 {
+    const Uint32 buffersize = 1024;
+    Uint32 gcount = 0;
+
     line.clear();
 
-    Boolean gotChar = false;
-#ifdef PEGASUS_OS_ZOS
-    char input[1000];
-    is.getline(input,1000);
-    line.assign(input);
-
-    gotChar = !(is.rdstate() & PEGASUS_STD(istream)::failbit);
-#else
-    char c;
-
-    while (is.get(c))
+    // Read the input line in chunks.  A non-full buffer indicates the end of
+    // the line has been reached.
+    do
     {
-        gotChar = true;
+        char input[buffersize];
 
-        if (c == '\n')
+        // This reads up to buffersize-1 char, but stops before consuming
+        // a newline character ('\n').
+        is.get(input, buffersize);
+
+        gcount = (Uint32)is.gcount();
+        line.append(input, gcount);
+
+        if (is.rdstate() & PEGASUS_STD(istream)::failbit)
+        {
+            // It is okay if we encounter the newline character without reading
+            // data.
+            is.clear();
             break;
+        }
+    } while (gcount == buffersize-1);
 
-        line.append(c);
+    if (!is.eof())
+    {
+        // we need to consume the '\n', because get() doesn't
+        char c = 0;
+        is.get(c);
     }
-#endif
 
-    return gotChar;
+    return !!is;
 }
 
 //

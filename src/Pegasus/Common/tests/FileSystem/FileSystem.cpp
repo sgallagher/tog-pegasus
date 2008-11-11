@@ -43,6 +43,39 @@ PEGASUS_USING_STD;
 
 static char * verbose;
 
+void TestGetLine(const String& tmpDir)
+{
+    const char utf8Mixed[14] = {
+        'a',
+        '\x79',                  // letter y
+        'b',
+        '\xC3', '\xA4',          // umlaut ae
+        'c',
+        '\xC2', '\xAE',          // sign for registered trademark
+        'd',
+        '\xE2', '\x82', '\xAC',  // euro sign
+        'e',
+        '\0'                     // null termination
+    };
+
+    String fileName = tmpDir + "/TestGetLine.txt";
+    String outputLine(utf8Mixed);
+
+    {
+        ofstream os;
+        PEGASUS_TEST_ASSERT(Open(os, fileName));
+        os << outputLine.getCString() << endl;
+    }
+
+    {
+        ifstream is;
+        PEGASUS_TEST_ASSERT(Open(is, fileName));
+        String inputLine;
+        PEGASUS_TEST_ASSERT(GetLine(is, inputLine));
+        PEGASUS_TEST_ASSERT(inputLine == outputLine);
+    }
+}
+
 void _printArray(const String& name, const Array<String>& globList)
     {
         if (verbose)
@@ -73,6 +106,7 @@ static void _cleanup(const String& tmpDir)
     FileSystem::removeFile(tmpDir + "/TestFile1.txt");
     FileSystem::removeFile(tmpDir + "/file1.txt");
     FileSystem::removeFile(tmpDir + "/file2.txt");
+    FileSystem::removeFile(tmpDir + "/TestGetLine.txt");
 
     // We should have removed all files from the test directory
     Array<String> globList;
@@ -92,6 +126,8 @@ int main(int argc, char** argv)
     }
 
     _cleanup(tmpDir);
+
+    TestGetLine(tmpDir);
 
     String path;
     PEGASUS_TEST_ASSERT(FileSystem::getCurrentDirectory(path));

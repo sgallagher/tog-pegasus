@@ -717,26 +717,44 @@ int CIMServerProcess::cimserver_run(
         MessageLoader::setPegasusMsgHome(ConfigManager::getHomedPath(
             ConfigManager::getInstance()->getCurrentValue("messageDir")));
 
-#ifdef PEGASUS_OS_PASE
-    // set ccsid to unicode for entire job
-    // ccsid is globolization mechanism in PASE environment
-    if (_SETCCSID(1208) == -1)
-    {
-        MessageLoaderParms parms(
-                "src.Server.cimserver.SET_CCSID_ERROR.PEGASUS_OS_PASE",
-                "Failed to set CCSID, server will stop.");
-        cerr << MessageLoader::getMessage(parms) << endl;
-        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::FATAL,
-                parms);
-        exit (1);
-    }
+#if !defined(PEGASUS_USE_SYSLOGS)
+        String logsDirectory = ConfigManager::getHomedPath(
+            configManager->getCurrentValue("logdir"));
 
-    char fullJobName[29];
-    umeGetJobName(fullJobName, true);
-    Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-        MessageLoaderParms(
-            "src.Server.cimserver.SERVER_JOB_NAME.PEGASUS_OS_PASE",
-            "CIM Server's Job Name is: $0", fullJobName));
+        // Set up the Logger.  This does not open the logs.
+        // Might be more logical to clean before set.
+        Logger::setHomeDirectory(logsDirectory);
+#endif
+
+
+#ifdef PEGASUS_OS_PASE
+        /* write job log to tell where pegasus log is.*/
+        if(logsDirectory.size() > 0)
+            // this function only can be found in PASE environment
+            logPegasusDir2joblog(logsDirectory.getCString());
+        else
+            logPegasusDir2joblog(".");
+
+        // set ccsid to unicode for entire job
+        // ccsid is globolization mechanism in PASE environment
+        if (_SETCCSID(1208) == -1)
+        {
+            MessageLoaderParms parms(
+                    "src.Server.cimserver.SET_CCSID_ERROR.PEGASUS_OS_PASE",
+                    "Failed to set CCSID, server will stop.");
+            cerr << MessageLoader::getMessage(parms) << endl;
+            Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::FATAL,
+                    parms);
+            exit (1);
+        }
+
+        char fullJobName[29];
+        umeGetJobName(fullJobName, true);
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
+                Logger::INFORMATION,
+                MessageLoaderParms(
+                    "src.Server.cimserver.SERVER_JOB_NAME.PEGASUS_OS_PASE",
+                    "CIM Server's Job Name is: $0", fullJobName));
 #endif
 
 #ifdef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
@@ -776,24 +794,6 @@ int CIMServerProcess::cimserver_run(
             cerr << MessageLoader::getMessage(parms) << endl;
             daemonOption = true;
         }
-
-#if !defined(PEGASUS_USE_SYSLOGS)
-        String logsDirectory = ConfigManager::getHomedPath(
-            configManager->getCurrentValue("logdir"));
-
-        // Set up the Logger.  This does not open the logs.
-        // Might be more logical to clean before set.
-        Logger::setHomeDirectory(logsDirectory);
-        
-# ifdef PEGASUS_OS_PASE
-    /* write job log to tell where pegasus log is.*/
-    if(logsDirectory.size() > 0)
-        // this function only can be found in PASE environment
-        logPegasusDir2joblog(logsDirectory.getCString());
-    else
-        logPegasusDir2joblog(".");
-# endif
-#endif
 
         //
         // Check to see if we need to shutdown CIMOM

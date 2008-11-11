@@ -228,7 +228,7 @@
 #  define PEGASUS_SSLCLIENT_RANDOMFILE      \
     "/QOpenSys/QIBM/UserData/UME/Pegasus/ssl.rnd"
 #  define PEGASUS_SSLSERVER_RANDOMFILE      \
-    "/QOpenSys/QIBM/UserData/UME/Pegasus/ssl/keystore/cimserver.rnd"
+    "/QOpenSys/var/UME/cimserver.rnd"
 #  define PEGASUS_LOCAL_AUTH_DIR            "/QOpenSys/var/UME"
 #  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/QOpenSys/var/UME/cimxml.socket"
 #  define PEGASUS_PAM_STANDALONE_PROC_NAME  \

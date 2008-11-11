@@ -71,7 +71,7 @@ static struct ConfigPropertyRow properties[] =
     {"providerManagerDir", "lib", IS_STATIC, 0, 0, IS_VISIBLE},
 #elif defined(PEGASUS_OS_PASE) && defined(PEGASUS_USE_RELEASE_DIRS)
     {"providerManagerDir", 
-        "/QOpenSys/QIBM/ProdData/UME/Pegasus/providermanager", 
+        "/QOpenSys/QIBM/ProdData/UME/Pegasus/lib", 
         IS_STATIC, 0, 0, IS_VISIBLE}
 #elif defined(PEGASUS_OS_VMS)
     {"providerManagerDir", "/wbem_lib", IS_STATIC, 0, 0, IS_VISIBLE},

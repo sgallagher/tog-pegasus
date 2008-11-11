@@ -85,7 +85,7 @@ static struct ConfigPropertyRow properties[] =
     {"crlStore", "ssl/crlstore/", IS_STATIC, 0, 0, IS_VISIBLE},
 # endif    
     {"sslClientVerificationMode", "optional", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"sslTrustStoreUserName", "", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"sslTrustStoreUserName", "QYCMCIMOM", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableNamespaceAuthorization", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 # ifdef PEGASUS_KERBEROS_AUTHENTICATION
     {"kerberosServiceName", "cimom", IS_STATIC, 0, 0, IS_VISIBLE},

@@ -486,6 +486,10 @@ String System::getEffectiveUserName()
         userName.assign(pwd->pw_name);
     }
 
+# if defined(PEGASUS_OS_PASE)
+    userName.toUpper();
+# endif
+
     return userName;
 #endif
 }
@@ -621,6 +625,9 @@ static void _initPrivilegedUserName()
     else
     {
         _privilegedUserName.assign(pwd->pw_name);
+#if defined(PEGASUS_OS_PASE)
+        _privilegedUserName.toUpper();
+#endif
     }
 }
 

@@ -101,6 +101,8 @@ messages:
 
 depend:
 
+general:
+
 run_test:
 	TestCompareRepositories $(REPO_DIR)/$(REPO_XML) $(REPO_DIR)/$(REPO_BIN) 
 

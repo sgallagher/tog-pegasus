@@ -30,7 +30,7 @@
 #//==============================================================================
 ROOT = ../../../../..
 
-#inlcude $(ROOT)/mak/config.mak
+include $(ROOT)/mak/config.mak
 
 DIRS = \
    createInstances \

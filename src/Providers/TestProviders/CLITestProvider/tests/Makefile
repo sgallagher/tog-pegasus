@@ -61,6 +61,8 @@ tests:
 
 messages:
 
+general:
+
 poststarttests:
 
 	@$(RM) $(RESULTFILE)

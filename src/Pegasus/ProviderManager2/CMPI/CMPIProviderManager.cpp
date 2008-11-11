@@ -2309,13 +2309,15 @@ String CMPIProviderManager::_getClassNameFromQuery(
     String &query,
     String &lang)
 {
+    String className;
+
     try
     {
         QueryExpression qe(lang, query, *context);
         // Neither WQL nor CQL support joins, we should get only
         // one class path here.
         PEGASUS_ASSERT(qe.getClassPathList().size() == 1);
-        return qe.getClassPathList()[0].getClassName().getString();
+        className = qe.getClassPathList()[0].getClassName().getString();
     }
     catch(QueryException&)
     {
@@ -2323,7 +2325,7 @@ String CMPIProviderManager::_getClassNameFromQuery(
         // already performed this checking.
         PEGASUS_ASSERT(0);
     }
-    PEGASUS_UNREACHABLE(return String::EMPTY);
+    return className;
 }
 
 Message * CMPIProviderManager::handleCreateSubscriptionRequest(

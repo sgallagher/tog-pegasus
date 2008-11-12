@@ -21,7 +21,7 @@ PEGASUS_NAMESPACE_BEGIN
     class is more suitable for disk storage since it favors size over 
     performance.
 */
-class CIMBuffer
+class PEGASUS_COMMON_LINKAGE CIMBuffer
 {
 public:
 

@@ -503,7 +503,6 @@ protected:
     static Uint64 cimOperationAggregationSN;
     Uint32 _providerManagerServiceId;
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-    Boolean _enableNormalization;
     Array<String> _excludeModulesFromNormalization;
 #endif
 

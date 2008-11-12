@@ -40,6 +40,7 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AuditLogger.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/ObjectNormalizer.h>
 #include <Pegasus/Server/reg_table.h>
 
 #include <Pegasus/Server/QuerySupportRouter.h>
@@ -328,23 +329,17 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
 #endif
 
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-    _enableNormalization = ConfigManager::parseBooleanValue(
-        configManager->getCurrentValue("enableNormalization"));
+    String moduleList =
+        configManager->getCurrentValue("excludeModulesFromNormalization");
 
-    if (_enableNormalization)
+    for (Uint32 pos = moduleList.find(','); moduleList.size() != 0;
+        pos = moduleList.find(','))
     {
-        String moduleList =
-            configManager->getCurrentValue("excludeModulesFromNormalization");
+        String moduleName = moduleList.subString(0, pos);
 
-        for (Uint32 pos = moduleList.find(','); moduleList.size() != 0;
-             pos = moduleList.find(','))
-        {
-            String moduleName = moduleList.subString(0, pos);
+        _excludeModulesFromNormalization.append(moduleName);
 
-            _excludeModulesFromNormalization.append(moduleName);
-
-            moduleList.remove(0, (pos == PEG_NOT_FOUND ? pos : pos + 1));
-        }
+        moduleList.remove(0, (pos == PEG_NOT_FOUND ? pos : pos + 1));
     }
 #endif
 
@@ -1374,7 +1369,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
 #endif
 
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        if (_enableNormalization)
+        if (ObjectNormalizer::getEnableNormalization())
         {
             // normalization is enabled for all providers unless they
             // have an old interface version or are explicity excluded by
@@ -2576,7 +2571,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
         }
 
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        if (_enableNormalization && providerInfo.hasProviderNormalization)
+        if (providerInfo.hasProviderNormalization)
         {
             requestCopy->operationContext.insert(
                 CachedClassDefinitionContainer(cimClass));
@@ -3335,7 +3330,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         }
 
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        if (_enableNormalization && providerInfo.hasProviderNormalization)
+        if (providerInfo.hasProviderNormalization)
         {
             requestCopy->operationContext.insert(
                 CachedClassDefinitionContainer(cimClass));
@@ -3590,7 +3585,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
         }
 
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        if (_enableNormalization && providerInfo.hasProviderNormalization)
+        if (providerInfo.hasProviderNormalization)
         {
             requestCopy->operationContext.insert(
                 CachedClassDefinitionContainer(cimClass));

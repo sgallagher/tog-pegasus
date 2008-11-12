@@ -63,7 +63,8 @@ public:
         const CIMNamespaceName& nameSpace,
         Boolean shareable,
         Boolean updatesAllowed,
-        const String& parent) = 0;
+        const String& parent,
+        const String& remoteInfo) = 0;
     virtual void modifyNameSpace(
         const CIMNamespaceName& nameSpace,
         Boolean shareable,

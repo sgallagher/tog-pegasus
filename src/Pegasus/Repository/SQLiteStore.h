@@ -135,7 +135,8 @@ public:
         const CIMNamespaceName& nameSpace,
         Boolean shareable,
         Boolean updatesAllowed,
-        const String& parentNameSpace);
+        const String& parentNameSpace,
+        const String& remoteInfo);
     void modifyNameSpace(
         const CIMNamespaceName& nameSpace,
         Boolean shareable,

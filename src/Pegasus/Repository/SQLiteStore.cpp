@@ -458,7 +458,8 @@ void SQLiteStore::createNameSpace(
     const CIMNamespaceName& nameSpace,
     Boolean shareable,
     Boolean updatesAllowed,
-    const String& parentNameSpace)
+    const String& parentNameSpace,
+    const String& remoteInfo)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "SQLiteStore::createNameSpace");
 
@@ -506,13 +507,21 @@ void SQLiteStore::createNameSpace(
                 parentNameSpace.size() * 2,
                 SQLITE_STATIC),
             db.get());
-        // Online creation of remote namespace is apparently not supported.
+
+       String remoteId;
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+       if (remoteInfo.size())
+       {
+           remoteId.append("r10");
+           remoteId.append(remoteInfo);
+       }
+#endif
         CHECK_RC_OK(
             sqlite3_bind_text16(
                 stmt,
                 5,
-                String::EMPTY.getChar16Data(),
-                0,
+                remoteId.getChar16Data(),
+                remoteId.size() * 2,
                 SQLITE_STATIC),
             db.get());
 

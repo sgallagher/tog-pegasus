@@ -1083,7 +1083,8 @@ void FileBasedStore::createNameSpace(
     const CIMNamespaceName& nameSpace,
     Boolean shareable,
     Boolean updatesAllowed,
-    const String& parentNameSpace)
+    const String& parentNameSpace,
+    const String& remoteInfo)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "FileBasedStore::createNameSpace");
 
@@ -1145,6 +1146,19 @@ void FileBasedStore::createNameSpace(
             throw CannotCreateDirectory(path);
         }
     }
+
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+    if (remoteInfo.size())
+    {
+        String remoteDir(nameSpacePath);
+        remoteDir.append("/r10");
+        remoteDir.append(remoteInfo);
+        if (!FileSystem::makeDirectory(remoteDir))
+        {
+            throw CannotCreateDirectory(remoteDir);
+        }
+    }
+#endif
 
     _nameSpacePathTable.insert(nameSpace.getString(), nameSpacePath);
 

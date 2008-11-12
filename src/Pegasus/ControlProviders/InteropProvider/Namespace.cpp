@@ -239,6 +239,13 @@ CIMInstance InteropProvider::buildNamespaceInstance(
         {
             parent=value;
         }
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+        else if (String::equalNoCase(key,"remoteInfo"))
+        {
+            //ATTN: remoteInfo property is not part of PG_Namespace class,
+            // add the property to PG_Namespace instance once avilable.
+        }
+#endif
         else
         {
             PEG_METHOD_EXIT();

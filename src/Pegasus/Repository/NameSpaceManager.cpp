@@ -311,7 +311,8 @@ void NameSpaceManager::createNameSpace(
     const CIMNamespaceName& nameSpaceName,
     Boolean shareable,
     Boolean updatesAllowed,
-    const String& parent)
+    const String& parent,
+    const String& remoteInfo)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::createNameSpace");
 
@@ -351,7 +352,7 @@ void NameSpaceManager::createNameSpace(
         shareable,
         updatesAllowed,
         parentNameSpace,
-        String::EMPTY,
+        remoteInfo,
         Array<Pair<String, String> >());
 
     _rep->table.insert(nameSpaceName.getString(), nameSpace);
@@ -430,7 +431,8 @@ Boolean NameSpaceManager::getNameSpaceAttributes(
     const CIMNamespaceName& nameSpaceName,
     Boolean& shareable,
     Boolean& updatesAllowed,
-    String& parent)
+    String& parent,
+    String& remoteInfo)
 {
     NameSpace* ns = _lookupNameSpace(nameSpaceName.getString());
 
@@ -442,6 +444,7 @@ Boolean NameSpaceManager::getNameSpaceAttributes(
         {
             parent = ns->parent->_nameSpaceName.getString();
         }
+        remoteInfo = ns->remoteInfo;
         return true;
     }
 

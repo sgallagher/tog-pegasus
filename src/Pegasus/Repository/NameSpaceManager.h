@@ -87,16 +87,6 @@ public:
     */
     Boolean nameSpaceExists(const CIMNamespaceName& nameSpaceName) const;
 
-    /** Checks whether the specified namespace may be created.
-        @param nameSpaceName name of namespace to be created.
-        @exception CIMException If the namespace may not be created as specified
-    */
-    void checkCreateNameSpace(
-        const CIMNamespaceName& nameSpaceName,
-        Boolean shareable,
-        Boolean updatesAllowed,
-        const String& parent);
-
     /** Creates the given namespace.
         @param nameSpaceName name of namespace to be created.
     */
@@ -104,7 +94,8 @@ public:
         const CIMNamespaceName& nameSpaceName,
         Boolean shareable,
         Boolean updatesAllowed,
-        const String& parent);
+        const String& parent,
+        const String& remoteInfo = String::EMPTY);
 
     void modifyNameSpace(
         const CIMNamespaceName& nameSpaceName,
@@ -132,7 +123,8 @@ public:
         const CIMNamespaceName& nameSpace,
         Boolean& shareable,
         Boolean& updatesAllowed,
-        String& parent);
+        String& parent,
+        String& remoteInfo = String::EMPTY);
 
     void validateNameSpace(
         const CIMNamespaceName& nameSpaceName) const;

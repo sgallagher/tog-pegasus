@@ -28,14 +28,26 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../../../../..
+ROOT = ../../../../../..
 
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-    CreateExtNS \
-    CreateExtNS2 \
-    AppendNS \
-    ReplaceNS	
+DIR = Pegasus/ProviderManager2/CMPIR/tools/CreateExtNS2
 
-include $(ROOT)/mak/recurse.mak
+SOURCES = CreateExtNS2.cpp
+
+LIBRARIES = \
+    pegrepository \
+    pegcommon
+
+PROGRAM = CreateExtNS2
+
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
+include $(ROOT)/mak/program.mak
+
+tests:
+
+poststarttests:
+
+

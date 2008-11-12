@@ -43,7 +43,7 @@ include $(ROOT)/mak/configschema.mak
 TESTPROVIDERNS=test/TestProvider
 
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
-CREATE_REMOTE_NAMESPACE = CreateExtNS
+CREATE_REMOTE_NAMESPACE = CreateExtNS2
 REMOTE_TESTPROVIDERNS = test/Remote/Localhost
 endif
 
@@ -193,7 +193,7 @@ endif
 # create remote namespace for Remote CMPI test providers
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
 	@ echo +++++ Creating remote namespace ...
-	@ $(CREATE_REMOTE_NAMESPACE) -r $(REPOSITORY_NAME) -n $(REMOTE_TESTPROVIDERNS) -p $(TESTPROVIDERNS) -l localhost
+	@ $(CREATE_REMOTE_NAMESPACE) -r $(REPOSITORY_DIR)/$(REPOSITORY_NAME) -n $(REMOTE_TESTPROVIDERNS) -p $(TESTPROVIDERNS) -l localhost
 endif
 
 ##
@@ -305,7 +305,7 @@ endif
 # create remote namespace for Remote CMPI test providers
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
 	@ echo +++++ Creating remote namespace ...
-	@ $(CREATE_REMOTE_NAMESPACE) -r $(REPOSITORY_NAME) -n $(REMOTE_TESTPROVIDERNS) -p $(TESTPROVIDERNS) -l localhost
+	@ $(CREATE_REMOTE_NAMESPACE) -r $(REPOSITORY_DIR)/$(REPOSITORY_NAME) -n $(REMOTE_TESTPROVIDERNS) -p $(TESTPROVIDERNS) -l localhost
 endif
 
 

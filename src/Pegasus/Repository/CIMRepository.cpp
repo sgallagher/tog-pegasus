@@ -2389,6 +2389,7 @@ void CIMRepository::createNameSpace(
     Boolean shareable = false;
     Boolean updatesAllowed = true;
     String parentNameSpace;
+    String remoteInfo;
 
     for (NameSpaceAttributes::Iterator i = attributes.start(); i; i++)
     {
@@ -2407,6 +2408,10 @@ void CIMRepository::createNameSpace(
         {
             parentNameSpace = i.value();
         }
+        else if (String::equalNoCase(key, "remoteInfo"))
+        {
+            remoteInfo = i.value();
+        }
         else
         {
             PEG_METHOD_EXIT();
@@ -2417,12 +2422,12 @@ void CIMRepository::createNameSpace(
     }
 
     _rep->_nameSpaceManager.createNameSpace(
-        nameSpace, shareable, updatesAllowed, parentNameSpace);
+        nameSpace, shareable, updatesAllowed, parentNameSpace, remoteInfo);
 
     try
     {
         _rep->_persistentStore->createNameSpace(
-            nameSpace, shareable, updatesAllowed, parentNameSpace);
+            nameSpace, shareable, updatesAllowed, parentNameSpace, remoteInfo);
     }
     catch (...)
     {
@@ -2554,9 +2559,10 @@ Boolean CIMRepository::getNameSpaceAttributes(const CIMNamespaceName& nameSpace,
     Boolean shareable;
     Boolean updatesAllowed;
     String parent;
+    String remoteInfo;
 
     if (!_rep->_nameSpaceManager.getNameSpaceAttributes(
-        nameSpace, shareable, updatesAllowed, parent))
+        nameSpace, shareable, updatesAllowed, parent, remoteInfo))
     {
         PEG_METHOD_EXIT();
         return false;
@@ -2576,6 +2582,9 @@ Boolean CIMRepository::getNameSpaceAttributes(const CIMNamespaceName& nameSpace,
 
     if (parent.size())
         attributes.insert("parent", parent);
+
+    if (remoteInfo.size())
+        attributes.insert("remoteInfo", remoteInfo);
 
     PEG_METHOD_EXIT();
     return true;

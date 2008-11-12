@@ -174,6 +174,15 @@ inline const CIMName& CIMNameCast(const String& str)
     return *((CIMName*)&str);
 }
 
+/** Checks whether a given character string consists of ASCII only and
+    legal characters for a CIMName (i.e. letter, numbers and underscore)
+    The first character has to be a letter or underscore
+    @param str character string to be checked
+    @return  0 in case non-legal ASCII character was found
+            >0 length of the character string str
+*/
+PEGASUS_COMMON_LINKAGE Uint32 CIMNameLegalASCII(const char* str);
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_CIMNameInline_h */

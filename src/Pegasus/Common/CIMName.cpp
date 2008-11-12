@@ -48,16 +48,7 @@ PEGASUS_NAMESPACE_BEGIN
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
-
-/**
-    Checks if a given character string consists of ASCII only and
-    legal characters for a CIMName (i.e. letter, numbers and underscore)
-    The first character has to be a letter or underscore
-    @param str character string to be checked
-    @return  0 in case non-legal ASCII character was found
-            >0 length of the character string str
-*/
-static Uint32 _legalASCII(const char* str)
+Uint32 CIMNameLegalASCII(const char* str)
 {
     const Uint8* p = (const Uint8*)str;
 
@@ -81,7 +72,7 @@ CIMName::CIMName(const String& name) : cimName(name)
 
 CIMName::CIMName(const char* name)
 {
-    Uint32 size = _legalASCII(name);
+    Uint32 size = CIMNameLegalASCII(name);
 
     if (size == 0)
     {
@@ -107,7 +98,7 @@ CIMName& CIMName::operator=(const String& name)
 
 CIMName& CIMName::operator=(const char* name)
 {
-    Uint32 size = _legalASCII(name);
+    Uint32 size = CIMNameLegalASCII(name);
 
     if (size == 0)
     {

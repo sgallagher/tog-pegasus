@@ -370,7 +370,7 @@ CIMName XmlReader::getCimNameAttribute(
     const char* elementName,
     Boolean acceptNull)
 {
-    String name;
+    const char* name;
 
     if (!entry.getAttributeValue("NAME", name))
     {
@@ -384,8 +384,16 @@ CIMName XmlReader::getCimNameAttribute(
         throw XmlValidationError(lineNumber, mlParms);
     }
 
-    if (acceptNull && name.size() == 0)
-        return CIMName ();
+    if (acceptNull && *name == '\0')
+        return CIMName();
+
+    Uint32 size = CIMNameLegalASCII(name);
+
+    if (size)
+    {
+        String tmp(name, size);
+        return CIMName(CIMNameCast(tmp));
+    }
 
     if (!CIMName::legal(name))
     {
@@ -407,6 +415,7 @@ CIMName XmlReader::getCimNameAttribute(
 
 #endif
     }
+
     return CIMNameCast(name);
 }
 

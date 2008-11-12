@@ -194,7 +194,7 @@ extern "C"
         CMSetStatus(rc,CMPI_RC_OK);
         if (pos < dta->value.uint32)
         {
-            if (dta->type == CMPI_chars)
+            if (dta->type == CMPI_chars && dta[pos+1].state == CMPI_goodValue)
             {
                 data.type = CMPI_chars;
                 data.state = CMPI_goodValue;

@@ -1450,6 +1450,36 @@ public:
 
     CIMInstance& getCimInstance() 
     {
+        _resolve();
+        return _cimInstance; 
+    }
+
+    const CIMConstInstance& getCimInstance() const
+    {
+        // Resolve the instance before returning it.  The resolve step requires
+        // non-const access, but does not fundamentally change the message
+        // contents.
+        const_cast<CIMGetInstanceResponseMessage*>(this)->_resolve();
+
+        // The CIMInstance is masqueraded as a CIMConstInstance for expedience,
+        // since the internal representations are the same.
+        return *((CIMConstInstance*)(void*)&_cimInstance);
+    }
+
+    void setCimInstance(const CIMInstance& x) 
+    { 
+        resolveCallback = 0;
+        _cimInstance = x; 
+    }
+
+private:
+    CIMGetInstanceResponseMessage();
+    CIMGetInstanceResponseMessage(const CIMGetInstanceResponseMessage&);
+    CIMGetInstanceResponseMessage& operator=(
+        const CIMGetInstanceResponseMessage&);
+
+    void _resolve() 
+    {
         if (resolveCallback)
         {
             (*resolveCallback)(
@@ -1460,21 +1490,9 @@ public:
                 _cimInstance);
             resolveCallback = 0;
         }
-        return _cimInstance; 
     }
 
-    void setCimInstance(const CIMInstance& x) 
-    { 
-        resolveCallback = 0;
-        _cimInstance = x; 
-    }
-
-private:
     CIMInstance _cimInstance;
-    CIMGetInstanceResponseMessage();
-    CIMGetInstanceResponseMessage(const CIMGetInstanceResponseMessage&);
-    CIMGetInstanceResponseMessage& operator=(
-        const CIMGetInstanceResponseMessage&);
 };
 
 class PEGASUS_COMMON_LINKAGE CIMExportIndicationResponseMessage
@@ -1641,11 +1659,46 @@ public:
     Array<String> hostsData;
     Array<CIMNamespaceName> nameSpacesData;
 
-    Array<CIMInstance>& getNamedInstances();
+    Array<CIMInstance>& getNamedInstances()
+    {
+        _resolve();
+        return _namedInstances;
+    }
 
-    void setNamedInstances(const Array<CIMInstance>& x);
+    const Array<CIMConstInstance>& getNamedInstances() const
+    {
+        // Resolve the instances before returning them.  The resolve step
+        // requires non-const access, but does not fundamentally change the
+        // message contents.
+        const_cast<CIMEnumerateInstancesResponseMessage*>(this)->_resolve();
+
+        // The Array<CIMInstance> is masqueraded as an Array<CIMConstInstance>
+        // for expedience, since the internal representations are the same.
+        return *((Array<CIMConstInstance>*)(void*)&_namedInstances);
+    }
+
+    void setNamedInstances(const Array<CIMInstance>& x)
+    {
+        resolveCallback = 0;
+        _namedInstances = x;
+    }
 
 private:
+
+    void _resolve()
+    {
+        if (resolveCallback)
+        {
+            (*resolveCallback)(
+                instancesData,
+                referencesData,
+                hostsData,
+                nameSpacesData,
+                _namedInstances);
+            resolveCallback = 0;
+        }
+    }
+
     Array<CIMInstance> _namedInstances;
 };
 

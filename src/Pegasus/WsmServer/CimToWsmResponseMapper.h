@@ -56,7 +56,7 @@ public:
     WsmFault mapCimExceptionToWsmFault(const CIMException& cimException);
 
     void convertCimToWsmInstance(
-        const CIMInstance& cimInstance,
+        const CIMConstInstance& cimInstance,
         WsmInstance& wsmInstance,
         const String& nameSpace);
     void convertCimToWsmValue(

@@ -609,27 +609,4 @@ CIMOperationRequestMessage::CIMOperationRequestMessage(
 {
 }
 
-Array<CIMInstance>& CIMEnumerateInstancesResponseMessage::getNamedInstances()
-{
-    if (resolveCallback)
-    {
-        (*resolveCallback)(
-            instancesData, 
-            referencesData, 
-            hostsData,
-            nameSpacesData, 
-            _namedInstances);
-        resolveCallback = 0;
-    }
-
-    return _namedInstances;
-}
-
-void CIMEnumerateInstancesResponseMessage::setNamedInstances(
-    const Array<CIMInstance>& x)
-{
-    resolveCallback = 0;
-    _namedInstances = x;
-}
-
 PEGASUS_NAMESPACE_END

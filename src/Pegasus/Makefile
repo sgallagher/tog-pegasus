@@ -39,8 +39,13 @@ DIRS = \
     Config \
     Repository \
     getoopt \
-    WQL \
-    CQL \
+    WQL 
+
+ifeq ($(PEGASUS_ENABLE_CQL),true)
+    DIRS += CQL
+endif
+
+DIRS += \
     Query/QueryExpression \
     Provider \
     Compiler \
@@ -51,12 +56,19 @@ TEST_DIRS = \
     Client/tests \
     Config/tests \
     Repository/tests \
-    WQL/tests \
-    CQL/tests \
+    WQL/tests 
+
+ifeq ($(PEGASUS_ENABLE_CQL),true)
+    TEST_DIRS += \
+        CQL/tests \
+        CQL/CQLCLI
+endif
+
+TEST_DIRS += \
     Compiler/tests \
     Query/QueryExpression/tests \
-    Query/QueryExpression/tests/Queries \
-    CQL/CQLCLI
+    Query/QueryExpression/tests/Queries
+
 
 ifneq ($(OS),HPUX)
     TEST_DIRS += \

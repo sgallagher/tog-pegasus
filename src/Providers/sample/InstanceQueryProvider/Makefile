@@ -41,8 +41,13 @@ LIBRARY = SampleInstanceQueryProvider
 
 LIBRARIES = \
     pegprovider \
-    pegqueryexpression \
-    pegcql \
+    pegqueryexpression
+
+ifeq ($(PEGASUS_ENABLE_CQL),true)
+     LIBRARIES += pegcql
+endif
+
+LIBRARIES += \
     pegwql \
     pegquerycommon \
     pegclient \

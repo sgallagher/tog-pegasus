@@ -34,7 +34,12 @@ PEGASUS_ZOS_PROGRAM_OBJECT = yes
 LIBRARIES= \
     pegrepository \
     pegconfig \
-    pegclient \
-    pegcql \
+    pegclient 
+
+ifeq ($(PEGASUS_ENABLE_CQL), true)
+     LIBRARIES +=  pegcql
+endif 
+
+LIBRARIES += \
     pegquerycommon \
     pegcommon

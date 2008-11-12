@@ -79,9 +79,11 @@ rcmpitests:
 
 poststarttests2:
 	$(MAKE) wql_10_1
-	$(MAKE) cql_10_1
 	$(MAKE) wql_10_1 p=HTTP
+ifeq ($(PEGASUS_ENABLE_CQL),true)
+	$(MAKE) cql_10_1
 	$(MAKE) cql_10_1 p=HTTP
+endif
 	@$(ECHO) "+++++ TestIndicationStressTest passed all tests"
 
 poststarttests:

@@ -24,5 +24,7 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
+ifeq ($(PEGASUS_ENABLE_CQL),true)
 	@$(PROGRAM)
+endif
 	

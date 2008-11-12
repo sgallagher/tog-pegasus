@@ -45,11 +45,16 @@ LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 LIBRARIES = \
     pegrepository \
     pegqueryexpression \
-    pegwql \
-    pegcql \
+    pegwql 
+
+ifeq ($(PEGASUS_ENABLE_CQL),true)
+    LIBRARIES += pegcql 
+endif
+
+LIBRARIES += \
     pegquerycommon \
     pegconfig \
-    pegcommon \
+    pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 #SYS_LIBS += -lfl

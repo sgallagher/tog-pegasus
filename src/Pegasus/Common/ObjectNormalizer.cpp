@@ -44,6 +44,11 @@ void ObjectNormalizer::setEnableNormalization(Boolean value)
     _enableNormalization = value;
 }
 
+Boolean ObjectNormalizer::getEnableNormalization()
+{
+    return _enableNormalization;
+}
+
 CIMQualifier _processQualifier(
     CIMConstQualifier& referenceQualifier,
     CIMConstQualifier& cimQualifier)

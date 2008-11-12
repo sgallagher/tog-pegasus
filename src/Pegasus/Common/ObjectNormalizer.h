@@ -89,6 +89,7 @@ public:
 
     static void setEnableNormalization(Boolean value);
 
+    static Boolean getEnableNormalization();
 private:
     CIMClass _cimClass;
 

@@ -80,17 +80,11 @@ private:
 
     Thread _routing_thread;
 
-    void _handle_cimom_op(
-        AsyncOpNode* op,
-        Thread* thread,
-        MessageQueue* queue);
-    Uint32 _ioctl(Uint32, Uint32, void*);
+    void _handle_cimom_op(AsyncOpNode* op);
 
     virtual void handleEnqueue();
-    void ioctl(AsyncIoctl* msg);
 
     Boolean route_async(AsyncOpNode* operation);
-    void _shutdown_routed_queue();
 
     AtomicInt _die;
     AtomicInt _routed_queue_shutdown;

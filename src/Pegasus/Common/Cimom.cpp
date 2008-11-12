@@ -56,34 +56,6 @@ Boolean cimom::route_async(AsyncOpNode *op)
     return _routed_ops.enqueue(op);
 }
 
-void cimom::_shutdown_routed_queue()
-{
-    if (_routed_queue_shutdown.get() > 0)
-        return;
-
-    AutoPtr<AsyncIoctl> msg(new AsyncIoctl(
-        0,
-        CIMOM_Q_ID,
-        CIMOM_Q_ID,
-        true,
-        AsyncIoctl::IO_CLOSE,
-        0,
-        0));
-
-    msg->op = get_cached_op();
-    msg->op->_flags = ASYNC_OPFLAGS_FIRE_AND_FORGET;
-    msg->op->_op_dest = _global_this;
-    msg->op->_request.reset(msg.get());
-
-    if (_routed_ops.enqueue(msg->op))
-    {
-        msg.release();
-    }
-
-    _routing_thread.join();
-}
-
-
 ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 {
     Thread* myself = reinterpret_cast<Thread *>(parm);
@@ -107,7 +79,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 
             if (dest_qid == CIMOM_Q_ID)
             {
-               dispatcher->_handle_cimom_op(op, myself, dispatcher);
+               dispatcher->_handle_cimom_op(op);
                accepted = true;
             }
             else
@@ -185,12 +157,26 @@ cimom::cimom()
 
 cimom::~cimom()
 {
-// send STOP messages to all modules
-// shutdown legacy queues; e.g., cim operation dispatcher etc.
-    _die++;
-    if (_routed_queue_shutdown.get() == 0)
-        _routed_ops.close();
-    _routing_thread.join();
+    PEGASUS_ASSERT(_routed_queue_shutdown.get() == 0);
+
+    AsyncIoClose *msg = new AsyncIoClose(
+        0,
+        CIMOM_Q_ID,
+        CIMOM_Q_ID,
+        true);
+
+    msg->op = get_cached_op();
+    msg->op->_flags = ASYNC_OPFLAGS_FIRE_AND_FORGET;
+    msg->op->_op_dest = _global_this;
+    msg->op->_request.reset(msg);
+
+    Boolean done = _routed_ops.enqueue(msg->op);
+    PEGASUS_ASSERT(done);
+
+    _routing_thread.join(); 
+
+    PEGASUS_ASSERT(_routed_queue_shutdown.get());
+    PEGASUS_ASSERT(_die.get());
 }
 
 void cimom::_make_response(Message *req, Uint32 code)
@@ -314,127 +300,39 @@ void cimom::handleEnqueue()
 }
 
 
-void cimom::_handle_cimom_op(
-    AsyncOpNode *op,
-    Thread *thread,
-    MessageQueue *queue)
+void cimom::_handle_cimom_op(AsyncOpNode *op)
 {
-    if (op == 0)
-        return;
-
     Message* msg = op->getRequest();
 
-    if (msg == 0)
-        return;
-
-    Uint32 mask = msg->getMask();
-    if (!(mask & MessageMask::ha_async))
+    // We handle only one message at present.
+    PEGASUS_ASSERT( msg->getType() ==  ASYNC_IOCLOSE);
+    _global_this->_routed_queue_shutdown = 1;
+    _make_response(msg, async_results::OK);
+    // All services are shutdown, empty out the queue
+    for(;;)
     {
-        _make_response(msg, async_results::CIM_NAK);
-        return;
-    }
-
-    op->_thread_ptr = thread;
-    op->_service_ptr = queue;
-
-    if (mask & MessageMask::ha_request)
-    {
-        MessageType type = msg->getType();
-        if (type == ASYNC_IOCTL)
+        AsyncOpNode* operation = 0;
+        try
         {
-            ioctl(static_cast<AsyncIoctl *>(msg));
-        }
-        else
-        {
-            _make_response(msg, async_results::CIM_NAK);
-        }
-    }
-    else
-    {
-        _make_response(msg, async_results::CIM_NAK);
-    }
-}
-
-
-void cimom::ioctl(AsyncIoctl* msg)
-{
-    switch(msg->ctl)
-    {
-        case AsyncIoctl::IO_CLOSE:
-        {
-            // save my bearings
-            Thread *myself = msg->op->_thread_ptr;
-            cimom *service = static_cast<cimom *>(msg->op->_service_ptr);
-
-            // respond to this message.
-            AutoPtr<AsyncReply> reply(new AsyncReply(ASYNC_REPLY,
-                                             0,
-                                             msg->op,
-                                             async_results::OK,
-                                             msg->resp,
-                                             msg->block));
-            _completeAsyncResponse(
-                static_cast<AsyncRequest *>(msg),
-                reply.get());
-
-            reply.release();
-            // ensure we do not accept any further messages
-
-            // ensure we don't recurse on IO_CLOSE
-            if (_routed_queue_shutdown.get() > 0)
-                break;
-
-            // set the closing flag
-            service->_routed_queue_shutdown = 1;
-
-            // empty out the queue
-            while (1)
+            operation = _global_this->_routed_ops.dequeue();
+            if (operation)
             {
-                AsyncOpNode* operation = 0;
-                try
-                {
-                    operation = service->_routed_ops.dequeue();
-                }
-                catch (...)
-                {
-                    break;
-                }
-                if (operation)
-                {
-                    service->_handle_cimom_op(operation, myself, service);
-                }
-                else
-                    break;
-            } // message processing loop
-
-            // shutdown the AsyncQueue
-            service->_routed_ops.close();
-            // exit the thread !
-            _die++;
-            return;
+                _global_this->cache_op(operation);
+            }
+            else
+            {
+                break;
+            }
         }
-
-        default:
+        catch (...)
         {
-            Uint32 result = _ioctl(msg->ctl, msg->intp, msg->voidp);
-            AutoPtr<AsyncReply> reply(new AsyncReply(
-                ASYNC_REPLY,
-                0,
-                msg->op,
-                result,
-                msg->resp,
-                msg->block));
-            _completeAsyncResponse(
-                static_cast<AsyncRequest *>(msg),
-                reply.get());
-            reply.release();
+             break;
         }
     }
-}
-
-Uint32 cimom::_ioctl(Uint32 code, Uint32 int_param, void *pointer_param)
-{
-    return async_results::OK;
+    // shutdown the AsyncQueue
+    _global_this->_routed_ops.close();
+    // exit the routing thread.
+    _die++;
 }
 
 AsyncOpNode* cimom::get_cached_op()

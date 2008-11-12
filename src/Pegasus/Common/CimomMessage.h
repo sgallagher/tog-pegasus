@@ -112,34 +112,18 @@ public:
     Boolean block;
 };
 
-class PEGASUS_COMMON_LINKAGE AsyncIoctl : public AsyncRequest
+class PEGASUS_COMMON_LINKAGE AsyncIoClose : public AsyncRequest
 {
 public:
-    AsyncIoctl(
+    AsyncIoClose(
         AsyncOpNode* operation,
         Uint32 destination,
         Uint32 response,
-        Boolean blocking,
-        Uint32 code,
-        Uint32 intParam,
-        void* pParam);
+        Boolean blocking);
 
-    virtual ~AsyncIoctl()
+    virtual ~AsyncIoClose()
     {
     }
-
-    enum
-    {
-        IO_CLOSE,
-        IO_OPEN,
-        IO_SOURCE_QUENCH,
-        IO_SERVICE_DEFINED,
-        IO_IDLE_CONTROL
-    };
-
-    Uint32 ctl;
-    Uint32 intp;
-    void* voidp;
 };
 
 class PEGASUS_COMMON_LINKAGE CimServiceStart : public AsyncRequest

@@ -95,7 +95,6 @@ public:
     Uint32 getIncomingCount() {return _incoming.count(); }
 
 protected:
-    virtual void _shutdown_incoming_queue();
     virtual Boolean accept_async(AsyncOpNode* op);
     virtual void handleEnqueue() = 0;
     virtual void handleEnqueue(Message *) = 0;
@@ -106,7 +105,7 @@ protected:
     virtual void _handle_async_callback(AsyncOpNode* operation);
     virtual void _make_response(Message* req, Uint32 code);
 
-    virtual void handle_AsyncIoctl(AsyncIoctl* req);
+    virtual void handle_AsyncIoClose(AsyncIoClose* req);
     virtual void handle_CimServiceStart(CimServiceStart* req);
     virtual void handle_CimServiceStop(CimServiceStop* req);
 
@@ -127,6 +126,8 @@ private:
         MessageQueue* callback_q,
         void* callback_ptr,
         Uint32 flags);
+
+    void _removeFromPollingList(MessageQueueService *service);
 
     static ThreadReturnType PEGASUS_THREAD_CDECL polling_routine(void *);
 

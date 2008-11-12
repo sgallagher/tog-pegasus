@@ -290,7 +290,7 @@ void ShutdownService::_sendShutdownRequestToService(const char* serviceName)
     }
     // send a Stop (this is a legacy message that in some of the MQS does
     // termination of its internal stuff. Then follow it with a Stop (to
-    // open up its incoming queue), and then with a AsyncIoctl::IO_CLOSE
+    // open up its incoming queue), and then with a AsyncIoClose
     // which closes the incoming queue.
 
     // All of these messages MUST be sequential. Do not use SendForget or
@@ -316,14 +316,11 @@ void ShutdownService::_sendShutdownRequestToService(const char* serviceName)
     AutoPtr <AsyncReply> StartAsyncReply(
         _controller->ClientSendWait(_queueId, &start_message));
 
-    AsyncIoctl close_request(
+    AsyncIoClose close_request(
         NULL,
         _queueId,
         _controller->getQueueId(),
-        false,
-        AsyncIoctl::IO_CLOSE,
-        0,
-        0);
+        false);
 
     AutoPtr <AsyncReply> CloseAsyncReply(
         _controller->ClientSendWait(_queueId, &close_request));

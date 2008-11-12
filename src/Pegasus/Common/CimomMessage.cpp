@@ -82,21 +82,18 @@ AsyncReply::AsyncReply(
         op->setResponse(this);
 }
 
-AsyncIoctl::AsyncIoctl(
+AsyncIoClose::AsyncIoClose(
     AsyncOpNode* operation,
     Uint32 destination,
     Uint32 response,
-    Boolean blocking,
-    Uint32 code,
-    Uint32 intParam,
-    void* pParam)
+    Boolean blocking)
     : AsyncRequest(
-          ASYNC_IOCTL,
-          0, operation,
-          destination, response, blocking),
-      ctl(code),
-      intp(intParam),
-      voidp(pParam)
+          ASYNC_IOCLOSE,
+          0,
+          operation,
+          destination,
+          response,
+          blocking)
 {
 }
 

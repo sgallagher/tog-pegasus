@@ -39,9 +39,9 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    { "enableNormalization", "false", IS_STATIC, 0, 0, IS_VISIBLE },
+    { "enableNormalization", "false", IS_DYNAMIC, 0, 0, IS_VISIBLE },
 #else
-    { "enableNormalization", "true", IS_STATIC, 0, 0, IS_VISIBLE },
+    { "enableNormalization", "true", IS_DYNAMIC, 0, 0, IS_VISIBLE },
 #endif
     { "excludeModulesFromNormalization", "", IS_STATIC, 0, 0, IS_VISIBLE }
 };
@@ -185,10 +185,7 @@ void NormalizationPropertyOwner::updateCurrentValue(
     {
         throw NonDynamicConfigProperty(name);
     }
-
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
-
-    configProperty->currentValue = value;
+    initCurrentValue(name, value);
 }
 
 void NormalizationPropertyOwner::updatePlannedValue(

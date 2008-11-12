@@ -138,13 +138,13 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
 
         try
         {
-            sleep_sem = (Semaphore *) myself->reference_tsd("sleep sem");
+            sleep_sem = (Semaphore *) myself->reference_tsd(TSD_SLEEP_SEM);
             myself->dereference_tsd();
             PEGASUS_ASSERT(sleep_sem != 0);
 
             lastActivityTime =
                 (struct timeval *) myself->
-                reference_tsd("last activity time");
+                reference_tsd(TSD_LAST_ACTIVITY_TIME);
             myself->dereference_tsd();
             PEGASUS_ASSERT(lastActivityTime != 0);
         }
@@ -187,12 +187,12 @@ ThreadReturnType PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
             try
             {
                 work = (ThreadReturnType(PEGASUS_THREAD_CDECL *) (void *))
-                    myself->reference_tsd("work func");
+                    myself->reference_tsd(TSD_WORK_FUNC);
                 myself->dereference_tsd();
-                workParm = myself->reference_tsd("work parm");
+                workParm = myself->reference_tsd(TSD_WORK_PARM);
                 myself->dereference_tsd();
                 blocking_sem =
-                    (Semaphore *) myself->reference_tsd("blocking sem");
+                    (Semaphore *) myself->reference_tsd(TSD_BLOCKING_SEM);
                 myself->dereference_tsd();
             }
             catch (...)
@@ -331,21 +331,21 @@ ThreadStatus ThreadPool::allocate_and_awaken(
             Threads::id(th->getThreadHandle().thid).buffer,
             parm));
 
-        th->delete_tsd("work func");
-        th->put_tsd("work func", NULL,
+        th->delete_tsd(TSD_WORK_FUNC);
+        th->put_tsd(TSD_WORK_FUNC, NULL,
                     sizeof (ThreadReturnType(PEGASUS_THREAD_CDECL *)
                             (void *)), (void *) work);
-        th->delete_tsd("work parm");
-        th->put_tsd("work parm", NULL, sizeof (void *), parm);
-        th->delete_tsd("blocking sem");
+        th->delete_tsd(TSD_WORK_PARM);
+        th->put_tsd(TSD_WORK_PARM, NULL, sizeof (void *), parm);
+        th->delete_tsd(TSD_BLOCKING_SEM);
         if (blocking != 0)
-            th->put_tsd("blocking sem", NULL, sizeof (Semaphore *), blocking);
+            th->put_tsd(TSD_BLOCKING_SEM, NULL, sizeof (Semaphore *), blocking);
 
         // put the thread on the running list
         _runningThreads.insert_front(th);
 
         // signal the thread's sleep semaphore to awaken it
-        Semaphore *sleep_sem = (Semaphore *) th->reference_tsd("sleep sem");
+        Semaphore *sleep_sem = (Semaphore *) th->reference_tsd(TSD_SLEEP_SEM);
         PEGASUS_ASSERT(sleep_sem != 0);
 
         PEG_TRACE_CSTRING(TRC_THREAD, Tracer::LEVEL4,
@@ -392,13 +392,7 @@ Uint32 ThreadPool::cleanupIdleThreads()
             break;
         }
 
-        void* tsd = 0;
-        if (!thread->try_reference_tsd("last activity time", &tsd))
-        {
-            PEGASUS_ASSERT(false);
-            _idleThreads.insert_back(thread);
-            break;
-        }
+        void* tsd = thread->reference_tsd(TSD_LAST_ACTIVITY_TIME);
         struct timeval *lastActivityTime =
             reinterpret_cast<struct timeval*>(tsd);
         PEGASUS_ASSERT(lastActivityTime != 0);
@@ -427,16 +421,16 @@ void ThreadPool::_cleanupThread(Thread * thread)
 {
     PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::cleanupThread");
 
-    // Set the "work func" and "work parm" to 0 so _loop() knows to exit.
-    thread->delete_tsd("work func");
-    thread->put_tsd("work func", 0,
+    // Set the TSD_WORK_FUNC and TSD_WORK_PARM to 0 so _loop() knows to exit.
+    thread->delete_tsd(TSD_WORK_FUNC);
+    thread->put_tsd(TSD_WORK_FUNC, 0,
                     sizeof (ThreadReturnType(PEGASUS_THREAD_CDECL *)
                             (void *)), (void *) 0);
-    thread->delete_tsd("work parm");
-    thread->put_tsd("work parm", 0, sizeof (void *), 0);
+    thread->delete_tsd(TSD_WORK_PARM);
+    thread->put_tsd(TSD_WORK_PARM, 0, sizeof (void *), 0);
 
     // signal the thread's sleep semaphore to awaken it
-    Semaphore *sleep_sem = (Semaphore *) thread->reference_tsd("sleep sem");
+    Semaphore *sleep_sem = (Semaphore *) thread->reference_tsd(TSD_SLEEP_SEM);
     PEGASUS_ASSERT(sleep_sem != 0);
     sleep_sem->signal();
     thread->dereference_tsd();
@@ -490,14 +484,14 @@ Thread *ThreadPool::_initializeThread()
     // we signal the semaphore
     Semaphore *sleep_sem = (Semaphore *) new Semaphore(0);
     th->put_tsd(
-        "sleep sem", &_deleteSemaphore, sizeof(Semaphore), (void*) sleep_sem);
+        TSD_SLEEP_SEM, &_deleteSemaphore, sizeof(Semaphore), (void*) sleep_sem);
 
     struct timeval* lastActivityTime =
         (struct timeval *)::operator  new(sizeof (struct timeval));
     Time::gettimeofday(lastActivityTime);
 
     th->put_tsd(
-        "last activity time",
+        TSD_LAST_ACTIVITY_TIME,
         thread_data::default_delete,
         sizeof(struct timeval),
         (void*) lastActivityTime);

@@ -329,7 +329,7 @@ CIMResponseMessage* InternalCIMOMHandleRep::do_request(
             {
                 // deletes the old tsd and creates a new one
                 currentThread->put_tsd(
-                    "cimomHandleContentLanguages",
+                    TSD_CIMOM_HANDLE_CONTENT_LANGUAGES,
                     _deleteContentLanguage,
                     sizeof(ContentLanguageList*),
                     new ContentLanguageList(container.getLanguages()));
@@ -1693,7 +1693,7 @@ OperationContext InternalCIMOMHandleRep::getResponseContext()
     else
     {
         ContentLanguageList* contentLangs = (ContentLanguageList*)
-            curThrd->reference_tsd("cimomHandleContentLanguages");
+            curThrd->reference_tsd(TSD_CIMOM_HANDLE_CONTENT_LANGUAGES);
         curThrd->dereference_tsd();
 
         if (contentLangs == NULL)
@@ -1704,7 +1704,7 @@ OperationContext InternalCIMOMHandleRep::getResponseContext()
         {
             ctx.insert(ContentLanguageListContainer(*contentLangs));
             // delete the old tsd to free the memory
-            curThrd->delete_tsd("cimomHandleContentLanguages");
+            curThrd->delete_tsd(TSD_CIMOM_HANDLE_CONTENT_LANGUAGES);
         }
     }
 

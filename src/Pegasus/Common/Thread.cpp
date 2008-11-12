@@ -150,11 +150,11 @@ Thread::Thread(
     : _is_detached(detached),
       _start(start),
       _cleanup(),
-      _tsd(),
       _thread_parm(parameter),
       _exit_code(0)
 {
     Threads::clear(_handle.thid);
+    memset(_tsd, 0, sizeof(_tsd));
 }
 
 Thread::~Thread()
@@ -261,13 +261,18 @@ void Thread::detach()
     _is_detached = true;
 }
 
-Thread::Thread(ThreadReturnType(PEGASUS_THREAD_CDECL * start) (void *),
-               void *parameter,
-               Boolean detached):_is_detached(detached),
-_cancelled(false),
-_start(start), _cleanup(), _tsd(), _thread_parm(parameter), _exit_code(0)
+Thread::Thread(
+    ThreadReturnType(PEGASUS_THREAD_CDECL* start)(void*),
+    void *parameter,
+    Boolean detached) :_is_detached(detached),
+    _cancelled(false),
+    _start(start), 
+    _cleanup(), 
+    _thread_parm(parameter), 
+    _exit_code(0)
 {
     Threads::clear(_handle.thid);
+    memset(_tsd, 0, sizeof(_tsd));
 }
 
 Thread::~Thread()
@@ -289,12 +294,6 @@ Thread::~Thread()
 // Common implementation:
 //
 //==============================================================================
-
-void thread_data::default_delete(void *data)
-{
-    if (data != NULL)
-        ::operator  delete(data);
-}
 
 void language_delete(void *data)
 {
@@ -434,7 +433,7 @@ AcceptLanguageList *Thread::getLanguages()
     if (curThrd == NULL)
         return NULL;
     AcceptLanguageList *acceptLangs =
-        (AcceptLanguageList *) curThrd->reference_tsd("acceptLanguages");
+        (AcceptLanguageList *) curThrd->reference_tsd(TSD_ACCEPT_LANGUAGES);
     curThrd->dereference_tsd();
     PEG_METHOD_EXIT();
     return acceptLangs;
@@ -451,7 +450,7 @@ void Thread::setLanguages(const AcceptLanguageList& langs)
 
         // deletes the old tsd and creates a new one
         currentThrd->put_tsd(
-            "acceptLanguages",
+            TSD_ACCEPT_LANGUAGES,
             language_delete,
             sizeof (AcceptLanguageList *),
             langsCopy.get());
@@ -470,7 +469,7 @@ void Thread::clearLanguages()
     if (currentThrd != NULL)
     {
         // deletes the old tsd
-        currentThrd->delete_tsd("acceptLanguages");
+        currentThrd->delete_tsd(TSD_ACCEPT_LANGUAGES);
     }
 
     PEG_METHOD_EXIT();

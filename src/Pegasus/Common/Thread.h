@@ -81,53 +81,78 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class PEGASUS_COMMON_LINKAGE thread_data : public Linkable
+enum TSD_Key
 {
+    TSD_ACCEPT_LANGUAGES,
+    TSD_SLEEP_SEM,
+    TSD_LAST_ACTIVITY_TIME,
+    TSD_WORK_FUNC,
+    TSD_WORK_PARM,
+    TSD_BLOCKING_SEM,
+    TSD_CIMOM_HANDLE_CONTENT_LANGUAGES,
+    TSD_RESERVED_1,
+    TSD_RESERVED_2,
+    TSD_RESERVED_3,
+    TSD_RESERVED_4,
+    TSD_RESERVED_5,
+    TSD_RESERVED_6,
+    TSD_RESERVED_7,
+    TSD_RESERVED_8,
+    // Add new TSD keys before this line.
+    TSD_COUNT,
+};
+
+class thread_data
+{
+    /**
+     * This class is NOT build thread-safe.
+     * The Caller(user) of this class has to ensure there is no collision
+     * taking place.
+     * 
+     * There is no mechanism in place to protect threads from manipulating
+     * the same thread-specific storage at one time.
+     * Make sure the possibility for a parallel access to the same
+     * threads-specific data from multiple threads cannot arise.
+     * 
+     * In OpenPegasus this class is used in the ThreadPool
+     *        - on initialisation and creation of threads owned by ThreadPool
+     *        - on threads that are idle inside the ThreadPool
+     *        - on the ThreadPools main thread (the thread which the ThreadPool
+     *          runs in)
+     * In OpenPegasus this class is used in the 
+     * ClientCIMOMHandleRep and InternalCIMOMHandleRep
+     *        - on the current active Thread which belongs to that CIMOMHandle
+     * 
+     */
 public:
 
-    static void default_delete(void *data);
-
-    thread_data(const char *key) : _delete_func(NULL), _data(NULL), _size(0)
+    static void default_delete(void *data)
     {
-        PEGASUS_ASSERT(key != NULL);
-        size_t keysize = strlen(key);
-        _key.reset(new char[keysize + 1]);
-        memcpy(_key.get(), key, keysize);
-        _key.get()[keysize] = 0x00;
+        if (data)
+            ::operator  delete(data);
     }
 
-    thread_data(const char *key, size_t size) :
-        _delete_func(default_delete), _size(size)
+    thread_data(TSD_Key key) : _delete_func(0), _data(0), _size(0), _key(key)
     {
-        PEGASUS_ASSERT(key != NULL);
-        size_t keysize = strlen(key);
-        _key.reset(new char[keysize + 1]);
-        memcpy(_key.get(), key, keysize);
-        _key.get()[keysize] = 0x00;
-        _data =::operator  new(_size);
     }
 
-    thread_data(const char *key, size_t size, void *data)
-        : _delete_func(default_delete), _size(size)
+    thread_data(TSD_Key key, size_t size) :
+        _delete_func(default_delete), _size(size), _key(key)
     {
-        PEGASUS_ASSERT(key != NULL);
-        PEGASUS_ASSERT(data != NULL);
-        size_t keysize = strlen(key);
+        _data = ::operator  new(_size);
+    }
 
-        _key.reset(new char[keysize + 1]);
-        memcpy(_key.get(), key, keysize);
-        _key.get()[keysize] = 0x00;
-        _data =::operator  new(_size);
+    thread_data(TSD_Key key, size_t size, void* data)
+        : _delete_func(default_delete), _size(size), _key(key)
+    {
+        _data = ::operator  new(_size);
         memcpy(_data, data, size);
     }
 
     ~thread_data()
     {
-        if (_data != NULL)
-            if (_delete_func != NULL)
-            {
-                _delete_func(_data);
-            }
+        if (_data && _delete_func)
+            (*_delete_func)(_data);
     }
 
     /**
@@ -143,21 +168,24 @@ public:
      *
      * @exception NullPointer
     */
-    void put_data(void (*del) (void *), size_t size, void* data)
+    void put_data(void (*del)(void *), size_t size, void* data)
     {
-        if (_data != NULL)
-            if (_delete_func != NULL)
-                _delete_func(_data);
+        if (_data && _delete_func)
+            (*_delete_func)(_data);
 
         _delete_func = del;
         _data = data;
         _size = size;
-        return;
     }
 
     size_t get_size()
     {
         return _size;
+    }
+
+    void* get_data()
+    {
+        return _data;
     }
 
     /**
@@ -174,7 +202,7 @@ public:
      */
     void get_data(void** data, size_t* size)
     {
-        if (data == NULL || size == NULL)
+        if (data == 0 || size == 0)
             throw NullPointer();
 
         *data = _data;
@@ -184,38 +212,25 @@ public:
     // @exception NullPointer
     void copy_data(void** buf, size_t* size)
     {
-        if ((buf == NULL) || (size == NULL))
+        if ((buf == 0) || (size == 0))
             throw NullPointer();
-        *buf =::operator  new(_size);
+
+        *buf = ::operator new(_size);
         *size = _size;
         memcpy(*buf, _data, _size);
     }
 
-    inline Boolean operator==(const void* key) const
-    {
-        if (!strcmp(_key.get(), reinterpret_cast < const char *>(key)))
-            return true;
-        return false;
-    }
 
-    inline Boolean operator==(const thread_data& b) const
-    {
-        return operator==(b._key.get());
-    }
+private:
 
-    static bool equal(const thread_data* node, const void* key)
-    {
-        return ((thread_data *) node)->operator==(key);
-    }
-
-  private:
-    void (*_delete_func) (void* data);
     thread_data();
+    thread_data(const thread_data& x);
+    thread_data& operator=(const thread_data& x);
+
+    void (*_delete_func)(void*);
     void* _data;
     size_t _size;
-    AutoArrayPtr<char> _key;
-
-    friend class Thread;
+    TSD_Key _key;
 };
 
 
@@ -255,7 +270,7 @@ public:
     ThreadStatus run();
 
     // get the user parameter
-    inline void *get_parm()
+    void *get_parm()
     {
         return _thread_parm;
     }
@@ -290,82 +305,74 @@ public:
 
     void cleanup_pop(Boolean execute = true);
 
-    // create and initialize a tsd
-    inline void create_tsd(const char* key, int size, void* buffer)
-    {
-        AutoPtr<thread_data> tsd(new thread_data(key, size, buffer));
-        _tsd.insert_front(tsd.get());
-        tsd.release();
-    }
-
     // get the buffer associated with the key
     // NOTE: this call leaves the tsd LOCKED !!!!
-    inline void *reference_tsd(const char* key)
+    void* reference_tsd(TSD_Key key)
     {
-        _tsd.lock();
-        thread_data *tsd = _tsd.find(thread_data::equal, key);
-        if (tsd != NULL)
-            return (void *) (tsd->_data);
-        else
-            return NULL;
+        if (_tsd[key])
+            return _tsd[key]->get_data();
+         else
+            return 0;
     }
-
-    inline Boolean try_reference_tsd(const char *key, void** data)
-    {
-        if (!_tsd.try_lock())
-        {
-            return false;
-        }
-        thread_data *tsd = _tsd.find(thread_data::equal, key);
-        if (tsd != NULL)
-            *data = (void*) (tsd->_data);
-        else
-            *data = NULL;
-        return true;
-    }
-
 
     // release the lock held on the tsd
     // NOTE: assumes a corresponding and prior call to reference_tsd() !!!
-    inline void dereference_tsd()
+    void dereference_tsd()
     {
-        _tsd.unlock();
     }
 
     // delete the tsd associated with the key
-    inline void delete_tsd(const char *key)
+    void delete_tsd(TSD_Key key)
     {
-        AutoPtr < thread_data > tsd(_tsd.remove(thread_data::equal, key));
+        thread_data* tsd;
+
+        tsd = _tsd[key];
+        _tsd[key] = 0;
+
+        if (tsd)
+            delete tsd;
     }
 
-    inline void empty_tsd()
+    void empty_tsd()
     {
-        _tsd.clear();
+        thread_data* data[TSD_COUNT];
+
+        memcpy(data, _tsd, sizeof(_tsd));
+        memset(_tsd, 0, sizeof(_tsd));
+
+        for (size_t i = 0; i < TSD_COUNT; i++)
+        {
+            if (data[i])
+                delete data[i];
+        }
     }
 
     // create or re-initialize tsd associated with the key
     // if the tsd already exists, delete the existing buffer
     void put_tsd(
-        const char* key,
-        void (*delete_func) (void *),
+        TSD_Key key,
+        void (*delete_func)(void*),
         Uint32 size,
         void* value)
     {
-        PEGASUS_ASSERT(key != NULL);
-        AutoPtr<thread_data> tsd;
-        tsd.reset(_tsd.remove(thread_data::equal, key));
-        tsd.reset();
-        AutoPtr<thread_data> ntsd(new thread_data(key));
-        ntsd->put_data(delete_func, size, value);
-        _tsd.insert_front(ntsd.get());
-        ntsd.release();
+        thread_data* tsd = new thread_data(key);
+        tsd->put_data(delete_func, size, value);
+
+        thread_data* old;
+
+        old = _tsd[key];
+        _tsd[key] = tsd;
+
+        if (old)
+            delete old;
     }
 
-    inline ThreadReturnType get_exit()
+    ThreadReturnType get_exit()
     {
         return _exit_code;
     }
-    inline ThreadType self()
+
+    ThreadType self()
     {
         return Threads::self();
     }
@@ -417,13 +424,6 @@ private:
 
     static Sint8 initializeKey();
 
-    inline void create_tsd(const char *key)
-    {
-        AutoPtr<thread_data> tsd(new thread_data(key));
-        _tsd.insert_front(tsd.get());
-        tsd.release();
-    }
-
     ThreadHandle _handle;
     Boolean _is_detached;
     Boolean _cancelled;
@@ -433,7 +433,7 @@ private:
 
     ThreadReturnType(PEGASUS_THREAD_CDECL* _start) (void *);
     List<cleanup_handler, Mutex> _cleanup;
-    List<thread_data, Mutex> _tsd;
+    thread_data* _tsd[TSD_COUNT];
 
     void* _thread_parm;
     ThreadReturnType _exit_code;

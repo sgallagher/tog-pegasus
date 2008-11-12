@@ -204,7 +204,7 @@ void testMultipleThreads()
         data->lArray.append(1);
         data->lArray.append(9999);
         
-        threads[i]->put_tsd("test2", deleteTestThreadData, 2, data);
+        threads[i]->put_tsd(TSD_RESERVED_1, deleteTestThreadData, 2, data);
         if (threads[i]->run()!=PEGASUS_THREAD_OK)
         {
             cerr << "Not enough memory. Reducing Number of threads used to "
@@ -234,7 +234,8 @@ void testMultipleThreads()
 ThreadReturnType PEGASUS_THREAD_CDECL testMultipleThread( void* parm )
 {
     Thread* thread = (Thread*)parm;
-    TestThreadData* data = (TestThreadData*)thread->reference_tsd("test2");
+    TestThreadData* data = (TestThreadData*)thread->reference_tsd(
+        TSD_RESERVED_1);
     PEGASUS_TEST_ASSERT (data != NULL);
 
     PEGASUS_TEST_ASSERT (data->chars[0] == 'B');
@@ -351,10 +352,13 @@ ThreadReturnType PEGASUS_THREAD_CDECL reading_thread(void *parm)
    if (verbose)
        cout << "r";
    
-   const char *keys[] = 
-      {
-     "one", "two", "three", "four"
-      };
+   const TSD_Key keys[] = 
+   {
+      TSD_RESERVED_1,
+      TSD_RESERVED_2,
+      TSD_RESERVED_3,
+      TSD_RESERVED_4,
+   };
    
    try
    {

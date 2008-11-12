@@ -41,11 +41,25 @@ PEGASUS_NAMESPACE_BEGIN
 class LanguageTagRep
 {
 public:
+    LanguageTagRep() : refs(1) { }
+    AtomicInt refs;
     String tag;           // complete language tag
     String language;      // language part of language tag
     String country;       // country code part of the language tag
     String variant;       // language variant part of the language tag
 };
+
+static inline void _ref(const LanguageTagRep* rep)
+{
+    if (rep)
+        ((LanguageTagRep*)rep)->refs++;
+}
+
+static inline void _unref(const LanguageTagRep* rep)
+{
+    if (rep && ((LanguageTagRep*)rep)->refs.decAndTestIfZero())
+        delete (LanguageTagRep*)rep;
+}
 
 LanguageTag::LanguageTag()
 {
@@ -55,70 +69,42 @@ LanguageTag::LanguageTag()
 LanguageTag::LanguageTag(const String& languageTagString)
 {
     _rep = new LanguageTagRep();
-    AutoPtr<LanguageTagRep> rep(_rep);
 
-    LanguageParser::parseLanguageTag(
-        languageTagString,
-        _rep->language,
-        _rep->country,
-        _rep->variant);
+    try
+    {
+        LanguageParser::parseLanguageTag(
+            languageTagString,
+            _rep->language,
+            _rep->country,
+            _rep->variant);
+    }
+    catch (...)
+    {
+        _unref(_rep);
+        throw;
+    }
 
     _rep->tag = languageTagString;
-
-    rep.release();
 }
 
-LanguageTag::LanguageTag(const LanguageTag& languageTag)
+LanguageTag::LanguageTag(const LanguageTag& x)
 {
-    if (languageTag._rep)
-    {
-        _rep = new LanguageTagRep();
-        AutoPtr<LanguageTagRep> rep(_rep);
-
-        _rep->tag = languageTag._rep->tag;
-        _rep->language = languageTag._rep->language;
-        _rep->country = languageTag._rep->country;
-        _rep->variant = languageTag._rep->variant;
-
-        rep.release();
-    }
-    else
-    {
-        _rep = 0;
-    }
+    _ref(_rep = x._rep);
 }
 
 LanguageTag::~LanguageTag()
 {
-    delete _rep;
+    _unref(_rep);
 }
 
-LanguageTag& LanguageTag::operator=(const LanguageTag& languageTag)
+LanguageTag& LanguageTag::operator=(const LanguageTag& x)
 {
-    if (&languageTag != this)
+    if (_rep != x._rep)
     {
-        if (!languageTag._rep)
-        {
-            delete _rep;
-            _rep = 0;
-        }
-        else
-        {
-            if (!_rep)
-            {
-                _rep = new LanguageTagRep();
-            }
-
-            AutoPtr<LanguageTagRep> rep(_rep);
-
-            _rep->tag = languageTag._rep->tag;
-            _rep->language = languageTag._rep->language;
-            _rep->country = languageTag._rep->country;
-            _rep->variant = languageTag._rep->variant;
-
-            rep.release();
-        }
+        _unref(_rep);
+        _ref(_rep = x._rep);
     }
+
     return *this;
 }
 

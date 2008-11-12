@@ -36,74 +36,94 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/ArrayInternal.h>
+#include <Pegasus/Common/Pair.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-//////////////////////////////////////////////////////////////
-//
-// AcceptLanguageListRep
-//
-//////////////////////////////////////////////////////////////
+typedef Pair<LanguageTag, Real32> AcceptLanguagePair;
+typedef Array<AcceptLanguagePair> AcceptLanguageArray;
 
-class AcceptLanguageListRep
-{
-public:
-    Array<LanguageTag> languageTags;
-    Array<Real32> qualityValues;
-};
+#define PEGASUS_ARRAY_T AcceptLanguagePair
+# include <Pegasus/Common/ArrayInter.h>
+# include "ArrayImpl.h"
+#undef PEGASUS_ARRAY_T
 
-//////////////////////////////////////////////////////////////
 //
-// AcceptLanguageList
+// Implementation Notes:
+// =====================
 //
-//////////////////////////////////////////////////////////////
+// The internal representation member (_rep) is a pointer to an
+// AcceptLanguageListRep object. We could define a class with this name
+// as follows:
+//
+//     class AcceptLanguageListRep
+//     {
+//         AcceptLanguageArray array;
+//     };
+//
+// But this requires separate heap object to hold the array. Instead we use 
+// the following fact to eliminate the extra heap object:
+//
+//     sizeof(AcceptLanguageArray) == sizeof(AcceptLanguageListRep*)
+//
+// We know this since all arrays contain a single pointer to a representation
+// object. Take for example the following structure:
+//
+//     class MyClass
+//     {
+//         void* rep;
+//     };
+//
+// Clearly, sizeof(MyClass) == sizeof(void*). We eliminate the extra heap object
+// by overlaying the AcceptLanguageList::_rep pointer with the array base. So
+// AcceptLanguageList::_rep in fact refers to the Array<T>::_rep.
+//
 
 AcceptLanguageList::AcceptLanguageList()
 {
-    _rep = new AcceptLanguageListRep();
+    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    new (&self) AcceptLanguageArray;
 }
 
-AcceptLanguageList::AcceptLanguageList(
-    const AcceptLanguageList& acceptLanguages)
+AcceptLanguageList::AcceptLanguageList(const AcceptLanguageList& x)
 {
-    _rep = new AcceptLanguageListRep();
-    AutoPtr<AcceptLanguageListRep> rep(_rep);
-
-    _rep->languageTags = acceptLanguages._rep->languageTags;
-    _rep->qualityValues = acceptLanguages._rep->qualityValues;
-
-    rep.release();
+    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    AcceptLanguageArray& other = *((AcceptLanguageArray*)&x);
+    new (&self) AcceptLanguageArray(other);
 }
 
 AcceptLanguageList::~AcceptLanguageList()
 {
-    delete _rep;
+    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    self.~AcceptLanguageArray();
 }
 
-AcceptLanguageList& AcceptLanguageList::operator=(
-    const AcceptLanguageList& acceptLanguages)
+AcceptLanguageList& AcceptLanguageList::operator=(const AcceptLanguageList& x)
 {
-    if (&acceptLanguages != this)
-    {
-        _rep->languageTags = acceptLanguages._rep->languageTags;
-        _rep->qualityValues = acceptLanguages._rep->qualityValues;
-    }
+    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    AcceptLanguageArray& other = *((AcceptLanguageArray*)&x);
+
+    if (&self != &other)
+        self = other;
     return *this;
 }
 
 Uint32 AcceptLanguageList::size() const
 {
-    return _rep->languageTags.size();
+    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    return self.size();
 }
 
 LanguageTag AcceptLanguageList::getLanguageTag(Uint32 index) const
 {
-    return _rep->languageTags[index];
+    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    return self[index].first;
 }
 
-Real32 AcceptLanguageList::getQualityValue(Uint32 index) const
+Real32 AcceptLanguageList::getQualityValue(Uint32 i) const
 {
-    return _rep->qualityValues[index];
+    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    return self[i].second;
 }
 
 void AcceptLanguageList::insert(
@@ -112,71 +132,73 @@ void AcceptLanguageList::insert(
 {
     LanguageParser::validateQualityValue(qualityValue);
 
-    // Insert in order of descending quality value
+    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    Uint32 i;
+    Uint32 n = self.size();
 
-    Uint32 index;
-    const Uint32 maxIndex = _rep->languageTags.size();
-
-    for (index = 0; index < maxIndex; index++)
+    for (i = 0; i < n; i++)
     {
-        if (_rep->qualityValues[index] < qualityValue)
+        if (self[i].second < qualityValue)
         {
             // Insert the new element before the element at this index
             break;
         }
     }
 
-    _rep->languageTags.insert(index, languageTag);
-    _rep->qualityValues.insert(index, qualityValue);
+    self.insert(i, AcceptLanguagePair(languageTag, qualityValue));
 }
 
-void AcceptLanguageList::remove(Uint32 index)
+void AcceptLanguageList::remove(Uint32 i)
 {
-    _rep->languageTags.remove(index);
-    _rep->qualityValues.remove(index);
+    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    self.remove(i);
 }
 
 Uint32 AcceptLanguageList::find(const LanguageTag& languageTag) const
 {
-    for (Uint32 i = 0; i < _rep->languageTags.size(); i++)
+    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    Uint32 n = self.size();
+
+    for (Uint32 i = 0; i < n; i++)
     {
-        if (languageTag == _rep->languageTags[i])
-        {
+        if (languageTag == self[i].first)
             return i;
-        }
     }
+
     return PEG_NOT_FOUND;
 }
 
 void AcceptLanguageList::clear()
 {
-    _rep->languageTags.clear();
-    _rep->qualityValues.clear();
+    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    self.clear();
 }
 
-Boolean AcceptLanguageList::operator==(
-    const AcceptLanguageList& acceptLanguages) const
+Boolean AcceptLanguageList::operator==(const AcceptLanguageList& x) const
 {
-    if (_rep->languageTags.size() != acceptLanguages._rep->languageTags.size())
-    {
-        return false;
-    }
+    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    AcceptLanguageArray& other = *((AcceptLanguageArray*)&x);
 
-    for (Uint32 i = 0; i < _rep->languageTags.size(); i++)
+    Uint32 n = self.size();
+
+    if (n != other.size())
+        return false;
+
+    for (Uint32 i = 0; i < n; i++)
     {
-        if ((_rep->languageTags[i] != acceptLanguages._rep->languageTags[i]) ||
-            (_rep->qualityValues[i] != acceptLanguages._rep->qualityValues[i]))
+        if (self[i].first != other[i].first ||
+            self[i].second != other[i].second)
         {
             return false;
         }
     }
+
     return true;
 }
 
-Boolean AcceptLanguageList::operator!=(
-    const AcceptLanguageList& acceptLanguages) const
+Boolean AcceptLanguageList::operator!=(const AcceptLanguageList& x) const
 {
-    return !(*this == acceptLanguages);
+    return !operator==(x);
 }
 
 PEGASUS_NAMESPACE_END

@@ -39,67 +39,61 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-//////////////////////////////////////////////////////////////
+// 
+// Implementation Notes:
+// =====================
 //
-// ContentLanguageListRep
+// See the implemetnation notes in AcceptLanguageList.cpp for an explanation
+// of how we overlay the _rep pointer with the array class.
 //
-//////////////////////////////////////////////////////////////
 
-class ContentLanguageListRep
-{
-public:
-    Array<LanguageTag> container;
-};
-
-//////////////////////////////////////////////////////////////
-//
-// ContentLanguageList
-//
-//////////////////////////////////////////////////////////////
+typedef Array<LanguageTag> LanguageTagArray;
 
 ContentLanguageList::ContentLanguageList()
 {
-    _rep = new ContentLanguageListRep();
+    LanguageTagArray& self = *((LanguageTagArray*)this);
+    new (&self) LanguageTagArray();
 }
 
 ContentLanguageList::ContentLanguageList(
-    const ContentLanguageList& contentLanguages)
+    const ContentLanguageList& x)
 {
-    _rep = new ContentLanguageListRep();
-    AutoPtr<ContentLanguageListRep> rep(_rep);
-
-    _rep->container = contentLanguages._rep->container;
-
-    rep.release();
+    LanguageTagArray& self = *((LanguageTagArray*)this);
+    LanguageTagArray& other = *((LanguageTagArray*)&x);
+    new (&self) LanguageTagArray(other);
 }
 
 ContentLanguageList::~ContentLanguageList()
 {
-    delete _rep;
+    LanguageTagArray& self = *((LanguageTagArray*)this);
+    self.~LanguageTagArray();
 }
 
 ContentLanguageList& ContentLanguageList::operator=(
-    const ContentLanguageList& contentLanguages)
+    const ContentLanguageList& x)
 {
-    if (&contentLanguages != this)
-    {
-        _rep->container = contentLanguages._rep->container;
-    }
+    LanguageTagArray& self = *((LanguageTagArray*)this);
+    LanguageTagArray& other = *((LanguageTagArray*)&x);
+    self = other;
     return *this;
 }
 
 Uint32 ContentLanguageList::size() const
 {
-    return _rep->container.size();
+    LanguageTagArray& self = *((LanguageTagArray*)this);
+    return self.size();
 }
 
 LanguageTag ContentLanguageList::getLanguageTag(Uint32 index) const
 {
-    return LanguageTag(_rep->container[index]);
+    LanguageTagArray& self = *((LanguageTagArray*)this);
+    return self[index];
 }
 
 void ContentLanguageList::append(const LanguageTag& languageTag)
 {
+    LanguageTagArray& self = *((LanguageTagArray*)this);
+
     // Disallow "*" language tag
     if (languageTag.toString() == "*")
     {
@@ -109,53 +103,54 @@ void ContentLanguageList::append(const LanguageTag& languageTag)
         throw InvalidContentLanguageHeader(MessageLoader::getMessage(parms));
     }
 
-    _rep->container.append(languageTag);
+    self.append(languageTag);
 }
 
 void ContentLanguageList::remove(Uint32 index)
 {
-    _rep->container.remove(index);
+    LanguageTagArray& self = *((LanguageTagArray*)this);
+    self.remove(index);
 }
 
 Uint32 ContentLanguageList::find(const LanguageTag& languageTag) const
 {
-    for (Uint32 i = 0; i < _rep->container.size(); i++)
+    LanguageTagArray& self = *((LanguageTagArray*)this);
+
+    for (Uint32 i = 0; i < self.size(); i++)
     {
-        if (languageTag == _rep->container[i])
-        {
+        if (languageTag == self[i])
             return i;
-        }
     }
+
     return PEG_NOT_FOUND;
 }
 
 void ContentLanguageList::clear()
 {
-    _rep->container.clear();
+    LanguageTagArray& self = *((LanguageTagArray*)this);
+    self.clear();
 }
 
-Boolean ContentLanguageList::operator==(
-    const ContentLanguageList& contentLanguages) const
+Boolean ContentLanguageList::operator==(const ContentLanguageList& x) const
 {
-    if (_rep->container.size() != contentLanguages._rep->container.size())
-    {
+    LanguageTagArray& self = *((LanguageTagArray*)this);
+    LanguageTagArray& other = *((LanguageTagArray*)&x);
+
+    if (self.size() != other.size())
         return false;
+
+    for (Uint32 i = 0; i < self.size(); i++)
+    {
+        if (self[i] != other[i])
+            return false;
     }
 
-    for (Uint32 i = 0; i < _rep->container.size(); i++)
-    {
-        if (_rep->container[i] != contentLanguages._rep->container[i])
-        {
-            return false;
-        }
-    }
     return true;
 }
 
-Boolean ContentLanguageList::operator!=(
-    const ContentLanguageList& contentLanguages) const
+Boolean ContentLanguageList::operator!=( const ContentLanguageList& x) const
 {
-    return !(*this == contentLanguages);
+    return !operator==(x);
 }
 
 PEGASUS_NAMESPACE_END

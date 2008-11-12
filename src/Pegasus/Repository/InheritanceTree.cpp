@@ -33,7 +33,6 @@
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/CIMNameUnchecked.h>
 #include "InheritanceTree.h"
 
 #if 0
@@ -273,7 +272,7 @@ void InheritanceTree::insert(
         !parentTree._rep->table.lookup(superClassName, superClassNode))
     {
         superClassNode =
-            new InheritanceTreeNode(CIMNameUnchecked(superClassName));
+            new InheritanceTreeNode(CIMNameCast(superClassName));
         parentTree._rep->table.insert(superClassName, superClassNode);
     }
 
@@ -281,7 +280,7 @@ void InheritanceTree::insert(
 
     if (!parentTree._rep->table.lookup(className, extNode))
     {
-        extNode = new InheritanceTreeNode(CIMNameUnchecked(className));
+        extNode = new InheritanceTreeNode(CIMNameCast(className));
         parentTree._rep->table.insert(className, extNode);
         extNode->extension=true;
         extNode->extNodes=new Array<InheritanceTreeExt*>;
@@ -319,7 +318,7 @@ void InheritanceTree::insert(
         !_rep->table.lookup(superClassName, superClassNode))
     {
         superClassNode =
-            new InheritanceTreeNode(CIMNameUnchecked(superClassName));
+            new InheritanceTreeNode(CIMNameCast(superClassName));
         _rep->table.insert(superClassName, superClassNode);
     }
 
@@ -329,7 +328,7 @@ void InheritanceTree::insert(
 
     if (!_rep->table.lookup(className, classNode))
     {
-        classNode = new InheritanceTreeNode(CIMNameUnchecked(className));
+        classNode = new InheritanceTreeNode(CIMNameCast(className));
         _rep->table.insert(className, classNode);
     }
 
@@ -376,12 +375,12 @@ Boolean InheritanceTree::getSubClassNames(
                         InheritanceTreeNode* itxn=itx->node;
                         if (deepInheritance)
                         {
-                            subClassNames.append(CIMNameUnchecked(i.key()));
+                            subClassNames.append(CIMNameCast(i.key()));
                             itxn->getSubClassNames(
                                 subClassNames, deepInheritance, ns);
                         }
                         else if (!i.value()->superClass)
-                            subClassNames.append(CIMNameUnchecked(i.key()));
+                            subClassNames.append(CIMNameCast(i.key()));
                         break;
                     }
                 }
@@ -389,12 +388,12 @@ Boolean InheritanceTree::getSubClassNames(
             else if (deepInheritance)
             {
                 // Append all classes:
-                subClassNames.append(CIMNameUnchecked(i.key()));
+                subClassNames.append(CIMNameCast(i.key()));
             }
             else if (!i.value()->superClass)
             {
                 // Just append root classes:
-                subClassNames.append(CIMNameUnchecked(i.key()));
+                subClassNames.append(CIMNameCast(i.key()));
             }
         }
         return true;
@@ -405,7 +404,7 @@ Boolean InheritanceTree::getSubClassNames(
 
     for (InheritanceTreeRep::Table::Iterator i = _rep->table.start(); i; i++)
     {
-        if (className.equal (CIMNameUnchecked(i.key())))
+        if (className.equal (CIMNameCast(i.key())))
         {
             i.value()->getSubClassNames(subClassNames, deepInheritance, ns);
             return true;

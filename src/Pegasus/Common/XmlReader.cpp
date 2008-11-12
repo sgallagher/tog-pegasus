@@ -54,7 +54,6 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/AutoPtr.h>
-#include "CIMNameUnchecked.h"
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -408,7 +407,7 @@ CIMName XmlReader::getCimNameAttribute(
 
 #endif
     }
-    return CIMNameUnchecked(name);
+    return CIMNameCast(name);
 }
 
 //------------------------------------------------------------------------------
@@ -484,7 +483,7 @@ CIMName XmlReader::getClassOriginAttribute(
         throw XmlSemanticError(lineNumber, mlParms);
     }
     // The CIMName was already checked with legal() + String() 
-    return CIMNameUnchecked(name);
+    return CIMNameCast(name);
 }
 
 //------------------------------------------------------------------------------
@@ -574,7 +573,7 @@ CIMName XmlReader::getReferenceClassAttribute(
         throw XmlSemanticError(lineNumber, mlParms);
     }
     // The CIMName was already checked with legal() + String() 
-    return CIMNameUnchecked(name);
+    return CIMNameCast(name);
 }
 
 //------------------------------------------------------------------------------
@@ -607,7 +606,7 @@ CIMName XmlReader::getSuperClassAttribute(
         throw XmlSemanticError(lineNumber, mlParms);
     }
     // The CIMName was already checked with legal() + String() 
-    return CIMNameUnchecked(superClass);
+    return CIMNameCast(superClass);
 }
 
 //------------------------------------------------------------------------------

@@ -31,7 +31,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/CIMNameUnchecked.h>
 #include "CMPI_Version.h"
 
 #include "CMPI_ContextArgs.h"
@@ -234,9 +233,7 @@ extern "C"
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             return data;
         }
-        CIMNameUnchecked eName(name);
-
-        long i = locateArg(*arg, eName);
+        long i = locateArg(*arg, CIMNameCast(name));
         if (i>=0)
         {
             return argsGetArgAt(eArg, i, NULL, rc);

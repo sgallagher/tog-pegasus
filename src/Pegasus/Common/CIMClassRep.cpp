@@ -39,7 +39,6 @@
 #include "CIMScope.h"
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h>
-#include "CIMNameUnchecked.h"
 #include "StrLit.h"
 #include "CIMInstanceRep.h"
 #include "CIMPropertyInternal.h"

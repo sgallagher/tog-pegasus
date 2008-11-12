@@ -36,7 +36,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h>
-#include <Pegasus/Common/CIMNameUnchecked.h>
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -345,7 +344,7 @@ CIMName WsmToCimRequestMapper::convertResourceUriToClassName(
 
         if (CIMName::legal(className))
         {
-            return CIMNameUnchecked(className);
+            return CIMNameCast(className);
         }
     }
 
@@ -468,7 +467,7 @@ void WsmToCimRequestMapper::convertEPRToObjectPath(
             Uint32 propertyPos;
 
             if (!CIMName::legal(epr.selectorSet->selectors[i].name) ||
-                ((propertyPos = cimClass.findProperty(CIMNameUnchecked(
+                ((propertyPos = cimClass.findProperty(CIMNameCast(
                     epr.selectorSet->selectors[i].name))) == PEG_NOT_FOUND))
             {
                 throw WsmFault(
@@ -485,7 +484,7 @@ void WsmToCimRequestMapper::convertEPRToObjectPath(
 
             CIMProperty property = cimClass.getProperty(propertyPos);
             CIMKeyBinding newKeyBinding(
-                CIMNameUnchecked(epr.selectorSet->selectors[i].name),
+                CIMNameCast(epr.selectorSet->selectors[i].name),
                 property.getValue());
 
             if (((newKeyBinding.getType() == CIMKeyBinding::REFERENCE) &&

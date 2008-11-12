@@ -55,24 +55,20 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-const CIMName _PROPERTY_PROVIDERMODULENAME =
-    CIMNameUnchecked("ProviderModuleName");
-const CIMName _PROPERTY_VENDOR = CIMNameUnchecked("Vendor");
-const CIMName _PROPERTY_VERSION = CIMNameUnchecked("Version");
-const CIMName _PROPERTY_INTERFACETYPE = CIMNameUnchecked("InterfaceType");
-const CIMName _PROPERTY_INTERFACEVERSION = CIMNameUnchecked("InterfaceVersion");
-const CIMName _PROPERTY_LOCATION = CIMNameUnchecked("Location");
-const CIMName _PROPERTY_CAPABILITIESID = CIMNameUnchecked("CapabilityID");
-const CIMName _PROPERTY_PROVIDERNAME = CIMNameUnchecked("ProviderName");
-const CIMName _PROPERTY_CLASSNAME = CIMNameUnchecked("ClassName");
-const CIMName _PROPERTY_NAMESPACES = CIMNameUnchecked("Namespaces");
-const CIMName _PROPERTY_PROVIDERTYPE = CIMNameUnchecked("ProviderType");
-const CIMName _PROPERTY_SUPPORTEDPROPERTIES =
-    CIMNameUnchecked("SupportedProperties");
-const CIMName _PROPERTY_SUPPORTEDMETHODS =
-    CIMNameUnchecked("SupportedMethods");
-const CIMName _PROPERTY_INDICATIONDESTINATIONS =
-    CIMNameUnchecked("Destinations");
+const CIMName _PROPERTY_PROVIDERMODULENAME = CIMNameCast("ProviderModuleName");
+const CIMName _PROPERTY_VENDOR = CIMNameCast("Vendor");
+const CIMName _PROPERTY_VERSION = CIMNameCast("Version");
+const CIMName _PROPERTY_INTERFACETYPE = CIMNameCast("InterfaceType");
+const CIMName _PROPERTY_INTERFACEVERSION = CIMNameCast("InterfaceVersion");
+const CIMName _PROPERTY_LOCATION = CIMNameCast("Location");
+const CIMName _PROPERTY_CAPABILITIESID = CIMNameCast("CapabilityID");
+const CIMName _PROPERTY_PROVIDERNAME = CIMNameCast("ProviderName");
+const CIMName _PROPERTY_CLASSNAME = CIMNameCast("ClassName");
+const CIMName _PROPERTY_NAMESPACES = CIMNameCast("Namespaces");
+const CIMName _PROPERTY_PROVIDERTYPE = CIMNameCast("ProviderType");
+const CIMName _PROPERTY_SUPPORTEDPROPERTIES =CIMNameCast("SupportedProperties");
+const CIMName _PROPERTY_SUPPORTEDMETHODS = CIMNameCast("SupportedMethods");
+const CIMName _PROPERTY_INDICATIONDESTINATIONS = CIMNameCast("Destinations");
 
 /**
     ProviderRegistration table is used to keep track of provider registration

@@ -51,7 +51,6 @@
 #include "InteropProvider.h"
 #include "InteropProviderUtils.h"
 #include "InteropConstants.h"
-#include <Pegasus/Common/CIMNameUnchecked.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -186,7 +185,7 @@ void InteropProvider::sendUpdateRegMessageToSLPProvider(
             context,
             PEGASUS_NAMESPACENAME_INTERNAL,
             reference,
-            CIMNameUnchecked("update"),
+            CIMNameCast("update"),
             inParams,
             outParams);
     }

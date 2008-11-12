@@ -440,6 +440,38 @@ void runCIMNameAssignmentTests()
     test16();
 }
 
+void runCIMNameCastTests()
+{
+    try
+    {
+        CIMName name(CIMNameCast("Okay"));
+    }
+    catch (...)
+    {
+        PEGASUS_TEST_ASSERT(false);
+    }
+
+    Boolean caught = false;
+
+    try
+    {
+        CIMName name(CIMNameCast("Not Okay"));
+    }
+    catch (InvalidNameException& e)
+    {
+        caught = true;
+    }
+    catch (...)
+    {
+        PEGASUS_TEST_ASSERT(false);
+    }
+
+#if defined(PEGASUS_DEBUG)
+    PEGASUS_TEST_ASSERT(caught);
+#else
+    PEGASUS_TEST_ASSERT(!caught);
+#endif
+}
 
 int main(int argc, char** argv)
 {
@@ -449,6 +481,7 @@ int main(int argc, char** argv)
     {
         runCIMNameConstructorTests();
         runCIMNameAssignmentTests();
+        runCIMNameCastTests();
     }
     catch (Exception& e)
     {

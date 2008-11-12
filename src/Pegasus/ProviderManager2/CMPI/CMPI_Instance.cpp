@@ -31,7 +31,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/CIMNameUnchecked.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include "CMPI_Version.h"
 
@@ -197,11 +196,10 @@ extern "C"
         }
         CMPIrc rc;
         CIMValue v=value2CIMValue(data,type,&rc);
-        CIMNameUnchecked sName(name);
         Uint32 pos;
         int count=0;
 
-        if ((pos=inst->findProperty(sName))!=PEG_NOT_FOUND)
+        if ((pos=inst->findProperty(CIMNameCast(name)))!=PEG_NOT_FOUND)
         {
 
             CIMProperty cp=inst->getProperty(pos);

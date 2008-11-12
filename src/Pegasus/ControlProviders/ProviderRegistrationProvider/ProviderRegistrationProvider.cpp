@@ -41,7 +41,6 @@
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/CIMNameUnchecked.h>
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderManagerMap.h>
 
@@ -50,17 +49,17 @@ PEGASUS_NAMESPACE_BEGIN
 /**
    The name of the CapabilityID property for provider capabilities class
 */
-static const CIMName _PROPERTY_CAPABILITYID = CIMNameUnchecked("CapabilityID");
+static const CIMName _PROPERTY_CAPABILITYID = CIMNameCast("CapabilityID");
 
 /**
    stopping provider method
 */
-static const CIMName _STOP_PROVIDER = CIMNameUnchecked("Stop");
+static const CIMName _STOP_PROVIDER = CIMNameCast("Stop");
 
 /**
    starting provider method
 */
-static const CIMName _START_PROVIDER = CIMNameUnchecked("Start");
+static const CIMName _START_PROVIDER = CIMNameCast("Start");
 
 ProviderRegistrationProvider::ProviderRegistrationProvider(
     ProviderRegistrationManager * providerRegistrationManager)  
@@ -1835,7 +1834,7 @@ void ProviderRegistrationProvider::_sendUpdateCacheMessagetoInteropProvider(
             context,
             PEGASUS_NAMESPACENAME_INTEROP,
             reference,
-            CIMNameUnchecked("updateCache"),
+            CIMNameCast("updateCache"),
             inParams,
             outParams);
     }

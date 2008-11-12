@@ -203,7 +203,6 @@ public:
 
 private:
     String cimName;
-    friend class CIMNameUnchecked;
 };
 
 /**

@@ -40,7 +40,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h>
-#include <Pegasus/Common/CIMNameUnchecked.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Server/ShutdownService.h>
 #include "ShutdownProvider.h"
@@ -49,7 +48,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-static const CIMName METHOD_NAME_SHUTDOWN = CIMNameUnchecked("shutdown");
+static const CIMName METHOD_NAME_SHUTDOWN = CIMNameCast("shutdown");
 
 //
 // Invoke method used to shutdown cimom.

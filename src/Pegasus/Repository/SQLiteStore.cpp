@@ -42,7 +42,6 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/CIMNameUnchecked.h>
 #include "SQLiteStore.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -1729,7 +1728,7 @@ void SQLiteStore::getClassAssociatorNames(
 
     if (role.size())
     {
-        String normfrompropname = _getNormalizedName(CIMNameUnchecked(role));
+        String normfrompropname = _getNormalizedName(CIMNameCast(role));
         CHECK_RC_OK(
             sqlite3_bind_text16(
                 stmt,
@@ -1743,7 +1742,7 @@ void SQLiteStore::getClassAssociatorNames(
     if (resultRole.size())
     {
         String normtopropname =
-            _getNormalizedName(CIMNameUnchecked(resultRole));
+            _getNormalizedName(CIMNameCast(resultRole));
         CHECK_RC_OK(
             sqlite3_bind_text16(
                 stmt,
@@ -1872,7 +1871,7 @@ void SQLiteStore::getClassReferenceNames(
 
     if (role.size())
     {
-        String normfrompropname = _getNormalizedName(CIMNameUnchecked(role));
+        String normfrompropname = _getNormalizedName(CIMNameCast(role));
         CHECK_RC_OK(
             sqlite3_bind_text16(
                 stmt,
@@ -2145,7 +2144,7 @@ void SQLiteStore::getInstanceAssociatorNames(
 
     if (role.size())
     {
-        String normfrompropname = _getNormalizedName(CIMNameUnchecked(role));
+        String normfrompropname = _getNormalizedName(CIMNameCast(role));
         CHECK_RC_OK(
             sqlite3_bind_text16(
                 stmt,
@@ -2159,7 +2158,7 @@ void SQLiteStore::getInstanceAssociatorNames(
     if (resultRole.size())
     {
         String normtopropname =
-            _getNormalizedName(CIMNameUnchecked(resultRole));
+            _getNormalizedName(CIMNameCast(resultRole));
         CHECK_RC_OK(
             sqlite3_bind_text16(
                 stmt,
@@ -2273,7 +2272,7 @@ void SQLiteStore::getInstanceReferenceNames(
 
     if (role.size())
     {
-        String normfrompropname = _getNormalizedName(CIMNameUnchecked(role));
+        String normfrompropname = _getNormalizedName(CIMNameCast(role));
         CHECK_RC_OK(
             sqlite3_bind_text16(
                 stmt,

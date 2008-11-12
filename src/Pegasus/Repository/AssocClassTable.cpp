@@ -35,7 +35,6 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/CIMNameUnchecked.h>
 #include "AssocClassTable.h"
 
 PEGASUS_USING_STD;
@@ -53,23 +52,23 @@ static Boolean _GetRecord(ifstream& is, ClassAssociation& record)
 
     if (!GetLine(is, line))
         return false;
-    record.assocClassName = CIMNameUnchecked(line);
+    record.assocClassName = CIMNameCast(line);
 
     if (!GetLine(is, line))
         return false;
-    record.fromClassName = CIMNameUnchecked(line);
+    record.fromClassName = CIMNameCast(line);
 
     if (!GetLine(is, line))
         return false;
-    record.fromPropertyName = CIMNameUnchecked(line);
+    record.fromPropertyName = CIMNameCast(line);
 
     if (!GetLine(is, line))
         return false;
-    record.toClassName = CIMNameUnchecked(line);
+    record.toClassName = CIMNameCast(line);
 
     if (!GetLine(is, line))
         return false;
-    record.toPropertyName = CIMNameUnchecked(line);
+    record.toPropertyName = CIMNameCast(line);
 
     // Skip the blank line:
 

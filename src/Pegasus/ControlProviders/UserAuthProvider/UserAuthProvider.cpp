@@ -49,7 +49,6 @@
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/CIMStatusCode.h>
-#include <Pegasus/Common/CIMNameUnchecked.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
@@ -71,9 +70,9 @@ PEGASUS_NAMESPACE_BEGIN
     The constants representing the Username and Password properties in the
     schema.
 */
-static const CIMName PROPERTY_NAME_USERNAME = CIMNameUnchecked("Username");
+static const CIMName PROPERTY_NAME_USERNAME = CIMNameCast("Username");
 
-static const CIMName PROPERTY_NAME_PASSWORD = CIMNameUnchecked("Password");
+static const CIMName PROPERTY_NAME_PASSWORD = CIMNameCast("Password");
 
 static const char OLD_PASSWORD[] = "OldPassword";
 
@@ -84,25 +83,25 @@ static const char NEW_PASSWORD[] = "NewPassword";
     in the schema.
 */
 static const CIMName PROPERTY_NAME_NAMESPACE       =
-    CIMNameUnchecked("Namespace");
+    CIMNameCast("Namespace");
 
 static const CIMName PROPERTY_NAME_AUTHORIZATION   =
-    CIMNameUnchecked("Authorization");
+    CIMNameCast("Authorization");
 
 /**
     The constant representing the User class name.
 */
 static const CIMName CLASS_NAME_PG_USER            =
-    CIMNameUnchecked("PG_User");
+    CIMNameCast("PG_User");
 
 static const CIMName METHOD_NAME_MODIFY_PASSWORD   =
-    CIMNameUnchecked("modifyPassword");
+    CIMNameCast("modifyPassword");
 
 /**
     The constant representing the authorization class name
 */
 static const CIMName CLASS_NAME_PG_AUTHORIZATION =
-    CIMNameUnchecked("PG_Authorization");
+    CIMNameCast("PG_Authorization");
 
 //
 // Verify user authorization

@@ -42,7 +42,6 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Common/ModuleController.h>
 #include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/CIMNameUnchecked.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

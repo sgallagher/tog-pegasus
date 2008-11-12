@@ -151,6 +151,29 @@ PEGASUS_CIMNAME_INLINE Boolean CIMNamespaceName::equal(const char* name) const
     return String::equalNoCase(cimNamespaceName, name);
 }
 
+//
+// This function performs a compile-time cast from String to CIMName. It should
+// only be used where the String is already known to contain a valid CIM name,
+// thereby avoiding the overhead of checking every character of the String.
+// This cast is possible because CIMName has a single String member. Note that
+// that sizeof(CIMName) == sizeof(String) and that the classes are identical
+// in their representation, differing only by interface. When compiled for
+// debug, this function checks that str refers to a valid CIM name.
+//
+inline const CIMName& CIMNameCast(const String& str)
+{
+#if defined(PEGASUS_DEBUG)
+
+    if (!CIMName::legal(str))
+    {
+        throw InvalidNameException(str);
+    }
+
+#endif
+
+    return *((CIMName*)&str);
+}
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_CIMNameInline_h */

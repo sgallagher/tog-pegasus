@@ -32,117 +32,116 @@
 //%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMNameUnchecked.h>
 #include "Constants.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
 const CIMName PEGASUS_CLASSNAME_CONFIGSETTING        =
-    CIMNameUnchecked("PG_ConfigSetting");
+    CIMNameCast("PG_ConfigSetting");
 const CIMName PEGASUS_CLASSNAME_AUTHORIZATION        =
-    CIMNameUnchecked("PG_Authorization");
+    CIMNameCast("PG_Authorization");
 const CIMName PEGASUS_CLASSNAME_USER                 =
-    CIMNameUnchecked("PG_User");
+    CIMNameCast("PG_User");
 const CIMName PEGASUS_CLASSNAME_CERTIFICATE          =
-    CIMNameUnchecked("PG_SSLCertificate");
+    CIMNameCast("PG_SSLCertificate");
 const CIMName PEGASUS_CLASSNAME_CRL                  =
-    CIMNameUnchecked("PG_SSLCertificateRevocationList");
+    CIMNameCast("PG_SSLCertificateRevocationList");
 const CIMName PEGASUS_CLASSNAME_PROVIDERMODULE       =
-    CIMNameUnchecked("PG_ProviderModule");
+    CIMNameCast("PG_ProviderModule");
 const CIMName PEGASUS_CLASSNAME_PROVIDER             =
-    CIMNameUnchecked("PG_Provider");
+    CIMNameCast("PG_Provider");
 const CIMName PEGASUS_CLASSNAME_CAPABILITIESREGISTRATION =
-    CIMNameUnchecked("PG_CapabilitiesRegistration");
+    CIMNameCast("PG_CapabilitiesRegistration");
 const CIMName PEGASUS_CLASSNAME_CONSUMERCAPABILITIES =
-    CIMNameUnchecked("PG_ConsumerCapabilities");
+    CIMNameCast("PG_ConsumerCapabilities");
 const CIMName PEGASUS_CLASSNAME_PROVIDERCAPABILITIES =
-    CIMNameUnchecked("PG_ProviderCapabilities");
+    CIMNameCast("PG_ProviderCapabilities");
 const CIMName PEGASUS_CLASSNAME_INDSUBSCRIPTION      =
-    CIMNameUnchecked("CIM_IndicationSubscription");
+    CIMNameCast("CIM_IndicationSubscription");
 const CIMName PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION =
-    CIMNameUnchecked("CIM_FormattedIndicationSubscription");
+    CIMNameCast("CIM_FormattedIndicationSubscription");
 const CIMName PEGASUS_CLASSNAME_INDHANDLER           =
-    CIMNameUnchecked("CIM_IndicationHandler");
+    CIMNameCast("CIM_IndicationHandler");
 const CIMName PEGASUS_CLASSNAME_LSTNRDST             =
-    CIMNameUnchecked("CIM_ListenerDestination");
+    CIMNameCast("CIM_ListenerDestination");
 const CIMName PEGASUS_CLASSNAME_INDHANDLER_CIMXML    =
-    CIMNameUnchecked("CIM_IndicationHandlerCIMXML");
+    CIMNameCast("CIM_IndicationHandlerCIMXML");
 const CIMName PEGASUS_CLASSNAME_LSTNRDST_CIMXML      =
-    CIMNameUnchecked("CIM_ListenerDestinationCIMXML");
+    CIMNameCast("CIM_ListenerDestinationCIMXML");
 const CIMName PEGASUS_CLASSNAME_INDHANDLER_SNMP      =
-    CIMNameUnchecked("PG_IndicationHandlerSNMPMapper");
+    CIMNameCast("PG_IndicationHandlerSNMPMapper");
 const CIMName PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG  =
-    CIMNameUnchecked("PG_ListenerDestinationSystemLog");
+    CIMNameCast("PG_ListenerDestinationSystemLog");
 const CIMName PEGASUS_CLASSNAME_LSTNRDST_EMAIL       =
-    CIMNameUnchecked("PG_ListenerDestinationEmail");
+    CIMNameCast("PG_ListenerDestinationEmail");
 const CIMName PEGASUS_CLASSNAME_INDFILTER            =
-    CIMNameUnchecked("CIM_IndicationFilter");
+    CIMNameCast("CIM_IndicationFilter");
 const CIMName PEGASUS_CLASSNAME_SHUTDOWN             =
-    CIMNameUnchecked("PG_ShutdownService");
+    CIMNameCast("PG_ShutdownService");
 const CIMName PEGASUS_CLASSNAME___NAMESPACE          =
-    CIMNameUnchecked("__Namespace");
+    CIMNameCast("__Namespace");
 
 #ifndef PEGASUS_DISABLE_PERFINST
 const CIMName PEGASUS_CLASSNAME_CIMOMSTATDATA        =
-    CIMNameUnchecked("CIM_CIMOMStatisticalData");
+    CIMNameCast("CIM_CIMOMStatisticalData");
 #endif
 
 #ifdef PEGASUS_ENABLE_CQL
 const CIMName PEGASUS_CLASSNAME_CIMQUERYCAPABILITIES =
-    CIMNameUnchecked("CIM_QueryCapabilities");
+    CIMNameCast("CIM_QueryCapabilities");
 #endif
 
 const CIMName PEGASUS_CLASSNAME_PROVIDERINDDATA      =
-    CIMNameUnchecked("PG_ProviderIndicationData");
+    CIMNameCast("PG_ProviderIndicationData");
 const CIMName PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA  =
-    CIMNameUnchecked("PG_SubscriptionIndicationData");
+    CIMNameCast("PG_SubscriptionIndicationData");
 
 // Interop Classes Accessed through Interop Control Provider
 
 const CIMName PEGASUS_CLASSNAME_CIMNAMESPACE =
-    CIMNameUnchecked("CIM_Namespace");
+    CIMNameCast("CIM_Namespace");
 
 #if defined PEGASUS_ENABLE_INTEROP_PROVIDER
 const CIMName PEGASUS_CLASSNAME_OBJECTMANAGER =
-    CIMNameUnchecked("CIM_ObjectManager");
+    CIMNameCast("CIM_ObjectManager");
 const CIMName PEGASUS_CLASSNAME_PGNAMESPACE =
-    CIMNameUnchecked("PG_Namespace");
+    CIMNameCast("PG_Namespace");
 const CIMName PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM =
-    CIMNameUnchecked("CIM_ObjectManagerCommunicationMechanism");
+    CIMNameCast("CIM_ObjectManagerCommunicationMechanism");
 const CIMName PEGASUS_CLASSNAME_CIMXMLCOMMUNICATIONMECHANISM =
-    CIMNameUnchecked("CIM_CIMXMLCommunicationMechanism");
+    CIMNameCast("CIM_CIMXMLCommunicationMechanism");
 const CIMName PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM =
-    CIMNameUnchecked("PG_CIMXMLCommunicationMechanism");
+    CIMNameCast("PG_CIMXMLCommunicationMechanism");
 const CIMName PEGASUS_CLASSNAME_PROTOCOLADAPTER =
-    CIMNameUnchecked("CIM_ProtocolAdapter");
+    CIMNameCast("CIM_ProtocolAdapter");
 const CIMName PEGASUS_CLASSNAME_NAMESPACEINMANAGER =
-    CIMNameUnchecked("CIM_NamespaceInManager");
+    CIMNameCast("CIM_NamespaceInManager");
 #endif
 
 // slp Class which operates slp provider. Started by system
 
 #ifdef PEGASUS_ENABLE_SLP
 const CIMName PEGASUS_CLASSNAME_WBEMSLPTEMPLATE =
-    CIMNameUnchecked("PG_WBEMSLPTEMPLATE");
+    CIMNameCast("PG_WBEMSLPTEMPLATE");
 
 #endif
 
 // DMTF Indications profile classes
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
 const CIMName PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE =
-    CIMNameUnchecked("CIM_IndicationService");
+    CIMNameCast("CIM_IndicationService");
 
 const CIMName PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES =
-    CIMNameUnchecked("CIM_IndicationServiceCapabilities");
+    CIMNameCast("CIM_IndicationServiceCapabilities");
 
 const CIMName PEGASUS_CLASSNAME_PG_ELEMENTCAPABILITIES =
-    CIMNameUnchecked("PG_ElementCapabilities");
+    CIMNameCast("PG_ElementCapabilities");
 
 const CIMName PEGASUS_CLASSNAME_PG_HOSTEDINDICATIONSERVICE =
-    CIMNameUnchecked("PG_HostedIndicationService");
+    CIMNameCast("PG_HostedIndicationService");
 
 const CIMName PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT = 
-    CIMNameUnchecked("PG_ServiceAffectsElement");
+    CIMNameCast("PG_ServiceAffectsElement");
 #endif
 
 //
@@ -150,129 +149,129 @@ const CIMName PEGASUS_CLASSNAME_PG_SERVICEAFFECTSELEMENT =
 //
 
 const CIMName PEGASUS_PROPERTYNAME_INDSUB_CREATOR =
-    CIMNameUnchecked("Creator");
+    CIMNameCast("Creator");
 const CIMName PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS =
-    CIMNameUnchecked("AcceptLanguages");
+    CIMNameCast("AcceptLanguages");
 const CIMName PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS =
-    CIMNameUnchecked("ContentLanguages");
+    CIMNameCast("ContentLanguages");
 const CIMName PEGASUS_PROPERTYNAME_MODULE_USERCONTEXT =
-    CIMNameUnchecked("UserContext");
+    CIMNameCast("UserContext");
 const CIMName PEGASUS_PROPERTYNAME_MODULE_DESIGNATEDUSER =
-    CIMNameUnchecked("DesignatedUserContext");
+    CIMNameCast("DesignatedUserContext");
 
 /**
     The name of the Destination property for CIM XML Indication Handler
     subclass
 */
 const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION =
-    CIMNameUnchecked("Destination");
+    CIMNameCast("Destination");
 
 /**
     The name of the TargetHost property for SNMP Mapper Indication
     Handler subclass
 */
 const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST =
-    CIMNameUnchecked("TargetHost");
+    CIMNameCast("TargetHost");
 
 /**
     The name of the TextFormat property for Formatted Indication
     Subscription class
 */
-const CIMName _PROPERTY_TEXTFORMAT = CIMNameUnchecked("TextFormat");
+const CIMName _PROPERTY_TEXTFORMAT = CIMNameCast("TextFormat");
 
 /**
     The name of the TextFormatParameters property for Formatted
     Indication Subscription class
 */
 const CIMName _PROPERTY_TEXTFORMATPARAMETERS =
-    CIMNameUnchecked("TextFormatParameters");
+    CIMNameCast("TextFormatParameters");
 
 /**
     The name of the MailTo property for Email Handler subclass
 */
 const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO =
-    CIMNameUnchecked("MailTo");
+    CIMNameCast("MailTo");
 
 /**
     The name of the MailSubject property for Email Handler subclass
 */
 const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT =
-    CIMNameUnchecked("MailSubject");
+    CIMNameCast("MailSubject");
 
 /**
     The name of the MailCc  property for Email Handler subclass
 */
 const CIMName PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC =
-    CIMNameUnchecked("MailCc");
+    CIMNameCast("MailCc");
 
 /**
     The name of the Name property for PG_ProviderModule class
 */
 const CIMName _PROPERTY_PROVIDERMODULE_NAME =
-    CIMNameUnchecked("Name");
+    CIMNameCast("Name");
 
 /**
     The name of the operational status property
 */
 const CIMName _PROPERTY_OPERATIONALSTATUS =
-    CIMNameUnchecked("OperationalStatus");
+    CIMNameCast("OperationalStatus");
 
 /**
     The name of the Filter reference property for indication subscription class
  */
 const CIMName PEGASUS_PROPERTYNAME_FILTER =
-    CIMNameUnchecked("Filter");
+    CIMNameCast("Filter");
 
 /**
    The name of the Handler reference property for indication subscription class
  */
 const CIMName PEGASUS_PROPERTYNAME_HANDLER =
-    CIMNameUnchecked("Handler");
+    CIMNameCast("Handler");
 
 /**
     The name of the Subscription State property for indication subscription
     class
  */
 const CIMName PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE =
-    CIMNameUnchecked("SubscriptionState");
+    CIMNameCast("SubscriptionState");
 
 /**
     The name of the Query property for indication filter class
  */
 const CIMName PEGASUS_PROPERTYNAME_QUERY =
-    CIMNameUnchecked("Query");
+    CIMNameCast("Query");
 
 /**
     The name of the Query Language property for indication filter class
  */
 const CIMName PEGASUS_PROPERTYNAME_QUERYLANGUAGE =
-    CIMNameUnchecked("QueryLanguage");
+    CIMNameCast("QueryLanguage");
 
 /**
     The name of the Name property
  */
 const CIMName PEGASUS_PROPERTYNAME_NAME =
-    CIMNameUnchecked("Name");
+    CIMNameCast("Name");
 
 /**
     The name of the Creation Class Name property for indication filter and
     indications handler classes
  */
 const CIMName PEGASUS_PROPERTYNAME_CREATIONCLASSNAME =
-    CIMNameUnchecked("CreationClassName");
+    CIMNameCast("CreationClassName");
 
 /**
     The name of the Persistence Type property for Indication Handler class
  */
 const CIMName PEGASUS_PROPERTYNAME_PERSISTENCETYPE =
-    CIMNameUnchecked("PersistenceType");
+    CIMNameCast("PersistenceType");
 
 /**
     The name of the SNMP Version property for SNMP Mapper Indication Handler
     subclass
  */
 const CIMName PEGASUS_PROPERTYNAME_SNMPVERSION =
-    CIMNameUnchecked("SNMPVersion");
+    CIMNameCast("SNMPVersion");
 
 //
 // CIM Namespace Names
@@ -315,51 +314,51 @@ const CIMNamespaceName PEGASUS_VIRTUAL_TOPLEVEL_NAMESPACE =
 // Server Profile-related class names
 //
 const CIMName PEGASUS_CLASSNAME_PG_OBJECTMANAGER =
-    CIMNameUnchecked("PG_ObjectManager");
+    CIMNameCast("PG_ObjectManager");
 const CIMName PEGASUS_CLASSNAME_PG_COMMMECHANISMFORMANAGER =
-    CIMNameUnchecked("PG_CommMechanismForManager");
+    CIMNameCast("PG_CommMechanismForManager");
 const CIMName PEGASUS_CLASSNAME_PG_NAMESPACEINMANAGER =
-    CIMNameUnchecked("PG_NamespaceInManager");
+    CIMNameCast("PG_NamespaceInManager");
 const CIMName PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE =
-    CIMNameUnchecked("PG_RegisteredProfile");
+    CIMNameCast("PG_RegisteredProfile");
 const CIMName PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE =
-    CIMNameUnchecked("PG_RegisteredSubProfile");
+    CIMNameCast("PG_RegisteredSubProfile");
 const CIMName PEGASUS_CLASSNAME_PG_REFERENCEDPROFILE =
-    CIMNameUnchecked("PG_ReferencedProfile");
+    CIMNameCast("PG_ReferencedProfile");
 const CIMName PEGASUS_CLASSNAME_CIM_ELEMENTCONFORMSTOPROFILE =
-    CIMNameUnchecked("CIM_ElementConformsToProfile");
+    CIMNameCast("CIM_ElementConformsToProfile");
 const CIMName PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE =
-    CIMNameUnchecked("PG_ElementConformsToProfile");
+    CIMNameCast("PG_ElementConformsToProfile");
 const CIMName PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE_RP_RP =
-    CIMNameUnchecked("PG_ElementConformsToProfile_RP_RP");
+    CIMNameCast("PG_ElementConformsToProfile_RP_RP");
 const CIMName PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE =
-    CIMNameUnchecked("PG_SubProfileRequiresProfile");
+    CIMNameCast("PG_SubProfileRequiresProfile");
 const CIMName PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY =
-    CIMNameUnchecked("PG_SoftwareIdentity");
+    CIMNameCast("PG_SoftwareIdentity");
 const CIMName PEGASUS_CLASSNAME_PG_ELEMENTSOFTWAREIDENTITY =
-    CIMNameUnchecked("PG_ElementSoftwareIdentity");
+    CIMNameCast("PG_ElementSoftwareIdentity");
 const CIMName PEGASUS_CLASSNAME_PG_INSTALLEDSOFTWAREIDENTITY =
-    CIMNameUnchecked("PG_InstalledSoftwareIdentity");
+    CIMNameCast("PG_InstalledSoftwareIdentity");
 const CIMName PEGASUS_CLASSNAME_PG_COMPUTERSYSTEM =
-    CIMNameUnchecked("PG_ComputerSystem");
+    CIMNameCast("PG_ComputerSystem");
 const CIMName PEGASUS_CLASSNAME_PG_HOSTEDOBJECTMANAGER =
-    CIMNameUnchecked("PG_HostedObjectManager");
+    CIMNameCast("PG_HostedObjectManager");
 const CIMName PEGASUS_CLASSNAME_PG_HOSTEDACCESSPOINT =
-    CIMNameUnchecked("PG_HostedAccessPoint");
+    CIMNameCast("PG_HostedAccessPoint");
 
 // Registration classes
 const CIMName PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES =
-    CIMNameUnchecked("PG_ProviderProfileCapabilities");
+    CIMNameCast("PG_ProviderProfileCapabilities");
 const CIMName PEGASUS_CLASSNAME_PG_PROVIDERREFERENCEDPROFILES =
-    CIMNameUnchecked("PG_ProviderReferencedProfiles");
+    CIMNameCast("PG_ProviderReferencedProfiles");
 
 /**
     The qualifier name of embedded objects/instances.
 */
 const CIMName PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT = 
-    CIMNameUnchecked("EmbeddedObject");
+    CIMNameCast("EmbeddedObject");
 const CIMName PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE = 
-    CIMNameUnchecked("EmbeddedInstance");
+    CIMNameCast("EmbeddedInstance");
 
 
 PEGASUS_NAMESPACE_END

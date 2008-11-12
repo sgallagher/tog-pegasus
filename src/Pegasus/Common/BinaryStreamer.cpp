@@ -35,7 +35,6 @@
 #include "XmlReader.h"
 #include "XmlParser.h"
 #include "CIMName.h"
-#include "CIMNameUnchecked.h"
 #include "BinaryStreamer.h"
 #include "CIMClassRep.h"
 #include "CIMInstanceRep.h"
@@ -346,7 +345,7 @@ void BinaryStreamer::_unpackName(
 {
     String tmp;
     Packer::unpackString(in, pos, tmp);
-    x = tmp.size() ? CIMNameUnchecked(tmp) : CIMName();
+    x = tmp.size() ? CIMNameCast(tmp) : CIMName();
 }
 
 void BinaryStreamer::_packQualifier(Buffer& out, const CIMQualifier& x)

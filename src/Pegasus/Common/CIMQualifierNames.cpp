@@ -31,15 +31,14 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/CIMNameUnchecked.h>
 #include "CIMQualifierNames.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-const CIMName CIMQualifierNames::KEY = CIMNameUnchecked("key");
-const CIMName CIMQualifierNames::ABSTRACT = CIMNameUnchecked("abstract");
-const CIMName CIMQualifierNames::ASSOCIATION = CIMNameUnchecked("association");
-const CIMName CIMQualifierNames::INDICATION = CIMNameUnchecked("indication");
-const CIMName CIMQualifierNames::TERMINAL = CIMNameUnchecked("terminal");
+const CIMName CIMQualifierNames::KEY = CIMNameCast("key");
+const CIMName CIMQualifierNames::ABSTRACT = CIMNameCast("abstract");
+const CIMName CIMQualifierNames::ASSOCIATION = CIMNameCast("association");
+const CIMName CIMQualifierNames::INDICATION = CIMNameCast("indication");
+const CIMName CIMQualifierNames::TERMINAL = CIMNameCast("terminal");
 
 PEGASUS_NAMESPACE_END

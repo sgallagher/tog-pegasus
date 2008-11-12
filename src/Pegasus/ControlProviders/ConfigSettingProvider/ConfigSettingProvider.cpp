@@ -37,7 +37,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMNameUnchecked.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
 #include <cctype>
@@ -72,20 +71,20 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     The constants representing the string literals.
 */
-static const CIMName PROPERTY_NAME    = CIMNameUnchecked("PropertyName");
+static const CIMName PROPERTY_NAME    = CIMNameCast("PropertyName");
 
-static const CIMName DEFAULT_VALUE    = CIMNameUnchecked("DefaultValue");
+static const CIMName DEFAULT_VALUE    = CIMNameCast("DefaultValue");
 
-static const CIMName CURRENT_VALUE    = CIMNameUnchecked("CurrentValue");
+static const CIMName CURRENT_VALUE    = CIMNameCast("CurrentValue");
 
-static const CIMName PLANNED_VALUE    = CIMNameUnchecked("PlannedValue");
+static const CIMName PLANNED_VALUE    = CIMNameCast("PlannedValue");
 
-static const CIMName DYNAMIC_PROPERTY = CIMNameUnchecked("DynamicProperty");
+static const CIMName DYNAMIC_PROPERTY = CIMNameCast("DynamicProperty");
 
 /**
     The constant representing the config setting class name
 */
-static const CIMName PG_CONFIG_SETTING  = CIMNameUnchecked("PG_ConfigSetting");
+static const CIMName PG_CONFIG_SETTING  = CIMNameCast("PG_ConfigSetting");
 
 void ConfigSettingProvider::getInstance(
     const OperationContext & context,

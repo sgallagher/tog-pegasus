@@ -67,19 +67,33 @@ static const String _HTTP_HEADER_CONTENT_TYPE = "content-type";
 
 char* HTTPMessage::findSeparator(const char* data, Uint32 size)
 {
-    const char* p = data;
-    const char* end = p + size;
-
-    while (p != end)
+    // [^\0\r\n]
+    static const unsigned char _skip[256] =
     {
-        if (*p == '\r')
-        {
-            size_t n = end - p;
+        0,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    };
 
-            if (n >= 2 && p[1] == '\n')
-                return (char*)p;
-        }
-        else if (*p == '\n')
+    // Note that data is null-terminated.
+    const unsigned char* p = (const unsigned char*)data;
+
+    for (;;)
+    {
+        // Search for a '\0', '\r', or '\n'.
+        while (_skip[*p])
+            p++;
+
+        if (!p[0])
+            return 0;
+        if (p[0] == '\r' && p[1] == '\n')
+            return (char*)p;
+        if (p[0] == '\n')
             return (char*)p;
 
         p++;

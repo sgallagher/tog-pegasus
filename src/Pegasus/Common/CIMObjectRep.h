@@ -182,6 +182,7 @@ private:
 
     friend class CIMObject;
     friend class BinaryStreamer;
+    friend class CIMBuffer;
 };
 
 PEGASUS_NAMESPACE_END

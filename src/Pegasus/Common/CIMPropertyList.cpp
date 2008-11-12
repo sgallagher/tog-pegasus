@@ -31,17 +31,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include "CIMPropertyListRep.h"
 #include "CIMPropertyList.h"
 
 PEGASUS_NAMESPACE_BEGIN
-
-class CIMPropertyListRep
-{
-public:
-    Array<CIMName> propertyNames;
-    Boolean isNull;
-};
-
 
 CIMPropertyList::CIMPropertyList()
 {

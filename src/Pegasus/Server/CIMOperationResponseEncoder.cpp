@@ -503,7 +503,18 @@ void CIMOperationResponseEncoder::encodeGetInstanceResponse(
 {
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-        XmlWriter::appendInstanceElement(body, response->cimInstance);
+    {
+        if (response->resolveCallback)
+        {
+            body.append(
+                (char*)response->instanceData.getData(), 
+                response->instanceData.size()-1);
+        }
+        else
+        {
+            XmlWriter::appendInstanceElement(body, response->getCimInstance());
+        }
+    }
     sendResponse(response, "GetInstance", true, &body);
 }
 
@@ -518,9 +529,28 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
 {
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-        for (Uint32 i = 0, n = response->cimNamedInstances.size(); i < n; i++)
-            XmlWriter::appendValueNamedInstanceElement(
-                body, response->cimNamedInstances[i]);
+    {
+        if (response->resolveCallback)
+        {
+            const Array<ArraySint8>& a = response->instancesData;
+            const Array<ArraySint8>& b = response->referencesData;
+
+            for (Uint32 i = 0, n = a.size(); i < n; i++)
+            {
+                body << STRLIT("<VALUE.NAMEDINSTANCE>\n");
+                body.append((char*)b[i].getData(), b[i].size() - 1);
+                body.append((char*)a[i].getData(), a[i].size() - 1);
+                body << STRLIT("</VALUE.NAMEDINSTANCE>\n");
+            }
+        }
+        else
+        {
+            const Array<CIMInstance>& a = response->getNamedInstances();
+
+            for (Uint32 i = 0, n = a.size(); i < n; i++)
+                XmlWriter::appendValueNamedInstanceElement(body, a[i]);
+        }
+    }
     sendResponse(response, "EnumerateInstances", true, &body);
 }
 

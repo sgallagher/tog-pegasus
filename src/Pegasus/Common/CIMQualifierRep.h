@@ -171,6 +171,7 @@ private:
     Uint32 _ownerCount;
     
     friend class CIMQualifierList;
+    friend class CIMBuffer;
 };
 
 PEGASUS_NAMESPACE_END

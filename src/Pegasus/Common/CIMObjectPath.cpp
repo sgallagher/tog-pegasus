@@ -42,6 +42,8 @@
 #include "ArrayInternal.h"
 #include "HostLocator.h"
 #include "System.h"
+#include "CIMKeyBindingRep.h"
+#include "CIMObjectPathRep.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -137,47 +139,6 @@ static void _Sort(Array<CIMKeyBinding>& x)
 // CIMKeyBinding
 //
 ////////////////////////////////////////////////////////////////////////////////
-
-class CIMKeyBindingRep
-{
-public:
-    CIMKeyBindingRep()
-    {
-    }
-
-    CIMKeyBindingRep(const CIMKeyBindingRep& x)
-        : _name(x._name), _value(x._value), _type(x._type)
-    {
-    }
-
-    CIMKeyBindingRep(
-        const CIMName& name,
-        const String& value,
-        CIMKeyBinding::Type type)
-        : _name(name), _value(value), _type(type)
-    {
-    }
-
-    ~CIMKeyBindingRep()
-    {
-    }
-
-    CIMKeyBindingRep& operator=(const CIMKeyBindingRep& x)
-    {
-        if (&x != this)
-        {
-            _name = x._name;
-            _value = x._value;
-            _type = x._type;
-        }
-        return *this;
-    }
-
-    CIMName _name;
-    String _value;
-    CIMKeyBinding::Type _type;
-};
-
 
 CIMKeyBinding::CIMKeyBinding()
 {
@@ -403,65 +364,6 @@ Boolean operator==(const CIMKeyBinding& x, const CIMKeyBinding& y)
 // CIMObjectPath
 //
 ////////////////////////////////////////////////////////////////////////////////
-
-class CIMObjectPathRep
-{
-public:
-    CIMObjectPathRep(): _refCounter(1)
-    {
-    }
-
-    CIMObjectPathRep(const CIMObjectPathRep& x)
-        : _refCounter(1), _host(x._host), _nameSpace(x._nameSpace),
-        _className(x._className), _keyBindings(x._keyBindings)
-    {
-    }
-
-    CIMObjectPathRep(
-        const String& host,
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        const Array<CIMKeyBinding>& keyBindings)
-        : _refCounter(1), _host(host), _nameSpace(nameSpace),
-        _className(className), _keyBindings(keyBindings)
-    {
-    }
-
-    ~CIMObjectPathRep()
-    {
-    }
-
-    CIMObjectPathRep& operator=(const CIMObjectPathRep& x)
-    {
-        if (&x != this)
-        {
-            _host = x._host;
-            _nameSpace = x._nameSpace;
-            _className = x._className;
-            _keyBindings = x._keyBindings;
-        }
-        return *this;
-    }
-
-    static Boolean isValidHostname(const String& hostname)
-    {
-        HostLocator addr(hostname);
-
-        return addr.isValid();
-    }
-
-    // reference counter as member to avoid
-    // virtual function resolution overhead
-    AtomicInt _refCounter;
-    //
-    // Contains port as well (e.g., myhost:1234).
-    //
-    String _host;
-
-    CIMNamespaceName _nameSpace;
-    CIMName _className;
-    Array<CIMKeyBinding> _keyBindings;
-};
 
 template<class REP>
 inline void Ref(REP* rep)

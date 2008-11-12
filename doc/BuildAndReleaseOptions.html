@@ -639,6 +639,31 @@ additional information.</p>
      to false), a build error will be generated.
 </ul>
 
+<h5>PEGASUS_ENABLE_ENCAPSULATED_XML</h5>
+<ul>
+  <b>Description:&nbsp;</b>
+     This option enables the "encapsulated XML" feature. It is used in
+     conjunction with the "internal binary protocol" feature (see 
+     PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL). When enabled, the out-of-process
+     provider agent serializes CIM instances (contained in get-instance and
+     enumerate-instances responses) as XML (embedded in a binary message
+     envelope). This improves performance since the server may pass the
+     XML instaces through to the requesting client without deserializing them
+     from binary and then reserializing them as XML.
+     <br>
+  <b>Default Value:&nbsp;</b>false<br>
+  <b>Recommended Value (Development Build): </b>
+     No Specific Recommendation<br>
+  <b>Recommended Value (Release Build):&nbsp;</b>
+     No Specific Recommendation<br>
+  <b>Required:&nbsp;</b>No<br>
+  <b>Considerations:&nbsp;</b>This feature has no effect unless the "internal
+     binary protocol" feature is enabled (see 
+     PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL). Deciding whether to enable or
+     disable this feature is left to the user. Every environment is different
+     and some users may prefer lower bandwidth rather than higher performance.
+</ul>
+
 <h5>PEGASUS_ENABLE_EXECQUERY</h5>
 <ul>
   <b>Description:&nbsp;</b>When this environment variable is set,
@@ -728,6 +753,24 @@ additional information.</p>
      which causes memory usage to increase by 4 bytes for each
      active subscription and by about 400 bytes for each active
      indication provider.<br>	
+</ul>
+
+<h5>PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL</h5>
+<ul>
+  <b>Description: </b>If true, OpenPegasus uses a faster binary
+     protocol between the CIM server and provider manager. If false,
+     OpenPegasus uses the older XML-based protocol instead.
+     <br>
+  <b>Default Value: </b>true<br>
+  <b>Recommended Value (Development Build): </b>true<br>
+  <b>Recommended Value (Release Build): </b>true<br>
+  <b>Required: </b>No<br>
+  <b>Considerations: </b>This option improves performance by optimizing the
+     serialization and deserialization of messages between the server and 
+     out-of-process providers. The binary protocol also supports an optional
+     "encapsulated XML" feature (see PEGASUS_ENABLE_ENCAPSULATED_XML) for 
+     details.
+     <br>
 </ul>
 
 <h5>PEGASUS_ENABLE_INTEROP_PROVIDER</h5>

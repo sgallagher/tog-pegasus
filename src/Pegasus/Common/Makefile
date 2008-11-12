@@ -96,8 +96,6 @@ SOURCES1 = \
     CIMInstance.cpp \
     CIMInstanceRep.cpp \
     CIMMessage.cpp \
-    CIMMessageSerializer.cpp \
-    CIMMessageDeserializer.cpp \
     CIMMethod.cpp \
     CIMMethodRep.cpp \
     CIMName.cpp \
@@ -211,6 +209,15 @@ endif
 
 ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
     SOURCES2 += LoadAndClearWord_HPUX_PARISC_ACC.s
+endif
+
+ifeq ($(PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL),true)
+    SOURCES2 += CIMBuffer.cpp
+    SOURCES2 += CIMBinMsgSerializer.cpp
+    SOURCES2 += CIMBinMsgDeserializer.cpp
+else
+    SOURCES2 += CIMMessageSerializer.cpp
+    SOURCES2 += CIMMessageDeserializer.cpp
 endif
 
 SOURCES = $(SOURCES1) $(SOURCES2)

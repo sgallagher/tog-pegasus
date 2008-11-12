@@ -47,9 +47,11 @@ void WQLOperationRequestDispatcher::applyQueryToEnumeration(
         (CIMEnumerateInstancesResponseMessage*) msg;
     WQLSelectStatement* qs = ((WQLQueryExpressionRep*)query)->_stmt;
 
-    for (int i = enr->cimNamedInstances.size() - 1; i >= 0; i--)
+    Array<CIMInstance>& a = enr->getNamedInstances();
+
+    for (int i = a.size() - 1; i >= 0; i--)
     {
-        WQLInstancePropertySource ips(enr->cimNamedInstances[i]);
+        WQLInstancePropertySource ips(a[i]);
         try
         {
             if (qs->evaluateWhereClause(&ips))
@@ -58,13 +60,13 @@ void WQLOperationRequestDispatcher::applyQueryToEnumeration(
                 // Specify that missing requested project properties are
                 // allowed to be consistent with clarification from DMTF
                 //
-                qs->applyProjection(enr->cimNamedInstances[i], true);
+                qs->applyProjection(a[i], true);
             }
-            else enr->cimNamedInstances.remove(i);
+            else a.remove(i);
         }
         catch (...)
         {
-            enr->cimNamedInstances.remove(i);
+            a.remove(i);
         }
     }
 }
@@ -128,10 +130,11 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
             CIMClass cimClass;
 
             Boolean clsRead=false;
-            for (Uint32 j = 0, m = fromResponse->cimNamedInstances.size();
+            Array<CIMInstance>& a = fromResponse->getNamedInstances();
+            for (Uint32 j = 0, m = a.size();
                  j < m; j++)
             {
-                CIMObject co=CIMObject(fromResponse->cimNamedInstances[j]);
+                CIMObject co=CIMObject(a[j]);
                 CIMObjectPath op=co.getPath();
                 const Array<CIMKeyBinding>& kbs=op.getKeyBindings();
                 if (kbs.size() == 0)
@@ -143,7 +146,7 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
                             false,true,false, CIMPropertyList());
                         clsRead=true;
                     }
-                    op = fromResponse->cimNamedInstances[j].buildPath(cimClass);
+                    op = a[j].buildPath(cimClass);
                 }
                 op.setNameSpace(poA->_nameSpace);
                 op.setHost(System::getHostName());
@@ -368,17 +371,16 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
                 new CIMEnumerateInstancesResponseMessage(
                     request->messageId,
                     CIMException(),
-                    request->queueIds.copyAndPop(),
-                    Array<CIMInstance>()));
+                    request->queueIds.copyAndPop()));
             response->syncAttributes(request);
 
             try
             {
                 // Enumerate instances only for this class
-                response->cimNamedInstances =
+                response->setNamedInstances(
                     _repository->enumerateInstancesForClass(
                         request->nameSpace,
-                        providerInfo.className);
+                        providerInfo.className));
             }
             catch (CIMException& e)
             {

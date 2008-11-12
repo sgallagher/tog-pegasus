@@ -36,8 +36,14 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/OperationContextInternal.h>
-#include <Pegasus/Common/CIMMessageSerializer.h>
-#include <Pegasus/Common/CIMMessageDeserializer.h>
+
+#if defined(PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL)
+# include <Pegasus/Common/CIMBinMsgSerializer.h>
+# include <Pegasus/Common/CIMBinMsgDeserializer.h>
+#else
+# include <Pegasus/Common/CIMMessageSerializer.h>
+# include <Pegasus/Common/CIMMessageDeserializer.h>
+#endif
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -498,6 +504,20 @@ void validateCIMResponseMessageAttributes(
     a Message object.
 */
 CIMMessage* serializeDeserializeMessage(CIMMessage* inMessage)
+#if defined(PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL)
+{
+    CIMBuffer buf(64*1024);
+    CIMBinMsgSerializer::serialize(buf, inMessage);
+
+    size_t size = buf.size();
+    buf.rewind();
+
+    CIMMessage* outMessage;
+    outMessage = CIMBinMsgDeserializer::deserialize(buf, size);
+
+    return outMessage;
+}
+#else
 {
     Buffer outBuffer;
     CIMMessageSerializer::serialize(outBuffer, inMessage);
@@ -512,17 +532,31 @@ CIMMessage* serializeDeserializeMessage(CIMMessage* inMessage)
     }
 
     CIMMessage* outMessage;
+
     outMessage = CIMMessageDeserializer::deserialize(inBuffer);
 
     delete [] inBuffer;
-
     return outMessage;
 }
+#endif
 
 //
 // testEmptyRequestMessage
 //
 void testEmptyMessage()
+#if defined(PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL)
+{
+    CIMBuffer buf(64*1024);
+    CIMBinMsgSerializer::serialize(buf, 0);
+    PEGASUS_TEST_ASSERT(buf.size() == 0);
+
+    size_t size = buf.size();
+    buf.rewind();
+
+    CIMMessage* outMessage = CIMBinMsgDeserializer::deserialize(buf, size);
+    PEGASUS_TEST_ASSERT(outMessage == 0);
+}
+#else
 {
     Buffer outBuffer;
     CIMMessageSerializer::serialize(outBuffer, 0);
@@ -532,6 +566,7 @@ void testEmptyMessage()
     CIMMessage* outMessage = CIMMessageDeserializer::deserialize(inBuffer);
     PEGASUS_TEST_ASSERT(outMessage == 0);
 }
+#endif
 
 //
 // testCIMGetInstanceRequestMessage
@@ -1314,7 +1349,8 @@ void testCIMGetInstanceResponseMessage(
     const QueueIdStack& qids,
     const CIMInstance& inst)
 {
-    CIMGetInstanceResponseMessage inMessage(mid, ex, qids, inst);
+    CIMGetInstanceResponseMessage inMessage(mid, ex, qids);
+    inMessage.setCimInstance(inst);
     inMessage.operationContext = oc;
     AutoPtr<CIMGetInstanceResponseMessage> outMessage(
         dynamic_cast<CIMGetInstanceResponseMessage*>(
@@ -1322,7 +1358,8 @@ void testCIMGetInstanceResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMInstance(inMessage.cimInstance, outMessage->cimInstance);
+    validateCIMInstance(
+        inMessage.getCimInstance(), outMessage->getCimInstance());
 }
 
 //
@@ -1394,16 +1431,19 @@ void testCIMEnumerateInstancesResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMInstance>& instances)
 {
-    CIMEnumerateInstancesResponseMessage inMessage(mid, ex, qids, instances);
+    CIMEnumerateInstancesResponseMessage inMessage(mid, ex, qids);
+    inMessage.setNamedInstances(instances);
     inMessage.operationContext = oc;
     AutoPtr<CIMEnumerateInstancesResponseMessage> outMessage(
         dynamic_cast<CIMEnumerateInstancesResponseMessage*>(
             serializeDeserializeMessage(&inMessage)));
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
+
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
+
     validateCIMInstanceArray(
-        inMessage.cimNamedInstances, outMessage->cimNamedInstances);
+        inMessage.getNamedInstances(), outMessage->getNamedInstances());
 }
 
 //

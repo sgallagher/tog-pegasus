@@ -377,6 +377,8 @@ public:
     /** Make a copy of this stack and then pop the top element. */
     QueueIdStack copyAndPop() const;
 
+    Uint32 operator[](Uint32 i) const { return _items[i]; }
+
 private:
 
     // Copy the given stack but then pop the top element:

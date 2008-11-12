@@ -2608,7 +2608,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
         AutoPtr<CIMGetInstanceResponseMessage> response(
             dynamic_cast<CIMGetInstanceResponseMessage*>(
                 request->buildResponse()));
-        response->cimInstance = cimInstance;
+        response->setCimInstance(cimInstance);
 
         _enqueueResponse(request, response.release());
     }
@@ -3244,7 +3244,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                     String::EMPTY);
             }
 
-            response->cimNamedInstances = cimNamedInstances;
+            response->setNamedInstances(cimNamedInstances);
             response->cimException = cimException;
 
             poA->appendResponse(response.release());
@@ -5270,10 +5270,12 @@ void CIMOperationRequestDispatcher::
         CIMEnumerateInstancesResponseMessage* fromResponse =
             (CIMEnumerateInstancesResponseMessage*)poA->getResponse(i);
 
-        for (Uint32 j = 0; j < fromResponse->cimNamedInstances.size(); j++)
+        Array<CIMInstance>& from = fromResponse->getNamedInstances();
+        Array<CIMInstance>& to = toResponse->getNamedInstances();
+
+        for (Uint32 j = 0; j < from.size(); j++)
         {
-            toResponse->cimNamedInstances.append(
-                fromResponse->cimNamedInstances[j]);
+            to.append(from[j]);
         }
 
         poA->deleteResponse(i);

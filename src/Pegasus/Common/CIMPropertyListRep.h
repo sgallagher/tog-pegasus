@@ -31,82 +31,23 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ParamValueRep_h
-#define Pegasus_ParamValueRep_h
+
+#ifndef _Pegasus_Common_CIMPropertyListRep_h
+#define _Pegasus_Common_CIMPropertyListRep_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMValue.h>
-#include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/Buffer.h>
+#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/CIMName.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMParamValueRep
+class CIMPropertyListRep
 {
 public:
-
-    CIMParamValueRep(
-        String parameterName,
-        CIMValue value,
-        Boolean isTyped=true);
-
-    const String & getParameterName() const
-    {
-        return _parameterName;
-    }
-
-    const CIMValue & getValue() const
-    {
-        return _value;
-    }
-
-    Boolean isTyped() const
-    {
-        return _isTyped;
-    }
-
-    void setParameterName(String& parameterName);
-
-    void setValue(CIMValue& value);
-
-    void setIsTyped(Boolean isTyped);
-
-    CIMParamValueRep* clone() const
-    {
-        return new CIMParamValueRep(*this);
-    }
-
-    void Inc()
-    {
-       _refCounter++;
-    }
-
-    void Dec()
-    {
-        if (_refCounter.decAndTestIfZero())
-            delete this;
-    }
-
-private:
-
-    CIMParamValueRep(const CIMParamValueRep& x);
-
-    CIMParamValueRep();    // Unimplemented
-    CIMParamValueRep& operator=(const CIMParamValueRep& x);    // Unimplemented
-
-    String _parameterName;
-    CIMValue _value;
-    Boolean _isTyped;
-
-    // reference counter as member to avoid
-    // virtual function resolution overhead
-    AtomicInt _refCounter;
-
-    friend class CIMBuffer;
+    Array<CIMName> propertyNames;
+    Boolean isNull;
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_ParamValueRep_h */
+#endif /* _Pegasus_Common_CIMPropertyListRep_h */

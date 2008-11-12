@@ -1022,8 +1022,7 @@ CIMGetInstanceResponseMessage*
         return new CIMGetInstanceResponseMessage(
             messageId,
             cimException,
-            QueueIdStack(),
-            CIMInstance());
+            QueueIdStack());
     }
     else if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
     {
@@ -1040,11 +1039,12 @@ CIMGetInstanceResponseMessage*
 
         XmlReader::expectEndTag(parser, "IRETURNVALUE");
 
-        return new CIMGetInstanceResponseMessage(
+        CIMGetInstanceResponseMessage* msg = new CIMGetInstanceResponseMessage(
             messageId,
             cimException,
-            QueueIdStack(),
-            cimInstance);
+            QueueIdStack());
+        msg->setCimInstance(cimInstance);
+        return msg;
     }
     else
     {
@@ -1158,8 +1158,7 @@ CIMEnumerateInstancesResponseMessage*
             return new CIMEnumerateInstancesResponseMessage(
                 messageId,
                 cimException,
-                QueueIdStack(),
-                Array<CIMInstance>());
+                QueueIdStack());
         }
 
         if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -1179,11 +1178,15 @@ CIMEnumerateInstancesResponseMessage*
         }
     }
 
-    return new CIMEnumerateInstancesResponseMessage(
+    CIMEnumerateInstancesResponseMessage* msg;
+    
+    msg = new CIMEnumerateInstancesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        namedInstances);
+        QueueIdStack());
+
+    msg->setNamedInstances(namedInstances);
+    return msg;
 }
 
 CIMDeleteInstanceResponseMessage*

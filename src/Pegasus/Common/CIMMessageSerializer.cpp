@@ -673,7 +673,7 @@ void CIMMessageSerializer::_serializeOperationContext(
         const CachedClassDefinitionContainer container =
             operationContext.get(CachedClassDefinitionContainer::NAME);
 
-        CIMClass cimClass = container.getClass();
+        CIMConstClass cimClass = container.getClass();
         XmlWriter::append(out, "<PGOCCCD>\n");
         XmlWriter::appendClassElement(out, cimClass);
         XmlWriter::append(out, "</PGOCCCD>\n");
@@ -1295,7 +1295,7 @@ void CIMMessageSerializer::_serializeCIMGetInstanceResponseMessage(
     Buffer& out,
     CIMGetInstanceResponseMessage* message)
 {
-    _serializeCIMInstance(out, message->cimInstance);
+    _serializeCIMInstance(out, message->getCimInstance());
 }
 
 //
@@ -1337,9 +1337,11 @@ void CIMMessageSerializer::_serializeCIMEnumerateInstancesResponseMessage(
 {
     // Use PGINSTARRAY element to encapsulate the CIMInstance elements
     XmlWriter::append(out, "<PGINSTARRAY>\n");
-    for (Uint32 i=0; i < message->cimNamedInstances.size(); i++)
+
+    const Array<CIMInstance>& a = message->getNamedInstances();
+    for (Uint32 i=0; i < a.size(); i++)
     {
-        _serializeCIMInstance(out, message->cimNamedInstances[i]);
+        _serializeCIMInstance(out, a[i]);
     }
     XmlWriter::append(out, "</PGINSTARRAY>\n");
 }

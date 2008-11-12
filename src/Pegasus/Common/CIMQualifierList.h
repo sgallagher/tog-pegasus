@@ -196,6 +196,9 @@ public:
 
     Boolean isKey() const;
 
+    /// Add qualifier without checking whether it already exists.
+    CIMQualifierList& addUnchecked(const CIMQualifier& qualifier);
+
 private:
 
     typedef OrderedSet<CIMQualifier,

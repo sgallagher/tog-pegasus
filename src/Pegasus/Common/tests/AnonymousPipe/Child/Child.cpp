@@ -199,8 +199,8 @@ int main (int argc, char * argv [])
             (new CIMGetInstanceResponseMessage
                 (String ("00000002"),
                 CIMException (CIM_ERR_FAILED),
-                QueueIdStack (),
-                anInstance));
+                QueueIdStack()));
+        response->setCimInstance(anInstance);
 
         AnonymousPipe::Status writeMessageStatus =
             pipeToParent->writeMessage (response.get ());

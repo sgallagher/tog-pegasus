@@ -1422,3 +1422,45 @@ ifdef PEGASUS_ALLOW_ABSOLUTEPATH_IN_PROVIDERMODULE
   endif
 endif
 
+##==============================================================================
+##
+## PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL
+##
+##     Enable binary protocol between cimserver and out-of-process providers.
+##     By default this feature is enabled.
+##
+##==============================================================================
+
+ifndef PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL
+  PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL=true
+endif
+
+ifeq ($(PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL),true)
+  DEFINES += -DPEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL
+else
+  ifneq ($(PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL),false)
+    $(error "PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL must be true or false")
+  endif
+endif
+
+##==============================================================================
+##
+## PEGASUS_ENABLE_ENCAPSULATED_XML
+##
+##     Enable encapsulated XML within binary protocol messages. This improves
+##     performance by allowing provider to format XML which the server can
+##     pass through to client without converting to CIMInstances.
+##
+##==============================================================================
+
+ifndef PEGASUS_ENABLE_ENCAPSULATED_XML
+  PEGASUS_ENABLE_ENCAPSULATED_XML=false
+endif
+
+ifeq ($(PEGASUS_ENABLE_ENCAPSULATED_XML),true)
+  DEFINES += -DPEGASUS_ENABLE_ENCAPSULATED_XML
+else
+  ifneq ($(PEGASUS_ENABLE_ENCAPSULATED_XML),false)
+    $(error "PEGASUS_ENABLE_ENCAPSULATED_XML must be true or false")
+  endif
+endif

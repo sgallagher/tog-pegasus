@@ -34,10 +34,15 @@
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include "CIMMessage.h"
+#include "XmlWriter.h"
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+#define PEGASUS_ARRAY_T ArraySint8
+# include "ArrayImpl.h"
+#undef PEGASUS_ARRAY_T
 
 void CIMResponseMessage::syncAttributes(const CIMRequestMessage* request)
 {
@@ -68,8 +73,7 @@ CIMResponseMessage* CIMGetInstanceRequestMessage::buildResponse() const
         new CIMGetInstanceResponseMessage(
             messageId,
             CIMException(),
-            queueIds.copyAndPop(),
-            CIMInstance()));
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
     return response.release();
 }
@@ -182,8 +186,7 @@ CIMResponseMessage* CIMEnumerateInstancesRequestMessage::buildResponse() const
         new CIMEnumerateInstancesResponseMessage(
             messageId,
             CIMException(),
-            queueIds.copyAndPop(),
-            Array<CIMInstance>()));
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
     return response.release();
 }
@@ -604,6 +607,29 @@ CIMOperationRequestMessage::CIMOperationRequestMessage(
     className(className_),
     providerType(providerType_)
 {
+}
+
+Array<CIMInstance>& CIMEnumerateInstancesResponseMessage::getNamedInstances()
+{
+    if (resolveCallback)
+    {
+        (*resolveCallback)(
+            instancesData, 
+            referencesData, 
+            hostsData,
+            nameSpacesData, 
+            _namedInstances);
+        resolveCallback = 0;
+    }
+
+    return _namedInstances;
+}
+
+void CIMEnumerateInstancesResponseMessage::setNamedInstances(
+    const Array<CIMInstance>& x)
+{
+    resolveCallback = 0;
+    _namedInstances = x;
 }
 
 PEGASUS_NAMESPACE_END

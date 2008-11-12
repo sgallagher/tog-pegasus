@@ -394,4 +394,18 @@ Boolean CIMQualifierList::isKey() const
     return false;
 }
 
+CIMQualifierList& CIMQualifierList::addUnchecked(const CIMQualifier& qualifier)
+{
+    if (qualifier.isUninitialized())
+        throw UninitializedObjectException();
+
+    _qualifiers.append(qualifier);
+    
+    if (_keyIndex == PEGASUS_ORDEREDSET_INDEX_UNKNOWN && 
+            qualifier._rep->_name == _KEY)
+        _keyIndex = _qualifiers.size()-1;
+
+    return *this;
+}
+
 PEGASUS_NAMESPACE_END

@@ -1956,8 +1956,9 @@ CIMMessageDeserializer::_deserializeCIMGetInstanceResponseMessage(
         new CIMGetInstanceResponseMessage(
             String::EMPTY,         // messageId
             CIMException(),        // cimException
-            QueueIdStack(),        // queueIds
-            cimInstance);
+            QueueIdStack());       // queueIds
+
+    message->setCimInstance(cimInstance);
 
     return message;
 }
@@ -2038,8 +2039,8 @@ CIMMessageDeserializer::_deserializeCIMEnumerateInstancesResponseMessage(
         new CIMEnumerateInstancesResponseMessage(
             String::EMPTY,         // messageId
             CIMException(),        // cimException
-            QueueIdStack(),        // queueIds
-            cimNamedInstances);
+            QueueIdStack());        // queueIds
+    message->setNamedInstances(cimNamedInstances);
 
     return message;
 }

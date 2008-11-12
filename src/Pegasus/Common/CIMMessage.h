@@ -71,6 +71,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+typedef Array<Sint8> ArraySint8;
+#define PEGASUS_ARRAY_T ArraySint8
+# include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
+
 class PEGASUS_COMMON_LINKAGE CIMMessage : public Message
 {
 public:
@@ -1424,15 +1429,52 @@ public:
     CIMGetInstanceResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_,
-        const CIMInstance& cimInstance_)
+        const QueueIdStack& queueIds_)
     : CIMResponseMessage(CIM_GET_INSTANCE_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_),
-        cimInstance(cimInstance_)
+        messageId_, cimException_, queueIds_), 
+        resolveCallback(0)
     {
     }
 
-    CIMInstance cimInstance;
+    Boolean (*resolveCallback)(
+        const Array<Sint8>& instanceData, 
+        const Array<Sint8>& referenceData, 
+        const String& hostData,
+        const CIMNamespaceName& nameSpaceData,
+        CIMInstance& cimInstance);
+
+    Array<Sint8> instanceData;
+    Array<Sint8> referenceData;
+    CIMNamespaceName nameSpaceData;
+    String hostData;
+
+    CIMInstance& getCimInstance() 
+    {
+        if (resolveCallback)
+        {
+            (*resolveCallback)(
+                instanceData, 
+                referenceData, 
+                hostData,
+                nameSpaceData, 
+                _cimInstance);
+            resolveCallback = 0;
+        }
+        return _cimInstance; 
+    }
+
+    void setCimInstance(const CIMInstance& x) 
+    { 
+        resolveCallback = 0;
+        _cimInstance = x; 
+    }
+
+private:
+    CIMInstance _cimInstance;
+    CIMGetInstanceResponseMessage();
+    CIMGetInstanceResponseMessage(const CIMGetInstanceResponseMessage&);
+    CIMGetInstanceResponseMessage& operator=(
+        const CIMGetInstanceResponseMessage&);
 };
 
 class PEGASUS_COMMON_LINKAGE CIMExportIndicationResponseMessage
@@ -1580,15 +1622,31 @@ public:
     CIMEnumerateInstancesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_,
-        const Array<CIMInstance>& cimNamedInstances_)
-    : CIMResponseMessage(CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_),
-        cimNamedInstances(cimNamedInstances_)
+        const QueueIdStack& queueIds_)
+    : CIMResponseMessage(
+        CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_), resolveCallback(0)
     {
     }
 
-    Array<CIMInstance> cimNamedInstances;
+    Boolean (*resolveCallback)(
+        const Array<ArraySint8>& instancesData,
+        const Array<ArraySint8>& referencesData,
+        const Array<String>& hostsData,
+        const Array<CIMNamespaceName>& nameSpacesData,
+        Array<CIMInstance>& instances);
+
+    Array<ArraySint8> instancesData;
+    Array<ArraySint8> referencesData;
+    Array<String> hostsData;
+    Array<CIMNamespaceName> nameSpacesData;
+
+    Array<CIMInstance>& getNamedInstances();
+
+    void setNamedInstances(const Array<CIMInstance>& x);
+
+private:
+    Array<CIMInstance> _namedInstances;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMEnumerateInstanceNamesResponseMessage
@@ -2053,6 +2111,7 @@ public:
     {
     }
 };
+
 
 PEGASUS_NAMESPACE_END
 

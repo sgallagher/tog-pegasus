@@ -31,82 +31,74 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ParamValueRep_h
-#define Pegasus_ParamValueRep_h
+#ifndef _Pegasus_Common_CIMObjectPathRep_h
+#define _Pegasus_Common_CIMObjectPathRep_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMValue.h>
-#include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/Buffer.h>
+#include <Pegasus/Common/CIMObjectPath.h>
+#include <Pegasus/Common/HostLocator.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMParamValueRep
+class CIMObjectPathRep
 {
 public:
-
-    CIMParamValueRep(
-        String parameterName,
-        CIMValue value,
-        Boolean isTyped=true);
-
-    const String & getParameterName() const
+    CIMObjectPathRep(): _refCounter(1)
     {
-        return _parameterName;
     }
 
-    const CIMValue & getValue() const
+    CIMObjectPathRep(const CIMObjectPathRep& x)
+        : _refCounter(1), _host(x._host), _nameSpace(x._nameSpace),
+        _className(x._className), _keyBindings(x._keyBindings)
     {
-        return _value;
     }
 
-    Boolean isTyped() const
+    CIMObjectPathRep(
+        const String& host,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        const Array<CIMKeyBinding>& keyBindings)
+        : _refCounter(1), _host(host), _nameSpace(nameSpace),
+        _className(className), _keyBindings(keyBindings)
     {
-        return _isTyped;
     }
 
-    void setParameterName(String& parameterName);
-
-    void setValue(CIMValue& value);
-
-    void setIsTyped(Boolean isTyped);
-
-    CIMParamValueRep* clone() const
+    ~CIMObjectPathRep()
     {
-        return new CIMParamValueRep(*this);
     }
 
-    void Inc()
+    CIMObjectPathRep& operator=(const CIMObjectPathRep& x)
     {
-       _refCounter++;
+        if (&x != this)
+        {
+            _host = x._host;
+            _nameSpace = x._nameSpace;
+            _className = x._className;
+            _keyBindings = x._keyBindings;
+        }
+        return *this;
     }
 
-    void Dec()
+    static Boolean isValidHostname(const String& hostname)
     {
-        if (_refCounter.decAndTestIfZero())
-            delete this;
+        HostLocator addr(hostname);
+
+        return addr.isValid();
     }
-
-private:
-
-    CIMParamValueRep(const CIMParamValueRep& x);
-
-    CIMParamValueRep();    // Unimplemented
-    CIMParamValueRep& operator=(const CIMParamValueRep& x);    // Unimplemented
-
-    String _parameterName;
-    CIMValue _value;
-    Boolean _isTyped;
 
     // reference counter as member to avoid
     // virtual function resolution overhead
     AtomicInt _refCounter;
+    //
+    // Contains port as well (e.g., myhost:1234).
+    //
+    String _host;
 
-    friend class CIMBuffer;
+    CIMNamespaceName _nameSpace;
+    CIMName _className;
+    Array<CIMKeyBinding> _keyBindings;
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_ParamValueRep_h */
+#endif /* _Pegasus_Common_CIMObjectPathRep_h */

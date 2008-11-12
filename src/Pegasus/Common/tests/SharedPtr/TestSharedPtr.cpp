@@ -162,14 +162,6 @@ void testSharedArrayPtr()
     PEGASUS_TEST_ASSERT(Monkey::numDestructions == 5);
 }
 
-struct FreeCharPtr
-{
-    void operator()(char* ptr)
-    {
-        free(ptr);
-    }
-};
-
 void testCharPtr()
 {
     // Test with FreeCharPtr<> function object.

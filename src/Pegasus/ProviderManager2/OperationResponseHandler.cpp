@@ -383,7 +383,7 @@ void GetInstanceResponseHandler::transfer()
         CIMGetInstanceResponseMessage& msg =
             *static_cast<CIMGetInstanceResponseMessage*>(getResponse());
 
-        msg.cimInstance = getObjects()[0];
+        msg.setCimInstance(getObjects()[0]);
     }
 }
 
@@ -439,7 +439,7 @@ void EnumerateInstancesResponseHandler::transfer()
     CIMEnumerateInstancesResponseMessage& msg =
         *static_cast<CIMEnumerateInstancesResponseMessage*>(getResponse());
 
-    msg.cimNamedInstances = getObjects();
+    msg.setNamedInstances(getObjects());
 }
 
 //

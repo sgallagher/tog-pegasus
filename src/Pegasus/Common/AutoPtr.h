@@ -49,6 +49,22 @@ struct DeletePtr
     }
 };
 
+/** Function object for freeing (rather than deleting) pointer to char*. For
+    example:
+
+        <pre>
+        char* ptr = (char*)malloc(80);
+        AutoPtr<char, FreeCharPtr> ap(ptr);
+        </pre>
+*/
+struct FreeCharPtr
+{
+    void operator()(char* ptr) 
+    { 
+        free(ptr); 
+    }
+};
+
 /** Function object for deleting a pointer referring to an array.
 */
 template<class T>

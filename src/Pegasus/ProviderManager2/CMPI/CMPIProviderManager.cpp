@@ -3301,15 +3301,15 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         }
 
         // Copy property value from instance to getProperty response
-        if (!(GI_response->cimInstance.isUninitialized()))
+        if (!(GI_response->getCimInstance().isUninitialized()))
         {
-            Uint32 pos = 
-                GI_response->cimInstance.findProperty(request->propertyName);
+            Uint32 pos = GI_response->getCimInstance().findProperty(
+                request->propertyName);
 
             if (pos != PEG_NOT_FOUND)
             {
                 response->value = 
-                    GI_response->cimInstance.getProperty(pos).getValue();
+                    GI_response->getCimInstance().getProperty(pos).getValue();
             }
             // Else property not found. Return CIM_ERR_NO_SUCH_PROPERTY.
             else

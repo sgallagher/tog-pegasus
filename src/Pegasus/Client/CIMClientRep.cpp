@@ -465,7 +465,7 @@ CIMInstance CIMClientRep::getInstance(
 
     AutoPtr<CIMGetInstanceResponseMessage> destroyer(response);
 
-    return response->cimInstance;
+    return response->getCimInstance();
 }
 
 void CIMClientRep::deleteClass(
@@ -672,7 +672,7 @@ Array<CIMInstance> CIMClientRep::enumerateInstances(
 
     AutoPtr<CIMEnumerateInstancesResponseMessage> destroyer(response);
 
-    return response->cimNamedInstances;
+    return response->getNamedInstances();
 }
 
 Array<CIMObjectPath> CIMClientRep::enumerateInstanceNames(

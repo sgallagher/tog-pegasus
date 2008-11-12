@@ -31,82 +31,55 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_ParamValueRep_h
-#define Pegasus_ParamValueRep_h
+
+#ifndef _Pegasus_Common_CIMKeyBindingRep_h
+#define _Pegasus_Common_CIMKeyBindingRep_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMValue.h>
-#include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/Buffer.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMParamValueRep
+class CIMKeyBindingRep
 {
 public:
-
-    CIMParamValueRep(
-        String parameterName,
-        CIMValue value,
-        Boolean isTyped=true);
-
-    const String & getParameterName() const
+    CIMKeyBindingRep()
     {
-        return _parameterName;
     }
 
-    const CIMValue & getValue() const
+    CIMKeyBindingRep(const CIMKeyBindingRep& x)
+        : _name(x._name), _value(x._value), _type(x._type)
     {
-        return _value;
     }
 
-    Boolean isTyped() const
+    CIMKeyBindingRep(
+        const CIMName& name,
+        const String& value,
+        CIMKeyBinding::Type type)
+        : _name(name), _value(value), _type(type)
     {
-        return _isTyped;
     }
 
-    void setParameterName(String& parameterName);
-
-    void setValue(CIMValue& value);
-
-    void setIsTyped(Boolean isTyped);
-
-    CIMParamValueRep* clone() const
+    ~CIMKeyBindingRep()
     {
-        return new CIMParamValueRep(*this);
     }
 
-    void Inc()
+    CIMKeyBindingRep& operator=(const CIMKeyBindingRep& x)
     {
-       _refCounter++;
+        if (&x != this)
+        {
+            _name = x._name;
+            _value = x._value;
+            _type = x._type;
+        }
+        return *this;
     }
 
-    void Dec()
-    {
-        if (_refCounter.decAndTestIfZero())
-            delete this;
-    }
-
-private:
-
-    CIMParamValueRep(const CIMParamValueRep& x);
-
-    CIMParamValueRep();    // Unimplemented
-    CIMParamValueRep& operator=(const CIMParamValueRep& x);    // Unimplemented
-
-    String _parameterName;
-    CIMValue _value;
-    Boolean _isTyped;
-
-    // reference counter as member to avoid
-    // virtual function resolution overhead
-    AtomicInt _refCounter;
-
-    friend class CIMBuffer;
+    CIMName _name;
+    String _value;
+    CIMKeyBinding::Type _type;
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_ParamValueRep_h */
+#endif /* _Pegasus_Common_CIMKeyBindingRep_h */

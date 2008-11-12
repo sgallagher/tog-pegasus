@@ -227,6 +227,7 @@ private:
     ParameterSet _parameters;
 
     friend class CIMClassRep;
+    friend class CIMBuffer;
 };
 
 PEGASUS_NAMESPACE_END

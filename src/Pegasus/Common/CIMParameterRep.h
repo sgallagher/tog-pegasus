@@ -176,6 +176,7 @@ private:
     AtomicInt _refCounter;
     Uint32 _ownerCount;
 
+    friend class CIMBuffer;
 };
 
 PEGASUS_NAMESPACE_END

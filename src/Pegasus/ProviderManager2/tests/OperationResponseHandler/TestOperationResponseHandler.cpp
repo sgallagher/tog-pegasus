@@ -66,8 +66,7 @@ void Test1()
         CIMGetInstanceResponseMessage response(
             String::EMPTY,
             CIMException(),
-            QueueIdStack(),
-            CIMInstance());
+            QueueIdStack());
 
         GetInstanceResponseHandler handler(&request, &response, dummyCallback);
 
@@ -105,8 +104,7 @@ void Test1()
         CIMEnumerateInstancesResponseMessage response(
             String::EMPTY,
             CIMException(),
-            QueueIdStack(),
-            Array<CIMInstance>());
+            QueueIdStack());
 
         EnumerateInstancesResponseHandler handler(
             &request, &response, dummyCallback);
@@ -222,8 +220,7 @@ void Test2(void)
         CIMGetInstanceResponseMessage response(
             String::EMPTY,
             CIMException(),
-            QueueIdStack(),
-            CIMInstance());
+            QueueIdStack());
 
         GetInstanceResponseHandler handler(&request, &response, dummyCallback);
 
@@ -256,8 +253,7 @@ void Test2(void)
         CIMGetInstanceResponseMessage response(
             String::EMPTY,
             CIMException(),
-            QueueIdStack(),
-            CIMInstance());
+            QueueIdStack());
 
         GetInstanceResponseHandler handler(&request, &response, dummyCallback);
 

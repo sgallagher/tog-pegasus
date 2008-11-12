@@ -1039,7 +1039,10 @@ Boolean System::isIpOnNetworkInterface(Uint32 inIP)
         (char *)calloc(PEGASUS_MAX_NETWORK_INTERFACES, sizeof(struct ifreq));
     conf.ifc_len = PEGASUS_MAX_NETWORK_INTERFACES * sizeof(struct ifreq);
 
-    if (-1 < ioctl(AF_INET, SIOCGIFCONF, &conf))
+    int sd=socket(AF_INET, SOCK_DGRAM, 0);
+    int rc = ioctl(sd, SIOCGIFCONF, &conf);
+    close(sd);
+    if (-1 < rc)
     {
         struct ifreq* r = conf.ifc_req;
         sockaddr_in* addr;
@@ -1271,9 +1274,10 @@ Array<String> System::getInterfaceAddrs()
         freeifaddrs(array);
     }
 #elif defined(PEGASUS_OS_AIX)
-
     struct ifconf ifc;
-    int sd=socket(AF_INET6, SOCK_DGRAM, 0);
+    SocketHandle sd=socket(AF_INET6, SOCK_DGRAM, 0);
+    // Use an AutoPtr to ensure the socket handle is closed on exception
+    AutoPtr<SocketHandle, CloseSocketHandle> sockPtr(&sd);
     int bsz=sizeof(struct ifreq);
     int prevsz=bsz;
     ifc.ifc_req=0;

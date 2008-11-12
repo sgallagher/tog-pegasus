@@ -124,7 +124,7 @@ public:
         Boolean& shareable,
         Boolean& updatesAllowed,
         String& parent,
-        String& remoteInfo = String::EMPTY);
+        String& remoteInfo);
 
     void validateNameSpace(
         const CIMNamespaceName& nameSpaceName) const;

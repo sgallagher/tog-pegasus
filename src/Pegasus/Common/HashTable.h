@@ -152,9 +152,12 @@ public:
 
     operator int() const { return _bucket != 0; }
 
-    _HashTableIteratorBase operator++(int);
+    void operator++();
 
-    _HashTableIteratorBase& operator++();
+    void operator++(int)
+    {
+        operator++();
+    }
 
 protected:
 

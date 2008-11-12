@@ -133,24 +133,17 @@ _BucketBase::~_BucketBase()
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-_HashTableIteratorBase _HashTableIteratorBase::operator++(int)
-{
-    _HashTableIteratorBase tmp = *this;
-    operator++();
-    return tmp;
-}
-
-_HashTableIteratorBase& _HashTableIteratorBase::operator++()
+void _HashTableIteratorBase::operator++()
 {
     // At the end?
 
     if (!_bucket)
-        return *this;
+        return;
 
     // More buckets this chain?
 
     if ((_bucket = _bucket->next))
-        return *this;
+        return;
 
     // Find the next non-empty chain:
 
@@ -167,7 +160,7 @@ _HashTableIteratorBase& _HashTableIteratorBase::operator++()
         _first++;
     }
 
-    return *this;
+    return;
 }
 
 _HashTableIteratorBase::_HashTableIteratorBase(

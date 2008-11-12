@@ -13,6 +13,7 @@
 #include "CIMObjectPathRep.h"
 #include "CIMPropertyListRep.h"
 #include "StringRep.h"
+#include "CIMValueRep.h"
 
 #define INSTANCE_MAGIC 0xD6EF2219
 #define CLASS_MAGIC 0xA8D7DE41

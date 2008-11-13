@@ -179,8 +179,10 @@ protected:
         OpProviderHolder & ph, 
         const char *remoteInfo);
 
-    CIMObjectPath _getFilterPath(
-        const CIMInstance &instance);
+    String _getClassNameFromQuery(
+        CIMOMHandleQueryContext *context,
+        String &query,
+        String &lang);
 };
 
 PEGASUS_NAMESPACE_END

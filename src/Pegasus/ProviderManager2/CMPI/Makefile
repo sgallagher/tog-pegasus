@@ -62,6 +62,7 @@ endif
 
 LIBRARIES += \
     pegquerycommon \
+    pegqueryexpression \
     pegconfig \
     pegcommon
 

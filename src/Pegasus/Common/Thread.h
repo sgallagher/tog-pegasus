@@ -99,7 +99,7 @@ enum TSD_Key
     TSD_RESERVED_7,
     TSD_RESERVED_8,
     // Add new TSD keys before this line.
-    TSD_COUNT,
+    TSD_COUNT
 };
 
 class thread_data

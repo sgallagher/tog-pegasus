@@ -137,55 +137,56 @@ void CIMBuffer::putValue(const CIMValue& x)
         switch (rep->type)
         {
             case CIMTYPE_BOOLEAN:
-                putBooleanA(*((Array<Boolean>*)&rep->u));
+                putBooleanA(*(reinterpret_cast<Array<Boolean>*>(&rep->u)));
                 break;
             case CIMTYPE_UINT8:
-                putUint8A(*((Array<Uint8>*)&rep->u));
+                putUint8A(*(reinterpret_cast<Array<Uint8>*>(&rep->u)));
                 break;
             case CIMTYPE_SINT8:
-                putSint8A(*((Array<Sint8>*)&rep->u));
+                putSint8A(*(reinterpret_cast<Array<Sint8>*>(&rep->u)));
                 break;
             case CIMTYPE_UINT16:
-                putUint16A(*((Array<Uint16>*)&rep->u));
+                putUint16A(*(reinterpret_cast<Array<Uint16>*>(&rep->u)));
                 break;
             case CIMTYPE_SINT16:
-                putSint16A(*((Array<Sint16>*)&rep->u));
+                putSint16A(*(reinterpret_cast<Array<Sint16>*>(&rep->u)));
                 break;
             case CIMTYPE_UINT32:
-                putUint32A(*((Array<Uint32>*)&rep->u));
+                putUint32A(*(reinterpret_cast<Array<Uint32>*>(&rep->u)));
                 break;
             case CIMTYPE_SINT32:
-                putSint32A(*((Array<Sint32>*)&rep->u));
+                putSint32A(*(reinterpret_cast<Array<Sint32>*>(&rep->u)));
                 break;
             case CIMTYPE_UINT64:
-                putUint64A(*((Array<Uint64>*)&rep->u));
+                putUint64A(*(reinterpret_cast<Array<Uint64>*>(&rep->u)));
                 break;
             case CIMTYPE_SINT64:
-                putSint64A(*((Array<Sint64>*)&rep->u));
+                putSint64A(*(reinterpret_cast<Array<Sint64>*>(&rep->u)));
                 break;
             case CIMTYPE_REAL32:
-                putReal32A(*((Array<Real32>*)&rep->u));
+                putReal32A(*(reinterpret_cast<Array<Real32>*>(&rep->u)));
                 break;
             case CIMTYPE_REAL64:
-                putReal64A(*((Array<Real64>*)&rep->u));
+                putReal64A(*(reinterpret_cast<Array<Real64>*>(&rep->u)));
                 break;
             case CIMTYPE_CHAR16:
-                putChar16A(*((Array<Char16>*)&rep->u));
+                putChar16A(*(reinterpret_cast<Array<Char16>*>(&rep->u)));
                 break;
             case CIMTYPE_STRING:
-                putStringA(*((Array<String>*)&rep->u));
+                putStringA(*(reinterpret_cast<Array<String>*>(&rep->u)));
                 break;
             case CIMTYPE_DATETIME:
-                putDateTimeA(*((Array<CIMDateTime>*)&rep->u));
+                putDateTimeA(*(reinterpret_cast<Array<CIMDateTime>*>(&rep->u)));
                 break;
             case CIMTYPE_REFERENCE:
-                putObjectPathA(*((Array<CIMObjectPath>*)&rep->u));
+                putObjectPathA(
+                    *(reinterpret_cast<Array<CIMObjectPath>*>(&rep->u)));
                 break;
             case CIMTYPE_INSTANCE:
-                putInstanceA(*((Array<CIMInstance>*)&rep->u));
+                putInstanceA(*(reinterpret_cast<Array<CIMInstance>*>(&rep->u)));
                 break;
             case CIMTYPE_OBJECT:
-                putObjectA(*((Array<CIMObject>*)&rep->u));
+                putObjectA(*(reinterpret_cast<Array<CIMObject>*>(&rep->u)));
                 break;
             default:
                 PEGASUS_ASSERT(0);
@@ -585,7 +586,7 @@ bool CIMBuffer::getKeyBinding(CIMKeyBinding& x)
         return false;
 
     x.~CIMKeyBinding();
-    new(&x) CIMKeyBinding(_CIMNameCast(name), value, CIMKeyBinding::Type(type));
+    new(&x) CIMKeyBinding(CIMNameCast(name), value, CIMKeyBinding::Type(type));
 
     return true;
 }
@@ -653,7 +654,11 @@ bool CIMBuffer::getObjectPath(CIMObjectPath& x)
         kbs.append(kb);
     }
 
-    x.set(host, *((CIMNamespaceName*)&nameSpace), _CIMNameCast(className), kbs);
+    x.set(
+        host,
+        *(reinterpret_cast<CIMNamespaceName*>(&nameSpace)),
+        CIMNameCast(className),
+        kbs);
 
     return true;
 }
@@ -690,9 +695,9 @@ bool CIMBuffer::getQualifier(CIMQualifier& x)
     x.~CIMQualifier();
 
     new(&x) CIMQualifier(
-        _CIMNameCast(name),
+        CIMNameCast(name),
         value,
-        *((CIMFlavor*)&flavor),
+        *(reinterpret_cast<CIMFlavor*>(&flavor)),
         propagated);
 
     return true;
@@ -795,11 +800,11 @@ bool CIMBuffer::getProperty(CIMProperty& x)
     x.~CIMProperty();
 
     new(&x) CIMProperty(
-        _CIMNameCast(name),
+        CIMNameCast(name),
         value,
         arraySize,
-        _CIMNameCast(referenceClassName),
-        _CIMNameCast(classOrigin),
+        CIMNameCast(referenceClassName),
+        CIMNameCast(classOrigin),
         propagated);
 
     CIMPropertyRep* rep = *((CIMPropertyRep**)&x);
@@ -993,7 +998,7 @@ bool CIMBuffer::getClass(CIMClass& x)
         return false;
 
     rep = new CIMClassRep(reference.getClassName(), 
-        _CIMNameCast(superClassName));
+        CIMNameCast(superClassName));
 
     rep->_reference = reference;
 
@@ -1103,11 +1108,11 @@ bool CIMBuffer::getParameter(CIMParameter& x)
     x.~CIMParameter();
 
     new(&x) CIMParameter(
-        _CIMNameCast(name),
+        CIMNameCast(name),
         CIMType(type),
         isArray,
         arraySize,
-        _CIMNameCast(referenceClassName));
+        CIMNameCast(referenceClassName));
 
     CIMParameterRep* rep = *((CIMParameterRep**)&x);
 
@@ -1252,7 +1257,7 @@ bool CIMBuffer::getPropertyList(CIMPropertyList& x)
             if (!getString(name))
                 return false;
 
-            names.append(_CIMNameCast(name));
+            names.append(CIMNameCast(name));
         }
 
         x.~CIMPropertyList();

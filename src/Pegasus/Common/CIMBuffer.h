@@ -747,7 +747,7 @@ public:
         if (!getString(tmp))
             return false;
 
-        x = _CIMNameCast(tmp);
+        x = CIMNameCast(tmp);
         return true;
     }
 
@@ -758,7 +758,7 @@ public:
         if (!getString(tmp))
             return false;
 
-        x = _CIMNamespaceNameCast(tmp);
+        x = CIMNamespaceNameCast(tmp);
         return true;
     }
 
@@ -785,7 +785,7 @@ public:
             if (!getString(tmp))
                 return false;
 
-            x.append(_CIMNameCast(tmp));
+            x.append(CIMNameCast(tmp));
         }
 
         return true;
@@ -934,16 +934,6 @@ private:
 #else
         return true;
 #endif
-    }
-
-    static const CIMName& _CIMNameCast(const String& str)
-    {
-        return *((CIMName*)&str);
-    }
-
-    static const CIMNamespaceName& _CIMNamespaceNameCast(const String& str)
-    {
-        return *((CIMNamespaceName*)&str);
     }
 
     char* _data;

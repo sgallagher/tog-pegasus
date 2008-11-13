@@ -164,14 +164,28 @@ inline const CIMName& CIMNameCast(const String& str)
 {
 #if defined(PEGASUS_DEBUG)
 
-    if (!CIMName::legal(str))
+    if (str.size() && !CIMName::legal(str))
     {
         throw InvalidNameException(str);
     }
 
 #endif
 
-    return *((CIMName*)&str);
+    return *(reinterpret_cast<const CIMName*>(&str));
+}
+
+inline const CIMNamespaceName& CIMNamespaceNameCast(const String& str)
+{
+#if defined(PEGASUS_DEBUG)
+
+    if (str.size() && !CIMNamespaceName::legal(str))
+    {
+        throw InvalidNamespaceNameException(str);
+    }
+
+#endif
+
+    return *(reinterpret_cast<const CIMNamespaceName*>(&str));
 }
 
 /** Checks whether a given character string consists of ASCII only and

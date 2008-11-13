@@ -827,13 +827,7 @@ Boolean CIMBinMsgDeserializer::_getNamespaceName(
     CIMBuffer& in,
     CIMNamespaceName& cimNamespaceName)
 {
-    String tmp;
-
-    if (!in.getString(tmp))
-        return false;
-
-    cimNamespaceName = *((CIMNamespaceName*)&tmp);
-    return true;
+    return in.getNamespaceName(cimNamespaceName);
 }
 
 Boolean CIMBinMsgDeserializer::_getName(

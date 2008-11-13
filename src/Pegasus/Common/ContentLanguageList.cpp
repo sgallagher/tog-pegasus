@@ -49,50 +49,62 @@ PEGASUS_NAMESPACE_BEGIN
 
 typedef Array<LanguageTag> LanguageTagArray;
 
+static inline LanguageTagArray& GetLanguageTagArray(
+    ContentLanguageList* list)
+{
+    return *reinterpret_cast<LanguageTagArray*>(list);
+}
+
+static inline const LanguageTagArray& GetLanguageTagArray(
+    const ContentLanguageList* list)
+{
+    return *reinterpret_cast<const LanguageTagArray*>(list);
+}
+
 ContentLanguageList::ContentLanguageList()
 {
-    LanguageTagArray& self = *((LanguageTagArray*)this);
+    LanguageTagArray& self = GetLanguageTagArray(this);
     new (&self) LanguageTagArray();
 }
 
 ContentLanguageList::ContentLanguageList(
     const ContentLanguageList& x)
 {
-    LanguageTagArray& self = *((LanguageTagArray*)this);
-    LanguageTagArray& other = *((LanguageTagArray*)&x);
+    LanguageTagArray& self = GetLanguageTagArray(this);
+    const LanguageTagArray& other = GetLanguageTagArray(&x);
     new (&self) LanguageTagArray(other);
 }
 
 ContentLanguageList::~ContentLanguageList()
 {
-    LanguageTagArray& self = *((LanguageTagArray*)this);
+    LanguageTagArray& self = GetLanguageTagArray(this);
     self.~LanguageTagArray();
 }
 
 ContentLanguageList& ContentLanguageList::operator=(
     const ContentLanguageList& x)
 {
-    LanguageTagArray& self = *((LanguageTagArray*)this);
-    LanguageTagArray& other = *((LanguageTagArray*)&x);
+    LanguageTagArray& self = GetLanguageTagArray(this);
+    const LanguageTagArray& other = GetLanguageTagArray(&x);
     self = other;
     return *this;
 }
 
 Uint32 ContentLanguageList::size() const
 {
-    LanguageTagArray& self = *((LanguageTagArray*)this);
+    const LanguageTagArray& self = GetLanguageTagArray(this);
     return self.size();
 }
 
 LanguageTag ContentLanguageList::getLanguageTag(Uint32 index) const
 {
-    LanguageTagArray& self = *((LanguageTagArray*)this);
+    const LanguageTagArray& self = GetLanguageTagArray(this);
     return self[index];
 }
 
 void ContentLanguageList::append(const LanguageTag& languageTag)
 {
-    LanguageTagArray& self = *((LanguageTagArray*)this);
+    LanguageTagArray& self = GetLanguageTagArray(this);
 
     // Disallow "*" language tag
     if (languageTag.toString() == "*")
@@ -108,13 +120,13 @@ void ContentLanguageList::append(const LanguageTag& languageTag)
 
 void ContentLanguageList::remove(Uint32 index)
 {
-    LanguageTagArray& self = *((LanguageTagArray*)this);
+    LanguageTagArray& self = GetLanguageTagArray(this);
     self.remove(index);
 }
 
 Uint32 ContentLanguageList::find(const LanguageTag& languageTag) const
 {
-    LanguageTagArray& self = *((LanguageTagArray*)this);
+    const LanguageTagArray& self = GetLanguageTagArray(this);
 
     for (Uint32 i = 0; i < self.size(); i++)
     {
@@ -127,14 +139,14 @@ Uint32 ContentLanguageList::find(const LanguageTag& languageTag) const
 
 void ContentLanguageList::clear()
 {
-    LanguageTagArray& self = *((LanguageTagArray*)this);
+    LanguageTagArray& self = GetLanguageTagArray(this);
     self.clear();
 }
 
 Boolean ContentLanguageList::operator==(const ContentLanguageList& x) const
 {
-    LanguageTagArray& self = *((LanguageTagArray*)this);
-    LanguageTagArray& other = *((LanguageTagArray*)&x);
+    const LanguageTagArray& self = GetLanguageTagArray(this);
+    const LanguageTagArray& other = GetLanguageTagArray(&x);
 
     if (self.size() != other.size())
         return false;

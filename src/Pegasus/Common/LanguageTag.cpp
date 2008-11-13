@@ -49,16 +49,19 @@ public:
     String variant;       // language variant part of the language tag
 };
 
-static inline void _ref(const LanguageTagRep* rep)
+static inline void _ref(LanguageTagRep* rep)
 {
     if (rep)
-        ((LanguageTagRep*)rep)->refs++;
+        (reinterpret_cast<LanguageTagRep*>(rep))->refs++;
 }
 
-static inline void _unref(const LanguageTagRep* rep)
+static inline void _unref(LanguageTagRep* rep)
 {
-    if (rep && ((LanguageTagRep*)rep)->refs.decAndTestIfZero())
-        delete (LanguageTagRep*)rep;
+    if (rep &&
+        (reinterpret_cast<LanguageTagRep*>(rep))->refs.decAndTestIfZero())
+    {
+        delete reinterpret_cast<LanguageTagRep*>(rep);
+    }
 }
 
 LanguageTag::LanguageTag()

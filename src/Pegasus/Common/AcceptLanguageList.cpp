@@ -79,29 +79,41 @@ typedef Array<AcceptLanguagePair> AcceptLanguageArray;
 // AcceptLanguageList::_rep in fact refers to the Array<T>::_rep.
 //
 
+static inline AcceptLanguageArray& GetAcceptLanguageArray(
+    AcceptLanguageList* list)
+{
+    return *reinterpret_cast<AcceptLanguageArray*>(list);
+}
+
+static inline const AcceptLanguageArray& GetAcceptLanguageArray(
+    const AcceptLanguageList* list)
+{
+    return *reinterpret_cast<const AcceptLanguageArray*>(list);
+}
+
 AcceptLanguageList::AcceptLanguageList()
 {
-    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    AcceptLanguageArray& self = GetAcceptLanguageArray(this);
     new (&self) AcceptLanguageArray;
 }
 
 AcceptLanguageList::AcceptLanguageList(const AcceptLanguageList& x)
 {
-    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
-    AcceptLanguageArray& other = *((AcceptLanguageArray*)&x);
+    AcceptLanguageArray& self = GetAcceptLanguageArray(this);
+    const AcceptLanguageArray& other = GetAcceptLanguageArray(&x);
     new (&self) AcceptLanguageArray(other);
 }
 
 AcceptLanguageList::~AcceptLanguageList()
 {
-    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    AcceptLanguageArray& self = GetAcceptLanguageArray(this);
     self.~AcceptLanguageArray();
 }
 
 AcceptLanguageList& AcceptLanguageList::operator=(const AcceptLanguageList& x)
 {
-    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
-    AcceptLanguageArray& other = *((AcceptLanguageArray*)&x);
+    AcceptLanguageArray& self = GetAcceptLanguageArray(this);
+    const AcceptLanguageArray& other = GetAcceptLanguageArray(&x);
 
     if (&self != &other)
         self = other;
@@ -110,19 +122,19 @@ AcceptLanguageList& AcceptLanguageList::operator=(const AcceptLanguageList& x)
 
 Uint32 AcceptLanguageList::size() const
 {
-    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    const AcceptLanguageArray& self = GetAcceptLanguageArray(this);
     return self.size();
 }
 
 LanguageTag AcceptLanguageList::getLanguageTag(Uint32 index) const
 {
-    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    const AcceptLanguageArray& self = GetAcceptLanguageArray(this);
     return self[index].first;
 }
 
 Real32 AcceptLanguageList::getQualityValue(Uint32 i) const
 {
-    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    const AcceptLanguageArray& self = GetAcceptLanguageArray(this);
     return self[i].second;
 }
 
@@ -132,7 +144,7 @@ void AcceptLanguageList::insert(
 {
     LanguageParser::validateQualityValue(qualityValue);
 
-    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    AcceptLanguageArray& self = GetAcceptLanguageArray(this);
     Uint32 i;
     Uint32 n = self.size();
 
@@ -150,13 +162,13 @@ void AcceptLanguageList::insert(
 
 void AcceptLanguageList::remove(Uint32 i)
 {
-    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    AcceptLanguageArray& self = GetAcceptLanguageArray(this);
     self.remove(i);
 }
 
 Uint32 AcceptLanguageList::find(const LanguageTag& languageTag) const
 {
-    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    const AcceptLanguageArray& self = GetAcceptLanguageArray(this);
     Uint32 n = self.size();
 
     for (Uint32 i = 0; i < n; i++)
@@ -170,14 +182,14 @@ Uint32 AcceptLanguageList::find(const LanguageTag& languageTag) const
 
 void AcceptLanguageList::clear()
 {
-    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
+    AcceptLanguageArray& self = GetAcceptLanguageArray(this);
     self.clear();
 }
 
 Boolean AcceptLanguageList::operator==(const AcceptLanguageList& x) const
 {
-    AcceptLanguageArray& self = *((AcceptLanguageArray*)this);
-    AcceptLanguageArray& other = *((AcceptLanguageArray*)&x);
+    const AcceptLanguageArray& self = GetAcceptLanguageArray(this);
+    const AcceptLanguageArray& other = GetAcceptLanguageArray(&x);
 
     Uint32 n = self.size();
 

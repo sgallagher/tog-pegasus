@@ -826,7 +826,8 @@ try
         for (RegProfileIdTable::Iterator i = regProfileIdTable.start(); i;)
         {
             reglist.append(i.value());
-            if (++i)
+            i++;
+            if (i)
             {
                 reglist.append(strComma);
             }

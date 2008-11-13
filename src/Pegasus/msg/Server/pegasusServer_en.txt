@@ -972,6 +972,26 @@ en:table {
 
 
         // ==========================================================
+        // Messages for ProviderDirPropertyOwner
+        //  Please use message prefix "PGS02500"
+        // ==========================================================
+
+        /**
+        * @note  PGS02500:
+        *    Substitution {0} is a directory name (a string)
+        *    Do not translate the word 'providerDir' since it is a configuration property name.
+        */
+        Config.ProviderDirPropertyOwner.NOT_A_DIRECTORY:string {"PGS02500: providerDir configuration value {0} is not a directory."}
+
+        /**
+        * @note  PGS02501:
+        *    Substitution {0} is a directory name (a string)
+        *    Do not translate the word 'providerDir' since it is a configuration property name.
+        */
+        Config.ProviderDirPropertyOwner.DIRECTORY_NOT_READABLE:string {"PGS02501: providerDir configuration directory {0} is not readable."}
+
+
+        // ==========================================================
         // Messages for ConfigSettingProvider
         //  Please use message prefix "PGS02600"
         // ==========================================================

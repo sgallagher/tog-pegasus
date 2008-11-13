@@ -110,29 +110,24 @@ Boolean isProviderDirValid(const String& dirName)
         path = temp.subString(0,pos);
         if (!FileSystem::isDirectory(path))
         {
-            Logger::put(
-                Logger::ERROR_LOG,System::CIMSERVER, Logger::SEVERE,
-                "$0 is not a directory!",
-                path);
+            Logger::put_l(
+                Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                MessageLoaderParms(
+                    "Config.ProviderDirPropertyOwner.NOT_A_DIRECTORY",
+                    "providerDir configuration value $0 is not a directory.",
+                    path));
             return false;
         }
         if (!FileSystem::canRead(path))
         {
-            Logger::put(
-                Logger::ERROR_LOG,System::CIMSERVER, Logger::SEVERE,
-                "Cannot $0 is not readable!",
-                path);
+            Logger::put_l(
+                Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                MessageLoaderParms(
+                    "Config.ProviderDirPropertyOwner.DIRECTORY_NOT_READABLE",
+                    "providerDir configuration directory $0 is not readable.",
+                    path));
             return false;
         }
-#ifndef PEGASUS_OS_ZOS
-        if (FileSystem::canWrite(path))
-        {
-            Logger::put(
-                Logger::ERROR_LOG,System::CIMSERVER, Logger::WARNING,
-                "$0 is writeable! Possible security risk.",
-                path);
-        }
-#endif
         temp.remove(0,pos+token);
     }
     while ( temp.size() > 0 );

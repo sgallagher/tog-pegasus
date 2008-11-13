@@ -33,7 +33,13 @@ CIMBuffer::CIMBuffer(size_t size)
     if (size < 1024)
         size = 1024;
 
+#if defined(PEGASUS_TEST_VALGRIND)
+    // Valgrind complains that we leave uninitialized bytes in this buffer so
+    // we clear all newly allocated memory when testing with Valgrind.
+    _data = (char*)calloc(1, size);
+#else
     _data = (char*)malloc(size);
+#endif
 
     if (!_data)
     {
@@ -70,6 +76,11 @@ void CIMBuffer::_grow(size_t size)
 
     _end = _data + cap;
     _ptr = _data + m;
+#if defined(PEGASUS_TEST_VALGRIND)
+    // Valgrind complains that we leave uninitialized bytes in this buffer so
+    // we clear all newly allocated memory when testing with Valgrind.
+    memset(_ptr, 0, _end - _ptr);
+#endif
 }
 
 bool CIMBuffer::getString(String& x)

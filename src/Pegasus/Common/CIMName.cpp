@@ -33,6 +33,7 @@
 
 #include <cctype>
 #include "CIMName.h"
+#include "CIMNameCast.h"
 #include "CommonUTF.h"
 #include "CharSet.h"
 

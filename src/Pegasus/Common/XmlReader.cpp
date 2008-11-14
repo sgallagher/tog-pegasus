@@ -40,6 +40,7 @@
 # include <errno.h>
 #endif
 #include "CIMName.h"
+#include "CIMNameCast.h"
 #include "XmlReader.h"
 #include "XmlWriter.h"
 #include "CIMQualifier.h"

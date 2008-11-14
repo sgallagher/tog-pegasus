@@ -6,6 +6,7 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMQualifierList.h>
 #include <Pegasus/Common/CIMParamValue.h>
+#include <Pegasus/Common/CIMNameCast.h>
 
 #define PEGASUS_USE_MAGIC
 

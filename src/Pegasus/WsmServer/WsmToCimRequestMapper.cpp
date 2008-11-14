@@ -40,6 +40,7 @@
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HostLocator.h>
+#include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/WsmServer/WsmConstants.h>
 #include <Pegasus/WsmServer/WsmFault.h>
 #include "WsmToCimRequestMapper.h"

@@ -41,6 +41,7 @@
 #include "CMPIMsgHandleManager.h"
 
 #include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #if defined (CMPI_VER_85)
 #include <Pegasus/Common/MessageLoader.h>

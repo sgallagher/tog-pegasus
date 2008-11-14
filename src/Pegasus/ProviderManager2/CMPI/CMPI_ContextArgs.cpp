@@ -37,6 +37,7 @@
 #include "CMPI_Ftabs.h"
 #include "CMPI_Value.h"
 #include "CMPI_String.h"
+#include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/Tracer.h>
 
 #include <string.h>

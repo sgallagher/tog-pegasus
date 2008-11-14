@@ -39,6 +39,7 @@
 #include "CMPI_Value.h"
 #include "CMPI_String.h"
 
+#include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Mutex.h>

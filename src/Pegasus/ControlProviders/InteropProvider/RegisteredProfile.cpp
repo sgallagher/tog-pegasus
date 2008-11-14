@@ -48,6 +48,7 @@
 //  use we added a number of traces to help diagnostics.
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/CIMNameCast.h>
 #include "InteropProvider.h"
 #include "InteropProviderUtils.h"
 #include "InteropConstants.h"

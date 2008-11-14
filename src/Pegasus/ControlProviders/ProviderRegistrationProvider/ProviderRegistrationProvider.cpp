@@ -41,6 +41,7 @@
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/CIMNameCast.h>
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderManagerMap.h>
 

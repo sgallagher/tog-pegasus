@@ -35,6 +35,7 @@
 #include "XmlReader.h"
 #include "XmlParser.h"
 #include "CIMName.h"
+#include "CIMNameCast.h"
 #include "BinaryStreamer.h"
 #include "CIMClassRep.h"
 #include "CIMInstanceRep.h"

@@ -49,7 +49,7 @@
 #include "ProviderRegistrationTable.h"
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/MessageLoader.h>
-#include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/CIMNameCast.h>
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderManagerMap.h>
 

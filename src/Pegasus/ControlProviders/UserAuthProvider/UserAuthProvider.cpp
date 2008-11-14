@@ -42,6 +42,7 @@
 #include <iostream>
 
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/CIMType.h>

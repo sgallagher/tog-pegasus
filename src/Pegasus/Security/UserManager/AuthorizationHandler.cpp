@@ -46,6 +46,7 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/CIMNameCast.h>
 
 #ifdef PEGASUS_OS_PASE
 # include <ILEWrapper/qumemultiutil.h>

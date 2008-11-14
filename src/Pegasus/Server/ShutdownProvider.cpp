@@ -38,6 +38,7 @@
 
 #include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>

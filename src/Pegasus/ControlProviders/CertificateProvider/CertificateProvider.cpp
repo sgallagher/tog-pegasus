@@ -31,6 +31,7 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/CIMNameCast.h>
 #include "CertificateProvider.h"
 
 #define OPENSSL_NO_KRB5 1

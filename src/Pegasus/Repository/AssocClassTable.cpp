@@ -35,6 +35,7 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/CIMNameCast.h>
 #include "AssocClassTable.h"
 
 PEGASUS_USING_STD;

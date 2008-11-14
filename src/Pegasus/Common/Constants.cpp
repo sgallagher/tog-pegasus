@@ -32,6 +32,7 @@
 //%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/CIMNameCast.h>
 #include "Constants.h"
 
 PEGASUS_NAMESPACE_BEGIN

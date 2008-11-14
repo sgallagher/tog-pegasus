@@ -151,52 +151,6 @@ PEGASUS_CIMNAME_INLINE Boolean CIMNamespaceName::equal(const char* name) const
     return String::equalNoCase(cimNamespaceName, name);
 }
 
-//
-// This function performs a compile-time cast from String to CIMName. It should
-// only be used where the String is already known to contain a valid CIM name,
-// thereby avoiding the overhead of checking every character of the String.
-// This cast is possible because CIMName has a single String member. Note that
-// that sizeof(CIMName) == sizeof(String) and that the classes are identical
-// in their representation, differing only by interface. When compiled for
-// debug, this function checks that str refers to a valid CIM name.
-//
-inline const CIMName& CIMNameCast(const String& str)
-{
-#if defined(PEGASUS_DEBUG)
-
-    if (str.size() && !CIMName::legal(str))
-    {
-        throw InvalidNameException(str);
-    }
-
-#endif
-
-    return *(reinterpret_cast<const CIMName*>(&str));
-}
-
-inline const CIMNamespaceName& CIMNamespaceNameCast(const String& str)
-{
-#if defined(PEGASUS_DEBUG)
-
-    if (str.size() && !CIMNamespaceName::legal(str))
-    {
-        throw InvalidNamespaceNameException(str);
-    }
-
-#endif
-
-    return *(reinterpret_cast<const CIMNamespaceName*>(&str));
-}
-
-/** Checks whether a given character string consists of ASCII only and
-    legal characters for a CIMName (i.e. letter, numbers and underscore)
-    The first character has to be a letter or underscore
-    @param str character string to be checked
-    @return  0 in case non-legal ASCII character was found
-            >0 length of the character string str
-*/
-PEGASUS_COMMON_LINKAGE Uint32 CIMNameLegalASCII(const char* str);
-
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_CIMNameInline_h */

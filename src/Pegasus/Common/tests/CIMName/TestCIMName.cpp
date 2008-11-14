@@ -34,6 +34,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Char16.h>
 #include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/CIMNameCast.h>
 
 #include <Pegasus/Common/PegasusAssert.h>
 

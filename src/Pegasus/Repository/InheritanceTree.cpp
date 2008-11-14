@@ -33,6 +33,7 @@
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/CIMNameCast.h>
 #include "InheritanceTree.h"
 
 #if 0

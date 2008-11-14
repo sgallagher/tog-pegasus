@@ -122,7 +122,7 @@ public:
 #define PEGASUS_QUALIFIER_CACHE_SIZE 80
 
 #if !defined(PEGASUS_CLASS_CACHE_SIZE)
-# define PEGASUS_CLASS_CACHE_SIZE 32
+# define PEGASUS_CLASS_CACHE_SIZE 8
 #endif
 
 #if (PEGASUS_CLASS_CACHE_SIZE != 0)
@@ -840,9 +840,12 @@ CIMClass CIMRepository::_getClass(
            (includeClassOrigin?"true":"false")));
 
     CIMClass cimClass;
+    // The class cache contains complete class definitions
+    Boolean classIncludesPropagatedElements = true;
 
 #ifdef PEGASUS_USE_CLASS_CACHE
-    // Check the cache first:
+    // Check the cache first.  Note that the cache contains complete class
+    // definitions including propagated elements.
 
     String cacheKey = _getCacheKey(nameSpace, className);
 
@@ -858,25 +861,28 @@ CIMClass CIMRepository::_getClass(
 
         cimClass = _rep->_persistentStore->getClass(
             actualNameSpaceName, className, superClassName);
+        classIncludesPropagatedElements = _rep->_storeCompleteClassDefinitions;
+
+        if (!localOnly && !classIncludesPropagatedElements)
+        {
+            // Propagate the superclass elements to this class.
+            Resolver::resolveClass(cimClass, _rep->_context, nameSpace);
+            classIncludesPropagatedElements = true;
+        }
 
 #ifdef PEGASUS_USE_CLASS_CACHE
-        // Put in cache:
+        if (classIncludesPropagatedElements)
+        {
+            // Put in cache:
 
-        _classCache.put(cacheKey, cimClass);
+            _classCache.put(cacheKey, cimClass);
+        }
     }
 #endif
 
-    if (_rep->_storeCompleteClassDefinitions)
+    if (localOnly && classIncludesPropagatedElements)
     {
-        if (localOnly)
-        {
-            _stripPropagatedElements(cimClass);
-        }
-    }
-    else if (!localOnly)
-    {
-        // Propagate the superclass elements to this class.
-        Resolver::resolveClass(cimClass, _rep->_context, nameSpace);
+        _stripPropagatedElements(cimClass);
     }
 
     // Remove properties based on propertyList
@@ -1306,8 +1312,10 @@ void CIMRepository::_modifyClass(
 
 #ifdef PEGASUS_USE_CLASS_CACHE
 
-    String cacheKey = _getCacheKey(nameSpace, cimClass.getClassName());
-    _classCache.evict(cacheKey);
+    // Modifying this class may invalidate subclass definitions in the cache.
+    // Since class modification is relatively rare, we just flush the entire
+    // cache rather than specifically evicting subclass definitions.
+    _classCache.clear();
 
 #endif /* PEGASUS_USE_CLASS_CACHE */
 
@@ -1332,16 +1340,6 @@ void CIMRepository::_modifyClass(
         oldSuperClassName,
         isAssociation,
         classAssocEntries);
-
-    //
-    // Cache this class:
-    //
-
-#ifdef PEGASUS_USE_CLASS_CACHE
-
-    _classCache.put(cacheKey, cimClass);
-
-#endif /* PEGASUS_USE_CLASS_CACHE */
 
     PEG_METHOD_EXIT();
 }

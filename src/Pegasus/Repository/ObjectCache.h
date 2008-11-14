@@ -52,11 +52,19 @@ public:
 
     ObjectCache(size_t maxEntries);
 
+    ~ObjectCache()
+    {
+        clear();
+    }
+
     void put(const String& path, OBJECT& object);
 
     bool get(const String& path, OBJECT& object);
 
     bool evict(const String& path);
+
+    // Removes all the entries from the cache.
+    void clear();
 
 #ifdef PEGASUS_DEBUG
     void DisplayCacheStatistics()
@@ -300,6 +308,26 @@ bool ObjectCache<OBJECT>::evict(const String& path)
     //// Not found!
 
     return false;
+}
+
+template<class OBJECT>
+void ObjectCache<OBJECT>::clear()
+{
+    AutoMutex lock(_mutex);
+
+    Entry* p = _front;
+    while (p)
+    {
+        Entry* next = p->queueNext;
+        delete p;
+        p = next;
+    }
+
+    _front = 0;
+    _back = 0;
+    _numEntries = 0;
+
+    memset(_chains, 0, sizeof(_chains));
 }
 
 PEGASUS_NAMESPACE_END

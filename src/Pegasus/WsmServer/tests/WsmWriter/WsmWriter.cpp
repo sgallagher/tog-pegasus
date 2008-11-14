@@ -47,42 +47,11 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 static Boolean verbose;
+
 static Boolean _compareInstances(WsmInstance& inst1, WsmInstance& inst2);
+
 static Boolean _compareEPRs(
-    WsmEndpointReference& epr1, WsmEndpointReference& epr2);
-
-static Boolean _compareSelectors(WsmSelector& sel1, WsmSelector& sel2)
-{
-    if (sel1.type != sel2.type || sel1.name != sel2.name)
-        return false;
-
-    if (sel1.type == WsmSelector::VALUE)
-        return sel1.value == sel2.value;
-    else
-        return _compareEPRs(sel1.epr, sel2.epr);
-}
-
-static Boolean _compareSelectorSets(WsmSelectorSet* sel1, WsmSelectorSet* sel2)
-{
-    if (sel1 == 0 && sel2 == 0)
-        return true;
-
-    if (sel1 == 0 || sel2 == 0)
-        return false;
-
-    if (sel1->selectors.size() != sel2->selectors.size())
-        return false;
-
-    for (Uint32 i = 0; i < sel1->selectors.size(); i++)
-    {
-        if (!_compareSelectors(sel1->selectors[i], sel2->selectors[i]))
-            return false;
-    }
-
-    return true;
-}
-
-static Boolean _compareEPRs(WsmEndpointReference& epr1, 
+    WsmEndpointReference& epr1, 
     WsmEndpointReference& epr2)
 {
     return epr1 == epr2;

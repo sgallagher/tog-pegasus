@@ -625,17 +625,6 @@ FileBasedStore::~FileBasedStore()
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-static Boolean _containsNoCase(const Array<String>& array, const String& str)
-{
-    for (Uint32 i = 0; i < array.size(); i++)
-    {
-        if (String::equalNoCase(array[i], str))
-            return true;
-    }
-
-    return false;
-}
-
 void FileBasedStore::_rollbackIncompleteTransactions()
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY,

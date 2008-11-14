@@ -485,7 +485,7 @@ void ComputerSystem::initialize()
     /*UUID not implemented on this platform firmware*/
     Boolean ipmiUUIDSupported=false;
 
-    /* First try to get the Physical information from the IPMI interface.
+    /* First try to get the Physical information from the IPMI interface. */
     /* open ipmi device file */
     fd=open("/dev/ipmi",O_RDONLY);
     if (fd >= 0)

@@ -63,6 +63,26 @@
 #endif
 
 
+//==============================================================================
+//
+// The class cache caches up PEGASUS_CLASS_CACHE_SIZE fully resolved class
+// definitions in memory.  To override the default, define
+// PEGASUS_CLASS_CACHE_SIZE in your build environment.  To suppress the cache
+// (and not compile it in at all), set PEGASUS_CLASS_CACHE_SIZE to 0.
+//
+//==============================================================================
+
+#if !defined(PEGASUS_CLASS_CACHE_SIZE)
+# define PEGASUS_CLASS_CACHE_SIZE 8
+#endif
+
+#if (PEGASUS_CLASS_CACHE_SIZE != 0)
+# define PEGASUS_USE_CLASS_CACHE
+#endif
+
+#define PEGASUS_QUALIFIER_CACHE_SIZE 80
+
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -70,6 +90,15 @@ PEGASUS_NAMESPACE_BEGIN
 class CIMRepositoryRep
 {
 public:
+
+    CIMRepositoryRep()
+        :
+#ifdef PEGASUS_USE_CLASS_CACHE
+          _classCache(PEGASUS_CLASS_CACHE_SIZE),
+#endif /* PEGASUS_USE_CLASS_CACHE */
+          _qualifierCache(PEGASUS_QUALIFIER_CACHE_SIZE)
+    {
+    }
 
     /**
         Checks whether an instance with the specified key values exists in the
@@ -106,41 +135,22 @@ public:
     RepositoryDeclContext* _context;
 
     CString _lockFile;
-};
-
-// #define TEST_OUTPUT
-
-//==============================================================================
-//
-// This is the class cache, which caches up PEGASUS_CLASS_CACHE_SIZE classes
-// into memory. To override the default, define PEGASUS_CLASS_CACHE_SIZE in
-// your environment. To supress the cache (and not compile it in at all)
-// define PEGASUS_CLASS_CACHE_SIZE to 0.
-//
-//==============================================================================
-
-#define PEGASUS_QUALIFIER_CACHE_SIZE 80
-
-#if !defined(PEGASUS_CLASS_CACHE_SIZE)
-# define PEGASUS_CLASS_CACHE_SIZE 8
-#endif
-
-#if (PEGASUS_CLASS_CACHE_SIZE != 0)
-# define PEGASUS_USE_CLASS_CACHE
-#endif
 
 #ifdef PEGASUS_USE_CLASS_CACHE
-static ObjectCache<CIMClass> _classCache(PEGASUS_CLASS_CACHE_SIZE);
+    ObjectCache<CIMClass> _classCache;
 #endif /* PEGASUS_USE_CLASS_CACHE */
 
-static ObjectCache<CIMQualifierDecl>
-    _qualifierCache(PEGASUS_QUALIFIER_CACHE_SIZE);
+    ObjectCache<CIMQualifierDecl> _qualifierCache;
+};
 
 static String _getCacheKey(
     const CIMNamespaceName& nameSpace,
     const CIMName& entryName)
 {
-    return nameSpace.getString() + ":" + entryName.getString();
+    String key = nameSpace.getString();
+    key.append(':');
+    key.append(entryName.getString());
+    return key;
 }
 
 
@@ -849,7 +859,7 @@ CIMClass CIMRepository::_getClass(
 
     String cacheKey = _getCacheKey(nameSpace, className);
 
-    if (!_classCache.get(cacheKey, cimClass))
+    if (!_rep->_classCache.get(cacheKey, cimClass))
     {
         // Not in cache so load from disk:
 #endif
@@ -875,7 +885,7 @@ CIMClass CIMRepository::_getClass(
         {
             // Put in cache:
 
-            _classCache.put(cacheKey, cimClass);
+            _rep->_classCache.put(cacheKey, cimClass);
         }
     }
 #endif
@@ -1083,7 +1093,7 @@ void CIMRepository::deleteClass(
 
 #ifdef PEGASUS_USE_CLASS_CACHE
 
-    _classCache.evict(_getCacheKey(nameSpace, className));
+    _rep->_classCache.evict(_getCacheKey(nameSpace, className));
 
 #endif /* PEGASUS_USE_CLASS_CACHE */
 
@@ -1315,7 +1325,7 @@ void CIMRepository::_modifyClass(
     // Modifying this class may invalidate subclass definitions in the cache.
     // Since class modification is relatively rare, we just flush the entire
     // cache rather than specifically evicting subclass definitions.
-    _classCache.clear();
+    _rep->_classCache.clear();
 
 #endif /* PEGASUS_USE_CLASS_CACHE */
 
@@ -2276,7 +2286,7 @@ CIMQualifierDecl CIMRepository::_getQualifier(
 
     // Check the cache first:
 
-    if (!_qualifierCache.get(qualifierCacheKey, qualifierDecl))
+    if (!_rep->_qualifierCache.get(qualifierCacheKey, qualifierDecl))
     {
         // Not in cache so load from disk:
 
@@ -2291,7 +2301,7 @@ CIMQualifierDecl CIMRepository::_getQualifier(
             if (!qualifierDecl.isUninitialized())
             {
                 // Put in cache
-                _qualifierCache.put(qualifierCacheKey, qualifierDecl);
+                _rep->_qualifierCache.put(qualifierCacheKey, qualifierDecl);
 
                 PEG_METHOD_EXIT();
                 return qualifierDecl;
@@ -2333,7 +2343,8 @@ void CIMRepository::_setQualifier(
 
     String qualifierCacheKey =
         _getCacheKey(nameSpace, qualifierDecl.getName());
-    _qualifierCache.put(qualifierCacheKey, (CIMQualifierDecl&)qualifierDecl);
+    _rep->_qualifierCache.put(
+        qualifierCacheKey, (CIMQualifierDecl&)qualifierDecl);
 
     PEG_METHOD_EXIT();
 }
@@ -2353,7 +2364,7 @@ void CIMRepository::deleteQualifier(
     _rep->_persistentStore->deleteQualifier(nameSpace, qualifierName);
 
     String qualifierCacheKey = _getCacheKey(nameSpace, qualifierName);
-    _qualifierCache.evict(qualifierCacheKey);
+    _rep->_qualifierCache.evict(qualifierCacheKey);
 
     PEG_METHOD_EXIT();
 }
@@ -2604,10 +2615,10 @@ Boolean CIMRepository::isRemoteNameSpace(
     {
 #ifdef PEGASUS_USE_CLASS_CACHE
         cout << "Repository Class Cache Statistics:" << endl;
-        _classCache.DisplayCacheStatistics();
+        _rep->_classCache.DisplayCacheStatistics();
 #endif
         cout << "Repository Qualifier Cache Statistics:" << endl;
-        _qualifierCache.DisplayCacheStatistics();
+        _rep->_qualifierCache.DisplayCacheStatistics();
     }
 #endif
 

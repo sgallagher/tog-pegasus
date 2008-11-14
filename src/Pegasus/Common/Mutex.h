@@ -116,8 +116,7 @@ public:
 
     void unlock();
 
-#if defined(PEGASUS_OS_LINUX) ||  \
-    (defined(PEGASUS_OS_ZOS) && !(__TARGET_LIB__ < 0x41090000)) 
+#if defined(PEGASUS_OS_LINUX)
     /**
         This method must only be called after a fork() to reset the mutex
         lock status in the new process.  Any other use of this method is
@@ -173,14 +172,12 @@ private:
 // Use of this macro ensures that a static Mutex is not locked across a fork().
 
 #if !defined(PEGASUS_HAVE_PTHREADS) || \
-    (defined(PEGASUS_OS_ZOS) && (__TARGET_LIB__ < 0x41090000)) || \
-    defined(PEGASUS_PLATFORM_ZOS_ZSERIES64_IBM) || \
+    defined(PEGASUS_OS_ZOS) || \
     defined(PEGASUS_OS_VMS)
 
 # define PEGASUS_FORK_SAFE_MUTEX(mutex)
 
-#elif defined(PEGASUS_OS_LINUX) || \
-      (defined(PEGASUS_OS_ZOS) && !(__TARGET_LIB__ < 0x41090000))
+#elif defined(PEGASUS_OS_LINUX)
 
 # define PEGASUS_FORK_SAFE_MUTEX(mutex)  \
     class ForkSafeMutex ## mutex         \

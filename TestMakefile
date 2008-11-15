@@ -1253,7 +1253,8 @@ list: tracesettings
 standardtests: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i DisableSecurity
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestCimmof
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestNoSecurity
+#	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestNoSecurity
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository testrepository
 ifndef PEGASUS_DISABLE_PRIVILEGED_TESTS
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile EnableAuthentication
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestLocalSecurity
@@ -1264,6 +1265,9 @@ else
 	@ $(ECHO) "+++++ PEGASUS_DISABLE_PRIVILEGED_TESTS defined: Skipping EnableAuthentication, TestLocalSecurity, and TestRemoteSecurity "
 	@ $(ECHO) "+++++ PEGASUS_DISABLE_PRIVILEGED_TESTS defined: Skipping EnableAuthorization and TestAuthorization "	
 endif
+        # Reset the security options to the defaults
+	cimconfig -u enableNamespaceAuthorization -p
+	cimconfig -u enableAuthentication -p
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	@ $(ECHO) "+++++ TestMakefile standardtests complete"
 

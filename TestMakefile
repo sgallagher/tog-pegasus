@@ -1299,7 +1299,23 @@ TestSubscriptions:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstop
 
 TestCimmof:
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Testcimmof poststarttests
+        # Build the repository with cimmofl and cimmof and compare them.
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+	-@$(MOVE) $(REPOSITORY_DIR)/repository $(REPOSITORY_DIR)/repository-save
+	@$(RMREPOSITORY) $(REPOSITORY_DIR)/repository-cimmofl
+	@$(RMREPOSITORY) $(REPOSITORY_DIR)/repository-cimmof
+	@$(ECHO) $(CIM_SCHEMA_DIR)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
+	@$(MOVE) $(REPOSITORY_DIR)/repository $(REPOSITORY_DIR)/repository-cimmofl
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstart
+	@$(ECHO) $(CIM_SCHEMA_DIR)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryServer
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstop
+	@$(MOVE) $(REPOSITORY_DIR)/repository $(REPOSITORY_DIR)/repository-cimmof
+	-@$(MOVE) $(REPOSITORY_DIR)/repository-save $(REPOSITORY_DIR)/repository
+	TestCompareRepositories $(REPOSITORY_DIR)/repository-cimmofl $(REPOSITORY_DIR)/repository-cimmof
+	@$(RMREPOSITORY) $(REPOSITORY_DIR)/repository-cimmofl
+	@$(RMREPOSITORY) $(REPOSITORY_DIR)/repository-cimmof
 
 RunTestClientLocal:
 	TestClient -local

@@ -503,7 +503,6 @@ fi
 /usr/include/Pegasus
 /usr/share/doc/tog-pegasus-2.7/*
 /usr/share/Pegasus/html
-%attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/*.so
 
 %if %{PEGASUS_BUILD_TEST_RPM}
 %files test

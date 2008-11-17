@@ -1,61 +1,48 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
+#//%2006////////////////////////////////////////////////////////////////////////
 #//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
 #//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
 #//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
-ROOT = ../..
+#//==============================================================================
+ROOT=$(PEGASUS_ROOT)
 
 include $(ROOT)/mak/config.mak
 
 DIRS = \
     Common \
-    General \
     Query/QueryCommon \
     Client \
     Config \
     Repository \
     getoopt \
-    WQL \
-	Handler \
-    RSServer
+    WQL 
 
 ifeq ($(PEGASUS_ENABLE_CQL),true)
     DIRS += CQL
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-    DIRS += \
-        WsmServer
-    TEST_DIRS += \
-        WsmServer/tests
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB),true)
-    DIRS += \
-        WebServer
 endif
 
 DIRS += \
@@ -66,11 +53,10 @@ DIRS += \
 
 TEST_DIRS = \
     Common/tests \
-    General/tests \
     Client/tests \
     Config/tests \
     Repository/tests \
-    WQL/tests
+    WQL/tests 
 
 ifeq ($(PEGASUS_ENABLE_CQL),true)
     TEST_DIRS += \
@@ -89,57 +75,43 @@ ifneq ($(OS),HPUX)
         Compiler/cmdline/tests
 endif
 
-ifndef PEGASUS_PAM_AUTHENTICATION
-    DIRS += Security/UserManager \
-	    ControlProviders/UserAuthProvider
-    TEST_DIRS += Security/UserManager/tests
-endif
-
-
 DIRS += \
     ExportClient \
     Server/ProviderRegistrationManager \
     ExportServer \
     Listener \
+    Security/UserManager \
     Security/Authentication \
     ControlProviders/ConfigSettingProvider \
+    ControlProviders/UserAuthProvider \
     ControlProviders/ProviderRegistrationProvider \
     ControlProviders/NamespaceProvider \
     HandlerService \
     IndicationService \
     ManagedClient \
-    DynListener
+    DynListener \
 
 TEST_DIRS += \
     ExportClient/tests \
     Server/ProviderRegistrationManager/tests \
     ExportServer/tests \
     Listener/tests \
+    Security/UserManager/tests \
     Security/Authentication/tests \
     ControlProviders/ProviderRegistrationProvider/tests \
     HandlerService/tests \
     IndicationService/tests \
-    DynListener/tests 
+    DynListener/tests
+
 
 ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
     DIRS += \
         Handler/SystemLogListenerDestination
-    TEST_DIRS += \
-        Handler/SystemLogListenerDestination/tests
 endif
 
 ifdef PEGASUS_ENABLE_EMAIL_HANDLER
     DIRS += \
         Handler/EmailListenerDestination
-    TEST_DIRS += \
-        Handler/EmailListenerDestination/tests
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-    DIRS += \
-        Handler/wsmanIndicationHandler
-    TEST_DIRS += \
-        Handler/wsmanIndicationHandler/tests/Destination
 endif
 
 DIRS += \
@@ -173,7 +145,6 @@ ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
 endif
 
 DIRS += \
-    ProviderManagerRouter \
     ProviderManagerService \
     ProviderManagerService/ProviderAgent
 
@@ -209,42 +180,25 @@ ifdef PEGASUS_HAS_SSL
         ControlProviders/CertificateProvider
 endif
 
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
+    DIRS += \
+        WsmServer
+    TEST_DIRS += \
+        WsmServer/tests
+endif
+
 DIRS += \
     Server \
     Handler/CIMxmlIndicationHandler \
-    Handler/FileURIHandler  \
+    Handler/snmpIndicationHandler \
     msg/Server \
     msg/CLI \
     msg/Listener
 
-ifeq ($(PEGASUS_USE_EMANATE), true)
-    DIRS += \
-        Handler/snmpIndicationHandler
-endif
-
-ifeq ($(PEGASUS_USE_NET_SNMP), true)
-    DIRS += \
-        Handler/snmpIndicationHandler
-endif
-
 TEST_DIRS += \
     Server/tests \
-    Server/tests/InterfaceRestriction \
     Handler/CIMxmlIndicationHandler/tests/Destination \
-    Handler/FileURIHandler/tests
-
-ifeq ($(PEGASUS_USE_EMANATE), true)
-    TEST_DIRS += \
-        Handler/snmpIndicationHandler/tests/testclient \
-        Handler/snmpIndicationHandler/tests/SnmpHandlerException
-endif
-
-
-ifeq ($(PEGASUS_USE_NET_SNMP), true)
-    TEST_DIRS += \
-        Handler/snmpIndicationHandler/tests/testclient \
-        Handler/snmpIndicationHandler/tests/SnmpHandlerException
-endif
-
+    Handler/snmpIndicationHandler/tests/testclient \
+    Handler/snmpIndicationHandler/tests/SnmpHandlerException
 
 include $(ROOT)/mak/recurse.mak

@@ -151,11 +151,15 @@ void CompareInstances(
     }
 }
 
+PEGASUS_NAMESPACE_BEGIN
+
 // This operator is needed to allow BubbleSort to operate on CIMQualifierDecls.
 Boolean operator>(const CIMQualifierDecl& q1, const CIMQualifierDecl& q2)
 {
     return q1.getName().getString() > q2.getName().getString();
 }
+
+PEGASUS_NAMESPACE_END
 
 void CompareQualifiers(
     CIMRepository& r1,

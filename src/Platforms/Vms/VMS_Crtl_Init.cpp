@@ -48,8 +48,6 @@ extern "C" {
 
 typedef void (*fptr_t)(void);
 
-void LIB$INITIALIZE();
-
 //
 // Sets current value for a feature
 //
@@ -137,11 +135,7 @@ static void set_coe(void)
 // This code fixes that problem.
 //
 // Note: This fix only works for __USE_STD_IOSTREAM.
-// Note: This routine is called as part of LIB$INITIALIZE 
-//       (not LIB$INITIALIZD_)
 // Note: See also: 75-109-857
-// Note: 75-109-857 reply 41 says that lib$initializd_ is called before
-//       lib$initialize.
 // 
 #if defined __USE_STD_IOSTREAM
 
@@ -159,17 +153,18 @@ static void unsync_streams_from_stdout(void)
 }
 #endif
 
-fptr_t x = LIB$INITIALIZE;
+static void init_lib(void)
+{
+  set_coe();
+#if defined __USE_STD_IOSTREAM
+  unsync_streams_from_stdout();
+#endif
+}
 
 #pragma extern_model save
 
-#pragma extern_model strict_refdef "LIB$INITIALIZD_" gbl,noexe,nowrt,noshr,long
-  extern const fptr_t y = set_coe;
-
-#if defined __USE_STD_IOSTREAM
-#pragma extern_model strict_refdef "LIB$INITIALIZE$" gbl,noexe,nowrt,noshr,long
-  extern const fptr_t r = unsync_streams_from_stdout;
-#endif
+#pragma extern_model strict_refdef "LIB$INITIALIZE" gbl,noexe,nowrt,noshr,long
+  extern const fptr_t y = init_lib;
 
 #pragma extern_model restore
 

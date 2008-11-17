@@ -151,6 +151,12 @@ void CompareInstances(
     }
 }
 
+// This operator is needed to allow BubbleSort to operate on CIMQualifierDecls.
+Boolean operator>(const CIMQualifierDecl& q1, const CIMQualifierDecl& q2)
+{
+    return q1.getName().getString() > q2.getName().getString();
+}
+
 void CompareQualifiers(
     CIMRepository& r1,
     CIMRepository& r2,
@@ -160,15 +166,19 @@ void CompareQualifiers(
     Array<CIMQualifierDecl> quals2 = r2.enumerateQualifiers(namespaceName);
     PEGASUS_TEST_ASSERT(quals1.size() == quals2.size());
 
+    BubbleSort(quals1);
+    BubbleSort(quals2);
+
     for (Uint32 i = 0; i < quals2.size(); i++)
     {
-    if (verbose)
-    {
-        cout << "testing qualifier " << namespaceName.getString() << "/";
-        cout << quals2[i].getName().getString() << "..." << endl;
-    }
+        if (verbose)
+        {
+            cout << "testing qualifier " << namespaceName.getString() << "/";
+            cout << quals1[i].getName().getString() << "/ against /";
+            cout << quals2[i].getName().getString() << "/" << endl;
+        }
 
-    PEGASUS_TEST_ASSERT(quals1[i].identical(quals2[i]));
+        PEGASUS_TEST_ASSERT(quals1[i].identical(quals2[i]));
     }
 }
 

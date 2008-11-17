@@ -373,8 +373,17 @@ else
 OOP_TS1_CONFIG_OPTIONS = forceProviderProcesses=true
 endif
 
-OOP_TS1_TEST_CMDS = \
-        $(MAKE)@@--directory=$(PEGASUS_ROOT)@@Makefile@@-s@@poststarttests
+ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
+    # When privilege separation is enabled, most providers run out of process
+    # regardless of the forceProviderProcesses setting.  The exception is
+    # providers that register with UserContext = 5 (CIM Server).  The only
+    # case of this in the automated tests is the UserContextTestProvider.
+    OOP_TS1_TEST_CMDS = \
+        $(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/UserContextTestProvider/testclient@@poststarttests
+else
+    OOP_TS1_TEST_CMDS = \
+        $(MAKE)@@--directory=$(PEGASUS_ROOT)@@-f@@Makefile@@poststarttests
+endif
 
 run_OOP_TS1:
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \

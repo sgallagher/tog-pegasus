@@ -4957,6 +4957,12 @@ CIM server listening on HTTPS port {0}."}
         */
         Pegasus.Common.SSLContextManager.INVALID_CONF_HTTPS_REQUIRED:string {"PGS13311: Do not set the \"sslClientVerificationMode\" property to \"required\" if HTTP is disabled because the cimserver will be unable to properly shutdown. It is recommended that you change the property value to \"optional\"."}
 
+        /*
+        * @note  PGS13312:
+        *     Substitution {0} is the trust store path (a string) 
+        */
+        Pegasus.Server.SSLContextManager.COULD_NOT_ACCESS_TRUST_STORE:string {"PGS13312: Could not access the trust store. Check the permissions of the trust store path \"{0}\"."}
+
         // ==========================================================
         // Messages for AnonymousPipe
         //  Please use message prefix "PGS13400"

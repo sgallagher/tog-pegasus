@@ -952,22 +952,37 @@ SSLContext* CIMServer::_getSSLContext()
         // CertificateProvider should be used to register users with
         // certificates.
         //
-        if ((trustStore != String::EMPTY) &&
-            (!FileSystem::isDirectory(trustStore)))
+
+        if (trustStore != String::EMPTY) 
         {
-            if (trustStoreUserName == String::EMPTY)
+            if (!FileSystem::exists(trustStore))
             {
                 MessageLoaderParms parms(
                     "Pegasus.Server.SSLContextManager."
-                        "SSL_CLIENT_VERIFICATION_EMPTY_USERNAME",
-                    "The \"sslTrustStoreUserName\" property must specify a "
-                        "valid username if \"sslClientVerificationMode\" is "
-                        "'required' or 'optional' and the truststore is a "
-                        "single CA file. To register individual certificates "
-                        "to users, you must use a truststore directory along "
-                        "with the CertificateProvider.");
+                        "COULD_NOT_ACCESS_TRUST_STORE",
+                    "Could not access the trust store."
+                        "Check the permissions of the truststore path \"$0\".",
+                        trustStore); 
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
+            }
+    
+            if (!FileSystem::isDirectory(trustStore))
+            {
+                if (trustStoreUserName == String::EMPTY)
+                {
+                    MessageLoaderParms parms(
+                        "Pegasus.Server.SSLContextManager."
+                            "SSL_CLIENT_VERIFICATION_EMPTY_USERNAME",
+                        "The \"sslTrustStoreUserName\" property must specify a "
+                            "valid username if \"sslClientVerificationMode\" "
+                            "is 'required' or 'optional' and the truststore is "
+                            "a single CA file. To register individual "
+                            "certificates to users, you must use a truststore "
+                            "directory along with the CertificateProvider.");
+                    PEG_METHOD_EXIT();
+                    throw SSLException(parms);
+                }
             }
         }
     }

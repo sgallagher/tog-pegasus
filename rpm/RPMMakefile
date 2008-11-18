@@ -71,8 +71,8 @@ endif
 
 ifeq ($(IDISTRO),RedHatEnterpriseServer)
     DISTRO:=REDHAT
-    export PEGASUS_DISTRO_SUFFIX:=$(if $(filter $(RELEASE),4.92 4.93 5),el5,\
-        xxx)
+    export PEGASUS_DISTRO_SUFFIX:= \
+        $(if $(filter $(RELEASE),4.92 4.93 5),el5,xxx)
 else
     ifeq ($(findstring RedHat,$(IDISTRO)),RedHat)
         DISTRO:=REDHAT
@@ -152,6 +152,19 @@ usage:
 	$(USAGE)"PEGASUS_BUILD_BRANCH - pegasus branch to build"
 	$(USAGE)"                       HEAD is used if MAIN is specified"
 
+CORE_PATTERN = \"core*\"
+define checkForCores
+	@if [ "`find $1 $2  -name $(CORE_PATTERN)`" != "" ]; \
+             then echo "*** One or more core files found:" \
+                "`find $1 $2 -name $(CORE_PATTERN)`"; \
+                exit 1; fi;
+	@if [ "$(PEGASUS_CORE_DIR)" != "" ] && \
+             [ "`find $(PEGASUS_CORE_DIR) -maxdepth 1 -name $(CORE_PATTERN)`" \
+                != "" ]; then echo "*** One or more core files found:" \
+                "`find $(PEGASUS_CORE_DIR) -maxdepth 1 -name $(CORE_PATTERN)`";\
+                exit 1; fi
+endef
+
 exportSRC:
 	@cvs -d:pserver:anon@cvs.opengroup.org:/cvs/MSB export -r $(PEGASUS_RPM_CVS_TAG) pegasus
 
@@ -179,34 +192,34 @@ tests:
 	# Start cimserver
 	-$(CIMSERVER_STOP_SERVICE)
 	$(CIMSERVER_START_SERVICE)
-	@check_for_core
+	$(call checkForCores,./,-maxdepth 1)
 
 	# Run some sanity tests
 	# osinfo, cimserver -v, cimprovider -l -s, cimconfig -l -c etc
 	@$(ECHO) "+++++ Running sanity checks +++++"
 	@$(ECHO) "+++++ Running osinfo +++++"
 	$(PEGASUS_BIN_DIR)/osinfo
-	-@check_for_core
+	$(call checkForCores,./,-maxdepth 1)
 
 	@$(ECHO) "+++++ Running cimserver -v +++++"
 	$(PEGASUS_SBIN_DIR)/cimserver -v
-	@check_for_core
+	$(call checkForCores,./,-maxdepth 1)
 
 	@$(ECHO) "+++++ Running cimconfig +++++"
 	$(PEGASUS_SBIN_DIR)/cimconfig -l -c
-	@check_for_core
+	$(call checkForCores,./,-maxdepth 1)
 
 	@$(ECHO) "+++++ Running cimprovider +++++"
 	$(PEGASUS_BIN_DIR)/cimprovider -l -s
-	@check_for_core
+	$(call checkForCores,./,-maxdepth 1)
 
 	@$(ECHO) "+++++ Stopping cimserver +++++"
 	@$(CIMSERVER_STOP_SERVICE)
-	@check_for_core
+	$(call checkForCores,./,-maxdepth 1)
 
 	@$(ECHO) "+++++ Starting cimserver +++++"
 	$(CIMSERVER_START_SERVICE)
-	@check_for_core
+	$(call checkForCores,./,-maxdepth 1)
 
 	# Run samples
 	@$(ECHO) "+++++ Running samples +++++"
@@ -214,7 +227,7 @@ tests:
 	$(MAKE) --directory=$(PEGASUS_SAMPLES_DIR) -f Makefile setupSDK
 	$(MAKE) --directory=$(PEGASUS_SAMPLES_DIR) -f Makefile testSDK
 	$(MAKE) --directory=$(PEGASUS_SAMPLES_DIR) -f Makefile unsetupSDK
-	@check_for_core
+	$(call checkForCores,$(PEGASUS_SAMPLES_DIR),)
 
 	# Install the test RPM after running SDK tests. This is because
 	# the test RPM over-writes the repository.
@@ -222,7 +235,7 @@ tests:
 	$(RPM) -ih $(PEGASUS_RPM_DIRECTORY)/RPMS/$(PLATFORM)/$(TEST_RPM)
 	$(MAKE) --directory=$(PEGASUS_TEST_DIR) -f Makefile setupTEST
 	$(MAKE) --directory=$(PEGASUS_TEST_DIR) -f Makefile tests
-	@check_for_core
+	$(call checkForCores,$(PEGASUS_TEST_DIR),)
 
 # Install rpms
 install:

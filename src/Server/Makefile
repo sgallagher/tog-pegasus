@@ -270,8 +270,8 @@ ifeq ($(OS_TYPE),windows)
 endif
 	@$(TOUCH) $(PEGASUS_HOME)/setupserverdev
 ifeq ($(PEGASUS_TEST_ENABLE_DEBUG_TRACE),true)
-        # Enable trace to capture Discarded data trace information to help 
-        # troubleshoot and detect test failures.
+	# Enable trace to capture Discarded data trace information to help 
+	# troubleshoot and detect test failures.
 	cimconfig -s traceComponents=DiscardedData -p
 	cimconfig -s traceLevel=4 -p
 endif

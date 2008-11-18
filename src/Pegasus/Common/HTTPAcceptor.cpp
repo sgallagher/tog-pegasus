@@ -283,16 +283,7 @@ void HTTPAcceptor::bind()
 void HTTPAcceptor::_bind()
 {
 #ifdef PEGASUS_OS_PASE
-    // bind need ccsid is 819 
-    int orig_ccsid;
-    orig_ccsid = _SETCCSID(-1);
-    if (orig_ccsid == -1)
-    {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "HTTPAcceptor::_bind: Can not get current PASE CCSID.");
-        orig_ccsid = 1208;
-    }
-    PaseCcsid ccsid(819, orig_ccsid);
+    AutoPtr<PaseCcsid> ccsid;
 #endif
 
     PEGASUS_ASSERT(_rep != 0);
@@ -307,6 +298,18 @@ void HTTPAcceptor::_bind()
         // user.  Otherwise, the bind may fail with a vague "bind failed"
         // error.
         //
+#ifdef PEGASUS_OS_PASE
+        // PASE domain socket needs ccsid 819
+        int orig_ccsid;
+        orig_ccsid = _SETCCSID(-1);
+        if (orig_ccsid == -1)
+        {
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                    "HTTPAcceptor::_bind: Can not get current PASE CCSID.");
+            orig_ccsid = 1208;
+        }
+        ccsid.reset(new PaseCcsid(819, orig_ccsid));
+#endif
         if (System::exists(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH))
         {
             if (!System::removeFile(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH))

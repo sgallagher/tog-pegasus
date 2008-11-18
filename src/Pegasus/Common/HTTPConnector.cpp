@@ -196,16 +196,7 @@ HTTPConnection* HTTPConnector::connect(
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnector::connect()");
 
 #ifdef PEGASUS_OS_PASE
-    // PASE needs ccsid 819 to perform socket operation 
-    int orig_ccsid;
-    orig_ccsid = _SETCCSID(-1);
-    if (orig_ccsid == -1)
-    {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "HTTPConnector::connect() Can not get current PASE CCSID.");
-        orig_ccsid = 1208;
-    }
-    PaseCcsid ccsid(819, orig_ccsid);
+    AutoPtr<PaseCcsid> ccsid;
 #endif
 
     SocketHandle socket = PEGASUS_INVALID_SOCKET;
@@ -218,6 +209,19 @@ HTTPConnection* HTTPConnector::connect(
         // Set up the domain socket for a local connection
 
         sockaddr_un address;
+
+#ifdef PEGASUS_OS_PASE
+        // PASE needs ccsid 819 to perform domain socket operation 
+        int orig_ccsid;
+        orig_ccsid = _SETCCSID(-1);
+        if (orig_ccsid == -1)
+        {
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "HTTPConnector::connect() Can not get current PASE CCSID.");
+            orig_ccsid = 1208;
+        }
+        ccsid.reset(new PaseCcsid(819, orig_ccsid));
+#endif
 
         memset(&address, 0, sizeof(address));
         address.sun_family = AF_UNIX;

@@ -44,3 +44,12 @@ ifeq ($(OPTION),4)
 general:
 	@$(foreach i, $(SOURCES),  echo pegasus/src/$(DIR)/$(i); grep $(EXP) $(i); cd .;)
 endif
+
+ifeq ($(OPTION),CORE_SEARCH)
+CORE_FILES_IN_SRC_DIR = \
+     $(wildcard $(PEGASUS_ROOT)/src/$(DIR)/$(PLATFORM_CORE_PATTERN))
+general:
+  ifneq ($(CORE_FILES_IN_SRC_DIR), )
+	@$(ECHO) $(CORE_FILES_IN_SRC_DIR) >> $(CORE_FILE_LIST)
+  endif
+endif

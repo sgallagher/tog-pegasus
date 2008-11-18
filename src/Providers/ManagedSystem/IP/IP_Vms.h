@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -39,6 +39,43 @@
 // =============================================================================
 
 #include <Pegasus/Provider/CIMInstanceProvider.h>
+#include <vector>         // vector container
+#include <sys/types.h>
+#define _SOCKADDR_LEN
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <errno.h>
+#include <in.h>
+#include <in6.h>
+#include <if.h>
+#include <descrip.h>
+#include <iodef.h>
+#include <efndef.h>
+#include <sys$library:tcpip$inetdef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <socket.h>
+#include <assert.h>
+#include <descrip.h>
+#include <syidef.h>
+#include <jpidef.h>
+#include <pscandef.h>
+#include <lib$routines.h>
+#include <starlet.h>
+#include <stsdef.h>
+#include <ssdef.h>
+#include <libdtdef.h>
+#include <lnmdef.h>
+#include <netdb.h>
+#include <time.h>
+#include <tis.h>
+#include <pthread.h>
+#include <vector>
+#include <Pegasus/Client/CIMClient.h>
+#include <platforms/vms/vms_utility_routines.h>
+#include <Pegasus/Common/Mutex.h>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -53,6 +90,20 @@ PEGASUS_USING_PEGASUS;
 #define PROTOCOL_IPV6  "IPv6"
 #define PROTOCOL_IPV4_V6  "IPv4/v6"
 
+
+#define MYBUF 8192
+#define NEW_SIOCGIFCONF ((0x80000000|0x40000000) | \
+    ((sizeof(struct ifconf) & 0x1fff) << 16) | ((('i')) << 8) | ((36)))
+#define NEW_SIOCGIFNETMASK ((0x80000000|0x40000000) | ((sizeof(struct ifreq) \
+    & 0x1fff) << 16) | ((('i')) << 8) | ((37)))
+#define NEW_SIOCGIFBRDADDR ((0x80000000|0x40000000) | ((sizeof(struct ifreq) & \
+    0x1fff) << 16) | ((('i')) << 8) | ((35)))
+
+#ifdef IPPROVIDER_DEBUG
+# define IPP_DEBUG_OUT(x) cout << x << endl
+#else
+# define IPP_DEBUG_OUT(x)
+#endif
 
 // =============================================================================
 // Type Definitions.
@@ -104,6 +155,14 @@ public:
     void set_subnetMask(const String& snm);
     void set_protocol(const String& proto);
     void set_simpleIfName(const String& name);
+private:
+
+    String _address;           // dot (IPv4) colon (IPv6) notation
+    String _subnetMask;        // dot (IPv4) notation
+    String _protocol;          // e.g. IPv4, IPv6
+    String _simpleIfName;      // e.g. lan0, lan0:1, lan1, lo0
+    static String _hostname;   // fully qualified hostname
+
 
 };
 
@@ -126,6 +185,9 @@ public:
 
     // Number of Elements in the InterfaceList
     int size() const;
+private:
+
+    vector<IPInterface> _ifl;
 
 };
 
@@ -155,6 +217,13 @@ public:
     void set_destMask(const String& mask);
     void set_nextHop(const String& nhop);
     void set_protocolType(const String& pt);
+private:
+    String _destAddr;          // dot (IPv4) or colon (IPv6) notation
+    String _destMask;          // dot (IPv4) or colon (IPv6) notation
+    String _nextHop;           // dot (IPv4) or colon (IPv6) notation
+    String _protocolType;      // IPv4 or IPv6
+    static String _hostname;   // fully qualified hostname
+
 
 };
 
@@ -180,6 +249,9 @@ public:
 
     // Number of Elements in the IP Route
     int size() const;
+private:
+
+    vector<IPRoute> _iprl;
 
 };
 
@@ -196,7 +268,7 @@ public:
     Boolean getDescription(String&) const;
     Boolean getInstallDate(CIMDateTime&) const;
     Boolean getName(String&) const;
-    Boolean getStatus(String&) const;  
+    Boolean getStatus(String&) const;
     Boolean getDestinationAddress(String&) const;
     Boolean getDestinationMask(String&) const;
     Boolean getRouteDerivation(Uint16&) const;
@@ -221,6 +293,7 @@ public:
     void set_destMask(const String& dm);
     void set_protocolType(const String& pt);
 
+
 };
 
 class NextHopRouteList
@@ -239,7 +312,7 @@ public:
 
     // Method to get a particular element based on an index
     NextHopIPRoute getRoute(const int index) const;
- 
+
     // Number of Elements in the IP Route
     int size() const;
 

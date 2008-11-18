@@ -35,8 +35,10 @@
 ################################################################################
 
 ifeq ($(OS_TYPE),vms)
+    # Allow option lib/option syntax
+    _P1 = $(foreach lib,$(LIBRARIES),$(word 1,$(subst /, ,$(lib))))
     FULL_LIBRARIES = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), \
-        $(addsuffix $(LIB_SUFFIX), $(LIBRARIES)))
+        $(addsuffix $(LIB_SUFFIX), $(_P1)))
 else
     ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
         _P1 = $(addprefix $(LIB_DIR)/$(LIB_PREFIX), $(LIBRARIES))

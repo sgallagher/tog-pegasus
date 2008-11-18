@@ -57,6 +57,10 @@ LIBRARIES = \
     pegclient \
     pegcommon
 
+ifeq ($(OS_TYPE),vms)
+    LIBRARIES += vms
+endif
+
 DYNAMIC_LIBRARIES = \
 	-lpegcommon \
 	-lpegprovider

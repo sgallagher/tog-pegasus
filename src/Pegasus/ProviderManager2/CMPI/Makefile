@@ -41,10 +41,11 @@ LOCAL_DEFINES = -DPEGASUS_CMPIPM_INTERNAL -DPEGASUS_INTERNALONLY
 LIBRARY = CMPIProviderManager
 
 ifeq ($(OS_TYPE),vms)
- VMS_VECTOR = PegasusCreateProviderManager, \
-              getPegasusVersion, \
-              getProviderManagerInterfaceName, \
-              getProviderManagerInterfaceVers
+    VMS_VECTOR = \
+        PegasusCreateProviderManager \
+        getPegasusVersion \
+        getProviderManagerInterfaceName \
+        getProviderManagerInterfaceVers
 endif
 
 LIBRARIES = \

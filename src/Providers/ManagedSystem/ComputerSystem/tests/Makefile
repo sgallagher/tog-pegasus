@@ -56,6 +56,10 @@ LIBRARIES = \
     pegconfig \
     pegcommon
 
+ifeq ($(OS_TYPE),vms)
+    LIBRARIES += vms
+endif
+
 include $(ROOT)/mak/program.mak
 
 ifeq ($(OS),VMS)

@@ -67,11 +67,10 @@ CCFLAGS += /show=include/lis=$(OBJ_VMSDIRA)]
 LFLAGS += /debug
 endif
 
-SYS_LIBS =+sys$share:sys$lib_c/lib
-
 # SSL support
 OPENSSL_VMSHOME = /Pegasus_Tools
 OPENSSL_HOME = $(OPENSSL_VMSHOME)
+OPENSSL_LIB = PEGASUS_OPENSSLLIB
 PEGASUS_HAS_SSL = yes
 OPENSSL_SET_SERIAL_SUPPORTED = true
 

@@ -66,6 +66,10 @@ LIBRARIES = \
     pegclient \
     pegcommon
 
+ifeq ($(OS_TYPE),vms)
+    LIBRARIES += vms
+endif
+
 include $(ROOT)/mak/dynamic-library.mak
 
 general:

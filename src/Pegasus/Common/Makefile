@@ -226,10 +226,25 @@ ifdef PEGASUS_HAS_SSL
     ifeq ($(OS_TYPE),windows)
         SYS_LIBS += /libpath:$(OPENSSL_HOME)/lib libeay32.lib ssleay32.lib
     else
-        ifdef OPENSSL_HOME
-            EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib
+        ifeq ($(OS_TYPE), vms)
+            EXTRA_LIBRARIES += -L$(OPENSSL_LIB) \
+                -lssl$$libssl_shr32 -lssl$$libcrypto_shr32
+        else
+            ifdef OPENSSL_HOME
+                EXTRA_LIBRARIES += -L$(OPENSSL_HOME)/lib
+            endif
+            EXTRA_LIBRARIES += -lssl -lcrypto
         endif
-        EXTRA_LIBRARIES += -lssl -lcrypto
+    endif
+endif
+
+ifeq ($(OS_TYPE),vms)
+    ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),false)
+        SYS_LIBS += tcpip$$library:tcpip$$lib/lib
+        LIBRARIES = vms/include=(vms_crtl_init)
+        LINK_OPT1 = COLLECT=crtl_init,lib$$initializdz,lib$$initializd_,
+        LINK_OPT2 = lib$$initialize,lib$$initialize$$
+        LINKER_OPTIONS = $(LINK_OPT1)$(LINK_OPT2)
     endif
 endif
 

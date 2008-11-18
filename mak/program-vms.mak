@@ -52,6 +52,15 @@ FULL_VMSPROGRAM=$(BIN_VMSDIRA)]$(PROGRAM)$(EXE)
 
 EXE_OUTPUT =$(FULL_PROGRAM)
 
+ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
+    EXTRA_LIBRARIES += -L$(OPENSSL_LIB) -lssl$$libssl_shr -lssl$$libcrypto_shr32
+    LIBRARIES += vms/include=vms_crtl_init
+endif
+
+ifeq (,$(findstring libpegrepository, $(LIBRARIES)))
+    EXTRA_LIBRARIES += -Llibz -lz
+endif
+
 ifdef VMSSHARE
     EXE_VMSOUTPUT =/sysexe/share=$(FULL_VMSPROGRAM)
 else
@@ -62,22 +71,28 @@ endif
 OPT = $(OPT_VMSDIRA)]$(PROGRAM)/opt
 VMSPROGRAM = YES
 
+# GSMATCH and IDENTIFICATION
+
+LINKER_OPTIONS += \
+    GSMATCH=$(PEGASUS_VMS_LINKER_GSMATCH) \
+    IDENTIFICATION=$(PEGASUS_VMS_LINKER_IDENT)
 
 $(FULL_PROGRAM): $(OBJ_DIR)/target $(BIN_DIR)/target $(OPT_DIR)/target \
     $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
 
 ifdef OBJECTS_IN_OPTIONFILE
-	@ take $(PLATFORM_VMSDIRA)]vms_create_optfile.com "$(OPT_VMSDIRA)]" \
-            "$(VMSROOT)[src$(VMSDIR)]" "$(PROGRAM)" "$(strip $(LIBRARIES))" \
-            "$(SHARE_COPY)" "$(VMS_VECTOR)" "$(SOURCES)" "$(OBJ_VMSDIRA)]" 
+	@ take $(PLATFORM_VMSDIRA)]vms_create_optfile.com \
+            "$(PROGRAM)" "$(strip $(LIBRARIES))" "$(strip $(EXTRA_LIBRARIES))" \
+            "$(strip $(VMS_VECTOR))" "$(strip $(LINKER_OPTIONS))" \
+            "$(SOURCES)" "$(OBJ_VMSDIRA)]" 
 	cxxlink$(LFLAGS)$(EXE_VMSOUTPUT)/reposit=$(CXXREPOSITORY_VMSROOT) \
-            $(OPT) $(DLLOPT)
+            $(foreach lib,$(SYS_LIBS),$(lib),) $(OPT) $(DLLOPT)
 else
-	@ take $(PLATFORM_VMSDIRA)]vms_create_optfile.com "$(OPT_VMSDIRA)]" \
-            "$(VMSROOT)[src$(VMSDIR)]" "$(PROGRAM)" "$(strip $(LIBRARIES))" \
-            "$(SHARE_COPY)" "$(VMS_VECTOR)" "$(OBJ_VMSDIRA)]"
+	@ take $(PLATFORM_VMSDIRA)]vms_create_optfile.com \
+            "$(PROGRAM)" "$(strip $(LIBRARIES))" "$(strip $(EXTRA_LIBRARIES))" \
+            "$(strip $(VMS_VECTOR))" "$(strip $(LINKER_OPTIONS))"
 	cxxlink$(LFLAGS)$(EXE_VMSOUTPUT)/reposit=$(CXXREPOSITORY_VMSROOT) \
-            $(VMSOBJECTS) $(OPT) $(DLLOPT)
+            $(VMSOBJECTS) $(foreach lib,$(SYS_LIBS),$(lib),) $(OPT) $(DLLOPT)
 endif
 	@ $(TOUCH) $(FULL_VMSPROGRAM)
 ifdef SHARE_COPY

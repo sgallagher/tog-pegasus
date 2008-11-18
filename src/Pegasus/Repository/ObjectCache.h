@@ -39,6 +39,7 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -164,7 +165,7 @@ void ObjectCache<OBJECT>::put(const String& path, OBJECT& object)
     newEntry->hashNext = _chains[index];
     _chains[index] = newEntry;
 
-    //// Add to back of FIFO queue:
+    //// Add to back of LRU queue:
 
     newEntry->queueNext = 0;
 
@@ -241,9 +242,32 @@ bool ObjectCache<OBJECT>::get(const String& path, OBJECT& object)
     {
         if (code == p->code && _equal(p->path, path))
         {
+            // If this entry is not already at the end of the LRU queue, move
+            // it there.
+
+            if (p->queueNext)
+            {
+                // Remove from queue:
+
+                if (p->queuePrev)
+                    p->queuePrev->queueNext = p->queueNext;
+                else
+                    _front = p->queueNext;
+
+                p->queueNext->queuePrev = p->queuePrev;
+
+                // Add to back of queue:
+
+                PEGASUS_ASSERT(_back);
+                p->queueNext = 0;
+                _back->queueNext = p;
+                p->queuePrev = _back;
+                _back = p;
+            }
+
             object = p->object.clone();
 #ifdef PEGASUS_DEBUG
-        _cacheReadHit++;
+            _cacheReadHit++;
 #endif
             return true;
         }

@@ -530,7 +530,7 @@ ifdef PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS
              "\""$(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH)"\"" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_CORE_DIR"  \
-             "\""$(PEGASUS_TRACE_DIR)"\"" \
+             "\""$(PEGASUS_CORE_DIR)"\"" \
              >> $(ROOT)/src/Pegasus/Common/ProductDirectoryStructure.h
 	@$(ECHO-E) "# define PEGASUS_PAM_STANDALONE_PROC_NAME"  \
              "\""$(PEGASUS_SBIN_DIR)/cimservera"\"" \

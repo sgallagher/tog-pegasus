@@ -1,31 +1,33 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
+#//%2006////////////////////////////////////////////////////////////////////////
 #//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
 #//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
+#// 
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
-#//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
+#//==============================================================================
 INCLUDES = -I$(ROOT)/src $(EXTRA_INCLUDES)
 
 ifndef LINK_RPATH
@@ -58,10 +60,8 @@ ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
         EXTRA_LINK_FLAGS += $(LINK_RPATH) $(LINK_LIB_DIR)
     endif
 
-    ifeq ($(HAS_ICU_DEPENDENCY),true)
-        ifdef ICU_INSTALL
-            EXTRA_LINK_FLAGS += $(LINK_RPATH) -Xlinker ${ICU_INSTALL}/lib
-        endif
+    ifdef ICU_INSTALL
+        EXTRA_LINK_FLAGS += $(LINK_RPATH) -Xlinker ${ICU_INSTALL}/lib
     endif
 endif
 
@@ -83,13 +83,13 @@ ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
 
 ##
 ## build images with -l<name> syntax for needed shared libraries
-## DYNAMIC_LIBRARIES is defined appropriately in libraries.mak and Makefile
+## DYNAMIC_LIBRARIES is defined appropriately in libraries.mak and Makefile 
 ## files
 ##
 ## ICU_INSTALL - Specifies the directory path where the ICU lib directory is located.
 ##               This will set runtime library search path for ICU libraries to ${ICU_INSTALL}/lib
-##
-     ifeq ($(OS),zos)
+##               
+     ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
 	$(LINK_WRAPPER) $(CXX) $(PR_FLAGS) $(EXTRA_LINK_FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES) > $(PROGRAM).llst
 	@ $(ZIP) -a -m $(FULL_PROGRAM).llst.zip $(PROGRAM).llst
      else
@@ -119,7 +119,7 @@ endif
 	$(TOUCH) $(FULL_PROGRAM)
 ifdef PEGASUS_TEST_VALGRIND_LOG_DIR
 	echo "#!/bin/bash" > $(VALGRIND_SCRIPT_BIN_DIR)/$(PROGRAM)$(EXE)
-	echo -e "valgrind --log-file=$(PEGASUS_TEST_VALGRIND_LOG_DIR)/$(PROGRAM) --num-callers=25 --tool=memcheck --leak-check=full --error-limit=no $(FULL_PROGRAM) \"\x24@\"" >> $(VALGRIND_SCRIPT_BIN_DIR)/$(PROGRAM)$(EXE)
+	echo -e "valgrind --log-file=$(PEGASUS_TEST_VALGRIND_LOG_DIR)/$(PROGRAM) --num-callers=25 --tool=memcheck --leak-check=full --error-limit=no $(FULL_PROGRAM) \x24@" >> $(VALGRIND_SCRIPT_BIN_DIR)/$(PROGRAM)$(EXE)
 	chmod 755 $(VALGRIND_SCRIPT_BIN_DIR)/$(PROGRAM)$(EXE)
 endif
 	@ $(ECHO)

@@ -203,16 +203,6 @@
 # define PEGASUS_EXPLICIT /* empty */
 #endif
 
-#ifdef PEGASUS_HAVE_MUTABLE
-#ifdef __cplusplus
-# define PEGASUS_MUTABLE mutable
-#else
-# define PEGASUS_MUTABLE /* empty */
-#endif
-#else
-# define PEGASUS_MUTABLE /* empty */
-#endif
-
 #ifndef PEGASUS_HAVE_FOR_SCOPE
 # define for if (0) ; else for
 #endif

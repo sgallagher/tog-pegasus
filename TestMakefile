@@ -1263,6 +1263,10 @@ else
 	@ $(ECHO) "+++++ PEGASUS_DISABLE_PRIVILEGED_TESTS defined: Skipping EnableAuthentication, TestLocalSecurity, and TestRemoteSecurity "
 	@ $(ECHO) "+++++ PEGASUS_DISABLE_PRIVILEGED_TESTS defined: Skipping EnableAuthorization and TestAuthorization "	
 endif
+        # Reset the security options to the defaults
+	cimconfig -u enableNamespaceAuthorization -p
+	cimconfig -u enableAuthentication -p
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	@ $(ECHO) "+++++ TestMakefile standardtests complete"
 
 TestNoSecurity:

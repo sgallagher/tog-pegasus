@@ -1,34 +1,35 @@
 /*
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//%/////////////////////////////////////////////////////////////////////////////
 */
-
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/types.h>
@@ -58,9 +59,6 @@
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
 # include "PAMAuth.h"
-#else
-/* PAM_SUCCESS is defined to 0 by PAM */
-#define PAM_SUCCESS 0
 #endif
 
 /*
@@ -207,7 +205,7 @@ static void HandleOpenFileRequest(int sock)
             }
         }
         /* If the open call fails with ENOENT errno,then create the file.
-        If the umask is set to a non default value,then the file will not
+        If the umask is set to a non default value,then the file will not 
         get created with permissions specified in the open system call.
         So set the permissions for the file explicitly using fchmod.
         */
@@ -264,6 +262,8 @@ static void HandleOpenFileRequest(int sock)
 static void HandleStartProviderAgentRequest(int sock)
 {
     int status;
+    int uid;
+    int gid;
     int pid;
     int to[2];
     int from[2];
@@ -292,32 +292,15 @@ static void HandleStartProviderAgentRequest(int sock)
 
         const char* path;
 
-        if (request.moduleBitness == BITNESS_DEFAULT)
-        {
-            if ((path = FindMacro("cimprovagtPath")) == NULL)
-                Fatal(FL, "Failed to locate %s program", CIMPROVAGT);
-        }
-        else if (request.moduleBitness == BITNESS_32)
-        {
-            if ((path = FindMacro("cimprovagt32Path")) == NULL)
-                Fatal(FL, "Failed to locate %s program", CIMPROVAGT32);
-        }
-        else
-        {
-            status = -1;
-            break;
-        }
+        if ((path = FindMacro("cimprovagtPath")) == NULL)
+            Fatal(FL, "Failed to locate %s program", CIMPROVAGT);
+
 #if !defined(PEGASUS_DISABLE_PROV_USERCTXT)
 
         /* Look up the user ID and group ID of the specified user. */
 
-        int uid;
-        int gid;
         if (GetUserInfo(request.userName, &uid, &gid) != 0)
         {
-            Log(LL_WARNING, "User %s does not exist on this system, " 
-                "hence cannot start the provider agent %s", 
-                request.userName, request.module);
             status = -1;
             break;
         }
@@ -613,6 +596,8 @@ static void HandleAuthenticatePasswordRequest(int sock)
     int status;
     struct ExecutorAuthenticatePasswordRequest request;
     struct ExecutorAuthenticatePasswordResponse response;
+    int gid;
+    int uid;
 
     memset(&response, 0, sizeof(response));
 
@@ -631,38 +616,24 @@ static void HandleAuthenticatePasswordRequest(int sock)
 
     do
     {
+        if (GetUserInfo(request.username, &uid, &gid) != 0)
+        {
+            status = -1;
+            break;
+        }
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
 
-        status = PAMAuthenticate(request.username, request.password);
+        if (PAMAuthenticate(request.username, request.password) != 0)
+        {
+            status = -1;
+            break;
+        }
 
-        if (status == PAM_SUCCESS)
-        {
-            Log(LL_TRACE,
-                "Basic authentication through PAM: "
-                    "username = %s, successful.",
-                request.username);
-        }
-        else
-        {
-            Log(LL_TRACE,
-                "Basic authentication through PAM: "
-                    "username = %s, failed with PAM return code= %d.",
-                request.username,
-                status);
-        }
-        
+
 #else /* !PEGASUS_PAM_AUTHENTICATION */
 
         {
-            int gid;
-            int uid;
-            if (GetUserInfo(request.username, &uid, &gid) != 0)
-            {
-                status = -1;
-                break;
-            }
-
             const char* path = FindMacro("passwordFilePath");
 
             if (!path)
@@ -679,13 +650,13 @@ static void HandleAuthenticatePasswordRequest(int sock)
             }
         }
 
-        Log(LL_TRACE, "Basic authentication attempt: username = %s, "
-            "successful = %s",
-            request.username, status == PAM_SUCCESS ? "TRUE" : "FALSE" );
-
 #endif /* !PEGASUS_PAM_AUTHENTICATION */
     }
     while (0);
+
+    Log(LL_TRACE, "Basic authentication attempt: username = %s, "
+        "successful = %s", 
+        request.username, status == 0 ? "TRUE" : "FALSE" );
 
     /* Send response message. */
 
@@ -725,7 +696,8 @@ static void HandleValidateUserRequest(int sock)
 
 #if defined(PEGASUS_PAM_AUTHENTICATION)
 
-    status = PAMValidateUser(request.username);
+    if (PAMValidateUser(request.username) != 0)
+        status = -1;
 
 #else /* !PEGASUS_PAM_AUTHENTICATION */
 

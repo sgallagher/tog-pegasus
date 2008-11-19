@@ -38,6 +38,7 @@ SOURCES = CreateExtNS2.cpp
 
 LIBRARIES = \
     pegrepository \
+    pegconfig \
     pegcommon
 
 PROGRAM = CreateExtNS2

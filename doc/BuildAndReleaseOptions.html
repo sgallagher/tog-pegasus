@@ -2651,8 +2651,11 @@ configuration properties.</p>
   <b>Recommended Default Value (Release Build):</b>&nbsp;0<br>
   <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
   <b>Recommend To Be Fixed/Hidden (Release Build): </b>No/Yes<br>
-  <b>Dynamic?:&nbsp;</b>No<br>
-  <b>Considerations:&nbsp;</b><br>
+  <b>Dynamic?:&nbsp;</b>Yes<br>
+  <b>Considerations:&nbsp;</b>Consider there are five provider processes 
+     already running and the maxProviderProcesses is dynamically changed to 
+     four. In this case though new provider processes will not be created 
+     but existing five will continue running<br>
      <br>
      <table border="1" cellspacing="1" bordercolordark="#666666"
          bordercolorlight="#CCCCCC" width=531

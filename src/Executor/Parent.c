@@ -322,6 +322,8 @@ static void HandleStartProviderAgentRequest(int sock)
 
         if (pipe(from) != 0)
         {
+            close(to[0]);
+            close(to[1]);
             status = -1;
             break;
         }
@@ -333,6 +335,10 @@ static void HandleStartProviderAgentRequest(int sock)
         if (pid < 0)
         {
             Log(LL_SEVERE, "fork failed");
+            close(to[0]);
+            close(to[1]);
+            close(from[0]);
+            close(from[1]);
             status = -1;
             break;
         }
@@ -409,13 +415,13 @@ static void HandleStartProviderAgentRequest(int sock)
                 request.module);
             _exit(1);
         }
+
+        /* We are the parent process.  Close the child's ends of the pipes. */
+
+        close(to[0]);
+        close(from[1]);
     }
     while (0);
-
-    /* Close unused pipe descriptors. */
-
-    close(to[0]);
-    close(from[1]);
 
     /* Send response. */
 

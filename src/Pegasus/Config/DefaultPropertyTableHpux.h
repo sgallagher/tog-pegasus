@@ -53,7 +53,7 @@
 # ifdef PEGASUS_ENABLE_AUDIT_LOGGER
     {"enableAuditLog", "false", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 # endif
-    {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
+    {"maxProviderProcesses", "0", IS_DYNAMIC, 0, 0, IS_VISIBLE}
 #else
     {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -73,7 +73,7 @@
 # ifdef PEGASUS_ENABLE_AUDIT_LOGGER
     {"enableAuditLog", "false", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 # endif
-    {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
+    {"maxProviderProcesses", "0", IS_DYNAMIC, 0, 0, IS_VISIBLE}
 #endif
 
 #endif /* Pegasus_DefaultPropertyTableHpux_h */

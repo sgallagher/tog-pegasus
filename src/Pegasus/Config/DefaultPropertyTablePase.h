@@ -42,7 +42,7 @@
     {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"maxProviderProcesses","0", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"maxProviderProcesses","0", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 # ifdef PEGASUS_ENABLE_AUDIT_LOGGER
     {"enableAuditLog", "false", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 # endif

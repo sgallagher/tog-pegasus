@@ -68,7 +68,7 @@
 # ifdef PEGASUS_ENABLE_AUDIT_LOGGER
     {"enableAuditLog", "false", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 # endif
-    {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
+    {"maxProviderProcesses", "0", IS_DYNAMIC, 0, 0, IS_VISIBLE}
 #endif
 
 #endif /* Pegasus_DefaultPropertyTable_h */

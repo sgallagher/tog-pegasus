@@ -38,6 +38,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Config/ConfigPropertyOwner.h>
 
 
@@ -208,6 +209,8 @@ private:
     The table to hold the properties owned by this class
     */
     AutoArrayPtr<struct ConfigProperty> _configProperties;
+
+    Mutex _maxProviderProcessesMutex;
 };
 
 

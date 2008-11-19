@@ -48,6 +48,7 @@
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/Executor.h>
+#include <Pegasus/Common/StringConversion.h>
 
 #if defined (PEGASUS_OS_TYPE_WINDOWS)
 # include <windows.h>  // For CreateProcess()
@@ -304,12 +305,6 @@ private:
     static Mutex _numProviderProcessesMutex;
 
     /**
-        The maximum number of Provider Agent processes that may be initialized
-        (active) at one time.
-    */
-    static Uint32 _maxProviderProcesses;
-
-    /**
         A value indicating that a request message has not been processed.
         A CIMResponseMessage pointer with this value indicates that the
         corresponding CIMRequestMessage has not been processed.  This is
@@ -329,7 +324,6 @@ private:
 
 Uint32 ProviderAgentContainer::_numProviderProcesses = 0;
 Mutex ProviderAgentContainer::_numProviderProcessesMutex;
-Uint32 ProviderAgentContainer::_maxProviderProcesses = PEG_NOT_FOUND;
 
 // Set this to a value that no valid CIMResponseMessage* will have.
 CIMResponseMessage* ProviderAgentContainer::_REQUEST_NOT_PROCESSED =
@@ -520,19 +514,22 @@ void ProviderAgentContainer::_initialize()
         return;
     }
 
-    if (_maxProviderProcesses == PEG_NOT_FOUND)
-    {
-        String maxProviderProcesses = ConfigManager::getInstance()->
-            getCurrentValue("maxProviderProcesses");
-        CString maxProviderProcessesString = maxProviderProcesses.getCString();
-        char* end = 0;
-        _maxProviderProcesses = strtol(maxProviderProcessesString, &end, 10);
-    }
+    //Get the current value of maxProviderProcesses
+    String maxProviderProcessesString = ConfigManager::getInstance()->
+        getCurrentValue("maxProviderProcesses");
+    Uint64 v;
+    StringConversion::decimalStringToUint64(
+        maxProviderProcessesString.getCString(),
+        v);
+    Uint32 maxProviderProcesses = (Uint32)v;
+
+    char* end = 0;
 
     {
         AutoMutex lock(_numProviderProcessesMutex);
-        if ((_maxProviderProcesses != 0) &&
-            (_numProviderProcesses >= _maxProviderProcesses))
+
+        if ((maxProviderProcesses != 0) &&
+            (_numProviderProcesses >= maxProviderProcesses))
         {
             throw PEGASUS_CIM_EXCEPTION(
                 CIM_ERR_FAILED,

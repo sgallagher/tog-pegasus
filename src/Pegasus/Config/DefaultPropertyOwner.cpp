@@ -162,7 +162,15 @@ String DefaultPropertyOwner::getCurrentValue(const String& name) const
     {
         if (String::equalNoCase(_configProperties.get()[i].propertyName, name))
         {
-            return _configProperties.get()[i].currentValue;
+            if (String::equalNoCase(name, "maxProviderProcesses"))
+            {
+                AutoMutex lock(_maxProviderProcessesMutex);
+                return _configProperties.get()[i].currentValue;
+            }
+            else
+            {
+                return _configProperties.get()[i].currentValue;
+            }
         }
     }
 
@@ -202,7 +210,15 @@ void DefaultPropertyOwner::initCurrentValue(
     {
         if (String::equalNoCase(_configProperties.get()[i].propertyName, name))
         {
-            _configProperties.get()[i].currentValue = value;
+            if (String::equalNoCase(name, "maxProviderProcesses"))
+            {
+                AutoMutex lock(_maxProviderProcessesMutex);
+                _configProperties.get()[i].currentValue = value;
+            }
+            else
+            {
+               _configProperties.get()[i].currentValue = value;
+            }
             return;
         }
     }

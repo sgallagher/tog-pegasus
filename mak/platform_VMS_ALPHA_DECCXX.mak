@@ -77,15 +77,13 @@ OPENSSL_SET_SERIAL_SUPPORTED = true
 PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER = true
 PEGASUS_ENABLE_SYSTEM_LOG_HANDLER = true
 PEGASUS_ENABLE_EMAIL_HANDLER = true
-
 # Local domain sockets, or an equivalent, 
 # is not currently supported on OpenVMS. Bug 2147
 PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=1
-
 # The Provider User Context feature (PEP 197) is not yet supported on OpenVMS
 PEGASUS_DISABLE_PROV_USERCTXT=1
-
 PEGASUS_USE_STATIC_LIBRARIES = true
+PEGASUS_ENABLE_PROTOCOL_WSMAN = true
 
 CXX = cxx
 

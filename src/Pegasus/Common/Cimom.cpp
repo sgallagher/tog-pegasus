@@ -245,14 +245,6 @@ void cimom::_completeAsyncResponse(
 
 cimom *cimom::_global_this;
 
-
-void cimom::_default_callback(AsyncOpNode *op, MessageQueue *q, void *ptr)
-{
-    PEGASUS_ASSERT(op != 0 && q != 0);
-    return;
-}
-
-
 void cimom::_complete_op_node(
     AsyncOpNode *op)
 {

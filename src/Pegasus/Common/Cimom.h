@@ -71,7 +71,6 @@ protected:
           AsyncRequest* request,
           AsyncReply* reply);
       static void _complete_op_node(AsyncOpNode* op);
-      static void _default_callback(AsyncOpNode*, MessageQueue*, void*);
 
 private:
     AsyncQueue<AsyncOpNode> _routed_ops;

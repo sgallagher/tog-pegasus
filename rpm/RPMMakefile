@@ -1,31 +1,33 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
+#//%2006////////////////////////////////////////////////////////////////////////
 #//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; Symantec Corporation; The Open Group.
 #//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
+#// 
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
-#//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
+#//==============================================================================
 ###############################################################################
 ##
 ## RPM Makefile for building tog-pegasus rpms
@@ -53,8 +55,9 @@ MV:=mv
 CP:=cp
 GREP:=grep
 ECHO:=echo
-ECHO-E:=echo -e
-TOG_INSTALLED_RPMS:=$(shell $(RPM) -qa|grep $(PEGASUS_FLAVOR)-pegasus)
+TOG_INSTALLED_RPMS:=$(shell $(RPM) -qa|grep tog-pegasus)
+CIMSERVER_START_SERVICE:=$(PEGASUS_SBIN_DIR)/cimserver
+CIMSERVER_STOP_SERVICE:=$(PEGASUS_SBIN_DIR)/cimserver -s
 
 ifdef PEGASUS_BUILD_BRANCH
     ifeq ($(PEGASUS_BUILD_BRANCH),MAIN)
@@ -65,68 +68,43 @@ ifdef PEGASUS_BUILD_BRANCH
 else
         PEGASUS_RPM_CVS_TAG:=HEAD
 endif
-###############################################################################
-##
-## 32 bit RedHat yield x.x like 5.5 for lsb_release -r -s whereas
-## 32 bit SUSE yield x like 11 
-## so, need to used findstring for comparing
-##
-##
-###############################################################################
+
 ifeq ($(IDISTRO),RedHatEnterpriseServer)
-  DISTRO:=REDHAT
-  export PEGASUS_DISTRO_SUFFIX:= \
-    $(if $(filter $(RELEASE),4.92 4.93 5 5.1 5.2 5.3),el5, \
-    $(if $(filter $(RELEASE),6 6.0),el6, \
-    $(if $(filter $(RELEASE),7 7.0),el7,xxx)))
-else
-  ifeq ($(findstring RedHat,$(IDISTRO)),RedHat)
     DISTRO:=REDHAT
-    ifeq ($(findstring 7, $(RELEASE)),7)
-      export PEGASUS_DISTRO_SUFFIX=rhel7
-    else
-      ifeq ($(findstring 6, $(RELEASE)),6)
-        export PEGASUS_DISTRO_SUFFIX=rhel6
-      else
-        ifeq ($(findstring 5, $(RELEASE)),5)
-          export PEGASUS_DISTRO_SUFFIX=rhel5
+    export PEGASUS_DISTRO_SUFFIX:= \
+        $(if $(filter $(RELEASE),4.92 4.93 5),el5,xxx)
+else
+    ifeq ($(findstring RedHat,$(IDISTRO)),RedHat)
+        DISTRO:=REDHAT
+        ifeq ($(RELEASE),4)
+           export PEGASUS_DISTRO_SUFFIX=rhel4
         else
-          ifeq ($(findstring 4, $(RELEASE)),4)
-            export PEGASUS_DISTRO_SUFFIX=rhel4
-          else
-            ifeq ($(findstring 3, $(RELEASE)),3)
-              export PEGASUS_DISTRO_SUFFIX=rhel3
+            ifeq ($(RELEASE),3)
+                export PEGASUS_DISTRO_SUFFIX=rhel3
             else
-              export PEGASUS_DISTRO_SUFFIX=xxx
+                export PEGASUS_DISTRO_SUFFIX=xxx
             endif
-          endif
         endif
-      endif
+    else
+        ifeq ($(findstring SUSE,$(IDISTRO)),SUSE)
+            DISTRO:=SUSE
+            ifeq ($(RELEASE),9)
+                export PEGASUS_DISTRO_SUFFIX=sles9
+            else
+                ifeq ($(RELEASE),10)
+                    export PEGASUS_DISTRO_SUFFIX=sles10
+                else
+                    export PEGASUS_DISTRO_SUFFIX=xxx
+                endif
+            endif
+        endif
     endif
-  else
-   ifeq ($(findstring SUSE,$(IDISTRO)),SUSE)
-     DISTRO:=SUSE
-     ifeq ($(RELEASE),9)
-       export PEGASUS_DISTRO_SUFFIX=sles9
-     else
-       ifeq ($(RELEASE),10)
-         export PEGASUS_DISTRO_SUFFIX=sles10
-       else
-         ifeq ($(RELEASE),11)
-           export PEGASUS_DISTRO_SUFFIX=sles11
-         else
-           export PEGASUS_DISTRO_SUFFIX=xxx
-         endif
-       endif
-     endif
-   endif
-  endif
 endif
 
 ###############################################################################
 #
 # The user may set PEGASUS_RPM_DIRECTORY to the path of their rpm build target.
-# The source tar file will then be in
+# The source tar file will then be in 
 # PEGASUS_RPM_DIRECTORY/SOURCES/tog-pegasus.
 # If PEGASUS_RPM_DIRECTORY is not defined the rpm build target path will be
 # defaulted to the well-known locations on redhat and suse systems.
@@ -142,19 +120,18 @@ ifndef PEGASUS_RPM_DIRECTORY
   endif
   TOG_PEGASUS_DIR:=""
 else
-  TOG_PEGASUS_DIR:=$(PEGASUS_FLAVOR)-pegasus
+  TOG_PEGASUS_DIR:=tog-pegasus
 endif
 
 VERSION:=$(PEGASUS_PRODUCT_VERSION)-$(PEGASUS_PACKAGE_VERSION)
-CORE_RPM:=$(PEGASUS_FLAVOR)-pegasus-$(VERSION).$(PEGASUS_DISTRO_SUFFIX).$(PLATFORM).rpm
-SDK_RPM:=$(PEGASUS_FLAVOR)-pegasus-devel-$(VERSION).$(PEGASUS_DISTRO_SUFFIX).$(PLATFORM).rpm
-TEST_RPM:=$(PEGASUS_FLAVOR)-pegasus-test-$(VERSION).$(PEGASUS_DISTRO_SUFFIX).$(PLATFORM).rpm
-SRC_RPM:=$(PEGASUS_FLAVOR)-pegasus-$(VERSION).src.rpm
-RPM_SRC_DIR:=$(shell echo $(PEGASUS_FLAVOR)-pegasus-$(PEGASUS_PRODUCT_VERSION))
+CORE_RPM:=tog-pegasus-$(VERSION).$(PEGASUS_DISTRO_SUFFIX).$(PLATFORM).rpm
+SDK_RPM:=tog-pegasus-devel-$(VERSION).$(PEGASUS_DISTRO_SUFFIX).$(PLATFORM).rpm
+TEST_RPM:=tog-pegasus-test-$(VERSION).$(PEGASUS_DISTRO_SUFFIX).$(PLATFORM).rpm
+SRC_RPM:=tog-pegasus-$(VERSION).src.rpm
 
 USAGE = @$(ECHO) $(1)
 
-usage:
+usage: 
 	$(USAGE)
 	$(USAGE)"RPMMakefile targets:"
 	$(USAGE)""
@@ -187,39 +164,8 @@ define checkForCores
                 exit 1; fi
 endef
 
-define removeRPM
-	@if [ -n "`rpm -qa | grep $1-[0-9]`" ]; then \
-           rpm -e `rpm -qa | grep $1-[0-9]`; \
-        fi
-endef
-
-define startCIMServer
-	@/etc/init.d/$(PEGASUS_FLAVOR)-pegasus status > /dev/null 2>&1; \
-        if [ $$? != 0 ]; then \
-            /etc/init.d/$(PEGASUS_FLAVOR)-pegasus start; \
-        fi
-endef
-
-define stopCIMServer
-	@/etc/init.d/$(PEGASUS_FLAVOR)-pegasus status > /dev/null 2>&1; \
-        if [ $$? == 0 ]; then \
-            /etc/init.d/$(PEGASUS_FLAVOR)-pegasus stop; \
-        fi
-endef
-
-
 exportSRC:
 	@cvs -d:pserver:anon@cvs.opengroup.org:/cvs/MSB export -r $(PEGASUS_RPM_CVS_TAG) pegasus
-
-enableSQLiteRepository:
-	$(ECHO-E) "" \
-            >> pegasus/env_var_Linux.status
-	$(ECHO-E) "PEGASUS_USE_SQLITE_REPOSITORY = true" \
-            >> pegasus/env_var_Linux.status
-ifdef SQLITE_HOME
-	$(ECHO-E) "SQLITE_HOME = $(SQLITE_HOME)" \
-            >> pegasus/env_var_Linux.status
-endif
 
 createSRCRPM:
 
@@ -227,24 +173,23 @@ ifndef PEGASUS_PRODUCT_VERSION
 	@$(ECHO) "PEGASUS_PRODUCT_VERSION is not defined"
 	@exit 2
 endif
-	@$(MV) pegasus $(RPM_SRC_DIR)
-	@$(CP) $(RPM_SRC_DIR)/rpm/tog-pegasus.spec \
-            $(PEGASUS_RPM_DIRECTORY)/SPECS
-	@tar czf $(PEGASUS_FLAVOR)-pegasus-$(VERSION).tar.gz $(RPM_SRC_DIR)
-	@$(CP) $(PEGASUS_FLAVOR)-pegasus-$(VERSION).tar.gz $(PEGASUS_RPM_DIRECTORY)/SOURCES/$(TOG_PEGASUS_DIR)
+	@$(MV) pegasus tog-pegasus-$(PEGASUS_PRODUCT_VERSION)
+	@$(CP) tog-pegasus-$(PEGASUS_PRODUCT_VERSION)/rpm/tog-pegasus.spec $(PEGASUS_RPM_DIRECTORY)/SPECS 
+	@tar czf tog-pegasus-$(VERSION).tar.gz tog-pegasus-$(PEGASUS_PRODUCT_VERSION)
+	@$(CP) tog-pegasus-$(VERSION).tar.gz $(PEGASUS_RPM_DIRECTORY)/SOURCES/$(TOG_PEGASUS_DIR)
 	@$(RPMBUILD) -bs $(PEGASUS_RPM_DIRECTORY)/SPECS/tog-pegasus.spec
 
 createBINRPM:
 	@$(RPM) -i $(PEGASUS_RPM_DIRECTORY)/SRPMS/$(SRC_RPM)
 	@$(RPMBUILD) -bb --define 'LINUX_VERSION $(PEGASUS_DISTRO_SUFFIX)' --define 'PEGASUS_BUILD_TEST_RPM 1' $(PEGASUS_RPM_DIRECTORY)/SPECS/tog-pegasus.spec
 
-list:
-	@$(RPM) -qa|$(GREP) $(PEGASUS_FLAVOR)-pegasus
+list: 
+	@$(RPM) -qa|$(GREP) tog-pegasus
 
 tests:
 	# Start cimserver
-	-$(call stopCIMServer)
-	$(call startCIMServer)
+	-$(CIMSERVER_STOP_SERVICE)
+	$(CIMSERVER_START_SERVICE)
 	$(call checkForCores,./,-maxdepth 1)
 
 	# Run some sanity tests
@@ -267,11 +212,11 @@ tests:
 	$(call checkForCores,./,-maxdepth 1)
 
 	@$(ECHO) "+++++ Stopping cimserver +++++"
-	@$(call stopCIMServer)
+	@$(CIMSERVER_STOP_SERVICE)
 	$(call checkForCores,./,-maxdepth 1)
 
 	@$(ECHO) "+++++ Starting cimserver +++++"
-	$(call startCIMServer)
+	$(CIMSERVER_START_SERVICE)
 	$(call checkForCores,./,-maxdepth 1)
 
 	# Run samples
@@ -298,14 +243,11 @@ install:
 	$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
 
 cleanRPM:
-	$(call removeRPM,$(PEGASUS_FLAVOR)-pegasus-test);
-	-$(call startCIMServer)
-	$(call removeRPM,$(PEGASUS_FLAVOR)-pegasus-devel);
-	$(call removeRPM,$(PEGASUS_FLAVOR)-pegasus);
-	-$(RM) -Rf $(RPM_SRC_DIR).old
-ifneq ($(wildcard $(RPM_SRC_DIR)), )
-	$(MV) $(RPM_SRC_DIR) $(RPM_SRC_DIR).old
-endif
+	-$(RPM) -e $(filter tog-pegasus-test%,$(TOG_INSTALLED_RPMS))
+	-$(RPM) -e $(filter tog-pegasus-devel%,$(TOG_INSTALLED_RPMS))
+	-$(RPM) -e $(filter tog-pegasus-2%,$(TOG_INSTALLED_RPMS))
+	-$(RM) -Rf tog-pegasus-$(PEGASUS_PRODUCT_VERSION).old
+	-$(MV) tog-pegasus-$(PEGASUS_PRODUCT_VERSION) tog-pegasus-$(PEGASUS_PRODUCT_VERSION).old
 
 buildRPM: cleanRPM createSRCRPM createBINRPM
 

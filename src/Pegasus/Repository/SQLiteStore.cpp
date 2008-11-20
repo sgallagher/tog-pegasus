@@ -43,7 +43,11 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/CIMNameCast.h>
 #include "SQLiteStore.h"
+
+// No build option to disable the association class cache is currently provided.
+#define USE_ASSOC_CLASS_CACHE
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -1493,6 +1497,58 @@ Boolean SQLiteStore::instanceExists(
     return found;
 }
 
+void SQLiteStore::_initAssocClassCache(
+    const CIMNamespaceName& nameSpace,
+    AssocClassCache* cache)
+{
+#ifdef USE_ASSOC_CLASS_CACHE
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "SQLiteStore::_initAssocClassCache");
+
+    DbConnection db(_dbcm, nameSpace);
+
+    const char* sqlStatement =
+        "SELECT assocclassname, normfromclassname, normfrompropname, "
+            "toclassname, normtopropname FROM ClassAssocTable;";
+
+    sqlite3_stmt* stmt = 0;
+    CHECK_RC_OK(
+        sqlite3_prepare_v2(db.get(), sqlStatement, -1, &stmt, 0),
+        db.get());
+    AutoPtr<sqlite3_stmt, FinalizeSQLiteStatement> stmtDestroyer(stmt);
+
+    int rc;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW)
+    {
+        ClassAssociation classAssociation;
+        classAssociation.assocClassName = CIMNameCast(String(
+                (const Char16*)sqlite3_column_text16(stmt, 0),
+                (Uint32)sqlite3_column_bytes16(stmt, 0) / 2));
+        classAssociation.fromClassName = CIMNameCast(String(
+                (const Char16*)sqlite3_column_text16(stmt, 1),
+                (Uint32)sqlite3_column_bytes16(stmt, 1) / 2));
+        classAssociation.fromPropertyName = CIMNameCast(String(
+                (const Char16*)sqlite3_column_text16(stmt, 2),
+                (Uint32)sqlite3_column_bytes16(stmt, 2) / 2));
+        classAssociation.toClassName = CIMNameCast(String(
+                (const Char16*)sqlite3_column_text16(stmt, 3),
+                (Uint32)sqlite3_column_bytes16(stmt, 3) / 2));
+        classAssociation.toPropertyName = CIMNameCast(String(
+                (const Char16*)sqlite3_column_text16(stmt, 4),
+                (Uint32)sqlite3_column_bytes16(stmt, 4) / 2));
+        cache->addRecord(classAssociation.fromClassName, classAssociation);
+    }
+
+    CHECK_RC_DONE(rc, db.get());
+
+    cache->setActive(true);
+
+    stmtDestroyer.reset();
+    db.release();
+
+    PEG_METHOD_EXIT();
+#endif
+}
+
 void SQLiteStore::_addClassAssociationEntries(
     sqlite3* db,
     const CIMNamespaceName& nameSpace,
@@ -1591,6 +1647,24 @@ void SQLiteStore::_addClassAssociationEntries(
         CHECK_RC_OK(sqlite3_clear_bindings(stmt), db);
     }
 
+#ifdef USE_ASSOC_CLASS_CACHE
+
+    String assocClassCacheName = nameSpace.getString();
+    assocClassCacheName.toLower();
+    AssocClassCache* cache =
+        _assocClassCacheManager.getAssocClassCache(assocClassCacheName);
+
+    if (cache->isActive())
+    {
+        for (Uint32 i = 0; i < classAssocEntries.size(); i++)
+        {
+            cache->addRecord(
+                classAssocEntries[i].fromClassName, classAssocEntries[i]);
+        }
+    }
+
+#endif
+
     PEG_METHOD_EXIT();
 }
 
@@ -1623,6 +1697,20 @@ void SQLiteStore::_removeClassAssociationEntries(
         db);
 
     CHECK_RC_DONE(sqlite3_step(stmt), db);
+
+#ifdef USE_ASSOC_CLASS_CACHE
+
+    String assocClassCacheName = nameSpace.getString();
+    assocClassCacheName.toLower();
+    AssocClassCache* cache =
+        _assocClassCacheManager.getAssocClassCache(assocClassCacheName);
+
+    if (cache->isActive())
+    {
+        cache->removeAssocClassRecords(assocClassName);
+    }
+
+#endif
 
     PEG_METHOD_EXIT();
 }
@@ -1806,6 +1894,22 @@ void SQLiteStore::getClassReferenceNames(
     PEG_METHOD_ENTER(TRC_REPOSITORY,
         "SQLiteStore::getClassReferenceNames");
 
+#ifdef USE_ASSOC_CLASS_CACHE
+
+    String assocClassCacheName = nameSpace.getString();
+    assocClassCacheName.toLower();
+    AssocClassCache* cache =
+        _assocClassCacheManager.getAssocClassCache(assocClassCacheName);
+
+    if (!cache->isActive())
+    {
+        _initAssocClassCache(nameSpace, cache);
+    }
+
+    cache->getReferenceNames(classList, resultClassList, role, referenceNames);
+
+#else
+
     DbConnection db(_dbcm, nameSpace);
 
     String sqlStatement =
@@ -1908,6 +2012,7 @@ void SQLiteStore::getClassReferenceNames(
 
     stmtDestroyer.reset();
     db.release();
+#endif
 
     PEG_METHOD_EXIT();
 }

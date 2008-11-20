@@ -307,8 +307,7 @@ Boolean AssocClassTable::getReferenceNames(
     const String& role,
     Array<String>& referenceNames)
 {
-
-    // First see if we can get the information from the association class cache.
+    // Get the information from the association class cache.
     AssocClassCache* cache = _assocClassCacheManager.getAssocClassCache(path);
 
     if (!cache->isActive())
@@ -317,48 +316,8 @@ Boolean AssocClassTable::getReferenceNames(
             return false;
     }
 
-    Array<ClassAssociation> records;
-    Boolean found = false;
-
-
-    // For each of the target classes retrieve the list of matching
-    // association classes from the cache.
-    // The cache uses the from class name as an index and returns all
-    // association class records having that from class.
-
-    for (Uint16 idx=0; idx < classList.size(); idx++)
-    {
-        String fromClassName = classList[idx].getString();
-        if (cache->getAssocClassEntry(fromClassName, records))
-        {
-            for (Uint16 rx=0; rx <records.size(); rx++)
-            {
-                if (_MatchNoCase(
-                        records[rx].fromPropertyName.getString(), role))
-                {
-                    // Skip classes that do not appear in the result class list
-                    if ((resultClassList.size() != 0) &&
-                        (!Contains(resultClassList,
-                             records[rx].assocClassName)))
-                    {
-                        continue;
-                    }
-
-                    // This class qualifies; add it to the list (skipping
-                    // duplicates)
-                    if (!Contains(referenceNames,
-                            records[rx].assocClassName.getString()))
-                    {
-                        referenceNames.append(
-                            records[rx].assocClassName.getString());
-                    }
-                    found = true;
-                }
-            }
-        }
-    }
-
-    return found;
+    return cache->getReferenceNames(
+        classList, resultClassList, role, referenceNames);
 }
 
 PEGASUS_NAMESPACE_END

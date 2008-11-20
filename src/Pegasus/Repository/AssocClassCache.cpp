@@ -32,6 +32,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include "AssocClassCache.h"
 
 PEGASUS_USING_STD;
@@ -84,6 +85,55 @@ Boolean AssocClassCache::getAssocClassEntry(
     return _assocTable.lookup(fromClassName.getString(), entryList);
 }
 
+Boolean AssocClassCache::getReferenceNames(
+    const Array<CIMName>& classList,
+    const Array<CIMName>& resultClassList,
+    const String& role,
+    Array<String>& referenceNames)
+{
+    Array<ClassAssociation> records;
+    Boolean found = false;
+
+    // For each of the target classes retrieve the list of matching
+    // association classes from the cache.
+    // The cache uses the from class name as an index and returns all
+    // association class records having that from class.
+
+    for (Uint16 idx = 0; idx < classList.size(); idx++)
+    {
+        String fromClassName = classList[idx].getString();
+        if (getAssocClassEntry(fromClassName, records))
+        {
+            for (Uint16 rx = 0; rx < records.size(); rx++)
+            {
+                if ((role.size() == 0) ||
+                    (records[rx].fromPropertyName == role))
+                {
+                    // Skip classes that do not appear in the result class list
+                    if ((resultClassList.size() != 0) &&
+                        (!Contains(resultClassList,
+                             records[rx].assocClassName)))
+                    {
+                        continue;
+                    }
+
+                    // This class qualifies; add it to the list (skipping
+                    // duplicates)
+                    if (!Contains(referenceNames,
+                            records[rx].assocClassName.getString()))
+                    {
+                        referenceNames.append(
+                            records[rx].assocClassName.getString());
+                    }
+                    found = true;
+                }
+            }
+        }
+    }
+
+    return found;
+}
+
 /** Add a new record to the association cache.
     If an entry for the given from class name already exists,
     the new entry is appended to the old entry. Otherwise a new entry
@@ -106,14 +156,6 @@ Boolean AssocClassCache::addRecord(
         fromClassName.getString(), oldAssocClassEntryList);
 }
 
-/** Remove an entry from the association cache specified by the given
-     from class name.
-*/
-Boolean AssocClassCache::removeEntry(const CIMName& fromClassName)
-{
-    return _assocTable.remove(fromClassName.getString());
-}
-
 /** Remove an association record from the association cache specified by the
     given from class name and association name.
 */
@@ -127,8 +169,7 @@ Boolean AssocClassCache::removeRecord(
     {
         for (Uint32 idx=0; idx < oldAssocClassEntryList.size(); idx++)
         {
-            // The first entry in each record is the association class
-            // name. Find the record for the association class and remove
+            // Find the record for the association class and remove
             // it from the cache entry.
             if (oldAssocClassEntryList[idx].assocClassName == assocClassName)
             {
@@ -145,6 +186,36 @@ Boolean AssocClassCache::removeRecord(
     }
 
     return false;
+}
+
+/** Remove association records from the association cache specified by the
+    association class name.
+*/
+Boolean AssocClassCache::removeAssocClassRecords(const CIMName& assocClassName)
+{
+    Array<CIMName> fromClassNames;
+
+    for (AssocClassCacheHashTableType::Iterator i = _assocTable.start(); i; i++)
+    {
+        Array<ClassAssociation> assocClassEntryList = i.value();
+        for (Uint32 j = 0; j < assocClassEntryList.size(); j++)
+        {
+            if (assocClassEntryList[j].assocClassName == assocClassName)
+            {
+                // Note: We cannot remove an entry from the HashTable while
+                // iterating over it.
+                fromClassNames.append(assocClassEntryList[j].fromClassName);
+                break;
+            }
+        }
+    }
+
+    for (Uint32 i = 0; i < fromClassNames.size(); i++)
+    {
+        removeRecord(fromClassNames[i], assocClassName);
+    }
+
+    return fromClassNames.size();
 }
 
 /** Check if the cache is loaded with objects already.

@@ -38,6 +38,7 @@
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Repository/PersistentStore.h>
+#include <Pegasus/Repository/AssocClassCache.h>
 #include <Pegasus/Repository/Linkage.h>
 
 #include <sqlite3.h>
@@ -256,6 +257,9 @@ private:
         return cn;
     }
 
+    void _initAssocClassCache(
+        const CIMNamespaceName& nameSpace,
+        AssocClassCache* cache);
     void _addClassAssociationEntries(
         sqlite3* db,
         const CIMNamespaceName& nameSpace,
@@ -277,6 +281,7 @@ private:
     String _repositoryRoot;
     DbConnectionManager _dbcm;
     ObjectStreamer* _streamer;
+    AssocClassCacheManager _assocClassCacheManager;
 };
 
 PEGASUS_NAMESPACE_END

@@ -85,22 +85,34 @@ public:
         const CIMName& fromClassName,
         Array<ClassAssociation>& entryList);
 
+    /** Gets the names of the association classes which reference the specified
+        classes.  The results can be constrained by specifying a set of
+        resulting association classes and the property name that refers to the
+        specified class.
+    */
+    Boolean getReferenceNames(
+        const Array<CIMName>& classList,
+        const Array<CIMName>& resultClassList,
+        const String& role,
+        Array<String>& referenceNames);
+
     /** Add a new entry to the association cache.
     */
     Boolean addRecord(
         const CIMName& fromClassName,
         const ClassAssociation& assocClassEntry);
 
-    /** Remove an entry from the association cache specified by the given
-        association class name.
-    */
-    Boolean removeEntry(const CIMName& fromClassName);
-
-   /** Remove an association record from the association cache specified by
-       the given from class name and association name.
+    /** Remove an association record from the association cache specified by
+        the given from class name and association name.
     */
     Boolean removeRecord(
         const CIMName& fromClassName,
+        const CIMName& assocClassName);
+
+    /** Remove association records from the association cache specified by the
+        association class name.
+    */
+    Boolean removeAssocClassRecords(
         const CIMName& assocClassName);
 
     /** Check if the cache is loaded with objects already.

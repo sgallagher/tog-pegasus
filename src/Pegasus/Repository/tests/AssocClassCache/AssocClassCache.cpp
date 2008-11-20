@@ -50,7 +50,6 @@ int main(int argc, char** argv)
     PEGASUS_TEST_ASSERT(a1->isActive());
     PEGASUS_TEST_ASSERT(
         !a1->removeRecord(CIMName("X"), CIMName("Assoc1")));
-    PEGASUS_TEST_ASSERT(!a1->removeEntry(CIMName("X")));
     PEGASUS_TEST_ASSERT(!a1->getAssocClassEntry(CIMName("X"), entryList));
     entry = ClassAssociation(
         CIMName("Assoc1"),
@@ -94,12 +93,31 @@ int main(int argc, char** argv)
     PEGASUS_TEST_ASSERT(entryList.size() == 1);
     PEGASUS_TEST_ASSERT(a1->getAssocClassEntry(CIMName("Y"), entryList));
     PEGASUS_TEST_ASSERT(entryList.size() == 2);
+    PEGASUS_TEST_ASSERT(a1->removeAssocClassRecords(CIMName("Assoc1")));
+    PEGASUS_TEST_ASSERT(!a1->getAssocClassEntry(CIMName("X"), entryList));
+    PEGASUS_TEST_ASSERT(a1->getAssocClassEntry(CIMName("Y"), entryList));
+    PEGASUS_TEST_ASSERT(entryList.size() == 1);
+    entry = ClassAssociation(
+        CIMName("Assoc1"),
+        CIMName("Y"),
+        CIMName("prop2"),
+        CIMName("X"),
+        CIMName("prop1"));
+    PEGASUS_TEST_ASSERT(a1->addRecord(entry.fromClassName, entry));
+    PEGASUS_TEST_ASSERT(a1->addRecord(entry.toClassName, entry));
+
+    PEGASUS_TEST_ASSERT(a1->getAssocClassEntry(CIMName("X"), entryList));
+    PEGASUS_TEST_ASSERT(entryList.size() == 1);
+    PEGASUS_TEST_ASSERT(a1->getAssocClassEntry(CIMName("Y"), entryList));
+    PEGASUS_TEST_ASSERT(entryList.size() == 2);
     PEGASUS_TEST_ASSERT(a1->removeRecord(CIMName("Y"), CIMName("Assoc1")));
     PEGASUS_TEST_ASSERT(a1->getAssocClassEntry(CIMName("Y"), entryList));
     PEGASUS_TEST_ASSERT(entryList.size() == 1);
     PEGASUS_TEST_ASSERT(a1->removeRecord(CIMName("Y"), CIMName("Assoc2")));
     PEGASUS_TEST_ASSERT(!a1->getAssocClassEntry(CIMName("Y"), entryList));
-    PEGASUS_TEST_ASSERT(a1->removeEntry(CIMName("X")));
+    PEGASUS_TEST_ASSERT(!a1->removeRecord(CIMName("X"), CIMName("Assoc2")));
+    PEGASUS_TEST_ASSERT(a1->getAssocClassEntry(CIMName("X"), entryList));
+    PEGASUS_TEST_ASSERT(a1->removeRecord(CIMName("X"), CIMName("Assoc1")));
     PEGASUS_TEST_ASSERT(!a1->getAssocClassEntry(CIMName("X"), entryList));
 
     entry = ClassAssociation(

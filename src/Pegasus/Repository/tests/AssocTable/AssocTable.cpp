@@ -66,11 +66,43 @@ int main(int argc, char** argv)
             CIMName("child")));
 
     //
+    // check that the association was really created
+    //
+    {
+        Array<CIMName> classList;
+        classList.append(CIMName("Person"));
+        Array<String> referenceNames;
+        _assocClassTable.getReferenceNames(
+            assocTablePath,
+            classList,
+            Array<CIMName>(),
+            String::EMPTY,
+            referenceNames);
+        PEGASUS_TEST_ASSERT(referenceNames.size() == 1);
+    }
+
+    //
     // delete class association
     //
     _assocClassTable.deleteAssociation(
         assocTablePath,
         CIMName("Lineage"));
+
+    //
+    // check that the association was really deleted
+    //
+    {
+        Array<CIMName> classList;
+        classList.append(CIMName("Person"));
+        Array<String> referenceNames;
+        _assocClassTable.getReferenceNames(
+            assocTablePath,
+            classList,
+            Array<CIMName>(),
+            String::EMPTY,
+            referenceNames);
+        PEGASUS_TEST_ASSERT(referenceNames.size() == 0);
+    }
 
     //
     // create instance association

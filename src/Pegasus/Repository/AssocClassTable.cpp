@@ -165,19 +165,17 @@ Boolean AssocClassTable::deleteAssociation(
     // Copy over all lines except ones with the given association instance name:
 
     ClassAssociation classAssociation;
-    ClassAssociation classAssociationToDelete;
-    Boolean found = false;
+    Array<ClassAssociation> classAssociationsToDelete;
 
     while (_GetRecord(is, classAssociation))
     {
         if (assocClassName.getString() != classAssociation.assocClassName)
         {
             _PutRecord(os, classAssociation);
-            found = true;
         }
         else
         {
-            classAssociationToDelete = classAssociation;
+            classAssociationsToDelete.append(classAssociation);
         }
     }
 
@@ -193,18 +191,18 @@ Boolean AssocClassTable::deleteAssociation(
 
 
     // Update cache
-    if (found)
+    AssocClassCache* cache = _assocClassCacheManager.getAssocClassCache(path);
+    for (Uint32 i = 0; i < classAssociationsToDelete.size(); i++)
     {
-        AssocClassCache* cache =
-        _assocClassCacheManager.getAssocClassCache(path);
         if (cache->isActive())
         {
-            cache->removeRecord(classAssociationToDelete.fromClassName,
-                                classAssociationToDelete.assocClassName);
+            cache->removeRecord(
+                classAssociationsToDelete[i].fromClassName,
+                classAssociationsToDelete[i].assocClassName);
         }
     }
 
-    return found;
+    return classAssociationsToDelete.size();
 }
 
 Boolean AssocClassTable::getAssociatorNames(

@@ -1404,3 +1404,14 @@ ifdef PEGASUS_ALLOW_ABSOLUTEPATH_IN_PROVIDERMODULE
   endif
 endif
 
+## ======================================================================
+##
+## PLATFORM_CORE_PATTERN
+## This variable describes the pattern used to search for core files.
+## If not defined, this variable will be set to core*.
+## Only wildcard characters supported by the make wildcard function
+## may be used.
+
+ifndef PLATFORM_CORE_PATTERN
+    PLATFORM_CORE_PATTERN = core*
+endif

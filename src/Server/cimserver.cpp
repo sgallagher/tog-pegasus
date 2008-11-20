@@ -1038,7 +1038,8 @@ int CIMServerProcess::cimserver_run(
                 _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
                     portNumberHttp, false);
             }
-
+            // The port number is converted to a string to avoid the
+            //  addition of localized characters (e.g., "5,988").
             char scratchBuffer[22];
             Uint32 n;
             const char * portNumberHttpStr = Uint32ToString(
@@ -1089,6 +1090,8 @@ int CIMServerProcess::cimserver_run(
                 _cimServer->addAcceptor(HTTPAcceptor::IPV4_CONNECTION,
                     portNumberHttps, true);
             }
+            // The port number is converted to a string to avoid the
+            //  addition of localized characters (e.g., "5,989").
             char scratchBuffer[22];
             Uint32 n;
             const char * portNumberHttpsStr = Uint32ToString(

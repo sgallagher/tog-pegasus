@@ -37,7 +37,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-CQLRegularExpression::CQLRegularExpression()
+CQLRegularExpression::CQLRegularExpression(const String& pattern):
+    pattern(pattern) 
 {
 }
 
@@ -46,8 +47,8 @@ CQLRegularExpression::~CQLRegularExpression()
 }
 
 
-Boolean CQLRegularExpression::match(const String& string,
-                                    const String& pattern)
+Boolean CQLRegularExpression::match(const String& string)
+                                    
 {
     Uint32 patIndex = 0;
     Uint32 strIndex = 0;

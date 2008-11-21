@@ -936,10 +936,10 @@ Boolean CQLValueRep::like(const CQLValueRep& inVal)
    String rightside;
    inVal._theValue.get(rightside);
    
-   CQLRegularExpression re;
+   CQLRegularExpression re(rightside);
 
    PEG_METHOD_EXIT();
-   return re.match(leftside,rightside);
+   return re.match(leftside);
 
 }
 

@@ -29,11 +29,6 @@
 //
 //==============================================================================
 //
-// Author: Dan Gorey (djgorey@us.ibm.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 #ifndef Pegasus_CQLRegularExpression_h
 #define Pegasus_CQLRegularExpression_h
@@ -42,20 +37,20 @@
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 #include <Pegasus/CQL/Linkage.h>
+#include <Pegasus/Common/String.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-class String;
 
 class PEGASUS_CQL_LINKAGE CQLRegularExpression
 {
 public:
-    CQLRegularExpression();
+    CQLRegularExpression(const String& pattern);
     ~CQLRegularExpression();
 
-    Boolean match(const String& string, const String& pattern);
+    Boolean match(const String& string);
 
 private:
+    String pattern;
 
 };
 

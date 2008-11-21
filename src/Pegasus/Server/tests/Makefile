@@ -40,12 +40,15 @@ RESULTFILE = $(TMP_DIR)/result
 MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
 
 tests:
+
+poststarttests:
+
+commandtests:
 ifdef PEGASUS_HAS_SSL
 	- cimserver "enableHttpsConnection=true" "sslTrustStore=" "sslClientVerificationMode=optional" 2>$(RESULTFILE) 
 	$(DIFF) $(MASTERRESULTFILE) $(RESULTFILE)
 	$(RM) $(RESULTFILE)
 endif
-poststarttests:
 
 depend:
 

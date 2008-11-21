@@ -276,6 +276,7 @@ endif
 ifeq ($(PEGASUS_TEST_SDK),true)
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/SDK/samples -f Makefile setupSDK 
 endif
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstop
 
 # slptests are run under separate target because these testcases require that
 # both the cimserver and SLP are running. There is no need for special options
@@ -288,6 +289,8 @@ servertests: servertestsclean servertestssetup serversuite
 	@ $(ECHO) "+++++ TestMakefile servertests suites complete"
 
 serversuite: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Server/tests -f Makefile commandtests
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstart
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestBinRepository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_Cimsub_InterOp

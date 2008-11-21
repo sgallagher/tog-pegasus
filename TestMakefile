@@ -1380,3 +1380,49 @@ startcimWithSSL: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="enableHttpConnection=false enableHttpsConnection=true"
 	$(SLEEP) 5
 
+###############################################################################
+##
+## check_for_cores - used to search for core files in the build environment.
+##
+## This option will search (1) each source directory, (2) the PEGASUS_CORE_DIR
+## if it is defined and (3) the PEGASUS_TMP directory.
+##
+###############################################################################
+CORE_FILE_LIST = $(PEGASUS_HOME)/CoreFileList
+
+check_core_search_results:
+ifneq ($(wildcard $(CORE_FILE_LIST)), )
+	@$(ECHO) "*** One or more core files found. ***"
+	@$(CAT) $(CORE_FILE_LIST)
+	@exit 1
+endif
+
+ifdef PEGASUS_CORE_DIR
+   CORE_FILES_IN_CORE_DIR = \
+       $(wildcard $(PEGASUS_CORE_DIR)/$(PLATFORM_CORE_PATTERN))
+endif
+ifdef PEGASUS_TMP
+   CORE_FILES_IN_TMP_DIR = \
+       $(wildcard $(PEGASUS_TMP)/$(PLATFORM_CORE_PATTERN))
+endif
+
+generate_core_file_list:
+	@$(RM) $(CORE_FILE_LIST)
+	@$(MAKE) -s directory=$(PEGASUS_ROOT) general OPTION=CORE_SEARCH \
+            CORE_FILE_LIST=$(CORE_FILE_LIST) 
+ifdef PEGASUS_CORE_DIR
+   ifneq ($(CORE_FILES_IN_CORE_DIR), )
+	@$(ECHO) $(CORE_FILES_IN_CORE_DIR) >> $(CORE_FILE_LIST)
+   endif
+endif
+ifdef PEGASUS_TMP
+   ifneq ($(CORE_FILES_IN_TMP_DIR), )
+	@$(ECHO) $(CORE_FILES_IN_TMP_DIR) >> $(CORE_FILE_LIST)
+   endif
+endif
+
+check_for_cores:
+	@$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
+            generate_core_file_list 
+	@$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
+            check_core_search_results 

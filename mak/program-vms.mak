@@ -53,7 +53,8 @@ FULL_VMSPROGRAM=$(BIN_VMSDIRA)]$(PROGRAM)$(EXE)
 EXE_OUTPUT =$(FULL_PROGRAM)
 
 ifeq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
-    EXTRA_LIBRARIES += -L$(OPENSSL_LIB) -lssl$$libssl_shr -lssl$$libcrypto_shr32
+    EXTRA_LIBRARIES += \
+        -L$(OPENSSL_LIB) -lssl$$libssl_shr32 -lssl$$libcrypto_shr32
     LIBRARIES += vms/include=vms_crtl_init
 endif
 

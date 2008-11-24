@@ -41,7 +41,6 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <vector>         // vector container
 #include <sys/types.h>
-#define _SOCKADDR_LEN
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <errno.h>

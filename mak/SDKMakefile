@@ -51,6 +51,39 @@ ifndef PEGASUS_DOC_DIR
    PEGASUS_DOC_DIR = doc
 endif
 
+# PACKAGED_PLATFORM_FILES is used to define the set of
+# of platform .mak and .h files to be included in the
+# SDK. By default, this value is set the platform defined
+# by the value of PEGASUS_PLATFORM when the SDK was
+# built.
+#
+# However, PACKAGED_PLATFORM_FILES can be explicitly set to 
+# include multiple platforms.  In this case, the SDK will
+# include platform .mak and .h files for each of the listed
+# platforms.
+#
+# Note: If PACKAGED_PLATFORM_FILES is defined, the  
+# createConfigFile_setPegasusPlatform option must be updated
+# to include commands for determining the platform type at
+# runtime.
+
+ifeq ($(OS),linux)
+   PACKAGED_PLATFORM_FILES = \
+      LINUX_IA64_GNU \
+      LINUX_IX86_GNU \
+      LINUX_PPC64_GNU \
+      LINUX_PPC_GNU \
+      LINUX_X86_64_GNU \
+      LINUX_ZSERIES64_GNU \
+      LINUX_ZSERIES_GNU
+endif
+
+ifdef PACKAGED_PLATFORM_FILES
+   RUNTIME_PLATFORM_TEST_NEEDED = true
+else
+   RUNTIME_PLATFORM_TEST_NEEDED = false
+   PACKAGED_PLATFORM_FILES = $(PEGASUS_PLATFORM)
+endif   
 
 INCLUDE_SRCPATH = $(PEGASUS_ROOT)/src
 
@@ -260,8 +293,9 @@ stageINCLUDE:
             $(PEGASUS_STAGING_DIR)/$(PEGASUS_INCLUDE_DIR)/$(i)$(NL))
 	@$(foreach i, $(INCLUDE_FILES), $(COPY) $(INCLUDE_SRCPATH)/$(i) \
             $(PEGASUS_STAGING_DIR)/$(PEGASUS_INCLUDE_DIR)/$(i)$(NL))
-	@$(COPY) $(INCLUDE_SRCPATH)/Pegasus/Common/Platform_$(PEGASUS_PLATFORM).h \
-            $(PEGASUS_STAGING_DIR)/$(PEGASUS_INCLUDE_DIR)/Pegasus/Common/Platform_$(PEGASUS_PLATFORM).h
+	@$(foreach i, $(PACKAGED_PLATFORM_FILES), \
+            $(COPY) $(INCLUDE_SRCPATH)/Pegasus/Common/Platform_$(i).h \
+            $(PEGASUS_STAGING_DIR)/$(PEGASUS_INCLUDE_DIR)/Pegasus/Common/Platform_$(i).h$(NL))
 
 create_ProductInstallationVerificationScript: 
 	@$(RM) $(PEGASUS_HOME)/PegasusVerifyDevelInstall
@@ -298,9 +332,9 @@ create_ProductInstallationVerificationScript:
              >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall$(NL))
 	@$(ECHO-E) "ls -l $(PEGASUS_SAMPLES_DIR)/mak/config.mak" \
              >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall
-	@$(ECHO-E) "ls -l" \
-             "$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak" \
-             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall
+	@$(foreach i, $(PACKAGED_PLATFORM_FILES), $(ECHO-E) "ls -ld" \
+             "$(PEGASUS_SAMPLES_DIR)/mak/platform_$(i).mak" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall$(NL))
 
 createSDKEnvVarFile:
 	@$(ECHO) "ifndef PEGASUS_BIN_DIR" \
@@ -311,13 +345,14 @@ createSDKEnvVarFile:
             >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/SDKEnvVar.mak
 	@$(ECHO) "ifndef PEGASUS_DEST_LIB_DIR" \
             >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/SDKEnvVar.mak
-	@$(ECHO) "   PEGASUS_DEST_LIB_DIR = $(PEGASUS_DEST_LIB_DIR)" \
+	@$(ECHO-E) "   PEGASUS_DEST_LIB_DIR = $(PEGASUS_DEST_LIB_DIR_3)" \
             >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/SDKEnvVar.mak
 	@$(ECHO) "endif" \
             >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/SDKEnvVar.mak
 	@$(ECHO) "ifndef PEGASUS_PROVIDER_LIB_DIR" \
             >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/SDKEnvVar.mak
-	@$(ECHO) "   PEGASUS_PROVIDER_LIB_DIR = $(PEGASUS_PROVIDER_LIB_DIR)" \
+	@$(ECHO-E) \
+            "   PEGASUS_PROVIDER_LIB_DIR = $(PEGASUS_PROVIDER_LIB_DIR_3)" \
             >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/SDKEnvVar.mak
 	@$(ECHO) "endif" \
             >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/SDKEnvVar.mak
@@ -370,11 +405,80 @@ createSDKEnvVarFile:
 	@$(ECHO) "" \
             >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/SDKEnvVar.mak
 
+createConfigFile_setPegasusPlatform:
+ifeq ($(RUNTIME_PLATFORM_TEST_NEEDED), true)
+  ifeq ($(OS),linux)
+	@$(ECHO-E) "   ifeq (\044(shell uname -i),ia64)" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "      PEGASUS_PLATFORM = LINUX_IA64_GNU" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "      PEGASUS_ARCH_LIB = lib" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   endif" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   ifeq (\044(shell uname -i),i386)" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "      PEGASUS_PLATFORM = LINUX_IX86_GNU" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "      PEGASUS_ARCH_LIB = lib" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   endif" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   ifeq (\044(shell uname -i),ppc)" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "      PEGASUS_PLATFORM = LINUX_PPC_GNU" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "      PEGASUS_ARCH_LIB = lib" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   endif" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   ifeq (\044(shell uname -i),ppc64)" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "      PEGASUS_PLATFORM = LINUX_PPC64_GNU" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "      PEGASUS_ARCH_LIB = lib64" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   endif" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   ifeq (\044(shell uname -i),s390)" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "      PEGASUS_PLATFORM = LINUX_ZSERIES_GNU" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "      PEGASUS_ARCH_LIB = lib" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   endif" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   ifeq (\044(shell uname -i),s390x)" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "      PEGASUS_PLATFORM = LINUX_ZSERIES64_GNU" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "      PEGASUS_ARCH_LIB = lib64" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   endif" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   ifeq (\044(shell uname -i),x86_64)" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "      PEGASUS_PLATFORM = LINUX_X86_64_GNU" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "      PEGASUS_ARCH_LIB = lib64" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   endif" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+  endif
+else
+	@$(ECHO) "   PEGASUS_PLATFORM = $(PEGASUS_PLATFORM)" \
+            >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO) "   PEGASUS_DEST_LIB_DIR = $(PEGASUS_DEST_LIB_DIR)" \
+            >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO) "   PEGASUS_PROVIDER_LIB_DIR = $(PEGASUS_PROVIDER_LIB_DIR)" \
+            >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+endif
+
 createConfigFile:
 	@$(ECHO) "ifndef PEGASUS_PLATFORM" \
             > $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/config.mak
-	@$(ECHO) "   PEGASUS_PLATFORM = $(PEGASUS_PLATFORM)" \
-            >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile \
+            createConfigFile_setPegasusPlatform
 	@$(ECHO) "endif" \
             >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO) "" \
@@ -403,8 +507,9 @@ stageSAMPLES:
             $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/Providers/Load/$(PEGASUS_CIM_SCHEMA)/$(i)$(NL))
 	@$(foreach i, $(PROVIDERSRCPATH1FILES), $(COPY) $(PROVIDER_SRCPATH1)/$(i) \
             $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/Providers/$(i)$(NL))
-	@$(COPY) $(CLIENT_SRCPATH1)/mak/$(PEGASUS_PLATFORM).mak \
-            $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak 
+	@$(foreach i, $(PACKAGED_PLATFORM_FILES), \
+            $(COPY) $(CLIENT_SRCPATH1)/mak/platform_$(i).mak \
+            $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/platform_$(i).mak$(NL))
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile createConfigFile
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile createSDKEnvVarFile
 

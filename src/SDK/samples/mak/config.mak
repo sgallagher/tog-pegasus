@@ -29,96 +29,21 @@
 #//
 #//==============================================================================
 
-VALID_PLATFORMS = \
-    SOLARIS_X86_CC \
-    SOLARIS_X86_64_CC \
-    SOLARIS_SPARC_CC \
-    SOLARIS_SPARC_64_CC \
-    WIN32_IX86_MSVC \
-    WIN64_IA64_MSVC \
-    WIN64_X86_64_MSVC \
-    LINUX_IX86_GNU \
-    LINUX_PPC_GNU \
-    LINUX_PPC64_GNU \
-    LINUX_IA64_GNU \
-    LINUX_X86_64_GNU \
-    LINUX_ZSERIES_GNU \
-    LINUX_ZSERIES64_GNU \
-    AIX_RS_IBMCXX \
-    HPUX_PARISC_ACC \
-    HPUX_IA64_ACC 
+PLATFORM_FILES=$(wildcard $(ROOT)/mak/platform*.mak)
+PLATFORM_TEMP=$(subst $(ROOT)/mak/platform_,, $(PLATFORM_FILES))
+VALID_PLATFORMS=$(subst .mak,  , $(PLATFORM_TEMP))
 
 ifndef PEGASUS_PLATFORM
     $(error PEGASUS_PLATFORM environment variable undefined. Please set to\
         one of the following:$(VALID_PLATFORMS))
 endif
 
-ifeq ($(PEGASUS_PLATFORM),SOLARIS_X86_CC)
-  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
-endif
-
-ifeq ($(PEGASUS_PLATFORM),SOLARIS_X86_64_CC)
-  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
-endif
-
-ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
-  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
-endif
-
-ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_64_CC)
-  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
-endif
-
-ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
-endif
-
-ifeq ($(PEGASUS_PLATFORM),WIN64_IA64_MSVC)
-  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
-endif
-
-ifeq ($(PEGASUS_PLATFORM),WIN64_X86_64_MSVC)
-  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
-endif
-
-ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
-  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
-endif
-
-ifeq ($(PEGASUS_PLATFORM),LINUX_PPC_GNU)
-  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
-endif
-
-ifeq ($(PEGASUS_PLATFORM),LINUX_PPC64_GNU)
-  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
-endif
-
-ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
-  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
-endif
-
-ifeq ($(PEGASUS_PLATFORM),LINUX_X86_64_GNU)
-  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
-endif
-
-ifeq ($(PEGASUS_PLATFORM),LINUX_ZSERIES_GNU)
-  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
-endif
-
-ifeq ($(PEGASUS_PLATFORM),LINUX_ZSERIES64_GNU)
-  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
-endif
-
-ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
-  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
-endif
-
-ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
-  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
-endif
-
-ifeq ($(PEGASUS_PLATFORM),HPUX_IA64_ACC)
-  include $(ROOT)/mak/$(PEGASUS_PLATFORM).mak
+PLATFORM_FILE = $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+ifneq ($(wildcard $(PLATFORM_FILE)), )
+    include $(PLATFORM_FILE)
+else
+  $(error  PEGASUS_PLATFORM environment variable must be set to one of\
+        the following:$(VALID_PLATFORMS))
 endif
 
 include $(ROOT)/mak/SDKEnvVar.mak

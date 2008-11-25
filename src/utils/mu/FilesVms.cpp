@@ -43,6 +43,7 @@
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
+#include <unixlib.h>
 #include <stdlib>
 #include <stdio>
 #include <errno.h>
@@ -186,16 +187,15 @@ bool RemoveDir(const string& path)
 //       Treat iso latin-1 characters as a special case.  The file is passed
 //       in without an escape character so one needs to be added.
 //-
-
-bool RemoveFile(const string& path)
+static int RemoveVmsFile(const string &path)
 {
     string tmpstr;
-    int  start;
-    int  loc;
-    int  iStat;
+    int start;
+    int loc;
+    int iStat;
 
-    static char *iso_latin = " !\"#%&\'()+,:;<=>@[\\]^`{|}~"; // $-_ don't need
-                                                              // escape char
+    static char *iso_latin = " !\"#%&\'()+,:;<=>@\\^`{|}~"; // $-_ don't need
+                                                            // escape char
     tmpstr = path;
     tmpstr.append(";*"); // remove all copies
     iStat = remove(tmpstr.c_str());
@@ -225,25 +225,51 @@ bool RemoveFile(const string& path)
     }
     if (iStat)
     {
-        if ((errno != 2) && (errno != 65535))
-                        // > 0 argv[iStat] is the parameter number which failed.
-        {               // The reason for the failure is in errno
+        if ((errno != 2) && (errno !=65535))
+        {               // > 0 argv[iStat] is the parameter number which failed.
+                        // The reason for the failure is in errno
                         // Alpha VMS 8.2 (but not IA64 8.2)
                         // iStat == -1 is permission denied.
                         //
                         // Ignore the following errno values:
-                        // errno == 2 file or directory not found
-                        // errno == 65535 invalid wildcard operation also
-                        // returned when the file or dir doesn't exist
+                        // errno == 2 "file or directory not found"
+                        // errno == 65535 "invalid wildcard operation" is
+                        // if there is a wildcard in the name and the file
+                        // does not exist.
             cout << "mu: Info-filesvms.cpp-RemoveFile() Unable to remove file: "
-                 << path.c_str ()
-                 << " iStat=" << iStat
-                 << " errno=" << errno
-                 << " "
-                 << strerror(errno)
-                 << endl;
+                << path.c_str ()
+                << " iStat=" << iStat
+                << " errno=" << errno
+                << " "
+                << strerror(errno)
+                << endl;
         }
     }
+    return iStat;
+}
+
+static int ProcessName(char *path, int filetype)
+{
+    return !RemoveVmsFile(path);
+}
+
+bool RemoveFile(const string& path)
+{
+    int iCount;
+    int iStat;
+
+    // UNIX style filenames with a wildcard aren't removed so if it looks
+    // like a UNIX style path, then convert to an OpenVMS style filename so
+    // all versions will get removed.
+
+    if (path.find('/') != string::npos)
+    {
+        iCount = decc$to_vms(path.c_str(), ProcessName, 0, 0);
+        iStat = iCount == 0;
+    }
+    else
+        iStat = RemoveVmsFile(path);
+
     return iStat == 0;
 }
 

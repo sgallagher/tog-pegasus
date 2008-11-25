@@ -163,6 +163,12 @@ define checkForCores
                 exit 1; fi
 endef
 
+define removeRPM
+	@if [ -n "`rpm -qa | grep $1-[0-9]`" ]; then \
+           rpm -e `rpm -qa | grep $1-[0-9]`; \
+        fi
+endef
+
 define startCIMServer
 	@/etc/init.d/tog-pegasus status > /dev/null 2>&1; \
         if [ $$? != 0 ]; then \
@@ -258,10 +264,10 @@ install:
 	$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
 
 cleanRPM:
-	-$(RPM) -e $(filter tog-pegasus-test%,$(TOG_INSTALLED_RPMS))
+	$(call removeRPM,tog-pegasus-test);
 	-$(call startCIMServer)
-	-$(RPM) -e $(filter tog-pegasus-devel%,$(TOG_INSTALLED_RPMS))
-	-$(RPM) -e $(filter tog-pegasus-2%,$(TOG_INSTALLED_RPMS))
+	$(call removeRPM,tog-pegasus-devel);
+	$(call removeRPM,tog-pegasus);
 	-$(RM) -Rf $(RPM_SRC_DIR).old
 ifneq ($(wildcard $(RPM_SRC_DIR)), )
 	$(MV) $(RPM_SRC_DIR) $(RPM_SRC_DIR).old

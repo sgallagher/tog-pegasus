@@ -93,7 +93,7 @@ enum Operation
     OP_DeleteQualifier,
     OP_EnumerateQualifiers,
     OP_InvokeMethod,
-    OP_Count,
+    OP_Count
 };
 
 struct CIMBufferReleaser

@@ -74,47 +74,19 @@ static const char* _typeStrings[] =
     "instance"
 };
 
-inline ostream& operator<<(ostream& os, const CIMDateTime& x)
+template<class T>
+static void _print(ostream& os, const T& x)
 {
-    os << x.toString();
-    return os;
+    os << x;
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 static void _print(ostream& os, const Boolean& x)
 {
     os << (x ? "true" : "false");
 }
 
-static void _print(ostream& os, const Uint8& x)
-{
-    os << x;
-}
-
-static void _print(ostream& os, const Sint8& x)
-{
-    os << x;
-}
-
-static void _print(ostream& os, const Uint16& x)
-{
-    os << x;
-}
-
-static void _print(ostream& os, const Sint16& x)
-{
-    os << x;
-}
-
-static void _print(ostream& os, const Uint32& x)
-{
-    os << x;
-}
-
-static void _print(ostream& os, const Sint32& x)
-{
-    os << x;
-}
-
+PEGASUS_TEMPLATE_SPECIALIZATION
 static void _print(ostream& os, const Uint64& x)
 {
     char buf[32];
@@ -122,6 +94,7 @@ static void _print(ostream& os, const Uint64& x)
     os << buf;
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 static void _print(ostream& os, const Sint64& x)
 {
     char buf[32];
@@ -129,26 +102,13 @@ static void _print(ostream& os, const Sint64& x)
     os << buf;
 }
 
-static void _print(ostream& os, const Real32& x)
-{
-    os << x;
-}
-
-static void _print(ostream& os, const Real64& x)
-{
-    os << x;
-}
-
+PEGASUS_TEMPLATE_SPECIALIZATION
 static void _print(ostream& os, const Char16& x)
 {
     os << Uint16(x);
 }
 
-static void _print(ostream& os, const String& x)
-{
-    os << x;
-}
-
+PEGASUS_TEMPLATE_SPECIALIZATION
 static void _print(ostream& os, const CIMDateTime& x)
 {
     os << x.toString();
@@ -166,7 +126,7 @@ struct PrintArray
 
         for (Uint32 i = 0; i < a.size(); i++)
         {
-            _print(os, a[i]);
+            _print<T>(os, a[i]);
 
             if (i + 1 != a.size())
                 os << ", ";
@@ -185,7 +145,7 @@ struct PrintScalar
     {
         T x;
         cv.get(x);
-        _print(os, x);
+        _print<T>(os, x);
         os << endl;
     }
 };
@@ -198,8 +158,7 @@ void _printValue(ostream& os, const CIMValue& cv, Uint32 n)
     {
         os << "null" << endl;
     }
-
-    if (cv.isArray())
+    else if (cv.isArray())
     {
         switch (cv.getType())
         {

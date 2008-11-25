@@ -31,7 +31,7 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
-#if defined(PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL)
+#if defined(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY)
 # include <Pegasus/Common/CIMBinMsgSerializer.h>
 # include <Pegasus/Common/CIMBinMsgDeserializer.h>
 #else
@@ -66,7 +66,7 @@ AnonymousPipe::Status AnonymousPipe::writeMessage (CIMMessage * message)
     //
     // Serialize the request
     //
-#if defined(PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL)
+#if defined(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY)
     CIMBuffer messageBuffer(4096);
 #else
     Buffer messageBuffer;
@@ -75,7 +75,7 @@ AnonymousPipe::Status AnonymousPipe::writeMessage (CIMMessage * message)
 
     try
     {
-#if defined(PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL)
+#if defined(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY)
         CIMBinMsgSerializer::serialize(messageBuffer, message);
 #else
         CIMMessageSerializer::serialize (messageBuffer, message);
@@ -138,7 +138,7 @@ AnonymousPipe::Status AnonymousPipe::readMessage (CIMMessage * & message)
     //
     //  Read the message data
     //
-#if defined(PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL)
+#if defined(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY)
     // CIMBuffer uses realloc() and free() so the buffer must be allocated
     // with malloc().
     AutoPtr<char, FreeCharPtr> messageBuffer((char*)malloc(messageLength + 1));
@@ -166,7 +166,7 @@ AnonymousPipe::Status AnonymousPipe::readMessage (CIMMessage * & message)
         //
         //  De-serialize the message
         //
-#if defined(PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL)
+#if defined(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY)
         // CIMBuffer frees messageBuffer upon destruction.
         CIMBuffer buf(messageBuffer.release(), messageLength);
         message = CIMBinMsgDeserializer::deserialize(buf, messageLength);

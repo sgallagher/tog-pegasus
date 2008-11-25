@@ -36,8 +36,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#if defined(PEGASUS_ENABLE_ENCAPSULATED_XML)
-
 void _putXMLInstance(
     CIMBuffer& out,
     const CIMInstance& ci)
@@ -134,8 +132,6 @@ void _putXMLNamedInstance(
     }
 }
 
-#endif /* PEGASUS_ENABLE_ENCAPSULATED_XML */
-
 void CIMBinMsgSerializer::serialize(
     CIMBuffer& out, 
     CIMMessage* cimMessage)
@@ -145,6 +141,12 @@ void CIMBinMsgSerializer::serialize(
 
     // [messageId]
     out.putString(cimMessage->messageId);
+
+    // [binaryRequest]
+    out.putBoolean(cimMessage->binaryRequest);
+
+    // [binaryResponse]
+    out.putBoolean(cimMessage->binaryResponse);
 
     // [type]
     out.putUint32(Uint32(cimMessage->getType()));
@@ -1035,15 +1037,17 @@ void CIMBinMsgSerializer::_putGetInstanceResponseMessage(
     CIMBuffer& out,
     CIMGetInstanceResponseMessage* msg)
 {
-#if defined(PEGASUS_ENABLE_ENCAPSULATED_XML)
-
-    _putXMLInstance(out, msg->getCimInstance());
-
-#else /* PEGASUS_ENABLE_ENCAPSULATED_XML */
-
-    out.putInstance(msg->getCimInstance());
-
-#endif /* PEGASUS_ENABLE_ENCAPSULATED_XML */
+    if (msg->binaryResponse)
+    {
+        CIMBuffer data(4096);
+        data.putInstance(msg->getCimInstance(), false, false);
+        out.putUint32(data.size());
+        out.putBytes(data.getData(), data.size());
+    }
+    else
+    {
+        _putXMLInstance(out, msg->getCimInstance());
+    }
 }
 
 void CIMBinMsgSerializer::_putDeleteInstanceResponseMessage(
@@ -1069,24 +1073,25 @@ void CIMBinMsgSerializer::_putEnumerateInstancesResponseMessage(
     CIMBuffer& out,
     CIMEnumerateInstancesResponseMessage* msg)
 {
-#if defined(PEGASUS_ENABLE_ENCAPSULATED_XML)
-
-    const Array<CIMInstance>& a = msg->getNamedInstances();
-
-    Uint32 n = a.size();
-    out.putUint32(n);
-    Buffer buf(4096);
-
-    for (Uint32 i = 0; i < n; i++)
+    if (msg->binaryResponse)
     {
-        _putXMLNamedInstance(out, a[i]);
+        CIMBuffer data(16 * 4096);
+        data.putInstanceA(msg->getNamedInstances(), false);
+        out.putUint32(data.size());
+        out.putBytes(data.getData(), data.size());
     }
+    else
+    {
+        const Array<CIMInstance>& a = msg->getNamedInstances();
 
-#else /* PEGASUS_ENABLE_ENCAPSULATED_XML */
+        Uint32 n = a.size();
+        out.putUint32(n);
 
-    out.putInstanceA(msg->getNamedInstances());
-
-#endif /* PEGASUS_ENABLE_ENCAPSULATED_XML */
+        for (Uint32 i = 0; i < n; i++)
+        {
+            _putXMLNamedInstance(out, a[i]);
+        }
+    }
 }
 
 void CIMBinMsgSerializer::_putEnumerateInstanceNamesResponseMessage(

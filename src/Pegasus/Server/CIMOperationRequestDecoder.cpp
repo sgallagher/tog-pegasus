@@ -46,6 +46,7 @@
 #include "CIMOperationRequestDecoder.h"
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/BinaryCodec.h>
 
 PEGASUS_USING_STD;
 
@@ -444,12 +445,18 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         headers, "Content-Type", cimContentType, true);
     String type;
     String charset;
+    Boolean binaryRequest = false;
 
     if (!contentTypeHeaderFound || 
         !HTTPMessage::parseContentTypeHeader(cimContentType, type, charset) ||
-        (!String::equalNoCase(type, "application/xml") &&
+        ((!String::equalNoCase(type, "application/xml") &&
          !String::equalNoCase(type, "text/xml")) ||
-        !String::equalNoCase(charset, "utf-8"))
+        !String::equalNoCase(charset, "utf-8")) 
+#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
+        && !(binaryRequest = String::equalNoCase(type, 
+            "application/x-openpegasus"))
+#endif
+        )
     {
         MessageLoaderParms parms(
             "Server.CIMOperationRequestDecoder.CIMCONTENTTYPE_SYNTAX_ERROR",
@@ -466,7 +473,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     // Validating content falls within UTF8
     // (required to be complaint with section C12 of Unicode 4.0 spec,
     // chapter 3.)
-    else
+    else if (!binaryRequest)
     {
         Uint32 count = 0;
         while(count<contentLength)
@@ -484,10 +491,25 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
                     closeConnect);
 
                 PEG_METHOD_EXIT();
-                    return;
+                return;
             }
             UTF8_NEXT(content,count);
         }
+    }
+
+    // Check for "Accept: application/x-openpegasus" HTTP header to see if 
+    // client can accept binary responses.
+
+    bool binaryResponse;
+
+    if (HTTPMessage::lookupHeader(headers, "Accept", type, true) &&
+        String::equalNoCase(type, "application/x-openpegasus"))
+    {
+        binaryResponse = true;
+    }
+    else
+    {
+        binaryResponse = false;
     }
 
     // If it is a method call, then dispatch it to be handled:
@@ -505,7 +527,9 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         httpMessage->ipAddress,
         httpMessage->acceptLanguages,
         httpMessage->contentLanguages,
-        closeConnect);
+        closeConnect,
+        binaryRequest,
+        binaryResponse);
 
     PEG_METHOD_EXIT();
 }
@@ -523,7 +547,9 @@ void CIMOperationRequestDecoder::handleMethodCall(
     const String& ipAddress,
     const AcceptLanguageList& httpAcceptLanguages,
     const ContentLanguageList& httpContentLanguages,
-    Boolean closeConnect)
+    Boolean closeConnect,
+    Boolean binaryRequest,
+    Boolean binaryResponse)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDecoder::handleMethodCall()");
@@ -550,16 +576,37 @@ void CIMOperationRequestDecoder::handleMethodCall(
         "CIMOperationRequestdecoder - XML content: %s",
         content));
 
-    // Create a parser:
+    //
+    // Handle binary messages:
+    //
 
-    XmlParser parser(content);
-    XmlEntry entry;
-    String messageId;
-    const char* cimMethodName = "";
     AutoPtr<CIMOperationRequestMessage> request;
 
-    try
+    if (binaryRequest)
     {
+        Buffer buf(content, contentLength);
+
+        request.reset(BinaryCodec::decodeRequest(buf, queueId, _returnQueueId));
+
+        if (!request.get())
+        {
+            sendHttpError(
+                queueId,
+                HTTP_STATUS_BADREQUEST,
+                "Corrupt binary request message",
+                String::EMPTY,
+                closeConnect);
+            PEG_METHOD_EXIT();
+            return;
+        }
+    }
+    else try
+    {
+        XmlParser parser(content);
+        XmlEntry entry;
+        String messageId;
+        const char* cimMethodName = "";
+
         //
         // Process <?xml ... >
         //
@@ -1317,6 +1364,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
     request->userName = userName;
     request->ipAddress = ipAddress;
     request->setHttpMethod (httpMethod);
+    request->binaryResponse = binaryResponse;
 
 //l10n start
 // l10n TODO - might want to move A-L and C-L to Message

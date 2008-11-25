@@ -33,9 +33,11 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/CIMBuffer.h>
 #include <cctype>
 #include <cstdio>
 #include <Pegasus/Common/HTTPConnection.h>
+#include <Pegasus/Common/BinaryCodec.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -59,6 +61,52 @@ CIMOperationResponseEncoder::CIMOperationResponseEncoder()
 CIMOperationResponseEncoder::~CIMOperationResponseEncoder()
 {
 }
+
+//==============================================================================
+//
+// CIMOperationResponseEncoder::sendResponse()
+//
+//     This function is called once for every chunk comprising the inner part 
+//     of the HTTP payload. This is true whether chunking is enabled or not. 
+//     The "bodygiven" parameter contains all or part of the inner response 
+//     body. For example, in the case of the enumerate-instances XML response,
+//     each "bodygiven" contains a complete named-instance as shown below.
+//
+//         <VALUE.NAMEDINSTANCE>
+//         ...
+//         <VALUE.NAMEDINSTANCE>
+//     
+//     In the case of the get-class XML response, bodygiven contains the
+//     entire class. Sometimes bodygiven is null, probably indicating that
+//     one of the responding threads returned an empty response (for example,
+//     a provider may return zero instances).
+//
+//     This function wraps the inner payload with the following elements:
+//
+//         1. HTTP status line.
+//         2. HTTP headers.
+//         3. Payload header.
+//         4. Payload footer.
+//
+//     In the case of an enumerate-instances XML response, the payload header
+//     contains all the XML leading up to the first XML chunk. For example:
+//
+//         <?xml version="1.0" encoding="utf-8" ?>
+//         <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+//         <MESSAGE ID="1000" PROTOCOLVERSION="1.0">
+//         <SIMPLERSP>
+//         <IMETHODRESPONSE NAME="EnumerateInstances">
+//         <IRETURNVALUE>
+//
+//     The payload footer then would just contain the closing tags for these:
+//
+//         </IRETURNVALUE>
+//         </IMETHODRESPONSE>
+//         </MESSAGE>
+//         </SIMPLERSP>
+//         </CIM>
+//     
+//==============================================================================
 
 void CIMOperationResponseEncoder::sendResponse(
     CIMResponseMessage* response,
@@ -160,8 +208,16 @@ void CIMOperationResponseEncoder::sendResponse(
     }
     else
     {
-        formatResponse = XmlWriter::formatSimpleIMethodRspMessage;
         formatError = XmlWriter::formatSimpleIMethodErrorRspMessage;
+
+        if (response->binaryResponse)
+        {
+            formatResponse = BinaryCodec::formatSimpleIMethodRspMessage;
+        }
+        else
+        {
+            formatResponse = XmlWriter::formatSimpleIMethodRspMessage;
+        }
     }
 
     if (cimException.getCode() != CIM_ERR_SUCCESS)
@@ -268,6 +324,7 @@ void CIMOperationResponseEncoder::sendResponse(
     }
 
     httpMessage->setCloseConnect(closeConnect);
+
     queue->enqueue(httpMessage.release());
 
     PEG_METHOD_EXIT();
@@ -300,6 +357,28 @@ void CIMOperationResponseEncoder::handleEnqueue(Message* message)
         "CIMOperationResponseEncoder::handleEnque()- "
             "message->getCloseConnect() returned %d",
         message->getCloseConnect()));
+
+    // Handle binary messages up front:
+    {
+        CIMResponseMessage* msg = dynamic_cast<CIMResponseMessage*>(message);
+
+        if (msg && msg->binaryResponse)
+        {
+            if (msg->cimException.getCode() == CIM_ERR_SUCCESS)
+            {
+                Buffer body;
+                CIMName name;
+
+                if (BinaryCodec::encodeResponseBody(body, msg, name))
+                {
+                    sendResponse(msg, name.getString(), true, &body);
+                    delete msg;
+                    PEG_METHOD_EXIT();
+                    return;
+                }
+            }
+        }
+    }
 
     switch (message->getType())
     {
@@ -504,7 +583,7 @@ void CIMOperationResponseEncoder::encodeGetInstanceResponse(
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        if (response->resolveCallback)
+        if (response->resolveCallback && !response->binaryEncoding)
         {
             body.append(
                 (char*)response->instanceData.getData(), 
@@ -528,9 +607,10 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
     CIMEnumerateInstancesResponseMessage* response)
 {
     Buffer body;
+
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        if (response->resolveCallback)
+        if (response->resolveCallback && !response->binaryEncoding)
         {
             const Array<ArraySint8>& a = response->instancesData;
             const Array<ArraySint8>& b = response->referencesData;
@@ -551,6 +631,7 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
                 XmlWriter::appendValueNamedInstanceElement(body, a[i]);
         }
     }
+
     sendResponse(response, "EnumerateInstances", true, &body);
 }
 
@@ -558,10 +639,13 @@ void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
     CIMEnumerateInstanceNamesResponseMessage* response)
 {
     Buffer body;
+
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    {
         for (Uint32 i = 0, n = response->instanceNames.size(); i < n; i++)
             XmlWriter::appendInstanceNameElement(
                 body, response->instanceNames[i]);
+    }
     sendResponse(response, "EnumerateInstanceNames", true, &body);
 }
 

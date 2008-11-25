@@ -106,7 +106,9 @@ public:
         const String& ipAddress,
         const AcceptLanguageList& httpAcceptLanguages,
         const ContentLanguageList& httpContentLanguages,
-        Boolean closeConnect);
+        Boolean closeConnect,
+        Boolean binaryRequest,
+        Boolean binaryResponse);
 
     CIMCreateClassRequestMessage* decodeCreateClassRequest(
         Uint32 queueId,

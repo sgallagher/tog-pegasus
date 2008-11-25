@@ -32,6 +32,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/BinaryCodec.h>
 #include <iostream>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -47,13 +48,17 @@ CIMOperationRequestEncoder::CIMOperationRequestEncoder(
     MessageQueue* outputQueue,
     const String& hostName,
     ClientAuthenticator* authenticator,
-    Uint32 showOutput)
+    Uint32 showOutput,
+    bool binaryRequest,
+    bool binaryResponse)
     :
     MessageQueue(PEGASUS_QUEUENAME_OPREQENCODER),
     _outputQueue(outputQueue),
     _hostName(hostName.getCString()),
     _authenticator(authenticator),
-    _showOutput(showOutput)
+    _showOutput(showOutput),
+    _binaryRequest(binaryRequest),
+    _binaryResponse(binaryResponse)
 {
     dataStore_prt=NULL;
 }
@@ -70,6 +75,34 @@ void CIMOperationRequestEncoder::handleEnqueue()
         return;
 
     _authenticator->setRequestMessage(message);
+
+    //
+    // Encode request as binary request.
+    //
+
+    if (_binaryRequest)
+    {
+        CIMOperationRequestMessage* msg = 
+            dynamic_cast<CIMOperationRequestMessage*>(message);
+
+        if (msg)
+        {
+            Buffer buf;
+
+            if (BinaryCodec::encodeRequest(buf, _hostName, 
+                _authenticator->buildRequestAuthHeader(), msg, _binaryResponse))
+            {
+                _sendRequest(buf);
+                return;
+            }
+
+            // Drop through and encode as an XML request below.
+        }
+    }
+
+    //
+    // Encode request as an XML request.
+    //
 
     switch (message->getType())
     {
@@ -226,7 +259,7 @@ void CIMOperationRequestEncoder::_encodeCreateClassRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
     _sendRequest(buffer);
 }
 
@@ -259,7 +292,7 @@ void CIMOperationRequestEncoder::_encodeGetClassRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -280,7 +313,7 @@ void CIMOperationRequestEncoder::_encodeModifyClassRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -305,7 +338,7 @@ void CIMOperationRequestEncoder::_encodeEnumerateClassNamesRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -341,7 +374,7 @@ void CIMOperationRequestEncoder::_encodeEnumerateClassesRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -363,7 +396,7 @@ void CIMOperationRequestEncoder::_encodeDeleteClassRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -384,7 +417,7 @@ void CIMOperationRequestEncoder::_encodeCreateInstanceRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -421,7 +454,7 @@ void CIMOperationRequestEncoder::_encodeGetInstanceRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -449,7 +482,7 @@ void CIMOperationRequestEncoder::_encodeModifyInstanceRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -471,7 +504,7 @@ void CIMOperationRequestEncoder::_encodeEnumerateInstanceNamesRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -510,7 +543,7 @@ void CIMOperationRequestEncoder::_encodeEnumerateInstancesRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -531,7 +564,7 @@ void CIMOperationRequestEncoder::_encodeDeleteInstanceRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -555,7 +588,7 @@ void CIMOperationRequestEncoder::_encodeGetPropertyRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -583,7 +616,7 @@ void CIMOperationRequestEncoder::_encodeSetPropertyRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -603,7 +636,7 @@ void CIMOperationRequestEncoder::_encodeSetQualifierRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -625,7 +658,7 @@ void CIMOperationRequestEncoder::_encodeGetQualifierRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -643,7 +676,7 @@ void CIMOperationRequestEncoder::_encodeEnumerateQualifiersRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -665,7 +698,7 @@ void CIMOperationRequestEncoder::_encodeDeleteQualifierRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -699,7 +732,7 @@ void CIMOperationRequestEncoder::_encodeReferenceNamesRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -743,7 +776,7 @@ void CIMOperationRequestEncoder::_encodeReferencesRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -790,7 +823,7 @@ void CIMOperationRequestEncoder::_encodeAssociatorNamesRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -847,7 +880,7 @@ void CIMOperationRequestEncoder::_encodeAssociatorsRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -871,7 +904,7 @@ void CIMOperationRequestEncoder::_encodeExecQueryRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        params);
+        params, _binaryResponse);
 
     _sendRequest(buffer);
 }
@@ -886,7 +919,8 @@ void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
         ((AcceptLanguageListContainer)message->operationContext.get(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
-            ContentLanguageListContainer::NAME)).getLanguages());
+            ContentLanguageListContainer::NAME)).getLanguages(), 
+        _binaryResponse);
 
     _sendRequest(buffer);
 }

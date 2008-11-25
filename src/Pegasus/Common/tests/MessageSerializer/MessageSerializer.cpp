@@ -37,7 +37,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/OperationContextInternal.h>
 
-#if defined(PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL)
+#if defined(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY)
 # include <Pegasus/Common/CIMBinMsgSerializer.h>
 # include <Pegasus/Common/CIMBinMsgDeserializer.h>
 #else
@@ -504,7 +504,7 @@ void validateCIMResponseMessageAttributes(
     a Message object.
 */
 CIMMessage* serializeDeserializeMessage(CIMMessage* inMessage)
-#if defined(PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL)
+#if defined(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY)
 {
     CIMBuffer buf(64*1024);
     CIMBinMsgSerializer::serialize(buf, inMessage);
@@ -544,7 +544,7 @@ CIMMessage* serializeDeserializeMessage(CIMMessage* inMessage)
 // testEmptyRequestMessage
 //
 void testEmptyMessage()
-#if defined(PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL)
+#if defined(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY)
 {
     CIMBuffer buf(64*1024);
     CIMBinMsgSerializer::serialize(buf, 0);

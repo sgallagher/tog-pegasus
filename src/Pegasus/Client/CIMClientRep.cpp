@@ -45,6 +45,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // CIMClientRep
@@ -56,7 +57,9 @@ CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     MessageQueue(PEGASUS_QUEUENAME_CLIENT),
     _timeoutMilliseconds(timeoutMilliseconds),
     _connected(false),
-    _doReconnect(false)
+    _doReconnect(false),
+    _binaryRequest(false),
+    _binaryResponse(false)
 {
     //
     // Create Monitor and HTTPConnector
@@ -91,7 +94,7 @@ Uint32 _getShowType(String& s)
     return 0;
 }
 
-void CIMClientRep::_connect()
+void CIMClientRep::_connect(bool binaryRequest, bool binaryResponse)
 {
     //
     // Test for Display optons of the form
@@ -157,7 +160,9 @@ void CIMClientRep::_connect()
 
     AutoPtr<CIMOperationRequestEncoder> requestEncoder(
         new CIMOperationRequestEncoder(
-            httpConnection.get(), connectHost, &_authenticator, showOutput));
+            httpConnection.get(), connectHost, &_authenticator, showOutput,
+            binaryRequest,
+            binaryResponse));
 
     _responseDecoder.reset(responseDecoder.release());
     _httpConnection = httpConnection.release();
@@ -170,6 +175,8 @@ void CIMClientRep::_connect()
 
     _doReconnect = false;
     _connected = true;
+    _binaryRequest = binaryRequest;
+    _binaryResponse = binaryResponse;
     _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
 }
 
@@ -247,8 +254,7 @@ void CIMClientRep::connect(
     _connectSSLContext.reset();
     _connectHost = hostName;
     _connectPortNumber = portNumber;
-
-    _connect();
+    _connect(_binaryRequest, _binaryResponse);
 }
 
 
@@ -293,12 +299,20 @@ void CIMClientRep::connect(
     _connectPortNumber = portNumber;
 
     _connectSSLContext.reset(new SSLContext(sslContext));
-    _connect();
+    _connect(_binaryRequest, _binaryResponse);
 }
 
 
 void CIMClientRep::connectLocal()
 {
+#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
+    bool binaryRequest = true;
+    bool binaryResponse = true;
+#else
+    bool binaryRequest = false;
+    bool binaryResponse = false;
+#endif
+
     //
     // If already connected, bail out!
     //
@@ -315,7 +329,7 @@ void CIMClientRep::connectLocal()
     _connectSSLContext.reset();
     _connectHost = String::EMPTY;
     _connectPortNumber = 0;
-    _connect();
+    _connect(binaryRequest, binaryResponse);
 #else
 
     try
@@ -333,7 +347,7 @@ void CIMClientRep::connectLocal()
 
         _connectSSLContext.reset();
 
-        _connect();
+        _connect(binaryRequest, binaryResponse);
     }
     catch (const CannotConnectException &)
     {
@@ -364,7 +378,7 @@ void CIMClientRep::connectLocal()
         _connectSSLContext.reset(
             new SSLContext(String::EMPTY, NULL, randFile));
 
-        _connect();
+        _connect(binaryRequest, binaryResponse);
     }
 #endif
 }
@@ -1003,7 +1017,7 @@ Message* CIMClientRep::_doRequest(
 
     if (_doReconnect)
     {
-        _connect();
+        _connect(_binaryRequest, _binaryResponse);
         _doReconnect = false;
     }
 
@@ -1205,7 +1219,7 @@ Message* CIMClientRep::_doRequest(
                 //
                 if (_doReconnect)
                 {
-                    _connect();
+                    _connect(_binaryRequest, _binaryResponse);
                 }
 
                 _requestEncoder->enqueue(response.release());

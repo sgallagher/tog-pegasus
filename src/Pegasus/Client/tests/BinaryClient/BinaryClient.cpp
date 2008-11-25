@@ -31,54 +31,77 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Once_h
-#define Pegasus_Once_h
-
+#include <cstdlib>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Common/Print.h>
+#include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Client/CIMClientRep.h>
 
-#define PEGASUS_ONCE_INITIALIZER { PEGASUS_MUTEX_INITIALIZER, 0 }
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
 
-PEGASUS_NAMESPACE_BEGIN
+//==============================================================================
+//
+// TestBinaryClient host port
+//
+//     This program enumerates instances of CIM_ManagedElement using the
+//     OpenPegasus binary protocol.
+//
+//==============================================================================
 
-/** Once implements the "once" concept as introduced by POSIX threads.
-    That is, it arranges for a function to be called just once in a thread
-    safe manner. The following example shows how to constuct an object of
-    type X the first time any thread reaches the line that calls once().
-
-        static Once _once = PEGASUS_ONCE_INITIALIZER;
-        static static X* _ptr;
-
-        static void _create_X()
-        {
-            ptr = new X;
-        }
-
-        ...
-
-        once(&_once, _create_X);
-
-    The _create_X() function is called exactly once no matter how many times
-    once() is called on it. Also, once() may be called safely from multiple
-    threads.
-
-    CAUTION: Once instances must always be defined statically.
-*/
-struct Once
+static void _SetBinaryResponse(CIMClient& client, Boolean flag)
 {
-    MutexType mutex;
-    int initialized;
-};
-
-void PEGASUS_COMMON_LINKAGE __once(Once* once, void (*function)());
-
-inline void once(Once* once, void (*function)())
-{
-    if (once->initialized == 0)
-        __once(once, function);
+    CIMClientRep* rep = *(reinterpret_cast<CIMClientRep**>(&client));
+    rep->setBinaryResponse(flag);
 }
 
-PEGASUS_NAMESPACE_END
+int main(int argc, char** argv)
+{
+    // Check args:
 
-#endif /* Pegasus_Once_h */
+    if (argc != 3)
+    {
+        cerr << "Usage: " << argv[0] << " host port" << endl;
+        exit(1);
+    }
+
+    // Extract args:
+
+    String host = argv[1];
+    Uint32 port = atoi(argv[2]);
+
+    if (port == 0)
+    {
+        cerr << argv[0] << ": illegal value for port number" << endl;
+        exit(1);
+    }
+
+    // Connect and enumerate instances.
+
+    CIMClient client;
+    _SetBinaryResponse(client, true);
+
+    try
+    {
+        client.connect(host, port, String(), String());
+
+        Array<CIMInstance> result = client.enumerateInstances("root/cimv2",
+            "CIM_ManagedElement");
+
+        for (Uint32 i = 0; i < result.size(); i++)
+        {
+#if defined(PEGASUS_DEBUG)
+            PrintInstance(cout, result[i]);
+#endif
+        }
+    }
+    catch (Exception& e)
+    {
+        cerr << e.getMessage() << endl;
+        exit(1);
+    }
+
+    cout << "TestBinaryClient +++++ passed all tests" << endl;
+
+    return 0;
+}

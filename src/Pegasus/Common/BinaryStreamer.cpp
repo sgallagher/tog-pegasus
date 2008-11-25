@@ -784,7 +784,16 @@ void BinaryStreamer::_unpackProperty(
             // class definitions, and only NULL values are recognized. We
             // currently don't handle embedded object types with default
             // values in the class definition.
+#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
+            // The binary protocol (unlike the XML protocol) successfully 
+            // transmits embedded object default values. But since they are
+            // not handled elsewhere, we discard the value.
+            cimProperty.setValue(
+                CIMValue(value.getType(),value.isArray(),value.getArraySize()));
+#else
             PEGASUS_ASSERT(value.isNull());
+#endif
+
             realType = CIMTYPE_OBJECT;
         }
 

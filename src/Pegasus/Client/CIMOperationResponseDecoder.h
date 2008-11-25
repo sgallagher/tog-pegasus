@@ -106,8 +106,10 @@ private:
 
     void _handleMethodResponse(
         char* content,
+        Uint32 contentLength,
         const ContentLanguageList& contentLanguages,
-        Boolean reconnect);
+        Boolean reconnect,
+        bool binaryResponse);
 
     CIMCreateClassResponseMessage* _decodeCreateClassResponse(
         XmlParser& parser,

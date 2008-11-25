@@ -1424,44 +1424,45 @@ endif
 
 ##==============================================================================
 ##
-## PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL
+## PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY
 ##
 ##     Enable binary protocol between cimserver and out-of-process providers.
 ##     By default this feature is enabled.
 ##
 ##==============================================================================
 
-ifndef PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL
-  PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL=true
+ifndef PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY
+  PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY=true
 endif
 
-ifeq ($(PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL),true)
-  DEFINES += -DPEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY),true)
+  DEFINES += -DPEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY
 else
-  ifneq ($(PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL),false)
-    $(error "PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL must be true or false")
+  ifneq ($(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY),false)
+    $(error "PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY must be true or false")
   endif
 endif
 
 ##==============================================================================
 ##
-## PEGASUS_ENABLE_ENCAPSULATED_XML
+## PEGASUS_ENABLE_PROTOCOL_BINARY
 ##
-##     Enable encapsulated XML within binary protocol messages. This improves
-##     performance by allowing provider to format XML which the server can
-##     pass through to client without converting to CIMInstances.
+##     Enables the binary protocol between clients and cimserver. With provider
+##     agent, both requests and responses are binary. For "ordinary" clients,
+##     requests are XML and responses are binary. By default, this only affects
+##     the protocol used over local domain sockets.
 ##
 ##==============================================================================
 
-ifndef PEGASUS_ENABLE_ENCAPSULATED_XML
-  PEGASUS_ENABLE_ENCAPSULATED_XML=false
+ifndef PEGASUS_ENABLE_PROTOCOL_BINARY
+  PEGASUS_ENABLE_PROTOCOL_BINARY=false
 endif
 
-ifeq ($(PEGASUS_ENABLE_ENCAPSULATED_XML),true)
-  DEFINES += -DPEGASUS_ENABLE_ENCAPSULATED_XML
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_BINARY),true)
+  DEFINES += -DPEGASUS_ENABLE_PROTOCOL_BINARY
 else
-  ifneq ($(PEGASUS_ENABLE_ENCAPSULATED_XML),false)
-    $(error "PEGASUS_ENABLE_ENCAPSULATED_XML must be true or false")
+  ifneq ($(PEGASUS_ENABLE_PROTOCOL_BINARY),false)
+    $(error "PEGASUS_ENABLE_PROTOCOL_BINARY must be true or false")
   endif
 endif
 

@@ -41,6 +41,7 @@
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/BinaryCodec.h>
 #include "CIMOperationResponseDecoder.h"
 
 #include <Pegasus/Common/MessageLoader.h>
@@ -308,6 +309,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     //              type "/" subtype *( ";" parameter )
     // ex. text/xml;Charset="utf8"
     String cimContentType;
+    bool binaryResponse = false;
 
     if (HTTPMessage::lookupHeader(
             headers, "Content-Type", cimContentType, true))
@@ -317,9 +319,14 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
         if (!HTTPMessage::parseContentTypeHeader(
                 cimContentType, type, charset) ||
-            (!String::equalNoCase(type, "application/xml") &&
+            ((!String::equalNoCase(type, "application/xml") &&
              !String::equalNoCase(type, "text/xml")) ||
             !String::equalNoCase(charset, "utf-8"))
+#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
+            && !(binaryResponse=String::equalNoCase(
+                type, "application/x-openpegasus"))
+#endif
+        )
         {
             CIMClientMalformedHTTPException* malformedHTTPException = new
                 CIMClientMalformedHTTPException
@@ -431,15 +438,38 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
     dataStore->setResponseSize(contentLength);
     dataStore->setEndNetworkTime(networkEndTime);
-    _handleMethodResponse(content, httpMessage->contentLanguages,cimReconnect);
+    _handleMethodResponse(content, contentLength, 
+        httpMessage->contentLanguages, cimReconnect, binaryResponse);
 }
 
 void CIMOperationResponseDecoder::_handleMethodResponse(
     char* content,
+    Uint32 contentLength,
     const ContentLanguageList& contentLanguages,
-    Boolean cimReconnect)
+    Boolean cimReconnect,
+    Boolean binaryResponse)
 {
     Message* response = 0;
+
+    //
+    // Decode binary messages up-front and skip remainder:
+    //
+
+    if (binaryResponse)
+    {
+        // Note: this may throw an excpetion which will be caught by caller.
+
+        Buffer in(content, contentLength);
+
+        CIMResponseMessage* msg = BinaryCodec::decodeResponse(in);
+
+        msg->operationContext.set(
+            ContentLanguageListContainer(contentLanguages));
+        msg->setCloseConnect(cimReconnect);
+        _outputQueue->enqueue(msg);
+
+        return;
+    }
 
     //
     // Create and initialize XML parser:

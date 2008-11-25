@@ -118,7 +118,7 @@ DIRS += \
 	Attribute
 endif
 
-ifeq ($(PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL),true)
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY),true)
     DIRS += CIMBuffer
 endif
 

@@ -53,6 +53,8 @@ void CIMResponseMessage::syncAttributes(const CIMRequestMessage* request)
 #ifndef PEGASUS_DISABLE_PERFINST
     setServerStartTime(request->getServerStartTime());
 #endif
+    binaryRequest = request->binaryRequest;
+    binaryResponse = request->binaryResponse;
 }
 
 CIMResponseMessage* CIMGetClassRequestMessage::buildResponse() const
@@ -534,6 +536,9 @@ CIMMessage::CIMMessage(
         AcceptLanguageListContainer(AcceptLanguageList()));
     operationContext.insert(
         ContentLanguageListContainer(ContentLanguageList()));
+
+    binaryRequest = false;
+    binaryResponse = false;
 }
 
 #ifndef PEGASUS_DISABLE_PERFINST

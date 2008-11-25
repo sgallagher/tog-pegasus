@@ -212,14 +212,17 @@ public:
         HttpMethod httpMethod,
         const AcceptLanguageList& acceptLanguages,
         const ContentLanguageList& contentLanguages,
-        Uint32 contentLength);
+        Uint32 contentLength,
+        bool binaryRequest = false,
+        bool binaryResponse = false);
 
     static void appendMethodResponseHeader(
         Buffer& out,
         HttpMethod httpMethod,
         const ContentLanguageList& contentLanguages,
         Uint32 contentLength,
-        Uint64 serverResponseTime = 0);
+        Uint64 serverResponseTime = 0,
+        bool binaryResponse = false);
 
     static void appendHttpErrorResponseHeader(
         Buffer& out,
@@ -318,7 +321,8 @@ public:
         HttpMethod httpMethod,
         const String& authenticationHeader,
         const AcceptLanguageList& httpAcceptLanguages,
-        const ContentLanguageList& httpContentLanguages);
+        const ContentLanguageList& httpContentLanguages,
+        bool binaryResponse);
 
     static Buffer formatSimpleMethodRspMessage(
         const CIMName& methodName,
@@ -345,7 +349,8 @@ public:
         const String& authenticationHeader,
         const AcceptLanguageList& httpAcceptLanguages,
         const ContentLanguageList& httpContentLanguages,
-        const Buffer& body);
+        const Buffer& body,
+        bool binaryResponse);
 
     static Buffer formatSimpleIMethodRspMessage(
         const CIMName& iMethodName,
@@ -356,6 +361,7 @@ public:
         Uint64 serverResponseTime,
         Boolean isFirst = true,
         Boolean isLast = true);
+
 
     static Buffer formatSimpleIMethodErrorRspMessage(
         const CIMName& iMethodName,

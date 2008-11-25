@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,54 +31,82 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Once_h
-#define Pegasus_Once_h
+#include <Pegasus/Common/PegasusAssert.h>
+#include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/Print.h>
+#include <iostream>
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/Mutex.h>
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
-#define PEGASUS_ONCE_INITIALIZER { PEGASUS_MUTEX_INITIALIZER, 0 }
+static Boolean verbose;
 
-PEGASUS_NAMESPACE_BEGIN
+//==============================================================================
+//
+// This program obtains instances of the given class when invoked as follows:
+//
+//     $ TestPrint <CLASSNAME>
+//
+// It connects locally to the CIM server, enumerates instances of that class 
+// and then prints each one.
+//
+//==============================================================================
 
-/** Once implements the "once" concept as introduced by POSIX threads.
-    That is, it arranges for a function to be called just once in a thread
-    safe manner. The following example shows how to constuct an object of
-    type X the first time any thread reaches the line that calls once().
+int main(int argc, char** argv)
+{
+    // Check usage:
 
-        static Once _once = PEGASUS_ONCE_INITIALIZER;
-        static static X* _ptr;
+    if (argc != 2)
+    {
+        cerr << "Usage: " << argv[0] << " classname" << endl;
+        exit(1);
+    }
 
-        static void _create_X()
+    // Check classname argument:
+
+    CIMName name;
+
+    try
+    {
+        name = argv[1];
+    }
+    catch (...)
+    {
+        cerr << argv[0] << ": illegal CIM classname: " << argv[1] << endl;
+        exit(1);
+    }
+
+
+    // Connect:
+
+    CIMClient cc;
+
+    try
+    {
+        cc.connectLocal();
+    }
+    catch (...)
+    {
+        cerr << "failed to connect" << endl;
+        exit(1);
+    }
+
+    // Enumerate and print:
+
+    try
+    {
+        Array<CIMInstance> a = cc.enumerateInstances("root/cimv2", name);
+
+        for (Uint32 i = 0; i < a.size(); i++)
         {
-            ptr = new X;
+            PrintInstance(cout, a[i]);
         }
+    }
+    catch (...)
+    {
+        cerr << "failed to enumerate instances of " << name.getString() << endl;
+        exit(1);
+    }
 
-        ...
-
-        once(&_once, _create_X);
-
-    The _create_X() function is called exactly once no matter how many times
-    once() is called on it. Also, once() may be called safely from multiple
-    threads.
-
-    CAUTION: Once instances must always be defined statically.
-*/
-struct Once
-{
-    MutexType mutex;
-    int initialized;
-};
-
-void PEGASUS_COMMON_LINKAGE __once(Once* once, void (*function)());
-
-inline void once(Once* once, void (*function)())
-{
-    if (once->initialized == 0)
-        __once(once, function);
+    return 0;
 }
-
-PEGASUS_NAMESPACE_END
-
-#endif /* Pegasus_Once_h */

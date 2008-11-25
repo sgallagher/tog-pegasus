@@ -295,9 +295,13 @@ public:
 
     void deregisterClientOpPerformanceDataHandler();
 
+    void setBinaryResponse(bool x) { _binaryResponse = x; }
+
+    void setBinaryRequest(bool x) { _binaryRequest = x; }
+
 private:
 
-    void _connect();
+    void _connect(bool binaryRequest, bool binaryResponse);
     void _disconnect();
 
     Message* _doRequest(
@@ -334,6 +338,8 @@ private:
     AcceptLanguageList requestAcceptLanguages;
     ContentLanguageList requestContentLanguages;
     ContentLanguageList responseContentLanguages;
+    bool _binaryRequest;
+    bool _binaryResponse;
 };
 
 PEGASUS_NAMESPACE_END

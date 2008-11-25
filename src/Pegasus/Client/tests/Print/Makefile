@@ -28,25 +28,19 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../../../../
-
+ROOT = ../../../../..
+DIR = Pegasus/Common/tests/Print
 include $(ROOT)/mak/config.mak
+include ../libraries.mak
 
-DIRS =	AssociationClient \
-	Client \
-	IdleConnectionTimeout \
-	InvokeMethod2 \
-	EnumInstances \
-	DeleteNamespace \
-	ClientStatistics \
-	TestStaticClient \
-        BinaryClient
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-DIRS_SLP = \
-    slp
+PROGRAM = TestPrint
+SOURCES = TestPrint.cpp
 
-ifeq ($(PEGASUS_ENABLE_SLP),true)
-  DIRS += $(DIRS_SLP)
-endif
+include $(ROOT)/mak/program.mak
 
-include $(ROOT)/mak/recurse.mak
+tests:
+	$(PROGRAM)
+
+poststarttests:

@@ -36,6 +36,7 @@
 #include <Pegasus/Common/System.h>
 
 #include "CIMBinMsgDeserializer.h"
+#include "BinaryCodec.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -56,6 +57,20 @@ CIMMessage* CIMBinMsgDeserializer::deserialize(
     String messageID;
 
     if (!in.getString(messageID))
+        return 0;
+
+    // [binaryRequest]
+
+    Boolean binaryRequest;
+
+    if (!in.getBoolean(binaryRequest))
+        return 0;
+
+    // [binaryResponse]
+
+    Boolean binaryResponse;
+
+    if (!in.getBoolean(binaryResponse))
         return 0;
 
     // [type]
@@ -123,13 +138,15 @@ CIMMessage* CIMBinMsgDeserializer::deserialize(
 
     if (present)
     {
-        if (!(msg = _getResponseMessage(in, type)))
+        if (!(msg = _getResponseMessage(in, type, binaryResponse)))
             return 0;
     }
 
     // Initialize the messge:
 
     msg->messageId = messageID;
+    msg->binaryRequest = binaryRequest;
+    msg->binaryResponse = binaryResponse;
 #ifndef PEGASUS_DISABLE_PERFINST
     msg->setServerStartTime(serverStartTimeMicroseconds);
     msg->setProviderTime(providerTimeMicroseconds);
@@ -350,7 +367,8 @@ CIMRequestMessage* CIMBinMsgDeserializer::_getRequestMessage(
 
 CIMResponseMessage* CIMBinMsgDeserializer::_getResponseMessage(
     CIMBuffer& in,
-    MessageType type)
+    MessageType type,
+    bool binaryResponse)
 {
     CIMResponseMessage* msg = 0;
     QueueIdStack queueIdStack;
@@ -370,7 +388,7 @@ CIMResponseMessage* CIMBinMsgDeserializer::_getResponseMessage(
     switch (type)
     {
         case CIM_GET_INSTANCE_RESPONSE_MESSAGE:
-            msg = _getGetInstanceResponseMessage(in);
+            msg = _getGetInstanceResponseMessage(in, binaryResponse);
             break;
         case CIM_DELETE_INSTANCE_RESPONSE_MESSAGE:
             msg = _getDeleteInstanceResponseMessage(in);
@@ -382,7 +400,7 @@ CIMResponseMessage* CIMBinMsgDeserializer::_getResponseMessage(
             msg = _getModifyInstanceResponseMessage(in);
             break;
         case CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:
-            msg = _getEnumerateInstancesResponseMessage(in);
+            msg = _getEnumerateInstancesResponseMessage(in, binaryResponse);
             break;
         case CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE:
             msg = _getEnumerateInstanceNamesResponseMessage(in);
@@ -1547,18 +1565,13 @@ CIMBinMsgDeserializer::_getSubscriptionInitCompleteRequestMessage(
         QueueIdStack());
 }
 
-#if defined(PEGASUS_ENABLE_ENCAPSULATED_XML)
-
-static Boolean _resolveInstanceCallback(
-    const Array<Sint8>& instanceData,
-    const Array<Sint8>& referenceData,
-    const String& hostData,
-    const CIMNamespaceName& nameSpaceData,
+static Boolean _resolveXMLInstance(
+    CIMGetInstanceResponseMessage* msg,
     CIMInstance& cimInstance)
 {
     // Deserialize instance:
     {
-        XmlParser parser((char*)instanceData.getData());
+        XmlParser parser((char*)msg->instanceData.getData());
 
         if (!XmlReader::getInstanceElement(parser, cimInstance))
         {
@@ -1569,53 +1582,16 @@ static Boolean _resolveInstanceCallback(
 
     // Deserialize path:
     {
-        XmlParser parser((char*)referenceData.getData());
+        XmlParser parser((char*)msg->referenceData.getData());
         CIMObjectPath cimObjectPath;
 
         if (XmlReader::getValueReferenceElement(parser, cimObjectPath))
         {
-            if (hostData.size())
-                cimObjectPath.setHost(hostData);
+            if (msg->hostData.size())
+                cimObjectPath.setHost(msg->hostData);
 
-            if (!nameSpaceData.isNull())
-                cimObjectPath.setNameSpace(nameSpaceData);
-
-            cimInstance.setPath(cimObjectPath);
-        }
-    }
-
-    return true;
-}
-
-static Boolean _resolveNamedInstanceCallback(
-    const Array<Sint8>& instanceData,
-    const Array<Sint8>& referenceData,
-    const String& hostData,
-    const CIMNamespaceName& nameSpaceData,
-    CIMInstance& cimInstance)
-{
-    // Deserialize instance:
-    {
-        XmlParser parser((char*)instanceData.getData());
-
-        if (!XmlReader::getInstanceElement(parser, cimInstance))
-        {
-            cimInstance = CIMInstance();
-        }
-    }
-
-    // Deserialize path:
-    {
-        XmlParser parser((char*)referenceData.getData());
-        CIMObjectPath cimObjectPath;
-
-        if (XmlReader::getInstanceNameElement(parser, cimObjectPath))
-        {
-            if (!nameSpaceData.isNull())
-                cimObjectPath.setNameSpace(nameSpaceData);
-
-            if (hostData.size())
-                cimObjectPath.setHost(hostData);
+            if (!msg->nameSpaceData.isNull())
+                cimObjectPath.setNameSpace(msg->nameSpaceData);
 
             cimInstance.setPath(cimObjectPath);
         }
@@ -1624,91 +1600,136 @@ static Boolean _resolveNamedInstanceCallback(
     return true;
 }
 
-static Boolean _resolveNamedInstancesCallback(
-    const Array<ArraySint8>& instancesData,
-    const Array<ArraySint8>& referencesData,
-    const Array<String>& hostsData,
-    const Array<CIMNamespaceName>& nameSpacesData,
+static Boolean _resolveXMLInstances(
+    CIMEnumerateInstancesResponseMessage* msg,
     Array<CIMInstance>& instances)
 {
     instances.clear();
 
-    for (Uint32 i = 0; i < instancesData.size(); i++)
+    for (Uint32 i = 0; i < msg->instancesData.size(); i++)
     {
-        CIMInstance ci;
+        CIMInstance cimInstance;
 
-        if (!_resolveNamedInstanceCallback(
-            instancesData[i], 
-            referencesData[i], 
-            hostsData[i],
-            nameSpacesData[i], 
-            ci))
+        // Deserialize instance:
         {
-            instances.clear();
-            return false;
+            XmlParser parser((char*)msg->instancesData[i].getData());
+
+            if (!XmlReader::getInstanceElement(parser, cimInstance))
+            {
+                cimInstance = CIMInstance();
+            }
         }
 
-        instances.append(ci);
+        // Deserialize path:
+        {
+            XmlParser parser((char*)msg->referencesData[i].getData());
+            CIMObjectPath cimObjectPath;
+
+            if (XmlReader::getInstanceNameElement(parser, cimObjectPath))
+            {
+                if (!msg->nameSpacesData[i].isNull())
+                    cimObjectPath.setNameSpace(msg->nameSpacesData[i]);
+
+                if (msg->hostsData[i].size())
+                    cimObjectPath.setHost(msg->hostsData[i]);
+
+                cimInstance.setPath(cimObjectPath);
+            }
+        }
+
+        instances.append(cimInstance);
     }
 
     return true;
 }
 
-#endif /* PEGASUS_ENABLE_ENCAPSULATED_XML */
+static Boolean _resolveBinaryInstance(
+    CIMGetInstanceResponseMessage* msg,
+    CIMInstance& instance)
+{
+    CIMBuffer in((char*)msg->binaryData.getData(), msg->binaryData.size());
+
+    if (!in.getInstance(instance))
+    {
+        instance = CIMInstance();
+        in.release();
+        return false;
+    }
+
+    in.release();
+    return true;
+}
+
+static Boolean _resolveBinaryInstances(
+    CIMEnumerateInstancesResponseMessage* msg,
+    Array<CIMInstance>& instances)
+{
+    instances.clear();
+
+    CIMBuffer in((char*)msg->binaryData.getData(), msg->binaryData.size());
+
+    if (!in.getInstanceA(instances))
+    {
+        in.release();
+        return false;
+    }
+
+    in.release();
+    return true;
+}
 
 CIMGetInstanceResponseMessage*
 CIMBinMsgDeserializer::_getGetInstanceResponseMessage(
-    CIMBuffer& in)
+    CIMBuffer& in,
+    bool binaryResponse)
 {
-#if defined(PEGASUS_ENABLE_ENCAPSULATED_XML)
+    if (binaryResponse)
+    {
+        CIMGetInstanceResponseMessage* msg = new CIMGetInstanceResponseMessage(
+            String::EMPTY,
+            CIMException(),
+            QueueIdStack());
 
-    Array<Sint8> instanceData;
-    Array<Sint8> referenceData;
-    String hostData;
-    CIMNamespaceName nameSpaceData;
+        if (!in.getUint8A(msg->binaryData))
+            return 0;
 
-    if (!in.getSint8A(instanceData))
-        return NULL;
+        msg->resolveCallback = _resolveBinaryInstance;
+        msg->binaryEncoding = true;
 
-    if (!in.getSint8A(referenceData))
-        return NULL;
+        return msg;
+    }
+    else
+    {
+        Array<Sint8> instanceData;
+        Array<Sint8> referenceData;
+        String hostData;
+        CIMNamespaceName nameSpaceData;
 
-    if (!in.getString(hostData))
-        return NULL;
+        if (!in.getSint8A(instanceData))
+            return NULL;
 
-    if (!in.getNamespaceName(nameSpaceData))
-        return NULL;
+        if (!in.getSint8A(referenceData))
+            return NULL;
 
-    CIMGetInstanceResponseMessage* msg = new CIMGetInstanceResponseMessage(
-        String::EMPTY,
-        CIMException(),
-        QueueIdStack());
+        if (!in.getString(hostData))
+            return NULL;
 
-    msg->resolveCallback = _resolveInstanceCallback;
-    msg->instanceData = instanceData;
-    msg->referenceData = referenceData;
-    msg->hostData = hostData;
-    msg->nameSpaceData = nameSpaceData;
+        if (!in.getNamespaceName(nameSpaceData))
+            return NULL;
 
-    return msg;
+        CIMGetInstanceResponseMessage* msg = new CIMGetInstanceResponseMessage(
+            String::EMPTY,
+            CIMException(),
+            QueueIdStack());
 
-#else /* PEGASUS_ENABLE_ENCAPSULATED_XML */
+        msg->resolveCallback = _resolveXMLInstance;
+        msg->instanceData = instanceData;
+        msg->referenceData = referenceData;
+        msg->hostData = hostData;
+        msg->nameSpaceData = nameSpaceData;
 
-    CIMInstance x;
-
-    if (!in.getInstance(x))
-        return 0;
-
-    CIMGetInstanceResponseMessage* msg = new CIMGetInstanceResponseMessage(
-        String::EMPTY,
-        CIMException(),
-        QueueIdStack());
-
-    msg->setCimInstance(x);
-
-    return msg;
-
-#endif /* PEGASUS_ENABLE_ENCAPSULATED_XML */
+        return msg;
+    }
 }
 
 CIMDeleteInstanceResponseMessage*
@@ -1749,77 +1770,80 @@ CIMBinMsgDeserializer::_getModifyInstanceResponseMessage(
 
 CIMEnumerateInstancesResponseMessage*
 CIMBinMsgDeserializer::_getEnumerateInstancesResponseMessage(
-    CIMBuffer& in)
+    CIMBuffer& in,
+    bool binaryResponse)
 {
-#if defined(PEGASUS_ENABLE_ENCAPSULATED_XML)
-
-    Uint32 count;
-
-    if (!in.getUint32(count))
-        return 0;
-
-    Array<ArraySint8> instancesData;
-    Array<ArraySint8> referencesData;
-    Array<String> hostsData;
-    Array<CIMNamespaceName> nameSpacesData;
-
-    for (Uint32 i = 0; i < count; i++)
+    if (binaryResponse)
     {
-        Array<Sint8> inst;
-        Array<Sint8> ref;
-        CIMNamespaceName ns;
-        String host;
+        // Inject data into message so that the instances can be deserialized 
+        // on demand later (hopefully never; hopefully it can be written out on
+        // the wire intact).
 
-        if (!in.getSint8A(inst))
+        CIMEnumerateInstancesResponseMessage* msg;
+
+        msg = new CIMEnumerateInstancesResponseMessage(String::EMPTY,
+            CIMException(), QueueIdStack());
+
+        if (!in.getUint8A(msg->binaryData))
             return 0;
 
-        if (!in.getSint8A(ref))
-            return 0;
+        msg->resolveCallback = _resolveBinaryInstances;
+        msg->binaryEncoding = true;
 
-        if (!in.getString(host))
-            return 0;
-
-        if (!in.getNamespaceName(ns))
-            return 0;
-
-        instancesData.append(inst);
-        referencesData.append(ref);
-        hostsData.append(host);
-        nameSpacesData.append(ns);
+        return msg;
     }
+    else
+    {
+        Uint32 count;
 
-    CIMEnumerateInstancesResponseMessage* msg;
-    
-    msg = new CIMEnumerateInstancesResponseMessage(
-        String::EMPTY,
-        CIMException(),
-        QueueIdStack());
+        if (!in.getUint32(count))
+            return 0;
 
-    msg->resolveCallback = _resolveNamedInstancesCallback;
-    msg->instancesData = instancesData;
-    msg->referencesData = referencesData;
-    msg->hostsData = hostsData;
-    msg->nameSpacesData = nameSpacesData;
+        Array<ArraySint8> instancesData;
+        Array<ArraySint8> referencesData;
+        Array<String> hostsData;
+        Array<CIMNamespaceName> nameSpacesData;
 
-    return msg;
+        for (Uint32 i = 0; i < count; i++)
+        {
+            Array<Sint8> inst;
+            Array<Sint8> ref;
+            CIMNamespaceName ns;
+            String host;
 
-#else /* PEGASUS_ENABLE_ENCAPSULATED_XML */
+            if (!in.getSint8A(inst))
+                return 0;
 
-    Array<CIMInstance> x;
+            if (!in.getSint8A(ref))
+                return 0;
 
-    if (!in.getInstanceA(x))
-        return 0;
+            if (!in.getString(host))
+                return 0;
 
-    CIMEnumerateInstancesResponseMessage* msg;
+            if (!in.getNamespaceName(ns))
+                return 0;
 
-    msg = new CIMEnumerateInstancesResponseMessage(String::EMPTY,
-        CIMException(), QueueIdStack());
+            instancesData.append(inst);
+            referencesData.append(ref);
+            hostsData.append(host);
+            nameSpacesData.append(ns);
+        }
 
-    msg->setNamedInstances(x);
+        CIMEnumerateInstancesResponseMessage* msg;
+        
+        msg = new CIMEnumerateInstancesResponseMessage(
+            String::EMPTY,
+            CIMException(),
+            QueueIdStack());
 
-    return msg;
+        msg->resolveCallback = _resolveXMLInstances;
+        msg->instancesData = instancesData;
+        msg->referencesData = referencesData;
+        msg->hostsData = hostsData;
+        msg->nameSpacesData = nameSpacesData;
 
-#endif /* PEGASUS_ENABLE_ENCAPSULATED_XML */
+        return msg;
+    }
 }
 
 CIMEnumerateInstanceNamesResponseMessage*

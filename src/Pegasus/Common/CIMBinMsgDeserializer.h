@@ -60,7 +60,8 @@ private:
     PEGASUS_HIDDEN_LINKAGE
     static CIMResponseMessage* _getResponseMessage(
         CIMBuffer& in,
-        MessageType type);
+        MessageType type,
+        bool binaryResponse);
 
     PEGASUS_HIDDEN_LINKAGE
     static Boolean _getUserInfo(
@@ -229,8 +230,8 @@ private:
             (CIMBuffer& in);
 
     PEGASUS_HIDDEN_LINKAGE
-    static CIMGetInstanceResponseMessage*
-        _getGetInstanceResponseMessage(CIMBuffer& in);
+    static CIMGetInstanceResponseMessage* _getGetInstanceResponseMessage(
+        CIMBuffer& in, bool binaryResponse);
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMDeleteInstanceResponseMessage*
@@ -246,7 +247,8 @@ private:
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMEnumerateInstancesResponseMessage*
-        _getEnumerateInstancesResponseMessage(CIMBuffer& in);
+    _getEnumerateInstancesResponseMessage(
+        CIMBuffer& in, bool binaryResponse);
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMEnumerateInstanceNamesResponseMessage*

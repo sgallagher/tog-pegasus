@@ -184,6 +184,60 @@ void test7()
     PEGASUS_TEST_ASSERT(cop1.toString() == cop2.toString());
 }
 
+void test8()
+{
+    CIMBuffer cb;
+
+    CIMObjectPath cop1;
+    cb.putObjectPath(cop1);
+    cb.rewind();
+    CIMObjectPath cop2;
+
+    PEGASUS_TEST_ASSERT(cb.getObjectPath(cop2));
+
+    PEGASUS_TEST_ASSERT(cop1 == cop2);
+    PEGASUS_TEST_ASSERT(cop1.toString() == cop2.toString());
+}
+
+void test9()
+{
+    CIMBuffer cb;
+
+    cb.putBoolean(true);
+    cb.putBoolean(false);
+    cb.putBoolean(true);
+    cb.putBoolean(true);
+
+    Array<Boolean> a;
+    a.append(true);
+    a.append(false);
+    a.append(true);
+    a.append(true);
+    cb.putBooleanA(a);
+
+    cb.putUint32(1234);
+
+    cb.rewind();
+
+    Boolean x;
+    PEGASUS_TEST_ASSERT(cb.getBoolean(x) && x == true);
+    PEGASUS_TEST_ASSERT(cb.getBoolean(x) && x == false);
+    PEGASUS_TEST_ASSERT(cb.getBoolean(x) && x == true);
+    PEGASUS_TEST_ASSERT(cb.getBoolean(x) && x == true);
+
+    Array<Boolean> b;
+    PEGASUS_TEST_ASSERT(cb.getBooleanA(b) && a == b);
+    assert(a.size() == 4);
+    assert(a.size() == b.size());
+    assert(a[0] == b[0]);
+    assert(a[1] == b[1]);
+    assert(a[2] == b[2]);
+    assert(a[3] == b[3]);
+
+    Uint32 y;
+    PEGASUS_TEST_ASSERT(cb.getUint32(y) && y == 1234);
+}
+
 int main(int argc, char** argv)
 {
     test1();
@@ -193,6 +247,8 @@ int main(int argc, char** argv)
     test5();
     test6();
     test7();
+    test8();
+    test9();
 
     cout << argv[0] << " +++++ passed all tests" << endl;
     return 0;

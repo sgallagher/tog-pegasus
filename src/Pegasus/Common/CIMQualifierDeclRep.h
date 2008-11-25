@@ -138,7 +138,7 @@ private:
     // reference counter as member to avoid
     // virtual function resolution overhead
     AtomicInt _refCounter;
-
+    friend class CIMBuffer;
 };
 
 PEGASUS_NAMESPACE_END

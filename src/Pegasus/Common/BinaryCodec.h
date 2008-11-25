@@ -31,54 +31,64 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Once_h
-#define Pegasus_Once_h
+#ifndef Pegasus_BinaryCodec_h
+#define Pegasus_BinaryCodec_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Buffer.h>
+#include <Pegasus/Common/CIMBuffer.h>
+#include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/AcceptLanguageList.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/Mutex.h>
-
-#define PEGASUS_ONCE_INITIALIZER { PEGASUS_MUTEX_INITIALIZER, 0 }
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** Once implements the "once" concept as introduced by POSIX threads.
-    That is, it arranges for a function to be called just once in a thread
-    safe manner. The following example shows how to constuct an object of
-    type X the first time any thread reaches the line that calls once().
-
-        static Once _once = PEGASUS_ONCE_INITIALIZER;
-        static static X* _ptr;
-
-        static void _create_X()
-        {
-            ptr = new X;
-        }
-
-        ...
-
-        once(&_once, _create_X);
-
-    The _create_X() function is called exactly once no matter how many times
-    once() is called on it. Also, once() may be called safely from multiple
-    threads.
-
-    CAUTION: Once instances must always be defined statically.
+/** This is the coder-decoder (codec) for the OpenPegasus proprietary binary 
+    protocol.
 */
-struct Once
+class PEGASUS_COMMON_LINKAGE BinaryCodec
 {
-    MutexType mutex;
-    int initialized;
+public:
+
+    // Peform hex dump of the given data.
+    static void hexDump(const void* data, size_t size);
+
+    static bool encodeRequest(
+        Buffer& out,
+        const char* host,
+        const String& authenticationHeader,
+        CIMOperationRequestMessage* msg,
+        bool binaryResponse);
+
+    static bool encodeResponseBody(
+        Buffer& out,
+        const CIMResponseMessage* msg,
+        CIMName& name);
+
+    static CIMOperationRequestMessage* decodeRequest(
+        const Buffer& in,
+        Uint32 queueId,
+        Uint32 returnQueueId);
+
+    static CIMResponseMessage* decodeResponse(
+        const Buffer& in);
+
+    static Buffer formatSimpleIMethodRspMessage(
+        const CIMName& iMethodName,
+        const String& messageId,
+        HttpMethod httpMethod,
+        const ContentLanguageList& httpContentLanguages,
+        const Buffer& body,
+        Uint64 serverResponseTime,
+        Boolean isFirst,
+        Boolean isLast);
+
+private:
+
+    BinaryCodec();
 };
-
-void PEGASUS_COMMON_LINKAGE __once(Once* once, void (*function)());
-
-inline void once(Once* once, void (*function)())
-{
-    if (once->initialized == 0)
-        __once(once, function);
-}
 
 PEGASUS_NAMESPACE_END
 
-#endif /* Pegasus_Once_h */
+#endif /* Pegasus_BinaryCodec_h */

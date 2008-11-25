@@ -1695,7 +1695,9 @@ void XmlWriter::appendMethodCallHeader(
     HttpMethod httpMethod,
     const AcceptLanguageList& acceptLanguages,
     const ContentLanguageList& contentLanguages,
-    Uint32 contentLength)
+    Uint32 contentLength,
+    bool binaryRequest,
+    bool binaryResponse)
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
@@ -1713,8 +1715,26 @@ void XmlWriter::appendMethodCallHeader(
     {
         out << STRLIT("POST /cimom HTTP/1.1\r\n");
     }
-    out << STRLIT("HOST: ") << host << STRLIT("\r\n" 
-                  "Content-Type: application/xml; charset=\"utf-8\"\r\n");
+    out << STRLIT("HOST: ") << host << STRLIT("\r\n");
+
+    if (binaryRequest)
+    {
+        // Tell the server that the payload is encoded in the OpenPegasus
+        // binary protocol.
+        out << STRLIT("Content-Type: application/x-openpegasus\r\n");
+    }
+    else
+    {
+        out << STRLIT("Content-Type: application/xml; charset=\"utf-8\"\r\n");
+    }
+
+    if (binaryResponse)
+    {
+        // Tell the server that this client accepts the OpenPegasus binary
+        // protocol.
+        out << STRLIT("Accept: application/x-openpegasus\r\n");
+    }
+
     OUTPUT_CONTENTLENGTH(out, contentLength);
     if (acceptLanguages.size() > 0)
     {
@@ -1738,7 +1758,11 @@ void XmlWriter::appendMethodCallHeader(
     if (!clientTransferEncodingOff || *clientTransferEncodingOff != '0')
 #endif
 
-    out << STRLIT("TE: chunked, trailers\r\n");
+    if (!binaryResponse)
+    {
+        // The binary protocol does not allow chunking.
+        out << STRLIT("TE: chunked, trailers\r\n");
+    }
 
     if (httpMethod == HTTP_METHOD_M_POST)
     {
@@ -1773,9 +1797,30 @@ void XmlWriter::appendMethodResponseHeader(
      HttpMethod httpMethod,
      const ContentLanguageList& contentLanguages,
      Uint32 contentLength,
-     Uint64 serverResponseTime)
+     Uint64 serverResponseTime,
+     bool binaryResponse)
 {
-     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
+    // Optimize the typical case for binary messages, circumventing the
+    // more expensive logic below.
+    if (binaryResponse && 
+        contentLength == 0 &&
+        httpMethod != HTTP_METHOD_M_POST &&
+        contentLanguages.size() == 0)
+    {
+        static const char HEADERS[] =
+            "HTTP/1.1 200 OK\r\n"
+            "Content-Type: application/x-openpegasus\r\n"
+            "content-length: 0000000000\r\n"
+            "CIMOperation: MethodResponse\r\n"
+            "\r\n";
+
+        // The HTTP processor fills in the content-length value later.
+        // It searches for a field matching "content-length" (so the first
+        // character must be lower case).
+        out.append(HEADERS, sizeof(HEADERS) - 1);
+        return;
+    }
+
      out << STRLIT("HTTP/1.1 " HTTP_STATUS_OK "\r\n");
 
 #ifndef PEGASUS_DISABLE_PERFINST
@@ -1786,7 +1831,17 @@ void XmlWriter::appendMethodResponseHeader(
      }
 #endif
 
-     out << STRLIT("Content-Type: application/xml; charset=\"utf-8\"\r\n");
+     if (binaryResponse)
+     {
+        // According to MIME RFC, the "x-" prefix should be used for all
+        // non-registered values.
+         out << STRLIT("Content-Type: application/x-openpegasus\r\n");
+     }
+     else
+     {
+         out << STRLIT("Content-Type: application/xml; charset=\"utf-8\"\r\n");
+     }
+
      OUTPUT_CONTENTLENGTH(out, contentLength);
 
      if (contentLanguages.size() > 0)
@@ -1796,6 +1851,8 @@ void XmlWriter::appendMethodResponseHeader(
      }
      if (httpMethod == HTTP_METHOD_M_POST)
      {
+         char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
+
          out << STRLIT("Ext:\r\n" 
                        "Cache-Control: no-cache\r\n" 
                        "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=");
@@ -2508,7 +2565,8 @@ Buffer XmlWriter::formatSimpleMethodReqMessage(
     HttpMethod httpMethod,
     const String& authenticationHeader,
     const AcceptLanguageList& httpAcceptLanguages,
-    const ContentLanguageList& httpContentLanguages)
+    const ContentLanguageList& httpContentLanguages,
+    bool binaryResponse)
 {
     Buffer out;
     Buffer tmp;
@@ -2537,7 +2595,9 @@ Buffer XmlWriter::formatSimpleMethodReqMessage(
         httpMethod,
         httpAcceptLanguages,
         httpContentLanguages,
-        out.size());
+        out.size(),
+        false,
+        binaryResponse);
     tmp << out;
 
     return tmp;
@@ -2609,7 +2669,8 @@ Buffer XmlWriter::formatSimpleMethodErrorRspMessage(
         tmp,
         httpMethod,
         cimException.getContentLanguages(),
-        out.size());
+        out.size(),
+        false);
     tmp << out;
 
     return tmp;
@@ -2630,7 +2691,8 @@ Buffer XmlWriter::formatSimpleIMethodReqMessage(
     const String& authenticationHeader,
     const AcceptLanguageList& httpAcceptLanguages,
     const ContentLanguageList& httpContentLanguages,
-    const Buffer& body)
+    const Buffer& body,
+    bool binaryResponse)
 {
     Buffer out;
     Buffer tmp;
@@ -2653,7 +2715,9 @@ Buffer XmlWriter::formatSimpleIMethodReqMessage(
         httpMethod,
         httpAcceptLanguages,
         httpContentLanguages,
-        out.size());
+        out.size(), 
+        false,
+        binaryResponse);
     tmp << out;
 
     return tmp;
@@ -2741,7 +2805,7 @@ Buffer XmlWriter::formatSimpleIMethodErrorRspMessage(
     appendMethodResponseHeader(tmp,
         httpMethod,
         cimException.getContentLanguages(),
-        out.size());
+        out.size(), false);
     tmp << out;
 
     return tmp;

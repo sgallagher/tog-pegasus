@@ -138,6 +138,20 @@ public:
     String messageId;
     OperationContext operationContext;
 
+    // This flag indicates that the original request was a binary request.
+    // That is the HTTP "Content-Type" header had a value of
+    // "application/x-openpegasus". It does not necessarily follow that
+    // the response to this request must also be binary. Binary requests
+    // may have XML responses.
+    Boolean binaryRequest;
+
+    // This flag indications that the ultimate response to this message
+    // must be sent as binary response. This means the original request's
+    // "Accept" HTTP header had a value of "application/x-openpegasus".
+    // Note that a binary response can be sent to an XML request as long
+    // as the "Accept" header is "application/x-openpegasus".
+    Boolean binaryResponse;
+
 private:
 
     ThreadType _languageContextThreadId;
@@ -1432,21 +1446,25 @@ public:
         const QueueIdStack& queueIds_)
     : CIMResponseMessage(CIM_GET_INSTANCE_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_), 
-        resolveCallback(0)
+        resolveCallback(0),
+        binaryEncoding(false)
     {
     }
 
     Boolean (*resolveCallback)(
-        const Array<Sint8>& instanceData, 
-        const Array<Sint8>& referenceData, 
-        const String& hostData,
-        const CIMNamespaceName& nameSpaceData,
+        CIMGetInstanceResponseMessage* msg,
         CIMInstance& cimInstance);
 
+    Boolean binaryEncoding;
+
+    // For XML encoding:
     Array<Sint8> instanceData;
     Array<Sint8> referenceData;
     CIMNamespaceName nameSpaceData;
     String hostData;
+
+    // For Binary encoding:
+    Array<Uint8> binaryData;
 
     CIMInstance& getCimInstance() 
     {
@@ -1482,13 +1500,7 @@ private:
     {
         if (resolveCallback)
         {
-            (*resolveCallback)(
-                instanceData, 
-                referenceData, 
-                hostData,
-                nameSpaceData, 
-                _cimInstance);
-            resolveCallback = 0;
+            (*resolveCallback)(this, _cimInstance);
         }
     }
 
@@ -1643,21 +1655,26 @@ public:
         const QueueIdStack& queueIds_)
     : CIMResponseMessage(
         CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_), resolveCallback(0)
+        messageId_, cimException_, queueIds_), 
+        resolveCallback(0),
+        binaryEncoding(false)
     {
     }
 
     Boolean (*resolveCallback)(
-        const Array<ArraySint8>& instancesData,
-        const Array<ArraySint8>& referencesData,
-        const Array<String>& hostsData,
-        const Array<CIMNamespaceName>& nameSpacesData,
+        CIMEnumerateInstancesResponseMessage* msg,
         Array<CIMInstance>& instances);
 
+    Boolean binaryEncoding;
+
+    // For XML encoding.
     Array<ArraySint8> instancesData;
     Array<ArraySint8> referencesData;
     Array<String> hostsData;
     Array<CIMNamespaceName> nameSpacesData;
+
+    // For binary encoding.
+    Array<Uint8> binaryData;
 
     Array<CIMInstance>& getNamedInstances()
     {
@@ -1689,12 +1706,7 @@ private:
     {
         if (resolveCallback)
         {
-            (*resolveCallback)(
-                instancesData,
-                referencesData,
-                hostsData,
-                nameSpacesData,
-                _namedInstances);
+            (*resolveCallback)(this, _namedInstances);
             resolveCallback = 0;
         }
     }

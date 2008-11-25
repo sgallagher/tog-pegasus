@@ -5,6 +5,7 @@
 #include "CIMInstanceRep.h"
 #include "CIMClassRep.h"
 #include "CIMQualifierRep.h"
+#include "CIMQualifierDeclRep.h"
 #include "CIMParameterRep.h"
 #include "CIMMethodRep.h"
 #include "CIMPropertyList.h"
@@ -14,6 +15,10 @@
 #include "CIMPropertyListRep.h"
 #include "StringRep.h"
 #include "CIMValueRep.h"
+#include "StringRep.h"
+#include "StringInline.h"
+#include "Buffer.h"
+#include "BinaryCodec.h"
 
 #define INSTANCE_MAGIC 0xD6EF2219
 #define CLASS_MAGIC 0xA8D7DE41
@@ -24,21 +29,92 @@
 #define PRESENT_MAGIC 0xF55A7330
 #define ABSENT_MAGIC 0x77A0A639
 
+#define FLAG_IS_NULL             (1 << 0)
+#define FLAG_IS_ARRAY            (1 << 1)
+#define FLAG_IS_PROPAGATED       (1 << 2)
+#define FLAG_HAS_CLASS_ORIGIN    (1 << 3)
+#define FLAG_HAS_REFERENCE_CLASS (1 << 4)
+#define FLAG_HAS_QUALIFIERS      (1 << 5)
+
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-CIMBuffer::CIMBuffer(size_t size)
+static bool _validString(const Uint16* p, size_t n)
+{
+    const Uint16* start = p;
+
+    while (n >= 8 && ((p[0]|p[1]|p[2]|p[3]|p[4]|p[5]|p[6]|p[7]) & 0xFF80) == 0)
+    {
+        p += 8;
+        n -= 8;
+    }
+
+    while (n >= 4 && ((p[0]|p[1]|p[2]|p[3]) & 0xFF80) == 0)
+    {
+        p += 4;
+        n -= 4;
+    }
+
+    while (n)
+    {
+        Uint16 c = *p;
+
+        if (c >= 128)
+        {
+            if (c == 0xFFFE || c == 0xFFFF || (c >= 0xFDD0 && c <= 0xFDEF))
+                return false;
+
+            if (c >= 0xD800 && c <= 0xDBFF)
+            {
+                if (n == 1 || !(p[1] >= 0xDC00 && p[1] <= 0xDFFF))
+                    return false;
+            }
+
+            if (c >= 0xDC00 && c <= 0xDFFF)
+            {
+                if (p == start || !(p[-1] >= 0xD800  && p[-1] <= 0xDBFF))
+                    return false;
+            }
+        }
+
+        n--;
+        p++;
+    }
+
+    return true;
+}
+
+static inline bool _validName(const String& str)
+{
+    if (str.size() == 0)
+        return true;
+
+    return CIMName::legal(str);
+}
+
+static inline bool _validNamespaceName(const String& str)
+{
+    if (str.size() == 0)
+        return true;
+
+    return CIMNamespaceName::legal(str);
+}
+
+void CIMBuffer::_create(size_t size)
 {
     if (size < 1024)
         size = 1024;
 
 #if defined(PEGASUS_TEST_VALGRIND)
     // Valgrind complains that we leave uninitialized bytes in this buffer so
-    // we clear all newly allocated memory when testing with Valgrind.
     _data = (char*)calloc(1, size);
 #else
     _data = (char*)malloc(size);
+#endif
+
+#if defined(PEGASUS_DEBUG)
+    memset(_data, 0xAA, size);
 #endif
 
     if (!_data)
@@ -48,6 +124,15 @@ CIMBuffer::CIMBuffer(size_t size)
 
     _end = _data + size;
     _ptr = _data;
+}
+
+CIMBuffer::CIMBuffer(size_t size) : _swap(0), _validate(0)
+{
+    _create(size);
+}
+
+CIMBuffer::CIMBuffer() : _data(0), _end(0), _ptr(0), _swap(0), _validate(0)
+{
 }
 
 CIMBuffer::~CIMBuffer()
@@ -60,6 +145,9 @@ void CIMBuffer::_grow(size_t size)
     size_t n = _end - _data;
     size_t m = _ptr - _data;
     size_t cap = n * 2;
+
+    if (cap <= 4096)
+        cap = 4096;
 
     // Double the size of the buffer (n * 2). If size is greater than n, then
     // we will need yet more space so we increment cap by size.
@@ -76,11 +164,15 @@ void CIMBuffer::_grow(size_t size)
 
     _end = _data + cap;
     _ptr = _data + m;
-#if defined(PEGASUS_TEST_VALGRIND)
+
+#if defined(PEGASUS_DEBUG)
+    memset(_ptr, 0xAA, _end - _ptr);
+#elif defined(PEGASUS_TEST_VALGRIND)
     // Valgrind complains that we leave uninitialized bytes in this buffer so
     // we clear all newly allocated memory when testing with Valgrind.
     memset(_ptr, 0, _end - _ptr);
 #endif
+
 }
 
 bool CIMBuffer::getString(String& x)
@@ -95,42 +187,121 @@ bool CIMBuffer::getString(String& x)
     if (_end - _ptr < ptrdiff_t(r))
         return false;
 
-    if (n)
+    if (_swap)
     {
-        x.assign((Char16*)_ptr, n);
+        _swapUint16Data((Uint16*)_ptr, n);
     }
+
+    if (_validate)
+    {
+        if (!_validString((Uint16*)_ptr, n))
+            return false;
+    }
+
+    if (n)
+        x.assign((Char16*)_ptr, n);
 
     _ptr += r;
     return true;
 }
 
+bool CIMBuffer::getName(CIMName& x)
+{
+    String tmp;
+
+    if (_validate)
+    {
+        // Get string without validation since we will validate name below.
+
+        _validate = false;
+
+        if (!getString(tmp))
+            return false;
+
+        _validate = true;
+
+        if (!_validName(tmp))
+            return false;
+    }
+    else
+    {
+        if (!getString(tmp))
+            return false;
+    }
+
+    x = CIMNameCast(tmp);
+    return true;
+}
+
+bool CIMBuffer::getNamespaceName(CIMNamespaceName& x)
+{
+    String tmp;
+
+    if (_validate)
+    {
+        // Get string without validation since we will validate namespace below.
+
+        _validate = false;
+
+        if (!getString(tmp))
+            return false;
+
+        _validate = true;
+
+        if (!_validNamespaceName(tmp))
+            return false;
+    }
+    else
+    {
+        if (!getString(tmp))
+            return false;
+    }
+
+    x = CIMNamespaceNameCast(tmp);
+    return true;
+}
+
 void CIMBuffer::putValue(const CIMValue& x)
 {
-#if defined(PEGASUS_USE_EMBEDDED_VALUES)
-    CIMValueRep* rep = ((CIMValueRep*)&x);
-#else
     CIMValueRep* rep = *((CIMValueRep**)&x);
-#endif
 
-    _putMagic(VALUE_MAGIC);
-    putUint32(rep->type);
-    putBoolean(rep->isArray);
+    // Resolve null flag:
 
-    if (rep->type == CIMTYPE_INSTANCE && !rep->isArray)
+    bool isNull = rep->isNull;
+
+    if (!isNull && rep->type == CIMTYPE_INSTANCE && !rep->isArray)
     {
         const CIMInstance& ci = *((CIMInstance*)rep->u._instanceValue);
 
         if (ci.isUninitialized())
         {
-            putBoolean(rep->isNull);
-            return;
+            isNull = true;
         }
     }
 
-    putBoolean(rep->isNull);
+    // Magic:
+    _putMagic(VALUE_MAGIC);
 
-    if (rep->isNull)
+    // Put flags:
+    {
+        Uint32 flags = 0;
+
+        if (isNull)
+            flags |= FLAG_IS_NULL;
+
+        if (rep->isArray)
+            flags |= FLAG_IS_ARRAY;
+
+        putUint32(flags);
+    }
+
+    // Type:
+    putUint32(rep->type);
+
+    if (isNull)
         return;
+
+    // Put value:
 
     if (rep->isArray)
     {
@@ -183,10 +354,12 @@ void CIMBuffer::putValue(const CIMValue& x)
                     *(reinterpret_cast<Array<CIMObjectPath>*>(&rep->u)));
                 break;
             case CIMTYPE_INSTANCE:
-                putInstanceA(*(reinterpret_cast<Array<CIMInstance>*>(&rep->u)));
+                putInstanceA(*(reinterpret_cast<Array<CIMInstance>*>(&rep->u)), 
+                    false, false);
                 break;
             case CIMTYPE_OBJECT:
-                putObjectA(*(reinterpret_cast<Array<CIMObject>*>(&rep->u)));
+                putObjectA(*(reinterpret_cast<Array<CIMObject>*>(&rep->u)),
+                    false, false);
                 break;
             default:
                 PEGASUS_ASSERT(0);
@@ -243,10 +416,10 @@ void CIMBuffer::putValue(const CIMValue& x)
                 putObjectPath(*((CIMObjectPath*)rep->u._referenceValue));
                 break;
             case CIMTYPE_INSTANCE:
-                putInstance(*((CIMInstance*)rep->u._instanceValue));
+                putInstance(*((CIMInstance*)rep->u._instanceValue),false,false);
                 break;
             case CIMTYPE_OBJECT:
-                putObject(*((CIMObject*)rep->u._instanceValue));
+                putObject(*((CIMObject*)rep->u._instanceValue), false, false);
                 break;
             default:
                 PEGASUS_ASSERT(0);
@@ -258,13 +431,24 @@ void CIMBuffer::putValue(const CIMValue& x)
 bool CIMBuffer::getValue(CIMValue& x)
 {
     Uint32 type;
-    Boolean isArray;
     Boolean isNull;
+    Boolean isArray;
 
+    // Magic:
     if (!_testMagic(VALUE_MAGIC))
         return false;
 
-    if (!getUint32(type) || !getBoolean(isArray) || !getBoolean(isNull))
+    // Flags:
+    Uint32 flags;
+
+    if (!getUint32(flags))
+        return false;
+
+    isNull = flags & FLAG_IS_NULL;
+    isArray = flags & FLAG_IS_ARRAY;
+
+    // Type:
+    if (!getUint32(type))
         return false;
 
     if (isNull)
@@ -571,27 +755,30 @@ bool CIMBuffer::getValue(CIMValue& x)
 void CIMBuffer::putKeyBinding(const CIMKeyBinding& x)
 {
     const CIMKeyBindingRep* kb = *(const CIMKeyBindingRep**)&x;
-    putString(kb->_name.getString());
+    putName(kb->_name);
     putString(kb->_value);
     putUint32(kb->_type);
 }
 
 bool CIMBuffer::getKeyBinding(CIMKeyBinding& x)
 {
-    String name;
+    CIMName name;
     String value;
     Uint32 type;
 
-    if (!getString(name) || !getString(value) || !getUint32(type))
+    if (!getName(name) || !getString(value) || !getUint32(type))
         return false;
 
     x.~CIMKeyBinding();
-    new(&x) CIMKeyBinding(CIMNameCast(name), value, CIMKeyBinding::Type(type));
+    new(&x) CIMKeyBinding(name, value, CIMKeyBinding::Type(type));
 
     return true;
 }
 
-void CIMBuffer::putObjectPath(const CIMObjectPath& x)
+void CIMBuffer::putObjectPath(
+    const CIMObjectPath& x, 
+    bool includeHostAndNamespace,
+    bool includeKeyBindings)
 {
     const CIMObjectPathRep* rep = *((const CIMObjectPathRep**)&x);
 
@@ -605,22 +792,38 @@ void CIMBuffer::putObjectPath(const CIMObjectPath& x)
     else
         putBoolean(true);
 
-    putString(rep->_host);
-    putString(rep->_nameSpace.getString());
-    putString(rep->_className.getString());
-    putUint32(rep->_keyBindings.size());
 
-    for (Uint32 i = 0, n = rep->_keyBindings.size(); i < n; i++)
+    if (includeHostAndNamespace)
     {
-        putKeyBinding(rep->_keyBindings[i]);
+        putString(rep->_host);
+        putNamespaceName(rep->_nameSpace);
     }
+    else
+    {
+        putString(String());
+        putString(String());
+    }
+
+    putName(rep->_className);
+
+    if (includeKeyBindings)
+    {
+        putUint32(rep->_keyBindings.size());
+
+        for (Uint32 i = 0, n = rep->_keyBindings.size(); i < n; i++)
+        {
+            putKeyBinding(rep->_keyBindings[i]);
+        }
+    }
+    else
+        putUint32(0);
 }
 
 bool CIMBuffer::getObjectPath(CIMObjectPath& x)
 {
     String host;
-    String nameSpace;
-    String className;
+    CIMNamespaceName nameSpace;
+    CIMName className;
     Uint32 size;
     Array<CIMKeyBinding> kbs;
 
@@ -638,7 +841,7 @@ bool CIMBuffer::getObjectPath(CIMObjectPath& x)
         return true;
     }
 
-    if (!getString(host) || !getString(nameSpace) || !getString(className))
+    if (!getString(host) || !getNamespaceName(nameSpace) || !getName(className))
         return false;
 
     if (!getUint32(size))
@@ -657,7 +860,7 @@ bool CIMBuffer::getObjectPath(CIMObjectPath& x)
     x.set(
         host,
         *(reinterpret_cast<CIMNamespaceName*>(&nameSpace)),
-        CIMNameCast(className),
+        className,
         kbs);
 
     return true;
@@ -667,7 +870,7 @@ void CIMBuffer::putQualifier(const CIMQualifier& x)
 {
     const CIMQualifierRep* rep = *((const CIMQualifierRep**)&x);
 
-    putString(rep->_name.getString());
+    putName(rep->_name);
     putValue(rep->_value);
     putUint32(*((Uint32*)&rep->_flavor));
     putBoolean(rep->_propagated);
@@ -675,12 +878,12 @@ void CIMBuffer::putQualifier(const CIMQualifier& x)
 
 bool CIMBuffer::getQualifier(CIMQualifier& x)
 {
-    String name;
+    CIMName name;
     CIMValue value;
     Uint32 flavor;
     Boolean propagated;
 
-    if (!getString(name))
+    if (!getName(name))
         return false;
 
     if (!getValue(value))
@@ -695,7 +898,7 @@ bool CIMBuffer::getQualifier(CIMQualifier& x)
     x.~CIMQualifier();
 
     new(&x) CIMQualifier(
-        CIMNameCast(name),
+        name,
         value,
         *(reinterpret_cast<CIMFlavor*>(&flavor)),
         propagated);
@@ -732,49 +935,146 @@ bool CIMBuffer::getQualifierList(CIMQualifierList& x)
     return true;
 }
 
+void CIMBuffer::putQualifierDecl(const CIMQualifierDecl& x)
+{
+    const CIMQualifierDeclRep* rep = *((const CIMQualifierDeclRep**)&x);
+
+    putName(rep->_name);
+    putValue(rep->_value);
+    putUint32(*((Uint32*)&rep->_scope));
+    putUint32(*((Uint32*)&rep->_flavor));
+    putUint32(rep->_arraySize);
+}
+
+bool CIMBuffer::getQualifierDecl(CIMQualifierDecl& x)
+{
+    CIMName name;
+    CIMValue value;
+    Uint32 scope;
+    Uint32 flavor;
+    Uint32 arraySize;
+
+    if (!getName(name))
+        return false;
+
+    if (!getValue(value))
+        return false;
+
+    if (!getUint32(scope))
+        return false;
+
+    if (!getUint32(flavor))
+        return false;
+
+    if (!getUint32(arraySize))
+        return false;
+
+    x.~CIMQualifierDecl();
+
+    new(&x) CIMQualifierDecl(
+        name,
+        value,
+        *(reinterpret_cast<CIMScope*>(&scope)),
+        *(reinterpret_cast<CIMFlavor*>(&flavor)),
+        arraySize);
+
+    return true;
+}
+
 void CIMBuffer::putProperty(const CIMProperty& x)
 {
     const CIMPropertyRep* rep = *((const CIMPropertyRep**)&x);
-
     // PROPERTY_MAGIC
     _putMagic(PROPERTY_MAGIC);
 
+    // Flags
+    Uint32 flags = 0;
+    {
+        // CIMProperty.arraySize
+        if (rep->_arraySize)
+        {
+            flags |= FLAG_IS_ARRAY;
+        }
+
+        // CIMProperty.referenceClassName
+        if (rep->_referenceClassName.getString().size())
+        {
+            flags |= FLAG_HAS_REFERENCE_CLASS;
+        }
+
+        // CIMProperty.classOrigin
+        if (rep->_classOrigin.getString().size())
+        {
+            flags |= FLAG_HAS_CLASS_ORIGIN;
+        }
+
+        // CIMProperty.propagated
+        if (rep->_propagated)
+        {
+            flags |= FLAG_IS_PROPAGATED;
+        }
+
+        // CIMProperty.qualifiers
+        if (rep->_qualifiers.getCount())
+        {
+            flags |= FLAG_HAS_QUALIFIERS;
+        }
+
+        putUint32(flags);
+    }
+
     // CIMProperty.name
-    putString(rep->_name.getString());
+    putName(rep->_name);
 
     // CIMProperty.value
     putValue(rep->_value);
 
     // CIMProperty.arraySize
-    putUint32(rep->_arraySize);
+    if (flags & FLAG_IS_ARRAY)
+    {
+        putUint32(rep->_arraySize);
+    }
 
     // CIMProperty.referenceClassName
-    putString(rep->_referenceClassName.getString());
+    if (flags & FLAG_HAS_REFERENCE_CLASS)
+    {
+        putName(rep->_referenceClassName);
+    }
 
     // CIMProperty.classOrigin
-    putString(rep->_classOrigin.getString());
-
-    // CIMProperty.propagated
-    putBoolean(rep->_propagated);
+    if (flags & FLAG_HAS_CLASS_ORIGIN)
+    {
+        putName(rep->_classOrigin);
+    }
 
     // CIMProperty.qualifiers
-    putQualifierList(rep->_qualifiers);
+    if (flags & FLAG_HAS_QUALIFIERS)
+    {
+        putQualifierList(rep->_qualifiers);
+        flags |= FLAG_HAS_QUALIFIERS;
+    }
 }
 
 bool CIMBuffer::getProperty(CIMProperty& x)
 {
-    String name;
+    CIMName name;
     CIMValue value;
     Uint32 arraySize;
-    String referenceClassName;
-    String classOrigin;
+    CIMName referenceClassName;
+    CIMName classOrigin;
     Boolean propagated;
 
     if (!_testMagic(PROPERTY_MAGIC))
         return false;
 
+    // Flags:
+    Uint32 flags;
+
+    if (!getUint32(flags))
+        return false;
+
     // CIMProperty.name
-    if (!getString(name))
+    if (!getName(name))
         return false;
 
     // CIMProperty.value
@@ -782,41 +1082,63 @@ bool CIMBuffer::getProperty(CIMProperty& x)
         return false;
 
     // CIMProperty.arraySize
-    if (!getUint32(arraySize))
-        return false;
+
+    if (flags & FLAG_IS_ARRAY)
+    {
+        if (!getUint32(arraySize))
+            return false;
+    }
+    else
+        arraySize = 0;
 
     // CIMProperty.referenceClassName
-    if (!getString(referenceClassName))
-        return false;
+
+    if (flags & FLAG_HAS_REFERENCE_CLASS)
+    {
+        if (!getName(referenceClassName))
+            return false;
+    }
 
     // CIMProperty.classOrigin
-    if (!getString(classOrigin))
-        return false;
+
+    if (flags & FLAG_HAS_CLASS_ORIGIN)
+    {
+        if (!getName(classOrigin))
+            return false;
+    }
 
     // CIMProperty.propagated
-    if (!getBoolean(propagated))
-        return false;
+    propagated = flags & FLAG_IS_PROPAGATED;
+
+    // Create property:
 
     x.~CIMProperty();
 
     new(&x) CIMProperty(
-        CIMNameCast(name),
+        name,
         value,
         arraySize,
-        CIMNameCast(referenceClassName),
-        CIMNameCast(classOrigin),
+        referenceClassName,
+        classOrigin,
         propagated);
 
     CIMPropertyRep* rep = *((CIMPropertyRep**)&x);
 
     // CIMProperty.qualifiers
-    if (!getQualifierList(rep->_qualifiers))
-        return false;
+
+    if (flags & FLAG_HAS_QUALIFIERS)
+    {
+        if (!getQualifierList(rep->_qualifiers))
+            return false;
+    }
 
     return true;
 }
 
-void CIMBuffer::putInstance(const CIMInstance& x)
+void CIMBuffer::putInstance(
+    const CIMInstance& x, 
+    bool includeHostAndNamespace,
+    bool includeKeyBindings)
 {
     const CIMInstanceRep* rep = *((const CIMInstanceRep**)&x);
 
@@ -834,7 +1156,7 @@ void CIMBuffer::putInstance(const CIMInstance& x)
         putBoolean(true);
 
     // CIMInstance.reference:
-    putObjectPath(rep->_reference);
+    putObjectPath(rep->_reference, includeHostAndNamespace, includeKeyBindings);
 
     // CIMInstance.qualifiers:
     putQualifierList(rep->_qualifiers);
@@ -937,7 +1259,7 @@ void CIMBuffer::putClass(const CIMClass& x)
     putObjectPath(rep->_reference);
 
     // CIMClass.superClassName:
-    putString(rep->_superClassName.getString());
+    putName(rep->_superClassName);
 
     // CIMClass.qualifiers:
     putQualifierList(rep->_qualifiers);
@@ -964,8 +1286,7 @@ void CIMBuffer::putClass(const CIMClass& x)
 bool CIMBuffer::getClass(CIMClass& x)
 {
     CIMClassRep* rep;
-    String className;
-    String superClassName;
+    CIMName superClassName;
 
     // CLASS_MAGIC:
 
@@ -994,11 +1315,11 @@ bool CIMBuffer::getClass(CIMClass& x)
 
     // CIMIntsance.superClassName:
 
-    if (!getString(superClassName))
+    if (!getName(superClassName))
         return false;
 
     rep = new CIMClassRep(reference.getClassName(), 
-        CIMNameCast(superClassName));
+        superClassName);
 
     rep->_reference = reference;
 
@@ -1059,7 +1380,7 @@ void CIMBuffer::putParameter(const CIMParameter& x)
     const CIMParameterRep* rep = *((const CIMParameterRep**)&x);
 
     // CIMParameter.name
-    putString(rep->_name.getString());
+    putName(rep->_name);
 
     // CIMParameter.type
     putUint32(rep->_type);
@@ -1071,7 +1392,7 @@ void CIMBuffer::putParameter(const CIMParameter& x)
     putUint32(rep->_arraySize);
 
     // CIMParameter.referenceClassName
-    putString(rep->_referenceClassName.getString());
+    putName(rep->_referenceClassName);
 
     // CIMParameter.qualifiers
     putQualifierList(rep->_qualifiers);
@@ -1079,14 +1400,14 @@ void CIMBuffer::putParameter(const CIMParameter& x)
 
 bool CIMBuffer::getParameter(CIMParameter& x)
 {
-    String name;
+    CIMName name;
     Uint32 type;
     Boolean isArray;
     Uint32 arraySize;
-    String referenceClassName;
+    CIMName referenceClassName;
 
     // CIMParameter.name
-    if (!getString(name))
+    if (!getName(name))
         return false;
 
     // CIMParameter.type
@@ -1102,17 +1423,17 @@ bool CIMBuffer::getParameter(CIMParameter& x)
         return false;
 
     // CIMParameter.referenceClassName
-    if (!getString(referenceClassName))
+    if (!getName(referenceClassName))
         return false;
 
     x.~CIMParameter();
 
     new(&x) CIMParameter(
-        CIMNameCast(name),
+        name,
         CIMType(type),
         isArray,
         arraySize,
-        CIMNameCast(referenceClassName));
+        referenceClassName);
 
     CIMParameterRep* rep = *((CIMParameterRep**)&x);
 
@@ -1128,13 +1449,13 @@ void CIMBuffer::putMethod(const CIMMethod& x)
     const CIMMethodRep* rep = *((const CIMMethodRep**)&x);
 
     // CIMParameter.name
-    putString(rep->_name.getString());
+    putName(rep->_name);
 
     // CIMParameter.type
     putUint32(rep->_type);
 
     // CIMProperty.classOrigin
-    putString(rep->_classOrigin.getString());
+    putName(rep->_classOrigin);
 
     // CIMProperty.propagated
     putBoolean(rep->_propagated);
@@ -1155,14 +1476,13 @@ void CIMBuffer::putMethod(const CIMMethod& x)
 bool CIMBuffer::getMethod(CIMMethod& x)
 {
     CIMMethodRep* rep;
-
-    String name;
+    CIMName name;
     Uint32 type;
-    String classOrigin;
+    CIMName classOrigin;
     Boolean propagated;
 
     // CIMMethod.name
-    if (!getString(name))
+    if (!getName(name))
         return false;
 
     // CIMMethod.type
@@ -1170,14 +1490,15 @@ bool CIMBuffer::getMethod(CIMMethod& x)
         return false;
 
     // CIMParameter.classOrigin
-    if (!getString(classOrigin))
+    if (!getName(classOrigin))
         return false;
 
     // CIMParameter.propagated
     if (!getBoolean(propagated))
         return false;
 
-    rep = new CIMMethodRep(name, CIMType(type), classOrigin, propagated);
+    rep = new CIMMethodRep(
+        name, CIMType(type), classOrigin, propagated);
 
     // CIMMethod.qualifiers:
     if (!getQualifierList(rep->_qualifiers))
@@ -1225,7 +1546,7 @@ void CIMBuffer::putPropertyList(const CIMPropertyList& x)
         putUint32(n);
 
         for (Uint32 i = 0; i < n; i++)
-            putString(rep->propertyNames[i].getString());
+            putName(rep->propertyNames[i]);
     }
 }
 
@@ -1252,12 +1573,12 @@ bool CIMBuffer::getPropertyList(CIMPropertyList& x)
 
         for (Uint32 i = 0; i < n; i++)
         {
-            String name;
+            CIMName name;
 
-            if (!getString(name))
+            if (!getName(name))
                 return false;
 
-            names.append(CIMNameCast(name));
+            names.append(name);
         }
 
         x.~CIMPropertyList();
@@ -1267,7 +1588,10 @@ bool CIMBuffer::getPropertyList(CIMPropertyList& x)
     return true;
 }
 
-void CIMBuffer::putObject(const CIMObject& x)
+void CIMBuffer::putObject(
+    const CIMObject& x,
+    bool includeHostAndNamespace,
+    bool includeKeyBindings)
 {
     _putMagic(OBJECT_MAGIC);
 
@@ -1282,7 +1606,8 @@ void CIMBuffer::putObject(const CIMObject& x)
     if (x.isInstance())
     {
         putUint8('I');
-        putInstance(CIMInstance(x));
+        putInstance(
+            CIMInstance(x), includeHostAndNamespace, includeKeyBindings);
     }
     else
     {
@@ -1403,6 +1728,18 @@ bool CIMBuffer::getPresent(Boolean& flag)
     }
 
     return false;
+}
+
+void CIMBuffer::putInstanceA(
+    const Array<CIMInstance>& x, 
+    bool includeHostAndNamespace,
+    bool includeKeyBindings)
+{
+    Uint32 n = x.size();
+    putUint32(n);
+
+    for (size_t i = 0; i < n; i++)
+        putInstance(x[i], includeHostAndNamespace, includeKeyBindings);
 }
 
 PEGASUS_NAMESPACE_END

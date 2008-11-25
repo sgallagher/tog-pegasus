@@ -751,7 +751,8 @@ Uint32 test26()
         "Basic: Authorization AAAAA",
         al,
         cl,
-        params);
+        params,
+        false);
 
     SharedArrayPtr<char> reqMsg(Tracer::getHTTPRequestMessage(
             buffer));
@@ -806,7 +807,8 @@ Uint32 test27()
         authHeader,
         al,
         cl,
-        params);
+        params,
+        false);
 
     PEG_TRACE((
         TRC_XML_IO,

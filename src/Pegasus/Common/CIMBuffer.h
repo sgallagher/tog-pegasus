@@ -5,7 +5,9 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMQualifierList.h>
+#include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/CIMParamValue.h>
+#include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/CIMNameCast.h>
 
 #define PEGASUS_USE_MAGIC
@@ -21,10 +23,20 @@ PEGASUS_NAMESPACE_BEGIN
     protocols since it sacrifices size for performance; Whereas the Packer
     class is more suitable for disk storage since it favors size over 
     performance.
+
+    CIMBuffer handles network byte ordering. It uses a "reader makes right"
+    policy whereby the writing process sends data in his own endianess,
+    which he comminicates to the reading process (using a mechanism defined
+    outside of this class). The reader checks to see if that endianess is
+    the same as his own. If so, the data is used as is. Otherwise, the
+    reader calls CIMBuffer::setSwap(true) to cause subsequent get calls to 
+    swap data ordering.
 */
 class PEGASUS_COMMON_LINKAGE CIMBuffer
 {
 public:
+
+    CIMBuffer();
 
     CIMBuffer(size_t size);
 
@@ -33,9 +45,26 @@ public:
         _data = data;
         _ptr = _data;
         _end = data + size;
+        _swap = 0;
+        _validate = 0;
     }
 
     ~CIMBuffer();
+
+    void setSwap(bool x)
+    {
+        _swap = x ? 1 : 0;
+    }
+
+    void setValidate(bool x)
+    {
+        _validate = x ? 1 : 0;
+    }
+
+    bool more() const
+    {
+        return _ptr != _end;
+    }
 
     void rewind()
     {
@@ -57,6 +86,20 @@ public:
         return _data;
     }
 
+    const char* getPtr() const 
+    {
+        return _ptr;
+    }
+
+    char* release()
+    {
+        char* data = _data;
+        _data = 0;
+        _ptr = 0;
+        _end = 0;
+        return data;
+    }
+
     static size_t round(size_t size)
     {
         /* Round up to nearest multiple of 8 */
@@ -68,7 +111,7 @@ public:
         if (_end - _ptr < 8)
             _grow(sizeof(x));
 
-        *((Boolean*)_ptr) = x;
+        *((Uint8*)_ptr) = x ? 1 : 0;
         _ptr += 8;
     }
 
@@ -199,7 +242,16 @@ public:
     {
         Uint32 n = x.size();
         putUint32(n);
-        putBytes(x.getData(), n * sizeof(Boolean));
+
+        size_t r = round(n);
+
+        if (_end - _ptr < ptrdiff_t(r))
+            _grow(r);
+
+        for (Uint32 i = 0; i < n; i++)
+            _ptr[i] = x[i] ? 1 : 0;
+
+        _ptr += r;
     }
 
     void putUint8A(const Array<Uint8>& x)
@@ -297,12 +349,24 @@ public:
             putDateTime(x[i]);
     }
 
+    bool getBytes(void* data, size_t size)
+    {
+        size_t r = round(size);
+
+        if (_end - _ptr < ptrdiff_t(r))
+            return false;
+
+        memcpy(data, _ptr, size);
+        _ptr += r;
+        return true;
+    }
+
     bool getBoolean(Boolean& x)
     {
         if (_end - _ptr < 8)
             return false;
 
-        x = *((Boolean*)_ptr);
+        x = *((Uint8*)_ptr);
         _ptr += 8;
         return true;
     }
@@ -333,6 +397,10 @@ public:
             return false;
 
         x = *((Uint16*)_ptr);
+
+        if (_swap)
+            x = _swapUint16(x);    
+
         _ptr += 8;
         return true;
     }
@@ -343,6 +411,10 @@ public:
             return false;
 
         x = *((Sint16*)_ptr);
+
+        if (_swap)
+            x = _swapSint16(x);    
+
         _ptr += 8;
         return true;
     }
@@ -353,6 +425,10 @@ public:
             return false;
 
         x = *((Uint32*)_ptr);
+
+        if (_swap)
+            x = _swapUint32(x);    
+
         _ptr += 8;
         return true;
     }
@@ -363,6 +439,10 @@ public:
             return false;
 
         x = *((Sint32*)_ptr);
+
+        if (_swap)
+            x = _swapSint32(x);    
+
         _ptr += 8;
         return true;
     }
@@ -373,6 +453,10 @@ public:
             return false;
 
         x = *((Uint64*)_ptr);
+
+        if (_swap)
+            x = _swapUint64(x);    
+
         _ptr += 8;
         return true;
     }
@@ -383,6 +467,10 @@ public:
             return false;
 
         x = *((Sint64*)_ptr);
+
+        if (_swap)
+            x = _swapSint64(x);    
+
         _ptr += 8;
         return true;
     }
@@ -393,6 +481,10 @@ public:
             return false;
 
         x = *((Real32*)_ptr);
+
+        if (_swap)
+            x = _swapReal32(x);    
+
         _ptr += 8;
         return true;
     }
@@ -403,6 +495,10 @@ public:
             return false;
 
         x = *((Real64*)_ptr);
+
+        if (_swap)
+            x = _swapReal64(x);    
+
         _ptr += 8;
         return true;
     }
@@ -413,6 +509,10 @@ public:
             return false;
 
         x = *((Char16*)_ptr);
+
+        if (_swap)
+            x = _swapChar16(x);
+
         _ptr += 8;
         return true;
     }
@@ -442,12 +542,16 @@ public:
         if (!getUint32(n))
             return false;
 
-        size_t r = round(n * sizeof(Boolean));
+        size_t r = round(n);
 
         if (_end - _ptr < ptrdiff_t(r))
             return false;
 
-        x.append((const Boolean*)_ptr, n);
+        for (Uint32 i = 0; i < n; i++)
+        {
+            x.append(_ptr[i]);
+        }
+
         _ptr += r;
         return true;
     }
@@ -499,6 +603,10 @@ public:
             return false;
 
         x.append((const Uint16*)_ptr, n);
+
+        if (_swap)
+            _swapUint16Data((Uint16*)x.getData(), x.size());
+
         _ptr += r;
         return true;
     }
@@ -516,6 +624,10 @@ public:
             return false;
 
         x.append((const Sint16*)_ptr, n);
+
+        if (_swap)
+            _swapSint16Data((Sint16*)x.getData(), x.size());
+
         _ptr += r;
         return true;
     }
@@ -533,6 +645,10 @@ public:
             return false;
 
         x.append((const Uint32*)_ptr, n);
+
+        if (_swap)
+            _swapUint32Data((Uint32*)x.getData(), x.size());
+
         _ptr += r;
         return true;
     }
@@ -550,6 +666,10 @@ public:
             return false;
 
         x.append((const Sint32*)_ptr, n);
+
+        if (_swap)
+            _swapSint32Data((Sint32*)x.getData(), x.size());
+
         _ptr += r;
         return true;
     }
@@ -567,6 +687,10 @@ public:
             return false;
 
         x.append((const Uint64*)_ptr, n);
+
+        if (_swap)
+            _swapUint64Data((Uint64*)x.getData(), x.size());
+
         _ptr += r;
         return true;
     }
@@ -584,6 +708,10 @@ public:
             return false;
 
         x.append((const Sint64*)_ptr, n);
+
+        if (_swap)
+            _swapSint64Data((Sint64*)x.getData(), x.size());
+
         _ptr += r;
         return true;
     }
@@ -601,6 +729,10 @@ public:
             return false;
 
         x.append((const Real32*)_ptr, n);
+
+        if (_swap)
+            _swapReal32Data((Real32*)x.getData(), x.size());
+
         _ptr += r;
         return true;
     }
@@ -618,6 +750,10 @@ public:
             return false;
 
         x.append((const Real64*)_ptr, n);
+
+        if (_swap)
+            _swapReal64Data((Real64*)x.getData(), x.size());
+
         _ptr += r;
         return true;
     }
@@ -635,6 +771,10 @@ public:
             return false;
 
         x.append((const Char16*)_ptr, n);
+
+        if (_swap)
+            _swapChar16Data((Char16*)x.getData(), x.size());
+
         _ptr += r;
         return true;
     }
@@ -687,7 +827,13 @@ public:
 
     bool getKeyBinding(CIMKeyBinding& x);
 
-    void putObjectPath(const CIMObjectPath& x);
+    // To omit the host and namespace elements of the object path, set
+    // includeHostAndNamespace to false. This is required for compatibility with
+    // XML transmission of instances, which excludes these elements.
+    void putObjectPath(
+        const CIMObjectPath& x, 
+        bool includeHostAndNamespace = true,
+        bool includeKeyBindings = true);
 
     bool getObjectPath(CIMObjectPath& x);
 
@@ -699,11 +845,18 @@ public:
 
     bool getQualifierList(CIMQualifierList& x);
 
+    void putQualifierDecl(const CIMQualifierDecl& x);
+
+    bool getQualifierDecl(CIMQualifierDecl& x);
+
     void putProperty(const CIMProperty& x);
 
     bool getProperty(CIMProperty& x);
 
-    void putInstance(const CIMInstance& x);
+    void putInstance(
+        const CIMInstance& x, 
+        bool includeHostAndNamespace = true,
+        bool includeKeyBindings = true);
 
     bool getInstance(CIMInstance& x);
 
@@ -723,7 +876,9 @@ public:
 
     bool getPropertyList(CIMPropertyList& x);
 
-    void putObject(const CIMObject& x);
+    void putObject(const CIMObject& x,
+        bool includeHostAndNamespace = true,
+        bool includeKeyBindings = true);
 
     bool getObject(CIMObject& x);
 
@@ -741,27 +896,9 @@ public:
         putString(x.getString());
     }
 
-    bool getName(CIMName& x)
-    {
-        String tmp;
+    bool getName(CIMName& x);
 
-        if (!getString(tmp))
-            return false;
-
-        x = CIMNameCast(tmp);
-        return true;
-    }
-
-    bool getNamespaceName(CIMNamespaceName& x)
-    {
-        String tmp;
-
-        if (!getString(tmp))
-            return false;
-
-        x = CIMNamespaceNameCast(tmp);
-        return true;
-    }
+    bool getNamespaceName(CIMNamespaceName& x);
 
     void putNameA(const Array<CIMName>& x)
     {
@@ -792,13 +929,15 @@ public:
         return true;
     }
 
-    void putObjectPathA(const Array<CIMObjectPath>& x)
+    void putObjectPathA(
+        const Array<CIMObjectPath>& x, 
+        bool includeHostAndNamespace = true)
     {
         Uint32 n = x.size();
         putUint32(n);
 
         for (size_t i = 0; i < n; i++)
-            putObjectPath(x[i]);
+            putObjectPath(x[i], includeHostAndNamespace);
     }
 
     bool getObjectPathA(Array<CIMObjectPath>& x)
@@ -821,14 +960,10 @@ public:
         return true;
     }
 
-    void putInstanceA(const Array<CIMInstance>& x)
-    {
-        Uint32 n = x.size();
-        putUint32(n);
-
-        for (size_t i = 0; i < n; i++)
-            putInstance(x[i]);
-    }
+    void putInstanceA(
+        const Array<CIMInstance>& x, 
+        bool includeHostAndNamespace = true,
+        bool includeKeyBindings = true);
 
     bool getInstanceA(Array<CIMInstance>& x)
     {
@@ -850,13 +985,45 @@ public:
         return true;
     }
 
-    void putObjectA(const Array<CIMObject>& x)
+    void putClassA(const Array<CIMClass>& x)
     {
         Uint32 n = x.size();
         putUint32(n);
 
         for (size_t i = 0; i < n; i++)
-            putObject(x[i]);
+            putClass(x[i]);
+    }
+
+    bool getClassA(Array<CIMClass>& x)
+    {
+        Uint32 n;
+
+        if (!getUint32(n))
+            return false;
+
+        for (Uint32 i = 0; i < n; i++)
+        {
+            CIMClass tmp;
+
+            if (!getClass(tmp))
+                return false;
+
+            x.append(tmp);
+        }
+
+        return true;
+    }
+
+    void putObjectA(
+        const Array<CIMObject>& x,
+        bool includeHostAndNamespace = true,
+        bool includeKeyBindings = true)
+    {
+        Uint32 n = x.size();
+        putUint32(n);
+
+        for (size_t i = 0; i < n; i++)
+            putObject(x[i], includeHostAndNamespace, includeKeyBindings);
     }
 
     bool getObjectA(Array<CIMObject>& x)
@@ -908,11 +1075,42 @@ public:
         return true;
     }
 
+    void putQualifierDeclA(const Array<CIMQualifierDecl>& x)
+    {
+        Uint32 n = x.size();
+        putUint32(n);
+
+        for (size_t i = 0; i < n; i++)
+            putQualifierDecl(x[i]);
+    }
+
+    bool getQualifierDeclA(Array<CIMQualifierDecl>& x)
+    {
+        Uint32 n;
+
+        if (!getUint32(n))
+            return false;
+
+        for (Uint32 i = 0; i < n; i++)
+        {
+            CIMQualifierDecl tmp;
+
+            if (!getQualifierDecl(tmp))
+                return false;
+
+            x.append(tmp);
+        }
+
+        return true;
+    }
+
     void putPresent(Boolean flag);
 
     bool getPresent(Boolean& flag);
 
 private:
+
+    void _create(size_t);
 
     void _grow(size_t size);
 
@@ -937,9 +1135,138 @@ private:
 #endif
     }
 
+    Uint16 _swapUint16(Uint16 x)
+    {
+        return (Uint16)(
+            (((Uint16)(x) & 0x00ffU) << 8) |
+            (((Uint16)(x) & 0xff00U) >> 8));
+    }
+
+    Sint16 _swapSint16(Sint16 x)
+    {
+        return Sint16(_swapUint16(Uint16(x)));
+    }
+
+    Char16 _swapChar16(Char16 x)
+    {
+        return Char16(_swapUint16(Uint16(x)));
+    }
+
+    Uint32 _swapUint32(Uint32 x)
+    {
+        return (Uint32)(
+            (((Uint32)(x) & 0x000000ffUL) << 24) |
+            (((Uint32)(x) & 0x0000ff00UL) <<  8) |
+            (((Uint32)(x) & 0x00ff0000UL) >>  8) |
+            (((Uint32)(x) & 0xff000000UL) >> 24));
+    }
+
+    Sint32 _swapSint32(Sint32 x)
+    {
+        return Sint32(_swapUint32(Uint32(x)));
+    }
+
+    void _swapBytes(Uint8& x, Uint8& y)
+    {
+        Uint8 t = x;
+        x = y;
+        y = t;
+    }
+
+    Uint64 _swapUint64(Uint64 x)
+    {
+        union
+        {
+            Uint64 x;
+            Uint8 bytes[8];
+        }
+        u;
+
+        u.x = x;
+        _swapBytes(u.bytes[0], u.bytes[7]);
+        _swapBytes(u.bytes[1], u.bytes[6]);
+        _swapBytes(u.bytes[2], u.bytes[5]);
+        _swapBytes(u.bytes[3], u.bytes[4]);
+        return u.x;
+    }
+
+    Sint64 _swapSint64(Sint64 x)
+    {
+        return Sint64(_swapUint64(Uint64(x)));
+    }
+
+    Real32 _swapReal32(Real32 x)
+    {
+        return _swapUint32(*((Uint32*)(void*)&x));
+    }
+
+    Real64 _swapReal64(Real64 x)
+    {
+        return _swapUint64(*((Uint64*)(void*)&x));
+    }
+
+    void _swapUint16Data(Uint16* p, Uint32 n)
+    {
+        for (; n--; p++)
+            *p = _swapUint16(*p);
+    }
+
+    void _swapSint16Data(Sint16* p, Uint32 n)
+    {
+        for (; n--; p++)
+            *p = _swapSint16(*p);
+    }
+
+    void _swapUint32Data(Uint32* p, Uint32 n)
+    {
+        for (; n--; p++)
+            *p = _swapUint32(*p);
+    }
+
+    void _swapSint32Data(Sint32* p, Uint32 n)
+    {
+        for (; n--; p++)
+            *p = _swapSint32(*p);
+    }
+
+    void _swapUint64Data(Uint64* p, Uint32 n)
+    {
+        for (; n--; p++)
+            *p = _swapUint64(*p);
+    }
+
+    void _swapSint64Data(Sint64* p, Uint32 n)
+    {
+        for (; n--; p++)
+            *p = _swapSint64(*p);
+    }
+
+    void _swapReal32Data(Real32* p, Uint32 n)
+    {
+        for (; n--; p++)
+            *p = _swapReal32(*p);
+    }
+
+    void _swapReal64Data(Real64* p, Uint32 n)
+    {
+        for (; n--; p++)
+            *p = _swapReal64(*p);
+    }
+
+    void _swapChar16Data(Char16* p, Uint32 n)
+    {
+        for (; n--; p++)
+            *p = _swapChar16(*p);
+    }
+
     char* _data;
     char* _end;
     char* _ptr;
+    // If non-zero, the endianess of reads is swapped (big-endian is changed
+    // to little-endian and visa versa).
+
+    int _swap;
+    int _validate;
 };
 
 PEGASUS_NAMESPACE_END

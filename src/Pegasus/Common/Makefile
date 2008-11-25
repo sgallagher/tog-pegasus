@@ -63,6 +63,7 @@ endif
 ##
 
 SOURCES1 = \
+    Print.cpp \
     Executor.cpp \
     CIMError.cpp \
     PropertyAccessor.cpp \
@@ -193,7 +194,8 @@ SOURCES2 = \
     CommonUTF.cpp \
     Constants.cpp \
     HostAddress.cpp \
-    HostLocator.cpp
+    HostLocator.cpp \
+    BinaryCodec.cpp
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
     SOURCES2 += PaseCcsid.cpp
@@ -211,7 +213,7 @@ ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
     SOURCES2 += LoadAndClearWord_HPUX_PARISC_ACC.s
 endif
 
-ifeq ($(PEGASUS_ENABLE_INTERNAL_BINARY_PROTOCOL),true)
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY),true)
     SOURCES2 += CIMBuffer.cpp
     SOURCES2 += CIMBinMsgSerializer.cpp
     SOURCES2 += CIMBinMsgDeserializer.cpp

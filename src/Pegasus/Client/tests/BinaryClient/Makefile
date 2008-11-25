@@ -28,25 +28,20 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../../../../
-
+ROOT = $(PEGASUS_ROOT)
+DIR = Pegasus/Client/tests/BinaryClient
 include $(ROOT)/mak/config.mak
+include ../libraries.mak
 
-DIRS =	AssociationClient \
-	Client \
-	IdleConnectionTimeout \
-	InvokeMethod2 \
-	EnumInstances \
-	DeleteNamespace \
-	ClientStatistics \
-	TestStaticClient \
-        BinaryClient
+EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-DIRS_SLP = \
-    slp
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-ifeq ($(PEGASUS_ENABLE_SLP),true)
-  DIRS += $(DIRS_SLP)
-endif
+PROGRAM = TestBinaryClient
+SOURCES = BinaryClient.cpp
 
-include $(ROOT)/mak/recurse.mak
+include $(ROOT)/mak/program.mak
+
+tests:
+
+poststarttests:	

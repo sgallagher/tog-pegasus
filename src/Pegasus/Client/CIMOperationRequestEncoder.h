@@ -60,7 +60,9 @@ public:
         MessageQueue* outputQueue,
         const String& hostName,
         ClientAuthenticator* authenticator,
-        Uint32 showOutput);
+        Uint32 showOutput,
+        bool binaryRequest = false,
+        bool binaryResponse = false);
 
     /** Destructor. */
     ~CIMOperationRequestEncoder();
@@ -157,6 +159,8 @@ private:
     // Controls client trace output. 1 = con, 2 == log
     Uint32 _showOutput;
     ClientPerfDataStore* dataStore_prt;
+    bool _binaryRequest;
+    bool _binaryResponse;
 };
 
 PEGASUS_NAMESPACE_END

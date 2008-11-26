@@ -77,7 +77,7 @@ public:
 
     QueryIdentifier getLastIdentifier() const;
 
-    void applyContext(QueryContext& inContext);
+    void applyContext(const QueryContext& inContext);
 
   protected:
 

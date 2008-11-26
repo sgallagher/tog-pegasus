@@ -133,7 +133,7 @@ Boolean QueryChainedIdentifierRep::prepend(const QueryIdentifier & id)
     return false;
 }
 
-void QueryChainedIdentifierRep::applyContext(QueryContext& inContext)
+void QueryChainedIdentifierRep::applyContext(const QueryContext& inContext)
 {
     if (_subIdentifiers.size() == 0)
         return;

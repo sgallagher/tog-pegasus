@@ -319,7 +319,7 @@ void CQLSimplePredicateRep::applyContext(const QueryContext& queryContext)
                     getFactors()[0].
                     getValue().getChainedIdentifier();
                 
-                    const_cast<QueryContext&>(queryContext).
+                    queryContext.
                         addWhereIdentifier(isaId);
             }
         }

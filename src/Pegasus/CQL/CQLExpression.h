@@ -196,7 +196,7 @@ class PEGASUS_CQL_LINKAGE CQLExpression
       <I><B>Experimental Interface</B></I><BR>
   */
   void applyContext(const QueryContext& inContext,
-            const CQLChainedIdentifier inCid = CQLChainedIdentifier());
+       const CQLChainedIdentifier& inCid = CQLChainedIdentifier());
 
   /**
       Assignment operation.

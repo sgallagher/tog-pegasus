@@ -109,7 +109,7 @@ Array<TermOpType> CQLExpression::getOperators()const
 }
 
 void CQLExpression::applyContext(const QueryContext& inContext,
-                                 const CQLChainedIdentifier inCid)
+                                 const CQLChainedIdentifier& inCid)
 {
   _rep->applyContext(inContext, inCid);
 }

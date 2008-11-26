@@ -152,7 +152,7 @@ void QueryContext::insertClassPath(
 }
 
 void QueryContext::addWhereIdentifier(
-    const QueryChainedIdentifier& inIdentifier)
+    const QueryChainedIdentifier& inIdentifier) const
 {
     // If the identifier is already in the list then don't append.
     for (Uint32 i = 0; i < _whereList.size(); i++)

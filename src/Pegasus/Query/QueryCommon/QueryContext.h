@@ -76,7 +76,7 @@ public:
         const QueryIdentifier& inIdentifier,
         String inAlias = String::EMPTY);
 
-    void addWhereIdentifier(const QueryChainedIdentifier& inIdentifier);
+    void addWhereIdentifier(const QueryChainedIdentifier& inIdentifier) const;
 
     Array<QueryChainedIdentifier> getWhereList() const;
 
@@ -122,7 +122,7 @@ private:
     CIMNamespaceName _NS;
     HT_Alias_Class _AliasClassTable;
     Array<QueryIdentifier> _fromList;
-    Array<QueryChainedIdentifier> _whereList;
+    mutable Array<QueryChainedIdentifier> _whereList;
 };
 
 PEGASUS_NAMESPACE_END

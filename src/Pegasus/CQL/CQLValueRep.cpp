@@ -1779,14 +1779,14 @@ void CQLValueRep::applyContext(const QueryContext& _ctx,
      }
    else
      {
-       _CQLChainId.applyContext(const_cast<QueryContext&>(_ctx)); 
+       _CQLChainId.applyContext(_ctx); 
      }
 
    // Add the chained identifier to the WHERE identifier list.
    // Note: CQLValue's are only used in WHERE processing.
    if (_CQLChainId.size() > 0)
    {
-     const_cast<QueryContext&>(_ctx).addWhereIdentifier(_CQLChainId);
+     _ctx.addWhereIdentifier(_CQLChainId);
    }
 }
 

@@ -104,7 +104,7 @@ Boolean QueryChainedIdentifier::prepend(const QueryIdentifier & id)
     return _rep->prepend(id);
 }
 
-void QueryChainedIdentifier::applyContext(QueryContext& inContext)
+void QueryChainedIdentifier::applyContext(const QueryContext& inContext)
 {
     _rep->applyContext(inContext);
 }

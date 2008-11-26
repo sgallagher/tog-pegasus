@@ -119,7 +119,7 @@ public:
 
     CachedClassDefinitionContainer(
         const OperationContext::Container& container);
-    CachedClassDefinitionContainer(const CIMClass& cimClass);
+    CachedClassDefinitionContainer(const CIMConstClass& cimClass);
     virtual ~CachedClassDefinitionContainer();
 
     // NOTE: The compiler default implementation of the copy constructor
@@ -132,10 +132,10 @@ public:
     virtual OperationContext::Container* clone() const;
     virtual void destroy();
 
-    CIMClass getClass() const;
+    CIMConstClass getClass() const;
 
 protected:
-    CIMClass _cimClass;
+    CIMConstClass _cimClass;
 
 };
 

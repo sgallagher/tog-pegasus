@@ -836,7 +836,8 @@ CIMClass CIMRepository::_getClass(
     Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList,
+    Boolean clone)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_getClass");
 
@@ -859,7 +860,7 @@ CIMClass CIMRepository::_getClass(
 
     String cacheKey = _getCacheKey(nameSpace, className);
 
-    if (!_rep->_classCache.get(cacheKey, cimClass))
+    if (!_rep->_classCache.get(cacheKey, cimClass, clone))
     {
         // Not in cache so load from disk:
 #endif
@@ -885,19 +886,37 @@ CIMClass CIMRepository::_getClass(
         {
             // Put in cache:
 
-            _rep->_classCache.put(cacheKey, cimClass);
+            _rep->_classCache.put(cacheKey, cimClass, clone);
         }
     }
 #endif
 
+#if !defined(PEGASUS_USE_CLASS_CACHE)
+    // This flag must be true if caching is disabled, otherwise, an unecessary
+    // copy could be created below.
+    clone = true;
+#endif
+
+    // If clone is true, then cimClass is a clone (not shared with cache).
+    // Else, it refers to the same one in the cache and any code below that
+    // changes it, will need to clone it first.
+
     if (localOnly && classIncludesPropagatedElements)
     {
+        // We must clone after all since object is modified below.
+        if (!clone)
+            cimClass = cimClass.clone();
+
         _stripPropagatedElements(cimClass);
     }
 
     // Remove properties based on propertyList
     if (!propertyList.isNull())
     {
+        // We must clone after all since object is modified below.
+        if (!clone)
+            cimClass = cimClass.clone();
+
         // Remove properties that are not in the property list.
         // Work backwards because removal may be cheaper. Sint32 covers count=0
         for (Sint32 i = cimClass.getPropertyCount() - 1; i >= 0; i--)
@@ -913,6 +932,10 @@ CIMClass CIMRepository::_getClass(
     // properties, methods and parameters.
     if (!includeQualifiers)
     {
+        // We must clone after all since object is modified below.
+        if (!clone)
+            cimClass = cimClass.clone();
+
         _removeAllQualifiers(cimClass);
     }
 
@@ -920,6 +943,10 @@ CIMClass CIMRepository::_getClass(
     // by setting the property to Null.
     if (!includeClassOrigin)
     {
+        // We must clone after all since object is modified below.
+        if (!clone)
+            cimClass = cimClass.clone();
+
         PEG_TRACE_CSTRING(TRC_REPOSITORY, Tracer::LEVEL4,
             "Remove Class Origins");
 
@@ -2646,6 +2673,20 @@ void CIMRepository::getSuperClassNames(
 Boolean CIMRepository::isDefaultInstanceProvider()
 {
     return _rep->_isDefaultInstanceProvider;
+}
+
+CIMConstClass CIMRepository::getFullConstClass(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className)
+{
+    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::getFullConstClass");
+
+    ReadLock lock(_rep->_lock);
+    CIMClass cimClass = _getClass(nameSpace, className, false, true, true,
+        CIMPropertyList(), false);
+
+    PEG_METHOD_EXIT();
+    return cimClass;
 }
 
 PEGASUS_NAMESPACE_END

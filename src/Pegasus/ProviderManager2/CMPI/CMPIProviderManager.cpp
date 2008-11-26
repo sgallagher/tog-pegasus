@@ -2194,10 +2194,10 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                 CachedClassDefinitionContainer::NAME));
             PEGASUS_ASSERT(classCont != 0);
 
-            CIMClass classDef(classCont->getClass());
+            CIMConstClass classDef(classCont->getClass());
             Uint32 methodIndex = classDef.findMethod(request->methodName);
             PEGASUS_ASSERT(methodIndex != PEG_NOT_FOUND);
-            CIMMethod methodDef(classDef.getMethod(methodIndex));
+            CIMConstMethod methodDef(classDef.getMethod(methodIndex));
             for (unsigned int i = 0, n = outArgs.size(); i < n; ++i)
             {
                 CIMParamValue currentParam(outArgs[i]);

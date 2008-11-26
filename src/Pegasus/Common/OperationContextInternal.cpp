@@ -221,7 +221,7 @@ CachedClassDefinitionContainer::CachedClassDefinitionContainer(
 
 
 CachedClassDefinitionContainer::CachedClassDefinitionContainer(
-    const CIMClass& cimClass)
+    const CIMConstClass& cimClass)
     : _cimClass(cimClass)
 {
 }
@@ -258,7 +258,7 @@ void CachedClassDefinitionContainer::destroy()
     delete this;
 }
 
-CIMClass CachedClassDefinitionContainer::getClass() const
+CIMConstClass CachedClassDefinitionContainer::getClass() const
 {
     return _cimClass;
 }

@@ -2527,7 +2527,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
     CIMName className = request->instanceName.getClassName();
     CIMException checkClassException;
 
-    CIMClass cimClass =
+    CIMConstClass cimClass =
         _getClass(
             request->nameSpace,
             className,
@@ -3100,7 +3100,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     {
         CIMException checkClassException;
 
-        CIMClass cimClass = _getClass(
+        CIMConstClass cimClass = _getClass(
             request->nameSpace,
             request->className,
             checkClassException);
@@ -3305,7 +3305,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
         CIMException checkClassException;
 
-        CIMClass cimClass = _getClass(
+        CIMConstClass cimClass = _getClass(
             request->nameSpace,
             providerInfo.className,
             checkClassException);
@@ -3394,7 +3394,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     {
         CIMException checkClassException;
 
-        CIMClass cimClass = _getClass(
+        CIMConstClass cimClass = _getClass(
             request->nameSpace,
             request->className,
             checkClassException);
@@ -3559,7 +3559,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
         CIMException checkClassException;
 
-        CIMClass cimClass =
+        CIMConstClass cimClass =
             _getClass(
                 request->nameSpace,
                 providerInfo.className,
@@ -5668,7 +5668,7 @@ Boolean CIMOperationRequestDispatcher::_checkExistenceOfClass(
     return true;
 }
 
-CIMClass CIMOperationRequestDispatcher::_getClass(
+CIMConstClass CIMOperationRequestDispatcher::_getClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
     CIMException& cimException)
@@ -5682,18 +5682,14 @@ CIMClass CIMOperationRequestDispatcher::_getClass(
         return __namespaceClass;
     }
 
-    CIMClass cimClass;
+    CIMConstClass cimClass;
 
     // get the complete class, specifically not local only
     try
     {
-        cimClass = _repository->getClass(
+        cimClass = _repository->getFullConstClass(
             nameSpace,
-            className,
-            false,
-            true,
-            true,
-            CIMPropertyList());
+            className);
 
         PEG_TRACE((
             TRC_DISPATCHER,

@@ -118,7 +118,7 @@ extern "C"
                             CachedClassDefinitionContainer::NAME)));
                         PEGASUS_ASSERT(classContainer != 0);
 
-                        CIMClass classDef(classContainer->getClass());
+                        CIMConstClass classDef(classContainer->getClass());
                         Uint32 methodIndex = classDef.findMethod(
                             request->methodName);
                         if (methodIndex == PEG_NOT_FOUND)
@@ -130,7 +130,8 @@ extern "C"
                                 (CMPIString*)string2CMPIString(message));
                         }
 
-                        CIMMethod methodDef(classDef.getMethod(methodIndex));
+                        CIMConstMethod methodDef(
+                            classDef.getMethod(methodIndex));
                         if (methodDef.findQualifier(
                                PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE) 
                             != PEG_NOT_FOUND)

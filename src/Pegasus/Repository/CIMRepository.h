@@ -85,6 +85,11 @@ public:
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
+    // getFullConstClass
+    CIMConstClass getFullConstClass(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className);
+
     /// getInstance
     CIMInstance getInstance(
         const CIMNamespaceName& nameSpace,
@@ -344,13 +349,17 @@ public:
 protected:
 
     // Internal getClass implementation that does not do access control
+    // If readOnlyClass is true, then the caller ensures that the returned
+    // class, will never be modified, which allows returning a reference to
+    // the one that is in the cache.
     CIMClass _getClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList);
+        const CIMPropertyList& propertyList,
+        Boolean clone = true);
 
     /// Internal getInstance implementation that does not do access control
     CIMInstance _getInstance(

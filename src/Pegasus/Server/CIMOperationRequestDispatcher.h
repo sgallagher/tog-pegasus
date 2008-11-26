@@ -473,7 +473,7 @@ protected:
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
 
-    CIMClass _getClass(
+    CIMConstClass _getClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         CIMException& cimException);

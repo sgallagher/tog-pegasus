@@ -644,8 +644,9 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
         itValue.get(interfaceType);
         if (interfaceType == "CMPI")
         {
-            CIMClass cls = _repository->getClass(reqMsg->nameSpace,
-               reqMsg->className, false, true, true, CIMPropertyList());
+            CIMConstClass cls = _repository->getFullConstClass(
+                reqMsg->nameSpace,
+               reqMsg->className);
             reqMsg->operationContext.insert(
                 CachedClassDefinitionContainer(cls));
         }

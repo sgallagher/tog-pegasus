@@ -58,9 +58,9 @@ public:
         clear();
     }
 
-    void put(const String& path, OBJECT& object);
+    void put(const String& path, OBJECT& object, bool clone = true);
 
-    bool get(const String& path, OBJECT& object);
+    bool get(const String& path, OBJECT& object, bool clone = true);
 
     bool evict(const String& path);
 
@@ -137,7 +137,10 @@ ObjectCache<OBJECT>::ObjectCache(size_t maxEntries)
 }
 
 template<class OBJECT>
-void ObjectCache<OBJECT>::put(const String& path, OBJECT& object)
+void ObjectCache<OBJECT>::put(
+    const String& path, 
+    OBJECT& object,
+    bool clone)
 {
     if (_maxEntries == 0)
         return;
@@ -154,7 +157,10 @@ void ObjectCache<OBJECT>::put(const String& path, OBJECT& object)
         if (code == p->code && _equal(p->path, path))
         {
             // Update the repository.
-            p->object = object.clone();
+            if (clone)
+                p->object = object.clone();
+            else
+                p->object = object;
             return;
         }
     }
@@ -226,7 +232,7 @@ void ObjectCache<OBJECT>::put(const String& path, OBJECT& object)
 }
 
 template<class OBJECT>
-bool ObjectCache<OBJECT>::get(const String& path, OBJECT& object)
+bool ObjectCache<OBJECT>::get(const String& path, OBJECT& object, bool clone)
 {
     if (_maxEntries == 0)
         return false;
@@ -265,7 +271,11 @@ bool ObjectCache<OBJECT>::get(const String& path, OBJECT& object)
                 _back = p;
             }
 
-            object = p->object.clone();
+            if (clone)
+                object = p->object.clone();
+            else
+                object = p->object;
+
 #ifdef PEGASUS_DEBUG
             _cacheReadHit++;
 #endif

@@ -49,18 +49,43 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMOMHandleRep;
 
+/**
+    Provides an interface through which a provider may communicate with the
+    CIM Server.  Most of the methods of this class mirror the CIMClient
+    interface and allow a provider to perform CIM operations.  The semantics
+    of these methods are the same as the CIMClient interface, and their
+    documentation is not repeated here.  Please refer to the CIMClient
+    documentation for further details.  The interface differs slightly by
+    the use of an OperationContext parameter.  This parameter is used to
+    communicate context information such as language data, for which the
+    CIMClient uses state settings.
+
+    The CIMOMHandle may serialize requests from different threads, and
+    therefore may not be a good choice for multi-threaded access.  Use of
+    the CIMClient interface by a provider is permitted and may be considered
+    when multiple threads need to perform client operations concurrently.
+*/
 class PEGASUS_PROVIDER_LINKAGE CIMOMHandle
 {
 public:
 
-    /** */
+    /**
+        Constructs a default CIMOMHandle object.
+    */
     CIMOMHandle();
 
     CIMOMHandle(const CIMOMHandle&);
 
-    /** */
+    /**
+        Destructs a CIMOMHandle object.
+    */
     ~CIMOMHandle();
 
+    /**
+        Assigns the CIMOMHandle from a specified CIMOMHandle object.
+        @param handle The CIMOMHandle object to copy.
+        @return A reference to this CIMOMHandle object with the new assignment.
+    */
     CIMOMHandle& operator=(const CIMOMHandle& handle);
       
     CIMClass getClass(
@@ -218,7 +243,7 @@ public:
         method.  Note that disallowProviderUnload is cumulative, such that
         each call to disallowProviderUnload must be matched with a call to
         allowProviderUnload.
-     */
+    */
     void disallowProviderUnload();
 
     /**
@@ -229,18 +254,21 @@ public:
         This method is used to rescind a hint that was given using the
         disallowProviderUnload method.  Note that each allowProviderUnload
         call should be preceded by a disallowProviderUnload call.
-     */
+    */
     void allowProviderUnload();
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     /**
-       Returns the context of the response to the last request.
-       Currently, the context only contains the ContentLanguageListContainer
-       from the response.
-       Note: this method should be called directly after the call to the
-       CIM request method (getClass, etc), and can only be called once
-       per request.
-     */
+        Returns the context of the response to the last request.
+        Currently, the context only contains the ContentLanguageListContainer
+        from the response.
+        Note: this method should be called directly after the call to the
+        CIM request method (getClass, etc), and can only be called once
+        per request.
+
+        @return An OperationContext object containing the context of the most
+            recent response.
+    */
     OperationContext getResponseContext();
 #endif
 

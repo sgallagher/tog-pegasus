@@ -58,26 +58,29 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_PROVIDER_LINKAGE CIMMethodProvider : public virtual CIMProvider
 {
 public:
-    /** Constructs a CIMMethodProvider object with null values (default
-        constructor).
+    /**
+        Constructs a default CIMMethodProvider object.
     */
     CIMMethodProvider();
 
-    /** CIMMethodProvider destructor.
+    /**
+        Destructs a CIMMethodProvider object.
     */
     virtual ~CIMMethodProvider();
 
     /**
-        Invokes the specified method on the specified class or instance.
+        Invokes an extrinsic specified method on a specified CIM class or
+        instance.
 
-        @param context Specifies the client user's context for this operation,
-            including the user ID.
-        @param objectReference Specifies the fully qualified object path
-            of the class or instance of interest.
-        @param methodName Specifies the name of the method of interest.
-        @param inParameters Specifies the input parameters of the method.
-        @param handler A {@link ResponseHandler ResponseHandler} object used
-            to deliver results to the CIM Server.
+        @param context An OperationContext object containing the context for
+            the processing of the operation.  The context includes the name of
+            the requesting user, language information, and other data.
+        @param objectReference A fully qualified CIMObjectPath specifying
+            the class or instance on which to invoke the method.
+        @param methodName The name of the method to invoke.
+        @param inParameters An Array of CIMParamValue objects specifying the
+            method input parameters.
+        @param handler ResponseHandler object for delivery of results.
 
         @exception CIMNotSupportedException If the method is not supported.
         @exception CIMInvalidParameterException If a parameter is invalid.

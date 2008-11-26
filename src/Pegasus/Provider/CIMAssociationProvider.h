@@ -50,93 +50,92 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     This class defines the set of methods implemented by an association
     provider.  A providers that derives from this class must implement all of
-    the methods.  The minimal method implementation simply throws the
-    NotSupported exception. The methods implemented match the association
-    operations defined for the client:
+    the methods.  A minimal method implementation simply throws a
+    CIMNotSupportedException. The methods match the association operations
+    defined for the client:
         <UL>
         <LI> referenceNames
         <LI> references
         <LI> associatorNames
         <LI> associators
         </UL>
-    Note that the major difference is that the attributes implemented are
-    not exactly the same as the attributes of the operations implemented
-    for the client.
+    Provider instrumentation differs semantically from a client request in
+    that a provider implementation is specific to one association class while
+    a client request may span many association classes.  Also, an assocation
+    provider deals only with instance data, while a client may also issue
+    class level association requests.
 */
 class PEGASUS_PROVIDER_LINKAGE CIMAssociationProvider :
     public virtual CIMProvider
 {
 public:
+    /**
+        Constructs a default CIMAssociationProvider object.
+    */
     CIMAssociationProvider();
+
+    /**
+        Destructs a CIMAssociationProvider object.
+    */
     virtual ~CIMAssociationProvider();
 
-    /** Enumerates CIM Objects (Instances only) that are associated to a
-        particular source CIM Object. Returns CIM Objects. NOTE: if the objects
-        do not include the host and namespace information this information will
-        be inserted by the CIM Server based on the name of the host in which
-        the CIM Server is running and the namespace in the request.
+    /**
+        Enumerates CIM instances that are associated to a specified instance
+            via a specified association class.
 
-        @param context Contains security and locale information relevant for
-        the lifetime of this operation.
+        @param context An OperationContext object containing the context for
+            the processing of the operation.  The context includes the name of
+            the requesting user, language information, and other data.
 
-        @param objectName The ObjectName input parameter defines the source CIM
-        Object whose associated Objects are to be returned.  This may be either
-        a Class name or Instance name (CIMObjectpath).
+        @param objectName A fully qualified CIMObjectPath specifying the
+            "source" instance for which to enumerate associated instances.
 
-        @param associationClass The AssocClass input parameter, if not NULL,
-        MUST be a valid CIM Association Class name.  It acts as a filter on the
-        returned set of Objects by mandating that each returned Object MUST be
-        associated to the source Object via an Instance of this Class or one of
-        its subclasses.
+        @param associationClass The name of the association class through
+            which the returned instances are associated with the source
+            instance.  Instances associated through another class must not be
+            returned.
 
-        @param resultClass If not NULL, this parameter MUST be a valid CIM
-        class name.  It act as a filter on the returned set of Objects by
-        mandating that each returned Object MUST be either an Instance of
-        this Class (or one of its subclasses).
+        @param resultClass The name of the class to which the returned
+            instances must belong.  Instances of this class and its subclasses
+            may be returned, but not instances of another class.  If null,
+            the set of returned instances is not constrained by their class.
 
-        @param role If not NULL, this parameter MUST be a valid Property
-        name.  It acts as a filter on the returned set of Objects by
-        mandating that each returned Object MUST be associated to the
-        source Object via an Association in which the source Object plays
-        the specified role (i.e.  the name of the Property in the
-        Association Class that refers to the source Object MUST match the
-        value of this parameter).  An empty String value for this parameter
-        is interpreted as a NULL value, which indicates no such filtering
-        is requested.
+        @param role The role of the source instance in the association
+            instance.  If the role is not an empty string, the returned
+            instances must be associated with the source instance such that
+            the name of the assocation property referring to the source
+            instance matches the role value.
 
-        @param resultRole If not NULL, this parameter MUST be a valid Property
-        name.  It acts as a filter on the returned set of Objects by mandating
-        that each returned Object MUST be associated to the source Object via an
-        Association in which the returned Object plays the specified role (i.e.
-        the name of the Property in the Association Class that refers to the
-        returned Object MUST match the value of this parameter).  An empty
-        String value for this parameter is interpreted as a NULL value, which
-        indicates no such filtering is requested.
+        @param resultRole The role of the returned instances in the association
+            instance.  If the role is not an empty string, the returned
+            instances must be associated with the source instance such that
+            the name of the assocation property referring to the returned
+            instances matches the role value.
 
-        @param includeQualifiers If true, this specifies that all Qualifiers
-        for each Object (including Qualifiers on the Object and on any returned
-        Properties) MUST be included as QUALIFIER elements in the response.
-        If false no QUALIFIER elements are present in each returned Object.
+        @param includeQualifiers A Boolean indicating whether the returned
+            instances must include the qualifiers for the instance and its
+            properties.  Qualifiers may be included even if this flag is false.
 
-        @param includeClassOrigin If true, this specifies that the CLASSORIGIN
-        attribute MUST be present on all appropriate elements in each returned
-        Object.  If false, no CLASSORIGIN attributes are present in each
-        returned Object.
+        @param includeClassOrigin A Boolean indicating whether the returned
+            instances must include the class origin for each of the instance
+            elements.
 
-        @param propertyList If not NULL, the members of the array define one or
-        more roperty names.  Each returned Object MUST NOT include elements for
-        any Properties missing from this list.  If the PropertyList input
-        parameter is an empty array this signifies that no Properties are
-        included in each returned Object.  If the PropertyList input
-        parameter is NULL this specifies that all Properties (subject to
-        the conditions expressed by the other parameters) are included in
-        each returned Object.
+        @param propertyList A CIMPropertyList specifying the minimum set of
+            properties required in the returned instances.  Support for this
+            parameter is optional, so the returned instance may contain
+            properties not specified in the list.  A null propertyList
+            indicates that all properties must be included.  A non-null,
+            but empty, propertyList indicates that no properites are required.
 
-        @param handler Asynchronously processes the results of this operation.
+        @param handler ResponseHandler object for delivery of results.
+            Note: The delivered instances are expected to contain the
+            instance path.  If the host and namespace are not included in the
+            path, they are added by the CIM Server.
 
-        @exception NotSupported Methods not all supported by the provider
-        return this exception.
-        @exception InvalidParameter If a parameter is not specified correctly.
+        @exception CIMNotSupportedException
+        @exception CIMInvalidParameterException
+        @exception CIMAccessDeniedException
+        @exception CIMOperationFailedException
     */
     virtual void associators(
         const OperationContext & context,
@@ -150,55 +149,49 @@ public:
         const CIMPropertyList & propertyList,
         ObjectResponseHandler & handler) = 0;
 
-    /** Enumerate the names of CIM Objects (Instances) associated to a
-        particular source CIM Object. Returns multiple CIMObjectPath objects
-        through the handler. The returned CIMObjectPaths are expected to be
-        absolute including host name and namespace.  If these fields are not
-        supplied by the provider they will be inserted by the CIMOM based on
-        the host in which the CIMOM resides and the namespace in the request.
+    /**
+        Enumerates CIM instance names that are associated to a specified
+        instance via a specified association class.
 
-        @param context Contains security and locale information relevant for
-        the lifetime of this operation.
+        @param context An OperationContext object containing the context for
+            the processing of the operation.  The context includes the name of
+            the requesting user, language information, and other data.
 
-        @param objectName The ObjectName input parameter defines the source CIM
-        Object whose associated Objects are to be returned.  This may be either
-        a Class name or Instance name (CIMObjectpath).
+        @param objectName A fully qualified CIMObjectPath specifying the
+            "source" instance for which to enumerate associated instance names.
 
-        @param associationClass The AssocClass input parameter, if not NULL,
-        MUST be a valid CIM Association Class name.  It acts as a filter on
-        the returned set of Objects by mandating that each returned Object
-        MUST be associated to the source Object via an Instance of this
-        Class or one of its subclasses.
+        @param associationClass The name of the association class through
+            which the returned instance names are associated with the source
+            instance.  Names of instances associated through another class
+            must not be returned.
 
-        @param resultClass If not NULL, MUST be a valid CIM Class name.  It
-        acts as a filter on the returned set of Objects by mandating that
-        each returned Object MUST be either an Instance of this Class (or
-        one of its subclasses).
+        @param resultClass The name of the class to which the returned
+            instance names must belong.  Names of instances of this class and
+            its subclasses may be returned, but not instances of another class.
+            If null, the set of returned instance names is not constrained by
+            their class.
 
-        @param role If not NULL, this parameter MUST be a valid Property
-        name.  It acts as a filter on the returned set of Objects by
-        mandating that each returned Object MUST be associated to the
-        source Object via an Association in which the source Object plays
-        the specified role (i.e.  the name of the Property in the
-        Association Class that refers to the source Object MUST match the
-        value of this parameter).  An empty String value for this
-        parameter is interpreted as a NULL value, which indicates no such
-        filtering is requested.
+        @param role The role of the source instance in the association
+            instance.  If the role is not an empty string, the returned
+            instance names must be associated with the source instance such
+            that the name of the assocation property referring to the source
+            instance matches the role value.
 
-        @param resultRole If not NULL, this parameter MUST be a valid Property
-        name.  It acts as a filter on the returned set of Objects by mandating
-        that each returned Object MUST be associated to the source Object via an
-        Association in which the returned Object plays the specified role (i.e.
-        the name of the Property in the Association Class that refers to the
-        returned Object MUST match the value of this parameter).  An empty
-        String value for this parameter is interpreted as a NULL value, which
-        indicates no such filtering is requested.
+        @param resultRole The role of the returned instance names in the
+            association instance.  If the role is not an empty string, the
+            returned instance names must be associated with the source
+            instance such that the name of the assocation property referring
+            to the returned instance names matches the role value.
 
-        @param handler Asynchronously processes the results of this operation.
+        @param handler ResponseHandler object for delivery of results.
+            Note: The delivered instance names are expected to contain host
+            and namespace information.  If not included, they are added by
+            the CIM Server.
 
-        @exception NotSupported returned by methods that are not implemented
-        by the provider.
-        @exception InvalidParameter If a parameter is not specified correctly.
+        @exception CIMNotSupportedException
+        @exception CIMInvalidParameterException
+        @exception CIMAccessDeniedException
+        @exception CIMOperationFailedException
     */
     virtual void associatorNames(
         const OperationContext & context,
@@ -209,61 +202,49 @@ public:
         const String & resultRole,
         ObjectPathResponseHandler & handler) = 0;
 
-    /** Enumerate the association objects that refer to a particular target
-        CIM Object (Instance).  Returns multiple CIMObjectPath objects
-        through the handler. The returned CIMObjectPaths are expected to be
-        absolute including host name and namespace.  If these fields are not
-        supplied by the provider they will be inserted by the CIMOM based on
-        the host in which the CIMOM resides and the namespace in the request.
+    /**
+        Enumerates CIM association instances that refer to a specified
+        instance.
 
-        @param context Contains security and locale information relevant for
-        the lifetime of this operation.
+        @param context An OperationContext object containing the context for
+            the processing of the operation.  The context includes the name of
+            the requesting user, language information, and other data.
 
-        @param objectName The target CIM Object whose referring object
-        names are to be returned.  Note that only instances will be
-        forwarded to the provider. All class level requests are handled
-        by the CIM Server internally.
+        @param objectName A fully qualified CIMObjectPath specifying the
+            "source" instance for which to enumerate referring instances.
 
-        @param resultClass If not NULL, MUST be a valid CIM Class name. It
-        acts as a filter on the returned set of Object Names by mandating
-        that each returned Object Name MUST identify an Instance of this
-        Class (or one of its subclasses).
+        @param resultClass The class name of the association instances to be
+            returned.  Instances of other classes must not be returned.
 
-        @param role  The Role input parameter, if not NULL, MUST be a
-        valid Property name. It acts as a filter on the returned set of
-        Objects by mandating that each returned Object MUST be associated
-        to the source Object via an Association in which the source Object
-        plays the specified role (i.e. the name of the Property in the
-        Association Class that refers to the source Object MUST match the
-        value of this parameter.  An empty String value for this parameter
-        is interpreted as a NULL value, which indicates no such filtering
-        is requested.
+        @param role The role of the source instance in the association
+            instance.  If the role is not an empty string, the returned
+            association instances must refer to the source instance via a
+            property whose name matches the role value.
 
-        @param includeQualifiers If true, this specifies that all Qualifiers
-        for each Object (including Qualifiers on the Object and on any
-        returned Properties) MUST be included as QUALIFIER elements in
-        the response. If false no QUALIFIER elements are present in each
-        returned Object.
+        @param includeQualifiers A Boolean indicating whether the returned
+            instances must include the qualifiers for the instance and its
+            properties.  Qualifiers may be included even if this flag is false.
 
-        @param includeClassOrigin If true, this specifies that the
-        CLASSORIGIN attribute MUST be present on all appropriate elements
-        in each returned Object.  If false, no CLASSORIGIN attributes are
-        present in each returned Object.
+        @param includeClassOrigin A Boolean indicating whether the returned
+            instances must include the class origin for each of the instance
+            elements.
 
-        @param propertyList - If not NULL, the members of the array define
-        one or more Property names. Each returned Object MUST NOT include
-        elements for any Properties missing from this list. If the
-        PropertyList input parameter is an empty array this signifies that
-        no Properties are included in each returned Object. If the
-        PropertyList input parameter is NULL this specifies that all
-        Properties (subject to the conditions expressed by the other
-        parameters) are included in each returned Object.
+        @param propertyList A CIMPropertyList specifying the minimum set of
+            properties required in the returned instances.  Support for this
+            parameter is optional, so the returned instance may contain
+            properties not specified in the list.  A null propertyList
+            indicates that all properties must be included.  A non-null,
+            but empty, propertyList indicates that no properites are required.
 
-        @param handler Asynchronously processes the results of this operation.
+        @param handler ResponseHandler object for delivery of results.
+            Note: The delivered instances are expected to contain the
+            instance path.  If the host and namespace are not included in the
+            path, they are added by the CIM Server.
 
-        @exception NotSupported Returned for any methods not implemented by
-        the provider.
-        @exception InvalidParameter If a parameter is not specified correctly.
+        @exception CIMNotSupportedException
+        @exception CIMInvalidParameterException
+        @exception CIMAccessDeniedException
+        @exception CIMOperationFailedException
     */
     virtual void references(
         const OperationContext & context,
@@ -275,42 +256,35 @@ public:
         const CIMPropertyList & propertyList,
         ObjectResponseHandler & handler) = 0;
 
-    /** Enumerate the association object names that refer to a particular
-        target CIM Object (Instance). Returns CIMOobjectPath objects via the
-        handler.  The returned CIMObjectPaths are expected to be
-        absolute including host name and namespace.  If these fields are not
-        supplied by the provider they will be inserted by the CIMOM based on
-        the host in which the CIMOM resides and the namespace in the request.
+    /**
+        Enumerates the names of CIM association instances that refer to a
+        specified instance.
 
-        @param context Contains security and locale information relevant for
-        the lifetime of this operation.
+        @param context An OperationContext object containing the context for
+            the processing of the operation.  The context includes the name of
+            the requesting user, language information, and other data.
 
-        @param objectName The target CIM Object whose referring object names
-        are to be returned.  Note that only instances will be forwarded to
-        the provider. All class level requests are handled by the CIM Server
-        internally.
+        @param objectName A fully qualified CIMObjectPath specifying the
+            "source" instance for which to enumerate referring instance names.
 
-        @param resultClass If not NULL, MUST be a valid CIM Class name. It
-        acts as a filter on the returned set of Object Names by mandating
-        that each returned Object Name MUST identify an Instance of this
-        Class (or one of its subclasses), or this Class (or one of its
-        subclasses)
+        @param resultClass The class name of the association instance names to
+            be returned.  Names of instances of other classes must not be
+            returned.
 
-        @param role  The Role input parameter, if not NULL, MUST be a
-        valid Property name. It acts as a filter on the returned set of
-        Objects by mandating that each returned Object MUST be associated
-        to the source Object via an Association in which the source Object
-        plays the specified role (i.e. the name of the Property in the
-        Association Class that refers to the source Object MUST match the
-        value of this parameter.  An empty String value for this parameter
-        is interpreted as a NULL value, which indicates no such filtering
-        is requested.
+        @param role The role of the source instance in the association
+            instance.  If the role is not an empty string, the returned
+            association instance names must refer to the source instance via a
+            property whose name matches the role value.
 
-        @param handler Asynchronously processes the results of this operation.
+        @param handler ResponseHandler object for delivery of results.
+            Note: The delivered instance names are expected to contain host
+            and namespace information.  If not included, they are added by
+            the CIM Server.
 
-        @exception NotSupported xception returned for any method not
-        implemented by the provider.
-        @exception InvalidParameter If the parameter is not specified correctly.
+        @exception CIMNotSupportedException
+        @exception CIMInvalidParameterException
+        @exception CIMAccessDeniedException
+        @exception CIMOperationFailedException
     */
     virtual void referenceNames(
         const OperationContext & context,

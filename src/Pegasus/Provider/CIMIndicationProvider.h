@@ -48,23 +48,25 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     This class defines the set of methods implemented by an indication
     provider.  A provider that derives from this class must implement all
-    methods.  A minimal method implementation simply throws a
+    methods.  A minimal method implementation may simply throw a
     CIMNotSupportedException.
 */
 class PEGASUS_PROVIDER_LINKAGE CIMIndicationProvider :
     public virtual CIMProvider
 {
 public:
-    /** Constructs a CIMIndicationProvider instance with
-        null values (default constructor).
+    /**
+        Constructs a default CIMIndicationProvider object.
     */
     CIMIndicationProvider();
 
-    /** Destructs the CIMIndicationProvider.
+    /**
+        Destructs a CIMIndicationProvider object.
     */
     virtual ~CIMIndicationProvider();
 
-    /** Instructs the provider to begin generating indications.  One or
+    /**
+        Instructs the provider to begin generating indications.  One or
         more createSubscription calls may precede the call to this method.
         (On start-up, createSubscription is called for each active
         subscription before the enableIndications method is called, so that
@@ -77,10 +79,11 @@ public:
         Query indication class name), as in the following example:
 
         <pre>
-         CIMObjectPath path(String::EMPTY,
-                           CIMNamespaceName("root/IndicationSource"),
-                           CIMName("IndicationClassName"),
-                           Array<CIMKeyBinding>());
+        CIMObjectPath path(
+            String::EMPTY,
+            CIMNamespaceName("root/IndicationSource"),
+            CIMName("IndicationClassName"),
+            Array<CIMKeyBinding>());
         indicationInstance.setPath(path);
         </pre>
 
@@ -93,15 +96,16 @@ public:
         and does not affect CIM Server behavior.
 
         @param handler An IndicationResponseHandler used by the provider to
-        deliver the indications it generates.  The IndicationResponseHandler
-        object remains valid until the disableIndications method is called.
-        After disableIndications is called, the behavior of the
-        IndicationResponseHandler is undefined.
+            deliver the indications it generates.  The IndicationResponseHandler
+            object remains valid until the disableIndications method is called.
+            After disableIndications is called, the behavior of the
+            IndicationResponseHandler is undefined.
     */
     virtual void enableIndications(IndicationResponseHandler & handler) = 0;
 
-    /** Tells the provider to stop generating indications.  After this call,
-        the IndicationResponseHandler given to the provider in the
+    /**
+        Instructs the provider to stop generating indications.  After this
+        call, the IndicationResponseHandler given to the provider in the
         enableIndications method is no longer valid and its behavior is
         undefined.  Information regarding active subscriptions no longer
         applies to the provider and should be discarded at this time.
@@ -113,11 +117,12 @@ public:
     */
     virtual void disableIndications() = 0;
 
-    /** Tells the provider to monitor for indications matching the specified
-        subscription.  The provider may reject the subscription by throwing a
-        CIMNotSupportedException.  An indication provider must reject the
-        subscription as not supported if the provider cannot carry out the
-        specified RepeatNotificationPolicy with the specified
+    /**
+        Instructs the provider to monitor for indications matching the
+        specified subscription.  The provider may reject the subscription by
+        throwing a CIMNotSupportedException.  An indication provider must
+        reject the subscription as not supported if the provider cannot carry
+        out the specified RepeatNotificationPolicy with the specified
         RepeatNotificationInterval, RepeatNotificationGap and
         RepeatNotificationCount.
 
@@ -139,34 +144,43 @@ public:
         must include in a SubscriptionInstanceNamesContainer the list of
         subscriptions for which the indication is intended.
 
-        @param context Similar to that in the other provider interfaces.
-        Of particular interest to indication providers are the
-        SubscriptionInstanceContainer and SubscriptionFilterConditionContainer
-        containers.  The SubscriptionInstanceContainer contains the full
-        CIM_IndicationSubscription instance (including, for example, more
-        information about repeat notification policies).  The
-        SubscriptionFilterConditionContainer contains the query string and
-        query language from the CIM_IndicationFilter instance.
+        @param context An OperationContext object containing the context for
+            the processing of the subscription.  The context includes the name
+            of the subscribing user, language information, and other data.
+            Of particular interest to indication providers are the
+            SubscriptionInstanceContainer and
+            SubscriptionFilterConditionContainer containers.  The
+            SubscriptionInstanceContainer contains the full
+            CIM_IndicationSubscription instance (including, for example, more
+            information about repeat notification policies).  The
+            SubscriptionFilterConditionContainer contains the query string and
+            query language from the CIM_IndicationFilter instance.
 
-        @param subscriptionName Specifies the object path of the
-        CIM_IndicationSubscription instance for which this provider is
-        requested to generate indications.
+        @param subscriptionName A CIMObjectPath containing the name of the
+            CIM_IndicationSubscription instance for which the provider is
+            requested to generate indications.
 
         @param classNames Contains a list of indication class names for
-        which this provider has registered as an indication provider and are
-        included in the CIM_IndicationFilter for this subscription instance.
-        A provider may use this as medium-level data for controlling which
-        indications it generates.
+            which the provider has registered as an indication provider and are
+            included in the CIM_IndicationFilter for this subscription instance.
+            A provider may use this as medium-level data for controlling which
+            indications it generates.
 
-        @param propertyList Specifies which properties of the specified
-        class names must be (minimally) included in the indications
-        generated for this subscription.
+        @param propertyList A CIMPropertyList specifying the minimum set of
+            properties required in the indications generated for this
+            subscription.  Support for this parameter is optional, so the
+            generated indications may contain properties not specified in the
+            list.  A null propertyList indicates that all properties must be
+            included.  A non-null, but empty, propertyList indicates that no
+            properites are required.
 
         @param repeatNotificationPolicy Contains the value of the property
-        with the same name in the CIM_IndicationSubscription instance.  Most
-        providers will probably not support repeat notification policies, and
-        should throw a CIMNotSupportedException if the value is anything
-        other than "None".
+            with the same name in the CIM_IndicationSubscription instance.
+            Most providers will probably not support repeat notification
+            policies, and should throw a CIMNotSupportedException if the value
+            is anything other than "None".
+
+        @exception CIMNotSupportedException
     */
     virtual void createSubscription(
         const OperationContext & context,
@@ -175,37 +189,47 @@ public:
         const CIMPropertyList & propertyList,
         const Uint16 repeatNotificationPolicy) = 0;
 
-    /** Informs the provider that the specified subscription instance has
+    /**
+        Informs the provider that a subscription instance it is serving has
         changed.
 
-        @param context Similar to that in the other provider interfaces.
-        Of particular interest to indication providers are the
-        SubscriptionInstanceContainer and SubscriptionFilterConditionContainer
-        containers.  The SubscriptionInstanceContainer contains the full
-        CIM_IndicationSubscription instance (including, for example, more
-        information about repeat notification policies).  The
-        SubscriptionFilterConditionContainer contains the query string and
-        query language from the CIM_IndicationFilter instance.
+        @param context An OperationContext object containing the context for
+            the processing of the subscription.  The context includes the name
+            of the subscribing user, language information, and other data.
+            Of particular interest to indication providers are the
+            SubscriptionInstanceContainer and
+            SubscriptionFilterConditionContainer containers.  The
+            SubscriptionInstanceContainer contains the full
+            CIM_IndicationSubscription instance (including, for example, more
+            information about repeat notification policies).  The
+            SubscriptionFilterConditionContainer contains the query string and
+            query language from the CIM_IndicationFilter instance.
 
-        @param subscriptionName Specifies the object path of the
-        CIM_IndicationSubscription instance that is being modified and for
-        which this provider has been requested to generate indications.
+        @param subscriptionName A CIMObjectPath containing the name of the
+            CIM_IndicationSubscription instance that is being modified and for
+            which the provider has been requested to generate indications.
 
         @param classNames Contains a list of indication class names for
-        which this provider has registered as an indication provider and are
-        included in the CIM_IndicationFilter for this subscription instance.
-        A provider can use this as medium-level data for controlling which
-        indications it generates.
+            which the provider has registered as an indication provider and are
+            included in the CIM_IndicationFilter for this subscription instance.
+            A provider may use this as medium-level data for controlling which
+            indications it generates.
 
-        @param propertyList Specifies which properties of the specified
-        class names must be (minimally) included in the indications generated
-        for this subscription.
+        @param propertyList A CIMPropertyList specifying the minimum set of
+            properties required in the indications generated for this
+            subscription.  Support for this parameter is optional, so the
+            generated indications may contain properties not specified in the
+            list.  A null propertyList indicates that all properties must be
+            included.  A non-null, but empty, propertyList indicates that no
+            properites are required.
 
         @param repeatNotificationPolicy Contains the value of the property
-        with the same name in the CIM_IndicationSubscription instance.  Most
-        providers will probably not support repeat notification policies, and
-        should throw a CIMNotSupportedException if the value is anything
-        other than "None".
+            with the same name in the CIM_IndicationSubscription instance.
+            Most providers will probably not support repeat notification
+            policies, and should throw a CIMNotSupportedException if the value
+            is anything other than "None".
+
+        @exception CIMNotSupportedException
     */
     virtual void modifySubscription(
         const OperationContext & context,
@@ -214,30 +238,26 @@ public:
         const CIMPropertyList & propertyList,
         const Uint16 repeatNotificationPolicy) = 0;
 
-    /** Instructs the provider to stop monitoring for indications matching
-        the specified subscription.
+    /**
+        Instructs the provider to stop generating indications for a specified
+        subscription.
 
         An exception thrown by this method is considered a provider error
         and does not affect CIM Server behavior.
 
-        @param context Similar to that in the other provider interfaces.
-        Of particular interest to indication providers are the
-        SubscriptionInstanceContainer and SubscriptionFilterConditionContainer
-        containers.  The SubscriptionInstanceContainer contains the full
-        CIM_IndicationSubscription instance (including, for example, more
-        information about repeat notification policies).  The
-        SubscriptionFilterConditionContainer contains the query string and
-        query language from the CIM_IndicationFilter instance.
+        @param context An OperationContext object containing the context for
+            the processing of the operation.  The context includes the name
+            of the requesting user, language information, and other data.
 
-        @param subscriptionName Specifies the object path of the
-        CIM_IndicationSubscription instance for which this provider is
-        requested to stop generating indications.
+        @param subscriptionName A CIMObjectPath containing the name of the
+            CIM_IndicationSubscription instance for which the provider is
+            requested to stop generating indications.
 
         @param classNames Contains a list of indication class names for
-        which this provider has registered as an indication provider and are
-        included in the CIM_IndicationFilter for this subscription instance.
-        A provider can use this as medium-level data for controlling which
-        indications it generates.
+            which the provider has registered as an indication provider and are
+            included in the CIM_IndicationFilter for this subscription instance.
+            A provider may use this as medium-level data for controlling which
+            indications it generates.
     */
     virtual void deleteSubscription(
         const OperationContext & context,

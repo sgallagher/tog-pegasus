@@ -64,60 +64,41 @@ class PEGASUS_PROVIDER_LINKAGE CIMInstanceProvider : public virtual CIMProvider
 {
 public:
     /**
-        Constructor.
-        The constructor should not do anything.
+        Constructs a default CIMInstanceProvider object.
     */
     CIMInstanceProvider();
 
     /**
-        Destructor.
-        The destructor should not do anything.
+        Destructs a CIMInstanceProvider object.
     */
     virtual ~CIMInstanceProvider();
 
     /**
-        Return a single instance.
+        Returns a specified CIM instance.
 
-        <p><tt>getInstance</tt> is called with a CIMObjectPath
-        <tt>instanceReference</tt> specifying a CIM instance to be returned.
-        The provider should determine whether the specification corresponds to
-        a valid instance. If so, it will construct a <tt>CIMInstance</tt>
-        and deliver this to the CIM Server via the <tt>ResponseHandler</tt>
-        callback. If the specified instance does not exist, this
-        function should throw a CIMObjectNotFoundException.
-        </p>
+        @param context An OperationContext object containing the context for
+            the processing of the operation.  The context includes the name of
+            the requesting user, language information, and other data.
 
-        <p>A provider can be implemented and registered to perform
-        operations for several levels of the same line of descent (e.g.,
-        CIM_ComputerSystem and CIM_UnitaryComputerSystem). When this
-        is done, care must be taken to return the same set of key
-        values regardless of which class was specified in the
-        operation.</p>
+        @param instanceReference A fully qualified CIMObjectPath specifying
+            the instance to be retrieved.
 
-        @param context specifies the client user's context for this operation,
-        including the User ID.
+        @param includeQualifiers A Boolean indicating whether the returned
+            instance must include the qualifiers for the instance and its
+            properties.  Qualifiers may be included even if this flag is false.
 
-        @param instanceReference specifies the fully qualified object path
-        of the instance of interest.
+        @param includeClassOrigin A Boolean indicating whether the returned
+            instance must include the class origin for each of the instance
+            elements.
 
-        @param includeQualifiers indicates whether the returned instance must
-        include the qualifiers for the instance and properties.  Qualifiers may
-        be included even if this flag is false.
-
-        @param includeClassOrigin indicates whether the returned instance must
-        include the class origin for each of the instance elements.
-
-        @param propertyList if not null, this parameter
-        specifies the minimum set of properties required in instances
-        returned by this operation. Because
-        support for this parameter is optional, the instances may contain
-        additional properties not specified in the list.
-        NOTE: The provider does NOT receive the client filtering parameter
-        localOnly.  This is resolved in the CIMOM into the propertyList so
-        that the property list represents the complete set of properties to
-        be returned.
-        If the propertyList is NULL all properties are returned.  If it is
-        nonNULL but empty, no properites are to be returned.
+        @param propertyList A CIMPropertyList specifying the minimum set of
+            properties required in the returned instance.  Support for this
+            parameter is optional, so the returned instance may contain
+            properties not specified in the list.  A null propertyList
+            indicates that all properties must be included.  A non-null,
+            but empty, propertyList indicates that no properites are required.
+            Note: The client PropertyList and LocalOnly parameters are
+            consolidated by the CIM Server into this single parameter.
 
         @param handler ResponseHandler object for delivery of results.
 
@@ -136,13 +117,12 @@ public:
         InstanceResponseHandler& handler) = 0;
 
     /**
-        Return all instances of the specified class.
+        Returns all instances of a specified class.
 
-        <p>A typical implementation of this function will call the
-        <tt>processing</tt> function in the <tt>ResponseHandler</tt> object,
+        <p>A typical implementation of this method will call the
+        <tt>processing</tt> method in the <tt>ResponseHandler</tt> object,
         then iterate over the system resources representing instances of
-        the CIM object, calling <tt>deliver</tt> on each iteration. It must
-        call <tt>deliver</tt> with an argument of type <tt>CIMInstance</tt>.
+        the CIM object, calling <tt>deliver</tt> on each iteration.
         Finally, it will call <tt>complete</tt> to inform the CIM Server that
         it has delivered all known instances. It is correct to call
         <tt>complete</tt> without calling <tt>deliver</tt> if no instances
@@ -154,28 +134,32 @@ public:
         is done, the provider must return instances <i>only</i>
         for the deepest class for which it is registered, since
         the CIM Server will invoke <tt>enumerateInstances</tt> for all
-        classes at and beneath that specified in the classReference.</p>
+        classes at and beneath the class specified by the client.</p>
 
-        @param context specifies the client user's context for this operation,
-        including the User ID.
+        @param context An OperationContext object containing the context for
+            the processing of the operation.  The context includes the name of
+            the requesting user, language information, and other data.
 
-        @param classReference specifies the fully qualified object path
-        to the class of interest.
+        @param classReference A fully qualified CIMObjectPath specifying
+            the class for which to retrieve the instances.
 
-        @param includeQualifiers indicates whether the returned instances must
-        include the qualifiers for the instance and properties.  Qualifiers may
-        be included even if this flag is false.
+        @param includeQualifiers A Boolean indicating whether the returned
+            instances must include the qualifiers for the instance and its
+            properties.  Qualifiers may be included even if this flag is false.
 
-        @param includeClassOrigin indicates whether the returned instances must
-        include the class origin for each of the instance elements.
+        @param includeClassOrigin A Boolean indicating whether the returned
+            instances must include the class origin for each of the instance
+            elements.
 
-        @param propertyList If not null, this parameter specifies the minimum
-        set of properties required in instances returned by this operation.
-        Because support for this parameter is optional, the instances may
-        contain additional properties not specified in the list. NOTE: The
-        provider does NOT receive the client filtering parameters localOnly
-        or deepInheritance.  These are resolved in the CIM Server into the
-        propertyList.
+        @param propertyList A CIMPropertyList specifying the minimum set of
+            properties required in the returned instances.  Support for this
+            parameter is optional, so the returned instance may contain
+            properties not specified in the list.  A null propertyList
+            indicates that all properties must be included.  A non-null,
+            but empty, propertyList indicates that no properites are required.
+            Note: The client PropertyList, DeepInheritance, and LocalOnly
+            parameters are consolidated by the CIM Server into this single
+            parameter.
 
         @param handler ResponseHandler object for delivery of results.
 
@@ -193,34 +177,31 @@ public:
         InstanceResponseHandler& handler) = 0;
 
     /**
-        Return all instance names of a single class.
+        Returns the names of all instances of a specified class.
 
-        <p>Like <tt>enumerateInstances</tt>, a typical implementation
-        of <tt>enumerateInstanceNames</tt> will call the <tt>processing</tt>
-        function in the <tt>ResponseHandler</tt> object, then
-        iterate over the system resources representing instances of
-        the CIM object, calling <tt>deliver</tt> on each iteration. It must
-        call <tt>deliver</tt> with an argument of type <tt>CIMObjectPath</tt>
-        containing the information that uniquely identifies each instance.
+        <p>A typical implementation of this method will call the
+        <tt>processing</tt> method in the <tt>ResponseHandler</tt> object,
+        then iterate over the system resources representing instances of
+        the CIM object, calling <tt>deliver</tt> on each iteration.
         Finally, it will call <tt>complete</tt> to inform the CIM Server that
-        it has delivered the names of all known instances. It is correct to
-        call <tt>complete</tt> without calling <tt>deliver</tt> if no instances
+        it has delivered all known instances. It is correct to call
+        <tt>complete</tt> without calling <tt>deliver</tt> if no instances
         exist.</p>
 
         <p>A provider can be implemented and registered to perform
         operations for several levels of the same line of descent (e.g.,
         CIM_ComputerSystem and CIM_UnitaryComputerSystem). When this
-        is done, the provider must return instance names <i>only</i>
+        is done, the provider must return instances <i>only</i>
         for the deepest class for which it is registered, since
         the CIM Server will invoke <tt>enumerateInstanceNames</tt> for all
-        classes at and beneath that specified in the
-        classReference.</p>
+        classes at and beneath the class specified by the client.</p>
 
-        @param context specifies the client user's context for this operation,
-        including the User ID.
+        @param context An OperationContext object containing the context for
+            the processing of the operation.  The context includes the name of
+            the requesting user, language information, and other data.
 
-        @param classReference specifies the fully qualified object path to
-        the class of interest.
+        @param classReference A fully qualified CIMObjectPath specifying
+            the class for which to retrieve the instance names.
 
         @param handler ResponseHandler object for delivery of results.
 
@@ -235,54 +216,35 @@ public:
         ObjectPathResponseHandler& handler) = 0;
 
     /**
-        Replace the current instance specified in the
-        instanceReference parameter.
+        Replaces all or part of a specified instance.
 
-        <p><tt>modifyInstance</tt> sets the values of properties of
-        the instance specified by the <tt>instanceReference</tt> parameter
-        to those specified in the <tt>instanceObject</tt> parameter, as
-        controlled by the <tt>propertyList</tt> parameter. If the
-        <tt>propertyList</tt>
-        is NULL, then the operation sets all properties. Otherwise,
-        it sets only those specified in the <tt>propertyList</tt>.
-        Properties specified in the <tt>propertyList</tt> but not present in
-        the <tt>instanceObject</tt> are replaced by
-        the class default values or left null.</p>
+        This method is intended to be atomic.  Intermediate states should
+        not be visible to other operations that access the instance.
 
-        <p>Ideally, <tt>modifyInstance</tt> is intended to be
-        an <i>atomic</i> operation on values of the instance. That is,
-        concurrent accesses to the instance by other threads should be
-        blocked during the operation, so that all of the affected property
-        values can be
-        changed without intervening accesses by concurrent requests.
-        Otherwise, other requests could obtain intermediate, and
-        possibly inconsistent, results.</p>
+        @param context An OperationContext object containing the context for
+            the processing of the operation.  The context includes the name of
+            the requesting user, language information, and other data.
 
-        <p>If the specified instance does not exist, the provider
-        should throw an CIMObjectNotFoundException.
+        @param instanceReference A fully qualified CIMObjectPath specifying
+            the instance to be modified.
 
-        @param context specifies the client user's context for this operation,
-        including the User ID.
+        @param instanceObject A CIMInstance containing the properties and
+            qualifiers with which to update the instance.
 
-        @param instanceReference specifies the fully qualified object path
-        of the instance of interest.
+        @param includeQualifiers A Boolean indicating whether the instance
+            qualifiers are to be updated in the instance and its properties.
+            If false, no qualifiers are explicitly modified by this operation.
 
-        @param instanceObject contains the partial or complete set of
-        properties whose values should be changed.
+        @param propertyList A CIMPropertyList specifying the set of properties
+            to be updated in the instance.  Support for this parameter is NOT
+            optional.  If the propertyList cannot be honored, a
+            CIMNotSupportedException must be thrown.  A null propertyList
+            indicates that all properties must be updated.  Properties
+            specified in the propertyList but not present in the
+            <tt>instanceObject</tt> are to be replaced by the class default
+            values or left null.
 
-        @param includeQualifiers indicates whether the instance qualifiers must
-        be updated as specified in the modified instance.  If false, no
-        qualifiers are explicitly modified by this operation.
-
-        @param propertyList If not null, this parameter specifies the set
-        of properties required to be updated in the instance. Support for
-        this parameter is NOT optional.  Providers that do not support this
-        feature must throw a CIMNotSupportedException.
-        NOTE: The provider does NOT receive the client filtering parameters
-        localOnly or deepInheritance.  These are resolved in the CIMOM into
-        the propertyList.
-
-        @param handler ResponseHandler} object for delivery of results.
+        @param handler ResponseHandler object for delivery of results.
 
         @exception CIMNotSupportedException
         @exception CIMInvalidParameterException
@@ -299,29 +261,26 @@ public:
         ResponseHandler& handler) = 0;
 
     /**
-        Create a new instance.
+        Creates a new instance.
 
-        <p>Create a new instance of the specified class as specified
-        by the <tt>instanceReference</tt> and <tt>instanceObject</tt>
-        parameters.</p>
-
-        @param context specifies the client user's context for this operation,
-        including the User ID.
+        @param context An OperationContext object containing the context for
+            the processing of the operation.  The context includes the name of
+            the requesting user, language information, and other data.
 
         @param instanceReference Specifies the namespace and class name
-        of the instance to create.  The key bindings are not present in
-        the instanceReference, because an instance name is not defined
-        until after the instance has been created.
+            of the instance to create.  The key bindings are not present in
+            the instanceReference, because an instance name is not defined
+            until after the instance has been created.
 
-        @param instanceObject contains the partial or complete instance to
-        create.  If a key property is null, the provider <em>must</em> supply
-        a valid value for the property or throw a CIMInvalidParameterException.
-        If any property value is invalid, the provider should throw a
-        CIMInvalidParameterException.
+        @param instanceObject The CIM instance to create.  If a key property
+            is null, the provider <em>must</em> supply a valid value for the
+            property or throw a CIMInvalidParameterException.  If any property
+            value is invalid, the provider should throw a
+            CIMInvalidParameterException.
 
-        @param handler ResponseHandler object for delivery of results.  If the
-        operation is successful, the provider must deliver the complete
-        instance name of the created instance.
+        @param handler ResponseHandler object for delivery of results.  On
+            a successful operation, the name of the newly created instance
+            must be delivered.
 
         @exception CIMNotSupportedException
         @exception CIMInvalidParameterException
@@ -336,14 +295,14 @@ public:
         ObjectPathResponseHandler& handler) = 0;
 
     /**
-        Delete the instance specified by the instanceReference parameter.
+        Deletes a specified instance.
 
-        @param context specifies the client user's context for this operation,
-        including the User ID.
+        @param context An OperationContext object containing the context for
+            the processing of the operation.  The context includes the name of
+            the requesting user, language information, and other data.
 
-        @param instanceReference specifies the fully qualified object
-        path of the instance to delete. If the specified object does
-        not exist, the provider should throw a CIMObjectNotFoundException.
+        @param instanceReference A fully qualified CIMObjectPath specifying
+            the instance to be deleted.
 
         @param handler ResponseHandler object for delivery of results.
 

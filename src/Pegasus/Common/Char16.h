@@ -50,36 +50,101 @@ class PEGASUS_COMMON_LINKAGE Char16
 {
 public:
 
-    /// Constructor.
+    /**
+        Constructs a Char16 with a null (0) value.
+    */
     Char16();
 
-    /// Constructor.
+    /**
+        Constructs a Char16 with a specified 16-bit character value.
+        @param x The Uint16 value with which to initialize the Char16.
+    */
     Char16(Uint16 x);
 
-    /// Constructor.
+    /**
+        Constructs a Char16 by copying another Char16 value.
+        @param x The Char16 object to copy.
+    */
     Char16(const Char16& x);
 
-    /// Destructor.
+    /**
+        Destructs a Char16 object.
+    */
     ~Char16();
 
-    /// Assignment operator.
+    /**
+        Assigns the value to a specified 16-bit character value.
+        @param x The Uint16 value to copy.
+    */
     Char16& operator=(Uint16 x);
 
-    /// Assignment operator.
+    /**
+        Assigns the value from another Char16 object.
+        @param x The Char16 object to copy.
+    */
     Char16& operator=(const Char16& x);
 
-    /// Implicit converter from Char16 to Uint16
+    /**
+        Implicitly converts the Char16 value to a 16-bit integer.
+    */
     operator Uint16() const;
 
 private:
     Uint16 _code;
 };
 
+/**
+    Compares two Char16 objects for equality.
+    @param x The first Char16 to compare.
+    @param y The second Char16 to compare.
+    @return A Boolean indicating whether both operands represent the same
+        character value.
+*/
 PEGASUS_COMMON_LINKAGE Boolean operator==(const Char16& x, const Char16& y);
+
+/**
+    Compares a Char16 object and an 8-bit character for equality.
+    @param x The Char16 to compare.
+    @param y The 8-bit character to compare.
+    @return A Boolean indicating whether both operands represent the same
+        character value.
+*/
 PEGASUS_COMMON_LINKAGE Boolean operator==(const Char16& x, char y);
+
+/**
+    Compares a Char16 object and an 8-bit character for equality.
+    @param x The 8-bit character to compare.
+    @param y The Char16 to compare.
+    @return A Boolean indicating whether both operands represent the same
+        character value.
+*/
 PEGASUS_COMMON_LINKAGE Boolean operator==(char x, const Char16& y);
+
+/**
+    Compares two Char16 objects for inequality.
+    @param x The first Char16 to compare.
+    @param y The second Char16 to compare.
+    @return A Boolean indicating whether the operands represent different
+        character values.
+*/
 PEGASUS_COMMON_LINKAGE Boolean operator!=(const Char16& x, const Char16& y);
+
+/**
+    Compares a Char16 object and an 8-bit character for inequality.
+    @param x The Char16 to compare.
+    @param y The 8-bit character to compare.
+    @return A Boolean indicating whether the operands represent different
+        character values.
+*/
 PEGASUS_COMMON_LINKAGE Boolean operator!=(const Char16& x, char y);
+
+/**
+    Compares a Char16 object and an 8-bit character for inequality.
+    @param x The 8-bit character to compare.
+    @param y The Char16 to compare.
+    @return A Boolean indicating whether the operands represent different
+        character values.
+*/
 PEGASUS_COMMON_LINKAGE Boolean operator!=(char x, const Char16& y);
 
 PEGASUS_NAMESPACE_END

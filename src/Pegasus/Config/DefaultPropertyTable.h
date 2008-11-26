@@ -35,8 +35,8 @@
 #define Pegasus_DefaultPropertyTable_h
 
     {"socketWriteTimeout", PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS_STRING,
-     IS_STATIC, 0, 0, IS_VISIBLE},
-    {"idleConnectionTimeout", "0", IS_STATIC, 0, 0, IS_VISIBLE},
+        IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"idleConnectionTimeout", "0", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 # include "DefaultPropertyTableLinux.h"
 #elif defined(PEGASUS_OS_SOLARIS)

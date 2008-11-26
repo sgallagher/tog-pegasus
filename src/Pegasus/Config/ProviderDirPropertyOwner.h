@@ -41,6 +41,7 @@
 #ifndef Pegasus_ProviderDirPropertyOwner_h
 #define Pegasus_ProviderDirPropertyOwner_h
 
+#include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Config/ConfigPropertyOwner.h>
 
 
@@ -189,6 +190,7 @@ private:
         The file system properties owned by this class
     */
     struct ConfigProperty* _providerDir;
+    mutable Mutex _providerDirMutex;
 };
 
 PEGASUS_NAMESPACE_END

@@ -57,16 +57,16 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-    {"providerDir", "lib;bin", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"providerDir", "lib;bin", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #elif defined(PEGASUS_OS_ZOS)
-    {"providerDir", "lib:provider", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"providerDir", "lib:provider", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #elif defined(PEGASUS_OS_PASE) && defined(PEGASUS_USE_RELEASE_DIRS)
     {"providerDir", "/QOpenSys/QIBM/ProdData/UME/Pegasus/provider", 
-        IS_STATIC, 0, 0, IS_VISIBLE}
+        IS_DYNAMIC, 0, 0, IS_VISIBLE}
 #elif defined(PEGASUS_OS_VMS)
-    {"providerDir", "/wbem_lib", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"providerDir", "/wbem_lib", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #else
-    {"providerDir", "lib", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"providerDir", "lib", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #endif
 };
 
@@ -222,6 +222,7 @@ String ProviderDirPropertyOwner::getCurrentValue(const String& name) const
 {
     struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
+    AutoMutex lock(_providerDirMutex);
     return configProperty->currentValue;
 }
 
@@ -243,6 +244,7 @@ void ProviderDirPropertyOwner::initCurrentValue(
     const String& value)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    AutoMutex lock(_providerDirMutex);
     configProperty->currentValue = value;
 }
 
@@ -272,9 +274,7 @@ void ProviderDirPropertyOwner::updateCurrentValue(
     {
         throw NonDynamicConfigProperty(name);
     }
-
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-    configProperty->currentValue = value;
+    initCurrentValue(name, value);
 }
 
 

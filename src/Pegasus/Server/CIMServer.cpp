@@ -206,13 +206,6 @@ CIMServer::CIMServer()
     _cimserver = this;
     _init();
 
-    // Get value of idle connection timeout in seconds.
-    String idleConnectionConfigTimeout =
-        ConfigManager::getInstance()->getCurrentValue("idleConnectionTimeout");
-
-    _idleConnectionTimeoutSeconds =
-        strtol(idleConnectionConfigTimeout.getCString(), (char**)0, 10);
- 
     PEG_METHOD_EXIT();
 }
 
@@ -626,21 +619,6 @@ void CIMServer::addAcceptor(
         portNumber,
         useSSL ? _getSSLContext() : 0,
         useSSL ? _sslContextMgr->getSSLContextObjectLock() : 0 );
-
-    ConfigManager* configManager = ConfigManager::getInstance();
-    String socketWriteConfigTimeout =
-        configManager->getCurrentValue("socketWriteTimeout");
-    // Set timeout value for server socket timeouts
-    // depending on config option
-    Uint32 socketWriteTimeout =
-        strtol(socketWriteConfigTimeout.getCString(), (char**)0, 10);
-    // equal what went wrong, there has to be a timeout
-    if (socketWriteTimeout == 0)
-        socketWriteTimeout = PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS;
-    acceptor->setSocketWriteTimeout(socketWriteTimeout);
-
-    // Set idle connection timeout in seconds.
-    acceptor->setIdleConnectionTimeout(_idleConnectionTimeoutSeconds);
 
     _acceptors.append(acceptor);
 }

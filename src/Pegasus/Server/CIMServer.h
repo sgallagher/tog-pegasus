@@ -151,7 +151,6 @@ public:
 
 private:
     Boolean _dieNow;
-    Uint32 _idleConnectionTimeoutSeconds;
 
     AutoPtr<Monitor> _monitor;
     CIMRepository* _repository;

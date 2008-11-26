@@ -42,6 +42,8 @@
 #include "ConfigManager.h"
 #include <Pegasus/Common/AuditLogger.h>
 #include <Pegasus/Common/StringConversion.h>
+#include <Pegasus/Common/HTTPAcceptor.h>
+#include <Pegasus/Common/HTTPConnection.h>
 
 PEGASUS_USING_STD;
 
@@ -206,27 +208,46 @@ void DefaultPropertyOwner::initCurrentValue(
     const String& name,
     const String& value)
 {
-    for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
+    Uint32 index;
+    for (index = 0; index < NUM_PROPERTIES; index++)
     {
-        if (String::equalNoCase(_configProperties.get()[i].propertyName, name))
+        if (String::equalNoCase(
+            _configProperties.get()[index].propertyName,
+            name))
         {
             if (String::equalNoCase(name, "maxProviderProcesses"))
             {
                 AutoMutex lock(_maxProviderProcessesMutex);
-                _configProperties.get()[i].currentValue = value;
+                _configProperties.get()[index].currentValue = value;
             }
             else
             {
-               _configProperties.get()[i].currentValue = value;
+               _configProperties.get()[index].currentValue = value;
             }
-            return;
+            break;
         }
     }
 
-    //
-    // Specified property name could not be found
-    //
-    throw UnrecognizedConfigProperty(name);
+    if (index >= NUM_PROPERTIES)
+    {
+        //
+        // Specified property name could not be found 
+        //
+        throw UnrecognizedConfigProperty(name);
+    }
+    else if (String::equal(name, "idleConnectionTimeout"))
+    {   
+        Uint64 v;
+        StringConversion::decimalStringToUint64(value.getCString(), v);
+        HTTPConnection::setIdleConnectionTimeout((Uint32)v);
+    }
+    else if (String::equal(name, "socketWriteTimeout"))
+    {
+        Uint64 v;
+        StringConversion::decimalStringToUint64(value.getCString(), v);
+        HTTPAcceptor::setSocketWriteTimeout((Uint32)v);
+    }
+    return;
 }
 
 /**

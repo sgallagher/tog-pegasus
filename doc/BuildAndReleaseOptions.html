@@ -2569,6 +2569,7 @@ configuration properties.</p>
   <b>Recommended Default Value (Release Build):&nbsp;</b>0<br>
   <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
   <b>Recommend To Be Fixed/Hidden (Release Build):&nbsp;</b>No/No<br>
+  <b>Dynamic?:&nbsp;</b>Yes<br>
   <b>Considerations:&nbsp;</b>A client connection is considered
      idle when it is not in the process of sending a request and
      the CIM Server is not processing a request from that connection.
@@ -2581,7 +2582,8 @@ configuration properties.</p>
      considered when configuring an idle connection timeout value.
      The idle connection time is computed using the system clock. 
      Thus, resetting the system clock may cause unexpected timeout
-     behavior.<br>
+     behavior.This config property can be changed dynamically. The 
+     changes will apply to all new and existing connections. <br>
 </ul>
 
 <h5>logdir</h5>
@@ -2698,7 +2700,7 @@ configuration properties.</p>
      $PROVIDERDIRS<br>
   <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
   <b>Recommend To Be Fixed/Hidden (Release Build):&nbsp;</b>Yes<br>
-  <b>Dynamic?:&nbsp;</b>No<br>
+  <b>Dynamic?:&nbsp;</b>Yes<br>
   <b>Considerations:&nbsp;</b>The CIM Server runs as a privileged
      user. And, since Providers run in the same process space as the
      CIM Server, Providers also have privileged access to the 
@@ -2890,7 +2892,10 @@ configuration properties.</p>
      20 (seconds)<br>
   <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
   <b>Recommend To Be Fixed/Hidden (Release Build):&nbsp;</b>No/No<br>
-  <b>Dynamic?:&nbsp;</b>No<br>
+  <b>Dynamic?:&nbsp;</b>Yes<br>
+  <b>Considerations:&nbsp;</b>Any changes made to this config property
+     dynamically will apply to new CIM Server connections only 
+     keeping old already established connections unchanged.<br>
   <b>Source Configuration File:&nbsp;</b>
      Pegasus/Config/DefaultPropertyTable.h
 </ul>

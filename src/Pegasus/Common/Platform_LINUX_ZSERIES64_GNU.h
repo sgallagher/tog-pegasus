@@ -81,6 +81,8 @@
 
 #define PEGASUS_HAS_SIGNALS
 
+#define PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+
 /* getifaddrs() avilable in gcc version >= 3.4 */
 #if (__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 4))
 # define PEGASUS_HAS_GETIFADDRS

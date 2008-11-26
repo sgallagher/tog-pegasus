@@ -64,6 +64,8 @@ typedef int streamsize;
 
 #define PEGASUS_HAS_SIGNALS
 
+#define PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+
 /* use POSIX read-write locks on this platform */
 #define PEGASUS_USE_POSIX_RWLOCK
 

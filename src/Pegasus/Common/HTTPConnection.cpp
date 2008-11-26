@@ -186,6 +186,29 @@ void * sigabrt_generator(void * parm)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+Uint32 HTTPConnection::_idleConnectionTimeoutSeconds = 0;
+
+#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+Mutex HTTPConnection::_idleConnectionTimeoutSecondsMutex;
+#endif
+
+void HTTPConnection::setIdleConnectionTimeout(
+    Uint32 idleConnectionTimeoutSeconds)
+{
+#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+    AutoMutex lock(_idleConnectionTimeoutSecondsMutex);
+#endif
+    _idleConnectionTimeoutSeconds = idleConnectionTimeoutSeconds;
+}
+
+Uint32 HTTPConnection::getIdleConnectionTimeout()
+{
+#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+    AutoMutex lock(_idleConnectionTimeoutSecondsMutex);
+#endif
+    return _idleConnectionTimeoutSeconds;
+}
+
 HTTPConnection::HTTPConnection(
     Monitor* monitor,
     SharedPtr<MP_Socket>& socket,
@@ -203,8 +226,7 @@ HTTPConnection::HTTPConnection(
     _contentLength(-1),
     _connectionClosePending(false),
     _acceptPending(false),
-    _firstRead(true),
-    _idleConnectionTimeoutSeconds(0)
+    _firstRead(true)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::HTTPConnection");
 
@@ -337,20 +359,21 @@ Boolean HTTPConnection::closeConnectionOnTimeout(struct timeval* timeNow)
         }
     }
     // else if connection timeout is active
-    else if (_idleConnectionTimeoutSeconds)
+    else if (getIdleConnectionTimeout())
     {
-        // For performance reasons timeNow is calculated only once in Monitor.
-        // Update timeNow if connection's _idleStartTime has more recent time.
+        // For performance reasons timeNow is calculated only once in 
+        // Monitor. Update timeNow if connection's _idleStartTime has 
+        // more recent time.
         if (timeNow->tv_sec < _idleStartTime.tv_sec)
         {
             Time::gettimeofday(timeNow);
         }
         else if ((Uint32)(timeNow->tv_sec - _idleStartTime.tv_sec) >
-            _idleConnectionTimeoutSeconds)
+            getIdleConnectionTimeout())
         {
             PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL3,
                 "HTTPConnection: close idle connection for timeout "
-                "of %d seconds\n", _idleConnectionTimeoutSeconds));
+                "of %d seconds\n", getIdleConnectionTimeout()));
             _closeConnection();
             return true;  // return 'true' to indicate connection was closed
         }
@@ -1015,7 +1038,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             else
             {
                 // Update connection idle time.
-                if (_idleConnectionTimeoutSeconds)
+                if (getIdleConnectionTimeout())
                 {
                     Time::gettimeofday(&_idleStartTime);
                 }

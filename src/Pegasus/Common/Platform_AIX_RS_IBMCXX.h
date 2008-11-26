@@ -73,4 +73,6 @@
 /* use POSIX read-write locks on this platform */
 #define PEGASUS_USE_POSIX_RWLOCK
 
+#define PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+
 #endif /* Pegasus_Platform_AIX_RS_IBMCXX_h */

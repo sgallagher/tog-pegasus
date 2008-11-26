@@ -38,4 +38,6 @@
 
 #define PEGASUS_ARCHITECTURE_PPC
 
+#define PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+
 #endif /* Pegasus_Platform_DARWIN_PPC_GNU_h */

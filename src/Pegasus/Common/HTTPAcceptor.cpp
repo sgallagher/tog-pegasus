@@ -56,6 +56,13 @@ PEGASUS_NAMESPACE_BEGIN
 
 static int _maxConnectionQueueLength = -1;
 
+Uint32 HTTPAcceptor::_socketWriteTimeout = 
+    PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS;
+
+#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+Mutex HTTPAcceptor::_socketWriteTimeoutMutex;
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // HTTPAcceptorRep
@@ -138,8 +145,7 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
      _connectionType(connectionType),
      _portNumber(portNumber),
      _sslcontext(sslcontext),
-     _sslContextObjectLock(sslContextObjectLock),
-     _idleConnectionTimeoutSeconds(0)
+     _sslContextObjectLock(sslContextObjectLock)
 {
    PEGASUS_ASSERT(!_sslcontext == !_sslContextObjectLock);
    Socket::initializeInterface();
@@ -633,12 +639,10 @@ Uint32 HTTPAcceptor::getPortNumber() const
 
 void HTTPAcceptor::setSocketWriteTimeout(Uint32 socketWriteTimeout)
 {
+#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+    AutoMutex lock(_socketWriteTimeoutMutex);
+#endif
     _socketWriteTimeout = socketWriteTimeout;
-}
-
-void HTTPAcceptor::setIdleConnectionTimeout(Uint32 idleConnectionTimeoutSeconds)
-{
-    _idleConnectionTimeoutSeconds = idleConnectionTimeoutSeconds;
 }
 
 void HTTPAcceptor::unbind()
@@ -860,7 +864,13 @@ void HTTPAcceptor::_acceptConnection()
     socketPtr.release();
 
     mp_socket->disableBlocking();
-    mp_socket->setSocketWriteTimeout(_socketWriteTimeout);
+    
+    {
+#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+        AutoMutex lock(_socketWriteTimeoutMutex);
+#endif
+        mp_socket->setSocketWriteTimeout(_socketWriteTimeout);
+    }
 
     // Perform the SSL handshake, if applicable.
 
@@ -882,10 +892,8 @@ void HTTPAcceptor::_acceptConnection()
         this,
         _outputMessageQueue));
 
-    if (_idleConnectionTimeoutSeconds)
+    if (HTTPConnection::getIdleConnectionTimeout())
     {
-        connection->_idleConnectionTimeoutSeconds = 
-            _idleConnectionTimeoutSeconds;
         Time::gettimeofday(&connection->_idleStartTime);
     }
 

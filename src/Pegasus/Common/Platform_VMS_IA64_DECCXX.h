@@ -91,4 +91,6 @@
 
 #define PEGASUS_HAVE_NANOSLEEP
 
+#define PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+
 #endif /* Pegasus_Platform_VMS_IA64_DECCXX_h */

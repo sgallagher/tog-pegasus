@@ -100,6 +100,8 @@ public:
     Boolean isChunkRequested();
 
     void setSocketWriteTimeout(Uint32 socketWriteTimeout);
+    static void setIdleConnectionTimeout(Uint32 idleConnectionTimeout);
+    static Uint32 getIdleConnectionTimeout();
 
     Boolean closeConnectionOnTimeout(struct timeval* timeNow);
 
@@ -216,7 +218,10 @@ private:
 
     // Idle connection timeout in seconds specified by Config property
     // idleConnectionTimeout.
-    Uint32 _idleConnectionTimeoutSeconds;
+    static Uint32 _idleConnectionTimeoutSeconds;
+#ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+    static Mutex _idleConnectionTimeoutSecondsMutex;
+#endif
 
     friend class Monitor;
     friend class HTTPAcceptor;

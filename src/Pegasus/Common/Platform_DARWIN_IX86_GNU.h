@@ -38,4 +38,6 @@
 
 #define PEGASUS_ARCHITECTURE_IX86
 
+#define PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+
 #endif /* Pegasus_Platform_DARWIN_IX86_GNU_h */

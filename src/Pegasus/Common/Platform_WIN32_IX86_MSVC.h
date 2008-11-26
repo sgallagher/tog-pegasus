@@ -141,4 +141,6 @@ namespace std
 /* use OpenPegasus semaphore based read/write locking mechanism */
 #define PEGASUS_USE_SEMAPHORE_RWLOCK
 
+#define PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+
 #endif /* Pegasus_Platform_WIN32_IX86_MSVC_h */

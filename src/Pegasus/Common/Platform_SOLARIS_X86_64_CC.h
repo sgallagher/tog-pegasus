@@ -40,4 +40,6 @@
 
 #define PEGASUS_POINTER_64BIT
 
+#define PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+
 #endif /* Pegasus_Platform_SOLARIS_X86_64_CC_h */

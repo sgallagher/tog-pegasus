@@ -38,4 +38,6 @@
 
 #define PEGASUS_ARCHITECTURE_SPARC
 
+#define PEGASUS_INTEGERS_BOUNDARY_ALIGNED
+
 #endif /* Pegasus_Platform_SOLARIS_SPARC_CC_h */

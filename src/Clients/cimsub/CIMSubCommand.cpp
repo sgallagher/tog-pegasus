@@ -1504,7 +1504,7 @@ Boolean CIMSubCommand::_findSubscription(
     CIMObjectPath& subscriptionFound)
 {
     Array<CIMObjectPath> subscriptionPaths;
-    String handlerCreationClass = PEGASUS_CLASSNAME_LSTNRDST_CIMXML.getString();
+    String handlerCreationClass;
     if (handlerCC != String::EMPTY)
     {
         handlerCreationClass = handlerCC;
@@ -2217,7 +2217,7 @@ void CIMSubCommand::_getSubscriptionList(
     CIMNamespaceName filterNamespace;
     CIMNamespaceName handlerNamespace;
     CIMNamespaceName subscriptionNamespace = _DEFAULT_SUBSCRIPTION_NAMESPACE;
-    String handlerCreationClass = PEGASUS_CLASSNAME_LSTNRDST_CIMXML.getString();
+    String handlerCreationClass;
     if (!subscriptionNSIn.isNull())
     {
         subscriptionNamespace = subscriptionNSIn;

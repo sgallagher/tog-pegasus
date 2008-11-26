@@ -2101,7 +2101,7 @@ CmpiData CmpiInstance::getProperty(const char* name) const
     CmpiData d;
     CMPIStatus rc={CMPI_RC_OK,NULL};
     d._data=getEnc()->ft->getProperty(getEnc(),name,&rc);
-    if ((rc.rc != CMPI_RC_OK) && (rc.rc != CMPI_RC_ERR_NOT_FOUND))
+    if ((rc.rc != CMPI_RC_OK) && (rc.rc != CMPI_RC_ERR_NO_SUCH_PROPERTY))
     {
         if (rc.msg)
         {

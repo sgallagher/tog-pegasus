@@ -907,6 +907,72 @@ PEGASUS_NAMESPACE_END
 
 //==============================================================================
 //
+// PEGASUS_PLATFORM_AIX_RS_IBMCXX
+//
+//==============================================================================
+
+#if defined (PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+# define PEGASUS_ATOMIC_INT_DEFINED
+
+# include <sys/atomic_op.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+struct AtomicType
+{
+    volatile Uint32 n;
+};
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+{
+    _rep.n = n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+{
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+{
+    return _rep.n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+{
+    _rep.n = n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    fetch_and_add((atomic_p)&_rep.n, 1);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    fetch_and_add((atomic_p)&_rep.n, -1);
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
+{
+    return fetch_and_add((atomic_p)&_rep.n, -1) == 1;
+}
+
+typedef AtomicIntTemplate<AtomicType> AtomicInt;
+
+PEGASUS_NAMESPACE_END
+
+#endif /* PEGASUS_PLATFORM_AIX_RS_IBMCXX */
+
+
+//==============================================================================
+//
 // Generic Implementation
 //
 //==============================================================================

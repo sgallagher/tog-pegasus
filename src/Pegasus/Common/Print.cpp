@@ -81,13 +81,13 @@ static void _print(ostream& os, const T& x)
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
-static void _print(ostream& os, const Boolean& x)
+void _print(ostream& os, const Boolean& x)
 {
     os << (x ? "true" : "false");
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
-static void _print(ostream& os, const Uint64& x)
+void _print(ostream& os, const Uint64& x)
 {
     char buf[32];
     sprintf(buf, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", x);
@@ -95,7 +95,7 @@ static void _print(ostream& os, const Uint64& x)
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
-static void _print(ostream& os, const Sint64& x)
+void _print(ostream& os, const Sint64& x)
 {
     char buf[32];
     sprintf(buf, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", x);
@@ -103,13 +103,13 @@ static void _print(ostream& os, const Sint64& x)
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
-static void _print(ostream& os, const Char16& x)
+void _print(ostream& os, const Char16& x)
 {
     os << Uint16(x);
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
-static void _print(ostream& os, const CIMDateTime& x)
+void _print(ostream& os, const CIMDateTime& x)
 {
     os << x.toString();
 }

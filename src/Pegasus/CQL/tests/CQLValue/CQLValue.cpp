@@ -490,8 +490,8 @@ try{
    PEGASUS_TEST_ASSERT(a5 == CQLValue(
                CIMDateTime(String("20040811105625.000000-360"))));
    //PEGASUS_TEST_ASSERT(a7 == CQLValue(_i1));
-   PEGASUS_TEST_ASSERT(a9.getValueType() == CQLValue::Null_type);
-   PEGASUS_TEST_ASSERT(a10.getValueType() == CQLValue::Null_type);
+   PEGASUS_TEST_ASSERT(a9.isNull());
+   PEGASUS_TEST_ASSERT(a10.isNull());
 
    }
    catch(Exception & e)

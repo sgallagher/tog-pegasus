@@ -1030,11 +1030,11 @@ Function REFERENCETOSTRING has 0 parameters.  It must have between 1 and 1.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Parameter 1 for function REFERENCETOSTRING has type NULL.  It must be type Reference, or Object.
+Parameter 1 for function REFERENCETOSTRING has type Identifier.  It must be type Reference, or Object.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Parameter 1 for function REFERENCETOSTRING has type NULL.  It must be type Reference, or Object.
+Parameter 1 for function REFERENCETOSTRING has type Identifier.  It must be type Reference, or Object.
 
 =========     116     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE CLASSNAME() = 'CQL_TestPropertyTypes'
@@ -1073,11 +1073,11 @@ malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.Insta
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Parameter 1 for function CLASSNAME has type NULL.  It must be type Reference, String, or Object.
+Parameter 1 for function CLASSNAME has type Identifier.  It must be type Reference, String, or Object.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Parameter 1 for function CLASSNAME has type NULL.  It must be type Reference, String, or Object.
+Parameter 1 for function CLASSNAME has type Identifier.  It must be type Reference, String, or Object.
 
 =========     121     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE NAMESPACENAME() = 'root/SampleProvider'
@@ -1116,11 +1116,11 @@ malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.Insta
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Parameter 1 for function NAMESPACENAME has type NULL.  It must be type Reference, String, or Object.
+Parameter 1 for function NAMESPACENAME has type Identifier.  It must be type Reference, String, or Object.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Parameter 1 for function NAMESPACENAME has type NULL.  It must be type Reference, String, or Object.
+Parameter 1 for function NAMESPACENAME has type Identifier.  It must be type Reference, String, or Object.
 
 =========     126     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE NAMESPACETYPE() = 'Function Not supported'
@@ -1174,11 +1174,11 @@ malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.Insta
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Parameter 1 for function HOSTPORT has type NULL.  It must be type Reference, String, or Object.
+Parameter 1 for function HOSTPORT has type Identifier.  It must be type Reference, String, or Object.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Parameter 1 for function HOSTPORT has type NULL.  It must be type Reference, String, or Object.
+Parameter 1 for function HOSTPORT has type Identifier.  It must be type Reference, String, or Object.
 
 =========     132     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE MODELPATH() = 'CQL_TestPropertyTypes.InstanceId=2'
@@ -1217,11 +1217,11 @@ malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.Insta
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Parameter 1 for function MODELPATH has type NULL.  It must be type Reference, String, or Object.
+Parameter 1 for function MODELPATH has type Identifier.  It must be type Reference, String, or Object.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Parameter 1 for function MODELPATH has type NULL.  It must be type Reference, String, or Object.
+Parameter 1 for function MODELPATH has type Identifier.  It must be type Reference, String, or Object.
 
 =========     137     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE REFERENCETOSTRING(CLASSPATH()) = '//a.b.com/root/SampleProvider:CQL_TestPropertyTypes'
@@ -1249,11 +1249,11 @@ TRUE
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Parameter 1 for function CLASSPATH has type NULL.  It must be type Reference, String, or Object.
+Parameter 1 for function CLASSPATH has type Identifier.  It must be type Reference, String, or Object.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Parameter 1 for function CLASSPATH has type NULL.  It must be type Reference, String, or Object.
+Parameter 1 for function CLASSPATH has type Identifier.  It must be type Reference, String, or Object.
 
 =========     141     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE REFERENCETOSTRING(CLASSPATH('//a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2')) = '//a.b.com/root/SampleProvider:CQL_TestPropertyTypes'
@@ -1292,11 +1292,11 @@ TRUE
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Parameter 1 for function OBJECTPATH has type NULL.  It must be type Reference, String, or Object.
+Parameter 1 for function OBJECTPATH has type Identifier.  It must be type Reference, String, or Object.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Parameter 1 for function OBJECTPATH has type NULL.  It must be type Reference, String, or Object.
+Parameter 1 for function OBJECTPATH has type Identifier.  It must be type Reference, String, or Object.
 
 =========     146     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE REFERENCETOSTRING(OBJECTPATH('//a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2')) = '//a.b.com/root/SampleProvider:CQL_TestPropertyTypes'

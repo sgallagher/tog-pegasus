@@ -279,7 +279,7 @@ class CQLValueRep
                        const QueryContext& inQueryContext);
    Boolean _compareObjects(CIMObject& _in1, CIMObject& _in2);
    Boolean _compareArray(const CQLValueRep& _in);
-   CQLValue::CQLValueType _getCQLType(const CIMType &type);
+   CQLValue::CQLValueType _getCQLType(const CIMType &type) const;
    CIMValue _theValue;
 
    CQLChainedIdentifier _CQLChainId;

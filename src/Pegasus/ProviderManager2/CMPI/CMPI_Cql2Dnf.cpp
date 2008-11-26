@@ -62,10 +62,7 @@ String CQL2String (const CQLExpression & o)
     {
         return "NULL_VALUE";
     }
-    if (val.getValueType() == CQLValue::Null_type)
-    {
-        return "NULL_VALUE";
-    }
+
     return o.toString ();
 }
 
@@ -195,8 +192,6 @@ CMPI_QueryOperand::Type CQL2Type(CQLValue::CQLValueType typ)
 {
     switch (typ)
     {
-        case CQLValue::Null_type:
-            return CMPI_QueryOperand::NULL_TYPE;
         case CQLValue::Sint64_type:
             return CMPI_QueryOperand::SINT64_TYPE;
         case CQLValue::Uint64_type:

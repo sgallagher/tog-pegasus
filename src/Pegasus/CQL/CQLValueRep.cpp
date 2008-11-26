@@ -56,7 +56,10 @@ PEGASUS_USING_STD;
 
 
 CQLValueRep::CQLValueRep()
-  :_theValue(),_CQLChainId(),_isResolved(false),_valueType(CQLValue::Null_type)
+  :_theValue(),
+   _CQLChainId(),
+   _isResolved(false),
+   _valueType(CQLValue::Boolean_type)
 {
 }
 
@@ -289,6 +292,8 @@ void CQLValueRep::resolve(const CIMInstance& CI,
   CIMName classContext = Idstrings[0].getName();
   CIMObject objectContext = CI;
    
+  _theValue = CIMValue();
+
   for(;index < IdSize; ++index)
     {
       // Now we need to verify that the property is in the class.
@@ -297,7 +302,6 @@ void CQLValueRep::resolve(const CIMInstance& CI,
       
       if(propertyIndex == PEG_NOT_FOUND)
     {
-      _valueType = CQLValue::Null_type;
       _isResolved = true;
       return;
     }
@@ -317,16 +321,14 @@ void CQLValueRep::resolve(const CIMInstance& CI,
             == QueryContext::SUPERCLASS)) 
         {
           // The chain is not inline with scope.
-          _valueType = CQLValue::Null_type;
-              _isResolved = true;
+          _isResolved = true;
           return;
         }
     }
       catch(const CIMException &)
     {
       // The chain is not inline with scope.
-      _valueType = CQLValue::Null_type;
-          _isResolved = true;
+      _isResolved = true;
       return;
     }
     CIMType propObjType = propObj.getType();   
@@ -340,7 +342,6 @@ void CQLValueRep::resolve(const CIMInstance& CI,
         (propObj.getValue().isNull()))
     {
         // Object is not embedded.
-        _valueType = CQLValue::Null_type;
         _isResolved = true;
         return;
     }
@@ -472,15 +473,6 @@ Boolean CQLValueRep::operator==(const CQLValueRep& x)
       
       switch(_valueType)
     {
-    case CQLValue::Null_type:
-      {
-        if(x._valueType == CQLValue::Null_type)
-          {
-        return true;
-          }
-      }
-      break;
-      
     case CQLValue::Sint64_type:
       {
         _theValue.get(tmpS64);
@@ -631,12 +623,6 @@ Boolean CQLValueRep::operator<(const CQLValueRep& x)
   
   switch(_valueType)
     {
-    case CQLValue::Null_type:
-      {
-    return false;
-      }
-      break;
-      
     case CQLValue::Sint64_type:
       {
     _theValue.get(tmpS64);
@@ -814,7 +800,7 @@ CQLValue::CQLValueType CQLValueRep::getValueType()
     return _valueType;
 }
 
-CQLValue::CQLValueType CQLValueRep::_getCQLType(const CIMType &type)
+CQLValue::CQLValueType CQLValueRep::_getCQLType(const CIMType &type) const
 {
     switch (type)
     {
@@ -850,8 +836,10 @@ CQLValue::CQLValueType CQLValueRep::_getCQLType(const CIMType &type)
         case CIMTYPE_OBJECT:
         case CIMTYPE_INSTANCE:
             return CQLValue::CIMObject_type;
+     
         default:
-            return CQLValue::Null_type;
+            PEGASUS_ASSERT(0);
+            return CQLValue::Boolean_type; // Never reach here
     }
 }
 
@@ -863,11 +851,7 @@ Boolean CQLValueRep::isResolved()
 
 Boolean CQLValueRep::isNull() const
 {
-   if(_valueType == CQLValue::Null_type || _theValue.isNull())
-   {
-      return true;
-   }
-   return false;
+   return _theValue.isNull();
 }
 
 
@@ -1166,13 +1150,14 @@ void CQLValueRep::_validate(const CQLValueRep& x)
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLValueRep::_validate()");
  
-  // Check for Null_type
-  if (_valueType == CQLValue::Null_type || x._valueType == CQLValue::Null_type)
+  // Check for null and identifier can not be resolved
+  if ((isNull() && _valueType == CQLValue::CQLIdentifier_type) ||
+      (x.isNull() && x._valueType == CQLValue::CQLIdentifier_type))
   {
       PEG_METHOD_EXIT();
       return;
   }
- 
+
   // Do not allow an array value be compared to a non array value.
   if(x._theValue.isArray() != _theValue.isArray())
     {
@@ -2337,9 +2322,6 @@ String CQLValueRep::valueTypeToString(const CQLValue::CQLValueType parmType)
 
   switch (parmType)
   {
-      case CQLValue::Null_type:
-          returnStr.append("NULL");
-          break;
       case CQLValue::Sint64_type:
           returnStr.append("Sint64");
           break;

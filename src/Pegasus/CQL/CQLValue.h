@@ -79,13 +79,14 @@ class PEGASUS_CQL_LINKAGE CQLValue
 public:
 
   enum NumericType  { Hex, Binary,  Decimal, Real};
-  enum CQLValueType { Null_type, Sint64_type, Uint64_type,
+  enum CQLValueType { Sint64_type, Uint64_type,
                       Real_type, String_type,
               CIMDateTime_type,  CIMReference_type, CQLIdentifier_type,
               CIMObject_type, Boolean_type};
 
   /**
-      Contructs CQLValue default object.
+      Constructs null CQLValue object with type Boolean
+      (CQLValueType::Boolean_type).
 
       @param  None.
       @return None.

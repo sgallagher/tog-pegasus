@@ -227,12 +227,12 @@ void test9()
 
     Array<Boolean> b;
     PEGASUS_TEST_ASSERT(cb.getBooleanA(b) && a == b);
-    assert(a.size() == 4);
-    assert(a.size() == b.size());
-    assert(a[0] == b[0]);
-    assert(a[1] == b[1]);
-    assert(a[2] == b[2]);
-    assert(a[3] == b[3]);
+    PEGASUS_TEST_ASSERT(a.size() == 4);
+    PEGASUS_TEST_ASSERT(a.size() == b.size());
+    PEGASUS_TEST_ASSERT(a[0] == b[0]);
+    PEGASUS_TEST_ASSERT(a[1] == b[1]);
+    PEGASUS_TEST_ASSERT(a[2] == b[2]);
+    PEGASUS_TEST_ASSERT(a[3] == b[3]);
 
     Uint32 y;
     PEGASUS_TEST_ASSERT(cb.getUint32(y) && y == 1234);

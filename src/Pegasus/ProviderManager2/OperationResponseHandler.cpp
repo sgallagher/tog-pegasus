@@ -56,6 +56,7 @@ static void _initializeNormalizer(
             request->operationContext.get(
                 CachedClassDefinitionContainer::NAME);
         CIMClass cimClass = container.getClass().clone();
+        container = CachedClassDefinitionContainer(cimClass);
         SharedPtr<NormalizerContext> tmpContext(new CIMOMHandleContext());
         ObjectNormalizer tmpNormalizer(
             cimClass,

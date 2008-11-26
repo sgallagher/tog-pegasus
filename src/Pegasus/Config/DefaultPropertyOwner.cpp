@@ -313,8 +313,7 @@ Boolean DefaultPropertyOwner::isValid(
     // By default, no validation is done. It can optionally be added here
     // per property.
     //
-    if (String::equalNoCase(name, "socketWriteTimeout") ||
-        String::equalNoCase(name, "idleConnectionTimeout"))
+    if (String::equalNoCase(name, "socketWriteTimeout"))
     {
         Uint64 v;
         return 
@@ -322,7 +321,8 @@ Boolean DefaultPropertyOwner::isValid(
             StringConversion::checkUintBounds(v, CIMTYPE_UINT32) &&
             (v != 0);
     }
-    if (String::equalNoCase(name, "maxProviderProcesses"))
+    if (String::equalNoCase(name, "maxProviderProcesses") ||
+        String::equalNoCase(name, "idleConnectionTimeout"))
     {
         Uint64 v;
         return 

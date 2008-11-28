@@ -1202,7 +1202,7 @@ private:
 
     Real64 _swapReal64(Real64 x)
     {
-        return _swapUint64(*((Uint64*)(void*)&x));
+        return _swapSint64(*((Sint64*)(void*)&x));
     }
 
     void _swapUint16Data(Uint16* p, Uint32 n)

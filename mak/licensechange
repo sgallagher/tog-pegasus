@@ -57,7 +57,7 @@ cd src
 # Change mof files in the src directories. They are our files. For now change only thise
 # that already have a license.
 find -name *.mof | grep -v InterfaceArchive | while read filename ; do
-     if grep '\/%2005\/' ${filename} 1> /dev/null
+     if grep '\/%2006\/' ${filename} 1> /dev/null
      then
         make -f $PEGASUS_ROOT/mak/license.mak fix-code-license FILENAME=${filename} >> licensechange.log
      fi
@@ -78,7 +78,7 @@ cd $PEGASUS_ROOT/Schemas
 # also our files. Note that this is conditional and only puts licenses on
 # files that already have them.
 find -name *.mof | grep -v InterfaceArchive | while read filename ; do
-     if grep '\/%2005\/' ${filename} 1> /dev/null
+     if grep '\/%2006\/' ${filename} 1> /dev/null
      then
          make -f $PEGASUS_ROOT/mak/license.mak fix-code-license FILENAME=${filename} >> $LOGFILE
      fi
@@ -94,6 +94,6 @@ done
 
 # Test for any remaining files that have the previous year license
 cd $PEGASUS_ROOT
-grep -r \/%2005\/ . >> $LOGFILE
+grep -r \/%2006\/ . >> $LOGFILE
 echo "Completed"  >> $LOGFILE
 

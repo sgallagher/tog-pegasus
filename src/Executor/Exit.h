@@ -27,7 +27,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 //////////////////////////////////////////////////////////////////////////
-/*
+*/
 
 #ifndef _Executor_Exit_h
 #define _Executor_Exit_h

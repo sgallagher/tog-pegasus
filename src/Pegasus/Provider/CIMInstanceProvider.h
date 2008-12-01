@@ -202,6 +202,9 @@ public:
             the class for which to retrieve the instance names.
 
         @param handler ResponseHandler object for delivery of results.
+        The delivered CIMObjectPath values should not contain host or
+        namespace information, as these attributes are not included in the
+        WBEM protocol.
 
         @exception CIMNotSupportedException
         @exception CIMInvalidParameterException

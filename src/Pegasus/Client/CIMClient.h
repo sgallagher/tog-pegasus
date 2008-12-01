@@ -571,7 +571,8 @@ public:
             enumerate Instance names.
 
         @return An Array of zero or more CIMObjectPaths containing the
-            requested Instance names.
+            requested Instance names.  Host and namespace attributes are not
+            included in these CIMObjectPath values, per the WBEM protocol.
 
         @exception CIMException If the CIM Server fails to perform the
             requested operation.  See DSP0200 for specific CIM Status Codes

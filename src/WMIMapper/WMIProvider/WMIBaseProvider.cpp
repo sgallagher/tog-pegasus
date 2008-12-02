@@ -1,30 +1,30 @@
 //%LICENSE////////////////////////////////////////////////////////////////
-// 
+//
 // Licensed to The Open Group (TOG) under one or more contributor license
 // agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
 // this work for additional information regarding copyright ownership.
 // Each contributor licenses this file to you under the OpenPegasus Open
 // Source License; you may not use this file except in compliance with the
 // License.
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
 // the rights to use, copy, modify, merge, publish, distribute, sublicense,
 // and/or sell copies of the Software, and to permit persons to whom the
 // Software is furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included
 // in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 // IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
 // CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 // TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 //////////////////////////////////////////////////////////////////////////
 //
 // Author: Barbara Packard (barbara_packard@hp.com)
@@ -418,29 +418,29 @@ String WMIBaseProvider::getQueryString(const CIMObjectPath &objectName,
 // WMIBaseProvider::getObjectName - extracts the String object name from
 //        CIMObjectPath
 //        removes namespace
-// 
+//
 // Possible input Object Path formats: 
 // 1. Fully-qualified path 
 //     example: \\hostname:port\root\cimv2:ClassName.Key1="Value",Key2="Value" 
-// 
+//
 // 2. No hostname & port (implies current host) 
 //     example: root\cimv2:ClassName.Key1="Value",Key2="Value" 
-// 
+//
 // 3. No namespace (implies current namespace): 
 //     example: ClassName.Key1="Value",Key2="Value" 
-// 
+//
 // 4. Reference instance 
 //     example: ClassName.Key1=R"root\cimv2:RefClass.Key="RefValue"" 
-// 
+//
 // In all cases, this method needs to return only the class name and keys from 
 // the input object path (need to strip any hostname, port, and namespace). 
 // For example, the return for cases #1-3, above, should be: 
 //    ClassName.Key1="Value",Key2="Value" 
-// 
+//
 // Also, for "reference" keys, the reference indicator (R) needs to be 
 // removed. Therefore, the output from case #4, above, would be: 
 //    ClassName.Key1="root\cimv2:RefClass.Key="RefValue"" 
-// 
+//
 // ///////////////////////////////////////////////////////////////////////////
 String WMIBaseProvider::getObjectName( const CIMObjectPath& objectName)
 {

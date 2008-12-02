@@ -1,30 +1,30 @@
 //%LICENSE////////////////////////////////////////////////////////////////
-// 
+//
 // Licensed to The Open Group (TOG) under one or more contributor license
 // agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
 // this work for additional information regarding copyright ownership.
 // Each contributor licenses this file to you under the OpenPegasus Open
 // Source License; you may not use this file except in compliance with the
 // License.
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
 // the rights to use, copy, modify, merge, publish, distribute, sublicense,
 // and/or sell copies of the Software, and to permit persons to whom the
 // Software is furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included
 // in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 // IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
 // CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 // TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 //////////////////////////////////////////////////////////////////////////
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -4308,14 +4308,14 @@ Boolean XmlReader::getReturnValueElement(
 //
 // The following is a common set of version tests used by the different
 // Pegasus Request and Response Decoders
-// 
+//
 //------------------------------------------------------------------------------
 //
 // isSupportedCIMVersion()
 // tests for valid CIMVersion number
 //
 // Reject cimVersion not in 2.[0-9]+
-// 
+//
 // CIMXML Secification, Version 2.2 Final, Sect 3.2.1.1
 // The CIMVERSION attribute defines the version of the CIM Specification to 
 // which the XML Document conforms.  It MUST be in the form of "M.N".  Where 
@@ -4365,7 +4365,7 @@ Boolean XmlReader::isSupportedCIMVersion(
 // Implementations must only validate the major version as all minor versions
 // are backward compatible. Implementations may look at the minor version to
 // determine additional capabilites.
-// 
+//
 //------------------------------------------------------------------------------
 Boolean XmlReader::isSupportedProtocolVersion(
     const String& protocolVersion)
@@ -4399,7 +4399,7 @@ Boolean XmlReader::isSupportedProtocolVersion(
 // isSupportedDTDVersion()
 // Tests for Valid dtdVersion number
 // We accept DTD version 2.[0-9]+ (see Bugzilla 1556)//
-// 
+//
 // CIM/XML Specification, V 2.2 Final, Section 3.2.1.1
 // The DTDVERSION attribute defines the version of the CIM XML Mapping to 
 // which the XML Document conforms.  It MUST be in the form of "M.N".  Where 

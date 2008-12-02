@@ -1583,7 +1583,7 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
         }
         catch (CIMException& ce)
         {
-            if (ce.getCode() == CIM_ERR_NOT_FOUND)
+            if (ce.getCode() == CIM_ERR_INVALID_PARAMETER)
             {
                 CIMName dependentClassName(ce.getMessage());
 

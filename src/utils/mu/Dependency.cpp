@@ -33,6 +33,7 @@
 #include <utils/mu/Dependency.h>
 #include <cstdio>
 #include <cstddef>
+#include <cstring>
 #include <Pegasus/Common/PegasusAssert.h>
 
 void ErrorExit(const char* programName, const string& message)

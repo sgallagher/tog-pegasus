@@ -32,6 +32,7 @@
 #include "SrcListCmd.h"
 #include <cstdio>
 #include <cstddef>
+#include <cstring>
 
 void PrintSrcDependency(const string& fileName)
 {

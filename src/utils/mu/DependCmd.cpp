@@ -34,6 +34,7 @@
 #include "DependCmd.h"
 #include <cstdio>
 #include <cstddef>
+#include <cstring>
 
 #if defined (OS_WINDOWS) || defined (OS_VMS)
 # define OBJ_EXT ".obj"

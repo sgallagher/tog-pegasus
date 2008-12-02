@@ -28,6 +28,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
+#include <cstring>
 #include "Config.h"
 #include "CompareCmd.h"
 #include "CopyCmd.h"

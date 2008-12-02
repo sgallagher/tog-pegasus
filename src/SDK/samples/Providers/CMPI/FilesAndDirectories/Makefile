@@ -33,10 +33,11 @@ LIBRARY = SDKFilesAndDirectories
 
 SOURCE_DIR = Providers/CMPI/FilesAndDirectories
 
-LIBRARIES = SDKcmpiCWS_Util
+EXTRA_LINK_ARGUMENTS += -L $(PEGASUS_SAMPLE_LIB_DIR) -lSDKcmpiCWS_Util
 
-EXTRA_LINK_ARGUMENTS = -L $(PEGASUS_SAMPLE_LIB_DIR) \
-    -Xlinker -rpath -Xlinker $(PEGASUS_SAMPLE_LIB_DIR)
+ifeq ($(OS),linux)
+   EXTRA_LINK_ARGUMENTS += -Xlinker -rpath -Xlinker $(PEGASUS_SAMPLE_LIB_DIR)
+endif
 
 SOURCES = \
    CWS_PlainFile.c \

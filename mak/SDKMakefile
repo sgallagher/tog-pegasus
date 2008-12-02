@@ -81,7 +81,17 @@ ifdef PACKAGED_PLATFORM_FILES
 else
    RUNTIME_PLATFORM_TEST_NEEDED = false
    PACKAGED_PLATFORM_FILES = $(PEGASUS_PLATFORM)
-endif   
+endif
+
+ifeq ($(OS),linux)
+   PACKAGED_PLATFORM_GENERIC_FILES = LINUX_GNU
+endif
+ifeq ($(OS),HPUX)
+   PACKAGED_PLATFORM_GENERIC_FILES = HPUX_ACC
+endif 
+ifeq ($(OS),solaris)
+   PACKAGED_PLATFORM_GENERIC_FILES = SOLARIS_CC
+endif 
 
 INCLUDE_SRCPATH = $(PEGASUS_ROOT)/src
 
@@ -333,6 +343,9 @@ create_ProductInstallationVerificationScript:
 	@$(foreach i, $(PACKAGED_PLATFORM_FILES), $(ECHO-E) "ls -ld" \
              "$(PEGASUS_SAMPLES_DIR)/mak/platform_$(i).mak" \
              >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall$(NL))
+	@$(foreach i, $(PACKAGED_PLATFORM_GENERIC_FILES), $(ECHO-E) "ls -ld" \
+             "$(PEGASUS_SAMPLES_DIR)/mak/platform_$(i).mak" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall$(NL))
 
 createSDKEnvVarFile:
 	@$(ECHO) "ifndef PEGASUS_BIN_DIR" \
@@ -506,6 +519,9 @@ stageSAMPLES:
 	@$(foreach i, $(PROVIDERSRCPATH1FILES), $(COPY) $(PROVIDER_SRCPATH1)/$(i) \
             $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/Providers/$(i)$(NL))
 	@$(foreach i, $(PACKAGED_PLATFORM_FILES), \
+            $(COPY) $(CLIENT_SRCPATH1)/mak/platform_$(i).mak \
+            $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/platform_$(i).mak$(NL))
+	@$(foreach i, $(PACKAGED_PLATFORM_GENERIC_FILES), \
             $(COPY) $(CLIENT_SRCPATH1)/mak/platform_$(i).mak \
             $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/platform_$(i).mak$(NL))
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile createConfigFile

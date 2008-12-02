@@ -27,36 +27,5 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 
-ECHO = echo
-MKDIRHIER = mkdir -p
-RM = rm -f
-TOUCH = touch
+include $(ROOT)/mak/platform_SOLARIS_CC.mak
 
-
-SYM_LINK_LIB = $(PEGASUS_PROVIDER_LIB_DIR)/lib$(LIBRARY)
-
-SYS_LIBS = -lpthread -lrt
-
-OBJ_SUFFIX = .o
-LINK_OUT = -o
-PLATFORM_LIB_SUFFIX = so
-
-ifdef PEGASUS_DEBUG
-FLAGS = -g -KPIC -mt -xs -xildoff +w
-else
-FLAGS = -O4 -KPIC -mt -xildoff -s -xipo=1 +w
-endif
-
-DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
-
-PROGRAM_COMPILE_OPTIONS = $(FLAGS) 
-
-PROGRAM_LINK_OPTIONS = $(PROGRAM_COMPILE_OPTIONS)
-
-COMPILE_CXX_COMMAND = CC
-COMPILE_C_COMMAND = cc
-LIBRARY_LINK_COMMAND = $(COMPILE_CXX_COMMAND)
-PROGRAM_LINK_COMMAND =  $(COMPILE_CXX_COMMAND)
-
-LIBRARY_COMPILE_OPTIONS = $(PROGRAM_COMPILE_OPTIONS)
-LIBRARY_LINK_OPTIONS = $(PROGRAM_LINK_OPTIONS) -G

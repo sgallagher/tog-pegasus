@@ -5,8 +5,8 @@
    <METHODCALL NAME="SayHello"> 
     <LOCALINSTANCEPATH> 
      <LOCALNAMESPACEPATH> 
-      <NAMESPACE NAME="root"/> 
-      <NAMESPACE NAME="SampleProvider"/> 
+      <NAMESPACE NAME="SDKExamples"/> 
+      <NAMESPACE NAME="DefaultCXX"/> 
      </LOCALNAMESPACEPATH> 
      <INSTANCENAME CLASSNAME="Sample_MethodProviderClass"> 
       <KEYBINDING NAME="Identifer"><KEYVALUE>1</KEYVALUE></KEYBINDING> 

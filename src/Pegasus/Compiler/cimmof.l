@@ -34,7 +34,7 @@
 %option yylineno
 %{
 
-/* NOCHKSRC */
+
 #include "cimmofParser.h"
 #include "memobjs.h"
 #include "cimmof_tab.h"

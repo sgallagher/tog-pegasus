@@ -72,6 +72,11 @@ include $(ROOT)/mak/library.mak
 ##
 ## To make these files type: "make grammar"
 ##
+## NOTE: Normally developers should never need to compile the WQL grammar.
+## The generate source files are committed to CVS as part of any changes
+## to the lex or yacc defintions so only developers of the grammar itsel
+## need execute the make grammar below.
+##
 ##------------------------------------------------------------------------------
 
 
@@ -90,6 +95,7 @@ export BISON_SIMPLE = bison.simple
 lex_rule:
 	$(LEX) -oWQLLEX.cpp -PWQL_ WQL.l
 	$(TOUCH) WQLLEX.cpp
+	mu prepend ../nochksrc.txt WQLLEX.cpp
 
 ##
 ## Yacc rule:
@@ -108,3 +114,5 @@ else
 	$(RM) WQLtemp WQLtemp.h WQLtemp.output wqltemp.out
 	$(TOUCH) WQLYACC.cpp WQLYACC.h
 endif
+	mu prepend ../nochksrc.txt WQLYACC.h
+	mu prepend ../nochksrc.txt WQLYACC.cpp

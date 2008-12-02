@@ -27,7 +27,6 @@
 //
 /////////////////////////////////////////////////////////////////////////*/
 
-/* NOCHKSRC */
 
 %option never-interactive
 %{
@@ -177,12 +176,12 @@ IDENT_CHAR [A-Za-z_]
     /* Copy the string (but remove the surrounding quotes */
 
     {
-	size_t n = strlen(yytext) - 2;
-	char* strValue = new char[n + 1];
-	memcpy(strValue, yytext + 1, n);
-	strValue[n] = '\0';
-	WQL_lval.strValue = strValue;
-	globalParserState->outstandingStrings.append(strValue);
+    size_t n = strlen(yytext) - 2;
+    char* strValue = new char[n + 1];
+    memcpy(strValue, yytext + 1, n);
+    strValue[n] = '\0';
+    WQL_lval.strValue = strValue;
+    globalParserState->outstandingStrings.append(strValue);
     }
 
     return TOK_STRING;
@@ -245,12 +244,12 @@ IDENT_CHAR [A-Za-z_]
     WQL_TRACE(("LEX: %s [TOK_IDENTIFIER]\n", yytext));
 
     {
-	size_t n = strlen(yytext);
-	char* strValue = new char[n + 1];
-	memcpy(strValue, yytext, n);
-	strValue[n] = '\0';
-	WQL_lval.strValue = strValue;
-	globalParserState->outstandingStrings.append(strValue);
+    size_t n = strlen(yytext);
+    char* strValue = new char[n + 1];
+    memcpy(strValue, yytext, n);
+    strValue[n] = '\0';
+    WQL_lval.strValue = strValue;
+    globalParserState->outstandingStrings.append(strValue);
     }
 
     return TOK_IDENTIFIER;

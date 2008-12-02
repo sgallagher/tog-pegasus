@@ -1,4 +1,6 @@
+/* To be inserted in other files to bypass the chksrc tests */
 /* NOCHKSRC */
+
 /* A Bison parser, made by GNU Bison 2.3.  */
 
 /* Skeleton interface for Bison's Yacc-like parsers in C
@@ -95,14 +97,14 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 89 "WQL.y"
+#line 87 "WQL.y"
 {
    int intValue;
    double doubleValue;
    char* strValue;
    void* nodeValue;
 }
-/* Line 1529 of yacc.c.  */
+/* Line 1489 of yacc.c.  */
 #line 106 "WQLtemp.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

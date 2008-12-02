@@ -30,9 +30,10 @@
 #  NOTE:  The grammar and parser are no longer built in this makefile,
 #  and in fact flex and bison are assumed to already have been run 
 #  and their output committed to CVS.  Run 
-#      make -f Makefile.grammar
-#  to generate cimmof_tab.cpp, cimmof_tab.h, and cimmof_lex.cpp, 
-#  and remember to  commit them afterwards.
+#      make grammar
+#           which executes the grammar makefile
+#  to generate cimmof_tab.cpp, cimmof_tab.h, and cimmof_lex.cpp.
+#  Remember to  commit them afterwards.
 #
 
 ROOT = ../../..
@@ -91,3 +92,7 @@ $(OBJ_DIR)/cimmof_lex_wrapper$(OBJ) : cimmof_lex.cpp
 
 local_clean_target:
 	$(RM) cimmoftemp.out cimmoftemp.output
+	
+## Make the grammar files by executing Makefile.grammar
+grammar:
+	make -f Makefile.grammar

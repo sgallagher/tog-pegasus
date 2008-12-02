@@ -1,3 +1,6 @@
+/* To be inserted in other files to bypass the chksrc tests */
+/* NOCHKSRC */
+
 /* A Bison parser, made by GNU Bison 2.3.  */
 
 /* Skeleton interface for Bison's Yacc-like parsers in C
@@ -32,8 +35,6 @@
 
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
-
-/* NOCHKSRC */
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -180,7 +181,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 170 "cimmof.y"
+#line 169 "cimmof.y"
 {
   //char                     *strval;
   CIMClass                 *mofclass;
@@ -203,7 +204,7 @@ typedef union YYSTYPE
   struct pragma            *pragma;
   TYPED_INITIALIZER_VALUE  *typedinitializer;
 }
-/* Line 1529 of yacc.c.  */
+/* Line 1489 of yacc.c.  */
 #line 206 "cimmoftemp.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

@@ -28,7 +28,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 */
-/* NOCHKSRC */
 
 /* 
    This file describes the language tokens possible for CQL. When a token is
@@ -287,7 +286,7 @@ Z [Zz]
     CQL_globalParserState->tokenCount++;
     return TOK_OR;
 }
-
+    /* NOCHKSRC */
 {IDENT_CHAR_NO_NUM}{IDENT_CHAR}*\:\:{IDENT_CHAR_NO_NUM}({IDENT_CHAR}*|{IDENT_CHAR}*\[.*\]|{IDENT_CHAR}*#\'.*\') {
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
@@ -295,7 +294,7 @@ Z [Zz]
      size_t n;
      if(CQL_lval.strValue)
              delete [] CQL_lval.strValue;
-
+     /* CHKSRC */
     // chuck
     if (!isUTF8Str(yytext))
     {   
@@ -440,7 +439,7 @@ Z [Zz]
     /*CQL_lval.realValue = strtod((char*)yytext, (char**)0);*/
     return TOK_NEGATIVE_REAL;
 }
-
+    /* NOCHKSRC */
 ([+]?{DECIMAL_DIGIT}*\.{DECIMAL_DIGIT}+([eE][+-]?{DECIMAL_DIGIT}+)?)|([+]?{DECIMAL_DIGIT}+\.{DECIMAL_DIGIT}*([eE][+-]?{DECIMAL_DIGIT}+)?) {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_REAL] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
@@ -455,7 +454,7 @@ Z [Zz]
     /*CQL_lval.realValue = strtod((char*)yytext, (char**)0);*/
     return TOK_REAL;
 }
-
+    /* CHKSRC */
 \'((\\')|(\\\\)|[^'(\\')])*\' {
     /* \'[^\'\n]*\' */
     /* ATTN-B: handle long literals by using yyinput(). */
@@ -469,7 +468,6 @@ Z [Zz]
     String _esc_doubleslash = "\\\\";
     String _esc_singlequote = "\\'";
 
-    // chuck
     if (!isUTF8Str(yytext))
     {   
         CQL_DEBUG_TRACE("LEX: [STRING]-> BAD UTF\n");

@@ -92,6 +92,10 @@ include $(ROOT)/mak/library.mak
 ##
 ## To make these files type: "make grammar"
 ##
+## NOTE: Normally developers should never need to compile the CQL grammar.
+## The generate source files are committed to CVS as part of any changes
+## to the lex or yacc defintions so only developers of the grammar itsel
+## need execute the make grammar below.
 ##------------------------------------------------------------------------------
                                                                                                                                        
                                                                                                                                        
@@ -118,7 +122,7 @@ lex_rule:
 	$(COPY) lex.CQL_.c CQLLEX.cpp
 	$(RM) lex.CQL_.c
 	$(TOUCH) CQLLEX.cpp
-
+	mu prepend ../nochksrc.txt CQLLEX.cpp
 ##
 ## Yacc rule:
 ##
@@ -136,4 +140,6 @@ else
 	$(RM) CQLtemp CQLtemp.h
 	$(TOUCH) CQLYACC.cpp CQLYACC.h
 endif
-
+	mu prepend ../nochksrc.txt CQLYACC.h
+	mu prepend ../nochksrc.txt CQLYACC.cpp
+	

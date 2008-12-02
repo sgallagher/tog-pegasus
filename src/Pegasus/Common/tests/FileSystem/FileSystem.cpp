@@ -62,7 +62,8 @@ void TestGetLine(const String& tmpDir)
     {
         ofstream os;
         PEGASUS_TEST_ASSERT(Open(os, fileName));
-        os << outputLine.getCString() << endl;
+        os.write(utf8Mixed, 13);
+        os.put('\n');
     }
 
     {

@@ -63,7 +63,7 @@
 #include <stdlib.h>
 #include "../Common/getopts.h"
 
-#define MAXPATHLEN 4096
+#define RMAXPATHLEN 4096
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # define RCMPI_MKDIR(dir) mkdir(dir)
@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
     char *pegasushome = 0;
     char *pathseparator = 0;
     char *repositoryname = "repository";
-    char rdir[MAXPATHLEN];
+    char rdir[RMAXPATHLEN];
     int  rlen;
 
 

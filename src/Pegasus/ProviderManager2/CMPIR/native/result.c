@@ -185,6 +185,12 @@ static CMPIStatus __rft_returnDone ( CONST CMPIResult * result )
     return rc;
 }
 
+#ifdef CMPI_VER_200
+CMPIStatus __rft_returnError(CONST CMPIResult* rslt, CONST CMPIError* er)
+{
+    CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
+}
+#endif
 
 static struct native_result * __new_empty_result ( 
     int mm_add,
@@ -197,7 +203,10 @@ static struct native_result * __new_empty_result (
         __rft_returnData,
         __rft_returnInstance,
         __rft_returnObjectPath,
-        __rft_returnDone
+        __rft_returnDone,
+#ifdef CMPI_VER_200
+        __rft_returnError
+#endif
     };
     static CMPIResult r = {
         "CMPIResult",

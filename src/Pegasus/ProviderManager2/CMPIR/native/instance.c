@@ -515,9 +515,9 @@ CMPIInstance * native_new_CMPIInstance(
     instance->mem_state = TOOL_MM_ADD;
 
     str = CMGetClassName(cop, &tmp2);
-    instance->classname = CMGetCharsPtr(str, NULL);
+    instance->classname = (char*)CMGetCharsPtr(str, NULL);
     str = CMGetNameSpace(cop, &tmp3);
-    instance->namespace = CMGetCharsPtr(str, NULL);
+    instance->namespace = (char*)CMGetCharsPtr(str, NULL);
 
     if (tmp1.rc != CMPI_RC_OK ||
         tmp2.rc != CMPI_RC_OK ||

@@ -370,7 +370,7 @@ PEGASUS_EXPORT CMPIDateTime * native_new_CMPIDateTime_fromChars (
     const char *,
     CMPIStatus * );
 PEGASUS_EXPORT CMPISelectExp * native_new_CMPISelectExp ( 
-    CMPIUint32,
+    CMPIUint64,
     CMPIStatus * );
 PEGASUS_EXPORT CMPIContext *  native_new_CMPIContext ( int mem_state );
 PEGASUS_EXPORT void  native_release_CMPIContext ( CONST CMPIContext * );

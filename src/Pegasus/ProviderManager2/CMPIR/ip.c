@@ -247,7 +247,7 @@ PEGASUS_EXPORT void accept_connections (
     CMPI_THREAD_TYPE t;
     int in_socket, listen_socket;
     struct sockaddr_in sin;
-    int sin_len = sizeof ( sin );
+    socklen_t sin_len = sizeof ( sin );
 
     int ru = 1;
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -286,7 +286,7 @@ PEGASUS_EXPORT void accept_connections (
     while (( in_socket = accept ( 
         listen_socket,
         (struct sockaddr *) &sin,
-        (size_t *) &sin_len ) ) > 0)
+        &sin_len ) ) > 0)
     {
         if (_die == 1)
         {
@@ -300,13 +300,13 @@ PEGASUS_EXPORT void accept_connections (
             SO_LINGER,
             &__linger,
             sizeof ( struct linger ) );
-
+        ssize_t param = in_socket;
         if (multithreaded)
         {
 
             t = CMPI_BrokerExt_Ftab->newThread(
                 (void *(PEGASUS_CMPIR_STDCALL*)(void *))__connection_handler,
-                (void *) in_socket,
+                (void *) param,
                 1);
 
         }

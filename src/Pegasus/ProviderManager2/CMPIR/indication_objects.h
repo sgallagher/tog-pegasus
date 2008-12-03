@@ -76,7 +76,8 @@ typedef struct indication_objects indication_objects;
 typedef struct ind_object ind_object;
 struct ind_object
 {
-    CMPIUint32 id;
+    CMPIUint64 id;
+    void *ptr;
     CMPIUint8 type;
     ind_object *next;
 };
@@ -91,12 +92,12 @@ struct indication_objects
 
 /****************************************************************************/
 
-PEGASUS_EXPORT CMPIUint32 create_indicationObject (
+PEGASUS_EXPORT CMPIUint64 create_indicationObject (
     void *obj,
     CMPIUint32 ctx_id,
     CMPIUint8 type);
 PEGASUS_EXPORT int remove_indicationObject (void *obj, CMPIUint32 ctx_id);
-PEGASUS_EXPORT void *get_indicationObject (CMPIUint32 id, CMPIUint32 ctx_id);
+PEGASUS_EXPORT void *get_indicationObject (CMPIUint64 id, CMPIUint32 ctx_id);
 PEGASUS_EXPORT void cleanup_indicationObjects (CMPIUint32 ctx_id);
 #endif
 

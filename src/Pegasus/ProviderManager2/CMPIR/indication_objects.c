@@ -67,16 +67,16 @@ void __free_ind_object (ind_object *obj)
     switch (obj->type)
     {
         case PEGASUS_INDICATION_OBJECT_TYPE_CMPI_SELECT_EXP :
-            CMRelease ( (CMPISelectExp*)obj->id);
+            CMRelease ( (CMPISelectExp*)obj->ptr);
             break;
         case PEGASUS_INDICATION_OBJECT_TYPE_CMPI_SELECT_COND:
-            CMRelease ( (CMPISelectCond*)obj->id);
+            CMRelease ( (CMPISelectCond*)obj->ptr);
             break;
         case PEGASUS_INDICATION_OBJECT_TYPE_CMPI_SUB_COND:
-            CMRelease ( (CMPISubCond*)obj->id);
+            CMRelease ( (CMPISubCond*)obj->ptr);
             break;
         case PEGASUS_INDICATION_OBJECT_TYPE_CMPI_PREDICATE:
-            CMRelease ( (CMPIPredicate*)obj->id);
+            CMRelease ( (CMPIPredicate*)obj->ptr);
             break;
         default :
             TRACE_CRITICAL(("Unknown Object type: %d", obj->type ));
@@ -89,7 +89,7 @@ void __free_ind_object (ind_object *obj)
     calls made on this object on daemon side, will make UP calls
     to MB and uses this object.
 */
-CMPIUint32 create_indicationObject (
+CMPIUint64 create_indicationObject (
     void *obj, 
     CMPIUint32 ctx_id, 
     CMPIUint8 type)
@@ -121,14 +121,15 @@ CMPIUint32 create_indicationObject (
         tmp->objects = NULL;
     }
     ind_obj = (ind_object*) malloc ( sizeof ( ind_object ) );
-    ind_obj->id = (CMPIUint32) obj;
+    ind_obj->id = (ssize_t) obj;
+    ind_obj->ptr = obj;
     ind_obj->type = type;
     ind_obj->next = tmp->objects;
     tmp->objects = ind_obj;
 
     CMPI_BrokerExt_Ftab->unlockMutex(_indication_objects_lock);
 
-    TRACE_INFO(("Created object with id: %u", ind_obj->id ));
+    TRACE_INFO(("Created object with id: %llu", ind_obj->id ));
 
     return ind_obj->id;
 }
@@ -137,7 +138,7 @@ int remove_indicationObject (void *obj, CMPIUint32 ctx_id)
 {
     ind_object **tmp;
     indication_objects *curr;
-    CMPIUint32 id = ( (ind_object*)obj)->id;
+    CMPIUint64 id = ( (ind_object*)obj)->id;
 
     TRACE_NORMAL(("Deleting Indication Object."));
 
@@ -159,7 +160,7 @@ int remove_indicationObject (void *obj, CMPIUint32 ctx_id)
             ind_object *r = (*tmp);
             (*tmp) = r->next;
             __free_ind_object (r);
-            TRACE_INFO(("Deleted Indication Object with ID: %u", id));
+            TRACE_INFO(("Deleted Indication Object with ID: %llu", id));
             CMPI_BrokerExt_Ftab->unlockMutex(_indication_objects_lock);
             return 0;
         }
@@ -168,7 +169,7 @@ int remove_indicationObject (void *obj, CMPIUint32 ctx_id)
     return -1;
 }
 
-void* get_indicationObject (CMPIUint32 id, CMPIUint32 ctx_id)
+void* get_indicationObject (CMPIUint64 id, CMPIUint32 ctx_id)
 {
     indication_objects *curr;
     ind_object *tmp;
@@ -205,9 +206,9 @@ void* get_indicationObject (CMPIUint32 id, CMPIUint32 ctx_id)
     {
         if (tmp->id == id)
         {
-            TRACE_INFO(("Got the Indication Object with ID: %u", id));
+            TRACE_INFO(("Got the Indication Object with ID: %llu", id));
             CMPI_BrokerExt_Ftab->unlockMutex(_indication_objects_lock);
-            return(void*)tmp->id;
+            return tmp->ptr;
         }
     }
     CMPI_BrokerExt_Ftab->unlockMutex(_indication_objects_lock);

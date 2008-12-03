@@ -802,7 +802,7 @@ static char * __deserialize_string ( int fd, CONST CMPIBroker * broker )
     {
         CMPIString * str = CMNewString ( broker, tmp, NULL );
         free ( tmp );
-        return CMGetCharsPtr ( str, NULL );
+        return (char*)CMGetCharsPtr ( str, NULL );
     }
     return NULL;
 }
@@ -984,7 +984,7 @@ static ssize_t __serialize_CMPIObjectPath ( int fd, CONST CMPIObjectPath * cop )
 static CMPIObjectPath * __deserialize_CMPIObjectPath ( int fd,
     CONST CMPIBroker * broker )
 {
-    char * namespace, * classname;
+    const char * namespace, * classname;
     CMPIObjectPath * cop;
     unsigned int i;
     CMPIString * tmp;
@@ -1238,7 +1238,7 @@ static ssize_t __serialize_CMPISelectExp (
         return 0;
     }
 
-    return __serialize_UINT32 (
+    return (ssize_t)__serialize_UINT64 (
         fd,
         create_indicationObject (
         (CMPISelectExp*)sexp,
@@ -1257,7 +1257,7 @@ static CMPISelectExp * __deserialize_CMPISelectExp (
     }
 
     return(CMPISelectExp*) get_indicationObject (
-        __deserialize_UINT32 (fd), 
+        __deserialize_UINT64 (fd), 
         ctx_id);
 }
 
@@ -1411,14 +1411,16 @@ static ssize_t __serialize_CMPIMsgFileHandle (
     int fd, 
     CMPIMsgFileHandle msgFileHandle )
 {
-    return(__serialize_UINT32 ( fd, (CMPIUint32)msgFileHandle ));
+    ssize_t handle = (ssize_t)msgFileHandle;
+    return(__serialize_UINT32 ( fd, (CMPIUint32)handle));
 }
 
 static CMPIMsgFileHandle __deserialize_CMPIMsgFileHandle ( 
     int fd, 
     CONST CMPIBroker * broker )
 {
-    return((CMPIMsgFileHandle)__deserialize_UINT32 ( fd ));
+    ssize_t handle = __deserialize_UINT32(fd);
+    return((CMPIMsgFileHandle)handle);
 }
 
 

@@ -89,7 +89,9 @@ static CMPIString * __sft_clone ( CONST CMPIString * string, CMPIStatus * rc )
 }
 
 
-static char * __sft_getCharPtr ( CONST CMPIString * string, CMPIStatus * rc )
+static const char * __sft_getCharPtr(
+    CONST CMPIString * string, 
+    CMPIStatus * rc)
 {
     if (!checkArgs(string, rc))
     {

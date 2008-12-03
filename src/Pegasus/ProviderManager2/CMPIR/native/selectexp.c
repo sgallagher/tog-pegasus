@@ -55,13 +55,13 @@ struct native_selectexp
 {
     CMPISelectExp exp;
     int mem_state;
-    CMPIUint32 id;
+    CMPIUint64 id;
 };
 
 
 static struct native_selectexp * __new_exp ( 
     int mem_state,
-    CMPIUint32 id,
+    CMPIUint64 id,
     CMPIStatus *rc);
 
 
@@ -186,7 +186,7 @@ CMPIBoolean __eft_evaluateUsingAccessor (
 
 static struct native_selectexp * __new_exp ( 
     int mm_add,
-    CMPIUint32 id,
+    CMPIUint64 id,
     CMPIStatus * rc )
 {
     static CMPISelectExpFT eft = {
@@ -217,7 +217,7 @@ static struct native_selectexp * __new_exp (
     return exp;
 }
 
-CMPISelectExp * native_new_CMPISelectExp ( CMPIUint32 id, CMPIStatus * rc)
+CMPISelectExp * native_new_CMPISelectExp(CMPIUint64 id, CMPIStatus * rc)
 {
     return(CMPISelectExp *) __new_exp ( 
         TOOL_MM_NO_ADD,
@@ -225,7 +225,7 @@ CMPISelectExp * native_new_CMPISelectExp ( CMPIUint32 id, CMPIStatus * rc)
         rc );
 }
 
-CMPISelectExp * native_new_CMPISelectExp_add ( CMPIUint32 id, CMPIStatus * rc )
+CMPISelectExp * native_new_CMPISelectExp_add(CMPIUint64 id, CMPIStatus * rc)
 {
     return(CMPISelectExp *) __new_exp ( 
         TOOL_MM_ADD,
@@ -246,7 +246,7 @@ void native_release_CMPISelectExp( CONST CMPISelectExp *filter)
 // These functions help in serializing and deserializing the
 // CMPISelectExp -V 5245
 
-PEGASUS_EXPORT CMPIUint32 create_indicationObject (
+PEGASUS_EXPORT CMPIUint64 create_indicationObject (
     CMPISelectExp *se, 
     CMPIUint32 ctx_id, 
     CMPIUint8 type)
@@ -257,7 +257,7 @@ PEGASUS_EXPORT CMPIUint32 create_indicationObject (
 }
 
 PEGASUS_EXPORT CMPISelectExp *get_indicationObject (
-    CMPIUint32 id, 
+    CMPIUint64 id, 
     CMPIUint32 ctx_id)
 {
     if (ctx_id)

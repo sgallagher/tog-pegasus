@@ -242,9 +242,9 @@ static CMPIString * __beft_toString (
             {
                 return instance2String((CMPIInstance*)object,rc);
             }
-            if (((CMPIInstance*)object)->ft==CMPI_Args_FT)
+            if (((CMPIArgs*)object)->ft==CMPI_Args_FT)
             {
-                return args2String((CMPIInstance*)object,rc);
+                return args2String((CMPIArgs*)object,rc);
             }
         }
     }
@@ -492,7 +492,7 @@ CMPIStatus checkArgsReturnStatus(const void *ptr)
 {
     CMPIStatus rc = { CMPI_RC_OK, NULL};
 
-    if (!ptr || !(void*)(*( (int*)ptr) ))
+    if (!ptr || !(ssize_t*)(*( (ssize_t*)ptr) ))
     {
         rc.rc = CMPI_RC_ERR_INVALID_HANDLE;
     }

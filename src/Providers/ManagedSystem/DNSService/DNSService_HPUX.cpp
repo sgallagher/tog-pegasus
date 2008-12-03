@@ -236,17 +236,11 @@ Boolean DNSService::getDNSName(String & name)
         // initialize dnsName to root domain(" ")
         dnsName.assign(" ");
 
-        //It is suggested to use sysconf and get the Max hostname
-        // length than using the MAXHOSTNAMELEN 
-        char *host=NULL;
-        Uint32 hostNameLength=0;
-        hostNameLength = sysconf(_SC_HOST_NAME_MAX);
+        char host[PEGASUS_MAXHOSTNAMELEN + 1];
 
-        host =(char *) malloc(hostNameLength+1);
-        if (gethostname(host,hostNameLength+1) == 0)
+        if (gethostname(host,sizeof(host)) == 0)
         {
-            if(host != NULL)
-            {
+                host[sizeof(host)-1] = 0;
                 String hostName(host);
                 Uint32 domainIndex =0;
 
@@ -254,9 +248,7 @@ Boolean DNSService::getDNSName(String & name)
                 {
                     dnsName=hostName.subString(domainIndex+1,PEG_NOT_FOUND);
                 }
-            }
         }
-        free(host);
         name.assign(dnsName);
     }
     return true;
@@ -312,7 +304,6 @@ DNSService::getDNSInfo()
     char buffer[512];
     Boolean ok = false;
     String strBuffer;
-
     // Open file DNS Configuration File
     if ((fp = fopen(DNS_FILE_CONFIG.getCString(), "r")) == NULL)
     {

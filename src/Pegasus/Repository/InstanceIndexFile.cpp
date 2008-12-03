@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +70,7 @@ static Uint32 getOffset( streampos sp )
 //
 // Converts a CIMObjectPath to a form that can be used as a key in the index
 // file.  Newline and carriage return characters are escaped to prevent
-// problems with the line-based file format.
+// problems with the line-based file format. 
 //
 
 static String _convertInstanceNameToKey(const CIMObjectPath& instanceName)
@@ -144,19 +146,19 @@ inline void _SkipWhitespace(char*& p)
 //
 
 Boolean _GetIntField(
-    const char*& ptr,
-    Boolean& errorOccurred,
+    char*& ptr,
+    Boolean& error,
     Uint32& value,
     int base)
 {
     char* end = 0;
     value = strtoul(ptr, &end, base);
 
-    errorOccurred = false;
+    error = false;
 
     if (!end)
     {
-        errorOccurred = true;
+        error = true;
         return false;
     }
 
@@ -164,7 +166,7 @@ Boolean _GetIntField(
 
     if (*end == '\0')
     {
-        errorOccurred = true;
+        error = true;
         return false;
     }
 
@@ -184,9 +186,9 @@ static Boolean _GetNextRecord(
     Uint32& index,
     Uint32& size,
     const char*& instanceName,
-    Boolean& errorOccurred)
+    Boolean& error)
 {
-    errorOccurred = false;
+    error = false;
 
     //
     // Get next line:
@@ -199,14 +201,14 @@ static Boolean _GetNextRecord(
     // Get the free flag field:
     //
 
-    const char* end = (char*)line.getData();
+    char* end = (char*)line.getData();
 
-    if (!_GetIntField(end, errorOccurred, freeFlag, 10))
+    if (!_GetIntField(end, error, freeFlag, 10))
         return false;
 
     if (freeFlag != 0 && freeFlag != 1)
     {
-        errorOccurred = true;
+        error = true;
         return false;
     }
 
@@ -214,21 +216,21 @@ static Boolean _GetNextRecord(
     // Get the hash-code field:
     //
 
-    if (!_GetIntField(end, errorOccurred, hashCode, 16))
+    if (!_GetIntField(end, error, hashCode, 16))
         return false;
 
     //
     // Get index field:
     //
 
-    if (!_GetIntField(end, errorOccurred, index, 10))
+    if (!_GetIntField(end, error, index, 10))
         return false;
 
     //
     // Get size field:
     //
 
-    if (!_GetIntField(end, errorOccurred, size, 10))
+    if (!_GetIntField(end, error, size, 10))
         return false;
 
     //
@@ -488,10 +490,10 @@ Boolean InstanceIndexFile::enumerateEntries(
     const char* instanceName;
     Uint32 index;
     Uint32 size;
-    Boolean errorOccurred;
+    Boolean error;
 
     while (_GetNextRecord(
-        fs, line, freeFlag, hashCode, index, size, instanceName, errorOccurred))
+        fs, line, freeFlag, hashCode, index, size, instanceName, error))
     {
         if (!freeFlag || includeFreeEntries)
         {
@@ -502,7 +504,7 @@ Boolean InstanceIndexFile::enumerateEntries(
         }
     }
 
-    if (errorOccurred)
+    if (error)
     {
         PEG_METHOD_EXIT();
         return false;
@@ -718,14 +720,23 @@ Boolean InstanceIndexFile::_lookupEntry(
     sizeOut = 0;
     entryOffset = 0;
 
-    Uint32 targetHashCode = instanceName.makeHashCode();
+    // For for bugzilla 1508. Hostname and namespace are not included
+    // in the comparison here. Instances in the repository index file
+    // are generally stored without hostname and namespace. If the hostname
+    // and namespace of the instance to look up would not match, we would have
+    // not gotten here at all.
+    CIMObjectPath shortInstanceName = instanceName;
+    shortInstanceName.setNameSpace(CIMNamespaceName());
+    shortInstanceName.setHost(String::EMPTY);
+
+    Uint32 targetHashCode = shortInstanceName.makeHashCode();
     Buffer line;
     Uint32 freeFlag;
     Uint32 hashCode;
     const char* instanceNameTmp;
     Uint32 index;
     Uint32 size;
-    Boolean errorOccurred;
+    Boolean error;
 #ifndef PEGASUS_OS_ZOS
         entryOffset = (Uint32)fs.tellp();
 #else
@@ -733,8 +744,7 @@ Boolean InstanceIndexFile::_lookupEntry(
 #endif
 
     while (_GetNextRecord(
-        fs, line, freeFlag, hashCode, index,
-        size, instanceNameTmp, errorOccurred))
+        fs, line, freeFlag, hashCode, index, size, instanceNameTmp, error))
     {
 
 #ifdef PEGASUS_REPOSITORY_NOT_NORMALIZED
@@ -742,11 +752,11 @@ Boolean InstanceIndexFile::_lookupEntry(
         // are not normalized, then the hashcodes cannot be used for
         // the look up (because the hash is based on the normalized path).
         if (freeFlag == 0 &&
-            _convertKeyToInstanceName(instanceNameTmp) == instanceName)
+            _convertKeyToInstanceName(instanceNameTmp) == shortInstanceName)
 #else
         if (freeFlag == 0 &&
             hashCode == targetHashCode &&
-            _convertKeyToInstanceName(instanceNameTmp) == instanceName)
+            _convertKeyToInstanceName(instanceNameTmp) == shortInstanceName)
 #endif
         {
             indexOut = index;
@@ -786,25 +796,16 @@ Boolean InstanceIndexFile::compact(
     }
 
     //
-    // Open the output file (temporary data file):
+    // Open temporary file (delete it first):
     //
 
-    const String outputFilePath = path + ".tmp";
-    String leftoverOutputFilePath;
-
-    // Ensure the output file does not already exist
-    if (FileSystem::existsNoCase(outputFilePath, leftoverOutputFilePath))
-    {
-        if (!FileSystem::removeFile(leftoverOutputFilePath))
-        {
-            PEG_METHOD_EXIT();
-            return false;
-        }
-    }
-
     fstream tmpFs;
+    String tmpPath = path;
+    tmpPath.append(".tmp");
 
-    if (!_openFile(outputFilePath, tmpFs, true))
+    FileSystem::removeFileNoCase(tmpPath);
+
+    if (!_openFile(tmpPath, tmpFs, true))
     {
         PEG_METHOD_EXIT();
         return false;
@@ -820,11 +821,11 @@ Boolean InstanceIndexFile::compact(
     const char* instanceName;
     Uint32 index;
     Uint32 size;
-    Boolean errorOccurred;
+    Boolean error;
     Uint32 adjust = 0;
 
     while (_GetNextRecord(
-        fs, line, freeFlag, hashCode, index, size, instanceName, errorOccurred))
+        fs, line, freeFlag, hashCode, index, size, instanceName, error))
     {
         //
         // Copy the entry over to the temporary file if it is not free.
@@ -841,7 +842,7 @@ Boolean InstanceIndexFile::compact(
             if (!_appendEntry(tmpFs, _convertKeyToInstanceName(instanceName),
                 index - adjust, size))
             {
-                errorOccurred = true;
+                error = true;
                 break;
             }
         }
@@ -860,9 +861,9 @@ Boolean InstanceIndexFile::compact(
     // return false.
     //
 
-    if (errorOccurred)
+    if (error)
     {
-        FileSystem::removeFile(outputFilePath);
+        FileSystem::removeFileNoCase(tmpPath);
         PEG_METHOD_EXIT();
         return false;
     }
@@ -871,8 +872,20 @@ Boolean InstanceIndexFile::compact(
     // Replace index file with temporary file:
     //
 
+    if (!FileSystem::removeFileNoCase(path))
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    if (!FileSystem::renameFile(tmpPath, path))
+    {
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
     PEG_METHOD_EXIT();
-    return FileSystem::renameFile(outputFilePath, path);
+    return true;
 }
 
 Boolean InstanceIndexFile::hasNonFreeEntries(const String& path)
@@ -951,50 +964,24 @@ Boolean InstanceIndexFile::beginTransaction(const String& path)
     // copied back to the index file.
     //
 
-    do
+    if (!FileSystem::renameFileNoCase(path, rollbackPath))
     {
-        if (!FileSystem::renameFileNoCase(path, rollbackPath))
-        {
-            break;
-        }
-
-        if (!FileSystem::copyFile(rollbackPath, path))
-        {
-            break;
-        }
-
         PEG_METHOD_EXIT();
-        return true;
+        return false;
     }
-    while(0);
 
-    // Try to restore the initial state
-    undoBeginTransaction(path);
-
-    PEG_METHOD_EXIT();
-    return false;
-}
-
-void InstanceIndexFile::undoBeginTransaction(const String& path)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY,
-        "InstanceIndexFile::undoBeginTransaction()");
-
-    String rollbackPath = path;
-    rollbackPath.append(".rollback");
-
-    //
-    // Remove the original index file and
-    // Rename the rollback file to the original file
-    // If the rollback file is present, this function has no effect
-    //
-    if(FileSystem::existsNoCase(rollbackPath))
+    if (!FileSystem::copyFile(rollbackPath, path))
     {
+        // Try to restore the initial state
         FileSystem::removeFileNoCase(path);
         FileSystem::renameFileNoCase(rollbackPath, path);
+
+        PEG_METHOD_EXIT();
+        return false;
     }
 
     PEG_METHOD_EXIT();
+    return true;
 }
 
 Boolean InstanceIndexFile::rollbackTransaction(const String& path)
@@ -1014,8 +1001,18 @@ Boolean InstanceIndexFile::rollbackTransaction(const String& path)
     }
 
     //
-    // To roll back, simply rename the rollback file over the index file.
+    // To roll back, simply delete the index file and rename
+    // the rollback file over it.
     //
+
+    if (FileSystem::existsNoCase(path))
+    {
+        if (!FileSystem::removeFileNoCase(path))
+        {
+            PEG_METHOD_EXIT();
+            return false;
+        }
+    }
 
     PEG_METHOD_EXIT();
     return FileSystem::renameFileNoCase(path + ".rollback", path);

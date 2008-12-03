@@ -93,7 +93,7 @@ CIMParameter cimParamFromWMIParam(
     CIMQualifierList qualifierList;
     if (pQualifiers)
     {
-        qualifierList = WMIQualifierSet(pQualifiers);
+        WMIQualifierSet(pQualifiers).cloneTo(qualifierList);
     }
     
     // Check for a reference type, and get the reference class if necessary:
@@ -272,7 +272,7 @@ WMIMethod::WMIMethod(const BSTR & name,
     CIMTYPE                returnValueType;
     HRESULT            hr;
     
-    qualifierList = WMIQualifierSet(pQualifierSet);
+    WMIQualifierSet(pQualifierSet).cloneTo(qualifierList);
 
     // Get method return value
     String referenceClass = String::EMPTY;

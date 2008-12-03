@@ -46,9 +46,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-WMIQualifierSet::WMIQualifierSet(const CIMQualifierList & cimQualifierList) : 
-    CIMQualifierList(cimQualifierList)
+WMIQualifierSet::WMIQualifierSet(const CIMQualifierList & cimQualifierList)
 {
+    cimQualifierList.cloneTo(*this);
 }
 
 WMIQualifierSet::WMIQualifierSet(IWbemQualifierSet * pObject)

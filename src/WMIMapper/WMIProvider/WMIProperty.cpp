@@ -61,7 +61,7 @@ WMIProperty::WMIProperty(const BSTR & name,
     CIMQualifierList qualifierList;
     CComBSTR bsName = name;
     CComVariant vValue = value;
-    qualifierList = WMIQualifierSet(pQualifierSet);
+    WMIQualifierSet(pQualifierSet).cloneTo(qualifierList);
 
     // get additional property information
     String referenceClass = String::EMPTY;

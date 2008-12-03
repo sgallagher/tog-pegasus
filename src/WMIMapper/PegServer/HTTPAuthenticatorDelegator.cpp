@@ -52,13 +52,14 @@ static const String KERBEROS_CHALLENGE_HEADER = "WWW-Authenticate: Negotiate ";
 #endif
 
 HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
-    Uint32 operationMessageQueueId,
-    Uint32 exportMessageQueueId,
+    Uint32 cimOperationMessageQueueId,
+    Uint32 cimExportMessageQueueId,
     CIMRepository* repository)
-   : Base(PEGASUS_QUEUENAME_HTTPAUTHDELEGATOR,
-          MessageQueue::getNextQueueId()),
-    _operationMessageQueueId(operationMessageQueueId),
-    _exportMessageQueueId(exportMessageQueueId)
+    : Base(PEGASUS_QUEUENAME_HTTPAUTHDELEGATOR, MessageQueue::getNextQueueId()),
+      _cimOperationMessageQueueId(cimOperationMessageQueueId),
+      _cimExportMessageQueueId(cimExportMessageQueueId),
+      _wsmanOperationMessageQueueId(PEG_NOT_FOUND),
+      _repository(repository)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator");
@@ -628,10 +629,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     TRC_HTTP,
                     Tracer::LEVEL3,
                     "HTTPAuthenticatorDelegator - CIMOperation: %s ",
-                    (const char*) cimOperation.getCString());
+                    (const char*) cimOperation.getCString()));
 
                 MessageQueue* queue =
-                    MessageQueue::lookup(_operationMessageQueueId);
+                    MessageQueue::lookup(_cimOperationMessageQueueId);
 
                 if (queue)
                 {
@@ -660,10 +661,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     TRC_HTTP,
                     Tracer::LEVEL3,
                     "HTTPAuthenticatorDelegator - CIMExport: $0 ",
-                    (const char*) cimOperation.getCString());
+                    (const char*) cimOperation.getCString()));
 
                 MessageQueue* queue =
-                    MessageQueue::lookup(_exportMessageQueueId);
+                    MessageQueue::lookup(_cimExportMessageQueueId);
 
                 if (queue)
                 {

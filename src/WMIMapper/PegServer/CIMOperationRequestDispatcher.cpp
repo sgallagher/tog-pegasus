@@ -414,7 +414,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
         provider.initialize();
 
-        response->cimInstance = provider.getInstance(
+        CIMInstance cimInstance = provider.getInstance(
             request->nameSpace.getString(),
             ((IdentityContainer) request->operationContext.get
                 (IdentityContainer::NAME)).getUserName(),
@@ -424,6 +424,13 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
             request->includeQualifiers,
             request->includeClassOrigin,
             request->propertyList);
+
+        AutoPtr<CIMGetInstanceResponseMessage> response(
+            dynamic_cast<CIMGetInstanceResponseMessage*>(
+                request->buildResponse()));
+        response->setCimInstance(cimInstance);
+
+
     }
     catch(CIMException& exception)
     {
@@ -882,6 +889,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             request->buildResponse()));
 
     WMIInstanceProvider provider;
+    Array<CIMInstance> cimNamedInstances;
 
     try
     {
@@ -893,7 +901,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
         provider.initialize( );
 
-        response->cimNamedInstances = provider.enumerateInstances(
+        cimNamedInstances = provider.enumerateInstances(
             request->nameSpace.getString(),
             ((IdentityContainer) request->operationContext.get
                 (IdentityContainer::NAME)).getUserName(),
@@ -917,6 +925,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
             "enumerateInstances() failed!");
     }
 
+    response->setNamedInstances(cimNamedInstances);
+   
     // cancel the provider
     provider.terminate();
 

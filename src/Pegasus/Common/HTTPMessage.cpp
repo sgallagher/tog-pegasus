@@ -88,7 +88,7 @@ char* HTTPMessage::findSeparator(const char* data, Uint32 size)
             p++;
 
         if (!p[0])
-            return 0;
+            break;
         if (p[0] == '\r' && p[1] == '\n')
             return (char*)p;
         if (p[0] == '\n')

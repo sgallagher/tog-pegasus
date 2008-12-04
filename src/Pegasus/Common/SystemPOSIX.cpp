@@ -1377,7 +1377,102 @@ Array<String> System::getInterfaceAddrs()
     free(ifc.ifc_req);
 
 #elif defined(PEGASUS_OS_ZOS)
-//ATTN: implement for ZOS
+    
+    SocketHandle sdV6=socket(AF_INET6, SOCK_DGRAM, 0);
+    // Use an AutoPtr to ensure the socket handle is closed on exception
+    AutoPtr<SocketHandle, CloseSocketHandle> sockV6Ptr(&sdV6);
+
+    if (sdV6 != PEGASUS_INVALID_SOCKET)
+    {
+        __net_ifconf6header_t ifConfHeader;
+        __net_ifconf6entry_t *pifConfEntries;
+        char buff[PEGASUS_INET6_ADDRSTR_LEN];
+        
+        // clera the ifconf header
+        memset(&ifConfHeader,0,sizeof(__net_ifconf6header_t));
+        // fill the ifconf header with the current values
+        if (-1 != ioctl(sdV6, SIOCGIFCONF6, &ifConfHeader))
+        {
+            // allocate the buffer for the interface entries
+            ifConfHeader.__nif6h_buffer=
+                (char *)calloc(ifConfHeader.__nif6h_entries,
+                    ifConfHeader.__nif6h_entrylen);
+
+            // Prevent memory leak on exception
+            AutoPtr<char,FreeCharPtr>
+                ifConfInfV6Ptr( ifConfHeader.__nif6h_buffer );
+
+            // set the sitze of the buffer for the interface entries.
+            ifConfHeader.__nif6h_buflen= ifConfHeader.__nif6h_entries *
+                 ifConfHeader.__nif6h_entrylen;
+
+            // get the interface entries.
+            if (-1 != ioctl(sdV6, SIOCGIFCONF6, &ifConfHeader))
+            {
+                pifConfEntries=
+                    (__net_ifconf6entry_t *)ifConfHeader.__nif6h_buffer;
+
+                // loop throug the interface entries.
+                for (int i = 0 ; i < ifConfHeader.__nif6h_entries; i++)
+                {
+                    // do not save loop back addresses.
+                    if (!System::isLoopBack(
+                            AF_INET6, 
+                            &(pifConfEntries[i].__nif6e_addr.sin6_addr)))
+                    {
+                        HostAddress::convertBinaryToText(
+                            AF_INET6,
+                            &(pifConfEntries[i].__nif6e_addr.sin6_addr),
+                            buff,
+                            sizeof(buff));
+                        ips.append(buff);
+                    } // append IPV6 addresses
+                } // loop through deliverd interfaces
+            } // query IPV6 interface
+        } // fill ifconf header structure
+    } // create IPV6 socket 
+
+    // create an IPV4 socket to get the interface configurations via ioclt()
+    SocketHandle sdv4=socket(AF_INET, SOCK_DGRAM, 0);
+    // Use an AutoPtr to ensure the socket handle is closed on exception
+    AutoPtr<SocketHandle, CloseSocketHandle> sockV4Ptr(&sdv4);
+
+    if (sdv4 != PEGASUS_INVALID_SOCKET)
+    {
+        struct ifconf ifc;
+        char buff[PEGASUS_INET_ADDRSTR_LEN];
+        // On z/OS the interface the maximal number of interface
+        // structures is 100. To avoid memory fragmentation,
+        // the value of 128 is used.
+        ifc.ifc_buf=(char *)calloc(128, sizeof(struct ifreq));
+        ifc.ifc_len=128 * sizeof(struct ifreq);
+
+        // Prevent memory leak on exception
+        AutoPtr<char,FreeCharPtr> ifConfInfV4Ptr( ifc.ifc_buf );
+
+        // query for the IPV4 addresses.
+        if (-1 < ioctl(sdv4, SIOCGIFCONF, &ifc) )
+        {
+            // calcutate the numer of V4 interfaces
+            int noInterFace = ifc.ifc_len/sizeof(struct ifreq);
+
+            sockaddr_in* addr;
+
+            for (int i = 0; i < noInterFace; i++)
+            {
+                addr = (sockaddr_in *)&ifc.ifc_req[i].ifr_addr;
+                if (!System::isLoopBack( AF_INET, &(addr->sin_addr.s_addr)))
+                {
+                    HostAddress::convertBinaryToText(
+                        AF_INET,
+                        &(addr->sin_addr.s_addr),
+                        buff,
+                        PEGASUS_INET_ADDRSTR_LEN);
+                    ips.append(buff);
+                }
+            }
+        }
+    }
 #elif defined(PEGASUS_OS_HPUX)
 //ATTN: implement for HPUX
 #elif defined(PEGASUS_OS_VMS)

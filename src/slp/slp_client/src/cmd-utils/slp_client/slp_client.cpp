@@ -144,7 +144,7 @@ static void _debug_print(int dc, const char* format, ...)
         }
         else
         {
-            fprintf(fdout, " DATA --------\n");
+            fprintf(fdout, " DATA  -- ");
         }
 
         vfprintf(fdout, format, ap);
@@ -368,6 +368,8 @@ static int _slp_get_local_interface(struct slp_if_addr **list, int af)
     SOCKETD sock;
     int interfaces = 0;
 
+    DEBUG_PRINT((DEBUG_ENTER, "_slp_get_local_interfaces "));
+
     if (list == NULL)
     {
         return 0;
@@ -418,7 +420,92 @@ static int _slp_get_local_interface(struct slp_if_addr **list, int af)
             ifp->af = AF_UNSPEC;
         }
 #endif // PEGASUS_HAS_GETIFADDRS
-        return interfaces;
+#ifdef PEGASUS_OS_ZOS
+        if (-1 < (sock = _LSLP_SOCKET(AF_INET6, SOCK_DGRAM, 0)))
+        {
+            __net_ifconf6header_t ifConfHeader;
+            __net_ifconf6entry_t *pifConfEntries;
+            int interface_counter;
+
+            memset(&ifConfHeader,0,sizeof(__net_ifconf6header_t));
+            if (-1 == ioctl(sock, SIOCGIFCONF6, &ifConfHeader))
+            {
+                _LSLP_CLOSESOCKET(sock);
+                DEBUG_PRINT((DEBUG_EXIT,
+                    "_slp_get_local_interfaces: "
+                        "zOS can not get IPV6 interfaces: %s",
+                    strerror(errno)));
+                return 0;
+            }
+
+            // Allocate the buffer for the entries.
+            ifConfHeader.__nif6h_buffer=
+                (char *)calloc(ifConfHeader.__nif6h_entries,
+                    ifConfHeader.__nif6h_entrylen);
+
+            ifConfHeader.__nif6h_buflen= ifConfHeader.__nif6h_entries *
+                               ifConfHeader.__nif6h_entrylen;
+
+            DEBUG_PRINT((DEBUG_LEVEL1,
+               "_slp_get_local_interfaces: "
+                   "There are %d of interface entries.",
+               ifConfHeader.__nif6h_entries));
+
+            if (-1 == ioctl(sock, SIOCGIFCONF6, &ifConfHeader))
+            {
+                _LSLP_CLOSESOCKET(sock);
+                free(ifConfHeader.__nif6h_buffer);
+                DEBUG_PRINT((DEBUG_EXIT,
+                    "_slp_get_local_interfaces: "
+                        "zOS can not get IPV6 interfaces entries: %s",
+                    strerror(errno)));
+                return 0;
+            }
+
+            pifConfEntries=(__net_ifconf6entry_t *)ifConfHeader.__nif6h_buffer;
+            interfaces=ifConfHeader.__nif6h_entries;
+
+            // now store the addresses
+            free(*list);
+            *list  = (struct slp_if_addr *)
+                calloc(interfaces + 2, sizeof(struct slp_if_addr));
+            ifp = *list;
+            for (int i = 0 ; i < ifConfHeader.__nif6h_entries; i++)
+            {
+                if (!slp_is_loop_back(
+                        AF_INET6, 
+                        &pifConfEntries[i].__nif6e_addr.sin6_addr))
+                {
+                    char buff[PEGASUS_INET6_ADDRSTR_LEN];
+                    ifp->af = AF_INET6;
+                    ifp->ip6_addr = pifConfEntries[i].__nif6e_addr.sin6_addr;
+                    DEBUG_PRINT((DEBUG_LEVEL1,
+                        "_slp_get_local_interfaces: IPV6 %s",
+                        inet_ntop(
+                            ifp->af, 
+                            &(ifp->ip6_addr),
+                            buff ,
+                            PEGASUS_INET6_ADDRSTR_LEN)));
+                    ifp++;
+                } 
+                else
+                {
+                    //a interface was a loop back
+                    interfaces--;
+                }
+            }
+
+            ifp->af = AF_UNSPEC; // list terminate
+
+            free(ifConfHeader.__nif6h_buffer);
+            _LSLP_CLOSESOCKET(sock);
+        } // opened the socket
+ 
+#endif // PEGASUS_OS_ZOS
+        DEBUG_PRINT((DEBUG_EXIT, 
+            "_slp_get_local_interfaces: IPV6 interfaces %d.",
+            interfaces));
+        return(interfaces);
     }
 #endif // PEGASUS_ENABLE_IPV6
 
@@ -426,8 +513,6 @@ static int _slp_get_local_interface(struct slp_if_addr **list, int af)
     {
         return 0;
     }
-
-    DEBUG_PRINT((DEBUG_ENTER, "slp_get_local_interfaces "));
 
 #if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
     defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
@@ -530,7 +615,7 @@ static int _slp_get_local_interface(struct slp_if_addr **list, int af)
     } // opened the socket
 
 #endif
-    DEBUG_PRINT((DEBUG_EXIT, "slp_get_local_interfaces:ok "));
+    DEBUG_PRINT((DEBUG_EXIT, "_slp_get_local_interfaces:ok "));
     return(interfaces);
 }
 
@@ -730,14 +815,14 @@ static SOCKETD _slp_open_listen_sock(int af)
 {
     SOCKETD sock = INVALID_SOCKET;
 
-    DEBUG_PRINT((DEBUG_ENTER, "slp_open_listen_sock "));
+    DEBUG_PRINT((DEBUG_ENTER, "_slp_open_listen_sock %d",af));
 
     if (_slp_create_bind_socket(&sock, af, 427, 0, TRUE) == 0)
     {
         slp_join_multicast_all(sock, af);
     }
 
-    DEBUG_PRINT((DEBUG_EXIT, "slp_open_listen_sock "));
+    DEBUG_PRINT((DEBUG_EXIT, "_slp_open_listen_sock "));
 
     return(sock);
 }
@@ -1576,7 +1661,7 @@ void srv_req(
         if ( (client->_target_addr.af == AF_INET &&
            (client->_target_addr.ip4_addr.s_addr == _LSLP_MCAST ||
            client->_target_addr.ip4_addr.s_addr == _LSLP_LOCAL_BCAST))
-#ifdef PEGASUS_ENBALE_IPV6
+#ifdef PEGASUS_ENABLE_IPV6
             || (client->_target_addr.af == AF_INET6 &&
                IN6_IS_ADDR_MULTICAST(&client->_target_addr.ip6_addr))
 #endif
@@ -1827,7 +1912,7 @@ void attr_req(
         if ( (client->_target_addr.af == AF_INET &&
            (client->_target_addr.ip4_addr.s_addr == _LSLP_MCAST ||
            client->_target_addr.ip4_addr.s_addr == _LSLP_LOCAL_BCAST))
-#ifdef PEGASUS_ENBALE_IPV6
+#ifdef PEGASUS_ENABLE_IPV6
             || (client->_target_addr.af == AF_INET6 &&
                IN6_IS_ADDR_MULTICAST(&client->_target_addr.ip6_addr))
 #endif
@@ -3341,7 +3426,7 @@ int srv_reg_all(
     if ( client->_target_addr.af == client->_local_addr.af &&
          !((af == AF_INET &&
          client->_target_addr.ip4_addr.s_addr == _LSLP_MCAST)
-#ifdef PEGASUS_ENBALE_IPV6
+#ifdef PEGASUS_ENABLE_IPV6
          || (af == AF_INET6 &&
                IN6_IS_ADDR_MULTICAST(&client->_target_addr.ip6_addr))
 #endif
@@ -3521,7 +3606,7 @@ void __srv_reg_local (
         reg->attrList  = _lslpDecodeAttrString((char *)attributes);
         _LSLP_INSERT(reg, (lslpSrvRegList *)client->regs);
     }
-    DEBUG_PRINT((DEBUG_ENTER, "srv_reg_local %s", "3 "));
+    DEBUG_PRINT((DEBUG_EXIT, "srv_reg_local %s", "3 "));
     return;
 }
 

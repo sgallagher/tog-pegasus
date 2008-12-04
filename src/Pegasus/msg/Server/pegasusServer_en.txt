@@ -2243,6 +2243,12 @@ en:table {
         */
         Compiler.cmdline.cimmof.cmdline.UNKNOWN_VALUE_OPTION_M:string {"PGS04867: Unknown value specified for option -M."}
 
+        /**
+        *  @version 2.9
+        *  @note PGS04868:
+        */
+        Compiler.cmdline.cimmof.cmdline.CANNOT_CONNECT_EXCEPTION:string {"PGS04868: Cannot connect to CIM Server. The CIM Server may not be running."}
+
         // ==========================================================
         // Messages for CIMOperationResponseEncoder
         //  Please use message prefix "PGS05000"

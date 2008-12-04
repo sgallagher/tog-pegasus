@@ -102,6 +102,12 @@ void cimmofRepositoryInterface::init(_repositoryType type, String location,
         {
             _client->init(location, ot);
         }
+        catch (const CannotConnectException &)
+        {
+            delete _client;
+            _client = 0;
+            throw;
+        }
         catch(Exception &e)
         {
             arglist.append(location);

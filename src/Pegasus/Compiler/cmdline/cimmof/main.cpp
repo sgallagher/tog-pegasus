@@ -150,19 +150,31 @@ int main(int argc, char ** argv)
     // create one and we need to, bail.
     cimmofParser *p = cimmofParser::Instance();
     p->setCompilerOptions(&cmdline);
-    if ( p->setRepository() )
+    try
     {
-        p->setDefaultNamespacePath(NAMESPACE_ROOT);
+        if ( p->setRepository() )
+        {
+            p->setDefaultNamespacePath(NAMESPACE_ROOT);
+        }
+        else
+        {
+            parms.msg_id = "Compiler.cmdline.cimmof.main.FAILED_TO_SET";
+            parms.default_msg = "Failed to set DefaultNamespacePath.";
+            cerr << MessageLoader::getMessage(parms) << endl;
+            // ATTN: P3 BB 2001 Did not set namespace.
+            // We may need to log an error here.
+            ret = PEGASUS_CIMMOF_NO_DEFAULTNAMESPACEPATH;
+            return ret;
+        }
     }
-    else
+    catch (const CannotConnectException &)
     {
-        parms.msg_id = "Compiler.cmdline.cimmof.main.FAILED_TO_SET";
-        parms.default_msg = "Failed to set DefaultNamespacePath.";
+        parms.msg_id =
+            "Compiler.cmdline.cimmof.cmdline.CANNOT_CONNECT_EXCEPTION";
+        parms.default_msg = "Cannot connect to CIM Server."
+            " The CIM Server may not be running.";
         cerr << MessageLoader::getMessage(parms) << endl;
-        // ATTN: P3 BB 2001 Did not set namespace.
-        // We may need to log an error here.
-        ret = PEGASUS_CIMMOF_NO_DEFAULTNAMESPACEPATH;
-        return ret;
+        return PEGASUS_CIMMOF_CANNOT_CONNECT_EXCEPTION;
     }
     if (filespecs.size())    // user specified command line args
     {

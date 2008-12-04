@@ -177,6 +177,10 @@ Boolean cimmofParser::setRepository(void)
 
                 _repository.start();
             }
+            catch (const CannotConnectException &)
+            {
+                throw;
+            }
             catch(Exception &e)
             {
                 arglist.append(rep);

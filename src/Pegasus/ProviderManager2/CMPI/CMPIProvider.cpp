@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -42,14 +44,13 @@
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
-#include <Pegasus/ProviderManager2/CMPI/CMPI_ThreadContext.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 static const char _MSG_CANNOT_INIT_API_KEY[] =
     "ProviderManager.CMPI.CMPIProvider.CANNOT_INIT_API";
-static const char _MSG_CANNOT_INIT_API[] =
+static const char _MSG_CANNOT_INIT_API[] = 
     "Error initializing CMPI MI $0, the following MI"
         " factory function(s) returned an error: $1";
 
@@ -58,12 +59,10 @@ static const char _MSG_CANNOT_INIT_API[] =
 // until the provider has had a chance to initialize
 CMPIProvider::CMPIProvider(
     const String & name,
-    const String & moduleName,
     CMPIProviderModule *module,
     ProviderVector *mv)
     : _status(UNINITIALIZED), _module(module), _cimom_handle(0), _name(name),
-    _moduleName(moduleName), _no_unload(0),  _threadWatchList(),
-    _cleanedThreads()
+    _no_unload(0),  _threadWatchList(), _cleanedThreads()
 {
     PEG_METHOD_ENTER(
         TRC_CMPIPROVIDERINTERFACE,
@@ -73,7 +72,7 @@ CMPIProvider::CMPIProvider(
     _broker.hdl =0;
     _broker.provider = this;
     if (mv)
-    {
+    { 
         _miVector = *mv;
     }
     unloadStatus = CMPI_RC_DO_NOT_UNLOAD;
@@ -103,8 +102,6 @@ void CMPIProvider::set(
 
 void CMPIProvider::reset()
 {
-    
-    _currentSubscriptions = 0;
     _module = 0;
     _cimom_handle = 0;
     _no_unload = 0;
@@ -115,11 +112,6 @@ void CMPIProvider::reset()
 CMPIProviderModule *CMPIProvider::getModule() const
 {
     return(_module);
-}
-
-String CMPIProvider::getModuleName() const
-{
-    return _moduleName;
 }
 
 String CMPIProvider::getName() const
@@ -134,16 +126,16 @@ String CMPIProvider::getNameWithType() const
 
 void setError(
     ProviderVector &miVector,
-    String &errorMessage,
+    String &error,
     const String &realProviderName,
     const char *generic,
     const char *spec,
     const CMPIString *optMsg)
 {
     PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPIProvider:setError()");
-    if (errorMessage.size() > 0)
+    if (error.size() > 0)
     {
-        errorMessage.append("; ");
+        error.append("; ");
     }
 
     String MItype;
@@ -165,11 +157,11 @@ void setError(
             MItype,
             CMGetCharsPtr(optMsg,NULL));
 
-        errorMessage.append(MessageLoader::getMessage(mlp));
+        error.append(MessageLoader::getMessage(mlp));
     }
     else
     {
-        errorMessage.append(MItype);
+        error.append(MItype);
     }
     PEG_METHOD_EXIT();
 }
@@ -181,7 +173,7 @@ void CMPIProvider::initialize(
     CMPI_Broker & broker)
 {
     PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPIProvider::initialize()");
-    broker.hdl=&cimom;
+    broker.hdl=& cimom;
     broker.bft=CMPI_Broker_Ftab;
     broker.eft=CMPI_BrokerEnc_Ftab;
     broker.xft=CMPI_BrokerExt_Ftab;
@@ -256,9 +248,11 @@ Boolean CMPIProvider::tryTerminate()
         }
         catch (...)
         {
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
-                "Exception caught in CMPIProviderFacade::tryTerminate() for %s",
-                (const char*)getName().getCString()));
+            PEG_TRACE_STRING(
+                TRC_PROVIDERMANAGER,
+                Tracer::LEVEL1,
+                "Exception caught in CMPIProviderFacade::tryTerminate() for " +
+                getName());
             terminated = false;
 
         }
@@ -356,8 +350,8 @@ void CMPIProvider::_terminate(Boolean terminating)
                 Thread *t = _threadWatchList.remove_front();
 
                 /* If this a non-production build, DO NOT do the cancellation.
-                   This is done so that the provider developer will notice
-                   incorrect behaviour when unloading his/her provider and
+                   This is done so that the provider developer will notice 
+                   incorrect behaviour when unloading his/her provider and 
                    hopefully fix that.
                 */
 #if !defined(PEGASUS_DEBUG)
@@ -402,12 +396,6 @@ void CMPIProvider::_terminate(Boolean terminating)
         waitUntilThreadsDone();
 
     }
-    // We have killed all threads running in provider forcibly. Set
-    // unloadStatus of provider to OK.
-    if (terminating)
-    {
-        unloadStatus = CMPI_RC_OK;
-    }
     PEG_METHOD_EXIT();
 }
 
@@ -417,38 +405,38 @@ void CMPIProvider::terminate()
     PEG_METHOD_ENTER(
         TRC_CMPIPROVIDERINTERFACE,
         "CMPIProvider::terminate()");
+    Status savedStatus=_status;
     if (_status == INITIALIZED)
     {
         try
         {
 
             _terminate(true);
-            PEGASUS_ASSERT(unloadStatus == CMPI_RC_OK);
+            if (unloadStatus != CMPI_RC_OK)
+            {
+                _status=savedStatus;
+                PEG_METHOD_EXIT();
+                return;
+            }
         }
         catch (...)
         {
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
-                "Exception caught in CMPIProviderFacade::Terminate for %s",
-                (const char*)getName().getCString()));
+            PEG_TRACE_STRING(
+                TRC_PROVIDERMANAGER,
+                Tracer::LEVEL1,
+                "Exception caught in CMPIProviderFacade::Terminate for " +
+                getName());
             throw;
         }
     }
-
-    // Provider's cleanup method called successfully, if there are still any
-    // pending operations with provider then we were asked to cleanup forcibly,
-    // don't uninitialize provider.
-    if (_current_operations.get() == 0)
-    {
-        _status = UNINITIALIZED;
-    }
-
+    _status = UNINITIALIZED;
     PEG_METHOD_EXIT();
 }
 
 /*
  * Wait until all finished provider threads have been cleaned and deleted.
- * Note: This should NEVER be called from the thread that
- * IS the Thread object that was is finished and called
+ * Note: This should NEVER be called from the thread that 
+ * IS the Thread object that was is finished and called 
  * 'removeThreadFromWatch()' . If you do it, you will
  * wait forever.
  */
@@ -493,9 +481,9 @@ void CMPIProvider::threadDelete(Thread *t)
 
 /*
 // Removes the thread from the watch list and schedule the
-// CMPILocalProviderManager to delete the thread. The
+// CMPILocalProviderManager to delete the thread. The 
 // CMPILocalProviderManager after deleting the thread calls
-// the CMPIProvider' "cleanupThread". The CMPILocalProviderManager
+// the CMPIProvider' "cleanupThread". The CMPILocalProviderManager 
 // notifies this CMPIProvider object when the thread
 // is truly dead by calling "threadDeleted" function.
 //
@@ -516,14 +504,14 @@ void CMPIProvider::removeThreadFromWatch(Thread *t)
     PEGASUS_ASSERT( t != 0 );
 
     // Note: After MI returned true from cleanup() method , there might be some
-    // threads running in MI. CMPILocalProviderManager::cleanupThread() called
+    // threads running in MI. CMPILocalProviderManager::cleanupThread() called 
     // below will take care of joining the running threads in MI.
     {
         AutoMutex mtx(_removeThreadMutex);
         if (_threadWatchList.contains(t))
         {
             // Remove it from the watched list
-            _threadWatchList.remove(t);
+            _threadWatchList.remove(t);            
         }
         else
         {
@@ -533,8 +521,8 @@ void CMPIProvider::removeThreadFromWatch(Thread *t)
         }
     }
 
+    
     PEGASUS_ASSERT (!_cleanedThreads.contains (t));
-
 
     // Add the thread to the CMPIProvider's list.
     // We use this list to keep track of threads that are
@@ -591,7 +579,7 @@ Boolean CMPIProvider::unload_ok()
         PEG_METHOD_EXIT();
         return false;
     }
-    // Do not call CIMOMHandle::unload_ok here.
+    // Do not call CIMOMHandle::unload_ok here. 
     // CIMOMHandle::unload_ok method tests for _providerUnloadProtect
     // and if zero returns true. _providerUnloadProtect is
     // incremented when CIMOMHandle::disallowProviderUnload()
@@ -638,6 +626,12 @@ Boolean CMPIProvider::testSubscriptions ()
     Boolean currentSubscriptions = (_currentSubscriptions > 0);
 
     return currentSubscriptions;
+}
+
+void CMPIProvider::resetSubscriptions ()
+{
+    AutoMutex lock (_currentSubscriptionsMutex);
+    _currentSubscriptions = 0;
 }
 
 void CMPIProvider::setProviderInstance (const CIMInstance & instance)
@@ -688,20 +682,21 @@ CMPIInstanceMI *CMPIProvider::getInstMI()
             String providerName = _broker.name;
             CMPIInstanceMI *mi = NULL;
 
-            if (_miVector.genericMode && _miVector.createGenInstMI)
+            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Instance);
+            if (_miVector.genericMode)
             {
                 mi = _miVector.createGenInstMI(
                     &_broker,
-                    &eCtx,
+                    &eCtx, 
                     (const char *)providerName.getCString(),
                     &rc);
             }
-            else if (_miVector.createInstMI)
+            else 
             {
                 mi = _miVector.createInstMI(&_broker, &eCtx, &rc);
             }
 
-            if (!mi || rc.rc != CMPI_RC_OK)
+            if (!mi || rc.rc != CMPI_RC_OK) 
             {
                 String error;
                 setError(
@@ -721,7 +716,7 @@ CMPIInstanceMI *CMPIProvider::getInstMI()
             }
             _miVector.instMI = mi;
         }
-    }
+    }    
 
     return _miVector.instMI;
 }
@@ -737,21 +732,21 @@ CMPIMethodMI *CMPIProvider::getMethMI()
             CMPI_ContextOnStack eCtx(opc);
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
-            CMPIMethodMI *mi = 0;
-
-            if (_miVector.genericMode && _miVector.createGenMethMI)
+            CMPIMethodMI *mi;
+            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Method);
+            if (_miVector.genericMode) 
             {
                 mi = _miVector.createGenMethMI(
                     &_broker,
-                    &eCtx,
+                    &eCtx, 
                     (const char *)providerName.getCString(),
                     &rc);
             }
-            else if (_miVector.createMethMI)
+            else 
             {
                 mi = _miVector.createMethMI(&_broker, &eCtx, &rc);
             }
-            if (!mi || rc.rc != CMPI_RC_OK)
+            if (!mi || rc.rc != CMPI_RC_OK) 
             {
                 String error;
                 setError(
@@ -772,7 +767,7 @@ CMPIMethodMI *CMPIProvider::getMethMI()
             _miVector.methMI = mi;
         }
     }
-
+    
     return _miVector.methMI;
 }
 
@@ -787,22 +782,22 @@ CMPIAssociationMI *CMPIProvider::getAssocMI()
             CMPI_ContextOnStack eCtx(opc);
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
-            CMPIAssociationMI *mi = 0;
-
-            if (_miVector.genericMode && _miVector.createGenAssocMI)
+            CMPIAssociationMI *mi;
+            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Association);
+            if (_miVector.genericMode)
             {
                 mi = _miVector.createGenAssocMI(
                     &_broker,
-                    &eCtx,
+                    &eCtx, 
                     (const char *)providerName.getCString(),
                     &rc);
-            }
-            else if (_miVector.createAssocMI)
+            } 
+            else 
             {
                 mi = _miVector.createAssocMI(&_broker, &eCtx, &rc);
             }
 
-            if (!mi || rc.rc != CMPI_RC_OK)
+            if (!mi || rc.rc != CMPI_RC_OK) 
             {
                 String error;
                 setError(
@@ -823,7 +818,7 @@ CMPIAssociationMI *CMPIProvider::getAssocMI()
             _miVector.assocMI = mi;
         }
     }
-
+    
     return _miVector.assocMI;
 }
 
@@ -838,17 +833,18 @@ CMPIPropertyMI *CMPIProvider::getPropMI()
             CMPI_ContextOnStack eCtx(opc);
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
-            CMPIPropertyMI *mi = 0;
+            CMPIPropertyMI *mi;
+            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Property);
 
-            if (_miVector.genericMode && _miVector.createGenPropMI)
+            if (_miVector.genericMode) 
             {
                 mi = _miVector.createGenPropMI(
                     &_broker,
-                    &eCtx,
+                    &eCtx, 
                     (const char *)providerName.getCString(),
                     &rc);
             }
-            else if (_miVector.createPropMI)
+            else 
             {
                 mi = _miVector.createPropMI(&_broker, &eCtx, &rc);
             }
@@ -874,7 +870,7 @@ CMPIPropertyMI *CMPIProvider::getPropMI()
             _miVector.propMI = mi;
         }
     }
-
+    
     return _miVector.propMI;
 }
 
@@ -889,22 +885,22 @@ CMPIIndicationMI *CMPIProvider::getIndMI()
             CMPI_ContextOnStack eCtx(opc);
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
-            CMPIIndicationMI *mi = 0;
-
-            if (_miVector.genericMode && _miVector.createGenIndMI)
+            CMPIIndicationMI *mi;
+            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Indication);
+            if (_miVector.genericMode)
             {
                 mi = _miVector.createGenIndMI(
                     &_broker,
-                    &eCtx,
+                    &eCtx, 
                     (const char *)providerName.getCString(),
                     &rc);
             }
-            else if (_miVector.createIndMI)
+            else 
             {
                 mi = _miVector.createIndMI(&_broker, &eCtx, &rc);
             }
 
-            if (!mi || rc.rc != CMPI_RC_OK)
+            if (!mi || rc.rc != CMPI_RC_OK) 
             {
                 String error;
                 setError(
@@ -925,7 +921,7 @@ CMPIIndicationMI *CMPIProvider::getIndMI()
             _miVector.indMI = mi;
         }
     }
-
+    
     return _miVector.indMI;
 }
 
@@ -936,13 +932,13 @@ CMPIProviderModule *CMPIProvider::getModule()
 
 Uint32 CMPIProvider::getQuantum()
 {
-    AutoMutex mutex(_statusMutex);
+    AutoMutex mutex(_statusMutex);  
     return _quantum;
 }
 
 void CMPIProvider::setQuantum(Uint32 quantum)
 {
-    AutoMutex mutex(_statusMutex);
+    AutoMutex mutex(_statusMutex);  
     _quantum = quantum;
 }
 

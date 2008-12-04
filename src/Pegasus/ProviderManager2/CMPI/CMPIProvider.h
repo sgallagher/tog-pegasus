@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +42,7 @@
 #include <Pegasus/Common/List.h>
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
-#include <Pegasus/Provider/CIMOMHandleRep.h>
+#include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
@@ -178,7 +180,6 @@ public:
 
     CMPIProvider(
         const String & name,
-        const String & moduleName,
         CMPIProviderModule *module,
         ProviderVector *mv);
 
@@ -197,13 +198,12 @@ public:
     Status getStatus();
     String getName() const;
     String getNameWithType() const;
-    String getModuleName() const;
 
     void reset();
 
     // Monitors threads that the provider has allocated.
 
-    /*
+    /* 
      * Adds the thread to the watch list. The watch list is monitored when the
      * provider is terminated and if any of the threads have not cleaned up by
      * that time, they are forcifully terminated and cleaned up.
@@ -212,20 +212,20 @@ public:
      */
     void addThreadToWatch(Thread *t);
     /*
-    // Removes the thread from the watch list and schedule the
-    // CMPILocalProviderManager to delete the thread. The
-    // CMPILocalProviderManager after deleting the thread calls the
+    // Removes the thread from the watch list and schedule the 
+    // CMPILocalProviderManager to delete the thread. The  
+    // CMPILocalProviderManager after deleting the thread calls the 
     // CMPIProvider' "cleanupThread". The CMPILocalProviderManager notifies
-    // this CMPIProvider object when the thread is truly dead by calling
+    // this CMPIProvider object when the thread is truly dead by calling 
     // "threadDeleted" function.
     //
     // Note that this function is called from the thread that finished with
     // running the providers function, and returns immediately while scheduling
-    // the a cleanup procedure. If you want to wait until the thread is truly
-    // deleted, call 'waitUntilThreadsDone' - but DO NOT do it in the the
+    // the a cleanup procedure. If you want to wait until the thread is truly 
+    // deleted, call 'waitUntilThreadsDone' - but DO NOT do it in the the 
     // thread that the Thread owns - you will wait forever.
     //
-    // @argument t Thread that is not NULL and finished with running the
+    // @argument t Thread that is not NULL and finished with running the 
        provider function.
     */
     void removeThreadFromWatch(Thread *t);
@@ -234,7 +234,7 @@ public:
     * Remove the thread from the list of threads that are being deleted
     * by the CMPILocalProviderManager.
     *
-    * @argument t Thread which has been previously provided to
+    * @argument t Thread which has been previously provided to 
     * 'removeThreadFromWatch' function.
     */
     void threadDelete(Thread *t);
@@ -243,7 +243,7 @@ public:
     *
     * @argument t Thread that is not NULL.
     */
-    Boolean isThreadOwner( Thread *t);
+    Boolean isThreadOwner( Thread *t); 
 
     CMPIProviderModule *getModule() const;
 
@@ -292,6 +292,11 @@ public:
     Boolean testSubscriptions ();
 
     /**
+        Resets the count of current subscriptions for the indication provider.
+     */
+    void resetSubscriptions ();
+
+    /**
         Sets the provider instance for the provider.
 
         Note: the provider instance is set only for an indication provider, and
@@ -325,7 +330,7 @@ public:
     CMPIAssociationMI *getAssocMI();
     CMPIPropertyMI *getPropMI();
     CMPIIndicationMI *getIndMI();
-
+    
     CMPIProviderModule *getModule();
     Uint32 getQuantum();
     void setQuantum(Uint32 quantum);
@@ -355,8 +360,8 @@ private:
 
     /*
      * Wait until all finished provider threads have been cleaned and deleted.
-     * Note: This should NEVER be called from the thread that IS the Thread
-     * object that was is finished and called 'removeThreadFromWatch()' . If
+     * Note: This should NEVER be called from the thread that IS the Thread 
+     * object that was is finished and called 'removeThreadFromWatch()' . If  
      * you do it, you will wait forever.
      */
     void waitUntilThreadsDone();
@@ -364,7 +369,6 @@ private:
     class OpProviderHolder;
     CIMOMHandle *_cimom_handle;
     String _name;
-    String _moduleName;
     AtomicInt _no_unload;
     Uint32 _quantum;
     AtomicInt _current_operations;
@@ -484,4 +488,4 @@ public:
 PEGASUS_NAMESPACE_END
 
 #endif
-
+    

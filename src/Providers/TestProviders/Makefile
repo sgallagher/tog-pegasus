@@ -33,7 +33,6 @@ include $(ROOT)/mak/config.mak
 
 TEST_DIRS = \
 	AlertIndicationProvider \
-	ClientProvider \
 	CLITestProvider \
 	CLITestProvider/tests \
 	DefaultInstanceProvider \

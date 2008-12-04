@@ -1951,7 +1951,7 @@ static CMPIStatus TCPCOMM_IndicationMI_activateFilter(
     RemoteCMPIIndicationMI * cThis,
     const CMPIContext * context,
     const CMPISelectExp * filter,
-    const char *indType,
+    const char *clsName,
     const CMPIObjectPath * cop,
     CMPIBoolean firstActivation)
 #else
@@ -1962,7 +1962,7 @@ static CMPIStatus TCPCOMM_IndicationMI_activateFilter(
     CMPIResult * result,
     CMPIObjectPath * cop,
     CMPISelectExp * filter,
-    const char *indType,
+    const char *clsName,
     CMPIBoolean firstActivation)
 #endif
 {
@@ -1978,7 +1978,7 @@ static CMPIStatus TCPCOMM_IndicationMI_activateFilter(
     }
     (__sft)->serialize_CMPISelectExp(socket, filter,
         PEGASUS_INDICATION_GLOBAL_CONTEXT);
-    (__sft)->serialize_string(socket, indType);
+    (__sft)->serialize_string(socket, clsName);
     (__sft)->serialize_UINT8(socket, firstActivation);
     {
         CMPIStatus rc;
@@ -2004,7 +2004,7 @@ static CMPIStatus TCPCOMM_IndicationMI_deActivateFilter(
     RemoteCMPIIndicationMI * cThis,
     const CMPIContext * context,
     const CMPISelectExp * filter,
-    const char *indType,
+    const char *clsName,
     const CMPIObjectPath * cop,
     CMPIBoolean lastActivation)
 #else
@@ -2015,7 +2015,7 @@ static CMPIStatus TCPCOMM_IndicationMI_deActivateFilter(
     CMPIResult * result,
     CMPIObjectPath * cop,
     CMPISelectExp * filter,
-    const char *indType,
+    const char *clsName,
     CMPIBoolean lastActivation)
 #endif
 {
@@ -2031,7 +2031,7 @@ static CMPIStatus TCPCOMM_IndicationMI_deActivateFilter(
     }
     (__sft)->serialize_CMPISelectExp(socket, filter,
         PEGASUS_INDICATION_GLOBAL_CONTEXT);
-    (__sft)->serialize_string(socket, indType);
+    (__sft)->serialize_string(socket, clsName);
     (__sft)->serialize_UINT8(socket, lastActivation);
     {
         CMPIStatus rc;

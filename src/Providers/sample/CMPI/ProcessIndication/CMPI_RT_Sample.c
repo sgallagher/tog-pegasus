@@ -167,7 +167,7 @@ CMPIStatus testProvMustPoll
 
 CMPIStatus testProvActivateFilter
   (CMPIIndicationMI * cThis, const CMPIContext * ctx,
-   const CMPISelectExp * exp, const char *indType,
+   const CMPISelectExp * exp, const char *clsName,
    const CMPIObjectPath * classPath, CMPIBoolean firstActivation)
 {
 /*
@@ -216,7 +216,7 @@ CMPIStatus testProvActivateFilter
 
 CMPIStatus testProvDeActivateFilter
   (CMPIIndicationMI * cThis, const CMPIContext * ctx,
-   const CMPISelectExp * filter, const char *indType,
+   const CMPISelectExp * filter, const char *clsName,
    const CMPIObjectPath * classPath, CMPIBoolean lastActivation)
 {
 #ifdef PEGASUS_DEBUG

@@ -840,7 +840,7 @@ CMPIStatus CmpiIndicationMI::driveActivateFilter(
     CMPIIndicationMI* mi,
     const CMPIContext* eCtx,
     const CMPISelectExp* eSe,
-    const char* ns,
+    const char* clsName,
     const CMPIObjectPath* eCop, 
     CMPIBoolean first)
 {
@@ -854,7 +854,7 @@ CMPIStatus CmpiIndicationMI::driveActivateFilter(
         return nmi->activateFilter(
             ctx,
             se,
-            ns,
+            clsName,
             cop,
             first).status();
     }
@@ -871,7 +871,7 @@ CMPIStatus CmpiIndicationMI::driveDeActivateFilter(
     CMPIIndicationMI* mi,
     const CMPIContext* eCtx,
     const CMPISelectExp* eSe,
-    const char* ns,
+    const char* clsName,
     const CMPIObjectPath* eCop, 
     CMPIBoolean last)
 {
@@ -885,7 +885,7 @@ CMPIStatus CmpiIndicationMI::driveDeActivateFilter(
         return nmi->deActivateFilter(
             ctx,
             se,
-            ns,
+            clsName,
             cop,
             last).status();
     }

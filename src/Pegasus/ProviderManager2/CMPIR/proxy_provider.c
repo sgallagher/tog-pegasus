@@ -1280,7 +1280,7 @@ static CMPIStatus __IndicationMI_activateFilter(
     CMPIIndicationMI * cThis,
     const CMPIContext * ctx,
     const CMPISelectExp * filter,
-    const char *indType,
+    const char *clsName,
     const CMPIObjectPath * cop,
     CMPIBoolean firstActivation)
 #else
@@ -1290,7 +1290,7 @@ static CMPIStatus __IndicationMI_activateFilter(
     CMPIContext * ctx,
     CMPIResult * rslt,
     CMPISelectExp * filter,
-    const char *indType,
+    const char *clsName,
     CMPIObjectPath * cop,
     CMPIBoolean firstActivation)
 #endif
@@ -1314,7 +1314,7 @@ static CMPIStatus __IndicationMI_activateFilter(
                 rcThis, 
                 ctx,
                 filter, 
-                indType,
+                clsName,
                 cop,
                 firstActivation);
 #else
@@ -1326,7 +1326,7 @@ static CMPIStatus __IndicationMI_activateFilter(
                 rslt,
                 cop, 
                 filter, 
-                indType,
+                clsName,
                 firstActivation);
 
 #endif
@@ -1365,7 +1365,7 @@ static CMPIStatus __IndicationMI_deActivateFilter(
     CMPIIndicationMI * cThis,
     const CMPIContext * ctx,
     const CMPISelectExp * filter,
-    const char *indType,
+    const char *clsName,
     const CMPIObjectPath * cop,
     CMPIBoolean lastActivation)
 #else
@@ -1374,7 +1374,7 @@ static CMPIStatus __IndicationMI_deActivateFilter(
     CMPIContext * ctx,
     CMPIResult * rslt,
     CMPISelectExp * filter,
-    const char *indType,
+    const char *clsName,
     CMPIObjectPath * cop,
     CMPIBoolean lastActivation)
 #endif
@@ -1398,7 +1398,7 @@ static CMPIStatus __IndicationMI_deActivateFilter(
                 rcThis, 
                 ctx,
                 filter,
-                indType,
+                clsName,
                 cop, 
                 lastActivation);
 #else
@@ -1409,7 +1409,7 @@ static CMPIStatus __IndicationMI_deActivateFilter(
                 rslt, 
                 cop, 
                 filter,
-                indType, 
+                clsName, 
                 lastActivation);
 
 #endif

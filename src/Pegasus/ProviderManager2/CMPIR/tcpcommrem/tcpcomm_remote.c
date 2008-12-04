@@ -678,7 +678,7 @@ static void TCPCOMM_IndicationMI_activateFilter(
         socket,
         broker,
         PEGASUS_INDICATION_GLOBAL_CONTEXT);
-    char *indType = (__sft)->deserialize_string(socket, broker);
+    char *clsName = (__sft)->deserialize_string(socket, broker);
     CMPIBoolean firstActivation = (__sft)->deserialize_UINT8(socket);
     CMPIStatus rc;
     CMPIArray *r=NULL;
@@ -697,7 +697,7 @@ static void TCPCOMM_IndicationMI_activateFilter(
             mi,
             ctx,
             filter,
-            indType,
+            clsName,
             cop,
             firstActivation);;
     }
@@ -709,7 +709,7 @@ static void TCPCOMM_IndicationMI_activateFilter(
             ctx,
             result,
             filter,
-            indType,
+            clsName,
             cop,
             firstActivation);;
     }
@@ -734,7 +734,7 @@ static void TCPCOMM_IndicationMI_deActivateFilter(
         socket,
         broker,
         PEGASUS_INDICATION_GLOBAL_CONTEXT);
-    char *indType = (__sft)->deserialize_string(socket, broker);
+    char *clsName = (__sft)->deserialize_string(socket, broker);
     CMPIBoolean lastActivation = (__sft)->deserialize_UINT8(socket);
     CMPIStatus rc;
     CMPIArray *r=NULL;
@@ -753,7 +753,7 @@ static void TCPCOMM_IndicationMI_deActivateFilter(
             mi,
             ctx,
             filter,
-            indType,
+            clsName,
             cop,
             lastActivation);
     }
@@ -765,7 +765,7 @@ static void TCPCOMM_IndicationMI_deActivateFilter(
             ctx,
             result,
             filter,
-            indType,
+            clsName,
             cop,
             lastActivation);
     }

@@ -136,7 +136,7 @@ CMPIStatus TestCMPIIndicationStressTestProviderActivateFilter(
                                           CMPIIndicationMI * mi,
                                           const CMPIContext * ctx,
                                           const CMPISelectExp * se,
-                                          const char *ns,
+                                          const char *clsName,
                                           const CMPIObjectPath * op,
                                           CMPIBoolean firstActivation)
 {
@@ -149,7 +149,7 @@ CMPIStatus TestCMPIIndicationStressTestProviderDeActivateFilter(
                                             CMPIIndicationMI * mi,
                                             const CMPIContext * ctx,
                                             const CMPISelectExp * se,
-                                            const char *ns,
+                                            const char *clsName,
                                             const CMPIObjectPath * op,
                                             CMPIBoolean lastActivation)
 {

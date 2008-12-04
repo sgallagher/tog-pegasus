@@ -208,7 +208,7 @@ CMPIStatus TestCMPIFail_5ProviderActivateFilter(
     CMPIIndicationMI * mi,
     const CMPIContext * ctx,
     const CMPISelectExp * se,
-    const char *ns,
+    const char *clsName,
     const CMPIObjectPath * op,
     CMPIBoolean firstActivation)
 {
@@ -221,7 +221,7 @@ CMPIStatus TestCMPIFail_5ProviderDeActivateFilter(
     CMPIIndicationMI * mi,
     const CMPIContext * ctx,
     const CMPISelectExp * se,
-    const char *ns,
+    const char *clsName,
     const CMPIObjectPath * op,
     CMPIBoolean lastActivation)
 {

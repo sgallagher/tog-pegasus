@@ -70,14 +70,14 @@ public:
         CMPIIndicationMI* mi,
         const CMPIContext* eCtx,
         const CMPISelectExp* se,
-        const char* ns,
+        const char* clsName,
         const CMPIObjectPath* op, 
         CMPIBoolean first);
     static CMPIStatus driveDeActivateFilter(
         CMPIIndicationMI* mi,
         const CMPIContext* eCtx,
         const CMPISelectExp* se,
-        const char* ns, 
+        const char* clsName, 
         const CMPIObjectPath* op,
         CMPIBoolean last);
     static CMPIStatus driveEnableIndications(

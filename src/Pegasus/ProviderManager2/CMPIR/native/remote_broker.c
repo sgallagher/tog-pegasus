@@ -287,7 +287,7 @@ static CMPIStatus __indication_activateFilter (
     CMPIResult * result,
 #endif
     CONST CMPISelectExp * sexp,
-    const char * ns,
+    const char * clsName,
     CONST CMPIObjectPath * cop,
     CMPIBoolean first )
 {
@@ -306,7 +306,7 @@ static CMPIStatus __indication_activateFilter (
         result,
 #endif
         sexp,
-        ns, 
+        clsName, 
         cop, 
         first );
 }
@@ -328,7 +328,7 @@ static CMPIStatus __indication_deactivateFilter (
     CMPIResult * result,
 #endif
     CONST CMPISelectExp * sexp,
-    const char * ns,
+    const char * clsName,
     CONST CMPIObjectPath * cop,
     CMPIBoolean last )
 {
@@ -347,7 +347,7 @@ static CMPIStatus __indication_deactivateFilter (
         result,
 #endif
         sexp,
-        ns, 
+        clsName, 
         cop, 
         last );
 }

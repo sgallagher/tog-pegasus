@@ -699,7 +699,7 @@ TestCMPIIndicationProviderMustPoll (CMPIIndicationMI * mi,
 TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
         const CMPIContext * ctx,
         const CMPISelectExp * se,
-        const char *ns,
+        const char *clsName,
         const CMPIObjectPath * op,
         CMPIBoolean firstActivation)
 #else
@@ -708,7 +708,7 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
         CMPIContext * ctx,
         CMPIResult * rslt,
         CMPISelectExp * se,
-        const char *ns,
+        const char *clsName,
         CMPIObjectPath * op,
         CMPIBoolean firstActivation)
 #endif
@@ -730,7 +730,7 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
     arguments[0] = se;
     arguments[1] = context;
     arguments[2] = _broker;
-    arguments[3] = strdup (ns);
+    arguments[3] = strdup (clsName);
     // Spawn of a new thread!
     _broker->xft->newThread (thread, (void *) arguments, 0);
 
@@ -744,7 +744,7 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
 TestCMPIIndicationProviderDeActivateFilter (CMPIIndicationMI * mi,
         const CMPIContext * ctx,
         const CMPISelectExp * se,
-        const char *ns,
+        const char *clsName,
         const CMPIObjectPath * op,
         CMPIBoolean lastActivation)
 #else
@@ -753,7 +753,7 @@ TestCMPIIndicationProviderDeActivateFilter (CMPIIndicationMI * mi,
         CMPIContext * ctx,
         CMPIResult * rslt,
         CMPISelectExp * se,
-        const char *ns,
+        const char *clsName,
         CMPIObjectPath * op,
         CMPIBoolean lastActivation)
 #endif

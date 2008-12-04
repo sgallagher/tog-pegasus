@@ -58,24 +58,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-inline Boolean _isSupportedRequestType(const Message * message)
-{
-    // ATTN: needs implementation
-
-    // for now, assume all requests are valid
-
-    return true;
-}
-
-inline Boolean _isSupportedResponseType(const Message * message)
-{
-    // ATTN: needs implementation
-
-    // for now, assume all responses are invalid
-
-    return false;
-}
-
 ProviderManagerService* ProviderManagerService::providerManagerService=NULL;
 Uint32 ProviderManagerService::_indicationServiceQueueId = PEG_NOT_FOUND;
 
@@ -230,56 +212,30 @@ ProviderManagerService::handleCimOperation(void* arg)
 
     try
     {
-        if (service->_incomingQueue.size() == 0)
-        {
-            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "ProviderManagerService::handleCimOperation() called with no "
-                    "op node in queue");
-
-            PEG_METHOD_EXIT();
-            return ThreadReturnType(1);
-        }
-
         AsyncOpNode* op = service->_incomingQueue.remove_front();
         PEGASUS_ASSERT(op != 0);
-        PEGASUS_ASSERT(op->_request.get() != 0);
 
         AsyncRequest* request =
-            static_cast<AsyncRequest*>(op->_request.get());
-
-        if ((request == 0) ||
-            (request->getType() != ASYNC_ASYNC_LEGACY_OP_START))
-        {
-            // reply with NAK
-            PEG_METHOD_EXIT();
-            return ThreadReturnType(0);
-        }
+            static_cast<AsyncRequest*>(op->getRequest());
+        PEGASUS_ASSERT(request != 0);
+        PEGASUS_ASSERT(request->getType() == ASYNC_ASYNC_LEGACY_OP_START);
 
         Message* legacy =
             static_cast<AsyncLegacyOperationStart *>(request)->get_action();
 
-        if (_isSupportedRequestType(legacy))
-        {
-            AutoPtr<Message> xmessage(legacy);
+        AutoPtr<Message> xmessage(legacy);
 
-            // Set the client's requested language into this service thread.
-            // This will allow functions in this service to return messages
-            // in the correct language.
-            CIMMessage* msg = dynamic_cast<CIMMessage *>(legacy);
+        // Set the client's requested language into this service thread.
+        // This will allow functions in this service to return messages
+        // in the correct language.
+        CIMMessage* msg = dynamic_cast<CIMMessage *>(legacy);
+        PEGASUS_ASSERT(msg != 0);
 
-            if (msg != 0)
-            {
-                Thread::setLanguages(
-                    ((AcceptLanguageListContainer)msg->operationContext.get(
-                        AcceptLanguageListContainer::NAME)).getLanguages());
-            }
-            else
-            {
-                Thread::clearLanguages();
-            }
+        Thread::setLanguages(
+            ((AcceptLanguageListContainer)msg->operationContext.get(
+                AcceptLanguageListContainer::NAME)).getLanguages());
 
-            service->handleCimRequest(op, legacy);
-        }
+        service->handleCimRequest(op, legacy);
     }
     catch (const Exception& e)
     {
@@ -308,121 +264,115 @@ void ProviderManagerService::handleCimRequest(
     CIMRequestMessage * request = dynamic_cast<CIMRequestMessage *>(message);
     PEGASUS_ASSERT(request != 0);
 
-    // get request from op node
-    AsyncRequest * async = static_cast<AsyncRequest *>(op->_request.get());
-    PEGASUS_ASSERT(async != 0);
+    AutoPtr<Message> response;
 
-    Message * response = 0;
-    Boolean consumerLookupFailed = false;
-
-    if (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
+    try
     {
-        //
-        // Get a ProviderIdContainer for ExportIndicationRequestMessage.
-        // Note: This can be removed when the CIMExportRequestDispatcher
-        // is updated to add the ProviderIdContainer to the message.
-        //
-        CIMInstance providerModule;
-        CIMInstance provider;
-        const CIMExportIndicationRequestMessage* expRequest =
-            dynamic_cast<const CIMExportIndicationRequestMessage*>(request);
-        PEGASUS_ASSERT(expRequest != 0);
-        if (_providerRegistrationManager->lookupIndicationConsumer(
-                expRequest->destinationPath, provider, providerModule))
+        if (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE)
         {
-            request->operationContext.insert(
-                ProviderIdContainer(providerModule, provider));
-        }
-        else
-        {
-            consumerLookupFailed = true;
-        }
-    }
-
-    if (consumerLookupFailed)
-    {
-        CIMResponseMessage* cimResponse = request->buildResponse();
-        cimResponse->cimException = PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_NOT_SUPPORTED, String::EMPTY);
-        response = cimResponse;
-    }
-    else if ((dynamic_cast<CIMOperationRequestMessage*>(request) != 0) ||
-        (dynamic_cast<CIMIndicationRequestMessage*>(request) != 0) ||
-        (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE))
-    {
-        // Handle CIMOperationRequestMessage, CIMExportIndicationRequestMessage,
-        // and CIMIndicationRequestMessage.
-        // (These should be blocked when the provider module is disabled.)
-
-        //
-        // Get the provider module instance to check for a disabled module
-        //
-        CIMInstance providerModule;
-
-        // The provider ID container is added to the OperationContext
-        // by the CIMOperationRequestDispatcher for all CIM operation
-        // requests to providers, so it does not need to be added again.
-        ProviderIdContainer pidc =
-            request->operationContext.get(ProviderIdContainer::NAME);
-        providerModule = pidc.getModule();
-
-        //
-        // Check if the target provider is disabled
-        //
-        Boolean moduleDisabled = false;
-        Uint32 pos = providerModule.findProperty(CIMName("OperationalStatus"));
-        PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
-        Array<Uint16> operationalStatus;
-        providerModule.getProperty(pos).getValue().get(operationalStatus);
-
-        for (Uint32 i = 0; i < operationalStatus.size(); i++)
-        {
-            if ((operationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPED) ||
-                (operationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPING))
+            //
+            // Get a ProviderIdContainer for ExportIndicationRequestMessage.
+            // Note: This can be removed when the CIMExportRequestDispatcher
+            // is updated to add the ProviderIdContainer to the message.
+            //
+            CIMInstance providerModule;
+            CIMInstance provider;
+            const CIMExportIndicationRequestMessage* expRequest =
+                dynamic_cast<const CIMExportIndicationRequestMessage*>(request);
+            PEGASUS_ASSERT(expRequest != 0);
+            if (_providerRegistrationManager->lookupIndicationConsumer(
+                    expRequest->destinationPath, provider, providerModule))
             {
-                moduleDisabled = true;
-                break;
+                request->operationContext.insert(
+                    ProviderIdContainer(providerModule, provider));
+                response.reset(_processMessage(request));
+            }
+            else
+            {
+                CIMResponseMessage* cimResponse = request->buildResponse();
+                cimResponse->cimException = PEGASUS_CIM_EXCEPTION(
+                    CIM_ERR_NOT_SUPPORTED, String::EMPTY);
+                response.reset(cimResponse);
             }
         }
-
-        if (moduleDisabled)
+        else if ((dynamic_cast<CIMOperationRequestMessage*>(request) != 0) ||
+            (dynamic_cast<CIMIndicationRequestMessage*>(request) != 0) ||
+            (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE))
         {
+            // Handle CIMOperationRequestMessage,
+            // CIMExportIndicationRequestMessage,
+            // and CIMIndicationRequestMessage.
+            // (These should be blocked when the provider module is disabled.)
+
             //
-            // Send a "provider blocked" response
+            // Get the provider module instance to check for a disabled module
             //
-            CIMResponseMessage* cimResponse = request->buildResponse();
-            cimResponse->cimException = PEGASUS_CIM_EXCEPTION_L(
-                CIM_ERR_NOT_SUPPORTED,
-                MessageLoaderParms(
-                    "ProviderManager.ProviderManagerService.PROVIDER_BLOCKED",
-                    "provider blocked."));
-            response = cimResponse;
+            CIMInstance providerModule;
+
+            // The provider ID container is added to the OperationContext
+            // by the CIMOperationRequestDispatcher for all CIM operation
+            // requests to providers, so it does not need to be added again.
+            ProviderIdContainer pidc =
+                request->operationContext.get(ProviderIdContainer::NAME);
+            providerModule = pidc.getModule();
+
+            //
+            // Check if the target provider is disabled
+            //
+            Boolean moduleDisabled = false;
+            Uint32 pos =
+                providerModule.findProperty(CIMName("OperationalStatus"));
+            PEGASUS_ASSERT(pos != PEG_NOT_FOUND);
+            Array<Uint16> operationalStatus;
+            providerModule.getProperty(pos).getValue().get(operationalStatus);
+
+            for (Uint32 i = 0; i < operationalStatus.size(); i++)
+            {
+                if ((operationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPED) ||
+                    (operationalStatus[i] == CIM_MSE_OPSTATUS_VALUE_STOPPING))
+                {
+                    moduleDisabled = true;
+                    break;
+                }
+            }
+
+            if (moduleDisabled)
+            {
+                //
+                // Send a "provider blocked" response
+                //
+                CIMResponseMessage* cimResponse = request->buildResponse();
+                cimResponse->cimException = PEGASUS_CIM_EXCEPTION_L(
+                    CIM_ERR_NOT_SUPPORTED,
+                    MessageLoaderParms(
+                        "ProviderManager.ProviderManagerService."
+                            "PROVIDER_BLOCKED",
+                        "provider blocked."));
+                response.reset(cimResponse);
+            }
+            else
+            {
+                //
+                // Forward the request to the appropriate ProviderManagerRouter
+                //
+                response.reset(_processMessage(request));
+            }
         }
-        else
+        else if (request->getType() == CIM_ENABLE_MODULE_REQUEST_MESSAGE)
         {
-            //
-            // Forward the request to the appropriate ProviderManagerRouter
-            //
-            response = _processMessage(request);
-        }
-    }
-    else if (request->getType() == CIM_ENABLE_MODULE_REQUEST_MESSAGE)
-    {
-        // Handle CIMEnableModuleRequestMessage
-        CIMEnableModuleRequestMessage * emReq =
-            dynamic_cast<CIMEnableModuleRequestMessage*>(request);
+            // Handle CIMEnableModuleRequestMessage
+            CIMEnableModuleRequestMessage * emReq =
+                dynamic_cast<CIMEnableModuleRequestMessage*>(request);
 
-        CIMInstance providerModule = emReq->providerModule;
+            CIMInstance providerModule = emReq->providerModule;
 
-        try
-        {
             // Forward the request to the ProviderManager
-            response = _processMessage(request);
+            response.reset(_processMessage(request));
 
             // If successful, update provider module status to OK
             // ATTN: Use CIMEnableModuleResponseMessage operationalStatus?
             CIMEnableModuleResponseMessage * emResp =
-                dynamic_cast<CIMEnableModuleResponseMessage*>(response);
+                dynamic_cast<CIMEnableModuleResponseMessage*>(response.get());
             if (emResp->cimException.getCode() == CIM_ERR_SUCCESS)
             {
                 //
@@ -437,37 +387,15 @@ void ProviderManagerService::handleCimRequest(
                     providerModule, removeStatus, appendStatus);
             }
         }
-        catch (Exception& e)
+        else if (request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
         {
-            // Get the OperationalStatus property from the provider module
-            Array<Uint16> operationalStatus;
-            CIMValue itValue = emReq->providerModule.getProperty(
-                emReq->providerModule.findProperty("OperationalStatus"))
-                    .getValue();
-            itValue.get(operationalStatus);
+            // Handle CIMDisableModuleRequestMessage
+            CIMDisableModuleRequestMessage * dmReq =
+                dynamic_cast<CIMDisableModuleRequestMessage*>(request);
 
-            delete response;
+            CIMInstance providerModule = dmReq->providerModule;
+            Boolean updateModuleStatus = !dmReq->disableProviderOnly;
 
-            CIMEnableModuleResponseMessage* emResp =
-                dynamic_cast<CIMEnableModuleResponseMessage*>(
-                    request->buildResponse());
-            emResp->operationalStatus = operationalStatus;
-            emResp->cimException =
-                CIMException(CIM_ERR_FAILED, e.getMessage());
-            response = emResp;
-        }
-    }
-    else if (request->getType() == CIM_DISABLE_MODULE_REQUEST_MESSAGE)
-    {
-        // Handle CIMDisableModuleRequestMessage
-        CIMDisableModuleRequestMessage * dmReq =
-            dynamic_cast<CIMDisableModuleRequestMessage*>(request);
-
-        CIMInstance providerModule = dmReq->providerModule;
-        Boolean updateModuleStatus = !dmReq->disableProviderOnly;
-
-        try
-        {
             //
             //  On issuing a disable request, append Stopping status
             //  Do not remove existing status
@@ -482,13 +410,14 @@ void ProviderManagerService::handleCimRequest(
             }
 
             // Forward the request to the ProviderManager
-            response = _processMessage(request);
+            response.reset(_processMessage(request));
 
             // Update provider module status based on success or failure
             if (updateModuleStatus)
             {
                 CIMDisableModuleResponseMessage * dmResp =
-                    dynamic_cast<CIMDisableModuleResponseMessage*>(response);
+                    dynamic_cast<CIMDisableModuleResponseMessage*>(
+                        response.get());
                 if (dmResp->cimException.getCode() != CIM_ERR_SUCCESS)
                 {
                     //
@@ -531,35 +460,35 @@ void ProviderManagerService::handleCimRequest(
                 }
             }
         }
-        catch (Exception& e)
+        else
         {
-            // Get the OperationalStatus property from the provider module
-            Array<Uint16> operationalStatus;
-            CIMValue itValue = dmReq->providerModule.getProperty(
-                dmReq->providerModule.findProperty("OperationalStatus"))
-                    .getValue();
-            itValue.get(operationalStatus);
-
-            delete response;
-
-            CIMDisableModuleResponseMessage* dmResp =
-                dynamic_cast<CIMDisableModuleResponseMessage*>(
-                    request->buildResponse());
-            dmResp->operationalStatus = operationalStatus;
-            dmResp->cimException =
-                CIMException(CIM_ERR_FAILED, e.getMessage());
-            response = dmResp;
+            response.reset(_processMessage(request));
         }
     }
-    else
+    catch (Exception& e)
     {
-        response = _processMessage(request);
+        CIMResponseMessage* cimResponse = request->buildResponse();
+        cimResponse->cimException =
+            CIMException(CIM_ERR_FAILED, e.getMessage());
+        response.reset(cimResponse);
+    }
+    catch (PEGASUS_STD(exception)& e)
+    {
+        CIMResponseMessage* cimResponse = request->buildResponse();
+        cimResponse->cimException = CIMException(CIM_ERR_FAILED, e.what());
+        response.reset(cimResponse);
+    }
+    catch (...)
+    {
+        CIMResponseMessage* cimResponse = request->buildResponse();
+        cimResponse->cimException = CIMException(CIM_ERR_FAILED, String::EMPTY);
+        response.reset(cimResponse);
     }
 
     AsyncLegacyOperationResult * async_result =
         new AsyncLegacyOperationResult(
         op,
-        response);
+        response.release());
 
     _complete_op_node(op);
 

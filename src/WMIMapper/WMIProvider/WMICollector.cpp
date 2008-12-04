@@ -88,6 +88,7 @@ void WMICollector::terminate(void)
 bool WMICollector::setup()
 {
     HRESULT hr;
+    static bool bCallInitSec = true;
 
     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMICollector::setup()");
 
@@ -102,12 +103,17 @@ bool WMICollector::setup()
 
         if (m_bInitialized)
         {
-            hr = CoInitializeSecurity(NULL, -1, NULL, NULL,
-                                      RPC_C_AUTHN_LEVEL_DEFAULT,
-                                      RPC_C_IMP_LEVEL_IMPERSONATE,
-                                      NULL,
-                                      EOAC_DYNAMIC_CLOAKING,
-                                      0);
+                                      
+            if (bCallInitSec)
+            {
+                bCallInitSec = false;
+                hr = CoInitializeSecurity(NULL, -1, NULL, NULL,
+                        RPC_C_AUTHN_LEVEL_DEFAULT,
+                        RPC_C_IMP_LEVEL_IMPERSONATE,
+                        NULL,
+                        EOAC_DYNAMIC_CLOAKING,
+                        0);
+            }
         }
     }
 

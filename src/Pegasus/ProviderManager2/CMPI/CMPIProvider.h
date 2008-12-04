@@ -373,6 +373,7 @@ private:
     Uint32 _quantum;
     AtomicInt _current_operations;
     Mutex _statusMutex;
+    Mutex _removeThreadMutex;
 
     struct timeval _idleTime;
     Mutex _idleTimeMutex;

@@ -503,11 +503,25 @@ void CMPIProvider::removeThreadFromWatch(Thread *t)
         "CMPIProvider::removeThreadFromWatch()");
     PEGASUS_ASSERT( t != 0 );
 
-    PEGASUS_ASSERT (_threadWatchList.contains (t));
-    PEGASUS_ASSERT (!_cleanedThreads.contains (t));
 
-    // and remove it from the watched list
-    _threadWatchList.remove(t);
+    // Note: After MI returned true from cleanup() method , there might be some
+    // threads running in MI. CMPILocalProviderManager::cleanupThread() called 
+    // below will take care of joining the running threads in MI.
+    {
+        AutoMutex mtx(_removeThreadMutex);
+        if (_threadWatchList.contains(t))
+        {
+            // Remove it from the watched list
+            _threadWatchList.remove(t);            
+        }
+        else
+        {
+            // This thread already has been removed from watch list.
+            PEG_METHOD_EXIT();
+            return;
+        }
+    }
+    PEGASUS_ASSERT (!_cleanedThreads.contains (t));
 
     // Add the thread to the CMPIProvider's list.
     // We use this list to keep track of threads that are

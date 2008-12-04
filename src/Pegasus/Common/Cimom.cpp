@@ -73,12 +73,10 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
             MessageQueue *dest_q = op->_op_dest;
             Uint32 dest_qid = dest_q->getQueueId();
 
-            Boolean accepted = false;
-
             if (dest_qid == CIMOM_Q_ID)
             {
                dispatcher->_handle_cimom_op(op);
-               accepted = true;
+               continue;
             }
             else
             {
@@ -102,23 +100,10 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
                     {
                        dispatcher->_make_response(
                            request, async_results::CIM_SERVICE_STOPPED);
-                       accepted = true;
-                    }
-                    else
-                    {
-                        // deliver the start message
-                        if (dest_svc->_die.get() == 0)
-                        {
-                            accepted = dest_svc->accept_async(op);
-                        }
+                       continue;
                     }
                 }
-                else if (dest_svc->_die.get() == 0)
-                {
-                    accepted = dest_svc->accept_async(op);
-                }
-
-                if (accepted == false)
+                if (dest_svc->accept_async(op) == false)
                 {
                    // set completion code to NAK and flag completed
                     _make_response(op->_request.get(), async_results::CIM_NAK);

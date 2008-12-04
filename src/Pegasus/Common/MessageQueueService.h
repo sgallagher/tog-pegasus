@@ -51,9 +51,10 @@ extern const Uint32 CIMOM_Q_ID;
 class message_module;
 class cimom;
 
+struct PollingListEntry;
 
 class PEGASUS_COMMON_LINKAGE MessageQueueService :
-    public Linkable, public MessageQueue
+    public MessageQueue
 {
 public:
 
@@ -88,7 +89,7 @@ public:
 
     static ThreadPool* get_thread_pool();
 
-    AtomicInt _die;
+    PollingListEntry *pollingListEntry;
     AtomicInt _threads;
     Uint32 getIncomingCount() {return _incoming.count(); }
 
@@ -114,7 +115,6 @@ protected:
 
     static cimom* _meta_dispatcher;
     static AtomicInt _service_count;
-    static Mutex _meta_dispatcher_mutex;
     static ThreadPool* _thread_pool;
     Boolean _isRunning;
 private:
@@ -125,8 +125,6 @@ private:
         void* callback_ptr,
         Uint32 flags);
 
-    void _removeFromPollingList(MessageQueueService *service);
-
     static ThreadReturnType PEGASUS_THREAD_CDECL polling_routine(void *);
 
     AsyncQueue<AsyncOpNode> _incoming;
@@ -134,11 +132,8 @@ private:
     static Semaphore _polling_sem;
     static AtomicInt _stop_polling;
 
-    typedef List<MessageQueueService, Mutex> PollingList;
+    typedef List<PollingListEntry, NullLock> PollingList;
     static PollingList* _polling_list;
-    static Mutex _polling_list_mutex;
-
-    PollingList* _get_polling_list();
 
     static ThreadReturnType PEGASUS_THREAD_CDECL _req_proc(void *);
 

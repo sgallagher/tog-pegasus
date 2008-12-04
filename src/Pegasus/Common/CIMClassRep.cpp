@@ -199,9 +199,8 @@ void CIMClassRep::resolve(
                     MessageLoaderParms(
                         "Common.CIMClassRep.NON_ASSOCIATION_CLASS_CONTAINS_"
                             "REFERENCE_PROPERTY",
-                        "Non-assocation class contains reference property"));
+                        "Non-association class contains reference property"));
             }
-
 
             Uint32 index = superClass.findProperty(property.getName());
 
@@ -363,18 +362,32 @@ void CIMClassRep::resolve(
             superClass._rep->_qualifiers,
             true);
     }
-    else     // No SuperClass exsts
+    else     // No SuperClass is defined
     {
         //----------------------------------------------------------------------
         // Resolve each property:
         //----------------------------------------------------------------------
 
+        Boolean isAssociationClass = isAssociation();
+
         for (Uint32 i = 0, n = _properties.size(); i < n; i++)
         {
-             Resolver::resolveProperty(
-                 _properties[i], context, nameSpace, false, true);
-             _properties[i].setClassOrigin(getClassName());
-             _properties[i].setPropagated(false);
+            CIMProperty& property = _properties[i];
+
+            if (!isAssociationClass &&
+                property.getValue().getType() == CIMTYPE_REFERENCE)
+            {
+                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
+                    MessageLoaderParms(
+                        "Common.CIMClassRep.NON_ASSOCIATION_CLASS_CONTAINS_"
+                            "REFERENCE_PROPERTY",
+                        "Non-association class contains reference property"));
+            }
+
+            Resolver::resolveProperty(
+                property, context, nameSpace, false, true);
+            property.setClassOrigin(getClassName());
+            property.setPropagated(false);
         }
 
         //----------------------------------------------------------------------

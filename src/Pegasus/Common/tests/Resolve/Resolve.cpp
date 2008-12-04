@@ -202,6 +202,7 @@ void test01()
 
     delete context;
 }
+
 /* Test for qualifier and properties resolved to subclass from superclass
     This is a major test of resolution of attributes from a superclass to
     a subclass.
@@ -697,6 +698,126 @@ void test02()
     delete context;
 }
 
+// Test declaration of a reference parameter type in a non-association class
+void test03()
+{
+    if (verbose)
+    {
+        cout << "Test03 - Detect reference parameter in non-association class" 
+             << endl;
+    }
+
+    const CIMNamespaceName NAMESPACE = CIMNamespaceName("/ttt");
+    SimpleDeclContext* context = new SimpleDeclContext;
+
+    // Define the qualifiers
+
+    CIMQualifierDecl association(CIMName("association"), Boolean(true),
+        (CIMScope::CLASS + CIMScope::ASSOCIATION), CIMFlavor::TOSUBCLASS);
+    CIMQualifierDecl key(CIMName("key"), Boolean(true),
+        (CIMScope::PROPERTY + CIMScope::REFERENCE), CIMFlavor::TOSUBCLASS);
+
+    if (verbose)
+    {
+        XmlWriter::printQualifierDeclElement(association);
+        XmlWriter::printQualifierDeclElement(key);
+    }
+    context->addQualifierDecl(NAMESPACE, association);
+    context->addQualifierDecl(NAMESPACE, key);
+
+    // Define a valid endpoint class
+
+    CIMClass ep(CIMName("MyEndpoint"));
+    ep.addProperty(CIMProperty(CIMName("index"), Uint32(1)));
+    context->addClass(NAMESPACE, ep);
+
+    // Define a superclass with reference parameters but not an association
+
+    CIMProperty ref1(
+        CIMName("reference1"),
+        CIMValue(CIMTYPE_REFERENCE, false, 0),
+        0,
+        "MyEndpoint");
+    ref1.addQualifier(CIMQualifier(CIMName("key"), Boolean(true)));
+    CIMProperty ref2(
+        CIMName("reference2"),
+        CIMValue(CIMTYPE_REFERENCE, false, 0),
+        0,
+        "MyEndpoint");
+    ref2.addQualifier(CIMQualifier(CIMName("key"), Boolean(true)));
+
+    CIMClass super(CIMName("MySuperClass"));
+    super.addProperty(CIMProperty(ref1));
+    super.addProperty(CIMProperty(ref2));
+
+    if (verbose)
+    {
+        XmlWriter::printClassElement(super);
+    }
+
+    try
+    {
+        // Attempt to resolve the class
+        Resolver::resolveClass(super, context, NAMESPACE);
+        // An exception should have been thrown
+        PEGASUS_ASSERT(false);
+    }
+    catch (CIMException& e)
+    {
+        PEGASUS_ASSERT(e.getCode() == CIM_ERR_INVALID_PARAMETER);
+    }
+
+    // Make sure we can resolve the class if it is an association
+
+    super.addQualifier(CIMQualifier(CIMName("Association"), Boolean(true)));
+    Resolver::resolveClass(super, context, NAMESPACE);
+
+    // Make the superclass valid and add it to the context
+
+    super = CIMClass(CIMName("MySuperClass"));
+    CIMProperty key1(CIMName("key1"), CIMValue(CIMTYPE_STRING, false, 0));
+    key1.addQualifier(CIMQualifier(CIMName("key"), Boolean(true)));
+    super.addProperty(CIMProperty(key1));
+    context->addClass(NAMESPACE, super);
+
+    // Define a subclass that adds a reference type but is not an association
+    // class
+
+    CIMClass c(CIMName("MyClass"), CIMName("MySuperClass"));
+    c.addProperty(CIMProperty(ref1));
+    c.addProperty(CIMProperty(ref2));
+
+    if (verbose)
+    {
+        XmlWriter::printClassElement(c);
+    }
+
+    try
+    {
+        // Attempt to resolve the class with references to non-existent classes
+        Resolver::resolveClass(c, context, NAMESPACE);
+        // An exception should have been thrown
+        PEGASUS_ASSERT(false);
+    }
+    catch (CIMException& e)
+    {
+        PEGASUS_ASSERT(e.getCode() == CIM_ERR_INVALID_PARAMETER);
+    }
+
+    // Make sure we can resolve the class if it is an association.
+    // (Note: This test could break if a check is added to ensure that an
+    // association class only subclasses from an association class.)
+
+    c.addQualifier(CIMQualifier(CIMName("Association"), Boolean(true)));
+    Resolver::resolveClass(c, context, NAMESPACE);
+
+    delete context;
+    if (verbose)
+    {
+        cout << "End Test03" << endl;
+    }
+}
+
 // Test to confirm that invalid qualifier is caught
 // Remove q3 from earlier test and confirm that caught
 void test04()
@@ -784,6 +905,7 @@ void test04()
 
     delete context;
 }
+
 // Test05 - Determine if we correctly detect a property qualifier on 
 // a class and reject
 void test05()
@@ -902,21 +1024,22 @@ void test05()
 
     // Test that an association class passes the qualifier tests
 
+    CIMClass ep(CIMName("EndPointClass"));
+    ep.addProperty(CIMProperty(CIMName("index"), Uint32(1)));
+    context->addClass(NAMESPACE, ep);
 
     // Create Properties and references with Key qualifier
     CIMClass classAssoc(CIMName ("classAssoc"));
     try
     {
-    classAssoc
-        .addQualifier(CIMQualifier(CIMName ("Association"), Boolean(true)))
-
-        .addProperty(CIMProperty(CIMName ("ref1"), 
-            CIMObjectPath("YourClass.key1=\"fred\""),0, 
-            CIMName ("refClassName")))
-        .addProperty(CIMProperty(CIMName ("ref2"), 
-            CIMObjectPath("MyClass.key1=\"fred\""), 0, 
-            CIMName ("refClassName")))
-        ;
+        classAssoc
+            .addQualifier(CIMQualifier(CIMName ("Association"), Boolean(true)))
+            .addProperty(CIMProperty(CIMName("ref1"),
+                CIMObjectPath("YourClass.key1=\"fred\""), 0, 
+                CIMName("EndPointClass")))
+            .addProperty(CIMProperty(CIMName("ref2"),
+                CIMObjectPath("MyClass.key1=\"fred\""), 0,
+                CIMName("EndPointClass")));
     }
     catch (Exception& e)
     {
@@ -1002,7 +1125,7 @@ void test07()
 
 }
 
-// Test non-existent reference parameter type
+// Test non-existent reference parameter type in class with superclass
 void test08()
 {
     if (verbose)
@@ -1121,7 +1244,7 @@ int main(int argc, char** argv)
     {
         test01();
         test02();
-        //test03();
+        test03();
         test04();
         test05();
         test06(); // Test for no superclass

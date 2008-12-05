@@ -52,6 +52,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 static const char _NULL_INTERVAL_TYPE_STRING[] = "00000000000000.000000:000";
 static const char _NULL_DATE_TYPE_STRING[] = "00000000000000.000000-000";
+static const char _ZEROED_DATE_TYPE_STRING[] = "00000000000000.000000+000";
 
 WMIValue::WMIValue(const CIMValue & value) : CIMValue(value)
 {
@@ -495,6 +496,21 @@ CIMValue WMIValue::getCIMValueFromVariant(
                     str = _NULL_INTERVAL_TYPE_STRING;
                 }
 
+                // if WMI datetime value have a zeroed value
+                // then the CIMValue will be set as null. CIM Schema do not
+                // permits zeroed values to datetime and consider it a
+                // out of range value.
+                if (String::equal(str, String(_ZEROED_DATE_TYPE_STRING)))
+                {
+                    PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+                        "Date Time Zeroed. Setting Value as NULL."));
+
+
+                    CIMValue dtValue;
+                    dtValue.setNullValue(CIMTYPE_DATETIME, false, 0);
+                    return (dtValue);
+                }
+                                               
                 dt.set(str);
 
                 return (CIMValue(WMIDateTime(dt)));

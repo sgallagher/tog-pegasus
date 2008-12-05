@@ -34,6 +34,10 @@ include $(ROOT)/mak/config.mak
 
 LOCAL_DEFINES = -DPEGASUS_PROVIDER_INTERNAL -DPEGASUS_INTERNALONLY
 
+ifeq ($(OS_TYPE),vms)
+    STATIC=1
+endif
+
 LIBRARIES = \
     pegclient \
     pegcommon \

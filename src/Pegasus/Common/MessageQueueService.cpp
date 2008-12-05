@@ -37,6 +37,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 cimom *MessageQueueService::_meta_dispatcher = 0;
 AtomicInt MessageQueueService::_service_count(0);
+Mutex MessageQueueService::_meta_dispatcher_mutex;
 
 static struct timeval deallocateWait = {300, 0};
 
@@ -192,6 +193,8 @@ MessageQueueService::MessageQueueService(
     PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
        "max_threads_per_svc_queue set to %u.", max_threads_per_svc_queue));
 
+    AutoMutex mtx(_meta_dispatcher_mutex);
+
     if (_meta_dispatcher == 0)
     {
         _stop_polling = 0;
@@ -246,6 +249,8 @@ MessageQueueService::~MessageQueueService()
     }
 
     {
+        AutoMutex mtx(_meta_dispatcher_mutex);
+
         _service_count--;
         // If we are last service to die, delete metadispatcher.
         if (_service_count.get() == 0)

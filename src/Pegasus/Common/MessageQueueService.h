@@ -114,6 +114,7 @@ protected:
     void _complete_op_node(AsyncOpNode *);
 
     static cimom* _meta_dispatcher;
+    static Mutex _meta_dispatcher_mutex;
     static AtomicInt _service_count;
     static ThreadPool* _thread_pool;
     Boolean _isRunning;

@@ -738,7 +738,7 @@ void WMIInstanceProvider::setProperty(
     bsPropName = propertyName.getCString();
 
     //convert property value from CIMValue to VARIANT
-    WMIValue(newValue).getAsVariant(&vValue);
+    WMIValue(newValue).getAsVariant(&vValue, nameSpace, userName, password);
 
     //update property value
     hr = pInstance->Put(bsPropName, 0, &vValue, 0);
@@ -908,7 +908,7 @@ void WMIInstanceProvider::modifyInstance(
 
             try
             {
-                propertyValue.getAsVariant(&v);
+                propertyValue.getAsVariant(&v,nameSpace, userName, password);
             }
             catch (CIMException&)
             {
@@ -1065,7 +1065,11 @@ CIMObjectPath WMIInstanceProvider::createInstance(
         
         try
         {
-            WMIValue(propertyValue).getAsVariant(&v);
+            WMIValue(propertyValue).getAsVariant(
+                                        &v, 
+                                        nameSpace,
+                                        userName, 
+                                        password);
         }
         catch (CIMException&)
         {

@@ -39,11 +39,14 @@
 
 #include "StdAfx.h"
 
+#include <Pegasus/Common/CIMInstance.h>
+
 #include "WMIValue.h"
 #include "WMIString.h"
 #include "WMIType.h"
 #include "WMIDateTime.h"
 #include "WMIObjectPath.h"
+#include "WMIObject.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -322,7 +325,17 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
 
             break;
         case CIM_OBJECT:
-
+            try
+            {
+                val.set(WMIObjectPath(_bstr_t(vt)));
+            }
+            catch(...)
+            {
+                val.setNullValue(CIMTYPE_OBJECT, false);            
+            }
+            break;
+        case CIM_OBJECT | CIM_FLAG_ARRAY:
+            val.setNullValue(CIMTYPE_OBJECT, true);
             break;
         case CIM_EMPTY:
 
@@ -552,7 +565,30 @@ CIMValue WMIValue::getCIMValueFromVariant(
                 return (CIMValue((Uint32)*((unsigned long *)pVal)));
             }
             break;
-
+        case VT_UNKNOWN:
+            if (CIM_OBJECT == Type)
+            {
+                IUnknown *punkVal = NULL;
+                CComPtr <IWbemClassObject> pClass = NULL;
+                
+                punkVal = (IUnknown *)*((unsigned long *)pVal);
+                HRESULT hr = punkVal->QueryInterface(
+                    IID_IWbemClassObject, 
+                    reinterpret_cast< void** >(&pClass));
+                                
+                if (S_OK == hr) {
+                   BSTR pstrObjectText;
+                   hr = pClass->GetObjectText(0, &pstrObjectText);  
+                                                         
+                   PEG_METHOD_EXIT();
+                   return (CIMObject(WMIObject(pClass)));
+                }               
+                
+                throw TypeMismatchException();                         
+            }
+        
+            break;
+            
         default:
             throw TypeMismatchException();
             break;
@@ -726,6 +762,17 @@ CIMValue WMIValue::getArrayValue(const CComVariant& vValue, const CIMTYPE Type)
             cimType = vartypeToCIMType(vt);
         }
     }
+    else if (VT_UNKNOWN == vt)
+    {
+        if (CIM_OBJECT == type)
+        {
+            cimType = CIMTYPE_OBJECT;
+        }
+        else
+        {
+            cimType = vartypeToCIMType(vt);
+        }
+    }
     else
     {
         cimType = vartypeToCIMType(vt);
@@ -777,6 +824,10 @@ CIMValue WMIValue::getArrayValue(const CComVariant& vValue, const CIMTYPE Type)
             case CIMTYPE_REAL64:
                 return getArrayValueAux(psa, vt, type, (Real64*)0);
 
+            case CIMTYPE_OBJECT:
+                PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3, " CIMTYPE_OBJECT"));
+                return getArrayValueAux(psa, vt, type, (CIMObject*)0);
+
             default:
                 break;
         }
@@ -802,7 +853,10 @@ VARIANT WMIValue::toVariant()
 //             to a variant including arrays
 //
 // ///////////////////////////////////////////////////////////////////////////
-void WMIValue::getAsVariant(CComVariant *var)
+void WMIValue::getAsVariant(CComVariant *var,
+                            const String& nameSpace,
+                            const String& userName,
+                            const String& password)
 {
     HRESULT hr;
     CMyString tmp;
@@ -830,7 +884,8 @@ void WMIValue::getAsVariant(CComVariant *var)
                   
                 if (!pSA)
                 {
-                    throw CIMException (CIM_ERR_FAILED);
+                    throw CIMException (CIM_ERR_FAILED, 
+                                       "Array creation failed.");
                 }
 
                 Array<Boolean> arValue;
@@ -842,7 +897,8 @@ void WMIValue::getAsVariant(CComVariant *var)
                     if (hr = SafeArrayPutElement(pSA, &i, &arValue[i]))
                     {
                       SafeArrayDestroy(pSA);
-                      throw CIMException(CIM_ERR_FAILED);
+                      throw CIMException(CIM_ERR_FAILED, 
+                                         "Array put operation failed.");
                     }
                 }
 
@@ -873,7 +929,8 @@ void WMIValue::getAsVariant(CComVariant *var)
 
                 if (!pSA)
                 {
-                    throw CIMException (CIM_ERR_FAILED);
+                    throw CIMException (CIM_ERR_FAILED, 
+                                       "Array creation failed.");
                 }
 
                 Array<Sint8> arValue;
@@ -891,7 +948,8 @@ void WMIValue::getAsVariant(CComVariant *var)
                     if ((hr = SafeArrayPutElement(pSA, &i, vOut.bstrVal)))
                     {
                         SafeArrayDestroy(pSA);
-                        throw CIMException (CIM_ERR_FAILED);
+                        throw CIMException(CIM_ERR_FAILED, 
+                                           "Array put operation failed.");
                     }
                     vOut.Clear();
                 }
@@ -922,7 +980,8 @@ void WMIValue::getAsVariant(CComVariant *var)
 
                 if (!pSA)
                 {
-                    throw CIMException(CIM_ERR_FAILED);
+                    throw CIMException (CIM_ERR_FAILED, 
+                                        "Array creation failed.");
                 }
               
                 Array<Uint8> arValue;
@@ -934,7 +993,8 @@ void WMIValue::getAsVariant(CComVariant *var)
                   if ((hr = SafeArrayPutElement(pSA, &i, &arValue[i])))
                   {
                       SafeArrayDestroy(pSA);
-                      throw CIMException(CIM_ERR_FAILED);
+                      throw CIMException(CIM_ERR_FAILED, 
+                                         "Array put operation failed.");
                   }
               }
             
@@ -962,7 +1022,8 @@ void WMIValue::getAsVariant(CComVariant *var)
               
               if (!pSA)
               {
-                  throw CIMException (CIM_ERR_FAILED);
+                  throw CIMException (CIM_ERR_FAILED, 
+                                      "Array creation failed.");
               }
               
               Array<Sint16> arValue;
@@ -973,7 +1034,8 @@ void WMIValue::getAsVariant(CComVariant *var)
                   if ((hr = SafeArrayPutElement(pSA, &i, &arValue[i])))
                   {
                       SafeArrayDestroy(pSA);
-                      throw CIMException(CIM_ERR_FAILED);
+                      throw CIMException(CIM_ERR_FAILED, 
+                                         "Array put operation failed.");
                   }
               }
 
@@ -1000,7 +1062,8 @@ void WMIValue::getAsVariant(CComVariant *var)
 
                 if (!pSA)
                 {
-                    throw CIMException (CIM_ERR_FAILED);
+                    throw CIMException (CIM_ERR_FAILED, 
+                                        "Array creation failed.");
                 }
               
                 Array<Uint16> arValue;
@@ -1017,7 +1080,8 @@ void WMIValue::getAsVariant(CComVariant *var)
                     if ((hr = SafeArrayPutElement(pSA, &i, vOut.bstrVal)))
                     {
                         SafeArrayDestroy(pSA);
-                        throw CIMException(CIM_ERR_FAILED);
+                        throw CIMException(CIM_ERR_FAILED, 
+                                           "Array put operation failed.");
                     }
                     vOut.Clear();
                 }
@@ -1045,7 +1109,8 @@ void WMIValue::getAsVariant(CComVariant *var)
 
                 if (!pSA)
                 {
-                    throw CIMException (CIM_ERR_FAILED);
+                    throw CIMException (CIM_ERR_FAILED, 
+                                        "Array creation failed.");
                 }
               
                 Array<Sint32> arValue;
@@ -1056,7 +1121,8 @@ void WMIValue::getAsVariant(CComVariant *var)
                     if ((hr = SafeArrayPutElement(pSA, &i, &arValue[i])))
                     {
                         SafeArrayDestroy(pSA);
-                        throw CIMException(CIM_ERR_FAILED);
+                        throw CIMException(CIM_ERR_FAILED, 
+                                           "Array put operation failed.");
                     }
                 }
               
@@ -1083,7 +1149,8 @@ void WMIValue::getAsVariant(CComVariant *var)
               
                 if (!pSA)
                 {
-                    throw CIMException (CIM_ERR_FAILED);
+                    throw CIMException (CIM_ERR_FAILED, 
+                                        "Array creation failed.");
                 }
               
                 Array<Uint32> arValue;
@@ -1094,7 +1161,8 @@ void WMIValue::getAsVariant(CComVariant *var)
                     if ((hr = SafeArrayPutElement(pSA, &i, &arValue[i])))
                     {
                         SafeArrayDestroy(pSA);
-                        throw CIMException(CIM_ERR_FAILED);
+                        throw CIMException(CIM_ERR_FAILED, 
+                                           "Array put operation failed.");
                     }
                 }
               
@@ -1122,7 +1190,8 @@ void WMIValue::getAsVariant(CComVariant *var)
               
                 if (!pSA)
                 {
-                    throw CIMException(CIM_ERR_FAILED);
+                    throw CIMException (CIM_ERR_FAILED, 
+                                        "Array creation failed.");
                 }
               
                 Array<Uint64> arValue;
@@ -1139,7 +1208,8 @@ void WMIValue::getAsVariant(CComVariant *var)
                     if ((hr = SafeArrayPutElement(pSA, &i, vOut.bstrVal)))
                     {
                         SafeArrayDestroy(pSA);
-                        throw CIMException (CIM_ERR_FAILED);
+                        throw CIMException(CIM_ERR_FAILED, 
+                                           "Array put operation failed.");
                     }
                     vOut.Clear();
                 }
@@ -1168,7 +1238,8 @@ void WMIValue::getAsVariant(CComVariant *var)
               
                 if (!pSA)
                 {
-                    throw CIMException (CIM_ERR_FAILED);
+                    throw CIMException (CIM_ERR_FAILED, 
+                                        "Array creation failed.");
                 }
               
                 Array<Sint64> arValue;
@@ -1185,7 +1256,8 @@ void WMIValue::getAsVariant(CComVariant *var)
                     if ((hr = SafeArrayPutElement(pSA, &i, vOut.bstrVal)))
                     {
                         SafeArrayDestroy(pSA);
-                        throw CIMException(CIM_ERR_FAILED);
+                        throw CIMException(CIM_ERR_FAILED, 
+                                           "Array put operation failed.");
                     }
                     vOut.Clear();
                 }
@@ -1213,7 +1285,8 @@ void WMIValue::getAsVariant(CComVariant *var)
               
                 if (!pSA)
                 {
-                    throw CIMException (CIM_ERR_FAILED);
+                    throw CIMException (CIM_ERR_FAILED, 
+                                        "Array creation failed.");
                 }
               
                 Array<Real32> arValue;
@@ -1224,7 +1297,8 @@ void WMIValue::getAsVariant(CComVariant *var)
                     if ((hr = SafeArrayPutElement(pSA, &i, &arValue[i])))
                     {
                         SafeArrayDestroy(pSA);
-                        throw CIMException(CIM_ERR_FAILED);
+                        throw CIMException(CIM_ERR_FAILED, 
+                                           "Array put operation failed.");
                     }
                 }
               
@@ -1251,7 +1325,8 @@ void WMIValue::getAsVariant(CComVariant *var)
               
                 if (!pSA)
                 {
-                    throw CIMException (CIM_ERR_FAILED);
+                    throw CIMException (CIM_ERR_FAILED, 
+                                        "Array creation failed.");
                 }
 
                 Array<Real64> arValue;
@@ -1261,8 +1336,9 @@ void WMIValue::getAsVariant(CComVariant *var)
                 {
                     if ((hr = SafeArrayPutElement(pSA, &i, &arValue[i])))
                     {
-                          SafeArrayDestroy(pSA);
-                        throw CIMException(CIM_ERR_FAILED);
+                        SafeArrayDestroy(pSA);
+                        throw CIMException(CIM_ERR_FAILED, 
+                                           "Array put operation failed.");
                     }
                 }
               
@@ -1289,7 +1365,8 @@ void WMIValue::getAsVariant(CComVariant *var)
               
                 if (!pSA)
                 {
-                    throw CIMException (CIM_ERR_FAILED);
+                    throw CIMException (CIM_ERR_FAILED, 
+                                        "Array creation failed.");
                 }
               
                 Array<Char16> arValue;
@@ -1300,7 +1377,8 @@ void WMIValue::getAsVariant(CComVariant *var)
                     if ((hr = SafeArrayPutElement(pSA, &i, &arValue[i])))
                     {
                         SafeArrayDestroy(pSA);
-                        throw CIMException(CIM_ERR_FAILED);
+                        throw CIMException(CIM_ERR_FAILED, 
+                                           "Array put operation failed.");
                     }
                 }
               
@@ -1329,7 +1407,8 @@ void WMIValue::getAsVariant(CComVariant *var)
               
                 if (!pSA)
                 {
-                    throw CIMException (CIM_ERR_FAILED);
+                    throw CIMException (CIM_ERR_FAILED, 
+                                        "Array creation failed.");
                 }
               
                 Array<String> arValue;
@@ -1346,7 +1425,8 @@ void WMIValue::getAsVariant(CComVariant *var)
                     if ((hr = SafeArrayPutElement(pSA, &i, vOut.bstrVal)))
                     {
                         SafeArrayDestroy(pSA);
-                        throw CIMException(CIM_ERR_FAILED);
+                        throw CIMException(CIM_ERR_FAILED, 
+                                           "Array put operation failed.");
                     }
                     vOut.Clear();
                 }
@@ -1376,7 +1456,8 @@ void WMIValue::getAsVariant(CComVariant *var)
               
                 if (!pSA)
                 {
-                    throw CIMException (CIM_ERR_FAILED);
+                    throw CIMException (CIM_ERR_FAILED, 
+                                        "Array creation failed.");
                 }
               
                 Array<CIMDateTime> arValue;
@@ -1393,7 +1474,8 @@ void WMIValue::getAsVariant(CComVariant *var)
                     if ((hr = SafeArrayPutElement(pSA, &i, vOut.bstrVal)))
                     {
                         SafeArrayDestroy(pSA);
-                        throw CIMException(CIM_ERR_FAILED);
+                        throw CIMException(CIM_ERR_FAILED, 
+                                           "Array put operation failed.");
                     }
                     vOut.Clear();
                 }
@@ -1432,6 +1514,54 @@ void WMIValue::getAsVariant(CComVariant *var)
             break;
 
         case CIM_OBJECT:
+            // TODO: include Object support
+            if(!isArray()) 
+            {               
+                CIMObject mTmpObj;  
+                get(mTmpObj);            
+                WMIObject mObj(mTmpObj); 
+
+                *var = mObj.toVariant(nameSpace, userName, password); 
+            }
+            else
+            {       
+                // creates an array of Objects
+                rgsabound.lLbound = 0;
+                rgsabound.cElements = getArraySize();
+                pSA = SafeArrayCreate(VT_UNKNOWN, 1, &rgsabound);
+              
+                if (!pSA)
+                {
+                    throw CIMException (CIM_ERR_FAILED, 
+                                       "Array creation failed.");
+                }
+              
+                Array<CIMObject> mTmpObjArray;
+                get(mTmpObjArray);
+
+                for (long i = 0; i < getArraySize(); i++)
+                {                    
+          
+                    WMIObject mObj(mTmpObjArray[i]);
+    
+                    CComVariant vOut;
+                    
+                    vOut = mObj.toVariant(nameSpace, userName, password);
+            
+                    if ((hr = SafeArrayPutElement(pSA, &i, vOut.punkVal)))
+                    {
+                        SafeArrayDestroy(pSA);
+                        throw CIMException(CIM_ERR_FAILED, 
+                                           "Array put operation failed.");
+                    }
+       
+                    vOut.Clear();
+                }
+            
+                var->vt = VT_ARRAY | VT_UNKNOWN;
+                var->parray = pSA;
+            }                    
+            break;
         case CIM_FLAG_ARRAY:
         case CIM_EMPTY:
         case CIM_ILLEGAL:

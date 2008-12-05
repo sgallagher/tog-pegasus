@@ -204,11 +204,16 @@ CIMValue WMIMethodProvider::invokeMethod(
             bstrParamName = inParameters[i].getParameterName().getCString();
             
             // Get parameter value        
-            WMIValue wmiParamValue = inParameters[i].getValue();
+            WMIValue wmiParamValue(inParameters[i].getValue());
             CComVariant vParamValue;
-            wmiParamValue.getAsVariant(&vParamValue);
-            
-            if (vParamValue.vt == VT_BSTR)
+            wmiParamValue.getAsVariant(
+                    &vParamValue, 
+                    nameSpace, 
+                    userName, 
+                    password);
+
+            if ((wmiParamValue.getType() == CIMTYPE_STRING) && 
+                (!wmiParamValue.isArray()))
             {            
                 wmiParamValue.get(strTmp);
                 vParamValue.bstrVal[strTmp.size()] = 0;

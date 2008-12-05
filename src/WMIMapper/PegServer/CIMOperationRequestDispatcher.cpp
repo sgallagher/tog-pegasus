@@ -1281,9 +1281,13 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
         dynamic_cast<CIMSetPropertyResponseMessage *>(
             request->buildResponse()));
 
+    // corrects the type of an property. Set property xml do not have an 
+    // place to specify the input property type. It could cause an
+    // type mismatch in the Object types. To solve it, the method, 
+    // _fixSetPropertyValueType gets the correct type from Server side. 
+
     WMIInstanceProvider provider;
 
-    /* 
     {
         CIMException cimException;
         try
@@ -1313,7 +1317,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
             return;
         }
     }
-    */
+
 
     try
     {

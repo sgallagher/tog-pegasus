@@ -27,58 +27,56 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By:    Barbara Packard (barbara_packard@hp.com)
-//                Paulo Sehn        (paulo_sehn@hp.com)
-//                Adriano Zanuz    (adriano.zanuz@hp.com)
 //%////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_WMIValue_h
-#define Pegasus_WMIValue_h
+#ifndef Pegasus_WMIObject_h
+#define Pegasus_WMIObject_h
 
-#include <Pegasus/Common/CIMValue.h>
+#include <Pegasus/Common/CIMObject.h>
+
+#include "WMIBaseProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_WMIPROVIDER_LINKAGE WMIValue : public CIMValue
+class WMICollector;
+
+class PEGASUS_WMIPROVIDER_LINKAGE WMIObjectProvider : public WMIBaseProvider 
 {
 public:
-   WMIValue(const CIMValue & value);
-   WMIValue(const VARIANT & value, const CIMTYPE type);
-   WMIValue(const VARTYPE vt, void *pVal);
-   WMIValue(const VARTYPE vt, void *pVal, const CIMTYPE Type);    // for arrays
-   WMIValue(const CComVariant & vValue);
+    WMIObjectProvider(void);
+    virtual ~WMIObjectProvider(void);
+    
+    virtual bool getObject(
+        IWbemClassObject **ppObject, 
+        const CIMObjectPath& objectName,
+        const String& nameSpace,
+        const String& userName = String::EMPTY,
+        const String& password = String::EMPTY);          
+};
 
-   VARIANT toVariant();
-   operator VARIANT(void) const;
+class PEGASUS_WMIPROVIDER_LINKAGE WMIObject : public CIMObject
+{
+public:
+  WMIObject(const WMIObject & pObject);
+  
+  WMIObject(const CIMObject & pObject);
+  
+  WMIObject(const CComPtr <IWbemClassObject>& pObject);
 
-   // returns a variant type from the WMIVAlue
-   // username and password not present, then Local Namespace is assumed 
-   void getAsVariant(CComVariant *var,
-                     const String& nameSpace = String::EMPTY, // used only to...
-                     const String& userName = String::EMPTY, // retrieve from...
-                     const String& password = String::EMPTY);// WMIObject Values
+    // returns a variant type from the WMI
+    // username and password not present, then Local Namespace is assumed 
+    VARIANT toVariant(const String& nameSpace,
+                      const String& userName = String::EMPTY, 
+                      const String& password = String::EMPTY);
 
 protected:
-   WMIValue(void) { };
-
-private:
-    CIMValue getCIMValueFromVariant(
-        VARTYPE vt, void *pVal, const CIMTYPE Type = CIM_ILLEGAL);
-    CIMValue getArrayValue(
-        const CComVariant & vValue, const CIMTYPE Type = CIM_ILLEGAL);
-    CIMValue getValue(
-        const CComVariant & vValue, const CIMTYPE Type = CIM_ILLEGAL);
-
-    bool isArrayType(VARTYPE vt)
-        {return (vt & VT_ARRAY) ? true : false;}
-
-    bool isReferenceType(VARTYPE vt)
-        {return (vt & VT_BYREF) ? true : false;}
-
-
+   WMIObject(void) { };
+   
 };
+
+#define PEGASUS_ARRAY_T WMIObject
+# include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END
 

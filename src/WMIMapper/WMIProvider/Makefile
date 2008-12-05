@@ -63,6 +63,7 @@ SOURCES = \
    WMIQualifier.cpp \
    WMIQualifierSet.cpp \
    WMIDateTime.cpp \
+   WMIObject.cpp \
    WMIObjectPath.cpp \
    WMIMethod.cpp \
    StdAfx.cpp \

@@ -192,6 +192,10 @@ CIMType vartypeToCIMType(const VARTYPE vt)
             type = (sizeof(int) == 8) ? CIMTYPE_UINT64 : CIMTYPE_UINT32;
             break;
 
+        case VT_UNKNOWN:
+            type = CIMTYPE_OBJECT;
+            break;
+
         case VT_EMPTY:
         case VT_NULL:
         default:

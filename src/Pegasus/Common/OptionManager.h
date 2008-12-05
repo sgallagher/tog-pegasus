@@ -55,6 +55,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class Option;
 struct OptionRow;
+struct OptionRowWithMsg;
 
 typedef Option* OptionPtr;
 
@@ -253,6 +254,12 @@ public:
     */
     void registerOptions(OptionRow* options, Uint32 numOptions);
 
+    /**
+        Provides a simple way to register several options at once along 
+        with their corresponding message keys 
+    */
+    void registerOptions(OptionRowWithMsg* options, Uint32 numOptions);
+
     /** Merge option values from the command line. Searches the command
         line for registered options whose names are given by the
         Option::getCommandLineOptionName() method. Validation is performed
@@ -355,8 +362,11 @@ public:
     /** Print Complete Help Text message including header before the options
         help and trailer after the options help
     */
-    void printOptionsHelpTxt(const String& header, const String& trailer) const;
+    void printOptionsHelpTxt(
+        const String& header, 
+        const String& trailer) const; 
 
+    void setMessagePath(String messagePath);
 
 private:
 
@@ -366,6 +376,8 @@ private:
     Option* _lookupOptionByCommandLineOptionName(const String& name);
 
     Array<Option*> _options;
+   
+    String _msgPath;
 };
 
 //////////////////////////////////////////////////////////////////
@@ -417,6 +429,9 @@ public:
 
         @param optionHelpMessage Text message that defines option. To be used
             in Usage messages.
+
+        @param messageKey Unique key for globalizing option help message. To 
+            be used in Usage messages.
     */
     Option(
         const String& optionName,
@@ -425,7 +440,8 @@ public:
         Type type,
         const Array<String>& domain = Array<String>(),
         const String& commandLineOptionName = String(),
-        const String& optionHelpMessage = String());
+        const String& optionHelpMessage = String(),
+        const String& messageKey = String());
 
     Option(const Option& x);
 
@@ -520,6 +536,13 @@ public:
         _commandLineOptionName = commandLineOptionName;
     }
 
+    /**
+        Accesor. Get the  message key
+    */
+    const String& getMessageKey() const
+    {
+        return _messageKey;
+    }
     /** Accesor. Returns true if an option value was ever obtained for
         this option.
     */
@@ -543,6 +566,7 @@ private:
     Array<String> _domain;
     String _commandLineOptionName;
     String _optionHelpMessage;
+    String _messageKey;
     Boolean _resolved;
 };
 
@@ -609,6 +633,20 @@ struct OptionRow
     bool on some platforms is not defined so that we cannot use a Boolean here
     with a static object.
 */
+
+/* Optionrow structure with messageKey for corresponding option */
+struct OptionRowWithMsg
+{
+    const char* optionName;
+    const char* defaultValue;
+    int required;
+    Option::Type type;
+    char** domain;
+    Uint32 domainSize;
+    const char* commandLineOptionName;
+    const char* messageKey;
+    const char* optionHelpMessage;
+};
 
 /** Exception class */
 class PEGASUS_COMMON_LINKAGE OMMissingCommandLineOptionArgument

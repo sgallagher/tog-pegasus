@@ -38,6 +38,7 @@
 #include <Pegasus/Common/OptionManager.h>
 #include <Clients/cimcli/Linkage.h>
 #include <Pegasus/Common/Stopwatch.h>
+#include <Pegasus/Common/MessageLoader.h>
 
 PEGASUS_NAMESPACE_BEGIN
 #define CDEBUG(X) PEGASUS_STD(cout) << "cimcli " << X << PEGASUS_STD(endl)
@@ -47,6 +48,8 @@ PEGASUS_NAMESPACE_BEGIN
 #define LOCAL_MAX(a, b) ((a > b) ? a : b)
 #define LOCAL_MIN(a, b) ((a < b) ? a : b)
 
+
+static const char MSG_PATH [] = "pegasus/pegasusCLI";
 
 typedef int     CommandID;
 typedef int     OutputType;
@@ -111,68 +114,125 @@ struct  CMD_STRUCT
     const char* CommandName;
     int minNumArgs;
     const char* ShortCut;
+    const char* msgKey; //Message key for globalization 
     const char* UsageText;
 };
 
 // ******** CIM Client Commands
 static CMD_STRUCT CommandTable[] =
 {
-    // Command ID                CommandName        Min Num Args, ShortCut Name
-    //   Usage              
     {ID_EnumerateInstanceNames,  "enumerateInstanceNames", 2 ,"ni",
-        "Enumerate instancenames of <instancename>  " },
+    "Clients.cimcli.CIMCLIClient.NI_COMMAND_HELP",
+    "Enumerate instancenames of <instancename>"},
+
     {ID_EnumerateAllInstanceNames,"enumallInstanceNames", 2 , "niall",
-        " Enumerate all instancenames in namespace." },
+    "Clients.cimcli.CIMCLIClient.NIALL_COMMAND_HELP" ,
+    "Enumerate all instancenames in namespace."}, 
+
     {ID_EnumerateInstances,      "enumerateInstances",2 ,   "ei",
-        " Enumerate instances of <classname> " },
+    "Clients.cimcli.CIMCLIClient.EI_COMMAND_HELP" ,
+    "Enumerate instances of <classname>"}, 
+
     {ID_EnumerateClassNames,     "enumerateClassNames",2 ,  "nc",
-        " Enumerate Class Names of [ <classname> ]" },
+    "Clients.cimcli.CIMCLIClient.NC_COMMAND_HELP",
+    "Enumerate Class Names of [ <classname> ]"},
+
     {ID_EnumerateClasses,        "enumerateClasses",2 ,     "ec",
-        " Enumerate classes of [ <classname> ]" },
+    "Clients.cimcli.CIMCLIClient.EC_COMMAND_HELP",
+    "Enumerate classes of [ <classname> ]"},
+
     {ID_GetClass,                "getClass",2 ,             "gc",
-        " Get class of <classname> " },
+    "Clients.cimcli.CIMCLIClient.GC_COMMAND_HELP",
+    "Get class of <classname>"},
+
     {ID_GetInstance,             "getInstance",   2 ,       "gi",
-        " Get instance of <objectname> | <classname> " },
+    "Clients.cimcli.CIMCLIClient.GI_COMMAND_HELP",
+    "Get instance of <objectname> | <classname>"},
+
     {ID_CreateInstance,          "createInstance",2 ,       "ci",
-        " Create one Instance of <Class> *<name=param> " },
+    "Clients.cimcli.CIMCLIClient.CI_COMMAND_HELP",
+    "Create one Instance of <Class> *<name=param>"},
+
     {ID_DeleteInstance,          "deleteInstance",2 ,       "di",
-        " Delete Instance of <objectname> or interactive of <className> " },
+    "Clients.cimcli.CIMCLIClient.DI_COMMAND_HELP",
+    "Delete Instance of <objectname> or\n"
+    "                            interactive of <className>"},
+
     {ID_CreateClass   ,          "createClass",   2 ,       "cc",
-        " Not supported " },
+    "Clients.cimcli.CIMCLIClient.CC_COMMAND_HELP",
+    "Not supported"},
+
     {ID_ModifyInstance,          "modifyInstance",2 ,       "mi",
-        " Not supported " },
+    "Clients.cimcli.CIMCLIClient.MI_COMMAND_HELP",
+    "Not supported"},
+
     {ID_DeleteClass,             "deleteClass",   2 ,       "dc",
-        " Delete Class of <classname> "  },
-    {ID_GetProperty,             "getProperty",   2 ,       "gp", " TBD " },
-    {ID_SetProperty,             "setProperty",   2 ,       "sp", " TBD " },
+    "Clients.cimcli.CIMCLIClient.DC_COMMAND_HELP",
+    "Delete Class of <classname>"},
+
+    {ID_GetProperty,             "getProperty",   2 ,       "gp", 
+    "Clients.cimcli.CIMCLIClient.GP_COMMAND_HELP",
+    "TBD"},
+
+    {ID_SetProperty,             "setProperty",   2 ,       "sp",
+    "Clients.cimcli.CIMCLIClient.SP_COMMAND_HELP",
+    "TBD"},
+
     {ID_GetQualifier,            "getQualifier",  2 ,       "gq",
-        " Get Qualifier of <qualifiername> " },
+    "Clients.cimcli.CIMCLIClient.GQ_COMMAND_HELP",
+    "Get Qualifier of <qualifiername>"},
+
     {ID_SetQualifier,            "setQualifier",  2 ,       "sq",
-        " Not suported " },
+    "Clients.cimcli.CIMCLIClient.SQ_COMMAND_HELP",
+    "Not suported"},
+
     {ID_EnumerateQualifiers,     "enumerateQualifiers",2 ,  "eq",
-        " Enumerate all Qualifiers " },
+    "Clients.cimcli.CIMCLIClient.EQ_COMMAND_HELP",
+    "Enumerate all Qualifiers"},
+
     {ID_DeleteQualifier,         "deleteQualifier",  2 ,    "dq",
-        " Delete qualifer of <qualifiername> " },
+    "Clients.cimcli.CIMCLIClient.DQ_COMMAND_HELP",
+    "Delete qualifer of <qualifiername>"},
+
     {ID_Associators,             "associators",   2 ,       "a" ,
-        " Enumerate Associators of <classname>|<instancename>. " },
+    "Clients.cimcli.CIMCLIClient.A_COMMAND_HELP",
+    "Enumerate Associators of <classname>|<instancename>."},
+
     {ID_AssociatorNames,         "associatorNames", 2 ,     "an",
-        " Enumerate Associator Names of <classname>|<instancename> " },
+    "Clients.cimcli.CIMCLIClient.AN_COMMAND_HELP",
+    "Enumerate Associator Names of <classname>|<instancename>"},
+
     {ID_References,              "references",      2,      "r",
-        " Enumerate References of <classname>|<instancename> " },
+    "Clients.cimcli.CIMCLIClient.R_COMMAND_HELP",
+    "Enumerate References of <classname>|<instancename>"},
+
     {ID_ReferenceNames,          "referenceNames",2 ,       "rn",
-        " Enumerate Reference Names <classname>|<instancename> " },
+    "Clients.cimcli.CIMCLIClient.RN_COMMAND_HELP",
+    "Enumerate Reference Names <classname>|<instancename>"},
+
     {ID_InvokeMethod,            "invokeMethod",  2 ,       "im",
-        " Invoke Method for <object> <method> {<inputParams>} " },
+    "Clients.cimcli.CIMCLIClient.IM_COMMAND_HELP",
+    "Invoke Method for <object> <method> {<inputParams>}"},
+
     {ID_ExecQuery,               "execQuery",     2 ,       "xq",
-        " Execute Query <query-expresssion> [<query-language>]"  },
+    "Clients.cimcli.CIMCLIClient.XQ_COMMAND_HELP",
+    " Execute Query <query-expresssion> [<query-language>]"},
+
     {ID_EnumerateNamespaces,     "enumerateNamespaces",2 ,  "ns",
-        " Enumerate all namespaces on the server. "  },
+    "Clients.cimcli.CIMCLIClient.NS_COMMAND_HELP",
+    "Enumerate all namespaces on the server."},
+
     {ID_StatisticsOn,            "Turn On Statistics",2 ,   "son",
-        " Turn on CIM Server Statistics Gathering "  },
+    "Clients.cimcli.CIMCLIClient.SON_COMMAND_HELP",
+    "Turn on CIM Server Statistics Gathering"},
+
     {ID_StatisticsOff,           "Turn Off Statistics",2 ,  "soff",
-        " Turn off CIM Server Statistics Gathering "  },
+    "Clients.cimcli.CIMCLIClient.SOFF_COMMAND_HELP",
+    "Turn off CIM Server Statistics Gathering"},
+
     {ID_ShowOptions,             "show command options",2 ,  "?",
-        " Show List of Commands "  },
+    "Clients.cimcli.CIMCLIClient.?_COMMAND_HELP",
+    "Show List of Commands"}
 };
 
 static const Uint32 NUM_COMMANDS =
@@ -264,7 +324,7 @@ void PEGASUS_CLI_LINKAGE _printTables(const Array<Uint32>& maxColumnWidth,
 
 void PEGASUS_CLI_LINKAGE showCommands(const char* pgmName);
 
-void PEGASUS_CLI_LINKAGE showUsage(const char* pgmName);
+void PEGASUS_CLI_LINKAGE showUsage();
 
 void PEGASUS_CLI_LINKAGE printHelpMsg(const char* pgmName, const char* usage,
      const char* extraHelp, 
@@ -285,6 +345,10 @@ void PEGASUS_CLI_LINKAGE mofFormat(PEGASUS_STD(ostream)& os, const char* text,
 
 void PEGASUS_CLI_LINKAGE tableFormat(PEGASUS_STD(ostream)& outPrintWriter,
     const Array<CIMInstance>& instances);
+
+String PEGASUS_CLI_LINKAGE loadMessage(
+     const char* key,
+     const char* defMessage);
 
 // ************* CIMClient Functions
 int PEGASUS_CLI_LINKAGE enumerateClassNames(CIMClient& client, Options& opts);

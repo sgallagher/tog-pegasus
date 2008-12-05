@@ -243,9 +243,11 @@ int main(int argc, char** argv)
     setenv("PASE_USRGRP_LIMITED","N",1);
 #endif
     // If no arguments, simply print usage message and terminate.
+    MessageLoader::_useProcessLocale = true;
+
     if (argc == 1)
     {
-        showUsage(argv[0]);
+        showUsage();
         exit(0);
     }
 
@@ -266,6 +268,7 @@ int main(int argc, char** argv)
     {
         // assume that the config file is local to directory where called.
         String testHome = ".";
+        om.setMessagePath("pegasus/pegasusCLI");
         GetOptions(om, argc, argv, testHome);
 
         // Initialize all of the function input parameters.
@@ -742,7 +745,7 @@ int main(int argc, char** argv)
                     break;
 
                 case ID_ShowOptions :
-                    showUsage(argv[0]);
+                    showUsage();
                     break;
 
                 case ID_ExecQuery:

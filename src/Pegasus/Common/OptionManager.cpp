@@ -71,6 +71,7 @@ void Option::setDomain(const Array<String>& domain)
 ////////////////////////////////////////////////////////////////////////////////
 
 OptionManager::OptionManager()
+    :_msgPath("")
 {
 
 }
@@ -162,6 +163,89 @@ void OptionManager::registerOptions(OptionRow* optionRow, Uint32 numOptions)
     }
 }
 
+void OptionManager::registerOptions(
+    OptionRowWithMsg* optionRow,
+    Uint32 numOptions)
+{
+    for (Uint32 i = 0; i < numOptions; i++)
+    {
+        // Get option name:
+
+        if (!optionRow[i].optionName)
+        {
+            throw NullPointer();
+        }
+
+        String optionName = optionRow[i].optionName;
+
+        // Get default value:
+
+        String defaultValue;
+
+        if (optionRow[i].defaultValue)
+        {
+            defaultValue = optionRow[i].defaultValue;
+        }
+        // Get the required flag:
+
+        Boolean required = optionRow[i].required != 0;
+
+        // Get the type:
+
+        Option::Type type = optionRow[i].type;
+
+        // Get the domain:
+
+        Array<String> domain;
+
+        if (optionRow[i].domain)
+        {
+            Uint32 domainSize = optionRow[i].domainSize;
+
+            for (Uint32 j = 0; j < domainSize; j++)
+            {
+                domain.append(optionRow[i].domain[j]);
+            }
+        }
+
+        // Get commandLineOptionName:
+
+        String commandLineOptionName;
+
+        if (optionRow[i].commandLineOptionName)
+        {
+            commandLineOptionName = optionRow[i].commandLineOptionName;
+        }
+        // get optionHelp Message String
+
+        String optionHelpMessage;
+
+        if (optionRow[i].optionHelpMessage)
+        {
+            optionHelpMessage = optionRow[i].optionHelpMessage;
+        }
+
+        String messageKey = String();
+        if (optionRow[i].messageKey)
+        {
+            messageKey = optionRow[i].messageKey;
+        }
+
+        // Add the option:
+
+        Option* option = new Option(
+            optionName,
+            defaultValue,
+            required,
+            type,
+            domain,
+            commandLineOptionName,
+            optionHelpMessage,
+            messageKey);
+
+        registerOption(option);
+    }
+}
 void OptionManager::mergeCommandLine(
     int& argc,
     char**& argv,
@@ -474,19 +558,50 @@ void OptionManager::print() const
     cout << endl;
 }
 
+void OptionManager::setMessagePath(String messagePath)
+{
+    _msgPath = messagePath;
+}
+/* This is utility function to create help string for the option*/
+String createOptionHelpString(Option* option)
+{
+    String defMsg = " -";
+    defMsg.append(option->getCommandLineOptionName());
+    defMsg.append("  ");
+    defMsg.append(option->getOptionName());
+    defMsg.append(". ");
+    defMsg.append(option->getOptionHelpMessage());
+    defMsg.append(". Default(");
+    defMsg.append(option->getDefaultValue());
+    defMsg.append(")\n");
+    return defMsg;
+}
+
 void OptionManager::printOptionsHelp() const
 {
     for (Uint32 i = 0; i < _options.size(); i++)
     {
+        String str;
         Option* option = _options[i];
-        cout << " -";
-        cout << option->getCommandLineOptionName() << "  ";
-        cout << option->getOptionName() << ". ";
-        cout << option->getOptionHelpMessage();
-        cout << ". Default(" << option->getDefaultValue() << ")\n";
+        String defMsg = createOptionHelpString(option);
+        CString cstr = defMsg.getCString();
+        const String messageKey = option->getMessageKey();
+        CString msgKeyCString = messageKey.getCString();
+        if (String::compare(messageKey, String::EMPTY))
+        {
+            MessageLoaderParms parms(
+                (const char*)msgKeyCString,
+                (const char*)cstr);
+            parms.msg_src_path = _msgPath;
+            str = MessageLoader::getMessage(parms);
+        }
+        else
+        {
+            str = defMsg;
+        }
+        cout << str;
     }
     cout << endl;
-
 }
 
 void OptionManager::printOptionsHelpTxt(
@@ -511,7 +626,8 @@ Option::Option(
     Type type,
     const Array<String>& domain,
     const String& commandLineOptionName,
-    const String& optionHelpMessage)
+    const String& optionHelpMessage,
+    const String& messageKey)
     :
     _optionName(optionName),
     _defaultValue(defaultValue),
@@ -521,6 +637,7 @@ Option::Option(
     _domain(domain),
     _commandLineOptionName(commandLineOptionName),
     _optionHelpMessage(optionHelpMessage),
+    _messageKey(messageKey),
     _resolved(false)
 {
     if (!isValid(_value))
@@ -536,8 +653,8 @@ Option::Option(const Option& x)
     _type(x._type),
     _domain(x._domain),
     _commandLineOptionName(x._commandLineOptionName),
-    _optionHelpMessage(x._optionHelpMessage)
-
+    _optionHelpMessage(x._optionHelpMessage),
+    _messageKey(x._messageKey)
 {
 }
 
@@ -558,6 +675,7 @@ Option& Option::operator=(const Option& x)
         _domain = x._domain;
         _commandLineOptionName = x._commandLineOptionName;
         _optionHelpMessage = x._optionHelpMessage;
+        _messageKey = x._messageKey;
     }
     return *this;
 }

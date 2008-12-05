@@ -42,7 +42,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 const String DEFAULT_NAMESPACE = "root/cimv2";
 
-
 String _toString(Boolean x)
 {
     return(x ? "true" : "false");
@@ -173,94 +172,203 @@ void printPropertyList(CIMPropertyList& pl)
 {
     cout << buildPropertyListString(pl);
 }
-static const char * version = "2.2";
-static const char * usage = "This command executes single CIM Operations.";
+static const char * usage = "This command executes single CIM Operations.\n";
 
 static const char* optionText = "Valid options for this command are : ";
 static const char* commonOptions = "    -count, -d, -delay, -p, -l, -u, -o, -x,\
  -v, --sum, --timeout, -r, --t ";
 
-const char *examples[] = {
-"cimcli ni -n test/TestProvider TEST_Person -- enumerateinstancenames of"
-        " class \n",
-"    -n, classname \n",
-"cimcli niall -n root/cimv2     \n        -- enumerateinstancenames of \
-all classes under the namespace root/cimv2 \n",
-"    -n, -di, classname \n",
-"cimcli ei PG_ComputerSystem   -- enumerateinstances of class \n",
-"    -n, -di, -lo, -iq, -pl, classname, includeClassOrigin \n",
-"cimcli nc -- Enumerate class names from root/cimv2. \n",
-"    -n, -di, classname \n",
-"cimcli ec -n root/cimv2 -- Enumerate classes from namespace root/cimv2. \n",
-"    -n, -di, -lo, -iq, includeClassOrigin \n",
-"cimcli gc CIM_door -u guest -p guest\n    -- Get class \
-user = guest and password = guest. \n",
-"    -n, -lo, -iq, -pl, className, includeClassOrigin \n",
-"cimcli gi -n test/TestProvider TEST_Person    ---  getInstance of class \n",
-"    -n, -lo, -iq, -pl, includeClassOrigin \n",
-"cimcli ci -n test/TestProvider TEST_Person Name=Michael -- createInstance of" 
-" class \n",
-"    -n \n",
-"cimcli di -n test/TestProvider TEST_Person    ---  deleteInstance of class"
-" interactively \n",
-"    -n \n",
-"Operation Not supported.. \n",
-" \n",
-"Operation Not supported.. \n",
-" \n",
-"cimcli dc -n test/TestProvider TEST_Person  \n     --- deletes the Class when"
-" there are no instance and sub-class for this class \n",
-"    -n \n",
-"Operation Not supported.. \n",
-" \n",
-"Operation Not supported.. \n",
-" \n",
-"cimcli gq Association -- Get the qualifiers in mof output format \n",
-"    -n, qualifierName \n",
-"Operation Not supported.. \n",
-" \n",
-"cimcli eq -n test/TestProvider  ---  enumerateQualifiers of namespace"
-"\n     test/TestProvider \n",
-"    -n \n",
-"cimcli dq -n test/TestProvider ASSOCIATION  --- deleteQualifier Association"
-" in namespace test/TestProvider \n",
-"    -n, qualifierName \n",
-"cimcli a TST_Person.name=\\\"Mike\\\" -n test/TestProvider -ac TST_Lineager"
-"\n or\ncimcli a TST_Person -n test/TestProvider -ac TST_Lineage \n",
-"    -n, -ac, -rc, -r, -rr, -iq, -pl, includeClassOrigin, -i \n",
-"cimcli an TST_Person.name=\\\"Mike\\\" -n test/TestProvider -ac TST_Lineage"
-"\n or\ncimcli an TST_Person -n test/TestProvider -ac TST_Lineage \n",
-"    -n, -ac, -rc, -r, -rr, -i \n",
-"cimcli r TST_Person.name=\\\"Mike\\\" -n test/TestProvider -rc TST_Lineage"
-"\n or\ncimcli r TST_Person -n test/TestProvider -rc TST_Lineage \n",
-"    -n, -rc, -r, -iq, -pl, includeClassOrigin, -i \n",
-"cimcli rn TST_Person.name=\\\"Mike\\\" -n test/TestProvider -rc TST_Lineage"
-"\n or\ncimcli rn TST_Person -n test/TestProvider -rc TST_Lineage \n",
-"    -n, -rc, -r, -i \n",
-"cimcli im Sample_MethodProviderClass.Name=\\\"mooo\\\" SayHello"
-"\n   -n root/SampleProvider -ip p1=fred \n",
-"    -n, -ip \n",
-"cimcli xq \"select * from CIM_ComputerSystem\"   \n   ---- "
-"This command will work when the code is compiled with ExecQuery enabled \n",
-"    -n, queryLanguage, query \n",
-"cimcli ns    ---  enumerate all Namespaces in repository \n",
-" No options Required \n",
-"cimcli son   --- Switch On's the statistical information on CIMServer \n",
-" No options Required \n",
-"cimcli soff  --- Switch OFF's the statistical information on CIMServer \n",
-" No options Required \n",
-"cimcli ?     --- Displays help command \n",
-" No options Required"
+struct CommandExampleWithOptionStruct
+{
+    const char* msgKey;  //Message key for globalization of example string
+    const char* Example; //Example String
+    const char* optionsKey; //Message key for option string
+    const char* Options; //Option supported
+};
+
+CommandExampleWithOptionStruct examples[] = {
+    {"Clients.cimcli.CIMCLIClient.NI_COMMAND_EXAMPLE",
+    "cimcli ni -n test/TestProvider TEST_Person\n"
+        "    -- Enumerate Instance Names of class\n",
+    "Clients.cimcli.CIMCLIClient.NI_COMMAND_OPTIONS",
+    "    -n, classname\n"},
+
+    {"Clients.cimcli.CIMCLIClient.NIALL_COMMAND_EXAMPLE",
+    "cimcli niall -n root/cimv2\n"
+        "    -- Enumerate Instance Names of  all classes under\n"
+        "       the namespace root/cimv2\n",
+    "Clients.cimcli.CIMCLIClient.NIALL_COMMAND_OPTIONS",
+    "    -n, -di, classname\n"},
+
+    {"Clients.cimcli.CIMCLIClient.EI_COMMAND_EXAMPLE",
+    "cimcli ei PG_ComputerSystem   -- Enumerate Instances of class\n",
+    "Clients.cimcli.CIMCLIClient.EI_COMMAND_OPTIONS",
+    "    -n, -di, -lo, -iq, -pl, classname, includeClassOrigin\n"},
+
+    {"Clients.cimcli.CIMCLIClient.NC_COMMAND_EXAMPLE",
+    "cimcli nc -- Enumerate class names from root/cimv2.\n",
+    "Clients.cimcli.CIMCLIClient.NC_COMMAND_OPTIONS",
+    "    -n, -di, classname\n"},
+
+    {"Clients.cimcli.CIMCLIClient.EC_COMMAND_EXAMPLE",
+    "cimcli ec -n root/cimv2\n"
+        "    -- Enumerate classes from namespace root/cimv2.\n",
+    "Clients.cimcli.CIMCLIClient.EC_COMMAND_OPTIONS",
+    "    -n, -di, -lo, -iq, includeClassOrigin\n"},
+
+    {"Clients.cimcli.CIMCLIClient.GC_COMMAND_EXAMPLE",
+    "cimcli gc CIM_door -u guest -p guest\n"
+        "    -- Get class user = guest and password = guest.\n",
+    "Clients.cimcli.CIMCLIClient.GC_COMMAND_OPTIONS",
+    "    -n, -lo, -iq, -pl, className, includeClassOrigin\n"},
+
+    {"Clients.cimcli.CIMCLIClient.GI_COMMAND_EXAMPLE",
+    "cimcli gi -n test/TestProvider TEST_Person\n"
+        "    -- Get Instance of class\n",
+    "Clients.cimcli.CIMCLIClient.GI_COMMAND_OPTIONS",
+    "    -n, -lo, -iq, -pl, includeClassOrigin\n"},
+
+    {"Clients.cimcli.CIMCLIClient.CI_COMMAND_EXAMPLE",
+    "cimcli ci -n test/TestProvider TEST_Person Name=Michael\n"
+        "    -- Create Instance of  class \n",
+    "Clients.cimcli.CIMCLIClient.CI_COMMAND_OPTIONS",
+    "    -n\n"},
+
+    {"Clients.cimcli.CIMCLIClient.DI_COMMAND_EXAMPLE",
+    "cimcli di -n test/TestProvider TEST_Person\n"
+        "    -- Delete Instance of class interactively\n",
+    "Clients.cimcli.CIMCLIClient.DI_COMMAND_OPTIONS",
+    "    -n\n"},
+
+    {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "Operation Not supported..\n",
+    "Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "\n"},
+
+    {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "Operation Not supported..\n",
+    "Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "\n"},
+
+    {"Clients.cimcli.CIMCLIClient.DC_COMMAND_EXAMPLE",
+    "cimcli dc -n test/TestProvider TEST_Person\n"
+        "    -- Deletes the Class when there are no instance and\n"
+        "        sub-class for this class\n",
+    "Clients.cimcli.CIMCLIClient.DC_COMMAND_OPTIONS",
+    "    -n\n"},
+
+    {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "Operation Not supported..\n",
+    "Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "\n"},
+
+    {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "Operation Not supported..\n",
+    "Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "\n"},
+
+    {"Clients.cimcli.CIMCLIClient.GQ_COMMAND_EXAMPLE",
+    "cimcli gq Association\n"
+        "    -- Get the qualifiers in mof output format\n",
+    "Clients.cimcli.CIMCLIClient.GQ_COMMAND_OPTIONS",
+    "    -n, qualifierName\n"},
+        
+    {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "Operation Not supported..\n",
+    "Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "\n"},
+
+    {"Clients.cimcli.CIMCLIClient.EQ_COMMAND_EXAMPLE",
+    "cimcli eq -n test/TestProvider\n"
+        "    -- Enumerate Qualifiers of namespace test/TestProvider\n",
+    "Clients.cimcli.CIMCLIClient.EQ_COMMAND_OPTIONS",
+    "    -n\n"},
+
+    {"Clients.cimcli.CIMCLIClient.DQ_COMMAND_EXAMPLE",
+    "cimcli dq -n test/TestProvider ASSOCIATION\n"
+        "    -- Delete Qualifier Association in namespace\n"
+        "        test/TestProvider\n",
+    "Clients.cimcli.CIMCLIClient.DQ_COMMAND_OPTIONS",
+    "    -n, qualifierName\n"},
+
+    {"Clients.cimcli.CIMCLIClient.A_COMMAND_EXAMPLE",
+    "cimcli a TST_Person.name=\\\"Mike\\\" -n test/TestProvider\n"
+        "    -ac TST_Lineager"
+        "\n or\n"
+        "cimcli a TST_Person -n test/TestProvider -ac TST_Lineage\n",
+    "Clients.cimcli.CIMCLIClient.A_COMMAND_OPTIONS",
+    "    -n, -ac, -rc, -r, -rr, -iq, -pl, includeClassOrigin, -i\n"},
+
+    {"Clients.cimcli.CIMCLIClient.AN_COMMAND_EXAMPLE",
+    "cimcli an TST_Person.name=\\\"Mike\\\" -n test/TestProvider\n"
+        "    -ac TST_Lineage"
+        "\n or\n"
+        "cimcli an TST_Person -n test/TestProvider -ac TST_Lineage\n",
+    "Clients.cimcli.CIMCLIClient.AN_COMMAND_OPTIONS",
+    "    -n, -ac, -rc, -r, -rr, -i\n"},
+
+    {"Clients.cimcli.CIMCLIClient.R_COMMAND_EXAMPLE",
+    "cimcli r TST_Person.name=\\\"Mike\\\" -n test/TestProvider\n"
+        "    -rc TST_Lineage"
+        "\n or\n"
+        "cimcli r TST_Person -n test/TestProvider -rc TST_Lineage\n",
+    "Clients.cimcli.CIMCLIClient.R_COMMAND_OPTIONS",
+    "    -n, -rc, -r, -iq, -pl, includeClassOrigin, -i\n"},
+
+    {"Clients.cimcli.CIMCLIClient.RN_COMMAND_EXAMPLE",
+    "cimcli rn TST_Person.name=\\\"Mike\\\" -n test/TestProvider\n"
+        "    -rc TST_Lineage"
+        "\n or\n"
+        "cimcli rn TST_Person -n test/TestProvider -rc TST_Lineage\n",
+    "Clients.cimcli.CIMCLIClient.RN_COMMAND_OPTIONS",
+    "    -n, -rc, -r, -i\n"},
+
+    {"Clients.cimcli.CIMCLIClient.IM_COMMAND_EXAMPLE",
+    "cimcli im Sample_MethodProviderClass.Name=\\\"mooo\\\" SayHello\n"
+        "    -n root/SampleProvider -ip p1=fred\n",
+    "Clients.cimcli.CIMCLIClient.IM_COMMAND_OPTIONS",
+        "    -n, -ip\n"},
+
+    {"Clients.cimcli.CIMCLIClient.XQ_COMMAND_EXAMPLE",
+    "cimcli xq \"select * from CIM_ComputerSystem\"\n"
+        "    -- This command will work when the code is compiled with\n"
+        "        ExecQuery enabled\n",
+    "Clients.cimcli.CIMCLIClient.XQ_COMMAND_OPTIONS",
+    "    -n, queryLanguage, query\n"},
+
+    {"Clients.cimcli.CIMCLIClient.NS_COMMAND_EXAMPLE",
+    "cimcli ns  -- Enumerate all Namespaces in repository\n",
+    "Clients.cimcli.CIMCLIClient.NO_OPTIONS_REQUIRED",
+    " No options Required\n"},
+
+    {"Clients.cimcli.CIMCLIClient.SON_COMMAND_EXAMPLE",
+    "cimcli son  -- Switch On's the statistical information on CIMServer\n",
+    "Clients.cimcli.CIMCLIClient.NO_OPTIONS_REQUIRED",
+    " No options Required\n"},
+
+    {"Clients.cimcli.CIMCLIClient.SOFF_COMMAND_EXAMPLE",
+    "cimcli soff  -- Switch OFF's the statistical information on CIMServer\n",
+    "Clients.cimcli.CIMCLIClient.NO_OPTIONS_REQUIRED",
+    " No options Required\n"},
+
+    {"Clients.cimcli.CIMCLIClient.?_COMMAND_EXAMPLE",
+    "cimcli ?  -- Displays help command\n",
+    "Clients.cimcli.CIMCLIClient.NO_OPTIONS_REQUIRED",
+    "    No options Required"}
 };
 
 void showExamples()
 {
-    Uint32 numExamples = sizeof(examples) / sizeof(char *);
-    cout << "Examples : " << endl;
+    Uint32 numExamples = sizeof(examples) / sizeof(examples[0]);
+    cout << 
+        loadMessage(
+            "Clients.cimcli.CIMCLIClient.EXAMPLES_STRING",
+            "Examples : ") 
+         << endl;
 
     for (Uint32 i=0; i < numExamples; i++)
     {
-        cout << examples[i++] << endl;
+        cout << loadMessage(examples[i].msgKey, examples[i].Example) << endl;
     }
 }
 
@@ -2029,6 +2137,16 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
     return(0);
 }
 
+/*
+    This function loads the message from resourcebundle using the key passed
+*/
+String loadMessage(const char* key, const char* defMessage)
+{
+    MessageLoaderParms parms(key, defMessage);
+    parms.msg_src_path = MSG_PATH;
+    return MessageLoader::getMessage(parms);
+}
+
 /////////////////////////////////////////////////////////////////////
 // The following section manages the input options.  It includes   //
 // both the options processor (based on common/options             //
@@ -2044,96 +2162,132 @@ void GetOptions(
     static const char* outputFormats[] = { "xml", "mof", "txt", "table"};
     static const Uint32 NUM_OUTPUTFORMATS = sizeof(outputFormats) /
                                             sizeof(outputFormats[0]);
-
-    static OptionRow optionsTable[] =
-        //optionname defaultvalue rqd  type domain domainsize clname hlpmsg
+    static OptionRowWithMsg optionsTable[] =
+        //optionname defaultvalue rqd  type domain domainsize clname msgkey
+        // hlpmsg
     {
         {"count", "29346", false, Option::WHOLE_NUMBER, 0, 0, "count",
-            "Expected count of objects returned if summary set. \n Tests this"
-            " count and display difference. Return nonzero if test fails  "},
+        "Clients.cimcli.CIMCLIClient.COUNT_OPTION_HELP",
+        "Expected count of objects returned if summary set.\n"
+            "    Test count and display difference.\n"
+            "    Return nonzero if test fails"},
 
         {"debug", "false", false, Option::BOOLEAN, 0, 0, "d",
-            "More detailed debug messages "},
+        "Clients.cimcli.CIMCLIClient.DEBUG_OPTION_HELP",
+        "More detailed debug messages"},
 
         {"delay", "0", false, Option::WHOLE_NUMBER, 0, 0, "delay",
-            "Delay between connection and request "},
+        "Clients.cimcli.CIMCLIClient.DELAY_OPTION_HELP",
+        "Delay between connection and request"},
 
         {"Password", "", false, Option::STRING, 0, 0, "p",
-            "Defines password for authentication" },
+        "Clients.cimcli.CIMCLIClient.PASSWORD_OPTION_HELP",
+        "Defines password for authentication" },
 
         {"location", "", false, Option::STRING, 0, 0, "l",
-            "specifies system and port (HostName:port). Port is optional" },
+        "Clients.cimcli.CIMCLIClient.LOCATION_OPTION_HELP",
+        "Specifies system and port (HostName:port).\n"
+            "    Port is optional" },
+
 #ifdef PEGASUS_HAS_SSL
         {"ssl", "false", false, Option::BOOLEAN, 0, 0, "s",
-            "specifies to connect over HTTPS" },
+        "Clients.cimcli.CIMCLIClient.SSL_OPTION_HELP",
+        "Specifies to connect over HTTPS" },
 
         {"clientCert", "", false, Option::STRING, 0, 0, "-cert",
-            "specifies a client certificate to present to the server. \n"
-            " This is"
-            " optional and only has an effect on connections made over HTTPS"
-            " using -s" },
+        "Clients.cimcli.CIMCLIClient.CLIENTCERT_OPTION_HELP",
+        "Specifies a client certificate to present to the server.\n"
+            "    This is optional and only has an effect on connections\n"
+            "    made over HTTPS using -s" },
 
         {"clientKey", "", false, Option::STRING, 0, 0, "-key",
-            "specifies a client private key. This is optional and only has an"
-            "\n  effect on connections made over HTTPS using -s" },
+        "Clients.cimcli.CIMCLIClient.CLIENTKEY_OPTION_HELP",
+        "Specifies a client private key.\n"
+            "    This is optional and only has an effect on connections\n"
+            "    made over HTTPS using -s" },
 #endif
         {"User", "", false, Option::STRING, 0, 0, "u",
-            "Defines User Name for authentication" },
+        "Clients.cimcli.CIMCLIClient.USER_OPTION_HELP",
+        "Defines User Name for authentication" },
 
         {"namespace", "root/cimv2", false, Option::STRING, 0, 0, "n",
-            "Specifies namespace to use for operation" },
+        "Clients.cimcli.CIMCLIClient.NAMESPACE_OPTION_HELP",
+        "Specifies namespace to use for operation" },
 
         {"deepInheritance", "false", false, Option::BOOLEAN, 0, 0, "di",
-            "If set deepInheritance parameter set true "},
+        "Clients.cimcli.CIMCLIClient.DEEPINHERITANCE_OPTION_HELP",
+        "If set deepInheritance parameter\n"
+            "    set true"},
 
         {"localOnly", "true", false, Option::BOOLEAN, 0, 0, "lo",
-            "DEPRECATED. This was used to set LocalOnly. However, \n default"
-            " should be true and we cannot use True as default. See !lo "},
+        "Clients.cimcli.CIMCLIClient.LOCALONLY_OPTION_HELP",
+        "DEPRECATED. This was used to set LocalOnly.\n"
+            "    However, default should be true and we cannot use True\n"
+            "    as default. See !lo"},
 
         {"!localOnly", "false", false, Option::BOOLEAN, 0, 0, "!lo",
-            "When set, sets LocalOnly = false on operations.\n DEPRECATED,"
-            " ! confuses bash. Use -nlo "},
+        "Clients.cimcli.CIMCLIClient.LOCALONLYDEP_OPTION_HELP",
+        "When set, sets LocalOnly = false on operations.\n"
+            "    DEPRECATED, ! confuses bash. Use -nlo"},
 
         {"notLocalOnly", "false", false, Option::BOOLEAN, 0, 0, "nlo",
-            "When set, sets LocalOnly = false on operations "},
+        "Clients.cimcli.CIMCLIClient.NOTLOCALONLY_OPTION_HELP",
+        "When set, sets LocalOnly = false on\n"
+            "    operations"},
 
         {"includeQualifiers", "true", false, Option::BOOLEAN, 0, 0, "iq",
-            "Deprecated. Sets includeQualifiers = True. However, default=true"},
+        "Clients.cimcli.CIMCLIClient.INCLUDEQUALIFIERS_OPTION_HELP",
+        "Deprecated. Sets includeQualifiers = True.\n"
+            "    However, default=true"},
 
         {"!includeQualifiers", "false", false, Option::BOOLEAN, 0, 0, "!iq",
-            "Sets includeQualifiers = false on operations.\n DEPRECATED,"
-            " ! confuses bash. Use -niq"},
+        "Clients.cimcli.CIMCLIClient.INCLUDEQUALIFIERSDEP_OPTION_HELP",
+        "Sets includeQualifiers = false on operations.\n"
+            "    DEPRECATED, ! confuses bash. Use -niq"},
         
         {"notIncludeQualifiers", "false", false, Option::BOOLEAN, 0, 0, "niq",
-            "Sets includeQualifiers = false on operations"},
+        "Clients.cimcli.CIMCLIClient.NOTINCLUDEQUALIFIERS_OPTION_HELP",
+        "Sets includeQualifiers = false\n"
+            "    on operations"},
 
         // Uses a magic string as shown below to indicate never used.
         {"propertyList", "###!###", false, Option::STRING, 0, 0, "pl",
-            "Defines a propertyNameList. Format is p1,p2,p3 (without"
-            " spaces).\n Use \"\" for empty."},
+        "Clients.cimcli.CIMCLIClient.PROPERTYLIST_OPTION_HELP",
+        "Defines a propertyNameList. Format is p1,p2,p3\n"
+            "    (without spaces). Use \"\" for empty"},
 
         {"assocClass", "", false, Option::STRING, 0, 0, "ac",
-            "Defines a assocClass string for Associator calls"},
+        "Clients.cimcli.CIMCLIClient.ASSOCCLASS_OPTION_HELP",
+        "Defines a assocClass string for Associator calls"},
 
         {"assocRole", "", false, Option::STRING, 0, 0, "ar",
-            "Defines a role string for Associatiors AssocRole parameter"},
+        "Clients.cimcli.CIMCLIClient.ASSOCROLE_OPTION_HELP",
+        "Defines a role string for Associatiors AssocRole\n"
+            "    parameter"},
 
         {"role", "", false, Option::STRING, 0, 0, "r",
-            "Defines a role string for reference role parameter"},
+        "Clients.cimcli.CIMCLIClient.ROLE_OPTION_HELP",
+        "Defines a role string for reference role parameter"},
 
         {"resultClass", "", false, Option::STRING, 0, 0, "rc",
-            "Defines a resultClass string for References and Associatiors "},
+        "Clients.cimcli.CIMCLIClient.RESULTCLASS_OPTION_HELP",
+        "Defines a resultClass string for References and\n"
+            "    Associatiors"},
 
         {"resultRole", "", false, Option::STRING, 0, 0, "rr",
-            "Defines a role string for associators operation resultRole"
-                " parameter. "},
+        "Clients.cimcli.CIMCLIClient.RESULTROLE_OPTION_HELP",
+        "Defines a role string for associators operation resultRole\n"
+            "    parameter"},
 
         {"inputParameters", "", false, Option::STRING, 0, 0, "ip",
-            "Defines an invokeMethod input parameter list. Format is"
-            " p1=v1 p2=v2 .. pn=vn \n  (parameters are seperated by spaces)"},
+        "Clients.cimcli.CIMCLIClient.INPUTPARAMETERS_OPTION_HELP",
+        "Defines an invokeMethod input parameter list.\n"
+            "    Format is p1=v1 p2=v2 .. pn=vn\n"
+            "    (parameters are seperated by spaces)"},
 
         {"filter", "", false, Option::STRING, 0, 0, "f",
-            "defines a filter to use for query. Single String input "},
+        "Clients.cimcli.CIMCLIClient.FILTER_OPTION_HELP",
+        "Defines a filter to use for query. Single String input"},
 
         // This was never used.  Delete. KS
         //{"substitute", "", false, Option::STRING, 0, 0, "-s",
@@ -2142,49 +2296,67 @@ void GetOptions(
         // KS change the output formats to use the enum options function
         // Deprecate this function.
         {"outputformats", "mof", false, Option::STRING, 0,NUM_OUTPUTFORMATS,
-            "o",
-            "Output in xml, mof, txt, table"},
+        "o",
+        "Clients.cimcli.CIMCLIClient.OUTPUTFORMATS_OPTION_HELP",
+        "Output in xml, mof, txt, table"},
 
         {"xmlOutput", "false", false, Option::BOOLEAN, 0,0, "x",
-            "Output objects in xml instead of mof format"},
+        "Clients.cimcli.CIMCLIClient.XMLOUTPUT_OPTION_HELP",
+        "Output objects in xml instead of mof format"},
 
         {"version", "false", false, Option::BOOLEAN, 0, 0, "-version",
-            "Displays software Version "},
+        "Clients.cimcli.CIMCLIClient.VERSION_OPTION_HELP",
+        "Displays software Version"},
 
         {"verbose", "false", false, Option::BOOLEAN, 0, 0, "v",
-            "Verbose Display. Includes Detailed Param Input display "},
+        "Clients.cimcli.CIMCLIClient.VERBOSE_OPTION_HELP",
+        "Verbose Display. Includes Detailed Param Input\n"
+            "    display"},
 
         {"summary", "false", false, Option::BOOLEAN, 0, 0, "-sum",
-            "Displays only summary count for enumerations, associators, etc. "},
+        "Clients.cimcli.CIMCLIClient.SUMMARY_OPTION_HELP",
+        "Displays only summary count for enumerations,\n"
+            "    associators, etc."},
 
         {"help", "false", false, Option::BOOLEAN, 0, 0, "h",
-            "Prints help usage message "},
+        "Clients.cimcli.CIMCLIClient.HELP_OPTION_HELP",
+        "Prints help usage message"},
 
         {"full help", "false", false, Option::BOOLEAN, 0, 0, "-help",
-            "Prints full help message with commands, options, examples "},
+        "Clients.cimcli.CIMCLIClient.FULLHELP_OPTION_HELP",
+        "Prints full help message with commands, options,\n"
+            "    examples"},
 
         {"help options", "false", false, Option::BOOLEAN, 0, 0, "ho",
-            "Prints list of options "},
+        "Clients.cimcli.CIMCLIClient.HELPOPTIONS_OPTION_HELP",
+        "Prints list of options"},
 
         {"help commands", "false", false, Option::BOOLEAN, 0, 0, "hc",
-            "Prints CIM Operation command list "},
+        "Clients.cimcli.CIMCLIClient.HELPCOMMANDS_OPTION_HELP",
+        "Prints CIM Operation command list"},
 
         {"connecttimeout", "0", false, Option::WHOLE_NUMBER, 0, 0, "-timeout",
-            "Set the connection timeout in seconds. "},
+        "Clients.cimcli.CIMCLIClient.CONNECTIONTIMEOUT_OPTION_HELP",
+        "Set the connection timeout in seconds."},
 
         {"interactive", "false", false, Option::BOOLEAN, 0, 0, "i",
-            "Interactively ask user to select instances.\n"
-                "  Used with associator and reference operations "},
+        "Clients.cimcli.CIMCLIClient.INTERACTIVE_OPTION_HELP",
+        "Interactively ask user to select instances.\n"
+            "    Used with associator and reference operations"},
 
         {"trace", "0", false, Option::WHOLE_NUMBER, 0, 0, "trace",
-            "Set Pegasus Common Components Trace. Sets the Trace level."
-            " 0 is off"},
+        "Clients.cimcli.CIMCLIClient.TRACE_OPTION_HELP",
+        "Set Pegasus Common Components Trace. Sets the Trace level.\n"
+            "    0 is off"},
 
         {"repeat", "0", false, Option::WHOLE_NUMBER, 0, 0, "-r",
-            "Number of times to repeat the function. Zero means one time "},
+        "Clients.cimcli.CIMCLIClient.REPEAT_OPTION_HELP",
+        "Number of times to repeat the function.\n"
+            "    Zero means one time"},
 
         {"time", "false", false, Option::BOOLEAN, 0, 0, "-t",
-            "Measure time for the operation and present results. "},
+        "Clients.cimcli.CIMCLIClient.TIME_OPTION_HELP",
+        "Measure time for the operation and present results"}
 
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
@@ -2237,15 +2409,19 @@ String formatLongString (const char * input, Uint32 pos, Uint32 length)
     return(output);
 }
 
-void showUsage(const char* pgmName)
+void showUsage()
 {
-    cout << "Usage: " << pgmName << "<command> <CIMObject>"
-            " <Options> *<extra parameters>" << endl
-         << "    -hc    for <command> set and <CimObject> for each command\n"
-         << "    -ho    for <Options> set\n"
-         << "    -h xx  for <command> and <Example> for <xx> operation \n"
-         << "    -h     for this summary\n"
-         << "    --help for full help" << endl;
+    String usage;
+    usage = 
+        "Usage: cimcli <command> <CIMObject> <Options> *<extra parameters>\n"
+        "    -hc    for <command> set and <CimObject> for each command\n"
+        "    -ho    for <Options> set\n"
+        "    -h xx  for <command> and <Example> for <xx> operation \n"
+        "    -h     for this summary\n"
+        "    --help for full help\n";
+    CString str = usage.getCString();
+    cout << loadMessage("Clients.cimcli.CIMCLIClient.MENU.STANDARD",
+        (const char*)str);
 }
 /* showCommands - Display the list of operation commands.
 */
@@ -2255,30 +2431,61 @@ void showCommands(const char* pgmName)
 {
     for( Uint32 i = 0; i < NUM_COMMANDS; i++ )
     {
+        char * cmdStr= new char[500];
+        String txtFormat = formatLongString(
+            CommandTable[i].UsageText,
+            28,
+            75 - 28 );
+        CString ctxtFormat=txtFormat.getCString();
+        sprintf(
+            cmdStr,
+            "\n%-5s %-21s",
+            CommandTable[i].ShortCut,
+            CommandTable[i].CommandName);
+        cmdStr = strcat(cmdStr, (const char*)ctxtFormat);
+        cout << loadMessage(
+            CommandTable[i].msgKey,
+            const_cast<const char*>(cmdStr)) 
+            << endl;
 
-        String txtFormat = formatLongString(CommandTable[i].UsageText,28 ,
-                75 - 28 );
-
-        printf("%-5s %-21s",CommandTable[i].ShortCut, 
-                CommandTable[i].CommandName);
-        cout << txtFormat << endl;
+        delete[] cmdStr;
     }
-    cout << helpSummary << endl;
+    cout << loadMessage(
+        "Clients.cimcli.CIMCLIClient.HELP_SUMMARY",
+        helpSummary) 
+        << endl;
+
 }
+
 void showVersion(const char* pgmName, OptionManager& om)
 {
-    cout << endl << pgmName << " V"<< version << " "
-        " using Pegasus version " << PEGASUS_PRODUCT_VERSION << endl;
+    String str = "";
+    str.append("Version ");
+    str.append(PEGASUS_PRODUCT_VERSION);
+   
+    CString cstr = str.getCString();
+    MessageLoaderParms parms(
+        "Clients.cimcli.CIMCLIClient.VERSION", 
+        (const char*)cstr,
+        PEGASUS_PRODUCT_VERSION);
+    parms.msg_src_path = MSG_PATH;
+    cout << MessageLoader::getMessage(parms) << endl;
 }
 
 void showOptions(const char* pgmName, OptionManager& om)
 {
 
-    String optionsTrailer = 
-        "Options vary by command consistent with CIM Operations";
-    cout << "The options for this command are:" << endl;
-    om.printOptionsHelpTxt(usage, optionsTrailer);
-    //om.printHelp(const char* pgmName, OptionManager om);
+    String optionsTrailer = loadMessage(
+        "Clients.cimcli.CIMCLIClient.OPTIONS_TRAILER",
+        "Options vary by command consistent with CIM Operations");
+    cout << loadMessage(
+        "Clients.cimcli.CIMCLIClient.OPTIONS_HEADER",
+        "The options for this command are:\n");
+    String usageStr;
+    usageStr = loadMessage(
+        "Clients.cimcli.CIMCLIClient.OPTIONS_USAGE",
+        usage);
+    om.printOptionsHelpTxt(usageStr, optionsTrailer);
 }
 
 /* PrintHelpMsg - This is temporary until we expand the options manager to allow
@@ -2290,7 +2497,7 @@ void printHelpMsg(
     const char* usage_,
     OptionManager& om)
 {
-    showUsage(pgmName);
+    showUsage();
 
     showVersion(pgmName, om);
 
@@ -2358,16 +2565,49 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
             {
                 if (strcmp(argv[1], CommandTable[i].ShortCut) == 0)
                 {
+                    char * cmdStr= new char[500];
                     String txtFormat = formatLongString(
                         CommandTable[i].UsageText,28 ,75 - 28 );
-                    printf("\n%-5s %-21s",CommandTable[i].ShortCut,
+                    CString ctxtFormat=txtFormat.getCString();
+                    sprintf(
+                        cmdStr, 
+                        "\n%-5s %-21s",
+                        CommandTable[i].ShortCut,
                         CommandTable[i].CommandName);
-                    cout << txtFormat << endl;
-                    cout << "Example : " << endl;
-                    cout << examples[i+i] <<endl;
-                    cout << optionText << endl << examples[i+i+1] << endl;
-                    cout << "Common Options are : " << endl;
-                    cout << commonOptions << endl;
+                    cmdStr = strcat(cmdStr, (const char*)ctxtFormat);
+                    cout << loadMessage(
+                        CommandTable[i].msgKey, 
+                        const_cast<const char*>(cmdStr)) 
+                        << endl;
+
+                    delete[] cmdStr;
+
+                    cout << loadMessage(
+                        "Clients.cimcli.CIMCLIClient.EXAMPLE_STRING",
+                        "Example : ") 
+                        << endl;
+                    cout << loadMessage(
+                        examples[i].msgKey, 
+                        examples[i].Example) 
+                        << endl;
+                    cout << loadMessage(
+                        "Clients.cimcli.CIMCLIClient.OPTIONS_STRING",
+                        optionText) 
+                        << endl;
+                    cout << loadMessage(
+                        examples[i].optionsKey,
+                        examples[i].Options) 
+                        << endl;
+
+                    char * commonOptStr = new char[100];
+                    sprintf(commonOptStr, "%s", "Common Options are : \n");
+                    commonOptStr = strcat(commonOptStr, commonOptions);
+                    cout << loadMessage(
+                        "Clients.cimcli.CIMCLIClient."
+                            "COMMON_OPTIONS_STRING",
+                        commonOptStr) 
+                        << endl;
+                    delete[] commonOptStr;
                     exit(0);
                 }
             }
@@ -2376,7 +2616,7 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
             exit(1);
         }
 
-        showUsage(argv[0]);
+        showUsage();
         exit(0);
     }
 

@@ -108,6 +108,7 @@ public:
     */
     void shutdown(Boolean force, Uint32 timeout, Boolean requestPending);
 
+    void shutdownProviders();
     void shutdownCimomServices();
     Boolean waitUntilNoMoreRequests(Boolean requestPending);
 
@@ -132,16 +133,7 @@ private:
     /** Destructor. */
     ~ShutdownService();
 
-    void _shutdownCIMServer();
-
-    void _resumeCIMServer();
-
-
     void _sendShutdownRequestToService(const char* serviceName);
-
-    void _shutdownProviders();
-
-    void _initTimeoutValues(Uint32 timeoutParmValue);
 };
 
 PEGASUS_NAMESPACE_END

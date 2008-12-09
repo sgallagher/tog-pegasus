@@ -158,9 +158,14 @@ void ShutdownService::shutdown(
             (noMoreRequests) ? "true" : "false"));
 
         //
-        // proceed to shutdown the CIMServer
+        // Send a shutdown signal to the CIMServer. CIMServer itself will take
+        // care of shutting down the CimomServices and deleting them. In other
+        // words, _DO_ _NOT_ call 'shutdownCimomServices' from a provider.
         //
-        _shutdownCIMServer();
+        _cimserver->shutdown();
+
+        PEG_TRACE_CSTRING(TRC_SHUTDOWN, Tracer::LEVEL3,
+            "ShutdownService::shutdown - CIMServer instructed to shut down.");
     }
     catch (Exception& e)
     {
@@ -180,38 +185,6 @@ void ShutdownService::shutdown(
 /**********************************************************/
 /*  private methods                                       */
 /**********************************************************/
-
-void ShutdownService::_shutdownCIMServer()
-{
-    PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::_shutdownCIMServer");
-
-    //
-    // Shutdown the providers
-    //
-
-    _shutdownProviders();
-
-    PEG_TRACE_CSTRING(
-        TRC_SHUTDOWN,
-        Tracer::LEVEL3,
-        "ShutdownService::_shutdownCIMServer - CIM server provider shutdown "
-            "complete");
-
-    //
-    // Send a shutdown signal to the CIMServer. CIMServer itself will take
-    // care of shutting down the CimomServices and deleting them. In other
-    // words, _DO_ _NOT_ call 'shutdownCimomServices' from a provider.
-    //
-    _cimserver->shutdown();
-
-    PEG_TRACE_CSTRING(
-        TRC_SHUTDOWN,
-        Tracer::LEVEL3,
-        "ShutdownService::_shutdownCIMServer - Cimom services shutdown "
-            "complete");
-
-    PEG_METHOD_EXIT();
-}
 
 void ShutdownService::shutdownCimomServices()
 {
@@ -324,9 +297,9 @@ void ShutdownService::_sendShutdownRequestToService(const char* serviceName)
         _controller->ClientSendWait(_queueId, &close_request));
 }
 
-void ShutdownService::_shutdownProviders()
+void ShutdownService::shutdownProviders()
 {
-    PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::_shutdownProviders");
+    PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::shutdownProviders");
 
     //
     // get provider manager service
@@ -377,7 +350,7 @@ void ShutdownService::_shutdownProviders()
             MessageLoaderParms(
                 "Server.ShutdownService.CIM_PROVIDER_SHUTDOWN",
                 "$0 - CIM provider shutdown exception has occurred.",
-                "ShutdownService::_shutdownProviders"));
+                "ShutdownService::shutdownProviders"));
 
         CIMException e = response->cimException;
         delete asyncRequest;

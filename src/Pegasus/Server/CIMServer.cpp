@@ -510,6 +510,10 @@ CIMServer::~CIMServer ()
     // system.
     ShutdownService::getInstance(this)->waitUntilNoMoreRequests(false);
 
+    // Make sure no providers are running (since they might depend on the
+    // services we are about to delete).
+    ShutdownService::getInstance(this)->shutdownProviders();
+
     // Ok, shutdown all the MQSs. This shuts their communication channel.
     ShutdownService::getInstance(this)->shutdownCimomServices();
 

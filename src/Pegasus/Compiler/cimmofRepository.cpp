@@ -38,6 +38,7 @@
 // DeclContext so we can do local checking of context for new objects
 //
 
+#include <Pegasus/Common/InternalException.h>
 #include "cimmofRepository.h"
 
 PEGASUS_USING_PEGASUS;
@@ -75,8 +76,18 @@ cimmofRepository::~cimmofRepository()
 int cimmofRepository::addClass(const CIMNamespaceName &nameSpace,
     CIMClass *classdecl)
 {
-    // Don't catch errors: pass them up to the requester
-    _context->addClass( nameSpace,  *classdecl);
+    try
+    {
+        _context->addClass( nameSpace,  *classdecl);
+    }
+    catch (CIMException& e)
+    {
+        // Convert the exception message to the one that would be received by
+        // a client.
+        throw CIMException(
+            e.getCode(), TraceableCIMException(e).getDescription());
+    }
+
     return 0;
 }
 
@@ -84,16 +95,36 @@ int cimmofRepository::addClass(const CIMNamespaceName &nameSpace,
 int cimmofRepository::addInstance(const CIMNamespaceName &nameSpace,
     CIMInstance *instance)
 {
-    // Don't catch errors: pass them up to the requester
-    _context->addInstance(nameSpace, *instance);
+    try
+    {
+        _context->addInstance(nameSpace, *instance);
+    }
+    catch (CIMException& e)
+    {
+        // Convert the exception message to the one that would be received by
+        // a client.
+        throw CIMException(
+            e.getCode(), TraceableCIMException(e).getDescription());
+    }
+
     return 0;
 }
 
 int cimmofRepository::addQualifier(const CIMNamespaceName &nameSpace,
     CIMQualifierDecl *qualifier)
 {
-    // Don't catch errors: pass them up to the requester
-    _context->addQualifierDecl(nameSpace, *qualifier);
+    try
+    {
+        _context->addQualifierDecl(nameSpace, *qualifier);
+    }
+    catch (CIMException& e)
+    {
+        // Convert the exception message to the one that would be received by
+        // a client.
+        throw CIMException(
+            e.getCode(), TraceableCIMException(e).getDescription());
+    }
+
     return 0;
 }
 
@@ -101,27 +132,67 @@ CIMQualifierDecl cimmofRepository::getQualifierDecl(
     const CIMNamespaceName &nameSpace,
     const CIMName &name)
 {
-    // Don't catch errors: pass them up to the requester
-    return _context->lookupQualifierDecl(nameSpace, name);
+    try
+    {
+        return _context->lookupQualifierDecl(nameSpace, name);
+    }
+    catch (CIMException& e)
+    {
+        // Convert the exception message to the one that would be received by
+        // a client.
+        throw CIMException(
+            e.getCode(), TraceableCIMException(e).getDescription());
+    }
 }
 
 CIMClass cimmofRepository::getClass(const CIMNamespaceName &nameSpace,
     const CIMName &classname)
 {
-    // Don't catch errors: pass them up to the requester
-    return _context->lookupClass(nameSpace, classname);
+    try
+    {
+        return _context->lookupClass(nameSpace, classname);
+    }
+    catch (CIMException& e)
+    {
+        // Convert the exception message to the one that would be received by
+        // a client.
+        throw CIMException(
+            e.getCode(), TraceableCIMException(e).getDescription());
+    }
 }
 
 int cimmofRepository::modifyClass(const CIMNamespaceName &nameSpace,
     CIMClass *classdecl)
 {
-    // Don't catch errors: pass them up to the requester
-    _context->modifyClass( nameSpace,  *classdecl);
+    try
+    {
+        _context->modifyClass( nameSpace,  *classdecl);
+    }
+    catch (CIMException& e)
+    {
+        // Convert the exception message to the one that would be received by
+        // a client.
+        throw CIMException(
+            e.getCode(), TraceableCIMException(e).getDescription());
+    }
+
     return 0;
 }
 
 void cimmofRepository::createNameSpace(const CIMNamespaceName &nameSpaceName)
 {
     if (_cimrepository && _ot != compilerCommonDefs::IGNORE_REPOSITORY)
-        _cimrepository->createNameSpace(nameSpaceName);
+    {
+        try
+        {
+            _cimrepository->createNameSpace(nameSpaceName);
+        }
+        catch (CIMException& e)
+        {
+            // Convert the exception message to the one that would be received
+            // by a client.
+            throw CIMException(
+                e.getCode(), TraceableCIMException(e).getDescription());
+        }
+    }
 }

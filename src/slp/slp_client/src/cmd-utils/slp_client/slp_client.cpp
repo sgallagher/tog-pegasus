@@ -3724,7 +3724,7 @@ struct slp_client *create_slp_client(
 
     // Don't allow having local_interface and target_addr of different address
     // types.
-    if (local_af != AF_UNSPEC && local_af != AF_UNSPEC)
+    if (local_af != AF_UNSPEC && target_af != AF_UNSPEC)
     {
         // We can not have ipv4 interface sending datagrams to ip6 interface or
         // vice-versa.

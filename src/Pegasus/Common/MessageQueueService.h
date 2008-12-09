@@ -135,6 +135,7 @@ private:
 
     typedef List<PollingListEntry, NullLock> PollingList;
     static PollingList* _polling_list;
+    static Boolean _monitoring_polling_list;
 
     static ThreadReturnType PEGASUS_THREAD_CDECL _req_proc(void *);
 

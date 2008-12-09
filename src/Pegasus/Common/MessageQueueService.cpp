@@ -44,6 +44,7 @@ static struct timeval deallocateWait = {300, 0};
 ThreadPool *MessageQueueService::_thread_pool = 0;
 
 MessageQueueService::PollingList* MessageQueueService::_polling_list;
+Boolean MessageQueueService::_monitoring_polling_list = false;
 
 Thread* MessageQueueService::_polling_thread = 0;
 
@@ -111,6 +112,12 @@ ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
         PollingListEntry *entry = list->front();
         ThreadStatus rtn = PEGASUS_THREAD_OK;
 
+        // Setting this flag to 'true' will prevent race condition between
+        // the polling thread and thread executing the MessageQueueService
+        // destructor.
+        PEGASUS_ASSERT(_monitoring_polling_list == false);
+        _monitoring_polling_list = true;
+
         do
         {
             MessageQueueService *service = entry->service;
@@ -124,10 +131,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
                 // The _threads count is used to track the
                 // number of active threads that have been allocated
                 // to process messages for this service.
-
-                // The _threads count MUST be incremented while
-                // the polling_routine owns the _polling_thread
-                // lock and has ownership of the service object.
 
                 service->_threads++;
                 try
@@ -160,6 +163,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
             }
             entry = list->next_of(entry);
         } while (entry != NULL);
+        _monitoring_polling_list = false;
     }
     return ThreadReturnType(0);
 }
@@ -244,6 +248,12 @@ MessageQueueService::~MessageQueueService()
     // Wait until all threads processing the messages
     // for this service have completed.
     while (_threads.get() > 0)
+    {
+        Threads::yield();
+    }
+
+    // Wait until monitoring the polling list is done.
+    while (_monitoring_polling_list)
     {
         Threads::yield();
     }

@@ -792,7 +792,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
         SignalHandler::ignore(PEGASUS_SIGPIPE);
 
-        char *sendStart = messageStart;
+        const char *sendStart = messageStart;
         Sint32 bytesWritten = 0;
 
         if (isFirst == true && isChunkResponse == true && bytesToWrite > 0)
@@ -818,7 +818,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 _mpostPrefix << headerNameCode <<    headerValueSeparator <<
                 _mpostPrefix << headerNameDescription << headerValueSeparator <<
                 headerNameContentLanguage << headerLineTerminator;
-            sendStart = (char *) trailer.getData();
+            sendStart = trailer.getData();
             bytesToWrite = trailer.size();
 
             PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4, 
@@ -963,7 +963,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                         getQueueId(),
                         trailer.getData()));
                 }
-                sendStart = (char *) trailer.getData();
+                sendStart = trailer.getData();
                 Sint32 chunkBytesToWrite = (Sint32) trailer.size();
 
                 PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4, 

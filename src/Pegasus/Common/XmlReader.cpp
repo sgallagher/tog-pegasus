@@ -779,7 +779,7 @@ String XmlReader::decodeURICharacters(String uriString)
 {
     Uint32 i;
 
-    Array<Uint8> utf8Chars;
+    Buffer utf8Chars;
 
     for (i=0; i<uriString.size(); i++)
     {
@@ -806,11 +806,11 @@ String XmlReader::decodeURICharacters(String uriString)
             }
 
             Uint16 decodedChar = Uint16(digit1<<4) + Uint16(digit2);
-            utf8Chars.append((Uint8)decodedChar);
+            utf8Chars.append((char)decodedChar);
         }
         else
         {
-            utf8Chars.append((Uint8)uriString[i]);
+            utf8Chars.append((char)uriString[i]);
         }
     }
 
@@ -818,8 +818,7 @@ String XmlReader::decodeURICharacters(String uriString)
     if (uriString.size() > 0)
     {
         // Convert UTF-8 to UTF-16 and return the String
-        utf8Chars.append('\0');
-        return String((char *)utf8Chars.getData());
+        return String(utf8Chars.getData(), utf8Chars.size());
     }
     else
     {

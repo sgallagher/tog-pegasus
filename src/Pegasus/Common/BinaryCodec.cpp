@@ -371,7 +371,7 @@ static void _encodeEnumerateInstancesResponseBody(
     if (msg->resolveCallback && msg->binaryEncoding)
     {
         const Array<Uint8>& data = msg->binaryData;
-        out.putBytes((char*)data.getData(), data.size());
+        out.putBytes(data.getData(), data.size());
     }
     else
     {
@@ -640,7 +640,7 @@ static void _encodeGetInstanceResponseBody(
     if (msg->resolveCallback && msg->binaryEncoding)
     {
         const Array<Uint8>& data = msg->binaryData;
-        out.putBytes((char*)data.getData(), data.size());
+        out.putBytes(data.getData(), data.size());
     }
     else
     {

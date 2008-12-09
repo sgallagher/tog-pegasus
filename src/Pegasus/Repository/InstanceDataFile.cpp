@@ -208,7 +208,7 @@ Boolean InstanceDataFile::appendInstance(
     // Write the instance:
     //
 
-    fs.write((char*)data.getData(), data.size());
+    fs.write(data.getData(), data.size());
 
     if (!fs)
     {
@@ -475,7 +475,7 @@ Boolean InstanceDataFile::compact(
             //  Write out the next instance:
             //
 
-            tmpFs.write((char*)data.getData(), sizes[i]);
+            tmpFs.write(data.getData(), sizes[i]);
         }
     }
 

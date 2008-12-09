@@ -947,7 +947,7 @@ Boolean FileBasedStore::_loadAllInstances(
 
         CIMInstance tmpInstance;
 
-        char* buffer = (char*)data.getData();
+        const char* buffer = data.getData();
 
         for (Uint32 i = 0; i < instanceNames.size(); i++)
         {

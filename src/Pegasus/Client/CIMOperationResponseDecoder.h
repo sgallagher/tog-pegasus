@@ -103,7 +103,7 @@ private:
     void _handleHTTPMessage(HTTPMessage* message);
 
     void _handleMethodResponse(
-        char* content,
+        const char* content,
         Uint32 contentLength,
         const ContentLanguageList& contentLanguages,
         Boolean reconnect,

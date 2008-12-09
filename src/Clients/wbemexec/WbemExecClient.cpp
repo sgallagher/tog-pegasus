@@ -449,7 +449,7 @@ void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
         // Find the separator between the start line and the headers, so we
         // can add the authorization header there.
 
-        char* messageStart = (char*) httpMessage->message.getData();
+        const char* messageStart = httpMessage->message.getData();
         char* headerStart =
             (char*)memchr(messageStart, '\n', httpMessage->message.size());
 

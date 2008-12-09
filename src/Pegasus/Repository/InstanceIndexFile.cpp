@@ -144,7 +144,7 @@ inline void _SkipWhitespace(char*& p)
 //
 
 Boolean _GetIntField(
-    char*& ptr,
+    const char*& ptr,
     Boolean& errorOccurred,
     Uint32& value,
     int base)
@@ -199,7 +199,7 @@ static Boolean _GetNextRecord(
     // Get the free flag field:
     //
 
-    char* end = (char*)line.getData();
+    const char* end = (char*)line.getData();
 
     if (!_GetIntField(end, errorOccurred, freeFlag, 10))
         return false;

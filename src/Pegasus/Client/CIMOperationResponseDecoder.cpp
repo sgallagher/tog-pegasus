@@ -110,7 +110,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     String  connectClose;
     String  startLine;
     Array<HTTPHeader> headers;
-    char*   content;
+    const char* content;
     Uint32  contentLength;
     Boolean cimReconnect=false;
 
@@ -406,7 +406,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     // Calculate the beginning of the content from the message size and
     // the content length.
 
-    content = (char *) httpMessage->message.getData() +
+    content = httpMessage->message.getData() +
         httpMessage->message.size() - contentLength;
 
     //
@@ -441,7 +441,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 }
 
 void CIMOperationResponseDecoder::_handleMethodResponse(
-    char* content,
+    const char* content,
     Uint32 contentLength,
     const ContentLanguageList& contentLanguages,
     Boolean cimReconnect,

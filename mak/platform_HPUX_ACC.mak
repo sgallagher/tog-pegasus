@@ -102,28 +102,36 @@ FLAGS =
 
 PEGASUS_SUPPORTS_DYNLIB=yes
 
-ifdef PEGASUS_USE_RELEASE_DIRS
-  FLAGS += -Wl,+b$(PEGASUS_DEST_LIB_DIR):/usr/lib
-  ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
-    FLAGS += -Wl,+cdp,$(PEGASUS_PLATFORM_SDKROOT)/usr/lib:/usr/lib -Wl,+cdp,$(PEGASUS_HOME)/lib:$(PEGASUS_DEST_LIB_DIR)
-    ifdef OPENSSL_HOME
-      FLAGS += -Wl,+cdp,$(OPENSSL_HOME)/lib:/usr/lib
-    endif
+ifeq ($(HAS_ICU_DEPENDENCY),true)
     ifdef ICU_INSTALL
-      FLAGS += -Wl,+cdp,$(ICU_INSTALL)/lib:$(PEGASUS_DEST_LIB_DIR)
-    endif
-  endif
-else
-  ifdef PEGASUS_HAS_MESSAGES
-    ifdef ICU_INSTALL
-      FLAGS += -Wl,+b$(LIB_DIR):/usr/lib:${ICU_INSTALL}/lib
-    endif
-  else
-    FLAGS += -Wl,+b$(LIB_DIR):/usr/lib
-  endif
+        P1 = $(ICU_INSTALL)/lib:
+     endif
 endif
+ifdef PEGASUS_USE_RELEASE_DIRS
+    P2 = $(PEGASUS_DEST_LIB_DIR):
+else
+    P2 = $(LIB_DIR):
+endif
+ACC_LINK_SEARCH_PATH = -Wl,+b$(P1)$(P2)/usr/lib
 
-FLAGS += -Wl,+s
+ifdef PEGASUS_USE_RELEASE_DIRS
+    ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
+        ACC_LINK_SEARCH_PATH += \
+            -Wl,+cdp,$(PEGASUS_PLATFORM_SDKROOT)/usr/lib:/usr/lib
+        ACC_LINK_SEARCH_PATH += \
+            -Wl,+cdp,$(PEGASUS_HOME)/lib:$(PEGASUS_DEST_LIB_DIR)
+        ifdef OPENSSL_HOME
+          ACC_LINK_SEARCH_PATH += -Wl,+cdp,$(OPENSSL_HOME)/lib:/usr/lib
+        endif
+        ifdef ICU_INSTALL
+          ACC_LINK_SEARCH_PATH += \
+              -Wl,+cdp,$(ICU_INSTALL)/lib:$(PEGASUS_DEST_LIB_DIR)
+        endif
+    endif
+endif
+ACC_LINK_SEARCH_PATH += -Wl,+s
+
+FLAGS += $(ACC_LINK_SEARCH_PATH)
 
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
   FLAGS += -g

@@ -67,22 +67,8 @@ ifeq ($(COMPILER),acc)
     LINK_COMMAND += -Wl,-Bsymbolic
   endif
   ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
-    ifdef PEGASUS_USE_RELEASE_DIRS
-      LINK_COMMAND += -Wl,+b$(PEGASUS_DEST_LIB_DIR):/usr/lib
-      ifeq ($(PEGASUS_PLATFORM), HPUX_PARISC_ACC)
-        LINK_COMMAND += -Wl,+cdp,$(PEGASUS_PLATFORM_SDKROOT)/usr/lib:/usr/lib -Wl,+cdp,$(PEGASUS_HOME)/lib:$(PEGASUS_DEST_LIB_DIR)
-        ifdef OPENSSL_HOME
-          LINK_COMMAND += -Wl,+cdp,$(OPENSSL_HOME)/lib:/usr/lib
-        endif
-        ifdef ICU_INSTALL
-          LINK_COMMAND += -Wl,+cdp,$(ICU_INSTALL)/lib:$(PEGASUS_DEST_LIB_DIR)
-        endif
-      endif
-    else
-        LINK_COMMAND += -Wl,+b$(LIB_DIR):/usr/lib
-    endif
+    LINK_COMMAND += $(ACC_LINK_SEARCH_PATH)
   endif
-  LINK_COMMAND += -Wl,+s
   ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
     LINK_COMMAND += -g
   endif
@@ -100,10 +86,16 @@ endif
 ##==============================================================================
 
 ifeq ($(COMPILER),gnu)
+  ifeq ($(HAS_ICU_DEPENDENCY),true)
+    ifdef ICU_INSTALL
+      EXTRA_LINK_ARGUMENTS += -Xlinker -rpath -Xlinker $(ICU_INSTALL)/lib
+    endif
+  endif
   ifneq ($(OS),darwin)
    ifdef PEGASUS_USE_RELEASE_DIRS
       LINK_COMMAND = $(CXX) -shared $(LINK_MACHINE_OPTIONS)
-      LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX)  -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR)
+      LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX)  -Xlinker -rpath \
+          -Xlinker $(PEGASUS_DEST_LIB_DIR) $(EXTRA_LINK_ARGUMENTS)
    else
       LINK_COMMAND = $(CXX) -shared $(LINK_MACHINE_OPTIONS)
       LINK_ARGUMENTS = -Wl,-hlib$(LIBRARY)$(LIB_SUFFIX)  -Xlinker -rpath -Xlinker $(LIB_DIR) $(EXTRA_LINK_ARGUMENTS)

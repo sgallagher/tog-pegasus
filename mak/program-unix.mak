@@ -58,8 +58,10 @@ ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
         EXTRA_LINK_FLAGS += $(LINK_RPATH) $(LINK_LIB_DIR)
     endif
 
-    ifdef ICU_INSTALL
-        EXTRA_LINK_FLAGS += $(LINK_RPATH) -Xlinker ${ICU_INSTALL}/lib
+    ifeq ($(HAS_ICU_DEPENDENCY),true)
+        ifdef ICU_INSTALL
+            EXTRA_LINK_FLAGS += $(LINK_RPATH) -Xlinker ${ICU_INSTALL}/lib
+        endif
     endif
 endif
 

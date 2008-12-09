@@ -799,6 +799,12 @@ static int _slp_create_bind_socket(SOCKETD *sock, int af, int port,
     else
     {
         PEGASUS_ASSERT(af == AF_INET6);
+#ifdef  PEGASUS_OS_ZOS
+        // To be able to bind the IPV6 socket to in6addr_any in parallel to 
+        // the IPV4 socket, the IPV6_V6ONLY option has to be set.
+        _LSLP_SETSOCKOPT(*sock, IPPROTO_IPV6, IPV6_V6ONLY,
+            (const char *)&err, sizeof(err));
+#endif
         memset (&ip6, 0, sizeof(ip6));
         ip6.sin6_family = af;
         ip6.sin6_port = htons(port);

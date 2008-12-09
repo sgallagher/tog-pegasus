@@ -53,6 +53,7 @@ MV:=mv
 CP:=cp
 GREP:=grep
 ECHO:=echo
+ECHO-E:=echo -e
 TOG_INSTALLED_RPMS:=$(shell $(RPM) -qa|grep tog-pegasus)
 
 ifdef PEGASUS_BUILD_BRANCH
@@ -184,6 +185,16 @@ endef
 
 exportSRC:
 	@cvs -d:pserver:anon@cvs.opengroup.org:/cvs/MSB export -r $(PEGASUS_RPM_CVS_TAG) pegasus
+
+enableSQLiteRepository:
+	$(ECHO-E) "" \
+            >> pegasus/env_var_Linux.status
+	$(ECHO-E) "PEGASUS_USE_SQLITE_REPOSITORY = true" \
+            >> pegasus/env_var_Linux.status
+ifdef SQLITE_HOME
+	$(ECHO-E) "SQLITE_HOME = $(SQLITE_HOME)" \
+            >> pegasus/env_var_Linux.status
+endif
 
 createSRCRPM:
 

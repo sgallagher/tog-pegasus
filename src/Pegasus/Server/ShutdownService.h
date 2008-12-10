@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -48,29 +50,29 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     This class defines the ShutdownService necessary to process the shutdown
     request to gracefully shutdown the CIMServer.
-
+   
     In order to shutdown the CIMServer gracefully, the CIMServer state
     information must be maintained.
-
+   
     The state of the CIMServer is kept in the CIMServerState object.  After
     CIMServer starts up, the CIMServer state is set to RUNNING.  When a
     shutdown request is received by the ShutdownService, the CIMServer state
     will be set to TERMINATING.
-
+   
     Whenever a request comes through a client connection, before the request
     is being routed off to the appropriate message queue, the CIMServer state
     is checked.  If the state is set to TERMINATING, this means CIMServer is
     in the process of being shutdown, an error response will be sent back
     to the client to indicate that the request cannot be processed due to
     CIMServer shutting down.
-
+   
     In order to determine if the CIMServer is servicing any CIM requests at
     the time of a shutdown, CIMServer keeps track of the number of CIM requests
     that are outstanding.  This request count is kept in the HTTPConnection
     object.  The request count is incremented everytime a request comes through
     a client connection, and is decremented everytime a response is sent back
     to the client.
-
+   
     Before the ShutdownService shuts down the CIMServer, the request count is
     checked to determine if there are any outstanding CIM requests being
     processed.  If there are no requests outstanding, the CIMServer will be
@@ -110,7 +112,7 @@ public:
 
     void shutdownProviders();
     void shutdownCimomServices();
-    void waitUntilNoMoreRequests(Boolean requestPending);
+    Boolean waitUntilNoMoreRequests(Boolean requestPending);
 
 protected:
 
@@ -134,7 +136,6 @@ private:
     ~ShutdownService();
 
     void _sendShutdownRequestToService(const char* serviceName);
-    void _shutdownProviders(Boolean controlProviders);
 };
 
 PEGASUS_NAMESPACE_END

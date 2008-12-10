@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,29 +51,23 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/SSLContextManager.h>
 #include <Pegasus/Common/Time.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AuditLogger.h>
-#include <Pegasus/Common/StringConversion.h>
-
-#include <Pegasus/General/SSLContextManager.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
 #include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
 #include <Pegasus/Config/ConfigManager.h>
-#ifndef PEGASUS_PAM_AUTHENTICATION
-# include <Pegasus/Security/UserManager/UserManager.h>
-# include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
-#endif
+#include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/HandlerService/IndicationHandlerService.h>
 #include <Pegasus/IndicationService/IndicationService.h>
 #include <Pegasus/ProviderManagerService/ProviderManagerService.h>
 #include <Pegasus/ProviderManager2/Default/DefaultProviderManager.h>
-#include "reg_table.h"  // Location of DynamicRoutingTable
 
-#if defined PEGASUS_OS_ZOS
+#if defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 # include "ConsoleManager_zOS.h"
 #endif
 
@@ -87,7 +83,9 @@
 #include "HTTPAuthenticatorDelegator.h"
 #include "ShutdownProvider.h"
 #include "ShutdownService.h"
+#include "BinaryMessageHandler.h"
 #include <Pegasus/Common/ModuleController.h>
+#include <Pegasus/ControlProviders/UserAuthProvider/UserAuthProvider.h>
 #include <Pegasus/ControlProviders/ConfigSettingProvider/\
 ConfigSettingProvider.h>
 #include <Pegasus/ControlProviders/ProviderRegistrationProvider/\
@@ -115,14 +113,7 @@ CIMQueryCapabilitiesProvider.h>
 # include <Pegasus/WsmServer/WsmProcessor.h>
 #endif
 
-# include <Pegasus/RSServer/RsProcessor.h>
-
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-# include <Pegasus/WebServer/WebServer.h>
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
-
 #ifdef PEGASUS_SLP_REG_TIMEOUT
 ThreadReturnType PEGASUS_THREAD_CDECL registerPegasusWithSLP(void *parm);
 // Configurable SLP port to be handeled in a separate bug.
@@ -147,23 +138,6 @@ static Message* controlProviderReceiveMessageCallback(
 
     ProviderMessageHandler* pmh =
         reinterpret_cast<ProviderMessageHandler*>(instance);
-
-    MessageType reqType = request->getType();
-    if (reqType == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE)
-    {
-        pmh->terminate();
-        return 0;
-    }
-    else if (reqType == CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE)
-    {
-        pmh->subscriptionInitComplete();
-        return 0;
-    }
-    else if (reqType == CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE)
-    {
-        pmh->indicationServiceDisabled();
-        return 0;
-    }
     return pmh->processMessage(request);
 }
 
@@ -200,9 +174,8 @@ static void _synchronousSignalHandler(int s_n, PEGASUS_SIGINFO_T* s_info,
     mark = true;
 
     Logger::put_l(Logger::ERROR_LOG, "CIMServer", Logger::SEVERE,
-        MessageLoaderParms(
-            "Pegasus.Server.CIMServer.RECEIVE_SYN_SIGNAL.PEGASUS_OS_PASE",
-            "Synchronous signal received."));
+        "Pegasus.Server.CIMServer.RECEIVE_SYN_SIGNAL.PEGASUS_OS_PASE", \
+        "Synchronous signal received.");
 
     CIMServer::shutdownSignal();
 }
@@ -217,13 +190,13 @@ static void _asynchronousSignalHandler(int s_n, PEGASUS_SIGINFO_T* s_info,
     mark = true;
 
     Logger::put_l(Logger::ERROR_LOG, "CIMServer", Logger::SEVERE,
-        MessageLoaderParms(
-            "Pegasus.Server.CIMServer.RECEIVE_ASYN_SIGNAL.PEGASUS_OS_PASE",
-            "Asynchronous signal received."));
+        "Pegasus.Server.CIMServer.RECEIVE_ASYN_SIGNAL.PEGASUS_OS_PASE", \
+        "Asynchronous signal received.");
 
     CIMServer::shutdownSignal();
 }
 #endif
+
 
 CIMServer::CIMServer()
     : _dieNow(false)
@@ -232,6 +205,13 @@ CIMServer::CIMServer()
     _cimserver = this;
     _init();
 
+    // Get value of idle connection timeout in seconds.
+    String idleConnectionConfigTimeout =
+        ConfigManager::getInstance()->getCurrentValue("idleConnectionTimeout");
+
+    _idleConnectionTimeoutSeconds =
+        strtol(idleConnectionConfigTimeout.getCString(), (char**)0, 10);
+ 
     PEG_METHOD_EXIT();
 }
 
@@ -240,55 +220,8 @@ void CIMServer::tickle_monitor()
     _monitor->tickle();
 }
 
-SCMOClass CIMServer::_scmoClassCache_GetClass(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className)
-{
-    CIMClass cc;
-
-    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::_scmoClassCache_GetClass()");
-    try
-    {
-        cc = _cimserver->_repository->getClass(
-            nameSpace,
-            className,
-            false, // localOnly
-            true, // includeQualifiers
-            true, // includeClassOrigin
-            CIMPropertyList());
-    }
-    catch (Exception& e)
-    {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                   "The class '%s' in the name space '%s' was not found. "
-                       "The repository throws the following exception: %s",
-                   (const char*)className.getString().getCString(),
-                   (const char*)nameSpace.getString().getCString(),
-                   (const char*)e.getMessage().getCString()));
-        // Return a empty class.
-        PEG_METHOD_EXIT();
-        return SCMOClass("","");
-    }
-
-    if (cc.isUninitialized())
-    {
-        // The requested class was not found !
-        // Return a empty class.
-        PEG_METHOD_EXIT();
-        return SCMOClass("","");
-    }
-    PEG_METHOD_EXIT();
-    return SCMOClass(cc,(const char*)nameSpace.getString().getCString());
-
-}
-
-
 void CIMServer::_init()
 {
-
-    // pre-initialize the hostname.
-    System::getHostName();
-
     _monitor.reset(new Monitor());
 
 #if (defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)) \
@@ -315,6 +248,7 @@ void CIMServer::_init()
     // the CIMServer to build the initial repository.
     if (!FileSystem::isDirectory(repositoryRootPath))
     {
+        PEG_METHOD_EXIT();
         throw NoSuchDirectory(repositoryRootPath);
     }
 #endif
@@ -322,14 +256,8 @@ void CIMServer::_init()
     _repository = new CIMRepository(repositoryRootPath);
 
     // -- Create a UserManager object:
-#ifndef PEGASUS_PAM_AUTHENTICATION
-    UserManager::getInstance(_repository);
-#endif
 
-
-    // -- Create a SCMOClass Cache and set call back for the repository
-
-    SCMOClassCache::getInstance()->setCallBack(_scmoClassCache_GetClass);
+    UserManager* userManager = UserManager::getInstance(_repository);
 
     // -- Create a CIMServerState object:
 
@@ -350,6 +278,8 @@ void CIMServer::_init()
 
     _cimOperationRequestDispatcher = new CIMOperationRequestDispatcher(
         _repository, _providerRegistrationManager);
+    _binaryMessageHandler =
+        new BinaryMessageHandler(_cimOperationRequestDispatcher);
 
     // Create the control service
     _controlService = new ModuleController(PEGASUS_QUEUENAME_CONTROLSERVICE);
@@ -363,55 +293,63 @@ void CIMServer::_init()
         new ConfigSettingProvider(), 0, 0, false);
 
     _controlProviders.append(configProvider);
-    _controlService->register_module(
+    ModuleController::register_module(
+        PEGASUS_QUEUENAME_CONTROLSERVICE,
         PEGASUS_MODULENAME_CONFIGPROVIDER,
         configProvider,
-        controlProviderReceiveMessageCallback);
+        controlProviderReceiveMessageCallback,
+        0);
 
-#ifndef PEGASUS_PAM_AUTHENTICATION
     // Create the User/Authorization control provider
     ProviderMessageHandler* userAuthProvider = new ProviderMessageHandler(
         "CIMServerControlProvider", "UserAuthProvider",
         new UserAuthProvider(_repository), 0, 0, false);
     _controlProviders.append(userAuthProvider);
-    _controlService->register_module(
+    ModuleController::register_module(
+        PEGASUS_QUEUENAME_CONTROLSERVICE,
         PEGASUS_MODULENAME_USERAUTHPROVIDER,
         userAuthProvider,
-        controlProviderReceiveMessageCallback);
-#endif
+        controlProviderReceiveMessageCallback,
+        0);
 
     // Create the Provider Registration control provider
     ProviderMessageHandler* provRegProvider = new ProviderMessageHandler(
         "CIMServerControlProvider", "ProviderRegistrationProvider",
         new ProviderRegistrationProvider(_providerRegistrationManager),
-        ModuleController::indicationCallback, 0, false);
+        0, 0, false);
     // Warning: The ProviderRegistrationProvider destructor deletes
     // _providerRegistrationManager
     _controlProviders.append(provRegProvider);
-    _controlService->register_module(
+    ModuleController::register_module(
+        PEGASUS_QUEUENAME_CONTROLSERVICE,
         PEGASUS_MODULENAME_PROVREGPROVIDER,
         provRegProvider,
-        controlProviderReceiveMessageCallback);
+        controlProviderReceiveMessageCallback,
+        0);
 
     // Create the Shutdown control provider
     ProviderMessageHandler* shutdownProvider = new ProviderMessageHandler(
         "CIMServerControlProvider", "ShutdownProvider",
         new ShutdownProvider(this), 0, 0, false);
     _controlProviders.append(shutdownProvider);
-    _controlService->register_module(
+    ModuleController::register_module(
+        PEGASUS_QUEUENAME_CONTROLSERVICE,
         PEGASUS_MODULENAME_SHUTDOWNPROVIDER,
         shutdownProvider,
-        controlProviderReceiveMessageCallback);
+        controlProviderReceiveMessageCallback,
+        0);
 
     // Create the namespace control provider
     ProviderMessageHandler* namespaceProvider = new ProviderMessageHandler(
         "CIMServerControlProvider", "NamespaceProvider",
         new NamespaceProvider(_repository), 0, 0, false);
     _controlProviders.append(namespaceProvider);
-    _controlService->register_module(
+    ModuleController::register_module(
+        PEGASUS_QUEUENAME_CONTROLSERVICE,
         PEGASUS_MODULENAME_NAMESPACEPROVIDER,
         namespaceProvider,
-        controlProviderReceiveMessageCallback);
+        controlProviderReceiveMessageCallback,
+        0);
 
     //
     // Create a SSLContextManager object
@@ -427,10 +365,12 @@ void CIMServer::_init()
         new CertificateProvider(_repository, _sslContextMgr),
         0, 0, false);
     _controlProviders.append(certificateProvider);
-    _controlService->register_module(
+    ModuleController::register_module(
+        PEGASUS_QUEUENAME_CONTROLSERVICE,
         PEGASUS_MODULENAME_CERTIFICATEPROVIDER,
         certificateProvider,
-        controlProviderReceiveMessageCallback);
+        controlProviderReceiveMessageCallback,
+        0);
 #endif
 
 #ifndef PEGASUS_DISABLE_PERFINST
@@ -439,10 +379,12 @@ void CIMServer::_init()
         "CIMServerControlProvider", "CIMOMStatDataProvider",
         new CIMOMStatDataProvider(), 0, 0, false);
     _controlProviders.append(cimomstatdataProvider);
-    _controlService->register_module(
+    ModuleController::register_module(
+        PEGASUS_QUEUENAME_CONTROLSERVICE,
         PEGASUS_MODULENAME_CIMOMSTATDATAPROVIDER,
         cimomstatdataProvider,
-        controlProviderReceiveMessageCallback);
+        controlProviderReceiveMessageCallback,
+        0);
 #endif
 
 #ifdef PEGASUS_ENABLE_CQL
@@ -453,10 +395,12 @@ void CIMServer::_init()
         new CIMQueryCapabilitiesProvider(),
         0, 0, false);
     _controlProviders.append(cimquerycapprovider);
-    _controlService->register_module(
+    ModuleController::register_module(
+        PEGASUS_QUEUENAME_CONTROLSERVICE,
         PEGASUS_MODULENAME_CIMQUERYCAPPROVIDER,
         cimquerycapprovider,
-        controlProviderReceiveMessageCallback);
+        controlProviderReceiveMessageCallback,
+        0);
 #endif
 
 #if defined PEGASUS_ENABLE_INTEROP_PROVIDER
@@ -464,16 +408,14 @@ void CIMServer::_init()
     // Create the interop control provider
     ProviderMessageHandler* interopProvider = new ProviderMessageHandler(
         "CIMServerControlProvider", "InteropProvider",
-        new InteropProvider(
-                _repository,
-                _providerRegistrationManager),
-        0, 0, false);
-
+        new InteropProvider(_repository), 0, 0, false);
     _controlProviders.append(interopProvider);
-    _controlService->register_module(
+    ModuleController::register_module(
+        PEGASUS_QUEUENAME_CONTROLSERVICE,
         PEGASUS_MODULENAME_INTEROPPROVIDER,
         interopProvider,
-        controlProviderReceiveMessageCallback);
+        controlProviderReceiveMessageCallback,
+        0);
 #endif
 
     _cimOperationResponseEncoder = new CIMOperationResponseEncoder;
@@ -486,7 +428,7 @@ void CIMServer::_init()
     Boolean enableAuthentication = ConfigManager::parseBooleanValue(
         configManager->getCurrentValue("enableAuthentication"));
 
-    MessageQueue* cimOperationProcessorQueue = 0;
+    MessageQueueService* cimOperationProcessorQueue = 0;
 
     //
     // Create Authorization queue only if authentication is enabled
@@ -520,18 +462,6 @@ void CIMServer::_init()
         _cimExportRequestDecoder->getQueueId(),
         _repository);
 
-    _rsProcessor = new RsProcessor(
-        cimOperationProcessorQueue,
-        _repository);
-    _httpAuthenticatorDelegator->setRsQueueId(
-        _rsProcessor->getRsRequestDecoderQueueId());
-
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-    _webServer = new WebServer();
-    _httpAuthenticatorDelegator->setWebQueueId(
-        _webServer->getQueueId());
-#endif
-
 #ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
     _wsmProcessor = new WsmProcessor(
         cimOperationProcessorQueue,
@@ -544,15 +474,13 @@ void CIMServer::_init()
     // otherwise HandlerService started by indicationService will never
     // get ExportQueue to export indications for existing subscriptions
 
-    _indicationService = new IndicationService(
-        _repository,
-        _providerRegistrationManager);
-
-    // Build the Control Provider and Service internal routing table. This must
-    // be called after MessageQueueService initialized and ServiceQueueIds
-    // installed.
-
-    DynamicRoutingTable::buildRoutingTable();
+    _indicationService = 0;
+    if (ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableIndicationService")))
+    {
+        _indicationService = new IndicationService(
+            _repository, _providerRegistrationManager);
+    }
 
     // Enable the signal handler to shutdown gracefully on SIGHUP and SIGTERM
     getSigHandle()->registerHandler(PEGASUS_SIGHUP, shutdownSignalHandler);
@@ -581,7 +509,7 @@ void CIMServer::_init()
     // Set up an additional thread waiting for commands from the
     // system console
     //
-#if defined PEGASUS_OS_ZOS
+#if defined PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
     ZOSConsoleManager::startConsoleWatchThread();
 #endif
 
@@ -601,16 +529,6 @@ void CIMServer::_init()
 #endif
 }
 
-void CIMServer::initComplete()
-{
-    // CIMServer initialization is now complete. Inform indication service
-    // to send CIMSubscriptionInitCompleteRequestMessage.
-    if (_indicationService)
-    {
-        _indicationService->sendSubscriptionInitComplete();
-    }
-    _providerRegistrationManager->setInitComplete();
-}
 
 CIMServer::~CIMServer ()
 {
@@ -658,15 +576,14 @@ CIMServer::~CIMServer ()
     delete _cimOperationRequestDecoder;
     delete _cimOperationResponseEncoder;
 
-    delete _rsProcessor;
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-    delete _webServer;
-#endif
 #ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
     // WsmProcessor depends on CIMOperationRequestAuthorizer/Dispatcher and
     // CIMRepository
     delete _wsmProcessor;
 #endif
+
+    // BinaryMessageHandler depends on CIMOperationRequestDispatcher
+    delete _binaryMessageHandler;
 
     // CIMOperationRequestAuthorizer depends on
     // CIMOperationRequestDispatcher
@@ -715,10 +632,7 @@ CIMServer::~CIMServer ()
     delete _repository;
 
     // Destroy the singleton services
-    SCMOClassCache::destroy();
-#ifndef PEGASUS_PAM_AUTHENTICATION
     UserManager::destroy();
-#endif
     ShutdownService::destroy();
 
     PEG_METHOD_EXIT ();
@@ -727,8 +641,7 @@ CIMServer::~CIMServer ()
 void CIMServer::addAcceptor(
     Uint16 connectionType,
     Uint32 portNumber,
-    Boolean useSSL,
-    HostAddress *ipAddress)
+    Boolean useSSL)
 {
     HTTPAcceptor* acceptor;
 
@@ -738,8 +651,22 @@ void CIMServer::addAcceptor(
         connectionType,
         portNumber,
         useSSL ? _getSSLContext() : 0,
-        useSSL ? _sslContextMgr->getSSLContextObjectLock() : 0,
-        ipAddress);
+        useSSL ? _sslContextMgr->getSSLContextObjectLock() : 0 );
+
+    ConfigManager* configManager = ConfigManager::getInstance();
+    String socketWriteConfigTimeout =
+        configManager->getCurrentValue("socketWriteTimeout");
+    // Set timeout value for server socket timeouts
+    // depending on config option
+    Uint32 socketWriteTimeout =
+        strtol(socketWriteConfigTimeout.getCString(), (char**)0, 10);
+    // equal what went wrong, there has to be a timeout
+    if (socketWriteTimeout == 0)
+        socketWriteTimeout = PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS;
+    acceptor->setSocketWriteTimeout(socketWriteTimeout);
+
+    // Set idle connection timeout in seconds.
+    acceptor->setIdleConnectionTimeout(_idleConnectionTimeoutSeconds);
 
     _acceptors.append(acceptor);
 }
@@ -782,11 +709,8 @@ void CIMServer::runForever()
 
             try
             {
-                _providerManager->idleTimeCleanup();
+                _providerManager->unloadIdleProviders();
                 MessageQueueService::get_thread_pool()->cleanupIdleThreads();
-#ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
-                _wsmProcessor->cleanupExpiredContexts();
-#endif
             }
             catch (...)
             {
@@ -797,24 +721,7 @@ void CIMServer::runForever()
         {
             PEG_TRACE_CSTRING(TRC_SERVER, Tracer::LEVEL3,
                 "CIMServer::runForever - signal received.  Shutting down.");
-
-            //same statement as that of getShutdownTimeout
-            //TODO: DL consolidate in one place
-            ConfigManager *cfgManager = ConfigManager::getInstance();
-            String shutdnTimestr = cfgManager ->getCurrentValue(
-                "shutdownTimeout");
-
-            Uint64 shutdownTimeout = 0;
-
-            StringConversion::decimalStringToUint64(
-                    shutdnTimestr.getCString(), shutdownTimeout);
-
-            ShutdownService::getInstance(this)->shutdown(
-                true,
-                (Uint32)shutdownTimeout,
-                false);
-
-
+            ShutdownService::getInstance(this)->shutdown(true, 10, false);
             // Set to false must be after call to shutdown.  See
             // stopClientConnection.
             handleShutdownSignal = false;
@@ -864,7 +771,6 @@ void CIMServer::shutdown()
 
 #ifdef PEGASUS_DEBUG
     _repository->DisplayCacheStatistics();
-    SCMOClassCache::getInstance()->DisplayCacheStatistics();
 #endif
 
     _dieNow = true;
@@ -906,7 +812,6 @@ void CIMServer::setState(Uint32 state)
         // tell decoder that CIMServer is terminating
         _cimOperationRequestDecoder->setServerTerminating(true);
         _cimExportRequestDecoder->setServerTerminating(true);
-        _rsProcessor->setServerTerminating(true);
 #ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
         _wsmProcessor->setServerTerminating(true);
 #endif
@@ -924,8 +829,6 @@ void CIMServer::setState(Uint32 state)
         // tell decoder that CIMServer is not terminating
         _cimOperationRequestDecoder->setServerTerminating(false);
         _cimExportRequestDecoder->setServerTerminating(false);
-
-        _rsProcessor->setServerTerminating(false);
 #ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
         _wsmProcessor->setServerTerminating(false);
 #endif
@@ -974,9 +877,6 @@ SSLContext* CIMServer::_getSSLContext()
         "sslTrustStoreUserName";
     static const String PROPERTY_NAME__HTTP_ENABLED =
         "enableHttpConnection";
-    static const String PROPERTY_NAME__SSL_CIPHER_SUITE = "sslCipherSuite";
-    static const String PROPERTY_NAME__SSL_COMPATIBILITY = 
-        "sslBackwardCompatibility";
 
     String verifyClient;
     String trustStore;
@@ -1011,8 +911,8 @@ SSLContext* CIMServer::_getSSLContext()
         trustStore = ConfigManager::getHomedPath(trustStore);
     }
 
-    PEG_TRACE((TRC_SERVER, Tracer::LEVEL4,"Server trust store name: %s",
-        (const char*)trustStore.getCString()));
+    PEG_TRACE_STRING(TRC_SERVER, Tracer::LEVEL4,
+        "Server trust store name: " + trustStore);
 
     //
     // Get the sslTrustStoreUserName property from the Config Manager.
@@ -1074,37 +974,22 @@ SSLContext* CIMServer::_getSSLContext()
         // CertificateProvider should be used to register users with
         // certificates.
         //
-
-        if (trustStore != String::EMPTY)
+        if ((trustStore != String::EMPTY) &&
+            (!FileSystem::isDirectory(trustStore)))
         {
-            if (!FileSystem::exists(trustStore))
+            if (trustStoreUserName == String::EMPTY)
             {
                 MessageLoaderParms parms(
                     "Pegasus.Server.SSLContextManager."
-                        "COULD_NOT_ACCESS_TRUST_STORE",
-                    "Could not access the trust store."
-                        "Check the permissions of the truststore path \"$0\".",
-                        trustStore);
+                        "SSL_CLIENT_VERIFICATION_EMPTY_USERNAME",
+                    "The \"sslTrustStoreUserName\" property must specify a "
+                        "valid username if \"sslClientVerificationMode\" is "
+                        "'required' or 'optional' and the truststore is a "
+                        "single CA file. To register individual certificates "
+                        "to users, you must use a truststore directory along "
+                        "with the CertificateProvider.");
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
-            }
-
-            if (!FileSystem::isDirectory(trustStore))
-            {
-                if (trustStoreUserName == String::EMPTY)
-                {
-                    MessageLoaderParms parms(
-                        "Pegasus.Server.SSLContextManager."
-                            "SSL_CLIENT_VERIFICATION_EMPTY_USERNAME",
-                        "The \"sslTrustStoreUserName\" property must specify a "
-                            "valid username if \"sslClientVerificationMode\" "
-                            "is 'required' or 'optional' and the truststore is "
-                            "a single CA file. To register individual "
-                            "certificates to users, you must use a truststore "
-                            "directory along with the CertificateProvider.");
-                    PEG_METHOD_EXIT();
-                    throw SSLException(parms);
-                }
             }
         }
     }
@@ -1149,17 +1034,6 @@ SSLContext* CIMServer::_getSSLContext()
 #endif
 
     //
-    // Get the cipherSuite property from the Config Manager.
-    //
-    String cipherSuite = configManager->getCurrentValue(
-        PROPERTY_NAME__SSL_CIPHER_SUITE);
-    PEG_TRACE((TRC_SERVER, Tracer::LEVEL4, "Cipher suite is %s",
-        (const char*)cipherSuite.getCString()));
-
-    Boolean sslCompatibility = ConfigManager::parseBooleanValue(
-        configManager->getCurrentValue(
-        PROPERTY_NAME__SSL_COMPATIBILITY));
-    //
     // Create the SSLContext defined by the configuration properties
     //
     if (String::equal(verifyClient, "required"))
@@ -1168,8 +1042,7 @@ SSLContext* CIMServer::_getSSLContext()
             "SSL Client verification REQUIRED.");
 
         _sslContextMgr->createSSLContext(
-            trustStore, certPath, keyPath, crlStore, false, randFile,
-            cipherSuite,sslCompatibility);
+            trustStore, certPath, keyPath, crlStore, false, randFile);
     }
     else if (String::equal(verifyClient, "optional"))
     {
@@ -1177,8 +1050,7 @@ SSLContext* CIMServer::_getSSLContext()
             "SSL Client verification OPTIONAL.");
 
         _sslContextMgr->createSSLContext(
-            trustStore, certPath, keyPath, crlStore, true, randFile,
-            cipherSuite,sslCompatibility);
+            trustStore, certPath, keyPath, crlStore, true, randFile);
     }
     else if (String::equal(verifyClient, "disabled") ||
              verifyClient == String::EMPTY)
@@ -1187,8 +1059,7 @@ SSLContext* CIMServer::_getSSLContext()
             "SSL Client verification DISABLED.");
 
         _sslContextMgr->createSSLContext(
-            String::EMPTY, certPath, keyPath, crlStore, false, randFile,
-            cipherSuite,sslCompatibility);
+            String::EMPTY, certPath, keyPath, crlStore, false, randFile);
     }
     sslContext = _sslContextMgr->getSSLContext();
 
@@ -1245,7 +1116,7 @@ void CIMServer::auditLogInitializeCallback()
 ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm);
 
 // This is a control function that starts a new thread which issues a
-// cim operation to start the slp provider. Used for both External and
+// cim operation to start the slp provider. Used for both External and 
 // Embedded SLP registrations.
 //
 
@@ -1293,17 +1164,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm)
     try
     {
         client.connectLocal();
-
-        String timeoutStr=
-            ConfigManager::getInstance()->getCurrentValue(
-                "slpProviderStartupTimeout");
-        Uint64 timeOut;
-
-        StringConversion::decimalStringToUint64(
-            timeoutStr.getCString(),
-            timeOut);
-        client.setTimeout(timeOut & 0xFFFFFFFF);
-
+        // set client timeout to 2 seconds
+        client.setTimeout(40000);
         String referenceStr = "//";
         referenceStr.append(hostStr);
         referenceStr.append("/");
@@ -1317,70 +1179,46 @@ ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm)
         Array<CIMParamValue> inParams;
         Array<CIMParamValue> outParams;
 
-        Uint32 retries = 3;
-
-        while (retries > 0)
-        {
-            try
-            {
-                CIMValue retValue = client.invokeMethod(
-                    PEGASUS_NAMESPACENAME_INTERNAL,
-                    reference,
-                    CIMName("register"),
-                    inParams,
-                    outParams);
-                break;
-            }
-            catch(ConnectionTimeoutException&)
-            {
-                retries--;
-                if (retries == 0)
-                {
-                    throw;
-                }
-            }
-        }
+        CIMValue retValue = client.invokeMethod(
+            PEGASUS_NAMESPACENAME_INTERNAL,
+            reference,
+            CIMName("register"),
+            inParams,
+            outParams);
 
         Logger::put_l(
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-            MessageLoaderParms(
-                "Pegasus.Server.SLP.SLP_REGISTRATION_INITIATED",
-                "SLP Registration Initiated"));
+            "Pegasus.Server.SLP.SLP_REGISTRATION_INITIATED",
+            "SLP Registration Initiated");
     }
 
     catch(Exception& e)
     {
 #ifdef PEGASUS_SLP_REG_TIMEOUT
-        Logger::put_l(
-            Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoaderParms(
-                "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
-                "CIM Server registration with External SLP Failed. "
-                    "Exception: $0",
-                e.getMessage()));
+         Logger::put_l(
+             Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+             "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
+             "CIM Server registration with External SLP Failed. Exception: $0",
+             e.getMessage());
 #else
-        Logger::put_l(
-            Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoaderParms(
-                "Pegasus.Server.SLP.INTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
-                "CIM Server registration with Internal SLP Failed. "
-                    "Exception: $0",
-                e.getMessage()));
+        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+            "Pegasus.Server.SLP.INTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION",
+            "CIM Server registration with Internal SLP Failed. Exception: $0",
+            e.getMessage());
 #endif
     }
 
     catch(...)
     {
 #ifdef PEGASUS_SLP_REG_TIMEOUT
-        Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoaderParms(
-                "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
-                "CIM Server registration with External SLP Failed."));
+         Logger::put_l(
+             Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+             "Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_ERROR",
+             "CIM Server registration with External SLP Failed.");
 #else
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoaderParms(
-                "Pegasus.Server.SLP.INTERNAL_SLP_REGISTRATION_FAILED_ERROR",
-                "CIM Server registration with Internal SLP Failed."));
+            "Pegasus.Server.SLP.INTERNAL_SLP_REGISTRATION_FAILED_ERROR",
+            "CIM Server registration with Internal SLP Failed.");
 #endif
     }
 

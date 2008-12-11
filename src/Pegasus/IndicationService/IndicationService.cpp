@@ -3525,7 +3525,7 @@ Boolean IndicationService::_canCreate (
 
 #ifndef PEGASUS_ENABLE_CQL
             // Special code to block CQL, if CQL is disabled
-            if (queryLanguage == "CIM:CQL")
+            if ((queryLanguage == "CIM:CQL") || (queryLanguage == "DMTF:CQL"))
             {
                 // CQL is not allowed in this case
                 PEG_METHOD_EXIT();

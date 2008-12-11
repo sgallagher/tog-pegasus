@@ -850,25 +850,17 @@ Defines nser ame for CIM Server authentication. Default is no user name and no a
 
 <DD>
 DEPRECATED. This was used to set LocalOnly. However, default should be true and we cannot use True as default. 
-See !lo . Default(true).
-<P>
-<DT><B>-!lo</B>
-
-<DD>
-(DEPRECATED) When set, sets LocalOnly = false on operations. DEPRECATED,!confuses bash. Use -nlo . 
-Default(false).  See also -nlo.
+See -nlo. Default(true).
 <P>
 <DT><B>-nlo</B>
 
 <DD>
-When set, sets LocalOnly = false on the CIM operation . Default(false). See also -!lo..
-It is equivalent to -!lo and superceedes the -!lo form.
+When set, sets LocalOnly = false on the CIM operation. Default(false).
 <P>
 <DT><B>-niq</B>
 
 <DD>
-Sets includeQualifiers = false on operations. Default(false). See also -!iq.  This form was implemented because of
-problems with the -!iq form on some systems.  It is equivalent to -!iq which is deprecated.
+Sets includeQualifiers = false on operations. Default(false).
 <P>
 <DT><B>-pl [propertyList]</B>
 

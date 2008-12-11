@@ -1259,11 +1259,7 @@ en:table {
         Clients.cimcli.CIMCLIClient.LOCALONLY_OPTION_HELP:string {
         "-lo  localOnly. DEPRECATED. This was used to set LocalOnly.\n"
         "    However, default should be true and we cannot use True\n"
-        "    as default. See !lo. Default(true)\n"}
-
-        Clients.cimcli.CIMCLIClient.LOCALONLYDEP_OPTION_HELP:string {
-        "-!lo  !localOnly. When set, sets LocalOnly = false on operations.\n"
-        "    DEPRECATED, ! confuses bash. Use -nlo. Default(false)\n"}
+        "    as default. See -nlo. Default(true)\n"}
 
         Clients.cimcli.CIMCLIClient.NOTLOCALONLY_OPTION_HELP:string {
         "-nlo  notLocalOnly. When set, sets LocalOnly = false on\n"
@@ -1272,10 +1268,6 @@ en:table {
         Clients.cimcli.CIMCLIClient.INCLUDEQUALIFIERS_OPTION_HELP:
         string {"-iq  includeQualifiers. Deprecated. Sets includeQualifiers = True.\n"
         "    However, default=true. Default(true)\n"}
-
-        Clients.cimcli.CIMCLIClient.INCLUDEQUALIFIERSDEP_OPTION_HELP:
-        string {"-!iq  !includeQualifiers. Sets includeQualifiers = false on operations.\n"
-        "    DEPRECATED, ! confuses bash. Use -niq. Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.NOTINCLUDEQUALIFIERS_OPTION_HELP:
         string {"-niq  notIncludeQualifiers. Sets includeQualifiers = false\n"

@@ -2223,12 +2223,7 @@ void GetOptions(
         "Clients.cimcli.CIMCLIClient.LOCALONLY_OPTION_HELP",
         "DEPRECATED. This was used to set LocalOnly.\n"
             "    However, default should be true and we cannot use True\n"
-            "    as default. See !lo"},
-
-        {"!localOnly", "false", false, Option::BOOLEAN, 0, 0, "!lo",
-        "Clients.cimcli.CIMCLIClient.LOCALONLYDEP_OPTION_HELP",
-        "When set, sets LocalOnly = false on operations.\n"
-            "    DEPRECATED, ! confuses bash. Use -nlo"},
+            "    as default. See -nlo"},
 
         {"notLocalOnly", "false", false, Option::BOOLEAN, 0, 0, "nlo",
         "Clients.cimcli.CIMCLIClient.NOTLOCALONLY_OPTION_HELP",
@@ -2240,11 +2235,6 @@ void GetOptions(
         "Deprecated. Sets includeQualifiers = True.\n"
             "    However, default=true"},
 
-        {"!includeQualifiers", "false", false, Option::BOOLEAN, 0, 0, "!iq",
-        "Clients.cimcli.CIMCLIClient.INCLUDEQUALIFIERSDEP_OPTION_HELP",
-        "Sets includeQualifiers = false on operations.\n"
-            "    DEPRECATED, ! confuses bash. Use -niq"},
-        
         {"notIncludeQualifiers", "false", false, Option::BOOLEAN, 0, 0, "niq",
         "Clients.cimcli.CIMCLIClient.NOTINCLUDEQUALIFIERS_OPTION_HELP",
         "Sets includeQualifiers = false\n"
@@ -2764,32 +2754,28 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     if (om.isTrue("deepInheritance")  && verboseTest && debug)
         cout << "deepInteritance set" << endl;
 
-    // process localOnly and !localOnly parameters
+    // process localOnly and notlocalOnly parameters
     opts.localOnly = om.isTrue("localOnly");
-    if (om.isTrue("!localOnly") || om.isTrue("notLocalOnly"))
+    if (om.isTrue("notLocalOnly"))
     {
         opts.localOnly = false;
     }
 
-    // Use two options for the not command because the ! confuses bash
-    // Either is legal and they do the same thing.
     // Used the not version because the DMTF and pegasus default is true
-    if (verboseTest && debug && (om.isTrue("!localOnly") 
-            || om.isTrue("notLocalOnly")))
+    if (verboseTest && debug && om.isTrue("notLocalOnly"))
     {
         cout << "localOnly= " << _toString(opts.localOnly) << endl;;
     }
 
-    // Process includeQualifiers and !includeQualifiers
+    // Process includeQualifiers and notincludeQualifiers
     opts.includeQualifiers = om.isTrue("includeQualifiers");
 
-    if (om.isTrue("!includeQualifiers") || om.isTrue("notIncludeQualifiers"))
+    if (om.isTrue("notIncludeQualifiers"))
     {
         opts.includeQualifiers = false;
     }
 
-    if (verboseTest && debug && (om.isTrue("!includeQualifiers") 
-            || om.isTrue("notIncludeQualifiers" )))
+    if (verboseTest && debug && om.isTrue("notIncludeQualifiers"))
     {
         cout << "includeQualifiers = " << _toString(opts.includeQualifiers) 
             << endl;

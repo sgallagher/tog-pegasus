@@ -41,12 +41,14 @@ ifeq ($(OS_TYPE),windows)
     DEFINES += -DOS_WINDOWS
     RM = del
     BACKWARD_SLASH = 1
+    MU_EXE_LOCATION = $(subst /,\,$(BIN_DIR)\$(PROGRAM)$(EXE))
 else
     PLATFORM_SOURCES = FilesUnix.cpp
     # some platforms (Mac) require space before pgm name
     EXE_OUTPUT = $(EXE_OUT) $(PROGRAM)$(EXE)
     OBJ_OUT = -o 
     RM = rm -f
+    MU_EXE_LOCATION = $(BIN_DIR)/$(PROGRAM)$(EXE)
 endif
 
 ifdef PEGASUS_MU_BIN_DIR
@@ -90,11 +92,13 @@ OBJECTS = $(SOURCES:.cpp=$(OBJ))
 $(FULL_PROGRAM): $(OBJECTS)
 	$(LINK_WRAPPER) $(CXX) $(FLAGS) $(EXE_OUTPUT) $(OBJECTS) $(FULL_LIBRARIES) $(SYS_LIB)
 	$(MKDIRHIER) $(BIN_DIR)
-	$(COPY) $(FULL_PROGRAM) $(BIN_DIR)/$(PROGRAM)$(EXE)
+	$(RM) $(MU_EXE_LOCATION)
+	$(COPY) $(FULL_PROGRAM) $(MU_EXE_LOCATION)
 
 clean:
 	$(RM) $(OBJECTS)
 	$(RM) $(FULL_PROGRAM)
+	$(RM) $(MU_EXE_LOCATION)
 
 tests:
 

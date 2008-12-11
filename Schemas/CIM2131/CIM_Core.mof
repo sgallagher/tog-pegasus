@@ -46,6 +46,7 @@
  
 #pragma include ("DMTF/Core\CIM_ManagedElement.mof")
 #pragma include ("DMTF/Core\CIM_Setting.mof")
+#pragma include ("DMTF/Core\CIM_Configuration.mof")
 #pragma include ("DMTF/Core\CIM_SettingContext.mof")
 #pragma include ("DMTF/Core\CIM_SettingData.mof")
 #pragma include ("DMTF/Core\CIM_Capabilities.mof")
@@ -54,7 +55,6 @@
 #pragma include ("DMTF/Core\CIM_Component.mof")
 #pragma include ("DMTF/Core\CIM_ConcreteCollection.mof")
 #pragma include ("DMTF/Core\CIM_ConcreteComponent.mof")
-#pragma include ("DMTF/Core\CIM_Configuration.mof")
 #pragma include ("DMTF/Core\CIM_ConfigurationComponent.mof")
 #pragma include ("DMTF/Core\CIM_Dependency.mof")
 #pragma include ("DMTF/Core\CIM_DependencyContext.mof")

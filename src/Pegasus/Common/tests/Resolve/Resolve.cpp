@@ -1229,6 +1229,83 @@ void test08()
     }
 }
 
+// Test non-existent reference parameter type in class with no superclass
+void test09()
+{
+    if (verbose)
+    {
+        cout << "Test09 - Detecting non-existent reference parameter type" 
+             << endl;    
+    }
+
+    const CIMNamespaceName NAMESPACE = CIMNamespaceName("/ttt");
+    SimpleDeclContext* context = new SimpleDeclContext;
+
+    // Define the qualifiers
+
+    CIMQualifierDecl key(CIMName("key"), Boolean(true),
+        (CIMScope::PROPERTY + CIMScope::REFERENCE), CIMFlavor::TOSUBCLASS);
+    CIMQualifierDecl association(CIMName("association"), Boolean(true),
+        (CIMScope::CLASS + CIMScope::ASSOCIATION), CIMFlavor::TOSUBCLASS);
+
+    if (verbose)
+    {
+        XmlWriter::printQualifierDeclElement(key);
+        XmlWriter::printQualifierDeclElement(association);
+    }
+    context->addQualifierDecl(NAMESPACE, key);
+    context->addQualifierDecl(NAMESPACE, association);
+
+    // Define a valid endpoint class
+
+    CIMClass ep(CIMName("MyEndpoint"));
+    ep.addProperty(CIMProperty(CIMName("index"), Uint32(1)));
+    context->addClass(NAMESPACE, ep);
+
+    // Define an invalid association class
+
+    CIMProperty ref1(
+        CIMName("reference1"),
+        CIMValue(CIMTYPE_REFERENCE, false, 0),
+        0,
+        "MyEndpoint");
+    ref1.addQualifier(CIMQualifier(CIMName("key"), Boolean(true)));
+    CIMProperty ref2(
+        CIMName("reference2"),
+        CIMValue(CIMTYPE_REFERENCE, false, 0),
+        0,
+        "NonexistentClass");
+    ref2.addQualifier(CIMQualifier(CIMName("key"), Boolean(true)));
+
+    CIMClass c(CIMName("MyClass"));
+    c.addQualifier(CIMQualifier(CIMName("Association"), Boolean(true)));
+    c.addProperty(CIMProperty(ref1));
+    c.addProperty(CIMProperty(ref2));
+
+    if (verbose)
+    {
+        XmlWriter::printClassElement(c);
+    }
+
+    try
+    {
+        // Attempt to resolve the class with references to non-existent classes
+        Resolver::resolveClass(c, context, NAMESPACE);
+        // An exception should have been thrown
+        PEGASUS_ASSERT(false);
+    }
+    catch (CIMException& e)
+    {
+        PEGASUS_ASSERT(e.getCode() == CIM_ERR_INVALID_PARAMETER);
+    }
+
+    delete context;
+    if (verbose)
+    {
+        cout << "End Test09" << endl;
+    }
+}
+
 //ATTN: KS P1 Mar 7 2002.  Add tests propagation qual, method, propertys
 //as follows:
 //  Confirm that qualifiers are propagated correctly based on flavors
@@ -1250,6 +1327,7 @@ int main(int argc, char** argv)
         test06(); // Test for no superclass
         test07();   // Confirm noverridable qualifier cannot be in subclass
         test08();
+        test09();
     }
     catch (Exception& e)
     {

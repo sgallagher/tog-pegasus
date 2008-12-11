@@ -289,7 +289,31 @@ void CIMPropertyRep::resolve(
     CIMScope scope = CIMScope::PROPERTY;
 
     if (_value.getType() == CIMTYPE_REFERENCE)
+    {
         scope = CIMScope::REFERENCE;
+
+        // Validate that the reference class exists.
+
+        CIMName referenceClassName;
+        if (_referenceClassName.isNull())
+        {
+            CIMObjectPath reference;
+            _value.get(reference);
+            referenceClassName = reference.getClassName();
+        }
+        else
+        {
+            referenceClassName = _referenceClassName;
+        }
+
+        CIMClass referenceClass = declContext->lookupClass(
+            nameSpace, referenceClassName);
+        if (referenceClass.isUninitialized())
+        {
+            throw PEGASUS_CIM_EXCEPTION(
+                CIM_ERR_INVALID_PARAMETER, referenceClassName.getString());
+        }
+    }
 
     _qualifiers.resolve(
         declContext,

@@ -26,6 +26,12 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //////////////////////////////////////////////////////////////////////////
+
+class C
+{
+   [key] string Id;
+};
+
 [Association, Description (" ")]
 class B 
 {

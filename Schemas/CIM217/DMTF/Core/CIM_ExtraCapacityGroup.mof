@@ -6,7 +6,7 @@
 //  CIM_ExtraCapacityGroup
 // ==================================================================
    [Deprecated { "CIM_RedundancySet" }, 
-    Version ( "2.8.1000" ), 
+    Version ( "2.21.0" ), 
     UMLPackagePath ( "CIM::Core::Redundancy" ), 
     Description ( 
        "A class derived from RedundancyGroup indicating that the "

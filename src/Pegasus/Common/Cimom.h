@@ -48,6 +48,7 @@
 #include <Pegasus/Common/List.h>
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Common/Time.h>
+#include <Pegasus/Common/HashTable.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -63,6 +64,13 @@ public:
 
     AsyncOpNode* get_cached_op();
     void cache_op(AsyncOpNode* op);
+
+    Boolean registerCIMService(MessageQueueService *service);
+    Boolean deregisterCIMService(MessageQueueService *service);
+
+    typedef HashTable <MessageQueueService*, Boolean, EqualFunc <void*>,
+        HashFunc <void*> > RegisteredServicesTable;
+
 protected:
       static void _make_response(Message* req, Uint32 code);
       static void _completeAsyncResponse(
@@ -83,10 +91,17 @@ private:
 
     Boolean route_async(AsyncOpNode* operation);
 
+    inline Boolean _monitorCIMService(MessageQueueService *service);
+    inline void _releaseCIMService(MessageQueueService *service);
+
     AtomicInt _die;
     AtomicInt _routed_queue_shutdown;
 
     static cimom *_global_this;
+
+
+    static RegisteredServicesTable _registeredServicesTable;
+    static Mutex _registeredServicesTableLock;
 
     friend class MessageQueueService;
 };

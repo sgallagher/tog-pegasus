@@ -33,6 +33,8 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h>
 
+PEGASUS_USING_STD;
+
 PEGASUS_NAMESPACE_BEGIN
 
 cimom *MessageQueueService::_meta_dispatcher = 0;
@@ -44,34 +46,9 @@ static struct timeval deallocateWait = {300, 0};
 ThreadPool *MessageQueueService::_thread_pool = 0;
 
 MessageQueueService::PollingList* MessageQueueService::_polling_list;
-Boolean MessageQueueService::_monitoring_polling_list = false;
+Mutex MessageQueueService::_polling_list_mutex;
 
 Thread* MessageQueueService::_polling_thread = 0;
-
-/*
-    PollingListEntry holds the service and it's status whether the service
-    is dead or not. Each service creates its own PollingListEntry and added
-    to the PollingList which is monitored by the polling thread. Polling thread
-    monitors the service only if it's die flag is not set.
-*/
-
-struct PollingListEntry : public Linkable
-{
-    MessageQueueService *service;
-    Boolean die;
-
-    PollingListEntry(MessageQueueService *service)
-        :service(service),
-         die(false)
-    {
-    }
-    ~PollingListEntry()
-    {
-    }
-private:
-    PollingListEntry(const PollingListEntry&);
-    PollingListEntry& operator = (const PollingListEntry&);
-};
 
 ThreadPool *MessageQueueService::get_thread_pool()
 {
@@ -100,71 +77,87 @@ ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
     MessageQueueService::PollingList *list =
         reinterpret_cast<MessageQueueService::PollingList*>(myself->get_parm());
 
-    while (_stop_polling.get()  == 0)
+    try
     {
-        _polling_sem.wait();
-
-        if (_stop_polling.get() != 0)
+        while (_stop_polling.get()  == 0)
         {
-            break;
-        }
+            _polling_sem.wait();
 
-        PollingListEntry *entry = list->front();
-        ThreadStatus rtn = PEGASUS_THREAD_OK;
-
-        // Setting this flag to 'true' will prevent race condition between
-        // the polling thread and thread executing the MessageQueueService
-        // destructor.
-        PEGASUS_ASSERT(_monitoring_polling_list == false);
-        _monitoring_polling_list = true;
-
-        do
-        {
-            MessageQueueService *service = entry->service;
-            // Note: MessageQueueService destructor sets die flag when service
-            // gets destroyed during CIMOM shutdown. Don't monitor the service
-            // if die flag set.
-            if ((entry->die == false) &&
-                (service->_incoming.count() > 0) &&
-                (service->_threads.get() < max_threads_per_svc_queue))
+            if (_stop_polling.get() != 0)
             {
-                // The _threads count is used to track the
-                // number of active threads that have been allocated
-                // to process messages for this service.
+                break;
+            }
 
-                service->_threads++;
-                try
+            // The polling_routine thread must hold the lock on the
+            // _polling_list while processing incoming messages.
+            // This lock is used to give this thread ownership of
+            // services on the _polling_routine list.
+
+            // This is necessary to avoid confict with other threads
+            // processing the _polling_list
+            // (e.g., MessageQueueServer::~MessageQueueService).
+
+            _polling_list_mutex.lock();
+            MessageQueueService *service = list->front();
+            ThreadStatus rtn = PEGASUS_THREAD_OK;
+            while (service != NULL)
+            {
+                if ((service->_incoming.count() > 0) &&
+                    (service->_die.get() == 0) &&
+                    (service->_threads.get() < max_threads_per_svc_queue))
                 {
+                    // The _threads count is used to track the
+                    // number of active threads that have been allocated
+                    // to process messages for this service.
+
+                    // The _threads count MUST be incremented while
+                    // the polling_routine owns the _polling_thread
+                    // lock and has ownership of the service object.
+
+                    service->_threads++;
                     rtn = _thread_pool->allocate_and_awaken(
                         service, _req_proc, &_polling_sem);
-                }
-                catch (...)
-                {
-                    service->_threads--;
+                    // if no more threads available, break from processing loop
+                    if (rtn != PEGASUS_THREAD_OK )
+                    {
+                        service->_threads--;
+                        PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL1,
+                            "Could not allocate thread for %s.  Queue has %d "
+                                "messages waiting and %d threads servicing."
+                                "Skipping the service for right now. ",
+                            service->getQueueName(),
+                            service->_incoming.count(),
+                            service->_threads.get()));
 
-                    // allocate_and_awaken should never generate an exception.
-                    PEGASUS_ASSERT(0);
+                        Threads::yield();
+                        break;
+                    }
                 }
-                // if no more threads available, break from processing loop
-                if (rtn != PEGASUS_THREAD_OK )
-                {
-                    service->_threads--;
-                    PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL1,
-                        "Could not allocate thread for %s.  Queue has %d "
-                            "messages waiting and %d threads servicing."
-                            "Skipping the service for right now. ",
-                        service->getQueueName(),
-                        service->_incoming.count(),
-                        service->_threads.get()));
-
-                    Threads::yield();
-                    break;
-                }
+                service = list->next_of(service);
             }
-            entry = list->next_of(entry);
-        } while (entry != NULL);
-        _monitoring_polling_list = false;
+            _polling_list_mutex.unlock();
+        }
     }
+    catch(const Exception &e)
+    {
+        PEG_TRACE((TRC_MESSAGEQUEUESERVICE,Tracer::LEVEL1,
+            "Exception caught in MessageQueueService::polling_routine : %s",
+                (const char*)e.getMessage().getCString()));
+    }
+    catch(const exception &e)
+    {
+        PEG_TRACE((TRC_MESSAGEQUEUESERVICE,Tracer::LEVEL1,
+            "Exception caught in MessageQueueService::polling_routine : %s",
+                e.what()));
+    }
+    catch(...)
+    {
+        PEG_TRACE_CSTRING(TRC_MESSAGEQUEUESERVICE,Tracer::LEVEL1,
+            "Unknown Exception caught in MessageQueueService::polling_routine");
+    }
+
+    PEGASUS_ASSERT(_stop_polling.get());
+
     return ThreadReturnType(0);
 }
 
@@ -177,6 +170,7 @@ MessageQueueService::MessageQueueService(
     const char* name,
     Uint32 queueID)
     : Base(name, true,  queueID),
+      _die(0),
       _threads(0),
       _incoming(),
       _incoming_queue_shutdown(0)
@@ -196,8 +190,8 @@ MessageQueueService::MessageQueueService(
 
     PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
        "max_threads_per_svc_queue set to %u.", max_threads_per_svc_queue));
-
-    AutoMutex mtx(_meta_dispatcher_mutex);
+ 
+    AutoMutex autoMut(_meta_dispatcher_mutex);
 
     if (_meta_dispatcher == 0)
     {
@@ -218,13 +212,14 @@ MessageQueueService::MessageQueueService(
     {
         _polling_list = new PollingList;
     }
-    pollingListEntry = new PollingListEntry(this);
-    _polling_list->insert_back(pollingListEntry);
+    _polling_list->insert_back(this);
+   _meta_dispatcher->registerCIMService(this);
 }
 
 
 MessageQueueService::~MessageQueueService()
 {
+
     // Close incoming queue.
     if (_incoming_queue_shutdown.get() == 0)
     {
@@ -241,9 +236,10 @@ MessageQueueService::~MessageQueueService()
         }
     }
 
-    // Die now. Setting this flag to true instructs the polling thread not to
-    // monitor this service.
-    pollingListEntry->die = true;
+    // die now.
+    _die = 1;
+
+    _meta_dispatcher->deregisterCIMService(this);
 
     // Wait until all threads processing the messages
     // for this service have completed.
@@ -252,14 +248,16 @@ MessageQueueService::~MessageQueueService()
         Threads::yield();
     }
 
-    // Wait until monitoring the polling list is done.
-    while (_monitoring_polling_list)
-    {
-        Threads::yield();
-    }
+
+    // The polling_routine locks the _polling_list while
+    // processing the incoming messages for services on the
+    // list.  Deleting the service from the _polling_list
+    // prior to processing, avoids synchronization issues
+    // with the _polling_routine.
+    _removeFromPollingList(this);
 
     {
-        AutoMutex mtx(_meta_dispatcher_mutex);
+        AutoMutex autoMut(_meta_dispatcher_mutex);
 
         _service_count--;
         // If we are last service to die, delete metadispatcher.
@@ -278,13 +276,6 @@ MessageQueueService::~MessageQueueService()
 
             delete _thread_pool;
             _thread_pool = 0;
-
-            // Cleanup polling list
-            PollingListEntry *entry;
-            while ((entry = _polling_list->remove_front()))
-            {
-                delete entry;
-            }
         }
     }
 
@@ -314,7 +305,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
     PEGASUS_ASSERT(service != 0);
     try
     {
-        if (service->pollingListEntry->die)
+        if (service->_die.get() != 0)
         {
             service->_threads--;
             return 0;
@@ -508,8 +499,18 @@ void MessageQueueService::_complete_op_node(
 
 Boolean MessageQueueService::accept_async(AsyncOpNode* op)
 {
+    if (!_isRunning)
+    {
+        // Don't accept any messages other than start.
+        if (op->_request.get()->getType() != ASYNC_CIMSERVICE_START)
+        {
+            return false;
+        }
+    }
+
     if (_incoming_queue_shutdown.get() > 0)
         return false;
+
     if (_polling_thread == NULL)
     {
         PEGASUS_ASSERT(_polling_list);
@@ -528,7 +529,7 @@ Boolean MessageQueueService::accept_async(AsyncOpNode* op)
                     "Could not allocate thread for the polling thread."));
         }
     }
-    if (pollingListEntry->die == false)
+    if (_die.get() == 0)
     {
         if (_incoming.enqueue(op))
         {
@@ -725,6 +726,13 @@ Uint32 MessageQueueService::find_service_qid(const String &name)
     MessageQueue *queue = MessageQueue::lookup((const char*)name.getCString());
     PEGASUS_ASSERT(queue);
     return queue->getQueueId();
+}
+
+void MessageQueueService::_removeFromPollingList(MessageQueueService *service)
+{
+    _polling_list_mutex.lock();
+    _polling_list->remove(service);
+    _polling_list_mutex.unlock();
 }
 
 PEGASUS_NAMESPACE_END

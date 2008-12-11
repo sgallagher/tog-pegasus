@@ -43,6 +43,73 @@ PEGASUS_NAMESPACE_BEGIN
 
 const Uint32 CIMOM_Q_ID = 1;
 
+
+cimom::RegisteredServicesTable cimom::_registeredServicesTable;
+Mutex cimom::_registeredServicesTableLock;
+
+PEGASUS_TEMPLATE_SPECIALIZATION struct HashFunc<void*>
+{
+    static Uint32 hash(void* x)
+    { 
+        return Uint32((((unsigned long)x) >> 3)) + 13;
+    }
+};
+
+Boolean cimom::registerCIMService(MessageQueueService *service)
+{
+    AutoMutex mtx(_registeredServicesTableLock);
+    if (_registeredServicesTable.insert(service, false))
+    {
+        return true;
+    }
+    return false;
+}
+
+Boolean cimom::deregisterCIMService(MessageQueueService *service)
+{
+    for(;;)
+    {
+        {
+            AutoMutex mtx(_registeredServicesTableLock);
+            Boolean monitoring;
+            if (!_registeredServicesTable.lookup(service, monitoring))
+            {
+                return false;
+            }
+            if (!monitoring)
+            {
+                _registeredServicesTable.remove(service);
+                return true;
+            }
+        }
+        Threads::yield();
+    }
+}
+
+Boolean cimom::_monitorCIMService(MessageQueueService *service)
+{
+    AutoMutex mtx(_registeredServicesTableLock);
+    Boolean *monitoring;
+    if (!_registeredServicesTable.lookupReference(service, monitoring))
+    {
+        return false;
+    }
+    PEGASUS_ASSERT (*monitoring == false);
+    return *monitoring = true;
+}
+
+void cimom::_releaseCIMService(MessageQueueService *service)
+{
+    AutoMutex mtx(_registeredServicesTableLock);
+    Boolean *monitoring;
+    if (!_registeredServicesTable.lookupReference(service, monitoring))
+    {
+        PEGASUS_ASSERT(0);
+    }
+    PEGASUS_ASSERT (*monitoring == true);
+    *monitoring = false;
+}
+
 Boolean cimom::route_async(AsyncOpNode *op)
 {
     if (_die.get() > 0)
@@ -60,57 +127,81 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
     cimom* dispatcher = reinterpret_cast<cimom *>(myself->get_parm());
     AsyncOpNode *op = 0;
 
-    while (dispatcher->_die.get() == 0)
+    try
     {
-        op = dispatcher->_routed_ops.dequeue_wait();
-
-        if (op == 0)
+        while (dispatcher->_die.get() == 0)
         {
-            break;
-        }
-        else
-        {
-            MessageQueue *dest_q = op->_op_dest;
-            Uint32 dest_qid = dest_q->getQueueId();
+            op = dispatcher->_routed_ops.dequeue_wait();
 
-            if (dest_qid == CIMOM_Q_ID)
+            if (op == 0)
             {
-               dispatcher->_handle_cimom_op(op);
-               continue;
+                break;
             }
             else
             {
-                //<< Tue Feb 19 11:40:37 2002 mdd >>
-                // moved the lookup to sendwait/nowait/forget/forward functions.
+                MessageQueue *dest_q = op->_op_dest;
 
-                MessageQueueService *dest_svc = 0;
-                // ATTN: We should only get async queues for message dispatch.
-                PEGASUS_ASSERT(dest_q->isAsync());
-                dest_svc= static_cast<MessageQueueService *>(dest_q);
-
-                if (!dest_svc->isRunning())
+                // See if we are the destination.
+                if (dest_q == _global_this)
                 {
-                    // the target is stopped, unless the message is a start
-                    // just handle it from here.
-                    AsyncRequest *request =
-                        static_cast<AsyncRequest *>(op->_request.get());
-                    MessageType messageType = request->getType();
-
-                    if (messageType != ASYNC_CIMSERVICE_START)
-                    {
-                       dispatcher->_make_response(
-                           request, async_results::CIM_SERVICE_STOPPED);
-                       continue;
-                    }
+                    dispatcher->_handle_cimom_op(op);
+                    continue;
                 }
-                if (dest_svc->accept_async(op) == false)
+
+                MessageQueueService *dest_svc =
+                    static_cast<MessageQueueService *>(dest_q);
+
+                Boolean accepted = false;
+                if (dispatcher->_monitorCIMService(dest_svc))
                 {
-                   // set completion code to NAK and flag completed
-                    _make_response(op->_request.get(), async_results::CIM_NAK);
+                    // ATTN: We should only get async queues
+                    // for message dispatch.
+                    PEGASUS_ASSERT(dest_q->isAsync());
+                    accepted = dest_svc->accept_async(op);
+                    dispatcher->_releaseCIMService(dest_svc);
+                }
+                if (accepted == false)
+                {
+                    // Send NAK to requesting service.
+                    try
+                    {
+                        _make_response(
+                            op->_request.get(),
+                            async_results::CIM_NAK);
+                    }
+                    catch(...)
+                    {
+                        // May be bad_alloc caused _make_response to fail,
+                        // delete op.
+                        PEG_TRACE_CSTRING(
+                            TRC_MESSAGEQUEUESERVICE,Tracer::LEVEL1,
+                            "cimom::_make_response failed");
+                        _global_this->cache_op(op);
+                    }
                 }
             }
         }
-    } // loop
+    }
+    // Note: We should never get exception and we are not expecting it.
+    catch(const Exception &e)
+    {
+        PEG_TRACE((TRC_MESSAGEQUEUESERVICE,Tracer::LEVEL1,
+            "Exception caught in cimom::_routing_proc : %s",
+                (const char*)e.getMessage().getCString()));
+        PEGASUS_ASSERT(false);
+    }
+    catch(const exception &e)
+    {
+        PEG_TRACE((TRC_MESSAGEQUEUESERVICE,Tracer::LEVEL1,
+            "Exception caught in cimom::_routing_proc : %s", e.what()));
+        PEGASUS_ASSERT(false);
+    }
+    catch(...)
+    {
+        PEG_TRACE_CSTRING(TRC_MESSAGEQUEUESERVICE,Tracer::LEVEL1,
+            "Unknown Exception caught in cimom::_routing_proc");
+        PEGASUS_ASSERT(false);
+    }
 
     return 0;
 }
@@ -171,7 +262,17 @@ void cimom::_make_response(Message *req, Uint32 code)
         return;
     }
 
-    Uint32 flags = static_cast<AsyncRequest *>(req)->op->_flags;
+    AsyncOpNode *op = static_cast<AsyncRequest *>(req)->op;
+
+    // If the state is complete means requesting service was unable to take the
+    // response, nothing we can do here but delete op.
+    if (op->_state == ASYNC_OPSTATE_COMPLETE)
+    {
+        _global_this->cache_op(op);
+        return;
+    }
+
+    Uint32 flags = op->_flags;
 
     if (flags == ASYNC_OPFLAGS_FIRE_AND_FORGET)
     {
@@ -250,21 +351,9 @@ void cimom::_complete_op_node(
 
     PEGASUS_ASSERT(flags == ASYNC_OPFLAGS_CALLBACK);
 
-    // << Wed Oct  8 12:29:32 2003 mdd >>
-    // check to see if the response queue is stopped
-    if (op->_callback_response_q == 0 ||
-        !(static_cast<MessageQueueService*> (
-            op->_callback_response_q))->isRunning())
-    {
-        // delete, respondent is stopped
-        _global_this->cache_op(op);
-    }
-    else
-    {
-        // send this node to the response queue
-        op->_op_dest = op->_callback_response_q;
-        _global_this->route_async(op);
-    }
+    // send this node to the response queue
+    op->_op_dest = op->_callback_response_q;
+    _global_this->route_async(op);
 }
 
 

@@ -504,7 +504,7 @@ fi
 %defattr(644,root,pegasus,755)
 /usr/share/Pegasus/samples
 /usr/include/Pegasus
-/usr/share/doc/tog-pegasus-2.9/*
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.9/SecurityGuidelinesForDevelopers.html
 /usr/share/Pegasus/html
 
 %if %{PEGASUS_BUILD_TEST_RPM}

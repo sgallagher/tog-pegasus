@@ -489,6 +489,7 @@ fi
 %doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.9/Admin_Guide_Release.pdf
 %doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.9/PegasusSSLGuidelines.htm
 %doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.9/license.txt
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.9/OpenPegasusNOTICE.txt
 /usr/%PEGASUS_ARCH_LIB/libpegclient.so
 /usr/%PEGASUS_ARCH_LIB/libpegcommon.so
 /usr/%PEGASUS_ARCH_LIB/libpegprovider.so

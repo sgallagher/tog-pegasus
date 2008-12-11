@@ -336,6 +336,8 @@ setpermissions_PegasusUnixManPageDirectoryFiles: FORCE
 
 stage_PegasusDocFiles: FORCE
 	$(foreach i, $(PEGASUS_DOC_FILES), $(COPY) $(ROOT)/doc/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_DOC_DIR)/$(i);)
+	$(COPY) $(ROOT)/OpenPegasusNOTICE.txt \
+            $(PEGASUS_STAGING_DIR)$(PEGASUS_DOC_DIR)/OpenPegasusNOTICE.txt
 
 setpermissions_PegasusDocFiles: FORCE
 	$(foreach i, $(PEGASUS_DOC_FILES), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_DOC_DIR)/$(i);)
@@ -592,6 +594,8 @@ create_ProductInstallationVerificationScript: FORCE
 	@$(foreach i, $(PEGASUS_DOC_FILES), \
              $(ECHO-E) "ls -l $(PEGASUS_DOC_DIR)/$(i)" \
                  >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
+	@$(ECHO-E) "ls -l $(PEGASUS_DOC_DIR)/OpenPegasusNOTICE.txt" \
+             >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS LIBRARIES FILES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(foreach i, $(PEGASUS_LIBRARIES), $(ECHO-E) \
@@ -1091,6 +1095,9 @@ _append_filesSectionToSpecFile: FORCE
 	@$(foreach i, $(PEGASUS_DOC_FILES), \
             $(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP))"\
             "$(PEGASUS_DOC_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP))" \
+	   "$(PEGASUS_DOC_DIR)/OpenPegasusNOTICE.txt" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
 	@$(foreach i, $(PEGASUS_LIBRARY_LINKS), \
             $(ECHO-E) "$(PEGASUS_DEST_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 

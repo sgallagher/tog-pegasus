@@ -528,35 +528,37 @@ int WQL__flex_debug = 0;
 #define YY_RESTORE_YY_MORE_OFFSET
 char *WQL_text;
 #line 1 "WQL.l"
-/*/%LICENSE////////////////////////////////////////////////////////////////
-// 
+/*
+//%LICENSE////////////////////////////////////////////////////////////////
+//
 // Licensed to The Open Group (TOG) under one or more contributor license
 // agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
 // this work for additional information regarding copyright ownership.
 // Each contributor licenses this file to you under the OpenPegasus Open
 // Source License; you may not use this file except in compliance with the
 // License.
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
 // the rights to use, copy, modify, merge, publish, distribute, sublicense,
 // and/or sell copies of the Software, and to permit persons to whom the
 // Software is furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included
 // in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 // IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
 // CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 // TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// 
-/////////////////////////////////////////////////////////////////////////*/
-#line 33 "WQL.l"
+//
+/////////////////////////////////////////////////////////////////////////
+*/
+#line 35 "WQL.l"
 
 extern int WQLInput(char* buffer, int& numRead, int numRequested);
 extern int WQL_error(const char*);
@@ -590,7 +592,7 @@ PEGASUS_NAMESPACE_END
 
 PEGASUS_USING_PEGASUS;
 
-#line 591 "WQLLEX.cpp"
+#line 593 "WQLLEX.cpp"
 
 #define INITIAL 0
 
@@ -743,10 +745,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 73 "WQL.l"
+#line 75 "WQL.l"
 
 
-#line 747 "WQLLEX.cpp"
+#line 749 "WQLLEX.cpp"
 
 	if ( !(yy_init) )
 		{
@@ -827,7 +829,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 75 "WQL.l"
+#line 77 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_SELECT]\n", WQL_text));
@@ -836,7 +838,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 81 "WQL.l"
+#line 83 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_FROM]\n", WQL_text));
@@ -845,7 +847,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 87 "WQL.l"
+#line 89 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_WHERE]\n", WQL_text));
@@ -854,7 +856,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 93 "WQL.l"
+#line 95 "WQL.l"
 {
 
    WQL_TRACE(("LEX: %s [TOK_ISA]\n", WQL_text));
@@ -863,7 +865,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 99 "WQL.l"
+#line 101 "WQL.l"
 {
   WQL_TRACE(("LEX: %s [TOK_DOT]\n", WQL_text));
   return TOK_DOT;
@@ -871,7 +873,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 106 "WQL.l"
+#line 108 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_TRUE]\n", WQL_text));
@@ -880,7 +882,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 112 "WQL.l"
+#line 114 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_FALSE]\n", WQL_text));
@@ -889,7 +891,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 118 "WQL.l"
+#line 120 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_NULL]\n", WQL_text));
@@ -898,7 +900,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 124 "WQL.l"
+#line 126 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_NOT]\n", WQL_text));
@@ -907,7 +909,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 130 "WQL.l"
+#line 132 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_AND]\n", WQL_text));
@@ -916,7 +918,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 136 "WQL.l"
+#line 138 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_OR]\n", WQL_text));
@@ -925,7 +927,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 142 "WQL.l"
+#line 144 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_IS]\n", WQL_text));
@@ -934,7 +936,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 148 "WQL.l"
+#line 150 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_INTEGER]\n", WQL_text));
@@ -944,7 +946,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 155 "WQL.l"
+#line 157 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_INTEGER]\n", WQL_text));
@@ -954,7 +956,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 162 "WQL.l"
+#line 164 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_DOUBLE]\n", WQL_text));
@@ -964,7 +966,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 169 "WQL.l"
+#line 171 "WQL.l"
 {
 
     /* ATTN-B: handle long literals by using yyinput(). */
@@ -991,7 +993,7 @@ case 17:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up WQL_text again */
 YY_RULE_SETUP
-#line 190 "WQL.l"
+#line 192 "WQL.l"
 {
 
     WQL_error("Unterminated string");
@@ -999,7 +1001,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 195 "WQL.l"
+#line 197 "WQL.l"
 { 
 
     WQL_TRACE(("LEX: %c\n", WQL_text[0]));
@@ -1008,7 +1010,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 201 "WQL.l"
+#line 203 "WQL.l"
 { 
     WQL_TRACE(("LEX: %s [TOK_EQ]\n", WQL_text));
     return TOK_EQ; 
@@ -1016,7 +1018,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 206 "WQL.l"
+#line 208 "WQL.l"
 { 
 
     WQL_TRACE(("LEX: %s [TOK_NE]\n", WQL_text));
@@ -1025,7 +1027,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 212 "WQL.l"
+#line 214 "WQL.l"
 { 
 
     WQL_TRACE(("LEX: %s [TOK_LE]\n", WQL_text));
@@ -1034,7 +1036,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 218 "WQL.l"
+#line 220 "WQL.l"
 { 
 
     WQL_TRACE(("LEX: %s [TOK_LT]\n", WQL_text));
@@ -1043,7 +1045,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 224 "WQL.l"
+#line 226 "WQL.l"
 { 
 
     WQL_TRACE(("LEX: %s [TOK_GE]\n", WQL_text));
@@ -1052,7 +1054,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 230 "WQL.l"
+#line 232 "WQL.l"
 { 
 
     WQL_TRACE(("LEX: %s [TOK_NE]\n", WQL_text));
@@ -1061,7 +1063,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 236 "WQL.l"
+#line 238 "WQL.l"
 { 
 
     WQL_TRACE(("LEX: %s [TOK_GT]\n", WQL_text));
@@ -1070,7 +1072,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 242 "WQL.l"
+#line 244 "WQL.l"
 {
 
     WQL_TRACE(("LEX: %s [TOK_IDENTIFIER]\n", WQL_text));
@@ -1090,7 +1092,7 @@ YY_RULE_SETUP
 case 27:
 /* rule 27 can match eol */
 YY_RULE_SETUP
-#line 258 "WQL.l"
+#line 260 "WQL.l"
 {
 
     /* Ignore blanks */
@@ -1098,7 +1100,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 263 "WQL.l"
+#line 265 "WQL.l"
 {
     WQL_lval.intValue = 0;
     return TOK_UNEXPECTED_CHAR;
@@ -1106,10 +1108,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 268 "WQL.l"
+#line 270 "WQL.l"
 ECHO;
 	YY_BREAK
-#line 1110 "WQLLEX.cpp"
+#line 1112 "WQLLEX.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2104,7 +2106,7 @@ void WQL_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 268 "WQL.l"
+#line 270 "WQL.l"
 
 
 

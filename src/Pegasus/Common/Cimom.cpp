@@ -79,11 +79,13 @@ Boolean cimom::deregisterCIMService(MessageQueueService *service)
             if (!monitoring)
             {
                 _registeredServicesTable.remove(service);
-                return true;
+                break;
             }
         }
         Threads::yield();
     }
+
+    return true;
 }
 
 Boolean cimom::_monitorCIMService(MessageQueueService *service)

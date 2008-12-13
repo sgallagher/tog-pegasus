@@ -61,9 +61,9 @@ endif
 # platforms.
 #
 # Note: If PACKAGED_PLATFORM_FILES is defined, the  
-# createConfigFile_setPegasusPlatform option must be updated
-# to include commands for determining the platform type at
-# runtime.
+# createConfigFile_setPegasusPlatform and createConfigFile_setPlatformArchitecture
+# options must be updated to include commands for determining the platform
+# and architecture types at runtime.
 
 ifeq ($(OS),linux)
    PACKAGED_PLATFORM_FILES = \
@@ -423,15 +423,11 @@ ifeq ($(RUNTIME_PLATFORM_TEST_NEEDED), true)
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "      PEGASUS_PLATFORM = LINUX_IA64_GNU" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
-	@$(ECHO-E) "      PEGASUS_ARCH_LIB = lib" \
-            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "   endif" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "   ifeq (\044(shell uname -i),i386)" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "      PEGASUS_PLATFORM = LINUX_IX86_GNU" \
-            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
-	@$(ECHO-E) "      PEGASUS_ARCH_LIB = lib" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "   endif" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
@@ -439,15 +435,11 @@ ifeq ($(RUNTIME_PLATFORM_TEST_NEEDED), true)
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "      PEGASUS_PLATFORM = LINUX_PPC_GNU" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
-	@$(ECHO-E) "      PEGASUS_ARCH_LIB = lib" \
-            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "   endif" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "   ifeq (\044(shell uname -i),ppc64)" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "      PEGASUS_PLATFORM = LINUX_PPC64_GNU" \
-            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
-	@$(ECHO-E) "      PEGASUS_ARCH_LIB = lib64" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "   endif" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
@@ -455,15 +447,11 @@ ifeq ($(RUNTIME_PLATFORM_TEST_NEEDED), true)
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "      PEGASUS_PLATFORM = LINUX_ZSERIES_GNU" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
-	@$(ECHO-E) "      PEGASUS_ARCH_LIB = lib" \
-            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "   endif" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "   ifeq (\044(shell uname -i),s390x)" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "      PEGASUS_PLATFORM = LINUX_ZSERIES64_GNU" \
-            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
-	@$(ECHO-E) "      PEGASUS_ARCH_LIB = lib64" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "   endif" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
@@ -471,17 +459,72 @@ ifeq ($(RUNTIME_PLATFORM_TEST_NEEDED), true)
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "      PEGASUS_PLATFORM = LINUX_X86_64_GNU" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
-	@$(ECHO-E) "      PEGASUS_ARCH_LIB = lib64" \
-            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO-E) "   endif" \
             >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+  else
+        $(error This SDK has been defined to include the following \
+        platforms: $(PACKAGED_PLATFORM_FILES). \
+        The createConfigFile_setPegasusPlatform option must be updated \
+        to include commands for determining the platform type at runtime.)
   endif
 else
 	@$(ECHO) "   PEGASUS_PLATFORM = $(PEGASUS_PLATFORM)" \
             >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/config.mak
-	@$(ECHO) "   PEGASUS_DEST_LIB_DIR = $(PEGASUS_DEST_LIB_DIR)" \
-            >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/config.mak
-	@$(ECHO) "   PEGASUS_PROVIDER_LIB_DIR = $(PEGASUS_PROVIDER_LIB_DIR)" \
+endif
+
+createConfigFile_setPlatformArchitecture:
+ifeq ($(RUNTIME_PLATFORM_TEST_NEEDED), true)
+  ifeq ($(OS),linux)
+	@$(ECHO-E) "ifeq (\044(PEGASUS_PLATFORM),LINUX_IA64_GNU)" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   PEGASUS_ARCH_LIB = lib" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "endif" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "ifeq (\044(PEGASUS_PLATFORM),LINUX_IX86_GNU)" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   PEGASUS_ARCH_LIB = lib" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "endif" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "ifeq (\044(PEGASUS_PLATFORM),LINUX_PPC_GNU)" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   PEGASUS_ARCH_LIB = lib" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "endif" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "ifeq (\044(PEGASUS_PLATFORM),LINUX_PPC64_GNU)" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   PEGASUS_ARCH_LIB = lib64" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "endif" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "ifeq (\044(PEGASUS_PLATFORM),LINUX_ZSERIES_GNU)" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   PEGASUS_ARCH_LIB = lib" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "endif" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "ifeq (\044(PEGASUS_PLATFORM),LINUX_ZSERIES64_GNU)" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   PEGASUS_ARCH_LIB = lib64" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "endif" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "ifeq (\044(PEGASUS_PLATFORM),LINUX_X86_64_GNU)" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "   PEGASUS_ARCH_LIB = lib64" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO-E) "endif" \
+            >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+  else
+        $(error This SDK has been defined to include the following \
+        platforms: $(PACKAGED_PLATFORM_FILES). \
+        The createConfigFile_setPlatformArchitecture option must be updated \
+        to include commands for determining the architecture type at runtime.)
+  endif
+else
+	@$(ECHO) "PEGASUS_ARCH_LIB = $(PEGASUS_ARCH_LIB)" \
             >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 endif
 
@@ -492,6 +535,10 @@ createConfigFile:
             createConfigFile_setPegasusPlatform
 	@$(ECHO) "endif" \
             >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO) "" \
+            >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile \
+            createConfigFile_setPlatformArchitecture
 	@$(ECHO) "" \
             >> $(PEGASUS_STAGING_DIR)/$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(CAT)  $(PEGASUS_ROOT)/src/SDK/samples/mak/config.mak \

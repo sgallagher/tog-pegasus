@@ -418,6 +418,7 @@ static int _slp_get_local_interface(struct slp_if_addr **list, int af)
                 }
             }
             ifp->af = AF_UNSPEC;
+            freeifaddrs(array);
         }
 #endif // PEGASUS_HAS_GETIFADDRS
         return interfaces;

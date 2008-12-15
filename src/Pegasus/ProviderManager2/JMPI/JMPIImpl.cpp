@@ -874,19 +874,16 @@ jobject JMPIjvm::getProvider (JNIEnv     *env,
 
       // NOTE: Instances of "packageName/className" will not work with the jar
       //       class loader.  Change the '/' to a '.'.
-      String fixedClassName;
-      Uint32 idx            = className.find ('/');
-
-      if (idx != PEG_NOT_FOUND)
+      String fixedClassName(className);
+      static Char16 slash=Char16('/');
+      
+      for (Uint32 i=0; i<className.size(); i++)
       {
-         fixedClassName = className.subString (0, idx)
-                        + "."
-                        + className.subString (idx + 1);
-      }
-      else
-      {
-         fixedClassName = className;
-      }
+          if (fixedClassName[i]==slash)
+          {
+              fixedClassName[i]=Char16('.');
+          }
+      };
 
       PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
           "fixedClassName = %s",(const char*)fixedClassName.getCString()));

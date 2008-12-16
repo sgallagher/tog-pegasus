@@ -1,5 +1,5 @@
 #pragma locale ("en_US")
-instance of PG_ProviderModule 
+instance of PG_ProviderModule
 {
     Description = "Timing Provider Sample";
     Caption = "Timing Provider Sample";

@@ -154,7 +154,7 @@ void CIMOMStatDataProvider::deleteInstance(
 }
 
 CIMInstance CIMOMStatDataProvider::getInstance(
-    Uint16 type, 
+    Uint16 type,
     CIMObjectPath cimRef)
 {
 
@@ -196,8 +196,8 @@ CIMInstance CIMOMStatDataProvider::getInstance(
 }
 
 /*CIMDateTime CIMOMStatDataProvider::toDateTime(Sint64 date)
-{ 
-    // Break millisecond value into days, hours, minutes, seconds and 
+{
+    // Break millisecond value into days, hours, minutes, seconds and
     // milliseconds.
     // Turn each number into a string and append them to each other.
 
@@ -211,9 +211,9 @@ CIMInstance CIMOMStatDataProvider::getInstance(
 String test = String(buf_day);
 
         //one hour = 3.6*10^9 milliseconds
-        Sint64 nhour = rem/PEGASUS_UINT64_LITERAL(3600000000);  
+        Sint64 nhour = rem/PEGASUS_UINT64_LITERAL(3600000000);
         //rem_2 is remander of above operation
-        Sint64 rem_2 = rem%PEGASUS_UINT64_LITERAL(3600000000);    
+        Sint64 rem_2 = rem%PEGASUS_UINT64_LITERAL(3600000000);
         char buf_hour[3];
         sprintf(buf_hour,"%02d",(int)nhour);
 
@@ -250,7 +250,7 @@ String dhmsm = dhms.append(String(buf_milsec));
     }
     catch(Exception& e)
     {
-        cout << "Error in string convert of " << dhmsm << " " << 
+        cout << "Error in string convert of " << dhmsm << " " <<
             e.getMessage() << endl;;
         ans.clear();
     }
@@ -266,7 +266,7 @@ void CIMOMStatDataProvider::checkObjectManager()
     StatisticalData* sData = StatisticalData::current();
 
     if (!sData->copyGSD)
-    {  
+    {
        //set all values to 0 if CIM_ObjectManager is False
 
         for (Uint16 i=0; i<StatisticalData::length; i++)
@@ -407,4 +407,4 @@ Uint16 CIMOMStatDataProvider::getOpType(Uint16 type)
 }
 
 PEGASUS_NAMESPACE_END
-    
+

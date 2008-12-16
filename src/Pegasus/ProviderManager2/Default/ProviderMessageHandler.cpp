@@ -1244,7 +1244,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleInvokeMethodRequest(
             "Object path: %s, Method: %s",
         (const char*) objectPath.toString().getCString(),
         (const char*) request->methodName.getString().getCString()));
-    
+
     OperationContext providerContext(
         _createProviderOperationContext(request->operationContext));
 
@@ -1416,7 +1416,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleModifySubscriptionRequest(
         (const char*) System::getHostName().getCString(),
         (const char*) request->nameSpace.getString().getCString(),
         (const char*) temp.getCString()));
-    
+
     // convert arguments
 
     Array<CIMObjectPath> classNames;
@@ -1499,7 +1499,7 @@ CIMResponseMessage* ProviderMessageHandler::_handleDeleteSubscriptionRequest(
         (const char*) System::getHostName().getCString(),
         (const char*) request->nameSpace.getString().getCString(),
         (const char*) temp.getCString()));
-    
+
     Array<CIMObjectPath> classNames;
 
     for (Uint32 i = 0, n = request->classNames.size(); i < n; i++)

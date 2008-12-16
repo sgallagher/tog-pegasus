@@ -891,7 +891,7 @@ TestCMPI_CXX::initialize (const CmpiContext& ctx)
         L;CmpiDateTime dtData4 ("20070501152143.164592-300");
         // echo `date --date='2007-05-01 15:21:43' +%s`*1000000+164592 | bc
         // 1178050903164592LL
-        L;CmpiDateTime dtData5 
+        L;CmpiDateTime dtData5
             (PEGASUS_UINT64_LITERAL(1178050903164592), false);
         L;CmpiDateTime dtData6 ("00000011125959.123456:000");
         L;CmpiDateTime dtData7 (PEGASUS_UINT64_LITERAL(997199123456), true);
@@ -1069,7 +1069,7 @@ TestCMPI_CXX::enumInstances (const CmpiContext&     ctx,
                              const CmpiObjectPath&  cop,
                              const char*           *properties)
 {
-   return CmpiStatus 
+   return CmpiStatus
        (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot enumInstances");
 }
 
@@ -1079,7 +1079,7 @@ TestCMPI_CXX::getInstance (const CmpiContext&     ctx,
                            const CmpiObjectPath&  cop,
                            const char*           *properties)
 {
-    return CmpiStatus 
+    return CmpiStatus
         (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot getInstance");
 }
 
@@ -1090,7 +1090,7 @@ TestCMPI_CXX::setInstance (const CmpiContext&     ctx,
                            const CmpiInstance&    inst,
                            const char*           *properties)
 {
-    return CmpiStatus 
+    return CmpiStatus
         (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot setInstance");
 }
 
@@ -1100,7 +1100,7 @@ TestCMPI_CXX::createInstance (const CmpiContext&    ctx,
                               const CmpiObjectPath& cop,
                               const CmpiInstance&   inst)
 {
-    return CmpiStatus 
+    return CmpiStatus
         (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot createInstance");
 }
 
@@ -1109,6 +1109,6 @@ TestCMPI_CXX::deleteInstance (const CmpiContext&    ctx,
                               CmpiResult&           rslt,
                               const CmpiObjectPath& cop)
 {
-    return CmpiStatus 
+    return CmpiStatus
         (CMPI_RC_ERR_NOT_SUPPORTED, "TestCMPI_CXX: cannot deleteInstance");
 }

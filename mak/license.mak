@@ -29,7 +29,7 @@
 
 # Make functions to manage the copywrite license on Pegasus files. This is normally
 # used to perform the regular file license text changes that are required by Pegasus.
-# 
+#
 # Includes targets to replace license text each year.
 #
 # The functions in this make file MAY NOT be portable to other Operating systems

@@ -47,7 +47,7 @@ is as follows:
 ////////////////////////////////////////////////////////////////////////////////
 
 All copyright holders of a source file must submit it under this
-license, and no other licenses may be asserted. 
+license, and no other licenses may be asserted.
 
 2) README
 
@@ -63,7 +63,7 @@ install, and test procedures for the module.
 4) TEST
 
 All submissions should include a test subdirectory that contains
-automated tests to verify the successful build of the source module. 
+automated tests to verify the successful build of the source module.
 
 Directory Structure
 ===================
@@ -75,7 +75,7 @@ repository:
 
 $(PEGASUS_ROOT)/src/Unsupported/Foo/Foo.cpp
 
-Alternatively, some modules will have a more structure environment: 
+Alternatively, some modules will have a more structure environment:
 
 $(PEGASUS_ROOT)/src/Unsupported/Foo/src/Foo.cpp
 $(PEGASUS_ROOT)/src/Unsupported/Foo/test/Foo_test

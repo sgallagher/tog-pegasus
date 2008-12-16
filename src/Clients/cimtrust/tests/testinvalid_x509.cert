@@ -39,7 +39,7 @@ MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
 OPENSSL_CNF = openssl.cnf
 
 ifeq ($(OPENSSL_SET_SERIAL_SUPPORTED),true)
-    SETSERIAL_0 = -set_serial 0 
+    SETSERIAL_0 = -set_serial 0
     SETSERIAL_1 = -set_serial 1
     SETSERIAL_2 = -set_serial 2
     SETSERIAL_3 = -set_serial 3
@@ -71,7 +71,7 @@ clean:
 #
 # Create certificates and CRLs required for running the tests
 #
-test_setup: $(PEGASUS_HOME)/ssltest_setup 
+test_setup: $(PEGASUS_HOME)/ssltest_setup
 
 $(PEGASUS_HOME)/ssltest_setup: $(OPENSSL_CNF) testchca.cert testchca.key testinter.cert testinter.key testleaf.cert testleaf.key
 	@$(MAKE) -i -s clean
@@ -84,15 +84,15 @@ ifdef PEGASUS_HAS_SSL
 	@$(COPY) testchca.key $(PEGASUS_HOME)/testchca.key
 	@#
 	@# Copy the test chain intermediate certificate to the staging area
-	@#   
+	@#
 	@$(COPY) testinter.cert $(PEGASUS_HOME)/testinter.cert
 	@$(COPY) testinter.key $(PEGASUS_HOME)/testinter.key
 	@#
 	@# Copy the leaf certificate to the staging area
-	@#   
+	@#
 	@$(COPY) testleaf.cert $(PEGASUS_HOME)/testleaf.cert
 	@$(COPY) testleaf.key $(PEGASUS_HOME)/testleaf.key
-	@#   
+	@#
 	@$(COPY) invalid_x509.cert $(PEGASUS_HOME)/invalid_x509.cert
 endif
 

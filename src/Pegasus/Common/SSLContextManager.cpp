@@ -311,7 +311,7 @@ void SSLContextManager::reloadCRLStore()
         throw SSLException(parms);
     }
 
-    PEG_TRACE((TRC_SSL, Tracer::LEVEL4, 
+    PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
         "CRL store path is %s",(const char*)crlPath.getCString()));
 
     // update the CRL store

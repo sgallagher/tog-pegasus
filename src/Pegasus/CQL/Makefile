@@ -32,7 +32,7 @@ DIR = Pegasus/CQL
 
 include $(ROOT)/mak/config.mak
 
-LOCAL_DEFINES = -DPEGASUS_CQL_INTERNAL -DPEGASUS_INTERNALONLY -DCQLINPUT  
+LOCAL_DEFINES = -DPEGASUS_CQL_INTERNAL -DPEGASUS_INTERNALONLY -DCQLINPUT
 
 # The next line can be uncommented to turn on debug output from CQL.l
 #LOCAL_DEFINES += -DCQL_DEBUG_LEXER
@@ -40,7 +40,7 @@ LOCAL_DEFINES = -DPEGASUS_CQL_INTERNAL -DPEGASUS_INTERNALONLY -DCQLINPUT
 # The next line can be uncommented to turn on debug output from CQL.y
 #LOCAL_DEFINES += -DCQL_DEBUG_GRAMMAR
 
-ifneq ($(OS), HPUX) 
+ifneq ($(OS), HPUX)
 ifneq ($(OS), zos)
 EXTRA_INCLUDES = -Int_includes
 endif
@@ -51,7 +51,7 @@ LIBRARY = pegcql
 
 LIBRARIES = \
     pegquerycommon \
-    pegcommon 
+    pegcommon
 
 SOURCES = \
    CQLYACC.cpp \
@@ -81,7 +81,7 @@ SOURCES = \
    CQLValueRep.cpp \
    CQLRegularExpression.cpp \
    CQLUtilities.cpp \
-   Cql2Dnf.cpp 
+   Cql2Dnf.cpp
 
 include $(ROOT)/mak/library.mak
 
@@ -97,13 +97,13 @@ include $(ROOT)/mak/library.mak
 ## to the lex or yacc defintions so only developers of the grammar itsel
 ## need execute the make grammar below.
 ##------------------------------------------------------------------------------
-                                                                                                                                       
-                                                                                                                                       
+
+
 ##
 ## This pushes BISON_SIMPLE into the environment so that bison will use this
 ## rather than looking for /usr/local/share/bison.simple.
 ##
-                                                                                                                                       
+
 grammar: yacc_rule lex_rule
 
 export BISON_SIMPLE = bison.simple
@@ -131,7 +131,7 @@ ifeq ($(YACC),yacc)
 	$(YACC) -vd -p CQL_ CQL.y
 	$(COPY) y.tab.c CQLYACC.cpp
 	$(COPY) y.tab.h CQLYACC.h
-	$(RM) y.tab.c y.tab.h 
+	$(RM) y.tab.c y.tab.h
 	$(TOUCH) CQLYACC.cpp
 else
 	$(YACC) -vd -oCQLtemp -p CQL_ CQL.y

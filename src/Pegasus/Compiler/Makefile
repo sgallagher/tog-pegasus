@@ -28,8 +28,8 @@
 #//////////////////////////////////////////////////////////////////////////
 #
 #  NOTE:  The grammar and parser are no longer built in this makefile,
-#  and in fact flex and bison are assumed to already have been run 
-#  and their output committed to CVS.  Run 
+#  and in fact flex and bison are assumed to already have been run
+#  and their output committed to CVS.  Run
 #      make grammar
 #           which executes the grammar makefile
 #  to generate cimmof_tab.cpp, cimmof_tab.h, and cimmof_lex.cpp.

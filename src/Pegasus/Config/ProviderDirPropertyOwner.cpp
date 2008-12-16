@@ -59,7 +59,7 @@ static struct ConfigPropertyRow properties[] =
 #elif defined(PEGASUS_OS_ZOS)
     {"providerDir", "lib:provider", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #elif defined(PEGASUS_OS_PASE) && defined(PEGASUS_USE_RELEASE_DIRS)
-    {"providerDir", "/QOpenSys/QIBM/ProdData/UME/Pegasus/provider", 
+    {"providerDir", "/QOpenSys/QIBM/ProdData/UME/Pegasus/provider",
         IS_DYNAMIC, 0, 0, IS_VISIBLE}
 #elif defined(PEGASUS_OS_VMS)
     {"providerDir", "/wbem_lib", IS_DYNAMIC, 0, 0, IS_VISIBLE},

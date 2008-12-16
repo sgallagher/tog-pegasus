@@ -48,7 +48,7 @@ class DeclContext;
 class CIMConstParameter;
 class CIMParameter;
 
-class CIMParameterRep 
+class CIMParameterRep
 {
 public:
 
@@ -68,7 +68,7 @@ public:
     {
         return _nameTag;
     }
-    
+
     void increaseOwnerCount()
     {
         _ownerCount++;
@@ -80,7 +80,7 @@ public:
         _ownerCount--;
         return;
     }
-    
+
     void setName(const CIMName& name);
 
     Boolean isArray() const

@@ -116,7 +116,7 @@ void cleanup_if_last ()
 #ifdef CMPI_VER_100
     static CMPIStatus __InstanceMI_cleanup(
         CMPIInstanceMI * cThis,
-        const CMPIContext * ctx, 
+        const CMPIContext * ctx,
         CMPIBoolean term)
 #else
     static CMPIStatus __InstanceMI_cleanup(
@@ -133,8 +133,8 @@ void cleanup_if_last ()
         {
             TRACE_CRITICAL(("ticket could not be revoked."));
             CMReturnWithChars(
-                rcThis->broker, 
-                CMPI_RC_ERR_FAILED, 
+                rcThis->broker,
+                CMPI_RC_ERR_FAILED,
                 "could not revoke ticket");
         }
         cleanup_if_last();
@@ -154,7 +154,7 @@ static CMPIStatus __InstanceMI_enumInstanceNames(
     provider_address *addr, *tmp;
     TRACE_NORMAL(("Executing fan-out remote provider call " "for: %s.",
         rcThis->provider));
-    tmp = addr = 
+    tmp = addr =
         resolve_class(rcThis->broker, ctx, cop, rcThis->provider, NULL);
     for (; addr != NULL; addr = addr->next)
     {
@@ -163,17 +163,17 @@ static CMPIStatus __InstanceMI_enumInstanceNames(
         if (comm != NULL)
         {
             rc = comm->InstanceMI_enumInstanceNames(
-                addr, 
-                rcThis, 
-                ctx, 
-                rslt, 
+                addr,
+                rcThis,
+                ctx,
+                rslt,
                 cop);
         }
         else
         {
             tmp->destructor(tmp);
             CMReturnWithChars(
-                rcThis->broker, 
+                rcThis->broker,
                 CMPI_RC_ERR_FAILED,
                 "comm-layer not found");
         }
@@ -191,7 +191,7 @@ static CMPIStatus __InstanceMI_enumInstanceNames(
     else
     {
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not resolve location");
     }
@@ -202,7 +202,7 @@ static CMPIStatus __InstanceMI_enumInstances(
     CMPIInstanceMI * cThis,
     CONST CMPIContext * ctx,
     CONST CMPIResult * rslt,
-    CONST CMPIObjectPath * cop, 
+    CONST CMPIObjectPath * cop,
     CONST char **props)
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL};
@@ -210,7 +210,7 @@ static CMPIStatus __InstanceMI_enumInstances(
     provider_address *addr, *tmp;
     TRACE_NORMAL(("Executing fan-out remote provider call " "for: %s.",
         rcThis->provider));
-    tmp = addr = 
+    tmp = addr =
         resolve_class(rcThis->broker, ctx, cop, rcThis->provider, NULL);
     for (; addr != NULL; addr = addr->next)
     {
@@ -225,7 +225,7 @@ static CMPIStatus __InstanceMI_enumInstances(
         {
             tmp->destructor(tmp);
             CMReturnWithChars(
-                rcThis->broker, 
+                rcThis->broker,
                 CMPI_RC_ERR_FAILED,
                 "comm-layer not found");
         }
@@ -244,7 +244,7 @@ static CMPIStatus __InstanceMI_enumInstances(
     else
     {
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not resolve location");
     }
@@ -255,7 +255,7 @@ static CMPIStatus __InstanceMI_getInstance(
     CMPIInstanceMI * cThis,
     CONST CMPIContext * ctx,
     CONST CMPIResult * rslt,
-    CONST CMPIObjectPath * cop, 
+    CONST CMPIObjectPath * cop,
     CONST char **props)
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL};
@@ -271,10 +271,10 @@ static CMPIStatus __InstanceMI_getInstance(
         if (comm != NULL)
         {
             rc = comm->InstanceMI_getInstance(
-                addr, 
-                rcThis, 
-                ctx, 
-                rslt, 
+                addr,
+                rcThis,
+                ctx,
+                rslt,
                 cop,
                 props);
             CMReturnDone(rslt);
@@ -284,7 +284,7 @@ static CMPIStatus __InstanceMI_getInstance(
     else
     {
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not resolve location");
     }
@@ -304,7 +304,7 @@ static CMPIStatus __InstanceMI_createInstance(
     provider_comm *comm;
     TRACE_NORMAL(("Executing single-targeted remote provider "
         "call for: %s.", rcThis->provider));
-    if ((addr = 
+    if ((addr =
         resolve_instance(rcThis->broker, ctx, cop, rcThis->provider, NULL)))
     {
         comm = load_provider_comm(addr->comm_layer_id, rcThis->broker, ctx);
@@ -319,7 +319,7 @@ static CMPIStatus __InstanceMI_createInstance(
     else
     {
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not resolve location");
     }
@@ -328,7 +328,7 @@ static CMPIStatus __InstanceMI_createInstance(
 
 
 #ifdef CMPI_VER_100
-/** 
+/**
     This function prototype should be called 'modifyInstance'
     but since this proxy provider is not using the MI macro stub
     functions which use that, it is ok to leave it as is.
@@ -338,7 +338,7 @@ static CMPIStatus __InstanceMI_setInstance(
     const CMPIContext * ctx,
     const CMPIResult * rslt,
     const CMPIObjectPath * cop,
-    const CMPIInstance * inst, 
+    const CMPIInstance * inst,
     const char **props)
 #else
 
@@ -347,7 +347,7 @@ static CMPIStatus __InstanceMI_setInstance(
     CMPIContext * ctx,
     CMPIResult * rslt,
     CMPIObjectPath * cop,
-    CMPIInstance * inst, 
+    CMPIInstance * inst,
     char **props)
 #endif
 {
@@ -357,7 +357,7 @@ static CMPIStatus __InstanceMI_setInstance(
     provider_comm *comm;
     TRACE_NORMAL(("Executing single-targeted remote provider "
         "call for: %s.", rcThis->provider));
-    if ((addr = 
+    if ((addr =
         resolve_instance(rcThis->broker, ctx, cop, rcThis->provider, NULL)))
     {
         comm = load_provider_comm(addr->comm_layer_id, rcThis->broker, ctx);
@@ -389,7 +389,7 @@ static CMPIStatus __InstanceMI_deleteInstance(
     provider_comm *comm;
     TRACE_NORMAL(("Executing single-targeted remote provider "
         "call for: %s.", rcThis->provider));
-    if ((addr = 
+    if ((addr =
         resolve_instance(rcThis->broker, ctx, cop, rcThis->provider, NULL)))
     {
         comm = load_provider_comm(addr->comm_layer_id, rcThis->broker, ctx);
@@ -403,7 +403,7 @@ static CMPIStatus __InstanceMI_deleteInstance(
     else
     {
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not resolve location");
     }
@@ -414,7 +414,7 @@ static CMPIStatus __InstanceMI_execQuery(
     CMPIInstanceMI * cThis,
     CONST CMPIContext * ctx,
     CONST CMPIResult * rslt,
-    CONST CMPIObjectPath * cop, 
+    CONST CMPIObjectPath * cop,
     CONST char *lang,
     CONST char *query)
 {
@@ -438,7 +438,7 @@ static CMPIStatus __InstanceMI_execQuery(
         {
             tmp->destructor(tmp);
             CMReturnWithChars(
-                rcThis->broker, 
+                rcThis->broker,
                 CMPI_RC_ERR_FAILED,
                 "comm-layer not found");
         }
@@ -456,7 +456,7 @@ static CMPIStatus __InstanceMI_execQuery(
     else
     {
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not resolve location");
     }
@@ -467,7 +467,7 @@ static CMPIStatus __InstanceMI_execQuery(
 PEGASUS_EXPORT CMPIInstanceMI *_Generic_Create_InstanceMI(
     const CMPIBroker * broker,
     const CMPIContext * context,
-    const char *provider, 
+    const char *provider,
     CMPIStatus *rc)
 #else
 PEGASUS_EXPORT CMPIInstanceMI *_Generic_Create_InstanceMI(
@@ -477,7 +477,7 @@ PEGASUS_EXPORT CMPIInstanceMI *_Generic_Create_InstanceMI(
 #endif
 {
     static CMPIInstanceMIFT miFT =
-    { 
+    {
         CMPICurrentVersion,
         CMPICurrentVersion,
         "Instance" "RemoteCMPI",
@@ -505,7 +505,7 @@ PEGASUS_EXPORT CMPIInstanceMI *_Generic_Create_InstanceMI(
 #ifdef CMPI_VER_100
 static CMPIStatus __AssociationMI_cleanup(
     CMPIAssociationMI * cThis,
-    const CMPIContext * ctx, 
+    const CMPIContext * ctx,
     CMPIBoolean term)
 #else
 static CMPIStatus __AssociationMI_cleanup(
@@ -523,7 +523,7 @@ static CMPIStatus __AssociationMI_cleanup(
     {
         TRACE_CRITICAL(("ticket could not be revoked."));
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not revoke ticket");
     };
@@ -541,7 +541,7 @@ static CMPIStatus __AssociationMI_associators(
     CONST CMPIObjectPath * cop,
     const char *assocclass,
     const char *resultclass,
-    const char *role, 
+    const char *role,
     const char *resultrole,
     CONST char **props)
 {
@@ -567,7 +567,7 @@ static CMPIStatus __AssociationMI_associators(
         {
             tmp->destructor(tmp);
             CMReturnWithChars(
-                rcThis->broker, 
+                rcThis->broker,
                 CMPI_RC_ERR_FAILED,
                 "comm-layer not found");
         }
@@ -585,7 +585,7 @@ static CMPIStatus __AssociationMI_associators(
     else
     {
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not resolve location");
     }
@@ -600,7 +600,7 @@ static CMPIStatus __AssociationMI_associatorNames(
     CONST CMPIObjectPath * cop,
     const char *assocclass,
     const char *resultclass,
-    const char *role, 
+    const char *role,
     const char *resultrole)
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL};
@@ -617,13 +617,13 @@ static CMPIStatus __AssociationMI_associatorNames(
         if (comm != NULL)
         {
             rc = comm->AssociationMI_associatorNames(
-                addr, 
-                rcThis, 
+                addr,
+                rcThis,
                 ctx,
-                rslt, 
-                cop, 
+                rslt,
+                cop,
                 assocclass,
-                resultclass, 
+                resultclass,
                 role,
                 resultrole);
         }
@@ -631,7 +631,7 @@ static CMPIStatus __AssociationMI_associatorNames(
         {
             tmp->destructor(tmp);
             CMReturnWithChars(
-                rcThis->broker, 
+                rcThis->broker,
                 CMPI_RC_ERR_FAILED,
                 "comm-layer not found");
         }
@@ -649,7 +649,7 @@ static CMPIStatus __AssociationMI_associatorNames(
     else
     {
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not resolve location");
     }
@@ -661,7 +661,7 @@ static CMPIStatus __AssociationMI_references(
     CONST CMPIContext * ctx,
     CONST CMPIResult * rslt,
     CONST CMPIObjectPath * cop,
-    const char *assocclass, 
+    const char *assocclass,
     const char *role,
     CONST char **props)
 {
@@ -675,25 +675,25 @@ static CMPIStatus __AssociationMI_references(
         resolve_class(rcThis->broker, ctx, cop, rcThis->provider, NULL);
     for (; addr != NULL; addr = addr->next)
     {
-        provider_comm *comm = 
+        provider_comm *comm =
             load_provider_comm(addr->comm_layer_id, rcThis->broker, ctx);
         if (comm != NULL)
         {
             rc = comm->AssociationMI_references(
-                addr, 
-                rcThis, 
-                ctx, 
+                addr,
+                rcThis,
+                ctx,
                 rslt,
-                cop, 
-                assocclass, 
-                role, 
+                cop,
+                assocclass,
+                role,
                 props);
         }
         else
         {
             tmp->destructor(tmp);
             CMReturnWithChars(
-                rcThis->broker, 
+                rcThis->broker,
                 CMPI_RC_ERR_FAILED,
                 "comm-layer not found");
         }
@@ -711,7 +711,7 @@ static CMPIStatus __AssociationMI_references(
     else
     {
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not resolve location");
     }
@@ -723,7 +723,7 @@ static CMPIStatus __AssociationMI_referenceNames(
     CONST CMPIContext * ctx,
     CONST CMPIResult * rslt,
     CONST CMPIObjectPath * cop,
-    const char *assocclass, 
+    const char *assocclass,
     const char *role)
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL};
@@ -736,24 +736,24 @@ static CMPIStatus __AssociationMI_referenceNames(
         resolve_class(rcThis->broker, ctx, cop, rcThis->provider, NULL);
     for (; addr != NULL; addr = addr->next)
     {
-        provider_comm *comm = 
+        provider_comm *comm =
             load_provider_comm(addr->comm_layer_id, rcThis->broker, ctx);
         if (comm != NULL)
         {
             rc = comm->AssociationMI_referenceNames(
-                addr, 
-                rcThis, 
+                addr,
+                rcThis,
                 ctx,
-                rslt, 
-                cop, 
+                rslt,
+                cop,
                 assocclass,role);
         }
         else
         {
             tmp->destructor(tmp);
             CMReturnWithChars(
-                rcThis->broker, 
-                CMPI_RC_ERR_FAILED, 
+                rcThis->broker,
+                CMPI_RC_ERR_FAILED,
                 "comm-layer not found");
         }
         if (rc.rc != CMPI_RC_OK)
@@ -770,7 +770,7 @@ static CMPIStatus __AssociationMI_referenceNames(
     else
     {
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not resolve location");
     }
@@ -791,18 +791,18 @@ PEGASUS_EXPORT CMPIAssociationMI *_Generic_Create_AssociationMI(
     const char *provider)
 #endif
 {
-    static CMPIAssociationMIFT miFT = 
-    { 
-        CMPICurrentVersion, 
+    static CMPIAssociationMIFT miFT =
+    {
         CMPICurrentVersion,
-        "Association" "RemoteCMPI", 
+        CMPICurrentVersion,
+        "Association" "RemoteCMPI",
         __AssociationMI_cleanup,
         __AssociationMI_associators,
-        __AssociationMI_associatorNames, 
+        __AssociationMI_associatorNames,
         __AssociationMI_references,
         __AssociationMI_referenceNames
     };
-    RemoteCMPIAssociationMI *mi = 
+    RemoteCMPIAssociationMI *mi =
         (RemoteCMPIAssociationMI *) calloc(1, sizeof(RemoteCMPIAssociationMI));
     TRACE_NORMAL(("Creating proxy provider handle for: %s", provider));
 
@@ -817,8 +817,8 @@ PEGASUS_EXPORT CMPIAssociationMI *_Generic_Create_AssociationMI(
 
 #ifdef CMPI_VER_100
 static CMPIStatus __MethodMI_cleanup(
-    CMPIMethodMI * cThis, 
-    const CMPIContext * ctx, 
+    CMPIMethodMI * cThis,
+    const CMPIContext * ctx,
     CMPIBoolean term)
 #else
 static CMPIStatus __MethodMI_cleanup(CMPIMethodMI * cThis, CMPIContext * ctx)
@@ -834,7 +834,7 @@ static CMPIStatus __MethodMI_cleanup(CMPIMethodMI * cThis, CMPIContext * ctx)
     {
         TRACE_CRITICAL(("ticket could not be revoked."));
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not revoke ticket");
     };
@@ -849,7 +849,7 @@ static CMPIStatus __MethodMI_invokeMethod(
     CONST CMPIContext * ctx,
     CONST CMPIResult * rslt,
     CONST CMPIObjectPath * cop,
-    const char *method, 
+    const char *method,
     CONST CMPIArgs * in,
     CMPIArgs * out)
 {
@@ -866,13 +866,13 @@ static CMPIStatus __MethodMI_invokeMethod(
         if (comm != NULL)
         {
             rc = comm->MethodMI_invokeMethod(
-                addr, 
-                rcThis, 
-                ctx, 
-                rslt, 
+                addr,
+                rcThis,
+                ctx,
+                rslt,
                 cop,
-                method, 
-                in, 
+                method,
+                in,
                 out);
             CMReturnDone(rslt);
         }
@@ -881,7 +881,7 @@ static CMPIStatus __MethodMI_invokeMethod(
     else
     {
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not resolve location");
     }
@@ -903,11 +903,11 @@ PEGASUS_EXPORT CMPIMethodMI *_Generic_Create_MethodMI(
 #endif
 {
     static CMPIMethodMIFT miFT =
-    { 
-        CMPICurrentVersion, 
-        CMPICurrentVersion, 
+    {
+        CMPICurrentVersion,
+        CMPICurrentVersion,
         "Method" "RemoteCMPI",
-        __MethodMI_cleanup, 
+        __MethodMI_cleanup,
         __MethodMI_invokeMethod
     };
     RemoteCMPIMethodMI *mi =
@@ -945,7 +945,7 @@ static CMPIStatus __PropertyMI_cleanup(
     {
         TRACE_CRITICAL(("ticket could not be revoked."));
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not revoke ticket");
     };
@@ -960,7 +960,7 @@ static CMPIStatus __PropertyMI_setProperty(
     CONST CMPIContext * ctx,
     CONST CMPIResult * rslt,
     CONST CMPIObjectPath * cop,
-    const char *name, 
+    const char *name,
     CONST CMPIData data)
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL};
@@ -969,19 +969,19 @@ static CMPIStatus __PropertyMI_setProperty(
     provider_comm *comm;
     TRACE_NORMAL(("Executing single-targeted remote provider "
         "call for: %s.", rcThis->provider));
-    if ((addr = 
+    if ((addr =
         resolve_instance(rcThis->broker, ctx, cop, rcThis->provider, NULL)))
     {
         comm = load_provider_comm(addr->comm_layer_id, rcThis->broker, ctx);
         if (comm != NULL)
         {
             rc = comm->PropertyMI_setProperty(
-                addr, 
-                rcThis, 
-                ctx, 
-                rslt, 
+                addr,
+                rcThis,
+                ctx,
+                rslt,
                 cop,
-                name, 
+                name,
                 data);
             CMReturnDone(rslt);
         }
@@ -990,7 +990,7 @@ static CMPIStatus __PropertyMI_setProperty(
     else
     {
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not resolve location");
     }
@@ -1001,7 +1001,7 @@ static CMPIStatus __PropertyMI_getProperty(
     CMPIPropertyMI * cThis,
     CONST CMPIContext * ctx,
     CONST CMPIResult * rslt,
-    CONST CMPIObjectPath * cop, 
+    CONST CMPIObjectPath * cop,
     const char *name)
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL};
@@ -1017,10 +1017,10 @@ static CMPIStatus __PropertyMI_getProperty(
         if (comm != NULL)
         {
             rc = comm->PropertyMI_getProperty(
-                addr, 
-                rcThis, 
-                ctx, 
-                rslt, 
+                addr,
+                rcThis,
+                ctx,
+                rslt,
                 cop,
                 name);
             CMReturnDone(rslt);
@@ -1030,7 +1030,7 @@ static CMPIStatus __PropertyMI_getProperty(
     else
     {
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not resolve location");
     }
@@ -1054,12 +1054,12 @@ PEGASUS_EXPORT CMPIPropertyMI *_Generic_Create_PropertyMI(
 #endif
 {
     static CMPIPropertyMIFT miFT =
-    { 
-        CMPICurrentVersion, 
-        CMPICurrentVersion, 
+    {
+        CMPICurrentVersion,
+        CMPICurrentVersion,
         "Property" "RemoteCMPI",
-        __PropertyMI_cleanup, 
-        __PropertyMI_setProperty, 
+        __PropertyMI_cleanup,
+        __PropertyMI_setProperty,
         __PropertyMI_getProperty
     };
     RemoteCMPIPropertyMI *mi =
@@ -1077,12 +1077,12 @@ PEGASUS_EXPORT CMPIPropertyMI *_Generic_Create_PropertyMI(
 #ifdef CMPI_VER_100
 static CMPIStatus __IndicationMI_cleanup(
     CMPIIndicationMI * cThis,
-    const CMPIContext * ctx, 
+    const CMPIContext * ctx,
     CMPIBoolean term)
 #else
 
 static CMPIStatus __IndicationMI_cleanup(
-    CMPIIndicationMI * cThis, 
+    CMPIIndicationMI * cThis,
     CMPIContext * ctx)
 #endif
 {
@@ -1096,7 +1096,7 @@ static CMPIStatus __IndicationMI_cleanup(
     {
         TRACE_CRITICAL(("ticket could not be revoked."));
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not revoke ticket");
     };
@@ -1140,23 +1140,23 @@ static CMPIStatus __IndicationMI_authorizeFilter(
         {
 #ifdef CMPI_VER_100
             rc = comm->IndicationMI_authorizeFilter(
-                addr, 
-                rcThis, 
+                addr,
+                rcThis,
                 ctx,
                 filter,
-                indType, 
+                indType,
                 cop,
                 owner);
 #else
             // IBMKR: This looks like a wrong prototype.
             rc = comm->IndicationMI_authorizeFilter(
-                addr, 
-                rcThis, 
+                addr,
+                rcThis,
                 ctx,
-                rslt, 
-                cop, 
+                rslt,
+                cop,
                 filter,
-                indType, 
+                indType,
                 owner);
 #endif
         }
@@ -1164,7 +1164,7 @@ static CMPIStatus __IndicationMI_authorizeFilter(
         {
             tmp->destructor(tmp);
             CMReturnWithChars(
-                rcThis->broker, 
+                rcThis->broker,
                 CMPI_RC_ERR_FAILED,
                 "comm-layer not found");
         }
@@ -1184,7 +1184,7 @@ static CMPIStatus __IndicationMI_authorizeFilter(
     else
     {
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not resolve location");
     }
@@ -1205,7 +1205,7 @@ static CMPIStatus __IndicationMI_mustPoll(
     CMPIContext * ctx,
     CMPIResult * rslt,
     CMPISelectExp * filter,
-    const char *indType, 
+    const char *indType,
     CMPIObjectPath * cop)
 #endif
 {
@@ -1224,22 +1224,22 @@ static CMPIStatus __IndicationMI_mustPoll(
         {
 #ifdef CMPI_VER_100
             rc = comm->IndicationMI_mustPoll(
-                addr, 
-                rcThis, 
-                ctx, 
+                addr,
+                rcThis,
+                ctx,
                 filter,
-                indType, 
+                indType,
                 cop);
 
 #else
             //IBMKR: The set of arguments looks wrong?
             rc = comm->IndicationMI_mustPoll(
-                addr, 
-                rcThis, 
-                ctx, 
-                rslt, 
+                addr,
+                rcThis,
+                ctx,
+                rslt,
                 cop,
-                filter, 
+                filter,
                 indType);
 
 #endif
@@ -1248,7 +1248,7 @@ static CMPIStatus __IndicationMI_mustPoll(
         {
             tmp->destructor(tmp);
             CMReturnWithChars(
-                rcThis->broker, 
+                rcThis->broker,
                 CMPI_RC_ERR_FAILED,
                 "comm-layer not found");
         }
@@ -1268,7 +1268,7 @@ static CMPIStatus __IndicationMI_mustPoll(
     else
     {
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not resolve location");
     }
@@ -1310,22 +1310,22 @@ static CMPIStatus __IndicationMI_activateFilter(
         {
 #ifdef CMPI_VER_100
             rc = comm->IndicationMI_activateFilter(
-                addr, 
-                rcThis, 
+                addr,
+                rcThis,
                 ctx,
-                filter, 
+                filter,
                 clsName,
                 cop,
                 firstActivation);
 #else
             // IBMKR: This function prototype looks wrong.
             rc = comm->IndicationMI_activateFilter(
-                addr, 
-                rcThis, 
-                ctx, 
+                addr,
+                rcThis,
+                ctx,
                 rslt,
-                cop, 
-                filter, 
+                cop,
+                filter,
                 clsName,
                 firstActivation);
 
@@ -1335,7 +1335,7 @@ static CMPIStatus __IndicationMI_activateFilter(
         {
             tmp->destructor(tmp);
             CMReturnWithChars(
-                rcThis->broker, 
+                rcThis->broker,
                 CMPI_RC_ERR_FAILED,
                 "comm-layer not found");
         }
@@ -1394,22 +1394,22 @@ static CMPIStatus __IndicationMI_deActivateFilter(
         {
 #if defined (CMPI_VER_100)
             rc = comm->IndicationMI_deActivateFilter(
-                addr, 
-                rcThis, 
+                addr,
+                rcThis,
                 ctx,
                 filter,
                 clsName,
-                cop, 
+                cop,
                 lastActivation);
 #else
             rc = comm->IndicationMI_deActivateFilter(
-                addr, 
-                rcThis, 
+                addr,
+                rcThis,
                 ctx,
-                rslt, 
-                cop, 
+                rslt,
+                cop,
                 filter,
-                clsName, 
+                clsName,
                 lastActivation);
 
 #endif
@@ -1418,7 +1418,7 @@ static CMPIStatus __IndicationMI_deActivateFilter(
         {
             tmp->destructor(tmp);
             CMReturnWithChars(
-                rcThis->broker, 
+                rcThis->broker,
                 CMPI_RC_ERR_FAILED,
                 "comm-layer not found");
         }
@@ -1438,7 +1438,7 @@ static CMPIStatus __IndicationMI_deActivateFilter(
     else
     {
         CMReturnWithChars(
-            rcThis->broker, 
+            rcThis->broker,
             CMPI_RC_ERR_FAILED,
             "could not resolve location");
     }
@@ -1553,11 +1553,11 @@ PEGASUS_EXPORT CMPIIndicationMI *_Generic_Create_IndicationMI(
     const char *provider)
 #endif
 {
-    static CMPIIndicationMIFT miFT = 
-    { 
-        CMPICurrentVersion, 
+    static CMPIIndicationMIFT miFT =
+    {
         CMPICurrentVersion,
-        "Indication" "RemoteCMPI", 
+        CMPICurrentVersion,
+        "Indication" "RemoteCMPI",
         __IndicationMI_cleanup,
         __IndicationMI_authorizeFilter,
         __IndicationMI_mustPoll,
@@ -1566,7 +1566,7 @@ PEGASUS_EXPORT CMPIIndicationMI *_Generic_Create_IndicationMI(
         __IndicationMI_enableIndications,
         __IndicationMI_disableIndications,
     };
-    RemoteCMPIIndicationMI *mi = 
+    RemoteCMPIIndicationMI *mi =
         (RemoteCMPIIndicationMI *) calloc(1, sizeof(RemoteCMPIIndicationMI));
     TRACE_NORMAL(("Creating proxy provider handle for: %s", provider));
 

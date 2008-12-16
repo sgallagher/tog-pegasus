@@ -59,7 +59,7 @@ typedef Array<AcceptLanguagePair> AcceptLanguageArray;
 //         AcceptLanguageArray array;
 //     };
 //
-// But this requires separate heap object to hold the array. Instead we use 
+// But this requires separate heap object to hold the array. Instead we use
 // the following fact to eliminate the extra heap object:
 //
 //     sizeof(AcceptLanguageArray) == sizeof(AcceptLanguageListRep*)

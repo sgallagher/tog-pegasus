@@ -398,7 +398,7 @@ DESCRIPTION       :
 ASSUMPTIONS       :
 PRE-CONDITIONS    :
 POST-CONDITIONS   :
-NOTES             : 
+NOTES             :
 ================================================================================
 */
 Boolean IPInterface::getIPVersionSupport(Uint16& i16) const
@@ -446,14 +446,14 @@ Boolean IPInterface::getProtocolIFType(Uint16& i16) const
         i16 = 4096;  // IPv4 Only.
         return true;
     }
-    else 
+    else
     {
         if (String::equal(_protocol,PROTOCOL_IPV6))
         {
             i16 = 4097;  // IPv6 Only.
             return true;
         }
-        else 
+        else
         {
             if (String::equal(_protocol,PROTOCOL_IPV4_V6))
             {
@@ -466,7 +466,7 @@ Boolean IPInterface::getProtocolIFType(Uint16& i16) const
             }
         }
     }
-} 
+}
 
 
 /*
@@ -574,7 +574,7 @@ void IPInterface::set_address(const String& addr)
 ================================================================================
 NAME              : set_prefixLength.
 DESCRIPTION       : Platform-specific routine to set IPv6 PrefixLength.
-ASSUMPTIONS       : 
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
 POST-CONDITIONS   :
 NOTES             :
@@ -732,7 +732,7 @@ InterfaceList::InterfaceList()
             free (ifconf.ifc_req);
             free (ifconf6.iflc_req);
             throw CIMOperationFailedException(
-                "Error in ioctl() request SIOCGIFCONF: " 
+                "Error in ioctl() request SIOCGIFCONF: "
                 + String(strerror(errno)));
         }
     }
@@ -871,7 +871,7 @@ InterfaceList::InterfaceList()
             throw CIMOperationFailedException(
                 "Can't get ID_ipv6AddrTableNumEnt from get_mib_info(): " +
                     String(strerror(errno)));
-        }  
+        }
 
         addr6_buf = (mib_ipv6AddrEnt *)malloc(numip6*sizeof(mib_ipv6AddrEnt));
 
@@ -924,17 +924,17 @@ InterfaceList::InterfaceList()
             {
                 sin6 = reinterpret_cast<struct sockaddr_in6*>(
                     &ifconf6.iflc_req[j].iflr_addr);
- 
+
                 char _addr1[INET6_ADDRSTRLEN], _addr2[INET6_ADDRSTRLEN];
                 if (inet_ntop(
-                    AF_INET6, 
-                    t6.s6_addr, 
+                    AF_INET6,
+                    t6.s6_addr,
                     _addr1,
                     INET6_ADDRSTRLEN) == 0 ||
                     inet_ntop(
-                    AF_INET6, 
-                    sin6->sin6_addr.s6_addr, 
-                    _addr2, 
+                    AF_INET6,
+                    sin6->sin6_addr.s6_addr,
+                    _addr2,
                     INET6_ADDRSTRLEN) == 0)
                 {
                     free(ifconf6.iflc_req);
@@ -945,11 +945,11 @@ InterfaceList::InterfaceList()
                 }
 
                 if ( strcmp(_addr1, _addr2) == 0 )
-                { 
+                {
                     _ipif.set_simpleIfName(ifconf6.iflc_req[j].iflr_name);
                 }
-            } 
-        
+            }
+
             _ifl.push_back(_ipif);   // Add another IP interface to the list.
 
         }
@@ -1532,10 +1532,10 @@ NOTES             :
 */
 Boolean NextHopIPRoute::getDescription(String& s) const
 {
-  s = "Next Hop IP Route for Destination Address: " + 
+  s = "Next Hop IP Route for Destination Address: " +
       _destAddr +
-      " (" + 
-      _protocolType + 
+      " (" +
+      _protocolType +
       ")";
   return true;
 }
@@ -1804,14 +1804,14 @@ Boolean NextHopIPRoute::getAddressType(Uint16& i16) const
         i16 = 1;  // IPv4
         return true;
     }
-    else 
+    else
     {
         if (String::equal(_protocolType,PROTOCOL_IPV6))
         {
             i16 = 2;  // IPv6
             return true;
         }
-        else 
+        else
         {
             return false;
         }
@@ -1986,8 +1986,8 @@ NextHopRouteList::NextHopRouteList()
 #ifdef PEGASUS_ENABLE_IPV6
     }
     else
-    { 
-        // The /dev/ip6 device file does exists, so the IPv6 product 
+    {
+        // The /dev/ip6 device file does exists, so the IPv6 product
         // is probably installed. IPv6 APIs can handle both IPv4 and
         // IPv6 traffic.
         _ipv6Present = true;
@@ -2057,7 +2057,7 @@ NextHopRouteList::NextHopRouteList()
             _nhiprl.push_back(_ipr);   // Add another IP Route to the list.
         }
 
-    } 
+    }
 
     free(route_buf);
 
@@ -2191,7 +2191,7 @@ Boolean NextHopRouteList::findRoute(
     }
 
 #ifdef IPPROVIDER_DEBUG
-    cout << "NextHopRouteList::findRoute(): NOT FOUND instanceID=" 
+    cout << "NextHopRouteList::findRoute(): NOT FOUND instanceID="
          << instanceID << endl;
 #endif
 
@@ -2315,7 +2315,7 @@ Boolean RSAp::getOtherInfoFormatDescription(String& s) const
 /*
 ================================================================================
 NAME              : set_name
-DESCRIPTION       : Platform-specific routine to set the Name property of the 
+DESCRIPTION       : Platform-specific routine to set the Name property of the
                   : Remote Service Access Point.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
@@ -2331,7 +2331,7 @@ void RSAp::set_name(const String& n)
 /*
 ================================================================================
 NAME              : set_accessInfo
-DESCRIPTION       : Platform-specific routine to set the AccessInfo property of 
+DESCRIPTION       : Platform-specific routine to set the AccessInfo property of
                   : the Remote Service Access Point.
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
@@ -2363,7 +2363,7 @@ void RSAp::set_infoFormat(const Uint16& iF)
 /*
 ================================================================================
 NAME              : set_otherInfoFmtDesc
-DESCRIPTION       : Platform-specific routine to set the 
+DESCRIPTION       : Platform-specific routine to set the
                   : OtherInfoFormatDescription property of the Remote Service
                   : Access Point.
 ASSUMPTIONS       : None
@@ -2436,7 +2436,7 @@ RSApList::~RSApList()
 /*
 ================================================================================
 NAME              : findService.
-DESCRIPTION       : Find the requested Remote Service based on the Name 
+DESCRIPTION       : Find the requested Remote Service based on the Name
                   : property.
 ASSUMPTIONS       : None.
 PRE-CONDITIONS    :
@@ -2463,7 +2463,7 @@ Boolean RSApList::findService(
     }
 
 #ifdef IPPROVIDER_DEBUG
-    cout << "RSApList::findService(): NOT FOUND name=" 
+    cout << "RSApList::findService(): NOT FOUND name="
          << name << endl;
 #endif
 

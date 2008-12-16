@@ -47,14 +47,14 @@ const CIMNamespaceName NAMESPACE2 = CIMNamespaceName("test/TestProvider");
 const CIMNamespaceName NAMESPACE3 = CIMNamespaceName("root/SampleProvider");
 const CIMNamespaceName SOURCENAMESPACE = CIMNamespaceName("test/TestProvider");
 
-void _createHandlerInstance 
-    (CIMClient & client, 
+void _createHandlerInstance
+    (CIMClient & client,
      const String & name,
      const String & destination,
      const CIMNamespaceName & handlerNS)
 {
     CIMInstance handlerInstance (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
-    handlerInstance.addProperty (CIMProperty (CIMName 
+    handlerInstance.addProperty (CIMProperty (CIMName
         ("SystemCreationClassName"), System::getSystemCreationClassName ()));
     handlerInstance.addProperty (CIMProperty (CIMName ("SystemName"),
         System::getFullyQualifiedHostName ()));
@@ -67,15 +67,15 @@ void _createHandlerInstance
     CIMObjectPath path = client.createInstance (handlerNS, handlerInstance);
 }
 
-void _createFilterInstance 
-    (CIMClient & client, 
+void _createFilterInstance
+    (CIMClient & client,
      const String & name,
      const String & query,
      const String & qlang,
      const CIMNamespaceName & filterNS)
 {
     CIMInstance filterInstance (PEGASUS_CLASSNAME_INDFILTER);
-    filterInstance.addProperty (CIMProperty (CIMName 
+    filterInstance.addProperty (CIMProperty (CIMName
         ("SystemCreationClassName"), System::getSystemCreationClassName ()));
     filterInstance.addProperty (CIMProperty (CIMName ("SystemName"),
         System::getFullyQualifiedHostName ()));
@@ -91,7 +91,7 @@ void _createFilterInstance
     CIMObjectPath path = client.createInstance (filterNS, filterInstance);
 }
 
-void _createSubscriptionInstance 
+void _createSubscriptionInstance
     (CIMClient & client,
      const CIMObjectPath & filterPath,
      const CIMObjectPath & handlerPath,
@@ -105,11 +105,11 @@ void _createSubscriptionInstance
     subscriptionInstance.addProperty (CIMProperty
         (CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
 
-    CIMObjectPath path = client.createInstance (subscriptionNS, 
+    CIMObjectPath path = client.createInstance (subscriptionNS,
         subscriptionInstance);
 }
 
-void _sendIndicationShouldSucceed 
+void _sendIndicationShouldSucceed
     (CIMClient & client)
 {
     Array <CIMParamValue> inParams;
@@ -118,10 +118,10 @@ void _sendIndicationShouldSucceed
     Sint32 result;
 
     CIMName methodName ("SendTestIndication");
-    CIMObjectPath className (String::EMPTY, CIMNamespaceName (), 
+    CIMObjectPath className (String::EMPTY, CIMNamespaceName (),
         CIMName("Test_IndicationProviderClass"), keyBindings);
 
-    CIMValue retValue = client.invokeMethod 
+    CIMValue retValue = client.invokeMethod
         (SOURCENAMESPACE,
         className,
         methodName,
@@ -140,10 +140,10 @@ void _sendIndicationShouldFail
     Sint32 result;
 
     CIMName methodName ("SendTestIndication");
-    CIMObjectPath className (String::EMPTY, CIMNamespaceName (), 
+    CIMObjectPath className (String::EMPTY, CIMNamespaceName (),
         CIMName("Test_IndicationProviderClass"), keyBindings);
 
-    CIMValue retValue = client.invokeMethod 
+    CIMValue retValue = client.invokeMethod
         (SOURCENAMESPACE,
         className,
         methodName,
@@ -153,7 +153,7 @@ void _sendIndicationShouldFail
     PEGASUS_TEST_ASSERT (result == 1);
 }
 
-void _sendIndicationShouldBeBlocked 
+void _sendIndicationShouldBeBlocked
     (CIMClient & client)
 {
     Array <CIMParamValue> inParams;
@@ -162,12 +162,12 @@ void _sendIndicationShouldBeBlocked
     Sint32 result;
 
     CIMName methodName ("SendTestIndication");
-    CIMObjectPath className (String::EMPTY, CIMNamespaceName (), 
+    CIMObjectPath className (String::EMPTY, CIMNamespaceName (),
         CIMName("Test_IndicationProviderClass"), keyBindings);
 
     try
     {
-        CIMValue retValue = client.invokeMethod 
+        CIMValue retValue = client.invokeMethod
             (SOURCENAMESPACE,
             className,
             methodName,
@@ -182,8 +182,8 @@ void _sendIndicationShouldBeBlocked
     }
 }
 
-void _deleteSubscriptionInstance 
-    (CIMClient & client, 
+void _deleteSubscriptionInstance
+    (CIMClient & client,
      const String & filterName,
      const String & handlerName,
      const CIMNamespaceName & filterNS,
@@ -225,8 +225,8 @@ void _deleteSubscriptionInstance
     client.deleteInstance (subscriptionNS, subscriptionPath);
 }
 
-void _deleteSubscriptionInstance 
-    (CIMClient & client, 
+void _deleteSubscriptionInstance
+    (CIMClient & client,
      const String & filterName,
      const String & handlerName)
 {
@@ -235,8 +235,8 @@ void _deleteSubscriptionInstance
         PEGASUS_NAMESPACENAME_INTEROP);
 }
 
-void _deleteHandlerInstance 
-    (CIMClient & client, 
+void _deleteHandlerInstance
+    (CIMClient & client,
      const String & name,
      const CIMNamespaceName & handlerNS)
 {
@@ -255,8 +255,8 @@ void _deleteHandlerInstance
     client.deleteInstance (handlerNS, path);
 }
 
-void _deleteFilterInstance 
-    (CIMClient & client, 
+void _deleteFilterInstance
+    (CIMClient & client,
      const String & name,
      const CIMNamespaceName & filterNS)
 {
@@ -267,7 +267,7 @@ void _deleteFilterInstance
         System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
     keyBindings.append (CIMKeyBinding ("CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString(), CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("Name", name, 
+    keyBindings.append (CIMKeyBinding ("Name", name,
         CIMKeyBinding::STRING));
     CIMObjectPath path ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDFILTER, keyBindings);
@@ -276,11 +276,11 @@ void _deleteFilterInstance
 
 void _usage ()
 {
-    PEGASUS_STD (cerr) 
+    PEGASUS_STD (cerr)
         << "Usage: TestDisableEnable2 "
         << "{setup | setup2 | create | create2 "
         << "| sendSucceed | sendFail | sendBlock "
-        << "| delete | delete2 | cleanup | cleanup2} {WQL | DMTF:CQL}" 
+        << "| delete | delete2 | cleanup | cleanup2} {WQL | DMTF:CQL}"
         << PEGASUS_STD (endl);
 }
 
@@ -291,7 +291,7 @@ void _setup (CIMClient & client, String& qlang)
         _createFilterInstance (client, String ("DEFilter01"),
             String ("SELECT MethodName FROM Test_IndicationProviderClass"),
             qlang, PEGASUS_NAMESPACENAME_INTEROP);
-        _createHandlerInstance (client, String ("DEHandler01"), 
+        _createHandlerInstance (client, String ("DEHandler01"),
             String ("localhost/CIMListener/Pegasus_SimpleDisplayConsumer"),
             PEGASUS_NAMESPACENAME_INTEROP);
     }
@@ -313,7 +313,7 @@ void _setup2 (CIMClient & client, String& qlang)
         _createFilterInstance (client, String ("DEFilter02"),
             String ("SELECT MethodName FROM Test_IndicationProviderClass"),
             qlang, NAMESPACE1);
-        _createHandlerInstance (client, String ("DEHandler02"), 
+        _createHandlerInstance (client, String ("DEHandler02"),
             String ("localhost/CIMListener/Pegasus_SimpleDisplayConsumer"),
             NAMESPACE2);
     }
@@ -354,8 +354,8 @@ void _create (CIMClient & client)
 {
     try
     {
-        _createSubscriptionInstance (client, 
-            _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+        _createSubscriptionInstance (client,
+            _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                 "DEFilter01"),
             _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
                 "DEHandler01"), PEGASUS_NAMESPACENAME_INTEROP);
@@ -375,8 +375,8 @@ void _create2 (CIMClient & client)
 {
     try
     {
-        _createSubscriptionInstance (client, 
-            _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+        _createSubscriptionInstance (client,
+            _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                 "DEFilter02", NAMESPACE1),
             _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
                 "DEHandler02", NAMESPACE2), NAMESPACE3);
@@ -565,12 +565,12 @@ int _test(CIMClient& client, const char* opt, String& qlang)
   }
   else
   {
-    PEGASUS_STD (cerr) << "Invalid option: " << opt 
+    PEGASUS_STD (cerr) << "Invalid option: " << opt
                        << PEGASUS_STD (endl);
     _usage ();
     return -1;
   }
-  
+
   return 0;
 }
 

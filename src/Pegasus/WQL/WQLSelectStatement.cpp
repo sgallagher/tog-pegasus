@@ -72,7 +72,7 @@ WQLSelectStatement::WQLSelectStatement(const WQLSelectStatement& statement)
   :SelectStatement()
 {
     _rep = new WQLSelectStatementRep(*statement._rep);
-    
+
     // Set the _rep into the base class also
     SelectStatement::_rep = _rep;
 }
@@ -83,7 +83,7 @@ WQLSelectStatement& WQLSelectStatement::operator=(const WQLSelectStatement& rhs)
     {
         if(_rep) delete _rep;
         _rep = new WQLSelectStatementRep(*rhs._rep);
-        
+
         // Set the _rep into the base class also
         SelectStatement::_rep = _rep;
     }

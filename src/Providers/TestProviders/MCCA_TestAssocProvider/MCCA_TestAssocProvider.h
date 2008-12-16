@@ -37,7 +37,7 @@
 #include <Pegasus/Provider/ProviderException.h>
 
 // Debugging enabling/disabling point
-//#define CDEBUG(X) PEGASUS_STD(cout) << "MCCA_AssocTestProvider " 
+//#define CDEBUG(X) PEGASUS_STD(cout) << "MCCA_AssocTestProvider "
 //                                    << X << PEGASUS_STD(endl)
 #define CDEBUG(X);
 

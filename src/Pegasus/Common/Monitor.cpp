@@ -560,7 +560,7 @@ void Monitor::run(Uint32 milliseconds)
                             "entries[%d].type is TYPE_CONNECTION",
                             indx));
 
-                        HTTPConnection *dst = 
+                        HTTPConnection *dst =
                             reinterpret_cast<HTTPConnection *>(q);
                         dst->_entry_index = indx;
 

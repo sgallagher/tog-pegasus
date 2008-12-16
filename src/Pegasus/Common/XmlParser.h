@@ -166,7 +166,7 @@ public:
 
     XmlParser(char* text, XmlNamespace* ns = 0);
 
-    /** Comments are returned with entry if includeComment is true else 
+    /** Comments are returned with entry if includeComment is true else
         XmlParser ignores comments. Default is false.
     */
     Boolean next(XmlEntry& entry, Boolean includeComment = false);

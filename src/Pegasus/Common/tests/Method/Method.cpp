@@ -101,7 +101,7 @@ int main(int argc, char** argv)
         m1.addParameter (CIMParameter (CIMName ("ipaddress"),
                                        CIMTYPE_STRING));
         PEGASUS_TEST_ASSERT (m1.getParameterCount ()  == 1);
- 
+
         // throws OutOfBounds
         try
         {
@@ -111,7 +111,7 @@ int main(int argc, char** argv)
         {
             if (verbose)
             {
-                PEGASUS_STD (cout) << "Caught expected exception: " 
+                PEGASUS_STD (cout) << "Caught expected exception: "
                                    << oob.getMessage () << PEGASUS_STD (endl);
             }
         }
@@ -139,7 +139,7 @@ int main(int argc, char** argv)
             CIMName ("ipaddress")) != PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(cm1.findQualifier(
             CIMName ("stuff")) == PEG_NOT_FOUND);
-        
+
         CIMQualifier q = m1.getQualifier(posQualifier);
         CIMConstParameter ccp = cm1.getParameter(
                     cm1.findParameter(CIMName ("ipaddress")));
@@ -178,12 +178,12 @@ int main(int argc, char** argv)
         XmlWriter::appendMethodElement(out, cm1);
         MofWriter::appendMethodElement(out, cm1);
 
-        Boolean nullMethod = cm1.isUninitialized(); 
+        Boolean nullMethod = cm1.isUninitialized();
         PEGASUS_TEST_ASSERT(!nullMethod);
 
         CIMMethod m3 = m2.clone();
         m3 = cm1.clone();
-        
+
         CIMMethod m4;
         CIMMethod m5(m4);
 
@@ -208,7 +208,7 @@ int main(int argc, char** argv)
         }
 
         XmlWriter::appendMethodElement(out, ccm1);
-      
+
         CIMConstMethod ccm2(ccm1);
         CIMConstMethod ccm3;
 
@@ -219,7 +219,7 @@ int main(int argc, char** argv)
             CIMName ("stuff")) == PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(ccm1.findParameter(
             CIMName ("ipaddress")) == PEG_NOT_FOUND);
-        
+
         nullMethod = ccm1.isUninitialized();
         PEGASUS_TEST_ASSERT(!nullMethod);
 

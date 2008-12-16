@@ -40,7 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 //  The library is missing the required PegasusCreateHandler function.
 //
 
-extern "C" PEGASUS_EXPORT CIMHandler* 
+extern "C" PEGASUS_EXPORT CIMHandler*
     BadCreateHandler() {
         return 0;
 }

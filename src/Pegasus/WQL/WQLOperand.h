@@ -43,41 +43,41 @@ PEGASUS_NAMESPACE_BEGIN
 /** Tag used to force invocation of the integer value form of the WQLOperand
     Constructor.
 */
-enum WQLIntegerValueTag 
-{ 
-    WQL_INTEGER_VALUE_TAG 
+enum WQLIntegerValueTag
+{
+    WQL_INTEGER_VALUE_TAG
 };
 
 /** Tag used to force invocation of the double value form of the WQLOperand
     Constructor.
 */
-enum WQLDoubleValueTag 
-{ 
-    WQL_DOUBLE_VALUE_TAG 
+enum WQLDoubleValueTag
+{
+    WQL_DOUBLE_VALUE_TAG
 };
 
 /** Tag used to force invocation of the boolean value form of the WQLOperand
     Constructor.
 */
-enum WQLBooleanValueTag 
-{ 
-    WQL_BOOLEAN_VALUE_TAG 
+enum WQLBooleanValueTag
+{
+    WQL_BOOLEAN_VALUE_TAG
 };
 
 /** Tag used to force invocation of the string value form of the WQLOperand
     Constructor.
 */
-enum WQLStringValueTag 
-{ 
-    WQL_STRING_VALUE_TAG 
+enum WQLStringValueTag
+{
+    WQL_STRING_VALUE_TAG
 };
 
 /** Tag used to force invocation of the property name form of the WQLOperand
     Constructor.
 */
-enum WQLPropertyNameTag 
-{ 
-    WQL_PROPERTY_NAME_TAG 
+enum WQLPropertyNameTag
+{
+    WQL_PROPERTY_NAME_TAG
 };
 
 /** Used to represent SQL where clause operands.
@@ -182,7 +182,7 @@ public:
         _type = PROPERTY_NAME;
     }
 
-    /** Destructor. 
+    /** Destructor.
     */
     ~WQLOperand();
 
@@ -253,7 +253,7 @@ public:
     {
         if (_type != INTEGER_VALUE)
             throw TypeMismatchException();
-    
+
         return _integerValue;
     }
 
@@ -264,7 +264,7 @@ public:
     {
         if (_type != DOUBLE_VALUE)
             throw TypeMismatchException();
-    
+
         return _doubleValue;
     }
 
@@ -275,7 +275,7 @@ public:
     {
         if (_type != BOOLEAN_VALUE)
             throw TypeMismatchException();
-    
+
         return _booleanValue;
     }
 
@@ -286,7 +286,7 @@ public:
     {
         if (_type != STRING_VALUE)
             throw TypeMismatchException();
-    
+
         return *((String*)_stringValue);
     }
 
@@ -297,7 +297,7 @@ public:
     {
         if (_type != PROPERTY_NAME)
             throw TypeMismatchException();
-    
+
         return *((String*)_propertyName);
     }
 

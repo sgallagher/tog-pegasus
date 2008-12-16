@@ -29,7 +29,7 @@
 //
 // Author: Heather Sterling (hsterl@us.ibm.com)
 //
-// Modified By: 
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,15 +44,15 @@ PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
 /* This is basically a wrapper for the OptionManager that does an additional
-   level of validation specific to the application.  
- */ 
+   level of validation specific to the application.
+ */
 
 class PEGASUS_DYNLISTENER_LINKAGE DynamicListenerConfig
 {
 public:
-    
+
     DynamicListenerConfig();
-    
+
     ~DynamicListenerConfig();
 
     void initOptions(const String& configFile);
@@ -66,7 +66,7 @@ public:
     Boolean isTrue(const String& name) const;
 
     static DynamicListenerConfig* getInstance();
- 
+
     static void setListenerHome(const String& home);
 
     static String getListenerHome();

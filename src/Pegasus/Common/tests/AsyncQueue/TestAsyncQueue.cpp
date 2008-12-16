@@ -30,7 +30,7 @@
 //%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/PegasusAssert.h>
-#include <Pegasus/Common/AsyncQueue.h>  
+#include <Pegasus/Common/AsyncQueue.h>
 #include <Pegasus/Common/Thread.h>
 #include <iostream>
 

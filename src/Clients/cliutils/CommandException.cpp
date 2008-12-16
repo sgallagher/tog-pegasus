@@ -36,18 +36,18 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-  
+
     Constructs a CommandException with the specified message.
-  
+
     @param  exceptionMessage  a string containing the exception message
-  
+
  */
-CommandException::CommandException (const String& exceptionMessage) : Exception 
+CommandException::CommandException (const String& exceptionMessage) : Exception
     (exceptionMessage)
 {
 }
 //l10n
-CommandException::CommandException (MessageLoaderParms &parms) : Exception 
+CommandException::CommandException (MessageLoaderParms &parms) : Exception
     (parms)
 {
 }
@@ -73,7 +73,7 @@ CommandFormatException::CommandFormatException (MessageLoaderParms &parms)
     appeared in the command line.
 
  */
-const char DuplicateOptionException::_MESSAGE_DUPLICATE_OPTION1 [] = 
+const char DuplicateOptionException::_MESSAGE_DUPLICATE_OPTION1 [] =
     "duplicate \"-";
 
 /**
@@ -82,7 +82,7 @@ const char DuplicateOptionException::_MESSAGE_DUPLICATE_OPTION1 [] =
     appeared in the command line.
 
  */
-const char DuplicateOptionException::_MESSAGE_DUPLICATE_OPTION2 [] = 
+const char DuplicateOptionException::_MESSAGE_DUPLICATE_OPTION2 [] =
     "\" option";
 
 /**
@@ -159,7 +159,7 @@ InvalidOptionArgumentException::InvalidOptionArgumentException
                              invalidArgument,
                              String().append(option));
     _rep->message.append(MessageLoader::getMessage(parms));
-                        
+
 
 }
 
@@ -177,7 +177,7 @@ const char InvalidOptionException::_MESSAGE_INVALID_OPTION1 [] = "option \"-";
     appeared in the command line.
 
  */
-const char InvalidOptionException::_MESSAGE_INVALID_OPTION2 [] = 
+const char InvalidOptionException::_MESSAGE_INVALID_OPTION2 [] =
     "\" is not valid for this command";
 
 /**
@@ -207,7 +207,7 @@ InvalidOptionException::InvalidOptionException (char invalidOption) :
     argument missing from the command line.
 
  */
-const char MissingOptionArgumentException::_MESSAGE_MISSING_OPTARG1 [] = 
+const char MissingOptionArgumentException::_MESSAGE_MISSING_OPTARG1 [] =
     "missing argument value for \"-";
 
 /**
@@ -216,7 +216,7 @@ const char MissingOptionArgumentException::_MESSAGE_MISSING_OPTARG1 [] =
     argument missing from the command line.
 
  */
-const char MissingOptionArgumentException::_MESSAGE_MISSING_OPTARG2 [] = 
+const char MissingOptionArgumentException::_MESSAGE_MISSING_OPTARG2 [] =
     "\" option";
 
 /**
@@ -256,7 +256,7 @@ const char MissingOptionException::_MESSAGE_MISSING_OPTION1 [] = "the \"-";
     is missing from the command line.
 
  */
-const char MissingOptionException::_MESSAGE_MISSING_OPTION2 [] = 
+const char MissingOptionException::_MESSAGE_MISSING_OPTION2 [] =
     "\" option is required";
 
 /**
@@ -287,7 +287,7 @@ MissingOptionException::MissingOptionException (char missingOption) :
     argument appeared in the command line.
 
  */
-const char UnexpectedArgumentException::_MESSAGE_UNEXPECTED_ARG1 [] = 
+const char UnexpectedArgumentException::_MESSAGE_UNEXPECTED_ARG1 [] =
     "argument \"";
 
 /**
@@ -296,7 +296,7 @@ const char UnexpectedArgumentException::_MESSAGE_UNEXPECTED_ARG1 [] =
     argument appeared in the command line.
 
  */
-const char UnexpectedArgumentException::_MESSAGE_UNEXPECTED_ARG2 [] = 
+const char UnexpectedArgumentException::_MESSAGE_UNEXPECTED_ARG2 [] =
     "\" was unexpected";
 
 /**
@@ -326,7 +326,7 @@ UnexpectedArgumentException::UnexpectedArgumentException
     appeared in the command line.
 
  */
-const char UnexpectedOptionException::_MESSAGE_UNEXPECTED_OPT1 [] = 
+const char UnexpectedOptionException::_MESSAGE_UNEXPECTED_OPT1 [] =
     "option \"-";
 
 /**
@@ -335,7 +335,7 @@ const char UnexpectedOptionException::_MESSAGE_UNEXPECTED_OPT1 [] =
     appeared in the command line.
 
  */
-const char UnexpectedOptionException::_MESSAGE_UNEXPECTED_OPT2 [] = 
+const char UnexpectedOptionException::_MESSAGE_UNEXPECTED_OPT2 [] =
     "\" was unexpected";
 
 /**

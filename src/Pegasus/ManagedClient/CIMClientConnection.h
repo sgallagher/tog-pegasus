@@ -46,7 +46,7 @@ public:
 
     // class constructor
     CIMClientConnection();
-    
+
     CIMClientConnection(
         const String& host,
         const String& port,
@@ -75,7 +75,7 @@ private:
     String  _userid;
     String  _passwd;
     AutoPtr<SSLContext> _sslcontext;
-    
+
     char  _resolvedIP[PEGASUS_INET6_ADDRSTR_LEN];
 };
 

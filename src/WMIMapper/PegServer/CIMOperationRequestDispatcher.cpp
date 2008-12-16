@@ -139,7 +139,7 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
     PEG_METHOD_EXIT();
 }
 
-ThreadReturnType PEGASUS_THREAD_CDECL 
+ThreadReturnType PEGASUS_THREAD_CDECL
     CIMOperationRequestDispatcher::_callMethodHandler(void *parm)
 {
     ThreadParm_t* myParms = reinterpret_cast<ThreadParm_t *>(parm);
@@ -329,7 +329,7 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
 
     // allocate and run one thread for each request
     MessageQueueService::get_thread_pool()->allocate_and_awaken(
-        myParm, 
+        myParm,
         _callMethodHandler);
 
     PEG_METHOD_EXIT();
@@ -349,7 +349,7 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -378,7 +378,7 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "GetClass() failed!");
     }
 
@@ -407,7 +407,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -443,7 +443,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "GetInstance() failed!");
     }
 
@@ -469,7 +469,7 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -494,10 +494,10 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "DeleteClass() failed!");
     }
-    
+
     //terminate the provider
     provider.terminate();
 
@@ -521,7 +521,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -546,7 +546,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "DeleteInstance() failed!");
     }
 
@@ -573,7 +573,7 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -598,7 +598,7 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "CreateClass() failed!");
     }
 
@@ -625,7 +625,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -650,10 +650,10 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "CreateInstance() failed!");
     }
-    
+
     //terminate the provider
     provider.terminate();
 
@@ -677,7 +677,7 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -729,7 +729,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -780,10 +780,10 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
             request->buildResponse()));
 
     WMIClassProvider provider;
-    
+
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -812,7 +812,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "enumerateClasses() failed!");
     }
 
@@ -839,7 +839,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -865,7 +865,7 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "enumerateClassNames() failed!");
     }
 
@@ -893,7 +893,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
         CIMPropertyList propertyList(request->propertyList);
 
@@ -921,12 +921,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "enumerateInstances() failed!");
     }
 
     response->setNamedInstances(cimNamedInstances);
-   
+
     // cancel the provider
     provider.terminate();
 
@@ -949,7 +949,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -1001,7 +1001,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
         CIMPropertyList propertyList(request->propertyList);
 
@@ -1036,10 +1036,10 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "associators() failed!");
     }
-    
+
     // cancel the provider
     provider.terminate();
 
@@ -1063,7 +1063,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -1092,7 +1092,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "associatorNames() failed!");
     }
 
@@ -1119,7 +1119,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
         CIMPropertyList propertyList(request->propertyList);
 
@@ -1152,10 +1152,10 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "references() failed!");
     }
-    
+
     // cancel the provider
     provider.terminate();
 
@@ -1179,7 +1179,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -1206,10 +1206,10 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "referenceNames() failed!");
     }
-    
+
     // cancel the provider
     provider.terminate();
 
@@ -1233,7 +1233,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -1259,7 +1259,7 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "getProperty() failed!");
     }
 
@@ -1281,10 +1281,10 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
         dynamic_cast<CIMSetPropertyResponseMessage *>(
             request->buildResponse()));
 
-    // corrects the type of an property. Set property xml do not have an 
+    // corrects the type of an property. Set property xml do not have an
     // place to specify the input property type. It could cause an
-    // type mismatch in the Object types. To solve it, the method, 
-    // _fixSetPropertyValueType gets the correct type from Server side. 
+    // type mismatch in the Object types. To solve it, the method,
+    // _fixSetPropertyValueType gets the correct type from Server side.
 
     WMIInstanceProvider provider;
 
@@ -1305,7 +1305,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
         }
         catch(...)
         {
-            response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                 String::EMPTY);
         }
 
@@ -1321,7 +1321,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -1348,7 +1348,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "setProperty() failed!");
     }
 
@@ -1374,7 +1374,7 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -1399,7 +1399,7 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "getQualifier() failed!");
     }
 
@@ -1425,7 +1425,7 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -1450,7 +1450,7 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "setQualifier() failed!");
     }
 
@@ -1476,7 +1476,7 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -1501,7 +1501,7 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "deleteQualifier() failed!");
     }
 
@@ -1527,7 +1527,7 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -1535,7 +1535,7 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
         provider.initialize();
 
         response->qualifierDeclarations = provider.enumerateQualifiers(
-            request->nameSpace.getString(),            
+            request->nameSpace.getString(),
             ((IdentityContainer) request->operationContext.get
                 (IdentityContainer::NAME)).getUserName(),
             container.getPassword());
@@ -1551,7 +1551,7 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "enumerateQualifiers() failed!");
     }
 
@@ -1577,7 +1577,7 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -1603,7 +1603,7 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "execQuery() failed!");
     }
 
@@ -1642,7 +1642,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
         }
         catch(...)
         {
-            response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                 String::EMPTY);
         }
 
@@ -1660,7 +1660,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
         StatProviderTimeMeasurement providerTime(response.get());
@@ -1688,7 +1688,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
     }
     catch(...)
     {
-        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        response->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "invokeMethod() failed!");
     }
 
@@ -1742,7 +1742,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
         //
         try
         {
-            newValue = XmlReader::stringArrayToValue(0, 
+            newValue = XmlReader::stringArrayToValue(0,
                 constCharPtrArray, type);
         }
         catch (XmlSemanticError&)
@@ -1768,7 +1768,7 @@ CIMValue CIMOperationRequestDispatcher::_convertValueType(
 
         try
         {
-            newValue = XmlReader::stringToValue(0, 
+            newValue = XmlReader::stringToValue(0,
                 stringValue.getCString(), type);
         }
         catch (XmlSemanticError&)
@@ -1825,7 +1825,7 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
 
                     provider.initialize();
 
-                    WMIMapperUserInfoContainer container = 
+                    WMIMapperUserInfoContainer container =
                         request->operationContext.get
                         ("WMIMapperUserInfoContainer");
 
@@ -1889,7 +1889,7 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
 
                     if (inParameters[i].getValue().isNull())
                     {
-                        newValue.setNullValue(param.getType(), 
+                        newValue.setNullValue(param.getType(),
                             param.isArray());
                     }
                     else if (inParameters[i].getValue().isArray() !=
@@ -1942,7 +1942,7 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
     CIMName propName = propertyName;
     propertyNames.append(propName);
 
-    CIMPropertyList propertyList = CIMPropertyList(propertyNames);    
+    CIMPropertyList propertyList = CIMPropertyList(propertyNames);
 
     CIMValue inValue = request->newValue;
 
@@ -1964,9 +1964,9 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
 
     try
     {
-        WMIMapperUserInfoContainer container = 
+        WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
-        
+
         provider.initialize();
 
         cimClass = provider.getClass(

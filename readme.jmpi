@@ -67,12 +67,12 @@ Lets walk through an example for the mandatory environment variables.
       export PEGASUS_JVM=gcj    Gnu's jvm (ex: gcj (GCC) 4.1.1 20061011 (Red Hat 4.1.1-30))
       export PEGASUS_JVM=sun    Sun's jvm (ex: j2sdk1.4.2_07)
       export PEGASUS_JVM=ibm    IBM's jvm (ex: IBMJava2-142)
-      export PEGASUS_JVM=ibm64  IBM's jvm for 64 bit machine. 
+      export PEGASUS_JVM=ibm64  IBM's jvm for 64 bit machine.
       export PEGASUS_JVM=bea    Suse's IBM jvm (ex: BEAJava2-1.4.2)
     So, pick one and export that variable to the environment.  For example:
       export PEGASUS_JVM=sun
-    NOTE: As the primary maintainer of the JMPI code, IBM developers have 
-    independently tested (and routinely test) JMPI with the following JREs. 
+    NOTE: As the primary maintainer of the JMPI code, IBM developers have
+    independently tested (and routinely test) JMPI with the following JREs.
     The results of these tests are not yet reported on the OpenPegasus Nightly
     Build and Test Status page.
       - LINUX_IX86_GNU (Fedora Core 5), Sun JVM 1.4.2_08
@@ -86,9 +86,9 @@ Lets walk through an example for the mandatory environment variables.
       - ZOS_ZSERIES_IBM (z/OS 1.9), J2RE 1.4.2 IBM z/OS Persistent Reusable VM build cm142-20060824 (SR6)
       - WIN32_IX86_MSVC (Microsoft Windows XP Professional), Sun JVM 1.6.0_02
 
-(3, 4) The third and fourth say where the JRE libraries and header files are 
-    located. This may or may not be necessary depending upon the compiler's 
-    default search paths. Since in this example we are using Sun's JRE, we 
+(3, 4) The third and fourth say where the JRE libraries and header files are
+    located. This may or may not be necessary depending upon the compiler's
+    default search paths. Since in this example we are using Sun's JRE, we
     point to Sun's paths:
       export JAVA_SDK=/usr/java/j2sdk1.4.2_08
       export JAVA_SDKINC=${JAVA_SDK}/include
@@ -100,12 +100,12 @@ Lets walk through an example for the mandatory environment variables.
     (the client or the server):
       export PEGASUS_JAVA_TYPE=client
 
-    As a test to make sure your environment variables are correct in this 
+    As a test to make sure your environment variables are correct in this
     example:
       ls ${JAVA_SDK}/jre/lib/${PEGASUS_JAVA_ARCH}/${PEGASUS_JAVA_TYPE}
     should show you libjvm.so for Sun's JRE.
 
-(7) The seventh may be necessary to tell the linker where to load the JRE 
+(7) The seventh may be necessary to tell the linker where to load the JRE
     libraries:
       export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${JAVA_SDK}/jre/lib/${PEGASUS_JAVA_ARCH}/server:${JAVA_SDK}/jre/lib/${PEGASUS_JAVA_ARCH}/native_threads:${JAVA_SDK}/jre/lib/${PEGASUS_JAVA_ARCH}
 
@@ -124,22 +124,22 @@ that it corresponds to):
   PEGASUS_JMPI_INITIAL_HEAP           -Xms
   PEGASUS_JMPI_JAVA_THREAD_STACK_SIZE -Xss
 
-So, for example, you would perform the following if you want to change the 
+So, for example, you would perform the following if you want to change the
 maximum heap size to 128 megabytes:
 
   export PEGASUS_JMPI_MAX_HEAP=128m
 
 There is a new optional environment variable that tells the JVM to output more
-debugging information.  The variable name is called PEGASUS_JMPI_VERBOSE.  
+debugging information.  The variable name is called PEGASUS_JMPI_VERBOSE.
 An example usage is as follows:
 
   export PEGASUS_JMPI_VERBOSE="jni,class"
 
-This will tell the JVM to output debug information on the JNI layer and class 
+This will tell the JVM to output debug information on the JNI layer and class
 loading.
 
-When using this script, place a copy of this script above your PEGASUS_HOME 
-directory, "cd" to PEGASUS_HOME, and issue ". ./setJPeg". Then do a normal 
+When using this script, place a copy of this script above your PEGASUS_HOME
+directory, "cd" to PEGASUS_HOME, and issue ". ./setJPeg". Then do a normal
 make.
 
 
@@ -148,13 +148,13 @@ Known restrictions
 
 This installment has the following restrictions:
 
-   Unloading of idle providers is not supported and Java will increase the 
+   Unloading of idle providers is not supported and Java will increase the
      memory footprint.
 
    Java 1.5 is not currently supported.
 
    Gcj on 31 bit machines is only supported using gcc version 4.1.1 or later.
-   Gcj on 64 bit machines is not supported.  Bugs 5913, 5921, and 5963 have 
+   Gcj on 64 bit machines is not supported.  Bugs 5913, 5921, and 5963 have
      been written to address that issue. Instead, you should use the Sun ported
      JVM from the Blackdown project located at www.blackdown.org.
 
@@ -176,13 +176,13 @@ Java documentation needs to be written for the classes and methods within JMPI.
 Testing
 -------
 
-This installment has a set of tests located under 
+This installment has a set of tests located under
   src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests/
 
     Static/
 
-      These tests have been modelled after wetest/static. (For the tests, we 
-      had to modify "diff" to "diff -w", why that is needed I do not 
+      These tests have been modelled after wetest/static. (For the tests, we
+      had to modify "diff" to "diff -w", why that is needed I do not
       understand.)
 
    Providers/
@@ -242,7 +242,7 @@ Samples
 Provider Registration
 ---------------------
 
-JMPI providers are registered as usual. The Location property in 
+JMPI providers are registered as usual. The Location property in
 PG_ProviderModule has a special format. The format is:
   <jar-file-name>:<provider-class-name>
 

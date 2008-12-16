@@ -46,12 +46,12 @@ FORCE:
 
 rebuild: FORCE
 	@$(MAKE) --directory=$(ROOT) -f Makefile.Release -i cimstop
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release clean 
+	@$(MAKE) --directory=$(ROOT) -f Makefile.Release clean
 	@$(MAKE) --directory=$(ROOT) -f Makefile.Release create_ProductVersionFile
 	@$(MAKE) --directory=$(ROOT) -f Makefile.Release create_CommonProductDirectoriesInclude
 	@$(MAKE) --directory=$(ROOT) -f Makefile.Release create_ConfigProductDirectoriesInclude
 	@$(MAKE) --directory=$(ROOT) -f Makefile.Release depend
-	@$(MAKE) --directory=$(ROOT) -f Makefile.Release all 
+	@$(MAKE) --directory=$(ROOT) -f Makefile.Release all
 	@$(MAKE) --directory=$(ROOT) -f Makefile.Release repository
 	@$(MAKE) --directory=$(ROOT) -f Makefile.Release stage
 	@$(ECHO) "build completed successfully"
@@ -63,9 +63,9 @@ repository: FORCE
 stage: FORCE
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release prestage_verifyInstallEnabled
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release prestage_cleanup
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusDirectories 
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusFiles 
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusEmptyFiles 
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusDirectories
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusFiles
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusEmptyFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_genOpenPegasusSSLCertsFile
 	$(MAKE) --directory=$(ROOT) -f mak/SDKMakefile stageSDK
 ifdef PEGASUS_BUILD_TEST_RPM
@@ -74,8 +74,8 @@ endif
 
 preinstall: FORCE
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release prestage_verifyInstallEnabled
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusDirectories 
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusFiles 
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusDirectories
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusFiles
 
 PEGASUS_PROVIDER_MANAGERS =
 
@@ -109,7 +109,7 @@ PEGASUS_LIBRARIES = \
    libCertificateProvider \
    libpegqueryexpression \
    libpegquerycommon \
-   libpegservice 
+   libpegservice
 
 ifeq ($(PEGASUS_ENABLE_CQL),true)
    PEGASUS_LIBRARIES += \
@@ -188,21 +188,21 @@ PEGASUS_GENERATED_SCRIPTS = \
    genOpenPegasusSSLCerts
 
 #############################################################################
-## If needed, you can use the PEGASUS_CVS_SCRIPTS variable to include 
+## If needed, you can use the PEGASUS_CVS_SCRIPTS variable to include
 ## one or more script files in an OpenPegasus release.  Scripts should be
-## placed in the CVS directory pegasus/installs/scripts. 
+## placed in the CVS directory pegasus/installs/scripts.
 #############################################################################
 
 PEGASUS_SCRIPT_FILES = \
    $(PEGASUS_GENERATED_SCRIPTS) \
    $(PEGASUS_CVS_SCRIPTS)
- 
+
 PEGASUS_UNIX_MAN_USER_PAGES = \
    cimmof.1 \
    cimprovider.1 \
    cimsub.1 \
    osinfo.1 \
-   wbemexec.1 
+   wbemexec.1
 
 PEGASUS_UNIX_MAN_ADMIN_PAGES = \
    cimauth.8 \
@@ -270,7 +270,7 @@ stage_PegasusSocketDirectory: FORCE
 	
 setpermissions_PegasusSocketDirectory: FORCE
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVERMAIN_USR)" GROUP="$(CIMSERVERMAIN_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)
-        
+
 stage_PegasusVarRunDirectory: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_VARRUN_DIR)
 
@@ -872,7 +872,7 @@ ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
 	@$(ECHO-E) "fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 endif
- 
+
 _append_postSectionToSpecFile: FORCE
 	@$(ECHO-E) "%post" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "if [ \044\061 -eq 1 ]; then" \
@@ -1005,7 +1005,7 @@ endif
 # The %ghost directive instructs RPM not to install the specified file(s).
 #     They will be owned by that package and removed if they exists when
 #     the package is removed. This can be useful for things like log files
-#     and state files. 
+#     and state files.
 
 _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%files" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
@@ -1027,7 +1027,7 @@ _append_filesSectionToSpecFile: FORCE
              if [ $(i) != $(PEGASUS_VARRUN_DIR) ]; then \
              if [ $(i) != $(PEGASUS_MOF_DIR) ]; then \
                    $(ECHO-E) "%dir $(i)" >> \
-             $(PEGASUS_RPM_SPEC_FILE_PATH); fi; fi; fi; fi; fi;fi;) 
+             $(PEGASUS_RPM_SPEC_FILE_PATH); fi; fi; fi; fi; fi;fi;)
 	@$(ECHO-E) "%dir $(PEGASUS_PROVIDER_DIR_2) " \
               >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%dir $(PEGASUS_PROVIDER_LIB_DIR_2) " \
@@ -1073,24 +1073,24 @@ _append_filesSectionToSpecFile: FORCE
            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
-           "$(PEGASUS_SBIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
+           "$(PEGASUS_SBIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
-           "$(PEGASUS_BIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
+           "$(PEGASUS_BIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
            "$(PEGASUS_DEST_LIB_DIR_2)/*$(LIB_SUFFIX)" \
-           >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
+           >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
            "$(PEGASUS_PROVIDER_LIB_DIR_2)/*$(LIB_SUFFIX)" \
-           >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
+           >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
            "$(PEGASUS_PROVIDER_MANAGER_LIB_DIR_2)/*$(LIB_SUFFIX)" \
-           >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
+           >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%attr($(Prwxr_x___),$(INSTALL_USR),$(INSTALL_GRP))" \
-           "$(PEGASUS_SCRIPT_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
+           "$(PEGASUS_SCRIPT_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%attr($(Prw_r__r__),$(INSTALL_USR),$(INSTALL_GRP))" \
-	   "$(PEGASUS_MANUSER_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
+	   "$(PEGASUS_MANUSER_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%attr($(Prw_r__r__),$(INSTALL_USR),$(INSTALL_GRP))" \
-	   "$(PEGASUS_MANADMIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
+	   "$(PEGASUS_MANADMIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_DOC_FILES), \
             $(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP))"\
@@ -1100,13 +1100,13 @@ _append_filesSectionToSpecFile: FORCE
             >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
 	@$(foreach i, $(PEGASUS_LIBRARY_LINKS), \
             $(ECHO-E) "$(PEGASUS_DEST_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(PEGASUS_PROVIDERS), \
             $(ECHO-E) "$(PEGASUS_PROVIDER_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(PEGASUS_PROVIDER_MANAGERS), \
             $(ECHO-E) "$(PEGASUS_PROVIDER_MANAGER_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 include $(ROOT)/mak/commands.mak

@@ -27,7 +27,7 @@
               </KEYBINDING>
             </INSTANCENAME>
             <INSTANCE CLASSNAME="PG_ProviderCapabilities">
-              <PROPERTY.ARRAY NAME="SupportedProperties" TYPE="string"> 
+              <PROPERTY.ARRAY NAME="SupportedProperties" TYPE="string">
                   <VALUE> IndicationTime </VALUE>
                   <VALUE> IndicationIdentifier </VALUE>
                 </VALUE.ARRAY>

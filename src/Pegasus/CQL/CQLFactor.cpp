@@ -114,7 +114,7 @@ String CQLFactor::toString()const
 void CQLFactor::applyContext(const QueryContext& inContext,
                  const CQLChainedIdentifier& inCid)
 {
-    _rep->applyContext(inContext,inCid);   
+    _rep->applyContext(inContext,inCid);
 }
 
 CQLFactor& CQLFactor::operator=(const CQLFactor& rhs)
@@ -127,7 +127,7 @@ CQLFactor& CQLFactor::operator=(const CQLFactor& rhs)
     }
         _rep = new CQLFactorRep(rhs._rep);
     }
-    
+
     return *this;
 }
 /*

@@ -63,19 +63,19 @@ instance of ValidMof4a {
     id = 5;
     /* with no s1 or s2. but it has this comment */
     };
-    
+
 instance of ValidMof4a {
     id = 6;
     /* with 2 s2 values. */
     s2 = "first s2 value";
-    s2 = "second s2 value"; 
+    s2 = "second s2 value";
     };
-    
-/* can't have this err in a valid mof testing file.  
+
+/* can't have this err in a valid mof testing file.
    messes up make NewTests
 instance of ValidMof4a {
     id = 7;
     // with a s3 (nonexistant) value.
-    s3 = "an s3 value"; 
+    s3 = "an s3 value";
     };
-*/    
+*/

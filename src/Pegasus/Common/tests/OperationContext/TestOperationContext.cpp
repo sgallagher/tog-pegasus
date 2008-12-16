@@ -704,7 +704,7 @@ void Test5(void)
             if(!subscriptionInstanceNames[i].identical(
                 returnedInstanceNames[i]))
             {
-                cout << "----- Subscription Instance Names Container failed" 
+                cout << "----- Subscription Instance Names Container failed"
                      << endl;
 
                 throw 0;
@@ -978,7 +978,7 @@ int main(int argc, char** argv)
     }
     catch(CIMException & e)
     {
-        cout << argv[0] << " ----- failed with CIMException(" 
+        cout << argv[0] << " ----- failed with CIMException("
              << e.getCode() << "):" << e.getMessage() << endl;
     }
     catch(Exception & e)

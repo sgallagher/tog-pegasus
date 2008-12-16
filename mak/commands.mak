@@ -50,7 +50,7 @@ ifeq ($(OS_TYPE),windows)
     CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS) -start
     CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -stop
     SLEEP = mu sleep
-    TIME_CMD = 
+    TIME_CMD =
     WINDOWS_ONLY_SLEEP = mu sleep 10
     REMOVE_PEGASUS_DIRECTORY = mu rmdirhier pegasus
     MUEXE = mu.exe
@@ -69,7 +69,7 @@ else
 endif
 
 ifeq ($(OS),HPUX)
-    STRIPCRS = 
+    STRIPCRS =
     DIFF = diff
     SORT = sort
     REDIRECTERROR = 2>&1
@@ -115,7 +115,7 @@ ifeq ($(OS),HPUX)
     INSTALL_USR = bin
     INSTALL_GRP = bin
     CIMSERVER_USR = root
-    CIMSERVER_GRP = sys 
+    CIMSERVER_GRP = sys
     CHMOD = chmod
     CHOWN = chown
     CHGRP = chgrp
@@ -133,16 +133,16 @@ ifeq ($(OS),solaris)
     SORT = sort
     REDIRECTERROR = 2>&1
 #
-#   Refer to bug 4205 for the description of the problem with the SIGUSR1 
+#   Refer to bug 4205 for the description of the problem with the SIGUSR1
 #   signal.  That problem required changing the server to be started in the
-#   background with a sleep 30 to prevent the makefile from receiving the 
-#   SIGUSR1 signal and exiting 
-# 
+#   background with a sleep 30 to prevent the makefile from receiving the
+#   SIGUSR1 signal and exiting
+#
 ifeq ($(PEGASUS_PLATFORM), SOLARIS_SPARC_GNU)
-    CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS) & $(SLEEP) 30  
+    CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS) & $(SLEEP) 30
     CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -s
 else
-    CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS) 
+    CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS)
     CIMSERVER_STOP_SERVICE = /usr/bin/ps -ef | /usr/bin/grep cimserver | /usr/bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/usr/bin/ksh"}'
 endif
     SLEEP = sleep
@@ -153,7 +153,7 @@ endif
     MKDIRHIER = mkdir -p
     RMDIRHIER = rm -rf
     ECHO = echo
-    ECHO-E = mu echo-e 
+    ECHO-E = mu echo-e
     COPY = cp
     CHMOD = chmod
     CHOWN = chown
@@ -217,13 +217,13 @@ ifeq ($(OS),linux)
     CURRENT_USER=`whoami`
 
 #
-# Since the Privilege Separation splits the cimserver process into two 
+# Since the Privilege Separation splits the cimserver process into two
 # processes (cimservermain process - a non privileged process; cimserver
 # process - a privileged process), the pegasus files need to be split into
-# two sets. The files which can be updated by cimservermain process are owned 
+# two sets. The files which can be updated by cimservermain process are owned
 # by user "CIMSERVERMAIN_USR" and group "CIMSERVERMAIN_GRP". Other files
-# owned by user "CIMSERVER_USR" and group "CIMSERVER_GRP" can be updated 
-# by cimserver process. 
+# owned by user "CIMSERVER_USR" and group "CIMSERVER_GRP" can be updated
+# by cimserver process.
 # If the Privilege Separation is not enabled, a single privileged process
 # (cimserver process) is created. All the pegasus files can be updated by
 # the cimserver process. The CIMSERVERMAIN_USR variable will be set
@@ -234,7 +234,7 @@ ifeq ($(OS),linux)
 # process, we recommend creating a new group for the cimservermain
 # process.  By default, the name of this group will be the same as
 # the cimservermain user.  Note: the CIMSERVERMAIN_GRP should be
-# the primary group for the CIMSERVERMAIN_USER. 
+# the primary group for the CIMSERVERMAIN_USER.
 
 ifdef PEGASUS_ENABLE_PRIVILEGE_SEPARATION
     CIMSERVERMAIN_USR = $(PEGASUS_CIMSERVERMAIN_USER)
@@ -313,7 +313,7 @@ ifeq ($(OS),VMS)
     MUEXE = mu
     MKDIRHIER = $(MUEXE) mkdirhier
     RMDIRHIER = $(MUEXE) rmdirhier
-    ECHO = $(MUEXE) echo 
+    ECHO = $(MUEXE) echo
     ECHO-E = $(MUEXE) echo "ECHO-E not defined in commands.mak"
     CHMOD = $(MUEXE) echo "CHMOD not defined in commands.mak"
     CHOWN = $(MUEXE) echo "CHOWN not defined in commands.mak"
@@ -335,7 +335,7 @@ ifeq ($(OS),aix)
     MKDIRHIER = mkdir -p
     RMDIRHIER = rm -rf
     ECHO = echo
-    ECHO-E = 
+    ECHO-E =
     COPY = cp
     CHMOD = chmod
     CHOWN = chown
@@ -357,7 +357,7 @@ ifeq ($(OS),PASE)
     MKDIRHIER = mkdir -p
     RMDIRHIER = rm -rf
     ECHO = echo
-    ECHO-E = 
+    ECHO-E =
     COPY = cp
     CHMOD = chmod
     CHOWN = chown
@@ -371,7 +371,7 @@ ifeq ($(OS),darwin)
     SORT = sort
     REDIRECTERROR = 2>&1
     CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS)
-    CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -s 
+    CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -s
     SLEEP = sleep
     TIME_CMD = time
     REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
@@ -384,7 +384,7 @@ ifeq ($(OS),darwin)
     COPY = cp
     TOUCH = touch
     CAT = cat 	
-    
+
     CHMOD = chmod
     CHOWN = chown
     CHGRP = chgrp
@@ -421,13 +421,13 @@ ifndef TMP_DIR
 endif
 
 
-CMDSFORCE: 
+CMDSFORCE:
 
 ##
 ## Although the macros CIMSERVER_STOP_SERVICE and CIMSERVER_START_SERVICE
 ## are available and could be invoked directly, their direct usage is
 ## discouraged in favor of invoking the cimstop and the cimstart rules
-## as this allows one place where additional checks, delays etc may be 
+## as this allows one place where additional checks, delays etc may be
 ## added in the future to control or further test the servers performance
 ## in executing these commands.
 ##
@@ -451,13 +451,13 @@ rmdirhier: CMDSFORCE
 
 setpermissions: CMDSFORCE
 	$(CHMOD) $(PERMISSIONS) $(OBJECT)
-	$(CHOWN) $(OWNER) $(OBJECT) 
-	$(CHGRP) $(GROUP) $(OBJECT) 
+	$(CHOWN) $(OWNER) $(OBJECT)
+	$(CHGRP) $(GROUP) $(OBJECT)
 
 sethierpermissions: CMDSFORCE
 	$(CHMODDIRHIER) $(PERMISSIONS) $(OBJECT)
-	$(CHOWNDIRHIER) $(OWNER) $(OBJECT) 
-	$(CHGRPDIRHIER) $(GROUP) $(OBJECT) 
+	$(CHOWNDIRHIER) $(OWNER) $(OBJECT)
+	$(CHGRPDIRHIER) $(GROUP) $(OBJECT)
 
 createlink: CMDSFORCE
 	$(SYMBOLIC_LINK_CMD) $(OBJECT) $(LINKNAME)
@@ -468,14 +468,14 @@ createrandomseed: CMDSFORCE
 # Because commands.mak is intended to be used as
 # helper Makefile, embedded use of calls to "make" are
 # problematic because the name of toplevel is not known.
-# To workaround this problem, the MAKEOPTIONS define 
+# To workaround this problem, the MAKEOPTIONS define
 # has been added to the following commands to
-# allow the name of the toplevel Makefile to be included. 
+# allow the name of the toplevel Makefile to be included.
 # E.g.,
 #
 # make MAKEOPTION="-f TestMakefile" cimstop_IgnoreError
 #
-# However, a better alternative would be to call the 
+# However, a better alternative would be to call the
 # the command directly from the toplevel makefile.
 # E.g.,
 #
@@ -517,13 +517,13 @@ mkdirhier_IgnoreError: CMDSFORCE
 #	$(MAKE) $(MAKEOPTIONS) runTestSuite CIMSERVER_CONFIG_OPTIONS="$(runTestSuiteTest_CONFIG_OPTIONS)" TESTSUITE_CMDS="$(runTestSuiteTest_TEST_CMDS)"
 
 ##
-## NOTE: The CIMSERVER_CONFIG_OPTIONS are set in the environment on the 
-##       makefile rule command line invoking the runTestSuite command. 
-##       They are inherted by the next shell which will run the 
+## NOTE: The CIMSERVER_CONFIG_OPTIONS are set in the environment on the
+##       makefile rule command line invoking the runTestSuite command.
+##       They are inherted by the next shell which will run the
 ##       cimstart command.
 ##
 runTestSuite: CMDSFORCE
-	-$(CIMSERVER_STOP_SERVICE) 
+	-$(CIMSERVER_STOP_SERVICE)
 	-$(CMPIR_STOP_DAEMON)		
 	$(CIMSERVER_START_SERVICE)
 	$(CMPIR_START_DAEMON)
@@ -551,7 +551,7 @@ createSSLCnfFile: CMDSFORCE
 
 createSSLCertificate: CMDSFORCE
 ifdef PEGASUS_SSL_RANDOMFILE
-	@$(OPENSSL_COMMAND) req -x509 -days $(PEGASUS_SSLCERT_DAYS) -newkey rsa:2048 -rand $(PEGASUS_SSLCERT_RANDOMFILE) -nodes -config $(PEGASUS_SSLCERT_CNFFILE) -keyout $(PEGASUS_SSLCERT_KEYFILE) -out 
+	@$(OPENSSL_COMMAND) req -x509 -days $(PEGASUS_SSLCERT_DAYS) -newkey rsa:2048 -rand $(PEGASUS_SSLCERT_RANDOMFILE) -nodes -config $(PEGASUS_SSLCERT_CNFFILE) -keyout $(PEGASUS_SSLCERT_KEYFILE) -out
 $(PEGASUS_SSLCERT_CERTFILE)
 else
 	@$(OPENSSL_COMMAND) req -x509 -days $(PEGASUS_SSLCERT_DAYS) -newkey rsa:2048 -nodes -config $(PEGASUS_SSLCERT_CNFFILE) -keyout $(PEGASUS_SSLCERT_KEYFILE) -out $(PEGASUS_SSLCERT_CERTFILE)

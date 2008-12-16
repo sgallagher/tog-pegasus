@@ -39,20 +39,20 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-   
+
 /**
-    This is an abstract class that the local authenticators will extend and 
-    provide the implementation. Sample implementation can be seen in 
+    This is an abstract class that the local authenticators will extend and
+    provide the implementation. Sample implementation can be seen in
     SecureLocalAuthenticator.cpp
-*/ 
+*/
 class PEGASUS_SECURITY_LINKAGE LocalAuthenticator
 {
 public:
 
-    /** constructor. */ 
+    /** constructor. */
     LocalAuthenticator() { };
 
-    /** destructor. */ 
+    /** destructor. */
     virtual ~LocalAuthenticator() { };
 
     /** Verify the authentication of the requesting user.
@@ -64,8 +64,8 @@ public:
         @return true on successful authentication, false otherwise
     */
     virtual Boolean authenticate(
-        const String& userName, 
-        const String& secretReceived, 
+        const String& userName,
+        const String& secretReceived,
         const String& secretKept) = 0;
 
     /** Construct and return the Peagaus Local authentication challenge header
@@ -76,9 +76,9 @@ public:
         @return A string containing the authentication challenge header.
     */
     virtual String getAuthResponseHeader(
-        const String& authType, 
-        const String& userName, 
-        String& filePath, 
+        const String& authType,
+        const String& userName,
+        String& filePath,
         String& secret) = 0;
 
     /**

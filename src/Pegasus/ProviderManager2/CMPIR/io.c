@@ -64,7 +64,7 @@
     \return zero on success.
 */
 
-int io_read_fixed_length ( 
+int io_read_fixed_length (
     int fd,
     PEGASUS_CMPIR_IO_BUFPTR_TYPE * buf,
     size_t count )
@@ -77,10 +77,10 @@ int io_read_fixed_length (
         bytes = PEGASUS_CMPIR_RECV ( fd, (char *)buf, count,0 );
         if (bytes == 0)
         {
-            error_at_line ( 
-                0, 
-                0, 
-                __FILE__, 
+            error_at_line (
+                0,
+                0,
+                __FILE__,
                 __LINE__,
                 "EOF before reading complete "
                 "chunk of data from fd: %d",
@@ -91,10 +91,10 @@ int io_read_fixed_length (
         {
             if (errno != EINTR && errno != EAGAIN)
             {
-                error_at_line ( 
-                    0, 
-                    errno, 
-                    __FILE__, 
+                error_at_line (
+                    0,
+                    errno,
+                    __FILE__,
                     __LINE__,
                     "could not read all the "
                     "requested data from fd: %d",
@@ -127,7 +127,7 @@ int io_read_fixed_length (
     \return zero on success.
 */
 
-int io_write_fixed_length ( 
+int io_write_fixed_length (
     int fd,
     const PEGASUS_CMPIR_IO_BUFPTR_TYPE * buf,
     size_t count )
@@ -140,10 +140,10 @@ int io_write_fixed_length (
         bytes = PEGASUS_CMPIR_SEND(fd,(char *) buf, count, 0 );
         if (bytes == 0)
         {
-            error_at_line ( 
-                0, 
-                0, 
-                __FILE__, 
+            error_at_line (
+                0,
+                0,
+                __FILE__,
                 __LINE__,
                 "EOF before writing complete "
                 "chunk of data to fd: %d",
@@ -154,10 +154,10 @@ int io_write_fixed_length (
         {
             if (errno != EINTR && errno != EAGAIN)
             {
-                error_at_line ( 
-                    0, 
-                    errno, 
-                    __FILE__, 
+                error_at_line (
+                    0,
+                    errno,
+                    __FILE__,
                     __LINE__,
                     "could not write all the "
                     "requested data to fd: %d",

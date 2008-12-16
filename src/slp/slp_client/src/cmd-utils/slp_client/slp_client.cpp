@@ -474,7 +474,7 @@ static int _slp_get_local_interface(struct slp_if_addr **list, int af)
             for (int i = 0 ; i < ifConfHeader.__nif6h_entries; i++)
             {
                 if (!slp_is_loop_back(
-                        AF_INET6, 
+                        AF_INET6,
                         &pifConfEntries[i].__nif6e_addr.sin6_addr))
                 {
                     char buff[PEGASUS_INET6_ADDRSTR_LEN];
@@ -483,12 +483,12 @@ static int _slp_get_local_interface(struct slp_if_addr **list, int af)
                     DEBUG_PRINT((DEBUG_LEVEL1,
                         "_slp_get_local_interfaces: IPV6 %s",
                         inet_ntop(
-                            ifp->af, 
+                            ifp->af,
                             &(ifp->ip6_addr),
                             buff ,
                             PEGASUS_INET6_ADDRSTR_LEN)));
                     ifp++;
-                } 
+                }
                 else
                 {
                     //a interface was a loop back
@@ -501,9 +501,9 @@ static int _slp_get_local_interface(struct slp_if_addr **list, int af)
             free(ifConfHeader.__nif6h_buffer);
             _LSLP_CLOSESOCKET(sock);
         } // opened the socket
- 
+
 #endif // PEGASUS_OS_ZOS
-        DEBUG_PRINT((DEBUG_EXIT, 
+        DEBUG_PRINT((DEBUG_EXIT,
             "_slp_get_local_interfaces: IPV6 interfaces %d.",
             interfaces));
         return(interfaces);
@@ -800,7 +800,7 @@ static int _slp_create_bind_socket(SOCKETD *sock, int af, int port,
     {
         PEGASUS_ASSERT(af == AF_INET6);
 #ifdef  PEGASUS_OS_ZOS
-        // To be able to bind the IPV6 socket to in6addr_any in parallel to 
+        // To be able to bind the IPV6 socket to in6addr_any in parallel to
         // the IPV4 socket, the IPV6_V6ONLY option has to be set.
         _LSLP_SETSOCKOPT(*sock, IPPROTO_IPV6, IPV6_V6ONLY,
             (const char *)&err, sizeof(err));

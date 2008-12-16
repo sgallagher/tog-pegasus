@@ -136,7 +136,7 @@ static void TestNameSpaceOperations(CIMClient* client, Boolean activeTest,
         {
             // Get the next increment in naming for all a name element in the
             // array
-            Array<CIMInstance> instances = 
+            Array<CIMInstance> instances =
                 client->enumerateInstances(namespaceNames[range], className);
             for (Uint32 i = 0 ; i < instances.size(); i++)
             {
@@ -162,7 +162,7 @@ static void TestNameSpaceOperations(CIMClient* client, Boolean activeTest,
         }
     }
     while (start != end);
-    // Validate that all of the returned entities are really namespaces. 
+    // Validate that all of the returned entities are really namespaces.
     // It is legal for us to have an name component that is really not a
     // namespace (ex. root/fred/john is a namespace
     // but root/fred is not.
@@ -227,7 +227,7 @@ static void TestNameSpaceOperations(CIMClient* client, Boolean activeTest,
         CIMInstance newInstance(name);
             newInstance.addProperty(
                 CIMProperty(CIMName ("name"), testNamespaceName.getString()));
-            newInstanceName = 
+            newInstanceName =
                 client->createInstance(__NAMESPACE_NAMESPACE, newInstance);
         }
         catch(CIMException& e)
@@ -247,7 +247,7 @@ static void TestNameSpaceOperations(CIMClient* client, Boolean activeTest,
         }
         catch(Exception& e)
         {
-            PEGASUS_STD(cerr) << "Exception NameSpace Creation: " 
+            PEGASUS_STD(cerr) << "Exception NameSpace Creation: "
                 << e.getMessage() << PEGASUS_STD(endl);
             errorCount++;
             return;
@@ -333,7 +333,7 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
     {
         if (verboseTest)
         {
-            cout << "Test to create, modify and delete test class " 
+            cout << "Test to create, modify and delete test class "
                 << testClass.getString() << endl;
         }
         for (Uint32 i = 0; i < classNames.size(); i++)
@@ -346,7 +346,7 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
                 catch (CIMException& e)
                 {
                         cout << "TestClass " << testClass.getString()
-                            << " delete failed " 
+                            << " delete failed "
                             << e.getMessage() << endl;
                         errorCount++;
                         return;
@@ -474,7 +474,7 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
 static void TestQualifierOperations(CIMClient* client, Boolean activeTest,
                          Boolean verboseTest, String uniqueID) {
 
-    Array<CIMQualifierDecl> qualifierDecls = 
+    Array<CIMQualifierDecl> qualifierDecls =
         client->enumerateQualifiers(globalNamespace);
 
     if (verboseTest)
@@ -507,11 +507,11 @@ static void TestQualifierOperations(CIMClient* client, Boolean activeTest,
 
          // Get them and compare:
 
-         CIMQualifierDecl tmp1 = 
+         CIMQualifierDecl tmp1 =
              client->getQualifier(globalNamespace, qd1_name);
          PEGASUS_TEST_ASSERT(tmp1.identical(qd1));
 
-         CIMQualifierDecl tmp2 = 
+         CIMQualifierDecl tmp2 =
              client->getQualifier(globalNamespace, qd2_name);
          PEGASUS_TEST_ASSERT(tmp2.identical(qd2));
 
@@ -551,7 +551,7 @@ static Boolean lookupError(const String& ignoreErrors, CIMStatusCode lookupCode)
         Uint32 pos = ignoreErrors.find(startPos, ERROR_DELIMETER);
         if (pos == PEG_NOT_FOUND)
         {
-            pos = strSize; 
+            pos = strSize;
         }
 
         String errorStr = ignoreErrors.subString(startPos, pos - startPos);
@@ -567,7 +567,7 @@ static Boolean lookupError(const String& ignoreErrors, CIMStatusCode lookupCode)
 }
 
 static void TestInstanceGetOperations(CIMClient* client, Boolean activeTest,
-                                    Boolean verboseTest, String uniqueID, 
+                                    Boolean verboseTest, String uniqueID,
                                     String ignoreErrors)
 {
     // Get all instances
@@ -595,7 +595,7 @@ static void TestInstanceGetOperations(CIMClient* client, Boolean activeTest,
        //{
            try
            {
-               instanceNames = 
+               instanceNames =
                   client->enumerateInstanceNames(globalNamespace,classNames[i]);
                if (instanceNames.size() > 0)
                    cout << "Class " << classNames[i].getString() << " "
@@ -624,13 +624,13 @@ static void TestInstanceGetOperations(CIMClient* client, Boolean activeTest,
            }
        catch(ConnectionTimeoutException& e)
        {
-           PEGASUS_STD(cerr) << "Warning: " << e.getMessage() 
+           PEGASUS_STD(cerr) << "Warning: " << e.getMessage()
                << PEGASUS_STD(endl);
            exit(2);
        }
        catch(Exception& e)
        {
-           PEGASUS_STD(cerr) << "Error: " << e.getMessage() 
+           PEGASUS_STD(cerr) << "Error: " << e.getMessage()
                << PEGASUS_STD(endl);
            exit(1);
        }
@@ -807,7 +807,7 @@ static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
 
     if (verboseTest)
     {
-        cout << "Test references results for class: " 
+        cout << "Test references results for class: "
             << objectName.getClassName().getString()
             << " returned " << result.size() << "reference names" << endl;
     }
@@ -871,7 +871,7 @@ static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
 
     if (verboseTest)
     {
-        cout << "Test associations results for class: " 
+        cout << "Test associations results for class: "
             << objectName.getClassName().getString()
             << " returned " << result.size() << "associator names" << endl;
     }
@@ -890,13 +890,13 @@ static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
 
         for (Uint32 i = 0 ; i < maxCount ; i ++)
         {
-            cout << i << " " 
-                << ((i < assocResult.size())? assocResult[i].toString() : "") 
+            cout << i << " "
+                << ((i < assocResult.size())? assocResult[i].toString() : "")
                 << endl;
 
-            cout << i << " " 
-                << ((i < assocResultObjects.size())? 
-                        assocResultObjects[i].getPath().toString() : "") 
+            cout << i << " "
+                << ((i < assocResultObjects.size())?
+                        assocResultObjects[i].getPath().toString() : "")
                 << endl;
         }
         errorCount++;
@@ -909,7 +909,7 @@ static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
       Uint32 matched=0;
       for (Uint32 j = 0; j < assocResult.size(); j++)
       {
-        if (assocResultObjects[i].getPath().toString() == 
+        if (assocResultObjects[i].getPath().toString() ==
                 assocResult[j].toString())
         {
            matched=1;
@@ -952,17 +952,17 @@ static void TestAssociationOperations(CIMClient* client, Boolean
         CIMObjectPath o1("CIM_ManagedElement");
         CIMObjectPath o2("CIM_ManagedElement.name=\"karl\"");
 
-        testRefandAssoc(client, globalNamespace, verboseTest, o1, 
+        testRefandAssoc(client, globalNamespace, verboseTest, o1,
             CIMName(), CIMName());
         try
         {
-            testRefandAssoc(client, globalNamespace, verboseTest, 
+            testRefandAssoc(client, globalNamespace, verboseTest,
                 o2, CIMName(), CIMName());
         }
         catch(CIMException& e)
         {
             // This test will get a not supported exception in the case where
-            // the repository is not the default instance provider. 
+            // the repository is not the default instance provider.
             // We should not flag this as a test error.
             if (e.getCode() == CIM_ERR_NOT_SUPPORTED)
             {
@@ -981,7 +981,7 @@ static void TestAssociationOperations(CIMClient* client, Boolean
         }
         catch(CIMException& e)
         {
-              if (e.getCode() == CIM_ERR_INVALID_NAMESPACE 
+              if (e.getCode() == CIM_ERR_INVALID_NAMESPACE
                       || e.getCode() == CIM_ERR_INVALID_CLASS)
               {
                  runTest = false;
@@ -999,20 +999,20 @@ static void TestAssociationOperations(CIMClient* client, Boolean
     {
 
         CIMObjectPath TST_PersonClass= CIMObjectPath("TST_Person");
-        CIMObjectPath TST_PersonInstance = 
+        CIMObjectPath TST_PersonInstance =
             CIMObjectPath( "TST_Person.name=\"Mike\"");
-        CIMObjectPath TST_PersonDynamicClass = 
+        CIMObjectPath TST_PersonDynamicClass =
             CIMObjectPath("TST_PersonDynamic");
-        CIMObjectPath TST_PersonDynamicInstance = 
+        CIMObjectPath TST_PersonDynamicInstance =
             CIMObjectPath( "TST_PersonDynamic.name=\"Father\"");
 
-        testRefandAssoc(client, nameSpace, verboseTest, TST_PersonClass , 
+        testRefandAssoc(client, nameSpace, verboseTest, TST_PersonClass ,
                 CIMName(), CIMName());
-        testRefandAssoc(client, nameSpace, verboseTest, TST_PersonInstance , 
+        testRefandAssoc(client, nameSpace, verboseTest, TST_PersonInstance ,
                 CIMName(), CIMName());
-        testRefandAssoc(client, nameSpace, verboseTest, 
+        testRefandAssoc(client, nameSpace, verboseTest,
                 TST_PersonDynamicClass , CIMName(), CIMName());
-        testRefandAssoc(client, nameSpace, verboseTest, 
+        testRefandAssoc(client, nameSpace, verboseTest,
                 TST_PersonDynamicInstance , CIMName(), CIMName());
     }
 
@@ -1144,7 +1144,7 @@ static void TestEnumerateInstances( CIMClient * client,
                       localOnly,  includeQualifiers,
                       includeClassOrigin );
 
-      cout << "Found " << cimNInstances.size() << " Instances of " 
+      cout << "Found " << cimNInstances.size() << " Instances of "
           << className.getString() << endl;
       //ASSERTTEMP(cimNInstances.size() == 3);
       numberInstances =  cimNInstances.size();
@@ -1157,13 +1157,13 @@ static void TestEnumerateInstances( CIMClient * client,
              (instanceRef != INSTANCE1) &&
              (instanceRef != INSTANCE2))
           {
-              PEGASUS_STD(cerr) 
+              PEGASUS_STD(cerr)
                   << "Error: EnumInstances failed. Instance Name Error"
                   << " Expected instance name = "
                   << INSTANCE0.toString() << " or "
                   << INSTANCE1.toString() << " or "
                   << INSTANCE2.toString()
-                  << "received = " << instanceRef.toString() 
+                  << "received = " << instanceRef.toString()
                   << PEGASUS_STD(endl);
 
               errorCount++;
@@ -1171,7 +1171,7 @@ static void TestEnumerateInstances( CIMClient * client,
           }
         }
     }
-      cout << "Enumerate " << numberInstances << " instances " << testRepeat 
+      cout << "Enumerate " << numberInstances << " instances " << testRepeat
           << " times" << endl;
     }
   catch(Exception& e)
@@ -1326,7 +1326,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL executeTests(void *parm)
         testStart("Test Instance Get Operations");
         elapsedTime.reset();
         elapsedTime.start();
-        TestInstanceGetOperations(client,activeTest,verboseTest, uniqueID, 
+        TestInstanceGetOperations(client,activeTest,verboseTest, uniqueID,
             ignoreErrors);
         elapsedTime.stop();
         testEnd(elapsedTime.getElapsed());
@@ -1369,7 +1369,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL executeTests(void *parm)
 Thread* runTests(
     CIMClient* client,
     Uint32 testCount,
-    Boolean activeTest, 
+    Boolean activeTest,
     Boolean verboseTest,
     int uniqueID,
     String ignoreErrors)
@@ -1429,10 +1429,10 @@ void connectClient(
                 SSLContext sslcontext(
                     trustpath, verifyCertificate, randFile);
 
-                cout << "connecting to " << host << ":" << portNumber 
+                cout << "connecting to " << host << ":" << portNumber
                     << " using SSL" << endl;
 
-                client->connect (host, portNumber, sslcontext, userName, 
+                client->connect (host, portNumber, sslcontext, userName,
                         password);
             }
 #else
@@ -1521,7 +1521,7 @@ int main(int argc, char** argv)
     Boolean verboseTest = om.isTrue("verbose");
 
 
-    // Set up number of test repetitions.  
+    // Set up number of test repetitions.
     // Will repeat entire test this number of times
     // Default is zero
     // String repeats;
@@ -1622,7 +1622,7 @@ int main(int argc, char** argv)
     // connect the clients
     for (Uint32 i = 0; i < clients; i++)
     {
-        connectClient(clientConnections[i], host, portNumber, userName, 
+        connectClient(clientConnections[i], host, portNumber, userName,
             password, useSSL, localConnection, timeout);
     }
 
@@ -1636,7 +1636,7 @@ int main(int argc, char** argv)
     for (Uint32 i = 0; i < clientConnections.size(); i++)
     {
         clientThreads.append(runTests(
-            clientConnections[i], repeatTestCount, activeTest, verboseTest, i, 
+            clientConnections[i], repeatTestCount, activeTest, verboseTest, i,
                ignoreErrors));
     }
 
@@ -1644,7 +1644,7 @@ int main(int argc, char** argv)
     {
         clientThreads[i]->join();
     }
-      
+
     cout << "+++++ Overall time taken for the operation +++++" << endl;
     elapsedTime.stop();
     testEnd(elapsedTime.getElapsed());

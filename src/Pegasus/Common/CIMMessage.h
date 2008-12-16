@@ -1443,7 +1443,7 @@ public:
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
     : CIMResponseMessage(CIM_GET_INSTANCE_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_), 
+        messageId_, cimException_, queueIds_),
         resolveCallback(0),
         binaryEncoding(false)
     {
@@ -1464,10 +1464,10 @@ public:
     // For Binary encoding:
     Array<Uint8> binaryData;
 
-    CIMInstance& getCimInstance() 
+    CIMInstance& getCimInstance()
     {
         _resolve();
-        return _cimInstance; 
+        return _cimInstance;
     }
 
     const CIMConstInstance& getCimInstance() const
@@ -1482,10 +1482,10 @@ public:
         return *((CIMConstInstance*)(void*)&_cimInstance);
     }
 
-    void setCimInstance(const CIMInstance& x) 
-    { 
+    void setCimInstance(const CIMInstance& x)
+    {
         resolveCallback = 0;
-        _cimInstance = x; 
+        _cimInstance = x;
     }
 
 private:
@@ -1494,7 +1494,7 @@ private:
     CIMGetInstanceResponseMessage& operator=(
         const CIMGetInstanceResponseMessage&);
 
-    void _resolve() 
+    void _resolve()
     {
         if (resolveCallback)
         {
@@ -1653,7 +1653,7 @@ public:
         const QueueIdStack& queueIds_)
     : CIMResponseMessage(
         CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_), 
+        messageId_, cimException_, queueIds_),
         resolveCallback(0),
         binaryEncoding(false)
     {

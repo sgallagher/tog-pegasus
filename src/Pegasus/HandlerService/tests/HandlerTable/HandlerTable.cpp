@@ -80,7 +80,7 @@ int main(int argc, char** argv)
         }
         catch(const DynamicLoadFailed&)
         {
-            dynamicLoadFailedCaught = true;                      
+            dynamicLoadFailedCaught = true;
         }
         PEGASUS_TEST_ASSERT(dynamicLoadFailedCaught);
 
@@ -97,7 +97,7 @@ int main(int argc, char** argv)
         }
         catch(const DynamicLookupFailed&)
         {
-            dynamicLookupFailedCaught = true;                      
+            dynamicLookupFailedCaught = true;
         }
         PEGASUS_TEST_ASSERT(dynamicLookupFailedCaught);
     }

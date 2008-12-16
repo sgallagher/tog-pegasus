@@ -40,7 +40,7 @@ void test01()
     try
     {
         Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
-            
+
     AtomicInt i,j,ii,jj;
 
     if (verbose) {
@@ -56,7 +56,7 @@ void test01()
     i--;
     PEGASUS_TEST_ASSERT( i.get() == 5 );
 
-    if (verbose) 
+    if (verbose)
         cout << "Testing: i+Uint32, i+AtomicInt, i-Uint32, etc.. "<<endl;
     }
     catch (Exception & e)

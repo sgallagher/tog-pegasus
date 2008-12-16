@@ -101,7 +101,7 @@ static void _testStrings(void)
                 if (stra[i-1] != buf)
                     throw Exception("Invalid string array entry.");
             }
-            
+
             // Re-set the value from array to string
             val.set("New test string 1");
             if (val.getType() != WSMTYPE_OTHER ||
@@ -113,7 +113,7 @@ static void _testStrings(void)
             if (str != "New test string 1")
                 throw Exception("Can't set string value.");
 
-            // Add string values. The value must convert itself into 
+            // Add string values. The value must convert itself into
             // string array.
             for (int i = 2; i < 6; i++)
             {
@@ -122,7 +122,7 @@ static void _testStrings(void)
                 WsmValue tmp(buf);
                 val.add(tmp);
             }
-            
+
              // Make sure we can get the array + verify it's size
             val.get(stra);
             if (stra.size() != 5)
@@ -184,12 +184,12 @@ static void _createEPR(int idx, WsmEndpointReference& epr)
     epr.resourceUri = buf;
 }
 
-static Boolean _compareEPRs(WsmEndpointReference& epr1, 
+static Boolean _compareEPRs(WsmEndpointReference& epr1,
     WsmEndpointReference& epr2)
 {
     if (epr1.address != epr2.address ||
         epr1.resourceUri != epr2.resourceUri ||
-        epr1.selectorSet->selectors.size() != 
+        epr1.selectorSet->selectors.size() !=
         epr2.selectorSet->selectors.size())
         return false;
 
@@ -214,7 +214,7 @@ static void _testEPRs(void)
     if (val.getType() != WSMTYPE_REFERENCE ||
         val.isArray() || val.isNull())
         throw Exception("Invalid EPR value.");
-    
+
     // Test EPR get()
     WsmEndpointReference epr1;
     val.get(epr1);
@@ -253,7 +253,7 @@ static void _testEPRs(void)
         if (!_verifyEPR(i, epra[i]))
             throw Exception("Invalid EPR array entry.");
     }
-            
+
     // Re-set the value from array to EPR
     _createEPR(10, epr);
     val.set(epr);
@@ -274,7 +274,7 @@ static void _testEPRs(void)
         WsmValue tmp_val(tmp_epr);
         val.add(tmp_val);
     }
-            
+
     // Make sure we can get the array + verify it's size
     val.get(epra);
     if (epra.size() != 5)
@@ -350,7 +350,7 @@ static void _testInstances(void)
     if (val.getType() != WSMTYPE_INSTANCE ||
         val.isArray() || val.isNull())
         throw Exception("Invalid Instance value.");
-    
+
     // Test Instance get()
     WsmInstance inst1;
     val.get(inst1);
@@ -389,7 +389,7 @@ static void _testInstances(void)
         if (!_verifyInstance(i, insta[i]))
             throw Exception("Invalid Instance array entry.");
     }
-            
+
     // Re-set the value from array to Instance
     _createInstance(10, inst);
     val.set(inst);
@@ -410,7 +410,7 @@ static void _testInstances(void)
         WsmValue tmp_val(tmp_inst);
         val.add(tmp_val);
     }
-            
+
     // Make sure we can get the array + verify it's size
     val.get(insta);
     if (insta.size() != 5)
@@ -623,7 +623,7 @@ static void _testMisc(void)
         Array<String> stra;
         WsmValue val(stra);
         val.toArray();
-        if (val.isNull() || !val.isArray() || 
+        if (val.isNull() || !val.isArray() ||
             val.getType() != WSMTYPE_OTHER)
             throw Exception("Invalid array value");
     }
@@ -633,9 +633,9 @@ static void _testMisc(void)
     {
         WsmValue val(inst);
         val.setNull();
-        if (!val.isNull() || val.isArray() || 
+        if (!val.isNull() || val.isArray() ||
             val.getType() != WSMTYPE_OTHER)
-            throw Exception("Invalid NULL value");    
+            throw Exception("Invalid NULL value");
     }
 }
 
@@ -651,7 +651,7 @@ int main(int argc, char** argv)
     }
     catch (Exception& e)
     {
-        cerr << "Error: " << e.getMessage() << endl;    
+        cerr << "Error: " << e.getMessage() << endl;
         exit(1);
     }
     cout << argv[0] << " +++++ passed all tests" << endl;

@@ -1205,7 +1205,7 @@ const
     int rc;
 
 
-    if (gethostname(hostName, sizeof(hostName)) != 0) 
+    if (gethostname(hostName, sizeof(hostName)) != 0)
     {
         return String("unknown");
     }
@@ -1515,7 +1515,7 @@ Boolean Process::loadProcessInfo (int &pIndex)
 // =============================================================================
 //
 
-Boolean Process::buildProcessTable (unsigned long& jpictx2, 
+Boolean Process::buildProcessTable (unsigned long& jpictx2,
                                     int& procCount,
                                     item_list* itmlst3,
                                     struct proc_info* procInfoArray)

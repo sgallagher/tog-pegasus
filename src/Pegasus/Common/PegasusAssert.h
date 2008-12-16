@@ -35,11 +35,11 @@
   // zOS specific implementation of assert macros.
 # include <Pegasus/Common/PegasusAssertZOS.h>
 
-#else 
+#else
 // NOTE:
 //
 //  This is the common implementation for the assert macros.
-//  If platform specific implementation are needed they have to 
+//  If platform specific implementation are needed they have to
 //  be placed in a platform specific include file and included before.
 //
 // All built and tested OK with <assert.h>

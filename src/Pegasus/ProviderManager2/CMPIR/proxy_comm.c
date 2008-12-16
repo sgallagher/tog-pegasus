@@ -121,10 +121,10 @@ static provider_comm * load_comm_library (
         //invokes dlfree call on unix and FreeLibrary on windows
         PEGASUS_CMPIR_FREELIBRARY( hLibrary );
     }
-    error_at_line ( 
-        0, 
-        errno, 
-        __FILE__, 
+    error_at_line (
+        0,
+        errno,
+        __FILE__,
         __LINE__,
         "Unable to load/init communication-layer library.%s Error",
         id);

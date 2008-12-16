@@ -201,7 +201,7 @@ public:
 
     // Monitors threads that the provider has allocated.
 
-    /* 
+    /*
      * Adds the thread to the watch list. The watch list is monitored when the
      * provider is terminated and if any of the threads have not cleaned up by
      * that time, they are forcifully terminated and cleaned up.
@@ -210,20 +210,20 @@ public:
      */
     void addThreadToWatch(Thread *t);
     /*
-    // Removes the thread from the watch list and schedule the 
-    // CMPILocalProviderManager to delete the thread. The  
-    // CMPILocalProviderManager after deleting the thread calls the 
+    // Removes the thread from the watch list and schedule the
+    // CMPILocalProviderManager to delete the thread. The
+    // CMPILocalProviderManager after deleting the thread calls the
     // CMPIProvider' "cleanupThread". The CMPILocalProviderManager notifies
-    // this CMPIProvider object when the thread is truly dead by calling 
+    // this CMPIProvider object when the thread is truly dead by calling
     // "threadDeleted" function.
     //
     // Note that this function is called from the thread that finished with
     // running the providers function, and returns immediately while scheduling
-    // the a cleanup procedure. If you want to wait until the thread is truly 
-    // deleted, call 'waitUntilThreadsDone' - but DO NOT do it in the the 
+    // the a cleanup procedure. If you want to wait until the thread is truly
+    // deleted, call 'waitUntilThreadsDone' - but DO NOT do it in the the
     // thread that the Thread owns - you will wait forever.
     //
-    // @argument t Thread that is not NULL and finished with running the 
+    // @argument t Thread that is not NULL and finished with running the
        provider function.
     */
     void removeThreadFromWatch(Thread *t);
@@ -232,7 +232,7 @@ public:
     * Remove the thread from the list of threads that are being deleted
     * by the CMPILocalProviderManager.
     *
-    * @argument t Thread which has been previously provided to 
+    * @argument t Thread which has been previously provided to
     * 'removeThreadFromWatch' function.
     */
     void threadDelete(Thread *t);
@@ -241,7 +241,7 @@ public:
     *
     * @argument t Thread that is not NULL.
     */
-    Boolean isThreadOwner( Thread *t); 
+    Boolean isThreadOwner( Thread *t);
 
     CMPIProviderModule *getModule() const;
 
@@ -328,7 +328,7 @@ public:
     CMPIAssociationMI *getAssocMI();
     CMPIPropertyMI *getPropMI();
     CMPIIndicationMI *getIndMI();
-    
+
     CMPIProviderModule *getModule();
     Uint32 getQuantum();
     void setQuantum(Uint32 quantum);
@@ -358,8 +358,8 @@ private:
 
     /*
      * Wait until all finished provider threads have been cleaned and deleted.
-     * Note: This should NEVER be called from the thread that IS the Thread 
-     * object that was is finished and called 'removeThreadFromWatch()' . If  
+     * Note: This should NEVER be called from the thread that IS the Thread
+     * object that was is finished and called 'removeThreadFromWatch()' . If
      * you do it, you will wait forever.
      */
     void waitUntilThreadsDone();
@@ -486,4 +486,4 @@ public:
 PEGASUS_NAMESPACE_END
 
 #endif
-    
+

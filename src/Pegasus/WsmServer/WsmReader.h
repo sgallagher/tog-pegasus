@@ -117,15 +117,15 @@ public:
         Boolean& wsmRequestItemCount);
 
     void decodeEnumerateBody(
-        String& expiration, 
-        WsmbPolymorphismMode& polymorphismMode, 
-        WsenEnumerationMode& enumerationMode, 
-        Boolean& optimized, 
+        String& expiration,
+        WsmbPolymorphismMode& polymorphismMode,
+        WsenEnumerationMode& enumerationMode,
+        Boolean& optimized,
         Uint32& maxElements);
 
     void decodePullBody(
-        Uint64& enumerationContext, 
-        String& maxTime, 
+        Uint64& enumerationContext,
+        String& maxTime,
         Uint32& maxElements,
         Uint32& maxCharacters);
 

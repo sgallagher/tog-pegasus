@@ -106,21 +106,21 @@ class thread_data
      * This class is NOT build thread-safe.
      * The Caller(user) of this class has to ensure there is no collision
      * taking place.
-     * 
+     *
      * There is no mechanism in place to protect threads from manipulating
      * the same thread-specific storage at one time.
      * Make sure the possibility for a parallel access to the same
      * threads-specific data from multiple threads cannot arise.
-     * 
+     *
      * In OpenPegasus this class is used in the ThreadPool
      *        - on initialisation and creation of threads owned by ThreadPool
      *        - on threads that are idle inside the ThreadPool
      *        - on the ThreadPools main thread (the thread which the ThreadPool
      *          runs in)
-     * In OpenPegasus this class is used in the 
+     * In OpenPegasus this class is used in the
      * ClientCIMOMHandleRep and InternalCIMOMHandleRep
      *        - on the current active Thread which belongs to that CIMOMHandle
-     * 
+     *
      */
 public:
 

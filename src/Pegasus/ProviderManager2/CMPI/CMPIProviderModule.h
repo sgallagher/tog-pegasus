@@ -44,8 +44,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// The CMPIProviderModule class represents the physical module, as defined by 
-// the operation, that contains a provider. This class effectively 
+// The CMPIProviderModule class represents the physical module, as defined by
+// the operation, that contains a provider. This class effectively
 // encapsulates the "physical" portion of a provider.
 
 class PEGASUS_CMPIPM_LINKAGE CMPIProviderModule
@@ -74,4 +74,4 @@ inline const String & CMPIProviderModule::getFileName() const
 PEGASUS_NAMESPACE_END
 
 #endif
-    
+

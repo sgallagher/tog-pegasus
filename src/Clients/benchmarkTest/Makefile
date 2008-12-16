@@ -33,6 +33,6 @@ include $(ROOT)/mak/config.mak
 DIRS = \
     benchmarkDefinition \
     benchmarkClient \
-    benchmarkProvider 
+    benchmarkProvider
 
 include $(ROOT)/mak/recurse.mak

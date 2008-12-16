@@ -174,7 +174,7 @@ static CMPIInstance * __ift_clone(
 }
 
 
-static CMPIData __ift_getProperty ( 
+static CMPIData __ift_getProperty (
     CONST CMPIInstance * instance,
     const char * name,
     CMPIStatus * rc )
@@ -377,7 +377,7 @@ static CMPIStatus __ift_setObjectPath(
     {
         CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
     }
-    CMReturn (CMPI_RC_ERR_NOT_SUPPORTED);    
+    CMReturn (CMPI_RC_ERR_NOT_SUPPORTED);
 }
 #endif
 
@@ -428,7 +428,7 @@ extern char * value2Chars(CMPIType type, CMPIValue * value);
 
 extern CMPIString *__oft_toString(CONST CMPIObjectPath * cop, CMPIStatus *rc);
 extern CMPIString * __oft_getClassName(
-    CONST CMPIObjectPath * cop, 
+    CONST CMPIObjectPath * cop,
     CMPIStatus * rc);
 
 CMPIString *instance2String(CONST CMPIInstance *inst, CMPIStatus *rc)

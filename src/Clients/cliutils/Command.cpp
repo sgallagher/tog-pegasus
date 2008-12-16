@@ -47,12 +47,12 @@ Command::~Command()
 }
 
 /**
-  
+
     Gets command usage string.  Usage string may be retrieved and displayed
     when a CommandFormatException is caught.
-  
+
     @return  String containing the command usage message
-  
+
  */
 String& Command::getUsage ()
 {
@@ -60,23 +60,23 @@ String& Command::getUsage ()
 }
 
 /**
-  
+
     Sets command usage string.  Usage string should be set by Command
     subclass constructor.
-  
+
     @param    usageMessage    the command usage message
-  
+
  */
 void Command::setUsage (String& usageMessage)
 {
     _usage = usageMessage;
-}  
+}
 
 //l10n
 String Command::localizeMessage(const char * resource_path,
-                                const char * key, 
+                                const char * key,
                                 const char * default_msg,
-                                Formatter::Arg arg0, 
+                                Formatter::Arg arg0,
                                 Formatter::Arg arg1,
                                 Formatter::Arg arg2,
                                 Formatter::Arg arg3,
@@ -90,12 +90,12 @@ String Command::localizeMessage(const char * resource_path,
     MessageLoaderParms parms(key,default_msg,
                        arg0,arg1,arg2,arg3,arg4,
                        arg5,arg6,arg7,arg8,arg9);
-                       
+
     if(strlen(resource_path) > 0)
         parms.msg_src_path = resource_path;
-    
+
     return MessageLoader::getMessage(parms);
-                       
+
 }
 //l10n end
 

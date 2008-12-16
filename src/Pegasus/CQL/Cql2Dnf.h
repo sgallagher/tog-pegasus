@@ -45,7 +45,7 @@ PEGASUS_NAMESPACE_BEGIN
 #undef  PEGASUS_COMMON_LINKAGE
 #define PEGASUS_COMMON_LINKAGE
 
-#include <Pegasus/Common/Linkage.h> 
+#include <Pegasus/Common/Linkage.h>
 
 enum OperationType { CQL_LT, CQL_GT, CQL_EQ, CQL_LE, CQL_GE,
                      CQL_NE, CQL_IS_NULL, CQL_IS_NOT_NULL,
@@ -146,7 +146,7 @@ public:
     Cql2Dnf(CQLPredicate& topLevel);
 
   /**
-      Destructs the Cql2Dnf object.  
+      Destructs the Cql2Dnf object.
 
       @param  - None.
       @return - None.
@@ -190,24 +190,24 @@ protected:
     void _factoring(void);
 
     /**
-    
+
     This function takes a CQLSelectStatement and does a depth first search
     looking for the operations and operands.
     The operations are appended to the _operations array and the operands
     appended to the _operands array.
     When finished, we will have two arrays, representing the statement tree,
     from which we can start the process to put the statement into DNF.
-    
+
     Example:  a=b^(!c=d v e=f)
      _operations array will look like:
         [=][=][!][=][v][^]
      _operands array will look like:
         [a][b][c][d][e][f]
-    
+
     @param  - topLevel. CQLPredicate to extract operations and operands from
     @return - None.
     @throw  - None.
- 
+
    */
 
     void _strip_ops_operands(CQLPredicate& topLevel);
@@ -276,7 +276,7 @@ protected:
         this is to prevent appending complex predicates to the top level
         predicate the final DNFed predicate must only have simple predicates
         inside its predicate array
-        
+
         example:
            say P = A AND B
            say P1 = C AND D
@@ -292,7 +292,7 @@ protected:
          operators to P
          -> when done we have P = A AND B OR C AND D INSTEAD of having P = A
          AND B OR P1 where P1 is a complex predicate
-        
+
 
     @param topLevel, CQLPredicate that will contain CQLPredicate p
     @param op, The operation AND / OR
@@ -306,7 +306,7 @@ protected:
     OperationType _convertOpType(ExpressionOpType op);
 
     ExpressionOpType _convertOpType(OperationType op);
-    
+
 private:
 
     //

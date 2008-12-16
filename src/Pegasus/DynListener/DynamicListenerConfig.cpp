@@ -49,7 +49,7 @@ static struct OptionRow optionsTable[] =
 //optionname defaultvalue rqd  type domain domainsize clname hlpmsg
 {
 
-{"listenerPort", "5999", false, Option::WHOLE_NUMBER, 0, 0, 
+{"listenerPort", "5999", false, Option::WHOLE_NUMBER, 0, 0,
  "listenerPort", "specifies system and port"},
 #ifdef PEGASUS_HAS_SSL
 {"enableHttpsListenerConnection", "false", false, Option::BOOLEAN, 0, 0,
@@ -110,7 +110,7 @@ DynamicListenerConfig* DynamicListenerConfig::getInstance()
     if (!_instance)
     {
         _instance = new DynamicListenerConfig();
-    } 
+    }
 
     return _instance;
 }
@@ -150,7 +150,7 @@ Boolean DynamicListenerConfig::lookupValue(
             throw OMInvalidOptionValue(name, value);
         }
 
-        // must be able to write pending requests to 
+        // must be able to write pending requests to
         // .dat files in the config directory
         if (String::equal(name, "consumerConfigDir") &&
             !FileSystem::canWrite(value))
@@ -177,9 +177,9 @@ Boolean DynamicListenerConfig::lookupValue(
         {
             throw OMInvalidOptionValue(name, value);
         }
-    } 
+    }
 #ifdef PEGASUS_HAS_SSL
-    else if (String::equal(name, "sslKeyFilePath") || 
+    else if (String::equal(name, "sslKeyFilePath") ||
              String::equal(name, "sslCertificateFilePath"))
     {
         //a blank value is acceptable and is the default

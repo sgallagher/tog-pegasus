@@ -10,7 +10,7 @@ Section: User Commands  (1)<BR>Updated: LOCAL<BR><A HREF="#index">Index</A>
 <A NAME="lbAB">&nbsp;</A>
 <H2>NAME </H2>
 
-cimcli - command line WBEM Client 
+cimcli - command line WBEM Client
 <A NAME="lbAC">&nbsp;</A>
 <H2>SYNOPSIS </H2>
 
@@ -73,7 +73,7 @@ For example, with the getClass operation the object is a class name.
 With the getinstance command the object is an object name. Note
 that some of the commands do not require an object.   Thus, for example, the [object] is optional with
 the enumerateClasses operation as it is with the equivalent  enumerateClassNames CIM operation. Normally
-this is either a classname or an instancename (classname plus keybindings). In some operations one or the 
+this is either a classname or an instancename (classname plus keybindings). In some operations one or the
 other is required.  In other operations, the behavior of the operation is dependent on whether classname
 or instancename is supplied.
 <DT><B>[options...] </B>
@@ -84,7 +84,7 @@ Options are identified on the command line with the - or -- notation.  There are
 <DT><B>1.</B>
 
 <DD>
-A set of options that are universal and modify or define the execution of the command or the 
+A set of options that are universal and modify or define the execution of the command or the
 form of the return.  This includes options like setting the output format for object responses or
 requesting only summary operation.
 <DT><B>2.</B>
@@ -123,8 +123,8 @@ the parameter.
 <H2>UNIVERSAL OPTIONS</H2>
 
 <P>
-There is a set of options which are general to all of the CIM Operations and most of the 
-compound operations and which provide parameters for the initiation or execution of the command. 
+There is a set of options which are general to all of the CIM Operations and most of the
+compound operations and which provide parameters for the initiation or execution of the command.
 These include:
 <DL COMPACT>
 <DT><B>-n [namespace]</B>
@@ -136,7 +136,7 @@ Namespace name for this operation (ex. -n root). The default namespace is root/c
 <DD>
 Host name or IP address and optionally port for this operation. The default for this command
 if the the -n option is not used is to use the Pegasus connectLocal() function to connect to the server.
-Note that this means that a command like cimcli gc CIM_Door may not work when trying to connect to a 
+Note that this means that a command like cimcli gc CIM_Door may not work when trying to connect to a
 server other than Pegasus on the same system. If cimcli is to be used to connect to a CIM Server other
 than Pegasus on the same system use -l localhost or -l 127.0.0.1 or the actual name or IP address.
 This will force cimcli to make the connection in the normal way, not using connectLocal()
@@ -156,7 +156,7 @@ the display of information on response including the following:
 
 <DD>
 Measure time for the operation to be completed and report it upon command completion. If this option
-is set, the time for the operation is recorded upon completion of the operation.  In addition, the 
+is set, the time for the operation is recorded upon completion of the operation.  In addition, the
 client infrastructure is qeieried to determine if the operation execution times optionally measured
 in the infrastructure and at the server are available. If they are, they are displayed also.  This
 would allow the user to see a) time spent in the server, b) round trip time for the operation, c)
@@ -169,7 +169,7 @@ in cimcli to turn control statistics generation (See son and soff operations)
 Repeat the operation repeat_count times. This repeats the operation without disconnecting. This option is
 useful for setting up tests that load the server with repeated calls and also for getting average times for
 an operation by taking the average of a number of calls ( when used with the summary information option and
-the measure time option). 
+the measure time option).
 <DT><B>-delay [seconds]</B>
 
 <DD>
@@ -177,14 +177,14 @@ Delay count seconds between connect and operation.
 <DT><B>--sum</B>
 
 <DD>
-Present only summary information, not full output.  Generally it presents counts of objects returned and 
+Present only summary information, not full output.  Generally it presents counts of objects returned and
 response times in place of the names or objects themselves.
 <DT><B>--count [object_count]</B>
 
 <DD>
 Defines an expected count of objects expected on the response.  An error exit is generated if this
 number of objects is not received.  This test can be used in batch files to test for number of objects
-returned by an operation. 
+returned by an operation.
 <DT><B>--timeout [seconds]</B>
 
 <DD>
@@ -203,7 +203,7 @@ Displays details on the options for the CIM Operation and execution.
 <A NAME="lbAF">&nbsp;</A>
 <H2>OPERATIONS</H2>
 
-This section defines the individual operations supported by cimcli. 
+This section defines the individual operations supported by cimcli.
 Note that the either the names (ex EnumerateInstances) or the shortcut (ei) may
 be used in inputting an operation defintion and they they are case independent.
 <P>
@@ -221,7 +221,7 @@ to be provided in the following format
 <BR>&nbsp;&nbsp;[propertyName]=value
 <P>
 If the propertyName parameter is provided with no value, the default is inserted.
-Note that the CIM operation is issued even if the property name is illegal since this 
+Note that the CIM operation is issued even if the property name is illegal since this
 is considered to be a test program.
 <P>
 The command actually reads the CIM_Class, inserts the properties that have been defined
@@ -247,7 +247,7 @@ The format is:
 
 <P>
 where classname is not required.  If it is omitted, cimcli inserts an empty classname into the CIM operation
-which tells the CIM Server to start at the top of the class inheritance tree. 
+which tells the CIM Server to start at the top of the class inheritance tree.
 The possible options that represent the parameters of the enumerateClasses operation are:
 <P>
 <P>
@@ -276,7 +276,7 @@ Optional property list for the operation.
 <DT><B>nc    EnumerateClassNames</B>
 
 <DD>
-Enumerate Class Names. 
+Enumerate Class Names.
 The format is:
 <P>
 <TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>cimcli[ &lt;classname&gt; ] [options] where the used options are:<BR>
@@ -382,7 +382,7 @@ It returns the instances found either as MOF or XML depending on the output opti
 <BR>&nbsp;&nbsp;&nbsp;&nbsp;cimcli&nbsp;ei&nbsp;CIM_ComputerSystem&nbsp;-niq&nbsp;-di
 <P>
 <BR>&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;example&nbsp;enumerates&nbsp;CIM_ComputerSystem&nbsp;in&nbsp;the&nbsp;namespace&nbsp;root/CIMV2&nbsp;(default)&nbsp;requesting&nbsp;without
-qualifiers (-niq) with deepInheritance (-di).  
+qualifiers (-niq) with deepInheritance (-di).
 <P>
 <DT><B>niall enumerateallinstanceNames</B>
 
@@ -591,7 +591,7 @@ is:
 <P>
 <BR>&nbsp;&nbsp;&nbsp;&nbsp;cimcli&nbsp;an&nbsp;[objectname]&nbsp;[options]
 <P>
-where objectname can be either a class name or an instance name. 
+where objectname can be either a class name or an instance name.
 <P>
 The options provide the various operation parameters including;
 <P>
@@ -699,7 +699,7 @@ The form of the command is:
 <P>
 
 <P>
-Note that there there are two required parameters to this command, the objectname and 
+Note that there there are two required parameters to this command, the objectname and
 the [methodname].
 <P>
 Parametere are input in the form:
@@ -713,7 +713,7 @@ are qualified as OUT parameters.
 <TT>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TT>cimcli PG_WBEMSLPTemplate register -n root/PG_Interop<BR>
 <P>
 The parameters are supplied as name=value pairs. In the current version, all parameters are
-treated as strings.  
+treated as strings.
 <P>
 <DT><B>eq    executeQuery</B>
 
@@ -769,7 +769,7 @@ This operation simply shows the Command options
 <A NAME="lbAG">&nbsp;</A>
 <H2>OPTIONS LIST</H2>
 
-There are a significant number of options to this utility, some if which provide specific information 
+There are a significant number of options to this utility, some if which provide specific information
 for one or more commands and some of which are universal across all of the commands.   In general, the
 program does not check for spurious options so that if you input an option that is not used by a particular
 operation, it is simply ignored. Note that some of the options require parameters.
@@ -800,7 +800,7 @@ transmisson of the actual CIM operation.  This is used only in some testing envi
 <DT><B>-di</B>
 
 <DD>
-Specifies the boolean parameter deepInheritance parameter for selected commands. Setting this options 
+Specifies the boolean parameter deepInheritance parameter for selected commands. Setting this options
 causes the deepinheritance=tru to be transmitted for the operation.
 Note that this means different things to different commands and is used only with the enumerate commands.
 <DT><B>-ic</B>
@@ -810,9 +810,9 @@ Boolean to set include class origin operation parameter to true.
 <DT><B>-iq</B>
 
 <DD>
-(DEPRECATED}Specifies the includeQualifiers operation input paramter for selected commands.Since the server default 
+(DEPRECATED}Specifies the includeQualifiers operation input paramter for selected commands.Since the server default
 for this parameter is normally true, This option
-is deprecated in favor of the -niq parameters  
+is deprecated in favor of the -niq parameters
 <DT><B>-l [location]</B>
 
 <DD>
@@ -832,7 +832,7 @@ default for local only is on so that generally the -lo is simply the default.  W
 
 <DD>
 Defines the namespace for the operation.host name. The default is root/cimv2. exmple -n root/PG_Interop sets
-the root/PG_Interop namespace as the namespace for the current operation. 
+the root/PG_Interop namespace as the namespace for the current operation.
 <P>
 <DT><B>-p [password]</B>
 
@@ -849,7 +849,7 @@ Defines nser ame for CIM Server authentication. Default is no user name and no a
 <DT><B>-lo </B>
 
 <DD>
-DEPRECATED. This was used to set LocalOnly. However, default should be true and we cannot use True as default. 
+DEPRECATED. This was used to set LocalOnly. However, default should be true and we cannot use True as default.
 See -nlo. Default(true).
 <P>
 <DT><B>-nlo</B>
@@ -869,7 +869,7 @@ Defines a propertyName List which is an optional parmeter for some CIM Operation
 Default is that the property list is set to NULL indicating normally that the operation should return all properties.
 The property list typically has 3 possibilities 1) empty which means return no properties, 2) list of properties to
 be returned, 3) NULL which means return all properties.  Since the default is NULL, not applying the option means that
-all properties are being requested.  To set this parameter to empty use the form -pl &quot;&quot;. 
+all properties are being requested.  To set this parameter to empty use the form -pl &quot;&quot;.
 <P>
 <P>
 <DT><B>-r [role]</B>
@@ -982,13 +982,13 @@ time for the operation is presented with the command output. If the --r (repeat)
 set, minimum, maximum, and average times are presented.  Note that the time for the operation itself
 is presented in addition to the overall time for connect, operation, and disconnect.  If statistics
 are being gathered by the server, setting this option also presents the server time, and the
-client round trip time which are calculated by the server and client infrastructure. 
+client round trip time which are calculated by the server and client infrastructure.
 <P>
 <DT><B>-s</B>
 
 <DD>
 Boolean option thatpecifies that the Client should attempt to connnect over the secure connection using SSL. This option
-causes cimcli to modify the client connect call to set the SSLContext option to the certificate defined 
+causes cimcli to modify the client connect call to set the SSLContext option to the certificate defined
 with the --cert and --key options.  If this option is set but neither the --cert or --key options are included,
 the SSLContext for the connect call is submitted with the Cert and key marked NULL.
 <P>
@@ -1048,7 +1048,7 @@ Currently at least some platforms and shells have problems with the double-quote
 is used extensively in object names within CIM. To get around this, the
 character '@' has been mapped to the double-quote so that inputting
 a command line with this character in place of quotes is acceptable.
-Thus, for example, 
+Thus, for example,
 <P>
 cimcli rn TST_Person.name=@MIKE@ ...
 <P>

@@ -2,7 +2,7 @@
 
 # Running the client commands after rebuilding the sources and re-registering
 # the Test providers (by running cimmof and cimmofl).
-# If the classes are already present in cimv2 and PG_InterOp then first both 
+# If the classes are already present in cimv2 and PG_InterOp then first both
 # the classes are removed and then re-registered.
 # Restart the cimserver.
 

@@ -235,7 +235,7 @@ Array <CIMInstance> SubscriptionTable::reflectProviderDisable (
                 {
                     PEG_TRACE((TRC_INDICATION_SERVICE,Tracer::LEVEL2,
                         "Provider (%s) not found in list for Subscription (%s)"
-                        " in ActiveSubscriptionsTable", 
+                        " in ActiveSubscriptionsTable",
                         (const char*)provider.getPath().toString().getCString(),
                         (const char*)activeSubscriptionsKey.getCString()));
                 }
@@ -457,7 +457,7 @@ String SubscriptionTable::_generateActiveSubscriptionsKey (
 
     //
     //  Assuming that most subscriptions will differ in the filter and handler
-    //  names, the namespace and classname of the subscription are added at the 
+    //  names, the namespace and classname of the subscription are added at the
     //  end of the key.
     //
     String activeSubscriptionsKey(filterPath);
@@ -702,9 +702,9 @@ void SubscriptionTable::_updateSubscriptionProviders
                     scTableValues[i].sourceNamespaceName);
                 // If this is the only subscription for this class-namespace
                 // pair delete the entry else update the subscription list
-                // for this class-namespace pair.              
+                // for this class-namespace pair.
                 if (scTableValues[i].subscriptions.size())
-                { 
+                {
                     SubscriptionClassesTableEntry *entry = 0;
                     _subscriptionClassesTable.lookupReference(
                         subscriptionClassesKey,
@@ -1124,7 +1124,7 @@ void SubscriptionTable::getMatchingClassNamespaceSubscriptions(
                     activeSubscriptionsKey, asTableValue))
             {
                 //
-                //  If provider is in list, the subscription is acceptted 
+                //  If provider is in list, the subscription is acceptted
                 //
                 if ((providerInList(provider, asTableValue)) != PEG_NOT_FOUND)
                 {
@@ -1244,7 +1244,7 @@ Array<CIMInstance>
                 providerModuleName,
                 providerName);
 
-            CIMInstance subscriptionIndDataInstance = 
+            CIMInstance subscriptionIndDataInstance =
                 _buildSubscriptionIndDataInstance(
                     filterName,
                     handlerName,
@@ -1361,7 +1361,7 @@ CIMInstance SubscriptionTable::getSubscriptionIndicationDataInstance(
         {
             if (providerName.identical(providers[i].provider.getPath()))
             {
-                CIMInstance subIndDataInstance = 
+                CIMInstance subIndDataInstance =
                     _buildSubscriptionIndDataInstance(
                         filterName,
                         handlerName,
@@ -1549,11 +1549,11 @@ CIMObjectPath SubscriptionTable::_buildHandlerPath(const String& handlerName)
     String classname;
     Uint32 colonIndex = handlerName.find(':');
     Uint32 dotIndex = handlerName.find('.');
-  
+
     if (colonIndex != PEG_NOT_FOUND)
     {
         if ((dotIndex != PEG_NOT_FOUND) && (dotIndex > colonIndex))
-        { 
+        {
             classname = handlerName.subString(
                 colonIndex + 1, dotIndex - 1 - colonIndex);
             name = handlerName.subString(dotIndex + 1);
@@ -1606,7 +1606,7 @@ CIMObjectPath SubscriptionTable::_buildSubscriptionPath(
         PEGASUS_PROPERTYNAME_HANDLER,
         handlerPath.toString(),
         CIMKeyBinding::REFERENCE));
-    
+
     subscriptionPath.setClassName(PEGASUS_CLASSNAME_INDSUBSCRIPTION);
     subscriptionPath.setNameSpace(sourceNS);
     subscriptionPath.setKeyBindings(keyBindings);

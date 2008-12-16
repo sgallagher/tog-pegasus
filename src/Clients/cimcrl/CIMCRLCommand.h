@@ -42,7 +42,7 @@ PEGASUS_NAMESPACE_BEGIN
 /**
 
     The CIMCRLCommand command provides a command line interface to manage X509
-    CRLs in a PEM format CRL store.  The command supports add, remove and 
+    CRLs in a PEM format CRL store.  The command supports add, remove and
     list operations on the target CRL store. The CIMCRLCommand command
     requires the CIM Server to be running on the local host.
 

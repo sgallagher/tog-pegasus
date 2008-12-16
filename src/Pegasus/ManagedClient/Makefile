@@ -55,7 +55,7 @@ PRE_DEPEND_INCLUDES = -I./depends
 SOURCES = \
     CIMManagedClient.cpp \
     CIMClientConnection.cpp \
-    CIMDefaultClientConnectionManager.cpp    
+    CIMDefaultClientConnectionManager.cpp
 
 ifeq ($(PEGASUS_ENABLE_SLP),true)
   SOURCES += $(SOURCES_SLP)

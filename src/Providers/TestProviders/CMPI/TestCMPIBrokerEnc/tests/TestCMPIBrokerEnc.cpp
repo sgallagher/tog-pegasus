@@ -152,7 +152,7 @@ int main (int argc, char **argv)
     {
         client.connectLocal ();
         client.setTimeout(999999999);
-    }  
+    }
     catch (Exception & e)
     {
         cerr << e.getMessage () << endl;

@@ -26,7 +26,7 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-DEFINES = 
+DEFINES =
 
 OS_TYPE = unix
 
@@ -34,7 +34,7 @@ RM = rm -f
 
 RMDIRHIER = rm -rf
 
-MKDIRHIER = mkdir -p 
+MKDIRHIER = mkdir -p
 
 EXE_OUT = -o
 

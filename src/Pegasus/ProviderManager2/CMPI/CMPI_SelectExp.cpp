@@ -61,8 +61,8 @@ extern "C"
         {
             /**
                 Do not call unlinkAndDelete - b/c the CMPI_Object::
-                unlinkAndDelete casts the structure to a CMPI_Object and 
-                deletes it. But this is a CMPI_SelectExp structure so not 
+                unlinkAndDelete casts the structure to a CMPI_Object and
+                deletes it. But this is a CMPI_SelectExp structure so not
                 all of the variables get deleted. Hence we delete them here.
                 ((CMPI_Object*)se)->unlinkAndDelete();
             */
@@ -73,12 +73,12 @@ extern "C"
         CMReturn (CMPI_RC_OK);
     }
 
-    /** 
+    /**
        This will not clone all the CMPISelectExp objects. It clones only when
        original object has either CQLSelectStatement or WQLSelectStatement.
        Any other properties of original object may cause clone to retun error
        CMPI_RC_ERR_NOT_SUPPORTED. Use this only when you have just created
-      CMPISelectExp object with CMNewselectExp 
+      CMPISelectExp object with CMNewselectExp
       (broker,query,lang,projection,rc)
     */
 
@@ -92,7 +92,7 @@ extern "C"
         CMPI_SelectExp *new_se;
         CMPI_SelectExp *se = (CMPI_SelectExp*) eSx;
 
-        if( 
+        if(
 #ifdef PEGASUS_ENABLE_CQL
         !se->cql_stmt &&
 #endif
@@ -130,7 +130,7 @@ extern "C"
     }
 
     /**
-       Helper functions 
+       Helper functions
     */
     PEGASUS_STATIC CMPIBoolean _check_WQL (
         CMPI_SelectExp * sx,
@@ -152,14 +152,14 @@ extern "C"
                     "Exception: _check_WQL - msg: %s",
                     (const char*)e.getMessage().getCString()));
 
-                if( rc ) 
+                if( rc )
                 {
                     CMSetStatusWithString(
                         rc,
                         CMPI_RC_ERR_INVALID_QUERY,
                         (CMPIString*)string2CMPIString(e.getMessage()));
                 }
-                
+
                 delete stmt;
                 PEG_METHOD_EXIT();
                 return false;
@@ -176,10 +176,10 @@ extern "C"
                 return false;
             }
             /**
-               Only set it for success 
+               Only set it for success
             */
             sx->wql_stmt = stmt;
-                                 
+
         /* sx->wql_stmt ... */
         }
         PEG_METHOD_EXIT();
@@ -197,7 +197,7 @@ extern "C"
         if( sx->cql_stmt == NULL )
         {
             /**
-                The constructor should set this to a valid pointer. 
+                The constructor should set this to a valid pointer.
             */
             if( sx->_context == NULL )
             {
@@ -284,7 +284,7 @@ extern "C"
         CIMInstance *instance = (CIMInstance *) inst->hdl;
 
         /**
-           WQL 
+           WQL
         */
         if( strncmp (sx->lang.getCString (),
         CALL_SIGN_WQL, CALL_SIGN_WQL_SIZE) == 0 )
@@ -328,7 +328,7 @@ extern "C"
             }
         }
         /**
-         CIM:CQL 
+         CIM:CQL
        */
 #ifdef PEGASUS_ENABLE_CQL
         if( (strncmp (sx->lang.getCString(),
@@ -378,7 +378,7 @@ extern "C"
         }
 #endif
          /**
-          Tried some other weird query language which we don't support 
+          Tried some other weird query language which we don't support
         */
         CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);
         PEG_METHOD_EXIT();
@@ -617,8 +617,8 @@ extern "C"
             return reinterpret_cast < CMPISelectCond * >(obj);
         }
 
-        /* 
-          If the sc was null, we just exit 
+        /*
+          If the sc was null, we just exit
         */
         CMSetStatus (rc, CMPI_RC_ERR_FAILED);
         PEG_METHOD_EXIT();
@@ -636,7 +636,7 @@ extern "C"
 
 }
 
-static CMPISelectExpFT selx_FT = 
+static CMPISelectExpFT selx_FT =
 {
     CMPICurrentVersion,
     selxRelease,
@@ -661,12 +661,12 @@ CMPI_SelectExp::~CMPI_SelectExp()
 }
 CMPI_SelectExp::CMPI_SelectExp (
     const OperationContext & ct,
-    QueryContext * context, 
+    QueryContext * context,
     String cond_,
     String lang_):ctx (ct),cond (cond_),lang (lang_),
                   _context (context),persistent(true)
 {
-    /** 
+    /**
       We do NOT add ourselves to the CMPI_Object as this is a persitent object.
        Look at the other construtors.
      */
@@ -709,7 +709,7 @@ CMPI_SelectExp::CMPI_SelectExp (
 
 #ifdef PEGASUS_ENABLE_CQL
 CMPI_SelectExp::CMPI_SelectExp (CQLSelectStatement * st, Boolean persistent_,
-    QueryContext *context):ctx (OperationContext ()),cql_stmt (st), 
+    QueryContext *context):ctx (OperationContext ()),cql_stmt (st),
     _context(context), persistent (persistent_)
 {
     /** Adding the object to the garbage collector.

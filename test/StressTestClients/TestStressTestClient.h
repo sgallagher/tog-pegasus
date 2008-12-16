@@ -29,7 +29,7 @@
 //
 // Author:  Aruran (aruran.shanmug@in.ibm.com) & Melvin (msolomon@in.ibm.com),
 //                                                       IBM for PEP# 241
-// Modified By: 
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,11 +53,11 @@
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
  // DWORD etc.
-# include <windows.h> 
+# include <windows.h>
  typedef DWORD pid_t;
  // getpid() and others.
 # include <process.h>
-#else 
+#else
 # include <unistd.h>
 #endif
 
@@ -72,7 +72,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** 
+/**
     StressTest Client Status types.
 */
 enum CStatus
@@ -88,7 +88,7 @@ enum CStatus
 class PEGASUS_STRESSTESTCLIENT_LINKAGE TestStressTestClient
 {
 public:
-    /** 
+    /**
         Constructor.
     */
     TestStressTestClient();
@@ -104,7 +104,7 @@ public:
         OptionRow* clientOptionsTable,
         Uint32 clientOptionCount);
 
-    /** 
+    /**
         This method is used by clients to register client specific required
         options to the option table. All these options are taken as mandatory
         one.
@@ -114,11 +114,11 @@ public:
         Uint32 clientOptionCount,
         Uint32& totalOptionCount);
 
-    /** 
+    /**
         This method is used by the clients to connect to the server. If useSSL
         is true then an SSL connection will be atemped with the userName and
         passWord that is passed in. If localConnection is true a connectLocal
-        connection will be attempted. All parameters are required. 
+        connection will be attempted. All parameters are required.
     */
     void connectClient(
         CIMClient *client,
@@ -130,7 +130,7 @@ public:
         Uint32 timeout,
         Boolean verboseTest);
 
-    /** 
+    /**
         This method is used by the clients to log information which are
         required for controller reference. It logs the inofrmation with
         Client ID and status of the client in the PID File log file.
@@ -141,18 +141,18 @@ public:
         int clientStatus,
         String &pidFile);
 
-    /** 
-        This method is used to take the client process start time. 
+    /**
+        This method is used to take the client process start time.
     */
     void startTime();
 
-    /** 
+    /**
         This method is used to check the time stamp for logging information
         about the success or failure.
     */
     Boolean checkTime();
 
-    /** 
+    /**
         This method is used to log the information about the client's success
         or failure percentage at a specific interval of time.
     */
@@ -163,14 +163,14 @@ public:
         String &clientLog,
         char client[]);
 
-    /** 
+    /**
         This method is used to log the informations of client logs to the
         client log file.
     */
     void errorLog(pid_t clientPid, String &clientLog, String &message);
-  
+
     /**
-        Timer details. 
+        Timer details.
     */
     Uint64 startMilliseconds;
     Uint64 nowMilliseconds;

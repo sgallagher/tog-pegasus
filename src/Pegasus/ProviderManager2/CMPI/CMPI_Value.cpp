@@ -177,12 +177,12 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
         {
             CopyToStringArray(String,string->hdl)
         }
-        else 
+        else
         if( aType == CMPI_charsptr )
         {
             CopyCharsptrToStringArray(String,chars)
         }
-        else 
+        else
         if( aType == CMPI_string )
         {
             CopyToStringArray(String,string->hdl)
@@ -345,10 +345,10 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
                 else
                 {
                     return CIMValue(CIMTYPE_OBJECT, false);
-                }   
+                }
                 break;
 
-            case CMPI_ref:      
+            case CMPI_ref:
                 if( data->ref && data->ref->hdl )
                 {
                     v.set(*((CIMObjectPath*)data->ref->hdl));
@@ -358,10 +358,10 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
                     return CIMValue(CIMTYPE_REFERENCE, false);
                 }
                 break;
-            case CMPI_dateTime: 
+            case CMPI_dateTime:
                 if( data->dateTime && data->dateTime->hdl )
                 {
-                    v.set(*((CIMDateTime*)data->dateTime->hdl)); 
+                    v.set(*((CIMDateTime*)data->dateTime->hdl));
                 }
                 else
                 {
@@ -504,7 +504,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                         {
                           aData[i].value.inst = reinterpret_cast<CMPIInstance*>(
                                 new CMPI_Object(new CIMInstance(tmpObjs[i])));
-                        } 
+                        }
                     }
                     else
                     {
@@ -538,7 +538,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
 
     //Start of non-array processing
     //Ckecking for Signed integers
-    else 
+    else
     if( (t & (CMPI_UINT|CMPI_SINT)) == CMPI_SINT )
     {
         switch( t )
@@ -564,7 +564,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
     }
 
     //Check for CMPI_string data type
-    else 
+    else
     if( t == CMPI_string )
     {
         String str;

@@ -207,7 +207,7 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
     struct timeval   tv;
     size_t len = sizeof(tv);
 
-    if (sysctl(mib, 2, &tv, &len, NULL, 0) == -1) 
+    if (sysctl(mib, 2, &tv, &len, NULL, 0) == -1)
     {
         return false;
     }

@@ -27,7 +27,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //         (carolann_graves@hp.com)
 //
 // Modified By:
@@ -47,16 +47,16 @@ PEGASUS_NAMESPACE_BEGIN
     CommandException signals that an exception has occurred in executing the
     command.
  */
-class PEGASUS_CLIUTILS_LINKAGE CommandException : public Exception 
+class PEGASUS_CLIUTILS_LINKAGE CommandException : public Exception
 {
 public:
     /**
         Constructs a CommandException with the specified message.
-      
+
         @param  exceptionMessage  a string containing the exception message
      */
     CommandException(const String& exceptionMessage);
-    
+
     CommandException(MessageLoaderParms &parms);
 };
 
@@ -73,7 +73,7 @@ public:
         @param  exceptionMessage  a string containing the exception message
      */
     CommandFormatException(const String& exceptionMessage);
-    
+
     CommandFormatException(MessageLoaderParms &parms);
 };
 
@@ -81,7 +81,7 @@ public:
     DuplicateOptionException signals that the same option appeared more than
     once in the command line.
  */
-class PEGASUS_CLIUTILS_LINKAGE DuplicateOptionException 
+class PEGASUS_CLIUTILS_LINKAGE DuplicateOptionException
     : public CommandFormatException
 {
 public:
@@ -99,7 +99,7 @@ private:
         appeared in the command line.
      */
     static const char _MESSAGE_DUPLICATE_OPTION1[];
-    
+
     /**
         Second part of exception message string indicating a duplicate option
         appeared in the command line.
@@ -111,7 +111,7 @@ private:
     InvalidOptionArgumentException signals that an invalid option argument
     appeared in the command line.
  */
-class PEGASUS_CLIUTILS_LINKAGE InvalidOptionArgumentException 
+class PEGASUS_CLIUTILS_LINKAGE InvalidOptionArgumentException
     : public CommandFormatException
 {
 public:
@@ -133,13 +133,13 @@ private:
         argument appeared in the command line.
      */
     static const char _MESSAGE_INVALID_ARG1[];
-    
+
     /**
         Second part of exception message string indicating an invalid option
         argument appeared in the command line.
      */
     static const char _MESSAGE_INVALID_ARG2[];
-    
+
     /**
         Third part of exception message string indicating an invalid option
         argument appeared in the command line.
@@ -169,7 +169,7 @@ private:
         appeared in the command line.
      */
     static const char _MESSAGE_INVALID_OPTION1[];
-    
+
     /**
         Second part of exception message string indicating an invalid option
         appeared in the command line.
@@ -181,7 +181,7 @@ private:
     MissingOptionArgumentException signals that a required option argument is
     missing from the command line.
  */
-class PEGASUS_CLIUTILS_LINKAGE MissingOptionArgumentException 
+class PEGASUS_CLIUTILS_LINKAGE MissingOptionArgumentException
     : public CommandFormatException
 {
 public:
@@ -200,7 +200,7 @@ private:
         argument missing from the command line.
      */
     static const char _MESSAGE_MISSING_OPTARG1[];
-    
+
     /**
         Second part of exception message string indicating a required option
         argument missing from the command line.
@@ -212,7 +212,7 @@ private:
     MissingOptionException signals that a required option is missing from
     the command line.
  */
-class PEGASUS_CLIUTILS_LINKAGE MissingOptionException 
+class PEGASUS_CLIUTILS_LINKAGE MissingOptionException
     : public CommandFormatException
 {
 public:
@@ -232,12 +232,12 @@ private:
         is missing from the command line.
      */
     static const char _MESSAGE_MISSING_OPTION1[];
-    
+
     /**
-    
+
         Second part of exception message string indicating a required option
         is missing from the command line.
-    
+
      */
     static const char _MESSAGE_MISSING_OPTION2[];
 };
@@ -246,7 +246,7 @@ private:
     UnexpectedArgumentException signals that an unexpected argument value
     appeared in the command line.
  */
-class PEGASUS_CLIUTILS_LINKAGE UnexpectedArgumentException 
+class PEGASUS_CLIUTILS_LINKAGE UnexpectedArgumentException
     : public CommandFormatException
 {
 public:
@@ -264,7 +264,7 @@ private:
         argument appeared in the command line.
      */
     static const char _MESSAGE_UNEXPECTED_ARG1[];
-    
+
     /**
         Second part of exception message string indicating an unexpected
         argument appeared in the command line.
@@ -277,7 +277,7 @@ private:
     in the command line.  An unexpected option is an option that is not
     consistent with other options already processed.
  */
-class PEGASUS_CLIUTILS_LINKAGE UnexpectedOptionException 
+class PEGASUS_CLIUTILS_LINKAGE UnexpectedOptionException
     : public CommandFormatException
 {
 public:
@@ -305,7 +305,7 @@ private:
         appeared in the command line.
      */
     static const char _MESSAGE_UNEXPECTED_OPT1[];
-    
+
     /**
         Second part of exception message string indicating an unexpected option
         appeared in the command line.

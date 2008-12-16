@@ -49,24 +49,24 @@ class CmpiArgs;
 #include "CmpiEnumeration.h"
 #include "Linkage.h"
 
-/** 
+/**
     This class encapsulates services provided by the CIM Object Manager.
 */
 
 class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiBroker : public CmpiObject
 {
 public:
-    /** 
+    /**
         constructor to encapsulate CMPIBroker.
     */
     CmpiBroker(CMPIBroker* b);
 
-    /** 
+    /**
         getEnc - Gets the encapsulated CMPIBroker.
     */
     CMPIBroker *getEnc() const;
 
-    /** 
+    /**
         This function prepares the CMPI run time system to accept
         a thread that will be using CMPI services. The returned
         CMPIContext object must be used by the subsequent attachThread()
@@ -77,7 +77,7 @@ public:
     CmpiContext prepareAttachThread(
         const CmpiContext& ctx);
 
-    /** 
+    /**
         This function informs the CMPI run time system that the current
         thread with Context will begin using CMPI services.
         @param ctx Context object
@@ -147,7 +147,7 @@ public:
         const CmpiObjectPath& op,
         const CmpiInstance& inst);
 
-    /** 
+    /**
         Replace an existing Instance from &lt;inst&gt; using &lt;op&gt; as
         reference.
         @param ctx Context object
@@ -171,7 +171,7 @@ public:
         const CmpiContext& ctx,
         const CmpiObjectPath& op);
 
-    /** 
+    /**
         Query the enumeration of instances of the class (and subclasses)
         defined by &lt;op&gt; using &lt;query&gt; expression.
         @param ctx Context object

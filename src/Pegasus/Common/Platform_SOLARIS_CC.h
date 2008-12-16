@@ -41,7 +41,7 @@
 #ifdef __cplusplus
 # include <cstdio>
 # include <cstddef>
-# ifdef PEGASUS_INTERNALONLY 
+# ifdef PEGASUS_INTERNALONLY
   using namespace std;
 # endif
 #endif

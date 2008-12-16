@@ -52,11 +52,11 @@ public:
 
 public:
     OpProviderHolder getProvider(
-        const String & fileName, 
+        const String & fileName,
         const String & providerName);
 
     OpProviderHolder getRemoteProvider(
-        const String & fileName, 
+        const String & fileName,
         const String & providerName);
 
     Boolean unloadProvider(
@@ -117,7 +117,7 @@ private:
     Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
 
     CMPIProvider* _initProvider(CMPIProvider * provider,
-        const String & moduleFileName); 
+        const String & moduleFileName);
 
     void _unloadProvider(CMPIProvider * provider, Boolean forceUnload = false);
 
@@ -139,7 +139,7 @@ private:
      * The data structures for holding the thread and the CMPIProvider
      */
 
-    struct cleanupThreadRecord : public Linkable 
+    struct cleanupThreadRecord : public Linkable
     {
         cleanupThreadRecord(): thread(0), provider(0)
         {
@@ -165,4 +165,4 @@ PEGASUS_NAMESPACE_END
 
 #endif
 
-    
+

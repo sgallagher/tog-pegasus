@@ -70,11 +70,11 @@ class PEGASUS_SERVER_LINKAGE CIMServer
 public:
 
     enum Protocol { PROPRIETARY, STANDARD };
-    
+
     /** Constructor - Creates a CIMServer object.
     */
     CIMServer();
-    
+
     ~CIMServer();
 
     /** Adds a connection acceptor for the specified listen socket.
@@ -86,10 +86,10 @@ public:
                This parameter is ignored if localConnection=true.
         @param useSSL Boolean specifying whether SSL should be used for
                connections created by this acceptor.
-        @param exportConnection Boolean indicating whether this acceptor is 
-               only for export connections. If true, client SSL certificate 
-               verification is enabled on the export connection created by 
-               this acceptor. Ignored when useSSL is false. 
+        @param exportConnection Boolean indicating whether this acceptor is
+               only for export connections. If true, client SSL certificate
+               verification is enabled on the export connection created by
+               this acceptor. Ignored when useSSL is false.
     */
     void addAcceptor(
         Uint16 connectionType,
@@ -164,7 +164,7 @@ private:
     ProviderRegistrationManager* _providerRegistrationManager;
     BinaryMessageHandler *_binaryMessageHandler;*/
     SSLContextManager* _sslContextMgr;
-    
+
     void _init(void);
     SSLContext* _getSSLContext();
 };

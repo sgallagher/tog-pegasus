@@ -54,7 +54,7 @@ public:
    operator VARIANT(void) const;
 
    // returns a variant type from the WMIVAlue
-   // username and password not present, then Local Namespace is assumed 
+   // username and password not present, then Local Namespace is assumed
    void getAsVariant(CComVariant *var,
                      const String& nameSpace = String::EMPTY, // used only to...
                      const String& userName = String::EMPTY, // retrieve from...

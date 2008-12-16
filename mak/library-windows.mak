@@ -50,7 +50,7 @@ endef
 ##
 ## The name of the link file to be used by the Windows link command. This is
 ## only used when SOURCES1 is defined.
-## 
+##
 LINKFILE=$(LIB_DIR)/linkfile
 
 $(FULL_LIB): $(BIN_DIR)/target $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(VERSION_RES) $(FULL_LIBRARIES) $(ERROR)

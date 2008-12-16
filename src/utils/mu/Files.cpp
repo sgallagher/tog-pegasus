@@ -396,22 +396,22 @@ bool CompareFiles(
     return false;
 }
 
-/** test if the file path is relative to parent dir. 
+/** test if the file path is relative to parent dir.
     For example,
         filePath = "../../mu.cpp"
-    @param filePath specifies the source file path from mu command argument. 
+    @param filePath specifies the source file path from mu command argument.
         or header file path from #include directive.
     @return true if the file path start with "../"; otherwise, false.
 */
 bool IsPathRelativeToParentDir(const string& filePath)
 {
     const char* start = filePath.c_str();
-    
-    return ((start[0] == '.') && 
+
+    return ((start[0] == '.') &&
         (start[1] == '.') &&
         (start[2] == '/'));
 }
-    
+
 /** Get the full (absolute) path of a given file.
     For example, given:
         prependDir = "/var/buildMAIN/pegasus/src/utils/mu/tests"
@@ -419,7 +419,7 @@ bool IsPathRelativeToParentDir(const string& filePath)
     then:
         fileFullpath = "/var/buildMAIN/pegasus/src/utils/mu/mu.cpp"
 
-    @param prependDir specifies the directory prepended to source file 
+    @param prependDir specifies the directory prepended to source file
         or hearder file.
     @param filePath is the source file path from mu command argument
         or header file path from #include directive.
@@ -447,20 +447,20 @@ void GetFileFullPath(
             if (!(found = _find_last_of(part1,'/')))
             {
                 cerr << "GetFileFullPath: "
-                    << "error: cannot resolve relative path: " << filePath << 
+                    << "error: cannot resolve relative path: " << filePath <<
                     " with prependDir: " << prependDir << endl;
                 exit(1);
             }
             part1 = part1.substr(0,found);
         }
-    
+
         fileFullpath = part1;
         fileFullpath += '/';
         fileFullpath += part2;
     }
 }
 
-    
+
 /** Get the absolute directory of the source file.
     @param filePath specifies the source file path from mu command argument.
     @param fileFullpath is set to the absolute path of the source file
@@ -482,7 +482,7 @@ void GetSrcFileDir(
     }
     // check if filePath is a relative directory followed by file name
     GetFileFullPath(workingDir, filePath, fileFullpath);
-    
+
     string filename;
     _SplitPath(fileFullpath, srcDir, filename);
 }

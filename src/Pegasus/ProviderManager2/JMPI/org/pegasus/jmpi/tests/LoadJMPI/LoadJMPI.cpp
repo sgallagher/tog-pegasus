@@ -52,8 +52,8 @@ int trace = 0;
 
 static const String JMPI_LIBRARY_NAME = "JMPIProviderManager";
 
-String getLibraryFileName (const String& libraryName) 
-{ 
+String getLibraryFileName (const String& libraryName)
+{
 #if defined(PEGASUS_OS_VMS)
     String prefixDir;
 # if defined(PEGASUS_USE_RELEASE_DIRS)
@@ -68,7 +68,7 @@ String getLibraryFileName (const String& libraryName)
 # endif
 
     return prefixDir +
-           FileSystem::buildLibraryFileName(libraryName) + ".exe"; 
+           FileSystem::buildLibraryFileName(libraryName) + ".exe";
 
 #elif defined(PEGASUS_OS_DARWIN)
 

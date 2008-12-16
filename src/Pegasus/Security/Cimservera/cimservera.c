@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
             fprintf(stderr, "%s : bad socket argument: %s\n", argv[0], argv[1]);
             Exit(1);
         }
-        
+
         sock = (int)x;
     }
 

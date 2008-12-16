@@ -2,7 +2,7 @@
 # getClassPathList
 # getPropertyList, getSelectPropertyList, getWherePropertyList
 #
-# Tests for getClassPathList 
+# Tests for getClassPathList
 SELECT * FROM CQL_TestElement
 SELECT * FROM CIM_NonExistent
 SELECT * FROM CQL_TestPropertyTypes
@@ -13,7 +13,7 @@ SELECT * FROM CQL_TestPropertyTypes
 SELECT InstanceID FROM CQL_TestElement
 # Base class, all FROM props by name, scoped to FROM
 SELECT CQL_TestElement::InstanceID FROM CQL_TestElement
-# Base class, all FROM props by name, scope is sub-class of FROM 
+# Base class, all FROM props by name, scope is sub-class of FROM
 SELECT InstanceID, CQL_TestPropertyTypesMissing::MissingProperty FROM CQL_TestElement
 SELECT InstanceID, CQL_TestPropertyTypes::propertySint64 FROM CQL_TestElement
 # Base class, wildcard
@@ -45,14 +45,14 @@ SELECT MissingProperty, * FROM CQL_TestPropertyTypesMissing
 SELECT * FROM CQL_TestElement WHERE InstanceID = 3
 # Base class, all FROM props by name, scoped to FROM
 SELECT * FROM CQL_TestElement WHERE CQL_TestElement::InstanceID = 3
-# Base class, all FROM props by name, scope is sub-class of FROM 
+# Base class, all FROM props by name, scope is sub-class of FROM
 SELECT * FROM CQL_TestElement WHERE InstanceID = 3 AND CQL_TestPropertyTypesMissing::MissingProperty = 5
 SELECT * FROM CQL_TestElement WHERE InstanceID = 3 AND CQL_TestPropertyTypes::propertySint64 = -1
 #
 # Special tests for ISA
 SELECT * FROM CQL_TestPropertyTypes WHERE CQL_TestPropertyTypes ISA CQL_TestElement
-SELECT * FROM CQL_TestPropertyTypes WHERE CQL_TestPropertyTypes ISA CQL_TestElement AND CQL_TestPropertyTypes.BogusProperty ISA CQL_TestElement 
-SELECT * FROM CQL_TestPropertyTypes WHERE CQL_TestPropertyTypes ISA CQL_TestElement AND CQL_TestPropertyTypes.BogusProperty ISA CQL_TestBogus 
+SELECT * FROM CQL_TestPropertyTypes WHERE CQL_TestPropertyTypes ISA CQL_TestElement AND CQL_TestPropertyTypes.BogusProperty ISA CQL_TestElement
+SELECT * FROM CQL_TestPropertyTypes WHERE CQL_TestPropertyTypes ISA CQL_TestElement AND CQL_TestPropertyTypes.BogusProperty ISA CQL_TestBogus
 
 
 

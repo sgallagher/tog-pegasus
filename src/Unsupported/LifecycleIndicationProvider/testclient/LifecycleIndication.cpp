@@ -55,9 +55,9 @@ PEGASUS_USING_STD;
 
 
 // Interop namespace used with PEGASUS_NAMESPACENAME_INTEROP in Constants.h
-const CIMNamespaceName SOURCE_NAMESPACE = 
+const CIMNamespaceName SOURCE_NAMESPACE =
     CIMNamespaceName ("root/SampleProvider");
-const CIMName SAMPLE_CLASSNAME  = 
+const CIMName SAMPLE_CLASSNAME  =
     CIMName ("Sample_LifecycleIndicationProviderClass");
 
 void _renameLogFile()
@@ -101,7 +101,7 @@ void _createInstance(CIMClient & client)
             CIMProperty(CIMName ("uniqueId"), Uint32(_uniqueId)));
         cimInstance.addProperty(
                 CIMProperty(CIMName ("lastOp"), String("createInstance")));
-        CIMObjectPath createdinstanceName = 
+        CIMObjectPath createdinstanceName =
             client.createInstance(SOURCE_NAMESPACE, cimInstance);
     }
     catch (Exception & e)
@@ -128,7 +128,7 @@ void _deleteInstance(CIMClient & client)
 
         if (_uniqueId == 0)
         {
-            PEGASUS_STD (cerr) << "No instances to delete." 
+            PEGASUS_STD (cerr) << "No instances to delete."
                 << PEGASUS_STD (endl);
             exit (-1);
         }
@@ -288,7 +288,7 @@ void _usage ()
 {
     PEGASUS_STD (cerr)
         << "Usage:" << PEGASUS_STD (endl)
-        << "\tTestLifecycleIndication setup [ WQL | CIM:CQL ]" 
+        << "\tTestLifecycleIndication setup [ WQL | CIM:CQL ]"
         << PEGASUS_STD (endl)
         << "\tTestLifecycleIndication createInstance" << PEGASUS_STD (endl)
         << "\tTestLifecycleIndication deleteInstance" << PEGASUS_STD (endl)
@@ -300,7 +300,7 @@ void _setup (CIMClient & client, String& qlang)
     try
     {
         // The first filter is a subscription for the class
-        // InstCreation_for_Sample_LifecycleIndicationProviderClass, 
+        // InstCreation_for_Sample_LifecycleIndicationProviderClass,
         // which is a subclass
         // of CIM_InstCreation. This filter also selects the properties:
         //    IndicationIdentifier, IndicationTime, SourceInstance
@@ -314,14 +314,14 @@ void _setup (CIMClient & client, String& qlang)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "setup 1 failed: " << e.getMessage () 
+        PEGASUS_STD (cerr) << "setup 1 failed: " << e.getMessage ()
             << PEGASUS_STD (endl);
     }
 
     try
     {
         // The second filter is a subscription for the class
-        // InstDeletion_for_Sample_LifecycleIndicationProviderClass, 
+        // InstDeletion_for_Sample_LifecycleIndicationProviderClass,
         // which is a subclass
         // of CIM_InstDeletion. This filter also selects the properties:
         //    IndicationIdentifier, SourceInstance
@@ -334,7 +334,7 @@ void _setup (CIMClient & client, String& qlang)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "setup 2 failed: " << e.getMessage () 
+        PEGASUS_STD (cerr) << "setup 2 failed: " << e.getMessage ()
             << PEGASUS_STD (endl);
     }
 
@@ -347,7 +347,7 @@ void _setup (CIMClient & client, String& qlang)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "setup 3 failed: " << e.getMessage () 
+        PEGASUS_STD (cerr) << "setup 3 failed: " << e.getMessage ()
             << PEGASUS_STD (endl);
     }
 
@@ -374,7 +374,7 @@ void _setup (CIMClient & client, String& qlang)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "setup 4 failed: " << e.getMessage () 
+        PEGASUS_STD (cerr) << "setup 4 failed: " << e.getMessage ()
             << PEGASUS_STD (endl);
     }
 
@@ -401,11 +401,11 @@ void _setup (CIMClient & client, String& qlang)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "setup 5 failed: " << e.getMessage () 
+        PEGASUS_STD (cerr) << "setup 5 failed: " << e.getMessage ()
             << PEGASUS_STD (endl);
     }
 
-    PEGASUS_STD (cout) << "+++++ setup completed successfully" 
+    PEGASUS_STD (cout) << "+++++ setup completed successfully"
         << PEGASUS_STD (endl);
 }
 
@@ -418,7 +418,7 @@ void _cleanup (CIMClient & client)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "cleanup 1 failed: " << e.getMessage () 
+        PEGASUS_STD (cerr) << "cleanup 1 failed: " << e.getMessage ()
             << PEGASUS_STD (endl);
     }
 
@@ -429,7 +429,7 @@ void _cleanup (CIMClient & client)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "cleanup 2 failed: " << e.getMessage () 
+        PEGASUS_STD (cerr) << "cleanup 2 failed: " << e.getMessage ()
             << PEGASUS_STD (endl);
     }
 
@@ -439,7 +439,7 @@ void _cleanup (CIMClient & client)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "cleanup 3 failed: " << e.getMessage () 
+        PEGASUS_STD (cerr) << "cleanup 3 failed: " << e.getMessage ()
             << PEGASUS_STD (endl);
     }
 
@@ -449,7 +449,7 @@ void _cleanup (CIMClient & client)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "cleanup 4 failed: " << e.getMessage () 
+        PEGASUS_STD (cerr) << "cleanup 4 failed: " << e.getMessage ()
             << PEGASUS_STD (endl);
     }
 
@@ -459,11 +459,11 @@ void _cleanup (CIMClient & client)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "cleanup 5 failed: " << e.getMessage () 
+        PEGASUS_STD (cerr) << "cleanup 5 failed: " << e.getMessage ()
             << PEGASUS_STD (endl);
     }
 
-    PEGASUS_STD (cout) << "+++++ cleanup completed successfully" 
+    PEGASUS_STD (cout) << "+++++ cleanup completed successfully"
         << PEGASUS_STD (endl);
 }
 
@@ -539,7 +539,7 @@ int main (int argc, char** argv)
 #ifndef PEGASUS_ENABLE_CQL
         if (qlang == "CIM:CQL")
         {
-            PEGASUS_STD (cout) << "+++++ cql test disabled" 
+            PEGASUS_STD (cout) << "+++++ cql test disabled"
                 << PEGASUS_STD (endl);
             return 0;
         }

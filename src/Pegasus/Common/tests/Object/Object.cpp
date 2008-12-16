@@ -67,7 +67,7 @@ void test01()
     CIMClass cimClass3 = CIMClass(oclass1);
 
     PEGASUS_TEST_ASSERT(oclass1.getClassName() == CIMName ("MyClass"));
-    PEGASUS_TEST_ASSERT(oclass1.getPath() == 
+    PEGASUS_TEST_ASSERT(oclass1.getPath() ==
         CIMObjectPath("//localhost/root/cimv2:MyClass"));
     PEGASUS_TEST_ASSERT (oclass1.isClass ());
     PEGASUS_TEST_ASSERT (!oclass1.isInstance ());
@@ -129,7 +129,7 @@ void test01()
         PEGASUS_TEST_ASSERT(!q1.isUninitialized());
         CIMConstQualifier cq1 = oinstance1.getQualifier(posQualifier);
         PEGASUS_TEST_ASSERT(!cq1.isUninitialized());
-        
+
         /**
             Added to cover the function
             CIMConstQualifier CIMObject::getQualifier(Uint32 index) const
@@ -223,11 +223,11 @@ void test02()
     */
     CIMConstClass cclass11(obj1);
     PEGASUS_TEST_ASSERT( !cclass11.isUninitialized());
- 
+
     cclass11.getPath();
     PEGASUS_TEST_ASSERT( cclass11.getPath().toString() ==
         "//localhost/root/cimv2:MyClass" );
-    
+
     /**
         Added to cover the function CIMConstObject& CIMConstObject::operator=(
         const CIMConstObject& x) in CIMObject.cpp
@@ -250,7 +250,7 @@ void test02()
     String result1;
     result1 = cobj1.toString();
     PEGASUS_TEST_ASSERT( result1 != "<CLASS  NAME=\"MyClass\" ></CLASS>" );
-    
+
     //
     // Construct from CIMInstance
     //

@@ -276,7 +276,7 @@ static const char   NEW_PASS_PARAM[]             = "NewPassword";
 static const char   PASSWORD_PROMPT []  =
                         "Please enter your password: ";
 
-static const char   PASSWORD_PROMPT_KEY [] = 
+static const char   PASSWORD_PROMPT_KEY [] =
     "Clients.cimuser.CIMUserCommand.PASSWORD_PROMPT";
 
 static const char   OLD_PASSWORD_PROMPT []  =
@@ -300,19 +300,19 @@ static const char   NEW_PASSWORD_PROMPT_KEY []  =
 static const char   PASSWORD_DOES_NOT_MATCH []  =
     "Passwords do not match. Please Re-enter.";
 
-static const char   PASSWORD_DOES_NOT_MATCH_KEY []  = 
+static const char   PASSWORD_DOES_NOT_MATCH_KEY []  =
     "Clients.cimuser.CIMUserCommand.PASSWORD_DOES_NOT_MATCH";
 
 static const char   PASSWORD_SAME_ERROR []  =
     "Error, new and old passwords cannot be same.";
 
-static const char   PASSWORD_SAME_ERROR_KEY []  = 
+static const char   PASSWORD_SAME_ERROR_KEY []  =
     "Clients.cimuser.CIMUserCommand.PASSWORD_SAME_ERROR";
 
-static const char ERR_USAGE [] = 
+static const char ERR_USAGE [] =
     "Use '--help' to obtain command syntax.";
 
-static const char ERR_USAGE_KEY [] = 
+static const char ERR_USAGE_KEY [] =
     "Clients.cimuser.CIMUserCommand.ERR_USAGE";
 
 static const char   LONG_HELP []  = "help";
@@ -881,9 +881,9 @@ void CIMUserCommand::setCommand (
 
                 if (pw == String::EMPTY)
                 {
-                    errPrintWriter << localizeMessage(MSG_PATH, 
-                                                      PASSWORD_BLANK_KEY, 
-                                                      PASSWORD_BLANK) 
+                    errPrintWriter << localizeMessage(MSG_PATH,
+                                                      PASSWORD_BLANK_KEY,
+                                                      PASSWORD_BLANK)
                                    << endl;
                     continue;
                 }
@@ -891,7 +891,7 @@ void CIMUserCommand::setCommand (
                 {
                     errPrintWriter << localizeMessage(MSG_PATH,
                                                  PASSWORD_DOES_NOT_MATCH_KEY,
-                                                 PASSWORD_DOES_NOT_MATCH_KEY) 
+                                                 PASSWORD_DOES_NOT_MATCH_KEY)
                                    << endl;
                     pw = String::EMPTY;
                 }
@@ -917,7 +917,7 @@ void CIMUserCommand::setCommand (
             {
                 cerr << localizeMessage(MSG_PATH,
                                         PASSWORD_SAME_ERROR_KEY,
-                                        PASSWORD_SAME_ERROR) 
+                                        PASSWORD_SAME_ERROR)
                     << endl;
                 exit (1);
             }
@@ -933,9 +933,9 @@ void CIMUserCommand::setCommand (
                 pw = System::getPassword(OLD_PASSWORD_PROMPT);
                 if (pw == String::EMPTY)
                 {
-                    errPrintWriter << localizeMessage(MSG_PATH, 
-                                                      PASSWORD_BLANK_KEY, 
-                                                      PASSWORD_BLANK) 
+                    errPrintWriter << localizeMessage(MSG_PATH,
+                                                      PASSWORD_BLANK_KEY,
+                                                      PASSWORD_BLANK)
                                    << endl;
                     continue;
                 }
@@ -963,7 +963,7 @@ void CIMUserCommand::setCommand (
                 {
                     errPrintWriter << localizeMessage(MSG_PATH,
                                                     PASSWORD_DOES_NOT_MATCH_KEY,
-                                                    PASSWORD_DOES_NOT_MATCH) 
+                                                    PASSWORD_DOES_NOT_MATCH)
                                    << endl;
                     newPw = String::EMPTY;
                 }
@@ -972,9 +972,9 @@ void CIMUserCommand::setCommand (
             _newpassword = newPw ;
             if (_newpassword == _password)
             {
-                cerr << localizeMessage(MSG_PATH, 
-                                        PASSWORD_SAME_ERROR_KEY, 
-                                        PASSWORD_SAME_ERROR) 
+                cerr << localizeMessage(MSG_PATH,
+                                        PASSWORD_SAME_ERROR_KEY,
+                                        PASSWORD_SAME_ERROR)
                     << endl;
                 exit (-1);
             }
@@ -1062,7 +1062,7 @@ Uint32 CIMUserCommand::execute (
     catch(const Exception&)
     {
         outPrintWriter << localizeMessage(MSG_PATH,CIMOM_NOT_RUNNING_KEY,
-                                          CIMOM_NOT_RUNNING) 
+                                          CIMOM_NOT_RUNNING)
                       << endl;
         return 1;
     }
@@ -1083,27 +1083,27 @@ Uint32 CIMUserCommand::execute (
 
                 if (code == CIM_ERR_FAILED)
                 {
-                    outPrintWriter 
+                    outPrintWriter
                         << localizeMessage(MSG_PATH, ADD_USER_FAILURE_KEY,
-                                           ADD_USER_FAILURE) 
+                                           ADD_USER_FAILURE)
                         << endl;
                     errPrintWriter << e.getMessage() << endl;
                 }
                 else if (code == CIM_ERR_NOT_SUPPORTED)
                 {
-                    outPrintWriter 
+                    outPrintWriter
                         << localizeMessage(MSG_PATH, ADD_USER_FAILURE_KEY,
-                                           ADD_USER_FAILURE) 
+                                           ADD_USER_FAILURE)
                         << endl;
                     errPrintWriter << e.getMessage()  << endl;
                 }
                 else if (code == CIM_ERR_ALREADY_EXISTS)
                 {
-                    outPrintWriter << localizeMessage(MSG_PATH, 
+                    outPrintWriter << localizeMessage(MSG_PATH,
                                                     ADD_USER_FAILURE_KEY,
                                                     ADD_USER_FAILURE)
                         << endl;
-                    outPrintWriter << localizeMessage(MSG_PATH, 
+                    outPrintWriter << localizeMessage(MSG_PATH,
                                                     USER_ALREADY_EXISTS_KEY,
                                                     USER_ALREADY_EXISTS)
                         << endl;
@@ -1113,11 +1113,11 @@ Uint32 CIMUserCommand::execute (
                 {
                     outPrintWriter << localizeMessage(MSG_PATH,
                                                       ADD_USER_FAILURE_KEY,
-                                                      ADD_USER_FAILURE) 
+                                                      ADD_USER_FAILURE)
                                    << endl;
                     outPrintWriter << localizeMessage(MSG_PATH,
                                                     AUTH_SCHEMA_NOT_LOADED_KEY,
-                                                     AUTH_SCHEMA_NOT_LOADED) 
+                                                     AUTH_SCHEMA_NOT_LOADED)
                                    << endl;
                 }
                 else
@@ -1130,7 +1130,7 @@ Uint32 CIMUserCommand::execute (
             {
                 outPrintWriter << localizeMessage(MSG_PATH,
                                                   ADD_USER_FAILURE_KEY,
-                                                  ADD_USER_FAILURE) 
+                                                  ADD_USER_FAILURE)
                     << endl << e.getMessage() << endl;
                 return (RC_ERROR);
             }
@@ -1148,7 +1148,7 @@ Uint32 CIMUserCommand::execute (
                 {
                     outPrintWriter << localizeMessage(MSG_PATH,
                                                 CHANGE_PASSWORD_FAILURE_KEY,
-                                                CHANGE_PASSWORD_FAILURE) 
+                                                CHANGE_PASSWORD_FAILURE)
                                    << endl;
                     errPrintWriter << e.getMessage() << endl;
                 }
@@ -1156,7 +1156,7 @@ Uint32 CIMUserCommand::execute (
                 {
                     outPrintWriter << localizeMessage(MSG_PATH,
                                                     CHANGE_PASSWORD_FAILURE_KEY,
-                                                    CHANGE_PASSWORD_FAILURE) 
+                                                    CHANGE_PASSWORD_FAILURE)
                                   << endl;
                     errPrintWriter << e.getMessage()  << endl;
                 }
@@ -1471,7 +1471,7 @@ int main (int argc, char* argv[])
     AutoPtr<CIMUserCommand>  command;
     Uint32               retCode;
 
-    MessageLoader::_useProcessLocale = true; 
+    MessageLoader::_useProcessLocale = true;
     MessageLoader::setPegasusMsgHomeRelative(argv[0]);
 
     //
@@ -1479,7 +1479,7 @@ int main (int argc, char* argv[])
     //
     if (!System::isPrivilegedUser(System::getEffectiveUserName()))
     {
-        MessageLoaderParms parms(NOT_PRIVILEGED_USER_KEY, 
+        MessageLoaderParms parms(NOT_PRIVILEGED_USER_KEY,
                 NOT_PRIVILEGED_USER);
         parms.msg_src_path = MSG_PATH;
         cerr << MessageLoader::getMessage(parms) << endl;

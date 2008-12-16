@@ -32,7 +32,7 @@
 // ====================================================================
 // CIM_Error
 // ====================================================================
-   [Indication, Experimental, Exception, Version ( "2.8.1000" ), 
+   [Indication, Experimental, Exception, Version ( "2.8.1000" ),
     Description (
        "CIM_Error is a specialized class that contains information "
        "about the severity, cause, recommended actions and other data "
@@ -76,9 +76,9 @@ class CIM_Error {
           "required resource. \n"
           "10 -Unsupported Operation Error. Errors of this type are "
           "principally associated with requests that are not "
-          "supported."), 
+          "supported."),
        ValueMap { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-          "10" }, 
+          "10" },
        Values { "Unknown", "Other", "Communications Error",
           "Quality of Service Error", "Software Error",
           "Hardware Error", "Environmental Error", "Security Error",
@@ -88,7 +88,7 @@ class CIM_Error {
 
       [Description (
           "A free-form string describing the ErrorType when 1, "
-          "\"Other\", is specified as the ErrorType."), 
+          "\"Other\", is specified as the ErrorType."),
        ModelCorrespondence { "CIM_Error.ErrorType" }]
    string OtherErrorType;
 
@@ -127,14 +127,14 @@ class CIM_Error {
           "the situation is not serious at this time. \n"
           "4 - High should be used to indicate action is needed NOW. \n"
           "5 - Fatal should be used to indicate a loss of data or "
-          "unrecoverable system or service failure."), 
-       ValueMap { "0", "2", "3", "4", "5" }, 
+          "unrecoverable system or service failure."),
+       ValueMap { "0", "2", "3", "4", "5" },
        Values { "Unknown", "Low", "Medium", "High", "Fatal" }]
    uint16 PerceivedSeverity;
 
       [Required, Description (
           "An enumerated value that describes the probable cause of "
-          "the error."), 
+          "the error."),
        ValueMap { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
           "10", "11", "12", "13", "14", "15", "16", "17", "18", "19",
           "20", "21", "22", "23", "24", "25", "26", "27", "28", "29",
@@ -148,7 +148,7 @@ class CIM_Error {
           "100", "101", "102", "103", "104", "105", "106", "107",
           "108", "109", "110", "111", "112", "113", "114", "115",
           "116", "117", "118", "119", "120", "121", "122", "123",
-          "124", "125", "126", "127", "128", "129", "130" }, 
+          "124", "125", "126", "127", "128", "129", "130" },
        Values { "Unknown", "Other", "Adapter/Card Error",
           "Application Subsystem Failure", "Bandwidth Reduced",
           "Connection Establishment Error",
@@ -163,8 +163,8 @@ class CIM_Error {
           "Framing Error", "HVAC Problem", "Humidity Unacceptable",
           "I/O Device Error", "Input Device Error", "LAN Error",
           "Non-Toxic Leak Detected", "Local Node Transmission Error",
-          "Loss of Frame", "Loss of Signal", 
-          //31 
+          "Loss of Frame", "Loss of Signal",
+          //31
           "Material Supply Exhausted", "Multiplexer Problem",
           "Out of Memory", "Output Device Error",
           "Performance Degraded", "Power Problem",
@@ -180,8 +180,8 @@ class CIM_Error {
           "Threshold Crossed", "Timing Problem", "Toxic Leak Detected",
           "Transmit Failure", "Transmitter Failure",
           "Underlying Resource Unavailable", "Version Mismatch",
-          "Previous Alert Cleared", 
-          //60 
+          "Previous Alert Cleared",
+          //60
           "Login Attempts Failed", "Software Virus Detected",
           "Hardware Security Breached", "Denial of Service Detected",
           "Security Credential Mismatch", "Unauthorized Access",
@@ -196,8 +196,8 @@ class CIM_Error {
           "Antenna Failure", "Battery Charging Failure",
           "Disk Failure", "Frequency Hopping Failure",
           "Loss of Redundancy", "Power Supply Failure",
-          "Signal Quality Problem", 
-          //91 
+          "Signal Quality Problem",
+          //91
           "Battery Discharging", "Battery Failure",
           "Commercial Power Problem", "Fan Failure", "Engine Failure",
           "Sensor Failure", "Fuse Failure", "Generator Failure",
@@ -206,8 +206,8 @@ class CIM_Error {
           "Out of CPU Cycles", "Software Environment Problem",
           "Software Download Failure", "Element Reinitialized",
           "Timeout", "Logging Problems", "Leak Detected",
-          "Protection Mechanism Failure", 
-          //115 
+          "Protection Mechanism Failure",
+          //115
           "Protecting Resource Failure", "Database Inconsistency",
           "Authentication Failure", "Breach of Confidentiality",
           "Cable Tamper", "Delayed Information",
@@ -215,16 +215,16 @@ class CIM_Error {
           "Information Modification", "Information Out of Sequence",
           "Key Expired", "Non-Repudiation Failure",
           "Out of Hours Activity", "Out of Service",
-          "Procedural Error", "Unexpected Information" }, 
+          "Procedural Error", "Unexpected Information" },
        MappingStrings { "Recommendation.ITU|X733.Probable cause",
           "Recommendation.ITU|M3100.probableCause",
-       "ITU-IANA-ALARM-TC" }, 
+       "ITU-IANA-ALARM-TC" },
        ModelCorrespondence { "CIM_Error.ProbableCauseDescription" }]
    uint16 ProbableCause;
 
       [Description (
           "A free-form string describing the probable cause of the "
-          "error."), 
+          "error."),
        ModelCorrespondence { "CIM_Error.ProbableCause" }]
    string ProbableCauseDescription;
 
@@ -240,7 +240,7 @@ class CIM_Error {
           "instance encoded as a string parameter. If not modeled, the "
           "property contains some identifying string that names the "
           "entity that generated the error. The path or identifying "
-          "string is formatted per the ErrorSourceFormat property."), 
+          "string is formatted per the ErrorSourceFormat property."),
        ModelCorrespondence { "CIM_Error.ErrorSourceFormat" }]
    string ErrorSource;
 
@@ -253,9 +253,9 @@ class CIM_Error {
           "OtherErrorSourceFormat property. \n"
           "2 - CIMObjectHandle. A CIM Object Handle, encoded using the "
           "MOF syntax defined for the objectHandle non-terminal, is "
-          "used to identify the entity."), 
-       ValueMap { "0", "1", "2" }, 
-       Values { "Unknown", "Other", "CIMObjectHandle" }, 
+          "used to identify the entity."),
+       ValueMap { "0", "1", "2" },
+       Values { "Unknown", "Other", "CIMObjectHandle" },
        ModelCorrespondence { "CIM_Error.ErrorSource",
           "CIM_Error.OtherErrorSourceFormat" }]
    uint16 ErrorSourceFormat = 0;
@@ -265,7 +265,7 @@ class CIM_Error {
           "This value MUST be set to a non NULL value when "
           "ErrorSourceFormat is set to a value of 1 (\"Other\"). For "
           "all other values of ErrorSourceFormat, the value of this "
-          "string must be set to NULL."), 
+          "string must be set to NULL."),
        ModelCorrespondence { "CIM_Error.ErrorSourceFormat" }]
    string OtherErrorSourceFormat;
 
@@ -316,10 +316,10 @@ class CIM_Error {
           "19 - CIM_ERR_INVALID_RESPONSE_DESTINATION. The specified "
           "destination for the asynchronous response is not valid. \n"
           "20 - CIM_ERR_NAMESPACE_NOT_EMPTY. The specified Namespace "
-          "is not empty."), 
+          "is not empty."),
        ValueMap { "1", "2", "3", "4", "5", "6", "7", "8", "9",
           "10","11","12","13","14","15","16","17","18","19","20",
-          "21.." }, 
+          "21.." },
        Values { "CIM_ERR_FAILED", "CIM_ERR_ACCESS_DENIED",
           "CIM_ERR_INVALID_NAMESPACE", "CIM_ERR_INVALID_PARAMETER",
           "CIM_ERR_INVALID_CLASS", "CIM_ERR_NOT_FOUND",
@@ -331,17 +331,17 @@ class CIM_Error {
           "CIM_ERR_INVALID_QUERY", "CIM_ERR_METHOD_NOT_AVAILABLE",
           "CIM_ERR_METHOD_NOT_FOUND", "CIM_ERR_UNEXPECTED_RESPONSE",
           "CIM_ERR_INVALID_RESPONSE_DESTINATION",
-          "CIM_ERR_NAMESPACE_NOT_EMPTY", "DMTF Reserved" }, 
-       MappingStrings { "DSP0201.DMTF|ERROR.CODE|2.2" }, 
+          "CIM_ERR_NAMESPACE_NOT_EMPTY", "DMTF Reserved" },
+       MappingStrings { "DSP0201.DMTF|ERROR.CODE|2.2" },
        ModelCorrespondence { "CIM_Error.CIMStatusCodeDescription" }]
    uint32 CIMStatusCode;
 
       [Description (
           "A free-form string containing a human-readable description "
           "of CIMStatusCode. This description MAY extend, but MUST be "
-          "consistent with, the definition of CIMStatusCode."), 
-       MappingStrings { "DSP0201.DMTF|ERROR.DESCRIPTION|2.2" }, 
+          "consistent with, the definition of CIMStatusCode."),
+       MappingStrings { "DSP0201.DMTF|ERROR.DESCRIPTION|2.2" },
        ModelCorrespondence { "CIM_Error.CIMStatusCode" }]
    string CIMStatusCodeDescription;
 };
- 
+

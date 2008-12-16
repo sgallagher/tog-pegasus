@@ -37,10 +37,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class WMICollector; 
+class WMICollector;
 
-class PEGASUS_WMIPROVIDER_LINKAGE WMIQualifierProvider : 
-    public WMIBaseProvider  
+class PEGASUS_WMIPROVIDER_LINKAGE WMIQualifierProvider :
+    public WMIBaseProvider
 {
 public:
     WMIQualifierProvider();

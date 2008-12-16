@@ -140,11 +140,11 @@ site.
 <p style="margin-left: 40px;">Note
 that all references in this readme to files in the OpenPegasus source
 tree are of the form pegasus/..., where "pegasus" is the top-level
-directory and also the name of the OpenPegasus module in the Pegasus CVS 
-repository. There are also&nbsp; other CVS modules for the OpenPegasus Java client (pegasus-JavaCIMClient) 
-and for unsupported components and utilities for Pegasus that may be checked out 
+directory and also the name of the OpenPegasus module in the Pegasus CVS
+repository. There are also&nbsp; other CVS modules for the OpenPegasus Java client (pegasus-JavaCIMClient)
+and for unsupported components and utilities for Pegasus that may be checked out
 separately.&nbsp; You can use
-<a href="http://cvs.opengroup.org/cgi-bin/viewcvs.cgi/">viewCVS</a> to view the 
+<a href="http://cvs.opengroup.org/cgi-bin/viewcvs.cgi/">viewCVS</a> to view the
 Pegasus CVS tree<br>
 </p>
 <h2><a name="avail_of_peg">Availability</a></h2>
@@ -206,9 +206,9 @@ environments. It is available from <a href="http://www.gnu.org">http://www.gnu.o
 compiler and WQL and CQL parsers.&nbsp; These tools are required <b>ONLY</b> for
 development of the parsers, not for building OpenPegasus.&nbsp; Bison
 version 2.3 or later and flex version 2.5.4 or later are required.</li>
-  <li><b>Doxygen </b>- The OpenPegasus documentation is taken from a combination 
-	of text files and header files themselves. This documentation is formatted 
-	with Doxygen and GAWK.&nbsp; This is required <b>ONLY</b> if you want to 
+  <li><b>Doxygen </b>- The OpenPegasus documentation is taken from a combination
+	of text files and header files themselves. This documentation is formatted
+	with Doxygen and GAWK.&nbsp; This is required <b>ONLY</b> if you want to
 	build documentation from the source tree.&nbsp; <span class="norm"></span><font
  style="color: rgb(0, 0, 0);">These tools are required to build the
 interface documentation set.</font> </li>
@@ -217,7 +217,7 @@ used as the basis for message catalogs for message
 internationalization. See the ICU website
 (<a href="http://icu.sourceforge.net/">http://icu.sourceforge.net</a>)
 for more information on these
-libraries.<span style="color: rgb(255, 0, 0);"> These libraries are use ONLY if 
+libraries.<span style="color: rgb(255, 0, 0);"> These libraries are use ONLY if
 	you set the requisite environment variable ( PEGASUS_HAS_ICU) to use ICU</span><br>
   </li>
   <li><span style="font-weight: bold;"></span><b>OpenSSL </b>- If it
@@ -248,7 +248,7 @@ web page.<br>
 </p>
 <h2><a name="cmnd">Commands</a></h2>
 <p style="margin-left: 40px;">
-Pegasus includes the server which can be controlled from the command line and a 
+Pegasus includes the server which can be controlled from the command line and a
 set of clients that provide adminstrative functions</p>
 <p style="margin-left: 40px;">
 The manpages for each of the commands are in the pegasus/rpm/manLinux/
@@ -306,7 +306,7 @@ started as a service (cimserver -start). The cimserver --help option
 explains the
 exact format of the start and stop options.</li>
 		<li>The cimuser command is used to manage OpenPegasus users only when
-the CIM Server is compiled without the PEGASUS_PAM_AUTHENTICATION environment 
+the CIM Server is compiled without the PEGASUS_PAM_AUTHENTICATION environment
 		variable defined. See
 		<a href="http://www.openpegasus.org/pp/uploads/40/16781/PEP308_RecommendedReleaseOptions.htm">
 		PEP 308</a> for more information on these configuration options.<br></li>
@@ -393,7 +393,7 @@ platform on which OpenPegasus is being built.<br>
 <h2><a name="bld_peg"></a>Build the Executables<br>
 </h2>
 <div style="margin-left: 40px;">OpenPegasus
-is compiled and linked using a make structure that recurses through the&nbsp; 
+is compiled and linked using a make structure that recurses through the&nbsp;
 	OpenPegasus source tree.<br>
 <font><font color="RED"><span
  style="color: rgb(0, 0, 0); font-weight: bold;"><br>
@@ -464,7 +464,7 @@ repository (if one exists).</span><br>
     <li>Generates the default
 CIM Schema (defined in pegasus/mak/config.mak)
 in the repository (skeleton of CIM
-objects).&nbsp; Refer to PEGASUS_CIM_SCHEMA environment variable&nbsp; in&nbsp; 
+objects).&nbsp; Refer to PEGASUS_CIM_SCHEMA environment variable&nbsp; in&nbsp;
 	Pegasus PEP 308&nbsp; to set&nbsp; alternate schema versions.<br>
     </li>
     <li>Loads
@@ -507,12 +507,12 @@ environment
 variables set (eg. PEGASUS_HOME, PEGASUS_ROOT, PEGASUS_PLATFORM).&nbsp;
 For
 32 bit Linux, the definition of PEGASUS_PLATFORM is normally
-LINUX_IX86_GNU.&nbsp;&nbsp; For 64 bit IX86&nbsp; Linux the definition of 
+LINUX_IX86_GNU.&nbsp;&nbsp; For 64 bit IX86&nbsp; Linux the definition of
 PEGASUS_PLATFORM is normally LINUX_IX86_64_GNU.&nbsp; Use the g++
-compiler to compile and link the executables. All of the supported platform 
-definitions are defined in pegasus/mak as&nbsp; make files with the definition 
-platform_&lt;operatingSystem&gt;_&lt;architecture&gt;_&lt;compiler&gt;. The &lt;operatingSystem&gt;_&lt;architecture&gt;_&lt;compiler&gt; 
-component is what forms the PEGASUS_PLATFORM environment variable so that the 
+compiler to compile and link the executables. All of the supported platform
+definitions are defined in pegasus/mak as&nbsp; make files with the definition
+platform_&lt;operatingSystem&gt;_&lt;architecture&gt;_&lt;compiler&gt;. The &lt;operatingSystem&gt;_&lt;architecture&gt;_&lt;compiler&gt;
+component is what forms the PEGASUS_PLATFORM environment variable so that the
 appropriate platform make file can be found during the build process.<br>
 </p>
 <h2><a name="bld_peg_win">Notes
@@ -669,26 +669,26 @@ these tests.&nbsp; This set of tests executes an extensive set of fixed
 tests and compares the results against predefined results.</li>
   </ul>
 </ul>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Once OpenPegasus is 
-successfully built, the&nbsp; tests can be executed through the root Makefile 
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Once OpenPegasus is
+successfully built, the&nbsp; tests can be executed through the root Makefile
 with targets such as:</p>
 <blockquote>
 	<blockquote>
 		<ul>
-			<li><b>make unittests </b>- Execute the unit tests. These do not depend 
-			on having a running server or repository installed.&nbsp; They test 
-			components of the OpenPegasus code. These tests run to completion if 
-			successful but normally stop on the first error found by a test 
+			<li><b>make unittests </b>- Execute the unit tests. These do not depend
+			on having a running server or repository installed.&nbsp; They test
+			components of the OpenPegasus code. These tests run to completion if
+			successful but normally stop on the first error found by a test
 			program.</li>
-			<li><b>make servertests</b> - Executes the OpenPegasus end-to-end test 
-			suite against a running OpenPegasus server starting and stopping the 
-			server as required to modify configuration parameters. The 
-			repository must be installed for these tests to execute and they are 
-			tested against the default repository as part of regular OpenPegasus 
-			development and release testing. These tests will run to successful 
-			completion if there are not errors detected but will normally stop 
-			on the first error.&nbsp; There is a subset of these tests that can 
-			be run in an environment that does not have root privileges but root 
+			<li><b>make servertests</b> - Executes the OpenPegasus end-to-end test
+			suite against a running OpenPegasus server starting and stopping the
+			server as required to modify configuration parameters. The
+			repository must be installed for these tests to execute and they are
+			tested against the default repository as part of regular OpenPegasus
+			development and release testing. These tests will run to successful
+			completion if there are not errors detected but will normally stop
+			on the first error.&nbsp; There is a subset of these tests that can
+			be run in an environment that does not have root privileges but root
 			privileges are required to run the complete suite.</li>
 			<li><b>make alltests</b> - execute both the unit and end-to-end tests.</li>
 		</ul>

@@ -46,17 +46,17 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-/** The IndicationDispatchEvent class encapsulates an event and all of the 
- *  information associated with the event. The operation context, URL, 
- *  and the CIM indication instance are the parameters to the 
+/** The IndicationDispatchEvent class encapsulates an event and all of the
+ *  information associated with the event. The operation context, URL,
+ *  and the CIM indication instance are the parameters to the
  *  consumeIndication() method* of the CIMIndicationConsumer interface.
  *  Additionally, we need to store the number of retries in order to resend
  *  indications if the consumer fails.
- */ 
+ */
 class PEGASUS_DYNLISTENER_LINKAGE IndicationDispatchEvent : public Linkable
 {
 public:
-    
+
     IndicationDispatchEvent();
 
     IndicationDispatchEvent(OperationContext context,
@@ -97,12 +97,12 @@ private:
 /** The DynamicConsumer class represents the logical consumer extracted from a
  * consumer module. It is wrapped in a facade to stabalize the interface
  * and is directly tied to a module.
- * 
+ *
  * The synchronization of these actions is left up to the caller.  For example,
  * the caller must ensure that terminate is not called while initialize
  * is executing.  The ConsumerManager uses a consumer table mutex to ensure
  * that no mutually exclusive operations occur at the same time. The exception
- * to this is the operation of the worker thread, which is signalled during 
+ * to this is the operation of the worker thread, which is signalled during
  * a shutdown operation or when a new event occurs.
  */
 
@@ -168,7 +168,7 @@ private:
 
     // this mutex controls the state of the consumer to ensure it is
     // not initializing, terminating, etc at the same time
-    // ATTN: Do we need this?  The ConsumerManager will be controlling 
+    // ATTN: Do we need this?  The ConsumerManager will be controlling
     // the status of the consumers. Check back here when doing global queue
     Mutex _statusMutex;
 
@@ -196,8 +196,8 @@ private:
     Semaphore* _check_queue;
 
     // Signals that the event thread is listening and can now be signalled.
-    // This eliminates any synchronization issues that may occur when the 
-    // first event comes in or if shutdown is called right as the 
+    // This eliminates any synchronization issues that may occur when the
+    // first event comes in or if shutdown is called right as the
     // consumer thread is being started
     Semaphore* _listeningSemaphore;
 
@@ -207,7 +207,7 @@ private:
     // access any thread information once it is spawned; the only option is
     // to pass a blocking semaphore in, which will signal when the thread
     // completes.  Since we are using one dedicated thread per consumer
-    // for now, we can store one shutdown semaphore per consumer.  We'll 
+    // for now, we can store one shutdown semaphore per consumer.  We'll
     // change the implementation when we go to a global queue.
 
     // This is used to tell the consumer manager that the worker thread has

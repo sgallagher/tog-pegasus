@@ -68,22 +68,22 @@ void TraceLogHandler::handleMessage(
     if (Logger::wouldLog(Logger::TRACE))
     {
         char buffer[4096];
-        
+
 #ifdef PEGASUS_OS_TYPE_WINDOWS
         // Windows until VC 8 does not support vsnprintf
         // need to use Windows equivalent function with the underscore
         _vsnprintf(buffer, 4095, fmt, argList);
 #else
         vsnprintf(buffer, 4095, fmt, argList);
-#endif        
+#endif
         String completeMsg(buffer);
         completeMsg.append(message, msgLen);
-        
-        Logger::trace( Logger::TRACE_LOG, 
-                       System::CIMSERVER, 
+
+        Logger::trace( Logger::TRACE_LOG,
+                       System::CIMSERVER,
                        Logger::TRACE,
                        completeMsg );
-    }    
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -95,6 +95,6 @@ void TraceLogHandler::handleMessage(const char *message, Uint32 msgLen)
     {
         Logger::trace( Logger::TRACE_LOG, System::CIMSERVER, Logger::TRACE,
                        String(message) );
-    }    
+    }
 }
 PEGASUS_NAMESPACE_END

@@ -68,7 +68,7 @@ sub determine_source_path()
 	{
     	$component_value{"PEGASUS_ROOT"} = $source_dir;
 	}
-  
+
   }
 sub which () {
 
@@ -102,7 +102,7 @@ sub determine_platform() {
 	      $platform = "SOLARIS_SPARC_GNU";
 	    }
 	}
-   if ($uname =~ /Linux/) 
+   if ($uname =~ /Linux/)
      {
        # Default value
        $platform = "LINUX_IX86_GNU";
@@ -110,7 +110,7 @@ sub determine_platform() {
 	 {
 	   $platform = "LINUX_PPC_GNU";
 	 }
-       
+
        if ($uname =~ /ia64/i)
 	 {
 	   $platform = "LINUX_IA64_GNU";
@@ -156,7 +156,7 @@ sub write_out_pkg() {
 
 }
 sub write_out_status() {
-  
+
   my $output = shift;
   my $c="";
   open OUTPUT, ">$output" or die $!;
@@ -174,7 +174,7 @@ sub write_out_status() {
 		}
     }
   close OUTPUT;
-  
+
 }
 sub ask_user() {
 
@@ -187,7 +187,7 @@ sub ask_user() {
   my $search_for_dependants=0;
 
   foreach $pass (0..1) {
-     if ($pass == 0) { 
+     if ($pass == 0) {
   	  print "=================================================\n";
   	  print "All your build options will be saved in ",$STATUS_FILE," file.\n";
   	  print "If you need to modify anything, you can do it after this program finishes..\n";
@@ -195,13 +195,13 @@ sub ask_user() {
     }
     foreach $c (sort keys(%component_hash))
       {
-	
+
 	# check in the $argument_list to see if this option
 	# has been passed in. But do it only on the first
 	# pass
 	if ($pass == 0) {
 	  foreach $d (sort keys(%argument_list))
-	    {	 
+	    {
 	      if ($d eq $enable_component_hash{$c})
 		{
 		  print $c," is set\n";
@@ -212,7 +212,7 @@ sub ask_user() {
 	}
 	$skip = 0;
 	# Does this build option have a dependency?
-	if (!$depend_on_hash{$c} eq "" ) 
+	if (!$depend_on_hash{$c} eq "" )
 	  {
 	  # Yes. Has the dependency been set?
 	  if ($component_value{$depend_on_hash{$c}} eq "")
@@ -223,7 +223,7 @@ sub ask_user() {
 	    }
 	}
    # if this is the second pass, ignore the flag options.
-    if ($pass != 0) 
+    if ($pass != 0)
     {
 	  if ($define_type_hash{$c} =~ /flag/)
       {
@@ -247,11 +247,11 @@ sub ask_user() {
 		      $component_value{$c}="Yes";
               # There are build options that are 'disable.' Meaning that 'yes'
               # sets all of the dependents to 'Yes' as well.
-		      $loop_question=0;		   
+		      $loop_question=0;
              if ($c =~ /PEGASUS_DISABLE/i)
              {
                 $search_for_dependants=1;
-             } 
+             }
 		    }
 		  if (/^n/i)
 		    {
@@ -287,20 +287,20 @@ sub ask_user() {
 			    }
 			}
 		    }
-		      if ($loop_question==1) 
+		      if ($loop_question==1)
 			{
 			  print "Please entry Y or N.\n";
 			}
 		} while ($loop_question==1);
 
 	    } # if type is boolean
-	  
+
 	  if ($define_type_hash{$c} =~ /flag/)
        {
          print $c,"[]: ";
          $_ = <STDIN>;
          chomp($_);
-         $component_value{$c}=$_; 
+         $component_value{$c}=$_;
        }
 	  if ($define_type_hash{$c} =~ /path/)
 	    {
@@ -318,24 +318,24 @@ sub ask_user() {
 		  else
 		    {
 		      print "Path is not accessible. Please enter again.\n";
-		    }		
+		    }
 		} while ($loop_question==1);
-	      
+
 	    }
 	} # componet_value eq "";
       }
   }
 }
-  
+
 sub check_arguments() {
-    
+
   my $c="";
   foreach $c (sort keys(%argument_list))
     {
        if ($argument_list{$c} eq "") {
 	#print $c,"is not a PATH\n";
       }
-      else 
+      else
 	{
 	  # Check the path
 	  if (!(-r $argument_list{$c}))
@@ -349,17 +349,17 @@ sub check_arguments() {
 sub print_help() {
 
    my $c="";
-   
+
    print "Usage: ",$0," [OPTION]...\n";
    print "\nArguments:\n";
 
    foreach $c (sort keys(%component_hash)) {
 	print "   ",$enable_component_hash{$c};
-	if ($define_type_hash{$c} =~ /path/i) 
+	if ($define_type_hash{$c} =~ /path/i)
 	{
 		print "=<directory>";
 	}
-	if ($define_type_hash{$c} =~ /flag/i) 
+	if ($define_type_hash{$c} =~ /flag/i)
 	{
 		print "=<flag>";
 	}
@@ -373,7 +373,7 @@ sub parse_arguments {
   my $argnum = 0;
   my @temp = ();
   foreach $argnum (0..$#ARGV) {
-  
+
     if (lc($ARGV[$argnum]) =~ /--help/i) {
       &print_help();
       exit (0);
@@ -419,7 +419,7 @@ sub parse_help_file  {
 	   foreach $token (@tokens) {
 #		print "[",$state," ",$token, "]";
 
-		if ($state == 1) { 
+		if ($state == 1) {
 		  #<depend or (Boolean or Path)
 		  #new option: flag
 		  # check for boolean or Path
@@ -456,7 +456,7 @@ sub parse_help_file  {
 		  $long_descr_hash{$component}=$long_descr_hash{$component}." ".$token;
 		}
 	      } # foreach token
-	
+
 	 } #if /,/ or /}/
       }
    close (HELP_FILE);

@@ -39,7 +39,7 @@
 #ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
 #if defined (__GNUC__) && GCC_VERSION >= 40000
 // If gcc is compiled with -fvisibility=hidden then JMPI is broken.
-// This is because the JNI h file defines JNIEXPORT as empty since 
+// This is because the JNI h file defines JNIEXPORT as empty since
 // the default is visible.
 #undef  JNIEXPORT
 #define JNIEXPORT __attribute__ ((visibility("default")))
@@ -407,7 +407,7 @@ class _dataType {
 
 #define BigIntegerValueOf              staticMethodIDs[0]
 #define JarClassLoaderLoad             staticMethodIDs[1]
-                                      
+
 #define VectorNew                      instMethodIDs[0]
 #define VectorAddElement               instMethodIDs[15]
 #define VectorElementAt                instMethodIDs[16]

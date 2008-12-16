@@ -392,7 +392,7 @@ CIMObjectPath::CIMObjectPath(const String& objectName)
     // Test the objectName out to see if we get an exception
     CIMObjectPath tmpRef;
     tmpRef.set(objectName);
-    
+
     _rep = tmpRef._rep;
     Ref(_rep);
 }
@@ -472,7 +472,7 @@ void CIMObjectPath::set(
     {
         throw MalformedObjectNameException(host);
     }
-    
+
     _rep = _copyOnWriteCIMObjectPathRep(_rep);
 
     _rep->_host.assign(host);

@@ -1519,8 +1519,8 @@ CIMValue InternalCIMOMHandleRep::getProperty(
 
     CIMValue cimValue = response->value;
 
-    // Return value in String form.  
-    if (cimValue.getType() != CIMTYPE_STRING && 
+    // Return value in String form.
+    if (cimValue.getType() != CIMTYPE_STRING &&
         cimValue.getType() != CIMTYPE_REFERENCE && !cimValue.isNull())
     {
         Buffer out;

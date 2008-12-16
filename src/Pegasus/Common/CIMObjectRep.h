@@ -52,7 +52,7 @@ PEGASUS_NAMESPACE_BEGIN
 
     This class contains what is common to CIMClass and CIMInstance.
 */
-class CIMObjectRep 
+class CIMObjectRep
 {
 public:
 

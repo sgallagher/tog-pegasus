@@ -47,7 +47,7 @@ PEGASUS_NAMESPACE_BEGIN
     This class implements getValue() by simply looking up the property name
     in the map and fetching the corresponding value.
 
-    The addValue() method is used to add property-name/value pairs to the 
+    The addValue() method is used to add property-name/value pairs to the
     internal map.
 
     Since this class is intended for testing purposes, all of the methods
@@ -71,26 +71,26 @@ public:
 
     /** Get the value for the property with the given name. Simply looks up
         the property name in the internal map to fetch the value.
-    
+
         @param propertyName name of property to be retrieved.
         @param value value of property.
         @return true is such a property exists and false otherwise.
     */
     virtual Boolean getValue(
-    const CIMName& propertyName, 
+    const CIMName& propertyName,
     WQLOperand& value) const
     {
         return _map.lookup(propertyName.getString(), value);
     }
 
     /** Add the given propert-name/value pair to the internal map.
-    
+
         @param propertyName name of property.
         @param value value of property.
         @return true if no such property already existed and false otherwise.
     */
     Boolean addValue(
-    const CIMName& propertyName, 
+    const CIMName& propertyName,
     const WQLOperand& value)
     {
         return _map.insert(propertyName.getString(), value);

@@ -64,8 +64,8 @@ PEGASUS_NAMESPACE_BEGIN
 // This Mutex serializes access to the instance change CIM requests. Keeps from
 // mixing instance creates, modifications, and deletes. This keeps the provider
 // from simultaneously execute creates, modifications, and deletes of instances
-// While these operations are largely protected by the locking mechanisms of 
-// the repository this mutex guarantees that the provider will not 
+// While these operations are largely protected by the locking mechanisms of
+// the repository this mutex guarantees that the provider will not
 // simultaneously execute the instance change operations.
 Mutex changeControlMutex;
 

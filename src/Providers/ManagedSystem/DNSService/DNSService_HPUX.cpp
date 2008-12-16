@@ -231,7 +231,7 @@ Boolean DNSService::getDNSName(String & name)
 #endif
         name.assign(dnsName);
     }
-    else 
+    else
     {
         // initialize dnsName to root domain(" ")
         dnsName.assign(" ");
@@ -348,7 +348,7 @@ DNSService::getDNSInfo()
         memset(buffer, 0, sizeof(buffer));
         fscanf(fp, "%511s", buffer);
         if(!strlen(buffer))
-            continue; 
+            continue;
         if( buffer[0] == '#' )
         {
             // If it is a comment line then read the whole line and continue
@@ -381,7 +381,7 @@ DNSService::getDNSInfo()
             }
             else
             {
-                switch (ind) 
+                switch (ind)
                 {
                     case SEARCHLIST:
                         // Make sure not to add multiple identical entries

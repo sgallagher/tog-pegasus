@@ -77,7 +77,7 @@ struct  provider_address
 
 //! Resolves a list of remote provider addresses for an enumerative request.
 
-provider_address * resolve_class ( 
+provider_address * resolve_class (
     CONST CMPIBroker *,
     CONST CMPIContext *,
     CONST CMPIObjectPath *,
@@ -85,7 +85,7 @@ provider_address * resolve_class (
     CMPIStatus *);
 
 //! Resolves a single address of a remote provider.
-provider_address * resolve_instance ( 
+provider_address * resolve_instance (
     CONST CMPIBroker *,
     CONST CMPIContext *,
     CONST CMPIObjectPath *,

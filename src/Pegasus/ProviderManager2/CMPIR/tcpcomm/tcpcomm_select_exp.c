@@ -49,9 +49,9 @@
 static const struct BinarySerializerFT *__sft = &binarySerializerFT;
 
 static void TCPCOMM_selExp_evaluate (
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
-    CONST CMPIContext * context, 
+    CONST CMPIContext * context,
     CMPIUint32 ctx_id)
 {
     CMPISelectExp *se;
@@ -67,36 +67,36 @@ static void TCPCOMM_selExp_evaluate (
 }
 
 static void TCPCOMM_selExp_getDOC (
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
-    CONST CMPIContext * context, 
+    CONST CMPIContext * context,
     CMPIUint32 ctx_id)
 {
     // not implemented
 }
 
 static void TCPCOMM_selExp_getCOD (
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
-    CONST CMPIContext * context, 
+    CONST CMPIContext * context,
     CMPIUint32 ctx_id)
 {
     // not implemented
 }
 
 static void TCPCOMM_selExp_evaluateUsingAccessor (
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
-    CONST CMPIContext * context, 
+    CONST CMPIContext * context,
     CMPIUint32 ctx_id)
 {
     // not implemented
 }
 
 static void TCPCOMM_selExp_clone (
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
-    CONST CMPIContext * context, 
+    CONST CMPIContext * context,
     CMPIUint32 ctx_id)
 {
     CMPISelectExp *se, *new_se;
@@ -109,9 +109,9 @@ static void TCPCOMM_selExp_clone (
 }
 
 static void TCPCOMM_selExp_getString (
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
-    CONST CMPIContext * context, 
+    CONST CMPIContext * context,
     CMPIUint32 ctx_id)
 {
     CMPISelectExp *se;
@@ -125,9 +125,9 @@ static void TCPCOMM_selExp_getString (
 }
 
 static void TCPCOMM_selExp_release (
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
-    CONST CMPIContext * context, 
+    CONST CMPIContext * context,
     CMPIUint32 ctx_id)
 {
     CMPISelectExp *se;
@@ -144,9 +144,9 @@ static void TCPCOMM_selExp_release (
 }
 
 static void TCPCOMM_selExp_newSelExp (
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
-    CONST CMPIContext * context, 
+    CONST CMPIContext * context,
     CMPIUint32 ctx_id)
 {
     CMPISelectExp *new_se, *se_clone = NULL;
@@ -173,7 +173,7 @@ struct socket_select_exp_function select_exp_functions [] =
     { "TCPCOMM_selExp_evaluate",        TCPCOMM_selExp_evaluate},
     { "TCPCOMM_selExp_getDOC",          TCPCOMM_selExp_getDOC},
     { "TCPCOMM_selExp_getCOD",          TCPCOMM_selExp_getCOD},
-    { "TCPCOMM_selExp_evaluateUsingAccessor", 
+    { "TCPCOMM_selExp_evaluateUsingAccessor",
     TCPCOMM_selExp_evaluateUsingAccessor},
     { "TCPCOMM_selExp_clone",           TCPCOMM_selExp_clone},
     { "TCPCOMM_selExp_getString",       TCPCOMM_selExp_getString},

@@ -39,16 +39,16 @@ Caught Exception: CQL syntax error: syntax error around token 9 in position 81 w
 Statement with error = select * FROM CQL_TestPropertyTypes where PropertyString = '\\'CIM_ComputerSystem'
 
 Caught Exception: The CQLValue is not a string literal while processing rule concat->concat || literal_string.
-Statement with error = select * from class where class.prop || 'b' || 'c' = 'abc' 
+Statement with error = select * from class where class.prop || 'b' || 'c' = 'abc'
 
 Caught Exception: CQL syntax error: syntax error around token 8 in position 38 while processing rule concat->chain
-Statement with error = select * from class where 'a' || class.prop || 'b' || 'c' = 'abc' 
+Statement with error = select * from class where 'a' || class.prop || 'b' || 'c' = 'abc'
 
 Caught Exception: The CQLValue is not a string literal while processing rule concat->concat || literal_string.
-Statement with error = select * from CQL_TestPropertyTypes where PropertyString || 'b' || 'c' = 'abc' 
+Statement with error = select * from CQL_TestPropertyTypes where PropertyString || 'b' || 'c' = 'abc'
 
 Caught Exception: The CQLValue is not a string literal while processing rule concat->concat || literal_string.
-Statement with error = select * from CQL_TestPropertyTypes where PropertyString || 'b' || 'c' = 'BertRulesbc' 
+Statement with error = select * from CQL_TestPropertyTypes where PropertyString || 'b' || 'c' = 'BertRulesbc'
 
 Caught Exception: Bad UTF8 encountered parsing rule literal_string in position 76.
 Error printing statement: The byte sequence starting at index 60 is not valid UTF-8 encoding.

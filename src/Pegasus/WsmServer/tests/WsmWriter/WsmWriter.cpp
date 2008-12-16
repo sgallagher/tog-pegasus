@@ -49,7 +49,7 @@ static Boolean verbose;
 static Boolean _compareInstances(WsmInstance& inst1, WsmInstance& inst2);
 
 static Boolean _compareEPRs(
-    WsmEndpointReference& epr1, 
+    WsmEndpointReference& epr1,
     WsmEndpointReference& epr2)
 {
     return epr1 == epr2;
@@ -225,7 +225,7 @@ static void _testInstances(void)
         }
         WsmValue val1(stra);
         inst.addProperty(WsmProperty("property_1", val1));
-        
+
         stra.clear();
         for (int i = 0; i < 10; i++)
         {
@@ -236,7 +236,7 @@ static void _testInstances(void)
         WsmValue val2(stra);
         inst.addProperty(WsmProperty("property_2", val2));
 
-        _checkInstance(inst, 
+        _checkInstance(inst,
             "Instances with string array properties do not compare");
     }
 
@@ -272,12 +272,12 @@ static void _testInstances(void)
             epr.selectorSet->selectors.
                 append(WsmSelector("sel_name", buf));
             epra.append(epr);
-            
+
         }
         WsmValue val(epra);
         inst.addProperty(WsmProperty("property_1", val));
 
-        _checkInstance(inst, 
+        _checkInstance(inst,
             "Instances with EPR array properties do not compare");
     }
 
@@ -302,7 +302,7 @@ static void _testInstances(void)
         epr3.address = "http://www.acme.com_3:5988/wsman";
         epr3.resourceUri = "TestURI_3";
         epr3.selectorSet->selectors.append(WsmSelector("sel_3 name", epr2));
- 
+
         WsmEndpointReference epr;
         epr.address = "http://www.acme.com:5988/wsman";
         epr.resourceUri = "TestURI";
@@ -311,7 +311,7 @@ static void _testInstances(void)
         WsmValue val(epr);
         inst.addProperty(WsmProperty("property_1", val));
 
-        _checkInstance(inst, 
+        _checkInstance(inst,
             "Instances with recursive EPR properties do not compare");
     }
 
@@ -327,7 +327,7 @@ static void _testInstances(void)
         WsmValue val_3(inst1);
         inst.addProperty(WsmProperty("property_3", val_3));
 
-        _checkInstance(inst, 
+        _checkInstance(inst,
             "Instances with instance properties do not compare");
     }
 
@@ -350,7 +350,7 @@ static void _testInstances(void)
         WsmValue val(insta);
         inst.addProperty(WsmProperty("prop_array", val));
 
-        _checkInstance(inst, 
+        _checkInstance(inst,
             "Instances with instance array properties do not compare");
     }
 
@@ -374,16 +374,16 @@ static void _testInstances(void)
         WsmValue val(inst3);
         inst.addProperty(WsmProperty("property", val));
 
-        _checkInstance(inst, 
+        _checkInstance(inst,
             "Instances with recursive instance properties do not compare");
     }
-} 
+}
 
 static void  _testResponseFormatting(void)
 {
     ContentLanguageList contentLanguage;
     Buffer body, header, out;
-    const char expectedHttpHeader[] = 
+    const char expectedHttpHeader[] =
         "HTTP/1.1 200 OK\r\nContent-Type: application/soap+xml;charset=UTF-8"
         "\r\ncontent-length: 0000000000\r\nSOAPAction: "
         "http://schemas.xmlsoap.org/ws/2004/09/transfer/GetResponse\r\n\r\n";
@@ -391,7 +391,7 @@ static void  _testResponseFormatting(void)
     // Create FaultTo header
     WsmWriter::appendStartTag(
         header, WsmNamespaces::WS_ADDRESSING, STRLIT("FaultTo"));
-    WsmWriter::appendTagValue(header, WsmNamespaces::WS_ADDRESSING, 
+    WsmWriter::appendTagValue(header, WsmNamespaces::WS_ADDRESSING,
         STRLIT("Address"), "http://www.acme.com:5988/wsman");
     WsmWriter::appendEndTag(
         header, WsmNamespaces::WS_ADDRESSING, STRLIT("FaultTo"));
@@ -424,7 +424,7 @@ static void  _testResponseFormatting(void)
 
     XmlEntry entry;
     reader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Envelope");
-    
+
     String wsaMessageId;
     String wsaAction;
     String wsaFrom;
@@ -468,7 +468,7 @@ static void  _testFaultFormatting(void)
 
     // Test Soap NotUnderstood fault.
     {
-        const char expectedHttpHeader[] = 
+        const char expectedHttpHeader[] =
             "HTTP/1.1 500 Internal Server Error\r\nContent-Type: "
             "application/soap+xml;charset=UTF-8\r\ncontent-length: "
             "0000000000\r\nSOAPAction: "
@@ -476,14 +476,14 @@ static void  _testFaultFormatting(void)
 
         SoapNotUnderstoodFault soapFault(WsmNamespaces::supportedNamespaces[
             WsmNamespaces::WS_MAN].extendedName, "RequestedEPR");
-        SoapFaultResponse response(relatesTo, 0, HTTP_METHOD__POST, 
+        SoapFaultResponse response(relatesTo, 0, HTTP_METHOD__POST,
             false, soapFault);
         SoapResponse soapResponse(&response);
-    
+
         Buffer out = soapResponse.getResponseContent();
 
         char* ptr = (char*) out.getData();
-        if (strncmp(ptr, expectedHttpHeader, 
+        if (strncmp(ptr, expectedHttpHeader,
                     sizeof(expectedHttpHeader)-1) != 0)
             throw Exception("HTTP header incorrect");
         ptr += sizeof(expectedHttpHeader)-1;
@@ -492,7 +492,7 @@ static void  _testFaultFormatting(void)
         const char* xmlVersion = 0;
         const char* xmlEncoding = 0;
         reader.getXmlDeclaration(xmlVersion, xmlEncoding);
-        if (strcmp(xmlVersion, "1.0") != 0 || 
+        if (strcmp(xmlVersion, "1.0") != 0 ||
             strcmp(xmlEncoding, "utf-8") != 0)
             throw Exception("XML version or encoding incorrect");
 
@@ -538,10 +538,10 @@ static void  _testFaultFormatting(void)
         reader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
         reader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Envelope");
     }
-    
+
     // Test Wsm fault.
     {
-        const char expectedHttpHeader[] = 
+        const char expectedHttpHeader[] =
             "HTTP/1.1 500 Internal Server Error\r\nContent-Type: "
             "application/soap+xml;charset=UTF-8\r\ncontent-length: "
             "0000000000\r\nSOAPAction: "
@@ -549,14 +549,14 @@ static void  _testFaultFormatting(void)
 
         WsmFault wsmFault(WsmFault::wsman_AccessDenied, "Whatever reason",
             ContentLanguageList(), "Whatever fault detail");
-        WsmFaultResponse response(relatesTo, 0, HTTP_METHOD__POST, 
+        WsmFaultResponse response(relatesTo, 0, HTTP_METHOD__POST,
             false, wsmFault);
         SoapResponse soapResponse(&response);
-    
+
         Buffer out = soapResponse.getResponseContent();
 
         char* ptr = (char*) out.getData();
-        if (strncmp(ptr, expectedHttpHeader, 
+        if (strncmp(ptr, expectedHttpHeader,
                     sizeof(expectedHttpHeader)-1) != 0)
             throw Exception("HTTP header incorrect");
         ptr += sizeof(expectedHttpHeader)-1;
@@ -565,7 +565,7 @@ static void  _testFaultFormatting(void)
         const char* xmlVersion = 0;
         const char* xmlEncoding = 0;
         reader.getXmlDeclaration(xmlVersion, xmlEncoding);
-        if (strcmp(xmlVersion, "1.0") != 0 || 
+        if (strcmp(xmlVersion, "1.0") != 0 ||
             strcmp(xmlEncoding, "utf-8") != 0)
             throw Exception("XML version or encoding incorrect");
 
@@ -636,7 +636,7 @@ int main(int argc, char** argv)
         if (verbose)
             cout << "Testing response formatting." << endl;
         _testResponseFormatting();
-        
+
         if (verbose)
             cout << "Testing fault formatting." << endl;
         _testFaultFormatting();

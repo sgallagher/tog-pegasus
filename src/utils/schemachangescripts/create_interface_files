@@ -3,18 +3,18 @@
 ##
 ## create_interface_files script to create CIM Schema "interface" files:
 ##
-## This file was used when CIM Schema Version 2.11 was installed. 
-## It is not inteneded for general use. It is available here as 
-## further documentation of the CIM Schema install process and for 
+## This file was used when CIM Schema Version 2.11 was installed.
+## It is not inteneded for general use. It is available here as
+## further documentation of the CIM Schema install process and for
 ## future reference when new CIM Schema versions are installed.
 ##
-## This bash shell script file creates "interface" files for the new 
-## DMTF CIM Schema Version 2.11 to make them compatible with the 
+## This bash shell script file creates "interface" files for the new
+## DMTF CIM Schema Version 2.11 to make them compatible with the
 ## OpenPegasus build enviroment that has been used for previous versions.
-##              
 ##
-## The following files are needed and will each include the appropriate 
-## DMTF files. 
+##
+## The following files are needed and will each include the appropriate
+## DMTF files.
 ##
 ## CIM_Schema
 ## CIM_Event
@@ -36,18 +36,18 @@
 ##########################################
 ## INSERT_LICENSE ()
 ##
-function INSERT_LICENSE() 
+function INSERT_LICENSE()
 {
 FILE=$1 ;
 cat ../../doc/license.txt > ${FILE}.mof ;
 ##### cat header_add.txt | sed 's/FILE_NAME/${FILE}/' >> ${FILE}.mof ;
-return 0 ; 
+return 0 ;
 }
 
 ##########################################
 ## INSERT_BLANK_LINE ()
 ##
-function INSERT_BLANK_LINE () 
+function INSERT_BLANK_LINE ()
 {
 FILE=$1 ;
 echo " " >> ${FILE}.mof ;
@@ -56,7 +56,7 @@ echo " " >> ${FILE}.mof ;
 ##########################################
 ## INSERT_LINE ()
 ##
-function INSERT_LINE () 
+function INSERT_LINE ()
 {
 FILE=$1 ;
 echo "$2" >> ${FILE}.mof ;
@@ -65,10 +65,10 @@ echo "$2" >> ${FILE}.mof ;
 ##########################################
 ## INSERT_EXTRACTED_INCLUDES ()
 ##
-## copy all include lines for this file from cimv210.mof changing 
-## them to add the DMTF directory. 
+## copy all include lines for this file from cimv210.mof changing
+## them to add the DMTF directory.
 ##
-## IE: The following line for the CIM_Core.mof file 
+## IE: The following line for the CIM_Core.mof file
 ##
 ##    #pragma include ("Core\CIM_ManagedElement.mof")
 ##
@@ -77,7 +77,7 @@ echo "$2" >> ${FILE}.mof ;
 ##    #pragma include ("DMTF/Core\CIM_ManagedElement.mof")
 ##
 ##
-function INSERT_EXTRACTED_INCLUDES () 
+function INSERT_EXTRACTED_INCLUDES ()
 {
 FILE=$1 ;
 NAME=$2 ;

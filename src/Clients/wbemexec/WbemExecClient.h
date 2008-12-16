@@ -60,7 +60,7 @@ public:
         If a request times out, the connection gets reset (disconnected and
         reconnected).  Default is 20 seconds (20000 milliseconds).
     */
-    WbemExecClient(Uint32 timeoutMilliseconds = 
+    WbemExecClient(Uint32 timeoutMilliseconds =
                         PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
 
     ///
@@ -83,7 +83,7 @@ public:
     void setTimeout(Uint32 timeoutMilliseconds)
     {
       _timeoutMilliseconds = timeoutMilliseconds;
-      if ((_connected) && (_httpConnection != 0)) 
+      if ((_connected) && (_httpConnection != 0))
         _httpConnection->setSocketWriteTimeout(_timeoutMilliseconds/1000+1);
     }
 

@@ -34,7 +34,7 @@
     \brief Native CMPIArgs implementation.
 
     This is the native CMPIArgs implementation as used for remote
-    providers. It reflects the well-defined interface of a regular CMPIArgs 
+    providers. It reflects the well-defined interface of a regular CMPIArgs
     object, however, it works independently from the management broker.
 
     It is part of a native broker implementation that simulates CMPI data
@@ -110,7 +110,7 @@ static CMPIArgs * __aft_clone ( CONST CMPIArgs * args, CMPIStatus * rc )
 
 
 
-static CMPIStatus __aft_addArg ( 
+static CMPIStatus __aft_addArg (
     CONST CMPIArgs * args,
     const char * name,
     CONST CMPIValue * value,
@@ -125,8 +125,8 @@ static CMPIStatus __aft_addArg (
         return rc;
     }
 
-    CMReturn ( 
-        ( propertyFT.addProperty ( 
+    CMReturn (
+        ( propertyFT.addProperty (
         &a->data,
         a->mem_state,
         name,
@@ -139,7 +139,7 @@ static CMPIStatus __aft_addArg (
 
 
 
-static CMPIData __aft_getArg ( 
+static CMPIData __aft_getArg (
     CONST CMPIArgs * args,
     const char * name,
     CMPIStatus * rc )
@@ -154,7 +154,7 @@ static CMPIData __aft_getArg (
     return propertyFT.getDataProperty ( a->data, name, rc );
 }
 
-static CMPIData __aft_getArgAt ( 
+static CMPIData __aft_getArgAt (
     CONST CMPIArgs * args,
     unsigned int index,
     CMPIString ** name,
@@ -171,8 +171,8 @@ static CMPIData __aft_getArgAt (
 }
 
 
-static unsigned int __aft_getArgCount ( 
-    CONST CMPIArgs * args, 
+static unsigned int __aft_getArgCount (
+    CONST CMPIArgs * args,
     CMPIStatus * rc )
 {
     struct native_args * a = (struct native_args *) args;
@@ -184,7 +184,7 @@ static unsigned int __aft_getArgCount (
     return propertyFT.getPropertyCount ( a->data, rc );
 }
 
-static CMPIArgsFT aft = 
+static CMPIArgsFT aft =
 {
     NATIVE_FT_VERSION,
     __aft_release,
@@ -206,7 +206,7 @@ static struct native_args * __new_empty_args ( int mm_add, CMPIStatus * rc )
     };
 
     struct native_args * args =
-        (struct native_args *) tool_mm_alloc ( 
+        (struct native_args *) tool_mm_alloc (
         mm_add, sizeof ( struct native_args ) );
 
     args->args      = a;

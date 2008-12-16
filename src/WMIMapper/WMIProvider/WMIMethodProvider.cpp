@@ -93,35 +93,35 @@ CIMValue WMIMethodProvider::invokeMethod(
         Array<CIMParamValue>& outParameters)
 {
     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIMethodProvider::invokeMethod()");
-    
+
     setup(nameSpace, userName, password);
-    
+
     // WMI Objects
     CComPtr<IWbemServices>        pServices = NULL;
     CComPtr<IWbemClassObject>    pClass = NULL;
     CComPtr<IWbemClassObject>    pOutInst = NULL;
     CComPtr<IWbemClassObject>    pInClass = NULL;
     CComPtr<IWbemClassObject>    pInInst = NULL;
-    
+
     // Return Value
     CIMValue cimRetVal;
 
     // String variables
     String        strTmp;
     CComBSTR    bstrClassPath;
-    CComBSTR    bstrMethodName = L"Create";    
-    
+    CComBSTR    bstrMethodName = L"Create";
+
     HRESULT hr;
 
     // Connect to WMI
     if (!_collector->Connect(&pServices))
     {
-        if (pServices) 
+        if (pServices)
             pServices.Release();
 
         throw CIMException(CIM_ERR_ACCESS_DENIED);
     }
-    
+
 
     // Get the class for the method definition.
     bstrClassPath = instanceName.getClassName().getString().getCString();
@@ -129,46 +129,46 @@ CIMValue WMIMethodProvider::invokeMethod(
 
     if (FAILED(hr))
     {
-        if (pServices) 
+        if (pServices)
             pServices.Release();
 
-        if (pClass) 
+        if (pClass)
             pClass.Release();
 
         switch(hr)
         {
-            case WBEM_E_NOT_FOUND: 
-                throw CIMException(CIM_ERR_NOT_FOUND); 
+            case WBEM_E_NOT_FOUND:
+                throw CIMException(CIM_ERR_NOT_FOUND);
                 break;
-            default: 
-                throw CIMException(CIM_ERR_FAILED); 
+            default:
+                throw CIMException(CIM_ERR_FAILED);
                 break;
         }
     }
 
 
     // Get the input-argument class object and create an instance.
-    bstrMethodName = methodName.getCString();    
-    hr = pClass->GetMethod(bstrMethodName, 0, &pInClass, NULL); 
+    bstrMethodName = methodName.getCString();
+    hr = pClass->GetMethod(bstrMethodName, 0, &pInClass, NULL);
 
     if (FAILED(hr))
     {
-        if (pServices) 
+        if (pServices)
             pServices.Release();
 
-        if (pClass) 
+        if (pClass)
             pClass.Release();
 
-        if (pInClass) 
-            pInClass.Release();        
+        if (pInClass)
+            pInClass.Release();
 
         switch(hr)
         {
-            case WBEM_E_NOT_FOUND: 
-                throw CIMException(CIM_ERR_METHOD_NOT_FOUND); 
+            case WBEM_E_NOT_FOUND:
+                throw CIMException(CIM_ERR_METHOD_NOT_FOUND);
                 break;
-            default: 
-                throw CIMException(CIM_ERR_FAILED); 
+            default:
+                throw CIMException(CIM_ERR_FAILED);
                 break;
         }
     }
@@ -178,19 +178,19 @@ CIMValue WMIMethodProvider::invokeMethod(
     if (pInClass)
     {
         hr = pInClass->SpawnInstance(0, &pInInst);
-        
-        if (pInClass) 
-            pInClass.Release();        
+
+        if (pInClass)
+            pInClass.Release();
 
         if (FAILED(hr))
         {
-            if (pServices) 
+            if (pServices)
                 pServices.Release();
 
-            if (pClass) 
+            if (pClass)
                 pClass.Release();
 
-            if (pInInst) 
+            if (pInInst)
                 pInInst.Release();
 
             throw CIMException(CIM_ERR_FAILED);
@@ -202,19 +202,19 @@ CIMValue WMIMethodProvider::invokeMethod(
             // Get parameter name
             CComBSTR bstrParamName;
             bstrParamName = inParameters[i].getParameterName().getCString();
-            
-            // Get parameter value        
+
+            // Get parameter value
             WMIValue wmiParamValue(inParameters[i].getValue());
             CComVariant vParamValue;
             wmiParamValue.getAsVariant(
-                    &vParamValue, 
-                    nameSpace, 
-                    userName, 
+                    &vParamValue,
+                    nameSpace,
+                    userName,
                     password);
 
-            if ((wmiParamValue.getType() == CIMTYPE_STRING) && 
+            if ((wmiParamValue.getType() == CIMTYPE_STRING) &&
                 (!wmiParamValue.isArray()))
-            {            
+            {
                 wmiParamValue.get(strTmp);
                 vParamValue.bstrVal[strTmp.size()] = 0;
             }
@@ -225,15 +225,15 @@ CIMValue WMIMethodProvider::invokeMethod(
 
             if (FAILED(hr))
             {
-                if (pServices) 
+                if (pServices)
                     pServices.Release();
 
-                if (pClass) 
+                if (pClass)
                     pClass.Release();
 
-                if (pInInst) 
+                if (pInInst)
                     pInInst.Release();
-            
+
                 throw CIMException(CIM_ERR_FAILED);
             }
         }
@@ -242,25 +242,25 @@ CIMValue WMIMethodProvider::invokeMethod(
     // Get the instance definition and Call the method.
     bstrClassPath = getObjectName(instanceName).getCString();
 
-    hr = pServices->ExecMethod(bstrClassPath, 
-                               bstrMethodName, 
-                               0, 
-                               NULL, 
-                               pInInst, 
-                               &pOutInst, 
+    hr = pServices->ExecMethod(bstrClassPath,
+                               bstrMethodName,
+                               0,
+                               NULL,
+                               pInInst,
+                               &pOutInst,
                                NULL);
-    if (pServices) 
+    if (pServices)
         pServices.Release();
 
-    if (pClass) 
+    if (pClass)
         pClass.Release();
 
-    if (pInInst) 
+    if (pInInst)
         pInInst.Release();
 
     if (FAILED(hr))
     {
-        if (pOutInst) 
+        if (pOutInst)
             pOutInst.Release();
 
         throw CIMException(CIM_ERR_FAILED);
@@ -277,12 +277,12 @@ CIMValue WMIMethodProvider::invokeMethod(
             CComBSTR bstrParamName;
             CComVariant vParamValue;
             CIMTYPE cimType;
-            hr = pOutInst->Next(0, &bstrParamName, 
+            hr = pOutInst->Next(0, &bstrParamName,
                 &vParamValue, &cimType, NULL);
 
             // Check errors
             if (WBEM_S_NO_MORE_DATA == hr) break;
-            if (FAILED(hr)) 
+            if (FAILED(hr))
             {
                 if (pOutInst)
                     pOutInst.Release();
@@ -292,7 +292,7 @@ CIMValue WMIMethodProvider::invokeMethod(
                 throw CIMException(CIM_ERR_FAILED);
             }
 
-            
+
             // Convert to CIMParamValue
             WMIValue wmiParamValue(vParamValue, cimType);
             CMyString strAux; strAux = bstrParamName;
@@ -307,10 +307,10 @@ CIMValue WMIMethodProvider::invokeMethod(
 
             vParamValue.Clear();
         }
-        hr = pOutInst->EndEnumeration();    
+        hr = pOutInst->EndEnumeration();
     }
 
-    if (pOutInst) 
+    if (pOutInst)
         pOutInst.Release();
 
     PEG_METHOD_EXIT();

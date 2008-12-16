@@ -43,13 +43,13 @@ Char16 CQLIdentifierRep::RBRKT = ']';
 Char16 CQLIdentifierRep::LBRKT = '[';
 const char CQLIdentifierRep::SCOPE[] = "::";
 
-CQLIdentifierRep::CQLIdentifierRep(): 
+CQLIdentifierRep::CQLIdentifierRep():
     QueryIdentifierRep()
 {
 
 }
 
-CQLIdentifierRep::CQLIdentifierRep(const String& identifier): 
+CQLIdentifierRep::CQLIdentifierRep(const String& identifier):
     QueryIdentifierRep()
 {
     _isWildcard = false;
@@ -77,7 +77,7 @@ CQLIdentifierRep& CQLIdentifierRep::operator=(const CQLIdentifierRep& rhs)
 {
     _symbolicConstant = rhs._symbolicConstant;
     _scope = rhs._scope;
-    _indices = rhs._indices; 
+    _indices = rhs._indices;
     _name = rhs._name;
     _isWildcard = rhs._isWildcard;
     _isSymbolicConstant = rhs._isSymbolicConstant;
@@ -104,13 +104,13 @@ void CQLIdentifierRep::parse(String identifier)
     if(identifier == String::EMPTY)
     {
         _name = CIMName();
-        return; 
+        return;
     }
     // basic error check
     if((index = identifier.find(HASH)) != PEG_NOT_FOUND)
     {
-        if(((index = identifier.find(RBRKT)) != PEG_NOT_FOUND) || 
-            ((index = identifier.find(LBRKT)) != PEG_NOT_FOUND))    
+        if(((index = identifier.find(RBRKT)) != PEG_NOT_FOUND) ||
+            ((index = identifier.find(LBRKT)) != PEG_NOT_FOUND))
         {
             //error
             MessageLoaderParms parms(
@@ -205,7 +205,7 @@ void CQLIdentifierRep::parse(String identifier)
             throw CQLIdentifierParseException(parms);
         }
     }
-    
+
     PEG_METHOD_EXIT();
 }
 

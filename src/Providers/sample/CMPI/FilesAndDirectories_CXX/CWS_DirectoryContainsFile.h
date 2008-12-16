@@ -38,13 +38,13 @@
 
 class CWS_DirectoryContainsFile : public CmpiAssociationMI
 {
- public:  
+ public:
   CWS_DirectoryContainsFile(const CmpiBroker &mbp, const CmpiContext& ctx);
 
   virtual ~CWS_DirectoryContainsFile();
-    
+
   virtual int isUnloadable() const;
-    
+
   virtual CmpiStatus associators
     (const CmpiContext& ctx, CmpiResult& rslt,
      const CmpiObjectPath& op, const char* asscClass, const char* resultClass,

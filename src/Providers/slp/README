@@ -27,28 +27,28 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// README Author: Mike Day (mdday@us.ibm.com) 
+// README Author: Mike Day (mdday@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-BUILDING 
+BUILDING
 
-This provider only compiles on linux. It uses a uuid library for linux 
+This provider only compiles on linux. It uses a uuid library for linux
 that is available on-line (see below).
 
 This provider is not build by defualt. You will need to manually take some
-additional steps: 
+additional steps:
 
 1) Obtain the uuid library - uuid.h and libuuid.a from:
 
 	http://e2fsprogs.sourceforge.net/
 
-	A man page for libuuid is available at: 
+	A man page for libuuid is available at:
 
 	http://www.die.net/doc/linux/man/man3/libuuid.3.html
 
-2) Install (or copy) libuuid.a into a directory that is on 
-   your library load path. 
+2) Install (or copy) libuuid.a into a directory that is on
+   your library load path.
 
 3) Rebuild Pegasus with PEGASUS_ENABLE_SLP defined in your environment
 
@@ -57,12 +57,12 @@ additional steps:
 
 INSTALLING
 
-This provider has dependencies on the following components: 
+This provider has dependencies on the following components:
 
-1) The slp_client library in $PEGASUS_ROOT/src/Unsupportd/slp_client. 
-	Read the build and installation instructions for that library. 
-	Make sure that it is installed in a directory that you 
-	can load shared libraries from. 
+1) The slp_client library in $PEGASUS_ROOT/src/Unsupportd/slp_client.
+	Read the build and installation instructions for that library.
+	Make sure that it is installed in a directory that you
+	can load shared libraries from.
 
 
 2) Rebuild the registry:
@@ -77,5 +77,5 @@ This provider has dependencies on the following components:
 
 TEST PROGRAM
 
-There is a test program in this directory that does not have a Makefile. 
+There is a test program in this directory that does not have a Makefile.
 It is in TestSLPClient.cpp

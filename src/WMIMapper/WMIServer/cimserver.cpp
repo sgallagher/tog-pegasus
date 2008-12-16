@@ -34,7 +34,7 @@
 //
 // Notes on deamon operation (Unix) and service operation (Win 32):
 //
-// To run pegasus as a daemon on Unix platforms: 
+// To run pegasus as a daemon on Unix platforms:
 //
 // cimserver
 //
@@ -43,35 +43,35 @@
 //
 // cimserver daemon=false
 //
-// The daemon config property has no effect on windows operation. 
+// The daemon config property has no effect on windows operation.
 //
 // To shutdown pegasus, use the -s option:
 //
-// cimserver -s 
+// cimserver -s
 //
 // To run pegasus as an NT service, there are FOUR  different possibilities:
 //
-// To INSTALL the Pegasus service, 
+// To INSTALL the Pegasus service,
 //
 // cimserver -install
 //
-// To REMOVE the Pegasus service, 
+// To REMOVE the Pegasus service,
 //
 // cimserver -remove
 //
-// To START the Pegasus service, 
+// To START the Pegasus service,
 //
 // net start cimserver
 // or
 // cimserver -start
 //
-// To STOP the Pegasus service, 
+// To STOP the Pegasus service,
 //
 // net stop cimserver
 // or
 // cimserver -stop
 //
-// Alternatively, you can use the windows service manager. Pegasus shows up 
+// Alternatively, you can use the windows service manager. Pegasus shows up
 // in the service database as "Pegasus CIM Object Manager"
 //
 //////////////////////////////////////////////////////////////////////
@@ -137,7 +137,7 @@ public:
     {
         return PEGASUS_SERVICE_DESCRIPTION;
     }
-    
+
     //defined in PegasusVersion.h
     virtual const char* getVersion() const
     {
@@ -251,10 +251,10 @@ void PrintHelp(const char* arg0)
         "property\n");
 
     cout << endl;
-    cout << _cimServerProcess->getProductName() << " " << 
+    cout << _cimServerProcess->getProductName() << " " <<
         _cimServerProcess->getVersion() << endl;
     cout << endl;
-    
+
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
     MessageLoaderParms parms("src.Server.cimserver.MENU.WINDOWS", usage);
 #elif defined(PEGASUS_USE_RELEASE_DIRS)
@@ -267,7 +267,7 @@ void PrintHelp(const char* arg0)
 }
 
 // This needs to be called at various points in the code depending on the
-// platform and error conditions. We need to delete the _cimServer 
+// platform and error conditions. We need to delete the _cimServer
 // reference on exit in order for the destructors to get called.
 void deleteCIMServer()
 {
@@ -280,11 +280,11 @@ void deleteCIMServer()
 // Dummy function for the Thread object associated with the initial thread.
 // Since the initial thread is used to process CIM requests, this is
 // needed to localize the exceptions thrown during CIM request processing.
-// Note: This function should never be called! 
+// Note: This function should never be called!
 //
 ThreadReturnType PEGASUS_THREAD_CDECL dummyThreadFunc(void *parm)
 {
-   return((ThreadReturnType)0);    
+   return((ThreadReturnType)0);
 }
 
 
@@ -299,7 +299,7 @@ int main(int argc, char** argv)
 
 //l10n
 // Set Message loading to process locale
-MessageLoader::_useProcessLocale = true; 
+MessageLoader::_useProcessLocale = true;
 //l10n
 
 //l10n
@@ -378,7 +378,7 @@ setlocale(LC_ALL, "");
                         pegasusHome.assign(argv[i + 1]);
                     }
                     else
-                    {                        
+                    {
                         String opt(option);
                         MessageLoaderParms parms(
                             "src.Server.cimserver.MISSING_ARGUMENT",
@@ -388,7 +388,7 @@ setlocale(LC_ALL, "");
                         exit(0);
                     }
 
-                    memmove(&argv[i], &argv[i + 2], 
+                    memmove(&argv[i], &argv[i + 2],
                         (argc-i-1) * sizeof(char*));
                     argc -= 2;
                 }
@@ -401,14 +401,14 @@ setlocale(LC_ALL, "");
                         (strlen(option) == 1))
                 {
                     System::bindVerbose = true;
-                    
+
                     MessageLoaderParms parms(
                         "src.Server.cimserver.UNSUPPORTED_DEBUG_OPTION",
                         "Unsupported debug option, BIND_VERBOSE, enabled.");
                     cout << MessageLoader::getMessage(parms) << endl;
                     // remove the option from the command line
                     memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
-                    argc--;   
+                    argc--;
                 }
 #endif
                 //
@@ -421,20 +421,20 @@ setlocale(LC_ALL, "");
                     // Check to see if shutdown has already been specified:
                     //
                     if (shutdownOption)
-                    {   
+                    {
                         MessageLoaderParms parms(
                             "src.Server.cimserver.DUPLICATE_SHUTDOWN_OPTION",
                             "Duplicate shutdown option specified.");
-                       
+
                         cout << MessageLoader::getMessage(parms) << endl;
                         exit(0);
                     }
 
                     shutdownOption = true;
- 
+
                     // remove the option from the command line
                     memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
-                    argc--;   
+                    argc--;
                 }
                 else
                     i++;
@@ -464,13 +464,13 @@ void CIMServerProcess::cimserver_stop()
 //
 // The main, common, running code
 //
-// NOTE: Do NOT call exit().  Use return(), otherwise some platforms 
+// NOTE: Do NOT call exit().  Use return(), otherwise some platforms
 // will fail to shutdown properly/cleanly.
 //
-// TODO: Current change minimal for platform "service" shutdown bug fixes.  
-// Perhpas further extract out common stuff and put into main(), put 
-// daemon stuff into platform specific platform_run(), etc.  
-// Note: make sure to not put error handling stuff that platform 
+// TODO: Current change minimal for platform "service" shutdown bug fixes.
+// Perhpas further extract out common stuff and put into main(), put
+// daemon stuff into platform specific platform_run(), etc.
+// Note: make sure to not put error handling stuff that platform
 // specific runs may need to deal with bettter (instead of exit(), etc).
 //
 
@@ -495,7 +495,7 @@ int CIMServerProcess::cimserver_run(
     // line.
     //
     try
-    { 
+    {
         GetOptions(configManager, argc, argv);
     }
     catch (Exception& e)
@@ -506,7 +506,7 @@ int CIMServerProcess::cimserver_run(
         Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             parms);
 
-        PEGASUS_STD(cerr) << argv[0] << ": " << 
+        PEGASUS_STD(cerr) << argv[0] << ": " <<
             MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
 
         return(1);
@@ -514,10 +514,10 @@ int CIMServerProcess::cimserver_run(
 
 // l10n
     // Set the home directory, msg sub-dir, into the MessageLoader.
-    // This will be the default directory where the resource bundles 
-    // are found.    
+    // This will be the default directory where the resource bundles
+    // are found.
     MessageLoader::setPegasusMsgHome(ConfigManager::getHomedPath(
-        ConfigManager::getInstance()->getCurrentValue("messageDir")));      
+        ConfigManager::getInstance()->getCurrentValue("messageDir")));
 
     Boolean enableHttpConnection = ConfigManager::parseBooleanValue(
         configManager->getCurrentValue("enableHttpConnection"));
@@ -546,8 +546,8 @@ int CIMServerProcess::cimserver_run(
 
         daemonOption = ConfigManager::parseBooleanValue(
             configManager->getCurrentValue("daemon"));
- 
-        logsDirectory = 
+
+        logsDirectory =
         ConfigManager::getHomedPath(configManager->getCurrentValue("logdir"));
 
         // Set up the Logger. This does not open the logs
@@ -559,11 +559,11 @@ int CIMServerProcess::cimserver_run(
 #endif
 
         //
-        // Check to see if we need to shutdown CIMOM 
+        // Check to see if we need to shutdown CIMOM
         //
         if (shutdownOption)
         {
-            String configTimeout = 
+            String configTimeout =
                 configManager->getCurrentValue("shutdownTimeout");
             Uint32 timeoutValue = strtol(
                 configTimeout.getCString(), (char **)0, 10);
@@ -596,15 +596,15 @@ int CIMServerProcess::cimserver_run(
     cout << MessageLoader::getMessage(parms) << endl;
     }
 
-    // Bug 2148 - Here is the order of operations for determining the server 
+    // Bug 2148 - Here is the order of operations for determining the server
     // HTTP and HTTPS ports.
     // 1) If the user explicitly specified a port, use it.
-    // 2) If the user did not specify a port, get the port from the 
+    // 2) If the user did not specify a port, get the port from the
     //    services file.
-    // 3) If no value is specified in the services file, use the IANA WBEM 
+    // 3) If no value is specified in the services file, use the IANA WBEM
     //    default port.
     // Note that 2 and 3 are done within the System::lookupPort method
-    // An empty string from the ConfigManager implies that the user did 
+    // An empty string from the ConfigManager implies that the user did
     // not specify a port.
 
     Uint32 portNumberHttps=0;
@@ -619,11 +619,11 @@ int CIMServerProcess::cimserver_run(
             //
             // Look up the WBEM-HTTPS port number
             //
-            portNumberHttps = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, 
+            portNumberHttps = System::lookupPort(WBEM_HTTPS_SERVICE_NAME,
                 WBEM_DEFAULT_HTTPS_PORT);
 
         } else
-        {        
+        {
             //
             // user-specified
             //
@@ -647,7 +647,7 @@ int CIMServerProcess::cimserver_run(
             //
             // Look up the WBEM-HTTP port number
             //
-            portNumberHttp = System::lookupPort(WBEM_HTTP_SERVICE_NAME, 
+            portNumberHttp = System::lookupPort(WBEM_HTTP_SERVICE_NAME,
                 WBEM_DEFAULT_HTTP_PORT);
 
         } else
@@ -674,11 +674,11 @@ int CIMServerProcess::cimserver_run(
 #endif
 
     // reset message loading to NON-process locale
-    MessageLoader::_useProcessLocale = false; 
+    MessageLoader::_useProcessLocale = false;
 
     // Get the parent's PID before forking
     _serverRunStatus.setParentPid(System::getPID());
-    
+
     // do we need to run as a daemon ?
     if (daemonOption)
     {
@@ -697,7 +697,7 @@ int CIMServerProcess::cimserver_run(
     // to service CIM requests.
     // The run function for the dummy Thread should never be called,
     Thread *dummyInitialThread = new Thread(dummyThreadFunc, NULL, false);
-    Thread::setCurrent(dummyInitialThread); 
+    Thread::setCurrent(dummyInitialThread);
     try
     {
          Thread::setLanguages(LanguageParser::getDefaultAcceptLanguages());
@@ -710,9 +710,9 @@ int CIMServerProcess::cimserver_run(
                   "Could not convert the system process locale into "
                         "a valid AcceptLanguage format."));
           Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                             e.getMessage()); 
+                             e.getMessage());
     }
-    
+
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) \
 || defined(PEGASUS_OS_ZOS) || defined(PEGASUS_OS_AIX) \
 || defined(PEGASUS_OS_SOLARIS) || defined (PEGASUS_OS_VMS)
@@ -720,7 +720,7 @@ int CIMServerProcess::cimserver_run(
 
     //
     // check if CIMServer is already running
-    // if CIMServer is already running, print message and 
+    // if CIMServer is already running, print message and
     // notify parent process (if there is a parent process) to terminate
     //
     if (_serverRunStatus.isServerRunning())
@@ -741,7 +741,7 @@ int CIMServerProcess::cimserver_run(
 
         return 1;
     }
-     
+
 #endif
 
     // try loop to bind the address, and run the server
@@ -825,7 +825,7 @@ int CIMServerProcess::cimserver_run(
         // bind throws an exception if the bind fails
         _cimServer->bind();
 
-        // notify parent process (if there is a parent process) to terminate 
+        // notify parent process (if there is a parent process) to terminate
         // so user knows that there is cimserver ready to serve CIM requests.
         if (daemonOption)
         {
@@ -848,14 +848,14 @@ int CIMServerProcess::cimserver_run(
 #if defined(PEGASUS_DEBUG)
     cout << "Started. " << endl;
 #endif
-    
+
         // Put server started message to the logger
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
             Logger::INFORMATION,
             MessageLoaderParms(
                 "src.Server.cimserver.STARTED_VERSION",
                 "Started $0 version $1.",
-                _cimServerProcess->getProductName(), 
+                _cimServerProcess->getProductName(),
                 _cimServerProcess->getVersion()));
 
         //

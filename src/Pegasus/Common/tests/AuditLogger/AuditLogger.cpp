@@ -147,7 +147,7 @@ static void printSMFRecord (int subtype, char* record )
             fprintf(_auditTestLogFileHandle, "\n");
         }
 
-        // delete CIM software level, MVS software level, 
+        // delete CIM software level, MVS software level,
         // System and Sysplex name, Process ID, and Thread ID
         // to be able to comparable with master result
         if (i > 51 && i < 110 )
@@ -491,7 +491,7 @@ int main(int argc, char** argv)
         fopen(auditTestLogFile.getCString(), "a+");
     setEBCDICEncoding(fileno(_auditTestLogFileHandle));
     fclose(_auditTestLogFileHandle);
-#endif 
+#endif
 
     const char * masterDir = getenv("PEGASUS_ROOT");
 

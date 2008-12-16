@@ -185,7 +185,7 @@ BOOL parseFind(lslpMsg *responses,  const char* httpAttr)
                     lslpAtomList *attrs = url_list->attrs->next;
                     //while traversing attr list
                     while (! _LSLP_IS_HEAD (attrs) && attrs->str
-                        && strlen (attrs->str) && !found) 
+                        && strlen (attrs->str) && !found)
                     {
                         if (!String::compare (attrs->str,httpAttr))
                         {
@@ -201,12 +201,12 @@ BOOL parseFind(lslpMsg *responses,  const char* httpAttr)
             if (found)
             {
                 break;
-            } 
+            }
         } // if there are urls to print
         if (temp->next == responses)
         {
             break;
-        }  
+        }
         temp = temp->next;
     }
 

@@ -45,7 +45,7 @@ extern void WQL_restart (FILE *input_file);
 
 PEGASUS_NAMESPACE_BEGIN
 
-WQLParserState* globalParserState = 0; 
+WQLParserState* globalParserState = 0;
 static Mutex WQL_mutex;
 
 void WQLParser::parse(
@@ -53,7 +53,7 @@ void WQLParser::parse(
     WQLSelectStatement& statement)
 {
     PEG_METHOD_ENTER(TRC_WQL,"WQLParser::parse");
-    
+
      AutoMutex mtx(WQL_mutex);
 
     if (!text)
@@ -151,7 +151,7 @@ int WQLInput(char* buffer, int& numRead, int numRequested)
     // be one or more; this is fixed checked beforehand by WQLParser::parse()).
     //
 
-    int remaining = 
+    int remaining =
         globalParserState->textSize - globalParserState->offset - 1;
 
     if (remaining == 0)
@@ -164,8 +164,8 @@ int WQLInput(char* buffer, int& numRead, int numRequested)
     if (remaining < numRequested)
         numRequested = remaining;
 
-    memcpy(buffer, 
-    globalParserState->text + globalParserState->offset, 
+    memcpy(buffer,
+    globalParserState->text + globalParserState->offset,
     numRequested);
 
     globalParserState->offset += numRequested;

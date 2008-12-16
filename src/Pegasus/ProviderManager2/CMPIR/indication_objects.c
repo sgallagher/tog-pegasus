@@ -90,8 +90,8 @@ void __free_ind_object (ind_object *obj)
     to MB and uses this object.
 */
 CMPIUint64 create_indicationObject (
-    void *obj, 
-    CMPIUint32 ctx_id, 
+    void *obj,
+    CMPIUint32 ctx_id,
     CMPIUint8 type)
 {
     indication_objects *tmp;

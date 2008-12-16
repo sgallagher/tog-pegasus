@@ -43,12 +43,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-WMIQualifier::WMIQualifier(const CIMQualifier & qualifier) : 
+WMIQualifier::WMIQualifier(const CIMQualifier & qualifier) :
     CIMQualifier(qualifier)
 {
 }
 
-WMIQualifier::WMIQualifier(const CComBSTR & name, const CComVariant & value, 
+WMIQualifier::WMIQualifier(const CComBSTR & name, const CComVariant & value,
                            const LONG flavor)
 {
     *this = CIMQualifier(WMIString(name), WMIValue(value), WMIFlavor(flavor));

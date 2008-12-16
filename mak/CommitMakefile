@@ -204,4 +204,4 @@ printdiff_internal:
 
 # Create a tar file containing the added and updated files.
 archive:
-	tar -cvf Changes$(TODAY).tar $(ADDEDFILES) $(UPDATEDFILES) 
+	tar -cvf Changes$(TODAY).tar $(ADDEDFILES) $(UPDATEDFILES)

@@ -576,7 +576,7 @@ int main(int argc, char** argv)
     try
     {
         parseHTTPHeadersTestCases();
-        validateHTTPHeadersTestCases();       
+        validateHTTPHeadersTestCases();
         decodeExportResponseTestCases();
     }
     catch(const Exception& e)

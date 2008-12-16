@@ -115,7 +115,7 @@ char const* Tracer::TRACE_FACILITY_LIST[] =
     "Memory",
     0
 };
-    
+
 
 // Set the trace levels
 // These levels will be compared against a trace level mask to determine
@@ -372,7 +372,7 @@ void Tracer::_traceMethod(
        fileName,
        lineNum,
        methodEntryExit);
-        
+
     _traceCString(traceComponent, message, method);
 
     delete [] message;
@@ -404,7 +404,7 @@ void Tracer::_trace(
     // The message header is in the following format
     // timestamp: <component name> [file name:line number]
     //
-    // Format string length calculation: 
+    // Format string length calculation:
     //        11(sec)+ 2('s-')+11(usec)+4('us: ')+1(' ')+1(\0) = 30
     if (*message != '\0')
     {
@@ -427,7 +427,7 @@ void Tracer::_trace(
             strlen(TRACE_COMPONENT_LIST[traceComponent]) + 35];
 
         msgLen = sprintf(msgHeader, "%us-%uus: %s [%u:%s]: ", sec, usec,
-            TRACE_COMPONENT_LIST[traceComponent], 
+            TRACE_COMPONENT_LIST[traceComponent],
             System::getPID(), Threads::id().buffer);
     }
 
@@ -484,7 +484,7 @@ void Tracer::_traceCString(
         // Allocate messageHeader.
         // Needs to be updated if additional info is added
         //
-        // Format string length calculation: 
+        // Format string length calculation:
         //        11(sec)+2('s-')+11(usec)+4('us: ')+
         //        +2(' [')+1(':')+3(']: ')+1(\0) = 35
         completeMessage = new char[2 * _STRLEN_MAX_PID_TID +
@@ -639,7 +639,7 @@ Boolean Tracer::isValidTraceFacility(const String& traceFacility)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Notify the trare running out of process and provide the trace file extension 
+// Notify the trare running out of process and provide the trace file extension
 // for the out of process trace file.
 ////////////////////////////////////////////////////////////////////////////////
 void Tracer::setOOPTraceFileExtension(const String& oopTraceFileExtension)
@@ -759,7 +759,7 @@ void Tracer::setTraceComponents(const String& traceComponents)
     {
         // initialize ComponentMask bit array to true
         _traceComponentMask = (Uint64)-1;
-        
+
         // If tracing isn't turned off by a traceLevel of zero, let's
         // turn on the flag that activates tracing.
         _traceOn = (_traceLevelMask != LEVEL0);
@@ -770,7 +770,7 @@ void Tracer::setTraceComponents(const String& traceComponents)
     // initialize ComponentMask bit array to false
     _traceComponentMask = (Uint64)0;
     _traceOn = false;
-    
+
     if (traceComponents != String::EMPTY)
     {
         Uint32 index = 0;
@@ -778,7 +778,7 @@ void Tracer::setTraceComponents(const String& traceComponents)
         String componentName;
         String componentStr = traceComponents;
 
-   
+
         // Append _COMPONENT_SEPARATOR to the end of the traceComponents
         componentStr.append(_COMPONENT_SEPARATOR);
 
@@ -863,9 +863,9 @@ Boolean Tracer::setTraceMemoryBufferSize(Uint32 bufferSize)
     {
         // in OOP we reduce the trace memory buffer by factor
         // PEGASUS_TRC_BUFFER_OOP_SIZE_DEVISOR
-        instance->_traceMemoryBufferSize = 
+        instance->_traceMemoryBufferSize =
             bufferSize / PEGASUS_TRC_BUFFER_OOP_SIZE_DEVISOR;
-    } 
+    }
     else
     {
         instance->_traceMemoryBufferSize = bufferSize;
@@ -896,11 +896,11 @@ void Tracer::traceEnter(
 {
     token.component = traceComponent;
     token.method = method;
-    
+
     if (isTraceEnabled(traceComponent, LEVEL5))
     {
         _traceMethod(
-            file, (Uint32)line, traceComponent, 
+            file, (Uint32)line, traceComponent,
             _METHOD_ENTER_MSG, method);
     }
 }
@@ -933,7 +933,7 @@ void Tracer::traceCString(
 
     // Get the current system time
     System::getCurrentTimeUsec(sec,usec);
-  
+
     //
     // Allocate memory for the message string
     // Needs to be updated if additional info is added
@@ -944,7 +944,7 @@ void Tracer::traceCString(
         strlen(cstring) + 30];
 
     msgLen = sprintf(message, "%us-%uus: %s [%u:%s:%s:%u]: %s",
-        sec, 
+        sec,
         usec,
         TRACE_COMPONENT_LIST[traceComponent],
         System::getPID(),

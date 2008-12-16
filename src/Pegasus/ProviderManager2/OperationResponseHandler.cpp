@@ -45,7 +45,7 @@ static void _initializeNormalizer(
     Boolean includeClassOrigin,
     ObjectNormalizer &normalizer)
 {
-    // Attempt to get the cached class definition, normalization is disabled 
+    // Attempt to get the cached class definition, normalization is disabled
     // if it does not exist.
     if (request->operationContext.contains(
             CachedClassDefinitionContainer::NAME))
@@ -154,7 +154,7 @@ void OperationResponseHandler::setCIMException(
 {
     // Assign the cimException argument to _response->cimException. Note that
     // there is no need to use the PEGASUS_CIM_EXCEPTION_LANG() macro to create
-    // a TraceableCIMException since both _response->cimException and 
+    // a TraceableCIMException since both _response->cimException and
     // cimException are of type CIMException and the TraceableCIMException
     // constructor has no side effects.
     _response->cimException = cimException;

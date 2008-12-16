@@ -44,7 +44,7 @@
 class CmpiObjectPath;
 class CmpiData;
 
-/** 
+/**
     This class acts as a container for holding results from enunmerating
     CmpiBroker services.
 */
@@ -54,19 +54,19 @@ class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiEnumeration : public CmpiObject
     friend class CmpiBroker;
 protected:
 
-    /** 
+    /**
         Protected constructor used by MIDrivers to encapsulate CMPIEnumeration.
     */
     CmpiEnumeration(CMPIEnumeration* enc);
 
-    /** 
+    /**
         getEnc - Gets the encapsulated CMPIEnumeration.
     */
     CMPIEnumeration *getEnc() const;
 
 public:
 
-    /** 
+    /**
         Default constructor.
     */
     CmpiEnumeration();

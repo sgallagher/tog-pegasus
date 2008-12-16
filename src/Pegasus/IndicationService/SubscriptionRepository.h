@@ -411,7 +411,7 @@ private:
 
     CIMRepository * _repository;
 
-    AutoPtr<NormalizedSubscriptionTable> _normalizedSubscriptionTable;   
+    AutoPtr<NormalizedSubscriptionTable> _normalizedSubscriptionTable;
     Mutex _normalizedSubscriptionTableMutex;
 };
 

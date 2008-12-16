@@ -49,12 +49,12 @@ PEGASUS_NAMESPACE_BEGIN
         // If 2 (i.e. solarisslp). Set language.
 #if     PEGASUS_USE_EXTERNAL_SLP_TYPE == 2
         const char* slp_service_agent::slp_lang = "en";
-        // if 1, openslp and let slp set language        
+        // if 1, openslp and let slp set language
 #elif PEGASUS_USE_EXTERNAL_SLP_TYPE == 1
     _   const char* slp_service_agent::slp_lang = NULL;
 #else   // Some other implementation
         const char* slp_service_agent::slp_lang = NULL;
-#endif  // End PEGASUS_USE_EXTERNAL_SLP_TYPE 
+#endif  // End PEGASUS_USE_EXTERNAL_SLP_TYPE
 #else   // NOT PEGASUS_OS_SOLARIS
     const char* slp_service_agent::slp_lang = NULL;
 #endif
@@ -455,7 +455,7 @@ void slp_service_agent::unregister()
         // Unregister with external SLP SA.
         sa_reg_params *p;
 
-        _internal_regs.lookup(rp->url, p); 
+        _internal_regs.lookup(rp->url, p);
         _rep->srv_reg_local(_rep,
                             (const char*)p->url,
                             (const char*)p->attrs,
@@ -584,9 +584,9 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
             }
             else
             {
-                // ATTN: Could not get SLP handle, 
+                // ATTN: Could not get SLP handle,
                 // we try again when lifetime expires.
-            }             
+            }
 #elif PEGASUS_SLP_REG_TIMEOUT
             agent->_rep->srv_reg_local(agent->_rep,
                                        rp->url,
@@ -647,7 +647,7 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
         if (agent->_update_reg_count.get() && agent->_should_listen.get())
         {
             agent->update_registrations();
-            agent->_update_reg_count--; 
+            agent->_update_reg_count--;
         }
 #endif
     }

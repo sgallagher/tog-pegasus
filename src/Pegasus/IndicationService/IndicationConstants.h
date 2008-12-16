@@ -327,7 +327,7 @@ PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_SUBSCRIPTIONREMOVALACTION;
     The name of the SubscriptionRemovalTimeInterval property of
     IndicationService class.
 */
-PEGASUS_SERVER_LINKAGE extern const 
+PEGASUS_SERVER_LINKAGE extern const
     CIMName _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL;
 
 /**
@@ -346,42 +346,42 @@ PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_DELIVERYRETRYINTERVAL;
     The name of the FilterCreationEnabledIsSettable property of
     IndicationServiceCapabilities class.
 */
-PEGASUS_SERVER_LINKAGE extern const CIMName 
+PEGASUS_SERVER_LINKAGE extern const CIMName
     _PROPERTY_FILTERCREATIONENABLEDISSETTABLE;
 
 /**
     The name of the DeliveryRetryAttemptsIsSettable property of
     IndicationServiceCapabilities class.
 */
-PEGASUS_SERVER_LINKAGE extern const CIMName 
+PEGASUS_SERVER_LINKAGE extern const CIMName
     _PROPERTY_DELIVERYRETRYATTEMPTSISSETTABLE;
 
 /**
     The name of the DeliveryRetryIntervalIsSettable property of
     IndicationServiceCapabilities class.
 */
-PEGASUS_SERVER_LINKAGE extern const CIMName 
+PEGASUS_SERVER_LINKAGE extern const CIMName
     _PROPERTY_DELIVERYRETRYINTERVALISSETTABLE;
 
 /**
     The name of the SubscriptionRemovalActionIsSettable property of
     IndicationServiceCapabilities class.
 */
-PEGASUS_SERVER_LINKAGE extern const CIMName 
+PEGASUS_SERVER_LINKAGE extern const CIMName
     _PROPERTY_SUBSCRIPTIONREMOVALACTIONISSETTABLE;
 
 /**
     The name of the SubscriptionRemovalTimeIntervalIsSettable property of
     IndicationServiceCapabilities class.
 */
-PEGASUS_SERVER_LINKAGE extern const CIMName 
+PEGASUS_SERVER_LINKAGE extern const CIMName
     _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVALISSETTABLE;
 
 /**
     The name of the MaxListenerDestinations property of
     IndicationServiceCapabilities class.
 */
-PEGASUS_SERVER_LINKAGE extern const CIMName 
+PEGASUS_SERVER_LINKAGE extern const CIMName
     _PROPERTY_MAXLISTENERDESTINATIONS;
 
 /**

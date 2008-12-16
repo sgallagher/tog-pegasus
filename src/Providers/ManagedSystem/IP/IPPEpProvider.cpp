@@ -679,7 +679,7 @@ CIMInstance IPPEpProvider::_constructInstance(
     if (_ipif.getIPv6Address(s))
     {
         inst.addProperty(CIMProperty(PROPERTY_IPV6_ADDRESS,s));
-    }  
+    }
 
 //   string SubnetMask
   if (_ipif.getSubnetMask(s))

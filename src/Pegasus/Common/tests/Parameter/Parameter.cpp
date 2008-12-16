@@ -108,7 +108,7 @@ void test01()
     PEGASUS_TEST_ASSERT(p1.getQualifierCount() == 1);
     PEGASUS_TEST_ASSERT(p2.getQualifierCount() == 1);
     PEGASUS_TEST_ASSERT(p3.getQualifierCount() == 0);
- 
+
     //
     // find qualifier
     //

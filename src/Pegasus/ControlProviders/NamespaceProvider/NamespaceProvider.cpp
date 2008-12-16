@@ -123,22 +123,22 @@ static void _getKeyValue (
     Boolean& isRelativeName)
 {
     //Validate key property
-    
+
     Uint32 pos;
     CIMValue propertyValue;
-    
+
     // [Key, MaxLen (256), Description (
     //       "A string that uniquely identifies the Namespace "
     //       "within the ObjectManager.") ]
     // string Name;
-    
+
     pos = namespaceInstance.findProperty(NAMESPACE_PROPERTYNAME);
     if (pos == PEG_NOT_FOUND)
     {
        throw CIMPropertyNotFoundException
            (NAMESPACE_PROPERTYNAME.getString());
     }
-    
+
     propertyValue = namespaceInstance.getProperty(pos).getValue();
     if (propertyValue.getType() != CIMTYPE_STRING)
     {
@@ -148,7 +148,7 @@ static void _getKeyValue (
             "Invalid type for property: $0",
             NAMESPACE_PROPERTYNAME.getString()));
     }
-    
+
     String cnsName;
     propertyValue.get(cnsName);
     if (cnsName == String::EMPTY)
@@ -159,7 +159,7 @@ static void _getKeyValue (
     {
        childNamespaceName = CIMNamespaceName(cnsName);
     }
-    
+
     isRelativeName = !(childNamespaceName.isNull());
 }
 
@@ -174,12 +174,12 @@ static void _getKeyValue (
             (kbArray[0].getName() == NAMESPACE_PROPERTYNAME))
     {
        String childNamespaceString = kbArray[0].getValue();
-    
+
        if (childNamespaceString != String::EMPTY)
        {
            childNamespaceName = childNamespaceString;
        }
-    
+
        isRelativeName = !(childNamespaceName.isNull());
     }
     else
@@ -631,7 +631,7 @@ void NamespaceProvider::enumerateInstanceNames(
 
         Array<CIMNamespaceName> namespaceNames =
             _repository->enumerateNameSpaces();
-            
+
         Boolean enumerateAllNamespaces =
             (parentNamespaceName == PEGASUS_VIRTUAL_TOPLEVEL_NAMESPACE);
 

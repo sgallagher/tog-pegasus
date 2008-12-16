@@ -135,7 +135,7 @@ void MCCATestClient::createInstance(
 
         // get the object path, so we can complete it
         CIMObjectPath instanceName = CIMObjectPath(cimInstance.getPath());
-        
+
         // combine host and port for usage in object path
         String fullHost = String(_host);
         if (_port != String::EMPTY)
@@ -143,9 +143,9 @@ void MCCATestClient::createInstance(
                 fullHost.append(":");
                 fullHost.append(_port);
         }
-        CLDEBUG("createInstanceTest with fullHost=" 
-                << fullHost 
-                << " and NameSpace=" 
+        CLDEBUG("createInstanceTest with fullHost="
+                << fullHost
+                << " and NameSpace="
                 << nameSpace.getString());
         instanceName.setHost(fullHost);
         instanceName.setNameSpace(nameSpace);
@@ -195,10 +195,10 @@ CIMInstance MCCATestClient::associatorsTest(const String& _host,
     targetObjectPath.setKeyBindings(targetKeyBindings);
 
     // CLDEBUG("Preparation of object path for associators() call ready.");
-    CLDEBUG("Association call for host=" << fullHost 
+    CLDEBUG("Association call for host=" << fullHost
             << ",Namespace=" << fromNS.getString()
             << ",key=" << key);
-    
+
     // Time to do the call
     try
     {
@@ -230,7 +230,7 @@ CIMInstance MCCATestClient::associatorsTest(const String& _host,
                 CLDEBUG("resultClasswith wrong name returned.");
                 exit(4);
         }
-        
+
         if (!toNS.equal(instanceRef.getNameSpace()) )
         {
                 CLDEBUG("target object has wrong Namespace");
@@ -386,8 +386,8 @@ int main (int argc, char* argv [])
 
     if (!String::equal(host1,host2))
     {
-            CLDEBUG("host(" 
-                    << host1 << ")of associators call not equal host(" 
+            CLDEBUG("host("
+                    << host1 << ")of associators call not equal host("
                     << host2 << ") of getInstance call.");
             exit(11);
     }
@@ -401,7 +401,7 @@ int main (int argc, char* argv [])
                                                    testNameSpaceB,
                                                    instanceKEY));
 
-    PEGASUS_STD(cout) << "+++++ "<< argv[0] 
+    PEGASUS_STD(cout) << "+++++ "<< argv[0]
         << " Terminated Normally" << PEGASUS_STD(endl);
     exit(0);
 }

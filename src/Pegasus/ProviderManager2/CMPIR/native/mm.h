@@ -61,8 +61,8 @@ typedef struct _managed_thread managed_thread;
 
 //! Per-Thread management structure.
 /*!
-    This struct is returned using a global pthread_key_t and stores all 
-    allocated objects that are going to be freed, once the thread is flushed 
+    This struct is returned using a global pthread_key_t and stores all
+    allocated objects that are going to be freed, once the thread is flushed
     or dies.
 */
 struct _managed_thread
@@ -76,7 +76,7 @@ struct _managed_thread
 };
 
 
-PEGASUS_EXPORT void * PEGASUS_CMPIR_CDECL tool_mm_load_lib ( 
+PEGASUS_EXPORT void * PEGASUS_CMPIR_CDECL tool_mm_load_lib (
     const char * libname );
 
 void tool_mm_flush ();

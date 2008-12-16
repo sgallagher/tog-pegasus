@@ -63,11 +63,11 @@ int main(int argc, char** argv)
         //
         // Enumerate Instances.
         //
-        cimInstances = client.enumerateInstances( 
-                                NAMESPACE,  
-                                CLASSNAME, 
+        cimInstances = client.enumerateInstances(
+                                NAMESPACE,
+                                CLASSNAME,
                                 deepInheritance,
-                                localOnly,  
+                                localOnly,
                                 includeQualifiers,
                                 includeClassOrigin);
 

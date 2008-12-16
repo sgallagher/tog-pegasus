@@ -33,14 +33,14 @@
     \file ReplaceNs.c
     \brief Replaces Namespaces property in provider registration MOF fies.
 
-    This program helps in modifying existing registration MOF files,  it 
+    This program helps in modifying existing registration MOF files,  it
     replaces existing namespace name(s) of the Namespaces property.
 
     Usage:
          ReplaceNs <new-namespace-name> [ ... ] <mof-file-name>
 
     Where
-        new-namespace-name -- is the namespace name to replace the existing 
+        new-namespace-name -- is the namespace name to replace the existing
                               Namespaces specification. Multiple new namespace
                               names can be specified, separated by blanks.
 
@@ -56,7 +56,7 @@
     On Linux root/node* is used to define the provider supports all namespaces
     starting with root/node.
 
-    But on windows it does not work because command shell does not expand 
+    But on windows it does not work because command shell does not expand
     wildcards.
 */
 

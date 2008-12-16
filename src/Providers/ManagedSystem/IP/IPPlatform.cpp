@@ -30,7 +30,7 @@
 // Author: Christopher Neufeld <neufeld@linuxcare.com>
 //         David Kennedy       <dkennedy@linuxcare.com>
 //
-// Modified By: 
+// Modified By:
 //         David Kennedy       <dkennedy@linuxcare.com>
 //         Christopher Neufeld <neufeld@linuxcare.com>
 //         Al Stone, Hewlett-Packard Company <ahs3@fc.hp.com>

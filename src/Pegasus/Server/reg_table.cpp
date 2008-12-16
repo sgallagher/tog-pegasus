@@ -136,7 +136,7 @@ void DynamicRoutingTable::insertRecord(
     Uint32 serviceId)
 {
     RegTableRecord *rec = new RegTableRecord(
-        className, namespaceName, providerName, serviceId);    
+        className, namespaceName, providerName, serviceId);
     String _routingKey = _getRoutingKey(className, namespaceName);
     Boolean done = _routingTable.insert(_routingKey, rec);
     PEGASUS_ASSERT(done);
@@ -153,14 +153,14 @@ void DynamicRoutingTable::dumpRegTable()
         RegTableRecord *rec = it.value();
         PEGASUS_STD(cout) << "--------------------------------" <<
             PEGASUS_STD(endl);
-        PEGASUS_STD(cout) << "Class name : " << rec->className.getString() 
+        PEGASUS_STD(cout) << "Class name : " << rec->className.getString()
             << PEGASUS_STD(endl);
-        PEGASUS_STD(cout) << "Namespace : " << rec->namespaceName.getString() 
+        PEGASUS_STD(cout) << "Namespace : " << rec->namespaceName.getString()
             << PEGASUS_STD(endl);
-        PEGASUS_STD(cout) << "Provider name : " << rec->providerName 
+        PEGASUS_STD(cout) << "Provider name : " << rec->providerName
             << PEGASUS_STD(endl);
-        PEGASUS_STD(cout) << "Service name : " 
-            << MessageQueue::lookup(rec->serviceId)->getQueueName() 
+        PEGASUS_STD(cout) << "Service name : "
+            << MessageQueue::lookup(rec->serviceId)->getQueueName()
             << PEGASUS_STD(endl);
         PEGASUS_STD(cout) << "---------------------------------" <<
             PEGASUS_STD(endl);

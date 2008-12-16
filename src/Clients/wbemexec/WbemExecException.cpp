@@ -37,93 +37,93 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 /**
-  
+
     Default exception identifier.  This identifier is used if the specified
     identifier is out of range.  This identifier corresponds to a default
     (generic) message in the array of exception message strings.
-  
+
  */
 const Uint32 WbemExecException::DEFAULT_ID = 0;
 
 /**
-  
+
     Minimum valid exception identifier.
-  
+
  */
 const Uint32 WbemExecException::MIN_ID = DEFAULT_ID;
 
 /**
-  
+
     Exception identifier indicating the specified input file does not
     exist.
-  
+
  */
 const Uint32 WbemExecException::MPOST_HTTP10_INVALID= 1;
 
 /**
-  
+
     Exception identifier indicating the specified input file does not
     exist.
-  
+
  */
 const Uint32 WbemExecException::INPUT_FILE_NONEXISTENT = 2;
 
 /**
-  
+
     Exception identifier indicating the specified input file cannot be
     read.
-  
+
  */
 const Uint32 WbemExecException::INPUT_FILE_NOT_READABLE = 3;
 
 /**
-  
+
     Exception identifier indicating the specified input file cannot be
     opened.
-  
+
  */
 const Uint32 WbemExecException::INPUT_FILE_CANNOT_OPEN = 4;
 
 /**
-  
+
     Exception identifier indicating that no input was provided.
-  
+
  */
 const Uint32 WbemExecException::NO_INPUT = 5;
 
 /**
-  
+
     Exception identifier indicating failure to make an HTTP connection.
-  
+
  */
 const Uint32 WbemExecException::CONNECT_FAIL = 6;
 
 /**
-  
+
     Exception identifier indicating timed out waiting for response.
-  
+
  */
 const Uint32 WbemExecException::TIMED_OUT = 7;
 
 /**
-  
+
     Exception identifier indicating invalid XML input.
-  
+
  */
 const Uint32 WbemExecException::INVALID_XML = 8;
 
 /**
-  
+
     Exception identifier indicating invalid input.
-  
+
  */
 const Uint32 WbemExecException::INVALID_INPUT = 9;
 
 /**
-  
+
     Maximum valid exception identifier.  This value must be updated when
     a new exception identifier and message are added.
-  
+
  */
 const Uint32 WbemExecException::MAX_ID = WbemExecException::INVALID_INPUT;
 
@@ -150,42 +150,42 @@ const char*  WbemExecException::_messageStrings [] =
 };
 
 /**
-  
+
     Constructs a WbemExecException with a message corresponding to the
     specified exception ID.
-  
+
     @param  ID                the integer exception identifier
-  
+
  */
-WbemExecException::WbemExecException (Uint32 ID) : CommandException 
+WbemExecException::WbemExecException (Uint32 ID) : CommandException
     (_messageStrings [(ID > MAX_ID) ? DEFAULT_ID : ID])
 {
 }
 
 /**
-  
+
     Constructs a WbemExecException with a message corresponding to the
     specified ID, appended with the specified String.
-  
+
     @param  ID                the integer exception identifier
     @param  appendString      the string to append to the exception message
-  
+
  */
-WbemExecException::WbemExecException (Uint32 ID, const String& appendString) : 
-    CommandException (_messageStrings 
+WbemExecException::WbemExecException (Uint32 ID, const String& appendString) :
+    CommandException (_messageStrings
         [(ID > MAX_ID) ? DEFAULT_ID : ID])
 {
     _rep->message.append (appendString);
 }
 
 /**
-  
+
     Constructs a WbemExecException with the specified message.
-  
+
     @param  exceptionMessage  a string containing the exception message
-  
+
  */
-WbemExecException::WbemExecException (const String& exceptionMessage) : 
+WbemExecException::WbemExecException (const String& exceptionMessage) :
     CommandException (exceptionMessage)
 {
 }

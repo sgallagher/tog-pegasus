@@ -28,9 +28,9 @@
 //////////////////////////////////////////////////////////////////////////
 
 This directory has various Managed System providers (the MOF files
-are located in pegasus/Schemas). 
+are located in pegasus/Schemas).
 
-The provider for class "foo" will typically consist of the 
+The provider for class "foo" will typically consist of the
 following components:
   * a file for the provider (e.g., foo.cpp) which will check Defines
       and include the appropriate OS-specific provider file
@@ -39,13 +39,13 @@ following components:
       additional OS-specific files.
   * a general file with the supported operations, making calls out to
 	boolean methods in the various OS-specific files.  Return value
-	of true indicate the parameter property has been set, false 
+	of true indicate the parameter property has been set, false
 	means no value is supplied (e.g., fooProvider.cpp)
   * a general file to create the provider (e.g., fooProviderMain.cpp)
 
-There are subdirectories for each of the providers.  Within each 
+There are subdirectories for each of the providers.  Within each
 subdirectory, there may be a "doc" directory with additional information
-(including an HTML document following the WBEMsource template for a 
+(including an HTML document following the WBEMsource template for a
 Provider Data Sheet), and a "tests" directory with tests (invoked via
 recursion from the ManagedSystem Makefile).
 
@@ -57,7 +57,7 @@ For the OS provider, the following convention is used for test names
 on the .xml files:
 	PG_OperatingSystem* is a general test expected to pass
 	  (in general tests directory since no automated validation)
- 	PG_OS_* is a test that needs to be modified based on 
+ 	PG_OS_* is a test that needs to be modified based on
 		the test machine and is expected to pass
 	PG_OS_Fail*   is a test that is expected to get a CIM
 		error (e.g., an unsupported or ill-formed operation)

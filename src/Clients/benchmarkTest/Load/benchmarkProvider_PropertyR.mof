@@ -51,7 +51,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "1";
    ClassName = "benchmarkClassP00001S04000I00001";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2}; 
+   ProviderType = {2};
    SupportedProperties = NULL;
 };
 
@@ -62,7 +62,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "2";
    ClassName = "benchmarkClassP00010S00400I00001";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2}; 
+   ProviderType = {2};
    SupportedProperties = NULL;
 };
 
@@ -73,7 +73,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "3";
    ClassName = "benchmarkClassP00100S00040I00001";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2}; 
+   ProviderType = {2};
    SupportedProperties = NULL;
 };
 
@@ -84,7 +84,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "4";
    ClassName = "benchmarkClassP00200S00020I00001";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2}; 
+   ProviderType = {2};
    SupportedProperties = NULL;
 };
 
@@ -95,7 +95,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "5";
    ClassName = "benchmarkClassP00400S00010I00001";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2}; 
+   ProviderType = {2};
    SupportedProperties = NULL;
 };
 
@@ -106,7 +106,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "6";
    ClassName = "benchmarkClassP00001S04000I00100";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2}; 
+   ProviderType = {2};
    SupportedProperties = NULL;
 };
 
@@ -117,7 +117,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "7";
    ClassName = "benchmarkClassP00010S00400I00100";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2}; 
+   ProviderType = {2};
    SupportedProperties = NULL;
 };
 
@@ -128,7 +128,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "8";
    ClassName = "benchmarkClassP00100S00040I00100";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2}; 
+   ProviderType = {2};
    SupportedProperties = NULL;
 };
 
@@ -139,7 +139,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "9";
    ClassName = "benchmarkClassP00200S00020I00100";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2}; 
+   ProviderType = {2};
    SupportedProperties = NULL;
 };
 
@@ -150,7 +150,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "10";
    ClassName = "benchmarkClassP00400S00010I00100";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2}; 
+   ProviderType = {2};
    SupportedProperties = NULL;
 };
 
@@ -161,7 +161,7 @@ instance of PG_ProviderCapabilities
    CapabilityID = "11";
    ClassName = "benchmarkClassP00001S34000I00001";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2}; 
+   ProviderType = {2};
    SupportedProperties = NULL;
 };
 
@@ -172,6 +172,6 @@ instance of PG_ProviderCapabilities
    CapabilityID = "12";
    ClassName = "benchmarkClassP00001S34000I00100";
    Namespaces = {"root/benchmark"};
-   ProviderType = {2}; 
+   ProviderType = {2};
    SupportedProperties = NULL;
 };

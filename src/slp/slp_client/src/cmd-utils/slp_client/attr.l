@@ -35,21 +35,21 @@
  *  Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *                                                      
- *  Copyright (c) 2001 - 2003  IBM                                          
- *  Copyright (c) 2000 - 2003 Michael Day                                    
- *                                                                           
- *  Permission is hereby granted, free of charge, to any person obtaining a  
+ *
+ *  Copyright (c) 2001 - 2003  IBM
+ *  Copyright (c) 2000 - 2003 Michael Day
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a
  *  copy of this software and associated documentation files (the "Software"),
- *  to deal in the Software without restriction, including without limitation 
- *  the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- *  and/or sell copies of the Software, and to permit persons to whom the     
- *  Software is furnished to do so, subject to the following conditions:       
- * 
- *  The above copyright notice and this permission notice shall be included in 
+ *  to deal in the Software without restriction, including without limitation
+ *  the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *  and/or sell copies of the Software, and to permit persons to whom the
+ *  Software is furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in
  *  all copies or substantial portions of the Software.
- * 
- * 
+ *
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -97,24 +97,24 @@ res_val         [*_\r\n\t]
 tag         [^(), \\!<=>~\x00-\x1f]
 val         (("\\"([a-fA-F0-9]{2}))|[^(),!<=>~\x00-\x1f])
 
- /* 
-    this lexer cycles through three states. in the initial state, 
-    it is looking strictly for attribute tags. If, in the initial 
-    state it finds a '(' it anticipates an attribute-value pair 
+ /*
+    this lexer cycles through three states. in the initial state,
+    it is looking strictly for attribute tags. If, in the initial
+    state it finds a '(' it anticipates an attribute-value pair
     and changes to ATTRIBUTE state .
 
     in the ATTRIBUTE state is is looking for either a closing ')'
-    or a '='. If it sees a closing ')' it changes to the initial state. 
-    if it sees an '=' it changes to the VALUE state and looks for 
+    or a '='. If it sees a closing ')' it changes to the initial state.
+    if it sees an '=' it changes to the VALUE state and looks for
     the attribute value. After seeing the attribute value, it looks
     for a either a ')' or a ','. If it sees a ')' it closes the attribute
-    and returns to the initial state. 
+    and returns to the initial state.
 
-    if, during the VALUE state the lexer sees a ',' it decides it is 
+    if, during the VALUE state the lexer sees a ',' it decides it is
     looking at a multi-valued attribute and returns a special _MULTIVAL
     token to the parser. The parser uses this to construct additional
-    attribute-value pairs for each value in the multi-val statement. 
- */ 
+    attribute-value pairs for each value in the multi-val statement.
+ */
 %option noyywrap prefix="attr"
 
 %x ATTR
@@ -125,7 +125,7 @@ val         (("\\"([a-fA-F0-9]{2}))|[^(),!<=>~\x00-\x1f])
 
 ","             { attrlval._i = *attrtext; return(attrlval._i); }
 "("         { BEGIN ATTR; attrlval._i = *attrtext; return(attrlval._i); }
-{tag}+          {   
+{tag}+          {
                if (attrleng > 0) {
                   if(NULL != (attrlval._s = _lslp_strdup(attrtext)))
                                  return(_TAG);
@@ -139,7 +139,7 @@ val         (("\\"([a-fA-F0-9]{2}))|[^(),!<=>~\x00-\x1f])
 
 <ATTR>[ \t\v\f]*        { ; }
 <ATTR>"="           {BEGIN VALUE; attrlval._i = *attrtext; return(attrlval._i);}
-<ATTR>{tag}+            {   
+<ATTR>{tag}+            {
                           if (attrleng > 0 ) {
                              if(NULL != (attrlval._s = _lslp_strdup(attrtext)))
                                 return(_TAG);
@@ -168,14 +168,14 @@ val         (("\\"([a-fA-F0-9]{2}))|[^(),!<=>~\x00-\x1f])
 
 <VALUE>[tT][rR][uU][eE] {return(_TRUE);}
 <VALUE>[fF][aA][lL][sS][eE]  {return(_FALSE);}
-<VALUE>{val}+           {   
+<VALUE>{val}+           {
                            if (attrleng > 0) {
                               if(NULL != (attrlval._s = _lslp_strdup(attrtext)))
                                  return(_STRING);
                               else
                                  return(0L);
                            }
-                        }       
+                        }
 
 <VALUE>")"      {BEGIN INITIAL; attrlval._i = *attrtext; return(attrlval._i);}
 
@@ -187,7 +187,7 @@ val         (("\\"([a-fA-F0-9]{2}))|[^(),!<=>~\x00-\x1f])
 static char *_lslp_strdup(const char *s)
 {
   char *p = &heap[heapIndex];
-  do { heap[heapIndex++] = *s; } 
+  do { heap[heapIndex++] = *s; }
       while ((*s != 0x00) && (heapIndex < 2049) && (++s));
   return(p);
 }
@@ -210,18 +210,18 @@ size_t attr_init_lexer(const char *s)
 
 void attrerror(const char *s, ...)
 {
-    
+
  /* (va, s);
     printf(s, va);
     return;
 */
-}   
+}
 
 /*
 int main(int argc, char *argv[])
 {
 
-}   
+}
 
 */
 

@@ -97,8 +97,8 @@ CMPIInstance * make_Instance (const CMPIObjectPath * op)
     return ci;
 }
 
-/* 
- * Test routines 
+/*
+ * Test routines
  */
 
  int
@@ -300,7 +300,7 @@ _CMGetMessage (char **result)
   return 1;
 }
 
-static int _CMGetMessage2 (char **result, const char* msgFile, 
+static int _CMGetMessage2 (char **result, const char* msgFile,
     const char* msgId, const char* constinsert1, CMPIUint32 insert2)
 {
     CMPIString *str = NULL;
@@ -419,13 +419,13 @@ _createInstance()
 
   // Create a new ObjectPath, in a different namespace.
   PROV_LOG("Calling CMNewObjectPath for %s", "TestCMPI_Instance");
-  fake_objPath = 
+  fake_objPath =
       CMNewObjectPath (_broker, "root/cimv2", "TestCMPI_Instance", &rc);
   CMAddKey (fake_objPath, "ElementName", (CMPIValue *) "Fake_ObjPath",
       CMPI_chars);
 
   PROV_LOG ("---- (%s)", strCMPIStatus (rc));
-  
+
   objName = CMObjectPathToString(fake_objPath, &rc);
   PROV_LOG ("---- Object path: %s (rc:%s)", CMGetCharsPtr(objName,NULL),
       strCMPIStatus (rc));
@@ -444,7 +444,7 @@ _createInstance()
   PROV_LOG ("---- Object path is %s (rc:%s)", CMGetCharsPtr(objName,NULL),
       strCMPIStatus (rc));
 
-  return inst;  
+  return inst;
 }
 
 //This function is to test CMPIArray Clone function
@@ -551,7 +551,7 @@ static int _testArrayClone(const CMPIContext* ctx)
 
             case CMPI_charsptr:
                 value.dataPtr.ptr = "String";
-                value.dataPtr.length = 
+                value.dataPtr.length =
                      (CMPICount)(strlen((value.dataPtr.ptr)) + 1);
                 break;
 
@@ -850,47 +850,47 @@ static int _testArrayTypes()
         // Array type
         CMPIType typeA;
         // Name of the element type in string format
-        char* typeName; 
+        char* typeName;
         // Name of the Array type in string format
-        char* typeAName; 
-        // Unique argument name to be used while adding the array 
+        char* typeAName;
+        // Unique argument name to be used while adding the array
         // as an argument to CMPIArgs object
         char* args_name;
     }types_arr[] = {
-        {CMPI_uint32, 
-        CMPI_uint32A, 
-        "CMPI_uint32", 
-        "CMPI_uint32A", 
+        {CMPI_uint32,
+        CMPI_uint32A,
+        "CMPI_uint32",
+        "CMPI_uint32A",
         "CMPI_uint32_array"},
 
-        {CMPI_uint16, 
-        CMPI_uint16A, 
-        "CMPI_uint16", 
-        "CMPI_uint16A", 
+        {CMPI_uint16,
+        CMPI_uint16A,
+        "CMPI_uint16",
+        "CMPI_uint16A",
         "CMPI_uint16_array"},
 
-        {CMPI_uint8, 
-        CMPI_uint8A, 
-        "CMPI_uint8", 
-        "CMPI_uint8A", 
+        {CMPI_uint8,
+        CMPI_uint8A,
+        "CMPI_uint8",
+        "CMPI_uint8A",
         "CMPI_uint8_array"},
 
-        {CMPI_uint64, 
-        CMPI_uint64A, 
-        "CMPI_uint64", 
-        "CMPI_uint64A", 
+        {CMPI_uint64,
+        CMPI_uint64A,
+        "CMPI_uint64",
+        "CMPI_uint64A",
         "CMPI_uint64_array"},
 
-        {CMPI_sint32, 
-        CMPI_sint32A, 
-        "CMPI_sint32", 
-        "CMPI_sint32A", 
+        {CMPI_sint32,
+        CMPI_sint32A,
+        "CMPI_sint32",
+        "CMPI_sint32A",
         "CMPI_sint32_array"},
 
-        {CMPI_sint16, 
-        CMPI_sint16A, 
-        "CMPI_sint16", 
-        "CMPI_sint16A", 
+        {CMPI_sint16,
+        CMPI_sint16A,
+        "CMPI_sint16",
+        "CMPI_sint16A",
         "CMPI_sint16_array"},
 
         {CMPI_sint8,
@@ -899,28 +899,28 @@ static int _testArrayTypes()
         "CMPI_sint8A",
         "CMPI_sint8_array"},
 
-        {CMPI_sint64, 
-        CMPI_sint64A, 
-        "CMPI_sint64", 
-        "CMPI_sint64A", 
+        {CMPI_sint64,
+        CMPI_sint64A,
+        "CMPI_sint64",
+        "CMPI_sint64A",
         "CMPI_sint64_array"},
 
-        {CMPI_real32, 
-        CMPI_real32A, 
-        "CMPI_real32", 
-        "CMPI_real32A", 
+        {CMPI_real32,
+        CMPI_real32A,
+        "CMPI_real32",
+        "CMPI_real32A",
         "CMPI_real32_array"},
 
-        {CMPI_real64, 
-        CMPI_real64A, 
-        "CMPI_real64", 
-        "CMPI_real64A", 
+        {CMPI_real64,
+        CMPI_real64A,
+        "CMPI_real64",
+        "CMPI_real64A",
         "CMPI_real64_array"},
 
-        {CMPI_char16, 
-        CMPI_char16A, 
-        "CMPI_char16", 
-        "CMPI_char16A", 
+        {CMPI_char16,
+        CMPI_char16A,
+        "CMPI_char16",
+        "CMPI_char16A",
         "CMPI_char16_array"},
 
         {CMPI_boolean,
@@ -928,23 +928,23 @@ static int _testArrayTypes()
         "CMPI_boolean",
         "CMPI_booleanA",
         "CMPI_boolean_array"},
-            
-        {CMPI_string, 
-        CMPI_stringA, 
-        "CMPI_string", 
-        "CMPI_stringA", 
+
+        {CMPI_string,
+        CMPI_stringA,
+        "CMPI_string",
+        "CMPI_stringA",
         "CMPI_string_array"},
 
-        {CMPI_dateTime, 
-        CMPI_dateTimeA, 
-        "CMPI_dateTime", 
-        "CMPI_dateTimeA", 
+        {CMPI_dateTime,
+        CMPI_dateTimeA,
+        "CMPI_dateTime",
+        "CMPI_dateTimeA",
         "CMPI_dateTime_array"},
 
-        {CMPI_ref, 
-        CMPI_refA, 
-        "CMPI_ref", 
-        "CMPI_refA", 
+        {CMPI_ref,
+        CMPI_refA,
+        "CMPI_ref",
+        "CMPI_refA",
         "CMPI_ref_array"},
 
         {CMPI_instance,
@@ -952,7 +952,7 @@ static int _testArrayTypes()
         "CMPI_instance",
         "CMPI_instanceA",
         "CMPI_instance_array"},
-//Test case for covering default case in CMPI_Value.cpp 
+//Test case for covering default case in CMPI_Value.cpp
 // value2CIMValue() function
         {CMPI_null,
         CMPI_ARRAY,
@@ -972,8 +972,8 @@ static int _testArrayTypes()
     CMPIData dataInst;
     CMPIData retDataInst;
     CMPIArgs* args_ptr = NULL;
-    CMPIObjectPath* objPath = make_ObjectPath(_broker, 
-        _Namespace, 
+    CMPIObjectPath* objPath = make_ObjectPath(_broker,
+        _Namespace,
         _ClassName);
     CMPIUint64 datetime1, datetime2;
     const char* str1;
@@ -981,13 +981,13 @@ static int _testArrayTypes()
 
 //Size of the array_types array set at the time of preprocessing
     size = 17;
-      
+
     PROV_LOG("++++  Entering testArrayTypes");
-        
+
     for ( i = 0 ; i < size; i++)
     {
         args_ptr = CMNewArgs(_broker, &rc);
-        PROV_LOG("++++ Status of CMNewArgs : (%s)", 
+        PROV_LOG("++++ Status of CMNewArgs : (%s)",
             strCMPIStatus (rc));
 
 //Initializing the elements that will constitute the array
@@ -1036,23 +1036,23 @@ static int _testArrayTypes()
             case CMPI_char16:
                 value.char16 = 'k';
                 break;
-             
+
             case CMPI_string:
                 value.string = CMNewString(_broker, "string", &rc);
                 break;
-             
+
             case CMPI_boolean:
                 value.boolean = 1;
                 break;
-      
+
             case CMPI_dateTime:
                 value.dateTime = CMNewDateTime(_broker, &rc);
                 break;
- 
+
             case CMPI_ref:
-                value.ref = CMNewObjectPath (_broker, 
-                    "root/cimv2", 
-                    "TestCMPI_Instance", 
+                value.ref = CMNewObjectPath (_broker,
+                    "root/cimv2",
+                    "TestCMPI_Instance",
                     &rc);
                 break;
 
@@ -1063,9 +1063,9 @@ static int _testArrayTypes()
             case CMPI_instance:
                 value.inst = make_Instance(objPath);
                 value1.uint32 = 20;
-                rc = CMSetProperty(value.inst, 
-                    "Property1", 
-                    &value1, 
+                rc = CMSetProperty(value.inst,
+                    "Property1",
+                    &value1,
                     CMPI_uint32);
                 break;
         }
@@ -1073,17 +1073,17 @@ static int _testArrayTypes()
         PROV_LOG("++++  Testing for %s type", types_arr[i].typeAName);
         arr = NULL;
 //Testing for NULL array ;
-        rc = CMAddArg (args_ptr, 
-            "EmptyArray", 
-            (CMPIValue *) &arr, 
+        rc = CMAddArg (args_ptr,
+            "EmptyArray",
+            (CMPIValue *) &arr,
             types_arr[i].typeA);
-        PROV_LOG("++++ Status of CMAddArg with name EmptyArray : (%s)", 
+        PROV_LOG("++++ Status of CMAddArg with name EmptyArray : (%s)",
             strCMPIStatus (rc));
 
 //Allocating the space for the array and adding the initialized element to it
         arr = CMNewArray (_broker, 1, types_arr[i].element_type, &rc);
-        PROV_LOG("++++ Status of creation of CMPIArray : (%s) of type (%s)", 
-            strCMPIStatus (rc), 
+        PROV_LOG("++++ Status of creation of CMPIArray : (%s) of type (%s)",
+            strCMPIStatus (rc),
             types_arr[i].typeAName);
 
         rc = CMSetArrayElementAt(arr, 0, &value, types_arr[i].element_type);
@@ -1091,25 +1091,25 @@ static int _testArrayTypes()
             strCMPIStatus (rc));
 
 //Adding the array as an argument to CMPIArgs
-        rc = CMAddArg (args_ptr, 
-            types_arr[i].args_name, 
-            (CMPIValue *) &arr, 
+        rc = CMAddArg (args_ptr,
+            types_arr[i].args_name,
+            (CMPIValue *) &arr,
             types_arr[i].typeA);
-        PROV_LOG("++++ Status of CMAddArg with name %s : (%s)", 
-            types_arr[i].args_name, 
+        PROV_LOG("++++ Status of CMAddArg with name %s : (%s)",
+            types_arr[i].args_name,
             strCMPIStatus (rc));
 
 //Testing the retrieved arrays from CMPIArgs object
-        flag = 1;        
+        flag = 1;
         if((types_arr[i].element_type) != CMPI_null)
-        {  
+        {
             data = CMGetArg(args_ptr, types_arr[i].args_name , &rc);
-            PROV_LOG("++++ Status of CMGetArg with name %s : (%s)", 
-                types_arr[i].args_name, 
+            PROV_LOG("++++ Status of CMGetArg with name %s : (%s)",
+                types_arr[i].args_name,
                 strCMPIStatus (rc));
 
             arr_data = CMGetArrayElementAt(data.value.array, 0, &rc);
-            PROV_LOG("++++ Status of CMGetArrayElementAt : (%s)", 
+            PROV_LOG("++++ Status of CMGetArrayElementAt : (%s)",
                 strCMPIStatus (rc));
 
             switch(types_arr[i].element_type)
@@ -1132,7 +1132,7 @@ static int _testArrayTypes()
                     if (arr_data.value.uint8 != value.uint8)
                     {
                         flag = 0;
-                    } 
+                    }
                     break;
 
                 case CMPI_uint64:
@@ -1183,18 +1183,18 @@ static int _testArrayTypes()
                         flag = 0;
                     }
                     break;
- 
+
                 case CMPI_char16:
                     if (arr_data.value.char16 != value.char16)
                     {
                         flag = 0;
                     }
                     break;
-              
+
                 case CMPI_string:
                     str1 = CMGetCharsPtr(arr_data.value.string, &rc);
                     str2 = CMGetCharsPtr(value.string, &rc1);
-                    if ((rc.rc != CMPI_RC_OK) || 
+                    if ((rc.rc != CMPI_RC_OK) ||
                         (rc1.rc != CMPI_RC_OK) ||
                         strcmp(str1, str2))
                     {
@@ -1208,9 +1208,9 @@ static int _testArrayTypes()
                         flag = 0;
                     }
                     break;
-        
+
                 case CMPI_dateTime:
-                    datetime1 = CMGetBinaryFormat(arr_data.value.dateTime, 
+                    datetime1 = CMGetBinaryFormat(arr_data.value.dateTime,
                         &rc);
                     datetime2 = CMGetBinaryFormat(value.dateTime, &rc1);
                     if ((rc.rc != CMPI_RC_OK) ||
@@ -1223,7 +1223,7 @@ static int _testArrayTypes()
                     PROV_LOG("++++ Status of CMRelease(value.dateTime) : (%s)",
                         strCMPIStatus(rc));
                     break;
-                
+
                 case CMPI_ref:
                     retNamespace = CMGetNameSpace(arr_data.value.ref, &rc);
                     retClassname = CMGetClassName(arr_data.value.ref, &rc1);
@@ -1251,7 +1251,7 @@ static int _testArrayTypes()
                         flag = 0;
                     }
                     rc = CMRelease(value.ref);
-                    PROV_LOG("++++ Status of CMRelease(value.ref) : (%s)", 
+                    PROV_LOG("++++ Status of CMRelease(value.ref) : (%s)",
                         strCMPIStatus(rc));
                     break;
 
@@ -1264,13 +1264,13 @@ static int _testArrayTypes()
                         flag = 0;
                     }
                     rc = CMRelease(value.inst);
-                    PROV_LOG("++++ Status of CMRelease(value.inst) : (%s)", 
+                    PROV_LOG("++++ Status of CMRelease(value.inst) : (%s)",
                         strCMPIStatus(rc));
                     break;
             }
             if (data.type == types_arr[i].typeA && flag)
             {
-                PROV_LOG("++++  CMGetArg : Name - %s is of type" 
+                PROV_LOG("++++  CMGetArg : Name - %s is of type"
                     " %s ", types_arr[i].args_name, types_arr[i].typeAName);
             }
             PROV_LOG("++++ Status of CMGetArg : (%s)", strCMPIStatus (rc));
@@ -1303,7 +1303,7 @@ static int _testSimpleTypes()
         _ClassName);
     const char* str1;
     const char* str2;
-       
+
     struct array_types
     {
         CMPIType element_type;
@@ -1326,22 +1326,22 @@ static int _testSimpleTypes()
         args_ptr = CMNewArgs(_broker, &rc);
         PROV_LOG("++++ Status of CMNewArgs : (%s)",
             strCMPIStatus (rc));
-       
+
         switch(types_arr[i].element_type)
         {
             case CMPI_ref:
-                value.ref = CMNewObjectPath (_broker, 
-                    "root/cimv2", 
-                    "TestCMPI_Instance", 
-                    &rc); 
+                value.ref = CMNewObjectPath (_broker,
+                    "root/cimv2",
+                    "TestCMPI_Instance",
+                    &rc);
                 break;
 
             case CMPI_instance:
                 value.inst = make_Instance(objPath);
                 value1.uint32 = 20;
-                rc = CMSetProperty(value.inst, 
-                    "Property1", 
-                    &value1, 
+                rc = CMSetProperty(value.inst,
+                    "Property1",
+                    &value1,
                     CMPI_uint32);
                 break;
         }
@@ -1353,7 +1353,7 @@ static int _testSimpleTypes()
         PROV_LOG("++++ Status of CMAddArg with name %s : (%s)",
             types_arr[i].args_name,
             strCMPIStatus (rc));
- 
+
         data = CMGetArg(args_ptr, types_arr[i].args_name , &rc);
         PROV_LOG("++++ Status of CMGetArg with name %s : (%s)",
             types_arr[i].args_name,
@@ -1364,7 +1364,7 @@ static int _testSimpleTypes()
             case CMPI_ref:
                 retNamespace = CMGetNameSpace(data.value.ref, &rc);
                 retClassname = CMGetClassName(data.value.ref, &rc1);
- 
+
                 if((rc.rc == CMPI_RC_OK) &&
                     (rc1.rc == CMPI_RC_OK))
                 {
@@ -1389,7 +1389,7 @@ static int _testSimpleTypes()
                     flag = 0;
                 }
                 rc = CMRelease(value.ref);
-                PROV_LOG("++++ Status of CMRelease(value.ref) : (%s)", 
+                PROV_LOG("++++ Status of CMRelease(value.ref) : (%s)",
                     strCMPIStatus(rc));
                 break;
 
@@ -1402,7 +1402,7 @@ static int _testSimpleTypes()
                     flag = 0;
                 }
                 rc = CMRelease(value.inst);
-                PROV_LOG("++++ Status of CMRelease(value.inst) : (%s)", 
+                PROV_LOG("++++ Status of CMRelease(value.inst) : (%s)",
                 strCMPIStatus(rc));
                 break;
         }
@@ -1414,7 +1414,7 @@ static int _testSimpleTypes()
         PROV_LOG("++++ Status of CMGetArg : (%s)", strCMPIStatus (rc));
 
         rc = CMRelease(args_ptr);
-        PROV_LOG("++++ Status of CMRelease(args_ptr) : (%s)", 
+        PROV_LOG("++++ Status of CMRelease(args_ptr) : (%s)",
             strCMPIStatus(rc));
     }
     return flag;
@@ -1781,7 +1781,7 @@ static int _testCMPIcontext (const CMPIContext* ctx)
 
     count_for_new_context = CMGetContextEntryCount(ctx, &rc);
     PROV_LOG ("++++  CMGetContextEntryCount : (%s)", strCMPIStatus (rc));
-    PROV_LOG ("++++ Total number of data added : %d", 
+    PROV_LOG ("++++ Total number of data added : %d",
               count_for_new_context - count);
 
     //Error Paths
@@ -2301,15 +2301,15 @@ static int _testCMPIObjectPath ()
     value.uint16 = 67;
     rc = CMAddKey (fakeObjPath, "Numeric_key_unsigned",
         (CMPIValue *) &value, CMPI_uint16);
-    PROV_LOG ("++++  Status of CMAddKey of type CMPI_uint16: (%s)", 
+    PROV_LOG ("++++  Status of CMAddKey of type CMPI_uint16: (%s)",
         strCMPIStatus (rc));
     data = CMGetKey(fakeObjPath, "Numeric_key_unsigned", &rc);
     // Check for uint64, CMGetKey promotes all unsigned numeric types to
-    // Uint64 
+    // Uint64
     if (data.value.uint64 == (CMPIUint64)value.uint16)
     {
         PROV_LOG ("++++  Status of CMGetKey of type CMPI_uint16: (%s)",
-        strCMPIStatus (rc));     
+        strCMPIStatus (rc));
     }
 
     value.sint16 = -67;
@@ -2319,7 +2319,7 @@ static int _testCMPIObjectPath ()
         strCMPIStatus (rc));
     data = CMGetKey(fakeObjPath, "Numeric_key_signed", &rc);
     // Check for sint64, CMGetKey promotes all signed numeric types to
-    // Sint64 
+    // Sint64
     if (data.value.sint64 == (CMPISint64)value.sint16)
     {
         PROV_LOG ("++++  Status of CMGetKey of type CMPI_sint16: (%s)",
@@ -3238,7 +3238,7 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
           CMPIUint64 ret_val = 0;
           CMPIStatus dateTimeRc={CMPI_RC_OK, NULL};
 
-          CMPIDateTime *dateTime = CMNewDateTime(_broker, &dateTimeRc); 
+          CMPIDateTime *dateTime = CMNewDateTime(_broker, &dateTimeRc);
           PROV_LOG ("---- (rc:%s)", strCMPIStatus (dateTimeRc));
           // Checking the date.
           ret_val = CMGetBinaryFormat (dateTime, &dateTimeRc);

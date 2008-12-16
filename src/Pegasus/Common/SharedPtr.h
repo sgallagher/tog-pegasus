@@ -141,7 +141,7 @@ private:
 /** This class implements a shared pointer, similar to the one found in BOOST
     (and in countless other libraries). The implementation maintains a pointer
     to an intermediate object that contains the pointer to the target object
-    as well as a reference counter. Because the target object need not have 
+    as well as a reference counter. Because the target object need not have
     a reference counter of its own, we say that this implementation is
     non-invasive (not imposing requirements on the target class). The instance
     diagram below depicts two SharedPtr objects sharing a target instance (of
@@ -245,34 +245,34 @@ public:
         return *this;
     }
 
-    void reset(T* ptr = 0) 
-    { 
-        _rep.reset(ptr); 
-    }
-
-    T& operator*() const 
-    { 
-        return *get(); 
-    }
-
-    T* operator->() const 
-    { 
-        return get(); 
-    }
-
-    T* get() const 
-    { 
-        return _rep.get(); 
-    }
-
-    operator bool() const 
-    { 
-        return get() != 0; 
-    }
-
-    size_t count() const 
+    void reset(T* ptr = 0)
     {
-        return _rep.count(); 
+        _rep.reset(ptr);
+    }
+
+    T& operator*() const
+    {
+        return *get();
+    }
+
+    T* operator->() const
+    {
+        return get();
+    }
+
+    T* get() const
+    {
+        return _rep.get();
+    }
+
+    operator bool() const
+    {
+        return get() != 0;
+    }
+
+    size_t count() const
+    {
+        return _rep.count();
     }
 
 protected:

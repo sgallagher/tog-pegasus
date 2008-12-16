@@ -35,21 +35,21 @@
 #include "CmpiData.h"
 #include "Linkage.h"
 
-/** 
+/**
     This class wraps a CMPIBooleanData value item. BooleanData extraction uses
     type operators. Extraction operations can be appended to a
     property type retrieval statement
       like this:
- 
+
     CmpiString name = cop.getKey("DeviceID");
- 
+
     Type mismatches will be signalled by exceptions.
 */
 class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiBooleanData : public CmpiData
 {
 public:
 
-    /** 
+    /**
         Constructor - boolean as input.
     */
     CmpiBooleanData(CMPIBoolean d);

@@ -46,7 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
     $<int>
 
     where <int> is a single digit integer (0 - 9).
- 
+
     The variable subsituted may be String, Boolean Integer, Unsigned Integer
     or real.
 

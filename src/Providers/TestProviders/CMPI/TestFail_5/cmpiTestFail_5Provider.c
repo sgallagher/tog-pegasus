@@ -29,8 +29,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-/* The Objective of this provider is to cover/execute the Error paths in 
-   CMPIProviderManager.cpp. To achieve this, the return value expected in the 
+/* The Objective of this provider is to cover/execute the Error paths in
+   CMPIProviderManager.cpp. To achieve this, the return value expected in the
    CMPIProviderManager.cpp is CMPI_RC_ERR_NOT_SUPPORTED or
    CMPI_RC_DO_NOT_UNLOAD. In this provider all the methods are intentionaly
    returning CMPI_RC_ERR_NOT_SUPPORTED to meet requirement for executing the
@@ -49,7 +49,7 @@ static const CMPIBroker *_broker;
 /*                      Instance Provider Interface                           */
 /* ---------------------------------------------------------------------------*/
 
-/* Clean up routine for Instance Provider. 
+/* Clean up routine for Instance Provider.
    This function returns CMPI_RC_OK when cimserver terminating otherwise
    it returns CMPI_RC_DO_NOT_UNLOAD to inform MB this provider should not get
    unload at this time.
@@ -156,7 +156,7 @@ CMPIStatus TestCMPIFail_5ProviderExecQuery(
 /*                       Indication Provider Interface                        */
 /* ---------------------------------------------------------------------------*/
 
-/* Cleanup routine for Indication Provider. 
+/* Cleanup routine for Indication Provider.
    This function returns CMPI_RC_OK when cimserver terminating otherwise
    it returns CMPI_RC_DO_NOT_UNLOAD to inform MB this provider should not get
    unload at this time.
@@ -250,7 +250,7 @@ CMPIStatus TestCMPIFail_5ProviderDisableIndications(
 /*                       Method Provider Interface                            */
 /* ---------------------------------------------------------------------------*/
 
-/* Cleanup routine for Method Provider. 
+/* Cleanup routine for Method Provider.
    This function returns CMPI_RC_OK when cimserver terminating otherwise
    it returns CMPI_RC_DO_NOT_UNLOAD to inform MB this provider should not get
    unload at this time.
@@ -289,7 +289,7 @@ CMPIStatus TestCMPIFail_5ProviderInvokeMethod(
 /*                        Association Provider Interface                      */
 /* -------------------------------------------------------------------------- */
 
-/* Cleanup routine for Association Provider. 
+/* Cleanup routine for Association Provider.
    This function returns CMPI_RC_OK when cimserver terminating otherwise
    it returns CMPI_RC_DO_NOT_UNLOAD to inform MB this provider should not get
    unload at this time.
@@ -327,7 +327,7 @@ CMPIStatus TestCMPIFail_5ProviderAssociators(
    CMPIInstance *ci = NULL;
    CMReturnInstance(rslt, ci);
 
-   CMReturn(CMPI_RC_ERR_NOT_SUPPORTED); 
+   CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
 /* AssociatorNames routine for Association Provider.*/

@@ -312,12 +312,12 @@ mofProductions: mofProduction mofProductions
 // ATTN: P1 KS Apr 2002 Limit in (none) Directive handling. See FIXME below.
 mofProduction: compilerDirective { /* FIXME: Where do we put directives? */ }
     | qualifierDeclaration
-        { 
+        {
             cimmofParser::Instance()->addQualifier($1);
             delete $1;
         }
     | classDeclaration
-        { 
+        {
             cimmofParser::Instance()->addClass($1);
         }
     | instanceDeclaration
@@ -363,14 +363,14 @@ classHead: qualifierList TOK_CLASS className alias superClass
 className: TOK_SIMPLE_IDENTIFIER {} ;
 
 
-superClass: TOK_COLON className 
-{ 
-    $$ = new CIMName(*$2); 
+superClass: TOK_COLON className
+{
+    $$ = new CIMName(*$2);
     delete $2;
 }
-| /* empty */ 
-{ 
-    $$ = new CIMName(); 
+| /* empty */
+{
+    $$ = new CIMName();
 }
 
 
@@ -382,22 +382,22 @@ classFeatures: classFeature
     | classFeatures classFeature ;
 
 
-classFeature: propertyDeclaration  
+classFeature: propertyDeclaration
     {
         YACCTRACE("classFeature:applyProperty");
         cimmofParser::Instance()->applyProperty(*g_currentClass, *$1);
-        delete $1; 
+        delete $1;
     }
-    | methodDeclaration 
+    | methodDeclaration
     {
         YACCTRACE("classFeature:applyMethod");
-        cimmofParser::Instance()->applyMethod(*g_currentClass, *$1); 
+        cimmofParser::Instance()->applyMethod(*g_currentClass, *$1);
     }
-    | referenceDeclaration 
+    | referenceDeclaration
     {
         YACCTRACE("classFeature:applyProperty");
         cimmofParser::Instance()->applyProperty(*g_currentClass, *$1);
-        delete $1; 
+        delete $1;
     };
 
 
@@ -449,9 +449,9 @@ methodBody: TOK_LEFTPAREN parameters TOK_RIGHTPAREN ;
 methodEnd: TOK_SEMICOLON ;
 
 
-methodName: TOK_SIMPLE_IDENTIFIER 
-{ 
-    $$ = new CIMName(*$1); 
+methodName: TOK_SIMPLE_IDENTIFIER
+{
+    $$ = new CIMName(*$1);
     delete $1;
 }
 
@@ -522,11 +522,11 @@ propertyBody: dataType propertyName array typedDefaultValue
 {
     CIMValue *v = valueFactory::createValue($1, $3,
             ($4->type == CIMMOF_NULL_VALUE), $4->value);
-    if ($3 == -1) 
+    if ($3 == -1)
     {
         $$ = cimmofParser::Instance()->newProperty(*$2, *v, false, 0);
-    } 
-    else 
+    }
+    else
     {
         $$ = cimmofParser::Instance()->newProperty(*$2, *v, true, $3);
     }
@@ -575,23 +575,23 @@ referencePath: TOK_EQUAL stringValue { $$ = $2; }
     | /* empty */ { $$ = new String(String::EMPTY); } ;
 
 
-objectRef: className TOK_REF 
+objectRef: className TOK_REF
 {
-    g_referenceClassName = *$1; 
+    g_referenceClassName = *$1;
     delete $1;
 }
 
 
-parameterName: TOK_SIMPLE_IDENTIFIER 
-{ 
-    $$ = new CIMName(*$1); 
+parameterName: TOK_SIMPLE_IDENTIFIER
+{
+    $$ = new CIMName(*$1);
     delete $1;
 }
 
 
-propertyName: TOK_SIMPLE_IDENTIFIER 
-{ 
-    $$ = new CIMName(*$1); 
+propertyName: TOK_SIMPLE_IDENTIFIER
+{
+    $$ = new CIMName(*$1);
     delete $1;
 }
 
@@ -604,12 +604,12 @@ array: TOK_LEFTSQUAREBRACKET TOK_POSITIVE_DECIMAL_VALUE
         }
     | TOK_LEFTSQUAREBRACKET TOK_RIGHTSQUAREBRACKET
         { $$ = 0; }
-    | /* empty */ 
+    | /* empty */
         { $$ = -1; } ;
 
 
 typedDefaultValue: TOK_EQUAL typedInitializer { $$ = $2; }
-| 
+|
     {   /* empty */
         g_typedInitializerValue.type = CIMMOF_NULL_VALUE;
         g_typedInitializerValue.value = new String(String::EMPTY);
@@ -617,7 +617,7 @@ typedDefaultValue: TOK_EQUAL typedInitializer { $$ = $2; }
     };
 
 
-initializer: constantValue 
+initializer: constantValue
         { $$ = $1; }
     | arrayInitializer
         { $$ = $1; }
@@ -685,7 +685,7 @@ nonNullConstantValue: integerValue { $$ = $1; }
         { $$ =  $1; }
     | stringValues
         { }
-    | booleanValue 
+    | booleanValue
         {
             $$ = new String($1 ? "T" : "F");
     };
@@ -839,7 +839,7 @@ keyValuePair: keyValuePairName TOK_EQUAL initializer
         g_KeyBindingArray.append(*kb);
         delete kb;
         delete $1;
-        delete $3; 
+        delete $3;
     } ;
 
 
@@ -1052,8 +1052,8 @@ scope_begin: TOK_COMMA TOK_SCOPE TOK_LEFTPAREN
 
 metaElements: metaElement { $$ = $1; }
     | metaElements TOK_COMMA metaElement
-        { 
-            $$->addScope(*$3); 
+        {
+            $$->addScope(*$3);
             delete $3;
         } ;
 // ATTN:  2001 P3 defer There is not CIMScope::SCHEMA. Spec Limit KS
@@ -1075,7 +1075,7 @@ metaElement: TOK_CLASS       { $$ = new CIMScope(CIMScope::CLASS);        }
 // Correction KS 4 march 2002 - Set the default if empty
 defaultFlavor: TOK_COMMA flavorHead explicitFlavors TOK_RIGHTPAREN
     { $$ = &g_flavor; }
-    | /* empty */ 
+    | /* empty */
     {
         g_flavor = CIMFlavor (CIMFlavor::NONE);
         $$ = &g_flavor;
@@ -1085,7 +1085,7 @@ defaultFlavor: TOK_COMMA flavorHead explicitFlavors TOK_RIGHTPAREN
 // Correction KS 4 March 2002 - set the defaults (was zero)
 // Set the flavors for the defaults required: via DEFAULTS
 
-flavorHead: TOK_FLAVOR TOK_LEFTPAREN 
+flavorHead: TOK_FLAVOR TOK_LEFTPAREN
     {g_flavor = CIMFlavor (CIMFlavor::NONE);};
 
 
@@ -1113,8 +1113,8 @@ explicitFlavor: TOK_ENABLEOVERRIDE
 
 
 flavor: overrideFlavors { $$ = &g_flavor; }
-    | /* empty */ 
-    { 
+    | /* empty */
+    {
         g_flavor = CIMFlavor (CIMFlavor::NONE);
         $$ = &g_flavor;
     } ;
@@ -1143,9 +1143,9 @@ intDataType: TOK_DT_UINT8  { $$ = CIMTYPE_UINT8;  }
     | TOK_DT_CHAR16 { $$ = CIMTYPE_CHAR16; } ;
 
 
-realDataType: TOK_DT_REAL32 
+realDataType: TOK_DT_REAL32
         { $$ =CIMTYPE_REAL32; }
-    | TOK_DT_REAL64 
+    | TOK_DT_REAL64
         { $$ =CIMTYPE_REAL64; };
 
 /*
@@ -1156,7 +1156,7 @@ realDataType: TOK_DT_REAL32
 **------------------------------------------------------------------------------
 */
 qualifierList: qualifierListBegin qualifiers TOK_RIGHTSQUAREBRACKET
-    | /* empty */ 
+    | /* empty */
         {
             //yydebug = 1; stderr = stdout;
         };
@@ -1190,7 +1190,7 @@ qualifierName: TOK_SIMPLE_IDENTIFIER {
         g_flavor = CIMFlavor (CIMFlavor::NONE); }
     | metaElement {
         $$ = new String((*$1).toString ());
-        g_flavor = CIMFlavor (CIMFlavor::NONE); 
+        g_flavor = CIMFlavor (CIMFlavor::NONE);
         delete $1; } ;
 
 

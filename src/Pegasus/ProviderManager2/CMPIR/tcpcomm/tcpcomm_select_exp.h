@@ -45,11 +45,11 @@
 struct socket_select_exp_function
 {
     char *name;
-    void (* function) ( 
+    void (* function) (
         int,
         CONST CMPIBroker *,
         CONST CMPIContext *,
-        CMPIUint32 ctx_id ); 
+        CMPIUint32 ctx_id );
 };
 
 extern struct socket_select_exp_function select_exp_functions [];

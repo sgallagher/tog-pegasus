@@ -135,7 +135,7 @@ public:
         PEG_METHOD_EXIT();
     }
 
-    /** Sets the connection authentication status of the request to the 
+    /** Sets the connection authentication status of the request to the
         status specified.
         @param status - the new authentication status
     */
@@ -169,7 +169,7 @@ public:
         On z/OS Unix Local Domain Sockets and sockets
         protected by AT-TLS are able to get the user ID of
         the connected user.
-        This information is needed for later authentication 
+        This information is needed for later authentication
         steps.
      */
 
@@ -183,7 +183,7 @@ public:
     }
 
     /** Sets the connection user name
-        @param userName - string containing the user name 
+        @param userName - string containing the user name
                            provided by the connection
     */
     void   setConnectionUser(const String& userName)
@@ -360,7 +360,7 @@ private:
     {
 
     }
-    
+
     AuthenticationInfoRep* _rep;
 };
 

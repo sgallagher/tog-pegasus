@@ -78,7 +78,7 @@ public:
   Boolean getStatus(String&) const;
 
   // CIM_LogicalElement
-  
+
   // CIM_LogicalDevice
   String getDeviceID(void) const;
   Boolean getPowerManagementSupported(Boolean&) const;
@@ -122,7 +122,7 @@ public:
   // PG_Processor
   Boolean getBiosID(String&) const;
   Boolean getFirmwareID(String&) const;
-  
+
   // Auxiliary routines
 
   // Loads the internal processor structure with
@@ -131,7 +131,7 @@ public:
   // entries so that a simple increment will allow next
   // call to access next entry
   Boolean loadProcessorInfo(int &pIndex);
-  
+
   // Finds the requested process and loads its info into
   // the internal process status structure
   Boolean findProcessor(const String& deviceID);

@@ -83,7 +83,7 @@ typedef struct
 
 
 //! List of communication libraries to be initialized.
-static comm_lib __libs[] = 
+static comm_lib __libs[] =
 {
     { "CMPIRTCPCommRemote",0 ,0},
 };
@@ -122,8 +122,8 @@ static void __init_remote_comm_lib ( comm_lib * comm )
     if (hdl)
     {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-        START_DAEMON fp = (START_DAEMON) GetProcAddress ( 
-            hdl, 
+        START_DAEMON fp = (START_DAEMON) GetProcAddress (
+            hdl,
             "start_remote_daemon" );
 #else
         START_DAEMON fp = (START_DAEMON) dlsym ( hdl, "start_remote_daemon" );
@@ -207,8 +207,8 @@ int main (int argc, char *argv[])
     winStartNetwork();
 #endif
 
-    socket = open_connection ( 
-        "127.0.0.1", 
+    socket = open_connection (
+        "127.0.0.1",
         REMOTE_LISTEN_PORT,
         PEGASUS_SUPPRESS_ERROR_MESSAGE);
     if (socket >= 0)

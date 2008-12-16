@@ -52,7 +52,7 @@ enum expectedErrorType { ERROR_TYPE_NONE, ERROR_TYPE_HTTP_401,
  * This client was introduced because existing test clients are heavy on
  * function and thus take a long time to return.  We don't care about the
  * response, only whether the request was authenticated.
- */ 
+ */
 
 int main(int argc, char** argv)
 {
@@ -178,7 +178,7 @@ int main(int argc, char** argv)
 
         PEGASUS_STD(cout)<< "TestCertClient::Connecting to 127.0.0.1:5989"
           << PEGASUS_STD(endl);
-    
+
         CIMClient client;
         client.connect("127.0.0.1", 5989, *pCtx, userName, password);
 
@@ -209,7 +209,7 @@ int main(int argc, char** argv)
         }
         CIMClass c = client.getClass("root/cimv2",
             "CIM_ComputerSystem", false, false, true);
-          
+
         PEGASUS_STD(cout) << "Result: " <<  c.getClassName().getString()
             << PEGASUS_STD(endl);
     }
@@ -223,7 +223,7 @@ int main(int argc, char** argv)
                 " +++++ passed all tests" << PEGASUS_STD(endl);
             exit(0);
          }
-           
+
          PEGASUS_STD(cout) << "Exception: " << httpException.getMessage()
             << PEGASUS_STD(endl);
          exit(1);
@@ -260,7 +260,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        PEGASUS_STD(cout) << "+++++ "<< "TestCertClient" 
+        PEGASUS_STD(cout) << "+++++ "<< "TestCertClient"
             << " Terminated Normally" << PEGASUS_STD(endl);
     }
     exit(0);

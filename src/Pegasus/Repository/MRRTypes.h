@@ -161,7 +161,7 @@ struct MRRNameSpace
 };
 
 const MRRQualifierDecl* FindQualifierDecl(
-    const MRRNameSpace* ns, 
+    const MRRNameSpace* ns,
     const char* name);
 
 const MRRClass* FindClass(const MRRNameSpace* ns, const char* name);
@@ -202,9 +202,9 @@ int MakeQualifierDecl(
     class CIMQualifierDecl& cqd);
 
 const MRRFeature* FindFeature(
-    const MRRClass* sc, 
+    const MRRClass* sc,
     const char* name,
-    Uint32 flags = 
+    Uint32 flags =
         (MRR_FLAG_PROPERTY|MRR_FLAG_REFERENCE|MRR_FLAG_METHOD));
 
 PEGASUS_NAMESPACE_END

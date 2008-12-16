@@ -107,7 +107,7 @@ extern "C"
                 CMPI_Object *obj = new CMPI_Object(
                     new CMPI_InstEnumeration(new Array<CIMInstance>(*enm)));
                 obj->unlink(); // remove from current thread context.
-                CMPIEnumeration* cmpiEnum = 
+                CMPIEnumeration* cmpiEnum =
                     reinterpret_cast<CMPIEnumeration*>(obj);
                 PEG_METHOD_EXIT();
                 return cmpiEnum;
@@ -118,7 +118,7 @@ extern "C"
                 CMPI_Object *obj = new CMPI_Object(
                     new CMPI_ObjEnumeration(new Array<CIMObject>(*enm)));
                 obj->unlink(); // remove from current thread context.
-                CMPIEnumeration* cmpiEnum = 
+                CMPIEnumeration* cmpiEnum =
                     reinterpret_cast<CMPIEnumeration*>(obj);
                 PEG_METHOD_EXIT();
                 return cmpiEnum;
@@ -129,7 +129,7 @@ extern "C"
                 CMPI_Object *obj = new CMPI_Object(
                     new CMPI_OpEnumeration(new Array<CIMObjectPath>(*enm)));
                 obj->unlink(); // remove from current thread context.
-                CMPIEnumeration* cmpiEnum = 
+                CMPIEnumeration* cmpiEnum =
                     reinterpret_cast<CMPIEnumeration*>(obj);
                 PEG_METHOD_EXIT();
                 return cmpiEnum;

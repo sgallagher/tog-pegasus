@@ -64,7 +64,7 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMName& className) const;
 
-    void setRepository (CIMRepository* repository) 
+    void setRepository (CIMRepository* repository)
     { _repository = repository; }
 
 protected:

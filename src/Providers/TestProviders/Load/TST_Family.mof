@@ -66,7 +66,7 @@ class TST_PersonDynamic:TST_Person
     uint32 instanceCounter;
 };
 
-// Second level Subclass 
+// Second level Subclass
     [Version("1.0.0"), Description ( "Defines a 2nd levelsubclass that is "
         "supported by a provider for the test. "
         "See the SamplePerson Provider. ") ]
@@ -137,7 +137,7 @@ instance of TST_PersonS { name = "Saaras"; secondProperty = "two" ; counter = 2;
 instance of TST_PersonS { name = "Sofis"; secondProperty = "three" ; counter = 3; };
 
 instance of TST_PersonS { name = "Gabis"; secondProperty = "four" ; counter = 4; };
-  
+
 instance of TST_Lineage
 {
     parent = "TST_Person.name=\"Mike\"";

@@ -30,7 +30,7 @@
 // Author: Denise Eckstein, Hewlett-Packard Company
 //           (denise_eckstein@hp.com)
 //
-// Modified By: 
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 

@@ -99,15 +99,15 @@ WsmResponse* CimToWsmResponseMapper::mapToWsmResponse(
                 break;
 
             case WS_ENUMERATION_ENUMERATE:
-                if (((WsenEnumerateRequest*) wsmRequest)->enumerationMode == 
+                if (((WsenEnumerateRequest*) wsmRequest)->enumerationMode ==
                     WSEN_EM_OBJECT)
                 {
                     wsmResponse.reset(_mapToWsenEnumerateResponseObject(
                         (WsenEnumerateRequest*) wsmRequest,
                         (CIMEnumerateInstancesResponseMessage*) message));
                 }
-                else if (((WsenEnumerateRequest*) 
-                              wsmRequest)->enumerationMode == 
+                else if (((WsenEnumerateRequest*)
+                              wsmRequest)->enumerationMode ==
                          WSEN_EM_OBJECT_AND_EPR)
                 {
                     wsmResponse.reset(_mapToWsenEnumerateResponseObjectAndEPR(
@@ -238,7 +238,7 @@ WxfGetResponse* CimToWsmResponseMapper::_mapToWxfGetResponse(
 {
     WsmInstance wsmInstance;
 
-    convertCimToWsmInstance(response->getCimInstance(), wsmInstance, 
+    convertCimToWsmInstance(response->getCimInstance(), wsmInstance,
         wsmRequest->epr.getNamespace());
 
     WxfGetResponse* wsmResponse =
@@ -292,7 +292,7 @@ WxfDeleteResponse* CimToWsmResponseMapper::_mapToWxfDeleteResponse(
     return wsmResponse;
 }
 
-WsenEnumerateResponse* 
+WsenEnumerateResponse*
     CimToWsmResponseMapper::_mapToWsenEnumerateResponseObject(
     const WsenEnumerateRequest* wsmRequest,
     const CIMEnumerateInstancesResponseMessage* response)
@@ -317,7 +317,7 @@ WsenEnumerateResponse*
     return wsmResponse;
 }
 
-WsenEnumerateResponse* 
+WsenEnumerateResponse*
     CimToWsmResponseMapper::_mapToWsenEnumerateResponseObjectAndEPR(
     const WsenEnumerateRequest* wsmRequest,
     const CIMEnumerateInstancesResponseMessage* response)
@@ -348,7 +348,7 @@ WsenEnumerateResponse*
     return wsmResponse;
 }
 
-WsenEnumerateResponse* 
+WsenEnumerateResponse*
 CimToWsmResponseMapper::_mapToWsenEnumerateResponseEPR(
     const WsenEnumerateRequest* wsmRequest,
     const CIMEnumerateInstanceNamesResponseMessage* response)
@@ -550,8 +550,8 @@ void CimToWsmResponseMapper::convertCimToWsmValue(
                     {
                         WsmInstance wsmInstance;
                         convertCimToWsmInstance(
-                            CIMInstance(cimObjects[i]), 
-                            wsmInstance, 
+                            CIMInstance(cimObjects[i]),
+                            wsmInstance,
                             nameSpace);
                         wsmInstances.append(wsmInstance);
                     }
@@ -747,17 +747,17 @@ void CimToWsmResponseMapper::convertCimToWsmDatetime(
     const char* cimStr = (const char*) cimCStrDT;
     Uint32 firstAsteriskPos = cimStrDT.find('*');
 
-    // DSP0230. 
+    // DSP0230.
     // 1. If CIM datetime string contains ":", use Interval cim:cimDateTime
     // element.
     // 2. If CIM datetime string contains "+" or "-" and does not contain any
     // asterisks, use Datetime cim:cimDateTime element.
-    // 3. If CIM datetime string contains "+" or "-" and no asterisks in 
+    // 3. If CIM datetime string contains "+" or "-" and no asterisks in
     // the hhmmss.mmmmmm portion, and only asterisks in the yyyymmdd portion,
     // ATTN: this makes no sense. yyyymmdd cannot be wildcarded unless
-    // previous sections are wildcarded. 
+    // previous sections are wildcarded.
     // use Time cim:cimDateTime element.
-    // 4. If CIM datetime string contains "+" or "-" and no asterisks in the 
+    // 4. If CIM datetime string contains "+" or "-" and no asterisks in the
     // yyyymmdd portion, and only asterisks in the hhmmss.mmmmmm portion,
     // use Date cim:cimDateTime element.
     // 5. In all other cases use CIM_DateTime element.
@@ -766,9 +766,9 @@ void CimToWsmResponseMapper::convertCimToWsmDatetime(
     {
         // Interval
         Uint32 days = 0, hrs = 0, mins = 0, secs = 0, msecs = 0;
-        int conversions = sscanf(cimStr, "%8u%2u%2u%2u.%u:000", 
+        int conversions = sscanf(cimStr, "%8u%2u%2u%2u.%u:000",
             &days, &hrs, &mins, &secs, &msecs);
-        if (conversions == 0 && cimStr[0] == '*') 
+        if (conversions == 0 && cimStr[0] == '*')
             days = 1;
 
         wsmDT = "P";
@@ -777,7 +777,7 @@ void CimToWsmResponseMapper::convertCimToWsmDatetime(
             wsmDT.append(Uint32ToString(buffer, days, size));
             wsmDT.append(Char16('D'));
         }
-        if (conversions >= 2 ) 
+        if (conversions >= 2 )
         {
             wsmDT.append(Char16('T'));
             if (hrs)
@@ -791,7 +791,7 @@ void CimToWsmResponseMapper::convertCimToWsmDatetime(
             wsmDT.append(Uint32ToString(buffer, mins, size));
             wsmDT.append(Char16('M'));
         }
-        if (conversions >= 4 && secs) 
+        if (conversions >= 4 && secs)
         {
             wsmDT.append(Uint32ToString(buffer, secs, size));
             if (conversions >= 5 && msecs)
@@ -802,15 +802,15 @@ void CimToWsmResponseMapper::convertCimToWsmDatetime(
             wsmDT.append(Char16('S'));
         }
     }
-    else if ((cimStr[21] == '+' || cimStr[21] == '-') && 
+    else if ((cimStr[21] == '+' || cimStr[21] == '-') &&
              firstAsteriskPos == PEG_NOT_FOUND)
     {
         // Datetime
         Uint32 year = 0, month = 0, day = 0, utcoff = 0,
             hrs = 0, mins = 0, secs = 0, msecs = 0;
         char sign;
-        int conversions = sscanf(cimStr, 
-            "%4u%2u%2u%2u%2u%2u.%6u%c%3u", 
+        int conversions = sscanf(cimStr,
+            "%4u%2u%2u%2u%2u%2u.%6u%c%3u",
             &year, &month, &day, &hrs, &mins, &secs, &msecs, &sign, &utcoff);
 
         PEGASUS_ASSERT(conversions == 9);
@@ -819,12 +819,12 @@ void CimToWsmResponseMapper::convertCimToWsmDatetime(
         {
             if (msecs)
             {
-                sprintf(buffer, "%.4u-%.2u-%.2uT%.2u:%.2u:%.2u.%.6uZ", 
+                sprintf(buffer, "%.4u-%.2u-%.2uT%.2u:%.2u:%.2u.%.6uZ",
                     year, month, day, hrs, mins, secs, msecs);
             }
             else
             {
-                sprintf(buffer, "%.4u-%.2u-%.2uT%.2u:%.2u:%.2uZ", 
+                sprintf(buffer, "%.4u-%.2u-%.2uT%.2u:%.2u:%.2uZ",
                     year, month, day, hrs, mins, secs);
             }
         }
@@ -835,24 +835,24 @@ void CimToWsmResponseMapper::convertCimToWsmDatetime(
             if (msecs)
             {
                 sprintf(buffer, "%.4u-%.2u-%.2uT%.2u:%.2u:%.2u.%.6u%c%.2u:%.2u",
-                    year, month, day, hrs, mins, secs, msecs, 
+                    year, month, day, hrs, mins, secs, msecs,
                     sign, utch, utcm);
             }
             else
             {
-                sprintf(buffer, "%.4u-%.2u-%.2uT%.2u:%.2u:%.2u%c%.2u:%.2u", 
+                sprintf(buffer, "%.4u-%.2u-%.2uT%.2u:%.2u:%.2u%c%.2u:%.2u",
                     year, month, day, hrs, mins, secs, sign, utch, utcm);
             }
         }
         wsmDT = buffer;
     }
-    else if ((cimStr[21] == '+' || cimStr[21] == '-') && 
+    else if ((cimStr[21] == '+' || cimStr[21] == '-') &&
              firstAsteriskPos == 8)
     {
         // Date
         Uint32 year = 0, month = 0, day = 0, utcoff = 0;
         char sign;
-        int conversions = sscanf(cimStr, "%4u%2u%2u******.******%c%3u", 
+        int conversions = sscanf(cimStr, "%4u%2u%2u******.******%c%3u",
             &year, &month, &day, &sign, &utcoff);
 
         PEGASUS_ASSERT(conversions == 5);
@@ -865,7 +865,7 @@ void CimToWsmResponseMapper::convertCimToWsmDatetime(
         {
             Uint32 utch = utcoff / 60;
             Uint32 utcm = utcoff % 60;
-            sprintf(buffer, "%.4u-%.2u-%.2u%c%.2u:%.2u", 
+            sprintf(buffer, "%.4u-%.2u-%.2u%c%.2u:%.2u",
                 year, month, day, sign, utch, utcm);
         }
         wsmDT = buffer;

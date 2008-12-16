@@ -75,17 +75,17 @@ ifdef PEGASUS_HAS_MESSAGES
 endif
 
 g11ntest:
-	$(PROGRAM) $(LANGUAGE_OPTIONS) 
+	$(PROGRAM) $(LANGUAGE_OPTIONS)
 
 # IPv6 Tests.
 
 ifeq ($(PEGASUS_TEST_IPV6), true)
-	@$(ECHO) "Testing with IPv6 loop-back address."        
+	@$(ECHO) "Testing with IPv6 loop-back address."
 	$(PROGRAM) $(LANGUAGE_OPTIONS) [::1]:5988 -l [::1]:2003
 endif
 
 #
-# Testing for ipv4 mapped ipv6 addresses. 
+# Testing for ipv4 mapped ipv6 addresses.
 # ATTN: These tests are not avilable on windows platforms as windows does not
 # support ipv4 mapped ipv6 addresses in XP and 2003. At present these tests
 # are enabled only on UNIX platforms.

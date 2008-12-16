@@ -142,9 +142,9 @@ void IndicationStressTestConsumer::consumeIndication(
         return;
     }
 
-    fprintf(_indicationLogHandle, 
+    fprintf(_indicationLogHandle,
         "+++++ Received Indication +++++\n");
-    fprintf(_indicationLogHandle, 
+    fprintf(_indicationLogHandle,
             "userName = %s\n", (const char *)userName.getCString());
 
     for (Uint8 i=0; i < indicationInstance.getPropertyCount(); i++)
@@ -251,7 +251,7 @@ void IndicationStressTestConsumer::consumeIndication(
                     {
                         CIMDateTime propertyValueDateTime;
                         propertyValue.get(propertyValueDateTime);
-                        fprintf(_indicationLogHandle, "%s\n", 
+                        fprintf(_indicationLogHandle, "%s\n",
                             (const char *)propertyValueDateTime.
                                 toString().getCString());
                         break;

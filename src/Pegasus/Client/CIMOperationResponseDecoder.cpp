@@ -436,7 +436,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
     dataStore->setResponseSize(contentLength);
     dataStore->setEndNetworkTime(networkEndTime);
-    _handleMethodResponse(content, contentLength, 
+    _handleMethodResponse(content, contentLength,
         httpMessage->contentLanguages, cimReconnect, binaryResponse);
 }
 
@@ -1207,7 +1207,7 @@ CIMEnumerateInstancesResponseMessage*
     }
 
     CIMEnumerateInstancesResponseMessage* msg;
-    
+
     msg = new CIMEnumerateInstancesResponseMessage(
         messageId,
         cimException,

@@ -218,7 +218,7 @@ FILE* FindFile(
             return fp;
         }
     }
-    
+
     // Search the include path for the file:
 
     vector<string>::const_iterator first = includePath.begin();

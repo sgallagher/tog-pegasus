@@ -83,9 +83,9 @@ int main(int argc, char ** argv)
         ret = processCmdLine(argc, argv, cmdline, cerr);
     }
     catch (ArgumentErrorsException &e)
-    {   
+    {
         cerr << argv[0] << ": " << e.getMessage() << endl;
-                
+
         parms.msg_id = "Compiler.cimmofMessages.ERR_USAGE";
         parms.default_msg =
             "Use '--help' to obtain command syntax.";
@@ -120,7 +120,7 @@ int main(int argc, char ** argv)
         if (!umeCheckCmdAuthorities(cmdline.quiet()))
             return 1;
     }
-#endif 
+#endif
 
     if (ret)
     {

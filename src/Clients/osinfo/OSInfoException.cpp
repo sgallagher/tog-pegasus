@@ -37,48 +37,48 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 /**
-  
+
     Default exception identifier.  This identifier is used if the specified
     identifier is out of range.  This identifier corresponds to a default
     (generic) message in the array of exception message strings.
-  
+
  */
 const Uint32 OSInfoException::DEFAULT_ID = 0;
 
 /**
-  
+
     Minimum valid exception identifier.
-  
+
  */
 const Uint32 OSInfoException::MIN_ID = DEFAULT_ID;
 
 /**
-  
+
    Exception identifier indicating a connection failure.
-  
+
  */
 
 const Uint32 OSInfoException::CONNECT_FAIL = 1;
 
 /**
-  
+
     Exception identifier indicating timed out waiting for response.
-  
+
  */
 const Uint32 OSInfoException::TIMED_OUT = 2;
 
 /**
-  
+
     Exception identifier indicating invalid input.
-  
+
  */
 const Uint32 OSInfoException::INVALID_INPUT = 3;
 
 /**
-  
+
     Maximum valid exception identifier.  This value must be updated when
     a new exception identifier and message are added.
-  
+
  */
 const Uint32 OSInfoException::MAX_ID = OSInfoException::INVALID_INPUT;
 
@@ -99,41 +99,41 @@ const char*  OSInfoException::_messageStrings [] =
 };
 
 /**
-  
+
     Constructs a OSInfoException with a message corresponding to the
     specified exception ID.
-  
+
     @param  ID                the integer exception identifier
-  
+
  */
-OSInfoException::OSInfoException (Uint32 ID) : CommandException 
+OSInfoException::OSInfoException (Uint32 ID) : CommandException
     (_messageStrings [(ID > MAX_ID) ? DEFAULT_ID : ID])
 {
 }
 
 /**
-  
+
     Constructs a OSInfoException with a message corresponding to the
     specified ID, appended with the specified String.
-  
+
     @param  ID                the integer exception identifier
     @param  appendString      the string to append to the exception message
-  
+
  */
-OSInfoException::OSInfoException (Uint32 ID, const String& appendString) : 
+OSInfoException::OSInfoException (Uint32 ID, const String& appendString) :
     CommandException (_messageStrings[(ID > MAX_ID) ? DEFAULT_ID : ID])
 {
     _rep->message.append (appendString);
 }
 
 /**
-  
+
     Constructs a OSInfoException with the specified message.
-  
+
     @param  exceptionMessage  a string containing the exception message
-  
+
  */
-OSInfoException::OSInfoException (const String& exceptionMessage) : 
+OSInfoException::OSInfoException (const String& exceptionMessage) :
     CommandException (exceptionMessage)
 {
 }

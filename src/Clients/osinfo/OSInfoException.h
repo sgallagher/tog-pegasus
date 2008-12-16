@@ -27,7 +27,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //         (carolann_graves@hp.com)
 //
 // Modified By: Sushma Fernandes, Hewlett-Packard Company
@@ -42,109 +42,109 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** 
-  
-    OSInfoException signals that an exception has occurred in executing the 
-    osinfo command.  
-  
+/**
+
+    OSInfoException signals that an exception has occurred in executing the
+    osinfo command.
+
     @author  Hewlett-Packard Company
-  
+
  */
-class OSInfoException : public CommandException 
+class OSInfoException : public CommandException
 {
 public:
     /**
-      
+
         Constructs an OSInfoException with a message corresponding to the
         specified exception ID.
-      
+
         @param  ID                the integer exception identifier
-      
+
      */
     OSInfoException (Uint32 ID);
 
     /**
-      
+
         Constructs an OSInfoException with a message corresponding to the
         specified ID, appended with the specified String.
-      
+
         @param  ID                the integer exception identifier
         @param  appendString      the string to append to the exception message
-      
+
      */
     OSInfoException (Uint32 ID, const String& appendString);
 
     /**
-      
+
         Constructs an OSInfoException with the specified message.
-      
+
         @param  exceptionMessage  a string containing the exception message
-      
+
      */
     OSInfoException (const String& exceptionMessage);
 
     //
     //  Exception identifiers
     //
-    //  These are used to index into the messageStrings array to retrieve the 
-    //  appropriate exception message string.  When a new identifier is added, 
+    //  These are used to index into the messageStrings array to retrieve the
+    //  appropriate exception message string.  When a new identifier is added,
     //  the messageStrings array and MAX_ID must be updated appropriately.
     //
-    
+
     /**
-      
+
         Default exception identifier.  This identifier is used if the specified
         identifier is out of range.  This identifier corresponds to a default
         (generic) message in the array of exception message strings.
-      
+
      */
     static const Uint32 DEFAULT_ID;
-    
+
     /**
-      
+
         Minimum valid exception identifier.
-      
+
      */
     static const Uint32 MIN_ID;
 
     /**
-      
+
         Exception identifier indicating a connection failure.
-      
+
      */
-    
+
     static const Uint32 CONNECT_FAIL;
-    
+
     /**
-      
+
         Exception identifier indicating timed out waiting for response.
-      
+
      */
     static const Uint32 TIMED_OUT;
-    
+
     /**
-      
+
         Exception identifier indicating invalid input.
-      
+
      */
     static const Uint32 INVALID_INPUT;
-    
+
     /**
 
         Maximum valid exception identifier.  This value must be updated when
         a new exception identifier and message are added.
-      
+
      */
     static const Uint32 MAX_ID;
 
 private:
     /**
-      
+
         Exception message strings.  The exception identifier is used as an
-        index into this array to retrieve the appropriate exception message 
+        index into this array to retrieve the appropriate exception message
         string.  When a new identifier is added, this array must be updated
         appropriately.
-      
+
      */
     static const char*  _messageStrings [];
 };

@@ -37,11 +37,11 @@ class Str
 {
 public:
     Str(const String& s) : _cstr(s.getCString()) { }
-    Str(const CIMName& n) : _cstr(n.getString().getCString()) { } 
-    Str(const CIMNamespaceName& n) : _cstr(n.getString().getCString()) { } 
-    Str(const Exception& e) : _cstr(e.getMessage().getCString()) { } 
+    Str(const CIMName& n) : _cstr(n.getString().getCString()) { }
+    Str(const CIMNamespaceName& n) : _cstr(n.getString().getCString()) { }
+    Str(const Exception& e) : _cstr(e.getMessage().getCString()) { }
     Str(const CIMDateTime& x) : _cstr(x.toString().getCString()) { }
-    Str(const CIMObjectPath& x) : _cstr(x.toString().getCString()) { } 
+    Str(const CIMObjectPath& x) : _cstr(x.toString().getCString()) { }
     const char* operator*() const { return (const char*)_cstr; }
     operator const char*() const { return (const char*)_cstr; }
 private:
@@ -121,7 +121,7 @@ static void _writeHeaderFile(const String& ns)
 
     if (!os)
     {
-        fprintf(stderr, "cimmofl: failed to open \"%s\" for write\n", 
+        fprintf(stderr, "cimmofl: failed to open \"%s\" for write\n",
             *Str(path));
         exit(1);
     }
@@ -190,8 +190,8 @@ static bool _is_printable(const char* s)
 
 template<class C>
 static void _writeFlags(
-    FILE* os, 
-    const C& c, 
+    FILE* os,
+    const C& c,
     bool isProperty,
     bool isParameter)
 {
@@ -884,7 +884,7 @@ static int _writeValue(FILE* os, const CIMValue& cv, bool quote)
 //
 //==============================================================================
 
-cimmofMRR::cimmofMRR(bool discard) : 
+cimmofMRR::cimmofMRR(bool discard) :
     _discard(discard), _os(0)
 {
 }
@@ -899,7 +899,7 @@ void cimmofMRR::addClass(
 {
     if (_findClass(cimClass.getClassName()) != PEG_NOT_FOUND)
     {
-        _throw(CIM_ERR_ALREADY_EXISTS, "class already defined: %s:%s", 
+        _throw(CIM_ERR_ALREADY_EXISTS, "class already defined: %s:%s",
             *Str(nameSpace), *Str(cimClass.getClassName()));
     }
 
@@ -912,7 +912,7 @@ void cimmofMRR::addQualifier(
 {
     if (_findQualifier(cimQualifierDecl.getName()) != PEG_NOT_FOUND)
     {
-        _throw(CIM_ERR_ALREADY_EXISTS, "qualifier already defined: %s:%s", 
+        _throw(CIM_ERR_ALREADY_EXISTS, "qualifier already defined: %s:%s",
             *Str(nameSpace), *Str(cimQualifierDecl.getName()));
     }
 
@@ -960,7 +960,7 @@ CIMClass cimmofMRR::getClass(
 
     if (pos == PEG_NOT_FOUND)
     {
-        _throw(CIM_ERR_NOT_FOUND, 
+        _throw(CIM_ERR_NOT_FOUND,
             "undefined class: %s:%s", *Str(nameSpace), *Str(className));
     }
 
@@ -975,7 +975,7 @@ void cimmofMRR::modifyClass(
 
     if (pos == PEG_NOT_FOUND)
     {
-        _throw(CIM_ERR_NOT_FOUND, "undefined class: %s:%s", 
+        _throw(CIM_ERR_NOT_FOUND, "undefined class: %s:%s",
             *Str(nameSpace), *Str(cimClass.getClassName()));
     }
 
@@ -987,7 +987,7 @@ void cimmofMRR::createNameSpace(
 {
     if (_nameSpace == nameSpace)
     {
-        _throw(CIM_ERR_ALREADY_EXISTS, "namespace already exists: %s", 
+        _throw(CIM_ERR_ALREADY_EXISTS, "namespace already exists: %s",
             *Str(nameSpace));
     }
 
@@ -1053,8 +1053,8 @@ void cimmofMRR::_loadClassFile(
 
         if (_findClass(start) == PEG_NOT_FOUND)
         {
-            fprintf(stderr, 
-                "cimmofl: unknown class on line %d of %s: \"%s\"\n", 
+            fprintf(stderr,
+                "cimmofl: unknown class on line %d of %s: \"%s\"\n",
                 line, *Str(path), start);
             exit(1);
         }
@@ -1136,7 +1136,7 @@ void cimmofMRR::finish()
 
     if (!_os)
     {
-        fprintf(stderr, "cimmofl: failed to open \"%s\" for write\n", 
+        fprintf(stderr, "cimmofl: failed to open \"%s\" for write\n",
             *Str(path));
         exit(1);
     }
@@ -1178,7 +1178,7 @@ void cimmofMRR::finish()
 
         if (!os)
         {
-            fprintf(stderr, "cimmofl: failed to open \"%s\" for write\n", 
+            fprintf(stderr, "cimmofl: failed to open \"%s\" for write\n",
                 *Str(path));
             exit(1);
         }
@@ -1187,7 +1187,7 @@ void cimmofMRR::finish()
 
         if (fwrite(out.getData(), 1, out.size(), os) != out.size())
         {
-            fprintf(stderr, "cimmofl: failed to write to \"%s\"\n", 
+            fprintf(stderr, "cimmofl: failed to write to \"%s\"\n",
                 *Str(path));
             exit(1);
         }
@@ -1546,7 +1546,7 @@ void cimmofMRR::_writeParameter(
     CIMName pn = cp.getName();
     CIMType ct = cp.getType();
 
-    String path = 
+    String path =
         "_" + cn.getString() + "_" + mn.getString() + "_" + pn.getString();
 
     _writeQualifierArray(path, _Qualifiers(cp));

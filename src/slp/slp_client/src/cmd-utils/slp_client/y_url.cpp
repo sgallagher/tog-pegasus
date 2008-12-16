@@ -143,7 +143,7 @@
 /* prototypes and globals go here */
 void urlerror(const char *, ...);
 int32 urlwrap(void);
-int32 urllex(void);   
+int32 urllex(void);
 int32 urlparse(void);
 void url_close_lexer(uint32 handle);
 size_t url_init_lexer(const char *s);
@@ -154,7 +154,7 @@ static lslpAtomList siteHead = {&siteHead, &siteHead, TRUE, NULL, 0};
 static lslpAtomList pathHead = {&pathHead, &pathHead, TRUE, NULL, 0};
 static lslpAtomList attrHead = {&attrHead, &attrHead, TRUE, NULL, 0};
 
-lslpAtomizedURL urlHead = 
+lslpAtomizedURL urlHead =
 {
     &urlHead,
     &urlHead,
@@ -1196,7 +1196,7 @@ yyparse ()
 #endif
 #endif
 {
-  
+
   int yystate;
   int yyn;
   int yyresult;
@@ -1681,7 +1681,7 @@ yyreduce:
   case 12:
 #line 332 "url.y"
     {
-  
+
 			if ((yyvsp[(1) - (1)]._s) != NULL)
 			{
 				if(NULL != ((yyval._atl) = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
@@ -1693,7 +1693,7 @@ yyreduce:
 			}
 			else
 				(yyval._atl) = NULL;
-  
+
 ;}
     break;
 
@@ -2195,7 +2195,7 @@ yyreturn:
 
 
 #line 563 "url.y"
- 
+
 
 
 lslpAtomList *lslpAllocAtom(void)
@@ -2210,7 +2210,7 @@ lslpAtomList *lslpAllocAtom(void)
 
 lslpAtomList *lslpAllocAtomList(void)
 {
-	lslpAtomList *temp =lslpAllocAtom(); 
+	lslpAtomList *temp =lslpAllocAtom();
 	if (temp != NULL)
 		temp->isHead = TRUE;
 	return(temp);
@@ -2234,7 +2234,7 @@ void lslpFreeAtomList(lslpAtomList *l, int32 flag)
 	{
 		temp = l->next;
 		temp->prev->next = temp->next;
-		temp->next->prev = temp->prev; 
+		temp->next->prev = temp->prev;
 		lslpFreeAtom(temp);
 	}
 	if (flag)
@@ -2315,7 +2315,7 @@ void lslpInitURLList(void)
 
 void lslpCleanUpURLLists(void)
 {
-  
+
   lslpFreeAtomList(&srvcHead, 0);
   lslpFreeAtomList(&siteHead, 0);
   lslpFreeAtomList(&pathHead, 0);
@@ -2326,13 +2326,13 @@ void lslpCleanUpURLLists(void)
 lslpAtomizedURL *_lslpDecodeURLs(char *u[], int32 count)
 {
   int32 i;
-  
+
   uint32 lexer = 0;
   lslpAtomizedURL *temp = NULL;
   assert(u != NULL && u[count - 1] != NULL);
   lslpInitURLList();
   lslpInitAtomLists();
-  
+
   for (i = 0; i < count; i++) {
     if (NULL == u[i])
       break;
@@ -2347,8 +2347,8 @@ lslpAtomizedURL *_lslpDecodeURLs(char *u[], int32 count)
       _LSLP_LINK_HEAD(temp, &urlHead);
     }
   }
-  
+
   return(temp);	
-}	 
+}	
 
 

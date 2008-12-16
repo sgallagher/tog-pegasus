@@ -29,7 +29,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-/* This is a simplistic display program for the CIMOM performance 
+/* This is a simplistic display program for the CIMOM performance
     characteristics.
     This version simply gets the instances of the performace class and displays
     the resulting average counts.
@@ -214,7 +214,7 @@ void GetOptions(
 {
     static struct OptionRow optionsTable[] =
     //The values in the OptionRows below are:
-    //optionname, defaultvalue, is required, type, domain, domainsize, flag, 
+    //optionname, defaultvalue, is required, type, domain, domainsize, flag,
     //  hlpmsg
     {
         {"port", "5988", false, Option::INTEGER, 0, 0, "p",
@@ -383,7 +383,7 @@ int main(int argc, char** argv)
     // line.
 
     OptionManager om;
-    
+
     try
     {
         String testHome = ".";
@@ -485,7 +485,7 @@ int main(int argc, char** argv)
 
         // First print the header for table of values
         printf("%-25s%10s %10s %10s %10s %10s\n",
-            "Operation", "Number of", "Server", "Provider", "Request", 
+            "Operation", "Number of", "Server", "Provider", "Request",
             "Response");
 
         printf("%-25s%10s %10s %10s %10s %10s\n",
@@ -512,7 +512,7 @@ int main(int argc, char** argv)
             // Note that for the moment it is simply an integer.
             Uint32 pos;
             CIMProperty p;
-            // Operation Type is decoded as const char*, hence type has 
+            // Operation Type is decoded as const char*, hence type has
             // changed from string to const char*
             const char* statName = NULL;
             CIMValue v;
@@ -534,7 +534,7 @@ int main(int argc, char** argv)
 
             // Get number of requests property - "NumberofOperations"
             Uint64 numberOfRequests = 0;
-            if ((pos = instance.findProperty("NumberOfOperations")) != 
+            if ((pos = instance.findProperty("NumberOfOperations")) !=
                 PEG_NOT_FOUND)
             {
 
@@ -563,7 +563,7 @@ int main(int argc, char** argv)
             Sint64 averageCimomTime = 0;
             Uint64 totalCT = 0;
 
-            if ((pos = instance.findProperty("CimomElapsedTime")) != 
+            if ((pos = instance.findProperty("CimomElapsedTime")) !=
                 PEG_NOT_FOUND)
             {
                 p = (instance.getProperty(pos));
@@ -576,7 +576,7 @@ int main(int argc, char** argv)
                 }
                 else
                 {
-                    cerr << "Error Property value " << "CimomElapsedTime" << 
+                    cerr << "Error Property value " << "CimomElapsedTime" <<
                         endl;
                 }
             }
@@ -595,7 +595,7 @@ int main(int argc, char** argv)
             Uint64 averageProviderTime = 0;
             Uint64 totalPT = 0;
 
-            if ((pos = instance.findProperty("ProviderElapsedTime")) != 
+            if ((pos = instance.findProperty("ProviderElapsedTime")) !=
                 PEG_NOT_FOUND)
             {
                 p = (instance.getProperty(pos));
@@ -636,7 +636,7 @@ int main(int argc, char** argv)
                 }
                 else
                 {
-                    cerr << "RequestSize is not of type CIMTYPE_SINT64" << 
+                    cerr << "RequestSize is not of type CIMTYPE_SINT64" <<
                         endl ;
                 }
             }

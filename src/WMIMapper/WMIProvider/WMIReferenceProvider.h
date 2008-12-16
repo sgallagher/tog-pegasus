@@ -47,8 +47,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 class WMICollector;
 
-class PEGASUS_WMIPROVIDER_LINKAGE WMIReferenceProvider : 
-    public WMIBaseProvider  
+class PEGASUS_WMIPROVIDER_LINKAGE WMIReferenceProvider :
+    public WMIBaseProvider
 {
 public:
     WMIReferenceProvider();
@@ -84,8 +84,8 @@ protected:
 
 private:
     String getReferenceQueryString(
-        const CIMObjectPath& objectName, 
-        const String& resultClass, 
+        const CIMObjectPath& objectName,
+        const String& resultClass,
         const String& role);
 
 };

@@ -269,7 +269,7 @@ static CMPISelectExp* construct_instance(
               {
                   PROV_LOG ("---- %s (chars)", data.value.chars);
                   rc_setProperty = _setProperty (inst, data.value.chars);
-                  if (rc_setProperty) 
+                  if (rc_setProperty)
                   {
                     PROV_LOG ("--- Error finding the property");
                   // At which point we would leave the function - as we cannot
@@ -284,7 +284,7 @@ static CMPISelectExp* construct_instance(
                 {
                   PROV_LOG ("---- %s (string)",
                             CMGetCharsPtr (data.value.string, &rc));
-                  // The _setProperty is a simple function to set 
+                  // The _setProperty is a simple function to set
                   // _only_ properties that are needed.
                   rc_setProperty =
                     _setProperty (inst, CMGetCharsPtr (data.value.string, &rc));

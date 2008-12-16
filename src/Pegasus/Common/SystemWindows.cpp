@@ -1033,11 +1033,11 @@ String System::getErrorMSG_NLS(int errorCode,int errorCode2)
             FORMAT_MESSAGE_ALLOCATE_BUFFER |
             FORMAT_MESSAGE_FROM_SYSTEM |
             FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL, 
+            NULL,
             errorCode,
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-            (LPTSTR)&winErrorMsg, 
-            0, 
+            (LPTSTR)&winErrorMsg,
+            0,
             NULL))
     {
         MessageLoaderParms parms(
@@ -1045,7 +1045,7 @@ String System::getErrorMSG_NLS(int errorCode,int errorCode2)
             "$0 (error code $1)",(char*)winErrorMsg,errorCode);
         LocalFree(winErrorMsg);
         return MessageLoader::getMessage(parms);
-    } 
+    }
 
     MessageLoaderParms parms(
         "Common.System.ERROR_MESSAGE.STANDARD",
@@ -1067,11 +1067,11 @@ String System::getErrorMSG(int errorCode,int errorCode2)
             FORMAT_MESSAGE_ALLOCATE_BUFFER |
             FORMAT_MESSAGE_FROM_SYSTEM |
             FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL, 
+            NULL,
             errorCode,
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-            (LPTSTR)&winErrorMsg, 
-            0, 
+            (LPTSTR)&winErrorMsg,
+            0,
             NULL))
     {
         buffer.append((char*)winErrorMsg);

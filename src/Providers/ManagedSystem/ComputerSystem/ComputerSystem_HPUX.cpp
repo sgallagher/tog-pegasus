@@ -53,7 +53,7 @@
 #ifndef _CS_MACHINE_SERIAL
 # define _CS_MACHINE_SERIAL 10005
 #endif
-#ifndef _CS_MACHINE_IDENT 
+#ifndef _CS_MACHINE_IDENT
 # define _CS_MACHINE_IDENT 10003
 #endif
 
@@ -91,13 +91,13 @@ Array<String> _statusDescriptions;
 # define HPUX_OEM_NETFN1 0x32
 # define HPUX_CMD_GET_PHYS_SYS_VAR 0x59
 // Structure used for passing the ioctl request
-typedef struct 
+typedef struct
 {
     BYTE subCmd;
 } IpmiGetPhysSysVarReqT;
 
 // Structure used for passing the ioctl response
-typedef struct 
+typedef struct
 {
     BYTE status;
     BYTE data[18];
@@ -286,8 +286,8 @@ Boolean ComputerSystem::getPowerState(CIMProperty& p)
     // hardcoded
     /*
         ValueMap {"1", "2", "3", "4", "5", "6", "7", "8"},
-        Values {"Full Power", "Power Save - Low Power Mode", 
-                "Power Save - Standby", "Power Save - Other", 
+        Values {"Full Power", "Power Save - Low Power Mode",
+                "Power Save - Standby", "Power Save - Other",
                 "Power Cycle", "Power Off", "Hibernate", "Soft Off"}
     */
     // Full Power on PA-RISC!!
@@ -355,7 +355,7 @@ Boolean ComputerSystem::setSecondaryOwnerPager(const String&)
 
 Boolean ComputerSystem::getSerialNumber(CIMProperty& p)
 {
-    p = CIMProperty(PROPERTY_SERIAL_NUMBER, _serialNumber); 
+    p = CIMProperty(PROPERTY_SERIAL_NUMBER, _serialNumber);
     return true;
 }
 
@@ -373,7 +373,7 @@ Boolean ComputerSystem::getElementName(CIMProperty& p)
 }
 
 #ifdef HPUX_USE_IPMI_ID
-//Generic function to fetch the Physical Serial number 
+//Generic function to fetch the Physical Serial number
 //and UUID from the IPMI Interface
 //using the ioctl calls.
 int getPhysSysVar(int fd, BYTE varCmd, BYTE * buf, int len)
@@ -437,7 +437,7 @@ int getPhysSysVar(int fd, BYTE varCmd, BYTE * buf, int len)
         return -1;
     }
 
-    if (buf) 
+    if (buf)
     {
         memcpy(buf, sysVar->data, len);
     }
@@ -525,7 +525,7 @@ void ComputerSystem::initialize()
     if (!ipmiSNSupported)
 #endif
     {
-        // get serial number using confstr  
+        // get serial number using confstr
         bufSize = confstr(_CS_MACHINE_SERIAL, NULL, 0);
         if (bufSize != 0)
         {
@@ -544,13 +544,13 @@ void ComputerSystem::initialize()
             }
             delete [] serialNumber;
         }
-    } 
+    }
 #ifdef HPUX_USE_IPMI_ID
     // If fetching the UUID from IPMI fails get the UUID from confstr
     if (!ipmiUUIDSupported)
 #endif
     {
-        // get system UUID using confstr.  
+        // get system UUID using confstr.
         bufSize = confstr(_CS_MACHINE_IDENT, NULL, 0);
         if (bufSize != 0)
         {
@@ -689,7 +689,7 @@ void ComputerSystem::initialize()
         {
             continue;
         }
-    
+
         if (attrId == GenInfoSysPUser_E)
         {
             _primaryOwnerName = value;

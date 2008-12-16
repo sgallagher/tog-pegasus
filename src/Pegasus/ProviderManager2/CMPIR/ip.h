@@ -53,9 +53,9 @@ PEGASUS_EXPORT void accept_connections (
     void (* __connection_handler) ( int ),
     int multithreaded );
 
-PEGASUS_EXPORT int open_connection ( 
-    const char * address, 
-    int port, 
+PEGASUS_EXPORT int open_connection (
+    const char * address,
+    int port,
     int print_errmsg );
 
 int close_connection( int port );

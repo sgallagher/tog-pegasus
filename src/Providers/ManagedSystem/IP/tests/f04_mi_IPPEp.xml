@@ -29,7 +29,7 @@
               <KEYVALUE VALUETYPE="string">
 	      imaginary.system.hp.com
               </KEYVALUE>
-            </KEYBINDING>  
+            </KEYBINDING>
             </INSTANCENAME>
             <INSTANCE CLASSNAME="CIM_IPProtocolEndpoint">
 	     <QUALIFIER NAME="provider" TYPE="string" OVERRIDABLE="false"

@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# 
+#
 # The following set of commands tests the new Classes configured through the
 # sample provider interface.
-# 
+#
 # $1 = CIM Operation abbreviation accepted by the CLI command.
-# 
+#
 
 if [ ! -n "$1" ]
 then

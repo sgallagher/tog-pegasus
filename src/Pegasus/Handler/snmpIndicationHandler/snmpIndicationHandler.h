@@ -54,8 +54,8 @@ public:
     void handleIndication(
         const OperationContext& context,
         const String nameSpace,
-        CIMInstance& indication, 
-        CIMInstance& handler, 
+        CIMInstance& indication,
+        CIMInstance& handler,
         CIMInstance& subscription,
         ContentLanguageList& contentLanguages);
 

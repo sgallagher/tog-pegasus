@@ -47,7 +47,7 @@
 # define CMPI_THREAD_CDECL    __stdcall
 
 /*# define CMPI_THREAD_KEY_TYPE unsigned long int */
-/* CMPI_THREAD_KEY_TYPE is defined as void* in CMPI spec. Defining 
+/* CMPI_THREAD_KEY_TYPE is defined as void* in CMPI spec. Defining
    CMPI_THREAD_KEY_TYPE as 'unsigned long int' causing failure on 64-bit
    platforms. We make it as 'unsigned int' which is type compatible with
    pthread_key_t. This will not be problem for 32-bit platforms.

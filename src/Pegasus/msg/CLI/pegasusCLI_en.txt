@@ -15,7 +15,7 @@
 // messages (whereas the Server message prefix begins with "PGS").
 //
 // ***** IMPORTANT NOTE ***** IMPORTANT NOTE ***** IMPORTANT NOTE *****
-// 
+//
 // ==============================================================================
 
 
@@ -25,7 +25,7 @@
 	*          each message prior to the colon ':'.
 	*
  	*        Do not translate the following strings in this file:
-	*         'CGI', 'CIM', 'CIMOM', 'CIMMOF', 'CQL', 'DTD', 'HTTP', 'HTTPS', 'MOF', 'PEGASUS_HOME', 
+	*         'CGI', 'CIM', 'CIMOM', 'CIMMOF', 'CQL', 'DTD', 'HTTP', 'HTTPS', 'MOF', 'PEGASUS_HOME',
 	*         'root/cimv2', 'SNMP', 'SSL', 'URL', 'URI', 'UTF-8', 'XML',
 	*         'NT', 'Windows NT', 'OS/400',
 	*/
@@ -43,7 +43,7 @@ en:table {
         /**
 	* @note Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:
 	*    Do not translate the cimconfig command or options.  Just translate the text that explains the options.
-	*    When translating this message, make sure that each line fits in 80 characters, 
+	*    When translating this message, make sure that each line fits in 80 characters,
 	*    preserves the indenting,
 	*    and ends with a newline character (\n).
 	*/
@@ -56,7 +56,7 @@ en:table {
     "                 --help\n"
     "                 --version\n"
     "  Options:\n"
-    "     -g          - Get the value of the specified configuration property.\n" 
+    "     -g          - Get the value of the specified configuration property.\n"
     "     -c          - Use the current configuration.\n"
     "     -p          - Configuration user on the next CIM server start.\n"
     "     -d          - Use the default configuration.\n"
@@ -133,13 +133,13 @@ en:table {
 	*         substitution {1} value of the property (string)
  	*/
         Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUE_OF_PROPERTY_IS:string {"PGC00218: The planned value for property {0} is set to {1} in the CIM server."}
- 
+
 	/**
 	* @note PGC00219: substitution {0} name of the property (string)
 	*        substitution {1} value of the property (string)
- 	*/ 
+ 	*/
         Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_OF_PROPERTY_IS:string {"PGC00219: The current value for property {0} is set to {1} in the CIM server."}
-        
+
 	/**
 	* @note PGC00220: substitution {0} name of the property (string)
 	*         substitution {1} value of the property (string)
@@ -157,7 +157,7 @@ en:table {
 	* @note PGC00222: substitution {0} name of the property (string)
  	*/
         Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUE_OF_PROPERTY_CANNOT_BE_SET:string {"PGC00222: The current value for property {0} cannot be set because the CIM server is not running."}
-        
+
 	/**
 	* @note PGC00223: substitution {0} name of the property (string)
         *     This message has never been used
@@ -197,19 +197,19 @@ en:table {
         *     This message has never been used
         */
         Clients.CIMConfig.CIMConfigCommand.PLANNED_PROPERTY_SET_TO_DEFAULT:string {"PGC00229: The planned value for property {0} is set to the default value in the CIM server."}
-     
+
 	/**
 	* @note PGC00230: substitution {0} name of the property (string)
- 	*/   
+ 	*/
         Clients.CIMConfig.CIMConfigCommand.CURRENT_PROPERTY_SET_TO_DEFAULT:string {"PGC00230: The current value for property {0} is set to the default value in the CIM server."}
-        
+
 	/**
 	* @note PGC00231: substitution {0} name of the property (string)
- 	*/   
+ 	*/
         Clients.CIMConfig.CIMConfigCommand.PROPERTY_UNSET_IN_FILE:string {"PGC00231: The {0} property is reset in the configuration file."}
 
 	/**
-	* @note PGC00232: 
+	* @note PGC00232:
 	*        substitution {0} name of the property (string)
         *     This message has never been used
  	*/
@@ -236,7 +236,7 @@ en:table {
         *     This message has never been used
  	*/
         Clients.CIMConfig.CIMConfigCommand.PLANNED_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING:string {"PGC00236: The planned value of properties cannot be listed because the CIM server is not running."}
-        
+
         Clients.CIMConfig.CIMConfigCommand.CURRENT_VALUES_CANNOT_BE_LISTED_CIM_NOT_RUNNING:string {"PGC00237: The current value of properties cannot be listed because the CIM server is not running."}
 
 	/**
@@ -258,7 +258,7 @@ en:table {
 
 	// ==========================================================
         // Messages for CIMAuthCommand
-	//  Please use message prefix "PGC00400" 
+	//  Please use message prefix "PGC00400"
         // ==========================================================
 
 
@@ -299,14 +299,14 @@ en:table {
         Clients.cimauth.CIMAuthCommand.AUTH_ALREADY_EXISTS:string {"PGC00413: The specified user authorizations already exist."}
 
         Clients.cimauth.CIMAuthCommand.AUTH_NOT_FOUND:string {"PGC00414: The specified user authorizations are not found."}
-       
+
          /**
          * @note PGC00415:
          *       This message is no longer used as of version 2.7.0
          */
         Clients.cimauth.CIMAuthCommand.ERR_OPTION_NOT_SUPPORTED:string {"PGC00415: Invalid option. Use ''--help'' to obtain command syntax."}
-        
-        Clients.cimauth.CIMAuthCommand.ERR_USAGE:string {"PGC00416: Use ''--help'' to obtain command syntax."}        
+
+        Clients.cimauth.CIMAuthCommand.ERR_USAGE:string {"PGC00416: Use ''--help'' to obtain command syntax."}
 
 
 	// ==========================================================
@@ -318,7 +318,7 @@ en:table {
         /**
  	* @note Clients.cimprovider.CIMProviderCommand.MENU.STANDARD:
 	*    Do not translate the cimprovider command or options.  Just translate the text that explains the options.
-    *    When translating this message, make sure that each line fits in 80 characters, 
+    *    When translating this message, make sure that each line fits in 80 characters,
     *    preserves the indenting,
     *    and ends with a newline character (\n).
 	*/
@@ -331,8 +331,8 @@ en:table {
     "                   --help\n"
     "                   --version\n"
     "  Options:\n"
-    "      -d         - Disable the specified CIM provider module.\n" 
-    "      -e         - Enable the specified CIM provider module.\n" 
+    "      -d         - Disable the specified CIM provider module.\n"
+    "      -e         - Enable the specified CIM provider module.\n"
     "      -r         - Remove the registration for a provider (if specified)\n"
     "                   or for the specified provider module and all the providers\n"
     "                   it contains.\n"
@@ -420,7 +420,7 @@ en:table {
 
 	Clients.cimprovider.CIMProviderCommand.PENDING_REQUESTS_STOP_PROVIDER_FAILURE:string {"PGC00626: Failed to disable the provider module.  Provider is busy."} // 485
 
-        Clients.cimprovider.CIMProviderCommand.ERR_USAGE:string {"PGC00628: Use ''--help'' to obtain command syntax."}        
+        Clients.cimprovider.CIMProviderCommand.ERR_USAGE:string {"PGC00628: Use ''--help'' to obtain command syntax."}
 
 
 	// ==========================================================
@@ -491,7 +491,7 @@ en:table {
         */
         Clients.cimuser.CIMUserCommand.ERR_OPTION_NOT_SUPPORTED:string {"PGC00627: Invalid option. Use ''--help'' to obtain command syntax."}
 
-        Clients.cimuser.CIMUserCommand.ERR_USAGE:string {"PGC00628: Use ''--help'' to obtain command syntax."}        
+        Clients.cimuser.CIMUserCommand.ERR_USAGE:string {"PGC00628: Use ''--help'' to obtain command syntax."}
 
 	// ==========================================================
         // Messages for SSLTrustMgr
@@ -500,9 +500,9 @@ en:table {
 
         /**
  	* @note Clients.ssltrustmgr.SSLTrustMgr.MENU.STANDARD:
-	*    Do not translate the ssltrustmgr command or options, translate the text 
+	*    Do not translate the ssltrustmgr command or options, translate the text
 	*    that explains the options.
-        *    When translating this message, make sure that each line fits in 80 characters, 
+        *    When translating this message, make sure that each line fits in 80 characters,
         *    preserves the indenting,
         *    and ends with a newline character (\n).
 	*/
@@ -511,7 +511,7 @@ en:table {
         "ssltrustmgr -a -T trustpath -f certfile\n"
         "ssltrustmgr -a -R -f crlfile\n"
         "ssltrustmgr -r [ -t truststore | -T trustpath ] -i issuername -n serialnumber\n"
-        "ssltrustmgr -r -R -i issuername\n"  
+        "ssltrustmgr -r -R -i issuername\n"
         "ssltrustmgr -l [ -t truststore | -T trustpath ] [ -i issuername [ -n serialnumber ] ]\n"
         "ssltrustmgr -l -R [ -i issuername ]\n"
         "ssltrustmgr -v | --version\n"
@@ -605,7 +605,7 @@ en:table {
         * @note Clients.repupgrade.RepositoryUpgrade.MENU.STANDARD:
         *    Do not translate the repupgrade command or options, translate the text
         *    that explains the options.
-        *    When translating this message, make sure that each line fits in 80 characters, 
+        *    When translating this message, make sure that each line fits in 80 characters,
         *    preserves the indenting,
         *    and ends with a newline character (\n).
         */
@@ -626,7 +626,7 @@ en:table {
         *    Do not translate the repupgrade command or options, translate the text
         *    that explains the options.
         *    When translating this message, make sure that each line fits in 80 characters,
-        *    preserves the indenting, 
+        *    preserves the indenting,
         *    and ends with a newline character (\n).
         */
         Clients.repupgrade.RepositoryUpgradeRelease.MENU.STANDARD:string {
@@ -669,9 +669,9 @@ en:table {
         Clients.repupgrade.RepositoryUpgrade.LIBRARY_ENTRY_POINT_ERROR:string {"PGC01012: Error trying to get entry point symbol in library {0}."}
 
         Clients.repupgrade.RepositoryUpgrade.CLASS_XML_OUTPUT_FILE:string {"PGC01011: CIM XML request for this class has been logged to file {0}."}
- 
+
          Clients.repupgrade.RepositoryUpgrade.INSTANCE_XML_OUTPUT_FILE:string {"PGC01013: CIM XML request for this instance has been logged to file {0}."}
- 
+
          Clients.repupgrade.RepositoryUpgrade.QUALIFIER_XML_OUTPUT_FILE:string {"PGC01014: CIM XML request for this qualifier has been logged to file {0}."}
 
         Clients.repupgrade.RepositoryUpgrade.HIGHER_VERSION_OLD_CLASS:string {"PGC01015: Warning: The old repository contains a class {0} in namespace {1} that has a higher version number than the new repository class. This class may have to be manually imported."}
@@ -767,7 +767,7 @@ en:table {
 	*     Substitution {0} is a string containing a file name
 	*     Substitution {1} is a string containing a directory name
         */
-        Clients.cimreparchive.CIMRepositoryArchiveCommand.ARCHIVE_CREATED:string {"File \"{0}\" now contains an archive of directory \"{1}\"."}        
+        Clients.cimreparchive.CIMRepositoryArchiveCommand.ARCHIVE_CREATED:string {"File \"{0}\" now contains an archive of directory \"{1}\"."}
 
         Clients.cimreparchive.CIMRepositoryArchiveCommand.REQUIRED_ARGS_MISSING:string {"PGC01200: Required arguments missing."}
 
@@ -906,7 +906,7 @@ en:table {
         Clients.cimsub.CIMSubCommand.SUBSCRIPTION_ALREADY_DISABLED:string {"PGC01407: The subscription is already disabled."}
 
         Clients.cimsub.CIMSubCommand.SUBSCRIPTION_ALREADY_ENABLED:string {"PGC01408: The subscription is already enabled."}
-        
+
         /**
         * @note PGC01409:
         *       This message is no longer used as of version 2.7.0
@@ -948,7 +948,7 @@ en:table {
         "    -h xx  for <command> and <Example> for <xx> operation\n"
         "    -h     for this summary\n"
         "    --help for full help\n"}
-     
+
         Clients.cimcli.CIMCLIClient.COUNT_OPTION_HELP:string {
         "-count count. Expected count of objects returned if summary set.\n"
         "    Tests this count and display difference.\n"
@@ -1014,7 +1014,7 @@ en:table {
 
         Clients.cimcli.CIMCLIClient.GP_COMMAND_HELP:string {
         "gp    getProperty            TBD\n"}
-       
+
         Clients.cimcli.CIMCLIClient.SP_COMMAND_HELP:string {
         "sp    setProperty            TBD\n"}
 
@@ -1242,7 +1242,7 @@ en:table {
         "    made over HTTPS using -s. Default()\n"}
 
         Clients.cimcli.CIMCLIClient.CLIENTKEY_OPTION_HELP:string {
-        "--key  clientKey. Specifies a client private key.\n" 
+        "--key  clientKey. Specifies a client private key.\n"
         "    This is optional and only has an effect on connections\n"
         "    made over HTTPS using -s. Default()\n"}
 
@@ -1319,7 +1319,7 @@ en:table {
         Clients.cimcli.CIMCLIClient.SUMMARY_OPTION_HELP:string {
         "--sum  summary. Displays only summary count for enumerations,\n"
         "    associators, etc. Default(false)\n"}
-   
+
         Clients.cimcli.CIMCLIClient.HELP_OPTION_HELP:string {
         "-h  help. Prints help usage message . Default(false)\n"}
 
@@ -1373,14 +1373,14 @@ en:table {
         // ==========================================================
         // Start of messages from platform-specific files
         // ==========================================================
-                        
-                        
+
+
         // ==========================================================
         // End of messages from platform-specific files
         // ==========================================================
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE
-// DO NOT ADD MESSAGES AFTER THE FOLLOWING '}' 
+// DO NOT ADD MESSAGES AFTER THE FOLLOWING '}'
 // ==============================================================================
 }

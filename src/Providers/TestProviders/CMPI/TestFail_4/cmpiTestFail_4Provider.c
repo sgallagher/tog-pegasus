@@ -79,7 +79,7 @@ TestCMPIFail_4ProviderEnumInstances (CMPIInstanceMI * mi,
                                      const CMPIObjectPath * ref,
                                      const char **properties)
 {
-    // This out-of-place macro was added to test bug #4107 
+    // This out-of-place macro was added to test bug #4107
     // in which CMReturnDone without a previous CMReturnInstance would
     // crash cimserver.
 
@@ -94,7 +94,7 @@ TestCMPIFail_4ProviderGetInstance (CMPIInstanceMI * mi,
                                    const CMPIObjectPath * cop,
                                    const char **properties)
 {
-    // This out-of-place macro was added to test bug #4107 
+    // This out-of-place macro was added to test bug #4107
     // in which CMReturnDone without a previous CMReturnInstance would
     // crash cimserver.
 
@@ -109,11 +109,11 @@ TestCMPIFail_4ProviderCreateInstance (CMPIInstanceMI * mi,
                                       const CMPIObjectPath * cop,
                                       const CMPIInstance * ci)
 {
-    // This out-of-place macro was added to test bug #4107 
+    // This out-of-place macro was added to test bug #4107
     // in which CMReturnDone without a previous CMReturnInstance would
     // crash cimserver.
 
-    CMReturnDone(rslt); 
+    CMReturnDone(rslt);
     CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
 }
 
@@ -125,7 +125,7 @@ TestCMPIFail_4ProviderModifyInstance (CMPIInstanceMI * mi,
                                       const CMPIInstance * ci,
                                       const char **properties)
 {
-    // This out-of-place macro was added to test bug #4107 
+    // This out-of-place macro was added to test bug #4107
     // in which CMReturnDone without a previous CMReturnInstance would
     // crash cimserver.
 
@@ -139,7 +139,7 @@ TestCMPIFail_4ProviderDeleteInstance (CMPIInstanceMI * mi,
                                       const CMPIResult * rslt,
                                       const CMPIObjectPath * cop)
 {
-    // This out-of-place macro was added to test bug #4107 
+    // This out-of-place macro was added to test bug #4107
     // in which CMReturnDone without a previous CMReturnInstance would
     // crash cimserver.
 
@@ -171,13 +171,13 @@ CMInstanceMIStub (TestCMPIFail_4Provider,
 
 static CMPIInstanceMIFT instMIFT__ = {
     100, 100, "instance" "TestCMPIFail_4Provider",
-    TestCMPIFail_4ProviderCleanup, 
+    TestCMPIFail_4ProviderCleanup,
     TestCMPIFail_4ProviderEnumInstanceNames,
-    TestCMPIFail_4ProviderEnumInstances, 
+    TestCMPIFail_4ProviderEnumInstances,
     TestCMPIFail_4ProviderGetInstance,
     TestCMPIFail_4ProviderCreateInstance,
     TestCMPIFail_4ProviderModifyInstance,
-    TestCMPIFail_4ProviderDeleteInstance, 
+    TestCMPIFail_4ProviderDeleteInstance,
     NULL
 };
 CMPI_EXTERN_C CMPIInstanceMI *

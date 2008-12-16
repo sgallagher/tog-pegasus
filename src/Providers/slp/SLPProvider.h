@@ -46,7 +46,7 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
     public:
         SLPProvider(void);
         ~SLPProvider(void);
-                  
+
         void initialize(CIMOMHandle & cimom);
         void terminate(void);
 
@@ -98,7 +98,7 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
             const CIMName & methodName,
             const Array<CIMParamValue> & inParameters,
             MethodResultResponseHandler & handler);
-    
+
         static void updateProfileRegistration();
     protected:
         CIMInstance _buildInstanceSkeleton(const CIMName& className);
@@ -117,12 +117,12 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
                    const CIMNamespaceName& nameSpace,
                    String& classInfo );
 
-        void populateTemplateField(CIMInstance& instance, 
+        void populateTemplateField(CIMInstance& instance,
             const String& attributeFieldName,
             const String& value,
             const String& instancePropertyName = String::EMPTY);
 
-        void populateTemplateField(CIMInstance& instance, 
+        void populateTemplateField(CIMInstance& instance,
             const String& attributeFieldName,
             const Array<String>& value,
             const String& instancePropertyName);
@@ -130,7 +130,7 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
         String getRegisteredProfileList();
    private:
 
-       // Save instances of registration class 
+       // Save instances of registration class
        // that have been registered.
        Array<CIMObjectPath> _instanceNames;
        Array<CIMInstance> _instances;

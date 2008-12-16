@@ -72,7 +72,7 @@ public:
 
     static String encodeURICharacters(const Buffer& uriString);
     static String encodeURICharacters(const String& uriString);
-    
+
     static void indentedPrint(
         PEGASUS_STD(ostream)& os,
         const char* text,
@@ -80,7 +80,7 @@ public:
 
 private:
 
-    static void _appendChar(Buffer& out, const Char16& c);   
+    static void _appendChar(Buffer& out, const Char16& c);
     static void _appendSpecialChar7(Buffer& out, char c);
     static void _appendSpecialChar(Buffer& out, const Char16& c);
     static void _appendSpecialChar(PEGASUS_STD(ostream)& os, char c);
@@ -124,11 +124,11 @@ inline Buffer& operator<<(Buffer& out, const char* s)
 }
 
 PEGASUS_COMMON_LINKAGE Buffer& operator<<(
-    Buffer& out, 
+    Buffer& out,
     const AcceptLanguageList& al);
 
 PEGASUS_COMMON_LINKAGE Buffer& operator<<(
-    Buffer& out, 
+    Buffer& out,
     const ContentLanguageList& cl);
 
 PEGASUS_COMMON_LINKAGE Buffer& operator<<(Buffer& out, const Char16& x);

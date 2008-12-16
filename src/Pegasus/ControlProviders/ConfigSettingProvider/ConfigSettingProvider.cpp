@@ -148,7 +148,7 @@ void ConfigSettingProvider::getInstance(
                     "ControlProviders.ConfigSettingProvider."
                         "ConfigSettingProvider."
                         "CONFIG_PROPERTY_NOT_FOUND",
-                    "Configuration property \"$0\"", 
+                    "Configuration property \"$0\"",
                     keyValue));
         }
 
@@ -238,7 +238,7 @@ void ConfigSettingProvider::modifyInstance(
                         "ConfigSettingProvider."
                         "INVALID_INSTANCE_NAME",
                     "Invalid instance name"));
-                
+
         }
 
         String configPropertyName = kbArray[0].getValue();
@@ -281,7 +281,7 @@ void ConfigSettingProvider::modifyInstance(
                         "ControlProviders.ConfigSettingProvider."
                             "ConfigSettingProvider."
                             "MODIFICATION_NOT_SUPPORTED",
-                        "Modification of property \"$0\"", 
+                        "Modification of property \"$0\"",
                         propertyName.getString()));
             }
         }
@@ -362,7 +362,7 @@ void ConfigSettingProvider::modifyInstance(
                                 "UPDATE_CURRENT_VALUE_FAILED",
                             "Failed to update the current value."));
                 }
-                
+
                 // It is unset, get current value which is default
                 if (currentValueIsNull)
                 {
@@ -371,7 +371,7 @@ void ConfigSettingProvider::modifyInstance(
                 }
 
                 // send notify config change message to ProviderManager Service
-                _sendNotifyConfigChangeMessage(configPropertyName, 
+                _sendNotifyConfigChangeMessage(configPropertyName,
                                                currentValue,
                                                true);
 
@@ -409,7 +409,7 @@ void ConfigSettingProvider::modifyInstance(
                 }
 
                 // send notify config change message to ProviderManager Service
-                _sendNotifyConfigChangeMessage(configPropertyName, 
+                _sendNotifyConfigChangeMessage(configPropertyName,
                                                plannedValue,
                                                false);
 
@@ -438,7 +438,7 @@ void ConfigSettingProvider::modifyInstance(
                     "ControlProviders.ConfigSettingProvider."
                         "ConfigSettingProvider."
                         "CONFIG_PROPERTY_NOT_FOUND",
-                    "Configuration property \"$0\"", 
+                    "Configuration property \"$0\"",
                     configPropertyName));
         }
 
@@ -491,20 +491,20 @@ void ConfigSettingProvider::enumerateInstances(
                  propertyNames[i], propertyInfo);
 
                  Array<CIMKeyBinding> keyBindings;
-                 keyBindings.append(CIMKeyBinding(PROPERTY_NAME, 
+                 keyBindings.append(CIMKeyBinding(PROPERTY_NAME,
                  propertyInfo[0], CIMKeyBinding::STRING));
-                 CIMObjectPath instanceName(ref.getHost(), 
+                 CIMObjectPath instanceName(ref.getHost(),
                  ref.getNameSpace(),
                  PG_CONFIG_SETTING, keyBindings);
 
                  // construct the instance
-                 instance.addProperty(CIMProperty(PROPERTY_NAME, 
+                 instance.addProperty(CIMProperty(PROPERTY_NAME,
                                          propertyInfo[0]));
-                 instance.addProperty(CIMProperty(DEFAULT_VALUE, 
+                 instance.addProperty(CIMProperty(DEFAULT_VALUE,
                                          propertyInfo[1]));
-                 instance.addProperty(CIMProperty(CURRENT_VALUE, 
+                 instance.addProperty(CIMProperty(CURRENT_VALUE,
                                          propertyInfo[2]));
-                 instance.addProperty(CIMProperty(PLANNED_VALUE, 
+                 instance.addProperty(CIMProperty(PLANNED_VALUE,
                                          propertyInfo[3]));
                  instance.addProperty(CIMProperty(DYNAMIC_PROPERTY,
                  Boolean(propertyInfo[4]=="true"?true:false)));
@@ -549,7 +549,7 @@ void ConfigSettingProvider::enumerateInstanceNames(
         if (!className.equal (PG_CONFIG_SETTING))
         {
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION( CIM_ERR_NOT_SUPPORTED, 
+            throw PEGASUS_CIM_EXCEPTION( CIM_ERR_NOT_SUPPORTED,
                 className.getString());
         }
 
@@ -571,7 +571,7 @@ void ConfigSettingProvider::enumerateInstanceNames(
                  //
                  // Convert instance names to References
                  //
-                 CIMObjectPath ref(hostName, nameSpace, className, 
+                 CIMObjectPath ref(hostName, nameSpace, className,
                                     keyBindings);
 
                  instanceRefs.append(ref);
@@ -650,7 +650,7 @@ void ConfigSettingProvider::_sendNotifyConfigChangeMessage(
             service->getQueueId(),
             notify_req);
 
-        AutoPtr<AsyncReply> asyncReply( 
+        AutoPtr<AsyncReply> asyncReply(
             controller->ClientSendWait(service->getQueueId(), &asyncRequest));
 
         AutoPtr<CIMNotifyConfigChangeResponseMessage> response(

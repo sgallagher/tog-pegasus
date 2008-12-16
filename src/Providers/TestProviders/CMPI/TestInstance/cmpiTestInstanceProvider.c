@@ -567,7 +567,7 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
   int rc_setProperty = 0;
 
   PROV_LOG_OPEN (_ClassName, _ProviderLocation);
-  
+
   PROV_LOG ("--- %s CMPI ExecQuery() called", _ClassName);
   PROV_LOG ("--- Query: [%s], language: [%s]", query, lang);
 
@@ -629,7 +629,7 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
                 {
                   PROV_LOG ("---- %s (string)",
                             CMGetCharsPtr (data.value.string,NULL));
-                  // The _setProperty is a simple function to set _only_ 
+                  // The _setProperty is a simple function to set _only_
                   // properties that are needed.
                   rc_setProperty =
                     _setProperty (inst, CMGetCharsPtr (data.value.string,NULL));
@@ -656,7 +656,7 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
         CMRelease (clone);
     }
 
-  /* This can be used to figure what properties to 
+  /* This can be used to figure what properties to
      construct against when using CQL    */
   if (se_CQL)
     {
@@ -680,7 +680,7 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
                 {
                   PROV_LOG ("---- %s (string)",
                             CMGetCharsPtr (data.value.string,NULL));
-                  // This is just done for test-purpose. The previous 
+                  // This is just done for test-purpose. The previous
                   // if (se) loop would have take care of this.
                   _setProperty (inst, CMGetCharsPtr (data.value.string,NULL));
                 }

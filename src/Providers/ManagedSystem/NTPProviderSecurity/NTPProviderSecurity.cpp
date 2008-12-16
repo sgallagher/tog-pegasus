@@ -37,9 +37,9 @@
 #endif
 
 #if defined(PEGASUS_PLATFORM_HPUX_ACC)
-# include "NTPProviderSecurity_HPUX.cpp"    
+# include "NTPProviderSecurity_HPUX.cpp"
 #elif defined(PEGASUS_OS_VMS)
-# include "NTPProviderSecurity_Vms.cpp"    
+# include "NTPProviderSecurity_Vms.cpp"
 #else
-# include "NTPProviderSecurity_Stub.cpp"    
+# include "NTPProviderSecurity_Stub.cpp"
 #endif

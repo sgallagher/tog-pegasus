@@ -27,13 +27,13 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 clean:
-	$(RM) $(XMLRESPONSES) $(XMLRESPONSES_DS) 
+	$(RM) $(XMLRESPONSES) $(XMLRESPONSES_DS)
 
 depend:
 
 tests:
 
-poststarttests: $(XMLRESPONSES) $(XMLRESPONSES_DS) 
+poststarttests: $(XMLRESPONSES) $(XMLRESPONSES_DS)
 
 general:
 

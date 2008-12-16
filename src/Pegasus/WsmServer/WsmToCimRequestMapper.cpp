@@ -82,15 +82,15 @@ CIMOperationRequestMessage* WsmToCimRequestMapper::mapToCimRequest(
             break;
 
         case WS_ENUMERATION_ENUMERATE:
-            if (((WsenEnumerateRequest*) request)->enumerationMode == 
+            if (((WsenEnumerateRequest*) request)->enumerationMode ==
                 WSEN_EM_OBJECT ||
-                ((WsenEnumerateRequest*) request)->enumerationMode == 
+                ((WsenEnumerateRequest*) request)->enumerationMode ==
                 WSEN_EM_OBJECT_AND_EPR)
             {
                 cimRequest.reset(mapToCimEnumerateInstancesRequest(
                     (WsenEnumerateRequest*) request));
             }
-            else if (((WsenEnumerateRequest*) request)->enumerationMode == 
+            else if (((WsenEnumerateRequest*) request)->enumerationMode ==
                      WSEN_EM_EPR)
             {
                 cimRequest.reset(mapToCimEnumerateInstanceNamesRequest(
@@ -270,7 +270,7 @@ CIMEnumerateInstancesRequestMessage*
     CIMObjectPath objPath;
     convertEPRToObjectPath(request->epr, objPath);
 
-    CIMEnumerateInstancesRequestMessage* cimRequest = 
+    CIMEnumerateInstancesRequestMessage* cimRequest =
         new CIMEnumerateInstancesRequestMessage(
             XmlWriter::getNextMessageId(),
             objPath.getNameSpace(),
@@ -295,7 +295,7 @@ CIMEnumerateInstanceNamesRequestMessage*
     CIMObjectPath objPath;
     convertEPRToObjectPath(request->epr, objPath);
 
-    CIMEnumerateInstanceNamesRequestMessage* cimRequest = 
+    CIMEnumerateInstanceNamesRequestMessage* cimRequest =
         new CIMEnumerateInstanceNamesRequestMessage(
             XmlWriter::getNextMessageId(),
             objPath.getNameSpace(),
@@ -377,7 +377,7 @@ String WsmToCimRequestMapper::convertEPRAddressToHostname(const String& addr)
         Uint32 pos2 = addr.reverseFind('/');
         if (pos1 != 0 && pos2 != PEG_NOT_FOUND && pos2 > pos1)
         {
-            // The string between "http[s]://" and "/wsman" must be 
+            // The string between "http[s]://" and "/wsman" must be
             // the host name
             HostLocator hostLoc(addr.subString(pos1, pos2 - pos1));
             if (hostLoc.isValid())
@@ -682,7 +682,7 @@ void WsmToCimRequestMapper::convertStringToCimValue(
         case CIMTYPE_BOOLEAN:
         {
             Boolean val;
-            if (String::compare(str, "true") == 0 || 
+            if (String::compare(str, "true") == 0 ||
                 String::compare(str, "1") == 0)
             {
                 val = 1;
@@ -1079,7 +1079,7 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
 
     try
     {
-        // The shortest valid representation is an interval, e.g. P1Y 
+        // The shortest valid representation is an interval, e.g. P1Y
         // Negative datetime/intervals not supported
         if (strSize < 3 || wsmStr[0] == '-')
         {
@@ -1091,19 +1091,19 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
         {
             // Interval
             // The format is PnYnMnDTnHnMnS, where
-            // nY represents the number of years, 
-            // nM the number of months, nD the number of days, 
-            // 'T' is the date/time separator, 
-            // nH the number of hours, 
-            // nM the number of minutes and 
-            // nS the number of seconds. 
-            // The number of seconds can include decimal digits to 
+            // nY represents the number of years,
+            // nM the number of months, nD the number of days,
+            // 'T' is the date/time separator,
+            // nH the number of hours,
+            // nM the number of minutes and
+            // nS the number of seconds.
+            // The number of seconds can include decimal digits to
             // arbitrary precision.
-            struct 
-            { 
-                Uint32 num; 
-                char id; 
-            } values[7] = {{0, 'Y'}, {0, 'M'}, {0, 'D'}, 
+            struct
+            {
+                Uint32 num;
+                char id;
+            } values[7] = {{0, 'Y'}, {0, 'M'}, {0, 'D'},
                 {0, 'H'}, {0, 'M'}, {0, 'S'}, {0, 0}};
 
             const char* ptr = wsmStr + 1;
@@ -1137,7 +1137,7 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                 int bytes = 0;
                 Uint32 num = 0;
                 int conversions = sscanf(ptr, "%u%n", &num, &bytes);
-                
+
                 // Here we expect a valid unsigned int with the maximum
                 // value of 999,999,999
                 if (conversions == 0 || bytes == 0 || bytes > 9 ||
@@ -1180,7 +1180,7 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                 i++;
             }
 
-            // If at the end of the loop we still have unconsumed charachters, 
+            // If at the end of the loop we still have unconsumed charachters,
             // it's an error.
             if (ptr < wsmStr + strSize)
             {
@@ -1195,7 +1195,7 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
             Uint32 hrs = values[3].num % 24;
             values[2].num += values[3].num / 24;
 
-            // It's impossible to calculate the exact number of days. 
+            // It's impossible to calculate the exact number of days.
             // Here are the assumptions:
             // - a year has 365 days
             // - every 4th year adds an extra day
@@ -1233,12 +1233,12 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                 (conversions == 6 && strSize != 19) ||
                 // If sign is present, it must be either 'Z', '+' or '-' UTC
                 // seperators, or '.' if there are fractional seconds
-                (conversions == 7 && 
+                (conversions == 7 &&
                  sign != 'Z' && sign != '+' && sign != '-' && sign != '.') ||
                 // If 'Z' is the sign, it must be the last char in the string
                 (sign == 'Z' && strSize != 20) ||
                 // Make sure that separators are in the proper positions
-                ptr[4] != '-' || ptr[7] != '-' || ptr[10] != 'T' || 
+                ptr[4] != '-' || ptr[7] != '-' || ptr[10] != 'T' ||
                 ptr[13] != ':' || ptr[16] != ':' ||
                 // Make sure that numeric fields do not start with white
                 // space, '+' or '-' signs
@@ -1256,13 +1256,13 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                 ptr += bytes;
 
                 conversions = sscanf(ptr, "%c", &sign);
-                if ((conversions == 0) || 
-                    (conversions == 1 && 
+                if ((conversions == 0) ||
+                    (conversions == 1 &&
                      sign != 'Z' && sign != '+' && sign != '-'))
                 {
                     throw InvalidDateTimeFormatException();
                 }
-                
+
                 ptr++; // account for sign
             }
 
@@ -1279,7 +1279,7 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                 {
                     throw InvalidDateTimeFormatException();
                 }
-   
+
                 utcoff = utch * 60 + utcm;
                 if (sign == '-')
                 {
@@ -1288,7 +1288,7 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
             }
             else if (sign == 'Z')
             {
-                // No need to do anything here: the offset is already 
+                // No need to do anything here: the offset is already
                 // initialized to 0.
                 // Just make sure that 'Z' is the last char in the string.
                 if (*ptr != 0)
@@ -1305,11 +1305,11 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
         {
             // date
             // The format is YYYY-MM-DD[Z][+/-hh:mm]
-            Uint32 year = 0, month = 0, day = 0, utch = 0, utcm = 0; 
+            Uint32 year = 0, month = 0, day = 0, utch = 0, utcm = 0;
             Sint32 utcoff = 0;
             char sign = 0;
 
-            int conversions = sscanf(wsmStr, "%4u-%2u-%2u%c%2u:%2u", 
+            int conversions = sscanf(wsmStr, "%4u-%2u-%2u%c%2u:%2u",
                 &year, &month, &day, &sign, &utch, &utcm);
 
             // Year, month and day must be present
@@ -1317,7 +1317,7 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                 // The string with no UTC offset must be 10 chars
                 (conversions == 3 && strSize != 10) ||
                 // Make sure that seperators are in the proper positions
-                wsmStr[4] != '-' || wsmStr[7] != '-' || 
+                wsmStr[4] != '-' || wsmStr[7] != '-' ||
                 // Make sure that numeric fields do not start with white
                 // space, '+' or '-' signs
                 illegalNumChar(wsmStr[0]) || illegalNumChar(wsmStr[5]) ||
@@ -1339,11 +1339,11 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
 
                 if (sign == '+' || sign == '-')
                 {
-                    if (conversions < 6 || strSize != 16 || 
+                    if (conversions < 6 || strSize != 16 ||
                         wsmStr[13] != ':' ||
-                        // Make sure that numeric fields do not start with 
+                        // Make sure that numeric fields do not start with
                         // white space, '+' or '-' signs
-                        illegalNumChar(wsmStr[11]) || 
+                        illegalNumChar(wsmStr[11]) ||
                         illegalNumChar(wsmStr[14]))
                     {
                         throw InvalidDateTimeFormatException();
@@ -1357,7 +1357,7 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                 }
             }
 
-            cimDT.setTimeStamp(year, month, day, CIMDateTime::WILDCARD, 
+            cimDT.setTimeStamp(year, month, day, CIMDateTime::WILDCARD,
                 CIMDateTime::WILDCARD, CIMDateTime::WILDCARD, 0, 0, utcoff);
         }
         else
@@ -1385,15 +1385,15 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
     }
 }
 
-// Values have a lexical representation consisting of a mantissa followed, 
-// optionally, by the character "E" or "e", followed by an exponent. 
-// The exponent must be an integer. The mantissa must be a decimal number. 
-// The representations for exponent and mantissa must follow the lexical 
-// rules for integer and decimal. If the "E" or "e" and the following 
+// Values have a lexical representation consisting of a mantissa followed,
+// optionally, by the character "E" or "e", followed by an exponent.
+// The exponent must be an integer. The mantissa must be a decimal number.
+// The representations for exponent and mantissa must follow the lexical
+// rules for integer and decimal. If the "E" or "e" and the following
 // exponent are omitted, an exponent value of 0 is assumed.
-// The special values positive and negative zero, positive and negative 
-// infinity and not-a-number have lexical representations 0, -0, INF, -INF 
-// and NaN, respectively. 
+// The special values positive and negative zero, positive and negative
+// infinity and not-a-number have lexical representations 0, -0, INF, -INF
+// and NaN, respectively.
 Boolean WsmToCimRequestMapper::stringToReal64(
     const char* stringValue,
     Real64& x)
@@ -1413,7 +1413,7 @@ Boolean WsmToCimRequestMapper::stringToReal64(
         if (strlen(p) < 3 ||
             ((*p != 'N' || *(p + 1) != 'a' || *(p + 2) != 'N' || *(p + 3)) &&
             (*p != 'I' || *(p + 1) != 'N' || *(p + 2) != 'F' || *(p + 3)) &&
-            (*p != '-' || *(p + 1) != 'I' || *(p + 2) != 'N' || 
+            (*p != '-' || *(p + 1) != 'I' || *(p + 2) != 'N' ||
              *(p + 3) != 'F' || *(p + 4))))
         {
             return false;

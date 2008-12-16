@@ -93,7 +93,7 @@ static Boolean _MakeAddress(
     }
 
     char scratch[22];
-    Uint32 n;    
+    Uint32 n;
     const char * portStr = Uint32ToString(scratch, port, n);
     if (System::getAddrInfo(hostname, portStr, &hints, &result))
     {
@@ -125,9 +125,9 @@ static Boolean _MakeAddress(
     {
         char hostEntryBuffer[8192];
         struct hostent hostEntryStruct;
-        hostEntry = System::getHostByName(hostname, 
-            &hostEntryStruct, 
-            (char*) &hostEntryBuffer, 
+        hostEntry = System::getHostByName(hostname,
+            &hostEntryStruct,
+            (char*) &hostEntryBuffer,
             sizeof (hostEntryBuffer));
 
         if (!hostEntry)
@@ -209,7 +209,7 @@ HTTPConnection* HTTPConnector::connect(
         sockaddr_un address;
 
 #ifdef PEGASUS_OS_PASE
-        // PASE needs ccsid 819 to perform domain socket operation 
+        // PASE needs ccsid 819 to perform domain socket operation
         int orig_ccsid;
         orig_ccsid = _SETCCSID(-1);
         if (orig_ccsid == -1)
@@ -231,7 +231,7 @@ HTTPConnection* HTTPConnector::connect(
             PEG_METHOD_EXIT();
             throw CannotCreateSocketException();
         }
-            
+
         Socket::disableBlocking(socket);
 
         // Connect the socket to the address:
@@ -265,10 +265,10 @@ HTTPConnection* HTTPConnector::connect(
 #else
              0
 #endif
-             ))        
+             ))
         {
             char scratch[22];
-            Uint32 n;    
+            Uint32 n;
             const char * portStr = Uint32ToString(scratch, portNumber, n);
             PEG_METHOD_EXIT();
             throw InvalidLocatorException(host+":"+String(portStr,n));
@@ -277,9 +277,9 @@ HTTPConnection* HTTPConnector::connect(
 #ifdef PEGASUS_ENABLE_IPV6
         addrInfo = addrInfoRoot;
         while (addrInfo)
-        {   
+        {
             // Create the socket:
-            socket = Socket::createSocket(addrInfo->ai_family, 
+            socket = Socket::createSocket(addrInfo->ai_family,
                 addrInfo->ai_socktype, addrInfo->ai_protocol);
 #else
             socket = Socket::createSocket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -304,7 +304,7 @@ HTTPConnection* HTTPConnector::connect(
 # endif
                 // the socket is useless to us, close it
                 Socket::close(socket);
-        
+
                 PEG_TRACE(
                     (TRC_DISCARDED_DATA,
                      Tracer::LEVEL1,
@@ -342,7 +342,7 @@ HTTPConnection* HTTPConnector::connect(
                 }
 #endif
                 char scratch[22];
-                Uint32 n;    
+                Uint32 n;
                 const char * portStr = Uint32ToString(scratch, portNumber, n);
                 MessageLoaderParms parms(
                     "Common.HTTPConnector.CONNECTION_FAILED_TO",
@@ -371,7 +371,7 @@ HTTPConnection* HTTPConnector::connect(
     if (mp_socket->connect(timeoutMilliseconds) < 0)
     {
         char scratch[22];
-        Uint32 n;    
+        Uint32 n;
         const char * portStr = Uint32ToString(scratch, portNumber, n);
         MessageLoaderParms parms(
             "Common.HTTPConnector.CONNECTION_FAILED_TO",

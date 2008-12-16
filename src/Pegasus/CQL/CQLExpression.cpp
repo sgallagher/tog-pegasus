@@ -60,7 +60,7 @@ CQLExpression::CQLExpression(const CQLTerm& theTerm)
 
 }
 
-CQLExpression::CQLExpression(const CQLExpression& inExpress) 
+CQLExpression::CQLExpression(const CQLExpression& inExpress)
 {
     _rep = new CQLExpressionRep(inExpress._rep);
 }

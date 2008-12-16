@@ -50,7 +50,7 @@ Mutex cimom::_registeredServicesTableLock;
 PEGASUS_TEMPLATE_SPECIALIZATION struct HashFunc<void*>
 {
     static Uint32 hash(void* x)
-    { 
+    {
         return Uint32((((unsigned long)x) >> 3)) + 13;
     }
 };
@@ -249,7 +249,7 @@ cimom::~cimom()
     Boolean done = _routed_ops.enqueue(msg->op);
     PEGASUS_ASSERT(done);
 
-    _routing_thread.join(); 
+    _routing_thread.join();
 
     PEGASUS_ASSERT(_routed_queue_shutdown.get());
     PEGASUS_ASSERT(_die.get());

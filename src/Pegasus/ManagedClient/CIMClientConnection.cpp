@@ -50,7 +50,7 @@ CIMClientConnection::CIMClientConnection(
     _port = String(port);
     _userid = String(userid);
     _passwd = String(passwd);
-    
+
     _connectionHandle.reset(new CIMClientRep());
 
         int af;
@@ -59,7 +59,7 @@ CIMClientConnection::CIMClientConnection(
     {
         // localhost or ip address of 127.0.0.1
         // still for compare we need the real ip address
-        System::acquireIP((const char *) 
+        System::acquireIP((const char *)
                     System::getHostName().getCString(), &af, _resolvedIP);
     }
 }
@@ -89,8 +89,8 @@ CIMClientConnection::CIMClientConnection(
             System::getHostName().getCString(), &af, _resolvedIP);
     }
 }
-    
-Boolean CIMClientConnection::equals(void *binIPAddress, int af, 
+
+Boolean CIMClientConnection::equals(void *binIPAddress, int af,
     const String& port)
 {
     // only if port and resolved ip address are equal,

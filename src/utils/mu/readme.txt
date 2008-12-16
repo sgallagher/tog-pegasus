@@ -48,7 +48,7 @@ are supported:
 
     echo - echos its arguments to standard output.
 
-    touch - changes modification time of file to current time; creates file 
+    touch - changes modification time of file to current time; creates file
 	if it does not already exist.
 
     pwd - prints the working directory with Unix style slashes ('/').

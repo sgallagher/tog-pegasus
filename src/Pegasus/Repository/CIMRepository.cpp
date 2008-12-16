@@ -699,7 +699,7 @@ CIMRepository::CIMRepository(
     }
 
     // If declContext is supplied by the caller, don't allocate it.
-    // CIMRepository will take ownership and will be responsible for 
+    // CIMRepository will take ownership and will be responsible for
     // deleting it.
     if (declContext)
         _rep->_context = declContext;
@@ -1707,7 +1707,7 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
             enumerateInstancesForClass(nameSpace, classNames[i],
                 false, includeQualifiers, includeClassOrigin, propertyList);
 
-        // The propertyList, includeQualifiers, and includeClassOrigin 
+        // The propertyList, includeQualifiers, and includeClassOrigin
         // filtering is done in enumerateInstancesForClass.  localOnly
         // filtering is not performed, since this flag is deprecated and
         // is not supported for instance operations.

@@ -36,9 +36,9 @@
                 </INSTANCENAME>
               </VALUE.REFERENCE>
             </PROPERTY.REFERENCE>
-            <PROPERTY.REFERENCE NAME="Filter" 
-                                REFERENCECLASS="PG_IndicationFilter"> 
-              <VALUE.REFERENCE> 
+            <PROPERTY.REFERENCE NAME="Filter"
+                                REFERENCECLASS="PG_IndicationFilter">
+              <VALUE.REFERENCE>
                 <INSTANCENAME CLASSNAME="PG_IndicationFilter">
                   <KEYBINDING NAME="SystemCreationClassName">
                     <KEYVALUE VALUETYPE="string">
@@ -63,9 +63,9 @@
                 </INSTANCENAME>
               </VALUE.REFERENCE>
             </PROPERTY.REFERENCE>
-            <PROPERTY.REFERENCE NAME="Handler" 
-                                REFERENCECLASS="PG_IndicationHandler"> 
-              <VALUE.REFERENCE> 
+            <PROPERTY.REFERENCE NAME="Handler"
+                                REFERENCECLASS="PG_IndicationHandler">
+              <VALUE.REFERENCE>
                 <INSTANCENAME CLASSNAME="PG_IndicationHandlerCIMXML">
                   <KEYBINDING NAME="SystemCreationClassName">
                     <KEYVALUE VALUETYPE="string">
@@ -90,7 +90,7 @@
                 </INSTANCENAME>
               </VALUE.REFERENCE>
             </PROPERTY.REFERENCE>
-            <PROPERTY NAME="SubscriptionState" TYPE="uint16"> 
+            <PROPERTY NAME="SubscriptionState" TYPE="uint16">
               <VALUE> 2 </VALUE>
             </PROPERTY>
           </INSTANCE>

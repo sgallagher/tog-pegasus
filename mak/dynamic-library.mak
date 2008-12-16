@@ -32,7 +32,7 @@ ifeq ($(OS_TYPE),vms)
             BUILD_LIBRARY=1
         endif
     endif
-else 
+else
     BUILD_LIBRARY=1
 endif
 
@@ -49,7 +49,7 @@ else
     SHARE_COPY = YES
 
     ifdef PEGASUS_VMS_GENERATE_EXPORT_SYMBOLS
-        CFLAGS += /export_symbols=(options_file=$(BIN_VMSDIRA)]$(PROGRAM),EXPLICIT) 
+        CFLAGS += /export_symbols=(options_file=$(BIN_VMSDIRA)]$(PROGRAM),EXPLICIT)
         CFLAGS += /warn=disable=(inaspefun)
         DLLOPT = , $(BIN_VMSDIRA)]$(PROGRAM)/opt
     endif
@@ -63,5 +63,5 @@ messages: $(ERROR)
 
 poststarttests: $(ERROR)
 
-endif 
+endif
 

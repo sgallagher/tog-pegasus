@@ -1160,26 +1160,26 @@ private:
     String _getSubscriptionLogString(CIMInstance& subscription);
 
     /**
-        Retrieves list of enabled subscription instances based on the class 
+        Retrieves list of enabled subscription instances based on the class
         name and namespace of the generated indication. If the subscription
-        matches the class name and namespace of the generated indication 
-        and the provider who generated this indication accepted this 
+        matches the class name and namespace of the generated indication
+        and the provider who generated this indication accepted this
         subscription, the subscription is added to the initial subscriptions
-        list. 
-        If the indication provider included subscriptions in the 
-        SubscriptionInstanceNamesContainer, the subset of subscriptions 
+        list.
+        If the indication provider included subscriptions in the
+        SubscriptionInstanceNamesContainer, the subset of subscriptions
         specified by the indication provider that also appear in the initial
         subscriptions list is returned.
-        Any subscription included by the provider but not containing in the 
+        Any subscription included by the provider but not containing in the
         initial subscriptions list is ignored.
- 
-        @param   providedSubscriptionNames   Subscriptions specified by the 
+
+        @param   providedSubscriptionNames   Subscriptions specified by the
                                              indication provider
-        @param   className                   The generated indication class 
-                                             name 
-        @param   nameSpace                   The generated indication namespace 
-        @param   indicationProvider          The provider which generated 
-                                             the indication 
+        @param   className                   The generated indication class
+                                             name
+        @param   nameSpace                   The generated indication namespace
+        @param   indicationProvider          The provider which generated
+                                             the indication
         @param   subscriptions               Output Array of subscription
                                              instances
         @param   subscriptionKeys            Output Array of keys associated
@@ -1188,7 +1188,7 @@ private:
     void _getRelevantSubscriptions(
         const Array<CIMObjectPath> & providedSubscriptionNames,
         const CIMName& className,
-        const CIMNamespaceName& nameSpace, 
+        const CIMNamespaceName& nameSpace,
         const CIMInstance& indicationProvider,
         Array<CIMInstance>& subscriptions,
         Array<String>& subscriptionKeys);
@@ -1205,7 +1205,7 @@ private:
         @param   supportedPropertyList     The properties are supported by the
                                            indication provider
         @param   queryExpr                 The query expression of the evaluated
-                                           subscription which is used for 
+                                           subscription which is used for
                                            indication evaluation
         @param   sourceNameSpace           The source namespace of the filter
                                            instance
@@ -1224,18 +1224,18 @@ private:
         Format the generated indication based on:
         1) Use QueryExpression::applyProjection to remove properties not
            listed in the SELECT clause;
-        2) Remove any properties that may be left on the indication 
+        2) Remove any properties that may be left on the indication
            that are not in the indication class. These are properties
            added by the provider incorrectly.
-        
-        @param   formattedindication          The generated indication to 
+
+        @param   formattedindication          The generated indication to
                                               be formatted
-        @param   queryExpr,                   The query expression of the 
+        @param   queryExpr,                   The query expression of the
                                               matched subscription needs to be
-                                              used for indication projection  
-        @param   ProviderSupportedProperties  The properties are supported by 
+                                              used for indication projection
+        @param   ProviderSupportedProperties  The properties are supported by
                                               the indication provider
-        @param   indicationClassProperties    The indication class properties 
+        @param   indicationClassProperties    The indication class properties
 
         @return  True, if the indication is formatted;
                  False otherwise
@@ -1249,12 +1249,12 @@ private:
     /**
         Forward the formatted indication to the handler
 
-        @param   matchedSubscription    The matched subscription 
+        @param   matchedSubscription    The matched subscription
         @param   handlerInstance        The handler instance for the matched
-                                        subscription 
-        @param   formattedIndication    The formatted indication 
-        @param   namespaceName          The generated indication namespace 
-        @param   operationContext       The operation context 
+                                        subscription
+        @param   formattedIndication    The formatted indication
+        @param   namespaceName          The generated indication namespace
+        @param   operationContext       The operation context
     */
     void _forwardIndToHandler(
         const CIMInstance& matchedSubscription,

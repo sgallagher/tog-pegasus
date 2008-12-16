@@ -44,7 +44,7 @@ LIBRARY = peglistener
 
 LIBRARIES = \
     pegexportserver \
-    pegcommon 
+    pegcommon
 
 PRE_DEPEND_INCLUDES = -I./depends
 

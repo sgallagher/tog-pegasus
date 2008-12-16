@@ -39,7 +39,7 @@ package org.pegasus.jmpi;
 
 /**
     Creates and instantiates a CIM scope, a qualifier attribute that
-    indicates the CIM objects with which the qualifier can be used. 
+    indicates the CIM objects with which the qualifier can be used.
     For example, the qualifier 'ABSTRACT' has the following scope
     definition: Scope (Class Association Indication), meaning that
     it can only be used with classes, associations, and indications.

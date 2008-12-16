@@ -78,7 +78,7 @@ CIMName::CIMName(const char* name)
         cimName.assign(name);
 
         if (!legal(cimName))
-            throw InvalidNameException(name);        
+            throw InvalidNameException(name);
     }
     else
     {
@@ -105,7 +105,7 @@ CIMName& CIMName::operator=(const char* name)
 
         if (!legal(tmp))
             throw InvalidNameException(name);
-        
+
         cimName.assign(tmp);
     }
     else

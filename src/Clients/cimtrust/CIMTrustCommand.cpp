@@ -117,7 +117,7 @@ const char   CIMTrustCommand::_OPTION_TYPE= 'T';
 /**
     The option character used to specify the authority type.
  */
-const String   CIMTrustCommand::_ARG_TYPE_AUTHORITY = "a"; 
+const String   CIMTrustCommand::_ARG_TYPE_AUTHORITY = "a";
 
 /**
     The option character used to specify the authority issued end-entity type.
@@ -209,7 +209,7 @@ static const CIMName PROPERTY_NAME_SUBJECTNAME  = CIMName ("SubjectName");
     This constant represents the name of the RegisteredUserName
     property in the schema
 */
-static const CIMName PROPERTY_NAME_REGISTERED_USER_NAME  
+static const CIMName PROPERTY_NAME_REGISTERED_USER_NAME
                                             = CIMName ("RegisteredUserName");
 
 /**
@@ -335,7 +335,7 @@ static const char CERT_WITHOUT_ASSOCIATED_USER_KEY [] =
     "Clients.cimtrust.CIMTrustCommand.CERT_WITHOUT_ASSOCIATED_USER";
 
 static const char CERT_WITHOUT_ASSOCIATED_USER [] =
-    "NOTE: No user name will be associated with the certificate" 
+    "NOTE: No user name will be associated with the certificate"
     " in the truststore.";
 
 static const char INVALID_SYSTEM_USER [] =
@@ -670,12 +670,12 @@ void CIMTrustCommand::_addCertificate (
         PEGASUS_CLASSNAME_CERTIFICATE, kbArray);
 
     //
-    // If an associated username has not been specified, display an 
+    // If an associated username has not been specified, display an
     // informational message.
     //
     if ( !_certUserSet )
     {
-          outPrintWriter << localizeMessage(MSG_PATH, 
+          outPrintWriter << localizeMessage(MSG_PATH,
                             CERT_WITHOUT_ASSOCIATED_USER_KEY,
                             CERT_WITHOUT_ASSOCIATED_USER) << endl;
     }
@@ -726,7 +726,7 @@ void CIMTrustCommand::_removeCertificate (
 
         kbArray.append(kb);
     }
-    else 
+    else
     {
         //
         // Pass the subject name
@@ -901,9 +901,9 @@ void CIMTrustCommand::_listCertificates (
         outPrintWriter << "Issuer: " << issuer << endl;
         outPrintWriter << "Serial Number: " << serialNumber << endl;
         outPrintWriter << "Subject: " << subjectName << endl;
-        outPrintWriter << "Registered User Name: " 
+        outPrintWriter << "Registered User Name: "
                        << registeredUserName << endl;
-        outPrintWriter << "Type: " 
+        outPrintWriter << "Type: "
                        << typeStr << endl;
         outPrintWriter << "Validity:" << endl;
         outPrintWriter << "    NotBefore: " << notBeforeStr << endl;
@@ -1260,7 +1260,7 @@ void CIMTrustCommand::setCommand (Uint32 argc, char* argv [])
             //
             throw MissingOptionException(_OPTION_CERTUSER);
         }
-         
+
     }
 
     if ( _operationType == _OPERATION_TYPE_REMOVE ||
@@ -1386,7 +1386,7 @@ Uint32 CIMTrustCommand::execute (
     {
         outPrintWriter << localizeMessage(MSG_PATH,
             CANNOT_CONNECT_CIMSERVER_NOT_RUNNING_KEY,
-            CANNOT_CONNECT_CIMSERVER_NOT_RUNNING) 
+            CANNOT_CONNECT_CIMSERVER_NOT_RUNNING)
             << endl;
         return RC_CONNECTION_FAILED;
     }

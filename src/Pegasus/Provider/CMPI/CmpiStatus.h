@@ -38,7 +38,7 @@
 #include "CmpiBaseMI.h"
 #include "Linkage.h"
 
-/** 
+/**
     This class represents the status of a provider function invocation.
 */
 
@@ -52,50 +52,50 @@ class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiStatus
     friend class CmpiIndicationMI;
 protected:
 
-    /** 
+    /**
         CmpiStatus actually is a CMPIStatus struct.
     */
     CMPIStatus st;
 
-    /** 
+    /**
         status - Returns CMPIStatus struct, to be used by MI drivers only.
     */
     CMPIStatus status() const;
 
 private:
 
-    /** 
+    /**
         Constructor - not to be used.
     */
     CmpiStatus();
 
 public:
 
-    /** 
+    /**
         Aux Constructor - set from CMPIStatus.
         @param stat the CMPIStatus
     */
     CmpiStatus(const CMPIStatus stat);
 
-    /** 
+    /**
         Constructor - set rc only.
         @param rc the return code.
     */
     CmpiStatus(const CMPIrc rc);
 
-    /** 
+    /**
         Constructor - set rc and message.
         @param rc The return code.
         @param msg Descriptive message.
     */
     CmpiStatus(const CMPIrc rcp, const char *msg);
 
-    /** 
+    /**
         rc - get the rc value.
     */
     CMPIrc rc() const;
 
-    /** 
+    /**
         msg - get the msg component.
     */
     const char*  msg() const;

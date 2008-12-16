@@ -44,7 +44,7 @@ CMPI_SelectExpAccessor_WQL::CMPI_SelectExpAccessor_WQL(
 
 Boolean CMPI_SelectExpAccessor_WQL::getValue(
     const CIMName& propertyName,
-    WQLOperand& value) const 
+    WQLOperand& value) const
 {
 
     CMPIAccessor* get=(CMPIAccessor*) accessor;
@@ -104,7 +104,7 @@ Boolean CMPI_SelectExpAccessor_WQL::getValue(
             case CMPI_uint64:
                 value=WQLOperand(data.value.sint64, WQL_INTEGER_VALUE_TAG);
                 break;
-            default: 
+            default:
                 rv=false;
         }
     }

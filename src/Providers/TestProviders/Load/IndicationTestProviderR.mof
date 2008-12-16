@@ -57,11 +57,11 @@ instance of PG_ProviderCapabilities
     ProviderType = { 4, 5 };  // Indication & Method
     SupportedProperties = NULL;
     //  Note: these methods are not implemented in the subclass
-    SupportedMethods = {"SendTestIndication", 
-                        "SendTestIndicationNormal", 
+    SupportedMethods = {"SendTestIndication",
+                        "SendTestIndicationNormal",
 			"SendTestIndicationTrap",
                         "SendTestIndicationsCount",
-                        "SendTestIndicationMissingProperty", 
+                        "SendTestIndicationMissingProperty",
                         "SendTestIndicationExtraProperty",
                         "SendTestIndicationMatchingInstance",
                         "SendTestIndicationUnmatchingNamespace",

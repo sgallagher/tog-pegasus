@@ -676,8 +676,8 @@ static int _GetDateTime(const Buffer& in, size_t& pos, CIMDateTime& x)
 }
 
 static int _GetObjectPath(
-    const Buffer& in, 
-    size_t& pos, 
+    const Buffer& in,
+    size_t& pos,
     CIMObjectPath& cop)
 {
     // Deserialize host:
@@ -780,7 +780,7 @@ static int _GetObjectPath(
 }
 
 static int _GetValue(
-    const Buffer& in, 
+    const Buffer& in,
     size_t& pos,
     CIMValue& value)
 {
@@ -792,7 +792,7 @@ static int _GetValue(
     Uint32 type;
     {
         Uint8 tmp;
-        
+
         if (_GetUint8(in, pos, tmp) != 0)
             RETURN_FAILURE;
 
@@ -1298,7 +1298,7 @@ void MRRSerializeInstance(Buffer& out, const CIMInstance& ci)
 }
 
 int MRRDeserializeInstance(
-    const Buffer& in, 
+    const Buffer& in,
     size_t& pos,
     CIMInstance& ci)
 {
@@ -1369,7 +1369,7 @@ int MRRDeserializeInstance(
 }
 
 void MRRSerializeNameSpace(
-    Buffer& out, 
+    Buffer& out,
     const CIMNamespaceName& nameSpace)
 {
     // Serialize magic number:
@@ -1382,7 +1382,7 @@ void MRRSerializeNameSpace(
 }
 
 int MRRDeserializeNameSpace(
-    const Buffer& in, 
+    const Buffer& in,
     size_t& pos,
     CIMNamespaceName& nameSpace)
 {

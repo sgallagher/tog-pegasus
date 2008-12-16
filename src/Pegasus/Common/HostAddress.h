@@ -28,7 +28,7 @@
 //////////////////////////////////////////////////////////////////////////
 //
 //%/////////////////////////////////////////////////////////////////////////////
- 
+
 #ifndef Pegasus_HostAddress_h
 #define Pegasus_HostAddress_h
 
@@ -95,8 +95,8 @@ public:
 #else
         AT_IPV6 = 0x17,
 #endif
-        AT_HOSTNAME         
-    }; 
+        AT_HOSTNAME
+    };
 
 
     HostAddress();
@@ -105,15 +105,15 @@ public:
     /**
         Constructor. addrStr can be HostName or IPv4Address or
         IPv6Address (without brackets).
-    */ 
+    */
     HostAddress(const String &addrStr);
     HostAddress(const HostAddress &rhs);
     HostAddress& operator =(const HostAddress &rhs);
- 
+
     void setHostAddress(const String &addrStr);
 
     /**
-        Returns true if the constructed HostAddress is valid. 
+        Returns true if the constructed HostAddress is valid.
         If valid it can be HostName or IPv4Address or IPv6Address.
         Check if HostAddress is valid by using isValid() method
         before making any calls on HostAddress object.
@@ -139,14 +139,14 @@ public:
     /**
         The covertBinaryToText (inet_ntop()) function shall convert a numeric
         address into a text string suitable for presentation. The af argument
-        shall specify the family of the address. This can be AF_INET  or 
+        shall specify the family of the address. This can be AF_INET  or
         AF_INET6. The src argument points to a buffer  holding  an IPv4 address
         if the af argument is AF_INET,  or an IPv6 address if the af argument is
         AF_INET6. The address must be in network byte order. The dst argument
         points to a buffer  where  the  function  stores  the resulting  text
         string. It shall not be NULL. The size argument specifies the size of
-        this buffer, which shall be  large enough to hold the text string 
-        (PEGASUS_INET_ADDRSTR_LEN  characters  for  IPv4, 
+        this buffer, which shall be  large enough to hold the text string
+        (PEGASUS_INET_ADDRSTR_LEN  characters  for  IPv4,
         PEGASUS_INET6_ADDRSTR_LEN  characters  for IPv6).
     */
     static const char *convertBinaryToText(int af, const void *src,

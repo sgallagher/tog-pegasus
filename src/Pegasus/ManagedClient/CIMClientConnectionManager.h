@@ -48,7 +48,7 @@ public:
 
     // class constructor
     CIMClientConnectionManager() { };
-    
+
     /** virtual class destructor
         to be implemented by specific implementation
     */

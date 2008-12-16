@@ -55,14 +55,14 @@ static struct ConfigPropertyRow properties[] =
 # if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir", "/var/wbem/logs", IS_DYNAMIC, 0, 0, IS_HIDDEN},
     {"maxLogFileSizeKBytes", "32678", IS_DYNAMIC, 0, 0, IS_VISIBLE},
-# endif    
-    {"logLevel", "INFORMATION", IS_DYNAMIC, 0, 0, IS_VISIBLE} 
+# endif
+    {"logLevel", "INFORMATION", IS_DYNAMIC, 0, 0, IS_VISIBLE}
 #elif defined(PEGASUS_OS_PASE)
 # if defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
-        {"logdir", "/QOpenSys/QIBM/UserData/UME/Pegasus/logs", IS_DYNAMIC, 
+        {"logdir", "/QOpenSys/QIBM/UserData/UME/Pegasus/logs", IS_DYNAMIC,
             0, 0, IS_VISIBLE},
         {"maxLogFileSizeKBytes", "32678", IS_DYNAMIC, 0, 0, IS_VISIBLE},
-# else 
+# else
         {"logdir", "./logs", IS_DYNAMIC, 0, 0, IS_VISIBLE},
         {"maxLogFileSizeKBytes", "32678", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 # endif
@@ -271,7 +271,7 @@ void LogPropertyOwner::initCurrentValue(
             value.getCString(),
             maxLogFileSizeKBytes);
 
-        if (!status||(maxLogFileSizeKBytes < 
+        if (!status||(maxLogFileSizeKBytes <
             PEGASUS_MAXLOGFILESIZEKBYTES_CONFIG_PROPERTY_MINIMUM_VALUE))
         {
             throw InvalidPropertyValue(name, value);

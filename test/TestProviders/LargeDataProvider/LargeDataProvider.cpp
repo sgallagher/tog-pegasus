@@ -53,9 +53,9 @@ LargeDataProvider::~LargeDataProvider(void)
 
 void LargeDataProvider::initialize(CIMOMHandle & cimom)
 {
-    cout << "-----------------------------" << endl;    
+    cout << "-----------------------------" << endl;
     cout << "LargeDataProvider::initialize" << endl;
-    cout << "-----------------------------" << endl;    
+    cout << "-----------------------------" << endl;
 }
 
 void LargeDataProvider::terminate(void)
@@ -71,9 +71,9 @@ void LargeDataProvider::getInstance(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
-    cout << "------------------------------" << endl;   
+    cout << "------------------------------" << endl;
     cout << "LargeDataProvider::getInstance" << endl;
-    cout << "------------------------------" << endl;   
+    cout << "------------------------------" << endl;
     // convert a potential fully qualified reference into a local reference
     // (class name and keys only).
     CIMObjectPath localReference = CIMObjectPath(
@@ -81,10 +81,10 @@ void LargeDataProvider::getInstance(
         String(),
         instanceReference.getClassName(),
         instanceReference.getKeyBindings());
-    
+
     // begin processing the request
     handler.processing();
-    
+
     // instance index corresponds to reference index
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
@@ -110,7 +110,7 @@ void LargeDataProvider::enumerateInstances(
     char buffer[NO_OF_INSTANCES];
     CIMInstance Instances[NO_OF_INSTANCES];
     CIMObjectPath References[NO_OF_INSTANCES];
-    
+
     cout << "-------------------------------------" << endl;
     cout << "LargeDataProvider::enumerateInstances" << endl;
     cout << "-------------------------------------" << endl;
@@ -138,7 +138,7 @@ void LargeDataProvider::enumerateInstances(
         Instances[i].addProperty(CIMProperty("TimeIdeal", Uint16(100)));
         Instances[i].addProperty(
             CIMProperty("Performance", String("OK \00><\00")));
-        Instances[i].addProperty(CIMProperty("EndPoint", 
+        Instances[i].addProperty(CIMProperty("EndPoint",
                             String("Instance "+String(buffer)+" Ends")));
 
         _instances.append(Instances[i]);
@@ -159,7 +159,7 @@ void LargeDataProvider::enumerateInstanceNames(
     ObjectPathResponseHandler & handler)
 {
     cout << "-----------------------------------------" << endl;
-    cout << "LargeDataProvider::enumerateInstanceNames" << endl;    
+    cout << "LargeDataProvider::enumerateInstanceNames" << endl;
     cout << "-----------------------------------------" << endl;
     // begin processing the request
     handler.processing();
@@ -181,7 +181,7 @@ void LargeDataProvider::modifyInstance(
     ResponseHandler & handler)
 {
     cout << "---------------------------------" << endl;
-    cout << "LargeDataProvider::modifyInstance" << endl;    
+    cout << "LargeDataProvider::modifyInstance" << endl;
     cout << "---------------------------------" << endl;
     // convert a potential fully qualified reference into a local reference
     // (class name and keys only).
@@ -216,7 +216,7 @@ void LargeDataProvider::createInstance(
     ObjectPathResponseHandler & handler)
 {
     cout << "---------------------------------" << endl;
-    cout << "LargeDataProvider::createInstance" << endl;    
+    cout << "LargeDataProvider::createInstance" << endl;
     cout << "---------------------------------" << endl;
 
     // convert a potential fully qualified reference into a local reference
@@ -257,7 +257,7 @@ void LargeDataProvider::deleteInstance(
     ResponseHandler & handler)
 {
     cout << "---------------------------------" << endl;
-    cout << "LargeDataProvider::deleteInstance" << endl;    
+    cout << "LargeDataProvider::deleteInstance" << endl;
     cout << "---------------------------------" << endl;
     // convert a potential fully qualified reference into a local reference
     // (class name and keys only).

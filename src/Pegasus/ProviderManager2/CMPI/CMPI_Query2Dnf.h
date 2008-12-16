@@ -44,13 +44,13 @@
 
 PEGASUS_USING_STD;
 
-PEGASUS_NAMESPACE_BEGIN 
+PEGASUS_NAMESPACE_BEGIN
 
 class CMPI_QueryOperand
 {
 public:
     /**
-       When there are different types supported, please add them in here. Also 
+       When there are different types supported, please add them in here. Also
        make sure to look at the implemention of CMPI_term_el::mapType.
      */
     enum Type

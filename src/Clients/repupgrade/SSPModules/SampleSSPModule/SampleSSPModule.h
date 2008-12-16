@@ -27,7 +27,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Sushma Fernandes, Hewlett-Packard Company 
+// Author: Sushma Fernandes, Hewlett-Packard Company
 //         (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -41,14 +41,14 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-    
+
     SampleSSPModule implements a sample Schema Special Process Module.
- 
+
     The methods processClass and processInstance are implemented. Given
     a class or an instance the methods check whether it meets the criteria for
     special processing. In this example it checks whether a class or an instance
-    uses the "Required qualifier" and if so whether the flavor on it is set 
-    to OVERRIDABLE. If true the class or instance is updated 
+    uses the "Required qualifier" and if so whether the flavor on it is set
+    to OVERRIDABLE. If true the class or instance is updated
     to unset flavor OVERRIDABLE.
 
  */

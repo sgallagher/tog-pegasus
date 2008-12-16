@@ -65,7 +65,7 @@ Boolean ProcessValueObjectElement(CIMRepository& repository, XmlParser& parser)
 
     if (XmlReader::getClassElement(parser, cimClass))
     {
-        if (verbose) 
+        if (verbose)
         {
             cout << "Creating: class ";
             cout << cimClass.getClassName().getString() << endl;
@@ -86,7 +86,7 @@ Boolean ProcessValueObjectElement(CIMRepository& repository, XmlParser& parser)
     }
     else if (XmlReader::getQualifierDeclElement(parser, qualifierDecl))
     {
-        if (verbose) 
+        if (verbose)
         {
             cout << "Creating: qualifier ";
             cout << qualifierDecl.getName().getString() << endl;
@@ -127,7 +127,7 @@ Boolean ProcessDeclGroupElement(CIMRepository& repository, XmlParser& parser)
     if (!XmlReader::testStartTag(parser, entry, "DECLGROUP"))
     {
         return false;
-    } 
+    }
 
     while (ProcessValueObjectElement(repository, parser))
         ;
@@ -192,7 +192,7 @@ Boolean ProcessCimElement(CIMRepository& repository, XmlParser& parser)
 
     if (!entry.getAttributeValue("CIMVERSION", cimVersion))
     {
-        throw XmlValidationError(parser.getLine(), 
+        throw XmlValidationError(parser.getLine(),
             "missing CIM.CIMVERSION attribute");
     }
 
@@ -200,13 +200,13 @@ Boolean ProcessCimElement(CIMRepository& repository, XmlParser& parser)
 
     if (!entry.getAttributeValue("DTDVERSION", dtdVersion))
     {
-        throw XmlValidationError(parser.getLine(), 
+        throw XmlValidationError(parser.getLine(),
             "missing CIM.DTDVERSION attribute");
     }
 
     if (!ProcessDeclarationElement(repository, parser))
     {
-        throw XmlValidationError(parser.getLine(), 
+        throw XmlValidationError(parser.getLine(),
             "Expected DECLARATION element");
     }
 
@@ -261,7 +261,7 @@ int main(int argc, char** argv)
 {
     if (argc != 4)
     {
-        cerr << "Usage: " << argv[0] 
+        cerr << "Usage: " << argv[0]
             << " repository-root xmlfile namespace" << endl;
         exit(1);
     }
@@ -270,13 +270,13 @@ int main(int argc, char** argv)
 
     try
     {
-        namespaceName = argv[3]; 
+        namespaceName = argv[3];
         cout << argv[0] << " loading " << argv[2] << " to namespace "
             << namespaceName << " into repository " << argv[1] << endl;
         _processFile(argv[1], argv[2]);
         cout << argv[0] << " loaded." << endl;
     }
-            
+
     catch (const Exception& e)
     {
         cerr << e.getMessage() << endl;

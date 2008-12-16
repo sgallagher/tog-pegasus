@@ -81,7 +81,7 @@ PEGASUS_NAMESPACE_BEGIN
 
     The IS operator is NOT treated as a binary operator (which would take
     count and TRUE as its operands). Instead, the IS operator and TRUE operand
-    are combined to form a single unary operation called "IS_TRUE". In this 
+    are combined to form a single unary operation called "IS_TRUE". In this
     way, evaluation may be implemented by more efficiently (the TRUE operand
     is eliminated and therefore need not be handled). Conceptually, the above
     expression is equivalent to the following psuedo expression:
@@ -90,7 +90,7 @@ PEGASUS_NAMESPACE_BEGIN
         IS_TRUE(count)
     </pre>
 
-    Note that this technique is applied the following operations (also 
+    Note that this technique is applied the following operations (also
     combined to be unary operations).
 
     <ul>

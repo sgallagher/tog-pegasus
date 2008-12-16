@@ -36,9 +36,9 @@
 // ntpinfo client that does an enumerateInstances of the
 // PG_NTPService class and displays properties of interest.
 
-// At this time, there is only one instance of PG_NTPService. 
+// At this time, there is only one instance of PG_NTPService.
 
-#include "NTPInfo.h" 
+#include "NTPInfo.h"
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -62,7 +62,7 @@ NTPInfo::NTPInfo(void)
 
 NTPInfo::~NTPInfo(void)
 {
-}         
+}
 
 /** ErrorExit - Print out the error message as an
     and get out.
@@ -99,7 +99,7 @@ void NTPInfo::displayProperties()
 
    // expect to have values for the keys (even if Unknown)
    cout << "  System Name                : " << ntpSystemName << endl;
-   cout << "  System Creation Class Name : " 
+   cout << "  System Creation Class Name : "
         << ntpSystemCreationClassName << endl;
    cout << "  Name                       : " << ntpName << endl;
    cout << "  Creation Class Name        : " << ntpCreationClassName << endl;
@@ -123,7 +123,7 @@ void NTPInfo::displayProperties()
 /**
    gatherProperties method of the osinfo Test Client
   */
-void NTPInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat) 
+void NTPInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
 {
    // don't have a try here - want it to be caught by caller
 
@@ -142,10 +142,10 @@ void NTPInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
       {
          inst.getProperty(j).getValue().get(ntpSystemCreationClassName);
       }  // end if SystemCreationClassName
-      
+
       if (propertyName.equal (CIMName ("Name")))
       {
-         inst.getProperty(j).getValue().get(ntpName); 
+         inst.getProperty(j).getValue().get(ntpName);
       }  // end if Name
 
       if (propertyName.equal (CIMName ("CreationClassName")))
@@ -155,29 +155,29 @@ void NTPInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
 
       if (propertyName.equal (CIMName ("Caption")))
       {
-         inst.getProperty(j).getValue().get(ntpCaption); 
+         inst.getProperty(j).getValue().get(ntpCaption);
       }  // end if Caption
 
       if (propertyName.equal (CIMName ("Description")))
       {
-         inst.getProperty(j).getValue().get(ntpDescription); 
-      }  // end if Description 
+         inst.getProperty(j).getValue().get(ntpDescription);
+      }  // end if Description
 
       if (propertyName.equal (CIMName ("ServerAddress")))
       {
-         inst.getProperty(j).getValue().get(ntpServerAddress); 
-      }  // end if ServerAddress 
+         inst.getProperty(j).getValue().get(ntpServerAddress);
+      }  // end if ServerAddress
    }  // end of for looping through properties
 }
 
-/* 
-   getNTPInfo of the NTP provider. 
+/*
+   getNTPInfo of the NTP provider.
 */
 void NTPInfo::getNTPInfo(const int argc, const char** argv)
 {
 
 // ATTN-SLC-16-May-02-P1  enhance to take host & user info
-//  Decided to keep local only for first release 
+//  Decided to keep local only for first release
 
     Boolean cimFormat = false;
 
@@ -215,19 +215,19 @@ void NTPInfo::getNTPInfo(const int argc, const char** argv)
         CIMClient client;
         client.setTimeout(60 * 1000);
         client.connectLocal();
-        
+
         Boolean deepInheritance = true;
         Boolean localOnly = true;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
         Uint32 numberInstances;
 
-        Array<CIMInstance> cimNInstances = 
-           client.enumerateInstances(NAMESPACE, CLASSNAME, 
+        Array<CIMInstance> cimNInstances =
+           client.enumerateInstances(NAMESPACE, CLASSNAME,
                                      deepInheritance,
                                      localOnly,  includeQualifiers,
                                      includeClassOrigin );
-      
+
         numberInstances = cimNInstances.size();
 
         // while we only have one instance (the running OS), we can take the
@@ -244,14 +244,14 @@ void NTPInfo::getNTPInfo(const int argc, const char** argv)
 
            // first gather the interesting properties
            gatherProperties(cimNInstances[i], cimFormat);
-         
+
            // then display them
            displayProperties();
 
       }   // end for looping through instances
-    
-    }  // end try 
-   
+
+    }  // end try
+
     catch(Exception& e)
     {
       errorExit(e.getMessage());

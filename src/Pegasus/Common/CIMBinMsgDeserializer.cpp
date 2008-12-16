@@ -87,7 +87,7 @@ CIMMessage* CIMBinMsgDeserializer::deserialize(
 
     // [serverStartTimeMicroseconds]
     Uint64 serverStartTimeMicroseconds;
-    
+
     if (!in.getUint64(serverStartTimeMicroseconds))
         return false;
 
@@ -928,9 +928,9 @@ CIMBinMsgDeserializer::_getCreateInstanceRequestMessage(
         return 0;
 
     return new CIMCreateInstanceRequestMessage(
-        String::EMPTY, 
-        CIMNamespaceName(), 
-        newInstance, 
+        String::EMPTY,
+        CIMNamespaceName(),
+        newInstance,
         QueueIdStack());
 }
 
@@ -987,8 +987,8 @@ CIMBinMsgDeserializer::_getEnumerateInstancesRequestMessage(
         return false;
 
     return new CIMEnumerateInstancesRequestMessage(
-        String::EMPTY, 
-        CIMNamespaceName(), 
+        String::EMPTY,
+        CIMNamespaceName(),
         CIMName(),
         deepInheritance,
         localOnly,
@@ -1003,9 +1003,9 @@ CIMBinMsgDeserializer::_getEnumerateInstanceNamesRequestMessage(
     CIMBuffer& in)
 {
     return new CIMEnumerateInstanceNamesRequestMessage(
-        String::EMPTY, 
-        CIMNamespaceName(), 
-        CIMName(), 
+        String::EMPTY,
+        CIMNamespaceName(),
+        CIMName(),
         QueueIdStack());
 }
 
@@ -1020,10 +1020,10 @@ CIMBinMsgDeserializer::_getExecQueryRequestMessage(
         return false;
 
     return new CIMExecQueryRequestMessage(
-        String::EMPTY, 
+        String::EMPTY,
         CIMNamespaceName(),
-        queryLanguage, 
-        query, 
+        queryLanguage,
+        query,
         QueueIdStack());
 }
 
@@ -1065,16 +1065,16 @@ CIMBinMsgDeserializer::_getAssociatorsRequestMessage(
         return false;
 
     return new CIMAssociatorsRequestMessage(
-        String::EMPTY, 
+        String::EMPTY,
         CIMNamespaceName(),
-        objectName, 
-        assocClass, 
-        resultClass, 
-        role, 
+        objectName,
+        assocClass,
+        resultClass,
+        role,
         resultRole,
-        includeQualifiers, 
-        includeClassOrigin, 
-        propertyList, 
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList,
         QueueIdStack());
 }
 
@@ -1105,13 +1105,13 @@ CIMBinMsgDeserializer::_getAssociatorNamesRequestMessage(
 
     return new CIMAssociatorNamesRequestMessage(
         String::EMPTY,
-        CIMNamespaceName(), 
-        objectName, 
-        assocClass, 
-        resultClass, 
+        CIMNamespaceName(),
+        objectName,
+        assocClass,
+        resultClass,
         role,
-        resultRole, 
-        QueueIdStack()); 
+        resultRole,
+        QueueIdStack());
 }
 
 CIMReferencesRequestMessage*
@@ -1143,14 +1143,14 @@ CIMBinMsgDeserializer::_getReferencesRequestMessage(CIMBuffer& in)
         return false;
 
     return new CIMReferencesRequestMessage(
-        String::EMPTY, 
+        String::EMPTY,
         CIMNamespaceName(),
-        objectName, 
-        resultClass, 
-        role, 
-        includeQualifiers, 
-        includeClassOrigin, 
-        propertyList, 
+        objectName,
+        resultClass,
+        role,
+        includeQualifiers,
+        includeClassOrigin,
+        propertyList,
         QueueIdStack());
 }
 
@@ -1172,11 +1172,11 @@ CIMBinMsgDeserializer::_getReferenceNamesRequestMessage(
         return false;
 
     return new CIMReferenceNamesRequestMessage(
-        String::EMPTY, 
-        CIMNamespaceName(), 
-        objectName, 
-        resultClass, 
-        role, 
+        String::EMPTY,
+        CIMNamespaceName(),
+        objectName,
+        resultClass,
+        role,
         QueueIdStack());
 }
 
@@ -1194,10 +1194,10 @@ CIMBinMsgDeserializer::_getGetPropertyRequestMessage(
         return false;
 
     return new CIMGetPropertyRequestMessage(
-        String::EMPTY, 
+        String::EMPTY,
         CIMNamespaceName(),
-        instanceName, 
-        propertyName, 
+        instanceName,
+        propertyName,
         QueueIdStack());
 }
 
@@ -1215,10 +1215,10 @@ CIMBinMsgDeserializer::_getSetPropertyRequestMessage(
         return false;
 
     return new CIMSetPropertyRequestMessage(
-        String::EMPTY, 
+        String::EMPTY,
         CIMNamespaceName(),
-        instanceName, 
-        newValue.getParameterName(), 
+        instanceName,
+        newValue.getParameterName(),
         newValue.getValue(),
         QueueIdStack());
 }
@@ -1242,11 +1242,11 @@ CIMBinMsgDeserializer::_getInvokeMethodRequestMessage(
         return false;
 
     return new CIMInvokeMethodRequestMessage(
-        String::EMPTY, 
+        String::EMPTY,
         CIMNamespaceName(),
-        instanceName, 
-        methodName, 
-        inParameters, 
+        instanceName,
+        methodName,
+        inParameters,
         QueueIdStack());
 }
 
@@ -1281,13 +1281,13 @@ CIMBinMsgDeserializer::_getCreateSubscriptionRequestMessage(
         return false;
 
     return new CIMCreateSubscriptionRequestMessage(
-        String::EMPTY, 
+        String::EMPTY,
         nameSpace,
-        subscriptionInstance, 
-        classNames, 
+        subscriptionInstance,
+        classNames,
         propertyList,
-        repeatNotificationPolicy, 
-        query, 
+        repeatNotificationPolicy,
+        query,
         QueueIdStack());
 }
 
@@ -1322,13 +1322,13 @@ CIMBinMsgDeserializer::_getModifySubscriptionRequestMessage(
         return false;
 
     return new CIMModifySubscriptionRequestMessage(
-        String::EMPTY, 
+        String::EMPTY,
         nameSpace,
-        subscriptionInstance, 
-        classNames, 
+        subscriptionInstance,
+        classNames,
         propertyList,
-        repeatNotificationPolicy, 
-        query, 
+        repeatNotificationPolicy,
+        query,
         QueueIdStack());
 }
 
@@ -1352,9 +1352,9 @@ CIMBinMsgDeserializer::_getDeleteSubscriptionRequestMessage(
 
     return new CIMDeleteSubscriptionRequestMessage(
         String::EMPTY,
-        nameSpace, 
-        subscriptionInstance, 
-        classNames, 
+        nameSpace,
+        subscriptionInstance,
+        classNames,
         QueueIdStack());
 }
 
@@ -1377,10 +1377,10 @@ CIMBinMsgDeserializer::_getExportIndicationRequestMessage(
         return false;
 
     return new CIMExportIndicationRequestMessage(
-        String::EMPTY, 
+        String::EMPTY,
         destinationPath,
-        indicationInstance, 
-        QueueIdStack(), 
+        indicationInstance,
+        QueueIdStack(),
         authType,
         userName);
 }
@@ -1408,10 +1408,10 @@ CIMBinMsgDeserializer::_getProcessIndicationRequestMessage(
         return false;
 
     return new CIMProcessIndicationRequestMessage(
-        String::EMPTY, 
+        String::EMPTY,
         nameSpace,
-        indicationInstance, 
-        subscriptionInstanceNames, 
+        indicationInstance,
+        subscriptionInstanceNames,
         provider,
         QueueIdStack());
 }
@@ -1773,7 +1773,7 @@ CIMBinMsgDeserializer::_getEnumerateInstancesResponseMessage(
 {
     if (binaryResponse)
     {
-        // Inject data into message so that the instances can be deserialized 
+        // Inject data into message so that the instances can be deserialized
         // on demand later (hopefully never; hopefully it can be written out on
         // the wire intact).
 
@@ -1828,7 +1828,7 @@ CIMBinMsgDeserializer::_getEnumerateInstancesResponseMessage(
         }
 
         CIMEnumerateInstancesResponseMessage* msg;
-        
+
         msg = new CIMEnumerateInstancesResponseMessage(
             String::EMPTY,
             CIMException(),

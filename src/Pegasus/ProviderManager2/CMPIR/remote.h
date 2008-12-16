@@ -118,7 +118,7 @@ struct  remote_broker
 
 /****************************************************************************/
 
-PEGASUS_EXPORT remote_broker * PEGASUS_CMPIR_CDECL find_remote_broker ( 
+PEGASUS_EXPORT remote_broker * PEGASUS_CMPIR_CDECL find_remote_broker (
     const char * comm_layer_id,
     const char * broker_address,
     const char * provider,
@@ -126,7 +126,7 @@ PEGASUS_EXPORT remote_broker * PEGASUS_CMPIR_CDECL find_remote_broker (
     const comm_ticket * ticket,
     CMPIBrokerFT * brokerFT );
 
-PEGASUS_EXPORT void PEGASUS_CMPIR_CDECL cleanup_remote_brokers ( 
+PEGASUS_EXPORT void PEGASUS_CMPIR_CDECL cleanup_remote_brokers (
     long timeout,
     time_t check_interval );
 

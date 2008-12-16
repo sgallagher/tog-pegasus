@@ -38,7 +38,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-PAMBasicAuthenticator::PAMBasicAuthenticator() 
+PAMBasicAuthenticator::PAMBasicAuthenticator()
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::PAMBasicAuthenticator()");
@@ -54,8 +54,8 @@ PAMBasicAuthenticator::PAMBasicAuthenticator()
     PEG_METHOD_EXIT();
 }
 
-PAMBasicAuthenticator::~PAMBasicAuthenticator() 
-{ 
+PAMBasicAuthenticator::~PAMBasicAuthenticator()
+{
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticator::~PAMBasicAuthenticator()");
 
@@ -63,7 +63,7 @@ PAMBasicAuthenticator::~PAMBasicAuthenticator()
 }
 
 Boolean PAMBasicAuthenticator::authenticate(
-    const String& userName, 
+    const String& userName,
     const String& password)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,

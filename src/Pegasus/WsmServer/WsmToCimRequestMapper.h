@@ -61,7 +61,7 @@ public:
         WxfDeleteRequest* request);
     CIMEnumerateInstancesRequestMessage* mapToCimEnumerateInstancesRequest(
         WsenEnumerateRequest* request);
-    CIMEnumerateInstanceNamesRequestMessage* 
+    CIMEnumerateInstanceNamesRequestMessage*
         mapToCimEnumerateInstanceNamesRequest(WsenEnumerateRequest* request);
 
     static CIMName convertResourceUriToClassName(const String& resourceUri);

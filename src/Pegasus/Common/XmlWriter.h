@@ -419,7 +419,7 @@ public:
         "boolean", "string", or "numeric"
     */
     static const StrLit keyBindingTypeToString (CIMKeyBinding::Type type);
-    
+
 private:
 
     static void _appendMessageElementBegin(

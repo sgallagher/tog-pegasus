@@ -27,7 +27,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Denise Eckstein, Hewlett-Packard Company 
+// Author: Denise Eckstein, Hewlett-Packard Company
 //
 // Modified By:
 //
@@ -37,9 +37,9 @@
 
 PEGASUS_USING_STD;
 
-#define MAX_NUMBER_OF_PROPERTIES   99999 
-#define MAX_SIZE_OF_PROPERTY_VALUE 99999 
-#define MAX_NUMBER_OF_INSTANCES    99999 
+#define MAX_NUMBER_OF_PROPERTIES   99999
+#define MAX_SIZE_OF_PROPERTY_VALUE 99999
+#define MAX_NUMBER_OF_INSTANCES    99999
 
 benchmarkDefinition::benchmarkDefinition ()
 {

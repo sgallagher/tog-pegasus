@@ -64,13 +64,13 @@ int main(int argc, char** argv)
 
     for (Uint32 i = 1; i < Uint32(argc); i++)
     {
-    try 
-    { 
-        _processFile(argv[i]); 
+    try
+    {
+        _processFile(argv[i]);
     }
     catch(Exception& e)
     {
-        cerr << "Error: " << e.getMessage() << endl;    
+        cerr << "Error: " << e.getMessage() << endl;
         exit(1);
     }
     }

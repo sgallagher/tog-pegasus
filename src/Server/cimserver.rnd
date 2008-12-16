@@ -6621,15 +6621,15 @@ total 6
 Active Internet connections
 Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)
 tcp        0      0  cascades.wbem-https    cascades.60432          CLOSE_WAIT
-tcp        0      0  cascades.61270         dhcp44ute322.cup.hp.com.6000 
+tcp        0      0  cascades.61270         dhcp44ute322.cup.hp.com.6000
                                                                       ESTABLISHED
-tcp        0      0  cascades.61268         dhcp44ute322.cup.hp.com.6000 
+tcp        0      0  cascades.61268         dhcp44ute322.cup.hp.com.6000
                                                                       ESTABLISHED
 tcp        0      0  cascades.registrar     cascades.49215          ESTABLISHED
-tcp        0      0  cascades.58544         nb738044.cup.hp.com.6000 
+tcp        0      0  cascades.58544         nb738044.cup.hp.com.6000
                                                                       ESTABLISHED
 tcp        0      0  cascades.60432         cascades.wbem-https     FIN_WAIT_2
-tcp        0      0  cascades.56232         dhcp44ute180.cup.hp.com.6000 
+tcp        0      0  cascades.56232         dhcp44ute180.cup.hp.com.6000
                                                                       ESTABLISHED
 tcp        0      0  localhost.49228        localhost.49216         ESTABLISHED
 tcp        0      0  localhost.49225        localhost.49216         ESTABLISHED
@@ -6649,7 +6649,7 @@ Active UNIX domain sockets
         40e73800 dgram       0      0         40c0a800         40e55b80                0                0 /opt/dcelocal/var/rpc/local/00876/c-3/7002
         40db3a00 stream      0      0         40def000                0                0                0 /tmp/.AgentSockets/A
         40e05a00 dgram       0      0         40c0a000                0                0                0 /var/spool/pwgr/daemon
-        40e46000 stream      0      0                0         40da7780                0                0 
+        40e46000 stream      0      0                0         40da7780                0                0
         40e46400 stream      0      0                0         40da7740                0                0 /tmp/.AgentSockets/A
         40d86600 dgram       0      0         40c7d000                0                0                0 /opt/dcelocal/var/rpc/local/00974/reaper
         42506e00 stream      0      0         451d4000                0                0                0 /tmp/cimxml.socket
@@ -6658,11 +6658,11 @@ Active UNIX domain sockets
         40d8b000 stream      0      0         40cbc800                0                0                0 /opt/dcelocal/var/rpc/local/s-0/2121
         455fb800 dgram       0      0         42af8000                0                0                0 /var/spool/sockets/pwgr/client26534
         40e4cc00 stream      0      0                0         40e55300                0                0 /tmp/.AgentSockets/A
-        40e4ce00 stream      0      0                0         40e55340                0                0 
+        40e4ce00 stream      0      0                0         40e55340                0                0
         40d8d000 dgram       0      0         40cbc000                0                0                0 /opt/dcelocal/var/rpc/local/s-3/2121
         40abd000 dgram       0      0         40c4a000                0                0                0 /dev/log.un
         40f6d800 stream      0      0                0         40f136c0                0                0 /tmp/.AgentSockets/A
-        40e5d800 stream      0      0                0         40da7400                0                0 
-        40f6dc00 stream      0      0                0         40f137c0                0                0 
-        40ece200 dgram       0      0                0                0                0                0 
+        40e5d800 stream      0      0                0         40da7400                0                0
+        40f6dc00 stream      0      0                0         40f137c0                0                0
+        40ece200 dgram       0      0                0                0                0                0
         40dafc00 dgram       0      0         40c0b800         40e55bc0                0                0 /opt/dcelocal/var/rpc/local/00876/c-3/7000

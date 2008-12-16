@@ -179,7 +179,7 @@ Boolean SSLSocket::incompleteSecureReadOccurred(Sint32 retCode)
 {
     Sint32 err = SSL_get_error(static_cast<SSL*>(_SSLConnection), retCode);
 
-    Boolean isIncompleteRead = 
+    Boolean isIncompleteRead =
         ((err == SSL_ERROR_SYSCALL) &&
         (_sslReadErrno == EAGAIN || _sslReadErrno == EINTR)) ||
         (err == SSL_ERROR_WANT_READ) ||
@@ -367,26 +367,26 @@ Sint32 SSLSocket::accept()
                 // added in OpenSSL 0.9.6:
                 ERR_error_string_n(rc, buff, sizeof(buff));
                 PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                    "---> SSL: Not accepted %d %s client IP address : %s", 
+                    "---> SSL: Not accepted %d %s client IP address : %s",
                     ssl_rsn, buff, (const char*)_ipAddress.getCString() ));
             }
 
             //
             // If there was a verification error, create a audit log entry.
             //
-            if (!(ssl_rsn == SSL_ERROR_SYSCALL || 
+            if (!(ssl_rsn == SSL_ERROR_SYSCALL ||
                   ssl_rsn == SSL_ERROR_ZERO_RETURN) &&
                 _SSLContext->isPeerVerificationEnabled())
             {
-                Array<SSLCertificateInfo*> certs = 
-                    getPeerCertificateChain(); 
-                if (certs.size() > 0) 
+                Array<SSLCertificateInfo*> certs =
+                    getPeerCertificateChain();
+                if (certs.size() > 0)
                 {
                     SSLCertificateInfo* clientCert = certs[0];
                     PEGASUS_ASSERT(clientCert != NULL);
 
                     char serialNumberString[32];
-                    sprintf(serialNumberString, "%lu", 
+                    sprintf(serialNumberString, "%lu",
                         (unsigned long)clientCert->getSerialNumber());
 
                     PEG_AUDIT_LOG(logCertificateBasedAuthentication(
@@ -433,7 +433,7 @@ Sint32 SSLSocket::accept()
         {
             SSLCertificateInfo* clientCert = certs[0];
             PEGASUS_ASSERT(clientCert != NULL);
-     
+
             //
             // get certificate verification result and create a audit log entry.
             //
@@ -496,7 +496,7 @@ Sint32 SSLSocket::connect(Uint32 timeoutMilliseconds)
                 Tracer::LEVEL1,
                 "---> SSL: Shutdown SSL_connect() failed. Error string: %s",
                 ERR_error_string(ssl_rc, NULL)));
-            
+
             PEG_METHOD_EXIT();
             return -1;
         }

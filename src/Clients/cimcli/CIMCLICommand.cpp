@@ -140,7 +140,7 @@ Boolean setObjectManagerStatistics(CIMClient & client, Boolean newState)
     CIMPropertyList statPropertyList(plA);
     // Create property list that represents correct request
     // get instance.  Get only the gatherstatitistics property
-    instancesObjectManager  = 
+    instancesObjectManager  =
         client.enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP,
             "CIM_ObjectManager",
             true, false, false, false, statPropertyList);
@@ -148,15 +148,15 @@ Boolean setObjectManagerStatistics(CIMClient & client, Boolean newState)
     instObjectManager = instancesObjectManager[0];
     // set correct path into instance
     instObjectManager.setPath(instancesObjectManager[0].getPath());
-    
+
     prop_num = instObjectManager.findProperty(gathStatName);
     PEGASUS_TEST_ASSERT(prop_num != PEG_NOT_FOUND);
-    
+
     instObjectManager.getProperty(prop_num).setValue(CIMValue(newState));
-    
+
     client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP, instObjectManager,
          false, statPropertyList);
-    CIMInstance updatedInstance = 
+    CIMInstance updatedInstance =
         client.getInstance(PEGASUS_NAMESPACENAME_INTEROP,
         instObjectManager.getPath(),
         false, false, false, statPropertyList);
@@ -188,31 +188,31 @@ public:
         returnedPerformanceData.operationType =  item.operationType;
         if (item.roundTripTime == 0)
         {
-           cerr << "roundTripTime is incorrect in ClientOpPerformanceData " 
+           cerr << "roundTripTime is incorrect in ClientOpPerformanceData "
                << endl;
         }
         returnedPerformanceData.roundTripTime =  item.roundTripTime;
 
         if (item.requestSize == 0)
         {
-            cerr << "requestSize is incorrect in ClientOpPerformanceData " 
+            cerr << "requestSize is incorrect in ClientOpPerformanceData "
                 << endl;
         }
         returnedPerformanceData.requestSize =  item.requestSize;
 
         if (item.responseSize == 0)
         {
-            cerr << "responseSize is incorrect in ClientOpPerformanceData " 
+            cerr << "responseSize is incorrect in ClientOpPerformanceData "
                 << endl;
         }
         returnedPerformanceData.responseSize =  item.responseSize;
 
-        if (item.serverTimeKnown) 
+        if (item.serverTimeKnown)
         {
             /* Bypass this because we are getting server times zero
             if (item.serverTime == 0)
             {
-                cerr << "serverTime is incorrect in ClientOpPerformanceData " 
+                cerr << "serverTime is incorrect in ClientOpPerformanceData "
                     << endl;
             }
             */
@@ -237,7 +237,7 @@ int main(int argc, char** argv)
     setEBCDICEncoding(STDOUT_FILENO);
     setEBCDICEncoding(STDERR_FILENO);
 #endif
- 
+
 #ifdef PEGASUS_OS_PASE
     // Allow user group name larger than 8 chars in PASE environemnt
     setenv("PASE_USRGRP_LIMITED","N",1);
@@ -377,15 +377,15 @@ int main(int argc, char** argv)
 
     // Find the command and save index in cmdIndex
     Uint32 cmdIndex = 0;
-    
+
     if (opts.verboseTest && opts.debug)
         cout << "TEST Command = " << opts.cimCmd << endl;
 
     // Find the command or the short cut name
     for( ; cmdIndex < NUM_COMMANDS; cmdIndex++ )
     {
-        if ((String::equalNoCase(opts.cimCmd, 
-                CommandTable[cmdIndex].CommandName)) 
+        if ((String::equalNoCase(opts.cimCmd,
+                CommandTable[cmdIndex].CommandName))
                 ||
                 (opts.cimCmd == CommandTable[cmdIndex].ShortCut))
             // Break if found
@@ -405,14 +405,14 @@ int main(int argc, char** argv)
             String host;
             HostLocator addr;
             if (opts.location != String::EMPTY)
-            { 
+            {
                 addr.setHostLocator(opts.location);
                 if (!addr.isValid())
                 {
                     throw InvalidLocatorException(opts.location);
                 }
                 host = addr.getHost();
-            } 
+            }
 
             Uint32 portNumber = System::lookupPort( WBEM_HTTP_SERVICE_NAME,
                               WBEM_DEFAULT_HTTP_PORT );
@@ -459,19 +459,19 @@ int main(int argc, char** argv)
 #ifdef PEGASUS_HAS_SSL
                 if (opts.ssl) //connect over HTTPS
                 {
-                    if (!String::equal(opts.clientCert, String::EMPTY) 
+                    if (!String::equal(opts.clientCert, String::EMPTY)
                             && !String::equal(opts.clientKey, String::EMPTY))
                     {
                         if (opts.verboseTest)
                         {
-                            cout << "SSL options " 
+                            cout << "SSL options "
                                 << "Cert = " << opts.clientCert
                                 << "clientKey = "  << opts.clientKey << endl;
                         }
                         client.connect(host,
                                        portNumber,
-                                       SSLContext("", 
-                                           opts.clientCert, 
+                                       SSLContext("",
+                                           opts.clientCert,
                                            opts.clientKey,
                                            NULL, "ssl.rnd"),
                                        opts.user,
@@ -493,7 +493,7 @@ int main(int argc, char** argv)
 #endif
             }
         }
-    }    
+    }
     catch(Exception &e)
     {
         cerr << "Pegasus Exception: " << e.getMessage() <<
@@ -694,7 +694,7 @@ int main(int argc, char** argv)
                     }
                     else
                         // set nameSpace to interop namespace name
-                        opts.nameSpace = 
+                        opts.nameSpace =
                             PEGASUS_NAMESPACENAME_INTEROP.getString();
 
                     enumerateNamespaces_Namespace(client,opts);
@@ -841,7 +841,7 @@ int main(int argc, char** argv)
                     << " us min= "
                     << minTime * 1000000
                     << " us max= "
-                    << (maxTime * 1000000) 
+                    << (maxTime * 1000000)
                     << " us SvrTime avg= "
                     << CIMValue(serverTotalTime/repeatCount).toString()
                     << " us SvrTime min= "
@@ -871,7 +871,7 @@ int main(int argc, char** argv)
     catch(Exception& e)
     {
         PEGASUS_STD(cerr) << argv[0] << " Pegasus Exception: " << e.getMessage()
-                <<  ". Cmd = " << opts.cimCmd 
+                <<  ". Cmd = " << opts.cimCmd
                 << " Object = " << opts.inputObjectName
                 << PEGASUS_STD(endl);
             opts.termCondition = 1;

@@ -93,7 +93,7 @@ int main(const int argc, const char **argv)
       cout << "  Namespaces:";
       for (int j=0; j<nameSpaces.size(); j++) cout << " " << nameSpaces[j];
       cout << endl;
-      
+
       // display name of provider
       String pName;
       cap.getProperty(cap.findProperty("ProviderName")).getValue().get(pName);
@@ -106,7 +106,7 @@ int main(const int argc, const char **argv)
       for (int j=0; j<pType.size(); j++)
         cout << " " << _providerType[ pType[j] ];
       cout << endl;
-      
+
       // display state
       Array<Uint16> state;
       mod.getProperty(
@@ -115,7 +115,7 @@ int main(const int argc, const char **argv)
       for (int j=0; j<state.size(); j++)
         cout << " " << _providerState[ state[j] ];
       cout << endl;
-      
+
       // display module
       cout << "  Module:     " << pMod << endl;
 
@@ -159,7 +159,7 @@ int _getClass(const int argc, const char **argv)
   cout << "class " << cldef.getClassName().getString() << " : "
     << cldef.getSuperClassName().getString() << endl;
   cout << "{" << endl;
-  
+
   // Now the properties
   // No qualifiers except [key], but specify type, array
   for (int i=0; i<cldef.getPropertyCount(); i++)
@@ -181,7 +181,7 @@ int _getClass(const int argc, const char **argv)
     // final eol
     cout << ";" << endl;
   }
-  
+
   // need to do methods
   for (int i=0; i<cldef.getMethodCount(); i++)
   {
@@ -225,11 +225,11 @@ int _getClass(const int argc, const char **argv)
     // finish output
     cout << ";" << endl;
   }
-  
+
   // final brace and done
   cout << "};" << endl;
 
-  return 0; 
+  return 0;
 }
 
 // ===============================================================
@@ -268,7 +268,7 @@ int _getInstance(const int argc, const char **argv)
                                        PEGASUS_NAMESPACENAME_INTEROP,
                                        argv[0],
                                        _inputInstanceKeys(cldef));
-  
+
   // else if there's another arg and it's "list", enumInstNames and print
   // a list from which user will select (return if none)
   else if (String::equalNoCase("list",argv[1]))
@@ -277,7 +277,7 @@ int _getInstance(const int argc, const char **argv)
     // An empty ObjectPath means nothing was selected
     if (ref.identical(CIMObjectPath())) return 0;
   }
-    
+
   // else there's another arg but it's invalid
   else
   {
@@ -314,9 +314,9 @@ int _enumerateInstances(const int argc, const char **argv)
     cerr << /* "enumerateInstances: " << */ e.getMessage() << endl;
     return 1;
   }
-  
+
   cerr << ia.size() << " instances" << endl;
-  
+
   for (int i=0; i<ia.size(); i++)
   {
     cout << endl;
@@ -332,7 +332,7 @@ int _enumerateInstances(const int argc, const char **argv)
 
 int _enumerateInstanceNames(const int argc, const char **argv)
 {
-  Array<CIMObjectPath> iNames; 
+  Array<CIMObjectPath> iNames;
   try
   {
     iNames = _c.enumerateInstanceNames( PEGASUS_NAMESPACENAME_INTEROP,
@@ -374,14 +374,14 @@ int _getProperty(const int argc, const char **argv)
   CIMInstance inst;
 
   // If next arg is "ask", prompt user for keys
-  if (String::equalNoCase("ask",argv[1])) ref = 
+  if (String::equalNoCase("ask",argv[1])) ref =
             CIMObjectPath(String::EMPTY,
                           PEGASUS_NAMESPACENAME_INTEROP,
                           argv[0],
                           _inputInstanceKeys(cldef) );
 
   // else if the next arg and is "list", enumInstNames and print
-  // a list from which user will select  
+  // a list from which user will select
   else if (String::equalNoCase("list",argv[1]))
   {
     ref = _selectInstance( argv[0] );
@@ -431,7 +431,7 @@ int _getProperty(const int argc, const char **argv)
   }
 
   cout << "  " << pDef.getName().getString();
-  
+
   if (v.isArray()) cout << "[" << v.getArraySize() << "]";
 
   if (v.isNull()) cout << "=NULL";
@@ -487,7 +487,7 @@ int _deleteInstance(const int argc, const char **argv)
                                        PEGASUS_NAMESPACENAME_INTEROP,
                                        argv[0],
                                        _inputInstanceKeys(cldef));
-  
+
   // else if there's another arg and it's "list", enumInstNames and print
   // a list from which user will select (return if none)
   else if (String::equalNoCase("list",argv[1]))
@@ -496,7 +496,7 @@ int _deleteInstance(const int argc, const char **argv)
     // An empty ObjectPath means nothing was selected
     if (ref.identical(CIMObjectPath())) return 0;
   }
-    
+
   // else there's another arg but it's invalid
   else
   {
@@ -532,7 +532,7 @@ Array<CIMKeyBinding> _inputInstanceKeys(const CIMClass &cldef)
     if (_isKey(prop))
     {
       char s[256];
-      cout << prop.getName().getString() << " (" 
+      cout << prop.getName().getString() << " ("
           << cimTypeToString(prop.getType()) << "): ";
       cin.getline(s,sizeof(s));
       enum CIMKeyBinding::Type t;
@@ -626,7 +626,7 @@ void _displayInstance(CIMInstance &inst)
 void _displayProperty(const CIMProperty &p)
 {
   cout << "  " << p.getName().getString();
-  
+
   CIMValue v = p.getValue();
 
   if (v.isArray())

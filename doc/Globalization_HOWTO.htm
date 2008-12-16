@@ -543,9 +543,9 @@ default process locale, as determined by ICU, in this case. <br>
 <p><i>Important Note:</i>&nbsp; The MessageLoader does <i>not</i> use
 the "fallback" mechanism described in the ICU Resource Management
 section.&nbsp; This is because the Accept-Language header itself
-describes the fallback that the client wants.&nbsp; If the 
+describes the fallback that the client wants.&nbsp; If the
 MessageLoader cannot find a message file for any of the languages
-in the AcceptLanguageList, it will try the default process locale. 
+in the AcceptLanguageList, it will try the default process locale.
 If this fails, the ICU root resource bundle will be tried.<br>
 &nbsp; </p>
 <p>Please refer to the following files for details on the new Pegasus
@@ -612,7 +612,7 @@ be updated.</p>
 
 <ul>
 <li>If a message definition contains text within a single quote
-it is not interpreted in any way. 
+it is not interpreted in any way.
 
 <p><i>Example:</i></p>
 <p> Server.CIMOperationRequestAuthorizer.NOT_IN_AUTHORIZED_GRP:
@@ -624,7 +624,7 @@ it is not interpreted in any way.
 </li>
 
 <li> For a single quote to appear in a processed message, it needs to be preceded by
-another single quote. 
+another single quote.
 
 <p><i>Example:</i></p>
 <p> Server.CIMOperationRequestAuthorizer.NOT_IN_AUTHORIZED_GRP:
@@ -636,13 +636,13 @@ another single quote.
 </li>
 
 <li> For a double quote to appear in a processed message, it needs to be preceded by
-a back slash. 
+a back slash.
 
 <p><i>Example:</i></p>
 <p>
 ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.
-UNSUPPORTED_USERCONTEXT_VALUE:string {"PGS03029: Unsupported UserContext 
-value: \"{0}\"."} 
+UNSUPPORTED_USERCONTEXT_VALUE:string {"PGS03029: Unsupported UserContext
+value: \"{0}\"."}
 </p>
 
 <p><i>Processed message:</i></p>

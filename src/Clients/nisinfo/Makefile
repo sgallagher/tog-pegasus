@@ -40,7 +40,7 @@ LIBRARIES = \
     pegcommon
 
 PROGRAM = nisinfo
-SOURCES = NISInfo.cpp 
+SOURCES = NISInfo.cpp
 
 
 include $(ROOT)/mak/program.mak

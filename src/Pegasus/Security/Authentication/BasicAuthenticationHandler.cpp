@@ -49,7 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 BasicAuthenticationHandler::BasicAuthenticationHandler()
 {
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "BasicAuthenticationHandler::BasicAuthenticationHandler()");
 
 #ifdef PEGASUS_PAM_AUTHENTICATION
@@ -63,7 +63,7 @@ BasicAuthenticationHandler::BasicAuthenticationHandler()
 
 BasicAuthenticationHandler::~BasicAuthenticationHandler()
 {
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "BasicAuthenticationHandler::~BasicAuthenticationHandler()");
 
     delete _basicAuthenticator;
@@ -71,7 +71,7 @@ BasicAuthenticationHandler::~BasicAuthenticationHandler()
     PEG_METHOD_EXIT();
 }
 
-Boolean BasicAuthenticationHandler::authenticate(    
+Boolean BasicAuthenticationHandler::authenticate(
     const String& authHeader,
     AuthenticationInfo* authInfo)
 {
@@ -102,7 +102,7 @@ Boolean BasicAuthenticationHandler::authenticate(
 
     decodedArray = Base64::decode( userPassArray );
 
-    String decodedStr = 
+    String decodedStr =
         String( (const char*)decodedArray.getData(), decodedArray.size() );
 
     Uint32 pos = decodedStr.find(':');
@@ -125,14 +125,14 @@ Boolean BasicAuthenticationHandler::authenticate(
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
             Logger::INFORMATION,
             MessageLoaderParms(
-                BASIC_AUTHENTICATION_FAILED_KEY, 
+                BASIC_AUTHENTICATION_FAILED_KEY,
                 BASIC_AUTHENTICATION_FAILED, badUserName));
         PEG_METHOD_EXIT();
         return false;
     }
 
     // PASE APIs require user profile to be uppercase
-#ifdef PEGASUS_OS_PASE 
+#ifdef PEGASUS_OS_PASE
     for (Uint32 i = 0; i < userNameLen; i++)
     {
         userName[i] = toupper(userName[i]);
@@ -192,7 +192,7 @@ String BasicAuthenticationHandler::getAuthResponseHeader(
     const String& userName,
     AuthenticationInfo* authInfo)
 {
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION, 
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "BasicAuthenticationHandler::getAuthResponseHeader()");
 
     String respHeader = _basicAuthenticator->getAuthResponseHeader();

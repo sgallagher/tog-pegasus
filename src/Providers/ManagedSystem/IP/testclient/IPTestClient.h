@@ -40,7 +40,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 // Used defines
-static const CIMNamespaceName NAMESPACE("root/cimv2");    
+static const CIMNamespaceName NAMESPACE("root/cimv2");
 static const String IPPEP_DESCRIPTION_PREFIX
                     ("IP Protocol Endpoint for ");
 static const String IPROUTE_DESCRIPTION_PREFIX

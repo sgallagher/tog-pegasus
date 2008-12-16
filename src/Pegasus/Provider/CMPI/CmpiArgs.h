@@ -42,7 +42,7 @@
 #include "CmpiBroker.h"
 #include "CmpiBaseMI.h"
 
-/** 
+/**
     This class wraps a CIMOM specific input and output arguments
     passed to methodInvocation functions.
 */
@@ -53,12 +53,12 @@ class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiArgs : public CmpiObject
     friend class CmpiMethodMI;
 protected:
 
-    /** 
+    /**
         Protected constructor used by MIDrivers to encapsulate CMPIArgs.
     */
     CmpiArgs(CMPIArgs* enc);
 
-    /** 
+    /**
         Gets the encapsulated CMPIArgs.
     */
     CMPIArgs *getEnc() const;
@@ -67,19 +67,19 @@ protected:
 private:
 public:
 
-    /** 
+    /**
         Constructor - Empty argument container.
     */
     CmpiArgs();
 
-    /** 
+    /**
         getArgCount-Gets the number of arguments
         defined for this argument container.*
         @return Number of arguments in this container.
-    */ 
+    */
     unsigned int getArgCount() const;
 
-    /** 
+    /**
         getArg - Gets the CmpiData object representing the value
         associated with the argument  name
         @param name argument name.
@@ -87,7 +87,7 @@ public:
     */
     CmpiData getArg(const char* name) const;
 
-    /** 
+    /**
         getArgument - Gets the CmpiData object defined
         by the input index parameter.
         @param index Index into the argument array.
@@ -96,9 +96,9 @@ public:
     */
     CmpiData getArg(const int index, CmpiString *name=NULL) const;
 
-    /** 
+    /**
         setArg - adds/replaces an argument value defined by the
-        input parameter to the container. 
+        input parameter to the container.
         @param name Property name.
         @param data Type and Value to be added.
     */

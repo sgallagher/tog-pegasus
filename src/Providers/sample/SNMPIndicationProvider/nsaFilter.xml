@@ -15,16 +15,16 @@
             <PROPERTY NAME="SystemName" TYPE="string">
               <VALUE> server001.acme.com </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="CreationClassName" TYPE="string"> 
+            <PROPERTY NAME="CreationClassName" TYPE="string">
               <VALUE> CIM_IndicationFilter </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="Name" TYPE="string"> 
+            <PROPERTY NAME="Name" TYPE="string">
               <VALUE> nsaFilter </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="Query" TYPE="string"> 
+            <PROPERTY NAME="Query" TYPE="string">
               <VALUE> SELECT cycHostAdapterNumber, cycManagerID, cycHostAdapterID FROM cycHostAdapterDiscovered WHERE cycHostAdapterNumber = 101 </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="QueryLanguage" TYPE="string"> 
+            <PROPERTY NAME="QueryLanguage" TYPE="string">
               <VALUE> WQL1 </VALUE>
             </PROPERTY>
           </INSTANCE>

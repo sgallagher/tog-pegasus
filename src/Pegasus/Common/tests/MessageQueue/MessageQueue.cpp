@@ -139,7 +139,7 @@ void TestMessageQueue4()
 {
    MessageQueue q("a queue");
    MessageQueue r("another q");
-   
+
    MessageQueue *found = MessageQueue::lookup("a queue");
    PEGASUS_TEST_ASSERT(found);
    PEGASUS_TEST_ASSERT(!strcmp(found->getQueueName(), "a queue"));
@@ -167,6 +167,6 @@ int main()
     {
     cerr << e.getMessage() << endl;
     }
-    
+
     return 0;
 }

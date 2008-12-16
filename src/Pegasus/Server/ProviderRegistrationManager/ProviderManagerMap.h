@@ -50,7 +50,7 @@ class PEGASUS_PRM_LINKAGE ProviderManagerMap
         bool getProvMgrPathForIfcType(String &ifcType,
             String &ifcVersion,
             String &path);
-        
+
     private:
         typedef struct __PROV_MGR_IFC_INFO_S
         {

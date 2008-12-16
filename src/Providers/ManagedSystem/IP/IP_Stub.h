@@ -188,7 +188,7 @@ public:
     ~NextHopIPRoute();
 
     // Property Accessor Methods
-    
+
     Boolean getCaption(String&) const;
     Boolean getDescription(String&) const;
     Boolean getInstallDate(CIMDateTime&) const;

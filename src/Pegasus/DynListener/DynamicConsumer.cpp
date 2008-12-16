@@ -49,7 +49,7 @@ DynamicConsumer::DynamicConsumer(): Base(0)
 {
 }
 
-DynamicConsumer::DynamicConsumer(const String& name): 
+DynamicConsumer::DynamicConsumer(const String& name):
 Base(0),
 _module(0),
 _eventqueue(),
@@ -125,7 +125,7 @@ Boolean DynamicConsumer::isInitialized(void) const
 
 /** Initializes the consumer.
  *  Caller assumes responsibility for catching exceptions thrown by this method.
- */ 
+ */
 void DynamicConsumer::initialize()
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "DynamicConsumer::initialize");
@@ -209,9 +209,9 @@ void DynamicConsumer::terminate(void)
     PEG_METHOD_EXIT();
 }
 
-/** This method should be called after the physical consumer 
- *  is loaded and before initialization.  
- */ 
+/** This method should be called after the physical consumer
+ *  is loaded and before initialization.
+ */
 void DynamicConsumer::set(ConsumerModule* consumerModule,
                           CIMIndicationConsumerProvider* consumerRef)
 {
@@ -232,11 +232,11 @@ void DynamicConsumer::set(ConsumerModule* consumerModule,
     PEG_METHOD_EXIT();
 }
 
-/** This method should be called after the consumer is terminated and the 
- * module is unloaded.  Note that we cannot test for a loaded condition, 
- * since the _module reference here may still exist (if more than one 
+/** This method should be called after the consumer is terminated and the
+ * module is unloaded.  Note that we cannot test for a loaded condition,
+ * since the _module reference here may still exist (if more than one
  * consumer is using the module).
- * Simply test whether the consumer is initialized.  
+ * Simply test whether the consumer is initialized.
  * If it was terminated properly, initialized will be false and the _module
  * ref count will be decremented.
  */
@@ -253,7 +253,7 @@ void DynamicConsumer::reset()
                          "perform the operation."));
     }
 
-    // do not delete it, that is taken care of in ConsumerModule itself 
+    // do not delete it, that is taken care of in ConsumerModule itself
     _module = 0;
     // ATTN: attempting to delete this causes an exception -- why??
     _consumer = 0;
@@ -304,7 +304,7 @@ void DynamicConsumer::enqueueEvent(IndicationDispatchEvent* event)
     {
         //ATTN: Log missed indication
         PEG_TRACE((TRC_LISTENER,Tracer::LEVEL1,
-            "Exception at enqueueingEvent: %s", 
+            "Exception at enqueueingEvent: %s",
             (const char*)ex.getMessage().getCString()));
 
     } catch (...)
@@ -366,10 +366,10 @@ String DynamicConsumer::toString()
     return buffer;
 }
 
-/** Returns true if the consumer has been inactive for 
+/** Returns true if the consumer has been inactive for
  *  longer than the idle period.
- */ 
-Boolean DynamicConsumer::isIdle() 
+ */
+Boolean DynamicConsumer::isIdle()
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "DynamicConsumer::isIdle");
 
@@ -401,10 +401,10 @@ Boolean DynamicConsumer::isIdle()
 }
 
 /** This method waits until the event thread is ready to accept incoming
- *  indications.  Otherwise, there is a miniscule chance that 
+ *  indications.  Otherwise, there is a miniscule chance that
  *  the first event will be enqueued before the consumer is waiting for it
  *  and the first indication after loading the consumer will be lost.
- */ 
+ */
 void DynamicConsumer::waitForEventThread()
 {
     _listeningSemaphore->wait();
@@ -412,13 +412,13 @@ void DynamicConsumer::waitForEventThread()
 
 /** This method is called when the consumer is initialized for the first time.
  *  It reads the outstanding requests from the dat file and enqueues them.
- * 
+ *
  * ATTN: This method will only get called when a consumer is initialized.
  * Therefore, when the listener starts, the outstanding indications for this
  * consumer will not get sent UNTIL a new indication comes in.  This is not
  * really an acceptable scenario.  Maybe the consumer manager needs to check
  * the .dat files upon startup and load if they are not empty.
- */ 
+ */
 void DynamicConsumer::_loadOutstandingIndications(
          Array<IndicationDispatchEvent> indications)
 {
@@ -430,12 +430,12 @@ void DynamicConsumer::_loadOutstandingIndications(
     IndicationDispatchEvent* event = 0;
     for (Uint32 i=0; i < indications.size(); i++)
     {
-        
+
         event = new IndicationDispatchEvent(
                         OperationContext(),  //ATTN: Do we need to store this?
                         indications[i].getURL(),
                         indications[i].getIndicationInstance());
-        
+
         _eventqueue.insert_back(event);
     }
 
@@ -449,14 +449,14 @@ void DynamicConsumer::_loadOutstandingIndications(
 }
 
 /** This method serializes the remaining indications in the queue.
- *  It should be called when the consumer is shutting down.  Each time the 
+ *  It should be called when the consumer is shutting down.  Each time the
  *  consumer is loaded, these indications will be reloaded into the queue.
- *  Therefore, the file should be overwritten each time to eliminate 
+ *  Therefore, the file should be overwritten each time to eliminate
  *  duplicating outstanding indications.
- * 
+ *
  * ATTN: Should we let another method delete the instances?
- */ 
-Array<IndicationDispatchEvent> 
+ */
+Array<IndicationDispatchEvent>
     DynamicConsumer::_retrieveOutstandingIndications()
 {
     PEG_METHOD_ENTER(
@@ -563,7 +563,7 @@ CIMDateTime IndicationDispatchEvent::getLastAttemptTime()
 }
 
 
-IndicationDispatchEvent& 
+IndicationDispatchEvent&
     IndicationDispatchEvent::operator=(const IndicationDispatchEvent &event)
 {
     _context = event._context;
@@ -578,7 +578,7 @@ IndicationDispatchEvent&
 Boolean IndicationDispatchEvent::operator==
             (const IndicationDispatchEvent& event) const
 {
-    if (String::equal(this->_url, event._url) && 
+    if (String::equal(this->_url, event._url) &&
         (this->_instance.identical(event._instance)))
     {
         return true;

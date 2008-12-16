@@ -111,26 +111,26 @@ time to execute.  Grow this to a class so we have start and stop and time
 display with success/failure for each function.
 */
 static void _testStart(
-    const String& cimop, const Uint32 uniqueID, 
+    const String& cimop, const Uint32 uniqueID,
     const Uint32 duration, const String& message)
 {
-    cout << "+++++ " << cimop << " thread " << uniqueID << ": " << message 
+    cout << "+++++ " << cimop << " thread " << uniqueID << ": " << message
          << " for " << duration << " seconds" << endl;
 }
 
 static void _testEnd(
-    const String& cimop, const Uint32 uniqueID, 
+    const String& cimop, const Uint32 uniqueID,
     const Uint32 iterations, const double elapsedTime)
 {
     if (shutdownFlag)
     {
-        cout << "????? " << cimop << " thread " << uniqueID 
-             << ": shutting down due to indicated failure on another thread" 
+        cout << "????? " << cimop << " thread " << uniqueID
+             << ": shutting down due to indicated failure on another thread"
              << endl;
     }
     else
     {
-        cout << "+++++ " << cimop << " thread " << uniqueID 
+        cout << "+++++ " << cimop << " thread " << uniqueID
              << ": passed in " << elapsedTime
              << " seconds with " << iterations << " iterations" << endl;
     }
@@ -158,7 +158,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
         {
             expectedResults++;
 
-            iterations++; 
+            iterations++;
             elapsedTime.start();
 
             Array<CIMInstance> cimInstances =
@@ -173,18 +173,18 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
             {
                 if (true) // alternative: check verbose flag
                 {
-                    cout << "      EI thread " << uniqueID 
-                         << ": iteration " << iterations 
+                    cout << "      EI thread " << uniqueID
+                         << ": iteration " << iterations
                          << ": received " << cimInstances.size()
-                         << " instances," 
+                         << " instances,"
                          << " et " << elapsedSeconds
                          << " of " << duration << endl;
                 }
             }
-            else 
+            else
             {
                 shutdownFlag = true;
-                sprintf(exceptionMsg, 
+                sprintf(exceptionMsg,
                     "----- EI thread %u expected %d instances, received %u",
                     uniqueID,
                     EXPECTED_INSTANCES,
@@ -197,7 +197,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeEI(void *parm)
     }
     catch (Exception& e)
     {
-        cout << "---- EI thread " << uniqueID << " caught exception: " 
+        cout << "---- EI thread " << uniqueID << " caught exception: "
             << e.getMessage() << endl;
     }
 
@@ -228,7 +228,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
         {
             expectedResults++;
 
-            iterations++; 
+            iterations++;
             elapsedTime.start();
 
             Array<CIMObjectPath> cimInstanceNames =
@@ -243,18 +243,18 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
             {
                 if (true) // alternative: check verbose flag
                 {
-                    cout << "      NI thread " << uniqueID 
-                         << ": iteration " << iterations 
+                    cout << "      NI thread " << uniqueID
+                         << ": iteration " << iterations
                          << ": received " << cimInstanceNames.size()
-                         << " inst names," 
+                         << " inst names,"
                          << " et " << elapsedSeconds
                          << " of " << duration << endl;
                 }
             }
-            else 
+            else
             {
                 shutdownFlag = true;
-                sprintf(exceptionMsg, 
+                sprintf(exceptionMsg,
                     "----- NI thread %u expected %d instancenames, received %u",
                     uniqueID,
                     EXPECTED_INSTANCENAMES,
@@ -267,7 +267,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeNI(void *parm)
     }
     catch (Exception& e)
     {
-        cout << "---- NI thread " << uniqueID << " caught exception: " 
+        cout << "---- NI thread " << uniqueID << " caught exception: "
             << e.getMessage() << endl;
     }
 
@@ -298,7 +298,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
         {
             expectedResults++;
 
-            iterations++; 
+            iterations++;
             elapsedTime.start();
 
             Array<CIMObject> cimObjects =
@@ -313,18 +313,18 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
             {
                 if (true) // alternative: check verbose flag
                 {
-                    cout << "      A  thread " << uniqueID 
-                         << ": iteration " << iterations 
+                    cout << "      A  thread " << uniqueID
+                         << ": iteration " << iterations
                          << ": received " << cimObjects.size()
-                         << " objects," 
+                         << " objects,"
                          << " et " << elapsedSeconds
                          << " of " << duration << endl;
                 }
             }
-            else 
+            else
             {
                 shutdownFlag = true;
-                sprintf(exceptionMsg, 
+                sprintf(exceptionMsg,
                     "----- A  thread %u expected %d objects, received %u",
                     uniqueID,
                     EXPECTED_ASSOCIATORS,
@@ -337,7 +337,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeA(void *parm)
     }
     catch (Exception& e)
     {
-        cout << "---- A  thread " << uniqueID << " caught exception: " 
+        cout << "---- A  thread " << uniqueID << " caught exception: "
             << e.getMessage() << endl;
     }
 
@@ -368,7 +368,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
         {
             expectedResults++;
 
-            iterations++; 
+            iterations++;
             elapsedTime.start();
 
             Array<CIMObjectPath> cimObjectNames =
@@ -383,18 +383,18 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeAN(void *parm)
             {
                 if (true) // alternative: check verbose flag
                 {
-                    cout << "      AN thread " << uniqueID 
-                         << ": iteration " << iterations 
+                    cout << "      AN thread " << uniqueID
+                         << ": iteration " << iterations
                          << ": received " << cimObjectNames.size()
-                         << " object names," 
+                         << " object names,"
                          << " et " << elapsedSeconds
                          << " of " << duration << endl;
                 }
             }
-            else 
+            else
             {
                 shutdownFlag = true;
-                sprintf(exceptionMsg, 
+                sprintf(exceptionMsg,
                     "----- AN thread %u expected %d objectnames, received %u",
                     uniqueID,
                     EXPECTED_ASSOCIATORNAMES,
@@ -438,7 +438,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
         {
             expectedResults++;
 
-            iterations++; 
+            iterations++;
             elapsedTime.start();
 
             Array<CIMObject> cimObjects =
@@ -453,18 +453,18 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeR(void *parm)
             {
                 if (true) // alternative: check verbose flag
                 {
-                    cout << "      R  thread " << uniqueID 
-                         << ": iteration " << iterations 
+                    cout << "      R  thread " << uniqueID
+                         << ": iteration " << iterations
                          << ": received " << cimObjects.size()
-                         << " objects," 
+                         << " objects,"
                          << " et " << elapsedSeconds
                          << " of " << duration << endl;
                 }
             }
-            else 
+            else
             {
                 shutdownFlag = true;
-                sprintf(exceptionMsg, 
+                sprintf(exceptionMsg,
                     "----- R  thread %u expected %d objects, received %u",
                     uniqueID,
                     EXPECTED_REFERENCES,
@@ -508,7 +508,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
         {
             expectedResults++;
 
-            iterations++; 
+            iterations++;
             elapsedTime.start();
 
             Array<CIMObjectPath> cimObjectNames =
@@ -523,18 +523,18 @@ ThreadReturnType PEGASUS_THREAD_CDECL _executeRN(void *parm)
             {
                 if (true) // alternative: check verbose flag
                 {
-                    cout << "      RN thread " << uniqueID 
-                         << ": iteration " << iterations 
+                    cout << "      RN thread " << uniqueID
+                         << ": iteration " << iterations
                          << ": received " << cimObjectNames.size()
-                         << " object names," 
+                         << " object names,"
                          << " et " << elapsedSeconds
                          << " of " << duration << endl;
                 }
             }
-            else 
+            else
             {
                 shutdownFlag = true;
-                sprintf(exceptionMsg, 
+                sprintf(exceptionMsg,
                     "----- RN thread %u expected %d objectnames, received %u",
                     uniqueID,
                     EXPECTED_REFERENCENAMES,
@@ -580,7 +580,7 @@ void _beginTest(const Uint32 duration, const char* thdCountStr)
     // of the chunking CIM operations.
     Uint32 totalThdCount;
     Uint32 ei_count, ni_count, a_count, an_count, r_count, rn_count;
-    sscanf(thdCountStr, "%1u%1u%1u%1u%1u%1u", 
+    sscanf(thdCountStr, "%1u%1u%1u%1u%1u%1u",
            &ei_count, &ni_count, &a_count, &an_count, &r_count, &rn_count);
 
     totalThdCount = ei_count+ni_count+a_count+an_count+r_count+rn_count;
@@ -726,7 +726,7 @@ int main(int argc, char** argv)
     }
     catch(const CIMException & e)
     {
-        cout << "CIMException: " << e.getCode() << " " 
+        cout << "CIMException: " << e.getCode() << " "
             << e.getMessage() << endl;
         return(1);
     }

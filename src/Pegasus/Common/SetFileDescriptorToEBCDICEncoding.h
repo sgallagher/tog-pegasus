@@ -43,22 +43,22 @@ inline int setEBCDICEncoding(int fileDescriptor)
     struct stat entryInfo;
     attrib_t repFileAttr;
     int repFileAttr_len = sizeof(repFileAttr);
-    
+
     /* Generate the file tag attributes */
     /* Clear the attribute structure   */
     memset(&repFileAttr, 0, repFileAttr_len);
     /* Update attribute to request file tag change */
-    repFileAttr.att_filetagchg = 1; 
+    repFileAttr.att_filetagchg = 1;
     /* Set the file descriptor CCSID */
-    repFileAttr.att_filetag.ft_ccsid = __CCSID_ZOS; 
+    repFileAttr.att_filetag.ft_ccsid = __CCSID_ZOS;
     /* Set the text file conversion on */
     repFileAttr.att_filetag.ft_txtflag = 1;
 
     return __fchattr(fileDescriptor, &repFileAttr, repFileAttr_len);
-} 
+}
 
 PEGASUS_NAMESPACE_END
 
-#endif // SetFileDescriptorToEBCDICEncoding_h 
+#endif // SetFileDescriptorToEBCDICEncoding_h
 
 

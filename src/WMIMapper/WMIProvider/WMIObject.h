@@ -40,38 +40,38 @@ PEGASUS_NAMESPACE_BEGIN
 
 class WMICollector;
 
-class PEGASUS_WMIPROVIDER_LINKAGE WMIObjectProvider : public WMIBaseProvider 
+class PEGASUS_WMIPROVIDER_LINKAGE WMIObjectProvider : public WMIBaseProvider
 {
 public:
     WMIObjectProvider(void);
     virtual ~WMIObjectProvider(void);
-    
+
     virtual bool getObject(
-        IWbemClassObject **ppObject, 
+        IWbemClassObject **ppObject,
         const CIMObjectPath& objectName,
         const String& nameSpace,
         const String& userName = String::EMPTY,
-        const String& password = String::EMPTY);          
+        const String& password = String::EMPTY);
 };
 
 class PEGASUS_WMIPROVIDER_LINKAGE WMIObject : public CIMObject
 {
 public:
   WMIObject(const WMIObject & pObject);
-  
+
   WMIObject(const CIMObject & pObject);
-  
+
   WMIObject(const CComPtr <IWbemClassObject>& pObject);
 
     // returns a variant type from the WMI
-    // username and password not present, then Local Namespace is assumed 
+    // username and password not present, then Local Namespace is assumed
     VARIANT toVariant(const String& nameSpace,
-                      const String& userName = String::EMPTY, 
+                      const String& userName = String::EMPTY,
                       const String& password = String::EMPTY);
 
 protected:
    WMIObject(void) { };
-   
+
 };
 
 #define PEGASUS_ARRAY_T WMIObject

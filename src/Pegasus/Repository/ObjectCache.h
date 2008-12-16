@@ -136,7 +136,7 @@ ObjectCache<OBJECT>::ObjectCache(size_t maxEntries)
 
 template<class OBJECT>
 void ObjectCache<OBJECT>::put(
-    const String& path, 
+    const String& path,
     OBJECT& object,
     bool clone)
 {

@@ -44,20 +44,20 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-     When moving to a newer version of CIM schema, certain DMTF schema changes 
-     could make some elements in an old repository incompatible with 
+     When moving to a newer version of CIM schema, certain DMTF schema changes
+     could make some elements in an old repository incompatible with
      the new schema.
 
-     In order to import the impacted elements to the new repository, 
-     special processing may have to be performed to make them compatible 
-     with the newer version of the schema.  
+     In order to import the impacted elements to the new repository,
+     special processing may have to be performed to make them compatible
+     with the newer version of the schema.
 
-     The special processing is performed in a Schema Special 
-     Processsing Module.  A Schema Special Processsing Module will inherit 
-     from a SchemaSpecialProcessModule class defined below: 
+     The special processing is performed in a Schema Special
+     Processsing Module.  A Schema Special Processsing Module will inherit
+     from a SchemaSpecialProcessModule class defined below:
 
  */
-class SchemaSpecialProcessModule 
+class SchemaSpecialProcessModule
 {
 
 public:
@@ -77,37 +77,37 @@ public:
     virtual ~SchemaSpecialProcessModule(){};
 
     /**
-        Perform special processing on a CIMQualifier. This includes verifying 
-        whether the qualifier is impacted. If yes, it must be appropriately 
+        Perform special processing on a CIMQualifier. This includes verifying
+        whether the qualifier is impacted. If yes, it must be appropriately
         updated.
 
-         @param       inputQual       the qualifier to be processed. This will 
+         @param       inputQual       the qualifier to be processed. This will
                                       be provided by the framework.
 
-         @param       outputQual      updated qualifier. 
+         @param       outputQual      updated qualifier.
 
          @return      true            if the qualifier should be created.
-                      false           if the framework should  
-                                      ignore the qualifier. 
+                      false           if the framework should
+                                      ignore the qualifier.
     */
     virtual Boolean processQualifier(
-        CIMQualifierDecl& inputQual, 
+        CIMQualifierDecl& inputQual,
         CIMQualifierDecl& outputQual) = 0;
 
     /**
 
-        Perform special processing on a CIMClass. This includes verifying 
+        Perform special processing on a CIMClass. This includes verifying
         whether the class is impacted. If yes, it must be appropriately updated.
 
-        @param       inputClass       the class to be processed. This will 
+        @param       inputClass       the class to be processed. This will
                                       be provided by the framework.
 
-        @param       outputClass      updated class. 
+        @param       outputClass      updated class.
 
         @return      true             if the class should be created.
 
                      false            if the framework should
-                                      ignore the class. 
+                                      ignore the class.
 
 
     */
@@ -116,14 +116,14 @@ public:
 
     /**
 
-        Perform special processing on a CIMInstance. This includes verifying 
-        whether the instance is impacted. If yes, it must be appropriately 
+        Perform special processing on a CIMInstance. This includes verifying
+        whether the instance is impacted. If yes, it must be appropriately
         updated.
 
-        @param       inputInstance   the qualifier to be processed. This will 
+        @param       inputInstance   the qualifier to be processed. This will
                                      be provided by the framework.
 
-        @param       outputInstance  updated instance. 
+        @param       outputInstance  updated instance.
 
         @return      true            if the instance should be created.
 

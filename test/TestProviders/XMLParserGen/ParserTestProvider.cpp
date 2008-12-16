@@ -38,7 +38,7 @@
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
-ParserTestProvider::ParserTestProvider(void) 
+ParserTestProvider::ParserTestProvider(void)
 {
 }
 
@@ -63,7 +63,7 @@ void ParserTestProvider::initialize(CIMOMHandle & cimom)
     instance1.addProperty(CIMProperty("CNum", Uint16(1)));
     instance1.addProperty(CIMProperty("BadStringName", String(BADSTR_1)));
 
-    //other 
+    //other
     instance1.addProperty(CIMProperty("BadStringNum", Uint16(1)));
 
     _instances.append(instance1);
@@ -127,7 +127,7 @@ void ParserTestProvider::getInstance(
                          String(CLASS_NAME)));
     instance.addProperty(CIMProperty("BadStringName",
                          String(badstrname)));
-    
+
     //begin processing the request
     handler.processing();
 
@@ -145,7 +145,7 @@ void ParserTestProvider::enumerateInstances(
     InstanceResponseHandler & handler)
 {
     // begin processing the request
-    
+
     CIMName className = classReference.getClassName();
     CIMNamespaceName nameSpace = classReference.getNameSpace();
     //cout "[className: "<<className<<"], [in namespace: " << nameSpace << "]";
@@ -153,7 +153,7 @@ void ParserTestProvider::enumerateInstances(
     handler.processing();
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("CName", 
+    keys.append(CIMKeyBinding("CName",
                               String(CLASS_NAME),
                               CIMKeyBinding::STRING));
     keys.append(CIMKeyBinding("BadStringName",
@@ -194,15 +194,15 @@ void ParserTestProvider::enumerateInstanceNames(
 
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("CName", 
+    keys.append(CIMKeyBinding("CName",
                     String(CLASS_NAME),
                     CIMKeyBinding::STRING));
-    keys.append(CIMKeyBinding("BadStr", 
+    keys.append(CIMKeyBinding("BadStr",
                     String(BADSTR_1),
                     CIMKeyBinding::STRING));
-    
-    CIMObjectPath obj_path = CIMObjectPath(String(), 
-                                nameSpace, 
+
+    CIMObjectPath obj_path = CIMObjectPath(String(),
+                                nameSpace,
                                 className,
                                 keys);
     handler.deliver(obj_path);
@@ -256,7 +256,7 @@ void ParserTestProvider::deleteInstance(
 //   if (strftime(strTime,256,"%Y%m%d%H%M%S.",&tmTime)) {
 //      strcat(strTime,"000000");
 //      snprintf(utcOffset,20,"%+4.3ld",tmTime.tm_gmtoff/60);
-//      strcat(strTime,utcOffset); 
+//      strcat(strTime,utcOffset);
 //      //DEBUG("Time is "<<strTime);
 //      *dt=String(strTime);
 //   }

@@ -215,4 +215,4 @@ void CMPIProviderModule::unloadModule()
 }
 
 PEGASUS_NAMESPACE_END
-    
+

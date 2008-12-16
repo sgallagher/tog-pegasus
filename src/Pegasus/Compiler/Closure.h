@@ -36,7 +36,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This function computes the closure of the given class. The closure of a 
+/** This function computes the closure of the given class. The closure of a
     class includes all classes related in any of the following ways:
 
         1. Through reflexivity (the class itself).

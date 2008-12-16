@@ -114,7 +114,7 @@ const Uint32 IPInfoCommand::_MAX_PORTNUMBER      = 65535;
 static const char PASSWORD_PROMPT []  =
     "Please enter your password: ";
 
-static const char PASSWORD_BLANK []  = 
+static const char PASSWORD_BLANK []  =
     "Password cannot be blank. Please re-enter your password.";
 
 static const Uint32 MAX_PW_RETRIES = 3;
@@ -130,9 +130,9 @@ static Boolean verifyCertificate(SSLCertificateInfo &certInfo)
 }
 
 /**
-  
+
     Constructs a IPInfoCommand and initializes instance variables.
-  
+
  */
 IPInfoCommand::IPInfoCommand ()
 {
@@ -174,7 +174,7 @@ IPInfoCommand::IPInfoCommand ()
     setUsage (usage);
 }
 
-String IPInfoCommand::_promptForPassword( ostream& outPrintWriter ) 
+String IPInfoCommand::_promptForPassword( ostream& outPrintWriter )
 {
     //
     // Password is not set, prompt for non-blank password
@@ -204,15 +204,15 @@ String IPInfoCommand::_promptForPassword( ostream& outPrintWriter )
 }
 
 /**
-  
+
     Connects to cimserver.
-  
+
     @param   outPrintWriter     the ostream to which error output should be
                                 written
-  
+
     @exception       Exception  if an error is encountered in creating
                                the connection
-  
+
  */
 void IPInfoCommand::_connectToServer( CIMClient& client,
                          ostream& outPrintWriter )
@@ -225,7 +225,7 @@ void IPInfoCommand::_connectToServer( CIMClient& client,
     //  Construct host address
     //
 
-    if ((!_hostNameSet) && (!_portNumberSet) 
+    if ((!_hostNameSet) && (!_portNumberSet)
             && (!_userNameSet) && (!_passwordSet))
         {
             connectToLocal = true;
@@ -267,10 +267,10 @@ void IPInfoCommand::_connectToServer( CIMClient& client,
         // Get environment variables:
         //
         const char* pegasusHome = getenv("PEGASUS_HOME");
-    
+
         String certpath = FileSystem::getAbsolutePath(
                pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
-        
+
         String randFile;
 
 #ifdef PEGASUS_SSL_RANDOMFILE
@@ -294,7 +294,7 @@ void IPInfoCommand::_connectToServer( CIMClient& client,
 #endif
     }
     else
-    { 
+    {
         if (!_passwordSet)
         {
             _password = _promptForPassword( outPrintWriter );
@@ -304,16 +304,16 @@ void IPInfoCommand::_connectToServer( CIMClient& client,
 }
 
 /**
-  
+
     Parses the command line, validates the options, and sets instance
     variables based on the option arguments.
-  
+
     @param   argc  the number of command line arguments
     @param   argv  the string vector of command line arguments
-  
+
     @exception  CommandFormatException  if an error is encountered in parsing
                                         the command line
-  
+
  */
 void IPInfoCommand::setCommand (Uint32 argc, char* argv [])
 {
@@ -356,7 +356,7 @@ void IPInfoCommand::setCommand (Uint32 argc, char* argv [])
     {
         throw CommandFormatException(getOpts.getErrorStrings()[0]);
     }
-    
+
     //
     //  Get options and arguments from the command line
     //
@@ -365,43 +365,43 @@ void IPInfoCommand::setCommand (Uint32 argc, char* argv [])
         if (getOpts [i].getType () == Optarg::LONGFLAG)
         {
             throw UnexpectedArgumentException(getOpts[i].Value());
-        } 
+        }
         else if (getOpts [i].getType () == Optarg::REGULAR)
         {
             throw UnexpectedArgumentException(getOpts[i].Value());
-        } 
+        }
         else /* getOpts [i].getType () == FLAG */
         {
             c = getOpts [i].getopt () [0];
-    
-            switch (c) 
+
+            switch (c)
             {
-                case _OPTION_HOSTNAME: 
+                case _OPTION_HOSTNAME:
                 {
                     if (getOpts.isSet (_OPTION_HOSTNAME) > 1)
                     {
                         //
                         // More than one hostname option was found
                         //
-                        throw DuplicateOptionException(_OPTION_HOSTNAME); 
+                        throw DuplicateOptionException(_OPTION_HOSTNAME);
                     }
                     _hostName = getOpts [i].Value ();
                     _hostNameSet = true;
                     break;
                 }
-    
-                case _OPTION_PORTNUMBER: 
+
+                case _OPTION_PORTNUMBER:
                 {
                     if (getOpts.isSet (_OPTION_PORTNUMBER) > 1)
                     {
                         //
                         // More than one portNumber option was found
                         //
-                        throw DuplicateOptionException(_OPTION_PORTNUMBER); 
+                        throw DuplicateOptionException(_OPTION_PORTNUMBER);
                     }
-    
+
                     _portNumberStr = getOpts [i].Value ();
-    
+
                     try
                     {
                         getOpts [i].Value (_portNumber);
@@ -415,8 +415,8 @@ void IPInfoCommand::setCommand (Uint32 argc, char* argv [])
                     _portNumberSet = true;
                     break;
                 }
-#ifdef PEGASUS_HAS_SSL    
-                case _OPTION_SSL: 
+#ifdef PEGASUS_HAS_SSL
+                case _OPTION_SSL:
                 {
                     //
                     // Use port 5989 as the default port for SSL
@@ -426,25 +426,25 @@ void IPInfoCommand::setCommand (Uint32 argc, char* argv [])
                        _portNumber = 5989;
                     break;
                 }
-#endif      
+#endif
                 case _OPTION_DEBUG:
                 {
                     _enableDebug = true;
                     break;
                 }
-      
-                case _OPTION_TIMEOUT: 
+
+                case _OPTION_TIMEOUT:
                 {
                     if (getOpts.isSet (_OPTION_TIMEOUT) > 1)
                     {
                         //
                         // More than one timeout option was found
                         //
-                        throw DuplicateOptionException(_OPTION_TIMEOUT); 
+                        throw DuplicateOptionException(_OPTION_TIMEOUT);
                     }
-    
+
                     timeoutStr = getOpts [i].Value ();
-    
+
                     try
                     {
                         getOpts [i].Value (_timeout);
@@ -457,35 +457,35 @@ void IPInfoCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     break;
                 }
-    
-                case _OPTION_USERNAME: 
+
+                case _OPTION_USERNAME:
                 {
                     if (getOpts.isSet (_OPTION_USERNAME) > 1)
                     {
                         //
                         // More than one username option was found
                         //
-                        throw DuplicateOptionException(_OPTION_USERNAME); 
+                        throw DuplicateOptionException(_OPTION_USERNAME);
                     }
                     _userName = getOpts [i].Value ();
                     _userNameSet = true;
                     break;
                 }
-    
-                case _OPTION_PASSWORD: 
+
+                case _OPTION_PASSWORD:
                 {
                     if (getOpts.isSet (_OPTION_PASSWORD) > 1)
                     {
                         //
                         // More than one password option was found
                         //
-                        throw DuplicateOptionException(_OPTION_PASSWORD); 
+                        throw DuplicateOptionException(_OPTION_PASSWORD);
                     }
                     _password = getOpts [i].Value ();
                     _passwordSet = true;
                     break;
                 }
-    
+
                 default:
                     //
                     //  This path should not be hit
@@ -502,8 +502,8 @@ void IPInfoCommand::setCommand (Uint32 argc, char* argv [])
         //  Default to WBEM_DEFAULT_PORT
         //  Already done in constructor
         //
-    } 
-    else 
+    }
+    else
     {
         if (_portNumber > _MAX_PORTNUMBER)
         {
@@ -523,10 +523,10 @@ void IPInfoCommand::setCommand (Uint32 argc, char* argv [])
         //  Default to DEFAULT_TIMEOUT_MILLISECONDS
         //  Already done in constructor
         //
-    } 
-    else 
+    }
+    else
     {
-        if (_timeout == 0) 
+        if (_timeout == 0)
         {
             //
             //  Timeout out of valid range
@@ -564,9 +564,9 @@ void IPInfoCommand::getIPInfo(ostream& outPrintWriter,
         BIPTLEpInfo ipbiptle(client, _enableDebug, outPrintWriter,
                              errPrintWriter);
         NextHopIPRouteInfo nhipr (
-            client, 
-            _enableDebug, 
-            outPrintWriter, 
+            client,
+            _enableDebug,
+            outPrintWriter,
             errPrintWriter);
 
         RSApInfo rsap(
@@ -586,20 +586,20 @@ void IPInfoCommand::getIPInfo(ostream& outPrintWriter,
 
 
 /**
-  
+
     Executes the command and writes the results to the PrintWriters.
-  
+
     @param   outPrintWriter     the ostream to which output should be
                                 written
     @param   errPrintWriter     the ostream to which error output should be
                                 written
-  
+
     @return  0                  if the command is successful
              1                  if an error occurs in executing the command
-  
+
  */
-Uint32 IPInfoCommand::execute (ostream& outPrintWriter, 
-                                 ostream& errPrintWriter) 
+Uint32 IPInfoCommand::execute (ostream& outPrintWriter,
+                                 ostream& errPrintWriter)
 {
     try
     {
@@ -607,7 +607,7 @@ Uint32 IPInfoCommand::execute (ostream& outPrintWriter,
     }
     catch (const IPInfoException& e)
     {
-        errPrintWriter << IPInfoCommand::COMMAND_NAME << ": " 
+        errPrintWriter << IPInfoCommand::COMMAND_NAME << ": "
             << e.getMessage () << endl;
         return (RC_ERROR);
     }
@@ -615,15 +615,15 @@ Uint32 IPInfoCommand::execute (ostream& outPrintWriter,
 }
 
 /**
-    
+
     Parses the command line, and executes the command.
-  
+
     @param   argc  the number of command line arguments
     @param   argv  the string vector of command line arguments
-  
+
     @return  0                  if the command is successful
              1                  if an error occurs in executing the command
-  
+
  */
 PEGASUS_NAMESPACE_END
 
@@ -631,18 +631,18 @@ PEGASUS_NAMESPACE_END
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main (int argc, char* argv []) 
+int main (int argc, char* argv [])
 {
     IPInfoCommand    command = IPInfoCommand ();
     int                rc;
 
-    try 
+    try
     {
         command.setCommand (argc, argv);
-    } 
-    catch (const CommandFormatException& cfe) 
+    }
+    catch (const CommandFormatException& cfe)
     {
-        cerr << IPInfoCommand::COMMAND_NAME << ": " << cfe.getMessage () 
+        cerr << IPInfoCommand::COMMAND_NAME << ": " << cfe.getMessage ()
              << endl;
         cerr << command.getUsage () << endl;
         exit (Command::RC_ERROR);

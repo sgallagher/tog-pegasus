@@ -64,5 +64,5 @@ instance of PG_ProviderCapabilities
    Namespaces = {"root/SampleProvider"};
    ProviderType = { 2 }; // Instance
    SupportedProperties = NULL; // All properties
-   SupportedMethods = NULL; 
+   SupportedMethods = NULL;
 };

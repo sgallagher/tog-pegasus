@@ -174,12 +174,12 @@ static CMPIContext * __remote_brokers_context = NULL;
 */
 #ifdef CMPI_VER_100
 
-static CMPIStatus __indication_cleanup ( 
+static CMPIStatus __indication_cleanup (
     CMPIIndicationMI * mi,
     CONST CMPIContext * ctx,
     CMPIBoolean term)
 #else
-static CMPIStatus __indication_cleanup ( 
+static CMPIStatus __indication_cleanup (
     CMPIIndicationMI * mi,
     CMPIContext * ctx)
 #endif
@@ -208,7 +208,7 @@ static CMPIStatus __indication_cleanup (
 
     \return the status of the provider's authorizeFilter() call.
 */
-static CMPIStatus __indication_authorizeFilter ( 
+static CMPIStatus __indication_authorizeFilter (
     CMPIIndicationMI * mi,
     CONST CMPIContext * ctx,
 #ifndef CMPI_VER_100
@@ -223,14 +223,14 @@ static CMPIStatus __indication_authorizeFilter (
         (struct tracked_indication *) mi;
 
     TRACE_INFO(("relaying call to real provider."));
-    return __mi->saved_mi->ft->authorizeFilter ( 
+    return __mi->saved_mi->ft->authorizeFilter (
         __mi->saved_mi, ctx,
 #ifndef CMPI_VER_100
         result,
 #endif
         sexp,
-        ns, 
-        cop, 
+        ns,
+        cop,
         user );
 
 
@@ -244,7 +244,7 @@ static CMPIStatus __indication_authorizeFilter (
 
     \return the status of the provider's mustPoll() call.
 */
-static CMPIStatus __indication_mustPoll ( 
+static CMPIStatus __indication_mustPoll (
     CMPIIndicationMI * mi,
     CONST CMPIContext * ctx,
 #ifndef CMPI_VER_100
@@ -258,14 +258,14 @@ static CMPIStatus __indication_mustPoll (
         (struct tracked_indication *) mi;
 
     TRACE_INFO(("relaying call to real provider."));
-    return __mi->saved_mi->ft->mustPoll ( 
-        __mi->saved_mi, 
+    return __mi->saved_mi->ft->mustPoll (
+        __mi->saved_mi,
         ctx,
 #ifndef CMPI_VER_100
         result,
 #endif
-        sexp, 
-        ns, 
+        sexp,
+        ns,
         cop );
 }
 
@@ -280,7 +280,7 @@ static CMPIStatus __indication_mustPoll (
 
     \return the status of the provider's activateFilter() call.
 */
-static CMPIStatus __indication_activateFilter ( 
+static CMPIStatus __indication_activateFilter (
     CMPIIndicationMI * mi,
     CONST CMPIContext * ctx,
 #ifndef CMPI_VER_100
@@ -300,14 +300,14 @@ static CMPIStatus __indication_activateFilter (
 
     TRACE_INFO(("relaying call to real provider."));
     return __mi->saved_mi->ft->activateFilter (
-        __mi->saved_mi, 
+        __mi->saved_mi,
         ctx,
 #ifndef CMPI_VER_100
         result,
 #endif
         sexp,
-        clsName, 
-        cop, 
+        clsName,
+        cop,
         first );
 }
 
@@ -321,7 +321,7 @@ static CMPIStatus __indication_activateFilter (
 
     \return the status of the provider's deActivateFilter() call.
 */
-static CMPIStatus __indication_deactivateFilter ( 
+static CMPIStatus __indication_deactivateFilter (
     CMPIIndicationMI * mi,
     CONST CMPIContext * ctx,
 #ifndef CMPI_VER_100
@@ -340,15 +340,15 @@ static CMPIStatus __indication_deactivateFilter (
     RBReleaseMI ( __mi->rb );
 
     TRACE_INFO(("relaying call to real provider."));
-    return __mi->saved_mi->ft->deActivateFilter ( 
-        __mi->saved_mi, 
+    return __mi->saved_mi->ft->deActivateFilter (
+        __mi->saved_mi,
         ctx,
 #ifndef CMPI_VER_100
         result,
 #endif
         sexp,
-        clsName, 
-        cop, 
+        clsName,
+        cop,
         last );
 }
 
@@ -384,7 +384,7 @@ static CMPIStatus __indication_disableIndications (
     TRACE_VERBOSE(("entered function."));
 
     TRACE_INFO(("relaying call to real provider."));
-    return __mi->saved_mi->ft->disableIndications ( 
+    return __mi->saved_mi->ft->disableIndications (
         __mi->saved_mi
 #ifdef CMPI_VER_100
         ,ctx
@@ -397,8 +397,8 @@ static CMPIStatus __indication_disableIndications (
 //! Builds a wrapper tracked_indication struct from the given CMPIIndicationMI.
 /*!
     The function allocates a wrapper CMPIIndicationMI intercepting MI requests
-    from the communication layer. Thus, de-/activateFilter() calls can be 
-    tracked and use counts be modified properly, preventing indication 
+    from the communication layer. Thus, de-/activateFilter() calls can be
+    tracked and use counts be modified properly, preventing indication
     providers from being unloaded in advance.
 
     \param mi the original CMPIIndicationMI.
@@ -408,7 +408,7 @@ static CMPIStatus __indication_disableIndications (
 
     \sa __indication_activateFilter, __indication_deactivateFilter
 */
-static CMPIIndicationMI * __track_indicationMI ( 
+static CMPIIndicationMI * __track_indicationMI (
     CMPIIndicationMI * mi,
     remote_broker * rb)
 {
@@ -524,7 +524,7 @@ static void __cleanup_remote_broker ( struct __remote_broker * __rb )
     if (__rb->instanceMI != NULL)
     {
         TRACE_INFO(("Calling cleanup() on instanceMI handle."));
-        __rb->instanceMI->ft->cleanup ( 
+        __rb->instanceMI->ft->cleanup (
             __rb->instanceMI,
             __remote_brokers_context
 #ifdef CMPI_VER_100
@@ -536,7 +536,7 @@ static void __cleanup_remote_broker ( struct __remote_broker * __rb )
     if (__rb->associationMI != NULL)
     {
         TRACE_INFO(("Calling cleanup() on associationMI handle."));
-        __rb->associationMI->ft->cleanup ( 
+        __rb->associationMI->ft->cleanup (
             __rb->associationMI,
             __remote_brokers_context
 #ifdef CMPI_VER_100
@@ -548,7 +548,7 @@ static void __cleanup_remote_broker ( struct __remote_broker * __rb )
     if (__rb->methodMI != NULL)
     {
         TRACE_INFO(("Calling cleanup() on methodMI handle."));
-        __rb->methodMI->ft->cleanup ( 
+        __rb->methodMI->ft->cleanup (
             __rb->methodMI,
             __remote_brokers_context
 #ifdef CMPI_VER_100
@@ -560,7 +560,7 @@ static void __cleanup_remote_broker ( struct __remote_broker * __rb )
     if (__rb->propertyMI != NULL)
     {
         TRACE_INFO(("Calling cleanup() on propertyMI handle."));
-        __rb->propertyMI->ft->cleanup ( 
+        __rb->propertyMI->ft->cleanup (
             __rb->propertyMI,
             __remote_brokers_context
 #ifdef CMPI_VER_100
@@ -572,7 +572,7 @@ static void __cleanup_remote_broker ( struct __remote_broker * __rb )
     if (__rb->indicationMI != NULL)
     {
         TRACE_INFO(("Calling cleanup() on indicationMI handle."));
-        __rb->indicationMI->ft->cleanup ( 
+        __rb->indicationMI->ft->cleanup (
             __rb->indicationMI,
             __remote_brokers_context
 #ifdef CMPI_VER_100
@@ -611,7 +611,7 @@ static CMPIInstanceMI * __get_instanceMI ( remote_broker * rb )
     if (__rb->instanceMI == NULL)
     {
         __rb->instanceMI =
-            tool_load_InstanceMI ( 
+            tool_load_InstanceMI (
             __rb->provider,
             __rb->library,
             (CMPIBroker *) rb,
@@ -631,7 +631,7 @@ static CMPIAssociationMI * __get_associationMI ( remote_broker * rb )
     if (__rb->associationMI == NULL)
     {
         __rb->associationMI =
-            tool_load_AssociationMI ( 
+            tool_load_AssociationMI (
             __rb->provider,
             __rb->library,
             (CMPIBroker *) rb,
@@ -651,7 +651,7 @@ static CMPIMethodMI * __get_methodMI ( remote_broker * rb )
     if (__rb->methodMI == NULL)
     {
         __rb->methodMI =
-            tool_load_MethodMI ( 
+            tool_load_MethodMI (
             __rb->provider,
             __rb->library,
             (CMPIBroker *) rb,
@@ -671,7 +671,7 @@ static CMPIPropertyMI * __get_propertyMI ( remote_broker * rb )
     if (__rb->propertyMI == NULL)
     {
         __rb->propertyMI =
-            tool_load_PropertyMI ( 
+            tool_load_PropertyMI (
             __rb->provider,
             __rb->library,
             (CMPIBroker *) rb,
@@ -690,7 +690,7 @@ static CMPIIndicationMI * __get_indicationMI ( remote_broker * rb )
     TRACE_NORMAL(("Retrieving indicationMI handle."));
 
     if (__rb->indicationMI == NULL &&
-        ( mi = tool_load_IndicationMI ( 
+        ( mi = tool_load_IndicationMI (
         __rb->provider,
         __rb->library,
         (CMPIBroker *) rb,
@@ -705,7 +705,7 @@ static CMPIIndicationMI * __get_indicationMI ( remote_broker * rb )
 }
 
 
-static struct __remote_broker * __new_remote_broker ( 
+static struct __remote_broker * __new_remote_broker (
     const char * comm_layer_id,
     const char * broker_address,
     const char * provider,
@@ -788,7 +788,7 @@ static struct __remote_broker * __new_remote_broker (
 }
 
 
-PEGASUS_EXPORT remote_broker * PEGASUS_CMPIR_CDECL find_remote_broker ( 
+PEGASUS_EXPORT remote_broker * PEGASUS_CMPIR_CDECL find_remote_broker (
     const char * comm_layer_id,
     const char * broker_address,
     const char * provider,
@@ -830,7 +830,7 @@ PEGASUS_EXPORT remote_broker * PEGASUS_CMPIR_CDECL find_remote_broker (
         }
     }
 
-    __rb = __new_remote_broker ( 
+    __rb = __new_remote_broker (
         comm_layer_id,
         broker_address,
         provider,
@@ -854,13 +854,13 @@ PEGASUS_EXPORT remote_broker * PEGASUS_CMPIR_CDECL find_remote_broker (
 //! Cleans up unused remote brokers in specified time intervals.
 /*!
     This function iterates through the list of currently maintained
-    remote_broker handles, and deactivates those matching the following 
+    remote_broker handles, and deactivates those matching the following
     criteria:
     - the associated MI is currently active, i.e. its MI library is loaded
     - its use_count is zero
     - the time of its last usage has elapsed a specified timeout interval
 
-    \param timeout the elapsed time (sec) before providers are being 
+    \param timeout the elapsed time (sec) before providers are being
                    deactivated.
     \param check_interval the time interval between two checks.
 
@@ -868,7 +868,7 @@ PEGASUS_EXPORT remote_broker * PEGASUS_CMPIR_CDECL find_remote_broker (
 
     \sa __deactivate_remote_broker()
 */
-PEGASUS_EXPORT void PEGASUS_CMPIR_CDECL  cleanup_remote_brokers ( 
+PEGASUS_EXPORT void PEGASUS_CMPIR_CDECL  cleanup_remote_brokers (
     long timeout,
     time_t check_interval )
 {
@@ -908,7 +908,7 @@ PEGASUS_EXPORT void PEGASUS_CMPIR_CDECL  cleanup_remote_brokers (
                 __cleanup_remote_broker ( tmp );
 
             }
-            else 
+            else
             {
                 __rb = &(*__rb)->next;
             }
@@ -943,7 +943,7 @@ PEGASUS_EXPORT void PEGASUS_CMPIR_CDECL  cleanup_remote_brokers (
     \sa __get_propertyMI()
     \sa __get_indicationMI()
 */
-PEGASUS_EXPORT void PEGASUS_CMPIR_CDECL init_activation_context ( 
+PEGASUS_EXPORT void PEGASUS_CMPIR_CDECL init_activation_context (
     CMPIContext * ctx )
 {
     __remote_brokers_context = ctx;

@@ -25,7 +25,7 @@ Synopsis
 </h4>
 
 <p>
-<code><b>wbemexec</b> [ -h <i>hostname</i> ] [ -p <i>portnumber</i> ] 
+<code><b>wbemexec</b> [ -h <i>hostname</i> ] [ -p <i>portnumber</i> ]
 [ -v <i>httpversion</i> ] [ -m <i>httpmethod</i> ]
 [ -t <i>timeout</i> ]
 [ -u <i>username</i> ] [ -w <i>password</i> ]
@@ -42,29 +42,29 @@ Description
 <p>
 The wbemexec command provides a command line interface to the CIM Server.
 The input to the command consists of a CIM request encoded in XML.
-The request is submitted to the CIM Server for execution.  
+The request is submitted to the CIM Server for execution.
 The result of the operation is returned to stdout,
 and consists of the CIM response encoded in XML.
 </p>
 
 <p>
-By default, the operation is executed on the local host, using the 
+By default, the operation is executed on the local host, using the
 default port (5988), and the request is sent as an HTTP/1.1 request,
-using the HTTP POST method.  
-By default, wbemexec waits 20000 milliseconds (20 seconds) on sending a 
+using the HTTP POST method.
+By default, wbemexec waits 20000 milliseconds (20 seconds) on sending a
 request, then times out if a response hasn't been received.
-The <code><b>-h</b></code> option allows the user to specify a 
-different host.  
-The <code><b>-p</b></code> option allows the user to specify a different port 
-number.  
-The <code><b>-v</b></code> option allows the user to specify a 
-different HTTP version for the request.  
-The <code><b>-m</b></code> option allows the user to specify a 
-different HTTP method (i.e. M-POST) for the request.  
-The <code><b>-t</b></code> option allows the user to specify, in milliseconds, 
-a different timeout value for the request.  
+The <code><b>-h</b></code> option allows the user to specify a
+different host.
+The <code><b>-p</b></code> option allows the user to specify a different port
+number.
+The <code><b>-v</b></code> option allows the user to specify a
+different HTTP version for the request.
+The <code><b>-m</b></code> option allows the user to specify a
+different HTTP method (i.e. M-POST) for the request.
+The <code><b>-t</b></code> option allows the user to specify, in milliseconds,
+a different timeout value for the request.
 The <code><b>-u</b></code> and <code><b>-w</b></code>
-options allow the user to specify a username and password to use for 
+options allow the user to specify a username and password to use for
 authentication of the user and authorization of the operation.
 By default, stdin is used as the input, if no input file is specified.
 The <code><b>-s</b></code> option enables the SSL protocol between wbemexec and
@@ -82,13 +82,13 @@ Options
   <dt>
     <code>-h <i>hostname</i></code>
   <dd>
-    Use the specified host.  A CIM Server must be running on the 
+    Use the specified host.  A CIM Server must be running on the
     specified host. If this option is not specified, wbemexec will connect to
     the local host and authenticate itself.
   <dt>
     <code>-p <i>portnumber</i></code>
   <dd>
-    Use the specified port number.  The port number must be the port 
+    Use the specified port number.  The port number must be the port
     number on which the CIM Server is running on the specified host.
   <dt>
     <code>-v <i>httpversion</i></code>
@@ -100,7 +100,7 @@ Options
     <code>-m <i>httpmethod</i></code>
   <dd>
     Use the specified HTTP method for the request.  The method must be
-    "POST" or "M-POST".  The M-POST method may not be specified if the 
+    "POST" or "M-POST".  The M-POST method may not be specified if the
     1.0 version is specified.
   <dt>
     <code>-t <i>timeout</i></code>
@@ -111,7 +111,7 @@ Options
   <dt>
     <code>-u <i>username</i></code>
   <dd>
-    Authorize the operation using the specified username. If username is not 
+    Authorize the operation using the specified username. If username is not
 specified, the current logged in user will be used for authentication and
 authorization.
   <dt>
@@ -167,9 +167,9 @@ Examples
 </h4>
 
 <p>
-Submit an XML request contained in the file cimrequest.xml to the CIM Server 
-running on the local host on the default port (5988), using the username guest 
-and password guest for authentication and authorization:  
+Submit an XML request contained in the file cimrequest.xml to the CIM Server
+running on the local host on the default port (5988), using the username guest
+and password guest for authentication and authorization:
 </p>
 
 <p>
@@ -178,22 +178,22 @@ wbemexec -u guest -w guest cimrequest.xml
 </code>
 </p>
 
-<p> 
-Submit an XML request contained in the file cimrequest.xml to the CIM Server 
-running on the host hpserver on port 49152, using the username guest and 
+<p>
+Submit an XML request contained in the file cimrequest.xml to the CIM Server
+running on the host hpserver on port 49152, using the username guest and
 password guest for authentication and authorization:
 </p>
 
-<p> 
+<p>
 <code>
 wbemexec -h hpserver -p 49152 -u guest -w guest cimrequest.xml
 </code>
 </p>
 
 <p>
-Submit an XML request contained in the file cimrequest.xml to the CIM Server 
-running on the local host on the default port (5988), including both 
-the HTTP-encapsulated XML request, and the HTTP header portion of the response 
+Submit an XML request contained in the file cimrequest.xml to the CIM Server
+running on the local host on the default port (5988), including both
+the HTTP-encapsulated XML request, and the HTTP header portion of the response
 in the output:
 </p>
 

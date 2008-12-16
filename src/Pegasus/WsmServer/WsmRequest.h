@@ -249,7 +249,7 @@ public:
     }
 
     WsmEndpointReference epr;
-    Uint64 enumerationContext;    
+    Uint64 enumerationContext;
 };
 
 PEGASUS_NAMESPACE_END

@@ -1645,7 +1645,7 @@ yyparse ()
 #endif
 #endif
 {
-  
+
   int yystate;
   int yyn;
   int yyresult;
@@ -1896,7 +1896,7 @@ yyreduce:
 
   case 6:
 #line 315 "cimmof.y"
-    { 
+    {
             cimmofParser::Instance()->addQualifier((yyvsp[(1) - (1)].mofqualifier));
             delete (yyvsp[(1) - (1)].mofqualifier);
         ;}
@@ -1904,7 +1904,7 @@ yyreduce:
 
   case 7:
 #line 320 "cimmof.y"
-    { 
+    {
             cimmofParser::Instance()->addClass((yyvsp[(1) - (1)].mofclass));
         ;}
     break;
@@ -1953,16 +1953,16 @@ yyreduce:
 
   case 12:
 #line 367 "cimmof.y"
-    { 
-    (yyval.cimnameval) = new CIMName(*(yyvsp[(2) - (2)].cimnameval)); 
+    {
+    (yyval.cimnameval) = new CIMName(*(yyvsp[(2) - (2)].cimnameval));
     delete (yyvsp[(2) - (2)].cimnameval);
 ;}
     break;
 
   case 13:
 #line 372 "cimmof.y"
-    { 
-    (yyval.cimnameval) = new CIMName(); 
+    {
+    (yyval.cimnameval) = new CIMName();
 ;}
     break;
 
@@ -1971,7 +1971,7 @@ yyreduce:
     {
         YACCTRACE("classFeature:applyProperty");
         cimmofParser::Instance()->applyProperty(*g_currentClass, *(yyvsp[(1) - (1)].property));
-        delete (yyvsp[(1) - (1)].property); 
+        delete (yyvsp[(1) - (1)].property);
     ;}
     break;
 
@@ -1979,7 +1979,7 @@ yyreduce:
 #line 392 "cimmof.y"
     {
         YACCTRACE("classFeature:applyMethod");
-        cimmofParser::Instance()->applyMethod(*g_currentClass, *(yyvsp[(1) - (1)].method)); 
+        cimmofParser::Instance()->applyMethod(*g_currentClass, *(yyvsp[(1) - (1)].method));
     ;}
     break;
 
@@ -1988,7 +1988,7 @@ yyreduce:
     {
         YACCTRACE("classFeature:applyProperty");
         cimmofParser::Instance()->applyProperty(*g_currentClass, *(yyvsp[(1) - (1)].property));
-        delete (yyvsp[(1) - (1)].property); 
+        delete (yyvsp[(1) - (1)].property);
     ;}
     break;
 
@@ -2022,8 +2022,8 @@ yyreduce:
 
   case 25:
 #line 453 "cimmof.y"
-    { 
-    (yyval.cimnameval) = new CIMName(*(yyvsp[(1) - (1)].strval)); 
+    {
+    (yyval.cimnameval) = new CIMName(*(yyvsp[(1) - (1)].strval));
     delete (yyvsp[(1) - (1)].strval);
 ;}
     break;
@@ -2087,11 +2087,11 @@ yyreduce:
     {
     CIMValue *v = valueFactory::createValue((yyvsp[(1) - (4)].datatype), (yyvsp[(3) - (4)].ival),
             ((yyvsp[(4) - (4)].typedinitializer)->type == CIMMOF_NULL_VALUE), (yyvsp[(4) - (4)].typedinitializer)->value);
-    if ((yyvsp[(3) - (4)].ival) == -1) 
+    if ((yyvsp[(3) - (4)].ival) == -1)
     {
         (yyval.property) = cimmofParser::Instance()->newProperty(*(yyvsp[(2) - (4)].cimnameval), *v, false, 0);
-    } 
-    else 
+    }
+    else
     {
         (yyval.property) = cimmofParser::Instance()->newProperty(*(yyvsp[(2) - (4)].cimnameval), *v, true, (yyvsp[(3) - (4)].ival));
     }
@@ -2142,23 +2142,23 @@ yyreduce:
   case 40:
 #line 579 "cimmof.y"
     {
-    g_referenceClassName = *(yyvsp[(1) - (2)].cimnameval); 
+    g_referenceClassName = *(yyvsp[(1) - (2)].cimnameval);
     delete (yyvsp[(1) - (2)].cimnameval);
 ;}
     break;
 
   case 41:
 #line 586 "cimmof.y"
-    { 
-    (yyval.cimnameval) = new CIMName(*(yyvsp[(1) - (1)].strval)); 
+    {
+    (yyval.cimnameval) = new CIMName(*(yyvsp[(1) - (1)].strval));
     delete (yyvsp[(1) - (1)].strval);
 ;}
     break;
 
   case 42:
 #line 593 "cimmof.y"
-    { 
-    (yyval.cimnameval) = new CIMName(*(yyvsp[(1) - (1)].strval)); 
+    {
+    (yyval.cimnameval) = new CIMName(*(yyvsp[(1) - (1)].strval));
     delete (yyvsp[(1) - (1)].strval);
 ;}
     break;
@@ -2476,7 +2476,7 @@ yyreduce:
         g_KeyBindingArray.append(*kb);
         delete kb;
         delete (yyvsp[(1) - (3)].strval);
-        delete (yyvsp[(3) - (3)].strval); 
+        delete (yyvsp[(3) - (3)].strval);
     ;}
     break;
 
@@ -2661,8 +2661,8 @@ yyreduce:
 
   case 107:
 #line 1055 "cimmof.y"
-    { 
-            (yyval.scope)->addScope(*(yyvsp[(3) - (3)].scope)); 
+    {
+            (yyval.scope)->addScope(*(yyvsp[(3) - (3)].scope));
             delete (yyvsp[(3) - (3)].scope);
         ;}
     break;
@@ -2762,7 +2762,7 @@ yyreduce:
 
   case 128:
 #line 1117 "cimmof.y"
-    { 
+    {
         g_flavor = CIMFlavor (CIMFlavor::NONE);
         (yyval.flavor) = &g_flavor;
     ;}
@@ -2900,7 +2900,7 @@ yyreduce:
 #line 1191 "cimmof.y"
     {
         (yyval.strval) = new String((*(yyvsp[(1) - (1)].scope)).toString ());
-        g_flavor = CIMFlavor (CIMFlavor::NONE); 
+        g_flavor = CIMFlavor (CIMFlavor::NONE);
         delete (yyvsp[(1) - (1)].scope); ;}
     break;
 

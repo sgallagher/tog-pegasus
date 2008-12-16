@@ -29,7 +29,7 @@
 //
 // Author: Paulo F. Borges (pfborges@wowmail.com)
 //
-// Modified By: 
+// Modified By:
 //         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ DNSService::~DNSService(void)
 //
 // RETURN:     true, if user has privileges, otherwise false
 //------------------------------------------------------------------------------
-Boolean DNSService::AccessOk(const OperationContext & context) 
+Boolean DNSService::AccessOk(const OperationContext & context)
 {
     return false;
 }
@@ -173,7 +173,7 @@ Boolean DNSService::getAddresses(Array<String> &) {
 //
 // RETURN:     true, if successful, false otherwise
 //------------------------------------------------------------------------------
-Boolean DNSService::getDNSInfo(void) 
+Boolean DNSService::getDNSInfo(void)
 {
     return false;
-}    
+}

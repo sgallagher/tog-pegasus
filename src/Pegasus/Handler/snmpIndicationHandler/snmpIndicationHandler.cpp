@@ -151,10 +151,10 @@ void snmpIndicationHandler::handleIndication(
                 {
                     //
                     // We are looking for following fields:
-                    // MappingStrings {"OID.IETF | SNMP." oidStr, 
+                    // MappingStrings {"OID.IETF | SNMP." oidStr,
                     //     "DataType.IETF |" dataType}
                     // oidStr is the object identifier (e.g. "1.3.6.1.2.1.5..."
-                    // dataType is either Integer, or OctetString, 
+                    // dataType is either Integer, or OctetString,
                     // or OID
                     // Following is one example:
                     // MappingStrings {"OID.IETF | SNMP.1.3.6.6.3.1.1.5.2",
@@ -163,7 +163,7 @@ void snmpIndicationHandler::handleIndication(
 
                     propDecl.getQualifier(qualifierPos).getValue().get(
                         mapStr);
- 
+
                     String oidStr, dataType;
                     String mapStr1, mapStr2;
                     Boolean isValidAuthority = false;
@@ -172,17 +172,17 @@ void snmpIndicationHandler::handleIndication(
                     for (Uint32 j=0; j < mapStr.size(); j++)
                     {
                         Uint32 barPos = mapStr[j].find("|");
-                            
-                        if (barPos != PEG_NOT_FOUND) 
+
+                        if (barPos != PEG_NOT_FOUND)
                         {
                             mapStr1 = mapStr[j].subString(0, barPos);
                             mapStr2 = mapStr[j].subString(barPos + 1);
 
                             _trimWhitespace(mapStr1);
                             _trimWhitespace(mapStr2);
-                                
+
                             if ((mapStr1 == "OID.IETF") &&
-                                (String::compare(mapStr2, 
+                                (String::compare(mapStr2,
                                  String("SNMP."), 5) == 0))
                             {
                                 isValidAuthority = true;
@@ -194,7 +194,7 @@ void snmpIndicationHandler::handleIndication(
                                 dataType = mapStr2;
                             }
 
-                            if (isValidAuthority && isValidDataType) 
+                            if (isValidAuthority && isValidDataType)
                             {
                                 propOIDs.append(oidStr);
                                 propTYPEs.append(dataType);
@@ -302,9 +302,9 @@ void snmpIndicationHandler::handleIndication(
                     {
                         Uint32 barPos = classMapStr[i].find("|");
 
-                        if (barPos != PEG_NOT_FOUND) 
+                        if (barPos != PEG_NOT_FOUND)
                         {
-                            String authorityName = 
+                            String authorityName =
                                 classMapStr[i].subString(0, barPos);
                             String oidStr = classMapStr[i].subString(
                                 barPos+1, PEG_NOT_FOUND);
@@ -313,10 +313,10 @@ void snmpIndicationHandler::handleIndication(
                             _trimWhitespace(oidStr);
 
                             if ((authorityName == "OID.IETF") &&
-                                (String::compare(oidStr, 
+                                (String::compare(oidStr,
                                  String("SNMP."), 5) == 0))
                             {
-                                trapOid = oidStr.subString(5); 
+                                trapOid = oidStr.subString(5);
                                 trapOidAvailable = true;
                                 break;
                             }

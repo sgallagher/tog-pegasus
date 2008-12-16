@@ -44,7 +44,7 @@ class CQLExpression;
 class CQLFactory;
 class CQLSimplePredicateRep;
 
-enum ExpressionOpType { LT, GT, EQ, LE, GE, NE, IS_NULL, 
+enum ExpressionOpType { LT, GT, EQ, LE, GE, NE, IS_NULL,
                         IS_NOT_NULL, ISA, LIKE, NOOP };
 
 

@@ -60,7 +60,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(
     void *ret)
 {
     static Uint32 quantum;
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
          "JMPILocalProviderManager::_provider_ctrl");
 
     Sint32 ccode = 0;
@@ -362,7 +362,7 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(
                      (const char*)*(parms->providerName)->getCString()));
                 ccode = -1;
             }
-             
+
             break;
         }
 
@@ -448,7 +448,7 @@ JMPIProvider::OpProviderHolder JMPILocalProviderManager::getProvider(
     try {
         ccode = _provider_ctrl( GET_PROVIDER, &strings, &ph );
     }
-    catch (const Exception &e) 
+    catch (const Exception &e)
     {
         PEG_TRACE((TRC_DISCARDED_DATA,Tracer::LEVEL1,
              "Can not get provider. Caught exception: %s",

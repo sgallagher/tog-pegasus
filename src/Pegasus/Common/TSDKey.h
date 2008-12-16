@@ -82,7 +82,7 @@ public:
 inline Uint32 TSDKey::create(TSDKeyType* key)
 {
     return pthread_key_create(key, NULL);
-} 
+}
 
 inline Uint32 TSDKey::destroy(TSDKeyType key)
 {
@@ -96,12 +96,12 @@ inline void * TSDKey::get_thread_specific(TSDKeyType key)
 #else
     return pthread_getspecific(key);
 #endif
-} 
+}
 
 inline Uint32 TSDKey::set_thread_specific(TSDKeyType key, void* value)
 {
     return pthread_setspecific(key, value);
-} 
+}
 
 #endif /* defined(PEGASUS_HAVE_PTHREADS) */
 

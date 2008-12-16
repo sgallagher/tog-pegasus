@@ -27,10 +27,10 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 # The variables defined in this file are intended for use only
-# within the OpenPegasus development and test environment. Prior 
+# within the OpenPegasus development and test environment. Prior
 # to including this file in an SDK product release, these values should
 # be modified to specify the desired platform or vendor directory
-# locations. 
+# locations.
 
 ifndef PEGASUS_BIN_DIR
     PEGASUS_BIN_DIR=$(PEGASUS_HOME)/bin

@@ -40,7 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 */
 
 /*
-    Converts given "src" text address (Ex: 127.0.0.1) to equivalent binary form 
+    Converts given "src" text address (Ex: 127.0.0.1) to equivalent binary form
     and stores in "dst"  buffer (Ex 0x7f000001). Returns 1 if given ipv4 address
     is valid or returns -1 if invalid. Returns value in network byte order.
 */
@@ -117,7 +117,7 @@ static int _inet_ptonv6(const char *src, void *dst)
     int ccIndex = -1;
     int sNumber = 0;
     Uint16 sValues[8] = {0};
-    Boolean ipv4Mapped = false; 
+    Boolean ipv4Mapped = false;
 
     while (*src && sNumber < 8)
     {
@@ -126,7 +126,7 @@ static int _inet_ptonv6(const char *src, void *dst)
             if (!*++src)
             {
                 return 0;
-            } 
+            }
             if (*src == ':')
             {
                 if (ccIndex != -1)
@@ -137,23 +137,23 @@ static int _inet_ptonv6(const char *src, void *dst)
                 if (!*++src)
                 {
                     break;
-                }   
-            } 
-        } 
+                }
+            }
+        }
         if ((isalpha(*src) && tolower(*src) <= 'f') || isdigit(*src))
         {
             // Check for ipv4 compatible ipv6 or ipv4 mapped ipv6 addresses
             if(!strchr(src, ':') && strchr(src, '.'))
             {
-                if ( _inet_ptonv4 (src, sValues + sNumber) != 1) 
+                if ( _inet_ptonv4 (src, sValues + sNumber) != 1)
                 {
                     return 0;
-                }  
-                sNumber += 2;              
+                }
+                sNumber += 2;
                 ipv4Mapped = true;
                 break;
             }
-            int chars = 0;            
+            int chars = 0;
             while (*src && *src != ':')
             {
                 if (chars++ == 4)
@@ -174,10 +174,10 @@ static int _inet_ptonv6(const char *src, void *dst)
         else
         {
             return 0;
-        }  
+        }
     }
 
-    if ((!ipv4Mapped &&*src) || (ccIndex == -1 && sNumber < 8) || 
+    if ((!ipv4Mapped &&*src) || (ccIndex == -1 && sNumber < 8) ||
         (ccIndex != -1 && sNumber == 8) )
     {
         return 0;
@@ -206,17 +206,17 @@ static const char *_inet_ntopv4(const void *src, char *dst, Uint32 size)
 
    Uint32 n;
 
-   memset(dst, 0, size); 
-   memcpy(&n, src, sizeof (Uint32));   
+   memset(dst, 0, size);
+   memcpy(&n, src, sizeof (Uint32));
    n = ntohl(n);
-   sprintf(dst, "%u.%u.%u.%u", n >> 24 & 0xFF , 
-       n >> 16 & 0xFF, n >> 8 & 0xFF, n & 0xFF); 
+   sprintf(dst, "%u.%u.%u.%u", n >> 24 & 0xFF ,
+       n >> 16 & 0xFF, n >> 8 & 0xFF, n & 0xFF);
 
-   return dst; 
+   return dst;
 }
 
-/*  
-    Converts given ipv6 address in binary form to text form. Ex. 
+/*
+    Converts given ipv6 address in binary form to text form. Ex.
     0000000000000001 to ::1.
 */
 static const char *_inet_ntopv6(const void *src, char *dst, Uint32 size)
@@ -229,7 +229,7 @@ static const char *_inet_ntopv6(const void *src, char *dst, Uint32 size)
     int index = 0;
 
     memcpy (n, src, PEGASUS_IN6_ADDR_SIZE);
-    memset(dst, 0, size); 
+    memset(dst, 0, size);
     for (int i = 0; i < 8 ; ++i)
     {
         if (n[i])
@@ -238,7 +238,7 @@ static const char *_inet_ntopv6(const void *src, char *dst, Uint32 size)
             {
                 if (zeroCnt > maxZeroCnt)
                 {
-                    ccIndex = index; 
+                    ccIndex = index;
                     maxZeroCnt = zeroCnt;
                 }
                 zeroCnt = index = 0;
@@ -251,13 +251,13 @@ static const char *_inet_ntopv6(const void *src, char *dst, Uint32 size)
             {
                 if (ccIndex == -1)
                 {
-                    ccIndex = i;   
+                    ccIndex = i;
                 }
                 index = i;
             }
         }
     }
-    char tmp[50];  
+    char tmp[50];
     *dst = 0;
     zeroCnt = 0;
 
@@ -272,23 +272,23 @@ static const char *_inet_ntopv6(const void *src, char *dst, Uint32 size)
                 ++zeroCnt;
             }
             --i;
-        } 
+        }
         else
         {
             Boolean mapped = false;
             if (ccIndex == 0 && zeroCnt > 4)
             {
-                // check for ipv4 mapped ipv6 and ipv4 compatible ipv6 
+                // check for ipv4 mapped ipv6 and ipv4 compatible ipv6
                 // addresses.
                 if (zeroCnt == 5 && n[i] == 0xffff)
                 {
-                    strcat(dst,"ffff:"); 
+                    strcat(dst,"ffff:");
                     mapped = true;
                 }
                 else if (zeroCnt == 6 && n[6])
                 {
                     mapped = true;
-                } 
+                }
             }
             if (mapped)
             {
@@ -380,7 +380,7 @@ Boolean HostAddress::equal(int af, void *p1, void *p2)
              return !memcmp(p1, p2, PEGASUS_IN6_ADDR_SIZE);
         case AT_IPV4:
              return !memcmp(p1, p2, sizeof(struct in_addr));
-    }    
+    }
 
     return false;
 }
@@ -394,12 +394,12 @@ void HostAddress::_parseAddress()
     {
         _isValid = true;
         _addrType = AT_IPV4;
-    } 
+    }
     else if (isValidIPV6Address(_hostAddrStr))
     {
         _isValid = true;
         _addrType = AT_IPV6;
-    } 
+    }
     else if (isValidHostName(_hostAddrStr))
     {
         _isValid = true;
@@ -532,7 +532,7 @@ int HostAddress::convertTextToBinary(int af, const char *src, void *dst)
     return -1; // Unsupported address family.
 #else
     return ::inet_pton(af, src, dst);
-#endif 
+#endif
 }
 
 const char * HostAddress::convertBinaryToText(int af, const void *src,
@@ -550,7 +550,7 @@ const char * HostAddress::convertBinaryToText(int af, const void *src,
     return 0; // Unsupported address family.
 #else
     return ::inet_ntop(af, src, dst, size);
-#endif 
+#endif
 }
 
 PEGASUS_NAMESPACE_END

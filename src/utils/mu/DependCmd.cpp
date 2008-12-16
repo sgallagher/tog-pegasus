@@ -147,8 +147,8 @@ int DependCmdMain(int argc, char** argv)
 
     for (int i = 0; i < argc; i++)
     {
-        string fileName = argv[i];        
-        
+        string fileName = argv[i];
+
         // Open the file:
         FILE* fp = fopen(argv[i], "rb");
 
@@ -157,7 +157,7 @@ int DependCmdMain(int argc, char** argv)
             string message = "failed to open file: \"" + fileName + "\"";
             ErrorExit(programName, message);
         }
-        
+
         const char* start = fileName.c_str();
         const char* dot = strrchr(start, '.');
 
@@ -187,11 +187,11 @@ int DependCmdMain(int argc, char** argv)
 
         set<string, less<string> > cache;
 
-        // both 'Depend' and 'SrcList' commands share the code  
+        // both 'Depend' and 'SrcList' commands share the code
         // "ProcessFile", which takes an argument 'prependDir'.
         // for 'Depend' command, we pass in an empty string
         string prependDir = "";
-        ProcessFile(fileName, programName, fp, includePath, prependDir, 0, 
+        ProcessFile(fileName, programName, fp, includePath, prependDir, 0,
             cache, PrintDependency, warn);
     }
 

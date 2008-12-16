@@ -162,7 +162,7 @@ Boolean System::isDirectory(const char* path)
     struct stat st;
     if (stat(path, &st) != 0)
         return false;
-        
+
     return S_ISDIR(st.st_mode);
 }
 
@@ -182,7 +182,7 @@ Boolean System::getFileSize(const char* path, Uint32& size)
     if (stat(path, &st) != 0)
         return false;
     size = st.st_size;
-    
+
     return true;
 }
 
@@ -246,8 +246,8 @@ Uint32 System::lookupPort(
     struct servent serv_result;
     char buf[SERV_BUFF_SIZE];
     int ret = getservbyname_r(
-        serviceName, 
-        TCP,  
+        serviceName,
+        TCP,
         &serv_result,
         buf,
         SERV_BUFF_SIZE,
@@ -537,7 +537,7 @@ Boolean System::isPrivilegedUser(const String& userName)
     CString user = userName.getCString();
     // this function only can be found in PASE environment
     return umeIsPrivilegedUser((const char *)user);
-    
+
 #elif defined(PEGASUS_OS_VMS)
     static union prvdef old_priv_mask;
     static union prvdef new_priv_mask;
@@ -549,18 +549,18 @@ Boolean System::isPrivilegedUser(const String& userName)
     new_priv_mask.prv$v_sysprv = true;     // SYSPRV privilege.
 
     retStat = sys$setprv(enbflg, &new_priv_mask, prmflg, &old_priv_mask);
-    if (!$VMS_STATUS_SUCCESS(retStat)) 
+    if (!$VMS_STATUS_SUCCESS(retStat))
     {
         return false;
     }
 
-    if (retStat == SS$_NOTALLPRIV) 
+    if (retStat == SS$_NOTALLPRIV)
     {
         return false;
     }
 
     return true;
-    
+
 #else
     struct passwd   pwd;
     struct passwd   *result;
@@ -860,7 +860,7 @@ Boolean System::changeFilePermissions(const char* path, mode_t mode)
 Boolean System::verifyFileOwnership(const char* path)
 {
     struct stat st;
-    
+
     if (lstat(path, &st) != 0)
         return false;
 
@@ -976,7 +976,7 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
     // write first to syslog, __console changes the content of
     // message string
     ::syslog(syslogLevel, "%s", zosMessageString);
-    
+
     CString identCString = ident.getCString();
     // Issue important messages to the z/OS console
     // audit messages will go to a different syslog like place
@@ -985,7 +985,7 @@ void System::syslog(const String& ident, Uint32 severity, const char* message)
     {
         struct __cons_msg   cons;
         int                 concmd=0;
-        
+
         memset(&cons,0,sizeof(cons));
         cons.__format.__f1.__msg_length = messageLength;
         cons.__format.__f1.__msg = zosMessageString;
@@ -1089,7 +1089,7 @@ String System::getErrorMSG_NLS(int errorCode,int errorCode2)
 #endif
 
      return MessageLoader::getMessage(parms);
-     
+
 }
 
 String System::getErrorMSG(int errorCode,int errorCode2)
@@ -1251,12 +1251,12 @@ Array<String> System::getInterfaceAddrs()
         {
             case AF_INET :
                 // Don't gather loop back addrs.
-                if (System::isLoopBack(AF_INET, 
+                if (System::isLoopBack(AF_INET,
                     &((struct sockaddr_in *)addrs->ifa_addr)->sin_addr))
                 {
                     continue;
                 }
-                HostAddress::convertBinaryToText(AF_INET, 
+                HostAddress::convertBinaryToText(AF_INET,
                     &((struct sockaddr_in *)addrs->ifa_addr)->sin_addr,
                     buff, sizeof(buff));
                 ipFound = true;
@@ -1373,11 +1373,11 @@ Array<String> System::getInterfaceAddrs()
                 break;
         }
     }
-    
+
     free(ifc.ifc_req);
 
 #elif defined(PEGASUS_OS_ZOS)
-    
+
     SocketHandle sdV6=socket(AF_INET6, SOCK_DGRAM, 0);
     // Use an AutoPtr to ensure the socket handle is closed on exception
     AutoPtr<SocketHandle, CloseSocketHandle> sockV6Ptr(&sdV6);
@@ -1387,7 +1387,7 @@ Array<String> System::getInterfaceAddrs()
         __net_ifconf6header_t ifConfHeader;
         __net_ifconf6entry_t *pifConfEntries;
         char buff[PEGASUS_INET6_ADDRSTR_LEN];
-        
+
         // clera the ifconf header
         memset(&ifConfHeader,0,sizeof(__net_ifconf6header_t));
         // fill the ifconf header with the current values
@@ -1417,7 +1417,7 @@ Array<String> System::getInterfaceAddrs()
                 {
                     // do not save loop back addresses.
                     if (!System::isLoopBack(
-                            AF_INET6, 
+                            AF_INET6,
                             &(pifConfEntries[i].__nif6e_addr.sin6_addr)))
                     {
                         HostAddress::convertBinaryToText(
@@ -1430,7 +1430,7 @@ Array<String> System::getInterfaceAddrs()
                 } // loop through deliverd interfaces
             } // query IPV6 interface
         } // fill ifconf header structure
-    } // create IPV6 socket 
+    } // create IPV6 socket
 
     // create an IPV4 socket to get the interface configurations via ioclt()
     SocketHandle sdv4=socket(AF_INET, SOCK_DGRAM, 0);

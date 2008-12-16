@@ -37,48 +37,48 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 /**
-  
+
     Default exception identifier.  This identifier is used if the specified
     identifier is out of range.  This identifier corresponds to a default
     (generic) message in the array of exception message strings.
-  
+
  */
 const Uint32 IPInfoException::DEFAULT_ID = 0;
 
 /**
-  
+
     Minimum valid exception identifier.
-  
+
  */
 const Uint32 IPInfoException::MIN_ID = DEFAULT_ID;
 
 /**
-  
+
    Exception identifier indicating a connection failure.
-  
+
  */
 
 const Uint32 IPInfoException::CONNECT_FAIL = 1;
 
 /**
-  
+
     Exception identifier indicating timed out waiting for response.
-  
+
  */
 const Uint32 IPInfoException::TIMED_OUT = 2;
 
 /**
-  
+
     Exception identifier indicating invalid input.
-  
+
  */
 const Uint32 IPInfoException::INVALID_INPUT = 3;
 
 /**
-  
+
     Maximum valid exception identifier.  This value must be updated when
     a new exception identifier and message are added.
-  
+
  */
 const Uint32 IPInfoException::MAX_ID = IPInfoException::INVALID_INPUT;
 
@@ -99,42 +99,42 @@ const char*  IPInfoException::_messageStrings [] =
 };
 
 /**
-  
+
     Constructs a IPInfoException with a message corresponding to the
     specified exception ID.
-  
+
     @param  ID                the integer exception identifier
-  
+
  */
-IPInfoException::IPInfoException (Uint32 ID) : CommandException 
+IPInfoException::IPInfoException (Uint32 ID) : CommandException
     (_messageStrings [(ID > MAX_ID) ? DEFAULT_ID : ID])
 {
 }
 
 /**
-  
+
     Constructs a IPInfoException with a message corresponding to the
     specified ID, appended with the specified String.
-  
+
     @param  ID                the integer exception identifier
     @param  appendString      the string to append to the exception message
-  
+
  */
-IPInfoException::IPInfoException (Uint32 ID, const String& appendString) : 
-    CommandException (_messageStrings 
+IPInfoException::IPInfoException (Uint32 ID, const String& appendString) :
+    CommandException (_messageStrings
         [(ID > MAX_ID) ? DEFAULT_ID : ID])
 {
     _rep->message.append (appendString);
 }
 
 /**
-  
+
     Constructs a IPInfoException with the specified message.
-  
+
     @param  exceptionMessage  a string containing the exception message
-  
+
  */
-IPInfoException::IPInfoException (const String& exceptionMessage) : 
+IPInfoException::IPInfoException (const String& exceptionMessage) :
     CommandException (exceptionMessage)
 {
 }

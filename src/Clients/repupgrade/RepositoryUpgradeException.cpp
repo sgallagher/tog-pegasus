@@ -41,14 +41,14 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 /**
-  
+
     Constructs a RepositoryUpgradeException with the specified message.
-  
+
     @param  exceptionMessage  a string containing the exception message
-  
+
  */
 RepositoryUpgradeException::RepositoryUpgradeException (
-                             const String& exceptionMessage) : 
+                             const String& exceptionMessage) :
                              CommandException (exceptionMessage)
 {
 }

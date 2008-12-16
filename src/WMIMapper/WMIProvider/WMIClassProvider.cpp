@@ -109,24 +109,24 @@ CIMClass WMIClassProvider::getClass(
     {
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
             "WMIClassProvider::getClass - m_bInitilized= %x, "
-                "throw CIM_ERR_FAILED exception",  
+                "throw CIM_ERR_FAILED exception",
             m_bInitialized));
 
         throw CIMException(CIM_ERR_FAILED);
     }
-    
-    try 
+
+    try
     {
         if (!(_collector->getObject(&pClass, className)))
         {
-            if (pClass) 
+            if (pClass)
                 pClass.Release();
 
             throw CIMException(CIM_ERR_NOT_FOUND);
         }
         else if (_collector->isInstance(pClass))
         {
-            if (pClass) 
+            if (pClass)
                 pClass.Release();
 
             throw CIMException(CIM_ERR_INVALID_PARAMETER);
@@ -134,13 +134,13 @@ CIMClass WMIClassProvider::getClass(
     }
     catch (CIMException &e)
     {
-        if (pClass) 
+        if (pClass)
             pClass.Release();
 
         switch(e.getCode())
         {
-            case CIM_ERR_INVALID_CLASS: 
-                throw CIMException(CIM_ERR_NOT_FOUND); 
+            case CIM_ERR_INVALID_CLASS:
+                throw CIMException(CIM_ERR_NOT_FOUND);
                 break;
             default: throw;
         }
@@ -156,7 +156,7 @@ CIMClass WMIClassProvider::getClass(
         cimClass.setSuperClassName(superclassName);
     }
 
-    if (!(_collector->getCIMClass(pClass, 
+    if (!(_collector->getCIMClass(pClass,
                 cimClass,
                 localOnly,
                 includeQualifiers,
@@ -168,7 +168,7 @@ CIMClass WMIClassProvider::getClass(
 
     if (pClass)
         pClass.Release();
-    
+
     PEG_METHOD_EXIT();
 
     return cimClass;
@@ -189,7 +189,7 @@ Array<CIMClass> WMIClassProvider::enumerateClasses(
         Boolean includeClassOrigin)
 {
     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIClassProvider::enumerateClasses()");
-    
+
     HRESULT hr;
     long lCount = 0;
     DWORD dwReturned;
@@ -201,14 +201,14 @@ Array<CIMClass> WMIClassProvider::enumerateClasses(
 
     PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
         "enumerateClasses - deepInheritance %x, localOnly %x, "
-        "includeQualifiers %x, includeClassOrigin %x", 
+        "includeQualifiers %x, includeClassOrigin %x",
         deepInheritance, localOnly, includeQualifiers, includeClassOrigin));
-    
+
     if (!m_bInitialized)
     {
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
             "WMIClassProvider::enumerateClasses - m_bInitilized= %x, "
-                "throw CIM_ERR_FAILED exception",  
+                "throw CIM_ERR_FAILED exception",
             m_bInitialized));
 
         throw CIMException(CIM_ERR_FAILED);
@@ -216,7 +216,7 @@ Array<CIMClass> WMIClassProvider::enumerateClasses(
 
     if (!(_collector->getClassEnum(&pClassEnum, className, deepInheritance)))
     {
-        if (pClassEnum) 
+        if (pClassEnum)
             pClassEnum.Release();
 
         throw CIMException(CIM_ERR_FAILED);
@@ -256,14 +256,14 @@ Array<CIMClass> WMIClassProvider::enumerateClasses(
             lCount++;
             cimClasses.append(tempClass);
         }
-        
-        if (pClass) 
+
+        if (pClass)
             pClass.Release();
 
         hr = pClassEnum->Next(WBEM_INFINITE, 1, &pClass, &dwReturned);
     }
 
-    if (pClassEnum) 
+    if (pClassEnum)
         pClassEnum.Release();
 
     PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL4,
@@ -308,12 +308,12 @@ Array<CIMName> WMIClassProvider::enumerateClassNames(
 
     PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL4,
         "enumerateClassNames - deepInheritance %x", deepInheritance));
-    
+
     if (!m_bInitialized)
     {
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
             "WMIClassProvider::enumerateClassNames - m_bInitilized= %x, "
-                "throw CIM_ERR_FAILED exception",  
+                "throw CIM_ERR_FAILED exception",
             m_bInitialized));
 
         throw CIMException(CIM_ERR_FAILED);
@@ -322,7 +322,7 @@ Array<CIMName> WMIClassProvider::enumerateClassNames(
     // retrieve class enumeration object
     if (!(_collector->getClassEnum(&pClassEnum, className, deepInheritance)))
     {
-        if (pClassEnum) 
+        if (pClassEnum)
             pClassEnum.Release();
 
         throw CIMException(CIM_ERR_FAILED);
@@ -341,13 +341,13 @@ Array<CIMName> WMIClassProvider::enumerateClassNames(
         CIMName cimclassname = className;
         classNames.append(cimclassname);
 
-        if (pClass) 
+        if (pClass)
             pClass.Release();
 
         hr = pClassEnum->Next(WBEM_INFINITE, 1, &pClass, &dwReturned);
     }
-    
-    if (pClassEnum) 
+
+    if (pClassEnum)
         pClassEnum.Release();
 
     PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
@@ -376,7 +376,7 @@ void WMIClassProvider::deleteClass(const String& nameSpace,
                                    const String& className)
 {
     HRESULT hr;
-    
+
     PEG_METHOD_ENTER(TRC_WMIPROVIDER,
         "WMIClassProvider::deleteClass()");
 
@@ -384,20 +384,20 @@ void WMIClassProvider::deleteClass(const String& nameSpace,
 
     //Connect to namespace
     setup(nameSpace,userName,password);
-    
+
     bool bConnected = _collector->Connect(&pServices);
-    
-    if (!bConnected) 
+
+    if (!bConnected)
     {
         if (pServices)
             pServices.Release();
 
         throw CIMException(CIM_ERR_ACCESS_DENIED);
     }
-    
+
     //Convert the parameters to make the WMI call
     CComBSTR bsClassName = className.getCString();
-    
+
     LONG lFlags = 0L;
 
     //Perform the WMI operation
@@ -412,33 +412,33 @@ void WMIClassProvider::deleteClass(const String& nameSpace,
     if (FAILED(hr))
     {
         CMyString msg;
-        msg.Format("Failed to delete class [%s]. Error: 0x%X", 
+        msg.Format("Failed to delete class [%s]. Error: 0x%X",
             255, className.getCString(), hr);
 
-        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3, 
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
             "WMIClassProvider::deleteClass() - %s", (LPCTSTR)msg));
 
         switch (hr)
         {
-            case WBEM_E_ACCESS_DENIED: 
-                throw CIMException(CIM_ERR_ACCESS_DENIED); 
+            case WBEM_E_ACCESS_DENIED:
+                throw CIMException(CIM_ERR_ACCESS_DENIED);
                 break;
-            case WBEM_E_FAILED: 
-                throw CIMException(CIM_ERR_FAILED); 
+            case WBEM_E_FAILED:
+                throw CIMException(CIM_ERR_FAILED);
                 break;
-            case WBEM_E_INVALID_PARAMETER: 
-                throw CIMException(CIM_ERR_FAILED, "WMI Invalid Parameter"); 
+            case WBEM_E_INVALID_PARAMETER:
+                throw CIMException(CIM_ERR_FAILED, "WMI Invalid Parameter");
                 break;
-            case WBEM_E_INVALID_CLASS: 
-                throw CIMException(CIM_ERR_NOT_FOUND); 
+            case WBEM_E_INVALID_CLASS:
+                throw CIMException(CIM_ERR_NOT_FOUND);
                 break;
-            case WBEM_E_NOT_FOUND: 
-                throw CIMException(CIM_ERR_NOT_FOUND); 
+            case WBEM_E_NOT_FOUND:
+                throw CIMException(CIM_ERR_NOT_FOUND);
                 break;
-            case WBEM_E_CLASS_HAS_CHILDREN: 
-                throw CIMException(CIM_ERR_CLASS_HAS_CHILDREN); 
+            case WBEM_E_CLASS_HAS_CHILDREN:
+                throw CIMException(CIM_ERR_CLASS_HAS_CHILDREN);
                 break;
-            default: 
+            default:
                 throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg);
         }
     }
@@ -456,8 +456,8 @@ void WMIClassProvider::createClass(const String& nameSpace,
                                    const CIMClass& newClass,
                                    Boolean updateClass)
 {
-    
-    PEG_METHOD_ENTER(TRC_WMIPROVIDER, 
+
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,
         "WmiClassProvider::createClass()");
 
     setup(nameSpace, userName, password);
@@ -466,16 +466,16 @@ void WMIClassProvider::createClass(const String& nameSpace,
     {
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
             "WMIClassProvider::createClass - m_bInitilized= %x, "
-            "throw CIM_ERR_FAILED exception",  
+            "throw CIM_ERR_FAILED exception",
             m_bInitialized));
 
         throw CIMException(CIM_ERR_FAILED);
     }
-    
+
     // Check if the class does not exist and if if has a valid
     // superclass
     performInitialCheck(newClass, updateClass);
-    bool hasSuperClass = 
+    bool hasSuperClass =
         (newClass.getSuperClassName().getString() != String::EMPTY);
 
     // gets the pointers
@@ -490,28 +490,28 @@ void WMIClassProvider::createClass(const String& nameSpace,
         throw CIMException (CIM_ERR_FAILED);
     }
 
-    try 
+    try
     {
         // starts the class creation by name and class qualifiers
         createClassNameAndClassQualifiers(
-            newClass, 
-            pServices, 
-            &pNewClass, 
+            newClass,
+            pServices,
+            &pNewClass,
             hasSuperClass);
 
         // create properties
         createProperties(
-            newClass, 
-            pServices, 
+            newClass,
+            pServices,
             pNewClass);
 
         // create methods
         createMethods(
-            newClass, 
-            pServices, 
+            newClass,
+            pServices,
             pNewClass);
     }
-    catch (CIMException&) 
+    catch (CIMException&)
     {
         if (pServices)
             pServices.Release();
@@ -521,52 +521,52 @@ void WMIClassProvider::createClass(const String& nameSpace,
 
         throw;
     }
-    
+
     // Store the new class into WMI
     LONG lFlags = 0L;
-    
+
     //if updateClass is set, we are trying a modifyclass
     if (updateClass) lFlags = WBEM_FLAG_UPDATE_ONLY;
 
     HRESULT hr = pServices->PutClass(pNewClass, lFlags, NULL, NULL);
-    
+
     if (pServices)
         pServices.Release();
-    
+
     if (pNewClass)
         pNewClass.Release();
-    
+
     if (FAILED(hr))
     {
         CMyString msg;
         msg.Format("It is not possible to create the class [%s]. "
             "Error: 0x%X", 255, newClass.getClassName().getString(), hr);
 
-        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3, 
-                          "WMIClassProvider::createClass() - %s", 
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
+                          "WMIClassProvider::createClass() - %s",
                           (LPCTSTR)msg));
 
         switch(hr)
         {
-            case E_ACCESSDENIED: 
-                throw CIMException(CIM_ERR_ACCESS_DENIED); 
+            case E_ACCESSDENIED:
+                throw CIMException(CIM_ERR_ACCESS_DENIED);
                 break;
-            case WBEM_E_ACCESS_DENIED: 
-                throw CIMException(CIM_ERR_ACCESS_DENIED); 
+            case WBEM_E_ACCESS_DENIED:
+                throw CIMException(CIM_ERR_ACCESS_DENIED);
                 break;
-            case WBEM_E_CLASS_HAS_CHILDREN: 
-                throw CIMException(CIM_ERR_CLASS_HAS_CHILDREN); 
+            case WBEM_E_CLASS_HAS_CHILDREN:
+                throw CIMException(CIM_ERR_CLASS_HAS_CHILDREN);
                 break;
-            case WBEM_E_CLASS_HAS_INSTANCES: 
-                throw CIMException(CIM_ERR_CLASS_HAS_INSTANCES); 
+            case WBEM_E_CLASS_HAS_INSTANCES:
+                throw CIMException(CIM_ERR_CLASS_HAS_INSTANCES);
                 break;
-            case WBEM_E_NOT_FOUND: 
-                throw CIMException(CIM_ERR_NOT_FOUND); 
+            case WBEM_E_NOT_FOUND:
+                throw CIMException(CIM_ERR_NOT_FOUND);
                 break;
-            case WBEM_E_INVALID_CLASS: 
-                throw CIMException(CIM_ERR_INVALID_PARAMETER); 
+            case WBEM_E_INVALID_CLASS:
+                throw CIMException(CIM_ERR_INVALID_PARAMETER);
                 break;
-            default: 
+            default:
                 throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg);
         }
     }
@@ -594,7 +594,7 @@ void WMIClassProvider::modifyClass(const String& nameSpace,
     {
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
             "WMIClassProvider::modifyClass - m_bInitilized= %x, "
-            "throw CIM_ERR_FAILED exception",  
+            "throw CIM_ERR_FAILED exception",
             m_bInitialized));
 
         throw CIMException(CIM_ERR_FAILED);
@@ -616,9 +616,9 @@ void WMIClassProvider::modifyClass(const String& nameSpace,
     //
     // By Jair
     //
-    // If the class already has a superclass and it isn't explicitly 
-    // defined in the <modifiedClass> definition, we must set it 
-    // before changing the control to the createClass method. This way 
+    // If the class already has a superclass and it isn't explicitly
+    // defined in the <modifiedClass> definition, we must set it
+    // before changing the control to the createClass method. This way
     // we don't change the Class definition, as specified in DSP0200.
     //
     CIMClass updatedClass = modifiedClass;
@@ -628,8 +628,8 @@ void WMIClassProvider::modifyClass(const String& nameSpace,
         // set the superclass
 
         CComPtr<IWbemClassObject> pClass;
-    
-        if (!(_collector->getObject(&pClass, 
+
+        if (!(_collector->getObject(&pClass,
             updatedClass.getClassName().getString())))
         {
             if (pClass)
@@ -639,9 +639,9 @@ void WMIClassProvider::modifyClass(const String& nameSpace,
         }
 
         String superClass = _collector->getSuperClass(pClass);
-        
+
         if (0 != superClass.size())
-        {    
+        {
             CIMName superclassName = superClass;
             updatedClass.setSuperClassName(superclassName);
         }
@@ -649,7 +649,7 @@ void WMIClassProvider::modifyClass(const String& nameSpace,
         if (pClass)
             pClass.Release();
     }
-        
+
     //update the class using createClass
     createClass(nameSpace,
                 userName,
@@ -670,9 +670,9 @@ Boolean WMIClassProvider::classAlreadyExists (const String& className)
 {
     PEG_METHOD_ENTER(TRC_WMIPROVIDER,
         "WmiClassProvider::classAlreadyExists()");
-    
+
     CComPtr<IWbemClassObject> pClass;
-    
+
     try
     {
         if (_collector->getObject(&pClass, className))
@@ -714,11 +714,11 @@ Boolean WMIClassProvider::classAlreadyExists (const String& className)
 void WMIClassProvider::performInitialCheck(const CIMClass& newClass,
                                            Boolean updateClass)
 {
-    PEG_METHOD_ENTER(TRC_WMIPROVIDER, 
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,
         "WmiClassProvider::performInitialCheck()");
-    
+
     // check if class already exists, just for createClass calls
-    if ((classAlreadyExists(newClass.getClassName().getString())) && 
+    if ((classAlreadyExists(newClass.getClassName().getString())) &&
         (!updateClass))
     {
         PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL2,
@@ -739,7 +739,7 @@ void WMIClassProvider::performInitialCheck(const CIMClass& newClass,
 
             PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                 "WMIClassProvider::performInitialCheck() - the "
-                "superclass %s wasn't yet registered", tmp.getCString())); 
+                "superclass %s wasn't yet registered", tmp.getCString()));
 
             throw CIMException(CIM_ERR_INVALID_SUPERCLASS);
         }
@@ -762,7 +762,7 @@ void WMIClassProvider::createClassNameAndClassQualifiers(
 {
     HRESULT hr;
 
-    PEG_METHOD_ENTER(TRC_WMIPROVIDER, 
+    PEG_METHOD_ENTER(TRC_WMIPROVIDER,
         "WmiClassProvider::createClassNameAndClassQualifiers()");
 
     // if the class has a superclass, we need to spwan a derived
@@ -774,10 +774,10 @@ void WMIClassProvider::createClassNameAndClassQualifiers(
         CComBSTR bs = tmp.getCString();
 
         hr = pServices->GetObject(
-                bs, 
-                NULL, 
-                NULL, 
-                &pSuperClass, 
+                bs,
+                NULL,
+                NULL,
+                &pSuperClass,
                 NULL);
 
         bs.Empty();
@@ -791,11 +791,11 @@ void WMIClassProvider::createClassNameAndClassQualifiers(
             msg.Format("Failed to get a pointer to Superclass [%s]. Error: "
                 "0x%X", 255, tmp.getCString(), hr);
 
-            PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1, 
-                "WMIClassProvider::createClassNameAndClassQualifiers() - %s", 
+            PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
+                "WMIClassProvider::createClassNameAndClassQualifiers() - %s",
                 (LPCTSTR)msg));
 
-            throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg); 
+            throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg);
         }
 
         //Creates the new class
@@ -806,46 +806,46 @@ void WMIClassProvider::createClassNameAndClassQualifiers(
     else
     {
         // we are creating a base class
-        hr = pServices->GetObject(NULL, 
-                                  NULL, 
-                                  NULL, 
-                                  pNewClass, 
+        hr = pServices->GetObject(NULL,
+                                  NULL,
+                                  NULL,
+                                  pNewClass,
                                   NULL);
 
         if (FAILED(hr))
         {
             CMyString msg;
-            msg.Format("Failed to get a pointer to a new class. Error: 0x%X", 
+            msg.Format("Failed to get a pointer to a new class. Error: 0x%X",
                 hr);
 
-            PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1, 
-                "WMIClassProvider::createClassNameAndClassQualifiers() - %s", 
+            PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
+                "WMIClassProvider::createClassNameAndClassQualifiers() - %s",
                 (LPCTSTR)msg));
-            
+
             throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg);
         }
     }
-    
+
     // create the class name
     CComVariant v;
     v = newClass.getClassName().getString().getCString();
     hr = (*pNewClass)->Put(L"__CLASS", 0, &v, 0);
-    
+
     v.Clear();
 
     if (FAILED(hr))
     {
         CMyString msg;
-        msg.Format("Failed to add class name on class [%s]. Error: 0x%X", 
+        msg.Format("Failed to add class name on class [%s]. Error: 0x%X",
             255, newClass.getClassName().getString().getCString(), hr);
 
-        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1, 
-            "WMIClassProvider::createClassNameAndClassQualifiers() - %s", 
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
+            "WMIClassProvider::createClassNameAndClassQualifiers() - %s",
             (LPCTSTR)msg));
 
         if (*pNewClass)
             (*pNewClass)->Release();
-        
+
         throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg);
     }
 
@@ -857,13 +857,13 @@ void WMIClassProvider::createClassNameAndClassQualifiers(
     {
         CMyString msg;
         msg.Format("Failed to get the Qualifier set pointer of class [%s]. "
-            "Error: 0x%X", 255, 
+            "Error: 0x%X", 255,
             newClass.getClassName().getString().getCString(), hr);
 
-        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1, 
-            "WMIClassProvider::createClassNameAndClassQualifiers() - %s", 
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
+            "WMIClassProvider::createClassNameAndClassQualifiers() - %s",
             (LPCTSTR)msg));
-        
+
         if (*pNewClass)
             (*pNewClass)->Release();
 
@@ -872,16 +872,16 @@ void WMIClassProvider::createClassNameAndClassQualifiers(
 
         throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg);
     }
-    
+
     // check the class qualifiers and create them if they are valid
-    // we are taking care of the class qualifiers and not 
+    // we are taking care of the class qualifiers and not
     // methods/properties qualifiers :D
     for (Uint32 i = 0; i < newClass.getQualifierCount(); i++)
     {
-        try 
+        try
         {
             WMIQualifier qualifier(newClass.getQualifier(i).clone());
-            
+
             createQualifier(qualifier, pNewClassQualifier);
         }
         catch (CIMException&)
@@ -906,7 +906,7 @@ void WMIClassProvider::createClassNameAndClassQualifiers(
 
 
 /////////////////////////////////////////////////////////////////////////////
-// WMIClassProvider::createProperties creates all properties including keys 
+// WMIClassProvider::createProperties creates all properties including keys
 //                                      add the qualifiers too
 // ///////////////////////////////////////////////////////////////////////////
 void WMIClassProvider::createProperties(const CIMClass& newClass,
@@ -914,7 +914,7 @@ void WMIClassProvider::createProperties(const CIMClass& newClass,
                                         IWbemClassObject *pNewClass)
 {
     HRESULT hr;
-    
+
     PEG_METHOD_ENTER(TRC_WMIPROVIDER, "WmiClassProvider::createProperties()");
 
     // create the properties but don't create the keys again
@@ -925,7 +925,7 @@ void WMIClassProvider::createProperties(const CIMClass& newClass,
         prop = newClass.getProperty(i).clone();
 
         // create the properties
-        try 
+        try
         {
             createProperty(prop, pNewClass);
         }
@@ -933,34 +933,34 @@ void WMIClassProvider::createProperties(const CIMClass& newClass,
         {
             throw;
         }
-        
-        // get a pointer to work with qualifiers 
+
+        // get a pointer to work with qualifiers
         CComPtr<IWbemQualifierSet> pQual;
         CComBSTR bs = prop.getName().getString().getCString();
-        
+
         hr = pNewClass->GetPropertyQualifierSet(bs, &pQual);
         bs.Empty();
 
         if (FAILED(hr))
         {
             CMyString msg;
-            msg.Format("Failed get Qualifier set of [%s]. Error: 0x%X", 255, 
+            msg.Format("Failed get Qualifier set of [%s]. Error: 0x%X", 255,
                 prop.getName().getString().getCString(), hr);
-        
-            PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1, 
+
+            PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                 "WMIClassProvider::createProperties() - %s", (LPCTSTR)msg));
 
             if (pQual)
                 pQual.Release();
-            
-            throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg); 
+
+            throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg);
         }
 
         // set the qualifiers to the property
         for (Uint32 j = 0; j < prop.getQualifierCount(); j++)
         {
             WMIQualifier qualifier(prop.getQualifier(j));
-            try 
+            try
             {
                 createQualifier(qualifier, pQual);
             }
@@ -975,21 +975,21 @@ void WMIClassProvider::createProperties(const CIMClass& newClass,
 
         // set the CLASSORIGIN qualifier if it wasn't set yet
         String strClassorigin = prop.getClassOrigin().getString();
-        
+
         if (strClassorigin.size() == 0)
         {
             strClassorigin = newClass.getClassName().getString();
         }
 
         WMIFlavor flavor(CIMFlavor::DEFAULTS);
-        
+
         /*
         v.vt = VT_BSTR;
         v.bstrVal = strClassorigin.getCString();
         */
         CComVariant v;
         v = strClassorigin.getCString();
-        
+
         hr = pQual->Put(L"CLASSORIGIN", &v, flavor.getAsWMIValue());
         v.Clear();
 
@@ -1002,10 +1002,10 @@ void WMIClassProvider::createProperties(const CIMClass& newClass,
             msg.Format("Failed to add CLASSORIGIN qualifier in [%s]. Error: "
                 "0x%X", 255, prop.getName().getString().getCString(), hr);
 
-            PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1, 
-                          "WMIClassProvider::createProperties () - %s", 
+            PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
+                          "WMIClassProvider::createProperties () - %s",
                           (LPCTSTR)msg));
-            
+
             throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg);
         }
     }
@@ -1016,8 +1016,8 @@ void WMIClassProvider::createProperties(const CIMClass& newClass,
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// WMIClassProvider::createMethods  create methods 
-//                                      
+// WMIClassProvider::createMethods  create methods
+//
 /////////////////////////////////////////////////////////////////////////////
 void WMIClassProvider::createMethods(const CIMClass& newClass,
                                      IWbemServices *pServices,
@@ -1032,7 +1032,7 @@ void WMIClassProvider::createMethods(const CIMClass& newClass,
         CIMConstMethod method;
         method = newClass.getMethod(i);
 
-        try 
+        try
         {
             createMethod(method, pServices, pNewClass);
         }
@@ -1048,10 +1048,10 @@ void WMIClassProvider::createMethods(const CIMClass& newClass,
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// WMIClassProvider::createProperty   creates one property 
+// WMIClassProvider::createProperty   creates one property
 //                                      doesn't create the qualifiers
 /////////////////////////////////////////////////////////////////////////////
-void WMIClassProvider::createProperty(const CIMProperty &keyProp, 
+void WMIClassProvider::createProperty(const CIMProperty &keyProp,
                                       IWbemClassObject *pNewClass)
 {
     PEG_METHOD_ENTER(TRC_WMIPROVIDER, "WmiClassProvider::createProperty()");
@@ -1076,14 +1076,14 @@ void WMIClassProvider::createProperty(const CIMProperty &keyProp,
     if (FAILED(hr))
     {
         CMyString msg;
-        msg.Format("Failed to add property [%s]. Error: 0x%X", 255, 
+        msg.Format("Failed to add property [%s]. Error: 0x%X", 255,
             keyProp.getName().getString().getCString(), hr);
 
-        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1, 
-                      "WMIClassProvider::createProperty () - %s", 
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
+                      "WMIClassProvider::createProperty () - %s",
                       (LPCTSTR)msg));
 
-        throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg); 
+        throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg);
     }
 
     PEG_METHOD_EXIT();
@@ -1092,21 +1092,21 @@ void WMIClassProvider::createProperty(const CIMProperty &keyProp,
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// WMIClassProvider::createQualifier  creates a qualifiers 
-//                                      
+// WMIClassProvider::createQualifier  creates a qualifiers
+//
 /////////////////////////////////////////////////////////////////////////////
-void WMIClassProvider::createQualifier (const WMIQualifier &qualifier, 
+void WMIClassProvider::createQualifier (const WMIQualifier &qualifier,
                                         IWbemQualifierSet *pQual)
 {
     HRESULT hr;
-    
+
     PEG_METHOD_ENTER(TRC_WMIPROVIDER, "WmiClassProvider::createQualifier()");
 
-    String sName = qualifier.getName().getString(); 
+    String sName = qualifier.getName().getString();
     CComBSTR bs = sName.getCString();
     WMIValue value(qualifier.getValue());
     WMIFlavor flavor(qualifier.getFlavor());
-    
+
     CComVariant v;
     value.getAsVariant(&v);
 
@@ -1128,8 +1128,8 @@ void WMIClassProvider::createQualifier (const WMIQualifier &qualifier,
         CMyString msg;
         msg.Format("It is not possible to add the qualifier [%s] to "
             "the object! Error: 0x%X", 255, sName.getCString(), hr);
-        
-        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1, 
+
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
             "WmiClassProvider::createQualifier() - %s", (LPCTSTR)msg));
 
         throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg);
@@ -1142,14 +1142,14 @@ void WMIClassProvider::createQualifier (const WMIQualifier &qualifier,
 
 /////////////////////////////////////////////////////////////////////////////
 // WMIClassProvider::createMethod  create a method
-//                                      
+//
 /////////////////////////////////////////////////////////////////////////////
 void WMIClassProvider::createMethod (CIMConstMethod &method,
                                      IWbemServices *pServices,
                                      IWbemClassObject *pNewClass)
 {
     PEG_METHOD_ENTER(TRC_WMIPROVIDER, "WmiClassProvider::createMethod()");
-    
+
     // the parameters
     HRESULT hr = S_OK;
     CComPtr<IWbemClassObject> pinParameters;
@@ -1157,9 +1157,9 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
 
     // Get pointers to use for in & out params:
     hr = pServices->GetObject(L"__PARAMETERS",
-                              NULL, 
-                              NULL, 
-                              &pinParameters, 
+                              NULL,
+                              NULL,
+                              &pinParameters,
                               NULL);
     if (FAILED(hr))
     {
@@ -1167,8 +1167,8 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
         msg.Format("Failed to get a paramter pointer while "
             "creating method: %s! Error: 0x%X",
             255, method.getName().getString().getCString(), hr);
-        
-        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1, 
+
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                       "WMIClassProvider::createMethod() - %s", (LPCTSTR)msg));
 
         if (pinParameters)
@@ -1181,9 +1181,9 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
 
     // Get pointers to use for in & out params:
     hr = pServices->GetObject(L"__PARAMETERS",
-                              NULL, 
-                              NULL, 
-                              &poutParameters, 
+                              NULL,
+                              NULL,
+                              &poutParameters,
                               NULL);
 
     if (FAILED(hr))
@@ -1192,8 +1192,8 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
         msg.Format("Failed to get a paramter pointer while "
             "creating method: %s! Error: 0x%X",
             255, method.getName().getString().getCString(), hr);
-        
-        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1, 
+
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                       "WMIClassProvider::createMethod() - %s", (LPCTSTR)msg));
 
         if (pinParameters)
@@ -1213,7 +1213,7 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
         // Is this an in or out parameter, or both?
         if (param.findQualifier(CIMName("in")) != -1)
         {
-            try 
+            try
             {
                 createParam(param, pinParameters);
             }
@@ -1225,12 +1225,12 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
                     poutParameters.Release();
 
                 throw;
-            }        
-        } 
-        
+            }
+        }
+
         if (param.findQualifier(CIMName("out")) != -1)
         {
-            try 
+            try
             {
                 createParam(param, poutParameters);
             }
@@ -1242,7 +1242,7 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
                     poutParameters.Release();
 
                 throw;
-            }        
+            }
         }
     }
 
@@ -1252,7 +1252,7 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
 
     if (pinParameters)
         pinParameters.Release();
-    
+
     if (poutParameters)
         poutParameters.Release();
 
@@ -1261,16 +1261,16 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
         CMyString msg;
         msg.Format("It is not possible to add the method [%s] ! Error: 0x%X",
             255, method.getName().getString().getCString(), hr);
-            
-        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1, 
+
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                       "WMIClassProvider::createMethod() - %s", (LPCTSTR)msg));
-        
-        throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg); 
+
+        throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg);
     }
 
-    
+
     // create the qualifiers for the method
-    // get a pointer to work with qualifiers 
+    // get a pointer to work with qualifiers
     CComPtr<IWbemQualifierSet> pQual;
     hr = pNewClass->GetMethodQualifierSet(bs, &pQual);
 
@@ -1278,15 +1278,15 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
     {
         CMyString msg;
         msg.Format("It is not possible to get the qualifier "
-            "set of the method [%s] ! Error: 0x%X", 255, 
+            "set of the method [%s] ! Error: 0x%X", 255,
             method.getName().getString().getCString(), hr);
-            
-        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1, 
+
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                 "WMIClassProvider::createMethod() - %s", (LPCTSTR)msg));
-        
+
         if (pQual)
             pQual.Release();
-        
+
         throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg);
     }
 
@@ -1296,7 +1296,7 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
         CIMQualifier cimQual = method.getQualifier(i).clone();
         WMIQualifier qualifier(cimQual);
 
-        try 
+        try
         {
             createQualifier(qualifier, pQual);
         }
@@ -1311,7 +1311,7 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
 
     if (pQual)
         pQual.Release();
-    
+
     PEG_METHOD_EXIT();
 
     return;
@@ -1319,14 +1319,14 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
 
 /////////////////////////////////////////////////////////////////////////////
 // WMIClassProvider::createParam  create a parameter
-//                                      
+//
 /////////////////////////////////////////////////////////////////////////////
-void WMIClassProvider::createParam(const CIMConstParameter &param, 
+void WMIClassProvider::createParam(const CIMConstParameter &param,
                                    IWbemClassObject *pNewClass)
 {
-    
+
     PEG_METHOD_ENTER(TRC_WMIPROVIDER, "WmiClassProvider::createParam()");
-    
+
     //Get the CIMTYPE of the parameter
     CIMTYPE type = CIMTypeToWMIType(param.getType());
 
@@ -1345,33 +1345,33 @@ void WMIClassProvider::createParam(const CIMConstParameter &param,
     {
         CMyString msg;
         msg.Format("It is not possible to add parameter [%s] "
-            "to the parameters list! Error: 0x%X", 255, 
+            "to the parameters list! Error: 0x%X", 255,
             param.getName().getString().getCString(), hr);
 
-        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1, 
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                       "WMIClassProvider::createParam() - %s", (LPCTSTR)msg));
 
         throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg);
     }
 
     // create the qualifiers for this parameter
-    // get a pointer to work with qualifiers 
+    // get a pointer to work with qualifiers
     CComPtr<IWbemQualifierSet> pQual;
     hr = pNewClass->GetPropertyQualifierSet(bs, &pQual);
-    
+
     if (FAILED(hr))
     {
         CMyString msg;
         msg.Format("It is not possible to get a qualifier "
-            "set for parameter [%s]! Error: 0x%X", 255, 
+            "set for parameter [%s]! Error: 0x%X", 255,
             param.getName().getString().getCString(), hr);
 
-        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1, 
+        PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL1,
                       "WMIClassProvider::createParam() - %s", (LPCTSTR)msg));
 
         if (pQual)
             pQual.Release();
-        
+
         throw CIMException(CIM_ERR_FAILED, (LPCTSTR)msg);
     }
 
@@ -1381,7 +1381,7 @@ void WMIClassProvider::createParam(const CIMConstParameter &param,
         CIMQualifier cimQual = param.getQualifier(i).clone();
         WMIQualifier qualifier(cimQual);
 
-        try 
+        try
         {
             createQualifier(qualifier, pQual);
         }
@@ -1393,7 +1393,7 @@ void WMIClassProvider::createParam(const CIMConstParameter &param,
             throw;
         }
     }
-    
+
     if (pQual)
         pQual.Release();
 

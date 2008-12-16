@@ -27,7 +27,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// This example of how to call lib$initialize from C++ was taken 
+// This example of how to call lib$initialize from C++ was taken
 // from the internal notes file: cxxc_bugs 11466.4
 //
 #include <unixlib.h>      // decc$feature_get_index(), set_value()
@@ -56,8 +56,8 @@ static void set(char *name, int value)
 
   index = decc$feature_get_index(name);
 
-  if (index == -1 || 
-      (decc$feature_set_value(index, 1, value) == -1 && 
+  if (index == -1 ||
+      (decc$feature_set_value(index, 1, value) == -1 &&
        errno != 0))
   {
     perror(name);
@@ -67,10 +67,10 @@ static void set(char *name, int value)
 static void set_coe(void)
 {
   int logname_cache = 60; // 60 seconds = 1 min. cache.
- 
+
   set ("DECC$ARGV_PARSE_STYLE", TRUE);
-  set ("DECC$ENABLE_GETENV_CACHE", TRUE); 
-  set ("DECC$ENABLE_TO_VMS_LOGNAME_CACHE", logname_cache); 
+  set ("DECC$ENABLE_GETENV_CACHE", TRUE);
+  set ("DECC$ENABLE_TO_VMS_LOGNAME_CACHE", logname_cache);
   set ("DECC$FILE_SHARING", TRUE);
   set ("DECC$DISABLE_TO_VMS_LOGNAME_TRANSLATION", TRUE);
   set ("DECC$EFS_CASE_PRESERVE", TRUE);

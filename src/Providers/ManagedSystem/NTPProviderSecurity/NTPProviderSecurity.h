@@ -39,7 +39,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
-#include <Pegasus/Provider/ProviderException.h>    
+#include <Pegasus/Provider/ProviderException.h>
 #include <Pegasus/Common/OperationContext.h>
 
 // Security includes
@@ -51,7 +51,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-    
+
 //------------------------------------------------------------------------------
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -71,7 +71,7 @@ static const Uint32 CONTEXT_ID = 1;
 //------------------------------------------------------------------------------
 class NTPProviderSecurity
 {
-    
+
 public:
     NTPProviderSecurity(const OperationContext & context);
     virtual ~NTPProviderSecurity(void);
@@ -88,7 +88,7 @@ public:
 
 private:
     //
-    // Class attributes 
+    // Class attributes
     //
     String secUsername;
 };

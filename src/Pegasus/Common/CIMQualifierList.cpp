@@ -46,7 +46,7 @@ PEGASUS_USING_STD;
 
 static CIMName _KEY("Key");
 
-CIMQualifierList::CIMQualifierList() : 
+CIMQualifierList::CIMQualifierList() :
                     _keyIndex(PEGASUS_ORDEREDSET_INDEX_UNKNOWN)
 {
 
@@ -71,9 +71,9 @@ CIMQualifierList& CIMQualifierList::add(const CIMQualifier& qualifier)
     }
 
     _qualifiers.append(qualifier);
-    
+
     // Update key index:
-    if (_keyIndex == PEGASUS_ORDEREDSET_INDEX_UNKNOWN && 
+    if (_keyIndex == PEGASUS_ORDEREDSET_INDEX_UNKNOWN &&
             qualifier._rep->_name == _KEY)
         _keyIndex = _qualifiers.size()-1;
 
@@ -398,8 +398,8 @@ CIMQualifierList& CIMQualifierList::addUnchecked(const CIMQualifier& qualifier)
         throw UninitializedObjectException();
 
     _qualifiers.append(qualifier);
-    
-    if (_keyIndex == PEGASUS_ORDEREDSET_INDEX_UNKNOWN && 
+
+    if (_keyIndex == PEGASUS_ORDEREDSET_INDEX_UNKNOWN &&
             qualifier._rep->_name == _KEY)
         _keyIndex = _qualifiers.size()-1;
 

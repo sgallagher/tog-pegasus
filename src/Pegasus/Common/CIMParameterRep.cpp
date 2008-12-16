@@ -46,7 +46,7 @@ CIMParameterRep::CIMParameterRep(const CIMParameterRep& x) :
     _arraySize(x._arraySize),
     _referenceClassName(x._referenceClassName),
     _refCounter(1),
-    _ownerCount(0)    
+    _ownerCount(0)
 {
     x._qualifiers.cloneTo(_qualifiers);
     // Set the CIM name tag.
@@ -64,7 +64,7 @@ CIMParameterRep::CIMParameterRep(
     _referenceClassName(referenceClassName),
     _refCounter(1),
     _ownerCount(0)
-{    
+{
     // ensure name is not null
     if (name.isNull())
     {
@@ -109,7 +109,7 @@ void CIMParameterRep::setName(const CIMName& name)
                 " already in a container.");
         throw Exception(parms);
     }
-    _name = name;    
+    _name = name;
     // Set the CIM name tag.
     _nameTag = generateCIMNameTag(_name);
 }

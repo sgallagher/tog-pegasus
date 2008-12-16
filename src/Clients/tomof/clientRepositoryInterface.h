@@ -33,7 +33,7 @@
 // repository and the client interface.  Since these two interfaces were not
 // designed with a common hiearchy, it substitutes the individual calls
 // with any special characteristics for each call. Note that Bob Blair in
-// the Compiler created much the same structure but with different operations. 
+// the Compiler created much the same structure but with different operations.
 //
 // This class supports only the operations that tomof needs, which
 // are

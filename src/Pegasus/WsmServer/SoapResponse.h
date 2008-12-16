@@ -47,8 +47,8 @@ public:
 
     Uint32 getEnvelopeSize()
     {
-        return _envStart.size() + _envEnd.size() + 
-            _hdrStart.size() + _hdrEnd.size() + _hdrContent.size() + 
+        return _envStart.size() + _envEnd.size() +
+            _hdrStart.size() + _hdrEnd.size() + _hdrContent.size() +
             _bodyStart.size() + _bodyEnd.size() + _bodyHeader.size() +
             _bodyContent.size() + _bodyTrailer.size();
     }
@@ -74,7 +74,7 @@ public:
     {
         return _bodyTrailer;
     }
-    
+
 private:
 
     Uint32 _maxEnvelopeSize;

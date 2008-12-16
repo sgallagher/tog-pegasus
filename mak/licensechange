@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to update Pegasus Licenses on all required modules in the pegasus CVS module
-# Depends on license definition in 
+# Depends on license definition in
 # right now cimmof.l and cimmof.lex.cpp have to be treated special.  These must be hand redone
 # because the .l files do not handle the // comments at the beginning well and require them to
 # be surounded by a /* */ sequence that we cannot do mechnaically.  Note that this also applies
@@ -13,7 +13,7 @@
 
 # Issues as of 2 Feb 06
 # 1. pegasus/Schemas/Pegasus/CIM_Qualifiers25.mof - Should not be licensed by us
-# 2. Not covering all .mof files in pegasus/src.  
+# 2. Not covering all .mof files in pegasus/src.
 # 3. We are updating some of the Yacc output files and this is incorrect but
 #    benign. However, we should not be doing this.
 # There are still some issues that must be resolved manually so that after application of
@@ -31,7 +31,7 @@ if [ ! -e '$PEGASUS_ROOT/doc/license.mak.txt' ]
 then
      make -f $PEGASUS_ROOT/mak/license.mak create-make-license >> $LOGFILE
      make -f $PEGASUS_ROOT/mak/license.mak create-lex-license >> $LOGFILE
-fi 
+fi
 
 # change all .h, .cpp, .c .java  and yacc files
 # Absolute. Puts new licenses on if they do not exist
@@ -41,7 +41,7 @@ done
 echo "Completed code files"  >> $LOGFILE
 
 # do all lex files **.l) with the lex license. This license is special because it
-# must use /* */ around the license for lex files. 
+# must use /* */ around the license for lex files.
 find -name "*.l" | grep -v InterfaceArchive | grep -v slp_client | while read filename ; do
      make -f $PEGASUS_ROOT/mak/license.mak fix-lex-license FILENAME=${filename}  >> $LOGFILE
 done

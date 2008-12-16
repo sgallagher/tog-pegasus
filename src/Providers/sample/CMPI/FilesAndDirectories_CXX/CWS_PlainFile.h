@@ -40,40 +40,40 @@
 class CWS_PlainFile : public CmpiInstanceMI, public CmpiMethodMI
 {
  public:
-  
+
   CWS_PlainFile(const CmpiBroker &mbp, const CmpiContext& ctx);
 
   virtual ~CWS_PlainFile();
-    
+
   virtual int isUnloadable() const;
-    
-  virtual CmpiStatus enumInstanceNames(const CmpiContext& ctx, 
+
+  virtual CmpiStatus enumInstanceNames(const CmpiContext& ctx,
                        CmpiResult& rslt,
                        const CmpiObjectPath& cop);
-     
+
   virtual CmpiStatus enumInstances(const CmpiContext& ctx, CmpiResult& rslt,
                    const CmpiObjectPath& cop,
                    const char* *properties);
-  
+
   virtual CmpiStatus getInstance(const CmpiContext& ctx, CmpiResult& rslt,
                  const CmpiObjectPath& cop,
                  const char* *properties);
-  
-  virtual CmpiStatus createInstance(const CmpiContext& ctx, 
+
+  virtual CmpiStatus createInstance(const CmpiContext& ctx,
                     CmpiResult& rslt,
                     const CmpiObjectPath& cop,
                     const CmpiInstance& inst);
-  
+
   virtual CmpiStatus setInstance(const CmpiContext& ctx, CmpiResult& rslt,
                  const CmpiObjectPath& cop,
                  const CmpiInstance& inst,
                  const char* *properties);
-  
+
   virtual CmpiStatus deleteInstance(const CmpiContext& ctx, CmpiResult& rslt,
                     const CmpiObjectPath& cop);
 
   virtual CmpiStatus invokeMethod(const CmpiContext& ctx, CmpiResult& rslt,
-                  const CmpiObjectPath& cop, 
+                  const CmpiObjectPath& cop,
                   const char *method,
                   const CmpiArgs& in, CmpiArgs& out);
  private:

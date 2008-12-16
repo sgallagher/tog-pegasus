@@ -612,7 +612,7 @@ int CIMListenerProcess::cimserver_run(
         || defined(PEGASUS_OS_SOLARIS) \
         || defined(PEGASUS_OS_VMS)
 
-        // Check to see if the CIM Listener is running. 
+        // Check to see if the CIM Listener is running.
         // No need to stop if not running.
         if (_serverRunStatus.isServerRunning())
         {
@@ -636,7 +636,7 @@ int CIMListenerProcess::cimserver_run(
         return(0);
     }
 
-    //get config options.  
+    //get config options.
     //note that the paths will be converted to homedPaths in the lookup calls.
     Uint32 listenerPort;
     Boolean httpsConnection;
@@ -710,7 +710,7 @@ int CIMListenerProcess::cimserver_run(
 #if defined(PEGASUS_DEBUG)
     {
         // Put out startup up message.
-        cout << _cimListenerProcess->getProductName() << " " 
+        cout << _cimListenerProcess->getProductName() << " "
              << _cimListenerProcess->getVersion() << endl;
         MessageLoaderParms parms("DynListener.cimlistener.STARTUP_MESSAGE",
             "CIM Listener built $0 $1\nCIM Listener starting...",
@@ -808,7 +808,7 @@ MessageLoader::_useProcessLocale = false;
 
         _cimListener->start();
 
-        Logger::put_l(Logger::STANDARD_LOG, 
+        Logger::put_l(Logger::STANDARD_LOG,
             System::CIMLISTENER, Logger::INFORMATION,
             MessageLoaderParms(
                 "DynListener.cimlistener.LISTENING_ON_PORT",
@@ -917,7 +917,7 @@ MessageLoader::_useProcessLocale = false;
         {
 #if defined(PEGASUS_DEBUG)
             printf("Graceful shutdown\n");
-#endif            
+#endif
             _cimListener->stop();
         }
 #endif

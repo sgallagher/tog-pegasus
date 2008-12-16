@@ -54,14 +54,14 @@ IPRouteInfo::IPRouteInfo(CIMClient &client, Boolean enableDebug,
         Boolean localOnly = true;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
-          
-        Array<CIMInstance> cimInstances = 
+
+        Array<CIMInstance> cimInstances =
             client.enumerateInstances(NAMESPACE, CLASS_NAME,
                                       deepInheritance,
                                       localOnly,
                                       includeQualifiers,
                                       includeClassOrigin);
- 
+
         Uint32 numberInstances = cimInstances.size();
 
         if (_enableDebug)
@@ -84,12 +84,12 @@ IPRouteInfo::IPRouteInfo(CIMClient &client, Boolean enableDebug,
     }
         else
     {
-         outPrintWriter << "No instances of class " 
+         outPrintWriter << "No instances of class "
                         << CLASS_NAME.getString() << endl;
     }
 
-    }  // end try 
-   
+    }  // end try
+
     catch(Exception&)
     {
         errPrintWriter << "Error getting instances of class " <<
@@ -151,32 +151,32 @@ void IPRouteInfo::_gatherProperties(CIMInstance &inst)
         }
         else if (propertyName.equal("IPDestinationAddress"))
         {
-            inst.getProperty(j).getValue().get(_ipIPDestAddr); 
+            inst.getProperty(j).getValue().get(_ipIPDestAddr);
         }
         else if (propertyName.equal("IPDestinationMask"))
         {
-        inst.getProperty(j).getValue().get(_ipIPDestMask); 
+        inst.getProperty(j).getValue().get(_ipIPDestMask);
         }
         else if (propertyName.equal("AddressType"))
         {
-            inst.getProperty(j).getValue().get(_ipAddrType); 
+            inst.getProperty(j).getValue().get(_ipAddrType);
         }
         // Other properties
         else if (propertyName.equal("Caption"))
         {
-            inst.getProperty(j).getValue().get(_ipCaption); 
+            inst.getProperty(j).getValue().get(_ipCaption);
         }
         else if (propertyName.equal("Description"))
         {
-            inst.getProperty(j).getValue().get(_ipDescription); 
+            inst.getProperty(j).getValue().get(_ipDescription);
         }
         else if (propertyName.equal("Name"))
         {
-            inst.getProperty(j).getValue().get(_ipName); 
+            inst.getProperty(j).getValue().get(_ipName);
         }
         else if (propertyName.equal("NextHop"))
         {
-            inst.getProperty(j).getValue().get(_ipNextHop); 
+            inst.getProperty(j).getValue().get(_ipNextHop);
         }
    } // end for loop through properties
 
@@ -198,11 +198,11 @@ void IPRouteInfo::_outputHeader(ostream &outPrintWriter)
         outPrintWriter << "System Name                 : " << _ipSN << endl;
 
     if (_ipServiceCCN.size() > 0)
-        outPrintWriter << "Service Creation Class Name : " 
+        outPrintWriter << "Service Creation Class Name : "
                        << _ipServiceCCN << endl;
 
     if (_ipServiceN.size() > 0)
-        outPrintWriter << "Service Name                : " 
+        outPrintWriter << "Service Name                : "
                        << _ipServiceN << endl;
 
     if (_ipCCN.size() > 0)
@@ -213,7 +213,7 @@ void IPRouteInfo::_outputHeader(ostream &outPrintWriter)
     sprintf(header, HeaderFormat, "Route", "AddrType", "IP Dest Addr",
                                   "IP Dest Mask", "Next Hop");
     outPrintWriter << endl << header << endl;
-    
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -239,5 +239,5 @@ void IPRouteInfo::_outputInstance(ostream &outPrintWriter)
        (const char *)_ipNextHop.getCString()
        );
     outPrintWriter << row << endl;
-    
+
 }

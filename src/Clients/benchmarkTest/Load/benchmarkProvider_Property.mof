@@ -367,7 +367,7 @@
 	string Property0198;
 	string Property0199;
 	string Property0200;
-}; 
+};
 
 [Version ("1.0.0")] class benchmarkClassP00400S00010I00001
 {
@@ -1203,7 +1203,7 @@
 	string Property0298;
 	string Property0299;
 	string Property0300;
-}; 
+};
 
 [Version ("1.0.0")] class benchmarkClassP00400S00010I00100
 {

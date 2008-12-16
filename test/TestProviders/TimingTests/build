@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# If its already built 
+# If its already built
 # 	- remove it first
 # 	- compile it.
 # 	- compile the repository from scratch
@@ -8,7 +8,7 @@ make clean
 make
 make repository
 
-# Build the TimingClient.cpp program 
+# Build the TimingClient.cpp program
 make -f Makefile.Client
 
 # Unregister the provider if its already there and then Re-register it

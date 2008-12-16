@@ -26,7 +26,7 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-# 
+#
 # Makefile for configuring, building and running the Test provider written as
 # an enhancement for Pegasus Testing. It is also responsible for creating a new
 # Namespace inside $PEGASUS_HOME/repository directory.
@@ -56,4 +56,4 @@ include $(PEGASUS_ROOT)/mak/library.mak
 client:
 	@ $(ECHO) +++++ Building the Test Client for the Test Providers
 	@cd Client
-	@$(MAKE) 
+	@$(MAKE)

@@ -28,7 +28,7 @@
 //////////////////////////////////////////////////////////////////////////
 //
 // Author: Paulo F. Borges (pfborges@wowmail.com)
-//         
+//
 // Modified By:  Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
@@ -85,14 +85,14 @@ NISServerServiceProvider::getInstance(
     String systemName;
     String keyValue;
     NISServerService nis;
-    
+
     //-- make sure we're working on the right class
     className = ref.getClassName();
     if (!className.equal(CLASS_NAME))
         throw CIMNotSupportedException(
-                "NISServerServiceProvider does not support class " + 
+                "NISServerServiceProvider does not support class " +
                 className.getString());
-    
+
     if(!nis.AccessOk(context))
        throw CIMAccessDeniedException("Access denied by NISProvider");
 
@@ -120,19 +120,19 @@ NISServerServiceProvider::getInstance(
          keyName = keys[ii].getName();
          keyValue = keys[ii].getValue();
 
-        if (keyName.equal(PROPERTY_CREATION_CLASS_NAME) && 
+        if (keyName.equal(PROPERTY_CREATION_CLASS_NAME) &&
             (String::equalNoCase(keyValue, CLASS_NAME) || keyValue.size() == 0))
             keyCount--;
-        else if (keyName.equal(PROPERTY_NAME) && 
+        else if (keyName.equal(PROPERTY_NAME) &&
                 (String::equalNoCase(keyValue, name) || keyValue.size() == 0 &&
                  name.size() == 0))
             keyCount--;
         else if (keyName.equal (PROPERTY_SYSTEM_CREATION_CLASS_NAME) &&
-                 ((keyValue.size() == 0) || (String::equalNoCase(keyValue, 
+                 ((keyValue.size() == 0) || (String::equalNoCase(keyValue,
                          SYSTEM_CREATION_CLASS_NAME.getString()))))
             keyCount--;
-        else if (keyName.equal (PROPERTY_SYSTEM_NAME) && 
-                 ((keyValue.size() == 0) || 
+        else if (keyName.equal (PROPERTY_SYSTEM_NAME) &&
+                 ((keyValue.size() == 0) ||
                   (String::equalNoCase(keyValue, systemName))))
             keyCount--;
     }
@@ -141,8 +141,8 @@ NISServerServiceProvider::getInstance(
         throw CIMInvalidParameterException("Wrong keys");
 
     handler.processing();
-    instance = _build_instance(className, 
-                               ref.getNameSpace(), 
+    instance = _build_instance(className,
+                               ref.getNameSpace(),
                                ref.getKeyBindings(),
                                nis);
     handler.deliver(instance);
@@ -167,7 +167,7 @@ NISServerServiceProvider::enumerateInstances(
     CIMObjectPath newref;
     Array<CIMKeyBinding> keys;
     NISServerService nis;
-    
+
     className = ref.getClassName();
 
     // only return instances when enumerate on our subclass, CIMOM
@@ -180,12 +180,12 @@ NISServerServiceProvider::enumerateInstances(
 
     if(!nis.AccessOk(context))
        throw CIMAccessDeniedException("Access denied by NISProvider");
-    
-    keys = ref.getKeyBindings();    
+
+    keys = ref.getKeyBindings();
     handler.processing();
     newref = _fill_reference(ref.getNameSpace(), className, nis);
-    instance = _build_instance(className, 
-                               ref.getNameSpace(), 
+    instance = _build_instance(className,
+                               ref.getNameSpace(),
                                ref.getKeyBindings(),
                                nis);
 
@@ -275,7 +275,7 @@ NISServerServiceProvider::deleteInstance(
 //------------------------------------------------------------------------------
 // initialize method
 //------------------------------------------------------------------------------
-void 
+void
 NISServerServiceProvider::initialize(CIMOMHandle& handle)
 {
 }
@@ -311,7 +311,7 @@ NISServerServiceProvider::_build_instance(const CIMName & className,
 
     instance.setPath(CIMObjectPath(hostName,
                                    nameSpace,
-                                   className,    
+                                   className,
                                    keys));
 
     instance.addProperty(CIMProperty(PROPERTY_SYSTEM_CREATION_CLASS_NAME,
@@ -371,7 +371,7 @@ NISServerServiceProvider::_build_instance(const CIMName & className,
     return instance;
 }
 
-// This method verifies the property names. 
+// This method verifies the property names.
 //------------------------------------------------------------------------------
 // _fill_reference method
 //------------------------------------------------------------------------------
@@ -392,9 +392,9 @@ NISServerServiceProvider::_fill_reference(const CIMNamespaceName &nameSpace,
     if(!nis.getSystemName(hostName))
         hostName.assign("localhost");
 
-    keys.append(CIMKeyBinding(PROPERTY_SYSTEM_NAME, hostName, 
+    keys.append(CIMKeyBinding(PROPERTY_SYSTEM_NAME, hostName,
                            CIMKeyBinding::STRING));
-    
+
     keys.append(CIMKeyBinding(PROPERTY_CREATION_CLASS_NAME,
                            CREATION_CLASS_NAME.getString(),
                            CIMKeyBinding::STRING));

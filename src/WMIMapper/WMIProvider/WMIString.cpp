@@ -46,13 +46,13 @@ WMIString::WMIString(const String & s) : String(s)
 
 WMIString::WMIString(const BSTR & s)
 {
-    try 
+    try
     {
         CMyString mystr;
         mystr = s;
         *this = String((LPCTSTR)mystr);
     }
-    catch(...) 
+    catch(...)
     {
         PEG_TRACE_CSTRING(TRC_WMIPROVIDER, Tracer::LEVEL2,
             "WMIString::WMIString(const BSTR & s) - Constructor failed");
@@ -61,12 +61,12 @@ WMIString::WMIString(const BSTR & s)
 
 WMIString::WMIString(const VARIANT & var)
 {
-    try 
+    try
     {
         *this = WMIString(_bstr_t(_variant_t(var)));
     }
-    catch(...) 
-    { 
+    catch(...)
+    {
     }
 }
 

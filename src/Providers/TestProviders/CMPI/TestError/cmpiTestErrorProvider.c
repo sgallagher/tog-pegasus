@@ -120,10 +120,10 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   else
   {
       PROV_LOG("CMPI_MB_Supports_Extended_Error Support : False");
-      CMReturnWithString(CMPI_RC_ERR_NOT_SUPPORTED, 
+      CMReturnWithString(CMPI_RC_ERR_NOT_SUPPORTED,
           CMNewString(_broker,
           "Extended error support not avilable", NULL));
-  } 
+  }
 
   PROV_LOG ("--- %s CMPI InvokeMethod() called", _ClassName);
 
@@ -196,29 +196,29 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   PROV_LOG ("++++ (%s) CMClone", strCMPIStatus (rc));
 
   PROV_LOG ("Ok, reading back fields to verify");
-  
+
   PROV_LOG ("Calling CMGetErrorType");
   outErrType = CMGetErrorType(cmpiErrorClone, &rc);
   PROV_LOG ("++++ (%s) CMGetErrorType (%d)", strCMPIStatus (rc), outErrType);
 
   PROV_LOG ("Calling CMGetOtherErrorType");
   outOtherErrType = CMGetOtherErrorType(cmpiErrorClone, &rc);
-  PROV_LOG ("++++ (%s) CMGetOtherErrorType (%s)", strCMPIStatus (rc), 
+  PROV_LOG ("++++ (%s) CMGetOtherErrorType (%s)", strCMPIStatus (rc),
       CMGetCharsPtr(outOtherErrType,NULL));
 
   PROV_LOG ("Calling CMGetOwningEntity");
   outOwningEntity = CMGetOwningEntity(cmpiErrorClone, &rc);
-  PROV_LOG ("++++ (%s) CMGetOwningEntity (%s)", strCMPIStatus (rc), 
+  PROV_LOG ("++++ (%s) CMGetOwningEntity (%s)", strCMPIStatus (rc),
       CMGetCharsPtr(outOwningEntity,NULL));
 
   PROV_LOG ("Calling CMGetMessageID");
   outMsgID = CMGetMessageID(cmpiErrorClone, &rc);
-  PROV_LOG ("++++ (%s) CMGetMessageID (%s)", strCMPIStatus (rc), 
+  PROV_LOG ("++++ (%s) CMGetMessageID (%s)", strCMPIStatus (rc),
       CMGetCharsPtr(outMsgID,NULL));
 
   PROV_LOG ("Calling CMGetErrorMessage");
   outMsg = CMGetErrorMessage(cmpiErrorClone, &rc);
-  PROV_LOG ("++++ (%s) CMGetErrorMessage (%s)", strCMPIStatus (rc), 
+  PROV_LOG ("++++ (%s) CMGetErrorMessage (%s)", strCMPIStatus (rc),
       CMGetCharsPtr(outMsg,NULL));
 
   PROV_LOG ("Calling CMGetPerceivedSeverity");
@@ -297,7 +297,7 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
 //Test Error Paths
   PROV_LOG ("Testing for Error Paths in CMPI_Error.cpp");
   PROV_LOG ("Calling CMNewCMPIError");
-  cmpiError = CMNewCMPIError(_broker, 
+  cmpiError = CMNewCMPIError(_broker,
       inOwningEntity,
       inMsgID,
       inMsg,
@@ -530,10 +530,10 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   {
       PROV_LOG ("++++ (%s) CMInvokeMethod", strCMPIStatus (rc));
   }
-  PROV_LOG ("--- %s CMPI InvokeMethod() exited with CMPI_RC_ERR_FAILED", 
+  PROV_LOG ("--- %s CMPI InvokeMethod() exited with CMPI_RC_ERR_FAILED",
       _ClassName);
   PROV_LOG_CLOSE();
-  CMReturnWithString(inCIMStatusCode, 
+  CMReturnWithString(inCIMStatusCode,
       CMNewString(_broker, "TestError invokeMethod() expected failure", NULL));
 }
 

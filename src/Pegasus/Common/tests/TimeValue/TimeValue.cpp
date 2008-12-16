@@ -83,11 +83,11 @@ int main(int argc, char** argv)
         char buffer[22];
         Uint32 size;
 
-        cout << "tv1 " << tv1.getSeconds() << " Seconds " 
+        cout << "tv1 " << tv1.getSeconds() << " Seconds "
              << tv1.getMicroseconds() << " microseconds "
              << Uint64ToString(buffer, tv1.toMilliseconds(), size)
              << " total milliseconds" << endl;
-        cout << "tv2 " << tv2.getSeconds() << " Seconds " 
+        cout << "tv2 " << tv2.getSeconds() << " Seconds "
              << tv2.getMicroseconds() << " microseconds "
              << Uint64ToString(buffer, tv2.toMilliseconds(), size)
              << " total milliseconds" <<  endl;

@@ -62,7 +62,7 @@ CQLFactory::~CQLFactory()
 void CQLFactory::cleanup()
 {
     PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::cleanup");
-    
+
     cleanupArray(_makeObjectIdentifiers, Identifier);
     cleanupArray(_makeObjectChainedIdentifiers, ChainedIdentifier);
     cleanupArray(_makeObjectValues, Value);
@@ -81,7 +81,7 @@ void CQLFactory::cleanup()
     cleanupArray(_getObjectExpressions, Expression);
     cleanupArray(_getObjectSimplePredicates, SimplePredicate);
     cleanupArray(_getObjectPredicates, Predicate);
-    
+
     PEG_METHOD_EXIT();
 }
 
@@ -129,15 +129,15 @@ void* CQLFactory::makeObject(CQLIdentifier* obj, FactoryType target)
 {
     //printf("CQLFactory::makeObject(identifier)\n");
     PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLIdentifier");
-    
+
     void *cqlIdentifier = NULL;
     _CQLObjectPtr._ptr = new CQLChainedIdentifier(*obj);
     _makeObjectChainedIdentifiers.append(_CQLObjectPtr);
-    
+
     switch(target)
     {
         case ChainedIdentifier:
-            cqlIdentifier = 
+            cqlIdentifier =
                 _makeObjectChainedIdentifiers[
                     _makeObjectChainedIdentifiers.size()-1]._ptr;
             break;
@@ -157,21 +157,21 @@ void* CQLFactory::makeObject(CQLChainedIdentifier* obj, FactoryType target)
 {
     //printf("CQLFactory::makeObject(chainedidentifier)\n");
     PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLChainedIdentifier");
-        
+
     void *cqlChainedIdentifier = NULL;
     _CQLObjectPtr._ptr = new CQLValue(*obj);
     _makeObjectValues.append(_CQLObjectPtr);
     switch(target)
     {
         case Value:
-            cqlChainedIdentifier = 
+            cqlChainedIdentifier =
                 _makeObjectValues[_makeObjectValues.size()-1]._ptr;
             break;
         case ChainedIdentifier:
             cqlChainedIdentifier = NULL;
             break;
         default:
-            cqlChainedIdentifier = 
+            cqlChainedIdentifier =
                 makeObject((CQLValue*)(_CQLObjectPtr._ptr), target);
             break;
     }
@@ -205,18 +205,18 @@ void* CQLFactory::makeObject(CQLFunction* obj, FactoryType target)
 {
     //printf("CQLFactory::makeObject(function)\n");
     PEG_METHOD_ENTER(TRC_CQL, "CQLFactory::makeObject,CQLFunction");
-    
+
     void *cqlFunction = NULL;
     _CQLObjectPtr._ptr = new CQLFactor(*obj);
     _makeObjectFactors.append(_CQLObjectPtr);
     switch(target)
     {
         case Factor:
-            cqlFunction = 
+            cqlFunction =
                 _makeObjectFactors[_makeObjectFactors.size()-1]._ptr;
             break;
         default:
-            cqlFunction = 
+            cqlFunction =
                 makeObject((CQLFactor*)(_CQLObjectPtr._ptr), target);
             break;
     }
@@ -257,7 +257,7 @@ void* CQLFactory::makeObject(CQLTerm* obj, FactoryType target)
     switch(target)
     {
         case Expression:
-            cqlTerm = 
+            cqlTerm =
                _makeObjectExpressions[_makeObjectExpressions.size()-1]._ptr;
             break;
         case Term:
@@ -371,7 +371,7 @@ void* CQLFactory::getObject(CQLChainedIdentifier* obj, FactoryType target)
             cqlIds = obj->getSubIdentifiers();
             if(cqlIds.size() > 0)
             {
-                //   _CQLObjectPtr._ptr = 
+                //   _CQLObjectPtr._ptr =
                 //       new CQLIdentifier(obj->_rep->_subIdentifiers[0]);
                 _CQLObjectPtr._ptr = new CQLIdentifier(cqlIds[0]);
                 _getObjectIdentifiers.append(_CQLObjectPtr);
@@ -523,7 +523,7 @@ void CQLFactory::setObject(CQLPredicate* predicate, void* obj,
             predicate->_rep->_simplePredicate = *((CQLSimplePredicate*)obj);
             break;
         case Expression:
-            predicate->_rep->_simplePredicate._rep->_leftSide = 
+            predicate->_rep->_simplePredicate._rep->_leftSide =
                 *((CQLExpression*)obj);
             break;
         case Term:
@@ -532,7 +532,7 @@ void CQLFactory::setObject(CQLPredicate* predicate, void* obj,
             break;
         case Factor:
             predicate->_rep->_simplePredicate._rep->
-                _leftSide._rep->_CQLTerms[0]._rep->_Factors[0] = 
+                _leftSide._rep->_CQLTerms[0]._rep->_Factors[0] =
                 *((CQLFactor*)obj);
             break;
         case Function:
@@ -556,5 +556,5 @@ void CQLFactory::setObject(CQLPredicate* predicate, void* obj,
             break;
     }
     PEG_METHOD_EXIT();
-} 
+}
 PEGASUS_NAMESPACE_END

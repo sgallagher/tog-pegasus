@@ -63,7 +63,7 @@ public:
     @return true if such a property was found and false otherwise.
     */
     virtual Boolean getValue(
-    const CIMName& propertyName, 
+    const CIMName& propertyName,
     WQLOperand& value) const = 0;
 };
 

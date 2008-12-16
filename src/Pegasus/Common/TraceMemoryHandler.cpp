@@ -83,9 +83,9 @@ void TraceMemoryHandler::_initializeTraceArea()
     {
         delete _traceArea;
     }
-    
+
     // get the memory buffer size from the tracer instance.
-    Uint32 traceAreaSize = 
+    Uint32 traceAreaSize =
         Tracer::_getInstance()->_traceMemoryBufferSize * 1024;
 
     _traceArea = (struct traceArea_t*) new char[traceAreaSize];
@@ -404,14 +404,14 @@ void TraceMemoryHandler::handleMessage(
         // until it becomes to small and needs to be reallocated.
         if (ttlMsgLen == -1 || (msgLen + ttlMsgLen) > _traceArea->bufferSize)
         {
-            // The message does not fit in the remaining buffer and 
-            // vsnprintf() did not return the bytes needed 
+            // The message does not fit in the remaining buffer and
+            // vsnprintf() did not return the bytes needed
             // or the message is larger then the treace Buffer.
-           
+
             // The message does not fit in the remaining buffer,
             // clean up the the message fragment.
             _traceArea->traceBuffer[msgStart] = 0;
-            
+
             // Wrap the buffer
             _traceArea->nextPos = 0;
             _leftBytesInBuffer = _traceArea->bufferSize;
@@ -435,17 +435,17 @@ void TraceMemoryHandler::handleMessage(
                       fmt,
                       argListCopy);
 #endif
-            if (ttlMsgLen == -1 || 
+            if (ttlMsgLen == -1 ||
                 (msgLen + ttlMsgLen) > _traceArea->bufferSize)
             {
-                // The message still does not fit in the buffer, but know 
+                // The message still does not fit in the buffer, but know
                 // we know that the most part of the message is in the buffer.
                 // Truncate the message using the truncation marker and leave
                 // space for the EOT marker + '\n'.
                 _leftBytesInBuffer = PEGASUS_TRC_BUFFER_TRUNC_MARKER_LEN +
                     PEGASUS_TRC_BUFFER_EOT_MARKER_LEN + 1 ;
 
-                _traceArea->nextPos = 
+                _traceArea->nextPos =
                     _traceArea->bufferSize - _leftBytesInBuffer ;
 
                 // copy the marker including the trailing '0' !
@@ -454,10 +454,10 @@ void TraceMemoryHandler::handleMessage(
                     PEGASUS_TRC_BUFFER_TRUNC_MARKER_LEN + 1 );
 
                 _traceArea->nextPos += PEGASUS_TRC_BUFFER_TRUNC_MARKER_LEN + 1;
-            } 
+            }
             else
             {
-                // Now the message fits into the buffer. 
+                // Now the message fits into the buffer.
                 ttlMsgLen++;  //Include the '/0'
 
                 _traceArea->nextPos += ttlMsgLen;
@@ -465,8 +465,8 @@ void TraceMemoryHandler::handleMessage(
             }
         } // End of vsnprintf() == -1 or message > buffer size
         else
-        { 
-            // vsnprintf() retuns number of bytes of the variable message and 
+        {
+            // vsnprintf() retuns number of bytes of the variable message and
             // the Message fits in the buffer.
         if ((Uint32)ttlMsgLen >= _overflowBufferSize)
         {

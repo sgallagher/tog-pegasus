@@ -63,7 +63,7 @@ $(MSG_DIR)/$(MSG_PACKAGE)_root.res: $(MSG_PACKAGE)_root.rb $(ERROR)
 	@ $(ECHO)
 
 $(MSG_PACKAGE)_root.rb: $(MSG_PACKAGE)$(MSG_ROOT_SOURCE).txt $(ERROR)
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/cnv2rootbundle -f Makefile 
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/cnv2rootbundle -f Makefile
 	$(CNV_ROOT_CMD) $(CNV_ROOT_FLAGS) $(MSG_PACKAGE)$(MSG_ROOT_SOURCE).txt
 
 $(MSG_DIR)/%.res: %.txt $(ERROR)
@@ -79,7 +79,7 @@ endif
 ##
 ################################################################################
 
-# these files are cleaned when a user runs make clean, the intermediate package_root.rb file is removed 
+# these files are cleaned when a user runs make clean, the intermediate package_root.rb file is removed
 # from the source directory
 FILES_TO_CLEAN = $(MSG_BUNDLES)
 FILES_TO_CLEAN += $(ROOT)/src/$(DIR)/*.rb

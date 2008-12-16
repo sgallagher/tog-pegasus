@@ -162,7 +162,7 @@ static Boolean getUtilGetHostName(String & csName)
     struct addrinfo *info, hints;
     int rc;
 
-    if (0 == _csName.size()) 
+    if (0 == _csName.size())
     {
         strcpy(hostName, System::getHostName().getCString());
         if (!strlen(hostName))
@@ -491,10 +491,10 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
                 time(&tme);
                 tme1 = mktime(ptimetm);        /* get timezone */
                 strcpy(t_string, rptr1 - 2);
-                if (t_string[11] == 10) 
+                if (t_string[11] == 10)
                 {
                     // a <cr>.
-                    // When the date; but not the time is provided, 
+                    // When the date; but not the time is provided,
                     // fill in zeros.
                     t_string[11] = ' ';
                     t_string[12] = '0';
@@ -518,7 +518,7 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
                 }
 
                 libop = LIB$K_DAY_OF_WEEK;
-                status = lib$cvt_from_internal_time(&libop, &libdayweek, 
+                status = lib$cvt_from_internal_time(&libop, &libdayweek,
                                                     &bintime);
                 if (!$VMS_STATUS_SUCCESS(status))
                 {
@@ -527,7 +527,7 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
                 }
 
                 libop = LIB$K_DAY_OF_YEAR;
-                status = lib$cvt_from_internal_time(&libop, &libdayear, 
+                status = lib$cvt_from_internal_time(&libop, &libdayear,
                                                     &bintime);
                 if (!$VMS_STATUS_SUCCESS(status))
                 {
@@ -595,7 +595,7 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
 
 done:
 
-    if (fptr1) 
+    if (fptr1)
     {
         fclose(fptr1);
         fptr1 = 0;
@@ -1041,14 +1041,14 @@ Boolean OperatingSystem::getNumberOfLicensedUsers(
                     {
                         while (fgets(record2, sizeof (record2), fptr2))
                         {
-                            if (rptr1 = 
+                            if (rptr1 =
                                 strstr(record2, "Type: A, Units Required:"))
                             {
                                 rptr3 = strtok(rptr1 + 25, " ");
                                 req_units = strtol(rptr3, NULL, 10);
                                 if (req_units != 0)
                                 {
-                                    numberOfLicensedUsers = 
+                                    numberOfLicensedUsers =
                                         loaded_units / req_units;
                                     bStatus = true;
                                     goto done;
@@ -1186,7 +1186,7 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32 & numberOfUsers)
             {
                 break;
             }
-            else 
+            else
             {
                 if (!strcmp(ptr1, ""))
                 {

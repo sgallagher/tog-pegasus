@@ -46,7 +46,7 @@ class PEGASUS_WMIPROVIDER_LINKAGE WMIProperty : public CIMProperty
 public:
    WMIProperty(const CIMProperty & property);
 //   WMIProperty(const WMIString & name, IWbemClassObject * pObject);
-   WMIProperty(const BSTR & name, const VARIANT & value, const CIMTYPE type, 
+   WMIProperty(const BSTR & name, const VARIANT & value, const CIMTYPE type,
        IWbemQualifierSet * pObject, Boolean includeQualifiers = false);
    WMIProperty(const BSTR & name, const VARIANT & value, const CIMTYPE type);
 

@@ -281,7 +281,7 @@ public:
     typedef void (*PEGASUS_AUDITLOGINITIALIZE_CALLBACK_T)();
 
 #ifdef PEGASUS_OS_ZOS
-    typedef void (*PEGASUS_AUDITLOG_CALLBACK_T) 
+    typedef void (*PEGASUS_AUDITLOG_CALLBACK_T)
         (int subtype, char* record );
 #else
     typedef void (*PEGASUS_AUDITLOG_CALLBACK_T) (AuditType,
@@ -331,7 +331,7 @@ private:
 
 #ifdef PEGASUS_OS_ZOS
 
-    static inline void _writeAuthenticationRecord( 
+    static inline void _writeAuthenticationRecord(
         unsigned short authMode,
         String userID,
         Boolean isAuthenticated,

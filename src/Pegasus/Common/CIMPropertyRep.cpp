@@ -146,14 +146,14 @@ void CIMPropertyRep::resolve(
         if (!(
             (inheritedProperty.getValue().getType() == CIMTYPE_OBJECT) &&
             (_value.getType() == CIMTYPE_STRING) &&
-            (_qualifiers.find(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT) 
+            (_qualifiers.find(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT)
                  != PEG_NOT_FOUND) &&
             (inheritedProperty.getValue().isArray() == _value.isArray())
             ) &&
             !(
             (inheritedProperty.getValue().getType() == CIMTYPE_INSTANCE) &&
             (_value.getType() == CIMTYPE_STRING) &&
-            (_qualifiers.find(PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE) 
+            (_qualifiers.find(PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE)
                  != PEG_NOT_FOUND) &&
             (inheritedProperty.getValue().isArray() == _value.isArray())
             ))
@@ -172,7 +172,7 @@ void CIMPropertyRep::resolve(
         scope = CIMScope::REFERENCE;
 
     // Test the reference class name against the inherited property
-    if (_value.getType() == CIMTYPE_REFERENCE || 
+    if (_value.getType() == CIMTYPE_REFERENCE ||
         _value.getType() == CIMTYPE_INSTANCE)
     {
         CIMName inheritedClassName;

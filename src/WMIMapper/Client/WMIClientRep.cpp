@@ -111,13 +111,13 @@ CIMClass WMIClientRep::getClass(
 {
     CIMClass cimClass;
     CIMException cimException;
-    
+
     try
     {
         //Initializes the WMI Provider Interface
            WMIClassProvider provider;
         provider.initialize(TRUE);
-        
+
         //Performs the WMI call
         cimClass = provider.getClass(
             nameSpace.getString(),
@@ -139,13 +139,13 @@ CIMClass WMIClientRep::getClass(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "getClass() failed!");
         throw cimException;
     }
@@ -191,13 +191,13 @@ CIMInstance WMIClientRep::getInstance(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "getInstance() failed!");
         throw cimException;
     }
@@ -234,13 +234,13 @@ void WMIClientRep::deleteClass(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "deleteClass() failed!");
         throw cimException;
     }
@@ -275,13 +275,13 @@ void WMIClientRep::deleteInstance(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "deleteInstance() failed!");
         throw cimException;
     }
@@ -316,13 +316,13 @@ void WMIClientRep::createClass(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "createClass() failed!");
         throw cimException;
     }
@@ -358,13 +358,13 @@ CIMObjectPath WMIClientRep::createInstance(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "createInstance() failed!");
         throw cimException;
     }
@@ -401,13 +401,13 @@ void WMIClientRep::modifyClass(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "modifyClass() failed!");
         throw cimException;
     }
@@ -446,13 +446,13 @@ void WMIClientRep::modifyInstance(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "modifyInstance() failed!");
         throw cimException;
     }
@@ -496,13 +496,13 @@ Array<CIMClass> WMIClientRep::enumerateClasses(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "enumerateClasses() failed!");
         throw cimException;
     }
@@ -542,13 +542,13 @@ Array<CIMName> WMIClientRep::enumerateClassNames(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "enumerateClassNames() failed!");
         throw cimException;
     }
@@ -597,13 +597,13 @@ Array<CIMInstance> WMIClientRep::enumerateInstances(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "enumerateInstances() failed!");
         throw cimException;
     }
@@ -618,7 +618,7 @@ Array<CIMObjectPath> WMIClientRep::enumerateInstanceNames(
 {
     Array<CIMObjectPath> instanceNames;
     CIMException cimException;
-    
+
     try
     {
         //Initializes the WMI Provider Interface
@@ -641,13 +641,13 @@ Array<CIMObjectPath> WMIClientRep::enumerateInstanceNames(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "enumerateInstanceNames() failed!");
         throw cimException;
     }
@@ -663,7 +663,7 @@ Array<CIMObject> WMIClientRep::execQuery(
 {
     Array<CIMObject> cimObjects;
     CIMException cimException;
-    
+
     try
     {
         //Initializes the WMI Provider Interface
@@ -687,13 +687,13 @@ Array<CIMObject> WMIClientRep::execQuery(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "execQuery() failed!");
         throw cimException;
     }
@@ -716,7 +716,7 @@ Array<CIMObject> WMIClientRep::associators(
     Array<CIMObject> cimObjects;
     CIMPropertyList myPropertyList(propertyList);
     CIMException cimException;
-    
+
     try
     {
         //Initializes the WMI Provider Interface
@@ -746,13 +746,13 @@ Array<CIMObject> WMIClientRep::associators(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "associators() failed!");
         throw cimException;
     }
@@ -771,7 +771,7 @@ Array<CIMObjectPath> WMIClientRep::associatorNames(
 {
     Array<CIMObjectPath> objectNames;
     CIMException cimException;
-    
+
     try
     {
         //Initializes the WMI Provider Interface
@@ -798,13 +798,13 @@ Array<CIMObjectPath> WMIClientRep::associatorNames(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "associatorNames() failed!");
         throw cimException;
     }
@@ -825,7 +825,7 @@ Array<CIMObject> WMIClientRep::references(
     Array<CIMObject> cimObjects;
     CIMPropertyList myPropertyList(propertyList);
     CIMException cimException;
-    
+
     try
     {
         //Initializes the WMI Provider Interface
@@ -853,13 +853,13 @@ Array<CIMObject> WMIClientRep::references(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "references() failed!");
         throw cimException;
     }
@@ -876,7 +876,7 @@ Array<CIMObjectPath> WMIClientRep::referenceNames(
 {
     Array<CIMObjectPath> objectNames;
     CIMException cimException;
-    
+
     try
     {
         //Initializes the WMI Provider Interface
@@ -901,13 +901,13 @@ Array<CIMObjectPath> WMIClientRep::referenceNames(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "referenceNames() failed!");
         throw cimException;
     }
@@ -923,7 +923,7 @@ CIMValue WMIClientRep::getProperty(
 {
     CIMValue value;
     CIMException cimException;
-    
+
     try
     {
         //Initializes the WMI Provider Interface
@@ -947,13 +947,13 @@ CIMValue WMIClientRep::getProperty(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "getProperty() failed!");
         throw cimException;
     }
@@ -995,13 +995,13 @@ void WMIClientRep::setProperty(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "setProperty() failed!");
         throw cimException;
     }
@@ -1037,13 +1037,13 @@ CIMQualifierDecl WMIClientRep::getQualifier(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "getQualifier() failed!");
         throw cimException;
     }
@@ -1080,13 +1080,13 @@ void WMIClientRep::setQualifier(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "setQualifier() failed!");
         throw cimException;
     }
@@ -1121,13 +1121,13 @@ void WMIClientRep::deleteQualifier(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "deleteQualifier() failed!");
         throw cimException;
     }
@@ -1161,13 +1161,13 @@ Array<CIMQualifierDecl> WMIClientRep::enumerateQualifiers(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "enumerateQualifiers() failed!");
         throw cimException;
     }
@@ -1211,13 +1211,13 @@ CIMValue WMIClientRep::invokeMethod(
     }
     catch(Exception& exception)
     {
-       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+       cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
            exception.getMessage());
        throw cimException;
     }
     catch(...)
     {
-        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "invokeMethod() failed!");
         throw cimException;
     }

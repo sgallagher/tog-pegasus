@@ -87,7 +87,7 @@ TestStressTestClient::TestStressTestClient()
     OPTION MANAGEMENT
 */
 
-/** GetOptions function - This function sets up the options from 
+/** GetOptions function - This function sets up the options from
     testOptionsTable which is initialized through constructor
     using the option manager.
     const char* optionName;
@@ -109,9 +109,9 @@ int TestStressTestClient::GetOptions(
     int counter = 0;
     String argument = String::EMPTY;
 
-    
+
     //
-    // om.registerOptions(newOptionsTable, (const)cOptionCount); 
+    // om.registerOptions(newOptionsTable, (const)cOptionCount);
     //
     om.registerOptions(newOptionsTable, cOptionCount);
     argvv = argv;
@@ -131,13 +131,13 @@ int TestStressTestClient::GetOptions(
         if (*arg == '-')
         {
             //
-            // Look for the option. 
+            // Look for the option.
             //
             argument.append(arg + 1);
             const Option* option = om.lookupOption(argument);
 
             //
-            // Get the option argument if any. 
+            // Get the option argument if any.
             //
             if (option)
             {
@@ -152,7 +152,7 @@ int TestStressTestClient::GetOptions(
             }
         }
     }
-    ++counter;       
+    ++counter;
     om.mergeCommandLine(counter, argvv);
     om.checkRequiredOptions();
     return counter;
@@ -163,7 +163,7 @@ int TestStressTestClient::GetOptions(
 */
 OptionRow *TestStressTestClient::generateClientOptions(
     OptionRow* clientOptionsTable,
-    Uint32 clientOptionCount, 
+    Uint32 clientOptionCount,
     Uint32& totalOptions)
 {
 
@@ -207,7 +207,7 @@ void TestStressTestClient::logInfo(
 #endif
 
     //
-    //  Get current time for time stamp 
+    //  Get current time for time stamp
     //
     nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
 
@@ -296,7 +296,7 @@ Boolean TestStressTestClient::checkTime()
 */
 void TestStressTestClient::logErrorPercentage(
     Uint32 successCount,
-    Uint32 totalCount, 
+    Uint32 totalCount,
     pid_t clientPid,
     String &clientLog,
     char client[])
@@ -306,7 +306,7 @@ void TestStressTestClient::logErrorPercentage(
     errorPercentage = 100 - successPercentage;
 
     //
-    // loging details here 
+    // loging details here
     //
     ofstream errorLog_File(clientLog.getCString(), ios::app);
     errorLog_File<<client<<" PID#"<<clientPid<<" ran "<<totalCount
@@ -334,7 +334,7 @@ void TestStressTestClient::errorLog(
 static Boolean verifyCertificate(SSLCertificateInfo &certInfo)
 {
     //
-    // Add code to handle server certificate verification. 
+    // Add code to handle server certificate verification.
     //
     return true;
 }
@@ -358,7 +358,7 @@ void TestStressTestClient::connectClient(
     {
 #ifdef PEGASUS_HAS_SSL
         //
-        // Get environment variables. 
+        // Get environment variables.
         //
         const char* pegasusHome = getenv("PEGASUS_HOME");
 

@@ -40,7 +40,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-/** This class provides the required functions to create, write and delete to a 
+/** This class provides the required functions to create, write and delete to a
     file on the file system.
 */
 
@@ -51,16 +51,16 @@ public:
     /** Constructor. */
     LocalAuthFile(const String& userName);
 
-      
+
     /** Destructor. */
     ~LocalAuthFile();
 
     /** Creates a file and writes random token in to it.
-        @return a string containing the full path name of the file created if 
-        the file creation was successfull, null otherwise. 
+        @return a string containing the full path name of the file created if
+        the file creation was successfull, null otherwise.
     */
     String create();
-    
+
     /** Removes the file created.
         @return   true on successful removal of the file, false otherwise.
     */

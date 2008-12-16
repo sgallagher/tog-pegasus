@@ -32,7 +32,7 @@
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//              Sushma Fernandes, Hewlett-Packard Company 
+//              Sushma Fernandes, Hewlett-Packard Company
 //              (sushma_fernandes@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
@@ -63,7 +63,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 {
    public:
       typedef MessageQueueService Base;
-    
+
       CIMOperationRequestDecoder(
      MessageQueueService* outputQueue,
      Uint32 returnQueueId);
@@ -71,25 +71,25 @@ class CIMOperationRequestDecoder : public MessageQueueService
       ~CIMOperationRequestDecoder();
 
       void sendResponse(
-     Uint32 queueId, 
+     Uint32 queueId,
      Buffer& message);
 
       void sendIMethodError(
-     Uint32 queueId, 
+     Uint32 queueId,
          HttpMethod httpMethod,
      const String& messageId,
      const String& methodName,
      const CIMException& cimException);
 
       void sendMethodError(
-     Uint32 queueId, 
+     Uint32 queueId,
          HttpMethod httpMethod,
      const String& messageId,
      const String& methodName,
      const CIMException& cimException);
 
       void sendHttpError(
-     Uint32 queueId, 
+     Uint32 queueId,
      const String& status,
      const String& cimError = String::EMPTY,
      const String& messageBody = String::EMPTY);
@@ -117,7 +117,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMCreateClassRequestMessage* decodeCreateClassRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -126,7 +126,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMGetClassRequestMessage* decodeGetClassRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -134,7 +134,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMModifyClassRequestMessage* decodeModifyClassRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -142,7 +142,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMEnumerateClassNamesRequestMessage* decodeEnumerateClassNamesRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -150,7 +150,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMEnumerateClassesRequestMessage* decodeEnumerateClassesRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -158,7 +158,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMDeleteClassRequestMessage* decodeDeleteClassRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -166,7 +166,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMCreateInstanceRequestMessage* decodeCreateInstanceRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -174,25 +174,25 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMGetInstanceRequestMessage* decodeGetInstanceRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
      const String& userName);
 
-      CIMModifyInstanceRequestMessage* 
+      CIMModifyInstanceRequestMessage*
           decodeModifyInstanceRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
      const String& userName);
 
-      CIMEnumerateInstanceNamesRequestMessage* 
+      CIMEnumerateInstanceNamesRequestMessage*
           decodeEnumerateInstanceNamesRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -200,7 +200,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMEnumerateInstancesRequestMessage* decodeEnumerateInstancesRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -208,7 +208,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMDeleteInstanceRequestMessage* decodeDeleteInstanceRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -216,7 +216,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMSetQualifierRequestMessage* decodeSetQualifierRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -224,7 +224,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMGetQualifierRequestMessage* decodeGetQualifierRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -232,7 +232,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMEnumerateQualifiersRequestMessage* decodeEnumerateQualifiersRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -240,7 +240,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMDeleteQualifierRequestMessage* decodeDeleteQualifierRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -248,7 +248,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMReferenceNamesRequestMessage* decodeReferenceNamesRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -256,7 +256,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMReferencesRequestMessage* decodeReferencesRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -264,7 +264,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMAssociatorNamesRequestMessage* decodeAssociatorNamesRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -272,7 +272,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMAssociatorsRequestMessage* decodeAssociatorsRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -280,7 +280,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMGetPropertyRequestMessage* decodeGetPropertyRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -288,7 +288,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMSetPropertyRequestMessage* decodeSetPropertyRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -296,7 +296,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMExecQueryRequestMessage* decodeExecQueryRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMNamespaceName& nameSpace,
      const String& authType,
@@ -304,14 +304,14 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       CIMInvokeMethodRequestMessage* decodeInvokeMethodRequest(
      Uint32 queueId,
-     XmlParser& parser, 
+     XmlParser& parser,
      const String& messageId,
      const CIMObjectPath& reference,
      const String& cimMethodName,
      const String& authType,
      const String& userName);
-        
-      /** Sets the flag to indicate whether or not the CIMServer is 
+
+      /** Sets the flag to indicate whether or not the CIMServer is
       shutting down.
       */
       void setServerTerminating(Boolean flag);

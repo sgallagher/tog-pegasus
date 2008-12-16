@@ -240,7 +240,7 @@ public:
 
     virtual Boolean unload_ok();
 
-private:      
+private:
     Uint32 _providerUnloadProtect;
     Mutex _providerUnloadProtectMutex;
 };

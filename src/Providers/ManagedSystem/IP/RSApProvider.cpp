@@ -172,8 +172,8 @@ void RSApProvider::enumerateInstances(
     {
         handler.deliver(
             _constructInstance(
-                CLASS_PG_REMOTE_SERVICE_ACCESS_POINT, 
-                nameSpace, 
+                CLASS_PG_REMOTE_SERVICE_ACCESS_POINT,
+                nameSpace,
                 _rsapList.getService(i)));
     }
 
@@ -186,7 +186,7 @@ void RSApProvider::enumerateInstances(
 /*
 ===============================================================================
 NAME              : enumerateInstanceNames.
-DESCRIPTION       : Enumerates all of the PG_RemoteServiceAccessPoint instance 
+DESCRIPTION       : Enumerates all of the PG_RemoteServiceAccessPoint instance
                   : names. An array of instance references is returned.
 ASSUMPTIONS       : None.
 PRE-CONDITIONS    :
@@ -237,7 +237,7 @@ void RSApProvider::enumerateInstanceNames(
     handler.complete();
 
     return;
-}  
+}
 
 /*
 ===============================================================================

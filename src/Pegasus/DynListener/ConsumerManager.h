@@ -29,7 +29,7 @@
 //
 // Author: Heather Sterling (hsterl@us.ibm.com)
 //
-// Modified By: 
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -90,7 +90,7 @@ private:
 
     typedef HashTable<
                 String,
-                DynamicConsumer *, 
+                DynamicConsumer *,
                 EqualFunc<String>,
                 HashFunc<String> > ConsumerTable;
 
@@ -128,7 +128,7 @@ private:
     //methods
 
     ConsumerModule* _lookupModule(const String & moduleFileName);
- 
+
     String _getConsumerLibraryName(const String & consumerName);
 
     void _initConsumer(const String& consumerName, DynamicConsumer* consumer);

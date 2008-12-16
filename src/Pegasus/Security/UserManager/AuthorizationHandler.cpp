@@ -394,12 +394,12 @@ Boolean AuthorizationHandler::verifyAuthorization(
         if(authorized && writeOperation)
         {
             /*
-               The Application Admin checks 
-               we have now cover all class/qualifier 
-               operations to all namespaces. 
-               But maybe this is not enough protection 
-               for the private Pegasus namespaces.  
-               We should call isPrivilegedUser 
+               The Application Admin checks
+               we have now cover all class/qualifier
+               operations to all namespaces.
+               But maybe this is not enough protection
+               for the private Pegasus namespaces.
+               We should call isPrivilegedUser
                in this case instead of App Admin
                */
             if (strcasecmp(nameSpChar,"root/PG_Internal") == 0

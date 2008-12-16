@@ -43,7 +43,7 @@ SoapResponse::SoapResponse(WsmResponse* response)
     _maxEnvelopeSize = response->getMaxEnvelopeSize();
     _queueId = response->getQueueId();
     _httpCloseConnect = response->getHttpCloseConnect();
-    
+
     WsmWriter::appendSoapEnvelopeStart(_envStart);
     WsmWriter::appendSoapEnvelopeEnd(_envEnd);
     WsmWriter::appendSoapHeaderStart(_hdrStart);
@@ -83,19 +83,19 @@ SoapResponse::SoapResponse(WsmResponse* response)
 
         case WSM_FAULT:
             action = ((WsmFaultResponse*) response)->getFault().getAction();
-            WsmWriter::appendSoapHeader(_hdrContent, 
+            WsmWriter::appendSoapHeader(_hdrContent,
                 action, response->getMessageId(), response->getRelatesTo());
-            WsmWriter::appendWsmFaultBody(_bodyContent, 
+            WsmWriter::appendWsmFaultBody(_bodyContent,
                 ((WsmFaultResponse*) response)->getFault());
             break;
 
         case SOAP_FAULT:
             action = String(WsmNamespaces::supportedNamespaces[
                 WsmNamespaces::WS_ADDRESSING].extendedName) + String("/fault");
-            WsmWriter::appendSoapFaultHeaders(_hdrContent, 
+            WsmWriter::appendSoapFaultHeaders(_hdrContent,
                 ((SoapFaultResponse*) response)->getFault(),
                 action, response->getMessageId(), response->getRelatesTo());
-            WsmWriter::appendSoapFaultBody(_bodyContent, 
+            WsmWriter::appendSoapFaultBody(_bodyContent,
                 ((SoapFaultResponse*) response)->getFault());
             break;
 
@@ -103,8 +103,8 @@ SoapResponse::SoapResponse(WsmResponse* response)
             PEGASUS_ASSERT(0);
     }
 
-    WsmWriter::appendHTTPResponseHeader(_httpHeader, action, 
-       response->getHttpMethod(), response->getContentLanguages(), 
+    WsmWriter::appendHTTPResponseHeader(_httpHeader, action,
+       response->getHttpMethod(), response->getContentLanguages(),
        response->getType() == WSM_FAULT || response->getType() == SOAP_FAULT,
        0);
 
@@ -125,7 +125,7 @@ SoapResponse::SoapResponse(WsmResponse* response)
     }
     else
     {
-        WsmWriter::appendSoapHeader(_hdrContent, 
+        WsmWriter::appendSoapHeader(_hdrContent,
             action, response->getMessageId(), response->getRelatesTo());
     }
 }
@@ -133,15 +133,15 @@ SoapResponse::SoapResponse(WsmResponse* response)
 Buffer SoapResponse::getResponseContent()
 {
     Buffer out(WSM_MIN_MAXENVELOPESIZE_VALUE);
-    out << _httpHeader << _envStart << _hdrStart << _hdrContent 
-        << _hdrEnd << _bodyStart << _bodyHeader << _bodyContent 
+    out << _httpHeader << _envStart << _hdrStart << _hdrContent
+        << _hdrEnd << _bodyStart << _bodyHeader << _bodyContent
         << _bodyTrailer << _bodyEnd << _envEnd;
     return out;
 }
 
 Boolean SoapResponse::appendHeader(Buffer& buf)
 {
-    if (_maxEnvelopeSize && 
+    if (_maxEnvelopeSize &&
         getEnvelopeSize() + buf.size() > _maxEnvelopeSize)
     {
         return false;
@@ -152,7 +152,7 @@ Boolean SoapResponse::appendHeader(Buffer& buf)
 
 Boolean SoapResponse::appendBodyContent(Buffer& buf)
 {
-    if (_maxEnvelopeSize && 
+    if (_maxEnvelopeSize &&
         getEnvelopeSize() + buf.size() > _maxEnvelopeSize)
     {
         return false;
@@ -163,7 +163,7 @@ Boolean SoapResponse::appendBodyContent(Buffer& buf)
 
 Boolean SoapResponse::appendBodyHeader(Buffer& buf)
 {
-    if (_maxEnvelopeSize && 
+    if (_maxEnvelopeSize &&
         getEnvelopeSize() + buf.size() > _maxEnvelopeSize)
     {
         return false;
@@ -174,7 +174,7 @@ Boolean SoapResponse::appendBodyHeader(Buffer& buf)
 
 Boolean SoapResponse::appendBodyTrailer(Buffer& buf)
 {
-    if (_maxEnvelopeSize && 
+    if (_maxEnvelopeSize &&
         getEnvelopeSize() + buf.size() > _maxEnvelopeSize)
     {
         return false;

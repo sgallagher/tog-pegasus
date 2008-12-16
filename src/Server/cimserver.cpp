@@ -685,7 +685,7 @@ int CIMServerProcess::cimserver_run(
         exit (1);
     }
 
-    // Direct standard input, output, and error to /dev/null, 
+    // Direct standard input, output, and error to /dev/null,
     // PASE run this job in background, any output in not allowed
     freopen("/dev/null", "r", stdin);
     freopen("/dev/null", "w", stdout);
@@ -1041,7 +1041,7 @@ int CIMServerProcess::cimserver_run(
             char scratchBuffer[22];
             Uint32 n;
             const char * portNumberHttpStr = Uint32ToString(
-                scratchBuffer, portNumberHttp, n); 
+                scratchBuffer, portNumberHttp, n);
             MessageLoaderParms parms(
                 "src.Server.cimserver.LISTENING_ON_HTTP_PORT",
                 "Listening on HTTP port $0.", portNumberHttpStr);
@@ -1079,7 +1079,7 @@ int CIMServerProcess::cimserver_run(
                 }
             }
             if (addIP6Acceptor)
-            { 
+            {
                 _cimServer->addAcceptor(HTTPAcceptor::IPV6_CONNECTION,
                     portNumberHttps, true);
             }
@@ -1093,7 +1093,7 @@ int CIMServerProcess::cimserver_run(
             char scratchBuffer[22];
             Uint32 n;
             const char * portNumberHttpsStr = Uint32ToString(
-                scratchBuffer, portNumberHttps, n); 
+                scratchBuffer, portNumberHttps, n);
             MessageLoaderParms parms(
                 "src.Server.cimserver.LISTENING_ON_HTTPS_PORT",
                 "Listening on HTTPS port $0.", portNumberHttpsStr);
@@ -1194,7 +1194,7 @@ int CIMServerProcess::cimserver_run(
 
 #ifdef PEGASUS_ENABLE_SLP
         _cimServer->startSLPProvider();
-#endif        
+#endif
         //
         // Loop to call CIMServer's runForever() method until CIMServer
         // has been shutdown

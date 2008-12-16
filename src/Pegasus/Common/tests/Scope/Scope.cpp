@@ -93,7 +93,7 @@ void test01 ()
     PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s4: " << s4.toString () << PEGASUS_STD (endl);
     }
-    PEGASUS_TEST_ASSERT (s4.toString () == 
+    PEGASUS_TEST_ASSERT (s4.toString () ==
         "CLASS ASSOCIATION INDICATION PROPERTY REFERENCE METHOD PARAMETER");
 
     CIMScope s5 = CIMScope (CIMScope::CLASS + CIMScope::ASSOCIATION);
@@ -142,7 +142,7 @@ void test01 ()
     PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s9: " << s9.toString () << PEGASUS_STD (endl);
     }
-    PEGASUS_TEST_ASSERT (s9.toString () == 
+    PEGASUS_TEST_ASSERT (s9.toString () ==
         "CLASS ASSOCIATION INDICATION PROPERTY REFERENCE METHOD PARAMETER");
 
     CIMScope s10 = CIMScope (s5);
@@ -164,7 +164,7 @@ void test01 ()
     PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s0: " << s0.toString () << PEGASUS_STD (endl);
     }
-    PEGASUS_TEST_ASSERT (s0.toString () == 
+    PEGASUS_TEST_ASSERT (s0.toString () ==
         "CLASS ASSOCIATION INDICATION PROPERTY REFERENCE METHOD PARAMETER");
 
     s0 = s3;
@@ -177,7 +177,7 @@ void test01 ()
     PEGASUS_TEST_ASSERT (s0.toString () == "PROPERTY");
 
     //
-    //  Test equal (CIMScope) 
+    //  Test equal (CIMScope)
     //
     PEGASUS_TEST_ASSERT (s1.equal (s2));
     PEGASUS_TEST_ASSERT (s3.equal (s0));
@@ -185,7 +185,7 @@ void test01 ()
     PEGASUS_TEST_ASSERT (!(s9.equal (s10)));
 
     //
-    //  Test addScope (Uint32) 
+    //  Test addScope (Uint32)
     //
     s0.addScope (CIMScope::INDICATION);
 
@@ -212,7 +212,7 @@ void test01 ()
     PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s4: " << s4.toString () << PEGASUS_STD (endl);
     }
-    PEGASUS_TEST_ASSERT (s4.toString () == 
+    PEGASUS_TEST_ASSERT (s4.toString () ==
         "CLASS ASSOCIATION INDICATION PROPERTY REFERENCE METHOD PARAMETER");
 
     s10.addScope (CIMScope::NONE);
@@ -231,11 +231,11 @@ void test01 ()
     PEGASUS_STD (cout) << "\n----------------------\n";
         PEGASUS_STD (cout) << "s2: " << s2.toString () << PEGASUS_STD (endl);
     }
-    PEGASUS_TEST_ASSERT (s2.toString () == 
+    PEGASUS_TEST_ASSERT (s2.toString () ==
         "CLASS ASSOCIATION INDICATION PROPERTY REFERENCE METHOD PARAMETER");
 
     //
-    //  Test hasScope (Uint32) 
+    //  Test hasScope (Uint32)
     //
     PEGASUS_TEST_ASSERT (s0.hasScope (CIMScope::INDICATION));
     PEGASUS_TEST_ASSERT (s0.hasScope (CIMScope::INDICATION
@@ -256,7 +256,7 @@ void test01 ()
     PEGASUS_TEST_ASSERT (s4.hasScope (CIMScope::CLASS + CIMScope::PARAMETER));
 
     //
-    //  Test hasScope (CIMScope) 
+    //  Test hasScope (CIMScope)
     //
     PEGASUS_TEST_ASSERT (s0.hasScope (s8));
     PEGASUS_TEST_ASSERT (s4.hasScope (s9));
@@ -277,7 +277,7 @@ void test01 ()
     PEGASUS_TEST_ASSERT (ss7 == "REFERENCE METHOD PARAMETER");
 
     String ss4 = s4.toString ();
-    PEGASUS_TEST_ASSERT (ss4 == 
+    PEGASUS_TEST_ASSERT (ss4 ==
         "CLASS ASSOCIATION INDICATION PROPERTY REFERENCE METHOD PARAMETER");
 }
 
@@ -289,12 +289,12 @@ int main (int argc, char** argv)
     {
         test01 ();
 
-        PEGASUS_STD (cout) << argv [0] << " +++++ passed all tests" 
+        PEGASUS_STD (cout) << argv [0] << " +++++ passed all tests"
                            << PEGASUS_STD (endl);
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << argv [0] << " Exception " << e.getMessage () 
+        PEGASUS_STD (cerr) << argv [0] << " Exception " << e.getMessage ()
                            << PEGASUS_STD (endl);
         exit (1);
     }

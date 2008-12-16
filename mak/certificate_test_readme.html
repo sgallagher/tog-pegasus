@@ -3,7 +3,7 @@
 
 <H2>OpenPegasus Test Certificate Definitions</H2>
 
-<P>The following certificate definitions are currently 
+<P>The following certificate definitions are currently
 implemented in pegasus/mak/certificate_test.mak: 10, 40,
 50, 60, 70, 100, 110, 120, 240, 610, 620, 630,
 670, 680, and 690.</P>
@@ -21,10 +21,10 @@ implemented in pegasus/mak/certificate_test.mak: 10, 40,
        authority issued end-entity certificates. 3. Self-signed identity
        certificate (S): Certificates of this type are not added to the trusted
        certificate store. The certuser is required for self-signed identity
-       certificates.</p> 
+       certificates.</p>
    </font>
 </UL>
-     <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#6A5ACD 
+     <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#6A5ACD
                borderColorLight=#cccccc border=1 width=95%>
        <TBODY>
        <TR align="center">
@@ -425,14 +425,14 @@ implemented in pegasus/mak/certificate_test.mak: 10, 40,
        </TR>
        </TBODY>
       </TABLE>
-      
+
 <H2>Configuration 1</H2>
-<p>In this configuration, the CIM Server <font color=red>DOES NOT</font> request a 
-Client Certificate from the CIM Client. The Username/Password is used by the CIM 
+<p>In this configuration, the CIM Server <font color=red>DOES NOT</font> request a
+Client Certificate from the CIM Client. The Username/Password is used by the CIM
 Server for authentication.</p>
 
 <H3>Test Setup</H3>
-     <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#6A5ACD 
+     <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#6A5ACD
                borderColorLight=#cccccc border=1 width=60%>
        <TBODY>
        <TR align="center">
@@ -455,11 +455,11 @@ Server for authentication.</p>
      </TABLE>
 
 <H3>Expected Test Results</H3>
-<p>Note: A "Yes" in the "Certificate Send?" column indicates that the client 
-will send the certificate if requested by the CIM Server.  With Configuration 1, 
+<p>Note: A "Yes" in the "Certificate Send?" column indicates that the client
+will send the certificate if requested by the CIM Server.  With Configuration 1,
 we do not expect the CIM Server to request the certificate.</p>
 
-     <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#6A5ACD 
+     <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#6A5ACD
                borderColorLight=#cccccc border=1 width=95%>
        <TBODY>
         <TR align="center">
@@ -1023,7 +1023,7 @@ Server for authentication.</p>
 
 <H3>Test Setup</H3>
 
-     <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#6A5ACD 
+     <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#6A5ACD
                borderColorLight=#cccccc border=1 width=60%>
        <TBODY>
        <TR align="center">
@@ -1051,7 +1051,7 @@ Server for authentication.</p>
 send the certificate if requested by the CIM Server.  With Configuration 2, we
 expect the CIM Server to request the certificate.</p>
 
-     <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#6A5ACD 
+     <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#6A5ACD
                borderColorLight=#cccccc border=1 width=95%>
        <TBODY>
         <TR align="center">
@@ -1611,12 +1611,12 @@ expect the CIM Server to request the certificate.</p>
 
 <P><FONT color=red>NOTE:</FONT>
 This option requires the CIM Server to override the OpenSSL certification verification
-and, as a result, may have unexpected side-effects on how invalid certificates are handled.&nbsp;&nbsp; 
-The PEGASUS_OVERRIDE_SSL_CERT_VERIFICATION_RESULT variable is undocumented and 
+and, as a result, may have unexpected side-effects on how invalid certificates are handled.&nbsp;&nbsp;
+The PEGASUS_OVERRIDE_SSL_CERT_VERIFICATION_RESULT variable is undocumented and
 subject to change.</P>
 
 <H3>Test Setup</H3>
-     <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#6A5ACD 
+     <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#6A5ACD
                borderColorLight=#cccccc border=1 width=60%>
        <TBODY>
        <TR align="center">
@@ -1644,7 +1644,7 @@ subject to change.</P>
 send the certificate if requested by the CIM Server.  With Configuration 2, we
 expect the CIM Server to request the certificate.</P>
 
-     <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#6A5ACD 
+     <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#6A5ACD
                borderColorLight=#cccccc border=1 width=95%>
        <TBODY>
         <TR align="center">
@@ -2203,7 +2203,7 @@ expect the CIM Server to request the certificate.</P>
 <H2>Configuration 3</H2>
 
 <H3>Test Setup</H3>
-     <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#6A5ACD 
+     <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#6A5ACD
                borderColorLight=#cccccc border=1 width=60%>
        <TBODY>
        <TR align="center">
@@ -2231,7 +2231,7 @@ expect the CIM Server to request the certificate.</P>
 will send the certificate if requested by the CIM Server.  With Configuration 3,
 we expect the CIM Server to request the certificate.</P>
 
-     <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#6A5ACD 
+     <TABLE style="FONT-FAMILY: Arial" cellSpacing=1 borderColorDark=#6A5ACD
                borderColorLight=#cccccc border=1 width=95%>
        <TBODY>
         <TR align="center">

@@ -66,7 +66,7 @@ public:
                                Uint32 msgLen) = 0;
 
 
-    /** Informs the message handler that the configuraion 
+    /** Informs the message handler that the configuraion
         of the trace has been updated.
      */
     virtual void configurationUpdated() {return;};
@@ -74,12 +74,12 @@ public:
     /** Flushes the trace
      */
     virtual void flushTrace() {return;};
-    
+
     TraceHandler() {};
 
     virtual ~TraceHandler() {};
 
-    
+
 };
 
 PEGASUS_NAMESPACE_END

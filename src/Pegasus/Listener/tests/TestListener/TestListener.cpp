@@ -212,12 +212,12 @@ int main()
         randFile = FileSystem::getAbsolutePath(pegasusHome,
                 PEGASUS_SSLCLIENT_RANDOMFILE);
 # endif
-        
+
         // listener destructor will delete it.
         SSLContext *sslContext = new SSLContext(trustPath,
                 String::EMPTY, String::EMPTY,
                 String::EMPTY, 0, randFile);
-        
+
         listener.setSSLContext(sslContext);
         listener.addConsumer(sslConsumer);
 

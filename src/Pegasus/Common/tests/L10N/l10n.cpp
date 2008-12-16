@@ -551,10 +551,10 @@ void testSUCCESSMessage(
 {
     const Uint32 MESSAGE_SIZE = 100;
     char messageText[MESSAGE_SIZE];
-    
+
     sprintf(messageText,
         ((expectedLanguage == "ROOT") ?
-            "CIM_ERR_SUCCESS: SUCCESSFUL %s %s, NUMBER = %s" : 
+            "CIM_ERR_SUCCESS: SUCCESSFUL %s %s, NUMBER = %s" :
             "CIM_ERR_SUCCESS: SUCCESSFUL %s %s, number = %s"),
             expectedLanguage,
             ((expectedText == NULL) ? "testMessageLoaderCL" : expectedText),
@@ -564,7 +564,7 @@ void testSUCCESSMessage(
         cout << "TestID: " << testSeq <<  testNum << endl;
         cout << "Expected: " << messageText << endl;
         cout << "Message:  " << MessageLoader::getMessage(mlp) << endl;
-        cout << "CL: " 
+        cout << "CL: "
              << LanguageParser::buildContentLanguageHeader(
                  mlp.contentlanguages) << endl;
     }
@@ -579,13 +579,13 @@ void testFAILEDMessage(MessageLoaderParms &mlp, const char * expectedLanguage,
 {
     const char *messageText = "CIM_ERR_FAILED: A general error occurred that "
        "is not covered by a more specific error code";
-    
+
     if (verbose)
     {
         cout << "TestID: " << testSeq <<  testNum << endl;
         cout << "Expected: " << messageText << endl;
         cout << "Message:  " << MessageLoader::getMessage(mlp) << endl;
-        cout << "CL: " 
+        cout << "CL: "
              << LanguageParser::buildContentLanguageHeader(
                  mlp.contentlanguages) << endl;
     }
@@ -1114,7 +1114,7 @@ void testMessageLoader()
 #endif
 
     //
-    // Should load default resource bundle. 
+    // Should load default resource bundle.
     //
 
     mlp.acceptlanguages.clear();
@@ -1133,7 +1133,7 @@ void testMessageLoader()
 #endif
 
     //
-    // No exact matches found, return default resource bundle 
+    // No exact matches found, return default resource bundle
     //
 
     MessageLoaderParms mlp1("CIMStatusCode.CIM_ERR_SUCCESS",
@@ -1232,7 +1232,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL alTestThread(void* parm)
     threadSync.signal();
     return ThreadReturnType(0);
 }
- 
+
 void testICUMessageLoaderOrdering()
 {
     UErrorCode status = U_ZERO_ERROR;
@@ -1260,7 +1260,7 @@ void testICUMessageLoaderOrdering()
     mlp.acceptlanguages.insert(LanguageTag("en-us"), 1.0);
     mlp.acceptlanguages.insert(LanguageTag("fr"), 0.7);
     testSUCCESSMessage(mlp, "en-us", NULL, NULL, "A" , 1);
- 
+
     // Test A2 - Exact Match - Second Tag
     mlp.acceptlanguages.clear();
     mlp.acceptlanguages.insert(LanguageTag("en-gb"), 1.0);
@@ -1287,28 +1287,28 @@ void testICUMessageLoaderOrdering()
     mlp.acceptlanguages.insert(LanguageTag("fr-ca"), 0.7);
     testSUCCESSMessage(mlp, defaultResourceBundle, NULL, NULL, "A", 5);
 
-    // Test A6 - No Exact Match - No Fallback Match 
+    // Test A6 - No Exact Match - No Fallback Match
     mlp.acceptlanguages.clear();
     mlp.acceptlanguages.insert(LanguageTag("pt-br"), 1.0);
     mlp.acceptlanguages.insert(LanguageTag("zh-cn"), 0.7);
     testSUCCESSMessage(mlp, defaultResourceBundle, NULL, NULL, "A", 6);
 
-    // Test A7 - Invalid Language Tag 
+    // Test A7 - Invalid Language Tag
     mlp.acceptlanguages.clear();
     mlp.acceptlanguages.insert(LanguageTag("*"), 1.0);
     testSUCCESSMessage(mlp, defaultResourceBundle, NULL, NULL, "A", 7);
 
-    // Test A8 - Single Accept Language - Exact Match 
+    // Test A8 - Single Accept Language - Exact Match
     mlp.acceptlanguages.clear();
     mlp.acceptlanguages.insert(LanguageTag("en-us"), 1.0);
     testSUCCESSMessage(mlp, "en-us", NULL, NULL, "A", 8);
 
-    // Test A9 - Single Accept Language - Fallback Match 
+    // Test A9 - Single Accept Language - Fallback Match
     mlp.acceptlanguages.clear();
     mlp.acceptlanguages.insert(LanguageTag("en-gb"), 1.0);
     testSUCCESSMessage(mlp, defaultResourceBundle, NULL, NULL, "A", 9);
 
-    // Test A10 - Single Accept Language - No Match 
+    // Test A10 - Single Accept Language - No Match
     mlp.acceptlanguages.clear();
     mlp.acceptlanguages.insert(LanguageTag("pt-br"), 1.0);
     testSUCCESSMessage(mlp, defaultResourceBundle, NULL, NULL, "A", 10);
@@ -1341,7 +1341,7 @@ void testICUMessageLoaderOrdering()
 
     // Test D: If no accept languages are defined and
     // useProtocolLocale is true, then the default
-    // locale should be used. 
+    // locale should be used.
     mlp.acceptlanguages.clear();
     mlp.useProcessLocale = true;
     testSUCCESSMessage(mlp, defaultResourceBundle, NULL, NULL, "D", 1);
@@ -1364,7 +1364,7 @@ void testICUMessageLoaderOrdering()
 
     // Test threadTest: If no accept languages are defined and
     // useThreadLocale is true, then the thread accept
-    // languages should be used. 
+    // languages should be used.
 
     struct timeval deallocateWait = { 0, 1 };
     ThreadPool threadPool(0, "AcceptLanguageTestPool", 0, 1, deallocateWait);
@@ -1522,8 +1522,8 @@ int main(int argc, char* argv[])
         if (!strcmp(argv[index], "testRootBundle"))
         {
             testRootBundle = true;
-            defaultResourceBundle = "ROOT"; 
-        
+            defaultResourceBundle = "ROOT";
+
         }
         else if (!strcmp(argv[index], "enableTrace"))
         {

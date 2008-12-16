@@ -97,13 +97,13 @@ typedef __int64 int64;
 typedef unsigned __int64 uint64;
 typedef SOCKET SOCKETD;
 
-typedef struct socket_address 
+typedef struct socket_address
 {
     struct sockaddr_in *address;
     int address_len;
 } socket_addr ;
 
-typedef struct socket_address_list 
+typedef struct socket_address_list
 {
     int count;
     socket_addr *list;

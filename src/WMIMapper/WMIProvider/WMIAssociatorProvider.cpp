@@ -99,17 +99,17 @@ Array<CIMObject> WMIAssociatorProvider::associators(
     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIAssociatorProvider::associators()");
 
     sQueryLanguage = qString(Q_WQL);
-    sQuery = getAssocQueryString(objectName, 
-                assocClass, 
-                resultClass, 
-                role, 
+    sQuery = getAssocQueryString(objectName,
+                assocClass,
+                resultClass,
+                role,
                 resultRole);
 
     objects = execCIMQuery(nameSpace,
                 userName,
                 password,
-                sQueryLanguage, 
-                sQuery, 
+                sQueryLanguage,
+                sQuery,
                 propertyList,
                 includeQualifiers,
                 includeClassOrigin);
@@ -159,14 +159,14 @@ Array<CIMObjectPath> WMIAssociatorProvider::associatorNames(
     // now get the names from the object
     Uint32 size = objects.size();
     Uint32 i;
-    
+
     //check if namespace is remote
     CIMNamespaceName oNamespace(nameSpace);
     String strNamespace = oNamespace.getString();
     String strNamespaceLower = strNamespace;
     strNamespaceLower.toLower();
     String strRemotePrefix = "";
-    
+
     if (strNamespaceLower.subString(0, 4) != "root")
     {
         Uint32 uiPos = strNamespaceLower.find("root");
@@ -177,17 +177,17 @@ Array<CIMObjectPath> WMIAssociatorProvider::associatorNames(
     }
 
     for (i=0; i<size; i++)
-    {    
+    {
         CIMObjectPath oObjectPath = objects[i].getPath();
-        
+
         if (strRemotePrefix != "")
         {
             strNamespace = strRemotePrefix;
             oNamespace = strNamespace.append(
                 oObjectPath.getNameSpace().getString());
-            oObjectPath.setNameSpace(oNamespace);            
+            oObjectPath.setNameSpace(oNamespace);
         }
-        
+
         objectNames.append(oObjectPath);
     }
 
@@ -203,14 +203,14 @@ Array<CIMObjectPath> WMIAssociatorProvider::associatorNames(
 // ///////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////
-// WMIAssociatorProvider::getAssocQueryString - calls the BaseProvider method 
+// WMIAssociatorProvider::getAssocQueryString - calls the BaseProvider method
 //        to build the query string from the input parameters
 //
 // ///////////////////////////////////////////////////////////////////////////
 String WMIAssociatorProvider::getAssocQueryString(
-        const CIMObjectPath &objectName, 
-        const String &assocClass, 
-        const String &resultClass, 
+        const CIMObjectPath &objectName,
+        const String &assocClass,
+        const String &resultClass,
         const String &role,
         const String &resultRole)
 {
@@ -218,7 +218,7 @@ String WMIAssociatorProvider::getAssocQueryString(
 
     sQuery = qString(Q_ASSOCIATORS);
 
-    return getQueryString(objectName, sQuery, assocClass, 
+    return getQueryString(objectName, sQuery, assocClass,
         resultClass, role, resultRole);
 
 }

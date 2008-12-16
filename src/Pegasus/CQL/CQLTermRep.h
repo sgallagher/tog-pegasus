@@ -30,7 +30,7 @@
 // Authors: David Rosckes (rosckes@us.ibm.com)
 //          Bert Rivero (hurivero@us.ibm.com)
 //          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com) 
+//          Brian Lucier (lucier@us.ibm.com)
 //
 // Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3591
@@ -52,7 +52,7 @@ class QueryContext;
 class CQLTermRep
 {
  public:
-  
+
   CQLTermRep();
 
   CQLTermRep(const CQLFactor & theFactor);
@@ -76,22 +76,22 @@ class CQLTermRep
    Array<FactorOpType> getOperators()const;
 
    void applyContext(const QueryContext& inContext,
-                     const CQLChainedIdentifier& inCid); 
+                     const CQLChainedIdentifier& inCid);
 /*
   Boolean operator==(const CQLTermRep& rhs)const;
-  
+
   Boolean operator!=(const CQLTermRep& rhs)const;
-  */ 
+  */
    friend class CQLFactory;
-   
+
  private:
-   
+
    Array<FactorOpType> _FactorOperators;
-   
+
    Array<CQLFactor> _Factors;
-   
+
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif 
+#endif

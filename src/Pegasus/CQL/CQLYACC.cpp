@@ -242,14 +242,14 @@ enum CQLType { Id, CId, Val, Func, Fact, Trm, Expr, SPred, Pred, Str };
 
 typedef struct CQLObjPtr {
         void* _ptr;
-          CQLType type;       
+          CQLType type;
 } CQLOBJPTR;
 
 Array<CQLObjPtr> _ptrs;
 CQLOBJPTR _ObjPtr;
 
 PEGASUS_NAMESPACE_BEGIN
-                                                                                
+
 extern CQLParserState* CQL_globalParserState;
 Array<CQLPredicate> _arglist;
 
@@ -1430,7 +1430,7 @@ yyparse ()
 #endif
 #endif
 {
-  
+
   int yystate;
   int yyn;
   int yyresult;
@@ -1676,12 +1676,12 @@ yyreduce:
     {
         case 2:
 #line 258 "CQL.y"
-    { 
+    {
         CQL_globalParserState->currentRule = "identifier";
         CQL_DEBUG_TRACE("BISON::identifier\n");
 
         if(isUTF8Str(CQL_lval.strValue))
-        {  
+        {
             (yyval._identifier) = new CQLIdentifier(String(CQL_lval.strValue));
                 _ObjPtr._ptr = (yyval._identifier);
                 _ObjPtr.type = Id;
@@ -1705,7 +1705,7 @@ yyreduce:
 #line 284 "CQL.y"
     {
         CQL_globalParserState->currentRule = "class_name";
-        CQL_DEBUG_TRACE2("BISON::class_name = %s\n", 
+        CQL_DEBUG_TRACE2("BISON::class_name = %s\n",
             (const char *)((yyvsp[(1) - (1)]._identifier)->getName().getString().getCString()));
         (yyval._identifier) = (yyvsp[(1) - (1)]._identifier);
     ;}
@@ -1713,7 +1713,7 @@ yyreduce:
 
   case 4:
 #line 293 "CQL.y"
-    { 
+    {
         CQL_globalParserState->currentRule = "class_path";
         CQL_DEBUG_TRACE("BISON::class_path\n");
         (yyval._identifier) = (yyvsp[(1) - (1)]._identifier);
@@ -1732,7 +1732,7 @@ yyreduce:
         */
         CQL_globalParserState->currentRule = "scoped_property";
         CQL_DEBUG_TRACE2("BISON::scoped_property = %s\n", CQL_lval.strValue);
-        
+
         if(isUTF8Str(CQL_lval.strValue))
         {
             String tmp(CQL_lval.strValue);
@@ -1755,13 +1755,13 @@ yyreduce:
 
   case 6:
 #line 342 "CQL.y"
-    { 
+    {
         /*
         Make sure the literal is valid UTF8, then make a String
         */
         CQL_globalParserState->currentRule = "literal_string";
         CQL_DEBUG_TRACE2("BISON::literal_string-> %s\n", CQL_lval.strValue);
-        
+
         if(isUTF8Str(CQL_lval.strValue))
         {
             (yyval._string) = new String(CQL_lval.strValue);
@@ -1772,7 +1772,7 @@ yyreduce:
         else
         {
             CQL_DEBUG_TRACE("BISON::literal_string-> BAD UTF\n");
-            
+
             throw CQLSyntaxErrorException(
                MessageLoaderParms("CQL.CQL_y.BAD_UTF8",
                   "Bad UTF8 encountered parsing rule $0 in position $1.",
@@ -1784,11 +1784,11 @@ yyreduce:
 
   case 7:
 #line 371 "CQL.y"
-    { 
+    {
         CQL_globalParserState->currentRule = "binary_value->TOK_BINARY";
         CQL_DEBUG_TRACE2("BISON::binary_value-> %s\n", CQL_lval.strValue);
-         
-        (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Binary); 
+
+        (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Binary);
         _ObjPtr._ptr = (yyval._value);
         _ObjPtr.type = Val;
         _ptrs.append(_ObjPtr);
@@ -1797,12 +1797,12 @@ yyreduce:
 
   case 8:
 #line 381 "CQL.y"
-    { 
-        CQL_globalParserState->currentRule = 
+    {
+        CQL_globalParserState->currentRule =
             "binary_value->TOK_NEGATIVE_BINARY";
         CQL_DEBUG_TRACE2("BISON::binary_value-> %s\n", CQL_lval.strValue);
-        
-        (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Binary, false); 
+
+        (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Binary, false);
         _ObjPtr._ptr = (yyval._value);
         _ObjPtr.type = Val;
         _ptrs.append(_ObjPtr);
@@ -1811,10 +1811,10 @@ yyreduce:
 
   case 9:
 #line 395 "CQL.y"
-    { 
+    {
         CQL_globalParserState->currentRule = "hex_value->TOK_HEXADECIMAL";
         CQL_DEBUG_TRACE2("BISON::hex_value-> %s\n", CQL_lval.strValue);
-        
+
         (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Hex);
         _ObjPtr._ptr = (yyval._value);
         _ObjPtr.type = Val;
@@ -1824,11 +1824,11 @@ yyreduce:
 
   case 10:
 #line 405 "CQL.y"
-    { 
-        CQL_globalParserState->currentRule = 
+    {
+        CQL_globalParserState->currentRule =
             "hex_value->TOK_NEGATIVE_HEXADECIMAL";
         CQL_DEBUG_TRACE2("BISON::hex_value-> %s\n", CQL_lval.strValue);
-        
+
         (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Hex, false);
         _ObjPtr._ptr = (yyval._value);
         _ObjPtr.type = Val;
@@ -1838,11 +1838,11 @@ yyreduce:
 
   case 11:
 #line 419 "CQL.y"
-    { 
+    {
         CQL_globalParserState->currentRule = "decimal_value->TOK_INTEGER";
         CQL_DEBUG_TRACE2("BISON::decimal_value-> %s\n", CQL_lval.strValue);
-        
-        (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Decimal); 
+
+        (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Decimal);
         _ObjPtr._ptr = (yyval._value);
         _ObjPtr.type = Val;
         _ptrs.append(_ObjPtr);
@@ -1851,11 +1851,11 @@ yyreduce:
 
   case 12:
 #line 429 "CQL.y"
-    { 
-        CQL_globalParserState->currentRule = 
+    {
+        CQL_globalParserState->currentRule =
             "decimal_value->TOK_NEGATIVE_INTEGER";
         CQL_DEBUG_TRACE2("BISON::decimal_value-> %s\n", CQL_lval.strValue);
-        
+
         (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Decimal, false);
         _ObjPtr._ptr = (yyval._value);
         _ObjPtr.type = Val;
@@ -1865,10 +1865,10 @@ yyreduce:
 
   case 13:
 #line 443 "CQL.y"
-    { 
+    {
         CQL_globalParserState->currentRule = "real_value->TOK_REAL";
         CQL_DEBUG_TRACE2("BISON::real_value-> %s\n", CQL_lval.strValue);
-        
+
         (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Real);
         _ObjPtr._ptr = (yyval._value);
         _ObjPtr.type = Val;
@@ -1878,10 +1878,10 @@ yyreduce:
 
   case 14:
 #line 453 "CQL.y"
-    { 
+    {
         CQL_globalParserState->currentRule = "real_value->TOK_NEGATIVE_REAL";
         CQL_DEBUG_TRACE2("BISON::real_value-> %s\n", CQL_lval.strValue);
-        
+
         (yyval._value) = new CQLValue(CQL_lval.strValue, CQLValue::Real, false);
         _ObjPtr._ptr = (yyval._value);
         _ObjPtr.type = Val;
@@ -1938,7 +1938,7 @@ yyreduce:
     {
             CQL_globalParserState->currentRule = "literal->TOK_TRUE";
             CQL_DEBUG_TRACE("BISON::literal->TOK_TRUE\n");
-        
+
             (yyval._value) = new CQLValue(Boolean(true));
             _ObjPtr._ptr = (yyval._value);
             _ObjPtr.type = Val;
@@ -1951,7 +1951,7 @@ yyreduce:
     {
             CQL_globalParserState->currentRule = "literal->TOK_FALSE";
             CQL_DEBUG_TRACE("BISON::literal->TOK_FALSE\n");
-            
+
             (yyval._value) = new CQLValue(Boolean(false));
             _ObjPtr._ptr = (yyval._value);
             _ObjPtr.type = Val;
@@ -1964,7 +1964,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "array_index->expr";
         CQL_DEBUG_TRACE("BISON::array_index->expr\n");
-        
+
         CQLValue* _val = (CQLValue*)_factory.getObject((yyvsp[(1) - (1)]._predicate),Predicate,Value);
         (yyval._string) = new String(_val->toString());
         _ObjPtr._ptr = (yyval._string);
@@ -1978,7 +1978,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "array_index_list->array_index";
         CQL_DEBUG_TRACE("BISON::array_index_list->array_index\n");
-        
+
         (yyval._string) = (yyvsp[(1) - (1)]._string);
     ;}
     break;
@@ -1988,9 +1988,9 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "chain->literal";
         CQL_DEBUG_TRACE("BISON::chain->literal\n");
-        
+
         chain_state = CQLVALUE;
-        (yyval._node) = _factory.makeObject((yyvsp[(1) - (1)]._value),Predicate);  
+        (yyval._node) = _factory.makeObject((yyvsp[(1) - (1)]._value),Predicate);
     ;}
     break;
 
@@ -2010,7 +2010,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "chain->identifier";
         CQL_DEBUG_TRACE("BISON::chain->identifier\n");
-        
+
         chain_state = CQLIDENTIFIER;
         (yyval._node) = _factory.makeObject((yyvsp[(1) - (1)]._identifier),Predicate);
     ;}
@@ -2019,10 +2019,10 @@ yyreduce:
   case 27:
 #line 569 "CQL.y"
     {
-        CQL_globalParserState->currentRule = 
+        CQL_globalParserState->currentRule =
             "chain->identifier#literal_string";
         CQL_DEBUG_TRACE("BISON::chain->identifier#literal_string\n");
-        
+
         String tmp = (yyvsp[(1) - (3)]._identifier)->getName().getString();
         tmp.append("#").append(*(yyvsp[(3) - (3)]._string));
         CQLIdentifier _id(tmp);
@@ -2036,7 +2036,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "chain->scoped_property";
         CQL_DEBUG_TRACE("BISON::chain->scoped_property\n");
-        
+
         chain_state = CQLIDENTIFIER;
         (yyval._node) = _factory.makeObject((yyvsp[(1) - (1)]._identifier),Predicate);
     ;}
@@ -2047,7 +2047,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "identifier( arg_list )";
         CQL_DEBUG_TRACE("BISON::identifier( arg_list )\n");
-        
+
         chain_state = CQLFUNCTION;
         CQLFunction _func(*(yyvsp[(1) - (4)]._identifier),_arglist);
         (yyval._node) = (CQLPredicate*)(_factory.makeObject(&_func,Predicate));
@@ -2062,7 +2062,7 @@ yyreduce:
         CQL_DEBUG_TRACE2(
             "BISON::chain-> chain TOK_DOT scoped_property : chain_state = %d\n"
             ,chain_state);
-        
+
         CQLIdentifier *_id;
         if(chain_state == CQLIDENTIFIER)
         {
@@ -2094,7 +2094,7 @@ yyreduce:
                     "chain.scoped_property",
                     CQL_globalParserState->currentTokenPos));
         }
-    
+
     chain_state = CQLCHAINEDIDENTIFIER;
     ;}
     break;
@@ -2105,7 +2105,7 @@ yyreduce:
         CQL_globalParserState->currentRule = "chain->chain.identifier";
         CQL_DEBUG_TRACE2("BISON::chain->chain.identifier : chain_state = %d\n"
             ,chain_state);
-        
+
         if(chain_state == CQLIDENTIFIER)
         {
             CQLIdentifier *_id = ((CQLIdentifier*)(_factory.getObject(
@@ -2116,7 +2116,7 @@ yyreduce:
         }
         else if(chain_state == CQLCHAINEDIDENTIFIER)
         {
-            CQLChainedIdentifier *_cid = 
+            CQLChainedIdentifier *_cid =
             ((CQLChainedIdentifier*)(_factory.getObject(
             (yyvsp[(1) - (3)]._node),Predicate,ChainedIdentifier)));
             _cid->append(*(yyvsp[(3) - (3)]._identifier));
@@ -2142,16 +2142,16 @@ yyreduce:
   case 32:
 #line 682 "CQL.y"
     {
-        CQL_globalParserState->currentRule = 
+        CQL_globalParserState->currentRule =
             "chain->chain.identifier#literal_string";
         CQL_DEBUG_TRACE2(
             "BISON::chain->chain.identifier#literal_string : chain_state = %d\n"
             ,chain_state);
-        
+
         if(chain_state == CQLIDENTIFIER)
         {
             CQLIdentifier *_id = ((CQLIdentifier*)(_factory.getObject(
-                (yyvsp[(1) - (5)]._node),Predicate,Identifier))); 
+                (yyvsp[(1) - (5)]._node),Predicate,Identifier)));
             CQLChainedIdentifier _cid(*_id);
             String tmp((yyvsp[(3) - (5)]._identifier)->getName().getString());
             tmp.append("#").append(*(yyvsp[(5) - (5)]._string));
@@ -2190,12 +2190,12 @@ yyreduce:
   case 33:
 #line 728 "CQL.y"
     {
-        CQL_globalParserState->currentRule = 
+        CQL_globalParserState->currentRule =
             "chain->chain[ array_index_list ]";
         CQL_DEBUG_TRACE2(
             "BISON::chain->chain[ array_index_list ] : chain_state = %d\n"
             ,chain_state);
-        
+
         if(chain_state == CQLIDENTIFIER)
         {
             CQLIdentifier *_id = ((CQLIdentifier*)
@@ -2205,7 +2205,7 @@ yyreduce:
             CQLIdentifier _id1(tmp);
             CQLChainedIdentifier _cid(_id1);
             _factory.setObject(((CQLPredicate*)(yyvsp[(1) - (4)]._node)),&_cid,ChainedIdentifier);
-            (yyval._node) = (yyvsp[(1) - (4)]._node);    
+            (yyval._node) = (yyvsp[(1) - (4)]._node);
         }
         else if(chain_state == CQLCHAINEDIDENTIFIER || chain_state == CQLVALUE)
         {
@@ -2252,7 +2252,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "concat->chain";
         CQL_DEBUG_TRACE("BISON::concat->chain\n");
-        
+
         (yyval._predicate) = ((CQLPredicate*)(yyvsp[(1) - (1)]._node));
     ;}
     break;
@@ -2260,15 +2260,15 @@ yyreduce:
   case 35:
 #line 795 "CQL.y"
     {
-        CQL_globalParserState->currentRule = 
+        CQL_globalParserState->currentRule =
             "concat->concat || literal_string";
         CQL_DEBUG_TRACE("BISON::concat->concat || literal_string\n");
-        
+
         CQLValue* tmpval = new CQLValue(*(yyvsp[(3) - (3)]._string));
         _ObjPtr._ptr = tmpval;
         _ObjPtr.type = Val;
-        _ptrs.append(_ObjPtr);  
-        
+        _ptrs.append(_ObjPtr);
+
         if((CQLPredicate*)(yyvsp[(1) - (3)]._predicate)->isSimple())
         {
             CQLSimplePredicate sp = ((CQLPredicate*)(yyvsp[(1) - (3)]._predicate))->getSimplePredicate();
@@ -2313,7 +2313,7 @@ yyreduce:
                         (_factory.makeObject(tmpval, Factor)));
                     _term->appendOperation(concat,*_fctr2);
                     (yyval._predicate) = (CQLPredicate*)(_factory.makeObject
-                        (_term,Predicate)); 
+                        (_term,Predicate));
                 }
                 else /* exp.isSimple() */
                 {
@@ -2352,7 +2352,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "factor->concat";
         CQL_DEBUG_TRACE("BISON::factor->concat\n");
-        
+
         (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
     ;}
     break;
@@ -2362,7 +2362,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "term->factor";
         CQL_DEBUG_TRACE("BISON::term->factor\n");
-        
+
         (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
     ;}
     break;
@@ -2372,7 +2372,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "arith->term";
         CQL_DEBUG_TRACE("BISON::arith->term\n");
-      
+
         //CQLPredicate* _pred = new CQLPredicate(*$1);
         //      _factory._predicates.append(_pred);
         (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
@@ -2384,7 +2384,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "value_symbol->#literal_string";
         CQL_DEBUG_TRACE("BISON::value_symbol->#literal_string\n");
-        
+
         String tmp("#");
         tmp.append(*(yyvsp[(2) - (2)]._string));
         CQLIdentifier tmpid(tmp);
@@ -2400,7 +2400,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "arith_or_value_symbol->arith";
         CQL_DEBUG_TRACE("BISON::arith_or_value_symbol->arith\n");
-        
+
         (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
     ;}
     break;
@@ -2409,10 +2409,10 @@ yyreduce:
 #line 997 "CQL.y"
     {
         /* make into predicate */
-        CQL_globalParserState->currentRule = 
+        CQL_globalParserState->currentRule =
             "arith_or_value_symbol->value_symbol";
         CQL_DEBUG_TRACE("BISON::arith_or_value_symbol->value_symbol\n");
-        
+
         CQLFactor _fctr(*(yyvsp[(1) - (1)]._value));
         (yyval._predicate) = (CQLPredicate*)(_factory.makeObject(&_fctr, Predicate));
     ;}
@@ -2423,7 +2423,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "comp_op->TOK_EQ";
         CQL_DEBUG_TRACE("BISON::comp_op->TOK_EQ\n");
-        
+
         (yyval._opType) = EQ;
     ;}
     break;
@@ -2442,7 +2442,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "comp_op->TOK_GT";
         CQL_DEBUG_TRACE("BISON::comp_op->TOK_GT\n");
-        
+
         (yyval._opType) = GT;
     ;}
     break;
@@ -2479,7 +2479,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "comp->arith";
         CQL_DEBUG_TRACE("BISON::comp->arith\n");
-        
+
         (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
     ;}
     break;
@@ -2487,10 +2487,10 @@ yyreduce:
   case 49:
 #line 1056 "CQL.y"
     {
-        CQL_globalParserState->currentRule = 
+        CQL_globalParserState->currentRule =
             "comp->arith TOK_IS TOK_NOT TOK_NULL";
         CQL_DEBUG_TRACE("BISON::comp->arith TOK_IS TOK_NOT TOK_NULL\n");
-        
+
         CQLExpression *_expr =
             (CQLExpression*)(_factory.getObject((yyvsp[(1) - (4)]._predicate),Expression));
         CQLSimplePredicate _sp(*_expr, IS_NOT_NULL);
@@ -2504,7 +2504,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "comp->arith TOK_IS TOK_NULL";
         CQL_DEBUG_TRACE("BISON::comp->arith TOK_IS TOK_NULL\n");
-        
+
         CQLExpression *_expr =
             (CQLExpression*)(_factory.getObject((yyvsp[(1) - (3)]._predicate),Expression));
         CQLSimplePredicate _sp(*_expr, IS_NULL);
@@ -2516,10 +2516,10 @@ yyreduce:
   case 51:
 #line 1079 "CQL.y"
     {
-        CQL_globalParserState->currentRule = 
+        CQL_globalParserState->currentRule =
             "comp->arith comp_op arith_or_value_symbol";
         CQL_DEBUG_TRACE("BISON::comp->arith comp_op arith_or_value_symbol\n");
-        
+
         if((yyvsp[(1) - (3)]._predicate)->isSimple() && (yyvsp[(3) - (3)]._predicate)->isSimple())
         {
             CQLExpression* _exp1 = (CQLExpression*)
@@ -2549,10 +2549,10 @@ yyreduce:
   case 52:
 #line 1109 "CQL.y"
     {
-        CQL_globalParserState->currentRule = 
+        CQL_globalParserState->currentRule =
             "comp->value_symbol comp_op arith";
         CQL_DEBUG_TRACE("BISON::comp->value_symbol comp_op arith\n");
-        
+
         if((yyvsp[(3) - (3)]._predicate)->isSimple())
         {
             CQLExpression* _exp1 = (CQLExpression*)
@@ -2574,7 +2574,7 @@ yyreduce:
                         " rule $0 in position $1.",
                     "comp->value_symbol comp_op arith",
                 CQL_globalParserState->currentTokenPos) );
-    
+
         }
     ;}
     break;
@@ -2582,12 +2582,12 @@ yyreduce:
   case 53:
 #line 1139 "CQL.y"
     {
-        /* make sure $1 isSimple(), get its expression, make 
-           simplepred->predicate 
+        /* make sure $1 isSimple(), get its expression, make
+           simplepred->predicate
         */
         CQL_globalParserState->currentRule = "comp->arith _TOK_ISA identifier";
         CQL_DEBUG_TRACE("BISON::comp->arith _TOK_ISA identifier\n");
-        
+
         CQLExpression *_expr1 = (CQLExpression*)
         (_factory.getObject((yyvsp[(1) - (3)]._predicate),Predicate,Expression));
         CQLChainedIdentifier _cid(*(yyvsp[(3) - (3)]._identifier));
@@ -2602,10 +2602,10 @@ yyreduce:
   case 54:
 #line 1156 "CQL.y"
     {
-        CQL_globalParserState->currentRule = 
+        CQL_globalParserState->currentRule =
             "comp->arith TOK_LIKE literal_string";
         CQL_DEBUG_TRACE("BISON::comp->arith TOK_LIKE literal_string\n");
-        
+
         CQLExpression *_expr1 = (CQLExpression*)
             (_factory.getObject((yyvsp[(1) - (3)]._predicate),Predicate,Expression));
         CQLValue _val(*(yyvsp[(3) - (3)]._string));
@@ -2622,7 +2622,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "expr_factor->comp";
         CQL_DEBUG_TRACE("BISON::expr_factor->comp\n");
-        
+
         (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
     ;}
     break;
@@ -2632,7 +2632,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "expr_factor->TOK_NOT comp";
         CQL_DEBUG_TRACE("BISON::expr_factor->TOK_NOT comp\n");
-        
+
         (yyvsp[(2) - (2)]._predicate)->setInverted(!((yyvsp[(2) - (2)]._predicate)->getInverted()));
         (yyval._predicate) = (yyvsp[(2) - (2)]._predicate);
     ;}
@@ -2643,7 +2643,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "expr_term->expr_factor";
         CQL_DEBUG_TRACE("BISON::expr_term->expr_factor\n");
-        
+
         (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
     ;}
     break;
@@ -2651,13 +2651,13 @@ yyreduce:
   case 58:
 #line 1196 "CQL.y"
     {
-        CQL_globalParserState->currentRule = 
+        CQL_globalParserState->currentRule =
             "expr_term->expr_term AND expr_factor";
         CQL_DEBUG_TRACE("BISON::expr_term->expr_term AND expr_factor\n");
-        
+
         (yyval._predicate) = new CQLPredicate();
         (yyval._predicate)->appendPredicate(*(yyvsp[(1) - (3)]._predicate));
-        (yyval._predicate)->appendPredicate(*(yyvsp[(3) - (3)]._predicate), AND);  
+        (yyval._predicate)->appendPredicate(*(yyvsp[(3) - (3)]._predicate), AND);
          _ObjPtr._ptr = (yyval._predicate);
         _ObjPtr.type = Pred;
         _ptrs.append(_ObjPtr);
@@ -2669,8 +2669,8 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "expr->expr_term";
         CQL_DEBUG_TRACE("BISON::expr->expr_term\n");
-        
-        (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);     
+
+        (yyval._predicate) = (yyvsp[(1) - (1)]._predicate);
         ;}
     break;
 
@@ -2679,7 +2679,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "expr->expr OR expr_term";
         CQL_DEBUG_TRACE("BISON::expr->expr OR expr_term\n");
-        
+
         (yyval._predicate) = new CQLPredicate();
         (yyval._predicate)->appendPredicate(*(yyvsp[(1) - (3)]._predicate));
         (yyval._predicate)->appendPredicate(*(yyvsp[(3) - (3)]._predicate), OR);
@@ -2699,7 +2699,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "arg_list->arg_list_sub->expr";
         CQL_DEBUG_TRACE("BISON::arg_list->arg_list_sub->expr\n");
-        
+
         _arglist.append(*(yyvsp[(1) - (1)]._predicate));
         /*
         since arg_list can loop back on itself,
@@ -2716,7 +2716,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "from_specifier->class_path";
         CQL_DEBUG_TRACE("BISON::from_specifier->class_path\n");
-        
+
         CQL_globalParserState->statement->appendClassPath(*(yyvsp[(1) - (1)]._identifier));
     ;}
     break;
@@ -2724,11 +2724,11 @@ yyreduce:
   case 64:
 #line 1317 "CQL.y"
     {
-        CQL_globalParserState->currentRule = 
+        CQL_globalParserState->currentRule =
             "from_specifier->class_path TOK_AS identifier";
         CQL_DEBUG_TRACE(
             "BISON::from_specifier->class_path TOK_AS identifier\n");
-        
+
         CQLIdentifier _class(*(yyvsp[(1) - (3)]._identifier));
         String _alias((yyvsp[(3) - (3)]._identifier)->getName().getString());
         CQL_globalParserState->statement->insertClassPathAlias(_class,_alias);
@@ -2739,10 +2739,10 @@ yyreduce:
   case 65:
 #line 1329 "CQL.y"
     {
-        CQL_globalParserState->currentRule = 
+        CQL_globalParserState->currentRule =
             "from_specifier->class_path identifier";
         CQL_DEBUG_TRACE("BISON::from_specifier->class_path identifier\n");
-        
+
         CQLIdentifier _class(*(yyvsp[(1) - (2)]._identifier));
         String _alias((yyvsp[(2) - (2)]._identifier)->getName().getString());
         CQL_globalParserState->statement->insertClassPathAlias(_class,_alias);
@@ -2763,7 +2763,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "star_expr->TOK_STAR";
         CQL_DEBUG_TRACE("BISON::star_expr->TOK_STAR\n");
-        
+
         CQLIdentifier _id("*");
         (yyval._chainedIdentifier) = (CQLChainedIdentifier*)
              (_factory.makeObject(&_id,ChainedIdentifier));
@@ -2775,7 +2775,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "star_expr->chain.*";
         CQL_DEBUG_TRACE("BISON::star_expr->chain.*\n");
-        
+
         CQLChainedIdentifier* _tmp = (CQLChainedIdentifier*)
         (_factory.getObject((yyvsp[(1) - (3)]._node),Predicate,ChainedIdentifier));
         CQLChainedIdentifier* _cid = new CQLChainedIdentifier(*_tmp);
@@ -2793,7 +2793,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "selected_entry->expr";
         CQL_DEBUG_TRACE("BISON::selected_entry->expr\n");
-        
+
         if((yyvsp[(1) - (1)]._predicate)->isSimpleValue())
         {
             CQLChainedIdentifier *_cid = (CQLChainedIdentifier*)
@@ -2808,7 +2808,7 @@ yyreduce:
                   "The CQLPredicate is not a simple value while "
                       "parsing rule $0 in position $1.",
                   "selected_entry->expr",
-                  CQL_globalParserState->currentTokenPos) ); 
+                  CQL_globalParserState->currentTokenPos) );
         }
     ;}
     break;
@@ -2818,7 +2818,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "selected_entry->star_expr";
         CQL_DEBUG_TRACE("BISON::selected_entry->star_expr\n");
-        
+
         CQL_globalParserState->statement->appendSelectIdentifier(*(yyvsp[(1) - (1)]._chainedIdentifier));
     ;}
     break;
@@ -2826,7 +2826,7 @@ yyreduce:
   case 71:
 #line 1406 "CQL.y"
     {
-        CQL_globalParserState->currentRule = 
+        CQL_globalParserState->currentRule =
             "select_list->selected_entry select_list_tail";
         CQL_DEBUG_TRACE(
             "BISON::select_list->selected_entry select_list_tail\n");
@@ -2841,7 +2841,7 @@ yyreduce:
   case 73:
 #line 1417 "CQL.y"
     {
-        CQL_globalParserState->currentRule = 
+        CQL_globalParserState->currentRule =
             "select_list_tail->TOK_COMMA selected_entry select_list_tail";
         CQL_DEBUG_TRACE(
            "BISON::select_list_tail->TOK_COMMA"
@@ -2854,7 +2854,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "search_condition->expr";
         CQL_DEBUG_TRACE("BISON::search_condition->expr\n");
-        
+
         CQL_globalParserState->statement->setPredicate(*(yyvsp[(1) - (1)]._predicate));
     ;}
     break;
@@ -2867,11 +2867,11 @@ yyreduce:
   case 76:
 #line 1438 "CQL.y"
     {
-        CQL_globalParserState->currentRule = 
+        CQL_globalParserState->currentRule =
             "optional_where->TOK_WHERE search_condition";
         CQL_DEBUG_TRACE(
             "BISON::optional_where->TOK_WHERE search_condition\n");
-        
+
         CQL_globalParserState->statement->setHasWhereClause();
     ;}
     break;
@@ -2881,7 +2881,7 @@ yyreduce:
     {
         CQL_globalParserState->currentRule = "select_statement";
         CQL_DEBUG_TRACE("select_statement\n");
-        
+
         CQL_Bison_Cleanup();
     ;}
     break;

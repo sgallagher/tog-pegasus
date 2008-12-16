@@ -31,11 +31,11 @@
 instance of PG_ProviderModule
 {
     Name = "MCCATestAssocProviderModule";
-    Location = "MCCATestAssocProvider";    
+    Location = "MCCATestAssocProvider";
     Vendor = "OpenPegasus";
     Version = "2.0.0";
     InterfaceType = "C++Default";
-    InterfaceVersion = "2.1.0";    
+    InterfaceVersion = "2.1.0";
 };
 
 instance of PG_Provider

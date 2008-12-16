@@ -445,13 +445,13 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     String charset;
     Boolean binaryRequest = false;
 
-    if (!contentTypeHeaderFound || 
+    if (!contentTypeHeaderFound ||
         !HTTPMessage::parseContentTypeHeader(cimContentType, type, charset) ||
         ((!String::equalNoCase(type, "application/xml") &&
          !String::equalNoCase(type, "text/xml")) ||
-        !String::equalNoCase(charset, "utf-8")) 
+        !String::equalNoCase(charset, "utf-8"))
 #if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
-        && !(binaryRequest = String::equalNoCase(type, 
+        && !(binaryRequest = String::equalNoCase(type,
             "application/x-openpegasus"))
 #endif
         )
@@ -495,7 +495,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         }
     }
 
-    // Check for "Accept: application/x-openpegasus" HTTP header to see if 
+    // Check for "Accept: application/x-openpegasus" HTTP header to see if
     // client can accept binary responses.
 
     bool binaryResponse;

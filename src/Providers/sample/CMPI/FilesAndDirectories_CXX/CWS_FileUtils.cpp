@@ -78,7 +78,7 @@ char * FSName()
 }
 
 
-CmpiObjectPath makePath(const char * classname, 
+CmpiObjectPath makePath(const char * classname,
             const char * nameSpace, const CWS_FILE *cwsf)
 {
   CmpiObjectPath op(nameSpace,classname);
@@ -86,21 +86,21 @@ CmpiObjectPath makePath(const char * classname,
   op.setHostname(CSName());
 #endif
   op.setKey("CSCreationClassName",CmpiData (CSCreationClassName()));
-  op.setKey("CSName",CmpiData (CSName())); 
-  op.setKey("FSCreationClassName",CmpiData (FSCreationClassName())); 
-  op.setKey("FSName",CmpiData (FSName())); 
-  op.setKey("CreationClassName",CmpiData (classname)); 
-  op.setKey("Name",CmpiData (cwsf->cws_name)); 
+  op.setKey("CSName",CmpiData (CSName()));
+  op.setKey("FSCreationClassName",CmpiData (FSCreationClassName()));
+  op.setKey("FSName",CmpiData (FSName()));
+  op.setKey("CreationClassName",CmpiData (classname));
+  op.setKey("Name",CmpiData (cwsf->cws_name));
   return op;
 }
 
-CmpiInstance makeInstance(const char * classname, 
-              const char * nameSpace, const CWS_FILE *cwsf, 
+CmpiInstance makeInstance(const char * classname,
+              const char * nameSpace, const CWS_FILE *cwsf,
               const char ** filter)
 {
   CmpiObjectPath op(nameSpace,classname);
   CmpiInstance in(op);
- 
+
   if (filter) {
     static const char * filterKeys[] = {
       "CSCreationClassName",
@@ -113,16 +113,16 @@ CmpiInstance makeInstance(const char * classname,
     };
     in.setPropertyFilter(filter,filterKeys);
   }
-  
+
   in.setProperty("CSCreationClassName",CmpiData (CSCreationClassName()));
   in.setProperty("CSName",CmpiData (CSName()));
   in.setProperty("FSCreationClassName",CmpiData (FSCreationClassName()));
   in.setProperty("FSName",CmpiData (FSName()));
   in.setProperty("CreationClassName",CmpiData (classname));
-  in.setProperty("Name",CmpiData (cwsf->cws_name)); 
+  in.setProperty("Name",CmpiData (cwsf->cws_name));
   in.setProperty("FileSize",CmpiData ((CMPIUint64)cwsf->cws_size));
 #ifndef SIMULATED
-/* We don't want this code in the simulated env - time is dynamic 
+/* We don't want this code in the simulated env - time is dynamic
    (diff timezones)
  * and the testing system might using a diff timezone and report failure */
   in.setProperty("CreationDate",CmpiDateTime(cwsf->cws_ctime*1000000LL,0));
@@ -164,7 +164,7 @@ char **projection2Filter(CmpiArray *ar)
   char     **filter;
   int        i;
   int        count=0;
-  
+
   if (ar)
     count = CMGetArrayCount(ar,NULL);
   if (count==0) return NULL;
@@ -184,6 +184,6 @@ char **projection2Filter(CmpiArray *ar)
 void freeFilter(char **filter)
 {
   if (filter) free(filter);
-} 
+}
 
 #endif

@@ -36,11 +36,11 @@
 
 typedef struct {
     unsigned short    SMF86LEN;      // Record length
-    unsigned short    SMF86SEG;      // Segmentation desc. 
+    unsigned short    SMF86SEG;      // Segmentation desc.
     unsigned char     SMF86FLG;      // System indicator
     unsigned char     SMF86RTY;      // Record type 86 (X'56')
     unsigned int      SMF86TME;      // ms Time record moved to SMF
-    unsigned char     SMF86DTE[4];   // Packed BCD date (0cyyddF) record 
+    unsigned char     SMF86DTE[4];   // Packed BCD date (0cyyddF) record
                                      // moved to SMF
     unsigned char     SMF86SID[4];   // System ID in EBCDIC
     unsigned char     SMF86SSI[4];   // SubsystemID 'CFZ' in EBCDIC
@@ -62,7 +62,7 @@ typedef struct {
 } _smf86_header;
 
 typedef struct {
-    unsigned int      SMF86PRRVN;    // SMF Record version 
+    unsigned int      SMF86PRRVN;    // SMF Record version
     unsigned char     SMF86SSI[4];   // SubSytem ID 'CFZ' in EBCDIC
     unsigned char     SMF86VRM[8];   // CIM software level 'VV.RR.MM' EBCDIC
     unsigned char     SMF86OSL[8];   // MVS software level 'VV.RR.MM' EBCDIC
@@ -95,8 +95,8 @@ typedef struct {
                                      //     0      List Conf.
                                      //     1      Current Conf.
                                      //     2      Planed Conf.
-    unsigned char     reserved[2];   // reserved              
-    unsigned int      NameOf;         // Offset to property name 
+    unsigned char     reserved[2];   // reserved
+    unsigned int      NameOf;        // Offset to property name
                                      // from section start
     unsigned short    NameLen;       // Length of property name
     unsigned short    NameNo;        // Number of property names (=1)

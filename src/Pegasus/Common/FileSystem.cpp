@@ -564,7 +564,7 @@ Boolean FileSystem::changeFileOwner(
 
     Sint32 ret = chown(
         fileName.getCString(), userPasswd->pw_uid, userPasswd->pw_gid);
-        
+
     if (ret == -1)
     {
         PEG_METHOD_EXIT();
@@ -588,7 +588,7 @@ void FileSystem::syncWithDirectoryUpdates(PEGASUS_STD(fstream)& fs)
 }
 
 Boolean FileSystem::glob(
-    const String& path, 
+    const String& path,
     const String& pattern_,
     Array<String>& filenames)
 {

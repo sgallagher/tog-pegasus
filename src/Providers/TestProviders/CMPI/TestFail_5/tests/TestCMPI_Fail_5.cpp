@@ -54,7 +54,7 @@ void _errorExit(String message)
 }
 
 // This method calls the CMPIProviderManager::handleAssociatorsRequest and
-// CMPIProviderManager::handleAssociatorNamesRequest and 
+// CMPIProviderManager::handleAssociatorNamesRequest and
 // 'if (rc.rc != CMPI_RC_OK)' condition in CMPIProviderManager.cpp succeeds.
 
 void _testAssociators(
@@ -70,7 +70,7 @@ void _testAssociators(
 
         // Get the CIM instances that are associated with the specified source
         // instance via an instance of the AssocClass
-        
+
         Array<CIMObject> resultObjects =
             client.associators(
                 providerNamespace,
@@ -96,8 +96,8 @@ void _testAssociators(
     }
 }
 
-// This method calls CMPIProviderManager::handleReferencesRequest and 
-// CMPIProviderManager::handleReferenceNamesRequest and 
+// This method calls CMPIProviderManager::handleReferencesRequest and
+// CMPIProviderManager::handleReferenceNamesRequest and
 // 'if( rc.rc != CMPI_RC_OK)' condition in CMPIProviderManager.cpp succeeds.
 
 void _testReferences(CIMClient& client, CIMObjectPath instancePath)
@@ -148,7 +148,7 @@ static void _testInstanceError(CIMClient &client)
     }
 #endif
 }
-// This method calls CMPIProviderManager::handleInvokeMethodRequest and 
+// This method calls CMPIProviderManager::handleInvokeMethodRequest and
 // 'if(rc.rc != CMPI_RC_OK)' condition  in CMPIProviderManager.cpp succeeds.
 void _testMethodError(CIMClient & client)
 {
@@ -169,7 +169,7 @@ void _testMethodError(CIMClient & client)
              "test",
              inParams,
              outParams);
-    } 
+    }
     catch (const CIMException &e)
     {
         if (e.getCode() == CIM_ERR_NOT_SUPPORTED)

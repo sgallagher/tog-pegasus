@@ -111,7 +111,7 @@ private:
 };
 
 inline Buffer::Buffer(Uint32 minCap) : _rep(&_empty_rep), _minCap(minCap)
-{    
+{
 }
 
 inline Buffer::~Buffer()

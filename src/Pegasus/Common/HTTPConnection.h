@@ -183,7 +183,7 @@ private:
     Boolean _acceptPending;
 
     // The _firstRead flag is set to false if the first bytes of a
-    // request was read and validated that it is a supported 
+    // request was read and validated that it is a supported
     // HTTP method "POST" or "M-POST".
     Boolean _firstRead;
 

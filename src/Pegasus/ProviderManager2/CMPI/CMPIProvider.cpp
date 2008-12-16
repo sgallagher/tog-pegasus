@@ -48,7 +48,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 static const char _MSG_CANNOT_INIT_API_KEY[] =
     "ProviderManager.CMPI.CMPIProvider.CANNOT_INIT_API";
-static const char _MSG_CANNOT_INIT_API[] = 
+static const char _MSG_CANNOT_INIT_API[] =
     "Error initializing CMPI MI $0, the following MI"
         " factory function(s) returned an error: $1";
 
@@ -70,7 +70,7 @@ CMPIProvider::CMPIProvider(
     _broker.hdl =0;
     _broker.provider = this;
     if (mv)
-    { 
+    {
         _miVector = *mv;
     }
     unloadStatus = CMPI_RC_DO_NOT_UNLOAD;
@@ -346,8 +346,8 @@ void CMPIProvider::_terminate(Boolean terminating)
                 Thread *t = _threadWatchList.remove_front();
 
                 /* If this a non-production build, DO NOT do the cancellation.
-                   This is done so that the provider developer will notice 
-                   incorrect behaviour when unloading his/her provider and 
+                   This is done so that the provider developer will notice
+                   incorrect behaviour when unloading his/her provider and
                    hopefully fix that.
                 */
 #if !defined(PEGASUS_DEBUG)
@@ -429,8 +429,8 @@ void CMPIProvider::terminate()
 
 /*
  * Wait until all finished provider threads have been cleaned and deleted.
- * Note: This should NEVER be called from the thread that 
- * IS the Thread object that was is finished and called 
+ * Note: This should NEVER be called from the thread that
+ * IS the Thread object that was is finished and called
  * 'removeThreadFromWatch()' . If you do it, you will
  * wait forever.
  */
@@ -475,9 +475,9 @@ void CMPIProvider::threadDelete(Thread *t)
 
 /*
 // Removes the thread from the watch list and schedule the
-// CMPILocalProviderManager to delete the thread. The 
+// CMPILocalProviderManager to delete the thread. The
 // CMPILocalProviderManager after deleting the thread calls
-// the CMPIProvider' "cleanupThread". The CMPILocalProviderManager 
+// the CMPIProvider' "cleanupThread". The CMPILocalProviderManager
 // notifies this CMPIProvider object when the thread
 // is truly dead by calling "threadDeleted" function.
 //
@@ -498,14 +498,14 @@ void CMPIProvider::removeThreadFromWatch(Thread *t)
     PEGASUS_ASSERT( t != 0 );
 
     // Note: After MI returned true from cleanup() method , there might be some
-    // threads running in MI. CMPILocalProviderManager::cleanupThread() called 
+    // threads running in MI. CMPILocalProviderManager::cleanupThread() called
     // below will take care of joining the running threads in MI.
     {
         AutoMutex mtx(_removeThreadMutex);
         if (_threadWatchList.contains(t))
         {
             // Remove it from the watched list
-            _threadWatchList.remove(t);            
+            _threadWatchList.remove(t);
         }
         else
         {
@@ -573,7 +573,7 @@ Boolean CMPIProvider::unload_ok()
         PEG_METHOD_EXIT();
         return false;
     }
-    // Do not call CIMOMHandle::unload_ok here. 
+    // Do not call CIMOMHandle::unload_ok here.
     // CIMOMHandle::unload_ok method tests for _providerUnloadProtect
     // and if zero returns true. _providerUnloadProtect is
     // incremented when CIMOMHandle::disallowProviderUnload()
@@ -681,16 +681,16 @@ CMPIInstanceMI *CMPIProvider::getInstMI()
             {
                 mi = _miVector.createGenInstMI(
                     &_broker,
-                    &eCtx, 
+                    &eCtx,
                     (const char *)providerName.getCString(),
                     &rc);
             }
-            else 
+            else
             {
                 mi = _miVector.createInstMI(&_broker, &eCtx, &rc);
             }
 
-            if (!mi || rc.rc != CMPI_RC_OK) 
+            if (!mi || rc.rc != CMPI_RC_OK)
             {
                 String error;
                 setError(
@@ -710,7 +710,7 @@ CMPIInstanceMI *CMPIProvider::getInstMI()
             }
             _miVector.instMI = mi;
         }
-    }    
+    }
 
     return _miVector.instMI;
 }
@@ -728,19 +728,19 @@ CMPIMethodMI *CMPIProvider::getMethMI()
             String providerName = _broker.name;
             CMPIMethodMI *mi;
             PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Method);
-            if (_miVector.genericMode) 
+            if (_miVector.genericMode)
             {
                 mi = _miVector.createGenMethMI(
                     &_broker,
-                    &eCtx, 
+                    &eCtx,
                     (const char *)providerName.getCString(),
                     &rc);
             }
-            else 
+            else
             {
                 mi = _miVector.createMethMI(&_broker, &eCtx, &rc);
             }
-            if (!mi || rc.rc != CMPI_RC_OK) 
+            if (!mi || rc.rc != CMPI_RC_OK)
             {
                 String error;
                 setError(
@@ -761,7 +761,7 @@ CMPIMethodMI *CMPIProvider::getMethMI()
             _miVector.methMI = mi;
         }
     }
-    
+
     return _miVector.methMI;
 }
 
@@ -782,16 +782,16 @@ CMPIAssociationMI *CMPIProvider::getAssocMI()
             {
                 mi = _miVector.createGenAssocMI(
                     &_broker,
-                    &eCtx, 
+                    &eCtx,
                     (const char *)providerName.getCString(),
                     &rc);
-            } 
-            else 
+            }
+            else
             {
                 mi = _miVector.createAssocMI(&_broker, &eCtx, &rc);
             }
 
-            if (!mi || rc.rc != CMPI_RC_OK) 
+            if (!mi || rc.rc != CMPI_RC_OK)
             {
                 String error;
                 setError(
@@ -812,7 +812,7 @@ CMPIAssociationMI *CMPIProvider::getAssocMI()
             _miVector.assocMI = mi;
         }
     }
-    
+
     return _miVector.assocMI;
 }
 
@@ -830,15 +830,15 @@ CMPIPropertyMI *CMPIProvider::getPropMI()
             CMPIPropertyMI *mi;
             PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Property);
 
-            if (_miVector.genericMode) 
+            if (_miVector.genericMode)
             {
                 mi = _miVector.createGenPropMI(
                     &_broker,
-                    &eCtx, 
+                    &eCtx,
                     (const char *)providerName.getCString(),
                     &rc);
             }
-            else 
+            else
             {
                 mi = _miVector.createPropMI(&_broker, &eCtx, &rc);
             }
@@ -864,7 +864,7 @@ CMPIPropertyMI *CMPIProvider::getPropMI()
             _miVector.propMI = mi;
         }
     }
-    
+
     return _miVector.propMI;
 }
 
@@ -885,16 +885,16 @@ CMPIIndicationMI *CMPIProvider::getIndMI()
             {
                 mi = _miVector.createGenIndMI(
                     &_broker,
-                    &eCtx, 
+                    &eCtx,
                     (const char *)providerName.getCString(),
                     &rc);
             }
-            else 
+            else
             {
                 mi = _miVector.createIndMI(&_broker, &eCtx, &rc);
             }
 
-            if (!mi || rc.rc != CMPI_RC_OK) 
+            if (!mi || rc.rc != CMPI_RC_OK)
             {
                 String error;
                 setError(
@@ -915,7 +915,7 @@ CMPIIndicationMI *CMPIProvider::getIndMI()
             _miVector.indMI = mi;
         }
     }
-    
+
     return _miVector.indMI;
 }
 
@@ -926,13 +926,13 @@ CMPIProviderModule *CMPIProvider::getModule()
 
 Uint32 CMPIProvider::getQuantum()
 {
-    AutoMutex mutex(_statusMutex);  
+    AutoMutex mutex(_statusMutex);
     return _quantum;
 }
 
 void CMPIProvider::setQuantum(Uint32 quantum)
 {
-    AutoMutex mutex(_statusMutex);  
+    AutoMutex mutex(_statusMutex);
     _quantum = quantum;
 }
 

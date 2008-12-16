@@ -36,7 +36,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 CQLRegularExpression::CQLRegularExpression(const String& pattern):
-    pattern(pattern) 
+    pattern(pattern)
 {
 }
 
@@ -46,7 +46,7 @@ CQLRegularExpression::~CQLRegularExpression()
 
 
 Boolean CQLRegularExpression::match(const String& string)
-                                    
+
 {
     Uint32 patIndex = 0;
     Uint32 strIndex = 0;
@@ -77,9 +77,9 @@ Boolean CQLRegularExpression::match(const String& string)
         if (pattern[patIndex] == '.')
         {
             //assumes a valid multi-byte pair has been passed
-            if ((((Uint16)pattern[patIndex] >= FIRST_HIGH_SURROGATE) && 
+            if ((((Uint16)pattern[patIndex] >= FIRST_HIGH_SURROGATE) &&
                  ((Uint16)pattern[patIndex] <= LAST_HIGH_SURROGATE)) ||
-                (((Uint16)pattern[patIndex] >= FIRST_LOW_SURROGATE) && 
+                (((Uint16)pattern[patIndex] >= FIRST_LOW_SURROGATE) &&
                  ((Uint16)pattern[patIndex] <= LAST_LOW_SURROGATE)))
             {
                 patIndex ++;
@@ -124,9 +124,9 @@ Boolean CQLRegularExpression::match(const String& string)
                 }
             }
             else if (
-                 (((Uint16)pattern[patIndex-2] >= FIRST_HIGH_SURROGATE) && 
+                 (((Uint16)pattern[patIndex-2] >= FIRST_HIGH_SURROGATE) &&
                     ((Uint16)pattern[patIndex-2] <= LAST_HIGH_SURROGATE)) ||
-                 (((Uint16)pattern[patIndex-2] >= FIRST_LOW_SURROGATE) && 
+                 (((Uint16)pattern[patIndex-2] >= FIRST_LOW_SURROGATE) &&
                     ((Uint16)pattern[patIndex-2] <= LAST_LOW_SURROGATE)))
             {
 
@@ -168,7 +168,7 @@ Boolean CQLRegularExpression::match(const String& string)
                         int patternOrig = patIndex;
                         patIndex++;
 
-                        if (strIndex == string.size()-1 && 
+                        if (strIndex == string.size()-1 &&
                                 patIndex == pattern.size()-1)
                         {
                             return true;
@@ -182,7 +182,7 @@ Boolean CQLRegularExpression::match(const String& string)
                                 strIndex = stringOrig + 1;
                                 patIndex = patternOrig;
                                 break;
-                            } else if (strIndex == string.size()-1 && 
+                            } else if (strIndex == string.size()-1 &&
                                    patIndex == pattern.size()-1)
                             {
                                 break;
@@ -200,7 +200,7 @@ Boolean CQLRegularExpression::match(const String& string)
                             patIndex ++;
                             break;
                         }
-                        if (strIndex == string.size()-1 && 
+                        if (strIndex == string.size()-1 &&
                             patIndex == pattern.size()-1)
                         {
                             return true;
@@ -212,7 +212,7 @@ Boolean CQLRegularExpression::match(const String& string)
                                 patIndex ++;
                                 break;
                             }
-                            if (strIndex == string.size()-1 && 
+                            if (strIndex == string.size()-1 &&
                                 patIndex == pattern.size()-1)
                             {
                                 return true;
@@ -221,9 +221,9 @@ Boolean CQLRegularExpression::match(const String& string)
                     }
                 }
                 else if (
-                     (((Uint16)pattern[patIndex-2] >= FIRST_HIGH_SURROGATE) && 
+                     (((Uint16)pattern[patIndex-2] >= FIRST_HIGH_SURROGATE) &&
                         ((Uint16)pattern[patIndex-2] <= LAST_HIGH_SURROGATE)) ||
-                     (((Uint16)pattern[patIndex-2] >= FIRST_LOW_SURROGATE) && 
+                     (((Uint16)pattern[patIndex-2] >= FIRST_LOW_SURROGATE) &&
                         ((Uint16)pattern[patIndex-2] <= LAST_LOW_SURROGATE)))
                 {
                     if (pattern[patIndex-2] != string[strIndex])
@@ -247,7 +247,7 @@ Boolean CQLRegularExpression::match(const String& string)
                     break;
                 }
 
-                if (strIndex == string.size()-1 && 
+                if (strIndex == string.size()-1 &&
                     patIndex == pattern.size()-1)
                 {
                     return true;
@@ -262,9 +262,9 @@ Boolean CQLRegularExpression::match(const String& string)
         else if (pattern[patIndex] == '\\')
         {
             patIndex ++;
-            if ((((Uint16)pattern[patIndex] >= FIRST_HIGH_SURROGATE) && 
+            if ((((Uint16)pattern[patIndex] >= FIRST_HIGH_SURROGATE) &&
                  ((Uint16)pattern[patIndex] <= LAST_HIGH_SURROGATE)) ||
-                (((Uint16)pattern[patIndex] >= FIRST_LOW_SURROGATE) && 
+                (((Uint16)pattern[patIndex] >= FIRST_LOW_SURROGATE) &&
                  ((Uint16)pattern[patIndex] <= LAST_LOW_SURROGATE)))
             {
 
@@ -287,7 +287,7 @@ Boolean CQLRegularExpression::match(const String& string)
                 if (pattern[patIndex] != string[strIndex]) {
                     return false;
                 }
-                if (strIndex == string.size()-1 && 
+                if (strIndex == string.size()-1 &&
                     patIndex == pattern.size()-1)
                 {
                     return true;
@@ -295,15 +295,15 @@ Boolean CQLRegularExpression::match(const String& string)
                 strIndex ++;
                 patIndex ++;
 
-            }  
+            }
 
-            //default 
+            //default
         }
         else
         {
-            if ((((Uint16)pattern[patIndex] >= FIRST_HIGH_SURROGATE) && 
+            if ((((Uint16)pattern[patIndex] >= FIRST_HIGH_SURROGATE) &&
                  ((Uint16)pattern[patIndex] <= LAST_HIGH_SURROGATE)) ||
-                (((Uint16)pattern[patIndex] >= FIRST_LOW_SURROGATE) && 
+                (((Uint16)pattern[patIndex] >= FIRST_LOW_SURROGATE) &&
                  ((Uint16)pattern[patIndex] <= LAST_LOW_SURROGATE)))
             {
                 if (pattern[patIndex] != string[strIndex])

@@ -46,7 +46,7 @@
 #include "debug.h"
 #include "mm.h"
 
-static CMPIInstance * __beft_newInstance ( 
+static CMPIInstance * __beft_newInstance (
     CONST CMPIBroker * broker,
     CONST CMPIObjectPath * cop,
     CMPIStatus * rc )
@@ -62,7 +62,7 @@ static CMPIInstance * __beft_newInstance (
 }
 
 
-static CMPIObjectPath * __beft_newObjectPath ( 
+static CMPIObjectPath * __beft_newObjectPath (
     CONST CMPIBroker * broker,
     const char * namespace,
     const char * classname,
@@ -72,7 +72,7 @@ static CMPIObjectPath * __beft_newObjectPath (
     {
         CMSetStatus (rc, CMPI_RC_ERR_NOT_FOUND);
         return 0;
-    }    
+    }
     TRACE_NORMAL(("Creating new native CMPIObjectPath."));
     return native_new_CMPIObjectPath ( namespace, classname, rc );
 }
@@ -86,7 +86,7 @@ static CMPIArgs * __beft_newArgs ( CONST CMPIBroker * broker, CMPIStatus * rc )
 }
 
 
-static CMPIString * __beft_newString ( 
+static CMPIString * __beft_newString (
     CONST CMPIBroker * broker,
     const char * str,
     CMPIStatus * rc )
@@ -102,7 +102,7 @@ static CMPIString * __beft_newString (
 }
 
 
-static CMPIArray * __beft_newArray ( 
+static CMPIArray * __beft_newArray (
     CONST CMPIBroker * broker,
     CMPICount size,
     CMPIType type,
@@ -115,7 +115,7 @@ static CMPIArray * __beft_newArray (
 
 
 
-static CMPIDateTime * __beft_newDateTime ( 
+static CMPIDateTime * __beft_newDateTime (
     CONST CMPIBroker * broker,
     CMPIStatus * rc )
 {
@@ -124,7 +124,7 @@ static CMPIDateTime * __beft_newDateTime (
 }
 
 
-static CMPIDateTime * __beft_newDateTimeFromBinary ( 
+static CMPIDateTime * __beft_newDateTimeFromBinary (
     CONST CMPIBroker * broker,
     CMPIUint64 time,
     CMPIBoolean interval,
@@ -141,7 +141,7 @@ static CMPIDateTime * __beft_newDateTimeFromBinary (
 
 
 
-static CMPIDateTime * __beft_newDateTimeFromChars ( 
+static CMPIDateTime * __beft_newDateTimeFromChars (
     CONST CMPIBroker * broker,
     CONST char * string,
     CMPIStatus * rc )
@@ -152,7 +152,7 @@ static CMPIDateTime * __beft_newDateTimeFromChars (
 }
 
 
-static CMPISelectExp * __beft_newSelectExp ( 
+static CMPISelectExp * __beft_newSelectExp (
     CONST CMPIBroker * broker,
     const char * queryString,
     const char * language,
@@ -162,12 +162,12 @@ static CMPISelectExp * __beft_newSelectExp (
     CMPIBroker *brk;
     CMPIContext *ctx;
     CMPIUint32 id;
-   
+
     if (!queryString || !language)
     {
         CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
         return 0;
-    } 
+    }
     TRACE_NORMAL(("Creating new native CMPISelectExp."));
     brk = tool_mm_get_broker ( (void**)&ctx);
 
@@ -178,7 +178,7 @@ static CMPISelectExp * __beft_newSelectExp (
         rc );
 }
 
-static CMPIBoolean __beft_classPathIsA ( 
+static CMPIBoolean __beft_classPathIsA (
     CONST CMPIBroker * broker,
     CONST CMPIObjectPath * cop,
     const char * type,
@@ -193,19 +193,19 @@ static CMPIBoolean __beft_classPathIsA (
         CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
         return 0;
     }
-    
+
     CMSetStatus(rc,CMPI_RC_OK);
 
     clsn=CMGetClassName(cop,NULL);
 
     if (clsn && clsn->hdl)
     {
-        if (PEGASUS_CMPIR_STRCASECMP (type,(char*)clsn->hdl)==0) 
+        if (PEGASUS_CMPIR_STRCASECMP (type,(char*)clsn->hdl)==0)
         {
             return 1;
         }
     }
-    else 
+    else
     {
         return 0;
     }
@@ -225,7 +225,7 @@ extern CMPIString *__oft_toString( CONST CMPIObjectPath * cop, CMPIStatus *rc);
 extern CMPIString *instance2String( CONST CMPIInstance *inst, CMPIStatus *rc);
 extern CMPIString *args2String( CONST CMPIArgs *args, CMPIStatus *rc);
 
-static CMPIString * __beft_toString ( 
+static CMPIString * __beft_toString (
     CONST CMPIBroker * broker,
     CONST void * object,
     CMPIStatus * rc )
@@ -254,7 +254,7 @@ static CMPIString * __beft_toString (
 }
 
 
-static CMPIBoolean __beft_isOfType ( 
+static CMPIBoolean __beft_isOfType (
     CONST CMPIBroker * broker,
     CONST void * object,
     const char * type,
@@ -274,7 +274,7 @@ static CMPIBoolean __beft_isOfType (
 }
 
 
-static CMPIString * __beft_getType ( 
+static CMPIString * __beft_getType (
     CONST CMPIBroker * broker,
     CONST void * object,
     CMPIStatus * rc )
@@ -288,17 +288,17 @@ static CMPIString * __beft_getType (
     }
     TRACE_NORMAL(("Returning encapsulated object type."));
     t = object == broker ? "CMPIBroker" : *(char **)object;
-     
+
     return __beft_newString ( broker, t, rc );
 }
 
 
 static CMPIString*  __beft_getMessage (
     CONST CMPIBroker* broker,
-    const char *msgId, 
-    const char *defMsg, 
-    CMPIStatus* rc, 
-    unsigned int count, 
+    const char *msgId,
+    const char *defMsg,
+    CMPIStatus* rc,
+    unsigned int count,
     ...)
 {
     CMPIStatus nrc;
@@ -308,9 +308,9 @@ static CMPIString*  __beft_getMessage (
 
     msg = ((NativeCMPIBrokerFT*)(broker->bft))->getMessage(
         broker,
-        msgId, 
+        msgId,
         defMsg,
-        &nrc, 
+        &nrc,
         count,
         argptr);
     if (rc) *rc=nrc;
@@ -328,9 +328,9 @@ static CMPIStatus __beft_logMessage(
 {
     return((NativeCMPIBrokerFT*)(broker->bft))->logMessage(
         broker,
-        severity, 
-        id, 
-        text, 
+        severity,
+        id,
+        text,
         string);
 }
 
@@ -344,9 +344,9 @@ static CMPIStatus __beft_traceMessage(
 {
     return((NativeCMPIBrokerFT*)(broker->bft))->trace(
         broker,
-        level, 
-        component, 
-        text, 
+        level,
+        component,
+        text,
         string);
 }
 
@@ -355,7 +355,7 @@ static CMPIStatus __beft_traceMessage(
 static CMPIArray *__beft_getKeyNames(
     CMPIBroker * broker,
     CMPIContext * context,
-    CMPIObjectPath * cop, 
+    CMPIObjectPath * cop,
     CMPIStatus * rc)
 {
     return((NativeCMPIBrokerFT*)(broker->bft))->getKeyNames(
@@ -371,27 +371,27 @@ static CMPIArray *__beft_getKeyNames(
 
 static CMPIError* __beft_newCMPIError (
     const CMPIBroker* broker,
-    const char* owner, 
-    const char* msgID, 
+    const char* owner,
+    const char* msgID,
     const char* msg,
-    const CMPIErrorSeverity sev, 
+    const CMPIErrorSeverity sev,
     const CMPIErrorProbableCause pc,
-    const CMPIrc cimStatusCode, 
+    const CMPIrc cimStatusCode,
     CMPIStatus* rc)
 {
     CMPIStatus nrc;
     CMPIError *nerr;
 
     nerr = ((NativeCMPIBrokerFT*)(broker->bft))->newCMPIError(
-        broker, 
-        owner, 
-        msgID, 
-        msg, 
-        sev, 
-        pc, 
-        cimStatusCode, 
+        broker,
+        owner,
+        msgID,
+        msg,
+        sev,
+        pc,
+        cimStatusCode,
         &nrc);
-    if (rc) 
+    if (rc)
     {
         *rc=nrc;
     }
@@ -401,12 +401,12 @@ static CMPIError* __beft_newCMPIError (
 
 static CMPIStatus __beft_openMessageFile(
     const CMPIBroker *broker,
-    const char* msgFile, 
+    const char* msgFile,
     CMPIMsgFileHandle* msgFileHandle)
 {
     return((NativeCMPIBrokerFT*)(broker->bft))->openMessageFile(
-        broker, 
-        msgFile, 
+        broker,
+        msgFile,
         msgFileHandle);
 }
 
@@ -415,17 +415,17 @@ static CMPIStatus __beft_closeMessageFile(
     const CMPIMsgFileHandle msgFileHandle)
 {
     return((NativeCMPIBrokerFT*)(broker->bft))->closeMessageFile(
-        broker, 
+        broker,
         msgFileHandle);
 }
 
 static CMPIString* __beft_getMessage2(
-    const CMPIBroker *broker, 
+    const CMPIBroker *broker,
     const char *msgId,
-    const CMPIMsgFileHandle msgFileHandle, 
+    const CMPIMsgFileHandle msgFileHandle,
     const char *defMsg,
-    CMPIStatus* rc, 
-    CMPICount count, 
+    CMPIStatus* rc,
+    CMPICount count,
     ...)
 {
     CMPIStatus nrc;
@@ -434,14 +434,14 @@ static CMPIString* __beft_getMessage2(
     va_start(argptr,count);
 
     msg = ((NativeCMPIBrokerFT*)(broker->bft))->getMessage2(
-        broker, 
+        broker,
         msgId,
-        msgFileHandle, 
-        defMsg, 
-        &nrc, 
-        count, 
+        msgFileHandle,
+        defMsg,
+        &nrc,
+        count,
         argptr);
-    if (rc) 
+    if (rc)
     {
         *rc=nrc;
     }
@@ -453,7 +453,7 @@ static CMPIString* __beft_getMessage2(
 /****************************************************************************/
 
 
-PEGASUS_EXPORT CMPIBrokerEncFT native_brokerEncFT = 
+PEGASUS_EXPORT CMPIBrokerEncFT native_brokerEncFT =
 {
     NATIVE_FT_VERSION,
     __beft_newInstance,

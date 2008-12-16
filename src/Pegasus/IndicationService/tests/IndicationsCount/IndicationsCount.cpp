@@ -593,7 +593,7 @@ CIMInstance _buildSubscriptionIndicationDataInstance(
 
     if (includeObjectPath)
     {
-        CIMObjectPath instanceName = 
+        CIMObjectPath instanceName =
             _buildSubscriptionIndicationDataInstanceName(
                 filterName,
                 handlerName,
@@ -602,7 +602,7 @@ CIMInstance _buildSubscriptionIndicationDataInstance(
                 providerName);
         subIndDataInstance.setPath(instanceName);
     }
-        
+
     return subIndDataInstance;
 }
 
@@ -638,7 +638,7 @@ void _register(CIMClient& client)
         client,
         String("ProcessIndicationProviderModule"),
         String("ProcessIndicationProvider"));
-        
+
     TestProviderRegistration::createProviderInstance(
         client,
         String("ProcessIndicationProvider"),
@@ -652,7 +652,7 @@ void _register(CIMClient& client)
         String("CIM_ProcessIndication"),
         namespaces,
         providerTypes,
-        CIMPropertyList());    
+        CIMPropertyList());
 
     //
     // creates a subscription served by this provider
@@ -761,7 +761,7 @@ void _cleanup(CIMClient& client)
         "----- Error: deleteSubscriptionInstance failure: ");
 
     IGNORE_CIM_ERR_NOT_FOUND(
-        _deleteFilterInstance(client, FILTER_NAME), 
+        _deleteFilterInstance(client, FILTER_NAME),
         "----- Error: deleteFilterInstance failure: ");
 
     IGNORE_CIM_ERR_NOT_FOUND(
@@ -837,12 +837,12 @@ void _test(CIMClient& client)
             _matchedIndicationsCount);
     expectedSubIndDataInstances.append(expectedSubIndDataInstance);
 
-    Array<CIMInstance> returnedProvIndDataInstances = 
+    Array<CIMInstance> returnedProvIndDataInstances =
         client.enumerateInstances(
             PEGASUS_NAMESPACENAME_INTERNAL,
             PEGASUS_CLASSNAME_PROVIDERINDDATA);
 
-    Array<CIMInstance> returnedSubIndDataInstances = 
+    Array<CIMInstance> returnedSubIndDataInstances =
         client.enumerateInstances(
             PEGASUS_NAMESPACENAME_INTERNAL,
             PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
@@ -875,12 +875,12 @@ void _test(CIMClient& client)
     Array<CIMObjectPath> expectedSubIndDataInstanceNames;
     expectedSubIndDataInstanceNames.append(subscriptionIndDataInstanceName);
 
-    Array<CIMObjectPath> returnedProvIndDataInstanceNames = 
+    Array<CIMObjectPath> returnedProvIndDataInstanceNames =
         client.enumerateInstanceNames(
             PEGASUS_NAMESPACENAME_INTERNAL,
             PEGASUS_CLASSNAME_PROVIDERINDDATA);
 
-    Array<CIMObjectPath> returnedSubIndDataInstanceNames = 
+    Array<CIMObjectPath> returnedSubIndDataInstanceNames =
         client.enumerateInstanceNames(
             PEGASUS_NAMESPACENAME_INTERNAL,
             PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
@@ -950,12 +950,12 @@ void _testReset(CIMClient& client)
     //
     // The entry of the tables gets removed if the provider is disabled
     //
-    Array<CIMInstance> returnedProvIndDataInstances = 
+    Array<CIMInstance> returnedProvIndDataInstances =
         client.enumerateInstances(
             PEGASUS_NAMESPACENAME_INTERNAL,
             PEGASUS_CLASSNAME_PROVIDERINDDATA);
 
-    Array<CIMInstance> returnedSubIndDataInstances = 
+    Array<CIMInstance> returnedSubIndDataInstances =
         client.enumerateInstances(
             PEGASUS_NAMESPACENAME_INTERNAL,
             PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA);
@@ -967,20 +967,20 @@ void _testReset(CIMClient& client)
         expectedSubIndDataInstances);
 
     //
-    // register a provider, the provider entry should be inserted to tables 
+    // register a provider, the provider entry should be inserted to tables
     // if a subscription needs to be served by the provider
     //
     _register(client);
 
-    CIMInstance expectedProvIndDataInstance = 
+    CIMInstance expectedProvIndDataInstance =
         _buildProviderIndicationDataInstance(
             "ProcessIndicationProviderModule",
             "ProcessIndicationProvider",
-            0, 
+            0,
             0);
-    expectedProvIndDataInstances.append(expectedProvIndDataInstance); 
+    expectedProvIndDataInstances.append(expectedProvIndDataInstance);
 
-    CIMInstance expectedSubIndDataInstance = 
+    CIMInstance expectedSubIndDataInstance =
         _buildSubscriptionIndicationDataInstance(
             "root/PG_InterOp:ICFilter02",
             "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler02",
@@ -988,7 +988,7 @@ void _testReset(CIMClient& client)
             "ProcessIndicationProviderModule",
             "ProcessIndicationProvider",
             0);
-    expectedSubIndDataInstances.append(expectedSubIndDataInstance); 
+    expectedSubIndDataInstances.append(expectedSubIndDataInstance);
 
     returnedProvIndDataInstances = client.enumerateInstances(
          PEGASUS_NAMESPACENAME_INTERNAL,
@@ -1005,7 +1005,7 @@ void _testReset(CIMClient& client)
         expectedSubIndDataInstances);
 
     //
-    // unregister the provider, the provider entry should be removed from 
+    // unregister the provider, the provider entry should be removed from
     // tables
     //
     _unregister(client);
@@ -1036,12 +1036,12 @@ void _testReset(CIMClient& client)
     expectedProvIndDataInstance = _buildProviderIndicationDataInstance(
         "IndicationTestProviderModule",
         "IndicationTestProvider",
-        0, 
+        0,
         0);
     expectedProvIndDataInstances.clear();
     expectedProvIndDataInstances.append(expectedProvIndDataInstance);
 
-    CIMInstance instance = 
+    CIMInstance instance =
         _buildSubscriptionIndicationDataInstance(
             "root/PG_InterOp:ICFilter01",
             "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",
@@ -1050,7 +1050,7 @@ void _testReset(CIMClient& client)
             "IndicationTestProvider",
             0);
     expectedSubIndDataInstances.clear();
-    expectedSubIndDataInstances.append(instance); 
+    expectedSubIndDataInstances.append(instance);
 
     returnedProvIndDataInstances = client.enumerateInstances(
         PEGASUS_NAMESPACENAME_INTERNAL,
@@ -1076,7 +1076,7 @@ void _testReset(CIMClient& client)
     expectedProvIndDataInstances.clear();
     expectedProvIndDataInstances.append(expectedProvIndDataInstance);
 
-    expectedSubIndDataInstance = 
+    expectedSubIndDataInstance =
         _buildSubscriptionIndicationDataInstance(
             "root/PG_InterOp:ICFilter01",
             "root/PG_InterOp:CIM_IndicationHandlerCIMXML.ICHandler01",

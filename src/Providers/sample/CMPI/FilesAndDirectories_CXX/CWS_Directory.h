@@ -40,35 +40,35 @@
 class CWS_Directory : public CmpiInstanceMI
 {
  public:
-  
+
   CWS_Directory(const CmpiBroker &mbp, const CmpiContext& ctx);
 
   virtual ~CWS_Directory();
-    
+
   virtual int isUnloadable() const;
-    
-  virtual CmpiStatus enumInstanceNames(const CmpiContext& ctx, 
+
+  virtual CmpiStatus enumInstanceNames(const CmpiContext& ctx,
                        CmpiResult& rslt,
                        const CmpiObjectPath& cop);
-     
+
   virtual CmpiStatus enumInstances(const CmpiContext& ctx, CmpiResult& rslt,
                    const CmpiObjectPath& cop,
                    const char* *properties);
-  
+
   virtual CmpiStatus getInstance(const CmpiContext& ctx, CmpiResult& rslt,
                  const CmpiObjectPath& cop,
                  const char* *properties);
-  
-  virtual CmpiStatus createInstance(const CmpiContext& ctx, 
+
+  virtual CmpiStatus createInstance(const CmpiContext& ctx,
                     CmpiResult& rslt,
                     const CmpiObjectPath& cop,
                     const CmpiInstance& inst);
-  
+
   virtual CmpiStatus setInstance(const CmpiContext& ctx, CmpiResult& rslt,
                  const CmpiObjectPath& cop,
                  const CmpiInstance& inst,
                  const char* *properties);
-  
+
   virtual CmpiStatus deleteInstance(const CmpiContext& ctx, CmpiResult& rslt,
                     const CmpiObjectPath& cop);
  private:

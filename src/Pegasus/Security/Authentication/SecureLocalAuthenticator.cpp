@@ -50,8 +50,8 @@ static const String PEGASUS_CHALLENGE_HEADER = "WWW-Authenticate: ";
 
 
 /* constructor. */
-SecureLocalAuthenticator::SecureLocalAuthenticator() 
-{ 
+SecureLocalAuthenticator::SecureLocalAuthenticator()
+{
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "SecureLocalAuthenticator::SecureLocalAuthenticator()");
 
@@ -60,8 +60,8 @@ SecureLocalAuthenticator::SecureLocalAuthenticator()
 }
 
 /* destructor. */
-SecureLocalAuthenticator::~SecureLocalAuthenticator() 
-{ 
+SecureLocalAuthenticator::~SecureLocalAuthenticator()
+{
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "SecureLocalAuthenticator::~SecureLocalAuthenticator()");
 
@@ -73,8 +73,8 @@ SecureLocalAuthenticator::~SecureLocalAuthenticator()
 // Does local authentication
 //
 Boolean SecureLocalAuthenticator::authenticate(
-   const String& filePath, 
-   const String& secretReceived, 
+   const String& filePath,
+   const String& secretReceived,
    const String& secretKept)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,

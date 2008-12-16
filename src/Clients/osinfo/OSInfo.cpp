@@ -130,13 +130,13 @@ static const char LONG_VERSION [] = "version";
 
 static const char REQUIRED_ARGS_MISSING [] = "Required arguments missing.";
 
-static const char REQUIRED_ARGS_MISSING_KEY [] = 
+static const char REQUIRED_ARGS_MISSING_KEY [] =
     "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
 
 static const char ERR_USAGE [] =
     "Use '--help' to obtain command syntax.";
 
-static const char ERR_USAGE_KEY [] = 
+static const char ERR_USAGE_KEY [] =
     "Clients.cimuser.CIMUserCommand.ERR_USAGE";
 
 /**
@@ -303,7 +303,7 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
     //  Construct host address
     //
 
-    if ((!_hostNameSet) && (!_portNumberSet) 
+    if ((!_hostNameSet) && (!_portNumberSet)
             && (!_userNameSet) && (!_passwordSet))
     {
         connectToLocal = true;
@@ -944,7 +944,7 @@ void OSInfoCommand::displayProperties(ostream& outPrintWriter)
       outPrintWriter << "  Number of Users: Unknown" << endl;
 
    if (osNumberOfProcesses != String::EMPTY)
-      outPrintWriter << "  Number of Processes: " << osNumberOfProcesses 
+      outPrintWriter << "  Number of Processes: " << osNumberOfProcesses
                      << endl;
    else
       outPrintWriter << "  Number of Processes: Unknown" << endl;

@@ -222,7 +222,7 @@ int testJVM ()
    }
    else
    {
-      PEGASUS_STD (cout) << "testJVM: SUCCESS: Create UnsignedInt16" 
+      PEGASUS_STD (cout) << "testJVM: SUCCESS: Create UnsignedInt16"
                          << PEGASUS_STD (endl);
    }
    jobject jSI32 = jEnv->NewObject (JMPIjvm::jv.IntegerClassRef,
@@ -232,7 +232,7 @@ int testJVM ()
    {
       DDD(jEnv->ExceptionDescribe ());
       DDD(jEnv->ExceptionClear ());
-      PEGASUS_STD (cout) << "testJVM: FAILURE: Create Integer" 
+      PEGASUS_STD (cout) << "testJVM: FAILURE: Create Integer"
                          << PEGASUS_STD (endl);
       return 1;
    }
@@ -266,7 +266,7 @@ int testJVM ()
    }
    else
    {
-      PEGASUS_STD (cout) << "testJVM: SUCCESS: Create UnsignedInt32" 
+      PEGASUS_STD (cout) << "testJVM: SUCCESS: Create UnsignedInt32"
                          << PEGASUS_STD (endl);
    }
    jobject jSI64 = jEnv->NewObject (JMPIjvm::jv.LongClassRef,
@@ -351,7 +351,7 @@ int testJVM ()
    }
    else if (!jDateTime)
    {
-      PEGASUS_STD (cout) << "testJVM: FAILURE: Create CIMDateTime" 
+      PEGASUS_STD (cout) << "testJVM: FAILURE: Create CIMDateTime"
                          << PEGASUS_STD (endl);
       return 1;
    }
@@ -649,7 +649,7 @@ int testJVM ()
    }
    else if (!jCIMProperty)
    {
-      PEGASUS_STD (cout) << "testJVM: FAILURE: Create CIMProperty" 
+      PEGASUS_STD (cout) << "testJVM: FAILURE: Create CIMProperty"
                          << PEGASUS_STD (endl);
       return 1;
    }
@@ -701,7 +701,7 @@ int testJVM ()
    {
       DDD(jEnv->ExceptionDescribe ());
       DDD(jEnv->ExceptionClear ());
-      PEGASUS_STD (cout) << "testJVM: FAILURE: Create CIMValue" 
+      PEGASUS_STD (cout) << "testJVM: FAILURE: Create CIMValue"
                          << PEGASUS_STD (endl);
       return 1;
    }
@@ -713,7 +713,7 @@ int testJVM ()
    }
    else
    {
-      PEGASUS_STD (cout) << "testJVM: SUCCESS: Create CIMValue" 
+      PEGASUS_STD (cout) << "testJVM: SUCCESS: Create CIMValue"
                          << PEGASUS_STD (endl);
    }
    // OperationContextNewJ
@@ -814,12 +814,12 @@ int testJVM ()
       String         className("Associations/JMPIExpAssociationProvider");
 
       FileSystem::translateSlashes (fileName);
-      
+
       fileName = JMPIProviderManager::resolveFileName(fileName);
 
       if (!FileSystem::exists (fileName))
       {
-         PEGASUS_STD(cerr)<<"testJVM: FAILURE: \"" << fileName 
+         PEGASUS_STD(cerr)<<"testJVM: FAILURE: \"" << fileName
                           <<"\" does not exist!"<<PEGASUS_STD(endl);
 
          return 1;
@@ -836,7 +836,7 @@ int testJVM ()
          || !pv.jProviderClass
          )
       {
-         PEGASUS_STD (cout) << "testJVM: FAILURE: Create Provider" 
+         PEGASUS_STD (cout) << "testJVM: FAILURE: Create Provider"
                             << PEGASUS_STD (endl);
 
          return 1;

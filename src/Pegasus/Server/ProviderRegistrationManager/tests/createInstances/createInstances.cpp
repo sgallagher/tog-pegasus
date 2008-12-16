@@ -184,7 +184,7 @@ int main(int argc, char** argv)
         exit(-1);
     }
 
-    PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests" 
+    PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests"
                       << PEGASUS_STD(endl);
 
     return 0;

@@ -29,7 +29,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/CQL/CQLTerm.h>  
+#include <Pegasus/CQL/CQLTerm.h>
 #include <Pegasus/CQL/CQLTermRep.h>
 #include <Pegasus/CQL/CQLFactory.h>
 #include <Pegasus/Query/QueryCommon/QueryContext.h>

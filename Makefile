@@ -72,7 +72,7 @@ usage: FORCE
 	$(USAGE)"messages            - rootbundle recursive messages"
 	$(USAGE)"tests               - recursive tests"
 	$(USAGE)"poststarttests      - recursive poststarttests"
-	$(USAGE) 
+	$(USAGE)
 	$(USAGE)"Combinational rules - Combine other rules to achieve results"
 	$(USAGE)"DEFAULT RULE        - all, setupdevserver"
 	$(USAGE)"new                 - clean repositoryclean"
@@ -89,7 +89,7 @@ usage: FORCE
 	$(USAGE)"setupdevserver      - setup the development server env"
 	$(USAGE)"cleandevserver      - cleans the development server env"
 	$(USAGE)"repository          - builds the base repository. Does not remove other"
-	$(USAGE)"                      namespaces than the base namespaces."  
+	$(USAGE)"                      namespaces than the base namespaces."
 	$(USAGE)"testrepository      - builds items for the test suites into the repository"
 	$(USAGE)"repositoryclean     - removes the complete repository"
 	$(USAGE)"listplatforms       - List all valid platforms"
@@ -124,7 +124,7 @@ usage: FORCE
 	$(USAGE)
 	$(USAGE)"  After changes to the files included: make build"
 	$(USAGE)
-	$(USAGE)"  After \"cvs update\" or to start over: make new world" 
+	$(USAGE)"  After \"cvs update\" or to start over: make new world"
 	$(USAGE)
 
 listplatforms: FORCE
@@ -135,13 +135,13 @@ listplatforms: FORCE
 	$(USAGE)
 
 #########################################################################
-# This section defines any prerequisites that are required by the 
+# This section defines any prerequisites that are required by the
 # recursive rules.
 #
 # NOTE: You can add prerequisties for the recursive rules but you cannot
-#       add any commands to run as part of the rule. You can define them 
+#       add any commands to run as part of the rule. You can define them
 #       and make will quietly ignore them and they will not be run either
-#       before or after the recursive rule. 
+#       before or after the recursive rule.
 #
 #
 messages: rootbundle
@@ -161,7 +161,7 @@ build: depend all setupdevserver
 #
 rebuild_msg: FORCE
 	@$(ECHO) "==============================================================================="
-	@$(ECHO) "Makefile: The rebuild target is being deprecated." 
+	@$(ECHO) "Makefile: The rebuild target is being deprecated."
 	@$(ECHO) "          Use \"make usage\" for a description of the usage model."
 	@$(ECHO) "          Consider using \"make new world\" ."
 	@$(ECHO) "          Invoking the old rebuild rule now."
@@ -175,14 +175,14 @@ rebuild: rebuild_msg shortsleep new build s_unittests repository
 # This can be combined on the command line with other rules like:
 #
 # make new build
-# make new world 
+# make new world
 
 new: clean repositoryclean
 
 #-----------------------
 # world targets: builds everything and dependent on which target may do testing
 #
-#       Typically used after a fresh checkout from CVS 
+#       Typically used after a fresh checkout from CVS
 
 world: build s_unittests servertests
 
@@ -232,14 +232,14 @@ stresstests:
 # includes a depend implementation. This is a separate target because
 # it must be build before anything else and before the depend target is used
 # on some platforms. Note that mu is not used on all platforms.
-# 
+#
 buildmu: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/mu -f Makefile
 
 #----------------------
-# setupdevserver and cleandevserver are used to setup and clear the 
+# setupdevserver and cleandevserver are used to setup and clear the
 # server configuration files needed to run the server in a development
-# environment. 
+# environment.
 #
 setupdevserver: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
@@ -309,5 +309,5 @@ endif
 config:
 	@ $(ROOT)/SetConfig_EnvVar
 
-rootbundle: 
+rootbundle:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/cnv2rootbundle -f Makefile

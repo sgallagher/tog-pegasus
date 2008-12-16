@@ -176,7 +176,7 @@ public:
 
     /** Appends a property name to the where property name list. The user
         should not call this method; it should only be called by the parser.
-    
+
         @param x name of the property.
         @return false if a property with that name already exists.
     */

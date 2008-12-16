@@ -66,7 +66,7 @@ typedef struct itmlst
 
 ITMLST nulllist[] =
 {
-    {0, 0, 0, 0} 
+    {0, 0, 0, 0}
 };
 
 ITMLST address_itmlst[] =
@@ -118,22 +118,22 @@ public:
     void handleIndication(
         const OperationContext& context,
         const String nameSpace,
-        CIMInstance& indication, 
-        CIMInstance& handler, 
-        CIMInstance& subscription, 
+        CIMInstance& indication,
+        CIMInstance& handler,
+        CIMInstance& subscription,
         ContentLanguageList& contentLanguages);
 
 private:
 
     /**
-        Sends the formatted indication to the specified recipients. 
-        Utility "sendmail" is the default tool to be used. The platform 
+        Sends the formatted indication to the specified recipients.
+        Utility "sendmail" is the default tool to be used. The platform
         maintainer can also choose different tools.
 
-        @param  mailTo         the addresses of the To: field 
-        @param  mailCc         the addresses of the Cc: field 
-        @param  mailSubject    the Subject: field of the mail message 
-        @param  formattedText  the formatted indication 
+        @param  mailTo         the addresses of the To: field
+        @param  mailCc         the addresses of the Cc: field
+        @param  mailSubject    the Subject: field of the mail message
+        @param  formattedText  the formatted indication
     */
 
     void _sendViaEmail(
@@ -146,10 +146,10 @@ private:
         Build the header of the mail message which includes To:, Cc:,
         From:, and Subject: fields
 
-        @param  mailTo         the addresses of the To: field 
-        @param  mailCc         the addresses of the Cc: field 
-        @param  mailSubject    the Subject: field of the mail message 
-        @param  filePtr        the pointer to the temporary file 
+        @param  mailTo         the addresses of the To: field
+        @param  mailCc         the addresses of the Cc: field
+        @param  mailSubject    the Subject: field of the mail message
+        @param  filePtr        the pointer to the temporary file
     */
 
     void _buildMailHeader(
@@ -159,49 +159,49 @@ private:
         FILE* filePtr);
 
     /**
-        Build the mail address string from address array 
+        Build the mail address string from address array
 
-        @param  mailAddr       the array of the mail addresses 
+        @param  mailAddr       the array of the mail addresses
 
-        @return the string of the mail addresses 
+        @return the string of the mail addresses
     */
     String _buildMailAddrStr(
         const Array<String>& mailAddr);
 
 #ifdef PEGASUS_OS_VMS
     /**
-        Build the mail cc address string from address array 
+        Build the mail cc address string from address array
 
-        @param  mailAddr       the array of the mail cc addresses 
+        @param  mailAddr       the array of the mail cc addresses
 
-        @return the string of the mail addresses 
+        @return the string of the mail addresses
     */
     String _buildMailAddrCcStr(
         const Array<String>& mailAddr);
 
 #endif
     /**
-        Write the mail header string to file 
+        Write the mail header string to file
 
         @param  mailHdrStr     the header string to be written to the file
-        @param  filePtr        the pointer to the temporary file 
+        @param  filePtr        the pointer to the temporary file
     */
     void _writeStrToFile(
         const String& mailHdrStr,
         FILE* filePtr);
 
     /**
-        Sends the indication via e-mail by opening a pipe to sendmail() 
+        Sends the indication via e-mail by opening a pipe to sendmail()
 
-        @param  mailFile       The temporary file name 
+        @param  mailFile       The temporary file name
     */
     void _sendMsg(char* mailFile);
 
     /**
         Opens a temporary file to hold the indication mail message
 
-        @param  filePtr     the address of the pointer to the open file 
-        @param  mailFile    the temporary file name 
+        @param  filePtr     the address of the pointer to the open file
+        @param  mailFile    the temporary file name
     */
     void _openFile(
         FILE** filePtr,

@@ -26,13 +26,13 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-# 
+#
 # Author: Subodh Soni (ssubodh@in.ibm.com)
 #
 # Makefile for loading for all the MOF files for the test enhancement providers
 # present in this directory. It creates a new namespace called SampleProvider/
 # inside $PEGASUS_HOME/repository.
-# The implementation of sample providers and classes registered by this 
+# The implementation of sample providers and classes registered by this
 # Makefile are present in the following directories:
 #
 # 1. ExceptionsTest/

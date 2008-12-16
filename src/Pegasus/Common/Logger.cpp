@@ -226,7 +226,7 @@ public:
         if (logLevel & Logger::FATAL) tmp =       "FATAL   ";
 
 # ifndef PEGASUS_OS_VMS
-        // Acquire AutoMutex (for thread sync) 
+        // Acquire AutoMutex (for thread sync)
         // and AutoFileLock (for Process Sync).
         AutoMutex am(_mutex);
         AutoFileLock fileLock(_loggerLockFileName);
@@ -234,7 +234,7 @@ public:
         Uint32  logFileSize = 0;
 
         // Read logFileSize to check if the logfile needs to be pruned.
-        FileSystem::getFileSize(String(_logFileNames[logFileType]), 
+        FileSystem::getFileSize(String(_logFileNames[logFileType]),
                                        logFileSize);
 
         // Check if the size of the logfile is exceeding _maxLogFileSizeBytes.
@@ -319,10 +319,10 @@ void Logger::_putInternal(
 
     // Call the actual logging routine is in LoggerRep.
     _rep->log(logFileType, systemId, logLevel, message);
-       
+
     // PEP 315
     // The trace can be routed into the log. The logged trace messages are
-    // logged with logFileType of Logger::TRACE_LOG. 
+    // logged with logFileType of Logger::TRACE_LOG.
     // To avoid a cirular writing of these messages, log messages with
     // logFileType of Logger::TRACE_LOG are never send to the trace.
     if (Logger::TRACE_LOG != logFileType)

@@ -81,7 +81,7 @@ public:
         _ownerCount--;
         return;
     }
-    
+
     void setName(const CIMName& name);
 
     CIMType getType() const

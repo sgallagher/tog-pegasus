@@ -3,10 +3,10 @@
 //
 // 0)  A new message should be created if a message is needed with a content
 //     not described by any existing message.
-//     
+//
 //     A new message should be created if the number or placement of substitution
 //     parameters of an existing message would require an update.
-//     
+//
 //     It is not necessary to create a new message if just the text of the message is
 //     changed, while the meaning is kept. For instance if the
 //     event(error,warning,whatever) is described more precisely by the new message
@@ -34,7 +34,7 @@
 //     group as the other messages for that file.
 //
 //     Be sure to include the message prefix as the first element of the
-//     message. The message prefix for Server messages all begin with "PGS" 
+//     message. The message prefix for Server messages all begin with "PGS"
 //     (upper case) followed by a 5 digit numeric value from the range assigned
 //     to that particular "group" of messages.
 //
@@ -62,7 +62,7 @@
 //     Platform specific messages generate in a non-platform specific source file
 //     should be formatted with a .<platform> or .STANDARD suffix and reside together
 //     in the section of the source code file.
-//     
+//
 //     Example:
 //     Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX
 //     Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_OS40
@@ -950,11 +950,11 @@ en:table {
         // Messages for ConfigManager
         //  Please use message prefix "PGS02300"
         // ==========================================================
-  
+
         /**
         * @note  PGS02300:
         *    Substitution {0} is the name of a property (a string)
-        */        
+        */
         Config.ConfigManager.NOTSUPPORTED_CONFIG_PROPERTY:string {"PGS02300: Configuration property {0} is not supported. Setting ignored."}
 
 
@@ -1144,21 +1144,21 @@ en:table {
         * @note PGS03013:
         *     Do not translate the word 'NameSpaces' since it is the name of a CIM property.
         *     Do not translate the word 'PG_ProviderCapabilities' since it is the name of a CIM class.
-        */      
+        */
         ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_NAMESPACES_IN_PG_PROVIDERCAPABILITIES:string {"PGS03013: Missing the required NameSpaces property in PG_ProviderCapabilities class."}
 
         /**
         * @note PGS03014:
         *     Do not translate the word 'ProviderModuleName' since it is the name of a CIM property.
         *     Do not translate the word 'PG_Provider' since it is the name of a CIM class.
-        */      
+        */
         ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDERMODULENAME_IN_PG_PROVIDER:string {"PGS03014: Missing the required ProviderModuleName property in PG_Provider class."}
 
         /**
         * @note PGS03015:
         *     Do not translate the word 'InterfaceVersion' since it is the name of a CIM property.
         *     Substitution {0} is an InterfaceVersion value (a string)
-        */      
+        */
         ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.UNSUPPORTED_INTERFACEVERSION_VALUE:string {"PGS03015: InterfaceVersion property value {0} is not supported."}
 
 
@@ -1266,7 +1266,7 @@ en:table {
         *     Do not translate the word 'Name' since it is the name of a CIM property.
         *     Do not translate the word 'PG_Provider' since it is the name of a CIM class.
         */
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_NAME_IN_PG_PROVIDER:string {"PGS03033: Missing the required Name property in PG_Provider class."} 
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_NAME_IN_PG_PROVIDER:string {"PGS03033: Missing the required Name property in PG_Provider class."}
 
         /**
         * @note PGS03034:
@@ -1638,7 +1638,7 @@ en:table {
         * @note  Compiler.cmdline.cimmofl.cmdline.MENU.PEGASUS_OS_HPUX
         *   Do not translate the cimmofl command or options.  Just translate the text that explains the options.
         *   When translating this message, make sure that each line fits in 80 characters,
-        *    preserves the indenting, 
+        *    preserves the indenting,
         *   and ends with a newline character (\n).
         */
         Compiler.cmdline.cimmofl.cmdline.MENU.PEGASUS_OS_HPUX:string {
@@ -1654,12 +1654,12 @@ en:table {
            "Options :\n"
            "    -h, --help           - Display this help message.\n"
            "    --version            - Display CIM Server version.\n"
-           "    -E                   - Syntax check only.\n" 
+           "    -E                   - Syntax check only.\n"
            "    -w                   - Suppress warning messages.\n"
            "    -uc                  - Used to allow the update of an existing class definition.\n"
            "    -aE                  - Allow Experimental Schema changes.\n"
            "    -aV                  - Allow both Major and Down Revision Schema changes.\n"
-           "    -aEV                 - Allow both Experimental and Version Schema changes.\n"  
+           "    -aEV                 - Allow both Experimental and Version Schema changes.\n"
            "    -I                   - Specify an include path.\n"
            "    -n, --namespace      - Override default CIM Repository namespace (root/cimv2).\n"
            "    --xml                - Output XML only, to stdout. Do not update repository.\n"
@@ -1672,7 +1672,7 @@ en:table {
         /**
         * @note  Compiler.cmdline.cimmofl.cmdline.MENU.STANDARD
         *   Do not translate the cimmofl command or options.  Just translate the text that explains the options.
-        *   When translating this message, make sure that each line fits in 80 characters, 
+        *   When translating this message, make sure that each line fits in 80 characters,
         *    preserves the indenting,
         *   and ends with a newline character (\n).
         */
@@ -1685,7 +1685,7 @@ en:table {
            "               [ -n namespace | --namespace namespace ] [ --xml ]\n"
            "               [ --trace ] \n"
            "               [ -R repositorydir | --CIMRepository repositorydir ] \n"
-           "               [ -N repositoryname ] [ -M repositorymode]  [ mof_file... ] \n"           
+           "               [ -N repositoryname ] [ -M repositorymode]  [ mof_file... ] \n"
            "Options :\n"
            "  -h, --help            - Display this help message.\n"
            "  --version             - Display CIM Server version.\n"
@@ -1698,7 +1698,7 @@ en:table {
            "  -aV                   - Allow both Major and Down Revision Schema changes.\n"
            "  -aEV                  - Allow both Experimental and Version Schema changes.\n"
            "  --xml                 - Output XML only, to stdout. Do not update repository.\n"
-           "  --trace               - Trace to file (default to stdout).\n"           
+           "  --trace               - Trace to file (default to stdout).\n"
            "  -R, --CIMRepository   - Specify the repository directory\n"
            "  -N                    - Specify the repository name - defaults to \"repository\"\n"
            "  -M                    - Repository mode [XML, BIN] - defaults to \"XML\" \n"
@@ -1714,7 +1714,7 @@ en:table {
         * @note  Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX
         *   Do not translate the cimmof command or options.  Just translate the text that explains the options.
         *   When translating this message, make sure that each line fits in 80 characters,
-        *    preserves the indenting, 
+        *    preserves the indenting,
         *   and ends with a newline character (\n).
         */
         Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX:string {
@@ -1729,17 +1729,17 @@ en:table {
            "    --version        - Display CIM Server version.\n"
            "    -w               - Suppress warning messages.\n"
            "    -I               - Specify an include path.\n"
-           "    -n, --namespace  - Override default CIM repository namespace (root/cimv2).\n" 
+           "    -n, --namespace  - Override default CIM repository namespace (root/cimv2).\n"
            "    -uc              - Allow the update of an existing class definition.\n"
-           "    -aE              - Allow experimental schema changes.\n" 
-           "    -aV              - Allow both major and down revision schema changes.\n" 
-           "    -aEV             - Allow both experimental and version schema changes.\n"           
+           "    -aE              - Allow experimental schema changes.\n"
+           "    -aV              - Allow both major and down revision schema changes.\n"
+           "    -aEV             - Allow both experimental and version schema changes.\n"
         }
 
         /**
         * @note  Compiler.cmdline.cimmof.cmdline.MENU.STANDARD
         *   Do not translate the cimmof command or options.  Just translate the text that explains the options.
-        *   When translating this message, make sure that each line fits in 80 characters, 
+        *   When translating this message, make sure that each line fits in 80 characters,
         *    preserves the indenting,
         *   and ends with a newline character (\n).
         */
@@ -1760,10 +1760,10 @@ en:table {
            "  -n, --namespace  - Override default CIM repository namespace (root/cimv2).\n"
            "  -uc              - Allow update of an existing class definition.\n"
            "  -aE              - Allow experimental schema changes.\n"
-           "  -aV              - Allow both major and down revision schema changes.\n" 
+           "  -aV              - Allow both major and down revision schema changes.\n"
            "  -aEV             - Allow both experimental and version schema changes.\n"
            "  --xml            - Output XML only, to stdout. Do not update repository.\n"
-           "  --trace          - Trace to file (default to stdout).\n"           
+           "  --trace          - Trace to file (default to stdout).\n"
         }
 
         Compiler.cmdline.cimmof.cmdline.CMDLINE_ERRORS:string {"PGS04800: command line errors: \n"}
@@ -2220,7 +2220,7 @@ en:table {
             "PGS04863: Warning: Use of cimmofl can corrupt the CIM Server Repository.\n"
             "         cimmofl should only be used under very controlled situations.\n"
             "         cimmof is the recommended OpenPegasus MOF compiler.\n\n"}
-        
+
          /**
          * @note PGS04864:
          *       This message is no longer used as of version 2.7.0
@@ -2326,7 +2326,7 @@ en:table {
         * @note   PGS05406:
         *    Substitution {0} is the name of the CIMOperation (a string that contains a method to call)
         *    Do not translate the word 'CIMOperation' since it is an HTTP extension header for CIM
-        *    ATTN: This is a nonstandard message identifier and prefix, 
+        *    ATTN: This is a nonstandard message identifier and prefix,
         *          but this message is no longer used.
         */
         Server.CIMOperationRequestDecoder.CIMOPERATION_VALUE_NOT_SUPPORTED:string{"PGS05406: CIMOperation value \"{0}\" not supported."}
@@ -2729,7 +2729,7 @@ en:table {
 
         /**
         * @note PGS07001:
-        *     
+        *
         */
         Common.CIMMethodRep.CONTAINED_METHOD_NAMECHANGEDEXCEPTION:string {"PGS07001: Attempted to change the name of a method already in a container."}
 
@@ -3635,7 +3635,7 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note src.Server.cimserver.MENU.STANDARD:
         *    Do not translate the cimserver command or options.  Just translate the text that explains the options.
-        *    When translating this message, make sure that each line fits in 80 characters, 
+        *    When translating this message, make sure that each line fits in 80 characters,
         *    preserves the indenting,
         *    and ends with a newline character (\n).
         */
@@ -3654,7 +3654,7 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note src.Server.cimserver.MENU.HPUXLINUXIA64GNU:
         *    Do not translate the cimserver command or options.  Just translate the text that explains the options.
-        *    When translating this message, make sure that each line fits in 80 characters, 
+        *    When translating this message, make sure that each line fits in 80 characters,
         *    preserves the indenting,
         *    and ends with a newline character (\n).
         */
@@ -3672,7 +3672,7 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note src.Server.cimserver.MENU.WINDOWS:
         *    Do not translate the cimserver command or options.  Just translate the text that explains the options.
-        *    When translating this message, make sure that each line fits in 80 characters, 
+        *    When translating this message, make sure that each line fits in 80 characters,
         *    preserves the indenting,
         *    and ends with a newline character (\n).
         */
@@ -3737,12 +3737,12 @@ CIM server listening on HTTPS port {0}."}
         * @note PGS10038:
         */
         src.Server.cimserver.NO_AUTHORITY.PEGASUS_OS_PASE:string {"PGS10038: The caller should be a privileged user, or the server will not run."}
-        
+
         /**
         * @note PGS10039:
         */
         src.Server.cimserver.NOT_OFFICIAL_START.PEGASUS_OS_PASE:string {"PGS10039: cimserver can not be started by user."}
-        
+
         /**
         * @note PGS10040:
         */
@@ -4128,7 +4128,7 @@ CIM server listening on HTTPS port {0}."}
         *     Do not translate the word 'CIMxmlIndicationHandler' since it is the name of a class
         *    This message is no longer used as of version 2.7.0
         */
-        Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR:string {"PGS10800: CIMxmlIndicationHandler error: "} 
+        Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.ERROR:string {"PGS10800: CIMxmlIndicationHandler error: "}
 
         Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.CANNOT_DO_HTTPS_CONNECTION:string {"PGS10801: SSL is not available. Cannot support an HTTPS connection."}
 
@@ -4138,7 +4138,7 @@ CIM server listening on HTTPS port {0}."}
         *        property
         */
         Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler.MALFORMED_HANDLER_INSTANCE:string {"PGS10802: Malformed CIM-XML handler instance, 'Destination' property is not found."}
- 
+
         /**
         * @note PGS10803:
         *    Substitution {0} is the Destination property value
@@ -4615,7 +4615,7 @@ CIM server listening on HTTPS port {0}."}
         *
         */
         ProviderManager2.ProviderManagerzOS_inline.MISSING_IDCONTAINER_NAME:string {"PGS12517E: Missing IdentityContainer(no username) in request."}
-        
+
         /**
         * @note PGS12519E:
         *    Substitution {0} is the error text of the opperating system.
@@ -4629,7 +4629,7 @@ CIM server listening on HTTPS port {0}."}
         * @note PGS12520E:
         *    Do not translate 'CIM Server', 'Must Stay Clean', 'Provider Agent'
         *
-        */ 
+        */
         ProviderManager2.ProviderAgent.safCheckzOS_inline.CIM_NOTSET_MSC:string {"PGS12520E: CIM Server did not set Must Stay Clean. Stopping Provider Agent startup."}
 
         /**
@@ -4773,7 +4773,7 @@ CIM server listening on HTTPS port {0}."}
         *    Do not translate "ATTLS policy" , CIM, TCP-IP and HTTPS.
         */
         Pegasus.Common.SocketzOS_inline.NO_POLICY:string {"PGS12569E: There is no ATTLS policy found for the CIM server HTTPS connections. Communication not secured. Connection closed."}
-        
+
         // End z/OS messages
 
         // ==========================================================
@@ -4798,7 +4798,7 @@ CIM server listening on HTTPS port {0}."}
         * Do not translate 'LOCALINSTANCEPATH'
         */
         Common.XmlConstants.MISSING_ELEMENT_LOCALPATH:string{"PGS12601: Expected LOCALCLASSPATH or LOCALINSTANCEPATH element."}
- 
+
 
         // ==========================================================
         // Messages for Thread
@@ -4972,7 +4972,7 @@ CIM server listening on HTTPS port {0}."}
 
         /*
         * @note  PGS13312:
-        *     Substitution {0} is the trust store path (a string) 
+        *     Substitution {0} is the trust store path (a string)
         */
         Pegasus.Server.SSLContextManager.COULD_NOT_ACCESS_TRUST_STORE:string {"PGS13312: Could not access the trust store. Check the permissions of the trust store path \"{0}\"."}
 
@@ -5063,7 +5063,7 @@ CIM server listening on HTTPS port {0}."}
         *    Do not translate the word 'cimprovagt' since it is a command name.
         */
         ProviderManager.ProviderAgent.cimprovagt.CIMPROVAGT_ERROR:string {"PGS13801: cimprovagt \"{0}\" error.  Exiting."}
-        
+
         /**
         * @note  PGS13810
         */
@@ -5099,12 +5099,12 @@ CIM server listening on HTTPS port {0}."}
         *    Do not translate the word 'cimprovagt' since it is a command name.
         */
         ProviderManager.ProviderAgent.ProviderAgent.THREAD_ALLOCATION_FAILED:string {"PGS14001: Failed to allocate a thread in cimprovagt \"{0}\"."}
-        
+
         /**
         * @note  PGS14002
         */
         ProviderManager.ProviderAgent.ProviderAgent.UNINITIALIZED_SECURITY_SETUP.PEGASUS_OS_ZOS: string {"PGS14002: Security environment could not be initialised. Assume security fraud. Stopping Provider Agent."}
-        
+
         /**
         * @note  PGS14003
         *    Substitution {0} is a string ID for the cimprovagt process instance
@@ -5117,7 +5117,7 @@ CIM server listening on HTTPS port {0}."}
         *    Substitution {0} is the full job name
         */
         ProviderManager.ProviderAgent.RECEIVE_SYN_SIGNAL.PEGASUS_OS_PASE:string {"PGS14004: \"{0}\" received synchronous signal: \"{1}\""}
-        
+
         /**
         * @note  PGS14005
         *    Substitution {0} is the full job name
@@ -6359,7 +6359,7 @@ CIM server listening on HTTPS port {0}."}
          */
 
         Handler.EmailListenerDestination.EmailListenerDestination.ROUTINE_MAIL_SEND_END_FAILED.PEGASUS_OS_VMS:string {"PGS16617: Routine mail$send_end failed."}
-       
+
 
         // ==========================================================
         // Messages for InteropProvider
@@ -6372,7 +6372,7 @@ CIM server listening on HTTPS port {0}."}
           * @note PGS16700
           * DO NOT TRANSLATE "Interop"
           */
- 
+
          ControlProviders.InteropProvider.CREATE_INSTANCE_NOT_ALLOWED:string {"PGS16700: Interop provider for class {0} does not allow create instance operations."}
 
 
@@ -6445,25 +6445,25 @@ CIM server listening on HTTPS port {0}."}
         *    Do not translate 'READ', 'CIMSERV CL(WBEM)' as it are RACF names
         */
         Security.Authentication.SecureBasicAuthenticator.NOREAD_CIMSERV_ACCESS.PEGASUS_OS_ZOS:string {"PGS17202: Request UserID {0} does not have READ permission to profile CIMSERV CL(WBEM)."}
- 
+
          /**
          * @note  PGS17203:
          *    Substitution {0} is a user name (a string)
          */
          Security.Authentication.SecureBasicAuthenticator.EMPTY_PASSWD.PEGASUS_OS_ZOS:string {"PGS17203: Request UserID {0} misses password."}
- 
+
          /**
          * @note  PGS17204:
          *    Substitution {0} is a user name (a string)
          *    Do not translate 'passticket' and 'OMVSAPPL' as it is a RACF term
          */
          Security.Authentication.SecureBasicAuthenticator.APPLID_OMVSAPPL.PEGASUS_OS_ZOS:string {"PGS17204: CIM server authentication is using application ID OMVSAPPL."}
-        
+
         // ==========================================================
         // Messages for Security LocalAuthenticationHandler
         //  Please use message prefix "PGS17400"
         // ==========================================================
-        
+
         /**
         * @note  PGS17400:
         *    Substitution {0} is a user name (a string)
@@ -6481,10 +6481,10 @@ CIM server listening on HTTPS port {0}."}
         // Messages for Security LocalAuthFile
         //  Please use message prefix "PGS17600"
         // ==========================================================
-        
+
         /**
         * @note PGS17600:
-        *     
+        *
         */
         Security.Authentication.LocalAuthFile.NO_CHOWN:string {"PGS17600: Changing ownership of the local authentication security file back to the CIMServer UserId failed."}
 
@@ -6492,14 +6492,14 @@ CIM server listening on HTTPS port {0}."}
         * @note PGS17601:
         *    Substitution {0} is a file name (a string)
         *    Substitution {1} is a system error message (a string)
-        *     
+        *
         */
         Security.Authentication.LocalAuthFile.NO_CREATE:string {"PGS17601: Creation of the local authentication security file {0} failed: {1}"}
 
         /**
         * @note PGS17602:
         *    Substitution {0} is a file name (a string)
-        *     
+        *
         */
         Security.Authentication.LocalAuthFile.NO_WRITE:string {"PGS17602: Cannot write security token to the local authentication security file {0}."}
 
@@ -6507,15 +6507,15 @@ CIM server listening on HTTPS port {0}."}
         * @note PGS17603:
         *    Substitution {0} is a file name (a string)
         *    Substitution {1} is a system error message (a string)
-        *     
+        *
         */
         Security.Authentication.LocalAuthFile.NO_CHMOD:string {"PGS17603: Changing permissions of the local authentication security file {0} failed: {1}"}
-            
+
         /**
         * @note PGS17604:
         *    Substitution {0} is a file name (a string)
         *    Substitution {1} is a system error message (a string)
-        *     
+        *
         */
         Security.Authentication.LocalAuthFile.NO_CHOWN_REQUSER:string {"PGS17604: Changing ownership of the local authentication security file {0} to the requesting user failed: {1}"}
 
@@ -6523,59 +6523,59 @@ CIM server listening on HTTPS port {0}."}
         // Messages for Audit Logger
         //  Please use message prefix "PGS17800"
         // ==========================================================
-        
+
         /**
         * @note PGS17800:
         *    Substitution {0} is a string containing property name and value
-        *     
+        *
         */
-        Common.AuditLogger.CURRENT_CONFIG:string {"PGS17800: cimserver configuration {0}"} 
+        Common.AuditLogger.CURRENT_CONFIG:string {"PGS17800: cimserver configuration {0}"}
 
         /**
         * @note PGS17801:
-        *    Substitution {0} is a string containing the provider module name 
-        *    Substitution {1} is a string containing the provider module status 
-        *     
+        *    Substitution {0} is a string containing the provider module name
+        *    Substitution {1} is a string containing the provider module status
+        *
         */
         Common.AuditLogger.CURRENT_PROVIDER_REGISTRATION:string {"PGS17801: Provider module {0} has status {1}."}
 
         /**
         * @note PGS17802:
-        *    Substitution {0} is a string containing the environment variable 
-        *     
+        *    Substitution {0} is a string containing the environment variable
+        *
         */
-        Common.AuditLogger.CURRENT_ENV:string {"PGS17802: cimserver environment variable: {0}"} 
+        Common.AuditLogger.CURRENT_ENV:string {"PGS17802: cimserver environment variable: {0}"}
 
         /**
         * @note PGS17803:
-        *    Substitution {0} is a string containing a property name 
-        *    Substitution {1} is a string containing a property value 
-        *    Substitution {2} is a string containing a property value 
-        *    Substitution {3} is a string containing a user name 
-        *     
+        *    Substitution {0} is a string containing a property name
+        *    Substitution {1} is a string containing a property value
+        *    Substitution {2} is a string containing a property value
+        *    Substitution {3} is a string containing a user name
+        *
         */
         Common.AuditLogger.SET_PLANNED_CONFIG_PROPERTY:string {"PGS17803: The planned value of property \"{0}\" is modified from value \"{1}\" to value \"{2}\" by user \"{3}\"."}
 
         /**
         * @note PGS17804:
-        *    Substitution {0} is a string containing a property name 
-        *    Substitution {1} is a string containing a property value 
-        *    Substitution {2} is a string containing a property value 
-        *    Substitution {3} is a string containing a user name 
-        *     
+        *    Substitution {0} is a string containing a property name
+        *    Substitution {1} is a string containing a property value
+        *    Substitution {2} is a string containing a property value
+        *    Substitution {3} is a string containing a user name
+        *
         */
         Common.AuditLogger.SET_CURRENT_CONFIG_PROPERTY:string {"PGS17804: The current value of property \"{0}\" is modified from value \"{1}\" to value \"{2}\" by user \"{3}\"."}
 
         /**
         * @note PGS17805:
         */
-        Common.AuditLogger.ENABLE_AUDIT_LOG:string {"PGS17805: Audit logging is enabled."} 
+        Common.AuditLogger.ENABLE_AUDIT_LOG:string {"PGS17805: Audit logging is enabled."}
 
         /**
         * @note PGS17806:
-        *     
+        *
         */
-        Common.AuditLogger.DISABLE_AUDIT_LOG:string {"PGS17806: Audit logging is disabled."} 
+        Common.AuditLogger.DISABLE_AUDIT_LOG:string {"PGS17806: Audit logging is disabled."}
 
         /**
         * @note PGS17807:
@@ -6649,12 +6649,12 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note PGS17813:
-        *    Substitution {0} is a string containing a provider module name 
-        *    Substitution {1} is a string containing a current provider module status 
-        *    Substitution {2} is a string containing a new provider module status 
-        *     
+        *    Substitution {0} is a string containing a provider module name
+        *    Substitution {1} is a string containing a current provider module status
+        *    Substitution {2} is a string containing a new provider module status
+        *
         */
-        Common.AuditLogger.UPDATE_PROVIDER_MODULE_STATUS:string {"PGS17813: The operational status of module {0} has changed from {1} to {2}."} 
+        Common.AuditLogger.UPDATE_PROVIDER_MODULE_STATUS:string {"PGS17813: The operational status of module {0} has changed from {1} to {2}."}
 
         /**
         * @note PGS17814:
@@ -6693,13 +6693,13 @@ CIM server listening on HTTPS port {0}."}
         Common.AuditLogger.CERTIFICATE_BASED_USER_VALIDATION:string {"PGS17817: Certificate based user validation attempt: successful = {0}, from IP address = {5}, user name = {1}, issuer name = {2}, subject name = {3}, serial number = {4}."}
 
         // ==========================================================
-        // Messages for DynListener.cimlistener 
+        // Messages for DynListener.cimlistener
         //  Please use message prefix "PGS18000"
         // ==========================================================
-        
+
         /**
         * @note PGS18000:
-        *     
+        *
         */
         DynListener.cimlistener.KILL_PERM_DENIED:string {"PGS18000: Permission denied: Not permitted to shutdown cimlistener process."}
 
@@ -6725,38 +6725,38 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note PGS18200:
         *    Substitution {0} is a string containing message from exception
-        *     
+        *
         */
         Pegasus.Server.SLP.INTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION:string{"PGS18200: CIM Server registration with Internal SLP Failed. Exception: {0}"}
 
         /**
         * @note PGS18201:
         *    Substitution {0} is a string containing message from exception
-        *     
+        *
         */
         Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_EXCEPTION:string{"PGS18201: CIM Server registration with External SLP failed. Exception: {0}"}
 
         /**
         * @note PGS18202:
-        *     
+        *
         */
         Pegasus.Server.SLP.INTERNAL_SLP_REGISTRATION_FAILED_ERROR:string{"PGS18202: CIM Server registration with Internal SLP failed."}
 
         /**
         * @note PGS18203:
-        *     
+        *
         */
         Pegasus.Server.SLP.EXTERNAL_SLP_REGISTRATION_FAILED_ERROR:string{"PGS18203: CIM Server registration with External SLP Failed."}
 
         /**
         * @note PGS18204:
-        *     
+        *
         */
         Pegasus.Server.SLP.SLP_REGISTRATION_INITIATED:string{"PGS18204: SLP Registration Initiated"}
 
         /**
         * @note PGS18205:
-        *     
+        *
         */
         Pegasus.Server.SLP.PROTOCOLS_NOT_ENABLED:string{"PGS18205: Both Http and Https protocols are disabled, SLP registration skipped."}
 
@@ -6825,15 +6825,15 @@ CIM server listening on HTTPS port {0}."}
           * @note PGS18602
           */
         ProviderManager.JMPI.JMPIProviderManager.METHOD_NOT_FOUND:string {"PGS18602: Could not find a method for the provider based on InterfaceType."}
-        
+
         /**
         * @note PGS18603
         *
         */
         ProviderManager2.JMPI.JMPIImpl.GET_CLASSPATH_FAILED.STANDARD:string {"PGS18603: Could not get CLASSPATH from environment."}
-        
+
         /**
-        * This message is no longer used in Pegasus 2.7. 
+        * This message is no longer used in Pegasus 2.7.
         */
         ProviderManager2.JMPI.JMPIImpl.GET_CLASSPATH_FAILED.PEGASUS_OS_ZOS:string {"PGS18604: Could not get CLASSPATH from environment. Either CLASSPATH is longer than 255 characters or not set at all."}
 
@@ -6852,10 +6852,10 @@ CIM server listening on HTTPS port {0}."}
         // Messages for CIMPropertyRep
         //  Please use message prefix "PGS18800 - PGS18999"
         // ==========================================================
-        
+
         /**
         * @note PGS18800:
-        *     
+        *
         */
         Common.CIMPropertyRep.CONTAINED_PROPERTY_NAMECHANGEDEXCEPTION:string {"PGS18800: Attempted to change the name of a property already in a container."}
 
@@ -6863,10 +6863,10 @@ CIM server listening on HTTPS port {0}."}
         // Messages for CIMQualifierRep
         //  Please use message prefix "PGS19000 - PGS19199"
         // ==========================================================
-        
+
         /**
         * @note PGS19000:
-        *     
+        *
         */
         Common.CIMQualifierRep.CONTAINED_QUALIFIER_NAMECHANGEDEXCEPTION:string {"PGS19000: Attempted to change the name of a qualifier already in a container."}
 
@@ -6874,13 +6874,13 @@ CIM server listening on HTTPS port {0}."}
         // Messages for CIMParameterRep
         //  Please use message prefix "PGS19200 - PGS19399"
         // ==========================================================
-        
+
         /**
         * @note PGS19200:
-        *     
+        *
         */
         Common.CIMParameterRep.CONTAINED_PARAMETER_NAMECHANGEDEXCEPTION:string {"PGS19200: Attempted to change the name of a parameter already in a container."}
-        
+
 
         // ==========================================================
         // Messages for CIMOperationRequestDispatcher

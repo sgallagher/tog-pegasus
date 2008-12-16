@@ -33,9 +33,9 @@
     \file socketcomm.c
     \brief Socket-based communication layer common functionality.
 
-    This module provides common functionality for the socket based 
-    communication layers. This comprises the serialization of entities not 
-    supported by the serialization module, such as contexts and properties 
+    This module provides common functionality for the socket based
+    communication layers. This comprises the serialization of entities not
+    supported by the serialization module, such as contexts and properties
     for instance, as well as dispatching MI and MB calls respectively.
 */
 
@@ -118,10 +118,10 @@ void socketcomm_array2result ( CMPIArray * array, CONST CMPIResult * result )
             if (data.type == CMPI_instance)
             {
                 TRACE_INFO(("transferring instance."));
-                // EmbeddedObjects or EmbeddedInstances returned 
-                // from MethodProviders can not use CMReturnInstance 
-                // because it is not supported, return 
-                // these type of data with CMReturnData. 
+                // EmbeddedObjects or EmbeddedInstances returned
+                // from MethodProviders can not use CMReturnInstance
+                // because it is not supported, return
+                // these type of data with CMReturnData.
                 rc = CMReturnInstance ( result, data.value.inst );
                 if (rc.rc  == CMPI_RC_ERR_NOT_SUPPORTED)
                 {
@@ -151,7 +151,7 @@ void socketcomm_array2result ( CMPIArray * array, CONST CMPIResult * result )
 
 /****************************************************************************/
 
-void socketcomm_serialize_props ( 
+void socketcomm_serialize_props (
     int socket,
     const struct BinarySerializerFT * sft,
     char ** props )
@@ -161,27 +161,27 @@ void socketcomm_serialize_props (
     if (props != NULL)
     {
 
-        while (props[i]) 
+        while (props[i])
         {
             i++;
         }
 
         sft->serialize_UINT32 ( socket, i );
 
-        while (i) 
+        while (i)
         {
             sft->serialize_string ( socket, props[--i] );
         }
 
     }
-    else 
+    else
     {
         sft->serialize_UINT32 ( socket, i );
     }
 }
 
 
-char ** socketcomm_deserialize_props ( 
+char ** socketcomm_deserialize_props (
     int socket,
     const struct BinarySerializerFT * sft,
     CONST CMPIBroker * broker )
@@ -204,22 +204,22 @@ char ** socketcomm_deserialize_props (
     return r;
 }
 
-void socketcomm_serialize_context ( 
+void socketcomm_serialize_context (
     int socket,
     const struct BinarySerializerFT * sft,
     CONST CMPIContext * ctx )
 {
     unsigned int size = CMGetContextEntryCount ( ctx, NULL ), i;
-    CMPIBoolean hasContainers = 0; 
+    CMPIBoolean hasContainers = 0;
     CMPIString *entryName = 0;
     // Check for Containers.
     CMPIData data = CMGetContextEntry (ctx, "SnmpTrapOidContainer", NULL);
     if (data.state != CMPI_nullValue)
     {
         size++;
-        hasContainers = 1;  
+        hasContainers = 1;
         CMGetContextEntryAt (ctx, 0, &entryName, NULL);
-    } 
+    }
 
     TRACE_NORMAL(("serializing context with %d entries", size ));
 
@@ -235,7 +235,7 @@ void socketcomm_serialize_context (
     for (i = 0; i < size; i++)
     {
         CMPIString * entryName;
-        CMPIData entry = CMGetContextEntryAt ( 
+        CMPIData entry = CMGetContextEntryAt (
             ctx,
             i,
             &entryName,
@@ -249,7 +249,7 @@ void socketcomm_serialize_context (
     }
 }
 
-void socketcomm_deserialize_context ( 
+void socketcomm_deserialize_context (
     int socket,
     const struct BinarySerializerFT * sft,
     CONST CMPIBroker * broker,
@@ -273,7 +273,7 @@ void socketcomm_deserialize_context (
 
         TRACE_INFO(("adding entryName: %s", CMGetCharsPtr (entryName, NULL)));
 
-        CMAddContextEntry ( 
+        CMAddContextEntry (
             ctx,
             CMGetCharsPtr ( entryName, NULL ),
             &entry.value,

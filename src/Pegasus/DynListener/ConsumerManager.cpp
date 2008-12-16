@@ -48,7 +48,7 @@
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
-//ATTN: Can we just use a properties file instead??  If we only have one 
+//ATTN: Can we just use a properties file instead??  If we only have one
 // property, we may want to just parse it ourselves.
 // We may need to add more properties, however.  Potential per consumer
 // properties: unloadOk, idleTimout, retryCount, etc
@@ -65,7 +65,7 @@ const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 static const Uint32 DEFAULT_MAX_RETRY_COUNT = 5;
 static const Uint32 DEFAULT_RETRY_LAPSE = 300000;  //ms = 5 minutes
 
-//constant for fake property that is added to instances when 
+//constant for fake property that is added to instances when
 // serializing to track the full URL
 static const String URL_PROPERTY = "URLString";
 
@@ -74,7 +74,7 @@ ConsumerManager::ConsumerManager(
     const String& consumerDir,
     const String& consumerConfigDir,
     Boolean enableConsumerUnload,
-    Uint32 idleTimeout) : 
+    Uint32 idleTimeout) :
         _consumerDir(consumerDir),
         _consumerConfigDir(consumerConfigDir),
         _enableConsumerUnload(enableConsumerUnload),
@@ -195,14 +195,14 @@ Uint32 ConsumerManager::getIdleTimeout()
 
 /** Retrieves the library name associated with the consumer name.
  *  By default, the library name
- * is the same as the consumer name.  However, you may specify a different 
- * library name in a consumer configuration file.  This file must be named 
+ * is the same as the consumer name.  However, you may specify a different
+ * library name in a consumer configuration file.  This file must be named
  *  "MyConsumer.txt" and contain the following: location="libraryName"
  *
- * The config file is optional and is generally only needed in cases where 
+ * The config file is optional and is generally only needed in cases where
  * there are strict requirements on library naming.
  *
- * It is the responsibility of the caller to catch any exceptions 
+ * It is the responsibility of the caller to catch any exceptions
  * thrown by this method.
  */
 String ConsumerManager::_getConsumerLibraryName(const String & consumerName)
@@ -228,7 +228,7 @@ String ConsumerManager::_getConsumerLibraryName(const String & consumerName)
 
         try
         {
-            //Bugzilla 3765 - Change this to use a member var 
+            //Bugzilla 3765 - Change this to use a member var
             // when OptionManager has a reset option
             OptionManager _optionMgr;
             //comment the following line out later
@@ -236,12 +236,12 @@ String ConsumerManager::_getConsumerLibraryName(const String & consumerName)
             _optionMgr.mergeFile(configFile);
             _optionMgr.checkRequiredOptions();
 
-            if (!_optionMgr.lookupValue("location", libraryName) || 
+            if (!_optionMgr.lookupValue("location", libraryName) ||
                 (libraryName == String::EMPTY))
             {
                 PEG_TRACE((TRC_LISTENER,Tracer::LEVEL2,
                     "Warning: Using default library name since none was "
-                    "specified in %s",(const char*)configFile.getCString())); 
+                    "specified in %s",(const char*)configFile.getCString()));
                 libraryName = consumerName;
             }
 
@@ -275,7 +275,7 @@ String ConsumerManager::_getConsumerLibraryName(const String & consumerName)
  *  DNE, we create it and initialize it, and add it to the table.
  * @throws Exception if we cannot successfully create and
  *  initialize the consumer
- */ 
+ */
 DynamicConsumer* ConsumerManager::getConsumer(const String& consumerName)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::getConsumer");
@@ -326,7 +326,7 @@ DynamicConsumer* ConsumerManager::getConsumer(const String& consumerName)
 }
 
 /** Initializes a DynamicConsumer.
- * Caller assumes responsibility for mutexing the operation as well as 
+ * Caller assumes responsibility for mutexing the operation as well as
  * ensuring the consumer does not already exist.
  * @throws Exception if the consumer cannot be initialized
  */
@@ -339,7 +339,7 @@ void ConsumerManager::_initConsumer(
     CIMIndicationConsumerProvider* base = 0;
     ConsumerModule* module = 0;
 
-    // lookup provider module in cache (if it exists, it returns 
+    // lookup provider module in cache (if it exists, it returns
     // the cached module, otherwise it creates and returns a new one)
     String libraryName = _getConsumerLibraryName(consumerName);
     module = _lookupModule(libraryName);
@@ -359,7 +359,7 @@ void ConsumerManager::_initConsumer(
 
     } catch (Exception& ex)
     {
-        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL1, 
+        PEG_TRACE((TRC_LISTENER,Tracer::LEVEL1,
             "Error loading consumer module: %s",
             (const char*)ex.getMessage().getCString()));
 
@@ -421,7 +421,7 @@ void ConsumerManager::_initConsumer(
         consumer->waitForEventThread();
 
         //load any outstanding requests
-        Array<IndicationDispatchEvent> outstandingIndications = 
+        Array<IndicationDispatchEvent> outstandingIndications =
             _deserializeOutstandingIndications(consumerName);
         if (outstandingIndications.size())
         {
@@ -441,19 +441,19 @@ void ConsumerManager::_initConsumer(
             MessageLoaderParms(
                 "DynListener.ConsumerManager.CANNOT_INITIALIZE_CONSUMER",
                 "Cannot initialize consumer ($0).",
-                consumerName));        
+                consumerName));
     }
 
-    PEG_METHOD_EXIT();    
+    PEG_METHOD_EXIT();
 }
 
 
 /** Returns the ConsumerModule with the given library name.
  *  If it already exists, we return the one in the cache.  If it
  *  DNE, we create it and add it to the table.
- * @throws Exception if we cannot successfully create and 
+ * @throws Exception if we cannot successfully create and
  *  initialize the consumer
- */ 
+ */
 ConsumerModule* ConsumerManager::_lookupModule(const String & libraryName)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::_lookupModule");
@@ -466,7 +466,7 @@ ConsumerModule* ConsumerManager::_lookupModule(const String & libraryName)
     if (_modules.lookup(libraryName, module))
     {
         PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
-            "Found Consumer Module %s in Consumer Manager Cache", 
+            "Found Consumer Module %s in Consumer Manager Cache",
             (const char*)libraryName.getCString()));
 
     } else
@@ -475,7 +475,7 @@ ConsumerModule* ConsumerManager::_lookupModule(const String & libraryName)
             "Creating Consumer Provider Module %s",
             (const char*)libraryName.getCString()));
 
-        module = new ConsumerModule(); 
+        module = new ConsumerModule();
         _modules.insert(libraryName, module);
     }
 
@@ -484,7 +484,7 @@ ConsumerModule* ConsumerManager::_lookupModule(const String & libraryName)
 }
 
 /** Returns true if there are active consumers
- */ 
+ */
 Boolean ConsumerManager::hasActiveConsumers()
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::hasActiveConsumers");
@@ -498,8 +498,8 @@ Boolean ConsumerManager::hasActiveConsumers()
         {
             consumer = i.value();
 
-            if (consumer && 
-                consumer->isLoaded() && 
+            if (consumer &&
+                consumer->isLoaded() &&
                 (consumer->getPendingIndications() > 0))
             {
                 PEG_TRACE((TRC_LISTENER,Tracer::LEVEL4,
@@ -523,7 +523,7 @@ Boolean ConsumerManager::hasActiveConsumers()
 }
 
 /** Returns true if there are loaded consumers
- */ 
+ */
 Boolean ConsumerManager::hasLoadedConsumers()
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::hasLoadedConsumers");
@@ -561,7 +561,7 @@ Boolean ConsumerManager::hasLoadedConsumers()
 
 
 /** Shutting down a consumer consists of four major steps:
- * 1) Send the shutdown signal.  This causes the worker routine to break out 
+ * 1) Send the shutdown signal.  This causes the worker routine to break out
  *    of the loop and exit.
  * 2) Wait for the worker thread to end.  This may take a while if it's
  *    processing an indication.  This is optional in a shutdown scenario.
@@ -573,20 +573,20 @@ Boolean ConsumerManager::hasLoadedConsumers()
  * 3) Terminate the consumer provider interface.
  * 4) Decrement the module refcount (the module will automatically unload when
  *    it's refcount == 0)
- * 
+ *
  * In a scenario where more multiple consumers are loaded, the shutdown signal
  * should be sent to all of the consumers so the threads can finish
  * simultaneously.
- * 
+ *
  * ATTN: Should the normal shutdown wait for everything in the queue to be
  * processed?  Just new indications to be processed?  I am not inclined to this
  * solution since it could take a LOT of time.  By serializing and deserialing
- * indications between shutdown and startup, I feel like we do not need to 
+ * indications between shutdown and startup, I feel like we do not need to
  * process ALL queued indications on shutdown.
- */ 
+ */
 
 /** Unloads all consumers.
- */ 
+ */
 void ConsumerManager::unloadAllConsumers()
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::unloadAllConsumers");
@@ -653,7 +653,7 @@ void ConsumerManager::unloadAllConsumers()
 }
 
 /** Unloads idle consumers.
- */ 
+ */
 void ConsumerManager::unloadIdleConsumers()
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::unloadIdleConsumers");
@@ -709,7 +709,7 @@ void ConsumerManager::unloadIdleConsumers()
 }
 
 /** Unloads a single consumer.
- */ 
+ */
 void ConsumerManager::unloadConsumer(const String& consumerName)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::unloadConsumer");
@@ -756,7 +756,7 @@ void ConsumerManager::unloadConsumer(const String& consumerName)
 
 /** Unloads the consumers in the given array.
  *  The consumerTable mutex MUST be locked prior to entering this method.
- */ 
+ */
 void ConsumerManager::_unloadConsumers(
     Array<DynamicConsumer*> consumersToUnload)
 {
@@ -772,7 +772,7 @@ void ConsumerManager::_unloadConsumers(
         "Sent shutdown signal to all consumers.");
 
     // wait for all the consumer worker threads to complete
-    // since we can only shutdown after they are all complete, 
+    // since we can only shutdown after they are all complete,
     // it does not matter if the first, fifth, or last
     // consumer takes the longest; the wait time is equal to the time it takes
     // for the busiest consumer to stop processing its requests.
@@ -782,7 +782,7 @@ void ConsumerManager::_unloadConsumers(
             (const char*)consumersToUnload[i]->getName().getCString()));
 
         //wait for the consumer worker thread to end
-        Semaphore* _shutdownSemaphore = 
+        Semaphore* _shutdownSemaphore =
             consumersToUnload[i]->getShutdownSemaphore();
         if (_shutdownSemaphore && !_shutdownSemaphore->time_wait(10000))
         {
@@ -814,9 +814,9 @@ void ConsumerManager::_unloadConsumers(
 
         } catch (Exception& e)
         {
-            PEG_TRACE((TRC_LISTENER, Tracer::LEVEL1, 
+            PEG_TRACE((TRC_LISTENER, Tracer::LEVEL1,
                 "Error unloading consumer: %s",
-                (const char*)e.getMessage().getCString())); 
+                (const char*)e.getMessage().getCString()));
             //ATTN: throw exception? log warning?
         }
     }
@@ -827,7 +827,7 @@ void ConsumerManager::_unloadConsumers(
 /** Serializes oustanding indications to a <MyConsumer>.dat file
  */
 void ConsumerManager::_serializeOutstandingIndications(
-    const String& consumerName, 
+    const String& consumerName,
     Array<IndicationDispatchEvent> indications)
 {
     PEG_METHOD_ENTER(
@@ -848,9 +848,9 @@ void ConsumerManager::_serializeOutstandingIndications(
 
     Buffer buffer;
 
-    // Open the log file and serialize remaining 
+    // Open the log file and serialize remaining
     FILE* fileHandle = 0;
-    fileHandle = fopen((const char*)fileName.getCString(), "w"); 
+    fileHandle = fopen((const char*)fileName.getCString(), "w");
 
     if (!fileHandle)
     {
@@ -866,7 +866,7 @@ void ConsumerManager::_serializeOutstandingIndications(
                       (const char*)consumerName.getCString()));
 
         // we have to put the array of instances under a valid root element
-        // or the parser complains 
+        // or the parser complains
         XmlWriter::append(buffer, "<IRETURNVALUE>\n");
 
         CIMInstance cimInstance;
@@ -893,8 +893,8 @@ void ConsumerManager::_serializeOutstandingIndications(
 }
 
 /** Reads outstanding indications from a <MyConsumer>.dat file
- */ 
-Array<IndicationDispatchEvent> 
+ */
+Array<IndicationDispatchEvent>
     ConsumerManager::_deserializeOutstandingIndications(
         const String& consumerName)
 {
@@ -936,17 +936,17 @@ Array<IndicationDispatchEvent>
                 Uint32 index = cimInstance.findProperty(URL_PROPERTY);
                 if (index != PEG_NOT_FOUND)
                 {
-                    // get the URL string property from the serialized instance 
+                    // get the URL string property from the serialized instance
                     // and remove the property
                     cimProperty = cimInstance.getProperty(index);
                     cimValue = cimProperty.getValue();
                     cimValue.get(urlString);
                     cimInstance.removeProperty(index);
                 }
-                IndicationDispatchEvent* indicationEvent = 
+                IndicationDispatchEvent* indicationEvent =
                     new IndicationDispatchEvent(
-                        OperationContext(), 
-                        urlString, 
+                        OperationContext(),
+                        urlString,
                         cimInstance);
 
                 indications.append(*indicationEvent);
@@ -959,7 +959,7 @@ Array<IndicationDispatchEvent>
                           (const char*)consumerName.getCString(),
                           indications.size()));
 
-            //delete the file 
+            //delete the file
             FileSystem::removeFile(fileName);
 
         } catch (Exception& ex)
@@ -983,49 +983,49 @@ Array<IndicationDispatchEvent>
 
 
 
-/** 
+/**
  * This is the main worker thread of the consumer.  By having only one thread
- * per consumer, we eliminate a ton of synchronization issues and make it easy 
+ * per consumer, we eliminate a ton of synchronization issues and make it easy
  * to prevent the consumer from performing two mutually exclusive operations
- * at once.  This also prevents one bad consumer from taking the entire 
+ * at once.  This also prevents one bad consumer from taking the entire
  * listener down.  That being said, it is up to the programmer to write smart
- * consumers, and to ensure that their actions don't deadlock 
+ * consumers, and to ensure that their actions don't deadlock
  * the worker thread.
- * 
+ *
  * If a consumer receives a lot of traffic, or it's consumeIndication() method
  * takes a considerable amount of time to complete, it may make sense to make
  * the consumer multi-threaded.  The individual consumer can immediately
  * spawn off* new threads to handle indications, and return immediately to
- * catch the next indication.  In this way, a consumer can attain 
- * extremely high performance. 
- * 
+ * catch the next indication.  In this way, a consumer can attain
+ * extremely high performance.
+ *
  * There are three different events that can signal us:
  * 1) A new indication (signalled by DynamicListenerIndicationDispatcher)
  * 2) A shutdown signal (signalled from ConsumerManager, due to a listener
  *    shutdown or an idle consumer state)
  * 3) A retry signal (signalled from this routine itself)
- * 
+ *
  * The idea is that all new indications are put on the front of the queue and
- * processed first.  All of the retry indications are put on the back of the 
+ * processed first.  All of the retry indications are put on the back of the
  * queue and are only processed AFTER all new indications are sent.
  * Before processing each indication, we check to see whether or not the
- * shutdown signal was given.  
- * If so, we immediately break out of the loop, and another compenent 
+ * shutdown signal was given.
+ * If so, we immediately break out of the loop, and another compenent
  * serializes the remaining indications to a file.
- * 
- * An indication gets retried 
+ *
+ * An indication gets retried
  *     if the consumer throws a CIM_ERR_FAILED exception.
- * 
- * This function makes sure it waits until the default retry lapse has passed 
+ *
+ * This function makes sure it waits until the default retry lapse has passed
  * to avoid issues with the following scenario:
  * 20 new indications come in, 10 of them are successful, 10 are not.
- * We were signalled 20 times, so we will pass the time_wait 20 times. 
+ * We were signalled 20 times, so we will pass the time_wait 20 times.
  * Perceivably, the process time on each indication could be minimal.
  * We could potentially proceed to process the retries after a very small time
  * interval since we would never hit the wait for the retry timeout.
- * 
- */ 
-ThreadReturnType PEGASUS_THREAD_CDECL 
+ *
+ */
+ThreadReturnType PEGASUS_THREAD_CDECL
     ConsumerManager::_worker_routine(void *param)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::_worker_routine");
@@ -1042,7 +1042,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL
 
     while (true)
     {
-        PEG_TRACE((TRC_LISTENER, Tracer::LEVEL4,"_worker_routine::waiting %s", 
+        PEG_TRACE((TRC_LISTENER, Tracer::LEVEL4,"_worker_routine::waiting %s",
             (const char*)name.getCString()));
 
 
@@ -1134,27 +1134,27 @@ ThreadReturnType PEGASUS_THREAD_CDECL
                 //check for failure
                 if (ce.getCode() == CIM_ERR_FAILED)
                 {
-                    PEG_TRACE((TRC_LISTENER, Tracer::LEVEL2, 
+                    PEG_TRACE((TRC_LISTENER, Tracer::LEVEL2,
                         "_worker_routine::consumeIndication() temporary"
                             " failure %s : %s",
                         (const char*)name.getCString(),
                         (const char*)ce.getMessage().getCString()));
-                    
+
                     // Here we simply determine if we should increment
                     // the retry count or not.
                     // We don't want to count a forced retry from a new
-                    // event to count as a retry. 
+                    // event to count as a retry.
                     // We just have to do it for order's sake.
                     // If the retry Lapse has lapsed on this event,
                     // then increment the counter.
                     if (event->getRetries() > 0)
                     {
-                        Sint64 differenceInMicroseconds = 
+                        Sint64 differenceInMicroseconds =
                             CIMDateTime::getDifference(
                                 event->getLastAttemptTime(),
                                 CIMDateTime::getCurrentDateTime());
 
-                        if (differenceInMicroseconds >= 
+                        if (differenceInMicroseconds >=
                                 (DEFAULT_RETRY_LAPSE * 1000))
                         {
                             event->increaseRetries();

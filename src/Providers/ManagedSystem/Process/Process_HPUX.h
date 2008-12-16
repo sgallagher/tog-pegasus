@@ -74,9 +74,9 @@ public:
 
   Process();
   ~Process();
-  
+
   Boolean getCaption(String&) const;
-  
+
   Boolean getDescription(String&) const;
 
   Boolean getInstallDate(CIMDateTime&) const;
@@ -114,7 +114,7 @@ public:
   Boolean getParameters(Array<String>&) const;
 
   Boolean getProcessNiceValue(Uint32&) const;
-  
+
   Boolean getProcessWaitingForEvent(String&) const;
 
   Boolean getCPUTime(Uint32&) const;
@@ -142,26 +142,26 @@ public:
   Boolean getParentProcessID(String&) const;
 
   Boolean getRealSpace(Uint64&) const;
-  
+
   // Loads the internal process status structure with
   // the status data for the indexed process and, if
   // necessary (on HP-UX) updates pIndex to skip unused
   // entries so that a simple increment will allow next
   // call to access next entry
   Boolean loadProcessInfo(int &pIndex);
-  
+
   // Finds the requested process and loads its info into
   // the internal process status structure
   Boolean findProcess(const String& handle);
-  
+
   String getHandle(void) const;
-  
+
   String getCurrentTime(void) const;
 
   String getOSName(void) const;
-  
+
   String getCSName(void) const;
-  
+
 private:
   struct pst_status pInfo;
 };

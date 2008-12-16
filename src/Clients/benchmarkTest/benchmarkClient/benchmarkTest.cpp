@@ -311,7 +311,7 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
 #ifdef PEGASUS_SSL_RANDOMFILE
         randFile = FileSystem::getAbsolutePath(
              pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
-#endif 
+#endif
         SSLContext  sslcontext (certpath, verifyCertificate, randFile);
 
         if (!_userNameSet)
@@ -326,7 +326,7 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
         client.connect(host, portNumber, sslcontext,  _userName, _password );
 #else
         PEGASUS_ASSERT(false);
-#endif  
+#endif
     }
     else
     {
@@ -605,7 +605,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         //  Invalid debug option
                         //
-                        throw InvalidOptionArgumentException( 
+                        throw InvalidOptionArgumentException(
                             debugOptionStr,
                             _OPTION_DEBUG);
                     }
@@ -1457,7 +1457,7 @@ Uint32 benchmarkTestCommand::execute (ostream& outPrintWriter,
 
         if (_generateReport)
         {
-             benchmarkTestCommand::_getSystemConfiguration( 
+             benchmarkTestCommand::_getSystemConfiguration(
                  outPrintWriter, errPrintWriter);
         }
 
@@ -1495,7 +1495,7 @@ Uint32 benchmarkTestCommand::execute (ostream& outPrintWriter,
                        (const char *)_startTime.getCString());
                }
             }
-    
+
             testID++;
             if (!_testIDSet || (testID == _testID))
             {

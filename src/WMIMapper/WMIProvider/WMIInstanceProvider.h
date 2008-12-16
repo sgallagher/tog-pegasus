@@ -43,7 +43,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class WMICollector;
 
-class PEGASUS_WMIPROVIDER_LINKAGE WMIInstanceProvider : public WMIBaseProvider 
+class PEGASUS_WMIPROVIDER_LINKAGE WMIInstanceProvider : public WMIBaseProvider
 {
 public:
     WMIInstanceProvider(void);
@@ -113,13 +113,13 @@ public:
         const CIMValue& newValue = CIMValue());
 
 private:
-    
+
     String WMIInstanceProvider::getHostName();
 
 //////////////////////////////////////////////////////////////////////
 // TERRY: ADDED: helper function, maybe should go in a utilities or base class?
 //////////////////////////////////////////////////////////////////////
-    bool GetKeyBindingsFromCIMInstance(const CIMInstance& newInstance, 
+    bool GetKeyBindingsFromCIMInstance(const CIMInstance& newInstance,
                                        BSTR* pbsKeyBindings);
 
 };

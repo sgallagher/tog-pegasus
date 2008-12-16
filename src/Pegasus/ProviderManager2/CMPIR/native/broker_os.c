@@ -85,9 +85,9 @@ static char *resolveFileName (const char *filename)
 }
 
 /*
-    We need to have wrapper for newthread. When we invoke newThread from 
-    current thread, new thread is not managed by memeory management and may 
-    not have CMPIBroker and CMPIContext assosiated with that. 
+    We need to have wrapper for newthread. When we invoke newThread from
+    current thread, new thread is not managed by memeory management and may
+    not have CMPIBroker and CMPIContext assosiated with that.
     Add them in wrapper. -V 5245
 */
 struct startWrapperArg
@@ -112,13 +112,13 @@ void *_start_wrapper(void *arg_)
 }
 
 static CMPI_THREAD_TYPE newThread(
-    CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *start )(void *), 
+    CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *start )(void *),
     void *parm, int detached)
 {
 #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
     pthread_t t;
     pthread_attr_t tattr;
-    startWrapperArg *wparm = 
+    startWrapperArg *wparm =
         (startWrapperArg*)malloc ( sizeof ( struct startWrapperArg ) );
     wparm->start = start;
     wparm->arg = parm;
@@ -130,7 +130,7 @@ static CMPI_THREAD_TYPE newThread(
         pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
         pthread_create(&t, &tattr, (void *(*)(void *)) _start_wrapper, wparm);
     }
-    else 
+    else
     {
         pthread_create(&t, NULL, (void *(*)(void *)) _start_wrapper, wparm);
     }
@@ -142,7 +142,7 @@ static CMPI_THREAD_TYPE newThread(
 
     pthread_t t;
     pthread_attr_t tattr;
-    startWrapperArg *wparm = 
+    startWrapperArg *wparm =
         (startWrapperArg*)malloc ( sizeof ( struct startWrapperArg ) );
     wparm->start = start;
     wparm->arg = parm;
@@ -154,7 +154,7 @@ static CMPI_THREAD_TYPE newThread(
         pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
         pthread_create(&t, &tattr, (void *(*)(void *)) _start_wrapper, wparm);
     }
-    else 
+    else
     {
         pthread_create(&t, NULL, (void *(*)(void *)) _start_wrapper, wparm);
     }
@@ -164,7 +164,7 @@ static CMPI_THREAD_TYPE newThread(
 
     unsigned threadid = 0;
     HANDLE hThread;
-    startWrapperArg *wparm = 
+    startWrapperArg *wparm =
         (startWrapperArg*)malloc ( sizeof ( struct startWrapperArg ) );
     wparm->start = start;
     wparm->arg = parm;
@@ -308,7 +308,7 @@ static CMPI_MUTEX_TYPE newMutex (int opt)
     return m;
 #elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
     // pthread_mutex_t init_m;
-    pthread_mutex_t *new_mutex = 
+    pthread_mutex_t *new_mutex =
         (pthread_mutex_t*) calloc(1,sizeof(pthread_mutex_t));
     // PTHREAD_MUTEX_INITIALIZER;
     errno = 0;
@@ -411,14 +411,14 @@ static void destroyCondition (CMPI_COND_TYPE c)
 }
 
 static int timedCondWait(
-    CMPI_COND_TYPE c, 
-    CMPI_MUTEX_TYPE m, 
+    CMPI_COND_TYPE c,
+    CMPI_MUTEX_TYPE m,
     struct timespec *wait)
 {
 #if defined(CMPI_PLATFORM_LINUX_GENERIC_GNU)
     return pthread_cond_timedwait(
-        (pthread_cond_t*)c, 
-        (pthread_mutex_t*)m, 
+        (pthread_cond_t*)c,
+        (pthread_mutex_t*)m,
         wait);
 #elif defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
     return pthread_cond_timedwait(
@@ -547,8 +547,8 @@ static CMPIBrokerExtFT brokerExt_FT={
     CMPICurrentVersion,
     resolveFileName,
     newThread,
-    joinThread,                   
-    exitThread, 
+    joinThread,
+    exitThread,
     cancelThread,
     threadSleep,
     threadOnce,

@@ -29,7 +29,7 @@
 //
 // Author:  Aruran, IBM (aruran.shanmug@in.ibm.com)
 //
-// Modified By: 
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -65,7 +65,7 @@ class TestModelWalkStressClient:public TestStressTestClient
 /**
     GetNameSpaces
     If no nameSpace is supplied on the command line, this method looks into
-    the root and test nameSpaces for the _Namespace class. The names of the 
+    the root and test nameSpaces for the _Namespace class. The names of the
     instances of that class are retrued by this method.
 */
 Array<CIMNamespaceName> getNameSpaces(
@@ -105,7 +105,7 @@ Array<CIMNamespaceName> getNameSpaces(
         Uint32 end = topNamespaceNames.size();
 
         //
-        // for all new elements in the output array. 
+        // for all new elements in the output array.
         //
         for (Uint32 range = start; range < end; range ++)
         {
@@ -224,11 +224,11 @@ static void enumerateAllQualifiers(
 /**
     EnumerateReferenceNames
     This method enumerates the references to each instance in the array
-    "cimInstances" for the "nameSpace" 
+    "cimInstances" for the "nameSpace"
 */
 static void enumerateReferenceNames(
     TestModelWalkStressClient &tmsc,
-    CIMClient* client, 
+    CIMClient* client,
     Array<CIMInstance> cimNInstances,
     CIMNamespaceName nameSpace,
     CIMName referenceClass,
@@ -284,7 +284,7 @@ static void enumerateReferenceNames(
 /**
     EnumerateAssociatorNames
     This method enumerates the associators to each instance in the array
-    "cimInstances" for the "nameSpace" 
+    "cimInstances" for the "nameSpace"
 */
 static void enumerateAssociatorNames(
     TestModelWalkStressClient &tmsc,
@@ -345,13 +345,13 @@ static void enumerateAssociatorNames(
 }
 /**
     EnumerateInstanceRelatedInfo
-    This method enumerates instances, referances (by way of subrotine) and 
-    associators (by way of subrotine.Exceptions are caught, modified and 
+    This method enumerates instances, referances (by way of subrotine) and
+    associators (by way of subrotine.Exceptions are caught, modified and
     re-thrown so that generic exception handling can be used in Main
 */
 static void enumerateInstanceRelatedInfo(
     TestModelWalkStressClient &tmsc,
-    CIMClient *client, 
+    CIMClient *client,
     Array<CIMName> classNames,
     CIMNamespaceName nameSpace,
     pid_t clientPid,
@@ -430,7 +430,7 @@ static void enumerateInstanceRelatedInfo(
 }
 /**
     EnumerateClassRelatedInfo
-    This method enumerates classes and instances (by way of subrotine)  
+    This method enumerates classes and instances (by way of subrotine)
 */
 static void enumerateClassRelatedInfo(
     TestModelWalkStressClient &tmsc,
@@ -496,7 +496,7 @@ int main(int argc, char** argv)
     Uint32 cOptionCount =  0;
 
     //
-    // Variables need to connect to server. 
+    // Variables need to connect to server.
     //
     Boolean useSSL;
     String host;
@@ -517,7 +517,7 @@ int main(int argc, char** argv)
     char pid_str[15];
 
     //
-    // Number of times the command succeeded. 
+    // Number of times the command succeeded.
     //
     Uint32 successCount=0;
 
@@ -544,7 +544,7 @@ int main(int argc, char** argv)
         //
         // client specific options if any.
         //
-        struct OptionRow *cOptionTable = 0; 
+        struct OptionRow *cOptionTable = 0;
         newOptionsCount = cOptionCount;
 
         try
@@ -553,7 +553,7 @@ int main(int argc, char** argv)
             // Generate new option table for this client using
             // the OptionManager.
             //
-            
+
             newOptionsTable = tmsc.generateClientOptions(cOptionTable,
                 cOptionCount,newOptionsCount);
             validArg = tmsc.GetOptions(om, argc, argv, newOptionsTable,
@@ -589,7 +589,7 @@ int main(int argc, char** argv)
         {
             sscanf (portStr.getCString (), "%u", &portNumber);
         }
-        
+
         //
         // Setting default ports.
         //
@@ -689,7 +689,7 @@ int main(int argc, char** argv)
                 if (verboseTest)
                 {
                     String mes("Ending client. ");
-                    tmsc.errorLog(clientPid, clientLog, mes); 
+                    tmsc.errorLog(clientPid, clientLog, mes);
                 }
                 break;
             }
@@ -698,7 +698,7 @@ int main(int argc, char** argv)
                 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
                     freopen("nul","w",stdout);
-#else 
+#else
                     freopen("/dev/null","w",stdout);
 #endif
                 }
@@ -710,7 +710,7 @@ int main(int argc, char** argv)
                     tmsc.connectClient( client, host, portNumber, userName,
                         password, useSSL, timeout, verboseTest);
                     connectedToHost = true;
-                    
+
                    //
                    // Client has successfully connected to server.
                    // update status if previously not Success.
@@ -779,7 +779,7 @@ int main(int argc, char** argv)
                     //
                     enumerateAllQualifiers(
                         tmsc,
-                        client, 
+                        client,
                         nameSpacesArray,
                         clientPid,
                         clientLog,
@@ -808,7 +808,7 @@ int main(int argc, char** argv)
                 // the connenction was lost. We then connect on the next time
                 // through the loop.
                 //
-                
+
                 catch (CannotConnectException)
                 {
                     globalStatus = CLIENT_UNKNOWN;
@@ -854,8 +854,8 @@ int main(int argc, char** argv)
                     if (iteration == 100)
                     {
                         tmsc.logErrorPercentage(
-                            successCount, 
-                            totalCount, 
+                            successCount,
+                            totalCount,
                             clientPid,
                             clientLog,
                             clientName);
@@ -911,11 +911,11 @@ int main(int argc, char** argv)
     if (FileSystem::exists(stopClient))
     {
         //
-        // Remove STOP file here. 
+        // Remove STOP file here.
         //
         FileSystem::removeFile(stopClient);
     }
-   
+
     if (verboseTest)
     {
         errorInfo.clear();

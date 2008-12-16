@@ -64,7 +64,7 @@ class NISInfo
      Boolean nisSlaveServer;
      Uint16 nisServerType;
      Uint16 nisServerWaitFlag;
-     
+
      void _usage();
 };
 

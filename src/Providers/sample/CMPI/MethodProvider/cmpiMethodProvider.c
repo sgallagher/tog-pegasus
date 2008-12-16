@@ -40,7 +40,7 @@ static const CMPIBroker *_broker;
 #define _ClassName "CMPISample_MethodProviderClass"
 
 
- 
+
 /**
     The CMPIMethodMIFT.cleanup() function shall perform any necessary
     cleanup operation prior to the unloading of the library of which
@@ -67,7 +67,7 @@ CMPIStatus SampleCMPIMethodProviderInvokeMethod (
     const char *methodName,
     const CMPIArgs * in,
     CMPIArgs * out)
-{   
+{
     CMPIStatus rc = { CMPI_RC_OK, NULL };
     CMPIString *className;
     CMPIData data;
@@ -82,7 +82,7 @@ CMPIStatus SampleCMPIMethodProviderInvokeMethod (
     className = CMGetClassName(ref, &rc);
     /* get a pointer to a C char* representation of this String. */
     name = CMGetCharsPtr(className, &rc);
-    
+
     if(!strcmp(name, _ClassName))
     {
        if(!strcmp ("SayHello", methodName))
@@ -118,7 +118,7 @@ CMPIStatus SampleCMPIMethodProviderInvokeMethod (
     }
     CMReturnData (rslt, (CMPIValue *) &val1, CMPI_string);
     CMReturnDone (rslt);
-    return rc;      
+    return rc;
 }
 
 /* ---------------------------------------------------------------------------*/

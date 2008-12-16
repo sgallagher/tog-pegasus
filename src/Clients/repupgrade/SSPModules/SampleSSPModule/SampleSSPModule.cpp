@@ -48,7 +48,7 @@ SampleSSPModule::~SampleSSPModule()
 /**
     Performs special processing on a qualifier.
 
-    @param  CIMQualifier qualifier. 
+    @param  CIMQualifier qualifier.
 
     @return     CIMQualifier updated qualifier.
 */
@@ -65,7 +65,7 @@ Boolean SampleSSPModule::processClass (CIMClass& inputClass,
                                        CIMClass& outputClass)
 {
 /* This is a sample implementation to update a CIM Class
-   Uncomment for implementation 
+   Uncomment for implementation
 
     //
     // Check if the input class defines "Required" qualifier and
@@ -91,7 +91,7 @@ Boolean SampleSSPModule::processClass (CIMClass& inputClass,
     }
 
     //
-    // Check if any property defines "Required" qualifier. 
+    // Check if any property defines "Required" qualifier.
     //
 
     Array<CIMProperty>      cimProperty;
@@ -160,8 +160,8 @@ Boolean SampleSSPModule::processClass (CIMClass& inputClass,
     }
 
     //
-    // Check if any Method parameter defines 
-    // "Required" qualifier. 
+    // Check if any Method parameter defines
+    // "Required" qualifier.
     //
 
     for ( Uint32 i = 0; i < inputClass.getMethodCount(); i++ )
@@ -218,7 +218,7 @@ Boolean SampleSSPModule::processInstance (CIMInstance& inputInstance,
 {
 
 /* This is a sample implementation to update a CIM Instance.
-   Uncomment for implementation 
+   Uncomment for implementation
 
     Array<CIMProperty> cimProperty;
 

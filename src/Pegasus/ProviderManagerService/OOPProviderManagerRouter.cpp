@@ -335,7 +335,7 @@ ProviderAgentContainer::ProviderAgentContainer(
     PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback,
     PEGASUS_PROVIDERMODULEFAIL_CALLBACK_T providerModuleFailCallback,
     Boolean subscriptionInitComplete)
-    : 
+    :
       _moduleName(moduleName),
       _userName(userName),
       _userContext(userContext),

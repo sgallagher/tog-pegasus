@@ -63,7 +63,7 @@ ifeq ($(OS),zos)
 endif
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
-       
+
 include $(ROOT)/mak/library.mak
 
 ifeq ($(OS_TYPE),windows)

@@ -80,7 +80,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL fibonacci(void * parm)
     int count = Parm->count;
     Condition * condstart = Parm->cond_start;
     MessageQueue * mq = Parm->mq;
-    
+
     condstart->signal();
 
     int add_to_type = 0;
@@ -105,7 +105,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL fibonacci(void * parm)
 ThreadReturnType PEGASUS_THREAD_CDECL deq(void * parm)
 {
     Thread* my_thread = (Thread *)parm;
-  
+
     parmdef * Parm = (parmdef *)my_thread->get_parm();
     MessageType type;
 
@@ -114,7 +114,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL deq(void * parm)
     int count = Parm->count;
     Condition * condstart = Parm->cond_start;
     MessageQueue * mq = Parm->mq;
-    
+
     condstart->signal();
 
     Message * message;
@@ -123,7 +123,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL deq(void * parm)
     while (type != CLOSE_CONNECTION_MESSAGE)
     {
         message = mq->dequeue();
-        while (!message) 
+        while (!message)
         {
             message = mq->dequeue();
         }
@@ -194,11 +194,11 @@ int test01()
 
     // Tell one of the dequeueing tasks to finish
     Message * message;
-    message = new Message(CLOSE_CONNECTION_MESSAGE, 0); 
+    message = new Message(CLOSE_CONNECTION_MESSAGE, 0);
     mq->enqueue(message);
-    
+
     // Tell the other dequeueing task to finish
-    message = new Message(CLOSE_CONNECTION_MESSAGE, 0); 
+    message = new Message(CLOSE_CONNECTION_MESSAGE, 0);
     mq->enqueue(message);
 
     // Finish the dequeueing tasks
@@ -272,14 +272,14 @@ int main(int argc, char** argv)
         test01();
     }
     if (verbose)
-        cout << "+++++ passed test 1" << endl; 
+        cout << "+++++ passed test 1" << endl;
 
     for (Uint32 loop=0; loop<10; loop++)
     {
         test02();
     }
     if (verbose)
-        cout << "+++++ passed test 2" << endl; 
+        cout << "+++++ passed test 2" << endl;
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

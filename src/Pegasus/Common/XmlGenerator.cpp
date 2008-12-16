@@ -296,8 +296,8 @@ void XmlGenerator::_appendSpecialChar(PEGASUS_STD(ostream)& os, char c)
     {
         char scratchBuffer[22];
         Uint32 outputLength;
-        const char * output = Uint8ToString(scratchBuffer, 
-                                            static_cast<Uint8>(c), 
+        const char * output = Uint8ToString(scratchBuffer,
+                                            static_cast<Uint8>(c),
                                             outputLength);
         os << "&#" << output << ";";
     }

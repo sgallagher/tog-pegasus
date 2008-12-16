@@ -59,25 +59,25 @@ int main(int argc, char** argv)
     {
         Uint32 test = 99;
         Uint32 big = 32999;
-        
+
         String str2 = Formatter::format("test $0 big $1", test, big);
-    
+
         if (verbose)
             cout << "str2[" << str2 << "]" << endl;
-        
+
         PEGASUS_TEST_ASSERT(Formatter::format("[TRUE$0]", test) == "[TRUE99]");
     }
     // Test for booleans.
     {
         Boolean flag = true;
         Boolean flag2 = false;
-        
+
         String str = Formatter::format(" TRUE $0 FALSE $1 FALSE $2",
                          flag, !flag, flag2);
-    
+
         if (verbose)
             cout << "str[" << str << "]" << endl;
-        
+
         PEGASUS_TEST_ASSERT(
             Formatter::format("TRUE$0", flag ) == "TRUEtrue");
         PEGASUS_TEST_ASSERT(
@@ -88,12 +88,12 @@ int main(int argc, char** argv)
     {
         Uint32 test1 = 9999;
         Sint32 test2 = 9999;
-        String str = Formatter::format("\\$test1 $0 \\$test2 $1", test1, 
+        String str = Formatter::format("\\$test1 $0 \\$test2 $1", test1,
                 test2);
-    
+
         if (verbose)
             cout << "str[" << str << "]" << endl;
-    
+
         PEGASUS_TEST_ASSERT(
             Formatter::format("[TRUE$0]", test1 ) == "[TRUE9999]");
         PEGASUS_TEST_ASSERT(
@@ -154,13 +154,13 @@ int main(int argc, char** argv)
         Uint32 t7 = 7;
         Uint32 t8 = 8;
         Uint32 t9 = 9;
-        
+
         String str = Formatter::format("[$0$1$2$3$4$5$6$7$8$9]",
                            t0,t1,t2,t3,t4,t5,t6,t7,t8,t9);
-        
+
         if (verbose)
                 cout << "str[" << str << "]" << endl;
-        
+
         PEGASUS_TEST_ASSERT(Formatter::format("[$0$1$2$3$4$5$6$7$8$9]",
                            t0,t1,t2,t3,t4,t5,t6,t7,t8,t9)
                            == "[1123456789]");

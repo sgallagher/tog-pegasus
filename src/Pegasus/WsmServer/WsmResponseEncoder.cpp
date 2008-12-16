@@ -123,10 +123,10 @@ void WsmResponseEncoder::_sendUnreportableSuccess(WsmResponse* response)
             "requested envelope size limits."),
         WSMAN_FAULTDETAIL_UNREPORTABLESUCCESS);
     WsmFaultResponse faultResponse(
-        response->getRelatesTo(), 
-        response->getQueueId(), 
+        response->getRelatesTo(),
+        response->getQueueId(),
         response->getHttpMethod(),
-        response->getHttpCloseConnect(), 
+        response->getHttpCloseConnect(),
         fault);
 
     SoapResponse soapResponse(&faultResponse);
@@ -142,10 +142,10 @@ void WsmResponseEncoder::_sendEncodingLimitFault(WsmResponse* response)
             "envelope size limits."),
         WSMAN_FAULTDETAIL_MAXENVELOPESIZE);
     WsmFaultResponse faultResponse(
-        response->getRelatesTo(), 
-        response->getQueueId(), 
+        response->getRelatesTo(),
+        response->getQueueId(),
         response->getHttpMethod(),
-        response->getHttpCloseConnect(), 
+        response->getHttpCloseConnect(),
         fault);
 
     SoapResponse soapResponse(&faultResponse);
@@ -162,7 +162,7 @@ void WsmResponseEncoder::enqueue(WsmResponse* response)
             "response->getHttpCloseConnect() returned %d",
         response->getHttpCloseConnect()));
 
-    try 
+    try
     {
         switch (response->getType())
         {
@@ -216,10 +216,10 @@ void WsmResponseEncoder::enqueue(WsmResponse* response)
                 "A System error has occurred. Please retry the "
                     "WS-Management operation at a later time."));
         WsmFaultResponse outofmem(
-            response->getRelatesTo(), 
-            response->getQueueId(), 
+            response->getRelatesTo(),
+            response->getQueueId(),
             response->getHttpMethod(),
-            response->getHttpCloseConnect(), 
+            response->getHttpCloseConnect(),
             fault);
         _encodeWsmFaultResponse(&outofmem);
     }
@@ -267,11 +267,11 @@ void WsmResponseEncoder::_encodeWxfPutResponse(WxfPutResponse* response)
         WsmWriter::appendStartTag(
             headers, WsmNamespaces::WS_MAN, STRLIT("RequestedEPR"));
         WsmWriter::appendStartTag(
-            headers, 
+            headers,
             WsmNamespaces::WS_ADDRESSING, STRLIT("EndpointReference"));
         WsmWriter::appendEPRElement(headers, response->getEPR());
         WsmWriter::appendEndTag(
-            headers, 
+            headers,
             WsmNamespaces::WS_ADDRESSING, STRLIT("EndpointReference"));
         WsmWriter::appendEndTag(
             headers, WsmNamespaces::WS_MAN, STRLIT("RequestedEPR"));
@@ -330,8 +330,8 @@ void WsmResponseEncoder::_encodeWsenEnumerateResponse(
     }
 
     if (!_encodeEnumerationData(
-            soapResponse, 
-            headers, 
+            soapResponse,
+            headers,
             WS_ENUMERATION_ENUMERATE,
             response->getEnumerationContext(),
             response->isComplete(),
@@ -350,8 +350,8 @@ void WsmResponseEncoder::_encodeWsenPullResponse(WsenPullResponse* response)
     Buffer headers;
 
     if (!_encodeEnumerationData(
-            soapResponse, 
-            headers, 
+            soapResponse,
+            headers,
             WS_ENUMERATION_PULL,
             response->getEnumerationContext(),
             response->isComplete(),
@@ -378,38 +378,38 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
         operation == WS_ENUMERATION_PULL);
 
     WsmWriter::appendStartTag(
-        bodyHeader, WsmNamespaces::WS_ENUMERATION, 
-        operation == WS_ENUMERATION_ENUMERATE ? 
+        bodyHeader, WsmNamespaces::WS_ENUMERATION,
+        operation == WS_ENUMERATION_ENUMERATE ?
             STRLIT("EnumerateResponse") : STRLIT("PullResponse"));
 
     if (!isComplete)
     {
         WsmWriter::appendStartTag(
-            bodyHeader, WsmNamespaces::WS_ENUMERATION, 
+            bodyHeader, WsmNamespaces::WS_ENUMERATION,
             STRLIT("EnumerationContext"));
         WsmWriter::append(bodyHeader, contextId);
         WsmWriter::appendEndTag(
-            bodyHeader, WsmNamespaces::WS_ENUMERATION, 
+            bodyHeader, WsmNamespaces::WS_ENUMERATION,
             STRLIT("EnumerationContext"));
     }
     else
     {
         WsmWriter::appendEmptyTag(
-            bodyHeader, WsmNamespaces::WS_ENUMERATION, 
+            bodyHeader, WsmNamespaces::WS_ENUMERATION,
             STRLIT("EnumerationContext"));
     }
 
     if (data.getSize() > 0)
     {
         WsmWriter::appendStartTag(
-            bodyHeader, 
-            operation == WS_ENUMERATION_ENUMERATE ? 
-                WsmNamespaces::WS_MAN : WsmNamespaces::WS_ENUMERATION, 
+            bodyHeader,
+            operation == WS_ENUMERATION_ENUMERATE ?
+                WsmNamespaces::WS_MAN : WsmNamespaces::WS_ENUMERATION,
             STRLIT("Items"));
         WsmWriter::appendEndTag(
-            bodyTrailer, 
-            operation == WS_ENUMERATION_ENUMERATE ? 
-                WsmNamespaces::WS_MAN : WsmNamespaces::WS_ENUMERATION, 
+            bodyTrailer,
+            operation == WS_ENUMERATION_ENUMERATE ?
+                WsmNamespaces::WS_MAN : WsmNamespaces::WS_ENUMERATION,
             STRLIT("Items"));
     }
 
@@ -418,16 +418,16 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
     if (isComplete)
     {
         WsmWriter::appendEmptyTag(
-            bodyTrailer, 
-            operation == WS_ENUMERATION_ENUMERATE ? 
-                WsmNamespaces::WS_MAN : WsmNamespaces::WS_ENUMERATION, 
+            bodyTrailer,
+            operation == WS_ENUMERATION_ENUMERATE ?
+                WsmNamespaces::WS_MAN : WsmNamespaces::WS_ENUMERATION,
             STRLIT("EndOfSequence"));
         eosSize = bodyTrailer.size() - eosPos;
     }
 
     WsmWriter::appendEndTag(
-        bodyTrailer, WsmNamespaces::WS_ENUMERATION, 
-        operation == WS_ENUMERATION_ENUMERATE ? 
+        bodyTrailer, WsmNamespaces::WS_ENUMERATION,
+        operation == WS_ENUMERATION_ENUMERATE ?
             STRLIT("EnumerateResponse") : STRLIT("PullResponse"));
 
     // Fault the request if it can't be encoded within the limits
@@ -450,7 +450,7 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
             if (data.polymorphismMode == WSMB_PM_EXCLUDE_SUBCLASS_PROPERTIES)
             {
                 // The response does not contain the subclass properties, but
-                // the class name is still that of the subclass. 
+                // the class name is still that of the subclass.
                 // Replace it here.
                 data.instances[i].setClassName(
                     WsmToCimRequestMapper::convertResourceUriToClassName(
@@ -471,13 +471,13 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
             Buffer body;
 
             WsmWriter::appendStartTag(
-                body, 
-                WsmNamespaces::WS_ADDRESSING, 
+                body,
+                WsmNamespaces::WS_ADDRESSING,
                 STRLIT("EndpointReference"));
             WsmWriter::appendEPRElement(body, data.eprs[i]);
             WsmWriter::appendEndTag(
-                body, 
-                WsmNamespaces::WS_ADDRESSING, 
+                body,
+                WsmNamespaces::WS_ADDRESSING,
                 STRLIT("EndpointReference"));
             if (!soapResponse.appendBodyContent(body))
             {
@@ -492,14 +492,14 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
             Buffer body;
 
             WsmWriter::appendStartTag(
-                body, 
-                WsmNamespaces::WS_MAN, 
+                body,
+                WsmNamespaces::WS_MAN,
                 STRLIT("Item"));
 
             if (data.polymorphismMode == WSMB_PM_EXCLUDE_SUBCLASS_PROPERTIES)
             {
                 // The response does not contain the subclass properties, but
-                // the class name is still that of the subclass. 
+                // the class name is still that of the subclass.
                 // Replace it here.
                 data.instances[i].setClassName(
                     WsmToCimRequestMapper::convertResourceUriToClassName(
@@ -507,20 +507,20 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
             }
 
             WsmWriter::appendInstanceElement(body, data.instances[i]);
- 
+
             WsmWriter::appendStartTag(
-                body, 
-                WsmNamespaces::WS_ADDRESSING, 
+                body,
+                WsmNamespaces::WS_ADDRESSING,
                 STRLIT("EndpointReference"));
             WsmWriter::appendEPRElement(body, data.eprs[i]);
             WsmWriter::appendEndTag(
-                body, 
-                WsmNamespaces::WS_ADDRESSING, 
+                body,
+                WsmNamespaces::WS_ADDRESSING,
                 STRLIT("EndpointReference"));
 
             WsmWriter::appendEndTag(
-                body, 
-                WsmNamespaces::WS_MAN, 
+                body,
+                WsmNamespaces::WS_MAN,
                 STRLIT("Item"));
 
             if (!soapResponse.appendBodyContent(body))
@@ -542,7 +542,7 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
         return false;
     }
 
-    // Remove the items we processed. The rest will be added back 
+    // Remove the items we processed. The rest will be added back
     // to the context
     if (i != 0)
     {

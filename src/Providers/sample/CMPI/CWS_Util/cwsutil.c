@@ -29,7 +29,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "cwsutil.h"  
+#include "cwsutil.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,12 +59,12 @@ char * dirname(char *path) {
 }
 #endif
 
-int locateFile(const char *fn) 
+int locateFile(const char *fn)
 {
    int i;
-   for (i=0; files[i].name; i++) 
+   for (i=0; files[i].name; i++)
       if (strcmp(files[i].name,fn)==0) return i;
-   return -1;   
+   return -1;
 }
 
 void* CWS_Begin_Enum(const char *topdir, int filetype)
@@ -81,7 +81,7 @@ int CWS_Next_Enum(void *handle, CWS_FILE* cwsf)
 {
   CWS_Control *cc = (CWS_Control *)handle;
   int n;
-  
+
   if (cc->done) return 0;
   n=++cc->next;
   while (files[n].name && files[n].ftype!=cc->type) n=++cc->next;
@@ -109,7 +109,7 @@ void CWS_End_Enum(void *handle)
 
 int CWS_Get_File(const char *file, CWS_FILE* cwsf)
 {
-  int n;  
+  int n;
   if (file && cwsf && (n=locateFile(file))>=0) {
     strcpy(cwsf->cws_name,files[n].name);
     cwsf->cws_size=files[n].size;
@@ -125,7 +125,7 @@ int CWS_Get_File(const char *file, CWS_FILE* cwsf)
 int CWS_Update_File(CWS_FILE* cwsf)
 {
   int mode;
-  int n;  
+  int n;
 
   /* only change mode */
   if (cwsf && (n=locateFile(cwsf->cws_name))>=0) {
@@ -137,8 +137,8 @@ int CWS_Update_File(CWS_FILE* cwsf)
 }
 
 int CWS_Update_FileSize(CWS_FILE* cwsf, const char *fn)
-{ 
-    int n;  
+{
+    int n;
 
     /* only change filesize */
     if (cwsf && (n=locateFile(fn))>=0)
@@ -156,7 +156,7 @@ int CWS_Create_Directory(CWS_FILE* cwsf)
   int         mode;
 
   if (cwsf) {
-    mode=cwsf->cws_mode | 0077; // plus umask 
+    mode=cwsf->cws_mode | 0077; // plus umask
     state=mkdir(cwsf->cws_name,mode)==0;
   }
   return state; */
@@ -188,7 +188,7 @@ void* CWS_Begin_Enum(const char *topdir, int filetype)
   CWS_Control *cc = malloc(sizeof(CWS_Control));
   if (cc && tmpnam(cc->name)) {
     sprintf(cmdbuffer,
-        "find %s -xdev -type %c -printf \"%%p %%s " 
+        "find %s -xdev -type %c -printf \"%%p %%s "
         "%%C@ %%A@ %%T@ %%m\n\" > %s",
         topdir, filetype, cc->name);
     if (system(cmdbuffer)==0)
@@ -253,7 +253,7 @@ int CWS_Update_File(CWS_FILE* cwsf)
 {
 
   int         state=0;
-  struct stat statbuf; 
+  struct stat statbuf;
   int         mode;
 
   /* only change mode */
@@ -265,7 +265,7 @@ int CWS_Update_File(CWS_FILE* cwsf)
 }
 
 int CWS_Update_FileSize(CWS_FILE* cwsf, const char *fn)
-{ 
+{
     /* can't change filesize for non-simulated case */
     return 0;
 }
@@ -288,10 +288,10 @@ int CWS_Get_FileType(const char *file, char* typestring, size_t tslen)
   char  cmdbuffer[300];
   char  cmdout[300];
   FILE *fcmdout;
-  
+
   if (file && tmpnam(cmdout)) {
     sprintf(cmdbuffer,"file %s > %s",file,cmdout);
-    if (system(cmdbuffer)==0 && 
+    if (system(cmdbuffer)==0 &&
     (fcmdout = fopen(cmdout,"r")) &&
     fgets(typestring,tslen,fcmdout))
       return 0;

@@ -33,14 +33,14 @@
     \file AppendNs.c
     \brief Appends Namespaces property in provider registration MOF fies.
 
-    This program helps in modifying existing registration MOF files, it 
+    This program helps in modifying existing registration MOF files, it
     appends additional namespace names to the Namespaces property.
 
     Usage:
          AppendeNs <additional-namespace-name> [ ... ] <mof-file-name>
 
     Where
-        additional-namespace-name is the namespace name to be added to 
+        additional-namespace-name is the namespace name to be added to
         existing Namespaces specification.
 
     Multiple namespace names can be specified, separated by blanks.
@@ -56,7 +56,7 @@
     On Linux root/node* is used to define the provider supports all namespaces
     starting with root/node.
 
-    But on windows it does not work because command shell does not expand 
+    But on windows it does not work because command shell does not expand
     wildcards.
 */
 
@@ -107,7 +107,7 @@ int main(int argc,char *argv[])
         while (RB != gettoken(&tmp,token))
         {
             // we completly rely on correctness of registration MOF file.
-            prev = tmp;  
+            prev = tmp;
         }
 
         *prev = '\0';

@@ -100,7 +100,7 @@ extern "C"
         return 0;
     }
 
-    CMPIPredicate* sbcGetPredicateAt(const CMPISubCond* eSbc, 
+    CMPIPredicate* sbcGetPredicateAt(const CMPISubCond* eSbc,
     unsigned int index, CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
@@ -127,15 +127,15 @@ extern "C"
 
                 CMPIPredicate *prd=(CMPIPredicate*)new CMPI_Predicate(term);
                 /**
-                   CMPI_Object puts in the hdl the pointer to the 
-                   CMPI_Predicate The sbcRelease will use that pointer to 
+                   CMPI_Object puts in the hdl the pointer to the
+                   CMPI_Predicate The sbcRelease will use that pointer to
                    de-allocate the CMPI_Predicate
-                   structure.  
+                   structure.
                  */
                 CMPI_Object *obj = new CMPI_Object(prd);
 
                 CMSetStatus(rc,CMPI_RC_OK);
-                CMPIPredicate* cmpiPredicate = 
+                CMPIPredicate* cmpiPredicate =
                     reinterpret_cast<CMPIPredicate*>(obj);
                 PEG_METHOD_EXIT();
                 return cmpiPredicate;
@@ -143,7 +143,7 @@ extern "C"
         }
         CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
         PEG_METHOD_EXIT();
-        return NULL; 
+        return NULL;
     }
 
     CMPIPredicate* sbcGetPredicate(
@@ -171,7 +171,7 @@ static CMPISubCondFT scnd_FT=
 CMPISubCondFT *CMPI_SubCond_Ftab=&scnd_FT;
 
 CMPI_SubCond::CMPI_SubCond(const CMPI_TableauRow* tblor)
-: priv((void*)tblor) 
+: priv((void*)tblor)
 {
     ft=CMPI_SubCond_Ftab;
 }

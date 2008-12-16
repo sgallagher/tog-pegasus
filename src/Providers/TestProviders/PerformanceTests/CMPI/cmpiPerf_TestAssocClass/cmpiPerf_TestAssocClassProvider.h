@@ -445,7 +445,7 @@ CMPIInstance * _assoc_get_inst(
 
     CMSetProperty(ci,_RefLeft,(CMPIValue*)&(dtl.value.ref),CMPI_ref );
     CMSetProperty(ci,_RefRight,(CMPIValue*)&(dtr.value.ref),CMPI_ref );
-    
+
     return ci;
 }
 

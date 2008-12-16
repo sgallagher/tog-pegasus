@@ -48,29 +48,29 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     This class defines the ShutdownService necessary to process the shutdown
     request to gracefully shutdown the CIMServer.
-   
+
     In order to shutdown the CIMServer gracefully, the CIMServer state
     information must be maintained.
-   
+
     The state of the CIMServer is kept in the CIMServerState object.  After
     CIMServer starts up, the CIMServer state is set to RUNNING.  When a
     shutdown request is received by the ShutdownService, the CIMServer state
     will be set to TERMINATING.
-   
+
     Whenever a request comes through a client connection, before the request
     is being routed off to the appropriate message queue, the CIMServer state
     is checked.  If the state is set to TERMINATING, this means CIMServer is
     in the process of being shutdown, an error response will be sent back
     to the client to indicate that the request cannot be processed due to
     CIMServer shutting down.
-   
+
     In order to determine if the CIMServer is servicing any CIM requests at
     the time of a shutdown, CIMServer keeps track of the number of CIM requests
     that are outstanding.  This request count is kept in the HTTPConnection
     object.  The request count is incremented everytime a request comes through
     a client connection, and is decremented everytime a response is sent back
     to the client.
-   
+
     Before the ShutdownService shuts down the CIMServer, the request count is
     checked to determine if there are any outstanding CIM requests being
     processed.  If there are no requests outstanding, the CIMServer will be

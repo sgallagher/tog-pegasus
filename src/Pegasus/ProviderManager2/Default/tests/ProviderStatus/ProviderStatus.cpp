@@ -38,7 +38,7 @@
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
- 
+
 static Boolean verbose;
 
 void testInitialization()

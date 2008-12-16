@@ -26,7 +26,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //////////////////////////////////////////////////////////////////////////
- 
+
 #ifndef Pegasus_SLP_Utils_h
 #define Pegasus_SLP_Utils_h
 
@@ -136,7 +136,7 @@ SLP_STORAGE_DECL const char *slp_ntop(int af, const void *src,
 /*
     The  slp_pton (inet_pton())  function  shall convert an
     address in its standard text presentation form into its numeric
-    binary form. 
+    binary form.
 */
 SLP_STORAGE_DECL int slp_pton(int af, const char *src, void *dst);
 

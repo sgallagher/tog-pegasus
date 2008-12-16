@@ -58,7 +58,7 @@ CCFLAGS += /names=(uppercase,shortened)
 CCFLAGS += /OPT=INLINE
 CCFLAGS += /nowarn
 
-ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
 CFLAGS += /debug/noopt/show=include/lis=$(OBJ_VMSDIRA)]
 CCFLAGS += /debug/noopt
 CCFLAGS += /show=include/lis=$(OBJ_VMSDIRA)]
@@ -75,7 +75,7 @@ OPENSSL_SET_SERIAL_SUPPORTED = true
 PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER = true
 PEGASUS_ENABLE_SYSTEM_LOG_HANDLER = true
 PEGASUS_ENABLE_EMAIL_HANDLER = true
-# Local domain sockets, or an equivalent, 
+# Local domain sockets, or an equivalent,
 # is not currently supported on OpenVMS. Bug 2147
 PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=1
 # The Provider User Context feature (PEP 197) is not yet supported on OpenVMS

@@ -5,7 +5,7 @@ Content-Length: 521
 Man: http://www.dmtf.org/cim/mapping/http/v1.0;ns=23
 23-CIMProtocolVersion: 1.0
 23-CIMOperation: MethodCall
-23-CIMMethod: 
+23-CIMMethod:
 23-CIMObject: root/cimv2
 
 <?xml version="1.0" ?>

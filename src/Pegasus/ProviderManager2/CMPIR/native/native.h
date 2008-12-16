@@ -31,7 +31,7 @@
 
 /*!
     \file native.h
-    \brief Header file for the native encapsulated CMPI data type 
+    \brief Header file for the native encapsulated CMPI data type
     implementation.
 
     This file defines all the data types and functions necessary to use
@@ -81,7 +81,7 @@ struct native_propertyFT
 {
 
     //! Adds a new native_property to a list.
-    int (* addProperty) ( 
+    int (* addProperty) (
         struct native_property **,
         int,
         const char *,
@@ -90,7 +90,7 @@ struct native_propertyFT
         const CMPIValue * );
 
     //! Resets the values of an existing native_property, if existant.
-    int (* setProperty) ( 
+    int (* setProperty) (
         struct native_property *,
         int,
         const char *,
@@ -105,20 +105,20 @@ struct native_propertyFT
          int );
 
     //! Looks up a specifix native_property in CMPIData format.
-    CMPIData (* getDataProperty) ( 
+    CMPIData (* getDataProperty) (
         struct native_property *,
         const char *,
         CMPIStatus * );
 
     //! Extract an indexed native_property in CMPIData format.
-    CMPIData (* getDataPropertyAt) ( 
+    CMPIData (* getDataPropertyAt) (
         struct native_property *,
         unsigned int,
         CMPIString **,
         CMPIStatus * );
 
     //! Yields the number of native_property items in a list.
-    CMPICount (* getPropertyCount) ( 
+    CMPICount (* getPropertyCount) (
         struct native_property *,
         CMPIStatus * );
 
@@ -126,7 +126,7 @@ struct native_propertyFT
     void (* release) ( struct native_property * );
 
     //! Clones a complete list of native_property items.
-    struct native_property * (* clone) ( 
+    struct native_property * (* clone) (
         struct native_property *,
         CMPIStatus * );
 };
@@ -135,10 +135,10 @@ struct _NativeCMPIBrokerFT
     CMPIBrokerFT brokerFt;
     CMPIString* (*getMessage) (
         const CMPIBroker* mb,
-        const char *msgId, 
-        const char *defMsg, 
+        const char *msgId,
+        const char *defMsg,
         CMPIStatus* rc,
-        unsigned int count, 
+        unsigned int count,
         ...);
     CMPIStatus (*logMessage) (
         const CMPIBroker*,
@@ -156,8 +156,8 @@ struct _NativeCMPIBrokerFT
 
     CMPIBoolean (*classPathIsA) (
         const CMPIBroker * broker,
-        const CMPIObjectPath * cop, 
-        const char * type, 
+        const CMPIObjectPath * cop,
+        const char * type,
         CMPIStatus * rc );
 
     // Added for Remote CMPI support for indications.
@@ -166,24 +166,24 @@ struct _NativeCMPIBrokerFT
     // As of now we are taking help of MB by making UP calls. -V 5245
     CMPIBoolean (*selExp_evaluate) (
         CONST CMPISelectExp * exp,
-        CONST CMPIInstance *inst, 
+        CONST CMPIInstance *inst,
         CMPIStatus *rc);
     CMPISelectCond* (*selExp_getDOC) (
-        CONST CMPISelectExp * exp, 
-        CMPIStatus * rc);
-    CMPISelectCond* (*selExp_getCOD) ( 
-        CONST CMPISelectExp * exp, 
-        CMPIStatus * rc);
-    CMPIBoolean (*selExp_evaluateUsingAccessor) ( 
         CONST CMPISelectExp * exp,
-        CMPIAccessor *accessor, 
-        void *parm, 
-        CMPIStatus *rc);
-    CMPISelectExp* (*selExp_clone) ( 
-        CONST CMPISelectExp * exp, 
         CMPIStatus * rc);
-    CMPIString* (*selExp_getString) ( 
-        CONST CMPISelectExp * exp, 
+    CMPISelectCond* (*selExp_getCOD) (
+        CONST CMPISelectExp * exp,
+        CMPIStatus * rc);
+    CMPIBoolean (*selExp_evaluateUsingAccessor) (
+        CONST CMPISelectExp * exp,
+        CMPIAccessor *accessor,
+        void *parm,
+        CMPIStatus *rc);
+    CMPISelectExp* (*selExp_clone) (
+        CONST CMPISelectExp * exp,
+        CMPIStatus * rc);
+    CMPIString* (*selExp_getString) (
+        CONST CMPISelectExp * exp,
         CMPIStatus * rc);
     CMPIStatus  (*selExp_release) (CONST CMPISelectExp* se);
     CMPISelectExp* (*selExp_newSelExp) (
@@ -194,27 +194,27 @@ struct _NativeCMPIBrokerFT
 #ifdef CMPI_VER_200
 
     CMPIError* (*newCMPIError) (
-        const CMPIBroker*, 
-        const char*, 
-        const char*, 
+        const CMPIBroker*,
         const char*,
-        const CMPIErrorSeverity, 
+        const char*,
+        const char*,
+        const CMPIErrorSeverity,
         const CMPIErrorProbableCause,
         const CMPIrc, CMPIStatus*);
     CMPIStatus (*openMessageFile) (
-        const CMPIBroker *, 
-        const char*, 
+        const CMPIBroker *,
+        const char*,
         CMPIMsgFileHandle*);
     CMPIStatus (*closeMessageFile) (
-        const CMPIBroker *, 
+        const CMPIBroker *,
         const CMPIMsgFileHandle);
     CMPIString* (*getMessage2) (
-        const CMPIBroker *, 
-        const char *, 
-        const CMPIMsgFileHandle, 
+        const CMPIBroker *,
         const char *,
-        CMPIStatus*, 
-        CMPICount, 
+        const CMPIMsgFileHandle,
+        const char *,
+        CMPIStatus*,
+        CMPICount,
         ...);
 #endif /* CMPI_VER_200 */
 
@@ -226,7 +226,7 @@ struct native_propertyFT
 {
 
     //! Adds a new native_property to a list.
-    int (* addProperty) ( 
+    int (* addProperty) (
         struct native_property **,
         int,
         const char *,
@@ -235,7 +235,7 @@ struct native_propertyFT
         CMPIValue * );
 
     //! Resets the values of an existing native_property, if existant.
-    int (* setProperty) ( 
+    int (* setProperty) (
         struct native_property *,
         int,
         const char *,
@@ -244,26 +244,26 @@ struct native_propertyFT
 
      //! Sets PropertyOrigin,this internal function is called after setProperty.
      int (* setPropertyOrigin) (
-         struct native_property *, 
+         struct native_property *,
          const char *,
          const char *,
          int );
 
     //! Looks up a specifix native_property in CMPIData format.
-    CMPIData (* getDataProperty) ( 
+    CMPIData (* getDataProperty) (
         struct native_property *,
         const char *,
         CMPIStatus * );
 
     //! Extract an indexed native_property in CMPIData format.
-    CMPIData (* getDataPropertyAt) ( 
+    CMPIData (* getDataPropertyAt) (
         struct native_property *,
         unsigned int,
         CMPIString **,
         CMPIStatus * );
 
     //! Yields the number of native_property items in a list.
-    CMPICount (* getPropertyCount) ( 
+    CMPICount (* getPropertyCount) (
         struct native_property *,
         CMPIStatus * );
 
@@ -271,7 +271,7 @@ struct native_propertyFT
     void (* release) ( struct native_property * );
 
     //! Clones a complete list of native_property items.
-    struct native_property * (* clone) ( 
+    struct native_property * (* clone) (
         struct native_property *,
         CMPIStatus * );
 };
@@ -281,46 +281,46 @@ struct _NativeCMPIBrokerFT
     CMPIBrokerFT brokerFt;
     CMPIArray *(*getKeyNames)(
         CMPIBroker * broker,
-        CMPIContext * context, 
-        CMPIObjectPath * cop, 
+        CMPIContext * context,
+        CMPIObjectPath * cop,
         CMPIStatus * rc);
     CMPIString* (*getMessage) (
         CMPIBroker* mb,
-        const char *msgId, 
-        const char *defMsg, 
+        const char *msgId,
+        const char *defMsg,
         CMPIStatus* rc,
-        unsigned int count, 
+        unsigned int count,
         va_list);
-    CMPIBoolean (*classPathIsA) ( 
+    CMPIBoolean (*classPathIsA) (
         CMPIBroker * broker,
-        CMPIObjectPath * cop, 
-        const char * type, 
+        CMPIObjectPath * cop,
+        const char * type,
         CMPIStatus * rc );
 
     // Added for Remote CMPI support for indications.
     // TODO: We need to remove these functions, once we done with
     // complete implementation of these functionalities on remote side.
     // As of now we are taking help of MB by making UP calls. -V 5245
-    CMPIBoolean (*selExp_evaluate) ( 
+    CMPIBoolean (*selExp_evaluate) (
         CONST CMPISelectExp * exp,
-        CONST CMPIInstance *inst, 
+        CONST CMPIInstance *inst,
         CMPIStatus *rc);
-    CMPISelectCond* (*selExp_getDOC) ( 
-        CONST CMPISelectExp * exp, 
-        CMPIStatus * rc);
-    CMPISelectCond* (*selExp_getCOD) ( 
-        CONST CMPISelectExp * exp, 
-        CMPIStatus * rc);
-    CMPIBoolean (*selExp_evaluateUsingAccessor) ( 
+    CMPISelectCond* (*selExp_getDOC) (
         CONST CMPISelectExp * exp,
-        CMPIAccessor *accessor, 
-        void *parm, 
-        CMPIStatus *rc);
-    CMPISelectExp* (*selExp_clone) ( 
-        CONST CMPISelectExp * exp, 
         CMPIStatus * rc);
-    CMPIString* (*selExp_getString) ( 
-        CONST CMPISelectExp * exp, 
+    CMPISelectCond* (*selExp_getCOD) (
+        CONST CMPISelectExp * exp,
+        CMPIStatus * rc);
+    CMPIBoolean (*selExp_evaluateUsingAccessor) (
+        CONST CMPISelectExp * exp,
+        CMPIAccessor *accessor,
+        void *parm,
+        CMPIStatus *rc);
+    CMPISelectExp* (*selExp_clone) (
+        CONST CMPISelectExp * exp,
+        CMPIStatus * rc);
+    CMPIString* (*selExp_getString) (
+        CONST CMPISelectExp * exp,
         CMPIStatus * rc);
     CMPIStatus  (*selExp_release) (CONST CMPISelectExp* se);
     CMPISelectExp* (*selExp_newSelExp) (
@@ -336,40 +336,40 @@ typedef struct _NativeCMPIBrokerFT NativeCMPIBrokerFT;
 /****************************************************************************/
 
 PEGASUS_EXPORT void native_release_CMPIValue ( CMPIType, CMPIValue * val );
-PEGASUS_EXPORT CMPIValue native_clone_CMPIValue ( 
-    CMPIType, 
-    CONST CMPIValue * val, 
+PEGASUS_EXPORT CMPIValue native_clone_CMPIValue (
+    CMPIType,
+    CONST CMPIValue * val,
     CMPIStatus * );
 PEGASUS_EXPORT CMPIString * native_new_CMPIString (
-    const char *, 
+    const char *,
     CMPIStatus * );
-PEGASUS_EXPORT CMPIArray * native_new_CMPIArray ( 
+PEGASUS_EXPORT CMPIArray * native_new_CMPIArray (
     CMPICount size,
     CMPIType type,
     CMPIStatus * );
 PEGASUS_EXPORT void native_array_increase_size ( CMPIArray *, CMPICount );
-PEGASUS_EXPORT CMPIInstance * native_new_CMPIInstance ( 
-    CONST CMPIObjectPath *, 
+PEGASUS_EXPORT CMPIInstance * native_new_CMPIInstance (
+    CONST CMPIObjectPath *,
     CMPIStatus * );
 PEGASUS_EXPORT CMPIResult *  native_new_CMPIResult ( CMPIStatus * );
 PEGASUS_EXPORT CMPIArray *  native_result2array ( CMPIResult * );
-PEGASUS_EXPORT CMPIEnumeration *  native_new_CMPIEnumeration ( 
-    CMPIArray *, 
+PEGASUS_EXPORT CMPIEnumeration *  native_new_CMPIEnumeration (
+    CMPIArray *,
     CMPIStatus * );
-PEGASUS_EXPORT CMPIObjectPath * native_new_CMPIObjectPath ( 
+PEGASUS_EXPORT CMPIObjectPath * native_new_CMPIObjectPath (
     const char *,
     const char *,
     CMPIStatus * );
 PEGASUS_EXPORT CMPIArgs * native_new_CMPIArgs ( CMPIStatus * );
 PEGASUS_EXPORT CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * );
-PEGASUS_EXPORT CMPIDateTime * native_new_CMPIDateTime_fromBinary ( 
+PEGASUS_EXPORT CMPIDateTime * native_new_CMPIDateTime_fromBinary (
     CMPIUint64,
     CMPIBoolean,
     CMPIStatus * );
-PEGASUS_EXPORT CMPIDateTime * native_new_CMPIDateTime_fromChars ( 
+PEGASUS_EXPORT CMPIDateTime * native_new_CMPIDateTime_fromChars (
     const char *,
     CMPIStatus * );
-PEGASUS_EXPORT CMPISelectExp * native_new_CMPISelectExp ( 
+PEGASUS_EXPORT CMPISelectExp * native_new_CMPISelectExp (
     CMPIUint64,
     CMPIStatus * );
 PEGASUS_EXPORT CMPIContext *  native_new_CMPIContext ( int mem_state );

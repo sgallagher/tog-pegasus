@@ -3,7 +3,7 @@
 ##                  CIM Server Password file                          ##
 ##                                                                    ##
 ########################################################################
- 
+
 ########################################################################
 #                                                                      #
 # This is the password file for the CIMOM. The username/password       #
@@ -18,7 +18,7 @@
 # cimuser CLI to make any changes to the CIMOM user information.       #
 #                                                                      #
 ########################################################################
- 
+
 
 root~5vVTQkMEG2dqo
 guest[rI8zwwxHTPqPY

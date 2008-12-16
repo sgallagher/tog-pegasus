@@ -226,7 +226,7 @@ make_ObjectPath (const CMPIBroker * broker, const char *ns, const char *clss)
     return objPath;
 }
     static CMPIInstance *
-make_InstanceWithProperties (const CMPIBroker * broker, 
+make_InstanceWithProperties (const CMPIBroker * broker,
         const CMPIObjectPath * objPath)
 {
     CMPIInstance *inst = NULL;
@@ -266,7 +266,7 @@ make_InstanceWithProperties (const CMPIBroker * broker,
             _name = CMGetCharsPtr(name, &rc_String);
             check_CMPIStatus(rc_String);
         }
-        // Really dumb way of doing it. 
+        // Really dumb way of doing it.
         // Just set each property with its own property name.
         if (prop_data.type == CMPI_string)
         {
@@ -413,11 +413,11 @@ expand_projection (CMPISelectExp * clone, CMPIArray * projection)
 }
 
 
-    static void 
-run_test (const CMPIBroker * broker, 
+    static void
+run_test (const CMPIBroker * broker,
         const CMPIContext * ctx,
-        const char *query, 
-        const char *lang, 
+        const char *query,
+        const char *lang,
         const CMPIInstance * inst)
 {
     CMPISelectExp *new_se = NULL;
@@ -429,7 +429,7 @@ run_test (const CMPIBroker * broker,
     if (new_se)
     {
         expand_projection (new_se, projection);
-        /* The accessor function and the instance 
+        /* The accessor function and the instance
            should provide the same exact properties */
         evalRes = evaluate (new_se, inst, instance_accessor, (void *)broker);
         if (projection)
@@ -472,7 +472,7 @@ thread (void *args)
     CMPIBroker *broker;
 
     // Copy over the CMPISelectExp,
-    // CMPIContext, CMPIBroker and the ns from the argument. 
+    // CMPIContext, CMPIBroker and the ns from the argument.
     se = (CMPISelectExp *) arguments[0];
     ctx = (CMPIContext *) arguments[1];
     broker = (CMPIBroker *) arguments[2];
@@ -512,7 +512,7 @@ thread (void *args)
     if (inst != NULL)
     {
         /*
-           This functionality is not used in indication providers, 
+           This functionality is not used in indication providers,
            but instead in ExecQuery provider API (instance providers).
            But for the sake of completness
            this functionality is also used here. */
@@ -725,7 +725,7 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
     context = CBPrepareAttachThread (_broker, ctx);
 
     // We have to pass in the parameters some way. We are passing the
-    // addresses of them  via the void pointer to the thread. 
+    // addresses of them  via the void pointer to the thread.
     // This could also be achieved via passing it thread-specific data.
     arguments[0] = se;
     arguments[1] = context;

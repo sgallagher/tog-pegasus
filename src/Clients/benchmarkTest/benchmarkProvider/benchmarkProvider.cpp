@@ -54,7 +54,7 @@ CIMObjectPath benchmarkProvider::_buildObjectPath(
 {
     Array<CIMKeyBinding> keyBindings;
     keyBindings.append(keyBinding);
-    return CIMObjectPath(String(), CIMNamespaceName(NAMESPACE), 
+    return CIMObjectPath(String(), CIMNamespaceName(NAMESPACE),
                                 className, keyBindings);
 }
 
@@ -71,7 +71,7 @@ CIMInstance benchmarkProvider::_buildInstance(
    if (propertySize > 99999)
    {
       throw CIMException (CIM_ERR_INVALID_PARAMETER);
-   } 
+   }
 
     for (Uint32 i = 0; i < propertySize; i++)
     {
@@ -89,7 +89,7 @@ CIMInstance benchmarkProvider::_buildInstance(
            CIMProperty(CIMName(propertyName), String(propertyValue)));
     }
 
-    CIMObjectPath reference = _buildObjectPath(className, 
+    CIMObjectPath reference = _buildObjectPath(className,
                CIMKeyBinding(CIMName("Identifier"), Identifier));
     instance.setPath(reference);
     return(instance);
@@ -125,7 +125,7 @@ void benchmarkProvider::getInstance(
     {
        throw CIMException(CIM_ERR_NOT_SUPPORTED);
     }
-    
+
     // begin processing the request
     handler.processing();
 
@@ -136,7 +136,7 @@ void benchmarkProvider::getInstance(
     }
 
     _instance = _buildInstance(className, numberOfProperties,
-                        sizeOfPropertyValue , CIMValue(ID));   
+                        sizeOfPropertyValue , CIMValue(ID));
 
     handler.deliver(_instance);
 
@@ -167,7 +167,7 @@ void benchmarkProvider::enumerateInstances(
     for (Uint32 i = 1; i <= numberOfInstances; i++)
     {
        _instance = _buildInstance(className, numberOfProperties,
-                        sizeOfPropertyValue , CIMValue(i));   
+                        sizeOfPropertyValue , CIMValue(i));
        handler.deliver(_instance);
     }
 
@@ -194,11 +194,11 @@ void benchmarkProvider::enumerateInstanceNames(
 
     for (Uint32 i = 1; i <= numberOfInstances; i++)
     {
-       _instanceName = _buildObjectPath(className, 
-               CIMKeyBinding(CIMName("Identifier"), CIMValue(i))); 
+       _instanceName = _buildObjectPath(className,
+               CIMKeyBinding(CIMName("Identifier"), CIMValue(i)));
        handler.deliver(_instanceName);
     }
- 
+
     // complete processing the request
     handler.complete();
 }

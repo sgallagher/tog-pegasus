@@ -56,16 +56,16 @@ class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiObject
     friend class CmpiObjectPath;
     friend class CmpiInstance;
 protected:
-    /** 
+    /**
         Protected pointer to encapsulated CMPI instance.
     */
     void *enc;
-    /**   
+    /**
         Constructor - Do nothing.
     */
     CmpiObject();
 
-    /** 
+    /**
         Constructor - Normal base class constructor.
     */
     CmpiObject(const void* enc);
@@ -75,17 +75,17 @@ protected:
     CmpiBoolean doIsA(CMPIBroker *mb, const char *typeName) const;
 private:
 public:
-    /** 
+    /**
         isNull - Test for valid encapsualtion pointer.
     */
     CmpiBoolean isNull() const;
 
-    /** 
+    /**
         toString - Produces CIMOM specific string representation of object.
     */
     CmpiString toString();
 
-    /** 
+    /**
         isA - checks this objects type.
     */
     CmpiBoolean isA(const char *typeName) const;

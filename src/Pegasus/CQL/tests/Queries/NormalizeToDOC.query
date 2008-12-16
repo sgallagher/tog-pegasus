@@ -12,15 +12,15 @@ SELECT * FROM CQL_TestPropertyTypes WHERE NOT (PropertyString = 'a' AND Property
 #
 # Top predicate is not simple, 2nd level predicates are not simple
 # Requires distribution of AND
-SELECT * FROM CQL_TestPropertyTypes WHERE (PropertyString = 'a' OR PropertySint8 = -1) AND PropertyUint8 = 3  
+SELECT * FROM CQL_TestPropertyTypes WHERE (PropertyString = 'a' OR PropertySint8 = -1) AND PropertyUint8 = 3
 #
 # Top predicate is not simple, 2nd level predicates are not simple
-# Requires DeMorgan 
+# Requires DeMorgan
 SELECT * FROM CQL_TestPropertyTypes WHERE NOT(PropertyString = 'a' OR PropertySint8 = -1) AND PropertyUint8 = 3
 # Top predicate is not simple, 2nd level predicates are not simple
-# Requires DeMorgan and distribution of AND 
-SELECT * FROM CQL_TestPropertyTypes WHERE NOT(PropertyString = 'a' AND PropertySint8 = -1) AND PropertyUint8 = 3 
-SELECT * FROM CQL_TestPropertyTypes WHERE (PropertyUint64 = 5 OR NOT(PropertyString = 'a' AND PropertySint8 = -1)) AND PropertyUint8 = 3      
+# Requires DeMorgan and distribution of AND
+SELECT * FROM CQL_TestPropertyTypes WHERE NOT(PropertyString = 'a' AND PropertySint8 = -1) AND PropertyUint8 = 3
+SELECT * FROM CQL_TestPropertyTypes WHERE (PropertyUint64 = 5 OR NOT(PropertyString = 'a' AND PropertySint8 = -1)) AND PropertyUint8 = 3
 # (A v B) ^ C ---> (A ^ B) v (B ^ C)
 select * from class where ((class.propA = 'normalize') OR (class.propB = 'this')) AND (class.propC = 'you')
 # A ^ (B v C) ---> (A ^ B) v (A ^ C)
@@ -45,7 +45,7 @@ select * from x where (x.A <> '1' OR x.B ISA Xclass AND ( x.D = '3' OR x.E = '4'
 select * from class where NOT (NOT (x LIKE 'this') OR x LIKE 'that')
 # Simple LIKE/ISA
 select * from class where NOT ('aa' LIKE 'bb')
-select * from class where NOT (class ISA Aclass) 
+select * from class where NOT (class ISA Aclass)
 # the following 2 statements are equivalent
 select * from class where NOT class.prop IS NULL
 select * from class where NOT (class.prop IS NULL)

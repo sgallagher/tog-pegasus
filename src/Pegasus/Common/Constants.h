@@ -45,7 +45,7 @@
 **==============================================================================
 */
 
-/* 
+/*
  * Message Queue Names
  */
 
@@ -416,11 +416,11 @@
 #define PEGASUS_PARAMETER_ORDEREDSET_HASHSIZE 16
 #define PEGASUS_METHOD_ORDEREDSET_HASHSIZE 16
 
-/* defines a number value for an OrderedSet when either 
+/* defines a number value for an OrderedSet when either
    the index to a specific member is unknown, meaning not initialized
    (PEGASUS_ORDEREDSET_INDEX_UNKNOWN)
    of the specific member is not part of the list
-   (PEGASUS_ORDEREDSET_INDEX_NOTFOUND)   
+   (PEGASUS_ORDEREDSET_INDEX_NOTFOUND)
 */
 #define PEGASUS_ORDEREDSET_INDEX_NOTFOUND 0xFFFFFFFF
 #define PEGASUS_ORDEREDSET_INDEX_UNKNOWN 0xFFFFFFFE
@@ -511,7 +511,7 @@ PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_INDHANDLER;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_LSTNRDST;
-PEGASUS_COMMON_LINKAGE 
+PEGASUS_COMMON_LINKAGE
     extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_CIMXML;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_LSTNRDST_CIMXML;
 PEGASUS_COMMON_LINKAGE extern const CIMName PEGASUS_CLASSNAME_INDHANDLER_SNMP;
@@ -800,10 +800,10 @@ PEGASUS_COMMON_LINKAGE extern const
 /**
     The qualifier name of embedded objects/instances.
 */
-PEGASUS_COMMON_LINKAGE extern const 
+PEGASUS_COMMON_LINKAGE extern const
     CIMName PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT;
 
-PEGASUS_COMMON_LINKAGE extern const 
+PEGASUS_COMMON_LINKAGE extern const
     CIMName PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE;
 
 PEGASUS_NAMESPACE_END

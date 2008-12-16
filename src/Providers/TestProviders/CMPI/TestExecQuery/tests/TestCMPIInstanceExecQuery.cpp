@@ -263,9 +263,9 @@ _test1 (CIMClient & client)
 
         if (objects.size () == 0)
           {
-            // Only the third (second when starting from zero) 
+            // Only the third (second when starting from zero)
             // and eight(7) won't return instances.
-            //PEGASUS_TEST_ASSERT(i == 2 || i == 5 || i == 7 
+            //PEGASUS_TEST_ASSERT(i == 2 || i == 5 || i == 7
             //                    || i == 8 || i == 12);
             if (verbose)
               cerr <<i<< " No instance returned.. That is good" << endl;

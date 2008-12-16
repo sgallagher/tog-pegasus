@@ -167,7 +167,7 @@ private:
     // virtual function resolution overhead
     AtomicInt _refCounter;
     Uint32 _ownerCount;
-    
+
     friend class CIMQualifierList;
     friend class CIMBuffer;
 };

@@ -44,7 +44,7 @@ static Boolean verbose;  // Flag to control test IO
 void test01()
 {
     CIMQualifierDecl qual1(
-        CIMName ("CIMTYPE"), 
+        CIMName ("CIMTYPE"),
         String(),
         CIMScope::PROPERTY,
         CIMFlavor::TOINSTANCE);
@@ -54,7 +54,7 @@ void test01()
 
     CIMQualifierDecl q2(CIMName ("Abstract"), true, CIMScope::CLASS);
     CIMQualifierDecl q3 = q2;
-    
+
     //
     // Test getName and setName
     //
@@ -63,7 +63,7 @@ void test01()
     PEGASUS_TEST_ASSERT(qual1.getName() == CIMName ("Aggregate"));
 
     //
-    // Test getType 
+    // Test getType
     //
     PEGASUS_TEST_ASSERT(qual1.getType() == CIMTYPE_STRING);
 
@@ -76,13 +76,13 @@ void test01()
     PEGASUS_TEST_ASSERT(qual1.getFlavor ().hasFlavor (CIMFlavor::TOSUBCLASS));
     PEGASUS_TEST_ASSERT(qual1.getFlavor ().hasFlavor (CIMFlavor::OVERRIDABLE));
 
-    CIMQualifierDecl q4(CIMName ("q4"), true, CIMScope::CLASS, 
+    CIMQualifierDecl q4(CIMName ("q4"), true, CIMScope::CLASS,
             CIMFlavor::RESTRICTED);
     PEGASUS_TEST_ASSERT(!q4.getFlavor ().hasFlavor (CIMFlavor::TOINSTANCE));
     PEGASUS_TEST_ASSERT(!q4.getFlavor ().hasFlavor (CIMFlavor::TOSUBCLASS));
     PEGASUS_TEST_ASSERT(q4.getFlavor ().hasFlavor (CIMFlavor::OVERRIDABLE));
 
-    CIMQualifierDecl q5(CIMName ("q5"), true, CIMScope::CLASS, 
+    CIMQualifierDecl q5(CIMName ("q5"), true, CIMScope::CLASS,
             CIMFlavor::DISABLEOVERRIDE);
     PEGASUS_TEST_ASSERT(!q5.getFlavor ().hasFlavor (CIMFlavor::TOINSTANCE));
     PEGASUS_TEST_ASSERT(q5.getFlavor ().hasFlavor (CIMFlavor::TOSUBCLASS));
@@ -110,12 +110,12 @@ void test01()
     PEGASUS_TEST_ASSERT(qualclone.identical(qual1));
 
     //
-    // Test toMof 
+    // Test toMof
     //
     Buffer mofOut;
     MofWriter::appendQualifierDeclElement(mofOut, qual1);
 
-    CIMConstQualifierDecl cq1; 
+    CIMConstQualifierDecl cq1;
     cq1 = qualclone;
 }
 
@@ -125,7 +125,7 @@ void test02()
     // Test CIMConstQualifierDecl class methods
     //
     CIMConstQualifierDecl cq1(
-        CIMName ("CIMTYPE"), 
+        CIMName ("CIMTYPE"),
         String(),
         CIMScope::PROPERTY,
         CIMFlavor::TOINSTANCE);
@@ -137,14 +137,14 @@ void test02()
     CIMConstQualifierDecl cq3;
     cq3 = cq2;
     CIMConstQualifierDecl cq4;
-  
+
     //
     // Test getName and setName
     //
     PEGASUS_TEST_ASSERT(cq1.getName() == CIMName ("CIMTYPE"));
 
     //
-    // Test getType 
+    // Test getType
     //
     PEGASUS_TEST_ASSERT(cq1.getType() == CIMTYPE_STRING);
 

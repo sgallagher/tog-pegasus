@@ -95,7 +95,7 @@ void native_release_CMPIValue ( CMPIType type, CMPIValue * val )
 }
 
 
-CMPIValue native_clone_CMPIValue ( 
+CMPIValue native_clone_CMPIValue (
     CMPIType type,
     CONST CMPIValue * val,
     CMPIStatus * rc )

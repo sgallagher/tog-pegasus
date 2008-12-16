@@ -493,12 +493,12 @@ static void _applyModifiedInstance(
         {
             // Reject attempts to add properties not in class:
 
-            const MRRFeature* sf = FindFeature(sc, 
+            const MRRFeature* sf = FindFeature(sc,
                 *Str(cp.getName()), MRR_FLAG_PROPERTY|MRR_FLAG_REFERENCE);
 
             if (!sf)
             {
-                Throw((CIM_ERR_NOT_FOUND, 
+                Throw((CIM_ERR_NOT_FOUND,
                     "modifyInstance() failed: unknown property: %s",
                     *Str(cp.getName())));
             }
@@ -578,7 +578,7 @@ static bool _isSubClass(const MRRClass* super, const MRRClass* sub)
 }
 
 static inline bool _isDirectSubClass(
-    const MRRClass* super, 
+    const MRRClass* super,
     const MRRClass* sub)
 {
     return sub->super == super;
@@ -648,7 +648,7 @@ static void _associators(
     // Lookup source class:
 
     const MRRClass* sc = FindClass(ns, *Str(className));
-    
+
     if (!sc)
         Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className)));
 
@@ -764,7 +764,7 @@ static void _references(
     // Lookup source class:
 
     const MRRClass* sc = FindClass(ns, *Str(className));
-    
+
     if (!sc)
         Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className)));
 
@@ -864,7 +864,7 @@ static Array<CIMName> _enumerateClassNames(
     // Lookup class:
 
     const MRRClass* super = 0;
-    
+
     if (!className.isNull())
     {
         super = FindClass(ns, *Str(className));
@@ -940,7 +940,7 @@ static Array<CIMObject> _associatorClasses(
         const MRRClass* sc = mcs[i];
         CIMClass cc;
 
-        if (MakeClass(_getHostName(), ns, sc, false, includeQualifiers, 
+        if (MakeClass(_getHostName(), ns, sc, false, includeQualifiers,
             includeClassOrigin, pl, cc) != 0)
         {
             _freePropertyList(pl);
@@ -1016,7 +1016,7 @@ static Array<CIMObject> _referenceClasses(
         const MRRClass* sc = mcs[i];
         CIMClass cc;
 
-        if (MakeClass(_getHostName(), ns, sc, false, includeQualifiers, 
+        if (MakeClass(_getHostName(), ns, sc, false, includeQualifiers,
             includeClassOrigin, pl, cc) != 0)
         {
             _freePropertyList(pl);
@@ -1072,9 +1072,9 @@ static CIMQualifierDecl _getQualifier(
     // Lookup qualifier:
 
     const MRRQualifierDecl* mqd = FindQualifierDecl(ns, *Str(qualifierName));
-    
+
     if (!mqd)
-        Throw((CIM_ERR_NOT_FOUND, 
+        Throw((CIM_ERR_NOT_FOUND,
             "unknown qualifier: %s", *Str(qualifierName)));
 
     // Make the qualifier declaration:
@@ -1150,7 +1150,7 @@ static void _getSuperClassNames(
     // Lookup class:
 
     const MRRClass* sc = FindClass(ns, *Str(className));
-    
+
     if (!sc)
         Throw((CIM_ERR_NOT_FOUND, "unknown class: %s", *Str(className)));
 
@@ -1230,7 +1230,7 @@ CIMClass CIMRepository::getClass(
 
     CIMClass cc;
 
-    if (MakeClass(_getHostName(), ns, sc, localOnly, includeQualifiers, 
+    if (MakeClass(_getHostName(), ns, sc, localOnly, includeQualifiers,
         includeClassOrigin, pl, cc) != 0)
     {
         _freePropertyList(pl);
@@ -1343,7 +1343,7 @@ void CIMRepository::modifyInstance(
 
     if (!sc)
     {
-        Throw((CIM_ERR_FAILED, 
+        Throw((CIM_ERR_FAILED,
             "modifyInstance() failed: unknown class: %s:%s",
             *Str(nameSpace), *Str(className)));
     }
@@ -1354,7 +1354,7 @@ void CIMRepository::modifyInstance(
 
     if (pos == PEG_NOT_FOUND)
     {
-        Throw((CIM_ERR_NOT_FOUND, 
+        Throw((CIM_ERR_NOT_FOUND,
             "modifyInstance() failed: unknown instance: %s",
             *Str(cop.toString())));
     }
@@ -1396,7 +1396,7 @@ Array<CIMClass> CIMRepository::enumerateClasses(
     // Lookup class:
 
     const MRRClass* super = 0;
-    
+
     if (!className.isNull())
     {
         super = FindClass(ns, *Str(className));
@@ -1430,7 +1430,7 @@ Array<CIMClass> CIMRepository::enumerateClasses(
         {
             CIMClass cc;
 
-            if (MakeClass(_getHostName(), ns, sc, localOnly, includeQualifiers, 
+            if (MakeClass(_getHostName(), ns, sc, localOnly, includeQualifiers,
                 includeClassOrigin, 0, cc) != 0)
             {
                 Throw((CIM_ERR_FAILED, "conversion failed: %s", sc->name));
@@ -1473,7 +1473,7 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
         Array<CIMInstance> instances = enumerateInstancesForClass(
-            nameSpace, classNames[i], false, includeQualifiers, 
+            nameSpace, classNames[i], false, includeQualifiers,
             includeClassOrigin, propertyList);
 
         for (Uint32 i = 0 ; i < instances.size(); i++)

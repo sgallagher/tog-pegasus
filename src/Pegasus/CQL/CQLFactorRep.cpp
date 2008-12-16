@@ -36,7 +36,7 @@
 #include <Pegasus/CQL/CQLValue.h>
 #include <Pegasus/Query/QueryCommon/QueryContext.h>
 #include <Pegasus/Common/Tracer.h>
- 
+
 PEGASUS_NAMESPACE_BEGIN
 
 CQLFactorRep::CQLFactorRep():
@@ -44,7 +44,7 @@ CQLFactorRep::CQLFactorRep():
     _CQLVal(),
     _CQLFunct(),
     _invert(false),
-    _simpleValue(false), 
+    _simpleValue(false),
     _containedType(VALUE)
 {
 
@@ -57,7 +57,7 @@ CQLFactorRep::CQLFactorRep(const CQLFactorRep* rep):
     _invert(rep->_invert),
     _simpleValue(rep->_simpleValue),
     _containedType(rep->_containedType)
-  
+
 {
   PEG_METHOD_ENTER(TRC_CQL,
           "CQLFactorRep::CQLFactorRep(const CQLFactorRep* rep)");
@@ -117,7 +117,7 @@ CQLValue CQLFactorRep::resolveValue(const CIMInstance& CI,
                                     const QueryContext& QueryCtx)
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLFactorRep::resolveValue()");
-    
+
     if(_containedType == EXPRESSION)
     {
         PEG_METHOD_EXIT();
@@ -165,13 +165,13 @@ CQLExpression CQLFactorRep::getCQLExpression()const
 String CQLFactorRep::toString()const
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLFactorRep::toString()");
-    
+
     if(_containedType == VALUE)
     {
         PEG_METHOD_EXIT();
         return _CQLVal.toString();
     }
-    
+
     if(_containedType == FUNCTION)
     {
         PEG_METHOD_EXIT();
@@ -189,7 +189,7 @@ void CQLFactorRep::applyContext(const QueryContext& inContext,
                                 const CQLChainedIdentifier& inCid)
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLFactorRep::applyContext()");
-    
+
     if(_containedType == FUNCTION)
     {
         _CQLFunct.applyContext(inContext);
@@ -208,7 +208,7 @@ void CQLFactorRep::applyContext(const QueryContext& inContext,
                              "The CQLFactor was constructed without a type.");
         throw CQLRuntimeException(msg);
     }
-    
+
     PEG_METHOD_EXIT();
     return;
 }
@@ -216,7 +216,7 @@ void CQLFactorRep::applyContext(const QueryContext& inContext,
 Boolean CQLFactorRep::operator==(const CQLFactorRep& rep)const
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLFactorRep::operator==()");
-    
+
     if(_CQLExp != rep._CQLExp)
     {
         PEG_METHOD_EXIT();
@@ -247,7 +247,7 @@ Boolean CQLFactorRep::operator==(const CQLFactorRep& rep)const
         PEG_METHOD_EXIT();
         return false;
     }
-    
+
     PEG_METHOD_EXIT();
     return true;
 }

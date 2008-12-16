@@ -64,16 +64,16 @@ CIMOperationResponseEncoder::~CIMOperationResponseEncoder()
 //
 // CIMOperationResponseEncoder::sendResponse()
 //
-//     This function is called once for every chunk comprising the inner part 
-//     of the HTTP payload. This is true whether chunking is enabled or not. 
-//     The "bodygiven" parameter contains all or part of the inner response 
+//     This function is called once for every chunk comprising the inner part
+//     of the HTTP payload. This is true whether chunking is enabled or not.
+//     The "bodygiven" parameter contains all or part of the inner response
 //     body. For example, in the case of the enumerate-instances XML response,
 //     each "bodygiven" contains a complete named-instance as shown below.
 //
 //         <VALUE.NAMEDINSTANCE>
 //         ...
 //         <VALUE.NAMEDINSTANCE>
-//     
+//
 //     In the case of the get-class XML response, bodygiven contains the
 //     entire class. Sometimes bodygiven is null, probably indicating that
 //     one of the responding threads returned an empty response (for example,
@@ -103,7 +103,7 @@ CIMOperationResponseEncoder::~CIMOperationResponseEncoder()
 //         </MESSAGE>
 //         </SIMPLERSP>
 //         </CIM>
-//     
+//
 //==============================================================================
 
 void CIMOperationResponseEncoder::sendResponse(
@@ -584,7 +584,7 @@ void CIMOperationResponseEncoder::encodeGetInstanceResponse(
         if (response->resolveCallback && !response->binaryEncoding)
         {
             body.append(
-                (char*)response->instanceData.getData(), 
+                (char*)response->instanceData.getData(),
                 response->instanceData.size()-1);
         }
         else

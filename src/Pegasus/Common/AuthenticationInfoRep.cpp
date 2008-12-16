@@ -77,8 +77,8 @@ void AuthenticationInfoRep::setConnectionAuthenticated(
     // On z/OS Unix Local Domain Sockets and sockets
     // protected by AT-TLS are able to get the user ID of
     // the connected user.
-    // This information is needed for later authentication 
-    //  steps.
+    // This information is needed for later authentication
+    // steps.
 
 void AuthenticationInfoRep::setConnectionUser(const String& userName)
 {

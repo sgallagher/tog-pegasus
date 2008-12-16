@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# 
+#
 # The following set of commands tests the new Classes configured through the
-# Test provider interface. If the ProviderModule registers one or more test 
+# Test provider interface. If the ProviderModule registers one or more test
 # providers and every provider has in turn multiple classes within itself then
 # the following set should be run for each and every class of all the providers.
 

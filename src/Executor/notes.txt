@@ -1,10 +1,10 @@
 
-    1.  The user that runs cimervermain is determined by the 
-        PEGASUS_CIMSERVERMAIN_USER constant defined in 
+    1.  The user that runs cimervermain is determined by the
+        PEGASUS_CIMSERVERMAIN_USER constant defined in
         <Pegasus/Common/Constants.h>
 
     2.  All files but the repository are owned by root. The cimservermain
-        process may read the root owned files, but it must ask the executor 
+        process may read the root owned files, but it must ask the executor
         to modify them.
 
     3.  Cimservermain owns the local-domain socket file (/tmp/cimxml.socket).
@@ -16,8 +16,8 @@
 
     6.  Setting up PAM authentiction (non-standalone).
 
-        First compile with PEGASUS_PAM_AUTHENTICATION. 
-        
+        First compile with PEGASUS_PAM_AUTHENTICATION.
+
         Next install the PAM configuration file.
 
             % cd $PEGASUS_ROOT
@@ -31,18 +31,18 @@
 
      8.  To run cimserver to use PAM, use these configuration parameters.
 
-            enableAuthentication=true 
+            enableAuthentication=true
 
      9. To build SSL support, compile with these.
-    
+
             OPENSSL_HOME=/usr
             PEGASUS_HAS_SSL=true
 
     10. To run cimerver to use SSL, use these configuration parameters.
 
-            enableHttpsConnection=true 
-            enableAuthentication=true 
-            sslClientVerificationMode=optional 
+            enableHttpsConnection=true
+            enableAuthentication=true
+            sslClientVerificationMode=optional
             sslTrustStoreUserName=root
 
     11. To add a user to cimserver.passwd, use the following format (the given
@@ -83,7 +83,7 @@
             - SSL peer authentication
             - Kerberos (source not available to Pegasus).
 
-    14. Note that using "secure basic" authentication and "SSL peer 
+    14. Note that using "secure basic" authentication and "SSL peer
         authentication" togehter breaks the end-to-end tests (validate
         user fails since the user is not in the cimserver.passwd file).
 

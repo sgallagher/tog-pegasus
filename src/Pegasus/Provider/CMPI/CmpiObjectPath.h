@@ -64,7 +64,7 @@ protected:
 
 private:
 
-    /** 
+    /**
         Constructor - Should not be called.
     */
     //CmpiObjectPath() {}
@@ -86,12 +86,12 @@ public:
     CmpiObjectPath(const char *ns, const char *cls);
     CmpiObjectPath(const CmpiString &ns, const char *cls);
 
-    /** 
+    /**
         Constructor used by MIDrivers to encapsulate CMPIObjectPathes.
     */
     CmpiObjectPath(CMPIObjectPath* c);
 
-    /** 
+    /**
         Gets the encapsulated CMPIObjectPath.
     */
     CMPIObjectPath *getEnc() const;
@@ -104,42 +104,42 @@ public:
     */
     CmpiBoolean classPathIsA(const char *className) const;
 
-    /** 
+    /**
         getHostname - returns the hostname component of the
         ObjectPath
         @return CmpiString containing the hostname.
     */
     CmpiString getHostname() const;
 
-    /** 
+    /**
         setHostname - Sets the hostname component.
         @param hn representing the hostname.
     */
     void setHostname(const char* hn);
     void setHostname(CmpiString hn);
 
-    /** 
+    /**
         getNameSpace - returns the namespace component of the
         ObjectPath
         @return CmpiString containing the namespace.
     */
     CmpiString getNameSpace() const;
 
-    /** 
+    /**
         setNameSpace - Sets the namespace component.
         @param ns representing the namespace.
     */
     void setNameSpace(const char* ns);
     void setNameSpace(CmpiString ns);
 
-    /** 
+    /**
         getClassName - returns the classname component of the
         ObjectPath
         @return CmpiString containing the namespace.
     */
     CmpiString getClassName() const;
 
-    /** 
+    /**
         setClassName - Sets the classname component.
         @param hn representing the hostname.
     */

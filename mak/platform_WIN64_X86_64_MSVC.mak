@@ -61,10 +61,10 @@ endif
 # The flags set here should be valid for VC 6.
 #
 # The -Zm105 flag was added as part of bug 4418 to resolve this compile error:
-#   C:\Program Files\Microsoft Visual Studio\VC98\include\xlocale(467) : 
-#   fatal error C1076: compiler limit : internal heap limit reached; use /Zm to 
+#   C:\Program Files\Microsoft Visual Studio\VC98\include\xlocale(467) :
+#   fatal error C1076: compiler limit : internal heap limit reached; use /Zm to
 #   specify a higher limit
-# 
+#
 CXX_VERSION_FLAGS := -Zm105
 CXX_VERSION_DEBUG_FLAGS :=
 CXX_VERSION_RELEASE_FLAGS :=
@@ -97,7 +97,7 @@ endif
     CXX_VERSION_FLAGS := -Wp64 -EHsc
     CXX_VERSION_DEBUG_FLAGS := -RTCc -RTCsu
 
-ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
     FLAGS = $(CXX_VERSION_FLAGS) $(CXX_VERSION_DEBUG_FLAGS) -GR -W3 -Od -Zi -MDd -DDEBUG -Fd$(OBJ_DIR)/
     LINK_FLAGS += -debug
 else
@@ -177,7 +177,7 @@ RC = rc
 
 # Windows DLLs are installed in the $(PEGASUS_HOME)/bin directory
 PEGASUS_DEST_LIB_DIR = bin
- 
+
 # The Provider User Context feature (PEP 197) is not supported on Windows
 PEGASUS_DISABLE_PROV_USERCTXT=1
 
@@ -189,19 +189,19 @@ PEGASUS_JAVA_CLASSPATH_DELIMITER = ;
 ##################################
 ##
 ## Pegasus WMIMapper
-## 
+##
 ##################################
 
 ifeq ($(PEGASUS_BUILD_WMIMAPPER),true)
   FLAGS += -DPEGASUS_WMIMAPPER
-else 
+else
   ifdef PEGASUS_WMIMAPPER
     FLAGS += -DPEGASUS_WMIMAPPER
-  endif   
+  endif
 endif
 
 ##################################
-## 
+##
 ## The newer compiler versions need neither MS Platform SDK installed nor MSSdk variable defined.
 ##
 ##################################
@@ -209,7 +209,7 @@ ifeq ($(PEGASUS_BUILD_WMIMAPPER),true)
   ifeq ($(CL_MAJOR_VERSION), 12)
     PEGASUS_WMIMAPPER_NEED_MSSDK=true
   endif
-  ifeq ($(CL_MAJOR_VERSION), 13) 
+  ifeq ($(CL_MAJOR_VERSION), 13)
     PEGASUS_WMIMAPPER_NEED_MSSDK=true
   endif
   ifeq ($(PEGASUS_WMIMAPPER_NEED_MSSDK),true)

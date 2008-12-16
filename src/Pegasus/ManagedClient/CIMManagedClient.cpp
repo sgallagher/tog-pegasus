@@ -217,7 +217,7 @@ Array<CIMObject> CIMManagedClient::execQuery(
             no cimom and no namespace specified, set the current as default
             no namespace, but a cimom specified, add the current namespace
             no cimom, but a namespace specified, add the current cimom
-        
+
           if there are both cimom and namespace specified, do nothing
           thus, only do something if either cimom or namespace is missing
         */
@@ -759,9 +759,9 @@ void CIMManagedClient::hasHostandNameSpace(
 void CIMManagedClient::hasHostandNameSpace(const CIMObjectPath& inObjectPath)
 {
     CDEBUG("hasHostandNameSpace(inObjectPath.getHost(),"
-               " inObjectPath.getNameSpace())=" 
+               " inObjectPath.getNameSpace())="
            << inObjectPath.getHost()
-           << "," 
+           << ","
            << inObjectPath.getNameSpace());
     hasHostandNameSpace(inObjectPath.getHost(), inObjectPath.getNameSpace());
 }
@@ -779,7 +779,7 @@ CIMClientRep* CIMManagedClient::getTargetCIMOM(
     CIMClientRep *   targetCIMOM;
     if (strtoul((const char*) _port.getCString(), NULL, 0) == 0)
     {
-        CDEBUG("no port given explicitly, thus we use the default port:" 
+        CDEBUG("no port given explicitly, thus we use the default port:"
                    << _pegasusDefaultPort);
         // no port given explicitly, thus we use the default port of 5988
         // lets determine if there is a connection for this objectpath

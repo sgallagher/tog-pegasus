@@ -135,7 +135,7 @@ public:
 
             //
             // If connection fails, we need to make sure that subsequent
-            // calls will try to connect again. 
+            // calls will try to connect again.
             //
             try
             {
@@ -732,7 +732,7 @@ OperationContext ClientCIMOMHandleRep::getResponseContext()
         ContentLanguageList* contentLangs = (ContentLanguageList*)
             curThrd->reference_tsd(TSD_CIMOM_HANDLE_CONTENT_LANGUAGES);
         curThrd->dereference_tsd();
- 
+
         if (contentLangs == NULL)
         {
             ctx.insert(ContentLanguageListContainer(ContentLanguageList()));

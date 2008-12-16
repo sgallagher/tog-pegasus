@@ -80,7 +80,7 @@ public:
         const CMPIContext* eCtx,
         const CMPIResult* eRslt,
         const CMPIObjectPath* eCop,
-        const CMPIInstance* eInst, 
+        const CMPIInstance* eInst,
         const char* *properties);
     static CMPIStatus driveDeleteInstance(
         CMPIInstanceMI* mi,

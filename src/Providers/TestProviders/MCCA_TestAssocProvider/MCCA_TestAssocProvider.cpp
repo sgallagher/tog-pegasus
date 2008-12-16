@@ -109,12 +109,12 @@ void MCCA_TestAssocProvider::associators(
 
     CDEBUG("Determining sourceKey.");
     // only one keyvalue, so we take that first one
-    String      keyValueString = String(sourceKeyBindings[0].getValue());   
+    String      keyValueString = String(sourceKeyBindings[0].getValue());
     CDEBUG("keyValueString=" << keyValueString);
     sourceKey = strtoul((const char*) keyValueString.getCString(), NULL, 0);
     CDEBUG("sourceKey=" << sourceKey);
-    
-    
+
+
     CIMKeyBinding  testClassKey = CIMKeyBinding(CIMName("theKey"),
                                                     CIMValue(sourceKey) );
     CDEBUG("Created new KeyBinding testClassKey.");
@@ -125,12 +125,12 @@ void MCCA_TestAssocProvider::associators(
             << "," << sourceKey);
     keyBindings.append(testClassKey);
     CDEBUG("Appended(testClassKey).");
-    
+
     targetObjectPath.setKeyBindings(keyBindings);
     /////////////////////////////////////////////////////////////////////
     //      ADD PROPERTIES
     /////////////////////////////////////////////////////////////////////
-    
+
     // add properties to the CIMInstance object
     constructedInstance.addProperty( CIMProperty( CIMName("theKey"),
                 sourceKey));
@@ -142,7 +142,7 @@ void MCCA_TestAssocProvider::associators(
                 String(buffer)));
 
     CDEBUG("Added properties to the CIMInstance object");
-    
+
     CIMObject cimObject(constructedInstance);
     cimObject.setPath (targetObjectPath);
 

@@ -84,8 +84,8 @@ copy2:
 clean2:
 	$(RM) ./CIMOperationResponseEncoder.cpp
 	$(RM) ./CIMOperationResponseEncoder.h
-	$(RM) ./CIMOperationRequestAuthorizer.cpp 
-	$(RM) ./CIMOperationRequestAuthorizer.h 
+	$(RM) ./CIMOperationRequestAuthorizer.cpp
+	$(RM) ./CIMOperationRequestAuthorizer.h
 	$(RM) ./CIMServerState.cpp
 	$(RM) ./CIMServerState.h
 	$(RM) ./HTTPAuthenticatorDelegator.h

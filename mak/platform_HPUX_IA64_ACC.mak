@@ -32,7 +32,7 @@ include $(ROOT)/mak/platform_HPUX_ACC.mak
 ARCHITECTURE = IA64
 
 ifeq ($(HPUX_IA64_NATIVE_COMPILER), yes)
-  SYS_INCLUDES += 
+  SYS_INCLUDES +=
 else
   SYS_INCLUDES += -I$(ROOT)/src/stdcxx/stream
 endif

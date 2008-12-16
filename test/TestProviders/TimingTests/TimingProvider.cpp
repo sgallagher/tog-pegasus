@@ -113,10 +113,10 @@ void TimingProvider::getInstance(
         instanceReference.getKeyBindings());
 
     CIMName className = instanceReference.getClassName();
-    
+
     // begin processing the request
     handler.processing();
-    
+
     // instance index corresponds to reference index
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
@@ -179,20 +179,20 @@ void TimingProvider::enumerateInstanceNames(
     handler.processing();
     cout <<"TimingProvider::enumerateInstanceNames" << endl;
     CIMName clName = classReference.getClassName();
-    
+
     sleep(10);
     if (clName == "TimeOne")
     {
         for(Uint32 i = 0, n = _instances.size(); i < n; i++)
             // deliver reference
             handler.deliver(_instanceNames[i]);
-    }   
+    }
     else if (clName == "TimeTwo")
     {
         for(Uint32 i = 0, n = _instances_2.size(); i < n; i++)
             // deliver reference
             handler.deliver(_instanceNames_2[i]);
-    }   
+    }
     // complete processing the request
     cout <<"TimingProvider::enumerateInstanceNames" << endl;
     handler.complete();

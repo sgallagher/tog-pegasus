@@ -54,7 +54,7 @@ void testUserContextRequestor()
         // Determine whether the CIM Server has authentication enabled
 
         CIMObjectPath authConfigInstName = CIMObjectPath(
-            "PG_ConfigSetting.PropertyName=\"enableAuthentication\""); 
+            "PG_ConfigSetting.PropertyName=\"enableAuthentication\"");
         CIMInstance authConfigInst =
             client.getInstance("root/PG_Internal", authConfigInstName);
 
@@ -109,7 +109,7 @@ void testUserContextPrivileged()
 
         // ATTN: use of the localOnly flag is deprecated, but nor reliably
         // applied by the CIMOM. An explicit parameter is required for now.
-        CIMInstance cimInstance = 
+        CIMInstance cimInstance =
             client.getInstance(NAMESPACE, instName, false);
 
         String userContext;
@@ -152,7 +152,7 @@ void testUserContextDesignated()
 
         // ATTN: use of the localOnly flag is deprecated, but nor reliably
         // applied by the CIMOM. An explicit parameter is required for now.
-        CIMInstance cimInstance = 
+        CIMInstance cimInstance =
             client.getInstance(NAMESPACE, instName, false);
 
         String userContext;
@@ -187,7 +187,7 @@ void testUserContextCIMServer()
 
         // ATTN: use of the localOnly flag is deprecated, but nor reliably
         // applied by the CIMOM. An explicit parameter is required for now.
-        CIMInstance cimInstance = 
+        CIMInstance cimInstance =
             client.getInstance(NAMESPACE, instName, false);
 
         String userContext;

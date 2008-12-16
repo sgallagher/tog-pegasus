@@ -1234,9 +1234,9 @@ Boolean String::equalNoCase(const String& s1, const char* s2)
 Boolean String::equal(const String& s1, const String& s2)
 {
     return (s1._rep == s2._rep) ||
-        (s1._rep->size == s2._rep->size) && 
+        (s1._rep->size == s2._rep->size) &&
         memcmp(s1._rep->data,
-               s2._rep->data, 
+               s2._rep->data,
                s1._rep->size * sizeof(Uint16)) == 0;
 }
 

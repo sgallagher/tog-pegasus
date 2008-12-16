@@ -58,8 +58,8 @@ void test01()
     //
     // Define query:
     //
-    
-    const char TEXT[] = 
+
+    const char TEXT[] =
         "SELECT x,y,z\n"
         "FROM MyClass\n"
         "WHERE x > 5 AND y < 25 AND z > 1.2";
@@ -111,8 +111,8 @@ void test01()
         CIMPropertyList wherePropList = statement.getWherePropertyList();
         PEGASUS_TEST_ASSERT (!wherePropList.isNull());
         PEGASUS_TEST_ASSERT (wherePropList.size() == 3);
-        PEGASUS_TEST_ASSERT ((wherePropList[0].equal ("x")) || 
-                (wherePropList[0].equal ("y")) || 
+        PEGASUS_TEST_ASSERT ((wherePropList[0].equal ("x")) ||
+                (wherePropList[0].equal ("y")) ||
                 (wherePropList[0].equal ("z")));
         PEGASUS_TEST_ASSERT (statement.evaluateWhereClause(&source));
     }
@@ -143,8 +143,8 @@ void test02()
     //
     // Define query:
     //
-    
-    const char TEXT[] = 
+
+    const char TEXT[] =
         "SELECT a,c,d\n"
         "FROM YourClass\n"
         "WHERE a > 5 AND b < 25 AND c > 1.2 AND d = \"Pass\"";
@@ -191,14 +191,14 @@ void test02()
         PEGASUS_TEST_ASSERT (statement.getWherePropertyNameCount() == 4);
         CIMName wherePropName = statement.getWherePropertyName (3);
         PEGASUS_TEST_ASSERT ((wherePropName.equal ("a"))
-            || (wherePropName.equal ("b")) || 
+            || (wherePropName.equal ("b")) ||
             (wherePropName.equal ("c")) || (wherePropName.equal ("d")));
         CIMPropertyList wherePropList = statement.getWherePropertyList();
         PEGASUS_TEST_ASSERT (!wherePropList.isNull());
         PEGASUS_TEST_ASSERT (wherePropList.size() == 4);
-        PEGASUS_TEST_ASSERT ((wherePropList[3].equal ("a")) || 
-                (wherePropList[3].equal ("b")) || 
-                (wherePropList[3].equal ("c")) || 
+        PEGASUS_TEST_ASSERT ((wherePropList[3].equal ("a")) ||
+                (wherePropList[3].equal ("b")) ||
+                (wherePropList[3].equal ("c")) ||
                 (wherePropList[3].equal ("d")));
         PEGASUS_TEST_ASSERT (!statement.evaluateWhereClause(&source));
     }
@@ -214,8 +214,8 @@ void test03()
     //
     // Define query:
     //
-    
-    const char TEXT[] = 
+
+    const char TEXT[] =
         "SELECT *\n"
         "FROM AnotherClass\n";
 

@@ -168,7 +168,7 @@ int CQL_error(const char* errorMessage)
     //
     CQL_restart (0);
 
-    // flush ArgList 
+    // flush ArgList
     CQL_Arglist_Cleanup();
 
     PEG_METHOD_EXIT();

@@ -76,7 +76,7 @@ enum  FunctionOpType
    Supported functions are in accordance with the
    DMTF CQL Specification.
    TODO:  THIS LIST IS SUBJECT TO CHANGE
- 
+
     classname( <expr> )
     classname( )
     count(*)
@@ -103,19 +103,19 @@ enum  FunctionOpType
 
 class CQLFunction
 {
-  public:
-   
+public:
+
     CQLFunction();
-    
+
     CQLFunction(const CQLFunction& inFunc);
 
-//    CQLFunction(FunctionOpType inFunctionOpType, 
+//    CQLFunction(FunctionOpType inFunctionOpType,
 //                  Array<CQLExpression> inParms);
-    
+
     CQLFunction(CQLIdentifier inOpType, Array<CQLPredicate> inParms);
 
     ~CQLFunction();
-    /** 
+    /**
        The getValue method validates the parms versus FunctionOpType.
                (A) resolves prarameter  types
                (B) number of parms
@@ -123,29 +123,29 @@ class CQLFunction
         Returns a CQLValue object that has already been resolved.
       */
     CQLValue resolveValue(const CIMInstance& CI, const QueryContext& queryCtx);
-    
-   Array<CQLPredicate> getParms()const;
-   
-   FunctionOpType getFunctionType()const;
 
-   String toString()const;
+    Array<CQLPredicate> getParms()const;
 
-   void applyContext(const QueryContext& inContext);
+    FunctionOpType getFunctionType()const;
 
-   CQLFunction& operator=(const CQLFunction& rhs);
-   
-  //   Boolean operator==(const CQLFunction& func)const;
-   
-  // Boolean operator!=(const CQLFunction& func)const;
-   
-   friend class CQLFactory;
+    String toString()const;
 
-  private:
+    void applyContext(const QueryContext& inContext);
 
-  CQLFunctionRep *_rep;
+    CQLFunction& operator=(const CQLFunction& rhs);
+
+    // Boolean operator==(const CQLFunction& func)const;
+
+    // Boolean operator!=(const CQLFunction& func)const;
+
+    friend class CQLFactory;
+
+private:
+
+    CQLFunctionRep *_rep;
 
 };
 
 PEGASUS_NAMESPACE_END
 #endif
-#endif 
+#endif

@@ -56,13 +56,13 @@ CIMClient::CIMClient()
     // we simply call functions in the WMI Provider .dll directly, rather than
     // through using a domain socket/local authentication as is done on Unix).
     //
-    // For this, we handle 2 separate cccClientRep classes: CIMClientRep (the 
+    // For this, we handle 2 separate cccClientRep classes: CIMClientRep (the
     // standard Pegasus client rep) is used for remote connections, and our
-    // custom WMI rep (WMIClientRep) is used for local connections. So, the 
+    // custom WMI rep (WMIClientRep) is used for local connections. So, the
     // basic idea is to instantiate the appropriate _rep, depending on the
     // type of connection being used (local or remote).
     //
-    // A problem arises in the storing of the timeout value: The user must be 
+    // A problem arises in the storing of the timeout value: The user must be
     // able to set this value independently of the current connection state
     // (e.g., construct CIMClient, set timeout, then connect). In the standard
     // Pegasus implementation of CIMClient, the timeout value is store in the
@@ -74,12 +74,12 @@ CIMClient::CIMClient()
     // to the WMI Mapper implementation of this class -- at least to utilize
     // the Mapper's localConnect feature (found this out the hard way)!
     //
-    // So, in order to handle this, we must construct a WMIClientRep object 
-    // here, if only as a container for the timeout setting, then in the 
-    // connect() methods, we must save the timeout, delete the current _rep, 
+    // So, in order to handle this, we must construct a WMIClientRep object
+    // here, if only as a container for the timeout setting, then in the
+    // connect() methods, we must save the timeout, delete the current _rep,
     // create a new _rep using the current timeout, then finally connect()!
     //
-    // Not pretty, but the best solution so far (also, there is very little 
+    // Not pretty, but the best solution so far (also, there is very little
     // overhead in constructing a WMIClientRep object here -- even if its only
     // purpose is to be a container for the timeout value!
 
@@ -108,12 +108,12 @@ void CIMClient::connect(
     const String& password
 )
 {
-    // See the comment in the constructor for why we need to get the 
+    // See the comment in the constructor for why we need to get the
     // current timeout, delete and create a new _rep object here:
     Uint32 timeout = _rep->getTimeout();
     delete _rep;
     _rep = new CIMClientRep(timeout);
-    
+
     _rep->connect(host, portNumber, userName, password);
 }
 
@@ -125,7 +125,7 @@ void CIMClient::connect(
     const String& password
 )
 {
-    // See the comment in the constructor for why we need to get the 
+    // See the comment in the constructor for why we need to get the
     // current timeout, delete and create a new _rep object here:
     Uint32 timeout = _rep->getTimeout();
     delete _rep;
@@ -136,7 +136,7 @@ void CIMClient::connect(
 
 void CIMClient::connectLocal()
 {
-    // See the comment in the constructor for why we need to get the 
+    // See the comment in the constructor for why we need to get the
     // current timeout, delete and create a new _rep object here:
     Uint32 timeout = _rep->getTimeout();
     delete _rep;
@@ -154,24 +154,24 @@ void CIMClient::disconnect()
 // l10n start
 void CIMClient::setRequestAcceptLanguages(const AcceptLanguageList& langs)
 {
-    _rep->setRequestAcceptLanguages(langs);        
+    _rep->setRequestAcceptLanguages(langs);
 }
 
 AcceptLanguageList CIMClient::getRequestAcceptLanguages() const
 {
     return _rep->getRequestAcceptLanguages();
 }
-    
+
 void CIMClient::setRequestContentLanguages(const ContentLanguageList& langs)
 {
-    _rep->setRequestContentLanguages(langs);        
+    _rep->setRequestContentLanguages(langs);
 }
-  
+
 ContentLanguageList CIMClient::getRequestContentLanguages() const
 {
-    return _rep->getRequestContentLanguages();    
-}    
-        
+    return _rep->getRequestContentLanguages();
+}
+
 ContentLanguageList CIMClient::getResponseContentLanguages() const
 {
     return _rep->getResponseContentLanguages();

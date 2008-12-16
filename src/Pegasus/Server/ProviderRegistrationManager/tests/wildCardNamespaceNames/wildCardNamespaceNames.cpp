@@ -111,7 +111,7 @@ int main(int argc, char** argv)
 
     FileSystem::removeDirectoryHier(repositoryRootPath);
 
-    PEGASUS_STD(cout) << argv[0] <<  " +++++ passed all tests" 
+    PEGASUS_STD(cout) << argv[0] <<  " +++++ passed all tests"
                       << PEGASUS_STD(endl);
 
     return 0;

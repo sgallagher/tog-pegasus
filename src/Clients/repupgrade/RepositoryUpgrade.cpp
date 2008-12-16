@@ -293,7 +293,7 @@ const char* RepositoryUpgrade::_ALL = "a";
 # elif defined(PEGASUS_OS_LINUX)
     const String OLD_REPOSITORY_PATH = "/var/opt/tog-pegasus/prev_repository";
     const String NEW_REPOSITORY_PATH = "/var/opt/tog-pegasus/repository";
-    const String RepositoryUpgrade::_LOG_PATH  = 
+    const String RepositoryUpgrade::_LOG_PATH  =
         "/var/opt/tog-pegasus/log/upgrade";
 # else
 #   undef REPUPGRADE_USE_RELEASE_DIRS
@@ -424,7 +424,7 @@ RepositoryUpgrade::RepositoryUpgrade ()
     _interopIgnoreClasses.append ( "PG_IndicationHandler" );
     _interopIgnoreClasses.append ( "PG_IndicationHandlerCIMXML" );
     _interopIgnoreClasses.append ( "PG_IndicationHandlerSNMPMapper" );
-    _interopIgnoreClasses.append ( "PG_IndicationSubscription" ); 
+    _interopIgnoreClasses.append ( "PG_IndicationSubscription" );
 
 }
 
@@ -1074,7 +1074,7 @@ void RepositoryUpgrade::_processClasses(
             }
 
             /** Ignore any "CIM_" classes in pegasus namespaces,
-             *  except root/cimv2. 
+             *  except root/cimv2.
                 Since they don't exist in 2.7 they must have been renamed
                 or deleted.
             */
@@ -1596,12 +1596,12 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
                 if (! Contains( existingClasses, dependentClassName))
                 {
                     //
-                    // Check if the class that we depend on exists in 
+                    // Check if the class that we depend on exists in
                     // the old repository.
                     // If it doesn't exist, error out.
                     //
                     try
-                    { 
+                    {
                         oldClass = _oldRepository->getClass(
                                             namespaceName,
                                             dependentClassName,
@@ -1888,7 +1888,7 @@ void RepositoryUpgrade::_logRequestToFile(
                 XmlWriter::indentedPrint (outFile, content, 0);
                 outFile.close();
             }
-        
+
             delete response;
         }
         nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
@@ -2244,7 +2244,7 @@ int main (int argc, char* argv [])
     {
         RepositoryUpgrade   command;
         Uint32          retCode;
-        
+
         //l10n set message loading to process locale
         MessageLoader::_useProcessLocale = true;
 

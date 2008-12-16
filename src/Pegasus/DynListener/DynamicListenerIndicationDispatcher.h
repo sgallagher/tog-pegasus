@@ -46,25 +46,25 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-class PEGASUS_DYNLISTENER_LINKAGE DynamicListenerIndicationDispatcher : 
+class PEGASUS_DYNLISTENER_LINKAGE DynamicListenerIndicationDispatcher :
     public MessageQueueService
 {
 public:
 
     typedef MessageQueueService Base;
-    
+
     DynamicListenerIndicationDispatcher(ConsumerManager* consumerManager);
-    
+
     virtual ~DynamicListenerIndicationDispatcher();
-    
+
 protected:
-    
+
     virtual void handleEnqueue(Message *);
-    
+
     virtual void handleEnqueue();
 
 private:
- 
+
     void _handleIndicationRequest(CIMExportIndicationRequestMessage* request);
 
     ConsumerManager*  _consumerManager;

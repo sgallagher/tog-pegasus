@@ -82,41 +82,41 @@ REMOTE_CMPI_MI(Indication)
 
 #ifdef CMPI_VER_100
     /**
-        provides access to the communication layer for MI calls 
+        provides access to the communication layer for MI calls
     */
     struct provider_comm
     {
 
         char * id;
         // instance provider function pointers
-        CMPIStatus (* InstanceMI_enumInstanceNames) ( 
+        CMPIStatus (* InstanceMI_enumInstanceNames) (
             provider_address *,
             RemoteCMPIInstanceMI *,
             const CMPIContext *,
             const CMPIResult *,
             const CMPIObjectPath * );
-        CMPIStatus (* InstanceMI_enumInstances) ( 
+        CMPIStatus (* InstanceMI_enumInstances) (
             provider_address *,
             RemoteCMPIInstanceMI *,
             const CMPIContext *,
             const CMPIResult *,
             const CMPIObjectPath *,
             const char ** );
-        CMPIStatus (* InstanceMI_getInstance) ( 
+        CMPIStatus (* InstanceMI_getInstance) (
             provider_address *,
             RemoteCMPIInstanceMI *,
             const CMPIContext *,
             const CMPIResult *,
             const CMPIObjectPath *,
             const char ** );
-        CMPIStatus (* InstanceMI_createInstance) ( 
+        CMPIStatus (* InstanceMI_createInstance) (
             provider_address *,
             RemoteCMPIInstanceMI *,
             const CMPIContext *,
             const CMPIResult *,
             const CMPIObjectPath *,
             const CMPIInstance * );
-        CMPIStatus (* InstanceMI_setInstance) ( 
+        CMPIStatus (* InstanceMI_setInstance) (
             provider_address *,
             RemoteCMPIInstanceMI *,
             const CMPIContext *,
@@ -124,13 +124,13 @@ REMOTE_CMPI_MI(Indication)
             const CMPIObjectPath *,
             const CMPIInstance *,
             const char ** );
-        CMPIStatus (* InstanceMI_deleteInstance) ( 
+        CMPIStatus (* InstanceMI_deleteInstance) (
             provider_address *,
             RemoteCMPIInstanceMI *,
             const CMPIContext *,
             const CMPIResult *,
             const CMPIObjectPath * );
-        CMPIStatus (* InstanceMI_execQuery) ( 
+        CMPIStatus (* InstanceMI_execQuery) (
             provider_address *,
             RemoteCMPIInstanceMI *,
             const CMPIContext *,
@@ -140,7 +140,7 @@ REMOTE_CMPI_MI(Indication)
             const char * );
 
         // associator provider function pointers
-        CMPIStatus (* AssociationMI_associators) ( 
+        CMPIStatus (* AssociationMI_associators) (
             provider_address *,
             RemoteCMPIAssociationMI *,
             const CMPIContext *,
@@ -151,7 +151,7 @@ REMOTE_CMPI_MI(Indication)
             const char *,
             const char *,
             const char ** );
-        CMPIStatus (* AssociationMI_associatorNames) ( 
+        CMPIStatus (* AssociationMI_associatorNames) (
             provider_address *,
             RemoteCMPIAssociationMI *,
             const CMPIContext *,
@@ -161,7 +161,7 @@ REMOTE_CMPI_MI(Indication)
             const char *,
             const char *,
             const char * );
-        CMPIStatus (* AssociationMI_references) ( 
+        CMPIStatus (* AssociationMI_references) (
             provider_address *,
             RemoteCMPIAssociationMI *,
             const CMPIContext *,
@@ -170,7 +170,7 @@ REMOTE_CMPI_MI(Indication)
             const char *,
             const char *,
             const char ** );
-        CMPIStatus (* AssociationMI_referenceNames) ( 
+        CMPIStatus (* AssociationMI_referenceNames) (
             provider_address *,
             RemoteCMPIAssociationMI *,
             const CMPIContext *,
@@ -180,7 +180,7 @@ REMOTE_CMPI_MI(Indication)
             const char * );
 
         // method provider function pointers
-        CMPIStatus (* MethodMI_invokeMethod) ( 
+        CMPIStatus (* MethodMI_invokeMethod) (
             provider_address *,
             RemoteCMPIMethodMI *,
             const CMPIContext *,
@@ -191,7 +191,7 @@ REMOTE_CMPI_MI(Indication)
             CMPIArgs * );
 
         // property provider function pointers
-        CMPIStatus (* PropertyMI_setProperty) ( 
+        CMPIStatus (* PropertyMI_setProperty) (
             provider_address *,
             RemoteCMPIPropertyMI *,
             const CMPIContext *,
@@ -199,7 +199,7 @@ REMOTE_CMPI_MI(Indication)
             const CMPIObjectPath *,
             const char *,
             const CMPIData );
-        CMPIStatus (* PropertyMI_getProperty) ( 
+        CMPIStatus (* PropertyMI_getProperty) (
             provider_address *,
             RemoteCMPIPropertyMI *,
             const CMPIContext *,
@@ -208,7 +208,7 @@ REMOTE_CMPI_MI(Indication)
             const char * );
 
         // indication provider function pointers
-        CMPIStatus (* IndicationMI_authorizeFilter) ( 
+        CMPIStatus (* IndicationMI_authorizeFilter) (
             provider_address *,
             RemoteCMPIIndicationMI *,
             const CMPIContext *,
@@ -216,14 +216,14 @@ REMOTE_CMPI_MI(Indication)
             const char *,
             const CMPIObjectPath *,
             const char * );
-        CMPIStatus (* IndicationMI_mustPoll) ( 
+        CMPIStatus (* IndicationMI_mustPoll) (
             provider_address *,
             RemoteCMPIIndicationMI *,
             const CMPIContext *,
             const CMPISelectExp *,
             const char *,
             const CMPIObjectPath *);
-        CMPIStatus (* IndicationMI_activateFilter) ( 
+        CMPIStatus (* IndicationMI_activateFilter) (
             provider_address *,
             RemoteCMPIIndicationMI *,
             const CMPIContext *,
@@ -231,7 +231,7 @@ REMOTE_CMPI_MI(Indication)
             const char *,
             const CMPIObjectPath *,
             CMPIBoolean );
-        CMPIStatus (* IndicationMI_deActivateFilter) ( 
+        CMPIStatus (* IndicationMI_deActivateFilter) (
             provider_address *,
             RemoteCMPIIndicationMI *,
             const CMPIContext *,
@@ -243,11 +243,11 @@ REMOTE_CMPI_MI(Indication)
         CMPIStatus  (* terminate) ();
 
         // Adding enable and disable indications -V 5245
-        CMPIStatus (* IndicationMI_enableIndications) ( 
+        CMPIStatus (* IndicationMI_enableIndications) (
             provider_address *,
             RemoteCMPIIndicationMI *,
             const CMPIContext *);
-        CMPIStatus (* IndicationMI_disableIndications) ( 
+        CMPIStatus (* IndicationMI_disableIndications) (
             provider_address *,
             RemoteCMPIIndicationMI *,
             const CMPIContext *);
@@ -267,34 +267,34 @@ REMOTE_CMPI_MI(Indication)
         char * id;
 
         // instance provider function pointers
-        CMPIStatus (* InstanceMI_enumInstanceNames) ( 
+        CMPIStatus (* InstanceMI_enumInstanceNames) (
             provider_address *,
             RemoteCMPIInstanceMI *,
             CMPIContext *,
             CMPIResult *,
             CMPIObjectPath * );
-        CMPIStatus (* InstanceMI_enumInstances) ( 
+        CMPIStatus (* InstanceMI_enumInstances) (
             provider_address *,
             RemoteCMPIInstanceMI *,
             CMPIContext *,
             CMPIResult *,
             CMPIObjectPath *,
             char ** );
-        CMPIStatus (* InstanceMI_getInstance) ( 
+        CMPIStatus (* InstanceMI_getInstance) (
             provider_address *,
             RemoteCMPIInstanceMI *,
             CMPIContext *,
             CMPIResult *,
             CMPIObjectPath *,
             char ** );
-        CMPIStatus (* InstanceMI_createInstance) ( 
+        CMPIStatus (* InstanceMI_createInstance) (
             provider_address *,
             RemoteCMPIInstanceMI *,
             CMPIContext *,
             CMPIResult *,
             CMPIObjectPath *,
             CMPIInstance * );
-        CMPIStatus (* InstanceMI_setInstance) ( 
+        CMPIStatus (* InstanceMI_setInstance) (
             provider_address *,
             RemoteCMPIInstanceMI *,
             CMPIContext *,
@@ -302,13 +302,13 @@ REMOTE_CMPI_MI(Indication)
             CMPIObjectPath *,
             CMPIInstance *,
             char ** );
-        CMPIStatus (* InstanceMI_deleteInstance) ( 
+        CMPIStatus (* InstanceMI_deleteInstance) (
             provider_address *,
             RemoteCMPIInstanceMI *,
             CMPIContext *,
             CMPIResult *,
             CMPIObjectPath * );
-        CMPIStatus (* InstanceMI_execQuery) ( 
+        CMPIStatus (* InstanceMI_execQuery) (
             provider_address *,
             RemoteCMPIInstanceMI *,
             CMPIContext *,
@@ -318,7 +318,7 @@ REMOTE_CMPI_MI(Indication)
             char * );
 
         // associator provider function pointers
-        CMPIStatus (* AssociationMI_associators) ( 
+        CMPIStatus (* AssociationMI_associators) (
             provider_address *,
             RemoteCMPIAssociationMI *,
             CMPIContext *,
@@ -329,7 +329,7 @@ REMOTE_CMPI_MI(Indication)
             const char *,
             const char *,
             char ** );
-        CMPIStatus (* AssociationMI_associatorNames) ( 
+        CMPIStatus (* AssociationMI_associatorNames) (
             provider_address *,
             RemoteCMPIAssociationMI *,
             CMPIContext *,
@@ -339,7 +339,7 @@ REMOTE_CMPI_MI(Indication)
             const char *,
             const char *,
             const char * );
-        CMPIStatus (* AssociationMI_references) ( 
+        CMPIStatus (* AssociationMI_references) (
             provider_address *,
             RemoteCMPIAssociationMI *,
             CMPIContext *,
@@ -348,7 +348,7 @@ REMOTE_CMPI_MI(Indication)
             const char *,
             const char *,
             char ** );
-        CMPIStatus (* AssociationMI_referenceNames) ( 
+        CMPIStatus (* AssociationMI_referenceNames) (
             provider_address *,
             RemoteCMPIAssociationMI *,
             CMPIContext *,
@@ -358,7 +358,7 @@ REMOTE_CMPI_MI(Indication)
             const char * );
 
         // method provider function pointers
-        CMPIStatus (* MethodMI_invokeMethod) ( 
+        CMPIStatus (* MethodMI_invokeMethod) (
             provider_address *,
             RemoteCMPIMethodMI *,
             CMPIContext *,
@@ -369,7 +369,7 @@ REMOTE_CMPI_MI(Indication)
             CMPIArgs * );
 
         // property provider function pointers
-        CMPIStatus (* PropertyMI_setProperty) ( 
+        CMPIStatus (* PropertyMI_setProperty) (
             provider_address *,
             RemoteCMPIPropertyMI *,
             CMPIContext *,
@@ -377,7 +377,7 @@ REMOTE_CMPI_MI(Indication)
             CMPIObjectPath *,
             const char *,
             CMPIData );
-        CMPIStatus (* PropertyMI_getProperty) ( 
+        CMPIStatus (* PropertyMI_getProperty) (
             provider_address *,
             RemoteCMPIPropertyMI *,
             CMPIContext *,
@@ -386,7 +386,7 @@ REMOTE_CMPI_MI(Indication)
             const char * );
 
         // indication provider function pointers
-        CMPIStatus (* IndicationMI_authorizeFilter) ( 
+        CMPIStatus (* IndicationMI_authorizeFilter) (
             provider_address *,
             RemoteCMPIIndicationMI *,
             CMPIContext *,
@@ -395,7 +395,7 @@ REMOTE_CMPI_MI(Indication)
             CMPISelectExp *,
             const char *,
             const char * );
-        CMPIStatus (* IndicationMI_mustPoll) ( 
+        CMPIStatus (* IndicationMI_mustPoll) (
             provider_address *,
             RemoteCMPIIndicationMI *,
             CMPIContext *,
@@ -403,7 +403,7 @@ REMOTE_CMPI_MI(Indication)
             CMPIObjectPath *,
             CMPISelectExp *,
             const char * );
-        CMPIStatus (* IndicationMI_activateFilter) ( 
+        CMPIStatus (* IndicationMI_activateFilter) (
             provider_address *,
             RemoteCMPIIndicationMI *,
             CMPIContext *,
@@ -412,7 +412,7 @@ REMOTE_CMPI_MI(Indication)
             CMPISelectExp *,
             const char *,
             CMPIBoolean );
-        CMPIStatus (* IndicationMI_deActivateFilter) ( 
+        CMPIStatus (* IndicationMI_deActivateFilter) (
             provider_address *,
             RemoteCMPIIndicationMI *,
             CMPIContext *,
@@ -425,10 +425,10 @@ REMOTE_CMPI_MI(Indication)
         CMPIStatus  (* terminate) ();
 
         // Adding enable and disable indications -V 5245
-        CMPIStatus (* IndicationMI_enableIndications) ( 
+        CMPIStatus (* IndicationMI_enableIndications) (
             provider_address *,
             RemoteCMPIIndicationMI *);
-        CMPIStatus (* IndicationMI_disableIndications) ( 
+        CMPIStatus (* IndicationMI_disableIndications) (
             provider_address *,
             RemoteCMPIIndicationMI *);
 
@@ -437,7 +437,7 @@ REMOTE_CMPI_MI(Indication)
     };
 #endif
 
-provider_comm * load_provider_comm ( 
+provider_comm * load_provider_comm (
     const char * comm_id,
     CONST CMPIBroker * broker,
     CONST CMPIContext * ctx );

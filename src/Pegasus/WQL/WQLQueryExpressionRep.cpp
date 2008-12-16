@@ -56,7 +56,7 @@ void WQLQueryExpressionRep::_parse()
       WQLParser::parse(_query, *_stmt);
    }
    else throw
-     PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, 
+     PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,
              _queryLanguage);
 }
 
@@ -73,7 +73,7 @@ Boolean WQLQueryExpressionRep::evaluate(const CIMInstance & inst) const
     {
          return false;
     }
-    return false; 
+    return false;
 }
 
 void WQLQueryExpressionRep::applyProjection(CIMInstance & ci,

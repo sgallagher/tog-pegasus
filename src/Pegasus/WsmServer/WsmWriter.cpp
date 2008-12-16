@@ -174,8 +174,8 @@ void WsmWriter::appendInstanceElement(
     out << STRLIT("/") << instance.getClassName();
     out << STRLIT("\"");
 
-    // DSP0230, section 7.2.5.2. The property element MUST contain an 
-    // xsi:type attribute with the XSD type of the class of the instance 
+    // DSP0230, section 7.2.5.2. The property element MUST contain an
+    // xsi:type attribute with the XSD type of the class of the instance
     // (see section 7.3.1).
     if (isEmbedded)
     {

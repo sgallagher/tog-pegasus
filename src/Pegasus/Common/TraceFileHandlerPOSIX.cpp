@@ -119,7 +119,7 @@ void TraceFileHandler::handleMessage(
     // ---- BEGIN CRITICAL SECTION
 
     prepareFileHandle();
-    
+
     // Write the message to the file
 
     retCode = fprintf(_fileHandle, "%s", message);
@@ -146,7 +146,7 @@ void TraceFileHandler::handleMessage(const char *message, Uint32 msgLen)
     // ---- BEGIN CRITICAL SECTION
 
     prepareFileHandle();
-    
+
     // Write the message to the file
 
     retCode = fprintf(_fileHandle, "%s\n", message);
@@ -166,7 +166,7 @@ void TraceFileHandler::handleMessage(const char *message, Uint32 msgLen)
 #else /* PEGASUS_OS_VMS */
 
 void TraceFileHandler::prepareFileHandle(void)
-{    
+{
     // If the file has been deleted, re-open it and continue
     if (!System::exists(_fileName))
     {

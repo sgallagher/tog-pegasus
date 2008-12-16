@@ -69,7 +69,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/param.h> // For MAXHOSTNAMELEN
-#include <limits.h>    // _POSIX_HOST_NAME_MAX 
+#include <limits.h>    // _POSIX_HOST_NAME_MAX
 
 #if (__GNUC__ >= 4)
 # define PEGASUS_EXPORT __attribute__ ((visibility("default")))

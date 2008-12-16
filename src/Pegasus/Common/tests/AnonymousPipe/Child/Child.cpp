@@ -50,7 +50,7 @@ int main (int argc, char * argv [])
 
     if (argc != 3)
     {
-        cerr << "Usage: " << argv [0] << 
+        cerr << "Usage: " << argv [0] <<
             " child-read-handle child-write-handle" << endl;
         PEGASUS_TEST_ASSERT (0);
     }
@@ -65,9 +65,9 @@ int main (int argc, char * argv [])
         //
         //  Create pipe instances
         //
-        AutoPtr <AnonymousPipe> pipeFromParent 
+        AutoPtr <AnonymousPipe> pipeFromParent
             (new AnonymousPipe (readHandle, NULL));
-        AutoPtr <AnonymousPipe> pipeToParent 
+        AutoPtr <AnonymousPipe> pipeToParent
             (new AnonymousPipe (NULL, writeHandle));
 
 #if defined (PEGASUS_OS_VMS)
@@ -83,7 +83,7 @@ int main (int argc, char * argv [])
         Uint32 bufferLength;
         AnonymousPipe::Status readBufferStatus = pipeFromParent->readBuffer
             ((char *) &bufferLength, sizeof (Uint32));
-    
+
         if (readBufferStatus != AnonymousPipe::STATUS_SUCCESS)
         {
             cerr << "Child failed to read request length: "
@@ -106,7 +106,7 @@ int main (int argc, char * argv [])
 
         if (readBufferStatus != AnonymousPipe::STATUS_SUCCESS)
         {
-            cerr << "Child failed to read request data: " << readBufferStatus 
+            cerr << "Child failed to read request data: " << readBufferStatus
                 << endl;
             PEGASUS_TEST_ASSERT (0);
         }
@@ -114,7 +114,7 @@ int main (int argc, char * argv [])
         requestBuffer.get () [bufferLength] = '\0';
         if (verbose)
         {
-            cout << "Request received by child: " << requestBuffer.get () 
+            cout << "Request received by child: " << requestBuffer.get ()
                 << endl;
         }
 
@@ -132,7 +132,7 @@ int main (int argc, char * argv [])
 
         if (writeBufferStatus == AnonymousPipe::STATUS_SUCCESS)
         {
-            writeBufferStatus = pipeToParent->writeBuffer 
+            writeBufferStatus = pipeToParent->writeBuffer
                 (responseBuffer.getData (), bufferLength);
             if (writeBufferStatus != AnonymousPipe::STATUS_SUCCESS)
             {
@@ -154,7 +154,7 @@ int main (int argc, char * argv [])
         CIMMessage * message;
         AnonymousPipe::Status readMessageStatus = pipeFromParent->readMessage
             (message);
-        
+
         AutoPtr<CIMGetInstanceRequestMessage> request;
         request.reset(dynamic_cast<CIMGetInstanceRequestMessage*>(message));
         PEGASUS_TEST_ASSERT (request.get() != 0);
@@ -164,10 +164,10 @@ int main (int argc, char * argv [])
             cout << "CIMGetInstanceRequestMessage received by child" << endl;
         }
 
-        PEGASUS_TEST_ASSERT (request->getType () == 
+        PEGASUS_TEST_ASSERT (request->getType () ==
             CIM_GET_INSTANCE_REQUEST_MESSAGE);
         PEGASUS_TEST_ASSERT (request->messageId == String ("00000001"));
-        PEGASUS_TEST_ASSERT (request->nameSpace.equal 
+        PEGASUS_TEST_ASSERT (request->nameSpace.equal
               (CIMNamespaceName ("root/test/A")));
         PEGASUS_TEST_ASSERT (request->instanceName ==
               CIMObjectPath ("MCCA_TestClass.theKey=1"));

@@ -147,13 +147,13 @@ static const char   LONG_VERSION []  = "version";
 static const char MSG_PATH []               = "pegasus/pegasusCLI";
 static const char REQUIRED_ARGS_MISSING [] = "Required arguments missing.";
 
-static const char REQUIRED_ARGS_MISSING_KEY [] = 
+static const char REQUIRED_ARGS_MISSING_KEY [] =
     "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
 
 static const char ERR_USAGE [] =
     "Use '--help' to obtain command syntax.";
 
-static const char ERR_USAGE_KEY [] = 
+static const char ERR_USAGE_KEY [] =
     "Clients.CIMConfig.CIMConfigCommand.ERR_USAGE";
 
 /**
@@ -327,10 +327,10 @@ WbemExecCommand::WbemExecCommand ()
             // Get environment variables:
             //
             const char* pegasusHome = getenv("PEGASUS_HOME");
-    
+
             String certpath = FileSystem::getAbsolutePath(
                     pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
-    
+
             String randFile;
 
 #ifdef PEGASUS_SSL_RANDOMFILE
@@ -396,14 +396,14 @@ void WbemExecCommand::_printContent(
                 for ( ; colonPos >= uuidStart && *colonPos != ':'; colonPos--);
 
                 char* beginPtr = contentCopy.get() + (colonPos+1 - content);
-                char* endPtr   = contentCopy.get() + (uuidEnd - content); 
+                char* endPtr   = contentCopy.get() + (uuidEnd - content);
 
-                // Replace the response messageID with 0. 
+                // Replace the response messageID with 0.
                 for (; beginPtr < endPtr; beginPtr++)
                 {
-                    if (*beginPtr != '-') 
+                    if (*beginPtr != '-')
                     {
-                        *beginPtr = '0'; 
+                        *beginPtr = '0';
                     }
                 }
 
@@ -1192,7 +1192,7 @@ int main (int argc, char* argv [])
     }
     catch (const CommandFormatException& cfe)
     {
-        cerr << WbemExecCommand::COMMAND_NAME << ": " << cfe.getMessage() 
+        cerr << WbemExecCommand::COMMAND_NAME << ": " << cfe.getMessage()
             << endl;
 
         MessageLoaderParms parms(ERR_USAGE_KEY,ERR_USAGE);

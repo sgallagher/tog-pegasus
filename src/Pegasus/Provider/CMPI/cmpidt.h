@@ -480,7 +480,7 @@ extern "C"
      <LI>CMPI_nullValue - Value embedded in CMPIData object is NULL.
      <LI>CMPI_keyValue - Value embedded in CMPIData object is valid &amp;
       is a key
-     <LI>CMPI_notFound - 
+     <LI>CMPI_notFound -
      <LI>CMPI_badValue - Value embedded in CMPIData object is not valid.
     </UL>
 */
@@ -491,7 +491,7 @@ extern "C"
 #define CMPI_notFound  (4<<8)
 #define CMPI_badValue  (0x80<<8)
 
-/** 
+/**
     Values transferred from CMPI functions to the MI return three
     components: the value, its state, and its type as defined by the schema.
     All three components are bundled into this one structure.
@@ -538,7 +538,7 @@ extern "C"
 
     typedef void CMPIGcStat;
 
-/** 
+/**
     The CMPIFlags type is used to inform MI functions about options specified
     by the client and passed on to the MI for certain requests. CMPIFlags are
     not passed to MIs directly. MIs must use the CMPIContext services to gain
@@ -547,7 +547,7 @@ extern "C"
      <LI>CMPI_FLAG_LocalOnly - Local only  attributes
      <LI>CMPI_FLAG_DeepInheritance - Providers should provide deep inhertiance
       information
-     <LI>CMPI_FLAG_IncludeQualifiers - <I>deprecated</I> Indicates that a 
+     <LI>CMPI_FLAG_IncludeQualifiers - <I>deprecated</I> Indicates that a
       MI's should return qualifiers
      <LI>CMPI_FLAG_IncludeClassOrigin - MI should return class origin info
     </UL>
@@ -572,7 +572,7 @@ extern "C"
 /* The content language of the response */
 #define CMPIContentLanguage "CMPIContentLanguage"
 
-/** 
+/**
     Enum which indicates success or failure, usually accessed as part
     of the CMPIStatus structure
 */
@@ -655,12 +655,12 @@ extern "C"
             No more elements in Enumeration Object.
         */
         CMPI_RC_NO_MORE_ELEMENTS = 18,
-        /** 
+        /**
             Returned by a MI to indicate that it should not be unloaded, only
             returned via a cleanup() call.
         */
         CMPI_RC_DO_NOT_UNLOAD = 50,
-        /** 
+        /**
             Returned by a MI to indicate that it should never be unloaded, only
             returned via a cleanup() call.
         */
@@ -673,17 +673,17 @@ extern "C"
         CMPI_RC_ERROR = 200
     } CMPIrc;
 
-/** 
+/**
     The status structure is used to indicate success or failure of a call.
 */
     typedef struct _CMPIStatus
     {
-        /** 
+        /**
             The CMPIrc value.
             @see _CMPIrc
         */
         CMPIrc rc;
-        /** 
+        /**
             A text string representing the error message
             @see CMPIString
         */
@@ -740,7 +740,7 @@ extern "C"
 #endif
     } CMPIPredOp;
 
-    /** 
+    /**
         Severity levels for logging functions.
     */
     typedef enum _CMPISeverity
@@ -753,7 +753,7 @@ extern "C"
             General info.
         */
         CMPI_SEV_INFO = 2,
-        /** 
+        /**
             Warning message.
         */
         CMPI_SEV_WARNING = 3,
@@ -782,7 +782,7 @@ extern "C"
         CMPI_LEV_VERBOSE = 3
     } CMPILevel;
 
-    /** 
+    /**
         Type of query expression it is normalized to.
     */
     typedef enum _CMPISelectCondType
@@ -798,64 +798,64 @@ extern "C"
     } CMPISelectCondType;
 
 #ifdef CMPI_VER_200
-    /** 
+    /**
         Possible values an Error object can use in its type property
         @version 2.0
     */
     typedef enum _CMPIErrorType
     {
-        /** 
+        /**
             Unkown.
         */
         UnknownErrorType = 0,
-        /** 
+        /**
             Other.
         */
         OtherErrorType = 1,
-        /** 
+        /**
             Communications error.
         */
         CommunicationsError = 2,
-        /** 
+        /**
             QoS error.
         */
         QualityOfServiceError = 3,
-        /** 
+        /**
             Software error.
         */
         SoftwareError = 4,
-        /** 
+        /**
             Hardware error.
         */
         HardwareError = 5,
-        /** 
+        /**
             Environmental error.
         */
         EnvironmentalError = 6,
-        /** 
+        /**
             Security error.
         */
         SecurityError = 7,
-        /** 
+        /**
             Over subscription error.
         */
         Oversubscription_Error = 8,
-        /** 
+        /**
             Unavailable resource.
         */
         UnavailableResourceError = 9,
-        /** 
+        /**
             Unsupported operation.
         */
         UnsupportedOperationError = 10
     } CMPIErrorType;
 
-/** 
+/**
     Possible values an Error object can use to indicate severity.
 */
     typedef enum _CMPIErrorSeverity
     {
-        /** 
+        /**
             Unknown.
         */
         ErrorSevUnknown = 0,
@@ -886,7 +886,7 @@ extern "C"
             Unknown.
         */
         ErrorProbCauseUnknown = 0,
-        /** 
+        /**
             Other cause.
         */
         ErrorProbCauseOther = 1,
@@ -1404,7 +1404,7 @@ extern "C"
         Unexpected_Information = 130
     } CMPIErrorProbableCause;
 
-/** 
+/**
     Possible values an Error object can have for the error src format.
 */
     typedef enum _CMPIErrorSrcFormat

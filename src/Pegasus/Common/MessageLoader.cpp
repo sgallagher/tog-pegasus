@@ -181,7 +181,7 @@ void MessageLoaderICU::openICUMessageFile(MessageLoaderParms& parms)
          {
              if (status == U_ZERO_ERROR)
              {
-                 PEG_TRACE((TRC_L10N, Tracer::LEVEL4, 
+                 PEG_TRACE((TRC_L10N, Tracer::LEVEL4,
                      "Exact match message file FOUND. "
                          "Resource bundle for accept language \"%s\" opened.",
                          (const char *)(languageTag.toString()).getCString()));
@@ -196,8 +196,8 @@ void MessageLoaderICU::openICUMessageFile(MessageLoaderParms& parms)
                  // either a fallback match, status == U_USING_FALLBACK_WARNING,
                  // or a default match, status == U_USING_DEFAULT_WARNING.
                  // Need to close this message file and continue the search
-                 // for exact match. 
- 
+                 // for exact match.
+
                  ures_close(
                      reinterpret_cast<UResourceBundle*>(parms._resbundl));
                  parms._resbundl = NO_ICU_MAGIC;
@@ -206,7 +206,7 @@ void MessageLoaderICU::openICUMessageFile(MessageLoaderParms& parms)
          else
          {
              parms._resbundl = NO_ICU_MAGIC;
-         }   
+         }
     }
 
     PEG_TRACE_CSTRING(
@@ -245,7 +245,7 @@ void MessageLoaderICU::_openICUDefaultLocaleMessageFile(
 
     // UResourceBundle* ures_open(const char* packageName,
     //     const char* locale, UErrorCode* status)
-    // If locale is NULL, the default locale will be used.  If 
+    // If locale is NULL, the default locale will be used.  If
     // strlen(locale) == 0, the root locale will be used.
 
     // Open the resource bundle for default locale.

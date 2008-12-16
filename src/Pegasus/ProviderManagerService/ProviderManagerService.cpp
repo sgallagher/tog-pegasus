@@ -559,7 +559,7 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
 #if defined (PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER)
     if (request->getType() == CIM_INVOKE_METHOD_REQUEST_MESSAGE)
     {
-        CIMOperationRequestMessage *reqMsg = 
+        CIMOperationRequestMessage *reqMsg =
             dynamic_cast<CIMOperationRequestMessage*>(request);
         PEGASUS_ASSERT(reqMsg);
         ProviderIdContainer pidc = (ProviderIdContainer)

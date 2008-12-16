@@ -173,7 +173,7 @@ test03 (CIMClient & client)
 
   /*     uint32 TestCMPIBroker (
    *          [IN, Description (
-   *          "The requested are to test different 
+   *          "The requested are to test different
    *          CMPI data structure operations."),
    *          ValueMap { "1", "2", "3", "4", "5", "6"},
    *          Values {"CDGetType", "CDToString", "CDIsOfType",
@@ -296,7 +296,7 @@ test03 (CIMClient & client)
   inParams.clear ();
   outParams.clear ();
   {
-//       CMGetMessage2 
+//       CMGetMessage2
       inParams.append(CIMParamValue(
                           "Operation",
                           CIMValue(Uint32(7))));
@@ -374,7 +374,7 @@ test03 (CIMClient & client)
         PEGASUS_TEST_ASSERT (paramValue.isNull ());
     }
 
-    
+
     inParams.clear();
     outParams.clear();
     {
@@ -671,7 +671,7 @@ test08 (CIMClient & client)
 /**
  * This tests the embedded instance functionality through the CMPI Test
  * Method Provider. It first invokes the returnInstance() method to retrieve
- * an instance that can be used 
+ * an instance that can be used
  */
 void test09 (CIMClient & client)
 {
@@ -978,7 +978,7 @@ void _test (CIMClient & client)
     test11 (client);
     test12 (client);
     test13 (client);
-    // Don't run against the remote-namespace, not yet suppoted. 
+    // Don't run against the remote-namespace, not yet suppoted.
     if (providerNamespace == "test/TestProvider")
     {
         test09 (client); // Embedded Instance Test

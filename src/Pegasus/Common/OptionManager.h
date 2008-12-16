@@ -255,8 +255,8 @@ public:
     void registerOptions(OptionRow* options, Uint32 numOptions);
 
     /**
-        Provides a simple way to register several options at once along 
-        with their corresponding message keys 
+        Provides a simple way to register several options at once along
+        with their corresponding message keys
     */
     void registerOptions(OptionRowWithMsg* options, Uint32 numOptions);
 
@@ -363,8 +363,8 @@ public:
         help and trailer after the options help
     */
     void printOptionsHelpTxt(
-        const String& header, 
-        const String& trailer) const; 
+        const String& header,
+        const String& trailer) const;
 
     void setMessagePath(String messagePath);
 
@@ -376,7 +376,7 @@ private:
     Option* _lookupOptionByCommandLineOptionName(const String& name);
 
     Array<Option*> _options;
-   
+
     String _msgPath;
 };
 
@@ -430,7 +430,7 @@ public:
         @param optionHelpMessage Text message that defines option. To be used
             in Usage messages.
 
-        @param messageKey Unique key for globalizing option help message. To 
+        @param messageKey Unique key for globalizing option help message. To
             be used in Usage messages.
     */
     Option(

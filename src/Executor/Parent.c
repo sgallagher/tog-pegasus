@@ -204,7 +204,7 @@ static void HandleOpenFileRequest(int sock)
             }
         }
         /* If the open call fails with ENOENT errno,then create the file.
-        If the umask is set to a non default value,then the file will not 
+        If the umask is set to a non default value,then the file will not
         get created with permissions specified in the open system call.
         So set the permissions for the file explicitly using fchmod.
         */
@@ -654,7 +654,7 @@ static void HandleAuthenticatePasswordRequest(int sock)
     while (0);
 
     Log(LL_TRACE, "Basic authentication attempt: username = %s, "
-        "successful = %s", 
+        "successful = %s",
         request.username, status == 0 ? "TRUE" : "FALSE" );
 
     /* Send response message. */

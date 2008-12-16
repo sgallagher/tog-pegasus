@@ -55,12 +55,12 @@ endif
 # by the value of PEGASUS_PLATFORM when the SDK was
 # built.
 #
-# However, PACKAGED_PLATFORM_FILES can be explicitly set to 
+# However, PACKAGED_PLATFORM_FILES can be explicitly set to
 # include multiple platforms.  In this case, the SDK will
 # include platform .mak and .h files for each of the listed
 # platforms.
 #
-# Note: If PACKAGED_PLATFORM_FILES is defined, the  
+# Note: If PACKAGED_PLATFORM_FILES is defined, the
 # createConfigFile_setPegasusPlatform and createConfigFile_setPlatformArchitecture
 # options must be updated to include commands for determining the platform
 # and architecture types at runtime.
@@ -88,10 +88,10 @@ ifeq ($(OS),linux)
 endif
 ifeq ($(OS),HPUX)
    PACKAGED_PLATFORM_GENERIC_FILES = HPUX_ACC
-endif 
+endif
 ifeq ($(OS),solaris)
    PACKAGED_PLATFORM_GENERIC_FILES = SOLARIS_CC
-endif 
+endif
 
 INCLUDE_SRCPATH = $(PEGASUS_ROOT)/src
 
@@ -109,7 +109,7 @@ INCLUDE_DIRS = \
   Pegasus/Common \
   Pegasus/Consumer \
   Pegasus/Provider \
-  Pegasus/Provider/CMPI 
+  Pegasus/Provider/CMPI
 
 INCLUDE_FILES = \
    Pegasus/Client/CIMClientException.h \
@@ -265,7 +265,7 @@ PROVIDERSRCPATH1FILES = \
    DefaultC++/AssociationProvider/Makefile \
    DefaultC++/AssociationProvider/AssociationProvider.cpp \
    DefaultC++/AssociationProvider/AssociationProvider.h \
-   DefaultC++/AssociationProvider/AssociationProviderMain.cpp 
+   DefaultC++/AssociationProvider/AssociationProviderMain.cpp
 
 # CMPI header files
 PROVIDERSRCPATH1FILES += \
@@ -279,7 +279,7 @@ PROVIDERSRCPATH1FILES += \
    CMPI/CWS_Util/Makefile \
    CMPI/CWS_Util/cwssimdata.c \
    CMPI/CWS_Util/cwsutil.h \
-   CMPI/CWS_Util/cwsutil.c 
+   CMPI/CWS_Util/cwsutil.c
 
 define NL
 
@@ -305,7 +305,7 @@ stageINCLUDE:
             $(COPY) $(INCLUDE_SRCPATH)/Pegasus/Common/Platform_$(i).h \
             $(PEGASUS_STAGING_DIR)/$(PEGASUS_INCLUDE_DIR)/Pegasus/Common/Platform_$(i).h$(NL))
 
-create_ProductInstallationVerificationScript: 
+create_ProductInstallationVerificationScript:
 	@$(RM) $(PEGASUS_HOME)/PegasusVerifyDevelInstall
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS SYSETM DIRECTORIES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall

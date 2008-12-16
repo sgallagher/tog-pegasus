@@ -29,7 +29,7 @@
 //
 // Author:  Melvin, IBM (msolomon@in.ibm.com) for PEP# 241
 //
-// Modified By: 
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -105,11 +105,11 @@ int main(int argc, char** argv)
         struct OptionRow *newOptionsTable = 0;
         Uint32 newOptionsCount;
 
-        struct OptionRow cOptionTable[] = 
+        struct OptionRow cOptionTable[] =
         {
             {"clientname", "", true, Option::STRING, 0, 0, "clientname",
                 "Client name" },
- 
+
             {"options", "", true, Option::STRING, 0, 0, "options",
                 "Corresponding Client program's options" }
         };
@@ -145,7 +145,7 @@ int main(int argc, char** argv)
         }
 
         verboseTest = om.isTrue("verbose");
- 
+
         om.lookupValue("clientid", clientId);
 
         om.lookupValue("pidfile", pidFile);
@@ -175,7 +175,7 @@ int main(int argc, char** argv)
     {
         String header = "Usage ";
         header.append(argv[0]);
-        header.append(" -parameters -clientName [clientName] 
+        header.append(" -parameters -clientName [clientName]
         header.append(" -options [options] -clientid [clientId] ");
         header.append(" -pidfile [pidFile] -clientlog [clientLog]");
         String trailer = "Assumes localhost:5988 if host not specified";
@@ -243,7 +243,7 @@ int main(int argc, char** argv)
 #endif
                 }
 
-            int i = system(command.getCString()); 
+            int i = system(command.getCString());
 
             iteration++;
             totalCount++;
@@ -289,7 +289,7 @@ int main(int argc, char** argv)
                         successCount,
                         totalCount,
                         clientPid,
-                        clientLog, 
+                        clientLog,
                         thisClient);
                     iteration = 0;
                 }

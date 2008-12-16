@@ -31,9 +31,9 @@
 
 //
 // This is a sample CIM client application that calls the CIMClient association
-// methods (associators, associatorNames, references, referenceNames) to 
+// methods (associators, associatorNames, references, referenceNames) to
 // get information about the relationships between the Sample_Teacher and
-// Sample_Student classes.  
+// Sample_Student classes.
 //
 // The SampleAssociationProvider is the instance and association provider
 // for the following classes:
@@ -44,10 +44,10 @@
 //     Sample_AdvisorStudent    (association class)
 //
 // The executable for this CIM client application is:  AssociationClient.
-// To display the result objects (CIM instances or classes), use the -v 
+// To display the result objects (CIM instances or classes), use the -v
 // (verbose) option in the command line:  "AssociationClient -v".
 //
-// The following are example result output when verbose option is specified: 
+// The following are example result output when verbose option is specified:
 //
 // (ex.)
 //    Number of associator objects = 2
@@ -145,7 +145,7 @@ int main(int argc, char** argv)
     String                  resultRole;
 
     //
-    // Check command line option  
+    // Check command line option
     //
     if (argc > 2)
     {
@@ -194,11 +194,11 @@ int main(int argc, char** argv)
         CIMObjectPath instancePath("Sample_Teacher.Name=\"Teacher1\"");
 
         resultObjects = client.associators(
-                                NAMESPACE, 
-                                instancePath, 
+                                NAMESPACE,
+                                instancePath,
                                 assocClass,
-                                resultClass, 
-                                role, 
+                                resultClass,
+                                role,
                                 resultRole);
 
         // verify result
@@ -220,14 +220,14 @@ int main(int argc, char** argv)
         String invalidRole = "Teaches_*student";
 
         Boolean gotException = false;
-        try 
+        try
         {
             resultObjects = client.associators(
-                                    NAMESPACE, 
-                                    instancePath, 
+                                    NAMESPACE,
+                                    instancePath,
                                     assocClass,
-                                    resultClass, 
-                                    invalidRole, 
+                                    resultClass,
+                                    invalidRole,
                                     resultRole);
 
         }
@@ -252,14 +252,14 @@ int main(int argc, char** argv)
         // invalid resultRole parameter syntax
         String invalidResultRole = "3Taught_By";
         gotException = false;
-        try 
+        try
         {
             resultObjects = client.associators(
-                                    NAMESPACE, 
-                                    instancePath, 
+                                    NAMESPACE,
+                                    instancePath,
                                     assocClass,
-                                    resultClass, 
-                                    role, 
+                                    resultClass,
+                                    role,
                                     invalidResultRole);
 
         }
@@ -284,25 +284,25 @@ int main(int argc, char** argv)
         // ===================================================================
         // associatorNames
         //
-        // Get the names of the CIM instances (Sample_Student instances) that 
-        // are associated to the source CIM instance (Sample_Teacher.Name = 
+        // Get the names of the CIM instances (Sample_Student instances) that
+        // are associated to the source CIM instance (Sample_Teacher.Name =
         // "Teacher1") via an instance of the Sample_TeacherStudent association
         // class.
         // ===================================================================
 
         resultObjectPaths = client.associatorNames(
-                                NAMESPACE, 
-                                instancePath, 
+                                NAMESPACE,
+                                instancePath,
                                 assocClass,
-                                resultClass, 
-                                role, 
+                                resultClass,
+                                role,
                                 resultRole);
 
         // verify result
         numObjects = resultObjectPaths.size();
         if (_verifyResult(numObjects, 3) != 0)
             return -1;
-     
+
         // display result
         // cout << "Number of associator name objects = " << numObjects << endl;
         _displayResult(resultObjectPaths, verbose);
@@ -318,11 +318,11 @@ int main(int argc, char** argv)
         try
         {
             resultObjectPaths = client.associatorNames(
-                                    NAMESPACE, 
-                                    instancePath, 
+                                    NAMESPACE,
+                                    instancePath,
                                     assocClass,
-                                    resultClass, 
-                                    invalidRole, 
+                                    resultClass,
+                                    invalidRole,
                                     resultRole);
         }
         catch (CIMException& e)
@@ -348,11 +348,11 @@ int main(int argc, char** argv)
         try
         {
             resultObjectPaths = client.associatorNames(
-                                    NAMESPACE, 
-                                    instancePath, 
+                                    NAMESPACE,
+                                    instancePath,
                                     assocClass,
-                                    resultClass, 
-                                    role, 
+                                    resultClass,
+                                    role,
                                     invalidResultRole);
         }
         catch (CIMException& e)
@@ -382,16 +382,16 @@ int main(int argc, char** argv)
         // ===================================================================
 
         resultObjects = client.references(
-                                NAMESPACE, 
-                                instancePath, 
+                                NAMESPACE,
+                                instancePath,
                                 resultClass,
-                                role); 
+                                role);
 
         // verify result
         numObjects = resultObjects.size();
         if (_verifyResult(numObjects, 5) != 0)
             return -1;
-     
+
         // display result
         // cout << "Number of reference objects = " << numObjects << endl;
         _displayResult(resultObjects, verbose);
@@ -407,10 +407,10 @@ int main(int argc, char** argv)
         try
         {
             resultObjects = client.references(
-                                    NAMESPACE, 
-                                    instancePath, 
+                                    NAMESPACE,
+                                    instancePath,
                                     resultClass,
-                                    invalidRole); 
+                                    invalidRole);
         }
         catch (CIMException& e)
         {
@@ -433,22 +433,22 @@ int main(int argc, char** argv)
         // ===================================================================
         // referenceNames
         //
-        // Get the names of the association instances (Sample_TeacherStudent 
-        // instances) that refer to the specified target CIM instance 
+        // Get the names of the association instances (Sample_TeacherStudent
+        // instances) that refer to the specified target CIM instance
         // (Sample_Teacher.Name = "Teacher1").
         // ===================================================================
 
         resultObjectPaths = client.referenceNames(
-                                NAMESPACE, 
-                                instancePath, 
+                                NAMESPACE,
+                                instancePath,
                                 resultClass,
-                                role); 
+                                role);
 
         // verify result
         numObjects = resultObjectPaths.size();
         if (_verifyResult(numObjects, 5) != 0)
             return -1;
-     
+
         // display result
         // cout << "Number of reference name objects = " << numObjects << endl;
         _displayResult(resultObjectPaths, verbose);
@@ -464,10 +464,10 @@ int main(int argc, char** argv)
         try
         {
             resultObjectPaths = client.referenceNames(
-                                        NAMESPACE, 
-                                        instancePath, 
+                                        NAMESPACE,
+                                        instancePath,
                                         resultClass,
-                                        invalidRole); 
+                                        invalidRole);
         }
         catch (CIMException& e)
         {
@@ -493,7 +493,7 @@ int main(int argc, char** argv)
         // ===================================================================
 
         //
-        // get all the students who are taught by 'Teacher1' 
+        // get all the students who are taught by 'Teacher1'
         //
         role = "Teaches";
         resultRole = "TaughtBy";
@@ -501,11 +501,11 @@ int main(int argc, char** argv)
         assocClass = SAMPLE_TEACHERSTUDENT;
 
         resultObjects = client.associators(
-                                NAMESPACE, 
-                                instancePath, 
+                                NAMESPACE,
+                                instancePath,
                                 assocClass,
-                                resultClass, 
-                                role, 
+                                resultClass,
+                                role,
                                 resultRole);
         // verify result
         numObjects = resultObjects.size();
@@ -525,11 +525,11 @@ int main(int argc, char** argv)
         assocClass = SAMPLE_ADVISORSTUDENT;
 
         resultObjectPaths = client.associatorNames(
-                                NAMESPACE, 
-                                instancePath, 
+                                NAMESPACE,
+                                instancePath,
                                 assocClass,
-                                resultClass, 
-                                role, 
+                                resultClass,
+                                role,
                                 resultRole);
 
         // verify result
@@ -549,16 +549,16 @@ int main(int argc, char** argv)
         resultClass = CIMName("Sample_TeacherStudent");
 
         resultObjects = client.references(
-                                NAMESPACE, 
-                                instancePath, 
+                                NAMESPACE,
+                                instancePath,
                                 resultClass,
-                                role); 
+                                role);
 
         // verify result
         numObjects = resultObjects.size();
         if (_verifyResult(numObjects, 3) != 0)
             return -1;
-     
+
         // display result
         // cout << "Number of reference objects = " << numObjects << endl;
         _displayResult(resultObjects, verbose);
@@ -571,16 +571,16 @@ int main(int argc, char** argv)
         resultClass = CIMName("Sample_AdvisorStudent");
 
         resultObjectPaths = client.referenceNames(
-                                NAMESPACE, 
-                                instancePath, 
+                                NAMESPACE,
+                                instancePath,
                                 resultClass,
-                                role); 
+                                role);
 
         // verify result
         numObjects = resultObjectPaths.size();
         if (_verifyResult(numObjects, 2) != 0)
             return -1;
-     
+
         // display result
         // cout << "Number of reference objects = " << numObjects << endl;
         _displayResult(resultObjectPaths, verbose);
@@ -599,11 +599,11 @@ int main(int argc, char** argv)
         resultRole = String::EMPTY;
 
         resultObjects = client.associators(
-                                NAMESPACE, 
-                                classPath, 
+                                NAMESPACE,
+                                classPath,
                                 assocClass,
-                                resultClass, 
-                                role, 
+                                resultClass,
+                                role,
                                 resultRole);
 
         // verify result
@@ -620,10 +620,10 @@ int main(int argc, char** argv)
         // get the association classes that refer to the Sample_Teacher class
         //
         resultObjects = client.references(
-                                NAMESPACE, 
-                                classPath, 
+                                NAMESPACE,
+                                classPath,
                                 resultClass,
-                                role); 
+                                role);
 
         // verify result
         numObjects  = resultObjects.size();

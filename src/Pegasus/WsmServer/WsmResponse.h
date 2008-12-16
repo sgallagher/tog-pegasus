@@ -348,7 +348,7 @@ public:
         : enumerationMode(WSEN_EM_UNKNOWN)
     {
     }
-    WsenEnumerationData(const Array<WsmInstance>& inst, 
+    WsenEnumerationData(const Array<WsmInstance>& inst,
         const Array<WsmEndpointReference> EPRs,
         WsmbPolymorphismMode pm, const String& uri)
         : instances(inst),
@@ -358,7 +358,7 @@ public:
           classUri(uri)
     {
     }
-    WsenEnumerationData(const Array<WsmInstance>& inst, 
+    WsenEnumerationData(const Array<WsmInstance>& inst,
         WsmbPolymorphismMode pm, const String& uri)
         : instances(inst),
           enumerationMode(WSEN_EM_OBJECT),
@@ -382,7 +382,7 @@ public:
     }
     Uint32 getSize()
     {
-        if (enumerationMode == WSEN_EM_OBJECT || 
+        if (enumerationMode == WSEN_EM_OBJECT ||
             enumerationMode == WSEN_EM_OBJECT_AND_EPR)
         {
             return instances.size();
@@ -411,7 +411,7 @@ public:
         {
             instances.remove(index, size);
             eprs.remove(index, size);
-        }        
+        }
         else
         {
             PEGASUS_ASSERT(0);
@@ -661,13 +661,13 @@ public:
     }
     void merge(WsenEnumerateResponse* response)
     {
-        PEGASUS_ASSERT(_enumerationData.enumerationMode == 
+        PEGASUS_ASSERT(_enumerationData.enumerationMode ==
             response->_enumerationData.enumerationMode);
         _enumerationData.merge(response->getEnumerationData());
     }
     void merge(WsenPullResponse* response)
     {
-        PEGASUS_ASSERT(_enumerationData.enumerationMode == 
+        PEGASUS_ASSERT(_enumerationData.enumerationMode ==
             response->getEnumerationData().enumerationMode);
         _enumerationData.merge(response->getEnumerationData());
     }

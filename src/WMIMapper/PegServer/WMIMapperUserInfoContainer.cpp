@@ -47,7 +47,7 @@ const String WMIMapperUserInfoContainer::NAME = "WMIMapperUserInfoContainer";
 WMIMapperUserInfoContainer::WMIMapperUserInfoContainer(
     const OperationContext::Container & container)
 {
-    const WMIMapperUserInfoContainer * p = 
+    const WMIMapperUserInfoContainer * p =
         dynamic_cast<const WMIMapperUserInfoContainer *>(&container);
 
     if(p == 0)

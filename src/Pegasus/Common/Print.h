@@ -61,28 +61,28 @@ PEGASUS_NAMESPACE_BEGIN
 //==============================================================================
 
 PEGASUS_COMMON_LINKAGE void PrintValue(
-    PEGASUS_STD(ostream)& os, 
-    const CIMValue& x, 
+    PEGASUS_STD(ostream)& os,
+    const CIMValue& x,
     Uint32 n = 0);
 
 PEGASUS_COMMON_LINKAGE void PrintProperty(
-    PEGASUS_STD(ostream)& os, 
-    const CIMConstProperty& x, 
+    PEGASUS_STD(ostream)& os,
+    const CIMConstProperty& x,
     Uint32 n = 0);
 
 PEGASUS_COMMON_LINKAGE void PrintObjectPath(
-    PEGASUS_STD(ostream)& os, 
-    const CIMObjectPath& x, 
+    PEGASUS_STD(ostream)& os,
+    const CIMObjectPath& x,
     Uint32 n = 0);
 
 PEGASUS_COMMON_LINKAGE void PrintInstance(
-    PEGASUS_STD(ostream)& os, 
-    const CIMConstInstance& cimInstance, 
+    PEGASUS_STD(ostream)& os,
+    const CIMConstInstance& cimInstance,
     Uint32 n = 0);
 
 PEGASUS_COMMON_LINKAGE void PrintQualifierDecl(
-    PEGASUS_STD(ostream)& os, 
-    const CIMConstQualifierDecl& x, 
+    PEGASUS_STD(ostream)& os,
+    const CIMConstQualifierDecl& x,
     Uint32 n = 0);
 
 PEGASUS_NAMESPACE_END

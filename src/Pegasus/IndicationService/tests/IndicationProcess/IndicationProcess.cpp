@@ -358,7 +358,7 @@ void _createDuplicate(CIMClient &client,
     {
         if (e.getCode() != CIM_ERR_ALREADY_EXISTS)
         {
-            PEGASUS_TEST_ASSERT(0); 
+            PEGASUS_TEST_ASSERT(0);
         }
         exceptionCaught =  true;
     }
@@ -390,12 +390,12 @@ void _testDuplicate(CIMClient &client)
     CIMObjectPath filterPath;
     CIMObjectPath handlerPath;
     CIMObjectPath subscriptionPath;
-   
+
     try
     {
         handlerPath = CreateHandler1Instance(client,
             PEGASUS_NAMESPACENAME_INTEROP);
-        filterPath = CreateFilterInstance(client, 
+        filterPath = CreateFilterInstance(client,
             QUERY1, "WQL", "Filter1",
             PEGASUS_NAMESPACENAME_INTEROP);
         subscriptionPath = CreateSbscriptionInstance(client, handlerPath,
@@ -408,7 +408,7 @@ void _testDuplicate(CIMClient &client)
             PEGASUS_NAMESPACENAME_INTEROP, filterPath,
             String::EMPTY,PEGASUS_NAMESPACENAME_INTEROP, handlerPath);
 
-        _createDuplicate(client, "127.0.0.1", 
+        _createDuplicate(client, "127.0.0.1",
             PEGASUS_NAMESPACENAME_INTEROP, filterPath,
             String::EMPTY, CIMNamespaceName(), handlerPath);
 
@@ -429,7 +429,7 @@ void _testDuplicate(CIMClient &client)
         PEGASUS_STD(cerr) << "Exception: " << e.getMessage()
                           << PEGASUS_STD (endl);
         PEGASUS_TEST_ASSERT(0);
-    }        
+    }
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL createSubscriptionFunc(void *parm)
@@ -503,7 +503,7 @@ void _testConcurrent(CIMClient &client)
       PEGASUS_STD(cerr) << "Exception: " << e.getMessage()
                         << PEGASUS_STD (endl);
       PEGASUS_TEST_ASSERT(0);
-   } 
+   }
 }
 
 int main(int argc, char** argv)
@@ -542,13 +542,13 @@ int main(int argc, char** argv)
     rc = _test(client, wql, query1, query2wql);
     if (rc != 0)
       return rc;
-    PEGASUS_STD (cout) << "+++++ start dupliacte subscription test" 
+    PEGASUS_STD (cout) << "+++++ start dupliacte subscription test"
                        << PEGASUS_STD (endl);
     _testDuplicate(client);
     PEGASUS_STD (cout) << "+++++ duplicate subscription test completed"
                        << PEGASUS_STD (endl);
 
-    PEGASUS_STD (cout) << "+++++ start concurrent subscription test" 
+    PEGASUS_STD (cout) << "+++++ start concurrent subscription test"
                        << PEGASUS_STD (endl);
     _testConcurrent(client);
     PEGASUS_STD (cout) << "+++++ concurrent subscription test completed"

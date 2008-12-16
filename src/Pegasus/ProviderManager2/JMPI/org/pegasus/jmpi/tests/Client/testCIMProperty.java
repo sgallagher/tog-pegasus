@@ -195,7 +195,7 @@ public class testCIMProperty
       catch (Exception e)
       {
          System.out.println ("FAILURE: testCIMProperty: caught " + e + ", in CIMValue and CIMProperty creation.");
-   
+
          return false;
       }
 

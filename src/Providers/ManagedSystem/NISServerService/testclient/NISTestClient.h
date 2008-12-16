@@ -29,7 +29,7 @@
 //
 // Author: Paulo F. Borges (pfborges@wowmail.com)
 //
-// Modified By: 
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +41,7 @@
 //------------------------------------------------------------------------------
 //Includes Pegasus
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/String.h>    
+#include <Pegasus/Common/String.h>
 #include <Pegasus/Client/CIMClient.h>
 
 // Used by gethostbyaddr and gethostname functions
@@ -59,7 +59,7 @@ PEGASUS_USING_STD;
 
 // Insert here your defines
 #define SYSTEM_CREATION_CLASS_NAME CIMName ("CIM_UnitaryComputerSystem")
-static const CIMNamespaceName NAMESPACE("root/cimv2");    
+static const CIMNamespaceName NAMESPACE("root/cimv2");
 static const CIMName CLASS_NAME("PG_NISServerService");
 static const String CAPTION("NIS Service");
 static const String DESCRIPTION("This is the PG_NISServerService object");
@@ -72,7 +72,7 @@ static const String KEY_MASTER_SERVER("NIS_MASTER_SERVER");
 static const String KEY_SLAVE_SERVER("NIS_SLAVE_SERVER");
 static const String KEY_PLUS_SERVER("NISPLUS_SERVER");
 static const String KEY_WAIT_SERVER("WAIT_FOR_NIS_SERVER");
-        
+
 
 class NISTestClient
 {
@@ -127,10 +127,10 @@ class NISTestClient
      Boolean FindInArray(Array<String> src, String text);
 
      // Insert here the private functions
-    
+
      // validate keys of the class
      void _validateKeys(CIMObjectPath &cimRef, Boolean verboseTest);
-     
+
      // validate properties of the class
      void _validateProperties(CIMInstance &cimInst, Boolean verboseTest);
 };

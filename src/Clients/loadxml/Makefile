@@ -29,7 +29,7 @@
 
 ROOT = ../../..
 DIR = Clients/loadxml
- 
+
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

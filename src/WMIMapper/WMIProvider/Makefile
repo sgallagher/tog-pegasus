@@ -67,7 +67,7 @@ SOURCES = \
    WMIObjectPath.cpp \
    WMIMethod.cpp \
    StdAfx.cpp \
-   MyString.cpp 
+   MyString.cpp
 
 SYS_LIBS = uuid.lib wbemuuid.lib Framedyn.lib ws2_32.lib advapi32.lib
 ifeq ($(CL_MAJOR_VERSION), 14)

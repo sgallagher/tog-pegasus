@@ -48,8 +48,8 @@ CMPI_QueryOperand::CMPI_QueryOperand (const String & x, Type type)
 }
 
 int CMPI_term_el::toStrings (
-    CMPIType & typ, 
-    CMPIPredOp & opr, String & o1,String & o2) const 
+    CMPIType & typ,
+    CMPIPredOp & opr, String & o1,String & o2) const
 {
 
     opr = op;
@@ -62,7 +62,7 @@ int CMPI_term_el::toStrings (
     return 0;
 }
 CMPIType
-    CMPI_term_el::mapType (CMPI_QueryOperand::Type type) const 
+    CMPI_term_el::mapType (CMPI_QueryOperand::Type type) const
 {
 
     switch (type)

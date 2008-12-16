@@ -56,20 +56,20 @@ extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(String &name)
         return new BIPTLEpProvider;
     else if (name == "IPRouteProvider")
         return new IPRouteProvider;
-    else 
+    else
     {
         if (name == "NextHopIPRouteProvider")
         {
             return new NextHopIPRouteProvider;
         }
-        else 
+        else
         {
             if (name == "RSApProvider")
             {
                 return new RSApProvider;
             }
             else
-            { 
+            {
                 if (name == "RUEpProvider")
                 {
                     return new RUEpProvider;
@@ -81,7 +81,7 @@ extern "C" PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(String &name)
                         return new ANHProvider;
                     }
                     else
-                    { 
+                    {
                         return 0;
                     }
                 }

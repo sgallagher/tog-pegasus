@@ -32,6 +32,6 @@ include $(ROOT)/mak/config.mak
 
 TEST_DIRS = \
 	srv_reg \
-	slptests 
+	slptests
 
 include $(ROOT)/mak/recurse.mak

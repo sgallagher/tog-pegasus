@@ -54,7 +54,7 @@
 
 PEGASUS_USING_STD;
 
-PEGASUS_NAMESPACE_BEGIN 
+PEGASUS_NAMESPACE_BEGIN
 
 CMPI_SelectExpAccessor_CQL::CMPI_SelectExpAccessor_CQL (
     CMPIAccessor * acc,
@@ -85,7 +85,7 @@ void CMPI_SelectExpAccessor_CQL::_constructInstance ()
     _stmt->getWhereChainedIdentifiers ();
 
     /**
-      We will create an instance using the where_Array properties 
+      We will create an instance using the where_Array properties
    */
 
     for( Uint32 i = 0; i < where_Array.size (); i++ )
@@ -94,7 +94,7 @@ void CMPI_SelectExpAccessor_CQL::_constructInstance ()
         String name = identifier.getName ().getString ();
 
         /**
-           cerr << "Calling accessor function with property: " << name 
+           cerr << "Calling accessor function with property: " << name
                 << endl;
        */
 

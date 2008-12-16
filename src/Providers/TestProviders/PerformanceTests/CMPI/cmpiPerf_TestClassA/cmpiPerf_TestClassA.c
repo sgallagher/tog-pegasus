@@ -57,7 +57,7 @@ CMPIObjectPath * _makePath_TestClassA(
        CMGetCharsPtr(CMGetNameSpace(cop,rc), NULL),
        _ClassName,
        rc);
-   
+
    if ( CMIsNullObject(op) )
    {
       CMSetStatusWithChars(

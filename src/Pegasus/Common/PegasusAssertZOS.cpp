@@ -45,10 +45,10 @@ void __pegasus_assert_zOS(const char* file, int line, const char* cond)
 
     // generate stacktace
     ctrace(msgBuffer);
-    
+
     // flush trace buffers
     Pegasus::Tracer::flushTrace();
-    
+
     // If env vars are set, a SYSM dump is generated.
     kill(getpid(),SIGDUMP);
 }

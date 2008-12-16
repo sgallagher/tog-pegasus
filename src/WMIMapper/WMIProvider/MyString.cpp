@@ -42,7 +42,7 @@ PEGASUS_NAMESPACE_BEGIN
 /////////////////////////////////////////////////////////////////////////////
 // CMyString
 
-void CMyString::Init() 
+void CMyString::Init()
 {
     m_pszData = NULL;
     m_nStrLen = 0;
@@ -53,24 +53,24 @@ void CMyString::Init()
 /////////////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 
-CMyString::CMyString()    
+CMyString::CMyString()
 {
     Init();
 }
 
-CMyString::CMyString(const CMyString& strSrc)    
+CMyString::CMyString(const CMyString& strSrc)
 {
     Init();
     *this = strSrc.m_pszData;
 }
 
-CMyString::CMyString(const unsigned char* psz)    
+CMyString::CMyString(const unsigned char* psz)
 {
     Init();
     *this = (LPCSTR)psz;
 }
 
-CMyString::CMyString(LPCTSTR psz)    
+CMyString::CMyString(LPCTSTR psz)
 {
     Init();
     *this = psz;
@@ -84,22 +84,22 @@ CMyString::CMyString(String sStr)
 }
 
 #ifdef _UNICODE
-CMyString::CMyString(LPCSTR lpsz)    
+CMyString::CMyString(LPCSTR lpsz)
 {
     Init();
 
-    int nLen = ::MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpsz, -1, 
+    int nLen = ::MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpsz, -1,
         NULL, 0);
 
     AllocBuffer(nLen);
 
-    ::MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpsz, -1, 
+    ::MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpsz, -1,
         m_pszData, m_nBufLen);
     m_nStrLen = _tcslen(m_pszData);
 }
 #endif
 
-CMyString::~CMyString()    
+CMyString::~CMyString()
 {
     //free any pointers
     DeallocBuffer();
@@ -123,7 +123,7 @@ BOOL CMyString::AllocBuffer(int nLen)
         m_pszData = (LPTSTR)new BYTE[(nLen + 1) * sizeof(TCHAR)];
     }
 
-    if (m_pszData)    
+    if (m_pszData)
     {
         m_nBufLen = nLen + 1;
         memset((void *)m_pszData, '\0', (nLen + 1) * sizeof(TCHAR));
@@ -133,11 +133,11 @@ BOOL CMyString::AllocBuffer(int nLen)
         m_nStatus = E_OUTOFMEMORY;
         return FALSE;
     }
-    
+
     return TRUE;
 }
 
-void CMyString::DeallocBuffer()    
+void CMyString::DeallocBuffer()
 {
 
     if (m_pszData)
@@ -154,7 +154,7 @@ void CMyString::AllocBeforeWrite(int nLen)
     if (m_pszData && (m_nBufLen > nLen))
     {
         memset((void *)m_pszData, '\0', m_nBufLen);
-        return;        
+        return;
     }
 
     else
@@ -189,14 +189,14 @@ const CMyString& CMyString::operator=(const CMyString& stringSrc)
 #ifdef _UNICODE
 const CMyString& CMyString::operator=(LPCSTR lpsz)
 {
-    int nLen = ::MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpsz, 
+    int nLen = ::MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpsz,
         -1, NULL, 0);
 
     AllocBeforeWrite(nLen);
 
     if (m_pszData)
     {
-        ::MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpsz, -1, 
+        ::MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpsz, -1,
             m_pszData, m_nBufLen);
         m_nStrLen = _tcslen(m_pszData);
     }
@@ -204,18 +204,18 @@ const CMyString& CMyString::operator=(LPCSTR lpsz)
     return *this;
 }
 #else
-const CMyString& CMyString::operator=(LPCWSTR lpsz)    
+const CMyString& CMyString::operator=(LPCWSTR lpsz)
 {
-    if (lpsz && *lpsz) 
+    if (lpsz && *lpsz)
     {
-        int nLen = ::WideCharToMultiByte(CP_UTF8, 0, lpsz, -1, 
+        int nLen = ::WideCharToMultiByte(CP_UTF8, 0, lpsz, -1,
             NULL, 0, NULL, NULL);
 
         AllocBeforeWrite(nLen);
 
-        if (m_pszData) 
+        if (m_pszData)
         {
-            ::WideCharToMultiByte(CP_UTF8, 0, lpsz, -1, 
+            ::WideCharToMultiByte(CP_UTF8, 0, lpsz, -1,
                 m_pszData, m_nBufLen, NULL, NULL);
             m_nStrLen = _tcslen(m_pszData);
         }
@@ -224,7 +224,7 @@ const CMyString& CMyString::operator=(LPCWSTR lpsz)
     {
         Empty();
     }
-    
+
     return *this;
 }
 #endif
@@ -257,14 +257,14 @@ const CMyString& CMyString::operator=(String sStr)
     return *this;
 }
 
-CMyString::operator LPCTSTR() const    
+CMyString::operator LPCTSTR() const
 {
     return m_pszData;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 // string concatenation
-void CMyString::ConcatCopy(    int nLen1, LPCTSTR lpszSrc1, 
+void CMyString::ConcatCopy(    int nLen1, LPCTSTR lpszSrc1,
                             int nLen2, LPCTSTR lpszSrc2)
 {
     // concatenate two sources
@@ -280,7 +280,7 @@ void CMyString::ConcatCopy(    int nLen1, LPCTSTR lpszSrc1,
     }
 }
 
-void CMyString::ConcatInPlace(int nSrcLen, LPCTSTR lpszSrc)    
+void CMyString::ConcatInPlace(int nSrcLen, LPCTSTR lpszSrc)
 {
     if (nSrcLen == 0)
         return;
@@ -295,7 +295,7 @@ void CMyString::ConcatInPlace(int nSrcLen, LPCTSTR lpszSrc)
         m_pszData[nLen] = '\0';
     }
     else
-    {    
+    {
         // buffer is too small - reallocate.
         LPTSTR pszOld = m_pszData;
         ConcatCopy(m_nStrLen, m_pszData, nSrcLen, lpszSrc);
@@ -305,7 +305,7 @@ void CMyString::ConcatInPlace(int nSrcLen, LPCTSTR lpszSrc)
     }
 }
 
-const CMyString& CMyString::operator+=(const CMyString& stringSrc)    
+const CMyString& CMyString::operator+=(const CMyString& stringSrc)
 {
     ConcatInPlace(stringSrc.m_nStrLen, stringSrc.m_pszData);
     return *this;
@@ -375,7 +375,7 @@ BOOL CMyString::Compare(BSTR bStr)
     return (sText1 == sText2);
 }
 
-BOOL CMyString::Compare(LPCTSTR szStr)    
+BOOL CMyString::Compare(LPCTSTR szStr)
 {
     _bstr_t sText1(m_pszData);
     _bstr_t sText2(szStr);
@@ -413,7 +413,7 @@ int CMyString::Find(TCHAR ch, int nStart) const
 void CMyString::GetPrintableHex(int len, const unsigned char* data)
 {
     //2 chars for each byte plus space between
-    LPTSTR lpsz = new TCHAR[3 * len + 1];    
+    LPTSTR lpsz = new TCHAR[3 * len + 1];
     LPTSTR ptr = lpsz;
     const unsigned char* bytes = data;
     int i;
@@ -459,12 +459,12 @@ int CMyString::FormatV(LPCTSTR lpszFormat, int iSize, va_list argList)
     lpBuf = new TCHAR[iSize];
 
     iNumChars = _vsntprintf(lpBuf, iLen, lpszFormat, argList);
-    
+
     if (0 <= iNumChars)
     {
         *this = lpBuf;
     }
-    
+
     delete [] lpBuf;
 
     return iNumChars;

@@ -71,4 +71,4 @@ private:
 
 PEGASUS_NAMESPACE_END
 
-#endif                          
+#endif

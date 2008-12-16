@@ -226,7 +226,7 @@ void CIMClientRep::connect(
 
     //
     // If the host is empty and port is valid, set hostName to "localhost"
-    // Otherwise, HTTPConnector will use the unix domain socket. 
+    // Otherwise, HTTPConnector will use the unix domain socket.
     //
     String hostName = host;
     if (!host.size() && (portNumber != 0))

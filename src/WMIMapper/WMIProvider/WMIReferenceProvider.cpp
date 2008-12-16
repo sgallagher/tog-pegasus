@@ -103,15 +103,15 @@ Array<CIMObject> WMIReferenceProvider::references(
     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIReferenceProvider::references()");
 
     sQueryLanguage = qString(Q_WQL);
-    sQuery = getReferenceQueryString(objectName, 
-                resultClass, 
-                role); 
+    sQuery = getReferenceQueryString(objectName,
+                resultClass,
+                role);
 
     objects = execCIMQuery(nameSpace,
                 userName,
                 password,
-                sQueryLanguage, 
-                sQuery, 
+                sQueryLanguage,
+                sQuery,
                 propertyList,
                 includeQualifiers,
                 includeClassOrigin);
@@ -157,14 +157,14 @@ Array<CIMObjectPath> WMIReferenceProvider::referenceNames(
     // now get the names from the object
     Uint32 size = objects.size();
     Uint32 i;
-    
+
     //check if namespace is remote
     CIMNamespaceName oNamespace(nameSpace);
     String strNamespace = oNamespace.getString();
     String strNamespaceLower = strNamespace;
     strNamespaceLower.toLower();
     String strRemotePrefix = "";
-    
+
     if (strNamespaceLower.subString(0, 4) != "root")
     {
         Uint32 uiPos = strNamespaceLower.find("root");
@@ -175,17 +175,17 @@ Array<CIMObjectPath> WMIReferenceProvider::referenceNames(
     }
 
     for (i=0; i<size; i++)
-    {    
+    {
         CIMObjectPath oObjectPath = objects[i].getPath();
-        
+
         if (strRemotePrefix != "")
         {
             strNamespace = strRemotePrefix;
             oNamespace = strNamespace.append(
                 oObjectPath.getNameSpace().getString());
-            oObjectPath.setNameSpace(oNamespace);            
+            oObjectPath.setNameSpace(oNamespace);
         }
-        
+
         objectNames.append(oObjectPath);
     }
 
@@ -202,20 +202,20 @@ Array<CIMObjectPath> WMIReferenceProvider::referenceNames(
 // ///////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////
-// WMIReferenceProvider::getReferenceQueryString - calls the BaseProvider 
+// WMIReferenceProvider::getReferenceQueryString - calls the BaseProvider
 //          method to build the query string from the input parameters
 //
 // ///////////////////////////////////////////////////////////////////////////
 String WMIReferenceProvider::getReferenceQueryString(
-        const CIMObjectPath &objectName, 
-        const String &resultClass, 
+        const CIMObjectPath &objectName,
+        const String &resultClass,
         const String &role)
 {
     String sQuery;
 
     sQuery = qString(Q_REFERENCES);
 
-    return getQueryString(objectName, sQuery, 
+    return getQueryString(objectName, sQuery,
         String::EMPTY, resultClass, role);
 
 }

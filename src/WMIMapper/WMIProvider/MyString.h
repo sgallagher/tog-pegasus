@@ -65,18 +65,18 @@ public:
 
 // Attributes & Operations
     // as an array of characters
-    int GetLength() const{return m_nStrLen;} 
+    int GetLength() const{return m_nStrLen;}
     BOOL IsEmpty() const {return m_nBufLen == 0;}
     int GetBufLength() const {return m_nBufLen;}
     void Empty(){DeallocBuffer();}        // free up the buffer
     //format data buffer in hex
-    void GetPrintableHex(int len, const unsigned char* data);    
+    void GetPrintableHex(int len, const unsigned char* data);
     int Find(TCHAR ch) const;
     int Find(TCHAR ch, int nStart) const;
 
 
     LPTSTR Copy();
-    
+
     operator LPCTSTR() const;
 
     // overloaded assignment

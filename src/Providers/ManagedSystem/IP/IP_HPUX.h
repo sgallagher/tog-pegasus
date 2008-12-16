@@ -142,7 +142,7 @@ public:
 
     // Method to get a particular element based on an index
     IPInterface getInterface(const int index) const;
- 
+
     // Number of Elements in the InterfaceList
     int size() const;
 
@@ -208,7 +208,7 @@ public:
 
     // Method to get a particular element based on an index
     IPRoute getRoute(const int index) const;
- 
+
     // Number of Elements in the IP Route
     int size() const;
 
@@ -227,7 +227,7 @@ public:
 
 
     // Property Accessor Methods
-    
+
     Boolean getCaption(String&) const;
     Boolean getDescription(String&) const;
     Boolean getInstallDate(CIMDateTime&) const;
@@ -247,7 +247,7 @@ public:
     Boolean getAddressType(Uint16&) const;
 
     // Methods to check if a given next hop route is local.
-    Boolean isRouteLocal() const;    
+    Boolean isRouteLocal() const;
 
     // Methods to Load Instances
     void set_prefixLength(const Uint8 &pl);
@@ -286,7 +286,7 @@ public:
 
     // Method to get a particular element based on an index
     NextHopIPRoute getRoute(const int index) const;
- 
+
     // Number of Elements in the IP Route
     int size() const;
 
@@ -317,8 +317,8 @@ public:
     void set_otherInfoFmtDesc(const String&);
 
 private:
-    String _name;          
-    String _accessInfo;        
+    String _name;
+    String _accessInfo;
     Uint16 _infoFormat;
     String _otherInfoFmtDesc;
 };

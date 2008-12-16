@@ -85,7 +85,7 @@ void ZOSConsoleManager::stripTrailingBlanks( char* token )
 
 void ZOSConsoleManager::issueSyntaxError(const char* command)
 {
-    PEG_METHOD_ENTER(TRC_SERVER, 
+    PEG_METHOD_ENTER(TRC_SERVER,
         "ZOSConsoleManager::issueSyntaxError");
     Logger::put_l(
         Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
@@ -108,7 +108,7 @@ void ZOSConsoleManager::updateConfiguration( const String& configProperty,
                                              Boolean currentValueIsNull,
                                              Boolean planned)
 {
-    PEG_METHOD_ENTER(TRC_SERVER, 
+    PEG_METHOD_ENTER(TRC_SERVER,
         "ZOSConsoleManager::updateConfiguration");
 
     String preValue;
@@ -242,7 +242,7 @@ void ZOSConsoleManager::updateConfiguration( const String& configProperty,
 
 void ZOSConsoleManager::processModifyCommand( char* command )
 {
-    PEG_METHOD_ENTER(TRC_SERVER, 
+    PEG_METHOD_ENTER(TRC_SERVER,
         "ZOSConsoleManager::processModifyCommand");
 
     char* currentPtr = command;
@@ -379,7 +379,7 @@ void ZOSConsoleManager::processModifyCommand( char* command )
 
 void ZOSConsoleManager::startConsoleWatchThread(void)
 {
-    PEG_METHOD_ENTER(TRC_SERVER, 
+    PEG_METHOD_ENTER(TRC_SERVER,
         "ZOSConsoleManager::startConsoleWatchThread");
 
     pthread_t thid;
@@ -412,7 +412,7 @@ void ZOSConsoleManager::startConsoleWatchThread(void)
 //
 void* ZOSConsoleManager::consoleCommandWatchThread(void*)
 {
-    PEG_METHOD_ENTER(TRC_SERVER, 
+    PEG_METHOD_ENTER(TRC_SERVER,
         "ZOSConsoleManager::consoleCommandWatchThread");
 
     struct __cons_msg    cons;

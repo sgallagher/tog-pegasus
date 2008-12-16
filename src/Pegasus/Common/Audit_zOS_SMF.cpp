@@ -55,7 +55,7 @@ Audit_zOS_SMF::Audit_zOS_SMF()
         AutoMutex autoMut(_protectProlog);
         if (_recordProlog == NULL)
         {
-            _recordProlog = (_smf86_record_prolog*)calloc(1, 
+            _recordProlog = (_smf86_record_prolog*)calloc(1,
                 sizeof(_smf86_record_prolog));
 
             _preInitRecordHeaderSection(&(_recordProlog->header));
@@ -88,15 +88,15 @@ void Audit_zOS_SMF::initMyProlog( _smf86_record_prolog * myRecProlog,
 
     // Set total record length
     myRecProlog->header.SMF86LEN=(sizeof(_smf86_record_prolog) + subTypeSize );
-    // We do no segmentaion in general 
+    // We do no segmentaion in general
     myRecProlog->header.SMF86SEG=0;
     // Set subtype
-    myRecProlog->header.SMF86STY=subtype; 
+    myRecProlog->header.SMF86STY=subtype;
     // Set size of subtype section
     myRecProlog->header.SMF86STL=subTypeSize;
 
     // Set thread ID
-    setEBCDICRecordField( myRecProlog->product.SMF86THID, 
+    setEBCDICRecordField( myRecProlog->product.SMF86THID,
                           Threads::id().buffer,
                           sizeof(myRecProlog->product.SMF86THID),true);
 
@@ -119,7 +119,7 @@ Boolean Audit_zOS_SMF::isRecording(_smf_record_suptype subtype)
 
 void Audit_zOS_SMF::writeRecord(int subtype, char* record )
 {
-    // the size of the whole record is stored as short in the first bytes 
+    // the size of the whole record is stored as short in the first bytes
     // of the record.
     if (__smf_record(86,subtype,((_smf86_header *)record)->SMF86LEN,record) < 0)
     {
@@ -128,14 +128,14 @@ void Audit_zOS_SMF::writeRecord(int subtype, char* record )
                        "(errno(%d) reason code(0x%08X))",
                    strerror(errno),errno,__errno2()));
     }
-    
+
     return;
 }
 
 
 void Audit_zOS_SMF::setEBCDICRecordField(
-    unsigned char * field, 
-    const char * value, 
+    unsigned char * field,
+    const char * value,
     int size, bool nullTerminated )
 {
     int length = strlen(value);
@@ -171,7 +171,7 @@ void Audit_zOS_SMF::setEBCDICRecordField(
 
 void Audit_zOS_SMF::_preInitRecordHeaderSection( _smf86_header* recordHeader )
 {
-   
+
     recordHeader->SMF86FLG=0xFF;         // Set bit mask to 11111111;
     recordHeader->SMF86RTY=86;           // Set SMF reckord type
     recordHeader->SMF86TRN=2;            // Both triplets are used
@@ -190,23 +190,23 @@ void Audit_zOS_SMF::_preInitRecordHeaderSection( _smf86_header* recordHeader )
     recordHeader->SMF86STN=1;            // one subtype section
 }
 
-void Audit_zOS_SMF::_preInitRecordProductSection ( 
+void Audit_zOS_SMF::_preInitRecordProductSection (
     _smf86_product* recordProductSec )
 {
-    
+
     struct utsname uts;
     char zOS_VRM[sizeof(uts.version) +
                  sizeof(uts.release) + 2];
 
     // set to recrod version 1
-    recordProductSec->SMF86PRRVN = 1; 
+    recordProductSec->SMF86PRRVN = 1;
 
     // set system identifyter
     memcpy(recordProductSec->SMF86SSI,CFZ_EBCDIC,
            strlen(CFZ_EBCDIC));
 
     // set pegasus VRM
-    setEBCDICRecordField( recordProductSec->SMF86VRM, 
+    setEBCDICRecordField( recordProductSec->SMF86VRM,
                         PEGASUS_PRODUCT_VERSION,
                         sizeof(recordProductSec->SMF86VRM),false);
      if (__osname(&uts) > -1 )
@@ -218,12 +218,12 @@ void Audit_zOS_SMF::_preInitRecordProductSection (
          strcat(zOS_VRM,uts.release);
 
          // set OS VRM
-         setEBCDICRecordField( recordProductSec->SMF86OSL, 
+         setEBCDICRecordField( recordProductSec->SMF86OSL,
                              zOS_VRM,
                              sizeof(recordProductSec->SMF86OSL),false);
 
          // set system name
-         setEBCDICRecordField( recordProductSec->SMF86SYN, 
+         setEBCDICRecordField( recordProductSec->SMF86SYN,
                              uts.nodename,
                              sizeof(recordProductSec->SMF86SYN),false);
      } else
@@ -273,7 +273,7 @@ void Audit_zOS_SMF::printRecord (int subtype, char* record )
             i == total )
         {
             for (int y = 0; y < 3; y=y+1)
-            {  
+            {
                 if (p == 0)
                 {
                     len = 80;
@@ -287,11 +287,11 @@ void Audit_zOS_SMF::printRecord (int subtype, char* record )
                     if (y == 0)
                     {
                         printf("%c",printLine[y][x]);
-                    } 
+                    }
                     else
                     {
                         printf("%1X",printLine[y][x]);
-                    }                   
+                    }
                 }
                 printf("\n");
             }

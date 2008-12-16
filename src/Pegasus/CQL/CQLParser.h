@@ -77,7 +77,7 @@ public:
     /** Parse the SELECT statement given by the text parameter and initialize
         the statement parameter accordingly.
 
-        Please note that this method is not thread safe. It must be guarded 
+        Please note that this method is not thread safe. It must be guarded
         with mutexes by the caller.
 
         @param text null-terminated C-string which points to CQL statement.
@@ -85,8 +85,8 @@ public:
             statement upon return.
         @exception CQLSyntaxErrorException if text is not a valid SELECT
             statement.
-        @exception MissingNullTerminator if text argument is not 
-            terminated with a null. 
+        @exception MissingNullTerminator if text argument is not
+            terminated with a null.
     */
     static void parse(
         const char* text,

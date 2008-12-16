@@ -52,7 +52,7 @@ CQLSelectStatement::CQLSelectStatement(
     :SelectStatement()
 {
     _rep = new CQLSelectStatementRep(inQlang,inQuery,inCtx);
-    
+
     // Set the _rep into the base class also
     SelectStatement::_rep = _rep;
 }
@@ -63,7 +63,7 @@ CQLSelectStatement::CQLSelectStatement(
     :SelectStatement()
 {
     _rep = new CQLSelectStatementRep(inQlang,inQuery);
-    
+
     // Set the _rep into the base class also
     SelectStatement::_rep = _rep;
 }
@@ -72,7 +72,7 @@ CQLSelectStatement::CQLSelectStatement(const CQLSelectStatement& statement)
     :SelectStatement()
 {
     _rep = new CQLSelectStatementRep(*statement._rep);
-    
+
     // Set the _rep into the base class also
     SelectStatement::_rep = _rep;
 }
@@ -92,7 +92,7 @@ CQLSelectStatement& CQLSelectStatement::operator=(const CQLSelectStatement& rhs)
         if(_rep)
             delete _rep;
         _rep = new CQLSelectStatementRep(*rhs._rep);
-    
+
         // Set the _rep into the base class also
         SelectStatement::_rep = _rep;
     }
@@ -102,7 +102,7 @@ CQLSelectStatement& CQLSelectStatement::operator=(const CQLSelectStatement& rhs)
 Boolean CQLSelectStatement::evaluate(const CIMInstance& inCI)
 {
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     return _rep->evaluate(inCI);
 }
 
@@ -111,21 +111,21 @@ void CQLSelectStatement::applyProjection(
     Boolean allowMissing)
 {
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     _rep->applyProjection(inCI, allowMissing);
 }
 
 void CQLSelectStatement::validate()
 {
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     _rep->validate();
 }
 
 Array<CIMObjectPath> CQLSelectStatement::getClassPathList() const
 {
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     return _rep->getClassPathList();
 }
 
@@ -134,7 +134,7 @@ CIMPropertyList CQLSelectStatement::getPropertyList(
 {
     // Should be set by the concrete sub-classes
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     return _rep->getPropertyList(inClassName);
 }
 
@@ -143,7 +143,7 @@ CIMPropertyList CQLSelectStatement::getSelectPropertyList(
 {
     // Should be set by the concrete sub-classes
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     return _rep->getSelectPropertyList(inClassName);
 }
 
@@ -152,7 +152,7 @@ CIMPropertyList CQLSelectStatement::getWherePropertyList(
 {
     // Should be set by the concrete sub-classes
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     return _rep->getWherePropertyList(inClassName);
 }
 
@@ -160,7 +160,7 @@ Array<CQLChainedIdentifier> CQLSelectStatement::getSelectChainedIdentifiers()
 {
     // Should be set by the concrete sub-classes
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     return _rep->getSelectChainedIdentifiers();
 }
 
@@ -168,28 +168,28 @@ Array<CQLChainedIdentifier> CQLSelectStatement::getWhereChainedIdentifiers()
 {
     // Should be set by the concrete sub-classes
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     return _rep->getWhereChainedIdentifiers();
 }
 
 void CQLSelectStatement::appendClassPath(const CQLIdentifier& inIdentifier)
 {
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     _rep->appendClassPath(inIdentifier);
 }
 
 void CQLSelectStatement::setPredicate(const CQLPredicate& inPredicate)
 {
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     _rep->setPredicate(inPredicate);
 }
 
 CQLPredicate CQLSelectStatement::getPredicate() const
 {
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     return _rep->getPredicate();
 }
 
@@ -198,56 +198,56 @@ void CQLSelectStatement::insertClassPathAlias(
     const String& inAlias)
 {
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     _rep->insertClassPathAlias(inIdentifier,inAlias);
 }
 
 void CQLSelectStatement::appendSelectIdentifier(const CQLChainedIdentifier& x)
 {
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     _rep->appendSelectIdentifier(x);
 }
 
 void CQLSelectStatement::applyContext()
 {
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     _rep->applyContext();
 }
 
 void CQLSelectStatement::normalizeToDOC()
 {
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     _rep->normalizeToDOC();
 }
 
 void CQLSelectStatement::setHasWhereClause()
 {
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     _rep->setHasWhereClause();
 }
 
 Boolean CQLSelectStatement::hasWhereClause() const
 {
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     return _rep->hasWhereClause();
 }
 
 String CQLSelectStatement::toString() const
 {
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     return _rep->toString();
 }
 
 void CQLSelectStatement::clear()
 {
     PEGASUS_ASSERT(_rep != NULL);
-    
+
     _rep->clear();
 }
 

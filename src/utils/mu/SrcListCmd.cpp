@@ -55,7 +55,7 @@ void ProcessSrcListOptions(
         {
             break;
         }
-        
+
         p++;
         if (*p == 'I')
         {
@@ -124,10 +124,10 @@ int SrcListCmdMain(int argc, char** argv)
     for (int i = 0; i < argc; i++)
     {
         string filePath = argv[i];
-        
+
         // Open the file:
         FILE* fp = fopen(argv[i], "rb");
-        
+
         if (fp == NULL)
         {
             string message = "failed to open file: \"" + filePath + "\"";
@@ -136,10 +136,10 @@ int SrcListCmdMain(int argc, char** argv)
 
         string fileName;
         string prependDir;
-        
-        // Get absolute directory (prependDir) for the source file 
+
+        // Get absolute directory (prependDir) for the source file
         GetSrcFileDir(filePath, fileName, prependDir);
-                
+
         const char* start = fileName.c_str();
         const char* dot = strrchr(start, '.');
 

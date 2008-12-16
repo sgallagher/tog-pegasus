@@ -29,8 +29,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#define FILE_ENTRY(n,s,c,m,a,o,t) {'f',#n,s,c,m,a,o,#t} 
-#define DIR_ENTRY(n,s,c,m,a,o,t) {'d',#n,s,c,m,a,o,#t} 
+#define FILE_ENTRY(n,s,c,m,a,o,t) {'f',#n,s,c,m,a,o,#t}
+#define DIR_ENTRY(n,s,c,m,a,o,t) {'d',#n,s,c,m,a,o,#t}
 
 #include <time.h>
 
@@ -41,8 +41,8 @@ typedef struct fileData {
    time_t cTime,mTime,aTime;
    int mode;
    char *type;
-} FileData;  
-  
+} FileData;
+
 FileData files[]={
   DIR_ENTRY(/Simulated/CMPI/tests/Providers,
    4096,1078617123,1078617429,1078617123,0775,
@@ -53,8 +53,8 @@ FileData files[]={
   DIR_ENTRY(/Simulated/CMPI/tests/Providers/util,
    4096,1078617429,1078617429,1078617429,0755,
    directory),
-   
-  FILE_ENTRY(/Simulated/CMPI/tests/Providers/CWS_Directory.c, 
+
+  FILE_ENTRY(/Simulated/CMPI/tests/Providers/CWS_Directory.c,
    6291,1078582741,1078609332,1074173331,0644,
    ASCII C program text),
   FILE_ENTRY(/Simulated/CMPI/tests/Providers/CWS_DirectoryContainsFile.c,
@@ -94,7 +94,7 @@ FileData files[]={
    33768,1078589724,1078609332,1078589724,664,
    ELF 32-bit LSB relocatable; Intel 80386; version 1 (SYSV); not stripped),
 
-  FILE_ENTRY(/Simulated/CMPI/tests/Providers/env, 
+  FILE_ENTRY(/Simulated/CMPI/tests/Providers/env,
    145,1078583810,1078609332,1078583810,0644,
    ASCII text),
   FILE_ENTRY(/Simulated/CMPI/tests/Providers/libCWS_DirectoryContainsFile.so,
@@ -109,7 +109,7 @@ FileData files[]={
   FILE_ENTRY(/Simulated/CMPI/tests/Providers/libCWS_PlainFile.so,
    33832,1078589724,1078609332,1078589724,0775,
    ELF 32-bit LSB shared object; Intel 80386; version 1 (SYSV); not stripped),
-  FILE_ENTRY(/Simulated/CMPI/tests/Providers/makefile, 
+  FILE_ENTRY(/Simulated/CMPI/tests/Providers/makefile,
    1031,1078582741,1078609332,1074173331,0644,
    ASCII make commands text),
   FILE_ENTRY(/Simulated/CMPI/tests/Providers/README,

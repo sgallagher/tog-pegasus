@@ -58,7 +58,7 @@ ifneq ($PEGASUS_SUPPORTS_DYNLIB,yes)
     LIBRARIES = pegcommon
 endif
 
-SOURCES = peg_slp_agent.cpp 
+SOURCES = peg_slp_agent.cpp
 
 include $(ROOT)/mak/library.mak
 

@@ -78,7 +78,7 @@ static CONST CMPIContext *__init_context;
 PEGASUS_IMPORT extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
 
 static void TCPCOMM_prepareAttachThread(
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -90,7 +90,7 @@ static void TCPCOMM_prepareAttachThread(
     socketcomm_serialize_context(socket, (__sft), ctx);
 }
 static void TCPCOMM_attachThread(
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -103,7 +103,7 @@ static void TCPCOMM_attachThread(
 }
 
 static void TCPCOMM_detachThread(
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -119,7 +119,7 @@ static void TCPCOMM_detachThread(
 }
 
 static void TCPCOMM_deliverIndication(
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -133,7 +133,7 @@ static void TCPCOMM_deliverIndication(
 }
 
 static void TCPCOMM_enumInstanceNames(
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -148,7 +148,7 @@ static void TCPCOMM_enumInstanceNames(
 }
 
 static void TCPCOMM_getInstance(
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -165,7 +165,7 @@ static void TCPCOMM_getInstance(
 }
 
 static void TCPCOMM_createInstance(
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -180,7 +180,7 @@ static void TCPCOMM_createInstance(
 }
 
 static void TCPCOMM_setInstance(
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -200,7 +200,7 @@ static void TCPCOMM_setInstance(
 }
 
 static void TCPCOMM_deleteInstance(
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -212,7 +212,7 @@ static void TCPCOMM_deleteInstance(
 }
 
 static void TCPCOMM_execQuery(
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -230,7 +230,7 @@ static void TCPCOMM_execQuery(
 }
 
 static void TCPCOMM_enumInstances(
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -248,7 +248,7 @@ static void TCPCOMM_enumInstances(
 }
 
 static void TCPCOMM_associators(
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -271,7 +271,7 @@ static void TCPCOMM_associators(
 }
 
 static void TCPCOMM_associatorNames(
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -285,13 +285,13 @@ static void TCPCOMM_associatorNames(
     role = (__sft)->deserialize_string(socket, broker);
     resultRole = (__sft)->deserialize_string(socket, broker);
     e = CBAssociatorNames(
-        broker, 
-        context, 
-        cop, 
-        assocClass, 
+        broker,
+        context,
+        cop,
+        assocClass,
         resultClass,
-        role, 
-        resultRole, 
+        role,
+        resultRole,
         &rc);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIArray(socket,
@@ -299,7 +299,7 @@ static void TCPCOMM_associatorNames(
 }
 
 static void TCPCOMM_references(
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -312,10 +312,10 @@ static void TCPCOMM_references(
     role = (__sft)->deserialize_string(socket, broker);
     props = socketcomm_deserialize_props(socket, (__sft), broker);
     e = CBReferences(
-        broker, 
-        context, 
-        cop, 
-        resultClass, 
+        broker,
+        context,
+        cop,
+        resultClass,
         role,
         (CONST char **) props,
         &rc);
@@ -326,7 +326,7 @@ static void TCPCOMM_references(
 }
 
 static void TCPCOMM_referenceNames(
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -338,11 +338,11 @@ static void TCPCOMM_referenceNames(
     resultClass = (__sft)->deserialize_string(socket, broker);
     role = (__sft)->deserialize_string(socket, broker);
     e = CBReferenceNames(
-        broker, 
-        context, 
-        cop, 
-        resultClass, 
-        role, 
+        broker,
+        context,
+        cop,
+        resultClass,
+        role,
         &rc);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIArray(socket,
@@ -350,7 +350,7 @@ static void TCPCOMM_referenceNames(
 }
 
 static void TCPCOMM_invokeMethod(
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -364,12 +364,12 @@ static void TCPCOMM_invokeMethod(
     in = (__sft)->deserialize_CMPIArgs(socket, broker);
     out = CMNewArgs(broker, NULL);
     result = CBInvokeMethod(
-        broker, 
-        context, 
-        cop, 
-        method, 
-        in, 
-        out, 
+        broker,
+        context,
+        cop,
+        method,
+        in,
+        out,
         &rc);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIArgs(socket, out);
@@ -377,7 +377,7 @@ static void TCPCOMM_invokeMethod(
 }
 
 static void TCPCOMM_setProperty(
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -395,7 +395,7 @@ static void TCPCOMM_setProperty(
 }
 
 static void TCPCOMM_getProperty(
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -412,7 +412,7 @@ static void TCPCOMM_getProperty(
 
 #ifndef CMPI_VER_100
 static void TCPCOMM_getKeyNames(
-    int socket, 
+    int socket,
     CMPIBroker * broker,
     CMPIContext * context)
 {
@@ -428,7 +428,7 @@ static void TCPCOMM_getKeyNames(
 #endif
 
 static void TCPCOMM_getMessage (
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -486,110 +486,110 @@ static void TCPCOMM_getMessage (
             break;
         case 1:
             result = broker->eft->getMessage(
-                broker, 
+                broker,
                 msgId,
-                defMsg, 
-                &rc, 
+                defMsg,
+                &rc,
                 count,
                 type[0],
                 value[0].uint);
             break;
         case 2:
             result = broker->eft->getMessage(
-                broker, 
-                msgId, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                defMsg,
+                &rc,
                 count,
                 type[0],
-                value[0].uint, 
+                value[0].uint,
                 type[1],
                 value[1].uint);
             break;
         case 3:
             result = broker->eft->getMessage(
-                broker, 
-                msgId, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                defMsg,
+                &rc,
                 count,
                 type[0],
-                value[0].uint, 
+                value[0].uint,
                 type[1],
-                value[1].uint, 
+                value[1].uint,
                 type[2],
                 value[2].uint);
             break;
         case 4:
             result = broker->eft->getMessage(
-                broker, 
-                msgId, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                defMsg,
+                &rc,
                 count,
                 type[0],
-                value[0].uint, 
+                value[0].uint,
                 type[1],
-                value[1].uint, 
+                value[1].uint,
                 type[2],
                 value[2].uint,
                 type[3],
                 value[3].uint);
         case 5:
             result = broker->eft->getMessage(
-                broker, 
-                msgId, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                defMsg,
+                &rc,
                 count,
                 type[0],
-                value[0].uint, 
+                value[0].uint,
                 type[1],
-                value[1].uint, 
+                value[1].uint,
                 type[2],
                 value[2].uint,
                 type[3],
-                value[3].uint, 
+                value[3].uint,
                 type[4],
                 value[4].uint);
             break;
         case 6:
             result = broker->eft->getMessage(
-                broker, 
-                msgId, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                defMsg,
+                &rc,
                 count,
                 type[0],
-                value[0].uint, 
+                value[0].uint,
                 type[1],
-                value[1].uint, 
+                value[1].uint,
                 type[2],
                 value[2].uint,
                 type[3],
-                value[3].uint, 
+                value[3].uint,
                 type[4],
-                value[4].uint, 
+                value[4].uint,
                 type[5],
                 value[5].uint);
             break;
         case 7:
             result = broker->eft->getMessage(
-                broker, 
-                msgId, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                defMsg,
+                &rc,
                 count,
                 type[0],
-                value[0].uint, 
+                value[0].uint,
                 type[1],
-                value[1].uint, 
+                value[1].uint,
                 type[2],
                 value[2].uint,
                 type[3],
-                value[3].uint, 
+                value[3].uint,
                 type[4],
-                value[4].uint, 
+                value[4].uint,
                 type[5],
                 value[5].uint,
                 type[6],
@@ -597,77 +597,77 @@ static void TCPCOMM_getMessage (
             break;
         case 8:
             result = broker->eft->getMessage(
-                broker, 
-                msgId, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                defMsg,
+                &rc,
                 count,
                 type[0],
-                value[0].uint, 
+                value[0].uint,
                 type[1],
-                value[1].uint, 
+                value[1].uint,
                 type[2],
                 value[2].uint,
                 type[3],
-                value[3].uint, 
+                value[3].uint,
                 type[4],
-                value[4].uint, 
+                value[4].uint,
                 type[5],
                 value[5].uint,
                 type[6],
-                value[6].uint, 
+                value[6].uint,
                 type[7],
                 value[7].uint);
             break;
         case 9:
             result = broker->eft->getMessage(
-                broker, 
-                msgId, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                defMsg,
+                &rc,
                 count,
                 type[0],
-                value[0].uint, 
+                value[0].uint,
                 type[1],
-                value[1].uint, 
+                value[1].uint,
                 type[2],
                 value[2].uint,
                 type[3],
-                value[3].uint, 
+                value[3].uint,
                 type[4],
-                value[4].uint, 
+                value[4].uint,
                 type[5],
                 value[5].uint,
                 type[6],
-                value[6].uint, 
+                value[6].uint,
                 type[7],
-                value[7].uint, 
+                value[7].uint,
                 type[8],
                 value[8].uint);
             break;
         default:
             result = broker->eft->getMessage(
-                broker, 
-                msgId, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                defMsg,
+                &rc,
                 count,
                 type[0],
-                value[0].uint, 
+                value[0].uint,
                 type[1],
-                value[1].uint, 
+                value[1].uint,
                 type[2],
                 value[2].uint,
                 type[3],
-                value[3].uint, 
+                value[3].uint,
                 type[4],
-                value[4].uint, 
+                value[4].uint,
                 type[5],
                 value[5].uint,
                 type[6],
-                value[6].uint, 
+                value[6].uint,
                 type[7],
-                value[7].uint, 
+                value[7].uint,
                 type[8],
                 value[8].uint,
                 type[9],
@@ -679,7 +679,7 @@ static void TCPCOMM_getMessage (
 }
 
 static void TCPCOMM_logMessage (
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -697,7 +697,7 @@ static void TCPCOMM_logMessage (
 }
 
 static void TCPCOMM_trace (
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -715,7 +715,7 @@ static void TCPCOMM_trace (
 }
 
 static void TCPCOMM_classPathIsA (
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -734,7 +734,7 @@ static void TCPCOMM_classPathIsA (
 #ifdef CMPI_VER_200
 
 static void TCPCOMM_newCMPIError (
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -752,20 +752,20 @@ static void TCPCOMM_newCMPIError (
     pc = (__sft)->deserialize_CMPIErrorProbableCause(socket, broker);
     cimStatusCode = (__sft)->deserialize_CMPIrc(socket, broker);
     resError = broker->eft->newCMPIError(
-        broker, 
-        owner, 
-        msgID, 
-        msg, 
-        sev, 
-        pc, 
-        cimStatusCode, 
+        broker,
+        owner,
+        msgID,
+        msg,
+        sev,
+        pc,
+        cimStatusCode,
         &rc);
     (__sft)->serialize_CMPIStatus(socket, &rc);
     (__sft)->serialize_CMPIError(socket, resError);
 }
 
 static void TCPCOMM_openMessageFile (
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -780,7 +780,7 @@ static void TCPCOMM_openMessageFile (
 }
 
 static void TCPCOMM_closeMessageFile (
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -793,7 +793,7 @@ static void TCPCOMM_closeMessageFile (
 }
 
 static void TCPCOMM_getMessage2 (
-    int socket, 
+    int socket,
     CONST CMPIBroker * broker,
     CONST CMPIContext * context)
 {
@@ -850,126 +850,126 @@ static void TCPCOMM_getMessage2 (
     {
         case 0:
             result = broker->eft->getMessage2(
-                broker, 
-                msgId, 
-                msgFileHandle, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                msgFileHandle,
+                defMsg,
+                &rc,
                 count);
             break;
         case 1:
             result = broker->eft->getMessage2(
-                broker, 
-                msgId, 
-                msgFileHandle, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                msgFileHandle,
+                defMsg,
+                &rc,
                 count,
                 type[0],
                 value[0].uint);
             break;
         case 2:
             result = broker->eft->getMessage2(
-                broker, 
-                msgId, 
-                msgFileHandle, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                msgFileHandle,
+                defMsg,
+                &rc,
                 count,
                 type[0],
-                value[0].uint, 
+                value[0].uint,
                 type[1],
                 value[1].uint);
             break;
         case 3:
             result = broker->eft->getMessage2(
-                broker, 
-                msgId, 
-                msgFileHandle, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                msgFileHandle,
+                defMsg,
+                &rc,
                 count,
                 type[0],
-                value[0].uint, 
+                value[0].uint,
                 type[1],
-                value[1].uint, 
+                value[1].uint,
                 type[2],
                 value[2].uint);
             break;
         case 4:
             result = broker->eft->getMessage2(
-                broker, 
-                msgId, 
-                msgFileHandle, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                msgFileHandle,
+                defMsg,
+                &rc,
                 count,
                 type[0],
-                value[0].uint, 
+                value[0].uint,
                 type[1],
-                value[1].uint, 
+                value[1].uint,
                 type[2],
                 value[2].uint,
                 type[3],
                 value[3].uint);
         case 5:
             result = broker->eft->getMessage2(
-                broker, 
-                msgId, 
-                msgFileHandle, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                msgFileHandle,
+                defMsg,
+                &rc,
                 count,
                 type[0],
-                value[0].uint, 
+                value[0].uint,
                 type[1],
-                value[1].uint, 
+                value[1].uint,
                 type[2],
                 value[2].uint,
                 type[3],
-                value[3].uint, 
+                value[3].uint,
                 type[4],
                 value[4].uint);
             break;
         case 6:
             result = broker->eft->getMessage2(
-                broker, 
-                msgId, 
-                msgFileHandle, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                msgFileHandle,
+                defMsg,
+                &rc,
                 count,
                 type[0],
-                value[0].uint, 
+                value[0].uint,
                 type[1],
-                value[1].uint, 
+                value[1].uint,
                 type[2],
                 value[2].uint,
                 type[3],
-                value[3].uint, 
+                value[3].uint,
                 type[4],
-                value[4].uint, 
+                value[4].uint,
                 type[5],
                 value[5].uint);
             break;
         case 7:
             result = broker->eft->getMessage2(
-                broker, 
-                msgId, 
-                msgFileHandle, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                msgFileHandle,
+                defMsg,
+                &rc,
                 count,
                 type[0],
-                value[0].uint, 
+                value[0].uint,
                 type[1],
-                value[1].uint, 
+                value[1].uint,
                 type[2],
                 value[2].uint,
                 type[3],
-                value[3].uint, 
+                value[3].uint,
                 type[4],
-                value[4].uint, 
+                value[4].uint,
                 type[5],
                 value[5].uint,
                 type[6],
@@ -977,80 +977,80 @@ static void TCPCOMM_getMessage2 (
             break;
         case 8:
             result = broker->eft->getMessage2(
-                broker, 
-                msgId, 
-                msgFileHandle, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                msgFileHandle,
+                defMsg,
+                &rc,
                 count,
                 type[0],
-                value[0].uint, 
+                value[0].uint,
                 type[1],
-                value[1].uint, 
+                value[1].uint,
                 type[2],
                 value[2].uint,
                 type[3],
-                value[3].uint, 
+                value[3].uint,
                 type[4],
-                value[4].uint, 
+                value[4].uint,
                 type[5],
                 value[5].uint,
                 type[6],
-                value[6].uint, 
+                value[6].uint,
                 type[7],
                 value[7].uint);
             break;
         case 9:
             result = broker->eft->getMessage2(
-                broker, 
-                msgId, 
-                msgFileHandle, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                msgFileHandle,
+                defMsg,
+                &rc,
                 count,
                 type[0],
-                value[0].uint, 
+                value[0].uint,
                 type[1],
-                value[1].uint, 
+                value[1].uint,
                 type[2],
                 value[2].uint,
                 type[3],
-                value[3].uint, 
+                value[3].uint,
                 type[4],
-                value[4].uint, 
+                value[4].uint,
                 type[5],
                 value[5].uint,
                 type[6],
-                value[6].uint, 
+                value[6].uint,
                 type[7],
-                value[7].uint, 
+                value[7].uint,
                 type[8],
                 value[8].uint);
             break;
         default:
             result = broker->eft->getMessage2(
-                broker, 
-                msgId, 
-                msgFileHandle, 
-                defMsg, 
-                &rc, 
+                broker,
+                msgId,
+                msgFileHandle,
+                defMsg,
+                &rc,
                 count,
                 type[0],
-                value[0].uint, 
+                value[0].uint,
                 type[1],
-                value[1].uint, 
+                value[1].uint,
                 type[2],
                 value[2].uint,
                 type[3],
-                value[3].uint, 
+                value[3].uint,
                 type[4],
-                value[4].uint, 
+                value[4].uint,
                 type[5],
                 value[5].uint,
                 type[6],
-                value[6].uint, 
+                value[6].uint,
                 type[7],
-                value[7].uint, 
+                value[7].uint,
                 type[8],
                 value[8].uint,
                 type[9],
@@ -1131,7 +1131,7 @@ static void __dispatch_MB_function(struct accept_thread *athread)
         __sft->deserialize_string(athread->socket, athread->broker);
 
     socketcomm_deserialize_context(
-        athread->socket,  
+        athread->socket,
         __sft, athread->broker,
         athread->context);
 
@@ -1160,9 +1160,9 @@ static void __dispatch_MB_function(struct accept_thread *athread)
             TRACE_INFO(("calling %s to handle request.",
                 select_exp_functions[i].name));
             select_exp_functions[i].function(
-                athread->socket, 
+                athread->socket,
                 athread->broker,
-                athread->context, 
+                athread->context,
                 athread->ctx_id);
             break;
         }
@@ -1274,7 +1274,7 @@ static int __provider_connect(
     provider_address * addr,
     char *provider,
     comm_ticket * ticket,
-    const char *function, 
+    const char *function,
     CONST CMPIContext * ctx,
     CONST CMPIObjectPath * cop)
 {
@@ -1380,7 +1380,7 @@ static CMPIStatus TCPCOMM_InstanceMI_enumInstances(
     RemoteCMPIInstanceMI * cThis,
     CONST CMPIContext * context,
     CONST CMPIResult * result,
-    CONST CMPIObjectPath * cop, 
+    CONST CMPIObjectPath * cop,
     CONST char **props)
 {
     int socket;
@@ -1388,11 +1388,11 @@ static CMPIStatus TCPCOMM_InstanceMI_enumInstances(
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(
-        addr, 
-        cThis->provider, 
+        addr,
+        cThis->provider,
         &cThis->ticket,
-        "TCPCOMM_InstanceMI_enumInstances", 
-        context, 
+        "TCPCOMM_InstanceMI_enumInstances",
+        context,
         cop);
     if (socket < 0)
     {
@@ -1493,11 +1493,11 @@ static CMPIStatus TCPCOMM_InstanceMI_setInstance(
     TRACE_NORMAL(("Executing remote MI call."));
     CMAddContextEntry(context, RCMPI_CTX_ID, &ctxid, CMPI_uint32);
     socket = __provider_connect(
-        addr, 
-        cThis->provider, 
+        addr,
+        cThis->provider,
         &cThis->ticket,
-        "TCPCOMM_InstanceMI_setInstance", 
-        context, 
+        "TCPCOMM_InstanceMI_setInstance",
+        context,
         cop);
     if (socket < 0)
     {
@@ -1554,7 +1554,7 @@ static CMPIStatus TCPCOMM_InstanceMI_execQuery(
     RemoteCMPIInstanceMI * cThis,
     CONST CMPIContext * context,
     CONST CMPIResult * result,
-    CONST CMPIObjectPath * cop, 
+    CONST CMPIObjectPath * cop,
     CONST char *lang,
     CONST char *query)
 {
@@ -1739,9 +1739,9 @@ static CMPIStatus TCPCOMM_MethodMI_invokeMethod(
     provider_address * addr,
     RemoteCMPIMethodMI * cThis,
     CONST CMPIContext * context,
-    CONST CMPIResult * result, 
+    CONST CMPIResult * result,
     CONST CMPIObjectPath * cop,
-    const char *method, 
+    const char *method,
     CONST CMPIArgs * in,
     CMPIArgs * out)
 {
@@ -1781,7 +1781,7 @@ static CMPIStatus TCPCOMM_PropertyMI_setProperty(
     RemoteCMPIPropertyMI * cThis,
     CONST CMPIContext * context,
     CONST CMPIResult * result,
-    CONST CMPIObjectPath * cop, 
+    CONST CMPIObjectPath * cop,
     const char *name,
     CONST CMPIData data)
 {
@@ -1815,7 +1815,7 @@ static CMPIStatus TCPCOMM_PropertyMI_getProperty(
     RemoteCMPIPropertyMI * cThis,
     CONST CMPIContext * context,
     CONST CMPIResult * result,
-    CONST CMPIObjectPath * cop, 
+    CONST CMPIObjectPath * cop,
     const char *name)
 {
     int socket;
@@ -1860,7 +1860,7 @@ static CMPIStatus TCPCOMM_IndicationMI_authorizeFilter(
     CMPIResult * result,
     CMPIObjectPath * cop,
     CMPISelectExp * filter,
-    const char *indType, 
+    const char *indType,
     const char *owner)
 #endif
 {
@@ -1909,9 +1909,9 @@ static CMPIStatus TCPCOMM_IndicationMI_mustPoll(
     provider_address * addr,
     RemoteCMPIIndicationMI * cThis,
     CMPIContext * context,
-    CMPIResult * result, 
+    CMPIResult * result,
     CMPIObjectPath * cop,
-    CMPISelectExp * filter, 
+    CMPISelectExp * filter,
     const char *indType)
 #endif
 {

@@ -29,7 +29,7 @@
 //
 // Author: Paulo F. Borges (pfborges@wowmail.com)
 //
-// Modified By: 
+// Modified By:
 //         Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
 //         Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
 //

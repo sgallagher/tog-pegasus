@@ -56,7 +56,7 @@ enum FuncType{
 
 static void DirectoryContainsFileReturnHelper
 (CmpiResult& rslt,
- const CmpiObjectPath& cop, 
+ const CmpiObjectPath& cop,
  const CWS_FILE* filebuf,
  int isparent,
  const char* filetype,
@@ -64,7 +64,7 @@ static void DirectoryContainsFileReturnHelper
 
 static CmpiStatus CWS_DirectoryContainsFileAssocHelper
 (CmpiResult& rslt,
- const CmpiObjectPath& op, 
+ const CmpiObjectPath& op,
  const char* asscClass, const char* resultClass,
  const char* role, const char* resultRole, const char** properties,
  int functype);
@@ -87,23 +87,23 @@ CMAssociationMIFactory(
 /*                          Base Provider Interface                       */
 /* -----------------------------------------------------------------------*/
 
-CWS_DirectoryContainsFile::CWS_DirectoryContainsFile (const CmpiBroker &mbp, 
-                              const CmpiContext& ctx) 
+CWS_DirectoryContainsFile::CWS_DirectoryContainsFile (const CmpiBroker &mbp,
+                              const CmpiContext& ctx)
   : CmpiBaseMI(mbp, ctx), CmpiAssociationMI(mbp,ctx),
-    cppBroker(mbp) 
-{  
+    cppBroker(mbp)
+{
 #ifndef SIMULATED
   cout<<"CWS_DirectoryContainsFile Provider was constructed"<<endl;
 #endif
 }
-    
+
 CWS_DirectoryContainsFile::~CWS_DirectoryContainsFile()
 {
 #ifndef SIMULATED
   cout<<"CWS_DirectoryContainsFile Provider was destructed"<<endl;
 #endif
 }
-  
+
 int CWS_DirectoryContainsFile::isUnloadable() const
 {
   return 1;  // may be unloaded
@@ -158,7 +158,7 @@ CmpiStatus CWS_DirectoryContainsFile::referenceNames
 
 static void DirectoryContainsFileReturnHelper
 (CmpiResult& rslt,
- const CmpiObjectPath& copP, 
+ const CmpiObjectPath& copP,
  const CWS_FILE* filebuf,
  int isparent,
  const char* filetype,
@@ -217,7 +217,7 @@ static void DirectoryContainsFileReturnHelper
 
 static CmpiStatus CWS_DirectoryContainsFileAssocHelper
 (CmpiResult& rslt,
- const CmpiObjectPath& cop, 
+ const CmpiObjectPath& cop,
  const char* assocClass, const char* resultClass,
  const char* role, const char* resultRole, const char** properties,
  int functype)
@@ -232,9 +232,9 @@ static CmpiStatus CWS_DirectoryContainsFileAssocHelper
   if (cop.classPathIsA(DIRECTORYCLASS)) {
     // we have a directory and can return the children
     CmpiString key = cop.getKey("Name").getString();
-      
+
     // first the plain files
-    enumhdl = CWS_Begin_Enum(key.charPtr(),CWS_TYPE_PLAIN);      
+    enumhdl = CWS_Begin_Enum(key.charPtr(),CWS_TYPE_PLAIN);
     if (enumhdl == NULL) {
       throw CmpiStatus( CMPI_RC_ERR_FAILED,
             "Could not begin file enumeration");
@@ -244,9 +244,9 @@ static CmpiStatus CWS_DirectoryContainsFileAssocHelper
                     true,FILECLASS,functype);
     }
     CWS_End_Enum(enumhdl);
-   
+
     // then the directories
-    enumhdl = CWS_Begin_Enum(key.charPtr(),CWS_TYPE_DIR);      
+    enumhdl = CWS_Begin_Enum(key.charPtr(),CWS_TYPE_DIR);
     if (enumhdl == NULL) {
       throw CmpiStatus( CMPI_RC_ERR_FAILED,
             "Could not begin directory enumeration");
@@ -258,17 +258,17 @@ static CmpiStatus CWS_DirectoryContainsFileAssocHelper
     CWS_End_Enum(enumhdl);
 
   }
-    
+
   if (cop.classPathIsA(FILECLASS) ||
       cop.classPathIsA(DIRECTORYCLASS)) {
     // we can always return the parent
     CmpiString key = cop.getKey("Name").getString();
-    
+
     if (CWS_Get_File(dirname((char*)key.charPtr()),&filebuf)) {
      DirectoryContainsFileReturnHelper(rslt,cop,&filebuf,
                     false,DIRECTORYCLASS,functype);
-    }      
-  } 
+    }
+  }
   rslt.returnDone();
   return CmpiStatus(CMPI_RC_OK);
 }

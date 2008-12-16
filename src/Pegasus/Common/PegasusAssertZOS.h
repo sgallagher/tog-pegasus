@@ -36,20 +36,20 @@
 #include <unistd.h>
 #include <stdio.h>
 
-/* 
-   This function is executing a number of assertaion task. 
-   In differnet to the standard assert() function, 
+/*
+   This function is executing a number of assertaion task.
+   In differnet to the standard assert() function,
    this function does not abort the server!
 
    1) Print a statement to stderr
    2) Create a stack trace
    3) Create a system dump
-      
+
 */
 
 void __pegasus_assert_zOS(const char* file, int line, const char* cond);
 
-/* 
+/*
    Define PEGASUS_ASSERT assertion statement.  This statement tests the
    condition defined by the parameters and if not True executes an number
    of tasks.
@@ -64,10 +64,10 @@ void __pegasus_assert_zOS(const char* file, int line, const char* cond);
           }                                                                 \
       } while (0)
 
-/* 
-   Define PEGASUS_DEBUG_ASSERT assertion statement. 
+/*
+   Define PEGASUS_DEBUG_ASSERT assertion statement.
    It only generates code if PEGASUS_DEBUG is defined
-   This statement tests the condition defined by the parameters and 
+   This statement tests the condition defined by the parameters and
    if not True executes an number of tasks and abort the server !
 */
 

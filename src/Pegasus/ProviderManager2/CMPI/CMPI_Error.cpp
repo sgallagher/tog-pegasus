@@ -40,27 +40,27 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" 
+extern "C"
 {
 
     CMPIError *newCMPIError(
-        const char* owner, const char* msgID, 
+        const char* owner, const char* msgID,
         const char * msg,
-        const CMPIErrorSeverity sev, 
-        const CMPIErrorProbableCause pc, 
+        const CMPIErrorSeverity sev,
+        const CMPIErrorProbableCause pc,
         const CMPIrc cimStatusCode)
     {
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Error:newCMPIError()");
-        CIMError::PerceivedSeverityEnum pgSev = 
+        CIMError::PerceivedSeverityEnum pgSev =
             (CIMError::PerceivedSeverityEnum)sev;
         CIMError::ProbableCauseEnum pgPc = (CIMError::ProbableCauseEnum)pc;
-        CIMError::CIMStatusCodeEnum pgSc = 
+        CIMError::CIMStatusCodeEnum pgSc =
             (CIMError::CIMStatusCodeEnum)cimStatusCode;
 
         CIMError *cer=new CIMError(owner, msgID, msg, pgSev, pgPc, pgSc);
-        CMPIError* cmpiError = 
+        CMPIError* cmpiError =
             reinterpret_cast<CMPIError*>(new CMPI_Object(cer));
         PEG_METHOD_EXIT();
         return cmpiError;
@@ -149,7 +149,7 @@ extern "C"
     }
 
     static CMPIString* errGetOtherErrorType(
-        const CMPIError* eErr, 
+        const CMPIError* eErr,
         CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
@@ -201,7 +201,7 @@ extern "C"
     }
 
     static CMPIString* errGetOwningEntity(
-        const CMPIError* eErr, 
+        const CMPIError* eErr,
         CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
@@ -329,7 +329,7 @@ extern "C"
     }
 
     static CMPIErrorSeverity errGetPerceivedSeverity(
-        const CMPIError* eErr, 
+        const CMPIError* eErr,
         CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
@@ -369,7 +369,7 @@ extern "C"
     }
 
     static CMPIErrorProbableCause errGetProbableCause(
-        const CMPIError* eErr, 
+        const CMPIError* eErr,
         CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
@@ -537,7 +537,7 @@ extern "C"
     }
 
     static CMPIErrorSrcFormat errGetErrorSourceFormat(
-        const CMPIError* eErr, 
+        const CMPIError* eErr,
         CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
@@ -577,7 +577,7 @@ extern "C"
     }
 
     static CMPIString* errGetOtherErrorSourceFormat(
-        const CMPIError* eErr, 
+        const CMPIError* eErr,
         CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
@@ -657,7 +657,7 @@ extern "C"
     }
 
     static CMPIString* errGetCIMStatusCodeDescription(
-        const CMPIError* eErr, 
+        const CMPIError* eErr,
         CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
@@ -698,7 +698,7 @@ extern "C"
     }
 
     static CMPIArray* errGetMessageArguments(
-        const CMPIError* eErr, 
+        const CMPIError* eErr,
         CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
@@ -745,14 +745,14 @@ extern "C"
             dta[i].value.string=string2CMPIString(s);
         }
         CMSetStatus(rc,CMPI_RC_OK);
-        CMPIArray* cmpiArray = 
+        CMPIArray* cmpiArray =
             reinterpret_cast<CMPIArray*>(new CMPI_Object(dta));
         PEG_METHOD_EXIT();
         return cmpiArray;
     }
 
     static CMPIStatus errSetErrorType(
-        CMPIError* eErr, 
+        CMPIError* eErr,
         const CMPIErrorType errorType)
     {
         PEG_METHOD_ENTER(
@@ -783,7 +783,7 @@ extern "C"
     }
 
     static CMPIStatus errSetOtherErrorType(
-        CMPIError* eErr, 
+        CMPIError* eErr,
         const char* otherErrorType)
     {
         PEG_METHOD_ENTER(
@@ -813,7 +813,7 @@ extern "C"
     }
 
     static CMPIStatus errSetProbableCauseDescription(
-        CMPIError* eErr, 
+        CMPIError* eErr,
         const char* probableCauseDescription)
     {
         PEG_METHOD_ENTER(
@@ -843,7 +843,7 @@ extern "C"
     }
 
     static CMPIStatus errSetRecommendedActions(
-        CMPIError* eErr, 
+        CMPIError* eErr,
         const CMPIArray* recommendedActions)
     {
         PEG_METHOD_ENTER(
@@ -909,7 +909,7 @@ extern "C"
     }
 
     static CMPIStatus errSetErrorSource(
-        CMPIError* eErr, 
+        CMPIError* eErr,
         const char* errorSource)
     {
         PEG_METHOD_ENTER(
@@ -933,7 +933,7 @@ extern "C"
             cer->setErrorSource(pgErrorSource);
         }
         catch (...)
-        { 
+        {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
                 Tracer::LEVEL1,
@@ -947,7 +947,7 @@ extern "C"
     }
 
     static CMPIStatus errSetErrorSourceFormat(
-        CMPIError* eErr, 
+        CMPIError* eErr,
         const CMPIErrorSrcFormat errorSrcFormat)
     {
         PEG_METHOD_ENTER(
@@ -982,7 +982,7 @@ extern "C"
     }
 
     static CMPIStatus errSetOtherErrorSourceFormat(
-        CMPIError* eErr, 
+        CMPIError* eErr,
         const char* otherErrorSourceFormat)
     {
         PEG_METHOD_ENTER(
@@ -1016,7 +1016,7 @@ extern "C"
     }
 
     static CMPIStatus errSetCIMStatusCodeDescription(
-        CMPIError* eErr, 
+        CMPIError* eErr,
         const char* cimStatusCodeDescription)
     {
         PEG_METHOD_ENTER(
@@ -1050,7 +1050,7 @@ extern "C"
     }
 
     static CMPIStatus errSetMessageArguments(
-        CMPIError* eErr, 
+        CMPIError* eErr,
         CMPIArray* messageArguments)
     {
         PEG_METHOD_ENTER(
@@ -1121,7 +1121,7 @@ extern "C"
 
 }
 
-static CMPIErrorFT error_FT = 
+static CMPIErrorFT error_FT =
 {
     CMPICurrentVersion,
     errRelease,
@@ -1156,4 +1156,4 @@ CMPIErrorFT *CMPI_Error_Ftab=&error_FT;
 
 PEGASUS_NAMESPACE_END
 
-    
+

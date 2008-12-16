@@ -43,9 +43,9 @@ CQLTermRep::CQLTermRep(){}
 CQLTermRep::CQLTermRep(const CQLFactor& theFactor)
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLTermRep:CQLTermRep()");
-    
+
     _Factors.append(theFactor);
-    
+
     PEG_METHOD_EXIT();
 }
 
@@ -62,26 +62,26 @@ CQLValue CQLTermRep::resolveValue(const CIMInstance& CI,
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLTermRep:resolveValue()");
     CQLValue returnVal = _Factors[0].resolveValue(CI,QueryCtx);
-    
+
     for(Uint32 i = 0; i < _FactorOperators.size(); ++i)
     {
         switch(_FactorOperators[i])
         {
              /*
              case mult:
-                returnVal = returnVal * 
+                returnVal = returnVal *
                             _Factors[i+1].resolveValue(CI,QueryCtx);
                 break;
              case divide:
-                returnVal = returnVal / 
+                returnVal = returnVal /
                             _Factors[i+1].resolveValue(CI,QueryCtx);
                 break;
             */
              case concat:
-                returnVal = returnVal + 
+                returnVal = returnVal +
                             _Factors[i+1].resolveValue(CI,QueryCtx);
                 break;
-            
+
              default:
                MessageLoaderParms mload(
                    "CQL.CQLTermRep.OPERATION_NOT_SUPPORTED",
@@ -89,7 +89,7 @@ CQLValue CQLTermRep::resolveValue(const CIMInstance& CI,
                throw CQLRuntimeException(mload);
         }
     }
-    
+
     PEG_METHOD_EXIT();
     return returnVal;
 }
@@ -98,25 +98,25 @@ void CQLTermRep::appendOperation(FactorOpType inFactorOpType,
                                  const CQLFactor& inFactor)
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLTermRep::appendOperation()");
-    
+
     _FactorOperators.append(inFactorOpType);
     _Factors.append(inFactor);
-    
+
     PEG_METHOD_EXIT();
 }
 
 String CQLTermRep::toString()const
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLTermRep::toString()");
-    
+
     String returnStr;
-    
+
     returnStr.append(_Factors[0].toString());
-    
+
     for(Uint32 i = 0; i < _FactorOperators.size(); ++i)
     {
         /*
-        returnStr.append(_FactorOperators[i] == 
+        returnStr.append(_FactorOperators[i] ==
                mult ? String(" * ") : divide ? String(" / ")
                : String(" concat "));
         */
@@ -124,7 +124,7 @@ String CQLTermRep::toString()const
             returnStr.append(String(" || "));
         returnStr.append(_Factors[i+1].toString());
     }
-    
+
     PEG_METHOD_EXIT();
     return returnStr;
 }
@@ -137,12 +137,12 @@ Boolean CQLTermRep::isSimple()const
 Boolean CQLTermRep::isSimpleValue()const
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLTermRep::isSimpleValue()");
-    if(_Factors.size() == 1) 
+    if(_Factors.size() == 1)
     {
         PEG_METHOD_EXIT();
         return _Factors[0].isSimpleValue();
-    }   
-    
+    }
+
     PEG_METHOD_EXIT();
     return false;
 }
@@ -161,19 +161,19 @@ void CQLTermRep::applyContext(const QueryContext& inContext,
                               const CQLChainedIdentifier& inCid)
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLTermRep::applyContext()");
-    
+
     for(Uint32 i = 0; i < _Factors.size(); ++i)
     {
         _Factors[i].applyContext(inContext, inCid);
     }
-    
+
     PEG_METHOD_EXIT();
 }
 /*
 Boolean CQLTermRep::operator==(const CQLTermRep& rhs)const
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLTermRep::operator==()");
-  
+
   for(Uint32 i = 0; i < _FactorOperators.size(); ++i)
     {
       if(_FactorOperators[i] != rhs._FactorOperators[i])
@@ -182,7 +182,7 @@ Boolean CQLTermRep::operator==(const CQLTermRep& rhs)const
       return false;
     }
     }
-  
+
   for(Uint32 i = 0; i < _Factors.size(); ++i)
     {
       if(_Factors[i] != rhs._Factors[i])
@@ -191,7 +191,7 @@ Boolean CQLTermRep::operator==(const CQLTermRep& rhs)const
       return false;
     }
     }
-  
+
   PEG_METHOD_EXIT();
   return true;
 }

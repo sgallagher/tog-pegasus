@@ -44,7 +44,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-class WMICollector; 
+class WMICollector;
 
 class PEGASUS_WMIPROVIDER_LINKAGE WMIClassProvider : public WMIBaseProvider
 {
@@ -61,18 +61,18 @@ public:
         Boolean localOnly = true,
         Boolean includeQualifiers = true,
         Boolean includeClassOrigin = false,
-        const CIMPropertyList& propertyList = CIMPropertyList());    
+        const CIMPropertyList& propertyList = CIMPropertyList());
 
     // deleteClass
     virtual void deleteClass(
-        const String& nameSpace, 
+        const String& nameSpace,
         const String& userName,
         const String& password,
         const String& className);
 
     // createClass
     virtual void createClass(
-        const String& nameSpace, 
+        const String& nameSpace,
         const String& userName,
         const String& password,
         const CIMClass& newClass,
@@ -80,7 +80,7 @@ public:
 
     // modifyClass
     virtual void modifyClass(
-        const String& nameSpace, 
+        const String& nameSpace,
         const String& userName,
         const String& password,
         const CIMClass& modifiedClass);
@@ -105,12 +105,12 @@ public:
         Boolean deepInheritance = false);
 
 protected:
-    
+
     // verifies if the class already exists into the wmi
     void performInitialCheck(const CIMClass& newClass,
                              Boolean updateClass = false);
 
-    // do the initial consistences defined by the CIM model, 
+    // do the initial consistences defined by the CIM model,
     // this is a step of create class
     Boolean classAlreadyExists(const String& className);
 
@@ -122,28 +122,28 @@ private:
                           IWbemServices *pServices,
                           IWbemClassObject *pNewClass);
     // create the class name and the class qualifiers, this is a step of create
-    // classif the function could create the name and qualifiers, it returns a 
+    // classif the function could create the name and qualifiers, it returns a
     // valid pNewClass.
     void createClassNameAndClassQualifiers(const CIMClass& newClass,
                                            IWbemServices *pServices,
                                            IWbemClassObject **pNewClass,
                                             const bool hasSuperClass);
     // create the methods of a class
-    void createMethods (const CIMClass& newClass, IWbemServices *pServices, 
+    void createMethods (const CIMClass& newClass, IWbemServices *pServices,
         IWbemClassObject *pNewClass);
-    
+
     // create one property
-    void createProperty (const CIMProperty &keyProp, 
+    void createProperty (const CIMProperty &keyProp,
         IWbemClassObject *pNewClass);
     // create one qualifier
-    void createQualifier (const WMIQualifier &qualifier, 
+    void createQualifier (const WMIQualifier &qualifier,
         IWbemQualifierSet *pQual);
     // create a method
     void createMethod (CIMConstMethod &method,
                        IWbemServices *pServices,
                        IWbemClassObject *pNewClass);
     // create a parameter
-    void createParam (const CIMConstParameter &param, 
+    void createParam (const CIMConstParameter &param,
         IWbemClassObject *pNewClass);
 };
 

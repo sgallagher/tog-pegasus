@@ -205,7 +205,7 @@ private:
     QualifierSet _qualifiers;
 
     /** Index of key qualifier or the meaning is as follows:
-           PEGASUS_ORDEREDSET_INDEX_NOTFOUND -- 
+           PEGASUS_ORDEREDSET_INDEX_NOTFOUND --
                there is no key qualifier in the list.
            PEGASUS_ORDEREDSET_INDEX_UNKNOWN --
                the index is unresolved.

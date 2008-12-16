@@ -412,7 +412,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
 
     while (msg_count.get() < 1500)
     {
-        q_client->sendTestRequestMessage("i am the test client" , 
+        q_client->sendTestRequestMessage("i am the test client" ,
             serverQueue->getQueueId());
     }
     // now that we have sent and received all of our responses, tell

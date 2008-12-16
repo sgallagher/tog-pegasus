@@ -56,7 +56,7 @@
 struct  socket_mi_function
 {
     char * name;        /*!< function name */
-    void (* function) ( 
+    void (* function) (
         int,
         CONST CMPIBroker *,
         CONST CMPIContext *,
@@ -74,9 +74,9 @@ struct  socket_mi_function
 struct  socket_mb_function
 {
     char * name;        /*!< function name  */
-    void (* function) ( 
-        int, 
-        CONST CMPIBroker *, 
+    void (* function) (
+        int,
+        CONST CMPIBroker *,
         CONST CMPIContext * ); /*!< function pointer  */
 };
 
@@ -92,20 +92,20 @@ void socketcomm_copy_args ( CMPIArgs * src, CMPIArgs * dst );
 
 void socketcomm_array2result ( CMPIArray * array, CONST CMPIResult * result );
 
-void socketcomm_serialize_props ( 
+void socketcomm_serialize_props (
     int socket,
     const struct BinarySerializerFT * sft,
     char ** props );
-char ** socketcomm_deserialize_props ( 
+char ** socketcomm_deserialize_props (
     int socket,
     const struct BinarySerializerFT * sft,
     CONST CMPIBroker * broker );
 
-void socketcomm_serialize_context ( 
+void socketcomm_serialize_context (
     int socket,
     const struct BinarySerializerFT * sft,
     CONST CMPIContext * ctx );
-void socketcomm_deserialize_context ( 
+void socketcomm_deserialize_context (
     int socket,
     const struct BinarySerializerFT * sft,
     CONST CMPIBroker * broker,

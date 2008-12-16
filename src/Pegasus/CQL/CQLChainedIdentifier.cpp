@@ -43,7 +43,7 @@ PEGASUS_NAMESPACE_BEGIN
 CQLChainedIdentifier::CQLChainedIdentifier():
     QueryChainedIdentifier()
 {
-    if(_rep) 
+    if(_rep)
         delete _rep;
     _rep = NULL;
     _rep = new CQLChainedIdentifierRep();
@@ -52,7 +52,7 @@ CQLChainedIdentifier::CQLChainedIdentifier():
 CQLChainedIdentifier::CQLChainedIdentifier(const String& inString):
     QueryChainedIdentifier()
 {
-    if(_rep) 
+    if(_rep)
         delete _rep;
     _rep = NULL;
     _rep = new CQLChainedIdentifierRep(inString);
@@ -61,7 +61,7 @@ CQLChainedIdentifier::CQLChainedIdentifier(const String& inString):
 CQLChainedIdentifier::CQLChainedIdentifier(const CQLIdentifier &id):
     QueryChainedIdentifier()
 {
-    if(_rep) 
+    if(_rep)
         delete _rep;
     _rep = NULL;
    _rep = new CQLChainedIdentifierRep(id);
@@ -70,7 +70,7 @@ CQLChainedIdentifier::CQLChainedIdentifier(const CQLIdentifier &id):
 CQLChainedIdentifier::CQLChainedIdentifier(const CQLChainedIdentifier& cid):
 QueryChainedIdentifier()
 {
-    if(_rep) 
+    if(_rep)
         delete _rep;
     _rep = NULL;
    _rep = new QueryChainedIdentifierRep(cid._rep);

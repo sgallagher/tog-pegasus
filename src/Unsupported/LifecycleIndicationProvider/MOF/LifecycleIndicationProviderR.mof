@@ -1,6 +1,6 @@
 #pragma locale ("en_US")
 
-instance of PG_ProviderModule 
+instance of PG_ProviderModule
 {
     Description = "The Sample Pegasus Lifecycle Indication Provider Module that implements instance lifecycle indications for Sample_LifecycleIndicationProviderClass";
     Caption = "Sample Pegasus Lifecycle Indication Provider Module";

@@ -45,7 +45,7 @@ ifeq ($(CXX), aCC)
     acc_sed_filter = -e 's=$(OBJ_DIR).*cpp:==g'
 endif
 
-ifdef PEGASUS_CXX_MAKEDEPEND_OPTION 
+ifdef PEGASUS_CXX_MAKEDEPEND_OPTION
 depend: $(OBJ_DIR)/target $(ERROR)
 	$(CXX) $(PEGASUS_CXX_MAKEDEPEND_OPTION) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $(SOURCES_NO_ASM) | sed -e 's=^\(.*:\)='$(OBJ_DIR)'/\1=' $(acc_sed_filter) > $(DEPEND_MAK)
 

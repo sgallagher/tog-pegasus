@@ -37,7 +37,7 @@ DEFINES += -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 #########################################################################
 ##
 ## Platform specific compile options controlled by environment variables
-## are set here.  
+## are set here.
 ##
 #########################################################################
 
@@ -103,7 +103,7 @@ FLAGS += -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
 ##==============================================================================
 DYNAMIC_FLAGS += -fPIC
 
-ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
   FLAGS += -g
 else
   FLAGS += -s
@@ -135,13 +135,13 @@ endif
 
 ##==============================================================================
 ##
-## Set the default visibility symbol to hidden for shared libraries. This 
+## Set the default visibility symbol to hidden for shared libraries. This
 ## feature is only available in GCC 4.0 and later.
 ##
 ##==============================================================================
 
 ifeq ($(shell expr $(GCC_VERSION) '>=' 4.0), 1)
-    FLAGS += -fvisibility=hidden 
+    FLAGS += -fvisibility=hidden
 endif
 
 ifndef PEGASUS_ARCH_LIB

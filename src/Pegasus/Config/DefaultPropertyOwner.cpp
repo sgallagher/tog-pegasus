@@ -229,12 +229,12 @@ void DefaultPropertyOwner::initCurrentValue(
     if (index >= NUM_PROPERTIES)
     {
         //
-        // Specified property name could not be found 
+        // Specified property name could not be found
         //
         throw UnrecognizedConfigProperty(name);
     }
     else if (String::equal(name, "idleConnectionTimeout"))
-    {   
+    {
         Uint64 v;
         StringConversion::decimalStringToUint64(value.getCString(), v);
         HTTPConnection::setIdleConnectionTimeout((Uint32)v);
@@ -335,7 +335,7 @@ Boolean DefaultPropertyOwner::isValid(
     if (String::equalNoCase(name, "socketWriteTimeout"))
     {
         Uint64 v;
-        return 
+        return
             StringConversion::decimalStringToUint64(value.getCString(), v) &&
             StringConversion::checkUintBounds(v, CIMTYPE_UINT32) &&
             (v != 0);
@@ -344,7 +344,7 @@ Boolean DefaultPropertyOwner::isValid(
         String::equalNoCase(name, "idleConnectionTimeout"))
     {
         Uint64 v;
-        return 
+        return
             StringConversion::decimalStringToUint64(value.getCString(), v) &&
             StringConversion::checkUintBounds(v, CIMTYPE_UINT32);
     }

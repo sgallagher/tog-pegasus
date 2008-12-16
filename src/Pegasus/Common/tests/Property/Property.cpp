@@ -57,7 +57,7 @@ void test01()
     // Test clone
     CIMProperty p1clone = p1.clone();
     CIMProperty p2clone = p2.clone();
-   
+
     // Test print
 
     if(verbose)
@@ -224,15 +224,15 @@ void test02()
     PEGASUS_TEST_ASSERT(cp1.findQualifier(
         CIMName ("stuf")) == PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT(cp1.getQualifierCount() == 4);
- 
-        try 
+
+        try
         {
             p1.getQualifier(0);
         }
         catch(IndexOutOfBoundsException& e)
         {
             if(verbose)
-                cout << "Exception: " << e.getMessage() << endl;    
+                cout << "Exception: " << e.getMessage() << endl;
         }
 }
 //
@@ -279,7 +279,7 @@ void test04()
     String p =  "//localhost/root/SampleProvider:"
                 "TST_PersonDynamic.Name=\"Father\"";
     CIMObjectPath path = p;
-        
+
     String referenceClassName = "TST_Person";
     CIMProperty p1(CIMName ("message"), path, 0,
                    CIMName(referenceClassName));
@@ -287,7 +287,7 @@ void test04()
     PEGASUS_TEST_ASSERT(p1.getReferenceClassName()==
                         CIMName(referenceClassName));
     PEGASUS_TEST_ASSERT(p1.getType() == CIMTYPE_REFERENCE);
-    
+
     CIMValue v1;
     v1 = p1.getValue();
     PEGASUS_TEST_ASSERT(v1.getType() ==  CIMTYPE_REFERENCE);
@@ -321,7 +321,7 @@ void test04()
     v1.get(pathout2);
     // Now compare the paths
 
-    
+
     if(verbose)
         XmlWriter::printPropertyElement(p2, cout);
 }

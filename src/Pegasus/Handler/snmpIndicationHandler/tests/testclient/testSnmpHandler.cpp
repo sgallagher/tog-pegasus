@@ -401,7 +401,7 @@ void _setup (CIMClient & client, const String& qlang)
             "public",
             _IPV6_ADDRESS,
             _SNMPV2C_TRAP);
-    } 
+    }
     catch (CIMException& e)
     {
         if (e.getCode() == CIM_ERR_ALREADY_EXISTS)
@@ -472,7 +472,7 @@ void _cleanup (CIMClient & client)
     }
 
 #if defined(PEGASUS_ENABLE_IPV6)
-    try     
+    try
     {
         _deleteSubscriptionInstance (client, FILTER_NAME,
             SNMPV2C_IPV6_HANDLER_NAME);
@@ -769,7 +769,7 @@ void _receiveExpectedTraps(
 
     // if IPV6 is enabled, an additional SNMPv2c trap is sent to IPV6 address
 #if defined(PEGASUS_ENABLE_IPV6)
-    indicationTrapV2SendCount = 2 * indicationTrapV1SendCount; 
+    indicationTrapV2SendCount = 2 * indicationTrapV1SendCount;
 #else
     indicationTrapV2SendCount = indicationTrapV1SendCount;
 #endif
@@ -850,9 +850,9 @@ void _receiveExpectedTraps(
     {
         totalIterations++;
 
-        currentReceivedTrap1Count = 
+        currentReceivedTrap1Count =
             _getReceivedTrapCount(_SNMPV1_TRAP, logFile);
-        currentReceivedTrap2Count = 
+        currentReceivedTrap2Count =
             _getReceivedTrapCount(_SNMPV2C_TRAP, logFile);
 
         if (totalIterations % COUT_TIME_INTERVAL == 1 &&

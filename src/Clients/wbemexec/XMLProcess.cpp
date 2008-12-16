@@ -40,25 +40,25 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-  
+
     Encapsulates the XML request in an HTTP M-POST or POST request message.
     Generates the appropriate HTTP extension headers corresponding to the
     XML request, in accordance with Specifications for CIM Operations over
     HTTP, Version 1.0, Section 3.  This method should be called only when
     the current parser location is the xml declaration.  If the xml
-    declaration is not found, but the first token in the input is 
-    HTTP_METHOD_MPOST or HTTP_METHOD_POST, it is assumed that the request is 
-    already encapsulated in an HTTP request, and the message is returned 
+    declaration is not found, but the first token in the input is
+    HTTP_METHOD_MPOST or HTTP_METHOD_POST, it is assumed that the request is
+    already encapsulated in an HTTP request, and the message is returned
     unchanged.  No attempt is made to validate the complete HTTP request.
     If the useMPost parameter is TRUE, the headers are generated for an
     M-POST request.  Otherwise, the headers are generated for a POST
     request.  If the useHTTP11 parameter is TRUE, the headers are generated
     for an HTTP/1.1 request.  Otherwise, the headers are generated for an
     HTTP/1.0 request.  The combination of useMPost true and useHTTP11 false
-    is invalid, but this function does not check for this case.  The XML 
-    request is examined only as much as necessary to generate the required 
+    is invalid, but this function does not check for this case.  The XML
+    request is examined only as much as necessary to generate the required
     headers.  This method does not attempt to validate the entire XML request.
-  
+
     @param   parser              XmlParser instance corresponding to the
                                  XML request
     @param   hostName            host name to be used in HTTP Host header
@@ -68,15 +68,15 @@ PEGASUS_NAMESPACE_BEGIN
                                  generated for an HTTP/1.1 request
     @param   content             Buffer containing XML request
     @param   httpHeaders         Buffer returning the HTTP headers
-  
+
     @return  Buffer containing the XML request encapsulated in an
              HTTP request message
-  
+
     @exception  XmlValidationError  if the XML input is invalid
     @exception  XmlSemanticError    if the XML input contains a semantic error
     @exception  WbemExecException   if the input contains neither XML nor HTTP
                                     M-POST or POST method request
-  
+
  */
 Buffer XMLProcess::encapsulate( XmlParser& parser,
                                        const String& hostName,
@@ -107,7 +107,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
     //
     //  xml declaration
     //
-    if (!(hasXmlDeclaration = XmlReader::testXmlDeclaration (parser, entry))) 
+    if (!(hasXmlDeclaration = XmlReader::testXmlDeclaration (parser, entry)))
     {
         //
         //  No xml declaration
@@ -126,7 +126,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
 #endif
         if (p != NULL)
         {
-            if ((strcmp (p, HTTP_METHOD_MPOST) == 0) || 
+            if ((strcmp (p, HTTP_METHOD_MPOST) == 0) ||
                 (strcmp (p, HTTP_METHOD_POST) == 0) ||
             //  This is a special request used for testing.
             //  It includes the HTTP header.
@@ -141,22 +141,22 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
 #ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
 
      // Check if the next tag is a SOAP envelope.
-     if (parser.next(entry) && 
-             entry.type == XmlEntry::START_TAG && 
+     if (parser.next(entry) &&
+             entry.type == XmlEntry::START_TAG &&
              strcmp(entry.localName, "Envelope") == 0)
      {
           //
           //  Set WSMAN headers and content.
           //
-          message << HTTP_METHOD_POST << HTTP_SP 
-                  << "/wsman" << HTTP_SP 
+          message << HTTP_METHOD_POST << HTTP_SP
+                  << "/wsman" << HTTP_SP
                   << HTTP_PROTOCOL << HTTP_VERSION_11 << HTTP_CRLF;
-          message << HEADER_NAME_HOST << HEADER_SEPARATOR 
+          message << HEADER_NAME_HOST << HEADER_SEPARATOR
                   << HTTP_SP << hostName << HTTP_CRLF;
-          message << HEADER_NAME_CONTENTTYPE << HEADER_SEPARATOR 
-                  << HTTP_SP << WSMAN_HEADER_VALUE_CONTENTTYPE 
+          message << HEADER_NAME_CONTENTTYPE << HEADER_SEPARATOR
+                  << HTTP_SP << WSMAN_HEADER_VALUE_CONTENTTYPE
                   << HTTP_CRLF;
-          message << HEADER_NAME_CONTENTLENGTH << HEADER_SEPARATOR 
+          message << HEADER_NAME_CONTENTLENGTH << HEADER_SEPARATOR
                   << HTTP_SP << (Uint32)content.size () << HTTP_CRLF;
 
           httpHeaders << message;
@@ -168,7 +168,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
      {
          parser.putBack(entry);
      }
-    
+
 #endif
 
     if (!hasXmlDeclaration)
@@ -226,11 +226,11 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
             //
             //  Get NAME attribute of IMETHODCALL element
             //
-            methodName = XmlReader::getCimNameAttribute (parser.getLine (), 
+            methodName = XmlReader::getCimNameAttribute (parser.getLine (),
                 entry, XML_ELEMENT_IMETHODCALL);
 
             //
-            //  Construct the object path from the LOCALNAMESPACEPATH 
+            //  Construct the object path from the LOCALNAMESPACEPATH
             //  subelements (NAMESPACE elements)
             //
             String namespaceName;
@@ -253,24 +253,24 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
         //
         //  METHODCALL element
         //
-        else if (XmlReader::testStartTag (parser, entry, 
+        else if (XmlReader::testStartTag (parser, entry,
             XML_ELEMENT_METHODCALL))
         {
             //
             //  Get NAME attribute of METHODCALL element
             //
-            methodName = XmlReader::getCimNameAttribute (parser.getLine (), 
+            methodName = XmlReader::getCimNameAttribute (parser.getLine (),
                 entry, XML_ELEMENT_METHODCALL);
 
             //
             //  LOCALCLASSPATH or LOCALINSTANCEPATH element
             //
-            if (XmlReader::getLocalClassPathElement (parser, objectName)) 
+            if (XmlReader::getLocalClassPathElement (parser, objectName))
             {
                 objPath << objectName.toString();
             }
             else if (XmlReader::getLocalInstancePathElement (parser,
-                objectName)) 
+                objectName))
             {
                 objPath << objectName.toString();
             }
@@ -279,7 +279,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
                 // l10n TODO - Use CIMOperationRequestDecoder message when it
                 // is available (or perhaps use Common.XmlReader.
                 // EXPECTED_LOCALINSTANCEPATH_OR_LOCALCLASSPATH_ELEMENT)
-                throw XmlValidationError (parser.getLine (), 
+                throw XmlValidationError (parser.getLine (),
                     MISSING_ELEMENT_LOCALPATH);
             }
         }
@@ -310,7 +310,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
     nn[1] = '0' + (rand() % 10);
     nn[2] = 0;
 
-    if (useMPost) 
+    if (useMPost)
     {
         message << HTTP_METHOD_MPOST << HTTP_SP << HTTP_REQUEST_URI_CIMOM
                 << HTTP_SP << HTTP_PROTOCOL << HTTP_VERSION_11 << HTTP_CRLF;
@@ -322,39 +322,39 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
         if (useHTTP11)
         {
             message << HTTP_VERSION_11;
-        } 
+        }
         else
         {
             message << HTTP_VERSION_10;
         }
         message << HTTP_CRLF;
     }
-    message << HEADER_NAME_HOST << HEADER_SEPARATOR << HTTP_SP << hostName 
+    message << HEADER_NAME_HOST << HEADER_SEPARATOR << HTTP_SP << hostName
             << HTTP_CRLF;
     message << HEADER_NAME_CONTENTTYPE << HEADER_SEPARATOR << HTTP_SP
-            << HEADER_VALUE_CONTENTTYPE 
+            << HEADER_VALUE_CONTENTTYPE
             << HTTP_CRLF;
-    message << HEADER_NAME_CONTENTLENGTH << HEADER_SEPARATOR << HTTP_SP 
+    message << HEADER_NAME_CONTENTLENGTH << HEADER_SEPARATOR << HTTP_SP
             << (Uint32)content.size () << HTTP_CRLF;
 
     if (useMPost)
     {
-        message << HEADER_NAME_MAN << HEADER_SEPARATOR << HTTP_SP 
+        message << HEADER_NAME_MAN << HEADER_SEPARATOR << HTTP_SP
                 << HEADER_VALUE_MAN << nn << HTTP_CRLF;
-        message << nn << HEADER_PREFIX_DELIMITER 
-                << HEADER_NAME_CIMPROTOCOLVERSION << HEADER_SEPARATOR 
+        message << nn << HEADER_PREFIX_DELIMITER
+                << HEADER_NAME_CIMPROTOCOLVERSION << HEADER_SEPARATOR
                 << HTTP_SP << protocolVersion << HTTP_CRLF;
         message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMOPERATION
-                << HEADER_SEPARATOR << HTTP_SP << HEADER_VALUE_CIMOPERATION 
+                << HEADER_SEPARATOR << HTTP_SP << HEADER_VALUE_CIMOPERATION
                 << HTTP_CRLF;
         if (multireq)
         {
-            message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMBATCH 
+            message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMBATCH
                 << HEADER_SEPARATOR << HTTP_CRLF;
         }
         else
         {
-            message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMMETHOD 
+            message << nn << HEADER_PREFIX_DELIMITER << HEADER_NAME_CIMMETHOD
                 << HEADER_SEPARATOR << HTTP_SP
                 << XmlWriter::encodeURICharacters(methodName.getString())
                 << HTTP_CRLF;
@@ -365,7 +365,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
     }
     else
     {
-        message << HEADER_NAME_CIMPROTOCOLVERSION << HEADER_SEPARATOR 
+        message << HEADER_NAME_CIMPROTOCOLVERSION << HEADER_SEPARATOR
                 << HTTP_SP << protocolVersion << HTTP_CRLF;
         message << HEADER_NAME_CIMOPERATION << HEADER_SEPARATOR << HTTP_SP
                 << HEADER_VALUE_CIMOPERATION << HTTP_CRLF;
@@ -375,10 +375,10 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
         }
         else
         {
-            message << HEADER_NAME_CIMMETHOD << HEADER_SEPARATOR << HTTP_SP 
+            message << HEADER_NAME_CIMMETHOD << HEADER_SEPARATOR << HTTP_SP
                     << XmlWriter::encodeURICharacters(methodName.getString())
                     << HTTP_CRLF;
-            message << HEADER_NAME_CIMOBJECT << HEADER_SEPARATOR << HTTP_SP 
+            message << HEADER_NAME_CIMOBJECT << HEADER_SEPARATOR << HTTP_SP
                     << XmlWriter::encodeURICharacters(objPath) << HTTP_CRLF;
         }
     }

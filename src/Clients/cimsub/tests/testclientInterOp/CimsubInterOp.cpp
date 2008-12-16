@@ -470,7 +470,7 @@ void _createCimsubTests(CIMClient & client, String& qlang)
         "Filter04");
     _addStringProperty(filter04, PEGASUS_PROPERTYNAME_QUERY.getString(),
         query);
-    _addStringProperty(filter04, 
+    _addStringProperty(filter04,
         PEGASUS_PROPERTYNAME_QUERYLANGUAGE.getString(), qlang);
     _addStringProperty(filter04, "SourceNamespace",
         SOURCENAMESPACE.getString());
@@ -492,11 +492,11 @@ void _createCimsubTests(CIMClient & client, String& qlang)
         "Filter04a");
     _addStringProperty(filter04a, PEGASUS_PROPERTYNAME_QUERY.getString(),
         query);
-   
+
      // hardcode to CQL
-   
-    _addStringProperty(filter04a, 
-        PEGASUS_PROPERTYNAME_QUERYLANGUAGE.getString(), "DMTF:CQL"); 
+
+    _addStringProperty(filter04a,
+        PEGASUS_PROPERTYNAME_QUERYLANGUAGE.getString(), "DMTF:CQL");
     _addStringProperty(filter04a, "SourceNamespace",
         SOURCENAMESPACE.getString());
     path = client.createInstance(NAMESPACE, filter04a);
@@ -581,7 +581,7 @@ void _createCimsubTests(CIMClient & client, String& qlang)
          System::getSystemCreationClassName());
     _addStringProperty(handler02t, "SystemName",
          System::getFullyQualifiedHostName());
-    _addStringProperty(handler02t, 
+    _addStringProperty(handler02t,
          PEGASUS_PROPERTYNAME_CREATIONCLASSNAME.getString(),
          PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString());
     _addStringProperty(handler02t, PEGASUS_PROPERTYNAME_NAME.getString(),
@@ -589,7 +589,7 @@ void _createCimsubTests(CIMClient & client, String& qlang)
     _addUint16Property(handler02t,
         PEGASUS_PROPERTYNAME_PERSISTENCETYPE.getString(),
         PERSISTENCE_TRANSIENT);
-    _addStringProperty(handler02t, 
+    _addStringProperty(handler02t,
         PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION.getString(),
         "localhost/CIMListener/test2");
     path = client.createInstance(NAMESPACE, handler02t);
@@ -831,7 +831,7 @@ void _createCimsubTests(CIMClient & client, String& qlang)
         SOURCENAMESPACE.getString());
     _addStringProperty(filter08, PEGASUS_PROPERTYNAME_QUERY.getString(),
         query);
-    _addStringProperty(filter08, 
+    _addStringProperty(filter08,
         PEGASUS_PROPERTYNAME_QUERYLANGUAGE.getString(), qlang);
     fPath = client.createInstance(NAMESPACE, filter08);
     fPath.setHost (System::getFullyQualifiedHostName());
@@ -865,7 +865,7 @@ void _createCimsubTests(CIMClient & client, String& qlang)
         SOURCENAMESPACE.getString());
     _addStringProperty(filter09, PEGASUS_PROPERTYNAME_QUERY.getString(),
         query);
-    _addStringProperty(filter09, 
+    _addStringProperty(filter09,
         PEGASUS_PROPERTYNAME_QUERYLANGUAGE.getString(), qlang);
     fPath = client.createInstance(NAMESPACE, filter09);
     fPath.setNameSpace(NAMESPACE);
@@ -896,7 +896,7 @@ void _createCimsubTests(CIMClient & client, String& qlang)
         SOURCENAMESPACE.getString());
     _addStringProperty(filter11, PEGASUS_PROPERTYNAME_QUERY.getString(),
         query);
-    _addStringProperty(filter11, 
+    _addStringProperty(filter11,
         PEGASUS_PROPERTYNAME_QUERYLANGUAGE.getString(), qlang);
     fPath = client.createInstance(NAMESPACE1, filter11);
     fPath.setNameSpace(NAMESPACE1);
@@ -926,7 +926,7 @@ void _createCimsubTests(CIMClient & client, String& qlang)
         SOURCENAMESPACE.getString());
     _addStringProperty(filter11a, PEGASUS_PROPERTYNAME_QUERY.getString(),
         query);
-    _addStringProperty(filter11a, 
+    _addStringProperty(filter11a,
         PEGASUS_PROPERTYNAME_QUERYLANGUAGE.getString(), qlang);
     CIMObjectPath fPath2 = client.createInstance(NAMESPACE2, filter11a);
     fPath2.setNameSpace(NAMESPACE2);
@@ -956,7 +956,7 @@ void _createCimsubTests(CIMClient & client, String& qlang)
         SOURCENAMESPACE.getString());
     _addStringProperty(filter13, PEGASUS_PROPERTYNAME_QUERY.getString(),
         query);
-    _addStringProperty(filter13, 
+    _addStringProperty(filter13,
         PEGASUS_PROPERTYNAME_QUERYLANGUAGE.getString(), qlang);
     fPath = client.createInstance(NAMESPACE1, filter13);
     fPath.setNameSpace(NAMESPACE1);
@@ -973,7 +973,7 @@ void _createCimsubTests(CIMClient & client, String& qlang)
         SOURCENAMESPACE.getString());
     _addStringProperty(filter12, PEGASUS_PROPERTYNAME_QUERY.getString(),
         query);
-    _addStringProperty(filter12, 
+    _addStringProperty(filter12,
         PEGASUS_PROPERTYNAME_QUERYLANGUAGE.getString(), qlang);
     fPath = client.createInstance(NAMESPACE1, filter12);
     fPath.setNameSpace(NAMESPACE1);
@@ -1049,7 +1049,7 @@ void _createCimsubTests(CIMClient & client, String& qlang)
         SOURCENAMESPACE.getString());
     _addStringProperty(filter15, PEGASUS_PROPERTYNAME_QUERY.getString(),
         query);
-    _addStringProperty(filter15, 
+    _addStringProperty(filter15,
         PEGASUS_PROPERTYNAME_QUERYLANGUAGE.getString(), qlang);
     fPath = client.createInstance(NAMESPACE, filter15);
     fPath.setNameSpace(NAMESPACE);
@@ -1197,7 +1197,7 @@ void _createCimsubSyslogTests(CIMClient & client, String& qlang)
     _addStringProperty(syslogfilter01,
         PEGASUS_PROPERTYNAME_QUERY.getString(),
         query);
-    _addStringProperty(syslogfilter01, 
+    _addStringProperty(syslogfilter01,
         PEGASUS_PROPERTYNAME_QUERYLANGUAGE.getString(), qlang);
     path = client.createInstance(NAMESPACE, syslogfilter01);
 
@@ -1291,7 +1291,7 @@ void _createCimsubEmailTests(CIMClient & client, String& qlang)
     _addStringProperty(emailfilter01,
         PEGASUS_PROPERTYNAME_QUERY.getString(),
         query);
-    _addStringProperty(emailfilter01, 
+    _addStringProperty(emailfilter01,
         PEGASUS_PROPERTYNAME_QUERYLANGUAGE.getString(), qlang);
     path = client.createInstance(NAMESPACE, emailfilter01);
 
@@ -1410,10 +1410,10 @@ void _cleanup(CIMClient & client)
     //
          IGNORE_EXCEPTION(_deleteSubscriptionInstance(client, "Filter00",
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");)
- 
+
         IGNORE_EXCEPTION(_deleteSubscriptionInstance(client, "Filter01",
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");)
-  
+
         IGNORE_EXCEPTION(_deleteSubscriptionInstance(client, "Filter02",
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");)
 
@@ -1519,7 +1519,7 @@ void _cleanup(CIMClient & client)
         IGNORE_EXCEPTION(_deleteHandlerInstance(client,
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");)
 
-        IGNORE_EXCEPTION(_deleteHandlerInstance(client, 
+        IGNORE_EXCEPTION(_deleteHandlerInstance(client,
              PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");)
 
         IGNORE_EXCEPTION(_deleteHandlerInstance(client,
@@ -1550,27 +1550,27 @@ void _cleanup(CIMClient & client)
              PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination04");)
 
         IGNORE_EXCEPTION(_deleteHandlerInstance(client,
-             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination05", 
+             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination05",
                 NAMESPACE1);)
 
         IGNORE_EXCEPTION(_deleteHandlerInstance(client,
-             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination05", 
+             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination05",
                 NAMESPACE2);)
 
         IGNORE_EXCEPTION(_deleteHandlerInstance(client,
-             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination06", 
+             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination06",
                 NAMESPACE2);)
 
         IGNORE_EXCEPTION(_deleteHandlerInstance(client,
-             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination06", 
+             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination06",
                 NAMESPACE3);)
 
         IGNORE_EXCEPTION(_deleteHandlerInstance(client,
-             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination07", 
+             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination07",
                 NAMESPACE2);)
 
         IGNORE_EXCEPTION(_deleteHandlerInstance(client,
-             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination08", 
+             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination08",
                 NAMESPACE2);)
 
         IGNORE_EXCEPTION(_deleteHandlerInstance(client,
@@ -1585,7 +1585,7 @@ void _cleanup(CIMClient & client)
 #ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
 
         IGNORE_EXCEPTION(_deleteHandlerInstance(client,
-            PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG, "SyslogHandler01", 
+            PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG, "SyslogHandler01",
                 NAMESPACE);)
 
 #endif
@@ -1602,33 +1602,33 @@ void _cleanup(CIMClient & client)
         IGNORE_EXCEPTION(_deleteFilterInstance(client, "SyslogFilter01");)
 
         IGNORE_EXCEPTION(_deleteFilterInstance(client, "Filter02");)
-  
+
         IGNORE_EXCEPTION(_deleteFilterInstance(client, "Filter03");)
 
         IGNORE_EXCEPTION(_deleteFilterInstance(client, "Filter04");)
-  
+
         IGNORE_EXCEPTION(_deleteFilterInstance(client, "Filter04a");)
 
         IGNORE_EXCEPTION(_deleteFilterInstance(client, "Filter05");)
-  
+
         IGNORE_EXCEPTION(_deleteFilterInstance(client, "Filter06");)
-  
+
         IGNORE_EXCEPTION(_deleteFilterInstance(client, "Filter07");)
-  
+
         IGNORE_EXCEPTION(_deleteFilterInstance(client, "Filter08");)
 
         IGNORE_EXCEPTION(_deleteFilterInstance(client, "Filter09");)
-  
+
         IGNORE_EXCEPTION(_deleteFilterInstance(client, "Filter10");)
-  
+
         IGNORE_EXCEPTION(_deleteFilterInstance(client, "Filter11", NAMESPACE1);)
-  
+
         IGNORE_EXCEPTION(_deleteFilterInstance(client, "Filter11", NAMESPACE2);)
 
         IGNORE_EXCEPTION(_deleteFilterInstance(client, "Filter12", NAMESPACE1);)
-  
+
         IGNORE_EXCEPTION(_deleteFilterInstance(client, "Filter13", NAMESPACE1);)
-  
+
         IGNORE_EXCEPTION(_deleteFilterInstance(client, "Filter15", NAMESPACE);)
 
     //

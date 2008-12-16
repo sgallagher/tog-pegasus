@@ -49,7 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
 // operation, that contains a provider. This class effectively encapsulates the
 // "physical" portion of a consumer.
 //
-// There can be multiple "logical" consumers in memory, 
+// There can be multiple "logical" consumers in memory,
 // but there is only one "physical" consumer.
 // This class keeps track of how many logical consumers are using it.
 

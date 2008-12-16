@@ -41,53 +41,53 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-  
+
     WbemExecCommand provides a command line interface to the CIM Server.
-    The input to the command consists of a CIM request encoded in XML.  The 
-    request is submitted to the CIM Server for execution.  The result of the 
-    operation is returned to stdout, and consists of the CIM response encoded 
+    The input to the command consists of a CIM request encoded in XML.  The
+    request is submitted to the CIM Server for execution.  The result of the
+    operation is returned to stdout, and consists of the CIM response encoded
     in XML.
-  
+
     @author  Hewlett-Packard Company
-  
+
  */
-class WbemExecCommand : public Command 
+class WbemExecCommand : public Command
 {
 public:
 
     /**
-      
+
         Constructs a WbemExecCommand and initializes instance variables.
-      
+
      */
     WbemExecCommand ();
 
     /**
-        
-        Parses the command line, validates the options, and sets instance 
+
+        Parses the command line, validates the options, and sets instance
         variables based on the option arguments.
-      
+
         @param   argc  the number of command line arguments
         @param   argv  the string vector of command line arguments
-      
-        @exception  CommandFormatException  if an error is encountered in 
+
+        @exception  CommandFormatException  if an error is encountered in
                                             parsing the command line
-      
+
      */
     void setCommand (Uint32 argc, char* argv []);
 
     /**
-        
+
         Executes the command and writes the results to the PrintWriters.
-      
+
         @param   outPrintWriter     the ostream to which output should be
                                     written
         @param   errPrintWriter     the ostream to which error output should be
                                     written
-      
+
         @return  0                  if the command is successful
                  1                  if an error occurs in executing the command
-      
+
      */
     Uint32 execute (ostream& outPrintWriter, ostream& errPrintWriter);
 
@@ -95,21 +95,21 @@ public:
         The command name.
      */
     static const char   COMMAND_NAME [];
-    
+
 private:
 
     /**
-        
+
         Connect to cimserver.
-      
+
         @param   outPrintWriter     the ostream to which error output should be
                                     written
-      
+
         @return  the Channel created
-      
+
         @exception Exception        if an error is encountered in creating
-                                    the connection 
-      
+                                    the connection
+
      */
     void _connectToServer(
         WbemExecClient& client,
@@ -121,9 +121,9 @@ private:
         Uint32 contentOffset);
 
 /**
-  
+
     Prompt for password.
-  
+
     @param   estream             the ostream to which errors should be written
 
     @return  String value of the user entered password
@@ -132,17 +132,17 @@ private:
     String _promptForPassword( ostream&  eStream );
 //NOCHKSRC
 /**
-       
+
     Check the HTTP response message for authentication challenge or data.
-  
+
      Sample Local authentication request/response
 
     Challenge:
     ----------
     HTTP/1.1 401 Unauthorized
     WWW-Authenticate: LocalPrivileged "filePath"
-    
-    
+
+
     Challenge response:
     --------------------
      
@@ -155,7 +155,7 @@ private:
     35-CIMMethod: GetInstance
     35-CIMObject: root/cimv2
     PegasusAuthorization: LocalPrivileged "root:/tmp/cimclient_root_476:root131006297810"
-    
+
     <?xml version="1.0" encoding="utf-8" ?>
     <CIM CIMVERSION="2.0" DTDVERSION="2.0">
     <MESSAGE ID="1001" PROTOCOLVERSION="1.0">
@@ -176,8 +176,8 @@ private:
     </SIMPLEREQ>
     </MESSAGE>
     </CIM>
-    
-// DOCHKSRC    
+
+// DOCHKSRC
     Final response:
     --------------------
     HTTP/1.1 200 OK
@@ -190,7 +190,7 @@ private:
 
     @return  true = wait for data from challenge response
     @return  false = client response has been received
-  
+
     */
     void _handleResponse( Buffer          httpResponse,
               ostream&               oStream,
@@ -198,23 +198,23 @@ private:
                         );
 
     /**
-        
+
         Executes the command using HTTP.  A CIM request encoded in XML is read
         from the input, and encapsualted in an HTTP request message.  A channel
         is obtained for an HTTP connection, and the message is written to the
         channel.  The response is written to the specified outPrintWriter, and
-        consists of the CIM response encoded in XML.  
-      
+        consists of the CIM response encoded in XML.
+
         @param   outPrintWriter     the ostream to which output should be
                                     written
         @param   errPrintWriter     the ostream to which error output should be
                                     written
-      
+
         @exception  WbemExecException  if an error is encountered in executing
-                                       the command 
-      
+                                       the command
+
      */
-    void _executeHttp (ostream& outPrintWriter, ostream& errPrintWriter); 
+    void _executeHttp (ostream& outPrintWriter, ostream& errPrintWriter);
 
     /**
         The host on which the command is to be executed.  A CIM Server must be
@@ -224,15 +224,15 @@ private:
     String _hostName;
 
     /**
-        A Boolean indicating whether a hostname was specified on the command 
+        A Boolean indicating whether a hostname was specified on the command
         line.  The default host is the local host.
      */
     Boolean _hostNameSet;
 
     /**
         The port to be used when the command is executed, specified as a
-        string.  The port number must be the port number on which the CIM 
-        Server is running on the specified host.  The default port number 
+        string.  The port number must be the port number on which the CIM
+        Server is running on the specified host.  The default port number
         is 5988.
      */
     String _portNumberStr;
@@ -253,16 +253,16 @@ private:
     Boolean _portNumberSet;
 
     /**
-        Indicates that an HTTP/1.1 version request should be generated.  If 
+        Indicates that an HTTP/1.1 version request should be generated.  If
         true, an HTTP/1.1 request is generated.  Otherwise, an HTTP/1.0 request
-        is generated.  
+        is generated.
      */
     Boolean _useHTTP11;
 
     /**
-        Indicates that the HTTP M-POST method should be used for the request.  
+        Indicates that the HTTP M-POST method should be used for the request.
         If true, an HTTP M-POST request is generated.  Otherwise, an HTTP POST
-        request is generated.  
+        request is generated.
      */
     Boolean _useMPost;
 
@@ -313,13 +313,13 @@ private:
     String _inputFilePath;
 
     /**
-        A Boolean indicating whether an input file path was specified on the 
+        A Boolean indicating whether an input file path was specified on the
         command line.
      */
     Boolean _inputFilePathSet;
 
     /**
-        A Boolean indicating whether an SSL connection was specified on the 
+        A Boolean indicating whether an SSL connection was specified on the
         command line.
      */
     Boolean _useSSL;
@@ -373,7 +373,7 @@ private:
         Label for the usage string for this command.
      */
     static const char   _USAGE [];
-    
+
     /**
         The minimum valid portnumber.
      */
@@ -385,20 +385,20 @@ private:
     static const Uint32 _MAX_PORTNUMBER;
 
     /**
-        The debug option argument value used to specify that the HTTP 
+        The debug option argument value used to specify that the HTTP
         encapsulation of the original XML request be included in the output.
      */
     static const char   _DEBUG_OPTION1;
 
     /**
-        The debug option argument value used to specify that the HTTP 
+        The debug option argument value used to specify that the HTTP
         encapsulation of the XML response be included in the output.
      */
     static const char   _DEBUG_OPTION2;
 
     String usage;
 
-    // The type of operation specified on the command line. 
+    // The type of operation specified on the command line.
     Uint32        _operationType;
 
 

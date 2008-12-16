@@ -88,7 +88,7 @@ CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
 #if defined (PEGASUS_OS_VMS)
     String provDir =
         ConfigManager::getInstance()->getCurrentValue("providerDir");
-    String fileName = ConfigManager::getHomedPath(provDir) + "/" + 
+    String fileName = ConfigManager::getHomedPath(provDir) + "/" +
         FileSystem::buildLibraryFileName(handlerId);
 #else
     String fileName = ConfigManager::getHomedPath((PEGASUS_DEST_LIB_DIR) +

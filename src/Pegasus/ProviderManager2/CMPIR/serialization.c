@@ -118,8 +118,8 @@ static ssize_t __serialize_CMPIString ( int, CONST CMPIString * );
 static CMPIString * __deserialize_CMPIString ( int, CONST CMPIBroker * );
 
 static ssize_t __serialize_CMPIObjectPath ( int, CONST CMPIObjectPath * );
-static CMPIObjectPath * __deserialize_CMPIObjectPath ( 
-    int, 
+static CMPIObjectPath * __deserialize_CMPIObjectPath (
+    int,
     CONST CMPIBroker * );
 
 static ssize_t __serialize_CMPIArray ( int, CONST CMPIArray * );
@@ -129,13 +129,13 @@ static ssize_t __serialize_CMPIInstance ( int, CONST CMPIInstance * );
 static CMPIInstance * __deserialize_CMPIInstance ( int, CONST CMPIBroker * ,
     CONST CMPIObjectPath *);
 
-static ssize_t __serialize_CMPISelectExp ( 
-    int, 
-    CONST CMPISelectExp *, 
+static ssize_t __serialize_CMPISelectExp (
+    int,
+    CONST CMPISelectExp *,
     CMPIUint32);
 static CMPISelectExp * __deserialize_CMPISelectExp(
-    int, 
-    CONST CMPIBroker *, 
+    int,
+    CONST CMPIBroker *,
     CMPIUint32);
 
 static ssize_t __serialize_CMPIDateTime ( int, CMPIDateTime * );
@@ -147,14 +147,14 @@ static CMPIError * __deserialize_CMPIError ( int, CONST CMPIBroker * );
 
 static ssize_t __serialize_CMPIErrorSeverity ( int, CMPIErrorSeverity );
 static CMPIErrorSeverity __deserialize_CMPIErrorSeverity (
-    int, 
+    int,
     CONST CMPIBroker * );
 
-static ssize_t __serialize_CMPIErrorProbableCause ( 
-    int, 
+static ssize_t __serialize_CMPIErrorProbableCause (
+    int,
     CMPIErrorProbableCause );
 static CMPIErrorProbableCause __deserialize_CMPIErrorProbableCause (
-    int, 
+    int,
     CONST CMPIBroker * );
 
 static ssize_t __serialize_CMPIrc ( int, CMPIrc );
@@ -162,7 +162,7 @@ static CMPIrc __deserialize_CMPIrc ( int, CONST CMPIBroker * );
 
 static ssize_t __serialize_CMPIMsgFileHandle ( int, CMPIMsgFileHandle );
 static CMPIMsgFileHandle __deserialize_CMPIMsgFileHandle (
-    int, 
+    int,
     CONST CMPIBroker * );
 #endif
 
@@ -170,7 +170,7 @@ static CMPIMsgFileHandle __deserialize_CMPIMsgFileHandle (
 
 
 
-const struct BinarySerializerFT binarySerializerFT = 
+const struct BinarySerializerFT binarySerializerFT =
 {
     __serialize_UINT8,
     __deserialize_UINT8,
@@ -219,14 +219,14 @@ const struct BinarySerializerFT binarySerializerFT =
 
 };
 
-PEGASUS_EXPORT const struct BinarySerializerFT *binarySerializerFTptr = 
+PEGASUS_EXPORT const struct BinarySerializerFT *binarySerializerFTptr =
     &binarySerializerFT;
 /****************************************************************************/
 
 
 static ssize_t __serialize_UINT8 ( int fd, CMPIUint8 uint8 )
 {
-    if (io_write_fixed_length ( 
+    if (io_write_fixed_length (
         fd,
         &uint8,
         sizeof ( CMPIUint8 ) ))
@@ -294,12 +294,12 @@ static ssize_t __serialize_UINT64 ( int fd, CMPIUint64 uint64 )
     unsigned long int l = uint64 & 0xFFFFFFFF;
     unsigned long int h = uint64 >> 32;
 
-    if (( sl = __serialize_UINT32 ( fd, l ) ) < 0) 
+    if (( sl = __serialize_UINT32 ( fd, l ) ) < 0)
     {
         return -1;
     }
 
-    if (( sh = __serialize_UINT32 ( fd, h ) ) < 0) 
+    if (( sh = __serialize_UINT32 ( fd, h ) ) < 0)
     {
         return -1;
     }
@@ -385,7 +385,7 @@ static ssize_t __serialize_CMPIValue ( int fd,
                 return __serialize_CMPIArgs ( fd, value->args );
 
             case CMPI_filter:
-                return __serialize_CMPISelectExp ( 
+                return __serialize_CMPISelectExp (
                     fd,
                     value->filter,
                     PEGASUS_INDICATION_GLOBAL_CONTEXT);
@@ -477,7 +477,7 @@ static ssize_t __serialize_CMPIValue ( int fd,
 }
 
 
-static CMPIValue __deserialize_CMPIValue ( 
+static CMPIValue __deserialize_CMPIValue (
     int fd,
     CMPIType type,
     CONST CMPIBroker * broker )
@@ -621,12 +621,12 @@ static CMPIValue __deserialize_CMPIValue (
         }
     }
 
-    if (failed) 
+    if (failed)
     {
-        error_at_line ( 
-            -1, 
-            0, 
-            __FILE__, 
+        error_at_line (
+            -1,
+            0,
+            __FILE__,
             __LINE__,
             "Unable to deserialize requested "
             "data type: 0x%x", type );
@@ -647,7 +647,7 @@ static ssize_t __serialize_CMPIData ( int fd, CMPIData data )
     TRACE_INFO(("state: 0x%x\ntype: 0x%x", data.state, data.type ));
 
     out = __serialize_UINT16 ( fd, data.state );
-    if (out < 0) 
+    if (out < 0)
     {
         return -1;
     }
@@ -685,7 +685,7 @@ static CMPIData __deserialize_CMPIData ( int fd, CONST CMPIBroker * broker )
     if (! ( data.state & CMPI_nullValue ))
     {
 
-        data.value = __deserialize_CMPIValue ( 
+        data.value = __deserialize_CMPIValue (
             fd,
             data.type,
             broker );
@@ -706,7 +706,7 @@ static ssize_t __serialize_CMPIStatus ( int fd, CMPIStatus * rc )
     TRACE_NORMAL(("serializing CMPIStatus."));
 
     tmp = __serialize_UINT32 ( fd, rc->rc );
-    if (tmp < 0) 
+    if (tmp < 0)
     {
         return -1;
     }
@@ -716,7 +716,7 @@ static ssize_t __serialize_CMPIStatus ( int fd, CMPIStatus * rc )
         rc->msg ? (CMGetCharsPtr ( rc->msg, NULL )) : "" ));
 
     out = __serialize_CMPIString ( fd, rc->msg );
-    if (out) 
+    if (out)
     {
         return -1;
     }
@@ -750,19 +750,19 @@ static ssize_t __serialize_string ( int fd, const char * str )
     size_t len;
     ssize_t out;
 
-    if (__serialized_NULL ( fd, str )) 
+    if (__serialized_NULL ( fd, str ))
     {
         return 0;
     }
 
     len = strlen ( str );
     out = __serialize_UINT32 ( fd, (CMPIUint32) len );
-    if (out < 0) 
+    if (out < 0)
     {
         return -1;
     }
 
-    if (io_write_fixed_length ( fd, str, len )) 
+    if (io_write_fixed_length ( fd, str, len ))
     {
         return -1;
     }
@@ -776,7 +776,7 @@ static char * __deserialize_string_alloc ( int fd )
     size_t len;
     char * str;
 
-    if (__deserialized_NULL ( fd )) 
+    if (__deserialized_NULL ( fd ))
     {
         return NULL;
     }
@@ -810,7 +810,7 @@ static char * __deserialize_string ( int fd, CONST CMPIBroker * broker )
 
 static ssize_t __serialize_CMPIString ( int fd, CONST CMPIString * string )
 {
-    if (__serialized_NULL ( fd, string )) 
+    if (__serialized_NULL ( fd, string ))
     {
         return 0;
     }
@@ -823,7 +823,7 @@ static CMPIString * __deserialize_CMPIString (int fd, CONST CMPIBroker * broker)
     CMPIString * str;
     char * tmp;
 
-    if (__deserialized_NULL ( fd )) 
+    if (__deserialized_NULL ( fd ))
     {
         return NULL;
     }
@@ -843,7 +843,7 @@ static ssize_t __serialize_CMPIArgs ( int fd, CONST CMPIArgs * args )
 
     TRACE_VERBOSE(("entered function."));
 
-    if (__serialized_NULL ( fd, args )) 
+    if (__serialized_NULL ( fd, args ))
     {
         return 0;
     }
@@ -852,7 +852,7 @@ static ssize_t __serialize_CMPIArgs ( int fd, CONST CMPIArgs * args )
 
     arg_count = CMGetArgCount ( args, NULL );
     out = __serialize_UINT32 ( fd, arg_count );
-    if (out < 0) 
+    if (out < 0)
     {
         return -1;
     }
@@ -884,7 +884,7 @@ static CMPIArgs * __deserialize_CMPIArgs ( int fd, CONST CMPIBroker * broker )
 
     TRACE_VERBOSE(("entered function."));
 
-    if (__deserialized_NULL ( fd )) 
+    if (__deserialized_NULL ( fd ))
     {
         return NULL;
     }
@@ -924,7 +924,7 @@ static ssize_t __serialize_CMPIObjectPath ( int fd, CONST CMPIObjectPath * cop )
 
     TRACE_VERBOSE(("entered function."));
 
-    if (__serialized_NULL ( fd, cop )) 
+    if (__serialized_NULL ( fd, cop ))
     {
         return 0;
     }
@@ -991,7 +991,7 @@ static CMPIObjectPath * __deserialize_CMPIObjectPath ( int fd,
 
     TRACE_VERBOSE(("entered function."));
 
-    if (__deserialized_NULL ( fd )) 
+    if (__deserialized_NULL ( fd ))
     {
         return NULL;
     }
@@ -1049,7 +1049,7 @@ static ssize_t __serialize_CMPIArray ( int fd, CONST CMPIArray * array )
     size = CMGetArrayCount ( array, NULL );
     out =__serialize_UINT16 ( fd, size );
 
-    if (out < 0) 
+    if (out < 0)
     {
         return -1;
     }
@@ -1059,7 +1059,7 @@ static ssize_t __serialize_CMPIArray ( int fd, CONST CMPIArray * array )
     type = CMGetArrayType ( array, NULL );
     out += tmp = __serialize_CMPIType ( fd, type );
 
-    if (tmp < 0) 
+    if (tmp < 0)
     {
         return -1;
     }
@@ -1086,7 +1086,7 @@ static CMPIArray * __deserialize_CMPIArray (int fd, CONST CMPIBroker * broker)
 
     TRACE_VERBOSE(("entered function."));
 
-    if (__deserialized_NULL ( fd )) 
+    if (__deserialized_NULL ( fd ))
     {
         return NULL;
     }
@@ -1132,7 +1132,7 @@ static ssize_t __serialize_CMPIInstance ( int fd, CONST CMPIInstance * inst )
 
     TRACE_VERBOSE(("entered function."));
 
-    if (__serialized_NULL ( fd, inst )) 
+    if (__serialized_NULL ( fd, inst ))
     {
         return 0;
     }
@@ -1143,12 +1143,12 @@ static ssize_t __serialize_CMPIInstance ( int fd, CONST CMPIInstance * inst )
     props = CMGetPropertyCount ( inst, NULL );
 
     out = __serialize_CMPIObjectPath ( fd, cop );
-    if (out < 0) 
+    if (out < 0)
     {
         return -1;
     }
 
-    if (( tmp =__serialize_UINT16 ( fd, props ) ) < 0) 
+    if (( tmp =__serialize_UINT16 ( fd, props ) ) < 0)
     {
         return -1;
     }
@@ -1178,7 +1178,7 @@ static ssize_t __serialize_CMPIInstance ( int fd, CONST CMPIInstance * inst )
 }
 
 
-static CMPIInstance * __deserialize_CMPIInstance ( 
+static CMPIInstance * __deserialize_CMPIInstance (
     int fd,
     CONST CMPIBroker * broker ,
     CONST CMPIObjectPath *qop)
@@ -1189,7 +1189,7 @@ static CMPIInstance * __deserialize_CMPIInstance (
 
     TRACE_VERBOSE(("entered function."));
 
-    if (__deserialized_NULL ( fd )) 
+    if (__deserialized_NULL ( fd ))
     {
         return NULL;
     }
@@ -1227,8 +1227,8 @@ static CMPIInstance * __deserialize_CMPIInstance (
     return inst;
 }
 
-static ssize_t __serialize_CMPISelectExp ( 
-    int fd, 
+static ssize_t __serialize_CMPISelectExp (
+    int fd,
     CONST CMPISelectExp * sexp,
     CMPIUint32 ctx_id)
 {
@@ -1246,7 +1246,7 @@ static ssize_t __serialize_CMPISelectExp (
         PEGASUS_INDICATION_OBJECT_TYPE_CMPI_SELECT_EXP) );
 }
 
-static CMPISelectExp * __deserialize_CMPISelectExp ( 
+static CMPISelectExp * __deserialize_CMPISelectExp (
     int fd,
     CONST CMPIBroker *broker,
     CMPIUint32 ctx_id)
@@ -1257,7 +1257,7 @@ static CMPISelectExp * __deserialize_CMPISelectExp (
     }
 
     return(CMPISelectExp*) get_indicationObject (
-        __deserialize_UINT64 (fd), 
+        __deserialize_UINT64 (fd),
         ctx_id);
 }
 
@@ -1269,7 +1269,7 @@ static ssize_t __serialize_CMPIDateTime ( int fd, CMPIDateTime * dt )
 
     TRACE_VERBOSE(("entered function."));
 
-    if (__serialized_NULL ( fd, dt )) 
+    if (__serialized_NULL ( fd, dt ))
     {
         return 0;
     }
@@ -1284,13 +1284,13 @@ static ssize_t __serialize_CMPIDateTime ( int fd, CMPIDateTime * dt )
     TRACE_INFO(("msecs: %lld, interval: %d", msecs, i ));
 #endif
     out = __serialize_UINT64 ( fd, msecs );
-    if (out < 0) 
+    if (out < 0)
     {
         return -1;
     }
 
     tmp = __serialize_UINT8 ( fd, i );
-    if (tmp < 0) 
+    if (tmp < 0)
     {
         return -1;
     }
@@ -1300,7 +1300,7 @@ static ssize_t __serialize_CMPIDateTime ( int fd, CMPIDateTime * dt )
 }
 
 
-static CMPIDateTime * __deserialize_CMPIDateTime ( 
+static CMPIDateTime * __deserialize_CMPIDateTime (
     int fd,
     CONST CMPIBroker * broker )
 {
@@ -1309,7 +1309,7 @@ static CMPIDateTime * __deserialize_CMPIDateTime (
 
     TRACE_VERBOSE(("entered function."));
 
-    if (__deserialized_NULL ( fd )) 
+    if (__deserialized_NULL ( fd ))
     {
         return NULL;
     }
@@ -1338,7 +1338,7 @@ static ssize_t __serialize_CMPIError ( int fd, CMPIError * err )
 
     TRACE_VERBOSE(("entered function."));
 
-    if (__serialized_NULL ( fd, err )) 
+    if (__serialized_NULL ( fd, err ))
     {
         return 0;
     }
@@ -1350,7 +1350,7 @@ static ssize_t __serialize_CMPIError ( int fd, CMPIError * err )
 }
 
 
-static CMPIError * __deserialize_CMPIError ( 
+static CMPIError * __deserialize_CMPIError (
     int fd,
     CONST CMPIBroker * broker )
 {
@@ -1358,7 +1358,7 @@ static CMPIError * __deserialize_CMPIError (
 
     TRACE_VERBOSE(("entered function."));
 
-    if (__deserialized_NULL ( fd )) 
+    if (__deserialized_NULL ( fd ))
     {
         return NULL;
     }
@@ -1373,23 +1373,23 @@ static ssize_t __serialize_CMPIErrorSeverity ( int fd, CMPIErrorSeverity sev )
     return 0;
 }
 
-static CMPIErrorSeverity __deserialize_CMPIErrorSeverity ( 
-    int fd, 
+static CMPIErrorSeverity __deserialize_CMPIErrorSeverity (
+    int fd,
     CONST CMPIBroker * broker )
 {
     CMPIErrorSeverity sev;
     return sev;
 }
 
-static ssize_t __serialize_CMPIErrorProbableCause ( 
-    int fd, 
+static ssize_t __serialize_CMPIErrorProbableCause (
+    int fd,
     CMPIErrorProbableCause pc )
 {
     return 0;
 }
 
-static CMPIErrorProbableCause __deserialize_CMPIErrorProbableCause ( 
-    int fd, 
+static CMPIErrorProbableCause __deserialize_CMPIErrorProbableCause (
+    int fd,
     CONST CMPIBroker * broker )
 {
     CMPIErrorProbableCause pc;
@@ -1407,16 +1407,16 @@ static CMPIrc __deserialize_CMPIrc ( int fd, CONST CMPIBroker * broker )
     return cimStatusCode;
 }
 
-static ssize_t __serialize_CMPIMsgFileHandle ( 
-    int fd, 
+static ssize_t __serialize_CMPIMsgFileHandle (
+    int fd,
     CMPIMsgFileHandle msgFileHandle )
 {
     ssize_t handle = (ssize_t)msgFileHandle;
     return(__serialize_UINT32 ( fd, (CMPIUint32)handle));
 }
 
-static CMPIMsgFileHandle __deserialize_CMPIMsgFileHandle ( 
-    int fd, 
+static CMPIMsgFileHandle __deserialize_CMPIMsgFileHandle (
+    int fd,
     CONST CMPIBroker * broker )
 {
     ssize_t handle = __deserialize_UINT32(fd);

@@ -123,7 +123,7 @@ CMPIInstance   *makeInstance(const CMPIBroker *broker, const char * classname,
       CMSetProperty(in,"FileSize",(CMPIValue*)&cwsf->cws_size,CMPI_uint64);
 #ifndef SIMULATED
 /* We don't want this code in the simulated env - time is dynamic
-   (diff timezones) and 
+   (diff timezones) and
    the testing system might using a diff timezone and report failure */
       val.uint64 = cwsf->cws_ctime;
       val.dateTime = CMNewDateTimeFromBinary(broker,val.uint64*1000000,0,NULL);

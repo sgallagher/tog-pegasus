@@ -868,7 +868,7 @@ int main(int argc, char **argv)
 
 /*************************************************************************/
 
-        // "testing the operator- 
+        // "testing the operator-
 
 
         Uint64 tfo_m = PEGASUS_UINT64_LITERAL(123456732445);
@@ -925,7 +925,7 @@ int main(int argc, char **argv)
 
 /*************************************************************************/
 
-        // testing operator-= 
+        // testing operator-=
 
 
         CIMDateTime top_tko4("00040520041412.123435-000");
@@ -971,7 +971,7 @@ int main(int argc, char **argv)
 
 /*************************************************************************/
 
-//test operator* 
+//test operator*
 
 
         CIMDateTime mul1("00000020041452.123456:000");
@@ -1010,7 +1010,7 @@ int main(int argc, char **argv)
 
 /*************************************************************************/
 
-        // test operator*= 
+        // test operator*=
 
 
         CIMDateTime ul1("00000020041452.123456:000");
@@ -1065,7 +1065,7 @@ int main(int argc, char **argv)
 
 /*************************************************************************/
 
-        // testing operator/= 
+        // testing operator/=
 
         d_num1 = 50;
 

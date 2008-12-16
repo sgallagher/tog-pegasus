@@ -277,7 +277,7 @@ instance of PG_ProviderCapabilities
 // Instance and ExecQuery provider for CMPI_Broker.cpp
 // ===================================================================
 
-//This Provider shares the PG_ProviderModule instance with 
+//This Provider shares the PG_ProviderModule instance with
 //  TestCMPIBrokerProvider
 instance of PG_Provider
 {

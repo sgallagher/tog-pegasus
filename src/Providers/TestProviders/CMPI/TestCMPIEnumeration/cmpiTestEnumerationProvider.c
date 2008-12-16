@@ -151,7 +151,7 @@ static int _testEnumeration (const CMPIContext * ctx,
         getInstanceStringAssociators = CMGetCharsPtr(objPathAssociators,&rc);
         PROV_LOG("++++  CMGetCharsPtr : (rc:%s)", strCMPIStatus (rc));
         count++;
-    } 
+    }
 
     PROV_LOG("++++ Number of Associators : %d)", count);
 
@@ -179,8 +179,8 @@ static int _testEnumeration (const CMPIContext * ctx,
         strCMPIStatus (rc),
         CMGetCharsPtr(type, &rc));
 
-    bol = CDIsOfType (_broker, 
-        testEnumerationForAssociators, 
+    bol = CDIsOfType (_broker,
+        testEnumerationForAssociators,
         "CMPIEnumeration",
         &rc);
     if (bol)
@@ -190,7 +190,7 @@ static int _testEnumeration (const CMPIContext * ctx,
             strCMPIStatus (rc),
             bol);
     }
-    
+
     testEnumerationForAssociators->hdl = NULL;
     rc = CMRelease(testEnumerationForAssociators);
     PROV_LOG ("++++ CMRelease for testEnumerationForAssociators with NULL"
@@ -247,7 +247,7 @@ static int _testEnumeration (const CMPIContext * ctx,
     PROV_LOG("++++ Error status of CMGetNext for CMPI_OpEnumeration: (rc:%s)",
         strCMPIStatus (rc));
 
-    testEnumerationForAssociatorNamesClone = 
+    testEnumerationForAssociatorNamesClone =
         CMClone(testEnumerationForAssociatorNames,
             &rc);
     PROV_LOG("++++  CMClone for testEnumerationForAssociatorNames : (rc:%s)",
@@ -259,8 +259,8 @@ static int _testEnumeration (const CMPIContext * ctx,
         strCMPIStatus (rc),
         CMGetCharsPtr(type, &rc));
 
-    bol = CDIsOfType (_broker, 
-        testEnumerationForAssociatorNames, 
+    bol = CDIsOfType (_broker,
+        testEnumerationForAssociatorNames,
         "CMPIEnumeration",
         &rc);
     if (bol)
@@ -275,24 +275,24 @@ static int _testEnumeration (const CMPIContext * ctx,
     PROV_LOG("++++  CMToArray for testEnumerationForAssociatorNamesClone"
         ": (rc:%s)",
         strCMPIStatus (rc));
-   
+
     testEnumerationForAssociatorNamesClone->hdl = NULL;
     rc = CMRelease(testEnumerationForAssociatorNamesClone);
     PROV_LOG ("++++ CMRelease for testEnumerationForAssociatorNamesClone"
         " with NULL handle (%s)",
         strCMPIStatus (rc));
-    
+
     rc = CMRelease(testEnumerationForAssociatorNames);
     PROV_LOG ("++++ CMRelease for testEnumerationForAssociatorNames (%s)",
         strCMPIStatus (rc));
-   
+
     enum_ptr = CBEnumInstances(_broker,
         ctx,
         opForAssociatorFunctions,
         NULL,
         &rc);
     PROV_LOG ("++++  CBEnumInstances : (%s)", strCMPIStatus (rc));
-  
+
     count = 0;
     while (CMHasNext(enum_ptr, &rc))
     {
@@ -351,7 +351,7 @@ CMPIStatus TestCMPIEnumerationProviderInvokeMethod (CMPIMethodMI * mi,
     PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
 
     PROV_LOG ("InvokeMethod: We have %d arguments for operation [%s]: ",
-        arg_cnt, 
+        arg_cnt,
         methodName);
 
     if (arg_cnt > 0)
@@ -389,7 +389,7 @@ CMPIStatus TestCMPIEnumerationProviderInvokeMethod (CMPIMethodMI * mi,
         _ClassName,
         strlen (_ClassName)) == 0)
     {
-        if (strncmp("testEnumeration", 
+        if (strncmp("testEnumeration",
             methodName,
             strlen ("testEnumeration"))== 0)
         {

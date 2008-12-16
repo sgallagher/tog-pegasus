@@ -93,6 +93,6 @@ endif
 
 XDIRS = \
     cimconfig/tests \
-    cimuser/tests 
+    cimuser/tests
 
 include $(ROOT)/mak/recurse.mak

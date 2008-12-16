@@ -65,10 +65,10 @@ class CmpiCharData;
     conversion operators. Extraction operations can be appended to a property
     type retrieval statement
       like this:
- 
+
     CmpiObjectPath cop  = ...;
     CmpiString     name = cop.getKey ("DeviceID").getString ();
- 
+
     Type mismatches will be signalled by exceptions.
 */
 class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiData
@@ -119,12 +119,12 @@ public:
     */
     EXPLICIT CmpiData(CMPISint8 d);
 
-    /** 
+    /**
         Constructor - signed 16 bit as input.
     */
     EXPLICIT CmpiData(CMPISint16 d);
 
-    /** 
+    /**
         Constructor - signed 32 bit as input.
     */
     EXPLICIT CmpiData(CMPISint32 d);

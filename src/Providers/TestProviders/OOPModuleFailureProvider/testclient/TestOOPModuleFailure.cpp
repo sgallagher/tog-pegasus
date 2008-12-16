@@ -328,12 +328,12 @@ CIMObjectPath _getSubscriptionPath(
         filterPath.toString(), CIMKeyBinding::REFERENCE));
     subscriptionKeyBindings.append(CIMKeyBinding("Handler",
         handlerPath.toString(), CIMKeyBinding::REFERENCE));
-    
+
     return CIMObjectPath(
                "",
                CIMNamespaceName(),
                PEGASUS_CLASSNAME_INDSUBSCRIPTION,
-               subscriptionKeyBindings);   
+               subscriptionKeyBindings);
 }
 
 void _deleteSubscriptionInstance(
@@ -342,7 +342,7 @@ void _deleteSubscriptionInstance(
     const String& handlerName)
 {
     client.deleteInstance(
-        PEGASUS_NAMESPACENAME_INTEROP, 
+        PEGASUS_NAMESPACENAME_INTEROP,
         _getSubscriptionPath(filterName, handlerName));
 }
 
@@ -1882,7 +1882,7 @@ void _testScenario9(
     try
     {
         client.getInstance(
-            PEGASUS_NAMESPACENAME_INTEROP, 
+            PEGASUS_NAMESPACENAME_INTEROP,
             _getSubscriptionPath(
                 String("OOPFilter01"),
                 String("OOPHandler01")));
@@ -1930,7 +1930,7 @@ void _testScenario9(
     Uint16 subscriptionState;
     value.get(subscriptionState);
     PEGASUS_TEST_ASSERT(subscriptionState == 4); // Should be disabled.
- 
+
     //
     //  Delete the subscription
     //

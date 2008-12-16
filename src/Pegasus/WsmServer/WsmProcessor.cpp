@@ -277,18 +277,18 @@ void WsmProcessor::_handleEnumerateResponse(
             EnumerationContext(
                 contextId,
                 wsmRequest->enumerationMode,
-                expiration, 
+                expiration,
                 wsmRequest->epr,
                 wsmResponse.get()));
         wsmResponse->setEnumerationContext(contextId);
 
         // Get the requsted chunk of results
         AutoPtr<WsenEnumerateResponse> splitResponse(
-            _splitEnumerateResponse(wsmRequest, wsmResponse.get(), 
+            _splitEnumerateResponse(wsmRequest, wsmResponse.get(),
                 wsmRequest->optimized ? wsmRequest->maxElements : 0));
         splitResponse->setEnumerationContext(contextId);
 
-        // If no items are left in the orignal response, mark split 
+        // If no items are left in the orignal response, mark split
         // response as complete
         if (wsmResponse->getSize() == 0)
         {
@@ -433,7 +433,7 @@ WsenPullResponse* WsmProcessor::_splitPullResponse(
     WsenEnumerationData splitData;
     response->getEnumerationData().split(splitData, num);
 
-    return new WsenPullResponse(splitData, request, 
+    return new WsenPullResponse(splitData, request,
         response->getContentLanguages());
 }
 
@@ -442,7 +442,7 @@ void WsmProcessor::_getExpirationDatetime(
 {
     CIMDateTime dt, currentDT;
 
-    // Default expiration interval = 10 mins 
+    // Default expiration interval = 10 mins
     // ATTN WSMAN: what should the value be?
     CIMDateTime maxInterval(0, 0, 10, 0, 0, 6);
 

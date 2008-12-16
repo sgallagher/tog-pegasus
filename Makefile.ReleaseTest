@@ -26,7 +26,7 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ifndef ROOT 
+ifndef ROOT
  ifdef PEGASUS_ROOT
     ROOT =  $(subst \,/,$(PEGASUS_ROOT))
  else
@@ -105,7 +105,7 @@ PEGASUS_TEST_PROVIDERS = \
 
 ifdef PEGASUS_USE_NET_SNMP
    PEGASUS_TEST_PROVIDERS += \
-      libIndicationTestProvider 
+      libIndicationTestProvider
 endif
 
 POSTSTARTTEST_FILES = \

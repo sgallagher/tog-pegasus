@@ -120,7 +120,7 @@ Boolean ComputerSystem::getStatusDescriptions(CIMProperty& p)
 
 Boolean ComputerSystem::getStatus(CIMProperty& p)
 {
-    // hardcoded 
+    // hardcoded
     p = CIMProperty(PROPERTY_STATUS,String(STATUS));
     return true;
 }
@@ -222,11 +222,11 @@ Boolean ComputerSystem::getPowerState(CIMProperty& p)
     // hardcoded
     /*
         ValueMap {"1", "2", "3", "4", "5", "6", "7", "8"},
-        Values {"Full Power", "Power Save - Low Power Mode", 
-                "Power Save - Standby", "Power Save - Other", 
+        Values {"Full Power", "Power Save - Low Power Mode",
+                "Power Save - Standby", "Power Save - Other",
                 "Power Cycle", "Power Off", "Hibernate", "Soft Off"}
     */
-    p = CIMProperty(PROPERTY_POWER_STATE,Uint16(1));  
+    p = CIMProperty(PROPERTY_POWER_STATE,Uint16(1));
     return true;
 }
 

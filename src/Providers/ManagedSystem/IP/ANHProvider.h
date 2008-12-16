@@ -133,7 +133,7 @@ private:
         ObjectPathResponseHandler& handler);
 
     void _createAssociationInstances(
-            Array<CIMInstance>, 
+            Array<CIMInstance>,
             Array<CIMInstance>);
 
     Array<CIMInstance>

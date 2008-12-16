@@ -46,7 +46,7 @@ WMIDateTime::WMIDateTime(const CIMDateTime & datetime) : CIMDateTime(datetime)
 WMIDateTime::WMIDateTime(const BSTR & bstr)
 {
    char * psz = 0;
-    
+
     try {
         psz = _bstr_t(bstr);
    }
@@ -63,7 +63,7 @@ WMIDateTime::WMIDateTime(const VARIANT & var)
    CComBSTR bs;
    CMyString s;
    String s2;
-    
+
     try {
       bst = var;
       s = (char *)bst;

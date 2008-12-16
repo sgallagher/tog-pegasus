@@ -155,7 +155,7 @@ Boolean testLookupIndicationConsumer(
             findProperty(CIMName ("Name"))).
             getValue().
             get(_providerModuleName2);
-    
+
         PEGASUS_TEST_ASSERT(
             String::equal(_providerModuleName, _providerModuleName2) == 1);
 
@@ -201,8 +201,8 @@ int main(int argc, char** argv)
     {
         if (!testLookupIndicationConsumer(provRegManager))
         {
-            PEGASUS_STD(cerr) 
-                << "Error: lookupIndicationConsumer Failed"           
+            PEGASUS_STD(cerr)
+                << "Error: lookupIndicationConsumer Failed"
                 << PEGASUS_STD(endl);
             exit(-1);
         }
@@ -210,16 +210,16 @@ int main(int argc, char** argv)
     catch (Exception& e)
     {
         PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-        PEGASUS_STD(cout) 
+        PEGASUS_STD(cout)
             << argv[0]
             << " +++++ lookup indication consumer failed"
             << PEGASUS_STD(endl);
         exit(-1);
     }
 
-    PEGASUS_STD(cout) 
-        << argv[0] 
-        << " +++++ passed all tests" 
+    PEGASUS_STD(cout)
+        << argv[0]
+        << " +++++ passed all tests"
         << PEGASUS_STD(endl);
 
     return 0;

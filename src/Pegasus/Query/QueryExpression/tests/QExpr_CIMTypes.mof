@@ -27,32 +27,32 @@
 //
 //////////////////////////////////////////////////////////////////////////
 // ==================================================================
-// QExpr_TestElement 
-// ================================================================== 
+// QExpr_TestElement
+// ==================================================================
    [Version ("2.2.0"), Description (
-   "QExpr_TestElement is an abstract class that provides a common "  
+   "QExpr_TestElement is an abstract class that provides a common "
         "superclass (or top of the inheritance tree) for the "
         "non-association classes in the test Schema.")]
    class QExpr_TestElement
-   {  
-      [Key, 
-       Description (  
+   {
+      [Key,
+       Description (
           "An identifier that uniquely identifies each instance "
-          "of the QExpr_TestElement hierarchy.") ]   
-     uint64 InstanceId;  
+          "of the QExpr_TestElement hierarchy.") ]
+     uint64 InstanceId;
    };
 
-     
+
 
 // ===================================================================
 // QExpr_TestPropertyTypes
 // ===================================================================
-   
+
    [Version ("2.2.0"), Description (
    "QExpr_TestPropertyTypes is a concrete class derived from QExpr_TestElement"),
     provider("QExpr_TestPropertyTypes")
-   ] 
-class QExpr_TestPropertyTypes:QExpr_TestElement 
+   ]
+class QExpr_TestPropertyTypes:QExpr_TestElement
 {
       [Maxlen (256), Description (
        "a string property of QExpr_TestPropertyTypes")]
@@ -177,12 +177,12 @@ class QExpr_TestPropertyTypes:QExpr_TestElement
       [Description ("A char16 array"),
        ArrayType ( "Indexed" ) ]
    char16 PropertyChar16Array[];
-   
+
       [Description ("A valuemap array"),
        ValueMap { "1", "2", "3", "4", "5" },
        Values { "Other", "Unknown", "Disabled", "Enabled",
           "Not Implemented" }]
    uint16 PropertyValueMap;
-   
+
 };
 

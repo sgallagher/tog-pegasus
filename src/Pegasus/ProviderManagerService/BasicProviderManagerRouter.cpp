@@ -297,7 +297,7 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         String providerModuleName;
         CIMValue nameValue = providerModule.getProperty(
             providerModule.findProperty(PEGASUS_PROPERTYNAME_NAME)).getValue();
-        nameValue.get(providerModuleName); 
+        nameValue.get(providerModuleName);
         // Get providerManager path
         String provMgrPath;
         if (request->operationContext.contains(ProviderIdContainer::NAME))
@@ -313,7 +313,7 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         {
             // Look up the appropriate ProviderManager by InterfaceType
 
-            pm = _getProviderManager(interfaceType, providerModuleName, 
+            pm = _getProviderManager(interfaceType, providerModuleName,
                 provMgrPath);
         }
         catch (const CIMException& e)
@@ -348,7 +348,7 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
             gotError = true;
         }
 
-        if (!gotError && remoteNameSpaceRequest && 
+        if (!gotError && remoteNameSpaceRequest &&
             !pm->supportsRemoteNameSpaces())
         {
             CIMResponseMessage* resp = request->buildResponse();
@@ -371,7 +371,7 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
 
 // ATTN: May need to add interfaceVersion parameter to further constrain lookup
 ProviderManager* BasicProviderManagerRouter::_getProviderManager(
-    const String& interfaceType, 
+    const String& interfaceType,
     const String& providerModuleName,
     const String& providerManagerPath)
 {

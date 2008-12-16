@@ -121,7 +121,7 @@ int setUserContext(int argc, char* argv[])
 // Dummy function for the Thread object associated with the initial thread.
 // Since the initial thread is used to process CIM requests, this is
 // needed to localize the exceptions thrown during CIM request processing.
-// Note: This function should never be called! 
+// Note: This function should never be called!
 //
 ThreadReturnType PEGASUS_THREAD_CDECL dummyThreadFunc(void *parm)
 {
@@ -184,7 +184,7 @@ int main(int argc, char* argv[])
 
         char fullJobName[29];
         umeGetJobName(fullJobName, true);
-        Logger::put_l(Logger::STANDARD_LOG, 
+        Logger::put_l(Logger::STANDARD_LOG,
             "Provider agent", Logger::INFORMATION,
             MessageLoaderParms(
                 "ProviderManager.ProviderAgent.cimprovagt."
@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
                         "SET_CCSID_ERROR.PEGASUS_OS_PASE",
                     "Failed to set ccsid. The provider agent will be "
                         "stopped."));
-            // so bad here. shut down. (return) 
+            // so bad here. shut down. (return)
             return 1;
         }
 #endif
@@ -216,7 +216,7 @@ int main(int argc, char* argv[])
         // to service CIM requests.
         // The run function for the dummy Thread should never be called,
         Thread *dummyInitialThread = new Thread(dummyThreadFunc, NULL, false);
-        Thread::setCurrent(dummyInitialThread); 
+        Thread::setCurrent(dummyInitialThread);
         try
         {
             Thread::setLanguages(LanguageParser::getDefaultAcceptLanguages());
@@ -229,7 +229,7 @@ int main(int argc, char* argv[])
                     "Could not convert the system process locale into a valid "
                         "AcceptLanguage format."));
             Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                e.getMessage()); 
+                e.getMessage());
         }
 
         //

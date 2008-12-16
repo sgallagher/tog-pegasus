@@ -34,20 +34,20 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  Copyright (c) 2001 - 2003  IBM                                          
- *  Copyright (c) 2000 - 2003 Michael Day                                    
- *                                                                           
- *  Permission is hereby granted, free of charge, to any person obtaining a  
+ *  Copyright (c) 2001 - 2003  IBM
+ *  Copyright (c) 2000 - 2003 Michael Day
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a
  *  copy of this software and associated documentation files (the "Software"),
- *  to deal in the Software without restriction, including without limitation 
- *  the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- *  and/or sell copies of the Software, and to permit persons to whom the     
- *  Software is furnished to do so, subject to the following conditions:       
- * 
- *  The above copyright notice and this permission notice shall be included in 
+ *  to deal in the Software without restriction, including without limitation
+ *  the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ *  and/or sell copies of the Software, and to permit persons to whom the
+ *  Software is furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in
  *  all copies or substantial portions of the Software.
- * 
- * 
+ *
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -69,7 +69,7 @@
 /* prototypes and globals go here */
 void urlerror(const char *, ...);
 int32 urlwrap(void);
-int32 urllex(void);   
+int32 urllex(void);
 int32 urlparse(void);
 void url_close_lexer(uint32 handle);
 size_t url_init_lexer(const char *s);
@@ -80,7 +80,7 @@ static lslpAtomList siteHead = {&siteHead, &siteHead, TRUE, NULL, 0};
 static lslpAtomList pathHead = {&pathHead, &pathHead, TRUE, NULL, 0};
 static lslpAtomList attrHead = {&attrHead, &attrHead, TRUE, NULL, 0};
 
-lslpAtomizedURL urlHead = 
+lslpAtomizedURL urlHead =
 {
     &urlHead,
     &urlHead,
@@ -96,7 +96,7 @@ lslpAtomizedURL urlHead =
 %}
 
 /* definitions for ytab.h */
-%name-prefix="url"  
+%name-prefix="url"
 
 %union {
 	int32 _i;
@@ -326,7 +326,7 @@ site:  ip_site {
 		}
 
 |       service_id {
-  
+
 			if ($1 != NULL)
 			{
 				if(NULL != ($$ = (lslpAtomList *)calloc(1, sizeof(lslpAtomList))))
@@ -338,7 +338,7 @@ site:  ip_site {
 			}
 			else
 				$$ = NULL;
-  
+
 }
 
 	;
@@ -556,7 +556,7 @@ attr_el: ';' _ELEMENT  {
 		}
 	;
 
-%% 
+%%
 
 
 lslpAtomList *lslpAllocAtom(void)
@@ -571,7 +571,7 @@ lslpAtomList *lslpAllocAtom(void)
 
 lslpAtomList *lslpAllocAtomList(void)
 {
-	lslpAtomList *temp =lslpAllocAtom(); 
+	lslpAtomList *temp =lslpAllocAtom();
 	if (temp != NULL)
 		temp->isHead = TRUE;
 	return(temp);
@@ -595,7 +595,7 @@ void lslpFreeAtomList(lslpAtomList *l, int32 flag)
 	{
 		temp = l->next;
 		temp->prev->next = temp->next;
-		temp->next->prev = temp->prev; 
+		temp->next->prev = temp->prev;
 		lslpFreeAtom(temp);
 	}
 	if (flag)
@@ -676,7 +676,7 @@ void lslpInitURLList(void)
 
 void lslpCleanUpURLLists(void)
 {
-  
+
   lslpFreeAtomList(&srvcHead, 0);
   lslpFreeAtomList(&siteHead, 0);
   lslpFreeAtomList(&pathHead, 0);
@@ -687,13 +687,13 @@ void lslpCleanUpURLLists(void)
 lslpAtomizedURL *_lslpDecodeURLs(char *u[], int32 count)
 {
   int32 i;
-  
+
   uint32 lexer = 0;
   lslpAtomizedURL *temp = NULL;
   assert(u != NULL && u[count - 1] != NULL);
   lslpInitURLList();
   lslpInitAtomLists();
-  
+
   for (i = 0; i < count; i++) {
     if (NULL == u[i])
       break;
@@ -708,7 +708,7 @@ lslpAtomizedURL *_lslpDecodeURLs(char *u[], int32 count)
       _LSLP_LINK_HEAD(temp, &urlHead);
     }
   }
-  
+
   return(temp);	
-}	 
+}	
 

@@ -42,7 +42,7 @@ COMPILER = acc
 
 PLATFORM_VERSION_SUPPORTED = yes
 
-SYS_INCLUDES = 
+SYS_INCLUDES =
 
 ifdef PEGASUS_CCOVER
  SYS_INCLUDES += -I/opt/ccover11/include
@@ -55,7 +55,7 @@ endif
 #########################################################################
 ##
 ## Platform specific compile options controlled by environment variables
-## are set here.  
+## are set here.
 ##
 #########################################################################
 
@@ -98,7 +98,7 @@ DEPEND_INCLUDES =
 ##       +b enables dynamic search in the specified directory(ies)
 ##
 
-FLAGS = 
+FLAGS =
 
 PEGASUS_SUPPORTS_DYNLIB=yes
 
@@ -133,7 +133,7 @@ ACC_LINK_SEARCH_PATH += -Wl,+s
 
 FLAGS += $(ACC_LINK_SEARCH_PATH)
 
-ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
   FLAGS += -g
 else
   FLAGS += +O2 -s

@@ -164,9 +164,9 @@ static inline void _readDateTime(const char*& value, CIMDateTime& x)
 }
 
 static int _makeValue(
-    CIMValue& cv, 
-    Uint16 type, 
-    Sint16 subscript, 
+    CIMValue& cv,
+    Uint16 type,
+    Sint16 subscript,
     const char* value)
 {
     // If null value:
@@ -528,7 +528,7 @@ int MergeFeatures(
     for (size_t i = 0; sc->features[i]; i++)
     {
         const MRRFeature* sf = sc->features[i];
-        
+
         if (!(sf->flags & flags))
             continue;
 
@@ -574,7 +574,7 @@ struct QualifierInfo
 };
 
 static const MRRFeature* _findFeature(
-    const MRRClass* sc, 
+    const MRRClass* sc,
     const char* name)
 {
     for (size_t i = 0; sc->features[i]; i++)
@@ -590,7 +590,7 @@ static const MRRFeature* _findFeature(
 }
 
 static const MRRFeature* _findParameter(
-    const MRRMethod* sm, 
+    const MRRMethod* sm,
     const char* name)
 {
     for (size_t i = 0; sm->parameters[i]; i++)
@@ -811,7 +811,7 @@ static int _addReference(
 
     Boolean isArray;
     Uint32 arraySize;
-    
+
     if (sr->subscript == -1)
     {
         isArray = false;
@@ -874,7 +874,7 @@ static int _addPropertyParameter(
         isArray = false;
         arraySize = 0;
     }
-    else 
+    else
     {
         isArray = true;
         arraySize = Uint32(sp->subscript);
@@ -916,7 +916,7 @@ static int _addReferenceParameter(
         isArray = false;
         arraySize = 0;
     }
-    else 
+    else
     {
         isArray = true;
         arraySize = Uint32(sr->subscript);
@@ -1051,7 +1051,7 @@ static int _addFeatures(
         {
             MRRProperty* sp = (MRRProperty*)sf;
 
-            if (_addProperty(ns, sc, sp, classOrigin, propagated, 
+            if (_addProperty(ns, sc, sp, classOrigin, propagated,
                 includeQualifiers, includeClassOrigin, cc) != 0)
             {
                 return -1;
@@ -1061,7 +1061,7 @@ static int _addFeatures(
         {
             MRRReference* sr = (MRRReference*)sf;
 
-            if (_addReference(ns, sc, sr, classOrigin, propagated, 
+            if (_addReference(ns, sc, sr, classOrigin, propagated,
                 includeQualifiers, includeClassOrigin, cc) != 0)
             {
                 return -1;
@@ -1071,7 +1071,7 @@ static int _addFeatures(
         {
             MRRMethod* sm = (MRRMethod*)sf;
 
-            if (_addMethod(ns, sc, sm, classOrigin, propagated, 
+            if (_addMethod(ns, sc, sm, classOrigin, propagated,
                 includeQualifiers, includeClassOrigin, cc) != 0)
             {
                 return -1;
@@ -1116,7 +1116,7 @@ int MakeClass(
 
         // Features:
 
-        if (_addFeatures(ns, sc, localOnly, includeQualifiers, 
+        if (_addFeatures(ns, sc, localOnly, includeQualifiers,
             includeClassOrigin, propertyList, cc) != 0)
         {
             return -1;
@@ -1218,7 +1218,7 @@ const MRRClass* FindClass(const MRRNameSpace* ns, const char* name)
 }
 
 const MRRQualifierDecl* FindQualifierDecl(
-    const MRRNameSpace* ns, 
+    const MRRNameSpace* ns,
     const char* name)
 {
     for (size_t i = 0; ns->classes[i]; i++)
@@ -1248,8 +1248,8 @@ bool IsSubClass(const MRRClass* super, const MRRClass* sub)
 }
 
 const MRRFeature* FindFeature(
-    const MRRClass* sc, 
-    const char* name, 
+    const MRRClass* sc,
+    const char* name,
     Uint32 flags)
 {
     for (size_t i = 0; sc->features[i]; i++)

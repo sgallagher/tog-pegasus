@@ -422,8 +422,8 @@ static const char* _keyTypes[] =
 };
 
 void _printKeyBinding(
-    PEGASUS_STD(ostream)& os, 
-    const CIMKeyBinding& x, 
+    PEGASUS_STD(ostream)& os,
+    const CIMKeyBinding& x,
     Uint32 n)
 {
     os << Ind(n) << "CIMKeyBinding" << endl;
@@ -437,8 +437,8 @@ void _printKeyBinding(
 }
 
 void PrintObjectPath(
-    PEGASUS_STD(ostream)& os, 
-    const CIMObjectPath& x, 
+    PEGASUS_STD(ostream)& os,
+    const CIMObjectPath& x,
     Uint32 n)
 {
     os << Ind(n) << "CIMObjectPath" << endl;
@@ -462,8 +462,8 @@ void PrintObjectPath(
 }
 
 void PrintProperty(
-    PEGASUS_STD(ostream)& os, 
-    const CIMConstProperty& x, 
+    PEGASUS_STD(ostream)& os,
+    const CIMConstProperty& x,
     Uint32 n)
 {
     os << Ind(n) << "CIMProperty" << endl;
@@ -474,8 +474,8 @@ void PrintProperty(
 }
 
 void PrintInstance(
-    PEGASUS_STD(ostream)& os, 
-    const CIMConstInstance& x, 
+    PEGASUS_STD(ostream)& os,
+    const CIMConstInstance& x,
     Uint32 n)
 {
     os << Ind(n) << "CIMInstance" << endl;
@@ -493,8 +493,8 @@ void PrintInstance(
 }
 
 void PEGASUS_COMMON_LINKAGE PrintQualifierDecl(
-    PEGASUS_STD(ostream)& os, 
-    const CIMConstQualifierDecl& x, 
+    PEGASUS_STD(ostream)& os,
+    const CIMConstQualifierDecl& x,
     Uint32 n)
 {
     os << Ind(n) << "CIMQualifierDecl" << endl;

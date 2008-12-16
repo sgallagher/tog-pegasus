@@ -49,14 +49,14 @@ class CQLFunctionRep
 public:
 
     CQLFunctionRep();
-    
+
     CQLFunctionRep(const CQLFunctionRep* rep);
-    
+
     CQLFunctionRep(CQLIdentifier inOpType, Array<CQLPredicate> inParms);
-    
+
     ~CQLFunctionRep();
-    
-    /** 
+
+    /**
      The getValue method validates the parms versus FunctionOpType.
      (A) resolves prarameter  types
      (B) number of parms
@@ -64,19 +64,19 @@ public:
      Returns a CQLValue object that has already been resolved.
      */
     CQLValue resolveValue(const CIMInstance& CI, const QueryContext& queryCtx);
-    
+
     Array<CQLPredicate> getParms() const;
-    
+
     FunctionOpType getFunctionType() const;
-    
+
     String toString()const;
-    
+
     void applyContext(const QueryContext& inContext);
-    
+
     // Boolean operator==(const CQLFunctionRep& func)const;
-    
+
     // Boolean operator!=(const CQLFunctionRep& func)const;
-    
+
     friend class CQLFactory;
 
  private:
@@ -119,23 +119,23 @@ public:
            const QueryContext& queryCtx) const;
     CQLValue microsecondToInterval(const CIMInstance& CI,
            const QueryContext& queryCtx) const;
-    
+
     // Used by the path functions
     CQLValue buildModelPath(const CIMObjectPath& objPath) const;
     CQLValue buildClassPath(const CIMObjectPath& objPath,
            const CIMNamespaceName& ns) const;
     CQLValue buildObjectPath(const CIMObjectPath& objPath,
            const CIMNamespaceName& ns) const;
-    
+
     // Utility methods to convert enums into strings
     String functionTypeToString() const;
-      
+
     // Member data
     FunctionOpType _funcOpType;
     Array<CQLPredicate> _parms;
-    
+
 };
 
 PEGASUS_NAMESPACE_END
 
-#endif 
+#endif

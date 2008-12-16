@@ -109,7 +109,7 @@ public:
                 "\'Destination\' property is not found.");
 
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                       MessageLoader::getMessage(param));
         }
 
@@ -128,12 +128,12 @@ public:
                 "Malformed CIM-XML handler instance, "
                     "\'Destination\' property type mismatch.");
 
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1, 
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                 "Malformed CIM-XML handler instance, "
                 "\'Destination\' property type mismatch.");
 
             PEG_METHOD_EXIT();
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                       MessageLoader::getMessage(param));
         }
 
@@ -301,7 +301,7 @@ public:
                     "https not supported "
                     "in Destination %s",
                     (const char*) dest.getCString()));
-                
+
                 MessageLoaderParms param(
                     "Handler.CIMxmlIndicationHandler.CIMxmlIndicationHandler."
                         "CANNOT_DO_HTTPS_CONNECTION",

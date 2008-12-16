@@ -31,9 +31,9 @@
 /* Description: this provider manages the SLP advertisements for Pegasus.
    It gets information from other sources within the Pegasus environment
    (primarily the Interop Classes such as CIM_ObjectManager,
-   CIM_ObjectManagerCommunicationMechanism, CIM_Namespaces, etc. and generates 
+   CIM_ObjectManagerCommunicationMechanism, CIM_Namespaces, etc. and generates
    the corresponding registrations.
-   It also maintains a single Class, PG_WBEMSlpTemplate that defines what is 
+   It also maintains a single Class, PG_WBEMSlpTemplate that defines what is
    in the template.
    NOTE: This provider should NEVER be getting information itself but simply
    using other classes in the environment to generate information.
@@ -43,21 +43,21 @@
    getInstance
 
    This module provides an SLP service agent that is activited once the first
-   registration is created.  This service agent provides either the normal 
+   registration is created.  This service agent provides either the normal
    SA functions or provides the registration to a DA if required.
    That set of functions in in the Pegasus service agent code.
 
-   To initiate the SA within Pegasus, the system must make a first 
-   PEG_WBEMSLPTemplate enumerateInstances call to this provider or execute 
+   To initiate the SA within Pegasus, the system must make a first
+   PEG_WBEMSLPTemplate enumerateInstances call to this provider or execute
    the register method.
-   That initiates the build of the registration information and 
+   That initiates the build of the registration information and
    the startup of the SA.
 
-   Note that this providers sets itself so that it cannot be removed 
+   Note that this providers sets itself so that it cannot be removed
    once started.
 */
 
-/* 
+/*
     1. Currently SLP readvertisement happens in the following condtions.
         (a) When PG_ProviderProfileCapabilities instance is created or deleted.
         (b) When PG_Provider and PG_ProviderCapabilities instances are
@@ -71,15 +71,15 @@
     3. Consider seriously the concept of instance creation where the instance
     is provided and that instance is registered as a profile.
     Not sure today what the level of validation, etc. would be required.
-    4. We would like separate this function completely from the CIMOM so that 
+    4. We would like separate this function completely from the CIMOM so that
     the registration it could operate as first a separate process and second as
     a separte executable.
     5. Look at getting certain parameters as the default from the class.
     This way we could use the class definition for defaults.
-    6. Determine if we really want to get enumerated  attribute strings from 
-    the class or from a string tied to the template.  If we get them from 
+    6. Determine if we really want to get enumerated  attribute strings from
+    the class or from a string tied to the template.  If we get them from
     the class we are committed to whatever is in the class.
-    However, in reality, the class and the template could be different 
+    However, in reality, the class and the template could be different
     in some cases.  For the moment we are getting them from the class
     and the template and class enumerations do match.
 */
@@ -187,7 +187,7 @@ const char communicationMechanismAttribute[] = "CommunicationMechanism";
 
 const char otherCommunicationMechanismAttribute[]="otherCommunicationMechanism";
 
-const char otherCommunicationMechanismDescriptionAttribute[] = 
+const char otherCommunicationMechanismDescriptionAttribute[] =
                "OtherCommunicationMechanismDescription";
 
 const char InteropSchemaNamespaceAttribute[] = "InteropSchemaNamespace";
@@ -203,16 +203,16 @@ const char functionalProfileDescriptionsAttribute[] =
 const char otherProfileDescriptionAttribute[] =
                "OtherProfileDescription";
 
-const char multipleOperationsSupportedAttribute[] = 
+const char multipleOperationsSupportedAttribute[] =
                "MultipleOperationsSupported";
 
-const char authenticationMechanismsSupportedAttribute[] = 
+const char authenticationMechanismsSupportedAttribute[] =
                "AuthenticationMechanismsSupported";
 
-const char otherAuthenticationDescriptionsAttribute[] = 
+const char otherAuthenticationDescriptionsAttribute[] =
                "OtherAuthenticationDescription";
 
-const char authenticationMechanismDescriptionsAttribute[] = 
+const char authenticationMechanismDescriptionsAttribute[] =
                "AuthenticationMechanismDescriptions";
 
 const char namespaceAttribute[] = "Namespace";
@@ -283,7 +283,7 @@ String _showStringArray(const Array<String>& s)
     value map information is not correct.
 */
 String _getValueQualifier(
-    const CIMConstProperty& instanceProperty, 
+    const CIMConstProperty& instanceProperty,
     const CIMClass& thisClass)
 {
     CIMName propertyName = instanceProperty.getName();
@@ -297,7 +297,7 @@ String _getValueQualifier(
         classProperty = thisClass.getProperty(pos);
     }
     else
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "SLPProvider Property find error. Class " +
             thisClass.getClassName().getString() + " Property "
             + propertyName.getString());
@@ -353,9 +353,9 @@ String _getValueQualifier(
     if (errorMessage != String::EMPTY)
     {
         throw PEGASUS_CIM_EXCEPTION(
-            CIM_ERR_FAILED, 
+            CIM_ERR_FAILED,
             " Qualifier Value mapping error. "
-                + errorMessage + " " 
+                + errorMessage + " "
                 + propertyName.getString());
     }
     // Need to find the values of the property in the ValueMap. If the
@@ -411,7 +411,7 @@ String _getValueQualifier(
     }
 
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-        " Qualifier Value mapping error. Invalid property value " 
+        " Qualifier Value mapping error. Invalid property value "
         + propertyName.getString());
 }
 
@@ -465,7 +465,7 @@ void _appendCSV(String& s, const String& s1)
     @return String value found or defaultValue.
 */
 String _getPropertyValueString(
-    const CIMInstance& instance, 
+    const CIMInstance& instance,
     const CIMName& propertyName,
     const String& defaultValue = String::EMPTY)
 {
@@ -495,7 +495,7 @@ String _getPropertyValueString(
 
 
 Uint16 _getPropertyValueUint16(
-    const CIMInstance& instance, 
+    const CIMInstance& instance,
     const CIMName& propertyName,
     const Uint16& defaultValue = 0)
 {
@@ -524,7 +524,7 @@ Uint16 _getPropertyValueUint16(
 }
 
 /**
-    Set the value of a property defined by property name in 
+    Set the value of a property defined by property name in
     the instance provided.
     Sets a String into the value field unless the property name cannot be found.
     If the property cannot be found, it simply returns.
@@ -534,8 +534,8 @@ Uint16 _getPropertyValueUint16(
     @param value String value to set into property
 */
 void _setPropertyValue(
-    CIMInstance& instance, 
-    const CIMName& propertyName, 
+    CIMInstance& instance,
+    const CIMName& propertyName,
     const String& value)
 {
     Uint32 pos;
@@ -620,7 +620,7 @@ String SLPProvider::getRegisteredProfileList()
     String regitem;
     String reglist;
 
-    typedef HashTable<String, String, 
+    typedef HashTable<String, String,
         EqualFunc<String>, HashFunc<String> > RegProfileIdTable;
     RegProfileIdTable regProfileIdTable;
 
@@ -651,9 +651,9 @@ String SLPProvider::getRegisteredProfileList()
         // include the qualifiers, required for ValueMap mapping
         RO_Class = _cimomHandle.getClass(
             OperationContext(),
-            PEGASUS_NAMESPACENAME_INTEROP,  
-            CLASSNAME, 
-            localOnly,  
+            PEGASUS_NAMESPACENAME_INTEROP,
+            CLASSNAME,
+            localOnly,
             includeQualifiers,
             includeClassOrigin,
             CIMPropertyList());
@@ -666,7 +666,7 @@ String SLPProvider::getRegisteredProfileList()
         Logger::put(Logger::ERROR_LOG, SlpProvider, Logger::SEVERE,
             "getRegisteredProfiles: get class error");
 
-        return(defaultRegisteredProfilesList); 
+        return(defaultRegisteredProfilesList);
     }
 
 
@@ -677,10 +677,10 @@ String SLPProvider::getRegisteredProfileList()
         //
         cimInstances = _cimomHandle.enumerateInstances(
             OperationContext(),
-            PEGASUS_NAMESPACENAME_INTEROP,  
-            CLASSNAME, 
+            PEGASUS_NAMESPACENAME_INTEROP,
+            CLASSNAME,
             deepInheritance,
-            localOnly,  
+            localOnly,
             !includeQualifiers,
             includeClassOrigin,
             CIMPropertyList());
@@ -693,10 +693,10 @@ String SLPProvider::getRegisteredProfileList()
         Logger::put(Logger::ERROR_LOG, SlpProvider, Logger::SEVERE,
             "getRegisteredProfiles: get class error");
 
-        return(defaultRegisteredProfilesList); 
+        return(defaultRegisteredProfilesList);
     }
 
-    CDEBUG ("SLPProvider::getRegisteredProfiles: Total Number of Instances: " 
+    CDEBUG ("SLPProvider::getRegisteredProfiles: Total Number of Instances: "
             << cimInstances.size());
 
 try
@@ -710,7 +710,7 @@ try
 //        if (cimInstances[i].getClassName() != "CIM_RegisteredProfile")
 //            continue;
         Uint32 index_RO=cimInstances[i].findProperty(propRegOrg);
-        Uint32 index_RN=cimInstances[i].findProperty(propRegName);    
+        Uint32 index_RN=cimInstances[i].findProperty(propRegName);
         if (index_RO == PEG_NOT_FOUND || index_RN == PEG_NOT_FOUND)
         {
             continue;
@@ -721,7 +721,7 @@ try
         if (RegOrg == String::EMPTY)
         {
             RegOrg = "Unknown";
-        } else 
+        } else
         {
             if (String::equalNoCase(RegOrg,"Other"))
             {
@@ -732,12 +732,12 @@ try
                 {
                     String OthRegOrg;
                     // lets get the property
-                    CIMConstProperty ORO_Property = 
+                    CIMConstProperty ORO_Property =
                         cimInstances[i].getProperty(index_ORO);
                     // see if there is a String value on it and if so,
                     // use that as organisation
                     CIMValue ORO_value = ORO_Property.getValue ();
-                    if ((ORO_value.getType () == CIMTYPE_STRING) && 
+                    if ((ORO_value.getType () == CIMTYPE_STRING) &&
                         (!ORO_value.isNull ()))
                     {
                         ORO_value.get(OthRegOrg);
@@ -745,10 +745,10 @@ try
                         {
                             RegOrg.assign(OthRegOrg);
                         }
-                    }                    
+                    }
                 }
             }
-        }           
+        }
         CIMConstProperty RN_Property = cimInstances[i].getProperty(index_RN);
         String RegName;
         CIMValue RN_value = RN_Property.getValue ();
@@ -819,7 +819,7 @@ try
         j++;
     }
     if (j > 0)
-    {        
+    {
         const String strComma(",");
         for (RegProfileIdTable::Iterator i = regProfileIdTable.start(); i;)
         {
@@ -861,7 +861,7 @@ String SLPProvider::getNameSpaceInfo(
     Array<CIMInstance> CIMNamespaceInstances;
     try
     {
-        // ATTN: KS In the future get only the fields we want based on property 
+        // ATTN: KS In the future get only the fields we want based on property
         //       list.
         CIMNamespaceInstances = _cimomHandle.enumerateInstances(
             OperationContext(),
@@ -902,7 +902,7 @@ String SLPProvider::getNameSpaceInfo(
             // provided
             if (classInfoFound)
             {
-                // Append the Classinfo property value into the string for the 
+                // Append the Classinfo property value into the string for the
                 // attribute.
                 char buffer[32];
                 sprintf(
@@ -910,7 +910,7 @@ String SLPProvider::getNameSpaceInfo(
                     "%hu",
                     _getPropertyValueUint16(
                         CIMNamespaceInstances[i],
-                        CIMName(classinfoAttribute))); 
+                        CIMName(classinfoAttribute)));
                 _appendCSV(classInfo, buffer);
             }
         }
@@ -939,12 +939,12 @@ String SLPProvider::getNameSpaceInfo(
     fact that the - used in slp templates is illegal in CIMNames.
     This uses the SLPProvider objects for the reference to the current instance
     and the SLP template string being built.
-    @param slpTemplateInstance string for registration information. 
+    @param slpTemplateInstance string for registration information.
     Each call adds the defined attribute to this string.
-    @param instance CIMInstance being created. This is an instance of 
-    WBEMSlpTemplate. Each call adds the defined property value to the instance 
+    @param instance CIMInstance being created. This is an instance of
+    WBEMSlpTemplate. Each call adds the defined property value to the instance
     in the property defined by instanceFieldName
-    @param regfieldName String defining the name of the field to populate 
+    @param regfieldName String defining the name of the field to populate
     in the registration
     @param value String defining the value with which to populate the field
     @param insstanceFieldName (Optional) String defining the name of the field
@@ -1022,8 +1022,8 @@ void SLPProvider::populateTemplateField(
     _addSeparator(_currentSLPTemplateString);
 
     // Add entry as (name=value)
-    _currentSLPTemplateString.append("(" + 
-                                         attributeFieldName + "=" + 
+    _currentSLPTemplateString.append("(" +
+                                         attributeFieldName + "=" +
                                              accumulatedValue + ")");
 }
 
@@ -1067,7 +1067,7 @@ Boolean SLPProvider::populateRegistrationData(
 
     String serviceUrlSyntaxValue = protocol + "://" + IPAddress;
 
-    // Fillout the serviceIDAttribute from the 
+    // Fillout the serviceIDAttribute from the
     // object manager instance name property.
     // This is a key field so must have a value.
 
@@ -1207,7 +1207,7 @@ Boolean SLPProvider::populateRegistrationData(
                                  CIMName(otherProfileDescriptionAttribute));
                 CIMConstProperty temppr = instance_ObjMgrComm.getProperty(pos);
                 String tmp = _getPropertyValueString(
-                                  instance_ObjMgrComm, 
+                                  instance_ObjMgrComm,
                                  CIMName(otherProfileDescriptionAttribute),
                                   String::EMPTY);
                 populateTemplateField(
@@ -1248,7 +1248,7 @@ Boolean SLPProvider::populateRegistrationData(
 
     // fill in the classname information (namespace and classinfo).
     String classInfoList;
-    String nameSpaceList = getNameSpaceInfo( 
+    String nameSpaceList = getNameSpaceInfo(
                                PEGASUS_NAMESPACENAME_INTEROP,
                                classInfoList);
 
@@ -1268,7 +1268,7 @@ Boolean SLPProvider::populateRegistrationData(
     // set the current time into the instance
     templateInstance.addProperty(
         CIMProperty(
-            CIMName("registeredTime"), 
+            CIMName("registeredTime"),
             CIMDateTime::getCurrentDateTime()));
 
     // populate the RegisteredProfiles Supported attribute.
@@ -1294,7 +1294,7 @@ Boolean SLPProvider::populateRegistrationData(
 
     CDEBUG("Service URL: " << ServiceID);
 
-    // Fill out the CIMObjectpath for the slp instance. 
+    // Fill out the CIMObjectpath for the slp instance.
     // The key for this class is the instanceID.
     // Simply use the count of instances as the ID for the moment.
 
@@ -1359,7 +1359,7 @@ Boolean SLPProvider::populateRegistrationData(
             "SLP Registration Failed: srv_registration.");
         return(false);
     }
-    
+
     // register for service-agent on each ip interface with SA
 #ifndef PEGASUS_SLP_REG_TIMEOUT
     HostLocator locator(IPAddress);
@@ -1416,7 +1416,7 @@ Uint32  SLPProvider::populateSLPRegistrations()
     }
     catch (const Exception & e)
     {
-        CDEBUG("Exception caught on enumerateInstances(CIM_ObjectManager):=" 
+        CDEBUG("Exception caught on enumerateInstances(CIM_ObjectManager):="
                << e.getMessage());
     }
 
@@ -1469,8 +1469,8 @@ Boolean SLPProvider::issueSLPRegistrations()
 
     // populate all SLP registrations.
     Uint32 itemsRegistered = populateSLPRegistrations();
-    // Start the Service Agent.  Note that the actual registrations are part of 
-    // the populatetemplate function so that the various templates 
+    // Start the Service Agent.  Note that the actual registrations are part of
+    // the populatetemplate function so that the various templates
     // are already created.
     if (itemsRegistered != 0)
     {
@@ -1501,8 +1501,8 @@ Boolean SLPProvider::issueSLPRegistrations()
     }
 
     // ATTN: Log failure to register because no communication mechanisms found.
-    // This error reflects NO communications mechanism objects found.  
-    // We assume that we MUST always have at least 
+    // This error reflects NO communications mechanism objects found.
+    // We assume that we MUST always have at least
     // one communication mechanism object for a registration and for a CIMOM.
     // Anything else should be considered an error.  Reflect this in the log.
     PEG_METHOD_EXIT();
@@ -1533,7 +1533,7 @@ void SLPProvider::initialize(CIMOMHandle & handle)
 
 SLPProvider* SLPProvider::_this;
 
-SLPProvider::SLPProvider()    
+SLPProvider::SLPProvider()
 {
     _this = this;
     slp_agent.set_registration_callback((&updateProfileRegistration));
@@ -1544,7 +1544,7 @@ void SLPProvider::updateProfileRegistration()
     _this->populateSLPRegistrations();
 }
 
-SLPProvider::~SLPProvider()    
+SLPProvider::~SLPProvider()
 {
 }
 
@@ -1722,7 +1722,7 @@ void SLPProvider::invokeMethod(
                 if (issueSLPRegistrations())
                 {
                 // PEP 267 ifdef is added to allow reregistrations.
-                // issueRegistration sets initFlag to true.   
+                // issueRegistration sets initFlag to true.
 #if defined( PEGASUS_USE_EXTERNAL_SLP ) && defined ( PEGASUS_SLP_REG_TIMEOUT )
                    initFlag = false;
 #endif
@@ -1731,7 +1731,7 @@ void SLPProvider::invokeMethod(
                 else
                 {
                     response = 2;
-                } 
+                }
              }
             else
              {
@@ -1776,4 +1776,4 @@ void SLPProvider::terminate()
 }
 
 PEGASUS_NAMESPACE_END
-    
+

@@ -195,12 +195,12 @@ int testClass(CIMClient &c, const String& className)
   // ATTN-MG-20020501: Can add some property value checks here
 
   // ------------------ do getInstance() with bad key ----------------------
-  
+
   Array<CIMKeyBinding> kb = ref.getKeyBindings();
   // mess up first key name
   kb[0].setName("foobar");
   ref.setKeyBindings(kb);
-  
+
   int status = 0;
 
   cout << "+++++ getInstance with bad key" << endl;
@@ -276,7 +276,7 @@ int testClass(CIMClient &c, const String& className)
   // =======================================================================
 
   cout << "+++++ enumerateInstances(" << className << ")" << endl;
-  
+
   Array<CIMInstance> ia;
   try
   {
@@ -336,7 +336,7 @@ int testClass(CIMClient &c, const String& className)
 int main()
 {
   cout << "+++++ Testing ComputerSystem Provider" << endl;
-  
+
   //
   // This MUST be inside of main for OpenVMS because the OS has a problem
   //  with initializing global variables 'in a timely manner' during

@@ -236,7 +236,7 @@ static void _testValues(void)
     s8_arr.append(-11);
     s8_arr.append(-22);
     testArrayType(s8_arr);
-    
+
     Array<Sint16> s16_arr;
     s16_arr.append(-111);
     s16_arr.append(-222);
@@ -863,7 +863,7 @@ static void _testEPRs(void)
     epr.selectorSet->selectors.
         append(WsmSelector("__cimnamespace", NAMESPACE));
     mapper.convertEPRToObjectPath(epr, objectPath);
-    PEGASUS_TEST_ASSERT(objectPath.toString() == 
+    PEGASUS_TEST_ASSERT(objectPath.toString() ==
         "//www.acme.com/aa/bb:MyClass.prop1=\"value1\"");
 
     // Test mapping of EPR values
@@ -872,7 +872,7 @@ static void _testEPRs(void)
     mapper.convertWsmToCimValue(wsmEprValue, NAMESPACE, cimObjpathValue);
     CIMObjectPath objectPath1;
     cimObjpathValue.get(objectPath1);
-    PEGASUS_TEST_ASSERT(objectPath1.toString() == 
+    PEGASUS_TEST_ASSERT(objectPath1.toString() ==
         "//www.acme.com/aa/bb:MyClass.prop1=\"value1\"");
 
     // Test mapping of EPR array values
@@ -892,9 +892,9 @@ static void _testEPRs(void)
         wsmEprArrayValue, NAMESPACE, cimObjpathArrayValue);
     Array<CIMObjectPath> objectPathArray;
     cimObjpathArrayValue.get(objectPathArray);
-    PEGASUS_TEST_ASSERT(objectPathArray[0].toString() == 
+    PEGASUS_TEST_ASSERT(objectPathArray[0].toString() ==
         "//www.acme.com/aa/bb:MyClass.prop1=\"value1\"");
-    PEGASUS_TEST_ASSERT(objectPathArray[1].toString() == 
+    PEGASUS_TEST_ASSERT(objectPathArray[1].toString() ==
         "//www.acme1.com/aa/bb:MyClass.prop1=\"value2\"");
 
     // Test invalid __cimnamespace selector type
@@ -961,11 +961,11 @@ static void _testEPRs(void)
     ASSERT_FAULT(
         mapper.convertEPRAddressToHostname("garbage"),
         "wsa:InvalidMessageInformationHeader");
-    
+
     ASSERT_FAULT(
         mapper.convertEPRAddressToHostname("http://blah"),
         "wsa:InvalidMessageInformationHeader");
-    
+
     ASSERT_FAULT(
         mapper.convertEPRAddressToHostname("http://bsa#@^&sa/wsman"),
         "wsa:InvalidMessageInformationHeader");

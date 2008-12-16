@@ -60,7 +60,7 @@ public:
         solicit SocketMessages on the server port (socket).
         @param outputMessageQueue output message queue for connections
         created by this acceptor.
-        @param connectionType indicating the type of connection for 
+        @param connectionType indicating the type of connection for
         this acceptor. connectionType can be any one of  LOCAL_CONNECTION,
         IPV4_CONNECTION and IPV6_CONNECTION. If connectionType is
         LOCAL_CONNECTION portNumber is ignored.

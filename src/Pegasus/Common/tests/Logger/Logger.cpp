@@ -48,7 +48,7 @@ PEGASUS_USING_STD;
 CString FILE1;
 
 //
-// Reads the last trace message from a given trace file and compares the 
+// Reads the last trace message from a given trace file and compares the
 // given string with the string read from file
 // theft from Tracer.cpp test case
 //
@@ -108,7 +108,7 @@ Uint32 compare(const char* fileName, const char* expectedMessage)
 
 
 void testLogToTraceDuplication()
-{   
+{
 #ifndef PEGASUS_REMOVE_TRACE
     // Setting log level to trace to check that there is no recursion
     // between Logger and Tracer happening
@@ -126,7 +126,7 @@ void testLogToTraceDuplication()
     Uint32 fileSize=0;
     System::getFileSize(FILE1,fileSize);
     PEGASUS_TEST_ASSERT(0 == fileSize);
-    
+
     // activate logmessage component in tracer
     Tracer::setTraceComponents("logmessages");
 
@@ -181,7 +181,7 @@ void testLogToTraceDuplication()
         !compare(
             FILE1,
             "Now, this fatal error line should appear in the trace."));
-    
+
     // test with log message component set for trace
     // use different arguments with the Logger
     // Positive test
@@ -189,8 +189,8 @@ void testLogToTraceDuplication()
     Logger::STANDARD_LOG,
     "LoggerTest",
     Logger::WARNING,
-    "X=$0, Y=$1", 
-    8138, 
+    "X=$0, Y=$1",
+    8138,
     "Hello World");
     PEGASUS_TEST_ASSERT(!compare(FILE1,"X=8138, Y=Hello World"));
 #endif
@@ -211,9 +211,9 @@ int main(int argc, char** argv)
     Logger::STANDARD_LOG,
     "LoggerTest",
     Logger::WARNING,
-    "X=$0, Y=$1, Z=$2", 
-    88, 
-    "Hello World", 
+    "X=$0, Y=$1, Z=$2",
+    88,
+    "Hello World",
     7.5);
 
     // Preparation for Log to trace duplication testing
@@ -225,7 +225,7 @@ int main(int argc, char** argv)
     String f1 (tmpDir);
     f1.append("/log.trace");
     FILE1 = f1.getCString();
-    
+
     // To ensure we start clean, just trying to remove the file
     // in case it already exists
     System::removeFile(FILE1);

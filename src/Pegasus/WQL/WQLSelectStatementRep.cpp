@@ -46,21 +46,21 @@ inline static Boolean _Compare(const T& x, const T& y, WQLOperation op)
     {
         case WQL_EQ:
             return x == y;
-    
+
         case WQL_NE:
             return x != y;
-    
+
         case WQL_LT:
             return x < y;
         case WQL_LE:
             return x <= y;
-    
+
         case WQL_GT:
             return x > y;
-    
+
         case WQL_GE:
             return x >= y;
-    
+
         default:
             PEGASUS_ASSERT(0);
     }
@@ -85,7 +85,7 @@ static Boolean _Evaluate(
             // For example: "count IS NULL" is treated as a unary
             // operation in which IS_NULL is the unary operation
             // and count is the the unary operand.
-    
+
             PEGASUS_ASSERT(0);
             break;
 #endif
@@ -98,7 +98,7 @@ static Boolean _Evaluate(
             rhs.getIntegerValue(),
             op);
         }
-    
+
         case WQLOperand::DOUBLE_VALUE:
         {
             return _Compare(
@@ -106,7 +106,7 @@ static Boolean _Evaluate(
             rhs.getDoubleValue(),
             op);
         }
-    
+
         case WQLOperand::BOOLEAN_VALUE:
         {
             return _Compare(
@@ -114,7 +114,7 @@ static Boolean _Evaluate(
             rhs.getBooleanValue(),
             op);
         }
-    
+
         case WQLOperand::STRING_VALUE:
         {
             return _Compare(
@@ -122,7 +122,7 @@ static Boolean _Evaluate(
             rhs.getStringValue(),
             op);
         }
-    
+
         default:
             PEGASUS_ASSERT(0);
     }
@@ -344,7 +344,7 @@ static inline void _ResolveProperty(
     if (op.getType() == WQLOperand::PROPERTY_NAME)
     {
         const CIMName& propertyName = op.getPropertyName();
-    
+
         if (!source->getValue(propertyName, op))
             op = WQLOperand();
     }
@@ -378,12 +378,12 @@ Boolean WQLSelectStatementRep::evaluateWhereClause(
         case WQL_OR:
         {
             PEGASUS_ASSERT(stack.size() >= 2);
-    
+
             Boolean operand1 = stack.top();
             stack.pop();
-    
+
             Boolean operand2 = stack.top();
-    
+
             stack.top() = operand1 || operand2;
             break;
         }
@@ -391,12 +391,12 @@ Boolean WQLSelectStatementRep::evaluateWhereClause(
         case WQL_AND:
         {
             PEGASUS_ASSERT(stack.size() >= 2);
-    
+
             Boolean operand1 = stack.top();
             stack.pop();
-    
+
             Boolean operand2 = stack.top();
-    
+
             stack.top() = operand1 && operand2;
             break;
         }
@@ -404,7 +404,7 @@ Boolean WQLSelectStatementRep::evaluateWhereClause(
         case WQL_NOT:
         {
             PEGASUS_ASSERT(stack.size() >= 1);
-    
+
             Boolean operand = stack.top();
             stack.top() = !operand;
             break;
@@ -419,38 +419,38 @@ Boolean WQLSelectStatementRep::evaluateWhereClause(
         {
             Array<WQLOperand> whereOperands(_operands);
             PEGASUS_ASSERT(whereOperands.size() >= 2);
-    
+
             //
             // Resolve the left-hand-side to a value (if not already
             // a value).
             //
-    
+
             WQLOperand& lhs = whereOperands[j++];
             _ResolveProperty(lhs, source);
-    
+
             //
             // Resolve the right-hand-side to a value (if not already
             // a value).
             //
-    
+
             WQLOperand& rhs = whereOperands[j++];
             _ResolveProperty(rhs, source);
-    
+
             //
             // Check for a type mismatch:
             //
-    
+
             // PEGASUS_OUT(lhs.toString());
             // PEGASUS_OUT(rhs.toString());
-    
+
             if (rhs.getType() != lhs.getType())
                 throw TypeMismatchException();
-    
+
             //
             // Now that the types are known to be alike, apply the
             // operation:
             //
-    
+
             stack.push(_Evaluate(lhs, rhs, operation));
             break;
         }

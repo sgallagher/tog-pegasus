@@ -33,13 +33,13 @@
     \file CreateExtNs.c
     \brief Creates an extended namespaces
 
-    This program enables the creation of namespaces exploiting Shared Schema 
+    This program enables the creation of namespaces exploiting Shared Schema
     facilities and namespaces designated to be used as remote namespaces using
     Remote CMPI facilities.
 
     Usage:
 
-         CreateExtNs -n <namespace-name> 
+         CreateExtNs -n <namespace-name>
              [ -p <parent-namespace> -l <remote-location> ]
 
     Where
@@ -47,12 +47,12 @@
                 Examples: -n root/test
                           -n root/local
 
-         -p Optionally define the new namespace to share schema data with an 
+         -p Optionally define the new namespace to share schema data with an
             exciting parent namespace.
                 Example: -p root/cimv2
 
-         -l Optionally defines this namespace to be represeting a remote 
-            locaton with hostname <remote-location>. CMPIRDeamon must be 
+         -l Optionally defines this namespace to be represeting a remote
+            locaton with hostname <remote-location>. CMPIRDeamon must be
             running at this location.
                 Example: -l localhost
                          -l hpc4711

@@ -34,9 +34,9 @@
 // The nisinfo CIM client does an enumerateInstances of the
 // PG_NISServerService class and displays properties of interest.
 
-// At this time, there is only one instance of PG_NISServerService. 
+// At this time, there is only one instance of PG_NISServerService.
 
-#include "NISInfo.h" 
+#include "NISInfo.h"
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -52,7 +52,7 @@ NISInfo::NISInfo()
 
 NISInfo::~NISInfo()
 {
-}         
+}
 
 /** ErrorExit - Print out the error message and get out.
     @param      Text for error message
@@ -78,8 +78,8 @@ void NISInfo::_usage()
 void NISInfo::displayProperties()
 {
    // interesting properties are stored off in class variables
-   String strTit;    
-   Array<String> cTit;    
+   String strTit;
+   Array<String> cTit;
 
    cout << "Network Information Service (NIS) Information" << endl;
    cout << endl;
@@ -99,24 +99,24 @@ void NISInfo::displayProperties()
    cTit.append("None");
    cTit.append("NIS Master");
    cTit.append("NIS Slave");
-   cout << " ServerType             : " 
-        << CIMValue(nisServerType).toString().getCString() 
-        << " (" << cTit[nisServerType].getCString() << ")" << endl;   
+   cout << " ServerType             : "
+        << CIMValue(nisServerType).toString().getCString()
+        << " (" << cTit[nisServerType].getCString() << ")" << endl;
 
    cTit.clear();
    cTit.append("Unknown");
    cTit.append("Other");
    cTit.append("Wait");
    cTit.append("No Wait");
-   cout << " ServerWaitFlag         : " 
-        << CIMValue(nisServerWaitFlag).toString().getCString() 
-        << " (" << cTit[nisServerWaitFlag].getCString()  << ")" << endl;   
+   cout << " ServerWaitFlag         : "
+        << CIMValue(nisServerWaitFlag).toString().getCString()
+        << " (" << cTit[nisServerWaitFlag].getCString()  << ")" << endl;
 }
 
 /**
    gatherProperties method of the nisinfo Test Client
 */
-void NISInfo::gatherProperties(CIMInstance &inst) 
+void NISInfo::gatherProperties(CIMInstance &inst)
 {
 #ifdef DEBUG
    cout << "NISInfo::gatherProperties()" << endl;
@@ -172,8 +172,8 @@ void NISInfo::gatherProperties(CIMInstance &inst)
    }  // end of for looping through properties
 }
 
-/* 
-   getNISInfo of the NIS provider. 
+/*
+   getNISInfo of the NIS provider.
 */
 void NISInfo::getNISInfo(const int argc, const char** argv)
 {
@@ -198,9 +198,9 @@ void NISInfo::getNISInfo(const int argc, const char** argv)
         // in milliseconds, thus setting to one minute
         CIMClient client;
         client.setTimeout(120 * 1000);
-        
+
     client.connectLocal();
-        
+
         Boolean deepInheritance = true;
         Boolean localOnly = true;
         Boolean includeQualifiers = false;
@@ -212,17 +212,17 @@ void NISInfo::getNISInfo(const int argc, const char** argv)
              << endl;
 #endif
 
-        Array<CIMInstance> cimNInstances = 
-           client.enumerateInstances(NAMESPACE, CLASSNAME, 
+        Array<CIMInstance> cimNInstances =
+           client.enumerateInstances(NAMESPACE, CLASSNAME,
                                      deepInheritance,
-                                     localOnly,  
+                                     localOnly,
                                      includeQualifiers,
                                      includeClassOrigin );
 
 #ifdef DEBUG
         cout << "NISInfo::getNISInfo() - enumerateInstances done" << endl;
 #endif
-      
+
         numberInstances = cimNInstances.size();
 
         for (Uint32 i = 0; i < cimNInstances.size(); i++)
@@ -235,7 +235,7 @@ void NISInfo::getNISInfo(const int argc, const char** argv)
 
            // first gather the interesting properties
            gatherProperties(cimNInstances[i]);
-         
+
            // then display them
            displayProperties();
 

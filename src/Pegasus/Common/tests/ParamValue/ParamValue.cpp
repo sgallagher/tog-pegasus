@@ -98,7 +98,7 @@ void test01()
     aa.append(CIMParamValue("message3", CIMValue(200000)));
 
     aa.append(CIMParamValue("message4", CIMValue(String("test4"))));
-    
+
     //
     // clone
     //

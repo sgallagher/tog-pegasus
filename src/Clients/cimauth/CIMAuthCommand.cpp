@@ -80,7 +80,7 @@ static const CIMName PROPERTY_NAME_USERNAME        = CIMName ("Username");
 static const CIMName PROPERTY_NAME_NAMESPACE       = CIMName ("Namespace");
 
 /**
-    This constant represents the name of the authorizations property in 
+    This constant represents the name of the authorizations property in
     the schema
 */
 static const CIMName PROPERTY_NAME_AUTHORIZATION   = CIMName ("Authorization");

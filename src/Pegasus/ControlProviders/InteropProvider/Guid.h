@@ -43,7 +43,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_INTEROPPROVIDER_LINKAGE Guid
 {
-  public:    
+  public:
     static String getGuid();
     static String getGuid(const String &prefix);
 };

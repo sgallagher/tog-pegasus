@@ -31,7 +31,7 @@
 //
 // Modified By: Mike Day (mdday@us.ibm.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              Jair F. T. dos Santos, Hewlett-Packard Company 
+//              Jair F. T. dos Santos, Hewlett-Packard Company
 //                  (jair.santos@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_SERVER_LINKAGE WMIMapperUserInfoContainer : 
+class PEGASUS_SERVER_LINKAGE WMIMapperUserInfoContainer :
     virtual public OperationContext::Container
 {
 public:
@@ -54,7 +54,7 @@ public:
 
     WMIMapperUserInfoContainer(const OperationContext::Container & container);
     WMIMapperUserInfoContainer(const String & password);
-    
+
     virtual String getName(void) const;
     virtual OperationContext::Container * clone(void) const;
     virtual void destroy(void);

@@ -61,7 +61,7 @@ static void _free_addresses ( provider_address * addr )
 }
 
 static provider_address * outofprocess_resolver (
-    CONST CMPIBroker * broker, 
+    CONST CMPIBroker * broker,
     const char * provider)
 {
     provider_address * addr;
@@ -79,9 +79,9 @@ static provider_address * outofprocess_resolver (
     return addr;
 }
 
-static provider_address * namespace_resolver ( 
+static provider_address * namespace_resolver (
     CONST CMPIBroker * broker,
-    const char * provider, 
+    const char * provider,
     const char *hostname)
 {
     provider_address * addr;
@@ -107,11 +107,11 @@ static provider_address * namespace_resolver (
     return addr;
 }
 
-provider_address * resolve_instance ( 
+provider_address * resolve_instance (
     CONST CMPIBroker * broker,
-    CONST CMPIContext * ctx, 
-    CONST CMPIObjectPath * cop, 
-    const char * provider, 
+    CONST CMPIContext * ctx,
+    CONST CMPIObjectPath * cop,
+    const char * provider,
     CMPIStatus * rc)
 {
     CMPIStatus irc;
@@ -135,18 +135,18 @@ provider_address * resolve_instance (
     }
 
     TRACE_NORMAL(("Resolve requested for provider: %s", provider ));
-    if (rc) 
+    if (rc)
     {
         *rc = irc;
     }
     return a;
 }
 
-provider_address * resolve_class ( 
+provider_address * resolve_class (
     CONST CMPIBroker * broker,
-    CONST CMPIContext * ctx, 
-    CONST CMPIObjectPath * cop, 
-    const char * provider, 
+    CONST CMPIContext * ctx,
+    CONST CMPIObjectPath * cop,
+    const char * provider,
     CMPIStatus * rc)
 {
     TRACE_NORMAL(("Resolve requested for provider: %s", provider ));

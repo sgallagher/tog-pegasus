@@ -130,10 +130,10 @@ void ANHProvider::associators(
     {
         _associators(
             _AssociationInstances,
-            localObjectPath, 
+            localObjectPath,
             role,
-            resultClass, 
-            resultRole, 
+            resultClass,
+            resultRole,
             handler);
     }
     else
@@ -177,10 +177,10 @@ void ANHProvider::associatorNames(
     {
         _associatorNames(
             _AssociationInstances,
-            localObjectPath, 
+            localObjectPath,
             role,
-            resultClass, 
-            resultRole, 
+            resultClass,
+            resultRole,
             handler);
     }
     else
@@ -230,7 +230,7 @@ void ANHProvider::references(
         resultInstances =
             _filterAssociationInstancesByRole(
                 _AssociationInstances,
-                localObjectPath, 
+                localObjectPath,
                 role);
     }
     else
@@ -283,7 +283,7 @@ void ANHProvider::referenceNames(
         resultInstances =
             _filterAssociationInstancesByRole(
                 _AssociationInstances,
-                localObjectPath, 
+                localObjectPath,
                 role);
     }
     else
@@ -649,17 +649,17 @@ Array<CIMInstance> ANHProvider::_NextHopRouteInstances()
             {
                 PEG_METHOD_EXIT();
                 throw CIMOperationFailedException(
-                    "Can't determine destination address in: " + 
+                    "Can't determine destination address in: " +
                     String("ANHProvider::_NextHopRouteInstances()"));
             }
             instance.addProperty(CIMProperty(
-                PROPERTY_DESTINATION_ADDRESS, 
+                PROPERTY_DESTINATION_ADDRESS,
                 _destAddr));
 
             if (_nhipr.getAddressType(_addrType))
             {
                 instance.addProperty(CIMProperty(
-                    PROPERTY_ADDRESS_TYPE, 
+                    PROPERTY_ADDRESS_TYPE,
                     _addrType));
 
                 if (_addrType == 1)  // IPv4 address.
@@ -672,7 +672,7 @@ Array<CIMInstance> ANHProvider::_NextHopRouteInstances()
                             String("ANHProvider::_NextHopRouteInstances()"));
                     }
                     instance.addProperty(CIMProperty(
-                        PROPERTY_DESTINATION_MASK, 
+                        PROPERTY_DESTINATION_MASK,
                         _destMask));
                 }
                 else
@@ -687,7 +687,7 @@ Array<CIMInstance> ANHProvider::_NextHopRouteInstances()
                                String("ANHProvider::_NextHopRouteInstances()"));
                         }
                         instance.addProperty(CIMProperty(
-                            PROPERTY_PREFIX_LENGTH, 
+                            PROPERTY_PREFIX_LENGTH,
                             _prefLength));
                     }
                 }
@@ -704,14 +704,14 @@ Array<CIMInstance> ANHProvider::_NextHopRouteInstances()
             Array<CIMKeyBinding> keyBindings;
             keyBindings.append(
             CIMKeyBinding(
-                PROPERTY_INSTANCE_ID, 
-                _destAddr, 
+                PROPERTY_INSTANCE_ID,
+                _destAddr,
                 CIMKeyBinding::STRING));
 
             CIMObjectPath path(
-            String::EMPTY, 
+            String::EMPTY,
             CIMNamespaceName(),
-            CLASS_CIM_NEXT_HOP_ROUTE, 
+            CLASS_CIM_NEXT_HOP_ROUTE,
             keyBindings);
 
             instance.setPath(path);
@@ -745,10 +745,10 @@ Array<CIMInstance> ANHProvider::_RSApInstances()
         if (_rsap.getAccessInfo(_accessInfo))
         {
             instance.addProperty(CIMProperty(
-                PROPERTY_ACCESS_INFO, 
+                PROPERTY_ACCESS_INFO,
                 _accessInfo));
         }
-        else 
+        else
         {
             PEG_METHOD_EXIT();
             throw CIMOperationFailedException(
@@ -759,10 +759,10 @@ Array<CIMInstance> ANHProvider::_RSApInstances()
         if (_rsap.getInfoFormat(_infoFormat))
         {
             instance.addProperty(CIMProperty(
-                PROPERTY_INFO_FORMAT, 
+                PROPERTY_INFO_FORMAT,
                 _infoFormat));
         }
-        else 
+        else
         {
             PEG_METHOD_EXIT();
             throw CIMOperationFailedException(

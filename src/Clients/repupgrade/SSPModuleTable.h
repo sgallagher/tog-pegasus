@@ -70,19 +70,19 @@ public:
     static const Uint32 NUM_MODULES;
 };
 
-//   
+//
 //    Enables module processing. If there are any modules defined in the
 //    module table below, then the following must be uncommented.
 //
-// #define ENABLE_MODULE_PROCESSING 
+// #define ENABLE_MODULE_PROCESSING
 
 //
 //    List of Special Process Modules.
 //
-//    A sample module entry "pegsamplesspmodule" has been included below. 
-//    Sample module is located under SSPModule/SampleSSPModule directory. 
-//    The sample module shows a sample implementation of the processClass 
-//    and processInstance methods. 
+//    A sample module entry "pegsamplesspmodule" has been included below.
+//    Sample module is located under SSPModule/SampleSSPModule directory.
+//    The sample module shows a sample implementation of the processClass
+//    and processInstance methods.
 //
 //    Steps for adding a module:
 //    1. Add an entry for the module in the structure below.
@@ -90,10 +90,10 @@ public:
 //
 //    NOTE: If no modules are defined the ENABLE_MODULE_PROCESSING macro
 //          define must be commented out.
-//    
+//
 //
 #ifdef ENABLE_MODULE_PROCESSING
-static struct SSPModuleTable::SchemaSpecialProcessModuleTable 
+static struct SSPModuleTable::SchemaSpecialProcessModuleTable
     schemaProcessingModules[] =
 {
 //    {"pegsamplesspmodule",   "a"},

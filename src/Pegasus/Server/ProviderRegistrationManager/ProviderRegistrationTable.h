@@ -49,7 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_PRM_LINKAGE ProviderRegistrationTable
 {
 public:
-    ProviderRegistrationTable(const Array<CIMInstance>& instance); 
+    ProviderRegistrationTable(const Array<CIMInstance>& instance);
     virtual ~ProviderRegistrationTable(void);
 
     const Array<CIMInstance> & getInstances(void) const;

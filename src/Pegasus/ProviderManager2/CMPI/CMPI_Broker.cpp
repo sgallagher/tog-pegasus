@@ -417,7 +417,7 @@ extern "C"
             Array<CIMObjectPath> * aRef = new Array<CIMObjectPath>(en);
             Uint32 arrSize = aRef->size();
             if (arrSize && (*aRef)[0].getNameSpace().getString().size() == 0)
-            { 
+            {
                 for (Uint32 index = 0; index < arrSize; index++)
                 {
                     (*aRef)[index].setNameSpace(

@@ -55,7 +55,7 @@ extern "C"
     PEGASUS_STATIC CMPIStatus resultReturnData(
         const CMPIResult* eRes,
         const CMPIValue* data,
-        const CMPIType type) 
+        const CMPIType type)
     {
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
@@ -131,7 +131,7 @@ extern "C"
                         CIMConstMethod methodDef(
                             classDef.getMethod(methodIndex));
                         if (methodDef.findQualifier(
-                               PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE) 
+                               PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE)
                             != PEG_NOT_FOUND)
                         {
                             PEGASUS_ASSERT(v.getType() == CIMTYPE_OBJECT);
@@ -913,7 +913,7 @@ CMPI_ResultOnStack::~CMPI_ResultOnStack()
             else
             if (ft==CMPI_ResultExecQueryOnStack_Ftab)
                ((ExecQueryResponseHandler*)hdl)->processing();
-            else 
+            else
                ((ResponseHandler*)hdl)->processing();  // shoul not get here
         }
         if ((flags & RESULT_done)==0)

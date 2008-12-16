@@ -90,7 +90,7 @@ static CMPIString * __sft_clone ( CONST CMPIString * string, CMPIStatus * rc )
 
 
 static const char * __sft_getCharPtr(
-    CONST CMPIString * string, 
+    CONST CMPIString * string,
     CMPIStatus * rc)
 {
     if (!checkArgs(string, rc))
@@ -102,7 +102,7 @@ static const char * __sft_getCharPtr(
 }
 
 
-static struct native_string * __new_string ( 
+static struct native_string * __new_string (
     int mm_add,
     const char * ptr,
     CMPIStatus * rc )

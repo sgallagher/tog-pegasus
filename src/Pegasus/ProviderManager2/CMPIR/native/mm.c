@@ -70,12 +70,12 @@ pthread_once_t __once = PTHREAD_ONCE_INIT;
 /**
     global key to get access to thread-specific memory
     management data
-*/ 
+*/
 static CMPI_THREAD_KEY_TYPE __mm_key;
 
 /****************************************************************************/
 
-PEGASUS_EXPORT void * PEGASUS_CMPIR_CDECL tool_mm_load_lib ( 
+PEGASUS_EXPORT void * PEGASUS_CMPIR_CDECL tool_mm_load_lib (
     const char * libname )
 {
 
@@ -89,8 +89,8 @@ PEGASUS_EXPORT void * PEGASUS_CMPIR_CDECL tool_mm_load_lib (
 }
 
 /**
-    Initializes the current thread by adding it to the memory 
-    management sytem. 
+    Initializes the current thread by adding it to the memory
+    management sytem.
 */
 static managed_thread * __init_mt ()
 {
@@ -144,8 +144,8 @@ static void __init_mm ()
 }
 
 /**
-    Allocates zeroed memory and eventually puts it under memory 
-    mangement. 
+    Allocates zeroed memory and eventually puts it under memory
+    mangement.
 
     Description:
         Calls calloc to get the requested block size, then adds
@@ -175,7 +175,7 @@ void * tool_mm_alloc ( int add, size_t size )
         successfully removed from the managed_thread, this means
         that the new one has to be added as well, before
         returning it as result.
- 
+
     The newly allocated memory is being returned as from the
     realloc() sys-call, no zeroing is performed as compared to
     tool_mm_alloc().
@@ -196,11 +196,11 @@ void * tool_mm_realloc ( void * oldptr, size_t size )
 }
 
 /**
-    Adds ptr to the list of managed objects for the current 
-    thread. 
- 
+    Adds ptr to the list of managed objects for the current
+    thread.
+
     Description:
- 
+
         First checks if the current thread is already under
         memory management control, eventually adds it. Then
         checks if ptr is already stored, if not finally adds it.
@@ -235,7 +235,7 @@ int tool_mm_add (  void * ptr )
     return 1;
 }
 PEGASUS_EXPORT void PEGASUS_CMPIR_CDECL tool_mm_set_broker (
-    void * broker,  
+    void * broker,
     void * ctx )
 {
     managed_thread * mt;
@@ -275,10 +275,10 @@ PEGASUS_EXPORT void * PEGASUS_CMPIR_CDECL tool_mm_get_broker ( void **ctx )
 
 /**
     Removes ptr from the list of managed objects for the current
-    thread. 
- 
+    thread.
+
     Description:
- 
+
         The removal is achieved by replacing the stored pointer
         with NULL, once found, as this does not disturb a later
         free() call.

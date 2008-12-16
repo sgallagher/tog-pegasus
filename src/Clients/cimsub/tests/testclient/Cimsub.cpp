@@ -629,7 +629,7 @@ void _createCimsubTests(CIMClient & client, String& qlang)
     _addStringProperty(handler03, "TargetHost", "localhost");
     _addUint16Property(handler03, "TargetHostFormat", 2);
     _addUint32Property(handler03, "PortNumber", 162);
-    _addUint16Property(handler03, 
+    _addUint16Property(handler03,
         PEGASUS_PROPERTYNAME_SNMPVERSION.getString(), 3);
     _addStringProperty(handler03, "SNMPSecurityName", "a name");
     _addStringProperty(handler03, "SNMPEngineID", "an ID");
@@ -695,7 +695,7 @@ void _createCimsubTests(CIMClient & client, String& qlang)
     _addStringProperty(subscription01, "OtherOnFatalErrorPolicy",
         String::EMPTY, true);
     _addUint64Property(subscription01, "FailureTriggerTimeInterval", 60);
-    _addUint16Property(subscription01, 
+    _addUint16Property(subscription01,
         PEGASUS_PROPERTYNAME_SUBSCRIPTION_STATE.getString(),
         STATE_ENABLED);
     _addStringProperty(subscription01, "OtherSubscriptionState", String::EMPTY,
@@ -826,7 +826,7 @@ void _createCimsubTests(CIMClient & client, String& qlang)
     fPath.setNameSpace(NAMESPACE);
 
     CIMInstance listenerdestination02(PEGASUS_CLASSNAME_LSTNRDST_CIMXML);
-    _addStringProperty(listenerdestination02, 
+    _addStringProperty(listenerdestination02,
         PEGASUS_PROPERTYNAME_NAME.getString(),
         "ListenerDestination02");
     _addStringProperty(listenerdestination02,
@@ -1506,16 +1506,16 @@ void _cleanup(CIMClient & client)
 
     IGNORE_EXCEPTION(_deleteHandlerInstance(client,
     PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");)
- 
+
     IGNORE_EXCEPTION(_deleteHandlerInstance(client,
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler02");)
- 
+
     IGNORE_EXCEPTION(_deleteHandlerInstance(client,
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler02t");)
 
     IGNORE_EXCEPTION(_deleteHandlerInstance(client,
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler02p");)
- 
+
     IGNORE_EXCEPTION(_deleteHandlerInstance(client,
         PEGASUS_CLASSNAME_INDHANDLER_SNMP, "Handler03");)
 
@@ -1533,7 +1533,7 @@ void _cleanup(CIMClient & client)
 
     IGNORE_EXCEPTION(_deleteHandlerInstance(client,
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination04");)
- 
+
     IGNORE_EXCEPTION(_deleteHandlerInstance(client,
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination05",
         NAMESPACE1);)
@@ -1611,7 +1611,7 @@ void _cleanup(CIMClient & client)
     IGNORE_EXCEPTION(_deleteFilterInstance(client, "Filter12", NAMESPACE1);)
 
     IGNORE_EXCEPTION(_deleteFilterInstance(client, "Filter13", NAMESPACE1);)
- 
+
     IGNORE_EXCEPTION(_deleteFilterInstance(client, "Filter15", NAMESPACE);)
 
     //
@@ -1646,7 +1646,7 @@ void _cleanup(CIMClient & client)
     IGNORE_EXCEPTION(TestProviderRegistration::deleteModuleInstance(
             client,
             "ProcessIndicationProviderModule");)
- 
+
     cout << "+++++ cleanup completed successfully" << endl;
 }
 

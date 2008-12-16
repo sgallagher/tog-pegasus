@@ -147,7 +147,7 @@ int main(int argc, char** argv)
 #else
     fileName = String(getenv("PEGASUS_HOME")) + String("/lib/") + FILE_NAME;
 #endif
-    
+
     test1();
     test2();
     test3();

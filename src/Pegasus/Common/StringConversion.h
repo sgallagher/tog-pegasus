@@ -37,9 +37,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// The following functions convert the integer "x" to a string. The "buffer" 
+// The following functions convert the integer "x" to a string. The "buffer"
 // argument is a scratch area that may or may not be used in the conversion.
-// These functions return a pointer to the converted string and set "size" to 
+// These functions return a pointer to the converted string and set "size" to
 // the length of that string.
 
 PEGASUS_COMMON_LINKAGE
@@ -72,7 +72,7 @@ public:
 
     /**
         Converts a valid hexadecimal character to a Uint8 value.
-        @param c The hexadecimal character to convert 
+        @param c The hexadecimal character to convert
         @return The converted Uint8 value
     */
     static inline Uint8 hexCharToNumeric(const char c)
@@ -93,7 +93,7 @@ public:
         Converts a character string to a Uint64 value according to the DMTF
         specifications for decimal formatting of integer values in MOF and XML.
         (The two specifications are identical.)
-        @param stringValue The character string to convert 
+        @param stringValue The character string to convert
         @param x The converted Uint64 value
         @return true if the character string is well-formatted and the
             conversion is successful, false otherwise
@@ -106,7 +106,7 @@ public:
         Converts a character string to a Uint64 value according to the DMTF
         specifications for octal formatting of integer values in MOF
         and XML.  (The two specifications are identical.)
-        @param stringValue The character string to convert 
+        @param stringValue The character string to convert
         @param x The converted Uint64 value
         @return true if the character string is well-formatted and the
             conversion is successful, false otherwise
@@ -119,7 +119,7 @@ public:
         Converts a character string to a Uint64 value according to the DMTF
         specifications for hexadecimal formatting of integer values in MOF
         and XML.  (The two specifications are identical.)
-        @param stringValue The character string to convert 
+        @param stringValue The character string to convert
         @param x The converted Uint64 value
         @return true if the character string is well-formatted and the
             conversion is successful, false otherwise
@@ -132,7 +132,7 @@ public:
         Converts a character string to a Uint64 value according to the DMTF
         specifications for binary formatting of integer values in MOF
         and XML.  (The two specifications are identical.)
-        @param stringValue The character string to convert 
+        @param stringValue The character string to convert
         @param x The converted Uint64 value
         @return true if the character string is well-formatted and the
             conversion is successful, false otherwise
@@ -155,10 +155,10 @@ public:
 
     /**
         Converts a character string to an Sint64 value by interpreting the
-        optional leading sign character and using the specified function to 
+        optional leading sign character and using the specified function to
         convert the remainder of the string to a Uint64.  Bounds checking is
         performed when converting the Uint64 to Sint64.
-        @param stringValue The character string to convert 
+        @param stringValue The character string to convert
         @param uint64Converter The function used to convert the unsigned
             portion of the string to a Uint64 value.
         @param x The converted Sint64 value
@@ -186,7 +186,7 @@ public:
         Converts a character string to a Real64 value according to the DMTF
         specifications for formatting real values in MOF and XML.  (The two
         specifications are identical.)
-        @param stringValue The character string to convert 
+        @param stringValue The character string to convert
         @param x The converted Real64 value
         @return true if the character string is well-formatted and the
             conversion is successful, false otherwise

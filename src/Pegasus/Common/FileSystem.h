@@ -357,13 +357,13 @@ public:
     static String buildLibraryFileName(const String &libraryName);
 
     /**
-       Returns the platform-specific file name extension for dynamic 
+       Returns the platform-specific file name extension for dynamic
        libraries.
 
-       @return the platform-specific file name extension for dynamic 
+       @return the platform-specific file name extension for dynamic
        libraries.
     */
-    static String getDynamicLibraryExtension(); 
+    static String getDynamicLibraryExtension();
 
     static Boolean changeFileOwner(
         const String& fileName,

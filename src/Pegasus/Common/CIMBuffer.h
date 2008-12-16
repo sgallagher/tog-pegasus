@@ -49,7 +49,7 @@ PEGASUS_NAMESPACE_BEGIN
     They represents strings as UCS2 characters. Performance is an overriding
     design goal of this class. The CIMBuffer class is suitable for binary
     protocols since it sacrifices size for performance; Whereas the Packer
-    class is more suitable for disk storage since it favors size over 
+    class is more suitable for disk storage since it favors size over
     performance.
 
     CIMBuffer handles network byte ordering. It uses a "reader makes right"
@@ -57,7 +57,7 @@ PEGASUS_NAMESPACE_BEGIN
     which he comminicates to the reading process (using a mechanism defined
     outside of this class). The reader checks to see if that endianess is
     the same as his own. If so, the data is used as is. Otherwise, the
-    reader calls CIMBuffer::setSwap(true) to cause subsequent get calls to 
+    reader calls CIMBuffer::setSwap(true) to cause subsequent get calls to
     swap data ordering.
 */
 class PEGASUS_COMMON_LINKAGE CIMBuffer
@@ -109,12 +109,12 @@ public:
         return _ptr - _data;
     }
 
-    const char* getData() const 
+    const char* getData() const
     {
         return _data;
     }
 
-    const char* getPtr() const 
+    const char* getPtr() const
     {
         return _ptr;
     }
@@ -427,7 +427,7 @@ public:
         x = *((Uint16*)_ptr);
 
         if (_swap)
-            x = _swapUint16(x);    
+            x = _swapUint16(x);
 
         _ptr += 8;
         return true;
@@ -441,7 +441,7 @@ public:
         x = *((Sint16*)_ptr);
 
         if (_swap)
-            x = _swapSint16(x);    
+            x = _swapSint16(x);
 
         _ptr += 8;
         return true;
@@ -455,7 +455,7 @@ public:
         x = *((Uint32*)_ptr);
 
         if (_swap)
-            x = _swapUint32(x);    
+            x = _swapUint32(x);
 
         _ptr += 8;
         return true;
@@ -469,7 +469,7 @@ public:
         x = *((Sint32*)_ptr);
 
         if (_swap)
-            x = _swapSint32(x);    
+            x = _swapSint32(x);
 
         _ptr += 8;
         return true;
@@ -483,7 +483,7 @@ public:
         x = *((Uint64*)_ptr);
 
         if (_swap)
-            x = _swapUint64(x);    
+            x = _swapUint64(x);
 
         _ptr += 8;
         return true;
@@ -497,7 +497,7 @@ public:
         x = *((Sint64*)_ptr);
 
         if (_swap)
-            x = _swapSint64(x);    
+            x = _swapSint64(x);
 
         _ptr += 8;
         return true;
@@ -511,7 +511,7 @@ public:
         x = *((Real32*)_ptr);
 
         if (_swap)
-            x = _swapReal32(x);    
+            x = _swapReal32(x);
 
         _ptr += 8;
         return true;
@@ -525,7 +525,7 @@ public:
         x = *((Real64*)_ptr);
 
         if (_swap)
-            x = _swapReal64(x);    
+            x = _swapReal64(x);
 
         _ptr += 8;
         return true;
@@ -859,7 +859,7 @@ public:
     // includeHostAndNamespace to false. This is required for compatibility with
     // XML transmission of instances, which excludes these elements.
     void putObjectPath(
-        const CIMObjectPath& x, 
+        const CIMObjectPath& x,
         bool includeHostAndNamespace = true,
         bool includeKeyBindings = true);
 
@@ -882,7 +882,7 @@ public:
     bool getProperty(CIMProperty& x);
 
     void putInstance(
-        const CIMInstance& x, 
+        const CIMInstance& x,
         bool includeHostAndNamespace = true,
         bool includeKeyBindings = true);
 
@@ -958,7 +958,7 @@ public:
     }
 
     void putObjectPathA(
-        const Array<CIMObjectPath>& x, 
+        const Array<CIMObjectPath>& x,
         bool includeHostAndNamespace = true)
     {
         Uint32 n = x.size();
@@ -989,7 +989,7 @@ public:
     }
 
     void putInstanceA(
-        const Array<CIMInstance>& x, 
+        const Array<CIMInstance>& x,
         bool includeHostAndNamespace = true,
         bool includeKeyBindings = true);
 

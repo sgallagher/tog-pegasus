@@ -40,57 +40,57 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 /**
-  
+
     Default exception identifier.  This identifier is used if the specified
     identifier is out of range.  This identifier corresponds to a default
     (generic) message in the array of exception message strings.
-  
+
  */
 const Uint32 StressTestControllerException::DEFAULT_ID = 0;
 
 /**
-  
+
     Minimum valid exception identifier.
-  
+
  */
 const Uint32 StressTestControllerException::MIN_ID = DEFAULT_ID;
 
 /**
-  
+
     Exception identifier indicating "Syntax Error" with client option.
-  
+
  */
 
 const Uint32 StressTestControllerException::INVALID_OPTION = 1;
 
 /**
-  
+
     Exception identifier indicating "Syntax Error" with client option operator.
-  
+
  */
 const Uint32 StressTestControllerException::INVALID_OPERATOR = 2;
 
 /**
-  
+
     Exception identifier indicating "Missing closing square brace".
-  
+
  */
 const Uint32 StressTestControllerException::MISSING_BRACE = 3;
 
 /**
-  
+
     Exception identifier indicating "Missing value for client option".
-  
+
  */
 const Uint32 StressTestControllerException::MISSING_VALUE = 4;
 
 /**
-  
+
     Maximum valid exception identifier.  This value must be updated when
     a new exception identifier and message are added.
-  
+
  */
-const Uint32 StressTestControllerException::MAX_ID = 
+const Uint32 StressTestControllerException::MAX_ID =
     StressTestControllerException::MISSING_VALUE;
 
 /**
@@ -111,25 +111,25 @@ const char*  StressTestControllerException::_messageStrings [] =
 };
 
 /**
-  
+
     Constructs a StressTestControllerException with a message corresponding to
     the specified exception ID.
-  
+
     @param  ID                the integer exception identifier
-  
+
  */
 StressTestControllerException::StressTestControllerException (
-    Uint32 ID) : CommandException 
+    Uint32 ID) : CommandException
                      (_messageStrings [(ID > MAX_ID) ? DEFAULT_ID : ID])
 {
 }
 
 /**
-  
+
     Constructs a StressTestControllerException with the specified message.
-  
+
     @param  exceptionMessage  a string containing the exception message
-  
+
  */
 StressTestControllerException::StressTestControllerException (
     const String& exceptionMessage) : CommandException (exceptionMessage)

@@ -439,8 +439,8 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
                 {
                     subprofileVersion = subprofileVersions[j];
                 }
-                // Check if subprofile is implemented in a different provider 
-                // module or provider. 
+                // Check if subprofile is implemented in a different provider
+                // module or provider.
                 if (subprofileProviderModuleNames.size())
                 {
                     softwareInstanceId = subprofileProviderModuleNames[j];
@@ -453,7 +453,7 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
                     PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
                     buildProfileInstanceId(subprofileOrgs[j], subprofiles[j],
                         subprofileVersion),
-                    profileOrg == DMTF_NUM ? 
+                    profileOrg == DMTF_NUM ?
                         PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE :
                         PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
                     elementSoftwareIdentityClass));
@@ -465,25 +465,25 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
     // subprofile, and the Pegasus Interoperability provider software identity
     String interopSoftwareIdentity = PEGASUS_MODULE_NAME + "+" +
         INTEROP_PROVIDER_NAME;
-    String serverProfileId, indicationProfileId, softwareProfileId;  
+    String serverProfileId, indicationProfileId, softwareProfileId;
 
     //add instances for smi-s version 1.1.0
     serverProfileId = buildProfileInstanceId(
-        SNIA_NAME, 
+        SNIA_NAME,
         "Server",
         SNIA_VER_110);
     indicationProfileId = buildProfileInstanceId(
         SNIA_NAME,
-        "Indication", 
+        "Indication",
         SNIA_VER_110);
     softwareProfileId = buildProfileInstanceId(
         SNIA_NAME,
-        "Software", 
+        "Software",
         SNIA_VER_110);
 
     instances.append(buildDependencyInstance(
         interopSoftwareIdentity,
-        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY, 
+        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
         serverProfileId,
         PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
         elementSoftwareIdentityClass));
@@ -497,7 +497,7 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
 
     instances.append(buildDependencyInstance(
         interopSoftwareIdentity,
-        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY, 
+        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
         softwareProfileId,
         PEGASUS_CLASSNAME_PG_REGISTEREDSUBPROFILE,
         elementSoftwareIdentityClass));
@@ -506,32 +506,32 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
 
     String profileRegistrationProfileId;
     serverProfileId = buildProfileInstanceId(
-        SNIA_NAME, 
+        SNIA_NAME,
         "Server",
         SNIA_VER_120);
     profileRegistrationProfileId = buildProfileInstanceId(
-        SNIA_NAME, 
+        SNIA_NAME,
         "Profile Registration",
         SNIA_VER_100);
     indicationProfileId = buildProfileInstanceId(
         SNIA_NAME,
-        "Indication", 
+        "Indication",
         SNIA_VER_120);
     softwareProfileId = buildProfileInstanceId(
         SNIA_NAME,
-        "Software", 
+        "Software",
         SNIA_VER_120);
 
     instances.append(buildDependencyInstance(
         interopSoftwareIdentity,
-        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY, 
+        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
         serverProfileId,
         PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
         elementSoftwareIdentityClass));
 
     instances.append(buildDependencyInstance(
         interopSoftwareIdentity,
-        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY, 
+        PEGASUS_CLASSNAME_PG_SOFTWAREIDENTITY,
         profileRegistrationProfileId,
         PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE,
         elementSoftwareIdentityClass));
@@ -586,7 +586,7 @@ Array<CIMInstance> InteropProvider::enumInstalledSoftwareIdentityInstances()
     CIMClass installedSoftwareClass;
     CIMInstance skeletonInst =  buildInstanceSkeleton(
         PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_INSTALLEDSOFTWAREIDENTITY, 
+        PEGASUS_CLASSNAME_PG_INSTALLEDSOFTWAREIDENTITY,
         true,
         installedSoftwareClass);
     for (Uint32 i = 0, n = softwareInstances.size(); i < n; ++i)

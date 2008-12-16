@@ -91,26 +91,26 @@ int main ()
 #if defined (PEGASUS_OS_TYPE_WINDOWS)
         PROCESS_INFORMATION piProcInfo;
         STARTUPINFO siStartInfo;
-    
+
         //
         //  Set up members of the PROCESS_INFORMATION structure
         //
         ZeroMemory (&piProcInfo, sizeof (PROCESS_INFORMATION));
-    
+
         //
         //  Set up members of the STARTUPINFO structure
         //
         ZeroMemory (&siStartInfo, sizeof (STARTUPINFO));
         siStartInfo.cb = sizeof (STARTUPINFO);
-    
+
         //
         //  Generate command line
         //
         char childCommandLine [2048];
-        sprintf (childCommandLine, "\"%s\" %s %s", 
-            (const char *) childPath.getCString (), 
+        sprintf (childCommandLine, "\"%s\" %s %s",
+            (const char *) childPath.getCString (),
             childReadHandle.get (), childWriteHandle.get ());
-    
+
         //
         //  Create the child process
         //
@@ -126,7 +126,7 @@ int main ()
             &siStartInfo,      //  STARTUPINFO
             &piProcInfo))      //  PROCESS_INFORMATION
         {
-            cerr << "Parent failed to CreateProcess:" << GetLastError () 
+            cerr << "Parent failed to CreateProcess:" << GetLastError ()
                 << endl;
             PEGASUS_TEST_ASSERT (0);
         }
@@ -141,11 +141,11 @@ int main ()
         switch (status)
         {
           case 0:
-            if ((status = execl ((const char *) childPathCStr, 
-                                 (const char *) childPathCStr, 
+            if ((status = execl ((const char *) childPathCStr,
+                                 (const char *) childPathCStr,
                                  childReadHandle.get (),
-                                 childWriteHandle.get (), 
-                                 (char *) 0)) 
+                                 childWriteHandle.get (),
+                                 (char *) 0))
                                  == -1)
             {
               //
@@ -176,7 +176,7 @@ int main ()
 
           default:
             //
-            //  Parent: Close child handles 
+            //  Parent: Close child handles
             //
             pipeToChild->closeReadHandle ();
             pipeFromChild->closeWriteHandle ();
@@ -201,7 +201,7 @@ int main ()
         else if (pid > 0)
         {
             //
-            //  Parent: Close child handles 
+            //  Parent: Close child handles
             //
             pipeToChild->closeReadHandle ();
             pipeFromChild->closeWriteHandle ();
@@ -209,14 +209,14 @@ int main ()
         else
         {
             //
-            //  Child: Close parent handles 
+            //  Child: Close parent handles
             //
             pipeFromChild->closeReadHandle ();
             pipeToChild->closeWriteHandle ();
 
-            if (execl ((const char *) childPathCStr, 
+            if (execl ((const char *) childPathCStr,
                 (const char *) childPathCStr,
-                childReadHandle.get (), 
+                childReadHandle.get (),
                 childWriteHandle.get (),
                 (char *) 0) < 0)
             {
@@ -250,7 +250,7 @@ int main ()
             ((const char *) &bufferLength, sizeof (Uint32));
         if (writeBufferStatus == AnonymousPipe::STATUS_SUCCESS)
         {
-            writeBufferStatus = pipeToChild->writeBuffer 
+            writeBufferStatus = pipeToChild->writeBuffer
                 (requestBuffer.getData(), requestBuffer.size());
             if (writeBufferStatus != AnonymousPipe::STATUS_SUCCESS)
             {
@@ -269,7 +269,7 @@ int main ()
         //
         //  Read the response buffer from the child via the anonymous pipe
         //
-        AnonymousPipe::Status readBufferStatus = pipeFromChild->readBuffer 
+        AnonymousPipe::Status readBufferStatus = pipeFromChild->readBuffer
             ((char *) &bufferLength, sizeof (Uint32));
         if (readBufferStatus != AnonymousPipe::STATUS_SUCCESS)
         {
@@ -298,7 +298,7 @@ int main ()
         responseBuffer.get () [bufferLength] = 0;
         if (verbose)
         {
-            cout << "Response received by parent: " << responseBuffer.get () 
+            cout << "Response received by parent: " << responseBuffer.get ()
                 << endl;
         }
         PEGASUS_TEST_ASSERT (strcmp (responseBuffer.get (), "Good-bye") == 0);
@@ -317,7 +317,7 @@ int main ()
                 CIMPropertyList (),
                 QueueIdStack ()));
 
-        AnonymousPipe::Status writeMessageStatus = 
+        AnonymousPipe::Status writeMessageStatus =
             pipeToChild->writeMessage (request.get ());
         if (writeMessageStatus == AnonymousPipe::STATUS_SUCCESS)
         {
@@ -338,14 +338,14 @@ int main ()
 
             if (verbose)
             {
-                cout << "CIMGetInstanceResponseMessage received by parent" 
+                cout << "CIMGetInstanceResponseMessage received by parent"
                     << endl;
             }
 
             PEGASUS_TEST_ASSERT (response->getType () ==
                 CIM_GET_INSTANCE_RESPONSE_MESSAGE);
             PEGASUS_TEST_ASSERT (response->messageId == String ("00000002"));
-            PEGASUS_TEST_ASSERT (response->cimException.getCode () == 
+            PEGASUS_TEST_ASSERT (response->cimException.getCode () ==
                 CIM_ERR_FAILED);
             PEGASUS_TEST_ASSERT (((ContentLanguageListContainer)
                 response->operationContext.get
@@ -362,7 +362,7 @@ int main ()
         //
         //  Error cases
         //
-    
+
         //
         //  Test invalid use of constructor
         //
@@ -374,7 +374,7 @@ int main ()
         catch (Exception &)
         {
         }
-    
+
         try
         {
             AutoPtr <AnonymousPipe> pipeError2 (new AnonymousPipe (NULL, "h"));
@@ -383,7 +383,7 @@ int main ()
         catch (Exception &)
         {
         }
-    
+
         //
         //  Close handles already closed
         //
@@ -395,11 +395,11 @@ int main ()
         //
         //  Try to read or write after handles have been closed
         //
-        writeBufferStatus = pipeToChild->writeBuffer 
+        writeBufferStatus = pipeToChild->writeBuffer
             ((const char *) &bufferLength, sizeof (Uint32));
         PEGASUS_TEST_ASSERT (writeBufferStatus == AnonymousPipe::STATUS_CLOSED);
 
-        readBufferStatus = pipeFromChild->readBuffer ((char *) &bufferLength, 
+        readBufferStatus = pipeFromChild->readBuffer ((char *) &bufferLength,
             sizeof (Uint32));
         PEGASUS_TEST_ASSERT (readBufferStatus == AnonymousPipe::STATUS_CLOSED);
 

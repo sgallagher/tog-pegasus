@@ -88,9 +88,9 @@ int main (int argc, char* argv [])
 
     tmTime = getCurrentActualTime();
     strftime(strTime,256,"%d%m%Y%H%M%S.",&tmTime);
-   
+
     StressTestControllerCommand command;
-    
+
     //
     // Generate log files and PID files
     //
@@ -145,7 +145,7 @@ int main (int argc, char* argv [])
 
         if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
         {
-            
+
             cerr<< StressTestControllerCommand::COMMAND_NAME <<
                 "::" << ERR_OPTION_NOT_SUPPORTED << endl;
             log_file<< StressTestControllerCommand::COMMAND_NAME <<
@@ -175,7 +175,7 @@ int main (int argc, char* argv [])
     }
 
     //
-    // For help or version options execute usage/version and 
+    // For help or version options execute usage/version and
     // exit
     //
     if ((command.getOperationType() == OPERATION_TYPE_HELP)
@@ -194,7 +194,7 @@ int main (int argc, char* argv [])
 
     //
     // If a configuration file is specified then:
-    //    Check if it exists as indicated, if not 
+    //    Check if it exists as indicated, if not
     //    also look for it in the default config dir.
     //
     if (command.IsConfigFilePathSpecified())
@@ -223,7 +223,7 @@ int main (int argc, char* argv [])
             }
             log_file<<StressTestControllerCommand::COMMAND_NAME<<
                 "::Using config file: "<<fileName<<endl;
-        } 
+        }
         else
         {
             fileName = filename;
@@ -233,7 +233,7 @@ int main (int argc, char* argv [])
             "::Using config file: "<<fileName<<endl;
         cout<<StressTestControllerCommand::COMMAND_NAME<<
            "::Using config file: "<<fileName<<endl;
-    } 
+    }
     else
     {
         //
@@ -242,7 +242,7 @@ int main (int argc, char* argv [])
         fileName = StressTestControllerCommand::DEFAULT_CFGDIR;
         fileName.append(StressTestControllerCommand::FILENAME);
         //
-        // Use hard coded default configuration values if default conf. file 
+        // Use hard coded default configuration values if default conf. file
         // was not found.
         if (!FileSystem::exists(fileName))
         {
@@ -259,7 +259,7 @@ int main (int argc, char* argv [])
                 "::Using default file: " << fileName<<endl;
         }
     }
-   
+
     //
     // Read the contents of the file
     //
@@ -292,7 +292,7 @@ int main (int argc, char* argv [])
     {
         String msg(e.getMessage());
 
-        log_file << StressTestControllerCommand::COMMAND_NAME << 
+        log_file << StressTestControllerCommand::COMMAND_NAME <<
             ": " << msg <<  endl;
         cerr << StressTestControllerCommand::COMMAND_NAME <<
             ": " << msg <<  endl;
@@ -303,9 +303,9 @@ int main (int argc, char* argv [])
     catch (Exception& e )
     {
         String msg(e.getMessage());
-        log_file << StressTestControllerCommand::COMMAND_NAME << 
+        log_file << StressTestControllerCommand::COMMAND_NAME <<
             "::" << msg <<  endl;
-        cerr << StressTestControllerCommand::COMMAND_NAME << 
+        cerr << StressTestControllerCommand::COMMAND_NAME <<
             "::Invalid Configuration ";
         cerr << "in File: " << fileName <<  endl;
         cerr << msg <<  endl;
@@ -324,7 +324,7 @@ int main (int argc, char* argv [])
         return Command::RC_ERROR;
     }
 
-    log_file << StressTestControllerCommand::COMMAND_NAME << 
+    log_file << StressTestControllerCommand::COMMAND_NAME <<
         "::Generating Client Commands"<<  endl;
     if(verboseEnabled)
     {
@@ -333,7 +333,7 @@ int main (int argc, char* argv [])
     }
 
     //
-    // TimeStamp 
+    // TimeStamp
     //
     log_file<<StressTestControllerCommand::COMMAND_NAME<<
         "::Initiated on "<<strTime<<endl;
@@ -354,7 +354,7 @@ int main (int argc, char* argv [])
         command.removeUnusedFiles();
         return Command::RC_ERROR;
     }
-    
+
     //
     // Getting current time
     //
@@ -362,19 +362,19 @@ int main (int argc, char* argv [])
     strftime(strTime,256,"%d/%m/%Y at %H:%M:%S\n",&tmTime);
     log_file << StressTestControllerCommand::COMMAND_NAME <<endl;
     log_file << "   Preparing to execute Clients on "<<strTime<<endl;
-    
+
     //
-    // Begin to run stress Tests 
+    // Begin to run stress Tests
     //
     rc = command.execute (cout, cerr);
-    
+
     //
     // Getting current time after stress Tests are completed
     //
     tmTime = getCurrentActualTime();
-    
+
     strftime(strTime,256,"%d/%m/%Y at %H:%M:%S\n",&tmTime);
-    
+
     //
     // Check overall status of tests
     //
@@ -391,7 +391,7 @@ int main (int argc, char* argv [])
        cout << "::successfully completed on "<<strTime<<endl;
     }
     cout <<"IMPORTANT: ";
-    cout <<"Please check the Controller log file for additional info and the" 
+    cout <<"Please check the Controller log file for additional info and the"
          << endl;
     cout <<"           Client log file for individual errors which may or may "
          <<"not have "<< endl;

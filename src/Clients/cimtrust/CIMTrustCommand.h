@@ -32,8 +32,8 @@
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
 //              Vijay Eli, vijayeli@in.ibm.com, fix for #2572
-//              Sushma Fernandes,  Hewlett-Packard Company 
-//                  sushma@hp.com, PEP 259 
+//              Sushma Fernandes,  Hewlett-Packard Company
+//                  sushma@hp.com, PEP 259
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +50,7 @@ PEGASUS_NAMESPACE_BEGIN
 /**
 
     The CIMTrustCommand command provides a command line interface to manage X509
-    certificates in a PEM format truststore. The command supports add, remove 
+    certificates in a PEM format truststore. The command supports add, remove
     and list operations on the trust store. The CIMTrustCommand command
     requires the CIM Server to be running on the local host.
 
@@ -225,7 +225,7 @@ private:
     Boolean _serialNumberSet;
 
     /**
-        The subject of the certificate to be removed 
+        The subject of the certificate to be removed
         from the trust store for a specified issuer.
      */
     String _subject;
@@ -305,8 +305,8 @@ private:
     /**
         Specifies the certificate types.
      */
-    enum _CERTIFICATE_TYPES 
-    { 
+    enum _CERTIFICATE_TYPES
+    {
         _CERTIFICATE_TYPE_UNKNOWN = 0,
         _CERTIFICATE_TYPE_AUTHORITY = 2,
         _CERTIFICATE_TYPE_AUTHORITY_END_ENTITY = 3,
@@ -319,13 +319,13 @@ private:
     static const String _ARG_TYPE_AUTHORITY;
 
     /**
-        The character used to specify the authority 
+        The character used to specify the authority
         issued end-entity type.
      */
     static const String _ARG_TYPE_AUTHORITY_END_ENTITY;
 
     /**
-        The character used to specify the self-signed 
+        The character used to specify the self-signed
         identity type.
      */
     static const String _ARG_TYPE_SELF_SIGNED_IDENTITY;

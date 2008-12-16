@@ -310,12 +310,12 @@ Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
     // Check for valid IPV4 address, if found return ipv4 address
     *af = AF_INET;
     hints.ai_family = *af;
-    hints.ai_protocol = IPPROTO_TCP;   
+    hints.ai_protocol = IPPROTO_TCP;
     hints.ai_socktype = SOCK_STREAM;
     if (!getAddrInfo(hostName.getCString(), 0, &hints, &info))
     {
         char ipAddress[PEGASUS_INET_ADDRSTR_LEN];
-        HostAddress::convertBinaryToText(info->ai_family, 
+        HostAddress::convertBinaryToText(info->ai_family,
             &(reinterpret_cast<struct sockaddr_in*>(info->ai_addr))->sin_addr,
             ipAddress,
             PEGASUS_INET_ADDRSTR_LEN);
@@ -324,7 +324,7 @@ Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
         return true;
     }
 
-    // Check for valid IPV6 Address. 
+    // Check for valid IPV6 Address.
     *af = AF_INET6;
     hints.ai_family = *af;
     hints.ai_protocol = IPPROTO_TCP;
@@ -352,7 +352,7 @@ Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
 
     char hostEntryBuffer[8192];
     struct hostent hostEntryStruct;
-    hostEntry = getHostByName(hostNamePtr, &hostEntryStruct, 
+    hostEntry = getHostByName(hostNamePtr, &hostEntryStruct,
         hostEntryBuffer, sizeof (hostEntryBuffer));
 
     if (hostEntry)
@@ -433,7 +433,7 @@ Boolean System::acquireIP(const char* hostname, int *af, void *dst)
     *af = AF_INET;
     Uint32 ip = 0xFFFFFFFF;
     if (!hostname)
-    { 
+    {
         *af = 0xFFFFFFFF;
         return false;
     }
@@ -461,7 +461,7 @@ Boolean System::acquireIP(const char* hostname, int *af, void *dst)
     {
         char hostEntryBuffer[8192];
         struct hostent hostEntryStruct;
-        hostEntry = getHostByName(hostname, &hostEntryStruct, 
+        hostEntry = getHostByName(hostname, &hostEntryStruct,
             hostEntryBuffer, sizeof (hostEntryBuffer));
 
         if (!hostEntry)
@@ -488,8 +488,8 @@ Boolean System::acquireIP(const char* hostname, int *af, void *dst)
         // those it fits all platforms
         char hostEntryBuffer[8192];
         struct hostent hostEntryStruct;
-        hostEntry = 
-            getHostByAddr((const char*) &tmp_addr, sizeof(tmp_addr), AF_INET, 
+        hostEntry =
+            getHostByAddr((const char*) &tmp_addr, sizeof(tmp_addr), AF_INET,
                 &hostEntryStruct, hostEntryBuffer, sizeof (hostEntryBuffer));
 
         if (hostEntry == 0)
@@ -529,7 +529,7 @@ Boolean System::resolveHostNameAtDNS(
     // takes to answer
     char hostEntryBuffer[8192];
     struct hostent hostEntryStruct;
-    hostEntry = getHostByName(hostname, &hostEntryStruct, 
+    hostEntry = getHostByName(hostname, &hostEntryStruct,
         hostEntryBuffer, sizeof (hostEntryBuffer));
 
     if (hostEntry == 0)
@@ -557,7 +557,7 @@ Boolean System::resolveIPAtDNS(Uint32 ip_addr, Uint32 * resolvedIP)
     struct hostent *entry;
 
     entry = getHostByAddr((const char *) &ip_addr, sizeof(ip_addr), AF_INET);
-    
+
     if (entry == 0)
     {
         // error, couldn't resolve the ip
@@ -596,7 +596,7 @@ Boolean System::isLoopBack(int af, void *binIPAddress)
             Uint32 tmp;
             memcpy(&tmp, binIPAddress, sizeof(Uint32));
             Uint32 n = ntohl(tmp);
-            return !memcmp(&ip4, &n, sizeof (ip4));       
+            return !memcmp(&ip4, &n, sizeof (ip4));
         }
     }
 
@@ -632,7 +632,7 @@ Boolean System::isLocalHost(const String &hostName)
         }
 
         res2 = res2root;
-        while (res2) 
+        while (res2)
         {
             if (!memcmp(
                     &(reinterpret_cast<struct sockaddr_in*>(res1->ai_addr))->
@@ -647,7 +647,7 @@ Boolean System::isLocalHost(const String &hostName)
             res2 = res2->ai_next;
         }
         res1 = res1->ai_next;
-    }   
+    }
     if (res1root)
     {
         freeaddrinfo(res1root);
@@ -659,7 +659,7 @@ Boolean System::isLocalHost(const String &hostName)
     if (isLocal)
     {
         return true;
-    } 
+    }
 
     hints.ai_family = AF_INET6;
     res1root = res2root = 0;
@@ -749,7 +749,7 @@ Boolean System::isLocalHost(const String &hostName)
         if (String::equalNoCase(hostName,String("localhost"))) return true;
         char localHostName[PEGASUS_MAXHOSTNAMELEN];
         CString cstringLocalHostName = System::getHostName().getCString();
-        strcpy(localHostName, (const char*) cstringLocalHostName); 
+        strcpy(localHostName, (const char*) cstringLocalHostName);
         // given hostname equals what system returns as local hostname ?
         if (String::equalNoCase(hostName,localHostName)) return true;
         Uint32 hostIP;
@@ -792,9 +792,9 @@ Boolean System::isLocalHost(const String &hostName)
 }
 
 struct hostent* System::getHostByName(
-    const char* name, 
-    struct hostent* he, 
-    char* buf, 
+    const char* name,
+    struct hostent* he,
+    char* buf,
     size_t len)
 {
     int hostEntryErrno = 0;
@@ -804,17 +804,17 @@ struct hostent* System::getHostByName(
     do
     {
 #if defined(PEGASUS_OS_LINUX)
-        gethostbyname_r(name, 
-            he, 
-            buf, 
-            len, 
-            &hostEntry, 
+        gethostbyname_r(name,
+            he,
+            buf,
+            len,
+            &hostEntry,
             &hostEntryErrno);
 #elif defined(PEGASUS_OS_SOLARIS)
-        hostEntry = gethostbyname_r((char *)name, 
-                        he, 
-                        buf, 
-                        len, 
+        hostEntry = gethostbyname_r((char *)name,
+                        he,
+                        buf,
+                        len,
                         &hostEntryErrno);
 #elif defined(PEGASUS_OS_ZOS)
         char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
@@ -840,11 +840,11 @@ struct hostent* System::getHostByName(
 }
 
 struct hostent* System::getHostByAddr(
-    const char *addr, 
-    int len, 
+    const char *addr,
+    int len,
     int type,
-    struct hostent* he, 
-    char* buf, 
+    struct hostent* he,
+    char* buf,
     size_t buflen)
 {
     int hostEntryErrno = 0;
@@ -854,28 +854,28 @@ struct hostent* System::getHostByAddr(
     do
     {
 #if defined(PEGASUS_OS_LINUX)
-        gethostbyaddr_r(addr, 
-            len, 
-            type, 
-            he, 
-            buf, 
-            buflen, 
-            &hostEntry, 
+        gethostbyaddr_r(addr,
+            len,
+            type,
+            he,
+            buf,
+            buflen,
+            &hostEntry,
             &hostEntryErrno);
 #elif defined(PEGASUS_OS_SOLARIS)
         char hostEntryBuffer[8192];
         struct hostent hostEntryStruct;
 
-        hostEntry = gethostbyaddr_r(addr, 
-                        len, 
-                        type, 
-                        he, 
-                        buf, 
-                        buflen, 
+        hostEntry = gethostbyaddr_r(addr,
+                        len,
+                        type,
+                        he,
+                        buf,
+                        buflen,
                         &hostEntryErrno);
 #else
-        hostEntry = gethostbyaddr(addr, 
-                        len, 
+        hostEntry = gethostbyaddr(addr,
+                        len,
                         type);
         hostEntryErrno = h_errno;
 #endif
@@ -890,13 +890,13 @@ struct hostent* System::getHostByAddr(
     defined(PEGASUS_ENABLE_IPV6)
 
 int System::getAddrInfo(
-    const char *hostname, 
+    const char *hostname,
     const char *servname,
-    const struct addrinfo *hints, 
+    const struct addrinfo *hints,
     struct addrinfo **res)
 {
     int rc = 0;
-    unsigned int maxTries = 5; 
+    unsigned int maxTries = 5;
 
 #ifdef PEGASUS_OS_PASE
     CString hostNameCString;
@@ -907,9 +907,9 @@ int System::getAddrInfo(
     }
 #endif
 
-    while ((rc = getaddrinfo(hostname, 
-                     servname, 
-                     hints, 
+    while ((rc = getaddrinfo(hostname,
+                     servname,
+                     hints,
                      res)) == EAI_AGAIN &&
            maxTries-- > 0)
         ;
@@ -917,23 +917,23 @@ int System::getAddrInfo(
 }
 
 int System::getNameInfo(
-    const struct sockaddr *sa, 
+    const struct sockaddr *sa,
     size_t salen,
-    char *host, 
-    size_t hostlen, 
-    char *serv, 
-    size_t servlen, 
+    char *host,
+    size_t hostlen,
+    char *serv,
+    size_t servlen,
     int flags)
 {
     int rc = 0;
-    unsigned int maxTries = 5; 
+    unsigned int maxTries = 5;
 
-    while ((rc = getnameinfo(sa, 
-                     salen, 
-                     host, 
-                     hostlen, 
-                     serv, 
-                     servlen, 
+    while ((rc = getnameinfo(sa,
+                     salen,
+                     host,
+                     hostlen,
+                     serv,
+                     servlen,
                      flags)) == EAI_AGAIN &&
            maxTries-- > 0)
         ;

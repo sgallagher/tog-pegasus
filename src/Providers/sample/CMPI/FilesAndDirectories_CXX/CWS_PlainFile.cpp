@@ -55,23 +55,23 @@ CMMethodMIFactory(CWS_PlainFile,CWS_PlainFileProvider_CXX);
 /*                          Base Provider Interface                       */
 /* -----------------------------------------------------------------------*/
 
-CWS_PlainFile::CWS_PlainFile (const CmpiBroker &mbp, 
-                  const CmpiContext& ctx) 
+CWS_PlainFile::CWS_PlainFile (const CmpiBroker &mbp,
+                  const CmpiContext& ctx)
   : CmpiBaseMI(mbp, ctx), CmpiInstanceMI(mbp,ctx),
-    CmpiMethodMI(mbp,ctx), cppBroker(mbp) 
-{  
+    CmpiMethodMI(mbp,ctx), cppBroker(mbp)
+{
 #ifndef SIMULATED
   cout<<"CWS_PlainFile Provider was constructed"<<endl;
 #endif
 }
-    
+
 CWS_PlainFile::~CWS_PlainFile()
 {
 #ifndef SIMULATED
   cout<<"CWS_PlainFile Provider was destructed"<<endl;
 #endif
 }
-  
+
 int CWS_PlainFile::isUnloadable() const
 {
   return 1;  // may be unloaded
@@ -82,75 +82,75 @@ int CWS_PlainFile::isUnloadable() const
 /* -----------------------------------------------------------------------*/
 
 
-CmpiStatus CWS_PlainFile::enumInstanceNames(const CmpiContext& ctx, 
+CmpiStatus CWS_PlainFile::enumInstanceNames(const CmpiContext& ctx,
                         CmpiResult& rslt,
                         const CmpiObjectPath& cop)
-{      
+{
   void           *enumhdl;
   CWS_FILE        filebuf;
-  
+
 #ifndef SIMULATED
   cout<<"CWS_PlainFile enumerating instanceNames"<<endl;
 #endif
-  
+
   CmpiString nameSpace=cop.getNameSpace();
 
   enumhdl = CWS_Begin_Enum(CWS_FILEROOT,CWS_TYPE_PLAIN);
-  
+
   if (enumhdl == NULL) {
     throw CmpiStatus(CMPI_RC_ERR_FAILED,
              "Could not begin file enumeration");
-  } 
+  }
   while (CWS_Next_Enum(enumhdl,&filebuf)) {
     /* build object path from file buffer */
-    CmpiObjectPath objectPath = 
+    CmpiObjectPath objectPath =
       makePath(LOCALCLASSNAME,nameSpace.charPtr(),&filebuf);
     rslt.returnData(objectPath);
-  } 
+  }
   CWS_End_Enum(enumhdl);
   rslt.returnDone();
   return CmpiStatus(CMPI_RC_OK);
 }
 
-CmpiStatus CWS_PlainFile::enumInstances(const CmpiContext& ctx, 
+CmpiStatus CWS_PlainFile::enumInstances(const CmpiContext& ctx,
                     CmpiResult& rslt,
-                    const CmpiObjectPath& cop, 
+                    const CmpiObjectPath& cop,
                     const char* *properties)
 {
   void           *enumhdl;
   CWS_FILE        filebuf;
-       
+
 #ifndef SIMULATED
   cout<<"CWS_PlainFile enumerating instances"<<endl;
 #endif
   CmpiString nameSpace=cop.getNameSpace();
 
   enumhdl = CWS_Begin_Enum(CWS_FILEROOT,CWS_TYPE_PLAIN);
-  
+
   if (enumhdl == NULL) {
     throw CmpiStatus(CMPI_RC_ERR_FAILED,
              "Could not begin file enumeration");
-  } 
+  }
   while (CWS_Next_Enum(enumhdl,&filebuf)) {
     /* build instance from file buffer */
-    CmpiInstance instance = 
+    CmpiInstance instance =
       makeInstance(LOCALCLASSNAME,
            nameSpace.charPtr(),
            &filebuf,
            properties);
     rslt.returnData(instance);
-  } 
+  }
   CWS_End_Enum(enumhdl);
   rslt.returnDone();
   return CmpiStatus(CMPI_RC_OK);
 }
-        
 
-CmpiStatus CWS_PlainFile::getInstance(const CmpiContext& ctx, 
+
+CmpiStatus CWS_PlainFile::getInstance(const CmpiContext& ctx,
                       CmpiResult& rslt,
-                      const CmpiObjectPath& cop, 
+                      const CmpiObjectPath& cop,
                       const char* *properties)
-{         
+{
 #ifndef SIMULATED
   cout<<"CWS_PlainFile getting instance"<<endl;
 #endif
@@ -160,7 +160,7 @@ CmpiStatus CWS_PlainFile::getInstance(const CmpiContext& ctx,
   CWS_FILE  filebuf;
 
   if (CWS_Get_File(key.charPtr(),&filebuf)) {
-    CmpiInstance instance = 
+    CmpiInstance instance =
       makeInstance(LOCALCLASSNAME,
            nameSpace.charPtr(),
            &filebuf,
@@ -168,22 +168,22 @@ CmpiStatus CWS_PlainFile::getInstance(const CmpiContext& ctx,
     rslt.returnData(instance);
     rslt.returnDone();
     return CmpiStatus(CMPI_RC_OK);
-  } 
+  }
   throw CmpiStatus(CMPI_RC_ERR_NOT_FOUND,key.charPtr());
 }
-    
-CmpiStatus CWS_PlainFile::setInstance(const CmpiContext& ctx, 
+
+CmpiStatus CWS_PlainFile::setInstance(const CmpiContext& ctx,
                       CmpiResult& rslt,
-                      const CmpiObjectPath& cop, 
+                      const CmpiObjectPath& cop,
                       const CmpiInstance& inst,
                       const char* *properties)
-{       
+{
 #ifndef SIMULATED
   cout<<"CWS_PlainFile modifying instance"<<endl;
 #endif
   CWS_FILE   filebuf;
   CmpiString key = cop.getKey("Name").getString();
-  
+
   if (!CWS_Get_File(key.charPtr(),&filebuf)) {
     throw CmpiStatus(CMPI_RC_ERR_NOT_FOUND,key.charPtr());
   }
@@ -194,7 +194,7 @@ CmpiStatus CWS_PlainFile::setInstance(const CmpiContext& ctx,
   return CmpiStatus(CMPI_RC_OK);
 }
 
-CmpiStatus CWS_PlainFile::createInstance(const CmpiContext& ctx, 
+CmpiStatus CWS_PlainFile::createInstance(const CmpiContext& ctx,
                      CmpiResult& rslt,
                      const CmpiObjectPath& cop,
                      const CmpiInstance& inst)
@@ -203,7 +203,7 @@ CmpiStatus CWS_PlainFile::createInstance(const CmpiContext& ctx,
            "CWS_PlainFile cannot create");
 }
 
-CmpiStatus CWS_PlainFile::deleteInstance(const CmpiContext& ctx, 
+CmpiStatus CWS_PlainFile::deleteInstance(const CmpiContext& ctx,
                      CmpiResult& rslt,
                      const CmpiObjectPath& cop)
 {
@@ -218,7 +218,7 @@ CmpiStatus CWS_PlainFile::deleteInstance(const CmpiContext& ctx,
 /* -----------------------------------------------------------------------*/
 
 
-CmpiStatus CWS_PlainFile::invokeMethod(const CmpiContext& ctx, 
+CmpiStatus CWS_PlainFile::invokeMethod(const CmpiContext& ctx,
                        CmpiResult& rslt,
                        const CmpiObjectPath& cop,
                        const char * method,
@@ -228,7 +228,7 @@ CmpiStatus CWS_PlainFile::invokeMethod(const CmpiContext& ctx,
 #ifndef SIMULATED
   cout<<"CWS_PlainFile invoking method "<<method<<endl;
 #endif
-  char typebuf[1000];  
+  char typebuf[1000];
   CmpiString key=cop.getKey("Name").getString();
 
   if (strcasecmp("filetype",method)) {

@@ -55,7 +55,7 @@ _usage ()
 
 void
 test01( CIMClient & client)
-{  
+{
   try {
    Array<CIMInstance> instances = client.enumerateInstances(
            providerNamespace,
@@ -158,7 +158,7 @@ executeMethod (CIMClient & client, String operation)
   Array<CIMParamValue> inParm;
   Array < CIMParamValue > outParm;
 
-  keyBindings.append (CIMKeyBinding ("Name", 
+  keyBindings.append (CIMKeyBinding ("Name",
     "TestCMPIThreadProviderModule", CIMKeyBinding::STRING));
 
   instanceName.setNameSpace (PEGASUS_NAMESPACENAME_INTEROP);

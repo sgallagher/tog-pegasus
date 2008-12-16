@@ -54,7 +54,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 static int _maxConnectionQueueLength = -1;
 
-Uint32 HTTPAcceptor::_socketWriteTimeout = 
+Uint32 HTTPAcceptor::_socketWriteTimeout =
     PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS;
 
 #ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
@@ -495,7 +495,7 @@ void HTTPAcceptor::_bind()
             "Common.HTTPAcceptor.FAILED_LISTEN_SOCKET",
             "Failed to listen on socket {0}: {1}.",
             (int)_rep->socket,PEGASUS_SYSTEM_NETWORK_ERRORMSG_NLS );
-        
+
         delete _rep;
         _rep = 0;
         throw BindFailedException(parms);
@@ -781,11 +781,11 @@ void HTTPAcceptor::_acceptConnection()
         PEG_TRACE(
             (TRC_DISCARDED_DATA,
              Tracer::LEVEL1,
-             "HTTPAcceptor out of available sockets." 
+             "HTTPAcceptor out of available sockets."
                  "accept() returned too large socket number %u."
                  "Closing connection to the new client.",
              socket));
-        
+
         return;
     }
 #endif
@@ -801,12 +801,12 @@ void HTTPAcceptor::_acceptConnection()
 #ifdef PEGASUS_ENABLE_IPV6
         char ipBuffer[PEGASUS_INET6_ADDRSTR_LEN];
         int rc;
-        if ((rc = System::getNameInfo(accept_address, 
-                address_size, 
+        if ((rc = System::getNameInfo(accept_address,
+                address_size,
                 ipBuffer,
-                PEGASUS_INET6_ADDRSTR_LEN, 
-                0, 
-                0, 
+                PEGASUS_INET6_ADDRSTR_LEN,
+                0,
+                0,
                 NI_NUMERICHOST)))
         {
             PEG_TRACE((
@@ -862,7 +862,7 @@ void HTTPAcceptor::_acceptConnection()
     socketPtr.release();
 
     mp_socket->disableBlocking();
-    
+
     {
 #ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
         AutoMutex lock(_socketWriteTimeoutMutex);

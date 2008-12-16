@@ -46,7 +46,7 @@ else
     PLATFORM_SOURCES = FilesUnix.cpp
     # some platforms (Mac) require space before pgm name
     EXE_OUTPUT = $(EXE_OUT) $(PROGRAM)$(EXE)
-    OBJ_OUT = -o 
+    OBJ_OUT = -o
     RM = rm -f
     MU_EXE_LOCATION = $(BIN_DIR)/$(PROGRAM)$(EXE)
 endif
@@ -86,7 +86,7 @@ SOURCES = \
 OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
 %$(OBJ): %.cpp
-	$(CXX) -c $(OBJ_OUT)$@ $(FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp 
+	$(CXX) -c $(OBJ_OUT)$@ $(FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.cpp
 
 
 $(FULL_PROGRAM): $(OBJECTS)

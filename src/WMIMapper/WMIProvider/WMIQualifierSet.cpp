@@ -60,7 +60,7 @@ WMIQualifierSet::WMIQualifierSet(IWbemQualifierSet * pObject)
     CComVariant     vValue;    // of the qualifier
     long         lFlavor;    // of the qualifier
     CIMQualifier qualifier;
-    
+
      PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIQualifierSet::WMIQualifierSet");
 
     hr = pObject->BeginEnumeration(0);
@@ -97,7 +97,7 @@ WMIQualifierSet::WMIQualifierSet(IWbemQualifierSet * pObject)
 
         hr = pObject->Next(0, &bsName, &vValue, &lFlavor);
     }
-    
+
     bsName.Empty();
     vValue.Clear();
     pObject->EndEnumeration();
@@ -105,9 +105,9 @@ WMIQualifierSet::WMIQualifierSet(IWbemQualifierSet * pObject)
     if (FAILED(hr))
     {
         PEG_TRACE((TRC_WMIPROVIDER,Tracer::LEVEL1,
-            "WMIQualifierSet::WMIQualifierSet - %s result is %x", 
+            "WMIQualifierSet::WMIQualifierSet - %s result is %x",
             sMessage, hr));
-        
+
         throw CIMException(CIM_ERR_FAILED);
     }
 

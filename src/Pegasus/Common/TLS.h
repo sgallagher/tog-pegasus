@@ -195,7 +195,7 @@ private:
     Uint32    _socketWriteTimeout;
 
 #ifdef PEGASUS_OS_ZOS
-    // Query a AT-TLS secured socket for the authenticated 
+    // Query a AT-TLS secured socket for the authenticated
     // client userID.
     int ATTLS_zOS_query();
 

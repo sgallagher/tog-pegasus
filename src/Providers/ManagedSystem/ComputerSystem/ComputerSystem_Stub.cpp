@@ -81,7 +81,7 @@ Boolean ComputerSystem::getName(CIMProperty& p)
 
 Boolean ComputerSystem::getStatus(CIMProperty& p)
 {
-  // hardcoded 
+  // hardcoded
   p = CIMProperty(PROPERTY_STATUS,String(STATUS));
   return true;
 }

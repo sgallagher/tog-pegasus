@@ -15,16 +15,16 @@
             <PROPERTY NAME="SystemName" TYPE="string">
               <VALUE> server001.acme.com </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="CreationClassName" TYPE="string"> 
+            <PROPERTY NAME="CreationClassName" TYPE="string">
               <VALUE> PG_IndicationHandlerSNMPMapper </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="Name" TYPE="string"> 
+            <PROPERTY NAME="Name" TYPE="string">
               <VALUE> nsaHandlerv2 </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="TrapDestination" TYPE="string"> 
+            <PROPERTY NAME="TrapDestination" TYPE="string">
               <VALUE> glacier.cup.hp.com </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="SNMPVersion" TYPE="string"> 
+            <PROPERTY NAME="SNMPVersion" TYPE="string">
               <VALUE> SNMPv2 </VALUE>
             </PROPERTY>
             <PROPERTY NAME="SNMPCommunityName" TYPE="string">

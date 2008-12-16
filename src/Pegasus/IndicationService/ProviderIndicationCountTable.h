@@ -65,7 +65,7 @@ public:
     ~ProviderIndicationCountTable();
 
     /**
-        Inserts an entry for the specified provider. If the entry 
+        Inserts an entry for the specified provider. If the entry
         already exists, this method has no effect.
 
         @param providerInstance A PG_Provider instance representing the
@@ -107,7 +107,7 @@ public:
         Gets the provider module name and provider name from a PG_Provider
         instance.
 
-        @param providerInstance A PG_Provider instance for which to retrieve 
+        @param providerInstance A PG_Provider instance for which to retrieve
             the provider module name and the provider name.
         @param providerModuleName Output String containing the provider module
             name.
@@ -120,22 +120,22 @@ public:
 
     Array<CIMInstance> enumerateProviderIndicationDataInstances();
 
-    /** 
+    /**
         Enumerates PG_ProviderIndicationData instance names using the data
-        stored in the Provider Indication Count table. 
+        stored in the Provider Indication Count table.
 
         @return All the PG_ProviderIndicationData instanceName.
     */
     Array<CIMObjectPath> enumerateProviderIndicationDataInstanceNames();
 
     /**
-        Gets the Provider Indication Data instance for the specified CIM 
+        Gets the Provider Indication Data instance for the specified CIM
         object path.
 
-        @param instanceName CIMObjectPath specifies a CIM instance to be 
-            returned 
+        @param instanceName CIMObjectPath specifies a CIM instance to be
+            returned
         @return The specified PG_ProviderIndicationData instance.
-        @exception CIMObjectNotFoundException If the specified instance does 
+        @exception CIMObjectNotFoundException If the specified instance does
             not exist
     */
     CIMInstance getProviderIndicationDataInstance(
@@ -176,7 +176,7 @@ private:
     Array<_ProviderIndicationCountTableEntry> _getAllEntries();
 
     /**
-        Builds the provider indication data instance object path by using the 
+        Builds the provider indication data instance object path by using the
             specified provider indication count table entry.
 
         @param providerIndCountTableEntry The provider indication count table
@@ -187,7 +187,7 @@ private:
         const _ProviderIndicationCountTableEntry& providerIndCountTableEntry);
 
     /**
-        Builds the provider indication data instance by using the 
+        Builds the provider indication data instance by using the
             specified provider indication count table entry.
 
         @param providerIndCountTableEntry The provider indication count table

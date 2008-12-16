@@ -69,12 +69,12 @@ public:
 
     virtual void deliverTrap(
         const String& trapOid,
-        const String& securityName, 
-        const String& targetHost, 
-        const Uint16& targetHostFormat, 
-        const String& otherTargetHostFormat, 
+        const String& securityName,
+        const String& targetHost,
+        const Uint16& targetHostFormat,
+        const String& otherTargetHostFormat,
         const Uint32& portNumber,
-        const Uint16& snmpVersion, 
+        const Uint16& snmpVersion,
         const String& engineID,
         const Array<String>& vbOids,
         const Array<String>& vbTypes,

@@ -417,7 +417,7 @@ static CIMEnumerateInstancesResponseMessage* _decodeEnumerateInstancesResponse(
 //
 //==============================================================================
 
-static CIMEnumerateInstanceNamesRequestMessage* 
+static CIMEnumerateInstanceNamesRequestMessage*
 _decodeEnumerateInstanceNamesRequest(
     CIMBuffer& in,
     Uint32 queueId,
@@ -453,7 +453,7 @@ _decodeEnumerateInstanceNamesRequest(
     return request.release();
 }
 
-static CIMEnumerateInstanceNamesResponseMessage* 
+static CIMEnumerateInstanceNamesResponseMessage*
 _decodeEnumerateInstanceNamesResponse(
     CIMBuffer& in,
     Uint32 flags,
@@ -1934,7 +1934,7 @@ static void _encodeEnumerateClassNamesResponseBody(
     out.putNameA(msg->classNames);
 }
 
-static CIMEnumerateClassNamesResponseMessage* 
+static CIMEnumerateClassNamesResponseMessage*
 _decodeEnumerateClassNamesResponse(
     CIMBuffer& in,
     Uint32 flags,
@@ -2607,7 +2607,7 @@ static void _encodeEnumerateQualifiersResponseBody(
     out.putQualifierDeclA(msg->qualifierDeclarations);
 }
 
-static CIMEnumerateQualifiersResponseMessage* 
+static CIMEnumerateQualifiersResponseMessage*
     _decodeEnumerateQualifiersResponse(
     CIMBuffer& in,
     Uint32 flags,
@@ -3450,7 +3450,7 @@ Buffer BinaryCodec::formatSimpleIMethodRspMessage(
     if (isFirst == true)
     {
         // Write HTTP header:
-        XmlWriter::appendMethodResponseHeader(out, httpMethod, 
+        XmlWriter::appendMethodResponseHeader(out, httpMethod,
             httpContentLanguages, 0, serverResponseTime, true);
 
         // Binary message header:
@@ -3671,7 +3671,7 @@ bool BinaryCodec::encodeRequest(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ContentLanguageListContainer(msg->operationContext.get(
             ContentLanguageListContainer::NAME)).getLanguages(),
-        buf.size(), 
+        buf.size(),
         true, /* binaryRequest */
         binaryResponse);
 

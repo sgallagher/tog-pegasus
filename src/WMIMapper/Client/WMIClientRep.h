@@ -29,7 +29,7 @@
 //
 // Author: Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
 //
-// Modified By: 
+// Modified By:
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -73,7 +73,7 @@ class WMIClientRep : public CIMClientInterface
 {
 public:
 
-    WMIClientRep(Uint32 timeoutMilliseconds = 
+    WMIClientRep(Uint32 timeoutMilliseconds =
         PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS);
 
     ~WMIClientRep();
@@ -82,40 +82,40 @@ public:
 
     void registerClientOpPerformanceDataHandler(
         ClientOpPerformanceDataHandler & handler) {};
-    
+
     void deregisterClientOpPerformanceDataHandler(){};
 
-    Uint32 getTimeout() const 
+    Uint32 getTimeout() const
     {
         return _timeoutMilliseconds;
     }
-    
+
     void setTimeout(Uint32 timeoutMilliseconds)
     {
         _timeoutMilliseconds = timeoutMilliseconds;
     }
 
     // l10n start
-    AcceptLanguageList getRequestAcceptLanguages() const 
-    { 
+    AcceptLanguageList getRequestAcceptLanguages() const
+    {
         return AcceptLanguageList();
     };
-    
-    ContentLanguageList getRequestContentLanguages() const 
-    { 
-        return ContentLanguageList(); 
+
+    ContentLanguageList getRequestContentLanguages() const
+    {
+        return ContentLanguageList();
     };
-    
-    ContentLanguageList getResponseContentLanguages() const 
-    { 
-        return ContentLanguageList(); 
+
+    ContentLanguageList getResponseContentLanguages() const
+    {
+        return ContentLanguageList();
     };
 
     void setRequestAcceptLanguages(const AcceptLanguageList& langs) { };
     void setRequestContentLanguages(const ContentLanguageList& langs) { };
     void setRequestDefaultLanguages() { };
-    // l10n end    
-    
+    // l10n end
+
     void connect(
         const String& host,
         const Uint32 portNumber,

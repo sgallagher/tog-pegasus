@@ -61,9 +61,9 @@ static const CIMNamespaceName NAMESPACE  = CIMNamespaceName ("root/cimv2");
 //  Constructor for Next Hop IP Route Info
 ////////////////////////////////////////////////////////////////////////////////
 NextHopIPRouteInfo::NextHopIPRouteInfo(
-    CIMClient &client, 
+    CIMClient &client,
     Boolean enableDebug,
-    ostream& outPrintWriter, 
+    ostream& outPrintWriter,
     ostream& errPrintWriter)
 {
     _enableDebug = enableDebug;
@@ -75,9 +75,9 @@ NextHopIPRouteInfo::NextHopIPRouteInfo(
         Boolean localOnly = true;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
-          
+
         Array<CIMInstance> cimInstances = client.enumerateInstances(
-            NAMESPACE, 
+            NAMESPACE,
             CLASS_PG_NEXT_HOP_IP_ROUTE,
             deepInheritance,
             localOnly,
@@ -96,7 +96,7 @@ NextHopIPRouteInfo::NextHopIPRouteInfo(
             CIMObjectPath _nhrRef = nhiprRefs[i];
             _nhrRef.setClassName(CLASS_CIM_NEXT_HOP_ROUTE);
 
-            // Get the association instance of CIM_RouteUsesEndpoint 
+            // Get the association instance of CIM_RouteUsesEndpoint
             // for each instance of CIM_NextHopRoute class
             Array<CIMObject> localRefs = client.associators(
                 NAMESPACE,
@@ -114,9 +114,9 @@ NextHopIPRouteInfo::NextHopIPRouteInfo(
                     index = localRefs[0].findProperty(PROPERTY_IPV6ADDRESS);
                     if (index == PEG_NOT_FOUND)
                     {
-                        errPrintWriter << 
+                        errPrintWriter <<
                             "Error getting IPv4Address and IPv6Address " <<
-                            "property: " << "not found!" << endl; 
+                            "property: " << "not found!" << endl;
                     }
                     else
                     {
@@ -129,7 +129,7 @@ NextHopIPRouteInfo::NextHopIPRouteInfo(
                              CIMValue(_nextHop));
                         _cimInstance.addProperty(_nhProperty);
                         retInstances.append(_cimInstance);
-                    } 
+                    }
                 }
                 else
                 {
@@ -174,7 +174,7 @@ NextHopIPRouteInfo::NextHopIPRouteInfo(
                                  CIMValue(_nextHop));
                             _cimInstance.addProperty(_nhProperty);
                             retInstances.append(_cimInstance);
-                        } 
+                        }
                     }
                     else
                     {
@@ -188,7 +188,7 @@ NextHopIPRouteInfo::NextHopIPRouteInfo(
                           << "for this instance of class CIM_NextHopRoute :"
                           << remoteRefs.size() << endl;
                 }
-            } 
+            }
         }
 
         Uint32 numberInstances = retInstances.size();
@@ -213,7 +213,7 @@ NextHopIPRouteInfo::NextHopIPRouteInfo(
         }
         else
         {
-            outPrintWriter << "No instances of class " 
+            outPrintWriter << "No instances of class "
                 << CLASS_PG_NEXT_HOP_IP_ROUTE.getString() << endl;
         }
 
@@ -221,7 +221,7 @@ NextHopIPRouteInfo::NextHopIPRouteInfo(
     catch(Exception& e)
     {
         errPrintWriter << "Error getting instances of class " <<
-            CLASS_PG_NEXT_HOP_IP_ROUTE.getString() << 
+            CLASS_PG_NEXT_HOP_IP_ROUTE.getString() <<
             " " << e.getMessage() << endl;
     }
 
@@ -260,35 +260,35 @@ void NextHopIPRouteInfo::_gatherProperties(CIMInstance &inst)
         // Other properties
         else if (propertyName.equal("Caption"))
         {
-            inst.getProperty(j).getValue().get(_ipCaption); 
+            inst.getProperty(j).getValue().get(_ipCaption);
         }
         else if (propertyName.equal("Description"))
         {
-            inst.getProperty(j).getValue().get(_ipDescription); 
+            inst.getProperty(j).getValue().get(_ipDescription);
         }
         else if (propertyName.equal("Name"))
         {
-            inst.getProperty(j).getValue().get(_ipName); 
+            inst.getProperty(j).getValue().get(_ipName);
         }
         else if (propertyName.equal("DestinationAddress"))
         {
-            inst.getProperty(j).getValue().get(_ipIPDestAddr); 
+            inst.getProperty(j).getValue().get(_ipIPDestAddr);
         }
         else if (propertyName.equal("DestinationMask"))
         {
-            inst.getProperty(j).getValue().get(_ipIPDestMask); 
+            inst.getProperty(j).getValue().get(_ipIPDestMask);
         }
         else if (propertyName.equal("AddressType"))
         {
-            inst.getProperty(j).getValue().get(_ipAddrType); 
+            inst.getProperty(j).getValue().get(_ipAddrType);
         }
         else if (propertyName.equal("PrefixLength"))
         {
-            inst.getProperty(j).getValue().get(_ipPrefixLength); 
+            inst.getProperty(j).getValue().get(_ipPrefixLength);
         }
         else if (propertyName.equal(PROPERTY_NEXT_HOP))
         {
-            inst.getProperty(j).getValue().get(_ipNextHop); 
+            inst.getProperty(j).getValue().get(_ipNextHop);
         }
    } // end for loop through properties
 
@@ -301,7 +301,7 @@ void NextHopIPRouteInfo::_gatherProperties(CIMInstance &inst)
 void NextHopIPRouteInfo::_outputHeader(ostream &outPrintWriter)
 {
 
-    outPrintWriter << endl << ">>>> Next Hop IP Route Information <<<<" 
+    outPrintWriter << endl << ">>>> Next Hop IP Route Information <<<<"
         << endl << endl;
 
     if (_ipInstanceID.size() > 0)
@@ -315,7 +315,7 @@ void NextHopIPRouteInfo::_outputHeader(ostream &outPrintWriter)
         "DestMask/PrefLen", "NextHop");
 
     outPrintWriter << endl << header << endl;
-    
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -328,15 +328,15 @@ void NextHopIPRouteInfo::_outputInstance(ostream &outPrintWriter)
     if (_ipAddrType == 1)
     {
         sprintf(
-            row, 
-            HeaderFormat, 
+            row,
+            HeaderFormat,
             (const char *)_ipName.getCString(),
             "IPv4",
             (const char *)_ipIPDestAddr.getCString(),
             (const char *)_ipIPDestMask.getCString(),
             (const char *)_ipNextHop.getCString());
     }
-    else 
+    else
     {
         if (_ipAddrType == 2)
         {
@@ -345,8 +345,8 @@ void NextHopIPRouteInfo::_outputInstance(ostream &outPrintWriter)
             if (_ipName.size() > 15)
             {
                 sprintf(
-                    row, 
-                    HeaderFormat, 
+                    row,
+                    HeaderFormat,
                     (const char *)_ipName.getCString(),
                     "",
                     "",
@@ -359,8 +359,8 @@ void NextHopIPRouteInfo::_outputInstance(ostream &outPrintWriter)
             if (_ipIPDestAddr.size() > 15)
             {
                 sprintf(
-                    row, 
-                    HeaderFormat, 
+                    row,
+                    HeaderFormat,
                     (const char *)_ipName.getCString(),
                     (const char *)_ipt.getCString(),
                     (const char *)_ipIPDestAddr.getCString(),
@@ -370,13 +370,13 @@ void NextHopIPRouteInfo::_outputInstance(ostream &outPrintWriter)
                 _ipIPDestAddr.clear();
                 _ipt.clear();
             }
-     
+
             char _pl[10];
             sprintf(_pl,"%d",_ipPrefixLength);
 
             sprintf(
-                row, 
-                HeaderFormat, 
+                row,
+                HeaderFormat,
                 (const char *)_ipName.getCString(),
                 (const char *)_ipt.getCString(),
                 (const char *)_ipIPDestAddr.getCString(),
@@ -386,8 +386,8 @@ void NextHopIPRouteInfo::_outputInstance(ostream &outPrintWriter)
         else
         {
             sprintf(
-                row, 
-                HeaderFormat, 
+                row,
+                HeaderFormat,
                 (const char *)_ipName.getCString(),
                 "Unk",
                 (const char *)_ipIPDestAddr.getCString(),
@@ -398,5 +398,5 @@ void NextHopIPRouteInfo::_outputInstance(ostream &outPrintWriter)
 
 
     outPrintWriter << row << endl;
-    
+
 }

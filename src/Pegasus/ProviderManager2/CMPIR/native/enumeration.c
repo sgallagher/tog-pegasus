@@ -35,7 +35,7 @@
 
     This is the native CMPIEnumeration implementation as used for remote
     providers. It reflects the well-defined interface of a regular
-    CMPIEnumeration, however, it works independently from the management 
+    CMPIEnumeration, however, it works independently from the management
     broker.
 
     It is part of a native broker implementation that simulates CMPI data
@@ -56,7 +56,7 @@ struct native_enum
     CMPIArray * data;
 };
 
-static struct native_enum * __new_enumeration ( 
+static struct native_enum * __new_enumeration (
     int,
     CMPIArray *,
     CMPIStatus * );
@@ -78,7 +78,7 @@ static CMPIStatus __eft_release ( CMPIEnumeration * enumeration )
     return rc;
 }
 
-static CMPIEnumeration * __eft_clone ( 
+static CMPIEnumeration * __eft_clone (
     CONST CMPIEnumeration * enumeration,
     CMPIStatus * rc )
 {
@@ -101,13 +101,13 @@ static CMPIEnumeration * __eft_clone (
     }
 
     return
-        (CMPIEnumeration *) __new_enumeration ( 
+        (CMPIEnumeration *) __new_enumeration (
         TOOL_MM_NO_ADD,
         data,
         rc );
 }
 
-static CMPIData __eft_getNext ( 
+static CMPIData __eft_getNext (
     CONST CMPIEnumeration * enumeration,
     CMPIStatus * rc )
 {
@@ -122,7 +122,7 @@ static CMPIData __eft_getNext (
     return CMGetArrayElementAt ( e->data, e->current++, rc );
 }
 
-static CMPIBoolean __eft_hasNext ( 
+static CMPIBoolean __eft_hasNext (
     CONST CMPIEnumeration * enumeration,
     CMPIStatus * rc )
 {
@@ -135,7 +135,7 @@ static CMPIBoolean __eft_hasNext (
     return( e->current < CMGetArrayCount ( e->data, rc ) );
 }
 
-static CMPIArray * __eft_toArray ( 
+static CMPIArray * __eft_toArray (
     CONST CMPIEnumeration * enumeration,
     CMPIStatus * rc )
 {
@@ -147,7 +147,7 @@ static CMPIArray * __eft_toArray (
     return e->data;
 }
 
-static struct native_enum * __new_enumeration ( 
+static struct native_enum * __new_enumeration (
     int mm_add,
     CMPIArray * array,
     CMPIStatus * rc )
@@ -179,10 +179,10 @@ static struct native_enum * __new_enumeration (
     return enumeration;
 }
 
-PEGASUS_EXPORT CMPIEnumeration * PEGASUS_CMPIR_CDECL 
+PEGASUS_EXPORT CMPIEnumeration * PEGASUS_CMPIR_CDECL
     native_new_CMPIEnumeration ( CMPIArray * array, CMPIStatus * rc )
 {
-    return(CMPIEnumeration *) __new_enumeration ( 
+    return(CMPIEnumeration *) __new_enumeration (
         TOOL_MM_ADD,
         array,
         rc );

@@ -204,7 +204,7 @@ void test01()
         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
     CIMObjectPath h17("//u812/root/cimv25:"
         "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-     
+
     // Hostname with '_' character support checks, see bug#2556.
     CIMObjectPath h18("//_atp:9999/_root/_cimv25:_TennisPlayer");
     CIMObjectPath h19("//a_tp/_root/_cimv25:_TennisPlayer");
@@ -271,7 +271,7 @@ void test01()
     catch (const Exception&)
     {
        errorDetected = true;
-    } 
+    }
     PEGASUS_TEST_ASSERT(errorDetected);
 
     errorDetected = false;
@@ -284,7 +284,7 @@ void test01()
     catch (const Exception&)
     {
        errorDetected = true;
-    } 
+    }
     PEGASUS_TEST_ASSERT(errorDetected);
 
     errorDetected = false;
@@ -297,7 +297,7 @@ void test01()
     catch (const Exception&)
     {
        errorDetected = true;
-    } 
+    }
     PEGASUS_TEST_ASSERT(errorDetected);
 
     errorDetected = false;
@@ -319,7 +319,7 @@ void test01()
         // Octet out of range
         CIMObjectPath op("//192.168.256.80:77/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    } 
+    }
     catch (const Exception&)
     {
         errorDetected = true;
@@ -345,7 +345,7 @@ void test01()
         // Too many octets
         CIMObjectPath op("//192.168.1.80.12/root/cimv25:"
             "TennisPlayer.first=\"Chris\",last=\"Evert\"");
-    } 
+    }
     catch (const Exception&)
     {
         errorDetected = true;
@@ -671,7 +671,7 @@ void test03()
 
     CIMKeyBinding kb11("test11", String("+100"), CIMKeyBinding::NUMERIC);
     // Unsigned ints may not start with "+"
-    PEGASUS_TEST_ASSERT(!kb11.equal(Uint64(100)));  
+    PEGASUS_TEST_ASSERT(!kb11.equal(Uint64(100)));
     PEGASUS_TEST_ASSERT(!kb11.equal(Uint32(100)));
     PEGASUS_TEST_ASSERT(!kb11.equal(Uint16(100)));
     PEGASUS_TEST_ASSERT(!kb11.equal(Uint8(100)));
@@ -732,7 +732,7 @@ void test04()
     PEGASUS_TEST_ASSERT (aPath.identical (aPath2));
 
     CIMInstance instanceB (CIMName ("B"));
-    instanceB.addProperty (CIMProperty (CIMName ("q"), 
+    instanceB.addProperty (CIMProperty (CIMName ("q"),
         String ("pelargonium")));
     instanceB.addProperty (CIMProperty (CIMName ("r"), String ("thyme")));
     instanceB.addProperty (CIMProperty (CIMName ("s"), String ("sage")));

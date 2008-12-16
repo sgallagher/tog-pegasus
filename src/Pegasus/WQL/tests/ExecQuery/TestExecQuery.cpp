@@ -29,7 +29,7 @@
 //
 // Author: Amit K Arora, IBM (amita@in.ibm.com)
 //
-// Modified By: 
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +62,7 @@ void testQuery1(CIMClient& client)
 
    Array<CIMObject> arr=client.execQuery(NAMESPACE,String("WQL"),
                                          String(QUERY1));
-        
+
    Array<CIMInstance> instances = client.enumerateInstances(
                                  NAMESPACE, CIMName("TST_Person"));
 
@@ -89,7 +89,7 @@ void testQuery1(CIMClient& client)
           continue;
      }
    }
-   
+
    if(matchedCount != arr.size())
          throw(Exception("The Property values do not match."));
 }
@@ -100,7 +100,7 @@ void testQuery2(CIMClient& client)
    unsigned int matchedCount = 0;
    Array<CIMObject> arr=client.execQuery(NAMESPACE,String("WQL"),
                                          String(QUERY2));
-        
+
    Array<CIMInstance> instancesAll = client.enumerateInstances(
                                  NAMESPACE, CIMName("TST_Person"));
 
@@ -113,7 +113,7 @@ void testQuery2(CIMClient& client)
      if(String::equal(cv1.toString(), String(NAME2)))
        instances.append(instancesAll[i]);
    }
-   
+
    if(arr.size() != instances.size())
    {
       throw(Exception("Number of instances returned do not match."));
@@ -148,7 +148,7 @@ void testQuery3(CIMClient& client)
    unsigned int matchedCount = 0;
    Array<CIMObject> arr=client.execQuery(NAMESPACE,String("WQL"),
                                          String(QUERY3));
-        
+
    Array<CIMInstance> instancesAll = client.enumerateInstances(
                                  NAMESPACE, CIMName("TST_Person"));
 
@@ -160,7 +160,7 @@ void testQuery3(CIMClient& client)
      int idx = instancesAll[i].findProperty(CIMName("name"));
      CIMValue cv1 =  instancesAll[i].getProperty(idx).getValue();
      idx = instancesAll[i].findProperty(CIMName("extraProperty"));
-     if(idx >= 0) 
+     if(idx >= 0)
      {
        CIMValue cv2 =  instancesAll[i].getProperty(idx).getValue();
        if(String::equal(cv2.toString(),String(PROP3)))
@@ -205,7 +205,7 @@ void testQuery4(CIMClient& client)
    unsigned int matchedCount = 0;
    Array<CIMObject> arr=client.execQuery(NAMESPACE,String("WQL"),
                                          String(QUERY4));
-        
+
    Array<CIMInstance> instancesAll = client.enumerateInstances(
                                  NAMESPACE, CIMName("TST_Person"));
 
@@ -273,11 +273,11 @@ int main(int argc, char** argv)
   {
     cout << argv[0] << ": "<< e.getMessage() << endl;
     cout << argv[0] << " ----- " << testName << " testcase failed" << endl;
-    client.disconnect(); 
+    client.disconnect();
     return 1;
   }
- 
-  client.disconnect(); 
+
+  client.disconnect();
   cout << argv[0] << " +++++ passed all tests" << endl;
 
   return 0;

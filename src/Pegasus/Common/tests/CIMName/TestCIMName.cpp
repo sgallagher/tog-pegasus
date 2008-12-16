@@ -80,11 +80,11 @@ const char utf8Mixed[14] = {
     '\x79',                  // letter y
     'b',
     '\xC3', '\xA4',          // umlaut ae
-    'c',                    
+    'c',
     '\xC2', '\xAE',          // sign for registered trademark
-    'd',                    
+    'd',
     '\xE2', '\x82', '\xAC',  // euro sign
-    'e',                    
+    'e',
     '\0'                     // null termination
 };
 
@@ -104,7 +104,7 @@ const Char16 utf8MixedChar16[10] = {
 
 // ASCII with invalid UTF-8, error in start byte
 const char utf8BrokenStartByte[6] = {
-    'a', 'b', 'c', 
+    'a', 'b', 'c',
     '\xFF',                   // invalid start byte
     '\x83',                   // sequence byte for 2 byte UTF-8
     '\0'                      // null termination
@@ -112,7 +112,7 @@ const char utf8BrokenStartByte[6] = {
 
 // ASCII with invalid UTF-8, error in sequence bytes
 const char utf8BrokenSequenceByte[6] = {
-    'a', 'b', 'c', 
+    'a', 'b', 'c',
     '\xC2',                   // valid start byte for 2 byte UTF-8
     '\x00',                   // invalid sequence byte, valid binary='10xx xxxx'
     '\0'                      // null termination
@@ -141,7 +141,7 @@ void test01()
 
     // check size
     PEGASUS_TEST_ASSERT(25 == tempCIMName.getString().size());
-    
+
     // check if what we get back equals what we placed into it
     char* backTransformation;
     backTransformation = strdup(tempCIMName.getString().getCString());
@@ -149,7 +149,7 @@ void test01()
     PEGASUS_TEST_ASSERT(25 == strlen(backTransformation));
     PEGASUS_TEST_ASSERT(0 == strcmp(backTransformation, asciiOnly));
     free(backTransformation);
-    
+
     // for safety, check the UTF-16 representation is correct
     const Char16* tempChar16= tempCIMName.getString().getChar16Data();
     PEGASUS_TEST_ASSERT(equalChar16(tempChar16, asciiOnlyChar16, 26));
@@ -159,12 +159,12 @@ void test01()
 void test02()
 {
     VCOUT << "Test CIMName(char*) with valid utf-8 only...";
-    
+
     CIMName tempCIMName(utf8Only);
 
     // check size
     PEGASUS_TEST_ASSERT(4 == tempCIMName.getString().size());
-    
+
     // check if what we get back equals what we placed into it
     char* backTransformation;
     backTransformation = strdup(tempCIMName.getString().getCString());
@@ -172,7 +172,7 @@ void test02()
     PEGASUS_TEST_ASSERT(8 == strlen(backTransformation));
     PEGASUS_TEST_ASSERT(0 == strcmp(backTransformation, utf8Only));
     free(backTransformation);
-    
+
     // for safety, check the UTF-16 representation is correct
     const Char16* tempChar16= tempCIMName.getString().getChar16Data();
     PEGASUS_TEST_ASSERT(equalChar16(tempChar16, utf8OnlyChar16, 5));
@@ -182,11 +182,11 @@ void test02()
 void test03()
 {
     VCOUT << "Test CIMName(char*) with mixed valid utf-8 and ASCII...";
-    
+
     CIMName tempCIMName(utf8Mixed);
     // check size
     PEGASUS_TEST_ASSERT(9 == tempCIMName.getString().size());
-    
+
     // check if what we get back equals what we placed into it
     char* backTransformation;
     backTransformation = strdup(tempCIMName.getString().getCString());
@@ -194,7 +194,7 @@ void test03()
     PEGASUS_TEST_ASSERT(13 == strlen(backTransformation));
     PEGASUS_TEST_ASSERT(0 == strcmp(backTransformation, utf8Mixed));
     free(backTransformation);
-    
+
     // for safety, check the UTF-16 representation is correct
     const Char16* tempChar16= tempCIMName.getString().getChar16Data();
     PEGASUS_TEST_ASSERT(equalChar16(tempChar16, utf8MixedChar16, 10));
@@ -220,7 +220,7 @@ void test04()
             VCOUT << " +++++ passed" << endl;
             return;
         }
-        else 
+        else
         {
             throw;
         }
@@ -247,7 +247,7 @@ void test05()
             VCOUT << " +++++ passed" << endl;
             return;
         }
-        else 
+        else
         {
             throw;
         }
@@ -278,7 +278,7 @@ void test11()
 
     // check size
     PEGASUS_TEST_ASSERT(25 == tempCIMName.getString().size());
-    
+
     // check if what we get back equals what we placed into it
     char* backTransformation;
     backTransformation = strdup(tempCIMName.getString().getCString());
@@ -286,7 +286,7 @@ void test11()
     PEGASUS_TEST_ASSERT(25 == strlen(backTransformation));
     PEGASUS_TEST_ASSERT(0 == strcmp(backTransformation, asciiOnly));
     free(backTransformation);
-    
+
     // for safety, check the UTF-16 representation is correct
     const Char16* tempChar16= tempCIMName.getString().getChar16Data();
     PEGASUS_TEST_ASSERT(equalChar16(tempChar16, asciiOnlyChar16, 26));
@@ -297,12 +297,12 @@ void test12()
 {
     VCOUT << "Test assignment CIMName=(char*)"
                  " with valid utf-8 only...";
-    
+
     CIMName tempCIMName = utf8Only;
 
     // check size
     PEGASUS_TEST_ASSERT(4 == tempCIMName.getString().size());
-    
+
     // check if what we get back equals what we placed into it
     char* backTransformation;
     backTransformation = strdup(tempCIMName.getString().getCString());
@@ -310,7 +310,7 @@ void test12()
     PEGASUS_TEST_ASSERT(8 == strlen(backTransformation));
     PEGASUS_TEST_ASSERT(0 == strcmp(backTransformation, utf8Only));
     free(backTransformation);
-    
+
     // for safety, check the UTF-16 representation is correct
     const Char16* tempChar16= tempCIMName.getString().getChar16Data();
     PEGASUS_TEST_ASSERT(equalChar16(tempChar16, utf8OnlyChar16, 5));
@@ -321,11 +321,11 @@ void test13()
 {
     VCOUT << "Test assignment CIMName=(char*)"
                  " with mixed valid utf-8 and ASCII...";
-    
+
     CIMName tempCIMName = utf8Mixed;
     // check size
     PEGASUS_TEST_ASSERT(9 == tempCIMName.getString().size());
-    
+
     // check if what we get back equals what we placed into it
     char* backTransformation;
     backTransformation = strdup(tempCIMName.getString().getCString());
@@ -333,7 +333,7 @@ void test13()
     PEGASUS_TEST_ASSERT(13 == strlen(backTransformation));
     PEGASUS_TEST_ASSERT(0 == strcmp(backTransformation, utf8Mixed));
     free(backTransformation);
-    
+
     // for safety, check the UTF-16 representation is correct
     const Char16* tempChar16= tempCIMName.getString().getChar16Data();
     PEGASUS_TEST_ASSERT(equalChar16(tempChar16, utf8MixedChar16, 10));
@@ -359,7 +359,7 @@ void test14()
             VCOUT << " +++++ passed" << endl;
             return;
         }
-        else 
+        else
         {
             throw;
         }
@@ -386,7 +386,7 @@ void test15()
             VCOUT << " +++++ passed" << endl;
             return;
         }
-        else 
+        else
         {
             throw;
         }

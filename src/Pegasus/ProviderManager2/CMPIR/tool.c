@@ -111,13 +111,13 @@ void * tool_load_lib ( const char * libname )
     if (dllhand == 0)
     {
 #if defined PEGASUS_OS_TYPE_UNIX
-        TRACE_CRITICAL( 
-            ("Trying to load library: %s failed with %s\n", 
+        TRACE_CRITICAL(
+            ("Trying to load library: %s failed with %s\n",
             libname,
             dlerror()) );
 #else
-        TRACE_CRITICAL( 
-            ("Trying to load library: %s failed with %s\n", 
+        TRACE_CRITICAL(
+            ("Trying to load library: %s failed with %s\n",
             libname,
             strerror(errno)) );
 #endif
@@ -126,7 +126,7 @@ void * tool_load_lib ( const char * libname )
 }
 
 
-static void * __get_generic_entry_point ( 
+static void * __get_generic_entry_point (
     void * library,
     const char * ptype )
 {
@@ -139,7 +139,7 @@ static void * __get_generic_entry_point (
 }
 
 
-static void * __get_fixed_entry_point ( 
+static void * __get_fixed_entry_point (
     const char * provider,
     void * library,
     const char * ptype )

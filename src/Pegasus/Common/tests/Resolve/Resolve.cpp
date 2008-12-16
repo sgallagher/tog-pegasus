@@ -44,7 +44,7 @@
     -resolution of propagation of qualifiers, properties, and methods to
         a subclass.
     -propagation of the values to subclasses.
-    
+
     All tests are confirmed with assertions so that the test should run
     silently.
     NOTE: Problems with the assertions are probably indications of problems
@@ -87,10 +87,10 @@ void test01()
     CIMQualifierDecl q1(CIMName ("q1"),String(),CIMScope::CLASS);
 
     // This qualifier is
-    CIMQualifierDecl q2(CIMName ("Abstract"), Boolean(true), CIMScope::CLASS, 
+    CIMQualifierDecl q2(CIMName ("Abstract"), Boolean(true), CIMScope::CLASS,
         CIMFlavor::NONE);
 
-    // flavors for this one should be enableoverride, and tosubclass 
+    // flavors for this one should be enableoverride, and tosubclass
     CIMQualifierDecl key(CIMName ("key"),Boolean(true),
             (CIMScope::PROPERTY + CIMScope::REFERENCE), CIMFlavor::TOSUBCLASS);
 
@@ -99,11 +99,11 @@ void test01()
     CIMQualifierDecl q3(CIMName ("q3"),v1,CIMScope::CLASS);
 
     // Flavor should be tosubclass and overridable
-    CIMQualifierDecl q4(CIMName ("q4"),String(),CIMScope::CLASS, 
+    CIMQualifierDecl q4(CIMName ("q4"),String(),CIMScope::CLASS,
         CIMFlavor::TOSUBCLASS + CIMFlavor::ENABLEOVERRIDE);
 
     // Flavor should be tosubclass and overridable
-    CIMQualifierDecl q5(CIMName ("q5"),String("Declaration"),CIMScope::CLASS, 
+    CIMQualifierDecl q5(CIMName ("q5"),String("Declaration"),CIMScope::CLASS,
         CIMFlavor::TOSUBCLASS + CIMFlavor::ENABLEOVERRIDE);
 
     if(verbose)
@@ -139,10 +139,10 @@ void test01()
         .addQualifier(CIMQualifier(CIMName ("q5"), String("Hello")))
         .addProperty(CIMProperty(keyProperty))
     ;
-    
+
     context->addClass(NAMESPACE, class2);
     Resolver::resolveClass (class2, context, NAMESPACE);
-    
+
     if(verbose) cout << "Create Class1 " << endl;
 
     CIMClass class1(CIMName ("SubClass"), CIMName ("SuperClass"));
@@ -210,39 +210,39 @@ void test01()
     -subclasses have the following moved correctly from superclasses:
         -properties and the propagated flag set.
         -Qualifiers with toSubclass set.
-    
+
     Confirms that the following is not done:
         -qualifiers with !tosubclass are not propagated.
-    
+
     Confirms classOrigin set correctly for all properties and methods.
     Confirms that the propagated flag set correctly on all propagated
     properties and methods.
-    
+
     Tests to be added:
         -Method propagation
         -Array propagation
-    
+
     All tests are confirmed with assertions. Displays are optional except
     for a few cases where the resolve itself is incorrect and we need reminders
     to fix it.
-    
+
 */
 void test02()
 {
     if(verbose)
         cout << "Test02 - Resolution of properties from super to subclass "
             << endl;
-    
+
     const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/ttt");
     Boolean resolved = false;
     SimpleDeclContext* context = new SimpleDeclContext;
 
 
       // flavors for this one should be disable override, restricted.
-      CIMQualifierDecl abstract(CIMName ("Abstract"), Boolean(true), 
+      CIMQualifierDecl abstract(CIMName ("Abstract"), Boolean(true),
           CIMScope::CLASS, CIMFlavor::RESTRICTED + CIMFlavor::DISABLEOVERRIDE);
 
-      // flavors for this one should be disableoverride, but tosubclass 
+      // flavors for this one should be disableoverride, but tosubclass
       CIMQualifierDecl key(CIMName ("key"),Boolean(true),
           (CIMScope::PROPERTY + CIMScope::REFERENCE),
         CIMFlavor::TOSUBCLASS);
@@ -251,7 +251,7 @@ void test02()
       CIMQualifierDecl notToSubclass(CIMName ("notToSubclass"), Boolean(),
           (CIMScope::PROPERTY + CIMScope::CLASS),
           CIMFlavor::RESTRICTED + CIMFlavor::DISABLEOVERRIDE);
-      // same qualities as association qualifier. DisableOverride 
+      // same qualities as association qualifier. DisableOverride
       CIMQualifierDecl association(CIMName ("associat"), Boolean(false),
           (CIMScope::ASSOCIATION + CIMScope::CLASS),
           CIMFlavor::DISABLEOVERRIDE);
@@ -277,12 +277,12 @@ void test02()
       CIMQualifierDecl q1(CIMName ("q1"),String(),CIMScope::CLASS,
         CIMFlavor::DEFAULTS);
 
-      CIMQualifierDecl q2(CIMName ("q2"),String(),CIMScope::CLASS, 
+      CIMQualifierDecl q2(CIMName ("q2"),String(),CIMScope::CLASS,
           CIMFlavor::DEFAULTS);
 
       // Qualifier q3 Boolean with value zero
       CIMValue v1(CIMTYPE_UINT32, false);
-      CIMQualifierDecl q3(CIMName ("q3"),v1,CIMScope::CLASS, 
+      CIMQualifierDecl q3(CIMName ("q3"),v1,CIMScope::CLASS,
           CIMFlavor::DEFAULTS);
 
       Array<String> stringArray;
@@ -321,17 +321,17 @@ void test02()
     CIMClass superClass(CIMName ("SuperClass"));
 
     // Create property with qualifier that propagates.
-    CIMProperty propertyWithQualifier(CIMName ("withQualifier"), 
+    CIMProperty propertyWithQualifier(CIMName ("withQualifier"),
             Boolean(true));
     propertyWithQualifier
-        .addQualifier(CIMQualifier(CIMName ("toSubclass"), 
+        .addQualifier(CIMQualifier(CIMName ("toSubclass"),
                     String("default")));
-    
+
     // Create a key property with key qualifier
     CIMProperty keyProperty(CIMName ("keyProperty"), Boolean(true));
-    keyProperty 
+    keyProperty
         .addQualifier(CIMQualifier(CIMName ("key"), Boolean(true)));
-  
+
     /* ATTN:  Add the following qualifier   to the superclass.  Needs value
         or Null indicator.  Try for Null to see propagation of null
     .addQualifier(CIMQualifier(CIMName ("arrayValue")))
@@ -343,24 +343,24 @@ void test02()
         .addQualifier(CIMQualifier(CIMName ("Abstract"), Boolean(true)))
         .addQualifier(CIMQualifier(CIMName ("q1"), String("BonJour")))
         .addQualifier(CIMQualifier(CIMName ("notToSubclass"), true))
-        .addQualifier(CIMQualifier(CIMName ("toSubclass"), 
+        .addQualifier(CIMQualifier(CIMName ("toSubclass"),
                     String("default")))
-        .addQualifier(CIMQualifier(CIMName ("toSubclassOverriddable"), 
+        .addQualifier(CIMQualifier(CIMName ("toSubclassOverriddable"),
                     String("superClass")))
         .addQualifier(CIMQualifier(CIMName ("associat"), Boolean(true)))
 
         .addProperty(CIMProperty(keyProperty))
         .addProperty(CIMProperty(CIMName ("message"), String("Hello")))
-        .addProperty(CIMProperty(CIMName ("onlyInSuperClass"), 
+        .addProperty(CIMProperty(CIMName ("onlyInSuperClass"),
                     String("Hello")))
         .addProperty(CIMProperty(propertyWithQualifier))
 
         // This method to demo propagation of method to subclass
-        .addMethod(CIMMethod(CIMName ("methodinSuperclass"), 
+        .addMethod(CIMMethod(CIMName ("methodinSuperclass"),
                     CIMTYPE_BOOLEAN)
-            .addParameter(CIMParameter(CIMName ("hostname"), 
+            .addParameter(CIMParameter(CIMName ("hostname"),
                             CIMTYPE_STRING))
-            .addParameter(CIMParameter(CIMName ("port"), 
+            .addParameter(CIMParameter(CIMName ("port"),
                             CIMTYPE_UINT32)));
 
         ;
@@ -371,33 +371,33 @@ void test02()
     // add the superclass and resolve it.
     context->addClass(NAMESPACE, superClass);
     Resolver::resolveClass (superClass, context, NAMESPACE);
-    
+
     // Create the subclass
     CIMClass subClass(CIMName ("SubClass"), CIMName ("SuperClass"));
 
-    CIMProperty sndPropertyWithQualifier(CIMName ("sndWithQualifier"), 
+    CIMProperty sndPropertyWithQualifier(CIMName ("sndWithQualifier"),
             Boolean(true));
     sndPropertyWithQualifier
-        .addQualifier(CIMQualifier(CIMName ("toSubclass"), 
+        .addQualifier(CIMQualifier(CIMName ("toSubclass"),
                     String("default")));
 
     subClass
         .addQualifier(CIMQualifier(CIMName ("q1"), String("Hello")))
         .addQualifier(CIMQualifier(CIMName ("q3"), Uint32(99)))
-        .addQualifier(CIMQualifier(CIMName ("toSubclassOverriddable"), 
+        .addQualifier(CIMQualifier(CIMName ("toSubclassOverriddable"),
                     String("subClass")))
 
         // the key property should be propagated so do not put in subclass.
-        .addProperty(CIMProperty(CIMName ("message"), 
+        .addProperty(CIMProperty(CIMName ("message"),
                     String("Goodbye")))
         .addProperty(CIMProperty(CIMName ("count"), Uint32(77)))
         // .addProperty(CIMProperty(CIMName ("ref1"),
         // Reference("MyClass.key1=\"fred\"")))
 
         .addMethod(CIMMethod(CIMName ("isActive"), CIMTYPE_BOOLEAN)
-                    .addParameter(CIMParameter(CIMName ("hostname"), 
+                    .addParameter(CIMParameter(CIMName ("hostname"),
                         CIMTYPE_STRING))
-                    .addParameter(CIMParameter(CIMName ("port"), 
+                    .addParameter(CIMParameter(CIMName ("port"),
                         CIMTYPE_UINT32)));
     if(verbose)
     {
@@ -439,10 +439,10 @@ void test02()
                 CIMName ("Q3")) == PEG_NOT_FOUND);
         PEGASUS_TEST_ASSERT(superClass.findQualifier(
                     CIMName ("Q1")) != PEG_NOT_FOUND);
-    PEGASUS_TEST_ASSERT(superClass.findQualifier(CIMName ("notToSubclass")) != 
+    PEGASUS_TEST_ASSERT(superClass.findQualifier(CIMName ("notToSubclass")) !=
             PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT(superClass.findQualifier(
-                CIMName ("toSubClassOverriddable")) != 
+                CIMName ("toSubClassOverriddable")) !=
             PEG_NOT_FOUND);
     CIMQualifier qt = superClass.getQualifier(superClass.findQualifier
             (CIMName ("Abstract")));
@@ -455,11 +455,11 @@ void test02()
     PEGASUS_TEST_ASSERT(subClass.findQualifier(
                 CIMName ("toSubClass")) != PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT(subClass.findQualifier(
-                CIMName ("toSubClassOverriddable")) != 
+                CIMName ("toSubClassOverriddable")) !=
             PEG_NOT_FOUND);
-    
+
     // Confirm that qualifiers that should not be propagated are not.
-    PEGASUS_TEST_ASSERT(subClass.findQualifier(CIMName ("notToSubclass")) == 
+    PEGASUS_TEST_ASSERT(subClass.findQualifier(CIMName ("notToSubclass")) ==
             PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT(subClass.findQualifier(
                 CIMName ("Abstract")) == PEG_NOT_FOUND);
@@ -482,10 +482,10 @@ void test02()
     PEGASUS_TEST_ASSERT (superClass.findProperty(
                 CIMName ("message")) != PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT (superClass.findProperty(
-                CIMName ("onlyInSuperclass")) != 
+                CIMName ("onlyInSuperclass")) !=
             PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT (superClass.findProperty(
-                CIMName ("withQualifier")) != 
+                CIMName ("withQualifier")) !=
             PEG_NOT_FOUND);
 
     //Confirm that correct properties exist in subclass.
@@ -494,7 +494,7 @@ void test02()
     PEGASUS_TEST_ASSERT (subClass.findProperty(
                 CIMName ("count")) != PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT (subClass.findProperty(
-                CIMName ("onlyInSuperclass")) != 
+                CIMName ("onlyInSuperclass")) !=
             PEG_NOT_FOUND);
 
     // Confirm that all properties in superclass have correct classorigin
@@ -511,7 +511,7 @@ void test02()
         Uint32 pos = subClass.findProperty
                     (CIMName ("onlyInSuperclass"));
         PEGASUS_TEST_ASSERT(pos != PEG_NOT_FOUND);
-        
+
         // It was propagated to subclass. Now get property and test
         CIMProperty p = subClass.getProperty(pos);
         PEGASUS_TEST_ASSERT(p.getPropagated());
@@ -544,7 +544,7 @@ void test02()
     if (verbose) cout << "Tst02 - Test Properties Move with key" << endl;
 
     {
-        PEGASUS_TEST_ASSERT (subClass.findProperty(CIMName ("keyProperty")) != 
+        PEGASUS_TEST_ASSERT (subClass.findProperty(CIMName ("keyProperty")) !=
                     PEG_NOT_FOUND);
         Uint32 pos = subClass.findProperty(CIMName ("keyProperty"));
         PEGASUS_TEST_ASSERT(pos != PEG_NOT_FOUND);
@@ -574,11 +574,11 @@ void test02()
         Boolean b;
         pv.get(b);
         PEGASUS_TEST_ASSERT(b == true);
-        PEGASUS_TEST_ASSERT (p.findQualifier(CIMName ("toSubClass")) != 
+        PEGASUS_TEST_ASSERT (p.findQualifier(CIMName ("toSubClass")) !=
                     PEG_NOT_FOUND);
-        
+
         // Now determine if the value moved.
-        PEGASUS_TEST_ASSERT(p.findQualifier(CIMName ("toSubClass")) != 
+        PEGASUS_TEST_ASSERT(p.findQualifier(CIMName ("toSubClass")) !=
                     PEG_NOT_FOUND);
         Uint32 qpos = p.findQualifier(CIMName ("toSubClass"));
         CIMQualifier q = p.getQualifier(qpos);
@@ -602,7 +602,7 @@ void test02()
         // Test  method in superclass
         // doublecheck the type and that parameters are in place
         PEGASUS_TEST_ASSERT(superClass.findMethod(
-                    CIMName ("methodInSuperclass")) != 
+                    CIMName ("methodInSuperclass")) !=
                     PEG_NOT_FOUND);
         Uint32 mpos = superClass.findMethod
                     (CIMName ("methodInSuperclass"));
@@ -639,14 +639,14 @@ void test02()
 
         // Test for second method
         PEGASUS_TEST_ASSERT(superClass.findMethod(
-                    CIMName ("methodInSuperclass")) != 
+                    CIMName ("methodInSuperclass")) !=
                     PEG_NOT_FOUND);
         }
 
         // Repeat the above for the subclass and test propagated.
         // ATTN: KS 22 March Complete this P2 - Testing of method propagation
         {
-            PEGASUS_TEST_ASSERT(subClass.findMethod(CIMName ("isActive")) != 
+            PEGASUS_TEST_ASSERT(subClass.findMethod(CIMName ("isActive")) !=
                             PEG_NOT_FOUND);
             Uint32 mpos = subClass.findMethod(CIMName ("isActive"));
             CIMMethod m = subClass.getMethod(mpos);
@@ -667,9 +667,9 @@ void test02()
             PEGASUS_TEST_ASSERT(m.getType() == CIMTYPE_BOOLEAN);
 
             // Now confirm the parameters
-            PEGASUS_TEST_ASSERT(m.findParameter(CIMName ("hostname")) != 
+            PEGASUS_TEST_ASSERT(m.findParameter(CIMName ("hostname")) !=
                             PEG_NOT_FOUND);
-            PEGASUS_TEST_ASSERT(m.findParameter(CIMName ("port")) != 
+            PEGASUS_TEST_ASSERT(m.findParameter(CIMName ("port")) !=
                             PEG_NOT_FOUND);
 
             // Test characteristics of first parameter
@@ -683,7 +683,7 @@ void test02()
             PEGASUS_TEST_ASSERT(vmp1.getType() == CIMTYPE_Boolean);
             */
             //PEGASUS_TEST_ASSERT(p1.getQualifierCount() == 0);
-                        
+
             // Test characteristics of second parameter
             Uint32 ppos2 = m.findParameter(CIMName ("port"));
             PEGASUS_TEST_ASSERT(ppos2 != PEG_NOT_FOUND);
@@ -703,7 +703,7 @@ void test03()
 {
     if (verbose)
     {
-        cout << "Test03 - Detect reference parameter in non-association class" 
+        cout << "Test03 - Detect reference parameter in non-association class"
              << endl;
     }
 
@@ -833,10 +833,10 @@ void test04()
 
     CIMQualifierDecl q2(CIMName ("Abstract"), Boolean(true), CIMScope::CLASS ,
             CIMFlavor::NONE);
-    
+
     CIMValue v1(CIMTYPE_UINT32, false);
     CIMQualifierDecl q3(CIMName ("q1"),v1,CIMScope::CLASS);
-    // flavors for this one should be disableoverride, but tosubclass 
+    // flavors for this one should be disableoverride, but tosubclass
     CIMQualifierDecl key(CIMName ("key"),Boolean(true),
             (CIMScope::PROPERTY + CIMScope::REFERENCE),
       CIMFlavor::TOSUBCLASS);
@@ -852,10 +852,10 @@ void test04()
     CIMClass class2(CIMName ("SuperClass"));
 
     class2.addProperty(CIMProperty(keyProperty));
-    
+
     context->addClass(NAMESPACE, class2);
     Resolver::resolveClass (class2, context, NAMESPACE);
-    
+
     CIMClass class1(CIMName ("SubClass"), CIMName ("SuperClass"));
 
     class1
@@ -865,7 +865,7 @@ void test04()
 
     .addProperty(CIMProperty(CIMName ("message"), String("Hello")))
     .addProperty(CIMProperty(CIMName ("count"), Uint32(77)))
-    // .addProperty(CIMProperty(CIMName ("ref1"), 
+    // .addProperty(CIMProperty(CIMName ("ref1"),
     // Reference("MyClass.key1=\"fred\"")))
     .addMethod(CIMMethod(CIMName ("isActive"), CIMTYPE_BOOLEAN)
         .addParameter(CIMParameter(CIMName ("hostname"), CIMTYPE_STRING))
@@ -897,8 +897,8 @@ void test04()
     {
         // should catch error here, q3 invalid qualifier.
         if(verbose)
-            cout << 
-                "Exception correctly detected missing qualifier declaration: " 
+            cout <<
+                "Exception correctly detected missing qualifier declaration: "
             << e.getMessage() << endl;
     }
     PEGASUS_TEST_ASSERT(!resolved);
@@ -906,13 +906,13 @@ void test04()
     delete context;
 }
 
-// Test05 - Determine if we correctly detect a property qualifier on 
+// Test05 - Determine if we correctly detect a property qualifier on
 // a class and reject
 void test05()
 {
     if(verbose)
-        cout << "Test05-Detecting a CIMScope errors - exception" 
-        << endl;    
+        cout << "Test05-Detecting a CIMScope errors - exception"
+        << endl;
     const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/ttt");
     Boolean resolved = false;
     SimpleDeclContext* context = new SimpleDeclContext;
@@ -920,7 +920,7 @@ void test05()
     CIMQualifierDecl key(CIMName ("key"),Boolean(true),
             (CIMScope::PROPERTY + CIMScope::REFERENCE), CIMFlavor::TOSUBCLASS);
 
-    //Qualifier Association : boolean = false, Scope(class, association), 
+    //Qualifier Association : boolean = false, Scope(class, association),
     //  Flavor(DisableOverride);
 
     CIMQualifierDecl association(CIMName ("association"),Boolean(true),
@@ -928,7 +928,7 @@ void test05()
 
 
     CIMQualifierDecl propertyQualifier(CIMName ("propertyQualifier"),
-            Boolean(true), (CIMScope::PROPERTY + CIMScope::REFERENCE), 
+            Boolean(true), (CIMScope::PROPERTY + CIMScope::REFERENCE),
             CIMFlavor::TOSUBCLASS);
 
     CIMQualifierDecl classQualifier(CIMName ("classQualifier"),
@@ -953,7 +953,7 @@ void test05()
     // create class with property only qualifier and no superclass
     CIMClass classWithPropertyQualifier(CIMName ("classWithPropertyQualifier"));
     classWithPropertyQualifier
-        .addQualifier(CIMQualifier(CIMName ("propertyQualifier"), 
+        .addQualifier(CIMQualifier(CIMName ("propertyQualifier"),
             Boolean(true)))
 
         .addProperty(CIMProperty(keyProperty))
@@ -981,7 +981,7 @@ void test05()
     {
         resolved = false;
         if(verbose)
-            cout << " Exception is correct. Should not resolve: " 
+            cout << " Exception is correct. Should not resolve: "
                 << e.getMessage() << endl;
     }
     PEGASUS_TEST_ASSERT(!resolved);
@@ -993,7 +993,7 @@ void test05()
             (CIMName ("propertyWithClassQualifier"), Boolean(true));
     propertyWithClassQualifier.addQualifier(CIMQualifier
             (CIMName ("classQualifier"), Boolean(true)));
-    
+
     // Create the class with this bad property
     CIMClass classWithBadProperty(CIMName ("classWithBadProperty"));
     classWithBadProperty
@@ -1002,9 +1002,9 @@ void test05()
         .addProperty(CIMProperty(propertyWithClassQualifier))
 
         .addMethod(CIMMethod(CIMName ("isActive"), CIMTYPE_BOOLEAN)
-            .addParameter(CIMParameter(CIMName ("hostname"), 
+            .addParameter(CIMParameter(CIMName ("hostname"),
                             CIMTYPE_STRING)));
-    
+
     if(verbose)
         XmlWriter::printClassElement(classWithBadProperty);
 
@@ -1017,7 +1017,7 @@ void test05()
     {
         resolved = false;
         if(verbose)
-            cout << " Exception is correct. Should not resolve: " 
+            cout << " Exception is correct. Should not resolve: "
                 << e.getMessage() << endl;
     }
     PEGASUS_TEST_ASSERT(!resolved);
@@ -1035,7 +1035,7 @@ void test05()
         classAssoc
             .addQualifier(CIMQualifier(CIMName ("Association"), Boolean(true)))
             .addProperty(CIMProperty(CIMName("ref1"),
-                CIMObjectPath("YourClass.key1=\"fred\""), 0, 
+                CIMObjectPath("YourClass.key1=\"fred\""), 0,
                 CIMName("EndPointClass")))
             .addProperty(CIMProperty(CIMName("ref2"),
                 CIMObjectPath("MyClass.key1=\"fred\""), 0,
@@ -1048,7 +1048,7 @@ void test05()
     }
     if(verbose)
         XmlWriter::printClassElement(classAssoc);
-    
+
     try
     {
         Resolver::resolveClass (classAssoc, context, NAMESPACE);
@@ -1058,7 +1058,7 @@ void test05()
     {
         resolved = false;
         if(verbose)
-            cout << " Exception is Error: Should Resolve correctly: " 
+            cout << " Exception is Error: Should Resolve correctly: "
                 << e.getMessage() << endl;
     }
     PEGASUS_TEST_ASSERT(resolved);
@@ -1072,8 +1072,8 @@ void test05()
 void test06()
 {
     if(verbose)
-        cout << "Test06-Creating class with no superclass - causes exception" 
-        << endl;    
+        cout << "Test06-Creating class with no superclass - causes exception"
+        << endl;
     const CIMNamespaceName NAMESPACE = CIMNamespaceName ("/ttt");
     Boolean resolved = false;
     SimpleDeclContext* context = new SimpleDeclContext;
@@ -1103,10 +1103,10 @@ void test06()
     {
         resolved = false;
         if(verbose)
-            cout << " Exception is correct. Should not resolve " 
+            cout << " Exception is correct. Should not resolve "
                 << e.getMessage()
                 << endl;
-    // ATTN-KS-P3 - Could add test for correct exception message here.  
+    // ATTN-KS-P3 - Could add test for correct exception message here.
     // should be INVALID_SUPERCLASS
     }
 
@@ -1120,8 +1120,8 @@ void test07()
 {
     if (verbose ) cout << "ATTN In process" << endl;
     if(verbose)
-        cout << "Test07- Cannot put nonoverridable qualifiers in subclass" 
-        << endl;    
+        cout << "Test07- Cannot put nonoverridable qualifiers in subclass"
+        << endl;
 
 }
 
@@ -1130,8 +1130,8 @@ void test08()
 {
     if (verbose)
     {
-        cout << "Test08 - Detecting non-existent reference parameter type" 
-             << endl;    
+        cout << "Test08 - Detecting non-existent reference parameter type"
+             << endl;
     }
 
     const CIMNamespaceName NAMESPACE = CIMNamespaceName("/ttt");
@@ -1234,8 +1234,8 @@ void test09()
 {
     if (verbose)
     {
-        cout << "Test09 - Detecting non-existent reference parameter type" 
-             << endl;    
+        cout << "Test09 - Detecting non-existent reference parameter type"
+             << endl;
     }
 
     const CIMNamespaceName NAMESPACE = CIMNamespaceName("/ttt");
@@ -1311,12 +1311,12 @@ void test09()
 //  Confirm that qualifiers are propagated correctly based on flavors
 //  Confirm that properties and methods are propagated correctly based
 //  on flavors
-//  
+//
 
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
-    
+
     try
     {
         test01();

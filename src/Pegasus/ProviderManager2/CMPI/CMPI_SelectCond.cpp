@@ -40,7 +40,7 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" 
+extern "C"
 {
 
     CMPIStatus scndRelease(CMPISelectCond* eSc)
@@ -152,7 +152,7 @@ extern "C"
             CMSetStatus(rc,CMPI_RC_ERR_NO_SUCH_PROPERTY);
         }
         PEG_METHOD_EXIT();
-        return NULL; 
+        return NULL;
     }
 
 }

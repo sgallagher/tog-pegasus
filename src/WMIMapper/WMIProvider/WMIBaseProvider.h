@@ -47,7 +47,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class WMICollector;
 
-class PEGASUS_WMIPROVIDER_LINKAGE WMIBaseProvider 
+class PEGASUS_WMIPROVIDER_LINKAGE WMIBaseProvider
 {
 public:
     WMIBaseProvider();
@@ -59,10 +59,10 @@ public:
     CIMInstance getCIMInstance(const String& nameSpace,
         const String& userName,
         const String& password,
-        const CIMObjectPath & instanceName, 
+        const CIMObjectPath & instanceName,
         const CIMPropertyList & propertyList = CIMPropertyList( ));
 
-    CIMClass getCIMClass(const String& nameSpace, 
+    CIMClass getCIMClass(const String& nameSpace,
         const String& userName,
         const String& password,
         const String& className,
@@ -87,15 +87,15 @@ protected:
     void cleanup();
 
     String getQueryString(
-        const CIMObjectPath& objectName, 
-        const String& sQueryCommand,                               
-        const String& assocClass = String::EMPTY, 
-        const String& resultClass = String::EMPTY, 
+        const CIMObjectPath& objectName,
+        const String& sQueryCommand,
+        const String& assocClass = String::EMPTY,
+        const String& resultClass = String::EMPTY,
         const String& role = String::EMPTY,
         const String& resultRole = String::EMPTY);
 
     String getObjectName(
-        const CIMObjectPath& objectName); 
+        const CIMObjectPath& objectName);
 
     WMICollector        *_collector;
 

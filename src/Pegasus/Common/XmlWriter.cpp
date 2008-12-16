@@ -118,7 +118,7 @@ void XmlWriter::appendNameSpacePathElement(
     const String& host,
     const CIMNamespaceName& nameSpace)
 {
-    out << STRLIT("<NAMESPACEPATH>\n" 
+    out << STRLIT("<NAMESPACEPATH>\n"
                   "<HOST>") << host << STRLIT("</HOST>\n");
     appendLocalNameSpacePathElement(out, nameSpace);
     out << STRLIT("</NAMESPACEPATH>\n");
@@ -1030,7 +1030,7 @@ void XmlWriter::appendPropertyElement(
             // EmbeddedObject attribute.
             if (a.size() > 0 && a[0].isInstance())
             {
-                out << STRLIT(" EmbeddedObject=\"object\"" 
+                out << STRLIT(" EmbeddedObject=\"object\""
                               " EMBEDDEDOBJECT=\"object\"");
             }
 #ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
@@ -1051,7 +1051,7 @@ void XmlWriter::appendPropertyElement(
                     // constness.
                     CIMPropertyRep* tmpRep = const_cast<CIMPropertyRep*>(rep);
                     tmpRep->addQualifier(
-                        CIMQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT, 
+                        CIMQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT,
                                      true));
                 }
             }
@@ -1070,7 +1070,7 @@ void XmlWriter::appendPropertyElement(
             // add the EmbeddedObject attribute
             if (a.size() > 0)
             {
-                out << STRLIT(" EmbeddedObject=\"instance\"" 
+                out << STRLIT(" EmbeddedObject=\"instance\""
                               " EMBEDDEDOBJECT=\"instance\"");
 
                 // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY is
@@ -1130,7 +1130,7 @@ void XmlWriter::appendPropertyElement(
     }
     else if (rep->getValue().getType() == CIMTYPE_REFERENCE)
     {
-        out << STRLIT("<PROPERTY.REFERENCE" 
+        out << STRLIT("<PROPERTY.REFERENCE"
                       " NAME=\"") << rep->getName() << STRLIT("\" ");
 
         if (!rep->getReferenceClassName().isNull())
@@ -1189,7 +1189,7 @@ void XmlWriter::appendPropertyElement(
             // EmbeddedObject attribute.
             if (a.isInstance())
             {
-                out << STRLIT(" EmbeddedObject=\"object\"" 
+                out << STRLIT(" EmbeddedObject=\"object\""
                               " EMBEDDEDOBJECT=\"object\"");
             }
             // Else the Embedded Object is a class, always add the
@@ -1210,7 +1210,7 @@ void XmlWriter::appendPropertyElement(
                     // constness.
                     CIMPropertyRep* tmpRep = const_cast<CIMPropertyRep*>(rep);
                     tmpRep->addQualifier(
-                        CIMQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT, 
+                        CIMQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT,
                                      true));
                 }
             }
@@ -1219,12 +1219,12 @@ void XmlWriter::appendPropertyElement(
         {
             CIMInstance a;
             rep->getValue().get(a);
-            out << STRLIT(" TYPE=\"string\"" 
-                          " EmbeddedObject=\"instance\"" 
+            out << STRLIT(" TYPE=\"string\""
+                          " EmbeddedObject=\"instance\""
                           " EMBEDDEDOBJECT=\"instance\"");
 
 # ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
-            if (rep->findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT) 
+            if (rep->findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT)
                 == PEG_NOT_FOUND)
             {
                 // Note that addQualifiers() cannot be called on a const
@@ -1388,10 +1388,10 @@ void XmlWriter::appendParameterElement(
         }
         else
         {
-            out << STRLIT("<PARAMETER.ARRAY" 
+            out << STRLIT("<PARAMETER.ARRAY"
                           " NAME=\"") << rep->getName();
             out << STRLIT("\" ") << _XmlWriterTypeStrings[rep->getType()];
-            
+
             if (rep->getArraySize())
             {
                 char buffer[32];
@@ -1410,7 +1410,7 @@ void XmlWriter::appendParameterElement(
     }
     else if (rep->getType() == CIMTYPE_REFERENCE)
     {
-        out << STRLIT("<PARAMETER.REFERENCE" 
+        out << STRLIT("<PARAMETER.REFERENCE"
                       " NAME=\"") << rep->getName();
         out.append('"');
 
@@ -1429,7 +1429,7 @@ void XmlWriter::appendParameterElement(
     }
     else
     {
-        out << STRLIT("<PARAMETER" 
+        out << STRLIT("<PARAMETER"
                       " NAME=\"") << rep->getName();
         out << STRLIT("\" ") << _XmlWriterTypeStrings[rep->getType()];
 
@@ -1769,7 +1769,7 @@ void XmlWriter::appendMethodCallHeader(
         out << nn << STRLIT("-CIMOperation: MethodCall\r\n");
         out << nn << STRLIT("-CIMMethod: ")
             << encodeURICharacters(cimMethod.getString()) << STRLIT("\r\n");
-        out << nn << STRLIT("-CIMObject: ") 
+        out << nn << STRLIT("-CIMObject: ")
             << encodeURICharacters(cimObject) << STRLIT("\r\n");
     }
     else
@@ -1800,7 +1800,7 @@ void XmlWriter::appendMethodResponseHeader(
 {
     // Optimize the typical case for binary messages, circumventing the
     // more expensive logic below.
-    if (binaryResponse && 
+    if (binaryResponse &&
         contentLength == 0 &&
         httpMethod != HTTP_METHOD_M_POST &&
         contentLanguages.size() == 0)
@@ -1851,8 +1851,8 @@ void XmlWriter::appendMethodResponseHeader(
      {
          char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
-         out << STRLIT("Ext:\r\n" 
-                       "Cache-Control: no-cache\r\n" 
+         out << STRLIT("Ext:\r\n"
+                       "Cache-Control: no-cache\r\n"
                        "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=");
          out << nn << STRLIT("\r\n");
          out << nn << STRLIT("-CIMOperation: MethodResponse\r\n\r\n");
@@ -1994,8 +1994,8 @@ void XmlWriter::_appendMessageElementBegin(
     Buffer& out,
     const String& messageId)
 {
-    out << STRLIT("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n" 
-                  "<CIM CIMVERSION=\"2.0\" DTDVERSION=\"2.0\">\n" 
+    out << STRLIT("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n"
+                  "<CIM CIMVERSION=\"2.0\" DTDVERSION=\"2.0\">\n"
                   "<MESSAGE ID=\"") << messageId;
     out << STRLIT("\" PROTOCOLVERSION=\"1.0\">\n");
 }
@@ -2231,14 +2231,14 @@ void XmlWriter::appendParamTypeAndEmbeddedObjAttrib(
     if (type == CIMTYPE_OBJECT)
     {
 
-        out << STRLIT(" PARAMTYPE=\"string\"" 
-                      " EmbeddedObject=\"object\"" 
+        out << STRLIT(" PARAMTYPE=\"string\""
+                      " EmbeddedObject=\"object\""
                       " EMBEDDEDOBJECT=\"object\"");
     }
     else if (type == CIMTYPE_INSTANCE)
     {
         out << STRLIT(" PARAMTYPE=\"string\""
-                      " EmbeddedObject=\"instance\"" 
+                      " EmbeddedObject=\"instance\""
                       " EMBEDDEDOBJECT=\"instance\"");
     }
     else
@@ -2713,7 +2713,7 @@ Buffer XmlWriter::formatSimpleIMethodReqMessage(
         httpMethod,
         httpAcceptLanguages,
         httpContentLanguages,
-        out.size(), 
+        out.size(),
         false,
         binaryResponse);
     tmp << out;
@@ -2844,7 +2844,7 @@ void XmlWriter::appendEMethodRequestHeader(
     {
       out << STRLIT("POST ") << requestUri << STRLIT(" HTTP/1.1\r\n");
     }
-    out << STRLIT("HOST: ") << host << STRLIT("\r\n" 
+    out << STRLIT("HOST: ") << host << STRLIT("\r\n"
                   "Content-Type: application/xml; charset=\"utf-8\"\r\n");
     OUTPUT_CONTENTLENGTH(out, contentLength);
 
@@ -2880,7 +2880,7 @@ void XmlWriter::appendEMethodRequestHeader(
     }
     else
     {
-        out << STRLIT("CIMExport: MethodRequest\r\n" 
+        out << STRLIT("CIMExport: MethodRequest\r\n"
                       "CIMExportMethod: ") << cimMethod << STRLIT("\r\n");
     }
 
@@ -2908,7 +2908,7 @@ void XmlWriter::appendEMethodResponseHeader(
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
 
-    out << STRLIT("HTTP/1.1 " HTTP_STATUS_OK "\r\n" 
+    out << STRLIT("HTTP/1.1 " HTTP_STATUS_OK "\r\n"
                   "Content-Type: application/xml; charset=\"utf-8\"\r\n");
     OUTPUT_CONTENTLENGTH(out, contentLength);
 
@@ -2919,8 +2919,8 @@ void XmlWriter::appendEMethodResponseHeader(
     }
     if (httpMethod == HTTP_METHOD_M_POST)
     {
-        out << STRLIT("Ext:\r\n" 
-                      "Cache-Control: no-cache\r\n" 
+        out << STRLIT("Ext:\r\n"
+                      "Cache-Control: no-cache\r\n"
                       "Man: http://www.dmtf.org/cim/mapping/http/v1.0; ns=");
         out << nn << STRLIT("\r\n");
         out << nn << STRLIT("-CIMExport: MethodResponse\r\n\r\n");
@@ -3180,7 +3180,7 @@ String XmlWriter::getNextMessageId()
 {
     char scratchBuffer[22];
     Uint32 n;
-    const char * startP = Uint32ToString(scratchBuffer, 
+    const char * startP = Uint32ToString(scratchBuffer,
                                          _messageIDFactory.getID(),
                                          n);
     return String(startP, n);

@@ -74,7 +74,7 @@ public:
         Boolean enabled;
         int count;
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
-        String remoteInfo; 
+        String remoteInfo;
 #endif
         EnableIndicationsResponseHandler* handler;
     };
@@ -147,7 +147,7 @@ protected:
     ProviderName _resolveProviderName(const ProviderIdContainer & providerId);
 
     /**
-        Calls the provider's enableIndications() method, if the provider 
+        Calls the provider's enableIndications() method, if the provider
         version supports enableIndications().
 
         Note that since an exception thrown by the provider's
@@ -174,7 +174,7 @@ protected:
         @param remoteInfo Remote Information
      */
     void _callDisableIndications(
-        OpProviderHolder & ph, 
+        OpProviderHolder & ph,
         const char *remoteInfo);
 
     String _getClassNameFromQuery(
@@ -186,4 +186,4 @@ protected:
 PEGASUS_NAMESPACE_END
 
 #endif
-    
+

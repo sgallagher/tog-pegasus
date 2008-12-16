@@ -42,7 +42,7 @@ clean:
 
 tests:
 	@$(RM) $(RESULTFILE)
-	@$(ECHO) Running Usage tests for: TestStressTestController  
+	@$(ECHO) Running Usage tests for: TestStressTestController
 	@$(MAKE) -i -s stresstests_ignoreerror
 	@$(STRIPCRS)
 	$(COMPARERESULTS)

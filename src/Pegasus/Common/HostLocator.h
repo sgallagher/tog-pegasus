@@ -28,7 +28,7 @@
 //////////////////////////////////////////////////////////////////////////
 //
 //%/////////////////////////////////////////////////////////////////////////////
- 
+
 #ifndef Pegasus_HostLocator_h
 #define Pegasus_HostLocator_h
 
@@ -38,7 +38,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 /**
     This class is used to store the host locator. HostLocator can be Hostname or
-    IPv4 address or IPv6 address with optional port. IPv6 address must be 
+    IPv4 address or IPv6 address with optional port. IPv6 address must be
     enclosed in brackets.
 */
 
@@ -47,7 +47,7 @@ class PEGASUS_COMMON_LINKAGE HostLocator
 public:
 
     /**
-        Port Numbers. Values for Max, valid and unspecified ports. 
+        Port Numbers. Values for Max, valid and unspecified ports.
     */
     enum
     {
@@ -62,7 +62,7 @@ public:
     HostLocator(const String &locator);
     HostLocator(const HostLocator &rhs);
     HostLocator& operator =(const HostLocator &rhs);
- 
+
     void setHostLocator(const String &locator);
 
     /**

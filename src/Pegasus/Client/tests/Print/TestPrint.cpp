@@ -45,7 +45,7 @@ static Boolean verbose;
 //
 //     $ TestPrint <CLASSNAME>
 //
-// It connects locally to the CIM server, enumerates instances of that class 
+// It connects locally to the CIM server, enumerates instances of that class
 // and then prints each one.
 //
 //==============================================================================

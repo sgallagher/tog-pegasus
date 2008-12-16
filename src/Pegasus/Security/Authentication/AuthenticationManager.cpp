@@ -245,7 +245,7 @@ String AuthenticationManager::getPegasusAuthResponseHeader(
     //
     // Parse the pegasus authentication header authentication information
     //
-    if ( !HTTPMessage::parseLocalAuthHeader(authHeader, 
+    if ( !HTTPMessage::parseLocalAuthHeader(authHeader,
               authType, userName, cookie) )
     {
         PEG_METHOD_EXIT();

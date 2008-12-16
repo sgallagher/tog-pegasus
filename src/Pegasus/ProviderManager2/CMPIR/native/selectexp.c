@@ -59,7 +59,7 @@ struct native_selectexp
 };
 
 
-static struct native_selectexp * __new_exp ( 
+static struct native_selectexp * __new_exp (
     int mem_state,
     CMPIUint64 id,
     CMPIStatus *rc);
@@ -108,7 +108,7 @@ static CMPISelectExp * __eft_clone (CONST CMPISelectExp * exp, CMPIStatus * rc)
 
 
 
-CMPIBoolean __eft_evaluate ( 
+CMPIBoolean __eft_evaluate (
     CONST CMPISelectExp * exp,
     CONST CMPIInstance * inst,
     CMPIStatus * rc )
@@ -169,7 +169,7 @@ CMPISelectCond * __eft_getCOD ( CONST CMPISelectExp * exp, CMPIStatus * rc )
 
 CMPIBoolean __eft_evaluateUsingAccessor (
     CONST CMPISelectExp* se,
-    CMPIAccessor *accessor, 
+    CMPIAccessor *accessor,
     void *parm, CMPIStatus* rc)
 {
     CMPIContext *ctx;
@@ -184,7 +184,7 @@ CMPIBoolean __eft_evaluateUsingAccessor (
         selExp_evaluateUsingAccessor (se, accessor ,parm, rc);
 }
 
-static struct native_selectexp * __new_exp ( 
+static struct native_selectexp * __new_exp (
     int mm_add,
     CMPIUint64 id,
     CMPIStatus * rc )
@@ -219,7 +219,7 @@ static struct native_selectexp * __new_exp (
 
 CMPISelectExp * native_new_CMPISelectExp(CMPIUint64 id, CMPIStatus * rc)
 {
-    return(CMPISelectExp *) __new_exp ( 
+    return(CMPISelectExp *) __new_exp (
         TOOL_MM_NO_ADD,
         id,
         rc );
@@ -227,7 +227,7 @@ CMPISelectExp * native_new_CMPISelectExp(CMPIUint64 id, CMPIStatus * rc)
 
 CMPISelectExp * native_new_CMPISelectExp_add(CMPIUint64 id, CMPIStatus * rc)
 {
-    return(CMPISelectExp *) __new_exp ( 
+    return(CMPISelectExp *) __new_exp (
         TOOL_MM_ADD,
         id,
         rc );
@@ -247,8 +247,8 @@ void native_release_CMPISelectExp( CONST CMPISelectExp *filter)
 // CMPISelectExp -V 5245
 
 PEGASUS_EXPORT CMPIUint64 create_indicationObject (
-    CMPISelectExp *se, 
-    CMPIUint32 ctx_id, 
+    CMPISelectExp *se,
+    CMPIUint32 ctx_id,
     CMPIUint8 type)
 {
     struct native_selectexp *e = (struct native_selectexp*)se;
@@ -257,7 +257,7 @@ PEGASUS_EXPORT CMPIUint64 create_indicationObject (
 }
 
 PEGASUS_EXPORT CMPISelectExp *get_indicationObject (
-    CMPIUint64 id, 
+    CMPIUint64 id,
     CMPIUint32 ctx_id)
 {
     if (ctx_id)

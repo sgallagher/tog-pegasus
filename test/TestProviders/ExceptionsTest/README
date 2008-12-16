@@ -26,7 +26,7 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //////////////////////////////////////////////////////////////////////////
-ExceptionsTestModule 
+ExceptionsTestModule
 --------------------
 
 This test module has the following source programs:
@@ -46,7 +46,7 @@ Scripts
 -------
 testclient: Runs the TestClient program for SampleProvider namespace.
 
-clitests: Runs the CLI client test program with basic CIM Operations (like 
+clitests: Runs the CLI client test program with basic CIM Operations (like
 	  enumerate instances, enumerate instance names, enumerate classes etc.)
 
 delete_provider_module: Script which checks if the ExceptionsTestModule is
@@ -60,7 +60,7 @@ ExceptionsTestModule is built and installed again.
 Building and Installing
 -----------------------
 Run the following commands to build and install ExceptionsTestModule:
-1. make 
+1. make
 2. make repository
 3. make regprovider
 

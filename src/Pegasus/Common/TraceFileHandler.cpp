@@ -80,7 +80,7 @@ TraceFileHandler::~TraceFileHandler()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// The configuration of the trace has been updated. 
+// The configuration of the trace has been updated.
 // At the next trace write, change to the new configuration.
 ////////////////////////////////////////////////////////////////////////////////
 void TraceFileHandler::configurationUpdated()

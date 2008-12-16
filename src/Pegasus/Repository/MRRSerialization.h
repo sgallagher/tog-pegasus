@@ -42,20 +42,20 @@
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_REPOSITORY_LINKAGE void MRRSerializeNameSpace(
-    Buffer& out, 
+    Buffer& out,
     const CIMNamespaceName& nameSpace);
 
 PEGASUS_REPOSITORY_LINKAGE int MRRDeserializeNameSpace(
-    const Buffer& in, 
+    const Buffer& in,
     size_t& pos,
     CIMNamespaceName& nameSpace);
 
 PEGASUS_REPOSITORY_LINKAGE void MRRSerializeInstance(
-    Buffer& out, 
+    Buffer& out,
     const CIMInstance& cimInstance);
 
 PEGASUS_REPOSITORY_LINKAGE int MRRDeserializeInstance(
-    const Buffer& in, 
+    const Buffer& in,
     size_t& pos,
     CIMInstance& cimInstance);
 

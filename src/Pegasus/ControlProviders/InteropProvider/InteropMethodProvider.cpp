@@ -39,12 +39,12 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 /*
-    ATTN: This method provider is used by ProviderRegistrationProvider to 
+    ATTN: This method provider is used by ProviderRegistrationProvider to
     update InteropProvider Cache. If SLP is enabled we invoke SLPProvider's
-    'update' method to update registrations in this method. Note that 
-    'updateCache' method is not defined as part of class 
+    'update' method to update registrations in this method. Note that
+    'updateCache' method is not defined as part of class
     PG_ProviderProfileCapabilities. This method is used purely for internal
-    purpose for the communication between InteropProvider and 
+    purpose for the communication between InteropProvider and
     ProviderRegistrationProvider.
 */
 
@@ -69,7 +69,7 @@ void InteropProvider::invokeMethod(
     }
     else
     {
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, 
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
             objectReference.getNameSpace().getString());
     }
 }

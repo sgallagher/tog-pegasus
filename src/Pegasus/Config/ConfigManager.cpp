@@ -754,13 +754,13 @@ void ConfigManager::_loadConfigProperties()
         }
         catch (UnrecognizedConfigProperty& ucp)
         {
-            PEG_TRACE_CSTRING(TRC_CONFIG, Tracer::LEVEL1, 
+            PEG_TRACE_CSTRING(TRC_CONFIG, Tracer::LEVEL1,
                 (const char*)ucp.getMessage().getCString());
             throw;
         }
         catch (InvalidPropertyValue& ipv)
         {
-            PEG_TRACE_CSTRING(TRC_CONFIG, Tracer::LEVEL1, 
+            PEG_TRACE_CSTRING(TRC_CONFIG, Tracer::LEVEL1,
                 (const char*)ipv.getMessage().getCString());
             throw;
         }

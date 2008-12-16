@@ -34,8 +34,8 @@
     \brief Header file for the binary serializer component for Remote CMPI.
 
     This file defines a function table of methods to be used for serializing
-    and deserializing CMPI data respectively. It covers most of the 
-    encapsulated data types, however, those which cannot be fully serialized 
+    and deserializing CMPI data respectively. It covers most of the
+    encapsulated data types, however, those which cannot be fully serialized
     or deserialized due to API restrictions are not included, e.g. CMPIResult,
     CMPIContext or CMPIEnumeration.
 */
@@ -118,20 +118,20 @@ struct BinarySerializerFT
     CMPIError * (* deserialize_CMPIError) ( int, CONST CMPIBroker * );
 
     ssize_t (* serialize_CMPIErrorSeverity) ( int, CMPIErrorSeverity );
-    CMPIErrorSeverity (* deserialize_CMPIErrorSeverity) 
+    CMPIErrorSeverity (* deserialize_CMPIErrorSeverity)
         (int, CONST CMPIBroker *);
 
     ssize_t (* serialize_CMPIErrorProbableCause) (int, CMPIErrorProbableCause);
-    CMPIErrorProbableCause (* deserialize_CMPIErrorProbableCause) ( 
-        int, 
+    CMPIErrorProbableCause (* deserialize_CMPIErrorProbableCause) (
+        int,
         CONST CMPIBroker * );
 
     ssize_t (* serialize_CMPIrc) ( int, CMPIrc );
     CMPIrc (* deserialize_CMPIrc) ( int, CONST CMPIBroker * );
 
     ssize_t (* serialize_CMPIMsgFileHandle) ( int, CMPIMsgFileHandle );
-    CMPIMsgFileHandle (* deserialize_CMPIMsgFileHandle) ( 
-        int, 
+    CMPIMsgFileHandle (* deserialize_CMPIMsgFileHandle) (
+        int,
         CONST CMPIBroker * );
 #endif
 

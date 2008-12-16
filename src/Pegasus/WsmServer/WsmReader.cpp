@@ -683,7 +683,7 @@ void WsmReader::decodeRequestSoapHeaders(
 
             // DSP0226 R6.2-3: If the mustUnderstand attribute is set to
             // "false", the service may ignore the header.
-            wsmMaxEnvelopeSize = 
+            wsmMaxEnvelopeSize =
                 getUint32ElementContent(entry, "MaxEnvelopeSize");
 
             // DSP0226 R6.2-4:  Services should reject any MaxEnvelopeSize
@@ -1012,10 +1012,10 @@ void WsmReader::getValueElement(
 }
 
 void WsmReader::decodeEnumerateBody(
-    String& expiration, 
-    WsmbPolymorphismMode& polymorphismMode, 
-    WsenEnumerationMode& enumerationMode, 
-    Boolean& optimized, 
+    String& expiration,
+    WsmbPolymorphismMode& polymorphismMode,
+    WsenEnumerationMode& enumerationMode,
+    Boolean& optimized,
     Uint32& maxElements)
 {
     XmlEntry entry;
@@ -1031,12 +1031,12 @@ void WsmReader::decodeEnumerateBody(
             int nsType = entry.nsType;
             const char* elementName = entry.localName;
             Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
-        
+
             if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
                 (strcmp(elementName, "EndTo") == 0))
             {
-                // DSP0226 R5.2.1-1: A conformant service is NOT REQUIRED to 
-                // accept a wsen:Enumerate message with an EndTo address as 
+                // DSP0226 R5.2.1-1: A conformant service is NOT REQUIRED to
+                // accept a wsen:Enumerate message with an EndTo address as
                 // R5.1-4 recommends not supporting the EndEnumerate message,
                 // and may issue a wsman:UnsupportedFeature fault with a detail
                 // code:
@@ -1080,7 +1080,7 @@ void WsmReader::decodeEnumerateBody(
             else if ((nsType == WsmNamespaces::WS_MAN) &&
                 (strcmp(elementName, "EnumerationMode") == 0))
             {
-                checkDuplicateHeader(entry.text, 
+                checkDuplicateHeader(entry.text,
                     enumerationMode != WSEN_EM_UNKNOWN);
                 const char* content = getElementContent(entry);
                 if (strcmp(content, "EnumerateEPR") == 0)
@@ -1098,7 +1098,7 @@ void WsmReader::decodeEnumerateBody(
                         MessageLoaderParms(
                             "WsmServer.WsmReader.ENUMERATE_"
                                 "ENUM_MODE_UNSUPPORTED",
-                            "Enumeration mode \"$0\" is not supported.", 
+                            "Enumeration mode \"$0\" is not supported.",
                             content),
                         WSMAN_FAULTDETAIL_ENUMERATION_MODE_UNSUPPORTED);
                 }
@@ -1106,7 +1106,7 @@ void WsmReader::decodeEnumerateBody(
             else if ((nsType == WsmNamespaces::WS_CIM_BINDING) &&
                 (strcmp(elementName, "PolymorphismMode") == 0))
             {
-                checkDuplicateHeader(entry.text, 
+                checkDuplicateHeader(entry.text,
                     polymorphismMode != WSMB_PM_UNKNOWN);
                 const char* content = getElementContent(entry);
                 if (strcmp(content, "ExcludeSubClassProperties") == 0)
@@ -1124,7 +1124,7 @@ void WsmReader::decodeEnumerateBody(
                         MessageLoaderParms(
                             "WsmServer.WsmReader.ENUMERATE_"
                                 "POLYMORPHISM_MODE_UNSUPPORTED",
-                            "Polymorphism mode \"$0\" is not supported.", 
+                            "Polymorphism mode \"$0\" is not supported.",
                             content));
                 }
             }
@@ -1159,8 +1159,8 @@ void WsmReader::decodeEnumerateBody(
 }
 
 void WsmReader::decodePullBody(
-    Uint64& enumerationContext, 
-    String& maxTime, 
+    Uint64& enumerationContext,
+    String& maxTime,
     Uint32& maxElements,
     Uint32& maxCharacters)
 {
@@ -1178,7 +1178,7 @@ void WsmReader::decodePullBody(
             int nsType = entry.nsType;
             const char* elementName = entry.localName;
             Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
-        
+
             if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
                 (strcmp(elementName, "EnumerationContext") == 0))
             {
@@ -1250,7 +1250,7 @@ void WsmReader::decodeReleaseBody(Uint64& enumerationContext)
             int nsType = entry.nsType;
             const char* elementName = entry.localName;
             Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
-        
+
             if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
                 (strcmp(elementName, "EnumerationContext") == 0))
             {

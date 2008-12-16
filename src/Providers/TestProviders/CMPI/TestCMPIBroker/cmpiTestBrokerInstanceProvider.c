@@ -63,8 +63,8 @@ int _setProperty1 (CMPIInstance * ci, const char *p)
     if ((strncmp (property, "ElementName", 11) == 0)
         && (strlen (property) == 11))
     {
-        rc = CMSetProperty (ci, 
-            "ElementName", 
+        rc = CMSetProperty (ci,
+            "ElementName",
             (CMPIValue *) _ClassName,
             CMPI_chars);
     }
@@ -95,7 +95,7 @@ int _setProperty1 (CMPIInstance * ci, const char *p)
     {
         val.uint8 = 8;
         rc = CMSetProperty (ci, "n8", &val, CMPI_uint8);
-    } 
+    }
     else if ((strncmp (property, "r32", 3) == 0) && (strlen (property) == 3))
     {
         val.real32 = (CMPIReal32)1.23;
@@ -221,13 +221,13 @@ CMPIStatus TestCMPIBrokerInstanceProviderCreateInstance (CMPIInstanceMI * mi,
     PROV_LOG("++++Obtained Namespace : (%s) Class (%s)", str1, str2);
 
     if(ci)
-    { 
+    {
         /* Test to increase coverage in Broker_Enc.cpp*/
         type = CDToString (_broker, ci, &rc);
         PROV_LOG ("++++ Passing CMPIInstance with CMPI_InstanceOnStack_Ftab "
             "to mbEncToString successes : "
             "(%s)",
-            strCMPIStatus (rc));    
+            strCMPIStatus (rc));
 
         type = CDGetType (_broker, ci, &rc);
         PROV_LOG ("++++ Status of mbEncGetType with input of type CMPIInstance"
@@ -247,7 +247,7 @@ CMPIStatus TestCMPIBrokerInstanceProviderCreateInstance (CMPIInstanceMI * mi,
         type = CDToString (_broker, cop, &rc);
         PROV_LOG ("++++ Passing CMPIObjectPath with "
             "CMPI_ObjectPathOnStack_Ftab to mbEncToString successes : (%s)",
-            strCMPIStatus (rc));    
+            strCMPIStatus (rc));
 
         type = CDGetType (_broker, cop, &rc);
         PROV_LOG ("++++ Status of mbEncGetType with input of type "
@@ -370,7 +370,7 @@ CMPIStatus TestCMPIBrokerInstanceProviderGetInstance (CMPIInstanceMI * mi,
         strCMPIStatus(rc));
     PROV_LOG("n64 = %" PEGASUS_64BIT_CONVERSION_WIDTH "u",
         retData.value.uint64);
-   
+
     /* Test cases for increasing coverage in CMPI_BrokerEnc.cpp*/
     type = CDGetType (_broker, rslt, &rc);
     PROV_LOG ("++++ Status of mbEncGetType with input of type "
@@ -446,7 +446,7 @@ CMPIStatus TestCMPIBrokerInstanceProviderExecQuery (CMPIInstanceMI * mi,
             strCMPIStatus (rc),
             bol);
     }
- 
+
     PROV_LOG_CLOSE();
     CMReturnInstance(rslt, _inst);
     CMReturnDone(rslt);
@@ -483,7 +483,7 @@ CMPIStatus TestCMPIBrokerInstanceProviderModifyInstance (CMPIInstanceMI * mi,
             bol);
     }
     PROV_LOG_CLOSE ();
-    
+
     CMReturn (CMPI_RC_OK);
 }
 

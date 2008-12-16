@@ -64,7 +64,7 @@
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 # define UINT64_LITERAL(x)  ((CMPIUint64)x)
 #else
-# define UINT64_LITERAL(x)  ((CMPIUint64)x##ULL) 
+# define UINT64_LITERAL(x)  ((CMPIUint64)x##ULL)
 #endif
 
 //! Native extension of the CMPIDateTime data type.
@@ -110,7 +110,7 @@ struct native_datetime
                                 treated as an interval or as absolute time */
 };
 
-static struct native_datetime * __new_datetime ( 
+static struct native_datetime * __new_datetime (
     int,
     CMPIUint64,
     CMPIBoolean,
@@ -162,7 +162,7 @@ static CMPIDateTime * __dtft_clone ( CONST CMPIDateTime * dt, CMPIStatus * rc )
     {
         return 0;
     }
-    new = __new_datetime ( 
+    new = __new_datetime (
         TOOL_MM_NO_ADD,
         ndt->msecs,
         ndt->interval,
@@ -178,7 +178,7 @@ static CMPIDateTime * __dtft_clone ( CONST CMPIDateTime * dt, CMPIStatus * rc )
 
     \return an amount of microseconds.
 */
-static CMPIUint64 __dtft_getBinaryFormat ( 
+static CMPIUint64 __dtft_getBinaryFormat (
     CONST CMPIDateTime * dt,
     CMPIStatus * rc )
 {
@@ -203,7 +203,7 @@ static CMPIUint64 __dtft_getBinaryFormat (
     - yyyymmddhhmmss.mmmmmmsutc (for absolute times)
     - ddddddddhhmmss.mmmmmm:000 (for time intervals)
 */
-static CMPIString * __dtft_getStringFormat ( 
+static CMPIString * __dtft_getStringFormat (
     CONST CMPIDateTime * dt,
     CMPIStatus * rc )
 {
@@ -255,17 +255,17 @@ static CMPIString * __dtft_getStringFormat (
 
         tzset ();
 #ifdef PEGASUS_OS_ZOS
-        sprintf ( 
-            us_utc_time, 
+        sprintf (
+            us_utc_time,
             "%6.6ld%+4.3ld",
-            usecs, 
+            usecs,
             ( daylight != 0 ) * 60 - timezone / 60 );
 #else
-        snprintf ( 
-            us_utc_time, 
-            11, 
+        snprintf (
+            us_utc_time,
+            11,
             "%6.6ld%+4.3ld",
-            usecs, 
+            usecs,
             ( daylight != 0 ) * 60 - timezone / 60 );
 #endif
         strftime ( str_time, 26, "%Y%m%d%H%M%S.", &tm_time );
@@ -299,8 +299,8 @@ static CMPIString * __dtft_getStringFormat (
 
     \return zero, if it is an absolute time, non-zero for intervals.
 */
-static CMPIBoolean __dtft_isInterval ( 
-    CONST CMPIDateTime * dt, 
+static CMPIBoolean __dtft_isInterval (
+    CONST CMPIDateTime * dt,
     CMPIStatus * rc )
 {
     struct native_datetime * ndt   = (struct native_datetime *) dt;
@@ -326,7 +326,7 @@ static CMPIBoolean __dtft_isInterval (
 
     \return a fully initialized native_datetime object pointer.
 */
-static struct native_datetime * __new_datetime ( 
+static struct native_datetime * __new_datetime (
     int mm_add,
     CMPIUint64 msecs,
     CMPIBoolean interval,
@@ -445,7 +445,7 @@ CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * rc )
     struct tm* tmval;
     struct tm tmvalBuffer;
     int utcOffset;    /* UTC offset */
-    int sign;   /* '-' or '+' for time stamps */ 
+    int sign;   /* '-' or '+' for time stamps */
     CMPIUint64 hours;
     CMPIUint64 minutes;
 
@@ -462,8 +462,8 @@ CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * rc )
     {
 #if defined(PEGASUS_OS_SOLARIS)
         tzMinutesEast =
-            -(int)((tmval->tm_isdst > 0 && daylight) ? 
-            altzone : 
+            -(int)((tmval->tm_isdst > 0 && daylight) ?
+            altzone :
             timezone) / 60;
 #elif defined(PEGASUS_OS_HPUX)
         tzMinutesEast = - (int) timezone / 60;
@@ -507,7 +507,7 @@ CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * rc )
         usec += hours + minutes;
     }
 
-    return(CMPIDateTime *) __new_datetime ( 
+    return(CMPIDateTime *) __new_datetime (
         TOOL_MM_ADD,
         usec,
         0,
@@ -526,12 +526,12 @@ CMPIDateTime * native_new_CMPIDateTime ( CMPIStatus * rc )
 
     \sa __dtft_getBinaryFormat()
  */
-CMPIDateTime * native_new_CMPIDateTime_fromBinary ( 
+CMPIDateTime * native_new_CMPIDateTime_fromBinary (
     CMPIUint64 time,
     CMPIBoolean interval,
     CMPIStatus * rc )
 {
-    return(CMPIDateTime *) __new_datetime ( 
+    return(CMPIDateTime *) __new_datetime (
         TOOL_MM_ADD,
         time,
         interval,
@@ -553,7 +553,7 @@ CMPIDateTime * native_new_CMPIDateTime_fromBinary (
 
     \sa __dtft_getStringFormat()
 */
-CMPIDateTime * native_new_CMPIDateTime_fromChars ( 
+CMPIDateTime * native_new_CMPIDateTime_fromChars (
     const char * string,
     CMPIStatus * rc )
 {

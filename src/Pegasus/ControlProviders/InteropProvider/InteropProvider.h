@@ -90,7 +90,7 @@ typedef Array<CIMName> CIMNameArray;
 typedef Array<CIMNamespaceName> CIMNamespaceArray;
 
 class PEGASUS_INTEROPPROVIDER_LINKAGE InteropProvider :
-        public CIMInstanceProvider, 
+        public CIMInstanceProvider,
         public CIMAssociationProvider,
         public CIMMethodProvider
 {
@@ -267,13 +267,13 @@ private:
     Array<CIMInstance> enumRegisteredSubProfileInstances();
     Array<CIMInstance> enumReferencedProfileInstances();
     Array<CIMInstance> getProfilesForVersion(
-        Array<CIMInstance>& subprofs, 
+        Array<CIMInstance>& subprofs,
         const String version);
     Array<CIMInstance> enumElementConformsToProfileInstances(
         const OperationContext & opContext,
         const CIMNamespaceName & opNamespace);
     Array<CIMInstance> enumElementConformsToProfileRPRPInstances(
-        const OperationContext & opContext, 
+        const OperationContext & opContext,
         const CIMNamespaceName & opNamespace);
     Array<CIMInstance> enumSubProfileRequiresProfileInstances();
     Array<CIMInstance> enumSoftwareIdentityInstances();

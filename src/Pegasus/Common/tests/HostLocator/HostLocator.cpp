@@ -39,7 +39,7 @@ PEGASUS_USING_STD;
 
 void testHostLocator()
 {
-    
+
     // Check for valid locators
     HostLocator locator("1.222.33.44:1234");
     PEGASUS_TEST_ASSERT(locator.isValid());
@@ -72,7 +72,7 @@ void testHostLocator()
     locator.setHostLocator("[fe00:1231:23fe:3456:acde:ebcd:12fe:ecd4]");
     PEGASUS_TEST_ASSERT(locator.isValid());
     PEGASUS_TEST_ASSERT(!locator.isPortSpecified());
-    PEGASUS_TEST_ASSERT(locator.getHost() == 
+    PEGASUS_TEST_ASSERT(locator.getHost() ==
         String("fe00:1231:23fe:3456:acde:ebcd:12fe:ecd4"));
     PEGASUS_TEST_ASSERT(locator.getAddressType() == HostAddress::AT_IPV6);
 
@@ -91,7 +91,7 @@ void testHostLocator()
     PEGASUS_TEST_ASSERT(locator.getAddressType() == HostAddress::AT_HOSTNAME);
 
 
-    // Invalid locators 
+    // Invalid locators
     locator.setHostLocator("[1.2.3.4]:");
     PEGASUS_TEST_ASSERT(!locator.isValid());
     PEGASUS_TEST_ASSERT(!locator.isPortSpecified());

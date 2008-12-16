@@ -34,8 +34,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#define _POSIX_SOURCE 
-#include <sys/utsname.h> 
+#define _POSIX_SOURCE
+#include <sys/utsname.h>
 #include <leawi.h>
 #include <ceeedcct.h>
 #include <unistd.h>
@@ -56,42 +56,42 @@
 #define ARM_ELEMNAME_SIZE 17          // 16 Bytes for ARM element name + '\0'
 
 PEGASUS_NAMESPACE_BEGIN
-   
-           
+
+
 //******************************************************************************
 //
-// Methode: void ARM_zOS::Register(void) 
+// Methode: void ARM_zOS::Register(void)
 //
 // Description:
 // Registration and make element READY for z/OS ARM (Automatic Restart Manager).
 //
-// Function: 
-//            a) do the registration with ARM   
-//            b) make the element READY for ARM 
+// Function:
+//            a) do the registration with ARM
+//            b) make the element READY for ARM
 //
-//    All errors are handled inside this routine, a failure to register or    
-//    a failure to make READY the element does not impact the further function 
-//    of the CIM Server. The success and failures are written to the 
+//    All errors are handled inside this routine, a failure to register or
+//    a failure to make READY the element does not impact the further function
+//    of the CIM Server. The success and failures are written to the
 //    z/OS console and the appropriate CIM Server logs.
 //
 //    The registration status is saved in the global variable ARM_zOS_Status
 //    for further use ( e.g. actions after a restart) within the CIM Server.
-//                                                                        
+//
 //******************************************************************************
 void ARM_zOS::Register(void)
 {
 
     int i;
-    
+
     // ARM element name init with base.
     char arm_elemname[ARM_ELEMNAME_SIZE] = "CFZ_SRV_";
     int full_elemname_size;
 
     char arm_buffer[256];               // ARM buffer
-    int arm_ret=0;                      // ARM return code 
-    int arm_res=0;                      // ARM reason code 
+    int arm_ret=0;                      // ARM return code
+    int arm_res=0;                      // ARM reason code
     struct utsname uts;                 // structure to get the SYSNAME for
-                                        // the element name 
+                                        // the element name
     int rc;
 
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES64_IBM
@@ -109,16 +109,16 @@ void ARM_zOS::Register(void)
     }
 
     // concatenate the element name base and the nodename to the full element
-    // name 
+    // name
     strcat(arm_elemname,uts.nodename);
     full_elemname_size = strlen(arm_elemname);
 
-    // pad the elementname with spaces 
+    // pad the elementname with spaces
     memset(arm_elemname + full_elemname_size, ' ',
         ARM_ELEMNAME_SIZE - full_elemname_size);
 
 
-    // put a Null-termination at Pos 17 to make string printable 
+    // put a Null-termination at Pos 17 to make string printable
     arm_elemname[ARM_ELEMNAME_SIZE-1] = '\0';
 
 
@@ -128,7 +128,7 @@ void ARM_zOS::Register(void)
 
     // CIM server is running in ASCII and the assembler module needs the
     // module in EBCDIC
-    __atoe(arm_elemname); 
+    __atoe(arm_elemname);
 
     __register_arm(arm_elemname, arm_buffer, &arm_ret, &arm_res);
 
@@ -198,7 +198,7 @@ void ARM_zOS::Register(void)
                 str_arm_res));
 
         ARM_zOS_Status = NOT_REGISTERED;
-    }                
+    }
 #endif
     return;
 }
@@ -206,25 +206,25 @@ void ARM_zOS::Register(void)
 
 //******************************************************************************
 //
-// Method: void ARM_zOS::DeRegister(void) 
+// Method: void ARM_zOS::DeRegister(void)
 //
 // Description:
-// De-Register CIM Server from z/OS ARM (Automatic Restart Mangager). 
+// De-Register CIM Server from z/OS ARM (Automatic Restart Mangager).
 //
-// Function: 
-//            de-registration with ARM   
+// Function:
+//            de-registration with ARM
 //
 //    All errors are handled inside this routine.
 //
-//                                                                        
+//
 //******************************************************************************
 
 void ARM_zOS::DeRegister(void)
 {
-    char arm_buffer[256];              
-    int arm_ret=0;                     // ARM return code 
-    int arm_res=0;                     // ARM reason code 
-    
+    char arm_buffer[256];
+    int arm_ret=0;                     // ARM return code
+    int arm_res=0;                     // ARM reason code
+
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES64_IBM
     // If CIM Server is not not registeres -> if it is REGISTERED or RESTARTED.
     if(ARM_zOS_Status != NOT_REGISTERED)

@@ -143,7 +143,7 @@ public:
 
     void setPropertyFilter(const char** properties, const char** keys);
 
-    /** 
+    /**
         getObjectPath - generates an ObjectPath out of the
         namespace, classname and key propeties of this Instance
         @return the generated ObjectPath.

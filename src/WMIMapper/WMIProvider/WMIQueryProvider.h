@@ -48,7 +48,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_WMIPROVIDER_LINKAGE WMIQueryProvider : public WMIBaseProvider  
+class PEGASUS_WMIPROVIDER_LINKAGE WMIQueryProvider : public WMIBaseProvider
 {
 public:
     WMIQueryProvider();

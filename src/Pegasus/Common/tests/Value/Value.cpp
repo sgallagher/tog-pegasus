@@ -190,7 +190,7 @@ void test02(const Array<T>& x)
         XmlWriter::printValueElement(va3, cout);
     }
 #endif
-    
+
     try
     {
         Array<T> t;
@@ -293,11 +293,11 @@ void test03( Array<T1>& arrObj1, Array<T1>& arrObj2, T2 obj, T3 val1, T3 val2)
     arrObj2.append(obj,1);
     PEGASUS_TEST_ASSERT( 2 == arrObj2.size() && arrObj2[1] == val2 );
     arrObj1.appendArray(arrObj2);
-    PEGASUS_TEST_ASSERT( 12 == arrObj1.size() 
+    PEGASUS_TEST_ASSERT( 12 == arrObj1.size()
             && arrObj1[10] == val1 && arrObj1[11] == val2);
     arrObj2.clear();
     PEGASUS_TEST_ASSERT( 0 == arrObj2.size() );
-    PEGASUS_TEST_ASSERT( 16 == arrObj1.getCapacity() 
+    PEGASUS_TEST_ASSERT( 16 == arrObj1.getCapacity()
             && 8 == arrObj2.getCapacity() );
     arrObj2.grow(10,val1);
     PEGASUS_TEST_ASSERT( 10 == arrObj2.size() && arrObj2[5] == val1);
@@ -421,7 +421,7 @@ void testEmbeddedValueArray(const CIMInstance & startInstance,
     arr16.append(EmbeddedType(instance3));
     test02(arr16);
 
-    // Specific test to verify the cloning of CIMObjects when set as and 
+    // Specific test to verify the cloning of CIMObjects when set as and
     // gotten from a CIMValue.
     CIMValue v1array;
     // Create CIMValue v1 of type CIMTYPE_OBJECT (ie. CIMObject)
@@ -529,23 +529,23 @@ int main(int argc, char** argv)
     SimpleDeclContext* context = new SimpleDeclContext;
 
     context->addQualifierDecl(
-    NAMESPACE, CIMQualifierDecl(CIMName ("counter"), false, 
+    NAMESPACE, CIMQualifierDecl(CIMName ("counter"), false,
         CIMScope::PROPERTY));
 
     context->addQualifierDecl(
-    NAMESPACE, CIMQualifierDecl(CIMName ("classcounter"), false, 
+    NAMESPACE, CIMQualifierDecl(CIMName ("classcounter"), false,
         CIMScope::CLASS));
 
     context->addQualifierDecl(
-    NAMESPACE, CIMQualifierDecl(CIMName ("min"), String(), 
+    NAMESPACE, CIMQualifierDecl(CIMName ("min"), String(),
         CIMScope::PROPERTY));
 
     context->addQualifierDecl(
-    NAMESPACE, CIMQualifierDecl(CIMName ("max"), String(), 
+    NAMESPACE, CIMQualifierDecl(CIMName ("max"), String(),
         CIMScope::PROPERTY));
 
     context->addQualifierDecl(NAMESPACE,
-    CIMQualifierDecl(CIMName ("Description"), String(), 
+    CIMQualifierDecl(CIMName ("Description"), String(),
         CIMScope::PROPERTY));
 
     CIMClass class1(CIMName ("MyClass"));
@@ -556,10 +556,10 @@ int main(int argc, char** argv)
         .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
         .addQualifier(CIMQualifier(CIMName ("max"), String("1"))))
     .addProperty(CIMProperty(CIMName ("message"), String("Hello"))
-        .addQualifier(CIMQualifier(CIMName ("description"), 
+        .addQualifier(CIMQualifier(CIMName ("description"),
                 String("My Message"))))
     .addProperty(CIMProperty(CIMName ("ratio"), Real32(1.5)));
-    
+
     Resolver::resolveClass (class1, context, NAMESPACE);
     context->addClass(NAMESPACE, class1);
 
@@ -570,7 +570,7 @@ int main(int argc, char** argv)
     CIMInstance instance1(CIMName ("MyClass"));
     instance1.addQualifier(CIMQualifier(CIMName ("classcounter"), true));
     instance1.addProperty(CIMProperty(CIMName ("message"), String("Goodbye")));
-    
+
     Resolver::resolveInstance (instance1, context, NAMESPACE, true);
 
     test01(CIMObject(instance1));
@@ -699,7 +699,7 @@ int main(int argc, char** argv)
     CIMKeyBinding cimbind2(cimname1, "yourKey", CIMKeyBinding::STRING);
     Array<CIMKeyBinding> arrcimbind1(10,cimbind1);
     CIMKeyBinding *cimbind3 =
-        new CIMKeyBinding(cimname1, "myKey", CIMKeyBinding::STRING); 
+        new CIMKeyBinding(cimname1, "myKey", CIMKeyBinding::STRING);
     Array<CIMKeyBinding> arrcimbind2(cimbind3,1);
     test03(arrcimbind1, arrcimbind2, cimbind3, cimbind1, cimbind2 );
     delete cimbind3;
@@ -710,8 +710,8 @@ int main(int argc, char** argv)
             "root/SampleProvider");
     Array<CIMNamespaceName> arrcimnamespace2(cimnamespace2,1);
     test03(arrcimnamespace1, arrcimnamespace2, cimnamespace2,
-            CIMNamespaceName("root/SampleProvider"), 
-            CIMNamespaceName("root/SampleProvider2")); 
+            CIMNamespaceName("root/SampleProvider"),
+            CIMNamespaceName("root/SampleProvider2"));
     delete cimnamespace2;
 
     Array<Boolean> arrB1(10,true);
@@ -727,8 +727,8 @@ int main(int argc, char** argv)
     Array<Real32> arrreal322(10, creal321);
     Real32 *creal322 = new Real32(2.5);
     Array<Real32> arrreal323(creal322,1);
-    Array<Real32> arrreal324(arrreal321); 
-    test03(arrreal322, arrreal323, creal322,Real32(2.5),Real32(3.5)); 
+    Array<Real32> arrreal324(arrreal321);
+    test03(arrreal322, arrreal323, creal322,Real32(2.5),Real32(3.5));
     delete creal322;
 
     Array<Real64> arrreal641(10);
@@ -766,7 +766,7 @@ int main(int argc, char** argv)
     Sint64 *cSint642 = new Sint64(Sint64(-2000000)*Sint64(10000000));
     Array<Sint64> arrSint643(cSint642,1);
     Array<Sint64> arrSint644(arrSint641);
-    test03(arrSint642, arrSint643, cSint642,Sint64(-2000000)*Sint64(10000000), 
+    test03(arrSint642, arrSint643, cSint642,Sint64(-2000000)*Sint64(10000000),
                            Sint64(-3000000)*Sint64(10000000));
     delete cSint642;
 
@@ -825,7 +825,7 @@ int main(int argc, char** argv)
     test03(arrChar162, arrChar163, cChar162, Char16('Z'), Char16('z'));
     delete cChar162;
     delete context;
-    
+
     cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;

@@ -39,24 +39,24 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** 
-  
-    RepositoryUpgradeException signals that an exception has occurred 
-    in executing the repupgrade command.  
-  
+/**
+
+    RepositoryUpgradeException signals that an exception has occurred
+    in executing the repupgrade command.
+
     @author  Hewlett-Packard Company
-  
+
  */
-class RepositoryUpgradeException : public CommandException 
+class RepositoryUpgradeException : public CommandException
 {
 public:
 
     /**
-      
+
         Constructs a RepositoryUpgradeException with the specified message.
-      
+
         @param  exceptionMessage  a string containing the exception message
-      
+
      */
     RepositoryUpgradeException (const String& exceptionMessage);
 

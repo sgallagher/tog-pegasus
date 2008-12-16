@@ -217,7 +217,7 @@ int main(int argc, char** argv)
     {
     if (!TestLookupInstanceProvider(prmanager))
     {
-        PEGASUS_STD(cerr) << "Error: lookupInstanceProvider Failed" 
+        PEGASUS_STD(cerr) << "Error: lookupInstanceProvider Failed"
                           << PEGASUS_STD(endl);
         exit (-1);
     }

@@ -1,8 +1,8 @@
 ####################################
 # This set of queries targest a set of association instances for
 # CIM_RunningOS.  Specifically, these statements are testing the CQL
-# functions which take a CIM Reference as input.  To test these call 
-# TestCQL like this:  
+# functions which take a CIM Reference as input.  To test these call
+# TestCQL like this:
 # TestCQL $PEGASUS_ROOT/src/Pegasus/CQL/tests/Queries/Function2.query -test 1 -className CIM_RunningOS
 #####################################
 

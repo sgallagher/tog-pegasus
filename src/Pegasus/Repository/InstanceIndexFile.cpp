@@ -68,7 +68,7 @@ static Uint32 getOffset( streampos sp )
 //
 // Converts a CIMObjectPath to a form that can be used as a key in the index
 // file.  Newline and carriage return characters are escaped to prevent
-// problems with the line-based file format. 
+// problems with the line-based file format.
 //
 
 static String _convertInstanceNameToKey(const CIMObjectPath& instanceName)

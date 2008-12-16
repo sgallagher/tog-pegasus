@@ -39,59 +39,59 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-static const char _MSG_SESSION_OPEN_FAILED[] = 
-    "Snmp Indication Handler failed to open the SNMP session: "; 
-static const char _MSG_SESSION_OPEN_FAILED_KEY[] = 
+static const char _MSG_SESSION_OPEN_FAILED[] =
+    "Snmp Indication Handler failed to open the SNMP session: ";
+static const char _MSG_SESSION_OPEN_FAILED_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_netsnmp."
         "_MSG_SESSION_OPEN_FAILED";
 
-static const char _MSG_GET_SESSION_POINT_FAILED[] = 
-    "Snmp Indication Handler failed to get the SNMP session pointer: "; 
-static const char _MSG_GET_SESSION_POINTER_FAILED_KEY[] = 
+static const char _MSG_GET_SESSION_POINT_FAILED[] =
+    "Snmp Indication Handler failed to get the SNMP session pointer: ";
+static const char _MSG_GET_SESSION_POINTER_FAILED_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_netsnmp."
         "_MSG_GET_SESSION_POINT_FAILED";
 
-static const char _MSG_PDU_CREATE_FAILED[] = 
-    "Snmp Indication Handler failed to create the SNMP PDU."; 
-static const char _MSG_PDU_CREATE_FAILED_KEY[] = 
+static const char _MSG_PDU_CREATE_FAILED[] =
+    "Snmp Indication Handler failed to create the SNMP PDU.";
+static const char _MSG_PDU_CREATE_FAILED_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_netsnmp."
         "_MSG_PDU_CREATE_FAILED";
 
-static const char _MSG_VERSION_NOT_SUPPORTED[] = 
+static const char _MSG_VERSION_NOT_SUPPORTED[] =
     "SNMPv1 Trap and SNMPv2C Trap are the only supported SNMPVersion values.";
-static const char _MSG_VERSION_NOT_SUPPORTED_KEY[] = 
+static const char _MSG_VERSION_NOT_SUPPORTED_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_netsnmp."
         "_MSG_VERSION_NOT_SUPPORTED";
 
-static const char _MSG_SESSION_SEND_FAILED[] = 
-    "Snmp Indication Handler failed to send the trap: "; 
-static const char _MSG_SESSION_SEND_FAILED_KEY[] = 
+static const char _MSG_SESSION_SEND_FAILED[] =
+    "Snmp Indication Handler failed to send the trap: ";
+static const char _MSG_SESSION_SEND_FAILED_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_netsnmp."
         "_MSG_SESSION_SEND_FAILED";
 
-static const char _MSG_PACK_TRAP_INFO_INTO_PDU_FAILED[] = 
+static const char _MSG_PACK_TRAP_INFO_INTO_PDU_FAILED[] =
     "Snmp Indication Handler failed to pack trap information into the "
         "SNMP PDU: \"$0\".";
-static const char _MSG_PACK_TRAP_INFO_INTO_PDU_FAILED_KEY[] = 
+static const char _MSG_PACK_TRAP_INFO_INTO_PDU_FAILED_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_netsnmp."
         "_MSG_PACK_TRAP_INFO_INTO_PDU_FAILED";
 
-static const char _MSG_ADD_SYSUPTIME_TO_PDU_FAILED[] = 
+static const char _MSG_ADD_SYSUPTIME_TO_PDU_FAILED[] =
     "Snmp Indication Handler failed to add sysUpTime to the SNMP PDU: \"$0\".";
-static const char _MSG_ADD_SYSUPTIME_TO_PDU_FAILED_KEY[] = 
+static const char _MSG_ADD_SYSUPTIME_TO_PDU_FAILED_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_netsnmp."
         "_MSG_ADD_SYSUPTIME_TO_PDU_FAILED";
 
-static const char _MSG_ADD_SNMP_TRAP_TO_PDU_FAILED[] = 
+static const char _MSG_ADD_SNMP_TRAP_TO_PDU_FAILED[] =
     "Snmp Indication Handler failed to add SNMP Trap to the SNMP PDU: \"$0\".";
-static const char _MSG_ADD_SNMP_TRAP_TO_PDU_FAILED_KEY[] = 
+static const char _MSG_ADD_SNMP_TRAP_TO_PDU_FAILED_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_netsnmp."
         "_MSG_ADD_SNMP_TRAP_TO_PDU_FAILED";
 
-static const char _MSG_PACK_CIM_PROPERTY_TO_PDU_FAILED[] = 
+static const char _MSG_PACK_CIM_PROPERTY_TO_PDU_FAILED[] =
     "Snmp Indication Handler failed to pack a CIM Property into the "
         "SNMP PDU: \"$0\".";
-static const char _MSG_PACK_CIM_PROPERTY_TO_PDU_FAILED_KEY[] = 
+static const char _MSG_PACK_CIM_PROPERTY_TO_PDU_FAILED_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_netsnmp."
         "_MSG_PACK_CIM_PROPERTY_TO_PDU_FAILED";
 
@@ -139,12 +139,12 @@ public:
 
     void deliverTrap(
         const String& trapOid,
-        const String& securityName, 
-        const String& targetHost, 
-        const Uint16& targetHostFormat, 
-        const String& otherTargetHostFormat, 
+        const String& securityName,
+        const String& targetHost,
+        const Uint16& targetHostFormat,
+        const String& otherTargetHostFormat,
         const Uint32& portNumber,
-        const Uint16& snmpVersion, 
+        const Uint16& snmpVersion,
         const String& engineID,
         const Array<String>& vbOids,
         const Array<String>& vbTypes,
@@ -152,20 +152,20 @@ public:
 
 private:
 
-    // Mutex is needed before a session is created. Sessions created 
+    // Mutex is needed before a session is created. Sessions created
     // using the Single API do not interact with other SNMP sessions.
     Mutex _sessionInitMutex;
 
     /**
         Creates a SNMP session.
-      
-        @param targetHost       the target system of a hostname or an IPv4 
+
+        @param targetHost       the target system of a hostname or an IPv4
                                 address or an IPv6 address to receive a trap
         @param targetHostFormat the format of the targetHost
         @param portNumber       the port number to receive a trap
         @param securityName     the human readable community name
         @param sessionHandle    an opaque pointer of the SNMP session
-        @param sessionPtr       the SNMP session pointer to its associated 
+        @param sessionPtr       the SNMP session pointer to its associated
                                 struct snmp_session
     */
     void _createSession(
@@ -178,7 +178,7 @@ private:
 
     /**
         Creates a SNMP session.
-      
+
         @param sessionHandle  an opaque pointer of the SNMP session
     */
     void _destroySession(void* sessionHandle);
@@ -231,7 +231,7 @@ private:
     };
 
     /**
-        Values for the TargetHostFormat property of the 
+        Values for the TargetHostFormat property of the
         PG_IndicationHandlerSNMPMapper class.
     */
     enum TargetHostFormat

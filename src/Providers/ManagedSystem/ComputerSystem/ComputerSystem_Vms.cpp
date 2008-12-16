@@ -30,11 +30,11 @@
 //%////////////////////////////////////////////////////////////////////////////
 
 //  12-Feb-08
-// PTR 73-51-124,Made  changes to display the primary owner name and contact 
+// PTR 73-51-124,Made  changes to display the primary owner name and contact
 // number in getPrimaryOwnerName() & getPrimaryOwnerContact()  .
 // PTR 73-51-123,Made changes to UUID display format in
 // getIdentificationNumber().
-// PTR 73-51-122 ,Made changes to system model display format in 
+// PTR 73-51-122 ,Made changes to system model display format in
 // getOtherIdentifyingInfo().
 //  22-Aug-06
 //  PTR 73-51-30 , Made changes to replace sys$specific:[000000]
@@ -130,8 +130,8 @@ typedef struct {
     uint8_t   node[6];
 }uuid_t;
 
-void translateLogical(char *logical, 
-                      char *translatedName, 
+void translateLogical(char *logical,
+                      char *translatedName,
                       int translatedNameSize)
 {
     typedef struct descrip
@@ -326,7 +326,7 @@ Boolean ComputerSystem::getInstallDate(CIMProperty& p)
             for (istr=0; istr<=(sizeof(record1)-4); istr++)
             {
                 if ((rptr1 = strstr(record1+istr,"-")) &&
-                    !strncmp(rptr1+4,"-",1)) 
+                    !strncmp(rptr1+4,"-",1))
                 {
                     break;
                 }
@@ -340,7 +340,7 @@ Boolean ComputerSystem::getInstallDate(CIMProperty& p)
                 tme1 = mktime(ptimetm); /* get timezone */
                 strcpy(t_string, rptr1 - 2);
 
-                if (t_string[11] == 10) 
+                if (t_string[11] == 10)
                 {
                     // a <cr>.
                     // When the date; but not the time is provided,
@@ -418,7 +418,7 @@ Boolean ComputerSystem::getInstallDate(CIMProperty& p)
                 timetm.tm_wday = libdayweek-1;
                 timetm.tm_yday = libdayear-1;
                 timetm.tm_isdst = 0;
-                if (libdst != 48) 
+                if (libdst != 48)
                 {
                     timetm.tm_isdst = 1;
                 }
@@ -453,7 +453,7 @@ Boolean ComputerSystem::getInstallDate(CIMProperty& p)
 // Added to address PTR 73-51-4, 73-51-6 and 73-51-8
 done:
 
-    if (fptr1) 
+    if (fptr1)
     {
         fclose(fptr1);
         fptr1 = 0;
@@ -510,13 +510,13 @@ Boolean ComputerSystem::getNameFormat(CIMProperty& p)
 }
 
 Boolean ComputerSystem::getPrimaryOwnerName(CIMProperty& p)
-{                   
-    // Changed to Adress PTR 73-51-124            
+{
+    // Changed to Adress PTR 73-51-124
     char translated_name[260]="\0";
     Array<String> s;
-   
+
     // PRIMARY OWNER  details getting from  logical "WBEM_PRIMARY_OWNER"
-    // Calling the translateLogical() function to tranlate logical name 
+    // Calling the translateLogical() function to tranlate logical name
     // to exact value
 
     translateLogical("WBEM_PRIMARY_OWNER", translated_name,256);
@@ -547,10 +547,10 @@ Boolean ComputerSystem::getPrimaryOwnerContact(CIMProperty& p)
     char translated_value[260]="\0";
     Array<String> s;
 
-    // PRIMARY OWNER CONTACT details getting from the 
+    // PRIMARY OWNER CONTACT details getting from the
     // logical "WBEM_PRIMARY_OWNER_CONTACT"
-    // Calling the translateLogical() function to tranlate logical name 
-    // to exact value  
+    // Calling the translateLogical() function to tranlate logical name
+    // to exact value
     translateLogical("WBEM_PRIMARY_OWNER_CONTACT", translated_value,256);
     if(translated_value[0] != '\0')
     {
@@ -559,7 +559,7 @@ Boolean ComputerSystem::getPrimaryOwnerContact(CIMProperty& p)
     }
     else
     {
-        // "WBEM_PRIMARY_OWNER_CONTACT" is not defined 
+        // "WBEM_PRIMARY_OWNER_CONTACT" is not defined
         // hardcoded
         // Changed to Adress PTR 73-51-23
         p = CIMProperty(PROPERTY_PRIMARY_OWNER_CONTACT,String(""));
@@ -592,7 +592,7 @@ Boolean ComputerSystem::getOtherIdentifyingInfo(CIMProperty& p)
         unsigned short wlength;
         unsigned short wcode;
         void *pbuffer;
-        void *pretlen; 
+        void *pretlen;
     } item_list;
     item_list itmlst3[2];
 
@@ -612,11 +612,11 @@ Boolean ComputerSystem::getOtherIdentifyingInfo(CIMProperty& p)
         // Changed to Adress PTR 73-51-122
 #ifdef  PEGASUS_PLATFORM_VMS_IA64_DECCXX
         _otherInfo.assign(hwname);
-        //fixing the PTR 73-51-122 
+        //fixing the PTR 73-51-122
         //experted hardware name is like this "HP rx3600"
         temp_hwname=&hwname[3];    //pointing the 4th charecter of string
-        //Searching for space from 4th charecter of the string and putting '\0' 
-        temp=strchr(temp_hwname,' ');  
+        //Searching for space from 4th charecter of the string and putting '\0'
+        temp=strchr(temp_hwname,' ');
         if (NULL != temp)
         {
             *temp = '\0';
@@ -879,12 +879,12 @@ int system_uuid(uuid_t *uuid_system)
 
     status = sys$getsyiw (0, 0, 0, itmlst3, 0, 0, 0);
 
-    if ($VMS_STATUS_SUCCESS(status)) 
+    if ($VMS_STATUS_SUCCESS(status))
     {
          //Putting the required bytes only
         uuid_system->time_low=uuid_system->time_low & 0XFFFFFFFF;
         uuid_system->time_mid =uuid_system->time_mid& 0XFFFF;
-        uuid_system->time_hi_and_version = 
+        uuid_system->time_hi_and_version =
             uuid_system->time_hi_and_version & 0XFFFF;
         uuid_system->clock_seq_hi_and_reserved =
             uuid_system->clock_seq_hi_and_reserved & 0XFF;
@@ -898,25 +898,25 @@ int system_uuid(uuid_t *uuid_system)
 
 Boolean ComputerSystem::getIdentificationNumber(CIMProperty& p)
 {
-   
+
     int status;
     String uidStr;
     char uidBuffer[36];
     uuid_t *systemUUID;
     systemUUID =(uuid_t *) calloc(1,sizeof(uuid_t));
-    
-    if (systemUUID ==NULL ) 
+
+    if (systemUUID ==NULL )
     {
         return false;
     }
 
-    // calling  system_uuid function with passing pointer of stucture 
+    // calling  system_uuid function with passing pointer of stucture
     // "uuid_t" as a argument
     // getting the system UUID in the format of stucture "uuid_t"
     status = system_uuid(systemUUID);
     if(status ==1)        //checking the status for success
     {
-       // Putting the UUID in uidBuffer with expected 
+       // Putting the UUID in uidBuffer with expected
        // format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
         sprintf(uidBuffer,"%.8X-%.4X-%.4X-%.2X%.2X-%.2X%.2X%.2X%.2X%.2X%.2X",
@@ -937,9 +937,9 @@ Boolean ComputerSystem::getIdentificationNumber(CIMProperty& p)
         free(systemUUID);
         return true;
     }
-    else 
+    else
     {
-        //faild the system_uuid() function to fill the UUID in the structer 
+        //faild the system_uuid() function to fill the UUID in the structer
         free(systemUUID);
         return false;
     }
@@ -959,7 +959,7 @@ void ComputerSystem::initialize(void)
     int rc;
 
 
-    if (gethostname(hostName, sizeof(hostName)) != 0) 
+    if (gethostname(hostName, sizeof(hostName)) != 0)
     {
         _hostName.assign("Unknown");
         return;
@@ -968,7 +968,7 @@ void ComputerSystem::initialize(void)
 
     // Now get the official hostname.  If this call fails then return
     // the value from gethostname().
-    // Note: gethostbyname() is not reentrant and VMS does not 
+    // Note: gethostbyname() is not reentrant and VMS does not
     // have gethostbyname_r() so use getaddrinfo().
 
     info = 0;
@@ -984,7 +984,7 @@ void ComputerSystem::initialize(void)
         // Note: if assign throws an exception, freeaddrinfo is not called.
         _hostName.assign(info->ai_canonname);
     }
-    else 
+    else
     {
         _hostName.assign(hostName);
     }
@@ -1013,11 +1013,11 @@ static void updateStatusAndDescription()
     // If request has come within 1 minute interval, do not refresh
     time (&currentTime);
     diffTime = currentTime - previousTime;
-    if (diffTime >= 0 && diffTime <= 60) 
+    if (diffTime >= 0 && diffTime <= 60)
     {
         return;
     }
-    else 
+    else
     {
         previousTime = currentTime;
     }
@@ -1049,12 +1049,12 @@ static void updateStatusAndDescription()
         instanceNames = hpcsclient.enumerateInstanceNames("root/cimv2",
                                              CIMName("HP_HealthState"));
 
-        if ( instanceNames.size() > 0 ) 
+        if ( instanceNames.size() > 0 )
         {
-            for (Uint32 i = 0; i < instanceNames.size(); i++) 
+            for (Uint32 i = 0; i < instanceNames.size(); i++)
             {
                 if (instanceNames[i].getClassName().
-                    equal(CIMName("HP_HealthState"))) 
+                    equal(CIMName("HP_HealthState")))
                 {
                     returnedInstance = hpcsclient.getInstance("root/cimv2",
                         instanceNames[i],
@@ -1063,18 +1063,18 @@ static void updateStatusAndDescription()
                         false,
                         propertyList);
 
-                    Uint32 statusIndex = 
+                    Uint32 statusIndex =
                         returnedInstance.findProperty(PROPERTY_STATUS);
-                    Uint32 operationalStatusIndex = 
+                    Uint32 operationalStatusIndex =
                         returnedInstance.findProperty(
                             PROPERTY_OPERATIONAL_STATUS);
-                    Uint32 statusDescriptionsIndex = 
+                    Uint32 statusDescriptionsIndex =
                         returnedInstance.findProperty(
                             PROPERTY_STATUS_DESCRIPTIONS);
 
                     if (statusIndex != PEG_NOT_FOUND &&
                         operationalStatusIndex != PEG_NOT_FOUND &&
-                        statusDescriptionsIndex != PEG_NOT_FOUND) 
+                        statusDescriptionsIndex != PEG_NOT_FOUND)
                     {
                         status.assign(returnedInstance.
                             getProperty(statusIndex).getValue());
@@ -1082,8 +1082,8 @@ static void updateStatusAndDescription()
                             getProperty(operationalStatusIndex).getValue());
                         statusDescriptions.assign(returnedInstance.
                             getProperty(statusDescriptionsIndex).getValue());
-                        if (!status.isNull() && !operationalStatus.isNull() && 
-                            !statusDescriptions.isNull()) 
+                        if (!status.isNull() && !operationalStatus.isNull() &&
+                            !statusDescriptions.isNull())
                         {
                             // Set the properties, read from HP_HealhState.
                             status.get(_status);
@@ -1097,12 +1097,12 @@ static void updateStatusAndDescription()
             }
         }
     }
-    catch (...) 
+    catch (...)
     {
         // Use the default values if any exception is encountered.
     }
 
-    if (useDefaultStatus) 
+    if (useDefaultStatus)
     {
         _status.clear();
         _operationalStatus.clear();

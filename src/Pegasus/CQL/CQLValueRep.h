@@ -81,9 +81,9 @@ class CQLValueRep
    CQLValueRep(const CIMObject& inObject);
    CQLValueRep(const CIMValue& inVal);
 
-    /**  This method is used to ask an identifier to resolve itself to 
+    /**  This method is used to ask an identifier to resolve itself to
            a number or string (primitive value).
-    
+
           Resolves:
            - symbolic constants
            - indexing an array
@@ -162,7 +162,7 @@ class CQLValueRep
 
     /** This overload operator (+) concatenates or adds the value of
     CQLValue objects and performs type checking and Uint64 handling.
-          For example, 
+          For example,
         <pre>
             CQLValue  t1 = "abc";  // it's a string type
             CQLValue  t2 = "def";   // it's another string type
@@ -170,28 +170,28 @@ class CQLValueRep
             PEGASUS_ASSERT(t3 == "abcdef");
         </pre>
     */
- 
+
      CQLValueRep operator+(const CQLValueRep x);
 
     /** This overload operator (-) subtracts the value of CQLValue
           objects and performs type checking and Uint64 handling.
-          For example, 
+          For example,
         <pre>
-            CQLValue  t1 = 5;  
-            CQLValue  t2 = 2;   
+            CQLValue  t1 = 5;
+            CQLValue  t2 = 2;
             CQLValue   t3 = t1 - t2;
             PEGASUS_ASSERT(t3 == 3);
         </pre>
     */
- 
+
     //CQLValueRep operator-(const CQLValueRep& x);
 
     /** This overload operator (*) multiplies the values of CQLValue
           objects and performs type checking and Uint64 handling.
-          For example, 
+          For example,
         <pre>
-            CQLValue  t1 = 3;  
-            CQLValue  t2 = 2;   
+            CQLValue  t1 = 3;
+            CQLValue  t2 = 2;
             CQLValue   t3 = t1 *  t2;
             PEGASUS_ASSERT(t3 == 6);
         </pre>
@@ -201,10 +201,10 @@ class CQLValueRep
 
     /** This overload operator (*) divides the values of CQLValue
           objects and performs type checking and Uint64 handling.
-          For example, 
+          For example,
         <pre>
-            CQLValue  t1 = 6;  
-            CQLValue  t2 = 2;   
+            CQLValue  t1 = 6;
+            CQLValue  t2 = 2;
             CQLValue   t3 = t1 /  t2;
             PEGASUS_ASSERT(t3 == 2);
         </pre>
@@ -213,7 +213,7 @@ class CQLValueRep
     //CQLValueRep operator/(const CQLValueRep& x);
 
     /** Accessor for getting the type of the CQLValue.
-    
+
     TODO:  do we need this method?
       */
 
@@ -237,13 +237,13 @@ class CQLValueRep
     /** Tests to see if this "like" the input string.
           Both sides of the LIKE comparison must have a String type:
           the result is a Boolean type.
-    
+
          The LIKE comparison allows a string to be tested by pattern-matching,
           using special characters n the right-hand-side string.
           See the DMTF CQL Specification for details.
-    
+
           For Basic Query, the left-hand expression (this) may be restricted to
-    chain, and 
+    chain, and
           the right-hand expression may be restricted to be a literal-string.
     */
 
@@ -263,9 +263,9 @@ class CQLValueRep
    String toString()const;
    void applyContext(const QueryContext& _ctx,
                      const CQLChainedIdentifier& inCid);
-   
+
    static String valueTypeToString(const CQLValue::CQLValueType parmType);
-   friend class CQLFactory; 
+   friend class CQLFactory;
    friend class CQLValue;
   private:
    Boolean _areClassesInline(const CIMClass& c1,const CIMClass& c2,

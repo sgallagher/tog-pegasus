@@ -73,7 +73,7 @@ CIMClass* CMPIClassCache::getClass(
         {
             return ccp;
         }
-                      
+
         CIMClass cc = ((CIMOMHandle*)mb->hdl)->getClass(
             OperationContext(),
             cop.getNameSpace(),

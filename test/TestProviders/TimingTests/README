@@ -30,11 +30,11 @@ Timing Related Testing
 ----------------------
 
 This directory contains the sample provider for timing related test cases.
-Its an attempt to find out any inconsistencies in the provider load/unload 
+Its an attempt to find out any inconsistencies in the provider load/unload
 (if any) logic.The ideal test case requires that a provider unloads when
-another client is invoking enumerate instances for a provider class and 
-vice versa. It is quite difficult to create this kind of situation with this 
-set of test programs. By running these tests for long hours we might hit some 
+another client is invoking enumerate instances for a provider class and
+vice versa. It is quite difficult to create this kind of situation with this
+set of test programs. By running these tests for long hours we might hit some
 problem.
 
 The files included in this test are:
@@ -48,7 +48,7 @@ The files included in this test are:
 The provider implements the base class TimingSampleClass with 3 derived classes
 TimeOne, TimeTwo, TimeThree.
 
-The instances of the TimeOne and TimeTwo classes are created inside the 
+The instances of the TimeOne and TimeTwo classes are created inside the
 TimingProvider:initialize method in the provider.
 
 build
@@ -56,7 +56,7 @@ build
 Run this script to build the provider, compile the MOFs, register the provider,
 compile the client program and finally restarting the cimserver.
 
-Client 
+Client
 ------
 Makefile.Client - Makefile for compiling TimingClient
 TimingClient.cpp
@@ -65,7 +65,7 @@ This program tests the TimingProvider implemented by running multiple threads
 performing different CIM operations.
 main() forks and child calls EnumerateInstances for one class. The parent make
 calls to EnumerateInstances and EnumerateClass.
-Long sleeps are inserted between the calls to enumerateinstances and 
+Long sleeps are inserted between the calls to enumerateinstances and
 enumerateClasses.
 
 testscript

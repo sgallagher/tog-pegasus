@@ -40,7 +40,7 @@ PEGASUS_NAMESPACE_BEGIN
 WMIException::WMIException(const CIMException& exception) : Exception("")
 {
 }
-    
+
 WMIException::WMIException(const HRESULT hRes) : Exception("")
 {
     switch(hRes) {

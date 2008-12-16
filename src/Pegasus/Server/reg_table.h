@@ -97,7 +97,7 @@ private:
     String _getWildRoutingKey(
         const CIMName& className) const;
 
-    typedef HashTable<String, RegTableRecord*, 
+    typedef HashTable<String, RegTableRecord*,
         EqualNoCaseFunc, HashFunc<String> > RoutingTable;
     RoutingTable _routingTable;
 

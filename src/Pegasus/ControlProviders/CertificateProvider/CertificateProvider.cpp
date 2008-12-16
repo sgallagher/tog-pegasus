@@ -630,10 +630,10 @@ void CertificateProvider::enumerateInstances(
             // other than cimserver, those instances will be ignored.
             // Also, if there are instances that do not specify a certificate
             // type, the type for such instances is set to unknown (1).
-            // And if there are instances that do not have certificate type 
+            // And if there are instances that do not have certificate type
             // property, CERTIFICATE_TYPE_PROPERTY is added and is set to
-            // unknown. Last case is introduced to retain backward 
-            // compatibility, if there were instances of an earlier version 
+            // unknown. Last case is introduced to retain backward
+            // compatibility, if there were instances of an earlier version
             // in the repository that do not have certificate type property.
             //
 
@@ -661,8 +661,8 @@ void CertificateProvider::enumerateInstances(
                                CERTIFICATE_TYPE_PROPERTY);
 
                 //
-                // If certificate type property is not there then add the 
-                // property and set its type to "Unknown"                
+                // If certificate type property is not there then add the
+                // property and set its type to "Unknown"
                 //
                 if (certTypeIndex != PEG_NOT_FOUND)
                 {
@@ -688,7 +688,7 @@ void CertificateProvider::enumerateInstances(
                             "type property. Adding it and setting to Unknown.");
                     cimInstances[i].addProperty(
                         CIMProperty(CERTIFICATE_TYPE_PROPERTY,
-                        CIMValue(CERT_TYPE_UNKNOWN)));                   
+                        CIMValue(CERT_TYPE_UNKNOWN)));
                 }
 
                 // Deliver instance
@@ -721,7 +721,7 @@ void CertificateProvider::enumerateInstances(
 #if defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
         if (FileSystem::isDirectory(_crlStore))
 #else
-        if (FileSystem::isDirectory(_crlStore) && 
+        if (FileSystem::isDirectory(_crlStore) &&
             FileSystem::canWrite(_crlStore))
 #endif
         {
@@ -758,7 +758,7 @@ void CertificateProvider::enumerateInstances(
                                          "Successfully read filename");
 
                         AutoPtr<X509_CRL, FreeX509CRLPtr> xCrl(
-                            PEM_read_bio_X509_CRL(inFile.get(), 
+                            PEM_read_bio_X509_CRL(inFile.get(),
                                 NULL, NULL, NULL));
 
                         if (xCrl.get())
@@ -962,7 +962,7 @@ void CertificateProvider::enumerateInstanceNames(
                             "Successfully read filename");
 
                         AutoPtr<X509_CRL, FreeX509CRLPtr> xCrl(
-                            PEM_read_bio_X509_CRL(inFile.get(), 
+                            PEM_read_bio_X509_CRL(inFile.get(),
                                 NULL, NULL, NULL));
                         if (xCrl.get())
                         {
@@ -1254,14 +1254,14 @@ void CertificateProvider::deleteInstance(
             {
                 Array<CIMKeyBinding> newKeys = cimObjectPath.getKeyBindings();
 
-                // Check for deprecated truststore key 
+                // Check for deprecated truststore key
                 Boolean truststoreKeyFound = false;
                 for (Uint32 i = 0; i < newKeys.size() ; ++i)
                 {
                     if (newKeys[i].getName() == TRUSTSTORE_TYPE_PROPERTY)
                     {
                         truststoreKeyFound = true;
-                        break; 
+                        break;
                     }
                 }
                 //
@@ -1270,7 +1270,7 @@ void CertificateProvider::deleteInstance(
                 // to the key bindings and set it to cimserver truststore.
                 //
                 if (!truststoreKeyFound)
-                { 
+                {
                     CIMKeyBinding kb (TRUSTSTORE_TYPE_PROPERTY,
                         PG_SSLCERTIFICATE_TSTYPE_VALUE_SERVER);
                     newKeys.append(kb);
@@ -2094,7 +2094,7 @@ void CertificateProvider::invokeMethod(
 
                 if (!bio)
                 {
-                    PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL1, 
+                    PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL1,
                         "Unable to add certificate to truststore. Failed "
                             "to open certificate file for write.");
 
@@ -2110,8 +2110,8 @@ void CertificateProvider::invokeMethod(
                 if (!PEM_write_bio_X509(bio, xCert.get()))
                 {
                     BIO_free_all(bio);
-                    PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL1, 
-                        "Unable to add certificate to truststore. " 
+                    PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL1,
+                        "Unable to add certificate to truststore. "
                             "Error while trying to write certificate, "
                             "PEM_write_bio_X509 returned error");
                     MessageLoaderParms parms(
@@ -2301,7 +2301,7 @@ void CertificateProvider::invokeMethod(
 
             if (!bio)
             {
-                PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL1, 
+                PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL1,
                     "Unable to add CRL to truststore. Failed to open CRL file "
                         "for write ");
 
@@ -2317,7 +2317,7 @@ void CertificateProvider::invokeMethod(
             {
                 BIO_free_all(bio);
                 PEG_TRACE_CSTRING(TRC_CONTROLPROVIDER, Tracer::LEVEL1,
-                    "Unable to add CRL to truststore. " 
+                    "Unable to add CRL to truststore. "
                     "Error trying to write CRL,"
                     " PEM_write_bio_X509_CRL returned error");
                 MessageLoaderParms parms(

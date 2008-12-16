@@ -132,26 +132,26 @@ const Uint32 CIMCRLCommand::_OPERATION_TYPE_VERSION = 5;
 static const CIMName PROPERTY_NAME_ISSUERNAME = CIMName ("IssuerName");
 
 /**
-    This constant represents the name of the lastUpdate 
+    This constant represents the name of the lastUpdate
     property in the schema
 */
 static const CIMName PROPERTY_NAME_LASTUPDATE   = CIMName ("LastUpdate");
 
 /**
-    This constant represents the name of the nextUpdate 
+    This constant represents the name of the nextUpdate
     property in the schema
 */
 static const CIMName PROPERTY_NAME_NEXTUPDATE   = CIMName ("NextUpdate");
 
 /**
-    This constant represents the name of the revokedSerialNumbers 
+    This constant represents the name of the revokedSerialNumbers
     property in the schema
 */
 static const CIMName PROPERTY_NAME_REVOKED_SERIAL_NUMBERS =
                                       CIMName ("RevokedSerialNumbers");
 
 /**
-    This constant represents the name of the revocationDates 
+    This constant represents the name of the revocationDates
     property in the schema
 */
 static const CIMName PROPERTY_NAME_REVOCATION_DATES =
@@ -245,14 +245,14 @@ CIMCRLCommand::CIMCRLCommand ()
     _usage.append (COMMAND_NAME);
 
     //
-    // Add option 
+    // Add option
     //
     _usage.append (" -").append (_OPTION_ADD);
     _usage.append (" -").append (_OPTION_CRLFILE).append (" crlfile");
     _usage.append ("\n");
 
     //
-    // Remove option 
+    // Remove option
     //
     //_usage.append ("                   -").append (_OPTION_REMOVE);
     _usage.append("       ").append (COMMAND_NAME);
@@ -342,7 +342,7 @@ String CIMCRLCommand::_formatCIMDateTime(const String& cimDateTimeStr)
     sscanf(cimDateTimeStr.getCString(), "%04u%02u%02u%02u%02u%02u.%06u%04d",
            &year, &month, &day, &hour, &minute, &second,
            &microsecond, &timezone);
- 
+
     char monthString[5];
 
     switch (month)

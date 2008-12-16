@@ -68,7 +68,7 @@ CFLAGS += /machine_code
 CCFLAGS += /machine_code
 endif
 
-ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
 CFLAGS += /show=include/list=$(OBJ_VMSDIRA)]/debug/noopt
 CCFLAGS += /show=include/list=$(OBJ_VMSDIRA)]/debug/noopt
 # generate run-time .dsf files (Debug Symbol Table files)
@@ -76,7 +76,7 @@ LFLAGS +=  /dsf=$(BIN_VMSDIRA)]$(PROGRAM)
 #Do not link with /debug so that debug images can be "run"
 #during the build without invoking the debugger which stops automated
 #tests due to the user interface.
-#Use $set image/flag=call_debug to debug an image. 
+#Use $set image/flag=call_debug to debug an image.
 #Note: This assumes the build is using /dsf= which gives the debugger debug
 #information.
 else
@@ -96,7 +96,7 @@ OPENSSL_LIB = PEGASUS_OPENSSLLIB
 PEGASUS_HAS_SSL = yes
 OPENSSL_SET_SERIAL_SUPPORTED = true
 
-PEGASUS_ARCHITECTURE_64BIT = yes 
+PEGASUS_ARCHITECTURE_64BIT = yes
 
 # PEGASUS_TEST_USER_DEFINED assumes user "pegtest"
 PEGASUS_TEST_USER_DEFINED = true

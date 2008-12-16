@@ -15,13 +15,13 @@
             <PROPERTY NAME="SystemName" TYPE="string">
               <VALUE> server001.acme.com </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="CreationClassName" TYPE="string"> 
+            <PROPERTY NAME="CreationClassName" TYPE="string">
               <VALUE> CIM_IndicationHandlerCIMXML </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="Name" TYPE="string"> 
+            <PROPERTY NAME="Name" TYPE="string">
               <VALUE> nsaHandlerXmlRemote </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="Destination" TYPE="string"> 
+            <PROPERTY NAME="Destination" TYPE="string">
               <VALUE> 15.13.170.162:8888/testConsumer </VALUE>
             </PROPERTY>
           </INSTANCE>

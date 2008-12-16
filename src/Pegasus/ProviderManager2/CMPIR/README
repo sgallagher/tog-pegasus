@@ -83,9 +83,9 @@ Installation instructions:
 
         CreateExtNS2 program can be used to create the remote namespaces. This program uses
         CIMRepository interface directly to create the remote namespaces and remote namespce
-        creation is independent of underlying persistence store. Unlike other RCMPI 
+        creation is independent of underlying persistence store. Unlike other RCMPI
         tools/programs/libraries this program uses pegasus libraries. However dynamic creation
-        of remote namespaces are not supported.    
+        of remote namespaces are not supported.
 
 2) Install the Remode CMPI Daemon at the remote location. For the moment only
    Linux systems are supported as remote locations. Copy the following files

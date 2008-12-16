@@ -53,8 +53,8 @@ PEGASUS_NAMESPACE_BEGIN
 // Add qualifiers from a WMI class to a CIMParameter.
 //
 ///////////////////////////////////////////////////////////////
-void addQualifiersToCIMParameter(const CIMQualifierList& cimQualifierList, 
-                                 CIMParameter& cimParam, 
+void addQualifiersToCIMParameter(const CIMQualifierList& cimQualifierList,
+                                 CIMParameter& cimParam,
                                  Boolean includeQualifiers)
 {
     static const CIMName idName("ID");
@@ -65,10 +65,10 @@ void addQualifiersToCIMParameter(const CIMQualifierList& cimQualifierList,
     {
         CIMQualifier cimQual = cimQualifierList.getQualifier(i);
 
-        // Add this qualifier if includeQualifiers is true or if 
+        // Add this qualifier if includeQualifiers is true or if
         // this is an "ID", "in", or "out" qualifier:
         if (includeQualifiers ||
-            cimQual.getName().equal(inName) || 
+            cimQual.getName().equal(inName) ||
             cimQual.getName().equal(outName) ||
             cimQual.getName().equal(idName))
         {
@@ -95,7 +95,7 @@ CIMParameter cimParamFromWMIParam(
     {
         WMIQualifierSet(pQualifiers).cloneTo(qualifierList);
     }
-    
+
     // Check for a reference type, and get the reference class if necessary:
     String referenceClass = String::EMPTY;
     if (CIM_REFERENCE == wmiType)
@@ -138,7 +138,7 @@ CIMParameter cimParamFromWMIParam(
         wmiType &= ~CIM_FLAG_ARRAY;
     }
 
-    // NOTE: Currently no mapping of WMI "object" types, so this could 
+    // NOTE: Currently no mapping of WMI "object" types, so this could
     // throw if the param is of type "object" or other un-supported
     // WMI type:
     CIMType cimType;
@@ -149,14 +149,14 @@ CIMParameter cimParamFromWMIParam(
     catch (TypeMismatchException tme)
     {
         // Don't want method enumeration to fail, just because
-        // we don't handle the type, so making this type "reference" 
+        // we don't handle the type, so making this type "reference"
         // for now and making the reference class name "UNKNOWN_TYPE":
         cimType = CIMTYPE_REFERENCE;
         refClassName = CIMName("UNKNOWN_TYPE");
     }
-    
+
     // Build the CIMParameter:
-    CIMParameter cimParam = CIMParameter(strParamName, 
+    CIMParameter cimParam = CIMParameter(strParamName,
                                          cimType,
                                          isArray,
                                          arraySize,
@@ -177,7 +177,7 @@ CIMParameter cimParamFromWMIParam(
 //
 ///////////////////////////////////////////////////////////////
 void addWMIParametersToCIMMethod(
-        const CComPtr<IWbemClassObject>& wmiParameters, 
+        const CComPtr<IWbemClassObject>& wmiParameters,
         CIMMethod& method,
         Boolean includeQualifiers)
 {
@@ -193,21 +193,21 @@ void addWMIParametersToCIMMethod(
             CComBSTR bstrParamName;
             CComVariant vParamValue;
             CIMTYPE wmiType;
-            hr = wmiParameters->Next(0, &bstrParamName, 
+            hr = wmiParameters->Next(0, &bstrParamName,
                 &vParamValue, &wmiType, NULL);
 
             // Check errors
-            if (WBEM_S_NO_MORE_DATA == hr) 
+            if (WBEM_S_NO_MORE_DATA == hr)
             {
                 break;
             }
-            if (FAILED(hr)) 
+            if (FAILED(hr))
             {
                 bstrParamName.Empty();
                 vParamValue.Clear();
                 throw CIMException(CIM_ERR_FAILED);
             }
-            
+
             // Convert to CIMParameter
             BSTR tmpBstr = (BSTR)bstrParamName.Copy();
             String parameterName(_bstr_t(tmpBstr, FALSE));
@@ -215,7 +215,7 @@ void addWMIParametersToCIMMethod(
 
             // Add the parameter to this method if it is not the return value
             // and it does not already exist in the method.
-            // If the parameter already exists (i.e., an in & out parameter), 
+            // If the parameter already exists (i.e., an in & out parameter),
             // then there is no need to re-add or modify it here
             // (the in version is an exact copy of the out version):
             String strRetVal("ReturnValue");
@@ -224,12 +224,12 @@ void addWMIParametersToCIMMethod(
             {
                 // Get the qualifier list for this param from WMI:
                 CComPtr<IWbemQualifierSet> pParamQualifiers;
-                HRESULT hr = 
-                    wmiParameters->GetPropertyQualifierSet(bstrParamName, 
+                HRESULT hr =
+                    wmiParameters->GetPropertyQualifierSet(bstrParamName,
                                                            &pParamQualifiers);
-                
+
                 // create the CIMParameter
-                CIMParameter cimParam = 
+                CIMParameter cimParam =
                     cimParamFromWMIParam(parameterName,
                                          wmiType,
                                          pParamQualifiers,
@@ -245,7 +245,7 @@ void addWMIParametersToCIMMethod(
             bstrParamName.Empty();
             vParamValue.Clear();
         }
-        hr = wmiParameters->EndEnumeration();    
+        hr = wmiParameters->EndEnumeration();
     }
 }
 
@@ -260,7 +260,7 @@ WMIMethod::WMIMethod(const CIMMethod & method) : CIMMethod(method)
 }
 
 
-WMIMethod::WMIMethod(const BSTR & name, 
+WMIMethod::WMIMethod(const BSTR & name,
                      const CComPtr<IWbemClassObject>& inParameters,
                      const CComPtr<IWbemClassObject>& outParameters,
                      IWbemQualifierSet * pQualifierSet,
@@ -271,7 +271,7 @@ WMIMethod::WMIMethod(const BSTR & name,
     CComVariant            vValue = NULL;
     CIMTYPE                returnValueType;
     HRESULT            hr;
-    
+
     WMIQualifierSet(pQualifierSet).cloneTo(qualifierList);
 
     // Get method return value
@@ -279,15 +279,15 @@ WMIMethod::WMIMethod(const BSTR & name,
 
     CComBSTR propertyName = L"ReturnValue";
 
-// modified to correct bug JAGaf25827  
+// modified to correct bug JAGaf25827
 // JAGaf25827 - new code begin
     if (outParameters)
     {
         hr = outParameters->Get(
-            propertyName,  
-            0, 
-            &vValue, 
-            &returnValueType, 
+            propertyName,
+            0,
+            &vValue,
+            &returnValueType,
             NULL);
     }
     else
@@ -298,7 +298,7 @@ WMIMethod::WMIMethod(const BSTR & name,
     //    not found. Maybe it is a 'void' return value
     if (hr == WBEM_E_NOT_FOUND) {
         vValue = NULL;
-        returnValueType = CIM_UINT32; 
+        returnValueType = CIM_UINT32;
     }
     else if (hr != WBEM_S_NO_ERROR) {
         // Error: throw?
@@ -308,8 +308,8 @@ WMIMethod::WMIMethod(const BSTR & name,
 
     // the WMI 'CIMTYPE' qualifier stores a string that contains the reference
     // class name cimtype_qualifier ::= ["ref:" + <reference_class_name>]
-    // NOTE: CIMMethod does not seem to store the reference class anywhere, 
-    // but it seems like it should, so this code is here in case a reference 
+    // NOTE: CIMMethod does not seem to store the reference class anywhere,
+    // but it seems like it should, so this code is here in case a reference
     // class member is ever added to the CIMMethod class in the future:
     if (CIM_REFERENCE == returnValueType)
     {
@@ -347,7 +347,7 @@ WMIMethod::WMIMethod(const BSTR & name,
         }
     }
 
-    // NOTE: Currently no mapping of WMI "object" types, so this could 
+    // NOTE: Currently no mapping of WMI "object" types, so this could
     // throw if the param is of type "object" or other un-supported
     // WMI type:
     CIMType cimType;
@@ -358,7 +358,7 @@ WMIMethod::WMIMethod(const BSTR & name,
     catch (TypeMismatchException tme)
     {
         // Don't want method enumeration to fail, just because
-        // we don't handle the type, so making this type "reference" 
+        // we don't handle the type, so making this type "reference"
         // for now and making the reference class name "UNKNOWN_TYPE":
         cimType = CIMTYPE_REFERENCE;
         referenceClass = "UNKNOWN_TYPE";
@@ -383,9 +383,9 @@ WMIMethod::WMIMethod(const BSTR & name,
     }
 
     *this = CIMMethod(
-        CIMName(s), 
+        CIMName(s),
         cimType,
-        cimClsOrigin, 
+        cimClsOrigin,
         (classOrigin.size() != 0));
 
 
@@ -400,12 +400,12 @@ WMIMethod::WMIMethod(const BSTR & name,
         }
     }
 
-    // Enumerate the parameters of the WMI method in and out classes here, 
+    // Enumerate the parameters of the WMI method in and out classes here,
     // adding them to the CIMMethos as appropriate.
-    // NOTE: In WMI parameters method parameters are defined as in, out, or 
-    // both, meaning that they cold show up in both the inParameters and 
-    // outParameters lists. The addWMIParametersToCIMMethod() function will 
-    // check for the existing parameters by name, and will not attempt to 
+    // NOTE: In WMI parameters method parameters are defined as in, out, or
+    // both, meaning that they cold show up in both the inParameters and
+    // outParameters lists. The addWMIParametersToCIMMethod() function will
+    // check for the existing parameters by name, and will not attempt to
     // re-add any existing params (there is no need, since the "in" and "out"
     // versions of an in/out param are simply identical copies)
     addWMIParametersToCIMMethod(outParameters, *this, includeQualifiers);

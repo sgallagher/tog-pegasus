@@ -54,19 +54,19 @@ BIPTLEpInfo::BIPTLEpInfo(CIMClient &client, Boolean enableDebug,
         Boolean localOnly = true;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
-      
-        Array<CIMInstance> cimInstances = 
+
+        Array<CIMInstance> cimInstances =
             client.enumerateInstances(NAMESPACE, CLASS_NAME,
                                       deepInheritance,
                                       localOnly,
                                       includeQualifiers,
                                       includeClassOrigin);
- 
+
         Uint32 numberInstances = cimInstances.size();
 
         if (_enableDebug)
         {
-            outPrintWriter << numberInstances << " instances of " 
+            outPrintWriter << numberInstances << " instances of "
                 << CLASS_NAME.getString() << endl;
         }
 
@@ -74,27 +74,27 @@ BIPTLEpInfo::BIPTLEpInfo(CIMClient &client, Boolean enableDebug,
         {
             _gatherProperties(cimInstances[0], outPrintWriter);
             _outputHeader(outPrintWriter);
-    
+
             for (Uint32 i = 0; i < numberInstances; i++)
             {
                 _gatherProperties(cimInstances[i], outPrintWriter);
                 _outputInstance(outPrintWriter);
-    
+
              }   // end for looping through instances
         }
         else
         {
-             outPrintWriter << "No instances of class " 
+             outPrintWriter << "No instances of class "
                              << CLASS_NAME.getString() << endl;
         }
 
-    }  // end try 
-   
+    }  // end try
+
     catch(Exception&)
     {
-        errPrintWriter << "Error getting instances of class " 
+        errPrintWriter << "Error getting instances of class "
             << CLASS_NAME.getString() << endl;
-    }   
+    }
 
 }
 
@@ -124,7 +124,7 @@ void BIPTLEpInfo::_gatherProperties(CIMInstance &inst, ostream& outPrintWriter)
         CIMName propertyName = inst.getProperty(j).getName();
 
         if (propertyName.equal("FrameType"))
-        inst.getProperty(j).getValue().get(_ipFrameType); 
+        inst.getProperty(j).getValue().get(_ipFrameType);
 
     } // end for loop through properties
 
@@ -139,19 +139,19 @@ void BIPTLEpInfo::_gatherProperties(CIMInstance &inst, ostream& outPrintWriter)
     Uint32 numKeys = kb.size();
 
     if (_enableDebug)
-        outPrintWriter << "Retrieved " << numKeys 
+        outPrintWriter << "Retrieved " << numKeys
                        << " keys in association." << endl;
 
     for (Uint32 j=0; j < numKeys; j++)
     {
         keyName = kb[j].getName();
-         
+
         if (keyName.equal("Antecedent"))
         {
             CIMObjectPath _Ant = kb[j].getValue();
             _extractFromKey(_Ant, _ipLEPCCN, _ipLEPName, outPrintWriter);
         }
-    
+
         else if (keyName.equal("Dependent"))
         {
             CIMObjectPath _Dep = kb[j].getValue();
@@ -166,7 +166,7 @@ void BIPTLEpInfo::_gatherProperties(CIMInstance &inst, ostream& outPrintWriter)
 ////////////////////////////////////////////////////////////////////////////////
 //  Extract Information from a Key
 ////////////////////////////////////////////////////////////////////////////////
-void BIPTLEpInfo::_extractFromKey(CIMObjectPath &ref, String &ccn, 
+void BIPTLEpInfo::_extractFromKey(CIMObjectPath &ref, String &ccn,
                                 String &name, ostream &outPrintWriter)
 {
     CIMName keyName;
@@ -175,13 +175,13 @@ void BIPTLEpInfo::_extractFromKey(CIMObjectPath &ref, String &ccn,
     Uint32 numKeys = kb.size();
 
     if (_enableDebug)
-        outPrintWriter << "Retrieved " << numKeys << " keys in reference `" 
+        outPrintWriter << "Retrieved " << numKeys << " keys in reference `"
         << ref.getClassName().getString() << "'." << endl;
 
     for (Uint32 j=0; j < numKeys; j++)
     {
         keyName = kb[j].getName();
-         
+
         if (keyName.equal("Name"))
             name = kb[j].getValue();
 
@@ -198,7 +198,7 @@ void BIPTLEpInfo::_extractFromKey(CIMObjectPath &ref, String &ccn,
 void BIPTLEpInfo::_outputHeader(ostream &outPrintWriter)
 {
 
-    outPrintWriter << endl << ">>>> IP Associations to LAN Endpoint <<<<" 
+    outPrintWriter << endl << ">>>> IP Associations to LAN Endpoint <<<<"
         << endl << endl;
 
     if (_ipLEPCCN.size() > 0)
@@ -212,7 +212,7 @@ void BIPTLEpInfo::_outputHeader(ostream &outPrintWriter)
     sprintf(header, HeaderFormat, "LAN Endpoint", "IP Protocol Endpoint",
             "Frame Type");
     outPrintWriter << endl << header << endl;
-    
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -236,5 +236,5 @@ void BIPTLEpInfo::_outputInstance(ostream &outPrintWriter)
         (const char *)_ipFT.getCString()
         );
     outPrintWriter << row << endl;
-    
+
 }

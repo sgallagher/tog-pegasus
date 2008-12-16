@@ -80,14 +80,14 @@ void CIMOperationRequestEncoder::handleEnqueue()
 
     if (_binaryRequest)
     {
-        CIMOperationRequestMessage* msg = 
+        CIMOperationRequestMessage* msg =
             dynamic_cast<CIMOperationRequestMessage*>(message);
 
         if (msg)
         {
             Buffer buf;
 
-            if (BinaryCodec::encodeRequest(buf, _hostName, 
+            if (BinaryCodec::encodeRequest(buf, _hostName,
                 _authenticator->buildRequestAuthHeader(), msg, _binaryResponse))
             {
                 _sendRequest(buf);
@@ -917,7 +917,7 @@ void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
         ((AcceptLanguageListContainer)message->operationContext.get(
             AcceptLanguageListContainer::NAME)).getLanguages(),
         ((ContentLanguageListContainer)message->operationContext.get(
-            ContentLanguageListContainer::NAME)).getLanguages(), 
+            ContentLanguageListContainer::NAME)).getLanguages(),
         _binaryResponse);
 
     _sendRequest(buffer);

@@ -898,13 +898,13 @@ Uint32 CIMSubCommand::execute(
         switch (_operationType)
         {
             case OPERATION_TYPE_ENABLE:
-                return(_findAndModifyState(STATE_ENABLED, 
+                return(_findAndModifyState(STATE_ENABLED,
                     subscriptionNS, _filterName, filterNS,
                     _handlerName, handlerNS, _handlerCreationClass,
                     outPrintWriter));
 
             case OPERATION_TYPE_DISABLE:
-                return (_findAndModifyState(STATE_DISABLED, 
+                return (_findAndModifyState(STATE_DISABLED,
                     subscriptionNS, _filterName, filterNS,
                     _handlerName, handlerNS, _handlerCreationClass,
                     outPrintWriter));
@@ -950,7 +950,7 @@ Uint32 CIMSubCommand::execute(
                           namespaceNames.append(handlerNS);
                      }
                           _listHandlers(_handlerName, namespaceNames,
-                               _handlerCreationClass, _verbose, 
+                               _handlerCreationClass, _verbose,
                                outPrintWriter, errPrintWriter);
                 }
             break;
@@ -1540,7 +1540,7 @@ Boolean CIMSubCommand::_findSubscription(
             {
                 CIMObjectPath handlerRef;
                 if(_handlerMatches(subPath, subscriptionNamespace,
-                    handlerName, handlerNamespace, handlerCreationClass, 
+                    handlerName, handlerNamespace, handlerCreationClass,
                     handlerNS, handlerRef))
                 {
                     subscriptionFound = subPath;
@@ -1557,7 +1557,7 @@ Boolean CIMSubCommand::_findSubscription(
 //
 Uint32 CIMSubCommand::_findAndModifyState(
     const Uint16 newState,
-    const CIMNamespaceName& subscriptionNamespace, 
+    const CIMNamespaceName& subscriptionNamespace,
     const String& filterName,
     const CIMNamespaceName& filterNamespace,
     const String& handlerName,
@@ -1593,7 +1593,7 @@ Uint32 CIMSubCommand::_findAndModifyState(
         handlerNS = subscriptionNS;
     }
 
-    // Find subscriptions in the namespace specified by the user 
+    // Find subscriptions in the namespace specified by the user
     if (_findSubscription(subscriptionNS, filterName, filterNS,
         handlerName, handlerNS, handlerCreationClass, subscriptionFound))
     {
@@ -1948,7 +1948,7 @@ void CIMSubCommand::_listFilters(
     {
         if (listOutputTable[_FILTER_LIST_NAME_COLUMN].size() > 0)
         {
-           _printFiltersVerbose(listOutputTable, queryLangsFound, 
+           _printFiltersVerbose(listOutputTable, queryLangsFound,
                outPrintWriter);
         }
     }
@@ -2452,9 +2452,9 @@ void CIMSubCommand::_printSubscriptionsVerbose(
     {
        indexes.append (i);
     }
-    _bubbleIndexSort(listOutputTable[_SUBSCRIPTION_LIST_HANDLER_COLUMN], 0, 
+    _bubbleIndexSort(listOutputTable[_SUBSCRIPTION_LIST_HANDLER_COLUMN], 0,
             indexes);
-    _bubbleIndexSort(listOutputTable[_SUBSCRIPTION_LIST_FILTER_COLUMN], 0, 
+    _bubbleIndexSort(listOutputTable[_SUBSCRIPTION_LIST_FILTER_COLUMN], 0,
             indexes);
     _bubbleIndexSort(listOutputTable[_SUBSCRIPTION_LIST_NS_COLUMN], 0, indexes);
     for (Uint32 i = 0; i < maxEntries; i++)
@@ -2462,10 +2462,10 @@ void CIMSubCommand::_printSubscriptionsVerbose(
         outPrintWriter << "Namespace:         " <<
             (listOutputTable[_SUBSCRIPTION_LIST_NS_COLUMN])[indexes[i]] << endl;
         outPrintWriter << "Filter:            " <<
-            (listOutputTable[_SUBSCRIPTION_LIST_FILTER_COLUMN])[indexes[i]] 
+            (listOutputTable[_SUBSCRIPTION_LIST_FILTER_COLUMN])[indexes[i]]
             << endl;
         outPrintWriter << "Handler:           " <<
-            (listOutputTable[_SUBSCRIPTION_LIST_HANDLER_COLUMN])[indexes[i]] 
+            (listOutputTable[_SUBSCRIPTION_LIST_HANDLER_COLUMN])[indexes[i]]
             << endl;
         outPrintWriter << "Query:             " << querysFound[indexes[i]]
                 << endl;
@@ -2756,7 +2756,7 @@ void CIMSubCommand::_getEmailInfo(
     Array <String> mailCc, mailTo;
     subjectString = String::EMPTY;
     mailTo.append(String::EMPTY);
-    Uint32 pos = 
+    Uint32 pos =
         handlerInstance.findProperty(PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO);
     if( pos != PEG_NOT_FOUND)
     {
@@ -2796,7 +2796,7 @@ void CIMSubCommand::_getEmailInfo(
 String CIMSubCommand::_getPersistenceType(const CIMInstance& handlerInstance)
 {
     Uint16 persistenceType = 1;
-    Uint32 pos = 
+    Uint32 pos =
         handlerInstance.findProperty(PEGASUS_PROPERTYNAME_PERSISTENCETYPE);
     if (pos != PEG_NOT_FOUND)
     {
@@ -2932,7 +2932,7 @@ void CIMSubCommand::_printColumns(
     {
         for (Uint32 column = 0; column < maxColumns-1; column++)
         {
-            Uint32 outputItemSize = 
+            Uint32 outputItemSize =
                 (listOutputTable[column])[indexes[i]].size();
             Uint32 fillerLen = maxColumnWidth[column] + TITLE_SEPERATOR_LEN -
                 outputItemSize;
@@ -3018,7 +3018,7 @@ int main (int argc, char* argv[])
         parms.msg_src_path = MSG_PATH;
         cerr << COMMAND_NAME <<
             ": " << MessageLoader::getMessage(parms) << endl;
-        
+
         exit (Command::RC_ERROR);
     }
     retCode = command->execute(cout, cerr);

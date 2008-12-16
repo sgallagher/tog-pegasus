@@ -100,21 +100,21 @@ struct  OUTPUT_STRUCT
 
 static OUTPUT_STRUCT OutputTable[] =
 {
-    // Output Type      OutputName              
+    // Output Type      OutputName
     {   OUTPUT_XML,     "xml"   },
     {   OUTPUT_MOF,     "mof"   },
     {   OUTPUT_TEXT,    "txt"   },
     {   OUTPUT_TABLE,   "table" }
 };
 static const Uint32 NUM_OUTPUTS = sizeof(OutputTable) / sizeof(OutputTable[0]);
-    
+
 struct  CMD_STRUCT
 {
     CommandID ID_Command;
     const char* CommandName;
     int minNumArgs;
     const char* ShortCut;
-    const char* msgKey; //Message key for globalization 
+    const char* msgKey; //Message key for globalization
     const char* UsageText;
 };
 
@@ -127,11 +127,11 @@ static CMD_STRUCT CommandTable[] =
 
     {ID_EnumerateAllInstanceNames,"enumallInstanceNames", 2 , "niall",
     "Clients.cimcli.CIMCLIClient.NIALL_COMMAND_HELP" ,
-    "Enumerate all instancenames in namespace."}, 
+    "Enumerate all instancenames in namespace."},
 
     {ID_EnumerateInstances,      "enumerateInstances",2 ,   "ei",
     "Clients.cimcli.CIMCLIClient.EI_COMMAND_HELP" ,
-    "Enumerate instances of <classname>"}, 
+    "Enumerate instances of <classname>"},
 
     {ID_EnumerateClassNames,     "enumerateClassNames",2 ,  "nc",
     "Clients.cimcli.CIMCLIClient.NC_COMMAND_HELP",
@@ -170,7 +170,7 @@ static CMD_STRUCT CommandTable[] =
     "Clients.cimcli.CIMCLIClient.DC_COMMAND_HELP",
     "Delete Class of <classname>"},
 
-    {ID_GetProperty,             "getProperty",   2 ,       "gp", 
+    {ID_GetProperty,             "getProperty",   2 ,       "gp",
     "Clients.cimcli.CIMCLIClient.GP_COMMAND_HELP",
     "TBD"},
 
@@ -315,7 +315,7 @@ typedef Array <String> ColumnEntry;
 Array<String> PEGASUS_CLI_LINKAGE _tokenize(const String& input,
                                             const Char16 separator);
 
-CIMParamValue PEGASUS_CLI_LINKAGE _createMethodParamValue(const String& input, 
+CIMParamValue PEGASUS_CLI_LINKAGE _createMethodParamValue(const String& input,
                                                           const Options& opts);
 
 void PEGASUS_CLI_LINKAGE _printTables(const Array<Uint32>& maxColumnWidth,
@@ -327,7 +327,7 @@ void PEGASUS_CLI_LINKAGE showCommands(const char* pgmName);
 void PEGASUS_CLI_LINKAGE showUsage();
 
 void PEGASUS_CLI_LINKAGE printHelpMsg(const char* pgmName, const char* usage,
-     const char* extraHelp, 
+     const char* extraHelp,
      OptionManager& om);
 
 void PEGASUS_CLI_LINKAGE printHelp(char* name, OptionManager& om);
@@ -372,7 +372,7 @@ int PEGASUS_CLI_LINKAGE enumerateInstances(CIMClient& client, Options& opts);
 int PEGASUS_CLI_LINKAGE createInstance(CIMClient& client, Options& opts);
 
 int PEGASUS_CLI_LINKAGE getInstance(CIMClient& client, Options& opts);
-                                           
+
 int PEGASUS_CLI_LINKAGE getProperty(CIMClient& client, Options& opts);
 
 int PEGASUS_CLI_LINKAGE setProperty(CIMClient& client, Options& opts);

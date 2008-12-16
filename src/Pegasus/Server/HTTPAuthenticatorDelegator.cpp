@@ -214,7 +214,7 @@ void HTTPAuthenticatorDelegator::handleEnqueue(Message *message)
     // passed as is to another queue.
     Boolean deleteMessage = true;
 
-    try 
+    try
     {
         if (message->getType() == HTTP_MESSAGE)
         {
@@ -228,7 +228,7 @@ void HTTPAuthenticatorDelegator::handleEnqueue(Message *message)
             PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                     "Exception caught, deleting Message in "
                     "HTTPAuthenticator::handleEnqueue");
-            
+
             delete message;
         }
         throw;
@@ -425,11 +425,11 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     // Handle authentication:
     //
     ConfigManager* configManager = ConfigManager::getInstance();
-    Boolean enableAuthentication = 
+    Boolean enableAuthentication =
         ConfigManager::parseBooleanValue(configManager->getCurrentValue(
             _CONFIG_PARAM_ENABLEAUTHENTICATION));
 
-    Boolean isRequestAuthenticated = 
+    Boolean isRequestAuthenticated =
         httpMessage->authInfo->isConnectionAuthenticated();
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
@@ -466,7 +466,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 #endif
         if (isRequestAuthenticated)
         {
-            if (httpMessage->authInfo->getAuthType()== 
+            if (httpMessage->authInfo->getAuthType()==
                     AuthenticationInfoRep::AUTH_TYPE_SSL)
             {
                 // Get the user name associated with the certificate (using the
@@ -757,23 +757,23 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             } // end AuthenticationInfoRep::AUTH_TYPE_SSL
 
 #ifdef PEGASUS_OS_ZOS
-            if (httpMessage->authInfo->getAuthType()== 
+            if (httpMessage->authInfo->getAuthType()==
                     AuthenticationInfoRep::AUTH_TYPE_ZOS_ATTLS)
             {
-                String connectionUserName = 
+                String connectionUserName =
                     httpMessage->authInfo->getConnectionUser();
 
-                // If authenticated user not the connected user 
+                // If authenticated user not the connected user
                 // then check CIMSERV profile.
                 if (!String::equalNoCase(connectionUserName,
                         httpMessage->authInfo->getAuthenticatedUser()))
                 {
 
 #ifdef PEGASUS_ZOS_SECURITY
-                   if ( !CheckProfileCIMSERVclassWBEM(connectionUserName, 
+                   if ( !CheckProfileCIMSERVclassWBEM(connectionUserName,
                              __READ_RESOURCE))
                    {
-                       Logger::put_l(Logger::STANDARD_LOG, ZOS_SECURITY_NAME, 
+                       Logger::put_l(Logger::STANDARD_LOG, ZOS_SECURITY_NAME,
                            Logger::WARNING,
                            MessageLoaderParms(
                                "Pegasus.Server.HTTPAuthenticatorDelegator."
@@ -808,9 +808,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                    httpMessage->authInfo->setAuthenticatedUser(
                        connectionUserName);
 
-                   // For audit loging, only the mapping of the client IP to 
+                   // For audit loging, only the mapping of the client IP to
                    // the resolved user ID is from interest.
-                   // The SAF facility logs the certificate validation and 
+                   // The SAF facility logs the certificate validation and
                    // the mapping of certificate subject to a local userID.
                    PEG_AUDIT_LOG(logCertificateBasedUserValidation(
                                     connectionUserName,
@@ -824,18 +824,18 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
             } // end AuthenticationInfoRep::AUTH_TYPE_ZOS_ATTLS
 
-            if (httpMessage->authInfo->getAuthType()== 
+            if (httpMessage->authInfo->getAuthType()==
                     AuthenticationInfoRep::AUTH_TYPE_ZOS_LOCAL_DOMIAN_SOCKET)
             {
-                String connectionUserName = 
+                String connectionUserName =
                     httpMessage->authInfo->getConnectionUser();
 
-                String requestUserName;              
+                String requestUserName;
                 String authHeader;
                 String authHttpType;
                 String cookie;
 
-                // if lookupHeader() is not successfull parseLocalAuthHeader() 
+                // if lookupHeader() is not successfull parseLocalAuthHeader()
                 // must not be called !!
                 if ( HTTPMessage::lookupHeader(headers,
                         _HTTP_HEADER_PEGASUSAUTHORIZATION, authHeader, false)&&
@@ -853,28 +853,28 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                                (const char*) connectionUserName.getCString()
                              ));
 
-                    // if the request name and the user connected to the socket 
-                    // are the same, or if the currnet user running the 
+                    // if the request name and the user connected to the socket
+                    // are the same, or if the currnet user running the
                     // cim server and the connected user are the same then
                     // assign the request user id as authenticated user id.
                     if( String::equalNoCase(
-                            requestUserName,connectionUserName) || 
+                            requestUserName,connectionUserName) ||
                         String::equalNoCase(
                             cimServerUserName,connectionUserName))
                     {
                         // If the designate new authenticated user, the user of
-                        // the request, is not already the authenticated user 
+                        // the request, is not already the authenticated user
                         // then set the authenticated user and check CIMSERV.
                         if (!String::equalNoCase(requestUserName,
                              httpMessage->authInfo->getAuthenticatedUser()))
                         {
 
 #ifdef PEGASUS_ZOS_SECURITY
-                           if ( !CheckProfileCIMSERVclassWBEM(requestUserName, 
+                           if ( !CheckProfileCIMSERVclassWBEM(requestUserName,
                                      __READ_RESOURCE))
                            {
-                               Logger::put_l(Logger::STANDARD_LOG, 
-                                   ZOS_SECURITY_NAME, 
+                               Logger::put_l(Logger::STANDARD_LOG,
+                                   ZOS_SECURITY_NAME,
                                    Logger::WARNING,
                                    MessageLoaderParms(
                                    "Pegasus.Server.HTTPAuthenticatorDelegator."
@@ -896,8 +896,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                                return;
                            }
 #endif
-                           // It is not necessary to check remote privileged 
-                           // user access for local connections; 
+                           // It is not necessary to check remote privileged
+                           // user access for local connections;
                            // set the flag to "check done"
                            httpMessage->authInfo->
                                setRemotePrivilegedUserAccessChecked();
@@ -944,7 +944,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     }
                 } // end lookup header
                 else
-                {                   
+                {
                     MessageLoaderParms msgParms(
                         "Pegasus.Server.HTTPAuthenticatorDelegator."
                             "AUTHORIZATION_HEADER_ERROR",
@@ -1034,8 +1034,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             // do HTTP authentication
             //
             if (HTTPMessage::lookupHeader(
-                    headers, _HTTP_HEADER_AUTHORIZATION, 
-                    authorization, false))        
+                    headers, _HTTP_HEADER_AUTHORIZATION,
+                    authorization, false))
             {
                 isRequestAuthenticated =
                     _authenticationManager->performHttpAuthentication(
@@ -1082,7 +1082,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     PEG_METHOD_EXIT();
                     return;
                 }
-            }  // End if HTTP Authorization 
+            }  // End if HTTP Authorization
 
         } //end if (!isRequestAuthenticated)
 
@@ -1106,9 +1106,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         // The following is processing to unwrap (decrypt) the request
         // from the client when using kerberos authentication.
         sa->unwrapRequestMessage(
-            httpMessage->message, 
-            contentLength, 
-            isRequestAuthenticated, 
+            httpMessage->message,
+            contentLength,
+            isRequestAuthenticated,
             sendAction);
 
         if (sendAction)  // send success or send response

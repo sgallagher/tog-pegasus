@@ -262,7 +262,7 @@ int main(int argc, char** argv)
     {
     if (!TestLookupIndicationProvider(prmanager))
     {
-        PEGASUS_STD(cerr) << "Error: lookupIndicationProvider Failed" 
+        PEGASUS_STD(cerr) << "Error: lookupIndicationProvider Failed"
             << PEGASUS_STD(endl);
             exit (-1);
     }
@@ -276,7 +276,7 @@ int main(int argc, char** argv)
     exit(-1);
     }
 
-    PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests" 
+    PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests"
         << PEGASUS_STD(endl);
 
     return 0;

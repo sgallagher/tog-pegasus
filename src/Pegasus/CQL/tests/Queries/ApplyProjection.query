@@ -19,7 +19,7 @@ SELECT PropertyString FROM CQL_TestElement
 # Single property - instance is not related to FROM class
 SELECT PropertyString FROM CQL_ComputerSystem
 #
-# Single property list 
+# Single property list
 SELECT PropertyString FROM CQL_TestPropertyTypes
 SELECT PropertyStringUint FROM CQL_TestPropertyTypes
 SELECT PropertyStringSint FROM CQL_TestPropertyTypes
@@ -61,7 +61,7 @@ SELECT PropertyValueMap FROM CQL_TestPropertyTypes
 # Multiple property list
 SELECT PropertyStringArray, PropertyDatetime, PropertySint8, PropertyUint32, PropertyChar16Array FROM CQL_TestPropertyTypes
 #
-# Multiple property list, with errors   
+# Multiple property list, with errors
 SELECT PropertyStringArray, PropertyDatetime, PropertySint8, PropertyUint32, PropertyChar16Array[1] FROM CQL_TestPropertyTypes
 SELECT PropertyStringArray, PropertyDatetime, PropertyNonExistent, PropertyUint32, PropertyChar16Array FROM CQL_TestPropertyTypes
 SELECT PropertyStringArray, PropertyDatetime, PropertySint8, PropertyUint32, PropertyChar16Array FROM CIM_ANonExistentClass
@@ -83,7 +83,7 @@ SELECT CQL_TestPropertyTypes.PropertyBooleanArray FROM CQL_OperatingSystem
 #
 # Wildcard tests - FROM class is a subclass CQL_TestElement
 SELECT * FROM CQL_TestPropertyTypes
-SELECT CQL_TestPropertyTypes.* FROM CQL_TestPropertyTypes 
+SELECT CQL_TestPropertyTypes.* FROM CQL_TestPropertyTypes
 SELECT Alias.* FROM CQL_TestPropertyTypes alias
 SELECT PropertyString, * FROM CQL_TestPropertyTypes
 #

@@ -59,12 +59,12 @@ class OSTestClient
      void errorExit(const String &message);
      void testLog(const String &message);
 
-     // have OS-specific checks 
-     Boolean goodCSCreationClassName(const String &cs_ccn, 
+     // have OS-specific checks
+     Boolean goodCSCreationClassName(const String &cs_ccn,
                                      Boolean verbose);
-     Boolean goodCSName(const String &cs_name, 
+     Boolean goodCSName(const String &cs_name,
                         Boolean verbose);
-     Boolean goodCreationClassName(const String &ccn, 
+     Boolean goodCreationClassName(const String &ccn,
                                    Boolean verbose);
      Boolean goodName(const String &name, Boolean verbose);
      Boolean goodCaption(const String &cap, Boolean verbose);
@@ -80,25 +80,25 @@ class OSTestClient
      Boolean goodLocalDateTime(const CIMDateTime &ltime,
                                Boolean verbose);
      Boolean goodCurrentTimeZone(const Sint16 &tz, Boolean verbose);
-     Boolean goodNumberOfLicensedUsers(const Uint32 &nlusers, 
+     Boolean goodNumberOfLicensedUsers(const Uint32 &nlusers,
                                        Boolean verbose);
-     Boolean goodNumberOfUsers(const Uint32 &nusers, 
+     Boolean goodNumberOfUsers(const Uint32 &nusers,
                                Boolean verbose);
-     Boolean goodNumberOfProcesses(const Uint32 &nprocs, 
+     Boolean goodNumberOfProcesses(const Uint32 &nprocs,
                                    Boolean verbose);
-     Boolean goodMaxNumberOfProcesses(const Uint32 &maxprocs, 
+     Boolean goodMaxNumberOfProcesses(const Uint32 &maxprocs,
                                       Boolean verbose);
-     Boolean goodTotalSwapSpaceSize(const Uint64 &totalswap, 
+     Boolean goodTotalSwapSpaceSize(const Uint64 &totalswap,
                                     Boolean verbose);
-     Boolean goodVirtualMemorySize(const Uint64 &totalvmem, 
+     Boolean goodVirtualMemorySize(const Uint64 &totalvmem,
                                    Boolean verbose);
-     Boolean goodFreeVirtualMemory(const Uint64 &freevmem, 
+     Boolean goodFreeVirtualMemory(const Uint64 &freevmem,
                                    Boolean verbose);
-     Boolean goodFreePhysicalMemory(const Uint64 &freepmem, 
+     Boolean goodFreePhysicalMemory(const Uint64 &freepmem,
                                     Boolean verbose);
-     Boolean goodTotalVirtualMemorySize(const Uint64 &totalvmem, 
+     Boolean goodTotalVirtualMemorySize(const Uint64 &totalvmem,
                                         Boolean verbose);
-     Boolean goodTotalVisibleMemorySize(const Uint64 &totalvmem, 
+     Boolean goodTotalVisibleMemorySize(const Uint64 &totalvmem,
                                         Boolean verbose);
      Boolean goodSizeStoredInPagingFiles(const Uint64 &pgsize,
                                          Boolean verbose);

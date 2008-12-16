@@ -528,7 +528,7 @@ Message* CIMExportClient::_doRequest(
 
                 CIMClientResponseException responseException(mlString);
 
-                PEG_TRACE((TRC_EXPORT_CLIENT, Tracer::LEVEL1, 
+                PEG_TRACE((TRC_EXPORT_CLIENT, Tracer::LEVEL1,
                            (const char*)mlString.getCString()));
 
                 PEG_METHOD_EXIT();

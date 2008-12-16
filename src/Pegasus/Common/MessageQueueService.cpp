@@ -190,7 +190,7 @@ MessageQueueService::MessageQueueService(
 
     PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
        "max_threads_per_svc_queue set to %u.", max_threads_per_svc_queue));
- 
+
     AutoMutex autoMut(_meta_dispatcher_mutex);
 
     if (_meta_dispatcher == 0)
@@ -542,7 +542,7 @@ Boolean MessageQueueService::accept_async(AsyncOpNode* op)
 
 void MessageQueueService::handle_AsyncIoClose(AsyncIoClose *req)
 {
-    MessageQueueService *service = 
+    MessageQueueService *service =
         static_cast<MessageQueueService*>(req->op->_op_dest);
 
 #ifdef MESSAGEQUEUESERVICE_DEBUG
@@ -694,7 +694,7 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest* request)
         request->op->_request.reset(request);
         destroy_op = true;
     }
-    
+
     PEGASUS_ASSERT(request->op->_flags == ASYNC_OPFLAGS_UNKNOWN);
     PEGASUS_ASSERT(request->op->_state == ASYNC_OPSTATE_UNKNOWN);
 
@@ -723,7 +723,7 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest* request)
 
 Uint32 MessageQueueService::find_service_qid(const String &name)
 {
-    MessageQueue *queue = MessageQueue::lookup((const char*)name.getCString());
+    MessageQueue* queue = MessageQueue::lookup((const char*)name.getCString());
     PEGASUS_ASSERT(queue);
     return queue->getQueueId();
 }

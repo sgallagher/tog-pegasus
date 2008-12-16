@@ -29,7 +29,7 @@
 // Class definitions for the Sample Association Provider
 
 // =======================================================================
-// Sample_Person 
+// Sample_Person
 // =======================================================================
     [Version("1.0.0"), Description ("Top level class that defines a person.")]
 class Sample_Person
@@ -59,7 +59,7 @@ class Sample_Student : Sample_Person
 // =======================================================================
 // Sample_TeacherStudent
 // =======================================================================
-// A simple association that associates teacher and student in the 
+// A simple association that associates teacher and student in the
 // Sample_Teacher and Sample_Student classes.
 //
 // It shows a many-to-many relationship between a teacher and a student.
@@ -72,21 +72,21 @@ class Sample_Student : Sample_Person
         "between teachers and students.") ]
 class Sample_TeacherStudent
 {
-    [key] 
+    [key]
     Sample_Teacher REF Teaches;
-    [key] 
+    [key]
     Sample_Student REF TaughtBy;
 };
 
 // =======================================================================
 // Sample_AdvisorStudent
 // =======================================================================
-// A simple association class that associates teacher and student in the 
+// A simple association class that associates teacher and student in the
 // Sample_Teacher and Sample_Student classes.
 //
-// It shows a one-to-many relationship between a teacher and student.  
+// It shows a one-to-many relationship between a teacher and student.
 //
-// A student can have only ONE teacher as advisor, and a teacher who 
+// A student can have only ONE teacher as advisor, and a teacher who
 // is an advisor can have MANY students.
 //
 
@@ -95,7 +95,7 @@ class Sample_TeacherStudent
         "a particular teacher who is also an advisor.")]
 class Sample_AdvisorStudent
 {
-    [key, Min (1), Max (1)] 
+    [key, Min (1), Max (1)]
     Sample_Teacher REF advises;
     [key]
     Sample_Student REF advisedBy;

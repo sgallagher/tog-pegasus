@@ -131,7 +131,7 @@ void _putXMLNamedInstance(
 }
 
 void CIMBinMsgSerializer::serialize(
-    CIMBuffer& out, 
+    CIMBuffer& out,
     CIMMessage* cimMessage)
 {
     if (cimMessage == 0)
@@ -1138,7 +1138,7 @@ void CIMBinMsgSerializer::_putGetPropertyResponseMessage(
     CIMBuffer& out,
     CIMGetPropertyResponseMessage* msg)
 {
-    _putParamValue(out, CIMParamValue(String("ignore"), 
+    _putParamValue(out, CIMParamValue(String("ignore"),
         msg->value, true));
 }
 

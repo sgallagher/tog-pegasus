@@ -111,7 +111,7 @@ static int _testInstance ()
 
     objPath = make_ObjectPath(_broker, _Namespace, "TestCMPI_Instance");
     instance = make_Instance(objPath);
-   
+
     /* Test cases to increase coverage in instSetPropertyWithOrigin function */
 
     /* Setting n64 property in class TestCMPI_Instance. So origin has been
@@ -131,7 +131,7 @@ static int _testInstance ()
        set. */
     retData = CMGetProperty(instance, "n64", &rc);
 
-    if (retData.type == CMPI_uint64 && 
+    if (retData.type == CMPI_uint64 &&
            retData.value.uint64 == PEGASUS_UINT64_LITERAL(5000000000))
     {
          PROV_LOG("++++  CMGetProperty for n64 property status : (%s),"
@@ -166,12 +166,12 @@ static int _testInstance ()
         PROV_LOG("++++ CMGetProperty with NULL property name status: (%s) ",
             strCMPIStatus(rc));
     }
-    /*-----------------------------------------------------------------------*/ 
+    /*-----------------------------------------------------------------------*/
 
-    /* Test cases to cover error paths for instSetObjectPath and 
+    /* Test cases to cover error paths for instSetObjectPath and
        instSetPropertyFilter*/
 
-    /* Testing error path by passing CMPIObjectPath with class name different 
+    /* Testing error path by passing CMPIObjectPath with class name different
        from the classname for CMPIInstance in CMSetObjectPath*/
 
     objPathFake = CMNewObjectPath(_broker,
@@ -186,7 +186,7 @@ static int _testInstance ()
 
     /* Testing error path by passing NULL to instSetObjectPath*/
     rc = CMSetObjectPath(instance, NULL);
-    if ( rc.rc == CMPI_RC_ERR_INVALID_PARAMETER || 
+    if ( rc.rc == CMPI_RC_ERR_INVALID_PARAMETER ||
         rc.rc == CMPI_RC_ERR_NOT_SUPPORTED)
     {
         PROV_LOG("++++  Test for CMSetObjectPath with NULL input passed ");
@@ -259,7 +259,7 @@ CMPIStatus TestCMPIInstanceProviderInvokeMethod (CMPIMethodMI * mi,
     PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
 
     PROV_LOG ("InvokeMethod: We have %d arguments for operation [%s]: ",
-        arg_cnt, 
+        arg_cnt,
         methodName);
 
     if (arg_cnt > 0)
@@ -297,7 +297,7 @@ CMPIStatus TestCMPIInstanceProviderInvokeMethod (CMPIMethodMI * mi,
         _ClassName,
         strlen (_ClassName)) == 0)
     {
-        if (strncmp("testInstance", 
+        if (strncmp("testInstance",
             methodName,
             strlen ("testInstance"))== 0)
         {

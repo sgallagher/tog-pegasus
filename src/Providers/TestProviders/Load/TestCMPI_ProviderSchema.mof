@@ -135,8 +135,8 @@ class TestCMPI_Method : TestCMPI_Parent
         string outputObjects[],
         [OUT, EmbeddedObject("TestCMPI_Embedded")]
         string outputEmbeddedObjects[]);
-        
-        
+
+
     uint64 firstPropertyName;
     uint64 secondPropertyName;
 };

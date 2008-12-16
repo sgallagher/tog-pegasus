@@ -362,7 +362,7 @@ void OOPModuleFailureTestProvider::invokeMethod (
     {
         if (methodName.equal ("SendTestIndication"))
         {
-            if ((inParameters.size() > 0) && 
+            if ((inParameters.size() > 0) &&
                 (inParameters[0].getParameterName () == "identifier"))
             {
                 inParameters[0].getValue().get(identifier);

@@ -41,7 +41,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-struct CMPI_SubCond : CMPISubCond 
+struct CMPI_SubCond : CMPISubCond
 {
     CMPI_Object *next,*prev;
     void* priv;

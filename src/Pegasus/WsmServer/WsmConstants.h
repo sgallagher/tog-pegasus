@@ -186,7 +186,7 @@ enum WsenEnumerationMode
     WSEN_EM_OBJECT,
     WSEN_EM_EPR,
     WSEN_EM_OBJECT_AND_EPR
-}; 
+};
 
 
 PEGASUS_NAMESPACE_BEGIN

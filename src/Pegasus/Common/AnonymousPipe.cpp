@@ -82,7 +82,7 @@ AnonymousPipe::Status AnonymousPipe::writeMessage (CIMMessage * message)
     catch (Exception & e)
     {
         PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-            "Failed to serialize message: %s", 
+            "Failed to serialize message: %s",
             (const char*)e.getMessage().getCString()));
         PEG_METHOD_EXIT ();
         throw;
@@ -107,7 +107,7 @@ AnonymousPipe::Status AnonymousPipe::writeMessage (CIMMessage * message)
 }
 
 AnonymousPipe::Status AnonymousPipe::readMessage (CIMMessage * & message)
-{ 
+{
     PEG_METHOD_ENTER (TRC_OS_ABSTRACTION, "AnonymousPipe::readMessage");
 
     message = 0;

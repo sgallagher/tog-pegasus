@@ -202,7 +202,7 @@ void CIMListenerService::init()
         }
     }
 #ifndef PEGASUS_OS_TYPE_WINDOWS
-    else   
+    else
 #endif
 #endif
     if (NULL == _ip4Acceptor)

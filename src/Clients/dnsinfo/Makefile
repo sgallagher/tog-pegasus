@@ -33,7 +33,7 @@ PEGASUS_ZOS_PROGRAM_OBJECT = yes
 DIR = Clients/dnsinfo
 include $(ROOT)/mak/config.mak
 
-EXTRA_INCLUDES = 
+EXTRA_INCLUDES =
 
 LIBRARIES = \
     pegcliutils \

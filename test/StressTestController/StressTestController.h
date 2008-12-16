@@ -79,7 +79,7 @@ public:
 
     /**
 
-        Constructs an StressTestControllerCommand and initializes 
+        Constructs an StressTestControllerCommand and initializes
         instance variables.
 
      */
@@ -129,9 +129,9 @@ public:
         Retrieves the config information from the stressController configuration
         file.
 
-        @param   filePath     the filename itself may or may not include an 
+        @param   filePath     the filename itself may or may not include an
                               absolute path.
-        @return  
+        @return
      */
     Boolean getFileContent (String filePath,ostream& log_file);
 
@@ -139,7 +139,7 @@ public:
         Retrieves the config file path name
 
         @return _configFilePath  The pathname is returned.
- 
+
      */
     String getConfigFilePath(){ return _configFilePath;}
 
@@ -148,15 +148,15 @@ public:
 
         @return true   A path name was set.
                 false  Use the default pathname.
- 
+
      */
     Boolean IsConfigFilePathSpecified(){return _configFilePathSpecified;}
 
     /**
-        Retrieves the command operation type 
+        Retrieves the command operation type
 
         @return _operationType  The operation type is returned.
- 
+
      */
     Uint32 getOperationType(){return _operationType;}
 
@@ -164,8 +164,8 @@ public:
         Populate test with default configuration values if default
         configuration file is not found.
 
-        @return 
-               
+        @return
+
      */
     void getDefaultClients(ostream& log_file);
 
@@ -178,10 +178,10 @@ public:
     /**
        Will generate or create all the required files for the tests.
        Required log files, pid files etc are created here.
-       
+
        @parm    strTime         The time stamp for the tests.
 
-       @return  
+       @return
 
     */
     Boolean generateRequiredFileNames(char *strTime);
@@ -197,14 +197,14 @@ public:
         Retrieves the stress Test log file path name.
 
         @return StressTestLogFile  The log filename is returned.
- 
+
      */
     String getStressTestLogFile(){ return _stressTestLogFile;}
     String getStressClientLogFile(){ return _stressTestClientLogFile;}
 
     /**
       Stress Test directories and files.
-     */  
+     */
     static char FILENAME[];
     static char TESTDIR[];
     static char STRESSTESTDIR[];
@@ -253,12 +253,12 @@ private:
         String & var,
         const String & value,
         ostream& log_file);
-    
-    /**
-        parse and save all the options for each client. 
 
-        @return 
- 
+    /**
+        parse and save all the options for each client.
+
+        @return
+
      */
     void _getClientOptions(const Char16* p,ostream& log_file);
 
@@ -268,7 +268,7 @@ private:
 
         @return true   Within tolerance level
                 false  Failed tolerance expectations.
- 
+
      */
     Boolean _checkToleranceLevel(
         int act_clients,
@@ -310,7 +310,7 @@ private:
         port number must be the port number on which the
         target CIM Server is running.
 
-        If no port is specified, StressTestController will attempt to locate 
+        If no port is specified, StressTestController will attempt to locate
         the port associated with the service "wbem-http" for non-SSL connections
         and "wbem-https" for SSL connections. If not found, the DMTF
         recommended default port number will be used.
@@ -510,12 +510,12 @@ private:
     Uint32 _clientCount;
 
     /**
-        current client name 
+        current client name
      */
     String _currClient;
 
     /**
-        current client count 
+        current client count
      */
     Uint32 _currClientCount;
 

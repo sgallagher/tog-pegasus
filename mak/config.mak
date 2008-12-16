@@ -98,7 +98,7 @@ endif
 ## source files in $PEGASUS_ROOT/src/Pegasus/Common.  Each source-level
 ## Makefile includes a DIR value that defines this common path (e.g.,
 ## Pegasus/Common). In a small number of cases, source files are built
-## multiple times with difference compile options.  
+## multiple times with difference compile options.
 ## To handle this situation, the ALT_OBJ_DIR variable can be used to
 ## specify an alternative object directory for use in building the
 ## objects defined in the Makefile.
@@ -328,7 +328,7 @@ endif
 ################################################################################
 
 ############################################################################
-# OpenPegasus relies on the existence of an external set of libraries to  
+# OpenPegasus relies on the existence of an external set of libraries to
 # support localized messages.  Today, the only supported package is
 # the International Components for Unicode (ICU) OSS project,
 # http://oss.software.ibm.com/icu.  If PEGASUS_HAS_ICU is true,
@@ -608,7 +608,7 @@ ifdef PEGASUS_DISABLE_CQL
 endif
 
 ifndef PEGASUS_ENABLE_CQL
-    # Default is true. CQL is enabled normally on all platforms unless specifically defined 
+    # Default is true. CQL is enabled normally on all platforms unless specifically defined
     PEGASUS_ENABLE_CQL=true
 endif
 
@@ -622,7 +622,7 @@ endif
 
 ############################################################################
 #
-# PEGASUS_OVERRIDE_PRODUCT_ID 
+# PEGASUS_OVERRIDE_PRODUCT_ID
 # PEP 186
 # Allow override of product name/version/status.  A file
 # pegasus/src/Pegasus/Common/ProductVersion.h must exist when this
@@ -708,7 +708,7 @@ ifdef PEGASUS_USE_NET_SNMP
 endif
 
 ifdef PEGASUS_HAS_SSL
-    DEFINES += -DPEGASUS_HAS_SSL 
+    DEFINES += -DPEGASUS_HAS_SSL
 
     # Enable SSL Random file by default.
     ifndef PEGASUS_USE_SSL_RANDOMFILE
@@ -824,7 +824,7 @@ ifdef PEGASUS_TEST_IPV6
        invalid, must be true or false)
     endif
   endif
-else 
+else
   PEGASUS_TEST_IPV6 = $(PEGASUS_ENABLE_IPV6)
 endif
 
@@ -894,7 +894,7 @@ endif
 # PEGASUS_USE_OPENSLP
 
 ## NOTE: This variable has been deprecated and superceeded by the use of
-## PEGASUS_USE_EXTERNAL_SLP. The use of this variable may be 
+## PEGASUS_USE_EXTERNAL_SLP. The use of this variable may be
 ## removed from Pegasus in future releases. It is converted to the
 ## PEGASUS_USE_EXTERNAL_SLP variable in the following function.
 ## Do not allow PEGASUS_USE_EXTERNAL_SLP if PEGASUS_ENABLE_SLP not set and
@@ -908,7 +908,7 @@ endif
 # internal pegasus slp agent.  Note that this does not disable the
 # compilation of the internal agent code, etc.  However, it assumes
 # openslp is installed on the platform and changes the interfaces
-# to match this.  
+# to match this.
 #
 # Use this variable in conjunction with PEGASUS_OPENSLP_HOME
 # to enable OpenSlp as the slp implementation.
@@ -1396,7 +1396,7 @@ endif
 ## ======================================================================
 ##
 ## PEGASUS_ALLOW_ABSOLUTEPATH_IN_PROVIDERMODULE
-## This controls allowing the path specified in the Location property of 
+## This controls allowing the path specified in the Location property of
 ## PG_ProviderModule class.
 ##
 ##   Set to "true", It allows the absolute path specified in the Location property

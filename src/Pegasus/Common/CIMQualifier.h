@@ -131,7 +131,7 @@ public:
         @param name A CIMName containing the new name of the qualifier.
         @exception UninitializedObjectException If the object is not
             initialized.
-        @exception Exception If the object is already contained by CIMClass, 
+        @exception Exception If the object is already contained by CIMClass,
             CIMInstance, CIMObject, CIMProperty, CIMParameter or CIMMethod
     */
     void setName(const CIMName& name);

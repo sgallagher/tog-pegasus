@@ -8,7 +8,7 @@ NAME
 SYNOPSIS
        cimcli [operation] [object] [options] [extra-parameters] ...
 
-       cimcli is available for all platforms that support the 
+       cimcli is available for all platforms that support the
               Pegasus CIM Server.
 
 
@@ -154,7 +154,7 @@ UNIVERSAL OPTIONS
 	      tion  round trip time for the operation. Note that when combined
 	      with the repeat option, the output  includes  maximum,  minimum,
 	      and average times for the operation.  There are a specific oper-
-	      ations in cimcli to turn control statistics generation (See son 
+	      ations in cimcli to turn control statistics generation (See son
               and soff operations)
 
        --r [repeat_count]
@@ -312,7 +312,7 @@ UNIVERSAL OPTIONS
 
 		  cimcli ni CIM_ManagedElement -n root/PG_Interop
 
-              	  Execute the enumerateInstanceNames operation on 
+              	  Execute the enumerateInstanceNames operation on
                   CIM_ManagedElement class in the root/PG_Interopnamespace.
 
 
@@ -354,7 +354,7 @@ UNIVERSAL OPTIONS
 		  cimcli ei CIM_ComputerSystem -niq -di
 
 		  This example enumerates CIM_ComputerSystem in the  namespace
-	          root/CIMV2 (default) requesting without qualifiers (-niq) 
+	          root/CIMV2 (default) requesting without qualifiers (-niq)
                   with deepInheritance (-di).
 
 
@@ -377,7 +377,7 @@ UNIVERSAL OPTIONS
 
 		  cimcli niall -n test/testproviders
 
-		  Returns  all	instancenames  in  the	namespace 
+		  Returns  all	instancenames  in  the	namespace
                   test/testproviders by executing enumerateinstancenames
 		  on each class in the namespace.
 
@@ -434,7 +434,7 @@ UNIVERSAL OPTIONS
 
 		   cimcli gi cim_managedElement
 
-	           This  is an interactive request that returns a list of 
+	           This  is an interactive request that returns a list of
                    instances from an enumerateinstance of CIM_ManagedElement
                    from which the user can select one which cimcli will return
                    as a complete instance.
@@ -466,7 +466,7 @@ UNIVERSAL OPTIONS
 
 	           cimcli di PG_test
 
-	           Executes enumerateInstanceName on PG_test and allows the 
+	           Executes enumerateInstanceName on PG_test and allows the
                    user to select the instance to be deleted.
 
 	           cimcli di PG_test.name="abc"
@@ -479,9 +479,9 @@ UNIVERSAL OPTIONS
 
 	      cimcli gq [qualifier name] [options]
 
-	      Example:	    
+	      Example:	
 
-                   cimcli gq abstract 
+                   cimcli gq abstract
 
                    Returns the mof or xml for the abstract qualifier.
 
@@ -942,7 +942,7 @@ EXAMPLES
 
 	cimcli  ec -o xml	 -- Enumerate classes with XML output starting
         at root
-        
+
        cimcli enumerateclasses CIM_Computersystem -o xml
 	   -- Enumerate classes in MOF starting with CIM_Computersystem
 

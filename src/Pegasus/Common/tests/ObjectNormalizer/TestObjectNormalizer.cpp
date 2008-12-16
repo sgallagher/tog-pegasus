@@ -606,7 +606,7 @@ void Test003e(void)
 
     _stopwatch.start();
 
-    CIMObjectPath normalizedObjectPath = 
+    CIMObjectPath normalizedObjectPath =
         normalizer.processInstanceObjectPath(cimObjectPath);
 
     _stopwatch.stop();
@@ -656,7 +656,7 @@ void Test004a(void)
     {
         _stopwatch.start();
 
-        CIMInstance normalizedInstance = 
+        CIMInstance normalizedInstance =
             normalizer.processInstance(cimInstance);
 
         _stopwatch.stop();
@@ -917,7 +917,7 @@ void Test005c(void)
     CIMInstance cimInstance(cimClass.getClassName());
 
     cimInstance.addQualifier(
-        CIMQualifier("Description", 
+        CIMQualifier("Description",
              String("This object qualifier value comes from the instance")));
 
     // all properties
@@ -932,7 +932,7 @@ void Test005c(void)
                           CIMValue(String("Pegasus TestObjectNormalizer")));
 
     property4.addQualifier(CIMQualifier(
-        "Description", 
+        "Description",
         String("This property qualifier value comes from the instance")));
 
     cimInstance.addProperty(property4);
@@ -1039,13 +1039,13 @@ void Test005d(void)
 
     if(verbose)
     {
-        cout << normalizedInstance.getPath().toString() 
+        cout << normalizedInstance.getPath().toString()
             << endl;
 
         XmlWriter::printInstanceElement(normalizedInstance);
     }
 
-    PRINT("*** " << _stopwatch.getElapsed() 
+    PRINT("*** " << _stopwatch.getElapsed()
           << " milliseconds.");
 }
 
@@ -1253,7 +1253,7 @@ void Test101b(void)
 
         _stopwatch.start();
 
-        CIMInstance normalizedInstance = 
+        CIMInstance normalizedInstance =
             normalizer.processInstance(cimInstance);
 
         _stopwatch.stop();
@@ -1407,7 +1407,7 @@ int main(int argc, char** argv)
     }
     catch(CIMException & e)
     {
-        cout << "CIMException: " << e.getCode() << " " << e.getMessage() 
+        cout << "CIMException: " << e.getCode() << " " << e.getMessage()
             << endl;
 
         return(1);

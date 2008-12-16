@@ -26,7 +26,7 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-# 
+#
 # Author: Subodh Soni (subodh@in.ibm.com)
 #
 # Makefile for configuring, building and running the Test provider written as
@@ -56,4 +56,4 @@ include $(PEGASUS_ROOT)/mak/library.mak
 client:
 	@ $(ECHO) +++++ Building the Test Client for the Test Providers
 	@cd Client
-	@$(MAKE) 
+	@$(MAKE)

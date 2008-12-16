@@ -44,7 +44,7 @@ LIBRARIES = \
     ProviderRegistrationProvider \
     pegauthentication \
     UserAuthProvider \
-    pegqueryexpression 
+    pegqueryexpression
 
 ifeq ($(PEGASUS_ENABLE_CQL),true)
     LIBRARIES += \
@@ -53,7 +53,7 @@ endif
 
 LIBRARIES += \
     pegwql \
-    pegquerycommon 
+    pegquerycommon
 
 ifeq ($(PEGASUS_ENABLE_CQL),true)
     LIBRARIES += \
@@ -67,11 +67,11 @@ LIBRARIES += \
 ifndef PEGASUS_DISABLE_PERFINST
     LIBRARIES += \
        CIMOMStatDataProvider \
-       InteropProvider 
+       InteropProvider
 else
     ifeq ($(PEGASUS_ENABLE_SLP),true)
         LIBRARIES += \
-            InteropProvider 
+            InteropProvider
     endif
 endif
 
@@ -95,7 +95,7 @@ LIBRARIES += \
     pegexportserver \
     pegrepository \
     pegconfig \
-    pegcommon 
+    pegcommon
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
   LIBRARIES += ILEWrapperUtils
@@ -182,7 +182,7 @@ createSSLFilesforCVS-SystemSpecific:
             PEGASUS_SSLCERT_KEYFILE=$(ROOT)/src/Server/file.pem \
             PEGASUS_SSLCERT_CERTFILE=$(ROOT)/src/Server/cert.pem \
             PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN="\"PEGASUS TEST CERTIFICATE-DO NOT USE\""
-            
+
 displayCERTFILE:
 	@$(ECHO) "*** $(PEGASUS_SSLCERT_CERTFILE) ***"
 	@$(MAKE) -f $(ROOT)/src/Server/Makefile displayCertificate \
@@ -190,7 +190,7 @@ displayCERTFILE:
 
 clean: cleanupSSLFiles
 
-install_run_clean: cleanupSSLFiles 
+install_run_clean: cleanupSSLFiles
 
 cleanupSSLFiles:
 	@$(RM) $(PEGASUS_HOME)/cert.pem
@@ -268,7 +268,7 @@ ifeq ($(OS_TYPE),windows)
 endif
 	@$(TOUCH) $(PEGASUS_HOME)/setupserverdev
 ifeq ($(PEGASUS_TEST_ENABLE_DEBUG_TRACE),true)
-        # Enable trace to capture Discarded data trace information to help 
+        # Enable trace to capture Discarded data trace information to help
         # troubleshoot and detect test failures.
 	cimconfig -s traceComponents=DiscardedData -p
 	cimconfig -s traceLevel=4 -p

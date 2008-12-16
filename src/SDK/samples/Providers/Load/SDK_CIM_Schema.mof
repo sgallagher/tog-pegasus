@@ -29,17 +29,17 @@
 // ===================================================================
 // Title      : SDK_CIM_Schema MOF
 // Filename   : SDK_CIM_Schema.mof
-// Version    : 
+// Version    :
 // Date       : 09/10/2007
 // Description: This file is created by The OpenPegasus Group (TOG).
 //              The CIM mof files included in this file are needed by sample
-//              providers which are included in the OpenPegasus SDK. 
-//              
+//              providers which are included in the OpenPegasus SDK.
+//
 //
 //====================================================================
 
 
- 
+
 #pragma include ("DMTF/qualifiers.mof")
 #pragma include ("DMTF/qualifiers_optional.mof")
 #pragma include ("DMTF/Core/CIM_ManagedElement.mof")
@@ -51,4 +51,4 @@
 #pragma include ("DMTF/System/CIM_DataFile.mof")
 #pragma include ("DMTF/System/CIM_Directory.mof")
 #pragma include ("DMTF/System/CIM_DirectoryContainsFile.mof")
- 
+

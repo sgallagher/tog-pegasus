@@ -78,11 +78,11 @@ class PG_EmbeddedError : CIM_Error
 
    [EmbeddedInstance("PG_EmbeddedClass")]
    String EmbeddedInst;
-   
+
    uint32 PropagateError(
       [IN, EmbeddedInstance("CIM_Error")]
       String error,
-      
+
       [OUT, EmbeddedInstance("CIM_Error")]
       String sameError);
 };

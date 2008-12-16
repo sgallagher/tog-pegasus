@@ -70,7 +70,7 @@ static int _compare(const void* p1, const void* p2)
 
 void WsmInstance::sortProperties()
 {
-    qsort((void*) _properties.getData(), _properties.size(), 
+    qsort((void*) _properties.getData(), _properties.size(),
         sizeof(WsmProperty), _compare);
 }
 

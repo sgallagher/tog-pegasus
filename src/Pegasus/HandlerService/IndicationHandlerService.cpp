@@ -194,7 +194,7 @@ IndicationHandlerService::_handleIndication(
                     find_service_qid(PEGASUS_QUEUENAME_EXPORTREQDISPATCHER);
 
                 // Listener is build with Cimom, so send message to ExportServer
-               AutoPtr<CIMExportIndicationRequestMessage> exportmessage( 
+               AutoPtr<CIMExportIndicationRequestMessage> exportmessage(
                     new CIMExportIndicationRequestMessage(
                         XmlWriter::getNextMessageId(),
                         //taking localhost/CIMListener portion out from reg
@@ -208,7 +208,7 @@ IndicationHandlerService::_handleIndication(
                     IdentityContainer(String::EMPTY));
                 exportmessage->operationContext.set(
                     request->operationContext.get(
-                    ContentLanguageListContainer::NAME)); 
+                    ContentLanguageListContainer::NAME));
                 AutoPtr<AsyncOpNode> op( this->get_op());
 
                 AutoPtr<AsyncLegacyOperationStart> asyncRequest(
@@ -240,7 +240,7 @@ IndicationHandlerService::_handleIndication(
                 AutoPtr<AsyncReply> asyncReply(SendWait(asyncRequest.get()));
                 asyncRequest.release();
 
-                // Return the ExportIndication results in HandleIndication 
+                // Return the ExportIndication results in HandleIndication
                 //response
                 AutoPtr<CIMExportIndicationResponseMessage> exportResponse(
                     reinterpret_cast<CIMExportIndicationResponseMessage *>(
@@ -333,7 +333,7 @@ Boolean IndicationHandlerService::_loadHandler(
 
         if (handlerLib)
         {
-            ContentLanguageList langs = 
+            ContentLanguageList langs =
                 ((ContentLanguageListContainer)request->operationContext.
                 get(ContentLanguageListContainer::NAME)).getLanguages();
 

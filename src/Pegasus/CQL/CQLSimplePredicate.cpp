@@ -47,7 +47,7 @@ CQLSimplePredicate::CQLSimplePredicate(const CQLExpression& inExpression)
     _rep = new CQLSimplePredicateRep(inExpression);
 }
 
-CQLSimplePredicate::CQLSimplePredicate(const CQLExpression& inExpression, 
+CQLSimplePredicate::CQLSimplePredicate(const CQLExpression& inExpression,
                        ExpressionOpType inOperator)
 {
     _rep = new CQLSimplePredicateRep(inExpression, inOperator);
@@ -57,7 +57,7 @@ CQLSimplePredicate::CQLSimplePredicate(const CQLExpression& leftSideExpression,
                        const CQLExpression& rightSideExpression,
                        ExpressionOpType inOperator)
 {
-    _rep = new CQLSimplePredicateRep(leftSideExpression,rightSideExpression, 
+    _rep = new CQLSimplePredicateRep(leftSideExpression,rightSideExpression,
                                      inOperator);
 }
 
@@ -111,7 +111,7 @@ Boolean CQLSimplePredicate::isSimpleValue() const
 {
     return _rep->isSimpleValue();
 }
- 
+
 CQLSimplePredicate& CQLSimplePredicate::operator=(
     const CQLSimplePredicate& rhs)
 {

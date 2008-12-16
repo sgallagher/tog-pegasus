@@ -2768,7 +2768,7 @@ void InteropTest::testCommunicationClass()
 
                     catch(CIMException& e)
                     {
-                        // If node is not in real ip6 network it may fail. 
+                        // If node is not in real ip6 network it may fail.
                         // Failsafe for ip6 addrs.
                         if (locator.getAddressType() != HostAddress::AT_IPV6)
                         {
@@ -2779,7 +2779,7 @@ void InteropTest::testCommunicationClass()
                     }
                     catch(Exception& e)
                     {
-                        // If node is not in real ip6 network it may fail. 
+                        // If node is not in real ip6 network it may fail.
                         // Failsafe for ip6 addrs.
                         if (locator.getAddressType() != HostAddress::AT_IPV6)
                         {

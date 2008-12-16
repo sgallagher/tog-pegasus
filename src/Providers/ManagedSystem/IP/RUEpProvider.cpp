@@ -138,10 +138,10 @@ void RUEpProvider::associators(
     {
         _associators(
             _AssociationInstances,
-            localObjectPath, 
+            localObjectPath,
             role,
-            resultClass, 
-            resultRole, 
+            resultClass,
+            resultRole,
             handler);
     }
     else
@@ -185,10 +185,10 @@ void RUEpProvider::associatorNames(
     {
         _associatorNames(
             _AssociationInstances,
-            localObjectPath, 
+            localObjectPath,
             role,
-            resultClass, 
-            resultRole, 
+            resultClass,
+            resultRole,
             handler);
     }
     else
@@ -238,7 +238,7 @@ void RUEpProvider::references(
         resultInstances =
             _filterAssociationInstancesByRole(
                 _AssociationInstances,
-                localObjectPath, 
+                localObjectPath,
                 role);
     }
     else
@@ -291,7 +291,7 @@ void RUEpProvider::referenceNames(
         resultInstances =
             _filterAssociationInstancesByRole(
                 _AssociationInstances,
-                localObjectPath, 
+                localObjectPath,
                 role);
     }
     else
@@ -562,7 +562,7 @@ void RUEpProvider::_createAssociationInstances(
 
             Uint16 _pift;
             CIMValue _piftCIMValue = _ipifProtocolIFType.getValue();
-            if ((_piftCIMValue.getType() == CIMTYPE_UINT16) && 
+            if ((_piftCIMValue.getType() == CIMTYPE_UINT16) &&
                 (!_piftCIMValue.isNull ()))
             {
                 _piftCIMValue.get(_pift);
@@ -601,18 +601,18 @@ void RUEpProvider::_createAssociationInstances(
                 }
             }
 
-            // In this implementation, we choose InstanceID to be 
-            // equal DestinationAddress. So, if Address of interface 
-            // and InstanceID of route doesn't match, check if SubnetMask 
+            // In this implementation, we choose InstanceID to be
+            // equal DestinationAddress. So, if Address of interface
+            // and InstanceID of route doesn't match, check if SubnetMask
             // of interface and DestinationMask route does.
             if (!_nhrInstanceID.getValue().equal(_ipifAddress.getValue()))
             {
                 _nhrAddrType = _nhrInst.getProperty(
                     _nhrInst.findProperty(
-                        PROPERTY_ADDRESS_TYPE));  
+                        PROPERTY_ADDRESS_TYPE));
                 Uint16 _addrt;
                 CIMValue _nhratCIMValue = _nhrAddrType.getValue();
-                if ((_nhratCIMValue.getType() == CIMTYPE_UINT16) && 
+                if ((_nhratCIMValue.getType() == CIMTYPE_UINT16) &&
                     (!_nhratCIMValue.isNull()))
                 {
                     _nhratCIMValue.get(_addrt);
@@ -645,8 +645,8 @@ void RUEpProvider::_createAssociationInstances(
                     }
                 }
 
-                // If SubnetMask of interface and DestinationMask route 
-                // doesn't match, these instances are unrelated. So, 
+                // If SubnetMask of interface and DestinationMask route
+                // doesn't match, these instances are unrelated. So,
                 // proceed to the next pair.
                 if (!_nhrDestMask_PrefixLength.getValue().equal(
                     _ipifSubnetMask_PrefixLength.getValue()))
@@ -694,7 +694,7 @@ void RUEpProvider::_createAssociationInstances(
 
             assocInst.setPath(path);
             _AssociationInstances.append(assocInst);
-            break; 
+            break;
         }  // Interfaces loop end.
 
     }  // Routes loop end.
@@ -725,27 +725,27 @@ Array<CIMInstance> RUEpProvider::_NextHopRouteInstances()
             if (!_nhipr.getInstanceID(_instanceID))
             {
                 throw CIMOperationFailedException(
-                    "Can't determine InstanceID in: " + 
+                    "Can't determine InstanceID in: " +
                     String("RUEpProvider::_NextHopRouteInstances()"));
             }
             instance.addProperty(CIMProperty(
-                PROPERTY_INSTANCE_ID, 
+                PROPERTY_INSTANCE_ID,
                 _instanceID));
 
             if (!_nhipr.getDestinationAddress(_destAddr))
             {
                 throw CIMOperationFailedException(
-                    "Can't determine destination address in: " + 
+                    "Can't determine destination address in: " +
                     String("RUEpProvider::_NextHopRouteInstances()"));
             }
             instance.addProperty(CIMProperty(
-                PROPERTY_DESTINATION_ADDRESS, 
+                PROPERTY_DESTINATION_ADDRESS,
                 _destAddr));
 
             if (_nhipr.getAddressType(_addrType))
             {
                 instance.addProperty(CIMProperty(
-                    PROPERTY_ADDRESS_TYPE, 
+                    PROPERTY_ADDRESS_TYPE,
                     _addrType));
 
                 if (_addrType == 1)  // IPv4 address.
@@ -757,7 +757,7 @@ Array<CIMInstance> RUEpProvider::_NextHopRouteInstances()
                             String("RUEpProvider::_NextHopRouteInstances()"));
                     }
                     instance.addProperty(CIMProperty(
-                        PROPERTY_DESTINATION_MASK, 
+                        PROPERTY_DESTINATION_MASK,
                         _destMask));
                 }
                 else
@@ -771,7 +771,7 @@ Array<CIMInstance> RUEpProvider::_NextHopRouteInstances()
                               String("RUEpProvider::_NextHopRouteInstances()"));
                         }
                         instance.addProperty(CIMProperty(
-                            PROPERTY_PREFIX_LENGTH, 
+                            PROPERTY_PREFIX_LENGTH,
                             _prefLength));
                     }
                 }
@@ -787,14 +787,14 @@ Array<CIMInstance> RUEpProvider::_NextHopRouteInstances()
             Array<CIMKeyBinding> keyBindings;
             keyBindings.append(
             CIMKeyBinding(
-                PROPERTY_INSTANCE_ID, 
-                _instanceID, 
+                PROPERTY_INSTANCE_ID,
+                _instanceID,
                 CIMKeyBinding::STRING));
 
             CIMObjectPath path(
-            String::EMPTY, 
+            String::EMPTY,
             CIMNamespaceName(),
-            CLASS_CIM_NEXT_HOP_ROUTE, 
+            CLASS_CIM_NEXT_HOP_ROUTE,
             keyBindings);
 
             instance.setPath(path);
@@ -827,7 +827,7 @@ Array<CIMInstance> RUEpProvider::_IPInterfaceInstances()
         if (_ipif.getProtocolIFType(_protocolIFType))
         {
             instance.addProperty(CIMProperty(
-                PROPERTY_PROTOCOL_IF_TYPE, 
+                PROPERTY_PROTOCOL_IF_TYPE,
                 _protocolIFType));
 
             if (_protocolIFType == 4096)  // IPv4 address.
@@ -847,7 +847,7 @@ Array<CIMInstance> RUEpProvider::_IPInterfaceInstances()
                         String("RUEpProvider::_IPInterfaceInstances()"));
                 }
                 instance.addProperty(CIMProperty(
-                    PROPERTY_SUBNET_MASK, 
+                    PROPERTY_SUBNET_MASK,
                     _subnetMask));
             }
             else
@@ -861,7 +861,7 @@ Array<CIMInstance> RUEpProvider::_IPInterfaceInstances()
                             String("RUEpProvider::_IPInterfaceInstances()"));
                     }
                     instance.addProperty(CIMProperty(
-                        PROPERTY_IPV6ADDRESS, 
+                        PROPERTY_IPV6ADDRESS,
                         _addr));
 
                     if (!_ipif.getPrefixLength(_prefLength))
@@ -871,12 +871,12 @@ Array<CIMInstance> RUEpProvider::_IPInterfaceInstances()
                             String("RUEpProvider::_IPInterfaceInstances()"));
                     }
                     instance.addProperty(CIMProperty(
-                        PROPERTY_PREFIX_LENGTH, 
+                        PROPERTY_PREFIX_LENGTH,
                         _prefLength));
                 }
             }
         }
-        else 
+        else
         {
             throw CIMOperationFailedException(
                 "Can't determine instance protocol type in: " +
@@ -901,7 +901,7 @@ Array<CIMInstance> RUEpProvider::_IPInterfaceInstances()
          _ipifInstances.append(instance);
          _retInstances.append(instance);
     }
-    
+
     PEG_METHOD_EXIT();
     return _retInstances;
 }

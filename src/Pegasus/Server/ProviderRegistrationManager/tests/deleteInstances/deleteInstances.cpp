@@ -48,17 +48,17 @@ const CIMName CLASSNAME3 = CIMName ("PG_ProviderCapabilities");
 
 void TestDeleteInstances(ProviderRegistrationManager & prmanager)
 {
-   CIMKeyBinding kb1(CIMName ("ProviderModuleName"), "providersModule1", 
+   CIMKeyBinding kb1(CIMName ("ProviderModuleName"), "providersModule1",
        CIMKeyBinding::STRING);
-   CIMKeyBinding kb2(CIMName ("ProviderName"), "PG_ProviderInstance1", 
+   CIMKeyBinding kb2(CIMName ("ProviderName"), "PG_ProviderInstance1",
        CIMKeyBinding::STRING);
-   CIMKeyBinding kb3(CIMName ("CapabilityID"), "capability1", 
+   CIMKeyBinding kb3(CIMName ("CapabilityID"), "capability1",
        CIMKeyBinding::STRING);
-   CIMKeyBinding kbp1(CIMName ("ProviderModuleName"), "providersModule1", 
+   CIMKeyBinding kbp1(CIMName ("ProviderModuleName"), "providersModule1",
        CIMKeyBinding::STRING);
-   CIMKeyBinding kbp2(CIMName ("Name"), "PG_ProviderInstance1", 
+   CIMKeyBinding kbp2(CIMName ("Name"), "PG_ProviderInstance1",
        CIMKeyBinding::STRING);
-   CIMKeyBinding kbm1(CIMName ("Name"), "providersModule1", 
+   CIMKeyBinding kbm1(CIMName ("Name"), "providersModule1",
        CIMKeyBinding::STRING);
 
    CIMObjectPath instanceName;
@@ -134,7 +134,7 @@ void TestDeleteInstances(ProviderRegistrationManager & prmanager)
 
     namespaces.append("test_namespace1");
     namespaces.append("test_namespace2");
-    
+
     providerType.append(2);
     providerType.append(5);
 
@@ -176,12 +176,12 @@ void TestDeleteInstances(ProviderRegistrationManager & prmanager)
                 //
                 keys2.append(kbp1);
                 keys2.append(kbp2);
-    
+
                 instanceName2.setKeyBindings(keys2);
-    
+
                 prmanager.deleteInstance(instanceName2);
             break;
-    
+
         case 2:
                 //
                 // delete cimInstance3
@@ -189,20 +189,20 @@ void TestDeleteInstances(ProviderRegistrationManager & prmanager)
                 keys.append(kb1);
                 keys.append(kb2);
                 keys.append(kb3);
-    
+
                 instanceName3.setKeyBindings(keys);
-    
+
                 prmanager.deleteInstance(instanceName3);
             break;
-    
+
         case 3:
                 //
                 // delete cimInstance
                 //
                 keysm.append(kbm1);
-    
+
                 instanceName.setKeyBindings(keysm);
-    
+
             prmanager.deleteInstance(instanceName);
             break;
     }
@@ -248,8 +248,8 @@ int main(int argc, char** argv)
     exit(-1);
     }
 
-    PEGASUS_STD(cout) << argv[0]<< " +++++ passed all tests" 
+    PEGASUS_STD(cout) << argv[0]<< " +++++ passed all tests"
                       << PEGASUS_STD(endl);
-    
+
     return 0;
 }

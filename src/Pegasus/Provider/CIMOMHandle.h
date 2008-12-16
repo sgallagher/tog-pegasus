@@ -85,7 +85,7 @@ public:
         @return A reference to this CIMOMHandle object with the new assignment.
     */
     CIMOMHandle& operator=(const CIMOMHandle& handle);
-      
+
     CIMClass getClass(
         const OperationContext& context,
         const CIMNamespaceName& nameSpace,
@@ -270,12 +270,12 @@ public:
     OperationContext getResponseContext();
 #endif
 
-private:      
+private:
     CIMOMHandleRep* _rep;
 
     friend class ProviderStatus;
     friend class CMPIProvider;
-    
+
     Boolean unload_ok();
 };
 

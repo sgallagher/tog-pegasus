@@ -35,34 +35,34 @@
 #define AutoRestartMgr_ZOS_ZSERIES_IBM_h
 
 ////////////////////////////////////////////////////////////////////////////////
-// internal prototypes for the assembler services called 
+// internal prototypes for the assembler services called
 ////////////////////////////////////////////////////////////////////////////////
- 
+
 #ifdef __cplusplus
 extern "OS_UPSTACK" {
 #endif
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// assembler routine which registers with ARM 
+// assembler routine which registers with ARM
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma map    (__register_arm,"REGARM")
 void __register_arm (char * elemname,  // elementname (16bytes) right-padded
-                                     // with blanks 
+                                     // with blanks
                   char * buffer,     // must point to a local buffer which has
-                                     // a length of least 128 bytes 
-                  int * retcode,     // contains returncode on return 
+                                     // a length of least 128 bytes
+                  int * retcode,     // contains returncode on return
                   int * reasoncode); // contains reasoncode on return
 
 ////////////////////////////////////////////////////////////////////////////////
-// assembler routine put element as READY with ARM 
+// assembler routine put element as READY with ARM
 ////////////////////////////////////////////////////////////////////////////////
 
 #pragma map    (__ready_arm,"READYARM")
 void __ready_arm ( char * buffer,   // must point to a local buffer which has
-                                    // a length of least 128 bytes 
-                 int * retcode,     // contains returncode on return 
+                                    // a length of least 128 bytes
+                 int * retcode,     // contains returncode on return
                  int * reasoncode); // contains reasoncode on return
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -71,8 +71,8 @@ void __ready_arm ( char * buffer,   // must point to a local buffer which has
 
 #pragma map    (__deregister_arm,"DEREGARM")
 void __deregister_arm ( char * buffer, // must point to a local buffer which has
-                                    // a length of least 128 bytes 
-                 int * retcode,     // contains returncode on return 
+                                    // a length of least 128 bytes
+                 int * retcode,     // contains returncode on return
                  int * reasoncode); // contains reasoncode on return
 
 #ifdef __cplusplus

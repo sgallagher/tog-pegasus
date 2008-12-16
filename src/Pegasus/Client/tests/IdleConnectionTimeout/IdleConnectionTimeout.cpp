@@ -85,13 +85,13 @@ ThreadReturnType PEGASUS_THREAD_CDECL _runningThd(void *parm)
         }
         else
         {
-            client.connect(System::getHostName(), 5988, 
+            client.connect(System::getHostName(), 5988,
                 String(testUserid), String(testPasswd));
         }
 
         try
         {
-            CIMClass tmpClass = 
+            CIMClass tmpClass =
                 client.getClass (OSINFO_NAMESPACE, OSINFO_CLASSNAME);
         }
         catch(Exception& e)
@@ -129,14 +129,14 @@ ThreadReturnType PEGASUS_THREAD_CDECL _idleThd(void *parm)
         }
         else
         {
-            client.connect(System::getHostName(), 5988, 
+            client.connect(System::getHostName(), 5988,
                 String(testUserid), String(testPasswd));
         }
 
-        CIMClass tmpClass = 
+        CIMClass tmpClass =
             client.getClass (OSINFO_NAMESPACE, OSINFO_CLASSNAME);
 
-        cout << "Test 2 of 2: Begin " << durationSeconds 
+        cout << "Test 2 of 2: Begin " << durationSeconds
             << " second idle period..." << endl;
 
         while (sleepIterations.get() < durationSeconds)
@@ -144,7 +144,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL _idleThd(void *parm)
             Threads::sleep(1000);
         }
 
-        CIMClass tmpClass2 = 
+        CIMClass tmpClass2 =
             client.getClass (OSINFO_NAMESPACE, OSINFO_CLASSNAME);
     }
     catch(Exception& e)
@@ -199,18 +199,18 @@ Boolean _test1(
         }
         else
         {
-            client.connect(System::getHostName(), 5988, 
+            client.connect(System::getHostName(), 5988,
                 String(testUserid), String(testPasswd));
         }
 
-        CIMClass tmpClass = 
+        CIMClass tmpClass =
             client.getClass (OSINFO_NAMESPACE, OSINFO_CLASSNAME);
 
         cout << "Test 1 of 2: Begin " << durationSeconds
             << " second idle period..." << endl;
         Threads::sleep(durationSeconds*1000);
 
-        CIMClass tmpClass2 = 
+        CIMClass tmpClass2 =
             client.getClass (OSINFO_NAMESPACE, OSINFO_CLASSNAME);
     }
     catch(Exception& e)
@@ -279,7 +279,7 @@ int main(int argc, char** argv)
 
     if (argc != 2)
     {
-        cerr 
+        cerr
             << "Invalid argument count, only parameter is sleep time in seconds"
             << endl;
         return 1;
@@ -306,13 +306,13 @@ int main(int argc, char** argv)
         (getenv("PEGASUS_TEST_USER_PASS")))
     {
 
-        strncpy(testUserid, getenv("PEGASUS_TEST_USER_ID"), 
+        strncpy(testUserid, getenv("PEGASUS_TEST_USER_ID"),
             sizeof(testUserid));
-        strncpy(testPasswd, getenv("PEGASUS_TEST_USER_PASS"), 
+        strncpy(testPasswd, getenv("PEGASUS_TEST_USER_PASS"),
             sizeof(testPasswd));
 
         cout << "Testing connect() with "
-            << "host: " << System::getHostName() 
+            << "host: " << System::getHostName()
             << ", port: 5988"
             << ", user: " << testUserid << endl;
 

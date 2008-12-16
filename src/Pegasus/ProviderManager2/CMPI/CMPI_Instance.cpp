@@ -48,7 +48,7 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-extern "C" 
+extern "C"
 {
 
     static CMPIStatus instRelease(CMPIInstance* eInst)
@@ -71,7 +71,7 @@ extern "C"
         CMReturn(CMPI_RC_OK);
     }
 
-    static CMPIInstance* instClone(const CMPIInstance* eInst, CMPIStatus* rc) 
+    static CMPIInstance* instClone(const CMPIInstance* eInst, CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
@@ -90,7 +90,7 @@ extern "C"
             cInst.release();
             obj->unlink();
             CMSetStatus(rc,CMPI_RC_OK);
-            CMPIInstance* cmpiInstance = 
+            CMPIInstance* cmpiInstance =
                 reinterpret_cast<CMPIInstance *>(obj.release());
             PEG_METHOD_EXIT();
             return cmpiInstance;
@@ -139,8 +139,8 @@ extern "C"
         return data;
     }
 
-    static CMPIData instGetProperty(const CMPIInstance* eInst, 
-        const char *name, CMPIStatus* rc)   
+    static CMPIData instGetProperty(const CMPIInstance* eInst,
+        const char *name, CMPIStatus* rc)
     {
         CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
 
@@ -167,8 +167,8 @@ extern "C"
     }
 
 
-    static CMPICount instGetPropertyCount(const CMPIInstance* eInst, 
-        CMPIStatus* rc) 
+    static CMPICount instGetPropertyCount(const CMPIInstance* eInst,
+        CMPIStatus* rc)
     {
         CIMInstance* inst=(CIMInstance*)eInst->hdl;
         if (!inst)
@@ -180,7 +180,7 @@ extern "C"
         return inst->getPropertyCount();
     }
 
-    static CMPIStatus instSetPropertyWithOrigin(const CMPIInstance* eInst, 
+    static CMPIStatus instSetPropertyWithOrigin(const CMPIInstance* eInst,
         const char* name, const CMPIValue* data, const CMPIType type,
         const char* origin)
     {
@@ -204,15 +204,15 @@ extern "C"
             CIMProperty cp=inst->getProperty(pos);
 
 
-            /* The CMPI interface uses the type "CMPI_instance" to represent 
-               both embedded objects and embedded instances. CMPI has no 
-               "CMPI_object" type. So when converting a CMPIValue with type 
-               "CMPI_instance" to a CIMValue (see value2CIMValue) the type 
-               CIMTYPE_OBJECT is always used. If the property's type is 
+            /* The CMPI interface uses the type "CMPI_instance" to represent
+               both embedded objects and embedded instances. CMPI has no
+               "CMPI_object" type. So when converting a CMPIValue with type
+               "CMPI_instance" to a CIMValue (see value2CIMValue) the type
+               CIMTYPE_OBJECT is always used. If the property's type is
                CIMTYPE_INSTANCE, and the value's type is CIMTYPE_OBJECT, then
                we convert the value's type to match the property's type.
             */
-            if (cp.getType() == CIMTYPE_INSTANCE && 
+            if (cp.getType() == CIMTYPE_INSTANCE &&
                 v.getType() == CIMTYPE_OBJECT)
             {
                 if (cp.isArray())
@@ -234,11 +234,11 @@ extern "C"
                     for (Uint32 i = 0; i < tmpObjs.size() ; ++i)
                     {
                         tmpInsts.append(CIMInstance(tmpObjs[i]));
-                    } 
+                    }
                     v.set(tmpInsts);
                 }
                 else
-                {  
+                {
                     CIMObject co;
                     v.get(co);
                     if (co.isInstance())
@@ -315,13 +315,13 @@ extern "C"
     }
 
     static CMPIStatus instSetProperty(const CMPIInstance* eInst,
-        const char *name, const CMPIValue* data, CMPIType type) 
+        const char *name, const CMPIValue* data, CMPIType type)
     {
         return instSetPropertyWithOrigin(eInst, name, data, type, NULL);
     }
 
     static CMPIObjectPath* instGetObjectPath(const CMPIInstance* eInst,
-        CMPIStatus* rc) 
+        CMPIStatus* rc)
     {
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
@@ -339,24 +339,24 @@ extern "C"
         try
         {
             /* Check if NameSpace is NULL before calling GetClass. When
-               providers run out-of-process and getClass request is made 
-               through CIMClient,  CIMOperationRequestEncoder tries to 
-               encode the request and finds the namespace is invalid 
-               (empty) and throws InvalidNamespaceNameException. 
+               providers run out-of-process and getClass request is made
+               through CIMClient,  CIMOperationRequestEncoder tries to
+               encode the request and finds the namespace is invalid
+               (empty) and throws InvalidNamespaceNameException.
             */
-            if (clsRef.getKeyBindings().size()==0 && 
+            if (clsRef.getKeyBindings().size()==0 &&
                 !clsRef.getNameSpace().isNull())
             {
                 CIMClass *cc=mbGetClass(CMPI_ThreadContext::getBroker(),clsRef);
-                /* It seems that when converting the CIMInstnace to XML form, 
-                   we miss CIMObjectPath from it. When we don't have namespace 
-                   we may not get class, so make ObjectPath with class-name 
+                /* It seems that when converting the CIMInstnace to XML form,
+                   we miss CIMObjectPath from it. When we don't have namespace
+                   we may not get class, so make ObjectPath with class-name
                    only.
-                   TODO: This will create problems when passing the 
+                   TODO: This will create problems when passing the
                    EmbeddedInstances as arguements to MethodProviders, where it
-                   needs to get ObjectPath from instance. Shall we need to 
-                   include CIMObjectPath in CIMInstance while converting to XML 
-                   form ??? ...  
+                   needs to get ObjectPath from instance. Shall we need to
+                   include CIMObjectPath in CIMInstance while converting to XML
+                   form ??? ...
                 */
                 if (!cc)
                 {
@@ -374,10 +374,10 @@ extern "C"
             obj.reset(new CMPI_Object(objPath.get()));
             objPath.release();
             CMSetStatus(rc,CMPI_RC_OK);
-            CMPIObjectPath* cmpiObjectPath = 
+            CMPIObjectPath* cmpiObjectPath =
                 reinterpret_cast<CMPIObjectPath*> (obj.release());
             PEG_METHOD_EXIT();
-            return cmpiObjectPath; 
+            return cmpiObjectPath;
         }
         catch (const PEGASUS_STD(bad_alloc)&)
         {
@@ -388,7 +388,7 @@ extern "C"
     }
 
     static CMPIStatus instSetObjectPath(
-        CMPIInstance* eInst, 
+        CMPIInstance* eInst,
         const CMPIObjectPath *obj)
     {
         PEG_METHOD_ENTER(
@@ -409,7 +409,7 @@ extern "C"
         CIMObjectPath &ref = *(CIMObjectPath*)(obj->hdl);
         try
         {
-            inst->setPath(ref); 
+            inst->setPath(ref);
         }
         catch (const TypeMismatchException &e)
         {
@@ -432,26 +432,26 @@ extern "C"
         const char** listroot2,
         CIMInstance & inst)
     {
-        /* listroot1 never can be 0, this function is only called by 
+        /* listroot1 never can be 0, this function is only called by
            instSetPropertyFilter() and the check is done there already */
-        
+
         /* determine number of properties on the instance */
         int propertyCount = inst.getPropertyCount();
 
         /* number of properties in each property list */
         int numProperties1 = 0;
-        int numProperties2 = 0;            
+        int numProperties2 = 0;
         /* Masks for property lists
            0 = list element not yet found
            1 = list element already found)
-        */            
+        */
         char * plMask1=0;
-        char * plMask2=0;            
+        char * plMask2=0;
         /* end of array of property list names */
         const char **listend1 = listroot1;
         /* place end pointer at end of array and count number of properties
            named in the first list */
-        while (*listend1) 
+        while (*listend1)
         {
             listend1++;
         }
@@ -469,7 +469,7 @@ extern "C"
            named in the first list */
         if (listroot2)
         {
-            while (*listend2) 
+            while (*listend2)
             {
                 listend2++;
             }
@@ -489,7 +489,7 @@ extern "C"
             CIMConstProperty prop = inst.getProperty(idx);
             CString cName = prop.getName().getString().getCString();
             const char* pName = (const char*)cName;
-            
+
             /* work the property list backward too, as often times
                properties on the instance and in the list are ordered in the
                same way, this helps reduce number of required strcasecmp */
@@ -567,10 +567,10 @@ extern "C"
            property filters or have to filter for themselves.
            Removing properties from the CIMInstance here helps to effectively
            avoid the need to carry a property list around in the CMPI layer.
-           
+
            A (propertyList == 0) means the property list is null and there
            should be no filtering.
-           
+
            An empty propertylist(no property to be returned) is represented by
            a valid propertyList pointer pointing to a null pointer, i.e.
            (*propertyList == 0)
@@ -655,4 +655,4 @@ CMPI_InstanceOnStack::CMPI_InstanceOnStack(const CIMInstance& ci)
 
 
 PEGASUS_NAMESPACE_END
-    
+

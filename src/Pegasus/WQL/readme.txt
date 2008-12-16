@@ -44,7 +44,7 @@ Type "make docxx".
 WARNING: Compiling the grammar.  The Makefile includes a section to
 compile the grammar that is defined in WQL.l and WQL.y.  This Makefile
 allows either lex and yacc or flex/bision tools to be used for the
-compilation.  
+compilation.
 
 However, we have noted a significant difference in the various versions
 of bison and flex.  We recommend that anybody compiling the grammar for

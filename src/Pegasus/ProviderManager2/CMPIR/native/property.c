@@ -66,7 +66,7 @@ struct native_property
 
 /****************************************************************************/
 
-static CMPIData __convert2CMPIData ( 
+static CMPIData __convert2CMPIData (
     struct native_property * prop,
     CMPIString ** propname )
 {
@@ -97,7 +97,7 @@ static CMPIData __convert2CMPIData (
 /**
     returns non-zero if already existant
 */
-static int __addProperty ( 
+static int __addProperty (
     struct native_property ** prop,
     int mm_add,
     const char * name,
@@ -144,7 +144,7 @@ static int __addProperty (
                 // what if clone() fails???
             }
         }
-        else 
+        else
         {
             tmp->state = CMPI_nullValue;
         }
@@ -152,7 +152,7 @@ static int __addProperty (
         return 0;
     }
     return( strcmp ( (*prop)->name, name ) == 0 ||
-        __addProperty ( 
+        __addProperty (
         &( (*prop)->next ),
         mm_add,
         name,
@@ -165,7 +165,7 @@ static int __addProperty (
 /**
     returns -1 if non-existant
 */
-static int __setProperty ( 
+static int __setProperty (
     struct native_property * prop,
     int mm_add,
     const char * name,
@@ -206,7 +206,7 @@ static int __setProperty (
             // what if clone() fails ???
 
         }
-        else 
+        else
         {
             prop->state = CMPI_nullValue;
         }
@@ -243,7 +243,7 @@ static int __setPropertyOrigin (struct native_property *prop,
     return -1;
 }
 
-static struct native_property * __getProperty ( 
+static struct native_property * __getProperty (
     struct native_property * prop,
     const char * name )
 {
@@ -251,21 +251,21 @@ static struct native_property * __getProperty (
     {
         return NULL;
     }
-    return( 
+    return(
         strcmp ( prop->name, name ) == 0 )?
-        prop: 
+        prop:
         __getProperty ( prop->next, name );
 }
 
 
-static CMPIData __getDataProperty ( 
+static CMPIData __getDataProperty (
     struct native_property * prop,
     const char * name,
     CMPIStatus * rc )
 {
     struct native_property * p = __getProperty ( prop, name );
 
-    CMSetStatus ( 
+    CMSetStatus (
         rc,
         ( p )?
         CMPI_RC_OK:
@@ -275,8 +275,8 @@ static CMPIData __getDataProperty (
 }
 
 
-static struct native_property * __getPropertyAt ( 
-    struct native_property * prop, 
+static struct native_property * __getPropertyAt (
+    struct native_property * prop,
     unsigned int pos )
 {
     if (! prop)
@@ -284,14 +284,14 @@ static struct native_property * __getPropertyAt (
         return NULL;
     }
 
-    return( 
+    return(
         pos == 0 )?
-        prop: 
+        prop:
         __getPropertyAt ( prop->next, --pos );
 }
 
 
-static CMPIData __getDataPropertyAt ( 
+static CMPIData __getDataPropertyAt (
     struct native_property * prop,
     unsigned int pos,
     CMPIString ** propname,
@@ -308,7 +308,7 @@ static CMPIData __getDataPropertyAt (
 }
 
 
-static CMPICount __getPropertyCount ( 
+static CMPICount __getPropertyCount (
     struct native_property * prop,
     CMPIStatus * rc )
 {
@@ -332,13 +332,13 @@ static void __release ( struct native_property * prop )
     {
         tool_mm_add ( prop );
         tool_mm_add ( prop->name );
-        tool_mm_add (prop->origin); 
+        tool_mm_add (prop->origin);
         native_release_CMPIValue ( prop->type, &prop->value );
     }
 }
 
 
-static struct native_property * __clone ( 
+static struct native_property * __clone (
     struct native_property * prop,
     CMPIStatus * rc )
 {
@@ -377,8 +377,8 @@ static struct native_property * __clone (
 
 
 /**
-    Global function table to access native_property helper 
-    functions. 
+    Global function table to access native_property helper
+    functions.
 */
 struct native_propertyFT propertyFT = {
     __addProperty,

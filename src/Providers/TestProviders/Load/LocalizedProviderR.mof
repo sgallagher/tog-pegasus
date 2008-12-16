@@ -77,7 +77,7 @@ instance of PG_ProviderCapabilities
 {
    ProviderModuleName = "TestLocalizedProviderModule";
    ProviderName = "TestLocalizedProvider";
-   CapabilityID = "3";  
+   CapabilityID = "3";
    ClassName = "LocalizedProvider_TestIndication";
    Namespaces = {"test/TestProvider"};
    ProviderType = { 4 };   //Indication

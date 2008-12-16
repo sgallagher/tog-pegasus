@@ -67,10 +67,10 @@ static void _testIPv6()
     System::acquireIP(hostName.getCString(), &af, binAddr);
     PEGASUS_TEST_ASSERT(HostAddress::convertTextToBinary(af,
         hostIP.getCString(), binAddr2) == 1);
-    PEGASUS_TEST_ASSERT(HostAddress::equal(af, binAddr, binAddr2));   
+    PEGASUS_TEST_ASSERT(HostAddress::equal(af, binAddr, binAddr2));
 
     PEGASUS_TEST_ASSERT(HostAddress::convertTextToBinary(HostAddress::AT_IPV4,
-        "127.0.0.1", binAddr) == 1); 
+        "127.0.0.1", binAddr) == 1);
     PEGASUS_TEST_ASSERT(System::isLoopBack(HostAddress::AT_IPV4, binAddr));
 
 

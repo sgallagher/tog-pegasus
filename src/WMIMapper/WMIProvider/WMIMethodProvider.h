@@ -45,10 +45,10 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-class WMICollector; 
+class WMICollector;
 
 
-class PEGASUS_WMIPROVIDER_LINKAGE WMIMethodProvider : public WMIBaseProvider  
+class PEGASUS_WMIPROVIDER_LINKAGE WMIMethodProvider : public WMIBaseProvider
 {
 public:
     WMIMethodProvider();
@@ -72,7 +72,7 @@ public:
 protected:
 
 private:
- 
+
 };
 
 

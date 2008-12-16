@@ -3,21 +3,21 @@ REM ***********************************************************
 REM ***********************************************************
 REM Batch file for building the Pegasus-WMI Mapper on Windows
 REM
-REM NOTE: To run this script, GNU make (gnumake.exe) and 
+REM NOTE: To run this script, GNU make (gnumake.exe) and
 REM Pegasus mu.exe MUST BE in the PATH or in PEGASUS_ROOT
 REM
 REM Also, this batch file assumes Visual C++ 6.0 and the
 REM Microsoft Platform SDK are installed, vcvars32.bat is
-REM in the PATH and the MSSdk env var is defined. Other 
-REM environments (e.g., VisualStudio.NET) may require 
+REM in the PATH and the MSSdk env var is defined. Other
+REM environments (e.g., VisualStudio.NET) may require
 REM modifications to this batch file.
 REM
 REM Environment Variables:
-REM   PLATFORM 
+REM   PLATFORM
 REM   - Indicates the target platform for the build
 REM   - Valid settings are "Win32" and "Win64"
 REM   - Default(if not set) = "Win32"
-REM   FLAVOR 
+REM   FLAVOR
 REM   - Indicates whether to build debug or product/release bits
 REM   - Valid settings are "product" and "debug"
 REM   - Default(if not set) = "product"
@@ -27,7 +27,7 @@ REM     (e.g., "C:\Pegasus")
 REM   - No default -- MUST BE SET prior to running this script
 REM     or the script will fail.
 REM   PEGASUS_HOME
-REM   - Root directory where the built Pegasus binaries, etc., 
+REM   - Root directory where the built Pegasus binaries, etc.,
 REM     are to be "installed" (e.g., "C:\Pegasus")
 REM   - No default -- MUST BE SET prior to running this script
 REM     or the script will fail.
@@ -158,7 +158,7 @@ REM ***********************************************************
 if /i "%FLAVOR%" == "product" set PEGASUS_DEBUG=
 if /i "%FLAVOR%" == "debug" set PEGASUS_DEBUG=1
 
-REM If/when Pegasus has a Win64/IPF config, the following can be 
+REM If/when Pegasus has a Win64/IPF config, the following can be
 REM used for setting the appropriate config, based on the PLATFORM:
 REM if "%PLATFORM%" == "Win32" set PEGASUS_PLATFORM=WIN32_IX86_MSVC
 REM if "%PLATFORM%" == "Win64" set PEGASUS_PLATFORM=WIN64_IA64_MSVC
@@ -205,7 +205,7 @@ echo "======================================="
 echo "Building the Pegasus core lib's & app's"
 echo "======================================="
 REM NOTE: Remove "rebuild" from the make command, below,
-REM for a simpler build of Pegasus (build new/updated 
+REM for a simpler build of Pegasus (build new/updated
 REM files/dependencies only, no repository & no tests)
 make rebuild
 

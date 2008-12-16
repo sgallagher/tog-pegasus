@@ -49,9 +49,9 @@ static const CIMName PROPERTY_OTHER_INFO_FORMAT_DESCRIPTION = CIMName(
 //  Constructor for Remote Service Access Point  Info
 ////////////////////////////////////////////////////////////////////////////////
 RSApInfo::RSApInfo(
-    CIMClient &client, 
+    CIMClient &client,
     Boolean enableDebug,
-    ostream& outPrintWriter, 
+    ostream& outPrintWriter,
     ostream& errPrintWriter)
 {
     _enableDebug = enableDebug;
@@ -62,15 +62,15 @@ RSApInfo::RSApInfo(
         Boolean localOnly = true;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
-          
+
         Array<CIMInstance> cimInstances = client.enumerateInstances(
-            NAMESPACE, 
+            NAMESPACE,
             CLASS_NAME,
             deepInheritance,
             localOnly,
             includeQualifiers,
             includeClassOrigin);
- 
+
         Uint32 numberInstances = cimInstances.size();
 
         if (_enableDebug)
@@ -93,7 +93,7 @@ RSApInfo::RSApInfo(
         }
         else
         {
-            outPrintWriter << "No instances of class " 
+            outPrintWriter << "No instances of class "
                 << CLASS_NAME.getString() << endl;
         }
 
@@ -135,12 +135,12 @@ void RSApInfo::_gatherProperties(CIMInstance &inst)
         // Other properties
         else if (propertyName.equal(PROPERTY_INFO_FORMAT))
         {
-            inst.getProperty(j).getValue().get(_infoFormat); 
+            inst.getProperty(j).getValue().get(_infoFormat);
         }
         else if (propertyName.equal(PROPERTY_OTHER_INFO_FORMAT_DESCRIPTION))
         {
             _otherInfoFmtDesc.clear();
-            inst.getProperty(j).getValue().get(_otherInfoFmtDesc); 
+            inst.getProperty(j).getValue().get(_otherInfoFmtDesc);
         }
    } // end for loop through properties
 
@@ -153,21 +153,21 @@ void RSApInfo::_gatherProperties(CIMInstance &inst)
 void RSApInfo::_outputHeader(ostream &outPrintWriter)
 {
 
-    outPrintWriter << endl 
-        << ">>>> Remote Service Access Point Information <<<<" 
+    outPrintWriter << endl
+        << ">>>> Remote Service Access Point Information <<<<"
         << endl << endl;
 
     char header[81];
 
     sprintf(
-        header, 
-        HeaderFormat, 
-        "AccessInfo", 
-        "InfoFormat", 
+        header,
+        HeaderFormat,
+        "AccessInfo",
+        "InfoFormat",
         "OtherInfoFormatDescription");
 
     outPrintWriter << endl << header << endl;
-    
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -180,8 +180,8 @@ void RSApInfo::_outputInstance(ostream &outPrintWriter)
     if (_accessInfo.size() > 31)
     {
         sprintf(
-            row, 
-            HeaderFormat, 
+            row,
+            HeaderFormat,
             (const char *)_accessInfo.getCString(),
             "",
             "");
@@ -200,6 +200,6 @@ void RSApInfo::_outputInstance(ostream &outPrintWriter)
         _if,
         (const char *)_otherInfoFmtDesc.getCString());
 
-    outPrintWriter << row << endl << endl; 
+    outPrintWriter << row << endl << endl;
 
 }

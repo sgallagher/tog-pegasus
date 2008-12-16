@@ -51,7 +51,7 @@ PEGASUS_NAMESPACE_BEGIN
 WMIObjectProvider::WMIObjectProvider(void)
 {
     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIObjectProvider::constructor()");
-    
+
     _collector = NULL;
     m_bInitialized = false;
 
@@ -70,15 +70,15 @@ WMIObjectProvider::~WMIObjectProvider(void)
 
 
 bool WMIObjectProvider::getObject(
-    IWbemClassObject **ppObject, 
-    const CIMObjectPath& objectName,    
+    IWbemClassObject **ppObject,
+    const CIMObjectPath& objectName,
     const String& nameSpace,
     const String& userName,
     const String& password)
 
 {
     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIObjectProvider::getObject");
- 
+
     setup(nameSpace, userName, password);
 
     String sObjectName = getObjectName(objectName);
@@ -87,10 +87,10 @@ bool WMIObjectProvider::getObject(
     {
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
             "WMIObjectProvider::getObject - m_bInitilized= %x, "
-            "throw CIM_ERR_FAILED exception",  
+            "throw CIM_ERR_FAILED exception",
             m_bInitialized));
 
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
             "Collector initialization failed.");
     }
 
@@ -98,23 +98,23 @@ bool WMIObjectProvider::getObject(
     if (!(_collector->getObject(ppObject, sObjectName)))
     {
         PEG_TRACE((
-            TRC_WMIPROVIDER, 
-            Tracer::LEVEL3, 
+            TRC_WMIPROVIDER,
+            Tracer::LEVEL3,
             "WMIObjectProvider::getObject(): Object not Found"));
-            
+
         throw CIMException(CIM_ERR_NOT_FOUND);
     }
     else if (_collector->isInstance(*ppObject))
     {
         PEG_TRACE((
-            TRC_WMIPROVIDER, 
-            Tracer::LEVEL3, 
+            TRC_WMIPROVIDER,
+            Tracer::LEVEL3,
             "WMIObjectProvider::getObject(): Cannot be an instance"));
-            
+
         throw CIMException(CIM_ERR_INVALID_PARAMETER);
-    }    
-    
-    
+    }
+
+
     PEG_METHOD_EXIT();
     return true;
 }
@@ -125,7 +125,7 @@ bool WMIObjectProvider::getObject(
 
 WMIObject::WMIObject(const WMIObject & pObject) : CIMObject(pObject)
 {
-    
+
 }
 
 WMIObject::WMIObject(const CIMObject & pObject) : CIMObject(pObject)
@@ -137,9 +137,9 @@ WMIObject::WMIObject(const CComPtr <IWbemClassObject>& pObject)
 {
 
     WMICollector tmpCollector;
-    
+
     CIMObject tmpObj(CIMInstance(CIMName(tmpCollector.getClassName(pObject))));
-    
+
     tmpCollector.getCIMObject(
         pObject,
         tmpObj,
@@ -157,9 +157,9 @@ VARIANT WMIObject::toVariant(const String& nameSpace,
                              const String& password)
 {
     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIObject::toVariant()");
-    
+
     VARIANT mVar;
-    HRESULT hr;    
+    HRESULT hr;
     CComPtr<IWbemClassObject> pObj;
     CComPtr<IWbemLocator>    pLocator;
     CComPtr<IWbemServices> pServices;
@@ -168,74 +168,74 @@ VARIANT WMIObject::toVariant(const String& nameSpace,
 
     if (nameSpace == String::EMPTY)
     {
-        PEG_TRACE((TRC_WMIPROVIDER, 
-                   Tracer::LEVEL3, 
+        PEG_TRACE((TRC_WMIPROVIDER,
+                   Tracer::LEVEL3,
                    "namespace cannot be empty"));
-                   
-        throw CIMException(CIM_ERR_FAILED);    
+
+        throw CIMException(CIM_ERR_FAILED);
     }
-    
+
     if ((userName == String::EMPTY) && (password == String::EMPTY))
     {
-        boolIsLocal = true;        
+        boolIsLocal = true;
     }
     else if ((userName != String::EMPTY) && (password != String::EMPTY))
     {
-        boolIsLocal = false;    
+        boolIsLocal = false;
     }
     else
     {
-        PEG_TRACE((TRC_WMIPROVIDER, 
-                   Tracer::LEVEL3, 
-                   "userName and password must be both /" 
+        PEG_TRACE((TRC_WMIPROVIDER,
+                   Tracer::LEVEL3,
+                   "userName and password must be both /"
                    "empty or both non empty"));
-                   
+
         throw CIMException(CIM_ERR_FAILED);
     }
-    
+
     CIMObjectPath mObjPath(getPath());
-    
+
     provider.getObject(
-        &pObj,     
-        mObjPath,    
+        &pObj,
+        mObjPath,
         nameSpace,
         userName,
         password);
-    
-     
+
+
      // If Object is an instance, then copy all the property values
-     if (isInstance()) 
+     if (isInstance())
      {
          for (Uint32 i = 0; i < getPropertyCount(); i++)
          {
              WMIProperty mProperty(getProperty(i));
-             
+
              CIMName mName(mProperty.getName());
              WMIValue mValue(mProperty.getValue());
-             
+
              CComBSTR bstrPropName;
              bstrPropName = mName.getString().getCString();
-                   
-             CComVariant mPropVar;             
+
+             CComVariant mPropVar;
              mValue.getAsVariant(&mPropVar, nameSpace, userName, password);
-             
+
              hr = pObj->Put(bstrPropName, 0, &mPropVar, 0);
-             
+
              if (hr != WBEM_S_NO_ERROR)
              {
-             
-                 PEG_TRACE((TRC_WMIPROVIDER, 
+
+                 PEG_TRACE((TRC_WMIPROVIDER,
                  Tracer::LEVEL3, "WMIObject::toVariant() Input /"
                  "Property Copy Error. Property [ %s ] discarded."));
-             }              
-         }     
+             }
+         }
      }
 
-    IWbemClassObject *pFinalObj = NULL;    
+    IWbemClassObject *pFinalObj = NULL;
     pObj->Clone(&pFinalObj);
     mVar.vt = VT_UNKNOWN;
     mVar.punkVal = pFinalObj;
-    
+
     PEG_METHOD_EXIT();
     return mVar;
 }

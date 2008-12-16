@@ -38,7 +38,7 @@
 PEGASUS_USING_PEGASUS;
 
 //
-// Following class is defined to provide a way creating provider registration 
+// Following class is defined to provide a way creating provider registration
 // instances.
 //
 class TestProviderRegistration
@@ -53,7 +53,7 @@ public:
         CIMClient& client,
         const String& name,
         const String& providerModuleName);
-        
+
     static CIMObjectPath createCapabilityInstance(
         CIMClient& client,
         const String& providerModuleName,
@@ -63,7 +63,7 @@ public:
         const Array<String>& namespaces,
         const Array<Uint16>& providerTypes,
         const CIMPropertyList& supportedProperties);
-        
+
     static void deleteCapabilityInstance(
         CIMClient& client,
         const String& providerModuleName,
@@ -103,7 +103,7 @@ inline CIMObjectPath TestProviderRegistration::createModuleInstance(
 
     CIMObjectPath path = client.createInstance(
         PEGASUS_NAMESPACENAME_INTEROP,
-        moduleInstance);    
+        moduleInstance);
 
     return path;
 }

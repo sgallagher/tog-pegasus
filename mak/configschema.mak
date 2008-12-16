@@ -58,6 +58,6 @@ ifeq ($(OS), HPUX)
 #   MANAGEDSYSTEMNS = root/HPV2
 endif
 
-ifeq ($(MANAGEDSYSTEMNS),NOTDEFINED) 
+ifeq ($(MANAGEDSYSTEMNS),NOTDEFINED)
    MANAGEDSYSTEMNS = root/cimv2
 endif

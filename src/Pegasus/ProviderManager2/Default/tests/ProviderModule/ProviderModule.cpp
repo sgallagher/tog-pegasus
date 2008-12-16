@@ -51,7 +51,7 @@ static const String MISSING_ENTRY_POINT_PROVIDER_LIBRARY_NAME = "TestDynLib";
 
 static Boolean verbose;
 
-String getLibraryFileName(const String& libraryName) { 
+String getLibraryFileName(const String& libraryName) {
 #if defined(PEGASUS_OS_VMS)
     String prefixDir;
 # if defined(PEGASUS_USE_RELEASE_DIRS)
@@ -64,7 +64,7 @@ String getLibraryFileName(const String& libraryName) {
     }
 # endif
     return prefixDir +
-           FileSystem::buildLibraryFileName(libraryName); 
+           FileSystem::buildLibraryFileName(libraryName);
 # else
     return FileSystem::buildLibraryFileName(libraryName);
 #endif

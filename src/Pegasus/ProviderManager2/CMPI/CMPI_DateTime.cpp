@@ -78,7 +78,7 @@ extern "C"
             "CMPI_DateTime:newDateTime()");
         CIMDateTime *dt = new CIMDateTime();
         *dt = CIMDateTime::getCurrentDateTime();
-        CMPIDateTime* cmpiDateTime = 
+        CMPIDateTime* cmpiDateTime =
             reinterpret_cast<CMPIDateTime*>(new CMPI_Object(dt));
         PEG_METHOD_EXIT();
         return cmpiDateTime;
@@ -94,7 +94,7 @@ extern "C"
             tim += POSIX_1970_EPOCH_OFFSET;
         }
         CIMDateTime *dt = new CIMDateTime(tim, interval);
-        CMPIDateTime* cmpiDateTime = 
+        CMPIDateTime* cmpiDateTime =
             reinterpret_cast<CMPIDateTime*>(new CMPI_Object(dt));
         PEG_METHOD_EXIT();
         return cmpiDateTime;
@@ -120,7 +120,7 @@ extern "C"
             PEG_METHOD_EXIT();
             return NULL;
         }
-        CMPIDateTime* cmpiDateTime = 
+        CMPIDateTime* cmpiDateTime =
             reinterpret_cast<CMPIDateTime*>(new CMPI_Object(dt));
         PEG_METHOD_EXIT();
         return cmpiDateTime;

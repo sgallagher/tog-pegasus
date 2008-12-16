@@ -72,7 +72,7 @@ void MethodTestProvider::invokeMethod(
         handler.deliver(CIMValue(userName));
     }
 
-    /* Test1 method recalls the provider with test2 as the name and 
+    /* Test1 method recalls the provider with test2 as the name and
        returns the result from test2
     */
     else if (methodName.equal("test1"))
@@ -114,7 +114,7 @@ void MethodTestProvider::invokeMethod(
 
         Uint32 outParam1 = 0;
         Uint32 outParam2 = 0;
- 
+
         for (Uint32 i = 0; i < 2; i++)
         {
             if (outParams[i].getParameterName() == "OutParam1")
@@ -250,7 +250,7 @@ void MethodTestProvider::invokeMethod(
                 CIMNamespaceName(),
                 objectReference.getClassName(),
                 objectReference.getKeyBindings());
-    
+
             // Make cimom handle invokemented request with input parameters.
             returnValue = _cimom.invokeMethod(
                 context,
@@ -259,14 +259,14 @@ void MethodTestProvider::invokeMethod(
                 CIMName("test3"),
                 recursedInParams,
                 recursedOutParams);
-    
+
             Uint32 rc;
             returnValue.get(rc);
             if (rc != 10)
             {
                 throw CIMOperationFailedException("Incorrect return value");
             }
-    
+
             if (recursedOutParams.size() != 3)
             {
                 throw CIMOperationFailedException("Incorrect  out parameters");

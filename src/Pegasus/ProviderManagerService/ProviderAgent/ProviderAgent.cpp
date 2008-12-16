@@ -303,7 +303,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
     // cache.  (See the _providerModuleCache member description.)
     try
     {
-        const AcceptLanguageListContainer acceptLang = 
+        const AcceptLanguageListContainer acceptLang =
             request->operationContext.get(AcceptLanguageListContainer::NAME);
         Thread::setLanguages(acceptLang.getLanguages());
 
@@ -640,7 +640,7 @@ ProviderAgent::_processRequestAndWriteResponse(void* arg)
         ProviderAgent* agent = agentRequest->agent;
         AutoPtr<CIMRequestMessage> request(agentRequest->request);
 
-        const AcceptLanguageListContainer acceptLang = 
+        const AcceptLanguageListContainer acceptLang =
             request->operationContext.get(AcceptLanguageListContainer::NAME);
         Thread::setLanguages(acceptLang.getLanguages());
 
@@ -792,7 +792,7 @@ void ProviderAgent::_synchronousSignalHandler(
     {
         _providerAgent->_terminating = true;
     }
- 
+
     char fullJobName[29];
     umeGetJobName(fullJobName, true);
     Logger::put_l(Logger::ERROR_LOG, "provider agent", Logger::SEVERE,

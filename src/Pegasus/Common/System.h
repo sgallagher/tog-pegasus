@@ -104,9 +104,9 @@ class PEGASUS_COMMON_LINKAGE System
 {
 public:
 
-    /* Creates a String object containing the system message 
-       from  the errno and if supported from a second level error 
-       number. The _NLS Method is looking up an internationalized version of 
+    /* Creates a String object containing the system message
+       from  the errno and if supported from a second level error
+       number. The _NLS Method is looking up an internationalized version of
        the message.
         @param errorCode  The system errno.
         @param errorCode2 The secondary error number like errno2 on z/OS
@@ -177,45 +177,45 @@ public:
     static String getFullyQualifiedHostName ();
     static String getSystemCreationClassName ();
 
-    // The following 2 methods are wrappers around system functions 
+    // The following 2 methods are wrappers around system functions
     // gethostbyname/gethostbyaddr or gethostbyname_r/gethostbyaddr_r.
     // In addition to calling corresponding system functions, these
     // methods introduce re-tries when errno is set to TRY_AGAIN.
     // Optional parameters are required to cover systems which use '_r'
     // versions of the system functions.
     static struct hostent* getHostByName(
-        const char* name, 
-        struct hostent* he = 0, 
-        char* buf = 0, 
+        const char* name,
+        struct hostent* he = 0,
+        char* buf = 0,
         size_t len = 0);
     static struct hostent* getHostByAddr(
-        const char *addr, 
-        int len, 
+        const char *addr,
+        int len,
         int type,
-        struct hostent* he = 0, 
-        char* buf = 0, 
+        struct hostent* he = 0,
+        char* buf = 0,
         size_t buflen = 0);
 
 #if defined(PEGASUS_OS_ZOS) || \
     defined(PEGASUS_OS_VMS) || \
     defined(PEGASUS_ENABLE_IPV6)
 
-    // The following 2 methods are wrappers around system functions 
-    // getaddrinfo/getnameinfo. 
+    // The following 2 methods are wrappers around system functions
+    // getaddrinfo/getnameinfo.
     // In addition to calling corresponding system functions, these
     // methods introduce re-tries on EAI_AGAIN error returns.
     static int getAddrInfo(
-        const char *hostname, 
+        const char *hostname,
         const char *servname,
-        const struct addrinfo *hints, 
+        const struct addrinfo *hints,
         struct addrinfo **res);
     static int getNameInfo(
-        const struct sockaddr *sa, 
+        const struct sockaddr *sa,
         size_t salen,
-        char *host, 
-        size_t hostlen, 
-        char *serv, 
-        size_t servlen, 
+        char *host,
+        size_t hostlen,
+        char *serv,
+        size_t servlen,
         int flags);
 
 #endif
@@ -232,7 +232,7 @@ public:
         Returns true if IPv6 stack is active by checking return code from
         Socket::createSocket() and getSocketError() calls.
 
-        ATTN: We return true if some error other than 
+        ATTN: We return true if some error other than
         PEGASUS_INVALID_ADDRESS_FAMILY is returned while creating the socket
         because we will not be sure whether the IPv6 stack is active or not
         from the returned error code. Return value of "true" from this method

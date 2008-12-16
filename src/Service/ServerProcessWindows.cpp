@@ -109,7 +109,7 @@ void signal_shutdown()
     AutoMutex am(_cimserverLock);
     _shutdown = true;
     if (_server_proc)
-        _server_proc->cimserver_stop(); 
+        _server_proc->cimserver_stop();
 }
 
 //-------------------------------------------------------------------------
@@ -125,11 +125,11 @@ static unsigned __stdcall cimserver_windows_thread(void* parm)
 }
 
 //-------------------------------------------------------------------------
-//  Windows NT Service Control Code 
+//  Windows NT Service Control Code
 //-------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------
-// START/STOP handler 
+// START/STOP handler
 //-------------------------------------------------------------------------
 int cimserver_windows_main(int flag, int argc, char *argv[])
 {
@@ -166,7 +166,7 @@ int cimserver_windows_main(int flag, int argc, char *argv[])
 
         while (WaitForSingleObject(hThread, 3000) == WAIT_TIMEOUT)
         {
-            pegasus_service.report_status( 
+            pegasus_service.report_status(
                 SERVICE_STOP_PENDING, NO_ERROR, dwCheckPoint++, 5000);
         }
 

@@ -117,15 +117,15 @@ Boolean TracePropertyOwner::isLevelValid(const String& traceLevel) const
 
 
 //
-// Converts the trace memory buffer size string into a Uint32 value. 
+// Converts the trace memory buffer size string into a Uint32 value.
 // It returns false and the bufferSize is set to 0 if the string was not valid.
 //
-Boolean TracePropertyOwner::toUint32TraceMemoryBufferSize( 
+Boolean TracePropertyOwner::toUint32TraceMemoryBufferSize(
     const String& traceBufferSize, Uint32& bufferSize ) const
 {
     Boolean retCode = false;
     Uint64 uInt64BufferSize;
-    
+
     bufferSize = 0;
     CString stringBufferSize = traceBufferSize.getCString();
 
@@ -135,7 +135,7 @@ Boolean TracePropertyOwner::toUint32TraceMemoryBufferSize(
 
     if (retCode )
     {
-        retCode = StringConversion::checkUintBounds(uInt64BufferSize, 
+        retCode = StringConversion::checkUintBounds(uInt64BufferSize,
                                                     CIMTYPE_UINT32);
     }
 
@@ -176,7 +176,7 @@ Uint32 TracePropertyOwner::getTraceLevel(const String& traceLevel)
     {
         return Tracer::LEVEL5;
     }
-    else 
+    else
     {
         return Tracer::LEVEL0;
     }
@@ -237,7 +237,7 @@ void TracePropertyOwner::initialize()
             PEGASUS_ASSERT(_traceLevel->defaultValue.size()!= 0);
 
             Tracer::setTraceLevel(getTraceLevel(_traceLevel->defaultValue));
-            
+
         }
         else if (String::equalNoCase(
                      properties[i].propertyName, "traceFilePath"))
@@ -283,10 +283,10 @@ void TracePropertyOwner::initialize()
             PEGASUS_ASSERT(_traceMemoryBufferKbytes->defaultValue.size()!= 0);
 
             Uint32 bufferSize;
-            toUint32TraceMemoryBufferSize( 
+            toUint32TraceMemoryBufferSize(
                 _traceMemoryBufferKbytes->defaultValue, bufferSize );
-            Tracer::setTraceMemoryBufferSize(bufferSize); 
-            
+            Tracer::setTraceMemoryBufferSize(bufferSize);
+
         }
         else if (String::equalNoCase(
                      properties[i].propertyName, "traceFacility"))
@@ -435,7 +435,7 @@ void TracePropertyOwner::initCurrentValue(
     else if (String::equalNoCase(_traceFacility->propertyName, name))
     {
         _traceFacility->currentValue = value;
-        Tracer::setTraceFacility(value); 
+        Tracer::setTraceFacility(value);
     }
     else if (String::equalNoCase(_traceMemoryBufferKbytes->propertyName, name))
     {
@@ -444,7 +444,7 @@ void TracePropertyOwner::initCurrentValue(
         _traceMemoryBufferKbytes->currentValue = value;
 
         toUint32TraceMemoryBufferSize( value, bufferSize );
-        Tracer::setTraceMemoryBufferSize(bufferSize); 
+        Tracer::setTraceMemoryBufferSize(bufferSize);
     }
     else
     {
@@ -567,7 +567,7 @@ Boolean TracePropertyOwner::isValid(
         // Ckeck if the trace memeory buffer size is valid
         //
         retCode = toUint32TraceMemoryBufferSize(value ,size);
-        if (!retCode || (size > PEGASUS_TRC_BUFFER_MAX_SIZE_KB) || 
+        if (!retCode || (size > PEGASUS_TRC_BUFFER_MAX_SIZE_KB) ||
                         (size < PEGASUS_TRC_BUFFER_MIN_SIZE_KB))
         {
             throw InvalidPropertyValue(name, value);

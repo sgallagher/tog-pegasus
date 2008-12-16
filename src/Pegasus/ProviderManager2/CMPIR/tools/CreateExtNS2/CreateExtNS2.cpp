@@ -30,7 +30,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 /*
-    This program enables the creation of namespaces exploiting Shared Schema 
+    This program enables the creation of namespaces exploiting Shared Schema
     facilities and namespaces designated to be used as remote namespaces using
     Remote CMPI facilities. This uses the CIMRepository interface and namespace
     can be created independent of repository store.
@@ -52,20 +52,20 @@ void getOptions(
 {
     static struct OptionRow optionTable[] =
     {
-        {"repositoryPath", "", true, 
+        {"repositoryPath", "", true,
             Option::STRING, 0, 0, "r", "Repository path"},
-        {"parent", "", false, 
+        {"parent", "", false,
             Option::STRING, 0, 0, "p", "Parent namespace (optional)."
                 "Parent namespace will be modified to be shareable if"
                 " it was not already shareable"},
-        {"namespaceName", "", true, 
+        {"namespaceName", "", true,
             Option::STRING, 0, 0, "n", "Namespace name"},
-        {"location", "", true, 
+        {"location", "", true,
             Option::STRING, 0, 0, "l", "Remote location"},
-        {"shareable", "true", false, 
+        {"shareable", "true", false,
             Option::STRING, 0, 0, "s", "Specifies whether the"
                 " namespace can shareable or not"},
-        {"updatesAllowed", "false", false, 
+        {"updatesAllowed", "false", false,
             Option::STRING, 0, 0, "u", "Specifies whether the "
                 "updates to the namespace are allowed or not"}
     };
@@ -87,11 +87,11 @@ int main(int argc, char* argv[])
         catch(Exception &e)
         {
             cerr << argv[0] << ":" << e.getMessage() << endl;
-            String header = "Usage "; 
+            String header = "Usage ";
             String trailer ="";
             om.printOptionsHelpTxt(header, trailer);
             exit(1);
-        } 
+        }
         String parent;
         String repositoryPath;
         String namespaceName;
@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
         om.lookupValue("location", location);
         om.lookupValue("shareable", shareable);
         om.lookupValue("updatesAllowed", updatesAllowed);
-        
+
         CIMRepository repository(repositoryPath);
         CIMRepository::NameSpaceAttributes attributes;
         if (parent.size())
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
             // Check if parent namespace is shareable else modify to be
             // shareable.
             repository.getNameSpaceAttributes(parent, attributes);
-            for (CIMRepository::NameSpaceAttributes::Iterator 
+            for (CIMRepository::NameSpaceAttributes::Iterator
                 i = attributes.start(); i; i++)
             {
                 String key = i.key();

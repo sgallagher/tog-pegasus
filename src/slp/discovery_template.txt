@@ -27,16 +27,16 @@ template-url-syntax=
   ; the same URI.  If it comes back up stateless, or with a new
   ; configuration, it may make sense to advertise with a new URI.
   ; Example: "service-id:9a783b42-12783401-78FB92D0-9E82B83AA"
-  
+
 service-hi-name=string O
-  ; This string is used as a name of the CIM service for human 
+  ; This string is used as a name of the CIM service for human
   ; interfaces.
   ; Example: "(service-hi-name=Blip subsystem CIMOM)"
   ; See draft-guttman-svrloc-serviceid-01.txt
-  
+
 service-hi-description=string O
   ; This string is used as a description of the CIM service for
-  ; human interfaces.  
+  ; human interfaces.
   ; Example: "(service-hi-description=The Blip subsystem is
   ;   managed by a Blip-Version-0.92 CIMOM.")
   ; See draft-guttman-svrloc-serviceid-01.txt
@@ -44,7 +44,7 @@ service-hi-description=string O
 service-id=string
   ; This attribute is set to the same value as the unique ID
   ; used in the service URL registered with SLP.  A UA can use
-  ; this attribute to discover a CIM service which the UA 
+  ; this attribute to discover a CIM service which the UA
   ; discovered previously.  For example, the query
   ; "(service-id=9a783b42-12783401-78FB92D0-9E82B83AA)"
   ; would discover the service advertised with the service URI
@@ -71,7 +71,7 @@ CommunicationMechanism = string L M
 OtherCommunicationMechanismDescription = String L O
 # The other communication mechanism defined for the CIM Server in the case
 # the "Other" value is received in the CommunicationMechanism string.
-# This attribute is derived from the 
+# This attribute is derived from the
 # CommunicationMechanismOtherCommunicationMechanismDescription property.
 # This attribute is optional because it is only required if the
 # "other" value is set in CommunicationMechansim. The value returned is
@@ -97,25 +97,25 @@ ProfilesSupported = string L M
 OtherProfileDescription = string L O M
 # Other profile description if the "other" value is set in the ProfilesSupported
 # attribute.  This attribute is optional because it is returned only if the "other"
-# value is set in the ProfilesSupported attribute.   Derived from the 
+# value is set in the ProfilesSupported attribute.   Derived from the
 # CIM_CommunicationMechanism OtherProfileDescription property, it is a
 # free-form string.
 
 MultipleOperationsSupported = Boolean
 # Defines whether the CIM Object Manager supports batch operations.
-# Derived from the  Interop schema 
+# Derived from the  Interop schema
 # CIM_CommunicationMechanism.MultipleOperationsSupported
 # property.
 
 AuthenticationMechanismSupported = String L
 		"Unknown", "None", "Other", "Basic", "Digest"
 # Defines the authentication mechanism supported by the CIM Object Manager.
-# Derived from the Interop schema 
+# Derived from the Interop schema
 # CIM_CommunicationMechanism Class.AuthenticationMechanismSupported property
 
 OtherAuthenticationDescription String L O
 # Defines other Authentication mechanism supported by the CIM Object Manager
-# in the case where the "Other" value is set in the 
+# in the case where the "Other" value is set in the
 # AuthenticationMechanismSupported attribute. Derived from the
 # Interop schema CIM_CommunicationMechanism.OtherAuthenticationDescription
 # property,
@@ -124,7 +124,7 @@ OtherAuthenticationDescription String L O
 
 Namespace= string L M
 # Namespace(s) supported on the CIM Object Manager.
-# Derived from the Interop Schema CIM_Namespaces.name property which has 
+# Derived from the Interop Schema CIM_Namespaces.name property which has
 # an instance for each namespace supported by the CIM Object Manager.
 # This attribute is optional (O), may have multiple values (one for each
 # namespace defined in the CIM Object Manager, and is literal (L) because

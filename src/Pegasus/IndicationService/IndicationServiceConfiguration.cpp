@@ -338,7 +338,7 @@ CIMInstance IndicationServiceConfiguration::
     _setPropertyValue(
         instance,
         _PROPERTY_MAXLISTENERDESTINATIONS,
-        value); 
+        value);
 
     _setPropertyValue(
         instance,

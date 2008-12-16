@@ -5,7 +5,7 @@ class SampleXMLParserTestClass
 {
 	[Key, read]
 	string CName;
-  
+
 	Uint16 CNum;
 };
 

@@ -83,7 +83,7 @@ PEGASUS_NAMESPACE_END
 **==============================================================================
 */
 
-%union 
+%union
 {
    int intValue;
    double doubleValue;
@@ -178,7 +178,7 @@ selectList
 
     }
 
-propertyList 
+propertyList
     : propertyName
     {
     globalParserState->statement->appendSelectPropertyName(CIMName($1));
@@ -205,13 +205,13 @@ fromClause
     globalParserState->statement->setClassName(CIMName($2));
     }
 
-whereClause 
+whereClause
     : TOK_WHERE searchCondition
     {
 
     }
 
-searchCondition 
+searchCondition
     : searchCondition TOK_OR searchCondition
     {
     WQL_TRACE(("YACC: TOK_OR\n"));
@@ -260,7 +260,7 @@ predicate
     }
 
 comparisonPredicate
-    : comparisonTerm TOK_LT comparisonTerm 
+    : comparisonTerm TOK_LT comparisonTerm
     {
     WQL_TRACE(("YACC: TOK_LT\n"));
     globalParserState->statement->appendOperation(WQL_LT);
@@ -311,8 +311,8 @@ nullPredicate
     globalParserState->statement->appendOperation(WQL_IS_NOT_NULL);
     }
 
-truthValue 
-    : TOK_TRUE 
+truthValue
+    : TOK_TRUE
     {
     $$ = 1;
     }
@@ -321,7 +321,7 @@ truthValue
     $$ = 0;
     }
 /**************
-propertyName 
+propertyName
     : TOK_IDENTIFIER
     {
     WQL_TRACE(("YACC: propertyName : TOK_IDENTIFIER(%s)\n", $1));

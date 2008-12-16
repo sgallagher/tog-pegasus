@@ -42,7 +42,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This is the coder-decoder (codec) for the OpenPegasus proprietary binary 
+/** This is the coder-decoder (codec) for the OpenPegasus proprietary binary
     protocol.
 */
 class PEGASUS_COMMON_LINKAGE BinaryCodec

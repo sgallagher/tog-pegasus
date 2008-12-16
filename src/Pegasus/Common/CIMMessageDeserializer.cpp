@@ -709,9 +709,9 @@ void CIMMessageDeserializer::_deserializeOperationContext(
         XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue);
         genericValue.get(provMgrPath);
 
-        ProviderIdContainer pidc = ProviderIdContainer(module, 
-                                                      provider, 
-                                                      isRemoteNameSpace, 
+        ProviderIdContainer pidc = ProviderIdContainer(module,
+                                                      provider,
+                                                      isRemoteNameSpace,
                                                       remoteInfo);
         pidc.setProvMgrPath(provMgrPath);
         operationContext.insert(pidc);

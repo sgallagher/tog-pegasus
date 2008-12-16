@@ -103,7 +103,7 @@ bool WMICollector::setup()
 
         if (m_bInitialized)
         {
-                                      
+
             if (bCallInitSec)
             {
                 bCallInitSec = false;

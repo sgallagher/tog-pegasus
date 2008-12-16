@@ -490,7 +490,7 @@ CIMName XmlReader::getClassOriginAttribute(
             buffer);
         throw XmlSemanticError(lineNumber, mlParms);
     }
-    // The CIMName was already checked with legal() + String() 
+    // The CIMName was already checked with legal() + String()
     return CIMNameCast(name);
 }
 
@@ -528,7 +528,7 @@ XmlReader::EmbeddedObjectAttributeType XmlReader::getEmbeddedObjectAttribute(
     {
         return EMBEDDED_OBJECT_ATTR;
     }
-        
+
     if (strcmp(embeddedObject, "instance") == 0)
     {
         return EMBEDDED_INSTANCE_ATTR;
@@ -542,7 +542,7 @@ XmlReader::EmbeddedObjectAttributeType XmlReader::getEmbeddedObjectAttribute(
         "Illegal value for $0 attribute",
         buffer);
     throw XmlSemanticError(lineNumber, mlParms);
-   
+
     return NO_EMBEDDED_OBJECT;
 }
 
@@ -580,7 +580,7 @@ CIMName XmlReader::getReferenceClassAttribute(
             buffer);
         throw XmlSemanticError(lineNumber, mlParms);
     }
-    // The CIMName was already checked with legal() + String() 
+    // The CIMName was already checked with legal() + String()
     return CIMNameCast(name);
 }
 
@@ -613,7 +613,7 @@ CIMName XmlReader::getSuperClassAttribute(
             buffer);
         throw XmlSemanticError(lineNumber, mlParms);
     }
-    // The CIMName was already checked with legal() + String() 
+    // The CIMName was already checked with legal() + String()
     return CIMNameCast(superClass);
 }
 
@@ -1755,7 +1755,7 @@ Boolean XmlReader::getPropertyElement(XmlParser& parser, CIMProperty& property)
 
     // Get PROPERTY.EmbeddedObject attribute:
 
-    EmbeddedObjectAttributeType embeddedObject = 
+    EmbeddedObjectAttributeType embeddedObject =
         getEmbeddedObjectAttribute(parser.getLine(), entry, "PROPERTY");
 
     // Get PROPERTY.TYPE attribute:
@@ -4147,7 +4147,7 @@ Boolean XmlReader::getParamValueElement(
                 type = CIMTYPE_REFERENCE;
                 gotType = true;
             }
-            else 
+            else
             {
                 gotType = false; // Can't distinguish array and non-array types
             }
@@ -4316,13 +4316,13 @@ Boolean XmlReader::getReturnValueElement(
 // Reject cimVersion not in 2.[0-9]+
 //
 // CIMXML Secification, Version 2.2 Final, Sect 3.2.1.1
-// The CIMVERSION attribute defines the version of the CIM Specification to 
-// which the XML Document conforms.  It MUST be in the form of "M.N".  Where 
-// M is the Major Version of the specification in numeric form and N is the 
-// minor version of the specification in numeric form.  For example, "2.0", 
-// "2.1".  Implementations must only validate the major version as all minor 
-// versions are backward compatible.  Implementations may look at the minor 
-// version to determine additional capabilites.  
+// The CIMVERSION attribute defines the version of the CIM Specification to
+// which the XML Document conforms.  It MUST be in the form of "M.N".  Where
+// M is the Major Version of the specification in numeric form and N is the
+// minor version of the specification in numeric form.  For example, "2.0",
+// "2.1".  Implementations must only validate the major version as all minor
+// versions are backward compatible.  Implementations may look at the minor
+// version to determine additional capabilites.
 //
 //------------------------------------------------------------------------------
 Boolean XmlReader::isSupportedCIMVersion(
@@ -4400,13 +4400,13 @@ Boolean XmlReader::isSupportedProtocolVersion(
 // We accept DTD version 2.[0-9]+ (see Bugzilla 1556)//
 //
 // CIM/XML Specification, V 2.2 Final, Section 3.2.1.1
-// The DTDVERSION attribute defines the version of the CIM XML Mapping to 
-// which the XML Document conforms.  It MUST be in the form of "M.N".  Where 
-// M is the Major Version of the specification in numeric form and N is the 
-// minor version of the specification in numeric form.  For example, "2.0", 
-// "2.1".  Implementations must only validate the major version as all minor 
-// versions are backward compatible.  Implementations may look at the minor 
-// version to determine additional capabilites. 
+// The DTDVERSION attribute defines the version of the CIM XML Mapping to
+// which the XML Document conforms.  It MUST be in the form of "M.N".  Where
+// M is the Major Version of the specification in numeric form and N is the
+// minor version of the specification in numeric form.  For example, "2.0",
+// "2.1".  Implementations must only validate the major version as all minor
+// versions are backward compatible.  Implementations may look at the minor
+// version to determine additional capabilites.
 //
 //------------------------------------------------------------------------------
 Boolean XmlReader::isSupportedDTDVersion(

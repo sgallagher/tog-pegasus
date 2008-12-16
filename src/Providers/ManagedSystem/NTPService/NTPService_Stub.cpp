@@ -28,7 +28,7 @@
 //////////////////////////////////////////////////////////////////////////
 //
 // Author: Paulo F. Borges (pfborges@wowmail.com)
-//         
+//
 //
 // Modified By: Jair Francisco T. dos Santos (t.dos.santos.francisco@non.hp.com)
 //==============================================================================
@@ -83,12 +83,12 @@ Boolean NTPService::getSystemName(String& systemName)
 //
 // REMARKS: returns the Name property
 //
-// PARAMETERS: [OUT] strValue -> string that will receive the NTP_Name property 
+// PARAMETERS: [OUT] strValue -> string that will receive the NTP_Name property
 //                                 value
 //
 // RETURN: TRUE (hard-coded property value)
 //------------------------------------------------------------------------------
-Boolean NTPService::getNTPName(String & strValue) 
+Boolean NTPService::getNTPName(String & strValue)
 {
     return false;
 }
@@ -110,12 +110,12 @@ Boolean NTPService::AccessOk(const OperationContext & context)
 //------------------------------------------------------------------------------
 // FUNCTION: getNTPInfo
 //
-// REMARKS: Retrieves the NTP information from the "/etc/ntp.conf" file, 
+// REMARKS: Retrieves the NTP information from the "/etc/ntp.conf" file,
 //            and sets private variables to hold the data read.
 //
-// RETURN: 
+// RETURN:
 //------------------------------------------------------------------------------
-Boolean NTPService::getNTPInfo() 
+Boolean NTPService::getNTPInfo()
 {
     return true;
 }
@@ -129,7 +129,7 @@ Boolean NTPService::getNTPInfo()
 //
 // RETURN: TRUE if local hostname is valid, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean NTPService::getLocalHostName(String & hostName) 
+Boolean NTPService::getLocalHostName(String & hostName)
 {
     return true;
 }
@@ -139,12 +139,12 @@ Boolean NTPService::getLocalHostName(String & hostName)
 //
 // REMARKS: returns the Caption property
 //
-// PARAMETERS: [OUT] strValue -> string that will receive the Caption property 
+// PARAMETERS: [OUT] strValue -> string that will receive the Caption property
 //                                 value
 //
 // RETURN: TRUE
 //------------------------------------------------------------------------------
-Boolean NTPService::getCaption(String & strValue) 
+Boolean NTPService::getCaption(String & strValue)
 {
     return true;
 }
@@ -154,12 +154,12 @@ Boolean NTPService::getCaption(String & strValue)
 //
 // REMARKS: returns the Description property
 //
-// PARAMETERS: [OUT] strValue -> string that will receive the Description 
+// PARAMETERS: [OUT] strValue -> string that will receive the Description
 //                                 property value
 //
 // RETURN: TRUE
 //------------------------------------------------------------------------------
-Boolean NTPService::getDescription(String & strValue) 
+Boolean NTPService::getDescription(String & strValue)
 {
     return true;
 }
@@ -169,12 +169,12 @@ Boolean NTPService::getDescription(String & strValue)
 //
 // REMARKS: returns the ServerAddress property
 //
-// PARAMETERS: [OUT] strValue -> string that will receive the ServerAddress 
+// PARAMETERS: [OUT] strValue -> string that will receive the ServerAddress
 //                                 property value
 //
 // RETURN: TRUE
 //------------------------------------------------------------------------------
-Boolean NTPService::getServerAddress(Array<String> & strValue) 
+Boolean NTPService::getServerAddress(Array<String> & strValue)
 {
     return true;
 }

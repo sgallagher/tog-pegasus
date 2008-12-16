@@ -45,8 +45,8 @@ static const String INVALID_LIBRARY_NAME = "BADDynLib";
 
 static Boolean verbose;
 
-String getLibraryFileName(const String& libraryName) 
-{ 
+String getLibraryFileName(const String& libraryName)
+{
 #if defined(PEGASUS_OS_VMS)
     String prefixDir;
 # if defined(PEGASUS_USE_RELEASE_DIRS)
@@ -59,7 +59,7 @@ String getLibraryFileName(const String& libraryName)
     }
 # endif
     return prefixDir +
-           FileSystem::buildLibraryFileName(libraryName); 
+           FileSystem::buildLibraryFileName(libraryName);
 
 #elif defined(PEGASUS_OS_DARWIN)
 

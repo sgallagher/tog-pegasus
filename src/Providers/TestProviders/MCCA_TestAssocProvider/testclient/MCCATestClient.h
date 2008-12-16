@@ -55,7 +55,7 @@ public:
    ~MCCATestClient (void);
 
    void initialiseConnectionManager(const String& host, const String& port);
-   
+
    Uint32 enumerateInstancesNames(const String& _host, const String& _port);
 
    Uint32 enumerateInstances(const String& _host, const String& _port);

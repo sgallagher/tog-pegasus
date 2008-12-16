@@ -240,9 +240,9 @@ void testOverloadPool()
 
         threadStarted = threadPool.allocate_and_awaken(
             (void*)300, funcSleepSpecifiedMilliseconds);
-        PEGASUS_TEST_ASSERT(threadStarted == 
+        PEGASUS_TEST_ASSERT(threadStarted ==
                 PEGASUS_THREAD_INSUFFICIENT_RESOURCES);
-        
+
         ThreadStatus rc = PEGASUS_THREAD_OK;
         while ( (rc =threadPool.allocate_and_awaken(
             (void*)100, funcSleepSpecifiedMilliseconds)) != PEGASUS_THREAD_OK)
@@ -250,7 +250,7 @@ void testOverloadPool()
           if (rc ==PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
             Threads::yield();
           else
-           throw Exception("Could not allocate and awaken a thread."); 
+           throw Exception("Could not allocate and awaken a thread.");
         }
     }
     catch (const Exception& e)

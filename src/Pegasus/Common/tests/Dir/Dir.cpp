@@ -45,7 +45,7 @@ void test01()
     {
     String name = dir.getName();
 
-    if (String::equal(name, ".") || String::equal(name, "..") 
+    if (String::equal(name, ".") || String::equal(name, "..")
         || String::equal(name, "CVS") || String::equal(name, ".svn"))
     {
         continue;
@@ -73,7 +73,7 @@ int main(int argc, char** argv)
     exit(1);
     }
 
-    try 
+    try
     {
     Dir dir("noSuchDirectory");
     }

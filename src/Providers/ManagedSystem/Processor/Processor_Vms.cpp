@@ -61,11 +61,11 @@ Processor::~Processor()
 /*
 ================================================================================
 NAME              : getCaption
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean Processor::getCaption(String& s) const
@@ -77,11 +77,11 @@ Boolean Processor::getCaption(String& s) const
 /*
 ================================================================================
 NAME              : getDescription
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean Processor::getDescription(String& s) const
@@ -93,11 +93,11 @@ Boolean Processor::getDescription(String& s) const
 /*
 ================================================================================
 NAME              : getInstallDate
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean Processor::getInstallDate(CIMDateTime& d) const
@@ -110,11 +110,11 @@ Boolean Processor::getInstallDate(CIMDateTime& d) const
 /*
 ================================================================================
 NAME              : getName
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean Processor::getName(String& s) const
@@ -130,11 +130,11 @@ Boolean Processor::getName(String& s) const
 /*
 ================================================================================
 NAME              : getStatus
-DESCRIPTION       : 
-ASSUMPTIONS       : 
+DESCRIPTION       :
+ASSUMPTIONS       :
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean Processor::getStatus(String& s) const
@@ -149,8 +149,8 @@ Boolean Processor::getStatus(String& s) const
 // DESCRIPTION       : Call uname() and get the operating system name.
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 String Processor::getDeviceID(void) const
@@ -163,11 +163,11 @@ String Processor::getDeviceID(void) const
 
 // =============================================================================
 // NAME              : getPowerManagementSupported
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getPowerManagementSupported(Boolean& b) const
@@ -178,11 +178,11 @@ Boolean Processor::getPowerManagementSupported(Boolean& b) const
 
 // =============================================================================
 // NAME              : getPowerManagementCapabilities
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getPowerManagementCapabilities(Array<Uint16>& i) const
@@ -193,11 +193,11 @@ Boolean Processor::getPowerManagementCapabilities(Array<Uint16>& i) const
 
 // =============================================================================
 // NAME              : getAvailability
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getAvailability(Uint16& i) const
@@ -208,11 +208,11 @@ Boolean Processor::getAvailability(Uint16& i) const
 
 // =============================================================================
 // NAME              : getStatusInfo
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getStatusInfo(Uint16& i) const
@@ -223,11 +223,11 @@ Boolean Processor::getStatusInfo(Uint16& i) const
 
 // =============================================================================
 // NAME              : getLastErrorCode
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getLastErrorCode(Uint32& i) const
@@ -238,11 +238,11 @@ Boolean Processor::getLastErrorCode(Uint32& i) const
 
 // =============================================================================
 // NAME              : getErrorDescription
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getErrorDescription(String& s) const
@@ -253,11 +253,11 @@ Boolean Processor::getErrorDescription(String& s) const
 
 // =============================================================================
 // NAME              : getErrorCleared
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getErrorCleared(Boolean& b) const
@@ -268,11 +268,11 @@ Boolean Processor::getErrorCleared(Boolean& b) const
 
 // =============================================================================
 // NAME              : getOtherIdentifyingInfo
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getOtherIdentifyingInfo(Array<String>& s) const
@@ -283,11 +283,11 @@ Boolean Processor::getOtherIdentifyingInfo(Array<String>& s) const
 
 // =============================================================================
 // NAME              : PowerOnHours
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getPowerOnHours(Uint64& i) const
@@ -298,11 +298,11 @@ Boolean Processor::getPowerOnHours(Uint64& i) const
 
 // =============================================================================
 // NAME              : TotalPowerOnHours
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getTotalPowerOnHours(Uint64& i) const
@@ -313,11 +313,11 @@ Boolean Processor::getTotalPowerOnHours(Uint64& i) const
 
 // =============================================================================
 // NAME              : getIdentifyingDescriptions
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getIdentifyingDescriptions(Array<String>& s) const
@@ -328,11 +328,11 @@ Boolean Processor::getIdentifyingDescriptions(Array<String>& s) const
 
 // =============================================================================
 // NAME              : getAdditionalAvailability
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getAdditionalAvailability(Array<Uint16>& i) const
@@ -343,11 +343,11 @@ Boolean Processor::getAdditionalAvailability(Array<Uint16>& i) const
 
 // =============================================================================
 // NAME              : getMaxQuiesceTime
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getMaxQuiesceTime(Uint64& i) const
@@ -358,11 +358,11 @@ Boolean Processor::getMaxQuiesceTime(Uint64& i) const
 
 // =============================================================================
 // NAME              : getRole
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getRole(String& s) const
@@ -373,11 +373,11 @@ Boolean Processor::getRole(String& s) const
 
 // =============================================================================
 // NAME              : getFamily
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getFamily(Uint16& i) const
@@ -388,11 +388,11 @@ Boolean Processor::getFamily(Uint16& i) const
 
 // =============================================================================
 // NAME              : getOtherFamilyDescription
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getOtherFamilyDescription(String& s) const
@@ -403,11 +403,11 @@ Boolean Processor::getOtherFamilyDescription(String& s) const
 
 // =============================================================================
 // NAME              : getUpgradeMethod
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getUpgradeMethod(Uint16& i) const
@@ -418,11 +418,11 @@ Boolean Processor::getUpgradeMethod(Uint16& i) const
 
 // =============================================================================
 // NAME              : getMaxClockSpeed
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getMaxClockSpeed(Uint32& i) const
@@ -433,11 +433,11 @@ Boolean Processor::getMaxClockSpeed(Uint32& i) const
 
 // =============================================================================
 // NAME              : getCurrentClockSpeed
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getCurrentClockSpeed(Uint32& i) const
@@ -448,11 +448,11 @@ Boolean Processor::getCurrentClockSpeed(Uint32& i) const
 
 // =============================================================================
 // NAME              : getDataWidth
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getDataWidth(Uint16& i) const
@@ -463,11 +463,11 @@ Boolean Processor::getDataWidth(Uint16& i) const
 
 // =============================================================================
 // NAME              : getAddressWidth
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getAddressWidth(Uint16& i) const
@@ -478,11 +478,11 @@ Boolean Processor::getAddressWidth(Uint16& i) const
 
 // =============================================================================
 // NAME              : getLoadPercentage
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getLoadPercentage(Uint16& i) const
@@ -493,11 +493,11 @@ Boolean Processor::getLoadPercentage(Uint16& i) const
 
 // =============================================================================
 // NAME              : getStepping
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getStepping(String& s) const
@@ -508,11 +508,11 @@ Boolean Processor::getStepping(String& s) const
 
 // =============================================================================
 // NAME              : getUniqueID
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getUniqueID(String& s) const
@@ -523,11 +523,11 @@ Boolean Processor::getUniqueID(String& s) const
 
 // =============================================================================
 // NAME              : getCPUStatus
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getCPUStatus(Uint16& i) const
@@ -539,11 +539,11 @@ Boolean Processor::getCPUStatus(Uint16& i) const
 
 // =============================================================================
 // NAME              : getBiosID
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getBiosID(String& s) const
@@ -555,11 +555,11 @@ Boolean Processor::getBiosID(String& s) const
 
 // =============================================================================
 // NAME              : getFirmwareID
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::getFirmwareID(String& s) const
@@ -574,8 +574,8 @@ Boolean Processor::getFirmwareID(String& s) const
 // DESCRIPTION       : Platform-specific method to get CSName
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 String Processor::getSysName(void)
@@ -590,8 +590,8 @@ String Processor::getSysName(void)
 // DESCRIPTION       : get processor info from system into internal data struct
 // ASSUMPTIONS       : None
 // PRE-CONDITIONS    :
-// POST-CONDITIONS   : 
-// NOTES             : 
+// POST-CONDITIONS   :
+// NOTES             :
 // =============================================================================
 
 Boolean Processor::loadProcessorInfo(int& pIndex)
@@ -606,8 +606,8 @@ NAME              : findProcessor
 DESCRIPTION       : find the requested processor and load its data
 ASSUMPTIONS       : None
 PRE-CONDITIONS    :
-POST-CONDITIONS   : 
-NOTES             : 
+POST-CONDITIONS   :
+NOTES             :
 ================================================================================
 */
 Boolean Processor::findProcessor(const String& deviceID)

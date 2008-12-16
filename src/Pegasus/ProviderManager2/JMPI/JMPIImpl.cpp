@@ -106,17 +106,17 @@ const char* classNames[]={
 };
 
 const METHOD_STRUCT instanceMethodNames[]={
-/*00 VectorNew                      */ 
-{ /*Vector                */ 
+/*00 VectorNew                      */
+{ /*Vector                */
     0,
     "<init>",
     "()V" },
-/*01 BooleanNewZ                    */ 
-{ /*Boolean               */ 
+/*01 BooleanNewZ                    */
+{ /*Boolean               */
     1,
     "<init>",
     "(Z)V" },
-/*02 ByteNewB                       */ 
+/*02 ByteNewB                       */
 { /*Byte                  */
     2,
     "<init>",
@@ -147,7 +147,7 @@ const METHOD_STRUCT instanceMethodNames[]={
     "<init>",
     "(D)V" },
 /*08 UnsignedInt8NewS               */
-{ /*UnsignedInt8          */ 
+{ /*UnsignedInt8          */
     8,
     "<init>",
     "(S)V" },
@@ -242,7 +242,7 @@ const METHOD_STRUCT instanceMethodNames[]={
     "getID",
     "()Ljava/lang/String;" },
 /*27 VectorSize                     */
-{ /*Vector                */ 
+{ /*Vector                */
     0,
     "size",
     "()I" },
@@ -329,7 +329,7 @@ const METHOD_STRUCT instanceMethodNames[]={
 /*44 CIMExceptionNewStObObOb        */
 { /*CIMException          */
     13,
-    "<init>",         
+    "<init>",
     "(Ljava/lang/String;Ljava/lang/Object;"
         "Ljava/lang/Object;Ljava/lang/Object;)V" },
 /*45 CIMValueNewJ                   */
@@ -406,7 +406,7 @@ const METHOD_STRUCT staticMethodNames[]={
 static int methodInitDone=0;
 
 jclass    classRefs[sizeof(classNames)/sizeof(classNames[0])];
-jmethodID instanceMethodIDs[sizeof(instanceMethodNames) / 
+jmethodID instanceMethodIDs[sizeof(instanceMethodNames) /
                                 sizeof(instanceMethodNames[0])];
 jmethodID staticMethodIDs[sizeof(staticMethodNames) /
                                 sizeof(staticMethodNames[0])];
@@ -472,13 +472,13 @@ int JMPIjvm::cacheIDs(JNIEnv *env)
       PEG_METHOD_EXIT();
       return JNI_TRUE;
    }
-    
+
    if (methodInitDone == -1)
    {
       PEG_METHOD_EXIT();
       return JNI_FALSE;
    }
-   
+
    methodInitDone = -1;
 
    for (unsigned i = 0; i<(sizeof(classNames)/sizeof(classNames[0])); i++)
@@ -487,13 +487,13 @@ int JMPIjvm::cacheIDs(JNIEnv *env)
       {
          PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
              "Error: Count not find global class ref for %s",classNames[i]));
-                              
+
          PEG_METHOD_EXIT();
          return JNI_FALSE;
       }
    }
 
-   unsigned instanceMethodNamesSize = 
+   unsigned instanceMethodNamesSize =
        sizeof(instanceMethodNames)/sizeof(instanceMethodNames[0]);
 
    for (unsigned j = 0; j<instanceMethodNamesSize; j++)
@@ -513,7 +513,7 @@ int JMPIjvm::cacheIDs(JNIEnv *env)
          return 0;
       }
    }
-   unsigned staticMethodNamesSize = 
+   unsigned staticMethodNamesSize =
        sizeof(staticMethodNames) / sizeof(staticMethodNames[0]);
    for (unsigned k = 0; k<staticMethodNamesSize; k++)
    {
@@ -613,7 +613,7 @@ int JMPIjvm::initJVM ()
 
    PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
        "Start to initialize the JVM.");
-   
+
    jv.initRc = 0;
 
    envstring = getenv("CLASSPATH");
@@ -638,7 +638,7 @@ int JMPIjvm::initJVM ()
 
 ///JNIoptions.append ("-Djava.compiler=NONE");
 ///maxoption++;
-   
+
    unsigned int aEnvOptionsSize=sizeof(aEnvOptions)/sizeof(aEnvOptions[0]);
    for (Uint32 i = 0; i < aEnvOptionsSize; i++)
    {
@@ -876,7 +876,7 @@ jobject JMPIjvm::getProvider (JNIEnv     *env,
       //       class loader.  Change the '/' to a '.'.
       String fixedClassName(className);
       static Char16 slash=Char16('/');
-      
+
       for (Uint32 i=0; i<className.size(); i++)
       {
           if (fixedClassName[i]==slash)
@@ -1081,7 +1081,7 @@ String getExceptionInfo (JNIEnv *env)
        PEG_METHOD_EXIT();
       return rc;
    }
-      
+
 
    stackTrace = (jobjectArray)env->CallObjectMethod(
                     err,
@@ -2599,7 +2599,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMClient__1getProperty
 }
 
 JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMClient__1setProperty(
-    JNIEnv *jEnv, 
+    JNIEnv *jEnv,
     jobject jThs,
     jlong jCc,
     jlong jNs,
@@ -2909,7 +2909,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_CIMClient__1associators(
     JNIEnv *jEnv,
     jobject jThs,
     jlong jCc,
-    jlong jNs, 
+    jlong jNs,
     jlong jCop,
     jstring jAssocClass,
     jstring jResultClass,
@@ -3165,7 +3165,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMClient__1createNameSpace
 JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMClient__1enumerateNameSpaces(
     JNIEnv *jEnv,
     jobject jThs,
-    jlong jCc, 
+    jlong jCc,
     jlong jCop,
     jboolean deep,
     jobject jVec)
@@ -4624,7 +4624,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMObjectPath__1getKeys
          cp = new CIMProperty(
                       n,
                       *cv,
-                      0, 
+                      0,
                       ((CIMObjectPath) akb[i].getValue()).getClassName());
 
       jlong   jCp  = DEBUG_ConvertCToJava (CIMProperty*, jlong, cp);
@@ -4967,7 +4967,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1modifyInstance
    Catch (jEnv);
 }
 
-JNIEXPORT jlong JNICALL 
+JNIEXPORT jlong JNICALL
 Java_org_pegasus_jmpi_CIMOMHandle__1enumerateInstanceNames(
     JNIEnv *jEnv,
     jobject jThs,
@@ -5613,7 +5613,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent(
        (const char*)ind->getPath().toString().getCString()));
 
    ind->setPath (ref);
-   
+
    PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
        "Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent(): ind = %s",
        (const char*)ind->getPath().toString().getCString()));
@@ -5747,7 +5747,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMParameter__1getArraySize
    return rv;
 }
 
-JNIEXPORT jstring JNICALL 
+JNIEXPORT jstring JNICALL
 Java_org_pegasus_jmpi_CIMParameter__1getReferenceClassName(
     JNIEnv *jEnv,
     jobject jThs,
@@ -7362,7 +7362,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMValue__1getValue
          {
             jlong jDT = DEBUG_ConvertCToJava(
                             CIMDateTime*,
-                            jlong, 
+                            jlong,
                             new CIMDateTime (dt[i]));
 
             jEnv->SetObjectArrayElement(
@@ -7654,7 +7654,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_JMPISelectList__1applyClass
       }
       catch (const Exception &e)
       {
-         cerr << "Java_org_pegasus_jmpi_JMPISelectList__1applyClass: Caught: " 
+         cerr << "Java_org_pegasus_jmpi_JMPISelectList__1applyClass: Caught: "
               << e.getMessage () << endl;
 
          return 0;
@@ -7711,7 +7711,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_OperationContext__1get
       }
       else if (container == "SubscriptionInstanceContainer")
       {
-         SubscriptionInstanceContainer sic = 
+         SubscriptionInstanceContainer sic =
              poc->get(SubscriptionInstanceContainer::NAME);
 
          if (key == "subscriptionInstance")
@@ -7759,7 +7759,7 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_OperationContext__1get
       }
       else if (container == "SubscriptionFilterConditionContainer")
       {
-         SubscriptionFilterConditionContainer sfcc = 
+         SubscriptionFilterConditionContainer sfcc =
              poc->get (SubscriptionFilterConditionContainer::NAME);
 
          if (key == "filterCondition")
@@ -7839,7 +7839,7 @@ JNIEXPORT jlong JNICALL Java_org_pegasus_jmpi_PathEnumeration__1getObjectPath
 
    return DEBUG_ConvertCToJava(
               CIMObjectPath*,
-              jlong, 
+              jlong,
               new CIMObjectPath((*enm)[pos]));
 }
 
@@ -7955,8 +7955,8 @@ JNIEXPORT jstring JNICALL Java_org_pegasus_jmpi_SelectExp__1getSelectString
   (JNIEnv *jEnv, jobject jThs, jlong jWQLStmt)
 {
    WQLSelectStatement *wql_stmt = DEBUG_ConvertJavaToC(
-                                      jlong, 
-                                      WQLSelectStatement*, 
+                                      jlong,
+                                      WQLSelectStatement*,
                                       jWQLStmt);
    String              cond;
 

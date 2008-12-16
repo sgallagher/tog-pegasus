@@ -39,8 +39,8 @@
 //  $(PEGASUS_ROOT)/Schemas/Pegasus/InterOp/VER20 for retails regarding the
 //  classes supported by this control provider.
 //
-//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP 
-//  namespace. There is a test on each operation that returns 
+//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP
+//  namespace. There is a test on each operation that returns
 //  the Invalid Class CIMDError
 //  This is a control provider and as such uses the Tracer functions
 //  for data and function traces.  Since we do not expect high volume
@@ -85,7 +85,7 @@ CIMInstance buildElementConformsToProfile(
 }
 
 Array<CIMInstance> InteropProvider::enumElementConformsToProfileRPRPInstances(
-    const OperationContext & opContext, 
+    const OperationContext & opContext,
     const CIMNamespaceName & opNamespace)
 {
     CIMClass elementConformsClass = repository->getClass(
@@ -98,41 +98,41 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileRPRPInstances(
 
     if (opNamespace == PEGASUS_NAMESPACENAME_INTEROP)
     {
-        //Add associations between the 1.2 SMIS-Version profile and all 
-        //the version 1.2.0 profiles and subprofiles. 
+        //Add associations between the 1.2 SMIS-Version profile and all
+        //the version 1.2.0 profiles and subprofiles.
         smisVersionProfile = buildDependencyReference(
             hostName,
             buildProfileInstanceId(SNIA_NAME, "SMI-S", SNIA_VER_120),
             PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
 
-        Array<CIMInstance> profileInstances = 
+        Array<CIMInstance> profileInstances =
             enumRegisteredProfileInstances();
-        Array<CIMInstance> subprofileInstances = 
+        Array<CIMInstance> subprofileInstances =
             enumRegisteredSubProfileInstances();
         profileInstances.appendArray(subprofileInstances);
         Array<CIMInstance> profilesForVersion = getProfilesForVersion(
-            profileInstances, 
-            SNIA_VER_120); 
+            profileInstances,
+            SNIA_VER_120);
         for (Uint32 i = 0, n = profilesForVersion.size(); i < n; ++i)
         {
             instances.append(buildElementConformsToProfile(
                 smisVersionProfile,
-                profilesForVersion[i].getPath(), 
+                profilesForVersion[i].getPath(),
                 elementConformsClass));
         }
 
-        //Add association between the 1.2 SMI-S registeredprofile and 
+        //Add association between the 1.2 SMI-S registeredprofile and
         //profileregistration registeredprofile with registeredversion 1.0.0
         profRegProfile = buildDependencyReference(
             hostName,
             buildProfileInstanceId(
-                SNIA_NAME, 
+                SNIA_NAME,
                 "Profile Registration",
                 SNIA_VER_100),
             PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
         instances.append(buildElementConformsToProfile(
             smisVersionProfile,
-            profRegProfile, 
+            profRegProfile,
             elementConformsClass));
 
 
@@ -268,7 +268,7 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
         instances.append(
             buildElementConformsToProfile(
                 serverProfile,
-                objManager.getPath(), 
+                objManager.getPath(),
                 elementConformsClass));
 
         // Build up the Object Path for the server profile ver 1.2.0
@@ -280,9 +280,9 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
         instances.append(
             buildElementConformsToProfile(
                 serverProfile,
-                objManager.getPath(), 
+                objManager.getPath(),
                 elementConformsClass));
-        
+
     }
     return instances;
 }
@@ -446,7 +446,7 @@ void InteropProvider::cacheProfileRegistrationInfo()
     propList.append(PROFILECAPABILITIES_PROPERTY_OTHERPROFILEORGANIZATION);
     propList.append(PROFILECAPABILITIES_PROPERTY_CONFORMINGELEMENTS);
 
-    Array<CIMInstance> providerProfileInstances = 
+    Array<CIMInstance> providerProfileInstances =
         enumProviderProfileCapabilityInstances(
             true,
             false,
@@ -593,7 +593,7 @@ void InteropProvider::cacheProfileRegistrationInfo()
                             // ElementConformsToProfile in the namespace and
                             // cache them.
                             foundIndex = namespacesForProvider.size();
-                            Array<CIMName> subClasses = 
+                            Array<CIMName> subClasses =
                                 repository->enumerateClassNames(curNamespace,
                                 PEGASUS_CLASSNAME_CIM_ELEMENTCONFORMSTOPROFILE,
                                 true);

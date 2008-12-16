@@ -52,9 +52,9 @@ WMIProperty::WMIProperty(const CIMProperty & property) : CIMProperty(property)
 {
 }
 
-WMIProperty::WMIProperty(const BSTR & name, 
-                         const VARIANT & value, 
-                         const CIMTYPE type, 
+WMIProperty::WMIProperty(const BSTR & name,
+                         const VARIANT & value,
+                         const CIMTYPE type,
                          IWbemQualifierSet * pQualifierSet,
                          Boolean includeQualifiers)
 {
@@ -142,8 +142,8 @@ WMIProperty::WMIProperty(const BSTR & name,
 }
 
 WMIProperty::WMIProperty(
-        const BSTR & name, 
-        const VARIANT & value, 
+        const BSTR & name,
+        const VARIANT & value,
         const CIMTYPE type)
 {
     CComBSTR bsName = name;

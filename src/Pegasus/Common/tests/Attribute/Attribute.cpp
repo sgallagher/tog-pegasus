@@ -69,7 +69,7 @@ void test01()
 
     /**
         Function to cover
-        PEGASUS_STD(ostream)& operator<<( 
+        PEGASUS_STD(ostream)& operator<<(
             PEGASUS_STD(ostream)& os,const Attribute& attr)
     */
     ofstream outputFile;
@@ -89,12 +89,12 @@ int main( int argc, char *argv[] )
     }
     catch (Exception& e)
     {
-        PEGASUS_STD (cout) << "Exception: " << e.getMessage() 
+        PEGASUS_STD (cout) << "Exception: " << e.getMessage()
             << PEGASUS_STD(endl);
         exit(1);
     }
 
-    PEGASUS_STD (cout) << argv[0] << " +++++ passed all tests" 
+    PEGASUS_STD (cout) << argv[0] << " +++++ passed all tests"
         << PEGASUS_STD(endl);
     return 0;
 }

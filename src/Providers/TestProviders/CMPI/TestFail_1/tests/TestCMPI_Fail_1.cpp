@@ -80,7 +80,7 @@ void test01 (CIMClient & client)
     }
     catch (const CIMException &e)
     {
-        if (e.getMessage() != CMPI_TESTFAIL_INST_ERROR 
+        if (e.getMessage() != CMPI_TESTFAIL_INST_ERROR
                 && e.getMessage() != RCMPI_ERROR)
         {
             throw e;
@@ -94,7 +94,7 @@ void test02 (CIMClient & client)
     {
         CIMObjectPath instanceName(
             String::EMPTY,
-            providerNamespace, 
+            providerNamespace,
             CLASSNAME,
             Array<CIMKeyBinding>());
 
@@ -109,7 +109,7 @@ void test02 (CIMClient & client)
     }
     catch (const CIMException &e)
     {
-        if (e.getMessage() != CMPI_TESTFAIL_METH_ERROR 
+        if (e.getMessage() != CMPI_TESTFAIL_METH_ERROR
                 && e.getMessage() != RCMPI_ERROR)
         {
             throw e;
@@ -123,7 +123,7 @@ void test03 (CIMClient & client)
     {
         CIMObjectPath instanceName(
             String::EMPTY,
-            providerNamespace, 
+            providerNamespace,
             CLASSNAME,
             Array<CIMKeyBinding>());
 
@@ -133,7 +133,7 @@ void test03 (CIMClient & client)
     }
     catch (const CIMException &e)
     {
-        if (e.getMessage() != CMPI_TESTFAIL_ASSOC_ERROR 
+        if (e.getMessage() != CMPI_TESTFAIL_ASSOC_ERROR
                 && e.getMessage() != RCMPI_ERROR)
         {
             throw e;

@@ -48,7 +48,7 @@ PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
 void writer (const char* message, int count, FILE* stream)
-{ 
+{
         for (; count > 0; --count) {
         // Write the message to the stream, and send it off immediately.
             fprintf (stream,"%s\n" , message);
@@ -64,14 +64,14 @@ void reader (FILE* stream)
     char buffer[1024];
     // Read until we hit the end of the stream. fgets reads until either
     // a newline or the end-of-file.
-    while (!feof(stream) 
-        && !ferror(stream) 
+    while (!feof(stream)
+        && !ferror(stream)
         && fgets(buffer, sizeof(buffer), stream) != NULL)
         fputs (buffer, stdout);
 }
 
 int CreateThreads()
-{ 
+{
     char* arg_list[] = {
             "CLI",
             "niall",
@@ -86,8 +86,8 @@ int CreateThreads()
 
     cpid = fork();
     if (cpid == (pid_t)0)
-    { 
-        FILE* stream; 
+    {
+        FILE* stream;
         // This is the child process. Close our copy of the write end
         // of the file descriptor.
         close(fds[1]);
@@ -97,7 +97,7 @@ int CreateThreads()
         stream = fdopen(fds[0],"r" );
         reader(stream);
         close(fds[0]);
-        // Replace the child process with the CLI program 
+        // Replace the child process with the CLI program
         execvp ("CLI", arg_list);
     }
     else
@@ -107,7 +107,7 @@ int CreateThreads()
         close (fds[0]);
         // Convert the write file descriptor to a FILE object,and write to it.
         stream = fdopen(fds[1],"w" );
-        
+
         writer("Test Writer from Parent process\n", 2, stream);
         close (fds[1]);
         // Wait for child process to finish
@@ -143,7 +143,7 @@ void MultithreadingSampleProvider::getInstance(
     InstanceResponseHandler & handler)
 {
     CIMObjectPath localReference = CIMObjectPath(
-        String(), 
+        String(),
         String(),
         instanceReference.getClassName(),
         instanceReference.getKeyBindings());
@@ -174,10 +174,10 @@ void MultithreadingSampleProvider::enumerateInstanceNames(
     const CIMObjectPath & classReference,
     ObjectPathResponseHandler & handler)
 {
-    cout << "MultithreadingSampleProvider::enumerateInstancesNames" << endl;    
+    cout << "MultithreadingSampleProvider::enumerateInstancesNames" << endl;
     // begin processing the request
     handler.processing();
-    
+
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     // deliver instance
         handler.deliver(_instanceNames[i]);
@@ -198,10 +198,10 @@ void MultithreadingSampleProvider::enumerateInstances(
     CIMInstance Instances[NO_OF_INSTANCES];
     CIMObjectPath References[NO_OF_INSTANCES];
 
-    cout << "MultithreadingSampleProvider::enumerateInstances" << endl; 
+    cout << "MultithreadingSampleProvider::enumerateInstances" << endl;
     cout << "_instances.size = " << _instances.size() << endl;
 
-    
+
     // begin processing the request
     handler.processing();
 
@@ -242,7 +242,7 @@ void MultithreadingSampleProvider::modifyInstance(
     const CIMPropertyList & propertyList,
     ResponseHandler & handler)
 {
-    cout << "MultithreadingSampleProvider::modifyInstance" << endl; 
+    cout << "MultithreadingSampleProvider::modifyInstance" << endl;
     // convert a potential fully qualified reference into a local reference
     // (class name and keys only).
     CIMObjectPath localReference = CIMObjectPath(
@@ -275,7 +275,7 @@ void MultithreadingSampleProvider::createInstance(
     const CIMInstance & instanceObject,
     ObjectPathResponseHandler & handler)
 {
-    cout << "MultithreadingSampleProvider::createInstance" << endl; 
+    cout << "MultithreadingSampleProvider::createInstance" << endl;
     // convert a potential fully qualified reference into a local reference
     // (class name and keys only).
     CIMObjectPath localReference = CIMObjectPath(
@@ -313,7 +313,7 @@ void MultithreadingSampleProvider::deleteInstance(
     const CIMObjectPath & instanceReference,
     ResponseHandler & handler)
 {
-    cout << "MultithreadingSampleProvider::deleteInstance" << endl; 
+    cout << "MultithreadingSampleProvider::deleteInstance" << endl;
     // convert a potential fully qualified reference into a local reference
     // (class name and keys only).
     CIMObjectPath localReference = CIMObjectPath(

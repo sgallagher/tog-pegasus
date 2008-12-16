@@ -71,171 +71,171 @@ public:
 
     CmpiArrayIdx& operator=(const CmpiData&);
 
-    /** 
+    /**
         Extracting String.
     */
     operator CmpiString() const;
 
-    /** 
+    /**
         Extracting const char * .
     */
     operator const char* () const;
 
-    /** 
+    /**
         Extracting CmpiDataTime.
     */
     operator CmpiDateTime() const;
 
-    /** 
+    /**
         Extracting CmpiInstance.
     */
     operator CmpiInstance() const;
 
-    /** 
+    /**
         Extracting CmpiObjectPath.
     */
     operator CmpiObjectPath() const;
 
-    /** 
+    /**
         Extracting CMPISint8.
     */
     operator CMPISint8() const;
 
-    /** 
+    /**
         Extracting signed 16 bit.
     */
     operator CMPISint16() const;
 
-    /** 
+    /**
         Extracting signed 32 bit.
     */
     operator CMPISint32() const;
 
-    /** 
+    /**
         Extracting signed 64 bit.
     */
     operator CMPISint64() const;
 
-    /** 
+    /**
         Extracting unsigned 8 bit or boolean.
     */
     operator unsigned char() const;
 
-    /** 
+    /**
         Extracting unsigned 16 bit or char16.
     */
     operator unsigned short() const;
 
-    /** 
+    /**
         Extracting unsigned 32 bit.
     */
     operator CMPIUint32() const;
 
-    /** 
+    /**
         Extracting unsigned 64 bit.
     */
     operator CMPIUint64() const;
 
-    /** 
+    /**
         Extracting float 32 bit.
     */
     operator CMPIReal32() const;
 
-    /** 
+    /**
         Extracting float 64 bit.
     */
     operator CMPIReal64() const;
 
 #endif /* PEGASUS_CMPI_DATA_NEED_IMPLICIT_CONVERTERS */
 
-    /** 
+    /**
         Get value.
     */
     CMPIBoolean getBoolean() const;
 
-    /** 
+    /**
         Get value.
     */
     CMPISint8 getSint8() const;
 
-    /** 
+    /**
         Get value.
     */
     CMPIUint8 getUint8() const;
 
-    /** 
+    /**
         Get value.
     */
     CMPISint16 getSint16() const;
 
-    /** 
+    /**
         Get value.
     */
     CMPIUint16 getUint16() const;
 
-    /** 
+    /**
         Get value.
     */
     CMPISint32 getSint32() const;
 
-    /** 
+    /**
         Get value.
     */
     CMPIUint32 getUint32() const;
 
-    /** 
+    /**
         Get value.
     */
     CMPISint64 getSint64() const;
 
-    /** 
+    /**
         Get value.
     */
     CMPIUint64 getUint64() const;
 
-    /** 
+    /**
         Get value.
     */
     CMPIReal32 getReal32() const;
 
-    /** 
+    /**
         Get value.
     */
     CMPIReal64 getReal64() const;
 
-    /** 
+    /**
         Get value.
     */
     CMPIChar16 getChar16() const;
 
-    /** 
+    /**
         Get value.
     */
     CmpiString getString() const;
 
-    /** 
+    /**
         Get value.
     */
     const char* getCString() const;
 
-    /** 
+    /**
         Get value.
     */
     CmpiDateTime getDateTime() const;
 
-    /** 
+    /**
         Get value.
     */
     CmpiInstance getInstance() const;
 
-    /** 
+    /**
         Get value.
     */
     CmpiObjectPath getObjectPath() const;
 };
 
 
-/** 
+/**
     This class wraps a CMPIData value array.
     Index operations use the [] operator.
     Data extraction uses type conversion operators.
@@ -263,7 +263,7 @@ class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiArray : public CmpiObject
     friend class CmpiData;
     friend class CmpiEnumeration;
 
-    /** 
+    /**
         Gets the encapsulated CMPIArray.
     */
     CMPIArray *getEnc() const;

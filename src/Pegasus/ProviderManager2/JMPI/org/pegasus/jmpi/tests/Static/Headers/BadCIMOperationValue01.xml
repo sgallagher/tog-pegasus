@@ -25,7 +25,7 @@ Man: http://www.dmtf.org/cim/mapping/http/v1.0;ns=23
      <PARAMVALUE NAME="IterationIdentifier" PARAMTYPE="string"><VALUE>123</VALUE></PARAMVALUE>
      <PARAMVALUE NAME="MoveAbsolute" PARAMTYPE="boolean"><VALUE>TRUE</VALUE></PARAMVALUE>
      <PARAMVALUE NAME="RecordNumber" PARAMTYPE="sint64"><VALUE>444</VALUE></PARAMVALUE>
-    </METHODCALL>   
+    </METHODCALL>
    </SIMPLEREQ>
   </MESSAGE>
  </CIM>

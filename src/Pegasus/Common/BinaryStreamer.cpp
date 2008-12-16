@@ -765,7 +765,7 @@ void BinaryStreamer::_unpackProperty(
     if (cimProperty.getType() == CIMTYPE_STRING)
     {
         CIMType realType = CIMTYPE_STRING;
-        if (cimProperty.findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE) 
+        if (cimProperty.findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE)
             != PEG_NOT_FOUND)
         {
             // Note that this condition should only happen for properties in
@@ -783,7 +783,7 @@ void BinaryStreamer::_unpackProperty(
             // currently don't handle embedded object types with default
             // values in the class definition.
 #if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
-            // The binary protocol (unlike the XML protocol) successfully 
+            // The binary protocol (unlike the XML protocol) successfully
             // transmits embedded object default values. But since they are
             // not handled elsewhere, we discard the value.
             cimProperty.setValue(

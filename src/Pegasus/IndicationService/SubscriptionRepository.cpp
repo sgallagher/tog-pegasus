@@ -45,7 +45,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 /**
    Handler and Filter cache
-    
+
    Note that a single cache can be used for handler and filter instances,
    since the string representation of the object path is used as the key
    and this is unique anyway.
@@ -53,7 +53,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_INDICATION_HANDLER_FILTER_CACHE_SIZE 50
 
 
-static ObjectCache<CIMInstance> 
+static ObjectCache<CIMInstance>
     _handlerFilterCache(PEGASUS_INDICATION_HANDLER_FILTER_CACHE_SIZE);
 static Mutex _handlerFilterCacheMutex;
 
@@ -1111,7 +1111,7 @@ void SubscriptionRepository::deleteInstance (
             PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
     {
         _repository->deleteInstance (nameSpace, instanceName);
-        
+
         CIMObjectPath tmpPath = instanceName;
         tmpPath.setNameSpace(nameSpace);
         _normalizedSubscriptionTable->remove(tmpPath);

@@ -59,7 +59,7 @@ addToStore (CMPIString * k, CMPIString * d)
     if (strcmp (CMGetCharsPtr (k,NULL), CMGetCharsPtr (store[i].key,NULL)) == 0)
       return 0;
 // We must clone the CMPIString, since after the CreateInstance function exits
-// these CMPIString would be automaticly deleted. Thought this puts a 
+// these CMPIString would be automaticly deleted. Thought this puts a
 // responsibility on us to use CMRelease when removing/cleaning up.
   store[dataNext].key = CMClone (k, NULL);
   store[dataNext++].data = CMClone (d, NULL);

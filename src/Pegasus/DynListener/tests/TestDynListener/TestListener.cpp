@@ -45,11 +45,11 @@ int main(int argc, char** argv)
     //set logging options
     String currentDirectory;
     FileSystem::getCurrentDirectory(currentDirectory);
-    
+
     //you MUST translate slashes or the logger will fail on Windows
     FileSystem::translateSlashes(currentDirectory);
     Logger::setHomeDirectory(currentDirectory);
-    
+
     //must list these in descending order or the logger will fail
     Logger::setlogLevelMask("FATAL");
     Logger::setlogLevelMask("SEVERE");
@@ -59,7 +59,7 @@ int main(int argc, char** argv)
     String configFile = "cimlistener.conf";
 
     try
-    {   
+    {
         DynamicListenerConfig config;
 
         String test = FileSystem::getAbsolutePath("","");
@@ -219,12 +219,12 @@ int main(int argc, char** argv)
         //ATTN: Need to handle SSL cases
 
         //create DynListener
-        DynamicListener listener(listenerPort, 
+        DynamicListener listener(listenerPort,
                                  consumerDir,
                                  consumerConfigDir,
                                  enableConsumerUnload,
                                  consumerIdleTimeout,
-                                 shutdownTimeout); 
+                                 shutdownTimeout);
 
         listener.start();
 

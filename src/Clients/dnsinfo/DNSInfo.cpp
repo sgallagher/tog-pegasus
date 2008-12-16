@@ -36,9 +36,9 @@
 // dnsinfo client that does an enumerateInstances of the
 // PG_DNSService class and displays properties of interest.
 
-// At this time, there is only one instance of PG_DNSService. 
+// At this time, there is only one instance of PG_DNSService.
 
-#include "DNSInfo.h" 
+#include "DNSInfo.h"
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -55,7 +55,7 @@ DNSInfo::DNSInfo()
 
 DNSInfo::~DNSInfo()
 {
-}         
+}
 
 /** ErrorExit - Print out the error message as an
     and get out.
@@ -115,7 +115,7 @@ void DNSInfo::displayProperties()
 /**
    gatherProperties method of the dnsinfo Test Client
   */
-void DNSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat) 
+void DNSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
 {
 #ifdef DEBUG
    cout << "DNSInfo::gatherProperties()" << endl;
@@ -137,10 +137,10 @@ void DNSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
       {
          inst.getProperty(j).getValue().get(dnsSystemCreationClassName);
       }  // end if SystemCreationClassName
-      
+
       if (propertyName.equal (CIMName ("Name")))
       {
-         inst.getProperty(j).getValue().get(dnsName); 
+         inst.getProperty(j).getValue().get(dnsName);
       }  // end if Name
 
       if (propertyName.equal (CIMName ("CreationClassName")))
@@ -150,34 +150,34 @@ void DNSInfo::gatherProperties(CIMInstance &inst, Boolean cimFormat)
 
       if (propertyName.equal (CIMName ("Caption")))
       {
-         inst.getProperty(j).getValue().get(dnsCaption); 
+         inst.getProperty(j).getValue().get(dnsCaption);
       }  // end if Caption
 
       if (propertyName.equal (CIMName ("Description")))
       {
-         inst.getProperty(j).getValue().get(dnsDescription); 
-      }  // end if Description 
+         inst.getProperty(j).getValue().get(dnsDescription);
+      }  // end if Description
 
       if (propertyName.equal (CIMName ("SearchList")))
       {
-         inst.getProperty(j).getValue().get(dnsSearchList); 
+         inst.getProperty(j).getValue().get(dnsSearchList);
       }  // end if SearchList
 
       if (propertyName.equal (CIMName ("Addresses")))
       {
-         inst.getProperty(j).getValue().get(dnsAddresses); 
+         inst.getProperty(j).getValue().get(dnsAddresses);
       }  // end if ServerAddress
    }  // end of for looping through properties
 }
 
-/* 
-   getDNSInfo of the DNS provider. 
+/*
+   getDNSInfo of the DNS provider.
 */
 void DNSInfo::getDNSInfo(const int argc, const char** argv)
 {
 
 // ATTN-SLC-16-May-02-P1  enhance to take host & user info
-//  Decided to keep local only for first release 
+//  Decided to keep local only for first release
 
     Boolean cimFormat = false;
 
@@ -215,7 +215,7 @@ void DNSInfo::getDNSInfo(const int argc, const char** argv)
         CIMClient client;
         client.setTimeout(60 * 1000);
         client.connectLocal();
-        
+
         Boolean deepInheritance = true;
         Boolean localOnly = true;
         Boolean includeQualifiers = false;
@@ -227,8 +227,8 @@ void DNSInfo::getDNSInfo(const int argc, const char** argv)
              << endl;
 #endif
 
-        Array<CIMInstance> cimNInstances = 
-           client.enumerateInstances(NAMESPACE, CLASSNAME, 
+        Array<CIMInstance> cimNInstances =
+           client.enumerateInstances(NAMESPACE, CLASSNAME,
                                          deepInheritance,
                          localOnly,  includeQualifiers,
                          includeClassOrigin );
@@ -236,7 +236,7 @@ void DNSInfo::getDNSInfo(const int argc, const char** argv)
 #ifdef DEBUG
         cout << "DNSInfo::getDNSInfo() - enumerateInstances done" << endl;
 #endif
-      
+
         numberInstances = cimNInstances.size();
 
         // while we only have one instance (the running OS), we can take the
@@ -253,14 +253,14 @@ void DNSInfo::getDNSInfo(const int argc, const char** argv)
 
            // first gather the interesting properties
            gatherProperties(cimNInstances[i], cimFormat);
-         
+
            // then display them
            displayProperties();
 
       }   // end for looping through instances
-    
-    }  // end try 
-   
+
+    }  // end try
+
     catch(Exception& e)
     {
       errorExit(e.getMessage());

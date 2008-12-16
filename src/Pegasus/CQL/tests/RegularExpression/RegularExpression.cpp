@@ -42,9 +42,9 @@ void test01()
 {
     //result should return false
     const String p = "abc";
-    const String s = ""; 
+    const String s = "";
     CQLRegularExpression re(p);
-    
+
     PEGASUS_TEST_ASSERT ( (re.match(s)) == false);
     return;
 }
@@ -53,7 +53,7 @@ void test02()
 {
     //result should return false
     const String p = "";
-    const String s = "abc"; 
+    const String s = "abc";
     CQLRegularExpression re(p);
 
     PEGASUS_TEST_ASSERT ( (re.match(s)) == false);
@@ -64,7 +64,7 @@ void test03()
 {
     //result should return true
     const String p = "abc";
-    const String s = "abc"; 
+    const String s = "abc";
     CQLRegularExpression re(p);
 
     PEGASUS_TEST_ASSERT ( (re.match(s)) == true);
@@ -76,9 +76,9 @@ void test04()
 {
     //result should return false
     const String p = "abcd";
-    const String s = "abc"; 
+    const String s = "abc";
     CQLRegularExpression re(p);
-    
+
     PEGASUS_TEST_ASSERT ( (re.match(s)) == false);
     return;
 }
@@ -87,9 +87,9 @@ void test05()
 {
     //result should return false
     const String p = "abc";
-    const String s = "abcd"; 
+    const String s = "abcd";
     CQLRegularExpression re(p);
-    
+
     PEGASUS_TEST_ASSERT ( (re.match(s)) == false);
     return;
 }
@@ -98,7 +98,7 @@ void test06()
 {
     //result should return true
     const String p = "ab.";
-    const String s = "ab?"; 
+    const String s = "ab?";
     CQLRegularExpression re(p);
 
     PEGASUS_TEST_ASSERT ( (re.match(s)) == true);
@@ -109,7 +109,7 @@ void test07()
 {
     //result should return true
     const String p = ".a.b";
-    const String s = "aa!b"; 
+    const String s = "aa!b";
     CQLRegularExpression re(p);
 
     PEGASUS_TEST_ASSERT ( (re.match(s)) == true);
@@ -120,7 +120,7 @@ void test08()
 {
     //result should return true
     const String p = "\\.ab";
-    const String s = ".ab"; 
+    const String s = ".ab";
     CQLRegularExpression re(p);
 
     PEGASUS_TEST_ASSERT ( (re.match(s)) == true);
@@ -131,7 +131,7 @@ void test09()
 {
     //result should return false
     const String p = "\\.ab";
-    const String s = "\\.ab"; 
+    const String s = "\\.ab";
     CQLRegularExpression re(p);
 
     PEGASUS_TEST_ASSERT ( (re.match(s)) == false);
@@ -142,7 +142,7 @@ void test10()
 {
     //result should return true
     const String p = ".*";
-    const String s = "abcd"; 
+    const String s = "abcd";
     CQLRegularExpression re(p);
 
     PEGASUS_TEST_ASSERT ( (re.match(s)) == true);
@@ -153,7 +153,7 @@ void test11()
 {
     //result should return true
     const String p = "\\.*";
-    const String s = "......"; 
+    const String s = "......";
     CQLRegularExpression re(p);
 
     PEGASUS_TEST_ASSERT ( (re.match(s)) == true);
@@ -164,7 +164,7 @@ void test12()
 {
     //result should return true
     const String p = "abcd*";
-    const String s = "abcddddd"; 
+    const String s = "abcddddd";
     CQLRegularExpression re(p);
 
     PEGASUS_TEST_ASSERT ( (re.match(s)) == true);
@@ -175,7 +175,7 @@ void test13()
 {
     //result should return false
     const String p = "abcd*";
-    const String s = "abcd"; 
+    const String s = "abcd";
     CQLRegularExpression re(p);
 
     PEGASUS_TEST_ASSERT ( (re.match(s)) == false);
@@ -186,9 +186,9 @@ void test14()
 {
     //result should return true
     const String p = "ab*cd";
-    const String s = "abbbbcd"; 
+    const String s = "abbbbcd";
     CQLRegularExpression re(p);
-    
+
     PEGASUS_TEST_ASSERT ( (re.match(s)) == true);
     return;
 }
@@ -197,7 +197,7 @@ void test15()
 {
     //result should return true
     const String p = "ab.*cd";
-    const String s = "ab123!cd"; 
+    const String s = "ab123!cd";
     CQLRegularExpression re(p);
 
     PEGASUS_TEST_ASSERT ( (re.match(s)) == true);
@@ -208,7 +208,7 @@ void test16()
 {
     //result should return true
     const String p = "\\*ab";
-    const String s = "*ab"; 
+    const String s = "*ab";
     CQLRegularExpression re(p);
 
     PEGASUS_TEST_ASSERT ( (re.match(s)) == true);
@@ -219,7 +219,7 @@ void test17()
 {
     //result should return false
     const String p = ".\\*";
-    const String s = "****"; 
+    const String s = "****";
     CQLRegularExpression re(p);
 
     PEGASUS_TEST_ASSERT ( (re.match(s)) == false);
@@ -246,7 +246,7 @@ void test19()
     //result should return true
     Char16 utf16CharsP[] =
         {
-        0xD800,0x78BC, 
+        0xD800,0x78BC,
         0x00};
 
     String utfPattern(utf16CharsP);
@@ -285,12 +285,12 @@ void test21()
     //result should return true
     Char16 utf16CharsP[] =
         {
-        0xD800,0x78BC, 
+        0xD800,0x78BC,
         0x00};
 
     String utfPattern(utf16CharsP);
     utfPattern.append(".*");
-    
+
     Char16 utf16CharsS[] =
     {
     0xD800,0x78BC, 0x00};
@@ -331,8 +331,8 @@ int main(int argc, char** argv)
     test20();
     test21();
     cout << "+++++ passed all tests" << endl;
-    
+
 
     return 0;
 }
-                    
+

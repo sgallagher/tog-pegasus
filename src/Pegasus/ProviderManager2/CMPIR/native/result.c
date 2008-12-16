@@ -101,7 +101,7 @@ static CMPIResult * __rft_clone ( CONST CMPIResult * result, CMPIStatus * rc )
 }
 
 
-static CMPIStatus __rft_returnData ( 
+static CMPIStatus __rft_returnData (
     CONST CMPIResult * result,
     const CMPIValue * val,
     CONST CMPIType type )
@@ -129,13 +129,13 @@ static CMPIStatus __rft_returnData (
         if (rc.rc != CMPI_RC_OK) return rc;
 
     }
-    else 
+    else
     {
         native_array_increase_size ( r->data, 1 );
     }
 
 
-    return CMSetArrayElementAt ( 
+    return CMSetArrayElementAt (
         r->data,
         r->current++,
         val,
@@ -143,7 +143,7 @@ static CMPIStatus __rft_returnData (
 }
 
 
-static CMPIStatus __rft_returnInstance ( 
+static CMPIStatus __rft_returnInstance (
     CONST CMPIResult * result,
     CONST CMPIInstance * instance )
 {
@@ -161,7 +161,7 @@ static CMPIStatus __rft_returnInstance (
 }
 
 
-static CMPIStatus __rft_returnObjectPath ( 
+static CMPIStatus __rft_returnObjectPath (
     CONST CMPIResult * result,
     CONST CMPIObjectPath * cop )
 {
@@ -192,7 +192,7 @@ CMPIStatus __rft_returnError(CONST CMPIResult* rslt, CONST CMPIError* er)
 }
 #endif
 
-static struct native_result * __new_empty_result ( 
+static struct native_result * __new_empty_result (
     int mm_add,
     CMPIStatus * rc )
 {
@@ -225,14 +225,14 @@ static struct native_result * __new_empty_result (
 }
 
 
-PEGASUS_EXPORT CMPIResult *PEGASUS_CMPIR_CDECL native_new_CMPIResult ( 
+PEGASUS_EXPORT CMPIResult *PEGASUS_CMPIR_CDECL native_new_CMPIResult (
     CMPIStatus * rc )
 {
     return(CMPIResult *) __new_empty_result ( TOOL_MM_ADD, rc );
 }
 
 
-PEGASUS_EXPORT CMPIArray * PEGASUS_CMPIR_CDECL native_result2array ( 
+PEGASUS_EXPORT CMPIArray * PEGASUS_CMPIR_CDECL native_result2array (
     CMPIResult * result )
 {
     struct native_result * r = (struct native_result *) result;

@@ -731,7 +731,7 @@ WsenEnumerateRequest* WsmRequestDecoder::_decodeWSEnumerationEnumerate(
         entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
     if (entry.type != XmlEntry::EMPTY_TAG)
     {
-        wsmReader.decodeEnumerateBody(expiration, polymorphismMode, 
+        wsmReader.decodeEnumerateBody(expiration, polymorphismMode,
             enumerationMode, optimized, maxElements);
         wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
     }
@@ -739,18 +739,18 @@ WsenEnumerateRequest* WsmRequestDecoder::_decodeWSEnumerationEnumerate(
     // If PolymorphismMode header is not specified, set it to default
     if (polymorphismMode == WSMB_PM_UNKNOWN)
     {
-        // DSP0227, R8.1-4: A service MAY optionally support the 
-        // wsmb:PolymorphismMode modifier element with a value of 
-        // IncludeSubClassProperties, which returns instances of the base 
-        // class and derived classes using the actual classs GED and XSD 
+        // DSP0227, R8.1-4: A service MAY optionally support the
+        // wsmb:PolymorphismMode modifier element with a value of
+        // IncludeSubClassProperties, which returns instances of the base
+        // class and derived classes using the actual classs GED and XSD
         // type. This is the same as not specifying the polymorphism mode.
         polymorphismMode = WSMB_PM_INCLUDE_SUBCLASS_PROPERTIES;
     }
     else
     {
-        // DSP0227, R8.1-6: The service SHOULD also return a 
-        // wsmb:PolymorphismModeNotSupported fault for requests using the 
-        // all classes ResourceURI if the PolymorphismMode is present and 
+        // DSP0227, R8.1-6: The service SHOULD also return a
+        // wsmb:PolymorphismModeNotSupported fault for requests using the
+        // all classes ResourceURI if the PolymorphismMode is present and
         // does not equal IncludeSubClassProperties.
         if (epr.resourceUri == WSM_RESOURCEURI_ALLCLASSES &&
             polymorphismMode != WSMB_PM_INCLUDE_SUBCLASS_PROPERTIES)
@@ -779,13 +779,13 @@ WsenEnumerateRequest* WsmRequestDecoder::_decodeWSEnumerationEnumerate(
     }
 
     return new WsenEnumerateRequest(
-        messageId, 
-        epr, 
-        expiration, 
-        requestItemCount, 
-        optimized, 
-        maxElements, 
-        enumerationMode, 
+        messageId,
+        epr,
+        expiration,
+        requestItemCount,
+        optimized,
+        maxElements,
+        enumerationMode,
         polymorphismMode);
 }
 
@@ -808,7 +808,7 @@ WsenPullRequest* WsmRequestDecoder::_decodeWSEnumerationPull(
         entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
     if (entry.type != XmlEntry::EMPTY_TAG)
     {
-        wsmReader.decodePullBody(enumerationContext, maxTime, 
+        wsmReader.decodePullBody(enumerationContext, maxTime,
             maxElements, maxCharacters);
         wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
     }
@@ -820,11 +820,11 @@ WsenPullRequest* WsmRequestDecoder::_decodeWSEnumerationPull(
     }
 
     return new WsenPullRequest(
-        messageId, 
-        epr, 
+        messageId,
+        epr,
         enumerationContext,
         maxTime,
-        requestItemCount, 
+        requestItemCount,
         maxElements,
         maxCharacters);
 }
@@ -849,8 +849,8 @@ WsenReleaseRequest* WsmRequestDecoder::_decodeWSEnumerationRelease(
     }
 
     return new WsenReleaseRequest(
-        messageId, 
-        epr, 
+        messageId,
+        epr,
         enumerationContext);
 }
 

@@ -54,7 +54,7 @@ int main(int argc, char** argv)
     {
     CIMObjectPath reference;
     String instanceName;
-    
+
     test("X.key1=\"Hello World\"");
     test("X.key1=TRUE,key2=123");
     test("X.key1=TRUE,key2=123,key3=\"Hello World\"");

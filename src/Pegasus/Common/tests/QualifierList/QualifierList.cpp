@@ -29,10 +29,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-/* 
-    This program tests the CIM QualifierList functions. 
+/*
+    This program tests the CIM QualifierList functions.
 */
- 
+
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMQualifierList.h>
@@ -54,18 +54,18 @@ int main(int argc, char** argv)
     SimpleDeclContext context;
 
     context.addQualifierDecl(NAMESPACE, CIMQualifierDecl
-            (CIMName ("abstract"), 
+            (CIMName ("abstract"),
         false, CIMScope::CLASS, CIMFlavor::OVERRIDABLE));
 
     context.addQualifierDecl(NAMESPACE, CIMQualifierDecl
-            (CIMName ("description"), 
+            (CIMName ("description"),
         String(), CIMScope::CLASS, CIMFlavor::OVERRIDABLE));
 
-    context.addQualifierDecl(NAMESPACE, CIMQualifierDecl(CIMName ("q1"), 
-        false, CIMScope::CLASS, CIMFlavor::OVERRIDABLE + 
+    context.addQualifierDecl(NAMESPACE, CIMQualifierDecl(CIMName ("q1"),
+        false, CIMScope::CLASS, CIMFlavor::OVERRIDABLE +
             CIMFlavor::TOSUBCLASS));
 
-    context.addQualifierDecl(NAMESPACE, CIMQualifierDecl(CIMName ("q2"), 
+    context.addQualifierDecl(NAMESPACE, CIMQualifierDecl(CIMName ("q2"),
         false, CIMScope::CLASS, CIMFlavor::TOSUBCLASS));
 
     // ATTN: KS P1 29 Mar 2002 - Add Tests for Null Value
@@ -79,11 +79,11 @@ int main(int argc, char** argv)
 
     qualifiers1
         .add(CIMQualifier(CIMName ("Abstract"), true))
-        .add(CIMQualifier(CIMName ("Description"), 
+        .add(CIMQualifier(CIMName ("Description"),
                 String("CIMQualifier List 1")))
         .add(CIMQualifier(CIMName ("q1"), false))
         .add(CIMQualifier(CIMName ("q2"), false));
-    
+
     // Run the find, get, etc tests.
 
     PEGASUS_TEST_ASSERT(qualifiers1.getCount() == 4);
@@ -95,7 +95,7 @@ int main(int argc, char** argv)
     PEGASUS_TEST_ASSERT(qualifiers1.exists(CIMName ("q2")));
     PEGASUS_TEST_ASSERT(!qualifiers1.isTrue(CIMName ("q2")));
 
-    PEGASUS_TEST_ASSERT(qualifiers1.find(CIMName ("QualifierDoesNotExist")) == 
+    PEGASUS_TEST_ASSERT(qualifiers1.find(CIMName ("QualifierDoesNotExist")) ==
             PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT(!qualifiers1.exists(CIMName("QualifierDoesNotExist")));
 
@@ -113,7 +113,7 @@ int main(int argc, char** argv)
     PEGASUS_TEST_ASSERT(qualifiers1.exists(CIMName ("q2")));
     PEGASUS_TEST_ASSERT(!qualifiers1.isTrue(CIMName ("q2")));
 
-    PEGASUS_TEST_ASSERT(qualifiers1.find(CIMName ("QualifierDoesNotExist")) == 
+    PEGASUS_TEST_ASSERT(qualifiers1.find(CIMName ("QualifierDoesNotExist")) ==
             PEG_NOT_FOUND);
     PEGASUS_TEST_ASSERT(!qualifiers1.exists(CIMName("QualifierDoesNotExist")));
     if(verbose)
@@ -143,9 +143,9 @@ int main(int argc, char** argv)
     CIMQualifierList qualifiers2;
 
     qualifiers2
-        .add(CIMQualifier(CIMName ("Description"), 
+        .add(CIMQualifier(CIMName ("Description"),
                 String("CIMQualifier List 1")))
-        .add(CIMQualifier(CIMName ("q1"), Boolean(true), 
+        .add(CIMQualifier(CIMName ("q1"), Boolean(true),
                 CIMFlavor::OVERRIDABLE));
 
     if(verbose)

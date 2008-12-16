@@ -125,7 +125,7 @@ instance of C as $C_Alias
      right = $Y_Alias;
 };
 
-// More stuf to compile using classes from the CIM_InterOp.mof to better test aliases 
+// More stuf to compile using classes from the CIM_InterOp.mof to better test aliases
 
 
 // instances of registered profile for test.

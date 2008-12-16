@@ -47,14 +47,14 @@ const int CIMQueryCapabilitiesProvider::NUM_QUERY_CAPABILITIES = 2;
 
 CIMQueryCapabilitiesProvider::CIMQueryCapabilitiesProvider()
 {
-  PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, 
+  PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
            "CIMQueryCapabilitiesProvider::CIMQueryCapabilitiesProvider");
   PEG_METHOD_EXIT();
 }
 
 CIMQueryCapabilitiesProvider::~CIMQueryCapabilitiesProvider()
 {
-  PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, 
+  PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
            "CIMQueryCapabilitiesProvider::~CIMQueryCapabilitiesProvider");
   PEG_METHOD_EXIT();
 }
@@ -84,7 +84,7 @@ void CIMQueryCapabilitiesProvider::getInstance(
 
     if(keyName.getString() != String(PROPERTY_NAME_INSTANCEID) )
         throw CIMInvalidParameterException("Incorrect Key");
-         
+
     if(keyValue != String(INSTANCEID_VALUE))
         throw CIMObjectNotFoundException(keyValue);
 
@@ -103,7 +103,7 @@ void CIMQueryCapabilitiesProvider::getInstance(
     // begin processing the request
     handler.processing();
 
-    if(instanceReference.getClassName() == 
+    if(instanceReference.getClassName() ==
          PEGASUS_CLASSNAME_CIMQUERYCAPABILITIES)
     {
         // deliver requested instance
@@ -124,7 +124,7 @@ void CIMQueryCapabilitiesProvider::enumerateInstances(
         InstanceResponseHandler & handler)
 {
 
-    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, 
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
                      "CIMQueryCapabilitiesProvider::enumerateInstances");
 
     // begin processing the request
@@ -132,7 +132,7 @@ void CIMQueryCapabilitiesProvider::enumerateInstances(
 
     // deliver instance
     handler.deliver(buildInstance(classReference));
-        
+
     // complete processing the request
     handler.complete();
     PEG_METHOD_EXIT();

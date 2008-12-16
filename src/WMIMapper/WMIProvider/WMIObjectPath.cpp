@@ -50,7 +50,7 @@ using std::cout;
 
 PEGASUS_NAMESPACE_BEGIN
 
-WMIObjectPath::WMIObjectPath(const CIMObjectPath & cimObjectPath) 
+WMIObjectPath::WMIObjectPath(const CIMObjectPath & cimObjectPath)
     : CIMObjectPath(cimObjectPath)
 {
 }
@@ -58,7 +58,7 @@ WMIObjectPath::WMIObjectPath(const CIMObjectPath & cimObjectPath)
 WMIObjectPath::WMIObjectPath(const BSTR bstr)
 {
     String str = WMIString(bstr);
-    
+
     // autofit string
     str.remove(::wcslen((WCHAR *)((USHORT *) str.getChar16Data())));
 
@@ -129,7 +129,7 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
     //
     // <name> ::= alphabetic_character(1..n)
     // <value> ::= <string> | <number> | <boolean>
-    // <string> ::= """ alphabetic_character | numeric_character | 
+    // <string> ::= """ alphabetic_character | numeric_character |
     //                      symbol_character (1..n) """
     // <number> ::= numeric_character(1..n)
     // <boolean> ::= "true" | "false"
@@ -150,7 +150,7 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
         {
             // parse string value
 
-            // check for embedded quotes. for example, 
+            // check for embedded quotes. for example,
             // class1.property1A="class2.property2A="2A",
             // property2B="2B"",property2A="foo"
             // or class1.property1A=",",property2A="."
@@ -158,13 +158,13 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
             bool quote = false;
 
             // seek to '\"' or eos
-            
-            for(len = 0; 
-                (p[pos] != Char16(0)) && !((p[pos] == ',') && (!quote)); 
+
+            for(len = 0;
+                (p[pos] != Char16(0)) && !((p[pos] == ',') && (!quote));
                 len++, pos++)
             {
                 quote = (p[pos] == '\"') ? !quote : quote;
-                
+
                 // By Jair - check if it is not an 'internal' quote.
                 // If it is, must be discarded in this case.
                 if (!quote && len) quote = (p[pos - 1] == '\\');
@@ -172,22 +172,22 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
 
             // strip outer quotes
             String temp(&p[pos - len], len);
-            if((temp.size() != 0) && (temp[0] == '\"') && 
+            if((temp.size() != 0) && (temp[0] == '\"') &&
                 (temp[temp.size() - 1] == '\"'))
             {
                 temp.remove(temp.size() - 1, 1);
                 temp.remove(0, 1);
             }
 
-            // remove escape sequences (the parent class will 
+            // remove escape sequences (the parent class will
             //put them back later).
             for(Uint32 i = 0; i < temp.size(); i++)
-            {             
-                if((temp[i] == '\\') && 
-                   ((temp[i + 1] == '\\') || 
-                    (temp[i + 1] == '"')  || 
-                    (temp[i + 1] == '\n') || 
-                    (temp[i + 1] == '\r') || 
+            {
+                if((temp[i] == '\\') &&
+                   ((temp[i + 1] == '\\') ||
+                    (temp[i + 1] == '"')  ||
+                    (temp[i + 1] == '\n') ||
+                    (temp[i + 1] == '\r') ||
                     (temp[i + 1] == '\t')))
                 {
                     temp.remove(i, 1);
@@ -197,13 +197,13 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
             key.setValue(temp);
             key.setType(CIMKeyBinding::STRING);
         }
-        else if((p[pos] == 't') || (p[pos] == 'T') || 
+        else if((p[pos] == 't') || (p[pos] == 'T') ||
             (p[pos] == 'f') || (p[pos] == 'F'))
         {
             // parse boolean value
 
             // seek to ',' or eos
-            for(len = 0; (p[pos] != Char16(0)) && (p[pos] != ','); 
+            for(len = 0; (p[pos] != Char16(0)) && (p[pos] != ',');
                 len++, pos++);
 
             key.setValue(String(&p[pos - len], len));
@@ -215,7 +215,7 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
             // parse numeric value
 
             // seek to ',' or eos
-            for(len = 0; (p[pos] != Char16(0)) && (p[pos] != ','); 
+            for(len = 0; (p[pos] != Char16(0)) && (p[pos] != ',');
                 len++, pos++);
 
             key.setValue(String(&p[pos - len], len));
@@ -240,7 +240,7 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
 
 WMIObjectPath::WMIObjectPath(IWbemClassObject * pObject)
 {
-    // save pointer in local variable so that in the event an exception is 
+    // save pointer in local variable so that in the event an exception is
     // thrown, the object is released
     _com_ptr_t<_com_IIID<IWbemClassObject,&__uuidof(IWbemClassObject)>> object;
 
@@ -323,7 +323,7 @@ WMIObjectPath::WMIObjectPath(IWbemClassObject * pObject)
 
         ::SafeArrayGetElement(pKeyArray, &i, &Property);
 
-        KeyList.append(CIMKeyBinding(WMIString(_bstr_t(Property, false)), 
+        KeyList.append(CIMKeyBinding(WMIString(_bstr_t(Property, false)),
             String(), CIMKeyBinding::STRING));
     }
 

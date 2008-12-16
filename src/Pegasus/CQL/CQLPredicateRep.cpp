@@ -53,7 +53,7 @@ CQLPredicateRep::CQLPredicateRep(const CQLSimplePredicate& inSimplePredicate,
 
 }
 
-CQLPredicateRep::CQLPredicateRep(const CQLPredicate& inPredicate, 
+CQLPredicateRep::CQLPredicateRep(const CQLPredicate& inPredicate,
     Boolean inInverted) :
     _invert(inInverted)
 {
@@ -73,7 +73,7 @@ Boolean CQLPredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
 {
     PEG_METHOD_ENTER(TRC_CQL, "CQLIPredicateRep::evaluate");
     Boolean result = false;
-    
+
     if (isSimple())
     {
     result = _simplePredicate.evaluate(CI, QueryCtx);

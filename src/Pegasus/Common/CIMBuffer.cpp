@@ -382,7 +382,7 @@ void CIMBuffer::putValue(const CIMValue& x)
                     *(reinterpret_cast<Array<CIMObjectPath>*>(&rep->u)));
                 break;
             case CIMTYPE_INSTANCE:
-                putInstanceA(*(reinterpret_cast<Array<CIMInstance>*>(&rep->u)), 
+                putInstanceA(*(reinterpret_cast<Array<CIMInstance>*>(&rep->u)),
                     false, false);
                 break;
             case CIMTYPE_OBJECT:
@@ -804,7 +804,7 @@ bool CIMBuffer::getKeyBinding(CIMKeyBinding& x)
 }
 
 void CIMBuffer::putObjectPath(
-    const CIMObjectPath& x, 
+    const CIMObjectPath& x,
     bool includeHostAndNamespace,
     bool includeKeyBindings)
 {
@@ -1164,7 +1164,7 @@ bool CIMBuffer::getProperty(CIMProperty& x)
 }
 
 void CIMBuffer::putInstance(
-    const CIMInstance& x, 
+    const CIMInstance& x,
     bool includeHostAndNamespace,
     bool includeKeyBindings)
 {
@@ -1346,7 +1346,7 @@ bool CIMBuffer::getClass(CIMClass& x)
     if (!getName(superClassName))
         return false;
 
-    rep = new CIMClassRep(reference.getClassName(), 
+    rep = new CIMClassRep(reference.getClassName(),
         superClassName);
 
     rep->_reference = reference;
@@ -1759,7 +1759,7 @@ bool CIMBuffer::getPresent(Boolean& flag)
 }
 
 void CIMBuffer::putInstanceA(
-    const Array<CIMInstance>& x, 
+    const Array<CIMInstance>& x,
     bool includeHostAndNamespace,
     bool includeKeyBindings)
 {

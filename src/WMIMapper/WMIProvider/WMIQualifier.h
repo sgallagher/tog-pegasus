@@ -44,7 +44,7 @@ class PEGASUS_WMIPROVIDER_LINKAGE WMIQualifier : public CIMQualifier
 {
 public:
    WMIQualifier(const CIMQualifier & cimqualifier);
-   WMIQualifier(const CComBSTR & name, 
+   WMIQualifier(const CComBSTR & name,
        const CComVariant & value, const LONG flavor);
 
 protected:

@@ -194,51 +194,51 @@ IDENT_CHAR [A-Za-z_]
     WQL_error("Unterminated string");
 }
 
-[\*(),] { 
+[\*(),] {
 
     WQL_TRACE(("LEX: %c\n", yytext[0]));
     return yytext[0];
 }
 
-"=" { 
+"=" {
     WQL_TRACE(("LEX: %s [TOK_EQ]\n", yytext));
-    return TOK_EQ; 
+    return TOK_EQ;
 }
 
-"!=" { 
+"!=" {
 
     WQL_TRACE(("LEX: %s [TOK_NE]\n", yytext));
-    return TOK_NE; 
+    return TOK_NE;
 }
 
-"<=" { 
+"<=" {
 
     WQL_TRACE(("LEX: %s [TOK_LE]\n", yytext));
-    return TOK_LE; 
+    return TOK_LE;
 }
 
-"<" { 
+"<" {
 
     WQL_TRACE(("LEX: %s [TOK_LT]\n", yytext));
-    return TOK_LT; 
+    return TOK_LT;
 }
 
-">=" { 
+">=" {
 
     WQL_TRACE(("LEX: %s [TOK_GE]\n", yytext));
-    return TOK_GE; 
+    return TOK_GE;
 }
 
-"<>" { 
+"<>" {
 
     WQL_TRACE(("LEX: %s [TOK_NE]\n", yytext));
-    return TOK_NE; 
+    return TOK_NE;
 }
 
-">" { 
+">" {
 
     WQL_TRACE(("LEX: %s [TOK_GT]\n", yytext));
-    return TOK_GT; 
+    return TOK_GT;
 }
 
 {IDENT_CHAR}({IDENT_CHAR}|{DECIMAL_DIGIT})*  {

@@ -359,14 +359,14 @@ public:
     /**
         Retrieves list of enabled subscription instances in the specified
         namespace, where the subscription indication class matches or is a
-        superclass of the supported class. A subscription is only included 
-        in the list returned if the specified provider accepted the 
+        superclass of the supported class. A subscription is only included
+        in the list returned if the specified provider accepted the
         subscription.
 
         @param   supportedClass      The supported class
         @param   nameSpace           The specified namespace
-        @param   provider            The provider instance which accepts 
-                                     subscriptions 
+        @param   provider            The provider instance which accepts
+                                     subscriptions
         @param   subscriptions       Output Array of subscription instances
         @param   subscriptionKeys    Output Array of associated subscription
                                      keys
@@ -410,13 +410,13 @@ public:
     Array<CIMObjectPath> enumerateSubscriptionIndicationDataInstanceNames();
 
     /**
-        Gets the PG_SubscriptionIndicationData instance for the specified CIM 
+        Gets the PG_SubscriptionIndicationData instance for the specified CIM
         object path.
 
-        @param instanceName CIMObjectpath specifies a CIM instance to be 
-            returned 
-        @return The specified PG_SubscriptionIndicationData instance. 
-                If the specified instance does not exist, throw a 
+        @param instanceName CIMObjectpath specifies a CIM instance to be
+            returned
+        @return The specified PG_SubscriptionIndicationData instance.
+                If the specified instance does not exist, throw a
                 CIMObjectNotFoundException
     */
     CIMInstance getSubscriptionIndicationDataInstance(
@@ -578,24 +578,24 @@ private:
 
     /**
         Gets handler name, filter name, source namespace, provider module name,
-        and provider name from a specified PG_SubscriptionIndicationData 
+        and provider name from a specified PG_SubscriptionIndicationData
         instanceName
 
-        @param instanceName Input subscription indication data instance 
+        @param instanceName Input subscription indication data instance
             object path used to get filterName, handlerName, sourceNamespace,
             providerModuleName, and providerName.
         @param filterName  Output string containing the colon-separated
             the namespace of filter instance created and the value of property
             Name in the filter instance.
         @param handlerName  Output string containing the colon-separated the
-            the namespace of handler instance created and the class of the 
-            handler instance with the dot-connected the value of property Name 
+            the namespace of handler instance created and the class of the
+            handler instance with the dot-connected the value of property Name
             in the handler instance.
-        @param sourceNS Output string containing source namespace of the 
+        @param sourceNS Output string containing source namespace of the
             subscription.
-        @param providerModuleName Output string containing the provider module 
+        @param providerModuleName Output string containing the provider module
             name.
-        @param providerName Output string containing the provider name. 
+        @param providerName Output string containing the provider name.
      */
     void _getSubscriptionIndicationDataKeys(
         const CIMObjectPath& instanceName,
@@ -610,7 +610,7 @@ private:
 
         @param filterName Input string containing the colon-separated
             the namespace of filter instance created and the value of property
-            Name in the filter instance. 
+            Name in the filter instance.
         @return The created filter object path.
      */
     CIMObjectPath _buildFilterPath(const String& filterName);
@@ -621,24 +621,24 @@ private:
         @param handlerName Input string containing the colon-separated the
             namespace of handler instance created and the class of the handler
             instance with the dot-connected the value of property Name in
-            the handler instance 
+            the handler instance
         @return The created handler object path.
      */
     CIMObjectPath _buildHandlerPath(const String& handlerName);
 
     /**
         Builds the subscription object path by using the specified filterName,
-            handlerName, and sourceNS. 
+            handlerName, and sourceNS.
 
         @param filterName Input string containing the colon-separated
             the namespace of filter instance created and the value of property
-            Name in the filter instance. 
+            Name in the filter instance.
         @param handlerName Input string containing the colon-separated the
             namespace of handler instance created and the class of the handler
             instance with the dot-connected the value of property Name in
-            the handler instance. 
+            the handler instance.
         @param sourceNS Input string containing source namespace of the
-            subscription. 
+            subscription.
         @return The created subscription object path.
      */
     CIMObjectPath _buildSubscriptionPath(
@@ -647,24 +647,24 @@ private:
         const String& sourceNS);
 
     /**
-        Creates the subscription indication data instance by using the 
+        Creates the subscription indication data instance by using the
             specified filterName, handlerName, sourceNS, providerModuleName,
-            providerName, and  matchedIndicationCount. 
+            providerName, and  matchedIndicationCount.
 
         @param filterName Input string containing the colon-separated
             the namespace of filter instance created and the value of property
-            Name in the filter instance. 
+            Name in the filter instance.
         @param handlerName Input string containing the colon-separated the
             namespace of handler instance created and the class of the handler
             instance with the dot-connected the value of property Name in
-            the handler instance. 
+            the handler instance.
         @param sourceNS Input string containing source namespace of the
-            subscription. 
-        @param providerModuleName The provider module name used to build the 
-            instance. 
-        @param providerName The provider name used to build the instance. 
-        @param matchedIndicationCount The matched indication count used to 
-            build the instance. 
+            subscription.
+        @param providerModuleName The provider module name used to build the
+            instance.
+        @param providerName The provider name used to build the instance.
+        @param matchedIndicationCount The matched indication count used to
+            build the instance.
         @return The created subscription indication data instance.
      */
     CIMInstance _buildSubscriptionIndDataInstance(
@@ -676,20 +676,20 @@ private:
         Uint32 matchedIndicationCount);
 
     /**
-        Builds the subscription indication data instance object path by using 
+        Builds the subscription indication data instance object path by using
             specified filterName, handlerName, sourceNS, providerModuleName,
-            and providerName. 
+            and providerName.
 
         @param filterName Input string containing the colon-separated
             the namespace of filter instance created and the value of property
-            Name in the filter instance. 
+            Name in the filter instance.
         @param handlerName Input string containing the colon-separated the
             namespace of handler instance created and the class of the handler
             instance with the dot-connected the value of property Name in
-            the handler instance. 
+            the handler instance.
         @param sourceNS Input string containing source namespace of the
-            subscription. 
-            the specified parameters. 
+            subscription.
+            the specified parameters.
         @param providerModuleName The provider module name used to build the
             instance path.
         @param providerName The provider name used to build the instance path.
@@ -704,7 +704,7 @@ private:
 
     /**
         Builds the PG_Provider instance object path by using specified
-            providerModuleName and providerName. 
+            providerModuleName and providerName.
         @param providerModuleName The provider module name used to build the
             instance path.
         @param providerName The provider name used to build the instance path.

@@ -145,13 +145,13 @@ void ExceptionsTest::getInstance(
         instanceReference.getKeyBindings());
 
     CIMName className = instanceReference.getClassName();
-    
+
     // begin processing the request
     handler.processing();
-    
+
     cout <<"Calling Exception ExceptionsTest::getInstance 1" << endl;
     CheckExceptionType(EXCEPTION_TYPE);
-    
+
     if (className == CIMName("FirstClass"))
     {
         // instance index corresponds to reference index
@@ -181,7 +181,7 @@ void ExceptionsTest::enumerateInstances(
 {
     cout <<"Calling Exception ExceptionsTest::enumerateInstances 1" << endl;
     CheckExceptionType(EXCEPTION_TYPE);
-    
+
     CIMName clName = classReference.getClassName();
     String className = clName.getString();
 
@@ -226,19 +226,19 @@ void ExceptionsTest::enumerateInstanceNames(
     CheckExceptionType(EXCEPTION_TYPE);
     CIMName clName = classReference.getClassName();
     String className = clName.getString();
-    
+
     if (className == "FirstClass")
     {
         for(Uint32 i = 0, n = _instances.size(); i < n; i++)
             // deliver reference
             handler.deliver(_instanceNames[i]);
-    }   
+    }
     else if (className == "SecondClass")
     {
         for(Uint32 i = 0, n = _instances_second.size(); i < n; i++)
             // deliver reference
             handler.deliver(_instanceNames_second[i]);
-    }   
+    }
     else if (className == "ThirdClass")
     {
         for(Uint32 i = 0, n = _instances_third.size(); i < n; i++)

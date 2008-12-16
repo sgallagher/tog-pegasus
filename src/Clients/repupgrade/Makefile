@@ -42,7 +42,7 @@ LIBRARIES = \
     pegcliutils \
     pegclient \
     pegconfig \
-    pegcommon 
+    pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

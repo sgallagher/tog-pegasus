@@ -46,35 +46,35 @@ class PEGASUS_DYNLISTENER_LINKAGE DynamicListener
 public:
 
     static const Boolean DEFAULT_CONSUMER_UNLOAD;
-    static const Uint32 DEFAULT_IDLE_TIMEOUT; 
+    static const Uint32 DEFAULT_IDLE_TIMEOUT;
     static const Boolean DEFAULT_FORCE_SHUTDOWN;
     static const Uint32 DEFAULT_SHUTDOWN_TIMEOUT;
 
-    DynamicListener(Uint32 portNumber, 
-                    const String& consumerDir, 
+    DynamicListener(Uint32 portNumber,
+                    const String& consumerDir,
                     const String& consumerConfigDir,
-                    Boolean enableConsumerUnload = DEFAULT_CONSUMER_UNLOAD, 
-                    Uint32 consumerIdleTimeout = DEFAULT_IDLE_TIMEOUT, 
+                    Boolean enableConsumerUnload = DEFAULT_CONSUMER_UNLOAD,
+                    Uint32 consumerIdleTimeout = DEFAULT_IDLE_TIMEOUT,
                     Uint32 shutdownTimeout = DEFAULT_SHUTDOWN_TIMEOUT);
 
 #ifdef PEGASUS_HAS_SSL
-    DynamicListener(Uint32 portNumber, 
+    DynamicListener(Uint32 portNumber,
                     const String& consumerDir,
                     const String& consumerConfigDir,
-                    Boolean useSSL, 
-                    const String& keyPath, 
+                    Boolean useSSL,
+                    const String& keyPath,
                     const String& certPath,
-                    Boolean enableConsumerUnload = DEFAULT_CONSUMER_UNLOAD, 
-                    Uint32 consumerIdleTimeout = DEFAULT_IDLE_TIMEOUT, 
+                    Boolean enableConsumerUnload = DEFAULT_CONSUMER_UNLOAD,
+                    Uint32 consumerIdleTimeout = DEFAULT_IDLE_TIMEOUT,
                     Uint32 shutdownTimeout = DEFAULT_SHUTDOWN_TIMEOUT);
 
-    DynamicListener(Uint32 portNumber, 
+    DynamicListener(Uint32 portNumber,
                     const String& consumerDir,
                     const String& consumerConfigDir,
-                    Boolean useSSL, 
+                    Boolean useSSL,
                     SSLContext* sslContext,
-                    Boolean enableConsumerUnload = DEFAULT_CONSUMER_UNLOAD, 
-                    Uint32 consumerIdleTimeout = DEFAULT_IDLE_TIMEOUT, 
+                    Boolean enableConsumerUnload = DEFAULT_CONSUMER_UNLOAD,
+                    Uint32 consumerIdleTimeout = DEFAULT_IDLE_TIMEOUT,
                     Uint32 shutdownTimeout = DEFAULT_SHUTDOWN_TIMEOUT);
 #endif
 
@@ -104,7 +104,7 @@ public:
 
     void setIdleTimeout(Uint32 idleTimeout);
 
-    Uint32 getIdleTimeout(); 
+    Uint32 getIdleTimeout();
 
 private:
     void* _rep;

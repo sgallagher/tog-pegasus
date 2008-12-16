@@ -22,7 +22,7 @@ This document provides a sketch of the flow of indications.
 	-   If there is no provider capable of publishing
 	    an indication matching the subscription, then
 	    reject the subscription. In other words,
-	    there must be at least one indication provider 
+	    there must be at least one indication provider
 	    capable of providing an indication of that class
 	    and it must respond positively to the enable
 	    request.
@@ -103,13 +103,13 @@ Other topic:
 	charactertics (not just filter characteristics).
 
     -   Putting the threshold information into the filter, makes the
-	filter less reusable. Having it as characteristic of the 
+	filter less reusable. Having it as characteristic of the
 	subscription expands the usability of the filter object.
 
     -	Talk through disablement of indication provider.
 
     -	If a delivery fails we could:
-    
+
 	    - 	Cancel the subscription.
 
 	    -   Retry.
@@ -123,9 +123,9 @@ Other topic:
 	subscription.
 
     -	Start up requires reenablement of indication providers.
-	Hence each indication provider needs distinct enablement() 
+	Hence each indication provider needs distinct enablement()
 	and start() methods (enablement() must be called for each
-	subscription and then startGeneratingIndications() to finalize 
+	subscription and then startGeneratingIndications() to finalize
 	the sequence).
 
 Homework:

@@ -85,7 +85,7 @@ WbemExecClient::WbemExecClient(Uint32 timeoutMilliseconds)
     _connected(false),
     _isRemote(false)
 {
-    // CAUTION: 
+    // CAUTION:
     //    Using private AutoPtr<> data members for these objects causes linker
     //    errors on some SOLARIS_SPARC_CC platforms.
 

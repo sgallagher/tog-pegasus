@@ -5,7 +5,7 @@ SELECT NonExistent FROM CQL_TestElement
 SELECT * FROM CQL_TestElement WHERE NonExistent = 3
 SELECT PropertyString FROM CQL_TestElement
 SELECT * FROM CQL_TestElement WHERE PropertyString = 'abc'
-# 
+#
 # Multiple chain elements, one property not on the FROM class
 SELECT InstanceID, NotThere FROM CQL_TestElement
 SELECT NotThere1, NotThere2 FROM CQL_TestElement
@@ -90,10 +90,10 @@ SELECT alias.CQL_TestElement::PropertyString FROM CQL_TestElement as alias
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.*
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyReal64Array
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString
-# EmbObjBase.CQL_EmbeddedTestElement::SomeString 
-# EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::InstanceId 
-# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState 
-# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description 
+# EmbObjBase.CQL_EmbeddedTestElement::SomeString
+# EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::InstanceId
+# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState
+# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description
 #
 SELECT EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.*, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString, EmbObjBase.CQL_EmbeddedTestElement::SomeString, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyReal64Array, EmbObjSub, EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::InstanceId, EmbObjSub.*, EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8, EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description FROM CQL_EmbeddedSubClass
 #
@@ -107,10 +107,10 @@ SELECT EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState, 
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.*
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_NonExistent::propertyReal64Array
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString
-# EmbObjBase.CQL_EmbeddedTestElement::SomeString 
-# EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::InstanceId 
-# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState 
-# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description 
+# EmbObjBase.CQL_EmbeddedTestElement::SomeString
+# EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::InstanceId
+# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState
+# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description
 #
 SELECT EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.*, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString, EmbObjBase.CQL_EmbeddedTestElement::SomeString, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_NonExistent::propertyReal64Array, EmbObjSub, EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::InstanceId, EmbObjSub.*, EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8, EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description FROM CQL_EmbeddedSubClass
 #
@@ -124,10 +124,10 @@ SELECT EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState, 
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.*
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyReal64Array
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString
-# EmbObjBase.CQL_EmbeddedTestElement::SomeString 
-# EmbObjBase.CQL_EmbeddedTestElement::NotThere.CQL_TestElement::InstanceId 
-# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState 
-# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description 
+# EmbObjBase.CQL_EmbeddedTestElement::SomeString
+# EmbObjBase.CQL_EmbeddedTestElement::NotThere.CQL_TestElement::InstanceId
+# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState
+# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description
 #
 SELECT EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.*, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString, EmbObjBase.CQL_EmbeddedTestElement::SomeString, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyReal64Array, EmbObjSub, EmbObjBase.CQL_EmbeddedTestElement::NotThere.CQL_TestElement::InstanceId, EmbObjSub.*, EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8, EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description FROM CQL_EmbeddedSubClass
 #
@@ -142,38 +142,38 @@ SELECT EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState, 
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.*
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyReal64Array
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString
-# EmbObjBase.CQL_EmbeddedTestElement::SomeString 
-# EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::InstanceId 
-# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState 
-# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description 
+# EmbObjBase.CQL_EmbeddedTestElement::SomeString
+# EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::InstanceId
+# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState
+# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description
 #
 SELECT EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.*, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString, EmbObjBase.CQL_EmbeddedTestElement::SomeString, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyReal64Array, EmbObjSub, EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::InstanceId, EmbObjSub.*, EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8.CQL_TestPropertyTypes::propertyString, EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description FROM CQL_EmbeddedSubClass
 #
 # Validation of WHERE list
 # This test should pass.
-# 
+#
 # Properties used:
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString
-# EmbObjBase.CQL_EmbeddedTestElement::SomeString 
-# EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::InstanceId 
-# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState 
-# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description 
+# EmbObjBase.CQL_EmbeddedTestElement::SomeString
+# EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::InstanceId
+# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState
+# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description
 SELECT * FROM CQL_EmbeddedSubClass WHERE EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState = 2 AND EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString = 'abc' AND EmbObjBase.CQL_EmbeddedTestElement::SomeString = 'abc' AND EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::InstanceId = 3 AND EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8 = 3 AND EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description = 'abc'
 #
 # Validation of WHERE list
 # This test should fail due to property NotThere does not exist on the scoping class.
-# 
+#
 # Properties used:
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8
 # EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString
-# EmbObjBase.CQL_EmbeddedTestElement::SomeString 
-# EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::NotThere 
-# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState 
-# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description 
+# EmbObjBase.CQL_EmbeddedTestElement::SomeString
+# EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::NotThere
+# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState
+# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description
 SELECT * FROM CQL_EmbeddedSubClass WHERE EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState = 2 AND EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString = 'abc' AND EmbObjBase.CQL_EmbeddedTestElement::SomeString = 'abc' AND EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::NotThere = 3 AND EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8 = 3 AND EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::Description = 'abc'
 
 # Special tests for ISA
 SELECT * FROM CQL_TestPropertyTypes WHERE CQL_TestPropertyTypes ISA CQL_NonExistent
-SELECT * FROM CQL_TestPropertyTypes WHERE CQL_TestPropertyTypes ISA CQL_TestElement 
-SELECT * FROM CQL_TestPropertyTypes WHERE CQL_TestPropertyTypes ISA CQL_TestElement AND CQL_TestPropertyTypes.BogusProperty ISA CQL_TestElement 
+SELECT * FROM CQL_TestPropertyTypes WHERE CQL_TestPropertyTypes ISA CQL_TestElement
+SELECT * FROM CQL_TestPropertyTypes WHERE CQL_TestPropertyTypes ISA CQL_TestElement AND CQL_TestPropertyTypes.BogusProperty ISA CQL_TestElement

@@ -819,8 +819,8 @@ inline Boolean _getQName(char*& p, const char*& localName)
 
     p++;
 
-    // No explicit test for NULL termination is needed. 
-    // On position 0 of the array false is returned. 
+    // No explicit test for NULL termination is needed.
+    // On position 0 of the array false is returned.
     while (_isInnerElementChar[Uint8(*p)])
         p++;
 
@@ -833,8 +833,8 @@ inline Boolean _getQName(char*& p, const char*& localName)
             return false;
 
         p++;
-        // No explicit test for NULL termination is needed. 
-        // On position 0 of the array false is returned. 
+        // No explicit test for NULL termination is needed.
+        // On position 0 of the array false is returned.
         while (_isInnerElementChar[Uint8(*p)])
             p++;
     }

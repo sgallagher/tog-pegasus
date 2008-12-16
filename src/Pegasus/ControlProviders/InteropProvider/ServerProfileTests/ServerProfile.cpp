@@ -441,7 +441,7 @@ void testDMTFProfileInstances(CIMClient &client)
             regInstanceNames[i],
             CIMName("CIM_ReferencedProfile"));
 
-        Uint32 dmtfProfiles = 0; 
+        Uint32 dmtfProfiles = 0;
         for (Uint32 j = 0, k = result.size(); j < k ; ++j)
         {
             // Get only DMTF component profiles.

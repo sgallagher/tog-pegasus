@@ -65,10 +65,10 @@ bool ProviderManagerMap::isValidProvMgrIfc(String &ifcType, String &ifcVersion)
         if (_pmArray[ifc].ifcName == ifcType)
         {
             if (ifcVersion.size()==0)
-            { 
+            {
                 return true;
             }
-            else 
+            else
             {
                 for (Uint32 ver=0; ver<_pmArray[ifc].ifcVersions.size(); ver++)
                 {
@@ -114,7 +114,7 @@ bool ProviderManagerMap::getProvMgrPathForIfcType(String &ifcType,
 
 void ProviderManagerMap::initialize()
 {
-    String libExt = FileSystem::getDynamicLibraryExtension(); 
+    String libExt = FileSystem::getDynamicLibraryExtension();
     // first add the default:
 
     ProvMgrIfcInfo defaultPMEntry;
@@ -132,11 +132,11 @@ void ProviderManagerMap::initialize()
 
     String dirName = ConfigManager::getInstance()->getCurrentValue(
             "providerManagerDir");
-    dirName = ConfigManager::getHomedPath(dirName); 
+    dirName = ConfigManager::getHomedPath(dirName);
 
     PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
         "Looking for ProviderManagers in %s.",
-        (const char*)dirName.getCString())); 
+        (const char*)dirName.getCString()));
 
     // check to make sure that this ifc type is handled by one of the
     // provider managers in the directory
@@ -157,7 +157,7 @@ void ProviderManagerMap::initialize()
             // found a file... assume it's a ProviderManager library
             PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                 "Found file %s. Checking to see if it is a ProviderManager.",
-                (const char*)fullPath.getCString())); 
+                (const char*)fullPath.getCString()));
             DynamicLibrary dl(fullPath);
             if (!dl.load())
             {
@@ -171,8 +171,8 @@ void ProviderManagerMap::initialize()
                 continue;    // to the next file
             }
 
-            Uint32 (*get_peg_ver)() = 
-                (Uint32(*)()) dl.getSymbol("getPegasusVersion"); 
+            Uint32 (*get_peg_ver)() =
+                (Uint32(*)()) dl.getSymbol("getPegasusVersion");
 
             if (get_peg_ver == 0)
             {
@@ -187,46 +187,46 @@ void ProviderManagerMap::initialize()
                 continue;
             }
 
-            Uint32 peg_ver = get_peg_ver(); 
+            Uint32 peg_ver = get_peg_ver();
             if (peg_ver != PEGASUS_VERSION_NUMBER)
             {
-                Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, 
-                    Logger::SEVERE, 
+                Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER,
+                    Logger::SEVERE,
                     MessageLoaderParms(
                         "Server.ProviderRegistrationManager.ProviderManagerMap."
                             "WRONG_VERSION",
                         "Provider Manager $0 returned Pegasus "
                             "version $1.  Expected $2.",
                         fullPath, peg_ver, PEGASUS_VERSION_NUMBER));
-                continue; 
+                continue;
             }
 
             const char** (*get_ifc)() = (const char**(*)()) dl.getSymbol(
                 "getProviderManagerInterfaceNames");
-            const char** (*get_ver)(const char *) = 
+            const char** (*get_ver)(const char *) =
                 (const char**(*)(const char *)) dl.getSymbol(
                     "getProviderManagerInterfaceVersions");
             if (get_ifc == 0)
             {
-                Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, 
-                    Logger::SEVERE, 
+                Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER,
+                    Logger::SEVERE,
                     MessageLoaderParms(
                         "Server.ProviderRegistrationManager.ProviderManagerMap."
                             "MISSING_GET_IFC_NAMES",
                         "Provider Manager $0 does not contain expected "
-                            "function 'getProviderManagerInterfaceNames'", 
+                            "function 'getProviderManagerInterfaceNames'",
                         fullPath));
                 continue;    // to the next file
             }
             if (get_ver == 0)
             {
-                Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, 
-                    Logger::SEVERE, 
+                Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER,
+                    Logger::SEVERE,
                     MessageLoaderParms(
                         "Server.ProviderRegistrationManager.ProviderManagerMap."
                             "MISSING_GET_IFC_VERSIONS",
                         "Provider Manager $0 does not contain expected "
-                            "function 'getProviderManagerInterfaceVersions'", 
+                            "function 'getProviderManagerInterfaceVersions'",
                         fullPath));
                 continue;    // to the next file
             }
@@ -251,7 +251,7 @@ void ProviderManagerMap::initialize()
                             "Adding Provider type %s version %s "
                             "handled by ProviderManager %s",
                              ifcName,ifcVersions[j],
-                             (const char*)fullPath.getCString())); 
+                             (const char*)fullPath.getCString()));
                     }
                     _pmArray.append(entry);
                 }

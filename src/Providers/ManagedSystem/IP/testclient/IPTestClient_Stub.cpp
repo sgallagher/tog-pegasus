@@ -498,7 +498,7 @@ void IPTestClient::_check_NHIPRoute_DestinationMask(String &pv, Boolean verbose)
 
 //------------------------------------------------------------------------------
 void IPTestClient::_check_NHIPRoute_DestinationAddress(
-    String &pv, 
+    String &pv,
     Boolean verbose)
 {
     if (verbose)

@@ -125,18 +125,18 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 
     //set proxy security on pObjEnum
     bool bSecurity = _collector->setProxySecurity(pObjEnum);
-    
+
     //get the results and append them to the array
     hr = pObjEnum->Next(WBEM_INFINITE, 1, &pObject, &dwReturned);
-    
+
     if (SUCCEEDED(hr) && (1 == dwReturned))
-    {    
-        bInst = _collector->isInstance(pObject);    
+    {
+        bInst = _collector->isInstance(pObject);
 
         CComVariant mVar;
         CComBSTR bs;
-        CMyString mstr;  
-        
+        CMyString mstr;
+
         HRESULT hRes = pObject->Get(L"__CLASS", 0, &mVar, 0, 0);
         if (SUCCEEDED(hRes)) {
            bs = mVar.bstrVal;
@@ -147,19 +147,19 @@ Array<CIMObject> WMIQueryProvider::execQuery(
 
     }
 
-    
+
     while (SUCCEEDED(hr) && (1 == dwReturned))
     {
         // collect the information about the current object
         if (bInst)
         {
-            //get class from the returned instance 
+            //get class from the returned instance
             //it will avoid "type mismatch" exceptions
             //when deepInheritance is true and instances
             //of subclasses are returned
             CComVariant vTmpClassName;
             String strTmpClassName;
-            if (pObject->Get(L"__CLASS", 0, &vTmpClassName, NULL, NULL) 
+            if (pObject->Get(L"__CLASS", 0, &vTmpClassName, NULL, NULL)
                 == S_OK)
             {
                 strTmpClassName = WMIString(vTmpClassName);
@@ -170,14 +170,14 @@ Array<CIMObject> WMIQueryProvider::execQuery(
             if (_collector->getCIMInstance(
                     pObject, tempInst,
                     false, includeQualifiers, includeClassOrigin,
-                    propertyList, 
+                    propertyList,
                     true))  //get key properties
             {
                 lCount++;
 
                 // build the object path
                 CComVariant v;
-                hr = pObject->Get(L"__PATH", 
+                hr = pObject->Get(L"__PATH",
                                     0,
                                     &v,
                                     NULL,
@@ -186,7 +186,7 @@ Array<CIMObject> WMIQueryProvider::execQuery(
                 WMIObjectPath tempRef(v.bstrVal);
                 tempInst.setPath(tempRef);
                 v.Clear();
-                
+
                 objects.append(CIMObject(tempInst));
             }
         }
@@ -205,7 +205,7 @@ Array<CIMObject> WMIQueryProvider::execQuery(
                 cimClass.setSuperClassName(superClassName);
             }
 
-            if (_collector->getCIMClass(pObject, 
+            if (_collector->getCIMClass(pObject,
                                         cimClass,
                                         false,
                                         includeQualifiers,
@@ -232,12 +232,12 @@ Array<CIMObject> WMIQueryProvider::execQuery(
         pObjEnum.Release();
 
     PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL4,
-        "WMIQueryProvider::execQuery() - Result count is %d", lCount)); 
+        "WMIQueryProvider::execQuery() - Result count is %d", lCount));
 
     if (lCount == 0)
     {
         PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL2,
-            "WMIQueryProvider::execQuery() - hResult value is %x", hr)); 
+            "WMIQueryProvider::execQuery() - hResult value is %x", hr));
     }
 
     PEG_METHOD_EXIT();

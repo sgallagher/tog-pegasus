@@ -33,13 +33,13 @@ class C
 };
 
 [Association, Description (" ")]
-class B 
+class B
 {
    [key] C REF Antecedent;
    [key] C REF Dependent;
 };
 
 [Association, Description (" ")]
-class A : B 
+class A : B
 {
 };

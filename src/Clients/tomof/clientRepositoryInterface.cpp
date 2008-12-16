@@ -46,14 +46,14 @@ clientRepositoryInterface::clientRepositoryInterface() :
 {
 }
 
-clientRepositoryInterface::~clientRepositoryInterface() 
+clientRepositoryInterface::~clientRepositoryInterface()
 {
     delete _repository;
     delete _client;
 }
 
 void
-clientRepositoryInterface::init(_repositoryType type, 
+clientRepositoryInterface::init(_repositoryType type,
                                 const String &location)
 {
   String message;
@@ -63,7 +63,7 @@ clientRepositoryInterface::init(_repositoryType type,
       _repository = new CIMRepository(location);
       // test to find if repository exists.
   }
-  else if (type == REPOSITORY_INTERFACE_CLIENT) 
+  else if (type == REPOSITORY_INTERFACE_CLIENT)
   {
     // create a CIMClient object and put it in _client
     try
@@ -79,16 +79,16 @@ clientRepositoryInterface::init(_repositoryType type,
         cout << "open " << host << " port " << portNumber << endl;
         _client = new CIMClient();
         _client->connect (host, portNumber, String::EMPTY, String::EMPTY);
-    } 
-    
-    catch(Exception &e) 
+    }
+
+    catch(Exception &e)
     {
       cerr << "Internal Error:" << e.getMessage() << endl;
       delete _client;
       _client = 0;
     }
   }
-  else 
+  else
   {
       throw IndexOutOfBoundsException();
   }
@@ -96,7 +96,7 @@ clientRepositoryInterface::init(_repositoryType type,
 
 
 Array<CIMQualifierDecl> clientRepositoryInterface::enumerateQualifiers(
-    const CIMNamespaceName& nameSpace) const 
+    const CIMNamespaceName& nameSpace) const
 {
   if (_repository)
     return _repository->enumerateQualifiers(nameSpace);
@@ -197,7 +197,7 @@ Array<CIMInstance> clientRepositoryInterface::enumerateInstances(
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
-    
+
 {
     if (_repository)
        return _repository->enumerateInstancesForSubtree(nameSpace, className,

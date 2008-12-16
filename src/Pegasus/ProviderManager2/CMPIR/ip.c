@@ -69,7 +69,7 @@
 #include "tcpcomm.h"
 #include "debug.h"
 
-struct linger __linger = 
+struct linger __linger =
 {
     1,
     15
@@ -159,7 +159,7 @@ int open_connection ( const char * address, int port, int print_errmsg )
         // HERE COMES THE CALL TO GETHOSTBYADDR
         server_host_name = gethostbyaddr(
             &(broker_ip_address),
-            sizeof(broker_ip_address), 
+            sizeof(broker_ip_address),
             AF_INET);
         if (server_host_name == NULL)
         {
@@ -203,16 +203,16 @@ int open_connection ( const char * address, int port, int print_errmsg )
         if (print_errmsg == PEGASUS_PRINT_ERROR_MESSAGE)
         {
             error_at_line (
-                0, 
-                errno, 
-                __FILE__, 
+                0,
+                errno,
+                __FILE__,
                 __LINE__,
                 "failed to create socket");
         }
         return -1;
     }
 
-    setsockopt ( 
+    setsockopt (
         sockfd,
         SOL_SOCKET,
         SO_LINGER,
@@ -225,10 +225,10 @@ int open_connection ( const char * address, int port, int print_errmsg )
         PEGASUS_CMPIR_CLOSESOCKET(sockfd);
         if (print_errmsg == PEGASUS_PRINT_ERROR_MESSAGE)
         {
-            error_at_line ( 
-                0, 
-                errno, 
-                __FILE__, 
+            error_at_line (
+                0,
+                errno,
+                __FILE__,
                 __LINE__,
                 "could not connect to %s:%d",
                 address,
@@ -258,7 +258,7 @@ PEGASUS_EXPORT void accept_connections (
     setsockopt (
         listen_socket,
         SOL_SOCKET,
-        SO_REUSEADDR, 
+        SO_REUSEADDR,
         (char *) &ru,
         sizeof ( ru ));
 
@@ -275,15 +275,15 @@ PEGASUS_EXPORT void accept_connections (
         listen ( listen_socket, 0 ))
     {
 #endif
-        error_at_line ( 
-            -1, 
-            PEGASUS_CMPIR_WSAGETLASTERROR, 
-            __FILE__, 
+        error_at_line (
+            -1,
+            PEGASUS_CMPIR_WSAGETLASTERROR,
+            __FILE__,
             __LINE__,
             "cannot listen on port %d", port);
     }
     _die = 0;
-    while (( in_socket = accept ( 
+    while (( in_socket = accept (
         listen_socket,
         (struct sockaddr *) &sin,
         &sin_len ) ) > 0)
@@ -315,11 +315,11 @@ PEGASUS_EXPORT void accept_connections (
     }
     if (in_socket < 0)
     {
-        error_at_line ( -1, 
-            errno, 
-            __FILE__, 
-            __LINE__, 
-            "invalid socket descriptor (%d) ", 
+        error_at_line ( -1,
+            errno,
+            __FILE__,
+            __LINE__,
+            "invalid socket descriptor (%d) ",
             in_socket);
     }
 

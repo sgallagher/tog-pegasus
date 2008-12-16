@@ -79,7 +79,7 @@ test_async_queue::_handle_async_request (AsyncRequest * rq)
 {
   if ((rq->getType () == ASYNC_ASYNC_OP_START) ||
       (rq->getType () == ASYNC_ASYNC_LEGACY_OP_START))
-    {  
+    {
      try {
       PEGASUS_TEST_ASSERT (_role == SERVER);
       Message *response_data =
@@ -119,7 +119,7 @@ test_async_queue::async_handleEnqueue (AsyncOpNode * op,
                                        MessageQueue * q, void *parm)
 {
 
-  // I am static, get a pointer to my object 
+  // I am static, get a pointer to my object
   test_async_queue *myself = static_cast < test_async_queue * >(q);
 
   async_start *rq = static_cast < async_start * >(op->removeRequest());
@@ -160,7 +160,7 @@ test_async_queue::async_handleSafeEnqueue (Message * msg,
 void
 test_async_queue::_handle_stop (CimServiceStop * stop)
 {
-  try { 
+  try {
   AsyncReply *resp = new AsyncReply (ASYNC_REPLY,
                                      0,
                                      stop->op,
@@ -220,7 +220,7 @@ client_func (void *parm)
 
     test_async_queue *client = new test_async_queue (test_async_queue::CLIENT);
 
-    // find the server 
+    // find the server
     MessageQueue *serverQueue = 0;
     while (serverQueue == 0)
     {
@@ -271,7 +271,7 @@ client_func (void *parm)
 
         // You really ought to allow other threads to their job (like picking
         // up all of these messages, but we want to stress test unfair
-        // circumstances. 
+        // circumstances.
         //Threads::yield ();
     }
 
@@ -330,7 +330,7 @@ client_func (void *parm)
         cerr <<" Out of memory! Continuing tests." << endl;
     }
 
-    // wait for the server to shut down 
+    // wait for the server to shut down
     while (serverQueue)
     {
         serverQueue = MessageQueue::lookup("server");

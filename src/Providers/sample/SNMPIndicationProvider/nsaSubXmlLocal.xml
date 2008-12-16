@@ -10,11 +10,11 @@
         <IPARAMVALUE NAME="NewInstance">
           <INSTANCE CLASSNAME="CIM_IndicationSubscription">
             <QUALIFIER NAME="ASSOCIATION" TYPE="boolean" OVERRIDABLE="false">
-              <VALUE>TRUE</VALUE> 
+              <VALUE>TRUE</VALUE>
             </QUALIFIER>
-            <PROPERTY.REFERENCE NAME="Filter" 
-                                REFERENCECLASS="CIM_IndicationFilter"> 
-              <VALUE.REFERENCE> 
+            <PROPERTY.REFERENCE NAME="Filter"
+                                REFERENCECLASS="CIM_IndicationFilter">
+              <VALUE.REFERENCE>
                 <INSTANCENAME CLASSNAME="CIM_IndicationFilter">
                   <KEYBINDING NAME="SystemCreationClassName">
                     <KEYVALUE VALUETYPE="string">
@@ -39,9 +39,9 @@
                 </INSTANCENAME>
               </VALUE.REFERENCE>
             </PROPERTY.REFERENCE>
-            <PROPERTY.REFERENCE NAME="Handler" 
-                                REFERENCECLASS="CIM_IndicationHandler"> 
-              <VALUE.REFERENCE> 
+            <PROPERTY.REFERENCE NAME="Handler"
+                                REFERENCECLASS="CIM_IndicationHandler">
+              <VALUE.REFERENCE>
                 <INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
                   <KEYBINDING NAME="SystemCreationClassName">
                     <KEYVALUE VALUETYPE="string">
@@ -66,7 +66,7 @@
                 </INSTANCENAME>
               </VALUE.REFERENCE>
             </PROPERTY.REFERENCE>
-            <PROPERTY NAME="SubscriptionState" TYPE="uint16"> 
+            <PROPERTY NAME="SubscriptionState" TYPE="uint16">
               <VALUE> 2 </VALUE>
             </PROPERTY>
           </INSTANCE>

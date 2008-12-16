@@ -96,7 +96,7 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
         {
         case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
             {
-                CIMExportIndicationRequestMessage* request = 
+                CIMExportIndicationRequestMessage* request =
                     (CIMExportIndicationRequestMessage*)message;
                 CIMException cimException;
 
@@ -114,7 +114,7 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
                                Logger::ERROR_LOG,
                                System::CIMLISTENER,
                                Logger::SEVERE,
-                               "Exception getting consumer: $0", 
+                               "Exception getting consumer: $0",
                                ex.getMessage());
 
                 } catch (...)
@@ -130,20 +130,20 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
                                "Unknown Exception getting consumer");
                 }
 
-                /** At this point (barring one of the above exceptions), 
-                 * we can be reasonably sure that the indication will get 
+                /** At this point (barring one of the above exceptions),
+                 * we can be reasonably sure that the indication will get
                  * delivered and processed. The request was well-formatted and
                  * we were able to locate and load the consumer.
-                 * Send an acknowledgement to the client that we received 
-                 * the indication. 
-                 * We should not wait until the consumer reports ultimate 
-                 * success since that could take a long time and would require 
-                 * us to store a bunch of status information.  
-                 * Additionally, the wait could cause a timeout exception 
+                 * Send an acknowledgement to the client that we received
+                 * the indication.
+                 * We should not wait until the consumer reports ultimate
+                 * success since that could take a long time and would require
+                 * us to store a bunch of status information.
+                 * Additionally, the wait could cause a timeout exception
                  * on the client end.
 
                  */
-                // ATTN: Why isn't the CIM exception getting appended 
+                // ATTN: Why isn't the CIM exception getting appended
                 // to the response?  Go look in Message.h
                 CIMResponseMessage* response = request->buildResponse();
                 response->cimException = cimException;
@@ -154,17 +154,17 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
         default:
             {
                 // unsupported message type
-                // it should not get here; 
+                // it should not get here;
                 // this error is caught in the request decoder
-                PEG_TRACE((TRC_LISTENER,Tracer::LEVEL2, 
+                PEG_TRACE((TRC_LISTENER,Tracer::LEVEL2,
                     "Unsupported msg type: %s",
                     MessageTypeToString(message->getType())));
 
-                CIMRequestMessage* cimRequest = 
+                CIMRequestMessage* cimRequest =
                     dynamic_cast<CIMRequestMessage*>(message);
 
                 CIMResponseMessage* response = cimRequest->buildResponse();
-                response->cimException = 
+                response->cimException =
                     PEGASUS_CIM_EXCEPTION_L(
                         CIM_ERR_FAILED,
                         MessageLoaderParms(
@@ -175,7 +175,7 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
                 _enqueueResponse (cimRequest, response);
             }
             break;
-        }   
+        }
         delete message;
     }
 
@@ -203,7 +203,7 @@ void DynamicListenerIndicationDispatcher::_handleIndicationRequest(
                    Logger::ERROR_LOG,
                    System::CIMLISTENER,
                    Logger::SEVERE,
-                   "Invalid URL $0", 
+                   "Invalid URL $0",
                    url);
 
         MessageLoaderParms msgLoaderParms(
@@ -216,8 +216,8 @@ void DynamicListenerIndicationDispatcher::_handleIndicationRequest(
 
     String consumerName = url.subString(slash+1);
 
-    // check for a trailing slash, 
-    // in the case that additional information is in the URL, 
+    // check for a trailing slash,
+    // in the case that additional information is in the URL,
     // i.e. /CIMListener/MyConsumer/9.44.169.132
     Uint32 trailingSlash = consumerName.find('/');
     if (trailingSlash != PEG_NOT_FOUND)
@@ -227,7 +227,7 @@ void DynamicListenerIndicationDispatcher::_handleIndicationRequest(
             "The consumer name with slash removed is '%s'!",
             (const char*)consumerName.getCString()));
     }
-    
+
     //get consumer
     //this will throw an exception if it fails
     //gets deleted by the ConsumerManager

@@ -39,7 +39,7 @@
 //     CMPI_TEST_Person
 //     CMPI_TEST_Vehicle
 //     CMPI_TEST_Racing  (association class)
-//     
+//
 // The executable for this CIM client application is: cmpiAssociationTestClient.
 // To display the test results (returned instances or classes), define the
 // environment variable PEGASUS_TEST_VERBOSE.
@@ -94,7 +94,7 @@ void _errorExit(String message)
 //  terminate the program.
 //
 void _verifyResult(const Uint32 numObjects, const Uint32 numExpectedObjects)
-{   
+{
     if (numObjects != numExpectedObjects)
     {
         cerr << "Error: Unexpected number of objects returned. " << endl;;
@@ -203,7 +203,7 @@ void _testAssociatorNames(CIMClient& client, CIMName assocClass,
         // specified source instance via an instance of the AssocClass.
         //
         CIMName resultClass;
-   
+
         String role;
         String resultRole;
 
@@ -226,7 +226,7 @@ void _testAssociatorNames(CIMClient& client, CIMName assocClass,
 //  _testReferences
 ////////////////////////////////////////////////////////////////////////////
 
-void _testReferences(CIMClient& client, CIMObjectPath instancePath, 
+void _testReferences(CIMClient& client, CIMObjectPath instancePath,
                      Uint32 numExpectedObjects)
 {
     if (verbose)
@@ -376,7 +376,7 @@ void _testCMPIAssociationClassOperations(CIMClient& client, CIMName className)
 
     if (verbose)
     {
-        cout << "+++++ Test references for (" << className.getString() 
+        cout << "+++++ Test references for (" << className.getString()
              << ")" << endl;
     }
 
@@ -493,7 +493,7 @@ int main(int argc, char** argv)
     */
     Uint32 numPersonInstances = personRefs.size();
     Uint32 numVehicleInstances = vehicleRefs.size();
-    
+
 
     // =======================================================================
     // Test associators
@@ -502,7 +502,7 @@ int main(int argc, char** argv)
     // instance via an instance of a specified association class.
     // =======================================================================
 
-    if (verbose) 
+    if (verbose)
     {
         cout << "+++++ Test associators" << endl;
     }
@@ -529,7 +529,7 @@ int main(int argc, char** argv)
     // source CIM instance via an instance of a association class.
     // =======================================================================
 
-    if (verbose) 
+    if (verbose)
     {
         cout << "+++++ Test associatorNames" << endl;
     }

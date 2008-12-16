@@ -60,7 +60,7 @@ public:
 
 private:
     ProviderName();
-    
+
     String _physicalName;
     String _moduleName;
     String _logicalName;

@@ -76,12 +76,12 @@ CMPI_EXTERN_C char * _CMPIValueToString (CMPIData data);
 CMPI_EXTERN_C void check_CMPIStatus (CMPIStatus rc);
 
 CMPI_EXTERN_C CMPIBoolean
-evalute_selectcond (const CMPISelectCond * cond, 
+evalute_selectcond (const CMPISelectCond * cond,
                     CMPIAccessor *accessor,
                     void *parm);
 
 CMPI_EXTERN_C CMPIBoolean
-evaluate(const CMPISelectExp *se, 
+evaluate(const CMPISelectExp *se,
          const CMPIInstance *inst,
          CMPIAccessor *inst_accessor,
          void *parm );

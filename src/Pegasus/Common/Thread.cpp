@@ -264,9 +264,9 @@ Thread::Thread(
     void *parameter,
     Boolean detached) :_is_detached(detached),
     _cancelled(false),
-    _start(start), 
-    _cleanup(), 
-    _thread_parm(parameter), 
+    _start(start),
+    _cleanup(),
+    _thread_parm(parameter),
     _exit_code(0)
 {
     Threads::clear(_handle.thid);

@@ -51,10 +51,10 @@ char * FSCreationClassName();
 char * FSName();
 
 
-CmpiObjectPath makePath(const char *classname, 
+CmpiObjectPath makePath(const char *classname,
                         const char *nameSpace, const CWS_FILE *cwsf);
-CmpiInstance   makeInstance(const char *classname, 
-                            const char *nameSpace, const CWS_FILE *cwsf, 
+CmpiInstance   makeInstance(const char *classname,
+                            const char *nameSpace, const CWS_FILE *cwsf,
                             const char **projection);
 int            makeFileBuf(const CmpiInstance& instance, CWS_FILE *cwsf);
 char         **projection2Filter(const CmpiArray& ar);

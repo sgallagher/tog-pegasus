@@ -94,7 +94,7 @@ static CMPIContext * __cft_clone ( CONST CMPIContext * ctx, CMPIStatus * rc )
 }
 
 
-static CMPIData __cft_getEntry ( 
+static CMPIData __cft_getEntry (
     CONST CMPIContext * ctx,
     const char * name,
     CMPIStatus * rc )
@@ -118,7 +118,7 @@ static CMPIData __cft_getEntry (
 }
 
 
-static CMPIData __cft_getEntryAt ( 
+static CMPIData __cft_getEntryAt (
     CONST CMPIContext * ctx,
     unsigned int index,
     CMPIString ** name,
@@ -137,8 +137,8 @@ static CMPIData __cft_getEntryAt (
 }
 
 
-static unsigned int __cft_getEntryCount ( 
-    CONST CMPIContext * ctx, 
+static unsigned int __cft_getEntryCount (
+    CONST CMPIContext * ctx,
     CMPIStatus * rc )
 {
     struct native_context * c = (struct native_context *) ctx;
@@ -151,7 +151,7 @@ static unsigned int __cft_getEntryCount (
 }
 
 
-static CMPIStatus __cft_addEntry ( 
+static CMPIStatus __cft_addEntry (
     CONST CMPIContext * ctx,
     const char * name,
     CONST CMPIValue * value,
@@ -172,7 +172,7 @@ static CMPIStatus __cft_addEntry (
     {
         p = &c->containers;
     }
-    CMReturn ( ( propertyFT.addProperty ( 
+    CMReturn ( ( propertyFT.addProperty (
         p,
         c->mem_state,
         name,
@@ -212,14 +212,14 @@ static struct native_context * __new_empty_context ( int mm_add )
 
 
 
-PEGASUS_EXPORT CMPIContext * PEGASUS_CMPIR_CDECL native_new_CMPIContext ( 
+PEGASUS_EXPORT CMPIContext * PEGASUS_CMPIR_CDECL native_new_CMPIContext (
     int mem_state )
 {
     return(CMPIContext *) __new_empty_context ( mem_state );
 }
 
 
-PEGASUS_EXPORT void PEGASUS_CMPIR_CDECL native_release_CMPIContext ( 
+PEGASUS_EXPORT void PEGASUS_CMPIR_CDECL native_release_CMPIContext (
     CONST CMPIContext * ctx )
 {
     struct native_context * c = (struct native_context *) ctx;

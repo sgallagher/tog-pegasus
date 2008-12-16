@@ -34,8 +34,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-WQLOperand::WQLOperand() : _type(NULL_VALUE) 
-{ 
+WQLOperand::WQLOperand() : _type(NULL_VALUE)
+{
 
 }
 
@@ -120,7 +120,7 @@ String WQLOperand::toString() const
     {
         result = "INTEGER_VALUE: ";
         char buffer[32];
-        sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", 
+        sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
                     _integerValue);
         result.append(buffer);
         break;
@@ -133,7 +133,7 @@ String WQLOperand::toString() const
         sprintf(buffer, "%f", _doubleValue);
         result.append(buffer);
         break;
-    } 
+    }
 
     case BOOLEAN_VALUE:
     {

@@ -108,7 +108,7 @@ PEGASUS_NAMESPACE_BEGIN
     </pre>
 
     The WQLSelectStatement::evaluateWhereClause() method may be called to
-    determine whether a particular instance (whose properties are made 
+    determine whether a particular instance (whose properties are made
     available to he evaluateWhereClause() by a user implementation of the
     WQLPropertySource class). This method returns true, if the where clause
     matches this instance. Here is an example:
@@ -125,21 +125,21 @@ PEGASUS_NAMESPACE_BEGIN
     </pre>
 
     The evaluateWhereClause() method calls propertySource->getValue() to
-    obtain values for each of the properties referred to in where clause (X 
+    obtain values for each of the properties referred to in where clause (X
     and Y in the above query example).
 
     The implementer of the WQLPropertySource interface must provide the
     implementation of getValue() to produce values for the target data
-    types. The WQL library makes no assumptions about the nature of the 
+    types. The WQL library makes no assumptions about the nature of the
     target data representation. This was done so that this libary could be
     adapted to multiple data representations.
 
     For use with Pegasus CIMInstance objects, a CIMInstancePropertySource
-    class could be developed whose getValue() method fetches values from 
+    class could be developed whose getValue() method fetches values from
     a CIMInstance. Here is an example of how it might be used.
 
     <pre>
-    CIMInstancePropertySource* propertySource 
+    CIMInstancePropertySource* propertySource
         = new CIMInstancePropertySource(...);
 
     CIMInstance instance;
@@ -164,15 +164,15 @@ public:
     /** Parse the SELECT statement given by the text parameter and initialize
     the statement parameter accordingly.
 
-    Please note that this method is not thread safe. It must be guarded 
+    Please note that this method is not thread safe. It must be guarded
     with mutexes by the caller.
 
     @param text null-terminated C-string which points to SQL statement.
     @param statement object which holds the compiled version of the SELECT
         statement upon return.
     @exception ParseError if text is not a valid SELECT statement.
-    @exception MissingNullTerminator if text argument is not 
-        terminated with a null. 
+    @exception MissingNullTerminator if text argument is not
+        terminated with a null.
     */
     static void parse(
     const char* text,

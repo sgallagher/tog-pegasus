@@ -41,13 +41,13 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-/** 
+/**
   The CQLIdentifier class encapsulates
   the different formats of the CQL property portion
-  of a CQLChainedIdentifier. 
+  of a CQLChainedIdentifier.
 
   For example, a CQLChainedIdentifier can have these parts:
- 
+
     Class.EmbeddedObject.Property
     Class.Property
 
@@ -66,21 +66,21 @@ class CQLIdentifierRep: public QueryIdentifierRep
 public:
     CQLIdentifierRep();
     /**  The constructor for a CQLIdentifier object
-          takes a const string reference as input.  
+          takes a const string reference as input.
           The string should contain the property portion of a
           CQLChainedIdentifier.
-    
-         The constructor parses the input string into the components of 
-         the property identifier. 
-    
+
+         The constructor parses the input string into the components of
+         the property identifier.
+
          Throws parsing errors.
       */
     CQLIdentifierRep(const String& identifier);
-    
+
     CQLIdentifierRep(const CQLIdentifierRep* rep);
-    
+
     ~CQLIdentifierRep();
-    
+
     CQLIdentifierRep& operator=(const CQLIdentifierRep& rhs);
 
 private:
@@ -90,9 +90,9 @@ private:
         the value of the parameter and that changed value should not
         be returned to the caller.
     */
-    
+
     void parse(String indentifier);
-    
+
     static Char16 STAR;
     static Char16 HASH;
     static Char16 RBRKT;

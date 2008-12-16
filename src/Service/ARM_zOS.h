@@ -34,7 +34,7 @@
 #ifndef ARM_zOS_h
 #define ARM_zOS_h
 
-// #include <Pegasus/Common/Config.h>                    
+// #include <Pegasus/Common/Config.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -28,9 +28,9 @@
 //////////////////////////////////////////////////////////////////////////
 //
 // Author: Paulo F. Borges (pfborges@wowmail.com)
-//       
 //
-// Modified By:  
+//
+// Modified By:
 //         Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
 //
 //==============================================================================

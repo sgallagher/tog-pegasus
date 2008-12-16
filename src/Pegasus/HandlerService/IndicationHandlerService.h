@@ -54,13 +54,13 @@ class PEGASUS_HANDLER_SERVICE_LINKAGE IndicationHandlerService :
     public MessageQueueService
 {
 public:
-    
+
     typedef MessageQueueService Base;
-    
+
     IndicationHandlerService(CIMRepository* repository);
 
     ~IndicationHandlerService() { } ;
-      
+
     virtual void _handle_async_request(AsyncRequest* req);
 
     virtual void handleEnqueue(Message*);

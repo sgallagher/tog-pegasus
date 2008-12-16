@@ -41,7 +41,7 @@ ProviderRegistrationTable::ProviderRegistrationTable(
     const Array<CIMInstance> & instances)
     : _instances(instances)
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, 
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
                      "ProviderRegistrationTable::ProviderRegistrationTable");
 
     for (Uint32 i=0; i < _instances.size(); i++)

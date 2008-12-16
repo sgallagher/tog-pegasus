@@ -55,12 +55,12 @@ IPPEpInfo::IPPEpInfo(CIMClient &client, Boolean enableDebug,
         Boolean localOnly = true;
         Boolean includeQualifiers = false;
         Boolean includeClassOrigin = false;
-      
-        Array<CIMInstance> cimInstances = 
+
+        Array<CIMInstance> cimInstances =
                 client.enumerateInstances(NAMESPACE, CLASS_NAME,
                     deepInheritance, localOnly, includeQualifiers,
                     includeClassOrigin);
-         
+
         Uint32 numberInstances = cimInstances.size();
 
         if (_enableDebug)
@@ -83,12 +83,12 @@ IPPEpInfo::IPPEpInfo(CIMClient &client, Boolean enableDebug,
     }
         else
     {
-         outPrintWriter << "No instances of class " 
+         outPrintWriter << "No instances of class "
                         << CLASS_NAME.getString() << endl;
     }
 
-    }  // end try 
-   
+    }  // end try
+
     catch(Exception&)
     {
         errPrintWriter << "Error getting instances of class " <<
@@ -141,40 +141,40 @@ void IPPEpInfo::_gatherProperties(CIMInstance &inst)
 
         // Other properties
         else if (propertyName.equal("Caption"))
-            inst.getProperty(j).getValue().get(_ipCaption); 
+            inst.getProperty(j).getValue().get(_ipCaption);
 
         else if (propertyName.equal("Description"))
-            inst.getProperty(j).getValue().get(_ipDescription); 
+            inst.getProperty(j).getValue().get(_ipDescription);
 
         else if (propertyName.equal("NameFormat"))
-            inst.getProperty(j).getValue().get(_ipNameFormat); 
+            inst.getProperty(j).getValue().get(_ipNameFormat);
 
         else if (propertyName.equal("ProtocolType"))
-            inst.getProperty(j).getValue().get(_ipProtocolType); 
+            inst.getProperty(j).getValue().get(_ipProtocolType);
 
         else if (propertyName.equal("Address"))
-            inst.getProperty(j).getValue().get(_ipAddress); 
+            inst.getProperty(j).getValue().get(_ipAddress);
 
         else if (propertyName.equal("IPv6Address"))
-            inst.getProperty(j).getValue().get(_ipIPv6Address); 
+            inst.getProperty(j).getValue().get(_ipIPv6Address);
 
         else if (propertyName.equal("IPv4Address"))
-            inst.getProperty(j).getValue().get(_ipIPv4Address); 
+            inst.getProperty(j).getValue().get(_ipIPv4Address);
 
         else if (propertyName.equal("SubnetMask"))
-            inst.getProperty(j).getValue().get(_ipSubnetMask); 
+            inst.getProperty(j).getValue().get(_ipSubnetMask);
 
         else if (propertyName.equal("PrefixLength"))
-            inst.getProperty(j).getValue().get(_ipPrefixLength); 
+            inst.getProperty(j).getValue().get(_ipPrefixLength);
 
         else if (propertyName.equal("AddressType"))
-            inst.getProperty(j).getValue().get(_ipAddrType); 
+            inst.getProperty(j).getValue().get(_ipAddrType);
 
         else if (propertyName.equal("IPVersionSupport"))
-            inst.getProperty(j).getValue().get(_ipIPVersionSupport); 
+            inst.getProperty(j).getValue().get(_ipIPVersionSupport);
 
         else if (propertyName.equal("ProtocolIFType"))
-            inst.getProperty(j).getValue().get(_ipProtocolIFType); 
+            inst.getProperty(j).getValue().get(_ipProtocolIFType);
 
    } // end for loop through properties
 
@@ -200,7 +200,7 @@ void IPPEpInfo::_outputHeader(ostream &outPrintWriter)
         outPrintWriter << "Creation Class Name         : " << _ipCCN << endl;
 
     if (_ipNameFormat.size() > 0)
-        outPrintWriter << "Name Format                 : " 
+        outPrintWriter << "Name Format                 : "
         << _ipNameFormat << endl;
 
 /*
@@ -221,7 +221,7 @@ void IPPEpInfo::_outputHeader(ostream &outPrintWriter)
         "Address", "SubnetMask/PrefixLength");
 
     outPrintWriter << endl << header << endl;
-    
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -236,13 +236,13 @@ void IPPEpInfo::_outputInstance(ostream &outPrintWriter)
     {
         _ipPT = "Unknown";
     }
-    else 
+    else
     {
         if (_ipProtocolType == 2)
         {
             _ipPT = "IPv4";
         }
-        else 
+        else
         {
             if (_ipProtocolType == 3)
             {
@@ -260,15 +260,15 @@ void IPPEpInfo::_outputInstance(ostream &outPrintWriter)
     if (_ipAddrType == 1)
     {
         sprintf(
-            row, 
-            HeaderFormat, 
+            row,
+            HeaderFormat,
             (const char *)_ipName.getCString(),
             "IPv4",
             (const char *)_ipPT.getCString(),
             (const char *)_ipAddress.getCString(),
             (const char *)_ipSubnetMask.getCString());
     }
-    else 
+    else
     {
         if (_ipAddrType == 2)
         {
@@ -280,15 +280,15 @@ void IPPEpInfo::_outputInstance(ostream &outPrintWriter)
             if (_ipAddress.size() > 15)
             {
                 sprintf(
-                    row, 
-                    HeaderFormat, 
+                    row,
+                    HeaderFormat,
                     (const char *)_ipName.getCString(),
                     (const char *)_ipAT.getCString(),
                     (const char *)_ipPT.getCString(),
                     (const char *)_ipAddress.getCString(),
                     "");
                 outPrintWriter << row << endl;
-    
+
                 _ipName.clear();
                 _ipPT.clear();
                 _ipAT.clear();
@@ -318,5 +318,5 @@ void IPPEpInfo::_outputInstance(ostream &outPrintWriter)
     }
 
     outPrintWriter << row << endl;
-    
+
 }

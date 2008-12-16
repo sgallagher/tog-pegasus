@@ -47,5 +47,5 @@
 #ifdef PEGASUS_ENABLE_SLP
     {"slp", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
-    
+
 #endif /* Pegasus_DefaultPropertyTablePase_h */

@@ -257,7 +257,7 @@ NOTES             :
 */
 Boolean IPInterface::getPrefixLength(Uint8& i8) const
 {
-    // not supported. 
+    // not supported.
     return false;
 }
 

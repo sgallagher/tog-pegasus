@@ -343,7 +343,7 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
 
     _routing_table = DynamicRoutingTable::getRoutingTable();
 
-    _providerManagerServiceId = 
+    _providerManagerServiceId =
         lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP)->getQueueId();
 
     cimAggregationLocalHost = System::getHostName();
@@ -1424,7 +1424,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
             String moduleName;
 
             // get the provider module name
-            if ((pos = pmInstance.findProperty(PEGASUS_PROPERTYNAME_NAME)) != 
+            if ((pos = pmInstance.findProperty(PEGASUS_PROPERTYNAME_NAME)) !=
                     PEG_NOT_FOUND)
             {
                 pmInstance.getProperty(pos).getValue().get(moduleName);
@@ -1446,7 +1446,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
             PEG_TRACE((TRC_DISPATCHER,Tracer::LEVEL4,
                 "Normalization for provider module %s is %s.",
                 (const char*)moduleName.getCString(),
-                (providerInfo.hasProviderNormalization ? 
+                (providerInfo.hasProviderNormalization ?
                      "enabled" : "disabled")));
         }
 #endif
@@ -1546,7 +1546,7 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
         String remoteInformation;
         Boolean isRemote = false;
         isRemote = _repository->isRemoteNameSpace(
-            nameSpace, 
+            nameSpace,
             remoteInformation);
         if (isRemote)
             providercontainer = new ProviderIdContainer(
@@ -2719,7 +2719,7 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
         _repository->deleteInstance(
             request->nameSpace,
             request->instanceName);
-        
+
         PEG_TRACE((
             TRC_DISPATCHER,
             Tracer::LEVEL3,
@@ -2844,7 +2844,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
         CIMObjectPath instanceName = _repository->createInstance(
             request->nameSpace,
             request->newInstance);
-        
+
         PEG_TRACE((
             TRC_DISPATCHER,
             Tracer::LEVEL3,
@@ -3667,12 +3667,12 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
             "Namespace: %s  Class name: %s",
         CSTRING(request->nameSpace.getString()),
         CSTRING(request->objectName.toString())));
-    
+
     //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class also
     //  has no key bindings
-    Boolean isClassRequest = 
+    Boolean isClassRequest =
         (request->objectName.getKeyBindings().size() == 0);
 
     if (isClassRequest)
@@ -3906,12 +3906,12 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
             "Namespace: %s  Class name: %s",
         CSTRING(request->nameSpace.getString()),
         CSTRING(request->objectName.toString())));
-    
+
     //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class also
     //  has no key bindings
-    Boolean isClassRequest = 
+    Boolean isClassRequest =
         (request->objectName.getKeyBindings().size() == 0);
 
     if (isClassRequest)
@@ -4008,7 +4008,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                     dynamic_cast<CIMAssociatorNamesResponseMessage*>(
                         request->buildResponse()));
                 response->cimException = PEGASUS_CIM_EXCEPTION(
-                    CIM_ERR_NOT_SUPPORTED, 
+                    CIM_ERR_NOT_SUPPORTED,
                     String::EMPTY);
             }
 
@@ -4126,12 +4126,12 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
             "Namespace: %s  Class name: %s",
         CSTRING(request->nameSpace.getString()),
         CSTRING(request->objectName.toString())));
-    
+
     //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class also
     //  has no key bindings
-    Boolean isClassRequest = 
+    Boolean isClassRequest =
         (request->objectName.getKeyBindings().size() == 0);
 
     if (isClassRequest)
@@ -4229,7 +4229,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                 response.reset(dynamic_cast<CIMReferencesResponseMessage*>(
                     request->buildResponse()));
                 response->cimException = PEGASUS_CIM_EXCEPTION(
-                    CIM_ERR_NOT_SUPPORTED, 
+                    CIM_ERR_NOT_SUPPORTED,
                     String::EMPTY);
             }
 
@@ -4355,12 +4355,12 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
             "Namespace: %s  Class name: %s",
         CSTRING(request->nameSpace.getString()),
         CSTRING(request->objectName.toString())));
-    
+
     //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class also
     //  has no key bindings
-    Boolean isClassRequest = 
+    Boolean isClassRequest =
         (request->objectName.getKeyBindings().size() == 0);
 
     if (isClassRequest)
@@ -4452,7 +4452,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                 response.reset(dynamic_cast<CIMReferenceNamesResponseMessage*>(
                     request->buildResponse()));
                 response->cimException = PEGASUS_CIM_EXCEPTION(
-                    CIM_ERR_NOT_SUPPORTED, 
+                    CIM_ERR_NOT_SUPPORTED,
                     String::EMPTY);
             }
 
@@ -5029,7 +5029,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsResponseAggregation(
         CSTRING(poA->_nameSpace.getString()),
         CSTRING(poA->_className.getString()),
         poA->numberResponses()));
-    
+
     // This double loop has 2 purposes:
     // 1. To work backward and delete each response off the end of the array
     //    and append each instance to the list of instances of the first
@@ -5729,7 +5729,7 @@ void CIMOperationRequestDispatcher::_checkEnumerateTooBroad(
     Uint32 providerCount)
 {
     if (providerCount > _maximumEnumerateBreadth)
-    {       
+    {
         PEG_TRACE((
             TRC_DISPATCHER,
             Tracer::LEVEL1,

@@ -35,7 +35,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
-#include <Pegasus/CQL/CQLIdentifier.h>   
+#include <Pegasus/CQL/CQLIdentifier.h>
 #include <Pegasus/Query/QueryCommon/SubRange.h>
 
 PEGASUS_USING_PEGASUS;
@@ -68,7 +68,7 @@ void drive_CQLIdentifier(){
 
     CQLIdentifier _ID3("*");
     PEGASUS_TEST_ASSERT(_ID3.isWildcard());
-    
+
     CQLIdentifier scopedID("SCOPE::IDENTIFIER");
     PEGASUS_TEST_ASSERT(scopedID.isScoped());
     PEGASUS_TEST_ASSERT(scopedID.getScope() == "SCOPE");
@@ -76,7 +76,7 @@ void drive_CQLIdentifier(){
     CQLIdentifier _ID4("A::Name");
     CQLIdentifier _ID4a("A::Name");
     PEGASUS_TEST_ASSERT(_ID4 == _ID4a);
-    
+
     CQLIdentifier symbolicConstantID("Name#OK");
     PEGASUS_TEST_ASSERT(symbolicConstantID.getName() == "Name");
     PEGASUS_TEST_ASSERT(symbolicConstantID.isSymbolicConstant());
@@ -97,7 +97,7 @@ void drive_CQLIdentifier(){
    {
    }
 
-   try 
+   try
    {
      CQLIdentifier rangeID("SCOPE::Name[5..,6..,..7,4-5,..]");
      PEGASUS_TEST_ASSERT(false);
@@ -106,7 +106,7 @@ void drive_CQLIdentifier(){
    {
    }
 
-   try 
+   try
    {
      CQLIdentifier rangeID1("Name[*]");
      PEGASUS_TEST_ASSERT(false);
@@ -126,7 +126,7 @@ void drive_CQLIdentifier(){
 
 
    try
-   {  
+   {
      CQLIdentifier invalid1("Name[4-5]#OK");
      PEGASUS_TEST_ASSERT(false);
    }
@@ -138,7 +138,7 @@ void drive_CQLIdentifier(){
 void drive_CQLChainedIdentifier()
 {
   // Error cases
-  try 
+  try
   {
     CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[*]");
    PEGASUS_TEST_ASSERT(false);
@@ -148,7 +148,7 @@ void drive_CQLChainedIdentifier()
     // do nothing, exception is expected due to wildcard
   }
 
-  try 
+  try
   {
     CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[1,3-5,7]");
    PEGASUS_TEST_ASSERT(false);
@@ -158,7 +158,7 @@ void drive_CQLChainedIdentifier()
     // do nothing, exception is expected due to range
   }
 
-  try 
+  try
   {
     CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[1..3]");
    PEGASUS_TEST_ASSERT(false);
@@ -168,7 +168,7 @@ void drive_CQLChainedIdentifier()
     // do nothing, exception is expected due to range
   }
 
-  try 
+  try
   {
     CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[]");
    PEGASUS_TEST_ASSERT(false);
@@ -178,7 +178,7 @@ void drive_CQLChainedIdentifier()
     // do nothing, exception is expected due to missing index
   }
 
-  try 
+  try
   {
     CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[3]#'ok'");
    PEGASUS_TEST_ASSERT(false);
@@ -189,7 +189,7 @@ void drive_CQLChainedIdentifier()
     // and symbolic constant.
   }
 
-  try 
+  try
   {
     CQLChainedIdentifier _CI("CLASS.B::EO.A::PROP[3");
    PEGASUS_TEST_ASSERT(false);
@@ -199,7 +199,7 @@ void drive_CQLChainedIdentifier()
     // do nothing, exception is expected due to missing ']'
   }
 
-  try 
+  try
   {
     CQLChainedIdentifier _CI("CLASS.B::EO.A::this-is-bogus");
    PEGASUS_TEST_ASSERT(false);
@@ -287,7 +287,7 @@ int main( int argc, char *argv[] ){
   //END TESTS....
 
   cout << argv[0] << " +++++ passed all tests" << endl;
-                   
+
   return 0;
 }
 

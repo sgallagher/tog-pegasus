@@ -52,10 +52,10 @@ class PEGASUS_SECURITY_LINKAGE BasicAuthenticator
 {
 public:
 
-    /** constructor. */ 
+    /** constructor. */
     BasicAuthenticator() { };
 
-    /** destructor. */ 
+    /** destructor. */
     virtual ~BasicAuthenticator() { };
 
     /** Verify the authentication of the requesting user.
@@ -64,7 +64,7 @@ public:
         @return true on successful authentication, false otherwise
     */
     virtual Boolean authenticate(
-        const String& userName, 
+        const String& userName,
         const String& password) = 0;
 
     /** Construct and return the HTTP Basic authentication challenge header

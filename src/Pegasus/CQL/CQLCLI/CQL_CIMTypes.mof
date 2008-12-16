@@ -27,32 +27,32 @@
 //
 //////////////////////////////////////////////////////////////////////////
 // ==================================================================
-// CQL_TestElement 
-// ================================================================== 
+// CQL_TestElement
+// ==================================================================
    [Version ("2.2.0"), Description (
-   "CQL_TestElement is an abstract class that provides a common "  
+   "CQL_TestElement is an abstract class that provides a common "
         "superclass (or top of the inheritance tree) for the "
         "non-association classes in the test Schema.")]
    class CQL_TestElement
-   {  
-      [Key, 
-       Description (  
+   {
+      [Key,
+       Description (
           "An identifier that uniquely identifies each instance "
-          "of the CQL_TestElement hierarchy.") ]   
-     uint64 InstanceId;  
+          "of the CQL_TestElement hierarchy.") ]
+     uint64 InstanceId;
    };
 
-     
+
 
 // ===================================================================
 // CQL_TestPropertyTypes
 // ===================================================================
-   
+
    [Version ("2.2.0"), Description (
    "CQL_TestPropertyTypes is a concrete class derived from CQL_TestElement"),
     provider("CQL_TestPropertyTypes")
-   ] 
-class CQL_TestPropertyTypes:CQL_TestElement 
+   ]
+class CQL_TestPropertyTypes:CQL_TestElement
 {
       [Maxlen (256), Description (
        "a string property of CQL_TestPropertyTypes")]
@@ -276,7 +276,7 @@ class CQL_TestPropertyTypes:CQL_TestElement
       [Description ("A char16 array"),
        ArrayType ( "Indexed" ) ]
    char16 PropertyChar16Array[];
-   
+
       [Description ("A valuemap array"),
        ValueMap { "1", "2", "3", "4", "5" },
        Values { "Other", "Unknown", "Disabled", "Enabled",
@@ -287,85 +287,85 @@ class CQL_TestPropertyTypes:CQL_TestElement
 // ===================================================================
 // CQL_TestPropertyTypesMissing
 // ===================================================================
-   
+
    [Version ("2.2.0"), Description (
    "CQL_TestPropertyTypesMissing is a concrete class derived from CQL_TestElement"
    "that is used by testcases that need a property to be missing.")
-   ] 
-class CQL_TestPropertyTypesMissing:CQL_TestElement 
+   ]
+class CQL_TestPropertyTypesMissing:CQL_TestElement
 {
-      [Description (  
+      [Description (
           "This property will be removed by the test driver "
-          "for the missing property tests.") ]   
-     uint64 MissingProperty;   
+          "for the missing property tests.") ]
+     uint64 MissingProperty;
 };
 
 
 // ==================================================================
-// CQL_EmbeddedBase 
-// ================================================================== 
+// CQL_EmbeddedBase
+// ==================================================================
    [Version ("2.2.0"), Description (
-   "CQL_EmbeddedBase is a class that provides a common "  
+   "CQL_EmbeddedBase is a class that provides a common "
         "superclass for classes used to test embedded objects.")]
    class CQL_EmbeddedBase
-   {  
-      [Key, 
-       Description (  
+   {
+      [Key,
+       Description (
           "An identifier that uniquely identifies each instance "
-          "of the CQL_TestElement hierarchy.") ]   
-     uint64 InstanceId;  
+          "of the CQL_TestElement hierarchy.") ]
+     uint64 InstanceId;
 
       [Description (
-          "An embedded object on the base class "), 
+          "An embedded object on the base class "),
         EmbeddedObject]
      string EmbObjBase;
    };
 
 // ==================================================================
-// CQL_EmbeddedSubClass 
-// ================================================================== 
+// CQL_EmbeddedSubClass
+// ==================================================================
    [Version ("2.2.0"), Description (
    "CQL_EmbeddedSubClass is a class used to test embedded objects.")]
    class CQL_EmbeddedSubClass : CQL_EmbeddedBase
-   {  
+   {
       [Description (
-          "An embedded object on the base class "), 
+          "An embedded object on the base class "),
         EmbeddedObject]
      string EmbObjSub;
    };
 
 
 // ==================================================================
-// CQL_EmbeddedTestElement 
-// ================================================================== 
+// CQL_EmbeddedTestElement
+// ==================================================================
    [Version ("2.2.0"), Description (
-   "CQL_EmbeddedTestElement is a class that provides a common "  
+   "CQL_EmbeddedTestElement is a class that provides a common "
         "superclass for classes used to test nested embedded objects.")]
    class CQL_EmbeddedTestElement
-   {  
-      [Key, 
-       Description (  
+   {
+      [Key,
+       Description (
           "An identifier that uniquely identifies each instance "
-          "of the CQL_TestElement hierarchy.") ]   
-     uint64 InstanceId;  
+          "of the CQL_TestElement hierarchy.") ]
+     uint64 InstanceId;
 
       [Description (
-          "An array of embedded objects of type CQL_TestElement "), 
+          "An array of embedded objects of type CQL_TestElement "),
         EmbeddedObject]
      string TEArray[];
 
       [Description (
-          "An embedded object of type CQL_TestElement "), 
+          "An embedded object of type CQL_TestElement "),
         EmbeddedObject]
      string TE;
 
       [Description (
-          "An embedded object of type CIM_ComputerSystem "), 
+          "An embedded object of type CIM_ComputerSystem "),
         EmbeddedObject]
      string CS;
 
       [Description (
-          "An embedded class"), 
+          "An embedded class"),
         EmbeddedObject]
      string SomeClass;
 
@@ -375,24 +375,24 @@ class CQL_TestPropertyTypesMissing:CQL_TestElement
    };
 
 // ==================================================================
-// CQL_EmbeddedTestPropertyTypes 
-// ================================================================== 
+// CQL_EmbeddedTestPropertyTypes
+// ==================================================================
    [Version ("2.2.0"), Description (
    "CQL_EmbeddedTestPropertyTypes is a class used to test nested embedded objects.")]
    class CQL_EmbeddedTestPropertyTypes : CQL_EmbeddedTestElement
-   {  
+   {
       [Description (
-          "An array of embedded objects of type CQL_TestPropertyTypes "), 
+          "An array of embedded objects of type CQL_TestPropertyTypes "),
         EmbeddedObject]
      string TPTArray[];
 
       [Description (
-          "An embedded object of type CQL_TestPropertyTypes "), 
+          "An embedded object of type CQL_TestPropertyTypes "),
         EmbeddedObject]
      string TPT;
 
       [Description (
-          "An embedded class"), 
+          "An embedded class"),
         EmbeddedObject]
      string SomeClass;
 

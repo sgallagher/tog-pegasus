@@ -36,7 +36,7 @@
 #if !defined (PEGASUS_OS_VMS)
 # include <Pegasus/Common/PegasusVersion.h>
 #endif
-#include <Pegasus/Provider/ProviderException.h>    
+#include <Pegasus/Provider/ProviderException.h>
 #include "DNSServiceProvider.h"
 
 extern "C"

@@ -43,43 +43,43 @@ int main(int argc, char** argv)
 {
     verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
 
-    const char* _pegHome = getenv ("PEGASUS_HOME"); 
+    const char* _pegHome = getenv ("PEGASUS_HOME");
     if (_pegHome == NULL)
     {
         PEGASUS_STD (cout) << argv[0] << " +++++ tests failed: "
             << "PEGASUS_HOME environment variable must be set"
                            << PEGASUS_STD (endl);
-        return -1; 
+        return -1;
     }
-    ConfigManager::setPegasusHome(_pegHome); 
+    ConfigManager::setPegasusHome(_pegHome);
 
     try
     {
-        String name; 
-        String ver; 
+        String name;
+        String ver;
 
-        name = "C++Default"; 
+        name = "C++Default";
         ver = "2.1.0";
         PEGASUS_TEST_ASSERT(
             ProviderManagerMap::instance().isValidProvMgrIfc(name, ver));
-        ver = "2.6.0"; 
+        ver = "2.6.0";
         PEGASUS_TEST_ASSERT(
             ProviderManagerMap::instance().isValidProvMgrIfc(name, ver));
-        name = "Junk"; 
+        name = "Junk";
         PEGASUS_TEST_ASSERT(
             !ProviderManagerMap::instance().isValidProvMgrIfc(name, ver));
 #ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-        name = "CMPI"; 
-        ver = "2.0.0"; 
+        name = "CMPI";
+        ver = "2.0.0";
         PEGASUS_TEST_ASSERT(
             ProviderManagerMap::instance().isValidProvMgrIfc(name, ver));
-        ver = "1.2.3"; 
+        ver = "1.2.3";
         PEGASUS_TEST_ASSERT(
             !ProviderManagerMap::instance().isValidProvMgrIfc(name, ver));
 #endif
 #ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
-        name = "JMPI"; 
-        ver = "2.2.0"; 
+        name = "JMPI";
+        ver = "2.2.0";
         PEGASUS_TEST_ASSERT(
             ProviderManagerMap::instance().isValidProvMgrIfc(name, ver));
 #endif
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
     }
 
 
-    PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests" 
+    PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests"
                       << PEGASUS_STD(endl);
 
     return 0;

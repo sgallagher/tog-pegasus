@@ -73,7 +73,7 @@ static void EnumerateInstancesTiming(CIMClient client, String ClassName)
 
     CIMClass c1=client.getClass(NAMESPACE,CIMName(ClassName), false);
     cout << "Class = " << c1.getClassName() << endl;
-    
+
     cout << "Fetching Instances for" << c1.getClassName() << endl;
 
     Array<CIMInstance> instanceNames;
@@ -95,7 +95,7 @@ static void EnumerateInstancesTiming(CIMClient client, String ClassName)
 
 int main(int argc, char** argv)
 {
-    pid_t pid;    
+    pid_t pid;
     try
     {
         CIMClient client;
@@ -107,7 +107,7 @@ int main(int argc, char** argv)
                 cout << "Fork Error\n" << endl;
                 exit(0);
         }
-        else if (pid == 0) 
+        else if (pid == 0)
         {   // child
             sleep(10);
             EnumerateInstancesTiming(client, CLASSONE);
@@ -116,12 +116,12 @@ int main(int argc, char** argv)
         // parent
         sleep(10);
         EnumerateInstancesTiming(client, CLASSTWO);
-        sleep(5); 
+        sleep(5);
         EnumerateClassesTiming(client, "TimingSampleClass");
     }
     catch(Exception& e)
     {
-        PEGASUS_STD(cerr) << "Error: " << e.getMessage() << 
+        PEGASUS_STD(cerr) << "Error: " << e.getMessage() <<
             PEGASUS_STD(endl);
         exit(1);
     }

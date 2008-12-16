@@ -27,7 +27,7 @@
             <KEYBINDING NAME="Name">
               <KEYVALUE VALUETYPE="string">
               </KEYVALUE>
-            </KEYBINDING>  
+            </KEYBINDING>
             </INSTANCENAME>
             <INSTANCE CLASSNAME="PG_OperatingSystem">
 	     <QUALIFIER NAME="provider" TYPE="string" OVERRIDABLE="false"

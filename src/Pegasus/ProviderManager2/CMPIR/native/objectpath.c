@@ -31,7 +31,7 @@
 
 /*!
     \file native.h
-    \brief Header file for the native encapsulated CMPI data type 
+    \brief Header file for the native encapsulated CMPI data type
     implementation.
 
     This file defines all the data types and functions necessary to use

@@ -40,7 +40,7 @@ RETVAL=0
 
 case "$1" in
      start)
-	if [ ! -e ${PEGASUS_SSL_CONF_FILE} ] || [ ! -e ${PEGASUS_SSL_CERT_FILE} ] || 
+	if [ ! -e ${PEGASUS_SSL_CONF_FILE} ] || [ ! -e ${PEGASUS_SSL_CERT_FILE} ] ||
 	   [ ! -e ${PEGASUS_SSL_KEY_FILE} ]  || [ ! -e ${PEGASUS_SSL_TRUSTSTORE} ]; then
 	   if [ -x $PEGASUS_SCRIPT_DIR/genOpenPegasusSSLCerts ]; then
 	       echo -n "tog-pegasus: Generating cimserver SSL certificates...";

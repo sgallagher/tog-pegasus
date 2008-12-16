@@ -48,7 +48,7 @@
 <QUALIFIER NAME="CIMTYPE" TYPE="string" TOINSTANCE="true">
 <VALUE>string</VALUE></QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TOSUBCLASS="false">
-<VALUE>  A string indicating the current status of the object. Various operational and non-operational statuses are defined. Operational statuses are "OK", "Degraded", "Stressed" and "Pred Fail". "Stressed" indicates that the Element is functioning, but needs attention. Examples of "Stressed" states are overload, overheated, etc. The condition "Pred Fail" (failure predicted) indicates that an Element is functioning properly but predicting a failure in the near future. An example is a SMART-enabled hard drive. 
+<VALUE>  A string indicating the current status of the object. Various operational and non-operational statuses are defined. Operational statuses are "OK", "Degraded", "Stressed" and "Pred Fail". "Stressed" indicates that the Element is functioning, but needs attention. Examples of "Stressed" states are overload, overheated, etc. The condition "Pred Fail" (failure predicted) indicates that an Element is functioning properly but predicting a failure in the near future. An example is a SMART-enabled hard drive.
   Non-operational statuses can also be specified. These are "Error", "NonRecover", "Starting", "Stopping", "Service", "No Contact" and "Lost Comm". "NonRecover" indicates that a non-recoverable error has occurred. "Service" describes an Element being configured, maintained, cleaned, or otherwise administered. This status could apply during mirror-resilvering of a disk, reload of a user permissions list, or other administrative task. Not all such work is on-line, yet the Element is neither "OK" nor in one of the other states. "No Contact" indicates that the current instance of the monitoring system has knowledge of this Element but has never been able to establish communications with it. "Lost Comm" indicates that the ManagedSystemElement is known to exist and has been contacted successfully in the past, but is currently unreachable.</VALUE></QUALIFIER>
 <QUALIFIER NAME="MaxLen" TYPE="sint32" TOSUBCLASS="false">
 <VALUE>10</VALUE></QUALIFIER>
@@ -3766,10 +3766,10 @@ The method's return code should indicate the success or failure of the quiesce. 
 <QUALIFIER NAME="CIMTYPE" TYPE="string" TOINSTANCE="true">
 <VALUE>uint16</VALUE></QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TOSUBCLASS="false">
-<VALUE> The SoftwareElementState is defined in this model to identify various states of a software elements life cycle. 
- - A software element in the deployable state describes the details necessary to successfully distribute it and the details (conditions and actions) required to create a software element in the installable state (i.e, the next state). 
- - A software element in the installable state describes     the details necessary to successfully install it and the details (conditions and actions) required to create a software element in the executable state (i.e., the next state). 
- - A software element in the executable state describes the details necessary to successfully start it and the details (conditions and actions) required to create a software element in the running state (i.e., the next state). 
+<VALUE> The SoftwareElementState is defined in this model to identify various states of a software elements life cycle.
+ - A software element in the deployable state describes the details necessary to successfully distribute it and the details (conditions and actions) required to create a software element in the installable state (i.e, the next state).
+ - A software element in the installable state describes     the details necessary to successfully install it and the details (conditions and actions) required to create a software element in the executable state (i.e., the next state).
+ - A software element in the executable state describes the details necessary to successfully start it and the details (conditions and actions) required to create a software element in the running state (i.e., the next state).
  - A software element in the running state describes the details necessary to monitor and operate on a started element.</VALUE></QUALIFIER>
 <QUALIFIER NAME="key" TYPE="boolean" OVERRIDABLE="false" TOINSTANCE="true">
 <VALUE>TRUE</VALUE></QUALIFIER>
@@ -3862,10 +3862,10 @@ The method's return code should indicate the success or failure of the quiesce. 
 <VALUE>string</VALUE></QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TOSUBCLASS="false">
 <VALUE>
-<![CDATA[Version should be in the form 
+<![CDATA[Version should be in the form
 <Major>.
 <Minor>.
-<Revision> or 
+<Revision> or
 <Major>.
 <Minor>
 <letter>
@@ -4102,10 +4102,10 @@ The method's return code should indicate the success or failure of the quiesce. 
 <VALUE>string</VALUE></QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TOSUBCLASS="false">
 <VALUE>
-<![CDATA[Version should be in the form 
+<![CDATA[Version should be in the form
 <Major>.
 <Minor>.
-<Revision> or 
+<Revision> or
 <Major>.
 <Minor>
 <letter>

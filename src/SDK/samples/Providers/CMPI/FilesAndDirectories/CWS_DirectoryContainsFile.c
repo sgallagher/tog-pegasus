@@ -70,56 +70,56 @@ CMPIStatus CWS_DirectoryContainsFileEnumInstanceNames( CMPIInstanceMI * mi,
     CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
 CMPIStatus CWS_DirectoryContainsFileEnumInstances( CMPIInstanceMI * mi,
-    const CMPIContext * ctx, 
-    const CMPIResult * rslt, 
-    const CMPIObjectPath * ref, 
-    const char ** properties) 
-{
-    CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
-}
-
-CMPIStatus CWS_DirectoryContainsFileGetInstance( CMPIInstanceMI * mi, 
     const CMPIContext * ctx,
-    const CMPIResult * rslt, 
-    const CMPIObjectPath * cop, 
-    const char ** properties) 
+    const CMPIResult * rslt,
+    const CMPIObjectPath * ref,
+    const char ** properties)
 {
     CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
 
-CMPIStatus CWS_DirectoryContainsFileCreateInstance( CMPIInstanceMI * mi, 
-    const CMPIContext * ctx, 
-    const CMPIResult * rslt, 
-    const CMPIObjectPath * cop, 
-    const CMPIInstance * ci) 
-{
-    CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
-}
-
-CMPIStatus CWS_DirectoryContainsFileModifyInstance( CMPIInstanceMI * mi, 
-    const CMPIContext * ctx, 
-    const CMPIResult * rslt, 
+CMPIStatus CWS_DirectoryContainsFileGetInstance( CMPIInstanceMI * mi,
+    const CMPIContext * ctx,
+    const CMPIResult * rslt,
     const CMPIObjectPath * cop,
-    const CMPIInstance * ci, 
-    const char **properties) 
+    const char ** properties)
 {
     CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
 
-CMPIStatus CWS_DirectoryContainsFileDeleteInstance( CMPIInstanceMI * mi, 
-    const CMPIContext * ctx, 
-    const CMPIResult * rslt, 
-    const CMPIObjectPath * cop) 
+CMPIStatus CWS_DirectoryContainsFileCreateInstance( CMPIInstanceMI * mi,
+    const CMPIContext * ctx,
+    const CMPIResult * rslt,
+    const CMPIObjectPath * cop,
+    const CMPIInstance * ci)
 {
     CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
 
-CMPIStatus CWS_DirectoryContainsFileExecQuery( CMPIInstanceMI * mi, 
-    const CMPIContext * ctx, 
-    const CMPIResult * rslt, 
-    const CMPIObjectPath * cop, 
-    const char * lang, 
-    const char * query) 
+CMPIStatus CWS_DirectoryContainsFileModifyInstance( CMPIInstanceMI * mi,
+    const CMPIContext * ctx,
+    const CMPIResult * rslt,
+    const CMPIObjectPath * cop,
+    const CMPIInstance * ci,
+    const char **properties)
+{
+    CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
+}
+
+CMPIStatus CWS_DirectoryContainsFileDeleteInstance( CMPIInstanceMI * mi,
+    const CMPIContext * ctx,
+    const CMPIResult * rslt,
+    const CMPIObjectPath * cop)
+{
+    CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
+}
+
+CMPIStatus CWS_DirectoryContainsFileExecQuery( CMPIInstanceMI * mi,
+    const CMPIContext * ctx,
+    const CMPIResult * rslt,
+    const CMPIObjectPath * cop,
+    const char * lang,
+    const char * query)
 {
     CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
@@ -129,7 +129,7 @@ CMPIStatus CWS_DirectoryContainsFileExecQuery( CMPIInstanceMI * mi,
  * ------------------------------------------------------------------ */
 
 CMPIStatus CWS_DirectoryContainsFileAssociationCleanup( CMPIAssociationMI * mi,
-    const CMPIContext * ctx, CMPIBoolean term) 
+    const CMPIContext * ctx, CMPIBoolean term)
 {
     CMReturn(CMPI_RC_OK);
 }
@@ -146,7 +146,7 @@ CMPIStatus CWS_DirectoryContainsFileAssociators( CMPIAssociationMI * mi,
     const char * resultClass,
     const char * role,
     const char * resultRole,
-    const char ** propertyList ) 
+    const char ** propertyList )
 {
     CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
@@ -158,7 +158,7 @@ CMPIStatus CWS_DirectoryContainsFileAssociatorNames( CMPIAssociationMI * mi,
     const char * assocClass,
     const char * resultClass,
     const char * role,
-    const char * resultRole ) 
+    const char * resultRole )
 {
     CMPIStatus      st = {CMPI_RC_OK,NULL};
     CMPIString     *clsname;
@@ -265,7 +265,7 @@ CMPIStatus CWS_DirectoryContainsFileReferences( CMPIAssociationMI * mi,
     const CMPIObjectPath * cop,
     const char * assocClass,
     const char * role,
-    const char ** propertyList ) 
+    const char ** propertyList )
 {
     CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
@@ -275,7 +275,7 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
     const CMPIResult * rslt,
     const CMPIObjectPath * cop,
     const char * assocClass,
-    const char * role) 
+    const char * role)
 {
     CMPIStatus      st = {CMPI_RC_OK,NULL};
     CMPIString     *clsname;
@@ -390,7 +390,7 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
 
         else
         {
-            if (!silentMode()) 
+            if (!silentMode())
             {
                 fprintf(stderr,
                     "--- CWS_DirectoryContainsFileReferenceNames() "

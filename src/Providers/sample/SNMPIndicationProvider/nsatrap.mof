@@ -51,7 +51,7 @@ class cycHostAdapterDiscovered : HP_nsatrap
 	[MappingStrings {
 		"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.9000.9001",
 		"DataType.IETF | OctetString" }]
-	string cycManagerID ; 
+	string cycManagerID ;
 };
 
 [Description ("This Trap is issued when a Host adapter "
@@ -74,7 +74,7 @@ class cycHostAdapterChanged : HP_nsatrap
 	[MappingStrings {
 		"OID.IETF | SNMP.1.3.6.1.4.1.795.2.5.9000.9001",
 		"DataType.IETF | OctetString" }]
-	string cycManagerID ; 
+	string cycManagerID ;
 };
 
 [Description ("This Trap is issued when a Host adapter fails." ),

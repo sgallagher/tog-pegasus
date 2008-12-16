@@ -46,7 +46,7 @@ class PEGASUS_WMIPROVIDER_LINKAGE WMIMethod : public CIMMethod
 public:
    WMIMethod(const CIMMethod & method);
 
-   WMIMethod(const BSTR & name, 
+   WMIMethod(const BSTR & name,
              const CComPtr<IWbemClassObject>& inParameters,
              const CComPtr<IWbemClassObject>& outParameters,
              IWbemQualifierSet * pQualifierSet,

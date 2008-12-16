@@ -45,7 +45,7 @@ static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
 
 /* This program tests the CIMQualifier class and the CIMConstQualifier class
  including the functions in the classes:
- 
+
  It creates qualifiers, tests the scope, value and flavor characteristics.
  ATTN: P3 - KS March 2002 Add more tests for scope, etc.
 */
@@ -55,13 +55,13 @@ int main(int argc, char** argv)
     static const CIMFlavor CIMFLAVOR_ALL = CIMFlavor::OVERRIDABLE +
     CIMFlavor::TOSUBCLASS + CIMFlavor::TOINSTANCE + CIMFlavor::TRANSLATABLE +
     CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED;
-#endif 
+#endif
     // get the output display flag.
     Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
 
     try
     {
-    CIMQualifier q1(CIMName ("Description"), String("Hello"), 
+    CIMQualifier q1(CIMName ("Description"), String("Hello"),
             CIMFlavor::TOINSTANCE);
     // This one sets the defaults overridable and tosubclass
     CIMQualifier q2(CIMName ("Abstract"), true);
@@ -137,7 +137,7 @@ int main(int argc, char** argv)
 
     q2.setFlavor (CIMFlavor::TOSUBCLASS + CIMFlavor::ENABLEOVERRIDE);
 
-    Resolver::resolveQualifierFlavor (q2, CIMFlavor 
+    Resolver::resolveQualifierFlavor (q2, CIMFlavor
             (CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED), false);
     PEGASUS_TEST_ASSERT( q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
     PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));

@@ -45,7 +45,7 @@ PEGASUS_NAMESPACE_BEGIN
     should be used in OpenPegasus by defining one of the following:
     1.) PEGASUS_USE_POSIX_RWLOCK - POSIX standard based implementation
     2.) PEGASUS_USE_SEMAPHORE_RWLOCK - mutex based implementation
- 
+
     The definition for each platform can be found in the according platform
     header file: pegasus/src/Pegasus/Common/Platform_<Platform>.h
 */

@@ -47,7 +47,7 @@ int main()
         try
         {
             CIMClass cc = cr.getClass(
-                "root/cimv2", 
+                "root/cimv2",
                 "CIM_ComputerSystem",
                 false,
                 true,

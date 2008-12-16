@@ -29,7 +29,7 @@
 ifeq ($(COMPILER),deccxx)
   LINK_COMMAND = cxxlink
   LINK_ARGUMENTS =
-  LINK_OUT = 
+  LINK_OUT =
 endif
 
 LIBRARY_COMMAND = library/create/object
@@ -42,7 +42,7 @@ OBJECTS = $(CPP_OBJECTS:.c=.obj)
 
 ## Rule for all library builds
 
-$(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(ERROR) 
+$(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(ERROR)
 	@ $(TOUCH) $(FULL_VMSLIB)
 	@ $(ECHO)
 

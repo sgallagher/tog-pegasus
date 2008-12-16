@@ -44,13 +44,13 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 const CIMNamespaceName INTEROPNAMESPACE = CIMNamespaceName("root/PG_InterOp");
-const CIMNamespaceName 
+const CIMNamespaceName
     SOURCENAMESPACE = CIMNamespaceName ("SDKExamples/DefaultCXX");
-static const CIMName 
+static const CIMName
     FILTER_CLASSNAME = CIMName ("CIM_IndicationFilter");
-static const CIMName 
+static const CIMName
     HANDLER_CLASSNAME = CIMName ("CIM_ListenerDestinationCIMXML");
-static const CIMName 
+static const CIMName
     SUBSCRIPTION_CLASSNAME = CIMName ("CIM_IndicationSubscription");
 
 enum indicationHandlerProtocol{
@@ -94,7 +94,7 @@ CIMObjectPath _createFilter
     filter.addProperty (CIMProperty (CIMName ("Name"), name));
     filter.addProperty (CIMProperty (CIMName ("Query"), query));
     filter.addProperty (CIMProperty (CIMName ("QueryLanguage"), queryLanguage));
-    filter.addProperty (CIMProperty (CIMName ("SourceNamespace"), 
+    filter.addProperty (CIMProperty (CIMName ("SourceNamespace"),
         sourceNamespace));
 
     CIMObjectPath path = client.createInstance (INTEROPNAMESPACE, filter);
@@ -181,7 +181,7 @@ CIMObjectPath _buildSubscriptionPath
 //
 //  Create subscription to receive indications of the RT_TestIndication
 //  class and have them sent to the SimpleDisplayConsumer
-//  The SimpleDisplayConsumer logs received indications to the 
+//  The SimpleDisplayConsumer logs received indications to the
 //  indicationLog file in PEGASUS_INDICATION_CONSUMER_LOG_DIR
 //
 void _subscribe(
@@ -191,8 +191,8 @@ void _subscribe(
     //
     //  Create filter
     //
-    CIMObjectPath filterPath = _createFilter 
-       (client, 
+    CIMObjectPath filterPath = _createFilter
+       (client,
         "TestFilter",
         "SELECT MethodName FROM RT_TestIndication",
         "WQL",
@@ -216,7 +216,7 @@ void _subscribe(
 
     }
     destinationPath.append("/CIMListener/SDK_SimpleDisplayConsumer");
-    CIMObjectPath handlerPath = _createHandler 
+    CIMObjectPath handlerPath = _createHandler
        (client,
         "TestHandler",
         destinationPath);
@@ -224,12 +224,12 @@ void _subscribe(
     //
     //  Create subscription to receive indications of the RT_TestIndication
     //  class and have them sent to the SimpleDisplayConsumer
-    //  The SimpleDisplayConsumer logs received indications to the 
+    //  The SimpleDisplayConsumer logs received indications to the
     //  indicationLog file in PEGASUS_INDICATION_CONSUMER_LOG_DIR
     //
-    CIMObjectPath subscriptionPath = _createSubscription 
+    CIMObjectPath subscriptionPath = _createSubscription
        (client,
-        filterPath, 
+        filterPath,
         handlerPath);
 }
 
@@ -270,11 +270,11 @@ Sint32 _sendTestIndication
 //
 void _unsubscribe(CIMClient& client)
 {
-    CIMObjectPath filterPath = 
+    CIMObjectPath filterPath =
         _findFilterOrHandlerPath (client, FILTER_CLASSNAME, "TestFilter");
-    CIMObjectPath handlerPath = 
+    CIMObjectPath handlerPath =
         _findFilterOrHandlerPath (client, HANDLER_CLASSNAME, "TestHandler");
-    CIMObjectPath subscriptionPath = 
+    CIMObjectPath subscriptionPath =
         _buildSubscriptionPath (filterPath, handlerPath);
 
     //
@@ -309,7 +309,7 @@ void _unsubscribe(CIMClient& client)
     //  Delete filter
     //
     try
-    { 
+    {
         client.deleteInstance (INTEROPNAMESPACE, filterPath);
     }
     catch (CIMException& e)
@@ -330,7 +330,7 @@ void _test(
     Sint32 result = _sendTestIndication (client);
 
     String protocolString;
-    if (handlerProtocol == PROTOCOL_CIMXML_INTERNAL) 
+    if (handlerProtocol == PROTOCOL_CIMXML_INTERNAL)
     {
         protocolString = "internal protocol";
     }
@@ -341,7 +341,7 @@ void _test(
 
     if (result == 0)
     {
-        cout << "Successfully sent test indication via " << protocolString << 
+        cout << "Successfully sent test indication via " << protocolString <<
                 endl;
     }
     else
@@ -369,7 +369,7 @@ int main (int argc, char ** argv)
 
         catch(Exception& e)
         {
-            cerr << "Exception thrown by client.connectLocal(): " 
+            cerr << "Exception thrown by client.connectLocal(): "
                 << e.getMessage() << endl;
             return -1;
         }

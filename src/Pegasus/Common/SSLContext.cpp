@@ -594,7 +594,7 @@ void SSLContextRep::_randomInit(const String& randomFile)
         else
         {
             PEG_TRACE((TRC_SSL, Tracer::LEVEL1,
-                "Seed file \'%s\' does not exist.", 
+                "Seed file \'%s\' does not exist.",
                 (const char*)randomFile.getCString()));
             PEG_METHOD_EXIT();
             MessageLoaderParms parms(

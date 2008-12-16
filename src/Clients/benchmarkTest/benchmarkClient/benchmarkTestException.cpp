@@ -27,7 +27,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //         (carolann_graves@hp.com)
 //
 // Modified By: Sushma Fernandes, Hewlett-Packard Company
@@ -35,7 +35,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 //
-//L10N TODO: Internal benchmark utility. Although this module contains 
+//L10N TODO: Internal benchmark utility. Although this module contains
 //messages, there is currently no expectation that it will be
 //localized.
 
@@ -47,50 +47,50 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 /**
-  
+
     Default exception identifier.  This identifier is used if the specified
     identifier is out of range.  This identifier corresponds to a default
     (generic) message in the array of exception message strings.
-  
+
  */
 const Uint32 benchmarkTestException::DEFAULT_ID = 0;
 
 /**
-  
+
     Minimum valid exception identifier.
-  
+
  */
 const Uint32 benchmarkTestException::MIN_ID = DEFAULT_ID;
 
 /**
-  
+
    Exception identifier indicating a connection failure.
-  
+
  */
 
 const Uint32 benchmarkTestException::CONNECT_FAIL = 1;
 
 /**
-  
+
     Exception identifier indicating timed out waiting for response.
-  
+
  */
 const Uint32 benchmarkTestException::TIMED_OUT = 2;
 
 /**
-  
+
     Exception identifier indicating invalid input.
-  
+
  */
 const Uint32 benchmarkTestException::INVALID_INPUT = 3;
 
 /**
-  
+
     Maximum valid exception identifier.  This value must be updated when
     a new exception identifier and message are added.
-  
+
  */
-const Uint32 benchmarkTestException::MAX_ID = 
+const Uint32 benchmarkTestException::MAX_ID =
     benchmarkTestException::INVALID_INPUT;
 
 /**
@@ -110,44 +110,44 @@ const char*  benchmarkTestException::_messageStrings [] =
 };
 
 /**
-  
+
     Constructs a benchmarkTestException with a message corresponding to the
     specified exception ID.
-  
+
     @param  ID                the integer exception identifier
-  
+
  */
-benchmarkTestException::benchmarkTestException (Uint32 ID) : CommandException 
+benchmarkTestException::benchmarkTestException (Uint32 ID) : CommandException
     (_messageStrings [(ID > MAX_ID) ? DEFAULT_ID : ID])
 {
 }
 
 /**
-  
+
     Constructs a benchmarkTestException with a message corresponding to the
     specified ID, appended with the specified String.
-  
+
     @param  ID                the integer exception identifier
     @param  appendString      the string to append to the exception message
-  
+
  */
-benchmarkTestException::benchmarkTestException (Uint32 ID, 
-                                                const String& appendString) : 
-    CommandException (_messageStrings 
+benchmarkTestException::benchmarkTestException (Uint32 ID,
+                                                const String& appendString) :
+    CommandException (_messageStrings
         [(ID > MAX_ID) ? DEFAULT_ID : ID])
 {
     _rep->message.append (appendString);
 }
 
 /**
-  
+
     Constructs a benchmarkTestException with the specified message.
-  
+
     @param  exceptionMessage  a string containing the exception message
-  
+
  */
 benchmarkTestException::benchmarkTestException (const String& exceptionMessage)
-    : 
+    :
     CommandException (exceptionMessage)
 {
 }

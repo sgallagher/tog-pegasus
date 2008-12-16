@@ -66,9 +66,9 @@ PEGASUS_NAMESPACE_BEGIN
  * SSL Certificate Mgmt Enhancements.
  * It models certificate mgmt operations as standard CIM operations.
  * Client certificates are modeled by the PG_SSLCertificate class.
- * Certificate revocation lists (CRLs) are modeled using the 
+ * Certificate revocation lists (CRLs) are modeled using the
  * PG_SSLCertificateRevocationClass.  These classes are defined in
- * the pg_internal schema.  
+ * the pg_internal schema.
  * The ssltrustmgr CLI in Clients/ssltrustmgr can be used to invoke
  * these provider methods.
 */
@@ -152,8 +152,8 @@ private:
     Boolean _sslClientVerificationNotDisabled;
     String _sslTrustStore;
     String _crlStore;
-   
-    String _getNewCertificateFileName(String trustStore, 
+
+    String _getNewCertificateFileName(String trustStore,
                                       unsigned long hashVal);
 
     String _getCRLFileName(String crlStore, unsigned long hashVal);

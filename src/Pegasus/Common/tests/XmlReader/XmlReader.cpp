@@ -144,7 +144,7 @@ static void testGetInstanceElement(const char* testDataFile)
     CIMObject cimObject;
     cimValue.get(cimObject);
     PEGASUS_TEST_ASSERT(
-        cimObject.getClassName() == 
+        cimObject.getClassName() ==
             CIMName("Sample_LifecycleIndicationProviderClass"));
     PEGASUS_TEST_ASSERT(cimObject.getPropertyCount() == 2);
 
@@ -178,7 +178,7 @@ static void testGetInstanceElement2(const char* testDataFile)
     XmlParser parser((char*)text.getData());
 
     XmlReader::getInstanceElement(parser, cimInstance);
-    PEGASUS_TEST_ASSERT(cimInstance.getClassName() == 
+    PEGASUS_TEST_ASSERT(cimInstance.getClassName() ==
                         CIMName("CIM_InstCreation"));
 
     Uint32 idx;
@@ -224,7 +224,7 @@ static void testGetInstanceElement2(const char* testDataFile)
         Uint32 propIdx = cimInstanceElement.findProperty(CIMName("uniqueId"));
         if (propIdx != PEG_NOT_FOUND)
         {
-            CIMProperty nestedProperty = 
+            CIMProperty nestedProperty =
                 cimInstanceElement.getProperty(propIdx);
             cimValue = nestedProperty.getValue();
             Uint32 uniqueId;

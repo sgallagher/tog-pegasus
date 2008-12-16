@@ -36,12 +36,12 @@
 ##
 ## Options:
 ##      cleanbuild - Remove the existing pegasus directory, perform a CVS
-##                   checkout of the pegasus source, build, and run tests. 
+##                   checkout of the pegasus source, build, and run tests.
 ##      removeall  - Remove the existing pegasus directory.
 ##      checkout   - Perform a CVS checkout of the pegasus source.
 ##      recheckout - Remove the existing pegasus directory and perform a CVS
 ##                   checkout of the pegasus source.
-## 
+##
 ## All pegasus/TestMakefile options are also supported by this Makefile.
 ##
 ###############################################################################

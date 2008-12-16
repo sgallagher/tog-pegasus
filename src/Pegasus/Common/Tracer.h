@@ -46,7 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     Trace component identifiers.  This list must be kept in sync with the
     TRACE_COMPONENT_LIST in Tracer.cpp.
-    The tracer uses the _traceComponentMask 64bit field to mask 
+    The tracer uses the _traceComponentMask 64bit field to mask
     the user configured components.
 
     Please ensure that no more than 64 Trace Component ID's are specified.
@@ -281,7 +281,7 @@ public:
      */
     static Boolean isValidTraceFacility( const String& traceFacility );
 
-    /** Signals the trace to be running OOP and provides the file name 
+    /** Signals the trace to be running OOP and provides the file name
         extension of  the trace file.  If non-empty, this
         value is used as an extension to the name of the trace file.
         @param  oopTraceFileExtension Trace file extension.
@@ -300,10 +300,10 @@ public:
     static Boolean isTraceEnabled(
         const TraceComponentId traceComponent,
         const Uint32 traceLevel)
-        {    
-            return ((traceLevel & _traceLevelMask) &&
-                       (_traceComponentMask & ((Uint64)1 << traceComponent)));
-        }
+    {
+        return ((traceLevel & _traceLevelMask) &&
+                (_traceComponentMask & ((Uint64)1 << traceComponent)));
+    }
 
 private:
 
@@ -333,11 +333,11 @@ private:
     static Tracer*               _tracerInstance;
     Uint32                _traceMemoryBufferSize;
     Uint32                _traceFacility;
-    Boolean               _runningOOP;    
+    Boolean               _runningOOP;
     TraceHandler*         _traceHandler;
     String                _traceFile;
     String                _oopTraceFileExtension;
-    
+
 
     // Message Strings for function Entry and Exit
     static const char _METHOD_ENTER_MSG[];

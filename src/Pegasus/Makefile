@@ -37,7 +37,7 @@ DIRS = \
     Config \
     Repository \
     getoopt \
-    WQL 
+    WQL
 
 ifeq ($(PEGASUS_ENABLE_CQL),true)
     DIRS += CQL
@@ -54,7 +54,7 @@ TEST_DIRS = \
     Client/tests \
     Config/tests \
     Repository/tests \
-    WQL/tests 
+    WQL/tests
 
 ifeq ($(PEGASUS_ENABLE_CQL),true)
     TEST_DIRS += \

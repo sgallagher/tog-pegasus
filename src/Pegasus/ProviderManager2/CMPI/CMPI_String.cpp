@@ -48,10 +48,10 @@ CMPI_String* string2CMPIString(const String &s)
     return reinterpret_cast<CMPI_String*>(obj);
 }
 
-extern "C" 
+extern "C"
 {
 
-    PEGASUS_STATIC CMPIStatus stringRelease(CMPIString *eStr) 
+    PEGASUS_STATIC CMPIStatus stringRelease(CMPIString *eStr)
     {
         char* str=(char*)eStr->hdl;
         if( str )
@@ -72,7 +72,7 @@ extern "C"
         }
     }
 
-    PEGASUS_STATIC CMPIString* stringClone(const CMPIString *eStr, 
+    PEGASUS_STATIC CMPIString* stringClone(const CMPIString *eStr,
     CMPIStatus* rc)
     {
         char* str=(char*)eStr->hdl;
@@ -83,7 +83,7 @@ extern "C"
                 Tracer::LEVEL1,
                 "Invalid handle eStr->hdl in \
                 CMPI_String:stringClone");
-            CMSetStatus (rc, CMPI_RC_ERR_INVALID_HANDLE); 
+            CMSetStatus (rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
         }
         CMPI_Object* obj=new CMPI_Object(str);
@@ -92,7 +92,7 @@ extern "C"
         return reinterpret_cast<CMPIString*>(obj);
     }
 
-    PEGASUS_STATIC const char * stringGetCharPtr(const CMPIString *eStr, 
+    PEGASUS_STATIC const char * stringGetCharPtr(const CMPIString *eStr,
     CMPIStatus* rc)
     {
         char* ptr=(char*)eStr->hdl;

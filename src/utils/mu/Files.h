@@ -78,7 +78,7 @@ bool IsDir(const string& path);
 bool IsPathRelativeToParentDir(const string& filePath);
 
 void GetFileFullPath(
-    const string& prependDir,  
+    const string& prependDir,
     const string& filePath,
     string& fileFullpath);
 

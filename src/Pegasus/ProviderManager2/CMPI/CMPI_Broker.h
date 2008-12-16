@@ -57,7 +57,7 @@ CIMClass *mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop);
 class CMPIProvider;
 
 struct CMPI_Broker : CMPIBroker
-{    
+{
     CMPIClassCache classCache;
     String name;
     CMPIProvider *provider;

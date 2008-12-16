@@ -155,7 +155,7 @@ Boolean cimmofParser::setRepository(void)
 #ifdef PEGASUS_ENABLE_MRR_GENERATION
             if (_cmdline->mrr())
                 rt = cimmofRepositoryInterface::REPOSITORY_INTERFACE_MRR;
-            else 
+            else
 #endif
             if (_cmdline->is_local())
                 rt = cimmofRepositoryInterface::REPOSITORY_INTERFACE_LOCAL;

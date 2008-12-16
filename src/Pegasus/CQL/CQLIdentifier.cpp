@@ -48,7 +48,7 @@ String SCOPE = "::";
 CQLIdentifier::CQLIdentifier():
   QueryIdentifier()
 {
-    if(_rep) 
+    if(_rep)
         delete _rep;
     _rep = NULL;
     _rep = new QueryIdentifierRep();
@@ -57,7 +57,7 @@ CQLIdentifier::CQLIdentifier():
 CQLIdentifier::CQLIdentifier(const String& identifier):
   QueryIdentifier()
 {
-    if(_rep) 
+    if(_rep)
         delete _rep;
    _rep = NULL;
     _rep = new CQLIdentifierRep(identifier);
@@ -66,7 +66,7 @@ CQLIdentifier::CQLIdentifier(const String& identifier):
 CQLIdentifier::CQLIdentifier(const CQLIdentifier& id):
  QueryIdentifier()
 {
-    if(_rep) 
+    if(_rep)
         delete _rep;
     _rep = NULL;
     _rep = new QueryIdentifierRep(id._rep);

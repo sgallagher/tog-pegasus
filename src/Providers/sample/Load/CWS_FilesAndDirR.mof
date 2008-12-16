@@ -62,9 +62,9 @@ instance of PG_ProviderCapabilities
    //Name of the CIM class as defined in the mof
    ClassName = "CWS_PlainFile";
    Namespaces = {"root/SampleProvider"};
-   ProviderType = { 2, 5 }; // Instance, Method 
+   ProviderType = { 2, 5 }; // Instance, Method
    SupportedProperties = NULL; // All properties
-   SupportedMethods = {"fileType"}; 
+   SupportedMethods = {"fileType"};
 };
 
 instance of PG_Provider
@@ -85,7 +85,7 @@ instance of PG_ProviderCapabilities
    //Name of the CIM class as defined in the mof
    ClassName = "CWS_Directory";
    Namespaces = {"root/SampleProvider"};
-   ProviderType = { 2 }; // Instance 
+   ProviderType = { 2 }; // Instance
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
 };

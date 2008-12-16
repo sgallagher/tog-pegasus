@@ -534,7 +534,7 @@ public:
 
     CIMConstInstance getError(Uint32 index) const;
 
-    /** 
+    /**
         Adds a CIM_Error instance to a CIMException.
         @param instance A CIMInstance containing the CIM_Error instance to be
             added to the CIMException.  This instance is NOT validated for

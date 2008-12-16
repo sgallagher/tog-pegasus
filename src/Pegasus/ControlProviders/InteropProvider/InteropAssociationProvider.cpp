@@ -109,11 +109,11 @@ void InteropProvider::associators(
     for (Uint32 i = 0; i < numIterations; ++i)
     {
         Array<CIMInstance> refs = localReferences(
-            context, 
+            context,
             objectName,
             associationClass,
-            originRole, 
-            targetRole, 
+            originRole,
+            targetRole,
             CIMPropertyList(),
             resultClass);
         for (Uint32 j = 0, n = refs.size(); j < n; ++j)
@@ -121,10 +121,10 @@ void InteropProvider::associators(
             CIMInstance & currentRef = refs[j];
             // Retrieve the "other side" of the association
             CIMObjectPath currentTarget = getRequiredValue<CIMObjectPath>(
-                currentRef, 
+                currentRef,
                 targetRole);
             CIMInstance tmpInstance = localGetInstance(
-                context, 
+                context,
                 currentTarget,
                 propertyList);
             tmpInstance.setPath(currentTarget);
@@ -189,11 +189,11 @@ void InteropProvider::associatorNames(
     for (Uint32 i = 0; i < numIterations; ++i)
     {
         Array<CIMInstance> refs = localReferences(
-            context,  
+            context,
             objectName,
-            associationClass, 
-            originRole, 
-            targetRole, 
+            associationClass,
+            originRole,
+            targetRole,
             CIMPropertyList(),
             resultClass);
         for (Uint32 j = 0, n = refs.size(); j < n; ++j)
@@ -264,10 +264,10 @@ void InteropProvider::references(
     for (Uint32 i = 0; i < numIterations; ++i)
     {
         Array<CIMInstance> refs = localReferences(
-            context, 
-            objectName, 
-            resultClass, 
-            tmpRole, 
+            context,
+            objectName,
+            resultClass,
+            tmpRole,
             tmpTarget);
         for (Uint32 j = 0, n = refs.size(); j < n; ++j)
         {
@@ -319,10 +319,10 @@ void InteropProvider::referenceNames(
     for (Uint32 i = 0; i < numIterations; ++i)
     {
         Array<CIMInstance> refs = localReferences(
-            context, 
+            context,
             objectName,
             resultClass,
-            tmpRole, 
+            tmpRole,
             tmpTarget);
         for (Uint32 j = 0, n = refs.size(); j < n; ++j)
         {

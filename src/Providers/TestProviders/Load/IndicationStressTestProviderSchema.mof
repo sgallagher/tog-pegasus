@@ -39,7 +39,7 @@ class IndicationStressTestClass : CIM_Indication
 class PG_IndicationStressTestConsumer
 {
      [Description ("Initializes the Consumer to run a test."
-          "All counts are set to zero."), Static]     
+          "All counts are set to zero."), Static]
   uint32 setupTestConfiguration(string ExpectedSenderIdentity);
   [Static] uint32 getTestResults (
           [IN ( false ), OUT, Description (
@@ -48,5 +48,5 @@ class PG_IndicationStressTestConsumer
           [IN ( false ), OUT, Description (
               "Returns the total number of Indications received "
               "from the expecter sender.")]
-      uint32 indicationsReceivedFromExpectedIdentity); 
+      uint32 indicationsReceivedFromExpectedIdentity);
 };

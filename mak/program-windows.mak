@@ -49,7 +49,7 @@ ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
 
 ##
 ## build images with -l<name> syntax for needed shared libraries
-## DYNAMIC_LIBRARIES is defined appropriately in libraries.mak and Makefile 
+## DYNAMIC_LIBRARIES is defined appropriately in libraries.mak and Makefile
 ## files
 ##
 

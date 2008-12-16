@@ -42,7 +42,7 @@ MultithreadingSampleProviderR.mof - Provider Registration MOF
 build
 -----
 This script builds the MultithreadingSample provider sources, registers the
-classes into the CIM repository and registers the provider(by compiling the 2 
+classes into the CIM repository and registers the provider(by compiling the 2
 mof files using cimmofl).
 It also stops and restarts the cimserver in order to re-read the repository to
 make sure that new classes are registered.
@@ -59,12 +59,12 @@ implement the MultithreadingSampleClass.
 3. The Base class has 3 derived classes called ThreadSampleOne, ThreadSampleTwo
 and ThreadSampleThree.
 
-4. ThreadSampleOne class instances are created inside the enumerateInstances 
-method of the provider. After the instances creation this method calls 
-explicitly the CreateThread function, which spawns a new sub-process and 
+4. ThreadSampleOne class instances are created inside the enumerateInstances
+method of the provider. After the instances creation this method calls
+explicitly the CreateThread function, which spawns a new sub-process and
 executes the command line cim client CLI.
 
-5. The additional functions added in the provider source program other than the 
+5. The additional functions added in the provider source program other than the
 standard methods are:
 CreateThread() - Function creating the sub-process (by using fork())
 reader() - child process reads from the input stream
@@ -87,6 +87,6 @@ CLI niall -n root/SampleProvider ThreadSampleOne
 2. Run "TestClient" program present in the pegasus sources (to check for the
 new classes registered by any new providers) as follows:
 	TestClient --n root/SampleProvider
-[You need to make sure that the TestClient is run for the SampleProvider 
+[You need to make sure that the TestClient is run for the SampleProvider
 repository because by default it runs only for root/cimv2]
 

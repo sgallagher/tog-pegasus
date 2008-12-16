@@ -58,7 +58,7 @@ public:
         const CMPIContext* eCtx,
         const CMPISelectExp* se,
         const char* ns,
-        const CMPIObjectPath* op, 
+        const CMPIObjectPath* op,
         const char* user);
     static CMPIStatus driveMustPoll(
         CMPIIndicationMI* mi,
@@ -71,13 +71,13 @@ public:
         const CMPIContext* eCtx,
         const CMPISelectExp* se,
         const char* clsName,
-        const CMPIObjectPath* op, 
+        const CMPIObjectPath* op,
         CMPIBoolean first);
     static CMPIStatus driveDeActivateFilter(
         CMPIIndicationMI* mi,
         const CMPIContext* eCtx,
         const CMPISelectExp* se,
-        const char* clsName, 
+        const char* clsName,
         const CMPIObjectPath* op,
         CMPIBoolean last);
     static CMPIStatus driveEnableIndications(
@@ -113,7 +113,7 @@ public:
     virtual CmpiStatus enableIndications(
         const CmpiContext& ctx);
    virtual CmpiStatus disableIndications(
-        const CmpiContext& ctx); 
+        const CmpiContext& ctx);
 };
 
 #endif

@@ -128,7 +128,7 @@ Boolean NISServerService::getNISInfo()
 //
 // RETURN: TRUE if is valid, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean NISServerService::getCreationClassName(String & strValue) 
+Boolean NISServerService::getCreationClassName(String & strValue)
 {
      return false;
 }
@@ -142,7 +142,7 @@ Boolean NISServerService::getCreationClassName(String & strValue)
 //
 // RETURN: TRUE if is valid, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean NISServerService::getName(String & strValue) 
+Boolean NISServerService::getName(String & strValue)
 {
      return false;
 }
@@ -156,7 +156,7 @@ Boolean NISServerService::getName(String & strValue)
 //
 // RETURN: TRUE if is valid, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean NISServerService::getCaption(String & strValue) 
+Boolean NISServerService::getCaption(String & strValue)
 {
      return false;
 }
@@ -170,7 +170,7 @@ Boolean NISServerService::getCaption(String & strValue)
 //
 // RETURN: TRUE if is valid, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean NISServerService::getDescription(String & strValue) 
+Boolean NISServerService::getDescription(String & strValue)
 {
      return false;
 }
@@ -187,7 +187,7 @@ Boolean NISServerService::getDescription(String & strValue)
 //
 // RETURN: TRUE if is valid, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean NISServerService::getServerWaitFlag(Uint16 & uintValue) 
+Boolean NISServerService::getServerWaitFlag(Uint16 & uintValue)
 {
      return false;
 }
@@ -195,14 +195,14 @@ Boolean NISServerService::getServerWaitFlag(Uint16 & uintValue)
 //------------------------------------------------------------------------------
 // FUNCTION: getServerType
 //
-// REMARKS: This property retrieve the follow values: 0-Unknown, 1-Other, 
+// REMARKS: This property retrieve the follow values: 0-Unknown, 1-Other,
 //          2-None, 3-NIS Master and 4-NIS Slave.
 //
 // PARAMETERS: [OUT] paramValue    -> return server type value
 //
 // RETURN: TRUE if is valid, FALSE otherwise
 //------------------------------------------------------------------------------
-Boolean NISServerService::getServerType(Uint16 & paramValue) 
+Boolean NISServerService::getServerType(Uint16 & paramValue)
 {
      return false;
 }

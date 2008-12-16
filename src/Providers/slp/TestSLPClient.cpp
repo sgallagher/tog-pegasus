@@ -27,7 +27,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Authors: Alagaraja Ramasubramanian, IBM Corporation 
+// Authors: Alagaraja Ramasubramanian, IBM Corporation
 //          Seema Gupta, IBM Corporation
 //          Subodh Soni, IBM Corporation
 //
@@ -53,7 +53,7 @@ int main(int argc, char** argv)
     {
         CIMClient client;
         client.connect("localhost", 5988, String::EMPTY, String::EMPTY);
-        
+
         Array<CIMInstance> ia;
         try
         {
@@ -75,12 +75,12 @@ int main(int argc, char** argv)
        }
        else
        {
-          
+
        Array<CIMObjectPath> instanceNames = client.enumerateInstanceNames(
                                                 NAMESPACE,
                                                 CIMName("CIM_WBEMSLPTemplate"));
 
-            
+
 
        for (Uint32 i = 0; i < instanceNames.size(); i++)
        {

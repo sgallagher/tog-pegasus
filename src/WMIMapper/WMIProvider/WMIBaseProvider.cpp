@@ -88,7 +88,7 @@ void WMIBaseProvider::initialize(bool bLocal)
 void WMIBaseProvider::terminate(void)
 {
     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::terminate()");
-    
+
     cleanup();
 
     PEG_METHOD_EXIT();
@@ -107,7 +107,7 @@ void WMIBaseProvider::setup(const String & nameSpace,
     m_sUserName = userName;
     m_sPassword = password;
 
-    if (!m_bInitialized)    
+    if (!m_bInitialized)
     {
         initCollector();
     }
@@ -118,7 +118,7 @@ void WMIBaseProvider::setup(const String & nameSpace,
 
         if (m_sUserName != String::EMPTY)
             _collector->setUserName(m_sUserName);
-        
+
         if (m_sPassword != String::EMPTY)
             _collector->setPassword(m_sPassword);
     }
@@ -162,7 +162,7 @@ CIMInstance WMIBaseProvider::getCIMInstance(
     const String& nameSpace,
     const String& userName,
     const String& password,
-    const CIMObjectPath &instanceName, 
+    const CIMObjectPath &instanceName,
     const CIMPropertyList &propertyList)
 {
 
@@ -174,18 +174,18 @@ CIMInstance WMIBaseProvider::getCIMInstance(
     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::getCIMInstance()");
 
     try
-    {    
+    {
         // This fix uses the current boolean value stored in collector
-        // to initialize it. 
-        provider.initialize(_collector->isLocalConnection()); 
+        // to initialize it.
+        provider.initialize(_collector->isLocalConnection());
 
-        cimInstance = provider.getInstance(nameSpace, 
-                                           userName, 
-                                           password, 
-                                           instanceName, 
-                                           false, 
-                                           false, 
-                                           false, 
+        cimInstance = provider.getInstance(nameSpace,
+                                           userName,
+                                           password,
+                                           instanceName,
+                                           false,
+                                           false,
+                                           false,
                                            propertyList);
         provider.terminate();
     }
@@ -235,10 +235,10 @@ CIMClass WMIBaseProvider::getCIMClass(const String& nameSpace,
     try
     {
         // This fix uses the current boolean value stored in collector
-        // to initialize it. 
-        provider.initialize(_collector->isLocalConnection()); 
+        // to initialize it.
+        provider.initialize(_collector->isLocalConnection());
 
-        cimClass = provider.getClass(nameSpace, userName, password, 
+        cimClass = provider.getClass(nameSpace, userName, password,
             className, false, true, true, propertyList);
 
         provider.terminate();
@@ -294,8 +294,8 @@ Array<CIMObject> WMIBaseProvider::execCIMQuery(
     try
     {
         // This fix uses the current boolean value stored in collector
-        // to initialize it. 
-        provider.initialize(_collector->isLocalConnection()); 
+        // to initialize it.
+        provider.initialize(_collector->isLocalConnection());
 
         objects = provider.execQuery(nameSpace,
                     userName,
@@ -305,7 +305,7 @@ Array<CIMObject> WMIBaseProvider::execCIMQuery(
                     propertyList,
                     includeQualifiers,
                     includeClassOrigin);
-        
+
         provider.terminate();
     }
     catch(CIMException& exception)
@@ -340,9 +340,9 @@ Array<CIMObject> WMIBaseProvider::execCIMQuery(
 //
 // ///////////////////////////////////////////////////////////////////////////
 String WMIBaseProvider::getQueryString(const CIMObjectPath &objectName,
-        const String &sQueryCommand,                               
-        const String &assocClass, 
-        const String &resultClass, 
+        const String &sQueryCommand,
+        const String &assocClass,
+        const String &resultClass,
         const String &role,
         const String &resultRole)
 {
@@ -358,14 +358,14 @@ String WMIBaseProvider::getQueryString(const CIMObjectPath &objectName,
 
     CMyString sQuery;
 
-    int strLength = CMyString(sQueryCommand).GetLength() + 
+    int strLength = CMyString(sQueryCommand).GetLength() +
         CMyString(sObjName).GetLength() + 1;
     sQuery.Format(CMyString(sQueryCommand), strLength, CMyString(sObjName));
 
     //set up any optional parameters
     if (!((0 == assocClass.size()) && (0 == resultClass.size()) &&
           (0 == role.size()) && (0 == resultRole.size())))
-    {    
+    {
         // we have optional parameters, append the appropriate ones
         sQuery += qChar(Q_WHERE);
         hasWHERE = true;
@@ -419,70 +419,70 @@ String WMIBaseProvider::getQueryString(const CIMObjectPath &objectName,
 //        CIMObjectPath
 //        removes namespace
 //
-// Possible input Object Path formats: 
-// 1. Fully-qualified path 
-//     example: \\hostname:port\root\cimv2:ClassName.Key1="Value",Key2="Value" 
+// Possible input Object Path formats:
+// 1. Fully-qualified path
+//     example: \\hostname:port\root\cimv2:ClassName.Key1="Value",Key2="Value"
 //
-// 2. No hostname & port (implies current host) 
-//     example: root\cimv2:ClassName.Key1="Value",Key2="Value" 
+// 2. No hostname & port (implies current host)
+//     example: root\cimv2:ClassName.Key1="Value",Key2="Value"
 //
-// 3. No namespace (implies current namespace): 
-//     example: ClassName.Key1="Value",Key2="Value" 
+// 3. No namespace (implies current namespace):
+//     example: ClassName.Key1="Value",Key2="Value"
 //
-// 4. Reference instance 
-//     example: ClassName.Key1=R"root\cimv2:RefClass.Key="RefValue"" 
+// 4. Reference instance
+//     example: ClassName.Key1=R"root\cimv2:RefClass.Key="RefValue""
 //
-// In all cases, this method needs to return only the class name and keys from 
-// the input object path (need to strip any hostname, port, and namespace). 
-// For example, the return for cases #1-3, above, should be: 
-//    ClassName.Key1="Value",Key2="Value" 
+// In all cases, this method needs to return only the class name and keys from
+// the input object path (need to strip any hostname, port, and namespace).
+// For example, the return for cases #1-3, above, should be:
+//    ClassName.Key1="Value",Key2="Value"
 //
-// Also, for "reference" keys, the reference indicator (R) needs to be 
-// removed. Therefore, the output from case #4, above, would be: 
-//    ClassName.Key1="root\cimv2:RefClass.Key="RefValue"" 
+// Also, for "reference" keys, the reference indicator (R) needs to be
+// removed. Therefore, the output from case #4, above, would be:
+//    ClassName.Key1="root\cimv2:RefClass.Key="RefValue""
 //
 // ///////////////////////////////////////////////////////////////////////////
 String WMIBaseProvider::getObjectName( const CIMObjectPath& objectName)
 {
     String sObjName;
-    String sObjNameLower;    
+    String sObjNameLower;
     bool bHaveReference = false;
-    
+
     PEG_METHOD_ENTER(TRC_WMIPROVIDER,"WMIBaseProvider::getObjectName()");
 
-    sObjName = objectName.toString();            
+    sObjName = objectName.toString();
     sObjNameLower = sObjName;
     sObjNameLower.toLower();
-        
+
     PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-        "WMIBaseProvider::getObjectName() - ObjectName: %s", 
+        "WMIBaseProvider::getObjectName() - ObjectName: %s",
         sObjName.getCString()));
 
     Uint32 pos;
 
     // 1. if Object name initiates with a hostname then remove it
-    if ((sObjName.subString(0, 4) != "root") && 
-        (sObjNameLower.subString(0, 2) != "//") && 
+    if ((sObjName.subString(0, 4) != "root") &&
+        (sObjNameLower.subString(0, 2) != "//") &&
         (sObjNameLower.subString(0, 2) != "\\\\"))
     {
         pos = sObjNameLower.find("root");
 
         if (sObjNameLower.find("=") > pos) {
-                
+
             if (PEG_NOT_FOUND != pos)
             {
                 sObjName.remove(0, pos);
                  sObjNameLower.remove(0, pos);
             }
-        } 
+        }
     }
 
     //2. Remove the machine name and port if it exists
-    if ((sObjNameLower.subString(0, 2) == "//") || 
+    if ((sObjNameLower.subString(0, 2) == "//") ||
         (sObjNameLower.subString(0, 2) == "\\\\"))
-    {            
+    {
         pos = sObjNameLower.find("root");
-        
+
         if (PEG_NOT_FOUND != pos)
         {
             sObjName.remove(0, pos);
@@ -492,22 +492,22 @@ String WMIBaseProvider::getObjectName( const CIMObjectPath& objectName)
         //3. After ensuring that all stuff before root was removed,
         //   get the class/instance name.
         pos = sObjName.find(qString(Q_COLON));
-            
+
         if (PEG_NOT_FOUND != pos)
-        {            
-            sObjName.remove(0, pos + 1);    
+        {
+            sObjName.remove(0, pos + 1);
         }
     }
     else
-    {        
+    {
         //   get the class/instance name.
-        if (sObjNameLower.subString(0, 4) == "root")    
+        if (sObjNameLower.subString(0, 4) == "root")
         {
             pos = sObjName.find(qString(Q_COLON));
-            
+
             if (PEG_NOT_FOUND != pos)
-            {            
-                sObjName.remove(0, pos + 1);    
+            {
+                sObjName.remove(0, pos + 1);
             }
         }
     }
@@ -528,9 +528,9 @@ String WMIBaseProvider::getObjectName( const CIMObjectPath& objectName)
     }
 
     PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
-        "WMIBaseProvider::getObjectName() - ObjectName: %s", 
+        "WMIBaseProvider::getObjectName() - ObjectName: %s",
         sObjName.getCString()));
-    
+
     PEG_METHOD_EXIT();
 
     return sObjName;

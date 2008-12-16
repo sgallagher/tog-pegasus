@@ -159,7 +159,7 @@ protected:
         const Boolean disableProviderOnly,
         const AcceptLanguageList & al);
 
-    Sint16 _disableModule(const CIMObjectPath & moduleRef, 
+    Sint16 _disableModule(const CIMObjectPath & moduleRef,
                           const String & moduleName,
                           Boolean disableProviderOnly,
                       const AcceptLanguageList & al);
@@ -171,9 +171,9 @@ protected:
     Boolean _isIndicationProvider(const String & moduleName,
                                   const CIMInstance & instance);
 
-    Sint16 _enableModule(const CIMObjectPath & moduleRef, 
+    Sint16 _enableModule(const CIMObjectPath & moduleRef,
                          const String & moduleName,
-                         const AcceptLanguageList & al); 
+                         const AcceptLanguageList & al);
 
     void _sendEnableMessageToSubscription(
         const CIMInstance & mInstance,

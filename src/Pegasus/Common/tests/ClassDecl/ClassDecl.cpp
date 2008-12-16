@@ -69,10 +69,10 @@ void test01()
         //
         //  Invalid class name
         //
-        CIMClass class0(CIMName ("//localhost/root/cimv2:MyClass"), 
+        CIMClass class0(CIMName ("//localhost/root/cimv2:MyClass"),
             CIMName ("YourClass"));
 
-        PEGASUS_TEST_ASSERT(class0.getPath() == 
+        PEGASUS_TEST_ASSERT(class0.getPath() ==
             CIMObjectPath("//localhost/root/cimv2:MyClass"));
     }
     catch (InvalidNameException & ine)
@@ -239,14 +239,14 @@ void test01()
     MofWriter::appendClassElement(out, class1);
     out.clear();
     XmlWriter::appendClassElement(out, class1);
-    
+
     PEGASUS_TEST_ASSERT(!class1.isAbstract());
 
     CIMName squal("q1");
     PEGASUS_TEST_ASSERT(class1.findQualifier(squal) == PEG_NOT_FOUND);
-    
+
     PEGASUS_TEST_ASSERT(!class1.hasKeys());
-    
+
     Array<CIMName> keyNames;
     class1.getKeyNames(keyNames);
 
@@ -308,7 +308,7 @@ void test01()
             cout << "Exception: " << e.getMessage() << endl;
     }
 
-    if(verbose) 
+    if(verbose)
     {
     XmlWriter::printClassElement(c5);
     }
@@ -360,10 +360,10 @@ void test01()
     PEGASUS_TEST_ASSERT(c4.getSuperClassName() == CIMName ("YourClass"));
 
     // test the setSuperClassName function
-    /* ATTN KS 29 April.  This test has problems.  Relook later. 
+    /* ATTN KS 29 April.  This test has problems.  Relook later.
       Think test, not code.
-    c4.setSuperClassName(CIMName ("JunkClass")); 
-    PEGASUS_TEST_ASSERT(c4.getSuperClassName() == CIMName ("JunkClass")); 
+    c4.setSuperClassName(CIMName ("JunkClass"));
+    PEGASUS_TEST_ASSERT(c4.getSuperClassName() == CIMName ("JunkClass"));
     c4.setSuperClassName(CIMName ("YourClass"));
     */
     PEGASUS_TEST_ASSERT(c5.getSuperClassName() == CIMName ("YourClass"));
@@ -390,7 +390,7 @@ void test01()
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
-    
+
     try
     {
     test01();

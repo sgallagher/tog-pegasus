@@ -47,7 +47,7 @@ PEGASUS_NAMESPACE_END
 
 int main(int argc, char** argv)
 {
-    PEGASUS_TEST_ASSERT(numDummyObjects == 1);    
+    PEGASUS_TEST_ASSERT(numDummyObjects == 1);
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

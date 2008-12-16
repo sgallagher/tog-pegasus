@@ -34,7 +34,7 @@
     \brief Native CMPIArray implementation.
 
     This is the native CMPIArray implementation as used for remote
-    providers. It reflects the well-defined interface of a regular CMPIArray 
+    providers. It reflects the well-defined interface of a regular CMPIArray
     object, however, it works independently from the management broker.
 
     It is part of a native broker implementation that simulates CMPI data
@@ -72,7 +72,7 @@ struct native_array
 };
 
 
-static struct native_array * __new_empty_array ( 
+static struct native_array * __new_empty_array (
     int, CMPICount,
     CMPIType,
     CMPIStatus * );
@@ -80,7 +80,7 @@ static struct native_array * __new_empty_array (
 
 /*****************************************************************************/
 
-static void __make_NULL ( 
+static void __make_NULL (
     struct native_array * a,
     int from,
     int to,
@@ -191,7 +191,7 @@ static CMPIType __aft_getSimpleType (CONST CMPIArray * array, CMPIStatus * rc)
 }
 
 
-static CMPIData __aft_getElementAt ( 
+static CMPIData __aft_getElementAt (
     CONST CMPIArray * array,
     CMPICount index,
     CMPIStatus * rc )
@@ -223,7 +223,7 @@ static CMPIData __aft_getElementAt (
 }
 
 
-static CMPIStatus __aft_setElementAt ( 
+static CMPIStatus __aft_setElementAt (
     CMPIArray * array,
     CMPICount index,
     CONST CMPIValue * val,
@@ -290,7 +290,7 @@ static CMPIStatus __aft_setElementAt (
 
 
 
-void native_array_increase_size ( 
+void native_array_increase_size (
     CMPIArray * array,
     CMPICount increment )
 {
@@ -301,7 +301,7 @@ void native_array_increase_size (
         tool_mm_realloc ( a->data,
         ( a->size + increment ) *
         sizeof ( struct native_array_item ) );
-    memset ( 
+    memset (
         &a->data[a->size],
         0,
         sizeof ( struct native_array_item ) * increment );
@@ -310,7 +310,7 @@ void native_array_increase_size (
 }
 
 
-static struct native_array * __new_empty_array ( 
+static struct native_array * __new_empty_array (
     int mm_add,
     CMPICount size,
     CMPIType type,
@@ -352,7 +352,7 @@ static struct native_array * __new_empty_array (
 }
 
 
-CMPIArray * native_new_CMPIArray ( 
+CMPIArray * native_new_CMPIArray (
     CMPICount size,
     CMPIType type,
     CMPIStatus * rc )

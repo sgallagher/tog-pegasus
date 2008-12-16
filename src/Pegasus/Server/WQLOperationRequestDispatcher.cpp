@@ -76,7 +76,7 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
         "WQLOperationRequestDispatcher::handleQueryResponseAggregation");
 
     Uint32 numberResponses = poA->numberResponses();
-    
+
     PEG_TRACE((
         TRC_DISPATCHER,
         Tracer::LEVEL4,

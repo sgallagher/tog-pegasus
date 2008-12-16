@@ -112,8 +112,8 @@ void testEnumInstanceNames(CIMClient& client,const char *ns)
     if(keyValue != String(INSTANCEID_VALUE))
         throw Exception(keyValue);
 
-} 
-   
+}
+
 void testEnumInstances(CIMClient& client, const char* ns)
 {
     Array<CIMInstance> instances;
@@ -147,10 +147,10 @@ void testEnumInstances(CIMClient& client, const char* ns)
 
      prop = instances[0].findProperty(CIMName(PROPERTY_NAME_CQLFEATURES));
      instances[0].getProperty(prop).getValue().get(providerReturnedVal);
-  
+
      _checkIfReturnedValueIsCorrect(providerReturnedVal);
 
-} 
+}
 
 
 void testGetInstance(CIMClient& client, const char* ns)
@@ -162,7 +162,7 @@ void testGetInstance(CIMClient& client, const char* ns)
                                 INSTANCEID_VALUE,
                                 CIMKeyBinding::STRING));
 
-   CIMObjectPath objectPath(String::EMPTY, ns, 
+   CIMObjectPath objectPath(String::EMPTY, ns,
                   CIM_QUERYCAPCLASS_NAME, keyBindings);
 
    instance = client.getInstance(ns, objectPath, false);
@@ -225,7 +225,7 @@ void testDeleteInstance(CIMClient& client, const char* ns)
 
   throw Exception("deleteInstance is supported");
 }
-    
+
 
 void testModifyInstance(CIMClient& client, const char* ns)
 {
@@ -257,7 +257,7 @@ void testModifyInstance(CIMClient& client, const char* ns)
 }
 
 PEGASUS_NAMESPACE_END
-   
+
 
 int main(int argc, char** argv)
 {
@@ -271,7 +271,7 @@ int main(int argc, char** argv)
    catch (Exception& e)
    {
       cerr << "Error: " << e.getMessage() <<  endl;
-      cerr << "Exception occured while trying to connect to the server." 
+      cerr << "Exception occured while trying to connect to the server."
            << endl;
       return(1);
    }

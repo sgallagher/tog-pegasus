@@ -151,7 +151,7 @@ static BOOL _lookup_attrs(
             {
 #ifdef PEGASUS_ENABLE_IPV6
                 SOCKADDR_IN6 ip6;
-#endif 
+#endif
                 SOCKADDR_IN ip4;
                 void *target = 0;
 

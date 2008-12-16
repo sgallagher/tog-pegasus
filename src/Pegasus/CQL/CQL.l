@@ -29,13 +29,13 @@
 //////////////////////////////////////////////////////////////////////////
 */
 
-/* 
+/*
    This file describes the language tokens possible for CQL. When a token is
    matched, the token postion is updated in the CQL_globalParserState, copying
    from the lex buffer  to a shared buffer (shared with the lexer and parser)
    may happen, then a token identifier is returned to the parser.
 
-*/  
+*/
 
 %option never-interactive
 %{
@@ -56,9 +56,9 @@ extern int CQL_error(const char*);
 #include "CQLObjects.h"
 #include "CQLYACC.h"
 PEGASUS_NAMESPACE_BEGIN
-                                                                                
+
 extern CQLParserState* CQL_globalParserState;
-                                                                                
+
 PEGASUS_NAMESPACE_END
 
 
@@ -124,7 +124,7 @@ Z [Zz]
 {S}{E}{L}{E}{C}{T} {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_SELECT] ", yytext);
-    CQL_globalParserState->currentTokenPos+=yyleng;    
+    CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
     return TOK_SELECT;
 }
@@ -297,7 +297,7 @@ Z [Zz]
      /* CHKSRC */
     // chuck
     if (!isUTF8Str(yytext))
-    {   
+    {
         CQL_DEBUG_TRACE("LEX: [STRING]-> BAD UTF\n");
         throw CQLSyntaxErrorException(
             MessageLoaderParms("CQL.CQL_y.BAD_UTF8",
@@ -305,7 +305,7 @@ Z [Zz]
             "identifier",
             CQL_globalParserState->currentTokenPos));
     }
-                
+
      String s(yytext);
      Uint32 index = s.find("'");
      if(index != PEG_NOT_FOUND){
@@ -363,7 +363,7 @@ Z [Zz]
     CQL_DEBUG_TRACE2("LEX: %s [TOK_NEGATIVE_BINARY] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    /* copy the bin value */ 
+    /* copy the bin value */
     {
         size_t n = strlen(yytext);
     if(CQL_lval.strValue)
@@ -469,7 +469,7 @@ Z [Zz]
     String _esc_singlequote = "\\'";
 
     if (!isUTF8Str(yytext))
-    {   
+    {
         CQL_DEBUG_TRACE("LEX: [STRING]-> BAD UTF\n");
         throw CQLSyntaxErrorException(
             MessageLoaderParms("CQL.CQL_y.BAD_UTF8",
@@ -481,7 +481,7 @@ Z [Zz]
     String s(yytext);
 
     Uint32 index = 1;
-    while((index = s.find(_esc_doubleslash)) != PEG_NOT_FOUND || 
+    while((index = s.find(_esc_doubleslash)) != PEG_NOT_FOUND ||
            (index = s.find(_esc_singlequote)) != PEG_NOT_FOUND)
      {
          // make sure we don't remove the slasy from say 'abc\'
@@ -610,53 +610,53 @@ Z [Zz]
     return TOK_UNDERSCORE;
 }
 
-"=" { 
+"=" {
     CQL_DEBUG_TRACE2("LEX: %s [TOK_EQ] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_EQ; 
+    return TOK_EQ;
 }
 
 
-"<>" { 
+"<>" {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_NE] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_NE; 
+    return TOK_NE;
 }
 
 
-"<=" { 
+"<=" {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_LE] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_LE; 
+    return TOK_LE;
 }
 
-"<" { 
+"<" {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_LT] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_LT; 
+    return TOK_LT;
 }
 
-">=" { 
+">=" {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_GE] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_GE; 
+    return TOK_GE;
 }
 
-">" { 
+">" {
 
     CQL_DEBUG_TRACE2("LEX: %s [TOK_GT] ", yytext);
     CQL_globalParserState->currentTokenPos+=yyleng;
     CQL_globalParserState->tokenCount++;
-    return TOK_GT; 
+    return TOK_GT;
 }
 
 {IDENT_CHAR_NO_NUM}({IDENT_CHAR})*  {

@@ -113,7 +113,7 @@ Message* DefaultProviderManager::processMessage(Message* message)
         case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
         case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
         {
-            ProviderIdContainer providerId = 
+            ProviderIdContainer providerId =
                 request->operationContext.get(ProviderIdContainer::NAME);
 
             // resolve provider name
@@ -122,8 +122,8 @@ Message* DefaultProviderManager::processMessage(Message* message)
             // get cached or load new provider module
             ProviderOperationCounter poc(
                 _getProvider(
-                    name.getPhysicalName(), 
-                    name.getModuleName(), 
+                    name.getPhysicalName(),
+                    name.getModuleName(),
                     name.getLogicalName()));
 
             response = poc.GetProvider().processMessage(request);
@@ -455,7 +455,7 @@ ProviderMessageHandler* DefaultProviderManager::_lookupProvider(
     {
         // create provider
         pr = new ProviderMessageHandler(
-            moduleName, providerName, 
+            moduleName, providerName,
             0, _indicationCallback, _responseChunkCallback,
             _subscriptionInitComplete);
 

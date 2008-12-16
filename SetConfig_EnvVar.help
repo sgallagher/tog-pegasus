@@ -10,9 +10,9 @@ PEGASUS_HOME {
 	Directory where built binaries are deposited,
 	Location where Pegasus built binaries will be located. Can be the same as PEGASUS_ROOT.}
 
-PEGASUS_HAS_SSL { 
-	Boolean, 
-	--enable-ssl, 
+PEGASUS_HAS_SSL {
+	Boolean,
+	--enable-ssl,
 	Build in SSL support,
 	Enabling SSL will compile SSL support in Pegasus. If your SSL include files are located in a non-standard location, make sure to define OPENSSL_HOME with the right directory.}
 
@@ -39,8 +39,8 @@ PEGASUS_ENABLE_SSLV2 {
 
 PEGASUS_PAM_AUTHENTICATION {
  	Boolean,
-	--enable-pam, 
-	Enable PAM support, 
+	--enable-pam,
+	Enable PAM support,
 	Enabling PAM will compile PAM support in Pegasus and provide authentication.}
 
 PEGASUS_USE_PAM_STANDALONE_PROC {
@@ -111,9 +111,9 @@ PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET {
 	Disables support for domain socket connection,
 	Disables support for local (same-system) connections over a Unix domain socket. If this option is NOT set, the CIM Server is built to allow connections to be established using a domain socket rather than a TCP port. }
 
-PEGASUS_DISABLE_PERFINST { 
-	Boolean, 
-	--disable-perfinst, 
+PEGASUS_DISABLE_PERFINST {
+	Boolean,
+	--disable-perfinst,
 	Disables support for gathering performance data,
 	Builds a version of OpenPegasus that disables support for gathering performance data.  The CIM_ObjectManager.GatherStatisticalData property is used to control statistic gathering. }
 

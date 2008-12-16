@@ -59,7 +59,7 @@ static void _testSelectors(WsmReader& reader)
     if (!reader.getSelectorElement(sel))
         throw Exception("Expected selector element.");
 
-    if (sel.type != WsmSelector::VALUE || sel.name != "first" || 
+    if (sel.type != WsmSelector::VALUE || sel.name != "first" ||
         sel.value != "John")
         throw Exception(
             "Invalid selector element. Expected name=first, value=John");
@@ -68,7 +68,7 @@ static void _testSelectors(WsmReader& reader)
     if (!reader.getSelectorElement(sel))
         throw Exception("Expected selector element.");
 
-    if (sel.type != WsmSelector::VALUE || sel.name != "last" || 
+    if (sel.type != WsmSelector::VALUE || sel.name != "last" ||
         sel.value != String::EMPTY)
         throw Exception("Expected value selector: name=last, value=<empty>");
 
@@ -154,7 +154,7 @@ static void _testSelectorErrors(WsmReader& reader)
     catch (XmlException&)
     {
     }
-    
+
     // Test garbage in a selector set
     try
     {
@@ -165,7 +165,7 @@ static void _testSelectorErrors(WsmReader& reader)
     {
         reader.expectEndTag(WsmNamespaces::WS_MAN, "SelectorSet");
     }
-    
+
     // Test more garbage in a selector set
     try
     {
@@ -209,7 +209,7 @@ static void _testSelectorErrors(WsmReader& reader)
                strcmp(entry.localName, "EndpointReference") != 0));
     }
 
-    // ATTN WSMAN: It's unclear which elements of an EPR are optional. 
+    // ATTN WSMAN: It's unclear which elements of an EPR are optional.
     // The implementation hasn't been finalized yet...
     // Add test points for exceptions in EPR XML.
 
@@ -235,7 +235,7 @@ static void _testProperties(WsmReader& reader)
         {
             WsmProperty& prop = inst.getProperty(0);
             WsmValue& val = prop.getValue();
-            if (prop.getName() != "property_1" || 
+            if (prop.getName() != "property_1" ||
                 val.getType() != WSMTYPE_OTHER)
                 throw Exception("Expected string property 1.");
 
@@ -248,28 +248,28 @@ static void _testProperties(WsmReader& reader)
         {
             WsmProperty& prop = inst.getProperty(1);
             WsmValue& val = prop.getValue();
-            if (prop.getName() != "property_2" || 
+            if (prop.getName() != "property_2" ||
                 val.getType() != WSMTYPE_OTHER)
                 throw Exception("Expected string property 2.");
-            
+
             String str;
             val.get(str);
             if (str != "222" || val.isNull() || val.isArray())
                 throw Exception("Invalid property 2.");
         }
-        
+
         {
             WsmProperty& prop = inst.getProperty(2);
             WsmValue& val = prop.getValue();
-            if (prop.getName() != "property_3" || 
+            if (prop.getName() != "property_3" ||
                 !val.isNull() || val.isArray())
                 throw Exception("Expected NULL property 3.");
         }
-        
+
         {
             WsmProperty& prop = inst.getProperty(3);
             WsmValue& val = prop.getValue();
-            if (prop.getName() != "property_4" || 
+            if (prop.getName() != "property_4" ||
                 !val.isNull() || val.isArray())
                 throw Exception("Expected NULL property 4.");
         }
@@ -277,24 +277,24 @@ static void _testProperties(WsmReader& reader)
         {
             WsmProperty& prop = inst.getProperty(4);
             WsmValue& val = prop.getValue();
-            if (prop.getName() != "property_5" || 
+            if (prop.getName() != "property_5" ||
                 val.getType() != WSMTYPE_OTHER)
                 throw Exception("Expected string property 5.");
-            
+
             String str;
             val.get(str);
             if (str != "" || val.isNull() || val.isArray())
                 throw Exception("Invalid property 5.");
         }
-        
+
         {
             WsmProperty& prop = inst.getProperty(5);
             WsmValue& val = prop.getValue();
-            if (prop.getName() != "property_6" || 
+            if (prop.getName() != "property_6" ||
                 val.getType() != WSMTYPE_REFERENCE ||
                 val.isNull() || val.isArray())
                 throw Exception("Expected EPR property 6.");
-            
+
             WsmEndpointReference epr;
             val.get(epr);
             if (epr.address != "http://www.acme.com:5988/wsman" ||
@@ -303,40 +303,40 @@ static void _testProperties(WsmReader& reader)
                 epr.selectorSet->selectors[0].value != "John" ||
                 epr.selectorSet->selectors[1].name != "last" ||
                 epr.selectorSet->selectors[1].value != "Doe")
-                throw Exception("Invalid EPR value."); 
+                throw Exception("Invalid EPR value.");
         }
-        
+
         {
             WsmProperty& prop = inst.getProperty(6);
             WsmValue& val = prop.getValue();
-            if (prop.getName() != "property_7" || 
+            if (prop.getName() != "property_7" ||
                 val.getType() != WSMTYPE_INSTANCE ||
                 val.isNull() || val.isArray())
                 throw Exception("Expected instance property 7.");
-            
+
             WsmInstance inst1;
             val.get(inst1);
-            if (inst1.getClassName() != "Class1" || 
+            if (inst1.getClassName() != "Class1" ||
                 inst1.getPropertyCount() != 2)
-                throw Exception("Invalid instance value."); 
+                throw Exception("Invalid instance value.");
 
             WsmProperty& prop1 = inst1.getProperty(0);
             WsmProperty& prop2 = inst1.getProperty(1);
             WsmValue& val1 = prop1.getValue();
             WsmValue& val2 = prop2.getValue();
-            if (prop1.getName() != "prop_1" || 
+            if (prop1.getName() != "prop_1" ||
                 val1.getType() != WSMTYPE_OTHER ||
-                prop2.getName() != "prop_2" || 
+                prop2.getName() != "prop_2" ||
                 val2.getType() != WSMTYPE_OTHER ||
-                val1.isNull() || val1.isArray() || 
+                val1.isNull() || val1.isArray() ||
                 val2.isNull() || val2.isArray())
-                throw Exception("Invalid instance value."); 
+                throw Exception("Invalid instance value.");
 
             String str1, str2;
             val1.get(str1);
             val2.get(str2);
             if (str1 != "1111" || str2 != "Property value 2")
-                throw Exception("Invalid instance value."); 
+                throw Exception("Invalid instance value.");
         }
     }
 
@@ -351,7 +351,7 @@ static void _testProperties(WsmReader& reader)
 
         WsmProperty& prop = inst.getProperty(0);
         WsmValue& val = prop.getValue();
-        if (prop.getName() != "property_1" || 
+        if (prop.getName() != "property_1" ||
             val.getType() != WSMTYPE_OTHER ||
             val.isNull() || !val.isArray())
             throw Exception("Expected string array property.");
@@ -361,7 +361,7 @@ static void _testProperties(WsmReader& reader)
         if (stra.size() != 4 || stra[0] != "100" ||
             stra[1] != "101" || stra[2] != "102" || stra[3] != "103")
             throw Exception("Invalid string array value.");
-            
+
     }
 
     //
@@ -375,7 +375,7 @@ static void _testProperties(WsmReader& reader)
 
         WsmProperty& prop = inst.getProperty(0);
         WsmValue& val = prop.getValue();
-        if (prop.getName() != "property_1" || 
+        if (prop.getName() != "property_1" ||
             val.getType() != WSMTYPE_REFERENCE ||
             val.isNull() || !val.isArray())
             throw Exception("Expected EPR array property.");
@@ -409,7 +409,7 @@ static void _testProperties(WsmReader& reader)
 
         WsmProperty& prop = inst.getProperty(0);
         WsmValue& val = prop.getValue();
-        if (prop.getName() != "property_1" || 
+        if (prop.getName() != "property_1" ||
             val.getType() != WSMTYPE_INSTANCE ||
             val.isNull() || !val.isArray())
             throw Exception("Expected instance array property.");
@@ -437,7 +437,7 @@ static void _testProperties(WsmReader& reader)
             prop3.getName() != "prop_1" || val3.getType() != WSMTYPE_OTHER ||
             val3.isNull() || val3.isArray())
             throw Exception("Invalid instance array value.");
-        
+
         String str1, str2, str3;
         val1.get(str1);
         val2.get(str2);
@@ -574,7 +574,7 @@ static void _testInstances(WsmReader& reader)
         {
             WsmProperty& prop = inst.getProperty(0);
             WsmValue& val = prop.getValue();
-            if (prop.getName() != "property_1" || 
+            if (prop.getName() != "property_1" ||
                 val.getType() != WSMTYPE_OTHER ||
                 val.isNull() || !val.isArray())
                 throw Exception("Expected string array property.");
@@ -588,7 +588,7 @@ static void _testInstances(WsmReader& reader)
         {
             WsmProperty& prop = inst.getProperty(1);
             WsmValue& val = prop.getValue();
-            if (prop.getName() != "property_2" || 
+            if (prop.getName() != "property_2" ||
                 val.getType() != WSMTYPE_REFERENCE ||
                 val.isNull() || !val.isArray())
                 throw Exception("Expected EPR array property.");
@@ -613,14 +613,14 @@ static void _testInstances(WsmReader& reader)
         {
             WsmProperty& prop = inst.getProperty(2);
             WsmValue& val = prop.getValue();
-            if (prop.getName() != "property_3" || 
+            if (prop.getName() != "property_3" ||
                 val.getType() != WSMTYPE_INSTANCE ||
                 val.isNull() || !val.isArray())
                 throw Exception("Expected instance array property.");
-            
+
             Array<WsmInstance> insta;
             val.get(insta);
-            
+
             if (insta.size() != 3 ||
                 insta[0].getPropertyCount() != 1 ||
                 insta[1].getPropertyCount() != 1 ||
@@ -633,18 +633,18 @@ static void _testInstances(WsmReader& reader)
             WsmValue& val1 = prop1.getValue();
             WsmValue& val2 = prop2.getValue();
             WsmValue& val3 = prop3.getValue();
-            
-            if (prop1.getName() != "prop_1" || 
+
+            if (prop1.getName() != "prop_1" ||
                 val1.getType() != WSMTYPE_OTHER ||
                 val1.isNull() || val1.isArray() ||
-                prop2.getName() != "prop_1" || 
+                prop2.getName() != "prop_1" ||
                 val2.getType() != WSMTYPE_OTHER ||
                 val2.isNull() || val2.isArray() ||
-                prop3.getName() != "prop_1" || 
+                prop3.getName() != "prop_1" ||
                 val3.getType() != WSMTYPE_OTHER ||
                 val3.isNull() || val3.isArray())
             throw Exception("Invalid instance array value.");
-            
+
             String str1, str2, str3;
             val1.get(str1);
             val2.get(str2);
@@ -857,7 +857,7 @@ static void _testHeaderErrors(WsmReader& reader)
         while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
                strcmp(entry.localName, "Header") != 0));
     }
- 
+
     // Test Locale mustUnderstand unsupported feature
     try
     {
@@ -890,7 +890,7 @@ static void _testEnumerateBody(WsmReader& reader)
     XmlEntry entry;
     reader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Envelope");
 
-    String expiration; 
+    String expiration;
     WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
     WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
     Boolean optimized = false;
@@ -898,7 +898,7 @@ static void _testEnumerateBody(WsmReader& reader)
 
     reader.decodeEnumerateBody(expiration, polymorphismMode, enumerationMode,
         optimized, maxElements);
-    if (expiration != "PT123S" || 
+    if (expiration != "PT123S" ||
         polymorphismMode != WSMB_PM_EXCLUDE_SUBCLASS_PROPERTIES ||
         enumerationMode != WSEN_EM_EPR ||
         optimized != true ||
@@ -911,13 +911,13 @@ static void _testEnumerateBodyErrors(WsmReader& reader)
     // Test duplicate headers
     try
     {
-        String expiration; 
+        String expiration;
         WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
         WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
         Boolean optimized = false;
         Uint32 maxElements = 0;
-        
-        reader.decodeEnumerateBody(expiration, polymorphismMode, 
+
+        reader.decodeEnumerateBody(expiration, polymorphismMode,
             enumerationMode, optimized, maxElements);
 
         throw Exception("Expected duplicate headers fault");
@@ -933,13 +933,13 @@ static void _testEnumerateBodyErrors(WsmReader& reader)
     // Test unsupported EndTo header
     try
     {
-        String expiration; 
+        String expiration;
         WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
         WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
         Boolean optimized = false;
         Uint32 maxElements = 0;
-        
-        reader.decodeEnumerateBody(expiration, polymorphismMode, 
+
+        reader.decodeEnumerateBody(expiration, polymorphismMode,
             enumerationMode, optimized, maxElements);
 
         throw Exception("Expected unsupported feature fault");
@@ -955,13 +955,13 @@ static void _testEnumerateBodyErrors(WsmReader& reader)
     // Test unsupported Filter header
     try
     {
-        String expiration; 
+        String expiration;
         WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
         WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
         Boolean optimized = false;
         Uint32 maxElements = 0;
-        
-        reader.decodeEnumerateBody(expiration, polymorphismMode, 
+
+        reader.decodeEnumerateBody(expiration, polymorphismMode,
             enumerationMode, optimized, maxElements);
 
         throw Exception("Expected filtering not supported fault");
@@ -977,13 +977,13 @@ static void _testEnumerateBodyErrors(WsmReader& reader)
     // Test unsupported enumeration mode
     try
     {
-        String expiration; 
+        String expiration;
         WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
         WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
         Boolean optimized = false;
         Uint32 maxElements = 0;
-        
-        reader.decodeEnumerateBody(expiration, polymorphismMode, 
+
+        reader.decodeEnumerateBody(expiration, polymorphismMode,
             enumerationMode, optimized, maxElements);
 
         throw Exception("Expected unsupported feature fault");
@@ -999,13 +999,13 @@ static void _testEnumerateBodyErrors(WsmReader& reader)
     // Test unsupported polymorphism mode
     try
     {
-        String expiration; 
+        String expiration;
         WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
         WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
         Boolean optimized = false;
         Uint32 maxElements = 0;
-        
-        reader.decodeEnumerateBody(expiration, polymorphismMode, 
+
+        reader.decodeEnumerateBody(expiration, polymorphismMode,
             enumerationMode, optimized, maxElements);
 
         throw Exception("Expected unsupported polymorphism mode fault");
@@ -1030,7 +1030,7 @@ static void _testPullBody(WsmReader& reader)
     Uint32 maxElements = 0;
     Uint32 maxCharacters = 0;
 
-    reader.decodePullBody(enumerationContext, 
+    reader.decodePullBody(enumerationContext,
         maxTime, maxElements, maxCharacters);
     if (enumerationContext != 22 ||
         maxTime != "PT123S" ||
@@ -1049,7 +1049,7 @@ static void _testPullBodyErrors(WsmReader& reader)
         Uint32 maxElements = 0;
         Uint32 maxCharacters = 0;
 
-        reader.decodePullBody(enumerationContext, 
+        reader.decodePullBody(enumerationContext,
             maxTime, maxElements, maxCharacters);
 
         throw Exception("Expected duplicate headers fault");
@@ -1070,7 +1070,7 @@ static void _testPullBodyErrors(WsmReader& reader)
         Uint32 maxElements = 0;
         Uint32 maxCharacters = 0;
 
-        reader.decodePullBody(enumerationContext, 
+        reader.decodePullBody(enumerationContext,
             maxTime, maxElements, maxCharacters);
 
         throw Exception("Expected invalid enumeration context fault");
@@ -1091,7 +1091,7 @@ static void _testPullBodyErrors(WsmReader& reader)
         Uint32 maxElements = 0;
         Uint32 maxCharacters = 0;
 
-        reader.decodePullBody(enumerationContext, 
+        reader.decodePullBody(enumerationContext,
             maxTime, maxElements, maxCharacters);
 
         throw Exception("Expected invalid MaxElements fault");
@@ -1122,7 +1122,7 @@ int main(int argc, char** argv)
             _testSelectors(reader);
             _testSelectorErrors(reader);
         }
-        
+
         {
             Buffer text;
             FileSystem::loadFileToMemory(text, "./properties.xml");

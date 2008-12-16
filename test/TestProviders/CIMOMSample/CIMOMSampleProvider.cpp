@@ -53,9 +53,9 @@ CIMOMSampleProvider::~CIMOMSampleProvider(void)
 void CIMOMSampleProvider::initialize(CIMOMHandle & cimom)
 {
     cout <<" CIMOMSampleProvider::initialize" << endl;
-    
+
     // create some instances
-    
+
     CIMInstance instance1("CIMOMSample");
     CIMObjectPath reference1("CIMOMSample.Id=187");
 
@@ -88,7 +88,7 @@ void CIMOMSampleProvider::getInstance(
 
     CIMName className = instanceReference.getClassName();
     //cout << "className(Method: getInstance)" <<className;
-    
+
         // instance index corresponds to reference index
         for(Uint32 i = 0, n = _instances.size(); i < n; i++)
         {
@@ -112,7 +112,7 @@ void CIMOMSampleProvider::enumerateInstances(
     InstanceResponseHandler & handler)
 {
     OperationContext localContext;
-    cout << "CIMOMSampleProvider::enumerateInstances" << endl;  
+    cout << "CIMOMSampleProvider::enumerateInstances" << endl;
     // announce operation processing.
     handler.processing();
 
@@ -125,11 +125,11 @@ void CIMOMSampleProvider::enumerateInstances(
 
     String user("subodh");
     cout << " User (Initialized here statically) = " << user;
-    
+
     IdentityContainer container = context.get(IdentityContainer::NAME);
     cout << " User in context passed to the method (container.getUserName) = "
          << container.getUserName()<< endl;
-    
+
     // Changing the UserIdentity in OperationContext
     localContext.insert(IdentityContainer(user));
     container = localContext.get(IdentityContainer::NAME);
@@ -139,13 +139,13 @@ void CIMOMSampleProvider::enumerateInstances(
 
     // begin processing the request
     handler.processing();
-    
+
     if (String::equal(user, container.getUserName()))
     {
         for(Uint32 i = 0, n = _instances.size(); i < n; i++)
         // deliver instance
             handler.deliver(_instances[i]);
-    }       
+    }
     else
     {
         cout << "User should be " << user << "but its "
@@ -161,7 +161,7 @@ void CIMOMSampleProvider::enumerateInstanceNames(
     const CIMObjectPath & classReference,
     ObjectPathResponseHandler & handler)
 {
-    cout << "CIMOMSampleProvider::enumerateInstanceNames" << endl;  
+    cout << "CIMOMSampleProvider::enumerateInstanceNames" << endl;
     // begin processing the request
 
     CIMName clName = classReference.getClassName();
@@ -183,7 +183,7 @@ void CIMOMSampleProvider::modifyInstance(
     const CIMPropertyList & propertyList,
     ResponseHandler & handler)
 {
-    cout << "CIMOMSampleProvider::modifyInstance" << endl;  
+    cout << "CIMOMSampleProvider::modifyInstance" << endl;
     // convert a potential fully qualified reference into a local reference
     // (class name and keys only).
     CIMObjectPath localReference = CIMObjectPath(
@@ -216,7 +216,7 @@ void CIMOMSampleProvider::createInstance(
     const CIMInstance & instanceObject,
     ObjectPathResponseHandler & handler)
 {
-    cout << "CIMOMSampleProvider::createInstance" << endl;  
+    cout << "CIMOMSampleProvider::createInstance" << endl;
     // convert a potential fully qualified reference into a local reference
     // (class name and keys only).
     CIMObjectPath localReference = CIMObjectPath(
@@ -254,7 +254,7 @@ void CIMOMSampleProvider::deleteInstance(
     const CIMObjectPath & instanceReference,
     ResponseHandler & handler)
 {
-    cout << "CIMOMSampleProvider::deleteInstance" << endl;  
+    cout << "CIMOMSampleProvider::deleteInstance" << endl;
     // convert a potential fully qualified reference into a local reference
     // (class name and keys only).
     CIMObjectPath localReference = CIMObjectPath(

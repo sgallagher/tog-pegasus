@@ -85,11 +85,11 @@ MKDIRHIER = $(MU) mkdirhier
 
 MUDEPEND = $(MU) depend
 
-EXE_OUT = 
+EXE_OUT =
 
 OBJ = .obj
 
-OBJ_OUT = 
+OBJ_OUT =
 
 EXE = .exe
 

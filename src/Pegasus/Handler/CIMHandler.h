@@ -34,7 +34,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMObject.h>
-#include <Pegasus/Common/ContentLanguageList.h>  
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Handler/Linkage.h>
@@ -50,8 +50,8 @@ public:
     virtual ~CIMHandler() { };
 
     // Abstract method which each and every handler needs to be implemented.
-    // Indication processing will instantiate IndicationDispatcher which 
-    // will look into Handler Table to load the appropriate handler. If 
+    // Indication processing will instantiate IndicationDispatcher which
+    // will look into Handler Table to load the appropriate handler. If
     // handler is already loaded then IndicationDispatcher will call this
     // method implemented in handler.
     virtual void handleIndication(
@@ -61,7 +61,7 @@ public:
         CIMInstance& indicationHandlerInstance,
         CIMInstance& indicationSubscriptionInstance,
         ContentLanguageList& contentLanguages) = 0;
-    
+
     // These are the method to initialize and terminate handler. Actual need
     // and implementation way these methods are yet to be finalized.
 

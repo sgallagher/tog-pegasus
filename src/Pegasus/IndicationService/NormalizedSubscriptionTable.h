@@ -87,7 +87,7 @@ public:
     Boolean exists(const CIMObjectPath &subPath, Boolean &value);
 
 private:
-    NormalizedSubscriptionTable& operator = 
+    NormalizedSubscriptionTable& operator =
         (const NormalizedSubscriptionTable&);
     NormalizedSubscriptionTable(const NormalizedSubscriptionTable&);
 

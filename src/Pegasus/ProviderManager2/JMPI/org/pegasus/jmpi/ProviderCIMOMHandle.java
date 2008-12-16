@@ -36,6 +36,6 @@
 
 package org.pegasus.jmpi;
 
-public interface ProviderCIMOMHandle 
+public interface ProviderCIMOMHandle
 {
 }

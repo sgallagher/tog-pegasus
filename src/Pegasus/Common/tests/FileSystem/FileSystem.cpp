@@ -78,7 +78,7 @@ void TestGetLine(const String& tmpDir)
 void _printArray(const String& name, const Array<String>& globList)
     {
         if (verbose)
-        {    
+        {
             cout << name << " count= " << globList.size() << endl;
             for (Uint32 i = 0 ; i < globList.size(); i++)
             {
@@ -169,13 +169,13 @@ int main(int argc, char** argv)
     PEGASUS_TEST_ASSERT(globList[0] == "Makefile");
 
     PEGASUS_TEST_ASSERT(FileSystem::glob( "testdir",  "*", globList));
-    _filterArray(globList); 
+    _filterArray(globList);
     PEGASUS_TEST_ASSERT(globList.size() == 3);
 
     Array<String> paths;
     PEGASUS_TEST_ASSERT( FileSystem::getDirectoryContents("./testdir", paths) );
 
-    _filterArray(paths); 
+    _filterArray(paths);
 
     String realName;
     PEGASUS_TEST_ASSERT(FileSystem::existsNoCase("filesystem.cpp", realName));

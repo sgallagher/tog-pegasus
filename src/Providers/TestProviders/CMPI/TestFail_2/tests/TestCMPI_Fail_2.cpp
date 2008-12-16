@@ -61,11 +61,11 @@ void _usage ()
 void test01 (CIMClient & client)
 {
     try
-    { 
+    {
         Array<CIMObjectPath> array = client.enumerateInstanceNames (
             providerNamespace, CLASSNAME);
     }
-    catch (const CIMException &e) 
+    catch (const CIMException &e)
     {
         if (e.getMessage().find(ERROR_SUBSTRING) == PEG_NOT_FOUND
             && e.getMessage() != RCMPI_ERROR)

@@ -74,21 +74,21 @@ static struct ConfigPropertyRow properties[] =
     {"enableAuthentication", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"httpAuthType", "Basic", IS_STATIC, 0, 0, IS_VISIBLE},
     {"passwordFilePath", "cimserver.passwd", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"sslCertificateFilePath", "ssl/keystore/servercert.pem", IS_STATIC, 
+    {"sslCertificateFilePath", "ssl/keystore/servercert.pem", IS_STATIC,
         0, 0, IS_VISIBLE},
-    {"sslKeyFilePath", "ssl/keystore/serverkey.pem", IS_STATIC, 
+    {"sslKeyFilePath", "ssl/keystore/serverkey.pem", IS_STATIC,
         0, 0, IS_VISIBLE},
     {"sslTrustStore", "ssl/truststore/", IS_STATIC, 0, 0, IS_VISIBLE},
 # ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
     {"crlStore", "ssl/crlstore/", IS_STATIC, 0, 0, IS_VISIBLE},
-# endif    
+# endif
     {"sslClientVerificationMode", "optional", IS_STATIC, 0, 0, IS_VISIBLE},
     {"sslTrustStoreUserName", "QYCMCIMOM", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableNamespaceAuthorization", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 # ifdef PEGASUS_KERBEROS_AUTHENTICATION
     {"kerberosServiceName", "cimom", IS_STATIC, 0, 0, IS_VISIBLE},
-# endif    
-    {"enableSubscriptionsForNonprivilegedUsers", "false", IS_STATIC, 
+# endif
+    {"enableSubscriptionsForNonprivilegedUsers", "false", IS_STATIC,
         0, 0, IS_VISIBLE},
     {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"authorizedUserGroups", "", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -863,7 +863,7 @@ Boolean SecurityPropertyOwner::isValid(
 #ifdef PEGASUS_OS_ZOS
     else if (String::equalNoCase(_enableCFZAPPLID->propertyName, name))
     {
-        if (String::equalNoCase(value, "true") 
+        if (String::equalNoCase(value, "true")
            || String::equalNoCase(value, "false"))
         {
             retVal = true;

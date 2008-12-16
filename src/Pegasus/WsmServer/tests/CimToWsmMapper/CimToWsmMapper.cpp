@@ -60,11 +60,11 @@ void testSimpleType(const T& x)
     }
     mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
     wsmValue.get(wsmStr);
-    if (wsmValue.getType() != WSMTYPE_OTHER || wsmValue.isArray() || 
+    if (wsmValue.getType() != WSMTYPE_OTHER || wsmValue.isArray() ||
         wsmValue.isNull() || wsmStr != cimStr)
     {
-        throw Exception(String("Unvalid ") + 
-            String(cimTypeToString(cimValue.getType())) + 
+        throw Exception(String("Unvalid ") +
+            String(cimTypeToString(cimValue.getType())) +
             String(" conversion"));
     }
 }
@@ -195,7 +195,7 @@ static void _testValues(void)
         if (wsmInst.getClassName() != "MyClass" ||
             wsmInst.getPropertyCount() != 3)
             throw Exception("Invalid instance conversion");
-        
+
         String str1, str2, str3;
         wsmInst.getProperty(0).getValue().get(str1);
         wsmInst.getProperty(1).getValue().get(str2);
@@ -223,7 +223,7 @@ static void _testValues(void)
         if (wsmInst.getClassName() != "MyClass" ||
             wsmInst.getPropertyCount() != 3)
             throw Exception("Invalid instance conversion");
-        
+
         String str1, str2, str3;
         wsmInst.getProperty(0).getValue().get(str1);
         wsmInst.getProperty(1).getValue().get(str2);
@@ -244,7 +244,7 @@ static void _testValues(void)
         mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
         wsmValue.get(epr);
         if (epr.address != "http://atp:77/wsman" ||
-            epr.resourceUri != 
+            epr.resourceUri !=
             "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/TennisPlayer" ||
             epr.selectorSet->selectors.size() != 2 ||
             epr.selectorSet->selectors[0].name != "__cimnamespace" ||
@@ -268,10 +268,10 @@ void testArrayType(const Array<T>& x)
     mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
     wsmValue.get(arr);
 
-    if (wsmValue.getType() != WSMTYPE_OTHER || !wsmValue.isArray() || 
+    if (wsmValue.getType() != WSMTYPE_OTHER || !wsmValue.isArray() ||
         wsmValue.isNull() || x.size() != arr.size())
-        throw Exception(String("Unvalid ") + 
-            String(cimTypeToString(cimValue.getType())) + 
+        throw Exception(String("Unvalid ") +
+            String(cimTypeToString(cimValue.getType())) +
             String(" conversion"));
 
     for (Uint32 i = 0; i < x.size(); i++)
@@ -284,8 +284,8 @@ void testArrayType(const Array<T>& x)
             cimStr.toLower();
         }
         if (cimStr != arr[i])
-            throw Exception(String("Unvalid ") + 
-                String(cimTypeToString(cimValue.getType())) + 
+            throw Exception(String("Unvalid ") +
+                String(cimTypeToString(cimValue.getType())) +
                 String(" conversion"));
     }
 }
@@ -371,7 +371,7 @@ static void _testArrayValues(void)
         mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
         wsmValue.get(wsmDTs);
         PEGASUS_TEST_ASSERT(wsmDTs.size() == 2 &&
-            wsmDTs[0] == "1999-12-24T12:00:00+06:00" && 
+            wsmDTs[0] == "1999-12-24T12:00:00+06:00" &&
             wsmDTs[1] == "2000-12-24T12:00:00+06:00");
     }
 
@@ -410,7 +410,7 @@ static void _testArrayValues(void)
             wsmInstArray[0].getProperty(1).getName() != "prop2" ||
             wsmInstArray[1].getProperty(0).getName() != "prop3" ||
             wsmInstArray[1].getProperty(1).getName() != "prop4" ||
-            str1 != "value1" || str2 != "value2" || 
+            str1 != "value1" || str2 != "value2" ||
             str3 != "value3" || str4 != "value4")
             throw Exception("Invalid instance conversion");
     }
@@ -450,7 +450,7 @@ static void _testArrayValues(void)
             wsmInstArray[0].getProperty(1).getName() != "prop2" ||
             wsmInstArray[1].getProperty(0).getName() != "prop3" ||
             wsmInstArray[1].getProperty(1).getName() != "prop4" ||
-            str1 != "value1" || str2 != "value2" || 
+            str1 != "value1" || str2 != "value2" ||
             str3 != "value3" || str4 != "value4")
             throw Exception("Invalid instance conversion");
     }
@@ -470,7 +470,7 @@ static void _testArrayValues(void)
         wsmValue.get(eprArray);
 
         if (eprArray[0].address != "http://atp:11/wsman" ||
-            eprArray[0].resourceUri != 
+            eprArray[0].resourceUri !=
                 "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/Player" ||
             eprArray[0].selectorSet->selectors.size() != 2 ||
             eprArray[0].selectorSet->selectors[0].name != "__cimnamespace" ||
@@ -478,7 +478,7 @@ static void _testArrayValues(void)
             eprArray[0].selectorSet->selectors[1].name != "last" ||
             eprArray[0].selectorSet->selectors[1].value != "Marleau" ||
             eprArray[1].address != "http://atp:22/wsman" ||
-            eprArray[1].resourceUri != 
+            eprArray[1].resourceUri !=
                 "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/Player" ||
             eprArray[1].selectorSet->selectors.size() != 2 ||
             eprArray[1].selectorSet->selectors[0].name != "__cimnamespace" ||
@@ -503,93 +503,93 @@ static void _testExceptions(void)
     WsmFault f2 = mapper.mapCimExceptionToWsmFault(e2);
     PEGASUS_TEST_ASSERT(f2.getCode() == "SOAP-ENV:Receiver");
     PEGASUS_TEST_ASSERT(f2.getSubcode() == "wsman:InternalError");
-    PEGASUS_TEST_ASSERT(f2.getReason() == 
+    PEGASUS_TEST_ASSERT(f2.getReason() ==
         "CIM_ERR_CLASS_HAS_CHILDREN: class has children");
 
     CIMException e3(CIM_ERR_CLASS_HAS_INSTANCES, "class has instances");
     WsmFault f3 = mapper.mapCimExceptionToWsmFault(e3);
     PEGASUS_TEST_ASSERT(f3.getCode() == "SOAP-ENV:Receiver");
     PEGASUS_TEST_ASSERT(f3.getSubcode() == "wsman:InternalError");
-    PEGASUS_TEST_ASSERT(f3.getReason() == 
+    PEGASUS_TEST_ASSERT(f3.getReason() ==
         "CIM_ERR_CLASS_HAS_INSTANCES: class has instances");
 
     CIMException e4(CIM_ERR_INVALID_SUPERCLASS, "invalid superclass");
     WsmFault f4 = mapper.mapCimExceptionToWsmFault(e4);
     PEGASUS_TEST_ASSERT(f4.getCode() == "SOAP-ENV:Receiver");
     PEGASUS_TEST_ASSERT(f4.getSubcode() == "wsman:InternalError");
-    PEGASUS_TEST_ASSERT(f4.getReason() == 
+    PEGASUS_TEST_ASSERT(f4.getReason() ==
         "CIM_ERR_INVALID_SUPERCLASS: invalid superclass");
 
     CIMException e5(CIM_ERR_METHOD_NOT_FOUND, "method not found");
     WsmFault f5 = mapper.mapCimExceptionToWsmFault(e5);
     PEGASUS_TEST_ASSERT(f5.getCode() == "SOAP-ENV:Receiver");
     PEGASUS_TEST_ASSERT(f5.getSubcode() == "wsman:InternalError");
-    PEGASUS_TEST_ASSERT(f5.getReason() == 
+    PEGASUS_TEST_ASSERT(f5.getReason() ==
         "CIM_ERR_METHOD_NOT_FOUND: method not found");
 
     CIMException e6(CIM_ERR_METHOD_NOT_AVAILABLE, "method not available");
     WsmFault f6 = mapper.mapCimExceptionToWsmFault(e6);
     PEGASUS_TEST_ASSERT(f6.getCode() == "SOAP-ENV:Receiver");
     PEGASUS_TEST_ASSERT(f6.getSubcode() == "wsman:InternalError");
-    PEGASUS_TEST_ASSERT(f6.getReason() == 
+    PEGASUS_TEST_ASSERT(f6.getReason() ==
         "CIM_ERR_METHOD_NOT_AVAILABLE: method not available");
 
     CIMException e7(CIM_ERR_NO_SUCH_PROPERTY, "no such property");
     WsmFault f7 = mapper.mapCimExceptionToWsmFault(e7);
     PEGASUS_TEST_ASSERT(f7.getCode() == "SOAP-ENV:Receiver");
     PEGASUS_TEST_ASSERT(f7.getSubcode() == "wsman:InternalError");
-    PEGASUS_TEST_ASSERT(f7.getReason() == 
+    PEGASUS_TEST_ASSERT(f7.getReason() ==
         "CIM_ERR_NO_SUCH_PROPERTY: no such property");
 
     CIMException e8(CIM_ERR_TYPE_MISMATCH, "type mismatch");
     WsmFault f8 = mapper.mapCimExceptionToWsmFault(e8);
     PEGASUS_TEST_ASSERT(f8.getCode() == "SOAP-ENV:Receiver");
     PEGASUS_TEST_ASSERT(f8.getSubcode() == "wsman:InternalError");
-    PEGASUS_TEST_ASSERT(f8.getReason() == 
+    PEGASUS_TEST_ASSERT(f8.getReason() ==
         "CIM_ERR_TYPE_MISMATCH: type mismatch");
 
     CIMException e9(CIM_ERR_ACCESS_DENIED, "access denied");
     WsmFault f9 = mapper.mapCimExceptionToWsmFault(e9);
     PEGASUS_TEST_ASSERT(f9.getCode() == "SOAP-ENV:Sender");
     PEGASUS_TEST_ASSERT(f9.getSubcode() == "wsman:AccessDenied");
-    PEGASUS_TEST_ASSERT(f9.getReason() == 
+    PEGASUS_TEST_ASSERT(f9.getReason() ==
         "CIM_ERR_ACCESS_DENIED: access denied");
 
     CIMException e10(CIM_ERR_ALREADY_EXISTS, "already exists");
     WsmFault f10 = mapper.mapCimExceptionToWsmFault(e10);
     PEGASUS_TEST_ASSERT(f10.getCode() == "SOAP-ENV:Sender");
     PEGASUS_TEST_ASSERT(f10.getSubcode() == "wsman:AlreadyExists");
-    PEGASUS_TEST_ASSERT(f10.getReason() == 
+    PEGASUS_TEST_ASSERT(f10.getReason() ==
         "CIM_ERR_ALREADY_EXISTS: already exists");
 
     CIMException e11(CIM_ERR_INVALID_CLASS, "invalid class");
     WsmFault f11 = mapper.mapCimExceptionToWsmFault(e11);
     PEGASUS_TEST_ASSERT(f11.getCode() == "SOAP-ENV:Sender");
     PEGASUS_TEST_ASSERT(f11.getSubcode() == "wsa:DestinationUnreachable");
-    PEGASUS_TEST_ASSERT(f11.getReason() == 
+    PEGASUS_TEST_ASSERT(f11.getReason() ==
         "CIM_ERR_INVALID_CLASS: invalid class");
-    PEGASUS_TEST_ASSERT(f11.getFaultDetail() == 
+    PEGASUS_TEST_ASSERT(f11.getFaultDetail() ==
         WSMAN_FAULTDETAIL_INVALIDRESOURCEURI);
 
     CIMException e12(CIM_ERR_INVALID_NAMESPACE, "invalid namespace");
     WsmFault f12 = mapper.mapCimExceptionToWsmFault(e12);
     PEGASUS_TEST_ASSERT(f12.getCode() == "SOAP-ENV:Sender");
     PEGASUS_TEST_ASSERT(f12.getSubcode() == "wsa:DestinationUnreachable");
-    PEGASUS_TEST_ASSERT(f12.getReason() == 
+    PEGASUS_TEST_ASSERT(f12.getReason() ==
         "CIM_ERR_INVALID_NAMESPACE: invalid namespace");
 
     CIMException e13(CIM_ERR_INVALID_PARAMETER, "invalid parameter");
     WsmFault f13 = mapper.mapCimExceptionToWsmFault(e13);
     PEGASUS_TEST_ASSERT(f13.getCode() == "SOAP-ENV:Sender");
     PEGASUS_TEST_ASSERT(f13.getSubcode() == "wsman:InvalidParameter");
-    PEGASUS_TEST_ASSERT(f13.getReason() == 
+    PEGASUS_TEST_ASSERT(f13.getReason() ==
         "CIM_ERR_INVALID_PARAMETER: invalid parameter");
 
     CIMException e14(CIM_ERR_INVALID_QUERY, "invalid query");
     WsmFault f14 = mapper.mapCimExceptionToWsmFault(e14);
     PEGASUS_TEST_ASSERT(f14.getCode() == "SOAP-ENV:Sender");
     PEGASUS_TEST_ASSERT(f14.getSubcode() == "wsen:CannotProcessFilter");
-    PEGASUS_TEST_ASSERT(f14.getReason() == 
+    PEGASUS_TEST_ASSERT(f14.getReason() ==
         "CIM_ERR_INVALID_QUERY: invalid query");
 
     CIMException e15(CIM_ERR_NOT_FOUND, "not found");
@@ -602,17 +602,17 @@ static void _testExceptions(void)
     WsmFault f16 = mapper.mapCimExceptionToWsmFault(e16);
     PEGASUS_TEST_ASSERT(f16.getCode() == "SOAP-ENV:Sender");
     PEGASUS_TEST_ASSERT(f16.getSubcode() == "wsa:ActionNotSupported");
-    PEGASUS_TEST_ASSERT(f16.getReason() == 
+    PEGASUS_TEST_ASSERT(f16.getReason() ==
         "CIM_ERR_NOT_SUPPORTED: not supported");
-    PEGASUS_TEST_ASSERT(f16.getFaultDetail() == 
+    PEGASUS_TEST_ASSERT(f16.getFaultDetail() ==
         WSMAN_FAULTDETAIL_ACTIONMISMATCH);
 
-    CIMException e17(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, 
+    CIMException e17(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED,
         "query language not supported");
     WsmFault f17 = mapper.mapCimExceptionToWsmFault(e17);
     PEGASUS_TEST_ASSERT(f17.getCode() == "SOAP-ENV:Sender");
     PEGASUS_TEST_ASSERT(f17.getSubcode() == "wsen:FilteringNotSupported");
-    PEGASUS_TEST_ASSERT(f17.getReason() == 
+    PEGASUS_TEST_ASSERT(f17.getReason() ==
         "CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED: query language not supported");
 }
 

@@ -933,7 +933,7 @@ SSLContext* CIMServer::_getSSLContext()
         // certificates.
         //
 
-        if (trustStore != String::EMPTY) 
+        if (trustStore != String::EMPTY)
         {
             if (!FileSystem::exists(trustStore))
             {
@@ -942,11 +942,11 @@ SSLContext* CIMServer::_getSSLContext()
                         "COULD_NOT_ACCESS_TRUST_STORE",
                     "Could not access the trust store."
                         "Check the permissions of the truststore path \"$0\".",
-                        trustStore); 
+                        trustStore);
                 PEG_METHOD_EXIT();
                 throw SSLException(parms);
             }
-    
+
             if (!FileSystem::isDirectory(trustStore))
             {
                 if (trustStoreUserName == String::EMPTY)
@@ -1089,7 +1089,7 @@ void CIMServer::auditLogInitializeCallback()
 ThreadReturnType PEGASUS_THREAD_CDECL _callSLPProvider(void* parm);
 
 // This is a control function that starts a new thread which issues a
-// cim operation to start the slp provider. Used for both External and 
+// cim operation to start the slp provider. Used for both External and
 // Embedded SLP registrations.
 //
 

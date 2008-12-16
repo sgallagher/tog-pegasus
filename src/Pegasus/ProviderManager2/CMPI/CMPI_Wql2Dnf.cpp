@@ -43,7 +43,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 //
-// Terminal element methods 
+// Terminal element methods
 //
 void term_el_WQL::negate(void)
 {
@@ -82,7 +82,7 @@ static bool operator==(const WQLOperand& x, const WQLOperand& y)
                 return x.getBooleanValue()==y.getBooleanValue();
             case WQLOperand::STRING_VALUE:
                 return x.getStringValue()==y.getStringValue();
-            case WQLOperand::NULL_VALUE: 
+            case WQLOperand::NULL_VALUE:
                 return true;
         }
     }
@@ -91,8 +91,8 @@ static bool operator==(const WQLOperand& x, const WQLOperand& y)
 
 static bool operator==(const term_el_WQL& x, const term_el_WQL& y)
 {
-    return x.op == y.op && 
-    x.opn1 == y.opn1 && 
+    return x.op == y.op &&
+    x.opn1 == y.opn1 &&
     x.opn2 == y.opn2;
 }
 
@@ -113,7 +113,7 @@ static void addIfNotExists(TableauRow_WQL &tr, const term_el_WQL& el)
     PEG_METHOD_EXIT();
 }
 
-CMPI_Wql2Dnf::CMPI_Wql2Dnf(const String &condition, const String &pref) 
+CMPI_Wql2Dnf::CMPI_Wql2Dnf(const String &condition, const String &pref)
 {
     WQLSelectStatement wqs;
     WQLParser::parse(pref+condition,wqs);
@@ -123,7 +123,7 @@ CMPI_Wql2Dnf::CMPI_Wql2Dnf(const String &condition, const String &pref)
     compile(&wqs);
 }
 
-CMPI_Wql2Dnf::CMPI_Wql2Dnf() 
+CMPI_Wql2Dnf::CMPI_Wql2Dnf()
 {
     eval_heap.reserveCapacity(16);
     terminal_heap.reserveCapacity(16);
@@ -255,11 +255,11 @@ void CMPI_Wql2Dnf::_populateTableau(void)
         CMPI_TableauRow tr;
         for( Uint32 j=0,m = tr_wql.size(); j < m; j++ )
         {
-            term_el_WQL t = tr_wql[j]; 
+            term_el_WQL t = tr_wql[j];
 
             CMPI_QueryOperand lhs(WQL2String(t.opn1),
             WQL2Type(t.opn1.getType()));
-            CMPI_QueryOperand rhs(WQL2String(t.opn2), 
+            CMPI_QueryOperand rhs(WQL2String(t.opn2),
             WQL2Type(t.opn2.getType()));
 
             tr.append(CMPI_term_el(t.mark, WQL2PredOp(t.op), lhs, rhs));
@@ -325,7 +325,7 @@ void CMPI_Wql2Dnf::_buildEvalHeap(const WQLSelectStatement * wqs)
 
                     // generate Eval expression
                     eval_heap.append(CMPI_eval_el(
-                                         0, op , op1.opn, 
+                                         0, op , op1.opn,
                                          op1.is_terminal,-1, true));
 
                     stack.top() = CMPI_stack_el(eval_heap.size()-1, false);
@@ -527,7 +527,7 @@ void CMPI_Wql2Dnf::_factoring(void)
                 {
                     _found = 1;
                 }
-            }  
+            }
             if( (_found == 0) && (!eval_heap[i].is_terminal2) )
             {
                     index = eval_heap[i].opn2; // remember the index
@@ -611,7 +611,7 @@ void CMPI_Wql2Dnf::_factoring(void)
 
         i++; // increase pointer
     } // end of while loop
-    
+
     PEG_METHOD_EXIT();
 }
     void CMPI_Wql2Dnf::_gatherDisj(Array<CMPI_stack_el>& stk)

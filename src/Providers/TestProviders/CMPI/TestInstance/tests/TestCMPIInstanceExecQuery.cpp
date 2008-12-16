@@ -232,7 +232,7 @@ _test (CIMClient & client)
 
         if (objects.size () == 0)
           {
-            // Only the third (second when starting from zero) and 
+            // Only the third (second when starting from zero) and
             // eight(7) won't return instances.
             PEGASUS_TEST_ASSERT (i == 2 || i == 5 || i == 7);
             if (verbose)

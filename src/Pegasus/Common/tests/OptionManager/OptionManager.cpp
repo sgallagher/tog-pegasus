@@ -51,7 +51,7 @@ void test01()
         inDomainString.append("blue");
         inDomainString.append("green");
 
-        Option oobj(String::EMPTY, "blue" , false, 
+        Option oobj(String::EMPTY, "blue" , false,
                     Option::STRING, inDomainString);
 
         Boolean caughtException = false;
@@ -146,7 +146,7 @@ void test01()
             Boolean isValid(const String& value) const
             void setType(Type type)
         */
-        
+
         oobj1.setType(Option::BOOLEAN);
         oobj1.setDomain(Array<String>());
         PEGASUS_TEST_ASSERT(oobj1.isValid("true") == true);
@@ -244,7 +244,7 @@ int main(int argc, char** argv)
     }
     catch (Exception& e)
     {
-        PEGASUS_STD(cout) << "Exception: " << e.getMessage() 
+        PEGASUS_STD(cout) << "Exception: " << e.getMessage()
             << PEGASUS_STD(endl);
         exit(1);
     }

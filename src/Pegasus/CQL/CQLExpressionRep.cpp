@@ -45,7 +45,7 @@ CQLExpressionRep::CQLExpressionRep(const CQLTerm& theTerm)
   PEG_METHOD_EXIT();
 }
 
-CQLExpressionRep::CQLExpressionRep(const CQLExpressionRep* rep) 
+CQLExpressionRep::CQLExpressionRep(const CQLExpressionRep* rep)
 {
   PEG_METHOD_ENTER(TRC_CQL,
       "CQLExpressionRep::CQLExpressionRep(const CQLExpressionRep* rep)");
@@ -66,18 +66,18 @@ CQLValue CQLExpressionRep::resolveValue(const CIMInstance& CI,
   PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::resolveValue()");
 
   CQLValue returnVal = _CQLTerms[0].resolveValue(CI,QueryCtx);
-  
+
   /*
     for(Uint32 i = 0; i < _TermOperators.size(); ++i)
     {
       switch(_TermOperators[i])
         {
            case TERM_ADD:
-               returnVal = returnVal + 
+               returnVal = returnVal +
                _CQLTerms[i+1].resolveValue(CI,QueryCtx);
            break;
                case TERM_SUBTRACT:
-               returnVal = returnVal - 
+               returnVal = returnVal -
                _CQLTerms[i+1].resolveValue(CI,QueryCtx);
                break;
         default:
@@ -85,7 +85,7 @@ CQLValue CQLExpressionRep::resolveValue(const CIMInstance& CI,
         }
     }
 */
-  
+
   PEG_METHOD_EXIT();
   return returnVal;
 }
@@ -94,31 +94,31 @@ void CQLExpressionRep::appendOperation(const TermOpType theTermOpType,
                                        const CQLTerm& theTerm)
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::appendOperation()");
-    
+
     _TermOperators.append(theTermOpType);
     _CQLTerms.append(theTerm);
-    
+
     PEG_METHOD_EXIT();
 }
 
 String CQLExpressionRep::toString()const
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::toString()");
-    
+
     String returnStr;
-    
+
     if(_CQLTerms.size() > 0)
     {
         returnStr.append(_CQLTerms[0].toString());
         /* for(Uint32 i = 0; i < _TermOperators.size(); ++i)
           {
-            returnStr.append(_TermOperators[i] == 
+            returnStr.append(_TermOperators[i] ==
                 TERM_ADD ? String(" + ") : String(" - "));
         returnStr.append(_CQLTerms[i+1].toString());
           }
         */
     }
-    
+
     PEG_METHOD_EXIT();
     return returnStr;
     }
@@ -133,14 +133,14 @@ Boolean CQLExpressionRep::isSimpleValue()const
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::isSimpleValue()");
 
-  if(_CQLTerms.size() == 1) 
+  if(_CQLTerms.size() == 1)
     {
       PEG_METHOD_EXIT();
       return _CQLTerms[0].isSimpleValue();
     }
-  
+
   PEG_METHOD_EXIT();
-  
+
   return false;
 }
 
@@ -194,7 +194,7 @@ Boolean CQLExpressionRep::operator==(const CQLExpressionRep& rep)const
       return false;
     }
     }
-  
+
   PEG_METHOD_EXIT();
   return true;
 }

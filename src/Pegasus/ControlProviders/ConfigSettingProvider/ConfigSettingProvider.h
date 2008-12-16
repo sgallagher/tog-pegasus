@@ -38,7 +38,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/ControlProviders/ConfigSettingProvider/Linkage.h> 
+#include <Pegasus/ControlProviders/ConfigSettingProvider/Linkage.h>
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
@@ -207,12 +207,12 @@ private:
     */
     void _verifyAuthorization(const String& user);
 
-    /** 
-    send notify config change message to provider manager service. 
+    /**
+    send notify config change message to provider manager service.
 
-    @param propertyName    The name of the property to update. 
-    @param propertyValue   The new value of the property. 
-    @param currentValueModified    Specifies whether the current value or 
+    @param propertyName    The name of the property to update.
+    @param propertyValue   The new value of the property.
+    @param currentValueModified    Specifies whether the current value or
                                    planned value is modified.
                                    true - current value modified;
                                    false - planned value modified

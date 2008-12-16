@@ -136,8 +136,8 @@ public:
 
         @param  str    input string to be searched
         @param  token  token to look for
- 
-        @return true   if the token is found in the string after skipping 
+
+        @return true   if the token is found in the string after skipping
                         the leading whitespaces if any.
         @return false  if the token is not found.
     */
@@ -146,10 +146,10 @@ public:
     /**
         Returns a pointer to the first CRLF or a LF separator.
 
-        @param  data   input string. 
+        @param  data   input string.
         @param  size   size of the input string.
- 
-        @return pointer to the first CRLF or LF separator if any, else 
+
+        @return pointer to the first CRLF or LF separator if any, else
                 returns NULL.
     */
     static char* findSeparator(

@@ -29,7 +29,7 @@
 
 README - Using the PEGASUS CIMSERVER STATISTICS
 
-Author: Karl Schopmeyer <k.schopmeyer@opengroup.org> 
+Author: Karl Schopmeyer <k.schopmeyer@opengroup.org>
 
 Date: 14 March 2006
 
@@ -45,9 +45,9 @@ response counts on each operation executed and maintains these counts and times
 from the time the statistics were started.  For each operation executed the
 following are gathered.
 
-    * request size 
-    * response size 
-    * time spent in the server 
+    * request size
+    * response size
+    * time spent in the server
     * time spent in the providers
 
 For each operation type defined (ex getclass, etc.) an instance of the
@@ -102,7 +102,7 @@ The test client CLI includes a special set of operations (son and soff) that
 directly set the GatherStatisticalData property true or false effectively
 enabling/disabling statistics gathering.
 
-ex. CLI son      - turns the statistics gathering on. CLI soff     
+ex. CLI son      - turns the statistics gathering on. CLI soff
                  - turns the statistics gathering off.
 
 Once statistics gathering is enabled or disabled this state is maintained

@@ -56,13 +56,13 @@ class PEGASUS_WSMSERVER_LINKAGE WsmWriter : public XmlGenerator
 public:
 
     static void appendSoapFaultHeaders(
-        Buffer& out, 
+        Buffer& out,
         const SoapNotUnderstoodFault& fault,
         const String& action,
         const String& messageId,
         const String& relatesTo);
     static void appendSoapFaultBody(
-        Buffer& out, 
+        Buffer& out,
         const SoapNotUnderstoodFault& fault);
 
     static void appendWsmFaultBody(

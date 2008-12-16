@@ -36,7 +36,7 @@
 #ifndef Pegasus_WMIQueryStrings_h
 #define Pegasus_WMIQueryStrings_h
 
-/** This file contains definitions of string constants used to define queries 
+/** This file contains definitions of string constants used to define queries
     that will be used to process the Associator and Reference requests.
 */
 

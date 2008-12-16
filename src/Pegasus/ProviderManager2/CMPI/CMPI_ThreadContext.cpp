@@ -65,7 +65,7 @@ void CMPI_ThreadContext::add(CMPI_Object *o)
     ENQ_TOP_LIST(o,CIMfirst,CIMlast,next,prev);
 }
 
-void CMPI_ThreadContext::addObject(CMPI_Object* o) 
+void CMPI_ThreadContext::addObject(CMPI_Object* o)
 {
     CMPI_ThreadContext* ctx=getThreadContext();
     if (ctx)
@@ -98,7 +98,7 @@ CMPI_ThreadContext* CMPI_ThreadContext::getThreadContext()
     return(CMPI_ThreadContext*)TSDKey::get_thread_specific(k);
 }
 
-const CMPIBroker* CMPI_ThreadContext::getBroker() 
+const CMPIBroker* CMPI_ThreadContext::getBroker()
 {
     /**
       return getThreadContext()->broker;
@@ -111,7 +111,7 @@ const CMPIBroker* CMPI_ThreadContext::getBroker()
     return 0;
 }
 
-const CMPIContext* CMPI_ThreadContext::getContext() 
+const CMPIContext* CMPI_ThreadContext::getContext()
 {
     return getThreadContext()->context;
 }

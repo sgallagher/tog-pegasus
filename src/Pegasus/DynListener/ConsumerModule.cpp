@@ -51,7 +51,7 @@ ConsumerModule::~ConsumerModule(void)
 {
 }
 
-// The caller assumes the repsonsibility of making sure 
+// The caller assumes the repsonsibility of making sure
 // the libraryPath is correctly formatted
 CIMIndicationConsumerProvider* ConsumerModule::load(
     const String & consumerName,
@@ -92,7 +92,7 @@ CIMIndicationConsumerProvider* ConsumerModule::load(
                 _library.getLoadErrorMessage()));
     }
 
-    PEG_TRACE((TRC_LISTENER,Tracer::LEVEL3, 
+    PEG_TRACE((TRC_LISTENER,Tracer::LEVEL3,
         "Successfully loaded library(consumer module) %s",
         (const char*)consumerName.getCString()));
 
@@ -127,7 +127,7 @@ CIMIndicationConsumerProvider* ConsumerModule::load(
     }
 
     // test for the appropriate interface
-    CIMIndicationConsumerProvider* consumerRef = 
+    CIMIndicationConsumerProvider* consumerRef =
         dynamic_cast<CIMIndicationConsumerProvider *>(providerRef);
     if(!consumerRef)
     {

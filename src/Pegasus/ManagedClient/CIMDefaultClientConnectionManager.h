@@ -34,10 +34,10 @@
 #include "CIMClientConnectionManager.h"
 #include "CIMClientConnection.h"
 #include <Pegasus/Common/Array.h>
-    
+
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_CLIENT_LINKAGE 
+class PEGASUS_CLIENT_LINKAGE
 CIMDefaultClientConnectionManager : public CIMClientConnectionManager
 {
 
@@ -45,7 +45,7 @@ public:
 
     // class constructor
     CIMDefaultClientConnectionManager();
-    
+
     // virtual class destructor, to be implemented by specific implementation
     ~CIMDefaultClientConnectionManager();
 
@@ -70,7 +70,7 @@ public:
              const SSLContext& sslcontext);
 
 private:
-    
+
     Array<CIMClientConnection*> _cccm_container;
 
 };

@@ -34,7 +34,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 static bool _parseLocator(
-    const String &locator, 
+    const String &locator,
     HostAddress& addr,
     Uint32& port)
 {
@@ -131,7 +131,7 @@ static bool _parseLocator(
             x += r * (c - '0');
             r *= 10;
         }
-        
+
         if (x > HostLocator::MAX_PORT_NUMBER)
         {
             return false;

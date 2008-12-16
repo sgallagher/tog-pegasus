@@ -41,7 +41,7 @@ It loads the xml formatted file defined by xmlfile into the namespace defined
 by namespace in the repository defined by repository-root.
 
 The format of an xml file is the same format as the XML defined in the
-CIM Operations over HTTP specification.  This is the same format as the 
+CIM Operations over HTTP specification.  This is the same format as the
 XML file created by the --xml parameter option on the Pegasus MOF compiler.
 
 Karl Schopmeyer

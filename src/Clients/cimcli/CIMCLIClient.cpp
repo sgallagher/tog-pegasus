@@ -67,13 +67,13 @@ Uint32 _selectStringItem(const Array<String>& selectList, const String& what)
 
     while (rtn < 1 || rtn > listSize)
     {
-        cout << "Select " << what 
+        cout << "Select " << what
              << " (1.." << listSize << ")? " << flush;
 
         // if input is not a valid integer, cin will be set to fail status.
         // and rtn will retain its previous value, so the loop could continue.
         cin >> rtn;
-        
+
         if (cin.fail())
         {
             cin.clear();
@@ -93,7 +93,7 @@ Uint32 _selectStringItem(const Array<String>& selectList, const String& what)
     @return True if instance provided and the path is in instancePath.
     Else False and there is nothing in the instancePath
 */
-Boolean _selectInstance(CIMClient& client, Options& opts, 
+Boolean _selectInstance(CIMClient& client, Options& opts,
                         const CIMName& className,
     CIMObjectPath & instancePath)
 {
@@ -272,7 +272,7 @@ CommandExampleWithOptionStruct examples[] = {
         "    -- Get the qualifiers in mof output format\n",
     "Clients.cimcli.CIMCLIClient.GQ_COMMAND_OPTIONS",
     "    -n, qualifierName\n"},
-        
+
     {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
     "Operation Not supported..\n",
     "Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
@@ -360,10 +360,10 @@ CommandExampleWithOptionStruct examples[] = {
 void showExamples()
 {
     Uint32 numExamples = sizeof(examples) / sizeof(examples[0]);
-    cout << 
+    cout <<
         loadMessage(
             "Clients.cimcli.CIMCLIClient.EXAMPLES_STRING",
-            "Examples : ") 
+            "Examples : ")
          << endl;
 
     for (Uint32 i=0; i < numExamples; i++)
@@ -384,7 +384,7 @@ void _displaySummary(Uint32 count, String& description, String item,
         cout << endl;
         if ((opts.count) != 29346 && (opts.count != count))
         {
-            cout << "Failed count test. Expected= " << opts.count 
+            cout << "Failed count test. Expected= " << opts.count
                  << " Actual rcvd= " << count << endl;
             opts.termCondition = 1;
         }
@@ -447,7 +447,7 @@ Boolean _tokenPair(const String& input, String& key, String& value)
     Array<String> pair = _tokenize(input, '=');
     if (pair.size() < 2)
     {
-        cout << "Input Parameter error. Expected name=value. Received  " 
+        cout << "Input Parameter error. Expected name=value. Received  "
              << input << endl;
         return(false);
     }
@@ -562,8 +562,8 @@ CIMParamValue _createMethodParamValue(const String& input, const Options& opts)
             _nextParamToken(tmp, token);
             arr.append(token);
             // Now remove token separators (comma, brace or whitespace)
-            while ((tmp.size() > 0) && 
-                   ((tmp.find(",") == 0) || (tmp.find("}") == 0) || 
+            while ((tmp.size() > 0) &&
+                   ((tmp.find(",") == 0) || (tmp.find("}") == 0) ||
                     (tmp.find(" ") == 0)))
                 tmp.remove(0,1);
         }
@@ -582,7 +582,7 @@ CIMParamValue _createMethodParamValue(const String& input, const Options& opts)
             String className;
             tmp.remove(0,1);  // remove open bracket
 
-            // Iterate over the input param to extract class name, 
+            // Iterate over the input param to extract class name,
             // key names and values.
             while(tmp.size() != 0)
             {
@@ -592,12 +592,12 @@ CIMParamValue _createMethodParamValue(const String& input, const Options& opts)
 
                 // Get the class name and key1/value1 from class.key = value
                 if (((dotIndex = token.find('.')) != PEG_NOT_FOUND)  &&
-                     (((equalIndex = token.find('=')) != PEG_NOT_FOUND) && 
+                     (((equalIndex = token.find('=')) != PEG_NOT_FOUND) &&
                        dotIndex < equalIndex-1))
                 {
                     //extract class name, key1 and value1
                     className = token.subString(0, dotIndex);
-                    identifier = token.subString(dotIndex+1, 
+                    identifier = token.subString(dotIndex+1,
                                                  equalIndex-1-dotIndex);
                     refKey = token.subString(equalIndex+1, token.size());
                     keys.append(CIMKeyBinding(identifier, refKey,
@@ -619,15 +619,15 @@ CIMParamValue _createMethodParamValue(const String& input, const Options& opts)
                     exit(1);
                 }
                 // Now remove token separators (comma, bracket or whitespace)
-                while((tmp.size() > 0) && 
-                      ((tmp.find(",") == 0) || 
-                       (tmp.find("]") == 0) || 
+                while((tmp.size() > 0) &&
+                      ((tmp.find(",") == 0) ||
+                       (tmp.find("]") == 0) ||
                        (tmp.find(" ") == 0)))
                 {
                     tmp.remove(0,1);
                 }
             }
-            // Reference param specified is valid. 
+            // Reference param specified is valid.
             // Make CIM Object Path from the token.
             CIMName cimclassName(className);
             CIMObjectPath cop(String::EMPTY,CIMNamespaceName(opts.nameSpace),
@@ -737,7 +737,7 @@ void outputFormatObject(const OutputType format, const CIMObject& myObject)
         cout << "Error, Object is neither class or instance" << endl;
 }
 
-void outputFormatQualifierDecl(const OutputType format, 
+void outputFormatQualifierDecl(const OutputType format,
                                const CIMQualifierDecl& myQualifierDecl)
 {
     if (format == OUTPUT_XML)
@@ -1155,7 +1155,7 @@ int createInstance(CIMClient& client, Options& opts)
     // ATTN: Need to account for returning key without value here.
     if (opts.extraParams != 0)
     {
-        /* Here loop starts from 1, since the Class Name is coming as 
+        /* Here loop starts from 1, since the Class Name is coming as
          * first parameter and we want only the property name and value here
         */
         for (Uint32 i = 1 ; i < opts.extraParams.size() ; i++)
@@ -1166,13 +1166,13 @@ int createInstance(CIMClient& client, Options& opts)
             propertyNameList.append(CIMName(key));
             propertyValueList.append(value);
             if (thisClass.findProperty(CIMName(key)) == PEG_NOT_FOUND)
-                cout << "Warning property Name not in class: " 
+                cout << "Warning property Name not in class: "
                      << opts.extraParams[i] << endl;
         }
 
         if (opts.verboseTest)
         {
-            // This loop gives all the property names and property values 
+            // This loop gives all the property names and property values
             // of the instance
             for (Uint32 i=0; i < propertyNameList.size(); i++)
             {
@@ -1457,7 +1457,7 @@ int getProperty(CIMClient& client, Options& opts)
     {
         cout << opts.propertyName << " = " << cimValue.toString() << endl;
     }
-    
+
     return(0);
 }
 
@@ -1714,7 +1714,7 @@ int references(CIMClient& client, Options& opts)
             << ", role= " << opts.role
             << ", includeQualifiers= " << _toString(opts.includeQualifiers)
             << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
-            << ", CIMPropertyList= "  
+            << ", CIMPropertyList= "
             << buildPropertyListString(opts.propertyList)
             << endl;
     }
@@ -1972,7 +1972,7 @@ int associators(CIMClient& client, Options& opts)
      return(0);
  }
 
- /* Enumerate the Namespaces.  This function is based on using the 
+ /* Enumerate the Namespaces.  This function is based on using the
     __Namespace class and either returns all namespaces or simply the ones
     starting at the namespace input as the namespace variable.
     It assumes that the input classname is __Namespace.
@@ -2064,7 +2064,7 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
                 {
                     Uint32 pos;
                     // if we find the property and it is a string, use it.
-                    if ((pos = instances[i].findProperty("name")) 
+                    if ((pos = instances[i].findProperty("name"))
                             != PEG_NOT_FOUND)
                     {
                         CIMValue value;
@@ -2122,7 +2122,7 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
 
         if (opts.summary)
         {
-            cout << returnNamespaces.size() << " namespaces " << " returned." 
+            cout << returnNamespaces.size() << " namespaces " << " returned."
                 << endl;
         }
         else
@@ -2402,7 +2402,7 @@ String formatLongString (const char * input, Uint32 pos, Uint32 length)
 void showUsage()
 {
     String usage;
-    usage = 
+    usage =
         "Usage: cimcli <command> <CIMObject> <Options> *<extra parameters>\n"
         "    -hc    for <command> set and <CimObject> for each command\n"
         "    -ho    for <Options> set\n"
@@ -2415,7 +2415,7 @@ void showUsage()
 }
 /* showCommands - Display the list of operation commands.
 */
-const char * helpSummary = 
+const char * helpSummary =
     " -h for all help, -hc for commands, -ho for options";
 void showCommands(const char* pgmName)
 {
@@ -2435,14 +2435,14 @@ void showCommands(const char* pgmName)
         cmdStr = strcat(cmdStr, (const char*)ctxtFormat);
         cout << loadMessage(
             CommandTable[i].msgKey,
-            const_cast<const char*>(cmdStr)) 
+            const_cast<const char*>(cmdStr))
             << endl;
 
         delete[] cmdStr;
     }
     cout << loadMessage(
         "Clients.cimcli.CIMCLIClient.HELP_SUMMARY",
-        helpSummary) 
+        helpSummary)
         << endl;
 
 }
@@ -2452,10 +2452,10 @@ void showVersion(const char* pgmName, OptionManager& om)
     String str = "";
     str.append("Version ");
     str.append(PEGASUS_PRODUCT_VERSION);
-   
+
     CString cstr = str.getCString();
     MessageLoaderParms parms(
-        "Clients.cimcli.CIMCLIClient.VERSION", 
+        "Clients.cimcli.CIMCLIClient.VERSION",
         (const char*)cstr,
         PEGASUS_PRODUCT_VERSION);
     parms.msg_src_path = MSG_PATH;
@@ -2560,33 +2560,33 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
                         CommandTable[i].UsageText,28 ,75 - 28 );
                     CString ctxtFormat=txtFormat.getCString();
                     sprintf(
-                        cmdStr, 
+                        cmdStr,
                         "\n%-5s %-21s",
                         CommandTable[i].ShortCut,
                         CommandTable[i].CommandName);
                     cmdStr = strcat(cmdStr, (const char*)ctxtFormat);
                     cout << loadMessage(
-                        CommandTable[i].msgKey, 
-                        const_cast<const char*>(cmdStr)) 
+                        CommandTable[i].msgKey,
+                        const_cast<const char*>(cmdStr))
                         << endl;
 
                     delete[] cmdStr;
 
                     cout << loadMessage(
                         "Clients.cimcli.CIMCLIClient.EXAMPLE_STRING",
-                        "Example : ") 
+                        "Example : ")
                         << endl;
                     cout << loadMessage(
-                        examples[i].msgKey, 
-                        examples[i].Example) 
+                        examples[i].msgKey,
+                        examples[i].Example)
                         << endl;
                     cout << loadMessage(
                         "Clients.cimcli.CIMCLIClient.OPTIONS_STRING",
-                        optionText) 
+                        optionText)
                         << endl;
                     cout << loadMessage(
                         examples[i].optionsKey,
-                        examples[i].Options) 
+                        examples[i].Options)
                         << endl;
 
                     char * commonOptStr = new char[100];
@@ -2595,7 +2595,7 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
                     cout << loadMessage(
                         "Clients.cimcli.CIMCLIClient."
                             "COMMON_OPTIONS_STRING",
-                        commonOptStr) 
+                        commonOptStr)
                         << endl;
                     delete[] commonOptStr;
                     exit(0);
@@ -2693,7 +2693,7 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
            }
            catch(Exception& e)
            {
-               cout << "Error in Result Class. Exception " << e.getMessage() 
+               cout << "Error in Result Class. Exception " << e.getMessage()
                    << endl;
                exit(1);
            }
@@ -2714,7 +2714,7 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
            }
            catch(Exception& e)
            {
-               cout << "Error in assoc Class. Exception " << e.getMessage() 
+               cout << "Error in assoc Class. Exception " << e.getMessage()
                    << endl;
                exit(1);
            }
@@ -2730,7 +2730,7 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 
     if (verboseTest && debug && opts.connectionTimeout != 0)
     {
-        cout << "Connection Timeout= " << opts.connectionTimeout << " Seconds" 
+        cout << "Connection Timeout= " << opts.connectionTimeout << " Seconds"
             << endl;
     }
 
@@ -2777,7 +2777,7 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 
     if (verboseTest && debug && om.isTrue("notIncludeQualifiers"))
     {
-        cout << "includeQualifiers = " << _toString(opts.includeQualifiers) 
+        cout << "includeQualifiers = " << _toString(opts.includeQualifiers)
             << endl;
     }
 
@@ -3062,9 +3062,9 @@ void _printTables(
 {
     for (Uint32 i = 0; i < outputTable[0].size(); i++)
     {
-        for (Uint32 column = 0; column < maxColumnWidth.size() - 1; column++)   
+        for (Uint32 column = 0; column < maxColumnWidth.size() - 1; column++)
         {
-            Uint32 fillerLen = maxColumnWidth[column] - 
+            Uint32 fillerLen = maxColumnWidth[column] -
                 outputTable[column][i].size();
 
             outPrintWriter << outputTable[column][i];
@@ -3075,7 +3075,7 @@ void _printTables(
             }
         }
         outPrintWriter << outputTable[maxColumnWidth.size() - 1][i] << endl;
-    }    
+    }
 }
 
 /* Format the output stream to be table format
@@ -3085,13 +3085,13 @@ void tableFormat(
     const Array<CIMInstance>& instances)
 {
     Array<ColumnEntry> outputTable;
-    Array<Uint32> maxColumnWidth;    
+    Array<Uint32> maxColumnWidth;
 
     for (Uint32 i = 0; i < instances[0].getPropertyCount(); i++)
     {
         Array<String> property;
 
-        String propertyNameStr = 
+        String propertyNameStr =
             instances[0].getProperty(i).getName().getString();
         property.append(propertyNameStr);
 
@@ -3099,7 +3099,7 @@ void tableFormat(
 
         for (Uint32 j = 0; j < instances.size(); j++)
         {
-            String propertyValueStr = 
+            String propertyValueStr =
                 instances[j].getProperty(i).getValue().toString();
             property.append(propertyValueStr);
 

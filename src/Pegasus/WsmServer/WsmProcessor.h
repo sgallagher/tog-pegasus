@@ -49,7 +49,7 @@ class EnumerationContext
 public:
     EnumerationContext() {}
     EnumerationContext(
-        Uint64 contextId_, 
+        Uint64 contextId_,
         WsenEnumerationMode enumerationMode_,
         CIMDateTime expiration_,
         WsmEndpointReference epr_,
@@ -59,7 +59,7 @@ public:
           expiration(expiration_),
           epr(epr_),
           response(response_) {}
-    
+
     Uint64 contextId;
     WsenEnumerationMode enumerationMode;
     CIMDateTime expiration;
@@ -116,12 +116,12 @@ private:
         CIMResponseMessage* cimResponse,
         WsmRequest* wsmRequest);
     WsenEnumerateResponse* _splitEnumerateResponse(
-        WsenEnumerateRequest* request, 
-        WsenEnumerateResponse* response, 
+        WsenEnumerateRequest* request,
+        WsenEnumerateResponse* response,
         Uint32 num);
     WsenPullResponse* _splitPullResponse(
-        WsenPullRequest* request, 
-        WsenEnumerateResponse* response, 
+        WsenPullRequest* request,
+        WsenEnumerateResponse* response,
         Uint32 num);
     void _getExpirationDatetime(const String& wsmDT, CIMDateTime& cimDT);
 
@@ -154,7 +154,7 @@ private:
     */
     RequestTable _requestTable;
 
-    typedef HashTable<Uint64, EnumerationContext, 
+    typedef HashTable<Uint64, EnumerationContext,
         EqualFunc<Uint64>, HashFunc<Uint64> > EnumerationContextTable;
 
     EnumerationContextTable _enumerationContextTable;

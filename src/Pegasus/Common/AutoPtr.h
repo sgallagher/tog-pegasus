@@ -57,9 +57,9 @@ struct DeletePtr
 */
 struct FreeCharPtr
 {
-    void operator()(char* ptr) 
-    { 
-        free(ptr); 
+    void operator()(char* ptr)
+    {
+        free(ptr);
     }
 };
 

@@ -39,13 +39,13 @@
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
-PEGASUS_NAMESPACE_BEGIN 
+PEGASUS_NAMESPACE_BEGIN
 class CQLFactory;
 class CQLChainedIdentifierRep;
 
-/**  
+/**
 CQLChainedIdentifier class is used for parsing (not resolving)
-the identifier portion of a CQL select statement.  
+the identifier portion of a CQL select statement.
 A couple examples of a CQLIdentifier:
 
   Class.EmbeddedObject.Property[3]
@@ -67,8 +67,8 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier : public QueryChainedIdentifier
   public:
 
     CQLChainedIdentifier();
-    /**  
-    Constructor 
+    /**
+    Constructor
         Parses the string into the various components of a CQL identifier.
         @param  - inString.  The raw string to be parsed into a
                   CQLChainedIdentifier
@@ -76,8 +76,8 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier : public QueryChainedIdentifier
         @throws - None.
     */
     CQLChainedIdentifier(const String& inString);
-    
-    /**  
+
+    /**
     The constructor for a CQLChainedIdentifier object.
 
         @param  - id.  The CQLIdentifier to construct this object with.
@@ -85,7 +85,7 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier : public QueryChainedIdentifier
         @throws - None.
     */
     CQLChainedIdentifier(const CQLIdentifier & id);
- 
+
     /**
         Copy Constructor
 
@@ -140,7 +140,7 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier : public QueryChainedIdentifier
         @throws - None.
     */
     CQLIdentifier getLastIdentifier()const;
-    
+
     friend class CQLFactory;
 
   private:

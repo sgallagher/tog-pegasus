@@ -45,7 +45,7 @@
 #include "Linkage.h"
 
 
-class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiAssociationMI : 
+class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiAssociationMI :
     virtual public CmpiBaseMI
 {
 public:

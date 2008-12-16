@@ -113,7 +113,7 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     objPath1 = CMNewObjectPath (_broker, _Namespace, "abc", &rc);
     PROV_LOG ("++++ New object path with wrong classname : (%s)",
         strCMPIStatus (rc));
-    
+
     instance = CMNewInstance(_broker, NULL, &rc);
     PROV_LOG ("++++ New Instance with NULL object path : (%s)",
         strCMPIStatus (rc));
@@ -820,7 +820,7 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     PROV_LOG ("++++ Status of GetMessage2 with 0 argument (%s) type (%s)",
             strCMPIStatus (rc),
         CMGetCharsPtr(type, NULL));
-   
+
     type = CMGetMessage2(_broker,
         "Common.CIMStatusCode.CIM_ERR_SUCCESS",
         msgFileHandle,
@@ -830,7 +830,7 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     PROV_LOG ("++++ Status of GetMessage2 with 1 argument (%s) type (%s)",
             strCMPIStatus (rc),
         CMGetCharsPtr(type, NULL));
-   
+
     type = CMGetMessage2(_broker,
         "Common.CIMStatusCode.CIM_ERR_SUCCESS",
         msgFileHandle,
@@ -840,7 +840,7 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     PROV_LOG ("++++ Status of GetMessage2 with 2 arguments (%s) type (%s)",
             strCMPIStatus (rc),
         CMGetCharsPtr(type, NULL));
-   
+
     type = CMGetMessage2 (_broker,
         "Common.CIMStatusCode.CIM_ERR_SUCCESS",
         msgFileHandle,
@@ -1007,7 +1007,7 @@ CMPIStatus TestCMPIBrokerEncProviderInvokeMethod (CMPIMethodMI * mi,
     PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
 
     PROV_LOG ("InvokeMethod: We have %d arguments for operation [%s]: ",
-        arg_cnt, 
+        arg_cnt,
         methodName);
 
     if (arg_cnt > 0)
@@ -1045,7 +1045,7 @@ CMPIStatus TestCMPIBrokerEncProviderInvokeMethod (CMPIMethodMI * mi,
         _ClassName,
         strlen (_ClassName)) == 0)
     {
-        if (strncmp("testBrokerEnc", 
+        if (strncmp("testBrokerEnc",
             methodName,
             strlen ("testBrokerEnc"))== 0)
         {

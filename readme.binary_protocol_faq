@@ -28,7 +28,7 @@ the binary protocol.
 How big are binary messages?
 ============================
 
-Binary messages are slightly larger than XML messages for two reasons: 
+Binary messages are slightly larger than XML messages for two reasons:
 (1) Strings are transmitted using 2-byte characters and (2) Objects are
 aligned on 8-byte boundaries.
 
@@ -41,16 +41,16 @@ are:
     (1) All basic types are aligned on 8-byte boundaries. For example, a uint32
         starts on an 8-byte boundary and is followed by 4 padding bytes so that
         the next type is aligned on an 8-byte boundary. This alignment has 2
-        advantages: (1) it allows any basic type to be dereferenced directly in 
+        advantages: (1) it allows any basic type to be dereferenced directly in
         the buffer without having to relocate it and (2) it is inexpensive to
         calculate the alignment of the next type.
 
         There are 2 other data alignment techniques we could have chosen:
 
-            (*) Don't align at all. Just pack types into the buffer end-to-end. 
-                This technique yields smaller messages but sacrifices 
-                performance since types cannot be assigned directly to or 
-                from the data buffer (some operating systems generate data 
+            (*) Don't align at all. Just pack types into the buffer end-to-end.
+                This technique yields smaller messages but sacrifices
+                performance since types cannot be assigned directly to or
+                from the data buffer (some operating systems generate data
                 alignment errors).
 
             (*) Align types on their "natural boundaries". This means that
@@ -64,13 +64,13 @@ are:
                 boundary than our approach.
 
     (2) Types are serialized into the message in their native representations.
-        We do not change the representation to either big endian or little 
+        We do not change the representation to either big endian or little
         endian. Instead, the recipient of the message is responsible for
         converting the data into its native representation. If both processes
         have the same native representation, then the reordering of bytes can
         be avoided (this is always the case with local processes). This policy
         has been referred to as "reader makes right". That is, the reader is
-        responsible for making the incoming data into the "right" 
+        responsible for making the incoming data into the "right"
         representation.
 
     (3) All arrays are represented by their size followed by their elements.
@@ -82,7 +82,7 @@ are:
 
     (5) Boolean are represented as a single byte, either 0 or 1.
 
-    (6) Complex objects that have optional elements or boolean elements, often 
+    (6) Complex objects that have optional elements or boolean elements, often
         employ a single 4-byte bit mask that indicates which flags are true
         and which elements are present in the network buffer. For example,
         the CIMProperty representation has a bit mask that indicates whether
@@ -95,7 +95,7 @@ are:
             (*) has a non-empty class origin.
 
         This save considerable space. For example, if there are no qualifiers,
-        then we save 8 bytes that would be needed to represent an empty 
+        then we save 8 bytes that would be needed to represent an empty
         qualifier array.
 
 What is the layout of a binary message?
@@ -222,7 +222,7 @@ This forces a remote binary connection.
 What is on-demand de-serialization?
 ===================================
 
-The binary protocol supports a feature we call "on-demand de-serialization". 
+The binary protocol supports a feature we call "on-demand de-serialization".
 When using out-of-process providers, data may be de-serialized unnecessarily.
 Consider the following sequence of events.
 
@@ -237,9 +237,9 @@ Consider the following sequence of events.
     (9) The client de-serializes the request.
 
 The on-demand de-serialization feature eliminates the de-serialization of the
-returned instances, saving them in a data buffer. Then in step 8, the data 
+returned instances, saving them in a data buffer. Then in step 8, the data
 buffer is sent to the client. This optimization avoids one de-serialization and
-one serialization. For the EnumerateInstances operation, this optimization 
+one serialization. For the EnumerateInstances operation, this optimization
 alone doubles the speed of servicing this operation.
 
 On-demand de-serialization is implemented for the following operations:
@@ -281,7 +281,7 @@ Yes, here are a few.
         implementations rather than copying one to the other.
 
     (2) It might have been better to align objects on their natural boundaries
-        rather than on 8-byte boundaries. This would probably reduce the 
+        rather than on 8-byte boundaries. This would probably reduce the
         message size by 25% or so.
 
     (3) The on-demand de-serialization should probably be extended to operations

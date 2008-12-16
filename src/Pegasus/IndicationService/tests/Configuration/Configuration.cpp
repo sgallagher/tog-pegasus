@@ -112,7 +112,7 @@ void _testIndicationServiceInstance(CIMClient &client)
         true,
         true,
         propList);
-    
+
     _testPropertyValue(
         seInstance,
         _PROPERTY_DELIVERYRETRYATTEMPTS,

@@ -82,7 +82,7 @@ CMPIStatus CmpiBaseMI::driveBaseCleanup(
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*>(mi->hdl);
         if (cmi->isUnloadable())
         {
-            if (cmi->getProviderBase() && 
+            if (cmi->getProviderBase() &&
                 cmi->getProviderBase()->decUseCount()==0)
             {
                 cmi->getProviderBase()->setBaseMI(0);
@@ -249,7 +249,7 @@ CMPIStatus CmpiInstanceMI::driveSetInstance(
     const CMPIContext* eCtx,
     const CMPIResult* eRslt,
     const CMPIObjectPath* eCop,
-    const CMPIInstance* eInst, 
+    const CMPIInstance* eInst,
     const char* *properties)
 {
     try
@@ -781,7 +781,7 @@ CMPIStatus CmpiIndicationMI::driveAuthorizeFilter(
     const CMPIContext* eCtx,
     const CMPISelectExp* eSe,
     const char* ns,
-    const CMPIObjectPath* eCop, 
+    const CMPIObjectPath* eCop,
     const char* user)
 {
     try
@@ -841,7 +841,7 @@ CMPIStatus CmpiIndicationMI::driveActivateFilter(
     const CMPIContext* eCtx,
     const CMPISelectExp* eSe,
     const char* clsName,
-    const CMPIObjectPath* eCop, 
+    const CMPIObjectPath* eCop,
     CMPIBoolean first)
 {
     try
@@ -872,7 +872,7 @@ CMPIStatus CmpiIndicationMI::driveDeActivateFilter(
     const CMPIContext* eCtx,
     const CMPISelectExp* eSe,
     const char* clsName,
-    const CMPIObjectPath* eCop, 
+    const CMPIObjectPath* eCop,
     CMPIBoolean last)
 {
     try
@@ -984,16 +984,16 @@ CmpiStatus CmpiIndicationMI::deActivateFilter(
     return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
-CmpiStatus CmpiIndicationMI::enableIndications                             
-      (const CmpiContext& ctx)                                             
+CmpiStatus CmpiIndicationMI::enableIndications
+      (const CmpiContext& ctx)
 {
-  return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);                            
+  return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
-CmpiStatus CmpiIndicationMI::disableIndications                            
-      (const CmpiContext& ctx)                                            
+CmpiStatus CmpiIndicationMI::disableIndications
+      (const CmpiContext& ctx)
 {
-  return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);                           
+  return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
 //---------------------------------------------------
@@ -1474,7 +1474,7 @@ CmpiData::operator CmpiDateTime() const
     {
         return CmpiDateTime(_data.value.dateTime);
     }
-        
+
 }
 
 CmpiData::operator CMPISint8() const
@@ -1487,7 +1487,7 @@ CmpiData::operator CMPISint8() const
     {
         return _data.value.sint8;
     }
-        
+
 }
 CmpiData::operator CMPISint16() const
 {
@@ -2421,7 +2421,7 @@ CmpiData CmpiObjectPath::getKey(const int pos, CmpiString *name) const
     {
         throw CmpiStatus(rc);
     }
-    if (name) 
+    if (name)
     {
         *name=CmpiString(s);
     }
@@ -3121,7 +3121,7 @@ CmpiSelectExp::CmpiSelectExp()
 //--
 //---------------------------------------------------
 
-/** 
+/**
    Constructor from CMPI type.
 */
 CmpiDateTime::CmpiDateTime(const CMPIDateTime* newEnc)

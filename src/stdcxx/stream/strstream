@@ -9,7 +9,7 @@
 #  define HAVE_STRSTREAM 1
 # endif
 
-#elif defined(PEGASUS_OS_HPUX) 
+#elif defined(PEGASUS_OS_HPUX)
 # include <strstream.h>
 
 # ifndef HAVE_STRSTREAM

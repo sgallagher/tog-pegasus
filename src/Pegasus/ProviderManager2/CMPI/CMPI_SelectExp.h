@@ -54,7 +54,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define CALL_SIGN_CQL_SIZE 8
 #endif
 
-struct PEGASUS_CMPIPM_LINKAGE CMPI_SelectExp : CMPISelectExp 
+struct PEGASUS_CMPIPM_LINKAGE CMPI_SelectExp : CMPISelectExp
 {
     CMPI_SelectExp(
         const OperationContext& ct,

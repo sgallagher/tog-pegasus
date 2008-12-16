@@ -32,7 +32,7 @@
     </IPARAMVALUE>
     <IPARAMVALUE NAME="PropertyList">
        <VALUE.ARRAY>
-          <VALUE> 
+          <VALUE>
              PropertyString
           </VALUE>
        </VALUE.ARRAY>

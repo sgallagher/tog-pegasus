@@ -44,8 +44,8 @@ LocalRepository::LocalRepository(void) : context(0)
     CIMQualifierDecl abstractQualifier("Abstract", Boolean(true),
                                        CIMScope::CLASS,
                                        CIMFlavor::NONE);
-    CIMQualifierDecl keyQualifier("Key", Boolean(true), 
-                                   (CIMScope::PROPERTY + 
+    CIMQualifierDecl keyQualifier("Key", Boolean(true),
+                                   (CIMScope::PROPERTY +
                                    CIMScope::REFERENCE),
                                    CIMFlavor::TOSUBCLASS);
 

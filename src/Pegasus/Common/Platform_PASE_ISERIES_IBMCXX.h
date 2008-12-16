@@ -50,7 +50,7 @@
 
 #define PEGASUS_UINT64 unsigned long long
 
-#define PEGASUS_SINT64 signed long long  
+#define PEGASUS_SINT64 signed long long
 
 #define PEGASUS_HAVE_NAMESPACES
 

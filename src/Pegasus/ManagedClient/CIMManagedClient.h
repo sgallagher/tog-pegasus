@@ -369,11 +369,11 @@ public:
     If false, only the names of immediate child subclasses are returned (if the
     className input parameter is NULL, this implies that the names of all base
     Classes in the target Namespace should be returned).
-    
+
     @return If successful, the method returns zero or more names of Classes
     that meet the requested criteria.  If unsuccessful, one of the following
     status codes MUST be returned by this method, where the first applicable
-    error in the list (starting with the first element of the list, and 
+    error in the list (starting with the first element of the list, and
     working down) is the error returned.  Any additional method-specific
     interpretation of the error in is given in parentheses.
 
@@ -420,14 +420,14 @@ public:
         @param includeQualifiers (Boolean, Optional, default = true, Input)
         If the <TT>includeQualifiers</TT> input parameter is true, this
         specifies that all Qualifiers for that Class (including Qualifiers
-        on the Class and on any returned Properties, Methods or 
+        on the Class and on any returned Properties, Methods or
         CIMMethod Parameters) MUST be included as elements in the response.
         If false no QUALIFIER elements are present
         in the returned Class object.
 
         @param includeClassOrigin (Boolean,Optional, default = false, Input) If
         the <TT>includeClassOrigin</TT> input parameter is true, this specifies
-        that the CLASSORIGIN attribute MUST be present on all appropriate 
+        that the CLASSORIGIN attribute MUST be present on all appropriate
         elements in the returned Class.  If false, no CLASSORIGIN attributes
         are present in the returned Class.
 
@@ -435,11 +435,11 @@ public:
         CIMPropertyList input parameter is not NULL, the members of the array
         define one or more CIMProperty names.  The returned Class WILL NOT
         include elements for any Properties missing from this list.  Note that
-        if LocalOnly is specified as true this acts as an additional filter on 
+        if LocalOnly is specified as true this acts as an additional filter on
         the set of Properties returned (for example, if CIMProperty A is
         included  in the PropertyList but LocalOnly is set to true and A is
-        not local to the requested Class, then it will not be included in 
-        the response). 
+        not local to the requested Class, then it will not be included in
+        the response).
         If the PropertyList input parameter is an empty array this signifies
         that no Properties are included in the response.  If the PropertyList
         input parameter is NULL this specifies that all Properties (subject
@@ -659,7 +659,7 @@ public:
     namespace. See defintion of
     \URL[Namespace]{DefinitionofTerms.html#NAMESPACE}.
 
-    @param qualifierName CIMName <TT>qualifierName</TT> input parameter 
+    @param qualifierName CIMName <TT>qualifierName</TT> input parameter
     identifies the CIMQualifier whose declaration to be deleted.
 
     @return If successful, the specified CIMQualifier declaration MUST have
@@ -675,7 +675,7 @@ public:
            duplicate, unrecognized or otherwise incorrect parameters)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
       </UL>
-    @exception CIMexception - May return any of the CIMException codes 
+    @exception CIMexception - May return any of the CIMException codes
                               defined above.
     @exception Exception
     <pre>
@@ -705,8 +705,8 @@ public:
     the target namespace. See defintion of
     \URL[Namespace]{DefinitionofTerms.html#NAMESPACE}.
 
-    @param qualifierName The <TT>qualifierName</TT> input parameter 
-    is a CIMName object that identifies the CIMQualifier 
+    @param qualifierName The <TT>qualifierName</TT> input parameter
+    is a CIMName object that identifies the CIMQualifier
     whose declaration to be retrieved.
 
     @return If successful, the method returns the CIMQualifier declaration for
@@ -882,7 +882,7 @@ public:
     CIMQualifier name already existed, then it MUST have been replaced by the
     new declaration.
 
-    If unsuccessful, a CIMException with one of the following 
+    If unsuccessful, a CIMException with one of the following
     status codes MUST be returned
     by this method, where the first applicable error in the list (starting with
     the first element of the list, and working down) is the error returned. Any
@@ -1177,7 +1177,7 @@ public:
 
     @param instanceName CIMobjectpath that identifies this CIM instance.
     This must include all of the keys.
-    It is a full specified object path, thus it consists also 
+    It is a full specified object path, thus it consists also
     of target namespace, hostname and port
 
     @param localOnly If true, only properties and qualifiers overridden
@@ -1197,7 +1197,7 @@ public:
     It is attached to a property or method (when specified in XML), to indicate
     the class where that property or method is first defined.
     Where the same property name is locally defined in another superclass or
-    subclass, the Server will return the value for the property 
+    subclass, the Server will return the value for the property
     in the lowest subclass.
 
     @param propertyList If the PropertyList input parameter is not NULL, the
@@ -1207,7 +1207,7 @@ public:
     Note that if LocalOnly is specified as true this acts as an additional
     filter on the set of Properties returned (for example, if Property A is
     included in the PropertyList but LocalOnly is set to true and A is
-    not local to a returned Instance, then it will not be included in that 
+    not local to a returned Instance, then it will not be included in that
     Instance).
     If the PropertyList input parameter is an empty array this signifies that
     no Properties are included in each returned Object. If the PropertyList
@@ -1240,7 +1240,7 @@ public:
     changes (which MUST be correct amendments to the Instance as
     defined by the CIM Specification) to be made to the current Instance
     definition.
-    It consists of a full specified object path, thus it consists also 
+    It consists of a full specified object path, thus it consists also
     of target namespace, hostname and port
 
     In processing the modifcation of the Instance, the following rules MUST
@@ -1274,7 +1274,7 @@ public:
         <LI>Any Qualifiers defined in the Class with a <TT>TOINSTANCE</TT>
         attribute value of <TT>true</TT> appear in the Instance (it is not
         possible remove a propagated CIMQualifier from an Instance. Qualifiers
-        in the Class with a <TT>TOINSTANCE</TT> attribute value of 
+        in the Class with a <TT>TOINSTANCE</TT> attribute value of
         <TT>false</TT> MUST NOT be propagated to the Instance.
         <LI>Any CIMQualifier propagated from the Class cannot be modified by the
         Server if the <TT>OVERRIDABLE</TT> attribute of that CIMQualifier was
@@ -1333,7 +1333,7 @@ public:
 
     @param instanceName The <TT>instanceName</TT> parameter is a CIMReference
     that defines the CIM instance for which the method is defined
-    It consists of a full specified object path, thus it consists also 
+    It consists of a full specified object path, thus it consists also
     of target namespace, hostname and port
 
     @param methodName The <TT>methodName</TT> parameter is a String with the
@@ -1383,7 +1383,7 @@ public:
     @param objectName The <TT>objectName</TT> input parameter defines the source
     CIM Object whose associated names are to be returned. This is either a Class
     name or Instance name (model path).
-    It is a full specified object path, thus it consists also 
+    It is a full specified object path, thus it consists also
     of target namespace, hostname and port
 
     @param assocClass The <TT>assocClass</TT> input parameter, if not NULL,
@@ -1450,7 +1450,7 @@ public:
     @param objectName The <TT>objectName</TT> input parameter defines the source
     CIM Object whose associated Objects are to be returned.  This may be either
     a Class name or Instance name (model path).
-    It is a full specified object path, thus it consists also of 
+    It is a full specified object path, thus it consists also of
     target namespace, hostname and port
 
     @param assocClass The <TT>assocClass</TT> input parameter, if not NULL, MUST
@@ -1553,7 +1553,7 @@ public:
     @param objectName The <TT>objectName</TT> input parameter defines the target
     CIM Object whose referring Objects are to be returned. This is either a
     Class name or Instance name (model path).
-    It is a full specified object path, thus it consists also of 
+    It is a full specified object path, thus it consists also of
     target namespace, hostname and port
 
     @param resultClass The <TT>resultClass</TT> input parameter, if not NULL,
@@ -1636,7 +1636,7 @@ public:
     @param objectName <TT>objectName</TT> input parameter defines the target
     CIM Object whose referring object names are to be returned. It may be either
     a Class name or an Instance name (model path).
-    It consists of a full specified object path, thus it consists also of 
+    It consists of a full specified object path, thus it consists also of
     target namespace, hostname and port
 
     @param resultClass The <TT>resultClass</TT> input parameter, if not NULL,

@@ -43,7 +43,7 @@
 
 class CmpiObjectPath;
 
-/** 
+/**
     This class represents the SelectExp of a CIM class. It is used manipulate
     SelectExps and their parts.
 */
@@ -55,19 +55,19 @@ class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiSelectExp : public CmpiObject
     friend class CmpiIndicationMI;
 protected:
 
-    /** 
+    /**
         Protected constructor used by MIDrivers to encapsulate CMPISelectExp.
     */
     CmpiSelectExp(const CMPISelectExp* enc);
 
-    /** 
+    /**
         Gets the encapsulated CMPISelectExp.
     */
     CMPISelectExp *getEnc() const;
 
 private:
 
-    /** 
+    /**
         Constructor - Should not be called
     */
     CmpiSelectExp();

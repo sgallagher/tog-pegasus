@@ -4,5 +4,5 @@ de:table {
 	NotSupportedError:string {"LocalizedProvider: Operation Not Supported DE"}
 	RoundTripError:string {"LocalizedProvider: Received bad value for round trip string DE"}
 }
-      
+
 

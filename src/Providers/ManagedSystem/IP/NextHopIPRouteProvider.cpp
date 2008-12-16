@@ -188,8 +188,8 @@ void NextHopIPRouteProvider::enumerateInstances(
     {
         handler.deliver(
             _constructInstance(
-                CLASS_PG_NEXT_HOP_IP_ROUTE, 
-                nameSpace, 
+                CLASS_PG_NEXT_HOP_IP_ROUTE,
+                nameSpace,
                 _nhrList.getRoute(i)));
     }
 
@@ -253,7 +253,7 @@ void NextHopIPRouteProvider::enumerateInstanceNames(
 
     return;
 
-}  
+}
 
 /*
 ===============================================================================

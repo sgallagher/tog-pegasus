@@ -3,120 +3,120 @@
 .\"-----------------------------------------------------------------
 .nr head1 0 1
 .nr head2 0 1
-.nr head3 0 1 
+.nr head3 0 1
 .nr head4 0 1
 .nr head5 0 1
 .nr head6 0 1
 
 .\"-----------------------------------------------------------------
-.\" Return to header level 1, 2, etc. 
+.\" Return to header level 1, 2, etc.
 .\" resets the level registers and indent
 .\"-----------------------------------------------------------------
 .de RETURN_HDR_1
 .nr head2 0 1
-.nr head3 0 1 
+.nr head3 0 1
 .nr head4 0 1
 .nr head5 0 1
 .nr head6 0 1
-.in 0 
-\.HDR_1 \\$1 
+.in 0
+\.HDR_1 \\$1
 ..
 
 .de RETURN_HDR_2
-.nr head3 0 1 
+.nr head3 0 1
 .nr head4 0 1
 .nr head5 0 1
 .nr head6 0 1
-.in 0 
+.in 0
 \.HDR_2 \\$1
 ..
- 
+
 .de RETURN_HDR_3
 .nr head4 0 1
 .nr head5 0 1
 .nr head6 0 1
-.in 0 
+.in 0
 \.HDR_3 \\$1
 ..
 
 .de RETURN_HDR_4
 .nr head5 0 1
 .nr head6 0 1
-.in 0 
+.in 0
 \.HDR_4 \\$1
 ..
 
 .de RETURN_HDR_5
 .nr head6 0 1
-.in 0 
+.in 0
 \.HDR_5 \\$1
 ..
 
 .\"-----------------------------------------------------------------
-.\" Create a level 1, 2, etc,.  heading 
+.\" Create a level 1, 2, etc,.  heading
 .\" resets indent, creates a TOC entry
 .\" Parameter is the title of the heading
 .\"-----------------------------------------------------------------
 .de HDR_1
 .sp 1
-.in 0 
+.in 0
 \\n+[head1]\\  \\$1
 .XS
 \\n[head1]\\  \\$1
 .XE
 .in 3
-.. 
+..
 
 
 .de HDR_2
 .sp 1
-.in 0 
+.in 0
 \\n[head1]\\.\\n+[head2]\\ \\$1
 .XS
 \\n[head1]\\.\\n[head2]\\ \\$1
 .XE
 .in 3
-.. 
+..
 
 .de HDR_3
 .sp 1
-.in 0 
+.in 0
 \\n[head1]\\.\\n[head2]\\.\\n+[head3]\\ \\$1
 .XS
 \\n[head1]\\.\\n[head2]\\.\\n[head3]\\ \\$1
 .XE
 .in 3
-.. 
+..
 
 .de HDR_4
 .sp 1
-.in 0 
+.in 0
 \\n[head1]\\.\\n[head2]\\.\\n[head3]\\.\\n+[head4]\\ \\$1
 .XS
 \\n[head1]\\.\\n[head2]\\.\\n[head3]\\.\\n[head4]\\ \\$1
 .XE
 .in 3
-.. 
+..
 
 .de HDR_5
 .sp 1
-.in 0 
+.in 0
 \\n[head1]\\.\\n[head2]\\.\\n[head3]\\.\\n[head4]\\.\\n+[head5]\\ \\$1
 .XS
 \\n[head1]\\.\\n[head2]\\.\\n[head3]\\.\\n[head4]\\.\\n[head5]\\ \\$1
 .XE
 .in 3
-.. 
+..
 
 .de HDR_6
 .sp 1
-.in 0 
+.in 0
 \\n[head1]\\.\\n[head2]\\.\\n[head3]\\.\\n[head4]\\.\\n[head5]\\.\\n+[head6]\\ \\$1
 .XS
 \\n[head1]\\.\\n[head2]\\.\\n[head3]\\.\\n[head4]\\.\\n[head5]\\.\\n[head6]\\ \\$1
 .in 3
 .XE
-.. 
+..
 
 .\"-----------------------------------------------------------------
 .\" END MACRO DEFINITIONS
@@ -130,7 +130,7 @@
 .nr LT 7.2i
 .ds LH Internet Draft
 .ds CH SLP Signature Extension
-.ds RH April 2003 
+.ds RH April 2003
 .ds LF Day, McDonald
 .ds CF Expires: \n(dy September 2003
 .ds RF FORMFEED[Page %]
@@ -141,7 +141,7 @@
 .ti 0
 ..
 
-   
+
 Internet Engineering Task Force                             Michael Day
 INTERNET DRAFT                                                      IBM
                                                            Ira McDonald
@@ -184,7 +184,7 @@ srvloc@srvloc.org mailing list.
 Distribution of this memo is unlimited.
 	
 .bp
-.HDR_1 Introduction 
+.HDR_1 Introduction
 
 The Service Location Protocol [rfc2608bis] provides a scalable
 framework for the discovery and selection of network services. Using
@@ -203,38 +203,38 @@ specifies a method for upgrading TCP connections to be encrypted.
 The security discussion in section 15 of [rfcs608bis] enumerates the
 security implications of using SLP for the discovery and selection of
 network services. IPSec SHOULD be used in the manner described
-whenever possible. 
+whenever possible.
 
 .KS
 There are some situations where the use of IPSEC is not an option for
-SLP. These include 
+SLP. These include
 
-.nr PI 5 
-.RS 
+.nr PI 5
+.RS
 .nr step 1 1
 .IP \n[step]. 3
 SLP is being transported by a protocol stack other than IP. This point
 includes the case where SLP is publishing information about a service
-that is accessible only via non-IP media. 
-.IP \n+[step]. 
+that is accessible only via non-IP media.
+.IP \n+[step].
 The SLP agent is running on a platform for which IPSec
 has not been implemented, such as an embedded system.
 .IP \n+[step].
 SLP is being used within an application model that does not have an
 affinity with IPSec security associations, such as with a high-latency
-store-and-forward protocol or a many-to-one fanout engine. 
-.KE 
+store-and-forward protocol or a many-to-one fanout engine.
+.KE
 .RE
-.in 3 
+.in 3
 
 When using SLP in environments where IPSec AH is not avialable
 it is still desirable to provide a means to authenticate SLP
 messages. This document describes an optional SLP protocol extension
 for the generation and verification of signatures of SLP messages. It
-uses the Crytographic Message Syntax [CMS] as the signature format. 
+uses the Crytographic Message Syntax [CMS] as the signature format.
 
 .HDR_1 Applicability\ Statement
-       
+
 This extension SHOULD NOT be used with SLP when IPSec Authentication
 Headers [AH] are available for use. IPSec Authentication Headers
 SHOULD be used to authenticate SLP messages whenever possible, as
@@ -243,7 +243,7 @@ outlined in [rfc2608bis].
 When there is an acceptable mechanism for managing public keys in
 place and when IPSec Authentication Headers are not available for use,
 the signature extension MAY be used to authenticate SLP
-messages. 
+messages.
 
 This extension is based upon the Cryptographic Message Syntax
 [CMS]. CMS requires distribution of key material to occur but does not
@@ -259,28 +259,28 @@ key management, such as the one defined by the PKIX working group. [PROFILE]."
 
 .in 3
 The selection and implementation of a public-key infrastructure is
-beyond the scope of this document. 
+beyond the scope of this document.
 
 Assuming private keys are secret, the signature extension can provide
 assurance that SLP messages originate from the purported host and that
 they have not been modified in transit to the receiving host.
 
-.HDR_2 Use\ with\ DAs 
+.HDR_2 Use\ with\ DAs
 
 All SLP message are request-response tuples, even when using
 multicast or broadcast. The signature extension works for direct
 exchanges between two SLP agents. In such a case, the sender of an SLP
-message signs that message and the receiver verifies the signature. 
+message signs that message and the receiver verifies the signature.
 
 When using DAs, SLP transactions can involve three SLP agents and two
 request-response tuples. For example, an SA registers service
 information with a DA. Later, a UA requests that service information
-from the DA. 
+from the DA.
 
 In this case the UA and SA do not transact directly with each other
 and, therefore, cannot derive mutual trust through the direct exchange
 of signed messages. Instead, they communicate indirectly through the
-DA. 
+DA.
 
 Through administration of a public key infrastructure associative
 trust between the UA and SA may be achieved through the DA. For this
@@ -288,7 +288,7 @@ to be achievable, the UA, SA, and DA must be configured with the same
 root certificate authority, and must also be configured to reject SLP
 signature extensions signed by a public key outside of the root of
 trust. When this is the case, a UA and SA can derive associative trust
-indirectly through signed messages via the DA. 
+indirectly through signed messages via the DA.
 
 .bp
 .HDR_2 Use\ with\ SLP\ Messages
@@ -303,8 +303,8 @@ Message Syntax signed-data content type. (See section 5.1 of [CMS].)
 .KS
 .HDR_2 Signature\ Extension\ Fields
 
-The Signature Extension has the following format: 
-.DS L 
+The Signature Extension has the following format:
+.DS L
    0             1                   2                   3
    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -313,7 +313,7 @@ The Signature Extension has the following format:
    | Offset, contd.|               CMS signed-data                 \\
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 .DE
-.KE 
+.KE
 .HDR_3 CMS\ signed-data\ Field
 
 The CMS signed-data field contains the signature of the SLP message
@@ -321,21 +321,21 @@ and accompanying data. The format for the signed-data field is
 outlined in section 5.1 of [CMS]. It is a BER-encoded [X.209-88]
 buffer that may include at least the following information:
 
-.nr PI 5 
-.RS 
+.nr PI 5
+.RS
 .nr step 1 1
 .IP \n[step]. 3
-Version of the CMS used to sign the message data. 
-.IP \n+[step]. 
-Algorithms used to generate and sign the message digest. 
+Version of the CMS used to sign the message data.
 .IP \n+[step].
-Signed content, which includes a digest of the message data. 
+Algorithms used to generate and sign the message digest.
+.IP \n+[step].
+Signed content, which includes a digest of the message data.
 .IP \n+[step].	
 Optional Signer information, which may include Public-Key
 Certificates. Signer attributes are subject to additional encoding
-rules. 
+rules.
 .RE
-.in 3 
+.in 3
 
 The list above is generalized. For example, if the signed-data field
 contains variable-length attribute data that data must use special
@@ -344,7 +344,7 @@ additional rules. See [CMS] for precise details.
 .HDR_3 Size\ of\ signed-data\ Field
 
 There is a paradox involving the size of the signed-data field and the
-generation of the signed message digest. 
+generation of the signed message digest.
 
 The SLP header MUST be included in the input for the message digest
 contained in the signed-data field. Because the SLP Header includes a
@@ -352,11 +352,11 @@ length field, the length of the message including the signature
 extension must be part of the input into the message digest contained
 in the signature extension.
 
-The message digest and the signature of the message digest are 
+The message digest and the signature of the message digest are
 fixed-length fields and their length is known prior to generating the
 signed digest. This makes it straightforward to calculate the length
 of the SLP message, initialize the length field in the SLP header, and
-then generate the signed message digest. 
+then generate the signed message digest.
 
 .HDR_2 Contents\ of\ signed-data\ Field
 
@@ -378,19 +378,19 @@ subject key identifier can fit easily within the datagram MTU of most
 network environments and does not represent an unusual field size relative to
 other SLP fields. However, embellishing the signed-data with
 additional variable length attributes may quickly cause the SLP
-message to exceed the datagram MTU. 
+message to exceed the datagram MTU.
 
 .HDR_2 Omission\ of\ eContent
 
 The CMS referrs to the data being signed for authentication as
 "eContent." In this case, the eContent is an SLP Message minus the
-signature extension. 
+signature extension.
 
 The CMS allows signed content to be either encapsulated within a
 signed-data "envelope" or "external." The signature extension requires
 the eContent to be "external."
 .KS
-To quote from section 5.2 of [CMS]: 
+To quote from section 5.2 of [CMS]:
 
 .in 5
 The optional omission of the eContent within the
@@ -405,7 +405,7 @@ value was present.
 .in 3
 
 In other words, the signed-data field will always contain a signed
-digest of the SLP message but not the SLP message itself. 
+digest of the SLP message but not the SLP message itself.
 
 .RETURN_HDR_1 Use\ of\ the\ Signature\ Extension
 
@@ -421,12 +421,12 @@ When generating a signature extension for an SLP message, the
 following data MUST be used as input to the message digest:
 
 .KS
-.nr PI 5 
-.RS 
+.nr PI 5
+.RS
 .nr step 1 1
 .IP \n[step]. 3
 SLP Header and message.
-.IP \n+[step]. 
+.IP \n+[step].
 Any SLP extension up to but not including the signature extension.
 .IP \n+[step].
 The Signature extension MUST be the last extension present in an SLP message.
@@ -437,10 +437,10 @@ The Signature extension MUST be the last extension present in an SLP message.
 .HDR_3 Calculating\ the\ Length\ of\ a\ Signed\ SLP\ Message
 
 The following steps should be used to calculate the length of an SLP
-message that includes the signature extension. 
+message that includes the signature extension.
 
-.nr PI 5 
-.RS 
+.nr PI 5
+.RS
 .nr step 1 1
 .IP \n[step]. 3
 Determine the length of the signature extension. The signature
@@ -449,11 +449,11 @@ signed-data field. If the signed-data field will contain any variable
 length data such as signer attributes it will be necessary to encode
 the signed-data field using a dummy message digest and signature to
 obtain its length.
-.IP \n+[step]. 
-Determine the length of the SLP message, including the length of the
-signature extension and all preceeding extensions. 
 .IP \n+[step].
-Initialize the SLP Header with the length of the message. 
+Determine the length of the SLP message, including the length of the
+signature extension and all preceeding extensions.
+.IP \n+[step].
+Initialize the SLP Header with the length of the message.
 .RE
 .in 3
 .KE
@@ -474,10 +474,10 @@ Generate a message digest of the SLP message beginning with the first
 byte of the SLP Header up to and including the last byte of the
 message and extensions not including the signature extension. Note that if CMS signed
 attributes are to be included in the signed-data field they too must
-be input to the message digest. See [CMS] for details. 
+be input to the message digest. See [CMS] for details.
 .IP \n+[step].
 Generate a signature of the digest from step 1. The input to the
-signature is the digest and the signer's private key. 
+signature is the digest and the signer's private key.
 .RE
 .KE
 .in 3
@@ -494,16 +494,16 @@ extension.
 .nr step 1 1
 .IP \n[step]. 3
 Generate a message digest exactly as in step [1] in section 4.2
-above. 
-.IP \n+[step]. 
-The signer's public key must be obtained separately. 
-.IP \n+[step]. 
+above.
+.IP \n+[step].
+The signer's public key must be obtained separately.
+.IP \n+[step].
 The input to the signature verification step is the
 digest generated in step 1 and the signers public key. The details
 depend upon the exact signature algorithm employed but generally include
 encrypting the locally generated digest with the signers
 public key and comparing the result to the signature contained in the
-message. 
+message.
 .RE
 .KE
 .in 3
@@ -512,16 +512,16 @@ message.
 
 James Kempf was instrumental in the development of this document.
 Erik Guttman contributed the basic theory of using
-digital signatures with SLP and offered valuable insights 
-during the preparation of this document. 
-. 
+digital signatures with SLP and offered valuable insights
+during the preparation of this document.
+.
 .HDR_1 References
 
 .IP [rfc2608bis] 3
 Guttman, E., Kempf, J., Service Location Protocol, Version 2 (work in
 progress). draft-guttman-svrloc-rfc2608bis-03.txt, August 2002.
 
-.IP [TLS] 3 
+.IP [TLS] 3
 McDonald, Ira, Kempf, J., Day, M., "Upgrading to TLS With
 Service Location Protocol", draft-mcdonald-svrloc-tls-00.txt (work in
 progress).
@@ -529,7 +529,7 @@ progress).
 .IP [AH] 3
 Kent, S., and Atkinson, R., "IP Authentication Header," RFC
 2402, November, 1998.
-.IP [ESP] 3 
+.IP [ESP] 3
 Kent, S., and Atkinson, R., "IP Encapsulating Security Payload
 (ESP)," RFC 2406, November, 1998.
 .IP [CMS] 3
@@ -539,7 +539,7 @@ Housely, R., "Cryptographic Message Syntax", RFC 3369, August, 2002.
 Housley, R., Polk, W., Ford, W. and D. Solo, "Internet
 X.509 Public Key Infrastructure: Certificate and CRL
 rofile", RFC 3280, April 2002.
-.IP [X.209-88] 3 
+.IP [X.209-88] 3
 CCITT.  Recommendation X.209: Specification of Basic
 Encoding Rules for Abstract Syntax Notation One (ASN.1).
 1988.

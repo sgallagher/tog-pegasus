@@ -285,7 +285,7 @@ void CLITestProvider::createInstance(
     if (newInstanceRef.getKeyBindings().size() == 0)
     {
         Array<CIMKeyBinding> keys;
-    
+
         Uint32 pos = instanceObject.findProperty("Id");
 
         if (pos != PEG_NOT_FOUND)
@@ -294,7 +294,7 @@ void CLITestProvider::createInstance(
 
             keys.append(CIMKeyBinding(cimProperty.getName(),
                                       cimProperty.getValue()));
-            
+
             newInstanceRef.setKeyBindings(keys);
         }
         else
@@ -304,7 +304,7 @@ void CLITestProvider::createInstance(
     }
 
     AutoMutex autoMut(instanceArrayMutex);
-     
+
     for (Uint32 i = 0; i < _instances.size(); i++)
     {
         if (newInstanceRef == _instances[i].getPath())
@@ -313,7 +313,7 @@ void CLITestProvider::createInstance(
                 newInstanceRef.toString());
         }
     }
-    
+
     handler.processing();
 
     CIMInstance newInstance(instanceObject);
@@ -339,7 +339,7 @@ void CLITestProvider::deleteInstance(
             instanceReference.getKeyBindings());
 
     AutoMutex autoMut(instanceArrayMutex);
-     
+
     handler.processing();
 
     for (Uint32 i = 0; i < _instances.size(); i++)
@@ -350,7 +350,7 @@ void CLITestProvider::deleteInstance(
             break;
         }
     }
-    
-    handler.complete();    
+
+    handler.complete();
 }
 

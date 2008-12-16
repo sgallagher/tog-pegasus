@@ -151,8 +151,8 @@ void IPTestClient::_check_IPPEp_Caption(String &pv, Boolean verbose)
     }
 
     _check_Address_Format(
-        pv, 
-        CLASS_CIM_IP_PROTOCOL_ENDPOINT, 
+        pv,
+        CLASS_CIM_IP_PROTOCOL_ENDPOINT,
         PROPERTY_CAPTION);
 
 }
@@ -436,8 +436,8 @@ void IPTestClient::_check_IPPEp_ProtocolIFType(Uint16 &pv, Boolean verbose)
              pv << "' . . ." << endl;
     }
 
-    if (pv != 4096 && 
-        pv != 4097 && 
+    if (pv != 4096 &&
+        pv != 4097 &&
         pv != 4098)
     {
         _errorExit(
@@ -752,8 +752,8 @@ void IPTestClient::_check_NHIPRoute_Name(String &pv, Boolean verbose)
     }
 
     _check_Address_Format(
-        pv, 
-        CLASS_PG_NEXT_HOP_IP_ROUTE, 
+        pv,
+        CLASS_PG_NEXT_HOP_IP_ROUTE,
         PROPERTY_NAME);
 
 }
@@ -796,15 +796,15 @@ void IPTestClient::_check_NHIPRoute_DestinationMask(String &pv, Boolean verbose)
     }
 
     _check_Address_Format(
-        pv, 
-        CLASS_PG_NEXT_HOP_IP_ROUTE, 
+        pv,
+        CLASS_PG_NEXT_HOP_IP_ROUTE,
         PROPERTY_DESTINATION_MASK);
 
 }
 
 //------------------------------------------------------------------------------
 void IPTestClient::_check_NHIPRoute_DestinationAddress(
-    String &pv, 
+    String &pv,
     Boolean verbose)
 {
     if (verbose)
@@ -814,8 +814,8 @@ void IPTestClient::_check_NHIPRoute_DestinationAddress(
     }
 
     _check_Address_Format(
-        pv, 
-        CLASS_PG_NEXT_HOP_IP_ROUTE, 
+        pv,
+        CLASS_PG_NEXT_HOP_IP_ROUTE,
         PROPERTY_DESTINATION_ADDRESS);
 
 }

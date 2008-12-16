@@ -83,7 +83,7 @@ ifdef OBJECTS_IN_OPTIONFILE
 	@ take $(PLATFORM_VMSDIRA)]vms_create_optfile.com \
             "$(PROGRAM)" "$(strip $(LIBRARIES))" "$(strip $(EXTRA_LIBRARIES))" \
             "$(strip $(VMS_VECTOR))" "$(strip $(LINKER_OPTIONS))" \
-            "$(SOURCES)" "$(OBJ_VMSDIRA)]" 
+            "$(SOURCES)" "$(OBJ_VMSDIRA)]"
 	cxxlink$(LFLAGS)$(EXE_VMSOUTPUT)/reposit=$(CXXREPOSITORY_VMSROOT) \
             $(foreach lib,$(SYS_LIBS),$(lib),) $(OPT) $(DLLOPT)
 else

@@ -94,7 +94,7 @@ public:
         }
         catch(Exception &e)
         {
-            cout << "Exception " << e.getMessage() 
+            cout << "Exception " << e.getMessage()
                  << " on enumerateClassNames open. Terminating." << endl;
             return false;
         }
@@ -377,7 +377,7 @@ void printHelp(char* name, OptionManager om)
     header.append(" -parameters [class]");
     header.append("  - Generate MOF output from the repository or client\n");
 
-    String trailer = 
+    String trailer =
         "\nAssumes  using repository interface and repository at\n";
     trailer.append("PEGASUS_HOME for repository unless -r specified");
     trailer.append("\nIf [class] exists only that class mof is output.");
@@ -569,10 +569,10 @@ int main(int argc, char** argv)
 
         location.append("/repository");
 
-        if (!FileSystem::exists(location) 
+        if (!FileSystem::exists(location)
                 || FileSystem::isDirectoryEmpty(location))
         {
-            cout << "Error. " << location << " does not exist or is empty." 
+            cout << "Error. " << location << " does not exist or is empty."
                  << endl;
             exit(1);
         }
@@ -598,8 +598,8 @@ int main(int argc, char** argv)
     }
     catch(Exception &e)
     {
-        cout << "Exception " << e.getMessage() 
-             << " on repository open. Terminating." 
+        cout << "Exception " << e.getMessage()
+             << " on repository open. Terminating."
              << endl;
         return false;
     }
@@ -690,7 +690,7 @@ int main(int argc, char** argv)
                 catch(Exception& e)
                 {
                     // ErrorExit(e.getMessage());
-                    cout << "Class get error " << e.getMessage() 
+                    cout << "Class get error " << e.getMessage()
                          << " Class " << nextClass.getString() << endl;
                 }
                 // Note we get and print ourselves rather than use the generic
@@ -725,7 +725,7 @@ int main(int argc, char** argv)
                 if(showOnlyNames)
                 {
                     Array<CIMObjectPath> instanceNames;
-                    instanceNames = 
+                    instanceNames =
                         clRepository.enumerateInstanceNames(nameSpace,
                                                             className);
                     for (Uint32 k = 0; k < instanceNames.size(); k++)
@@ -737,7 +737,7 @@ int main(int argc, char** argv)
                 {
                 // Process inputClasslist to enumerate and print instances
                     Array<CIMInstance> namedInstances;
-                    namedInstances = 
+                    namedInstances =
                         clRepository.enumerateInstances(nameSpace,
                                                         className,
                                                         deepInheritance,
@@ -762,7 +762,7 @@ int main(int argc, char** argv)
             }
             catch(Exception& e)
             {
-                cout << "Error Instance Enumeration:" << e.getMessage() 
+                cout << "Error Instance Enumeration:" << e.getMessage()
                      << endl;
             }
         }
@@ -773,7 +773,7 @@ int main(int argc, char** argv)
         if(qualifierCount != 0)
             cout << "Qualifiers - " << qualifierCount << endl;
         if(classCount != 0)
-            cout << "Classes - " << classCount << " found and " 
+            cout << "Classes - " << classCount << " found and "
                  << classCountDisplayed
                  << " output" << endl;
         if(instanceCount != 0)

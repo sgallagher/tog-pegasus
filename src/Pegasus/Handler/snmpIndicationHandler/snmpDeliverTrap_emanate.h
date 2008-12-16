@@ -73,79 +73,79 @@ PEGASUS_NAMESPACE_BEGIN
 
 static const char _MSG_INITSUBAGENT_FAILED[] =
     "InitSubagent Failed to initialize";
-static const char _MSG_INITSUBAGENT_FAILED_KEY[] = 
+static const char _MSG_INITSUBAGENT_FAILED_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate."
         "_MSG_INITSUBAGENT_FAILED";
 
 static const char _MSG_INVALID_TRAPOID[] = "Invalid trapOid.";
-static const char _MSG_INVALID_KEY[] = 
+static const char _MSG_INVALID_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID";
 
 static const char _MSG_DESTINATION_NOT_FOUND[] =
     "Can not find trap destination.";
-static const char _MSG_DESTINATION_NOT_FOUND_KEY[] = 
+static const char _MSG_DESTINATION_NOT_FOUND_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate."
         "_MSG_DESTINATION_NOT_FOUND";
 
-static const char _MSG_TARGETHOSTFORMAT_NOT_SUPPORTED[] = 
+static const char _MSG_TARGETHOSTFORMAT_NOT_SUPPORTED[] =
     "Host Name and IPV4 Address are the only supported TargetHostFormat "
         "values.";
-static const char _MSG_TARGETHOSTFORMAT_NOT_SUPPORTED_KEY[] = 
+static const char _MSG_TARGETHOSTFORMAT_NOT_SUPPORTED_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate."
         "_MSG_TARGETHOSTFORMAT_NOT_SUPPORTED";
 
 static const char _MSG_INVALID_SECURITY_NAME[] = "Invalid SNMP SecurityName.";
-static const char _MSG_INVALID_SECURITY_NAME_KEY[] = 
+static const char _MSG_INVALID_SECURITY_NAME_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID";
 
-static const char _MSG_INVALID_OCTET_VALUE[] = 
+static const char _MSG_INVALID_OCTET_VALUE[] =
     "Invalid octet value in trap destination.";
-static const char _MSG_INVALID_OCTET_VALUE_KEY[] = 
+static const char _MSG_INVALID_OCTET_VALUE_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate."
         "_MSG_INVALID_OCTET_VALUE";
 
-static const char _MSG_CREATE_OCTET_FAILED[] = 
+static const char _MSG_CREATE_OCTET_FAILED[] =
     "Creation of empty 4 length OctetString failed.";
-static const char _MSG_CREATE_OCTET_FAILED_KEY[] = 
+static const char _MSG_CREATE_OCTET_FAILED_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate."
         "_MSG_CREATE_OCTET_FAILED";
 
 static const char _MSG_INVALID_ENTERPRISEOID[] = "Invalid enterpriseOid.";
-static const char _MSG_INVALID_ENTERPRISEOID_KEY[] = 
+static const char _MSG_INVALID_ENTERPRISEOID_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate._MSG_INVALID";
 
 static const char _MSG_INVALID_PROPERTYOID[] = "Invalid OID of CIM Property.";
-static const char _MSG_INVALID_PROPERTYOID_KEY[] = 
+static const char _MSG_INVALID_PROPERTYOID_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate."
         "_MSG_INVALID_PROPERTYOID";
 
 static const char _MSG_INVALID_PROPERTYVALUE[] =
     "Invalid value of CIM Property.";
-static const char _MSG_INVALID_PROPERTYVALUE_KEY[] = 
+static const char _MSG_INVALID_PROPERTYVALUE_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate."
         "_MSG_INVALID_PROPERTY";
 
-static const char _MSG_MAKE_VARBIND_FAILED_FOR_OCTET_PRIM_TYPE[] = 
+static const char _MSG_MAKE_VARBIND_FAILED_FOR_OCTET_PRIM_TYPE[] =
     "Failed to MakeVarBindWithValue for type OCTET_PRIM_TYPE.";
-static const char _MSG_MAKE_VARBIND_FAILED_FOR_OCTET_PRIM_TYPE_KEY[] = 
+static const char _MSG_MAKE_VARBIND_FAILED_FOR_OCTET_PRIM_TYPE_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate."
         "_MSG_MAKE_FAILED_FOR_OCTET_PRIM_TYPE";
 
-static const char _MSG_MAKE_VARBIND_FAILED_FOR_OBJECT_ID_TYPE[] = 
+static const char _MSG_MAKE_VARBIND_FAILED_FOR_OBJECT_ID_TYPE[] =
     "Failed to MakeVarBindWithValue for type OBJECT_ID_TYPE.";
-static const char _MSG_MAKE_VARBIND_FAILED_FOR_OBJECT_ID_TYPE_KEY[] = 
+static const char _MSG_MAKE_VARBIND_FAILED_FOR_OBJECT_ID_TYPE_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate."
         "_MSG_MAKE_FAILED_FOR_OBJECT_ID_TYPE";
 
-static const char _MSG_MAKE_VARBIND_FAILED_FOR_INTEGER_TYPE[] = 
+static const char _MSG_MAKE_VARBIND_FAILED_FOR_INTEGER_TYPE[] =
     "Failed to MakeVarBindWithValue for type INTEGER_TYPE.";
-static const char _MSG_MAKE_VARBIND_FAILED_FOR_INTEGER_TYPE_KEY[] = 
+static const char _MSG_MAKE_VARBIND_FAILED_FOR_INTEGER_TYPE_KEY[] =
    "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate."
         "_MSG_MAKE_FAILED_FOR_INTEGER_TYPE";
 
-static const char _MSG_VERSION_NOT_SUPPORTED[] = 
+static const char _MSG_VERSION_NOT_SUPPORTED[] =
     "SNMPv1 Trap and SNMPv2C Trap are the only supported SNMPVersion values.";
-static const char _MSG_VERSION_NOT_SUPPORTED_KEY[] = 
+static const char _MSG_VERSION_NOT_SUPPORTED_KEY[] =
     "Handler.snmpIndicationHandler.snmpDeliverTrap_emanate."
         "_MSG_VERSION_NOT_SUPPORTED";
 
@@ -164,7 +164,7 @@ public:
     /**
         Send snmp trap to the target.
         @param trapOid                snmp trap OID
-        @param securityName           either an SNMPv1 or SNMPv2c community 
+        @param securityName           either an SNMPv1 or SNMPv2c community
                                       name or an SNMPv3 user name
         @param targetHost             address of the trap/infom destination
         @param targetHostFormat       targetHost format
@@ -180,12 +180,12 @@ public:
     */
     void deliverTrap(
         const String& trapOid,
-        const String& securityName, 
-        const String& targetHost, 
-        const Uint16& targetHostFormat, 
-        const String& otherTargetHostFormat, 
+        const String& securityName,
+        const String& targetHost,
+        const Uint16& targetHostFormat,
+        const String& otherTargetHostFormat,
         const Uint32& portNumber,
-        const Uint16& snmpVersion, 
+        const Uint16& snmpVersion,
         const String& engineID,
         const Array<String>& vbOids,
         const Array<String>& vbTypes,
@@ -196,7 +196,7 @@ private:
     Boolean _isValidOctet(const Uint32& octetValue);
 
     /**
-        Values for the TargetHostFormat property of the 
+        Values for the TargetHostFormat property of the
         PG_IndicationHandlerSNMPMapper class.
     */
     enum TargetHostFormat

@@ -101,7 +101,7 @@ endif
 ###############################################################################
 #
 # The user may set PEGASUS_RPM_DIRECTORY to the path of their rpm build target.
-# The source tar file will then be in 
+# The source tar file will then be in
 # PEGASUS_RPM_DIRECTORY/SOURCES/tog-pegasus.
 # If PEGASUS_RPM_DIRECTORY is not defined the rpm build target path will be
 # defaulted to the well-known locations on redhat and suse systems.
@@ -129,7 +129,7 @@ RPM_SRC_DIR:=$(shell echo tog-pegasus-$(PEGASUS_PRODUCT_VERSION))
 
 USAGE = @$(ECHO) $(1)
 
-usage: 
+usage:
 	$(USAGE)
 	$(USAGE)"RPMMakefile targets:"
 	$(USAGE)""
@@ -204,7 +204,7 @@ ifndef PEGASUS_PRODUCT_VERSION
 endif
 	@$(MV) pegasus $(RPM_SRC_DIR)
 	@$(CP) $(RPM_SRC_DIR)/rpm/tog-pegasus.spec \
-            $(PEGASUS_RPM_DIRECTORY)/SPECS 
+            $(PEGASUS_RPM_DIRECTORY)/SPECS
 	@tar czf tog-pegasus-$(VERSION).tar.gz $(RPM_SRC_DIR)
 	@$(CP) tog-pegasus-$(VERSION).tar.gz $(PEGASUS_RPM_DIRECTORY)/SOURCES/$(TOG_PEGASUS_DIR)
 	@$(RPMBUILD) -bs $(PEGASUS_RPM_DIRECTORY)/SPECS/tog-pegasus.spec
@@ -213,7 +213,7 @@ createBINRPM:
 	@$(RPM) -i $(PEGASUS_RPM_DIRECTORY)/SRPMS/$(SRC_RPM)
 	@$(RPMBUILD) -bb --define 'LINUX_VERSION $(PEGASUS_DISTRO_SUFFIX)' --define 'PEGASUS_BUILD_TEST_RPM 1' $(PEGASUS_RPM_DIRECTORY)/SPECS/tog-pegasus.spec
 
-list: 
+list:
 	@$(RPM) -qa|$(GREP) tog-pegasus
 
 tests:

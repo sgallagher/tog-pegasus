@@ -44,8 +44,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_WMIPROVIDER_LINKAGE WMIAssociatorProvider : 
-    public WMIBaseProvider 
+class PEGASUS_WMIPROVIDER_LINKAGE WMIAssociatorProvider :
+    public WMIBaseProvider
 {
 public:
     WMIAssociatorProvider();
@@ -86,9 +86,9 @@ protected:
 
 private:
     String getAssocQueryString(
-        const CIMObjectPath& objectName, 
-        const String& assocClass, 
-        const String& resultClass, 
+        const CIMObjectPath& objectName,
+        const String& assocClass,
+        const String& resultClass,
         const String& role,
         const String& resultRole);
 };

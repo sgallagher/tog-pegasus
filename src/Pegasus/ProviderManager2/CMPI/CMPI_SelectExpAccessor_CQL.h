@@ -43,7 +43,7 @@ private:
     CMPIAccessor * accessor;
     void *accParm;
 
-    /** Needed to build an instance 
+    /** Needed to build an instance
        No need to de-allocate it.
     */
     CQLSelectStatement *_stmt;

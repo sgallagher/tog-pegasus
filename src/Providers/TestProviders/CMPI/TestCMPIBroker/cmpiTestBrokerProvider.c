@@ -540,7 +540,7 @@ CMPIStatus TestCMPIBrokerProviderInvokeMethod (CMPIMethodMI * mi,
     PROV_LOG ("++++ (%s)", strCMPIStatus (rc));
 
     PROV_LOG ("InvokeMethod: We have %d arguments for operation [%s]: ",
-        arg_cnt, 
+        arg_cnt,
         methodName);
 
     if (arg_cnt > 0)
@@ -578,7 +578,7 @@ CMPIStatus TestCMPIBrokerProviderInvokeMethod (CMPIMethodMI * mi,
         _ClassName,
          strlen(_ClassName)) == 0)
     {
-        if (strncmp("testBrokerServices", 
+        if (strncmp("testBrokerServices",
             methodName,
             strlen ("testBrokerServices"))== 0)
         {

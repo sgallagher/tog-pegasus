@@ -15,16 +15,16 @@
             <PROPERTY NAME="Vendor" TYPE="string">
               <VALUE> Hewlett-Packard Company </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="Version" TYPE="string"> 
+            <PROPERTY NAME="Version" TYPE="string">
               <VALUE> 2.0 </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="InterfaceType" TYPE="string"> 
+            <PROPERTY NAME="InterfaceType" TYPE="string">
               <VALUE> PG_DefaultC++ </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="InterfaceVersion" TYPE="string"> 
+            <PROPERTY NAME="InterfaceVersion" TYPE="string">
               <VALUE> 2.0 </VALUE>
             </PROPERTY>
-            <PROPERTY NAME="Location" TYPE="string"> 
+            <PROPERTY NAME="Location" TYPE="string">
               <VALUE> nsatrap </VALUE>
             </PROPERTY>
           </INSTANCE>

@@ -132,7 +132,7 @@ CIMType vartypeToCIMType(const VARTYPE vt)
 {
     CIMType type;
 
-    switch(vt & ~VT_ARRAY) 
+    switch(vt & ~VT_ARRAY)
     {
         case VT_UI1:
             type = CIMTYPE_UINT8;
@@ -141,11 +141,11 @@ CIMType vartypeToCIMType(const VARTYPE vt)
         case VT_I2:
             type = CIMTYPE_SINT16;
             break;
-   
+
         case VT_UI2:
               type = CIMTYPE_UINT16;
             break;
-   
+
         case VT_I4:
             type = CIMTYPE_SINT32;
             break;
@@ -169,7 +169,7 @@ CIMType vartypeToCIMType(const VARTYPE vt)
         case VT_R8:
             type = CIMTYPE_REAL64;
             break;
-   
+
         case VT_BSTR:
             //type = CIMTYPE_REFERENCE;
             //type = CIMTYPE_DATETIME;
@@ -211,7 +211,7 @@ CIMTYPE_ENUMERATION CIMTypeToWMIType(const CIMTYPE type)
 {
    CIMTYPE_ENUMERATION _type;
 
-   switch(type) 
+   switch(type)
    {
        case CIMTYPE_BOOLEAN:
           _type = CIM_BOOLEAN;

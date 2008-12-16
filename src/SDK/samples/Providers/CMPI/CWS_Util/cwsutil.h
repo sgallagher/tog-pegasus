@@ -34,10 +34,10 @@
 
 #include <time.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h> // Only needed for CMPI_EXTERN_C
-#ifdef __cplusplus 
+#ifdef __cplusplus
 //extern "C" {
 #endif
-  
+
 /* ------------------------------------------------------------------
  * Utilities for file info retrieval
  * ----------------------------------------------------------------- */
@@ -93,7 +93,7 @@ CMPI_EXTERN_C int CWS_Get_FileType(
                       char* typestring,
                       size_t tslen);
 
-#ifdef __cplusplus 
+#ifdef __cplusplus
 /*}*/
 #endif
 

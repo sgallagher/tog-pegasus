@@ -164,10 +164,10 @@ CIMInstance InteropProvider::localGetInstance(
         CIMInstance gotInstance = cimomHandle.getInstance(
                                          context,
                                          opNamespace,
-                                         instanceName, 
-                                         false, 
-                                         false, 
-                                         false, 
+                                         instanceName,
+                                         false,
+                                         false,
+                                         false,
                                          propertyList);
         PEG_METHOD_EXIT();
         return gotInstance;
@@ -239,7 +239,7 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
     // Verify that ClassName is correct and get its enum value
     TARGET_CLASS classEnum  = translateClassInput(className);
 
-    Array<CIMInstance> instances;    
+    Array<CIMInstance> instances;
     switch(classEnum)
     {
         case PG_OBJECTMANAGER:
@@ -384,10 +384,10 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
 //
 bool InteropProvider::validAssocClassForObject(
     const OperationContext & context,
-    const CIMName & assocClass, 
+    const CIMName & assocClass,
     const CIMObjectPath & objectName,
     const CIMNamespaceName & opNamespace,
-    String & originProperty, 
+    String & originProperty,
     String & targetProperty)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
@@ -457,7 +457,7 @@ bool InteropProvider::validAssocClassForObject(
     CIMInstance tmpInstance;
     Uint32 index;
     propNames.clear();
-    
+
     //
     // Set the target and origin role values. Note that if these values are
     // not set following the switch block, that implies that the origin class
@@ -509,7 +509,7 @@ bool InteropProvider::validAssocClassForObject(
           propNames.append(CIMName("RegisteredName"));
           propertyList = CIMPropertyList(propNames);
           tmpInstance = localGetInstance(
-              context, 
+              context,
               objectName,
               propertyList);
           if (!tmpInstance.isUninitialized())
@@ -517,7 +517,7 @@ bool InteropProvider::validAssocClassForObject(
               index = tmpInstance.findProperty("RegisteredName");
               if (index != PEG_NOT_FOUND)
               {
-                  const CIMValue &tmpVal = 
+                  const CIMValue &tmpVal =
                       tmpInstance.getProperty(index).getValue();
                   if (!tmpVal.isNull())
                   {
@@ -735,11 +735,11 @@ Array<CIMInstance> InteropProvider::localReferences(
 
     // Check that the association traversal request is valid
     if (validAssocClassForObject(
-        context, 
-        assocClass, 
+        context,
+        assocClass,
         objectName,
-        originNamespace, 
-        originProperty, 
+        originNamespace,
+        originProperty,
         targetProperty))
     {
         // retrieve all of the association class instances

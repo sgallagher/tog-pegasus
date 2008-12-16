@@ -37,8 +37,8 @@
 //  $(PEGASUS_ROOT)/Schemas/Pegasus/InterOp/VER20 for retails regarding the
 //  classes supported by this control provider.
 //
-//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP 
-//  namespace. There is a test on each operation that returns 
+//  Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP
+//  namespace. There is a test on each operation that returns
 //  the Invalid Class CIMDError
 //  This is a control provider and as such uses the Tracer functions
 //  for data and function traces.  Since we do not expect high volume
@@ -101,7 +101,7 @@ const CIMName CIMXMLCOMMMECH_PROPERTY_AUTHENTICATIONMECHANISMDESCRIPTIONS(
 const CIMName CIMXMLCOMMMECH_PROPERTY_MULTIPLEOPERATIONSSUPPORTED(
         "MultipleOperationsSupported");
 const CIMName CIMXMLCOMMMECH_PROPERTY_VERSION("Version");
-const CIMName 
+const CIMName
    CIMXMLCOMMMECH_PROPERTY_CIMXMLPROTOVERSION("CIMXMLProtocolVersion");
 const CIMName CIMXMLCOMMMECH_PROPERTY_NAMESPACETYPE("namespaceType");
 const CIMName CIMXMLCOMMMECH_PROPERTY_NAMESPACEACCESSPROTOCOL(
@@ -116,7 +116,7 @@ const CIMName CIMXMLCOMMMECH_PROPERTY_ADVERTISETYPES("AdvertiseTypes");
 //
 // Fills in the CIMOperation functional profiles and corresponding description
 // array.  This function is closely linked to compile and configuration
-// features in the CIM Server to determine if certain features are 
+// features in the CIM Server to determine if certain features are
 // enabled and/or compiled.  Definitions correspond to the DMTF SLP template
 // version 1.0.
 // @param Array<Uint16> profiles provides an array for the profiles
@@ -329,7 +329,7 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
             }
             addr.append(":");
             addr.append(httpPort);
-            
+
             instance  =
                 buildCIMXMLCommunicationMechanismInstance(
                     namespaceType,
@@ -363,8 +363,8 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
             {
                 addr = "[" + addr + "]";
             }
-            addr.append(":");  
-            addr.append(httpsPort);  
+            addr.append(":");
+            addr.append(httpsPort);
             instance  =
                 buildCIMXMLCommunicationMechanismInstance(
                     namespaceType,
@@ -567,7 +567,7 @@ void InteropProvider::modifyObjectManagerInstance(
 #else
     PEG_METHOD_EXIT();
     throw CIMNotSupportedException
-        (OM_PROPERTY_GATHERSTATISTICALDATA.getString() + 
+        (OM_PROPERTY_GATHERSTATISTICALDATA.getString() +
                 " modify operation not supported by Interop Provider");
 #endif
 }
@@ -708,7 +708,7 @@ Array<CIMInstance> InteropProvider::enumCommMechanismForManagerInstances()
     Array<CIMInstance> assocInstances;
     CIMClass targetClass;
     CIMInstance instanceskel = buildInstanceSkeleton(
-        PEGASUS_NAMESPACENAME_INTEROP, 
+        PEGASUS_NAMESPACENAME_INTEROP,
         PEGASUS_CLASSNAME_PG_COMMMECHANISMFORMANAGER, true, targetClass);
     for (Uint32 i = 0, n = commInstances.size(); i < n; ++i)
     {
@@ -827,10 +827,10 @@ Array<CIMInstance> InteropProvider::enumServiceAffectsElementInstances(
     // namespaces and associate them with CIM_IndicationService instance using
     // PG_ServiceAffectsElement instance.
     for (Uint32 i = 0, n = namespaceNames.size() ; i < n ; ++i)
-    { 
+    {
         Array<CIMObjectPath> filterPaths;
         try
-        { 
+        {
             // Get CIM_IndicationFilter instance names
             filterPaths = cimomHandle.enumerateInstanceNames(
                 opContext,

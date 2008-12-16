@@ -39,7 +39,7 @@ endif
 LOCAL_DEFINES = -DPEGASUS_CLIENT_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARY = pegwmiclient
-    
+
 LIBRARIES = \
     pegcommon \
 	pegclient \

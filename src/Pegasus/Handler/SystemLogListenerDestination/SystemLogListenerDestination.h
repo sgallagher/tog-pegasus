@@ -56,9 +56,9 @@ public:
     void handleIndication(
         const OperationContext& context,
         const String nameSpace,
-        CIMInstance& indication, 
-        CIMInstance& handler, 
-        CIMInstance& subscription, 
+        CIMInstance& indication,
+        CIMInstance& handler,
+        CIMInstance& subscription,
         ContentLanguageList& contentLanguages);
 
 private:
@@ -69,9 +69,9 @@ private:
         otherwise, writes to the PegasusStandard.log file.
         The platform maintainer can also write to a preferred system log file.
 
-        @param  identifier     the name of the program 
-        @param  severity       pegasus logger severity 
-        @param  formattedText  the formatted indication 
+        @param  identifier     the name of the program
+        @param  severity       pegasus logger severity
+        @param  formattedText  the formatted indication
     */
 
     void _writeToSystemLog(

@@ -30,7 +30,7 @@
 //%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Provider/ProviderException.h>        
+#include <Pegasus/Provider/ProviderException.h>
 //
 // Required to build this provider from SDK
 //

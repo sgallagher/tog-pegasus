@@ -34,4 +34,4 @@ CIMOM.
 NULLS, trailing spaces and other illegal characters) inside the provider
 methods.
 - The XML output should not be affected by any of these illegal strings that
-are manipulated by the provider. 
+are manipulated by the provider.

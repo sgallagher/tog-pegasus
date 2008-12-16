@@ -359,15 +359,15 @@ public:
         @param randomFile  file path of a random file that may be used as a seed
         for random number generation by OpenSSL.
 
-        NOTE: 
+        NOTE:
         For platforms that support /dev/random(urandom), the /dev/random
-        files will be used to seed OpenSSL.  The specified random file 
-        may be used as a fallback when /dev/random(urandom) is unavailable 
-        or fails.  Using /dev/random to seed OpenSSL is more secure than using 
+        files will be used to seed OpenSSL.  The specified random file
+        may be used as a fallback when /dev/random(urandom) is unavailable
+        or fails.  Using /dev/random to seed OpenSSL is more secure than using
         a random file.
 
         An empty random file string indicates that a random file should not
-        be used. If sufficient randomness is not achieved using /dev/random 
+        be used. If sufficient randomness is not achieved using /dev/random
         and/or a random file, an SSLException is thrown.
 
         @exception SSLException indicates failure to create an SSL context.
@@ -446,15 +446,15 @@ public:
         @param randomFile  file path of a random file that may be used as a seed
         for random number generation by OpenSSL.
 
-        NOTE: 
+        NOTE:
         For platforms that support /dev/random(urandom), the /dev/random
-        files will be used to seed OpenSSL.  The specified random file 
-        may be used as a fallback when /dev/random(urandom) is unavailable 
-        or fails.  Using /dev/random to seed OpenSSL is more secure than using 
+        files will be used to seed OpenSSL.  The specified random file
+        may be used as a fallback when /dev/random(urandom) is unavailable
+        or fails.  Using /dev/random to seed OpenSSL is more secure than using
         a random file.
 
         An empty random file string indicates that a random file should not
-        be used. If sufficient randomness is not achieved using /dev/random 
+        be used. If sufficient randomness is not achieved using /dev/random
         and/or a random file, an SSLException is thrown.
 
         @exception SSLException indicates failure to create an SSL context.
@@ -479,15 +479,15 @@ public:
         @param randomFile  file path of a random file that may be used as a seed
         for random number generation by OpenSSL.
 
-        NOTE: 
+        NOTE:
         For platforms that support /dev/random(urandom), the /dev/random
-        files will be used to seed OpenSSL.  The specified random file 
-        may be used as a fallback when /dev/random(urandom) is unavailable 
-        or fails.  Using /dev/random to seed OpenSSL is more secure than using 
+        files will be used to seed OpenSSL.  The specified random file
+        may be used as a fallback when /dev/random(urandom) is unavailable
+        or fails.  Using /dev/random to seed OpenSSL is more secure than using
         a random file.
 
         An empty random file string indicates that a random file should not
-        be used. If sufficient randomness is not achieved using /dev/random 
+        be used. If sufficient randomness is not achieved using /dev/random
         and/or a random file, an SSLException is thrown.
 
         @exception SSLException indicates failure to create an SSL context.

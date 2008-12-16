@@ -59,7 +59,7 @@ void chksrc(const char* path,
         const char* cvsroot;
 
         /*
-           Check to see whether chksrc was run by an ordinary user or by the 
+           Check to see whether chksrc was run by an ordinary user or by the
            CVS server. In the latter case, CVSROOT is "/cvs/MSB" rather than
            ":pserver:<username>@cvs.opengroup.org:/cvs/MSB".
         */
@@ -320,7 +320,7 @@ int main(int argc, char** argv)
         checktab = 1;
         checklen = 1;
         checkbadcr = 1;
-        /* Defaults to off for now since there are so many 
+        /* Defaults to off for now since there are so many
          * cased of trailing blanks in the environment today
          */
         checktrailbl = 0;

@@ -35,10 +35,10 @@
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include "HTTPAuthenticatorDelegator.h"
- 
+
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 #include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
-#endif 
+#endif
 
 PEGASUS_USING_STD;
 
@@ -74,7 +74,7 @@ HTTPAuthenticatorDelegator::~HTTPAuthenticatorDelegator()
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::~HTTPAuthenticatorDelegator");
 
-   
+
     PEG_METHOD_EXIT();
 }
 
@@ -97,7 +97,7 @@ void HTTPAuthenticatorDelegator::_sendResponse(
     {
         AutoPtr<HTTPMessage> httpMessage(new HTTPMessage(message));
         httpMessage->dest = queue->getQueueId();
-        
+
         queue->enqueue(httpMessage.release());
     }
 
@@ -187,7 +187,7 @@ void HTTPAuthenticatorDelegator::handleEnqueue(Message *message)
     // This should be set to false by handleHTTPMessage when the message is
     // passed as is to another queue.
     Boolean deleteMessage = true;
-   
+
     if (message->getType() == HTTP_MESSAGE)
     {
         handleHTTPMessage((HTTPMessage*)message, deleteMessage);
@@ -216,7 +216,7 @@ void HTTPAuthenticatorDelegator::handleEnqueue()
 void HTTPAuthenticatorDelegator::handleHTTPMessage(
     HTTPMessage* httpMessage,
     Boolean & deleteMessage)
-{  
+{
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::handleHTTPMessage");
 
@@ -255,7 +255,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     Uint32 contentLength;
 
     httpMessage->parse(startLine, headers, contentLength);
-    
+
     //
     // Parse the request line:
     //
@@ -306,12 +306,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         String authorization;
 
         //
-        // Do not require authentication for indication delivery 
+        // Do not require authentication for indication delivery
         //
         String cimExport;
         if (enableAuthentication &&
             HTTPMessage::lookupHeader(
-                headers, "CIMExport", cimExport, true)) 
+                headers, "CIMExport", cimExport, true))
         {
             enableAuthentication = false;
         }
@@ -321,12 +321,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
              enableAuthentication
            )
         {
-            try 
+            try
             {
                 //
                 // Do pegasus/local authentication
                 //
-                authenticated = 
+                authenticated =
                     _authenticationManager->performPegasusAuthentication(
                         authorization,
                         httpMessage->authInfo);
@@ -363,7 +363,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                                HTTP_STATUS_INTERNALSERVERERROR);
                 PEG_METHOD_EXIT();
                 return;
-                
+
             }
         }
 
@@ -381,7 +381,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             {
                 sa->setClientSentAuthorization(true);
             }
-#endif        
+#endif
             //
             // Do http authentication if not authenticated already
             //
@@ -394,7 +394,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
                 if (!authenticated)
                 {
-                    //ATTN: the number of challenges get sent for a 
+                    //ATTN: the number of challenges get sent for a
                     //      request on a connection can be pre-set.
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
                     // Kerberos authentication needs access to the
@@ -402,7 +402,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                     // to set up the reference to the
                     // CIMKerberosSecurityAssociation object for this session.
 
-                    String authResp =   
+                    String authResp =
                         _authenticationManager->getHttpAuthResponseHeader(
                             httpMessage->authInfo);
 #else
@@ -447,7 +447,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 // client then no server token will be available.
                 if (contentLength == 0)
                 {
-                    String authResp =   
+                    String authResp =
                         _authenticationManager->getHttpAuthResponseHeader(
                             httpMessage->authInfo);
                     if (!String::equal(authResp, String::EMPTY))
@@ -483,7 +483,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             // authenticated in the previous request but choose not to
             // send an authorization record.
             if (sa->getClientAuthenticated())
-            {        
+            {
                 authenticated = true;
             }
         }
@@ -531,21 +531,21 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 inWrappedMessage.append(httpMessage->message[i]);
             }
 
-            rc = sa->unwrap_message(inWrappedMessage,          
+            rc = sa->unwrap_message(inWrappedMessage,
                                     outUnwrappedMessage);  // ASCII
 
-            if (rc) 
+            if (rc)
             {
                 // clear out the outUnwrappedMessage; if unwrapping is required
                 // and it fails we need to send back a bad request.  A message
-                // left in an wrapped state will be a severe failue later.  
-                // Reason for unwrap failing may be due to a problem with the 
-                // credentials or context or some other failure may have 
+                // left in an wrapped state will be a severe failue later.
+                // Reason for unwrap failing may be due to a problem with the
+                // credentials or context or some other failure may have
                 // occurred.
                 outUnwrappedMessage.clear();
                 // build a bad request.  We do not want to risk sending back
                 // data that can't be authenticated.
-                final_buffer = 
+                final_buffer =
                   XmlWriter::formatHttpErrorRspMessage(HTTP_STATUS_BADREQUEST);
                 //remove the last separater; the authentication record still
                 // needs to be added.
@@ -553,7 +553,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 final_buffer.remove(final_buffer.size());  // "\r"
 
                 // Build the WWW_Authenticate record with token.
-                String authResp =   
+                String authResp =
                   _authenticationManager->getHttpAuthResponseHeader(
                                 httpMessage->authInfo);
                 // error occurred on wrap so the final_buffer needs to be built
@@ -579,15 +579,15 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             // a bad return code
             if (final_buffer.size() == 0)
             {
-                // if outUnwrappedMessage is empty that indicates client did 
+                // if outUnwrappedMessage is empty that indicates client did
                 // not wrap the message.  The original message will be used.
                 if (outUnwrappedMessage.size())
                 {
                     final_buffer.appendArray(header_buffer);
                     final_buffer.appendArray(outUnwrappedMessage);
                     // add back char that was appended earlier
-                    final_buffer.append('\0'); 
-                    // Note: if additional characters added 
+                    final_buffer.append('\0');
+                    // Note: if additional characters added
                     // in future add back here
                 }
             }
@@ -637,7 +637,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 if (queue)
                 {
                    httpMessage->dest = queue->getQueueId();
-                   
+
                    try
                      {
                        queue->enqueue(httpMessage);
@@ -709,7 +709,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         else
         {  // client not authenticated; send challenge
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-            String authResp =    
+            String authResp =
                 _authenticationManager->getHttpAuthResponseHeader(
                     httpMessage->authInfo);
 #else

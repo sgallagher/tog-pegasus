@@ -37,7 +37,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CMPI_SelectExpAccessor_WQL : public WQLPropertySource 
+class CMPI_SelectExpAccessor_WQL : public WQLPropertySource
 {
 private:
     CMPIAccessor* accessor;

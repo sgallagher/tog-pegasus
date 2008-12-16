@@ -334,7 +334,7 @@ void testGetPropertyError()
     oc.insert(ContentLanguageListContainer(ContentLanguageList()));
 
     GetPropertyErrorProvider np;
-    ProviderMessageHandler pmh("GetPropertyErrorModule", 
+    ProviderMessageHandler pmh("GetPropertyErrorModule",
         "GetPropertyErrorProvider", &np, 0, 0, false);
 
     // Test GetProperty where the requested property is not contained in the

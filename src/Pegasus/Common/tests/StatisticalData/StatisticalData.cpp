@@ -29,7 +29,7 @@
 //
 // Author: Willis White (whiwill@us.ibm.com)
 //
-// Modified By: 
+// Modified By:
 //
 //
 //

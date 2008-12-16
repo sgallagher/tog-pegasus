@@ -37,7 +37,7 @@
     defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #else
 #include <unistd.h>
-#endif 
+#endif
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Threads.h>
 #include <iostream>
@@ -66,7 +66,7 @@ class TestResponseMessage : public CIMResponseMessage
 public:
     TestResponseMessage(
         const String& messageId_,
-        const CIMException& cimException_, 
+        const CIMException& cimException_,
         Uint32 id_,
         const QueueIdStack &queueIds_)
     : CIMResponseMessage(DUMMY_MESSAGE,
@@ -90,7 +90,7 @@ public:
         messageId_,
         queueIds_),
       id(id_)
-    {    
+    {
     }
     CIMResponseMessage *buildResponse() const
     {
@@ -202,7 +202,7 @@ static Message* receiveMessageCallback(
 void testRegisterModule(const char *moduleName)
 {
     // Register the module with control Service.
-    TestModuleMessageHandler *module = 
+    TestModuleMessageHandler *module =
         new TestModuleMessageHandler(moduleName);
     registeredModules.append(module);
     controlService->register_module(
@@ -251,7 +251,7 @@ void _testModuleController()
         testService->SendAsync(
             op,
             cqid,
-            TestService::_testServiceCallback,        
+            TestService::_testServiceCallback,
             testService,
             0);
     }
@@ -267,8 +267,8 @@ int main(int argc, char **argv)
     cout << "testing module registration " << endl;
     testRegisterModule("testmodule1");
     testRegisterModule("testmodule2");
-  
-    
+
+
     cout << "testing module message dispatch " << endl;
     _testModuleController();
 
@@ -280,7 +280,7 @@ int main(int argc, char **argv)
 
     delete controlService;
     delete testService;
-    
+
     cout << "deleting modules " << endl;
     for (Uint32 i = 0, n = registeredModules.size() ; i < n ; ++i)
     {

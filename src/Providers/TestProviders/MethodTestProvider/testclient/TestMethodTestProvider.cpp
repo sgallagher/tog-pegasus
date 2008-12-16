@@ -98,7 +98,7 @@ void callMethod(const CIMName& methodName)
 }
 
 /* Test for method invoke and response that handles ref parameter
-   This functions sends two ref  in parameters and expects exactly the 
+   This functions sends two ref  in parameters and expects exactly the
    same references back in the two out parameters.
 */
 void callMethodRefParam(const CIMName& methodName)
@@ -169,7 +169,7 @@ void callMethodRefParam(const CIMName& methodName)
 
 
 /* Test for method invoke and response that handles ref parameter arrays.
-   This functions sends two ref array in parameters and expects exactly the 
+   This functions sends two ref array in parameters and expects exactly the
    same reference arrays back in the two out parameters.
 */
 void callMethodRefParamArray(const CIMName& methodName)

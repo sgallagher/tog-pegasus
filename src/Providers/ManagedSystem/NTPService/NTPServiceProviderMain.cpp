@@ -28,11 +28,11 @@
 //////////////////////////////////////////////////////////////////////////
 //
 // Author: Paulo F. Borges (pfborges@wowmail.com)
-//         
 //
-// Modified By: 
-//              
-//              
+//
+// Modified By:
+//
+//
 //
 //==============================================================================
 // This template was created from DNSServiceProviderMain.cpp
@@ -45,11 +45,11 @@
 #if !defined (PEGASUS_OS_VMS)
  #include <Pegasus/Common/PegasusVersion.h>
 #endif
-#include <Pegasus/Provider/ProviderException.h>        
+#include <Pegasus/Provider/ProviderException.h>
 
 #include "NTPServiceProvider.h"
 
-extern "C" 
+extern "C"
 PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
 {
     if (String::equalNoCase(providerName, "NTPProvider"))

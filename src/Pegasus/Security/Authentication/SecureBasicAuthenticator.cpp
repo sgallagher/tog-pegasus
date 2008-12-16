@@ -61,24 +61,24 @@ PEGASUS_NAMESPACE_BEGIN
 static const String BASIC_CHALLENGE_HEADER = "WWW-Authenticate: Basic ";
 
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-# if (__TARGET_LIB__ < 0x410A0000) 
+# if (__TARGET_LIB__ < 0x410A0000)
 
 #define ZOS_PEGASUS_APPLID_LEN 7
-static const char* ZOS_PEGASUS_APPLID = 
+static const char* ZOS_PEGASUS_APPLID =
                       "\xC3\xC6\xE9\xC1\xD7\xD7\xD3\x40"; // "CFZAPPL "
 static const char* ZOS_PEGASUS_THLI_EYE_CATCHER = "\xE3\xC8\xD3\xC9"; // "THLI"
 #endif // end __TARGET_LIB__
 #endif // end PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 
 /* constructor. */
-SecureBasicAuthenticator::SecureBasicAuthenticator() 
-{ 
+SecureBasicAuthenticator::SecureBasicAuthenticator()
+{
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "SecureBasicAuthenticator::SecureBasicAuthenticator()");
 
     // Build Authentication parameter realm required for Basic Challenge
     // e.g. realm="HostName"
-    
+
     _realm.assign("realm=");
     _realm.append(Char16('"'));
     _realm.append(System::getHostName());
@@ -86,22 +86,22 @@ SecureBasicAuthenticator::SecureBasicAuthenticator()
 
     // Get a user manager instance handler
     _userManager = UserManager::getInstance();
-                                       
+
 #ifdef PEGASUS_OS_ZOS
     ConfigManager* configManager = ConfigManager::getInstance();
-    
+
     if (String::equalNoCase(
         configManager->getCurrentValue("enableCFZAPPLID"),"true"))
-# if (__TARGET_LIB__ < 0x410A0000) 
+# if (__TARGET_LIB__ < 0x410A0000)
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
     {
 
         //
-        // Enable __passwd() for passticket validation 
+        // Enable __passwd() for passticket validation
         // for APPLID CFZAPPL in this thread.
         //
         set_ZOS_ApplicationID();
-    } 
+    }
     else
     {
         Logger::put_l(Logger::STANDARD_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
@@ -135,8 +135,8 @@ SecureBasicAuthenticator::SecureBasicAuthenticator()
 }
 
 /* destructor. */
-SecureBasicAuthenticator::~SecureBasicAuthenticator() 
-{ 
+SecureBasicAuthenticator::~SecureBasicAuthenticator()
+{
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "SecureBasicAuthenticator::~SecureBasicAuthenticator()");
 
@@ -154,7 +154,7 @@ Boolean SecureBasicAuthenticator::authenticate(
 
 #ifdef PEGASUS_OS_ZOS
     if ( password.size() == 0 )
-    {               
+    {
          Logger::put_l(Logger::STANDARD_LOG, ZOS_SECURITY_NAME, Logger::WARNING,
              MessageLoaderParms(
                  "Security.Authentication.SecureBasicAuthenticator."
@@ -165,11 +165,11 @@ Boolean SecureBasicAuthenticator::authenticate(
      }
 
 #if (__TARGET_LIB__ >= 0x410A0000)
-    if (__passwd_applid((const char*) userName.getCString(), 
+    if (__passwd_applid((const char*) userName.getCString(),
              (const char*) password.getCString(), NULL,
              (const char*) _zosAPPLID.getCString()) == 0)
 #else
-    if (__passwd((const char*) userName.getCString(), 
+    if (__passwd((const char*) userName.getCString(),
              (const char*) password.getCString(), NULL) == 0)
 #endif
     {
@@ -314,7 +314,7 @@ String SecureBasicAuthenticator::getAuthResponseHeader()
 
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 # if (__TARGET_LIB__ < 0x410A0000)
-// This function is only needed if the compile target system 
+// This function is only needed if the compile target system
 // is z/OS R9 or earlier and 32 Bit !
 Boolean SecureBasicAuthenticator::set_ZOS_ApplicationID( void )
 {
@@ -322,10 +322,10 @@ Boolean SecureBasicAuthenticator::set_ZOS_ApplicationID( void )
     Boolean applIDset = false;
 
     char* psa  = 0;
-    char* tcb  = *(char **)(psa  + 0x21C); // pas  + PSATOLD  
-    char* stcb = *(char **)(tcb  + 0x138); // tcb  + TCBSTCB 
-    char* otcb = *(char **)(stcb + 0x0D8); // stcb + STCBOTCB 
-    char* thli = *(char **)(otcb + 0x0BC); // otcb + OTCBTHLI 
+    char* tcb  = *(char **)(psa  + 0x21C); // pas  + PSATOLD
+    char* stcb = *(char **)(tcb  + 0x138); // tcb  + TCBSTCB
+    char* otcb = *(char **)(stcb + 0x0D8); // stcb + STCBOTCB
+    char* thli = *(char **)(otcb + 0x0BC); // otcb + OTCBTHLI
 
     // if I find the BPXYTHILI eye catcher everything went fine.
     if ( memcmp(ZOS_PEGASUS_THLI_EYE_CATCHER,thli,4) != 0 )
@@ -338,12 +338,12 @@ Boolean SecureBasicAuthenticator::set_ZOS_ApplicationID( void )
         applIDset = false;
     } else
     {
-        // The size of applId: BPXYTHLI.THLIAPPLIDLEN 
-        char* thliApplIDLen = (char *)(thli + 0x052);  
-        // The applId: BPXYTHLI.THLIAPPLID  
-        char* thliApplID = (char *)(thli + 0x070);   
+        // The size of applId: BPXYTHLI.THLIAPPLIDLEN
+        char* thliApplIDLen = (char *)(thli + 0x052);
+        // The applId: BPXYTHLI.THLIAPPLID
+        char* thliApplID = (char *)(thli + 0x070);
 
-        // The APPLID definition contains a padding space: + 1 
+        // The APPLID definition contains a padding space: + 1
         memcpy(thliApplID,ZOS_PEGASUS_APPLID,ZOS_PEGASUS_APPLID_LEN+1);
         *thliApplIDLen = ZOS_PEGASUS_APPLID_LEN;
 

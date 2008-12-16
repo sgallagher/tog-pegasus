@@ -83,12 +83,12 @@ public:
 
         @param  outPrintWriter    The stream to which command output is written.
 
-        @param  errPrintWriter    The stream to which command errors are 
+        @param  errPrintWriter    The stream to which command errors are
                                   written.
 
         @param  argc       The int containing the arguments count
 
-        @param  argv       The string array containing the command line 
+        @param  argv       The string array containing the command line
                             arguments
 
         @throws  CommandFormatException  if an error is encountered in parsing
@@ -105,7 +105,7 @@ public:
 
         @param  outPrintWriter    The stream to which command output is written.
 
-        @param  errPrintWriter    The stream to which command errors are 
+        @param  errPrintWriter    The stream to which command errors are
                                   written.
 
         @return  0        if the command is successful
@@ -513,7 +513,7 @@ private:
     */
     Uint32 _findAndModifyState (
         const Uint16 newState,
-        const CIMNamespaceName& subscriptionNamespace, 
+        const CIMNamespaceName& subscriptionNamespace,
         const String& filterName,
         const CIMNamespaceName& filterNamespace,
         const String& handlerName,
@@ -655,7 +655,7 @@ private:
 
         @param  subscriptionNameSpace The subscription namespace
 
-        @param  subPath               The ObjectPath of the subscription to 
+        @param  subPath               The ObjectPath of the subscription to
                                       query
 
         @return the text string equivalent of the subscription state
@@ -711,7 +711,7 @@ private:
 
     /**
         print a verbose listing of Filters
-    
+
         @param  listOutputTable   The array of output strings to print.
                                   It is an array of columns. The first
                                   element in each column is the column
@@ -727,12 +727,12 @@ private:
         const Array <ListColumnEntry>& listOutputTable,
         const Array <String>& queryLangs,
         PEGASUS_STD(ostream)& outPrintWriter);
-    
+
     /**
         print a verbose listing of Handlers
-        
+
         @param  instancesFound    The array of matching handler instances
-    
+
         @param  handlerTypesFound The type of handler found. This is an
                                   enumerated type of the handler
                                   creation class.
@@ -741,7 +741,7 @@ private:
                                   It is an array of columns. The first
                                   element in each column is the column
                                   title.
-    
+
         @param  outPrintWriter    The stream to which command output is
                                   written.
      */
@@ -751,19 +751,19 @@ private:
         const Array<Uint32>& handlerTypesFound,
         const Array <ListColumnEntry>& listOutputTable,
         PEGASUS_STD(ostream)& outPrintWriter);
-    
+
     /**
         get the handler destination and type
-    
+
         @param  handlerInstance    The handler instance to query
-    
+
         @param  creationClassName  Return value of creation class for this
                                    handler
-  
+
         @param  handlerTypesFound  The type of handler found. This is an
                                    enumerated type of the handler
                                    creation class.
-    
+
         @param  destination        Return string value of destination for
                                    this handler
      */
@@ -773,10 +773,10 @@ private:
         String& creationClassName,
         Uint32&  handlerTypeFound,
         String& destination);
-    
+
     /**
         get the query string for a filter
-    
+
         @param filterNamespace The filter namespace
         @param filterPath The filter's object path
         @param queryString The text string equivalent of the query string
@@ -788,25 +788,25 @@ private:
         const CIMObjectPath& filterPath,
         String& queryString,
         String& queryLangString);
-    
+
     /**
         print a verbose listing of subscriptions
-    
+
             @param  handlerInstancesFound The array of matching handler
                                           instances
-    
+
 
             @param  handlerTypesFound     The type of handler found. This is an
                                           enumerated type of the handler
                                           creation class.
-   
+
             @param  querysFound           The array of handler query strings
-    
+
             @param  listOutputTable       The array of output strings to
                                           print. It is an array of columns.
                                           The first element in each column
                                           is the column title.
-    
+
             @param  outPrintWriter        The stream to which command output
                                           is written.
     */
@@ -816,33 +816,33 @@ private:
         const Array<String>& querysFound,
         const Array <ListColumnEntry>& listOutputTable,
         PEGASUS_STD(ostream)& outPrintWriter);
-    
+
     /**
         parse the filter option string
-    
-         @param  filterNameString  The value of the filter commandline 
+
+         @param  filterNameString  The value of the filter commandline
                                    option
-    
+
          @param  filterName        Return value of parsed filter name
-    
+
          @param  filterNameSpace   Return value of parsed filter namespace
     */
     void _parseFilterName(
         const String& filterNameString,
         String& filterName,
         String& filterNamespace);
-    
+
     /**
         parse the handler option string
-    
+
         @param  handlerString          The value of the handler commandline
                                        option
 
         @param  handlerName            Return value of parsed handler name
-    
+
         @param  handlerNameSpace       Return value of parsed handler
                                        namespace
- 
+
         @param  handlerCreadionClass   Return value of parsed handler
                                        creation class
     */
@@ -851,7 +851,7 @@ private:
         String& handlerName,
         String& handlerNamespace,
         String& handlerCreationClass);
-    
+
     /**
         Values for the creation class type
      */

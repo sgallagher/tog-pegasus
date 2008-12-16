@@ -53,7 +53,7 @@ public:
     virtual ~WQLInstancePropertySource() {}
 
     virtual Boolean getValue(
-        const CIMName& propertyName, 
+        const CIMName& propertyName,
         WQLOperand& value) const;
 };
 

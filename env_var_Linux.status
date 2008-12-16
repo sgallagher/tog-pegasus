@@ -141,7 +141,7 @@ PEGASUS_SPECIFIC_DIRECTORIES = \
    /var/lib/Pegasus/cache/localauth \
    /var/lib/Pegasus/cache/trace \
    /var/run/tog-pegasus \
-   /etc/Pegasus 
+   /etc/Pegasus
 
 PEGASUS_DIRECTORIES_TO_BE_REMOVED = \
    $(PEGASUS_DOC_DIR) \

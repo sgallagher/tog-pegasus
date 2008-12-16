@@ -96,4 +96,4 @@ protected:
 
 PEGASUS_NAMESPACE_END
 
-#endif  /* CIMOMSampleProvider_H */ 
+#endif  /* CIMOMSampleProvider_H */

@@ -58,7 +58,7 @@ static struct ConfigPropertyRow properties[] =
 {
     {"repositoryDir", PEGASUS_REPOSITORY_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
 #if defined(PEGASUS_OS_PASE)
-    {"messageDir", "/QOpenSys/QIBM/ProdData/UME/Pegasus/msg", IS_STATIC, 
+    {"messageDir", "/QOpenSys/QIBM/ProdData/UME/Pegasus/msg", IS_STATIC,
         0, 0, IS_VISIBLE},
 #else
     {"messageDir", "msg", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -68,8 +68,8 @@ static struct ConfigPropertyRow properties[] =
 #elif defined(PEGASUS_OS_ZOS)
     {"providerManagerDir", "lib", IS_STATIC, 0, 0, IS_VISIBLE},
 #elif defined(PEGASUS_OS_PASE) && defined(PEGASUS_USE_RELEASE_DIRS)
-    {"providerManagerDir", 
-        "/QOpenSys/QIBM/ProdData/UME/Pegasus/lib", 
+    {"providerManagerDir",
+        "/QOpenSys/QIBM/ProdData/UME/Pegasus/lib",
         IS_STATIC, 0, 0, IS_VISIBLE}
 #elif defined(PEGASUS_OS_VMS)
     {"providerManagerDir", "/wbem_lib", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -136,7 +136,7 @@ void FileSystemPropertyOwner::initialize()
             _messageDir->domainSize = properties[i].domainSize;
             _messageDir->externallyVisible = properties[i].externallyVisible;
         }
-        else if (String::equalNoCase(properties[i].propertyName, 
+        else if (String::equalNoCase(properties[i].propertyName,
                  "providerManagerDir"))
         {
             _providerManagerDir->propertyName = properties[i].propertyName;
@@ -146,7 +146,7 @@ void FileSystemPropertyOwner::initialize()
             _providerManagerDir->dynamic = properties[i].dynamic;
             _providerManagerDir->domain = properties[i].domain;
             _providerManagerDir->domainSize = properties[i].domainSize;
-            _providerManagerDir->externallyVisible = 
+            _providerManagerDir->externallyVisible =
                                            properties[i].externallyVisible;
         }
     }

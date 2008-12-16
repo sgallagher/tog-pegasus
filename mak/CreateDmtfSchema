@@ -5,18 +5,18 @@
 ##
 ## This script was used starting when CIM Schema Version 2.11 was
 ## installed because the new DMTF distribution is different that
-## the file structure used by the Pegasus repository build functions. 
-## It is not intended for general use. It is available here as 
-## further documentation of the CIM Schema install process and for 
+## the file structure used by the Pegasus repository build functions.
+## It is not intended for general use. It is available here as
+## further documentation of the CIM Schema install process and for
 ## future reference when new CIM Schema versions are installed.
 ##
-## This bash shell script file creates "interface" files for the new 
-## DMTF CIM Schema Version 2.11 and later to make them compatible with the 
+## This bash shell script file creates "interface" files for the new
+## DMTF CIM Schema Version 2.11 and later to make them compatible with the
 ## OpenPegasus build enviroment that has been used for previous versions.
-##              
 ##
-## The following files are needed and will each include the appropriate 
-## DMTF files. 
+##
+## The following files are needed and will each include the appropriate
+## DMTF files.
 ## In Schemas/CIMxxx where xxx is the schema directory
 ##      CIM_Schema.mof
 ##      CIM_Event.mof
@@ -86,10 +86,10 @@ function INSERT_LINE {
 
 ## INSERT_EXTRACTED_INCLUDES ()
 ##
-## copy all include lines for this file from $CIMSCHEMAVERSION.mof 
-## changing them to add the DMTF directory. 
+## copy all include lines for this file from $CIMSCHEMAVERSION.mof
+## changing them to add the DMTF directory.
 ##
-## IE: The following line for the CIM_Core.mof file 
+## IE: The following line for the CIM_Core.mof file
 ##
 ##    #pragma include ("Core\CIM_ManagedElement.mof")
 ##
@@ -97,7 +97,7 @@ function INSERT_LINE {
 ##
 ##    #pragma include ("DMTF/Core\CIM_ManagedElement.mof")
 ## Parameters
-##  $1   CIM version number for DMTF schema File to grep 
+##  $1   CIM version number for DMTF schema File to grep
 ##  $2   Output to build w/o extension
 ##
 function INSERT_EXTRACTED_INCLUDES
@@ -110,7 +110,7 @@ function INSERT_EXTRACTED_INCLUDES
     return 0 ;
 }
 
-## CREATE_MOF_FILE 
+## CREATE_MOF_FILE
 ## Creates the new mof file with name and filename
 ## and inserts license and descriptive material
 ## $1 = Name for mof file to create (without extension)
@@ -134,7 +134,7 @@ function CREATE_MOF_FILE {
     echo "//" >> ${FILE}
     echo "//=====================================================" >> ${FILE}
 
-INSERT_BLANK_LINE ${NAME} ;       
+INSERT_BLANK_LINE ${NAME} ;
 }
 
 ## Let user make choice.
@@ -144,7 +144,7 @@ function choice {
     CHOICE=''
     local prompt="$*"
     local answer
-    
+
     read -p "$prompt" answer
     case "$answer" in
         [yY1] ) CHOICE='y';;
@@ -198,10 +198,10 @@ if [ -a $SCHEMA_DIR ]; then
     else
         echo Terminating without changing Directory $SCHEMA_DIR MOF.
         exit 1
-    fi   
+    fi
 fi
 
-mkdir "$SCHEMA_DIR" || { echo Unable to create $SCHEMA_DIR ; exit 4; }   
+mkdir "$SCHEMA_DIR" || { echo Unable to create $SCHEMA_DIR ; exit 4; }
 cd $SCHEMA_DIR
 
 ## Create DMTF directory and unzip the CIM release into this directory
@@ -211,7 +211,7 @@ echo "Source $ZIP_FILE" >DMTFSchemaInfo.txt
 
 ## unzip because DMTF files zipped with pkzip or equivalent
 unzip $ZIP_FILE -d DMTF
- 
+
 ##########################################################################
 ##
 ## Create the mof files

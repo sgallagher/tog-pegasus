@@ -521,7 +521,7 @@ char* snmpDeliverTrap_emanate::_getIPAddress(const CString& hostName)
 
     char hostEntryBuffer[8192];
     struct hostent hostEntryStruct;
-    targetHostInfo = System::getHostByName(hostName, 
+    targetHostInfo = System::getHostByName(hostName,
         &hostEntryStruct, hostEntryBuffer, sizeof (hostEntryBuffer));
 
     if (targetHostInfo == NULL)

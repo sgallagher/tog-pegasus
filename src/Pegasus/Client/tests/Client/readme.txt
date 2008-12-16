@@ -30,16 +30,16 @@
 How to run this test:
 =====================
 
-1.  This test requires that both the root/cimv2 and 
+1.  This test requires that both the root/cimv2 and
     root/SampleProvider namespaces have been populated.
 
     In particular, this test requires the existence
-    of CIM_ManagedElement and CIM_ComputerSystem in root/cimv2.  
+    of CIM_ManagedElement and CIM_ComputerSystem in root/cimv2.
     It also requires that the class and instance definitions
     defined in pegasus/src/Providers/sample/Load/ClientTest.mof
     are loaded into the root/SampleProvider namespace.
 
-    The Makefile in the pegasus directory can be 
+    The Makefile in the pegasus directory can be
     used to populate both namespaces.
 
     To populate the namespaces using cimmofl, use ...

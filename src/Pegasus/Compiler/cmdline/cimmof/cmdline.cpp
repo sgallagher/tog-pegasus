@@ -187,7 +187,7 @@ ostream & help(ostream &os, int progtype)
     help.append( "               [ -n namespace | --namespace namespace ]"
                                 " [ --xml ]\n");
     help.append( "               [ --trace ]");
-#ifdef PEGASUS_OS_PASE 
+#ifdef PEGASUS_OS_PASE
   if(progtype == 1)
       help.append("  [ -q ]");
 #endif
@@ -216,7 +216,7 @@ ostream & help(ostream &os, int progtype)
                                                 " Schema changes\n");
     help.append( "    -aEV                - Allow both Experimental and"
                                                 " Version Schema changes\n");
-#ifdef PEGASUS_OS_PASE 
+#ifdef PEGASUS_OS_PASE
     help.append( "    -q                  - Suppress all messages except"
                                             " command line usage errors\n");
 #endif
@@ -657,7 +657,7 @@ int processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
             case XMLFLAG: cmdlinedata.set_xmloutput();
                 break;
 #endif
-#ifdef PEGASUS_OS_PASE 
+#ifdef PEGASUS_OS_PASE
             // If quiet mode is chosen then shut down stdout and stderr.
             // This is used during product installation and PTF application.
             // We must be absolutely quiet to avoid a terminal being

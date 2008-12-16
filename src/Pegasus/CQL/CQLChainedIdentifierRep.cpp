@@ -65,13 +65,13 @@ CQLChainedIdentifierRep::CQLChainedIdentifierRep(
 }
 
 CQLChainedIdentifierRep::~CQLChainedIdentifierRep(){
-    
+
 }
 
 Array<CQLIdentifier> CQLChainedIdentifierRep::getSubIdentifiers()const
 {
   Array<CQLIdentifier> result;
-  
+
   for (Uint32 i = 0; i < _subIdentifiers.size(); i++)
   {
     result.append(CQLIdentifier(_subIdentifiers[i]));
@@ -94,13 +94,13 @@ CQLIdentifier CQLChainedIdentifierRep::operator[](Uint32 index)const
 
 void CQLChainedIdentifierRep::parse(const String & string)
 {
-    PEG_METHOD_ENTER(TRC_CQL, "CQLChainedIdentifierRep::parse");    
-    /* 
+    PEG_METHOD_ENTER(TRC_CQL, "CQLChainedIdentifierRep::parse");
+    /*
       - parse string on "."
       - start from the end of string
-      - if more than one substring found, 
+      - if more than one substring found,
         -- store first found string then
-        -- prepend remaining substrings 
+        -- prepend remaining substrings
     */
     Char16 delim('.');
     Uint32 index;
@@ -124,7 +124,7 @@ void CQLChainedIdentifierRep::parse(const String & string)
             }
         }
     }
-    PEG_METHOD_EXIT();  
+    PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

@@ -39,7 +39,7 @@ PEGASUS_NAMESPACE_BEGIN
 CQLFunction::CQLFunction()
 {
     _rep = new CQLFunctionRep();
-} 
+}
 
 CQLFunction::CQLFunction(CQLIdentifier inOpType, Array<CQLPredicate> inParms)
 {
@@ -77,7 +77,7 @@ FunctionOpType CQLFunction::getFunctionType()const
 {
     return _rep->getFunctionType();
 }
- 
+
 void CQLFunction::applyContext(const QueryContext& inContext)
 {
     _rep->applyContext(inContext);

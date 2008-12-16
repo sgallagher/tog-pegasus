@@ -170,7 +170,7 @@ int main(int argc, char** argv)
     //
 
     CIMInstance inst("ClassName");
-    inst.addProperty(CIMProperty(CIMName("v"), CIMValue())); 
+    inst.addProperty(CIMProperty(CIMName("v"), CIMValue()));
     inst.addProperty(CIMProperty(CIMName("w"), CIMValue(true)));
     inst.addProperty(CIMProperty(CIMName("x"), CIMValue(10)));
     inst.addProperty(CIMProperty(CIMName("y"), CIMValue(10.10)));
@@ -220,7 +220,7 @@ int main(int argc, char** argv)
                         selectList));
             }
         }
-        
+
         CIMObject projObj = inst.clone();
         statement.applyProjection(projObj, false);  // don't allow missing props
         if (statement.getAllProperties())
@@ -265,7 +265,7 @@ int main(int argc, char** argv)
         catch (Exception& e)
         {
             cerr << "ApplyProjection Exception with empty instance,"
-                " do not allow missing props: " 
+                " do not allow missing props: "
                  << e.getMessage() << endl;
             return(1);
         }
@@ -274,11 +274,11 @@ int main(int argc, char** argv)
         try
         {
             statement.applyProjection(emptyInst, true);  // allow missing props
-        }    
+        }
         catch (Exception& e)
         {
             cerr << "ApplyProjection Exception with empty instance,"
-                    " allow missing props: " 
+                    " allow missing props: "
                  << e.getMessage() << endl;
             return(1);
         }
@@ -296,7 +296,7 @@ int main(int argc, char** argv)
         catch (Exception& e)
         {
             cerr << "ApplyProjection Exception with empty object,"
-                " do not allow missing props: " 
+                " do not allow missing props: "
                  << e.getMessage() << endl;
             return(1);
         }
@@ -309,12 +309,12 @@ int main(int argc, char** argv)
         catch (Exception& e)
         {
             cerr << "ApplyProjection Exception with empty object,"
-                    " allow missing props: " 
+                    " allow missing props: "
                  << e.getMessage() << endl;
             return(1);
         }
     }
-    
+
     //
     // Evaluate the where clause:
     //

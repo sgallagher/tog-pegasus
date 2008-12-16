@@ -40,7 +40,7 @@
 #include <Pegasus/WQL/WQLSelectStatement.h>
 #include "CMPI_Query2Dnf.h"
 #include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Common/Linkage.h> 
+#include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -130,7 +130,7 @@ class CMPI_Wql2Dnf
 public:
     CMPI_Wql2Dnf();
 
-    CMPI_Wql2Dnf(const String &condition, const String &pref); 
+    CMPI_Wql2Dnf(const String &condition, const String &pref);
 
     ~CMPI_Wql2Dnf();
 

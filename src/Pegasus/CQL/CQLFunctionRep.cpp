@@ -55,9 +55,9 @@ CQLFunctionRep::CQLFunctionRep(
     : _funcOpType(UNKNOWN), _parms(inParms)
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::CQLFunctionRep()");
-    
+
     String opType(inOpType.getName().getString());
-    
+
     if (String::compareNoCase(opType,String("DATETIMETOMICROSECOND")) == 0)
     {
         _funcOpType = DATETIMETOMICROSECOND;
@@ -152,7 +152,7 @@ CQLFunctionRep::CQLFunctionRep(
     PEG_METHOD_EXIT();
 }
 
-CQLFunctionRep::CQLFunctionRep(const CQLFunctionRep* rep) 
+CQLFunctionRep::CQLFunctionRep(const CQLFunctionRep* rep)
     : _funcOpType(rep->_funcOpType), _parms(rep->_parms)
 {
 }
@@ -223,7 +223,7 @@ CQLValue CQLFunctionRep::resolveValue(
 String CQLFunctionRep::toString() const
 {
     String returnStr = functionTypeToString();
-    
+
     returnStr.append("(");
     Uint32 parmSize = _parms.size();
     for(Uint32 i = 0; i < parmSize; ++i)
@@ -239,7 +239,7 @@ String CQLFunctionRep::toString() const
 String CQLFunctionRep::functionTypeToString() const
 {
     String returnStr;
-    
+
     switch(_funcOpType)
     {
         case DATETIMETOMICROSECOND:
@@ -320,11 +320,11 @@ FunctionOpType CQLFunctionRep::getFunctionType()const
 {
     return _funcOpType;
 }
- 
+
 void CQLFunctionRep::applyContext(const QueryContext& inContext)
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::applyContext()");
-    
+
     for(Uint32 i = 0; i < _parms.size(); ++i)
     {
         _parms[i].applyContext(inContext);
@@ -360,7 +360,7 @@ CQLValue CQLFunctionRep::dateTimeToMicrosecond(
     const QueryContext& queryCtx) const
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::dateTimeToMicrosecond()");
-    
+
     if (_parms.size() != 1)
     {
         MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_COUNT",
@@ -371,11 +371,11 @@ CQLValue CQLFunctionRep::dateTimeToMicrosecond(
             "1", "1");
         throw CQLRuntimeException(mload);
     }
-    
+
     // resolve the parameter
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
         resolveValue(CI,queryCtx);
-   
+
     if(cqlVal.getValueType() != CQLValue::CIMDateTime_type)
     {
         MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
@@ -391,10 +391,10 @@ CQLValue CQLFunctionRep::dateTimeToMicrosecond(
     if (cqlVal.isNull())
     {
         return CQLValue(CIMValue(CIMTYPE_UINT64, false));
-    }  
+    }
 
     PEG_METHOD_EXIT();
-    return CQLValue(cqlVal.getDateTime().toMicroSeconds()); 
+    return CQLValue(cqlVal.getDateTime().toMicroSeconds());
 }
 
 CQLValue CQLFunctionRep::stringToUint(
@@ -412,7 +412,7 @@ CQLValue CQLFunctionRep::stringToUint(
             "1", "1");
         throw CQLRuntimeException(mload);
     }
-    
+
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
       resolveValue(CI,queryCtx);
 
@@ -452,10 +452,10 @@ CQLValue CQLFunctionRep::stringToSint(
             "1", "1");
         throw CQLRuntimeException(mload);
     }
-    
+
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
         resolveValue(CI,queryCtx);
- 
+
     if(cqlVal.getValueType() != CQLValue::String_type)
     {
         MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_TYPE",
@@ -467,7 +467,7 @@ CQLValue CQLFunctionRep::stringToSint(
             CQLValueRep::valueTypeToString(CQLValue::String_type));
         throw CQLRuntimeException(mload);
     }
-    
+
     if (cqlVal.isNull())
     {
         return CQLValue(CIMValue(CIMTYPE_SINT64, false));
@@ -492,7 +492,7 @@ CQLValue CQLFunctionRep::stringToReal(
             "1", "1");
         throw CQLRuntimeException(mload);
     }
-    
+
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
       resolveValue(CI,queryCtx);
 
@@ -512,7 +512,7 @@ CQLValue CQLFunctionRep::stringToReal(
     {
         return CQLValue(CIMValue(CIMTYPE_REAL64, false));
     }
-        
+
     PEG_METHOD_EXIT();
     return CQLValue(CQLUtilities::stringToReal64(cqlVal.getString()));
 }
@@ -539,7 +539,7 @@ CQLValue CQLFunctionRep::upperCase(
             "1", "1");
         throw CQLRuntimeException(mload);
     }
-    
+
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
       resolveValue(CI,queryCtx);
 
@@ -554,15 +554,15 @@ CQLValue CQLFunctionRep::upperCase(
             CQLValueRep::valueTypeToString(CQLValue::String_type));
         throw CQLRuntimeException(mload);
     }
-    
+
     if (cqlVal.isNull())
     {
         return cqlVal;
     }
-    
+
     String tmpStr = cqlVal.getString();
     tmpStr.toUpper();
-    
+
     PEG_METHOD_EXIT();
     return CQLValue(tmpStr);
 }
@@ -583,11 +583,11 @@ CQLValue CQLFunctionRep::numericToString(
             "1", "1");
         throw CQLRuntimeException(mload);
     }
-    
+
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
         resolveValue(CI,queryCtx);
 
-    CQLValue::CQLValueType valType = cqlVal.getValueType();  
+    CQLValue::CQLValueType valType = cqlVal.getValueType();
 
     if (valType != CQLValue::Sint64_type && valType != CQLValue::Uint64_type
         && valType != CQLValue::Real_type)
@@ -611,12 +611,12 @@ CQLValue CQLFunctionRep::numericToString(
 
     if (valType == CQLValue::Sint64_type)
     {
-        sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", 
+        sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
                 cqlVal.getSint());
     }
     else if (valType == CQLValue::Uint64_type)
     {
-        sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", 
+        sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
                 cqlVal.getUint());
     }
     else
@@ -630,7 +630,7 @@ CQLValue CQLFunctionRep::numericToString(
         // format the exponent
         num = CQLUtilities::formatRealStringExponent(num);
     }
-    
+
     PEG_METHOD_EXIT();
     return CQLValue(num);
 }
@@ -650,10 +650,10 @@ CQLValue CQLFunctionRep::referenceToString(
             "1", "1");
         throw CQLRuntimeException(mload);
     }
-    
+
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
         resolveValue(CI,queryCtx);
-   
+
     CQLValue::CQLValueType valType = cqlVal.getValueType();
 
     if (valType != CQLValue::CIMReference_type &&
@@ -790,7 +790,7 @@ CQLValue CQLFunctionRep::nameSpaceName(
         if (ns.isNull() || String::equal(ns.getString(), String::EMPTY))
             ns = queryCtx.getNamespace();
         PEG_METHOD_EXIT();
-        return CQLValue(ns.getString());    
+        return CQLValue(ns.getString());
     }
 
     // We have a parameter, so resolve it first before we use it.
@@ -831,7 +831,7 @@ CQLValue CQLFunctionRep::nameSpaceName(
     }
 
     // If we have a CIMReference parameter, then we will just get the
-    //  namespace name from the reference and return it.  A refernce is a 
+    //  namespace name from the reference and return it.  A refernce is a
     // CIMObjectPath.  If there is no namespace in the path given, then
     //  an empty string will be returned.
     if (cqlVal.getValueType() == CQLValue::CIMReference_type)
@@ -848,8 +848,8 @@ CQLValue CQLFunctionRep::nameSpaceName(
     //   The CQL spec says to return the namespace of the instance
     //  regardless if it is set or not.  However, with the current
     //  implementation (CQL phase 1 PEP 193) we only operate a query
-    //  engine within a single namespace and so we can assume the default 
-    //  namespace. 
+    //  engine within a single namespace and so we can assume the default
+    //  namespace.
     CIMNamespaceName ns = cqlVal.getObject().getPath().getNameSpace();
     if (ns.isNull() || String::equal(ns.getString(), String::EMPTY))
         ns = queryCtx.getNamespace();
@@ -861,15 +861,15 @@ CQLValue CQLFunctionRep::nameSpaceType(const CIMInstance& CI,
                                        const QueryContext& queryCtx) const
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::nameSpaceType()");
-    // This is currently (as of CQL Phase 1, PEP 193) not supported in 
-    // Pegasus since Pegasus does not yet support WEBM URI references.  
-    // Nothing in the current object path can be used to represent 
+    // This is currently (as of CQL Phase 1, PEP 193) not supported in
+    // Pegasus since Pegasus does not yet support WEBM URI references.
+    // Nothing in the current object path can be used to represent
     // the name space type (i.e. the protocol).
     MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_COUNT",
         "Function $0 is not supported.",
         functionTypeToString());
     throw CQLRuntimeException(mload);
-    
+
     PEGASUS_UNREACHABLE
     (
         int parmSize = _parms.size();
@@ -883,7 +883,7 @@ CQLValue CQLFunctionRep::nameSpaceType(const CIMInstance& CI,
                 "0", "1");
             throw CQLRuntimeException(mload);
         }
-        
+
         PEG_METHOD_EXIT();
         return CQLValue(Uint64(0));
     ) // End PEGASUS_UNREACHABLE
@@ -894,20 +894,20 @@ CQLValue CQLFunctionRep::hostPort(
     const QueryContext& queryCtx) const
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::hostPort()");
-    // Pegasus currently (as of CQL Phase 1, PEP 193) does not 
-    // support WEBM URI references, however the current object 
-    // path does have a host on it which we will return.  Until 
-    // Pegasus supports WBEM URI, it is not guaranteed that this 
+    // Pegasus currently (as of CQL Phase 1, PEP 193) does not
+    // support WEBM URI references, however the current object
+    // path does have a host on it which we will return.  Until
+    // Pegasus supports WBEM URI, it is not guaranteed that this
     // will conform to the format defined in WBEM URI, and therefore
     //  this function is not entirely in accordance with the CQL Specification.
     // In addition, the CQL specification allows for the parameter
-    //  to be left off when the query is executed as a result of 
+    //  to be left off when the query is executed as a result of
     // an ExecuteQuery operation.  However, right now
     //  (as of CQL Phase 1, PEP 193) we are only using this for
     //  Indications, and so we are assuming a "Mode" of operation.
     //   For this function to be completely compliant with the CQL
     // specification, it will eventually need to be "mode" aware.
-    
+
     if (_parms.size() != 1)
     {
         MessageLoaderParms mload("CQL.CQLFunctionRep.INVALID_PARM_COUNT",
@@ -943,8 +943,8 @@ CQLValue CQLFunctionRep::hostPort(
     {
         return CQLValue(CIMValue(CIMTYPE_STRING, false));
     }
-  
-    // If we have a String parameter, then we'll use it to create a 
+
+    // If we have a String parameter, then we'll use it to create a
     // CIMObjectPath in order to verify the format is correct.  We will
     //  then get the host from the object path and return it.  If there
     //  is no host in the path given, then an empty string will be returned.
@@ -955,7 +955,7 @@ CQLValue CQLFunctionRep::hostPort(
         return CQLValue(objPath.getHost());
     }
 
-    // If we have a CIMReference parameter, then we will just get the 
+    // If we have a CIMReference parameter, then we will just get the
     // host name from the reference and return it.  A reference is a
     //  CIMObjectPath.  If there is no host in the path given, then
     //  an empty string will be returned.
@@ -977,9 +977,9 @@ CQLValue CQLFunctionRep::modelPath(
     const QueryContext& queryCtx) const
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::modelPath()");
-    // This method returns the model path portion of an object path. 
+    // This method returns the model path portion of an object path.
     // The model path is the class name and the key bindings (if included)..
-    
+
     Uint32 parmSize = _parms.size();
     if (parmSize != 0 && parmSize != 1)
     {
@@ -992,8 +992,8 @@ CQLValue CQLFunctionRep::modelPath(
         throw CQLRuntimeException(mload);
     }
 
-    // The default behavior for this function will be to retrieve 
-    // the object path from the instance being examined (CI) and 
+    // The default behavior for this function will be to retrieve
+    // the object path from the instance being examined (CI) and
     // then return the model path from that.
     if (parmSize == 0)
     {
@@ -1025,9 +1025,9 @@ CQLValue CQLFunctionRep::modelPath(
     {
         return CQLValue(CIMValue(CIMTYPE_REFERENCE, false));
     }
-  
-    // If we have a String parameter, then we'll use it to create a 
-    // CIMObjectPath in order to verify the format is correct.  
+
+    // If we have a String parameter, then we'll use it to create a
+    // CIMObjectPath in order to verify the format is correct.
     // We will then get model path from the object path and return it.
     if (cqlVal.getValueType() == CQLValue::String_type)
     {
@@ -1036,8 +1036,8 @@ CQLValue CQLFunctionRep::modelPath(
         return buildModelPath(objPath);
     }
 
-    // If we have a CIMReference parameter, then we will get the model 
-    // path from the reference and return it.  A reference is a 
+    // If we have a CIMReference parameter, then we will get the model
+    // path from the reference and return it.  A reference is a
     // CIMObjectPath.
     if (cqlVal.getValueType() == CQLValue::CIMReference_type)
     {
@@ -1045,7 +1045,7 @@ CQLValue CQLFunctionRep::modelPath(
         return buildModelPath(cqlVal.getReference());
     }
 
-    // We have a CIMObject, now we retrieve the path of the obejct 
+    // We have a CIMObject, now we retrieve the path of the obejct
     // and return the model path.
     PEG_METHOD_EXIT();
     return buildModelPath(cqlVal.getObject().getPath());
@@ -1054,15 +1054,15 @@ CQLValue CQLFunctionRep::modelPath(
 CQLValue CQLFunctionRep::buildModelPath(const CIMObjectPath& objPath) const
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::buildModelPath()");
-    // This method will take an existing objet path, pick out the key 
-    // bindings and the class name, and use those parts to build a new 
-    // object path with just those parts in it.  This is used to 
+    // This method will take an existing objet path, pick out the key
+    // bindings and the class name, and use those parts to build a new
+    // object path with just those parts in it.  This is used to
     // represent the model path.
     CIMObjectPath newPath;
     newPath.setClassName(objPath.getClassName());
     newPath.setKeyBindings(objPath.getKeyBindings());
     //printf("ModelPath --> %s\n", (const char *)newPath.toString().
-    // getCString());  
+    // getCString());
     PEG_METHOD_EXIT();
     return CQLValue(newPath.toString());
 }
@@ -1074,7 +1074,7 @@ CQLValue CQLFunctionRep::classPath(
     PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::classPath()");
     // This method returns a class path.  The class path will only have
     //  a namespace and a class name in it.  All other path information
-    //  will be stripped off.  
+    //  will be stripped off.
     Uint32 parmSize = _parms.size();
     if (parmSize != 0 && parmSize != 1)
     {
@@ -1087,9 +1087,9 @@ CQLValue CQLFunctionRep::classPath(
         throw CQLRuntimeException(mload);
     }
 
-    // The default behavior for this function will be to retrieve the 
-    // object path from the instance being examined (CI) and build the 
-    // class path from it.  If the path does not have a namespace, then 
+    // The default behavior for this function will be to retrieve the
+    // object path from the instance being examined (CI) and build the
+    // class path from it.  If the path does not have a namespace, then
     // the default namespace is used.
     if (parmSize == 0)
     {
@@ -1125,11 +1125,11 @@ CQLValue CQLFunctionRep::classPath(
     {
         return CQLValue(CIMValue(CIMTYPE_REFERENCE, false));
     }
-  
-    // If we have a String parameter, then we'll use it to create a 
-    // CIMObjectPath in order to verify the format is correct.  We will 
-    // then build the class path from the object path and return it.  
-    // If the namespace is NOT set in the object path, it will remain 
+
+    // If we have a String parameter, then we'll use it to create a
+    // CIMObjectPath in order to verify the format is correct.  We will
+    // then build the class path from the object path and return it.
+    // If the namespace is NOT set in the object path, it will remain
     // unset in the returned reference.
     if (cqlVal.getValueType() == CQLValue::String_type)
     {
@@ -1138,8 +1138,8 @@ CQLValue CQLFunctionRep::classPath(
         return buildClassPath(objPath, objPath.getNameSpace());
     }
 
-    // If we have a CIMReference parameter, then we will build the class 
-    // path from the reference and return it.  If the namespace is NOT 
+    // If we have a CIMReference parameter, then we will build the class
+    // path from the reference and return it.  If the namespace is NOT
     // set in the object path, it will remain unset in the returned reference.
     if (cqlVal.getValueType() == CQLValue::CIMReference_type)
     {
@@ -1148,7 +1148,7 @@ CQLValue CQLFunctionRep::classPath(
         return buildClassPath(objPath, objPath.getNameSpace());
     }
 
-    // We have a CIMObject, now we retrieve the object path  and 
+    // We have a CIMObject, now we retrieve the object path  and
     // build the class path from it.  If the path does not have a namespace,
     // then the default namespace is used.
     CIMObjectPath objPath = cqlVal.getObject().getPath();
@@ -1166,12 +1166,12 @@ CQLValue CQLFunctionRep::buildClassPath(const CIMObjectPath& objPath,
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::buildClassPath()");
     // This method will take the object path pass in and pick out the host,
-    // the class name and the namespace.  The 2 parts are then combined 
-    // together into a new object path which will be used as the class 
+    // the class name and the namespace.  The 2 parts are then combined
+    // together into a new object path which will be used as the class
     // path and returned.
     CIMObjectPath newPath;
     newPath.setHost(objPath.getHost());
-    newPath.setClassName(objPath.getClassName());  
+    newPath.setClassName(objPath.getClassName());
     newPath.setNameSpace(ns);
     // printf("ClassPath --> %s\n", (const char *)newPath.toString().
     // getCString());
@@ -1186,9 +1186,9 @@ CQLValue CQLFunctionRep::objectPath(
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::objectPath()");
     // This method returns an object path.  The object path will only have a
-    // namespace, a class name, and key bindings if it is a path to an 
+    // namespace, a class name, and key bindings if it is a path to an
     // instance.  All other path information will be stripped off.
-    
+
     Uint32 parmSize = _parms.size();
     if (parmSize != 0 && parmSize != 1)
     {
@@ -1202,8 +1202,8 @@ CQLValue CQLFunctionRep::objectPath(
     }
 
     // The default behavior for this function will be to retrieve the
-    // object path from the instance being examined (CI) and build the 
-    // object path from it.  If the path does not have a namespace, 
+    // object path from the instance being examined (CI) and build the
+    // object path from it.  If the path does not have a namespace,
     // then the default namespace is used.
     if (parmSize == 0)
     {
@@ -1239,11 +1239,11 @@ CQLValue CQLFunctionRep::objectPath(
     {
         return CQLValue(CIMValue(CIMTYPE_REFERENCE, false));
     }
-    
-    // If we have a String parameter, then we'll use it to create a 
-    // CIMObjectPath in order to verify the format is correct.  
-    // We will then build the object path from the object path and return it.  
-    // If the namespace is NOT set in the object path, it will remain 
+
+    // If we have a String parameter, then we'll use it to create a
+    // CIMObjectPath in order to verify the format is correct.
+    // We will then build the object path from the object path and return it.
+    // If the namespace is NOT set in the object path, it will remain
     // unset in the returned reference.
     if (cqlVal.getValueType() == CQLValue::String_type)
     {
@@ -1251,9 +1251,9 @@ CQLValue CQLFunctionRep::objectPath(
         PEG_METHOD_EXIT();
         return buildObjectPath(objPath, objPath.getNameSpace());
     }
-  
-    // If we have a CIMReference parameter, then we will build the object 
-    // path from the reference and return it.  If the namespace is NOT 
+
+    // If we have a CIMReference parameter, then we will build the object
+    // path from the reference and return it.  If the namespace is NOT
     // set in the object path, it will remain unset in the returned reference.
     if (cqlVal.getValueType() == CQLValue::CIMReference_type)
     {
@@ -1262,8 +1262,8 @@ CQLValue CQLFunctionRep::objectPath(
         return buildObjectPath(objPath, objPath.getNameSpace());
     }
 
-    // We have a CIMObject, now we retrieve the object path of the 
-    // obejct and build the object path from it.  If the path does not 
+    // We have a CIMObject, now we retrieve the object path of the
+    // obejct and build the object path from it.  If the path does not
     // have a namespace, then the default namespace is used.
     CIMObjectPath objPath = cqlVal.getObject().getPath();
     CIMNamespaceName ns = objPath.getNameSpace();
@@ -1280,12 +1280,12 @@ CQLValue CQLFunctionRep::buildObjectPath(const CIMObjectPath& objPath,
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::buildObjectPath()");
     // This method will take the object path passed in and pick out the host,
-    // the class name, the namespace, and the key bindings.  The parts are 
-    // then combined together into a new object path which will be used 
+    // the class name, the namespace, and the key bindings.  The parts are
+    // then combined together into a new object path which will be used
     // as the object path and returned.
     CIMObjectPath newPath;
     newPath.setHost(objPath.getHost());
-    newPath.setClassName(objPath.getClassName());  
+    newPath.setClassName(objPath.getClassName());
     newPath.setNameSpace(ns);
     newPath.setKeyBindings(objPath.getKeyBindings());
     PEG_METHOD_EXIT();
@@ -1297,13 +1297,13 @@ CQLValue CQLFunctionRep::instanceToReference(
     const QueryContext& queryCtx) const
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::instanceToReference()");
-    // The parameter to this function MUST be an instance object.  
-    // We will use buildPath on the instance to make the path.  
+    // The parameter to this function MUST be an instance object.
+    // We will use buildPath on the instance to make the path.
     // If there is no namespace on the instance, then the default namespace
-    // will be inserted.  The completed path is then returned.  
-    // Note, this could, and should be a more complete reference 
+    // will be inserted.  The completed path is then returned.
+    // Note, this could, and should be a more complete reference
     // than the other path functions.
-    
+
     Uint32 parmSize = _parms.size();
     if (parmSize != 0 && parmSize != 1)
     {
@@ -1318,8 +1318,8 @@ CQLValue CQLFunctionRep::instanceToReference(
     CIMInstance *inst = NULL;
     Boolean cleanup = false;  // whether or not to delete the memory
     CIMObject obj;
-    
-    // The default behavior is to use the instance being examined 
+
+    // The default behavior is to use the instance being examined
     // as the source instance (CI).
     if (parmSize == 0)
         inst = (CIMInstance *)&CI;
@@ -1347,9 +1347,9 @@ CQLValue CQLFunctionRep::instanceToReference(
         {
             return CQLValue(CIMValue(CIMTYPE_REFERENCE, false));
         }
-    
+
         // REVIEW question.  Inefficient since the CIMobject is copied
-        //  via the return by value, then it is copied again via the 
+        //  via the return by value, then it is copied again via the
         // assignment.  Is there a better way to handle this?
         obj = cqlVal.getObject();
         if (!obj.isInstance())
@@ -1365,7 +1365,7 @@ CQLValue CQLFunctionRep::instanceToReference(
         inst = new CIMInstance(obj);
         cleanup = true;
     }
-  
+
     // Get the class and build the path
     CIMConstClass cls = queryCtx.getClass(inst->getClassName());
     CIMObjectPath objPath = inst->buildPath(cls);
@@ -1373,7 +1373,7 @@ CQLValue CQLFunctionRep::instanceToReference(
 
     if (ns.isNull() || String::equal(ns.getString(), String::EMPTY))
         objPath.setNameSpace(queryCtx.getNamespace());
-    
+
     if (cleanup)
     {
         delete inst;
@@ -1416,9 +1416,9 @@ CQLValue CQLFunctionRep::dateTime(
             "1", "1");
         throw CQLRuntimeException(mload);
     }
-    
+
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
-        resolveValue(CI,queryCtx);  
+        resolveValue(CI,queryCtx);
 
     if(cqlVal.getValueType() != CQLValue::String_type)
     {
@@ -1436,7 +1436,7 @@ CQLValue CQLFunctionRep::dateTime(
     {
         return CQLValue(CIMValue(CIMTYPE_DATETIME, false));
     }
-    
+
     CIMDateTime dt(cqlVal.getString());
     PEG_METHOD_EXIT();
     return(CQLValue(dt));
@@ -1460,7 +1460,7 @@ CQLValue CQLFunctionRep::microsecondToTimestamp(const CIMInstance& CI,
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
       resolveValue(CI,queryCtx);
 
-    CQLValue::CQLValueType valType = cqlVal.getValueType();  
+    CQLValue::CQLValueType valType = cqlVal.getValueType();
     if(valType != CQLValue::Uint64_type &&
         valType != CQLValue::Sint64_type)
     {
@@ -1478,7 +1478,7 @@ CQLValue CQLFunctionRep::microsecondToTimestamp(const CIMInstance& CI,
     {
         return CQLValue(CIMValue(CIMTYPE_UINT64, false));
     }
- 
+
     Uint64 uIntVal = 0;
     if (valType == CQLValue::Sint64_type)
     {
@@ -1498,9 +1498,9 @@ CQLValue CQLFunctionRep::microsecondToTimestamp(const CIMInstance& CI,
     }
     else
         uIntVal = cqlVal.getUint();
-    
+
     PEG_METHOD_EXIT();
-    
+
     return CQLValue(CIMDateTime(uIntVal, false));
 }
 
@@ -1519,11 +1519,11 @@ CQLValue CQLFunctionRep::microsecondToInterval(const CIMInstance& CI,
             "1", "1");
         throw CQLRuntimeException(mload);
     }
-    
+
     CQLValue cqlVal = _parms[0].getSimplePredicate().getLeftExpression().
       resolveValue(CI,queryCtx);
 
-    CQLValue::CQLValueType valType = cqlVal.getValueType();  
+    CQLValue::CQLValueType valType = cqlVal.getValueType();
     if(valType != CQLValue::Uint64_type &&
      valType != CQLValue::Sint64_type)
     {
@@ -1541,9 +1541,9 @@ CQLValue CQLFunctionRep::microsecondToInterval(const CIMInstance& CI,
     {
         return CQLValue(CIMValue(CIMTYPE_UINT64, false));
     }
-    
+
     Uint64 uIntVal = 0;
-    
+
     if (valType == CQLValue::Sint64_type)
     {
         Sint64 intVal = cqlVal.getSint();
@@ -1561,9 +1561,9 @@ CQLValue CQLFunctionRep::microsecondToInterval(const CIMInstance& CI,
     }
     else
         uIntVal = cqlVal.getUint();
-    
+
     PEG_METHOD_EXIT();
-    return CQLValue(CIMDateTime(uIntVal, true));  
+    return CQLValue(CIMDateTime(uIntVal, true));
 }
 
 PEGASUS_NAMESPACE_END

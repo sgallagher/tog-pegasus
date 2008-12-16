@@ -81,7 +81,7 @@ int gettoken(char **buff,char *token)
             tokentype = COMMA;
             break;
         default:
-            while (**buff && !isspace(**buff) && 
+            while (**buff && !isspace(**buff) &&
                 (isalnum(**buff)|| **buff=='_'))
             {
                 *token++ = *(*buff)++;

@@ -36,9 +36,9 @@ PEGASUS_NAMESPACE_BEGIN
 // class constructor
 CIMDefaultClientConnectionManager::CIMDefaultClientConnectionManager()
 {
-    
+
 }
-    
+
 // virtual class destructor has to be implemented by specific implementation
 CIMDefaultClientConnectionManager::~CIMDefaultClientConnectionManager()
 {
@@ -70,7 +70,7 @@ CIMClientRep* CIMDefaultClientConnectionManager::getConnection(
             System::acquireIP((const char *)
                 System::getHostName().getCString(), &af, requestedIP);
     }
-        
+
     requestedPort = strtoul((const char*) port.getCString(), NULL, 0);
 
     CIMClientConnection     *ccc;
@@ -110,13 +110,13 @@ CIMClientRep* CIMDefaultClientConnectionManager::getConnection(
                             ccc->getUser(),
                             ccc->getPass());
                     }
-                }           
+                }
             } else {
                 // in case no fitting connection could be found
                 // a return of NULL shall be returned
                 return 0;
             }
-            // at this stage we found an applicable connection 
+            // at this stage we found an applicable connection
             // and also connected already
             // thus we return the connection handle CIMClientRep
             return returnedConnectionHandle;

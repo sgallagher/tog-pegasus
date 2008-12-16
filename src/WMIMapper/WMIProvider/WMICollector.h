@@ -56,7 +56,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class WMICollector 
+class WMICollector
 {
 public:
     WMICollector(bool bLocal = FALSE);
@@ -75,8 +75,8 @@ public:
         Boolean deepInheritance);
 
     bool getQueryResult(
-        IEnumWbemClassObject **ppInstances, 
-        const String & query, 
+        IEnumWbemClassObject **ppInstances,
+        const String & query,
         const String & queryLanguage);
 
     void setNamespace(const char * sNamespace)
@@ -92,29 +92,29 @@ public:
 
     bool getObject(IWbemClassObject **ppObject, const String & sObjectName);
 
-    bool getCIMInstance(IWbemClassObject *pObject, 
+    bool getCIMInstance(IWbemClassObject *pObject,
         CIMInstance & cimInst,
         Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList = CIMPropertyList(),
-        Boolean getKeyProperties = FALSE);    
+        Boolean getKeyProperties = FALSE);
 
-    bool getCIMObject(IWbemClassObject *pObject, 
+    bool getCIMObject(IWbemClassObject *pObject,
         CIMObject & cimObj,
         Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList = CIMPropertyList(),
-        Boolean getKeyProperties = FALSE);    
+        Boolean getKeyProperties = FALSE);
 
 
-    bool getCIMClass(IWbemClassObject *pObject, 
+    bool getCIMClass(IWbemClassObject *pObject,
         CIMClass & cimClass,
         Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList = CIMPropertyList());    
+        const CIMPropertyList& propertyList = CIMPropertyList());
 
     static String getClassName(IWbemClassObject *pObject);
     String getSuperClass(IWbemClassObject *pClass);
@@ -122,33 +122,33 @@ public:
 
     bool isInstance(IWbemClassObject *pObject);
 
-    bool getObjectProperties(IWbemClassObject * pObject, 
+    bool getObjectProperties(IWbemClassObject * pObject,
         CIMObject & cimObj,
         Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList,
         Boolean bGetKeyProperties = FALSE);
-    
-    static CIMProperty getProperty(IWbemClassObject *pClass, 
-        const CComBSTR & bsName, 
+
+    static CIMProperty getProperty(IWbemClassObject *pClass,
+        const CComBSTR & bsName,
         const CComVariant & vValue, // this will be NULL for class objects
-        CIMTYPE type, 
-        Boolean includeClassOrigin, 
+        CIMTYPE type,
+        Boolean includeClassOrigin,
         Boolean includeQualifiers,
         Boolean bPropagated);
 
-    bool getClassMethods(IWbemClassObject *pObject, 
+    bool getClassMethods(IWbemClassObject *pObject,
         CIMClass & cimClass,
         Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin);
 
-    static CIMMethod getMethod(IWbemClassObject *pClass, 
-        const CComBSTR &bsName, 
+    static CIMMethod getMethod(IWbemClassObject *pClass,
+        const CComBSTR &bsName,
         const CComPtr<IWbemClassObject> &inParameters,
         const CComPtr<IWbemClassObject> &outParameters,
-        Boolean includeClassOrigin, 
+        Boolean includeClassOrigin,
         Boolean includeQualifiers,
         Boolean bPropagated);
 
@@ -157,12 +157,12 @@ public:
     bool isLocalNamespace()
         {return m_bIsLocalNamespace;}
 
-    bool isLocalConnection() 
+    bool isLocalConnection()
         { return m_bLocalConnection; }
 
 private:
     static String getStringProperty(
-        IWbemClassObject *pObject, 
+        IWbemClassObject *pObject,
         const CComBSTR & bsPropertyName);
 
     bool isArrayType(VARTYPE vt)

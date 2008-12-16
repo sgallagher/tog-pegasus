@@ -42,10 +42,10 @@
 /*
     Retrives the options like UNIX getopts command
     opts (in) - option list.
-    n    (in) - Should be initialized to zero when calling this function for 
+    n    (in) - Should be initialized to zero when calling this function for
                 the first time. This value should not be changed elsewhere in
-                the program until getopts function finishes parsing the 
-                arguements. Using this value getopts knows the next argument 
+                the program until getopts function finishes parsing the
+                arguements. Using this value getopts knows the next argument
                 to be parsed.
     optsarg (out) - A pointer to the argument of the option is stored in this.
     argc (in) - number of arguments.

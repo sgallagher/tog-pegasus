@@ -56,7 +56,7 @@
 # define strcasecmp _stricmp
 #endif
 
-/** 
+/**
     This class wraps a CIMOM specific string representation.
 */
 
@@ -70,45 +70,45 @@ class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiString
     friend class CmpiArgs;
     friend class CmpiArrayIdx;
     void *enc;
-    /** 
+    /**
         Constructor - Internal use only
     */
     CmpiString(CMPIString* c);
 
-    /** 
+    /**
         Gets the encapsulated CMPIString.
     */
     CMPIString *getEnc() const;
 
 public:
 
-    /** 
+    /**
         Constructor - Empty string.
     */
     CmpiString();
 
-    /** 
+    /**
         Constructor - char* .
     */
     CmpiString(const char *s);
 
-    /** 
+    /**
         Constructor - Copy constructor.
     */
     CmpiString(const CmpiString& s);
 
-    /** 
+    /**
         charPtr - get pointer to char* representation.
     */
     const char* charPtr() const;
 
-    /** 
+    /**
         charPtr - Case sensitive compare.
     */
     CmpiBoolean equals(const char *str) const;
     CmpiBoolean equals(const CmpiString& str) const;
 
-    /** 
+    /**
         charPtr - Case insensitive compare.
     */
     CmpiBoolean equalsIgnoreCase(const char *str) const;

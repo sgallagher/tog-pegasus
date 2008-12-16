@@ -51,7 +51,7 @@ PEGASUS_NAMESPACE_BEGIN
 #undef PEGASUS_ARRAY_T
 
 //
-// Terminal element methods 
+// Terminal element methods
 //
 
 void term_el::negate()
@@ -62,8 +62,8 @@ void term_el::negate()
 //
 // Evaluation heap element methods
 //
-stack_el eval_el::getFirst() 
-{ 
+stack_el eval_el::getFirst()
+{
    return stack_el(opn1, is_terminal1);
 }
 
@@ -119,14 +119,14 @@ void eval_el::order(void)
 /*
 static bool operator==(const term_el& x, const term_el& y)
 {
-    return x._simplePredicate == y._simplePredicate; 
+    return x._simplePredicate == y._simplePredicate;
 }
 */
 //
 // CQL Compiler methods
 //
-/*    
-Cql2Dnf::Cql2Dnf() 
+/*
+Cql2Dnf::Cql2Dnf()
 {
     eval_heap.reserveCapacity(16);
     terminal_heap.reserveCapacity(16);
@@ -222,7 +222,7 @@ void Cql2Dnf::_buildEvalHeap()
                 break;
             }
 
-            case CQL_EQ: 
+            case CQL_EQ:
             case CQL_NE:
             case CQL_LT:
             case CQL_LE:
@@ -463,7 +463,7 @@ void Cql2Dnf::_strip_ops_operands(CQLPredicate& topLevel)
     PEG_METHOD_ENTER(TRC_CQL, "Cql2Dnf::_strip_ops_operands");
     //
     // depth first search for all operations and operands
-    // extract operations and operands and store in respective arrays 
+    // extract operations and operands and store in respective arrays
     // for later processing
     //
     _destruct(topLevel);
@@ -500,7 +500,7 @@ ExpressionOpType Cql2Dnf::_convertOpType(OperationType op)
         case CQL_LT: return LT;
         case CQL_GE: return GE;
         case CQL_LE: return LE;
-        case CQL_IS_NULL: return IS_NULL; 
+        case CQL_IS_NULL: return IS_NULL;
         case CQL_IS_NOT_NULL: return IS_NOT_NULL;
         case CQL_ISA: return ISA;
         case CQL_LIKE: return LIKE;
@@ -517,9 +517,9 @@ void Cql2Dnf::_destruct(CQLPredicate& _p){
         _operands.append(_sp.getLeftExpression());
         if((_operations[_operations.size()-1] != CQL_IS_NULL)
             && (_operations[_operations.size()-1] != CQL_IS_NOT_NULL))
-        {    
+        {
             _operands.append(_sp.getRightExpression());
-        }    
+        }
     }
     else{
         Array<CQLPredicate> _preds = _p.getPredicates();
@@ -551,15 +551,15 @@ void Cql2Dnf::_construct(){
     PEG_METHOD_ENTER(TRC_CQL, "Cql2Dnf::_construct");
     //
     // Each eval_el on the eval heap contains all the information needed to
-    // make a CQLPredicate.  
+    // make a CQLPredicate.
     // We will build a CQLPredicate for every element in the eval heap.
     // So there is a 1 to 1 correspondence
     // between elements in the eval heap and elements in the CQLPredicate
-    // array used below.  
+    // array used below.
     // The first eval_el on the eval heap will always contain at least one
     // terminal if the operation is a NOT
     // or two terminals if the operation is AND or OR.  We are guaranteed to
-    // build a CQLPredicate from the first position in the eval_heap array. 
+    // build a CQLPredicate from the first position in the eval_heap array.
     //
     // The key to the algorithm is the isterminalX flag.
     // When set to true, we go to the term_heap and get the CQLSimplePredicate.
@@ -577,7 +577,7 @@ void Cql2Dnf::_construct(){
     // top level CQLPredicate (the rebuilt tree)
     //
     // Example:  a=b^(!c=d v e=f)
-    // If the current eval_heap looks like: 
+    // If the current eval_heap looks like:
     //  0,NOT,1,True,-1,True [index = 0]
     //  0,OR,2,True,0,False  [index = 1]
     //  0,AND,1,False,0,True [index = 2]
@@ -655,7 +655,7 @@ void Cql2Dnf::_construct(){
                 case CQL_NE:
                 case CQL_GT:
                 case CQL_LT:
-                case CQL_GE: 
+                case CQL_GE:
                 case CQL_LE:
                 case CQL_ISA:
                 case CQL_LIKE:
@@ -718,7 +718,7 @@ void Cql2Dnf::_construct(){
                 case CQL_IS_NULL:
                 case CQL_IS_NOT_NULL:
                     break;
-                               
+
             }
         }
         else if(!eval.is_terminal1 && eval.is_terminal2)
@@ -858,7 +858,7 @@ CQLPredicate Cql2Dnf::_flattenANDappend(CQLPredicate& topLevel,
     // instead we would:
     // -> get P1s predicates (which should all be simple)
     // -> append its first predicate to P along with the operator passed into
-    // us 
+    // us
     // -> at this point we have P = A AND B OR C
     // -> then go through P1s remaining predicates and append them and P1s
     // operators to P

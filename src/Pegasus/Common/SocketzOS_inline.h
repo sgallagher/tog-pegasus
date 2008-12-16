@@ -76,7 +76,7 @@ MP_Socket::MP_Socket(
 int MP_Socket::ATTLS_zOS_query()
 {
     // ioctl data structure
-    struct TTLS_IOCTL ioc;                     
+    struct TTLS_IOCTL ioc;
     int rcIoctl;
     int errnoIoctl;
     int errno2Ioctl;
@@ -106,18 +106,18 @@ int MP_Socket::ATTLS_zOS_query()
            case(EWOULDBLOCK):
            {
                PEG_TRACE((TRC_SSL, Tracer::LEVEL4,
-                   "Accept pending: %s (error code %d, reason code 0x%08X).", 
+                   "Accept pending: %s (error code %d, reason code 0x%08X).",
                    strerror(errnoIoctl),
                    errnoIoctl,
                    errno2Ioctl));
                PEG_METHOD_EXIT();
                // accept pending
-               return 0; 
+               return 0;
            }
            case(ECONNRESET):
            {
                Logger::put_l(
-                   Logger::STANDARD_LOG, System::CIMSERVER, 
+                   Logger::STANDARD_LOG, System::CIMSERVER,
                    Logger::INFORMATION,
                    MessageLoaderParms(
                        "Pegasus.Common.SocketzOS_inline.CONNECTION_RESET_ERROR",
@@ -231,7 +231,7 @@ int MP_Socket::ATTLS_zOS_query()
         case(TTLS_CONN_HS_INPROGRESS):
         {
             // the SSL handshake has not been finished yet, try late again.
-            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4, 
+            PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL4,
                  "ATTLS reports SSL handshake pending.");
             // accept pending
             return 0;
@@ -239,7 +239,7 @@ int MP_Socket::ATTLS_zOS_query()
         case(TTLS_CONN_SECURE):
         {
             // the connection is secure
-            break; 
+            break;
         }
 
 
@@ -304,7 +304,7 @@ int MP_Socket::LocalSocket_zOS_query()
 // This function is only available in z/OS 1.8 and greater
 #if (__TARGET_LIB__ >= 0x41080000)
 
-    struct __sect_s ioSec;                     
+    struct __sect_s ioSec;
     int rcIoctl;
     int errnoIoctl;
     int errno2Ioctl;
@@ -351,7 +351,7 @@ int MP_Socket::LocalSocket_zOS_query()
         {
             PEG_TRACE((TRC_SSL, Tracer::LEVEL1,
                 "An unexpected error occurs: %s ( errno $d, reason code "
-                    "0x%08X ). ", 
+                    "0x%08X ). ",
                 strerror(errnoIoctl),
                 errnoIoctl,
                 errno2Ioctl));
@@ -371,16 +371,16 @@ int MP_Socket::LocalSocket_zOS_query()
         _authType=AuthenticationInfoRep::AUTH_TYPE_ZOS_LOCAL_DOMIAN_SOCKET;
         memcpy(_username,ioSec.__sectt_userid,ioSec.__sectt_useridlen);
         // null terminated string
-        _username[ioSec.__sectt_useridlen]=0;   
+        _username[ioSec.__sectt_useridlen]=0;
         // the user name is in EBCDIC!
-        __e2a_s(_username);                     
+        __e2a_s(_username);
         PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
             "Local Socket authentication. Resolved task level user ID \'%s\'",
             _username));
         PEG_METHOD_EXIT();
         return 1;
 
-    } 
+    }
 
     // Is client process level security information available ?
     if (ioSec.__sectp_useridlen != 0)
@@ -389,9 +389,9 @@ int MP_Socket::LocalSocket_zOS_query()
         _authType=AuthenticationInfoRep::AUTH_TYPE_ZOS_LOCAL_DOMIAN_SOCKET;
         memcpy(_username,ioSec.__sectp_userid,ioSec.__sectp_useridlen);
         // null terminated string
-        _username[ioSec.__sectp_useridlen]=0;   
+        _username[ioSec.__sectp_useridlen]=0;
         // the user name is in EBCDIC!
-        __e2a_s(_username);                     
+        __e2a_s(_username);
         PEG_TRACE((TRC_SSL, Tracer::LEVEL3,
             "Local Socket authentication. "
                 "Resolved process level user ID \'%s\'",
@@ -399,7 +399,7 @@ int MP_Socket::LocalSocket_zOS_query()
         PEG_METHOD_EXIT();
         return 1;
 
-    } 
+    }
 
     // This should never be reached
     PEG_TRACE_CSTRING(TRC_SSL, Tracer::LEVEL1,

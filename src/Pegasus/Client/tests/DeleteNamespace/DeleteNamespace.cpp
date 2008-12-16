@@ -127,7 +127,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
             if (verboseTest)
                 cout << "Deleting " << testNamespaceName.getString() << endl;
             client.deleteInstance(__NAMESPACE_NAMESPACE, myReference);
-        } 
+        }
         catch (...)
         {
             //Ignore errors we are just trying to cleanup
@@ -157,7 +157,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
             newInstance.addProperty(CIMProperty(CIMName ("name"),
                                                 testNamespaceName.getString()));
             client.createInstance(__NAMESPACE_NAMESPACE, newInstance);
-        } 
+        }
         catch (Exception& e)
         {
             PEGASUS_STD(cerr) << "Exception NameSpace Creation: "
@@ -182,9 +182,9 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
             CIMObjectPath myReference(instanceName);
             if (verboseTest)
                 cout << "getInstance " << testNamespaceName.getString() << endl;
-            CIMInstance namespaceInstance = 
+            CIMInstance namespaceInstance =
                 client.getInstance(__NAMESPACE_NAMESPACE, myReference);
-        } 
+        }
         catch (Exception& e)
         {
             PEGASUS_STD(cerr) << "Exception NameSpace Deletion1: "
@@ -213,7 +213,7 @@ static void TestNamespaceHierarchy1 ( CIMClient& client,
             if (verboseTest)
                 cout << "Deleting " << testNamespaceName.getString() << endl;
             client.deleteInstance(__NAMESPACE_NAMESPACE, myReference);
-        } 
+        }
         catch (Exception& e)
         {
             PEGASUS_STD(cerr) << "Exception NameSpace Deletion 2: "
@@ -245,7 +245,7 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
     namespaces.append(CIMNamespaceName ("test1/test2/test3"));
     namespaces.append(CIMNamespaceName ("test1/test2/test3/test4"));
     namespaces.append(CIMNamespaceName ("test1/test2/test3/test4/test5"));
-    namespaces.append(CIMNamespaceName 
+    namespaces.append(CIMNamespaceName
         ("test1/test2/test3/test4/test5/test6"));
     if (verboseTest)
     {
@@ -264,7 +264,7 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
             if (verboseTest)
                 cout << "Deleting " << namespaces[i].getString() << endl;
             client.deleteInstance(namespaces[i], myReference);
-        } 
+        }
         catch (...)
         {
             //Ignore errors we are just trying to cleanup
@@ -288,7 +288,7 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
                 cout << "Creating " << namespaces[i].getString() << endl;
             }
             client.createInstance(namespaces[i], newInstance);
-        } 
+        }
         catch (Exception& e)
         {
             PEGASUS_STD(cerr) << "Exception NameSpace Creation: "
@@ -315,7 +315,7 @@ static void TestNamespaceHierarchy2 ( CIMClient& client,
             if (verboseTest)
                 cout << "Deleting " << testNamespaceName.getString() << endl;
             client.deleteInstance(namespaces[i], myReference);
-        } 
+        }
         catch (Exception& e)
         {
             PEGASUS_STD(cerr) << "Exception NameSpace Deletion 3: "
@@ -426,7 +426,7 @@ int main(int argc, char** argv)
         // line.
 
         GetOptions(om, argc, argv, pegasusHome);
-    } 
+    }
     catch (Exception& e)
     {
         cerr << argv[0] << ": " << e.getMessage() << endl;
@@ -468,7 +468,7 @@ int main(int argc, char** argv)
         cout << "password = " << password << endl;
     }
 
-    // Set up number of test repetitions.  
+    // Set up number of test repetitions.
     // Will repeat entire test this number of times
     // Default is zero
     // String repeats;
@@ -568,7 +568,7 @@ int main(int argc, char** argv)
                     //
                     const char* pegasusHome = getenv("PEGASUS_HOME");
 
-                    String certpath = 
+                    String certpath =
                         FileSystem::getAbsolutePath(
                              pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
@@ -578,17 +578,17 @@ int main(int argc, char** argv)
                                    pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
 
-                    SSLContext sslcontext(certpath,verifyServerCertificate, 
+                    SSLContext sslcontext(certpath,verifyServerCertificate,
                                           randFile);
 
                     if (om.isTrue("local"))
                     {
                         cout << "Using local SSL connection mechanism " << endl;
                         client.connectLocal();
-                    } 
+                    }
                     else
                     {
-                        cout << "connecting to " << connectionList[i] 
+                        cout << "connecting to " << connectionList[i]
                             << " using SSL" << endl;
                         client.connect(host, portNumber,
                             sslcontext,userName, password);
@@ -596,7 +596,7 @@ int main(int argc, char** argv)
 #else
                     PEGASUS_ASSERT(false);
 #endif
-                } 
+                }
                 else
 
                 {
@@ -604,7 +604,7 @@ int main(int argc, char** argv)
                     {
                         cout << "Using local connection mechanism " << endl;
                         client.connectLocal();
-                    } 
+                    }
                     else
                     {
                         cout << "Connecting to " << connectionList[i] << endl;
@@ -628,7 +628,7 @@ int main(int argc, char** argv)
                 testEnd(elapsedTime.getElapsed());
 
                 client.disconnect();
-            } 
+            }
             catch (Exception& e)
             {
                 PEGASUS_STD(cerr) << "Error: " << e.getMessage() <<
@@ -637,7 +637,7 @@ int main(int argc, char** argv)
             }
         }
     }
-    PEGASUS_STD(cout) << "+++++ "<< argv[0] 
+    PEGASUS_STD(cout) << "+++++ "<< argv[0]
         << " Terminated Normally" << PEGASUS_STD(endl);
     return 0;
 }

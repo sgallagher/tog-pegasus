@@ -1471,7 +1471,7 @@ void CIMMessageSerializer::_serializeCIMInvokeMethodResponseMessage(
     CIMInvokeMethodResponseMessage* message)
 {
     // Use PARAMVALUE element so we can preserve the CIMType information
-    _serializeCIMParamValue(        
+    _serializeCIMParamValue(
         out,
         CIMParamValue(String("ignore"), message->retValue, true));
 

@@ -64,7 +64,7 @@ ProviderIndicationCountTable::~ProviderIndicationCountTable()
 }
 
 void ProviderIndicationCountTable::insertEntry(
-    const CIMInstance& providerInstance) 
+    const CIMInstance& providerInstance)
 {
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "ProviderIndicationCountTable::insertEntry");
@@ -317,7 +317,7 @@ CIMInstance ProviderIndicationCountTable::getProviderIndicationDataInstance(
         }
     }
 
-    String providerKey = _generateKey(providerModuleName, providerName); 
+    String providerKey = _generateKey(providerModuleName, providerName);
 
     _ProviderIndicationCountTableEntry entry;
 
@@ -325,7 +325,7 @@ CIMInstance ProviderIndicationCountTable::getProviderIndicationDataInstance(
 
     if (_table.lookup(providerKey, entry))
     {
-        CIMInstance providerIndDataInstance = 
+        CIMInstance providerIndDataInstance =
             _buildProviderIndDataInstance(entry);
 
         PEG_METHOD_EXIT();

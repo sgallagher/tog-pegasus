@@ -56,40 +56,40 @@ class PEGASUS_CMPI_PROVIDER_LINKAGE CmpiResult : public CmpiObject
     friend class CmpiIndicationMI;
 private:
 
-    /** 
+    /**
         Constructor - Should not be called
     */
     CmpiResult();
 protected:
 
-    /** 
+    /**
         Protected constructor used by MIDrivers to encapsulate CMPIResult.
     */
     CmpiResult(CMPIResult* r);
 
-    /** 
+    /**
         getEnc - Gets the encapsulated CMPIResult.
     */
     CMPIResult *getEnc() const;
 
 public:
 
-    /** 
+    /**
         returnData - Return a CmpiData instance.
     */
     void returnData(const CmpiData& d);
 
-    /** 
+    /**
         returnData - Return a CmpiInstance object.
     */
     void returnData(const CmpiInstance& d);
 
-    /** 
+    /**
         returnData - Return a CmpiObjectPath object.
     */
     void returnData(const CmpiObjectPath& d);
 
-    /** 
+    /**
         returnDone - Indicate all data returned.
     */
     void returnDone();

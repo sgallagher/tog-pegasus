@@ -83,12 +83,12 @@ ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
 
 ##
 ## build images with -l<name> syntax for needed shared libraries
-## DYNAMIC_LIBRARIES is defined appropriately in libraries.mak and Makefile 
+## DYNAMIC_LIBRARIES is defined appropriately in libraries.mak and Makefile
 ## files
 ##
 ## ICU_INSTALL - Specifies the directory path where the ICU lib directory is located.
 ##               This will set runtime library search path for ICU libraries to ${ICU_INSTALL}/lib
-##               
+##
      ifeq ($(OS),zos)
 	$(LINK_WRAPPER) $(CXX) $(PR_FLAGS) $(EXTRA_LINK_FLAGS) -L$(LIB_DIR) $(EXE_OUTPUT) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES) > $(PROGRAM).llst
 	@ $(ZIP) -a -m $(FULL_PROGRAM).llst.zip $(PROGRAM).llst

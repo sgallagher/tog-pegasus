@@ -48,11 +48,11 @@ static CMPIBroker * _broker;
  * Instance MI Cleanup
  * ------------------------------------------------------------------ */
 #ifdef CMPI_VER_100
-CMPIStatus CWS_PlainFileCleanup( CMPIInstanceMI * mi, 
-                 const CMPIContext * ctx, CMPIBoolean term) 
+CMPIStatus CWS_PlainFileCleanup( CMPIInstanceMI * mi,
+                 const CMPIContext * ctx, CMPIBoolean term)
 #else
-CMPIStatus CWS_PlainFileCleanup( CMPIInstanceMI * mi, 
-                 CMPIContext * ctx) 
+CMPIStatus CWS_PlainFileCleanup( CMPIInstanceMI * mi,
+                 CMPIContext * ctx)
 #endif
 {
   CMReturn(CMPI_RC_OK);
@@ -63,15 +63,15 @@ CMPIStatus CWS_PlainFileCleanup( CMPIInstanceMI * mi,
  * ------------------------------------------------------------------ */
 
 #ifdef CMPI_VER_100
-CMPIStatus CWS_PlainFileEnumInstanceNames( CMPIInstanceMI * mi, 
-                       const CMPIContext * ctx, 
-                       const CMPIResult * rslt, 
-                       const CMPIObjectPath * ref) 
+CMPIStatus CWS_PlainFileEnumInstanceNames( CMPIInstanceMI * mi,
+                       const CMPIContext * ctx,
+                       const CMPIResult * rslt,
+                       const CMPIObjectPath * ref)
 #else
-CMPIStatus CWS_PlainFileEnumInstanceNames( CMPIInstanceMI * mi, 
-                       CMPIContext * ctx, 
-                       CMPIResult * rslt, 
-                       CMPIObjectPath * ref) 
+CMPIStatus CWS_PlainFileEnumInstanceNames( CMPIInstanceMI * mi,
+                       CMPIContext * ctx,
+                       CMPIResult * rslt,
+                       CMPIObjectPath * ref)
 #endif
 {
   CMPIObjectPath *op;
@@ -109,17 +109,17 @@ CMPIStatus CWS_PlainFileEnumInstanceNames( CMPIInstanceMI * mi,
 }
 
 #ifdef CMPI_VER_100
-CMPIStatus CWS_PlainFileEnumInstances( CMPIInstanceMI * mi, 
-                       const CMPIContext * ctx, 
-                       const CMPIResult * rslt, 
-                       const CMPIObjectPath * ref, 
-                       const char ** properties) 
+CMPIStatus CWS_PlainFileEnumInstances( CMPIInstanceMI * mi,
+                       const CMPIContext * ctx,
+                       const CMPIResult * rslt,
+                       const CMPIObjectPath * ref,
+                       const char ** properties)
 #else
-CMPIStatus CWS_PlainFileEnumInstances( CMPIInstanceMI * mi, 
-                       CMPIContext * ctx, 
-                       CMPIResult * rslt, 
-                       CMPIObjectPath * ref, 
-                       char ** properties) 
+CMPIStatus CWS_PlainFileEnumInstances( CMPIInstanceMI * mi,
+                       CMPIContext * ctx,
+                       CMPIResult * rslt,
+                       CMPIObjectPath * ref,
+                       char ** properties)
 #endif
 {
   CMPIInstance   *in;
@@ -157,17 +157,17 @@ CMPIStatus CWS_PlainFileEnumInstances( CMPIInstanceMI * mi,
 }
 
 #ifdef CMPI_VER_100
-CMPIStatus CWS_PlainFileGetInstance( CMPIInstanceMI * mi, 
-                     const CMPIContext * ctx, 
-                     const CMPIResult * rslt, 
-                     const CMPIObjectPath * cop, 
-                     const char ** properties) 
+CMPIStatus CWS_PlainFileGetInstance( CMPIInstanceMI * mi,
+                     const CMPIContext * ctx,
+                     const CMPIResult * rslt,
+                     const CMPIObjectPath * cop,
+                     const char ** properties)
 #else
-CMPIStatus CWS_PlainFileGetInstance( CMPIInstanceMI * mi, 
-                     CMPIContext * ctx, 
-                     CMPIResult * rslt, 
-                     CMPIObjectPath * cop, 
-                     char ** properties) 
+CMPIStatus CWS_PlainFileGetInstance( CMPIInstanceMI * mi,
+                     CMPIContext * ctx,
+                     CMPIResult * rslt,
+                     CMPIObjectPath * cop,
+                     char ** properties)
 #endif
 {
   CMPIInstance *in = NULL;
@@ -197,36 +197,36 @@ CMPIStatus CWS_PlainFileGetInstance( CMPIInstanceMI * mi,
 }
 
 #ifdef CMPI_VER_100
-CMPIStatus CWS_PlainFileCreateInstance( CMPIInstanceMI * mi, 
-                    const CMPIContext * ctx, 
-                    const CMPIResult * rslt, 
-                    const CMPIObjectPath * cop, 
-                    const CMPIInstance * ci) 
+CMPIStatus CWS_PlainFileCreateInstance( CMPIInstanceMI * mi,
+                    const CMPIContext * ctx,
+                    const CMPIResult * rslt,
+                    const CMPIObjectPath * cop,
+                    const CMPIInstance * ci)
 #else
-CMPIStatus CWS_PlainFileCreateInstance( CMPIInstanceMI * mi, 
-                    CMPIContext * ctx, 
-                    CMPIResult * rslt, 
-                    CMPIObjectPath * cop, 
-                    CMPIInstance * ci) 
+CMPIStatus CWS_PlainFileCreateInstance( CMPIInstanceMI * mi,
+                    CMPIContext * ctx,
+                    CMPIResult * rslt,
+                    CMPIObjectPath * cop,
+                    CMPIInstance * ci)
 #endif
 {
   CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
 
 #ifdef CMPI_VER_100
-CMPIStatus CWS_PlainFileModifyInstance( CMPIInstanceMI * mi, 
-                     const CMPIContext * ctx, 
-                     const CMPIResult * rslt, 
+CMPIStatus CWS_PlainFileModifyInstance( CMPIInstanceMI * mi,
+                     const CMPIContext * ctx,
+                     const CMPIResult * rslt,
                      const CMPIObjectPath * cop,
-                     const CMPIInstance * ci, 
-                     const char **properties) 
+                     const CMPIInstance * ci,
+                     const char **properties)
 #else
-CMPIStatus CWS_PlainFileSetInstance( CMPIInstanceMI * mi, 
-                     CMPIContext * ctx, 
-                     CMPIResult * rslt, 
+CMPIStatus CWS_PlainFileSetInstance( CMPIInstanceMI * mi,
+                     CMPIContext * ctx,
+                     CMPIResult * rslt,
                      CMPIObjectPath * cop,
-                     CMPIInstance * ci, 
-                     char **properties) 
+                     CMPIInstance * ci,
+                     char **properties)
 #endif
 {
   CMPIStatus st = {CMPI_RC_OK,NULL};
@@ -269,34 +269,34 @@ CMPIStatus CWS_PlainFileSetInstance( CMPIInstanceMI * mi,
   return st;
 }
 #ifdef CMPI_VER_100
-CMPIStatus CWS_PlainFileDeleteInstance( CMPIInstanceMI * mi, 
-                    const CMPIContext * ctx, 
-                    const CMPIResult * rslt, 
-                    const CMPIObjectPath * cop) 
+CMPIStatus CWS_PlainFileDeleteInstance( CMPIInstanceMI * mi,
+                    const CMPIContext * ctx,
+                    const CMPIResult * rslt,
+                    const CMPIObjectPath * cop)
 #else
-CMPIStatus CWS_PlainFileDeleteInstance( CMPIInstanceMI * mi, 
-                    CMPIContext * ctx, 
-                    CMPIResult * rslt, 
-                    CMPIObjectPath * cop) 
+CMPIStatus CWS_PlainFileDeleteInstance( CMPIInstanceMI * mi,
+                    CMPIContext * ctx,
+                    CMPIResult * rslt,
+                    CMPIObjectPath * cop)
 #endif
 {
   CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
 
 #ifdef CMPI_VER_100
-CMPIStatus CWS_PlainFileExecQuery( CMPIInstanceMI * mi, 
-                   const CMPIContext * ctx, 
-                   const CMPIResult * rslt, 
-                   const CMPIObjectPath * cop, 
-                   const char * lang, 
-                   const char * query) 
+CMPIStatus CWS_PlainFileExecQuery( CMPIInstanceMI * mi,
+                   const CMPIContext * ctx,
+                   const CMPIResult * rslt,
+                   const CMPIObjectPath * cop,
+                   const char * lang,
+                   const char * query)
 #else
-CMPIStatus CWS_PlainFileExecQuery( CMPIInstanceMI * mi, 
-                   CMPIContext * ctx, 
-                   CMPIResult * rslt, 
-                   CMPIObjectPath * cop, 
-                   char * lang, 
-                   char * query) 
+CMPIStatus CWS_PlainFileExecQuery( CMPIInstanceMI * mi,
+                   CMPIContext * ctx,
+                   CMPIResult * rslt,
+                   CMPIObjectPath * cop,
+                   char * lang,
+                   char * query)
 #endif
 {
   CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
@@ -322,8 +322,8 @@ CMPIStatus CWS_PlainFileMethodCleanup( CMPIMethodMI * mi,
  * ------------------------------------------------------------------ */
 
 #ifdef CMPI_VER_100
-CMPIStatus CWS_PlainFileInvokeMethod( CMPIMethodMI * mi, 
-                      const CMPIContext * ctx, 
+CMPIStatus CWS_PlainFileInvokeMethod( CMPIMethodMI * mi,
+                      const CMPIContext * ctx,
                       const CMPIResult * rslt,
                       const CMPIObjectPath * cop,
                       const char * method,

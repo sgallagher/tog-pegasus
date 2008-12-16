@@ -133,7 +133,7 @@ public:
         const OperationContext & context,
         const CIMObjectPath & ref,
         ResponseHandler & handler);
-    
+
 protected:
     CIMOMHandle _cimomHandle;
     // save the class objects that we use
@@ -165,7 +165,7 @@ protected:
 private:
 
 void _getInstance(
-    const Array<CIMInstance> & instanceArray,    
+    const Array<CIMInstance> & instanceArray,
     const OperationContext & context,
     const CIMObjectPath & localReference,
     const Boolean includeQualifiers,
@@ -174,7 +174,7 @@ void _getInstance(
     InstanceResponseHandler & handler);
 
 void _enumerateInstances(
-    const Array<CIMInstance> & instanceArray,    
+    const Array<CIMInstance> & instanceArray,
     const OperationContext & context,
     const CIMObjectPath & classReference,
     const Boolean includeQualifiers,
@@ -183,7 +183,7 @@ void _enumerateInstances(
     InstanceResponseHandler & handler);
 
 void _enumerateInstanceNames(
-    const Array<CIMInstance> & instanceArray,    
+    const Array<CIMInstance> & instanceArray,
     const OperationContext & context,
     const CIMObjectPath & classReference,
     ObjectPathResponseHandler & handler);
@@ -229,7 +229,7 @@ void _referenceNames(
     const CIMObjectPath & objectName,
     const CIMName & resultClass,
     const String & role,
-    ObjectPathResponseHandler & handler);    
+    ObjectPathResponseHandler & handler);
 
 void _deleteInstance(
     Array<CIMInstance> & instanceArray,

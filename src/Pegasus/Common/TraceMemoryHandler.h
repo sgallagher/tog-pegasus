@@ -96,7 +96,7 @@ public:
     TraceMemoryHandler();
 
     virtual ~TraceMemoryHandler();
-    
+
 private:
 
     /** The trace area is defined a struct to keep the following information
@@ -116,7 +116,7 @@ private:
     char* _overflowBuffer;
     Uint32 _overflowBufferSize;
     struct traceArea_t *_traceArea;
-    Uint32 _leftBytesInBuffer;   
+    Uint32 _leftBytesInBuffer;
 
     // Members used for serialization
     AtomicInt _inUseCounter;
@@ -126,10 +126,10 @@ private:
     // Members used for statistics only
     AtomicInt _contentionCount;
     Uint32    _numberOfLocksObtained;
-    
+
     // Name of a tracefile, in case we need to flush the buffer to a file
     char* _traceFileName;
-    
+
     /** Request to lock the memory buffer for writing a trace message.
         @return 1        OK, you got the lock
                 0        No lock was obtained, give up!!
@@ -143,15 +143,15 @@ private:
     /** Appends a fixed length message to be buffer
     */
     void _appendSimpleMessage(const char* message, Uint32 msgLen );
-    
+
     /** Appends a marker after the last trace message in the buffer
     */
     void _appendMarker();
-    
-    /** Memory buffer initialization routine       
+
+    /** Memory buffer initialization routine
     */
     void _initializeTraceArea();
-    
+
 };
 
 PEGASUS_NAMESPACE_END

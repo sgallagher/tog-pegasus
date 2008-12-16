@@ -44,7 +44,7 @@ DEPEND_INCLUDES =
 
 DEPEND_DEFINES = -D__IBMCPP__=500
 
-ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
 FLAGS = -g
 else
 FLAGS = -O3 -qstrict -s
@@ -53,7 +53,7 @@ endif
 #FLAGS += -qrtti=dyna -qcpluscmt -qlanglvl=newexcp
 FLAGS += -qldbl128 -qlonglong -qalign=natural -H16 -qrtti=dyna -qcpluscmt -qlanglvl=newexcp -lc128
 
-SYS_LIBS = -ldl 
+SYS_LIBS = -ldl
 
 # SSL support
 ifdef PEGASUS_HAS_SSL

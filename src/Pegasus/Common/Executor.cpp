@@ -320,7 +320,7 @@ public:
         return 0;
 
 # else /* POSIX CASE FOLLOWS */
-        
+
         AutoMutex autoMutex(_mutex);
 
         // Initialize output parameters in case of error.
@@ -345,7 +345,7 @@ public:
                 PEG_METHOD_EXIT();
                 return -1;
             }
-                
+
             // Create "from-agent" pipe:
 
             if (pipe(from) != 0)
@@ -372,7 +372,7 @@ public:
             c_argv[2] = toPipeArg;
             c_argv[3] = fromPipeArg;
             c_argv[4] = userNameCString;
-            c_argv[5] = module; 
+            c_argv[5] = module;
             c_argv[6] = NULL;
 
             // reset the inherit structure
@@ -382,7 +382,7 @@ public:
             inherit.flags=SPAWN_SETJOBNAME;
             memcpy( inherit.jobname,"CFZOOPA ",
                     sizeof(inherit.jobname));
-            
+
             PEG_TRACE((TRC_SERVER, Tracer::LEVEL4,
                 "Starting provider agent: %s %s %s %s %s %s %s",
                 (const char*)agentProgramPath,
@@ -400,7 +400,7 @@ public:
             {
                 PEG_TRACE((TRC_SERVER, Tracer::LEVEL1,
                     "Spawn of provider agent fails:%s "
-                        "( errno %d , reason code %08X )", 
+                        "( errno %d , reason code %08X )",
                     strerror(errno) ,errno,__errno2()));
                 PEG_METHOD_EXIT();
                 return -1;
@@ -419,11 +419,11 @@ public:
             if (pid < 0)
             {
                 PEG_TRACE((TRC_SERVER, Tracer::LEVEL1,
-                     "Fork for provider agent fails: errno = %d",errno)); 
+                     "Fork for provider agent fails: errno = %d",errno));
                 PEG_METHOD_EXIT();
                 return -1;
             }
-                
+
             if (pid == 0)
             {
                 // Child process

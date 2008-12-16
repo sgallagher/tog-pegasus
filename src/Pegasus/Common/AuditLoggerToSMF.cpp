@@ -59,7 +59,7 @@ Boolean _isInternalWriterUsed = true;
 // - Instantiate the smf helper class.
 Audit_zOS_SMF _smf;
 
-// Definition of the CIM operation types for the 
+// Definition of the CIM operation types for the
 // CIM operation SMF record.
 enum _smf_cim_oper_type {
     CLASS_OPERATION=0,
@@ -98,14 +98,14 @@ void AuditLogger::logCurrentConfig(
     // check if SMF is gathering this type of records.
     if (_smf.isRecording(CONFIGURATION) ||
         (! _isInternalWriterUsed) )
-    {   
+    {
         unsigned char * confRecord;
         unsigned char * cursor;
         int cursorOffset;
 
         _smf86_configuration * confSection;
         int nameLen;
-        int valueLen; 
+        int valueLen;
 
         // For all properties write a record.
         for (Uint32 i = 0; i < propertyNames.size(); i++)
@@ -134,12 +134,12 @@ void AuditLogger::logCurrentConfig(
             // Configutation is listed
             confSection->PropChange = 0;
 
-            // The variable values are starting 
+            // The variable values are starting
             // at the end of the subtype section.
             cursor = confRecord + sizeof(_smf86_configuration_record);
             cursorOffset = sizeof(_smf86_configuration);
 
-           // Set the propety name 
+           // Set the propety name
            confSection->NameOf = cursorOffset;
            confSection->NameNo = 1;
            confSection->NameLen = nameLen;
@@ -149,7 +149,7 @@ void AuditLogger::logCurrentConfig(
 
            cursor = cursor + nameLen;
            cursorOffset = cursorOffset + nameLen;
-           
+
            // Set the property value.
            confSection->ValueOf = cursorOffset;
            confSection->ValueNo = 1;
@@ -175,7 +175,7 @@ void AuditLogger::logCurrentRegProvider(
     // check if SMF is gathering this type of records.
     if (_smf.isRecording(CONFIGURATION) ||
         (! _isInternalWriterUsed) )
-    {   
+    {
         unsigned char * provStatRecord;
         unsigned char * cursor;
         int cursorOffset;
@@ -203,7 +203,7 @@ void AuditLogger::logCurrentRegProvider(
 
             // Initialize the header and product section.
             // The length is the total of subtype section + variable parts.
-            _smf.initMyProlog((_smf86_record_prolog *)provStatRecord, 
+            _smf.initMyProlog((_smf86_record_prolog *)provStatRecord,
                 PROVIDER_STATUS,
                 sizeof(_smf86_provider_status) + moduleNameLen );
 
@@ -229,15 +229,15 @@ void AuditLogger::logCurrentRegProvider(
                     Array<Uint16> moduleStatus;
                     // Get the module status
                     theValue.get(moduleStatus);
-                    // reset the smf record field 
+                    // reset the smf record field
                     provStatSection->CurrStatus = 0;
                     for (int j = 0; j < moduleStatus.size();j++)
                     {
-                        // Accumulate the status of the provider 
+                        // Accumulate the status of the provider
                         // by shifting a bit the value of moduleStatus
                         // times to the left to get the right bit set.
-                        provStatSection->CurrStatus = 
-                            provStatSection->CurrStatus + 
+                        provStatSection->CurrStatus =
+                            provStatSection->CurrStatus +
                             ( 1 << moduleStatus[j] );
                     }
 
@@ -248,7 +248,7 @@ void AuditLogger::logCurrentRegProvider(
             provStatSection->IsChanging=0;
             provStatSection->NewStatus=0;
 
-            // The variable values are starting 
+            // The variable values are starting
             // at the end of the subtype section.
             cursor = provStatRecord + sizeof(_smf86_provider_status_record);
             cursorOffset = sizeof(_smf86_provider_status);
@@ -298,7 +298,7 @@ void AuditLogger::logSetConfigProperty(
 
         // allocate the full record.
         confRecord = (unsigned char *) calloc(1,
-                          sizeof(_smf86_configuration_record) 
+                          sizeof(_smf86_configuration_record)
                           + nameLen + valueLen + newValueLen );
 
         // Initialize the header and product section.
@@ -321,7 +321,7 @@ void AuditLogger::logSetConfigProperty(
         {
             // It is a planed configuration change.
             confSection->PropChange = 2;
-        } 
+        }
         else
         {
             // It is a current configuration change.
@@ -329,12 +329,12 @@ void AuditLogger::logSetConfigProperty(
         }
 
 
-        // The variable values are starting 
+        // The variable values are starting
         // at the end of the subtype section.
         cursor = confRecord + sizeof(_smf86_configuration_record);
         cursorOffset = sizeof(_smf86_configuration);
 
-        // set the propety name 
+        // set the propety name
         confSection->NameOf = cursorOffset;
         confSection->NameNo = 1;
         confSection->NameLen = nameLen;
@@ -381,7 +381,7 @@ void AuditLogger::logUpdateClassOperation(
     // check if SMF is gathering this type of records.
     if (_smf.isRecording(CIM_OPERATION) ||
         (! _isInternalWriterUsed) )
-    {   
+    {
         _writeCIMOperationRecord(
             CLASS_OPERATION, userName, statusCode,
             ipAddr, cimMethodName, className.getString(),
@@ -401,7 +401,7 @@ void AuditLogger::logUpdateQualifierOperation(
     // check if SMF is gathering this type of records.
     if (_smf.isRecording(CIM_OPERATION) ||
         (! _isInternalWriterUsed) )
-    {   
+    {
         _writeCIMOperationRecord(
             QUALIFER_OPERATION, userName, statusCode,
             ipAddr, cimMethodName, className.getString(),
@@ -423,8 +423,8 @@ void AuditLogger::logUpdateInstanceOperation(
     // check if SMF is gathering this type of records.
     if (_smf.isRecording(CIM_OPERATION) ||
         (! _isInternalWriterUsed) )
-    {   
-        String cimInstanceName = 
+    {
+        String cimInstanceName =
             CIMObjectPath("", CIMNamespaceName(), instanceName.getClassName(),
             instanceName.getKeyBindings()).toString();
 
@@ -448,8 +448,8 @@ void AuditLogger::logInvokeMethodOperation(
     // check if SMF is gathering this type of records.
     if (_smf.isRecording(CIM_OPERATION) ||
         (! _isInternalWriterUsed) )
-    {   
-        String cimObjectName = 
+    {
+        String cimObjectName =
             CIMObjectPath("", CIMNamespaceName(), objectName.getClassName(),
             objectName.getKeyBindings()).toString();
 
@@ -468,7 +468,7 @@ void AuditLogger::logUpdateProvModuleStatus(
         // check if SMF is gathering this type of records.
     if (_smf.isRecording(CONFIGURATION) ||
         (! _isInternalWriterUsed) )
-    {   
+    {
         unsigned char * provStatRecord;
         unsigned char * cursor;
         int cursorOffset;
@@ -486,7 +486,7 @@ void AuditLogger::logUpdateProvModuleStatus(
 
         // Initialize the header and product section.
         // The length is the total of subtype section + variable parts.
-        _smf.initMyProlog((_smf86_record_prolog *)provStatRecord, 
+        _smf.initMyProlog((_smf86_record_prolog *)provStatRecord,
             PROVIDER_STATUS,
             sizeof(_smf86_provider_status) + moduleNameLen );
 
@@ -500,14 +500,14 @@ void AuditLogger::logUpdateProvModuleStatus(
         {
             for (int j = 0; j < currentModuleStatus.size();j++)
             {
-                // Accumulate the status of the provider 
+                // Accumulate the status of the provider
                 // by shifting a bit the value of moduleStatus
                 // times to the left to get the right bit set.
-                provStatSection->CurrStatus = 
-                    provStatSection->CurrStatus + 
+                provStatSection->CurrStatus =
+                    provStatSection->CurrStatus +
                     ( 1 << currentModuleStatus[j] );
             }
-            
+
         }
 
         // The provider does change.
@@ -517,18 +517,18 @@ void AuditLogger::logUpdateProvModuleStatus(
 
         if (newModuleStatus.size() > 0)
         {
-            // Accumulate the new status of the provider 
+            // Accumulate the new status of the provider
             // by shifting a bit the value of moduleStatus
             // times to the left to get the right bit set.
             for (int j = 0; j < newModuleStatus.size();j++)
             {
-                provStatSection->NewStatus = 
+                provStatSection->NewStatus =
                     provStatSection->NewStatus + ( 1 << newModuleStatus[j] );
             }
 
         }
 
-        // The variable values are starting 
+        // The variable values are starting
         // at the end of the subtype section.
         cursor = provStatRecord + sizeof(_smf86_provider_status_record);
         cursorOffset =  sizeof(_smf86_provider_status);
@@ -550,11 +550,11 @@ void AuditLogger::logUpdateProvModuleStatus(
 void AuditLogger::logLocalAuthentication(
     const String& userName,
     Boolean successful)
-{         
+{
     // check if SMF is gathering this type of records.
     if (_smf.isRecording(AUTHENTICATION) ||
         (! _isInternalWriterUsed) )
-    {   
+    {
         _writeAuthenticationRecord(LOCAL,userName,successful,
             "localhost");
     }
@@ -568,7 +568,7 @@ void AuditLogger::logBasicAuthentication(
     // check if SMF is gathering this type of records.
     if (_smf.isRecording(AUTHENTICATION) ||
         (! _isInternalWriterUsed) )
-    {   
+    {
         _writeAuthenticationRecord(BASIC,userName,successful,
             ipAddr);
     }
@@ -596,7 +596,7 @@ void AuditLogger::logCertificateBasedUserValidation(
     // check if SMF is gathering this type of records.
     if (_smf.isRecording(AUTHENTICATION) ||
         (! _isInternalWriterUsed) )
-    {   
+    {
         _writeAuthenticationRecord(ATTLS,userName,successful,
             ipAddr);
     }
@@ -610,7 +610,7 @@ void AuditLogger::setEnabled(Boolean enable)
     {
         if (!_auditLogFlag)
         {
-            Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, 
+            Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
                 Logger::INFORMATION,
                 MessageLoaderParms(
                     "Common.AuditLogger.ENABLE_AUDIT_LOG",
@@ -627,7 +627,7 @@ void AuditLogger::setEnabled(Boolean enable)
     {
         if (_auditLogFlag)
         {
-            Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER, 
+            Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
                 Logger::INFORMATION,
                 MessageLoaderParms(
                     "Common.AuditLogger.DISABLE_AUDIT_LOG",
@@ -682,18 +682,18 @@ inline void AuditLogger::_writeCIMOperationRecord(
     // Allocate the full record.
     cimOperRecord = (unsigned char *) calloc(1,
         sizeof(_smf86_cim_operation_record)+
-        operNameLen + objPathLen + nameSpaceLen + 
+        operNameLen + objPathLen + nameSpaceLen +
         provNameLen + provModNameLen );
 
     // Initialize the header and product section.
     // The length is the total of subtype section + variable parts.
-    _smf.initMyProlog((_smf86_record_prolog *)cimOperRecord, 
+    _smf.initMyProlog((_smf86_record_prolog *)cimOperRecord,
         CIM_OPERATION, sizeof(_smf86_cim_operation)+
-        operNameLen + objPathLen + nameSpaceLen + 
+        operNameLen + objPathLen + nameSpaceLen +
         provNameLen + provModNameLen );
 
     // Set the pointer to the subtype section.
-    cimOperSection = (_smf86_cim_operation *) 
+    cimOperSection = (_smf86_cim_operation *)
         (cimOperRecord + sizeof(_smf86_record_prolog));
 
     // Set cim operation type.
@@ -712,12 +712,12 @@ inline void AuditLogger::_writeCIMOperationRecord(
                               (const char*)clientIP.getCString(),
                               sizeof(cimOperSection->ClientIP),false);
 
-    
+
     // The operation name starts from the end of the static record information.
     cursor = cimOperRecord + sizeof(_smf86_cim_operation_record);
     cursorOffset = sizeof(_smf86_cim_operation);
 
-    // Set operation name 
+    // Set operation name
     if (operNameLen > 0 )
     {
         cimOperSection->OperNameOf = cursorOffset;
@@ -727,14 +727,14 @@ inline void AuditLogger::_writeCIMOperationRecord(
                                   operNameLen,true);
         cursor = cursor + operNameLen;
         cursorOffset = cursorOffset + operNameLen;
-    } 
+    }
     else
     {
         cimOperSection->OperNameOf = 0;
         cimOperSection->OperNameLen = 0;
         cimOperSection->OperNameNo = 0;
     }
-    
+
     // Set object path
     if (objPathLen > 0 )
     {
@@ -806,7 +806,7 @@ inline void AuditLogger::_writeCIMOperationRecord(
         cimOperSection->ProvModNameLen = 0;
         cimOperSection->ProvModNameNo = 0;
     }
-    
+
     _writeAuditMessage(CIM_OPERATION,(char *)cimOperRecord);
     free(cimOperRecord);
 
@@ -828,7 +828,7 @@ inline void AuditLogger::_writeAuthenticationRecord(
 
     // Initialize the header and product section.
     // The length is the total of subtype section + variable parts.
-    _smf.initMyProlog((_smf86_record_prolog *)authenticationRecord, 
+    _smf.initMyProlog((_smf86_record_prolog *)authenticationRecord,
         AUTHENTICATION, sizeof(_smf86_authentication));
 
     // Set the pointer to the subtype section.

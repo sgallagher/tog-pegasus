@@ -83,8 +83,8 @@ public:
     // On z/OS Unix Local Domain Sockets and sockets
     // protected by AT-TLS are able to get the user ID of
     // the connected user.
-    // This information is needed for later authentication 
-    //  steps.
+    // This information is needed for later authentication
+    // steps.
 
     String getConnectionUser() const
     {
@@ -118,7 +118,7 @@ public:
 
     Boolean isConnectionAuthenticated() const
     {
-        return _connectionAuthenticated; 
+        return _connectionAuthenticated;
     }
 
     String getAuthType() const

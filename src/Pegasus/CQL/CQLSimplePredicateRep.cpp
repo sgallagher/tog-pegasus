@@ -52,7 +52,7 @@ CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLExpression& inExpression)
     _operator = NOOP;
 }
 
-CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLExpression& inExpression, 
+CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLExpression& inExpression,
                          ExpressionOpType inOperator)
 {
     _leftSide = inExpression;
@@ -61,7 +61,7 @@ CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLExpression& inExpression,
 }
 
 CQLSimplePredicateRep::CQLSimplePredicateRep(
-                         const CQLExpression& leftSideExpression, 
+                         const CQLExpression& leftSideExpression,
                          const CQLExpression& rightSideExpression,
                          ExpressionOpType inOperator)
 {
@@ -84,18 +84,18 @@ Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
     PEG_METHOD_ENTER(TRC_CQL, "CQLSimplePredicateRep::evaluate");
     // Resolve the value of the left side
     CQLValue leftVal = _leftSide.resolveValue(CI, QueryCtx);
-    
+
     // If there isn't a right side then operator must by IS_NULL
     // or IS_NOT_NULL
     if (isSimple())
     {
         PEGASUS_ASSERT(_operator == IS_NULL || _operator == IS_NOT_NULL);
-        
+
         return (_operator == IS_NULL) ? leftVal.isNull() : !leftVal.isNull();
     }
 
     PEGASUS_ASSERT(_operator != IS_NULL && _operator != IS_NOT_NULL);
-    
+
     if (_operator == ISA)
     {
         // Special processing for ISA.  The CQLValue on the right side of ISA
@@ -112,7 +112,7 @@ Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
                 _rightSide.toString());
             throw CQLRuntimeException(parms);
         }
-        
+
         CQLValue isaRightVal =
              _rightSide.getTerms()[0].getFactors()[0].getValue();
 
@@ -136,8 +136,8 @@ Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
             _rightSide.toString());
         throw CQLRuntimeException(parms);
     }
-    
-    CQLValue likeRightVal = 
+
+    CQLValue likeRightVal =
         _rightSide.getTerms()[0].getFactors()[0].getValue();
     if (!likeRightVal.isResolved())
     {
@@ -148,40 +148,40 @@ Boolean CQLSimplePredicateRep::evaluate(CIMInstance CI, QueryContext& QueryCtx)
             _rightSide.toString());
         throw CQLRuntimeException(parms);
     }
-    
+
     return leftVal.like(likeRightVal);
     }
 
     // No special processing needed.
     // Resolve the value of the right side
     CQLValue rightVal = _rightSide.resolveValue(CI, QueryCtx);
-    
+
     switch(_operator)
     {
         case LT:
             return leftVal < rightVal;
             break;
-        
+
         case GT:
             return leftVal > rightVal;
             break;
-        
+
         case LE:
             return leftVal <= rightVal;
             break;
-        
+
         case GE:
             return leftVal >= rightVal;
             break;
-        
+
         case EQ:
             return leftVal == rightVal;
             break;
-        
+
         case NE:
             return leftVal != rightVal;
             break;
-        
+
         case LIKE:
         case ISA:
             // Never get here due to special processing above.
@@ -215,27 +215,27 @@ void CQLSimplePredicateRep::applyContext(const QueryContext& queryContext)
 {
     PEG_METHOD_ENTER(TRC_CQL, "CQLSimplePredicateRep::applyContext");
     CQLIdentifier _id;
-    
+
     _id = _leftSide.getTerms()[0].getFactors()[0].
                   getValue().getChainedIdentifier().getLastIdentifier();
-    
+
     if(_leftSide.isSimpleValue() &&
         _id.isSymbolicConstant() &&
         _id.getName().getString().size() == 0)
     {
         // We have a standalone symbolic constant.
-        if(!isSimple() && 
+        if(!isSimple() &&
          _rightSide.isSimpleValue() &&
          _rightSide.getTerms()[0].getFactors()[0].
                 getValue().getChainedIdentifier().getLastIdentifier().
                 getName().getString().size() > 0)
         {
              _rightSide.applyContext(queryContext);
-    
+
              // We need to add context to the symbolic constant
              _leftSide.applyContext(queryContext,
                                     _rightSide.getTerms()[0].getFactors()[0].
-                                    getValue().getChainedIdentifier()); 
+                                    getValue().getChainedIdentifier());
         }
         else
         {
@@ -263,7 +263,7 @@ void CQLSimplePredicateRep::applyContext(const QueryContext& queryContext)
             _id.getName().getString().size() == 0)
         {
             // We have a standalone symbolic constant.
-            if(!isSimple() && 
+            if(!isSimple() &&
                 _leftSide.isSimpleValue() &&
                 _leftSide.getTerms()[0].getFactors()[0].
                     getValue().getChainedIdentifier().getLastIdentifier().
@@ -289,7 +289,7 @@ void CQLSimplePredicateRep::applyContext(const QueryContext& queryContext)
 
         else
         {
-            // Right side is not simple OR it is a not a standalone 
+            // Right side is not simple OR it is a not a standalone
             // symbolic constant
             if (_operator != ISA)
             {
@@ -310,13 +310,13 @@ void CQLSimplePredicateRep::applyContext(const QueryContext& queryContext)
                       _rightSide.toString());
                     throw CQLSyntaxErrorException(parms);
                 }
-                
+
                 // Add the right side identifier to the list of WHERE
                 // identifiers in the QueryContext
                 QueryChainedIdentifier isaId = _rightSide.getTerms()[0].
                     getFactors()[0].
                     getValue().getChainedIdentifier();
-                
+
                     queryContext.
                         addWhereIdentifier(isaId);
             }
@@ -386,9 +386,9 @@ Boolean CQLSimplePredicateRep::isSimple()const{
 Boolean CQLSimplePredicateRep::isSimpleValue()const{
     return _leftSide.isSimpleValue();
 }
- 
+
 void CQLSimplePredicateRep::setOperation(ExpressionOpType op){
     _operator = op;
-} 
+}
 
 PEGASUS_NAMESPACE_END

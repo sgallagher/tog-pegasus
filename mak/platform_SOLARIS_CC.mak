@@ -55,7 +55,7 @@ LIB_SUFFIX = .so
 
 PEGASUS_SUPPORTS_DYNLIB = yes
 
-SYS_INCLUDES = 
+SYS_INCLUDES =
 
 ##==============================================================================
 ##
@@ -63,7 +63,7 @@ SYS_INCLUDES =
 ##
 ##==============================================================================
 
-DEFINES += -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) 
+DEFINES += -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 DEFINES += -D_POSIX_PTHREAD_SEMANTICS
 DEFINES += -DPEGASUS_OS_SOLARIS
 
@@ -73,7 +73,7 @@ DEFINES += -DPEGASUS_OS_SOLARIS
 ##
 ##==============================================================================
 
-ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
   FLAGS = -g -xs
 else
   FLAGS = -O2 -s

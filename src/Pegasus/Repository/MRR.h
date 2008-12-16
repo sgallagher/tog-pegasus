@@ -39,7 +39,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// Installs the initialize callback that is called when the repository is 
+// Installs the initialize callback that is called when the repository is
 // initially created (from the MemoryResidentRepository constructor).
 PEGASUS_REPOSITORY_LINKAGE void MRRInstallInitializeCallback(
     void (*callback)(class CIMRepository* repository, void * data),

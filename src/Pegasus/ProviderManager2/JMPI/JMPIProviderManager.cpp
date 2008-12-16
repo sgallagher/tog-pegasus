@@ -692,15 +692,17 @@ void JMPIProviderManager::unloadIdleProviders()
 
 static jobjectArray getList(JvmVector *jv, JNIEnv *env, CIMPropertyList &list)
 {
-    Uint32 s=list.size();
-    jobjectArray pl=NULL;
-    if (s) {
-       jstring initial=env->NewString(NULL,0);
-       pl=(jobjectArray)env->NewObjectArray(s,jv->StringClassRef,initial);
-       for (Uint32 i=0; i<s; i++) {
-           env->SetObjectArrayElement
-              (pl,i,env->NewStringUTF(list[i].getString().getCString()));
-       }
+    jobjectArray pl= NULL;
+    if (!list.isNull())
+    {
+        Uint32 s=list.size();
+        jstring initial=env->NewString(NULL,0);
+        pl=(jobjectArray)env->NewObjectArray(s,jv->StringClassRef,initial);
+        for (Uint32 i=0; i<s; i++)
+        {
+            env->SetObjectArrayElement
+                (pl,i,env->NewStringUTF(list[i].getString().getCString()));
+        }
     }
     return pl;
 }

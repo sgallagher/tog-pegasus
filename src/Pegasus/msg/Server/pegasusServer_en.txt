@@ -4581,6 +4581,13 @@ CIM server listening on HTTPS port {0}."}
         */
         Server.cimserver_zOSinline.NOCONTROL_CIMSERV_ACCESS:string {"PGS12513E: The CIM Server Userid requires CONTROL access to Security Profile CIMSERV in CLASS WBEM. Stopping CIMServer startup."}
 
+        /**
+        * @note PGS12518E:
+        *    Do not translate 'BPX.POE', 'CLASS FACILITY' since they are RACF names
+        *    Do not translate 'READ' since it is the name of a specific access right
+        */
+        Server.cimserver_zOSinline.NOREAD_POE_ACCESS:string {"PGS12518E: The CIM Server Userid requires READ access to Security Profile BPX.POE in CLASS FACILITY. Stopping CIMServer startup."}
+
         // Provider authorization error messages
 
         /**

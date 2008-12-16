@@ -107,6 +107,7 @@ private:
 
     ProviderRegistrationManager* _providerRegistrationManager;
 
+    static Boolean _allProvidersStopped;
     static Uint32 _indicationServiceQueueId;
 
     /**

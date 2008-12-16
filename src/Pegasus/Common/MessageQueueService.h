@@ -81,7 +81,7 @@ public:
     Boolean update_service(Uint32 capabilities, Uint32 mask);
     Boolean deregister_service();
 
-    Uint32 find_service_qid(const String &name);
+    Uint32 find_service_qid(const char* name);
     static AsyncOpNode* get_op();
     void return_op(AsyncOpNode* op);
 

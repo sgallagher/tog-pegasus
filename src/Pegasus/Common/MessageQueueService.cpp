@@ -721,9 +721,9 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest* request)
     return rpl;
 }
 
-Uint32 MessageQueueService::find_service_qid(const String &name)
+Uint32 MessageQueueService::find_service_qid(const char* name)
 {
-    MessageQueue* queue = MessageQueue::lookup((const char*)name.getCString());
+    MessageQueue* queue = MessageQueue::lookup(name);
     PEGASUS_ASSERT(queue);
     return queue->getQueueId();
 }

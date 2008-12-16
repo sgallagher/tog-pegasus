@@ -59,6 +59,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 ProviderManagerService* ProviderManagerService::providerManagerService=NULL;
+Boolean ProviderManagerService::_allProvidersStopped = false;
 Uint32 ProviderManagerService::_indicationServiceQueueId = PEG_NOT_FOUND;
 
 ProviderManagerService::ProviderManagerService(
@@ -598,6 +599,11 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
 
             response = _oopProviderManagerRouter->processMessage(request);
         }
+
+        if (request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE)
+        {
+            _allProvidersStopped = true;
+        }
     }
     else
     {
@@ -1011,92 +1017,100 @@ void ProviderManagerService::providerModuleFailureCallback
             userName,
             QueueIdStack ());
 
-    //
-    //  Send Notify Provider Fail request message to Indication Service
-    //
-    if (_indicationServiceQueueId == PEG_NOT_FOUND)
-    {
-        _indicationServiceQueueId = providerManagerService->find_service_qid(
-            PEGASUS_QUEUENAME_INDICATIONSERVICE);
-    }
-
-    request->queueIds = QueueIdStack
-        (_indicationServiceQueueId, providerManagerService->getQueueId ());
-
-    AsyncLegacyOperationStart asyncRequest(
-        0,
-        _indicationServiceQueueId,
-        request);
-
-    AutoPtr <AsyncReply> asyncReply
-        (providerManagerService->SendWait (&asyncRequest));
-
-    AutoPtr <CIMNotifyProviderFailResponseMessage> response
-        (reinterpret_cast <CIMNotifyProviderFailResponseMessage *>
-            ((dynamic_cast <AsyncLegacyOperationResult *>
-            (asyncReply.get ()))->get_result ()));
-
-    if (response->cimException.getCode () != CIM_ERR_SUCCESS)
-    {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "Unexpected exception in providerModuleFailureCallback: %s",
-            (const char*)response->cimException.getMessage().getCString()));
-    }
-    else
+    if (!_allProvidersStopped)
     {
         //
-        //  Successful response
-        //  Examine result to see if any subscriptions were affected
+        // Send Notify Provider Fail request message to Indication Service.
+        // (After a CIMStopAllProvidersRequestMessage is processed, the
+        // IndicationService may be destructed, so it cannot be used then.)
         //
-        if (response->numSubscriptionsAffected > 0)
+
+        if (_indicationServiceQueueId == PEG_NOT_FOUND)
+        {
+            _indicationServiceQueueId =
+                providerManagerService->find_service_qid(
+                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+        }
+
+        request->queueIds = QueueIdStack(
+            _indicationServiceQueueId, providerManagerService->getQueueId());
+
+        AsyncLegacyOperationStart asyncRequest(
+            0,
+            _indicationServiceQueueId,
+            request);
+
+        AutoPtr <AsyncReply> asyncReply(
+            providerManagerService->SendWait(&asyncRequest));
+
+        AutoPtr <CIMNotifyProviderFailResponseMessage> response(
+            reinterpret_cast<CIMNotifyProviderFailResponseMessage *>(
+                (dynamic_cast<AsyncLegacyOperationResult *>(
+                    asyncReply.get()))->get_result()));
+
+        if (response->cimException.getCode () != CIM_ERR_SUCCESS)
+        {
+            PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "Unexpected exception in providerModuleFailureCallback: %s",
+                (const char*)response->cimException.getMessage().getCString()));
+        }
+        else
         {
             //
-            //  Subscriptions were affected
-            //  Update the provider module status to Degraded
+            //  Successful response
+            //  Examine result to see if any subscriptions were affected
             //
-            try
+            if (response->numSubscriptionsAffected > 0)
             {
-                CIMInstance providerModule;
-                CIMKeyBinding keyBinding(
-                    _PROPERTY_PROVIDERMODULE_NAME,
-                    moduleName,
-                    CIMKeyBinding::STRING);
-                Array<CIMKeyBinding> kbArray;
-                kbArray.append(keyBinding);
-                CIMObjectPath modulePath("", PEGASUS_NAMESPACENAME_INTEROP,
-                    PEGASUS_CLASSNAME_PROVIDERMODULE, kbArray);
-                providerModule =
-                    providerManagerService->_providerRegistrationManager->
-                        getInstance(
-                            modulePath, false, false, CIMPropertyList());
+                //
+                //  Subscriptions were affected
+                //  Update the provider module status to Degraded
+                //
+                try
+                {
+                    CIMInstance providerModule;
+                    CIMKeyBinding keyBinding(
+                        _PROPERTY_PROVIDERMODULE_NAME,
+                        moduleName,
+                        CIMKeyBinding::STRING);
+                    Array<CIMKeyBinding> kbArray;
+                    kbArray.append(keyBinding);
+                    CIMObjectPath modulePath("", PEGASUS_NAMESPACENAME_INTEROP,
+                        PEGASUS_CLASSNAME_PROVIDERMODULE, kbArray);
+                    providerModule =
+                        providerManagerService->_providerRegistrationManager->
+                            getInstance(
+                                modulePath, false, false, CIMPropertyList());
 
-                Array<Uint16> removeStatus;
-                Array<Uint16> appendStatus;
-                removeStatus.append(CIM_MSE_OPSTATUS_VALUE_OK);
-                appendStatus.append(CIM_MSE_OPSTATUS_VALUE_DEGRADED);
-                providerManagerService->_updateProviderModuleStatus(
-                    providerModule, removeStatus, appendStatus);
-            }
-            catch (const Exception & e)
-            {
-                PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                    "Failed to update provider module status: %s",
-                    (const char*)e.getMessage().getCString()));
-            }
+                    Array<Uint16> removeStatus;
+                    Array<Uint16> appendStatus;
+                    removeStatus.append(CIM_MSE_OPSTATUS_VALUE_OK);
+                    appendStatus.append(CIM_MSE_OPSTATUS_VALUE_DEGRADED);
+                    providerManagerService->_updateProviderModuleStatus(
+                        providerModule, removeStatus, appendStatus);
+                }
+                catch (const Exception & e)
+                {
+                    PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                        "Failed to update provider module status: %s",
+                        (const char*)e.getMessage().getCString()));
+                }
 
-            //
-            //  Log a warning message since subscriptions were affected
-            //
-            Logger::put_l(
-                Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                MessageLoaderParms(
-                    "ProviderManager.OOPProviderManagerRouter."
-                        "OOP_PROVIDER_MODULE_SUBSCRIPTIONS_AFFECTED",
-                    "The generation of indications by providers in module $0 "
-                    "may be affected.  To ensure these providers are serving "
-                    "active subscriptions, disable and then re-enable this "
-                    "module using the cimprovider command.",
-                    moduleName));
+                //
+                //  Log a warning message since subscriptions were affected
+                //
+                Logger::put_l(
+                    Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
+                    MessageLoaderParms(
+                        "ProviderManager.OOPProviderManagerRouter."
+                            "OOP_PROVIDER_MODULE_SUBSCRIPTIONS_AFFECTED",
+                        "The generation of indications by providers in module "
+                            "$0 may be affected.  To ensure these providers "
+                            "are serving active subscriptions, disable and "
+                            "then re-enable this module using the cimprovider "
+                            "command.",
+                        moduleName));
+            }
         }
     }
 

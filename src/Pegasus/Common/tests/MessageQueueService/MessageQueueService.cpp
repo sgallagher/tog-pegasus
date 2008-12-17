@@ -182,6 +182,7 @@ class MessageQueueClient : public MessageQueueService
 
 AtomicInt msg_count;
 AtomicInt client_count;
+AtomicInt legacyCount;
 
 
 Uint32 MessageQueueClient::get_qid()
@@ -204,6 +205,7 @@ void MessageQueueServer::_handle_incoming_operation(AsyncOpNode *operation)
         {
             if (rq->getType() == CIM_CREATE_CLASS_REQUEST_MESSAGE)
             {
+                legacyCount++;
                 if (verbose)
                 {
                     cout << " caught a hacked legacy message " << endl;
@@ -453,6 +455,12 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
     legacy->dest = serverQueue->getQueueId();
 
     q_client->SendForget(legacy);
+
+    // Wait untill all legacy messages are processed.
+    while (legacyCount.get() < 3)
+    {
+        Threads::yield();
+    }
 
     MessageQueueService * server = static_cast<MessageQueueService *>(
         MessageQueue::lookup(serverQueue->getQueueId()));

@@ -1473,6 +1473,79 @@ Array<String> System::getInterfaceAddrs()
             }
         }
     }
+#elif defined(PEGASUS_OS_PASE)
+    addrinfo hints;
+    addrinfo *info = NULL;
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_V4MAPPED | AI_ALL;
+    hints.ai_protocol = IPPROTO_TCP;
+
+    int ret;
+    ret = ::getaddrinfo(System::getHostName().getCString(),
+                        NULL, &hints, &info);
+    if (ret != 0)
+    {
+        if (info != NULL)
+        {
+            freeaddrinfo(info);
+            info = NULL;
+        }
+        return ips;
+    }
+    PEGASUS_ASSERT(info != NULL);
+
+    addrinfo *ai;
+    for (ai = info; ai != NULL; ai = ai->ai_next)
+    {
+        if (ai->ai_family == AF_INET6)
+        {
+            char ipAddr[INET6_ADDRSTRLEN];
+            struct sockaddr_in6 sockaddr6;
+            struct sockaddr_in6 *in6 = (sockaddr_in6 *) (ai->ai_addr);
+
+            memset(&sockaddr6, 0, sizeof(sockaddr6));
+            sockaddr6.sin6_family = AF_INET6;
+            sockaddr6.sin6_flowinfo = 0;
+            sockaddr6.sin6_scope_id = 0;
+            memcpy(&sockaddr6.sin6_addr,
+                   &(in6->sin6_addr),
+                   sizeof(struct in6_addr));
+
+            if (inet_ntop(AF_INET6,
+                          &sockaddr6.sin6_addr,
+                          ipAddr, INET6_ADDRSTRLEN) == NULL)
+            {
+                break;
+            }
+            ips.append(ipAddr);
+        }
+        else if (ai->ai_family == AF_INET)
+        {
+            char ipAddr[INET6_ADDRSTRLEN];
+            struct sockaddr_in sockaddr4;
+            struct sockaddr_in *in4 = (sockaddr_in *) (ai->ai_addr);
+
+            memset(&sockaddr4, 0, sizeof(sockaddr4));
+            sockaddr4.sin_family = AF_INET;
+
+            memcpy(&sockaddr4.sin_addr,
+                   &(in4->sin_addr),
+                   sizeof(struct in_addr));
+
+            if (inet_ntop(AF_INET,
+                          &sockaddr4.sin_addr,
+                          ipAddr, INET6_ADDRSTRLEN) == NULL)
+            {
+                break;
+            }
+            ips.append(ipAddr);
+        }
+    }
+    freeaddrinfo(info);
+
 #elif defined(PEGASUS_OS_HPUX)
 //ATTN: implement for HPUX
 #elif defined(PEGASUS_OS_VMS)

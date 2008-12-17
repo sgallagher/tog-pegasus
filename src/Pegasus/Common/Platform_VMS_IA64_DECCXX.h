@@ -46,7 +46,7 @@
 #endif
 
 #ifdef PEGASUS_VMS_GENERATE_EXPORT_SYMBOLS
-#if  (__DECCXX_VER >= 70330075)
+#if  (__DECCXX_VER >= 70330032)
 #define PEGASUS_EXPORT __declspec(dllexport)
 #define PEGASUS_IMPORT
 #else

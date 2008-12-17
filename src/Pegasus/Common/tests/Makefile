@@ -103,8 +103,9 @@ DIRS = \
     SharedPtr \
     HostAddress \
     HostLocator \
-    OrderedSet
-    
+    OrderedSet \
+    XmlWriter
+
 
 ifndef PEGASUS_DISABLE_PERFINST
 DIRS += \

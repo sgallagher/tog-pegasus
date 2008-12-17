@@ -297,16 +297,16 @@ Boolean ProviderAgent::_readAndProcessRequest()
         "Received request from server with messageId %s",
         (const char*)request->messageId.getCString()));
 
+    const AcceptLanguageListContainer acceptLang =
+        request->operationContext.get(AcceptLanguageListContainer::NAME);
+    Thread::setLanguages(acceptLang.getLanguages());
+
     // Get the ProviderIdContainer to complete the provider module instance
     // optimization.  If the provider module instance is blank (optimized
     // out), fill it in from our cache.  If it is not blank, update our
     // cache.  (See the _providerModuleCache member description.)
-    try
+    if (request->operationContext.contains(ProviderIdContainer::NAME))
     {
-        const AcceptLanguageListContainer acceptLang =
-            request->operationContext.get(AcceptLanguageListContainer::NAME);
-        Thread::setLanguages(acceptLang.getLanguages());
-
         ProviderIdContainer pidc = request->operationContext.get(
             ProviderIdContainer::NAME);
         if (pidc.getModule().isUninitialized())
@@ -321,10 +321,6 @@ Boolean ProviderAgent::_readAndProcessRequest()
             // Update the cache with the new provider module instance.
             _providerModuleCache = pidc.getModule();
         }
-    }
-    catch (...)
-    {
-        // No ProviderIdContainer to optimize
     }
 
     //

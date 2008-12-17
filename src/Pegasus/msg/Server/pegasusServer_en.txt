@@ -2479,9 +2479,9 @@ en:table {
 
         /**
         * @note  PGS06200:
-        *    Substitution {0} is the class::method (a string)
+        *    Substitution {0} is an exception message (a string)
         */
-        Server.ShutdownService.CIM_PROVIDER_SHUTDOWN:string {"PGS06200: A CIM provider shutdown exception occurred in {0}."}
+        Server.ShutdownService.CIM_PROVIDER_SHUTDOWN:string {"PGS06200: A provider shutdown exception has occurred: {0}."}
 
 
         // ==========================================================

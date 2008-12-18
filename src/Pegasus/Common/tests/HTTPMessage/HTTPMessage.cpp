@@ -39,7 +39,7 @@ PEGASUS_USING_PEGASUS;
 
 static void _testContentType()
 {
-    String contentType;
+    const char* contentType;
     String type;
     String charset;
 

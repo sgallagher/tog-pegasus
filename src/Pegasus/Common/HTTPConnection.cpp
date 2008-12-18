@@ -677,9 +677,10 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
                         contentLengthStart[contentLengthLineLengthExpected] =
                             save;
-                        String operationName = headerNameOperation;
                         // look for 2-digit prefix (if mpost was use)
-                        HTTPMessage::lookupHeaderPrefix(headers, operationName,
+                        HTTPMessage::lookupHeaderPrefix(
+                            headers,
+                            headerNameOperation,
                             _mpostPrefix);
                     } // else chunk response is true
 
@@ -743,7 +744,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                             // content can be easily separated.
 
                             Boolean authrecExists = false;
-                            String authorization;
+                            const char* authorization;
                             if (HTTPMessage::lookupHeader(
                                     headers, "WWW-Authenticate",
                                     authorization, false))
@@ -1696,12 +1697,11 @@ void HTTPConnection::_handleReadEventTransferEncoding()
                 httpTrailer.parse(
                     trailerStartLine, trailers, trailerContentLength);
 
-                String cimErrorName = headerNameError;
                 // first look for cim error. this is an http level error
                 Boolean found = false;
 
                 found = httpTrailer.lookupHeader(
-                    trailers, cimErrorName, cimErrorValue, true);
+                    trailers, headerNameError, cimErrorValue, true);
 
                 if (found == true)
                 {
@@ -1732,25 +1732,25 @@ void HTTPConnection::_handleReadEventTransferEncoding()
                 }
                 else
                 {
-                    String codeName = headerNameCode;
-                    String codeValue;
+                    const char* codeValue;
                     found = httpTrailer.lookupHeader(
-                        trailers, codeName, codeValue, true);
-                    if (found == true && codeValue.size() > 0 &&
-                        (cimStatusCode = (CIMStatusCode)atoi(
-                             codeValue.getCString())) > 0)
+                        trailers, headerNameCode, codeValue, true);
+                    if (found && *codeValue &&
+                        (cimStatusCode = (CIMStatusCode)atoi(codeValue)) > 0)
                     {
                         HTTPMessage::lookupHeaderPrefix(
-                            trailers, codeName, _mpostPrefix);
-                        httpStatus = _mpostPrefix + codeName +
+                            trailers, headerNameCode, _mpostPrefix);
+                        httpStatus = _mpostPrefix + headerNameCode +
                             headerNameTerminator + codeValue +
                             headerLineTerminator;
 
                         // look for cim status description
-                        String descriptionName = headerNameDescription;
                         String descriptionValue;
                         found = httpTrailer.lookupHeader(
-                            trailers, descriptionName, descriptionValue, true);
+                            trailers,
+                            headerNameDescription,
+                            descriptionValue,
+                            true);
                         if (descriptionValue.size() == 0)
                         {
                             descriptionValue =
@@ -1758,7 +1758,7 @@ void HTTPConnection::_handleReadEventTransferEncoding()
                         }
 
                         httpStatus = httpStatus + _mpostPrefix +
-                            descriptionName + headerNameTerminator +
+                            headerNameDescription + headerNameTerminator +
                             descriptionValue + headerLineTerminator;
 
                     } // if found a cim status code

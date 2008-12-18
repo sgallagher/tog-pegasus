@@ -65,13 +65,13 @@ static const String _HTTP_VERSION_1_0 = "HTTP/1.0";
 static const String _HTTP_METHOD_MPOST = "M-POST";
 static const String _HTTP_METHOD = "POST";
 
-static const String _HTTP_HEADER_CIMEXPORT = "CIMExport";
-static const String _HTTP_HEADER_CONNECTION = "Connection";
-static const String _HTTP_HEADER_CIMOPERATION = "CIMOperation";
-static const String _HTTP_HEADER_ACCEPT_LANGUAGE = "Accept-Language";
-static const String _HTTP_HEADER_CONTENT_LANGUAGE = "Content-Language";
-static const String _HTTP_HEADER_AUTHORIZATION = "Authorization";
-static const String _HTTP_HEADER_PEGASUSAUTHORIZATION = "PegasusAuthorization";
+static const char* _HTTP_HEADER_CIMEXPORT = "CIMExport";
+static const char* _HTTP_HEADER_CONNECTION = "Connection";
+static const char* _HTTP_HEADER_CIMOPERATION = "CIMOperation";
+static const char* _HTTP_HEADER_ACCEPT_LANGUAGE = "Accept-Language";
+static const char* _HTTP_HEADER_CONTENT_LANGUAGE = "Content-Language";
+static const char* _HTTP_HEADER_AUTHORIZATION = "Authorization";
+static const char* _HTTP_HEADER_PEGASUSAUTHORIZATION = "PegasusAuthorization";
 
 static const String _CONFIG_PARAM_ENABLEAUTHENTICATION = "enableAuthentication";
 
@@ -281,7 +281,6 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     String startLine;
     Array<HTTPHeader> headers;
     Uint32 contentLength;
-    String connectClose;
     Boolean closeConnect = false;
 
     //
@@ -299,10 +298,11 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     //
     // Check for Connection: Close
     //
+    const char* connectClose;
     if (HTTPMessage::lookupHeader(
-        headers, _HTTP_HEADER_CONNECTION, connectClose, false))
+            headers, _HTTP_HEADER_CONNECTION, connectClose, false))
     {
-        if (String::equalNoCase(connectClose, "Close"))
+        if (System::strcasecmp(connectClose, "Close") == 0)
         {
             PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL3,
                 "Header in HTTP Message Contains a Connection: Close");
@@ -456,7 +456,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         // re-authenticate (dermined by an Authorization record being sent),
         // then we want to set the local authenticate flag to true so that
         // the authentication logic is skipped.
-        String authstr;
+        const char* authstr;
         if (sa && sa->getClientAuthenticated() &&
             !HTTPMessage::lookupHeader(
                  headers, "Authorization", authstr, false))
@@ -1196,16 +1196,16 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         //   - A "/wsman" path in the start message indicates a WS-Man request
         //
 
-        String cimOperation;
+        const char* cimOperation;
 
         if (HTTPMessage::lookupHeader(
-            headers, _HTTP_HEADER_CIMOPERATION, cimOperation, true))
+                headers, _HTTP_HEADER_CIMOPERATION, cimOperation, true))
         {
             PEG_TRACE((
                 TRC_HTTP,
                 Tracer::LEVEL3,
-                "HTTPAuthenticatorDelegator - CIMOperation: %s ",
-                 (const char*) cimOperation.getCString()));
+                "HTTPAuthenticatorDelegator - CIMOperation: %s",
+                cimOperation));
 
             MessageQueue* queue =
                 MessageQueue::lookup(_cimOperationMessageQueueId);
@@ -1235,13 +1235,13 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             }
         }
         else if (HTTPMessage::lookupHeader(
-            headers, _HTTP_HEADER_CIMEXPORT, cimOperation, true))
+                     headers, _HTTP_HEADER_CIMEXPORT, cimOperation, true))
         {
             PEG_TRACE((
                 TRC_AUTHENTICATION,
                 Tracer::LEVEL3,
-                "HTTPAuthenticatorDelegator - CIMExport: %s ",
-                (const char*) cimOperation.getCString()));
+                "HTTPAuthenticatorDelegator - CIMExport: %s",
+                cimOperation));
 
             MessageQueue* queue =
                 MessageQueue::lookup(_cimExportMessageQueueId);

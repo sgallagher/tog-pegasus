@@ -308,7 +308,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         //
         // Do not require authentication for indication delivery
         //
-        String cimExport;
+        const char* cimExport;
         if (enableAuthentication &&
             HTTPMessage::lookupHeader(
                 headers, "CIMExport", cimExport, true))
@@ -620,16 +620,16 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             //
             // Search for "CIMOperation" header:
             //
-            String cimOperation;
+            const char* cimOperation;
 
             if (HTTPMessage::lookupHeader(
-                headers, "CIMOperation", cimOperation, true))
+                    headers, "CIMOperation", cimOperation, true))
             {
                 PEG_TRACE((
                     TRC_HTTP,
                     Tracer::LEVEL3,
-                    "HTTPAuthenticatorDelegator - CIMOperation: %s ",
-                    (const char*) cimOperation.getCString()));
+                    "HTTPAuthenticatorDelegator - CIMOperation: %s",
+                    cimOperation));
 
                 MessageQueue* queue =
                     MessageQueue::lookup(_cimOperationMessageQueueId);
@@ -655,13 +655,13 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 }
             }
             else if (HTTPMessage::lookupHeader(
-                headers, "CIMExport", cimOperation, true))
+                         headers, "CIMExport", cimOperation, true))
             {
                 PEG_TRACE((
                     TRC_HTTP,
                     Tracer::LEVEL3,
-                    "HTTPAuthenticatorDelegator - CIMExport: $0 ",
-                    (const char*) cimOperation.getCString()));
+                    "HTTPAuthenticatorDelegator - CIMExport: $0",
+                    cimOperation));
 
                 MessageQueue* queue =
                     MessageQueue::lookup(_cimExportMessageQueueId);

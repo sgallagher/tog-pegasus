@@ -145,7 +145,6 @@ void WsmRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     Array<HTTPHeader> headers;
     char* content;
     Uint32 contentLength;
-    String contentType;
 
     httpMessage->parse(startLine, headers, contentLength);
 
@@ -184,7 +183,7 @@ void WsmRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         //
         // Note:  The Host header value is not validated.
 
-        String hostHeader;
+        const char* hostHeader;
         Boolean hostHeaderFound = HTTPMessage::lookupHeader(
             headers, "Host", hostHeader, false);
 
@@ -210,6 +209,7 @@ void WsmRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         httpMessage->message.size() - contentLength;
 
     // Validate the "Content-Type" header:
+    const char* contentType;
     Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(
         headers, "Content-Type", contentType, true);
     String type;

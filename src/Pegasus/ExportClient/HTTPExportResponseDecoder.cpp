@@ -64,7 +64,6 @@ void HTTPExportResponseDecoder::parseHTTPHeaders(
     valid = true;
 
     String startLine;
-    String connectClose;
 
     //
     //  Check for empty HTTP response message
@@ -95,9 +94,10 @@ void HTTPExportResponseDecoder::parseHTTPHeaders(
     //
     // Check for Connection: Close
     //
+    const char* connectClose;
     if (HTTPMessage::lookupHeader(headers, "Connection", connectClose, false))
     {
-        if (String::equalNoCase(connectClose, "Close"))
+        if (System::strcasecmp(connectClose, "Close") == 0)
         {
             // reconnect and then resend next request.
             cimReconnect=true;
@@ -197,7 +197,7 @@ void HTTPExportResponseDecoder::validateHTTPHeaders(
     //
     // Check for missing "CIMExport" header
     //
-    String cimExport;
+    const char* cimExport;
     if (!HTTPMessage::lookupHeader(headers, "CIMExport", cimExport, true))
     {
         MessageLoaderParms mlParms(
@@ -223,9 +223,9 @@ void HTTPExportResponseDecoder::validateHTTPHeaders(
     //
     // Check for missing "Content-Type" header
     //
-    String cimContentType;
+    const char* cimContentType;
     if (!HTTPMessage::lookupHeader(
-        headers, "Content-Type", cimContentType, true))
+            headers, "Content-Type", cimContentType, true))
     {
         AutoPtr<CIMClientMalformedHTTPException> malformedHTTPException(new
             CIMClientMalformedHTTPException(
@@ -252,7 +252,7 @@ void HTTPExportResponseDecoder::validateHTTPHeaders(
     //
     // Expect CIMExport HTTP header value MethodResponse
     //
-    if (!String::equalNoCase(cimExport, "MethodResponse"))
+    if (System::strcasecmp(cimExport, "MethodResponse") != 0)
     {
         MessageLoaderParms mlParms(
             "ExportClient.CIMExportResponseDecoder.EXPECTED_METHODRESPONSE",

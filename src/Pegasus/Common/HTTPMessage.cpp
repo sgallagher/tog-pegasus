@@ -33,13 +33,14 @@
 #include <iostream>
 #include <cstring>
 #include "HTTPMessage.h"
+#include "System.h"
 #include "ArrayIterator.h"
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-static const String _HTTP_HEADER_CONTENT_TYPE = "content-type";
+static const char* _HTTP_HEADER_CONTENT_TYPE = "content-type";
 
 //------------------------------------------------------------------------------
 //
@@ -216,8 +217,6 @@ void HTTPMessage::parse(
 
                 end++;
 
-                String name(line, (Uint32)(end - line));
-
                 // Get the value part:
 
                 char* start;
@@ -225,7 +224,9 @@ void HTTPMessage::parse(
                 for (start = colon + 1; start < sep && isspace(*start); start++)
                     ;
 
-                String value(start, (Uint32)(sep - start));
+                HTTPHeader header(
+                    Buffer(line, (Uint32)(end - line), 20),
+                    Buffer(start, (Uint32)(sep - start), 50));
 
                 // From the HTTP/1.1 specification (RFC 2616) section 4.2
                 // Message Headers:
@@ -251,7 +252,9 @@ void HTTPMessage::parse(
                 Uint32 headerIndex = 0;
                 for (; headerIndex < headers.size(); headerIndex++)
                 {
-                    if (headers[headerIndex].first == name)
+                    if (System::strcasecmp(
+                            headers[headerIndex].first.getData(),
+                            header.first.getData()) == 0)
                     {
                         break;
                     }
@@ -259,11 +262,13 @@ void HTTPMessage::parse(
 
                 if (headerIndex == headers.size())
                 {
-                    headers.append(HTTPHeader(name, value));
+                    headers.append(header);
                 }
                 else
                 {
-                    headers[headerIndex].second.append(", ").append(value);
+                    headers[headerIndex].second.append(", ", 2);
+                    headers[headerIndex].second.append(
+                        header.second.getData(), header.second.size());
                 }
             }
         }
@@ -296,11 +301,13 @@ void HTTPMessage::printAll(ostream& os) const
 
     for (Uint32 i = 0; i < headers.size(); i++)
     {
-        cout << headers[i].first << ": " << headers[i].second << endl;
+        cout << headers[i].first.getData() << ": " <<
+            headers[i].second.getData() << endl;
 
-        if (String::equalNoCase(headers[i].first, _HTTP_HEADER_CONTENT_TYPE))
+        if (System::strcasecmp(
+                headers[i].first.getData(), _HTTP_HEADER_CONTENT_TYPE) == 0)
         {
-            if (headers[i].second.find("image/") == 0)
+            if (strncmp(headers[i].second.getData(), "image/", 6) == 0)
                 image = true;
         }
     }
@@ -343,7 +350,7 @@ void HTTPMessage::printAll(ostream& os) const
 
 void HTTPMessage::lookupHeaderPrefix(
     Array<HTTPHeader>& headers_,
-    const String& fieldName,
+    const char* fieldName,
     String& prefix)
 {
     ArrayIterator<HTTPHeader> headers(headers_);
@@ -353,56 +360,93 @@ void HTTPMessage::lookupHeaderPrefix(
 
     for (Uint32 i = 0, n = headers.size(); i < n; i++)
     {
-        const String &h = headers[i].first;
+        const char* h = headers[i].first.getData();
 
-                if ((h.size() >= 3) &&
-                    (h[0] >= '0') && (h[0] <= '9') &&
-                    (h[1] >= '0') && (h[1] <= '9') &&
-                    (h[2] == Char16('-')))
+        if ((headers[i].first.size() >= 3) &&
+            (h[0] >= '0') && (h[0] <= '9') &&
+            (h[1] >= '0') && (h[1] <= '9') &&
+            (h[2] == '-'))
         {
-            String fieldNameCurrent = h.subString(3);
+            const char* fieldNameCurrent = h + 3;
 
             // ONLY fields starting with keyword can have prefixed according
             // to spec
-            if (String::equalNoCase(fieldNameCurrent, keyword) == false)
+            if (!String::equalNoCase(String(fieldNameCurrent, 3), keyword))
                 continue;
 
-            prefix = h.subString(0,3);
+            prefix = String(h, 3);
 
             // no field name given, just return the first prefix encountered
-            if (fieldName.size() == 0)
+            if (!fieldName)
                 break;
 
-            if (String::equalNoCase(fieldNameCurrent, fieldName) == false)
+            if (System::strcasecmp(fieldNameCurrent, fieldName) != 0)
                 prefix.clear();
             else break;
         }
     }
 }
 
-Boolean HTTPMessage::lookupHeader(
+Boolean HTTPMessage::_lookupHeaderIndex(
     Array<HTTPHeader>& headers_,
-    const String& fieldName,
-    String& fieldValue,
+    const char* fieldName,
+    Uint32& headerIndex,
     Boolean allowNamespacePrefix)
 {
     ArrayIterator<HTTPHeader> headers(headers_);
 
     for (Uint32 i = 0, n = headers.size(); i < n; i++)
     {
-        if (String::equalNoCase(headers[i].first, fieldName) ||
+        if ((System::strcasecmp(headers[i].first.getData(), fieldName) == 0) ||
             (allowNamespacePrefix && (headers[i].first.size() >= 3) &&
              (headers[i].first[0] >= '0') && (headers[i].first[0] <= '9') &&
              (headers[i].first[1] >= '0') && (headers[i].first[1] <= '9') &&
-             (headers[i].first[2] == Char16('-')) &&
-             String::equalNoCase(headers[i].first.subString(3), fieldName)))
+             (headers[i].first[2] == '-') &&
+             (System::strcasecmp(
+                  headers[i].first.getData() + 3, fieldName) == 0)))
         {
-            fieldValue = headers[i].second;
+            headerIndex = i;
             return true;
         }
     }
 
     // Not found:
+    return false;
+}
+
+Boolean HTTPMessage::lookupHeader(
+    Array<HTTPHeader>& headers,
+    const char* fieldName,
+    String& fieldValue,
+    Boolean allowNamespacePrefix)
+{
+    Uint32 index = PEG_NOT_FOUND;
+
+    if (_lookupHeaderIndex(headers, fieldName, index, allowNamespacePrefix))
+    {
+        fieldValue = String(
+            headers[index].second.getData(),
+            headers[index].second.size());
+        return true;
+    }
+
+    return false;
+}
+
+Boolean HTTPMessage::lookupHeader(
+    Array<HTTPHeader>& headers,
+    const char* fieldName,
+    const char*& fieldValue,
+    Boolean allowNamespacePrefix)
+{
+    Uint32 index = PEG_NOT_FOUND;
+
+    if (_lookupHeaderIndex(headers, fieldName, index, allowNamespacePrefix))
+    {
+        fieldValue = headers[index].second.getData();
+        return true;
+    }
+
     return false;
 }
 
@@ -480,12 +524,11 @@ Boolean HTTPMessage::parseStatusLine(
 }
 
 Boolean HTTPMessage::parseContentTypeHeader(
-    const String& contentTypeHeader,
+    const char* contentTypeHeader,
     String& type,
     String& charset)
 {
-    CString cstr = contentTypeHeader.getCString();
-    const char* str = (const char*) cstr;
+    const char* str = contentTypeHeader;
     skipHeaderWhitespace(str);
 
     // Get the type string

@@ -107,7 +107,6 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     //
     TimeValue networkEndTime = TimeValue::getCurrentTime();
 
-    String  connectClose;
     String  startLine;
     Array<HTTPHeader> headers;
     const char* content;
@@ -137,9 +136,10 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     //
     // Check for Connection: Close
     //
+    const char* connectClose;
     if (HTTPMessage::lookupHeader(headers, "Connection", connectClose, false))
     {
-        if (String::equalNoCase(connectClose, "Close"))
+        if (System::strcasecmp(connectClose, "Close") == 0)
         {
             //reconnect and then resend next request.
             cimReconnect=true;
@@ -274,7 +274,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     //
     // Search for "CIMOperation" header:
     //
-    String cimOperation;
+    const char* cimOperation;
 
     if (!HTTPMessage::lookupHeader(
         headers, "CIMOperation", cimOperation, true))
@@ -306,7 +306,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     // content-type header  value format:
     //              type "/" subtype *( ";" parameter )
     // ex. text/xml;Charset="utf8"
-    String cimContentType;
+    const char* cimContentType;
     bool binaryResponse = false;
 
     if (HTTPMessage::lookupHeader(
@@ -327,8 +327,8 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         )
         {
             CIMClientMalformedHTTPException* malformedHTTPException = new
-                CIMClientMalformedHTTPException
-                    ("Bad Content-Type HTTP header; " + cimContentType);
+                CIMClientMalformedHTTPException(
+                    "Bad Content-Type HTTP header; " + String(cimContentType));
             ClientExceptionMessage * response =
                 new ClientExceptionMessage(malformedHTTPException);
 
@@ -359,19 +359,19 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     // look for any cim status codes. The HTTPConnection level would have
     // added them here.
 
-    String cimStatusCodeValue;
+    const char* cimStatusCodeValue;
     Boolean found = HTTPMessage::lookupHeader(headers, "CIMStatusCode",
         cimStatusCodeValue, true);
     CIMStatusCode cimStatusCodeNumber = CIM_ERR_SUCCESS;
 
-    if (found == true &&
-        (cimStatusCodeNumber = (CIMStatusCode)
-         atoi(cimStatusCodeValue.getCString())) != CIM_ERR_SUCCESS)
+    if (found &&
+        (cimStatusCodeNumber = (CIMStatusCode) atoi(cimStatusCodeValue)) !=
+             CIM_ERR_SUCCESS)
     {
         String cimStatusCodeDescription;
         found = HTTPMessage::lookupHeader(headers, "CIMStatusCodeDescription",
             cimStatusCodeDescription, true);
-        if (found == true && cimStatusCodeDescription.size() > 0)
+        if (found && cimStatusCodeDescription.size() > 0)
         {
             try
             {
@@ -394,11 +394,12 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         _outputQueue->enqueue(response);
         return;
     }
-    String serverTime;
+
+    const char* serverTime;
     if (HTTPMessage::lookupHeader(
             headers, "WBEMServerResponseTime", serverTime, true))
     {
-        Uint32 sTime = (Uint32) atol(serverTime.getCString());
+        Uint32 sTime = (Uint32) atol(serverTime);
         dataStore->setServerTime(sTime);
     }
 
@@ -413,7 +414,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     // If it is a method response, then dispatch it to be handled:
     //
 
-    if (!String::equalNoCase(cimOperation, "MethodResponse"))
+    if (System::strcasecmp(cimOperation, "MethodResponse") != 0)
     {
         MessageLoaderParms mlParms(
             "Client.CIMOperationResponseDecoder.EXPECTED_METHODRESPONSE",

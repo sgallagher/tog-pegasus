@@ -115,7 +115,7 @@ private:
     String _getFileContent(const String& filePath);
 
     Boolean _parseAuthHeader(
-        const String authHeader,
+        const char* authHeader,
         String& authType,
         String& authRealm);
 

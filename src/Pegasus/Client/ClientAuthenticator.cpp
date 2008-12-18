@@ -54,7 +54,7 @@ PEGASUS_NAMESPACE_BEGIN
 /**
     Constant representing the authentication challenge header.
 */
-static const String WWW_AUTHENTICATE = "WWW-Authenticate";
+static const char* WWW_AUTHENTICATE = "WWW-Authenticate";
 
 /**
     Constant representing the Basic authentication header.
@@ -98,12 +98,12 @@ Boolean ClientAuthenticator::checkResponseHeaderForChallenge(
     //
     // Search for "WWW-Authenticate" header:
     //
-    String authHeader;
+    const char* authHeader;
     String authType;
     String authRealm;
 
     if (!HTTPMessage::lookupHeader(
-        headers, WWW_AUTHENTICATE, authHeader, false))
+            headers, WWW_AUTHENTICATE, authHeader, false))
     {
         return false;
     }
@@ -393,25 +393,22 @@ String ClientAuthenticator::_buildLocalAuthResponse()
 }
 
 Boolean ClientAuthenticator::_parseAuthHeader(
-    const String authHeader,
+    const char* authHeader,
     String& authType,
     String& authRealm)
 {
-    CString header = authHeader.getCString();
-    const char* pAuthHeader = header;
-
     //
     // Skip the white spaces in the begining of the header
     //
-    while (*pAuthHeader && isspace(*pAuthHeader))
+    while (*authHeader && isspace(*authHeader))
     {
-        *pAuthHeader++;
+        *authHeader++;
     }
 
     //
     // Get the authentication type
     //
-    String type = _getSubStringUptoMarker(&pAuthHeader, CHAR_BLANK);
+    String type = _getSubStringUptoMarker(&authHeader, CHAR_BLANK);
 
     if (!type.size())
     {
@@ -421,13 +418,13 @@ Boolean ClientAuthenticator::_parseAuthHeader(
     //
     // Ignore the start quote
     //
-    _getSubStringUptoMarker(&pAuthHeader, CHAR_QUOTE);
+    _getSubStringUptoMarker(&authHeader, CHAR_QUOTE);
 
 
     //
     // Get the realm ending with a quote
     //
-    String realm = _getSubStringUptoMarker(&pAuthHeader, CHAR_QUOTE);
+    String realm = _getSubStringUptoMarker(&authHeader, CHAR_QUOTE);
 
     if (!realm.size())
     {

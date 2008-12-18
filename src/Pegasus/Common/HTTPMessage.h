@@ -47,7 +47,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-typedef Pair<String, String> HTTPHeader;
+typedef Pair<Buffer, Buffer> HTTPHeader;
 
 /** This message is sent from a connection to its output queue when
     a complete HTTP message is received.
@@ -86,13 +86,19 @@ public:
 
     static void lookupHeaderPrefix(
         Array<HTTPHeader>& headers,
-        const String& fieldName,
+        const char* fieldName,
         String& prefix);
 
     static Boolean lookupHeader(
         Array<HTTPHeader>& headers,
-        const String& fieldName,
+        const char* fieldName,
         String& fieldValue,
+        Boolean allowNamespacePrefix = false);
+
+    static Boolean lookupHeader(
+        Array<HTTPHeader>& headers,
+        const char* fieldName,
+        const char*& fieldValue,
         Boolean allowNamespacePrefix = false);
 
     static Boolean parseRequestLine(
@@ -108,7 +114,7 @@ public:
         String& reasonPhrase);
 
     static Boolean parseContentTypeHeader(
-        const String& contentTypeHeader,
+        const char* contentTypeHeader,
         String& type,
         String& charset);
 
@@ -155,6 +161,14 @@ public:
     static char* findSeparator(
         const char* data,
         Uint32 size);
+
+private:
+
+    static Boolean _lookupHeaderIndex(
+        Array<HTTPHeader>& headers,
+        const char* fieldName,
+        Uint32& headerIndex,
+        Boolean allowNamespacePrefix);
 };
 
 PEGASUS_NAMESPACE_END

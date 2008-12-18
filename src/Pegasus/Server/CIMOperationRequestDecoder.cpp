@@ -249,14 +249,6 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Process M-POST and POST messages:
 
-    String cimContentType;
-    String cimOperation;
-    String cimBatch;
-    Boolean cimBatchFlag;
-    String cimProtocolVersion;
-    String cimMethod;
-    String cimObject;
-
     if (httpVersion == "HTTP/1.1")
     {
         // Validate the presence of a "Host" header.  The HTTP/1.1 specification
@@ -268,7 +260,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         //
         // Note:  The Host header value is not validated.
 
-        String hostHeader;
+        const char* hostHeader;
         Boolean hostHeaderFound = HTTPMessage::lookupHeader(
             headers, "Host", hostHeader, false);
 
@@ -290,13 +282,14 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Validate the "CIMOperation" header:
 
+    const char* cimOperation;
     Boolean operationHeaderFound = HTTPMessage::lookupHeader(
         headers, "CIMOperation", cimOperation, true);
     // If the CIMOperation header was missing, the HTTPAuthenticatorDelegator
     // would not have passed the message to us.
     PEGASUS_ASSERT(operationHeaderFound);
 
-    if (!String::equalNoCase(cimOperation, "MethodCall"))
+    if (System::strcasecmp(cimOperation, "MethodCall") != 0)
     {
         // The Specification for CIM Operations over HTTP reads:
         //     3.3.4. CIMOperation
@@ -322,9 +315,8 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Validate the "CIMBatch" header:
 
-    cimBatchFlag = HTTPMessage::lookupHeader(
-        headers, "CIMBatch", cimBatch, true);
-    if (cimBatchFlag)
+    const char* cimBatch;
+    if (HTTPMessage::lookupHeader(headers, "CIMBatch", cimBatch, true))
     {
         // The Specification for CIM Operations over HTTP reads:
         //     3.3.9. CIMBatch
@@ -344,13 +336,15 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Save these headers for later checking
 
+    const char* cimProtocolVersion;
     if (!HTTPMessage::lookupHeader(
         headers, "CIMProtocolVersion", cimProtocolVersion, true))
     {
         // Mandated by the Specification for CIM Operations over HTTP
-        cimProtocolVersion.assign("1.0");
+        cimProtocolVersion = "1.0";
     }
 
+    String cimMethod;
     if (HTTPMessage::lookupHeader(headers, "CIMMethod", cimMethod, true))
     {
         if (cimMethod == String::EMPTY)
@@ -391,6 +385,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         }
     }
 
+    String cimObject;
     if (HTTPMessage::lookupHeader(headers, "CIMObject", cimObject, true))
     {
         if (cimObject == String::EMPTY)
@@ -439,6 +434,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Validate the "Content-Type" header:
 
+    const char* cimContentType;
     Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(
         headers, "Content-Type", cimContentType, true);
     String type;
@@ -537,7 +533,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
     HttpMethod httpMethod,
     char* content,
     Uint32 contentLength,    // used for statistics only
-    const String& cimProtocolVersionInHeader,
+    const char* cimProtocolVersionInHeader,
     const String& cimMethodInHeader,
     const String& cimObjectInHeader,
     const String& authType,

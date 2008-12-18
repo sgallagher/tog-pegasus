@@ -239,12 +239,6 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     //</bug>
 
     // Process M-POST and POST messages:
-    String cimContentType;
-    String cimExport;
-    String cimExportBatch;
-    Boolean cimExportBatchFlag;
-    String cimProtocolVersion;
-    String cimExportMethod;
 
     if (httpVersion == "HTTP/1.1")
     {
@@ -257,7 +251,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         //
         // Note:  The Host header value is not validated.
 
-        String hostHeader;
+        const char* hostHeader;
         Boolean hostHeaderFound = HTTPMessage::lookupHeader(
             headers, "Host", hostHeader, false);
 
@@ -279,6 +273,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Validate the "CIMExport" header:
 
+    const char* cimExport;
     Boolean exportHeaderFound = HTTPMessage::lookupHeader(
         headers, "CIMExport", cimExport, true);
     // If the CIMExport header was missing, the HTTPAuthenticatorDelegator
@@ -298,7 +293,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     }
     // </bug>
 
-    if (!String::equalNoCase(cimExport, "MethodRequest"))
+    if (System::strcasecmp(cimExport, "MethodRequest") != 0)
     {
         // The Specification for CIM Operations over HTTP reads:
         //     3.3.5. CIMExport
@@ -319,9 +314,9 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Validate the "CIMExportBatch" header:
 
-    cimExportBatchFlag = HTTPMessage::lookupHeader(
-        headers, "CIMExportBatch", cimExportBatch, true);
-    if (cimExportBatchFlag)
+    const char* cimExportBatch;
+    if (HTTPMessage::lookupHeader(
+            headers, "CIMExportBatch", cimExportBatch, true))
     {
         // The Specification for CIM Operations over HTTP reads:
         //     3.3.10. CIMExportBatch
@@ -340,17 +335,19 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Save these headers for later checking
 
+    const char* cimProtocolVersion;
     if (!HTTPMessage::lookupHeader(
             headers, "CIMProtocolVersion", cimProtocolVersion, true))
     {
         // Mandated by the Specification for CIM Operations over HTTP
-        cimProtocolVersion.assign("1.0");
+        cimProtocolVersion = "1.0";
     }
 
+    const char* cimExportMethod;
     if (HTTPMessage::lookupHeader(
             headers, "CIMExportMethod", cimExportMethod, true))
     {
-        if (cimExportMethod == String::EMPTY)
+        if (!*cimExportMethod)
         {
             // This is not a valid value, and we use EMPTY to mean "absent"
             sendHttpError(
@@ -429,6 +426,7 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 
     // Validate the "Content-Type" header:
 
+    const char* cimContentType;
     Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(
         headers, "Content-Type", cimContentType, true);
     String type;
@@ -490,8 +488,8 @@ void CIMExportRequestDecoder::handleMethodRequest(
     HttpMethod httpMethod,
     char* content,
     const String& requestUri,
-    const String& cimProtocolVersionInHeader,
-    const String& cimExportMethodInHeader,
+    const char* cimProtocolVersionInHeader,
+    const char* cimExportMethodInHeader,
     const String& userName,
     const String& ipAddress,
     const AcceptLanguageList& httpAcceptLanguages,
@@ -592,30 +590,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
             return;
         }
 
-        // We accept protocol version 1.x (see Bugzilla 1556)
-
-        Boolean protocolVersionAccepted = false;
-
-        if ((protocolVersion.size() >= 3) &&
-            (protocolVersion[0] == '1') &&
-            (protocolVersion[1] == '.'))
-        {
-            // Verify that all characters after the '.' are digits
-            Uint32 index = 2;
-            while ((index < protocolVersion.size()) &&
-                   (protocolVersion[index] >= '0') &&
-                   (protocolVersion[index] <= '9'))
-            {
-                index++;
-            }
-
-            if (index == protocolVersion.size())
-            {
-                protocolVersionAccepted = true;
-            }
-        }
-
-        if (!protocolVersionAccepted)
+        if (!XmlReader::isSupportedProtocolVersion(protocolVersion))
         {
             // See Specification for CIM Operations over HTTP section 4.3
             sendHttpError(
@@ -692,7 +667,8 @@ void CIMExportRequestDecoder::handleMethodRequest(
         //     "400 Bad Request" (and MUST include a CIMError header in the
         //     response with a value of header-mismatch), subject to the
         //     considerations specified in Errors.
-        if (!String::equalNoCase(cimExportMethodName, cimExportMethodInHeader))
+        if (System::strcasecmp(
+                cimExportMethodName, cimExportMethodInHeader) != 0)
         {
             // ATTN-RK-P3-20020404: How to decode cimExportMethodInHeader?
             sendHttpError(

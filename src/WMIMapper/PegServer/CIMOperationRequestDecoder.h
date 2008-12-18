@@ -106,7 +106,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
          HttpMethod httpMethod,
      char* content,
          Uint32 contentLength,
-     const String& cimProtocolVersionInHeader,
+     const char* cimProtocolVersionInHeader,
      const String& cimMethodInHeader,
      const String& cimObjectInHeader,
      String authType,

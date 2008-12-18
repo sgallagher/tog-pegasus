@@ -1454,3 +1454,53 @@ check_for_cores:
             generate_core_file_list
 	@$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile \
             check_core_search_results
+
+###############################################################################
+##
+## option_summary - used to generate a concise list of build options for use in
+## a nightly build status report.  This is not intended to be a complete list,
+## so it is likely that some options are omitted.  New options may be added
+## here as needs dictate.
+##
+###############################################################################
+
+OPTION_SUMMARY =
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER),true)
+    OPTION_SUMMARY += "+CMPI"
+endif
+ifeq ($(PEGASUS_ENABLE_CQL),true)
+    OPTION_SUMMARY += "+CQL"
+endif
+ifeq ($(PEGASUS_HAS_ICU),true)
+    OPTION_SUMMARY += "+ICU"
+endif
+ifeq ($(PEGASUS_ENABLE_IPV6),true)
+    OPTION_SUMMARY += "+IPv6"
+endif
+ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER),true)
+    OPTION_SUMMARY += "+JMPI"
+endif
+ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
+    OPTION_SUMMARY += "+PrivSep"
+endif
+ifdef PEGASUS_ENABLE_EXECQUERY
+    OPTION_SUMMARY += "+Query"
+endif
+ifdef PEGASUS_ENABLE_REMOTE_CMPI
+    OPTION_SUMMARY += "+RCMPI"
+endif
+ifeq ($(PEGASUS_ENABLE_SLP),true)
+    OPTION_SUMMARY += "+SLP"
+endif
+ifeq ($(PEGASUS_USE_SQLITE_REPOSITORY),true)
+    OPTION_SUMMARY += "+SQLite"
+endif
+ifdef PEGASUS_HAS_SSL
+    OPTION_SUMMARY += "+SSL"
+endif
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
+    OPTION_SUMMARY += "+WSMan"
+endif
+
+option_summary:
+	@$(ECHO) "$(OPTION_SUMMARY)"

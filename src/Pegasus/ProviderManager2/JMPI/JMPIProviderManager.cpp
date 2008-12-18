@@ -62,6 +62,42 @@ PEGASUS_NAMESPACE_BEGIN
 
 #include "Convert.h"
 
+
+//
+//  The following tests were added to allow the provider to supply a
+//  CIMObjectPath in the response.  Before this, the path was always
+//  rebuild by the response functions from the instance.  This resulted
+//  in cases where the key properties were not in the returned instance
+//  (ex. excluded by the property list) so that the path could not be built.
+//  The preferred behavior is for the provider to build the path on response.
+//  However, to cover existing providers the alternate of allowing the
+//  ProviderManager has been kept if the path in the instance is not considered
+//  to exist.
+//  PLEASE: provider writers build/set a proper path into returned objects
+//  See bug 8062
+
+/*
+    local function to implement the CIMObjectPath required for a response
+    object.
+    If there is a path defined in the instance, we simply return this path.
+    If not, we use the class to build a path from the instance.
+    Note that we are depending on some value in the keybindings to determine
+    if we have a path.
+*/
+
+void _fixCIMObjectPath(CIMInstance* instance, CIMClass& cls)
+{
+    CIMObjectPath op = instance->getPath();
+    const Array<CIMKeyBinding> kb = op.getKeyBindings();
+    if (kb.size() == 0)
+    {
+        CIMObjectPath iop = instance->buildPath(cls);
+        /* Fix for 4237*/
+        iop.setNameSpace(op.getNameSpace()); 
+        instance->setPath(iop);
+    }
+}
+
 void JMPIProviderManager::debugPrintMethodPointers (JNIEnv *env, jclass jc)
 {
    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
@@ -1542,9 +1578,6 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                        throw;
                     }
 
-                    const CIMObjectPath& op  = ciRet->getPath();
-                    CIMObjectPath        iop = ciRet->buildPath(cls);
-
                     JMPIjvm::checkException(env);
 
                     handler.deliver(*ciRet);
@@ -1711,9 +1744,6 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                        PEG_METHOD_EXIT();
                        throw;
                     }
-
-                    const CIMObjectPath& op  = ciRet->getPath();
-                    CIMObjectPath        iop = ciRet->buildPath(cls);
 
                     JMPIjvm::checkException(env);
 
@@ -1890,15 +1920,9 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                        throw;
                     }
 
-                    const CIMObjectPath& op  = ciRet->getPath();
-                    CIMObjectPath        iop = ciRet->buildPath(cls);
+                    _fixCIMObjectPath(ciRet, cls);
 
                     JMPIjvm::checkException(env);
-
-                    iop.setNameSpace(op.getNameSpace());
-
-                    ciRet->setPath(iop);
-                    /* Fix for 4237*/
 
                     handler.deliver(*ciRet);
                 }
@@ -2052,16 +2076,9 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                        PEG_METHOD_EXIT();
                        throw;
                     }
-
-                    const CIMObjectPath& op  = ciRet->getPath();
-                    CIMObjectPath        iop = ciRet->buildPath(cls);
+                    _fixCIMObjectPath(ciRet, cls);
 
                     JMPIjvm::checkException(env);
-
-                    iop.setNameSpace(op.getNameSpace());
-
-                    ciRet->setPath(iop);
-                    /* Fix for 4237*/
 
                     handler.deliver(*ciRet);
                 }
@@ -4609,13 +4626,9 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
                        throw;
                     }
 
-                    const CIMObjectPath& op    = ciRet->getPath();
-                    CIMObjectPath        iop   = ciRet->buildPath(cls);
+                    _fixCIMObjectPath(ciRet, cls);
 
                     JMPIjvm::checkException(env);
-
-                    iop.setNameSpace(op.getNameSpace());
-                    ciRet->setPath(iop);
 
                     handler.deliver(*ciRet);
                 }
@@ -4778,13 +4791,9 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
                        throw;
                     }
 
-                    const CIMObjectPath& op    = ciRet->getPath();
-                    CIMObjectPath        iop   = ciRet->buildPath(cls);
+                    _fixCIMObjectPath(ciRet, cls);
 
                     JMPIjvm::checkException(env);
-
-                    iop.setNameSpace(op.getNameSpace());
-                    ciRet->setPath(iop);
 
                     handler.deliver(*ciRet);
                 }
@@ -4956,13 +4965,9 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
                        throw;
                     }
 
-                    const CIMObjectPath& op    = ciRet->getPath();
-                    CIMObjectPath        iop   = ciRet->buildPath(cls);
+                    _fixCIMObjectPath(ciRet, cls);
 
                     JMPIjvm::checkException(env);
-
-                    iop.setNameSpace(op.getNameSpace());
-                    ciRet->setPath(iop);
 
                     handler.deliver(*ciRet);
                 }
@@ -5111,13 +5116,9 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
                        throw;
                     }
 
-                    const CIMObjectPath& op = ciRet->getPath();
-                    CIMObjectPath iop = ciRet->buildPath(cls);
+                    _fixCIMObjectPath(ciRet, cls);
 
                     JMPIjvm::checkException(env);
-
-                    iop.setNameSpace(op.getNameSpace());
-                    ciRet->setPath(iop);
 
                     handler.deliver(*ciRet);
                 }
@@ -6076,13 +6077,9 @@ Message * JMPIProviderManager::handleReferencesRequest(
                        throw;
                     }
 
-                    const CIMObjectPath& op    = ciRet->getPath();
-                    CIMObjectPath        iop   = ciRet->buildPath(cls);
+                    _fixCIMObjectPath(ciRet, cls);
 
                     JMPIjvm::checkException(env);
-
-                    iop.setNameSpace(op.getNameSpace());
-                    ciRet->setPath(iop);
 
                     handler.deliver(*ciRet);
                 }

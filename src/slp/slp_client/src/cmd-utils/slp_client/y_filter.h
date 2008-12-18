@@ -105,13 +105,13 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 94 "filter.y"
+#line 92 "filter.y"
 {
   int32 filter_int;
   char *filter_string;
   lslpLDAPFilter *filter_filter;
 }
-/* Line 1529 of yacc.c.  */
+/* Line 1489 of yacc.c.  */
 #line 85 "y_filter.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

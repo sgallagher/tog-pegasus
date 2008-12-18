@@ -139,7 +139,7 @@
 
 
 /* Copy the first part of user declarations.  */
-#line 68 "filter.y"
+#line 66 "filter.y"
 
 
 #include "slp_client.h"
@@ -183,13 +183,13 @@ size_t filter_init_lexer(const char *s);
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 94 "filter.y"
+#line 92 "filter.y"
 {
   int32 filter_int;
   char *filter_string;
   lslpLDAPFilter *filter_filter;
 }
-/* Line 193 of yacc.c.  */
+/* Line 187 of yacc.c.  */
 #line 163 "y_filter.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -491,8 +491,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   113,   113,   114,   117,   135,   144,   147,   150,   151,
-     152,   157,   166,   176,   186,   197,   198,   199,   200
+       0,   111,   111,   112,   115,   133,   142,   145,   148,   149,
+     150,   155,   164,   174,   184,   195,   196,   197,   198
 };
 #endif
 
@@ -1159,7 +1159,7 @@ yyparse ()
 #endif
 #endif
 {
-
+  
   int yystate;
   int yyn;
   int yyresult;
@@ -1404,7 +1404,7 @@ yyreduce:
   switch (yyn)
     {
         case 4:
-#line 117 "filter.y"
+#line 115 "filter.y"
     {
             if(NULL != ((yyval.filter_filter) = lslpAllocFilter((yyvsp[(2) - (4)].filter_int)))) {
 	      (yyval.filter_filter)->nestingLevel = nesting_level;
@@ -1425,7 +1425,7 @@ yyreduce:
     break;
 
   case 5:
-#line 135 "filter.y"
+#line 133 "filter.y"
     {
 	   (yyval.filter_filter) = (yyvsp[(2) - (3)].filter_filter);
 	   if((yyvsp[(2) - (3)].filter_filter) != NULL) {
@@ -1436,22 +1436,22 @@ yyreduce:
     break;
 
   case 6:
-#line 144 "filter.y"
+#line 142 "filter.y"
     { nesting_level++; ;}
     break;
 
   case 7:
-#line 147 "filter.y"
+#line 145 "filter.y"
     { nesting_level--; ;}
     break;
 
   case 10:
-#line 153 "filter.y"
+#line 151 "filter.y"
     { (yyval.filter_int) = filterlval.filter_int; ;}
     break;
 
   case 11:
-#line 157 "filter.y"
+#line 155 "filter.y"
     {      /* presence test binds to single operand */
              if(NULL != ((yyval.filter_filter) = lslpAllocFilter(expr_present))) {
 	       lslpAttrList *attr = lslpAllocAttr((yyvsp[(1) - (2)].filter_string), string, "*", (int16)strlen("*") + 1);
@@ -1463,7 +1463,7 @@ yyreduce:
     break;
 
   case 12:
-#line 166 "filter.y"
+#line 164 "filter.y"
     {  /* must be an int or a bool */
 	   /* remember to touch up the token values to match the enum in lslp.h */
 	   if(NULL != ((yyval.filter_filter) = lslpAllocFilter((yyvsp[(2) - (3)].filter_int)))) {
@@ -1476,7 +1476,7 @@ yyreduce:
     break;
 
   case 13:
-#line 176 "filter.y"
+#line 174 "filter.y"
     {  /* must be an int or a bool */
 	   /* remember to touch up the token values to match the enum in lslp.h */
 	   if(NULL != ((yyval.filter_filter) = lslpAllocFilter((yyvsp[(2) - (3)].filter_int)))) {
@@ -1489,7 +1489,7 @@ yyreduce:
     break;
 
   case 14:
-#line 186 "filter.y"
+#line 184 "filter.y"
     {   /* both operands are strings */
 	   if(NULL != ((yyval.filter_filter) = lslpAllocFilter((yyvsp[(2) - (3)].filter_int)))) {
 	     lslpAttrList *attr = lslpAllocAttr((yyvsp[(1) - (3)].filter_string), string, (yyvsp[(3) - (3)].filter_string), (int16)strlen((yyvsp[(3) - (3)].filter_string)) + 1 );
@@ -1501,7 +1501,7 @@ yyreduce:
     break;
 
   case 18:
-#line 201 "filter.y"
+#line 199 "filter.y"
     { (yyval.filter_int) = filterlval.filter_int; ;}
     break;
 
@@ -1721,7 +1721,7 @@ yyreturn:
 }
 
 
-#line 204 "filter.y"
+#line 202 "filter.y"
 
 
 

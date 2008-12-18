@@ -129,7 +129,7 @@
 
 
 /* Copy the first part of user declarations.  */
-#line 68 "attr.y"
+#line 64 "attr.y"
 
 #include "slp_client.h"
 void attrerror(const char *, ...);
@@ -178,13 +178,13 @@ lslpAttrList inProcessTag =
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 99 "attr.y"
+#line 95 "attr.y"
 {
 	int32 _i;
 	char *_s;
 	lslpAttrList *_atl;
 }
-/* Line 193 of yacc.c.  */
+/* Line 187 of yacc.c.  */
 #line 158 "y_attr.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -485,8 +485,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   115,   115,   125,   137,   144,   151,   159,   171,   178,
-     185,   188,   191,   194,   208
+       0,   111,   111,   121,   133,   140,   147,   155,   167,   174,
+     181,   184,   187,   190,   204
 };
 #endif
 
@@ -1152,7 +1152,7 @@ yyparse ()
 #endif
 #endif
 {
-
+  
   int yystate;
   int yyn;
   int yyresult;
@@ -1397,7 +1397,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 115 "attr.y"
+#line 111 "attr.y"
     {
 			while (! _LSLP_IS_HEAD(inProcessAttr.next))
 			{
@@ -1411,7 +1411,7 @@ yyreduce:
     break;
 
   case 3:
-#line 125 "attr.y"
+#line 121 "attr.y"
     {
 		/* both of these non-terminals are really lists */
 		/* ignore the first non-terminal */
@@ -1425,7 +1425,7 @@ yyreduce:
     break;
 
   case 4:
-#line 137 "attr.y"
+#line 133 "attr.y"
     {
 			(yyval._atl) =  lslpAllocAttr((yyvsp[(1) - (1)]._s), tag, NULL, 0);
 			if (NULL != (yyval._atl))
@@ -1436,7 +1436,7 @@ yyreduce:
     break;
 
   case 5:
-#line 144 "attr.y"
+#line 140 "attr.y"
     {
 			(yyval._atl) =  lslpAllocAttr((yyvsp[(2) - (3)]._s), tag, NULL, 0);
 			if (NULL != (yyval._atl))
@@ -1447,7 +1447,7 @@ yyreduce:
     break;
 
   case 6:
-#line 151 "attr.y"
+#line 147 "attr.y"
     {
   			(yyval._atl) =  lslpAllocAttr((yyvsp[(2) - (4)]._s), tag, NULL, 0);
 			if (NULL != (yyval._atl))
@@ -1458,7 +1458,7 @@ yyreduce:
     break;
 
   case 7:
-#line 159 "attr.y"
+#line 155 "attr.y"
     {
 			(yyval._atl) = inProcessTag.next;
 			while (! _LSLP_IS_HEAD((yyval._atl)))
@@ -1472,7 +1472,7 @@ yyreduce:
     break;
 
   case 8:
-#line 171 "attr.y"
+#line 167 "attr.y"
     {
 
 			if(NULL != (yyvsp[(1) - (1)]._atl))
@@ -1483,7 +1483,7 @@ yyreduce:
     break;
 
   case 9:
-#line 178 "attr.y"
+#line 174 "attr.y"
     {
 			if (NULL != (yyvsp[(3) - (3)]._atl))
 			{
@@ -1493,28 +1493,28 @@ yyreduce:
     break;
 
   case 10:
-#line 185 "attr.y"
+#line 181 "attr.y"
     {
 			(yyval._atl) = lslpAllocAttr(NULL, bool_type,  &bt, sizeof(BOOL));
 		;}
     break;
 
   case 11:
-#line 188 "attr.y"
+#line 184 "attr.y"
     {
 			(yyval._atl) = lslpAllocAttr(NULL, bool_type,  &bf, sizeof(BOOL));
 		;}
     break;
 
   case 12:
-#line 191 "attr.y"
+#line 187 "attr.y"
     {
 			(yyval._atl) = lslpAllocAttr(NULL, opaque, (yyvsp[(1) - (1)]._s), (int16)(strlen((yyvsp[(1) - (1)]._s)) + 1));
 		;}
     break;
 
   case 13:
-#line 194 "attr.y"
+#line 190 "attr.y"
     {
 	                     if(strlen((yyvsp[(1) - (1)]._s)) > 5 ) {
 				if( *((yyvsp[(1) - (1)]._s)) == '\\' && ((*((yyvsp[(1) - (1)]._s) + 1) == 'f') || (*((yyvsp[(1) - (1)]._s) + 1) == 'F')) &&  ((*((yyvsp[(1) - (1)]._s) + 2) == 'f') || (*((yyvsp[(1) - (1)]._s) + 2) == 'F'))) {
@@ -1531,7 +1531,7 @@ yyreduce:
     break;
 
   case 14:
-#line 208 "attr.y"
+#line 204 "attr.y"
     {
 			(yyval._atl) = lslpAllocAttr(NULL, integer, &((yyvsp[(1) - (1)]._i)), sizeof(int32));
 		;}
@@ -1753,7 +1753,7 @@ yyreturn:
 }
 
 
-#line 213 "attr.y"
+#line 209 "attr.y"
 
 
 void _lslpInitInternalAttrList(void)

@@ -344,20 +344,18 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     }
 
     const char* cimExportMethod;
-    if (HTTPMessage::lookupHeader(
+    if (!HTTPMessage::lookupHeader(
             headers, "CIMExportMethod", cimExportMethod, true))
     {
-        if (!*cimExportMethod)
-        {
-            // This is not a valid value, and we use EMPTY to mean "absent"
-            sendHttpError(
-                queueId,
-                HTTP_STATUS_BADREQUEST,
-                "header-mismatch",
-                String::EMPTY,
-                closeConnect);
-            return;
-        }
+        // The CIMExportMethod header is not present and we already know the
+        // Export Request Message is a Simple Export Request.
+        sendHttpError(
+            queueId,
+            HTTP_STATUS_BADREQUEST,
+            "header-mismatch",
+            String::EMPTY,
+            closeConnect);
+        return;
     }
 
     AcceptLanguageList acceptLanguages;

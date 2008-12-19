@@ -310,6 +310,10 @@ WMIValue::WMIValue(const VARIANT & value, const CIMTYPE type)
             }
 
             break;
+        case CIM_REFERENCE | CIM_FLAG_ARRAY:
+            val.setNullValue(CIMTYPE_REFERENCE, true, 0);
+
+            break;
         case CIM_CHAR16:
             try
             {

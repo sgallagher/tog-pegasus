@@ -146,8 +146,11 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
 
         p[pos] == '=' ? pos++ : 0;     // skip '='
 
-        if(p[pos] == '\"')
+        // A string value may be enclosed in single quotes or double quotes
+        if ((p[pos] == '\"') || (p[pos] == '\''))
         {
+            char openingQuote = p[pos];
+
             // parse string value
 
             // check for embedded quotes. for example,
@@ -157,13 +160,13 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
 
             bool quote = false;
 
-            // seek to '\"' or eos
+            // seek to closing quote or eos
 
             for(len = 0;
                 (p[pos] != Char16(0)) && !((p[pos] == ',') && (!quote));
                 len++, pos++)
             {
-                quote = (p[pos] == '\"') ? !quote : quote;
+                quote = (p[pos] == openingQuote) ? !quote : quote;
 
                 // By Jair - check if it is not an 'internal' quote.
                 // If it is, must be discarded in this case.
@@ -172,8 +175,8 @@ WMIObjectPath::WMIObjectPath(const BSTR bstr)
 
             // strip outer quotes
             String temp(&p[pos - len], len);
-            if((temp.size() != 0) && (temp[0] == '\"') &&
-                (temp[temp.size() - 1] == '\"'))
+            if((temp.size() != 0) && (temp[0] == openingQuote) &&
+                (temp[temp.size() - 1] == openingQuote))
             {
                 temp.remove(temp.size() - 1, 1);
                 temp.remove(0, 1);

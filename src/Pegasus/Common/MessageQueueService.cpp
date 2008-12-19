@@ -340,16 +340,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
     return 0;
 }
 
-
-void MessageQueueService::_sendwait_callback(
-    AsyncOpNode* op,
-    MessageQueue* q,
-    void *parm)
-{
-    op->_client_sem.signal();
-}
-
-
 // callback function is responsible for cleaning up all resources
 // including op, op->_callback_node, and op->_callback_ptr
 void MessageQueueService::_handle_async_callback(AsyncOpNode* op)
@@ -620,7 +610,9 @@ Boolean MessageQueueService::_sendAsync(
     void* callback_ptr,
     Uint32 flags)
 {
-    PEGASUS_ASSERT(op != 0 && callback != 0);
+    PEGASUS_ASSERT(op != 0);
+    PEGASUS_ASSERT((callback == 0) ==
+        (flags == ASYNC_OPFLAGS_PSEUDO_CALLBACK));
 
     // destination of this message
     op->_op_dest = MessageQueue::lookup(destination);
@@ -699,7 +691,7 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest* request)
     _sendAsync(
         request->op,
         request->dest,
-        _sendwait_callback,
+        0,
         this,
         (void *)0,
         ASYNC_OPFLAGS_PSEUDO_CALLBACK);

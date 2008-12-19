@@ -139,8 +139,6 @@ private:
 
     static ThreadReturnType PEGASUS_THREAD_CDECL _req_proc(void *);
 
-    static void _sendwait_callback(AsyncOpNode *, MessageQueue *, void *);
-
     AtomicInt _incoming_queue_shutdown;
 
     friend class cimom;

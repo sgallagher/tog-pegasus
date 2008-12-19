@@ -82,13 +82,8 @@ private:
 
     // pointers for async callbacks  - don't use
     AsyncOpNode *_callback_node;
-    MessageQueue *_callback_request_q;
     MessageQueue *_callback_response_q;
     void *_callback_ptr;
-
-    // pointers to help static class message handlers - don't use
-    MessageQueue *_service_ptr;
-    Thread *_thread_ptr;
 
     friend class cimom;
     friend class MessageQueueService;

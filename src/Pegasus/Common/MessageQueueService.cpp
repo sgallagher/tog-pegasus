@@ -321,7 +321,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
 
             if (operation)
             {
-               operation->_service_ptr = service;
                service->_handle_incoming_operation(operation);
             }
         } while (operation);
@@ -639,8 +638,6 @@ Boolean MessageQueueService::_sendAsync(
     op->_callback_response_q = callback_response_q;
     // user data for callback
     op->_callback_ptr = callback_ptr;
-    // I am the originator of this request
-    op->_callback_request_q = this;
 
     return  _meta_dispatcher->route_async(op);
 }

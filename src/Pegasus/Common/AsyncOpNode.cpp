@@ -40,7 +40,6 @@ AsyncOpNode::AsyncOpNode()
       _op_dest(0),
       _async_callback(0),
       _callback_node(0),
-      _callback_request_q(0),
       _callback_response_q(0),
       _callback_ptr(0)
 {

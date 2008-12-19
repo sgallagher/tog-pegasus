@@ -48,12 +48,28 @@ class PEGASUS_COMMON_LINKAGE TraceFileHandler: public TraceHandler
 {
 private:
 
+    enum ErrLogMessageIds
+    {
+        TRCFH_FAILED_TO_OPEN_FILE_SYSMSG,
+        TRCFH_UNEXPECTED_FILE_OWNER,
+        TRCFH_FAILED_TO_SET_FILE_PERMISSIONS,
+        TRCFH_UNABLE_TO_WRITE_TRACE_TO_FILE,
+        TRCFH_INVALID_FILE_HANDLE
+    };
+
     /** Open the specified file in append mode and ensure the file owner and
         permissions are appropriate.
         @param    fileName Full path of the file to open.
         @return   Handle to the opened file if successful, otherwise 0.
      */
     FILE* _openFile(const char* fileName);
+
+    /** Function writes an error message to the log, but only once.
+        @param    specifies the type of error message
+        @param    parms MessageLoaderParms object containing the localizable
+                  message to log.
+     */
+    void _logError(ErrLogMessageIds msgID, const MessageLoaderParms & parms);
 
     /* File path to write messages
      */
@@ -75,7 +91,7 @@ private:
 
     /* Flag to track writing of message to log
      */
-    Boolean _wroteToLog;
+    Uint16 _logErrorBitField;
     Boolean _configHasChanged;
 
 public:

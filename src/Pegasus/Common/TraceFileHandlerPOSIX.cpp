@@ -32,7 +32,6 @@
 #if defined(PEGASUS_OS_VMS)
 # include <fcntl.h>
 #endif
-#include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 #include <Pegasus/Common/Mutex.h>
@@ -78,13 +77,11 @@ void TraceFileHandler::prepareFileHandle(void)
         if (!_fileHandle)
         {
             // Unable to re-open file, log a message
-
-            Logger::put_l(
-                Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-                MessageLoaderParms(
-                    "Common.TraceFileHandlerUnix.FAILED_TO_OPEN_FILE",
-                    "Failed to open File $0",
-                    _fileName));
+            MessageLoaderParms parm(
+                "Common.TraceFileHandlerUnix.FAILED_TO_OPEN_FILE",
+                "Failed to open File $0",
+                _fileName);
+            _logError(TRCFH_FAILED_TO_OPEN_FILE_SYSMSG,parm);
             return;
         }
 
@@ -93,13 +90,11 @@ void TraceFileHandler::prepareFileHandle(void)
         if (!FileSystem::changeFilePermissions(
                 String(_fileName), (S_IRUSR | S_IWUSR)))
         {
-            Logger::put_l(
-                Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-                MessageLoaderParms(
-                    "Common.TraceFileHandlerUnix."
-                        "FAILED_TO_SET_FILE_PERMISSIONS",
-                    "Failed to set permissions on file $0",
-                    _fileName));
+            MessageLoaderParms parm(
+                "Common.TraceFileHandlerUnix.FAILED_TO_SET_FILE_PERMISSIONS",
+                "Failed to set permissions on file $0",
+                _fileName);
+            _logError(TRCFH_FAILED_TO_SET_FILE_PERMISSIONS,parm);
             return;
         }
     }
@@ -128,9 +123,12 @@ void TraceFileHandler::handleMessage(
     retCode = fflush(_fileHandle);
     fileDesc = fileno(_fileHandle);
     retCode = fsync(fileDesc);
-    _wroteToLog = false;
-    // retCode = fclose(_fileHandle);
-    // _fileHandle = 0;
+    if (retCode == 0)
+    {
+        // trace message successful written, reset error log messages
+        // thus allow writing of errors to log again
+        _logErrorBitField = 0;
+    }
 
     // ---- END CRITICAL SECTION
 
@@ -153,9 +151,12 @@ void TraceFileHandler::handleMessage(const char *message, Uint32 msgLen)
     retCode = fflush(_fileHandle);
     fileDesc = fileno(_fileHandle);
     retCode = fsync(fileDesc);
-    _wroteToLog = false;
-    // retCode = fclose(_fileHandle);
-    // _fileHandle = 0;
+    if (retCode == 0)
+    {
+        // trace message successful written, reset error log messages
+        // thus allow writing of errors to log again
+        _logErrorBitField = 0;
+    }
 
     // ---- END CRITICAL SECTION
 
@@ -199,16 +200,11 @@ void TraceFileHandler::prepareFileHandle(void)
         if (!_fileHandle)
         {
             // Unable to open file, log a message
-            if (!_wroteToLog)
-            {
-                Logger::put_l(
-                    Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-                    MessageLoaderParms(
-                        "Common.TraceFileHandler.FAILED_TO_OPEN_FILE",
-                        "Failed to open File $0",
-                        _fileName));
-                _wroteToLog = true;
-            }
+            MessageLoaderParms parm(
+                "Common.TraceFileHandler.FAILED_TO_OPEN_FILE",
+                "Failed to open File $0",
+                _fileName);
+            _logError(TRCFH_FAILED_TO_OPEN_FILE_SYSMSG,parm);
             return;
         }
     }
@@ -241,7 +237,13 @@ void TraceFileHandler::handleMessage(
     fprintf(_fileHandle, "%s", message);
     vfprintf(_fileHandle, fmt, argList);
     fprintf(_fileHandle, "\n");
-    fflush(_fileHandle);
+    if (0 == fflush(_fileHandle))
+    {
+        // trace message successful written, reset error log messages
+        // thus allow writing of errors to log again
+        _logErrorBitField = 0;
+    }
+
     // ---- END CRITICAL SECTION
 }
 
@@ -266,7 +268,12 @@ void TraceFileHandler::handleMessage(const char *message, Uint32 msgLen)
     prepareFileHandle();
     // Write the message to the file
     fprintf(_fileHandle, "%s\n", message);
-    fflush(_fileHandle);
+    if (0 == fflush(_fileHandle))
+    {
+        // trace message successful written, reset error log messages
+        // thus allow writing of errors to log again
+        _logErrorBitField = 0;
+    }
     // ---- END CRITICAL SECTION
 }
 

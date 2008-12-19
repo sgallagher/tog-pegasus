@@ -30,7 +30,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-#include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 #include <Pegasus/Common/Mutex.h>
 
@@ -89,29 +88,29 @@ void TraceFileHandler::handleMessage(
         {
             // Unable to write message to file
             // Log message
-            Logger::put_l(
-                Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-                MessageLoaderParms(
-                    "Common.TraceFileHandlerWindows."
-                        "UNABLE_TO_WRITE_TRACE_TO_FILE",
-                    "Unable to write trace message to File $0",
-                    _fileName));
+            MessageLoaderParms parm(
+                "Common.TraceFileHandlerWindows.UNABLE_TO_WRITE_TRACE_TO_FILE",
+                "Unable to write trace message to File $0",
+                _fileName);
+            _logError(TRCFH_UNABLE_TO_WRITE_TRACE_TO_FILE,parm);
         }
         else
         {
             fflush(_fileHandle);
+            // trace message successful written, reset error log messages
+            // thus allow writing of errors to log again
+            _logErrorBitField = 0;
         }
     }
     else
     {
         // Invalid file handle
         // Log message
-        Logger::put_l(
-            Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoaderParms(
-                "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
-                "Invalid file handle for file $0",
-                _fileName));
+        MessageLoaderParms parm(
+            "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
+            "Invalid file handle for file $0",
+            _fileName);
+        _logError(TRCFH_INVALID_FILE_HANDLE,parm);
     }
 }
 
@@ -145,29 +144,29 @@ void TraceFileHandler::handleMessage(const char* message, Uint32 msgLen)
         {
             // Unable to write message to file
             // Log message
-            Logger::put_l(
-                Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-                MessageLoaderParms(
-                    "Common.TraceFileHandlerWindows."
-                        "UNABLE_TO_WRITE_TRACE_TO_FILE",
-                    "Unable to write trace message to File $0",
-                    _fileName));
+            MessageLoaderParms parm(
+                "Common.TraceFileHandlerWindows.UNABLE_TO_WRITE_TRACE_TO_FILE",
+                "Unable to write trace message to File $0",
+                _fileName);
+            _logError(TRCFH_UNABLE_TO_WRITE_TRACE_TO_FILE,parm);
         }
         else
         {
             fflush(_fileHandle);
+            // trace message successful written, reset error log messages
+            // thus allow writing of errors to log again
+            _logErrorBitField = 0;
         }
     }
     else
     {
         // Invalid file handle
         // Log message
-        Logger::put_l(
-            Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoaderParms(
-                "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
-                "Invalid file handle for file $0",
-                _fileName));
+        MessageLoaderParms parm(
+            "Common.TraceFileHandlerWindows.INVALID_FILE_HANDLE",
+            "Invalid file handle for file $0",
+            _fileName);
+        _logError(TRCFH_INVALID_FILE_HANDLE,parm);
     }
 }
 

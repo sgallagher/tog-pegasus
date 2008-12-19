@@ -32,6 +32,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/TraceFileHandler.h>
+#include <Pegasus/Common/Logger.h>
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include <Pegasus/Common/TraceFileHandlerWindows.cpp>
@@ -54,7 +55,7 @@ TraceFileHandler::TraceFileHandler()
 {
     _fileName = 0;
     _fileHandle = 0;
-    _wroteToLog = false;
+    _logErrorBitField = 0;
     _configHasChanged = true;
 #ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
     _baseFileName = 0;
@@ -159,11 +160,11 @@ FILE* TraceFileHandler::_openFile(const char* fileName)
     if (!fileHandle)
     {
         // Unable to open file, log a message
-        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoaderParms(
-                "Common.TraceFileHandler.FAILED_TO_OPEN_FILE_SYSMSG",
-                "Failed to open file $0: $1",
-                fileName,PEGASUS_SYSTEM_ERRORMSG_NLS));
+        MessageLoaderParms parm(
+            "Common.TraceFileHandler.FAILED_TO_OPEN_FILE_SYSMSG",
+            "Failed to open file $0: $1",
+            fileName,PEGASUS_SYSTEM_ERRORMSG_NLS);
+        _logError(TRCFH_FAILED_TO_OPEN_FILE_SYSMSG,parm);
         return 0;
     }
 
@@ -172,11 +173,12 @@ FILE* TraceFileHandler::_openFile(const char* fileName)
     //
     if (!System::verifyFileOwnership(fileName))
     {
-        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-            MessageLoaderParms(
-                "Common.TraceFileHandler.UNEXPECTED_FILE_OWNER",
-                "File $0 is not owned by user $1.", fileName,
-                System::getEffectiveUserName()));
+        MessageLoaderParms parm(
+            "Common.TraceFileHandler.UNEXPECTED_FILE_OWNER",
+            "File $0 is not owned by user $1.",
+            fileName,
+            System::getEffectiveUserName());
+        _logError(TRCFH_UNEXPECTED_FILE_OWNER,parm);
         fclose(fileHandle);
         return 0;
     }
@@ -192,19 +194,39 @@ FILE* TraceFileHandler::_openFile(const char* fileName)
             String(fileName), (_S_IREAD|_S_IWRITE)) )
 #endif
     {
-        Logger::put_l(
-            Logger::ERROR_LOG,
-            System::CIMSERVER,
-            Logger::WARNING,
-            MessageLoaderParms(
-                "Common.TraceFileHandler.FAILED_TO_SET_FILE_PERMISSIONS",
-                "Failed to set permissions on file $0",
-                fileName));
+        MessageLoaderParms parm(
+            "Common.TraceFileHandler.FAILED_TO_SET_FILE_PERMISSIONS",
+            "Failed to set permissions on file $0",
+            fileName);
+        _logError(TRCFH_FAILED_TO_SET_FILE_PERMISSIONS,parm);
         fclose(fileHandle);
         return 0;
     }
 
     return fileHandle;
 }
+
+void TraceFileHandler::_logError(
+    ErrLogMessageIds msgID,
+    const MessageLoaderParms & parms)
+{
+    // msgID has to be within range, else we have a severe coding error
+    PEGASUS_ASSERT((msgID >= TRCFH_FAILED_TO_OPEN_FILE_SYSMSG) &&
+        (msgID <= TRCFH_INVALID_FILE_HANDLE));
+
+    if (_logErrorBitField & (1 << msgID) == 0)
+    {
+        // log message not yet written, write log message
+        Logger::put_l(
+            Logger::ERROR_LOG,
+            System::CIMSERVER,
+            Logger::WARNING,
+            parms);        
+        // mark bit in log error field to flag that specific log message
+        // has been written
+        _logErrorBitField |= (1 << msgID);
+    }
+}
+
 
 PEGASUS_NAMESPACE_END

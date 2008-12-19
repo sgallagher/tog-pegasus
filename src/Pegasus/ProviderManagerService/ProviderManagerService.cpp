@@ -1115,15 +1115,6 @@ void ProviderManagerService::providerModuleFailureCallback
             moduleName);
     }
 
-    //
-    //  Create Notify Provider Fail request message
-    //
-    CIMNotifyProviderFailRequestMessage * request =
-        new CIMNotifyProviderFailRequestMessage
-            (XmlWriter::getNextMessageId (),
-            moduleName,
-            userName,
-            QueueIdStack ());
 
     if (!_allProvidersStopped)
     {
@@ -1143,6 +1134,16 @@ void ProviderManagerService::providerModuleFailureCallback
 
             _indicationServiceQueueId = serviceIds [0];
         }
+
+        //
+        //  Create Notify Provider Fail request message
+        //
+        CIMNotifyProviderFailRequestMessage * request =
+            new CIMNotifyProviderFailRequestMessage
+                (XmlWriter::getNextMessageId (),
+                moduleName,
+                userName,
+                QueueIdStack ());
 
         request->queueIds = QueueIdStack
             (_indicationServiceQueueId, providerManagerService->getQueueId ());

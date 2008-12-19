@@ -1502,6 +1502,7 @@ void WMIValue::getAsVariant(CComVariant *var,
             break;
 
         case CIM_REFERENCE:
+            if(!isArray())
             {
                 CIMObjectPath value;
                 String sObjName;
@@ -1509,24 +1510,51 @@ void WMIValue::getAsVariant(CComVariant *var,
                 get(value);
                 sObjName = value.toString();
 
-                // Check if has =R".." for a reference instance and
-                //    if so, remove the R
-                Uint32 pos = sObjName.find(qString(Q_REF_KEY));
-                bool bHaveReference = (PEG_NOT_FOUND != pos);
-
-                if (bHaveReference)
-                {
-                    while (PEG_NOT_FOUND != pos)
-                    {
-                        sObjName.remove(pos + 1, 1);    //removing R
-                        pos = sObjName.find(qString(Q_REF_KEY));
-                    }
-                }
                 tmp = sObjName;
 
                 var->vt = VT_BSTR;
                 var->bstrVal = tmp.Bstr();
             }
+            else
+            {
+                // creates an array of BSTRs
+                rgsabound.lLbound = 0;
+                rgsabound.cElements = getArraySize();
+                pSA = SafeArrayCreate(VT_BSTR, 1, &rgsabound);
+
+                if (!pSA)
+                {
+                    throw CIMException (CIM_ERR_FAILED,
+                                       "Array creation failed.");
+                }
+
+                Array<CIMObjectPath> arValue;
+                get(arValue);
+
+                for (long i = 0; i < getArraySize(); i++)
+                {
+                    String sObjName;
+                    CComVariant vOut;
+
+                    sObjName = arValue[i].toString();
+
+                    tmp = sObjName;
+                    vOut.vt = VT_BSTR;  // set type
+                    vOut.bstrVal = tmp.Bstr();
+
+                    if ((hr = SafeArrayPutElement(pSA, &i, vOut.bstrVal)))
+                    {
+                        SafeArrayDestroy(pSA);
+                        throw CIMException(CIM_ERR_FAILED,
+                                           "Array put operation failed.");
+                    }
+                    vOut.Clear();
+                }
+                var->vt = VT_ARRAY | VT_BSTR;
+                var->parray = pSA;
+
+            }
+
             break;
 
         case CIM_OBJECT:

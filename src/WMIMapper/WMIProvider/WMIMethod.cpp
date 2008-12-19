@@ -98,7 +98,7 @@ CIMParameter cimParamFromWMIParam(
 
     // Check for a reference type, and get the reference class if necessary:
     String referenceClass = String::EMPTY;
-    if (CIM_REFERENCE == wmiType)
+    if ((wmiType & ~CIM_FLAG_ARRAY) == CIM_REFERENCE)
     {
         // strip "ref:"
         Uint32 pos = qualifierList.find(CIMName("CIMTYPE"));

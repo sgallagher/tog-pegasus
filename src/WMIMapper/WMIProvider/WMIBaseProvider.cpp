@@ -512,20 +512,6 @@ String WMIBaseProvider::getObjectName( const CIMObjectPath& objectName)
         }
     }
 
-    //4. Check if has =R".." for a reference instance and
-    //    if so, remove the R
-    //Uint32 pos = sObjName.find(qString(Q_REF_KEY));
-    pos = sObjName.find(qString(Q_REF_KEY));
-    bHaveReference = (PEG_NOT_FOUND != pos);
-
-    if (bHaveReference)
-    {
-        while (PEG_NOT_FOUND != pos)
-        {
-            sObjName.remove(pos + 1, 1);    //removing R"
-            pos = sObjName.find(qString(Q_REF_KEY));
-        }
-    }
 
     PEG_TRACE((TRC_WMIPROVIDER, Tracer::LEVEL3,
         "WMIBaseProvider::getObjectName() - ObjectName: %s",

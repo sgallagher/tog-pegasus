@@ -214,7 +214,7 @@ void TraceFileHandler::_logError(
     PEGASUS_ASSERT((msgID >= TRCFH_FAILED_TO_OPEN_FILE_SYSMSG) &&
         (msgID <= TRCFH_INVALID_FILE_HANDLE));
 
-    if (_logErrorBitField & (1 << msgID) == 0)
+    if ((_logErrorBitField & (1 << msgID)) == 0)
     {
         // log message not yet written, write log message
         Logger::put_l(

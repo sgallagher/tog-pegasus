@@ -826,9 +826,6 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
             Uint32 controlServiceId = lookup(
                 PEGASUS_QUEUENAME_CONTROLSERVICE)->getQueueId();
 
-            Uint32 indicationServiceId = lookup(
-                PEGASUS_QUEUENAME_INDICATIONSERVICE)->getQueueId();
-
             _routing_table->insertRecord(
                 PEGASUS_CLASSNAME_CONFIGSETTING,
                 PEGASUS_NAMESPACENAME_CONFIG,
@@ -1058,6 +1055,9 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 
             if (_enableIndicationService)
             {
+                Uint32 indicationServiceId = lookup(
+                    PEGASUS_QUEUENAME_INDICATIONSERVICE)->getQueueId();
+
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
                 _routing_table->insertRecord(
                     PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE,

@@ -1007,21 +1007,25 @@ void ProviderManagerService::providerModuleFailureCallback
                 moduleName));
     }
 
-    if (!_allProvidersStopped)
+    //
+    // Send Notify Provider Fail request message to Indication Service.
+    // (After a CIMStopAllProvidersRequestMessage is processed, the
+    // IndicationService may be destructed, so it cannot be used then.)
+    //
+
+    if (_indicationServiceQueueId == PEG_NOT_FOUND)
     {
-        //
-        // Send Notify Provider Fail request message to Indication Service.
-        // (After a CIMStopAllProvidersRequestMessage is processed, the
-        // IndicationService may be destructed, so it cannot be used then.)
-        //
+        MessageQueue* indicationServiceQueue =
+            lookup(PEGASUS_QUEUENAME_INDICATIONSERVICE);
 
-        if (_indicationServiceQueueId == PEG_NOT_FOUND)
+        if (indicationServiceQueue)
         {
-            _indicationServiceQueueId =
-                providerManagerService->find_service_qid(
-                    PEGASUS_QUEUENAME_INDICATIONSERVICE);
+            _indicationServiceQueueId = indicationServiceQueue->getQueueId();
         }
+    }
 
+    if (!_allProvidersStopped && (_indicationServiceQueueId != PEG_NOT_FOUND))
+    {
         //
         //  Create Notify Provider Fail request message
         //

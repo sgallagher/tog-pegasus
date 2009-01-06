@@ -1,45 +1,47 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Constants.h>
 #include <iostream>
 #include <cstring>
 #include "HTTPMessage.h"
-#include "System.h"
 #include "ArrayIterator.h"
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
+
+static const String _HTTP_HEADER_CONTENT_TYPE = "content-type";
 
 //------------------------------------------------------------------------------
 //
@@ -63,35 +65,21 @@ PEGASUS_NAMESPACE_BEGIN
 //
 //------------------------------------------------------------------------------
 
-char* HTTPMessage::findSeparator(const char* data)
+char* HTTPMessage::findSeparator(const char* data, Uint32 size)
 {
-    // [^\0\r\n]
-    static const unsigned char _skip[256] =
+    const char* p = data;
+    const char* end = p + size;
+
+    while (p != end)
     {
-        0,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-    };
+        if (*p == '\r')
+        {
+            size_t n = end - p;
 
-    // Note that data is null-terminated.
-    const unsigned char* p = (const unsigned char*)data;
-
-    for (;;)
-    {
-        // Search for a '\0', '\r', or '\n'.
-        while (_skip[*p])
-            p++;
-
-        if (!p[0])
-            break;
-        if (p[0] == '\r' && p[1] == '\n')
-            return (char*)p;
-        if (p[0] == '\n')
+            if (n >= 2 && p[1] == '\n')
+                return (char*)p;
+        }
+        else if (*p == '\n')
             return (char*)p;
 
         p++;
@@ -132,8 +120,7 @@ HTTPMessage::HTTPMessage(
     queueId(queueId_),
     authInfo(0),
     acceptLanguagesDecoded(false),
-    contentLanguagesDecoded(false),
-    binaryResponse(false)
+    contentLanguagesDecoded(false)
 {
     if (cimException_)
         cimException = *cimException_;
@@ -151,11 +138,10 @@ HTTPMessage::HTTPMessage(const HTTPMessage & msg)
     acceptLanguagesDecoded = msg.acceptLanguagesDecoded;
     contentLanguagesDecoded = msg.contentLanguagesDecoded;
     cimException = msg.cimException;
-    binaryResponse = msg.binaryResponse;
 }
 
 
-Boolean HTTPMessage::parse(
+void HTTPMessage::parse(
     String& startLine,
     Array<HTTPHeader>& headers,
     Uint32& contentLength) const
@@ -165,13 +151,12 @@ Boolean HTTPMessage::parse(
     contentLength = 0;
 
     char* data = (char*)message.getData();
-    const Uint32 size = message.size();
+    Uint32 size = message.size();
     char* line = data;
     char* sep;
     Boolean firstTime = true;
-    Uint32 headersFound = 0;
 
-    while ((sep = findSeparator(line)))
+    while ((sep = findSeparator(line, (Uint32)(size - (line - data)))))
     {
         // Look for double separator which terminates the header?
 
@@ -183,17 +168,14 @@ Boolean HTTPMessage::parse(
 
             // Determine length of content:
 
-            contentLength = (Uint32)(size - (content - data));
+            contentLength = (Uint32)(message.size() - (content - data));
             break;
         }
 
         Uint32 lineLength = (Uint32)(sep - line);
 
         if (firstTime)
-        {
             startLine.assign(line, lineLength);
-            firstTime = false;
-        }
         else
         {
             // Find the colon:
@@ -222,6 +204,8 @@ Boolean HTTPMessage::parse(
 
                 end++;
 
+                String name(line, (Uint32)(end - line));
+
                 // Get the value part:
 
                 char* start;
@@ -229,15 +213,7 @@ Boolean HTTPMessage::parse(
                 for (start = colon + 1; start < sep && isspace(*start); start++)
                     ;
 
-                HTTPHeader header(
-                    Buffer(line, (Uint32)(end - line), 20),
-                    Buffer(start, (Uint32)(sep - start), 50));
-
-                headersFound++;
-                if (headersFound >= PEGASUS_MAXELEMENTS_NUM)
-                {
-                    return false;
-                }
+                Buffer value(start, (Uint32)(sep - start), 50);
 
                 // From the HTTP/1.1 specification (RFC 2616) section 4.2
                 // Message Headers:
@@ -263,9 +239,7 @@ Boolean HTTPMessage::parse(
                 Uint32 headerIndex = 0;
                 for (; headerIndex < headers.size(); headerIndex++)
                 {
-                    if (System::strcasecmp(
-                            headers[headerIndex].first.getData(),
-                            header.first.getData()) == 0)
+                    if (headers[headerIndex].first == name)
                     {
                         break;
                     }
@@ -273,27 +247,27 @@ Boolean HTTPMessage::parse(
 
                 if (headerIndex == headers.size())
                 {
-                    headers.append(header);
+                    headers.append(HTTPHeader(name, value));
                 }
                 else
                 {
                     headers[headerIndex].second.append(", ", 2);
                     headers[headerIndex].second.append(
-                        header.second.getData(), header.second.size());
+                        value.getData(), value.size());
+
                 }
             }
         }
 
         line = sep + ((*sep == '\r') ? 2 : 1);
+        firstTime = false;
     }
-    return true;
 }
 
 
-
+#ifdef PEGASUS_DEBUG
 void HTTPMessage::printAll(ostream& os) const
 {
-    static const char* _HTTP_HEADER_CONTENT_TYPE = "content-type";
     Message::print(os);
 
     String startLine;
@@ -313,11 +287,9 @@ void HTTPMessage::printAll(ostream& os) const
 
     for (Uint32 i = 0; i < headers.size(); i++)
     {
-        cout << headers[i].first.getData() << ": " <<
-            headers[i].second.getData() << endl;
+        cout << headers[i].first << ": " << headers[i].second.getData() << endl;
 
-        if (System::strcasecmp(
-                headers[i].first.getData(), _HTTP_HEADER_CONTENT_TYPE) == 0)
+        if (String::equalNoCase(headers[i].first, _HTTP_HEADER_CONTENT_TYPE))
         {
             if (strncmp(headers[i].second.getData(), "image/", 6) == 0)
                 image = true;
@@ -350,7 +322,7 @@ void HTTPMessage::printAll(ostream& os) const
 
     os << endl;
 }
-
+#endif
 
 /*
  * Find the header prefix (i.e 2-digit number in front of cim keyword) if any.
@@ -362,7 +334,7 @@ void HTTPMessage::printAll(ostream& os) const
 
 void HTTPMessage::lookupHeaderPrefix(
     Array<HTTPHeader>& headers_,
-    const char* fieldName,
+    const String& fieldName,
     String& prefix)
 {
     ArrayIterator<HTTPHeader> headers(headers_);
@@ -372,93 +344,58 @@ void HTTPMessage::lookupHeaderPrefix(
 
     for (Uint32 i = 0, n = headers.size(); i < n; i++)
     {
-        const char* h = headers[i].first.getData();
+        const String &h = headers[i].first;
 
-        if ((headers[i].first.size() >= 3) &&
-            (h[0] >= '0') && (h[0] <= '9') &&
-            (h[1] >= '0') && (h[1] <= '9') &&
-            (h[2] == '-'))
+                if ((h.size() >= 3) &&
+                    (h[0] >= '0') && (h[0] <= '9') &&
+                    (h[1] >= '0') && (h[1] <= '9') &&
+                    (h[2] == Char16('-')))
         {
-            const char* fieldNameCurrent = h + 3;
+            String fieldNameCurrent = h.subString(3);
 
             // ONLY fields starting with keyword can have prefixed according
             // to spec
-            if (!String::equalNoCase(String(fieldNameCurrent, 3), keyword))
+            if (String::equalNoCase(fieldNameCurrent, keyword) == false)
                 continue;
 
-            prefix = String(h, 3);
+            prefix = h.subString(0,3);
 
             // no field name given, just return the first prefix encountered
-            if (!fieldName)
+            if (fieldName.size() == 0)
                 break;
 
-            if (System::strcasecmp(fieldNameCurrent, fieldName) != 0)
+            if (String::equalNoCase(fieldNameCurrent, fieldName) == false)
                 prefix.clear();
             else break;
         }
     }
 }
 
-Boolean HTTPMessage::_lookupHeaderIndex(
+Boolean HTTPMessage::lookupHeader(
     Array<HTTPHeader>& headers_,
-    const char* fieldName,
-    Uint32& headerIndex,
+    const String& fieldName,
+    String& fieldValue,
     Boolean allowNamespacePrefix)
 {
     ArrayIterator<HTTPHeader> headers(headers_);
 
     for (Uint32 i = 0, n = headers.size(); i < n; i++)
     {
-        if ((System::strcasecmp(headers[i].first.getData(), fieldName) == 0) ||
+        if (String::equalNoCase(headers[i].first, fieldName) ||
             (allowNamespacePrefix && (headers[i].first.size() >= 3) &&
              (headers[i].first[0] >= '0') && (headers[i].first[0] <= '9') &&
              (headers[i].first[1] >= '0') && (headers[i].first[1] <= '9') &&
-             (headers[i].first[2] == '-') &&
-             (System::strcasecmp(
-                  headers[i].first.getData() + 3, fieldName) == 0)))
+             (headers[i].first[2] == Char16('-')) &&
+             String::equalNoCase(headers[i].first.subString(3), fieldName)))
         {
-            headerIndex = i;
+            fieldValue = String(
+                headers[i].second.getData(),
+                headers[i].second.size());
             return true;
         }
     }
 
     // Not found:
-    return false;
-}
-
-Boolean HTTPMessage::lookupHeader(
-    Array<HTTPHeader>& headers,
-    const char* fieldName,
-    String& fieldValue,
-    Boolean allowNamespacePrefix)
-{
-    Uint32 index = PEG_NOT_FOUND;
-
-    if (_lookupHeaderIndex(headers, fieldName, index, allowNamespacePrefix))
-    {
-        fieldValue = String(
-            headers[index].second.getData(),
-            headers[index].second.size());
-        return true;
-    }
-
-    return false;
-}
-
-Boolean HTTPMessage::lookupHeader(
-    Array<HTTPHeader>& headers,
-    const char* fieldName,
-    const char*& fieldValue,
-    Boolean allowNamespacePrefix)
-{
-    Uint32 index = PEG_NOT_FOUND;
-
-    if (_lookupHeaderIndex(headers, fieldName, index, allowNamespacePrefix))
-    {
-        fieldValue = headers[index].second.getData();
-        return true;
-    }
-
     return false;
 }
 
@@ -479,7 +416,7 @@ Boolean HTTPMessage::parseRequestLine(
 
     methodName = startLine.subString(0, space1);
 
-    // Extract the request-URI:
+    // Extrat the request-URI:
 
     Uint32 space2 = startLine.find(space1 + 1, ' ');
 
@@ -536,11 +473,12 @@ Boolean HTTPMessage::parseStatusLine(
 }
 
 Boolean HTTPMessage::parseContentTypeHeader(
-    const char* contentTypeHeader,
+    const String& contentTypeHeader,
     String& type,
     String& charset)
 {
-    const char* str = contentTypeHeader;
+    CString cstr = contentTypeHeader.getCString();
+    const char* str = (const char*) cstr;
     skipHeaderWhitespace(str);
 
     // Get the type string

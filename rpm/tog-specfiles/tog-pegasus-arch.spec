@@ -19,10 +19,10 @@
 %global PEGASUS_HARDWARE_PLATFORM LINUX_ZSERIES64_GNU
 %else
 %global PEGASUS_HARDWARE_PLATFORM LINUX_IX86_GNU
-%endif 
-%endif 
-%endif 
-%endif 
+%endif
+%endif
+%endif
+%endif
 %endif
 %endif
 #

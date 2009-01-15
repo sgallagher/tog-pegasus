@@ -6,7 +6,7 @@ if [ $1 -eq 0 ]; then
    isRunning=`ps -el | grep cimserver |  grep -v "grep cimserver"`
    if [ "$isRunning" ]; then
       %PEGASUS_SBIN_DIR/cimserver -s
-   fi 
+   fi
    /sbin/chkconfig --del tog-pegasus;
    rm -f %PEGASUS_VARDATA_DIR/cimserver_current.conf;
    [ -d %PEGASUS_REPOSITORY_DIR ]  && rm -rf %PEGASUS_REPOSITORY_DIR;

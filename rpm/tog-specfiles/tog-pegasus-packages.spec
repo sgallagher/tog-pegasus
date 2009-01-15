@@ -16,7 +16,7 @@ supports C provider developers via the CMPI interface.
 %package test
 Summary: The OpenPegasus Tests
 Group: Systems Management/Base
-Requires: tog-pegasus >= %{version} 
+Requires: tog-pegasus >= %{version}
 
 %description test
 The OpenPegasus WBEM tests for the OpenPegasus %{version} Linux rpm.

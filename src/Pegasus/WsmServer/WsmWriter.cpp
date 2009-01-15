@@ -345,7 +345,7 @@ void WsmWriter::appendEPRElement(
             }
             else
             {
-                out << selector.value;
+                XmlGenerator::appendSpecial(out, selector.value);
                 _writeNewlineForReadability(out);
             }
             appendEndTag(out, WsmNamespaces::WS_MAN, STRLIT("Selector"));
@@ -360,7 +360,7 @@ void WsmWriter::appendStringElement(
     Buffer& out,
     const String& str)
 {
-    out << str;
+    XmlGenerator::appendSpecial(out, str);
     _writeNewlineForReadability(out);
 }
 

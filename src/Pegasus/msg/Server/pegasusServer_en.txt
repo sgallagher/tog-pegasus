@@ -7074,7 +7074,7 @@ CIM server listening on HTTPS port {0}."}
         */
         WsmServer.WsmRequestDecoder.ACTION_NOT_SUPPORTED:string {"PGS20207: The wsa:Action value ''{0}'' is not supported."}
 
-        WsmServer.WsmRequestDecoder.UNEXPECTED_SELECTORS:string {"PGS20208: The operation allows only the __cimnamespace seletor to be present."}
+        WsmServer.WsmRequestDecoder.UNEXPECTED_SELECTORS:string {"PGS20208: The operation allows only the __cimnamespace selector to be present."}
 
 
         // ==========================================================

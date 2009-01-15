@@ -618,8 +618,8 @@ void WsmRequestDecoder::_checkRequiredHeader(
 
 void WsmRequestDecoder::_checkNoSelectorsEPR(const WsmEndpointReference& epr)
 {
-    // Make sure that at most __cimnamespace seletor is present
-    if (epr.selectorSet)
+    // Make sure that at most __cimnamespace selector is present
+    if (epr.selectorSet->selectors.size())
     {
         if (epr.selectorSet->selectors.size() > 1 ||
             epr.selectorSet->selectors[0].type != WsmSelector::VALUE ||
@@ -629,7 +629,7 @@ void WsmRequestDecoder::_checkNoSelectorsEPR(const WsmEndpointReference& epr)
                 WsmFault::wsman_InvalidSelectors,
                 MessageLoaderParms(
                     "WsmServer.WsmRequestDecoder.UNEXPECTED_SELECTORS",
-                    "The operation allows only the __cimnamespace seletor to "
+                    "The operation allows only the __cimnamespace selector to "
                     "be present."),
                 WSMAN_FAULTDETAIL_UNEXPECTEDSELECTORS);
         }

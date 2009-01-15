@@ -26,13 +26,6 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //////////////////////////////////////////////////////////////////////////
-//
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
-//%/////////////////////////////////////////////////////////////////////////////
 
 #define NEED_STRING_EQUAL
 
@@ -98,6 +91,11 @@ void test02(STR*)
     PEGASUS_TEST_ASSERT(arr[1] == "four");
     PEGASUS_TEST_ASSERT(arr.size() == 2);
 
+    // test removing zero items
+    arr.remove(1, 0);
+    PEGASUS_TEST_ASSERT(arr.size() == 2);
+    arr.remove(0, 0);
+    PEGASUS_TEST_ASSERT(arr.size() == 2);
 }
 
 template<class T>

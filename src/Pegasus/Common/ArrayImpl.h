@@ -309,6 +309,11 @@ template<class PEGASUS_ARRAY_T>
 #endif
 void Array<PEGASUS_ARRAY_T>::remove(Uint32 index, Uint32 size)
 {
+    if (size == 0)
+    {
+        return;
+    }
+
     if (Array_refs.get() != 1)
         _rep = ArrayRep<PEGASUS_ARRAY_T>::copy_on_write(Array_rep);
 

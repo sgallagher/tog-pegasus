@@ -37,6 +37,7 @@
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include "WsmConstants.h"
+#include "SoapResponse.h"
 #include "WsmProcessor.h"
 
 PEGASUS_USING_STD;
@@ -257,8 +258,11 @@ void WsmProcessor::_handleEnumerateResponse(
     if (cimResponse->cimException.getCode() != CIM_ERR_SUCCESS)
     {
         _handleDefaultResponse(cimResponse, wsmRequest);
+        return;
     }
-    else
+
+    AutoPtr<SoapResponse> soapResponse;
+
     {
         AutoMutex lock(_enumerationContextTableLock);
 
@@ -288,17 +292,24 @@ void WsmProcessor::_handleEnumerateResponse(
                 wsmRequest->optimized ? wsmRequest->maxElements : 0));
         splitResponse->setEnumerationContext(contextId);
 
-        // If no items are left in the orignal response, mark split
+        // If no items are left in the original response, mark split
         // response as complete
         if (wsmResponse->getSize() == 0)
         {
             splitResponse->setComplete();
         }
 
-        _wsmResponseEncoder.enqueue(splitResponse.get());
-        if (splitResponse->getSize() > 0)
+        Uint32 numDataItemsEncoded = 0;
+        soapResponse.reset(_wsmResponseEncoder.encodeWsenEnumerateResponse(
+            splitResponse.get(), numDataItemsEncoded));
+
+        if (splitResponse->getSize() > numDataItemsEncoded)
         {
             // Add unprocessed items back to the context
+            if (numDataItemsEncoded)
+            {
+                splitResponse->remove(0, numDataItemsEncoded);
+            }
             wsmResponse->merge(splitResponse.get());
         }
 
@@ -314,95 +325,115 @@ void WsmProcessor::_handleEnumerateResponse(
             wsmResponse.release();
         }
     }
+
+    _wsmResponseEncoder.sendResponse(soapResponse.get());
 }
 
 void WsmProcessor::_handlePullRequest(WsenPullRequest* wsmRequest)
 {
-    EnumerationContext* enumContext;
-    AutoMutex lock(_enumerationContextTableLock);
+    AutoPtr<SoapResponse> soapResponse;
 
-    if (_enumerationContextTable.lookupReference(
-            wsmRequest->enumerationContext, enumContext))
     {
-        // EPRs of the request and the enumeration context must match
-        if (wsmRequest->epr != enumContext->epr)
+        AutoMutex lock(_enumerationContextTableLock);
+        EnumerationContext* enumContext;
+
+        if (_enumerationContextTable.lookupReference(
+                wsmRequest->enumerationContext, enumContext))
+        {
+            // EPRs of the request and the enumeration context must match
+            if (wsmRequest->epr != enumContext->epr)
+            {
+                throw WsmFault(
+                    WsmFault::wsa_MessageInformationHeaderRequired,
+                    MessageLoaderParms(
+                        "WsmServer.WsmProcessor.INVALID_PULL_EPR",
+                        "EPR of a Pull request does not match that of "
+                        "the enumeration context."));
+            }
+
+            AutoPtr<WsenPullResponse> wsmResponse(_splitPullResponse(
+                wsmRequest, enumContext->response, wsmRequest->maxElements));
+            wsmResponse->setEnumerationContext(enumContext->contextId);
+            if (enumContext->response->getSize() == 0)
+            {
+                wsmResponse->setComplete();
+            }
+
+            Uint32 numDataItemsEncoded = 0;
+            soapResponse.reset(_wsmResponseEncoder.encodeWsenPullResponse(
+                wsmResponse.get(), numDataItemsEncoded));
+
+            if (wsmResponse->getSize() > numDataItemsEncoded)
+            {
+                // Add unprocessed items back to the context
+                if (numDataItemsEncoded)
+                {
+                    wsmResponse->remove(0, numDataItemsEncoded);
+                }
+                enumContext->response->merge(wsmResponse.get());
+            }
+
+            // Remove the context if there are no instances left
+            if (enumContext->response->getSize() == 0)
+            {
+                delete enumContext->response;
+                _enumerationContextTable.remove(wsmRequest->enumerationContext);
+            }
+        }
+        else
         {
             throw WsmFault(
-                WsmFault::wsa_MessageInformationHeaderRequired,
+                WsmFault::wsen_InvalidEnumerationContext,
                 MessageLoaderParms(
-                    "WsmServer.WsmProcessor.INVALID_PULL_EPR",
-                    "EPR of a Pull request does not match that of "
-                    "the enumeration context."));
-        }
-
-        AutoPtr<WsenPullResponse> wsmResponse(_splitPullResponse(
-            wsmRequest, enumContext->response, wsmRequest->maxElements));
-        wsmResponse->setEnumerationContext(enumContext->contextId);
-        if (enumContext->response->getSize() == 0)
-        {
-            wsmResponse->setComplete();
-        }
-
-        _wsmResponseEncoder.enqueue(wsmResponse.get());
-        if (wsmResponse->getSize() > 0)
-        {
-            // Add unprocessed items back to the context
-            enumContext->response->merge(wsmResponse.get());
-        }
-
-        // Remove the context if there are no instances left
-        if (enumContext->response->getSize() == 0)
-        {
-            delete enumContext->response;
-            _enumerationContextTable.remove(wsmRequest->enumerationContext);
+                    "WsmServer.WsmProcessor.INVALID_ENUMERATION_CONTEXT",
+                    "Enumeration context \"$0\" is not valid.",
+                    wsmRequest->enumerationContext));
         }
     }
-    else
-    {
-        throw WsmFault(
-            WsmFault::wsen_InvalidEnumerationContext,
-            MessageLoaderParms(
-                "WsmServer.WsmProcessor.INVALID_ENUMERATION_CONTEXT",
-                "Enumeration context \"$0\" is not valid.",
-                wsmRequest->enumerationContext));
-    }
+
+    _wsmResponseEncoder.sendResponse(soapResponse.get());
 }
 
 void WsmProcessor::_handleReleaseRequest(WsenReleaseRequest* wsmRequest)
 {
-    EnumerationContext enumContext;
-    AutoMutex lock(_enumerationContextTableLock);
-    if (_enumerationContextTable.lookup(
-            wsmRequest->enumerationContext, enumContext))
+    AutoPtr<WsenReleaseResponse> wsmResponse;
+
     {
-        // EPRs of the request and the enumeration context must match
-        if (wsmRequest->epr != enumContext.epr)
+        AutoMutex lock(_enumerationContextTableLock);
+
+        EnumerationContext enumContext;
+        if (_enumerationContextTable.lookup(
+                wsmRequest->enumerationContext, enumContext))
+        {
+            // EPRs of the request and the enumeration context must match
+            if (wsmRequest->epr != enumContext.epr)
+            {
+                throw WsmFault(
+                    WsmFault::wsa_MessageInformationHeaderRequired,
+                    MessageLoaderParms(
+                        "WsmServer.WsmProcessor.INVALID_RELEASE_EPR",
+                        "EPR of a Release request does not match that of "
+                        "the enumeration context."));
+            }
+
+            wsmResponse.reset(new WsenReleaseResponse(
+                wsmRequest, enumContext.response->getContentLanguages()));
+
+            delete enumContext.response;
+            _enumerationContextTable.remove(wsmRequest->enumerationContext);
+        }
+        else
         {
             throw WsmFault(
-                WsmFault::wsa_MessageInformationHeaderRequired,
+                WsmFault::wsen_InvalidEnumerationContext,
                 MessageLoaderParms(
-                    "WsmServer.WsmProcessor.INVALID_RELEASE_EPR",
-                    "EPR of a Release request does not match that of "
-                    "the enumeration context."));
+                    "WsmServer.WsmProcessor.INVALID_ENUMERATION_CONTEXT",
+                    "Enumeration context \"$0\" is not valid.",
+                    wsmRequest->enumerationContext));
         }
-
-        AutoPtr<WsenReleaseResponse> wsmResponse(new WsenReleaseResponse(
-            wsmRequest, enumContext.response->getContentLanguages()));
-
-        delete enumContext.response;
-        _enumerationContextTable.remove(wsmRequest->enumerationContext);
-
-        _wsmResponseEncoder.enqueue(wsmResponse.get());
     }
-    else
-    {
-        throw WsmFault(
-            WsmFault::wsen_InvalidEnumerationContext,
-            MessageLoaderParms(
-                "WsmServer.WsmProcessor.INVALID_ENUMERATION_CONTEXT",
-                "Enumeration context \"$0\" is not valid.",
-                wsmRequest->enumerationContext));
-    }
+
+    _wsmResponseEncoder.enqueue(wsmResponse.get());
 }
 
 void WsmProcessor::_handleDefaultResponse(

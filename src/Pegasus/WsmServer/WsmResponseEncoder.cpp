@@ -133,7 +133,8 @@ void WsmResponseEncoder::_sendUnreportableSuccess(WsmResponse* response)
     _sendResponse(&soapResponse);
 }
 
-void WsmResponseEncoder::_sendEncodingLimitFault(WsmResponse* response)
+SoapResponse* WsmResponseEncoder::_buildEncodingLimitFault(
+    WsmResponse* response)
 {
     WsmFault fault(WsmFault::wsman_EncodingLimit,
         MessageLoaderParms(
@@ -148,8 +149,7 @@ void WsmResponseEncoder::_sendEncodingLimitFault(WsmResponse* response)
         response->getHttpCloseConnect(),
         fault);
 
-    SoapResponse soapResponse(&faultResponse);
-    _sendResponse(&soapResponse);
+    return new SoapResponse(&faultResponse);
 }
 
 void WsmResponseEncoder::enqueue(WsmResponse* response)
@@ -182,14 +182,6 @@ void WsmResponseEncoder::enqueue(WsmResponse* response)
                 _encodeWxfDeleteResponse((WxfDeleteResponse*) response);
                 break;
 
-            case WS_ENUMERATION_ENUMERATE:
-                _encodeWsenEnumerateResponse((WsenEnumerateResponse*) response);
-                break;
-
-            case WS_ENUMERATION_PULL:
-                _encodeWsenPullResponse((WsenPullResponse*) response);
-                break;
-
             case WS_ENUMERATION_RELEASE:
                 _encodeWsenReleaseResponse((WsenReleaseResponse*) response);
                 break;
@@ -202,6 +194,10 @@ void WsmResponseEncoder::enqueue(WsmResponse* response)
                 _encodeSoapFaultResponse((SoapFaultResponse*) response);
                 break;
 
+            case WS_ENUMERATION_ENUMERATE:
+            case WS_ENUMERATION_PULL:
+                // These cases are handled specially to allow for the message
+                // contents to be tuned according to the MaxEnvelopeSize value.
             default:
                 // Unexpected message type
                 PEGASUS_ASSERT(0);
@@ -314,10 +310,11 @@ void WsmResponseEncoder::_encodeWxfDeleteResponse(WxfDeleteResponse* response)
     _sendResponse(&soapResponse);
 }
 
-void WsmResponseEncoder::_encodeWsenEnumerateResponse(
-    WsenEnumerateResponse* response)
+SoapResponse* WsmResponseEncoder::encodeWsenEnumerateResponse(
+    WsenEnumerateResponse* response,
+    Uint32& numDataItemsEncoded)
 {
-    SoapResponse soapResponse(response);
+    AutoPtr<SoapResponse> soapResponse(new SoapResponse(response));
     Buffer headers;
 
     if (response->requestedItemCount())
@@ -330,38 +327,40 @@ void WsmResponseEncoder::_encodeWsenEnumerateResponse(
     }
 
     if (!_encodeEnumerationData(
-            soapResponse,
+            *soapResponse.get(),
             headers,
             WS_ENUMERATION_ENUMERATE,
             response->getEnumerationContext(),
             response->isComplete(),
-            response->getEnumerationData()))
+            response->getEnumerationData(),
+            numDataItemsEncoded))
     {
-        _sendEncodingLimitFault(response);
-        return;
+        soapResponse.reset(_buildEncodingLimitFault(response));
     }
 
-    _sendResponse(&soapResponse);
+    return soapResponse.release();
 }
 
-void WsmResponseEncoder::_encodeWsenPullResponse(WsenPullResponse* response)
+SoapResponse* WsmResponseEncoder::encodeWsenPullResponse(
+    WsenPullResponse* response,
+    Uint32& numDataItemsEncoded)
 {
-    SoapResponse soapResponse(response);
+    AutoPtr<SoapResponse> soapResponse(new SoapResponse(response));
     Buffer headers;
 
     if (!_encodeEnumerationData(
-            soapResponse,
+            *soapResponse.get(),
             headers,
             WS_ENUMERATION_PULL,
             response->getEnumerationContext(),
             response->isComplete(),
-            response->getEnumerationData()))
+            response->getEnumerationData(),
+            numDataItemsEncoded))
     {
-        _sendEncodingLimitFault(response);
-        return;
+        soapResponse.reset(_buildEncodingLimitFault(response));
     }
 
-    _sendResponse(&soapResponse);
+    return soapResponse.release();
 }
 
 Boolean WsmResponseEncoder::_encodeEnumerationData(
@@ -370,12 +369,15 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
     WsmOperationType operation,
     Uint64 contextId,
     Boolean isComplete,
-    WsenEnumerationData& data)
+    WsenEnumerationData& data,
+    Uint32& numDataItemsEncoded)
 {
     Buffer bodyHeader, bodyTrailer;
 
     PEGASUS_ASSERT(operation == WS_ENUMERATION_ENUMERATE ||
         operation == WS_ENUMERATION_PULL);
+
+    numDataItemsEncoded = 0;
 
     WsmWriter::appendStartTag(
         bodyHeader, WsmNamespaces::WS_ENUMERATION,
@@ -534,24 +536,19 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
         PEGASUS_ASSERT(0);
     }
 
+    numDataItemsEncoded = i;
+
     // If the list is not empty, but none of the items have been successfully
     // added to the soapResponse, fault the request because it cannot be
     // encoded within the specified limits.
-    if (data.getSize() > 0 && i == 0)
+    if (data.getSize() > 0 && numDataItemsEncoded == 0)
     {
         return false;
     }
 
-    // Remove the items we processed. The rest will be added back
-    // to the context
-    if (i != 0)
-    {
-        data.remove(0, i);
-    }
-
     // The request is complete but could not be encoded with MaxEnvelopeSize.
     // Clear EndOfSequence tag.
-    if (isComplete && data.getSize() > 0)
+    if (isComplete && data.getSize() > numDataItemsEncoded)
     {
         soapResponse.getBodyTrailer().remove(eosPos, eosSize);
     }

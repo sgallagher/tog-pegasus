@@ -51,18 +51,29 @@ public:
 
     void enqueue(WsmResponse* response);
 
+    // The encoding of enumeration responses must be separated from the
+    // sending of the responses to allow proper handling of MaxEnvelopeSize.
+    SoapResponse* encodeWsenEnumerateResponse(
+        WsenEnumerateResponse* response,
+        Uint32& numDataItemsEncoded);
+    SoapResponse* encodeWsenPullResponse(
+        WsenPullResponse* response,
+        Uint32& numDataItemsEncoded);
+    void sendResponse(SoapResponse* response)
+    {
+        _sendResponse(response);
+    }
+
 private:
 
     void _sendResponse(SoapResponse* response);
     void _sendUnreportableSuccess(WsmResponse* response);
-    void _sendEncodingLimitFault(WsmResponse* response);
+    SoapResponse* _buildEncodingLimitFault(WsmResponse* response);
 
     void _encodeWxfGetResponse(WxfGetResponse* response);
     void _encodeWxfPutResponse(WxfPutResponse* response);
     void _encodeWxfCreateResponse(WxfCreateResponse* response);
     void _encodeWxfDeleteResponse(WxfDeleteResponse* response);
-    void _encodeWsenEnumerateResponse(WsenEnumerateResponse* response);
-    void _encodeWsenPullResponse(WsenPullResponse* response);
     void _encodeWsenReleaseResponse(WsenReleaseResponse* response);
     void _encodeWsmFaultResponse(WsmFaultResponse* response);
     void _encodeSoapFaultResponse(SoapFaultResponse* response);
@@ -73,7 +84,8 @@ private:
         WsmOperationType operation,
         Uint64 contextId,
         Boolean isComplete,
-        WsenEnumerationData& data);
+        WsenEnumerationData& data,
+        Uint32& numDataItemsEncoded);
 };
 
 PEGASUS_NAMESPACE_END

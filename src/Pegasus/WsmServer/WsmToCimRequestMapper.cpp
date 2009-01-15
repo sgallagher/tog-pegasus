@@ -122,6 +122,8 @@ CIMOperationRequestMessage* WsmToCimRequestMapper::mapToCimRequest(
             ContentLanguageListContainer(request->contentLanguages));
         cimRequest->setHttpMethod(request->httpMethod);
         cimRequest->setCloseConnect(request->httpCloseConnect);
+        cimRequest->binaryRequest = true;
+        cimRequest->binaryResponse = true;
     }
 
     return cimRequest.release();

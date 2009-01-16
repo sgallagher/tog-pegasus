@@ -445,11 +445,24 @@ String System::getPassword(const char* prompt)
 
     return buf;
 
+#elif  defined(PEGASUS_OS_PASE)
+
+    char* umepass = umeGetPass();
+    if(NULL == umepass)
+    {
+        return String::EMPTY;
+    }
+    else
+    {
+        return String(umepass);
+    }
+
 #else /* default */
 
     return String(getpass(prompt));
 
 #endif /* default */
+
 }
 
 String System::getEffectiveUserName()

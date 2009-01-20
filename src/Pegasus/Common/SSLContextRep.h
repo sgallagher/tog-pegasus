@@ -127,10 +127,14 @@ private:
 
         _sslLocks.reset(new Mutex[CRYPTO_num_locks()]);
 
-# if defined(PEGASUS_HAVE_PTHREADS) && !defined(PEGASUS_OS_VMS)
+#ifdef PEGASUS_HAVE_PTHREADS
         // Set the ID callback. The ID callback returns a thread ID.
+# ifdef PEGASUS_OS_VMS
+        CRYPTO_set_id_callback((CRYPTO_SET_ID_CALLBACK) _getThreadId);
+# else
         CRYPTO_set_id_callback((CRYPTO_SET_ID_CALLBACK) pthread_self);
 # endif
+#endif
 
         // Set the locking callback.
 
@@ -138,6 +142,12 @@ private:
             (CRYPTO_SET_LOCKING_CALLBACK) _lockingCallback);
     }
 
+#if defined(PEGASUS_OS_VMS) && defined(PEGASUS_HAVE_PTHREADS)
+    static unsigned long _getThreadId(void)
+    {
+        return pthread_getsequence_np(pthread_self());
+    }
+#endif
     /*
         Reset the SSL locking and ID callbacks.
     */

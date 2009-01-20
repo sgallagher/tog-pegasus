@@ -50,17 +50,20 @@ public:
     EnumerationContext() {}
     EnumerationContext(
         Uint64 contextId_,
+        const String& userName_,
         WsenEnumerationMode enumerationMode_,
         CIMDateTime expiration_,
         WsmEndpointReference epr_,
         WsenEnumerateResponse* response_)
         : contextId(contextId_),
+          userName(userName_),
           enumerationMode(enumerationMode_),
           expiration(expiration_),
           epr(epr_),
           response(response_) {}
 
     Uint64 contextId;
+    String userName;
     WsenEnumerationMode enumerationMode;
     CIMDateTime expiration;
     WsmEndpointReference epr;

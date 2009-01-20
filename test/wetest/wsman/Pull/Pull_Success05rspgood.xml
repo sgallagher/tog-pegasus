@@ -16,7 +16,6 @@ uuid:00000000-0000-0000-0005-000000000001
 </SOAP-ENV:Header>
 <SOAP-ENV:Body>
 <wsen:PullResponse>
-<wsen:EnumerationContext />
 <wsen:Items>
 <class:WsmLarge xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmLarge">
 <class:keyProperty>

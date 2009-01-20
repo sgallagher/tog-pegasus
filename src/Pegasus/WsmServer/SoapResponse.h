@@ -70,6 +70,11 @@ public:
     Boolean appendBodyHeader(Buffer& buf);
     Boolean appendBodyTrailer(Buffer& buf);
 
+    Buffer& getBodyHeader()
+    {
+        return _bodyHeader;
+    }
+
     Buffer& getBodyTrailer()
     {
         return _bodyTrailer;

@@ -208,13 +208,13 @@ if [ $build_status -eq 0 ]; then
 
     # Generate CCover report
     if [ "$PEGASUS_CCOVER" = "TRUE" ]; then
-        covsrc -d $PEGASUS_ROOT -w100 `cat ccover-exclusion-list` \
+        covsrc -w100 `cat ccover-exclusion-list` \
             > cov/covsrc.report.$dayofyear.$datestamp.txt 2>/dev/null
-        covsrc -d $PEGASUS_ROOT -w200 \
+        covsrc -w200 \
             > cov/covsrc.full.$dayofyear.$datestamp.txt 2>/dev/null
-        covsrc -d $PEGASUS_ROOT -w200 `cat ccover-exclusion-list` \
+        covsrc -w200 `cat ccover-exclusion-list` \
             > cov/covsrc.exclusion.$dayofyear.$datestamp.txt 2>/dev/null
-        covbr -d $PEGASUS_ROOT -w100 \
+        covbr -w100 \
             > cov/covbr.report.$dayofyear.$datestamp.txt 2>/dev/null
     elif [ "$PEGASUS_CADVISE" = "TRUE" ]; then
         /opt/cadvise/bin/cadvise report -all -pdb $pdb_dir -severity 6 \

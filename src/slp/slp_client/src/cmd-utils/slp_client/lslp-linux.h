@@ -210,7 +210,6 @@ typedef int SOCKETD;
     recvfrom((int)(a), (void *)(b), (size_t)(c), (int)(d), \
     (struct sockaddr *)(e), (socklen_t *)(f))
 #endif
-#define _LSLP_GETHOSTBYNAME(a) gethostbyname((const char *)(a))
 #ifndef _LSLP_SETSOCKOPT
 # define _LSLP_SETSOCKOPT(a, b, c, d, e) \
     setsockopt((int)(a), (int)(b), (int)(c), (const void *)(d), (socklen_t)(e))

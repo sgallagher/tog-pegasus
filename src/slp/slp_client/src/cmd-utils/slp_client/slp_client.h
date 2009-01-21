@@ -827,17 +827,6 @@ extern "C"
     void free_da_list_members(struct da_list *da);
     void free_da_list_node(struct da_list *da);
 
-#if defined(PEGASUS_OS_TYPE_WINDOWS) || \
-    defined(PEGASUS_OS_ZOS) || defined(_NUCLEUS)
-    int gethostbyname_r(
-        const char *name,
-        struct hostent *resultbuf,
-        char *buf,
-        size_t bufsize,
-        struct hostent **result,
-        int *errnop);
-#endif
-
     void slp_get_local_interfaces(struct slp_client *client);
     BOOL slp_join_multicast(SOCKETD sock, struct slp_if_addr addr) ;
     int slp_join_multicast_all(SOCKETD sock, int af);

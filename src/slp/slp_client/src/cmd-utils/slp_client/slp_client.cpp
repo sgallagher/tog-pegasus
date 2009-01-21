@@ -295,65 +295,6 @@ BOOL _slp_check_url_addr(const char *url, int af, void *url_bin_addr)
     return match;
 }
 
-#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
-    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
-    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC) || \
-    defined( BSD ) || defined( PEGASUS_OS_SOLARIS ) || \
-    defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_AIX) || \
-    defined(PEGASUS_OS_PASE)
-int Gethostbyname_r(
-    const char *name,
-    struct hostent *resultbuf,
-    char *buf,
-    size_t bufsize,
-    struct hostent **result,
-    int *errnop)
-{
-    name = name;
-    resultbuf = resultbuf;
-    buf = buf;
-    bufsize = bufsize;
-
-    if (NULL == (*result = gethostbyname(name)))
-    {
-#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
-    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
-    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-        *errnop = WSAGetLastError();
-#else
-        *errnop = errno;
-#endif
-        return(-1);
-    }
-    return(0);
-}
-#elif defined ( PEGASUS_OS_ZOS )
-int Gethostbyname_r(
-    const char *name,
-    struct hostent *resultbuf,
-    char *buf,
-    size_t bufsize,
-    struct hostent **result,
-    int *errnop)
-{
-    name = name;
-    resultbuf = resultbuf;
-    buf = buf;
-    bufsize = bufsize;
-    if (NULL == (*result = gethostbyname(name)))
-    {
-        *errnop = *__h_errno();
-        return(-1);
-    }
-    return(0);
-}
-
-#else
-
-#define Gethostbyname_r gethostbyname_r
-
-#endif
-
 /*** effectively reallocates *list -- FREES MEMORY ***/
 static int _slp_get_local_interface(struct slp_if_addr **list, int af)
 {

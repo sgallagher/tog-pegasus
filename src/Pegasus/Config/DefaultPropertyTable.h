@@ -33,8 +33,8 @@
 #define Pegasus_DefaultPropertyTable_h
 
     {"socketWriteTimeout", PEGASUS_DEFAULT_SOCKETWRITE_TIMEOUT_SECONDS_STRING,
-        IS_DYNAMIC, 0, 0, IS_VISIBLE},
-    {"idleConnectionTimeout", "0", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+        IS_DYNAMIC, IS_VISIBLE},
+    {"idleConnectionTimeout", "0", IS_DYNAMIC, IS_VISIBLE},
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 # include "DefaultPropertyTableLinux.h"
 #elif defined(PEGASUS_OS_SOLARIS)
@@ -48,25 +48,25 @@
 #elif defined(PEGASUS_OS_ZOS)
 # include "DefaultPropertyTablezOS.h"
 #else
-    {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableHttpsConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"daemon", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpPort", "", IS_STATIC, IS_VISIBLE},
+    {"httpsPort", "", IS_STATIC, IS_VISIBLE},
+    {"enableHttpConnection", "true", IS_STATIC, IS_VISIBLE},
+    {"enableHttpsConnection", "false", IS_STATIC, IS_VISIBLE},
+    {"daemon", "true", IS_STATIC, IS_VISIBLE},
 #ifdef PEGASUS_ENABLE_SLP
-    {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"slp", "false", IS_STATIC, IS_VISIBLE},
 #endif
-    {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableAssociationTraversal", "true", IS_STATIC, IS_VISIBLE},
+    {"enableIndicationService", "true", IS_STATIC, IS_VISIBLE},
 # ifdef PEGASUS_DEFAULT_ENABLE_OOP
-    {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"forceProviderProcesses", "true", IS_STATIC, IS_VISIBLE},
 # else
-    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"forceProviderProcesses", "false", IS_STATIC, IS_VISIBLE},
 # endif
 # ifdef PEGASUS_ENABLE_AUDIT_LOGGER
-    {"enableAuditLog", "false", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"enableAuditLog", "false", IS_DYNAMIC, IS_VISIBLE},
 # endif
-    {"maxProviderProcesses", "0", IS_DYNAMIC, 0, 0, IS_VISIBLE}
+    {"maxProviderProcesses", "0", IS_DYNAMIC, IS_VISIBLE}
 #endif
 
 #endif /* Pegasus_DefaultPropertyTable_h */

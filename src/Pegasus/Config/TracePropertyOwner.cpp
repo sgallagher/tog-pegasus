@@ -59,43 +59,43 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
 #ifdef PEGASUS_OS_HPUX
-    {"traceLevel", "0", IS_DYNAMIC, 0, 0, IS_HIDDEN},
-    {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_HIDDEN},
-    {"traceMemoryBufferKbytes", "10240", IS_STATIC, 0, 0, IS_HIDDEN},
-    {"traceFacility", "File", IS_DYNAMIC, 0, 0, IS_HIDDEN},
+    {"traceLevel", "0", IS_DYNAMIC, IS_HIDDEN},
+    {"traceComponents", "", IS_DYNAMIC, IS_HIDDEN},
+    {"traceMemoryBufferKbytes", "10240", IS_STATIC, IS_HIDDEN},
+    {"traceFacility", "File", IS_DYNAMIC, IS_HIDDEN},
 #elif defined(PEGASUS_OS_PASE)
-    {"traceLevel", "0", IS_DYNAMIC, 0, 0, IS_VISIBLE},
-    {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_VISIBLE},
-    {"traceMemoryBufferKbytes", "10240", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"traceFacility", "File", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"traceLevel", "0", IS_DYNAMIC, IS_VISIBLE},
+    {"traceComponents", "", IS_DYNAMIC, IS_VISIBLE},
+    {"traceMemoryBufferKbytes", "10240", IS_STATIC, IS_VISIBLE},
+    {"traceFacility", "File", IS_DYNAMIC, IS_VISIBLE},
 #elif defined(PEGASUS_OS_ZOS)
-    {"traceLevel", "2", IS_DYNAMIC, 0, 0, IS_VISIBLE},
-    {"traceComponents", "All", IS_DYNAMIC, 0, 0, IS_VISIBLE},
-    {"traceMemoryBufferKbytes", "10240", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"traceFacility", "Memory", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"traceLevel", "2", IS_DYNAMIC, IS_VISIBLE},
+    {"traceComponents", "All", IS_DYNAMIC, IS_VISIBLE},
+    {"traceMemoryBufferKbytes", "10240", IS_STATIC, IS_VISIBLE},
+    {"traceFacility", "Memory", IS_DYNAMIC, IS_VISIBLE},
 #else
 # if defined (PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
-    {"traceLevel", "0", IS_DYNAMIC, 0, 0, IS_HIDDEN},
-    {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_HIDDEN},
-    {"traceMemoryBufferKbytes", "10240", IS_STATIC, 0, 0, IS_HIDDEN},
-    {"traceFacility", "File", IS_DYNAMIC, 0, 0, IS_HIDDEN},
+    {"traceLevel", "0", IS_DYNAMIC, IS_HIDDEN},
+    {"traceComponents", "", IS_DYNAMIC, IS_HIDDEN},
+    {"traceMemoryBufferKbytes", "10240", IS_STATIC, IS_HIDDEN},
+    {"traceFacility", "File", IS_DYNAMIC, IS_HIDDEN},
 # else
-    {"traceLevel", "0", IS_DYNAMIC, 0, 0, IS_VISIBLE},
-    {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_VISIBLE},
-    {"traceMemoryBufferKbytes", "10240", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"traceFacility", "File", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"traceLevel", "0", IS_DYNAMIC, IS_VISIBLE},
+    {"traceComponents", "", IS_DYNAMIC, IS_VISIBLE},
+    {"traceMemoryBufferKbytes", "10240", IS_STATIC, IS_VISIBLE},
+    {"traceFacility", "File", IS_DYNAMIC, IS_VISIBLE},
 # endif
 #endif
 #if defined(PEGASUS_OS_ZOS)
 # if defined(PEGASUS_USE_RELEASE_DIRS)
-    {"traceFilePath", "/tmp/cimserver.trc", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"traceFilePath", "/tmp/cimserver.trc", IS_DYNAMIC, IS_VISIBLE},
 # else
-    {"traceFilePath", "cimserver.trc", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"traceFilePath", "cimserver.trc", IS_DYNAMIC, IS_VISIBLE},
 # endif
 #elif defined(PEGASUS_OS_PASE)
-    {"traceFilePath", "/tmp/cimserver.trc", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"traceFilePath", "/tmp/cimserver.trc", IS_DYNAMIC, IS_VISIBLE},
 #else
-    {"traceFilePath", "trace/cimserver.trc", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"traceFilePath", "trace/cimserver.trc", IS_DYNAMIC, IS_VISIBLE},
 #endif
 };
 
@@ -215,8 +215,6 @@ void TracePropertyOwner::initialize()
             _traceComponents->currentValue = properties[i].defaultValue;
             _traceComponents->plannedValue = properties[i].defaultValue;
             _traceComponents->dynamic = properties[i].dynamic;
-            _traceComponents->domain = properties[i].domain;
-            _traceComponents->domainSize = properties[i].domainSize;
             _traceComponents->externallyVisible =
                 properties[i].externallyVisible;
 
@@ -229,8 +227,6 @@ void TracePropertyOwner::initialize()
             _traceLevel->currentValue = properties[i].defaultValue;
             _traceLevel->plannedValue = properties[i].defaultValue;
             _traceLevel->dynamic = properties[i].dynamic;
-            _traceLevel->domain = properties[i].domain;
-            _traceLevel->domainSize = properties[i].domainSize;
             _traceLevel->externallyVisible =
                 properties[i].externallyVisible;
 
@@ -247,8 +243,6 @@ void TracePropertyOwner::initialize()
             _traceFilePath->currentValue = properties[i].defaultValue;
             _traceFilePath->plannedValue = properties[i].defaultValue;
             _traceFilePath->dynamic = properties[i].dynamic;
-            _traceFilePath->domain = properties[i].domain;
-            _traceFilePath->domainSize = properties[i].domainSize;
             _traceFilePath->externallyVisible =
                 properties[i].externallyVisible;
 
@@ -275,8 +269,6 @@ void TracePropertyOwner::initialize()
             _traceMemoryBufferKbytes->currentValue = properties[i].defaultValue;
             _traceMemoryBufferKbytes->plannedValue = properties[i].defaultValue;
             _traceMemoryBufferKbytes->dynamic = properties[i].dynamic;
-            _traceMemoryBufferKbytes->domain = properties[i].domain;
-            _traceMemoryBufferKbytes->domainSize = properties[i].domainSize;
             _traceMemoryBufferKbytes->externallyVisible =
                 properties[i].externallyVisible;
 
@@ -296,8 +288,6 @@ void TracePropertyOwner::initialize()
             _traceFacility->currentValue = properties[i].defaultValue;
             _traceFacility->plannedValue = properties[i].defaultValue;
             _traceFacility->dynamic = properties[i].dynamic;
-            _traceFacility->domain = properties[i].domain;
-            _traceFacility->domainSize = properties[i].domainSize;
             _traceFacility->externallyVisible =
                 properties[i].externallyVisible;
 

@@ -71,67 +71,64 @@ static struct ConfigPropertyRow properties[] =
 //   authorizedUserGroups
 ///////////////////////////////////////////////////////////////////////////////
 #ifdef PEGASUS_OS_PASE
-    {"enableAuthentication", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"httpAuthType", "Basic", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"passwordFilePath", "cimserver.passwd", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableAuthentication", "true", IS_STATIC, IS_VISIBLE},
+    {"httpAuthType", "Basic", IS_STATIC, IS_VISIBLE},
+    {"passwordFilePath", "cimserver.passwd", IS_STATIC, IS_VISIBLE},
     {"sslCertificateFilePath", "ssl/keystore/servercert.pem", IS_STATIC,
-        0, 0, IS_VISIBLE},
-    {"sslKeyFilePath", "ssl/keystore/serverkey.pem", IS_STATIC,
-        0, 0, IS_VISIBLE},
-    {"sslTrustStore", "ssl/truststore/", IS_STATIC, 0, 0, IS_VISIBLE},
+        IS_VISIBLE},
+    {"sslKeyFilePath", "ssl/keystore/serverkey.pem", IS_STATIC, IS_VISIBLE},
+    {"sslTrustStore", "ssl/truststore/", IS_STATIC, IS_VISIBLE},
 # ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
-    {"crlStore", "ssl/crlstore/", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"crlStore", "ssl/crlstore/", IS_STATIC, IS_VISIBLE},
 # endif
-    {"sslClientVerificationMode", "optional", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"sslTrustStoreUserName", "QYCMCIMOM", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableNamespaceAuthorization", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"sslClientVerificationMode", "optional", IS_STATIC, IS_VISIBLE},
+    {"sslTrustStoreUserName", "QYCMCIMOM", IS_STATIC, IS_VISIBLE},
+    {"enableNamespaceAuthorization", "true", IS_STATIC, IS_VISIBLE},
 # ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    {"kerberosServiceName", "cimom", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"kerberosServiceName", "cimom", IS_STATIC, IS_VISIBLE},
 # endif
     {"enableSubscriptionsForNonprivilegedUsers", "false", IS_STATIC,
-        0, 0, IS_VISIBLE},
-    {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"authorizedUserGroups", "", IS_STATIC, 0, 0, IS_VISIBLE},
+        IS_VISIBLE},
+    {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, IS_VISIBLE},
+    {"authorizedUserGroups", "", IS_STATIC, IS_VISIBLE},
 #else // PEGASUS_OS_PASE
-    {"enableAuthentication", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"httpAuthType", "Basic", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"passwordFilePath", "cimserver.passwd", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableAuthentication", "false", IS_STATIC, IS_VISIBLE},
+    {"httpAuthType", "Basic", IS_STATIC, IS_VISIBLE},
+    {"passwordFilePath", "cimserver.passwd", IS_STATIC, IS_VISIBLE},
 #ifdef PEGASUS_OS_HPUX
-    {"sslCertificateFilePath", "cert.pem", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"sslCertificateFilePath", "cert.pem", IS_STATIC, IS_VISIBLE},
 #else
-    {"sslCertificateFilePath", "server.pem", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"sslCertificateFilePath", "server.pem", IS_STATIC, IS_VISIBLE},
 #endif
-    {"sslKeyFilePath", "file.pem", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"sslTrustStore", "cimserver_trust", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"sslKeyFilePath", "file.pem", IS_STATIC, IS_VISIBLE},
+    {"sslTrustStore", "cimserver_trust", IS_STATIC, IS_VISIBLE},
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
-    {"crlStore", "crl", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"crlStore", "crl", IS_STATIC, IS_VISIBLE},
 #endif
-    {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"sslTrustStoreUserName", "", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableNamespaceAuthorization", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"sslClientVerificationMode", "disabled", IS_STATIC, IS_VISIBLE},
+    {"sslTrustStoreUserName", "", IS_STATIC, IS_VISIBLE},
+    {"enableNamespaceAuthorization", "false", IS_STATIC, IS_VISIBLE},
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    {"kerberosServiceName", "cimom", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"kerberosServiceName", "cimom", IS_STATIC, IS_VISIBLE},
 #endif
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)
 # ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
     {"enableSubscriptionsForNonprivilegedUsers",
-         "false", IS_STATIC, 0, 0, IS_VISIBLE},
+         "false", IS_STATIC, IS_VISIBLE},
 # else
-    {"enableSubscriptionsForNonprivilegedUsers",
-         "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableSubscriptionsForNonprivilegedUsers", "true", IS_STATIC, IS_VISIBLE},
 # endif
 #else
-    {"enableSubscriptionsForNonprivilegedUsers",
-         "true", IS_STATIC, 0, 0, IS_HIDDEN},
+    {"enableSubscriptionsForNonprivilegedUsers", "true", IS_STATIC, IS_HIDDEN},
 #endif
 #ifdef PEGASUS_OS_ZOS
-    {"enableRemotePrivilegedUserAccess", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableCFZAPPLID", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableRemotePrivilegedUserAccess", "false", IS_STATIC, IS_VISIBLE},
+    {"enableCFZAPPLID", "true", IS_STATIC, IS_VISIBLE},
 #else
-    {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, IS_VISIBLE},
 #endif
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
-    {"authorizedUserGroups", "", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"authorizedUserGroups", "", IS_STATIC, IS_VISIBLE},
 #endif
 #endif
 };
@@ -187,8 +184,6 @@ void SecurityPropertyOwner::initialize()
             _enableAuthentication->currentValue = properties[i].defaultValue;
             _enableAuthentication->plannedValue = properties[i].defaultValue;
             _enableAuthentication->dynamic = properties[i].dynamic;
-            _enableAuthentication->domain = properties[i].domain;
-            _enableAuthentication->domainSize = properties[i].domainSize;
             _enableAuthentication->externallyVisible =
                 properties[i].externallyVisible;
         }
@@ -204,9 +199,6 @@ void SecurityPropertyOwner::initialize()
             _enableNamespaceAuthorization->plannedValue =
                 properties[i].defaultValue;
             _enableNamespaceAuthorization->dynamic = properties[i].dynamic;
-            _enableNamespaceAuthorization->domain = properties[i].domain;
-            _enableNamespaceAuthorization->domainSize =
-                properties[i].domainSize;
             _enableNamespaceAuthorization->externallyVisible =
                 properties[i].externallyVisible;
         }
@@ -218,8 +210,6 @@ void SecurityPropertyOwner::initialize()
             _httpAuthType->currentValue = properties[i].defaultValue;
             _httpAuthType->plannedValue = properties[i].defaultValue;
             _httpAuthType->dynamic = properties[i].dynamic;
-            _httpAuthType->domain = properties[i].domain;
-            _httpAuthType->domainSize = properties[i].domainSize;
             _httpAuthType->externallyVisible = properties[i].externallyVisible;
         }
         else if (String::equalNoCase(
@@ -230,8 +220,6 @@ void SecurityPropertyOwner::initialize()
             _passwordFilePath->currentValue = properties[i].defaultValue;
             _passwordFilePath->plannedValue = properties[i].defaultValue;
             _passwordFilePath->dynamic = properties[i].dynamic;
-            _passwordFilePath->domain = properties[i].domain;
-            _passwordFilePath->domainSize = properties[i].domainSize;
             _passwordFilePath->externallyVisible =
                 properties[i].externallyVisible;
         }
@@ -243,8 +231,6 @@ void SecurityPropertyOwner::initialize()
             _certificateFilePath->currentValue = properties[i].defaultValue;
             _certificateFilePath->plannedValue = properties[i].defaultValue;
             _certificateFilePath->dynamic = properties[i].dynamic;
-            _certificateFilePath->domain = properties[i].domain;
-            _certificateFilePath->domainSize = properties[i].domainSize;
             _certificateFilePath->externallyVisible =
                 properties[i].externallyVisible;
         }
@@ -256,8 +242,6 @@ void SecurityPropertyOwner::initialize()
             _keyFilePath->currentValue = properties[i].defaultValue;
             _keyFilePath->plannedValue = properties[i].defaultValue;
             _keyFilePath->dynamic = properties[i].dynamic;
-            _keyFilePath->domain = properties[i].domain;
-            _keyFilePath->domainSize = properties[i].domainSize;
             _keyFilePath->externallyVisible = properties[i].externallyVisible;
         }
         else if (String::equalNoCase(
@@ -268,8 +252,6 @@ void SecurityPropertyOwner::initialize()
             _trustStore->currentValue = properties[i].defaultValue;
             _trustStore->plannedValue = properties[i].defaultValue;
             _trustStore->dynamic = properties[i].dynamic;
-            _trustStore->domain = properties[i].domain;
-            _trustStore->domainSize = properties[i].domainSize;
             _trustStore->externallyVisible = properties[i].externallyVisible;
 
             // do not initialize trustpath; a truststore is not required
@@ -285,8 +267,6 @@ void SecurityPropertyOwner::initialize()
             _crlStore->currentValue = properties[i].defaultValue;
             _crlStore->plannedValue = properties[i].defaultValue;
             _crlStore->dynamic = properties[i].dynamic;
-            _crlStore->domain = properties[i].domain;
-            _crlStore->domainSize = properties[i].domainSize;
             _crlStore->externallyVisible = properties[i].externallyVisible;
 
         }
@@ -303,8 +283,6 @@ void SecurityPropertyOwner::initialize()
             _sslClientVerificationMode->plannedValue =
                 properties[i].defaultValue;
             _sslClientVerificationMode->dynamic = properties[i].dynamic;
-            _sslClientVerificationMode->domain = properties[i].domain;
-            _sslClientVerificationMode->domainSize = properties[i].domainSize;
             _sslClientVerificationMode->externallyVisible =
                 properties[i].externallyVisible;
         }
@@ -316,8 +294,6 @@ void SecurityPropertyOwner::initialize()
             _sslTrustStoreUserName->currentValue = properties[i].defaultValue;
             _sslTrustStoreUserName->plannedValue = properties[i].defaultValue;
             _sslTrustStoreUserName->dynamic = properties[i].dynamic;
-            _sslTrustStoreUserName->domain = properties[i].domain;
-            _sslTrustStoreUserName->domainSize = properties[i].domainSize;
             _sslTrustStoreUserName->externallyVisible =
                 properties[i].externallyVisible;
         }
@@ -333,9 +309,6 @@ void SecurityPropertyOwner::initialize()
             _enableRemotePrivilegedUserAccess->plannedValue =
                 properties[i].defaultValue;
             _enableRemotePrivilegedUserAccess->dynamic = properties[i].dynamic;
-            _enableRemotePrivilegedUserAccess->domain = properties[i].domain;
-            _enableRemotePrivilegedUserAccess->domainSize =
-                properties[i].domainSize;
             _enableRemotePrivilegedUserAccess->externallyVisible =
                 properties[i].externallyVisible;
         }
@@ -352,10 +325,6 @@ void SecurityPropertyOwner::initialize()
                 properties[i].defaultValue;
             _enableSubscriptionsForNonprivilegedUsers->dynamic =
                 properties[i].dynamic;
-            _enableSubscriptionsForNonprivilegedUsers->domain =
-                properties[i].domain;
-            _enableSubscriptionsForNonprivilegedUsers->domainSize =
-                properties[i].domainSize;
             _enableSubscriptionsForNonprivilegedUsers->externallyVisible =
                 properties[i].externallyVisible;
         }
@@ -368,8 +337,6 @@ void SecurityPropertyOwner::initialize()
             _authorizedUserGroups->currentValue = properties[i].defaultValue;
             _authorizedUserGroups->plannedValue = properties[i].defaultValue;
             _authorizedUserGroups->dynamic = properties[i].dynamic;
-            _authorizedUserGroups->domain = properties[i].domain;
-            _authorizedUserGroups->domainSize = properties[i].domainSize;
             _authorizedUserGroups->externallyVisible =
                 properties[i].externallyVisible;
         }
@@ -383,8 +350,6 @@ void SecurityPropertyOwner::initialize()
             _kerberosServiceName->currentValue = properties[i].defaultValue;
             _kerberosServiceName->plannedValue = properties[i].defaultValue;
             _kerberosServiceName->dynamic = properties[i].dynamic;
-            _kerberosServiceName->domain = properties[i].domain;
-            _kerberosServiceName->domainSize = properties[i].domainSize;
             _kerberosServiceName->externallyVisible =
                 properties[i].externallyVisible;
         }
@@ -398,8 +363,6 @@ void SecurityPropertyOwner::initialize()
             _enableCFZAPPLID->currentValue = properties[i].defaultValue;
             _enableCFZAPPLID->plannedValue = properties[i].defaultValue;
             _enableCFZAPPLID->dynamic = properties[i].dynamic;
-            _enableCFZAPPLID->domain = properties[i].domain;
-            _enableCFZAPPLID->domainSize = properties[i].domainSize;
             _enableCFZAPPLID->externallyVisible =
                 properties[i].externallyVisible;
         }

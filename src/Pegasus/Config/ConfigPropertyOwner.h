@@ -220,8 +220,6 @@ struct ConfigProperty
     String currentValue;    // Current value of a config property
     String plannedValue;    // Planned of a config property
     ConfigDynamic dynamic;  // Dynamic or non dynamic property
-    char** domain;          // List of valid values of a config property
-    Uint32 domainSize;      // Size of the domain
     // Determines whether a property wants to be externally visible or not.
     // If a property chooses not to be externally visible, it is not listed
     // as a configurable property but is still configurable.
@@ -245,8 +243,6 @@ struct ConfigPropertyRow
     const char* propertyName;
     const char* defaultValue;
     ConfigDynamic dynamic;
-    char** domain;
-    Uint32 domainSize;
     ConfigVisible externallyVisible;
 };
 

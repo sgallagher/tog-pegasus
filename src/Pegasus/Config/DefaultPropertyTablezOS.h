@@ -32,24 +32,24 @@
 #ifndef Pegasus_DefaultPropertyTablezOS_h
 #define Pegasus_DefaultPropertyTablezOS_h
 
-    {"httpPort", "5988", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"httpsPort", "5989", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableHttpsConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"daemon", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpPort", "5988", IS_STATIC, IS_VISIBLE},
+    {"httpsPort", "5989", IS_STATIC, IS_VISIBLE},
+    {"enableHttpConnection", "true", IS_STATIC, IS_VISIBLE},
+    {"enableHttpsConnection", "false", IS_STATIC, IS_VISIBLE},
+    {"daemon", "true", IS_STATIC, IS_VISIBLE},
 #ifdef PEGASUS_ENABLE_SLP
-    {"slp", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"slp", "true", IS_STATIC, IS_VISIBLE},
 #endif
-    {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableAssociationTraversal", "true", IS_STATIC, IS_VISIBLE},
+    {"enableIndicationService", "true", IS_STATIC, IS_VISIBLE},
 #ifdef PEGASUS_DEFAULT_ENABLE_OOP
-    {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"forceProviderProcesses", "true", IS_STATIC, IS_VISIBLE},
 #else
-    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"forceProviderProcesses", "false", IS_STATIC, IS_VISIBLE},
 #endif
 #ifdef PEGASUS_ENABLE_AUDIT_LOGGER
-    {"enableAuditLog", "false", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"enableAuditLog", "false", IS_DYNAMIC, IS_VISIBLE},
 #endif
-    {"maxProviderProcesses", "0", IS_DYNAMIC, 0, 0, IS_VISIBLE}
+    {"maxProviderProcesses", "0", IS_DYNAMIC, IS_VISIBLE}
 
 #endif /* Pegasus_DefaultPropertyTablezOS_h */

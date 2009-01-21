@@ -37,11 +37,11 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    { "enableNormalization", "false", IS_DYNAMIC, 0, 0, IS_VISIBLE },
+    { "enableNormalization", "false", IS_DYNAMIC, IS_VISIBLE },
 #else
-    { "enableNormalization", "true", IS_DYNAMIC, 0, 0, IS_VISIBLE },
+    { "enableNormalization", "true", IS_DYNAMIC, IS_VISIBLE },
 #endif
-    { "excludeModulesFromNormalization", "", IS_STATIC, 0, 0, IS_VISIBLE }
+    { "excludeModulesFromNormalization", "", IS_STATIC, IS_VISIBLE }
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -69,10 +69,6 @@ void NormalizationPropertyOwner::initialize()
                 properties[i].defaultValue;
             _providerObjectNormalizationEnabled->dynamic =
                 properties[i].dynamic;
-            _providerObjectNormalizationEnabled->domain =
-                properties[i].domain;
-            _providerObjectNormalizationEnabled->domainSize =
-                properties[i].domainSize;
             _providerObjectNormalizationEnabled->externallyVisible =
                 properties[i].externallyVisible;
             ObjectNormalizer::setEnableNormalization(
@@ -91,10 +87,6 @@ void NormalizationPropertyOwner::initialize()
                 properties[i].defaultValue;
             _providerObjectNormalizationModuleExclusions->dynamic =
                 properties[i].dynamic;
-            _providerObjectNormalizationModuleExclusions->domain =
-                properties[i].domain;
-            _providerObjectNormalizationModuleExclusions->domainSize =
-                properties[i].domainSize;
             _providerObjectNormalizationModuleExclusions->externallyVisible =
                 properties[i].externallyVisible;
         }

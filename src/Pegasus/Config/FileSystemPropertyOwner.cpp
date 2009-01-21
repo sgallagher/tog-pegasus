@@ -56,25 +56,24 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"repositoryDir", PEGASUS_REPOSITORY_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
+    {"repositoryDir", PEGASUS_REPOSITORY_DIR, IS_STATIC, IS_VISIBLE},
 #if defined(PEGASUS_OS_PASE)
     {"messageDir", "/QOpenSys/QIBM/ProdData/UME/Pegasus/msg", IS_STATIC,
-        0, 0, IS_VISIBLE},
+        IS_VISIBLE},
 #else
-    {"messageDir", "msg", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"messageDir", "msg", IS_STATIC, IS_VISIBLE},
 #endif
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-    {"providerManagerDir", "bin", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"providerManagerDir", "bin", IS_STATIC, IS_VISIBLE},
 #elif defined(PEGASUS_OS_ZOS)
-    {"providerManagerDir", "lib", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"providerManagerDir", "lib", IS_STATIC, IS_VISIBLE},
 #elif defined(PEGASUS_OS_PASE) && defined(PEGASUS_USE_RELEASE_DIRS)
-    {"providerManagerDir",
-        "/QOpenSys/QIBM/ProdData/UME/Pegasus/lib",
-        IS_STATIC, 0, 0, IS_VISIBLE}
+    {"providerManagerDir", "/QOpenSys/QIBM/ProdData/UME/Pegasus/lib",
+        IS_STATIC, IS_VISIBLE}
 #elif defined(PEGASUS_OS_VMS)
-    {"providerManagerDir", "/wbem_lib", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"providerManagerDir", "/wbem_lib", IS_STATIC, IS_VISIBLE},
 #else
-    {"providerManagerDir", "lib", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"providerManagerDir", "lib", IS_STATIC, IS_VISIBLE},
 #endif
 };
 
@@ -121,8 +120,6 @@ void FileSystemPropertyOwner::initialize()
             _repositoryDir->currentValue = properties[i].defaultValue;
             _repositoryDir->plannedValue = properties[i].defaultValue;
             _repositoryDir->dynamic = properties[i].dynamic;
-            _repositoryDir->domain = properties[i].domain;
-            _repositoryDir->domainSize = properties[i].domainSize;
             _repositoryDir->externallyVisible = properties[i].externallyVisible;
         }
         else if (String::equalNoCase(properties[i].propertyName, "messageDir"))
@@ -132,8 +129,6 @@ void FileSystemPropertyOwner::initialize()
             _messageDir->currentValue = properties[i].defaultValue;
             _messageDir->plannedValue = properties[i].defaultValue;
             _messageDir->dynamic = properties[i].dynamic;
-            _messageDir->domain = properties[i].domain;
-            _messageDir->domainSize = properties[i].domainSize;
             _messageDir->externallyVisible = properties[i].externallyVisible;
         }
         else if (String::equalNoCase(properties[i].propertyName,
@@ -144,8 +139,6 @@ void FileSystemPropertyOwner::initialize()
             _providerManagerDir->currentValue = properties[i].defaultValue;
             _providerManagerDir->plannedValue = properties[i].defaultValue;
             _providerManagerDir->dynamic = properties[i].dynamic;
-            _providerManagerDir->domain = properties[i].domain;
-            _providerManagerDir->domainSize = properties[i].domainSize;
             _providerManagerDir->externallyVisible =
                                            properties[i].externallyVisible;
         }

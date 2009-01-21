@@ -50,20 +50,17 @@ static struct ConfigPropertyRow properties[] =
 {
 #if defined(PEGASUS_OS_LINUX)
 # ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"repositoryIsDefaultInstanceProvider",
-         "false", IS_STATIC, 0, 0, IS_HIDDEN},
+    {"repositoryIsDefaultInstanceProvider", "false", IS_STATIC, IS_HIDDEN},
 # else
-    {"repositoryIsDefaultInstanceProvider",
-         "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"repositoryIsDefaultInstanceProvider", "true", IS_STATIC, IS_VISIBLE},
 # endif
 #else
-    {"repositoryIsDefaultInstanceProvider",
-         "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"repositoryIsDefaultInstanceProvider", "true", IS_STATIC, IS_VISIBLE},
 #endif
 #ifndef PEGASUS_OS_ZOS
-    {"enableBinaryRepository", "false", IS_STATIC, 0, 0, IS_VISIBLE}
+    {"enableBinaryRepository", "false", IS_STATIC, IS_VISIBLE}
 #else
-    {"enableBinaryRepository", "true", IS_STATIC, 0, 0, IS_VISIBLE}
+    {"enableBinaryRepository", "true", IS_STATIC, IS_VISIBLE}
 #endif
 };
 
@@ -108,10 +105,6 @@ void RepositoryPropertyOwner::initialize()
                 properties[i].defaultValue;
             _repositoryIsDefaultInstanceProvider->dynamic =
                 properties[i].dynamic;
-            _repositoryIsDefaultInstanceProvider->domain =
-                properties[i].domain;
-            _repositoryIsDefaultInstanceProvider->domainSize =
-                properties[i].domainSize;
             _repositoryIsDefaultInstanceProvider->externallyVisible =
                 properties[i].externallyVisible;
         }
@@ -123,8 +116,6 @@ void RepositoryPropertyOwner::initialize()
             _enableBinaryRepository->currentValue = properties[i].defaultValue;
             _enableBinaryRepository->plannedValue = properties[i].defaultValue;
             _enableBinaryRepository->dynamic = properties[i].dynamic;
-            _enableBinaryRepository->domain = properties[i].domain;
-            _enableBinaryRepository->domainSize = properties[i].domainSize;
             _enableBinaryRepository->externallyVisible =
                 properties[i].externallyVisible;
         }

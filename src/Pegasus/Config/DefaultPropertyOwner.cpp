@@ -83,8 +83,6 @@ void DefaultPropertyOwner::initialize()
         (_configProperties.get())[i].currentValue = properties[i].defaultValue;
         (_configProperties.get())[i].plannedValue = properties[i].defaultValue;
         (_configProperties.get())[i].dynamic = properties[i].dynamic;
-        (_configProperties.get())[i].domain = properties[i].domain;
-        (_configProperties.get())[i].domainSize = properties[i].domainSize;
         (_configProperties.get())[i].externallyVisible =
             properties[i].externallyVisible;
     }

@@ -60,7 +60,7 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
     {"shutdownTimeout", PEGASUS_DEFAULT_SHUTDOWN_TIMEOUT_SECONDS_STRING,
-         IS_DYNAMIC, 0, 0, IS_VISIBLE},
+         IS_DYNAMIC, IS_VISIBLE},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
@@ -91,8 +91,6 @@ void ShutdownPropertyOwner::initialize()
             _shutdownTimeout->currentValue = properties[i].defaultValue;
             _shutdownTimeout->plannedValue = properties[i].defaultValue;
             _shutdownTimeout->dynamic = properties[i].dynamic;
-            _shutdownTimeout->domain = properties[i].domain;
-            _shutdownTimeout->domainSize = properties[i].domainSize;
             _shutdownTimeout->externallyVisible =
                 properties[i].externallyVisible;
         }

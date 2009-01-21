@@ -53,33 +53,33 @@ static struct ConfigPropertyRow properties[] =
 {
 #if defined(PEGASUS_OS_ZOS) && defined(PEGASUS_USE_RELEASE_DIRS)
 # if !defined(PEGASUS_USE_SYSLOGS)
-    {"logdir", "/var/wbem/logs", IS_DYNAMIC, 0, 0, IS_HIDDEN},
-    {"maxLogFileSizeKBytes", "32678", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"logdir", "/var/wbem/logs", IS_DYNAMIC, IS_HIDDEN},
+    {"maxLogFileSizeKBytes", "32678", IS_DYNAMIC, IS_VISIBLE},
 # endif
-    {"logLevel", "INFORMATION", IS_DYNAMIC, 0, 0, IS_VISIBLE}
+    {"logLevel", "INFORMATION", IS_DYNAMIC, IS_VISIBLE}
 #elif defined(PEGASUS_OS_PASE)
 # if defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
         {"logdir", "/QOpenSys/QIBM/UserData/UME/Pegasus/logs", IS_DYNAMIC,
-            0, 0, IS_VISIBLE},
-        {"maxLogFileSizeKBytes", "32678", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+            IS_VISIBLE},
+        {"maxLogFileSizeKBytes", "32678", IS_DYNAMIC, IS_VISIBLE},
 # else
-        {"logdir", "./logs", IS_DYNAMIC, 0, 0, IS_VISIBLE},
-        {"maxLogFileSizeKBytes", "32678", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+        {"logdir", "./logs", IS_DYNAMIC, IS_VISIBLE},
+        {"maxLogFileSizeKBytes", "32678", IS_DYNAMIC, IS_VISIBLE},
 # endif
-    {"logLevel", "INFORMATION", IS_DYNAMIC, 0, 0, IS_VISIBLE}
+    {"logLevel", "INFORMATION", IS_DYNAMIC, IS_VISIBLE}
 #else
 # if defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS)
 #  if !defined(PEGASUS_USE_SYSLOGS)
-    {"logdir", "./logs", IS_DYNAMIC, 0, 0, IS_HIDDEN},
-    {"maxLogFileSizeKBytes", "32678", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"logdir", "./logs", IS_DYNAMIC, IS_HIDDEN},
+    {"maxLogFileSizeKBytes", "32678", IS_DYNAMIC, IS_VISIBLE},
 #  endif
-    {"logLevel", "SEVERE", IS_DYNAMIC, 0, 0, IS_HIDDEN}
+    {"logLevel", "SEVERE", IS_DYNAMIC, IS_HIDDEN}
 # else
 #  if !defined(PEGASUS_USE_SYSLOGS)
-    {"logdir", "./logs", IS_DYNAMIC, 0, 0, IS_VISIBLE},
-    {"maxLogFileSizeKBytes", "32678", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"logdir", "./logs", IS_DYNAMIC, IS_VISIBLE},
+    {"maxLogFileSizeKBytes", "32678", IS_DYNAMIC, IS_VISIBLE},
 #  endif
-    {"logLevel", "INFORMATION", IS_DYNAMIC, 0, 0, IS_VISIBLE}
+    {"logLevel", "INFORMATION", IS_DYNAMIC, IS_VISIBLE}
 # endif
 #endif
 };
@@ -116,8 +116,6 @@ void LogPropertyOwner::initialize()
             _logdir->currentValue = properties[i].defaultValue;
             _logdir->plannedValue = properties[i].defaultValue;
             _logdir->dynamic = properties[i].dynamic;
-            _logdir->domain = properties[i].domain;
-            _logdir->domainSize = properties[i].domainSize;
             _logdir->externallyVisible = properties[i].externallyVisible;
         }
         else
@@ -129,8 +127,6 @@ void LogPropertyOwner::initialize()
             _maxLogFileSizeKBytes->currentValue = properties[i].defaultValue;
             _maxLogFileSizeKBytes->plannedValue = properties[i].defaultValue;
             _maxLogFileSizeKBytes->dynamic = properties[i].dynamic;
-            _maxLogFileSizeKBytes->domain = properties[i].domain;
-            _maxLogFileSizeKBytes->domainSize = properties[i].domainSize;
             _maxLogFileSizeKBytes->externallyVisible =
                 properties[i].externallyVisible;
 
@@ -150,8 +146,6 @@ void LogPropertyOwner::initialize()
             _logLevel->currentValue = properties[i].defaultValue;
             _logLevel->plannedValue = properties[i].defaultValue;
             _logLevel->dynamic = properties[i].dynamic;
-            _logLevel->domain = properties[i].domain;
-            _logLevel->domainSize = properties[i].domainSize;
             _logLevel->externallyVisible = properties[i].externallyVisible;
 
             Logger::setlogLevelMask(_logLevel->currentValue);

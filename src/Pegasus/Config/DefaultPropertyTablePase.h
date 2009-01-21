@@ -32,20 +32,20 @@
 #ifndef Pegasus_DefaultPropertyTablePase_h
 #define Pegasus_DefaultPropertyTablePase_h
 
-    {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableHttpsConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"daemon", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"maxProviderProcesses","0", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"httpPort", "", IS_STATIC, IS_VISIBLE},
+    {"httpsPort", "", IS_STATIC, IS_VISIBLE},
+    {"enableHttpConnection", "true", IS_STATIC, IS_VISIBLE},
+    {"enableHttpsConnection", "true", IS_STATIC, IS_VISIBLE},
+    {"daemon", "false", IS_STATIC, IS_VISIBLE},
+    {"enableAssociationTraversal", "true", IS_STATIC, IS_VISIBLE},
+    {"enableIndicationService", "true", IS_STATIC, IS_VISIBLE},
+    {"forceProviderProcesses", "true", IS_STATIC, IS_VISIBLE},
+    {"maxProviderProcesses","0", IS_DYNAMIC, IS_VISIBLE},
 # ifdef PEGASUS_ENABLE_AUDIT_LOGGER
-    {"enableAuditLog", "false", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"enableAuditLog", "false", IS_DYNAMIC, IS_VISIBLE},
 # endif
 #ifdef PEGASUS_ENABLE_SLP
-    {"slp", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"slp", "true", IS_STATIC, IS_VISIBLE},
 #endif
 
 #endif /* Pegasus_DefaultPropertyTablePase_h */

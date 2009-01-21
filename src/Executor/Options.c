@@ -93,6 +93,9 @@ void GetOptions(int* argc, char*** argv, struct Options* options)
     if (_TestFlagOption(argc, argv, "--dump", 1) == 0)
         options->dump = 1;
 
+    if (_TestFlagOption(argc, argv, "--status", 1) == 0)
+        options->status = 1;
+
     if (_TestFlagOption(argc, argv, "--version", 0) == 0)
         options->version = 1;
 

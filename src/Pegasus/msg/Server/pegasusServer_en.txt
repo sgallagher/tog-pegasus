@@ -3644,6 +3644,7 @@ CIM server listening on HTTPS port {0}."}
         "  options\n"
         "    -v, --version   - Display CIM server version number.\n"
         "    -h, --help      - Print this help message.\n"
+        "    --status        - Display the running status of CIM server.\n"
         "    -s              - Shut down CIM server.\n"
         "    -D [home]       - Set the PEGASUS_HOME directory.\n"
         "  configProperty=value\n"
@@ -3663,6 +3664,7 @@ CIM server listening on HTTPS port {0}."}
         "  options\n"
         "    -v, --version   - Display CIM server version number.\n"
         "    -h, --help      - Print this help message.\n"
+        "    --status        - Display the running status of CIM server.\n"
         "    -s              - Shut down CIM server.\n"
         "  configProperty=value\n"
         "                    - Sets the CIM server configuration property.\n"
@@ -3681,6 +3683,7 @@ CIM server listening on HTTPS port {0}."}
         "  options\n"
         "    -v, --version   - Display CIM server version number.\n"
         "    -h, --help      - Print this help message.\n"
+        "    --status        - Display the running status of CIM server.\n"
         "    -s              - Shut down CIM server.\n"
         "    -D [home]       - Set pegasus home directory.\n"
         "    -install [name] - Installs pegasus as a Windows service.\n"
@@ -3765,6 +3768,18 @@ CIM server listening on HTTPS port {0}."}
         *    Do not translate 'daemon=false' since it is a configuration setting.
         */
         src.Server.cimserver.PRIVSEP_REQUIRES_DAEMON:string {"PGS10043: The configuration setting daemon=false is ignored with privilege separation enabled."}
+
+        /**
+        * @version 2.9
+        * @note PGS10044:
+        */
+        src.Server.cimserver.CIMSERVER_RUNNING:string {"PGS10044: The CIM Server is running."}
+
+        /**
+        * @version 2.9
+        * @note PGS10045:
+        */
+        src.Server.cimserver.CIMSERVER_NOT_RUNNING:string {"PGS10045: The CIM Server is not running."}
 
         // ==========================================================
         // Messages for IndicationService

@@ -275,6 +275,8 @@ void PrintHelp(const char* arg0)
     usage.append(" [ [ options ] | [ configProperty=value, ... ] ]\n");
     usage.append("  options\n");
     usage.append("    -v, --version   - displays CIM Server version number\n");
+    usage.append("    --status        - displays the running status of"
+        " the CIM Server\n");
     usage.append("    -h, --help      - prints this help message\n");
     usage.append("    -s              - shuts down CIM Server\n");
 #if !defined(PEGASUS_USE_RELEASE_DIRS)
@@ -503,7 +505,7 @@ int main(int argc, char** argv)
 
 #endif /* !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION) */
 
-        // Get help, version, and shutdown options
+        // Get help, version, status and shutdown options
 
         for (int i = 1; i < argc; )
         {
@@ -513,6 +515,27 @@ int main(int argc, char** argv)
                 PrintHelp(argv[0]);
                 Executor::daemonizeExecutor();
                 exit(0);
+            }
+            if (strcmp(arg, "--status") == 0)
+            {
+                int retValue = 0;
+                if (_serverRunStatus.isServerRunning())
+                {
+                    MessageLoaderParms parms(
+                        "src.Server.cimserver.CIMSERVER_RUNNING",
+                        "The CIM Server is running.");
+                    cout << MessageLoader::getMessage(parms) << endl;
+                }
+                else
+                {
+                    MessageLoaderParms parms(
+                        "src.Server.cimserver.CIMSERVER_NOT_RUNNING",
+                        "The CIM Server is not running.");
+                    cout << MessageLoader::getMessage(parms) << endl;
+                    retValue = 2;
+                }
+                Executor::daemonizeExecutor();
+                exit(retValue);
             }
             else if (strcmp(arg, "--version") == 0)
             {

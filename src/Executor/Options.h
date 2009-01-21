@@ -37,6 +37,7 @@
 struct Options
 {
     int dump; /* --dump */
+    int status; /* --status */
     int version; /* --version or -v */
     int help; /* --help or -h */
     int shutdown; /* -s */

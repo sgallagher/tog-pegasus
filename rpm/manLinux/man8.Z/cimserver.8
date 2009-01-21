@@ -1,7 +1,7 @@
 .TA c \" lowercase initial letter of .TH name
 .TH cimserver 8
 .SH NAME
-cimserver \- start or stop the CIM Server; display the version number of the CIM Server
+cimserver \- start or stop the CIM Server; display the version number or running status of the CIM Server
 .SH SYNOPSIS
 
 .B cimserver
@@ -17,6 +17,8 @@ cimserver \- start or stop the CIM Server; display the version number of the CIM
 .B cimserver --help
 
 .B cimserver --version
+
+.B cimserver --status
 .SS Remarks
 This command can only be executed by a privileged user.
 .SH DESCRIPTION
@@ -25,7 +27,7 @@ The
 .B cimserver 
 command provides a command line interface to stop
 and start the CIM Server, as well as to display the version number
-of the CIM Server. 
+or running status of the CIM Server. 
 .PP
 After installation, the CIM Server must be started using the
 .B cimserver 
@@ -116,10 +118,13 @@ command recognizes the following options:
 .RS
 .TP 15
 .B -v, --version
-Display the version number of the CIM Server.
+Display the version number or running status of the CIM Server.
 .TP
 .B -h, --help
 Display the command usage.
+.TP
+.B  --status
+Display the running status of the CIM Server.
 .TP
 .B -s
 Stop the CIM Server. 
@@ -148,6 +153,24 @@ Success
 .TP
 .B 1 
 Error
+.PD
+.RE
+.PP
+The 
+.B cimserver --status 
+command returns one of the following values:
+.RS
+.TP
+.B 0
+The CIM Server is running
+.PD 0
+.TP
+.B 1 
+Error
+.PD 0
+.TP
+.B 2 
+The CIM Server is not running
 .PD
 .RE
 .PP

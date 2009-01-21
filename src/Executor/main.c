@@ -321,17 +321,32 @@ int main(int argc, char** argv)
      * passed through to CIMSERVERMAIN).
      */
 
-    if (!options.version &&
-        !options.help &&
-        TestProcessRunning(PEGASUS_CIMSERVER_START_FILE, CIMSERVERMAIN) == 0)
+    if (!options.version && !options.help)
     {
-        fprintf(stderr,
-            "%s: cimserver is already running (the PID found in the file "
-            "\"%s\" corresponds to an existing process named \"%s\").\n\n",
-            globals.argv[0], PEGASUS_CIMSERVER_START_FILE, CIMSERVERMAIN);
-
-        exit(1);
-    }
+        int isRunning = (TestProcessRunning(
+            PEGASUS_CIMSERVER_START_FILE, CIMSERVERMAIN) == 0);
+        if (options.status)
+        {
+            if (isRunning)
+            {
+                fprintf(stderr, "CIM Server is running.\n");
+                exit(0);
+            } 
+            else
+            {
+                fprintf(stderr, "CIM Server is not running.\n");
+                exit(2);
+            }
+        }
+        else if (isRunning)
+        {
+            fprintf(stderr,
+                "%s: cimserver is already running (the PID found in the file "
+                "\"%s\" corresponds to an existing process named \"%s\").\n\n",
+                globals.argv[0], PEGASUS_CIMSERVER_START_FILE, CIMSERVERMAIN);  
+            exit(1);
+        }
+    } 
 
     /* Get enableAuthentication configuration option. */
 

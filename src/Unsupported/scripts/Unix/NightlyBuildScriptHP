@@ -43,6 +43,7 @@
 #
 # These environment variables are also used if set:
 #
+# PEGASUS_BUILD_REPORT_EMAIL_RECIPIENTS (pegasus-build-status at opengroup.org)
 # PEGASUS_BUILD_FAILURE_EMAIL_RECIPIENTS (Send failure emails to more addresses)
 # PEGASUS_CADVISE=TRUE
 # PEGASUS_CCOVER=TRUE
@@ -387,7 +388,10 @@ fi
 
 header="$status: $branch: $platform: $datestamp"
 
-$MAIL_PROGRAM -s "$header" pegasus-build-status@opengroup.org < $reportFile
+if [ "$PEGASUS_BUILD_REPORT_EMAIL_RECIPIENTS" != "" ]; then
+    $MAIL_PROGRAM -s "$header" $PEGASUS_BUILD_REPORT_EMAIL_RECIPIENTS \
+        < $reportFile
+fi
 if [ "$status" = "FAILURE" ]; then
     if [ "$PEGASUS_BUILD_FAILURE_EMAIL_RECIPIENTS" != "" ]; then
         $MAIL_PROGRAM -s "$header" $PEGASUS_BUILD_FAILURE_EMAIL_RECIPIENTS \

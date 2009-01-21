@@ -38,6 +38,7 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Message.h>
+#include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/AuthenticationInfo.h>
 #include <Pegasus/Common/TLS.h>
@@ -134,7 +135,7 @@ private:
 
     void _handleReadEvent();
 
-    Boolean _handleWriteEvent(Message &message);
+    Boolean _handleWriteEvent(HTTPMessage& httpMessage);
 
     void _handleReadEventFailure(const String& httpStatusWithDetail,
                                  const String& cimError = String());

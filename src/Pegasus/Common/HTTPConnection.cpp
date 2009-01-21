@@ -136,9 +136,11 @@ static const String httpStatusInternal = HTTP_STATUS_INTERNALSERVERERROR;
  * with the thrown message
  */
 
-static void _throwEventFailure(const String &status, const String &detail,
-    const char *func,
-    const char *file , Uint32 line)
+static void _throwEventFailure(
+    const String &status,
+    const String &detail,
+    const char *file,
+    Uint32 line)
 {
     String message = status + httpDetailDelimiter + detail;
     PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL1,
@@ -152,7 +154,7 @@ static void _throwEventFailure(const String &status, const String &detail,
 // The macro allows is used for file, line inclusion for debugging
 
 #define _throwEventFailure(status, detail) \
-  _throwEventFailure(status, String(detail), func, __FILE__, __LINE__)
+  _throwEventFailure(status, String(detail), __FILE__, __LINE__)
 
 #define _socketWriteError()                                                   \
     do                                                                        \
@@ -317,7 +319,9 @@ void HTTPConnection::handleEnqueue(Message *message)
             PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                 "HTTPConnection::handleEnqueue - HTTP_MESSAGE");
 
-            _handleWriteEvent(*message);
+            HTTPMessage* httpMessage = dynamic_cast<HTTPMessage*>(message);
+            PEGASUS_ASSERT(httpMessage);
+            _handleWriteEvent(*httpMessage);
             break;
         }
 
@@ -388,14 +392,12 @@ Boolean HTTPConnection::closeConnectionOnTimeout(struct timeval* timeNow)
  * has arrived.
  */
 
-Boolean HTTPConnection::_handleWriteEvent(Message &message)
+Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
 {
-    static const char func[] = "HTTPConnection::_handleWriteEvent";
     String httpStatusString;
-    HTTPMessage& httpMessage = *(HTTPMessage*)&message;
     Buffer& buffer = httpMessage.message;
-    Boolean isFirst = message.isFirst();
-    Boolean isLast = message.isComplete();
+    Boolean isFirst = httpMessage.isFirst();
+    Boolean isLast = httpMessage.isComplete();
     Sint32 totalBytesWritten = 0;
     Uint32 messageLength = buffer.size();
 
@@ -409,7 +411,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
         Uint32 bytesRemaining = messageLength;
         char *messageStart = (char *) buffer.getData();
         Uint32 bytesToWrite = httpTcpBufferSize;
-        Uint32 messageIndex = message.getIndex();
+        Uint32 messageIndex = httpMessage.getIndex();
         Boolean isChunkResponse = false;
         Boolean isChunkRequest = false;
         Boolean isFirstException = false;
@@ -475,21 +477,9 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 // save the entire FIRST error response for non-chunked error
                 // responses this will be used as the error message
 
-                if (isFirstException == true)
+                if (isFirstException)
                 {
-                    // this shouldnt happen, but this is defensive ...
-                    if (messageLength == 0)
-                    {
-                        CIMStatusCode code = httpMessage.cimException.getCode();
-                        String httpDetail(cimStatusCodeToString(code));
-                        char s[11];
-                        sprintf(s, "%u", (unsigned int)code);
-                        String httpStatusCodeString(s);
-                        Buffer errorRsp = XmlWriter::formatHttpErrorRspMessage(
-                            httpStatusCodeString, String(), httpDetail);
-                        messageLength = errorRsp.size();
-                        messageStart = (char *) errorRsp.getData();
-                    }
+                    PEGASUS_ASSERT(messageLength != 0);
                     cimException = CIMException(cimException.getCode(),
                         String(messageStart, messageLength));
                 }
@@ -803,9 +793,9 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             // dont include header terminator yet
             Uint32 headerLength = bytesToWrite;
             bytesToWrite -= headerLineTerminatorLength;
-            PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4,
-              "HTTPConnection::_handleWriteEvent: "
-              "Sending header for chunked reponses.");
+            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
+                "HTTPConnection::_handleWriteEvent: "
+                    "Sending header for chunked reponses.");
 
             bytesWritten = _socket->write(sendStart, bytesToWrite);
             if (bytesWritten < 0)
@@ -822,8 +812,8 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             sendStart = trailer.getData();
             bytesToWrite = trailer.size();
 
-            PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4,
-                    "HTTPConnection::_handleWriteEvent: "
+            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
+                "HTTPConnection::_handleWriteEvent: "
                     "Sending trailer header for chunked responses.");
 
             bytesWritten = _socket->write(sendStart, bytesToWrite);
@@ -838,8 +828,8 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             bytesToWrite = headerLineTerminatorLength;
             sendStart = messageStart + headerLength - bytesToWrite;
 
-            PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4,
-                    "HTTPConnection::_handleWriteEvent: "
+            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
+                "HTTPConnection::_handleWriteEvent: "
                     "Sending header terminator for chunked responses.");
 
             bytesWritten = _socket->write(sendStart, bytesToWrite);
@@ -868,8 +858,8 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 sendStart = chunkLine;
                 Sint32 chunkBytesToWrite = (Sint32)strlen(sendStart);
 
-                PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4,
-                        "HTTPConnection::_handleWriteEvent: "
+                PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
+                    "HTTPConnection::_handleWriteEvent: "
                         "Sending chunk with chunk line terminator.");
 
                 bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
@@ -894,8 +884,8 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
               sendStart = messageStart + messageLength - bytesRemaining;
               bytesToWrite = _Min(httpTcpBufferSize, bytesRemaining);
 
-              PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4,
-                      "HTTPConnection::_handleWriteEvent: "
+              PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
+                  "HTTPConnection::_handleWriteEvent: "
                       "Sending non-chunked data.");
 
               bytesWritten = _socket->write(sendStart, bytesToWrite);
@@ -967,9 +957,9 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 sendStart = trailer.getData();
                 Sint32 chunkBytesToWrite = (Sint32) trailer.size();
 
-                PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4,
-                        "HTTPConnection::_handleWriteEvent: "
-                        "Sending the last chunk with chunk body terminator ");
+                PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
+                    "HTTPConnection::_handleWriteEvent: "
+                        "Sending the last chunk with chunk body terminator");
 
                 bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
                 if (bytesWritten < 0)
@@ -1025,12 +1015,10 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
         if (_isClient() == false)
         {
             // Check for message to close
-            if (message.getCloseConnect()== true)
+            if (httpMessage.getCloseConnect())
             {
-                PEG_TRACE((
-                    TRC_HTTP,
-                    Tracer::LEVEL3,
-                    "HTTPConnection::_handleWriteEvent - Connection: Close "
+                PEG_TRACE((TRC_HTTP, Tracer::LEVEL3,
+                    "HTTPConnection::_handleWriteEvent: \"Connection: Close\" "
                         "in client message."));
                 _closeConnection();
             }
@@ -1158,8 +1146,6 @@ Boolean _IsBodylessMessage(const char* line)
 
 void HTTPConnection::_getContentLengthAndContentOffset()
 {
-    static const char func[] =
-    "HTTPConnection::_getContentLengthAndContentOffset";
     Uint32 size = _incomingBuffer.size();
     if (size == 0)
         return;
@@ -1498,9 +1484,8 @@ Boolean HTTPConnection::_isClient()
 
 void HTTPConnection::_handleReadEventTransferEncoding()
 {
-    static const char func[] =
-        "HTTPConnection::_handleReadEventTransferEncoding";
-    PEG_METHOD_ENTER(TRC_HTTP, func);
+    PEG_METHOD_ENTER(TRC_HTTP,
+        "HTTPConnection::_handleReadEventTransferEncoding");
 
     Uint32 messageLength = _incomingBuffer.size();
     Uint32 headerLength = (Uint32) _contentOffset;
@@ -1925,8 +1910,7 @@ void HTTPConnection::_handleReadEventFailure(
 
 void HTTPConnection::_handleReadEvent()
 {
-    static const char func[] = "HTTPConnection::_handleReadEvent()";
-    PEG_METHOD_ENTER(TRC_HTTP, func);
+    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::_handleReadEvent");
 
     if (_acceptPending)
     {

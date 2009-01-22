@@ -183,6 +183,23 @@ public:
     }
 };
 
+/**
+    FailedSaveProperties Exception class
+*/
+class PEGASUS_CONFIG_LINKAGE FailedSaveProperties : public Exception
+{
+public:
+    FailedSaveProperties(const String& reason)
+        : Exception(MessageLoaderParms(
+              "Config.ConfigExceptions.FAILED_SAVE_PROPERTIES",
+              "Failed to save configuration properties to file: $0. "
+              "Configuration property not set.",
+              reason))
+    {
+    }
+};
+
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_ConfigExceptions_h */

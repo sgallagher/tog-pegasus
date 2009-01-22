@@ -263,6 +263,18 @@ public:
 };
 
 // ATTN: P3  KS documentation Required
+class PEGASUS_COMMON_LINKAGE CannotChangeFilePerm : public Exception
+{
+public:
+
+    static const char MSG[];
+    static const char KEY[];
+
+    CannotChangeFilePerm(const String& path);
+    virtual ~CannotChangeFilePerm();
+};
+
+// ATTN: P3  KS documentation Required
 class PEGASUS_COMMON_LINKAGE NotImplemented : public Exception
 {
 public:

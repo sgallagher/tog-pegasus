@@ -410,6 +410,11 @@ en:table {
         */
         Common.InternalException.SEMAPHORE_SIGNAL_FAILED:string {"PGS00239: Failed to signal semaphore: {0}"}
 
+        /**
+        * @note PGS00240:
+        *     Substitution {0} is an error message string
+        */
+        Common.InternalException.CANNOT_CHANGE_FILE_PERM:string {"PGS00240: Cannot change permissions of file: {0}"}
 
         // ==========================================================
         // Messages for Exception
@@ -945,6 +950,12 @@ en:table {
         Config.ConfigExceptions.NONDYNAMIC_CONFIG_PROPERTY:string {"PGS02207: The configuration property {0} is not dynamic."}
 
         Config.ConfigExceptions.CONFIG_FILE_SYNTAX_ERR:string {"PGS02208: Syntax error is found in the configuration file: "}
+
+        /**
+        * @note  PGS02209:
+        *    Substitution {0} is the fail reason (a string)
+        */
+        Config.ConfigExceptions.FAILED_SAVE_PROPERTIES:string {"PGS02209: Failed to save configuration properties to file: {0}. Configuration property not set."}
 
         // ==========================================================
         // Messages for ConfigManager

@@ -118,6 +118,11 @@ const char CannotCreateDirectory::KEY[] =
 const char CannotOpenFile::MSG[] = "cannot open file: $0";
 const char CannotOpenFile::KEY[] = "Common.InternalException.CANNOT_OPEN_FILE";
 
+const char CannotChangeFilePerm::MSG[] =
+    "cannot change permissions of file: $0";
+const char CannotChangeFilePerm::KEY[] =
+    "Common.InternalException.CANNOT_CHANGE_FILE_PERM";
+
 const char NotImplemented::MSG[] = "not implemented: $0";
 const char NotImplemented::KEY[] = "Common.InternalException.NOT_IMPLEMENTED";
 
@@ -649,6 +654,24 @@ CannotOpenFile::CannotOpenFile(const String& path)
 }
 
 CannotOpenFile::~CannotOpenFile()
+{
+}
+
+//==============================================================================
+//
+// CannotChangeFilePerm
+//
+//==============================================================================
+
+CannotChangeFilePerm::CannotChangeFilePerm(const String& path)
+    : Exception(MessageLoaderParms(
+          CannotChangeFilePerm::KEY,
+          CannotChangeFilePerm::MSG,
+          path))
+{
+}
+
+CannotChangeFilePerm::~CannotChangeFilePerm()
 {
 }
 

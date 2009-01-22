@@ -91,7 +91,9 @@ public:
 
     @param  confTable    hash table containing the config properties.
     @exception  CannotRenameFile  if failed to create the backup file.
-    @exception  CannotOpenFile  if failed to set permissions on the config file.
+    @exception  CannotOpenFile  if failed to open the config file.
+    @exception  CannotChangeFilePerm
+                                if failed to set permissions on the config file.
     */
     void save(ConfigTable* confTable);
 
@@ -104,7 +106,9 @@ public:
     @exception  NoSuchFile   if the specified file cannot be opened.
     @exception  FileNotReadable  if the specified file is not readable.
     @exception  CannotRenameFile if failed to create the backup file.
-    @exception  CannotOpenFile  if failed to set permissions on the config file.
+    @exception  CannotOpenFile  if failed to open the config file.
+    @exception  CannotChangeFilePerm
+                                if failed to set permissions on the config file.
     */
     void replace(const String& fileName);
 

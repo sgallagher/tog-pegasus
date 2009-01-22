@@ -253,25 +253,13 @@ Boolean ConfigFileHandler::updateCurrentValue(
         // Store the new property in current config file.
         _currentConfFile->save(_currentConfig);
     }
-    catch (CannotRenameFile& e)
+    catch (Exception& e)
     {
-        //
-        // Back up creation failed
-        // FUTURE: Log this message in a log file.
-        //
         PEG_TRACE((TRC_CONFIG, Tracer::LEVEL1,
-            "Backup configuration file creation failed: %s",
+            "Can not save current configuration: %s",
             (const char*)e.getMessage().getCString()));
 
-        return false;
-    }
-    catch (CannotOpenFile& cof)
-    {
-        PEG_TRACE((TRC_CONFIG, Tracer::LEVEL1,
-            "Setting permissions on current configuration file failed: %s",
-            (const char*)cof.getMessage().getCString()));
-
-        return false;
+        throw;
     }
 
     //
@@ -344,25 +332,13 @@ Boolean ConfigFileHandler::updatePlannedValue(
         _plannedConfFile->save(_plannedConfig);
 
     }
-    catch (CannotRenameFile& e)
+    catch (Exception& e)
     {
-        //
-        // Back up creation failed
-        // FUTURE: Log this message in a log file.
-        //
         PEG_TRACE((TRC_CONFIG, Tracer::LEVEL1,
-            "Backup configuration file creation failed: %s",
+            "Can not save planned configuration: %s",
              (const char*)e.getMessage().getCString()));
 
-        return false;
-    }
-    catch (CannotOpenFile& cof)
-    {
-        PEG_TRACE((TRC_CONFIG, Tracer::LEVEL1,
-            "Setting permissions on planned configuration file failed: %s",
-            (const char*)cof.getMessage().getCString()));
-
-        return false;
+        throw;
     }
 
     //

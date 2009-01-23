@@ -132,8 +132,8 @@ ostream & help(ostream &os, int progtype)
         help.append("       cimmofl");
     else
         help.append("       cimmof ");
-    help.append( " [ -w ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n");
-    help.append( "              [ -n namespace | --namespace namespace ]");
+    help.append(" [ -w ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n");
+    help.append("               [ -n namespace | --namespace namespace ]");
     if(progtype == 1)
     {
         help.append(

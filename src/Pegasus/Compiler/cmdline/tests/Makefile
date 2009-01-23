@@ -39,7 +39,11 @@ RESULTFILE =  $(TMP_DIR)/cmdline_result
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
   MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.pase
 else
-  MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
+  ifeq ($(OS),HPUX)
+    MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master.hpux
+  else
+    MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
+  endif
 endif
 TMPFILE = $(TMP_DIR)/cmdline_tmp
 REPOSITORYDIR = $(TMP_DIR)
@@ -101,18 +105,22 @@ defects:
 
 tests: clean
 	@cimmofl "$(NAMESPACE)" "-R$(REPOSITORYDIR)" "-I$(MOF_PATH)" $(MOF_PATH)/CIM_Core25.mof
+ifneq ($(OS),HPUX)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "cimmofl $(NAMESPACE) -R REPOSITORYDIR -xml ValidMof1.mof" >> $(RESULTFILE)
 	@cimmofl "$(NAMESPACE)" "-R$(REPOSITORYDIR)" --xml ValidMof1.mof >> $(TMPFILE) 
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "cimmofl $(NAMESPACE) -R REPOSITORYDIR -E ValidMof1.mof" >> $(RESULTFILE)
 	@cimmofl "$(NAMESPACE)" "-R$(REPOSITORYDIR)" "-E" ValidMof1.mof >> $(RESULTFILE) $(REDIRECTERROR)
+endif
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "cimmofl $(NAMESPACE) -R REPOSITORYDIR ValidMof1.mof" >> $(RESULTFILE)
 	@cimmofl "$(NAMESPACE)" "-R$(REPOSITORYDIR)" ValidMof1.mof >> $(RESULTFILE) $(REDIRECTERROR)
+ifneq ($(OS),HPUX)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "cimmofl $(NAMESPACE) -R REPOSITORYDIR -xml ValidMof2.mof" >> $(RESULTFILE)
 	@cimmofl "$(NAMESPACE)" "-R$(REPOSITORYDIR)" --xml ValidMof2.mof >> $(TMPFILE) $(REDIRECTERROR)
+endif
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "cimmofl $(NAMESPACE) -R REPOSITORYDIR ValidMof2.mof" >> $(RESULTFILE)
 	@cimmofl "$(NAMESPACE)" "-R$(REPOSITORYDIR)" ValidMof2.mof >> $(RESULTFILE) $(REDIRECTERROR)

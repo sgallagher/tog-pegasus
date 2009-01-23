@@ -59,10 +59,10 @@
 
 #include "lslp-windows.h"
 
-void WindowsStartNetwork()
+int WindowsStartNetwork()
 {
     WSADATA wsData;
-    WSAStartup(0x0002, &wsData);
+    return WSAStartup(0x0002, &wsData);
 }
 
 

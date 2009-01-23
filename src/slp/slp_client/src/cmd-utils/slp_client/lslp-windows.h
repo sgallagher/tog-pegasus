@@ -109,7 +109,7 @@ typedef struct socket_address_list
     socket_addr *list;
 } socket_addr_list;
 
-void WindowsStartNetwork();
+int WindowsStartNetwork();
 /* int32 gettimeofday(struct timeval *tv, struct timezone *tz); */
 
 /* WIN 32 macros for mutex semaphore */

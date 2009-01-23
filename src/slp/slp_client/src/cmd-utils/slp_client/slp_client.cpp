@@ -3683,20 +3683,24 @@ struct slp_client *create_slp_client(
         }
     }
 
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    {
+        int err = WindowsStartNetwork();
+        if (err != 0)
+        {
+            DEBUG_PRINT((DEBUG_EXIT,
+                "create_slp_client: WSAStartup() failure, errno %i", err));
+            return NULL;
+        }
+    }
+#endif
+
     client = (struct slp_client *)calloc(1, sizeof(struct slp_client)); //jeb
     if (client == NULL)
     {
         DEBUG_PRINT((DEBUG_EXIT, "create_slp_client:err5 "));
         return NULL;
     }
-
-#if defined(PEGASUS_PLATFORM_WIN64_IA64_MSVC) || \
-    defined(PEGASUS_PLATFORM_WIN64_X86_64_MSVC) || \
-    defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-
-    WindowsStartNetwork();
-
-#endif
 
     /* initialize the random number generator for randomizing the
        timing of multicast responses */

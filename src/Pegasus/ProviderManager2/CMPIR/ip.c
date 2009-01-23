@@ -248,6 +248,7 @@ PEGASUS_EXPORT void accept_connections (
     int in_socket, listen_socket;
     struct sockaddr_in sin;
     socklen_t sin_len = sizeof ( sin );
+    ssize_t param;
 
     int ru = 1;
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -300,7 +301,7 @@ PEGASUS_EXPORT void accept_connections (
             SO_LINGER,
             &__linger,
             sizeof ( struct linger ) );
-        ssize_t param = in_socket;
+        param = in_socket;
         if (multithreaded)
         {
 

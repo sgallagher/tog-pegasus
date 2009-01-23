@@ -184,7 +184,7 @@ typedef union YYSTYPE
 	char *_s;
 	lslpAttrList *_atl;
 }
-/* Line 187 of yacc.c.  */
+/* Line 193 of yacc.c.  */
 #line 158 "y_attr.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -1835,8 +1835,11 @@ lslpAttrList *lslpAllocAttr(const char *name, char type, const void *val, int16 
 	  attr->attr_len = len;
 	  switch (type)	    {
 	    case string:
-	      if ( NULL != (attr->val.stringVal = strdup((const char *)val)))
-		return(attr);
+	      if ( NULL == (attr->val.stringVal = strdup((const char *)val)))
+              {
+                  lslpFreeAttr(attr);
+                  return NULL;
+              }
 	      break;
 	    case integer:
 	      attr->val.intVal = *(const uint32 *)val;
@@ -1845,8 +1848,11 @@ lslpAttrList *lslpAllocAttr(const char *name, char type, const void *val, int16 
 	      attr->val.boolVal = *(const BOOL *)val;
 	      break;
 	    case opaque:
-	      if ( NULL != (attr->val.opaqueVal = strdup((const char *)val)))
-		return(attr);
+	      if ( NULL == (attr->val.opaqueVal = strdup((const char *)val)))
+              {
+                  lslpFreeAttr(attr);
+                  return NULL;
+              }
 	      break;
 	    default:
 	      break;

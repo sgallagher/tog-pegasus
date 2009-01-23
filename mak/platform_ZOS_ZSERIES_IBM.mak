@@ -34,7 +34,7 @@ ARCHITECTURE = zseries
 
 COMPILER = ibm
 
-SYS_INCLUDES = -I/usr/lpp/tcpip/include -I/usr/lpp/ioclib/include -I$(ROOT)/src/StandardIncludes/zOS
+SYS_INCLUDES = -I/usr/lpp/tcpip/include -I/usr/lpp/ioclib/include -I$(ROOT)/src/stdcxx/zOS
 #SYS_INCLUDES = -I/usr/lpp/tcpip/include -I/usr/lpp/ioclib/include
 DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -D _OPEN_SYS_IF_EXT -D _OPEN_SYS_DIR_EXT -D _OPEN_SYS_FILE_EXT -D_ALL_SOURCE -D_UNIX03_SOURCE -D_OPEN_THREADS=3 -D_OPEN_SYS_SOCK_IPV6 -D_ENHANCED_ASCII_EXT=0xFFFFFFFF
 

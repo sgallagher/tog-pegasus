@@ -119,7 +119,12 @@ void TraceFileHandler::handleMessage(
     fprintf(_fileHandle, "%s", message);
     vfprintf(_fileHandle, fmt, argList);
     fprintf(_fileHandle, "\n");
+
+#if defined(PEGASUS_OS_VMS)
+    if (0 == fsync(fileno(_fileHandle)))
+#else
     if (0 == fflush(_fileHandle))
+#endif
     {
         // trace message successful written, reset error log messages
         // thus allow writing of errors to log again
@@ -150,7 +155,11 @@ void TraceFileHandler::handleMessage(const char *message, Uint32 msgLen)
     prepareFileHandle();
     // Write the message to the file
     fprintf(_fileHandle, "%s\n", message);
+#if defined(PEGASUS_OS_VMS)
+    if (0 == fsync(fileno(_fileHandle)))
+#else
     if (0 == fflush(_fileHandle))
+#endif
     {
         // trace message successful written, reset error log messages
         // thus allow writing of errors to log again

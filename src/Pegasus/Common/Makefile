@@ -202,7 +202,6 @@ endif
 SOURCES_SLP = Attribute.cpp \
     CIMServerDescription.cpp
 
-SOURCES_SECURITY_ZOS = MustStayCleanzOS.c
 ifeq ($(PEGASUS_ENABLE_SLP),true)
     SOURCES2 += $(SOURCES_SLP)
 endif
@@ -249,9 +248,6 @@ ifeq ($(OS_TYPE),vms)
 endif
 
 ifeq ($(OS),zos)
-    ifdef PEGASUS_ZOS_SECURITY
-        SOURCES += $(SOURCES_SECURITY_ZOS)
-    endif
     SOURCES2 += Audit_zOS_SMF.cpp \
         PegasusAssertZOS.cpp
 endif

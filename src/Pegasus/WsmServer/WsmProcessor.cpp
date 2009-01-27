@@ -306,10 +306,7 @@ void WsmProcessor::_handleEnumerateResponse(
         if (splitResponse->getSize() > numDataItemsEncoded)
         {
             // Add unprocessed items back to the context
-            if (numDataItemsEncoded)
-            {
-                splitResponse->remove(0, numDataItemsEncoded);
-            }
+            splitResponse->remove(0, numDataItemsEncoded);
             wsmResponse->merge(splitResponse.get());
         }
 
@@ -366,10 +363,7 @@ void WsmProcessor::_handlePullRequest(WsenPullRequest* wsmRequest)
             if (wsmResponse->getSize() > numDataItemsEncoded)
             {
                 // Add unprocessed items back to the context
-                if (numDataItemsEncoded)
-                {
-                    wsmResponse->remove(0, numDataItemsEncoded);
-                }
+                wsmResponse->remove(0, numDataItemsEncoded);
                 enumContext->response->merge(wsmResponse.get());
             }
 

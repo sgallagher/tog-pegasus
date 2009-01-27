@@ -2207,7 +2207,7 @@ Boolean StressTestControllerCommand::_validateConfiguration(
            //
            String clientName = String(DEFAULT_BINDIR);
            clientName.append(vars.getCString());
-#ifdef PEGASUS_OS_TYPE_WINDOWS
+#if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_VMS)
            clientName.append(".exe");
 #endif
            if (!FileSystem::exists(clientName))
@@ -2220,7 +2220,7 @@ Boolean StressTestControllerCommand::_validateConfiguration(
                    clientName = String(DEFAULT_BINDIR);
                    testString.append(vars.getCString());
                    clientName.append(testString.getCString());
-#ifdef PEGASUS_OS_TYPE_WINDOWS
+#if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_VMS)
                    clientName.append(".exe");
 #endif
                    if (!FileSystem::exists(clientName))

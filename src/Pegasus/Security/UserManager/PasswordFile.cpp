@@ -48,7 +48,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 const char COLON = ':';
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  PasswordFile Class
@@ -169,14 +168,18 @@ void PasswordFile::load(PasswordTable& passwordTable)
         //
         // Skip leading whitespace
         //
-        const Char16* p = line.getChar16Data();
+        const Char16* pLine = line.getChar16Data();
+        const Char16* pUserNameStart;
+        const Char16* pUserNameEnd;
+        const Char16* pColon;
+        const Char16* pPassword;
 
-        while (*p && isspace(*p))
+        while (*pLine && isspace(*pLine))
         {
-            p++;
+            pLine++;
         }
 
-        if (!*p)
+        if (!*pLine)
         {
             continue;
         }
@@ -184,57 +187,80 @@ void PasswordFile::load(PasswordTable& passwordTable)
         //
         // Get the userName
         //
-        String userName;
-
-        userName.append(*p++);
-
-        while (isalnum(*p))
-        {
-            userName.append(*p++);
-        }
+        pUserNameStart = pLine;
 
         //
-        // Skip whitespace after user name
+        // Look for the password
         //
-        while (*p && isspace(*p))
+        pColon = pLine;
+        while (*pColon && (*pColon != COLON))
         {
-            p++;
+            *pColon++;
         }
-
         //
         // Expect a colon sign
         //
-        if (*p != COLON)
+        if (*pColon != COLON)
         {
             // Did not find Colon, log a message and skip entry
             Logger::put_l(
                 Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
                 MessageLoaderParms(
-                    "Security.UserManager.PasswordFile.ERROR_READING_PWD_ENTRY",
-                    "Error in reading password entry for : $0.",
-                    userName));
+                    "Security.UserManager.PasswordFile.PWD_ENTRY_SYNTAX_ERROR",
+                    "Syntax error in password entry at line : $0.",
+                    lineNumber));
             continue;
         }
 
-        p++;
+        //
+        // Skip whitespace after user name
+        //
+        pUserNameEnd = pColon - 1;
+        while ((pUserNameEnd >= pUserNameStart) && isspace(*pUserNameEnd))
+        {
+            pUserNameEnd--;
+        }
+        pUserNameEnd++; // Point to one past the username
+
+        if (pUserNameStart == pUserNameEnd)
+        {
+            // Did not find a user name, log a message and skip entry
+            Logger::put_l(
+                Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+                MessageLoaderParms(
+                    "Security.UserManager.PasswordFile.ERROR_READING_USR_ENTRY",
+                    "User name not found in entry at line : $0.",
+                    lineNumber));
+            continue;
+        }
+
+        String userName(pUserNameStart, pUserNameEnd - pUserNameStart);
 
         //
         // Skip whitespace after : sign
         //
-        while (*p && isspace(*p))
+        pPassword = pColon + 1;
+        while (*pPassword && isspace(*pPassword))
         {
-            p++;
+            pPassword++;
+        }
+
+        if (!*pPassword)
+        {
+            // Did not find a password, log a message and skip entry
+            Logger::put_l(
+                Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
+                MessageLoaderParms(
+                    "Security.UserManager.PasswordFile.ERROR_READING_PWD_ENTRY",
+                    "Error reading the password entry for user : $0.",
+                    userName));
+            continue;
         }
 
         //
         // Get the password
         //
-        String password;
-
-        while (*p)
-        {
-            password.append(*p++);
-        }
+        String password(pPassword);
 
         //
         // Store the user name and password in the table

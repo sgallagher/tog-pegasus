@@ -870,6 +870,18 @@ en:table {
         */
         Security.UserManager.PasswordFile.CANNOT_REMOVE_BACKUP_PWD_FILE:string {"PGS01610: Cannot remove the backup password file {0}."}
 
+        /**
+        * @note  PGS01611:
+        *    Substitution {0} is a line number (Uint32)
+        */
+        Security.UserManager.PasswordFile.PWD_ENTRY_SYNTAX_ERROR:string {"PGS01611: Syntax error in password entry at line {0}."}
+
+        /**
+        * @note  PGS01612:
+        *    Substitution {0} is a line number (Uint32)
+        */
+        Security.UserManager.PasswordFile.ERROR_READING_USR_ENTRY:string {"PGS01612: User name not found in entry at line {0}."}
+
 
         // ==========================================================
         // Messages for Security  UserFileHandler

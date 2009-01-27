@@ -45,6 +45,8 @@ DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -D_WIN32_WINNT=0x0600
 CL_VERSION := $(word 8, $(shell cl.exe 2>&1))
 CL_MAJOR_VERSION := $(word 1, $(subst .,  , $(CL_VERSION)))
 
+VC_CL_VERSIONS := 14 15
+VC_CL_VERSION  := $(findstring $(CL_MAJOR_VERSIONS), $(VC_CL_VERSIONS))
 
 #
 # Determine the version of Windows being used.
@@ -83,9 +85,9 @@ endif
 
 
 #
-# CL_MAJOR_VERSION 14 is VC 8
+# CL_MAJOR_VERSION 14 or 15 (i.e., VC 8 or VC 9)
 #
-ifeq ($(CL_MAJOR_VERSION), 14)
+ifeq ($(CL_MAJOR_VERSION), $(VC_CL_VERSION))
     CXX_VERSION_FLAGS := -Wp64 -EHsc
     CXX_VERSION_DEBUG_FLAGS := -RTCc -RTCsu
     CXX_VERSION_RELEASE_FLAGS := -GF -GL -Gy

@@ -39,9 +39,8 @@
 # be lost the next time this file is regenerated and submitted to CVS.
 #
 
-%define Flavor  tog
 %define packageVersion 1
-Version: 2.14.0
+Version: 2.9.1
 Release: %{packageVersion}%{?LINUX_VERSION:.%{LINUX_VERSION}}
 Epoch:   1
 
@@ -54,22 +53,9 @@ Epoch:   1
 # Use "rpm -[iU]vh --define 'AUTOSTART 1'" in order to have cimserver enabled
 # (chkconfig --level=345 tog-pegasus on) after installation.
 #
-# Use "rpmbuild --define 'JMPI_PROVIDER_REQUESTED 1'" to include JMPI support.
-%{?!JMPI_PROVIDER_REQUESTED: %define JMPI_PROVIDER_REQUESTED 0}
-
-# Use "rpmbuild --define 'EXTERNAL_SLP_REQUESTED 1'" to include External SLP support.
-%{?!EXTERNAL_SLP_REQUESTED: %define EXTERNAL_SLP_REQUESTED 0}
-
-# Use "rpmbuild --define 'PEGASUS_32BIT_PROVIDER_SUPPORT 1'" to build 32 bit
-# providers for 64 bit CIMOM.
-%{?!PEGASUS_32BIT_PROVIDER_SUPPORT: %define PEGASUS_32BIT_PROVIDER_SUPPORT 0}
-
-# Use "rpmbuild --define 'PEGASUS_BUILD_WITH_CLANG 1'" to build rpm with clang.
-# This shrinks disk usage by around 4%
-%{?!PEGASUS_BUILD_WITH_CLANG: %define PEGASUS_BUILD_WITH_CLANG 0}
 
 Summary:   OpenPegasus WBEM Services for Linux
-Name:      %{Flavor}-pegasus
+Name:      tog-pegasus
 Group:     Systems Management/Base
 License:   Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -84,23 +70,6 @@ Source:    %{name}-%{version}-%{packageVersion}.tar.gz
 BuildRequires:      bash, sed, grep, coreutils, procps, gcc, gcc-c++
 BuildRequires:      libstdc++, make, pam-devel
 BuildRequires:      openssl-devel >= 0.9.6, e2fsprogs
-
-#Following is commented because, Currently could not find clang shipped
-#Should be changed or uncommented when distros ship clang
-#and expects that system has clang 3 and above installed by other means
-#%if %{PEGASUS_BUILD_WITH_CLANG}
-#BuildRequires:      clang
-#%endif
-
-%if %{JMPI_PROVIDER_REQUESTED}
-BuildRequires:      gcc-java, libgcj-devel, libgcj, java-1.4.2-gcj-compat
-Requires:           libgcj, java-1.4.2-gcj-compat
-%endif
-%if %{EXTERNAL_SLP_REQUESTED}
-BuildRequires:      openslp, openslp-devel
-Requires:           openslp
-%endif
-
 BuildRequires:      net-snmp-devel
 #
 # End of section  pegasus/rpm/tog-specfiles/tog-pegasus-buildRequires.spec
@@ -108,16 +77,16 @@ BuildRequires:      net-snmp-devel
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-requires.spec
 #
 Requires:           bash, sed, grep, coreutils, procps, openssl >= 0.9.6, pam
-#Requires:          krb5-libs, chkconfig, SysVinit, bind-libs
+#Requires:          krb5-libs, redhat-lsb, chkconfig, SysVinit, bind-libs
 Requires:           e2fsprogs, bind-utils, net-tools
 Requires(post):     bash, sed, grep, coreutils, procps, openssl >= 0.9.6, pam
-#Requires(post):    krb5-libs, chkconfig, SysVinit, bind-libs
+#Requires(post):    krb5-libs, redhat-lsb, chkconfig, SysVinit, bind-libs
 Requires(post):     e2fsprogs, bind-utils, net-tools
 Requires(pre):      bash, sed, grep, coreutils, procps, openssl >= 0.9.6, pam
-#Requires(pre):     krb5-libs, chkconfig, SysVinit, bind-libs
+#Requires(pre):     krb5-libs, redhat-lsb, chkconfig, SysVinit, bind-libs
 Requires(pre):      e2fsprogs, bind-utils, net-tools
 Requires(postun):   bash, sed, grep, coreutils, procps, openssl >= 0.9.6, pam
-#Requires(postun):  krb5-libs, chkconfig, SysVinit, bind-libs
+#Requires(postun):  krb5-libs, redhat-lsb, chkconfig, SysVinit, bind-libs
 Requires(postun):   e2fsprogs, bind-utils, net-tools
 Requires:           net-snmp
 #
@@ -126,8 +95,8 @@ Requires:           net-snmp
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-desc.spec
 #
 Conflicts: openwbem
-Provides: %{Flavor}-pegasus-cimserver
-BuildConflicts: %{Flavor}-pegasus
+Provides: tog-pegasus-cimserver
+BuildConflicts: tog-pegasus
 
 %description
 OpenPegasus WBEM Services for Linux enables management solutions that deliver
@@ -144,11 +113,7 @@ sources.
 %global PEGASUS_HARDWARE_PLATFORM LINUX_IA64_GNU
 %else
 %ifarch x86_64
-%if %{PEGASUS_BUILD_WITH_CLANG}
-%global PEGASUS_HARDWARE_PLATFORM LINUX_X86_64_CLANG
-%else
 %global PEGASUS_HARDWARE_PLATFORM LINUX_X86_64_GNU
-%endif
 %else
 %ifarch ppc
 %global PEGASUS_HARDWARE_PLATFORM LINUX_PPC_GNU
@@ -162,11 +127,7 @@ sources.
 %ifarch s390x zseries
 %global PEGASUS_HARDWARE_PLATFORM LINUX_ZSERIES64_GNU
 %else
-%if %{PEGASUS_BUILD_WITH_CLANG}
-%global PEGASUS_HARDWARE_PLATFORM LINUX_IX86_CLANG
-%else
 %global PEGASUS_HARDWARE_PLATFORM LINUX_IX86_GNU
-%endif
 %endif
 %endif
 %endif
@@ -175,41 +136,6 @@ sources.
 %endif
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-arch.spec
-
-# Start of section pegasus/rpm/tog-specfiles/tog-pegasus-arch-for-32bit-provider-support.spec
-# This is required only when PEGASUS_32BIT_PROVIDER_SUPPORT is set
-
-%if %{PEGASUS_32BIT_PROVIDER_SUPPORT}
-
-%ifarch x86_64
-
-%if %{PEGASUS_BUILD_WITH_CLANG}
-%global PEGASUS_HARDWARE_PLATFORM_FOR_32BIT LINUX_IX86_CLANG
-%global PEGASUS_EXTRA_CXX_FLAGS_32BIT  "-O2 -g -pipe -fexceptions -fstack-protector -march=i386 -mtune=generic -fasynchronous-unwind-tables -m32"
-% global PEGASUS_EXTRA_LINK_FLAGS_32BIT "-O2 -g -pipe -fexceptions -fstack-protector -march=i386 -mtune=generic -fasynchronous-unwind-tables -m32"
-%else
-%global PEGASUS_HARDWARE_PLATFORM_FOR_32BIT LINUX_IX86_GNU
-%global PEGASUS_EXTRA_CXX_FLAGS_32BIT  "-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -march=i386 -mtune=generic -fasynchronous-unwind-tables -Wno-unused -m32"
-%global PEGASUS_EXTRA_LINK_FLAGS_32BIT "-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -march=i386 -mtune=generic -fasynchronous-unwind-tables -m32"
-%endif
-%else
-%ifarch ppc64 pseries
-%global PEGASUS_HARDWARE_PLATFORM_FOR_32BIT LINUX_PPC_GNU
-%global PEGASUS_EXTRA_CXX_FLAGS_32BIT  "-O2 -g -fmessage-length=0 -D_FORTIFY_SOURCE=2 -m32 -Wno-unused"
-%global PEGASUS_EXTRA_LINK_FLAGS_32BIT "-O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -m32"
-%else
-%ifarch s390x zseries
-%global PEGASUS_HARDWARE_PLATFORM_FOR_32BIT LINUX_ZSERIES_GNU
-%global PEGASUS_EXTRA_CXX_FLAGS_32BIT  "-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -m31 -Wno-unused"
-%global PEGASUS_EXTRA_LINK_FLAGS_32BIT "-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -m31"
-%endif
-%endif
-%endif
-
-%endif
-
-#
-# End of section pegasus/rpm/tog-specfiles/tog-pegasus-arch-for-32bit-provider-support.spec
 
 %global PEGASUS_ARCH_LIB %{_lib}
 %global OPENSSL_HOME /usr
@@ -231,7 +157,7 @@ sources.
 %global PEGASUS_REPOSITORY_PARENT_DIR /var/lib/Pegasus
 %global PEGASUS_PREV_REPOSITORY_DIR /var/lib/Pegasus/prev_repository
 %global PEGASUS_SBIN_DIR /usr/sbin
-%global PEGASUS_DOC_DIR /usr/share/doc/tog-pegasus-2.14
+%global PEGASUS_DOC_DIR /usr/share/doc/tog-pegasus-2.9
 
 %global PEGASUS_RPM_ROOT  $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 %global PEGASUS_RPM_HOME %PEGASUS_RPM_ROOT/build
@@ -242,9 +168,8 @@ sources.
 %package devel
 Summary: The OpenPegasus Software Development Kit
 Group: Systems Management/Base
-Requires: %{Flavor}-pegasus >= %{version}
-Requires(preun): bash, procps, grep, coreutils, make
-Obsoletes: %{Flavor}-pegasus-sdk
+Requires: tog-pegasus >= %{version}
+Obsoletes: tog-pegasus-sdk
 
 %description devel
 The OpenPegasus WBEM Services for Linux SDK is the developer's kit for the
@@ -256,7 +181,7 @@ supports C provider developers via the CMPI interface.
 %package test
 Summary: The OpenPegasus Tests
 Group: Systems Management/Base
-Requires: %{Flavor}-pegasus >= %{version}
+Requires: tog-pegasus >= %{version}
 
 %description test
 The OpenPegasus WBEM tests for the OpenPegasus %{version} Linux rpm.
@@ -291,40 +216,12 @@ export PEGASUS_TMP=/usr/share/Pegasus/test/tmp
 export PEGASUS_DISPLAYCONSUMER_DIR="$PEGASUS_TMP"
 %endif
 
-%if %{JMPI_PROVIDER_REQUESTED}
-sed -i 's/PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER=.*$/PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER=true/' $PEGASUS_ENVVAR_FILE
-%else
-sed -i 's/PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER=.*$/PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER=false/' $PEGASUS_ENVVAR_FILE
-%endif
-
-%if %{EXTERNAL_SLP_REQUESTED}
-sed -i 's/PEGASUS_ENABLE_SLP=.*$/PEGASUS_ENABLE_SLP=true/' $PEGASUS_ENVVAR_FILE
-%else
-sed -i 's/PEGASUS_ENABLE_SLP=.*$/PEGASUS_ENABLE_SLP=false/' $PEGASUS_ENVVAR_FILE
-%endif
-
-%if %{PEGASUS_32BIT_PROVIDER_SUPPORT}
-sed -i 's/#PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT=.*$/PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT=%PEGASUS_HARDWARE_PLATFORM_FOR_32BIT/' $PEGASUS_ENVVAR_FILE
-%endif
-
 make -f $PEGASUS_ROOT/Makefile.Release create_ProductVersionFile
 make -f $PEGASUS_ROOT/Makefile.Release create_CommonProductDirectoriesInclude
 make -f $PEGASUS_ROOT/Makefile.Release create_ConfigProductDirectoriesInclude
 make %{?_smp_mflags} -f $PEGASUS_ROOT/Makefile.Release all
 chmod 777 %PEGASUS_RPM_HOME
 make -f $PEGASUS_ROOT/Makefile.Release repository
-
-%if %{PEGASUS_32BIT_PROVIDER_SUPPORT}
-
-export PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT=%PEGASUS_HARDWARE_PLATFORM_FOR_32BIT
-export PEGASUS_EXTRA_C_FLAGS=%PEGASUS_EXTRA_CXX_FLAGS_32BIT 
-export PEGASUS_EXTRA_CXX_FLAGS="$PEGASUS_EXTRA_C_FLAGS"
-export PEGASUS_EXTRA_LINK_FLAGS=%PEGASUS_EXTRA_LINK_FLAGS_32BIT
-
-make %{?_smp_mflags} -f $PEGASUS_ROOT/Makefile.cimprovagt32 all
-
-%endif
-
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-build.spec
 
@@ -350,14 +247,6 @@ make -f $PEGASUS_ROOT/Makefile.Release stage \
 %else
 make -f $PEGASUS_ROOT/Makefile.Release stage \
     PEGASUS_STAGING_DIR=$PEGASUS_STAGING_DIR
-%endif
-
-%if %{PEGASUS_32BIT_PROVIDER_SUPPORT}
-export PEGASUS_PLATFORM_FOR_32BIT_PROVIDER_SUPPORT=%PEGASUS_HARDWARE_PLATFORM_FOR_32BIT
-export LD_LIBRARY_PATH=$PEGASUS_HOME/lib32
-make -f $PEGASUS_ROOT/Makefile.cimprovagt32 stage \
-    PEGASUS_STAGING_DIR=$PEGASUS_STAGING_DIR
-
 %endif
 
 [ "$PEGASUS_HOME" != "/" ] && [ -d $PEGASUS_HOME ] && rm -rf $PEGASUS_HOME;
@@ -398,7 +287,7 @@ fi
 if [ $1 -gt 0 ]; then
    #  Create the 'pegasus' user and group:
    /usr/sbin/groupadd pegasus > /dev/null 2>&1 || :;
-   /usr/sbin/useradd -c "%{Flavor}-pegasus OpenPegasus WBEM/CIM services" \
+   /usr/sbin/useradd -c "tog-pegasus OpenPegasus WBEM/CIM services" \
         -g pegasus -s /sbin/nologin -r -d %PEGASUS_VARDATA_DIR pegasus \
          > /dev/null 2>&1 || :;
 fi
@@ -446,12 +335,6 @@ if [ $1 -eq 1 ]; then
    # Create Symbolic Links for Packaged Provider Managers
    #
    ln -sf libCMPIProviderManager.so.1 /usr/%PEGASUS_ARCH_LIB/Pegasus/providerManagers/libCMPIProviderManager.so
-   # Create Symbolic Links for SLP library and SLP Provider
-   #
- %if %{EXTERNAL_SLP_REQUESTED}
-   ln -sf    libpegslp_client.so.1            /usr/%PEGASUS_ARCH_LIB/libpegslp_client.so
-   ln -sf    libSLPProvider.so.1            /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libSLPProvider.so
- %endif 
 
 
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-post.spec
@@ -463,11 +346,11 @@ if [ $1 -eq 1 ]; then
 
    if [ $1 -eq 1 ]; then
 %if %{AUTOSTART}
-       /sbin/chkconfig --add %{Flavor}-pegasus
+       /sbin/chkconfig --add tog-pegasus
 %endif
    :;
    elif [ $1 -gt 0 ]; then
-       /etc/init.d/%{Flavor}-pegasus condrestart
+       /etc/init.d/tog-pegasus condrestart
    :;
    fi
 #
@@ -503,8 +386,8 @@ if [ $1 -eq 0 ]; then
    if [ "$isRunning" ]; then
       %PEGASUS_SBIN_DIR/cimserver -s
    fi
-   /sbin/chkconfig --del %{Flavor}-pegasus;
-   rm -f %PEGASUS_CONFIG_DIR/cimserver_current.conf;
+   /sbin/chkconfig --del tog-pegasus;
+   rm -f %PEGASUS_VARDATA_DIR/cimserver_current.conf;
    [ -d %PEGASUS_REPOSITORY_DIR ]  && rm -rf %PEGASUS_REPOSITORY_DIR;
    [ -d %PEGASUS_VARDATA_CACHE_DIR ]  && rm -rf %PEGASUS_VARDATA_CACHE_DIR;
    rm -f %PEGASUS_LOCAL_DOMAIN_SOCKET_PATH;
@@ -567,7 +450,7 @@ fi
 /usr/share/Pegasus/mof
 
 %defattr(600,root,pegasus,755)
-%dir /usr/share/doc/tog-pegasus-2.14
+%dir /usr/share/doc/tog-pegasus-2.9
 %dir /usr/share/Pegasus
 %dir /usr/share/Pegasus/scripts
 %dir /var/lib/Pegasus
@@ -581,10 +464,10 @@ fi
 %dir %attr(755,root,pegasus) /etc/Pegasus
 %dir %attr(755,cimsrvr,cimsrvr) /var/run/tog-pegasus
 %dir %attr(1755,cimsrvr,cimsrvr) /var/run/tog-pegasus/socket
-%dir %attr(1777,cimsrvr,cimsrvr) /var/lib/Pegasus/cache/trace
+%dir %attr(1777,root,pegasus) /var/lib/Pegasus/cache/trace
 
 %config %attr(750,root,pegasus) /etc/init.d/tog-pegasus
-%config(noreplace) %attr(644,root,root) /etc/Pegasus/cimserver_planned.conf
+%config(noreplace) %attr(644,root,root) /var/lib/Pegasus/cimserver_planned.conf
 %config(noreplace) /etc/Pegasus/access.conf
 %config(noreplace) /etc/pam.d/wbem
 
@@ -597,32 +480,16 @@ fi
 %attr(755,root,pegasus) /usr/sbin/*
 %attr(755,root,pegasus) /usr/bin/*
 %attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/*.so.1
-%if %{JMPI_PROVIDER_REQUESTED}
-%attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/*.jar
-/usr/%PEGASUS_ARCH_LIB/libJMPIProviderManager.so
-%endif
 %attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/*.so.1
 %attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/Pegasus/providerManagers/*.so.1
-%if %{PEGASUS_32BIT_PROVIDER_SUPPORT}
-%dir /usr/lib/Pegasus
-%dir /usr/lib/Pegasus/providers
-%dir /usr/lib/Pegasus/providerManagers
-%attr(755,root,pegasus) /usr/lib/*.so.1
-%attr(755,root,pegasus) /usr/lib/Pegasus/providerManagers/*.so.1
-/usr/lib/libpegclient.so
-/usr/lib/libpegcommon.so
-/usr/lib/libpegprovider.so
-/usr/lib/libDefaultProviderManager.so
-/usr/lib/Pegasus/providerManagers/libCMPIProviderManager.so
-%endif
 %attr(750,root,pegasus) /usr/share/Pegasus/scripts/*
 %attr(644,root,pegasus) /usr/share/man/man1/*
 %attr(644,root,pegasus) /usr/share/man/man8/*
 
-%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.14/Admin_Guide_Release.pdf
-%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.14/PegasusSSLGuidelines.htm
-%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.14/license.txt
-%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.14/OpenPegasusNOTICE.txt
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.9/Admin_Guide_Release.pdf
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.9/PegasusSSLGuidelines.htm
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.9/license.txt
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.9/OpenPegasusNOTICE.txt
 /usr/%PEGASUS_ARCH_LIB/libpegclient.so
 /usr/%PEGASUS_ARCH_LIB/libpegcommon.so
 /usr/%PEGASUS_ARCH_LIB/libpegprovider.so
@@ -632,17 +499,13 @@ fi
 /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libComputerSystemProvider.so
 /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libOSProvider.so
 /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libProcessProvider.so
- %if %{EXTERNAL_SLP_REQUESTED}
-/usr/%PEGASUS_ARCH_LIB/libpegslp_client.so
-/usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libSLPProvider.so
-%endif
 /usr/%PEGASUS_ARCH_LIB/Pegasus/providerManagers/libCMPIProviderManager.so
 
 %files devel
 %defattr(644,root,pegasus,755)
 /usr/share/Pegasus/samples
 /usr/include/Pegasus
-%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.14/SecurityGuidelinesForDevelopers.html
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.9/SecurityGuidelinesForDevelopers.html
 /usr/share/Pegasus/html
 
 %if %{PEGASUS_BUILD_TEST_RPM}

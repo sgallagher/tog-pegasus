@@ -73,13 +73,10 @@ private:
     void _encodeWxfGetResponse(WxfGetResponse* response);
     void _encodeWxfPutResponse(WxfPutResponse* response);
     void _encodeWxfCreateResponse(WxfCreateResponse* response);
-    void _encodeWxfSubCreateResponse(WxfSubCreateResponse* response);
     void _encodeWxfDeleteResponse(WxfDeleteResponse* response);
-    void _encodeWxfSubDeleteResponse(WxfSubDeleteResponse* response);
     void _encodeWsenReleaseResponse(WsenReleaseResponse* response);
     void _encodeWsmFaultResponse(WsmFaultResponse* response);
     void _encodeSoapFaultResponse(SoapFaultResponse* response);
-    void _encodeWsInvokeResponse(WsInvokeResponse* response);
 
     Boolean _encodeEnumerationData(
         SoapResponse& soapResponse,
@@ -88,8 +85,7 @@ private:
         Uint64 contextId,
         Boolean isComplete,
         WsenEnumerationData& data,
-        Uint32& numDataItemsEncoded,
-        const String& resourceUri);
+        Uint32& numDataItemsEncoded);
 };
 
 PEGASUS_NAMESPACE_END

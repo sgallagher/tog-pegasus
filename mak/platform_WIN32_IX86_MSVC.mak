@@ -46,7 +46,7 @@ CL_VERSION := $(word 8, $(shell cl.exe 2>&1))
 CL_MAJOR_VERSION := $(word 1, $(subst .,  , $(CL_VERSION)))
 
 VC_CL_VERSIONS := 14 15
-VC_CL_VERSION  := $(findstring $(CL_MAJOR_VERSIONS), $(VC_CL_VERSIONS))
+VC_CL_VERSION  := $(findstring $(CL_MAJOR_VERSION), $(VC_CL_VERSIONS))
 
 #
 # Determine the version of Windows being used.

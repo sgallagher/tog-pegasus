@@ -85,10 +85,12 @@ poststarttests:
 
 	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass Id=Norman Name=Susan
 	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass Id=Thomas Name=Peter
+	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass Id=Louis
 	@cimcli ei -n "$(PROVIDERNS)" -o table Test_CLITestProviderClass >> $(TABLEFORMATFILE) 
 	@$(DIFF) $(MASTERTABLEFORMATFILE) $(TABLEFORMATFILE)
 	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Norman\"
 	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Thomas\"
+	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Louis\"
 	@$(RM) $(RESULTFILE)
 	@$(RM) $(TABLEFORMATFILE)
 	@$(ECHO) +++++ Test table output format Passed.
@@ -96,6 +98,7 @@ poststarttests:
 clean:
 	-@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Norman\"
 	-@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Thomas\"
+	-@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Louis\"
 	@$(RM) $(RESULTFILE)
 	@$(RM) $(TABLEFORMATFILE)
 

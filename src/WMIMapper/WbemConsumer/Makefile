@@ -26,31 +26,74 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-# Recurse the directories defined in DIRS
 
-ROOT = ../..
+ROOT = ../../..
 
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-	WMIProvider \
-	Client \
-	PegServer \
-	WMIServer \
-	WMIOP \
-	WbemConsumer
-	
+PEGASUS_ZOS_PROGRAM_OBJECT = yes
 
-include $(ROOT)/mak/recurse.mak
+DIR = WMIMapper/WbemConsumer
 
-all:	mapper
+RC = rc
 
-mapper:
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/WMIMapper/Client -f Makefile copy2
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/WMIMapper/PegServer -f Makefile copy2
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/WMIMapper/WMIServer -f Makefile copy2
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/WMIMapper/WbemConsumer -f Makefile prepare
+LOCAL_DEFINES = \
+    -DPEGASUS_PLATFORM_WIN32_IX86_MSVC \
+    -DPEGASUS_USE_EXPERIMENTAL_INTERFACES \
+    -DPEGASUS_USE_23HTTPMONITOR_CLIENT \
+    -DPEGASUS_INTERNALONLY
 
-rebuild:  clean depend all
+WMIMAPPER_INDICATION_STATIC = no
+RES_FILE   =  $(OBJ_DIR)/WbemConsumerRES.obj
+
+PROGRAM = wbemcons
+
+LIBRARIES = \
+    pegcommon \
+    pegclient \
+    pegconfig \
+    pegexportclient \
+    wmiprovider
+
+SOURCES = \
+    EventDispatcher.cpp \
+    WbemConsumer.cpp \
+    EventConsumer.cpp \
+    WbemConsumer_i.cpp \
+    DCOMRegister.cpp \
+    Converter.cpp \
+    Dispatcher.cpp
+
+SYS_LIBS = \
+    netapi32.lib \
+    shell32.lib \
+    ws2_32.lib \
+    advapi32.lib \
+    wbemuuid.lib \
+    Framedyn.lib
+
+# SSL support
+ifdef PEGASUS_HAS_SSL
+  FLAGS += -DPEGASUS_HAS_SSL -DPEGASUS_SSL_RANDOMFILE
+  SYS_INCLUDES += -I$(OPENSSL_HOME)/include
+  SYS_LIBS += $(OPENSSL_HOME)/lib/*.lib
+endif
+
+include $(ROOT)/mak/program.mak
+
+run:
+	Server $(REPOSITORY_ROOT)
+
+copy2:
+	$(COPY) $(ROOT)/src/Pegasus/Server/HTTPAuthenticatorDelegator.h \
+    ../pegserver/HTTPAuthenticatorDelegator.h
+
+clean2:
+	$(RM) ../pegserver/HTTPAuthenticatorDelegator.h ./service.cpp ./service.h
+
+prepare:
+	$(MKDIRHIER) $(PEGASUS_HOME)/Obj/$(DIR)
+	$(RC) -fo$(PEGASUS_HOME)/Obj/$(DIR)/WbemConsumerRES.obj ./WbemConsumer.rc
+
 
 

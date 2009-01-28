@@ -53,10 +53,11 @@
 #include <Pegasus/Common/CIMParamValue.h>
 
 //#include <Ntsecapi.h>
+#include "config.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-class WMICollector
+class PEGASUS_WMIPROVIDER_LINKAGE WMICollector
 {
 public:
     WMICollector(bool bLocal = FALSE);

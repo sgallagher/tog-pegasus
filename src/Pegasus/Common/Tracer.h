@@ -89,7 +89,8 @@ enum TraceComponentId
     TRC_INDICATION_RECEIPT,
     TRC_CMPIPROVIDERINTERFACE,
     TRC_WSMSERVER,
-    TRC_LOGMSG
+    TRC_LOGMSG,
+    TRC_WMI_MAPPER_CONSUMER
 };
 
 /** Token used for tracing functions.

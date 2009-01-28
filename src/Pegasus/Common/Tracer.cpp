@@ -101,7 +101,8 @@ static char const* TRACE_COMPONENT_LIST[] =
     "IndicationReceipt",
     "CMPIProviderInterface",
     "WsmServer",
-    "LogMessages"
+    "LogMessages",
+    "WMIMapperConsumer"
 };
 
 

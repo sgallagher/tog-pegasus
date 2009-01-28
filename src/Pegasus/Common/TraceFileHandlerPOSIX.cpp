@@ -35,7 +35,6 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 #include <Pegasus/Common/Mutex.h>
-#include <Pegasus/Common/StringConversion.h>
 
 PEGASUS_USING_STD;
 
@@ -49,13 +48,56 @@ PEGASUS_FORK_SAFE_MUTEX(writeMutex)
 //  Implementation of this function is platform specific
 ///////////////////////////////////////////////////////////////////////////////
 
+void TraceFileHandler::prepareFileHandle(void)
+{
+    // If the file has been deleted, re-open it and continue
+    if (!System::exists(_fileName))
+    {
+        fclose(_fileHandle);
+        _fileHandle = _openFile(_fileName);
+        if (!_fileHandle)
+        {
+            return;
+        }
+    }
+
+    // Got the Lock on the File. Seek to the end of File
+    fseek(_fileHandle, 0, SEEK_END);
+# ifdef PEGASUS_PLATFORM_LINUX_GENERIC_GNU
+    long pos = ftell(_fileHandle);
+    // Check if the file size is approaching 2GB - which is the
+    // maximum size a file on 32 bit Linux can grow (ofcourse if
+    // not using large-files option). If this is not checked, the
+    // cimserver may get a SIGXFSZ signal and shutdown. See Bug#1527.
+    if (pos >= 0x7ff00000)
+    {
+        // If the file size is almost 2 GB in size, close this trace
+        // file and open a new trace file which would have _fileCount
+        // as the suffix. So, if "cimserver.trc" is the trace file that
+        // approaches 2GB, the next file which gets created would be
+        // named "cimserver.trc.1" and so on ...
+        fclose(_fileHandle);
+        sprintf(_fileName, "%s.%u", _baseFileName, ++_fileCount);
+        _fileHandle = fopen(_fileName, "a+");
+        if (!_fileHandle)
+        {
+            // Unable to open file, log a message
+            MessageLoaderParms parm(
+                "Common.TraceFileHandler.FAILED_TO_OPEN_FILE",
+                "Failed to open File $0",
+                _fileName);
+            _logError(TRCFH_FAILED_TO_OPEN_FILE_SYSMSG,parm);
+            return;
+        }
+    }
+# endif
+}
 
 void TraceFileHandler::handleMessage(
     const char *message,
-    Uint32,
+    Uint32 msgLen,
     const char *fmt, va_list argList)
 {
-    
     if (_configHasChanged)
     {
         _reConfigure();
@@ -68,16 +110,11 @@ void TraceFileHandler::handleMessage(
         return;
     }
 
-    
     // Do not add Trace calls in the Critical section
     // ---- BEGIN CRITICAL SECTION
     AutoMutex writeLock(writeMutex);
 
-    if(!_fileExists(_fileName))
-    {
-        return;
-    }
-     
+    prepareFileHandle();
     // Write the message to the file
     fprintf(_fileHandle, "%s", message);
     vfprintf(_fileHandle, fmt, argList);
@@ -97,12 +134,11 @@ void TraceFileHandler::handleMessage(
     // ---- END CRITICAL SECTION
 }
 
-void TraceFileHandler::handleMessage(const char *message, Uint32)
+void TraceFileHandler::handleMessage(const char *message, Uint32 msgLen)
 {
-    
     if (_configHasChanged)
     {
-         _reConfigure();
+        _reConfigure();
     }
 
     if (!_fileHandle)
@@ -116,14 +152,10 @@ void TraceFileHandler::handleMessage(const char *message, Uint32)
     // ---- BEGIN CRITICAL SECTION
     AutoMutex writeLock(writeMutex);
 
-    if(!_fileExists(_fileName))
-    {
-        return;
-    }
-
-   
-       // Write the message to the file
+    prepareFileHandle();
+    // Write the message to the file
     fprintf(_fileHandle, "%s\n", message);
+
 #if defined(PEGASUS_OS_VMS)
     if (0 == fsync(fileno(_fileHandle)))
 #else

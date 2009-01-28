@@ -384,22 +384,17 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
         operation == WS_ENUMERATION_ENUMERATE ?
             STRLIT("EnumerateResponse") : STRLIT("PullResponse"));
 
-    if (!isComplete)
-    {
-        WsmWriter::appendStartTag(
-            bodyHeader, WsmNamespaces::WS_ENUMERATION,
-            STRLIT("EnumerationContext"));
-        WsmWriter::append(bodyHeader, contextId);
-        WsmWriter::appendEndTag(
-            bodyHeader, WsmNamespaces::WS_ENUMERATION,
-            STRLIT("EnumerationContext"));
-    }
-    else
-    {
-        WsmWriter::appendEmptyTag(
-            bodyHeader, WsmNamespaces::WS_ENUMERATION,
-            STRLIT("EnumerationContext"));
-    }
+    // Include an EnumerationContext in the response.  If this response
+    // completes the enumeration, this element will be modified/removed below.
+    Uint32 ecPos = bodyHeader.size();
+    WsmWriter::appendStartTag(
+        bodyHeader, WsmNamespaces::WS_ENUMERATION,
+        STRLIT("EnumerationContext"));
+    WsmWriter::append(bodyHeader, contextId);
+    WsmWriter::appendEndTag(
+        bodyHeader, WsmNamespaces::WS_ENUMERATION,
+        STRLIT("EnumerationContext"));
+    Uint32 ecSize = bodyHeader.size() - ecPos;
 
     if (data.getSize() > 0)
     {
@@ -419,6 +414,12 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
     Uint32 eosSize = 0;
     if (isComplete)
     {
+        // Write an EndOfSequence element with the expectation that all the
+        // elements fit within MaxEnvelopeSize.  This element will be removed
+        // below if the assumption proves untrue.  This element is written
+        // up front before all the response data was included, because adding
+        // the EndOfSequence element later might push the response size past
+        // the MaxEnvelopeSize.
         WsmWriter::appendEmptyTag(
             bodyTrailer,
             operation == WS_ENUMERATION_ENUMERATE ?
@@ -546,11 +547,48 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
         return false;
     }
 
-    // The request is complete but could not be encoded with MaxEnvelopeSize.
-    // Clear EndOfSequence tag.
-    if (isComplete && data.getSize() > numDataItemsEncoded)
+    if (isComplete)
     {
-        soapResponse.getBodyTrailer().remove(eosPos, eosSize);
+        if (data.getSize() > numDataItemsEncoded)
+        {
+            // The request is complete but could not be encoded within
+            // MaxEnvelopeSize.  Clear EndOfSequence tag.
+            soapResponse.getBodyTrailer().remove(eosPos, eosSize);
+        }
+        else
+        {
+            // All the enumeration results were written.  Update the
+            // EnumerationContext element.
+            if (operation == WS_ENUMERATION_ENUMERATE)
+            {
+                // DSP0226 R8.2.3-5:  A conformant service that supports
+                // optimized enumeration and has not returned all items of the
+                // enumeration sequence in the wsen:EnumerateResponse message
+                // shall return a wsen:EnumerationContext element that is
+                // initialized such that a subsequent wsen:Pull message will
+                // return the set of items after those returned in the
+                // wsen:EnumerateResponse. If all items of the enumeration
+                // sequence have been returned in the wsen:EnumerateResponse
+                // message, the service should return an empty
+                // wsen:EnumerationContext element and shall return the
+                // wsman:EndOfSequence element in the response.
+                Buffer emptyEc(50);
+                WsmWriter::appendEmptyTag(
+                    emptyEc, WsmNamespaces::WS_ENUMERATION,
+                    STRLIT("EnumerationContext"));
+                soapResponse.getBodyHeader().remove(ecPos, ecSize);
+                soapResponse.getBodyHeader().insert(
+                    ecPos, emptyEc.getData(), emptyEc.size());
+            }
+            else
+            {
+                // DSP0226 R8.4-8:  If the wsen:EndOfSequence marker occurs in
+                // the wsen:PullResponse message, the wsen:EnumerationContext
+                // element shall be omitted, as the enumeration has completed.
+                // The client cannot subsequently issue a wsen:Release message.
+                soapResponse.getBodyHeader().remove(ecPos, ecSize);
+            }
+        }
     }
 
     return true;

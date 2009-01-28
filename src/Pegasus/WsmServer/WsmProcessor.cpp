@@ -280,6 +280,7 @@ void WsmProcessor::_handleEnumerateResponse(
             contextId,
             EnumerationContext(
                 contextId,
+                wsmRequest->userName,
                 wsmRequest->enumerationMode,
                 expiration,
                 wsmRequest->epr,
@@ -348,6 +349,20 @@ void WsmProcessor::_handlePullRequest(WsenPullRequest* wsmRequest)
                         "the enumeration context."));
             }
 
+            // User credentials of the request and the enumeration context must
+            // match.
+            if (wsmRequest->userName != enumContext->userName)
+            {
+                // DSP0226 R8.1-6:  The wsen:Pull and wsen:Release operations
+                // are a continuation of the original wsen:Enumerate operation.
+                // The service should enforce the same authentication and
+                // authorization throughout the entire sequence of operations
+                // and should fault any attempt to change credentials during
+                // the sequence.
+
+                throw WsmFault(WsmFault::wsman_AccessDenied);
+            }
+
             AutoPtr<WsenPullResponse> wsmResponse(_splitPullResponse(
                 wsmRequest, enumContext->response, wsmRequest->maxElements));
             wsmResponse->setEnumerationContext(enumContext->contextId);
@@ -408,6 +423,20 @@ void WsmProcessor::_handleReleaseRequest(WsenReleaseRequest* wsmRequest)
                         "WsmServer.WsmProcessor.INVALID_RELEASE_EPR",
                         "EPR of a Release request does not match that of "
                         "the enumeration context."));
+            }
+
+            // User credentials of the request and the enumeration context must
+            // match.
+            if (wsmRequest->userName != enumContext.userName)
+            {
+                // DSP0226 R8.1-6:  The wsen:Pull and wsen:Release operations
+                // are a continuation of the original wsen:Enumerate operation.
+                // The service should enforce the same authentication and
+                // authorization throughout the entire sequence of operations
+                // and should fault any attempt to change credentials during
+                // the sequence.
+
+                throw WsmFault(WsmFault::wsman_AccessDenied);
             }
 
             wsmResponse.reset(new WsenReleaseResponse(

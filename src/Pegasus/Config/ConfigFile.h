@@ -37,6 +37,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Config/ConfigExceptions.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

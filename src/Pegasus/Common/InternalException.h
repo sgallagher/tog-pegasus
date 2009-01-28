@@ -137,14 +137,9 @@ public:
 
     static const char MSG[];
     static const char KEY[];
-    BadQualifierType(const String& qualifierName,
-        const String& className = String());
-    virtual ~BadQualifierType();
-    const String _qualifierName;
-    const String _className;
-    const String& getQualifierName() const;
-    const String& getClassName() const;
 
+    BadQualifierType(const String& qualifierName);
+    virtual ~BadQualifierType();
 };
 
 // ATTN: P3  KS documentation Required
@@ -440,41 +435,6 @@ public:
     virtual ~InternalSystemError();
 };
 
-class PEGASUS_COMMON_LINKAGE SocketWriteError : public Exception
-{
-public:
-
-    static const char MSG[];
-    static const char KEY[];
-
-    SocketWriteError(const String& error);
-    virtual ~SocketWriteError();
-};
-
-class PEGASUS_COMMON_LINKAGE TooManyHTTPHeadersException : public Exception
-{
-public:
-    TooManyHTTPHeadersException();
-    virtual ~TooManyHTTPHeadersException();
-};
-
-class PEGASUS_COMMON_LINKAGE TooManyElementsException : public Exception
-{
-public:
-    static const char MSG[];
-    static const char KEY[];
-    
-    TooManyElementsException();
-    virtual ~TooManyElementsException();
-};
-// function used to throw TooManyElementsException for use in inlined functions
-// to reduce static code size
-PEGASUS_COMMON_LINKAGE extern void ThrowTooManyElementsException();
-
-// function used to throw IndexOutOfBoundsException for use in inlined functions
-// to reduce static code size
-PEGASUS_COMMON_LINKAGE extern void ThrowIndexOutOfBoundsException();
-
 
 /** The CIMException defines the CIM exceptions that are formally defined in
     the CIM Operations over HTTP specification.  TraceableCIMException allows
@@ -549,9 +509,6 @@ public:
  *  the common library.
  */
 PEGASUS_COMMON_LINKAGE extern void ThrowUninitializedObjectException();
-
-PEGASUS_COMMON_LINKAGE extern void ThrowCannotOpenFileException(
-    const char* path);
 
 inline void CheckRep(void * rep)
 {

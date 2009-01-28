@@ -31,7 +31,6 @@
 
 #include <cstdio>
 #include "InternalException.h"
-#include "Constants.h"
 #include <Pegasus/Common/CIMExceptionRep.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 #include "Tracer.h"
@@ -52,8 +51,8 @@ AssertionFailureException::AssertionFailureException(
     _rep->message.append("): ");
     _rep->message.append(message);
 
-    PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-        (const char*)_rep->message.getCString());
+    PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+        (const char*)_rep->message.getCString()));
 }
 
 AssertionFailureException::~AssertionFailureException()
@@ -176,18 +175,6 @@ const char UnauthorizedAccess::KEY[] =
     "Common.InternalException.UNAUTHORIZED_ACCESS";
 
 const char InternalSystemError::MSG[] = "Unable to authenticate user";
-
-const char SocketWriteError::MSG[] =  "Could not write response to client. "
-                                      "Client may have timed out. "
-                                      "Socket write failed with error: $0";
-const char SocketWriteError::KEY[] =
-    "Common.InternalException.SOCKET_WRITE_ERROR";
-
-const char TooManyElementsException::KEY[]=
-    "Common.InternalException.TOO_MANY_ELEMENTS";
-
-const char TooManyElementsException::MSG[]=
-    "More than $0 elements in a container are not supported.";
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -480,26 +467,12 @@ BadQualifierOverride::~BadQualifierOverride()
 // BadQualifierType
 //
 //==============================================================================
-BadQualifierType::BadQualifierType(
-    const String& qualifierName, const String& className):
-        Exception(
-            MessageLoaderParms(
-                KEY,
-                MSG,
-                className.size()==0?qualifierName:
-                    qualifierName+"(\""+className+"\")")),
-        _qualifierName(qualifierName),
-        _className(className)
+
+BadQualifierType::BadQualifierType(const String& qualifierName)
+    : Exception(MessageLoaderParms(KEY, MSG, qualifierName))
 {
 }
-const String& BadQualifierType:: getQualifierName() const
-{
-    return _qualifierName;
-}
-const String& BadQualifierType:: getClassName() const
-{
-    return _className;
-}
+
 BadQualifierType::~BadQualifierType()
 {
 }
@@ -957,76 +930,9 @@ InternalSystemError::~InternalSystemError()
 {
 }
 
-//==============================================================================
-//
-// SocketWriteError
-//
-//==============================================================================
-
-SocketWriteError::SocketWriteError(const String& error)
-    : Exception(MessageLoaderParms(
-          SocketWriteError::KEY,
-          SocketWriteError::MSG,
-          error))
-{
-}
-
-SocketWriteError::~SocketWriteError()
-{
-}
-
-//==============================================================================
-//
-// TooManyHTTPHeadersException
-//   - used by HTTPAuthenticatorDelegator to report detection of more than
-//     PEGASUS_MAXELEMENTS_NUM HTTP header fields in a single HTTP message
-//==============================================================================
-TooManyHTTPHeadersException::TooManyHTTPHeadersException()
-    : Exception("more than "PEGASUS_MAXELEMENTS
-                    " header fields detected in HTTP message")
-{
-}
-
-TooManyHTTPHeadersException::~TooManyHTTPHeadersException()
-{
-}
-
-//==============================================================================
-//
-// TooManyElementsException
-//   - used by OrderedSet to report detection of more than
-//     PEGASUS_MAXELEMENTS_NUM elements in a single object
-//==============================================================================
-TooManyElementsException::TooManyElementsException()
-    : Exception(MessageLoaderParms(
-          TooManyElementsException::KEY,
-          TooManyElementsException::MSG,
-          PEGASUS_MAXELEMENTS_NUM))
-{
-}
-
-TooManyElementsException::~TooManyElementsException()
-{
-}
-
-void ThrowTooManyElementsException()
-{
-    throw TooManyElementsException();
-}
-
-void ThrowIndexOutOfBoundsException()
-{
-    throw IndexOutOfBoundsException();
-}
-
 void ThrowUninitializedObjectException()
 {
     throw UninitializedObjectException();
-}
-
-void ThrowCannotOpenFileException(const char* path)
-{
-    throw CannotOpenFile(path);
 }
 
 PEGASUS_NAMESPACE_END

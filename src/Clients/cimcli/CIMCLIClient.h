@@ -93,7 +93,6 @@ const CommandID ID_Unknown                      = 30;
 
 struct  OUTPUT_STRUCT
 {
-    // KS the old form OutputType OutputType causes redefinition error in Linux
     int OutputType;
     const char* OutputName;
 };
@@ -307,20 +306,11 @@ struct  OPTION_STRUCT
 
 typedef struct OPTION_STRUCT Options;
 
-//
-//  String entries for each column in the output
-//
-typedef Array <String> ColumnEntry;
-
 Array<String> PEGASUS_CLI_LINKAGE _tokenize(const String& input,
                                             const Char16 separator);
 
 CIMParamValue PEGASUS_CLI_LINKAGE _createMethodParamValue(const String& input,
                                                           const Options& opts);
-
-void PEGASUS_CLI_LINKAGE _printTables(const Array<Uint32>& maxColumnWidth,
-                                      const Array<ColumnEntry>& outputTable,
-                                      PEGASUS_STD(ostream)& outPrintWriter);
 
 void PEGASUS_CLI_LINKAGE showCommands(const char* pgmName);
 

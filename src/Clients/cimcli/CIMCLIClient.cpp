@@ -35,6 +35,7 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/MofWriter.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include "CIMCLIClient.h"
 #include <Pegasus/Common/PegasusVersion.h>
 PEGASUS_USING_STD;
@@ -3055,6 +3056,45 @@ void mofFormat(
     delete [] var;
 }
 
+/*****************************************************************************
+*
+*       Formatting and print functions for table output of instances
+*
+******************************************************************************/
+//
+//  Definition for String entries for each column in the output
+//
+typedef Array <String> ColumnEntry;
+
+/* Output a single table String entry filling to ColSize or adding an
+   eol if last specified
+*/
+void _printTableEntry(
+    const String& entryStr,
+    const Uint32 colSize,
+    Boolean last,
+    PEGASUS_STD(ostream)& outPrintWriter)
+{
+    Uint32 fillerLen = colSize - entryStr.size() + 2;
+
+    outPrintWriter << entryStr;
+    if (last)
+    {
+        outPrintWriter << endl;
+    }
+    else
+    {
+        for (Uint32 j = 0; j < fillerLen; j++)
+        {
+             outPrintWriter << ' ';
+        }
+    }
+}
+
+/* Print the formatted table form of the instances as defined by
+   the parameters for the column width for each column and the array
+   of column entries (outputTable).
+*/
 void _printTables(
     const Array<Uint32>& maxColumnWidth,
     const Array<ColumnEntry>& outputTable,
@@ -3062,23 +3102,19 @@ void _printTables(
 {
     for (Uint32 i = 0; i < outputTable[0].size(); i++)
     {
-        for (Uint32 column = 0; column < maxColumnWidth.size() - 1; column++)
+        for (Uint32 column = 0; column < maxColumnWidth.size(); column++)
         {
-            Uint32 fillerLen = maxColumnWidth[column] -
-                outputTable[column][i].size();
-
-            outPrintWriter << outputTable[column][i];
-
-            for (Uint32 j = 0; j < fillerLen + 2; j++)
-            {
-                 outPrintWriter << ' ';
-            }
+            Boolean last = (column == maxColumnWidth.size() - 1);
+            _printTableEntry(outputTable[column][i],
+                maxColumnWidth[column],
+                last,
+                outPrintWriter);
         }
-        outPrintWriter << outputTable[maxColumnWidth.size() - 1][i] << endl;
     }
 }
 
-/* Format the output stream to be table format
+/* Format the output stream to be a table with column for each property
+   and row for the properties in each instance.
 */
 void tableFormat(
     PEGASUS_STD(ostream)& outPrintWriter,
@@ -3086,32 +3122,69 @@ void tableFormat(
 {
     Array<ColumnEntry> outputTable;
     Array<Uint32> maxColumnWidth;
+    Array<String> propertyNameArray;
 
-    for (Uint32 i = 0; i < instances[0].getPropertyCount(); i++)
+    // find set of all properties returned for all instances
+    for (Uint32 i = 0; i < instances.size(); i++)
     {
-        Array<String> property;
+        for (Uint32 j = 0; j < instances[i].getPropertyCount(); j++)
+        {    
+            String propertyNameStr =
+                instances[i].getProperty(j).getName().getString();
 
-        String propertyNameStr =
-            instances[0].getProperty(i).getName().getString();
-        property.append(propertyNameStr);
+            // Add to outputTable if not already there
+            if (!(Contains(propertyNameArray, propertyNameStr)))
+            {
+                //outputTable.append(propertyNameStr);
+                maxColumnWidth.append(propertyNameStr.size());
+                propertyNameArray.append(propertyNameStr);
+            }
+        }
+    }
 
-        maxColumnWidth.append(propertyNameStr.size());
+    // Build the complete table output in ascii.  We must build the 
+    // complete table to determine column widths.
+    // NOTE: This code creates tables with column width to match the 
+    // maximum width of the string representation of the property name or
+    // string representation of the value.  This can create REALLY
+    // REALLY wide columns for Strings and for Array properties.
+    // 
+    // TODO: Add code to create multiline colums for things like array
+    // entries or possibly long strings.
 
+    for (Uint32 i = 0; i < propertyNameArray.size(); i++)
+    {
+        // array for a single column of property values
+        Array<String> propertyValueArray;
+
+        String propertyNameStr = propertyNameArray[i];
+
+        // First entry in propertyValueArray array is the propery name
+        propertyValueArray.append(propertyNameStr);
+
+        // for all instances get value for the property in
+        // propertyNameArray
         for (Uint32 j = 0; j < instances.size(); j++)
         {
-            String propertyValueStr =
-                instances[j].getProperty(i).getValue().toString();
-            property.append(propertyValueStr);
+            Uint32 pos = instances[j].findProperty(propertyNameStr);
+
+            // Get the value or empty string if there is no property
+            // with this name
+            String propertyValueStr = (pos != PEG_NOT_FOUND) ?
+                    instances[j].getProperty(pos).getValue().toString()
+                :
+                    String::EMPTY;
+
+            propertyValueArray.append(propertyValueStr);
 
             if (propertyValueStr.size() > maxColumnWidth[i])
             {
                 maxColumnWidth[i] = propertyValueStr.size();
             }
         }
-
-        outputTable.append(property);
+        // Append the value array for this property to the outputTable
+        outputTable.append(propertyValueArray);
     }
-
     _printTables(maxColumnWidth, outputTable, outPrintWriter);
 }
 

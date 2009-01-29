@@ -45,8 +45,6 @@ DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -D_WIN32_WINNT=0x0600
 CL_VERSION := $(word 8, $(shell cl.exe 2>&1))
 CL_MAJOR_VERSION := $(word 1, $(subst .,  , $(CL_VERSION)))
 
-VC_CL_VERSIONS := 14 15 16
-VC_CL_VERSION  := $(findstring $(CL_MAJOR_VERSION), $(VC_CL_VERSIONS))
 
 #
 # Determine the version of Windows being used.
@@ -85,18 +83,13 @@ endif
 
 
 #
-# CL_MAJOR_VERSION 14, 15 or 16 (i.e., VC 8, VC 9 or VC 2010)
+# CL_MAJOR_VERSION 14 is VC 8
 #
-ifeq ($(CL_MAJOR_VERSION), $(VC_CL_VERSION))
-    CXX_VERSION_FLAGS := -EHsc
+ifeq ($(CL_MAJOR_VERSION), 14)
+    CXX_VERSION_FLAGS := -Wp64 -EHsc
     CXX_VERSION_DEBUG_FLAGS := -RTCc -RTCsu
     CXX_VERSION_RELEASE_FLAGS := -GF -GL -Gy
-    # VC 2010 only setting as it dont take /OPT:NOWIN98 anymore
-    ifeq ($(CL_MAJOR_VERSION), 16)
-        LINK_VERSION_RELEASE_FLAGS := /LTCG /OPT:REF /OPT:ICF=5
-    else
-        LINK_VERSION_RELEASE_FLAGS := /LTCG /OPT:REF /OPT:ICF=5 /OPT:NOWIN98
-    endif
+    LINK_VERSION_RELEASE_FLAGS := /LTCG /OPT:REF /OPT:ICF=5 /OPT:NOWIN98
     DEFINES += -D_CRT_SECURE_NO_DEPRECATE
     DEFINES += -D_CRT_NONSTDC_NO_DEPRECATE
 endif
@@ -120,6 +113,12 @@ endif
 #
 ifndef PEGASUS_ENABLE_SLP
     PEGASUS_ENABLE_SLP = true
+endif
+
+# ATTN KS 20020927 - Add flag to allow conditional testing of interoperability
+# changes during interoperability tests.
+ifdef PEGASUS_SNIA_INTEROP_TEST
+    DEFINES+= -DPEGASUS_SNIA_INTEROP_TEST
 endif
 
 RM = mu rm

@@ -2194,8 +2194,11 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
 
             CIMConstClass classDef(classCont->getClass());
             Uint32 methodIndex = classDef.findMethod(request->methodName);
-            PEGASUS_ASSERT(methodIndex != PEG_NOT_FOUND);
-            CIMConstMethod methodDef(classDef.getMethod(methodIndex));
+            CIMConstMethod methodDef;
+            if (methodIndex != PEG_NOT_FOUND);
+            {
+                methodDef = classDef.getMethod(methodIndex);
+            }
             for (unsigned int i = 0, n = outArgs.size(); i < n; ++i)
             {
                 CIMParamValue currentParam(outArgs[i]);
@@ -2206,7 +2209,8 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                 // EmbeddedInstances, so if the parameter definition has a type
                 // of EmbeddedInstance, the type of the output parameter must
                 // be changed.
-                if (paramValue.getType() == CIMTYPE_OBJECT)
+                if (paramValue.getType() == CIMTYPE_OBJECT && 
+                    methodIndex != PEG_NOT_FOUND)
                 {
                     String currentParamName(currentParam.getParameterName());
                     Uint32 paramIndex = methodDef.findParameter(

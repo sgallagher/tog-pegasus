@@ -38,7 +38,7 @@
     {"enableHttpsConnection", "false", IS_STATIC, IS_VISIBLE},
     {"daemon", "true", IS_STATIC, IS_VISIBLE},
 #ifdef PEGASUS_ENABLE_SLP
-    {"slp", "true", IS_STATIC, IS_VISIBLE},
+    {"slp", "false", IS_STATIC, IS_VISIBLE},
 #endif
     {"enableAssociationTraversal", "true", IS_STATIC, IS_VISIBLE},
     {"enableIndicationService", "true", IS_STATIC, IS_VISIBLE},

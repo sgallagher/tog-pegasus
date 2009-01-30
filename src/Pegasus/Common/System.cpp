@@ -44,8 +44,12 @@
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "SystemWindows.cpp"
-#elif defined(PEGASUS_OS_TYPE_UNIX) || defined(PEGASUS_OS_VMS)
+#elif defined(PEGASUS_OS_TYPE_UNIX)
 # include "SystemPOSIX.cpp"
+# include "SystemUnix.cpp"
+#elif defined(PEGASUS_OS_VMS)
+# include "SystemPOSIX.cpp"
+# include "SystemVms.cpp"
 #else
 # error "Unsupported platform"
 #endif

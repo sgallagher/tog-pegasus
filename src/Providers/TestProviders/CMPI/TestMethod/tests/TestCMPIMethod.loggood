@@ -981,6 +981,13 @@
  InvokeMethod: checking for correct classname [TestCMPI_Method]
  Calling CMGetArgCount
  ++++ (CMPI_RC_OK)
+ InvokeMethod: We have 0 arguments for operation [methodNotInMof]: 
+ ++++ Calling CMReturnData+Done on methodNotInMof operation
+ --- TestCMPI_Method CMPI InvokeMethod() exited
+ --- TestCMPI_Method CMPI InvokeMethod() called
+ InvokeMethod: checking for correct classname [TestCMPI_Method]
+ Calling CMGetArgCount
+ ++++ (CMPI_RC_OK)
  InvokeMethod: We have 0 arguments for operation [returnInstance]: 
  Calling CMNewObjectPath for TestCMPI_Method
  ---- (rc:CMPI_RC_OK)

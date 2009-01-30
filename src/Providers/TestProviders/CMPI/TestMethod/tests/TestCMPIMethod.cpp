@@ -962,6 +962,25 @@ void test14 (CIMClient & client)
 
 }
 
+/*Test Case to test CMPIProviderManager when method is not declared in mof*/
+void test15 (CIMClient & client)
+{
+    CIMObjectPath instanceName;
+
+    instanceName.setNameSpace (providerNamespace);
+    instanceName.setClassName (CLASSNAME);
+
+    Array < CIMParamValue > inParams;
+    Array < CIMParamValue > outParams;
+
+    CIMValue retValue = client.invokeMethod (providerNamespace,
+        instanceName,
+        "methodNotInMof",
+        inParams,
+        outParams);
+    _checkUint32Value (retValue, 42);
+}
+
 void _test (CIMClient & client)
 {
   try
@@ -978,6 +997,7 @@ void _test (CIMClient & client)
     test11 (client);
     test12 (client);
     test13 (client);
+    test15 (client);
     // Don't run against the remote-namespace, not yet suppoted.
     if (providerNamespace == "test/TestProvider")
     {

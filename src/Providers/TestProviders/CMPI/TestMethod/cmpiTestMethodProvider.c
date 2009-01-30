@@ -3425,6 +3425,15 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
         CMReturnData (rslt, &value, CMPI_uint32);
         CMReturnDone (rslt);
     }
+    else if (strncmp ("methodNotInMof", methodName, strlen ("methodNotInMof"))
+        == 0)
+    {
+        value.uint32 = 42;
+        PROV_LOG
+            ("++++ Calling CMReturnData+Done on methodNotInMof operation");
+        CMReturnData (rslt, &value, CMPI_uint32);
+        CMReturnDone (rslt);
+    }
       else
         {
           PROV_LOG ("++++ Could not find the %s operation", methodName);

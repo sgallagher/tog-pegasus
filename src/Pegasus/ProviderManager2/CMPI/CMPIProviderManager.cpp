@@ -2195,7 +2195,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
             CIMConstClass classDef(classCont->getClass());
             Uint32 methodIndex = classDef.findMethod(request->methodName);
             CIMConstMethod methodDef;
-            if (methodIndex != PEG_NOT_FOUND);
+            if (methodIndex != PEG_NOT_FOUND)
             {
                 methodDef = classDef.getMethod(methodIndex);
             }

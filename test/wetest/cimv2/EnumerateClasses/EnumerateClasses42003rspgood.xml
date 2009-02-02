@@ -209,7 +209,7 @@ The Message Log.
 TRUE
 </VALUE>
 </QUALIFIER>
-<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false" TOINSTANCE="true">
+<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -399,7 +399,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Max" TYPE="uint32">
 </QUALIFIER>
-<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false" TOINSTANCE="true">
+<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -501,7 +501,7 @@ The Extent reference defines the StorageExtent on which the errors occurred.
 TRUE
 </VALUE>
 </QUALIFIER>
-<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false" TOINSTANCE="true">
+<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -719,7 +719,7 @@ TRUE
 1
 </VALUE>
 </QUALIFIER>
-<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false" TOINSTANCE="true">
+<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -1302,7 +1302,7 @@ The AdminDomain that hosts the various LogicalNetworks.
 </QUALIFIER>
 </PROPERTY.REFERENCE>
 <PROPERTY.REFERENCE NAME="Network" REFERENCECLASS="CIM_LogicalNetwork" CLASSORIGIN="CIM_NetworksInAdminDomain">
-<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false" TOINSTANCE="true">
+<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -2517,7 +2517,7 @@ The product that has been installed and created the software features and softwa
 </QUALIFIER>
 </PROPERTY.REFERENCE>
 <PROPERTY.REFERENCE NAME="Collection" REFERENCECLASS="CIM_InstalledProduct" CLASSORIGIN="CIM_InstalledProductImage">
-<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false" TOINSTANCE="true">
+<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -2982,7 +2982,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Max" TYPE="uint32">
 </QUALIFIER>
-<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false" TOINSTANCE="true">
+<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>
@@ -3081,7 +3081,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Max" TYPE="uint32">
 </QUALIFIER>
-<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false" TOINSTANCE="true">
+<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>

@@ -38,7 +38,7 @@ The product that has been installed and created the software features and softwa
 </QUALIFIER>
 </PROPERTY.REFERENCE>
 <PROPERTY.REFERENCE NAME="Collection" REFERENCECLASS="CIM_InstalledProduct" CLASSORIGIN="CIM_InstalledProductImage">
-<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false" TOINSTANCE="true">
+<QUALIFIER NAME="Weak" TYPE="boolean" OVERRIDABLE="false">
 <VALUE>
 TRUE
 </VALUE>

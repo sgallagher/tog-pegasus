@@ -2747,7 +2747,7 @@ yyreduce:
 
   case 125:
 #line 1111 "cimmof.y"
-    { g_flavor.addFlavor (CIMFlavor::TOSUBELEMENTS); ;}
+    { g_flavor.addFlavor (CIMFlavor::TOSUBCLASS); ;}
     break;
 
   case 126:

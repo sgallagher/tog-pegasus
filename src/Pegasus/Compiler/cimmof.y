@@ -1108,7 +1108,7 @@ explicitFlavor: TOK_ENABLEOVERRIDE
         { g_flavor.addFlavor (CIMFlavor::ENABLEOVERRIDE); }
     | TOK_DISABLEOVERRIDE { g_flavor.addFlavor (CIMFlavor::DISABLEOVERRIDE); }
     | TOK_RESTRICTED      { g_flavor.addFlavor (CIMFlavor::RESTRICTED); }
-    | TOK_TOSUBCLASS      { g_flavor.addFlavor (CIMFlavor::TOSUBELEMENTS); }
+    | TOK_TOSUBCLASS      { g_flavor.addFlavor (CIMFlavor::TOSUBCLASS); }
     | TOK_TRANSLATABLE    { g_flavor.addFlavor (CIMFlavor::TRANSLATABLE); };
 
 

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include "JMPIProviderManager.h"
@@ -50,53 +52,17 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-// request->localOnly is replaced with JMPI_LOCALONLY for
+// request->localOnly is replaced with JMPI_LOCALONLY for 
 // getInstance () and enumerateInstances ()
 #define JMPI_LOCALONLY false
 
 /* Fix for 4092 */
-// request->includeQualifiers is replaced with JMPI_INCLUDE_QUALIFIERS
+// request->includeQualifiers is replaced with JMPI_INCLUDE_QUALIFIERS 
 // for getInstance (), setInstance (), enumerateInstances (), associators ()
 // and references ()
 #define JMPI_INCLUDE_QUALIFIERS false
 
 #include "Convert.h"
-
-
-//
-//  The following tests were added to allow the provider to supply a
-//  CIMObjectPath in the response.  Before this, the path was always
-//  rebuild by the response functions from the instance.  This resulted
-//  in cases where the key properties were not in the returned instance
-//  (ex. excluded by the property list) so that the path could not be built.
-//  The preferred behavior is for the provider to build the path on response.
-//  However, to cover existing providers the alternate of allowing the
-//  ProviderManager has been kept if the path in the instance is not considered
-//  to exist.
-//  PLEASE: provider writers build/set a proper path into returned objects
-//  See bug 8062
-
-/*
-    local function to implement the CIMObjectPath required for a response
-    object.
-    If there is a path defined in the instance, we simply return this path.
-    If not, we use the class to build a path from the instance.
-    Note that we are depending on some value in the keybindings to determine
-    if we have a path.
-*/
-
-void _fixCIMObjectPath(CIMInstance* instance, CIMClass& cls)
-{
-    CIMObjectPath op = instance->getPath();
-    const Array<CIMKeyBinding> kb = op.getKeyBindings();
-    if (kb.size() == 0)
-    {
-        CIMObjectPath iop = instance->buildPath(cls);
-        /* Fix for 4237*/
-        iop.setNameSpace(op.getNameSpace());
-        instance->setPath(iop);
-    }
-}
 
 void JMPIProviderManager::debugPrintMethodPointers (JNIEnv *env, jclass jc)
 {
@@ -653,10 +619,6 @@ Message * JMPIProviderManager::processMessage(Message * request) throw()
         response = handleSubscriptionInitCompleteRequest (request);
         break;
 
-    case CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE:
-        response = handleIndicationServiceDisabledRequest (request);
-        break;
-
     default:
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
                    "Unsupported Request %d",
@@ -713,14 +675,14 @@ void JMPIProviderManager::unloadIdleProviders()
 
 #define HandlerCatch(handler) \
     catch(CIMException & e)  \
-    {   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,"CIMException: %s", \
-            (const char*)e.getMessage().getCString())); \
+    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1, \
+                "Exception: " + e.getMessage()); \
         handler.setStatus(e.getCode(), e.getContentLanguages(), \
         e.getMessage()); \
     } \
     catch(Exception & e) \
-    {   PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,"Exception: %s", \
-            (const char*)e.getMessage().getCString())); \
+    { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1, \
+                "Exception: " + e.getMessage()); \
         handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), \
         e.getMessage()); \
     } \
@@ -732,7 +694,7 @@ void JMPIProviderManager::unloadIdleProviders()
 
 static jobjectArray getList(JvmVector *jv, JNIEnv *env, CIMPropertyList &list)
 {
-    jobjectArray pl= NULL;
+    jobjectArray pl=NULL;
     if (!list.isNull())
     {
         Uint32 s=list.size();
@@ -769,7 +731,7 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
     {
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
              "handleGetInstanceRequest: "
-                 "name space = %s class name = %s",
+                 "name space = %s class name = %s",             
              (const char*)request->nameSpace.getString().getCString(),
              (const char*)request->
                   instanceName.getClassName().getString().getCString()
@@ -799,17 +761,11 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
         context.insert(
             request->operationContext.get(ContentLanguageListContainer::NAME));
 
-        if (request->operationContext.contains(UserRoleContainer::NAME))
-        {
-            context.insert(
-                request->operationContext.get(UserRoleContainer::NAME));
-        }
-
         // forward request
         JMPIProvider &pr=ph.GetProvider();
 
         PEG_TRACE(( TRC_PROVIDERMANAGER, Tracer::LEVEL3,
-            "handleGetInstanceRequest:Calling provider instance: %s" ,
+            "handleGetInstanceRequest:Calling provider instance: %s" , 
             (const char*)pr.getName().getCString()));
 
         JvmVector *jv = 0;
@@ -1279,11 +1235,11 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
     METHOD_VERSION   eMethodFound  = METHOD_UNKNOWN;
     JNIEnv          *env           = NULL;
 
-    try
+    try 
     {
        PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
             "handleEnumerateInstanceRequest: "
-                "name space = %s class name = %s",
+                "name space = %s class name = %s",             
             (const char*)request->nameSpace.getString().getCString(),
             (const char*)request->className.getString().getCString()
             ));
@@ -1588,6 +1544,9 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                        throw;
                     }
 
+                    const CIMObjectPath& op  = ciRet->getPath();
+                    CIMObjectPath        iop = ciRet->buildPath(cls);
+
                     JMPIjvm::checkException(env);
 
                     handler.deliver(*ciRet);
@@ -1754,6 +1713,9 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                        PEG_METHOD_EXIT();
                        throw;
                     }
+
+                    const CIMObjectPath& op  = ciRet->getPath();
+                    CIMObjectPath        iop = ciRet->buildPath(cls);
 
                     JMPIjvm::checkException(env);
 
@@ -1930,9 +1892,15 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                        throw;
                     }
 
-                    _fixCIMObjectPath(ciRet, cls);
+                    const CIMObjectPath& op  = ciRet->getPath();
+                    CIMObjectPath        iop = ciRet->buildPath(cls);
 
                     JMPIjvm::checkException(env);
+
+                    iop.setNameSpace(op.getNameSpace());
+
+                    ciRet->setPath(iop);
+                    /* Fix for 4237*/
 
                     handler.deliver(*ciRet);
                 }
@@ -2086,9 +2054,16 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(
                        PEG_METHOD_EXIT();
                        throw;
                     }
-                    _fixCIMObjectPath(ciRet, cls);
+
+                    const CIMObjectPath& op  = ciRet->getPath();
+                    CIMObjectPath        iop = ciRet->buildPath(cls);
 
                     JMPIjvm::checkException(env);
+
+                    iop.setNameSpace(op.getNameSpace());
+
+                    ciRet->setPath(iop);
+                    /* Fix for 4237*/
 
                     handler.deliver(*ciRet);
                 }
@@ -2136,7 +2111,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
     try {
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
              "handleEnumerateInstanceNamesRequest: "
-                 "name space = %s class name = %s",
+                 "name space = %s class name = %s",             
              (const char*)request->nameSpace.getString().getCString(),
              (const char*)request->className.getString().getCString()));
 
@@ -2410,7 +2385,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
                                OperationContext*,
                                jlong,
                                &request->operationContext);
-            jobject joc = env->NewObject(
+            jobject joc = env->NewObject( 
                               jv->OperationContextClassRef,
                               jv->OperationContextNewJ,
                               jocRef);
@@ -2736,7 +2711,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
             handler.processing();
             if (jVec) {
-                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize);
+                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); 
                       i<m;
                       i++)
                 {
@@ -2804,14 +2779,14 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(
     try {
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
              "handleCreateInstanceRequest: "
-                 "name space = %s class name = %s",
+                 "name space = %s class name = %s",             
              (const char*)request->nameSpace.getString().getCString(),
              (const char*)request->
                  newInstance.getPath().getClassName().getString().getCString()
              ));
 
         // make target object path
-        CIMObjectPath *objectPath =
+        CIMObjectPath *objectPath = 
             new CIMObjectPath(
                 System::getHostName(),
                 request->nameSpace,
@@ -2823,7 +2798,7 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(
             request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph =
+        JMPIProvider::OpProviderHolder ph = 
             providerManager.getProvider(
                 name.getPhysicalName(),
                 name.getLogicalName(),
@@ -2939,7 +2914,7 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(
 
             CIMInstance *ci     = new CIMInstance (request->newInstance);
             jlong jciRef = DEBUG_ConvertCToJava (CIMInstance*, jlong, ci);
-            jobject jci = env->NewObject(
+            jobject jci = env->NewObject( 
                               jv->CIMInstanceClassRef,
                               jv->CIMInstanceNewJ,
                               jciRef);
@@ -3085,14 +3060,14 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(
     try {
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
              "handleModifyInstanceRequest: "
-                 "name space = %s class name = %s",
+                 "name space = %s class name = %s",             
              (const char*)request->nameSpace.getString().getCString(),
              (const char*)request->modifiedInstance.getPath().getClassName()
                  .getString().getCString()
              ));
 
         // make target object path
-        CIMObjectPath *objectPath =
+        CIMObjectPath *objectPath = 
            new CIMObjectPath(
                System::getHostName(),
                request->nameSpace,
@@ -3111,7 +3086,7 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(
               ));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph =
+        JMPIProvider::OpProviderHolder ph = 
             providerManager.getProvider(
                 name.getPhysicalName(),
                 name.getLogicalName(),
@@ -3325,7 +3300,7 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(
                                 CIMObjectPath*,
                                 jlong,
                                 objectPath);
-            jobject jcop = env->NewObject(
+            jobject jcop = env->NewObject( 
                                jv->CIMObjectPathClassRef,
                                jv->CIMObjectPathNewJ,
                                jcopRef);
@@ -3389,7 +3364,7 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(
     try {
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
              "handleDeleteInstanceRequest: "
-                 "name space = %s class name = %s",
+                 "name space = %s class name = %s",             
              (const char*)request->nameSpace.getString().getCString(),
              (const char*)request->
                  instanceName.getClassName().getString().getCString()
@@ -3407,7 +3382,7 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(
             request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph =
+        JMPIProvider::OpProviderHolder ph = 
             providerManager.getProvider(
                 name.getPhysicalName(),
                 name.getLogicalName(),
@@ -3604,7 +3579,7 @@ Message * JMPIProviderManager::handleExecQueryRequest(
     try {
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
              "handleExecQueryRequest: "
-                 "name space = %s class name = %s",
+                 "name space = %s class name = %s",             
              (const char*)request->nameSpace.getString().getCString(),
              (const char*)request->className.getString().getCString()
              ));
@@ -3619,7 +3594,7 @@ Message * JMPIProviderManager::handleExecQueryRequest(
             request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph =
+        JMPIProvider::OpProviderHolder ph = 
             providerManager.getProvider(
                 name.getPhysicalName(),
                 name.getLogicalName(),
@@ -3640,7 +3615,7 @@ Message * JMPIProviderManager::handleExecQueryRequest(
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
             "handleExecQueryRequest: "
-                "Calling provider: %s, queryLanguage: %s, query: %s",
+                "Calling provider: %s, queryLanguage: %s, query: %s", 
             (const char*)pr.getName().getCString(),
             (const char*)request->queryLanguage.getCString(),
             (const char*)request->query.getCString()
@@ -4311,7 +4286,7 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
     {
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
              "handleAssociatorsRequest: "
-                 "name space = %s class name = %s",
+                 "name space = %s class name = %s",             
              (const char*)request->nameSpace.getString().getCString(),
              (const char*)request->
                  objectName.getClassName().getString().getCString()
@@ -4333,7 +4308,7 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
             request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph =
+        JMPIProvider::OpProviderHolder ph = 
             providerManager.getProvider(
                 name.getPhysicalName(),
                 name.getLogicalName(),
@@ -4354,7 +4329,7 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
             "handleAssociatorsRequest: "
-                "Calling provider: %s, role: %s, aCls: %s",
+                "Calling provider: %s, role: %s, aCls: %s", 
             (const char*)pr.getName().getCString(),
             (const char*)request->role.getCString(),
             (const char*)request->assocClass.getString().getCString()
@@ -4519,13 +4494,13 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
 
             JMPIjvm::checkException(env);
 
-            jstring jResultClass =
+            jstring jResultClass = 
                 env->NewStringUTF(
                     request->resultClass.getString().getCString());
-            jstring jRole =
+            jstring jRole = 
                 env->NewStringUTF(
                     request->role.getCString());
-            jstring jResultRole =
+            jstring jResultRole = 
                 env->NewStringUTF(
                     request->resultRole.getCString());
 
@@ -4636,9 +4611,13 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
                        throw;
                     }
 
-                    _fixCIMObjectPath(ciRet, cls);
+                    const CIMObjectPath& op    = ciRet->getPath();
+                    CIMObjectPath        iop   = ciRet->buildPath(cls);
 
                     JMPIjvm::checkException(env);
+
+                    iop.setNameSpace(op.getNameSpace());
+                    ciRet->setPath(iop);
 
                     handler.deliver(*ciRet);
                 }
@@ -4680,12 +4659,12 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
 
             JMPIjvm::checkException(env);
 
-            jstring jResultClass =
+            jstring jResultClass = 
                 env->NewStringUTF(
                     request->resultClass.getString().getCString());
             jstring jRole =
                 env->NewStringUTF(request->role.getCString());
-            jstring jResultRole =
+            jstring jResultRole = 
                 env->NewStringUTF(request->resultRole.getCString());
 
             JMPIjvm::checkException(env);
@@ -4801,9 +4780,13 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
                        throw;
                     }
 
-                    _fixCIMObjectPath(ciRet, cls);
+                    const CIMObjectPath& op    = ciRet->getPath();
+                    CIMObjectPath        iop   = ciRet->buildPath(cls);
 
                     JMPIjvm::checkException(env);
+
+                    iop.setNameSpace(op.getNameSpace());
+                    ciRet->setPath(iop);
 
                     handler.deliver(*ciRet);
                 }
@@ -4845,10 +4828,10 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
 
             JMPIjvm::checkException(env);
 
-            jstring jResultClass =
+            jstring jResultClass = 
                 env->NewStringUTF(
                     request->resultClass.getString().getCString());
-            jstring jRole =
+            jstring jRole = 
                 env->NewStringUTF(request->role.getCString());
             jstring jResultRole =
                 env->NewStringUTF(request->resultRole.getCString());
@@ -4975,9 +4958,13 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
                        throw;
                     }
 
-                    _fixCIMObjectPath(ciRet, cls);
+                    const CIMObjectPath& op    = ciRet->getPath();
+                    CIMObjectPath        iop   = ciRet->buildPath(cls);
 
                     JMPIjvm::checkException(env);
+
+                    iop.setNameSpace(op.getNameSpace());
+                    ciRet->setPath(iop);
 
                     handler.deliver(*ciRet);
                 }
@@ -5010,7 +4997,7 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
 
             JMPIjvm::checkException(env);
 
-            jstring jResultClass =
+            jstring jResultClass = 
                 env->NewStringUTF(
                     request->resultClass.getString().getCString());
             jstring jRole =
@@ -5126,9 +5113,13 @@ Message * JMPIProviderManager::handleAssociatorsRequest(
                        throw;
                     }
 
-                    _fixCIMObjectPath(ciRet, cls);
+                    const CIMObjectPath& op = ciRet->getPath();
+                    CIMObjectPath iop = ciRet->buildPath(cls);
 
                     JMPIjvm::checkException(env);
+
+                    iop.setNameSpace(op.getNameSpace());
+                    ciRet->setPath(iop);
 
                     handler.deliver(*ciRet);
                 }
@@ -5177,7 +5168,7 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(
     {
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
              "handleAssociatorNamesRequest: "
-                 "name space = %s class name = %s",
+                 "name space = %s class name = %s",             
              (const char*)request->nameSpace.getString().getCString(),
              (const char*)request->
                  objectName.getClassName().getString().getCString()
@@ -5210,7 +5201,7 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
             "handleAssociatorNamesRequest: "
-                "Calling provider: %s, role: %s, aCls: %s",
+                "Calling provider: %s, role: %s, aCls: %s", 
             (const char*)pr.getName().getCString(),
             (const char*)request->role.getCString(),
             (const char*)request->assocClass.getString().getCString()
@@ -5372,10 +5363,10 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(
 
             JMPIjvm::checkException(env);
 
-            jstring jResultClass =
+            jstring jResultClass = 
                 env->NewStringUTF(
                     request->resultClass.getString().getCString());
-            jstring jRole        =
+            jstring jRole        = 
                 env->NewStringUTF(request->role.getCString());
             jstring jResultRole  =
                 env->NewStringUTF(request->resultRole.getCString());
@@ -5468,7 +5459,7 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(
 
             JMPIjvm::checkException(env);
 
-            jstring jResultClass =
+            jstring jResultClass = 
                 env->NewStringUTF(
                     request->resultClass.getString().getCString());
             jstring jRole =
@@ -5564,10 +5555,10 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(
 
             JMPIjvm::checkException(env);
 
-            jstring jResultClass =
+            jstring jResultClass = 
                 env->NewStringUTF(
                     request->resultClass.getString().getCString());
-            jstring jRole =
+            jstring jRole = 
                 env->NewStringUTF(request->role.getCString());
             jstring jResultRole =
                 env->NewStringUTF(request->resultRole.getCString());
@@ -5651,7 +5642,7 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(
                                             CIMObjectPath*,
                                             jlong,
                                             assocPath);
-            jobject jAssociationName = env->NewObject(
+            jobject jAssociationName = env->NewObject( 
                                            jv->CIMObjectPathClassRef,
                                            jv->CIMObjectPathNewJ,
                                            jAssociationNameRef);
@@ -5669,10 +5660,10 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(
 
             JMPIjvm::checkException(env);
 
-            jstring jResultClass =
+            jstring jResultClass = 
                 env->NewStringUTF(
                     request->resultClass.getString().getCString());
-            jstring jRole =
+            jstring jRole = 
                 env->NewStringUTF(request->role.getCString());
             jstring jResultRole =
                 env->NewStringUTF(request->resultRole.getCString());
@@ -5789,7 +5780,7 @@ Message * JMPIProviderManager::handleReferencesRequest(
     {
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
              "handleReferencesRequest: "
-                 "name space = %s class name = %s",
+                 "name space = %s class name = %s",             
              (const char*)request->nameSpace.getString().getCString(),
              (const char*)request->
                  objectName.getClassName().getString().getCString()
@@ -5811,7 +5802,7 @@ Message * JMPIProviderManager::handleReferencesRequest(
             request->operationContext.get(ProviderIdContainer::NAME));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph =
+        JMPIProvider::OpProviderHolder ph = 
             providerManager.getProvider(
                 name.getPhysicalName(),
                 name.getLogicalName(),
@@ -5832,7 +5823,7 @@ Message * JMPIProviderManager::handleReferencesRequest(
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
             "handleReferencesRequest: "
-                "Calling provider: %s, role: %s, refCls: %s",
+                "Calling provider: %s, role: %s, refCls: %s", 
             (const char*)pr.getName().getCString(),
             (const char*)request->role.getCString(),
             (const char*)request->resultClass.getString().getCString()
@@ -6087,12 +6078,15 @@ Message * JMPIProviderManager::handleReferencesRequest(
                        throw;
                     }
 
-                    _fixCIMObjectPath(ciRet, cls);
+                    const CIMObjectPath& op    = ciRet->getPath();
+                    CIMObjectPath        iop   = ciRet->buildPath(cls);
 
                     JMPIjvm::checkException(env);
 
-                    CIMObject coRet(*ciRet);
-                    handler.deliver(coRet);
+                    iop.setNameSpace(op.getNameSpace());
+                    ciRet->setPath(iop);
+
+                    handler.deliver(*ciRet);
                 }
             }
             handler.complete();
@@ -6245,8 +6239,7 @@ Message * JMPIProviderManager::handleReferencesRequest(
                     iop.setNameSpace(op.getNameSpace());
                     ciRet->setPath(iop);
 
-                    CIMObject coRet(*ciRet);
-                    handler.deliver(coRet);
+                    handler.deliver(*ciRet);
                 }
             }
             handler.complete();
@@ -6385,8 +6378,7 @@ Message * JMPIProviderManager::handleReferencesRequest(
                     iop.setNameSpace(op.getNameSpace());
                     ciRet->setPath(iop);
 
-                    CIMObject coRet(*ciRet);
-                    handler.deliver(coRet);
+                    handler.deliver(*ciRet);
                 }
             }
             handler.complete();
@@ -6544,8 +6536,7 @@ Message * JMPIProviderManager::handleReferencesRequest(
                     iop.setNameSpace(op.getNameSpace());
                     ciRet->setPath(iop);
 
-                    CIMObject coRet(*ciRet);
-                    handler.deliver(coRet);
+                    handler.deliver(*ciRet);
                 }
             }
             handler.complete();
@@ -6592,7 +6583,7 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(
     {
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
              "handleReferenceNamesRequest: "
-                 "name space = %s class name = %s",
+                 "name space = %s class name = %s",             
              (const char*)request->nameSpace.getString().getCString(),
              (const char*)request->
                  objectName.getClassName().getString().getCString()
@@ -6623,7 +6614,7 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
             "handleReferenceNamesRequest: "
-                "Calling provider: %s, role: %s, refCls: %s",
+                "Calling provider: %s, role: %s, refCls: %s", 
             (const char*)pr.getName().getCString(),
             (const char*)request->role.getCString(),
             (const char*)request->resultClass.getString().getCString()
@@ -6725,7 +6716,7 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(
                         "(Lorg/pegasus/jmpi/OperationContext;"
                             "Lorg/pegasus/jmpi/CIMObjectPath;"
                                 "Lorg/pegasus/jmpi/CIMObjectPath;"
-                                    "Ljava/lang/String;)"
+                                    "Ljava/lang/String;)" 
                                         "[Lorg/pegasus/jmpi/CIMObjectPath;");
 
                if (id != NULL)
@@ -7138,7 +7129,7 @@ Message * JMPIProviderManager::handleGetPropertyRequest(
     try {
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
              "handleGetPropertyRequest: "
-                 "name space = %s class name = %s",
+                 "name space = %s class name = %s",             
              (const char*)request->nameSpace.getString().getCString(),
              (const char*)request->
                  instanceName.getClassName().getString().getCString()
@@ -7166,7 +7157,7 @@ Message * JMPIProviderManager::handleGetPropertyRequest(
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
             "handleReferenceNamesRequest: "
-                "Calling provider: %s",
+                "Calling provider: %s", 
             (const char*)pr.getName().getCString()
             ));
 
@@ -7268,7 +7259,7 @@ Message * JMPIProviderManager::handleGetPropertyRequest(
 
             JMPIjvm::checkException(env);
 
-            jstring joclass =
+            jstring joclass = 
               env->NewStringUTF(
                  request->instanceName.getClassName().getString().getCString());
 
@@ -7414,11 +7405,11 @@ Message * JMPIProviderManager::handleSetPropertyRequest(
     METHOD_VERSION   eMethodFound  = METHOD_UNKNOWN;
     JNIEnv          *env           = NULL;
 
-    try
+    try 
     {
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
              "handleSetPropertyRequest: "
-                 "name space = %s class name = %s",
+                 "name space = %s class name = %s",             
              (const char*)request->nameSpace.getString().getCString(),
              (const char*)request->
                  instanceName.getClassName().getString().getCString()
@@ -7446,7 +7437,7 @@ Message * JMPIProviderManager::handleSetPropertyRequest(
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
             "handleSetPropertyRequest: "
-            "Calling provider. setPropertyValue: %s",
+            "Calling provider. setPropertyValue: %s", 
             (const char*)pr.getName().getCString()));
 
         JvmVector *jv = 0;
@@ -7537,7 +7528,7 @@ Message * JMPIProviderManager::handleSetPropertyRequest(
         {
             jlong jcopref = DEBUG_ConvertCToJava(
                                 CIMObjectPath*,
-                                jlong,
+                                jlong, 
                                 objectPath);
             jobject jcop = env->NewObject(
                                jv->CIMObjectPathClassRef,
@@ -7552,7 +7543,7 @@ Message * JMPIProviderManager::handleSetPropertyRequest(
 
             JMPIjvm::checkException(env);
 
-            jstring jpName =
+            jstring jpName = 
                 env->NewStringUTF(
                     request->propertyName.getString().getCString());
 
@@ -7605,13 +7596,13 @@ Message * JMPIProviderManager::handleSetPropertyRequest(
 
             JMPIjvm::checkException(env);
 
-            jstring joclass =
+            jstring joclass = 
                env->NewStringUTF(
                  request->instanceName.getClassName().getString().getCString());
 
             JMPIjvm::checkException(env);
 
-            jstring jpName =
+            jstring jpName = 
                 env->NewStringUTF(
                     request->propertyName.getString().getCString());
 
@@ -7689,7 +7680,7 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
     try {
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
              "handleInvokeMethodRequest: "
-                 "name space = %s class name = %s",
+                 "name space = %s class name = %s",             
              (const char*)request->nameSpace.getString().getCString(),
              (const char*)request->
                  instanceName.getClassName().getString().getCString()
@@ -7716,7 +7707,7 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
             "handleInvokeMethodRequest: "
-                "Calling provider: %s",
+                "Calling provider: %s", 
             (const char*)pr.getName().getCString()
             ));
 
@@ -7863,7 +7854,7 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
 
             JMPIjvm::checkException(env);
 
-            jstring jMethod =
+            jstring jMethod = 
                 env->NewStringUTF(
                     request->methodName.getString().getCString());
 
@@ -7950,7 +7941,7 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
                               jv->OperationContextNewJ,
                               jocRef);
 
-            jlong jcopRef = DEBUG_ConvertCToJava(
+            jlong jcopRef = DEBUG_ConvertCToJava( 
                                 CIMObjectPath*,
                                 jlong,
                                 objectPath);
@@ -7961,7 +7952,7 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
 
             JMPIjvm::checkException(env);
 
-            jstring jMethod =
+            jstring jMethod = 
                 env->NewStringUTF(request->methodName.getString().getCString());
 
             JMPIjvm::checkException(env);
@@ -8125,7 +8116,7 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
                                   jProp,
                                   JMPIjvm::jv.CIMPropertyCInst);
                 CIMProperty *p = DEBUG_ConvertJavaToC(
-                                     jlong,
+                                     jlong, 
                                      CIMProperty*,
                                      jpRef);
 
@@ -8155,7 +8146,7 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
                                 CIMObjectPath*,
                                 jlong,
                                 objectPath);
-            jobject jcop = env->NewObject(
+            jobject jcop = env->NewObject( 
                                jv->CIMObjectPathClassRef,
                                jv->CIMObjectPathNewJ,
                                jcopRef);
@@ -8221,7 +8212,7 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(
 
             handler.deliver(*valueRet);
 
-            for (int i=0,m=env->CallIntMethod(jVecOut,JMPIjvm::jv.VectorSize);
+            for (int i=0,m=env->CallIntMethod(jVecOut,JMPIjvm::jv.VectorSize); 
                  i<m;
                  i++)
             {
@@ -8276,7 +8267,7 @@ int LocateIndicationProviderNames(
     String& providerName,
     String& location)
 {
-    Uint32 pos = pInstance.findProperty(PEGASUS_PROPERTYNAME_NAME);
+    Uint32 pos = pInstance.findProperty(CIMName ("Name"));
     pInstance.getProperty(pos).getValue().get(providerName);
 
     pos = pmInstance.findProperty(CIMName ("Location"));
@@ -8325,7 +8316,7 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(
                              providerLocation;
         CIMInstance          req_provider,
                              req_providerModule;
-        ProviderIdContainer  pidc =
+        ProviderIdContainer  pidc = 
             (ProviderIdContainer) request->operationContext.get(
                 ProviderIdContainer::NAME);
 
@@ -8344,12 +8335,12 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(
              "handleCreateSubscriptionRequest: "
                  "name space = %s provider name = %s provider filename = %s",
              (const char*)request->nameSpace.getString().getCString(),
-             (const char*)providerName.getCString(),
+             (const char*)providerName.getCString(), 
              (const char*)fileName.getCString()
              ));
 
         // get cached or load new provider module
-        JMPIProvider::OpProviderHolder ph =
+        JMPIProvider::OpProviderHolder ph = 
             providerManager.getProvider(
                 fileName,
                 providerName,
@@ -8367,7 +8358,7 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(
         //
         pr.testIfZeroAndIncrementSubscriptions ();
 
-        SubscriptionFilterConditionContainer sub_cntr =
+        SubscriptionFilterConditionContainer sub_cntr = 
             request->operationContext.get(
                 SubscriptionFilterConditionContainer::NAME);
         indProvRecord *prec = NULL;
@@ -8435,7 +8426,7 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(
            srec->queryLanguage = sub_cntr.getQueryLanguage ();
            srec->propertyList  = request->propertyList;
 
-           CIMOMHandleQueryContext *qContext =
+           CIMOMHandleQueryContext *qContext = 
                new CIMOMHandleQueryContext(
                    CIMNamespaceName(
                        request->nameSpace.getString()),
@@ -8472,7 +8463,7 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(
         }
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
-            "handleCreateSubscriptionRequest: Calling provider: %s",
+            "handleCreateSubscriptionRequest: Calling provider: %s", 
             (const char*)pr.getName().getCString()));
 
         JvmVector *jv = 0;
@@ -8723,7 +8714,7 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(
              "handleDeleteSubscriptionRequest: "
                  "name space = %s provider name = %s provider filename = %s",
              (const char*)request->nameSpace.getString().getCString(),
-             (const char*)providerName.getCString(),
+             (const char*)providerName.getCString(), 
              (const char*)fileName.getCString()
              ));
 
@@ -9040,7 +9031,7 @@ Message * JMPIProviderManager::handleDisableModuleRequest(
     // get provider module name
     String moduleName;
     CIMInstance mInstance = request->providerModule;
-    Uint32 pos = mInstance.findProperty(PEGASUS_PROPERTYNAME_NAME);
+    Uint32 pos = mInstance.findProperty(CIMName ("Name"));
 
     if(pos != PEG_NOT_FOUND)
     {
@@ -9122,27 +9113,6 @@ Message * JMPIProviderManager::handleStopAllProvidersRequest(
     return(response);
 }
 
-Message* JMPIProviderManager::handleIndicationServiceDisabledRequest(
-    Message* message)
-{
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "JMPIProviderManager::_handleIndicationServiceDisabledRequest");
-
-    CIMIndicationServiceDisabledRequestMessage* request =
-        dynamic_cast<CIMIndicationServiceDisabledRequestMessage*>(message);
-    PEGASUS_ASSERT(request != 0);
-
-    CIMIndicationServiceDisabledResponseMessage* response =
-        dynamic_cast<CIMIndicationServiceDisabledResponseMessage*>(
-            request->buildResponse());
-    PEGASUS_ASSERT(response != 0);
-
-    _subscriptionInitComplete = false;
-
-    PEG_METHOD_EXIT ();
-    return response;
-}
-
 Message * JMPIProviderManager::handleSubscriptionInitCompleteRequest(
     const Message * message)
 {
@@ -9212,13 +9182,11 @@ ProviderName JMPIProviderManager::_resolveProviderName(
     CIMValue genericValue;
 
     genericValue = providerId.getModule().getProperty(
-        providerId.getModule().findProperty(
-            PEGASUS_PROPERTYNAME_NAME)).getValue();
+        providerId.getModule().findProperty("Name")).getValue();
     genericValue.get(moduleName);
 
     genericValue = providerId.getProvider().getProperty(
-        providerId.getProvider().findProperty(
-            PEGASUS_PROPERTYNAME_NAME)).getValue();
+        providerId.getProvider().findProperty("Name")).getValue();
     genericValue.get(providerName);
 
     genericValue = providerId.getModule().getProperty(

@@ -163,7 +163,7 @@ private:
 // Use of this macro ensures that a static Mutex is not locked across a fork().
 
 #if !defined(PEGASUS_HAVE_PTHREADS) || \
-    (defined(PEGASUS_OS_ZOS) || \
+    defined(PEGASUS_OS_ZOS) || \
     defined(PEGASUS_OS_VMS)
 
 # define PEGASUS_FORK_SAFE_MUTEX(mutex)

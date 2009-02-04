@@ -1074,10 +1074,6 @@ String MofWriter::getQualifierFlavor(const CIMFlavor & flavor)
     if (!(flavor.hasFlavor (CIMFlavor::TOSUBCLASS)))
         tmp.append("Restricted, ");
 
-    // ATTN-RK-P3-20020515: FUTURE: Need to check toInstance flavor?
-    //if (!(flavor.hasFlavor (CIMFlavor::TOINSTANCE)))
-    //    tmp.append("Restricted, ");
-
     if (flavor.hasFlavor (CIMFlavor::TRANSLATABLE))
         tmp.append("Translatable, ");
 

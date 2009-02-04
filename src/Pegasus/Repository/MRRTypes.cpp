@@ -1180,8 +1180,8 @@ int MakeQualifierDecl(
         flavor.addFlavor(CIMFlavor::OVERRIDABLE);
     if (mqd->flavor & MRR_FLAVOR_TOSUBCLASS)
         flavor.addFlavor(CIMFlavor::TOSUBCLASS);
-    if (mqd->flavor & MRR_FLAVOR_TOINSTANCE)
-        flavor.addFlavor(CIMFlavor::TOINSTANCE);
+    //if (mqd->flavor & MRR_FLAVOR_TOINSTANCE)
+    //    flavor.addFlavor(CIMFlavor::TOINSTANCE);
     if (mqd->flavor & MRR_FLAVOR_TRANSLATABLE)
         flavor.addFlavor(CIMFlavor::TRANSLATABLE);
     if (mqd->flavor & MRR_FLAVOR_DISABLEOVERRIDE)

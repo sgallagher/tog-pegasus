@@ -81,7 +81,7 @@
 
 #define MRR_FLAVOR_OVERRIDABLE      (1 << 0)
 #define MRR_FLAVOR_TOSUBCLASS       (1 << 1)
-#define MRR_FLAVOR_TOINSTANCE       (1 << 2)
+//#define MRR_FLAVOR_TOINSTANCE       (1 << 2)
 #define MRR_FLAVOR_TRANSLATABLE     (1 << 3)
 #define MRR_FLAVOR_DISABLEOVERRIDE  (1 << 4)
 #define MRR_FLAVOR_RESTRICTED       (1 << 5)

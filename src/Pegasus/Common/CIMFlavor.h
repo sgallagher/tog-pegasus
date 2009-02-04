@@ -155,6 +155,7 @@ public:
 
     /**
         Indicates that the qualifier is propagated to instances.
+        NOTE: This flavor is deprecated and should not be used.
     */
     static const CIMFlavor TOINSTANCE;
 
@@ -170,8 +171,9 @@ public:
     static const CIMFlavor DEFAULTS;
 
     /**
-        Indicates that the qualifier is propagated to subclasses and to
-        instances (TOSUBCLASS | TOINSTANCE).
+        Indicates that the qualifier is propagated to subclasses.  This
+        flavor is equivalent to TOSUBCLASSES.  The TOINSTANCE flavor is no
+        longer included here since it is deprecated.
     */
     static const CIMFlavor TOSUBELEMENTS;
 

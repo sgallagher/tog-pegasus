@@ -1367,8 +1367,8 @@ void cimmofMRR::_writeQualifierDecl(const CIMConstQualifierDecl& cq)
             flavors.append("MRR_FLAVOR_OVERRIDABLE");
         if (flavor.hasFlavor(CIMFlavor::TOSUBCLASS))
             flavors.append("MRR_FLAVOR_TOSUBCLASS");
-        if (flavor.hasFlavor(CIMFlavor::TOINSTANCE))
-            flavors.append("MRR_FLAVOR_TOINSTANCE");
+        //if (flavor.hasFlavor(CIMFlavor::TOINSTANCE))
+        //    flavors.append("MRR_FLAVOR_TOINSTANCE");
         if (flavor.hasFlavor(CIMFlavor::TRANSLATABLE))
             flavors.append("MRR_FLAVOR_TRANSLATABLE");
         if (flavor.hasFlavor(CIMFlavor::DISABLEOVERRIDE))

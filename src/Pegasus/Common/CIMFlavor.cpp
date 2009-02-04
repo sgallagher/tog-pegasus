@@ -40,12 +40,10 @@ const CIMFlavor CIMFlavor::ENABLEOVERRIDE = 1;
 const CIMFlavor CIMFlavor::TOSUBCLASS = 2;
 const CIMFlavor CIMFlavor::TOINSTANCE = 4;
 const CIMFlavor CIMFlavor::TRANSLATABLE = 8;
-const CIMFlavor CIMFlavor::TOSUBELEMENTS = TOSUBCLASS + TOINSTANCE;
+const CIMFlavor CIMFlavor::TOSUBELEMENTS = TOSUBCLASS;
 const CIMFlavor CIMFlavor::DISABLEOVERRIDE = 16;
 const CIMFlavor CIMFlavor::RESTRICTED = 32;
 const CIMFlavor CIMFlavor::DEFAULTS = OVERRIDABLE + TOSUBCLASS;
-// ATTN: P1 KS 24 March 2002 Change here to make TOINSTANCE part of the defaults
-//const CIMFlavor CIMFlavor::DEFAULTS = OVERRIDABLE + TOSUBCLASS + TOINSTANCE;
 
 
 CIMFlavor::CIMFlavor ()

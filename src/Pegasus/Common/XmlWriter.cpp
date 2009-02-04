@@ -1605,6 +1605,10 @@ void XmlWriter::printQualifierDeclElement(
 //                                 TOINSTANCE   (true|false)   'false'
 //                                 TRANSLATABLE (true|false)   'false'">
 //
+//     DEPRECATION NOTE:  The attribute TOINSTANCE is DEPRECATED and MAY be
+//     removed from the QualifierFlavor entity in a future version of this
+//     document.  Use of this qualifier is discouraged.
+//
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendQualifierFlavorEntity(
@@ -1617,8 +1621,8 @@ void XmlWriter::appendQualifierFlavorEntity(
     if (!(flavor.hasFlavor (CIMFlavor::TOSUBCLASS)))
         out << STRLIT(" TOSUBCLASS=\"false\"");
 
-    if (flavor.hasFlavor (CIMFlavor::TOINSTANCE))
-        out << STRLIT(" TOINSTANCE=\"true\"");
+    //if (flavor.hasFlavor (CIMFlavor::TOINSTANCE))
+    //    out << STRLIT(" TOINSTANCE=\"true\"");
 
     if (flavor.hasFlavor (CIMFlavor::TRANSLATABLE))
         out << STRLIT(" TRANSLATABLE=\"true\"");

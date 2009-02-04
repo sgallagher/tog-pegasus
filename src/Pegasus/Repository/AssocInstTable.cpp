@@ -292,10 +292,22 @@ Boolean AssocInstTable::deleteAssociation(
     is.close();
     os.close();
 
-    // Rename back to original name:
-
-    if (!FileSystem::renameFile(tmpPath, path))
-        throw CannotRenameFile(path);
+    // Rename back to original if tmp file is not empty
+    Uint32 size = 0;
+    Boolean gotFileSize = FileSystem::getFileSize(tmpPath, size);
+    if (size || !gotFileSize)
+    {
+        if (!FileSystem::renameFile(tmpPath, path))
+        {
+            throw CannotRenameFile(path);
+        }
+    }
+    else
+    {
+        // Delete both tmp and original files
+        FileSystem::removeFile(tmpPath);
+        FileSystem::removeFile(path);
+    }
 
     return found;
 }

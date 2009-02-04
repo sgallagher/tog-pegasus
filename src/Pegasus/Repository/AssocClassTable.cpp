@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -33,41 +35,58 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/CIMNameCast.h>
+#include <Pegasus/Common/ReadWriteSem.h>
 #include "AssocClassTable.h"
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define ASSOC_CLASS_NAME_INDEX 0
+#define FROM_CLASS_NAME_INDEX 1
+#define FROM_PROPERTY_NAME_INDEX 2
+#define TO_CLASS_NAME_INDEX 3
+#define TO_PROPERTY_NAME_INDEX 4
+#define NUM_FIELDS 5
+
+
+ReadWriteSem AssocClassTable::_classCacheLock;
+
+
 static inline Boolean _MatchNoCase(const String& x, const String& pattern)
 {
     return pattern.size() == 0 || String::equalNoCase(x, pattern);
 }
 
-static Boolean _GetRecord(ifstream& is, ClassAssociation& record)
+static inline Boolean _ContainsClass(
+    const Array<CIMName>& classNames,
+    const String& match)
 {
+    Uint32 n = classNames.size();
+
+    for (Uint32 i = 0; i < n; i++)
+    {
+        if (_MatchNoCase(classNames[i].getString(), match))
+            return true;
+    }
+
+    return false;
+}
+
+static Boolean _GetRecord(ifstream& is, Array<String>& fields)
+{
+    fields.clear();
     String line;
 
-    if (!GetLine(is, line))
-        return false;
-    record.assocClassName = CIMNameCast(line);
+    for (Uint32 i = 0; i < NUM_FIELDS; i++)
+    {
+        if (!GetLine(is, line))
+            return false;
 
-    if (!GetLine(is, line))
-        return false;
-    record.fromClassName = CIMNameCast(line);
-
-    if (!GetLine(is, line))
-        return false;
-    record.fromPropertyName = CIMNameCast(line);
-
-    if (!GetLine(is, line))
-        return false;
-    record.toClassName = CIMNameCast(line);
-
-    if (!GetLine(is, line))
-        return false;
-    record.toPropertyName = CIMNameCast(line);
+        fields.append(line);
+        //Association names are not supposed to contain escapes
+        //fields.append(_Unescape(line));
+    }
 
     // Skip the blank line:
 
@@ -77,45 +96,61 @@ static Boolean _GetRecord(ifstream& is, ClassAssociation& record)
     return true;
 }
 
-static inline void _PutField(ofstream& os, const CIMName& field)
+static void _PutRecord(ofstream& os, Array<String>& fields)
 {
-    // Write the field in UTF-8.  Call write() to ensure no data
-    // conversion by the stream.  Since all the fields contain CIM names,
-    // it is not necessary to escape CR/LF characters.
-    CString buffer = field.getString().getCString();
-    os.write((const char *)buffer,
-        static_cast<streamsize>(strlen((const char *)buffer)));
-    os << endl;
-}
-
-static void _PutRecord(ofstream& os, const ClassAssociation& record)
-{
-    _PutField(os, record.assocClassName);
-    _PutField(os, record.fromClassName);
-    _PutField(os, record.fromPropertyName);
-    _PutField(os, record.toClassName);
-    _PutField(os, record.toPropertyName);
+    for (Uint32 i = 0, n = fields.size(); i < n; i++)
+    {
+        // Write the field in UTF-8.  Call write() to ensure no data
+        // conversion by the stream.  Since all the fields contain CIM names,
+        // it is not necessary to escape CR/LF characters.
+        CString buffer = fields[i].getCString();
+        os.write((const char *)buffer,
+            static_cast<streamsize>(strlen((const char *)buffer)));
+        os << endl;
+    }
     os << endl;
 }
 
 void AssocClassTable::append(
     PEGASUS_STD(ofstream)& os,
     const String& path,
-    const ClassAssociation& classAssociation)
+    const CIMName& assocClassName,
+    const CIMName& fromClassName,
+    const CIMName& fromPropertyName,
+    const CIMName& toClassName,
+    const CIMName& toPropertyName)
 {
-    _PutRecord(os, classAssociation);
+    Array<String> fields;
+    fields.reserveCapacity(5);
+    fields.append(assocClassName.getString());
+    fields.append(fromClassName.getString());
+    fields.append(fromPropertyName.getString());
+    fields.append(toClassName.getString());
+    fields.append(toPropertyName.getString());
+
+
+    _PutRecord(os, fields);
 
     // Update cache
-    AssocClassCache* cache = _assocClassCacheManager.getAssocClassCache(path);
-    if (cache->isActive())
+    AssocClassCache* cache = AssocClassCache::getAssocClassCache(path);
+    if (cache != 0)
     {
-        cache->addRecord(classAssociation.fromClassName, classAssociation);
+        if (cache->isActive())
+        {
+            WriteLock lock(_classCacheLock);
+            cache->addRecord(fields[FROM_CLASS_NAME_INDEX],
+                             fields);
+        }
     }
 }
 
 void AssocClassTable::append(
     const String& path,
-    const ClassAssociation& classAssociation)
+    const CIMName& assocClassName,
+    const CIMName& fromClassName,
+    const CIMName& fromPropertyName,
+    const CIMName& toClassName,
+    const CIMName& toPropertyName)
 {
     // Open input file:
 
@@ -124,13 +159,29 @@ void AssocClassTable::append(
     if (!OpenAppend(os, path))
         throw CannotOpenFile(path);
 
-    _PutRecord(os, classAssociation);
+    // Insert the entry:
+
+    Array<String> fields;
+    fields.reserveCapacity(5);
+    fields.append(assocClassName.getString());
+    fields.append(fromClassName.getString());
+    fields.append(fromPropertyName.getString());
+    fields.append(toClassName.getString());
+    fields.append(toPropertyName.getString());
+
+
+    _PutRecord(os, fields);
 
     // Update cache
-    AssocClassCache* cache = _assocClassCacheManager.getAssocClassCache(path);
-    if (cache->isActive())
+    AssocClassCache* cache = AssocClassCache::getAssocClassCache(path);
+    if (cache != 0)
     {
-        cache->addRecord(classAssociation.fromClassName, classAssociation);
+        if (cache->isActive())
+        {
+            WriteLock lock(_classCacheLock);
+            cache->addRecord(fields[FROM_CLASS_NAME_INDEX],
+                             fields);
+        }
     }
 }
 
@@ -162,18 +213,20 @@ Boolean AssocClassTable::deleteAssociation(
 
     // Copy over all lines except ones with the given association instance name:
 
-    ClassAssociation classAssociation;
-    Array<ClassAssociation> classAssociationsToDelete;
+    Array<String> fields;
+    Array<String> fieldsToDelete;
+    Boolean found = false;
 
-    while (_GetRecord(is, classAssociation))
+    while (_GetRecord(is, fields))
     {
-        if (assocClassName.getString() != classAssociation.assocClassName)
+        if (assocClassName.getString() != fields[ASSOC_CLASS_NAME_INDEX])
         {
-            _PutRecord(os, classAssociation);
+            _PutRecord(os, fields);
+            found = true;
         }
         else
         {
-            classAssociationsToDelete.append(classAssociation);
+            fieldsToDelete = fields;
         }
     }
 
@@ -181,6 +234,11 @@ Boolean AssocClassTable::deleteAssociation(
 
     is.close();
     os.close();
+
+    // Remove orginal file:
+
+    if (!FileSystem::removeFile(path))
+        throw CannotRemoveFile(path);
 
     // Rename back to original if tmp file is not empty
     Uint32 size = 0;
@@ -200,18 +258,21 @@ Boolean AssocClassTable::deleteAssociation(
     }
 
     // Update cache
-    AssocClassCache* cache = _assocClassCacheManager.getAssocClassCache(path);
-    for (Uint32 i = 0; i < classAssociationsToDelete.size(); i++)
+    if (found)
     {
-        if (cache->isActive())
+        AssocClassCache* cache = AssocClassCache::getAssocClassCache(path);
+        if (cache != 0)
         {
-            cache->removeRecord(
-                classAssociationsToDelete[i].fromClassName,
-                classAssociationsToDelete[i].assocClassName);
+            if (cache->isActive())
+            {
+                WriteLock lock(_classCacheLock);
+                cache->removeRecord(fieldsToDelete[FROM_CLASS_NAME_INDEX],
+                                    fieldsToDelete[ASSOC_CLASS_NAME_INDEX]);
+            }
         }
     }
 
-    return classAssociationsToDelete.size();
+    return found;
 }
 
 Boolean AssocClassTable::getAssociatorNames(
@@ -235,38 +296,37 @@ Boolean AssocClassTable::getAssociatorNames(
         throw CannotOpenFile(path);
     }
 
-    ClassAssociation classAssociation;
+    Array<String> fields;
     Boolean found = false;
 
     // For each line in the associations table:
-    while (_GetRecord(is, classAssociation))
+    while (_GetRecord(is, fields))
     {
         // Process associations from the right end class and with right roles
-        if (Contains(classList, classAssociation.fromClassName) &&
-            _MatchNoCase(classAssociation.fromPropertyName.getString(), role) &&
-            _MatchNoCase(
-                classAssociation.toPropertyName.getString(), resultRole))
+        if (_ContainsClass(classList, fields[FROM_CLASS_NAME_INDEX]) &&
+            _MatchNoCase(fields[FROM_PROPERTY_NAME_INDEX], role) &&
+            _MatchNoCase(fields[TO_PROPERTY_NAME_INDEX], resultRole))
         {
             // Skip classes that do not appear in the association class list
             if ((assocClassList.size() != 0) &&
-                (!Contains(assocClassList, classAssociation.assocClassName)))
+                (!_ContainsClass(assocClassList,
+                                 fields[ASSOC_CLASS_NAME_INDEX])))
             {
                 continue;
             }
 
             // Skip classes that do not appear in the result class list
             if ((resultClassList.size() != 0) &&
-                (!Contains(resultClassList, classAssociation.toClassName)))
+                (!_ContainsClass(resultClassList,
+                                 fields[TO_CLASS_NAME_INDEX])))
             {
                 continue;
             }
 
             // This class qualifies; add it to the list (skipping duplicates)
-            if (!Contains(
-                    associatorNames, classAssociation.toClassName.getString()))
+            if (!Contains(associatorNames, fields[TO_CLASS_NAME_INDEX]))
             {
-                associatorNames.append(
-                    classAssociation.toClassName.getString());
+                associatorNames.append(fields[TO_CLASS_NAME_INDEX]);
             }
             found = true;
         }
@@ -279,6 +339,8 @@ Boolean AssocClassTable::_InitializeCache(
     AssocClassCache* cache,
     const String& path)
 {
+    WriteLock lock(_classCacheLock);
+
     if (!cache->isActive())
     {
 
@@ -294,19 +356,27 @@ Boolean AssocClassTable::_InitializeCache(
             throw CannotOpenFile(path);
         }
 
-        ClassAssociation classAssociation;
+        Array<String> fields;
 
         // For each line in the associations table:
-        while (_GetRecord(is, classAssociation))
+        while (_GetRecord(is, fields))
         {
-            cache->addRecord(classAssociation.fromClassName,
-                             classAssociation);
+            cache->addRecord(fields[FROM_CLASS_NAME_INDEX],
+                             fields);
         }
 
         cache->setActive(true);
     }
 
     return true;
+}
+
+void AssocClassTable::removeCaches()
+{
+    WriteLock lock(_classCacheLock);
+    AssocClassCache::cleanupAssocClassCaches();
+
+    return;
 }
 
 Boolean AssocClassTable::getReferenceNames(
@@ -316,8 +386,11 @@ Boolean AssocClassTable::getReferenceNames(
     const String& role,
     Array<String>& referenceNames)
 {
-    // Get the information from the association class cache.
-    AssocClassCache* cache = _assocClassCacheManager.getAssocClassCache(path);
+
+    // First see if we can get the information from the association class cache.
+    AssocClassCache* cache = AssocClassCache::getAssocClassCache(path);
+    if (cache == 0)
+        return false;
 
     if (!cache->isActive())
     {
@@ -325,8 +398,48 @@ Boolean AssocClassTable::getReferenceNames(
             return false;
     }
 
-    return cache->getReferenceNames(
-        classList, resultClassList, role, referenceNames);
+    Array< Array<String> > records;
+    Boolean found = false;
+
+
+    // For each of the target classes retrieve the list of matching
+    // association classes from the cache.
+    // The cache uses the from class name as an index and returns all
+    // association class records having that from class.
+
+    ReadLock lock(_classCacheLock);
+    for (Uint16 idx=0; idx < classList.size(); idx++)
+    {
+        String fromClassName = classList[idx].getString();
+        if (cache->getAssocClassEntry(fromClassName, records))
+        {
+            for (Uint16 rx=0; rx <records.size(); rx++)
+            {
+                if (_MatchNoCase(records[rx][FROM_PROPERTY_NAME_INDEX], role))
+                {
+                    // Skip classes that do not appear in the result class list
+                    if ((resultClassList.size() != 0) &&
+                        (!_ContainsClass(resultClassList,
+                             records[rx][ASSOC_CLASS_NAME_INDEX])))
+                    {
+                        continue;
+                    }
+
+                    // This class qualifies; add it to the list (skipping
+                    // duplicates)
+                    if (!Contains(referenceNames,
+                            records[rx][ASSOC_CLASS_NAME_INDEX]))
+                    {
+                        referenceNames.append(
+                            records[rx][ASSOC_CLASS_NAME_INDEX]);
+                    }
+                    found = true;
+                }
+            }
+        }
+    }
+
+    return found;
 }
 
 PEGASUS_NAMESPACE_END

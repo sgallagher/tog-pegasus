@@ -36,6 +36,16 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+Boolean System::canRead(const char* path)
+{
+    return access(path, R_OK) == 0;
+}
+
+Boolean System::canWrite(const char* path)
+{
+    return access(path, W_OK) == 0;
+}
+
 String System::getPassword(const char* prompt)
 {
 #if  defined(PEGASUS_OS_PASE)

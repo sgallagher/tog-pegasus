@@ -36,7 +36,11 @@
 #include <starlet.h>
 #include <ssdef.h>             // SS$_NORMAL
 #include <stsdef.h>            // VMS_STATUS_SUCCESS
-#include <prvdef>              // PRV$M_SETPRV
+#include <chpdef.h>            // CHP$_
+#include <armdef.h>            // ARM$_
+#include <prvdef.h>            // PRV$M_SETPRV
+#include <unixlib.h>
+#include <rms.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -45,6 +49,131 @@ PEGASUS_NAMESPACE_BEGIN
 // System
 //
 //==============================================================================
+
+static String vmsPath;
+static Mutex vmsPathMutex(Mutex::NON_RECURSIVE);
+
+static int action(char *path, int type_of_file)
+{
+    vmsPath = path;
+    return 1;
+}
+
+static int toVms(const char* path, String& vms_path)
+{
+    AutoMutex pathLock(vmsPathMutex);
+    int ret = decc$to_vms(path, action, 0, 0);
+    vms_path = vmsPath;
+    return ret;
+}
+
+static int canAccess(const char* path, int access_right)
+{
+    struct itm
+    {
+        unsigned short bufLen;
+        unsigned short itmCode;
+        void *bufAddr;
+        void *retAddr;
+    };
+
+    int retStat;
+    int len;
+
+    union armdef armval;
+    struct FAB fab;
+    struct XABPRO xabpro;
+
+    struct
+    {
+        struct itm item[3];
+        unsigned long term;
+    } itmlst;
+
+    String vms_path;
+    CString cvms_path;
+
+    // Convert the path to OpenVMS format (if necessary)
+
+    if (strchr(path, '/') != 0)
+    {
+        retStat = toVms(path, vms_path);
+        if (retStat == 0) return SS$_FILACCERR;
+    }
+    else
+    {
+        vms_path = path;
+    }
+    cvms_path = vms_path.getCString();
+    len = strlen(cvms_path);
+    if (len > 255) return SS$_FILACCERR;
+
+    // Get the file protections
+
+    fab = cc$rms_fab;
+
+    fab.fab$l_fna = (char *) (const char *) cvms_path;
+    fab.fab$b_fns = len;
+    fab.fab$b_fac = FAB$M_GET;
+    fab.fab$l_xab = &xabpro;
+
+    xabpro.xab$b_cod = XAB$C_PRO;
+    xabpro.xab$b_bln = XAB$C_PROLEN;
+    xabpro.xab$w_aclsiz = 0;    // Not considering ACLs at this time
+    xabpro.xab$l_aclbuf = 0;
+    xabpro.xab$l_nxt = 0;
+
+    retStat = sys$open(&fab, 0, 0);
+    if (!$VMS_STATUS_SUCCESS(retStat))
+    {
+        if (retStat != RMS$_FNF)
+        {
+            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
+                "sys$open error: %s", strerror(EVMSERR, retStat)));
+        }
+        return retStat;
+    }
+
+    sys$close(&fab, 0, 0);
+
+    armval.arm$r_fill_47_.arm$l_file_access = access_right;
+
+    itmlst.item[0].itmCode = CHP$_ACCESS;
+    itmlst.item[0].bufLen = sizeof(armval);
+    itmlst.item[0].bufAddr = &armval;
+    itmlst.item[0].retAddr = 0;
+    itmlst.item[1].itmCode = CHP$_OWNER;
+    itmlst.item[1].bufLen = sizeof(xabpro.xab$l_uic);
+    itmlst.item[1].bufAddr = &xabpro.xab$l_uic;
+    itmlst.item[1].retAddr = 0;
+    itmlst.item[2].itmCode = CHP$_PROT;
+    itmlst.item[2].bufLen = sizeof(xabpro.xab$w_pro);
+    itmlst.item[2].bufAddr = &xabpro.xab$w_pro;
+    itmlst.item[2].retAddr = 0;
+    itmlst.term = 0;
+
+    retStat = sys$chkpro(&itmlst, 0, 0);
+    if (!$VMS_STATUS_SUCCESS(retStat))
+    {
+        if (retStat != SS$_NOPRIV)
+        {
+            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
+                "sys$chkpro error: %s", strerror(EVMSERR, retStat)));
+        }
+    }
+
+    return retStat;
+}
+
+Boolean System::canRead(const char* path)
+{
+    return canAccess(path, ARM$M_READ) == SS$_NORMAL;
+}
+
+Boolean System::canWrite(const char* path)
+{
+    return canAccess(path, ARM$M_WRITE) == SS$_NORMAL;
+}
 
 String System::getPassword(const char* prompt)
 {
@@ -244,27 +373,19 @@ String System::encryptPassword(const char* password, const char* salt)
 
 Boolean System::isPrivilegedUser(const String& userName)
 {
-    static union prvdef old_priv_mask;
-    static union prvdef new_priv_mask;
-    char enbflg = 1; // 1 = enable
-    char prmflg = 0; // 0 = life time of image only.
+    unsigned int audsts;
+    union prvdef priv_mask;
+
     int retStat;
 
-    old_priv_mask.prv$v_sysprv = false;    // SYSPRV privilege.
-    new_priv_mask.prv$v_sysprv = true;     // SYSPRV privilege.
+    priv_mask.prv$l_l1_bits =
+    priv_mask.prv$l_l2_bits = 0;
+    priv_mask.prv$v_sysprv = true;    // SYSPRV privilege.
+    priv_mask.prv$v_bypass = true;    // BYPASS privilege.
 
-    retStat = sys$setprv(enbflg, &new_priv_mask, prmflg, &old_priv_mask);
-    if (!$VMS_STATUS_SUCCESS(retStat))
-    {
-        return false;
-    }
+    retStat = sys$check_privilegew(0, &priv_mask, 0, 0, 0, &audsts, 0, 0);
 
-    if (retStat == SS$_NOTALLPRIV)
-    {
-        return false;
-    }
-
-    return true;
+    return retStat == SS$_NORMAL;
 }
 
 PEGASUS_NAMESPACE_END

@@ -128,16 +128,6 @@ Boolean System::exists(const char* path)
     return access(path, F_OK) == 0;
 }
 
-Boolean System::canRead(const char* path)
-{
-    return access(path, R_OK) == 0;
-}
-
-Boolean System::canWrite(const char* path)
-{
-    return access(path, W_OK) == 0;
-}
-
 Boolean System::getCurrentDirectory(char* path, Uint32 size)
 {
     return getcwd(path, size) != NULL;

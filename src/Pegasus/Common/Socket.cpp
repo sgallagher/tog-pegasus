@@ -38,10 +38,14 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Threads.h>
+#include <Pegasus/Common/Mutex.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
+#ifdef PEGASUS_OS_TYPE_WINDOWS
 static Uint32 _socketInterfaceRefCount = 0;
+static Mutex _socketInterfaceRefCountLock;
+#endif
 
 Boolean Socket::timedConnect(
     SocketHandle socket,
@@ -266,6 +270,7 @@ void Socket::disableBlocking(SocketHandle socket)
 void Socket::initializeInterface()
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
+    AutoMutex mtx(_socketInterfaceRefCountLock);
     if (_socketInterfaceRefCount == 0)
     {
         WSADATA tmp;
@@ -287,6 +292,7 @@ void Socket::initializeInterface()
 void Socket::uninitializeInterface()
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
+    AutoMutex mtx(_socketInterfaceRefCountLock);
     _socketInterfaceRefCount--;
 
     if (_socketInterfaceRefCount == 0)

@@ -53,17 +53,102 @@ PEGASUS_NAMESPACE_BEGIN
 static String vmsPath;
 static Mutex vmsPathMutex(Mutex::NON_RECURSIVE);
 
+static char* toVmsDir(const char* path)
+{
+    char* dirend;
+    char* dirstart;
+    char* dir_path;
+    dirend = strrchr(path, '.');
+    if (dirend)
+    {
+        dir_path = new char[strlen(path) + sizeof("DIR")];
+        strcpy(dir_path, path);
+        dirend = strrchr(dir_path, '.');
+        *dirend = ']';
+        dirend = strrchr(dir_path, ']');
+        *dirend = '\0';
+        strcat(dir_path, ".DIR");
+    }
+    else
+    {
+        dir_path = new char[strlen(path) + sizeof("[000000].DIR")];
+        dirstart = strchr(path, '[');
+        if (dirstart) // Top level directory
+        {
+            strncpy(dir_path, path, dirstart-path);
+            dir_path[dirstart-path] = '\0';
+            strcat(dir_path, "[000000]"); // Top level directory
+            strcat(dir_path, ++dirstart); // Add the directory name
+            dirend = strrchr(dir_path, ']');
+            *dirend = '\0';
+            strcat(dir_path, ".DIR");
+        }
+        else
+        {
+            delete dir_path;
+            dir_path = 0;
+        }
+    }
+    return dir_path;
+}
+
 static int action(char *path, int type_of_file)
 {
-    vmsPath = path;
-    return 1;
+    int ret;
+    char *dir_path;
+
+    if (type_of_file == DECC$K_DIRECTORY)
+    {
+        dir_path = toVmsDir(path);
+        if (dir_path)
+        {
+            vmsPath = dir_path;
+            delete dir_path;
+        }
+        ret = dir_path != 0;
+    }
+    else
+    {
+        vmsPath = path;
+        ret = 1;
+    }
+    return ret;
 }
 
 static int toVms(const char* path, String& vms_path)
 {
-    AutoMutex pathLock(vmsPathMutex);
-    int ret = decc$to_vms(path, action, 0, 0);
-    vms_path = vmsPath;
+    char cwd[256]; // OpenVMS file can't be larger than 255 chars.
+    char *result;
+    char *dir_path;
+    int ret;
+
+    // Treat the current directory as a special case
+
+    if ((strcmp(path, ".") == 0) || (strcmp(path, "./") == 0))
+    {
+        result = getcwd(cwd, sizeof(cwd), 1);
+        if (!result) return 0;
+        dir_path = toVmsDir(cwd);
+        if (dir_path)
+        {
+            vms_path = dir_path;
+            delete dir_path;
+            ret = 1;
+        }
+        else
+            ret = 0;
+    }
+    else if (strchr(path, '/') != 0)
+    {
+        AutoMutex pathLock(vmsPathMutex);
+        ret = decc$to_vms(path, action, 0, 0);
+        vms_path = vmsPath;
+    }
+    else
+    {
+        vms_path = path;
+        ret = 1;
+    }
     return ret;
 }
 
@@ -95,15 +180,8 @@ static int canAccess(const char* path, int access_right)
 
     // Convert the path to OpenVMS format (if necessary)
 
-    if (strchr(path, '/') != 0)
-    {
-        retStat = toVms(path, vms_path);
-        if (retStat == 0) return SS$_FILACCERR;
-    }
-    else
-    {
-        vms_path = path;
-    }
+    retStat = toVms(path, vms_path);
+
     cvms_path = vms_path.getCString();
     len = strlen(cvms_path);
     if (len > 255) return SS$_FILACCERR;

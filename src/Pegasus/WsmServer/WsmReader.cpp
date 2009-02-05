@@ -304,7 +304,7 @@ Boolean WsmReader::getElementStringValue(
     }
 
     expectContentOrCData(entry);
-    stringValue = entry.text;
+    stringValue.assign(entry.text, entry.textLen);
     expectEndTag(nsType, tagName);
     return true;
 }
@@ -393,7 +393,7 @@ Boolean WsmReader::getSelectorElement(WsmSelector& selector)
         else
         {
             expectContentOrCData(entry);
-            selector = WsmSelector(name, entry.text);
+            selector = WsmSelector(name, String(entry.text, entry.textLen));
         }
 
         expectEndTag(WsmNamespaces::WS_MAN, "Selector");
@@ -989,7 +989,7 @@ void WsmReader::getValueElement(
         if (XmlReader::testContentOrCData(_parser, entry))
         {
             // Simple string content
-            value.set(String(entry.text));
+            value.set(String(entry.text, entry.textLen));
         }
         else
         {

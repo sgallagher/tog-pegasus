@@ -136,6 +136,8 @@ struct PEGASUS_COMMON_LINKAGE XmlEntry
     const char* text;
     int nsType;            // Only applies to START_TAG, EMPTY_TAG, and END_TAG
     const char* localName; // Only applies to START_TAG, EMPTY_TAG, and END_TAG
+    Uint32 textLen; // Only applies to CDATA and CONTENT
+
     Array<XmlAttribute> attributes;
 
     void print() const;

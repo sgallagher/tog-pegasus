@@ -891,7 +891,19 @@ CIMValue XmlReader::stringToValue(
     const char* valueString,
     CIMType type)
 {
+    return stringToValue(lineNumber, valueString, strlen(valueString), type);
+}
+
+CIMValue XmlReader::stringToValue(
+    Uint32 lineNumber,
+    const char* valueString,
+    Uint32 valueStringLen,
+    CIMType type)
+{
     // ATTN-B: accepting only UTF-8 for now! (affects string and char16):
+
+    // Char string must have been null terminated.
+    PEGASUS_ASSERT (!valueString[valueStringLen]);
 
     // Create value per type
     switch (type)
@@ -913,13 +925,13 @@ CIMValue XmlReader::stringToValue(
 
         case CIMTYPE_STRING:
         {
-            return CIMValue(String(valueString));
+            return CIMValue(String(valueString, valueStringLen));
         }
 
         case CIMTYPE_CHAR16:
         {
             // Converts UTF-8 to UTF-16
-            String tmp(valueString);
+            String tmp(valueString, valueStringLen);
             if (tmp.size() != 1)
             {
                 MessageLoaderParms mlParms(
@@ -1052,7 +1064,7 @@ CIMValue XmlReader::stringToValue(
                 // Bugzilla 137  Adds the following if line.
                 // Expect this to become permanent but test only for now
 #ifdef PEGASUS_SNIA_INTEROP_TEST
-                if (strlen(valueString) != 0)
+                if (valueStringLen != 0)
 #endif
                     tmp.set(valueString);
             }
@@ -1117,8 +1129,8 @@ CIMValue XmlReader::stringToValue(
                 // just the value of the Embedded Object in String
                 // representation.
                 AutoArrayPtr<char> tmp_buffer(
-                    new char[strlen(valueString) + 1]);
-                strcpy(tmp_buffer.get(), valueString);
+                    new char[valueStringLen + 1]);
+                memcpy(tmp_buffer.get(), valueString, valueStringLen + 1);
                 XmlParser tmp_parser(tmp_buffer.get());
 
                 // The next bit of logic constructs a CIMObject from the
@@ -1232,12 +1244,13 @@ Boolean XmlReader::getValueElement(
     Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
 
     const char* valueString = "";
-
+    Uint32 valueStringLen = 0;
     if (!empty)
     {
         if (testContentOrCData(parser, entry))
         {
             valueString = entry.text;
+            valueStringLen = entry.textLen;
         }
 
         expectEndTag(parser, "VALUE");
@@ -1249,7 +1262,11 @@ Boolean XmlReader::getValueElement(
     // Bugzilla tbd
     if (!empty)
 #endif
-        value = stringToValue(parser.getLine(), valueString,type);
+        value = stringToValue(
+            parser.getLine(), 
+            valueString, 
+            valueStringLen,
+            type);
 
     return true;
 }
@@ -1284,16 +1301,20 @@ Boolean XmlReader::getStringValueElement(
     Boolean empty = entry.type == XmlEntry::EMPTY_TAG;
 
     const char* valueString = "";
+    Uint32 valueStringLen = 0;
 
     if (!empty)
     {
         if (testContentOrCData(parser, entry))
+        {
             valueString = entry.text;
+            valueStringLen = entry.textLen;
+        }
 
         expectEndTag(parser, "VALUE");
     }
 
-    str = String(valueString);
+    str = String(valueString, valueStringLen);
     return true;
 }
 
@@ -1362,7 +1383,7 @@ Boolean XmlReader::getPropertyValue(
 template<class T>
 CIMValue StringArrayToValueAux(
     Uint32 lineNumber,
-    const Array<const char*>& stringArray,
+    const Array<CharString>& stringArray,
     CIMType type,
     T*)
 {
@@ -1371,7 +1392,10 @@ CIMValue StringArrayToValueAux(
     for (Uint32 i = 0, n = stringArray.size(); i < n; i++)
     {
         CIMValue value = XmlReader::stringToValue(
-            lineNumber, stringArray[i], type);
+            lineNumber, 
+            stringArray[i].value,
+            stringArray[i].length,
+            type);
 
         T x;
         value.get(x);
@@ -1383,7 +1407,22 @@ CIMValue StringArrayToValueAux(
 
 CIMValue XmlReader::stringArrayToValue(
     Uint32 lineNumber,
-    const Array<const char*>& array,
+    const Array<const char*> &array,
+    CIMType type)
+{
+    Array<CharString> strArray;
+
+    for (Uint32 i = 0, n = array.size() ; i < n ; ++i)
+    {
+        strArray.append(CharString(array[i], strlen(array[i])));
+    }
+
+    return _stringArrayToValue(lineNumber, strArray, type);
+}
+
+CIMValue XmlReader::_stringArrayToValue(
+    Uint32 lineNumber,
+    const Array<CharString> &array,
     CIMType type)
 {
     switch (type)
@@ -1470,7 +1509,7 @@ Boolean XmlReader::getValueArrayElement(
     // Get VALUE.ARRAY open tag:
 
     XmlEntry entry;
-    Array<const char*> stringArray;
+    Array<CharString> stringArray;
 
     // If no VALUE.ARRAY start tag, return false
     if (!testStartTagOrEmptyTag(parser, entry, "VALUE.ARRAY"))
@@ -1482,24 +1521,29 @@ Boolean XmlReader::getValueArrayElement(
 
         while (testStartTagOrEmptyTag(parser, entry, "VALUE"))
         {
+            // ATTN: NULL values in array will have VALUE.NULL subelement
+            // See DSP0201 Version 2.3.0, Section 5.2.3.2
             if (entry.type == XmlEntry::EMPTY_TAG)
             {
-                stringArray.append("");
+                stringArray.append(CharString("", 0));
                 continue;
             }
 
             if (testContentOrCData(parser, entry))
-                stringArray.append(entry.text);
+            {
+                stringArray.append(CharString(entry.text, entry.textLen));
+            }
             else
-                stringArray.append("");
-
+            {
+                stringArray.append(CharString("", 0));
+            }
             expectEndTag(parser, "VALUE");
         }
 
         expectEndTag(parser, "VALUE.ARRAY");
     }
 
-    value = stringArrayToValue(parser.getLine(), stringArray, type);
+    value = _stringArrayToValue(parser.getLine(), stringArray, type);
     return true;
 }
 

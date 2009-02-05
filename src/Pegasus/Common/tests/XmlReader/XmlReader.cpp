@@ -27,11 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Yi Zhou (yi.zhou@hp.com)
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
@@ -252,6 +247,94 @@ static void testGetInstanceElement2(const char* testDataFile)
     }
 }
 
+// Tests char 0 value in String and Char16
+static void testGetInstanceElement3(const char* testDataFile)
+{
+    CIMInstance cimInstance;
+    Buffer text;
+    FileSystem::loadFileToMemory(text, testDataFile);
+
+    XmlParser parser((char*)text.getData());
+    XmlReader::getInstanceElement(parser, cimInstance);
+    PEGASUS_TEST_ASSERT(
+        cimInstance.getClassName() == CIMName("Test_Char0"));
+
+    Uint32 idx;
+    CIMProperty cimProperty;
+    CIMValue cimValue;
+    CIMType cimType;
+    PEGASUS_TEST_ASSERT(cimInstance.getPropertyCount() == 5);
+
+    idx = cimInstance.findProperty(CIMName("StrValue1"));
+    PEGASUS_TEST_ASSERT(idx != PEG_NOT_FOUND);
+    cimProperty = cimInstance.getProperty(idx);
+    cimValue = cimProperty.getValue();
+    cimType = cimProperty.getType();
+    PEGASUS_TEST_ASSERT(strcmp(cimTypeToString(cimType), "string") == 0);
+    String myString;
+    cimValue.get(myString);
+    PEGASUS_TEST_ASSERT(myString.size() == 2);
+    PEGASUS_TEST_ASSERT(myString[0] == Char16(0));
+    PEGASUS_TEST_ASSERT(myString[1] == Char16(1));
+
+    idx = cimInstance.findProperty(CIMName("StrValue2"));
+    PEGASUS_TEST_ASSERT(idx != PEG_NOT_FOUND);
+    cimProperty = cimInstance.getProperty(idx);
+    cimValue = cimProperty.getValue();
+    cimType = cimProperty.getType();
+    PEGASUS_TEST_ASSERT(strcmp(cimTypeToString(cimType), "string") == 0);
+    String myString1;
+    cimValue.get(myString1);
+    PEGASUS_TEST_ASSERT(myString1.size() == 5);
+    PEGASUS_TEST_ASSERT(!memcmp(myString1.getCString(), "\0 V \0", 5));
+    idx = cimInstance.findProperty(CIMName("StrValue3"));
+    PEGASUS_TEST_ASSERT(idx != PEG_NOT_FOUND);
+    cimProperty = cimInstance.getProperty(idx);
+    cimValue = cimProperty.getValue();
+    cimType = cimProperty.getType();
+    PEGASUS_TEST_ASSERT(strcmp(cimTypeToString(cimType), "string") == 0);
+    String myString2;
+    cimValue.get(myString2);
+    PEGASUS_TEST_ASSERT(myString2.size() == 0);
+
+    idx = cimInstance.findProperty(CIMName("StrValueArr"));
+    PEGASUS_TEST_ASSERT(idx != PEG_NOT_FOUND);
+    cimProperty = cimInstance.getProperty(idx);
+    cimValue = cimProperty.getValue();
+    cimType = cimProperty.getType();
+    PEGASUS_TEST_ASSERT(strcmp(cimTypeToString(cimType), "string") == 0);
+    Array<String> strArr;
+    cimValue.get(strArr);
+    PEGASUS_TEST_ASSERT(strArr.size() == 3);
+    PEGASUS_TEST_ASSERT(!memcmp(strArr[0].getCString(), "\0\1", 2));
+    PEGASUS_TEST_ASSERT(strArr[1] == String::EMPTY);
+    PEGASUS_TEST_ASSERT(!memcmp(strArr[2].getCString(), "Arr\2\0", 5));
+    PEGASUS_TEST_ASSERT(strArr[2].size() == 5);
+
+    idx = cimInstance.findProperty(CIMName("Char16Value1"));
+    PEGASUS_TEST_ASSERT(idx != PEG_NOT_FOUND);
+    cimProperty = cimInstance.getProperty(idx);
+    cimValue = cimProperty.getValue();
+    cimType = cimProperty.getType();
+    PEGASUS_TEST_ASSERT(strcmp(cimTypeToString(cimType), "char16") == 0);
+    Char16 ch16;
+    cimValue.get(ch16);
+    PEGASUS_TEST_ASSERT(ch16 == Char16(0));
+
+    // Check for empty char16 value.
+    char input[] = "<VALUE></VALUE>";
+    XmlParser parser2(input);
+    try
+    {
+        CIMValue value;
+        XmlReader::getValueElement(parser2, CIMTYPE_CHAR16, value);
+        PEGASUS_ASSERT(false);
+    }
+    catch(const XmlSemanticError&)
+    {
+    }
+}
+
 void testVersionFunctions()
 {
     // Test DTDVersion function for legal input
@@ -308,6 +391,12 @@ int main(int argc, char** argv)
             " references."
             << endl;
         testGetInstanceElement2("./getInstanceElement2.xml");
+
+        if (verbose)
+        {
+            cout << "Testing Char 0 value in String and Char16 types." << endl;
+        }
+        testGetInstanceElement3("./getInstanceElement3.xml");
 
         //
         if (verbose)

@@ -53,6 +53,16 @@ class CIMObject;
 class CIMParamValue;
 class CIMValue;
 
+struct CharString
+{
+    const char *value;
+    Uint32 length;
+    CharString(const char *value, Uint32 length) :
+        value(value), length(length)
+    {
+    }
+};
+
 class PEGASUS_COMMON_LINKAGE XmlReader
 {
 public:
@@ -183,6 +193,13 @@ public:
         Uint32 lineNumber,
         const char* valueString,
         CIMType type);
+
+    static CIMValue stringToValue(
+        Uint32 lineNumber,
+        const char* valueString,
+        Uint32 valueStringLen,
+        CIMType type);
+
 
     /* getValueElement - Gets the CIMType and CIMValue for a single
         XML Value element.  It expects <VALUE> as the start tag.
@@ -452,6 +469,11 @@ public:
     static Boolean isSupportedDTDVersion(
         const char* dtdVersion);
 private:
+
+    static CIMValue _stringArrayToValue(
+        Uint32 lineNumber,
+        const Array<CharString>& array,
+        CIMType type);
 
     XmlReader()
     {

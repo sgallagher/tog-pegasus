@@ -314,7 +314,7 @@ public:
 #  if defined(PEGASUS_OS_ZOS)
         // zOS is using __spawn2() instead of frok()
         struct __inheritance inherit;
-        const char *c_argv[5];
+        const char *c_argv[7];
         char arg1[32];
         char arg2[32];
 
@@ -345,12 +345,16 @@ public:
             sprintf(arg2, "%d", from[1]);
 
             CString program_name = path.getCString();
+            // Create CString handles for cimprovagt arguments
+            CString userNameCString = userName.getCString();
 
             c_argv[0] = program_name;
-            c_argv[1] = arg1;
-            c_argv[2] = arg2;
-            c_argv[3] = module; 
-            c_argv[4] = NULL;
+            c_argv[1] = "0";
+            c_argv[2] = arg1;
+            c_argv[3] = arg2;
+            c_argv[4] = (const char*) userNameCString;
+            c_argv[5] = module; 
+            c_argv[6] = NULL;
 
             // reset the inherit structure
             memset(&inherit,0,sizeof(inherit));

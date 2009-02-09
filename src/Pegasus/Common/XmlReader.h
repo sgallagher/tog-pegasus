@@ -181,6 +181,14 @@ public:
 
     static String decodeURICharacters(String uriString);
 
+    static Boolean stringToSignedInteger(
+        const char* stringValue,
+        Sint64& x);
+
+    static Boolean stringToUnsignedInteger(
+        const char* stringValue,
+        Uint64& x);
+
     static CIMValue stringToValue(
         Uint32 lineNumber,
         const char* valueString,

@@ -36,7 +36,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/General/CIMError.h>
+#include <Pegasus/Common/CIMError.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -328,7 +328,7 @@ static void testGetInstanceElement3(const char* testDataFile)
     {
         CIMValue value;
         XmlReader::getValueElement(parser2, CIMTYPE_CHAR16, value);
-        PEGASUS_TEST_ASSERT(false);
+        PEGASUS_ASSERT(false);
     }
     catch(const XmlSemanticError&)
     {
@@ -367,7 +367,7 @@ void testVersionFunctions()
     PEGASUS_TEST_ASSERT (!XmlReader::isSupportedCIMVersion("1.1"));
 }
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 

@@ -166,12 +166,7 @@ public:
 
     // Warning: this constructor modifies the text.
 
-    /** If hideEmptyTags if true, next() hides empty tags from the caller.
-        Instead, next() returns a fake start tag. The subsequent next() call
-        returns a fake end tag. This relieves the caller from having to do
-        special processing of empty tags, which can be tricky and error-prone.
-    */
-    XmlParser(char* text, XmlNamespace* ns = 0, Boolean hideEmptyTags = false);
+    XmlParser(char* text, XmlNamespace* ns = 0);
 
     /** Comments are returned with entry if includeComment is true else
         XmlParser ignores comments. Default is false.
@@ -188,13 +183,7 @@ public:
 
     XmlNamespace* getNamespace(int nsType);
 
-    void setHideEmptyTags(bool flag) { _hideEmptyTags = flag; }
-
-    bool getHideEmptyTags() const { return _hideEmptyTags; }
-
 private:
-
-    Boolean _next(XmlEntry& entry, Boolean includeComment = false);
 
     Boolean _getElementName(char*& p, const char*& localName);
 
@@ -227,7 +216,6 @@ private:
     XmlNamespace* _supportedNamespaces;
     Stack<XmlNamespace> _nameSpaces;
     int _currentUnsupportedNSType;
-    Boolean _hideEmptyTags;
 };
 
 PEGASUS_COMMON_LINKAGE void XmlAppendCString(

@@ -430,11 +430,13 @@ static inline int _getRef(Uint32 line, char*& p)
 
 static inline void _normalizeElementValue(
     Uint32& line,
-    char*& p)
+    char*& p,
+    Uint32 &textLen)
 {
     // Process one character at a time:
 
     char* q = p;
+    char *start = p;
 
     while (*p && (*p != '<'))
     {
@@ -485,6 +487,7 @@ static inline void _normalizeElementValue(
     {
         *q = '\0';
     }
+    textLen = (Uint32)(q - start);
 }
 
 static inline void _normalizeAttributeValue(
@@ -640,12 +643,14 @@ Boolean XmlParser::next(
             // Normalize the content:
 
             char* start = _current;
-            _normalizeElementValue(_line, _current);
+            Uint32 textLen;
+            _normalizeElementValue(_line, _current, textLen);
 
             // Get the content:
 
             entry.type = XmlEntry::CONTENT;
             entry.text = start;
+            entry.textLen = textLen;
 
             // Overwrite '<' with a null character (temporarily).
 
@@ -1018,6 +1023,7 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
             entry.type = XmlEntry::CDATA;
             entry.text = p;
             _getCData(p);
+            entry.textLen = strlen(entry.text);
             return;
         }
         else if (memcmp(p, "DOCTYPE", 7) == 0)

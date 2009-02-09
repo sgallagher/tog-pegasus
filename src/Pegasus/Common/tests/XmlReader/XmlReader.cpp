@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +38,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/General/CIMError.h>
+#include <Pegasus/Common/CIMError.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -139,7 +141,7 @@ static void testGetInstanceElement(const char* testDataFile)
     CIMObject cimObject;
     cimValue.get(cimObject);
     PEGASUS_TEST_ASSERT(
-        cimObject.getClassName() ==
+        cimObject.getClassName() == 
             CIMName("Sample_LifecycleIndicationProviderClass"));
     PEGASUS_TEST_ASSERT(cimObject.getPropertyCount() == 2);
 
@@ -173,7 +175,7 @@ static void testGetInstanceElement2(const char* testDataFile)
     XmlParser parser((char*)text.getData());
 
     XmlReader::getInstanceElement(parser, cimInstance);
-    PEGASUS_TEST_ASSERT(cimInstance.getClassName() ==
+    PEGASUS_TEST_ASSERT(cimInstance.getClassName() == 
                         CIMName("CIM_InstCreation"));
 
     Uint32 idx;
@@ -219,7 +221,7 @@ static void testGetInstanceElement2(const char* testDataFile)
         Uint32 propIdx = cimInstanceElement.findProperty(CIMName("uniqueId"));
         if (propIdx != PEG_NOT_FOUND)
         {
-            CIMProperty nestedProperty =
+            CIMProperty nestedProperty = 
                 cimInstanceElement.getProperty(propIdx);
             cimValue = nestedProperty.getValue();
             Uint32 uniqueId;
@@ -230,19 +232,13 @@ static void testGetInstanceElement2(const char* testDataFile)
             String checkStringValue;
             cimValue.get(checkStringValue);
             if (uniqueId == 1)
-            {
                 PEGASUS_TEST_ASSERT(strcmp(
                     checkStringValue.getCString(), "createInstance") == 0);
-            }
             else if (uniqueId == 2)
-            {
                 PEGASUS_TEST_ASSERT(strcmp(
                     checkStringValue.getCString(), "deleteInstance") == 0);
-            }
             else
-            {
                 PEGASUS_TEST_ASSERT(false);
-            }
         }
     }
 }
@@ -328,7 +324,7 @@ static void testGetInstanceElement3(const char* testDataFile)
     {
         CIMValue value;
         XmlReader::getValueElement(parser2, CIMTYPE_CHAR16, value);
-        PEGASUS_TEST_ASSERT(false);
+        PEGASUS_ASSERT(false);
     }
     catch(const XmlSemanticError&)
     {
@@ -367,7 +363,7 @@ void testVersionFunctions()
     PEGASUS_TEST_ASSERT (!XmlReader::isSupportedCIMVersion("1.1"));
 }
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 

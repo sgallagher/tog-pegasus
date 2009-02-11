@@ -1034,6 +1034,13 @@ int CIMServerProcess::cimserver_run(
                 //
                 portNumberHttp = System::lookupPort(
                     WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_HTTP_PORT);
+                char strHttpPort[22];
+                Uint32 n;
+                const char *startP = Uint32ToString(
+                    strHttpPort,
+                    portNumberHttp,
+                    n);
+                configManager->initCurrentValue("httpPort", String(startP, n));
             }
             else
             {
@@ -1087,6 +1094,13 @@ int CIMServerProcess::cimserver_run(
                 //
                 portNumberHttps = System::lookupPort(
                     WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
+                char strHttpsPort[22];
+                Uint32 n;
+                const char *startP = Uint32ToString(
+                    strHttpsPort,
+                    portNumberHttps,
+                    n);
+                configManager->initCurrentValue("httpsPort", String(startP, n));
             }
             else
             {

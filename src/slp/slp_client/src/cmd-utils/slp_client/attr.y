@@ -307,7 +307,8 @@ lslpAttrList *lslpAllocAttr(const char *name, char type, const void *val, int16 
               }
 	      break;
 	    default:
-	      break;
+                  lslpFreeAttr(attr);
+                  return NULL;
 	    }
 	}
     }

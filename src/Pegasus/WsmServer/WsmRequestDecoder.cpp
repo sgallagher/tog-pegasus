@@ -798,20 +798,16 @@ WsenPullRequest* WsmRequestDecoder::_decodeWSEnumerationPull(
     _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
     _checkNoSelectorsEPR(epr);
 
-    Uint64 enumerationContext;
+    Uint64 enumerationContext = 0;
     String maxTime;
     Uint32 maxElements = 0;
     Uint32 maxCharacters = 0;
 
     XmlEntry entry;
-    wsmReader.expectStartOrEmptyTag(
-        entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
-    if (entry.type != XmlEntry::EMPTY_TAG)
-    {
-        wsmReader.decodePullBody(enumerationContext, maxTime,
-            maxElements, maxCharacters);
-        wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
-    }
+    wsmReader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
+    wsmReader.decodePullBody(
+        enumerationContext, maxTime, maxElements, maxCharacters);
+    wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
 
     // If maxElements is not specified, set it to default value of 1.
     if (maxElements == 0)
@@ -837,16 +833,12 @@ WsenReleaseRequest* WsmRequestDecoder::_decodeWSEnumerationRelease(
     _checkRequiredHeader("wsman:ResourceURI", epr.resourceUri.size());
     _checkNoSelectorsEPR(epr);
 
-    Uint64 enumerationContext;
+    Uint64 enumerationContext = 0;
 
     XmlEntry entry;
-    wsmReader.expectStartOrEmptyTag(
-        entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
-    if (entry.type != XmlEntry::EMPTY_TAG)
-    {
-        wsmReader.decodeReleaseBody(enumerationContext);
-        wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
-    }
+    wsmReader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
+    wsmReader.decodeReleaseBody(enumerationContext);
+    wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
 
     return new WsenReleaseRequest(
         messageId,

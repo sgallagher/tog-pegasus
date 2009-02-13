@@ -1166,126 +1166,134 @@ void WsmReader::decodePullBody(
 {
     Boolean seenEnumContext = false;
     XmlEntry entry;
-    expectStartOrEmptyTag(
-        entry, WsmNamespaces::WS_ENUMERATION, "Pull");
-    if (entry.type != XmlEntry::EMPTY_TAG)
+    expectStartTag(entry, WsmNamespaces::WS_ENUMERATION, "Pull");
+
+    Boolean gotEntry;
+    while ((gotEntry = _parser.next(entry)) &&
+           ((entry.type == XmlEntry::START_TAG) ||
+            (entry.type == XmlEntry::EMPTY_TAG)))
     {
-        Boolean gotEntry;
-        while ((gotEntry = _parser.next(entry)) &&
-               ((entry.type == XmlEntry::START_TAG) ||
-                (entry.type == XmlEntry::EMPTY_TAG)))
+        int nsType = entry.nsType;
+        const char* elementName = entry.localName;
+        Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
+
+        if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+            (strcmp(elementName, "EnumerationContext") == 0))
         {
-            int nsType = entry.nsType;
-            const char* elementName = entry.localName;
-            Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
-
-            if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
-                (strcmp(elementName, "EnumerationContext") == 0))
-            {
-                checkDuplicateHeader(entry.text, seenEnumContext);
-                seenEnumContext = true;
-                enumerationContext = getEnumerationContext(entry);
-            }
-            else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
-                (strcmp(elementName, "MaxTime") == 0))
-            {
-                checkDuplicateHeader(entry.text, maxTime.size());
-                maxTime = getElementContent(entry);
-            }
-            else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
-                (strcmp(elementName, "MaxCharacters") == 0))
-            {
-                checkDuplicateHeader(entry.text, maxCharacters > 0);
-                maxCharacters = getUint32ElementContent(entry, "MaxCharacters");
-            }
-            else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
-                (strcmp(elementName, "MaxElements") == 0))
-            {
-                checkDuplicateHeader(entry.text, maxElements > 0);
-                maxElements = getUint32ElementContent(entry, "MaxElements");
-            }
-            else if (mustUnderstand(entry))
-            {
-                // DSP0226 R5.2-2: If a service cannot comply with a header
-                // marked with mustUnderstand="true", it shall issue an
-                // s:NotUnderstood fault.
-                throw SoapNotUnderstoodFault(
-                    _parser.getNamespace(nsType)->extendedName, elementName);
-            }
-            else
-            {
-                skipElement(entry);
-                // The end tag, if any, has already been consumed.
-                needEndTag = false;
-            }
-
-            if (needEndTag)
-            {
-                expectEndTag(nsType, elementName);
-            }
+            checkDuplicateHeader(entry.text, seenEnumContext);
+            seenEnumContext = true;
+            enumerationContext = getEnumerationContext(entry);
+        }
+        else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+            (strcmp(elementName, "MaxTime") == 0))
+        {
+            checkDuplicateHeader(entry.text, maxTime.size());
+            maxTime = getElementContent(entry);
+        }
+        else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+            (strcmp(elementName, "MaxCharacters") == 0))
+        {
+            checkDuplicateHeader(entry.text, maxCharacters > 0);
+            maxCharacters = getUint32ElementContent(entry, "MaxCharacters");
+        }
+        else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+            (strcmp(elementName, "MaxElements") == 0))
+        {
+            checkDuplicateHeader(entry.text, maxElements > 0);
+            maxElements = getUint32ElementContent(entry, "MaxElements");
+        }
+        else if (mustUnderstand(entry))
+        {
+            // DSP0226 R5.2-2: If a service cannot comply with a header
+            // marked with mustUnderstand="true", it shall issue an
+            // s:NotUnderstood fault.
+            throw SoapNotUnderstoodFault(
+                _parser.getNamespace(nsType)->extendedName, elementName);
+        }
+        else
+        {
+            skipElement(entry);
+            // The end tag, if any, has already been consumed.
+            needEndTag = false;
         }
 
-        if (gotEntry)
+        if (needEndTag)
         {
-            _parser.putBack(entry);
+            expectEndTag(nsType, elementName);
         }
-
-        expectEndTag(WsmNamespaces::WS_ENUMERATION, "Pull");
     }
+
+    if (gotEntry)
+    {
+        _parser.putBack(entry);
+    }
+
+    // EnumerationContext is required; return a fault if it is missing.
+    if (!seenEnumContext)
+    {
+        expectStartTag(
+            entry, WsmNamespaces::WS_ENUMERATION, "EnumerationContext");
+    }
+
+    expectEndTag(WsmNamespaces::WS_ENUMERATION, "Pull");
 }
 
 void WsmReader::decodeReleaseBody(Uint64& enumerationContext)
 {
     Boolean seenEnumContext = false;
     XmlEntry entry;
-    expectStartOrEmptyTag(
-        entry, WsmNamespaces::WS_ENUMERATION, "Release");
-    if (entry.type != XmlEntry::EMPTY_TAG)
+    expectStartTag(entry, WsmNamespaces::WS_ENUMERATION, "Release");
+
+    Boolean gotEntry;
+    while ((gotEntry = _parser.next(entry)) &&
+           ((entry.type == XmlEntry::START_TAG) ||
+            (entry.type == XmlEntry::EMPTY_TAG)))
     {
-        Boolean gotEntry;
-        while ((gotEntry = _parser.next(entry)) &&
-               ((entry.type == XmlEntry::START_TAG) ||
-                (entry.type == XmlEntry::EMPTY_TAG)))
+        int nsType = entry.nsType;
+        const char* elementName = entry.localName;
+        Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
+
+        if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+            (strcmp(elementName, "EnumerationContext") == 0))
         {
-            int nsType = entry.nsType;
-            const char* elementName = entry.localName;
-            Boolean needEndTag = (entry.type == XmlEntry::START_TAG);
-
-            if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
-                (strcmp(elementName, "EnumerationContext") == 0))
-            {
-                checkDuplicateHeader(entry.text, seenEnumContext);
-                seenEnumContext = true;
-                enumerationContext = getEnumerationContext(entry);
-            }
-            else if (mustUnderstand(entry))
-            {
-                // DSP0226 R5.2-2: If a service cannot comply with a header
-                // marked with mustUnderstand="true", it shall issue an
-                // s:NotUnderstood fault.
-                throw SoapNotUnderstoodFault(
-                    _parser.getNamespace(nsType)->extendedName, elementName);
-            }
-            else
-            {
-                skipElement(entry);
-                // The end tag, if any, has already been consumed.
-                needEndTag = false;
-            }
-
-            if (needEndTag)
-            {
-                expectEndTag(nsType, elementName);
-            }
+            checkDuplicateHeader(entry.text, seenEnumContext);
+            seenEnumContext = true;
+            enumerationContext = getEnumerationContext(entry);
+        }
+        else if (mustUnderstand(entry))
+        {
+            // DSP0226 R5.2-2: If a service cannot comply with a header
+            // marked with mustUnderstand="true", it shall issue an
+            // s:NotUnderstood fault.
+            throw SoapNotUnderstoodFault(
+                _parser.getNamespace(nsType)->extendedName, elementName);
+        }
+        else
+        {
+            skipElement(entry);
+            // The end tag, if any, has already been consumed.
+            needEndTag = false;
         }
 
-        if (gotEntry)
+        if (needEndTag)
         {
-            _parser.putBack(entry);
+            expectEndTag(nsType, elementName);
         }
-
-        expectEndTag(WsmNamespaces::WS_ENUMERATION, "Release");
     }
+
+    if (gotEntry)
+    {
+        _parser.putBack(entry);
+    }
+
+    // EnumerationContext is required; return a fault if it is missing.
+    if (!seenEnumContext)
+    {
+        expectStartTag(
+            entry, WsmNamespaces::WS_ENUMERATION, "EnumerationContext");
+    }
+
+    expectEndTag(WsmNamespaces::WS_ENUMERATION, "Release");
 }
 
 PEGASUS_NAMESPACE_END

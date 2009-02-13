@@ -37,6 +37,8 @@ XMLSCRIPTS = \
     Release_InvalidContext01 \
     Pull_Success01 \
     Release_Success01 \
-    Pull_InvalidContext01
+    Pull_InvalidContext01 \
+    Pull_MissingContext01 \
+    Release_MissingContext01
 
 include $(ROOT)/test/configend.mak

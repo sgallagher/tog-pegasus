@@ -26,7 +26,9 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../../..
+
+include $(ROOT)/mak/config.mak
 
 DIRS = \
     WsmValue \
@@ -35,4 +37,4 @@ DIRS = \
     WsmToCimMapper \
     CimToWsmMapper
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+include $(ROOT)/mak/recurse.mak

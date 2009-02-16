@@ -26,15 +26,8 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-#//
-#// Author: Paulo F. Borges (pfborges@wowmail.com)
-#//
-#// Modified By: 
-#//              Sean Keenan Hewlett-Packard Company <sean.keenan@hp.com>
-#//
-#//%////////////////////////////////////////////////////////////////////////////
 
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../..
 
 DIR = Providers/ManagedSystem/NTPService
 

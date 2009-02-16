@@ -26,14 +26,8 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-#//
-#// Author: Paulo F. Borges (pfborges@wowmail.com)
-#//
-#// Modified By: 
-#//
-#//%////////////////////////////////////////////////////////////////////////////
 
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../..
 
 DIR = Providers/ManagedSystem/NTPProviderSecurity
 

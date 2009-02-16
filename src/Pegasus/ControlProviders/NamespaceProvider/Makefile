@@ -27,7 +27,7 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 # Makes the dynamic load libs for the files named in DIR
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../..
 
 MODULE_NAME=NamespaceProvider
 

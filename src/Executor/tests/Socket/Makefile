@@ -27,7 +27,7 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../..
 DIR = Executor/tests/Socket
 
 include $(ROOT)/mak/config.mak

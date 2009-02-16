@@ -36,7 +36,9 @@
 # found in Linux/Unix environments including.
 # nroff and man2html
 #
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../../..
+
+include $(ROOT)/mak/config.mak
 
 GROFFOPTIONS=man
 # old was man

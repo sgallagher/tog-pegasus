@@ -27,8 +27,6 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 #
-# Author: Subodh Soni (ssubodh@in.ibm.com)
-#
 # Makefile for loading for all the MOF files for the test enhancement providers
 # present in this directory. It creates a new namespace called SampleProvider/
 # inside $PEGASUS_HOME/repository.
@@ -43,7 +41,7 @@
 # 6. XMLParserGen/
 #
 
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../..
 
 include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/configschema.mak

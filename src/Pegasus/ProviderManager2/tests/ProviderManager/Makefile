@@ -50,7 +50,7 @@ PROGRAM = TestProviderManager
 
 SOURCES = TestProviderManager.cpp
 
-include $(PEGASUS_ROOT)/mak/program.mak
+include $(ROOT)/mak/program.mak
 
 tests:
 	$(PROGRAM)

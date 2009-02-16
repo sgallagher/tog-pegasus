@@ -26,7 +26,9 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../../..
+
+include $(ROOT)/mak/config.mak
 
 DIR = Providers/TestProviders/AlertIndicationProvider
 
@@ -42,4 +44,4 @@ SOURCES = \
 	AlertIndicationProviderMain.cpp \
 	AlertIndicationProvider.cpp
 
-include $(PEGASUS_ROOT)/mak/dynamic-library.mak
+include $(ROOT)/mak/dynamic-library.mak

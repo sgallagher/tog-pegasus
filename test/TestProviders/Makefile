@@ -39,4 +39,4 @@ DIRS = 	ExceptionsTest \
 	XMLParserGen \
 	LoadMOFs
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+include $(ROOT)/mak/recurse.mak

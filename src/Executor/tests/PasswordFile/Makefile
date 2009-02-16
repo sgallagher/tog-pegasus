@@ -27,7 +27,7 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../..
 DIR = Executor/tests/PasswordFile
 
 include $(ROOT)/mak/config.mak

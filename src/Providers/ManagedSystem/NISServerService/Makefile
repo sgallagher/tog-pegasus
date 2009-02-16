@@ -37,7 +37,7 @@
 #//
 #//%////////////////////////////////////////////////////////////////////////////
 
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../..
 
 DIR = Providers/ManagedSystem/NISServerService
 

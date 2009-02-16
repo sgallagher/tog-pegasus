@@ -29,7 +29,7 @@
 # Wbemexec test associated w/GetClass
 #
 
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../..
 include $(ROOT)/mak/config.mak
 include $(ROOT)/test/config.mak
 

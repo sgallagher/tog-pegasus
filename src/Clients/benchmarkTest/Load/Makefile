@@ -26,10 +26,12 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-include $(PEGASUS_ROOT)/mak/config.mak
-include $(PEGASUS_ROOT)/mak/configschema.mak
-include $(PEGASUS_ROOT)/mak/test.mak
-include $(PEGASUS_ROOT)/mak/commands.mak
+ROOT = ../../../..
+
+include $(ROOT)/mak/config.mak
+include $(ROOT)/mak/configschema.mak
+include $(ROOT)/mak/test.mak
+include $(ROOT)/mak/commands.mak
 
 ifdef TESTID
    BenchmarkMOF_NAME = benchmarkProvider_$(TESTID)

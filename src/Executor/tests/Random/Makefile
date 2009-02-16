@@ -27,7 +27,7 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../..
 DIR = Executor/tests/Random
 
 include $(ROOT)/mak/config.mak

@@ -26,7 +26,9 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../../../../..
+
+include $(ROOT)/mak/config.mak
 
 DIR = Pegasus/ProviderManager2/Default/tests/ProviderStatus
 
@@ -55,7 +57,7 @@ PROGRAM = TestProviderStatus
 SOURCES = \
     ProviderStatus.cpp
 
-include $(PEGASUS_ROOT)/mak/program.mak
+include $(ROOT)/mak/program.mak
 
 tests:
 	$(PROGRAM)

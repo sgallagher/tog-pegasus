@@ -33,7 +33,9 @@
 #       This must be updated to an implementation independent repository
 #       remove function.
 
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../..
+
+include $(ROOT)/mak/config.mak
 
 all:
 

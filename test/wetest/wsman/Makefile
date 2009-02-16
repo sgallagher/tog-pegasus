@@ -27,7 +27,9 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../..
+
+include $(ROOT)/mak/config.mak
 
 DIRS =
 
@@ -47,4 +49,4 @@ ifdef PEGASUS_DEBUG
         Release
 endif
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+include $(ROOT)/mak/recurse.mak

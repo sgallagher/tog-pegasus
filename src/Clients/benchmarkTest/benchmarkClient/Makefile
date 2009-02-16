@@ -26,7 +26,7 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../..
 
 PEGASUS_ZOS_PROGRAM_OBJECT = yes
 

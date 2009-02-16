@@ -26,7 +26,9 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../../..
+
+include $(ROOT)/mak/config.mak
 
 DIRS = \
     Abstract \
@@ -121,4 +123,4 @@ ifeq ($(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY),true)
     DIRS += CIMBuffer
 endif
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+include $(ROOT)/mak/recurse.mak

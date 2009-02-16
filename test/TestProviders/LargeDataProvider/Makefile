@@ -27,14 +27,12 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 #
-# Author: Subodh Soni (subodh@in.ibm.com)
-#
 # Makefile for configuring, building and running the Test provider written as
 # an enhancement for Pegasus Testing. It is also responsible for creating a new
 # Namespace inside $PEGASUS_HOME/repository directory.
 
 
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../..
 include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/configschema.mak
 
@@ -53,7 +51,7 @@ SOURCES = \
 
 LOCAL_DEFINES=-DNO_OF_INSTANCES=200
 
-include $(PEGASUS_ROOT)/mak/library.mak
+include $(ROOT)/mak/library.mak
 
 client:
 	@ $(ECHO) +++++ Building the Test Client for the Test Providers

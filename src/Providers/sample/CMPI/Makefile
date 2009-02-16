@@ -26,7 +26,9 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../../..
+
+include $(ROOT)/mak/config.mak
 
 DIRS= \
     CWS_Util \
@@ -46,4 +48,4 @@ TEST_DIRS = \
     InstanceProvider/tests \
     MethodProvider/tests
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+include $(ROOT)/mak/recurse.mak

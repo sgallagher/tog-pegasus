@@ -28,7 +28,7 @@
 #//////////////////////////////////////////////////////////////////////////
 # Test the new CMPI performance test providers for functionality
 
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../../../..
 include $(ROOT)/mak/config.mak
 SHH = @
 

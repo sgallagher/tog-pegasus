@@ -26,7 +26,7 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../../..
 DIR = Pegasus/Client/tests/AssociationClient
 include $(ROOT)/mak/config.mak
 include ../libraries.mak

@@ -26,7 +26,9 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../../..
+
+include $(ROOT)/mak/config.mak
 
 DIR = Providers/sample/IndicationProvider
 
@@ -41,4 +43,4 @@ SOURCES = \
 	IndicationProviderMain.cpp \
 	IndicationProvider.cpp
 
-include $(PEGASUS_ROOT)/mak/dynamic-library.mak
+include $(ROOT)/mak/dynamic-library.mak

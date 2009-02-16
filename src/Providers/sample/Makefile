@@ -26,7 +26,9 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../..
+
+include $(ROOT)/mak/config.mak
 
 TEST_DIRS = \
 	InstanceProvider \
@@ -42,4 +44,4 @@ ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	CMPI
 endif
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+include $(ROOT)/mak/recurse.mak

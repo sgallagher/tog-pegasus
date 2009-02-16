@@ -27,7 +27,8 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../..
+include $(ROOT)/mak/config.mak
 
 DIRS = \
     lib \
@@ -52,4 +53,4 @@ ifdef PEGASUS_PAM_AUTHENTICATION
     DIRS += PAMAuth
 endif
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+include $(ROOT)/mak/recurse.mak

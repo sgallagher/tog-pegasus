@@ -28,7 +28,7 @@
 #//////////////////////////////////////////////////////////////////////////
 # Test the Family Provider using the script toosl
 
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../../..
 include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/configschema.mak
 

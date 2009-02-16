@@ -26,12 +26,7 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-#//
-#// Author: Karl Schopmeyer <k.schopmeyer@opengroup.org>
-#//
-#//
-#//%////////////////////////////////////////////////////////////////////////////
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../../..
 
 DIR = Providers/TestProviders/AssociationTests/Tests
 

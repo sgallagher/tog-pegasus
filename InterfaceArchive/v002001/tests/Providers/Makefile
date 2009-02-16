@@ -27,10 +27,12 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../../..
+
+include $(ROOT)/mak/config.mak
 
 DIRS = \
 	InstanceProvider \
 	MethodProvider 
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+include $(ROOT)/mak/recurse.mak

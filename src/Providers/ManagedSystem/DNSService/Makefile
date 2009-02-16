@@ -37,7 +37,7 @@
 #//
 #//%////////////////////////////////////////////////////////////////////////////
 
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../..
 
 PROVIDERROOT = $(ROOT)/src/Providers/linux
 PROVIDERINCLUDE_ROOT = $(PROVIDERROOT)/Include

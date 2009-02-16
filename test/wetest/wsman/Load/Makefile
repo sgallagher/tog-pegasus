@@ -30,7 +30,7 @@
 # Note: For best results, ensure that the test/WsmTest namespace does not
 #       exist before calling this Makefile.
 
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../..
 include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/configschema.mak
 

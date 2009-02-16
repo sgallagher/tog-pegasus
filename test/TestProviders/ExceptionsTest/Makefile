@@ -32,7 +32,7 @@
 # Namespace inside $PEGASUS_HOME/repository directory.
 
 
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../..
 include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/configschema.mak
 
@@ -51,7 +51,7 @@ SOURCES = \
 
 LOCAL_DEFINES=-DTEST_EXCEPTIONS
 
-include $(PEGASUS_ROOT)/mak/library.mak
+include $(ROOT)/mak/library.mak
 
 client:
 	@ $(ECHO) +++++ Building the Test Client for the Test Providers

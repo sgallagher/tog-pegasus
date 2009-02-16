@@ -26,7 +26,7 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../../../../../../../..
 DIR  = Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests/Indication
 
 include $(ROOT)/mak/config.mak

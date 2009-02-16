@@ -41,7 +41,7 @@
 # *************   REQUIRES BISON 1.875c or later   ***********
 ##############################################################
 
-ROOT=$(PEGASUS_ROOT)
+ROOT = ../../../../../..
 include $(ROOT)/mak/config.mak
 
 export BISON_SIMPLE := bison.simple

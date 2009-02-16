@@ -26,7 +26,7 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT=$(PEGASUS_ROOT)
+ROOT = ../../../../../..
 
 DIR = slp/slp_client/src/cmd-utils/slp_srvreg
 

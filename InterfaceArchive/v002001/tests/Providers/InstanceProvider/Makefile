@@ -27,7 +27,7 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../../..
 
 DIR = InterfaceArchive/$(VERSION)/tests/Providers/InstanceProvider
 

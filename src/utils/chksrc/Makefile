@@ -27,7 +27,7 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../..
 DIR = utils/chksrc
 
 include $(ROOT)/mak/config.mak

@@ -26,12 +26,10 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-# Test the cimcli test Provider using the script
-#//==============================================================================
-#//
-#///////////////////////////////////////////////////////////////////////////////
 
-ROOT = $(PEGASUS_ROOT)
+# Test the cimcli test Provider using the script
+
+ROOT = ../../../../..
 DIR = Providers/TestProviders/CLITestProvider/tests
 
 include $(ROOT)/mak/config.mak

@@ -26,7 +26,9 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../../../..
+
+include $(ROOT)/mak/config.mak
 
 DIR = Pegasus/ProviderManagerService/tests/ProviderManagerModule
 
@@ -43,7 +45,7 @@ PROGRAM = TestProviderManagerModule
 
 SOURCES = ProviderManagerModule.cpp
 
-include $(PEGASUS_ROOT)/mak/program.mak
+include $(ROOT)/mak/program.mak
 
 tests:
 	$(PROGRAM)

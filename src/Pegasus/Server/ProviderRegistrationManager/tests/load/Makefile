@@ -28,7 +28,7 @@
 #//////////////////////////////////////////////////////////////////////////
 # Makefile builds a test repository in a specified directory.
 
-ROOT = $(PEGASUS_ROOT)
+ROOT = ../../../../../..
 include $(ROOT)/mak/config.mak
 
 ifndef REPOSITORYDIR

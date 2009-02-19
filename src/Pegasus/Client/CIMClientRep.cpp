@@ -464,11 +464,12 @@ CIMInstance CIMClientRep::getInstance(
         String::EMPTY,
         nameSpace,
         instanceName,
-        localOnly,
         includeQualifiers,
         includeClassOrigin,
         propertyList,
         QueueIdStack()));
+    dynamic_cast<CIMGetInstanceRequestMessage*>(request.get())->localOnly =
+        localOnly;
 
     Message* message = _doRequest(request, CIM_GET_INSTANCE_RESPONSE_MESSAGE);
 
@@ -670,11 +671,12 @@ Array<CIMInstance> CIMClientRep::enumerateInstances(
         nameSpace,
         className,
         deepInheritance,
-        localOnly,
         includeQualifiers,
         includeClassOrigin,
         propertyList,
         QueueIdStack()));
+    dynamic_cast<CIMEnumerateInstancesRequestMessage*>(
+        request.get())->localOnly = localOnly;
 
     Message* message =
         _doRequest(request, CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE);

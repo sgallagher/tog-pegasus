@@ -294,7 +294,6 @@ public:
 
     Boolean testEnumerateOptions(
         const CIMName& className,
-        Boolean localOnly,
         Boolean deepInheritance,
         const CIMPropertyList propertyList,
         const Uint32 expectedPropertyCount);
@@ -312,7 +311,6 @@ public:
     Boolean testGetInstancesForEnum(
         const Array<CIMObjectPath>& paths,
         const Array<CIMInstance>& instances,
-        const Boolean localOnly,
         const Boolean includeQualifiers,
         const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
@@ -522,7 +520,6 @@ Boolean InteropTest::testEnumAgainstEnumNames(
 */
 Boolean InteropTest::testGetInstancesForEnum(const Array<CIMObjectPath>& paths,
                                         const Array<CIMInstance>& instances,
-                                        const Boolean localOnly,
                                         const Boolean includeQualifiers,
                                         const Boolean includeClassOrigin,
                                         const CIMPropertyList& propertyList)
@@ -533,7 +530,7 @@ Boolean InteropTest::testGetInstancesForEnum(const Array<CIMObjectPath>& paths,
         CIMInstance instance =
             _client.getInstance(PEGASUS_NAMESPACENAME_INTEROP,
                                           paths[i],
-                                          localOnly,
+                                          false,
                                           includeQualifiers,
                                           includeClassOrigin,
                                           propertyList);
@@ -659,9 +656,9 @@ Boolean InteropTest::matchPathsAndObjectPaths(Array<CIMObjectPath>& paths,
     }
     return (true);
 }
+
 Boolean InteropTest::testEnumerateOptions(
         const CIMName& className,
-        Boolean localOnly,
         Boolean deepInheritance,
         const CIMPropertyList propertyList,
         const Uint32 expectedPropertyCount)
@@ -672,7 +669,7 @@ Boolean InteropTest::testEnumerateOptions(
                                  PEGASUS_NAMESPACENAME_INTEROP,
                                  className,
                                  deepInheritance,
-                                 localOnly,
+                                 false,  // localOnly
                                  false,  // include qualifiers = false
                                  false,
                                  propertyList);
@@ -698,7 +695,6 @@ Boolean InteropTest::testEnumerateOptions(
     {
         cout << "Error in enumerate options. "
              << " Class " << className.getString()
-             << " lo= "   << _toString(localOnly)
              << " di= "   << _toString(deepInheritance)
              << " Expected Property count " << expectedPropertyCount
              << " Received Property Count " << instance.getPropertyCount()
@@ -2517,7 +2513,6 @@ void InteropTest::testCommunicationClass()
                              PEGASUS_NAMESPACENAME_INTEROP,
                              CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME);
         Boolean deepInheritance = false;
-        Boolean localOnly = false;
         Boolean includeQualifiers = true;
         Boolean includeClassOrigin = true;
 
@@ -2525,7 +2520,7 @@ void InteropTest::testCommunicationClass()
                             PEGASUS_NAMESPACENAME_INTEROP,
                             CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME,
                             deepInheritance,
-                            localOnly,
+                            false,    // localOnly
                             includeQualifiers, includeClassOrigin,
                             CIMPropertyList());
 
@@ -2589,7 +2584,7 @@ void InteropTest::testCommunicationClass()
                               PEGASUS_NAMESPACENAME_INTEROP,
                               CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME,
                               deepInheritance,
-                              localOnly,
+                              false,    // localOnly
                               includeQualifiers, includeClassOrigin,
                               CIMPropertyList());
 
@@ -2599,7 +2594,7 @@ void InteropTest::testCommunicationClass()
          // must be deepInheritance to assure that all properties are returned.
          /* TODO
          PEGASUS_TEST_ASSERT(testGetInstancesForEnum(pathsCommMech,
-            instancesCommMech, localOnly,
+            instancesCommMech,
             includeQualifiers, includeClassOrigin, CIMPropertyList()));
          */
          // COMMENT KS - There is no reason for this.
@@ -2825,7 +2820,6 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
         Array<CIMInstance> namespaceInstances = _getCIMNamespaceInstances();
 
         Boolean deepInheritance = false;
-        Boolean localOnly = false;
         Boolean includeQualifiers = true;
         Boolean includeClassOrigin = true;
 
@@ -2835,7 +2829,7 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
                      PEGASUS_NAMESPACENAME_INTEROP,
                      CIM_NAMESPACEINMANAGER_CLASSNAME,
                      deepInheritance,                    // deepInheritance
-                     localOnly,                          // localOnly
+                     false,                              // localOnly
                      includeQualifiers,                  // includeQualifiers
                      includeClassOrigin,                 // includeClassOrigin
                      CIMPropertyList());
@@ -3107,15 +3101,11 @@ int main(int argc, char** argv)
         it.testObjectManagerClass();
 
         // Do the enumerate options tests for object manager object
-        // classname, lo, di, propertylist, expected rtn count
-        //it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true,
-        //CIMPropertyList(), 4);
-        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, true,
-                CIMPropertyList(), 22);
-        //it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false,
-        //CIMPropertyList(), 4);
-        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, false,
-                CIMPropertyList(), 22);
+        // classname, di, propertylist, expected rtn count
+        it.testEnumerateOptions(
+            CIM_OBJECTMANAGER_CLASSNAME, true, CIMPropertyList(), 22);
+        it.testEnumerateOptions(
+            CIM_OBJECTMANAGER_CLASSNAME, false, CIMPropertyList(), 22);
 
         CIMPropertyList pl1;
         Array<CIMName> pla1;
@@ -3126,55 +3116,28 @@ int main(int argc, char** argv)
         Array<CIMName> pla2;
         pl2.set(pla2);
 
-        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true,
-                pl1, 1);
-        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, true,
-                pl1, 1);
-        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false,
-                pl1, 1);
-        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, false,
-                pl1, 1);
+        it.testEnumerateOptions(CIM_OBJECTMANAGER_CLASSNAME, true, pl1, 1);
+        it.testEnumerateOptions(CIM_OBJECTMANAGER_CLASSNAME, false, pl1, 1);
 
-        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true,
-                pl2, 0);
-        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, true,
-                pl2, 0);
-        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false,
-                pl2, 0);
-        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, false,
-                pl2, 0);
+        it.testEnumerateOptions(CIM_OBJECTMANAGER_CLASSNAME, true, pl2, 0);
+        it.testEnumerateOptions(CIM_OBJECTMANAGER_CLASSNAME, false, pl2, 0);
 
         // Repeat the tests for the superclass.
-        // classname, lo, di, propertylist, expected rtn count
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true,
+        // classname, di, propertylist, expected rtn count
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true,
                 CIMPropertyList(),22);
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, true,
-                CIMPropertyList(), 22);
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false,
-                CIMPropertyList(), 21);
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false,
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false,
                 CIMPropertyList(), 21);
 
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true,
-                pl1, 1);
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, true,
-                pl1, 1);
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false,
-                pl1, 1);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, pl1, 1);
         // ATTN: The following test case is incorrect.  The
         // GatherStatisticalData property is not defined in the
         // CIM_WBEMService class, so it should not be returned on a
         // non-deep enumeration operation.
-        //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false,
-        //pl1, 1);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, pl1, 1);
 
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, pl2, 0);
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, true,
-                pl2, 0);
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false,
-                pl2, 0);
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false,
-                pl2, 0);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, pl2, 0);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, pl2, 0);
 
 #ifndef PEGASUS_DISABLE_PERFINST
         it.testStatisticsEnable();

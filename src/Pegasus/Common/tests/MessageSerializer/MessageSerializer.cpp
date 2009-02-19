@@ -574,7 +574,6 @@ void testCIMGetInstanceRequestMessage(
     const String& mid,
     const CIMNamespaceName& ns,
     const CIMObjectPath& path,
-    Boolean lo,
     Boolean iq,
     Boolean ico,
     const CIMPropertyList& pl,
@@ -583,7 +582,7 @@ void testCIMGetInstanceRequestMessage(
     const String& user)
 {
     CIMGetInstanceRequestMessage inMessage(
-        mid, ns, path, lo, iq, ico, pl, qids, auth, user);
+        mid, ns, path, iq, ico, pl, qids, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMGetInstanceRequestMessage> outMessage(
         dynamic_cast<CIMGetInstanceRequestMessage*>(
@@ -592,7 +591,6 @@ void testCIMGetInstanceRequestMessage(
 
     validateCIMOperationRequestMessageAttributes(&inMessage, outMessage.get());
     PEGASUS_TEST_ASSERT(inMessage.instanceName == outMessage->instanceName);
-    PEGASUS_TEST_ASSERT(inMessage.localOnly == outMessage->localOnly);
     PEGASUS_TEST_ASSERT(
         inMessage.includeQualifiers == outMessage->includeQualifiers);
     PEGASUS_TEST_ASSERT(
@@ -693,7 +691,6 @@ void testCIMEnumerateInstancesRequestMessage(
     const CIMNamespaceName& ns,
     const CIMName& className,
     Boolean di,
-    Boolean lo,
     Boolean iq,
     Boolean ico,
     const CIMPropertyList& pl,
@@ -702,7 +699,7 @@ void testCIMEnumerateInstancesRequestMessage(
     const String& user)
 {
     CIMEnumerateInstancesRequestMessage inMessage(
-        mid, ns, className, di, lo, iq, ico, pl, qids, auth, user);
+        mid, ns, className, di, iq, ico, pl, qids, auth, user);
     inMessage.operationContext = oc;
     AutoPtr<CIMEnumerateInstancesRequestMessage> outMessage(
         dynamic_cast<CIMEnumerateInstancesRequestMessage*>(
@@ -712,7 +709,6 @@ void testCIMEnumerateInstancesRequestMessage(
     validateCIMOperationRequestMessageAttributes(&inMessage, outMessage.get());
     PEGASUS_TEST_ASSERT(
         inMessage.deepInheritance == outMessage->deepInheritance);
-    PEGASUS_TEST_ASSERT(inMessage.localOnly == outMessage->localOnly);
     PEGASUS_TEST_ASSERT(
         inMessage.includeQualifiers == outMessage->includeQualifiers);
     PEGASUS_TEST_ASSERT(
@@ -2165,13 +2161,13 @@ void testMessageSerialization()
     testEmptyMessage();
 
     testCIMGetInstanceRequestMessage(
-        oc2, mid1, ns3, path1, lo1, iq2, ico1, pl4, qids3, auth2, user4);
+        oc2, mid1, ns3, path1, iq2, ico1, pl4, qids3, auth2, user4);
     testCIMGetInstanceRequestMessage(
-        oc3, mid2, ns4, path2, lo2, iq1, ico2, pl1, qids4, auth3, user1);
+        oc3, mid2, ns4, path2, iq1, ico2, pl1, qids4, auth3, user1);
     testCIMGetInstanceRequestMessage(
-        oc4, mid3, ns1, path3, lo1, iq1, ico1, pl2, qids1, auth4, user2);
+        oc4, mid3, ns1, path3, iq1, ico1, pl2, qids1, auth4, user2);
     testCIMGetInstanceRequestMessage(
-        oc1, mid4, ns2, path4, lo1, iq2, ico2, pl3, qids2, auth1, user3);
+        oc1, mid4, ns2, path4, iq2, ico2, pl3, qids2, auth1, user3);
 
     testCIMCreateInstanceRequestMessage(
         oc1, mid4, ns1, inst2, qids2, auth4, user3);
@@ -2201,13 +2197,13 @@ void testMessageSerialization()
         oc1, mid3, ns2, path2, qids4, auth1, user4);
 
     testCIMEnumerateInstancesRequestMessage(oc2, mid1, ns2, name3,
-        di1, lo1, iq2, ico1, pl2, qids4, auth3, user4);
+        di1, iq2, ico1, pl2, qids4, auth3, user4);
     testCIMEnumerateInstancesRequestMessage(oc3, mid2, ns3, name4,
-        di2, lo2, iq1, ico1, pl3, qids1, auth4, user1);
+        di2, iq1, ico1, pl3, qids1, auth4, user1);
     testCIMEnumerateInstancesRequestMessage(oc4, mid3, ns4, name1,
-        di1, lo2, iq2, ico2, pl4, qids2, auth1, user2);
+        di1, iq2, ico2, pl4, qids2, auth1, user2);
     testCIMEnumerateInstancesRequestMessage(oc1, mid4, ns1, name2,
-        di2, lo1, iq1, ico2, pl1, qids3, auth2, user3);
+        di2, iq1, ico2, pl1, qids3, auth2, user3);
 
     testCIMEnumerateInstanceNamesRequestMessage(
         oc3, mid2, ns3, name1, qids2, auth4, user1);

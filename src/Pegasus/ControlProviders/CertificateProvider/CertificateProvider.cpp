@@ -617,7 +617,7 @@ void CertificateProvider::enumerateInstances(
         // Get instances from the repository
         Array<CIMInstance> cimInstances;
         cimInstances = _repository->enumerateInstancesForClass(
-            cimObjectPath.getNameSpace(), PEGASUS_CLASSNAME_CERTIFICATE, false);
+            cimObjectPath.getNameSpace(), PEGASUS_CLASSNAME_CERTIFICATE);
 
         for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
         {

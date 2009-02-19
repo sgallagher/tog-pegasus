@@ -57,7 +57,6 @@ void Test1()
             CIMObjectPath("dummy"),
             false,
             false,
-            false,
             CIMPropertyList(),
             QueueIdStack());
 
@@ -92,7 +91,6 @@ void Test1()
             String::EMPTY,
             CIMNamespaceName(),
             CIMName("dummy"),
-            false,
             false,
             false,
             false,
@@ -211,7 +209,6 @@ void Test2(void)
             CIMObjectPath("dummy"),
             false,
             false,
-            false,
             CIMPropertyList(),
             QueueIdStack());
 
@@ -242,7 +239,6 @@ void Test2(void)
             String::EMPTY,
             CIMNamespaceName(),
             CIMObjectPath("dummy"),
-            false,
             false,
             false,
             CIMPropertyList(),

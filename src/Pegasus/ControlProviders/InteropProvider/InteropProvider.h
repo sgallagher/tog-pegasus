@@ -282,7 +282,6 @@ private:
 
     Array<CIMInstance> enumProviderProfileCapabilityInstances(
         Boolean checkProviders = true,
-        Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
         const CIMPropertyList &propertyList = CIMPropertyList());

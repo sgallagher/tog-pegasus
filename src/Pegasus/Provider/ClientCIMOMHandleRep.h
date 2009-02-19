@@ -93,7 +93,6 @@ public:
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
-        Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
@@ -103,7 +102,6 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Boolean deepInheritance,
-        Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);

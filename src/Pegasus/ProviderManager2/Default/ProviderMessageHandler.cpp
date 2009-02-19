@@ -1027,7 +1027,6 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetPropertyRequest(
         request->messageId,
         request->nameSpace,
         request->instanceName,
-        false,  // localOnly
         false,  // includeQualifiers
         false,  // includeClassOrigin
         propertyList,

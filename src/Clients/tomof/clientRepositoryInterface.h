@@ -117,7 +117,6 @@ class clientRepositoryInterface
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
     Boolean deepInheritance = true,
-    Boolean localOnly = true,
     Boolean includeQualifiers = false,
     Boolean includeClassOrigin = false,
     const CIMPropertyList& propertyList = CIMPropertyList());

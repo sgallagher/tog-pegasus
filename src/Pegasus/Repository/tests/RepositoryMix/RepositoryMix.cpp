@@ -276,7 +276,7 @@ void TestEnumerateInstances(Uint32 num)
     // -- Enumerate instances:
 
     Array<CIMInstance> namedInstances = r->enumerateInstancesForSubtree(NS,
-        CIMName ("SuperClass"),true,false, true, true);
+        CIMName ("SuperClass"), true, true, true);
 
 #ifdef NOTDEF
     // defined out becuase it is very verbose
@@ -303,7 +303,7 @@ void TestEnumerateInstancesForClass(Uint32 num)
     // test the enumerateInstancesForClass function
 
     Array<CIMInstance>  namedInstances = r->enumerateInstancesForClass(NS,
-        CIMName("SuperClass"), false, true, true);
+        CIMName("SuperClass"), true, true);
 
 #ifdef NOTDEF
     // defined out becuase it is very verbose
@@ -321,7 +321,7 @@ void TestEnumerateInstancesForClass(Uint32 num)
     PEGASUS_TEST_ASSERT(namedInstances.size() == num);
 
     namedInstances = r->enumerateInstancesForClass(NS,
-        CIMName("SubClass"), false, true, true);
+        CIMName("SubClass"), true, true);
 
 #ifdef NOTDEF
     // defined out becuase it is very verbose

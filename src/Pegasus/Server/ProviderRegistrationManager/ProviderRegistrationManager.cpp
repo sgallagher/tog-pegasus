@@ -1321,7 +1321,6 @@ Array<CIMInstance> ProviderRegistrationManager::enumerateInstancesForClass(
     enumInstances = _repository->enumerateInstancesForClass(
         PEGASUS_NAMESPACENAME_INTEROP,
         ref.getClassName(),
-        false,
         includeQualifiers,
         includeClassOrigin,
         propertyList);
@@ -1409,7 +1408,6 @@ void ProviderRegistrationManager::modifyInstance(
     origInstance = _repository->getInstance(
         PEGASUS_NAMESPACENAME_INTEROP,
         newInstanceRef,
-        false,
         false,
         false,
         CIMPropertyList());
@@ -1633,7 +1631,6 @@ Boolean ProviderRegistrationManager::updateProviderModuleStatus(
             reference,
             false,
             false,
-            false,
             CIMPropertyList());
 
         //
@@ -1703,7 +1700,6 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         cimNamedInstances = _repository->enumerateInstancesForClass(
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PROVIDERMODULE,
-            false,
             false,
             false,
             CIMPropertyList());
@@ -1907,7 +1903,6 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             PEGASUS_CLASSNAME_PROVIDER,
             false,
             false,
-            false,
             CIMPropertyList());
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "PG_Provider class has = %d instances",
@@ -1949,7 +1944,6 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             PEGASUS_CLASSNAME_CONSUMERCAPABILITIES,
             false,
             false,
-            false,
             CIMPropertyList());
         PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "PG_ConsumerCapabilities class has = %d instances",
@@ -1988,7 +1982,6 @@ void ProviderRegistrationManager::_initialRegistrationTable()
         cimNamedInstances = _repository->enumerateInstancesForClass(
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PROVIDERCAPABILITIES,
-            false,
             false,
             false,
             CIMPropertyList());
@@ -2292,7 +2285,7 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 
         // Get the resolved instance that was created
         instance = _repository->getInstance(
-            PEGASUS_NAMESPACENAME_INTEROP, cimRef, false);
+            PEGASUS_NAMESPACENAME_INTEROP, cimRef);
 
         //
         // get provider module name
@@ -2351,7 +2344,7 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 
             // Get the resolved instance that was created
             instance = _repository->getInstance(
-                PEGASUS_NAMESPACENAME_INTEROP, cimRef, false);
+                PEGASUS_NAMESPACENAME_INTEROP, cimRef);
 
             //
             // add the instance to the hash table
@@ -2481,7 +2474,7 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 
             // Get the resolved instance that was created
             instance = _repository->getInstance(
-                PEGASUS_NAMESPACENAME_INTEROP, cimRef, false);
+                PEGASUS_NAMESPACENAME_INTEROP, cimRef);
 
             PEG_METHOD_EXIT();
             return cimRef;
@@ -2902,7 +2895,7 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 
             // Get the resolved instance that was created
             instance = _repository->getInstance(
-                PEGASUS_NAMESPACENAME_INTEROP, cimRef, false);
+                PEGASUS_NAMESPACENAME_INTEROP, cimRef);
 
             PEG_METHOD_EXIT();
             return cimRef;
@@ -2944,7 +2937,6 @@ void ProviderRegistrationManager::_deleteInstance(
     CIMInstance instance = _repository->getInstance(
         PEGASUS_NAMESPACENAME_INTEROP,
         newInstancereference,
-        false,
         false,
         false,
         CIMPropertyList());
@@ -3153,7 +3145,6 @@ void ProviderRegistrationManager::_deleteInstance(
                 capInstance =  _repository->getInstance(
                     PEGASUS_NAMESPACENAME_INTEROP,
                     enumCapInstanceNames[i],
-                    false,
                     false,
                     false,
                     CIMPropertyList());
@@ -3370,7 +3361,6 @@ void ProviderRegistrationManager::_deleteInstance(
                 capInstance =  _repository->getInstance(
                     PEGASUS_NAMESPACENAME_INTEROP,
                     enumCapInstanceNames[i],
-                    false,
                     false,
                     false,
                     CIMPropertyList());

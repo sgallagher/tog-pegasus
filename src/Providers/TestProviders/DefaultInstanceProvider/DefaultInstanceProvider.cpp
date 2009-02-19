@@ -357,7 +357,6 @@ void DefaultInstanceProvider::getInstance(
     // get the class name
     CIMName className = instanceReference.getClassName();
 
-    Boolean localOnly = true;
     CIMInstance cimInstance;
 
     // create the namespace if necessary
@@ -396,7 +395,6 @@ void DefaultInstanceProvider::getInstance(
         cimInstance = _repository->getInstance(
             nameSpace,
             localReference,
-            localOnly,
             includeQualifiers,
             includeClassOrigin,
             propertyList);
@@ -459,14 +457,11 @@ void DefaultInstanceProvider::enumerateInstances(
 
     Array<CIMInstance> cimNamedInstances;
 
-    Boolean localOnly = true;
-
     try
     {
         cimNamedInstances = _repository->enumerateInstancesForClass(
             nameSpace,
             className,
-            localOnly,
             includeQualifiers,
             includeClassOrigin,
             propertyList);

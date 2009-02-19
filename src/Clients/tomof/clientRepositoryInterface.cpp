@@ -193,7 +193,6 @@ Array<CIMInstance> clientRepositoryInterface::enumerateInstances(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
     Boolean deepInheritance,
-    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
@@ -201,11 +200,11 @@ Array<CIMInstance> clientRepositoryInterface::enumerateInstances(
 {
     if (_repository)
        return _repository->enumerateInstancesForSubtree(nameSpace, className,
-            deepInheritance, localOnly,includeQualifiers,includeClassOrigin);
+            deepInheritance, includeQualifiers, includeClassOrigin);
 
     if (_client)
        return _client->enumerateInstances(nameSpace, className,
-           deepInheritance, localOnly,includeQualifiers,includeClassOrigin);
+           deepInheritance, includeQualifiers, includeClassOrigin);
     throw IndexOutOfBoundsException();
 }
 

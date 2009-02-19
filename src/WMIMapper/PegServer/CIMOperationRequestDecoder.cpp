@@ -1902,13 +1902,13 @@ CIMOperationRequestDecoder::decodeGetInstanceRequest(
           messageId,
           nameSpace,
           instanceName,
-          localOnly,
           includeQualifiers,
           includeClassOrigin,
           propertyList,
           QueueIdStack(queueId, _returnQueueId),
           authType,
           userName));
+   request->localOnly = localOnly;
 
    STAT_SERVERSTART
 
@@ -2120,13 +2120,13 @@ CIMOperationRequestDecoder::decodeEnumerateInstancesRequest(
      nameSpace,
      className,
      deepInheritance,
-     localOnly,
      includeQualifiers,
      includeClassOrigin,
      propertyList,
      QueueIdStack(queueId, _returnQueueId),
      authType,
      userName));
+   request->localOnly = localOnly;
 
    STAT_SERVERSTART
 

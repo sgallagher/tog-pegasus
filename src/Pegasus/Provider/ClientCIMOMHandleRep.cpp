@@ -410,7 +410,6 @@ CIMInstance ClientCIMOMHandleRep::getInstance(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& instanceName,
-    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
@@ -424,7 +423,7 @@ CIMInstance ClientCIMOMHandleRep::getInstance(
     return _client->getInstance(
         nameSpace,
         instanceName,
-        localOnly,
+        false,    // localOnly
         includeQualifiers,
         includeClassOrigin,
         propertyList);
@@ -435,7 +434,6 @@ Array<CIMInstance> ClientCIMOMHandleRep::enumerateInstances(
     const CIMNamespaceName &nameSpace,
     const CIMName& className,
     Boolean deepInheritance,
-    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
@@ -451,7 +449,7 @@ Array<CIMInstance> ClientCIMOMHandleRep::enumerateInstances(
         nameSpace,
         className,
         deepInheritance,
-        localOnly,
+        false,    // localOnly
         includeQualifiers,
         includeClassOrigin,
         propertyList);

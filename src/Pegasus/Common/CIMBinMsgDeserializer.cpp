@@ -871,15 +871,11 @@ CIMGetInstanceRequestMessage*
 CIMBinMsgDeserializer::_getGetInstanceRequestMessage(CIMBuffer& in)
 {
     CIMObjectPath instanceName;
-    Boolean localOnly;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
 
     if (!in.getObjectPath(instanceName))
-        return 0;
-
-    if (!in.getBoolean(localOnly))
         return 0;
 
     if (!in.getBoolean(includeQualifiers))
@@ -895,7 +891,6 @@ CIMBinMsgDeserializer::_getGetInstanceRequestMessage(CIMBuffer& in)
         String::EMPTY,
         CIMNamespaceName(),
         instanceName,
-        localOnly,
         includeQualifiers,
         includeClassOrigin,
         propertyList,
@@ -966,15 +961,11 @@ CIMBinMsgDeserializer::_getEnumerateInstancesRequestMessage(
 {
     CIMObjectPath instanceName;
     Boolean deepInheritance;
-    Boolean localOnly;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
 
     if (!in.getBoolean(deepInheritance))
-        return false;
-
-    if (!in.getBoolean(localOnly))
         return false;
 
     if (!in.getBoolean(includeQualifiers))
@@ -991,7 +982,6 @@ CIMBinMsgDeserializer::_getEnumerateInstancesRequestMessage(
         CIMNamespaceName(),
         CIMName(),
         deepInheritance,
-        localOnly,
         includeQualifiers,
         includeClassOrigin,
         propertyList,

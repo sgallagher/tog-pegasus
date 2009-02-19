@@ -154,7 +154,6 @@ CIMGetInstanceRequestMessage*
             instanceName,
             false,
             false,
-            false,
             CIMPropertyList(),
             QueueIdStack(request->queueId),
             request->authType,
@@ -278,7 +277,6 @@ CIMEnumerateInstancesRequestMessage*
             objPath.getNameSpace(),
             objPath.getClassName(),
             request->polymorphismMode == WSMB_PM_INCLUDE_SUBCLASS_PROPERTIES,
-            false, // LocalOnly
             false, // includeQualifiers
             false, // includeClassOrigin
             CIMPropertyList(),

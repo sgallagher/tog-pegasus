@@ -50,7 +50,6 @@ IndicationServiceConfiguration::~IndicationServiceConfiguration()
 CIMInstance IndicationServiceConfiguration::getInstance(
     const CIMNamespaceName & nameSpace,
     const CIMObjectPath & instanceName,
-    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
@@ -91,7 +90,6 @@ Array<CIMInstance> IndicationServiceConfiguration::
     enumerateInstancesForClass(
         const CIMNamespaceName & nameSpace,
         const CIMName & className,
-        Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList & propertyList)

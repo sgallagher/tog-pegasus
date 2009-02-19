@@ -284,7 +284,6 @@ public:
         const String& messageId_,
         const CIMNamespaceName& nameSpace_,
         const CIMObjectPath& instanceName_,
-        Boolean localOnly_,
         Boolean includeQualifiers_,
         Boolean includeClassOrigin_,
         const CIMPropertyList& propertyList_,
@@ -296,7 +295,7 @@ public:
          authType_, userName_,
          nameSpace_,instanceName_.getClassName()),
         instanceName(instanceName_),
-        localOnly(localOnly_),
+        localOnly(false),
         includeQualifiers(includeQualifiers_),
         includeClassOrigin(includeClassOrigin_),
         propertyList(propertyList_)
@@ -306,7 +305,7 @@ public:
     virtual CIMResponseMessage* buildResponse() const;
 
     CIMObjectPath instanceName;
-    Boolean localOnly;
+    Boolean localOnly;    // deprecated
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
@@ -561,7 +560,6 @@ public:
         const CIMNamespaceName& nameSpace_,
         const CIMName& className_,
         Boolean deepInheritance_,
-        Boolean localOnly_,
         Boolean includeQualifiers_,
         Boolean includeClassOrigin_,
         const CIMPropertyList& propertyList_,
@@ -573,7 +571,7 @@ public:
          authType_, userName_,
          nameSpace_,className_),
         deepInheritance(deepInheritance_),
-        localOnly(localOnly_),
+        localOnly(false),
         includeQualifiers(includeQualifiers_),
         includeClassOrigin(includeClassOrigin_),
         propertyList(propertyList_)
@@ -583,7 +581,7 @@ public:
     virtual CIMResponseMessage* buildResponse() const;
 
     Boolean deepInheritance;
-    Boolean localOnly;
+    Boolean localOnly;    // deprecated
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;

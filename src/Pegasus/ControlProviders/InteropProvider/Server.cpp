@@ -412,7 +412,7 @@ CIMInstance InteropProvider::getObjectManagerInstance()
     bool found = false;
     Array<CIMInstance> tmpInstances = repository->enumerateInstancesForClass(
         PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_OBJECTMANAGER, false, false, false,
+        PEGASUS_CLASSNAME_PG_OBJECTMANAGER, false, false,
         CIMPropertyList());
     Uint32 numInstances = tmpInstances.size();
     if(numInstances == 1)
@@ -484,7 +484,7 @@ CIMInstance InteropProvider::getObjectManagerInstance()
             PEGASUS_NAMESPACENAME_INTEROP, instance);
         // Get an updated copy of the instance that was saved
         instance = repository->getInstance(
-            PEGASUS_NAMESPACENAME_INTEROP, instancePath, false);
+            PEGASUS_NAMESPACENAME_INTEROP, instancePath);
         instance.setPath(instancePath);
     }
 

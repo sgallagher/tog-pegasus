@@ -171,7 +171,6 @@ int main (int argc, char * argv [])
               (CIMNamespaceName ("root/test/A")));
         PEGASUS_TEST_ASSERT (request->instanceName ==
               CIMObjectPath ("MCCA_TestClass.theKey=1"));
-        PEGASUS_TEST_ASSERT (request->localOnly == true);
         PEGASUS_TEST_ASSERT (request->includeQualifiers == false);
         PEGASUS_TEST_ASSERT (request->includeClassOrigin == false);
         PEGASUS_TEST_ASSERT (request->propertyList.isNull ());

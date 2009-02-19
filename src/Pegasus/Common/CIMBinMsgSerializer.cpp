@@ -795,7 +795,6 @@ void CIMBinMsgSerializer::_putGetInstanceRequestMessage(
     CIMGetInstanceRequestMessage* msg)
 {
     _putObjectPath(out, msg->instanceName);
-    out.putBoolean(msg->localOnly);
     out.putBoolean(msg->includeQualifiers);
     out.putBoolean(msg->includeClassOrigin);
     _putPropertyList(out, msg->propertyList);
@@ -829,7 +828,6 @@ void CIMBinMsgSerializer::_putEnumerateInstancesRequestMessage(
     CIMEnumerateInstancesRequestMessage* msg)
 {
     out.putBoolean(msg->deepInheritance);
-    out.putBoolean(msg->localOnly);
     out.putBoolean(msg->includeQualifiers);
     out.putBoolean(msg->includeClassOrigin);
     _putPropertyList(out, msg->propertyList);

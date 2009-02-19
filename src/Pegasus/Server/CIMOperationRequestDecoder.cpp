@@ -1924,7 +1924,6 @@ CIMGetInstanceRequestMessage*
     STAT_GETSTARTTIME
 
     CIMObjectPath instanceName;
-    Boolean localOnly = true;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
     CIMPropertyList propertyList;
@@ -1948,6 +1947,9 @@ CIMGetInstanceRequestMessage*
         }
         else if (System::strcasecmp(name, "LocalOnly") == 0)
         {
+            // This attribute is accepted for compatibility reasons, but is
+            // not honored because it is deprecated.
+            Boolean localOnly;
             XmlReader::rejectNullIParamValue(parser, emptyTag, name);
             XmlReader::getBooleanValueElement(parser, localOnly, true);
             duplicateParameter = gotLocalOnly;
@@ -2014,7 +2016,6 @@ CIMGetInstanceRequestMessage*
             messageId,
             nameSpace,
             instanceName,
-            false,    // Bug 1985 localOnly is deprecated
 #ifdef PEGASUS_DISABLE_INSTANCE_QUALIFIERS
             false,
 #else
@@ -2131,7 +2132,6 @@ CIMEnumerateInstancesRequestMessage*
 
     CIMName className;
     Boolean deepInheritance = true;
-    Boolean localOnly = true;
     Boolean includeQualifiers = false;
     Boolean includeClassOrigin = false;
     CIMPropertyList propertyList;
@@ -2163,6 +2163,9 @@ CIMEnumerateInstancesRequestMessage*
         }
         else if (System::strcasecmp(name, "LocalOnly") == 0)
         {
+            // This attribute is accepted for compatibility reasons, but is
+            // not honored because it is deprecated.
+            Boolean localOnly;
             XmlReader::rejectNullIParamValue(parser, emptyTag, name);
             XmlReader::getBooleanValueElement(parser, localOnly, true);
             duplicateParameter = gotLocalOnly;
@@ -2230,7 +2233,6 @@ CIMEnumerateInstancesRequestMessage*
             nameSpace,
             className,
             deepInheritance,
-            false,    // Bug 1985 localOnly is deprecated
 #ifdef PEGASUS_DISABLE_INSTANCE_QUALIFIERS
             false,
 #else

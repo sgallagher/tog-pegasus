@@ -1065,15 +1065,11 @@ CIMMessageDeserializer::_deserializeCIMGetInstanceRequestMessage(
 {
     CIMValue genericValue;
     CIMObjectPath instanceName;
-    Boolean localOnly;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
 
     _deserializeCIMObjectPath(parser, instanceName);
-
-    XmlReader::getValueElement(parser, CIMTYPE_BOOLEAN, genericValue);
-    genericValue.get(localOnly);
 
     XmlReader::getValueElement(parser, CIMTYPE_BOOLEAN, genericValue);
     genericValue.get(includeQualifiers);
@@ -1088,7 +1084,6 @@ CIMMessageDeserializer::_deserializeCIMGetInstanceRequestMessage(
             String::EMPTY,         // messageId
             CIMNamespaceName(),    // nameSpace
             instanceName,
-            localOnly,
             includeQualifiers,
             includeClassOrigin,
             propertyList,
@@ -1180,16 +1175,12 @@ CIMMessageDeserializer::_deserializeCIMEnumerateInstancesRequestMessage(
     CIMValue genericValue;
     CIMObjectPath instanceName;
     Boolean deepInheritance;
-    Boolean localOnly;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
 
     XmlReader::getValueElement(parser, CIMTYPE_BOOLEAN, genericValue);
     genericValue.get(deepInheritance);
-
-    XmlReader::getValueElement(parser, CIMTYPE_BOOLEAN, genericValue);
-    genericValue.get(localOnly);
 
     XmlReader::getValueElement(parser, CIMTYPE_BOOLEAN, genericValue);
     genericValue.get(includeQualifiers);
@@ -1205,7 +1196,6 @@ CIMMessageDeserializer::_deserializeCIMEnumerateInstancesRequestMessage(
             CIMNamespaceName(),    // nameSpace
             CIMName(),             // className
             deepInheritance,
-            localOnly,
             includeQualifiers,
             includeClassOrigin,
             propertyList,

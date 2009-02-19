@@ -278,9 +278,6 @@ static void _encodeEnumerateInstancesRequest(
 
     Uint32 flags = 0;
 
-    if (msg->localOnly)
-        flags |= LOCAL_ONLY;
-
     if (msg->deepInheritance)
         flags |= DEEP_INHERITANCE;
 
@@ -341,7 +338,6 @@ static CIMEnumerateInstancesRequestMessage* _decodeEnumerateInstancesRequest(
             nameSpace,
             className,
             deepInheritance,
-            false,    // Bug 1985 localOnly is deprecated
 #ifdef PEGASUS_DISABLE_INSTANCE_QUALIFIERS
             false,
 #else
@@ -556,7 +552,6 @@ static CIMGetInstanceRequestMessage* _decodeGetInstanceRequest(
             messageId,
             nameSpace,
             instanceName,
-            false,    // Bug 1985 localOnly is deprecated
 #ifdef PEGASUS_DISABLE_INSTANCE_QUALIFIERS
             false,
 #else
@@ -607,9 +602,6 @@ static void _encodeGetInstanceRequest(
     // [HEADER]
 
     Uint32 flags = 0;
-
-    if (msg->localOnly)
-        flags |= LOCAL_ONLY;
 
     if (msg->includeQualifiers)
         flags |= INCLUDE_QUALIFIERS;

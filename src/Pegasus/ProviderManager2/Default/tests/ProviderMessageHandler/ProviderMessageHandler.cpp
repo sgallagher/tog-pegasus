@@ -193,14 +193,14 @@ void testExceptions(
 
     {
         CIMGetInstanceRequestMessage request(
-            mid, ns, objectPath, false, false, false, pl, qids);
+            mid, ns, objectPath, false, false, pl, qids);
         request.operationContext = oc;
         testExceptionResponse(pmh, &request, className);
     }
 
     {
         CIMEnumerateInstancesRequestMessage request(
-            mid, ns, className, false, false, false, false, pl, qids);
+            mid, ns, className, false, false, false, pl, qids);
         request.operationContext = oc;
         testExceptionResponse(pmh, &request, className);
     }

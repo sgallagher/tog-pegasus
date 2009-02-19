@@ -729,7 +729,6 @@ CIMInstance InternalCIMOMHandleRep::getInstance(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& instanceName,
-    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
@@ -742,7 +741,6 @@ CIMInstance InternalCIMOMHandleRep::getInstance(
             XmlWriter::getNextMessageId(),
             nameSpace,
             instanceName,
-            false, // localOnly is deprecated
             includeQualifiers,
             includeClassOrigin,
             propertyList,
@@ -800,7 +798,6 @@ Array<CIMInstance> InternalCIMOMHandleRep::enumerateInstances(
     const CIMNamespaceName &nameSpace,
     const CIMName& className,
     Boolean deepInheritance,
-    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
@@ -815,7 +812,6 @@ Array<CIMInstance> InternalCIMOMHandleRep::enumerateInstances(
             nameSpace,
             className,
             deepInheritance,
-            false, //localOnly is deprecated.
             includeQualifiers,
             includeClassOrigin,
             propertyList,

@@ -276,7 +276,6 @@ void InteropProvider::deleteProviderProfileCapabilityInstance(
 
 Array<CIMInstance> InteropProvider::enumProviderProfileCapabilityInstances(
     Boolean checkProviders,
-    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList &propertyList)
@@ -288,7 +287,6 @@ Array<CIMInstance> InteropProvider::enumProviderProfileCapabilityInstances(
         repository->enumerateInstancesForClass(
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES,
-            localOnly,
             includeQualifiers,
             includeClassOrigin,
             propertyList);
@@ -325,7 +323,6 @@ Array<CIMInstance> InteropProvider::enumProviderProfileCapabilityInstances(
             CIMInstance providerModule = repository->getInstance(
                 PEGASUS_NAMESPACENAME_INTEROP,
                 providerModuleName,
-                false,
                 false,
                 false,
                 CIMPropertyList());
@@ -375,7 +372,6 @@ Array<CIMInstance> InteropProvider::enumProviderProfileCapabilityInstances(
                     providerRef,
                     false,
                     false,
-                    false,
                     CIMPropertyList());
                 providerFound = true;
             }
@@ -406,7 +402,7 @@ Array<CIMInstance> InteropProvider::getDMTFProfileInstances(
         PEGASUS_CLASSNAME_PG_REFERENCEDPROFILE);
 
     Array<CIMInstance> profileCapabilities =
-        enumProviderProfileCapabilityInstances(true, false);
+        enumProviderProfileCapabilityInstances(true);
 
     Array<String> instanceIDs;
 
@@ -608,7 +604,7 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
     bool isRequiresProfileOperation = profileType.equal(
         PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE);
     Array<CIMInstance> profileCapabilities =
-        enumProviderProfileCapabilityInstances(true, false);
+        enumProviderProfileCapabilityInstances(true);
 
     Array<String> instanceIDs;
 

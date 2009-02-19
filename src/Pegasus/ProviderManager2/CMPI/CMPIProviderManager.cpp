@@ -3143,7 +3143,6 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         request->instanceName,
         false,
         false,
-        false,
         localPropertyList,
         request->queueIds,
         request->authType,

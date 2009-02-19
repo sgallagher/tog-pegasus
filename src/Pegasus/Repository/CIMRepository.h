@@ -92,7 +92,6 @@ public:
     CIMInstance getInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
-        Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
@@ -158,7 +157,6 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Boolean deepInheritance = true,
-        Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
@@ -171,7 +169,6 @@ public:
     Array<CIMInstance> enumerateInstancesForClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
@@ -363,7 +360,6 @@ protected:
     CIMInstance _getInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
-        Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList,

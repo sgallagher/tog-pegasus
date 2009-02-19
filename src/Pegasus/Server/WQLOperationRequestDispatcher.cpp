@@ -456,7 +456,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
                     request->messageId,
                     request->nameSpace,
                     providerInfo.className,
-                    false,false,false,false,
+                    false,false,false,
                     CIMPropertyList(),
                     request->queueIds,
                     request->authType,

@@ -483,8 +483,8 @@ CIMInstance SubscriptionRepository::deleteSubscription (
     //
     try
     {
-        subscriptionInstance = _repository->getInstance (nameSpace,
-            subscription);
+        subscriptionInstance = _repository->getInstance(
+            nameSpace, subscription);
     }
     catch (Exception & exception)
     {
@@ -672,9 +672,8 @@ CIMInstance SubscriptionRepository::getHandler (
         AutoMutex mtx(_handlerFilterCacheMutex);
         try
         {
-            handlerInstance = _repository->getInstance
-                (nameSpaceName, handlerRef, false, false, false,
-                CIMPropertyList ());
+            handlerInstance = _repository->getInstance(
+                nameSpaceName, handlerRef, false, false, CIMPropertyList());
         }
         catch (const Exception & exception)
         {
@@ -718,8 +717,8 @@ Boolean SubscriptionRepository::isTransient (
     //
     CIMInstance instance;
 
-    instance = _repository->getInstance(nameSpace, handler,
-        false, false, false, CIMPropertyList());
+    instance = _repository->getInstance(
+        nameSpace, handler, false, false, CIMPropertyList());
 
     //
     //  Get Persistence Type
@@ -781,8 +780,8 @@ void SubscriptionRepository::getFilterProperties (
         AutoMutex mtx(_handlerFilterCacheMutex);
         try
         {
-            filterInstance = _repository->getInstance (nameSpaceName,
-                filterReference);
+            filterInstance = _repository->getInstance(
+                nameSpaceName, filterReference);
         }
         catch (const Exception & exception)
         {
@@ -846,8 +845,8 @@ void SubscriptionRepository::getFilterProperties (
 
     try
     {
-        filterInstance = _repository->getInstance (nameSpaceName,
-            filterReference);
+        filterInstance = _repository->getInstance(
+            nameSpaceName, filterReference);
     }
     catch (const Exception & exception)
     {
@@ -897,8 +896,8 @@ void SubscriptionRepository::getFilterProperties (
 
     try
     {
-        filterInstance = _repository->getInstance (nameSpaceName,
-            filterReference);
+        filterInstance = _repository->getInstance(
+            nameSpaceName, filterReference);
     }
     catch (const Exception & exception)
     {
@@ -1051,12 +1050,11 @@ CIMClass SubscriptionRepository::getClass (
 CIMInstance SubscriptionRepository::getInstance (
     const CIMNamespaceName & nameSpace,
     const CIMObjectPath & instanceName,
-    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    return _repository->getInstance (nameSpace, instanceName, localOnly,
+    return _repository->getInstance (nameSpace, instanceName,
         includeQualifiers, includeClassOrigin, propertyList);
 }
 
@@ -1149,13 +1147,12 @@ void SubscriptionRepository::deleteInstance (
 Array <CIMInstance> SubscriptionRepository::enumerateInstancesForClass (
     const CIMNamespaceName & nameSpace,
     const CIMName & className,
-    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
     return _repository->enumerateInstancesForClass (nameSpace, className,
-        localOnly, includeQualifiers, includeClassOrigin, propertyList);
+        includeQualifiers, includeClassOrigin, propertyList);
 }
 
 Array <CIMObjectPath> SubscriptionRepository::enumerateInstanceNamesForClass (

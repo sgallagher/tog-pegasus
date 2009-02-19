@@ -311,7 +311,6 @@ int main ()
                 (String ("00000001"),
                 CIMNamespaceName ("root/test/A"),
                 CIMObjectPath ("MCCA_TestClass.theKey=1"),
-                true,
                 false,
                 false,
                 CIMPropertyList (),

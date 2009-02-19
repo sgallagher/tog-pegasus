@@ -185,7 +185,7 @@ void InteropProvider::extractSoftwareIdentityInfo(
         pmKeyBindings);
     CIMInstance providerModule = repository->getInstance(
         PEGASUS_NAMESPACENAME_INTEROP, providerModuleName,
-        false, false, false, CIMPropertyList());
+        false, false, CIMPropertyList());
 
     version = getRequiredValue<String>(providerModule,
         PROVIDERMODULE_PROPERTY_VERSION);
@@ -371,7 +371,7 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
     Array<CIMInstance> instances;
 
     Array<CIMInstance> profileCapabilities =
-        enumProviderProfileCapabilityInstances(true, false);
+        enumProviderProfileCapabilityInstances(true);
 
     CIMClass elementSoftwareIdentityClass = repository->getClass(
         PEGASUS_NAMESPACENAME_INTEROP,

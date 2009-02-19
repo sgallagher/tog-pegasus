@@ -2598,7 +2598,6 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
             _repository->getInstance(
                 request->nameSpace,
                 request->instanceName,
-                request->localOnly,
                 request->includeQualifiers,
                 request->includeClassOrigin,
                 request->propertyList);
@@ -3222,7 +3221,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                     _repository->enumerateInstancesForClass(
                         request->nameSpace,
                         providerInfo.className,
-                        request->localOnly,
                         request->includeQualifiers,
                         request->includeClassOrigin,
                         request->propertyList);
@@ -5237,7 +5235,7 @@ void CIMOperationRequestDispatcher::
    first response (0).
    ATTN: KS 28 May 2002 - At this time we do not do the following:
    1. eliminate duplicates.
-   2. prune the properties if localOnly or deepInheritance are set.
+   2. prune the properties if deepInheritance is set.
    This function does not send any responses.
 */
 void CIMOperationRequestDispatcher::
@@ -5284,8 +5282,7 @@ void CIMOperationRequestDispatcher::
         Tracer::LEVEL4,
         "CIMOperationRequestDispatcher::"
         "EnumerateInstancesResponseAggregation - "
-        "Local Only: %s Include Qualifiers: %s Include Class Origin: %s",
-        (request->localOnly == true ? "true" : "false"),
+        "Include Qualifiers: %s Include Class Origin: %s",
         (request->includeQualifiers == true ? "true" : "false"),
         (request->includeClassOrigin == true ? "true" : "false")));
 

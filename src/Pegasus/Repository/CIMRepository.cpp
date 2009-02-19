@@ -307,40 +307,24 @@ static void _stripPropagatedElements(CIMClass& cimClass)
 /* remove the properties from an instance based on attributes.
     @param Instance from which properties will be removed.
     @param propertyList PropertyList is used in the removal algorithm
-    @param localOnly - Boolean used in the removal.
     NOTE: This could be logical to move to CIMInstance since the
     usage is more general than just in the repository
 */
 static void _removeProperties(
     CIMInstance& cimInstance,
-    const CIMPropertyList& propertyList,
-    Boolean localOnly)
+    const CIMPropertyList& propertyList)
 {
-    Boolean propertyListNull = propertyList.isNull();
-    if ((!propertyListNull) || localOnly)
+    if (!propertyList.isNull())
     {
         // Loop through properties to remove those that do not filter through
         // local only attribute and are not in the property list.
-        Uint32 count = cimInstance.getPropertyCount();
         // Work backwards because removal may be cheaper. Sint32 covers count=0
-        for (Sint32 i = (count - 1); i >= 0; i--)
+        for (Sint32 i = (cimInstance.getPropertyCount() - 1); i >= 0; i--)
         {
-            CIMProperty p = cimInstance.getProperty(i);
-
-            // if localOnly == true, ignore properties defined in super class
-            if (localOnly && (p.getPropagated()))
-            {
+            // Since the propertyList is not NULL, only properties in the list
+            // should be included in the instance.
+            if (!_containsProperty(cimInstance.getProperty(i), propertyList))
                 cimInstance.removeProperty(i);
-                continue;
-            }
-
-            // propertyList NULL means deliver properties.  PropertyList
-            // empty, none.
-            // Test for removal if propertyList not NULL. The empty list option
-            // is covered by fact that property is not in the list.
-            if (!propertyListNull)
-                if (!_containsProperty(p, propertyList))
-                    cimInstance.removeProperty(i);
         }
     }
 }
@@ -385,13 +369,14 @@ static void _removeClassOrigins(CIMInstance& cimInstance)
 }
 
 /* Filters the properties, qualifiers, and classorigin out of a single instance.
-    Based on the parameters provided for localOnly, includeQualifiers,
+    Based on the parameters provided for propertyList, includeQualifiers,
     and includeClassOrigin, this function simply filters the properties
     qualifiers, and classOrigins out of a single instance.  This function
     was created to have a single piece of code that processes getinstance
     and enumerateInstances returns.
     @param cimInstance reference to instance to be processed.
-    @param localOnly defines if request is for localOnly parameters.
+    @param propertyList If not null, defines the properties to be included in
+        the instance.
     @param includeQualifiers Boolean defining if qualifiers to be returned.
     @param includeClassOrigin Boolean defining if ClassOrigin attribute to
     be removed from properties.
@@ -399,12 +384,11 @@ static void _removeClassOrigins(CIMInstance& cimInstance)
 static void _filterInstance(
     CIMInstance& cimInstance,
     const CIMPropertyList& propertyList,
-    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
-    // Remove properties based on propertyList and localOnly flag
-    _removeProperties(cimInstance, propertyList, localOnly);
+    // Remove properties based on propertyList
+    _removeProperties(cimInstance, propertyList);
 
     // If includequalifiers false, remove all qualifiers from
     // properties.
@@ -1004,7 +988,6 @@ Boolean CIMRepositoryRep::_checkInstanceAlreadyExists(
 CIMInstance CIMRepository::getInstance(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
-    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
@@ -1016,7 +999,6 @@ CIMInstance CIMRepository::getInstance(
     CIMInstance cimInstance = _getInstance(
         nameSpace,
         instanceName,
-        localOnly,
         includeQualifiers,
         includeClassOrigin,
         propertyList,
@@ -1029,7 +1011,6 @@ CIMInstance CIMRepository::getInstance(
 CIMInstance CIMRepository::_getInstance(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
-    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList,
@@ -1069,7 +1050,6 @@ CIMInstance CIMRepository::_getInstance(
     _filterInstance(
         cimInstance,
         propertyList,
-        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -1419,7 +1399,6 @@ void CIMRepository::modifyInstance(
             cimInstance = _getInstance(
                 nameSpace,
                 modifiedInstance.getPath (),
-                false,
                 true,
                 true,
                 CIMPropertyList(),
@@ -1484,7 +1463,6 @@ void CIMRepository::modifyInstance(
         cimInstance = _getInstance(
             nameSpace,
             modifiedInstance.getPath(),
-            false,
             true,
             true,
             CIMPropertyList(),
@@ -1674,7 +1652,6 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
     Boolean deepInheritance,
-    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
@@ -1705,12 +1682,10 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
     {
         Array<CIMInstance> localNamedInstances =
             enumerateInstancesForClass(nameSpace, classNames[i],
-                false, includeQualifiers, includeClassOrigin, propertyList);
+                includeQualifiers, includeClassOrigin, propertyList);
 
         // The propertyList, includeQualifiers, and includeClassOrigin
-        // filtering is done in enumerateInstancesForClass.  localOnly
-        // filtering is not performed, since this flag is deprecated and
-        // is not supported for instance operations.
+        // filtering is done in enumerateInstancesForClass.
         // ATTN: deepInheritance filtering is not performed.
 
         namedInstances.appendArray(localNamedInstances);
@@ -1723,7 +1698,6 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
 Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
-    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
@@ -1757,9 +1731,9 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
                 namedInstances[i], _rep->_context, nameSpace, true);
         }
 
-        _filterInstance(namedInstances[i],
+        _filterInstance(
+            namedInstances[i],
             propertyList,
-            localOnly,
             includeQualifiers,
             includeClassOrigin);
     }
@@ -1888,7 +1862,6 @@ Array<CIMObject> CIMRepository::associators(
             CIMInstance cimInstance = _getInstance(
                 tmpNameSpace,
                 tmpRef,
-                false,
                 includeQualifiers,
                 includeClassOrigin,
                 propertyList,
@@ -2080,7 +2053,6 @@ Array<CIMObject> CIMRepository::references(
             CIMInstance instance = _getInstance(
                 tmpNameSpace,
                 tmpRef,
-                false,
                 includeQualifiers,
                 includeClassOrigin,
                 propertyList,
@@ -2224,7 +2196,7 @@ CIMValue CIMRepository::getProperty(
     //
 
     CIMInstance cimInstance = _getInstance(
-        nameSpace, instanceName, false, true, true, CIMPropertyList(), false);
+        nameSpace, instanceName, true, true, CIMPropertyList(), false);
 
     //
     // Get the requested property from the instance

@@ -851,7 +851,7 @@ Boolean populateInstances(Array<CIMInstance>& _instances,
         try
         {
             cSystems.appendArray(_rep->enumerateInstancesForClass( _ns,
-                CSClass, false));
+                CSClass));
         }
         catch(Exception& e)
         {
@@ -884,7 +884,7 @@ Boolean populateInstances(Array<CIMInstance>& _instances,
         {
             const CIMName _testclass(className);
             _instances =_rep->enumerateInstancesForSubtree( _ns,
-                _testclass, true, false );  // deep inh true
+                _testclass, true);  // deep inh true
 
             // Sort the CQL instances to avoid the class ordering problem
             // that happens because the order depends on how the file system
@@ -910,7 +910,7 @@ Boolean populateInstances(Array<CIMInstance>& _instances,
             // Deep inh = true for CQL_TestElement to also get
             // CQL_TestPropertyTypes and CQL_TestPropertyTypesMissing
             _instances = _rep->enumerateInstancesForSubtree( _ns,
-                _testclass1, true, false ); // deep inh true
+                _testclass1, true); // deep inh true
 
             // Sort the CQL instances to avoid the class ordering problem that
             // happens because the order depends on how the file system orders
@@ -922,7 +922,7 @@ Boolean populateInstances(Array<CIMInstance>& _instances,
 
             // only get the CIM_ComputerSystem
             _instances.appendArray(_rep->enumerateInstancesForClass( _ns,
-                _testclass2, false));
+                _testclass2));
         }
         catch(Exception& e)
         {
@@ -1057,7 +1057,7 @@ int main(int argc, char ** argv)
             _instances.clear();
             const CIMName _testclassDEMO(String("CIM_Process"));
             _instances.appendArray(_rep->enumerateInstancesForSubtree( _ns,
-                _testclassDEMO, true, false ));
+                _testclassDEMO, true));
             _instances.remove(6,6);
         }
 

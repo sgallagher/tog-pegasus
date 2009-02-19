@@ -338,7 +338,7 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
         }
         case PG_PROVIDERPROFILECAPABILITIES:
         {
-            instances = enumProviderProfileCapabilityInstances(false, false);
+            instances = enumProviderProfileCapabilityInstances(false);
             break;
         }
 

@@ -718,7 +718,6 @@ int main(int argc, char** argv)
             try
             {
                 Boolean deepInheritance = true;
-                Boolean localOnly = false;
                 Boolean includeClassOrigin = false;
                 Boolean includeQualifiers = false;
 
@@ -741,7 +740,6 @@ int main(int argc, char** argv)
                         clRepository.enumerateInstances(nameSpace,
                                                         className,
                                                         deepInheritance,
-                                                        localOnly,
                                                         includeQualifiers,
                                                         includeClassOrigin);
 

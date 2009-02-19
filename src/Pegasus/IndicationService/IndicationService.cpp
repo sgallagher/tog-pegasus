@@ -1125,7 +1125,6 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
         instance = _indicationServiceConfiguration->getInstance(
             request->nameSpace,
             request->instanceName,
-            request->localOnly,
             request->includeQualifiers,
             request->includeClassOrigin,
             request->propertyList);
@@ -1173,7 +1172,6 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
         instance = _subscriptionRepository->getInstance(
             request->nameSpace,
             request->instanceName,
-            request->localOnly,
             request->includeQualifiers,
             request->includeClassOrigin,
             propertyList);
@@ -1278,7 +1276,6 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
             enumerateInstancesForClass(
                 request->nameSpace,
                 request->className,
-                request->localOnly,
                 request->includeQualifiers,
                 request->includeClassOrigin,
                 request->propertyList);
@@ -1319,7 +1316,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 
         enumInstances =
             _subscriptionRepository->enumerateInstancesForClass(
-                request->nameSpace, request->className, request->localOnly,
+                request->nameSpace, request->className,
                 request->includeQualifiers, request->includeClassOrigin,
                 propertyList);
 
@@ -3324,11 +3321,11 @@ Boolean IndicationService::_canCreate (
         //
         CIMInstance filterInstance =
             _subscriptionRepository->getInstance(filterNS, filterPath,
-            true, false, false, CIMPropertyList());
+                false, false, CIMPropertyList());
 
         CIMInstance handlerInstance =
             _subscriptionRepository->getInstance(handlerNS, handlerPath,
-            true, false, false, CIMPropertyList());
+                false, false, CIMPropertyList());
 
         //
         //  Set the key bindings in the subscription instance
@@ -6738,7 +6735,7 @@ void IndicationService::_handleCreateResponseAggregation(
                 instanceRef.setNameSpace(
                     request->subscriptionInstance.getPath().getNameSpace());
                 instance = _subscriptionRepository->getInstance(
-                    origRequest->nameSpace, instanceRef, false);
+                    origRequest->nameSpace, instanceRef);
                 instance.setPath(instanceRef);
             }
             catch (CIMException& exception)

@@ -176,7 +176,6 @@ CIMInstance CIMOMHandle::getInstance(
         context,
         nameSpace,
         instanceName,
-        localOnly,
         includeQualifiers,
         includeClassOrigin,
         propertyList);
@@ -197,7 +196,6 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
         nameSpace,
         className,
         deepInheritance,
-        localOnly,
         includeQualifiers,
         includeClassOrigin,
         propertyList);

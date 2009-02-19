@@ -875,7 +875,6 @@ void CIMMessageSerializer::_serializeCIMGetInstanceRequestMessage(
     CIMGetInstanceRequestMessage* message)
 {
     _serializeCIMObjectPath(out, message->instanceName);
-    XmlWriter::appendValueElement(out, message->localOnly);
     XmlWriter::appendValueElement(out, message->includeQualifiers);
     XmlWriter::appendValueElement(out, message->includeClassOrigin);
     _serializeCIMPropertyList(out, message->propertyList);
@@ -921,7 +920,6 @@ void CIMMessageSerializer::_serializeCIMEnumerateInstancesRequestMessage(
     CIMEnumerateInstancesRequestMessage* message)
 {
     XmlWriter::appendValueElement(out, message->deepInheritance);
-    XmlWriter::appendValueElement(out, message->localOnly);
     XmlWriter::appendValueElement(out, message->includeQualifiers);
     XmlWriter::appendValueElement(out, message->includeClassOrigin);
     _serializeCIMPropertyList(out, message->propertyList);

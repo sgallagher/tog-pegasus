@@ -142,6 +142,11 @@ class PEGASUS_WSMSERVER_LINKAGE SoapNotUnderstoodFault
 {
 public:
 
+    /**
+        Constructs a SOAP NotUnderstood fault for a specified element name and
+        namespace.  If the element is not scoped within a namespace, the
+        nameSpace parameter must be left blank.
+    */
     SoapNotUnderstoodFault(
         const String& nameSpace,
         const String& headerName);

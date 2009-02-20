@@ -812,8 +812,9 @@ void WsmReader::decodeRequestSoapHeaders(
             // DSP0226 R5.2-2: If a service cannot comply with a header
             // marked with mustUnderstand="true", it shall issue an
             // s:NotUnderstood fault.
+            XmlNamespace* ns = _parser.getNamespace(nsType);
             throw SoapNotUnderstoodFault(
-                _parser.getNamespace(nsType)->extendedName, elementName);
+                ns ? ns->extendedName : String::EMPTY, elementName);
         }
         else
         {
@@ -1133,8 +1134,9 @@ void WsmReader::decodeEnumerateBody(
                 // DSP0226 R5.2-2: If a service cannot comply with a header
                 // marked with mustUnderstand="true", it shall issue an
                 // s:NotUnderstood fault.
+                XmlNamespace* ns = _parser.getNamespace(nsType);
                 throw SoapNotUnderstoodFault(
-                    _parser.getNamespace(nsType)->extendedName, elementName);
+                    ns ? ns->extendedName : String::EMPTY, elementName);
             }
             else
             {
@@ -1207,8 +1209,9 @@ void WsmReader::decodePullBody(
             // DSP0226 R5.2-2: If a service cannot comply with a header
             // marked with mustUnderstand="true", it shall issue an
             // s:NotUnderstood fault.
+            XmlNamespace* ns = _parser.getNamespace(nsType);
             throw SoapNotUnderstoodFault(
-                _parser.getNamespace(nsType)->extendedName, elementName);
+                ns ? ns->extendedName : String::EMPTY, elementName);
         }
         else
         {
@@ -1265,8 +1268,9 @@ void WsmReader::decodeReleaseBody(Uint64& enumerationContext)
             // DSP0226 R5.2-2: If a service cannot comply with a header
             // marked with mustUnderstand="true", it shall issue an
             // s:NotUnderstood fault.
+            XmlNamespace* ns = _parser.getNamespace(nsType);
             throw SoapNotUnderstoodFault(
-                _parser.getNamespace(nsType)->extendedName, elementName);
+                ns ? ns->extendedName : String::EMPTY, elementName);
         }
         else
         {

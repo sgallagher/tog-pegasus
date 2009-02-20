@@ -76,11 +76,20 @@ void WsmWriter::appendSoapFaultHeaders(
     out << STRLIT("<");
     out << WsmNamespaces::supportedNamespaces[
         WsmNamespaces::SOAP_ENVELOPE].localName;
-    out << STRLIT(":NotUnderstood qname=\"ns:");
+    out << STRLIT(":NotUnderstood qname=\"");
+    if (fault.getNamespace().size())
+    {
+        out << STRLIT("ns:");
+    }
     out << fault.getHeaderName();
-    out << STRLIT("\" xmlns:ns=\"");
-    out << fault.getNamespace();
-    out << STRLIT("\"/>");
+    out << STRLIT("\"");
+    if (fault.getNamespace().size())
+    {
+        out << STRLIT(" xmlns:ns=\"");
+        out << fault.getNamespace();
+        out << STRLIT("\"");
+    }
+    out << STRLIT("/>");
     _writeNewlineForReadability(out);
 
     appendSoapHeader(out, action, messageId, relatesTo);

@@ -1097,7 +1097,7 @@ _append_filesSectionToSpecFile: FORCE
             "$(PEGASUS_DOC_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP))" \
 	   "$(PEGASUS_DOC_DIR)/OpenPegasusNOTICE.txt" \
-            >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_LIBRARY_LINKS), \
             $(ECHO-E) "$(PEGASUS_DEST_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH);)

@@ -521,7 +521,8 @@ void slp_service_agent::start_listener()
     {
         throw UninitializedObjectException();
     }
-#ifndef PEGASUS_USE_EXTERNAL_SLP_TYPE
+#if !defined(PEGASUS_USE_EXTERNAL_SLP_TYPE) ||  \
+    (defined(PEGASUS_USE_EXTERNAL_SLP_TYPE) && defined(PEGASUS_SLP_REG_TIMEOUT))
     _using_das = _find_das(_rep, NULL, "DEFAULT");
 
     _should_listen = 1;

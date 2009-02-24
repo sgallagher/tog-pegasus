@@ -53,7 +53,11 @@
 #include "HttpConstants.h"
 #include "XMLProcess.h"
 #include "WbemExecCommand.h"
+#ifdef PEGASUS_WMIMAPPER
+#include <WMIMapper/wbemexec/WMIWbemExecClient.h>
+#else
 #include "WbemExecClient.h"
+#endif
 
 #ifdef PEGASUS_OS_ZOS
 #include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
@@ -512,7 +516,11 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     Buffer                    message;
     Buffer                    httpHeaders;
     Buffer                    httpResponse;
+#ifdef PEGASUS_WMIMAPPER
+    WMIWbemExecClient client;
+#else
     WbemExecClient client;
+#endif
 
     client.setTimeout( _timeout );
 

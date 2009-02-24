@@ -38,7 +38,8 @@ DIRS = \
 	PegServer \
 	WMIServer \
 	WMIOP \
-	WbemConsumer
+	WbemConsumer \
+	wbemexec
 	
 
 include $(ROOT)/mak/recurse.mak
@@ -50,6 +51,7 @@ mapper:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/WMIMapper/PegServer -f Makefile copy2
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/WMIMapper/WMIServer -f Makefile copy2
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/WMIMapper/WbemConsumer -f Makefile prepare
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/WMIMapper/Wbemexec -f Makefile copy2
 
 rebuild:  clean depend all
 

@@ -354,7 +354,8 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         response->cimClass = provider.getClass(
             request->nameSpace.getString(),
@@ -412,7 +413,8 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         CIMInstance cimInstance = provider.getInstance(
             request->nameSpace.getString(),
@@ -474,7 +476,8 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         provider.deleteClass(
             request->nameSpace.getString(),
@@ -526,7 +529,8 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         provider.deleteInstance(
             request->nameSpace.getString(),
@@ -578,7 +582,8 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         provider.createClass(
             request->nameSpace.getString(),
@@ -630,7 +635,8 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         response->instanceName = provider.createInstance(
             request->nameSpace.getString(),
@@ -682,7 +688,8 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         provider.modifyClass(
             request->nameSpace.getString(),
@@ -734,7 +741,8 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         provider.modifyInstance(
            request->nameSpace.getString(),
@@ -788,7 +796,8 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         response->cimClasses = provider.enumerateClasses(
             request->nameSpace.getString(),
@@ -844,7 +853,8 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         response->classNames = provider.enumerateClassNames(
             request->nameSpace.getString(),
@@ -899,7 +909,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize( );
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         cimNamedInstances = provider.enumerateInstances(
             request->nameSpace.getString(),
@@ -955,7 +966,8 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
         StatProviderTimeMeasurement providerTime(response.get());
 
         // make the request...
-        provider.initialize( );
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         response->instanceNames = provider.enumerateInstanceNames(
             request->nameSpace.getString(),
@@ -1007,7 +1019,8 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize( );
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         // ATTN: fix parameter list
 
@@ -1068,7 +1081,8 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize( );
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         response->objectNames = provider.associatorNames(
             request->nameSpace.getString(),
@@ -1125,7 +1139,8 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize( );
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         // ATTN: fix parameter list
 
@@ -1184,7 +1199,8 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize( );
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         response->objectNames = provider.referenceNames(
             request->nameSpace.getString(),
@@ -1238,7 +1254,8 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         response->value = provider.getProperty(
             request->nameSpace.getString(),
@@ -1326,7 +1343,8 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         provider.setProperty(
             request->nameSpace.getString(),
@@ -1379,7 +1397,8 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         response->cimQualifierDecl = provider.getQualifier(
             request->nameSpace.getString(),
@@ -1430,7 +1449,8 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         provider.setQualifier(
             request->nameSpace.getString(),
@@ -1481,7 +1501,8 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         provider.deleteQualifier(
             request->nameSpace.getString(),
@@ -1532,7 +1553,8 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         response->qualifierDeclarations = provider.enumerateQualifiers(
             request->nameSpace.getString(),
@@ -1582,7 +1604,8 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         response->cimObjects = provider.execQuery(
             request->nameSpace.getString(),
@@ -1665,7 +1688,8 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
         StatProviderTimeMeasurement providerTime(response.get());
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         response->retValue = provider.invokeMethod(
             request->nameSpace.getString(),
@@ -1823,7 +1847,10 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                 {
                     WMIClassProvider provider;
 
-                    provider.initialize();
+                    provider.initialize(
+                        String::equalNoCase(
+                            request->authType, 
+                            LOCAL_CALL_AUTH_TYPE));
 
                     WMIMapperUserInfoContainer container =
                         request->operationContext.get
@@ -1967,7 +1994,8 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
         WMIMapperUserInfoContainer container =
             request->operationContext.get("WMIMapperUserInfoContainer");
 
-        provider.initialize();
+        provider.initialize(
+            String::equalNoCase(request->authType, LOCAL_CALL_AUTH_TYPE));
 
         cimClass = provider.getClass(
             request->nameSpace.getString(),

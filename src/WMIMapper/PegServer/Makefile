@@ -60,7 +60,8 @@ SOURCES = \
     CIMOperationRequestDispatcher.cpp \
     CIMOperationRequestAuthorizer.cpp \
     CIMServerState.cpp \
-	WMIMapperUserInfoContainer.cpp
+    LocalCIMServer.cpp \
+    WMIMapperUserInfoContainer.cpp
 
 SYS_LIBS = ws2_32.lib advapi32.lib
 ifdef PEGASUS_HAS_SSL

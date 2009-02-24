@@ -155,18 +155,23 @@ public:
         running on the local system in the default location.  The
         connection is automatically authenticated for the current
         user.
+        The connectLocal call is virtual because WMIMapper wbemexec 
+        functionality defines a subclass to WbemExecClient and
+        overrides this method.
         @return - No return defined. Failure to connect throws an exception.
         @see connect - The exceptions are defined in connect.
     */
-    void connectLocal();
+    virtual void connectLocal();
 
     /** disconnect - Closes the connection with the server if the connection
         was open, simply returns if the connection was not open. Clients are
         expected to use this method to close the open connection before
         opening a new connection.
+        The disconnect call is virtual because WMIMapper wbemexec 
+        defines a subclass to WbemExecClient and overrides this method.
         @return - No return defined.
     */
-    void disconnect();
+    virtual void disconnect();
 
 
     /** ATTN TBD
@@ -174,7 +179,10 @@ public:
         @exception ConnectionTimeoutException
         @exception UnauthorizedAccess
     */
-    Buffer issueRequest(const Buffer& request);
+    /* The WMIMapper wbemexec functionality defines a subclass to 
+       WbemExecClient and overrides this method.
+    */
+    virtual Buffer issueRequest(const Buffer& request);
 
 private:
 
@@ -203,9 +211,7 @@ private:
     HTTPConnection* _httpConnection;
 
     Uint32 _timeoutMilliseconds;
-    Boolean _connected;
     ClientAuthenticator _authenticator;
-    Boolean _isRemote;
 
     // Connection parameters
     String _connectHost;
@@ -216,6 +222,11 @@ private:
         The password to be used for authorization of the operation.
      */
     String _password;
+
+protected:
+    /* The subclass can access these fields*/
+    Boolean _connected;
+    Boolean _isRemote;
 };
 
 PEGASUS_NAMESPACE_END

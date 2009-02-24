@@ -26,79 +26,57 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT = ../..
+
+ROOT = ../../..
+
+DIR = WMIMapper/wbemexec
 
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-    cimcli \
-    cliutils \
-    cimconfig \
-    cimuser \
-    cimauth \
-    cimprovider \
-    osinfo \
-    tomof \
-    ipinfo \
-    cimperf \
-    repupgrade  \
-    cimsub \
-    repupgrade/SSPModules/SampleSSPModule \
-    loadxml
-
-TEST_DIRS = \
-    TestClient \
-    cimprovider/tests \
-    g11ntest \
-    benchmarkTest \
-    cimsub/tests \
-    repupgrade/tests \
-
-# In WMIMapper, wbemexec functionality for windows is available
-# No need to build the wbemexec under Clients directory 
-
-ifneq ($(PEGASUS_BUILD_WMIMAPPER),true)
-    DIRS += wbemexec
-    TEST_DIRS += wbemexec/tests
-endif
-
-ifeq ($(OS),HPUX)
-    DIRS += \
-        ntpinfo \
-        dnsinfo \
-        nisinfo
-endif
-
-ifeq ($(OS),VMS)
-    DIRS += \
-        ntpinfo \
-        dnsinfo \
-        nisinfo
-endif
-
 ifdef PEGASUS_HAS_SSL
-    DIRS += \
-        TestCertClient \
-        cimtrust
-    TEST_DIRS += cimtrust/tests
-    ifeq ($(PEGASUS_ENABLE_SSL_CRL_VERIFICATION),true)
-        DIRS += cimcrl
-        TEST_DIRS += cimcrl/tests
-    endif
+  FLAGS += -DPEGASUS_HAS_SSL -DPEGASUS_SSL_RANDOMFILE
+  SYS_INCLUDES += -I$(OPENSSL_HOME)/include
 endif
 
-ifneq ($(OS_TYPE),windows)
-    DIRS += cimreparchive
-    TEST_DIRS += cimreparchive/tests
-endif
+SYS_INCLUDES += -I$(PEGASUS_ROOT)/src/Clients/wbemexec
 
-#The following tests are NOT included as part of the standard
-#regession test.  The cimuser tests require PrivilegedUser
-#access to execute successfully.  The cimconfig tests modify
-#configuration files.
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-XDIRS = \
-    cimconfig/tests \
-    cimuser/tests
+LIBRARIES = \
+        pegcommon \
+        peggetoopt \
+        pegwmiclient \
+        pegcliutils \
+        pegconfig \
+        pegwmiserver
 
-include $(ROOT)/mak/recurse.mak
+SOURCES = \
+        WbemExecClient.cpp \
+        WbemExecException.cpp \
+        XMLProcess.cpp \
+        WbemExecCommand.cpp \
+        WMIWbemExecClient.cpp
+
+EXTRA_INCLUDES = $(SYS_INCLUDES)
+
+PROGRAM = wbemexec
+
+SYS_LIBS = ws2_32.lib advapi32.lib
+
+include $(ROOT)/mak/program.mak
+
+copy2:
+	$(COPY) "$(ROOT)/src/Clients/wbemexec/WbemExecClient.cpp" "./WbemExecClient.cpp"
+	$(COPY) "$(ROOT)/src/Clients/wbemexec/WbemExecClient.h" "./WbemExecClient.h"
+	$(COPY) "$(ROOT)/src/Clients/wbemexec/WbemExecException.cpp" "./WbemExecException.cpp"
+	$(COPY) "$(ROOT)/src/Clients/wbemexec/WbemExecException.h" "./WbemExecException.h"
+	$(COPY) "$(ROOT)/src/Clients/wbemexec/XMLProcess.cpp" "./XMLProcess.cpp"
+	$(COPY) "$(ROOT)/src/Clients/wbemexec/XMLProcess.h" "./XMLProcess.h"
+	$(COPY) "$(ROOT)/src/Clients/wbemexec/WbemExecCommand.cpp" "./WbemExecCommand.cpp"
+	$(COPY) "$(ROOT)/src/Clients/wbemexec/WbemExecCommand.h" "./WbemExecCommand.h"
+
+tests:
+
+poststarttests:
+
+install:

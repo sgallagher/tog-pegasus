@@ -145,18 +145,6 @@ void CIMOperationResponseEncoder::sendResponse(
         return;
     }
 
-    HTTPConnection* httpQueue = dynamic_cast<HTTPConnection*>(queue);
-
-    if (! httpQueue)
-    {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "ERROR: Unknown queue type. queueId = %u, response not sent.",
-            queueId));
-        PEG_METHOD_EXIT();
-        return;
-    }
-
-    Boolean isChunkRequest = httpQueue->isChunkRequested();
     HttpMethod httpMethod = response->getHttpMethod();
     String& messageId = response->messageId;
     CIMException& cimException = response->cimException;
@@ -220,10 +208,20 @@ void CIMOperationResponseEncoder::sendResponse(
 
     if (cimException.getCode() != CIM_ERR_SUCCESS)
     {
-        STAT_SERVEREND_ERROR
+        HTTPConnection* httpQueue = dynamic_cast<HTTPConnection*>(queue);
+        Boolean isChunkRequest = false;
+        Boolean isFirstError = true;
+
+        // Note:  The WMI Mapper may use a non-HTTPConnection queue here.
+        if (httpQueue)
+        {
+            isChunkRequest = httpQueue->isChunkRequested();
+            isFirstError =
+                (httpQueue->cimException.getCode() == CIM_ERR_SUCCESS);
+        }
 
         // only process the FIRST error
-        if (httpQueue->cimException.getCode() == CIM_ERR_SUCCESS)
+        if (isFirstError)
         {
             // NOTE: even if this error occurs in the middle, HTTPConnection
             // will flush the entire queued message and reformat.

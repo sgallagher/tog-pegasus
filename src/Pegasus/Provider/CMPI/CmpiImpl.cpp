@@ -3281,7 +3281,7 @@ CmpiBooleanData CmpiFalse(false);
 
 #ifdef CMPI_VER_200
  static  CMPIBroker __providerBaseBroker = {0,0,0,0,0};
-#elif defined(CMPI_VER_100)
+#elif CMPI_VER_100
  static  CMPIBroker __providerBaseBroker = {0,0,0,0};
 #else
  static CMPIBroker __providerBaseBroker = {0,0,0};

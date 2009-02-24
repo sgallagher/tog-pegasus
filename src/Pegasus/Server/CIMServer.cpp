@@ -501,6 +501,15 @@ void CIMServer::_init()
 #endif
 }
 
+void CIMServer::initComplete()
+{
+    // CIMServer initialization is now complete. Inform indication service
+    // to send CIMSubscriptionInitCompleteRequestMessage.
+    if (_indicationService)
+    {
+        _indicationService->sendSubscriptionInitComplete();
+    }
+}
 
 CIMServer::~CIMServer ()
 {

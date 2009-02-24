@@ -129,6 +129,12 @@ public:
 
     Uint32 getOutstandingRequestCount();
 
+    /** Performs any initializations required before accepting the requests.
+        Currently this method is used for IndicationService to send the
+        CIMSubscriptionInitCompleteRequestMessage.
+    */
+    void initComplete();
+
     /** Signal to shutdown
     */
     static void shutdownSignal();

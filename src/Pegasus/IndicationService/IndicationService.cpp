@@ -855,13 +855,6 @@ void IndicationService::_initialize()
         }
     }
 
-    //
-    //  Send message to tell Provider Manager that subscription
-    //  initialization is complete
-    //  Provider Manager calls providers' enableIndications method
-    //
-    _sendSubscriptionInitComplete();
-
 #ifdef PEGASUS_INDICATION_PERFINST
     stopWatch.stop();
 
@@ -7062,10 +7055,10 @@ void IndicationService::_sendAlerts(
 }
 #endif
 
-void IndicationService::_sendSubscriptionInitComplete()
+void IndicationService::sendSubscriptionInitComplete()
 {
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
-        "IndicationService::_sendSubscriptionInitComplete");
+        "IndicationService::sendSubscriptionInitComplete");
 
     //
     //  Create the Subscription Init Complete request
@@ -7077,6 +7070,7 @@ void IndicationService::_sendSubscriptionInitComplete()
 
     //
     //  Send Subscription Initialization Complete request to provider manager
+    //  Provider Manager calls providers' enableIndications method
     //
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart(

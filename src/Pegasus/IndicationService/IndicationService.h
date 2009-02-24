@@ -94,6 +94,12 @@ public:
      */
     static String getProviderLogString(CIMInstance& provider);
 
+    /**
+        Sends a Subscription Init Complete request to the Provider
+        Manager Service.
+     */
+    void sendSubscriptionInitComplete();
+
     AtomicInt dienow;
 
     /**
@@ -1076,12 +1082,6 @@ private:
         const Array<CIMInstance>& subscriptions,
         /* const */ CIMInstance& alertInstance);
 #endif
-
-    /**
-        Sends a Subscription Init Complete request to the Provider
-        Manager Service.
-     */
-    void _sendSubscriptionInitComplete();
 
     /**
         Gets the value of the Creator property from the specified Subscription

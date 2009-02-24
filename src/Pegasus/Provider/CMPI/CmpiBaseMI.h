@@ -58,7 +58,7 @@ public:
     static CMPIStatus driveBaseCleanup(
         void* mi,
         const CMPIContext* eCtx,
-        CMPIBoolean b);
+        CMPIBoolean terminating);
 
     virtual CmpiStatus initialize(const CmpiContext& ctx);
     virtual CmpiStatus cleanup(CmpiContext& ctx);

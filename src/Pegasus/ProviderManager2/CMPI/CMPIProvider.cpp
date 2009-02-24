@@ -392,6 +392,12 @@ void CMPIProvider::_terminate(Boolean terminating)
         waitUntilThreadsDone();
 
     }
+    // We have killed all threads running in provider forcibly. Set 
+    // unloadStatus of provider to OK.
+    if (terminating)
+    {
+        unloadStatus = CMPI_RC_OK;
+    }
     PEG_METHOD_EXIT();
 }
 
@@ -408,12 +414,7 @@ void CMPIProvider::terminate()
         {
 
             _terminate(true);
-            if (unloadStatus != CMPI_RC_OK)
-            {
-                _status=savedStatus;
-                PEG_METHOD_EXIT();
-                return;
-            }
+            PEGASUS_ASSERT(unloadStatus == CMPI_RC_OK);
         }
         catch (...)
         {

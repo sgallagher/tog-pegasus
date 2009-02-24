@@ -152,51 +152,6 @@ void SLPRegCallback(SLPHandle slp_handle, SLPError errcode, void* cookie)
 }
 #endif /* PEGASUS_USE_EXTERNAL_SLP_TYPE */
 
-uint16 slp_service_agent::_getSLPPort()
-{
-    uint16  localPort;
-
-    struct servent  *serv;
-    struct servent  serv_result;
-
-#define SERV_BUFF_SIZE  1024
-
-    char buf[SERV_BUFF_SIZE];
-
-    // Get the port number.
-
-#if defined(PEGASUS_OS_SOLARIS)
-
-    if ((serv = getservbyname_r(
-        SLP_SERVICE_NAME, "udp", &serv_result, buf, SERV_BUF_SIZE)) != NULL)
-#elif defined(PEGASUS_OS_LINUX)
-
-    int ret = getservbyname_r(
-        SLP_SERVICE_NAME,
-        "udp",
-        &serv_result,
-        buf,
-        SERV_BUFF_SIZE,
-        &serv);
-
-    if (ret == 0 && serv != NULL)
-#else
-    if ((serv = getservbyname(SLP_SERVICE_NAME, "udp")) != NULL)
-#endif
-    {
-#if defined (PEGASUS_OS_WINDOWS)
-        localPort = ntohs(serv->s_port);
-#else
-        localPort = htons(serv->s_port);
-#endif
-    }
-    else
-    {
-        localPort = DEFAULT_SLP_PORT;
-    }
-
-    return localPort;
-}
 
 slp_service_agent::slp_service_agent()
    : _listen_thread(service_listener, this, false),
@@ -217,11 +172,10 @@ slp_service_agent::slp_service_agent()
         _rep = _create_client(
             0,
             0,
-            _getSLPPort(),
+            427,
             "DSA",
             "DEFAULT",
-// Dont create listener sockets if REG_TIMEOUT or EXTERNAL_SLP_TYPE is set
-#if defined(PEGASUS_SLP_REG_TIMEOUT) || defined(PEGASUS_USE_EXTERNAL_SLP_TYPE)
+#ifdef PEGASUS_SLP_REG_TIMEOUT
             FALSE,
 #else
             TRUE,
@@ -450,21 +404,20 @@ void slp_service_agent::update_reg_count()
 }
 #endif
 
-void slp_service_agent::unregister(Boolean stopListener)
+void slp_service_agent::unregister()
 {
     if (_initialized.get() == 0 )
     {
         throw UninitializedObjectException();
     }
 
-    if (stopListener && _should_listen.get())
-    {
-        _should_listen = 0;
+#ifndef PEGASUS_USE_EXTERNAL_SLP_TYPE
+    _should_listen = 0;
 #ifdef PEGASUS_SLP_REG_TIMEOUT
-        _update_reg_semaphore.signal();
+    _update_reg_semaphore.signal();
 #endif
-        _listen_thread.join();
-    }
+    _listen_thread.join();
+#endif  /* PEGASUS_USE_EXTERNAL_SLP_TYPE */
 
     while (slp_reg_table::Iterator i = _internal_regs.start())
     {
@@ -481,11 +434,26 @@ void slp_service_agent::unregister(Boolean stopListener)
                 rp->url,
                 SLPRegCallback,
                 &callbackErr);
+            if ((slpErr != SLP_OK) || (callbackErr != SLP_OK))
+            {
+                SLPClose(slp_handle);
+                /* No need to report error since we're probably shutting
+                   down anyway.
+                */
+                continue;
+            }
             SLPClose(slp_handle);
         }
-#else
+        else
+        {
+            /* No need to report error since we're probably shutting
+               down anyway.
+            */
+            continue;
+        }
+#elif PEGASUS_SLP_REG_TIMEOUT
         // Unregister with external SLP SA.
-        sa_reg_params *p=0;
+        sa_reg_params *p;
 
         _internal_regs.lookup(rp->url, p);
         _rep->srv_reg_local(_rep,
@@ -553,8 +521,14 @@ void slp_service_agent::start_listener()
     {
         throw UninitializedObjectException();
     }
-    _should_listen = 0;
+#if !defined(PEGASUS_USE_EXTERNAL_SLP_TYPE) ||  \
+    (defined(PEGASUS_USE_EXTERNAL_SLP_TYPE) && defined(PEGASUS_SLP_REG_TIMEOUT))
+    _using_das = _find_das(_rep, NULL, "DEFAULT");
+
+    _should_listen = 1;
     _listen_thread.run();
+#endif /* PEGASUS_USE_EXTERNAL_SLP_TYPE */
+
 }
 
 
@@ -575,18 +549,11 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
     }
     slp_service_agent *agent = (slp_service_agent *)myself->get_parm();
 
-
-#if defined(PEGASUS_SLP_REG_TIMEOUT)
-    Uint16 life = PEGASUS_SLP_REG_TIMEOUT * 60;
-#elif !defined(PEGASUS_USE_EXTERNAL_SLP_TYPE)
-    agent->_using_das = agent->_find_das(agent->_rep, NULL, "DEFAULT");
-#endif
-
-    agent->_should_listen = 1;
-#ifndef PEGASUS_SLP_REG_TIMEOUT
     lslpMsg msg_list;
-#endif
 
+#ifdef PEGASUS_SLP_REG_TIMEOUT
+    Uint16 life = PEGASUS_SLP_REG_TIMEOUT * 60;
+#endif
     while (agent->_should_listen.get())
     {
         Uint32 now, msec;
@@ -601,7 +568,7 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
 #ifdef PEGASUS_USE_EXTERNAL_SLP_TYPE
             SLPHandle slp_handle = 0;
             SLPError slpErr = SLP_OK;
-            SLPError callbackErr = SLP_OK;
+            SLPError callbackErr=SLP_OK;
             if ((slpErr = SLPOpen(slp_lang, SLP_FALSE, &slp_handle))
                 == SLP_OK)
             {
@@ -669,7 +636,6 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
             // semaphore is signalled means we have to update registrations.
             else if (agent->_should_listen.get())
             {
-                agent->unregister(false);
                 agent->update_registrations();
             }
         }
@@ -677,34 +643,15 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
         {
         }
 #else
-         agent->_rep->service_listener(agent->_rep, 0, &msg_list);
+        agent->_rep->service_listener(agent->_rep, 0, &msg_list);
         _LSLP_SLEEP(1);
         if (agent->_update_reg_count.get() && agent->_should_listen.get())
         {
-            agent->unregister(false);
             agent->update_registrations();
             agent->_update_reg_count--;
         }
 #endif
     }
-
-#ifndef PEGASUS_SLP_REG_TIMEOUT
-    //Reaching here means listening is stopped,
-    //Free the memories used by thread
-    //
-    //Free the replies
-    lslpMsg *temp;
-    while(! _LSLP_IS_EMPTY( &msg_list))
-    {
-        temp = msg_list.next;
-        _LSLP_UNLINK(temp);
-
-        //safe to do free here as the lslpMsg is dynamically destructed
-        free(temp);
-    }
-#endif
-
-
 #endif /* PEGASUS_USE_EXTERNAL_SLP_TYPE */
     return ThreadReturnType(0);
 }

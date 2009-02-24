@@ -1008,15 +1008,8 @@ int CIMServerProcess::cimserver_run(
         }
         else
         {
-            MessageLoaderParms parms(
-                "src.Server.cimserver.IPV6_STACK_NOT_ACTIVE",
+            PEG_TRACE_CSTRING(TRC_SERVER,Tracer::LEVEL4,
                 "IPv6 stack is not active, using IPv4 socket.");
-            Logger::put_l(
-                Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
-                parms);
-#if defined(PEGASUS_DEBUG)
-            cout << MessageLoader::getMessage(parms) << endl;
-#endif
         }
 #endif
         if (!addIP6Acceptor)

@@ -3783,6 +3783,8 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note PGS10042:
         *    Do not translate the word 'IPv6' since it is an IETF protocol name.
+        *
+        *   This message is no longer used as of version 2.10.0
         */
         src.Server.cimserver.IPV6_STACK_NOT_ACTIVE:string {"PGS10042: IPv6 stack is not active, using IPv4 socket."}
 

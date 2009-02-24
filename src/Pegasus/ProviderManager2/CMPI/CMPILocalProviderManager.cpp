@@ -1016,7 +1016,7 @@ CMPIProvider *CMPILocalProviderManager::_initProvider(
     CIMStopAllProvidersRequestMessage and
     CMPILocalProviderManager::_provider_ctrl() method could not unload the
     provider(s) because of pending requests with the provider. We give grace
-    time of (shutdownTimeout - 1) seconds to the unload pending providers
+    time of (90% of shutdownTimeout) seconds to the unload pending providers
     to unload gracefully before terminating them forcibly. Note that this
     happens only when provider is running out-of-process and communication
     with CIMServer falied because of pipe read/write failures.
@@ -1039,8 +1039,16 @@ void CMPILocalProviderManager::_terminateUnloadPendingProviders(
 
     Uint32 timeoutValue =
         strtol(configTimeout.getCString(), (char **)0, 10);
+    // Calculate 90% of timeout value, minimum 1 second.
+    timeoutValue =  (Uint32)((timeoutValue - 1) * 0.9);
+    timeoutValue++;
 
-    for (Uint32 waitTime = timeoutValue - 1; waitTime > 0; waitTime--)
+    struct timeval startTime;
+    struct timeval timeNow;
+
+    Time::gettimeofday(&startTime);
+
+    for (;;)
     {
         Boolean unloadPending = false;
         for (Uint32 j = 0, n = unloadPendingProviders.size(); j < n; ++j)
@@ -1056,7 +1064,11 @@ void CMPILocalProviderManager::_terminateUnloadPendingProviders(
                 }
             }
         }
-        if (!unloadPending)
+        // Get the current time and check if it exceeds
+        // or equals to timeoutValue.
+        Time::gettimeofday(&timeNow);
+        if (((Uint32)(timeNow.tv_sec - startTime.tv_sec)) >= timeoutValue
+            || !unloadPending)
         {
             break;
         }

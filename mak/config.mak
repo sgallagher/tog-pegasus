@@ -1288,15 +1288,14 @@ endif
 ##==============================================================================
 
 ifdef PEGASUS_USE_STATIC_LIBRARIES
-  ifeq ($(OS_TYPE),windows)
-    $(error PEGASUS_USE_STATIC_LIBRARIES is not support on windows.)
-  else
-      ifneq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
-        $(error PEGASUS_USE_STATIC_LIBRARIES \
-          ($(PEGASUS_USE_STATIC_LIBRARIES)) invalid, must be true.)
-      endif
+    ifeq ($(OS_TYPE),windows)
+        $(error PEGASUS_USE_STATIC_LIBRARIES is not support on windows.)
+    else
+        ifneq ($(PEGASUS_USE_STATIC_LIBRARIES),true)
+            $(error PEGASUS_USE_STATIC_LIBRARIES \
+                ($(PEGASUS_USE_STATIC_LIBRARIES)) invalid, must be true.)
+        endif
     endif
-  endif
 endif
 
 ##==============================================================================

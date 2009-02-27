@@ -2572,6 +2572,11 @@ PEGASUS_EXPORT int PEGASUS_CMPIR_CDECL start_remote_daemon()
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     pegthreadOnceMutex=CreateMutex(NULL,FALSE,NULL);
+    if (pegthreadOnceMutex == NULL)
+    {
+        TRACE_CRITICAL(("CreateMutex failed: %s",
+            PEGASUS_SYSTEM_ERRORMSG_NLS));
+    }
 #endif
 
     CMPI_BrokerExt_Ftab->threadOnce(&__once, (void*)__launch_remote_daemon);

@@ -355,8 +355,12 @@ Array<CIMInstance> InteropProvider::enumProviderProfileCapabilityInstances(
         {
             CIMKeyBinding pKey(PROVIDER_PROPERTY_NAME, providerName);
 
+            CIMKeyBinding moduleKey(
+                PROVIDER_PROPERTY_PROVIDERMODULENAME,
+                moduleName);
+
             Array<CIMKeyBinding> pKeyBindings;
-            pKeyBindings.append(pmKey);
+            pKeyBindings.append(moduleKey);
             pKeyBindings.append(pKey);
 
             CIMObjectPath providerRef(

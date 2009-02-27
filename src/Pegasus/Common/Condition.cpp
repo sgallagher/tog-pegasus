@@ -31,6 +31,8 @@
 
 #include "Condition.h"
 #include "PegasusAssert.h"
+#include "Exception.h"
+#include "System.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -88,7 +90,13 @@ ConditionWaiter* _get_waiter()
     {
         waiter = new ConditionWaiter;
         waiter->event = CreateEvent(0, TRUE, FALSE, 0);
-        PEGASUS_DEBUG_ASSERT(waiter->event != NULL);
+        if (waiter->event == NULL)
+        {
+            throw Exception(MessageLoaderParms(
+                "Common.InternalException.CREATE_EVENT_FAILED",
+                "CreateEvent failed : $0",
+                PEGASUS_SYSTEM_ERRORMSG_NLS));
+        }
         TlsSetValue(_waiter_tls, waiter);
     }
 

@@ -375,6 +375,13 @@ Semaphore::Semaphore(Uint32 initial)
     }
     _rep.owner = Threads::self();
     _rep.sem = CreateSemaphore(NULL, initial, PEGASUS_SEM_VALUE_MAX, NULL);
+    if (_rep.sem == NULL)
+    {
+        throw Exception(MessageLoaderParms(
+            "Common.InternalException.SEMAPHORE_INIT_FAILED",
+            "Semaphore initialization failed: $0",
+            PEGASUS_SYSTEM_ERRORMSG_NLS));
+    }
 }
 
 Semaphore::~Semaphore()

@@ -215,6 +215,13 @@ void Mutex::reinitialize()
 static inline void _initialize(MutexRep& rep)
 {
     rep.handle = CreateMutex(NULL, FALSE, NULL);
+    if (rep.handle == NULL)
+    {
+        throw Exception(MessageLoaderParms(
+            "Common.InternalException.CREATE_MUTEX_FAILED",
+            "CreateMutex failed : $0",
+            PEGASUS_SYSTEM_ERRORMSG_NLS));
+    }
     rep.count = 0;
 }
 

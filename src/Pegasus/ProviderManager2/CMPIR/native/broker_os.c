@@ -320,7 +320,15 @@ static CMPI_MUTEX_TYPE newMutex (int opt)
     }
     return(CMPI_MUTEX_TYPE) new_mutex;
 #elif defined PEGASUS_OS_TYPE_WINDOWS
-    return CreateMutex(NULL,FALSE,NULL);
+    MutexType new_mutex;
+    new_mutex = CreateMutex(NULL,FALSE,NULL);
+    if (new_mutex == NULL)
+    {
+        TRACE_CRITICAL(("CreateMutex failed: %s",
+            PEGASUS_SYSTEM_ERRORMSG_NLS));
+        return NULL;
+    }
+    return(CMPI_MUTEX_TYPE) new_mutex;
 #else
 # error Platform for Remote CMPI daemon not yet supported
 #endif
@@ -387,6 +395,11 @@ static CMPI_COND_TYPE newCondition (int opt)
 #elif defined PEGASUS_OS_TYPE_WINDOWS
     HANDLE c;
     c = CreateEvent( NULL, FALSE, FALSE, NULL );
+    if (c == NULL)
+    {
+        TRACE_CRITICAL(("CreateEvent failed: %s",
+            PEGASUS_SYSTEM_ERRORMSG_NLS));
+    }
     return c;
 #else
 # error Platform for Remote CMPI daemon not yet supported

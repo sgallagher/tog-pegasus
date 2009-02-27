@@ -637,7 +637,6 @@ String SLPProvider::getRegisteredProfileList()
     const String propDependent("Dependent");
     const String propAntecedent("Antecedent");
     const String strColon(":");
-    const String strProfileRegName("Profile Registration");
     const String strDMTF("DMTF");
 
 // No reason to use deepInheritance for now as we do not support sub-classes
@@ -765,6 +764,24 @@ try
         // Check for DMTF profiles
         if (RegOrg == strDMTF)
         {
+            // Check if this profile is sub-profile.
+            Array<CIMObject> profiles = _cimomHandle.associators(
+                OperationContext(),
+                PEGASUS_NAMESPACENAME_INTEROP,
+                objectPath,
+                referencedProfileClassName,
+                CIMName(),
+                propAntecedent,
+                String::EMPTY,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList());
+
+            if (profiles.size())
+            {
+                continue;
+            }
+
             subProfiles = _cimomHandle.associators(
                 OperationContext(),
                 PEGASUS_NAMESPACENAME_INTEROP,
@@ -780,6 +797,24 @@ try
         else
         {
             // check for SNIA or Other profiles
+            // Check if this profile is sub-profile.
+            Array<CIMObject> profiles = _cimomHandle.associators(
+                OperationContext(),
+                PEGASUS_NAMESPACENAME_INTEROP,
+                objectPath,
+                subProfileRequiresProfileClassName,
+                CIMName(),
+                propDependent,
+                String::EMPTY,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList());
+
+            if (profiles.size())
+            {
+                continue;
+            }
+
             subProfiles = _cimomHandle.associators(
                 OperationContext(),
                 PEGASUS_NAMESPACENAME_INTEROP,
@@ -791,13 +826,6 @@ try
                 includeQualifiers,
                 includeClassOrigin,
                 CIMPropertyList());
-        }
-        if (!subProfiles.size())
-        {
-            if (RegName != strProfileRegName)
-            {
-                continue;
-            }
         }
 
         CDEBUG("Value of RegName =" << RegName);

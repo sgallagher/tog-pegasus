@@ -416,6 +416,18 @@ en:table {
         */
         Common.InternalException.CANNOT_CHANGE_FILE_PERM:string {"PGS00240: Cannot change permissions of file: {0}"}
 
+        /**
+        * @note PGS00241:
+        *     Substitution {0} is an error message string
+        */
+        Common.InternalException.CREATE_MUTEX_FAILED:string {"PGS00241: CreateMutex failed: {0}"}
+
+        /**
+        * @note PGS00242:
+        *     Substitution {0} is an error message string
+        */
+        Common.InternalException.CREATE_EVENT_FAILED:string {"PGS00242: CreateEvent failed: {0}"}
+
         // ==========================================================
         // Messages for Exception
         //  Please use message prefix "PGS00400"
@@ -3805,6 +3817,12 @@ CIM server listening on HTTPS port {0}."}
         * @note PGS10045:
         */
         src.Server.cimserver.CIMSERVER_NOT_RUNNING:string {"PGS10045: The CIM Server is not running."}
+
+        /**
+        * Substitution {0} is a string that is the error details.
+        * @note PGS10046:
+        */
+        src.Server.cimserver_windows.EVENT_CREATION_FAILED:string {"PGS10046: Event creation failed : {0}"}
 
         // ==========================================================
         // Messages for IndicationService

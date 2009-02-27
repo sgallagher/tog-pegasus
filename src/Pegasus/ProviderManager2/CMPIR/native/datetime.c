@@ -60,6 +60,7 @@
 
 #include "mm.h"
 #include "native.h"
+#include "debug.h"
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 # define UINT64_LITERAL(x)  ((CMPIUint64)x)
@@ -409,6 +410,12 @@ int getCurrentTimeZone()
                 break;
             }
 
+        case TIME_ZONE_ID_INVALID:
+        {
+            TRACE_CRITICAL(("Invalid Time zone returned by "
+                "GetTimeZoneInformation()"));
+            break;
+        }
         default:
             break;
     }

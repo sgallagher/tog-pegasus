@@ -5303,7 +5303,11 @@ CIM server listening on HTTPS port {0}."}
         */
         Common.CIMDateTime.INVALID_OPERATION_COMP_DIF:string {"PGS14408:Trying to compare CIMDateTime objects of differing types."}
 
-
+        /**
+        * @note  PGS14409
+        *     Substitution {0] is a error message (a string) 
+        */
+        Common.CIMDateTime.INVALID_TIME_ZONE:string {"PGS14409: Invalid timezone information : {0}"}
 
         // ==========================================================
         // ****************** Messages for CQL **********************

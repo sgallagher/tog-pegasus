@@ -34,6 +34,7 @@
 #include <fstream>
 #include "CIMDateTime.h"
 #include "Exception.h"
+#include "System.h"
 #include "AutoPtr.h"
 #include "PegasusAssert.h"
 #include <time.h>
@@ -1623,6 +1624,14 @@ Boolean getCurrentTimeZone(Sint16& currentTimeZone)
             break;
         }
 
+        case TIME_ZONE_ID_INVALID:
+        {
+            MessageLoaderParms parms(
+                "Common.CIMDateTime.INVALID_TIME_ZONE",
+                "Invalid time zone information : $0",
+                PEGASUS_SYSTEM_ERRORMSG_NLS);
+            throw Exception(parms);
+        }
         default:
             break;
     }

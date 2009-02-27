@@ -35,6 +35,7 @@
 #include <psapi.h>
 #include <pdh.h>
 #endif
+#include <Pegasus/Provider/ProviderException.h>
 
 #include "OperatingSystem.h"
 
@@ -339,6 +340,15 @@ Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
    case TIME_ZONE_ID_DAYLIGHT:
       currentTimeZone = (Sint16)timezone.Bias + (Sint16)timezone.DaylightBias;
       break;
+   case TIME_ZONE_ID_INVALID:
+   {
+       char exceptionMsg[100] = "";
+       sprintf (
+           exceptionMsg,
+           "Invalid time zone information : %d",
+           GetLastError());
+       throw CIMOperationFailedException(exceptionMsg);
+   }
    default:
       break;
    }

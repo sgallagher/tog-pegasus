@@ -32,6 +32,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/Exception.h>
 #include <Service/PidFile.h>
 #include <Service/ServerRunStatus.h>
 
@@ -100,6 +101,13 @@ void ServerRunStatus::setServerRunning()
     if (_event == NULL)
     {
         _event = CreateEvent(NULL, TRUE, TRUE, _serverName);
+        if (_event == NULL)
+        {
+            throw Exception(MessageLoaderParms(
+                "src.Server.cimserver_windows.EVENT_CREATION_FAILED",
+                "Event Creation Failed : $0.",
+                PEGASUS_SYSTEM_ERRORMSG_NLS));
+        }
         if ((_event != NULL) && (GetLastError() != ERROR_ALREADY_EXISTS))
         {
             _wasAlreadyRunning = false;

@@ -35,6 +35,7 @@
 #include <direct.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/Exception.h>
 #include <Pegasus/Server/CIMServer.h>
 #include <Service/ServerRunStatus.h>
 
@@ -644,6 +645,13 @@ int ServerProcess::platform_run(
     //
 
     pegasus_service_event = CreateEvent(NULL, FALSE, FALSE, NULL);
+    if (pegasus_service_event == NULL)
+    {
+        throw Exception(MessageLoaderParms(
+            "src.Server.cimserver_windows.EVENT_CREATION_FAILED",
+            "Event Creation Failed : $0.",
+            PEGASUS_SYSTEM_ERRORMSG_NLS));
+    }
 
     Service::ReturnCode status;
     status = pegasus_service.Run(cimserver_windows_main);

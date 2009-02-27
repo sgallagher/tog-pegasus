@@ -1208,6 +1208,8 @@ int CIMServerProcess::cimserver_run(
 #ifdef PEGASUS_ENABLE_SLP
         _cimServer->startSLPProvider();
 #endif
+        _cimServer->initComplete();
+
         //
         // Loop to call CIMServer's runForever() method until CIMServer
         // has been shutdown

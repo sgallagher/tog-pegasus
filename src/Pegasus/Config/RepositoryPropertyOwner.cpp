@@ -60,7 +60,7 @@ static struct ConfigPropertyRow properties[] =
 #ifndef PEGASUS_OS_ZOS
     {"enableBinaryRepository", "false", IS_STATIC, IS_VISIBLE}
 #else
-    {"enableBinaryRepository", "true", IS_STATIC, IS_VISIBLE}
+    {"enableBinaryRepository", "true", IS_STATIC, IS_HIDDEN}
 #endif
 };
 

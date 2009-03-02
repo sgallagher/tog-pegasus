@@ -55,5 +55,9 @@
     {"authorizedUserGroups",                          ""},
 #endif
     {"providerManagerDir",                         "lib"},
+#ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+    {"enableAssociationTraversal",                "true"},
+    {"enableBinaryRepository",                    "true"},
+#endif
     {"sslTrustStore",                  "cimserver_trust"}
 

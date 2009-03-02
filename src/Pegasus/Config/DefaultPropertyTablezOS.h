@@ -40,7 +40,7 @@
 #ifdef PEGASUS_ENABLE_SLP
     {"slp", "false", IS_STATIC, IS_VISIBLE},
 #endif
-    {"enableAssociationTraversal", "true", IS_STATIC, IS_VISIBLE},
+    {"enableAssociationTraversal", "true", IS_STATIC, IS_HIDDEN},
     {"enableIndicationService", "true", IS_STATIC, IS_VISIBLE},
 #ifdef PEGASUS_DEFAULT_ENABLE_OOP
     {"forceProviderProcesses", "true", IS_STATIC, IS_VISIBLE},

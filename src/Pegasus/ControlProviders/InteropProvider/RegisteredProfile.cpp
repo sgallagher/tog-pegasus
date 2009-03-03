@@ -159,8 +159,8 @@ void InteropProvider::sendUpdateRegMessageToSLPProvider(
         TRC_CONTROLPROVIDER,
         "InteropProvider::sendUpdateRegMessageToSLPProvider()");
 
-    if (!ConfigManager::parseBooleanValue(
-            ConfigManager::getInstance()->getCurrentValue("slp")))
+    if (!String::equal(
+            ConfigManager::getInstance()->getCurrentValue("slp"), "true"))
     {
         PEG_METHOD_EXIT();
         return;
@@ -276,6 +276,7 @@ void InteropProvider::deleteProviderProfileCapabilityInstance(
 
 Array<CIMInstance> InteropProvider::enumProviderProfileCapabilityInstances(
     Boolean checkProviders,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList &propertyList)
@@ -287,6 +288,7 @@ Array<CIMInstance> InteropProvider::enumProviderProfileCapabilityInstances(
         repository->enumerateInstancesForClass(
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES,
+            localOnly,
             includeQualifiers,
             includeClassOrigin,
             propertyList);
@@ -305,18 +307,34 @@ Array<CIMInstance> InteropProvider::enumProviderProfileCapabilityInstances(
         String moduleName = getRequiredValue<String>(
             profileInstances[i],
             PROVIDER_PROPERTY_PROVIDERMODULENAME);
-
         String providerName = getRequiredValue<String>(
             profileInstances[i],
             CAPABILITIES_PROPERTY_PROVIDERNAME);
 
+        CIMKeyBinding pmKey(PROVIDERMODULE_PROPERTY_NAME, moduleName);
+        Array<CIMKeyBinding> pmKeyBindings;
+        pmKeyBindings.append(pmKey);
+        CIMObjectPath providerModuleName(
+            String::EMPTY,
+            CIMNamespaceName(),
+            PEGASUS_CLASSNAME_PROVIDERMODULE,
+            pmKeyBindings);
         Boolean moduleOk = false;
         try
         {
+            CIMInstance providerModule = repository->getInstance(
+                PEGASUS_NAMESPACENAME_INTEROP,
+                providerModuleName,
+                false,
+                false,
+                false,
+                CIMPropertyList());
+
             // get operational status.
-            Array<Uint16> status =
-                providerRegistrationManager->getProviderModuleStatus(
-                    moduleName);
+            Array<Uint16> status;
+            providerModule.getProperty(
+                providerModule.findProperty(
+                    PROPERTY_OPERATIONAL_STATUS)).getValue().get(status);
 
             for (Uint32 s = 0, ssize = status.size(); s < ssize; ++s)
             {
@@ -356,8 +374,13 @@ Array<CIMInstance> InteropProvider::enumProviderProfileCapabilityInstances(
             Boolean providerFound = false;
             try
             {
-                CIMInstance provider = providerRegistrationManager->getInstance(
-                    providerRef);
+                CIMInstance provider = repository->getInstance(
+                    PEGASUS_NAMESPACENAME_INTEROP,
+                    providerRef,
+                    false,
+                    false,
+                    false,
+                    CIMPropertyList());
                 providerFound = true;
             }
             catch(...)
@@ -387,7 +410,7 @@ Array<CIMInstance> InteropProvider::getDMTFProfileInstances(
         PEGASUS_CLASSNAME_PG_REFERENCEDPROFILE);
 
     Array<CIMInstance> profileCapabilities =
-        enumProviderProfileCapabilityInstances(true);
+        enumProviderProfileCapabilityInstances(true, false);
 
     Array<String> instanceIDs;
 
@@ -537,13 +560,13 @@ Array<CIMInstance> InteropProvider::getDMTFProfileInstances(
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
         String indProfileId = buildProfileInstanceId(
             DMTF_NAME,
-            "Indications",
-            DMTF_VER_110);
+            "Indication",
+            DMTF_VER_100);
         instances.append(
             buildRegisteredProfile(
             indProfileId,
-            "Indications",
-            DMTF_VER_110,
+            "Indication",
+            DMTF_VER_100,
             DMTF_NUM,
             String::EMPTY,
             registeredProfileClass));
@@ -561,8 +584,8 @@ Array<CIMInstance> InteropProvider::getDMTFProfileInstances(
 
         String indProfileId = buildProfileInstanceId(
             DMTF_NAME,
-            "Indications",
-            DMTF_VER_110);
+            "Indication",
+            DMTF_VER_100);
 
         instances.append(
             buildDependencyInstance(
@@ -589,7 +612,7 @@ Array<CIMInstance> InteropProvider::getProfileInstances(
     bool isRequiresProfileOperation = profileType.equal(
         PEGASUS_CLASSNAME_PG_SUBPROFILEREQUIRESPROFILE);
     Array<CIMInstance> profileCapabilities =
-        enumProviderProfileCapabilityInstances(true);
+        enumProviderProfileCapabilityInstances(true, false);
 
     Array<String> instanceIDs;
 

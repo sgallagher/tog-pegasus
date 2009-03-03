@@ -101,9 +101,9 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h> // for Logger
-#include <Pegasus/Common/System.h>
-#include <Pegasus/Common/StringConversion.h>
-#include <Pegasus/Config/ConfigManager.h>
+
+#define CDEBUG(X)
+//#define CDEBUG(X) PEGASUS_STD(cout)<<"SLPProvider "<< X << PEGASUS_STD(endl)
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -185,6 +185,8 @@ const char serviceIDAttribute[] = "service-id";
 
 const char communicationMechanismAttribute[] = "CommunicationMechanism";
 
+const char otherCommunicationMechanismAttribute[]="otherCommunicationMechanism";
+
 const char otherCommunicationMechanismDescriptionAttribute[] =
                "OtherCommunicationMechanismDescription";
 
@@ -195,6 +197,9 @@ const char protocolVersionAttribute[] = "ProtocolVersion";
 const char functionalProfilesSupportedAttribute[] =
                "FunctionalProfilesSupported";
 
+const char functionalProfileDescriptionsAttribute[] =
+               "FunctionalProfileDescriptions";
+
 const char otherProfileDescriptionAttribute[] =
                "OtherProfileDescription";
 
@@ -203,6 +208,9 @@ const char multipleOperationsSupportedAttribute[] =
 
 const char authenticationMechanismsSupportedAttribute[] =
                "AuthenticationMechanismsSupported";
+
+const char otherAuthenticationDescriptionsAttribute[] =
+               "OtherAuthenticationDescription";
 
 const char authenticationMechanismDescriptionsAttribute[] =
                "AuthenticationMechanismDescriptions";
@@ -342,7 +350,7 @@ String _getValueQualifier(
         errorMessage = "No valueMap Qualifier";
     }
 
-    if (errorMessage.size() != 0)
+    if (errorMessage != String::EMPTY)
     {
         throw PEGASUS_CIM_EXCEPTION(
             CIM_ERR_FAILED,
@@ -463,12 +471,8 @@ String _getPropertyValueString(
 {
     String output;
     Uint32 pos;
-
-    PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
-        "_getPropertyValue String for name= %s default= %s",
-        (const char*) propertyName.getString().getCString(),
-        (const char*) defaultValue.getCString()));
-
+    CDEBUG("_getPropertyValue String for name= " << propertyName.getString()
+        << " default= " << defaultValue);
     if ((pos = instance.findProperty(propertyName)) != PEG_NOT_FOUND)
     {
         CIMConstProperty p1 = instance.getProperty(pos);
@@ -486,7 +490,7 @@ String _getPropertyValueString(
     }
     else
         output = defaultValue;
-    return output;
+    return(output);
 }
 
 
@@ -497,12 +501,8 @@ Uint16 _getPropertyValueUint16(
 {
     Uint16 output;
     Uint32 pos;
-    
-    PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
-        "_getPropertyValue Uint16 for name= %s default= %uh",
-        (const char*) propertyName.getString().getCString(),
-        defaultValue));
-
+    CDEBUG("_getPropertyValue Uint16 for name= " << propertyName.getString()
+        << " default= " << defaultValue);
     if ((pos = instance.findProperty(propertyName)) != PEG_NOT_FOUND)
     {
         CIMConstProperty p1 = instance.getProperty(pos);
@@ -564,6 +564,8 @@ void _setPropertyValue(
 CIMInstance SLPProvider::_buildInstanceSkeleton(const CIMName& className)
 {
     CIMClass myClass;
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "SLPProvider::_buildInstanceSkeleton()");
 
     CIMInstance skeleton(className);
     myClass = _cimomHandle.getClass(OperationContext(), _nameSpace,
@@ -577,7 +579,8 @@ CIMInstance SLPProvider::_buildInstanceSkeleton(const CIMName& className)
     for (Uint32 i = 0 ; i < myClass.getPropertyCount() ; i++)
         skeleton.addProperty(myClass.getProperty(i));
 
-    return skeleton.clone();
+    PEG_METHOD_EXIT();
+    return(skeleton.clone());
 }
 /* Remove the instances created as part of the registration and unregister.
   This is completely unregisters this this provider and disconnects it
@@ -596,36 +599,6 @@ void SLPProvider::deregisterSLP()
 
 }
 
-/*
- * This checks whether a registerred profile has to be advertised
- * through SLP or not
-*/
-Boolean SLPProvider::_checkProfileToAdvertise(
-    const CIMInstance &cimInstance,
-    const Uint32 &index_AT)
-{
-    CIMConstProperty AT_Property = 
-        cimInstance.getProperty(index_AT);
-
-    CIMValue AT_value = AT_Property.getValue ();
-    Array<Uint16> valAdvTypes;
-    if ((AT_value.isArray()) && (!AT_value.isNull()))
-    {
-        AT_value.get(valAdvTypes);
-    }
-    for(Uint16 i = 0, n = valAdvTypes.size(); i < n; ++i)
-    {
-        //SLP AdvertiseTypes has value 3 
-        if( 3 == valAdvTypes[i])
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-
-
 /** get the list of registered profiles for the SLP template.
     Until we start using CIM 28, there are no template classes
     and no templates.  We are doing a temporary hack here of
@@ -638,8 +611,11 @@ Boolean SLPProvider::_checkProfileToAdvertise(
     the registered profiles from the correct classes when those
     classes begin to exist in the environment.
 */
-String SLPProvider::getRegisteredProfileList(const OperationContext & context)
+String SLPProvider::getRegisteredProfileList()
 {
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "SLPProvider::getRegisteredProfileList()");
+
     const CIMName CLASSNAME = CIMName("CIM_RegisteredProfile");
     String regitem;
     String reglist;
@@ -665,7 +641,7 @@ String SLPProvider::getRegisteredProfileList(const OperationContext & context)
 
 // No reason to use deepInheritance for now as we do not support sub-classes
     Boolean         deepInheritance = false;
-    Boolean         localOnly = false;
+    Boolean         localOnly = true;
     Boolean         includeQualifiers = true;
     Boolean         includeClassOrigin = false;
 
@@ -673,7 +649,7 @@ String SLPProvider::getRegisteredProfileList(const OperationContext & context)
     {
         // include the qualifiers, required for ValueMap mapping
         RO_Class = _cimomHandle.getClass(
-            context,
+            OperationContext(),
             PEGASUS_NAMESPACENAME_INTEROP,
             CLASSNAME,
             localOnly,
@@ -684,10 +660,12 @@ String SLPProvider::getRegisteredProfileList(const OperationContext & context)
 
     catch (Exception &)
     {
+        CDEBUG("SLPProvider::getRegisteredProfiles: get class error");
+
         Logger::put(Logger::ERROR_LOG, SlpProvider, Logger::SEVERE,
             "getRegisteredProfiles: get class error");
 
-        return defaultRegisteredProfilesList;
+        return(defaultRegisteredProfilesList);
     }
 
 
@@ -697,7 +675,7 @@ String SLPProvider::getRegisteredProfileList(const OperationContext & context)
         // Enumerate Instances.
         //
         cimInstances = _cimomHandle.enumerateInstances(
-            context,
+            OperationContext(),
             PEGASUS_NAMESPACENAME_INTEROP,
             CLASSNAME,
             deepInheritance,
@@ -710,213 +688,184 @@ String SLPProvider::getRegisteredProfileList(const OperationContext & context)
     }
     catch (Exception&)
     {
+        CDEBUG("SLPProvider::getRegisteredProfiles: enum instances error");
         Logger::put(Logger::ERROR_LOG, SlpProvider, Logger::SEVERE,
-            "getRegisteredProfiles: enum instances error");
+            "getRegisteredProfiles: get class error");
 
         return(defaultRegisteredProfilesList);
     }
 
-    PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
-        "SLPProvider::getRegisteredProfiles: Total Number of Instances: %u",
-        cimInstances.size()));
+    CDEBUG ("SLPProvider::getRegisteredProfiles: Total Number of Instances: "
+            << cimInstances.size());
 
-    try
+try
+{
+    Uint32 j = 0;
+    for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
     {
-        Uint32 j = 0;
-        const CIMName propAdvertTypes("AdvertiseTypes");
-        for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
+
+// same can be done by not using deepInheritance on the enumInstances call
+// thus I commented it out here
+//        if (cimInstances[i].getClassName() != "CIM_RegisteredProfile")
+//            continue;
+        Uint32 index_RO=cimInstances[i].findProperty(propRegOrg);
+        Uint32 index_RN=cimInstances[i].findProperty(propRegName);
+        if (index_RO == PEG_NOT_FOUND || index_RN == PEG_NOT_FOUND)
         {
-
-            // same can be done by not using deepInheritance 
-            // on the enumInstances call  thus I commented it out here
-            //    if (cimInstances[i].getClassName() != "CIM_RegisteredProfile")
-            //        continue;
-            Uint32 index_AT=cimInstances[i].findProperty(propAdvertTypes);
-            Uint32 index_RO=cimInstances[i].findProperty(propRegOrg);
-            Uint32 index_RN=cimInstances[i].findProperty(propRegName);
-            if (index_RO == PEG_NOT_FOUND || index_RN == PEG_NOT_FOUND || 
-                    index_AT == PEG_NOT_FOUND)
+            continue;
+        }
+        CIMConstProperty RO_Property = cimInstances[i].getProperty(index_RO);
+        String RegOrg = _getValueQualifier(RO_Property, RO_Class);
+        CDEBUG("Value of RegOrg =" << RegOrg);
+        if (RegOrg == String::EMPTY)
+        {
+            RegOrg = "Unknown";
+        } else
+        {
+            if (String::equalNoCase(RegOrg,"Other"))
             {
-                continue;
-            }
-
-            //Check if the advertiseTypes is SLP,
-            if(!_checkProfileToAdvertise(cimInstances[i], index_AT))
-            {
-                continue;
-            }
-            
-            //String isSLPAd = _getValueQualifier(AT_Property, RO_Class);
-            //if(!String::equalNoCase(isSLPAd, "SLP"))
-            //{
-             //   continue;
-            //}
-
-            CIMConstProperty RO_Property = 
-                cimInstances[i].getProperty(index_RO);
-            String RegOrg = _getValueQualifier(RO_Property, RO_Class);
-            PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
-                        "Value of RegOrg=%s",
-                        (const char*) RegOrg.getCString()));
-
-            if (RegOrg.size() == 0)
-            {
-                RegOrg = "Unknown";
-            }
-            else
-            {
-                if (String::equalNoCase(RegOrg,"Other"))
+                // lets use the OtherRegisteredOrganization value if available
+                Uint32 index_ORO = cimInstances[i].findProperty(
+                                       "OtherRegisteredOrganization");
+                if (index_ORO != PEG_NOT_FOUND)
                 {
-                    //use the OtherRegisteredOrganization value if available
-                    Uint32 index_ORO = cimInstances[i].findProperty(
-                            "OtherRegisteredOrganization");
-                    if (index_ORO != PEG_NOT_FOUND)
+                    String OthRegOrg;
+                    // lets get the property
+                    CIMConstProperty ORO_Property =
+                        cimInstances[i].getProperty(index_ORO);
+                    // see if there is a String value on it and if so,
+                    // use that as organisation
+                    CIMValue ORO_value = ORO_Property.getValue ();
+                    if ((ORO_value.getType () == CIMTYPE_STRING) &&
+                        (!ORO_value.isNull ()))
                     {
-                        String OthRegOrg;
-                        // lets get the property
-                        CIMConstProperty ORO_Property =
-                            cimInstances[i].getProperty(index_ORO);
-                        // see if there is a String value on it and if so,
-                        // use that as organisation
-                        CIMValue ORO_value = ORO_Property.getValue ();
-                        if ((ORO_value.getType () == CIMTYPE_STRING) &&
-                                (!ORO_value.isNull ()))
+                        ORO_value.get(OthRegOrg);
+                        if (OthRegOrg != String::EMPTY)
                         {
-                            ORO_value.get(OthRegOrg);
-                            if (OthRegOrg != String::EMPTY)
-                            {
-                                RegOrg.assign(OthRegOrg);
-                            }
+                            RegOrg.assign(OthRegOrg);
                         }
                     }
                 }
             }
-            CIMConstProperty RN_Property = 
-                cimInstances[i].getProperty(index_RN);
-            String RegName;
-            CIMValue RN_value = RN_Property.getValue ();
-            if ((RN_value.getType () == CIMTYPE_STRING) && (!RN_value.isNull()))
-            {
-                RN_value.get(RegName);
-            }
-
-            // Check whether the profile is top-level.
-            Array<CIMObject> subProfiles;
-            CIMObjectPath objectPath = cimInstances[i].getPath();
-            CIMName className = objectPath.getClassName();
-
-            // Check for DMTF profiles
-            if (RegOrg == strDMTF)
-            {
-                // Check if this profile is sub-profile.
-                Array<CIMObject> profiles = _cimomHandle.associators(
-                        context,
-                        PEGASUS_NAMESPACENAME_INTEROP,
-                        objectPath,
-                        referencedProfileClassName,
-                        CIMName(),
-                        propAntecedent,
-                        String::EMPTY,
-                        includeQualifiers,
-                        includeClassOrigin,
-                        CIMPropertyList());
-
-                if (profiles.size())
-                {
-                    continue;
-                }
-
-                subProfiles = _cimomHandle.associators(
-                        context,
-                        PEGASUS_NAMESPACENAME_INTEROP,
-                        objectPath,
-                        referencedProfileClassName,
-                        CIMName(),
-                        propDependent,
-                        String::EMPTY,
-                        includeQualifiers,
-                        includeClassOrigin,
-                        CIMPropertyList());
-            }
-            else
-            {
-                // check for SNIA or Other profiles
-                // Check if this profile is sub-profile.
-                Array<CIMObject> profiles = _cimomHandle.associators(
-                        context,
-                        PEGASUS_NAMESPACENAME_INTEROP,
-                        objectPath,
-                        subProfileRequiresProfileClassName,
-                        CIMName(),
-                        propDependent,
-                        String::EMPTY,
-                        includeQualifiers,
-                        includeClassOrigin,
-                        CIMPropertyList());
-
-                if (profiles.size())
-                {
-                    continue;
-                }
-
-                subProfiles = _cimomHandle.associators(
-                        context,
-                        PEGASUS_NAMESPACENAME_INTEROP,
-                        objectPath,
-                        subProfileRequiresProfileClassName,
-                        CIMName(),
-                        propAntecedent,
-                        String::EMPTY,
-                        includeQualifiers,
-                        includeClassOrigin,
-                        CIMPropertyList());
-            }
-
-            PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
-                        "Value of RegName=%s ; Value of regitem=%s",
-                        (const char*) RegName.getCString(),
-                        (const char*) regitem.getCString()));
-
-            regitem.assign(RegOrg);
-            regitem.append(strColon);
-            regitem.append(RegName);
-            regProfileIdTable.insert(regitem, regitem);
-            for (Uint32 k = 0, n = subProfiles.size(); k < n; k++)
-            {
-                Uint32 pos = subProfiles[k].findProperty(propRegName);
-                String pName =
-                    subProfiles[k].getProperty(pos).getValue().toString();
-                String subRegItem = regitem;
-                subRegItem.append(strColon);
-                subRegItem.append(pName);
-                regProfileIdTable.insert(subRegItem, subRegItem);
-            }
-            j++;
         }
-        if (j > 0)
+        CIMConstProperty RN_Property = cimInstances[i].getProperty(index_RN);
+        String RegName;
+        CIMValue RN_value = RN_Property.getValue ();
+        if ((RN_value.getType () == CIMTYPE_STRING) && (!RN_value.isNull ()))
         {
-            const String strComma(",");
-            for (RegProfileIdTable::Iterator i = regProfileIdTable.start(); i;)
+            RN_value.get(RegName);
+        }
+
+        // Check whether the profile is top-level.
+        Array<CIMObject> subProfiles;
+        CIMObjectPath objectPath = cimInstances[i].getPath();
+        CIMName className = objectPath.getClassName();
+
+        // Check for DMTF profiles
+        if (RegOrg == strDMTF)
+        {
+            // Check if this profile is sub-profile.
+            Array<CIMObject> profiles = _cimomHandle.associators(
+                OperationContext(),
+                PEGASUS_NAMESPACENAME_INTEROP,
+                objectPath,
+                referencedProfileClassName,
+                CIMName(),
+                propAntecedent,
+                String::EMPTY,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList());
+
+            if (profiles.size())
             {
-                reglist.append(i.value());
-                i++;
-                if (i)
-                {
-                    reglist.append(strComma);
-                }
+                continue;
+            }
+
+            subProfiles = _cimomHandle.associators(
+                OperationContext(),
+                PEGASUS_NAMESPACENAME_INTEROP,
+                objectPath,
+                referencedProfileClassName,
+                CIMName(),
+                propDependent,
+                String::EMPTY,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList());
+        }
+        else
+        {
+            // check for SNIA or Other profiles
+            // Check if this profile is sub-profile.
+            Array<CIMObject> profiles = _cimomHandle.associators(
+                OperationContext(),
+                PEGASUS_NAMESPACENAME_INTEROP,
+                objectPath,
+                subProfileRequiresProfileClassName,
+                CIMName(),
+                propDependent,
+                String::EMPTY,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList());
+
+            if (profiles.size())
+            {
+                continue;
+            }
+
+            subProfiles = _cimomHandle.associators(
+                OperationContext(),
+                PEGASUS_NAMESPACENAME_INTEROP,
+                objectPath,
+                subProfileRequiresProfileClassName,
+                CIMName(),
+                propAntecedent,
+                String::EMPTY,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList());
+        }
+
+        CDEBUG("Value of RegName =" << RegName);
+        regitem.assign(RegOrg);
+        regitem.append(strColon);
+        regitem.append(RegName);
+        CDEBUG("Value of regitem =" << regitem);
+        regProfileIdTable.insert(regitem, regitem);
+        for (Uint32 k = 0, n = subProfiles.size(); k < n; k++)
+        {
+            Uint32 pos = subProfiles[k].findProperty(propRegName);
+            String pName =
+                 subProfiles[k].getProperty(pos).getValue().toString();
+            String subRegItem = regitem;
+            subRegItem.append(strColon);
+            subRegItem.append(pName);
+            regProfileIdTable.insert(subRegItem, subRegItem);
+        }
+        j++;
+    }
+    if (j > 0)
+    {
+        const String strComma(",");
+        for (RegProfileIdTable::Iterator i = regProfileIdTable.start(); i;)
+        {
+            reglist.append(i.value());
+            i++;
+            if (i)
+            {
+                reglist.append(strComma);
             }
         }
-        PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
-                    "Value of reglist=%s",
-                    (const char*) reglist.getCString()));
-
-    } catch(Exception &exc)
-    {
-        PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL2,
-                    "Exception caught in enumInst processing:%s",
-                    (const char*) exc.getMessage().getCString()));
     }
-    return reglist;
+    CDEBUG("reglist = " << reglist);
+} catch(Exception &exc)
+{
+    CDEBUG("Exception caught in enumInst processing:" << exc.getMessage());
+}
+    PEG_METHOD_EXIT();
+    return(reglist);
 }
 
 /** get the list of valid namespaces and supporting info.
@@ -931,9 +880,11 @@ String SLPProvider::getRegisteredProfileList(const OperationContext & context)
 */
 String SLPProvider::getNameSpaceInfo(
     const CIMNamespaceName& nameSpace,
-    String& classInfo,
-    const OperationContext & context)
+    String& classInfo)
 {
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "SLPProvider::getNameSpaceInfo()");
+
     String names;
     Array<CIMInstance> CIMNamespaceInstances;
     try
@@ -941,22 +892,19 @@ String SLPProvider::getNameSpaceInfo(
         // ATTN: KS In the future get only the fields we want based on property
         //       list.
         CIMNamespaceInstances = _cimomHandle.enumerateInstances(
-            context,
+            OperationContext(),
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PGNAMESPACE,
             true, true, true, true,
             CIMPropertyList());
     }
-    catch (Exception& exc)
+    catch (const exception&)
     {
-        PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL2,
-            "Error on Namespaces acquisition:%s",
-            (const char*) exc.getMessage().getCString()));
-        return names;
+        //ATTN: KS.. catch if we get error here. In particular unsupported class
+        CDEBUG("Error on Namespaces acquisition");
+        return(names);
     }
-    PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
-        "Namespaces found. Count=%u",
-        CIMNamespaceInstances.size()));
+    CDEBUG("Namespaces found. Count= " << CIMNamespaceInstances.size());
 
     // Determine if there are any classInfo attributes available.
     Boolean classInfoFound = false;
@@ -1003,7 +951,9 @@ String SLPProvider::getNameSpaceInfo(
                     "error in CIM_Namespace class.");
 
     }
-    return names;
+
+    PEG_METHOD_EXIT();
+    return(names);
 }
 
 /** populate a single field in the template and the corresponding template
@@ -1043,15 +993,14 @@ void SLPProvider::populateTemplateField(
     const String& value,
     const String& instancePropertyName)
 {
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "SLPProvider::populateTemplateField()");
+
     String localInstancePropertyName = ((instancePropertyName == String::EMPTY)?
         attributeFieldName : instancePropertyName);
-
-    PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
-        "input Property name=%s, Populate TemplateField name=%s, %s. Value=%s",
-        (const char*) instancePropertyName.getCString(),
-        (const char*) localInstancePropertyName.getCString(),
-        (const char*) attributeFieldName.getCString(),
-        (const char*) value.getCString()));
+    CDEBUG("input Property name= " << instancePropertyName);
+    CDEBUG("Populate TemplateField name= " << localInstancePropertyName << ", "
+        << attributeFieldName << ". Value= " << value);
 
     // Add the property to the instance.
     instance.addProperty(
@@ -1080,16 +1029,16 @@ void SLPProvider::populateTemplateField(
     const Array<String>& value,
     const String& instancePropertyName)
 {
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "SLPProvider::populateTemplateField()");
+
     String localInstancePropertyName = ((instancePropertyName == String::EMPTY)?
         attributeFieldName : instancePropertyName);
 
     String accumulatedValue = _arrayToString(value);
 
-    PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
-        "Populate TemplateField name=%s, %s. Value=%s",
-        (const char*) localInstancePropertyName.getCString(),
-        (const char*) attributeFieldName.getCString(),
-        (const char*) accumulatedValue.getCString()));
+    CDEBUG("Populate TemplateField name= " << localInstancePropertyName << ", "
+        << attributeFieldName << ". Value= " << accumulatedValue);
 
     // Add the property to the instance.
     instance.addProperty(
@@ -1125,10 +1074,11 @@ Boolean SLPProvider::populateRegistrationData(
     const String& IPAddress,
     const CIMInstance& instance_ObjMgr,
     const CIMInstance& instance_ObjMgrComm,
-    const CIMClass& commMechClass,
-    const String &registeredProfiles,
-    const OperationContext & context )
+    const CIMClass& commMechClass)
 {
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "SLPProvider::populateRegistrationData()");
+
     // Clear the template instance
     _currentSLPTemplateString.clear();
 
@@ -1168,25 +1118,34 @@ Boolean SLPProvider::populateRegistrationData(
 
     // get service-hi-name and description from the instance of the
     // objectmanager class
-    String elementName = _getPropertyValueString(
-        instance_ObjMgr,
-        elementNamePropertyName);
+    for (Uint32 j = 0 ; j < instance_ObjMgr.getPropertyCount() ; j++)
+    {
+        CIMConstProperty p1=instance_ObjMgr.getProperty(j);
+        CIMValue v1=p1.getValue();
+        CIMName propertyName = p1.getName();
 
-    populateTemplateField(
-        templateInstance,
-        serviceHiNameAttribute,
-        elementName,
-        serviceHiNameProperty);
+        // service-hi-name=string O
+        // # This string is used as a name of the CIM service for human
+        // # interfaces. This attribute MUST be the
+        // # CIM_ObjectManager.ElementName property value.
+        if (propertyName.equal(elementNamePropertyName))
+            populateTemplateField(
+                templateInstance,
+                serviceHiNameAttribute,
+                v1.toString(),
+                serviceHiNameProperty);
 
-    String description = _getPropertyValueString(
-        instance_ObjMgr,
-        descriptionPropertyName);
-
-    populateTemplateField(
-        templateInstance,
-        serviceHiDescriptionAttribute,
-        description,
-        serviceHiDescriptionProperty);
+        // service-hi-description=string O
+        // # This string is used as a description of the CIM service for
+        // # human interfaces.This attribute MUST be the
+        // # CIM_ObjectManager.Description property value.
+        else if (propertyName.equal(descriptionPropertyName))
+            populateTemplateField(
+                templateInstance,
+                serviceHiDescriptionAttribute,
+                v1.toString(),
+                serviceHiDescriptionProperty);
+    }
 
     //    templateTypeProperty);
     populateTemplateField(
@@ -1228,7 +1187,6 @@ Boolean SLPProvider::populateRegistrationData(
         {
 
             String thisValue = _getValueQualifier(thisProperty, commMechClass);
-            Uint16 communicationType;
             if (thisValue == String::EMPTY)
             {
                 thisValue = "Unknown";
@@ -1237,13 +1195,17 @@ Boolean SLPProvider::populateRegistrationData(
                 templateInstance,
                 communicationMechanismAttribute,
                 thisValue);
-            v1.get(communicationType);
-            if (communicationType == 1)
+        }
+
+        else if (propertyName.equal(otherCommunicationMechanismAttribute))
+        {
+            if (String::equalNoCase(v1.toString(),"1"))
             {
                 String tmp = _getPropertyValueString(
                     instance_ObjMgrComm,
                     CIMName(otherCommunicationMechanismDescriptionAttribute),
                     String::EMPTY);
+
                 populateTemplateField(
                     templateInstance,
                     otherCommunicationMechanismDescriptionAttribute,
@@ -1316,8 +1278,7 @@ Boolean SLPProvider::populateRegistrationData(
     String classInfoList;
     String nameSpaceList = getNameSpaceInfo(
                                PEGASUS_NAMESPACENAME_INTEROP,
-                               classInfoList,
-                               context);
+                               classInfoList);
 
     populateTemplateField(
         templateInstance,
@@ -1341,13 +1302,10 @@ Boolean SLPProvider::populateRegistrationData(
     // populate the RegisteredProfiles Supported attribute.
 
     populateTemplateField(templateInstance,
-        registeredProfilesSupportedAttribute, registeredProfiles);
+        registeredProfilesSupportedAttribute, getRegisteredProfileList());
 
     //Begin registering the service. Keep this debug.
-    PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL3,
-        "Template:\n%s",
-        (const char*) _currentSLPTemplateString.getCString()));
-
+    CDEBUG("Template:\n" << _currentSLPTemplateString);
 
     // Add the template to the instance as a diagnostic for the moment.
     templateInstance.addProperty(
@@ -1362,9 +1320,7 @@ Boolean SLPProvider::populateRegistrationData(
 
     //String ServiceID = serviceName + String(":") + serviceUrlSyntaxValue;
 
-    PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
-        "Service URL: %s",
-        (const char*) ServiceID.getCString()));
+    CDEBUG("Service URL: " << ServiceID);
 
     // Fill out the CIMObjectpath for the slp instance.
     // The key for this class is the instanceID.
@@ -1395,11 +1351,9 @@ Boolean SLPProvider::populateRegistrationData(
 
     // Test the registration
 
-    PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
-        "TEST_REG: ServiceId %s\n serviceName: %s\n TEMPLATE = %s",
-        (const char *)CServiceID,
-        (const char *) serviceName,
-        (const char *) CstrRegistration));
+    CDEBUG("TEST_REG: ServiceId " << (const char *)CServiceID
+            << "\n serviceName: " << (const char *) serviceName
+            << "\n TEMPLATE = " << (const char *) CstrRegistration);
 
     Uint32 errorCode = slp_agent.test_registration((const char *)CServiceID ,
         (const char *)CstrRegistration,
@@ -1408,17 +1362,19 @@ Boolean SLPProvider::populateRegistrationData(
 
     if (errorCode != 0)
     {
+        CDEBUG("Test Instance Error. Code=" << errorCode);
         Logger::put(Logger::ERROR_LOG, SlpProvider, Logger::SEVERE,
             "SLP Registration Failed: test_registration. Code $0", errorCode);
         return(false);
     }
 
+    CDEBUG("Tested Registration of instance Good");
     // register this information.
     Boolean goodRtn = slp_agent.srv_register((const char *)CServiceID ,
         (const char *)CstrRegistration,
         (const char *)CfullServiceName,
         "DEFAULT",
-#if defined( PEGASUS_USE_EXTERNAL_SLP ) && defined( PEGASUS_SLP_REG_TIMEOUT )
+#if defined( PEGASUS_USE_EXTERNAL_SLP ) && defined ( PEGASUS_SLP_REG_TIMEOUT )
         PEGASUS_SLP_REG_TIMEOUT  * 60);
 #else
         0xffff);
@@ -1426,6 +1382,7 @@ Boolean SLPProvider::populateRegistrationData(
 
     if (!goodRtn)
     {
+        CDEBUG("Register Instance Error. Code=" << errorCode);
         Logger::put(Logger::ERROR_LOG, SlpProvider, Logger::SEVERE,
             "SLP Registration Failed: srv_registration.");
         return(false);
@@ -1437,9 +1394,7 @@ Boolean SLPProvider::populateRegistrationData(
     String agentURL = "service:service-agent://";
     agentURL.append(locator.getHost());
 
-    PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
-        "REGISTER SVC %s,(service-type=*),service:service-agent,DEFAULT,0xffff",
-        (const char *) agentURL.getCString()));
+    CDEBUG("REGISTER SVC " << (const char *) agentURL.getCString());
 
     slp_agent.srv_register((const char *)agentURL.getCString(),
         (const char *)"(service-type=*)",
@@ -1449,31 +1404,12 @@ Boolean SLPProvider::populateRegistrationData(
 #endif
 
     // Add the registered instance to the current active list.
+
+    CDEBUG("Registered Instance internally Good");
     _instances.append(templateInstance);
     _instanceNames.append(reference1);
-    return true;
-} 
-
-//This function checks for Link-local ipv6 address(LLA),
-//If the address is LLA, it removes the zone id and return the
-//LLA, otherwise, no change in the address 
-void SLPProvider::_processLinkLocalAddress( String &ip6add2check)
-{
-
- Uint32 percentPos = 0;
- if ((ip6add2check.size() >= 6) && (ip6add2check[0] == Char16('[')) &&
-     (ip6add2check[1] == Char16('f') || ip6add2check[1] == Char16('F')) &&
-     (ip6add2check[2] == Char16('e') || ip6add2check[2] == Char16('E')) &&
-     (ip6add2check[3] == Char16('8') && (ip6add2check[4] == Char16('0')) &&
-     (PEG_NOT_FOUND != (percentPos = ip6add2check.find(5,Char16('%'))))))
-     {
-          Uint32 closingSq = ip6add2check.find(']');
-          PEGASUS_ASSERT(closingSq !=PEG_NOT_FOUND);
-          ip6add2check.remove(percentPos, closingSq - percentPos);
-
-          PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
-              "Processed LLA %s", (const char *) ip6add2check.getCString()));
-    }
+    PEG_METHOD_EXIT();
+    return(true);
 }
 
 /** issue all necessary SLP registrations. Gets the objects that are required to
@@ -1481,16 +1417,17 @@ void SLPProvider::_processLinkLocalAddress( String &ip6add2check)
     a registration for each communication adapter represented by a communication
     object.
 */
-Uint32 SLPProvider::populateSLPRegistrations(const OperationContext & context)
+Uint32  SLPProvider::populateSLPRegistrations()
 {
-    // clear existing instances
-    _instanceNames.clear();
-    _instances.clear();
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "SLPProvider::populateSLPREgistrations()");
+
+    Boolean getByAssociator = false;
 
     // get the PG communication mechanism class.  Used as part of the populate
     // An exception here is caught in the facade.
     CIMClass pg_CIMXMLClass = _cimomHandle.getClass(
-        context,
+        OperationContext(),
         PEGASUS_NAMESPACENAME_INTEROP,
         PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM,
         false, true, true, CIMPropertyList());
@@ -1500,23 +1437,20 @@ Uint32 SLPProvider::populateSLPRegistrations(const OperationContext & context)
     try
     {
         instancesObjMgr = _cimomHandle.enumerateInstances(
-            context,
+            OperationContext(),
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PG_OBJECTMANAGER,
             false, false, false,false, CIMPropertyList());
     }
     catch (const Exception & e)
     {
-        PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL2,
-            "Exception caught on enumerateInstances(CIM_ObjectManager):=%s",
-            (const char*) e.getMessage().getCString()));
+        CDEBUG("Exception caught on enumerateInstances(CIM_ObjectManager):="
+               << e.getMessage());
     }
-
-    String registeredProfiles = getRegisteredProfileList(context);
 
     // get instances of CIM_ObjectManagerCommMechanism and subclasses directly
     Array<CIMInstance> instancesObjMgrComm = _cimomHandle.enumerateInstances(
-        context,
+        OperationContext(),
         PEGASUS_NAMESPACENAME_INTEROP,
         PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM,
         true, false, true,true, CIMPropertyList());
@@ -1531,19 +1465,17 @@ Uint32 SLPProvider::populateSLPRegistrations(const OperationContext & context)
         String protocol  = _getPropertyValueString(instancesObjMgrComm[i],
             CIMName("namespaceType"), "http");
 
+        Uint16 accessProtocol = _getPropertyValueUint16(instancesObjMgrComm[i],
+            CIMName("namespaceAccessProtocol"));
         // get ipaddress property
         String IPAddress = _getPropertyValueString(instancesObjMgrComm[i],
             CIMName("IPAddress"), "127.0.0.1");
-
-        _processLinkLocalAddress(IPAddress);
         // create a registration instance, test and register it.
         if (populateRegistrationData(protocol,
             IPAddress,
             instancesObjMgr[0],
             instancesObjMgrComm[i],
-            pg_CIMXMLClass,
-            registeredProfiles,
-            context))
+            pg_CIMXMLClass))
         {
             itemsRegistered++;
         }
@@ -1558,10 +1490,13 @@ Uint32 SLPProvider::populateSLPRegistrations(const OperationContext & context)
     return: Boolean.  Indicates if there was an error in the registration.
 */
 
-Boolean SLPProvider::issueSLPRegistrations(const OperationContext & context)
+Boolean SLPProvider::issueSLPRegistrations()
 {
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "SLPProvider::issueSLPREgistrations()");
+
     // populate all SLP registrations.
-    Uint32 itemsRegistered = populateSLPRegistrations(context);
+    Uint32 itemsRegistered = populateSLPRegistrations();
     // Start the Service Agent.  Note that the actual registrations are part of
     // the populatetemplate function so that the various templates
     // are already created.
@@ -1589,7 +1524,8 @@ Boolean SLPProvider::issueSLPRegistrations(const OperationContext & context)
         }
         initFlag=true;
         // Log slp agent started.
-        return true;
+        PEG_METHOD_EXIT();
+        return(true);
     }
 
     // ATTN: Log failure to register because no communication mechanisms found.
@@ -1597,16 +1533,22 @@ Boolean SLPProvider::issueSLPRegistrations(const OperationContext & context)
     // We assume that we MUST always have at least
     // one communication mechanism object for a registration and for a CIMOM.
     // Anything else should be considered an error.  Reflect this in the log.
-    return false;
+    PEG_METHOD_EXIT();
+    return(false);
 }
 
 void SLPProvider::initialize(CIMOMHandle & handle)
 {
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "SLPProvider::initialize()");
+
     _cimomHandle = handle;
     initFlag = false;
 
     // Do not allow unload.
     _cimomHandle.disallowProviderUnload();
+
+    PEG_METHOD_EXIT();
 }
 
 //***************************************************************************
@@ -1627,9 +1569,7 @@ SLPProvider::SLPProvider()
 
 void SLPProvider::updateProfileRegistration()
 {
-    OperationContext context;
-    context.insert(IdentityContainer(System::getEffectiveUserName()));
-    _this->populateSLPRegistrations(context);
+    _this->populateSLPRegistrations();
 }
 
 SLPProvider::~SLPProvider()
@@ -1648,6 +1588,10 @@ void SLPProvider::getInstance(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
+
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "SLPProvider::getInstance()");
+
     // if this is the first call, create the registration.
     //if(initFlag == false)
     //    issueSLPRegistrations();
@@ -1681,6 +1625,7 @@ void SLPProvider::getInstance(
     }
     //complete processing the request
     handler.complete();
+    PEG_METHOD_EXIT();
 }
 
 void SLPProvider::enumerateInstances(
@@ -1691,13 +1636,13 @@ void SLPProvider::enumerateInstances(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "SLPProvider::enumerateInstances()");
+
     // begin processing the request
     handler.processing();
 
-    PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
-        "enumerateInstances. count instances=%u",
-        _instances.size()));
-
+    CDEBUG("enumerateInstances. count instances=" << _instances.size());
     for (Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
         // deliver instance
@@ -1706,6 +1651,7 @@ void SLPProvider::enumerateInstances(
 
     // complete processing the request
     handler.complete();
+    PEG_METHOD_EXIT();
 }
 
 void SLPProvider::enumerateInstanceNames(
@@ -1713,6 +1659,9 @@ void SLPProvider::enumerateInstanceNames(
     const CIMObjectPath & classReference,
     ObjectPathResponseHandler & handler)
 {
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "SLPProvider::enumerateInstanceNames()");
+
     // if this is the first call, create the registration.
     //if(initFlag == false)
     //    issueSLPRegistrations();
@@ -1727,6 +1676,8 @@ void SLPProvider::enumerateInstanceNames(
     }
     // complete processing the request
     handler.complete();
+
+    PEG_METHOD_EXIT();
 }
 
 void SLPProvider::modifyInstance(
@@ -1775,9 +1726,9 @@ void SLPProvider::invokeMethod(
     const Array<CIMParamValue> & inParameters,
     MethodResultResponseHandler & handler)
 {
-    PEG_TRACE((TRC_INTERNALPROVIDER,Tracer::LEVEL4,
-        "invokeMethod. method=%s",
-        (const char*) methodName.getString().getCString()));
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "SLPProvider::invokeMethod()");
+    CDEBUG("invokeMethod. method= " << methodName.getString());
 
     _nameSpace = objectReference.getNameSpace();
     // convert a fully qualified reference into a local reference
@@ -1796,19 +1747,7 @@ void SLPProvider::invokeMethod(
         {
             if (initFlag == false)
             {
-                OperationContext myCopy = context;
-                String timeoutStr=
-                    ConfigManager::getInstance()->getCurrentValue(
-                        "slpProviderStartupTimeout");
-                Uint64 timeOut;
-                
-                StringConversion::decimalStringToUint64(
-                    timeoutStr.getCString(),
-                    timeOut);
-
-                myCopy.insert(TimeoutContainer(timeOut & 0xFFFFFFFF));
-
-                if (issueSLPRegistrations(myCopy))
+                if (issueSLPRegistrations())
                 {
                 // PEP 267 ifdef is added to allow reregistrations.
                 // issueRegistration sets initFlag to true.
@@ -1855,6 +1794,7 @@ void SLPProvider::invokeMethod(
     }
     handler.deliver(CIMValue(response));
     handler.complete();
+    PEG_METHOD_EXIT();
 }
 
 void SLPProvider::terminate()
@@ -1864,3 +1804,4 @@ void SLPProvider::terminate()
 }
 
 PEGASUS_NAMESPACE_END
+

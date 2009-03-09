@@ -42,7 +42,7 @@
 #
 
 %define packageVersion 1
-Version: 2.8.1
+Version: 2.8.2
 Release: %{packageVersion}%{?LINUX_VERSION:.%{LINUX_VERSION}}
 Epoch:   1
 

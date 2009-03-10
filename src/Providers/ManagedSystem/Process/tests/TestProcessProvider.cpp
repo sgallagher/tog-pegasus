@@ -155,7 +155,7 @@ void errorExit(Exception& e)
   exit(1);
 }
 
-int testClass(const String& className)
+int testClass(const String& className, const int& attempt)
 {
   Array<CIMObjectPath> refs;
 
@@ -191,8 +191,12 @@ int testClass(const String& className)
 
   // -------------------- First do normal getInstance() --------------------
 
-  // pick the middle instance of the bunch
-  Uint32 i = (refs.size()-1) >> 1;  // This is a shift right, not streamio!
+  // pick the middle instance of the bunch in the first attempt, or 
+  // 1/4th or 1/8th of the list in second and third attempts respectively.
+  
+  Uint32 i = (refs.size()-1) 
+      >> (attempt + 1);  // This is a shift right, not streamio!
+  
   CIMObjectPath ref = refs[i];
   CIMInstance inst;
   cout << "+++++ getInstance " << i << endl;
@@ -850,6 +854,33 @@ int testClass(const String& className)
 
   return 0;
 }
+
+int testClass(const String& className) 
+{
+
+    // The approach of this test assumes that the process attributes 
+    // gathered by the provider remain the same when the test client gathers
+    // the same data a little later. 
+    // It's possible that the data could be different depending on the process
+    // that get's picked. 
+    // So, repeat this with a different process if the checks for a process
+    // failed. This change isn't going to eliminate this possibility,
+    // but makes it less likely. This is probably better than not 
+    // verifying those properties at all.
+
+    int attempt = 0;
+    while (attempt < 3)
+    {
+        if (testClass(className, attempt) == 0)
+        {
+            return 0;
+        }
+        cout << "+++++ Process attributes changed, trying again" << endl;
+        ++attempt;
+    }
+    return 1;
+}
+
 
 int main()
 {

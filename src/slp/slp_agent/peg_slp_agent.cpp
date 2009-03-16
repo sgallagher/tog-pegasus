@@ -175,7 +175,8 @@ slp_service_agent::slp_service_agent()
             427,
             "DSA",
             "DEFAULT",
-#ifdef PEGASUS_SLP_REG_TIMEOUT
+// Dont create listener sockets if REG_TIMEOUT or EXTERNAL_SLP_TYPE is set
+#if defined(PEGASUS_SLP_REG_TIMEOUT) || defined(PEGASUS_USE_EXTERNAL_SLP_TYPE)
             FALSE,
 #else
             TRUE,
@@ -411,13 +412,14 @@ void slp_service_agent::unregister()
         throw UninitializedObjectException();
     }
 
-#ifndef PEGASUS_USE_EXTERNAL_SLP_TYPE
-    _should_listen = 0;
+    if (_should_listen.get())
+    {
+        _should_listen = 0;
 #ifdef PEGASUS_SLP_REG_TIMEOUT
-    _update_reg_semaphore.signal();
+        _update_reg_semaphore.signal();
 #endif
-    _listen_thread.join();
-#endif  /* PEGASUS_USE_EXTERNAL_SLP_TYPE */
+        _listen_thread.join();
+    }
 
     while (slp_reg_table::Iterator i = _internal_regs.start())
     {
@@ -521,14 +523,8 @@ void slp_service_agent::start_listener()
     {
         throw UninitializedObjectException();
     }
-#if !defined(PEGASUS_USE_EXTERNAL_SLP_TYPE) ||  \
-    (defined(PEGASUS_USE_EXTERNAL_SLP_TYPE) && defined(PEGASUS_SLP_REG_TIMEOUT))
-    _using_das = _find_das(_rep, NULL, "DEFAULT");
-
-    _should_listen = 1;
+    _should_listen = 0;
     _listen_thread.run();
-#endif /* PEGASUS_USE_EXTERNAL_SLP_TYPE */
-
 }
 
 
@@ -554,6 +550,10 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
 #ifdef PEGASUS_SLP_REG_TIMEOUT
     Uint16 life = PEGASUS_SLP_REG_TIMEOUT * 60;
 #endif
+
+    agent->_using_das = agent->_find_das(agent->_rep, NULL, "DEFAULT");
+    agent->_should_listen = 1;
+
     while (agent->_should_listen.get())
     {
         Uint32 now, msec;

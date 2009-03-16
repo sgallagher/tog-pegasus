@@ -37,8 +37,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "RepositoryPropertyOwner.h"
-#include "ConfigManager.h"
-#include "ConfigExceptions.h"
 
 PEGASUS_USING_STD;
 
@@ -52,17 +50,20 @@ static struct ConfigPropertyRow properties[] =
 {
 #if defined(PEGASUS_OS_LINUX)
 # ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"repositoryIsDefaultInstanceProvider", "false", IS_STATIC, IS_HIDDEN},
+    {"repositoryIsDefaultInstanceProvider",
+         "false", IS_STATIC, 0, 0, IS_HIDDEN},
 # else
-    {"repositoryIsDefaultInstanceProvider", "true", IS_STATIC, IS_VISIBLE},
+    {"repositoryIsDefaultInstanceProvider",
+         "true", IS_STATIC, 0, 0, IS_VISIBLE},
 # endif
 #else
-    {"repositoryIsDefaultInstanceProvider", "true", IS_STATIC, IS_VISIBLE},
+    {"repositoryIsDefaultInstanceProvider",
+         "true", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
 #ifndef PEGASUS_OS_ZOS
-    {"enableBinaryRepository", "false", IS_STATIC, IS_VISIBLE}
+    {"enableBinaryRepository", "false", IS_STATIC, 0, 0, IS_VISIBLE}
 #else
-    {"enableBinaryRepository", "true", IS_STATIC, IS_HIDDEN}
+    {"enableBinaryRepository", "true", IS_STATIC, 0, 0, IS_HIDDEN}
 #endif
 };
 
@@ -94,7 +95,7 @@ void RepositoryPropertyOwner::initialize()
         //
         // Initialize the properties with default values
         //
-        if (String::equal(properties[i].propertyName,
+        if (String::equalNoCase(properties[i].propertyName,
                 "repositoryIsDefaultInstanceProvider"))
         {
             _repositoryIsDefaultInstanceProvider->propertyName =
@@ -107,10 +108,14 @@ void RepositoryPropertyOwner::initialize()
                 properties[i].defaultValue;
             _repositoryIsDefaultInstanceProvider->dynamic =
                 properties[i].dynamic;
+            _repositoryIsDefaultInstanceProvider->domain =
+                properties[i].domain;
+            _repositoryIsDefaultInstanceProvider->domainSize =
+                properties[i].domainSize;
             _repositoryIsDefaultInstanceProvider->externallyVisible =
                 properties[i].externallyVisible;
         }
-        else if (String::equal(
+        else if (String::equalNoCase(
             properties[i].propertyName, "enableBinaryRepository"))
         {
             _enableBinaryRepository->propertyName = properties[i].propertyName;
@@ -118,6 +123,8 @@ void RepositoryPropertyOwner::initialize()
             _enableBinaryRepository->currentValue = properties[i].defaultValue;
             _enableBinaryRepository->plannedValue = properties[i].defaultValue;
             _enableBinaryRepository->dynamic = properties[i].dynamic;
+            _enableBinaryRepository->domain = properties[i].domain;
+            _enableBinaryRepository->domainSize = properties[i].domainSize;
             _enableBinaryRepository->externallyVisible =
                 properties[i].externallyVisible;
         }
@@ -127,12 +134,12 @@ void RepositoryPropertyOwner::initialize()
 struct ConfigProperty* RepositoryPropertyOwner::_lookupConfigProperty(
     const String& name) const
 {
-    if (String::equal(
+    if (String::equalNoCase(
             _repositoryIsDefaultInstanceProvider->propertyName, name))
     {
         return _repositoryIsDefaultInstanceProvider;
     }
-    else if (String::equal(
+    else if (String::equalNoCase(
             _enableBinaryRepository->propertyName, name))
     {
         return _enableBinaryRepository;
@@ -150,8 +157,29 @@ void RepositoryPropertyOwner::getPropertyInfo(
     const String& name,
     Array<String>& propertyInfo) const
 {
+    propertyInfo.clear();
     struct ConfigProperty * configProperty = _lookupConfigProperty(name);
-    buildPropertyInfo(name, configProperty, propertyInfo);
+
+    propertyInfo.append(configProperty->propertyName);
+    propertyInfo.append(configProperty->defaultValue);
+    propertyInfo.append(configProperty->currentValue);
+    propertyInfo.append(configProperty->plannedValue);
+    if (configProperty->dynamic)
+    {
+        propertyInfo.append(STRING_TRUE);
+    }
+    else
+    {
+        propertyInfo.append(STRING_FALSE);
+    }
+    if (configProperty->externallyVisible)
+    {
+        propertyInfo.append(STRING_TRUE);
+    }
+    else
+    {
+        propertyInfo.append(STRING_FALSE);
+    }
 }
 
 /**
@@ -213,21 +241,20 @@ void RepositoryPropertyOwner::initPlannedValue(
 */
 void RepositoryPropertyOwner::updateCurrentValue(
     const String& name,
-    const String& value,
-    const String& userName,
-    Uint32 timeoutSeconds)
+    const String& value)
 {
-    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
-
     //
     // make sure the property is dynamic before updating the value.
     //
-    if (configProperty->dynamic != IS_DYNAMIC)
+    if (!isDynamic(name))
     {
         throw NonDynamicConfigProperty(name);
     }
 
-    configProperty->currentValue = value;
+    //
+    // Update does the same thing as initialization
+    //
+    initCurrentValue(name, value);
 }
 
 
@@ -256,11 +283,20 @@ Boolean RepositoryPropertyOwner::isValid(
     //
     // Validate the specified value
     //
-    if (String::equal(
-            _repositoryIsDefaultInstanceProvider->propertyName, name) ||
-        String::equal(_enableBinaryRepository->propertyName, name))
+    if (String::equalNoCase(
+            _repositoryIsDefaultInstanceProvider->propertyName, name))
     {
-        retVal = ConfigManager::isValidBooleanValue(value);
+        if (String::equal(value, "true") || String::equal(value, "false"))
+        {
+            retVal = true;
+        }
+    }
+    else if (String::equalNoCase(_enableBinaryRepository->propertyName, name))
+    {
+        if (String::equal(value, "true") || String::equal(value, "false"))
+        {
+            retVal = true;
+        }
     }
     else
     {

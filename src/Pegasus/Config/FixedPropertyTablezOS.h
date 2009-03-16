@@ -59,10 +59,5 @@
     {"enableAssociationTraversal",                "true"},
     {"enableBinaryRepository",                    "true"},
 #endif
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-    {"webRoot",                          "/var/wbem/www"},
-    {"indexFile",                           "index.html"},
-    {"mimeTypesFile",       "/var/wbem/www/mimeType.txt"},
-#endif
     {"sslTrustStore",                  "cimserver_trust"}
 

@@ -1,37 +1,38 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
 #include "InternalException.h"
-#include "Constants.h"
 #include <Pegasus/Common/CIMExceptionRep.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 #include "Tracer.h"
@@ -52,8 +53,7 @@ AssertionFailureException::AssertionFailureException(
     _rep->message.append("): ");
     _rep->message.append(message);
 
-    PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-        (const char*)_rep->message.getCString());
+    PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2, _rep->message);
 }
 
 AssertionFailureException::~AssertionFailureException()
@@ -80,6 +80,20 @@ const char BadQualifierType::MSG[] =
     "CIMType of qualifier different than its declaration: $0";
 const char BadQualifierType::KEY[] =
     "Common.InternalException.BAD_QUALIFIER_TYPE";
+
+const char ClassAlreadyResolved::MSG[] =
+    "attempt to resolve a class that is already resolved: $0";
+const char ClassAlreadyResolved::KEY[] =
+    "Common.InternalException.CLASS_ALREADY_RESOLVED";
+
+const char ClassNotResolved::MSG[] = "class is not yet resolved: $0";
+const char ClassNotResolved::KEY[] =
+    "Common.InternalException.CLASS_NOT_RESOLVED";
+
+const char InstanceAlreadyResolved::MSG[] =
+    "attempted to resolve a instance that is already resolved";
+const char InstanceAlreadyResolved::KEY[] =
+    "Common.InternalException.INSTANCE_ALREADY_RESOLVED";
 
 const char InstantiatedAbstractClass::MSG[] =
     "attempted to instantiate an abstract class $0";
@@ -133,6 +147,10 @@ const char StackUnderflow::KEY[] = "Common.InternalException.STACK_UNDERFLOW";
 const char StackOverflow::MSG[] = "stack overflow";
 const char StackOverflow::KEY[] = "Common.InternalException.STACK_OVERFLOW";
 
+const char BadlyFormedCGIQueryString::MSG[] = "badly formed CGI query string";
+const char BadlyFormedCGIQueryString::KEY[] =
+    "Common.InternalException.BADLY_FORMED_CGI_QUERY_STRING";
+
 const char DynamicLoadFailed::MSG[] = "load of dynamic library failed: $0";
 const char DynamicLoadFailed::KEY[] =
     "Common.InternalException.DYNAMIC_LOAD_FAILED";
@@ -176,18 +194,6 @@ const char UnauthorizedAccess::KEY[] =
     "Common.InternalException.UNAUTHORIZED_ACCESS";
 
 const char InternalSystemError::MSG[] = "Unable to authenticate user";
-
-const char SocketWriteError::MSG[] =  "Could not write response to client. "
-                                      "Client may have timed out. "
-                                      "Socket write failed with error: $0";
-const char SocketWriteError::KEY[] =
-    "Common.InternalException.SOCKET_WRITE_ERROR";
-
-const char TooManyElementsException::KEY[]=
-    "Common.InternalException.TOO_MANY_ELEMENTS";
-
-const char TooManyElementsException::MSG[]=
-    "More than $0 elements in a container are not supported.";
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -259,7 +265,7 @@ static String _makeCIMExceptionDescription(
     String tmp = file;
     tmp.append("(");
     char buffer[32];
-    sprintf(buffer, "%u", line);
+    sprintf(buffer, "%d", line);
     tmp.append(buffer);
     tmp.append("): ");
     tmp.append(_makeCIMExceptionDescription(code, message));
@@ -480,27 +486,66 @@ BadQualifierOverride::~BadQualifierOverride()
 // BadQualifierType
 //
 //==============================================================================
-BadQualifierType::BadQualifierType(
-    const String& qualifierName, const String& className):
-        Exception(
-            MessageLoaderParms(
-                KEY,
-                MSG,
-                className.size()==0?qualifierName:
-                    qualifierName+"(\""+className+"\")")),
-        _qualifierName(qualifierName),
-        _className(className)
+
+BadQualifierType::BadQualifierType(const String& qualifierName)
+    : Exception(MessageLoaderParms(KEY, MSG, qualifierName))
 {
 }
-const String& BadQualifierType:: getQualifierName() const
-{
-    return _qualifierName;
-}
-const String& BadQualifierType:: getClassName() const
-{
-    return _className;
-}
+
 BadQualifierType::~BadQualifierType()
+{
+}
+
+//==============================================================================
+//
+// ClassAlreadyResolved
+//
+//==============================================================================
+
+ClassAlreadyResolved::ClassAlreadyResolved(const String& className)
+    : Exception(MessageLoaderParms(
+          ClassAlreadyResolved::KEY,
+          ClassAlreadyResolved::MSG,
+          className))
+{
+}
+
+ClassAlreadyResolved::~ClassAlreadyResolved()
+{
+}
+
+//==============================================================================
+//
+// ClassNotResolved
+//
+//==============================================================================
+
+ClassNotResolved::ClassNotResolved(const String& className)
+    : Exception(MessageLoaderParms(
+          ClassNotResolved::KEY,
+          ClassNotResolved::MSG,
+          className))
+{
+}
+
+ClassNotResolved::~ClassNotResolved()
+{
+}
+
+//==============================================================================
+//
+// InstanceAlreadyResolved
+//
+//==============================================================================
+
+InstanceAlreadyResolved::InstanceAlreadyResolved()
+    : Exception(MessageLoaderParms(
+          InstanceAlreadyResolved::KEY,
+          InstanceAlreadyResolved::MSG))
+{
+}
+
+InstanceAlreadyResolved::~InstanceAlreadyResolved()
 {
 }
 
@@ -752,6 +797,23 @@ StackOverflow::~StackOverflow()
 
 //==============================================================================
 //
+// BadlyFormedCGIQueryString
+//
+//==============================================================================
+
+BadlyFormedCGIQueryString::BadlyFormedCGIQueryString()
+    : Exception(MessageLoaderParms(
+          BadlyFormedCGIQueryString::KEY,
+          BadlyFormedCGIQueryString::MSG))
+{
+}
+
+BadlyFormedCGIQueryString::~BadlyFormedCGIQueryString()
+{
+}
+
+//==============================================================================
+//
 // DynamicLoadFailed
 //
 //==============================================================================
@@ -957,76 +1019,9 @@ InternalSystemError::~InternalSystemError()
 {
 }
 
-//==============================================================================
-//
-// SocketWriteError
-//
-//==============================================================================
-
-SocketWriteError::SocketWriteError(const String& error)
-    : Exception(MessageLoaderParms(
-          SocketWriteError::KEY,
-          SocketWriteError::MSG,
-          error))
-{
-}
-
-SocketWriteError::~SocketWriteError()
-{
-}
-
-//==============================================================================
-//
-// TooManyHTTPHeadersException
-//   - used by HTTPAuthenticatorDelegator to report detection of more than
-//     PEGASUS_MAXELEMENTS_NUM HTTP header fields in a single HTTP message
-//==============================================================================
-TooManyHTTPHeadersException::TooManyHTTPHeadersException()
-    : Exception("more than "PEGASUS_MAXELEMENTS
-                    " header fields detected in HTTP message")
-{
-}
-
-TooManyHTTPHeadersException::~TooManyHTTPHeadersException()
-{
-}
-
-//==============================================================================
-//
-// TooManyElementsException
-//   - used by OrderedSet to report detection of more than
-//     PEGASUS_MAXELEMENTS_NUM elements in a single object
-//==============================================================================
-TooManyElementsException::TooManyElementsException()
-    : Exception(MessageLoaderParms(
-          TooManyElementsException::KEY,
-          TooManyElementsException::MSG,
-          PEGASUS_MAXELEMENTS_NUM))
-{
-}
-
-TooManyElementsException::~TooManyElementsException()
-{
-}
-
-void ThrowTooManyElementsException()
-{
-    throw TooManyElementsException();
-}
-
-void ThrowIndexOutOfBoundsException()
-{
-    throw IndexOutOfBoundsException();
-}
-
 void ThrowUninitializedObjectException()
 {
     throw UninitializedObjectException();
-}
-
-void ThrowCannotOpenFileException(const char* path)
-{
-    throw CannotOpenFile(path);
 }
 
 PEGASUS_NAMESPACE_END

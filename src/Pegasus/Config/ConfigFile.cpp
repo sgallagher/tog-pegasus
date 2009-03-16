@@ -321,7 +321,7 @@ void ConfigFile::save(ConfigTable* confTable)
                 _configFile,
                 (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)))    // set 0644
         {
-            throw CannotOpenFile(_configFile);
+            throw CannotChangeFilePerm(_configFile);
         }
     }
 #endif
@@ -404,7 +404,7 @@ void ConfigFile::replace (const String& fileName)
     if (!FileSystem::changeFilePermissions(_configFile,
         (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)))    // set 0644
     {
-        throw CannotOpenFile(_configFile);
+        throw CannotChangeFilePerm(_configFile);
     }
 # endif
 #endif /* PEGASUS_ENABLE_PRIVILEGE_SEPARATION */

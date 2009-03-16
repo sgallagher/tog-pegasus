@@ -293,6 +293,7 @@ Boolean ConfigManager::initCurrentValue(
     const String& propertyValue)
 {
     ConfigPropertyOwner* propertyOwner = 0;
+    Boolean success = true;
 
     //
     // get property owner object from the config table.
@@ -314,14 +315,18 @@ Boolean ConfigManager::initCurrentValue(
 
     if (useConfigFiles)
     {
-        //
-        // update the value in the current config file
-        //
-        return _configFileHandler->updateCurrentValue(
-            propertyName, propertyValue, false);
+        try
+        {
+            // update the value in the current config file
+            success = _configFileHandler->updateCurrentValue(
+                          propertyName, propertyValue, false);
+        }
+        catch (Exception& e)
+        {
+            throw FailedSaveProperties(e.getMessage());
+        }
     }
-
-    return true;
+    return success;
 }
 
 /**
@@ -369,14 +374,23 @@ Boolean ConfigManager::updateCurrentValue(
 
     if (useConfigFiles)
     {
-        //
-        // update the new value in the current config file
-        //
-        if (!_configFileHandler->updateCurrentValue(name, value, unset))
+        try
+        {
+            //
+            // update the new value in the current config file
+            //
+            if (!_configFileHandler->updateCurrentValue(name, value, unset))
+            {
+                // Failed to update the current value, so roll back.
+                propertyOwner->updateCurrentValue(name, prevValue);
+                return false;
+            }
+        }
+        catch (Exception& e)
         {
             // Failed to update the current value, so roll back.
             propertyOwner->updateCurrentValue(name, prevValue);
-            return false;
+            throw FailedSaveProperties(e.getMessage());
         }
     }
 
@@ -429,14 +443,23 @@ Boolean ConfigManager::updatePlannedValue(
 
     if (useConfigFiles)
     {
-        //
-        // update the new value in the planned config file
-        //
-        if (!_configFileHandler->updatePlannedValue(name, value, unset))
+        try
+        {
+            //
+            // update the new value in the planned config file
+            //
+            if (!_configFileHandler->updatePlannedValue(name, value, unset))
+            {
+                // Failed to update the planned value, so roll back.
+                propertyOwner->updatePlannedValue(name, prevValue);
+                return false;
+            }
+        }
+        catch (Exception& e)
         {
             // Failed to update the planned value, so roll back.
             propertyOwner->updatePlannedValue(name, prevValue);
-            return false;
+            throw FailedSaveProperties(e.getMessage());
         }
     }
 
@@ -685,8 +708,7 @@ void ConfigManager::mergeCommandLine(int& argc, char**& argv)
             throw UnrecognizedCommandLineOption();
         }
 
-        // Get the config option
-        //const char* configOption = argv[i];
+        // Set porperty with command line value.
         if (!_initPropertyWithCommandLineOption(arg))
         {
             throw UnrecognizedConfigProperty(arg);
@@ -796,6 +818,7 @@ Boolean ConfigManager::_initPropertyWithCommandLineOption(
     const String& option)
 {
     Uint32 pos = option.find('=');
+
     if (pos == PEG_NOT_FOUND)
     {
         //

@@ -134,7 +134,7 @@ ACC_LINK_SEARCH_PATH += -Wl,+s
 FLAGS += $(ACC_LINK_SEARCH_PATH)
 
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
-  FLAGS += -g
+  FLAGS += -g +noobjdebug
 else
   FLAGS += +O2 -s
 endif

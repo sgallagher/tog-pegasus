@@ -70,7 +70,7 @@ ifeq ($(COMPILER),acc)
     LINK_COMMAND += $(ACC_LINK_SEARCH_PATH)
   endif
   ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
-    LINK_COMMAND += -g
+    LINK_COMMAND += -g +noobjdebug
   endif
   ifdef PEGASUS_CCOVER
     EXTRA_LIBRARIES += $(CCOVER_LIB)/libcov.a

@@ -472,6 +472,17 @@ CIMName XmlReader::getClassOriginAttribute(
     if (!entry.getAttributeValue("CLASSORIGIN", name))
         return CIMName();
 
+    /* Interoperability hack to make the C++ client of OpenPegasus able
+       to deal with the wbemservices CIMOM delivered with Sun Solaris.
+       The issue is that the wbemservices delivers Xml responses with
+       CLASSORIGIN=""
+       Originally this had been reported with Bug#537.
+    */
+    if (name.size()==0)
+    {
+        return CIMName();
+    }
+
     if (!CIMName::legal(name))
     {
         char buffer[MESSAGE_SIZE];

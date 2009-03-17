@@ -49,6 +49,7 @@
     {"repositoryIsDefaultInstanceProvider", "false"},
     {"enableBinaryRepository", "false"},
     {"maxProviderProcesses", "0"},
+    {"forceProviderProcesses", "true"},
 #endif
 
 #ifdef PEGASUS_USE_RELEASE_DIRS

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -55,6 +57,7 @@
 // Includes
 // ==========================================================================
 
+#include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Client/CIMClient.h>
 #include "TestProcessProvider.h"
 #include "../ProcessPlatform.h"
@@ -191,11 +194,11 @@ int testClass(const String& className, const int& attempt)
 
   // -------------------- First do normal getInstance() --------------------
 
-  // pick the middle instance of the bunch in the first attempt, or 
+  // pick the middle instance of the bunch in the first attempt, or
   // 1/4th or 1/8th of the list in second and third attempts respectively.
-  
+
   Uint32 i = (refs.size()-1) 
-      >> (attempt + 1);  // This is a shift right, not streamio!
+      >> (attempt +1);  // This is a shift right, not streamio!
   
   CIMObjectPath ref = refs[i];
   CIMInstance inst;
@@ -215,7 +218,7 @@ int testClass(const String& className, const int& attempt)
     Array<CIMKeyBinding> keys = ref.getKeyBindings();
     cout << "  Keys:" << endl;
     for (i=0; i<keys.size(); i++)
-      cout << "    " << keys[i].getName().getString() << " = " <<
+      cout << "    " << keys[i].getName() << " = " <<
           keys[i].getValue() << endl;
   }
 
@@ -788,7 +791,6 @@ int testClass(const String& className, const int& attempt)
     return 1;
   }
 
-#ifndef PEGASUS_TEST_VALGRIND
   // For UnixProcess, we should be able to find this test process
   // and the cimserver
   if (String::equalNoCase(className,"CIM_Process") ||
@@ -816,7 +818,6 @@ int testClass(const String& className, const int& attempt)
       return 1;
     }
   }
-#endif
 
   // =======================================================================
   // modifyInstance
@@ -855,17 +856,17 @@ int testClass(const String& className, const int& attempt)
   return 0;
 }
 
-int testClass(const String& className) 
+int testClass(const String& className)
 {
 
-    // The approach of this test assumes that the process attributes 
+    // The approach of this test assumes that the process attributes
     // gathered by the provider remain the same when the test client gathers
-    // the same data a little later. 
+    // the same data a little later.
     // It's possible that the data could be different depending on the process
-    // that get's picked. 
+    // that get's picked.
     // So, repeat this with a different process if the checks for a process
     // failed. This change isn't going to eliminate this possibility,
-    // but makes it less likely. This is probably better than not 
+    // but makes it less likely. This is probably better than not
     // verifying those properties at all.
 
     int attempt = 0;

@@ -191,12 +191,12 @@ int testClass(const String& className, const int& attempt)
 
   // -------------------- First do normal getInstance() --------------------
 
-  // pick the middle instance of the bunch in the first attempt, or 
+  // pick the middle instance of the bunch in the first attempt, or
   // 1/4th or 1/8th of the list in second and third attempts respectively.
-  
+ 
   Uint32 i = (refs.size()-1) 
       >> (attempt + 1);  // This is a shift right, not streamio!
-  
+
   CIMObjectPath ref = refs[i];
   CIMInstance inst;
   cout << "+++++ getInstance " << i << endl;
@@ -855,17 +855,16 @@ int testClass(const String& className, const int& attempt)
   return 0;
 }
 
-int testClass(const String& className) 
+int testClass(const String& className)
 {
-
-    // The approach of this test assumes that the process attributes 
+    // The approach of this test assumes that the process attributes
     // gathered by the provider remain the same when the test client gathers
-    // the same data a little later. 
+    // the same data a little later.
     // It's possible that the data could be different depending on the process
-    // that get's picked. 
+    // that get's picked.
     // So, repeat this with a different process if the checks for a process
     // failed. This change isn't going to eliminate this possibility,
-    // but makes it less likely. This is probably better than not 
+    // but makes it less likely. This is probably better than not
     // verifying those properties at all.
 
     int attempt = 0;

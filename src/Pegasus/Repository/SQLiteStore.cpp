@@ -695,91 +695,52 @@ void SQLiteStore::setQualifier(
     // Note: This is a relatively inefficient way to determine the existence
     // of a qualifier, but setting a qualifier is expected to be an infrequent
     // operation.
-    Boolean qualifierExists =
-        getQualifier(nameSpace, qualifierDecl.getName()).isUninitialized();
+    if (!getQualifier(nameSpace, qualifierDecl.getName()).isUninitialized())
+    {
+        PEG_METHOD_EXIT();
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_NOT_SUPPORTED, qualifierDecl.getName().getString());
+    }
 
     DbConnection db(_dbcm, nameSpace);
 
-    if (qualifierExists)
-    {
-        // Qualifier does not exist yet; create it
-        const char* sqlStatement =
-            "INSERT INTO QualifierTable VALUES(?,?,?);";
+    // Qualifier does not exist yet; create it
+    const char* sqlStatement =
+        "INSERT INTO QualifierTable VALUES(?,?,?);";
 
-        sqlite3_stmt* stmt = 0;
-        CHECK_RC_OK(
-            sqlite3_prepare_v2(db.get(), sqlStatement, -1, &stmt, 0),
-            db.get());
-        AutoPtr<sqlite3_stmt, FinalizeSQLiteStatement> stmtDestroyer(stmt);
+    sqlite3_stmt* stmt = 0;
+    CHECK_RC_OK(
+        sqlite3_prepare_v2(db.get(), sqlStatement, -1, &stmt, 0),
+        db.get());
+    AutoPtr<sqlite3_stmt, FinalizeSQLiteStatement> stmtDestroyer(stmt);
 
-        String qualname = qualifierDecl.getName().getString();
-        String normqualname = _getNormalizedName(qualifierDecl.getName());
-        Buffer data;
-        _streamer->encode(data, qualifierDecl);
+    String qualname = qualifierDecl.getName().getString();
+    String normqualname = _getNormalizedName(qualifierDecl.getName());
+    Buffer data;
+    _streamer->encode(data, qualifierDecl);
 
-        CHECK_RC_OK(
-            sqlite3_bind_text16(
-                stmt,
-                1,
-                qualname.getChar16Data(),
-                qualname.size() * 2,
-                SQLITE_STATIC),
-            db.get());
-        CHECK_RC_OK(
-            sqlite3_bind_text16(
-                stmt,
-                2,
-                normqualname.getChar16Data(),
-                normqualname.size() * 2,
-                SQLITE_STATIC),
-            db.get());
-        CHECK_RC_OK(
-            sqlite3_bind_blob(
-                stmt, 3, data.getData(), data.size(), SQLITE_STATIC),
-            db.get());
+    CHECK_RC_OK(
+        sqlite3_bind_text16(
+            stmt,
+            1,
+            qualname.getChar16Data(),
+            qualname.size() * 2,
+            SQLITE_STATIC),
+        db.get());
+    CHECK_RC_OK(
+        sqlite3_bind_text16(
+            stmt,
+            2,
+            normqualname.getChar16Data(),
+            normqualname.size() * 2,
+            SQLITE_STATIC),
+        db.get());
+    CHECK_RC_OK(
+        sqlite3_bind_blob(
+            stmt, 3, data.getData(), data.size(), SQLITE_STATIC),
+        db.get());
 
-        CHECK_RC_DONE(sqlite3_step(stmt), db.get());
-    }
-    else
-    {
-        // Qualifier already exists; replace it
-        const char* sqlStatement = "UPDATE QualifierTable "
-            "SET rep=?, qualname=? WHERE normqualname=?;";
-
-        sqlite3_stmt* stmt = 0;
-        CHECK_RC_OK(
-            sqlite3_prepare_v2(db.get(), sqlStatement, -1, &stmt, 0),
-            db.get());
-        AutoPtr<sqlite3_stmt, FinalizeSQLiteStatement> stmtDestroyer(stmt);
-
-        String qualname = qualifierDecl.getName().getString();
-        String normqualname = _getNormalizedName(qualifierDecl.getName());
-        Buffer data;
-        _streamer->encode(data, qualifierDecl);
-
-        CHECK_RC_OK(
-            sqlite3_bind_blob(
-                stmt, 1, data.getData(), data.size(), SQLITE_STATIC),
-            db.get());
-        CHECK_RC_OK(
-            sqlite3_bind_text16(
-                stmt,
-                2,
-                qualname.getChar16Data(),
-                qualname.size() * 2,
-                SQLITE_STATIC),
-            db.get());
-        CHECK_RC_OK(
-            sqlite3_bind_text16(
-                stmt,
-                3,
-                normqualname.getChar16Data(),
-                normqualname.size() * 2,
-                SQLITE_STATIC),
-            db.get());
-
-        CHECK_RC_DONE(sqlite3_step(stmt), db.get());
-    }
+    CHECK_RC_DONE(sqlite3_step(stmt), db.get());
 
     db.release();
 

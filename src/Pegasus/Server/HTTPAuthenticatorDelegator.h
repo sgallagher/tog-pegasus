@@ -33,7 +33,7 @@
 #define Pegasus_HTTPAuthenticatorDelegator_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/HTTPMessage.h>
@@ -52,11 +52,11 @@ PEGASUS_NAMESPACE_BEGIN
    validates the response.
 */
 class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator :
-    public MessageQueueService
+    public MessageQueue
 {
 public:
 
-    typedef MessageQueueService Base;
+    typedef MessageQueue Base;
 
     /** Constructor. */
     HTTPAuthenticatorDelegator(

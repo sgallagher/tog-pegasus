@@ -79,7 +79,7 @@ HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
     Uint32 cimOperationMessageQueueId,
     Uint32 cimExportMessageQueueId,
     CIMRepository* repository)
-    : Base(PEGASUS_QUEUENAME_HTTPAUTHDELEGATOR, MessageQueue::getNextQueueId()),
+    : Base(PEGASUS_QUEUENAME_HTTPAUTHDELEGATOR),
       _cimOperationMessageQueueId(cimOperationMessageQueueId),
       _cimExportMessageQueueId(cimExportMessageQueueId),
       _wsmanOperationMessageQueueId(PEG_NOT_FOUND),

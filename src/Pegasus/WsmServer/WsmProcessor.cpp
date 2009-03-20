@@ -47,9 +47,9 @@ PEGASUS_NAMESPACE_BEGIN
 Uint64 WsmProcessor::_currentEnumContext = 0;
 
 WsmProcessor::WsmProcessor(
-    MessageQueueService* cimOperationProcessorQueue,
+    MessageQueue* cimOperationProcessorQueue,
     CIMRepository* repository)
-    : MessageQueueService(PEGASUS_QUEUENAME_WSMPROCESSOR),
+    : MessageQueue(PEGASUS_QUEUENAME_WSMPROCESSOR),
       _wsmResponseEncoder(),
       _wsmRequestDecoder(this),
       _cimOperationProcessorQueue(cimOperationProcessorQueue),

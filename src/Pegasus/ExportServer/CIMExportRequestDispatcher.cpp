@@ -125,7 +125,10 @@ void CIMExportRequestDispatcher::handleEnqueue(Message* message)
 
             response->setCloseConnect(message->getCloseConnect());
 
-            SendForget(response);
+            MessageQueue* queue = MessageQueue::lookup(response->dest);
+            PEGASUS_ASSERT(queue != 0);
+
+            queue->enqueue(response);
             break;
         }
 

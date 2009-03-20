@@ -33,7 +33,7 @@
 #define Pegasus_CIMOperationRequestDecoder_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/AcceptLanguageList.h>
@@ -46,13 +46,13 @@ class XmlParser;
 
 /** This class decodes CIM operation requests and passes them down-stream.
  */
-class CIMOperationRequestDecoder : public MessageQueueService
+class CIMOperationRequestDecoder : public MessageQueue
 {
 public:
-    typedef MessageQueueService Base;
+    typedef MessageQueue Base;
 
     CIMOperationRequestDecoder(
-        MessageQueueService* outputQueue,
+        MessageQueue* outputQueue,
         Uint32 returnQueueId);
 
    ~CIMOperationRequestDecoder();
@@ -262,7 +262,7 @@ public:
 private:
 
     // Do not make _outputQueue an AutoPtr.
-    MessageQueueService* _outputQueue;
+    MessageQueue* _outputQueue;
 
     // Queue where responses should be enqueued.
     Uint32 _returnQueueId;

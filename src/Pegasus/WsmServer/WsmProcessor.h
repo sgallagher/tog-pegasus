@@ -33,7 +33,7 @@
 #define Pegasus_WsmProcessor_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/WsmServer/WsmRequestDecoder.h>
@@ -80,12 +80,12 @@ PEGASUS_TEMPLATE_SPECIALIZATION struct HashFunc<Uint64>
 /**
     Processes WsmRequest messages and produces WsmResponse messages.
 */
-class PEGASUS_WSMSERVER_LINKAGE WsmProcessor : public MessageQueueService
+class PEGASUS_WSMSERVER_LINKAGE WsmProcessor : public MessageQueue
 {
 public:
 
     WsmProcessor(
-        MessageQueueService* cimOperationProcessorQueue,
+        MessageQueue* cimOperationProcessorQueue,
         CIMRepository* repository);
 
     ~WsmProcessor();
@@ -135,7 +135,7 @@ private:
         A pointer to a CIMOperationRequestDispatcher that can be used to
         process CIM operation requests.
     */
-    MessageQueueService* _cimOperationProcessorQueue;
+    MessageQueue* _cimOperationProcessorQueue;
 
     /**
         A repository object that can be used to look up schema definitions.

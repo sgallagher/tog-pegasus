@@ -33,7 +33,7 @@
 #define Pegasus_WsmRequestDecoder_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/ContentLanguageList.h>
@@ -46,7 +46,7 @@ class WsmProcessor;
 
 /** This class decodes WS-Man operation requests and passes them down-stream.
  */
-class WsmRequestDecoder : public MessageQueueService
+class WsmRequestDecoder : public MessageQueue
 {
 public:
 

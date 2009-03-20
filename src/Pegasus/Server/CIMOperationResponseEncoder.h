@@ -33,21 +33,21 @@
 #define Pegasus_CIMOperationResponseEncoder_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/MessageQueueService.h>
+#include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 /** This class encodes CIM operation requests and passes them up-stream.
  */
-class CIMOperationResponseEncoder : public MessageQueueService
+class CIMOperationResponseEncoder : public MessageQueue
 {
 private:
      static const String OUT_OF_MEMORY_MESSAGE;
 
 public:
 
-    typedef MessageQueueService Base;
+    typedef MessageQueue Base;
 
     CIMOperationResponseEncoder();
 

@@ -41,11 +41,11 @@
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer :
-    public MessageQueueService
+    public MessageQueue
 {
 public:
 
-    typedef MessageQueueService Base;
+    typedef MessageQueue Base;
 
     CIMOperationRequestAuthorizer(
         MessageQueueService* outputQueue);

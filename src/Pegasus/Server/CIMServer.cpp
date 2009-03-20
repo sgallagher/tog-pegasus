@@ -400,7 +400,7 @@ void CIMServer::_init()
     Boolean enableAuthentication = ConfigManager::parseBooleanValue(
         configManager->getCurrentValue("enableAuthentication"));
 
-    MessageQueueService* cimOperationProcessorQueue = 0;
+    MessageQueue* cimOperationProcessorQueue = 0;
 
     //
     // Create Authorization queue only if authentication is enabled

@@ -2251,17 +2251,8 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
 
     _logOperation(request, response);
 
-    // ATTN: Internal client does not have async capabilities, call enqueue()
-    // for handling legacy messages directly.
     MessageQueue* queue = MessageQueue::lookup(request->queueIds.top());
     PEGASUS_ASSERT(queue != 0);
-
-    if (strcmp(queue->getQueueName(), PEGASUS_QUEUENAME_INTERNALCLIENT) &&
-        Base::_enqueueResponse(request, response))
-    {
-        PEG_METHOD_EXIT();
-        return;
-    }
 
     queue->enqueue(response);
 

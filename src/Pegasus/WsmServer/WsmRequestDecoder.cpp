@@ -47,7 +47,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 WsmRequestDecoder::WsmRequestDecoder(WsmProcessor* wsmProcessor)
-    : MessageQueueService(PEGASUS_QUEUENAME_WSMREQDECODER),
+    : MessageQueue(PEGASUS_QUEUENAME_WSMREQDECODER),
       _wsmProcessor(wsmProcessor),
       _serverTerminating(false)
 {

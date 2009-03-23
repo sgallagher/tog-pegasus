@@ -238,7 +238,7 @@ public:
         CString agentProgramPath = path.getCString();
         CString userNameCString = userName.getCString();
 
-# if defined(PEGASUS_DISABLE_PROV_USERCTXT)
+# if defined(PEGASUS_DISABLE_PROV_USERCTXT) || defined(PEGASUS_OS_ZOS)
         const char* setUserContextFlag = "0";    // False
 # else
         const char* setUserContextFlag = "1";    // True

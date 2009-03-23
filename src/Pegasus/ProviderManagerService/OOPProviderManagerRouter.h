@@ -71,6 +71,11 @@ private:
     // Private methods
     //
 
+    /** determine moduleName from providerModule, function sets moduleName */
+    void _getProviderModuleName(
+        const CIMInstance & providerModule,
+        String & moduleName);
+
     /** Unimplemented */
     OOPProviderManagerRouter();
     /** Unimplemented */

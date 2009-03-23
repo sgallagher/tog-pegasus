@@ -770,6 +770,10 @@ CIMResponseMessage* ProviderAgentContainer::_processMessage(
     CIMResponseMessage* response;
     String originalMessageId = request->messageId;
 
+    PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
+        "ProviderAgentContainer, process message ID %s",
+        (const char*)request->messageId.getCString()));
+
     // These three variables are used for the provider module optimization.
     // See the _providerModuleCache member description for more information.
     AutoPtr<ProviderIdContainer> origProviderId;
@@ -1287,9 +1291,7 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
 
         // Retrieve the provider module name
         String moduleName;
-        CIMValue nameValue = providerModule.getProperty(
-            providerModule.findProperty(PEGASUS_PROPERTYNAME_NAME)).getValue();
-        nameValue.get(moduleName);
+        _getProviderModuleName(providerModule,moduleName);
 
         // Look up the Provider Agents for this module
         Array<ProviderAgentContainer*> paArray =
@@ -1357,9 +1359,7 @@ Message* OOPProviderManagerRouter::processMessage(Message* message)
 
         // Retrieve the provider module name
         String moduleName;
-        CIMValue nameValue = providerModule.getProperty(
-            providerModule.findProperty(PEGASUS_PROPERTYNAME_NAME)).getValue();
-        nameValue.get(moduleName);
+        _getProviderModuleName(providerModule,moduleName);
 
         // Look up the Provider Agents for this module
         Array<ProviderAgentContainer*> paArray =
@@ -1443,9 +1443,17 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
 {
     // Retrieve the provider module name
     String moduleName;
-    CIMValue nameValue = providerModule.getProperty(
-        providerModule.findProperty(PEGASUS_PROPERTYNAME_NAME)).getValue();
-    nameValue.get(moduleName);
+    _getProviderModuleName(providerModule,moduleName);
+
+#if defined(PEGASUS_OS_ZOS)
+    // For z/OS we don't start an extra provider agent for
+    // each user, since the userid is switched at the thread
+    // level. Therefore we set the userName to an empty String,
+    // as it is used below to build the key for the provider
+    // agent table
+    String userName;
+    Uint16 userContext = PEGASUS_DEFAULT_PROV_USERCTXT;
+#else
 
     // Retrieve the provider user context configuration
     Uint16 userContext = 0;
@@ -1523,7 +1531,7 @@ ProviderAgentContainer* OOPProviderManagerRouter::_lookupProviderAgent(
         (const char*) moduleName.getCString(),
         userContext,
         (const char*) userName.getCString()));
-
+#endif
 
     ProviderAgentContainer* pa = 0;
 #ifdef PEGASUS_OS_PASE
@@ -1641,5 +1649,33 @@ void OOPProviderManagerRouter::unloadIdleProviders()
 
     PEG_METHOD_EXIT();
 }
+
+void OOPProviderManagerRouter::_getProviderModuleName(
+        const CIMInstance & providerModule,
+        String & moduleName)
+{
+    CIMValue nameValue = providerModule.getProperty(
+        providerModule.findProperty(PEGASUS_PROPERTYNAME_NAME)).getValue();
+    nameValue.get(moduleName);
+
+#if defined(PEGASUS_OS_ZOS)
+    // Retrieve the providers shareAS flag, to see if it will share the
+    // provider address space with other providers or requests its own
+    // address space.
+    Boolean shareAS = true;
+    Uint32 saIndex = providerModule.findProperty("ShareAS");
+    if (saIndex != PEG_NOT_FOUND)
+    {
+        CIMValue shareValue=providerModule.getProperty(saIndex).getValue();
+        shareValue.get(shareAS);
+    }
+    if (shareAS == true)
+    {
+        moduleName.assign("SharedProviderAgent");
+    }
+#endif
+    return;
+}
+
 
 PEGASUS_NAMESPACE_END

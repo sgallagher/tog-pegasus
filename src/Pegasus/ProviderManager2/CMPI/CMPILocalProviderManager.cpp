@@ -308,24 +308,16 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
                         }
                         else
                         {
-                            _unloadProvider (provider);
+                            // Force unload.
+                            _unloadProvider (provider, true);
                             if (provider->getStatus () ==
                                 CMPIProvider::UNINITIALIZED)
                             {
                                 delete provider;
                             }
-                            else
-                            {
-                                unloadPendingProviders.append(provider);
-                            }
                         }
                     }
 
-                    if (unloadPendingProviders.size())
-                    {
-                        _terminateUnloadPendingProviders(
-                            unloadPendingProviders);
-                    }
                     // All the providers are removed. Clear the hash-table
                     _providers.clear ();
                 }
@@ -1009,88 +1001,6 @@ CMPIProvider *CMPILocalProviderManager::_initProvider(
 
     PEG_METHOD_EXIT ();
     return(provider);
-}
-
-/*
-    This method is called when CMPIProviderManager receives
-    CIMStopAllProvidersRequestMessage and
-    CMPILocalProviderManager::_provider_ctrl() method could not unload the
-    provider(s) because of pending requests with the provider. We give grace
-    time of (90% of shutdownTimeout) seconds to the unload pending providers
-    to unload gracefully before terminating them forcibly. Note that this
-    happens only when provider is running out-of-process and communication
-    with CIMServer falied because of pipe read/write failures.
-*/
-void CMPILocalProviderManager::_terminateUnloadPendingProviders(
-    Array<CMPIProvider*> &unloadPendingProviders)
-{
-    PEG_METHOD_ENTER(
-        TRC_PROVIDERMANAGER,
-        "CMPILocalProviderManager::_terminateUnloadPendingProviders()");
-
-    PEG_TRACE((
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL3,
-        "Unloading %u unload-pending providers.",
-        unloadPendingProviders.size()));
-
-    String configTimeout =
-        ConfigManager::getInstance()->getCurrentValue("shutdownTimeout");
-
-    Uint32 timeoutValue =
-        strtol(configTimeout.getCString(), (char **)0, 10);
-    // Calculate 90% of timeout value, minimum 1 second.
-    timeoutValue =  (Uint32)((timeoutValue - 1) * 0.9);
-    timeoutValue++;
-
-    struct timeval startTime;
-    struct timeval timeNow;
-
-    Time::gettimeofday(&startTime);
-
-    for (;;)
-    {
-        Boolean unloadPending = false;
-        for (Uint32 j = 0, n = unloadPendingProviders.size(); j < n; ++j)
-        {
-            if (unloadPendingProviders[j]->getStatus() ==
-                CMPIProvider::INITIALIZED)
-            {
-                _unloadProvider(unloadPendingProviders[j]);
-                if (unloadPendingProviders[j]->getStatus()
-                    == CMPIProvider::INITIALIZED)
-                {
-                    unloadPending = true;
-                }
-            }
-        }
-        // Get the current time and check if it exceeds
-        // or equals to timeoutValue.
-        Time::gettimeofday(&timeNow);
-        if (((Uint32)(timeNow.tv_sec - startTime.tv_sec)) >= timeoutValue
-            || !unloadPending)
-        {
-            break;
-        }
-        Threads::sleep(1000);
-    }
-
-    for (Uint32 j = 0, n = unloadPendingProviders.size(); j < n; ++j)
-    {
-        if (unloadPendingProviders[j]->getStatus() ==
-            CMPIProvider::INITIALIZED)
-        {
-            // Force unload
-            _unloadProvider(unloadPendingProviders[j], true);
-        }
-        if (unloadPendingProviders[j]->getStatus() ==
-            CMPIProvider::UNINITIALIZED)
-        {
-            delete unloadPendingProviders[j];
-        }
-    }
-
-    PEG_METHOD_EXIT();
 }
 
 void CMPILocalProviderManager::_unloadProvider (

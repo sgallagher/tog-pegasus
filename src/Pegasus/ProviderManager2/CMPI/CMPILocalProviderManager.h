@@ -121,9 +121,6 @@ private:
 
     void _unloadProvider(CMPIProvider * provider, Boolean forceUnload = false);
 
-    void _terminateUnloadPendingProviders(
-        Array<CMPIProvider*> &unloadPendingProviders);
-
     CMPIProvider * _lookupProvider(const String & providerName);
 
     CMPIProviderModule * _lookupModule(const String & moduleFileName);

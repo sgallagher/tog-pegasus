@@ -182,6 +182,17 @@ void ProviderAgent::run()
             //
             CIMStopAllProvidersRequestMessage stopRequest("0", QueueIdStack(0));
             AutoPtr<Message> stopResponse(_processRequest(&stopRequest));
+
+            // If there are agent threads running exit from here. If provider
+            // is not responding cimprovagt may loop forever in ThreadPool
+            // destructor waiting for running threads to become idle.
+            if (_threadPool.runningCount())
+            {
+                PEG_TRACE_CSTRING(TRC_PROVIDERAGENT,
+                    Tracer::LEVEL1,
+                    "Agent threads are running, terminating forcibly.");
+                exit(1);
+            }
         }
         else if (!active)
         {

@@ -40,15 +40,15 @@ static Boolean verbose = false;
 static const char* xmlPropertyA =
     "<PROPERTY NAME=\"JustaName\"  TYPE=\"string\" EmbeddedObject=\"instance\""
         " EMBEDDEDOBJECT=\"instance\">\n"
-            "<VALUE>&lt;INSTANCE CLASSNAME=&quot;className&quot; &gt;&#10;&lt;"
-                "/INSTANCE&gt;&#10;</VALUE>\n"
+            "<VALUE>&lt;INSTANCE &#32;CLASSNAME=&quot;className&quot; "
+                "&gt;&#10;&lt;/INSTANCE&gt;&#10;</VALUE>\n"
                     "</PROPERTY>\n";
 
 static const char* xmlPropertyAwithClassOrigin =
     "<PROPERTY NAME=\"JustaName\"  CLASSORIGIN=\"origin\" TYPE=\"string\""
         " EmbeddedObject=\"instance\" EMBEDDEDOBJECT=\"instance\">\n"
-            "<VALUE>&lt;INSTANCE CLASSNAME=&quot;className&quot; &gt;&#10;&lt;"
-                "/INSTANCE&gt;&#10;</VALUE>\n"
+            "<VALUE>&lt;INSTANCE &#32;CLASSNAME=&quot;className&quot; "
+                "&gt;&#10;&lt;/INSTANCE&gt;&#10;</VALUE>\n"
                     "</PROPERTY>\n";
 
 

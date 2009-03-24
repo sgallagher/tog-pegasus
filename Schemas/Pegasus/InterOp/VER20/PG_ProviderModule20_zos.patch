@@ -9,7 +9,7 @@ Index: pegasus/Schemas/Pegasus/InterOp/VER20/PG_ProviderModule20.mof
          "User\").  For all other values of UserContext, the "
          "DesignatedUserContext MUST be NULL.")]
     string DesignatedUserContext;
-  
+ 
 +      [Description( "This property is only supported for z/OS! "
 +        "When the ShareAS property is set to false, the provider "
 +        "module will run in its own copy of a Provider Agent process. No other "

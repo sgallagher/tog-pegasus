@@ -43,57 +43,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class ProviderKey
-{
-public:
-    ProviderKey(
-        const String &providerName,
-        const String &providerModuleName):
-             _providerName(providerName.getCString()),
-             _providerModuleName(providerModuleName.getCString())
-    {
-        _providerNameLen = strlen((const char*)_providerName);
-        _providerModuleNameLen = strlen((const char*)_providerModuleName);
-    }
-
-    ProviderKey( const ProviderKey& key)
-    {
-        _providerName = key._providerName;
-        _providerModuleName = key._providerModuleName;
-        _providerNameLen = key._providerNameLen;
-        _providerModuleNameLen = key._providerModuleNameLen;
-    }
-
-    ~ProviderKey()
-    {
-    }
-
-    static Boolean equal(const ProviderKey& key1, const ProviderKey& key2)
-    {
-        return key1._providerNameLen == key2._providerNameLen &&
-            key1._providerModuleNameLen == key2._providerModuleNameLen &&
-            !System::strcasecmp(
-                 key1._providerName,
-                 key2._providerName) &&
-            !System::strcasecmp(
-                 key1._providerModuleName,
-                 key2._providerModuleName);
-    }
-
-    static Uint32 hash(const ProviderKey& key)
-    {
-        return (key._providerNameLen << 4) + key._providerModuleNameLen;
-    }
-
-private:
-    ProviderKey& operator =( const ProviderKey& key);
-
-    CString _providerName;
-    CString _providerModuleName;
-    Uint32 _providerNameLen;
-    Uint32 _providerModuleNameLen;
-};
-
 class PEGASUS_CMPIPM_LINKAGE CMPILocalProviderManager
 {
 
@@ -104,27 +53,21 @@ public:
 public:
     OpProviderHolder getProvider(
         const String & fileName,
-        const String & providerName,
-        const String & providerModuleName);
+        const String & providerName);
 
     OpProviderHolder getRemoteProvider(
         const String & fileName,
-        const String & providerName,
-        const String & providerModuleName);
+        const String & providerName);
 
     Boolean unloadProvider(
         const String & fileName,
-        const String & providerName,
-        const String & providerModuleName);
+        const String & providerName);
 
     void shutdownAllProviders();
 
     Boolean hasActiveProviders();
     void unloadIdleProviders();
-
-    Boolean isProviderActive(
-        const String &providerName,
-        const String &providerModuleName);
+    Boolean isProviderActive(const String &providerName);
 
     /**
          Gets list of indication providers to be enabled.
@@ -141,6 +84,10 @@ public:
 private:
     enum CTRL
     {
+        INSERT_PROVIDER,
+        INSERT_MODULE,
+        LOOKUP_PROVIDER,
+        LOOKUP_MODULE,
         GET_PROVIDER,
         UNLOAD_PROVIDER,
         UNLOAD_ALL_PROVIDERS,
@@ -150,8 +97,8 @@ private:
     typedef HashTable<String, CMPIProvider *,
         EqualFunc<String>,  HashFunc<String> > ResolverTable;
 
-    typedef HashTable<ProviderKey, CMPIProvider *,
-        ProviderKey,  ProviderKey > ProviderTable;
+    typedef HashTable<String, CMPIProvider *,
+        EqualFunc<String>,  HashFunc<String> > ProviderTable;
 
     typedef HashTable<String, CMPIProviderModule *,
         EqualFunc<String>, HashFunc<String> > ModuleTable;
@@ -159,7 +106,6 @@ private:
     typedef struct
     {
         const String *providerName;
-        const String *providerModuleName;
         const String *fileName;
         const String *location;
     } CTRL_STRINGS;
@@ -175,13 +121,7 @@ private:
 
     void _unloadProvider(CMPIProvider * provider, Boolean forceUnload = false);
 
-    CMPIProvider * _lookupProvider(
-        const String & providerName,
-        const String & providerModuleName);
-
-    Boolean _removeProvider(
-        const String & providerName,
-        const String & providerModuleName);
+    CMPIProvider * _lookupProvider(const String & providerName);
 
     CMPIProviderModule * _lookupModule(const String & moduleFileName);
     Mutex _providerTableMutex;

@@ -424,7 +424,15 @@ void CMPIProvider::terminate()
             throw;
         }
     }
-    _status = UNINITIALIZED;
+
+    // Provider's cleanup method called successfully, if there are still any
+    // pending operations with provider then we were asked to cleanup forcibly,
+    // don't uninitialize provider.
+    if (_current_operations.get() == 0)
+    {
+        _status = UNINITIALIZED;
+    }
+
     PEG_METHOD_EXIT();
 }
 

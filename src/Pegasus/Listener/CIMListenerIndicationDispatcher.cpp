@@ -287,7 +287,9 @@ void CIMListenerIndicationDispatcher::handleEnqueue(Message* message)
                         static_cast<CIMListenerIndicationDispatcherRep*>(_rep)->
                             handleIndicationRequest(request);
 
-                    _enqueueResponse(request, response);
+                    MessageQueue* queue = MessageQueue::lookup(response->dest);
+                    PEGASUS_ASSERT(queue != 0);
+                    queue->enqueue(response);
                 }
                 break;
             default:

@@ -218,6 +218,12 @@ private:
        Indicates if the provider agent has been successful initialised already.
      */
     Boolean _isInitialised;
+
+    /**
+        Indicates whether the provider module is disabled successfully or 
+        CIMStopAllProvidersRequestMessage is processed successfully.
+    */
+    Boolean _providersStopped;
 };
 
 PEGASUS_NAMESPACE_END

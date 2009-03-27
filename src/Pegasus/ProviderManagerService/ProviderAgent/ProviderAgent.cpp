@@ -108,6 +108,7 @@ ProviderAgent::ProviderAgent(
     _providerAgent = this;
     _subscriptionInitComplete = false;
     _isInitialised = false;
+    _providersStopped = false;
 
     PEG_METHOD_EXIT();
 }
@@ -177,21 +178,25 @@ void ProviderAgent::run()
 
         if (_terminating)
         {
-            //
-            // Stop all providers
-            //
-            CIMStopAllProvidersRequestMessage stopRequest("0", QueueIdStack(0));
-            AutoPtr<Message> stopResponse(_processRequest(&stopRequest));
-
-            // If there are agent threads running exit from here. If provider
-            // is not responding cimprovagt may loop forever in ThreadPool
-            // destructor waiting for running threads to become idle.
-            if (_threadPool.runningCount())
+            if (!_providersStopped)
             {
-                PEG_TRACE_CSTRING(TRC_PROVIDERAGENT,
-                    Tracer::LEVEL1,
-                    "Agent threads are running, terminating forcibly.");
-                exit(1);
+                //
+                // Stop all providers
+                //
+                CIMStopAllProvidersRequestMessage 
+                    stopRequest("0", QueueIdStack(0));
+                AutoPtr<Message> stopResponse(_processRequest(&stopRequest));
+
+                // If there are agent threads running exit from here.If provider
+                // is not responding cimprovagt may loop forever in ThreadPool
+                // destructor waiting for running threads to become idle.
+                if (_threadPool.runningCount())
+                { 
+                    PEG_TRACE_CSTRING(TRC_PROVIDERAGENT,
+                        Tracer::LEVEL1,
+                        "Agent threads are running, terminating forcibly.");
+                    exit(1);
+                }
             }
         }
         else if (!active)
@@ -481,6 +486,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
              (respMsg->cimException.getCode() == CIM_ERR_SUCCESS)))
         {
             // Operation is successful. End the agent process.
+            _providersStopped = true;
             _terminating = true;
         }
 

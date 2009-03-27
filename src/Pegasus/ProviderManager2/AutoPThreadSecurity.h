@@ -49,13 +49,13 @@ PEGASUS_NAMESPACE_BEGIN
 // of the pthread_security on z/OS
 // For all other platforms this should be an empty class
 // Targets: avoid ifdefs and keep code readable(clean)
-#ifndef PEGASUS_ZOS_THREADLEVEL_SECURITY
+#ifndef PEGASUS_ZOS_SECURITY
 
 // not z/OS == empty class
 class AutoPThreadSecurity
 {
 public:
-    AutoPThreadSecurity(const OperationContext& context) {};
+    AutoPThreadSecurity(const OperationContext& context, bool reverse=false) {};
 };
 
 #else
@@ -63,20 +63,42 @@ public:
 class AutoPThreadSecurity
 {
 public:
-    AutoPThreadSecurity(const OperationContext& context)
+    AutoPThreadSecurity(const OperationContext& context, bool reverse=false):
+        _reverse(reverse)
     {
-        int err_num=enablePThreadSecurity(context);
-        if (err_num!=0)
+        if (!_reverse)
         {
-            // need a new CIMException for this
-            throw CIMException(CIM_ERR_ACCESS_DENIED,String(strerror(err_num)));
+            int err_num=enablePThreadSecurity(context);
+            if (err_num!=0)
+            {
+                // need a new CIMException for this
+                throw CIMException(
+                    CIM_ERR_ACCESS_DENIED,
+                    String(strerror(err_num)));
+            }
+        }
+        else
+        {
+            // remember the context, it will be needed in the destructor
+            internalOpContextReference = &(context);
+            revDisablePThreadSecurity();        
         }
     };
 
     ~AutoPThreadSecurity()
     {
-        disablePThreadSecurity();
+        if (!_reverse)
+        {
+            disablePThreadSecurity();
+        }
+        else
+        {
+            revEnablePThreadSecurity(*internalOpContextReference);
+        }
     };
+private:
+    const OperationContext * internalOpContextReference;
+    bool _reverse;
 };
 
 #endif

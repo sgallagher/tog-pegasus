@@ -33,13 +33,11 @@
 #define Pegasus_ProviderAgent_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Semaphore.h>
 #include <Pegasus/Common/AnonymousPipe.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/ThreadPool.h>
 #include <Pegasus/Common/Signal.h>
-#include <Pegasus/Common/SCMOClassCache.h>
-#include <Pegasus/ProviderManagerRouter/BasicProviderManagerRouter.h>
+#include <Pegasus/ProviderManagerService/BasicProviderManagerRouter.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -126,21 +124,13 @@ private:
     static void _indicationCallback(
         CIMProcessIndicationRequestMessage* request);
 
-    static void _handleIndicationDeliveryResponse(
-        CIMProcessIndicationResponseMessage *response);
-
     /**
         Callback function to which all response chunks are sent for processing.
      */
     static void _responseChunkCallback(
         CIMRequestMessage* request, CIMResponseMessage* response);
 
-    /*
-     *Tries to unload idle providers giving a timeout of value shutdown timeout
-     * return true if unloaded successfuly
-     */
-    Boolean _unloadIdleProviders();
-
+    void _unloadIdleProviders();
     static ThreadReturnType PEGASUS_THREAD_CDECL
         _unloadIdleProvidersHandler(void* arg) throw();
 
@@ -212,34 +202,17 @@ private:
     CIMInstance _providerModuleCache;
 
     /**
+        Indicates whether the Indication Service has completed initialization.
+
+        For more information, please see the description of the
+        ProviderManagerRouter::_subscriptionInitComplete member variable.
+     */
+    Boolean _subscriptionInitComplete;
+
+    /**
         A thread pool used for asynchronous processing of provider operations.
      */
     ThreadPool _threadPool;
-
-
-    /**
-     * Call back for the SCMOClassCache.
-     */
-    static SCMOClass _scmoClassCache_GetClass(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className);
-
-    void _processGetSCMOClassResponse(
-        ProvAgtGetScmoClassResponseMessage* response);
-
-    void _processStopAllProvidersRequest(CIMRequestMessage* request);
-
-    static void _indicationDeliveryRoutine(
-        CIMProcessIndicationRequestMessage* message);
-
-    /**
-     * Condition variable and transger pointer for the provider agend to
-     * the SCMOClassCache.
-     **/
-    static Semaphore  _scmoClassDelivered;
-    static SCMOClass* _transferSCMOClass;
-    static Mutex       _transferSCMOClassMutex;
-    static String      _transferSCMOClassRspMsgID;
 
     /**
        Indicates if the provider agent has been successful initialised already.
@@ -247,7 +220,7 @@ private:
     Boolean _isInitialised;
 
     /**
-        Indicates whether the provider module is disabled successfully or
+        Indicates whether the provider module is disabled successfully or 
         CIMStopAllProvidersRequestMessage is processed successfully.
     */
     Boolean _providersStopped;

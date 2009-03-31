@@ -71,6 +71,48 @@ static const char* _getServiceName(Uint32 serviceId)
     return queue ? queue->getQueueName() : "none";
 }
 
+#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+//
+// Returns true if v1 has a higher or same version, else return false.
+//
+static Boolean _isVersionGreaterOrEqual(
+    const String& v1,
+    Uint32 majorV2,
+    Uint32 minorV2,
+    Uint32 updateV2)
+{
+    Uint32 minorV1 = PEG_NOT_FOUND;
+    Uint32 majorV1 = PEG_NOT_FOUND;
+    Uint32 updateV1 = PEG_NOT_FOUND;
+    
+    int result;
+    char dummychar;
+
+    result = sscanf((const char*)v1.getCString(), 
+        "%d.%d.%d%c",
+        &majorV1,
+        &minorV1,
+        &updateV1,
+        &dummychar);
+
+    if (result != 3)
+    {
+        PEG_TRACE((
+            TRC_DISPATCHER,
+            Tracer::LEVEL2,
+            "The provider is registered with a version String (%s) not exactly"
+                "following the format <number>.<number>.<number>",
+            (const char*)v1.getCString()));
+        return false;
+    }
+
+    return ((majorV1 > majorV2) ||
+            ((majorV1 == majorV2) &&
+             ((minorV1 > minorV2) ||
+              ((minorV1 == minorV2) && (updateV1 >= updateV2)))));
+}
+#endif
+
 OperationAggregate::OperationAggregate(
     CIMRequestMessage* request,
     MessageType msgRequestType,
@@ -1397,7 +1439,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
             if (String::equalNoCase(interfaceType, "C++Default"))
             {
                 // version must be greater than 2.5.0
-                if (String::compare(interfaceVersion, "2.5.0") >= 0)
+                if (_isVersionGreaterOrEqual(interfaceVersion, 2, 5, 0))
                 {
                     providerInfo.hasProviderNormalization = true;
                 }
@@ -1405,7 +1447,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
             else if (String::equalNoCase(interfaceType, "CMPI"))
             {
                 // version must be greater than 2.0.0
-                if (String::compare(interfaceVersion, "2.0.0") >= 0)
+                if (_isVersionGreaterOrEqual(interfaceVersion, 2, 0, 0))
                 {
                     providerInfo.hasProviderNormalization = true;
                 }
@@ -1413,7 +1455,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
             else if (String::equalNoCase(interfaceType, "JMPI"))
             {
                 // version must be greater than 1.0.0
-                if (String::compare(interfaceVersion, "1.0.0") >= 0)
+                if (_isVersionGreaterOrEqual(interfaceVersion, 1, 0, 0))
                 {
                     providerInfo.hasProviderNormalization = true;
                 }

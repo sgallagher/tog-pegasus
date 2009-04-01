@@ -346,8 +346,19 @@ Boolean DefaultPropertyOwner::isValid(
             StringConversion::decimalStringToUint64(value.getCString(), v) &&
             StringConversion::checkUintBounds(v, CIMTYPE_UINT32);
     }
+    else if (String::equalNoCase(name, "enableHttpConnection") ||
+        String::equalNoCase(name, "enableHttpsConnection") ||
+        String::equalNoCase(name, "daemon") ||
+        String::equalNoCase(name, "enableAssociationTraversal") ||
+        String::equalNoCase(name, "enableIndicationService") ||
+        String::equalNoCase(name, "forceProviderProcesses")
+#ifdef PEGASUS_ENABLE_SLP
+        || String::equalNoCase(name, "slp")
+#endif
 #ifdef PEGASUS_ENABLE_AUDIT_LOGGER
-    else if (String::equal(name, "enableAuditLog"))
+        || String::equal(name, "enableAuditLog")
+#endif
+        )
     {
         if (!(String::equalNoCase(value, "true")) &&
             !(String::equalNoCase(value, "false")))
@@ -355,7 +366,6 @@ Boolean DefaultPropertyOwner::isValid(
             return false;
         }
     }
-#endif
 
     return true;
 }

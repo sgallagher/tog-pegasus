@@ -53,11 +53,9 @@ AsyncRequest::AsyncRequest(
     Uint32 mask,
     AsyncOpNode* operation,
     Uint32 destination,
-    Uint32 response,
     Boolean blocking)
     : AsyncMessage(
           type, destination, mask | MessageMask::ha_request, operation),
-      resp(response),
       block(blocking)
 {
     if (op != 0)
@@ -69,10 +67,9 @@ AsyncReply::AsyncReply(
     Uint32 mask,
     AsyncOpNode* operation,
     Uint32 resultCode,
-    Uint32 destination,
     Boolean blocking)
     : AsyncMessage(
-          type, destination, mask | MessageMask::ha_reply, operation),
+          type,0, mask | MessageMask::ha_reply, operation),
       result(resultCode),
       block(blocking)
 {
@@ -83,14 +80,12 @@ AsyncReply::AsyncReply(
 AsyncIoClose::AsyncIoClose(
     AsyncOpNode* operation,
     Uint32 destination,
-    Uint32 response,
     Boolean blocking)
     : AsyncRequest(
           ASYNC_IOCLOSE,
           0,
           operation,
           destination,
-          response,
           blocking)
 {
 }
@@ -98,12 +93,11 @@ AsyncIoClose::AsyncIoClose(
 CimServiceStart::CimServiceStart(
     AsyncOpNode* operation,
     Uint32 destination,
-    Uint32 response,
     Boolean blocking)
     : AsyncRequest(
           ASYNC_CIMSERVICE_START,
           0, operation, destination,
-          response, blocking)
+          blocking)
 {
 }
 
@@ -111,26 +105,25 @@ CimServiceStart::CimServiceStart(
 CimServiceStop::CimServiceStop(
     AsyncOpNode* operation,
     Uint32 destination,
-    Uint32 response,
     Boolean blocking)
     : AsyncRequest(
           ASYNC_CIMSERVICE_STOP,
           0, operation, destination,
-          response, blocking)
+          blocking)
 {
 }
 
 AsyncOperationStart::AsyncOperationStart(
     AsyncOpNode* operation,
     Uint32 destination,
-    Uint32 response,
     Boolean blocking,
     Message* action)
     : AsyncRequest(
           ASYNC_ASYNC_OP_START,
           0,
           operation,
-          destination, response, blocking),
+          destination, 
+          blocking),
       _act(action)
 {
 }
@@ -146,14 +139,12 @@ Message* AsyncOperationStart::get_action()
 AsyncOperationResult::AsyncOperationResult(
     AsyncOpNode* operation,
     Uint32 resultCode,
-    Uint32 destination,
     Boolean blocking)
     : AsyncReply(
           ASYNC_ASYNC_OP_RESULT,
           0,
           operation,
           resultCode,
-          destination,
           blocking)
 {
 }
@@ -162,7 +153,6 @@ AsyncOperationResult::AsyncOperationResult(
 AsyncModuleOperationStart::AsyncModuleOperationStart(
     AsyncOpNode* operation,
     Uint32 destination,
-    Uint32 response,
     Boolean blocking,
     const String& targetModule,
     Message* action)
@@ -171,7 +161,6 @@ AsyncModuleOperationStart::AsyncModuleOperationStart(
           0,
           operation,
           destination,
-          response,
           blocking),
       _target_module(targetModule),
       _act(action)
@@ -191,14 +180,13 @@ Message* AsyncModuleOperationStart::get_action()
 AsyncModuleOperationResult::AsyncModuleOperationResult(
     AsyncOpNode* operation,
     Uint32 resultCode,
-    Uint32 destination,
     Boolean blocking,
     const String& targetModule,
     Message* result)
     : AsyncReply(
           ASYNC_ASYNC_MODULE_OP_RESULT,
           0,
-          operation, resultCode, destination,
+          operation, resultCode,
           blocking),
       _targetModule(targetModule),
       _res(result)
@@ -222,7 +210,8 @@ AsyncLegacyOperationStart::AsyncLegacyOperationStart(
     : AsyncRequest(
           ASYNC_ASYNC_LEGACY_OP_START,
           0,
-          operation, destination, CIMOM_Q_ID, false),
+          operation, destination, 
+          false),
       _act(action)
 {
     _act->put_async(this);
@@ -243,8 +232,7 @@ AsyncLegacyOperationResult::AsyncLegacyOperationResult(
     Message* result)
     : AsyncReply(
           ASYNC_ASYNC_LEGACY_OP_RESULT,
-          0, operation,
-          0, CIMOM_Q_ID, false),
+          0, operation, 0, false),
       _res(result)
 {
     _res->put_async(this);

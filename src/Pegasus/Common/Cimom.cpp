@@ -41,9 +41,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-const Uint32 CIMOM_Q_ID = 1;
-
-
 cimom::RegisteredServicesTable cimom::_registeredServicesTable;
 Mutex cimom::_registeredServicesTableLock;
 
@@ -210,13 +207,13 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 
 
 cimom::cimom()
-    : MessageQueue(PEGASUS_QUEUENAME_METADISPATCHER, true, CIMOM_Q_ID),
+    : MessageQueue(PEGASUS_QUEUENAME_METADISPATCHER, true),
       _routed_ops(),
       _routing_thread(_routing_proc, this, false),
       _die(0),
       _routed_queue_shutdown(0)
 {
-    _global_this = static_cast<cimom *>(MessageQueue::lookup(CIMOM_Q_ID));
+    _global_this = this;
 
     ThreadStatus tr = PEGASUS_THREAD_OK;
     while ((tr = _routing_thread.run()) != PEGASUS_THREAD_OK)
@@ -237,8 +234,7 @@ cimom::~cimom()
 
     AsyncIoClose *msg = new AsyncIoClose(
         0,
-        CIMOM_Q_ID,
-        CIMOM_Q_ID,
+        getQueueId(),
         true);
 
     msg->op = get_cached_op();
@@ -288,7 +284,6 @@ void cimom::_make_response(Message *req, Uint32 code)
         0,
         (static_cast<AsyncRequest *>(req))->op,
         code,
-        (static_cast<AsyncRequest *>(req))->resp,
         false));
 
     _completeAsyncResponse(

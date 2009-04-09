@@ -2158,7 +2158,6 @@ void CIMOperationRequestDispatcher::_forwardRequestForAggregation(
            new AsyncModuleOperationStart(
                op,
                serviceId,
-               this->getQueueId(),
                true,
                controlProviderName,
                request);
@@ -2241,7 +2240,6 @@ void CIMOperationRequestDispatcher::_forwardRequestToProviderManager(
             new AsyncModuleOperationStart(
                 op,
                 serviceId,
-                this->getQueueId(),
                 true,
                 controlProviderName,
                 request);

@@ -147,7 +147,7 @@ IndicationService::IndicationService(
     CIMRepository* repository,
     ProviderRegistrationManager* providerRegManager)
     : MessageQueueService(
-          PEGASUS_QUEUENAME_INDICATIONSERVICE, MessageQueue::getNextQueueId()),
+          PEGASUS_QUEUENAME_INDICATIONSERVICE),
       _providerRegManager(providerRegManager),
       _cimRepository(repository)
 {

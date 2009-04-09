@@ -167,9 +167,8 @@ AtomicInt MessageQueueService::_stop_polling(0);
 
 
 MessageQueueService::MessageQueueService(
-    const char* name,
-    Uint32 queueID)
-    : Base(name, true,  queueID),
+    const char* name)
+    : Base(name, true),
       _die(0),
       _threads(0),
       _incoming(),
@@ -225,7 +224,6 @@ MessageQueueService::~MessageQueueService()
     {
         AsyncIoClose *msg = new AsyncIoClose(
             0,
-            _queueId,
             _queueId,
             true);
         SendForget(msg);

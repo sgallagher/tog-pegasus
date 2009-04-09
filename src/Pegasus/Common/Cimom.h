@@ -52,8 +52,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern const Uint32 CIMOM_Q_ID;
-
 class MessageQueueService;
 
 class PEGASUS_COMMON_LINKAGE cimom : public MessageQueue

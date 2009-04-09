@@ -66,7 +66,6 @@ public:
         0,
         op,
         destination,
-        response,
         true),
       greeting(message)
     {
@@ -95,7 +94,6 @@ public:
         0,
         op,
         result,
-        destination,
         true),
       greeting(message)
     {
@@ -253,7 +251,6 @@ void MessageQueueServer::handleLegacyOpStart(AsyncLegacyOperationStart *req)
             0,
             req->op,
             async_results::OK,
-            req->resp,
             req->block);
     _completeAsyncResponse(req, resp);
 
@@ -288,7 +285,6 @@ void MessageQueueServer::handleCimServiceStop(CimServiceStop *req)
             0,
             req->op,
             async_results::CIM_SERVICE_STOPPED,
-            req->resp,
             req->block);
     _completeAsyncResponse(req, resp);
 
@@ -480,7 +476,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
     CimServiceStop *stop = new CimServiceStop(
         0,
         serverQueue->getQueueId(),
-        q_client->get_qid(),
         true);
 
     reply = q_client->SendWait(stop);

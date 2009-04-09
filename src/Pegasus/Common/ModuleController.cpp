@@ -157,14 +157,12 @@ void ModuleController::_handle_async_request(AsyncRequest* rq)
                 MessageMask::ha_async | MessageMask::ha_reply,
                 rq->op,
                 async_results::CIM_NAK,
-                rq->resp,
                 false);
         }
 
         AsyncModuleOperationResult *result = new AsyncModuleOperationResult(
             rq->op,
             async_results::OK,
-            static_cast<AsyncModuleOperationStart *>(rq)->resp,
             false,
             static_cast<AsyncModuleOperationStart *>(rq)->_target_module,
             module_result);

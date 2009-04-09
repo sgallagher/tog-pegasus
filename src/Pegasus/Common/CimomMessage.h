@@ -41,13 +41,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-//
-// This identifier is the queue id for CIMOM queue. It is initialized in
-// CimomMessage.cpp by calling MessageQueue::getNextQueueId(). Note that
-// this value is passed in the constructor for the CIMOM queue.
-//
-extern const Uint32 CIMOM_Q_ID;
-
 class PEGASUS_COMMON_LINKAGE async_results
 {
 public:
@@ -84,12 +77,10 @@ public:
         Uint32 mask,
         AsyncOpNode* operation,
         Uint32 destination,
-        Uint32 response,
         Boolean blocking);
 
     virtual ~AsyncRequest();
 
-    Uint32 resp;
     Boolean block;
 };
 
@@ -101,7 +92,6 @@ public:
         Uint32 mask,
         AsyncOpNode* operation,
         Uint32 resultCode,
-        Uint32 destination,
         Boolean blocking);
 
     virtual ~AsyncReply() { }
@@ -116,7 +106,6 @@ public:
     AsyncIoClose(
         AsyncOpNode* operation,
         Uint32 destination,
-        Uint32 response,
         Boolean blocking);
 
     virtual ~AsyncIoClose()
@@ -130,7 +119,6 @@ public:
     CimServiceStart(
         AsyncOpNode* operation,
         Uint32 destination,
-        Uint32 response,
         Boolean blocking);
 
     virtual ~CimServiceStart()
@@ -144,7 +132,6 @@ public:
     CimServiceStop(
         AsyncOpNode* operation,
         Uint32 destination,
-        Uint32 response,
         Boolean blocking);
 
     virtual ~CimServiceStop()
@@ -158,7 +145,6 @@ public:
     CimProvidersStop(
         AsyncOpNode* operation,
         Uint32 destination,
-        Uint32 response,
         Boolean blocking);
 
     virtual ~CimProvidersStop()
@@ -172,7 +158,6 @@ public:
     AsyncOperationStart(
         AsyncOpNode* operation,
         Uint32 destination,
-        Uint32 response,
         Boolean blocking,
         Message* action);
 
@@ -195,7 +180,6 @@ public:
     AsyncOperationResult(
         AsyncOpNode* operation,
         Uint32 resultCode,
-        Uint32 destination,
         Boolean blocking);
 
     virtual ~AsyncOperationResult()
@@ -210,7 +194,6 @@ public:
     AsyncModuleOperationStart(
         AsyncOpNode* operation,
         Uint32 destination,
-        Uint32 response,
         Boolean blocking,
         const String& targetModule,
         Message* action);
@@ -236,7 +219,6 @@ public:
     AsyncModuleOperationResult(
         AsyncOpNode* operation,
         Uint32 resultCode,
-        Uint32 destination,
         Boolean blocking,
         const String& targetModule,
         Message* action);
@@ -302,7 +284,6 @@ class PEGASUS_COMMON_LINKAGE FindServiceQueue : public AsyncRequest
 public:
     FindServiceQueue(
         AsyncOpNode* operation,
-        Uint32 response,
         Boolean blocking,
         const String& serviceName,
         Uint32 serviceCapabilities,
@@ -323,7 +304,6 @@ public:
     FindServiceQueueResult(
         AsyncOpNode* operation,
         Uint32 resultCode,
-        Uint32 destination,
         Boolean blocking,
         Array<Uint32> queueIds);
 
@@ -339,7 +319,6 @@ class PEGASUS_COMMON_LINKAGE EnumerateService : public AsyncRequest
 public:
     EnumerateService(
         AsyncOpNode* operation,
-        Uint32 response,
         Boolean blocking,
         Uint32 queueId);
 

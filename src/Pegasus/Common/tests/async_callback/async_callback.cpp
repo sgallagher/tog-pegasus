@@ -41,14 +41,14 @@ static Boolean verbose;
 async_start::async_start (AsyncOpNode * op, Uint32 start_q, Uint32 completion_q,
                           Message * op_data):Base (
       op,
-      start_q, completion_q, false, op_data)
+      start_q, false, op_data)
 {
 
 }
 
 async_complete::async_complete (const async_start & start,
                                 Uint32 result, Message * result_data):
-Base (start.op, result, start.resp, false),
+Base (start.op, result, false),
 _result_data (result_data)
 {
 }
@@ -67,8 +67,7 @@ async_complete::get_result_data (void)
 AtomicInt test_async_queue::msg_count (0);
 
 test_async_queue::test_async_queue (ROLE role):Base (
-            (role == CLIENT) ? "client" : "server",
-            getNextQueueId ()),
+            (role == CLIENT) ? "client" : "server"),
             _die_now (0), _role (role)
 {
 
@@ -165,7 +164,6 @@ test_async_queue::_handle_stop (CimServiceStop * stop)
                                      0,
                                      stop->op,
                                      async_results::CIM_SERVICE_STOPPED,
-                                     stop->resp,
                                      stop->block);
   _completeAsyncResponse (stop, resp);
   _die_now = 1;
@@ -252,7 +250,6 @@ client_func (void *parm)
                 new AsyncOperationStart(
                     op,
                     serverQueue->getQueueId(),
-                    client->getQueueId(),
                     false,
                     cim_rq);
             client->SendAsync(
@@ -318,7 +315,6 @@ client_func (void *parm)
         CimServiceStop *stop = new CimServiceStop(
             0,
             serverQueue->getQueueId(),
-            client->getQueueId (),
             true);
 
         AsyncMessage *reply = client->SendWait (stop);

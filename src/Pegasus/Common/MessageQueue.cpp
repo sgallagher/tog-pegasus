@@ -45,7 +45,7 @@ typedef HashTable<Uint32, MessageQueue*, EqualFunc<Uint32>, HashFunc<Uint32> >
 static QueueTable _queueTable(256);
 static Mutex q_table_mut ;
 
-static IDFactory _qidFactory(CIMOM_Q_ID + 1);
+static IDFactory _qidFactory;
 
 Uint32 MessageQueue::getNextQueueId()
 {
@@ -54,15 +54,13 @@ Uint32 MessageQueue::getNextQueueId()
 
 void MessageQueue::putQueueId(Uint32 queueId)
 {
-    if (queueId != CIMOM_Q_ID)
-        _qidFactory.putID(queueId);
+    _qidFactory.putID(queueId);
 }
 
 MessageQueue::MessageQueue(
     const char* name,
-    Boolean async,
-    Uint32 queueId)
-   : _queueId(queueId), _async(async)
+    Boolean async)
+   : _queueId(getNextQueueId()), _async(async)
 {
     //
     // Copy the name:
@@ -77,7 +75,7 @@ MessageQueue::MessageQueue(
     strcpy(_name, name);
 
     PEG_TRACE((TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
-        "MessageQueue::MessageQueue  name = %s, queueId = %u", name, queueId));
+        "MessageQueue::MessageQueue  name = %s, queueId = %u", name, _queueId));
 
     //
     // Insert into queue table:

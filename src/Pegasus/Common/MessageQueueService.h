@@ -46,8 +46,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-extern const Uint32 CIMOM_Q_ID;
-
 class message_module;
 class cimom;
 
@@ -60,8 +58,7 @@ public:
     typedef MessageQueue Base;
 
     MessageQueueService(
-        const char* name,
-        Uint32 queueID = MessageQueue::getNextQueueId());
+        const char* name);
 
     virtual ~MessageQueueService();
 

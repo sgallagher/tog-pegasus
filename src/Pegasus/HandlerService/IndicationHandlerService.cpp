@@ -48,7 +48,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_NAMESPACE_BEGIN
 
 IndicationHandlerService::IndicationHandlerService(CIMRepository* repository)
-    : Base("IndicationHandlerService", MessageQueue::getNextQueueId()),
+    : Base("IndicationHandlerService"),
       _repository(repository)
 {
 }

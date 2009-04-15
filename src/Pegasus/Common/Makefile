@@ -193,7 +193,8 @@ SOURCES2 = \
     Constants.cpp \
     HostAddress.cpp \
     HostLocator.cpp \
-    BinaryCodec.cpp
+    BinaryCodec.cpp \
+    CIMBuffer.cpp
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
     SOURCES2 += PaseCcsid.cpp
@@ -211,7 +212,6 @@ ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
 endif
 
 ifeq ($(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY),true)
-    SOURCES2 += CIMBuffer.cpp
     SOURCES2 += CIMBinMsgSerializer.cpp
     SOURCES2 += CIMBinMsgDeserializer.cpp
 else

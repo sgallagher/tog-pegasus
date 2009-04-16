@@ -41,8 +41,6 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include "FileSystemPropertyOwner.h"
-#include "ConfigExceptions.h"
-
 
 
 PEGASUS_USING_STD;
@@ -58,26 +56,27 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"repositoryDir", PEGASUS_REPOSITORY_DIR, IS_STATIC, IS_VISIBLE},
+    {"repositoryDir", PEGASUS_REPOSITORY_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
 #if defined(PEGASUS_OS_PASE)
     {"messageDir", "/QOpenSys/QIBM/ProdData/UME/Pegasus/msg", IS_STATIC,
-        IS_VISIBLE},
+        0, 0, IS_VISIBLE},
 #else
-    {"messageDir", "msg", IS_STATIC, IS_VISIBLE},
+    {"messageDir", "msg", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-    {"providerManagerDir", "bin", IS_STATIC, IS_VISIBLE},
+    {"providerManagerDir", "bin", IS_STATIC, 0, 0, IS_VISIBLE},
 #elif defined(PEGASUS_OS_ZOS)
-    {"providerManagerDir", "lib", IS_STATIC, IS_VISIBLE},
+    {"providerManagerDir", "lib", IS_STATIC, 0, 0, IS_VISIBLE},
 #elif defined(PEGASUS_OS_PASE) && defined(PEGASUS_USE_RELEASE_DIRS)
-    {"providerManagerDir", "/QOpenSys/QIBM/ProdData/UME/Pegasus/lib",
-        IS_STATIC, IS_VISIBLE},
+    {"providerManagerDir",
+        "/QOpenSys/QIBM/ProdData/UME/Pegasus/lib",
+        IS_STATIC, 0, 0, IS_VISIBLE},
 #elif defined(PEGASUS_OS_AIX) && defined(PEGASUS_USE_RELEASE_DIRS)
     {"providerManagerDir", "/usr/lib", IS_STATIC, IS_VISIBLE},
 #elif defined(PEGASUS_OS_VMS)
-    {"providerManagerDir", "/wbem_lib", IS_STATIC, IS_VISIBLE},
+    {"providerManagerDir", "/wbem_lib", IS_STATIC, 0, 0, IS_VISIBLE},
 #else
-    {"providerManagerDir", "lib", IS_STATIC, IS_VISIBLE},
+    {"providerManagerDir", "lib", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
 };
 
@@ -117,25 +116,29 @@ void FileSystemPropertyOwner::initialize()
         //
         // Initialize the properties with default values
         //
-        if (String::equal(properties[i].propertyName, "repositoryDir"))
+        if (String::equalNoCase(properties[i].propertyName, "repositoryDir"))
         {
             _repositoryDir->propertyName = properties[i].propertyName;
             _repositoryDir->defaultValue = properties[i].defaultValue;
             _repositoryDir->currentValue = properties[i].defaultValue;
             _repositoryDir->plannedValue = properties[i].defaultValue;
             _repositoryDir->dynamic = properties[i].dynamic;
+            _repositoryDir->domain = properties[i].domain;
+            _repositoryDir->domainSize = properties[i].domainSize;
             _repositoryDir->externallyVisible = properties[i].externallyVisible;
         }
-        else if (String::equal(properties[i].propertyName, "messageDir"))
+        else if (String::equalNoCase(properties[i].propertyName, "messageDir"))
         {
             _messageDir->propertyName = properties[i].propertyName;
             _messageDir->defaultValue = properties[i].defaultValue;
             _messageDir->currentValue = properties[i].defaultValue;
             _messageDir->plannedValue = properties[i].defaultValue;
             _messageDir->dynamic = properties[i].dynamic;
+            _messageDir->domain = properties[i].domain;
+            _messageDir->domainSize = properties[i].domainSize;
             _messageDir->externallyVisible = properties[i].externallyVisible;
         }
-        else if (String::equal(properties[i].propertyName,
+        else if (String::equalNoCase(properties[i].propertyName,
                  "providerManagerDir"))
         {
             _providerManagerDir->propertyName = properties[i].propertyName;
@@ -143,6 +146,8 @@ void FileSystemPropertyOwner::initialize()
             _providerManagerDir->currentValue = properties[i].defaultValue;
             _providerManagerDir->plannedValue = properties[i].defaultValue;
             _providerManagerDir->dynamic = properties[i].dynamic;
+            _providerManagerDir->domain = properties[i].domain;
+            _providerManagerDir->domainSize = properties[i].domainSize;
             _providerManagerDir->externallyVisible =
                                            properties[i].externallyVisible;
         }
@@ -152,15 +157,15 @@ void FileSystemPropertyOwner::initialize()
 struct ConfigProperty* FileSystemPropertyOwner::_lookupConfigProperty(
     const String& name) const
 {
-    if (String::equal(_repositoryDir->propertyName, name))
+    if (String::equalNoCase(_repositoryDir->propertyName, name))
     {
         return _repositoryDir.get();
     }
-    if (String::equal(_messageDir->propertyName, name))
+    if (String::equalNoCase(_messageDir->propertyName, name))
     {
         return _messageDir.get();
     }
-    if (String::equal(_providerManagerDir->propertyName, name))
+    if (String::equalNoCase(_providerManagerDir->propertyName, name))
     {
         return _providerManagerDir.get();
     }
@@ -174,10 +179,31 @@ void FileSystemPropertyOwner::getPropertyInfo(
     const String& name,
     Array<String>& propertyInfo) const
 {
+    propertyInfo.clear();
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
-    buildPropertyInfo(name, configProperty, propertyInfo);
+    propertyInfo.append(configProperty->propertyName);
+    propertyInfo.append(configProperty->defaultValue);
+    propertyInfo.append(configProperty->currentValue);
+    propertyInfo.append(configProperty->plannedValue);
+    if (configProperty->dynamic)
+    {
+        propertyInfo.append(STRING_TRUE);
+    }
+    else
+    {
+        propertyInfo.append(STRING_FALSE);
+    }
+    if (configProperty->externallyVisible)
+    {
+        propertyInfo.append(STRING_TRUE);
+    }
+    else
+    {
+        propertyInfo.append(STRING_FALSE);
+    }
 }
+
 
 /**
     Get default value of the specified property.
@@ -237,20 +263,17 @@ void FileSystemPropertyOwner::initPlannedValue(
 */
 void FileSystemPropertyOwner::updateCurrentValue(
     const String& name,
-    const String& value,
-    const String& userName,
-    Uint32 timeoutSeconds)
+    const String& value)
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
-
     //
     // make sure the property is dynamic before updating the value.
     //
-    if (configProperty->dynamic != IS_DYNAMIC)
+    if (!isDynamic(name))
     {
         throw NonDynamicConfigProperty(name);
     }
 
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     configProperty->currentValue = value;
 }
 
@@ -275,7 +298,7 @@ Boolean FileSystemPropertyOwner::isValid(
 {
     if (!isDirValid(value))
     {
-        throw InvalidDirectoryPropertyValue(name, value);
+        throw InvalidPropertyValue(name, value);
     }
 
     return true;

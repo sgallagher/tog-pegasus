@@ -641,7 +641,7 @@ String SLPProvider::getRegisteredProfileList()
 
 // No reason to use deepInheritance for now as we do not support sub-classes
     Boolean         deepInheritance = false;
-    Boolean         localOnly = true;
+    Boolean         localOnly = false;
     Boolean         includeQualifiers = true;
     Boolean         includeClassOrigin = false;
 

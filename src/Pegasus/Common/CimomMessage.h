@@ -76,12 +76,9 @@ public:
         MessageType type,
         Uint32 mask,
         AsyncOpNode* operation,
-        Uint32 destination,
-        Boolean blocking);
+        Uint32 destination);
 
     virtual ~AsyncRequest();
-
-    Boolean block;
 };
 
 class PEGASUS_COMMON_LINKAGE AsyncReply : public AsyncMessage
@@ -91,13 +88,11 @@ public:
         MessageType type,
         Uint32 mask,
         AsyncOpNode* operation,
-        Uint32 resultCode,
-        Boolean blocking);
+        Uint32 resultCode);
 
     virtual ~AsyncReply() { }
 
     Uint32 result;
-    Boolean block;
 };
 
 class PEGASUS_COMMON_LINKAGE AsyncIoClose : public AsyncRequest
@@ -105,8 +100,7 @@ class PEGASUS_COMMON_LINKAGE AsyncIoClose : public AsyncRequest
 public:
     AsyncIoClose(
         AsyncOpNode* operation,
-        Uint32 destination,
-        Boolean blocking);
+        Uint32 destination);
 
     virtual ~AsyncIoClose()
     {
@@ -118,8 +112,7 @@ class PEGASUS_COMMON_LINKAGE CimServiceStart : public AsyncRequest
 public:
     CimServiceStart(
         AsyncOpNode* operation,
-        Uint32 destination,
-        Boolean blocking);
+        Uint32 destination);
 
     virtual ~CimServiceStart()
     {
@@ -131,8 +124,7 @@ class PEGASUS_COMMON_LINKAGE CimServiceStop : public AsyncRequest
 public:
     CimServiceStop(
         AsyncOpNode* operation,
-        Uint32 destination,
-        Boolean blocking);
+        Uint32 destination);
 
     virtual ~CimServiceStop()
     {
@@ -144,8 +136,7 @@ class PEGASUS_COMMON_LINKAGE CimProvidersStop : public AsyncRequest
 public:
     CimProvidersStop(
         AsyncOpNode* operation,
-        Uint32 destination,
-        Boolean blocking);
+        Uint32 destination);
 
     virtual ~CimProvidersStop()
     {
@@ -158,7 +149,6 @@ public:
     AsyncOperationStart(
         AsyncOpNode* operation,
         Uint32 destination,
-        Boolean blocking,
         Message* action);
 
     virtual ~AsyncOperationStart()
@@ -179,8 +169,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOperationResult : public AsyncReply
 public:
     AsyncOperationResult(
         AsyncOpNode* operation,
-        Uint32 resultCode,
-        Boolean blocking);
+        Uint32 resultCode);
 
     virtual ~AsyncOperationResult()
     {
@@ -194,7 +183,6 @@ public:
     AsyncModuleOperationStart(
         AsyncOpNode* operation,
         Uint32 destination,
-        Boolean blocking,
         const String& targetModule,
         Message* action);
 
@@ -219,7 +207,6 @@ public:
     AsyncModuleOperationResult(
         AsyncOpNode* operation,
         Uint32 resultCode,
-        Boolean blocking,
         const String& targetModule,
         Message* action);
 
@@ -277,79 +264,6 @@ private:
     friend class MessageQueueService;
     friend class cimom;
     Message* _res;
-};
-
-class PEGASUS_COMMON_LINKAGE FindServiceQueue : public AsyncRequest
-{
-public:
-    FindServiceQueue(
-        AsyncOpNode* operation,
-        Boolean blocking,
-        const String& serviceName,
-        Uint32 serviceCapabilities,
-        Uint32 serviceMask);
-
-    virtual ~FindServiceQueue()
-    {
-    }
-
-    String name;
-    Uint32 capabilities;
-    Uint32 mask;
-};
-
-class PEGASUS_COMMON_LINKAGE FindServiceQueueResult : public AsyncReply
-{
-public:
-    FindServiceQueueResult(
-        AsyncOpNode* operation,
-        Uint32 resultCode,
-        Boolean blocking,
-        Array<Uint32> queueIds);
-
-    virtual ~FindServiceQueueResult()
-    {
-    }
-
-    Array<Uint32> qids;
-};
-
-class PEGASUS_COMMON_LINKAGE EnumerateService : public AsyncRequest
-{
-public:
-    EnumerateService(
-        AsyncOpNode* operation,
-        Boolean blocking,
-        Uint32 queueId);
-
-    virtual ~EnumerateService()
-    {
-    }
-
-    Uint32 qid;
-};
-
-class PEGASUS_COMMON_LINKAGE EnumerateServiceResponse : public AsyncReply
-{
-public:
-    EnumerateServiceResponse(
-        AsyncOpNode* operation,
-        Uint32 resultCode,
-        Uint32 response,
-        Boolean blocking,
-        const String& serviceName,
-        Uint32 serviceCapabilities,
-        Uint32 serviceMask,
-        Uint32 serviceQid);
-
-    virtual ~EnumerateServiceResponse()
-    {
-    }
-
-    String name;
-    Uint32 capabilities;
-    Uint32 mask;
-    Uint32 qid;
 };
 
 PEGASUS_NAMESPACE_END

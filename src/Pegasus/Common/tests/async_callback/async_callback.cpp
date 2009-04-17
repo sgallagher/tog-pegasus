@@ -41,14 +41,14 @@ static Boolean verbose;
 async_start::async_start (AsyncOpNode * op, Uint32 start_q, Uint32 completion_q,
                           Message * op_data):Base (
       op,
-      start_q, false, op_data)
+      start_q, op_data)
 {
 
 }
 
 async_complete::async_complete (const async_start & start,
                                 Uint32 result, Message * result_data):
-Base (start.op, result, false),
+Base (start.op, result),
 _result_data (result_data)
 {
 }
@@ -163,8 +163,7 @@ test_async_queue::_handle_stop (CimServiceStop * stop)
   AsyncReply *resp = new AsyncReply (ASYNC_REPLY,
                                      0,
                                      stop->op,
-                                     async_results::CIM_SERVICE_STOPPED,
-                                     stop->block);
+                                     async_results::CIM_SERVICE_STOPPED);
   _completeAsyncResponse (stop, resp);
   _die_now = 1;
   } catch (const PEGASUS_STD(bad_alloc) &) {
@@ -250,7 +249,6 @@ client_func (void *parm)
                 new AsyncOperationStart(
                     op,
                     serverQueue->getQueueId(),
-                    false,
                     cim_rq);
             client->SendAsync(
                 op,
@@ -314,8 +312,7 @@ client_func (void *parm)
     {
         CimServiceStop *stop = new CimServiceStop(
             0,
-            serverQueue->getQueueId(),
-            true);
+            serverQueue->getQueueId());
 
         AsyncMessage *reply = client->SendWait (stop);
         delete stop;

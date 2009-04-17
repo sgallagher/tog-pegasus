@@ -65,8 +65,7 @@ public:
         CIM_DELETE_CLASS_REQUEST_MESSAGE,
         0,
         op,
-        destination,
-        true),
+        destination),
       greeting(message)
     {
     }
@@ -93,8 +92,7 @@ public:
         CIM_DELETE_CLASS_RESPONSE_MESSAGE,
         0,
         op,
-        result,
-        true),
+        result),
       greeting(message)
     {
     }
@@ -250,8 +248,7 @@ void MessageQueueServer::handleLegacyOpStart(AsyncLegacyOperationStart *req)
             ASYNC_REPLY,
             0,
             req->op,
-            async_results::OK,
-            req->block);
+            async_results::OK);
     _completeAsyncResponse(req, resp);
 
     if (verbose)
@@ -284,8 +281,8 @@ void MessageQueueServer::handleCimServiceStop(CimServiceStop *req)
             ASYNC_REPLY,
             0,
             req->op,
-            async_results::CIM_SERVICE_STOPPED,
-            req->block);
+            async_results::CIM_SERVICE_STOPPED);
+
     _completeAsyncResponse(req, resp);
 
     if (verbose)
@@ -475,8 +472,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL client_func(void *parm)
 
     CimServiceStop *stop = new CimServiceStop(
         0,
-        serverQueue->getQueueId(),
-        true);
+        serverQueue->getQueueId());
 
     reply = q_client->SendWait(stop);
     delete stop;

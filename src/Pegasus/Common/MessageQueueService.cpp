@@ -224,8 +224,8 @@ MessageQueueService::~MessageQueueService()
     {
         AsyncIoClose *msg = new AsyncIoClose(
             0,
-            _queueId,
-            true);
+            _queueId);
+
         SendForget(msg);
         // Wait until our queue has been shutdown.
         while (_incoming_queue_shutdown.get() == 0)
@@ -685,7 +685,6 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest* request)
     PEGASUS_ASSERT(request->op->_flags == ASYNC_OPFLAGS_UNKNOWN);
     PEGASUS_ASSERT(request->op->_state == ASYNC_OPSTATE_UNKNOWN);
 
-    request->block = false;
     _sendAsync(
         request->op,
         request->dest,

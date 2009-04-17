@@ -271,24 +271,21 @@ void ShutdownService::_sendShutdownRequestToService(const char* serviceName)
 
     CimServiceStop stop_message(
         NULL,
-        _queueId,
-        true);
+        _queueId);
 
     AutoPtr<AsyncReply> StopAsyncReply(
         _controller->ClientSendWait(_queueId, &stop_message));
 
     CimServiceStart start_message(
         NULL,
-        _queueId,
-        true);
+        _queueId);
 
     AutoPtr <AsyncReply> StartAsyncReply(
         _controller->ClientSendWait(_queueId, &start_message));
 
     AsyncIoClose close_request(
         NULL,
-        _queueId,
-        false);
+        _queueId);
 
     AutoPtr <AsyncReply> CloseAsyncReply(
         _controller->ClientSendWait(_queueId, &close_request));

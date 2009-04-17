@@ -243,7 +243,6 @@ void _testModuleController()
         AsyncModuleOperationStart* mReq = new AsyncModuleOperationStart(
             op,
             cqid,
-            true,
             i % 2 ? testModule1 : testModule2,
             request);
 

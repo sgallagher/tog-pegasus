@@ -234,8 +234,7 @@ cimom::~cimom()
 
     AsyncIoClose *msg = new AsyncIoClose(
         0,
-        getQueueId(),
-        true);
+        getQueueId());
 
     msg->op = get_cached_op();
     msg->op->_flags = ASYNC_OPFLAGS_FIRE_AND_FORGET;
@@ -283,8 +282,7 @@ void cimom::_make_response(Message *req, Uint32 code)
         ASYNC_REPLY,
         0,
         (static_cast<AsyncRequest *>(req))->op,
-        code,
-        false));
+        code));
 
     _completeAsyncResponse(
         static_cast<AsyncRequest*>(req),

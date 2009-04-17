@@ -176,7 +176,7 @@ void SecurityPropertyOwner::initialize()
         //
         // Initialize the properties with default values
         //
-        if (String::equalNoCase(
+        if (String::equal(
             properties[i].propertyName, "enableAuthentication"))
         {
             _enableAuthentication->propertyName = properties[i].propertyName;
@@ -187,7 +187,7 @@ void SecurityPropertyOwner::initialize()
             _enableAuthentication->externallyVisible =
                 properties[i].externallyVisible;
         }
-        else if (String::equalNoCase(
+        else if (String::equal(
             properties[i].propertyName, "enableNamespaceAuthorization"))
         {
             _enableNamespaceAuthorization->propertyName =
@@ -202,7 +202,7 @@ void SecurityPropertyOwner::initialize()
             _enableNamespaceAuthorization->externallyVisible =
                 properties[i].externallyVisible;
         }
-        else if (String::equalNoCase(
+        else if (String::equal(
                      properties[i].propertyName, "httpAuthType"))
         {
             _httpAuthType->propertyName = properties[i].propertyName;
@@ -212,7 +212,7 @@ void SecurityPropertyOwner::initialize()
             _httpAuthType->dynamic = properties[i].dynamic;
             _httpAuthType->externallyVisible = properties[i].externallyVisible;
         }
-        else if (String::equalNoCase(
+        else if (String::equal(
                      properties[i].propertyName, "passwordFilePath"))
         {
             _passwordFilePath->propertyName = properties[i].propertyName;
@@ -223,7 +223,7 @@ void SecurityPropertyOwner::initialize()
             _passwordFilePath->externallyVisible =
                 properties[i].externallyVisible;
         }
-        else if (String::equalNoCase(
+        else if (String::equal(
                      properties[i].propertyName, "sslCertificateFilePath"))
         {
             _certificateFilePath->propertyName = properties[i].propertyName;
@@ -234,7 +234,7 @@ void SecurityPropertyOwner::initialize()
             _certificateFilePath->externallyVisible =
                 properties[i].externallyVisible;
         }
-        else if (String::equalNoCase(
+        else if (String::equal(
                      properties[i].propertyName, "sslKeyFilePath"))
         {
             _keyFilePath->propertyName = properties[i].propertyName;
@@ -244,7 +244,7 @@ void SecurityPropertyOwner::initialize()
             _keyFilePath->dynamic = properties[i].dynamic;
             _keyFilePath->externallyVisible = properties[i].externallyVisible;
         }
-        else if (String::equalNoCase(
+        else if (String::equal(
                      properties[i].propertyName, "sslTrustStore"))
         {
             _trustStore->propertyName = properties[i].propertyName;
@@ -259,7 +259,7 @@ void SecurityPropertyOwner::initialize()
             // but not verify clients
         }
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
-        else if (String::equalNoCase(
+        else if (String::equal(
                      properties[i].propertyName, "crlStore"))
         {
             _crlStore->propertyName = properties[i].propertyName;
@@ -271,7 +271,7 @@ void SecurityPropertyOwner::initialize()
 
         }
 #endif
-        else if (String::equalNoCase(
+        else if (String::equal(
             properties[i].propertyName, "sslClientVerificationMode"))
         {
             _sslClientVerificationMode->propertyName =
@@ -286,7 +286,7 @@ void SecurityPropertyOwner::initialize()
             _sslClientVerificationMode->externallyVisible =
                 properties[i].externallyVisible;
         }
-        else if (String::equalNoCase(
+        else if (String::equal(
             properties[i].propertyName, "sslTrustStoreUserName"))
         {
             _sslTrustStoreUserName->propertyName = properties[i].propertyName;
@@ -297,7 +297,7 @@ void SecurityPropertyOwner::initialize()
             _sslTrustStoreUserName->externallyVisible =
                 properties[i].externallyVisible;
         }
-        else if (String::equalNoCase(
+        else if (String::equal(
             properties[i].propertyName, "enableRemotePrivilegedUserAccess"))
         {
             _enableRemotePrivilegedUserAccess->propertyName =
@@ -312,7 +312,7 @@ void SecurityPropertyOwner::initialize()
             _enableRemotePrivilegedUserAccess->externallyVisible =
                 properties[i].externallyVisible;
         }
-        else if (String::equalNoCase(properties[i].propertyName,
+        else if (String::equal(properties[i].propertyName,
                      "enableSubscriptionsForNonprivilegedUsers"))
         {
             _enableSubscriptionsForNonprivilegedUsers->propertyName =
@@ -329,7 +329,7 @@ void SecurityPropertyOwner::initialize()
                 properties[i].externallyVisible;
         }
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
-        else if (String::equalNoCase(
+        else if (String::equal(
                      properties[i].propertyName, "authorizedUserGroups"))
         {
             _authorizedUserGroups->propertyName = properties[i].propertyName;
@@ -342,7 +342,7 @@ void SecurityPropertyOwner::initialize()
         }
 #endif
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-        else if (String::equalNoCase(
+        else if (String::equal(
                      properties[i].propertyName, "kerberosServiceName"))
         {
             _kerberosServiceName->propertyName = properties[i].propertyName;
@@ -355,7 +355,7 @@ void SecurityPropertyOwner::initialize()
         }
 #endif
 #ifdef PEGASUS_OS_ZOS
-        else if (String::equalNoCase(
+        else if (String::equal(
                      properties[i].propertyName, "enableCFZAPPLID"))
         {
             _enableCFZAPPLID->propertyName = properties[i].propertyName;
@@ -374,75 +374,75 @@ void SecurityPropertyOwner::initialize()
 struct ConfigProperty* SecurityPropertyOwner::_lookupConfigProperty(
     const String& name) const
 {
-    if (String::equalNoCase(_enableAuthentication->propertyName, name))
+    if (String::equal(_enableAuthentication->propertyName, name))
     {
         return _enableAuthentication.get();
     }
-    else if (String::equalNoCase(
+    else if (String::equal(
                  _enableNamespaceAuthorization->propertyName, name))
     {
         return _enableNamespaceAuthorization.get();
     }
-    else if (String::equalNoCase(_httpAuthType->propertyName, name))
+    else if (String::equal(_httpAuthType->propertyName, name))
     {
         return _httpAuthType.get();
     }
-    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
+    else if (String::equal(_passwordFilePath->propertyName, name))
     {
         return _passwordFilePath.get();
     }
-    else if (String::equalNoCase(_certificateFilePath->propertyName, name))
+    else if (String::equal(_certificateFilePath->propertyName, name))
     {
         return _certificateFilePath.get();
     }
-    else if (String::equalNoCase(_keyFilePath->propertyName, name))
+    else if (String::equal(_keyFilePath->propertyName, name))
     {
         return _keyFilePath.get();
     }
-    else if (String::equalNoCase(_trustStore->propertyName, name))
+    else if (String::equal(_trustStore->propertyName, name))
     {
         return _trustStore.get();
     }
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
-    else if (String::equalNoCase(_crlStore->propertyName, name))
+    else if (String::equal(_crlStore->propertyName, name))
     {
         return _crlStore.get();
     }
 #endif
-    else if (String::equalNoCase(
+    else if (String::equal(
                  _sslClientVerificationMode->propertyName, name))
     {
         return _sslClientVerificationMode.get();
     }
-    else if (String::equalNoCase(
+    else if (String::equal(
                  _sslTrustStoreUserName->propertyName, name))
     {
         return _sslTrustStoreUserName.get();
     }
-    else if (String::equalNoCase(
+    else if (String::equal(
                  _enableRemotePrivilegedUserAccess->propertyName, name))
     {
         return _enableRemotePrivilegedUserAccess.get();
     }
-    else if (String::equalNoCase(
+    else if (String::equal(
                  _enableSubscriptionsForNonprivilegedUsers->propertyName, name))
     {
         return _enableSubscriptionsForNonprivilegedUsers.get();
     }
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
-    else if (String::equalNoCase(_authorizedUserGroups->propertyName, name))
+    else if (String::equal(_authorizedUserGroups->propertyName, name))
     {
         return _authorizedUserGroups.get();
     }
 #endif
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    else if (String::equalNoCase(_kerberosServiceName->propertyName, name))
+    else if (String::equal(_kerberosServiceName->propertyName, name))
     {
         return _kerberosServiceName.get();
     }
 #endif
 #ifdef PEGASUS_OS_ZOS
-    else if (String::equalNoCase(_enableCFZAPPLID->propertyName, name))
+    else if (String::equal(_enableCFZAPPLID->propertyName, name))
     {
         return _enableCFZAPPLID.get();
     }
@@ -579,22 +579,21 @@ Boolean SecurityPropertyOwner::isValid(
     //
     // Validate the specified value
     //
-    if (String::equalNoCase(_enableAuthentication->propertyName, name))
+    if (String::equal(_enableAuthentication->propertyName, name) ||
+        String::equal(
+            _enableNamespaceAuthorization->propertyName, name) ||
+        String::equal(
+            _enableRemotePrivilegedUserAccess->propertyName, name) ||
+        String::equal(
+            _enableSubscriptionsForNonprivilegedUsers->propertyName, name)
+#ifdef PEGASUS_OS_ZOS
+        || String::equal(_enableCFZAPPLID->propertyName, name)
+#endif
+        )
     {
-        if (String::equal(value, "true") || String::equal(value, "false"))
-        {
-            retVal = true;
-        }
+        retVal = ConfigManager::isValidBooleanValue(value);
     }
-    else if (String::equalNoCase(
-                 _enableNamespaceAuthorization->propertyName, name))
-    {
-        if (String::equal(value, "true") || String::equal(value, "false"))
-        {
-            retVal = true;
-        }
-    }
-    else if (String::equalNoCase(_httpAuthType->propertyName, name))
+    else if (String::equal(_httpAuthType->propertyName, name))
     {
         if (String::equal(value, "Basic") || String::equal(value, "Digest")
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
@@ -605,7 +604,7 @@ Boolean SecurityPropertyOwner::isValid(
             retVal = true;
         }
     }
-    else if (String::equalNoCase(_passwordFilePath->propertyName, name))
+    else if (String::equal(_passwordFilePath->propertyName, name))
     {
         String fileName(value);
 
@@ -686,8 +685,8 @@ Boolean SecurityPropertyOwner::isValid(
             }
         }
     }
-    else if (String::equalNoCase(_certificateFilePath->propertyName, name) ||
-             String::equalNoCase(_keyFilePath->propertyName, name))
+    else if (String::equal(_certificateFilePath->propertyName, name) ||
+             String::equal(_keyFilePath->propertyName, name))
     {
         //
         // Check if the file path is empty
@@ -725,9 +724,9 @@ Boolean SecurityPropertyOwner::isValid(
 
          return false;
     }
-    else if (String::equalNoCase(_trustStore->propertyName, name)
+    else if (String::equal(_trustStore->propertyName, name)
 #ifdef PEGASUS_ENABLE_SSL_CRL_VERIFICATION
-             || String::equalNoCase(_crlStore->propertyName, name)
+             || String::equal(_crlStore->propertyName, name)
 #endif
     )
     {
@@ -766,7 +765,7 @@ Boolean SecurityPropertyOwner::isValid(
 
         return false;
     }
-    else if (String::equalNoCase(
+    else if (String::equal(
                  _sslClientVerificationMode->propertyName, name))
     {
         if (String::equal(value, "disabled") ||
@@ -776,37 +775,21 @@ Boolean SecurityPropertyOwner::isValid(
             retVal = true;
         }
     }
-    else if (String::equalNoCase(_sslTrustStoreUserName->propertyName, name))
+    else if (String::equal(_sslTrustStoreUserName->propertyName, name))
     {
         if (System::isSystemUser((const char*)value.getCString()))
         {
             return true;
         }
     }
-    else if (String::equalNoCase(
-                 _enableRemotePrivilegedUserAccess->propertyName, name))
-    {
-        if (String::equal(value, "true") || String::equal(value, "false"))
-        {
-            retVal = true;
-        }
-    }
-    else if (String::equalNoCase(
-                 _enableSubscriptionsForNonprivilegedUsers->propertyName, name))
-    {
-        if (String::equal(value, "true") || String::equal(value, "false"))
-        {
-            retVal = true;
-        }
-    }
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
-    else if (String::equalNoCase(_authorizedUserGroups->propertyName, name))
+    else if (String::equal(_authorizedUserGroups->propertyName, name))
     {
         retVal = true;
     }
 #endif
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    else if (String::equalNoCase(_kerberosServiceName->propertyName, name))
+    else if (String::equal(_kerberosServiceName->propertyName, name))
     {
         String serviceName(value);
 
@@ -820,16 +803,6 @@ Boolean SecurityPropertyOwner::isValid(
         else
         {
            retVal =  true;
-        }
-    }
-#endif
-#ifdef PEGASUS_OS_ZOS
-    else if (String::equalNoCase(_enableCFZAPPLID->propertyName, name))
-    {
-        if (String::equalNoCase(value, "true")
-           || String::equalNoCase(value, "false"))
-        {
-            retVal = true;
         }
     }
 #endif

@@ -33,7 +33,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-const char* STRING_TRUE = "true";
-const char* STRING_FALSE = "false";
+const String STRING_TRUE = "true";
+const String STRING_FALSE = "false";
 
 PEGASUS_NAMESPACE_END

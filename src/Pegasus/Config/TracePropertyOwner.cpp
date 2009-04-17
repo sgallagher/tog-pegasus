@@ -208,7 +208,7 @@ void TracePropertyOwner::initialize()
 
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase(properties[i].propertyName, "traceComponents"))
+        if (String::equal(properties[i].propertyName, "traceComponents"))
         {
             _traceComponents->propertyName = properties[i].propertyName;
             _traceComponents->defaultValue = properties[i].defaultValue;
@@ -220,7 +220,7 @@ void TracePropertyOwner::initialize()
 
             Tracer::setTraceComponents(_traceComponents->defaultValue);
         }
-        else if (String::equalNoCase(properties[i].propertyName, "traceLevel"))
+        else if (String::equal(properties[i].propertyName, "traceLevel"))
         {
             _traceLevel->propertyName = properties[i].propertyName;
             _traceLevel->defaultValue = properties[i].defaultValue;
@@ -235,7 +235,7 @@ void TracePropertyOwner::initialize()
             Tracer::setTraceLevel(getTraceLevel(_traceLevel->defaultValue));
 
         }
-        else if (String::equalNoCase(
+        else if (String::equal(
                      properties[i].propertyName, "traceFilePath"))
         {
             _traceFilePath->propertyName = properties[i].propertyName;
@@ -261,7 +261,7 @@ void TracePropertyOwner::initialize()
             }
 
         }
-        else if (String::equalNoCase(
+        else if (String::equal(
                      properties[i].propertyName, "traceMemoryBufferKbytes"))
         {
             _traceMemoryBufferKbytes->propertyName = properties[i].propertyName;
@@ -280,7 +280,7 @@ void TracePropertyOwner::initialize()
             Tracer::setTraceMemoryBufferSize(bufferSize);
 
         }
-        else if (String::equalNoCase(
+        else if (String::equal(
                      properties[i].propertyName, "traceFacility"))
         {
             _traceFacility->propertyName = properties[i].propertyName;
@@ -302,23 +302,23 @@ void TracePropertyOwner::initialize()
 struct ConfigProperty* TracePropertyOwner::_lookupConfigProperty(
     const String& name) const
 {
-    if (String::equalNoCase(_traceComponents->propertyName, name))
+    if (String::equal(_traceComponents->propertyName, name))
     {
         return _traceComponents.get();
     }
-    else if (String::equalNoCase(_traceLevel->propertyName, name))
+    else if (String::equal(_traceLevel->propertyName, name))
     {
         return _traceLevel.get();
     }
-    else if (String::equalNoCase(_traceFilePath->propertyName, name))
+    else if (String::equal(_traceFilePath->propertyName, name))
     {
         return _traceFilePath.get();
     }
-    else if (String::equalNoCase(_traceFacility->propertyName, name))
+    else if (String::equal(_traceFacility->propertyName, name))
     {
         return _traceFacility.get();
     }
-    else if (String::equalNoCase(_traceMemoryBufferKbytes->propertyName, name))
+    else if (String::equal(_traceMemoryBufferKbytes->propertyName, name))
     {
         return _traceMemoryBufferKbytes.get();
     }
@@ -395,18 +395,18 @@ void TracePropertyOwner::initCurrentValue(
     const String& name,
     const String& value)
 {
-    if (String::equalNoCase(_traceComponents->propertyName, name))
+    if (String::equal(_traceComponents->propertyName, name))
     {
         _traceComponents->currentValue = value;
         Tracer::setTraceComponents(_traceComponents->currentValue);
     }
-    else if (String::equalNoCase(_traceLevel->propertyName, name))
+    else if (String::equal(_traceLevel->propertyName, name))
     {
         _traceLevel->currentValue = value;
         Uint32 traceLevel = getTraceLevel(_traceLevel->currentValue);
         Tracer::setTraceLevel(traceLevel);
     }
-    else if (String::equalNoCase(_traceFilePath->propertyName, name))
+    else if (String::equal(_traceFilePath->propertyName, name))
     {
         _traceFilePath->currentValue = value;
         Uint32 retCode = Tracer::setTraceFile(ConfigManager::getHomedPath(
@@ -422,12 +422,12 @@ void TracePropertyOwner::initCurrentValue(
             _traceFilePath->currentValue.clear();
         }
     }
-    else if (String::equalNoCase(_traceFacility->propertyName, name))
+    else if (String::equal(_traceFacility->propertyName, name))
     {
         _traceFacility->currentValue = value;
         Tracer::setTraceFacility(value);
     }
-    else if (String::equalNoCase(_traceMemoryBufferKbytes->propertyName, name))
+    else if (String::equal(_traceMemoryBufferKbytes->propertyName, name))
     {
         Uint32 bufferSize;
 
@@ -494,7 +494,7 @@ Boolean TracePropertyOwner::isValid(
     const String& name,
     const String& value) const
 {
-    if (String::equalNoCase(_traceComponents->propertyName, name))
+    if (String::equal(_traceComponents->propertyName, name))
     {
         String newValue          = value;
         String invalidComponents;
@@ -509,7 +509,7 @@ Boolean TracePropertyOwner::isValid(
 
         return true;
     }
-    else if (String::equalNoCase(_traceLevel->propertyName, name))
+    else if (String::equal(_traceLevel->propertyName, name))
     {
         //
         // Check if the level is valid
@@ -523,7 +523,7 @@ Boolean TracePropertyOwner::isValid(
             throw InvalidPropertyValue(name, value);
         }
     }
-    else if (String::equalNoCase(_traceFilePath->propertyName, name))
+    else if (String::equal(_traceFilePath->propertyName, name))
     {
         //
         // Check if the file path is valid.  An empty string is currently
@@ -537,7 +537,7 @@ Boolean TracePropertyOwner::isValid(
         }
         return true;
     }
-    else if (String::equalNoCase(_traceFacility->propertyName, name))
+    else if (String::equal(_traceFacility->propertyName, name))
     {
         //
         // Check if the trace facility is valid
@@ -548,7 +548,7 @@ Boolean TracePropertyOwner::isValid(
         }
         return true;
     }
-    else if (String::equalNoCase(_traceMemoryBufferKbytes->propertyName, name))
+    else if (String::equal(_traceMemoryBufferKbytes->propertyName, name))
     {
         Boolean retCode = false;
         Uint32 size = 0;

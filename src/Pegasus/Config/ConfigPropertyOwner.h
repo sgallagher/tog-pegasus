@@ -252,8 +252,8 @@ struct ConfigPropertyRow
 */
 ///////////////////////////////////////////////////////////////////////////////
 
-PEGASUS_CONFIG_LINKAGE extern const char* STRING_TRUE;
-PEGASUS_CONFIG_LINKAGE extern const char* STRING_FALSE;
+PEGASUS_CONFIG_LINKAGE extern const String STRING_TRUE;
+PEGASUS_CONFIG_LINKAGE extern const String STRING_FALSE;
 
 PEGASUS_NAMESPACE_END
 

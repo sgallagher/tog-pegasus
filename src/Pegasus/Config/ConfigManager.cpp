@@ -932,4 +932,14 @@ Boolean ConfigManager::parseBooleanValue(const String& propertyValue)
     return String::equalNoCase(propertyValue, "true");
 }
 
+Boolean ConfigManager::isValidBooleanValue(const String& value)
+{
+    if ((String::equalNoCase(value, STRING_TRUE)) ||
+        (String::equalNoCase(value, STRING_FALSE)))
+    {
+        return true;
+    }
+    return false;
+}
+
 PEGASUS_NAMESPACE_END

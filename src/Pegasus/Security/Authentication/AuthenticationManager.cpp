@@ -145,13 +145,13 @@ Boolean AuthenticationManager::performHttpAuthentication(
     // Check the authenticationinformation and do the authentication
     //
     if ( String::equalNoCase(authType, "Basic") &&
-         String::equalNoCase(_httpAuthType, "Basic") )
+         String::equal(_httpAuthType, "Basic") )
     {
         authenticated = _httpAuthHandler->authenticate(cookie, authInfo);
     }
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     else if ( String::equalNoCase(authType, "Negotiate") &&
-              String::equalNoCase(_httpAuthType, "Kerberos") )
+              String::equal(_httpAuthType, "Kerberos") )
     {
         authenticated = _httpAuthHandler->authenticate(cookie, authInfo);
     }
@@ -330,12 +330,12 @@ Authenticator* AuthenticationManager::_getHttpAuthHandler()
     //
     // create a authentication handler.
     //
-    if ( String::equalNoCase(_httpAuthType, "Basic") )
+    if ( String::equal(_httpAuthType, "Basic") )
     {
         handler.reset((Authenticator* ) new BasicAuthenticationHandler( ));
     }
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-    else if ( String::equalNoCase(_httpAuthType, "Kerberos") )
+    else if ( String::equal(_httpAuthType, "Kerberos") )
     {
         handler.reset((Authenticator*) new KerberosAuthenticationHandler());
         AutoPtr<KerberosAuthenticationHandler> kerberosHandler(
@@ -362,7 +362,7 @@ Authenticator* AuthenticationManager::_getHttpAuthHandler()
     // FUTURE: uncomment these line when Digest authentication
     // is implemented.
     //
-    //else if (String::equalNoCase(_httpAuthType, "Digest"))
+    //else if (String::equal(_httpAuthType, "Digest"))
     //{
     //    handler = (Authenticator* ) new DigestAuthenticationHandler( );
     //}

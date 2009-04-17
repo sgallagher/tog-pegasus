@@ -100,7 +100,7 @@ void DefaultPropertyOwner::getPropertyInfo(
 
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase(_configProperties.get()[i].propertyName, name))
+        if (String::equal(_configProperties.get()[i].propertyName, name))
         {
             propertyInfo.append(_configProperties.get()[i].propertyName);
             propertyInfo.append(_configProperties.get()[i].defaultValue);
@@ -139,7 +139,7 @@ String DefaultPropertyOwner::getDefaultValue(const String& name) const
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase(_configProperties.get()[i].propertyName, name))
+        if (String::equal(_configProperties.get()[i].propertyName, name))
         {
             return _configProperties.get()[i].defaultValue;
         }
@@ -158,9 +158,9 @@ String DefaultPropertyOwner::getCurrentValue(const String& name) const
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase(_configProperties.get()[i].propertyName, name))
+        if (String::equal(_configProperties.get()[i].propertyName, name))
         {
-            if (String::equalNoCase(name, "maxProviderProcesses"))
+            if (String::equal(name, "maxProviderProcesses"))
             {
                 AutoMutex lock(_maxProviderProcessesMutex);
                 return _configProperties.get()[i].currentValue;
@@ -185,7 +185,7 @@ String DefaultPropertyOwner::getPlannedValue(const String& name) const
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase(_configProperties.get()[i].propertyName, name))
+        if (String::equal(_configProperties.get()[i].propertyName, name))
         {
             return _configProperties.get()[i].plannedValue;
         }
@@ -207,11 +207,11 @@ void DefaultPropertyOwner::initCurrentValue(
     Uint32 index;
     for (index = 0; index < NUM_PROPERTIES; index++)
     {
-        if (String::equalNoCase(
+        if (String::equal(
             _configProperties.get()[index].propertyName,
             name))
         {
-            if (String::equalNoCase(name, "maxProviderProcesses"))
+            if (String::equal(name, "maxProviderProcesses"))
             {
                 AutoMutex lock(_maxProviderProcessesMutex);
                 _configProperties.get()[index].currentValue = value;
@@ -255,7 +255,7 @@ void DefaultPropertyOwner::initPlannedValue(
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase(_configProperties.get()[i].propertyName, name))
+        if (String::equal(_configProperties.get()[i].propertyName, name))
         {
             _configProperties.get()[i].plannedValue = value;
             return;
@@ -330,7 +330,7 @@ Boolean DefaultPropertyOwner::isValid(
     // By default, no validation is done. It can optionally be added here
     // per property.
     //
-    if (String::equalNoCase(name, "socketWriteTimeout"))
+    if (String::equal(name, "socketWriteTimeout"))
     {
         Uint64 v;
         return
@@ -338,35 +338,30 @@ Boolean DefaultPropertyOwner::isValid(
             StringConversion::checkUintBounds(v, CIMTYPE_UINT32) &&
             (v != 0);
     }
-    if (String::equalNoCase(name, "maxProviderProcesses") ||
-        String::equalNoCase(name, "idleConnectionTimeout"))
+    if (String::equal(name, "maxProviderProcesses") ||
+        String::equal(name, "idleConnectionTimeout"))
     {
         Uint64 v;
         return
             StringConversion::decimalStringToUint64(value.getCString(), v) &&
             StringConversion::checkUintBounds(v, CIMTYPE_UINT32);
     }
-    else if (String::equalNoCase(name, "enableHttpConnection") ||
-        String::equalNoCase(name, "enableHttpsConnection") ||
-        String::equalNoCase(name, "daemon") ||
-        String::equalNoCase(name, "enableAssociationTraversal") ||
-        String::equalNoCase(name, "enableIndicationService") ||
-        String::equalNoCase(name, "forceProviderProcesses")
+    else if (String::equal(name, "enableHttpConnection") ||
+        String::equal(name, "enableHttpsConnection") ||
+        String::equal(name, "daemon") ||
+        String::equal(name, "enableAssociationTraversal") ||
+        String::equal(name, "enableIndicationService") ||
+        String::equal(name, "forceProviderProcesses")
 #ifdef PEGASUS_ENABLE_SLP
-        || String::equalNoCase(name, "slp")
+        || String::equal(name, "slp")
 #endif
 #ifdef PEGASUS_ENABLE_AUDIT_LOGGER
         || String::equal(name, "enableAuditLog")
 #endif
         )
     {
-        if (!(String::equalNoCase(value, "true")) &&
-            !(String::equalNoCase(value, "false")))
-        {
-            return false;
-        }
+        return ConfigManager::isValidBooleanValue(value);
     }
-
     return true;
 }
 
@@ -377,7 +372,7 @@ Boolean DefaultPropertyOwner::isDynamic(const String& name) const
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase(_configProperties.get()[i].propertyName, name))
+        if (String::equal(_configProperties.get()[i].propertyName, name))
         {
             return (_configProperties.get()[i].dynamic == IS_DYNAMIC);
         }

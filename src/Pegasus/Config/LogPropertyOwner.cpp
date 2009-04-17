@@ -109,7 +109,7 @@ void LogPropertyOwner::initialize()
         // Initialize the properties with default values
         //
 #if !defined (PEGASUS_USE_SYSLOGS)
-        if (String::equalNoCase(properties[i].propertyName, "logdir"))
+        if (String::equal(properties[i].propertyName, "logdir"))
         {
             _logdir->propertyName = properties[i].propertyName;
             _logdir->defaultValue = properties[i].defaultValue;
@@ -119,7 +119,7 @@ void LogPropertyOwner::initialize()
             _logdir->externallyVisible = properties[i].externallyVisible;
         }
         else
-        if (String::equalNoCase(
+        if (String::equal(
                 properties[i].propertyName, "maxLogFileSizeKBytes"))
         {
             _maxLogFileSizeKBytes->propertyName = properties[i].propertyName;
@@ -139,7 +139,7 @@ void LogPropertyOwner::initialize()
         }
         else
 #endif
-        if (String::equalNoCase(properties[i].propertyName, "logLevel"))
+        if (String::equal(properties[i].propertyName, "logLevel"))
         {
             _logLevel->propertyName = properties[i].propertyName;
             _logLevel->defaultValue = properties[i].defaultValue;
@@ -157,18 +157,18 @@ struct ConfigProperty* LogPropertyOwner::_lookupConfigProperty(
     const String& name) const
 {
 #if !defined(PEGASUS_USE_SYSLOGS)
-    if (String::equalNoCase(_logdir->propertyName, name))
+    if (String::equal(_logdir->propertyName, name))
     {
         return _logdir.get();
     }
     else
-    if (String::equalNoCase(_maxLogFileSizeKBytes->propertyName, name))
+    if (String::equal(_maxLogFileSizeKBytes->propertyName, name))
     {
         return _maxLogFileSizeKBytes.get();
     }
     else
 #endif
-    if (String::equalNoCase(_logLevel->propertyName, name))
+    if (String::equal(_logLevel->propertyName, name))
     {
         return _logLevel.get();
     }
@@ -249,14 +249,14 @@ void LogPropertyOwner::initCurrentValue(
     const String& name,
     const String& value)
 {
-    if (String::equalNoCase(_logLevel->propertyName,name))
+    if (String::equal(_logLevel->propertyName,name))
     {
         _logLevel->currentValue = value;
         Logger::setlogLevelMask(_logLevel->currentValue);
     }
     else
 #if !defined(PEGASUS_USE_SYSLOGS)
-    if (String::equalNoCase(_maxLogFileSizeKBytes->propertyName,name))
+    if (String::equal(_maxLogFileSizeKBytes->propertyName,name))
     {
         Boolean status = false;
         Uint64 maxLogFileSizeKBytes=0;
@@ -340,7 +340,7 @@ Boolean LogPropertyOwner::isValid(
     const String& name,
     const String& value) const
 {
-    if (String::equalNoCase(_logLevel->propertyName, name))
+    if (String::equal(_logLevel->propertyName, name))
     {
         //
         // Check if the logLevel is valid

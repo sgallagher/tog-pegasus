@@ -141,8 +141,8 @@ void getFunctionalProfiles(
     profileDescriptions.append("Instance Manipulation");
 
     ConfigManager* configManager = ConfigManager::getInstance();
-    if (String::equal(configManager->getCurrentValue(
-        "enableAssociationTraversal"), "true"))
+    if (ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableAssociationTraversal")))
     {
         profiles.append(6);
         profileDescriptions.append("Association Traversal");
@@ -154,8 +154,8 @@ void getFunctionalProfiles(
     profiles.append(8);
     profileDescriptions.append("Qualifier Declaration");
 
-    if (String::equal(configManager->getCurrentValue(
-        "enableIndicationService"), "true"))
+    if (ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableIndicationService")))
     {
         profiles.append(9);
         profileDescriptions.append("Indications");
@@ -297,10 +297,10 @@ Array<CIMInstance> InteropProvider::enumCIMXMLCommunicationMechanismInstances()
             "InteropProvider::enumCIMXMLCommunicationMechanismInstances");
 
     ConfigManager* configManager = ConfigManager::getInstance();
-    Boolean enableHttpConnection = String::equal(
-        configManager->getCurrentValue("enableHttpConnection"), "true");
-    Boolean enableHttpsConnection = String::equal(
-        configManager->getCurrentValue("enableHttpsConnection"), "true");
+    Boolean enableHttpConnection = ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableHttpConnection"));
+    Boolean enableHttpsConnection = ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableHttpsConnection"));
 
     Array<CIMInstance> instances;
     Uint32 namespaceAccessProtocol;

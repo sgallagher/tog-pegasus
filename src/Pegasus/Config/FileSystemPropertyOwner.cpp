@@ -115,7 +115,7 @@ void FileSystemPropertyOwner::initialize()
         //
         // Initialize the properties with default values
         //
-        if (String::equalNoCase(properties[i].propertyName, "repositoryDir"))
+        if (String::equal(properties[i].propertyName, "repositoryDir"))
         {
             _repositoryDir->propertyName = properties[i].propertyName;
             _repositoryDir->defaultValue = properties[i].defaultValue;
@@ -124,7 +124,7 @@ void FileSystemPropertyOwner::initialize()
             _repositoryDir->dynamic = properties[i].dynamic;
             _repositoryDir->externallyVisible = properties[i].externallyVisible;
         }
-        else if (String::equalNoCase(properties[i].propertyName, "messageDir"))
+        else if (String::equal(properties[i].propertyName, "messageDir"))
         {
             _messageDir->propertyName = properties[i].propertyName;
             _messageDir->defaultValue = properties[i].defaultValue;
@@ -133,7 +133,7 @@ void FileSystemPropertyOwner::initialize()
             _messageDir->dynamic = properties[i].dynamic;
             _messageDir->externallyVisible = properties[i].externallyVisible;
         }
-        else if (String::equalNoCase(properties[i].propertyName,
+        else if (String::equal(properties[i].propertyName,
                  "providerManagerDir"))
         {
             _providerManagerDir->propertyName = properties[i].propertyName;
@@ -150,15 +150,15 @@ void FileSystemPropertyOwner::initialize()
 struct ConfigProperty* FileSystemPropertyOwner::_lookupConfigProperty(
     const String& name) const
 {
-    if (String::equalNoCase(_repositoryDir->propertyName, name))
+    if (String::equal(_repositoryDir->propertyName, name))
     {
         return _repositoryDir.get();
     }
-    if (String::equalNoCase(_messageDir->propertyName, name))
+    if (String::equal(_messageDir->propertyName, name))
     {
         return _messageDir.get();
     }
-    if (String::equalNoCase(_providerManagerDir->propertyName, name))
+    if (String::equal(_providerManagerDir->propertyName, name))
     {
         return _providerManagerDir.get();
     }

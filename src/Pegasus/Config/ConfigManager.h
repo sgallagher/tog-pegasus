@@ -412,6 +412,16 @@ public:
             a boolean value of "true", false otherwise.
     */
     static Boolean parseBooleanValue(const String& propertyValue);
+
+    /**
+        Validates a boolean configuration property value.
+        @param propertyValue A String containing a boolean configuration
+            property value.
+        @return True if the specified configuration property value is a valid
+            boolean value of 'true' or 'false'
+    */
+    static Boolean isValidBooleanValue(const String& propertyValue);
+
 };
 
 PEGASUS_NAMESPACE_END

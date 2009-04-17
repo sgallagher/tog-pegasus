@@ -84,7 +84,7 @@ void ShutdownPropertyOwner::initialize()
         //
         // Initialize the properties with default values
         //
-        if (String::equalNoCase(properties[i].propertyName, "shutdownTimeout"))
+        if (String::equal(properties[i].propertyName, "shutdownTimeout"))
         {
             _shutdownTimeout->propertyName = properties[i].propertyName;
             _shutdownTimeout->defaultValue = properties[i].defaultValue;
@@ -100,7 +100,7 @@ void ShutdownPropertyOwner::initialize()
 struct ConfigProperty* ShutdownPropertyOwner::_lookupConfigProperty(
     const String& name) const
 {
-    if (String::equalNoCase(_shutdownTimeout->propertyName, name))
+    if (String::equal(_shutdownTimeout->propertyName, name))
     {
         return _shutdownTimeout.get();
     }
@@ -243,7 +243,7 @@ Boolean ShutdownPropertyOwner::isValid(
     //
     long timeoutValue = strtol(value.getCString(), (char **)0, 10);
 
-    if (String::equalNoCase(_shutdownTimeout->propertyName, name))
+    if (String::equal(_shutdownTimeout->propertyName, name))
     {
         // Check if the timeout value is greater than the minimum allowed
         //

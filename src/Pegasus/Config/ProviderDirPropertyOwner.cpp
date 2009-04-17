@@ -142,8 +142,7 @@ void ProviderDirPropertyOwner::initialize()
         //
         // Initialize the properties with default values
         //
-        if (String::equalNoCase(properties[i].propertyName, "providerDir"
-))
+        if (String::equal(properties[i].propertyName, "providerDir"))
         {
             _providerDir->propertyName = properties[i].propertyName;
             _providerDir->defaultValue = properties[i].defaultValue;
@@ -158,7 +157,7 @@ void ProviderDirPropertyOwner::initialize()
 struct ConfigProperty* ProviderDirPropertyOwner::_lookupConfigProperty(
     const String& name) const
 {
-    if (String::equalNoCase(_providerDir->propertyName, name))
+    if (String::equal(_providerDir->propertyName, name))
     {
         return _providerDir;
     }

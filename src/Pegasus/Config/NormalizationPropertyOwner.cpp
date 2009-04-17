@@ -30,6 +30,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include<Pegasus/Common/ObjectNormalizer.h>
+#include "ConfigManager.h"
 #include "NormalizationPropertyOwner.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -56,7 +57,7 @@ void NormalizationPropertyOwner::initialize()
 {
     for (Uint8 i = 0; i < NUM_PROPERTIES; i++)
     {
-        if (String::equalNoCase(
+        if (String::equal(
                 properties[i].propertyName, "enableNormalization"))
         {
             _providerObjectNormalizationEnabled->propertyName =
@@ -72,9 +73,9 @@ void NormalizationPropertyOwner::initialize()
             _providerObjectNormalizationEnabled->externallyVisible =
                 properties[i].externallyVisible;
             ObjectNormalizer::setEnableNormalization(
-                String::equalNoCase(properties[i].defaultValue, "true"));
+                ConfigManager::parseBooleanValue(properties[i].defaultValue));
         }
-        else if (String::equalNoCase(properties[i].propertyName,
+        else if (String::equal(properties[i].propertyName,
                      "excludeModulesFromNormalization"))
         {
             _providerObjectNormalizationModuleExclusions->propertyName =
@@ -154,7 +155,7 @@ void NormalizationPropertyOwner::initCurrentValue(
 
     configProperty->currentValue = value;
     ObjectNormalizer::setEnableNormalization(
-        String::equalNoCase(value,"true"));
+        ConfigManager::parseBooleanValue(value));
 }
 
 void NormalizationPropertyOwner::initPlannedValue(
@@ -191,15 +192,12 @@ Boolean NormalizationPropertyOwner::isValid(
     const String& name,
     const String& value) const
 {
-    if (String::equalNoCase(name, "enableNormalization"))
+    if (String::equal(name, "enableNormalization"))
     {
         // valid values are "true" and "false"
-        if (String::equal(value, "true") || String::equal(value, "false"))
-        {
-            return true;
-        }
+        return ConfigManager::isValidBooleanValue(value);
     }
-    else if (String::equalNoCase(name, "excludeModulesFromNormalization"))
+    else if (String::equal(name, "excludeModulesFromNormalization"))
     {
         // valid values must be in the form "n.n.n"
 
@@ -221,12 +219,12 @@ Boolean NormalizationPropertyOwner::isDynamic(const String& name) const
 struct ConfigProperty* NormalizationPropertyOwner::_lookupConfigProperty(
     const String& name) const
 {
-    if (String::equalNoCase(
+    if (String::equal(
             name, _providerObjectNormalizationEnabled->propertyName))
     {
         return _providerObjectNormalizationEnabled.get();
     }
-    else if (String::equalNoCase(
+    else if (String::equal(
         name, _providerObjectNormalizationModuleExclusions->propertyName))
     {
         return _providerObjectNormalizationModuleExclusions.get();

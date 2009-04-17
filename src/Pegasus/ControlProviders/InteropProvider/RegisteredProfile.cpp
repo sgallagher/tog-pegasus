@@ -159,8 +159,8 @@ void InteropProvider::sendUpdateRegMessageToSLPProvider(
         TRC_CONTROLPROVIDER,
         "InteropProvider::sendUpdateRegMessageToSLPProvider()");
 
-    if (!String::equal(
-            ConfigManager::getInstance()->getCurrentValue("slp"), "true"))
+    if (!ConfigManager::parseBooleanValue(
+            ConfigManager::getInstance()->getCurrentValue("slp")))
     {
         PEG_METHOD_EXIT();
         return;

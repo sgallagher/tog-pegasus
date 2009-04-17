@@ -37,6 +37,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "RepositoryPropertyOwner.h"
+#include "ConfigManager.h"
 
 PEGASUS_USING_STD;
 
@@ -92,7 +93,7 @@ void RepositoryPropertyOwner::initialize()
         //
         // Initialize the properties with default values
         //
-        if (String::equalNoCase(properties[i].propertyName,
+        if (String::equal(properties[i].propertyName,
                 "repositoryIsDefaultInstanceProvider"))
         {
             _repositoryIsDefaultInstanceProvider->propertyName =
@@ -108,7 +109,7 @@ void RepositoryPropertyOwner::initialize()
             _repositoryIsDefaultInstanceProvider->externallyVisible =
                 properties[i].externallyVisible;
         }
-        else if (String::equalNoCase(
+        else if (String::equal(
             properties[i].propertyName, "enableBinaryRepository"))
         {
             _enableBinaryRepository->propertyName = properties[i].propertyName;
@@ -125,12 +126,12 @@ void RepositoryPropertyOwner::initialize()
 struct ConfigProperty* RepositoryPropertyOwner::_lookupConfigProperty(
     const String& name) const
 {
-    if (String::equalNoCase(
+    if (String::equal(
             _repositoryIsDefaultInstanceProvider->propertyName, name))
     {
         return _repositoryIsDefaultInstanceProvider;
     }
-    else if (String::equalNoCase(
+    else if (String::equal(
             _enableBinaryRepository->propertyName, name))
     {
         return _enableBinaryRepository;
@@ -274,20 +275,11 @@ Boolean RepositoryPropertyOwner::isValid(
     //
     // Validate the specified value
     //
-    if (String::equalNoCase(
-            _repositoryIsDefaultInstanceProvider->propertyName, name))
+    if (String::equal(
+            _repositoryIsDefaultInstanceProvider->propertyName, name) ||
+        String::equal(_enableBinaryRepository->propertyName, name))
     {
-        if (String::equal(value, "true") || String::equal(value, "false"))
-        {
-            retVal = true;
-        }
-    }
-    else if (String::equalNoCase(_enableBinaryRepository->propertyName, name))
-    {
-        if (String::equal(value, "true") || String::equal(value, "false"))
-        {
-            retVal = true;
-        }
+        retVal = ConfigManager::isValidBooleanValue(value);
     }
     else
     {

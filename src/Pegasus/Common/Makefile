@@ -61,12 +61,10 @@ endif
 ##
 
 SOURCES1 = \
-    SCMO.cpp \
-    SCMOXmlWriter.cpp \
-    SCMOClassCache.cpp \
-    SCMOStreamer.cpp \
     Print.cpp \
     Executor.cpp \
+    CIMError.cpp \
+    PropertyAccessor.cpp \
     Once.cpp \
     Time.cpp \
     Threads.cpp \
@@ -79,7 +77,9 @@ SOURCES1 = \
     AsyncOpNode.cpp \
     AtomicInt.cpp \
     AuthenticationInfoRep.cpp \
+    AutoStreamer.cpp \
     Base64.cpp \
+    BinaryStreamer.cpp \
     Buffer.cpp \
     CharSet.cpp \
     LanguageParser.cpp \
@@ -95,7 +95,6 @@ SOURCES1 = \
     CIMInstance.cpp \
     CIMInstanceRep.cpp \
     CIMMessage.cpp \
-    CIMResponseData.cpp \
     CIMMethod.cpp \
     CIMMethodRep.cpp \
     CIMName.cpp \
@@ -130,10 +129,10 @@ SOURCES1 = \
     AsyncQueue.cpp \
     IDFactory.cpp \
     AuditLogger.cpp \
-    Magic.cpp \
-    UintArgs.cpp
+    Magic.cpp
 
 SOURCES2 = \
+    DynamicLibrary.cpp \
     Exception.cpp \
     InternalException.cpp \
     FileSystem.cpp \
@@ -143,6 +142,7 @@ SOURCES2 = \
     HTTPConnection.cpp \
     HTTPConnector.cpp  \
     HTTPMessage.cpp \
+    IndicationFormatter.cpp \
     Logger.cpp \
     Memory.cpp \
     Message.cpp \
@@ -154,6 +154,8 @@ SOURCES2 = \
     ObjectNormalizer.cpp \
     OperationContext.cpp \
     OperationContextInternal.cpp \
+    OptionManager.cpp \
+    Packer.cpp \
     Pair.cpp \
     QueryExpressionRep.cpp \
     Resolver.cpp \
@@ -165,12 +167,14 @@ SOURCES2 = \
     SpinLock.cpp \
     Stack.cpp \
     StatisticalData.cpp \
+    Stopwatch.cpp \
     String.cpp \
     StringConversion.cpp \
     StringInline.cpp \
     System.cpp \
     TimeValue.cpp \
     SSLContext.cpp \
+    SSLContextManager.cpp \
     TLS.cpp \
     TraceFileHandler.cpp \
     TraceLogHandler.cpp \
@@ -182,19 +186,15 @@ SOURCES2 = \
     XmlGenerator.cpp \
     XmlParser.cpp \
     XmlReader.cpp \
+    XmlStreamer.cpp \
     XmlWriter.cpp \
+    MofWriter.cpp \
     CommonUTF.cpp \
     Constants.cpp \
     HostAddress.cpp \
     HostLocator.cpp \
     BinaryCodec.cpp \
-    CIMBuffer.cpp \
-    CIMInternalXmlEncoder.cpp \
-    SCMOInternalXmlEncoder.cpp \
-    AsyncRequestExecutor.cpp \
-    CIMBinMsgSerializer.cpp \
-    CIMBinMsgDeserializer.cpp \
-    IndicationRouter.cpp
+    CIMBuffer.cpp
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
     SOURCES2 += PaseCcsid.cpp
@@ -203,24 +203,21 @@ endif
 SOURCES_SLP = Attribute.cpp \
     CIMServerDescription.cpp
 
+SOURCES_SECURITY_ZOS = MustStayCleanzOS.c
 ifeq ($(PEGASUS_ENABLE_SLP),true)
     SOURCES2 += $(SOURCES_SLP)
 endif
 
-ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC) 
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
     SOURCES2 += LoadAndClearWord_HPUX_PARISC_ACC.s
 endif
 
-# Special code calling pam_end in class AuthHandle only required
-# with session based authentication mechanism
-ifeq ($(PEGASUS_PAM_SESSION_SECURITY),true)
-    SOURCES2 += AuthHandle.cpp
-endif
-
-# LoadAndClearWord_HPUX_PARISC_ACC.s will be compiled using aCC
-# in order to use the native assembler to create the object
-ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_GNU)
-    SOURCES2 += LoadAndClearWord_HPUX_PARISC_ACC.s
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY),true)
+    SOURCES2 += CIMBinMsgSerializer.cpp
+    SOURCES2 += CIMBinMsgDeserializer.cpp
+else
+    SOURCES2 += CIMMessageSerializer.cpp
+    SOURCES2 += CIMMessageDeserializer.cpp
 endif
 
 SOURCES = $(SOURCES1) $(SOURCES2)
@@ -252,12 +249,11 @@ ifeq ($(OS_TYPE),vms)
 endif
 
 ifeq ($(OS),zos)
+    ifdef PEGASUS_ZOS_SECURITY
+        SOURCES += $(SOURCES_SECURITY_ZOS)
+    endif
     SOURCES2 += Audit_zOS_SMF.cpp \
         PegasusAssertZOS.cpp
-endif
-
-ifeq ($(OS),HPUX)
-    EXTRA_LIBRARIES += -lipv6
 endif
 
 ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)

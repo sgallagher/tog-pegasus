@@ -2165,95 +2165,96 @@ Boolean CQLValueRep::_compareArray(const CQLValueRep& _in)
       throw CQLRuntimeException(mload);
     } // switch statement
 
-  switch(_in2.getType())
+    switch (_in2.getType())
     {
-    case CIMTYPE_BOOLEAN:
-      {
-    _in2.get(_bool2);
-    for(Uint32 i = 0; i < _bool2.size(); ++i)
-      {
-        _cqlVal2.append(CQLValue(_bool2[i]));
-      }
-    break;
-      }
-    case CIMTYPE_UINT64:
-      {
-    _in2.get(_uint2);
-    for(Uint32 i = 0; i < _uint2.size(); ++i)
-      {
-        _cqlVal2.append(CQLValue(_uint2[i]));
-      }
-    break;
-      }
-    case CIMTYPE_SINT64:
-      {
-    _in2.get(_sint2);
-    for(Uint32 i = 0; i < _sint2.size(); ++i)
-      {
-        _cqlVal2.append(CQLValue(_sint2[i]));
-      }
-    break;
-      }
-    case CIMTYPE_REAL64:
-      {
-    _in2.get(_real2);
-    for(Uint32 i = 0; i < _real2.size(); ++i)
-      {
-        _cqlVal2.append(CQLValue(_real2[i]));
-      }
-    break;
-      }
-    case CIMTYPE_STRING:
-      {
-    _in2.get(_str2);
-    for(Uint32 i = 0; i < _str2.size(); ++i)
-      {
-        _cqlVal2.append(CQLValue(_str2[i]));
-      }
-    break;
-      }
-    case CIMTYPE_DATETIME:
-      {
-    _in2.get(_date2);
-    for(Uint32 i = 0; i < _date2.size(); ++i)
-      {
-        _cqlVal2.append(CQLValue(_date2[i]));
-      }
-    break;
-      }
-    case CIMTYPE_REFERENCE:
-      {
-    _in2.get(_path2);
-    for(Uint32 i = 0; i < _path2.size(); ++i)
-      {
-        _cqlVal2.append(CQLValue(_path2[i]));
-      }
-    break;
-      }
-    case CIMTYPE_OBJECT:
-      {
-    _in2.get(_obj2);
-    for(Uint32 i = 0; i < _obj2.size(); ++i)
-      {
-        _cqlVal2.append(CQLValue(_obj2[i]));
-      }
-    case CIMTYPE_INSTANCE:
-    {
-        Array<CIMObject> tmpInst;
-        _in2.get(tmpInst);
-        for(Uint32 i = 0; i < tmpInst.size(); ++i)
+        case CIMTYPE_BOOLEAN:
         {
-            _cqlVal2.append(CQLValue((CIMObject)tmpInst[i]));
+            _in2.get(_bool2);
+            for (Uint32 i = 0; i < _bool2.size(); ++i)
+            {
+                _cqlVal2.append(CQLValue(_bool2[i]));
+            }
+            break;
         }
-    }
-    break;
-      }
-    default:
-      MessageLoaderParms mload(
-          "CQL.CQLValueRep.INVALID_ARRAY_COMPARISON",
-          "Invalid array comparison type: $0.",
-          _in2.getType());
-      throw CQLRuntimeException(mload);
+        case CIMTYPE_UINT64:
+        {
+            _in2.get(_uint2);
+            for (Uint32 i = 0; i < _uint2.size(); ++i)
+            {
+                _cqlVal2.append(CQLValue(_uint2[i]));
+            }
+            break;
+        }
+        case CIMTYPE_SINT64:
+        {
+            _in2.get(_sint2);
+            for (Uint32 i = 0; i < _sint2.size(); ++i)
+            {
+                _cqlVal2.append(CQLValue(_sint2[i]));
+            }
+            break;
+        }
+        case CIMTYPE_REAL64:
+        {
+            _in2.get(_real2);
+            for (Uint32 i = 0; i < _real2.size(); ++i)
+            {
+                _cqlVal2.append(CQLValue(_real2[i]));
+            }
+            break;
+        }
+        case CIMTYPE_STRING:
+        {
+            _in2.get(_str2);
+            for (Uint32 i = 0; i < _str2.size(); ++i)
+            {
+                _cqlVal2.append(CQLValue(_str2[i]));
+            }
+            break;
+        }
+        case CIMTYPE_DATETIME:
+        {
+            _in2.get(_date2);
+            for (Uint32 i = 0; i < _date2.size(); ++i)
+            {
+                _cqlVal2.append(CQLValue(_date2[i]));
+            }
+            break;
+        }
+        case CIMTYPE_REFERENCE:
+        {
+            _in2.get(_path2);
+            for (Uint32 i = 0; i < _path2.size(); ++i)
+            {
+                _cqlVal2.append(CQLValue(_path2[i]));
+            }
+            break;
+        }
+        case CIMTYPE_OBJECT:
+        {
+            _in2.get(_obj2);
+            for (Uint32 i = 0; i < _obj2.size(); ++i)
+            {
+                _cqlVal2.append(CQLValue(_obj2[i]));
+            }
+            break;
+        }
+        case CIMTYPE_INSTANCE:
+        {
+            Array<CIMObject> tmpInst;
+            _in2.get(tmpInst);
+            for (Uint32 i = 0; i < tmpInst.size(); ++i)
+            {
+                _cqlVal2.append(CQLValue((CIMObject)tmpInst[i]));
+            }
+            break;
+        }    
+        default:
+            MessageLoaderParms mload(
+                 "CQL.CQLValueRep.INVALID_ARRAY_COMPARISON",
+                 "Invalid array comparison type: $0.",
+                 _in2.getType());
+            throw CQLRuntimeException(mload);
     } // switch statement
 
   if((_arrayType1 == String("Indexed") ||

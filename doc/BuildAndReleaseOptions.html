@@ -3033,7 +3033,7 @@ configuration properties.</p>
 <ul>
   <b>Description:&nbsp;</b>Defines the desired facility for trace
      messages. Valid values include: &quot;File&quot;
-     and &quot;Log&quot;.<br>
+     , &quot;Log&quot; and &quot;Memory&quot; .<br>
   <b>Default Value:&nbsp;</b>File<br>
   <b>Recommended Default Value (Development Build): </b>File<br>
   <b>Recommended Default Value (Release Build): </b>File<br>
@@ -3045,7 +3045,12 @@ configuration properties.</p>
      trace messagesare written into the file specified by the
      configuration option traceFilePath. If you specify
      &quot;Log&quot;, trace messages are written to the
-     OpenPegasus Log.<br>
+     OpenPegasus Log. If you specify Memory, the trace messages 
+     are collected in a wrap-around memory buffer. 
+     If this memory is part of a dump the trace messages can be 
+     found by the eye-catcher &quot;PEGASUSMEMTRACE&quot; at 
+     the top of the memory buffer. The trace is in clear text and 
+     the last written message has the suffix &quot;EOTRACE&quot;.<br>
   <b>Source Configuration File:&nbsp;</b>
      Pegasus/Config/TracePropertyOwner.cpp<br>
 </ul>
@@ -3076,6 +3081,24 @@ configuration properties.</p>
   <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
   <b>Recommend To Be Fixed/Hidden (Release Build): </b>No/Yes<br>
   <b>Dynamic?:&nbsp;</b>Yes<br>
+  <b>Source Configuration File:&nbsp;</b>
+     Pegasus/Config/TracePropertyOwner.cpp<br>
+</ul>
+
+<h5>traceMemoryBufferKbytes</h5>
+<ul>
+  <b>Description:&nbsp;</b>Defines the size of the buffer for 
+    in memory tracing in kbytes ( 2<sup>10</sup> bytes ). 
+    Smallest value is 16.<br>
+  <b>Default Value:&nbsp;</b>10240<br>
+  <b>Recommended Default Value (Development Build): </b>10240<br>
+  <b>Recommended Default Value (Release Build): </b>10240<br>
+  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
+  <b>Recommend To Be Fixed/Hidden (Release Build): </b>No/No<br>
+  <b>Dynamic?:&nbsp;</b>No<br>
+  <b>Case Sensitive?:&nbsp;</b>No<br>
+  <b>Considerations:&nbsp;</b>Is ignored if configuration 
+    property traceFacility is not set to Memory.<br>
   <b>Source Configuration File:&nbsp;</b>
      Pegasus/Config/TracePropertyOwner.cpp<br>
 </ul>

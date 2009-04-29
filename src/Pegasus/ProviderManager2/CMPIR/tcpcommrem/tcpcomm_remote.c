@@ -2574,8 +2574,8 @@ PEGASUS_EXPORT int PEGASUS_CMPIR_CDECL start_remote_daemon()
     pegthreadOnceMutex=CreateMutex(NULL,FALSE,NULL);
     if (pegthreadOnceMutex == NULL)
     {
-        TRACE_CRITICAL(("CreateMutex failed: %s",
-            PEGASUS_SYSTEM_ERRORMSG_NLS));
+        TRACE_CRITICAL(("CreateMutex failed: Error code: %d",
+            GetLastError()));
     }
 #endif
 

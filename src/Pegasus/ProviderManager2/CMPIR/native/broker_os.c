@@ -320,12 +320,12 @@ static CMPI_MUTEX_TYPE newMutex (int opt)
     }
     return(CMPI_MUTEX_TYPE) new_mutex;
 #elif defined PEGASUS_OS_TYPE_WINDOWS
-    MutexType new_mutex;
+    HANDLE new_mutex;
     new_mutex = CreateMutex(NULL,FALSE,NULL);
     if (new_mutex == NULL)
     {
-        TRACE_CRITICAL(("CreateMutex failed: %s",
-            PEGASUS_SYSTEM_ERRORMSG_NLS));
+        TRACE_CRITICAL(("CreateMutex failed: Error code %d",
+            GetLastError()));
         return NULL;
     }
     return(CMPI_MUTEX_TYPE) new_mutex;
@@ -397,8 +397,8 @@ static CMPI_COND_TYPE newCondition (int opt)
     c = CreateEvent( NULL, FALSE, FALSE, NULL );
     if (c == NULL)
     {
-        TRACE_CRITICAL(("CreateEvent failed: %s",
-            PEGASUS_SYSTEM_ERRORMSG_NLS));
+        TRACE_CRITICAL(("CreateEvent failed: Error code: %d",
+            GetLastError()));
     }
     return c;
 #else

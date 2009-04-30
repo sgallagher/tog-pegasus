@@ -61,9 +61,7 @@ public:
     may be obtained by calling getQueueId()). The queue-id may be passed
     to lookupQueue() to obtain a pointer to the corresponding queue).
     */
-    MessageQueue(
-        const char *name,
-        Boolean async = false);
+    MessageQueue(const char *name);
 
     /** Removes this queue from the queue table. */
     virtual ~MessageQueue();
@@ -73,11 +71,6 @@ public:
     @exception  NullPointer exception if message parameter is null.
     */
     virtual void enqueue(Message* message);
-
-    /** allows a caller to determine if this message queue is asynchronous or
-    not.
-    */
-    virtual Boolean isAsync() const { return _async; }
 
     /** Dequeues a message (removes it from the front of the queue).
     @return pointer to message or zero if queue is empty.
@@ -129,7 +122,6 @@ protected:
 
 private:
     List<Message, Mutex> _messageList;
-    Boolean _async;
 };
 
 PEGASUS_NAMESPACE_END

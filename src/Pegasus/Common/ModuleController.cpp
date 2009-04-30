@@ -180,7 +180,6 @@ ModuleController* ModuleController::getModuleController()
     MessageQueue* messageQueue =
         MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE);
     PEGASUS_ASSERT(messageQueue != 0);
-    PEGASUS_ASSERT(messageQueue->isAsync());
 
     MessageQueueService* service =
         dynamic_cast<MessageQueueService*>(messageQueue);

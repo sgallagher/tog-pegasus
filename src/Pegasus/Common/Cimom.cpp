@@ -153,9 +153,6 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
                 Boolean accepted = false;
                 if (dispatcher->_monitorCIMService(dest_svc))
                 {
-                    // ATTN: We should only get async queues
-                    // for message dispatch.
-                    PEGASUS_ASSERT(dest_q->isAsync());
                     accepted = dest_svc->accept_async(op);
                     dispatcher->_releaseCIMService(dest_svc);
                 }
@@ -207,7 +204,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 
 
 cimom::cimom()
-    : MessageQueue(PEGASUS_QUEUENAME_METADISPATCHER, true),
+    : MessageQueue(PEGASUS_QUEUENAME_METADISPATCHER),
       _routed_ops(),
       _routing_thread(_routing_proc, this, false),
       _die(0),

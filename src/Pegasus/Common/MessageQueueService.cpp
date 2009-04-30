@@ -168,7 +168,7 @@ AtomicInt MessageQueueService::_stop_polling(0);
 
 MessageQueueService::MessageQueueService(
     const char* name)
-    : Base(name, true),
+    : Base(name),
       _die(0),
       _threads(0),
       _incoming(),

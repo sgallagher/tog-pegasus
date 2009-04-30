@@ -57,10 +57,8 @@ void MessageQueue::putQueueId(Uint32 queueId)
     _qidFactory.putID(queueId);
 }
 
-MessageQueue::MessageQueue(
-    const char* name,
-    Boolean async)
-   : _queueId(getNextQueueId()), _async(async)
+MessageQueue::MessageQueue(const char* name)
+   : _queueId(getNextQueueId())
 {
     //
     // Copy the name:

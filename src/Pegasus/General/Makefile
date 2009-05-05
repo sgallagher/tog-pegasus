@@ -47,6 +47,7 @@ ifeq ($(OS_TYPE),vms)
     STATIC=1
 endif
 
+STATIC=1
 LIBRARY = peggeneral
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)

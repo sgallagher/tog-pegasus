@@ -95,6 +95,7 @@ LIBRARIES += \
     pegexportserver \
     pegrepository \
     pegconfig \
+    peggeneral \
     pegcommon
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)

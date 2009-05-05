@@ -30,4 +30,5 @@ LIBRARIES = \
     peghandlerservice \
     pegrepository \
     pegconfig \
+    peggeneral \
     pegcommon

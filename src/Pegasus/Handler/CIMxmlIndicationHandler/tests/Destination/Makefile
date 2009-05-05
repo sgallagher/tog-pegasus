@@ -34,6 +34,7 @@ LIBRARIES = \
     pegconfig \
     pegrepository \
     peghandlerservice \
+    peggeneral \
     pegcommon 
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)

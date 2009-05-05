@@ -58,6 +58,7 @@ endif
 LIBRARIES += \
     pegwql \
     pegquerycommon \
+    peggeneral \
     pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)

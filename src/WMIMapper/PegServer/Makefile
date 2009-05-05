@@ -42,6 +42,7 @@ LIBRARY = pegwmiserver
 
 LIBRARIES = \
     pegcommon \
+    peggeneral \
     pegrepository \
     pegexportserver \
     pegconfig \

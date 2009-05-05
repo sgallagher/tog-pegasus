@@ -34,7 +34,7 @@
 
 #include <Pegasus/Common/Config.h>
 
-#include <Pegasus/Common/Linkage.h>
+#include <Pegasus/General/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -42,7 +42,7 @@ PEGASUS_NAMESPACE_BEGIN
     Stopwatch is a class for measuring time intervals within the environment.
     It is intended to be a developers tool primarily.
 */
-class PEGASUS_COMMON_LINKAGE Stopwatch
+class PEGASUS_GENERAL_LINKAGE Stopwatch
 {
 public:
 

@@ -50,7 +50,7 @@
 #endif
 
 #ifdef PEGASUS_OS_ZOS
-#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
+#include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
 #endif
 
 PEGASUS_NAMESPACE_BEGIN

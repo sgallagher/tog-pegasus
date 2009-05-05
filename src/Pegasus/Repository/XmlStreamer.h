@@ -32,11 +32,12 @@
 #ifndef XmlStreamer_h
 #define XmlStreamer_h
 
+#include <Pegasus/Repository/Linkage.h>
 #include "ObjectStreamer.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE XmlStreamer : public ObjectStreamer
+class PEGASUS_REPOSITORY_LINKAGE XmlStreamer : public ObjectStreamer
 {
 public:
 

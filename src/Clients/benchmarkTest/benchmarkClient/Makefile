@@ -38,6 +38,7 @@ LIBRARIES = \
     pegcliutils \
     pegclient \
     peggetoopt \
+    peggeneral \
     pegcommon
 
 PROGRAM = TestBenchmark

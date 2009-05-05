@@ -33,8 +33,10 @@ DIR = Unsupported/LifecycleIndicationProvider
 LIBRARY = SampleLifecycleIndicationProvider
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider
+    pegprovider \
+    peggeneral \
+    pegcommon
+	
 	
 SOURCES = \
 	LifecycleIndicationProviderMain.cpp \

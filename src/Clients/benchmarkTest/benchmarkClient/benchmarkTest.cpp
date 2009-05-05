@@ -41,7 +41,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/SSLContext.h>
-#include <Pegasus/Common/Stopwatch.h>
+#include <Pegasus/General/Stopwatch.h>
 
 #include <Pegasus/Common/Tracer.h>
 

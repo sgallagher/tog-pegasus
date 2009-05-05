@@ -47,7 +47,8 @@ LIBRARIES = \
     pegrepository \
     pegconfig \
     pegclient \
-    pegcommon
+    pegcommon \
+    peggeneral
 
 SOURCES = \
     ProviderManagerService.cpp \

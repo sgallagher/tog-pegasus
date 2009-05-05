@@ -36,9 +36,10 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/AutoPtr.h>
+
+#include <Pegasus/General/Stopwatch.h>
 
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Consumer/CIMIndicationConsumer.h>

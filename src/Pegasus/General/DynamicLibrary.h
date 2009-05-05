@@ -37,7 +37,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Mutex.h>
 
-#include <Pegasus/Common/Linkage.h>
+#include <Pegasus/General/Linkage.h>
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include <Pegasus/Common/Network.h>
@@ -46,7 +46,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE DynamicLibrary
+class PEGASUS_GENERAL_LINKAGE DynamicLibrary
 {
 public:
 #if defined(PEGASUS_OS_TYPE_WINDOWS)

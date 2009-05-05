@@ -36,6 +36,7 @@ LIBRARY = AssociationTestProvider
 
 LIBRARIES = \
 	pegprovider \
+	peggeneral \
 	pegcommon
 	
 SOURCES = \

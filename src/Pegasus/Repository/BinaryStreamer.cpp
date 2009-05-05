@@ -29,21 +29,21 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "XmlWriter.h"
-#include "XmlReader.h"
-#include "XmlParser.h"
-#include "CIMName.h"
-#include "CIMNameCast.h"
-#include "BinaryStreamer.h"
-#include "CIMClassRep.h"
-#include "CIMInstanceRep.h"
-#include "CIMMethodRep.h"
-#include "CIMParameterRep.h"
-#include "CIMPropertyRep.h"
-#include "CIMQualifierRep.h"
-#include "CIMValue.h"
-#include "CIMValueRep.h"
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/XmlReader.h>
+#include <Pegasus/Common/XmlParser.h>
+#include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/CIMNameCast.h>
+#include <Pegasus/Common/CIMClassRep.h>
+#include <Pegasus/Common/CIMInstanceRep.h>
+#include <Pegasus/Common/CIMMethodRep.h>
+#include <Pegasus/Common/CIMParameterRep.h>
+#include <Pegasus/Common/CIMPropertyRep.h>
+#include <Pegasus/Common/CIMQualifierRep.h>
+#include <Pegasus/Common/CIMValue.h>
+#include <Pegasus/Common/CIMValueRep.h>
 #include "Packer.h"
+#include "BinaryStreamer.h"
 
 #define MAGIC_BYTE Uint8(0x11)
 #define VERSION_NUMBER Uint8(1)

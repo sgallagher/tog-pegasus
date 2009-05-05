@@ -39,7 +39,7 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/CIMType.h>
-#include <Pegasus/Common/IndicationFormatter.h>
+#include <Pegasus/General/IndicationFormatter.h>
 
 #include "SystemLogListenerDestination.h"
 

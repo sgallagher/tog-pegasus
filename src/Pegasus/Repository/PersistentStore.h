@@ -38,8 +38,9 @@
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/AutoStreamer.h>
 #include <Pegasus/Common/Pair.h>
+
+#include <Pegasus/Repository/AutoStreamer.h>
 #include <Pegasus/Repository/PersistentStoreData.h>
 
 PEGASUS_NAMESPACE_BEGIN

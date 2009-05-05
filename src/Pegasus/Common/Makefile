@@ -63,8 +63,6 @@ endif
 SOURCES1 = \
     Print.cpp \
     Executor.cpp \
-    CIMError.cpp \
-    PropertyAccessor.cpp \
     Once.cpp \
     Time.cpp \
     Threads.cpp \
@@ -77,9 +75,7 @@ SOURCES1 = \
     AsyncOpNode.cpp \
     AtomicInt.cpp \
     AuthenticationInfoRep.cpp \
-    AutoStreamer.cpp \
     Base64.cpp \
-    BinaryStreamer.cpp \
     Buffer.cpp \
     CharSet.cpp \
     LanguageParser.cpp \
@@ -132,7 +128,6 @@ SOURCES1 = \
     Magic.cpp
 
 SOURCES2 = \
-    DynamicLibrary.cpp \
     Exception.cpp \
     InternalException.cpp \
     FileSystem.cpp \
@@ -142,7 +137,6 @@ SOURCES2 = \
     HTTPConnection.cpp \
     HTTPConnector.cpp  \
     HTTPMessage.cpp \
-    IndicationFormatter.cpp \
     Logger.cpp \
     Memory.cpp \
     Message.cpp \
@@ -154,8 +148,6 @@ SOURCES2 = \
     ObjectNormalizer.cpp \
     OperationContext.cpp \
     OperationContextInternal.cpp \
-    OptionManager.cpp \
-    Packer.cpp \
     Pair.cpp \
     QueryExpressionRep.cpp \
     Resolver.cpp \
@@ -167,14 +159,12 @@ SOURCES2 = \
     SpinLock.cpp \
     Stack.cpp \
     StatisticalData.cpp \
-    Stopwatch.cpp \
     String.cpp \
     StringConversion.cpp \
     StringInline.cpp \
     System.cpp \
     TimeValue.cpp \
     SSLContext.cpp \
-    SSLContextManager.cpp \
     TLS.cpp \
     TraceFileHandler.cpp \
     TraceLogHandler.cpp \
@@ -186,9 +176,7 @@ SOURCES2 = \
     XmlGenerator.cpp \
     XmlParser.cpp \
     XmlReader.cpp \
-    XmlStreamer.cpp \
     XmlWriter.cpp \
-    MofWriter.cpp \
     CommonUTF.cpp \
     Constants.cpp \
     HostAddress.cpp \

@@ -114,7 +114,11 @@ SOURCES = \
     ObjectCache.cpp \
     InheritanceTree.cpp \
     RepositoryDeclContext.cpp \
-    RepositoryQueryContext.cpp
+    RepositoryQueryContext.cpp \
+    AutoStreamer.cpp \
+    BinaryStreamer.cpp \
+    Packer.cpp \
+    XmlStreamer.cpp  
 
 ifdef PEGASUS_ENABLE_MRR
     SOURCES += MRRSerialization.cpp

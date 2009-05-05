@@ -29,7 +29,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/MofWriter.h>
+#include "MofWriter.h"
 #include "CIMError.h"
 #include "PropertyAccessor.h"
 

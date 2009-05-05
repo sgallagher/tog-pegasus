@@ -38,10 +38,13 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/String.h>
+
+#include <Pegasus/General/DynamicLibrary.h>
+
 #include <Pegasus/Config/ConfigManager.h>
 
 #include <Pegasus/Common/Dir.h>
-#include <Pegasus/Common/DynamicLibrary.h>
+
 
 PEGASUS_NAMESPACE_BEGIN
 

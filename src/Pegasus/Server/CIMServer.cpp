@@ -49,10 +49,11 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/SSLContextManager.h>
 #include <Pegasus/Common/Time.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AuditLogger.h>
+
+#include <Pegasus/General/SSLContextManager.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/ExportServer/CIMExportRequestDispatcher.h>

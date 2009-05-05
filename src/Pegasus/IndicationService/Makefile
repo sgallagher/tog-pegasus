@@ -40,14 +40,15 @@ STATIC=1
 LIBRARY = pegindicationservice
 
 LIBRARIES = \
-    pegcommon \
     pegprovider \
     pegrepository \
     pegprm \
     pegwql \
     pegquerycommon \
     pegqueryexpression \
-    pegconfig
+    pegconfig \
+    peggeneral \
+    pegcommon
 
 SOURCES = \
     IndicationOperationAggregate.cpp \

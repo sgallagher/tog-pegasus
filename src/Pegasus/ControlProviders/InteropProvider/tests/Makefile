@@ -36,6 +36,7 @@ LIBRARIES = \
     pegrepository \
     pegclient \
     pegconfig \
+    peggeneral \
     pegcommon
     
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY

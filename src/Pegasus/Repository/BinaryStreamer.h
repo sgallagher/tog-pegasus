@@ -33,18 +33,20 @@
 #define BinaryStreamer_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/ObjectStreamer.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMMethod.h>
 #include <Pegasus/Common/CIMFlavor.h>
 #include <Pegasus/Common/CIMScope.h>
 
+#include <Pegasus/Repository/Linkage.h>
+#include <Pegasus/Repository/ObjectStreamer.h>
+
 #define BINREP_MARKER 0x11
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE BinaryStreamer : public ObjectStreamer
+class PEGASUS_REPOSITORY_LINKAGE BinaryStreamer : public ObjectStreamer
 {
 public:
 
@@ -156,7 +158,7 @@ private:
         const Buffer& in, Uint32& pos, CIMType& x);
 };
 
-class PEGASUS_COMMON_LINKAGE BinException : public Exception
+class PEGASUS_REPOSITORY_LINKAGE BinException : public Exception
 {
 public:
     BinException(const String& message) : Exception(message) { }

@@ -31,13 +31,16 @@
 
 #include <stdlib.h>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Config/ConfigManager.h>
-#include <Pegasus/Common/DynamicLibrary.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/PegasusAssert.h>
-#include <Pegasus/ProviderManager2/ProviderManager.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/MessageQueueService.h>
+
+#include <Pegasus/General/DynamicLibrary.h>
+
+#include <Pegasus/Config/ConfigManager.h>
+
+#include <Pegasus/ProviderManager2/ProviderManager.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

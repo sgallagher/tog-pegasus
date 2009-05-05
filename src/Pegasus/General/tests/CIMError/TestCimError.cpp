@@ -29,9 +29,10 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/PegasusAssert.h>
-#include <Pegasus/Common/CIMError.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/MofWriter.h>
+
+#include <Pegasus/General/CIMError.h>
+#include <Pegasus/General/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

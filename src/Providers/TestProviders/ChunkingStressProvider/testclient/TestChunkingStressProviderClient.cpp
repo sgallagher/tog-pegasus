@@ -27,10 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Dave Sudlik (dsudlik@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
@@ -39,10 +35,11 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/AtomicInt.h>
+
+#include <Pegasus/General/Stopwatch.h>
 
 #include <Pegasus/Client/CIMClient.h>
 

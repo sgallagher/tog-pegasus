@@ -33,12 +33,18 @@
 #define _CLI_CLIENTLIB_H
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/PegasusAssert.h>
-#include <Pegasus/Client/CIMClient.h>
-#include <Pegasus/Common/OptionManager.h>
 #include <Clients/cimcli/Linkage.h>
-#include <Pegasus/Common/Stopwatch.h>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/MessageLoader.h>
+
+#include <Pegasus/General/OptionManager.h>
+#include <Pegasus/General/Stopwatch.h>
+
+#include <Pegasus/Client/CIMClient.h>
+
+
+
+
 
 PEGASUS_NAMESPACE_BEGIN
 #define CDEBUG(X) PEGASUS_STD(cout) << "cimcli " << X << PEGASUS_STD(endl)

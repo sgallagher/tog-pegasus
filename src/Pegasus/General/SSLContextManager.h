@@ -36,8 +36,9 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/Mutex.h>
-#include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/ReadWriteSem.h>
+
+#include <Pegasus/General/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -45,7 +46,7 @@ PEGASUS_NAMESPACE_BEGIN
     This class provides the functionality necessary to manage SSLContext
     objects.
  */
-class PEGASUS_COMMON_LINKAGE SSLContextManager
+class PEGASUS_GENERAL_LINKAGE SSLContextManager
 {
 public:
     /** Constructor. */

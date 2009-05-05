@@ -42,8 +42,10 @@ SAMPLEPROVIDERNSDIRECTORY= $(REPOSITORY_ROOT)/root\#SampleProvider
 LIBRARY = TimingProvider
 
 LIBRARIES = \
-	 pegcommon \
-	 pegprovider
+    pegprovider \
+    peggeneral \
+    pegcommon 
+	 
 	
 SOURCES = \
    TimingProvider.cpp \

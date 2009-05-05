@@ -43,7 +43,7 @@
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMIndicationProvider.h>
-#include <Pegasus/Common/MofWriter.h>
+#include <Pegasus/General/MofWriter.h>
 
 #include "LifecycleIndicationProvider.h"
 

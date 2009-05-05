@@ -35,7 +35,7 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/MofWriter.h>
+#include <Pegasus/General/MofWriter.h>
 
 // ATTN-P3-KS - 20 March 2002 - Extend exception tests.
 PEGASUS_USING_PEGASUS;

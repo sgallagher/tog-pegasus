@@ -45,7 +45,7 @@
 #include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/Resolver.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/MofWriter.h>
+#include <Pegasus/General/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

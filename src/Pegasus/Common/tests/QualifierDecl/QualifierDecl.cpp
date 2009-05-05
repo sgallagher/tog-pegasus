@@ -34,7 +34,7 @@
 #include <Pegasus/Common/CIMFlavor.h>
 #include <Pegasus/Common/CIMScope.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/MofWriter.h>
+#include <Pegasus/General/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

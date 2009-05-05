@@ -29,7 +29,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Packer.h>
+#include <Pegasus/Repository/Packer.h>
 #include <Pegasus/Common/Tracer.h>
 #include "snmpDeliverTrap_netsnmp.h"
 

@@ -210,7 +210,7 @@ public:
     friend class SSLCallbackInfo;
 };
 
-class SSLContextRep
+class PEGASUS_COMMON_LINKAGE SSLContextRep
 {
 public:
 

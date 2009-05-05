@@ -35,14 +35,15 @@
 #include <Pegasus/Common/TLS.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/HostLocator.h>
-
 #include <Pegasus/Common/Tracer.h>
+
+#include <Pegasus/General/OptionManager.h>
+
 /* This is a test program for the Interop Control Provider.
  * It provides tests for the functions in this provider including;
 

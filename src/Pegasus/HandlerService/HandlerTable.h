@@ -35,7 +35,9 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/DynamicLibrary.h>
+
+#include <Pegasus/General/DynamicLibrary.h>
+
 #include <Pegasus/Handler/CIMHandler.h>
 
 #include <Pegasus/HandlerService/Linkage.h>

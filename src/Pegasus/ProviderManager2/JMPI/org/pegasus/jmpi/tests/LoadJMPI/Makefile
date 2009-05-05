@@ -38,8 +38,10 @@ DIR = Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests/LoadJMPI
 include $(PEGASUS_ROOT)/mak/config.mak
 
 LIBRARIES = \
-     pegcommon \
-     pegconfig
+     pegconfig \
+     peggeneral \
+     pegcommon 
+     
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 

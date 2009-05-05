@@ -34,13 +34,15 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/TLS.h>
-#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/HostLocator.h>
+
+#include <Pegasus/General/OptionManager.h>
+#include <Pegasus/General/Stopwatch.h>
+
+#include <Pegasus/Client/CIMClient.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

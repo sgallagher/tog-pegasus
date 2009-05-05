@@ -27,10 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author:  Aruran (aruran.shanmug@in.ibm.com) & Melvin (msolomon@in.ibm.com),
-//                                                       IBM for PEP# 241
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef TestStressTestClient_h
@@ -40,14 +36,17 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/TLS.h>
 #include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/TimeValue.h>
+
+#include <Pegasus/General/OptionManager.h>
+
+#include <Pegasus/Client/CIMClient.h>
+
 #include <signal.h>
 #include "Linkage.h"
 

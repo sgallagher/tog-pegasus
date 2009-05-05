@@ -31,10 +31,11 @@
 
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/IndicationFormatter.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/InternalException.h>
+
+#include <Pegasus/General/IndicationFormatter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

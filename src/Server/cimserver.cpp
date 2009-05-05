@@ -96,7 +96,7 @@
 #include <Service/ServerRunStatus.h>
 
 #if defined(PEGASUS_OS_ZOS)
-#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
+#include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
 #include <Service/ARM_zOS.h>
 # ifdef PEGASUS_ZOS_SECURITY
 // This include file will not be provided in the OpenGroup CVS for now.

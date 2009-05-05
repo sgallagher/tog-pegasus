@@ -37,7 +37,7 @@
 #define Pegasus_DynamicListenerConfig_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/OptionManager.h>
+#include <Pegasus/General/OptionManager.h>
 #include <Pegasus/DynListener/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN

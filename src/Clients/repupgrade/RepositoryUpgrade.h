@@ -35,7 +35,8 @@
 #include <Pegasus/Repository/CIMRepository.h>
 
 #include <Pegasus/Common/MessageQueue.h>
-#include <Pegasus/Common/DynamicLibrary.h>
+
+#include <Pegasus/General/DynamicLibrary.h>
 
 #include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/Client/CIMOperationRequestEncoder.h>

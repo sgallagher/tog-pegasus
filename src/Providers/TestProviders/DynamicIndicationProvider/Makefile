@@ -38,6 +38,7 @@ LIBRARY = DynamicIndicationProvider
 
 LIBRARIES = \
 	 pegprovider \
+	 peggeneral \
 	 pegcommon
 	
 SOURCES = \

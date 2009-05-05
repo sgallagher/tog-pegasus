@@ -39,7 +39,7 @@
 #include <Pegasus/Common/AutoPtr.h>
 
 #ifdef PEGASUS_OS_ZOS
-#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
+#include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
 #endif
 
 #include <Pegasus/getoopt/getoopt.h>

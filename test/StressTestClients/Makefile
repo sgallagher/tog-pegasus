@@ -37,6 +37,7 @@ LIBRARY = TestStressTestClient
 
 LIBRARIES = \
     pegclient \
+    peggeneral \
     pegcommon
 
 SOURCES = \

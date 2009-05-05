@@ -51,7 +51,7 @@
 #include <Pegasus/Common/PegasusAssert.h>
 
 #ifdef PEGASUS_OS_ZOS
-#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
+#include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
 #endif
 
 #define CIMPROVIDERCOMMAND_CLIENT_DEFAULTTIMEOUT 120000

@@ -36,7 +36,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/CIMError.h>
+#include <Pegasus/General/CIMError.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

@@ -31,12 +31,13 @@
 
 /**
     This file has testcases that are added to cover the functions in
-    Pegasus/Common/OptionManager.cpp.
+    Pegasus/General/OptionManager.cpp.
 */
 
-#include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/PegasusAssert.h>
+
+#include <Pegasus/General/OptionManager.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

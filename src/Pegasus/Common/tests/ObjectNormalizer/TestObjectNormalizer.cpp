@@ -29,12 +29,12 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "LocalRepository.h"
-
 #include <Pegasus/Common/ObjectNormalizer.h>
-
-#include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/XmlWriter.h>
+
+#include <Pegasus/General/Stopwatch.h>
+
+#include "LocalRepository.h"
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

@@ -27,19 +27,13 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//      Chip Vincent (cvincent@us.ibm.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Stopwatch.h>
-
 #include <Pegasus/Common/System.h>
-
 #include <iostream>
 #include <Pegasus/Common/PegasusAssert.h>
+
+#include <Pegasus/General/Stopwatch.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

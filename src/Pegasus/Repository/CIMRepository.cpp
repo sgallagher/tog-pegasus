@@ -43,9 +43,9 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/ReadWriteSem.h>
 
-#include <Pegasus/Common/XmlStreamer.h>
-#include <Pegasus/Common/BinaryStreamer.h>
-#include <Pegasus/Common/AutoStreamer.h>
+#include <Pegasus/Repository/XmlStreamer.h>
+#include <Pegasus/Repository/BinaryStreamer.h>
+#include <Pegasus/Repository/AutoStreamer.h>
 
 #include "CIMRepository.h"
 #include "RepositoryDeclContext.h"

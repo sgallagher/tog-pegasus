@@ -30,10 +30,12 @@
 //%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Config/ConfigManager.h>
-#include <Pegasus/Common/DynamicLibrary.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/PegasusAssert.h>
+
+#include <Pegasus/General/DynamicLibrary.h>
+
+#include <Pegasus/Config/ConfigManager.h>
 
 #include <iostream>
 

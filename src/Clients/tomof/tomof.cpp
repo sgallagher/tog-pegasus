@@ -31,13 +31,17 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
-#include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/MofWriter.h>
+
+#include <Pegasus/General/OptionManager.h>
+#include <Pegasus/General/MofWriter.h>
+
+#include <Pegasus/Repository/CIMRepository.h>
+
+#include <Pegasus/Client/CIMClient.h>
+
 #include "clientRepositoryInterface.h"
 
 PEGASUS_USING_PEGASUS;

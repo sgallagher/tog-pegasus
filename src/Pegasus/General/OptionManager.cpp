@@ -33,8 +33,9 @@
 #include <cctype>
 #include <fstream>
 #include <cstdio>
+#include <Pegasus/Common/FileSystem.h>
 #include "OptionManager.h"
-#include "FileSystem.h"
+
 
 PEGASUS_USING_STD;
 

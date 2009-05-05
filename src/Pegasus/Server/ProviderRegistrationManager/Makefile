@@ -40,10 +40,12 @@ STATIC=1
 LIBRARY = pegprm
 
 LIBRARIES = \
-    pegcommon \
     pegconfig \
     pegprovider \
-    pegrepository
+    pegrepository \
+    peggeneral \
+    pegcommon
+
 
 SOURCES = \
     ProviderRegistrationTable.cpp \

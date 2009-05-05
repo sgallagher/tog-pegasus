@@ -40,7 +40,6 @@ STATIC=1
 LIBRARY = pegserver
 
 LIBRARIES = \
-	pegcommon \
 	pegrepository \
 	pegprovider \
 	pegexportserver \
@@ -59,7 +58,11 @@ LIBRARIES = \
 	ConfigSettingProvider \
 	UserAuthProvider \
 	ProviderRegistrationProvider\
-	NamespaceProvider
+	NamespaceProvider \
+        peggeneral \
+	pegcommon
+
+
 
 ifeq ($(PEGASUS_ENABLE_INTEROP_PROVIDER),true)
 LIBRARIES += \

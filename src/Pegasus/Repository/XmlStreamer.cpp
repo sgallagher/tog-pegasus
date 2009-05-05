@@ -29,9 +29,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "XmlWriter.h"
-#include "XmlReader.h"
-#include "XmlParser.h"
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/XmlReader.h>
+#include <Pegasus/Common/XmlParser.h>
 
 #include "XmlStreamer.h"
 

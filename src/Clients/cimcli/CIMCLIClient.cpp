@@ -28,16 +28,20 @@
 //////////////////////////////////////////////////////////////////////////
 //
 //%/////////////////////////////////////////////////////////////////////////////
+
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/MofWriter.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/ArrayInternal.h>
-#include "CIMCLIClient.h"
 #include <Pegasus/Common/PegasusVersion.h>
+
+#include <Pegasus/General/MofWriter.h>
+
+#include "CIMCLIClient.h"
+
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 

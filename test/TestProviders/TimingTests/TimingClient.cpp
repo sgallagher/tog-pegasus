@@ -34,8 +34,8 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/MofWriter.h>
-#include <Pegasus/Common/OptionManager.h>
+#include <Pegasus/General/MofWriter.h>
+#include <Pegasus/General/OptionManager.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

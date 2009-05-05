@@ -32,6 +32,7 @@ include $(ROOT)/mak/config.mak
 
 DIRS = \
     Common \
+    General \
     Query/QueryCommon \
     Client \
     Config \
@@ -51,6 +52,7 @@ DIRS += \
 
 TEST_DIRS = \
     Common/tests \
+    General/tests \
     Client/tests \
     Config/tests \
     Repository/tests \

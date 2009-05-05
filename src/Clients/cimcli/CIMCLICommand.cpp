@@ -33,16 +33,17 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Threads.h>
-#include <Pegasus/Client/CIMClient.h>
-#include <Clients/cimcli/CIMCLIClient.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/HostLocator.h>
 
-#ifdef PEGASUS_OS_ZOS
-#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
-#endif
+#include <Pegasus/Client/CIMClient.h>
+#include <Clients/cimcli/CIMCLIClient.h>
 
+#include <Pegasus/General/Stopwatch.h>
+
+#ifdef PEGASUS_OS_ZOS
+#include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
+#endif
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

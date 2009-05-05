@@ -37,6 +37,7 @@ LIBRARIES = \
      peglistener \
      pegclient \
      pegexportserver \
+     peggeneral \
      pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)

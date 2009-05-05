@@ -33,7 +33,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/MofWriter.h>
+#include <Pegasus/General/MofWriter.h>
 
 
 PEGASUS_NAMESPACE_BEGIN

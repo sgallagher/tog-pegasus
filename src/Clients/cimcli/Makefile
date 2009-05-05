@@ -33,6 +33,7 @@ include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
     pegclient \
+    peggeneral \
     pegcommon
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY

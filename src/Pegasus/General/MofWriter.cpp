@@ -32,28 +32,29 @@
 #include <Pegasus/Common/Config.h>
 #include <cstdlib>
 #include <cstdio>
-#include "Constants.h"
-#include "CIMClass.h"
-#include "CIMClassRep.h"
-#include "CIMInstance.h"
-#include "CIMInstanceRep.h"
-#include "CIMProperty.h"
-#include "CIMPropertyRep.h"
-#include "CIMMethod.h"
-#include "CIMMethodRep.h"
-#include "CIMParameter.h"
-#include "CIMParameterRep.h"
-#include "CIMQualifier.h"
-#include "CIMQualifierRep.h"
-#include "CIMQualifierDecl.h"
-#include "CIMQualifierDeclRep.h"
-#include "CIMObjectPath.h"
-#include "CIMValue.h"
-#include "CIMFlavor.h"
-#include "CIMScope.h"
-#include "XmlWriter.h"
+#include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/CIMClassRep.h>
+#include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/CIMInstanceRep.h>
+#include <Pegasus/Common/CIMProperty.h>
+#include <Pegasus/Common/CIMPropertyRep.h>
+#include <Pegasus/Common/CIMMethod.h>
+#include <Pegasus/Common/CIMMethodRep.h>
+#include <Pegasus/Common/CIMParameter.h>
+#include <Pegasus/Common/CIMParameterRep.h>
+#include <Pegasus/Common/CIMQualifier.h>
+#include <Pegasus/Common/CIMQualifierRep.h>
+#include <Pegasus/Common/CIMQualifierDecl.h>
+#include <Pegasus/Common/CIMQualifierDeclRep.h>
+#include <Pegasus/Common/CIMObjectPath.h>
+#include <Pegasus/Common/CIMValue.h>
+#include <Pegasus/Common/CIMFlavor.h>
+#include <Pegasus/Common/CIMScope.h>
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/Tracer.h>
 #include "MofWriter.h"
-#include "Tracer.h"
+
 
 PEGASUS_NAMESPACE_BEGIN
 

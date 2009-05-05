@@ -35,6 +35,7 @@ include $(ROOT)/mak/config.mak
 LIBRARIES = \
     TestStressTestClient \
     pegclient \
+    peggeneral \
     pegcommon
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY

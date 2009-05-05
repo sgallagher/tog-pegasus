@@ -27,14 +27,14 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 ROOT = ../../../../..
-DIR = Pegasus/Common/tests/IndicationFormatter
+DIR = Pegasus/General/tests/IndicationFormatter
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 PROGRAM = TestIndicationFormatter
-SOURCES = IndicationFormatter.cpp
+SOURCES = TestIndicationFormatter.cpp
 
 include $(ROOT)/mak/program.mak
 

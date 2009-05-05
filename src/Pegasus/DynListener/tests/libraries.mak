@@ -34,4 +34,5 @@ LIBRARIES= \
     pegexportserver \
     pegprovider \
     pegclient \
+    peggeneral \
     pegcommon

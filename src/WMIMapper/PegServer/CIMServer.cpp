@@ -42,7 +42,7 @@
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/Signal.h>
-#include <Pegasus/Common/SSLContextManager.h>
+#include <Pegasus/General/SSLContextManager.h>
 
 #include <Pegasus/Repository/CIMRepository.h>
 //#include "ProviderMessageFacade.h"

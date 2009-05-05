@@ -55,7 +55,7 @@ LIBRARY = pegslp
 PRE_DEPEND_INCLUDES = -I./depends
 
 ifneq ($PEGASUS_SUPPORTS_DYNLIB,yes)
-    LIBRARIES = pegcommon
+    LIBRARIES = peggeneral pegcommon
 endif
 
 SOURCES = peg_slp_agent.cpp

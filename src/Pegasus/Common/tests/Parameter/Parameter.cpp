@@ -40,7 +40,7 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMParameter.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/MofWriter.h>
+#include <Pegasus/General/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

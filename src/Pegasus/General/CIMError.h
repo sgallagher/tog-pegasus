@@ -35,6 +35,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/General/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -63,7 +64,7 @@ PEGASUS_NAMESPACE_BEGIN
     (values and valuemaps).
 */
 
-class PEGASUS_COMMON_LINKAGE CIMError { public:
+class PEGASUS_GENERAL_LINKAGE CIMError { public:
 
     /** Enumeration of the possible values in the
         ErrorType Property of the CIM_Error Class

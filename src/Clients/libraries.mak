@@ -33,5 +33,6 @@ LIBRARIES = \
     pegclient \
     pegrepository \
     pegconfig \
+    peggeneral \
     pegcommon
 

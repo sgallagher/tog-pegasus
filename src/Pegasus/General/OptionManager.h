@@ -48,8 +48,9 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/MessageLoader.h>
+
+#include <Pegasus/General/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -228,7 +229,7 @@ typedef Option* OptionPtr;
     </UL>
 */
 
-class PEGASUS_COMMON_LINKAGE OptionManager
+class PEGASUS_GENERAL_LINKAGE OptionManager
 {
 public:
 
@@ -388,7 +389,7 @@ private:
 
     See the OptionManager class for more details.
 */
-class PEGASUS_COMMON_LINKAGE Option
+class PEGASUS_GENERAL_LINKAGE Option
 {
 public:
 
@@ -649,7 +650,7 @@ struct OptionRowWithMsg
 };
 
 /** Exception class */
-class PEGASUS_COMMON_LINKAGE OMMissingCommandLineOptionArgument
+class PEGASUS_GENERAL_LINKAGE OMMissingCommandLineOptionArgument
     : public Exception
 {
 public:
@@ -664,7 +665,7 @@ public:
 };
 
 /** Exception class */
-class PEGASUS_COMMON_LINKAGE OMInvalidOptionValue : public Exception
+class PEGASUS_GENERAL_LINKAGE OMInvalidOptionValue : public Exception
 {
 public:
 
@@ -679,7 +680,7 @@ public:
 };
 
 /** Exception class */
-class PEGASUS_COMMON_LINKAGE OMDuplicateOption : public Exception
+class PEGASUS_GENERAL_LINKAGE OMDuplicateOption : public Exception
 {
 public:
     OMDuplicateOption(const String& name)
@@ -692,7 +693,7 @@ public:
 };
 
 /** Exception class */
-class PEGASUS_COMMON_LINKAGE OMConfigFileSyntaxError : public Exception
+class PEGASUS_GENERAL_LINKAGE OMConfigFileSyntaxError : public Exception
 {
 public:
 
@@ -703,7 +704,7 @@ public:
 };
 
 /** Exception class */
-class PEGASUS_COMMON_LINKAGE OMUnrecognizedConfigFileOption : public Exception
+class PEGASUS_GENERAL_LINKAGE OMUnrecognizedConfigFileOption : public Exception
 {
 public:
     OMUnrecognizedConfigFileOption(const String& name)
@@ -716,7 +717,7 @@ public:
 };
 
 /** Exception class */
-class PEGASUS_COMMON_LINKAGE OMMissingRequiredOptionValue : public Exception
+class PEGASUS_GENERAL_LINKAGE OMMissingRequiredOptionValue : public Exception
 {
 public:
     OMMissingRequiredOptionValue(const String& name)
@@ -729,7 +730,7 @@ public:
 };
 
 /** Exception class */
-class PEGASUS_COMMON_LINKAGE OMMBadCmdLineOption : public Exception
+class PEGASUS_GENERAL_LINKAGE OMMBadCmdLineOption : public Exception
 {
 public:
     OMMBadCmdLineOption(const String& name)

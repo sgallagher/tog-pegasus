@@ -27,7 +27,7 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 ROOT = ../../../../..
-DIR = Pegasus/Common/tests/ToMof
+DIR = Pegasus/General/tests/ToMof
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
@@ -35,7 +35,7 @@ LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 PROGRAM = TestToMof
 
-SOURCES = tomof.cpp
+SOURCES = TestToMof.cpp
 
 include $(ROOT)/mak/program.mak
 

@@ -49,8 +49,6 @@
 #include <Pegasus/Server/Linkage.h>
 #include <Pegasus/Server/reg_table.h>
 
-#include <Pegasus/Common/QueryExpressionRep.h>
-
 PEGASUS_NAMESPACE_BEGIN
 
 // Class to aggregate and manage the information about classes and providers

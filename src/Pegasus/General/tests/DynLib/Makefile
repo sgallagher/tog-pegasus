@@ -29,7 +29,7 @@
 ROOT = ../../../../..
 include ../libraries.mak
 
-DIR = Pegasus/Common/tests/DynLib
+DIR = Pegasus/General/tests/DynLib
 
 include $(ROOT)/mak/config.mak
 
@@ -39,7 +39,7 @@ ifeq ($(OS_TYPE),vms)
  VMS_VECTOR = callme
 endif
 
-SOURCES = DynLib.cpp
+SOURCES = TestDynLib.cpp
 
 LIBRARY = TestDynLib
 

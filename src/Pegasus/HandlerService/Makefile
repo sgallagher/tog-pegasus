@@ -36,9 +36,11 @@ INCLUDES = -I..
 LOCAL_DEFINES = -DPEGASUS_HANDLER_SERVICE_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
-    pegcommon \
     pegconfig \
-    pegrepository
+    pegrepository \
+    peggeneral \
+    pegcommon
+    
 
 STATIC=1
 LIBRARY = peghandlerservice

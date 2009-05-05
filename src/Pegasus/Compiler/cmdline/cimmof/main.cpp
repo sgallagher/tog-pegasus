@@ -52,7 +52,7 @@ using namespace ParserExceptions;
 // This is used by the parsing routines to control flow
 // through include files
 #ifdef PEGASUS_OS_ZOS
-#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
+#include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
 #endif
 
 static mofCompilerOptions cmdline;

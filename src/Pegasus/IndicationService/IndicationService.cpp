@@ -36,9 +36,6 @@
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/MessageQueue.h>
-#ifdef PEGASUS_INDICATION_PERFINST
-#include <Pegasus/Common/Stopwatch.h>
-#endif
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -49,7 +46,12 @@
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/IndicationFormatter.h>
+
+#include <Pegasus/General/IndicationFormatter.h>
+#ifdef PEGASUS_INDICATION_PERFINST
+#include <Pegasus/General/Stopwatch.h>
+#endif
+
 #include <Pegasus/Server/ProviderRegistrationManager/\
 ProviderRegistrationManager.h>
 #include <Pegasus/Query/QueryExpression/QueryExpression.h>

@@ -32,15 +32,16 @@
 #ifndef ObjectStreamer_h
 #define ObjectStreamer_h
 
-#include "CIMClass.h"
-#include "CIMInstance.h"
-#include "DeclContext.h"
-#include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/CIMInstance.h>
+#include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/Buffer.h>
+
+#include <Pegasus/Repository/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE ObjectStreamer
+class PEGASUS_REPOSITORY_LINKAGE ObjectStreamer
 {
 public:
 

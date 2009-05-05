@@ -39,10 +39,12 @@ LOCAL_DEFINES = -DPEGASUS_DYNLISTENER_INTERNAL -DPEGASUS_INTERNALONLY
 LIBRARY = pegdynlistener
 
 LIBRARIES = \
-    pegexportserver \
-    pegcommon \
     pegclient \
-    pegprovider
+    pegprovider \
+    pegexportserver \
+    peggeneral \
+    pegcommon
+    
 
 PRE_DEPEND_INCLUDES = -I./depends
 

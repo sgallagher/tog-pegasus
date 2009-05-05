@@ -34,7 +34,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_HAS_SSL
-# include "Network.h"
+# include <Pegasus/Common/Network.h>
 # define OPENSSL_NO_KRB5 1
 # include <openssl/err.h>
 # include <openssl/ssl.h>
@@ -46,8 +46,8 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/FileSystem.h>
 
-#include "SSLContext.h"
-#include "SSLContextRep.h"
+#include <Pegasus/Common/SSLContext.h>
+#include <Pegasus/Common/SSLContextRep.h>
 #include "SSLContextManager.h"
 
 

@@ -27,19 +27,15 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Authors: Alagaraja Ramasubramanian, IBM Corporation
-//          Seema Gupta, IBM Corporation
-//          Subodh Soni, IBM Corporation
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
-#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Common/OptionManager.h>
+
+#include <Pegasus/General/OptionManager.h>
+
+#include <Pegasus/Client/CIMClient.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

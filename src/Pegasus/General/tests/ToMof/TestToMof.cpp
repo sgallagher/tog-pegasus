@@ -36,7 +36,8 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
-#include <Pegasus/Common/MofWriter.h>
+
+#include <Pegasus/General/MofWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

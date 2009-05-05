@@ -36,10 +36,11 @@ include $(ROOT)/mak/config.mak
 LIBRARY = SLPProvider
 
 LIBRARIES = \
-  pegcommon \
-  pegconfig \
-  pegprovider\
-  pegslp
+    pegslp \
+    pegprovider \
+    pegconfig \
+    peggeneral \
+    pegcommon
 
 SOURCES = \
    SLPProvider.cpp

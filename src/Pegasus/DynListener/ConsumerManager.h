@@ -27,10 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Heather Sterling (hsterl@us.ibm.com)
-//
-// Modified By:
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ConsumerManager_h
@@ -38,11 +34,13 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Consumer/CIMIndicationConsumer.h>
 #include <Pegasus/Common/System.h>
+
+#include <Pegasus/General/OptionManager.h>
+
 #include <Pegasus/DynListener/Linkage.h>
 
 #include "ConsumerModule.h"

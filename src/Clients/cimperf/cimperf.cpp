@@ -43,17 +43,18 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <stdlib.h>
-#include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/HTTPConnector.h>
-#include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/HostAddress.h>
 
+#include <Pegasus/Client/CIMClient.h>
+
+#include <Pegasus/General/OptionManager.h>
 #ifdef PEGASUS_OS_ZOS
-#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
+#include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
 #endif
 
 PEGASUS_USING_PEGASUS;

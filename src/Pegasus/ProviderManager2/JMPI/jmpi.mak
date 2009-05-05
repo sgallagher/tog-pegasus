@@ -87,6 +87,7 @@ LIBRARIES = \
 	pegquerycommon \
 	pegprovider \
 	pegclient \
+	peggeneral \
 	pegcommon
 
 SOURCES = \

@@ -63,6 +63,7 @@ LIBRARIES += \
     pegquerycommon \
     pegqueryexpression \
     pegconfig \
+    peggeneral \
     pegcommon
 
 SOURCES = \

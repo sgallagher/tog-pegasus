@@ -27,7 +27,7 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 ROOT = ../../../../..
-DIR = Pegasus/Common/tests/OptionManager
+DIR = Pegasus/General/tests/OptionManager
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
@@ -35,7 +35,7 @@ LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 PROGRAM = TestOptionManager
 
-SOURCES = OptionManager.cpp
+SOURCES = TestOptionManager.cpp
 
 include $(ROOT)/mak/program.mak
 

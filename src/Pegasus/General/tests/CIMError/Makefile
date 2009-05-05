@@ -27,14 +27,14 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 ROOT = ../../../../..
-DIR = Pegasus/Common/tests/CIMError
+DIR = Pegasus/General/tests/CIMError
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 PROGRAM = TestCimError
-SOURCES = CimError.cpp
+SOURCES = TestCimError.cpp
 
 include $(ROOT)/mak/program.mak
 

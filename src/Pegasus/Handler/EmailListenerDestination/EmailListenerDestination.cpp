@@ -39,8 +39,9 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/CIMType.h>
-#include <Pegasus/Common/IndicationFormatter.h>
 #include <Pegasus/IndicationService/IndicationConstants.h>
+
+#include <Pegasus/General/IndicationFormatter.h>
 
 #if defined(PEGASUS_OS_VMS)
 #include <unistd>

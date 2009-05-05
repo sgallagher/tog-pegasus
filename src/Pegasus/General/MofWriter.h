@@ -45,12 +45,13 @@
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMObjectPath.h>
-#include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Buffer.h>
+
+#include <Pegasus/General/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE MofWriter
+class PEGASUS_GENERAL_LINKAGE MofWriter
 {
 public:
 

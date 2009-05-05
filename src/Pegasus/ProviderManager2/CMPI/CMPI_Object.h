@@ -32,8 +32,6 @@
 #ifndef _CMPI_Object_H_
 #define _CMPI_Object_H_
 
-#include <Pegasus/Provider/CMPI/cmpidt.h>
-
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMProperty.h>
@@ -41,7 +39,10 @@
 #include <Pegasus/Common/CIMParamValue.h>
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/OperationContext.h>
-#include <Pegasus/Common/CIMError.h>
+
+#include <Pegasus/General/CIMError.h>
+
+#include <Pegasus/Provider/CMPI/cmpidt.h>
 
 #include "CMPI_ThreadContext.h"
 #include "CMPI_Enumeration.h"

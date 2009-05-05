@@ -36,6 +36,7 @@ include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
     pegclient \
+    peggeneral \
     pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)

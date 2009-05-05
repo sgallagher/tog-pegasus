@@ -36,7 +36,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE AutoStreamer : public ObjectStreamer
+class PEGASUS_REPOSITORY_LINKAGE AutoStreamer : public ObjectStreamer
 {
     ObjectStreamer *_primary,*_defaultReader;
     Uint16 _readerCount;

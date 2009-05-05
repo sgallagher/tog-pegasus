@@ -38,7 +38,7 @@
 #include <Pegasus/Common/AuditLogger.h>
 
 #ifdef PEGASUS_OS_ZOS
-#include <Pegasus/Common/SetFileDescriptorToEBCDICEncoding.h>
+#include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
 #include <Pegasus/Common/Audit_zOS_SMF.h>
 #endif
 

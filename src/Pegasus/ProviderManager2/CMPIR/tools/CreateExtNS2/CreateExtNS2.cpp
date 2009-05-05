@@ -40,7 +40,7 @@
 */
 
 #include <Pegasus/Repository/CIMRepository.h>
-#include <Pegasus/Common/OptionManager.h>
+#include <Pegasus/General/OptionManager.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

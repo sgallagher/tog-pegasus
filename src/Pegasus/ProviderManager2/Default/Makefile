@@ -53,6 +53,7 @@ LIBRARIES += \
     pegwql \
     pegquerycommon \
     pegconfig \
+    peggeneral \
     pegcommon
 
 SOURCES = \

@@ -34,7 +34,8 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/DynamicLibrary.h>
+
+#include <Pegasus/General/DynamicLibrary.h>
 
 #include <Pegasus/ProviderManager2/ProviderManager.h>
 

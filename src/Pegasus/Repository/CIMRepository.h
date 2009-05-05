@@ -38,12 +38,13 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
-#include <Pegasus/Config/ConfigManager.h>
-#include <Pegasus/Repository/NameSpaceManager.h>
-#include <Pegasus/Repository/Linkage.h>
 #include <Pegasus/Common/ReadWriteSem.h>
 
-#include <Pegasus/Common/ObjectStreamer.h>
+#include <Pegasus/Config/ConfigManager.h>
+
+#include <Pegasus/Repository/Linkage.h>
+#include <Pegasus/Repository/NameSpaceManager.h>
+#include <Pegasus/Repository/ObjectStreamer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

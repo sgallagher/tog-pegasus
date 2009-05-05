@@ -33,7 +33,6 @@
 #define Pegasus_IndicationFormatter_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/CIMInstance.h>
@@ -42,12 +41,14 @@
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/ContentLanguageList.h>
 
+#include <Pegasus/General/Linkage.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 /**
     The IndicationFormatter class formats an indication message.
 */
-class PEGASUS_COMMON_LINKAGE IndicationFormatter
+class PEGASUS_GENERAL_LINKAGE IndicationFormatter
 {
 public:
 

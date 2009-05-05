@@ -30,13 +30,13 @@ ROOT = ../../../../..
 
 include ../libraries.mak
 
-DIR = Pegasus/Common/tests/DynamicLibrary
+DIR = Pegasus/General/tests/DynamicLibrary
 
 include $(ROOT)/mak/config.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-SOURCES = DynamicLibrary.cpp
+SOURCES = TestDynamicLibrary.cpp
 
 PROGRAM = TestDynamicLibrary
 

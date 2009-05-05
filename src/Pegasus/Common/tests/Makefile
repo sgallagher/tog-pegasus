@@ -41,15 +41,12 @@ DIRS = \
     AuthenticationInfo \
     Base64 \
     Buffer \
-    CIMError\
     CIMName \
     ClassDecl \
     Compare \
     Config \
     DateTime \
     Dir \
-    DynLib \
-    DynamicLibrary \
     Executor \
     FileLock \
     FileSystem \
@@ -58,7 +55,6 @@ DIRS = \
     HashTable \
     HTTPMessage \
     InstanceDecl \
-    IndicationFormatter \
     L10N \
     L10N/msg \
     Logger \
@@ -71,7 +67,6 @@ DIRS = \
     Object \
     ObjectNormalizer \
     OperationContext \
-    OptionManager \
     ParamValue \
     Parameter \
     Property \
@@ -83,7 +78,6 @@ DIRS = \
     Scope \
     SpinLock \
     Stack \
-    Stopwatch \
     StrToInstName \
     String \
     StringConversion \
@@ -91,7 +85,6 @@ DIRS = \
     Thread \
     ThreadPool \
     TimeValue \
-    ToMof \
     Tracer \
     ValidateClass \
     Value \

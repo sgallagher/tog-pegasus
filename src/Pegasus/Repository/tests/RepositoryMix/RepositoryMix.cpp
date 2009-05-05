@@ -31,11 +31,14 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/PegasusAssert.h>
-#include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/MofWriter.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/FileSystem.h>
+
+#include <Pegasus/General/MofWriter.h>
+
+#include <Pegasus/Repository/CIMRepository.h>
+
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

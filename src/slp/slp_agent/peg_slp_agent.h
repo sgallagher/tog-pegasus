@@ -34,7 +34,7 @@
 #define Pegasus_slp_agent_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/DynamicLibrary.h>
+#include <Pegasus/General/DynamicLibrary.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/HashTable.h>

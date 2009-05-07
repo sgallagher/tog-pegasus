@@ -98,6 +98,7 @@
 #if defined(PEGASUS_OS_ZOS)
 #include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
 #include <Service/ARM_zOS.h>
+#include <Service/TimeZone_zOS.h>
 # ifdef PEGASUS_ZOS_SECURITY
 // This include file will not be provided in the OpenGroup CVS for now.
 // Do NOT try to include it in your compile
@@ -464,7 +465,7 @@ int main(int argc, char** argv)
     }
     // Need to initialize timezone information in the
     // initial processing thread (IPT)
-    tzset();
+    initialize_zOS_timezone();
 #endif
 
 #if defined(PEGASUS_OS_AIX) && defined(PEGASUS_HAS_MESSAGES)

@@ -196,7 +196,7 @@ typedef union YYSTYPE
 	lslpAtomList *_atl;
 	lslpAtomizedURL *_aturl;
 }
-/* Line 187 of yacc.c.  */
+/* Line 193 of yacc.c.  */
 #line 170 "y_url.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -2218,7 +2218,7 @@ lslpAtomList *lslpAllocAtomList(void)
 
 void lslpFreeAtom(lslpAtomList *a )
 {
-	assert(a != NULL);
+	PEGASUS_ASSERT(a != NULL);
 	if (a->str != NULL)
 		free(a->str);
 	free(a);
@@ -2228,8 +2228,8 @@ void lslpFreeAtom(lslpAtomList *a )
 void lslpFreeAtomList(lslpAtomList *l, int32 flag)
 {
 	lslpAtomList *temp;
-	assert(l != NULL);
-	assert(_LSLP_IS_HEAD(l));
+	PEGASUS_ASSERT(l != NULL);
+	PEGASUS_ASSERT(_LSLP_IS_HEAD(l));
 	while (! _LSLP_IS_EMPTY(l))
 	{
 		temp = l->next;
@@ -2264,7 +2264,7 @@ lslpAtomizedURL *lslpAllocAtomizedURLList(void)
 
 void lslpFreeAtomizedURL(lslpAtomizedURL *u)
 {
-	assert(u != NULL);
+	PEGASUS_ASSERT(u != NULL);
 	if (u->url != NULL)
 		free(u->url);
 	if (! _LSLP_IS_EMPTY(&(u->srvcs)))
@@ -2282,8 +2282,8 @@ void lslpFreeAtomizedURL(lslpAtomizedURL *u)
 void lslpFreeAtomizedURLList(lslpAtomizedURL *l, int32 flag)
 {
 	lslpAtomizedURL *temp;
-	assert(l != NULL);
-	assert(_LSLP_IS_HEAD(l));
+	PEGASUS_ASSERT(l != NULL);
+	PEGASUS_ASSERT(_LSLP_IS_HEAD(l));
 	while (! (_LSLP_IS_HEAD(l->next)))
 	{
 		temp = l->next;
@@ -2329,7 +2329,7 @@ lslpAtomizedURL *_lslpDecodeURLs(char *u[], int32 count)
 
   uint32 lexer = 0;
   lslpAtomizedURL *temp = NULL;
-  assert(u != NULL && u[count - 1] != NULL);
+  PEGASUS_ASSERT(u != NULL && u[count - 1] != NULL);
   lslpInitURLList();
   lslpInitAtomLists();
 

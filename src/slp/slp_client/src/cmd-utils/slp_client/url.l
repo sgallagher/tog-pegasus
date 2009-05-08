@@ -241,7 +241,7 @@ ip6addr			{hexpart}|{hexpart}":"{ip4addr}
 
 void url_close_lexer(uint32 handle)
 {
-  assert(handle != 0);
+  PEGASUS_ASSERT(handle != 0);
   url_delete_buffer((YY_BUFFER_STATE)handle);
 }
 

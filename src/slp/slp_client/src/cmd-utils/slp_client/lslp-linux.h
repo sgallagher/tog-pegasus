@@ -83,7 +83,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <errno.h>
-#include <assert.h>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <memory.h>
 #include <string.h>
 #include <ctype.h>

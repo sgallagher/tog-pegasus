@@ -241,7 +241,7 @@ void lslpFreeFilter(lslpLDAPFilter *filter)
 
 void lslpFreeFilterList(lslpLDAPFilter *head, BOOL static_flag)
 {
-  assert((head != NULL) && (_LSLP_IS_HEAD(head)));
+  PEGASUS_ASSERT((head != NULL) && (_LSLP_IS_HEAD(head)));
   while(! (_LSLP_IS_EMPTY(head))) {
     lslpLDAPFilter *temp = head->next;
     _LSLP_UNLINK(temp);
@@ -270,7 +270,7 @@ lslpLDAPFilter *_lslpDecodeLDAPFilter(char *filter)
 
   lslpLDAPFilter *temp = NULL;
   uint32 lexer = 0;
-  assert(filter != NULL && strlen(filter));
+  PEGASUS_ASSERT(filter != NULL && strlen(filter));
   lslpInitFilterList();
   nesting_level = 1;
   if(0 != (lexer = filter_init_lexer(filter))) {

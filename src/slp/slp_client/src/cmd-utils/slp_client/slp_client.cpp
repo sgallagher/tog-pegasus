@@ -68,14 +68,6 @@
 #include "slp_client.h"
 #include "slp_utils.h"
 
-#if (__cplusplus)
-#include <cassert>
-#else
-#include <assert.h>
-#endif
-
-#define PEGASUS_ASSERT(COND) assert(COND)
-
 /*********************************************************************/
 /*********************************************************************/
 

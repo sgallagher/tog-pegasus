@@ -192,7 +192,7 @@ static char *_lslp_strdup(const char *s)
 
 void attr_close_lexer(uint32 handle)
 {
-  assert(handle != 0);
+  PEGASUS_ASSERT(handle != 0);
   attr_delete_buffer((YY_BUFFER_STATE)handle);
 }
 

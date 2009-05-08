@@ -65,7 +65,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/time.h>
-#include <assert.h>
 #include "lslp-linux.h"
 
 void  num_to_ascii(uint32 val, char *buf, int32 radix, BOOL is_neg)
@@ -75,7 +74,7 @@ void  num_to_ascii(uint32 val, char *buf, int32 radix, BOOL is_neg)
     char temp;
     uint32 digval;
 
-    assert(buf != NULL);
+    PEGASUS_ASSERT(buf != NULL);
     p = buf;
     /* safeguard against a div by zero fault ! */
     if (val == 0)
@@ -138,7 +137,7 @@ void  hug_num_to_ascii(uint64 val, char *buf, int32 radix, BOOL is_neg)
     char temp;
     uint64 digval;
 
-    assert(buf != NULL);
+    PEGASUS_ASSERT(buf != NULL);
     p = buf;
     /* safeguard against a div by zero fault ! */
     if (val == 0)

@@ -26,7 +26,6 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //////////////////////////////////////////////////////////////////////////
-
 //NOCHKSRC
 
 /*****************************************************************************
@@ -223,7 +222,7 @@ lslpAttrList *_lslpDecodeAttrString(char *s)
 {
   uint32 lexer = 0;
   lslpAttrList *temp = NULL;
-  assert(s != NULL);
+  PEGASUS_ASSERT(s != NULL);
   _lslpInitInternalAttrList();
   if (s != NULL) {
     if(NULL != (temp = lslpAllocAttrList()))  {
@@ -329,7 +328,7 @@ lslpAttrList *lslpAllocAttrList(void)
 /* attr MUST be unlinked from its list ! */
 void lslpFreeAttr(lslpAttrList *attr)
 {
-  assert(attr != NULL);
+  PEGASUS_ASSERT(attr != NULL);
   if (attr->name != NULL)
     free(attr->name);
   if(attr->attr_string != NULL)
@@ -345,8 +344,8 @@ void lslpFreeAttrList(lslpAttrList *list, BOOL staticFlag)
 {
   lslpAttrList *temp;
 
-  assert(list != NULL);
-  assert(_LSLP_IS_HEAD(list));
+  PEGASUS_ASSERT(list != NULL);
+  PEGASUS_ASSERT(_LSLP_IS_HEAD(list));
   while(! (_LSLP_IS_EMPTY(list)))
     {
       temp = list->next;

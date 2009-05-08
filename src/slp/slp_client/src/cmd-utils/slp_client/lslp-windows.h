@@ -80,7 +80,7 @@
 #include <tchar.h>
 #include <sys/types.h>
 #include <sys/timeb.h>
-#include <assert.h>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <errno.h>
 
 #ifdef __cplusplus

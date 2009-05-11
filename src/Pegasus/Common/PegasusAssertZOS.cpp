@@ -35,6 +35,15 @@
 #include <unistd.h>
 #include <Pegasus/Common/Tracer.h>
 
+//
+// This functions has been duplicated to 
+// src/slp/slp_client/src/cmd-utils/slp_client/slp_client.cpp to solve 
+// a circular build dependency.
+// To be able to build the library pegslp_client prior pegcommon it was 
+// necessary to copy this function.
+// 
+
+
 void __pegasus_assert_zOS(const char* file, int line, const char* cond)
 {
     // a buffer to compose the messages

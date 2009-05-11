@@ -155,8 +155,40 @@ static void _debug_print(int dc, const char* format, ...)
 #define DEBUG_PRINT(ARGS)
 
 #endif /* SLP_CLIENT_DEBUG */
+
 /*********************************************************************/
-/*********************************************************************/
+
+#ifdef PEGASUS_OS_ZOS
+
+#include <ctest.h>
+
+//
+// This functions has been duplicated from 
+// src/Pegasus/Common/PegasusAssertZOS.cpp to solve 
+// a circular build dependency.
+// The library pegcommon can not be build prior pegslp_client which would 
+// be necessary to get this function.
+// 
+
+void __pegasus_assert_zOS(const char* file, int line, const char* cond)
+{
+    // a buffer to compose the messages
+    char msgBuffer[1024];
+
+    sprintf(msgBuffer,"PEGASUS_ASSERT: Assertation \'%s\' failed",cond);
+    fprintf(stderr,"\n%s in file %s ,line %d\n",msgBuffer,file,line);
+
+    // generate stacktace
+    ctrace(msgBuffer);
+
+    // flush trace buffers has been leftout because the slp client does not use
+    // tracing.
+   
+    // If env vars are set, a SYSM dump is generated.
+    kill(getpid(),SIGDUMP);
+}
+
+#endif
 
 // Bug 6545 added the LSLP_REUSEADDR macro because SO_REUSEADDR behaves
 // differently on AIX versus other POSIX platforms.

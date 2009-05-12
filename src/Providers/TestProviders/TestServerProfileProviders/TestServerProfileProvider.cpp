@@ -43,6 +43,18 @@ const String arrayProfileName("Array");
 const String otherSystemProvider("OtherSystemTestProvider");
 const CIMName otherSystemClass("Test_OtherSystem");
 
+const String otherDynamicProfileProvider(
+    "TestDynamicProfileCapabilityProvider");
+const String otherDynamicProfileClass("Test_DynamicProfile");
+
+const String otherDynamicSubProfileProvider1(
+    "TestDynamicSubProfile1CapabilityProvider");
+const String otherDynamicSubProfileClass1("Test_DynamicSubProfile1");
+
+const String otherDynamicSubProfileProvider2(
+    "TestDynamicSubProfile2CapabilityProvider");
+const String otherDynamicSubProfileClass2("Test_DynamicSubProfile2");
+
 TestServerProfileProvider::TestServerProfileProvider(
     const String& providerName)
 {
@@ -67,6 +79,28 @@ TestServerProfileProvider::TestServerProfileProvider(
         testClassName = otherSystemClass;
         names.append(String("OtherSystemInstance1"));
         names.append(String("OtherSystemInstance2"));
+    }
+    else if (String::equalNoCase(providerName, otherDynamicProfileProvider))
+    {
+        testClassName = otherDynamicProfileClass;
+        names.append(String("OtherDynamicProfileInstance1"));
+        names.append(String("OtherDynamicProfileInstance2"));
+    }
+    else if (String::equalNoCase(
+        providerName,
+        otherDynamicSubProfileProvider1))
+    {
+        testClassName = otherDynamicSubProfileClass1;
+        names.append(String("OtherDynamicSubProfile1Instance1"));
+        names.append(String("OtherDynamicSubProfile1Instance2"));
+    }
+    else if (String::equalNoCase(
+        providerName,
+        otherDynamicSubProfileProvider2))
+    {
+        testClassName = otherDynamicSubProfileClass2;
+        names.append(String("OtherDynamicSubProfile2Instance1"));
+        names.append(String("OtherDynamicSubProfile2Instance2"));
     }
     else
     {

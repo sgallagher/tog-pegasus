@@ -41,6 +41,19 @@ class Test_OtherSystem : CIM_ComputerSystem
 {
 };
 
+class Test_DynamicProfile : CIM_ComputerSystem
+{
+};
+
+class Test_DynamicSubProfile1 : CIM_LogicalDevice
+{
+};
+
+class Test_DynamicSubProfile2 : CIM_LogicalDevice
+{
+};
+
+
 class Test_ElementConformsToProfile : CIM_ElementConformsToProfile
 {
 };

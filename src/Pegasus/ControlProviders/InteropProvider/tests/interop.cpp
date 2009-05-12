@@ -250,6 +250,8 @@ public:
     Boolean testClassExists(const CIMName & className);
 
     // Methods associated with overall testing
+    void testPGProviderProfileCapabilities();
+
     void testNameSpacesManagement();
 
     void testSharedNameSpacesManagement();
@@ -1712,6 +1714,294 @@ Boolean InteropTest::testClassExists(const CIMName & className)
 }
 
 
+
+// This function registers providers dynamically required to test 
+// PG_ProviderProfileCapability class
+void _registerProvider(
+    CIMClient* client,
+    String provName,
+    String className,
+    CIMObjectPath& returnProvRef,
+    CIMObjectPath& returnProvCapRef)
+{
+    CIMInstance cimProvInstance(PEGASUS_CLASSNAME_PROVIDER);
+    CIMInstance cimProvCapInstance(PEGASUS_CLASSNAME_PROVIDERCAPABILITIES);
+
+    cimProvInstance.addProperty(CIMProperty(
+        CIMName("ProviderModuleName"),
+        String("TestServerProfileProvidersModule")));
+    cimProvInstance.addProperty(
+        CIMProperty(CIMName("Name"),
+        provName));
+
+    returnProvRef =
+        client->createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimProvInstance);
+
+    Array <String> namespaces;
+    Array <Uint16> providerType;
+    Array <String> supportedMethods;
+    Array <String> supportedProperties;
+    namespaces.append("test/TestProvider");
+    providerType.append(2);
+
+    cimProvCapInstance.addProperty(CIMProperty(
+        CIMName("ProviderModuleName"),
+        String("TestServerProfileProvidersModule")));
+    cimProvCapInstance.addProperty(CIMProperty(
+        CIMName("ProviderName"),
+        provName));
+    cimProvCapInstance.addProperty(CIMProperty(
+        CIMName("CapabilityID"),
+        className));
+    cimProvCapInstance.addProperty(CIMProperty(
+        CIMName("ClassName"),
+        className));
+    cimProvCapInstance.addProperty(CIMProperty(
+        CIMName("Namespaces"),
+        namespaces));
+    cimProvCapInstance.addProperty(CIMProperty(
+        CIMName("ProviderType"),
+        providerType));
+    cimProvCapInstance.addProperty(CIMProperty(
+        CIMName("SupportedMethods"),
+        supportedMethods));
+    cimProvCapInstance.addProperty(CIMProperty(
+        CIMName("SupportedProperties"),
+        supportedProperties));
+
+    returnProvCapRef = client->createInstance(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        cimProvCapInstance);
+
+}
+
+//
+// Tests the various operations with PG_ProviderProfileCapability class
+//
+void InteropTest::testPGProviderProfileCapabilities()
+{
+    CIMObjectPath retRefProvProfCap;
+    CIMObjectPath retRefProv, retRefProvCap;
+    CIMObjectPath retRefProv1, retRefProvCap1;
+    CIMObjectPath retRefProv2, retRefProvCap2;
+    String capId;
+
+    // Register required provider for main profile
+    _registerProvider(&_client,
+        "TestDynamicProfileCapabilityProvider",
+        "Test_DynamicProfile",
+        retRefProv,
+        retRefProvCap);
+
+    // Register required providers for sub profiles
+    _registerProvider(&_client,
+        "TestDynamicSubProfile1CapabilityProvider",
+        "Test_DynamicSubProfile1",
+        retRefProv1,
+        retRefProvCap1);
+    _registerProvider(&_client,
+        "TestDynamicSubProfile2CapabilityProvider",
+        "Test_DynamicSubProfile2",
+        retRefProv2,
+        retRefProvCap2);
+
+    // Create ProviderProfileCapability instance for main profile
+    CIMInstance cimInstProvProfCap(
+        PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES);
+
+    Array<Uint16> registeredSubProfiles;
+    registeredSubProfiles.append(0); //Other
+    registeredSubProfiles.append(0); //Other
+
+    Array<String> subProfileVersions;
+    subProfileVersions.append("1.1.0");
+    subProfileVersions.append("0.1.0");
+
+    Array<String> otherRegisteredSubProfiles;
+    otherRegisteredSubProfiles.append("DynamicSubprofile1");
+    otherRegisteredSubProfiles.append("DynamicSubprofile2");
+
+    Array<String> otherSubProfileOrganizations;
+    otherSubProfileOrganizations.append("OpenPegasus");
+    otherSubProfileOrganizations.append("OpenPegasus");
+
+    Array<String> subProfileProviderModuleNames;
+    subProfileProviderModuleNames.append("TestServerProfileProvidersModule");
+    subProfileProviderModuleNames.append("TestServerProfileProvidersModule");
+
+    Array<String> subProfileProviderNames;
+    subProfileProviderNames.append("TestDynamicSubProfile1CapabilityProvider");
+    subProfileProviderNames.append("TestDynamicSubProfile2CapabilityProvider");
+
+    Array<String> conformingElements;
+    conformingElements.append("Test_DynamicProfile");
+
+    cimInstProvProfCap.addProperty(CIMProperty(
+        "ProviderModuleName",
+        String("TestServerProfileProvidersModule")));
+    cimInstProvProfCap.addProperty(CIMProperty(
+        "ProviderName",
+        String("TestDynamicProfileCapabilityProvider")));
+    cimInstProvProfCap.addProperty(CIMProperty(
+        "CapabilityID",
+        String("DynamicProfileCapability")));
+    cimInstProvProfCap.addProperty(
+        CIMProperty("RegisteredProfile", Uint16(0)));
+    cimInstProvProfCap.addProperty(
+        CIMProperty("OtherRegisteredProfile", String("DynamicProfile")));
+    cimInstProvProfCap.addProperty(
+        CIMProperty("ProfileVersion", String("0.1.0")));
+    cimInstProvProfCap.addProperty(
+        CIMProperty("OtherProfileOrganization", String("OpenPegasus")));
+    cimInstProvProfCap.addProperty(
+        CIMProperty("RegisteredSubProfiles", registeredSubProfiles));
+    cimInstProvProfCap.addProperty(
+        CIMProperty("SubprofileVersions", subProfileVersions));
+    cimInstProvProfCap.addProperty(
+        CIMProperty("OtherRegisteredSubProfiles", otherRegisteredSubProfiles));
+    cimInstProvProfCap.addProperty(CIMProperty(
+        "OtherSubProfileOrganizations",
+        otherSubProfileOrganizations));
+    cimInstProvProfCap.addProperty(CIMProperty(
+        "SubProfileProviderModuleNames",
+        subProfileProviderModuleNames));
+    cimInstProvProfCap.addProperty(
+        CIMProperty("SubProfileProviderNames", subProfileProviderNames));
+    cimInstProvProfCap.addProperty(
+        CIMProperty("ConformingElements", conformingElements));
+    retRefProvProfCap = _client.createInstance(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        cimInstProvProfCap);
+    // End creating ProviderProfileCapability instance for main profile
+
+    // Test to see if the ProviderProfileCapability instance is created 
+    // properly
+    CIMInstance instance = _client.getInstance(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        retRefProvProfCap);
+    instance.getProperty(
+        instance.findProperty("CapabilityId")).getValue().get(capId);
+    PEGASUS_ASSERT(capId == "DynamicProfileCapability");
+    
+    // Enumerate CIM_RegisteredProfile instances to test successful creation of
+    // CIM_ElementConformsToProfile association instances and 
+    // PG_ElementSoftwareIdentity association instances
+    Array<CIMInstance> instances = _client.enumerateInstances(
+        PEGASUS_NAMESPACENAME_INTEROP, "CIM_RegisteredProfile");
+
+    String registeredName;
+    Array<CIMObject> associators;
+    String name;
+    Uint32 count = 0;
+    for (Uint32 i = 0, n = instances.size(); i < n; i++)
+    {
+        instances[i].getProperty(instances[i].findProperty("RegisteredName")).
+            getValue().get(registeredName);
+
+        if (String::equal(registeredName, "DynamicProfile") ||
+            String::equal(registeredName, "DynamicSubprofile1") ||
+            String::equal(registeredName, "DynamicSubprofile2"))
+        {
+            count++;
+            if (String::equal(registeredName, "DynamicProfile"))
+            {
+                associators = _client.associators(PEGASUS_NAMESPACENAME_INTEROP,
+                    instances[i].getPath(),
+                    PEGASUS_CLASSNAME_CIM_ELEMENTCONFORMSTOPROFILE);
+                PEGASUS_ASSERT(associators.size() == 2);
+            }
+            associators = _client.associators(
+                PEGASUS_NAMESPACENAME_INTEROP,
+                instances[i].getPath(),
+                PEGASUS_CLASSNAME_PG_ELEMENTSOFTWAREIDENTITY);
+            PEGASUS_ASSERT(associators.size() == 1);
+        }
+    }
+    PEGASUS_ASSERT(count == 3);
+
+    // Test to cover error conditions in InteropProvider::invokeMethod 
+    Array<CIMParamValue> inParams;
+    Array<CIMParamValue> outParams;
+
+    // Passing wrong function name
+    const CIMName methodName1("update");
+    const CIMName methodName2("updateCache");
+    try
+    {
+        CIMValue returnValue = _client.invokeMethod(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            retRefProvProfCap,
+            methodName1,
+            inParams,
+            outParams);
+    }
+    catch(CIMException& e)
+    {
+        PEGASUS_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
+    }
+
+    // Passing unsupported Class name to InteropProvider::invokeMethod 
+    CIMObjectPath pgNamespaceObjPath;
+    pgNamespaceObjPath.setNameSpace("root/PG_Interop");
+    pgNamespaceObjPath.setClassName(PEGASUS_CLASSNAME_PGNAMESPACE);
+    try
+    {
+        CIMValue returnValue = _client.invokeMethod(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            pgNamespaceObjPath,
+            methodName2,
+            inParams,
+            outParams);
+    }
+    catch(CIMException& e)
+    {
+        PEGASUS_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
+    }
+
+    // Test to enumerate PG_ProviderProfileCapability instances
+    Array<CIMObjectPath> pathsProfCap = _client.enumerateInstanceNames(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES);
+
+    PEGASUS_ASSERT(pathsProfCap.size() > 0);
+    Uint32 i = 0;
+    for (Uint32 n = pathsProfCap.size(); i < n; i++)
+    {
+        if (pathsProfCap[i] == retRefProvProfCap)
+        {
+            break;
+        }
+    }
+    PEGASUS_ASSERT(i < pathsProfCap.size()); 
+   
+    //Test to check successful deletion of PG_ProviderProfileCapability 
+    //instance
+    _client.deleteInstance(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        retRefProvProfCap);
+  
+    try
+    {
+        instance = _client.getInstance(
+            PEGASUS_NAMESPACENAME_INTEROP,
+            retRefProvProfCap);
+    }
+    catch (CIMException& e)
+    {
+        PEGASUS_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
+    }
+
+    _client.deleteInstance(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        retRefProv);
+    _client.deleteInstance(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        retRefProv1);
+    _client.deleteInstance(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        retRefProv2);
+}
+
 /* Execute the tests to assure that the namespace manager works and
    that the results match what is returned from the __Namespace manager
 */
@@ -3095,6 +3385,8 @@ int main(int argc, char** argv)
                 exit(1);
             }
         }
+        it.testPGProviderProfileCapabilities();
+
         it.testNameSpacesManagement();
 
         it.testSharedNameSpacesManagement();

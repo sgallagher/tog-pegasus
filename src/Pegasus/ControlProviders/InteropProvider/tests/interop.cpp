@@ -1718,7 +1718,7 @@ Boolean InteropTest::testClassExists(const CIMName & className)
 // This function registers providers dynamically required to test 
 // PG_ProviderProfileCapability class
 void _registerProvider(
-    CIMClient* client,
+    CIMClient& client,
     String provName,
     String className,
     CIMObjectPath& returnProvRef,
@@ -1735,7 +1735,7 @@ void _registerProvider(
         provName));
 
     returnProvRef =
-        client->createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimProvInstance);
+        client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimProvInstance);
 
     Array <String> namespaces;
     Array <Uint16> providerType;
@@ -1769,43 +1769,18 @@ void _registerProvider(
         CIMName("SupportedProperties"),
         supportedProperties));
 
-    returnProvCapRef = client->createInstance(
+    returnProvCapRef = client.createInstance(
         PEGASUS_NAMESPACENAME_INTEROP,
         cimProvCapInstance);
 
 }
 
-//
-// Tests the various operations with PG_ProviderProfileCapability class
-//
-void InteropTest::testPGProviderProfileCapabilities()
+// Create ProviderProfileCapability instance for main profile and test it
+void _testProvProfCapInstCreation(
+    CIMClient &client,
+    CIMObjectPath &provProfCapRef)
 {
-    CIMObjectPath retRefProvProfCap;
-    CIMObjectPath retRefProv, retRefProvCap;
-    CIMObjectPath retRefProv1, retRefProvCap1;
-    CIMObjectPath retRefProv2, retRefProvCap2;
     String capId;
-
-    // Register required provider for main profile
-    _registerProvider(&_client,
-        "TestDynamicProfileCapabilityProvider",
-        "Test_DynamicProfile",
-        retRefProv,
-        retRefProvCap);
-
-    // Register required providers for sub profiles
-    _registerProvider(&_client,
-        "TestDynamicSubProfile1CapabilityProvider",
-        "Test_DynamicSubProfile1",
-        retRefProv1,
-        retRefProvCap1);
-    _registerProvider(&_client,
-        "TestDynamicSubProfile2CapabilityProvider",
-        "Test_DynamicSubProfile2",
-        retRefProv2,
-        retRefProvCap2);
-
-    // Create ProviderProfileCapability instance for main profile
     CIMInstance cimInstProvProfCap(
         PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES);
 
@@ -1869,24 +1844,41 @@ void InteropTest::testPGProviderProfileCapabilities()
         CIMProperty("SubProfileProviderNames", subProfileProviderNames));
     cimInstProvProfCap.addProperty(
         CIMProperty("ConformingElements", conformingElements));
-    retRefProvProfCap = _client.createInstance(
+    provProfCapRef = client.createInstance(
         PEGASUS_NAMESPACENAME_INTEROP,
         cimInstProvProfCap);
-    // End creating ProviderProfileCapability instance for main profile
-
     // Test to see if the ProviderProfileCapability instance is created 
     // properly
-    CIMInstance instance = _client.getInstance(
+    CIMInstance instance = client.getInstance(
         PEGASUS_NAMESPACENAME_INTEROP,
-        retRefProvProfCap);
+        provProfCapRef);
     instance.getProperty(
         instance.findProperty("CapabilityId")).getValue().get(capId);
-    PEGASUS_ASSERT(capId == "DynamicProfileCapability");
+    PEGASUS_TEST_ASSERT(capId == "DynamicProfileCapability");
     
-    // Enumerate CIM_RegisteredProfile instances to test successful creation of
-    // CIM_ElementConformsToProfile association instances and 
-    // PG_ElementSoftwareIdentity association instances
-    Array<CIMInstance> instances = _client.enumerateInstances(
+    // Enumerate PG_ProviderProfileCapability instances
+    Array<CIMObjectPath> pathsProfCap = client.enumerateInstanceNames(
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES);
+
+    PEGASUS_TEST_ASSERT(pathsProfCap.size() > 0);
+    Uint32 i = 0;
+    for (Uint32 n = pathsProfCap.size(); i < n; i++)
+    {
+        if (pathsProfCap[i] == provProfCapRef)
+        {
+            break;
+        }
+    }
+    PEGASUS_TEST_ASSERT(i < pathsProfCap.size()); 
+}
+
+// Test dynamic profile associations using 
+// CIM_ElementConformsToProfile association instances and 
+// PG_ElementSoftwareIdentity association instances
+void _testDynamicProfileAssociations(CIMClient &client)
+{
+    Array<CIMInstance> instances = client.enumerateInstances(
         PEGASUS_NAMESPACENAME_INTEROP, "CIM_RegisteredProfile");
 
     String registeredName;
@@ -1905,21 +1897,26 @@ void InteropTest::testPGProviderProfileCapabilities()
             count++;
             if (String::equal(registeredName, "DynamicProfile"))
             {
-                associators = _client.associators(PEGASUS_NAMESPACENAME_INTEROP,
+                associators = client.associators(PEGASUS_NAMESPACENAME_INTEROP,
                     instances[i].getPath(),
                     PEGASUS_CLASSNAME_CIM_ELEMENTCONFORMSTOPROFILE);
-                PEGASUS_ASSERT(associators.size() == 2);
+                PEGASUS_TEST_ASSERT(associators.size() == 2);
             }
-            associators = _client.associators(
+            associators = client.associators(
                 PEGASUS_NAMESPACENAME_INTEROP,
                 instances[i].getPath(),
                 PEGASUS_CLASSNAME_PG_ELEMENTSOFTWAREIDENTITY);
-            PEGASUS_ASSERT(associators.size() == 1);
+            PEGASUS_TEST_ASSERT(associators.size() == 1);
         }
     }
-    PEGASUS_ASSERT(count == 3);
+    PEGASUS_TEST_ASSERT(count == 3);
+}
 
-    // Test to cover error conditions in InteropProvider::invokeMethod 
+// Test to cover error conditions in InteropProvider::invokeMethod 
+void _testInvokeMethodErrorConditions(
+    CIMClient &client,
+    CIMObjectPath& provProfCapRef)
+{
     Array<CIMParamValue> inParams;
     Array<CIMParamValue> outParams;
 
@@ -1928,16 +1925,16 @@ void InteropTest::testPGProviderProfileCapabilities()
     const CIMName methodName2("updateCache");
     try
     {
-        CIMValue returnValue = _client.invokeMethod(
+        CIMValue returnValue = client.invokeMethod(
             PEGASUS_NAMESPACENAME_INTEROP,
-            retRefProvProfCap,
+            provProfCapRef,
             methodName1,
             inParams,
             outParams);
     }
     catch(CIMException& e)
     {
-        PEGASUS_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
     }
 
     // Passing unsupported Class name to InteropProvider::invokeMethod 
@@ -1946,7 +1943,7 @@ void InteropTest::testPGProviderProfileCapabilities()
     pgNamespaceObjPath.setClassName(PEGASUS_CLASSNAME_PGNAMESPACE);
     try
     {
-        CIMValue returnValue = _client.invokeMethod(
+        CIMValue returnValue = client.invokeMethod(
             PEGASUS_NAMESPACENAME_INTEROP,
             pgNamespaceObjPath,
             methodName2,
@@ -1955,24 +1952,50 @@ void InteropTest::testPGProviderProfileCapabilities()
     }
     catch(CIMException& e)
     {
-        PEGASUS_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
     }
+}
 
-    // Test to enumerate PG_ProviderProfileCapability instances
-    Array<CIMObjectPath> pathsProfCap = _client.enumerateInstanceNames(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES);
+//
+// Tests the various operations with PG_ProviderProfileCapability class
+//
+void InteropTest::testPGProviderProfileCapabilities()
+{
+    CIMObjectPath retRefProvProfCap;
+    CIMObjectPath retRefProv, retRefProvCap;
+    CIMObjectPath retRefProv1, retRefProvCap1;
+    CIMObjectPath retRefProv2, retRefProvCap2;
 
-    PEGASUS_ASSERT(pathsProfCap.size() > 0);
-    Uint32 i = 0;
-    for (Uint32 n = pathsProfCap.size(); i < n; i++)
-    {
-        if (pathsProfCap[i] == retRefProvProfCap)
-        {
-            break;
-        }
-    }
-    PEGASUS_ASSERT(i < pathsProfCap.size()); 
+    // Register required provider for main profile
+    _registerProvider(_client,
+        "TestDynamicProfileCapabilityProvider",
+        "Test_DynamicProfile",
+        retRefProv,
+        retRefProvCap);
+
+    // Register required providers for sub profiles
+    _registerProvider(_client,
+        "TestDynamicSubProfile1CapabilityProvider",
+        "Test_DynamicSubProfile1",
+        retRefProv1,
+        retRefProvCap1);
+    _registerProvider(_client,
+        "TestDynamicSubProfile2CapabilityProvider",
+        "Test_DynamicSubProfile2",
+        retRefProv2,
+        retRefProvCap2);
+
+    // Create PG_ProviderProfileCapability instance and test its successful
+    // creation
+    _testProvProfCapInstCreation(_client, retRefProvProfCap);
+    
+    // Test dynamic profile associations using
+    // CIM_ElementConformsToProfile association instances and 
+    // PG_ElementSoftwareIdentity association instances
+    _testDynamicProfileAssociations(_client);
+
+    // Test to cover error conditions in InteropProvider::invokeMethod 
+    _testInvokeMethodErrorConditions(_client, retRefProvProfCap);
    
     //Test to check successful deletion of PG_ProviderProfileCapability 
     //instance
@@ -1982,13 +2005,13 @@ void InteropTest::testPGProviderProfileCapabilities()
   
     try
     {
-        instance = _client.getInstance(
+        CIMInstance instance = _client.getInstance(
             PEGASUS_NAMESPACENAME_INTEROP,
             retRefProvProfCap);
     }
     catch (CIMException& e)
     {
-        PEGASUS_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
     }
 
     _client.deleteInstance(

@@ -66,21 +66,21 @@ public:
 
     virtual void enqueue(Message *);
 
-    AsyncReply* SendWait(AsyncRequest* request);
+    static AsyncReply* SendWait(AsyncRequest* request);
     Boolean SendAsync(AsyncOpNode* op,
         Uint32 destination,
         void (*callback)(AsyncOpNode*, MessageQueue*, void*),
         MessageQueue* callback_q,
         void* callback_ptr);
 
-    Boolean SendForget(Message* msg);
+    static Boolean SendForget(Message* msg);
 
     Boolean update_service(Uint32 capabilities, Uint32 mask);
     Boolean deregister_service();
 
     Uint32 find_service_qid(const char* name);
     static AsyncOpNode* get_op();
-    void return_op(AsyncOpNode* op);
+    static void return_op(AsyncOpNode* op);
 
     static ThreadPool* get_thread_pool();
 
@@ -114,7 +114,7 @@ protected:
     static ThreadPool* _thread_pool;
     Boolean _isRunning;
 private:
-    Boolean _sendAsync(AsyncOpNode* op,
+    static Boolean _sendAsync(AsyncOpNode* op,
         Uint32 destination,
         void (*callback)(AsyncOpNode*, MessageQueue*, void*),
         MessageQueue* callback_q,

@@ -689,7 +689,7 @@ AsyncReply *MessageQueueService::SendWait(AsyncRequest* request)
         request->op,
         request->dest,
         0,
-        this,
+        0,
         (void *)0,
         ASYNC_OPFLAGS_PSEUDO_CALLBACK);
 

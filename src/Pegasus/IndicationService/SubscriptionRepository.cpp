@@ -52,6 +52,7 @@ PEGASUS_NAMESPACE_BEGIN
 */
 #define PEGASUS_INDICATION_HANDLER_FILTER_CACHE_SIZE 50
 
+
 static ObjectCache<CIMInstance>
     _handlerFilterCache(PEGASUS_INDICATION_HANDLER_FILTER_CACHE_SIZE);
 static Mutex _handlerFilterCacheMutex;
@@ -74,18 +75,12 @@ SubscriptionRepository::SubscriptionRepository (
     CIMRepository * repository)
     : _repository (repository)
 {
-    _uncommittedCreateSubscriptionRequests = 0;
     _normalizedSubscriptionTable.reset(
         new NormalizedSubscriptionTable(getAllSubscriptions()));
 }
 
 SubscriptionRepository::~SubscriptionRepository ()
 {
-}
-
-Uint32 SubscriptionRepository::getUncommittedCreateSubscriptionRequests()
-{
-    return _uncommittedCreateSubscriptionRequests;
 }
 
 void SubscriptionRepository::beginCreateSubscription(
@@ -109,7 +104,6 @@ void SubscriptionRepository::beginCreateSubscription(
                 subPath.toString()));
     }
     _normalizedSubscriptionTable->add(subPath, false);
-    _uncommittedCreateSubscriptionRequests++;
 }
 
 void SubscriptionRepository::cancelCreateSubscription(
@@ -117,7 +111,6 @@ void SubscriptionRepository::cancelCreateSubscription(
 {
     AutoMutex mtx(_normalizedSubscriptionTableMutex);
     _normalizedSubscriptionTable->remove(subPath);
-    _uncommittedCreateSubscriptionRequests--;
 }
 
 void SubscriptionRepository::commitCreateSubscription(
@@ -126,7 +119,6 @@ void SubscriptionRepository::commitCreateSubscription(
     AutoMutex mtx(_normalizedSubscriptionTableMutex);
     _normalizedSubscriptionTable->remove(subPath);
     _normalizedSubscriptionTable->add(subPath, true);
-    _uncommittedCreateSubscriptionRequests--;
 }
 
 CIMObjectPath SubscriptionRepository::createInstance (
@@ -160,23 +152,6 @@ CIMObjectPath SubscriptionRepository::createInstance (
             (PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
         creator.setValue (CIMValue (currentUser));
     }
-
-    // Add CreationTime to the Listener Destination instances
-    // Note: CreationTime is added only for CIMXML handlers at present.
-    CIMName className = instance.getPath().getClassName();
-
-    if ((className.equal(PEGASUS_CLASSNAME_INDHANDLER_CIMXML) ||
-        className.equal(PEGASUS_CLASSNAME_LSTNRDST_CIMXML) || 
-        className.equal(PEGASUS_CLASSNAME_INDHANDLER_WSMAN)) &&
-        instance.findProperty(PEGASUS_PROPERTYNAME_LSTNRDST_CREATIONTIME)
-            == PEG_NOT_FOUND)
-    {
-        instance.addProperty(
-            CIMProperty(
-                PEGASUS_PROPERTYNAME_LSTNRDST_CREATIONTIME,
-                System::getCurrentTimeUsec()));
-    }
-
 
     // l10n
     // Add the language properties to the Instance
@@ -522,8 +497,8 @@ CIMInstance SubscriptionRepository::deleteSubscription (
     //
     try
     {
-        subscriptionInstance = _repository->getInstance(
-            nameSpace, subscription);
+        subscriptionInstance = _repository->getInstance (nameSpace,
+            subscription);
     }
     catch (Exception & exception)
     {
@@ -710,8 +685,9 @@ CIMInstance SubscriptionRepository::getHandler (
         AutoMutex mtx(_handlerFilterCacheMutex);
         try
         {
-            handlerInstance = _repository->getInstance(
-                nameSpaceName, handlerRef, false, false, CIMPropertyList());
+            handlerInstance = _repository->getInstance
+                (nameSpaceName, handlerRef, false, false, false,
+                CIMPropertyList ());
         }
         catch (const Exception & exception)
         {
@@ -755,8 +731,8 @@ Boolean SubscriptionRepository::isTransient (
     //
     CIMInstance instance;
 
-    instance = _repository->getInstance(
-        nameSpace, handler, false, false, CIMPropertyList());
+    instance = _repository->getInstance(nameSpace, handler,
+        false, false, false, CIMPropertyList());
 
     //
     //  Get Persistence Type
@@ -780,7 +756,7 @@ Boolean SubscriptionRepository::isTransient (
 void SubscriptionRepository::getFilterProperties (
     const CIMInstance & subscription,
     String & query,
-    Array<CIMNamespaceName> &sourceNameSpaces,
+    CIMNamespaceName & sourceNameSpace,
     String & queryLanguage,
     String & filterName)
 {
@@ -819,8 +795,8 @@ void SubscriptionRepository::getFilterProperties (
         AutoMutex mtx(_handlerFilterCacheMutex);
         try
         {
-            filterInstance = _repository->getInstance(
-                nameSpaceName, filterReference);
+            filterInstance = _repository->getInstance (nameSpaceName,
+                filterReference);
         }
         catch (const Exception & exception)
         {
@@ -840,6 +816,8 @@ void SubscriptionRepository::getFilterProperties (
     query = filterInstance.getProperty (filterInstance.findProperty
         (PEGASUS_PROPERTYNAME_QUERY)).getValue ().toString ();
 
+    sourceNameSpace = filterInstance.getProperty (filterInstance.findProperty
+        (_PROPERTY_SOURCENAMESPACE)).getValue ().toString ();
 
     queryLanguage = filterInstance.getProperty
         (filterInstance.findProperty (PEGASUS_PROPERTYNAME_QUERYLANGUAGE)).
@@ -849,90 +827,13 @@ void SubscriptionRepository::getFilterProperties (
         (filterInstance.findProperty (PEGASUS_PROPERTYNAME_NAME)).
         getValue ().toString ();
 
-    getSourceNamespaces(
-        filterInstance,
-        nameSpaceName,
-        sourceNameSpaces);
-
     PEG_METHOD_EXIT ();
-}
-
-void SubscriptionRepository::getSourceNamespaces(
-    const CIMInstance &instance,
-    const CIMNamespaceName &defaultNameSpace,
-    Array<CIMNamespaceName> &sourceNamespaces)
-{
-    Uint32 srcNSPos = instance.findProperty(_PROPERTY_SOURCENAMESPACE);
-    Uint32 srcNSSPos = instance.findProperty(_PROPERTY_SOURCENAMESPACES);
-
-    CIMValue srcNSValue;
-    if (srcNSPos != PEG_NOT_FOUND)
-    {
-        srcNSValue = instance.getProperty(srcNSPos).getValue();
-    }
-    CIMValue srcNSSValue;
-    if (srcNSSPos != PEG_NOT_FOUND)
-    {
-        srcNSSValue = instance.getProperty(srcNSSPos).getValue();
-    }
-
-    if (!srcNSSValue.isNull())
-    {
-        Array<String> srcNamespaces;
-        srcNSSValue.get(srcNamespaces);
-        for(Uint32 i = 0, n = srcNamespaces.size(); i < n; ++i)
-        {
-            sourceNamespaces.append(srcNamespaces[i]);
-        }
-    }
-
-    if (!srcNSValue.isNull())
-    {
-        String srcNS;
-        srcNSValue.get(srcNS);
-        // If both sourceNamespace and sourceNamespaces properties exist,
-        // sourceNamespaces value should contain sourceNamespace value.
-        if (sourceNamespaces.size())
-        {
-            Boolean found = false;
-            for (Uint32 i = 0; i < sourceNamespaces.size(); ++i)
-            {
-                if (sourceNamespaces[i].equal(srcNS))
-                {
-                    found =true;
-                    break;
-                }
-            }
-            if (!found)
-            {
-                throw PEGASUS_CIM_EXCEPTION_L(
-                    CIM_ERR_INVALID_PARAMETER,
-                    MessageLoaderParms(
-                        "IndicationService.IndicationService."
-                            "_INVALID_SOURCENAMESPACE_VALUE",
-                        "The values in the SourceNamespaces property and the "
-                            "SourceNamespace property are not additive. If both"
-                            " sourceNamespace and SourceNamespaces are non NULL"
-                            ", the namespace defined in sourceNamespace must"
-                            "also exist in sourceNamespaces."));
-            }
-        }
-        else
-        {
-            sourceNamespaces.append(srcNS);
-        }
-    }
-
-    if (sourceNamespaces.size() == 0)
-    {
-        sourceNamespaces.append(defaultNameSpace);
-    }
 }
 
 void SubscriptionRepository::getFilterProperties (
     const CIMInstance & subscription,
     String & query,
-    Array<CIMNamespaceName> &sourceNameSpaces)
+    CIMNamespaceName & sourceNameSpace)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::getFilterProperties");
@@ -959,8 +860,8 @@ void SubscriptionRepository::getFilterProperties (
 
     try
     {
-        filterInstance = _repository->getInstance(
-            nameSpaceName, filterReference);
+        filterInstance = _repository->getInstance (nameSpaceName,
+            filterReference);
     }
     catch (const Exception & exception)
     {
@@ -975,11 +876,8 @@ void SubscriptionRepository::getFilterProperties (
     query = filterInstance.getProperty (filterInstance.findProperty
         (PEGASUS_PROPERTYNAME_QUERY)).getValue ().toString ();
 
-    
-    getSourceNamespaces(
-        filterInstance,
-        nameSpaceName,
-        sourceNameSpaces);
+    sourceNameSpace = filterInstance.getProperty (filterInstance.findProperty
+        (_PROPERTY_SOURCENAMESPACE)).getValue ().toString ();
 
     PEG_METHOD_EXIT ();
 }
@@ -1013,8 +911,8 @@ void SubscriptionRepository::getFilterProperties (
 
     try
     {
-        filterInstance = _repository->getInstance(
-            nameSpaceName, filterReference);
+        filterInstance = _repository->getInstance (nameSpaceName,
+            filterReference);
     }
     catch (const Exception & exception)
     {
@@ -1097,7 +995,7 @@ Array <CIMName> SubscriptionRepository::getIndicationSubclasses (
 }
 
 Boolean SubscriptionRepository::reconcileFatalError (
-    const CIMInstance &subscription)
+    const CIMInstance subscription)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::reconcileFatalError");
@@ -1167,11 +1065,12 @@ CIMClass SubscriptionRepository::getClass (
 CIMInstance SubscriptionRepository::getInstance (
     const CIMNamespaceName & nameSpace,
     const CIMObjectPath & instanceName,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    return _repository->getInstance (nameSpace, instanceName,
+    return _repository->getInstance (nameSpace, instanceName, localOnly,
         includeQualifiers, includeClassOrigin, propertyList);
 }
 
@@ -1191,13 +1090,9 @@ void SubscriptionRepository::modifyInstance (
         instanceName.getClassName().equal(
             PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
         instanceName.getClassName().equal(
-            PEGASUS_CLASSNAME_LSTNRDST_FILE) ||
-        instanceName.getClassName().equal(
             PEGASUS_CLASSNAME_LSTNRDST_EMAIL) ||
         instanceName.getClassName().equal(
-            PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG) ||
-        instanceName.getClassName().equal(
-            PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
+            PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
     {
         AutoMutex mtx(_handlerFilterCacheMutex);
 
@@ -1244,13 +1139,9 @@ void SubscriptionRepository::deleteInstance (
              instanceName.getClassName().equal(
                  PEGASUS_CLASSNAME_INDHANDLER_SNMP) ||
              instanceName.getClassName().equal(
-                 PEGASUS_CLASSNAME_LSTNRDST_FILE) ||
-             instanceName.getClassName().equal(
                  PEGASUS_CLASSNAME_LSTNRDST_EMAIL) ||
              instanceName.getClassName().equal(
-                 PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG) ||
-             instanceName.getClassName().equal(
-                 PEGASUS_CLASSNAME_INDHANDLER_WSMAN))
+                 PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
     {
         AutoMutex mtx(_handlerFilterCacheMutex);
 
@@ -1272,12 +1163,13 @@ void SubscriptionRepository::deleteInstance (
 Array <CIMInstance> SubscriptionRepository::enumerateInstancesForClass (
     const CIMNamespaceName & nameSpace,
     const CIMName & className,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
     return _repository->enumerateInstancesForClass (nameSpace, className,
-        includeQualifiers, includeClassOrigin, propertyList);
+        localOnly, includeQualifiers, includeClassOrigin, propertyList);
 }
 
 Array <CIMObjectPath> SubscriptionRepository::enumerateInstanceNamesForClass (
@@ -1345,7 +1237,7 @@ void SubscriptionRepository::_disableSubscription (
 }
 
 void SubscriptionRepository::_deleteSubscription (
-    const CIMInstance &subscription)
+    const CIMInstance subscription)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::_deleteSubscription");

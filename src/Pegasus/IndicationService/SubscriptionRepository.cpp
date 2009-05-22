@@ -60,6 +60,20 @@ static ObjectCache<CIMInstance>
     _handlerFilterCache(PEGASUS_INDICATION_HANDLER_FILTER_CACHE_SIZE);
 static Mutex _handlerFilterCacheMutex;
 
+
+static String _getHandlerFilterCacheKey(
+    const CIMObjectPath &instanceName,
+    const CIMNamespaceName &defaultNamespace)
+{
+    CIMObjectPath path = instanceName;
+    if (path.getNameSpace().isNull())
+    {
+        path.setNameSpace(defaultNamespace);
+    }
+    return path.toString();
+}
+
+
 SubscriptionRepository::SubscriptionRepository (
     CIMRepository * repository)
     : _repository (repository)
@@ -666,8 +680,7 @@ CIMInstance SubscriptionRepository::getHandler (
         nameSpaceName = subscription.getPath ().getNameSpace ();
     }
 
-
-    handlerName = handlerRef.toString();
+    handlerName = _getHandlerFilterCacheKey(handlerRef, nameSpaceName);
 
     if (!_handlerFilterCache.get(handlerName, handlerInstance))
     {
@@ -776,7 +789,8 @@ void SubscriptionRepository::getFilterProperties (
         nameSpaceName = subscription.getPath ().getNameSpace ();
     }
 
-    filterNameInCache = filterReference.toString();
+    filterNameInCache =
+        _getHandlerFilterCacheKey(filterReference, nameSpaceName);
 
     if (!_handlerFilterCache.get(filterNameInCache, filterInstance))
     {
@@ -1094,7 +1108,7 @@ void SubscriptionRepository::modifyInstance (
         // It may not have been added there as it was not used for any
         // indication processing yet, so we don't care when the remove
         // fails.
-        String objName = instanceName.toString();
+        String objName = _getHandlerFilterCacheKey(instanceName, nameSpace);
         _handlerFilterCache.evict(objName);
     }
     else
@@ -1142,7 +1156,7 @@ void SubscriptionRepository::deleteInstance (
         // It may not have been added there as it was not used for any
         // indication processing yet, so we don't care when the remove
         // fails.
-        String objName = instanceName.toString();
+        String objName = _getHandlerFilterCacheKey(instanceName, nameSpace);
         _handlerFilterCache.evict(objName);
     }
     else

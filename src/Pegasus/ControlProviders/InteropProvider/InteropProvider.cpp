@@ -205,11 +205,11 @@ CIMInstance InteropProvider::localGetInstance(
         }
     }
 
-    if(!found)
-    {
-      cout << "Coule not find instance: " << instanceName.toString() << endl;
-    }
     PEG_METHOD_EXIT();
+    if (!found)
+    {
+        throw CIMObjectNotFoundException(instanceName.toString());
+    }
     return retInstance;
 }
 
@@ -508,10 +508,20 @@ bool InteropProvider::validAssocClassForObject(
       case PG_ELEMENTCONFORMSTOPROFILE_RP_RP:
           propNames.append(CIMName("RegisteredName"));
           propertyList = CIMPropertyList(propNames);
-          tmpInstance = localGetInstance(
-              context,
-              objectName,
-              propertyList);
+          try
+          {
+              tmpInstance = localGetInstance(
+                  context,
+                  objectName,
+                  propertyList);
+          }
+          catch (CIMException &e)
+          {
+              PEG_TRACE((TRC_CONTROLPROVIDER, Tracer::LEVEL2,
+                  "CIMException while getting instance of Registered Profile "
+                      ": %s",
+                  (const char*)e.getMessage().getCString()));
+          }
           if (!tmpInstance.isUninitialized())
           {
               index = tmpInstance.findProperty("RegisteredName");

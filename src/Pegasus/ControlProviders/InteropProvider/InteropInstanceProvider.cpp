@@ -219,10 +219,7 @@ void InteropProvider::getInstance(
         instanceName,
         propertyList);
 
-    if (!myInstance.isUninitialized())
-        handler.deliver(myInstance);
-    else
-        throw CIMObjectNotFoundException(instanceName.toString());
+    handler.deliver(myInstance);
 
     handler.complete();
 

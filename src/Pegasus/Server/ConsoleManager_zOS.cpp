@@ -125,9 +125,11 @@ void ZOSConsoleManager::updateConfiguration( const String& configProperty,
             //
             // Update the current value
             //
-            if ( !_configManager->updateCurrentValue(configProperty,
-                                                     propertyValue,
-                                                     currentValueIsNull) )
+            if ( !_configManager->updateCurrentValue(
+                                      configProperty,
+                                      propertyValue,
+                                      System::getEffectiveUserName(),
+                                      currentValueIsNull) )
             {
                 Logger::put_l(
                     Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,

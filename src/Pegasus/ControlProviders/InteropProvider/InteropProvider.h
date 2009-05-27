@@ -54,6 +54,9 @@
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 
+#include \
+    <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 /**
@@ -96,7 +99,10 @@ class PEGASUS_INTEROPPROVIDER_LINKAGE InteropProvider :
 {
 public:
 
-    InteropProvider(CIMRepository* repository);
+    InteropProvider(
+        CIMRepository* repository,
+        ProviderRegistrationManager* provRegManager);
+
     virtual ~InteropProvider()
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
@@ -374,9 +380,11 @@ private:
         const OperationContext & context);
 #endif
 
+
     // Repository Instance variable
     CIMOMHandle cimomHandle;
     CIMRepository * repository;
+    ProviderRegistrationManager *providerRegistrationManager;
     String objectManagerName;
     String hostName;
     CIMClass profileCapabilitiesClass;

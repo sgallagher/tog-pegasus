@@ -305,33 +305,18 @@ Array<CIMInstance> InteropProvider::enumProviderProfileCapabilityInstances(
         String moduleName = getRequiredValue<String>(
             profileInstances[i],
             PROVIDER_PROPERTY_PROVIDERMODULENAME);
+
         String providerName = getRequiredValue<String>(
             profileInstances[i],
             CAPABILITIES_PROPERTY_PROVIDERNAME);
 
-        CIMKeyBinding pmKey(PROVIDERMODULE_PROPERTY_NAME, moduleName);
-        Array<CIMKeyBinding> pmKeyBindings;
-        pmKeyBindings.append(pmKey);
-        CIMObjectPath providerModuleName(
-            String::EMPTY,
-            CIMNamespaceName(),
-            PEGASUS_CLASSNAME_PROVIDERMODULE,
-            pmKeyBindings);
         Boolean moduleOk = false;
         try
         {
-            CIMInstance providerModule = repository->getInstance(
-                PEGASUS_NAMESPACENAME_INTEROP,
-                providerModuleName,
-                false,
-                false,
-                CIMPropertyList());
-
             // get operational status.
-            Array<Uint16> status;
-            providerModule.getProperty(
-                providerModule.findProperty(
-                    PROPERTY_OPERATIONAL_STATUS)).getValue().get(status);
+            Array<Uint16> status =
+                providerRegistrationManager->getProviderModuleStatus(
+                    moduleName);
 
             for (Uint32 s = 0, ssize = status.size(); s < ssize; ++s)
             {
@@ -371,12 +356,8 @@ Array<CIMInstance> InteropProvider::enumProviderProfileCapabilityInstances(
             Boolean providerFound = false;
             try
             {
-                CIMInstance provider = repository->getInstance(
-                    PEGASUS_NAMESPACENAME_INTEROP,
-                    providerRef,
-                    false,
-                    false,
-                    CIMPropertyList());
+                CIMInstance provider = providerRegistrationManager->getInstance(
+                    providerRef);
                 providerFound = true;
             }
             catch(...)

@@ -41,6 +41,7 @@ STATIC=1
 LIBRARY = $(MODULE_NAME)
 
 LIBRARIES = \
+    pegprm \
     pegrepository \
     pegprovider \
     pegconfig \

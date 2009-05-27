@@ -75,11 +75,17 @@ PEGASUS_NAMESPACE_BEGIN
 //
 // Constructor for the InteropProvider control provider
 //
-InteropProvider::InteropProvider(CIMRepository * rep) : repository(rep),
-    hostName(System::getHostName()), providerInitialized(false),
-    updateProfileCache(0),
-    profileIds(Array<String>()), conformingElements(Array<CIMNameArray>()),
-    elementNamespaces(Array<CIMNamespaceArray>())
+InteropProvider::InteropProvider(
+    CIMRepository * rep,
+    ProviderRegistrationManager *provRegManager):
+        repository(rep),
+        providerRegistrationManager(provRegManager),
+        hostName(System::getHostName()),
+        providerInitialized(false),
+        updateProfileCache(0),
+        profileIds(Array<String>()),
+        conformingElements(Array<CIMNameArray>()),
+        elementNamespaces(Array<CIMNamespaceArray>())
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,"InteropProvider::InteropProvider");
 

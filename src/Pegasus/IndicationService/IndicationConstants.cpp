@@ -375,7 +375,39 @@ const CIMName _PROPERTY_MAXACTIVESUBSCRIPTIONS =
 const CIMName _PROPERTY_SUBSCRIPTIONSPERSISTED =
     CIMNameCast("SubscriptionsPersisted");
 
+/**
+    The name of the CIM_EnabledLogicalElement.RequestStateChange() method.
+*/
+const CIMName _METHOD_REQUESTSTATECHANGE =
+    CIMNameCast("RequestStateChange");
+
+/**
+    The name of the RequestedState parameter(input) of
+    CIM_EnabledLogicalElement.RequestStateChange() method.
+*/
+const CIMName _PARAM_REQUESTEDSTATE =
+    CIMNameCast("RequestedState");
+
+/**
+    The name of the TimeoutPeriod parameter(input) of
+    CIM_EnabledLogicalElement.RequestStateChange() method.
+*/
+const CIMName _PARAM_TIMEOUTPERIOD =
+    CIMNameCast("TimeoutPeriod");
+
+/**
+    The name of the CIM_EnabledLogicalElement.EnabledState property.
+*/
+const CIMName _PROPERTY_ENABLEDSTATE =
+    CIMNameCast("EnabledState");
+
+/**
+    The name of the CIM_ManagedSystemElement.EnabledState property.
+*/
+const CIMName _PROPERTY_HEALTHSTATE =
+    CIMNameCast("HealthState");
 #endif
+
 
 //
 //  Qualifier names

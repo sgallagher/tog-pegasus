@@ -1143,6 +1143,31 @@ void SubscriptionTable::getMatchingClassNamespaceSubscriptions(
     PEG_METHOD_EXIT ();
 }
 
+Array<ActiveSubscriptionsTableEntry>
+    SubscriptionTable::getAllActiveSubscriptionEntries()
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "SubscriptionTable::getAllActiveSubscriptionEntries");
+
+    Array <ActiveSubscriptionsTableEntry> subscriptionsEntries;
+
+    //
+    // Iterate through the ActiveSubscriptions table to get all active
+    // subscriptions table entries
+    //
+
+    ReadLock lock(_activeSubscriptionsTableLock);
+
+    for (ActiveSubscriptionsTable::Iterator i =
+        _activeSubscriptionsTable.start(); i; i++)
+    {
+        subscriptionsEntries.append(i.value());
+    }
+
+    PEG_METHOD_EXIT();
+    return subscriptionsEntries;
+}
+
 #ifdef PEGASUS_ENABLE_INDICATION_COUNT
 
 void SubscriptionTable::updateMatchedIndicationCounts(
@@ -1179,30 +1204,6 @@ void SubscriptionTable::updateMatchedIndicationCounts(
     PEG_METHOD_EXIT();
 }
 
-Array<ActiveSubscriptionsTableEntry>
-    SubscriptionTable::_getAllActiveSubscriptionEntries()
-{
-    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
-        "SubscriptionTable::_getAllActiveSubscriptionEntries");
-
-    Array <ActiveSubscriptionsTableEntry> subscriptionsEntries;
-
-    //
-    // Iterate through the ActiveSubscriptions table to get all active
-    // subscriptions table entries
-    //
-
-    ReadLock lock(_activeSubscriptionsTableLock);
-
-    for (ActiveSubscriptionsTable::Iterator i =
-        _activeSubscriptionsTable.start(); i; i++)
-    {
-        subscriptionsEntries.append(i.value());
-    }
-
-    PEG_METHOD_EXIT();
-    return subscriptionsEntries;
-}
 
 Array<CIMInstance>
     SubscriptionTable::enumerateSubscriptionIndicationDataInstances()
@@ -1216,7 +1217,7 @@ Array<CIMInstance>
     // Get all active subscriptions table entries
     //
     Array<ActiveSubscriptionsTableEntry> activeSubscriptionEntries =
-        _getAllActiveSubscriptionEntries();
+        getAllActiveSubscriptionEntries();
 
     for (Uint32 i = 0; i < activeSubscriptionEntries.size(); i++)
     {
@@ -1273,7 +1274,7 @@ Array<CIMObjectPath>
     // Get all active subscriptions table entries
     //
     Array<ActiveSubscriptionsTableEntry> activeSubscriptionEntries =
-        _getAllActiveSubscriptionEntries();
+        getAllActiveSubscriptionEntries();
 
     for (Uint32 i = 0; i < activeSubscriptionEntries.size(); i++)
     {

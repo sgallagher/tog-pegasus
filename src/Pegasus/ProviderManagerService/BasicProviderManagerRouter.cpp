@@ -244,6 +244,8 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
     else if ((request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
              (request->getType() ==
               CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE) ||
+             (request->getType() ==
+              CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE) ||
              (request->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE))
     {
         // This operation is not provider-specific
@@ -264,11 +266,22 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
 
     if ((request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
         (request->getType() ==
-         CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE))
+            CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE) ||
+        (request->getType() ==
+            CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE))
     {
-        _subscriptionInitComplete = true;
+        if (request->getType() ==
+            CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE)
+        {
+            _subscriptionInitComplete = false;
+        }
+        else
+        {
+            _subscriptionInitComplete = true;
+        }
 
         // Send CIMStopAllProvidersRequestMessage or
+        // CIMIndicationServiceDisabledRequestMessage or
         // CIMSubscriptionInitCompleteRequestMessage to all ProviderManagers
         ReadLock tableLock(_providerManagerTableLock);
         for (Uint32 i = 0, n = _providerManagerTable.size(); i < n; i++)

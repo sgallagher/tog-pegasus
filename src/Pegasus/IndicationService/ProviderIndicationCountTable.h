@@ -141,6 +141,11 @@ public:
     CIMInstance getProviderIndicationDataInstance(
         const CIMObjectPath& instanceName);
 
+    /**
+        Removes all entries from the ProviderIndicationCountTable.
+     */
+    void clear ();
+
 private:
 
     ProviderIndicationCountTable(const ProviderIndicationCountTable&);

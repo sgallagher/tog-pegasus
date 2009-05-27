@@ -327,6 +327,11 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
                 _deserializeCIMSubscriptionInitCompleteRequestMessage
                     (parser);
             break;
+        case CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE:
+            message =
+                _deserializeCIMIndicationServiceDisabledRequestMessage
+                    (parser);
+            break;
         default:
             // Unexpected message type
             PEGASUS_ASSERT(0);
@@ -494,6 +499,11 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
         case CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE:
             message =
                 _deserializeCIMSubscriptionInitCompleteResponseMessage
+                    (parser);
+            break;
+        case CIM_INDICATION_SERVICE_DISABLED_RESPONSE_MESSAGE:
+            message =
+                _deserializeCIMIndicationServiceDisabledResponseMessage
                     (parser);
             break;
 
@@ -1918,6 +1928,21 @@ CIMMessageDeserializer::_deserializeCIMSubscriptionInitCompleteRequestMessage(
 }
 
 //
+// _deserializeCIMIndicationServiceDisabledRequestMessage
+//
+CIMIndicationServiceDisabledRequestMessage*
+CIMMessageDeserializer::_deserializeCIMIndicationServiceDisabledRequestMessage(
+    XmlParser& parser)
+{
+    CIMIndicationServiceDisabledRequestMessage* message =
+        new CIMIndicationServiceDisabledRequestMessage(
+            String(),         // messageId
+            QueueIdStack());       // queueIds
+
+    return message;
+}
+
+//
 //
 // Response Messages
 //
@@ -2495,6 +2520,22 @@ CIMMessageDeserializer::_deserializeCIMSubscriptionInitCompleteResponseMessage(
     CIMSubscriptionInitCompleteResponseMessage* message =
         new CIMSubscriptionInitCompleteResponseMessage(
             String::EMPTY,         // messageId
+            CIMException(),        // cimException
+            QueueIdStack());       // queueIds
+
+    return message;
+}
+
+//
+// _deserializeCIMIndicationServiceDisabledResponseMessage
+//
+CIMIndicationServiceDisabledResponseMessage*
+CIMMessageDeserializer::_deserializeCIMIndicationServiceDisabledResponseMessage(
+    XmlParser& parser)
+{
+    CIMIndicationServiceDisabledResponseMessage* message =
+        new CIMIndicationServiceDisabledResponseMessage(
+            String(),         // messageId
             CIMException(),        // cimException
             QueueIdStack());       // queueIds
 

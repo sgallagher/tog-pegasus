@@ -212,6 +212,7 @@ private:
 
     @param propertyName    The name of the property to update.
     @param propertyValue   The new value of the property.
+    @param userName        The User requesting the update.
     @param currentValueModified    Specifies whether the current value or
                                    planned value is modified.
                                    true - current value modified;
@@ -220,6 +221,7 @@ private:
     void _sendNotifyConfigChangeMessage(
         const String& propertyName,
         const String& newPropertyValue,
+        const String& userName,
         Boolean currentValueModified);
 
     //

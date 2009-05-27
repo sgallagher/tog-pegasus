@@ -42,6 +42,8 @@
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/HTTPConnection.h>
+#include <Pegasus/Common/CIMMessage.h>
+#include <Pegasus/Common/CIMNameCast.h>
 
 PEGASUS_USING_STD;
 
@@ -273,7 +275,8 @@ void DefaultPropertyOwner::initPlannedValue(
 */
 void DefaultPropertyOwner::updateCurrentValue(
     const String& name,
-    const String& value)
+    const String& value,
+    const String& userName)
 {
     //
     // make sure the property is dynamic before updating the value.
@@ -282,6 +285,27 @@ void DefaultPropertyOwner::updateCurrentValue(
     {
         throw NonDynamicConfigProperty(name);
     }
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    if (String::equal(name, "enableIndicationService"))
+    {
+        ConfigProperty *configProperty = 0;
+        for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
+        {
+            if (String::equal(_configProperties.get()[i].propertyName, name))
+            {
+                configProperty = &_configProperties.get()[i];
+                break;
+            }
+        }
+        PEGASUS_ASSERT(configProperty);
+        _requestIndicationServiceStateChange(
+            userName,
+            ConfigManager::parseBooleanValue(value));
+        configProperty->currentValue = value;
+        return;
+    }
+#endif
 
     //
     // Since the validations done in initCurrrentValue are sufficient and
@@ -383,5 +407,102 @@ Boolean DefaultPropertyOwner::isDynamic(const String& name) const
     //
     throw UnrecognizedConfigProperty(name);
 }
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+void DefaultPropertyOwner::_requestIndicationServiceStateChange(
+    const String& userName,
+    Boolean enable)
+{
+    MessageQueue *queue = MessageQueue::lookup(
+        PEGASUS_QUEUENAME_INDICATIONSERVICE);
+    // Return if indication service can not be found
+    if (!queue)
+    {
+        return;
+    }
+
+    Uint32 queueId = queue->getQueueId();
+
+    const String METHOD_NAME = "RequestStateChange";
+    const String PARAMNAME_REQUESTEDSTATE = "RequestedState";
+    const String PARAMNAME_TIMEOUTPERIOD = "TimeoutPeriod";
+    const Uint16 STATE_ENABLED = 2;
+    const Uint16 STATE_DISABLED = 3;
+
+    String referenceStr("//", 2);
+    referenceStr.append(System::getHostName());
+    referenceStr.append("/");
+    referenceStr.append(PEGASUS_NAMESPACENAME_INTEROP.getString());
+    referenceStr.append(":");
+    referenceStr.append(
+        PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE.getString());
+    CIMObjectPath reference(referenceStr);
+
+    Array<CIMParamValue> inParams;
+    Array<CIMParamValue> outParams;
+
+    inParams.append(CIMParamValue(PARAMNAME_REQUESTEDSTATE,
+        CIMValue(enable ? STATE_ENABLED : STATE_DISABLED)));
+
+    inParams.append(CIMParamValue(PARAMNAME_TIMEOUTPERIOD,
+        CIMValue(CIMDateTime(0, true))));
+
+    MessageQueueService *controller = ModuleController::getModuleController();
+
+    try
+    {
+        CIMInvokeMethodRequestMessage* request =
+            new CIMInvokeMethodRequestMessage(
+                XmlWriter::getNextMessageId(),
+                PEGASUS_NAMESPACENAME_INTEROP,
+                referenceStr,
+                CIMNameCast(METHOD_NAME),
+                inParams,
+                QueueIdStack(queueId));
+
+        request->operationContext.insert(
+            IdentityContainer(userName));
+
+        AsyncLegacyOperationStart *asyncRequest =
+            new AsyncLegacyOperationStart(
+                0,
+                queueId,
+                request);
+
+        AsyncReply * asyncReply = controller->SendWait(asyncRequest);
+
+        CIMInvokeMethodResponseMessage * response =
+            reinterpret_cast<CIMInvokeMethodResponseMessage *>(
+                (static_cast<AsyncLegacyOperationResult *>(
+                    asyncReply))->get_result());
+
+        CIMException e = response->cimException;
+
+        delete response;
+        delete asyncRequest;
+        delete asyncReply;
+
+        if (e.getCode() != CIM_ERR_SUCCESS)
+        {
+            throw e;
+        }
+    }
+    catch(const Exception &e)
+    {
+        PEG_TRACE((TRC_CONFIG,Tracer::LEVEL1,
+            "Exception caught while invoking CIM_IndicationService."
+                "RequestStateChange()  method: %s",
+        (const char*)e.getMessage().getCString()));
+        throw;
+    }
+    catch(...)
+    {
+        PEG_TRACE_CSTRING(TRC_CONFIG,Tracer::LEVEL1,
+            "Unknown exception caught while invoking CIM_IndicationService."
+                "RequestStateChange()  method");
+        throw;
+    }
+}
+#endif
 
 PEGASUS_NAMESPACE_END

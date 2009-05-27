@@ -110,21 +110,12 @@ Boolean DynamicRoutingTable::getRouting(
     Uint32 &serviceId) const
 {
     RegTableRecord* routing = 0;
-    if (_routingTable.lookup(_getRoutingKey(className, namespaceName), routing))
+    if (_routingTable.lookup(_getRoutingKey(className, namespaceName), routing)
+        || _routingTable.lookup(_getWildRoutingKey(className), routing))
     {
         providerName= routing->providerName;
         serviceId = routing->serviceId;
         return true;
-    }
-    else
-    {
-        // Check if the class is supported in all namespaces.
-        if (_routingTable.lookup(_getWildRoutingKey(className), routing))
-        {
-            providerName= routing->providerName;
-            serviceId = routing->serviceId;
-            return true;
-        }
     }
     return false;
 }

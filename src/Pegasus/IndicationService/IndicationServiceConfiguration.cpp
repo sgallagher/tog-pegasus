@@ -31,6 +31,7 @@
 
 #include <Pegasus/Common/Tracer.h>
 
+#include "IndicationService.h"
 #include "IndicationConstants.h"
 #include "IndicationServiceConfiguration.h"
 
@@ -257,6 +258,16 @@ CIMInstance IndicationServiceConfiguration::_getIndicationServiceInstance(
         instance,
         _PROPERTY_DELIVERYRETRYINTERVAL,
         CIMValue(_PROPERTY_DELIVERYRETRYINTERVAL_VALUE));
+
+    _setPropertyValue(
+        instance,
+        _PROPERTY_ENABLEDSTATE,
+        CIMValue(IndicationService::getEnabledState()));
+
+    _setPropertyValue(
+        instance,
+        _PROPERTY_HEALTHSTATE,
+        CIMValue(IndicationService::getHealthState()));
 
     CIMObjectPath path = instance.buildPath(returnedClass);
     path.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);

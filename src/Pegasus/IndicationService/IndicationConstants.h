@@ -406,7 +406,60 @@ const Uint64 _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL_VALUE = 2592000;
 const Uint16 _PROPERTY_DELIVERYRETRYATTEMPTS_VALUE = 3;
 const Uint64 _PROPERTY_DELIVERYRETRYINTERVAL_VALUE = 30;
 
+/**
+    Return codes for CIM_EnabledLogicalElement.RequestStateChange() method.
+*/
+
+const Uint32 _RETURNCODE_COMPLETEDWITHNOERROR = 0;
+const Uint32 _RETURNCODE_NOTSUPPORTED = 1;
+const Uint32 _RETURNCODE_TIMEOUT = 3;
+const Uint32 _RETURNCODE_FAILED = 4;
+const Uint32 _RETURNCODE_INVALIDPARAMETER = 5;
+
+/**
+    The name of the CIM_EnabledLogicalElement.RequestStateChange() method.
+*/
+PEGASUS_SERVER_LINKAGE extern const CIMName _METHOD_REQUESTSTATECHANGE;
+
+/**
+    The name of the RequestedState parameter(input) of
+    CIM_EnabledLogicalElement.RequestStateChange() method.
+*/
+PEGASUS_SERVER_LINKAGE extern const CIMName _PARAM_REQUESTEDSTATE;
+
+/**
+    The name of the TimeoutPeriod parameter(input) of
+    CIM_EnabledLogicalElement.RequestStateChange() method.
+*/
+PEGASUS_SERVER_LINKAGE extern const CIMName _PARAM_TIMEOUTPERIOD;
+
+/**
+    The name of the CIM_EnabledLogicalElement.EnabledState property.
+*/
+PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_ENABLEDSTATE;
+
+/**
+    The name of the CIM_ManagedSystemElement.EnabledState property.
+*/
+PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_HEALTHSTATE;
+
 #endif
+
+/**
+    CIM_EnabledLogicalElement.EnabledState values.
+*/
+const Uint16 _ENABLEDSTATE_SHUTTINGDOWN = 4;
+const Uint16 _ENABLEDSTATE_STARTING = 10;
+const Uint16 _ENABLEDSTATE_ENABLED = 2;
+const Uint16 _ENABLEDSTATE_DISABLED = 3;
+
+/**
+    Service health States. See CIM_ManagedSystemElement.HealthState
+*/
+
+const Uint16 _HEALTHSTATE_OK = 5;
+const Uint16 _HEALTHSTATE_DEGRADEDWARNING = 10;
+
 
 //
 //  Qualifier names

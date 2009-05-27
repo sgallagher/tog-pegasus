@@ -141,11 +141,15 @@ public:
 
         @param name The name of the property.
         @param value The current value of the property.
+        @param  userName User requesting the update.
         @exception NonDynamicConfigProperty if the property is not dynamic.
         @exception InvalidPropertyValue if the property value is not valid.
         @exception UnrecognizedConfigProperty if the property is not defined.
     */
-    void updateCurrentValue(const String& name, const String& value);
+    void updateCurrentValue(
+        const String& name,
+        const String& value,
+        const String& userName);
         //throw (NonDynamicConfigProperty, InvalidPropertyValue,
         //    UnrecognizedConfigProperty);
 

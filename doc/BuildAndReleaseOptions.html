@@ -2170,7 +2170,31 @@ configuration properties.</p>
   <b>Recommended Default Value (Release Build):&nbsp;</b>true<br>
   <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
   <b>Recommend To Be Fixed/Hidden (Release Build):&nbsp;</b>No/No<br>
-  <b>Dynamic?:&nbsp;</b>No<p>&nbsp;<br>
+  <b>Dynamic?:&nbsp;</b>Yes/No<br>
+  <b>Considerations:&nbsp;</b>When enableIndicationService is set to
+     false dynamically, delete subscription requests are sent to all
+     indication providers and indication related operations are
+     not supported until indication service is re-enabled. Dynamic
+     configuration facility is available only when Pegasus is compiled
+     with PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT=true. Clients
+     who wants to utilize the IndicationService services MUST check for
+     CIM_IndicationService EnabledState and HealthState properties to know
+     the current indication service state. For example, User can enumerate
+     instances of CIM_IndicationService and there is exactly one instance
+     of CIM_IndicationService returned. (Ex. using cimcli command
+     'cimcli ei -n root/PG_InterOp CIM_IndicationService'). When requested state
+     change(Enabled/Disabled) cannot be made because of timeout or some
+     other exception IndicationService HealthState is set to "Degraded/Warning".
+     For example, if user requested for indication service disable (by setting
+     enableIndicationService=false), disable failed because of timeout or some
+     other exception. Now service health state is set to "Degraded/Warning"
+     and service EnabledState will remain enabled. User can now identify the
+     faulty provider causing the timeout or any other problem and can take
+     appropriate action. User can again request for service disable to recover
+     from degraded state. Similar sequence applies while enabling the indication
+     service. Only difference is that service EnabledState is set to Enabled
+     if exception or timeout happens. There is no automatic recovery from 
+     degraded state is available at present.<br>
   <br>
      <table border="1" cellspacing="1" bordercolordark="#666666"
          bordercolorlight="#CCCCCC" width=531

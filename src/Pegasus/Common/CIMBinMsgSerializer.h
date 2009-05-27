@@ -252,6 +252,11 @@ private:
         CIMSubscriptionInitCompleteRequestMessage* msg);
 
     PEGASUS_HIDDEN_LINKAGE
+    static void _putIndicationServiceDisabledRequestMessage(
+        CIMBuffer& out,
+        CIMIndicationServiceDisabledRequestMessage* msg);
+
+    PEGASUS_HIDDEN_LINKAGE
     static void _putGetInstanceResponseMessage(
         CIMBuffer& out,
         CIMGetInstanceResponseMessage* msg);
@@ -375,6 +380,11 @@ private:
     static void _putSubscriptionInitCompleteResponseMessage(
         CIMBuffer& out,
         CIMSubscriptionInitCompleteResponseMessage* msg);
+
+    PEGASUS_HIDDEN_LINKAGE
+    static void _putIndicationServiceDisabledResponseMessage(
+        CIMBuffer& out,
+        CIMIndicationServiceDisabledResponseMessage* msg);
 };
 
 PEGASUS_NAMESPACE_END

@@ -225,6 +225,7 @@ public:
             (e.g., "httpPort").
         @param propertyValue The new value of the property.  If the value is
             null, the property should be reset to its default value.
+        @param userName User requesting update.
         @param unset Specifies whether the property should be updated or unset.
         @return true if the property found and updated, else false.
 
@@ -235,6 +236,7 @@ public:
     Boolean updateCurrentValue(
         const String& name,
         const String& value,
+        const String& userName,
         Boolean unset);
 
     /**

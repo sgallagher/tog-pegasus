@@ -349,7 +349,10 @@ void ConfigSettingProvider::modifyInstance(
                 preValue = _configManager->getCurrentValue(configPropertyName);
 
                 if ( !_configManager->updateCurrentValue(
-                    configPropertyName, currentValue, currentValueIsNull) )
+                    configPropertyName,
+                    currentValue,
+                    userName,
+                    currentValueIsNull))
                 {
                     handler.complete();
                     PEG_METHOD_EXIT();
@@ -373,6 +376,7 @@ void ConfigSettingProvider::modifyInstance(
                 // send notify config change message to ProviderManager Service
                 _sendNotifyConfigChangeMessage(configPropertyName,
                                                currentValue,
+                                               userName,
                                                true);
 
                PEG_AUDIT_LOG(logSetConfigProperty(userName, configPropertyName,
@@ -411,6 +415,7 @@ void ConfigSettingProvider::modifyInstance(
                 // send notify config change message to ProviderManager Service
                 _sendNotifyConfigChangeMessage(configPropertyName,
                                                plannedValue,
+                                               userName,
                                                false);
 
                PEG_AUDIT_LOG(logSetConfigProperty(userName, configPropertyName,
@@ -621,6 +626,7 @@ void ConfigSettingProvider::_verifyAuthorization(const String& userName)
 void ConfigSettingProvider::_sendNotifyConfigChangeMessage(
     const String& propertyName,
     const String& newPropertyValue,
+    const String& userName,
     Boolean currentValueModified)
 {
     PEG_METHOD_ENTER(TRC_CONFIG,
@@ -643,6 +649,9 @@ void ConfigSettingProvider::_sendNotifyConfigChangeMessage(
             newPropertyValue,
             currentValueModified,
             QueueIdStack(service->getQueueId()));
+
+        notify_req->operationContext.insert(
+            IdentityContainer(userName));
 
         // create request envelope
         AsyncLegacyOperationStart asyncRequest(

@@ -100,6 +100,16 @@ public:
      */
     void sendSubscriptionInitComplete();
 
+    static Uint16 getHealthState()
+    {
+        return _healthState;
+    }
+
+    static Uint16 getEnabledState()
+    {
+        return _enabledState;
+    }
+
     AtomicInt dienow;
 
     /**
@@ -112,6 +122,21 @@ public:
 private:
 
     void _initialize();
+
+    /**
+        Reads active subscriptons from repository and sends create subscription
+        requests to the corresponding indication providers and initializes the
+        subscription repository and tables.
+        @param   timeoutSeconds        Timeout in seconds  to complete the
+                                           initialization of active
+                                           subscriptions. Timeout value 0
+                                           means no time limit.
+
+        @return  True, if the initialization completed within timeout period.
+                 False, if the initialization can not completed within
+                     timeout period.
+    */
+    Boolean _initializeActiveSubscriptionsFromRepository(Uint32 timeoutSeconds);
 
     void _terminate();
 
@@ -128,6 +153,94 @@ private:
     void _handleDeleteInstanceRequest(const Message * message);
 
     void _handleProcessIndicationRequest(Message* message);
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+
+    void _handleInvokeMethodRequest(Message* message);
+    /**
+        Sends CIMIndicationServiceDisabledRequestMessage to provider manager
+        service so that provider manager's resets _subscriptionInitComplete
+        flag.
+    */
+    void _sendIndicationServiceDisabled();
+
+    /**
+        Clears Subscription Table entries after sending delete subscription
+        requests to appropriate indication providers. Subscription state will
+        remain enabled.
+        @param   timeoutSeconds        Timeout in seconds  to complete sending
+                                           the delete subscription requests to
+                                           all active indication providers.
+                                           Timeout value 0 means no time limit.
+
+        @return  True, if the operation is completed within timeout period.
+                 False, if the operation can not completed within
+                     timeout period.
+    */
+
+    Boolean _deleteActiveSubscriptions(Uint32 timeoutSeconds);
+
+    /**
+        Enables the indication service using method
+        _initializeActiveSubscriptionsFromRepository(). Sets the Service
+        EnabledState and HelathState properties appropriately.
+        @param   timeoutSeconds        Timeout in seconds  to complete the
+                                           initialization of active
+                                           subscriptions. Timeout value 0
+                                           means no time limit.
+
+        @return  _RETURNCODE_COMPLETEDWITHNOERROR, if the initialization
+                     completed within timeout period. Service HealthState
+                     is set to "OK" and EnabledState will be set to "Enabled".
+
+                 _RETURNCODE_TIMEOUT, if the initialization can not completed
+                     within timeout period. In this case, all active
+                     subscriptions might not have been initialized. Service
+                     HealthState is set to "Degraded/Warning" and EnabledState
+                     will be set to "Enabled".
+    */
+    Uint32 _enableIndicationService(Uint32 timeoutSeconds);
+
+    /**
+        Disables the indication service using _deleteActiveSubscriptions()
+        method. Sets the Service EnabledState and HelathState
+        properties appropriately.
+
+        @param   timeoutSeconds        Timeout in seconds to complete the
+                                           disabling of the service.
+        @param   cimException          Output parameter returned to calller
+                                           if there is an exception.
+
+        @return  _RETURNCODE_COMPLETEDWITHNOERROR, if the disable
+                     completed within timeout period. Service
+                     HealthState is set to "OK" and EnabledState
+                     will be set to "Disabled".
+
+                 _RETURNCODE_TIMEOUT, if the disable  cannot be completed
+                     within timeout period. In this case, all active
+                     subscriptions might not have been disabled. Service
+                     HealthState is set to "Degraded/Warning" and EnabledState
+                     will remain  "Enabled".
+    */
+    Uint32 _disableIndicationService(
+        Uint32 timeoutSeconds,
+        CIMException &cimException);
+
+    /**
+        Waits for async requets pending to complete. Returns true if there
+        are no async requests pending within timeout period.
+    */
+    Boolean _waitForAsyncRequestsComplete(
+        struct timeval* startTime,
+        Uint32 timeoutSeconds);
+#endif
+    /**
+        Handles the CIM requests when IndicationService is not enabled. Very
+        few requests are handled by IndicationService when not enabled.
+    */
+    void _handleCimRequestWithServiceNotEnabled(Message *message);
+
+    void _handleCimRequest(Message *message);
 
     /**
         Asynchronous callback function for _handleProcessIndicationRequest.
@@ -780,10 +893,12 @@ private:
         and the responses are aggregated in the callback methods.  Create
         Subscription requests are sent to the indication providers using
         SendAsync in the following cases: (1) on creation of an enabled
-        subscription instance, and (2) on modification of a subscription
-        instance, when the state changes to enabled.  In cases (1) and (2),
-        there is an original Create Instance or Modify Instance request to
-        which the Indication Service must respond.
+        subscription instance, (2) on modification of a subscription
+        instance, when the state changes to enabled and (3) on initialization,
+        for each enabled subscription retrieved from the repository if timeout
+        is specified. In cases (1) and (2), there is an original Create Instance
+        or Modify Instance request to which the Indication Service must respond.
+        In case (3), there is no original request and no response is required.
 
         @param   indicationProviders   list of providers with associated classes
         @param   nameSpace             the nameSpace name of the resource being
@@ -926,11 +1041,12 @@ private:
         SendAsync in the following cases: (1) on deletion of an enabled
         subscription instance, (2) on modification of a subscription instance,
         when the state changes to disabled, (3) on deletion of an expired
-        subscription, and (4) on deletion of a subscription referencing a
-        deleted transient handler.  In cases (1) and (2), there is an original
+        subscription, (4) on deletion of a subscription referencing a
+        deleted transient handler and (5) when indication service is disabled
+        dynamically. In cases (1) and (2), there is an original
         Delete Instance or Modify Instance request to which the Indication
-        Service must respond.  In cases (3) and (4), there is no orginal request
-        and no response is required.
+        Service must respond.  In cases (3), (4) and (5) , there is no
+        orginal request and no response is required.
 
         @param   indicationProviders   list of providers with associated classes
         @param   nameSpace             the nameSpace name of the resource being
@@ -1263,16 +1379,52 @@ private:
         const CIMNamespaceName& namespaceName,
         const OperationContext& operationContext);
 
-    SubscriptionRepository* _subscriptionRepository;
+    /**
+        Updates the subscription table with the information of the providers
+        those accepted the subscription. This method is called during indication
+        service initialization.
 
-    SubscriptionTable * _subscriptionTable;
+        @param  subscription           The accepted subscription.
+        @param  acceptedProviders      Subscription accepted providers list.
+        @param  indicationSubclasses   The indication subclasses for the
+                                           subscription
+        @param  sourceNameSpace        The nameSpace name of the resource being
+                                           monitored, from the SourceNamespace
+                                           property of the CIM_IndicationFilter
+                                           instance for the specified
+                                           subscription
+
+    */
+    void _updateAcceptedSubscription(
+        CIMInstance &subscription,
+        const Array<ProviderClassList> &acceptedProviders,
+        const Array<CIMName> &indicationSubclasses,
+        const CIMNamespaceName &sourceNameSpace);
+
+    static Uint16 _enabledState;
+    static Uint16 _healthState;
+
+    AutoPtr<SubscriptionRepository> _subscriptionRepository;
+
+    AutoPtr<SubscriptionTable> _subscriptionTable;
 
 #ifdef PEGASUS_ENABLE_INDICATION_COUNT
     ProviderIndicationCountTable _providerIndicationCountTable;
 #endif
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-    IndicationServiceConfiguration *_indicationServiceConfiguration;
+
+    /**
+        Holds the number of async requests pending with the service.
+    */
+    AtomicInt _asyncRequestsPending;
+
+    /**
+        Holds the number of threads  processing the indications.
+    */
+    AtomicInt _processIndicationThreads;
+
+    AutoPtr<IndicationServiceConfiguration> _indicationServiceConfiguration;
 #endif
 
     /**
@@ -1355,6 +1507,18 @@ private:
     Array<CIMName> _supportedSNMPHandlerProperties;
     Array<CIMName> _supportedSyslogListenerDestinationProperties;
     Array<CIMName> _supportedEmailListenerDestinationProperties;
+};
+
+// Use with AutoPtr to automatically decrement AtomicInt
+struct DecAtomicInt
+{
+    void operator()(AtomicInt* ptr)
+    {
+        if (ptr)
+        {
+            ptr->dec();
+        }
+    }
 };
 
 PEGASUS_NAMESPACE_END

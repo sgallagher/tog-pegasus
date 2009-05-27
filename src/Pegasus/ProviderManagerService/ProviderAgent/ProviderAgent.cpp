@@ -106,7 +106,6 @@ ProviderAgent::ProviderAgent(
     _pipeFromServer = pipeFromServer;
     _pipeToServer = pipeToServer;
     _providerAgent = this;
-    _subscriptionInitComplete = false;
     _isInitialised = false;
     _providersStopped = false;
 
@@ -183,7 +182,7 @@ void ProviderAgent::run()
                 //
                 // Stop all providers
                 //
-                CIMStopAllProvidersRequestMessage 
+                CIMStopAllProvidersRequestMessage
                     stopRequest("0", QueueIdStack(0));
                 AutoPtr<Message> stopResponse(_processRequest(&stopRequest));
 
@@ -191,7 +190,7 @@ void ProviderAgent::run()
                 // is not responding cimprovagt may loop forever in ThreadPool
                 // destructor waiting for running threads to become idle.
                 if (_threadPool.runningCount())
-                { 
+                {
                     PEG_TRACE_CSTRING(TRC_PROVIDERAGENT,
                         Tracer::LEVEL1,
                         "Agent threads are running, terminating forcibly.");
@@ -396,9 +395,8 @@ Boolean ProviderAgent::_readAndProcessRequest()
         //  Set _subscriptionInitComplete from value in
         //  InitializeProviderAgent request
         //
-        _subscriptionInitComplete = ipaRequest->subscriptionInitComplete;
         _providerManagerRouter.setSubscriptionInitComplete
-            (_subscriptionInitComplete);
+            (ipaRequest->subscriptionInitComplete);
 
         PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL2,
             "Processed the agent initialization message.");
@@ -442,9 +440,14 @@ Boolean ProviderAgent::_readAndProcessRequest()
         {
             if (notifyRequest->currentValueModified)
             {
+                String userName = ((IdentityContainer)
+                    request->operationContext.get(
+                        IdentityContainer::NAME)).getUserName();
+
                 configManager->updateCurrentValue(
                     notifyRequest->propertyName,
                     notifyRequest->newPropertyValue,
+                    userName,
                     false);
             }
             else
@@ -493,10 +496,11 @@ Boolean ProviderAgent::_readAndProcessRequest()
         delete request;
     }
     else if (request->getType () ==
-             CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE)
-    {
-        _subscriptionInitComplete = true;
+             CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE ||
+            request->getType () ==
+             CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE)
 
+    {
         //
         // Process the request in this thread
         //

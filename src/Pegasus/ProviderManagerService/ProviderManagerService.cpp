@@ -584,6 +584,8 @@ Message* ProviderManagerService::_processMessage(CIMRequestMessage* request)
     if ((request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
         (request->getType() ==
             CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE) ||
+        (request->getType() ==
+            CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE) ||
         (request->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE))
     {
         if (_basicProviderManagerRouter)

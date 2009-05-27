@@ -438,6 +438,18 @@ CIMResponseMessage*
     return response.release();
 }
 
+CIMResponseMessage*
+    CIMIndicationServiceDisabledRequestMessage::buildResponse() const
+{
+    AutoPtr<CIMIndicationServiceDisabledResponseMessage> response(
+        new CIMIndicationServiceDisabledResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop()));
+    response->syncAttributes(this);
+    return response.release();
+}
+
 CIMResponseMessage* CIMDisableModuleRequestMessage::buildResponse() const
 {
     AutoPtr<CIMDisableModuleResponseMessage> response(

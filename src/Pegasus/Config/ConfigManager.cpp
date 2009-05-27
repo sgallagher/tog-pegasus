@@ -295,7 +295,10 @@ Boolean ConfigManager::initCurrentValue(
         {
             // update the value in the current config file
             success = _configFileHandler->updateCurrentValue(
-                          propertyName, propertyValue, false);
+                          propertyName,
+                          propertyValue,
+                          String(),
+                          false);
         }
         catch (Exception& e)
         {
@@ -311,6 +314,7 @@ Boolean ConfigManager::initCurrentValue(
 Boolean ConfigManager::updateCurrentValue(
     const String& name,
     const String& value,
+    const String& userName,
     Boolean unset)
 {
     String prevValue;
@@ -335,8 +339,10 @@ Boolean ConfigManager::updateCurrentValue(
     //
     if (unset)
     {
-        propertyOwner->updateCurrentValue(name,
-            propertyOwner->getDefaultValue(name));
+        propertyOwner->updateCurrentValue(
+            name,
+            propertyOwner->getDefaultValue(name),
+            userName);
     }
     else
     {
@@ -345,7 +351,7 @@ Boolean ConfigManager::updateCurrentValue(
             throw InvalidPropertyValue(name, value);
         }
 
-        propertyOwner->updateCurrentValue(name, value);
+        propertyOwner->updateCurrentValue(name, value, userName);
     }
 
     if (useConfigFiles)
@@ -355,17 +361,18 @@ Boolean ConfigManager::updateCurrentValue(
             //
             // update the new value in the current config file
             //
-            if (!_configFileHandler->updateCurrentValue(name, value, unset))
+            if (!_configFileHandler->updateCurrentValue(
+                name, value, userName, unset))
             {
                 // Failed to update the current value, so roll back.
-                propertyOwner->updateCurrentValue(name, prevValue);
+                propertyOwner->updateCurrentValue(name, prevValue, userName);
                 return false;
             }
         }
         catch (Exception& e)
         {
             // Failed to update the current value, so roll back.
-            propertyOwner->updateCurrentValue(name, prevValue);
+            propertyOwner->updateCurrentValue(name, prevValue, userName);
             throw FailedSaveProperties(e.getMessage());
         }
     }

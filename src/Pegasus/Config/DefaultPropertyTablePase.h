@@ -38,7 +38,11 @@
     {"enableHttpsConnection", "true", IS_STATIC, IS_VISIBLE},
     {"daemon", "false", IS_STATIC, IS_VISIBLE},
     {"enableAssociationTraversal", "true", IS_STATIC, IS_VISIBLE},
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    {"enableIndicationService", "true", IS_DYNAMIC, IS_VISIBLE},
+#else
     {"enableIndicationService", "true", IS_STATIC, IS_VISIBLE},
+#endif
     {"forceProviderProcesses", "true", IS_STATIC, IS_VISIBLE},
     {"maxProviderProcesses","0", IS_DYNAMIC, IS_VISIBLE},
 # ifdef PEGASUS_ENABLE_AUDIT_LOGGER

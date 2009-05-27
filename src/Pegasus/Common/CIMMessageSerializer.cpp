@@ -297,6 +297,13 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
                 cimMessage);
             break;
 
+        case CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE:
+            _serializeCIMIndicationServiceDisabledRequestMessage(
+                out,
+                (CIMIndicationServiceDisabledRequestMessage *)
+                cimMessage);
+            break;
+
         default:
             PEGASUS_ASSERT(0);
         }
@@ -484,6 +491,12 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
             _serializeCIMSubscriptionInitCompleteResponseMessage(
                 out,
                 (CIMSubscriptionInitCompleteResponseMessage *)
+                cimMessage);
+            break;
+        case CIM_INDICATION_SERVICE_DISABLED_RESPONSE_MESSAGE:
+            _serializeCIMIndicationServiceDisabledResponseMessage(
+                out,
+                (CIMIndicationServiceDisabledResponseMessage *)
                 cimMessage);
             break;
 
@@ -1273,6 +1286,16 @@ void CIMMessageSerializer::_serializeCIMSubscriptionInitCompleteRequestMessage(
 }
 
 //
+// _serializeCIMIndicationServiceDisabledRequestMessage
+//
+void CIMMessageSerializer::_serializeCIMIndicationServiceDisabledRequestMessage(
+    Buffer& out,
+    CIMIndicationServiceDisabledRequestMessage* message)
+{
+    // No additional attributes to serialize!
+}
+
+//
 //
 // Response Messages
 //
@@ -1618,6 +1641,17 @@ void CIMMessageSerializer::_serializeCIMNotifyConfigChangeResponseMessage(
 void CIMMessageSerializer::_serializeCIMSubscriptionInitCompleteResponseMessage(
     Buffer& out,
     CIMSubscriptionInitCompleteResponseMessage* message)
+{
+    // No additional attributes to serialize!
+}
+
+//
+// _serializeCIMIndicationServiceDisabledResponseMessage
+//
+void
+CIMMessageSerializer::_serializeCIMIndicationServiceDisabledResponseMessage(
+        Buffer& out,
+        CIMIndicationServiceDisabledResponseMessage* message)
 {
     // No additional attributes to serialize!
 }

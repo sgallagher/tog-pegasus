@@ -73,6 +73,8 @@ private:
         CIMRequestMessage* message);
     CIMResponseMessage* _handleSubscriptionInitCompleteRequest(
         CIMRequestMessage* message);
+    CIMResponseMessage* _handleIndicationServiceDisabledRequest(
+        CIMRequestMessage* message);
 
     ProviderName _resolveProviderName(const ProviderIdContainer& providerId);
 

@@ -60,6 +60,7 @@ public:
     void initialize(CIMOMHandle& cimom);
     void terminate();
     void subscriptionInitComplete();
+    void indicationServiceDisabled();
 
     CIMResponseMessage* processMessage(CIMRequestMessage* request);
 

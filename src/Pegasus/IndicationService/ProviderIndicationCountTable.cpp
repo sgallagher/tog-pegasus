@@ -63,6 +63,11 @@ ProviderIndicationCountTable::~ProviderIndicationCountTable()
 {
 }
 
+void ProviderIndicationCountTable::clear()
+{
+    _table.clear();
+}
+
 void ProviderIndicationCountTable::insertEntry(
     const CIMInstance& providerInstance)
 {

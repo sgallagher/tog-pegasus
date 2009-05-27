@@ -211,6 +211,11 @@ void ProviderMessageHandler::subscriptionInitComplete()
     _subscriptionInitComplete = true;
 }
 
+void ProviderMessageHandler::indicationServiceDisabled()
+{
+    _subscriptionInitComplete = false;
+}
+
 CIMResponseMessage* ProviderMessageHandler::processMessage(
     CIMRequestMessage* request)
 {

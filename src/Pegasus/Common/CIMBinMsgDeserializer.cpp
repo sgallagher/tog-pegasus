@@ -349,6 +349,10 @@ CIMRequestMessage* CIMBinMsgDeserializer::_getRequestMessage(
             case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
                 msg = _getSubscriptionInitCompleteRequestMessage(in);
                 break;
+            case CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE:
+                msg = _getIndicationServiceDisabledRequestMessage(in);
+                break;
+
             default:
                 PEGASUS_ASSERT(0);
                 break;
@@ -461,6 +465,10 @@ CIMResponseMessage* CIMBinMsgDeserializer::_getResponseMessage(
         case CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE:
             msg = _getSubscriptionInitCompleteResponseMessage(in);
             break;
+        case CIM_INDICATION_SERVICE_DISABLED_RESPONSE_MESSAGE:
+            msg = _getIndicationServiceDisabledResponseMessage(in);
+            break;
+
         default:
             PEGASUS_ASSERT(0);
             break;
@@ -1544,6 +1552,15 @@ CIMBinMsgDeserializer::_getNotifyConfigChangeRequestMessage(
         QueueIdStack());
 }
 
+CIMIndicationServiceDisabledRequestMessage*
+CIMBinMsgDeserializer::_getIndicationServiceDisabledRequestMessage(
+    CIMBuffer& in)
+{
+    return new CIMIndicationServiceDisabledRequestMessage(
+        String(),
+        QueueIdStack());
+}
+
 CIMSubscriptionInitCompleteRequestMessage*
 CIMBinMsgDeserializer::_getSubscriptionInitCompleteRequestMessage(
     CIMBuffer& in)
@@ -2114,6 +2131,16 @@ CIMBinMsgDeserializer::_getSubscriptionInitCompleteResponseMessage(
 {
     return new CIMSubscriptionInitCompleteResponseMessage(
         String::EMPTY,
+        CIMException(),
+        QueueIdStack());
+}
+
+CIMIndicationServiceDisabledResponseMessage*
+CIMBinMsgDeserializer::_getIndicationServiceDisabledResponseMessage(
+    CIMBuffer& in)
+{
+    return new CIMIndicationServiceDisabledResponseMessage(
+        String(),
         CIMException(),
         QueueIdStack());
 }

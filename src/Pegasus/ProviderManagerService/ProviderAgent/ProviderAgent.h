@@ -202,14 +202,6 @@ private:
     CIMInstance _providerModuleCache;
 
     /**
-        Indicates whether the Indication Service has completed initialization.
-
-        For more information, please see the description of the
-        ProviderManagerRouter::_subscriptionInitComplete member variable.
-     */
-    Boolean _subscriptionInitComplete;
-
-    /**
         A thread pool used for asynchronous processing of provider operations.
      */
     ThreadPool _threadPool;
@@ -220,7 +212,7 @@ private:
     Boolean _isInitialised;
 
     /**
-        Indicates whether the provider module is disabled successfully or 
+        Indicates whether the provider module is disabled successfully or
         CIMStopAllProvidersRequestMessage is processed successfully.
     */
     Boolean _providersStopped;

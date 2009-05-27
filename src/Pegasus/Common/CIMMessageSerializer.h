@@ -288,6 +288,10 @@ private:
         Buffer& out,
         CIMSubscriptionInitCompleteRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
+    static void _serializeCIMIndicationServiceDisabledRequestMessage(
+        Buffer& out,
+        CIMIndicationServiceDisabledRequestMessage* message);
 
     //
     //
@@ -431,6 +435,11 @@ private:
     static void _serializeCIMSubscriptionInitCompleteResponseMessage(
         Buffer& out,
         CIMSubscriptionInitCompleteResponseMessage* message);
+
+    PEGASUS_HIDDEN_LINKAGE
+    static void _serializeCIMIndicationServiceDisabledResponseMessage(
+        Buffer& out,
+        CIMIndicationServiceDisabledResponseMessage* message);
 };
 
 PEGASUS_NAMESPACE_END

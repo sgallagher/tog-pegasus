@@ -160,11 +160,15 @@ public:
 
     @param  name         The name of the property.
     @param  value        The current value of the property.
+    @param  userName     User requesting the update.
     @exception     NonDynamicConfigProperty  if the property is not dynamic.
     @exception     InvalidPropertyValue  if the property value is not valid.
     @exception     UnrecognizedConfigProperty  if the property is not defined.
     */
-    void updateCurrentValue(const String& name, const String& value);
+    void updateCurrentValue(
+        const String& name,
+        const String& value,
+        const String& userName);
         //throw (NonDynamicConfigProperty, InvalidPropertyValue,
         //    UnrecognizedConfigProperty);
 
@@ -202,6 +206,12 @@ public:
 
 
 private:
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    void _requestIndicationServiceStateChange(
+        const String& userName,
+        Boolean enable);
+#endif
 
     /**
     The table to hold the properties owned by this class

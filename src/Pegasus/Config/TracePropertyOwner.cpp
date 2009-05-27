@@ -459,7 +459,8 @@ void TracePropertyOwner::initPlannedValue(
 */
 void TracePropertyOwner::updateCurrentValue(
     const String& name,
-    const String& value)
+    const String& value,
+    const String& userName)
 {
     //
     // make sure the property is dynamic before updating the value.

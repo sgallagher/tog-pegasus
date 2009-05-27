@@ -262,6 +262,9 @@ Message * CMPIProviderManager::processMessage(Message * request)
             response = handleSubscriptionInitCompleteRequest (request);
 
             break;
+        case CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE:
+            response = handleIndicationServiceDisabledRequest (request);
+            break;
         case CIM_GET_PROPERTY_REQUEST_MESSAGE:
             response = handleGetPropertyRequest(request);
 
@@ -2209,7 +2212,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                 // EmbeddedInstances, so if the parameter definition has a type
                 // of EmbeddedInstance, the type of the output parameter must
                 // be changed.
-                if (paramValue.getType() == CIMTYPE_OBJECT && 
+                if (paramValue.getType() == CIMTYPE_OBJECT &&
                     methodIndex != PEG_NOT_FOUND)
                 {
                     String currentParamName(currentParam.getParameterName());
@@ -3021,6 +3024,27 @@ Message * CMPIProviderManager::handleStopAllProvidersRequest(
     PEG_METHOD_EXIT();
 
     return(response);
+}
+
+Message* CMPIProviderManager::handleIndicationServiceDisabledRequest(
+    Message* message)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "CMPIProviderManager::_handleIndicationServiceDisabledRequest");
+
+    CIMIndicationServiceDisabledRequestMessage* request =
+        dynamic_cast<CIMIndicationServiceDisabledRequestMessage*>(message);
+    PEGASUS_ASSERT(request != 0);
+
+    CIMIndicationServiceDisabledResponseMessage* response =
+        dynamic_cast<CIMIndicationServiceDisabledResponseMessage*>(
+            request->buildResponse());
+    PEGASUS_ASSERT(response != 0);
+
+    _subscriptionInitComplete = false;
+
+    PEG_METHOD_EXIT ();
+    return response;
 }
 
 Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest(

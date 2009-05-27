@@ -128,6 +128,11 @@ static const char _MSG_NO_PROVIDER_KEY[] =
 static const char _MSG_NO_PROVIDER[] =
     "Subscription ($0) in namespace $1 has no provider";
 
+static const char _MSG_STATE_CHANGE_FAILED_KEY[] =
+    "IndicationService.IndicationService.STATE_CHANGE_FAILED";
+static const char _MSG_STATE_CHANGE_FAILED[] =
+    "The requested state change failed : $0. Current IndicationService"
+        " EnabledState : $1, HealthState : $2.";
 
 // ATTN-RK-20020730: Temporary hack to fix Windows build
 Boolean ContainsCIMName(const Array<CIMName>& a, const CIMName& x)
@@ -144,6 +149,50 @@ Boolean ContainsCIMName(const Array<CIMName>& a, const CIMName& x)
 }
 
 Mutex IndicationService::_mutex;
+Uint16 IndicationService::_enabledState = _ENABLEDSTATE_DISABLED;
+Uint16 IndicationService::_healthState = _HEALTHSTATE_OK;
+
+/**
+    See CIM_EnabledLogicalElement.RequestStateChange() method for return codes
+    and CIM_EnabledLogicalElement.EnabledState property for  service states.
+
+    ATTN: Currently very few states are supported and the following utility
+    functions are  hard coded to return service states directly. Write a
+    generic function to get values  from ValueMap independent of class.
+*/
+String _getEnabledStateString(Uint32 code)
+{
+    // Check for service states
+    switch(code)
+    {
+        case _ENABLEDSTATE_ENABLED:
+            return String("Enabled");
+        case _ENABLEDSTATE_DISABLED:
+            return String("Disabled");
+        case _ENABLEDSTATE_SHUTTINGDOWN:
+            return String("Shutting Down");
+        case _ENABLEDSTATE_STARTING:
+            return String("Starting");
+    }
+    PEGASUS_ASSERT(false); // Never reach to unknown state at present.
+
+    return String("Unknown");
+}
+
+String _getHealthStateString(Uint32 code)
+{
+    // Service health states
+    switch(code)
+    {
+        case _HEALTHSTATE_OK:
+            return String("OK");
+        case _HEALTHSTATE_DEGRADEDWARNING:
+            return String("Degraded/Warning");
+    }
+    PEGASUS_ASSERT(false); // Never reach to unknown state at present.
+
+    return String("Unknown");
+}
 
 IndicationService::IndicationService(
     CIMRepository* repository,
@@ -195,24 +244,11 @@ IndicationService::IndicationService(
 
     try
     {
-        //
-        //  Create Subscription Repository
-        //
-        _subscriptionRepository = new SubscriptionRepository(repository);
-
-       //
-       // Create IndicationsProfileInstance Repository
-       //
+        // Create IndicationsProfileInstance Repository
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-        _indicationServiceConfiguration =
-            new IndicationServiceConfiguration(repository);
+        _indicationServiceConfiguration.reset(
+            new IndicationServiceConfiguration(_cimRepository));
 #endif
-
-        //
-        //  Create Subscription Table
-        //
-        _subscriptionTable = new SubscriptionTable(_subscriptionRepository);
-
         // Initialize the Indication Service
         _initialize();
     }
@@ -222,17 +258,13 @@ IndicationService::IndicationService(
            "Exception caught in attempting to "
            "initialize Indication Service: %s",
            (const char*)e.getMessage().getCString()));
+        _healthState = _HEALTHSTATE_DEGRADEDWARNING;
     }
+
 }
 
 IndicationService::~IndicationService()
 {
-    delete _subscriptionTable;
-    delete _subscriptionRepository;
-
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-    delete _indicationServiceConfiguration;
-#endif
 }
 
 void IndicationService::_handle_async_request(AsyncRequest *req)
@@ -292,74 +324,13 @@ void IndicationService::handleEnqueue(Message* message)
 
     try
     {
-        switch(message->getType())
+        if (_enabledState != _ENABLEDSTATE_ENABLED)
         {
-            case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-                _handleGetInstanceRequest(message);
-                break;
-
-            case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-                _handleEnumerateInstancesRequest(message);
-                break;
-
-            case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-                _handleEnumerateInstanceNamesRequest(message);
-                break;
-
-            case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
-                _handleCreateInstanceRequest(message);
-                break;
-
-            case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
-                _handleModifyInstanceRequest(message);
-                break;
-
-            case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
-                _handleDeleteInstanceRequest(message);
-                break;
-
-            case CIM_PROCESS_INDICATION_REQUEST_MESSAGE:
-                _handleProcessIndicationRequest(message);
-                break;
-
-            case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
-                _handleNotifyProviderRegistrationRequest(message);
-                break;
-
-            case CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE:
-                _handleNotifyProviderTerminationRequest(message);
-                break;
-
-            case CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE:
-                _handleNotifyProviderEnableRequest(message);
-                break;
-
-            case CIM_NOTIFY_PROVIDER_FAIL_REQUEST_MESSAGE:
-                _handleNotifyProviderFailRequest(message);
-                break;
-
-            default:
-                //
-                //  A message type not supported by the Indication Service
-                //  Should not reach here
-                //
-                PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
-                    "IndicationService::handleEnqueue(msg *) rcv'd unsupported "
-                        "message of type %s.",
-                    MessageTypeToString(message->getType())));
-
-                // Note: not setting Content-Language in the response
-                CIMResponseMessage* response = cimRequest->buildResponse();
-                response->cimException = PEGASUS_CIM_EXCEPTION_L(
-                    CIM_ERR_NOT_SUPPORTED,
-                    MessageLoaderParms(
-                        "IndicationService.IndicationService."
-                            "UNSUPPORTED_OPERATION",
-                        "The requested operation is not supported or not "
-                            "recognized by the indication service."));
-
-                _enqueueResponse(cimRequest, response);
-                break;
+            _handleCimRequestWithServiceNotEnabled(message);
+        }
+        else
+        {
+            _handleCimRequest(message);
         }
     }
     catch (CIMException& e)
@@ -406,6 +377,190 @@ void IndicationService::handleEnqueue(Message* message)
    delete message;
 }
 
+void IndicationService::_handleCimRequest(Message *message)
+{
+    switch(message->getType())
+    {
+        case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+            _handleGetInstanceRequest(message);
+        break;
+
+        case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+            _handleEnumerateInstancesRequest(message);
+            break;
+
+        case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+            _handleEnumerateInstanceNamesRequest(message);
+            break;
+
+        case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+            _handleCreateInstanceRequest(message);
+            break;
+
+        case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+            _handleModifyInstanceRequest(message);
+            break;
+
+        case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
+            _handleDeleteInstanceRequest(message);
+            break;
+
+        case CIM_PROCESS_INDICATION_REQUEST_MESSAGE:
+            _handleProcessIndicationRequest(message);
+            break;
+
+        case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
+            _handleNotifyProviderRegistrationRequest(message);
+            break;
+
+        case CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE:
+            _handleNotifyProviderTerminationRequest(message);
+            break;
+
+        case CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE:
+            _handleNotifyProviderEnableRequest(message);
+            break;
+
+        case CIM_NOTIFY_PROVIDER_FAIL_REQUEST_MESSAGE:
+            _handleNotifyProviderFailRequest(message);
+            break;
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+        case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+            _handleInvokeMethodRequest(message);
+            break;
+#endif
+
+        default:
+            CIMRequestMessage* cimRequest =
+                dynamic_cast<CIMRequestMessage *>(message);
+            //
+            //  A message type not supported by the Indication Service
+            //  Should not reach here
+            //
+            PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
+                "IndicationService::_handleCimRequest rcv'd unsupported "
+                    "message of type %s.",
+                MessageTypeToString(message->getType())));
+
+            // Note: not setting Content-Language in the response
+            CIMResponseMessage* response = cimRequest->buildResponse();
+            response->cimException = PEGASUS_CIM_EXCEPTION_L(
+                CIM_ERR_NOT_SUPPORTED,
+                MessageLoaderParms(
+                    "IndicationService.IndicationService."
+                        "UNSUPPORTED_OPERATION",
+                    "The requested operation is not supported or not "
+                        "recognized by the indication service."));
+
+            _enqueueResponse(cimRequest, response);
+    }
+}
+
+void IndicationService::_handleCimRequestWithServiceNotEnabled(
+    Message *message)
+{
+    Boolean requestHandled = false;
+    CIMRequestMessage* cimRequest = dynamic_cast<CIMRequestMessage *>(message);
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    requestHandled = true;
+    switch(message->getType())
+    {
+        case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+            _handleInvokeMethodRequest(message);
+            break;
+        case CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE:
+        case CIM_NOTIFY_PROVIDER_TERMINATION_REQUEST_MESSAGE:
+        case CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE:
+        case CIM_NOTIFY_PROVIDER_FAIL_REQUEST_MESSAGE:
+            _enqueueResponse(cimRequest, cimRequest->buildResponse());
+            break;
+
+        case CIM_PROCESS_INDICATION_REQUEST_MESSAGE:
+            _handleProcessIndicationRequest(message);
+            break;
+
+        // Handle only CIM_IndicationService class operations.
+        case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+            {
+                CIMGetInstanceRequestMessage *request =
+                    (CIMGetInstanceRequestMessage*)message;
+                if (request->className.equal(
+                    PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE))
+                {
+                    _handleGetInstanceRequest(message);
+                }
+                else
+                {
+                    requestHandled = false;
+                }
+            }
+            break;
+        case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+            {
+                CIMEnumerateInstancesRequestMessage *request =
+                    (CIMEnumerateInstancesRequestMessage*)message;
+                if (request->className.equal(
+                    PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE))
+                {
+                    _handleEnumerateInstancesRequest(message);
+                }
+                else
+                {
+                    requestHandled = false;
+                }
+            }
+            break;
+
+        case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+            {
+                CIMEnumerateInstanceNamesRequestMessage *request =
+                    (CIMEnumerateInstanceNamesRequestMessage*)message;
+                if (request->className.equal(
+                    PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE))
+                {
+                    _handleEnumerateInstanceNamesRequest(message);
+                }
+                else
+                {
+                    requestHandled = false;
+                }
+            }
+            break;
+        default:
+            requestHandled = false;
+            break;
+    }
+#endif
+
+    if (!requestHandled)
+    {
+        Logger::put_l(
+            Logger::STANDARD_LOG,
+            System::CIMSERVER,
+            Logger::WARNING,
+            MessageLoaderParms(
+                "IndicationService.IndicationService."
+                    "CANNOT_EXECUTE_REQUEST",
+                "The requested operation cannot be executed."
+                    " IndicationService EnabledState : $0.",
+                _getEnabledStateString(_enabledState)));
+
+        CIMResponseMessage* response = cimRequest->buildResponse();
+        response->cimException = PEGASUS_CIM_EXCEPTION_L(
+            CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "IndicationService.IndicationService."
+                    "CANNOT_EXECUTE_REQUEST",
+                "The requested operation cannot be executed."
+                    " IndicationService EnabledState : $0.",
+                _getEnabledStateString(_enabledState)));
+        _enqueueResponse(cimRequest, response);
+    }
+}
+
+
 void IndicationService::handleEnqueue()
 {
     Message * message = dequeue();
@@ -417,16 +572,6 @@ void IndicationService::handleEnqueue()
 void IndicationService::_initialize()
 {
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE, "IndicationService::_initialize");
-
-#ifdef PEGASUS_INDICATION_PERFINST
-    Stopwatch stopWatch;
-
-    stopWatch.start();
-#endif
-
-    Array<CIMInstance> activeSubscriptions;
-    Array<CIMInstance> noProviderSubscriptions;
-    Boolean invalidInstance = false;
 
     //
     //  Find required services
@@ -578,6 +723,611 @@ void IndicationService::_initialize()
     _supportedEmailListenerDestinationProperties.append(
         PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT);
 
+    ConfigManager* configManager = ConfigManager::getInstance();
+
+    if (ConfigManager::parseBooleanValue(
+        configManager->getCurrentValue("enableIndicationService")))
+    {
+        _enabledState = _ENABLEDSTATE_ENABLED;
+        _initializeActiveSubscriptionsFromRepository(0);
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+
+String _getReturnCodeString(Uint32 code)
+{
+    // Method return codes
+    switch(code)
+    {
+        case _RETURNCODE_TIMEOUT:
+            return String("Cannot complete within Timeout Period");
+        case _RETURNCODE_NOTSUPPORTED:
+            return String("Not Supported");
+        case _RETURNCODE_FAILED:
+            return String("Failed");
+        case _RETURNCODE_INVALIDPARAMETER:
+            return String("Invalid Parameter");
+    }
+
+    PEGASUS_ASSERT(false); // Never reach to unknown return code
+
+    return String("Unknown");
+}
+
+void IndicationService::_sendIndicationServiceDisabled()
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_sendIndicationServiceDisabled");
+
+    if (_enabledState == _ENABLEDSTATE_ENABLED)
+    {
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    CIMIndicationServiceDisabledRequestMessage * request =
+        new CIMIndicationServiceDisabledRequestMessage(
+            XmlWriter::getNextMessageId(),
+            QueueIdStack(_providerManager, getQueueId()));
+
+    AsyncLegacyOperationStart * asyncRequest =
+        new AsyncLegacyOperationStart(
+            0,
+            _providerManager,
+            request);
+    AutoPtr<AsyncReply> asyncReply(SendWait(asyncRequest));
+
+    delete asyncRequest;
+
+    PEG_METHOD_EXIT();
+}
+
+void IndicationService::_handleInvokeMethodRequest(Message *message)
+{
+    Uint32 timeoutSeconds = 0;
+
+    CIMInvokeMethodRequestMessage *request =
+        dynamic_cast<CIMInvokeMethodRequestMessage*>(message);
+
+    PEGASUS_ASSERT(request);
+
+    CIMInvokeMethodResponseMessage *response =
+        static_cast<CIMInvokeMethodResponseMessage*>(request->buildResponse());
+
+    // Get userName and only privileged user can execute this operation
+    String userName = ((IdentityContainer)request->operationContext.get(
+        IdentityContainer::NAME)).getUserName();
+
+#ifndef PEGASUS_OS_ZOS
+    if (userName.size() && !System::isPrivilegedUser(userName))
+    {
+        throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED,
+            MessageLoaderParms(
+                "IndicationService.IndicationService."
+                    "_MSG_NON_PRIVILEGED_ACCESS_DISABLED",
+                "User ($0) is not authorized to perform this operation.",
+                userName));
+    }
+#endif
+
+    CIMException cimException;
+
+    CIMNamespaceName nameSpace = request->nameSpace;
+    CIMName className = request->instanceName.getClassName().getString();
+
+    Uint32 retCode = _RETURNCODE_COMPLETEDWITHNOERROR;
+    Uint16 requestedState;
+
+    if(!nameSpace.equal(PEGASUS_NAMESPACENAME_INTEROP))
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+            nameSpace.getString());
+    }
+    else if(!className.equal(PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE))
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+            className.getString());
+    }
+    else if (!request->methodName.equal(_METHOD_REQUESTSTATECHANGE))
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_FOUND,
+            String::EMPTY);
+    }
+    else
+    {
+        CIMValue cimValue;
+
+        for (Uint32 i = 0, n = request->inParameters.size(); i < n ; ++i)
+        {
+            CIMName name = request->inParameters[i].getParameterName();
+            if (name.equal(_PARAM_REQUESTEDSTATE))
+            {
+                CIMValue cimValue = request->inParameters[i].getValue();
+                cimValue.get(requestedState);
+            }
+            else if ((name.equal(_PARAM_TIMEOUTPERIOD)))
+            {
+                CIMDateTime timeoutInterval;
+                CIMValue cimValue = request->inParameters[i].getValue();
+                cimValue.get(timeoutInterval);
+                if (!timeoutInterval.isInterval())
+                {
+                    retCode = _RETURNCODE_INVALIDPARAMETER;
+                    break;
+                }
+                // Get timeout in seconds
+                timeoutSeconds =
+                    timeoutInterval.toMicroSeconds() / 1000000;
+            }
+            else
+            {
+                retCode = _RETURNCODE_INVALIDPARAMETER;
+                break;
+            }
+        }
+    }
+
+    if (cimException.getCode() == CIM_ERR_SUCCESS &&
+        retCode == _RETURNCODE_COMPLETEDWITHNOERROR)
+    {
+        if (requestedState == _ENABLEDSTATE_ENABLED)
+        {
+            retCode = _enableIndicationService(timeoutSeconds);
+        }
+        else if (requestedState == _ENABLEDSTATE_DISABLED)
+        {
+            retCode = _disableIndicationService(
+                timeoutSeconds,
+                cimException);
+        }
+        else
+        {
+            // We don't support any other state changes now.
+            retCode = _RETURNCODE_NOTSUPPORTED;
+        }
+    }
+
+    response->cimException = cimException;
+    response->retValue = CIMValue(retCode);
+    _enqueueResponse(request, response);
+}
+
+
+Uint32 IndicationService::_enableIndicationService(Uint32 timeoutSeconds)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_enableIndicationService");
+
+    Uint32 retCode = _RETURNCODE_COMPLETEDWITHNOERROR;
+
+    AutoMutex mtx(_mutex);
+
+    // Check if the service is already enabled.
+    if (_enabledState == _ENABLEDSTATE_ENABLED)
+    {
+        // Check if the service is in degraded state.
+        if (_healthState == _HEALTHSTATE_DEGRADEDWARNING)
+        {
+            struct timeval startTime;
+            Time::gettimeofday(&startTime);
+
+            // Wait if there are any pending requests.
+            if (!_waitForAsyncRequestsComplete(&startTime, timeoutSeconds))
+            {
+                Logger::put(
+                    Logger::STANDARD_LOG,
+                    System::CIMSERVER,
+                    Logger::WARNING,
+                    "Failed to recover from degraded state within timeout "
+                        "period of $0 seconds. There are $1 async"
+                            " requests pending.",
+                    timeoutSeconds,
+                    _asyncRequestsPending.get());
+
+                retCode = _RETURNCODE_TIMEOUT;
+            }
+            else
+            {
+                // No async requests pending.
+                _healthState = _HEALTHSTATE_OK;
+            }
+        }
+        PEG_METHOD_EXIT();
+        return retCode;
+    }
+
+    _enabledState = _ENABLEDSTATE_STARTING;
+
+    String exceptionMsg;
+
+    try
+    {
+        if (_initializeActiveSubscriptionsFromRepository(
+            timeoutSeconds))
+        {
+            _healthState = _HEALTHSTATE_OK;
+        }
+        else
+        {
+            _healthState = _HEALTHSTATE_DEGRADEDWARNING;
+            retCode = _RETURNCODE_TIMEOUT;
+        }
+    }
+    catch (const Exception &e)
+    {
+        exceptionMsg = e.getMessage();
+    }
+    catch (...)
+    {
+        exceptionMsg = "Unknown error";
+    }
+
+    _enabledState = _ENABLEDSTATE_ENABLED;
+    sendSubscriptionInitComplete();
+
+    if (exceptionMsg.size())
+    {
+        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
+            "Exception while enabling the indication Service : %s",
+            (const char*)exceptionMsg.getCString()));
+
+        _healthState = _HEALTHSTATE_DEGRADEDWARNING;
+    }
+
+    PEG_METHOD_EXIT();
+    return retCode;
+}
+
+Uint32 IndicationService::_disableIndicationService(Uint32 timeoutSeconds,
+    CIMException &cimException)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_disableIndicationService");
+
+    Uint32 retCode = _RETURNCODE_COMPLETEDWITHNOERROR;
+
+    AutoMutex mtx(_mutex);
+
+    // Check if the service is already disabled.
+    if (_enabledState == _ENABLEDSTATE_DISABLED)
+    {
+        PEG_METHOD_EXIT();
+        return retCode;
+    }
+
+    _enabledState = _ENABLEDSTATE_SHUTTINGDOWN;
+
+    // Wait for threads running other than indication threads.
+    while (_threads.get() - _processIndicationThreads.get() > 1)
+    {
+        Threads::sleep(100);
+    }
+
+    String exceptionMsg;
+
+    try
+    {
+        if (_deleteActiveSubscriptions(timeoutSeconds))
+        {
+            _sendIndicationServiceDisabled();
+            _enabledState = _ENABLEDSTATE_DISABLED;
+            _healthState = _HEALTHSTATE_OK;
+        }
+        else
+        {
+            _enabledState = _ENABLEDSTATE_ENABLED;
+            retCode = _RETURNCODE_TIMEOUT;
+            _healthState = _HEALTHSTATE_DEGRADEDWARNING;
+            cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    _MSG_STATE_CHANGE_FAILED_KEY,
+                    _MSG_STATE_CHANGE_FAILED,
+                    _getReturnCodeString(_RETURNCODE_TIMEOUT),
+                    _getEnabledStateString(_enabledState),
+                    _getHealthStateString(_healthState)));
+        }
+    }
+    catch (const Exception &e)
+    {
+        exceptionMsg = e.getMessage();
+    }
+    catch (...)
+    {
+        exceptionMsg = "Unknown Error";
+    }
+
+    if (exceptionMsg.size())
+    {
+        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL1,
+            "Exception while disabling the indication Service : %s",
+            (const char*)exceptionMsg.getCString()));
+
+        _enabledState = _ENABLEDSTATE_ENABLED;
+        retCode = _RETURNCODE_FAILED;
+        _healthState = _HEALTHSTATE_DEGRADEDWARNING;
+        cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms(
+                _MSG_STATE_CHANGE_FAILED_KEY,
+                _MSG_STATE_CHANGE_FAILED,
+                exceptionMsg,
+                _getEnabledStateString(_enabledState),
+                _getHealthStateString(_healthState)));
+    }
+    PEG_METHOD_EXIT();
+
+    return retCode;
+}
+
+Boolean IndicationService::_deleteActiveSubscriptions(Uint32 timeoutSeconds)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_deleteActiveSubscriptions");
+
+    struct timeval startTime;
+    Time::gettimeofday(&startTime);
+    Boolean completed = true;
+
+    // Check if there are existing pending async requests
+    if (!_waitForAsyncRequestsComplete(&startTime, timeoutSeconds))
+    {
+        Logger::put(
+            Logger::STANDARD_LOG,
+            System::CIMSERVER,
+            Logger::WARNING,
+            "Failed to disable Indication service within timeout "
+                "period of $0 seconds. There are $1 existing async "
+                    "requests pending.",
+            timeoutSeconds,
+            _asyncRequestsPending.get());
+
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    Array <ActiveSubscriptionsTableEntry> subscriptionsEntries;
+    subscriptionsEntries =
+        _subscriptionTable->getAllActiveSubscriptionEntries();
+
+    CIMPropertyList requiredProperties;
+    String condition;
+    String query;
+    String queryLanguage;
+
+    for (Uint32 i=0; i < subscriptionsEntries.size(); i++)
+    {
+        CIMInstance instance = subscriptionsEntries[i].subscription;
+        String creator = instance.getProperty (instance.findProperty
+            (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
+
+        AcceptLanguageList acceptLangs;
+        Uint32 propIndex = instance.findProperty(
+            PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
+        if (propIndex != PEG_NOT_FOUND)
+        {
+            String acceptLangsString;
+            instance.getProperty(propIndex).getValue().get(acceptLangsString);
+            if (acceptLangsString.size())
+            {
+                acceptLangs = LanguageParser::parseAcceptLanguageHeader(
+                    acceptLangsString);
+            }
+        }
+        ContentLanguageList contentLangs;
+        propIndex = instance.findProperty
+            (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
+        if (propIndex != PEG_NOT_FOUND)
+        {
+            String contentLangsString;
+            instance.getProperty(propIndex).getValue().get(
+                contentLangsString);
+            if (contentLangsString.size())
+            {
+                contentLangs = LanguageParser::parseContentLanguageHeader(
+                    contentLangsString);
+            }
+        }
+        CIMNamespaceName sourceNameSpace;
+        Array<CIMName> indicationSubclasses;
+
+        _getCreateParams (instance,
+            indicationSubclasses, requiredProperties,
+            sourceNameSpace, condition, query, queryLanguage);
+
+        _sendAsyncDeleteRequests(
+            subscriptionsEntries[i].providers,
+            sourceNameSpace,
+            instance,
+            acceptLangs,
+            contentLangs,
+            0,  // no request
+            indicationSubclasses,
+            creator);
+
+    }
+
+    if (!_waitForAsyncRequestsComplete(&startTime, timeoutSeconds))
+    {
+        Logger::put(
+            Logger::STANDARD_LOG,
+            System::CIMSERVER,
+            Logger::WARNING,
+            "Failed to disable Indication service within timeout "
+                "period of $0 seconds. There are $1 async requests pending.",
+            timeoutSeconds,
+            _asyncRequestsPending.get());
+
+        completed = false;
+    }
+    else
+    {
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+        _providerIndicationCountTable.clear();
+#endif
+
+        _subscriptionTable->clear();
+    }
+
+    PEG_METHOD_EXIT();
+
+    return completed;
+}
+
+
+Boolean IndicationService::_waitForAsyncRequestsComplete(
+    struct timeval* startTime,
+    Uint32 timeoutSeconds)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_waitForAsyncRequestsComplete");
+
+    struct timeval timeNow;
+    Boolean requestsPending = false;
+    while (_asyncRequestsPending.get() > 0)
+    {
+        if (timeoutSeconds)
+        {
+            Time::gettimeofday(&timeNow);
+            if ((Uint32)(timeNow.tv_sec - startTime->tv_sec) > timeoutSeconds)
+            {
+                requestsPending = true;
+                break;
+            }
+        }
+        Threads::sleep(100);
+    }
+    PEG_METHOD_EXIT();
+
+    return !requestsPending;
+}
+#endif
+
+void IndicationService::_updateAcceptedSubscription(
+    CIMInstance &subscription,
+    const Array<ProviderClassList> &acceptedProviders,
+    const Array<CIMName> &indicationSubclasses,
+    const CIMNamespaceName &sourceNameSpace)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_updateAcceptedSubscription");
+
+    if (acceptedProviders.size() == 0)
+    {
+        PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL2,
+            "No providers accepted subscription on initialization: %s",
+            (const char *)
+                subscription.getPath().toString().getCString()));
+
+        //
+        //  No providers accepted the subscription
+        //  Implement the subscription's On Fatal Error Policy
+        //  If subscription is not disabled or removed, send alert and
+        //  Insert entries into the subscription hash tables
+        //
+        if (!_subscriptionRepository->reconcileFatalError(
+            subscription))
+        {
+            //
+            //  Insert entries into the subscription hash tables
+            //
+            _subscriptionTable->insertSubscription(
+                subscription,
+                acceptedProviders,
+                indicationSubclasses,
+                sourceNameSpace);
+
+#if 0
+            //
+            //  Send alert
+            //
+            //
+            //  Send NoProviderAlertIndication to handler instances
+            //  ATTN: NoProviderAlertIndication must be defined
+            //
+            Array<CIMInstance> subscriptions;
+            subscriptions.append(activeSubscriptions[i]);
+            CIMInstance indicationInstance = _createAlertInstance(
+                _CLASS_NO_PROVIDER_ALERT, subscriptions);
+
+            PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+                "Sending NoProvider Alert for %u subscriptions",
+                 subscriptions.size()));
+            _sendAlerts(subscriptions, indicationInstance);
+#endif
+
+            //
+            //  Get Subscription Filter Name and Handler Name
+            //
+            String logString = _getSubscriptionLogString(
+                subscription);
+
+            //
+            //  Log a message for the subscription
+            //
+            Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
+                Logger::WARNING,
+                MessageLoaderParms(
+                    _MSG_NO_PROVIDER_KEY,
+                    _MSG_NO_PROVIDER,
+                    logString,
+                    subscription.getPath().getNameSpace().getString()));
+        }
+    }
+    else
+    {
+        //
+        //  At least one provider accepted the subscription
+        //  Insert entries into the subscription hash tables
+        //
+        _subscriptionTable->insertSubscription(
+            subscription,
+            acceptedProviders,
+            indicationSubclasses,
+            sourceNameSpace);
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+Boolean IndicationService::_initializeActiveSubscriptionsFromRepository(
+    Uint32 timeoutSeconds)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_initializeActiveSubscriptionsFromRepository");
+
+    struct timeval startTime;
+    Time::gettimeofday(&startTime);
+    Boolean completed = true;
+
+#ifdef PEGASUS_INDICATION_PERFINST
+    Stopwatch stopWatch;
+
+    stopWatch.start();
+#endif
+
+    //  Create Subscription Repository
+    _subscriptionRepository.reset(new SubscriptionRepository(_cimRepository));
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    _asyncRequestsPending = 0;
+    _processIndicationThreads = 0;
+#endif
+
+   //  Create Subscription Table
+   _subscriptionTable.reset(
+       new SubscriptionTable(_subscriptionRepository.get()));
+
+#ifdef PEGASUS_ENABLE_INDICATION_COUNT
+    _providerIndicationCountTable.clear();
+#endif
+
+    Array<CIMInstance> activeSubscriptions;
+    Array<CIMInstance> noProviderSubscriptions;
+    Boolean invalidInstance = false;
     //
     //  Get existing active subscriptions from each namespace in the repository
     //
@@ -710,8 +1460,31 @@ void IndicationService::_initialize()
             }
         }
 
+        // If Indication profile support is enabled indication service can be
+        // enabled dynamically. Send create subscription requests using
+        // SendAsync() to honor the timeout.
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+        if (timeoutSeconds > 0) // if timeout is specified
+        {
+            _sendAsyncCreateRequests(
+                indicationProviders,
+                sourceNameSpace,
+                propertyList,
+                condition,
+                query,
+                queryLanguage,
+                activeSubscriptions[i],
+                acceptLangs,
+                contentLangs,
+                0, // original request is 0
+                indicationSubclasses,
+                creator);
+        }
+        else
+#endif
         //
-        //  Send Create request message to each provider
+        //  Send Create request message to each provider using SendWait() if
+        //  timeout is not specified.
         //  Note: SendWait is used instead of SendAsync.  Initialization must
         //  deal with multiple subscriptions, each with multiple providers.
         //  Using SendWait eliminates the need for a callback and the necessity
@@ -721,90 +1494,47 @@ void IndicationService::_initialize()
         //  from all the providers, use of SendWait should not cause a
         //  significant performance issue.
         //
-        Array<ProviderClassList> acceptedProviders;
-        acceptedProviders = _sendWaitCreateRequests(
-            indicationProviders, sourceNameSpace,
-            propertyList, condition, query, queryLanguage,
-            activeSubscriptions[i],
-            acceptLangs,
-            contentLangs,
-            creator);
-
-        if (acceptedProviders.size() == 0)
         {
-            PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL2,
-                "No providers accepted subscription on initialization: %s",
-                (const char *)
-                    activeSubscriptions[i].getPath().toString().getCString()));
+            Array<ProviderClassList> acceptedProviders;
+            acceptedProviders = _sendWaitCreateRequests(
+                indicationProviders,
+                sourceNameSpace,
+                propertyList,
+                condition,
+                query,
+                queryLanguage,
+                activeSubscriptions[i],
+                acceptLangs,
+                contentLangs,
+                creator);
 
-            //
-            //  No providers accepted the subscription
-            //  Implement the subscription's On Fatal Error Policy
-            //  If subscription is not disabled or removed, send alert and
-            //  Insert entries into the subscription hash tables
-            //
-            if (!_subscriptionRepository->reconcileFatalError(
-                    activeSubscriptions[i]))
-            {
-                //
-                //  Insert entries into the subscription hash tables
-                //
-                _subscriptionTable->insertSubscription(
-                    activeSubscriptions[i],
-                    acceptedProviders,
-                    indicationSubclasses,
-                    sourceNameSpace);
-
-#if 0
-                //
-                //  Send alert
-                //
-                //
-                //  Send NoProviderAlertIndication to handler instances
-                //  ATTN: NoProviderAlertIndication must be defined
-                //
-                Array<CIMInstance> subscriptions;
-                subscriptions.append(activeSubscriptions[i]);
-                CIMInstance indicationInstance = _createAlertInstance(
-                    _CLASS_NO_PROVIDER_ALERT, subscriptions);
-
-                PEG_TRACE((TRC_INDICATION_SERVICE, Tracer::LEVEL4,
-                    "Sending NoProvider Alert for %u subscriptions",
-                    subscriptions.size()));
-                _sendAlerts(subscriptions, indicationInstance);
-#endif
-
-                //
-                //  Get Subscription Filter Name and Handler Name
-                //
-                String logString = _getSubscriptionLogString(
-                    activeSubscriptions[i]);
-
-                //
-                //  Log a message for the subscription
-                //
-                Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
-                    Logger::WARNING,
-                    MessageLoaderParms(
-                        _MSG_NO_PROVIDER_KEY, _MSG_NO_PROVIDER,
-                        logString,
-                        activeSubscriptions[i].getPath().getNameSpace().
-                            getString()));
-            }
-        }
-        else
-        {
-            //
-            //  At least one provider accepted the subscription
-            //  Insert entries into the subscription hash tables
-            //
-            _subscriptionTable->insertSubscription(
+            _updateAcceptedSubscription(
                 activeSubscriptions[i],
                 acceptedProviders,
                 indicationSubclasses,
                 sourceNameSpace);
         }
     }  // for each active subscription
+
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+        if (timeoutSeconds > 0)
+        {
+            if (!_waitForAsyncRequestsComplete(&startTime, timeoutSeconds))
+            {
+                Logger::put(
+                    Logger::STANDARD_LOG,
+                    System::CIMSERVER,
+                    Logger::WARNING,
+                    "Failed to enable Indication service within timeout "
+                        "period of $0 seconds. There are $1 async"
+                            " requests pending.",
+                    timeoutSeconds,
+                    _asyncRequestsPending.get());
+                completed = false;
+            }
+        }
+#endif
 
     //
     //  Log a message if any invalid instances were found
@@ -815,7 +1545,6 @@ void IndicationService::_initialize()
             MessageLoaderParms(
                 _MSG_INVALID_INSTANCES_KEY, _MSG_INVALID_INSTANCES));
     }
-
     //
     //  Log a message for any subscription for which there is no longer any
     //  provider
@@ -865,6 +1594,8 @@ void IndicationService::_initialize()
 #endif
 
     PEG_METHOD_EXIT();
+
+    return completed;
 }
 
 void IndicationService::_terminate()
@@ -1998,6 +2729,12 @@ void IndicationService::_handleDeleteInstanceRequest(const Message* message)
 
 void IndicationService::_handleProcessIndicationRequest(Message* message)
 {
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    _processIndicationThreads++;
+    AutoPtr<AtomicInt, DecAtomicInt> counter(&_processIndicationThreads);
+#endif
+
 #ifdef PEGASUS_INDICATION_PERFINST
     Stopwatch stopWatch;
 #endif
@@ -5939,6 +6676,11 @@ void IndicationService::_sendAsyncCreateRequests(
         return;
     }
 
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    _asyncRequestsPending++;
+    AutoPtr<AtomicInt, DecAtomicInt> counter(&_asyncRequestsPending);
+#endif
+
     //
     //  Get repeat notification policy value from subscription instance
     //
@@ -6070,6 +6812,11 @@ void IndicationService::_sendAsyncCreateRequests(
             IndicationService::_aggregationCallBack,
             this,
             operationAggregate);
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+       // Release AutomicInt if atleast one request is sent for aggregation.
+       counter.release();
+#endif
     }
 
     PEG_METHOD_EXIT();
@@ -6324,6 +7071,11 @@ void IndicationService::_sendAsyncDeleteRequests(
         return;
     }
 
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    _asyncRequestsPending++;
+    AutoPtr<AtomicInt, DecAtomicInt> counter(&_asyncRequestsPending);
+#endif
+
     //
     //  Update subscription hash tables
     //
@@ -6448,6 +7200,11 @@ void IndicationService::_sendAsyncDeleteRequests(
             IndicationService::_aggregationCallBack,
             this,
             operationAggregate);
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+       // Release AutomicInt if atleast one request is sent for aggregation.
+       counter.release();
+#endif
     }
 
     PEG_METHOD_EXIT();
@@ -6584,6 +7341,9 @@ void IndicationService::_aggregationCallBack(
     if (isDoneAggregation)
     {
         service->_handleOperationResponseAggregation(operationAggregate);
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+        service->_asyncRequestsPending--;
+#endif
     }
 
     PEG_METHOD_EXIT();
@@ -6682,6 +7442,23 @@ void IndicationService::_handleCreateResponseAggregation(
         instanceRef = request->subscriptionInstance.getPath();
     }
 
+
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    if (operationAggregate->getOrigRequest() == 0)
+    {
+            //
+            // There is no request associated with the aggregation object.
+            // This request must have been sent during the indication
+            // service initialization because of timeout specified.
+            //
+            _updateAcceptedSubscription(
+                request->subscriptionInstance,
+                acceptedProviders,
+                operationAggregate->getIndicationSubclasses(),
+                request->nameSpace);
+    }
+    else
+#endif
     if (acceptedProviders.size() == 0)
     {
         //
@@ -6699,7 +7476,6 @@ void IndicationService::_handleCreateResponseAggregation(
                     "No providers accepted the subscription."));
         }
     }
-
     else
     {
         //
@@ -6758,9 +7534,9 @@ void IndicationService::_handleCreateResponseAggregation(
         }
         else  //  CIM_MODIFY_INSTANCE_REQUEST_MESSAGE
         {
+
             PEGASUS_ASSERT(operationAggregate->getOrigType() ==
                 CIM_MODIFY_INSTANCE_REQUEST_MESSAGE);
-
             //
             //  Insert entries into the subscription hash tables
             //
@@ -7062,6 +7838,11 @@ void IndicationService::sendSubscriptionInitComplete()
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationService::sendSubscriptionInitComplete");
 
+    if (_enabledState == _ENABLEDSTATE_DISABLED)
+    {
+        PEG_METHOD_EXIT();
+        return;
+    }
     //
     //  Create the Subscription Init Complete request
     //

@@ -93,7 +93,7 @@ void _fixCIMObjectPath(CIMInstance* instance, CIMClass& cls)
     {
         CIMObjectPath iop = instance->buildPath(cls);
         /* Fix for 4237*/
-        iop.setNameSpace(op.getNameSpace()); 
+        iop.setNameSpace(op.getNameSpace());
         instance->setPath(iop);
     }
 }
@@ -651,6 +651,10 @@ Message * JMPIProviderManager::processMessage(Message * request) throw()
 
     case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
         response = handleSubscriptionInitCompleteRequest (request);
+        break;
+
+    case CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE:
+        response = handleIndicationServiceDisabledRequest (request);
         break;
 
     default:
@@ -9106,6 +9110,27 @@ Message * JMPIProviderManager::handleStopAllProvidersRequest(
     PEG_METHOD_EXIT();
 
     return(response);
+}
+
+Message* JMPIProviderManager::handleIndicationServiceDisabledRequest(
+    Message* message)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "JMPIProviderManager::_handleIndicationServiceDisabledRequest");
+
+    CIMIndicationServiceDisabledRequestMessage* request =
+        dynamic_cast<CIMIndicationServiceDisabledRequestMessage*>(message);
+    PEGASUS_ASSERT(request != 0);
+
+    CIMIndicationServiceDisabledResponseMessage* response =
+        dynamic_cast<CIMIndicationServiceDisabledResponseMessage*>(
+            request->buildResponse());
+    PEGASUS_ASSERT(response != 0);
+
+    _subscriptionInitComplete = false;
+
+    PEG_METHOD_EXIT ();
+    return response;
 }
 
 Message * JMPIProviderManager::handleSubscriptionInitCompleteRequest(

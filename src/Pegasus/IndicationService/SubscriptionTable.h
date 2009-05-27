@@ -378,6 +378,14 @@ public:
         Array<CIMInstance>& matchingSubscriptions,
         Array<String>& matchingSubscriptionKeys);
 
+    /**
+        Returns all the Active Subscriptions table entries.
+
+        @return An Array containing the complete list of
+            ActiveSubscriptionsTable entries.
+     */
+    Array<ActiveSubscriptionsTableEntry> getAllActiveSubscriptionEntries();
+
 #ifdef PEGASUS_ENABLE_INDICATION_COUNT
     /**
         Updates entries in the Active Subscriptions table to increase
@@ -541,14 +549,6 @@ private:
         const Array <ProviderClassList> & updatedProviderList);
 
 #ifdef PEGASUS_ENABLE_INDICATION_COUNT
-    /**
-        Returns all the Active Subscriptions table entries.
-
-        @return An Array containing the complete list of
-            ActiveSubscriptionsTable entries.
-     */
-    Array<ActiveSubscriptionsTableEntry> _getAllActiveSubscriptionEntries();
-
     /**
         Gets filter name and handler name from the specified subscription.
         The format of filter name is namespace:filtername where the

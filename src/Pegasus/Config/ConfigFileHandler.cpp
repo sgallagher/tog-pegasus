@@ -228,6 +228,7 @@ void ConfigFileHandler::loadPlannedConfigProperties()
 Boolean ConfigFileHandler::updateCurrentValue(
     const CIMName& name,
     const String& value,
+    const String& userName,
     Boolean unset)
 {
     // Remove the old property name and value from the table

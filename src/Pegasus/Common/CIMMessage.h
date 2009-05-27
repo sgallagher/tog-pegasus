@@ -1226,6 +1226,24 @@ public:
     virtual CIMResponseMessage* buildResponse() const;
 };
 
+class PEGASUS_COMMON_LINKAGE
+    CIMIndicationServiceDisabledRequestMessage
+    : public CIMRequestMessage
+{
+public:
+    CIMIndicationServiceDisabledRequestMessage(
+        const String & messageId_,
+        const QueueIdStack & queueIds_)
+    : CIMRequestMessage
+       (CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_)
+    {
+    }
+
+    virtual CIMResponseMessage* buildResponse() const;
+};
+
 class PEGASUS_COMMON_LINKAGE CIMDisableModuleRequestMessage
     : public CIMRequestMessage
 {
@@ -2058,6 +2076,24 @@ public:
         const QueueIdStack & queueIds_)
     : CIMResponseMessage
        (CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE,
+        messageId_,
+        cimException_,
+        queueIds_)
+    {
+    }
+};
+
+class PEGASUS_COMMON_LINKAGE
+CIMIndicationServiceDisabledResponseMessage
+    : public CIMResponseMessage
+{
+public:
+    CIMIndicationServiceDisabledResponseMessage
+       (const String & messageId_,
+        const CIMException & cimException_,
+        const QueueIdStack & queueIds_)
+    : CIMResponseMessage
+       (CIM_INDICATION_SERVICE_DISABLED_RESPONSE_MESSAGE,
         messageId_,
         cimException_,
         queueIds_)

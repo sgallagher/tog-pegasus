@@ -143,6 +143,7 @@ protected:
     Message * handleEnableModuleRequest(const Message * message);
     Message * handleStopAllProvidersRequest(const Message * message);
     Message * handleSubscriptionInitCompleteRequest (const Message * message);
+    Message * handleIndicationServiceDisabledRequest (Message * message);
 
     ProviderName _resolveProviderName(const ProviderIdContainer & providerId);
 

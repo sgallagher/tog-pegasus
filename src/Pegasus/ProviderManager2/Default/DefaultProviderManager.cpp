@@ -148,6 +148,10 @@ Message* DefaultProviderManager::processMessage(Message* message)
             response = _handleSubscriptionInitCompleteRequest(request);
             break;
 
+        case CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE:
+            response = _handleIndicationServiceDisabledRequest(request);
+            break;
+
         default:
             PEGASUS_ASSERT(0);
             break;
@@ -305,6 +309,53 @@ CIMResponseMessage* DefaultProviderManager::_handleEnableModuleRequest(
     PEGASUS_ASSERT(response != 0);
 
     response->operationalStatus = operationalStatus;
+
+    PEG_METHOD_EXIT();
+    return response;
+}
+
+
+CIMResponseMessage*
+DefaultProviderManager::_handleIndicationServiceDisabledRequest(
+    CIMRequestMessage* message)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "DefaultProviderManager::_handleIndicationServiceDisabledRequest");
+
+    CIMIndicationServiceDisabledRequestMessage* request =
+        dynamic_cast<CIMIndicationServiceDisabledRequestMessage*>(message);
+    PEGASUS_ASSERT(request != 0);
+
+    CIMIndicationServiceDisabledResponseMessage* response =
+        dynamic_cast<CIMIndicationServiceDisabledResponseMessage*>(
+            request->buildResponse());
+    PEGASUS_ASSERT(response != 0);
+
+    _subscriptionInitComplete = false;
+
+    // Make a copy of the table so it is not locked during the provider calls
+    Array<ProviderMessageHandler*> providerList;
+    {
+        AutoMutex lock(_providerTableMutex);
+
+        for (ProviderTable::Iterator i = _providers.start(); i != 0; i++)
+        {
+            providerList.append(i.value());
+        }
+    }
+
+    //
+    // Notify all providers that indication service is disabled
+    //
+    for (Uint32 j = 0; j < providerList.size(); j++)
+    {
+        AutoMutex lock(providerList[j]->status.getStatusMutex());
+
+        if (providerList[j]->status.isInitialized())
+        {
+            providerList[j]->indicationServiceDisabled();
+        }
+    }
 
     PEG_METHOD_EXIT();
     return response;

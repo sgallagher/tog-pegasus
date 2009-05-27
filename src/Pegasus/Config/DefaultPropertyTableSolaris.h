@@ -42,7 +42,11 @@
     {"slp", "false", IS_STATIC, IS_VISIBLE},
 #endif
     {"enableAssociationTraversal", "true", IS_STATIC, IS_VISIBLE},
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    {"enableIndicationService", "true", IS_DYNAMIC, IS_VISIBLE},
+#else
     {"enableIndicationService", "true", IS_STATIC, IS_VISIBLE},
+#endif
 # ifdef PEGASUS_DEFAULT_ENABLE_OOP
     {"forceProviderProcesses", "true", IS_STATIC, IS_VISIBLE},
 # else
@@ -62,7 +66,11 @@
     {"slp", "false", IS_STATIC, IS_VISIBLE},
 #endif
     {"enableAssociationTraversal", "true", IS_STATIC, IS_VISIBLE},
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    {"enableIndicationService", "true", IS_DYNAMIC, IS_VISIBLE},
+#else
     {"enableIndicationService", "true", IS_STATIC, IS_VISIBLE},
+#endif
 # ifdef PEGASUS_DEFAULT_ENABLE_OOP
     {"forceProviderProcesses", "true", IS_STATIC, IS_VISIBLE},
 # else

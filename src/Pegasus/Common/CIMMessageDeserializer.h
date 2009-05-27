@@ -250,6 +250,11 @@ private:
         _deserializeCIMSubscriptionInitCompleteRequestMessage
             (XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
+    static CIMIndicationServiceDisabledRequestMessage*
+        _deserializeCIMIndicationServiceDisabledRequestMessage
+            (XmlParser& parser);
+
     //
     //
     // CIM Response Messages
@@ -370,6 +375,10 @@ private:
         _deserializeCIMSubscriptionInitCompleteResponseMessage
             (XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
+    static CIMIndicationServiceDisabledResponseMessage*
+        _deserializeCIMIndicationServiceDisabledResponseMessage
+            (XmlParser& parser);
 };
 
 PEGASUS_NAMESPACE_END

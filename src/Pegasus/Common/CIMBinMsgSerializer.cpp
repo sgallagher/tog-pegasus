@@ -366,6 +366,11 @@ void CIMBinMsgSerializer::_putRequestMessage(
                 out, (CIMSubscriptionInitCompleteRequestMessage*)msg);
             break;
 
+        case CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE:
+            _putIndicationServiceDisabledRequestMessage(
+                out, (CIMIndicationServiceDisabledRequestMessage*)msg);
+            break;
+
         default:
             PEGASUS_ASSERT(0);
         }
@@ -490,6 +495,12 @@ void CIMBinMsgSerializer::_putResponseMessage(
             _putSubscriptionInitCompleteResponseMessage(
                 out,
                 (CIMSubscriptionInitCompleteResponseMessage *)
+                cimMessage);
+            break;
+        case CIM_INDICATION_SERVICE_DISABLED_RESPONSE_MESSAGE:
+            _putIndicationServiceDisabledResponseMessage(
+                out,
+                (CIMIndicationServiceDisabledResponseMessage *)
                 cimMessage);
             break;
 
@@ -1029,6 +1040,12 @@ void CIMBinMsgSerializer::_putSubscriptionInitCompleteRequestMessage(
 {
 }
 
+void CIMBinMsgSerializer::_putIndicationServiceDisabledRequestMessage(
+    CIMBuffer& out,
+    CIMIndicationServiceDisabledRequestMessage* msg)
+{
+}
+
 void CIMBinMsgSerializer::_putGetInstanceResponseMessage(
     CIMBuffer& out,
     CIMGetInstanceResponseMessage* msg)
@@ -1221,6 +1238,12 @@ void CIMBinMsgSerializer::_putNotifyConfigChangeResponseMessage(
 void CIMBinMsgSerializer::_putSubscriptionInitCompleteResponseMessage(
     CIMBuffer& out,
     CIMSubscriptionInitCompleteResponseMessage* msg)
+{
+}
+
+void CIMBinMsgSerializer::_putIndicationServiceDisabledResponseMessage(
+    CIMBuffer& out,
+    CIMIndicationServiceDisabledResponseMessage* msg)
 {
 }
 

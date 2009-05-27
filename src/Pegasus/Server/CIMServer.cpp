@@ -447,13 +447,9 @@ void CIMServer::_init()
     // otherwise HandlerService started by indicationService will never
     // get ExportQueue to export indications for existing subscriptions
 
-    _indicationService = 0;
-    if (ConfigManager::parseBooleanValue(
-        configManager->getCurrentValue("enableIndicationService")))
-    {
-        _indicationService = new IndicationService(
-            _repository, _providerRegistrationManager);
-    }
+    _indicationService = new IndicationService(
+        _repository,
+        _providerRegistrationManager);
 
     // Enable the signal handler to shutdown gracefully on SIGHUP and SIGTERM
     getSigHandle()->registerHandler(PEGASUS_SIGHUP, shutdownSignalHandler);

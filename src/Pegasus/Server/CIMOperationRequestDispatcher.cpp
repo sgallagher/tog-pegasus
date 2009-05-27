@@ -84,11 +84,11 @@ static Boolean _isVersionGreaterOrEqual(
     Uint32 minorV1 = PEG_NOT_FOUND;
     Uint32 majorV1 = PEG_NOT_FOUND;
     Uint32 updateV1 = PEG_NOT_FOUND;
-    
+
     int result;
     char dummychar;
 
-    result = sscanf((const char*)v1.getCString(), 
+    result = sscanf((const char*)v1.getCString(),
         "%d.%d.%d%c",
         &majorV1,
         &minorV1,
@@ -337,8 +337,6 @@ CIMOperationRequestDispatcher::CIMOperationRequestDispatcher(
     _enableAssociationTraversal = ConfigManager::parseBooleanValue(
         configManager->getCurrentValue("enableAssociationTraversal"));
 
-    _enableIndicationService = ConfigManager::parseBooleanValue(
-        configManager->getCurrentValue("enableIndicationService"));
 
     //
     //  Get the maximum breadth of enum parameter from config if it exists.
@@ -1095,92 +1093,89 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                 PEGASUS_MODULENAME_PROVREGPROVIDER,
                 controlServiceId);
 
-            if (_enableIndicationService)
-            {
-                Uint32 indicationServiceId = lookup(
-                    PEGASUS_QUEUENAME_INDICATIONSERVICE)->getQueueId();
+            Uint32 indicationServiceId = lookup(
+                PEGASUS_QUEUENAME_INDICATIONSERVICE)->getQueueId();
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-                _routing_table->insertRecord(
-                    PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE,
-                    PEGASUS_NAMESPACENAME_INTEROP,
-                    String::EMPTY,
-                    indicationServiceId);
+            _routing_table->insertRecord(
+                PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE,
+                PEGASUS_NAMESPACENAME_INTEROP,
+                String::EMPTY,
+                indicationServiceId);
 
-                _routing_table->insertRecord(
-                    PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES,
-                    PEGASUS_NAMESPACENAME_INTEROP,
-                    String::EMPTY,
-                    indicationServiceId);
+            _routing_table->insertRecord(
+                PEGASUS_CLASSNAME_CIM_INDICATIONSERVICECAPABILITIES,
+                PEGASUS_NAMESPACENAME_INTEROP,
+                String::EMPTY,
+                indicationServiceId);
 #endif
-                _routing_table->insertRecord(
-                    PEGASUS_CLASSNAME_INDSUBSCRIPTION,
-                    _wild,
-                    String::EMPTY,
-                    indicationServiceId);
+            _routing_table->insertRecord(
+                PEGASUS_CLASSNAME_INDSUBSCRIPTION,
+                _wild,
+                String::EMPTY,
+                indicationServiceId);
 
-                _routing_table->insertRecord(
-                    PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION,
-                    _wild,
-                    String::EMPTY,
-                    indicationServiceId);
+            _routing_table->insertRecord(
+                PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION,
+                _wild,
+                String::EMPTY,
+                indicationServiceId);
 
-                _routing_table->insertRecord(
-                    PEGASUS_CLASSNAME_INDHANDLER,
-                    _wild,
-                    String::EMPTY,
-                    indicationServiceId);
+            _routing_table->insertRecord(
+                PEGASUS_CLASSNAME_INDHANDLER,
+                _wild,
+                String::EMPTY,
+                indicationServiceId);
 
-                _routing_table->insertRecord(
-                    PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
-                    _wild,
-                    String::EMPTY,
-                    indicationServiceId);
+            _routing_table->insertRecord(
+                PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
+                _wild,
+                String::EMPTY,
+                indicationServiceId);
 
-                _routing_table->insertRecord(
-                    PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-                    _wild,
-                    String::EMPTY,
-                    indicationServiceId);
+            _routing_table->insertRecord(
+                PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
+                _wild,
+                String::EMPTY,
+                indicationServiceId);
 
-                _routing_table->insertRecord(
-                    PEGASUS_CLASSNAME_INDHANDLER_SNMP,
-                    _wild,
-                    String::EMPTY,
-                    indicationServiceId);
+            _routing_table->insertRecord(
+                PEGASUS_CLASSNAME_INDHANDLER_SNMP,
+                _wild,
+                String::EMPTY,
+                indicationServiceId);
 
-                _routing_table->insertRecord(
-                    PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG,
-                    _wild,
-                    String::EMPTY,
-                    indicationServiceId);
+            _routing_table->insertRecord(
+                PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG,
+                _wild,
+                String::EMPTY,
+                indicationServiceId);
 
-                _routing_table->insertRecord(
-                    PEGASUS_CLASSNAME_LSTNRDST_EMAIL,
-                    _wild,
-                    String::EMPTY,
-                    indicationServiceId);
+            _routing_table->insertRecord(
+                PEGASUS_CLASSNAME_LSTNRDST_EMAIL,
+                _wild,
+                String::EMPTY,
+                indicationServiceId);
 
-                _routing_table->insertRecord(
-                    PEGASUS_CLASSNAME_INDFILTER,
-                    _wild,
-                    String::EMPTY,
-                    indicationServiceId);
+            _routing_table->insertRecord(
+                PEGASUS_CLASSNAME_INDFILTER,
+                _wild,
+                String::EMPTY,
+                indicationServiceId);
 
 #ifdef PEGASUS_ENABLE_INDICATION_COUNT
-                _routing_table->insertRecord(
-                    PEGASUS_CLASSNAME_PROVIDERINDDATA,
-                    PEGASUS_NAMESPACENAME_INTERNAL,
-                    String::EMPTY,
-                    indicationServiceId);
+            _routing_table->insertRecord(
+                PEGASUS_CLASSNAME_PROVIDERINDDATA,
+                PEGASUS_NAMESPACENAME_INTERNAL,
+                String::EMPTY,
+                indicationServiceId);
 
-                _routing_table->insertRecord(
-                    PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA,
-                    PEGASUS_NAMESPACENAME_INTERNAL,
-                    String::EMPTY,
-                    indicationServiceId);
+            _routing_table->insertRecord(
+                PEGASUS_CLASSNAME_SUBSCRIPTIONINDDATA,
+                PEGASUS_NAMESPACENAME_INTERNAL,
+                String::EMPTY,
+                indicationServiceId);
 #endif
-            }
             _initialized = 1;
         }
     }

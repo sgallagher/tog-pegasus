@@ -107,9 +107,7 @@ extern "C" {
 # include "lslp-hpux.h"
 #endif
 
-void _lslp_term(int sig) ;
 void  num_to_ascii(uint32 val, char *buf, int32 radix, BOOL is_neg);
-void  hug_num_to_ascii(uint64 val, char *buf, int32 radix, BOOL is_neg);
 
 typedef int SOCKETD;
 
@@ -144,12 +142,6 @@ typedef int SOCKETD;
 
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
-#define SD_BOTH SHUT_RDWR
-
-#define FAR
-
-#define LSLP_SEM_T sem_t
-#define LSLP_THREAD_T pthread_t
 
 /** void *(*start)(void *), ustacksize, void *arg  **/
 
@@ -159,13 +151,9 @@ typedef int SOCKETD;
 # define _LSLP_STRTOK(n, d, s) strtok((n), (d) )
 #endif
 
-
-
-
 #define SOCKADDR_IN struct sockaddr_in
 #define SOCKADDR struct sockaddr
 #define SOCKET int
-
 
 #ifndef TRUE
 # define TRUE 1
@@ -174,22 +162,8 @@ typedef int SOCKETD;
 # define FALSE 0
 #endif
 
-#define _ultoa(v, b, r) num_to_ascii((uint32)(v), (b), (r), FALSE)
 #define _itoa(v, b, r) num_to_ascii((uint32)(v), (b), (r), (((r) == 10) \
     && ((int32)(v) < 0)))
-#define _ltoa(v, b, r) num_to_ascii((uint32)(v), (b), (r), (((r) == 10) \
-    && ((int32)(v) < 0)))
-#define _ul64toa(v, b, r) huge_num_to_ascii((uint64)(v), (b), (r), FALSE)
-#define _i64toa(v, b, r) huge_num_to_ascii((uint64)(v), (b), (r), (((r) == 10)\
-    && ((int64)(v) < 0)))
-
-
-#define LSLP_HEXDUMP(c) ((((c) > 31) && ((c) < 128)) ? (c) : '.')
-#define LSLP_MSG_STRINGS 4
-#define LSLP_STRINGS_HEXDUMP 1
-#define LSLP_STRINGS_WORKDUMP 2
-#define LSLP_STRINGS_NADUMP 3
-
 
 #define _LSLP_CLOSESOCKET close
 #ifdef PEGASUS_OS_ZOS

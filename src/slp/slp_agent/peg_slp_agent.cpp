@@ -152,6 +152,51 @@ void SLPRegCallback(SLPHandle slp_handle, SLPError errcode, void* cookie)
 }
 #endif /* PEGASUS_USE_EXTERNAL_SLP_TYPE */
 
+uint16 slp_service_agent::_getSLPPort()
+{
+    uint16  localPort;
+
+    struct servent  *serv;
+    struct servent  serv_result;
+
+#define SERV_BUFF_SIZE  1024
+
+    char buf[SERV_BUFF_SIZE];
+
+    // Get the port number.
+
+#if defined(PEGASUS_OS_SOLARIES)
+
+    if ((serv = getservbyname_r(
+        SLP_SERVICE_NAME, "udp", &serv_result, buf, SERV_BUF_SIZE)) != NULL)
+#elif defined(PEGASUS_OS_LINUX)
+
+    int ret = getservbyname_r(
+        SLP_SERVICE_NAME,
+        "udp",
+        &serv_result,
+        buf,
+        SERV_BUFF_SIZE,
+        &serv);
+
+    if (ret == 0 && serv != NULL)
+#else
+    if ((serv = getservbyname(SLP_SERVICE_NAME, "udp")) != NULL)
+#endif
+    {
+#if defined (PEGASUS_OS_WINDOWS)
+        localPort = ntohs(serv->s_port);
+#else
+        localPort = htons(serv->s_port);
+#endif
+    }
+    else
+    {
+        localPort = DEFAULT_SLP_PORT;
+    }
+
+    return localPort;
+}
 
 slp_service_agent::slp_service_agent()
    : _listen_thread(service_listener, this, false),
@@ -172,7 +217,7 @@ slp_service_agent::slp_service_agent()
         _rep = _create_client(
             0,
             0,
-            427,
+            _getSLPPort(),
             "DSA",
             "DEFAULT",
 // Dont create listener sockets if REG_TIMEOUT or EXTERNAL_SLP_TYPE is set

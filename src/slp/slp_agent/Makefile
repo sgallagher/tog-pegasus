@@ -62,14 +62,9 @@ SOURCES = peg_slp_agent.cpp
 
 include $(ROOT)/mak/library.mak
 
-#ifeq ($(PEGASUS_ENABLE_SLP),true)
-#$(SOURCES): common
-#common :
-#	@ $(MAKE) -SC $(ROOT)/src/Pegasus/Common
-#ifeq ($(OS_TYPE),windows)
-#SYS_LIBS = ws2_32.lib advapi32.lib
-#endif
-#endif
+ifeq ($(OS_TYPE),windows)
+    SYS_LIBS = ws2_32.lib advapi32.lib
+endif
 
 run:
 	Server $(REPOSITORY_ROOT)

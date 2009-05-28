@@ -783,13 +783,13 @@ static int _slp_create_bind_socket(SOCKETD *sock, int af, int port,
     return brc == SOCKET_ERROR ? -1 : 0;
 }
 
-static SOCKETD _slp_open_listen_sock(int af)
+static SOCKETD _slp_open_listen_sock(int af, int port)
 {
     SOCKETD sock = INVALID_SOCKET;
 
     DEBUG_PRINT((DEBUG_ENTER, "_slp_open_listen_sock %d",af));
 
-    if (_slp_create_bind_socket(&sock, af, 427, 0, TRUE) == 0)
+    if (_slp_create_bind_socket(&sock, af, port, 0, TRUE) == 0)
     {
         slp_join_multicast_all(sock, af);
     }
@@ -812,13 +812,17 @@ void slp_open_listen_socks(struct slp_client *client)
 
     if (client->_ip4_stack_active)
     {
-        client->_rcv_sock[0] = _slp_open_listen_sock(AF_INET);
+        client->_rcv_sock[0] = _slp_open_listen_sock(
+            AF_INET,
+            client->_target_port);
     }
 
 #ifdef PEGASUS_ENABLE_IPV6
     if (client->_ip6_stack_active)
     {
-        client->_rcv_sock[1] = _slp_open_listen_sock(AF_INET6);
+        client->_rcv_sock[1] = _slp_open_listen_sock(
+            AF_INET6,
+            client->_target_port);
     }
 #endif
 }
@@ -919,8 +923,12 @@ void make_srv_ack(
         {
             local_address = *ptr_addr;
 #endif
-            if (-1 != _slp_create_bind_socket(&sock, local_address.af, 427,
-                &local_address.ip4_addr, TRUE))
+            if (-1 != _slp_create_bind_socket(
+                &sock,
+                local_address.af,
+                client->_target_port,
+                &local_address.ip4_addr,
+                TRUE))
             {
                 _LSLP_SENDTO(sock, client->_msg_buf,
                     _LSLP_GETLENGTH(client->_msg_buf), 0,
@@ -1488,7 +1496,7 @@ static void _slp_fill_local_target_addr(
         }
         client->_target_addr.af = AF_INET;
         client->_target_port =
-            addr ? ((SOCKADDR_IN*)addr)->sin_port : htons(port);
+            addr ? ntohs(((SOCKADDR_IN*)addr)->sin_port) : port;
     }
 #ifdef PEGASUS_ENABLE_IPV6
     else
@@ -1507,7 +1515,7 @@ static void _slp_fill_local_target_addr(
         }
         client->_target_addr.af = AF_INET6;
         client->_target_port =
-            addr ? ((SOCKADDR_IN6*)addr)->sin6_port : htons(port);
+            addr ? ntohs(((SOCKADDR_IN6*)addr)->sin6_port) : port;
     }
 #endif
 }
@@ -2832,8 +2840,12 @@ void decode_srvreq(struct slp_client *client, SOCKADDR *remote)
                 local_address = *ptr_addr;
 #endif
 
-                if (-1 != _slp_create_bind_socket (&sock, local_address.af, 427,
-                    &local_address.ip4_addr, TRUE))
+                if (-1 != _slp_create_bind_socket(
+                    &sock,
+                    local_address.af,
+                    client->_target_port,
+                    &local_address.ip4_addr,
+                    TRUE))
                 {
                     if (mcast == TRUE)
                     {
@@ -3118,7 +3130,7 @@ BOOL send_rcv_udp(struct slp_client *client, BOOL retry)
             if (af == AF_INET)
             {
                 ip4.sin_family = AF_INET;
-                ip4.sin_port = client->_target_port;
+                ip4.sin_port = htons(client->_target_port);
                 ip4.sin_addr = client->_target_addr.ip4_addr;
                 addr_len = sizeof(ip4);
                 target = &ip4;
@@ -3129,7 +3141,7 @@ BOOL send_rcv_udp(struct slp_client *client, BOOL retry)
                 addr_len = sizeof(ip6);
                 memset(&ip6, 0, addr_len);
                 ip6.sin6_family = AF_INET6;
-                ip6.sin6_port = client->_target_port;
+                ip6.sin6_port = htons(client->_target_port);
                 ip6.sin6_addr = client->_target_addr.ip6_addr;
                 target = &ip6;
             }
@@ -3743,7 +3755,7 @@ struct slp_client *create_slp_client(
     client->_buf_len = LSLP_MTU;
     client->_version = 1;
     client->_xid = 1;
-    client->_target_port = htons(target_port);
+    client->_target_port = target_port;
 
     client->_ip4_stack_active = slp_is_ip4_stack_active();
 
@@ -3865,7 +3877,7 @@ struct slp_client *create_slp_client(
             _LSLP_CLOSESOCKET(client->_rcv_sock[1]);
             client->_rcv_sock[0] = client->_rcv_sock[1] = INVALID_SOCKET;
             client->_use_das = TRUE;
-            client->_da_target_port = htons(427);
+            client->_da_target_port = client->_target_port;
             if (client->_ip4_stack_active)
             {
                 client->_da_target_addr.ip4_addr.s_addr =
@@ -4325,9 +4337,12 @@ void decode_attrreq(struct slp_client *client, SOCKADDR *remote)
                                 {
                                         local_address = *ptr_addr;
 #endif
-                                    if (-1 != _slp_create_bind_socket (&sock,
-                                        local_address.af, 427,
-                                        &local_address.ip4_addr, TRUE))
+                                    if (-1 != _slp_create_bind_socket(
+                                        &sock,
+                                        local_address.af,
+                                        client->_target_port,
+                                        &local_address.ip4_addr,
+                                        TRUE))
                                     {
                                             _LSLP_SENDTO(
                                                 sock,
@@ -7179,12 +7194,11 @@ int main(int argc, char **argv)
     lslpMsg *replies, rply;
     int i ;
     time_t now, last;
-
-
+    
     struct slp_client *client = create_slp_client(
         NULL,
         NULL,
-        427,
+        DEFAULT_SLP_PORT,
         "DSA",
         "DEFAULT, TEST SCOPE",
         TRUE,

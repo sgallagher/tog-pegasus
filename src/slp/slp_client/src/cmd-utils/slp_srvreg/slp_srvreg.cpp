@@ -66,9 +66,9 @@
 #endif
 
 char *type, *url, *attrs, *addr, *scopes, *iface, *spi;
-uint16 life = 0x0fff, port=427;
+uint16 life = 0x0fff;
 BOOL should_listen = FALSE, dir_agent = FALSE, test = FALSE;
-
+static uint16 port = DEFAULT_SLP_PORT;
 
 void free_globals()
 {

@@ -61,11 +61,12 @@
 #include "../slp_client/slp_utils.h"
 
 static char *url, *scopes, *tags, *addr, *_interface;
-static int16 port = 427, converge ;
+static int16 converge ;
 static BOOL dir_agent = FALSE;
 static BOOL test = FALSE;
 static BOOL parsable = FALSE;
 static char fs='\t', rs='\n';
+static int16 port = DEFAULT_SLP_PORT;
 
 void free_globals()
 {

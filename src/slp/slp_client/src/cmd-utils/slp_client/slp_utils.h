@@ -110,6 +110,16 @@ extern "C"
 #endif
 
 /**
+    SLP service Name
+*/
+#define SLP_SERVICE_NAME  "svrloc"
+
+/**
+    Default SLP Port Number
+*/
+#define DEFAULT_SLP_PORT  427
+
+/**
     Verifies given IPv4 Address and returns true if it is valid.
 */
 SLP_STORAGE_DECL BOOL slp_is_valid_ip4_addr(const char *ipv4_addr);

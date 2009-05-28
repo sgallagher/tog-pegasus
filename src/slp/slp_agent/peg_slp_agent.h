@@ -43,6 +43,7 @@
 #include <Pegasus/Common/Semaphore.h>
 #include "Linkage.h"
 #include "../slp_client/src/cmd-utils/slp_client/slp_client.h"
+#include "../slp_client/src/cmd-utils/slp_client/slp_utils.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -178,6 +179,8 @@ private:
         char *);
 
     void (*update_registrations)();
+
+    uint16 _getSLPPort();
 
     DynamicLibrary _library;
 

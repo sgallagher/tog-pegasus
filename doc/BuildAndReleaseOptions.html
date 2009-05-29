@@ -2298,22 +2298,6 @@ configuration properties.</p>
      Pegasus/Config/SecurityPropertyOwner.cpp<p>&nbsp;</p>
 </ul>
 
-<h5>enableSSLExportClientVerification</h5>
-<ul>
-  <b>Description:&nbsp;</b>If true, the CIM Server allows HTTPS
-     connection for CIMExport requests on the port specified by the
-     service name &quot;wbem-exp-https&quot;.<br>
-  <b>Default Value:&nbsp;</b>false<br>
-  <b>Recommended Default Value (Development Build):&nbsp;</b>true<br>
-  <b>Recommended Default Value (Release Build):&nbsp;</b>false<br>
-  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
-  <b>Recommend To Be Fixed/Hidden (Release Build):&nbsp;</b>No/No<br>
-  <b>Dynamic?:&nbsp;</b>No<br>
-  <b>Source Configuration File:&nbsp;</b>
-     Pegasus/Config/SecurityPropertyOwner.cpp</p>
-</ul>
-
-
 <h5>enableSubscriptionsForNonprivilegedUsers</h5>
 <ul>
   <b>Description:&nbsp;</b>If true, operations (create instance,
@@ -2355,26 +2339,6 @@ configuration properties.</p>
      if its module name appears in this list.<br>
   <b>Source Configuration File:&nbsp;</b>
      Pegasus/Config/NormalizationPropertyOwner.cpp
-</ul>
-
-
-<h5><b>exportSSLTrustStore</b></h5>
-<ul>
-  <b>Description:&nbsp;</b>Specifies the location of the OpenSSL
-     truststore for Indications. Consistent with the OpenSSL
-     implementation, a truststore can be either a file or directory.
-     If the truststore is a directory, all the certificates within
-     the directory are considered trusted.<br>
-  <b>Default Value:&nbsp;</b>indication_trust.pem<br>
-  <b>Recommended Default Value (Development Build):&nbsp;</b>
-     indication_trust.pem<br>
-  <b>Recommended Default Value (Release Build):&nbsp;</b>
-     $CERTIFICATEDIR/indication_trust.pem<br>
-  <b>Recommend To Be Fixed/Hidden (Development Build): </b>No/No<br>
-  <b>Recommend To Be Fixed/Hidden (Release Build):&nbsp;</b>Yes<br>
-  <b>Dynamic?:&nbsp;</b>No<br>
-  <b>Source Configuration File:&nbsp;</b>
-     Pegasus/Config/SecurityPropertyOwner.cpp</p>
 </ul>
 
 <h5>forceProviderProcesses</h5>

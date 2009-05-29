@@ -100,15 +100,8 @@ public:
      */
     void sendSubscriptionInitComplete();
 
-    static Uint16 getHealthState()
-    {
-        return _healthState;
-    }
-
-    static Uint16 getEnabledState()
-    {
-        return _enabledState;
-    }
+    static Uint16 getHealthState();
+    static Uint16 getEnabledState();
 
     AtomicInt dienow;
 

@@ -267,6 +267,16 @@ IndicationService::~IndicationService()
 {
 }
 
+Uint16 IndicationService::getHealthState()
+{
+    return _healthState;
+}
+
+Uint16 IndicationService::getEnabledState()
+{
+    return _enabledState;
+}
+
 void IndicationService::_handle_async_request(AsyncRequest *req)
 {
     if (req->getType() == ASYNC_CIMSERVICE_STOP)

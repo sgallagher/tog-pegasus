@@ -253,19 +253,18 @@ static int CimserveraProcessOperation(
         if (response.status != 0)
         {
             status = -1;
-            break;
         }
-
-#if !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
-        /* When called from the main cimserver process, the cimservera
-           exit status must be harvested explicitly to prevent zombies.
-        */
-
-        while ((waitpid(pid, 0, 0) == -1) && (errno == EINTR))
-            ;
-#endif
     }
     while (0);
+
+#if !defined(PEGASUS_ENABLE_PRIVILEGE_SEPARATION)
+    /* When called from the main cimserver process, the cimservera
+       exit status must be harvested explicitly to prevent zombies.
+    */
+
+    while ((waitpid(pid, 0, 0) == -1) && (errno == EINTR))
+        ;
+#endif
 
     close(sock);
 

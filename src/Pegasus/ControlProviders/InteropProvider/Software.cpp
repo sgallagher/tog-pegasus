@@ -142,8 +142,9 @@ CIMInstance InteropProvider::buildSoftwareIdentity(
             SOFTWAREIDENTITY_PROPERTY_CAPTION, caption);
     }
 
-    softwareIdentity.setPath(
-        softwareIdentity.buildPath(softwareIdentityClass));
+    CIMObjectPath path = softwareIdentity.buildPath(softwareIdentityClass);
+    path.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
+    softwareIdentity.setPath(path);
 
     return softwareIdentity;
 }

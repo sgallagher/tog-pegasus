@@ -624,6 +624,15 @@ class PG_ElementSoftwareIdentity : CIM_ElementSoftwareIdentity {
 };
 
 // ==================================================================
+// PG_InstalledSoftwareIdentity
+// ==================================================================
+[Version ("2.10.0"), Description(
+    "Subclass supported by the Pegasus SNIA Software Sub Profile"
+    " Implementation.")]
+class PG_InstalledSoftwareIdentity : CIM_InstalledSoftwareIdentity {
+};
+
+// ==================================================================
 // PG_ObjectManager
 // ==================================================================
 [Association, Version ("2.6.0"), Description(

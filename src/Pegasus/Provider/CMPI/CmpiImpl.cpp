@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//=============================================================================
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -292,7 +294,7 @@ CMPIStatus CmpiInstanceMI::driveSetInstance(
     const CMPIContext* eCtx,
     const CMPIResult* eRslt,
     const CMPIObjectPath* eCop,
-    const CMPIInstance* eInst,
+    const CMPIInstance* eInst, 
     const char* *properties)
 {
     try
@@ -824,7 +826,7 @@ CMPIStatus CmpiIndicationMI::driveAuthorizeFilter(
     const CMPIContext* eCtx,
     const CMPISelectExp* eSe,
     const char* ns,
-    const CMPIObjectPath* eCop,
+    const CMPIObjectPath* eCop, 
     const char* user)
 {
     try
@@ -883,8 +885,8 @@ CMPIStatus CmpiIndicationMI::driveActivateFilter(
     CMPIIndicationMI* mi,
     const CMPIContext* eCtx,
     const CMPISelectExp* eSe,
-    const char* clsName,
-    const CMPIObjectPath* eCop,
+    const char* ns,
+    const CMPIObjectPath* eCop, 
     CMPIBoolean first)
 {
     try
@@ -897,7 +899,7 @@ CMPIStatus CmpiIndicationMI::driveActivateFilter(
         return nmi->activateFilter(
             ctx,
             se,
-            clsName,
+            ns,
             cop,
             first).status();
     }
@@ -914,8 +916,8 @@ CMPIStatus CmpiIndicationMI::driveDeActivateFilter(
     CMPIIndicationMI* mi,
     const CMPIContext* eCtx,
     const CMPISelectExp* eSe,
-    const char* clsName,
-    const CMPIObjectPath* eCop,
+    const char* ns,
+    const CMPIObjectPath* eCop, 
     CMPIBoolean last)
 {
     try
@@ -928,7 +930,7 @@ CMPIStatus CmpiIndicationMI::driveDeActivateFilter(
         return nmi->deActivateFilter(
             ctx,
             se,
-            clsName,
+            ns,
             cop,
             last).status();
     }
@@ -1027,16 +1029,16 @@ CmpiStatus CmpiIndicationMI::deActivateFilter(
     return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
-CmpiStatus CmpiIndicationMI::enableIndications
-      (const CmpiContext& ctx)
+CmpiStatus CmpiIndicationMI::enableIndications                             
+      (const CmpiContext& ctx)                                             
 {
-  return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
+  return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);                            
 }
 
-CmpiStatus CmpiIndicationMI::disableIndications
-      (const CmpiContext& ctx)
+CmpiStatus CmpiIndicationMI::disableIndications                            
+      (const CmpiContext& ctx)                                            
 {
-  return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
+  return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);                           
 }
 
 //---------------------------------------------------
@@ -1517,7 +1519,7 @@ CmpiData::operator CmpiDateTime() const
     {
         return CmpiDateTime(_data.value.dateTime);
     }
-
+        
 }
 
 CmpiData::operator CMPISint8() const
@@ -1530,7 +1532,7 @@ CmpiData::operator CMPISint8() const
     {
         return _data.value.sint8;
     }
-
+        
 }
 CmpiData::operator CMPISint16() const
 {
@@ -2142,7 +2144,7 @@ CmpiData CmpiInstance::getProperty(const char* name) const
     CmpiData d;
     CMPIStatus rc={CMPI_RC_OK,NULL};
     d._data=getEnc()->ft->getProperty(getEnc(),name,&rc);
-    if ((rc.rc != CMPI_RC_OK) && (rc.rc != CMPI_RC_ERR_NO_SUCH_PROPERTY))
+    if ((rc.rc != CMPI_RC_OK) && (rc.rc != CMPI_RC_ERR_NOT_FOUND))
     {
         if (rc.msg)
         {
@@ -2264,7 +2266,7 @@ CMPIrc CmpiStatus::rc() const
 
 const char*  CmpiStatus::msg() const
 {
-    return st.msg ? CMGetCharsPtr(st.msg,NULL) : 0;
+    return st.msg ? CMGetCharPtr(st.msg) : 0;
 }
 
 CmpiStatus::CmpiStatus()
@@ -2350,7 +2352,7 @@ void *CmpiObjectPath::makeObjectPath(
     const char *cls)
 {
     CMPIStatus rc={CMPI_RC_OK,NULL};
-    void *op=mb->eft->newObjectPath(mb,CMGetCharsPtr(ns.getEnc(),NULL),cls,&rc);
+    void *op=mb->eft->newObjectPath(mb,CMGetCharPtr(ns.getEnc()),cls,&rc);
     if (rc.rc != CMPI_RC_OK)
     {
         throw CmpiStatus(rc);
@@ -2464,7 +2466,7 @@ CmpiData CmpiObjectPath::getKey(const int pos, CmpiString *name) const
     {
         throw CmpiStatus(rc);
     }
-    if (name)
+    if (name) 
     {
         *name=CmpiString(s);
     }
@@ -3164,7 +3166,7 @@ CmpiSelectExp::CmpiSelectExp()
 //--
 //---------------------------------------------------
 
-/**
+/** 
    Constructor from CMPI type.
 */
 CmpiDateTime::CmpiDateTime(const CMPIDateTime* newEnc)
@@ -3281,7 +3283,7 @@ CmpiBooleanData CmpiFalse(false);
 
 #ifdef CMPI_VER_200
  static  CMPIBroker __providerBaseBroker = {0,0,0,0,0};
-#elif defined(CMPI_VER_100)
+#elif CMPI_VER_100
  static  CMPIBroker __providerBaseBroker = {0,0,0,0};
 #else
  static CMPIBroker __providerBaseBroker = {0,0,0};

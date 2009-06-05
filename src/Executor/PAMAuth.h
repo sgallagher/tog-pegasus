@@ -49,12 +49,6 @@
 #include <Executor/Defines.h>
 #include <Executor/Socket.h>
 
-#ifdef PEGASUS_FLAVOR
-# define PAM_CONFIG_FILE "wbem" PEGASUS_FLAVOR
-#else
-# define PAM_CONFIG_FILE "wbem"
-#endif
-
 /*
 **==============================================================================
 **
@@ -195,9 +189,7 @@ CimserveraRequest;
 
 typedef struct CimserveraResponseStruct
 {
-    /* '-1' means authentication failed / something went wrong in the 
-            communication
-      '>=0'  means PAM return code. */
+    /* '0' means authentication successful. '-1' means authentication failed. */
     int status;
 }
 CimserveraResponse;
@@ -256,9 +248,12 @@ static int CimserveraProcessOperation(
             break;
         }
 
-        /* Store status. */
+        /* Check status. */
 
-        status = response.status;
+        if (response.status != 0)
+        {
+            status = -1;
+        }
     }
     while (0);
 
@@ -402,34 +397,30 @@ static int PAMAuthenticateInProcess(
     PAMData data;
     struct pam_conv pconv;
     pam_handle_t* handle;
-    int pam_rc;
 
     data.password = password;
     pconv.conv = PAMAuthenticateCallback;
     pconv.appdata_ptr = &data;
 
-    /* commented out statement in place to allow triggering a Http 500 Error */
-    /* intentionally for testing purposes */
-    /* return PAM_SERVICE_ERR; */
 
-    pam_rc = pam_start(PAM_CONFIG_FILE, username, &pconv, &handle);
+    if (pam_start("wbem", username, &pconv, &handle) != PAM_SUCCESS)
+        return -1;
 
-    if (pam_rc != PAM_SUCCESS)
-    {
-        return pam_rc;
-    }
-
-    pam_rc = pam_authenticate(handle, 0);
-    if (pam_rc != PAM_SUCCESS)
+    if (pam_authenticate(handle, 0) != PAM_SUCCESS)
     {
         pam_end(handle, 0);
-        return pam_rc;
+        return -1;
     }
 
-    pam_rc = pam_acct_mgmt(handle, 0);
+    if (pam_acct_mgmt(handle, 0) != PAM_SUCCESS)
+    {
+        pam_end(handle, 0);
+        return -1;
+    }
 
     pam_end(handle, 0);
-    return pam_rc;
+
+    return 0;
 }
 
 /*
@@ -447,21 +438,22 @@ static int PAMValidateUserInProcess(const char* username)
     PAMData data;
     struct pam_conv pconv;
     pam_handle_t* phandle;
-    int pam_rc;
 
     pconv.conv = PAMValidateUserCallback;
     pconv.appdata_ptr = &data;
 
-    pam_rc = pam_start(PAM_CONFIG_FILE, username, &pconv, &phandle);
-    if (pam_rc != PAM_SUCCESS)
+    if (pam_start("wbem", username, &pconv, &phandle) != PAM_SUCCESS)
+        return -1;
+
+    if (pam_acct_mgmt(phandle, 0) != PAM_SUCCESS)
     {
-        return pam_rc;
+        pam_end(phandle, 0);
+        return -1;
     }
 
-    pam_rc = pam_acct_mgmt(phandle, 0);
-
     pam_end(phandle, 0);
-    return pam_rc;
+
+    return 0;
 }
 
 /*

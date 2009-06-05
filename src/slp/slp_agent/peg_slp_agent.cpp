@@ -165,7 +165,7 @@ uint16 slp_service_agent::_getSLPPort()
 
     // Get the port number.
 
-#if defined(PEGASUS_OS_SOLARIES)
+#if defined(PEGASUS_OS_SOLARIS)
 
     if ((serv = getservbyname_r(
         SLP_SERVICE_NAME, "udp", &serv_result, buf, SERV_BUF_SIZE)) != NULL)

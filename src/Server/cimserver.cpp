@@ -1164,13 +1164,14 @@ int CIMServerProcess::cimserver_run(
             MessageLoader::getMessage(parms));
         cerr << MessageLoader::getMessage(parms) << endl;
 
+        deleteCIMServer();
+
         //
         // notify parent process (if there is a parent process) to terminate
         //
         if (daemonOption)
             _cimServerProcess->notify_parent(1);
 
-        deleteCIMServer();
         return 1;
     }
 

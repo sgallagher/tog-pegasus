@@ -74,7 +74,7 @@ CmpiBaseMI::~CmpiBaseMI()
 CMPIStatus CmpiBaseMI::driveBaseCleanup(
     void* vi,
     const CMPIContext* eCtx,
-    CMPIBoolean b)
+    CMPIBoolean terminating)
 {
     try
     {
@@ -82,20 +82,63 @@ CMPIStatus CmpiBaseMI::driveBaseCleanup(
         CmpiContext ctx((CMPIContext*)eCtx);
         CmpiStatus rc(CMPI_RC_OK);
         CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*>(mi->hdl);
-        if (cmi->isUnloadable())
+        if (!terminating)
         {
-            if (cmi->getProviderBase() && 
-                cmi->getProviderBase()->decUseCount()==0)
+            if (cmi->isUnloadable())
             {
-                cmi->getProviderBase()->setBaseMI(0);
-                cmi->setProviderBase(0);
-                rc=cmi->cleanup(ctx);
-                delete cmi;
+                if (cmi->getProviderBase() &&
+                    cmi->getProviderBase()->decUseCount()==0)
+                {
+                    rc=cmi->cleanup(ctx);
+                    if (rc.rc() == CMPI_RC_OK)
+                    {
+                        cmi->getProviderBase()->setBaseMI(0);
+                        cmi->setProviderBase(0);
+                        delete cmi;
+                    }
+                    else
+                    {
+                        /* some error occured, do NOT delete the MI 
+                           increase MI count again
+                        */
+                        cmi->getProviderBase()->incUseCount();
+                    }
+                }
+            }
+            else
+            {
+                rc = CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
             }
         }
         else
         {
-            rc = CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
+            if (cmi->getProviderBase() &&
+                cmi->getProviderBase()->decUseCount()==0)
+            {
+                rc=cmi->cleanup(ctx);
+                /* the CMPI 2.0 spec says that cleanup function can return 
+                   the following errors:
+                   CMPI_RC_OK - Operation successful.
+                   CMPI_RC_ERR_FAILED - Unspecific error occurred.
+                   CMPI_RC_DO_NOT_UNLOAD and CMPI_RC_NEVER_UNLOAD - need to be
+                   ignored in the terminating case, CIM server is going down
+                   anyway
+                */                   
+                if (rc.rc() != CMPI_RC_ERR_FAILED)
+                {
+                    cmi->getProviderBase()->setBaseMI(0);
+                    cmi->setProviderBase(0);
+                    delete cmi;
+                    rc = CmpiStatus(CMPI_RC_OK);
+                }
+                else
+                {
+                    /* give the provider some grace on shutdown,
+                    the MI will not be cleaned up in this case, but as the CIM
+                    Server is shutting down anyway, that does not hurt */
+                    cmi->getProviderBase()->incUseCount();
+                }
+            }
         }
         return rc.status();
     }

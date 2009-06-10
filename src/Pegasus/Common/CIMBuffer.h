@@ -37,6 +37,7 @@
 #include <Pegasus/Common/CIMParamValue.h>
 #include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/CIMNameCast.h>
+#include <Pegasus/Common/CIMDateTimeRep.h>
 
 #define PEGASUS_USE_MAGIC
 
@@ -262,8 +263,10 @@ public:
 
     void putDateTime(const CIMDateTime& x)
     {
-        putUint64(x.toMicroSeconds());
-        putBoolean(x.isInterval());
+        putUint64(x._rep->usec);
+        putUint32(x._rep->utcOffset);
+        putUint16(x._rep->sign);
+        putUint16(x._rep->numWildcards); 
     }
 
     void putBooleanA(const Array<Boolean>& x)
@@ -554,12 +557,27 @@ public:
         if (!getUint64(usec))
             return false;
 
-        Boolean interval;
+        Uint32 utcOffset;
 
-        if (!getBoolean(interval))
+        if (!getUint32(utcOffset))
             return false;
 
-        x = CIMDateTime(usec, interval);
+        Uint16 sign;
+
+        if (!getUint16(sign))
+            return false;
+
+        Uint16 numWildcards;
+
+        if (!getUint16(numWildcards))
+            return false;
+
+        CIMDateTimeRep *rep = new CIMDateTimeRep;
+        rep->usec = usec;
+        rep->utcOffset = utcOffset;
+        rep->sign = sign;
+        rep->numWildcards = numWildcards; 
+        x = CIMDateTime(rep);
         return true;
     }
 

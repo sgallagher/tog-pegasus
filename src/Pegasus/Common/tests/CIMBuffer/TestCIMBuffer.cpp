@@ -236,6 +236,20 @@ void test9()
     PEGASUS_TEST_ASSERT(cb.getUint32(y) && y == 1234);
 }
 
+void test10()
+{
+    CIMBuffer cb;
+    CIMDateTime dateTime1("20090602104500.123456+330");
+
+    cb.putDateTime(dateTime1);
+
+    cb.rewind();
+
+    CIMDateTime dateTime2;
+    PEGASUS_TEST_ASSERT(cb.getDateTime(dateTime2));
+    PEGASUS_TEST_ASSERT(dateTime1.toString() == dateTime2.toString());
+}
+
 int main(int argc, char** argv)
 {
     test1();
@@ -247,6 +261,7 @@ int main(int argc, char** argv)
     test7();
     test8();
     test9();
+    test10();
 
     cout << argv[0] << " +++++ passed all tests" << endl;
     return 0;

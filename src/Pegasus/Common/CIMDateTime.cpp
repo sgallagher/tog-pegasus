@@ -33,6 +33,7 @@
 #include <cassert>
 #include <fstream>
 #include "CIMDateTime.h"
+#include "CIMDateTimeRep.h"
 #include "Exception.h"
 #include "System.h"
 #include "AutoPtr.h"
@@ -56,29 +57,6 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_ARRAY_T CIMDateTime
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
-
-//==============================================================================
-//
-// CIMDateTimeRep
-//
-//==============================================================================
-
-class CIMDateTimeRep
-{
-public:
-
-    // Number of microseconds elapsed since January 1, 1 BCE.
-    Uint64 usec;
-
-    // UTC offset
-    Uint32 utcOffset;
-
-    // ':' for intervals. '-' or '+' for time stamps.
-    Uint16 sign;
-
-    // Number of wild characters ('*') used to initialize this object.
-    Uint16 numWildcards;
-};
 
 //==============================================================================
 //

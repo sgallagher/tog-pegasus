@@ -534,6 +534,8 @@ public:
 private:
     CIMDateTimeRep* _rep;
     CIMDateTime(CIMDateTimeRep*);
+   
+    friend class CIMBuffer;
 };
 
 /** Compares two CIMDateTime objects and returns true if they represent the

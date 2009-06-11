@@ -179,6 +179,11 @@ private:
     */
     Boolean       _plannedValueSet;
 
+    /**
+    The timeout value for set/unset operations.
+    */
+    Uint32        _timeoutSeconds;
+
 #ifdef PEGASUS_OS_PASE
     /**
     The flag to indicate whether to disable any output.

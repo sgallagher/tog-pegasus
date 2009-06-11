@@ -49,8 +49,8 @@ en:table {
 	*/
 	Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:string {
     "Usage: cimconfig -g name [ -c ] [ -p ] [ -d ]\n"
-    "                 -s name=value [ -c ] [ -p ]\n"
-    "                 -u name [ -c ] [ -p ]\n"
+    "                 -s name=value [ -c ] [ -p ] [ -t ]\n"
+    "                 -u name [ -c ] [ -p ] [ -t ]\n"
     "                 -l [-c | -p]\n"
     "                 -h\n"
     "                 --help\n"
@@ -63,6 +63,8 @@ en:table {
     "     -s          - Add or update configuration property value.\n"
     "     -u          - Reset the configuration property to its default value.\n"
     "     -l          - Display all the configuration properties.\n"
+    "     -t          - Timeout value in seconds for updating the current or"
+    "                   planned value.\n"
     "     -h, --help  - Display this help message.\n"
     "     --version   - Display CIM server version number.\n"
     "\n"

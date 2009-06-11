@@ -298,6 +298,7 @@ Boolean ConfigManager::initCurrentValue(
                           propertyName,
                           propertyValue,
                           String(),
+                          0,
                           false);
         }
         catch (Exception& e)
@@ -315,6 +316,7 @@ Boolean ConfigManager::updateCurrentValue(
     const String& name,
     const String& value,
     const String& userName,
+    Uint32 timeoutSeconds,
     Boolean unset)
 {
     String prevValue;
@@ -342,7 +344,8 @@ Boolean ConfigManager::updateCurrentValue(
         propertyOwner->updateCurrentValue(
             name,
             propertyOwner->getDefaultValue(name),
-            userName);
+            userName,
+            timeoutSeconds);
     }
     else
     {
@@ -351,7 +354,8 @@ Boolean ConfigManager::updateCurrentValue(
             throw InvalidPropertyValue(name, value);
         }
 
-        propertyOwner->updateCurrentValue(name, value, userName);
+        propertyOwner->updateCurrentValue(
+            name, value, userName, timeoutSeconds);
     }
 
     if (useConfigFiles)
@@ -362,17 +366,19 @@ Boolean ConfigManager::updateCurrentValue(
             // update the new value in the current config file
             //
             if (!_configFileHandler->updateCurrentValue(
-                name, value, userName, unset))
+                name, value, userName, timeoutSeconds, unset))
             {
                 // Failed to update the current value, so roll back.
-                propertyOwner->updateCurrentValue(name, prevValue, userName);
+                propertyOwner->updateCurrentValue(
+                    name, prevValue, userName, timeoutSeconds);
                 return false;
             }
         }
         catch (Exception& e)
         {
             // Failed to update the current value, so roll back.
-            propertyOwner->updateCurrentValue(name, prevValue, userName);
+            propertyOwner->updateCurrentValue(
+                name, prevValue, userName, timeoutSeconds);
             throw FailedSaveProperties(e.getMessage());
         }
     }

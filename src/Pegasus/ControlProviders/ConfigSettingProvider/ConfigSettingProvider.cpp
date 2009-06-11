@@ -80,6 +80,23 @@ static const CIMName PLANNED_VALUE    = CIMNameCast("PlannedValue");
 
 static const CIMName DYNAMIC_PROPERTY = CIMNameCast("DynamicProperty");
 
+
+/**
+    The name of the method that implements the property value update using the
+    timeout period.
+*/
+static const CIMName METHOD_UPDATE_PROPERTY_VALUE  =
+    CIMName("UpdatePropertyValue");
+
+/**
+    The input parameter names for the UpdatePropertyValue() method.
+*/
+static const String PARAM_PROPERTYVALUE = String("PropertyValue");
+static const String PARAM_RESETVALUE = String("ResetValue");
+static const String PARAM_UPDATEPLANNEDVALUE = String("SetPlannedValue");
+static const String PARAM_UPDATECURRENTVALUE = String("SetCurrentValue");
+static const String PARAM_TIMEOUTPERIOD = String("TimeoutPeriod");
+
 /**
     The constant representing the config setting class name
 */
@@ -183,8 +200,32 @@ void ConfigSettingProvider::modifyInstance(
     const Boolean includeQualifiers,
     const CIMPropertyList& propertyList,
     ResponseHandler & handler)
+{
+    PEG_METHOD_ENTER(TRC_CONFIG, "ConfigSettingProvider::modifyInstance()");
+
+    handler.processing();
+
+    _modifyInstance(
+        context,
+        instanceReference,
+        modifiedIns,
+        propertyList,
+        0);
+
+    handler.complete();
+
+    PEG_METHOD_EXIT();
+}
+
+void ConfigSettingProvider::_modifyInstance(
+    const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance& modifiedIns,
+    const CIMPropertyList& propertyList,
+    Uint32 timeoutSeconds)
     {
-        PEG_METHOD_ENTER(TRC_CONFIG, "ConfigSettingProvider::modifyInstance()");
+        PEG_METHOD_ENTER(TRC_CONFIG,
+            "ConfigSettingProvider::_modifyInstance()");
 
         //
         // get userName
@@ -292,9 +333,6 @@ void ConfigSettingProvider::modifyInstance(
         Boolean currentValueIsNull = false;
         Boolean plannedValueIsNull = false;
 
-        // begin processing the request
-        handler.processing();
-
         //
         // Get the current value from the instance
         //
@@ -352,9 +390,9 @@ void ConfigSettingProvider::modifyInstance(
                     configPropertyName,
                     currentValue,
                     userName,
+                    timeoutSeconds,
                     currentValueIsNull))
                 {
-                    handler.complete();
                     PEG_METHOD_EXIT();
 
                     throw PEGASUS_CIM_EXCEPTION_L(
@@ -393,7 +431,6 @@ void ConfigSettingProvider::modifyInstance(
                 if ( !_configManager->updatePlannedValue(
                     configPropertyName, plannedValue, plannedValueIsNull) )
                 {
-                    handler.complete();
                     PEG_METHOD_EXIT();
 
                     throw PEGASUS_CIM_EXCEPTION_L(
@@ -447,7 +484,6 @@ void ConfigSettingProvider::modifyInstance(
                     configPropertyName));
         }
 
-        handler.complete();
         PEG_METHOD_EXIT();
         return;
     }
@@ -597,6 +633,101 @@ void ConfigSettingProvider::enumerateInstanceNames(
 
         PEG_METHOD_EXIT();
     }
+
+void ConfigSettingProvider::invokeMethod(
+    const OperationContext & context,
+    const CIMObjectPath & cimObjectPath,
+    const CIMName & methodName,
+    const Array<CIMParamValue> & inParams,
+    MethodResultResponseHandler & handler)
+{
+    PEG_METHOD_ENTER(TRC_CONFIG,
+        "ConfigSettingProvider::invokeMethod");
+
+    if (!methodName.equal(METHOD_UPDATE_PROPERTY_VALUE))
+    {
+        throw CIMException(
+            CIM_ERR_METHOD_NOT_FOUND, methodName.getString());
+    }
+
+    // Prepare the instance for modification.
+
+    String propValue;
+    Boolean resetValue = false;
+    Boolean currentValueSet = false;
+    Boolean plannedValueSet = false;
+    Uint32 timeoutSeconds = 0;
+    Array<CIMName> propertyList;
+
+    for (Uint32 i = 0, n = inParams.size(); i < n ; ++i)
+    {
+        CIMName name = inParams[i].getParameterName();
+        if (name.equal(PARAM_PROPERTYVALUE))
+        {
+            inParams[i].getValue().get(propValue);
+        }
+        else if (name.equal(PARAM_RESETVALUE))
+        {
+            inParams[i].getValue().get(resetValue);
+        }
+        else if (name.equal(PARAM_UPDATECURRENTVALUE))
+        {
+            inParams[i].getValue().get(currentValueSet);
+        }
+        else if (name.equal(PARAM_UPDATEPLANNEDVALUE))
+        {
+            inParams[i].getValue().get(plannedValueSet);
+        }
+        else if (name.equal(PARAM_TIMEOUTPERIOD))
+        {
+            inParams[i].getValue().get(timeoutSeconds);
+        }
+        else
+        {
+            throw CIMException(
+                CIM_ERR_INVALID_PARAMETER, name.getString());
+        }
+    }
+
+    CIMInstance modifiedInst(PG_CONFIG_SETTING);
+
+    if (currentValueSet)
+    {
+        if (!resetValue)
+        {
+            CIMProperty prop =
+                CIMProperty(CURRENT_VALUE, CIMValue(propValue));
+            modifiedInst.addProperty(prop);
+        }
+        propertyList.append(CURRENT_VALUE);
+    }
+
+    if (plannedValueSet)
+    {
+        if (!resetValue)
+        {
+            CIMProperty prop =
+                CIMProperty(PLANNED_VALUE, CIMValue(propValue));
+            modifiedInst.addProperty(prop);
+        }
+        propertyList.append(PLANNED_VALUE);
+    }
+
+    handler.processing();
+
+    _modifyInstance(
+        context,
+        cimObjectPath,
+        modifiedInst,
+        propertyList,
+        timeoutSeconds);
+
+    handler.deliver(CIMValue(true));
+    handler.complete();
+
+    PEG_METHOD_EXIT();
+}
+
 
 //
 // Verify user authorization

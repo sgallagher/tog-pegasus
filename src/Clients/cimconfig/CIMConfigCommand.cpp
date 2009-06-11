@@ -39,6 +39,7 @@
 #include <Pegasus/Common/CIMStatusCode.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/getoopt/getoopt.h>
 
 #include <Pegasus/Client/CIMClient.h>
@@ -132,6 +133,22 @@ static const CIMName CURRENT_VALUE              = CIMName ("CurrentValue");
 static const CIMName PLANNED_VALUE              = CIMName ("PlannedValue");
 
 static const CIMName DYNAMIC_PROPERTY           = CIMName ("DynamicProperty");
+
+/**
+    The name of the method that implements the property value update using the
+    timeout period.
+*/
+static const CIMName METHOD_UPDATE_PROPERTY_VALUE  =
+    CIMName("UpdatePropertyValue");
+
+/**
+    The input parameter names for the UpdatePropertyValue() method.
+*/
+static const String PARAM_PROPERTYVALUE = String("PropertyValue");
+static const String PARAM_RESETVALUE = String("ResetValue");
+static const String PARAM_UPDATEPLANNEDVALUE = String("SetPlannedValue");
+static const String PARAM_UPDATECURRENTVALUE = String("SetCurrentValue");
+static const String PARAM_TIMEOUTPERIOD = String("TimeoutPeriod");
 
 /**
     The constants representing the messages.
@@ -356,6 +373,11 @@ static const char   OPTION_PLANNED_VALUE       = 'p';
 static const char   OPTION_DEFAULT_VALUE       = 'd';
 
 /**
+    The option character used to specify the timeout value.
+*/
+static const char   OPTION_TIMEOUT_VALUE       = 't';
+
+/**
     The option character used to display help info.
 */
 static const char   OPTION_HELP                = 'h';
@@ -404,14 +426,16 @@ CIMConfigCommand::CIMConfigCommand ()
 
     usage.append("                 -").append(OPTION_SET).append(" name=value");
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
-    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ]\n");
+    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE);
+    usage.append(" ] [ -").append(OPTION_TIMEOUT_VALUE).append(" ]\n");
 #ifdef PEGASUS_OS_PASE
     usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ]\n");
 #endif
 
     usage.append("                 -").append(OPTION_UNSET).append(" name");
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
-    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE).append(" ]\n");
+    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE);
+    usage.append(" ] [ -").append(OPTION_TIMEOUT_VALUE).append(" ]\n");
 #ifdef PEGASUS_OS_PASE
     usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ]\n");
 #endif
@@ -441,6 +465,8 @@ CIMConfigCommand::CIMConfigCommand ()
                                     " value\n");
     usage.append("    -u         - Reset configuration property to its"
                                     " default value\n");
+    usage.append("    -t         - Timeout value in seconds for updating the"
+                                   " current or planned value\n");
     usage.append("    --version  - Display CIM Server version number\n");
 
     usage.append("\nUsage note: The cimconfig command can be used to update"
@@ -485,6 +511,8 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
     optString.append(OPTION_UNSET);
     optString.append(GETOPT_ARGUMENT_DESIGNATOR);
 
+    optString.append(OPTION_TIMEOUT_VALUE);
+    optString.append(GETOPT_ARGUMENT_DESIGNATOR);
 
 
     optString.append(OPTION_LIST);
@@ -513,7 +541,7 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
     }
 
     _operationType = OPERATION_TYPE_UNINITIALIZED;
-
+    _timeoutSeconds = 0;
 
     //
     //  Get options and arguments from the command line
@@ -641,6 +669,25 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
 
                     _propertyValue = property.subString( equalsIndex + 1 );
 
+                    break;
+                }
+
+                case OPTION_TIMEOUT_VALUE:
+                {
+                    if (options.isSet (OPTION_TIMEOUT_VALUE) > 1)
+                    {
+                        throw DuplicateOptionException(OPTION_TIMEOUT_VALUE);
+                    }
+
+                    property = options [i].Value ();
+                    Uint64 value = 0;
+                    if (!StringConversion::decimalStringToUint64(
+                        property.getCString(), value) || !value)
+                    {
+                        throw InvalidOptionArgumentException(
+                            property, OPTION_TIMEOUT_VALUE);
+                    }
+                    _timeoutSeconds = (Uint32)value;
                     break;
                 }
 
@@ -819,6 +866,15 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
         // An invalid option was encountered
         //
         throw InvalidOptionException(OPTION_DEFAULT_VALUE);
+    }
+
+    if (_operationType != OPERATION_TYPE_SET &&
+        _operationType != OPERATION_TYPE_UNSET &&  _timeoutSeconds != 0)
+    {
+        //
+        // An invalid option was encountered
+        //
+        throw InvalidOptionException(OPTION_TIMEOUT_VALUE);
     }
 
     if (_operationType == OPERATION_TYPE_LIST)
@@ -1556,38 +1612,46 @@ void CIMConfigCommand::_updatePropertyInCIMServer
         _hostName, PEGASUS_NAMESPACENAME_CONFIG,
         PEGASUS_CLASSNAME_CONFIGSETTING, kbArray);
 
-    CIMInstance modifiedInst = CIMInstance(PEGASUS_CLASSNAME_CONFIGSETTING);
-    Array<CIMName> propertyList;
-
-    if ( _currentValueSet )
+    if (_timeoutSeconds == 0)
     {
-        if (!isUnsetOperation)
-        {
-            CIMProperty prop =
-                CIMProperty(CURRENT_VALUE, CIMValue(propValue));
-            modifiedInst.addProperty(prop);
-        }
-        propertyList.append(CURRENT_VALUE);
+        _timeoutSeconds = (PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS / 1000);
     }
 
-    if ( _plannedValueSet )
-    {
-        if (!isUnsetOperation)
-        {
-            CIMProperty prop =
-                CIMProperty(PLANNED_VALUE, CIMValue(propValue));
-            modifiedInst.addProperty(prop);
-        }
-        propertyList.append(PLANNED_VALUE);
-    }
+    Array<CIMParamValue> inParams;
+    Array<CIMParamValue> outParams;
 
-    CIMInstance namedInstance (modifiedInst);
-    namedInstance.setPath (reference);
-    _client->modifyInstance(
+    inParams.append(
+        CIMParamValue(PARAM_PROPERTYVALUE, CIMValue(propValue)));
+
+    inParams.append(
+        CIMParamValue(
+            PARAM_RESETVALUE,
+            CIMValue(isUnsetOperation)));
+
+    inParams.append(
+        CIMParamValue(
+            PARAM_UPDATEPLANNEDVALUE,
+            CIMValue(_plannedValueSet)));
+
+    inParams.append(
+        CIMParamValue(
+            PARAM_UPDATECURRENTVALUE,
+            CIMValue(_currentValueSet)));
+
+    inParams.append(
+        CIMParamValue(
+            PARAM_TIMEOUTPERIOD,
+            CIMValue(_timeoutSeconds)));
+
+    // Set timeout and add some grace time.
+    _client->setTimeout( (_timeoutSeconds + 10) * 1000);
+
+    _client->invokeMethod(
         PEGASUS_NAMESPACENAME_CONFIG,
-        namedInstance,
-        false,
-        CIMPropertyList(propertyList));
+        reference,
+        METHOD_UPDATE_PROPERTY_VALUE,
+        inParams,
+        outParams);
 }
 
 

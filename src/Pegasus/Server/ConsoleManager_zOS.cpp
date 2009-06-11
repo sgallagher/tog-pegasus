@@ -129,6 +129,7 @@ void ZOSConsoleManager::updateConfiguration( const String& configProperty,
                                       configProperty,
                                       propertyValue,
                                       System::getEffectiveUserName(),
+                                      0,
                                       currentValueIsNull) )
             {
                 Logger::put_l(

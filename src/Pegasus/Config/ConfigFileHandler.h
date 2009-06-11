@@ -121,6 +121,7 @@ public:
     @param  name   name of the property to be updated.
     @param  value  value of the property to be updated.
     @param  userName  User requesting the update
+    @param timeoutSeconds Timeout in seconds to complete the update.
     @param  unset  specifies whether the property should be updated or unset.
     @return true   if the property updated successfully, else false.
     */
@@ -128,6 +129,7 @@ public:
         const CIMName& name,
         const String& value,
         const String& userName,
+        Uint32 timeoutSeconds,
         Boolean unset);
 
 

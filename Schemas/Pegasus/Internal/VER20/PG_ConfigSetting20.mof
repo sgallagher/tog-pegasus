@@ -39,7 +39,7 @@
 // ===================================================================
 // PG_ConfigSetting
 // ===================================================================
-[Version ("2.3.0"), Description (
+[Version ("2.10.0"), Description (
    "PG_ConfigSetting is a representation of CIMOM specific"
    " configuration properties.")]
 
@@ -67,4 +67,24 @@ class PG_ConfigSetting
     [Description ("Dynamic Property")
     ]
     boolean    DynamicProperty;
+
+       [Description (
+          "Updates the planned value and current value using the "
+          "timeout period.")]
+    boolean UpdatePropertyValue(
+          [IN,Description (
+             "Property Value.")]
+      string PropertyValue,
+          [IN,Description (
+             "Reset value to Default Value.")]
+      boolean ResetValue,
+          [IN,Description (
+             "Set Current Value.")]
+      boolean SetCurrentValue,
+          [IN,Description (
+             "Set Planned Value.")]
+      boolean SetPlannedValue,
+          [IN,Description (
+             "Timeout period in seconds.")]
+      uint32 TimeoutPeriod);
 };

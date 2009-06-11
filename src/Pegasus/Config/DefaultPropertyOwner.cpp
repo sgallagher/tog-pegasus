@@ -276,7 +276,8 @@ void DefaultPropertyOwner::initPlannedValue(
 void DefaultPropertyOwner::updateCurrentValue(
     const String& name,
     const String& value,
-    const String& userName)
+    const String& userName,
+    Uint32 timeoutSeconds)
 {
     //
     // make sure the property is dynamic before updating the value.
@@ -301,7 +302,8 @@ void DefaultPropertyOwner::updateCurrentValue(
         PEGASUS_ASSERT(configProperty);
         _requestIndicationServiceStateChange(
             userName,
-            ConfigManager::parseBooleanValue(value));
+            ConfigManager::parseBooleanValue(value),
+            timeoutSeconds);
         configProperty->currentValue = value;
         return;
     }
@@ -411,7 +413,8 @@ Boolean DefaultPropertyOwner::isDynamic(const String& name) const
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
 void DefaultPropertyOwner::_requestIndicationServiceStateChange(
     const String& userName,
-    Boolean enable)
+    Boolean enable,
+    Uint32 timeoutSeconds)
 {
     MessageQueue *queue = MessageQueue::lookup(
         PEGASUS_QUEUENAME_INDICATIONSERVICE);
@@ -445,7 +448,7 @@ void DefaultPropertyOwner::_requestIndicationServiceStateChange(
         CIMValue(enable ? STATE_ENABLED : STATE_DISABLED)));
 
     inParams.append(CIMParamValue(PARAMNAME_TIMEOUTPERIOD,
-        CIMValue(CIMDateTime(0, true))));
+        CIMValue(CIMDateTime(timeoutSeconds * 1000000, true))));
 
     MessageQueueService *controller = ModuleController::getModuleController();
 

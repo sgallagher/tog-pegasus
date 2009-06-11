@@ -142,6 +142,7 @@ public:
         @param name The name of the property.
         @param value The current value of the property.
         @param  userName User requesting the update.
+        @param timeoutSeconds Timeout in seconds to complete the update.
         @exception NonDynamicConfigProperty if the property is not dynamic.
         @exception InvalidPropertyValue if the property value is not valid.
         @exception UnrecognizedConfigProperty if the property is not defined.
@@ -149,7 +150,8 @@ public:
     void updateCurrentValue(
         const String& name,
         const String& value,
-        const String& userName);
+        const String& userName,
+        Uint32 timeoutSeconds);
         //throw (NonDynamicConfigProperty, InvalidPropertyValue,
         //    UnrecognizedConfigProperty);
 

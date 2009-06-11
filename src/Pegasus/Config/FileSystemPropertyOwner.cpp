@@ -257,7 +257,8 @@ void FileSystemPropertyOwner::initPlannedValue(
 void FileSystemPropertyOwner::updateCurrentValue(
     const String& name,
     const String& value,
-    const String& userName)
+    const String& userName,
+    Uint32 timeoutSeconds)
 {
     //
     // make sure the property is dynamic before updating the value.

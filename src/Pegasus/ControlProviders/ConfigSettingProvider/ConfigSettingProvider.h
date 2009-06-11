@@ -53,6 +53,7 @@
 
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
+#include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Common/ResponseHandler.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -66,10 +67,11 @@ PEGASUS_NAMESPACE_BEGIN
     - modifyInstance
     - enumerateInstances
     - enumerateInstanceNames
+    - InvokeMethod
 */
 
 class PEGASUS_CONFIGSETTINGPROVIDER_LINKAGE ConfigSettingProvider
-    : public CIMInstanceProvider
+    : public CIMInstanceProvider, public CIMMethodProvider
 {
 public:
 
@@ -195,7 +197,22 @@ public:
     const CIMObjectPath & classReference,
         ObjectPathResponseHandler & handler);
 
+    // CIMMethodProvider interface
+    virtual void invokeMethod(
+        const OperationContext & context,
+        const CIMObjectPath & cimObjectPath,
+        const CIMName & methodName,
+        const Array<CIMParamValue> & inParams,
+        MethodResultResponseHandler & handler);
+
 private:
+
+    void _modifyInstance(
+        const OperationContext & context,
+        const CIMObjectPath & instanceReference,
+        const CIMInstance& modifiedIns,
+        const CIMPropertyList& propertyList,
+        Uint32 timeoutSeconds);
 
     /**
         Verify User Authorization.

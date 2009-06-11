@@ -448,6 +448,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
                     notifyRequest->propertyName,
                     notifyRequest->newPropertyValue,
                     userName,
+                    0,
                     false);
             }
             else

@@ -185,8 +185,6 @@ const char serviceIDAttribute[] = "service-id";
 
 const char communicationMechanismAttribute[] = "CommunicationMechanism";
 
-const char otherCommunicationMechanismAttribute[]="otherCommunicationMechanism";
-
 const char otherCommunicationMechanismDescriptionAttribute[] =
                "OtherCommunicationMechanismDescription";
 
@@ -1187,6 +1185,7 @@ Boolean SLPProvider::populateRegistrationData(
         {
 
             String thisValue = _getValueQualifier(thisProperty, commMechClass);
+            Uint16 communicationType;
             if (thisValue == String::EMPTY)
             {
                 thisValue = "Unknown";
@@ -1195,17 +1194,13 @@ Boolean SLPProvider::populateRegistrationData(
                 templateInstance,
                 communicationMechanismAttribute,
                 thisValue);
-        }
-
-        else if (propertyName.equal(otherCommunicationMechanismAttribute))
-        {
-            if (String::equalNoCase(v1.toString(),"1"))
+            v1.get(communicationType);
+            if (communicationType == 1)
             {
                 String tmp = _getPropertyValueString(
                     instance_ObjMgrComm,
                     CIMName(otherCommunicationMechanismDescriptionAttribute),
                     String::EMPTY);
-
                 populateTemplateField(
                     templateInstance,
                     otherCommunicationMechanismDescriptionAttribute,

@@ -285,6 +285,10 @@ private:
     Array<CIMInstance> enumSoftwareIdentityInstances();
     Array<CIMInstance> enumElementSoftwareIdentityInstances();
     Array<CIMInstance> enumInstalledSoftwareIdentityInstances();
+    Array<CIMInstance> enumDefaultSoftwareIdentityInstances();
+
+    CIMInstance getSoftwareIdentityInstance(
+        const CIMObjectPath &ref);
 
     Array<CIMInstance> enumProviderProfileCapabilityInstances(
         Boolean checkProviders = true,

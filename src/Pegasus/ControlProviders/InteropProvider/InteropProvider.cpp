@@ -179,43 +179,60 @@ CIMInstance InteropProvider::localGetInstance(
         return gotInstance;
     }
 
-    // Create reference from host, namespace, class components of
-    // instance name
-    CIMObjectPath ref;
-    ref.setHost(instanceName.getHost());
-    ref.setClassName(opClass);
-    ref.setNameSpace(opNamespace);
-
-    // Enumerate instances for this class. Returns all instances
-    // Note that this returns paths setup and instances already
-    // filtered per the input criteria.
-    Array<CIMInstance> instances =  localEnumerateInstances(
-        context,
-        ref,
-        propertyList);
-
-    // deliver a single instance if found.
+    TARGET_CLASS classEnum  = translateClassInput(opClass);
     CIMInstance retInstance;
-
-    bool found = false;
-    for(Uint32 i = 0, n = instances.size(); i < n; i++)
+    switch(classEnum)
     {
-        CIMObjectPath currentInstRef = instances[i].getPath();
-        currentInstRef.setHost(instanceName.getHost());
-        currentInstRef.setNameSpace(instanceName.getNameSpace());
-        if(instanceName == currentInstRef)
+        case PG_SOFTWAREIDENTITY:
         {
-            retInstance = instances[i];
-            found = true;
-            break;
+            retInstance = getSoftwareIdentityInstance(instanceName);
+            normalizeInstance(
+                retInstance, instanceName, false, false, propertyList);
+        }
+        break;
+        // ATTN: Implement getIntstance for all other classes. Currently
+        // this method calls localEnumerateInstances() to select instance
+        // which is too expensive.
+        default:
+        {
+            // Create reference from host, namespace, class components of
+            // instance name
+            CIMObjectPath ref;
+            ref.setHost(instanceName.getHost());
+            ref.setClassName(opClass);
+            ref.setNameSpace(opNamespace);
+
+           // Enumerate instances for this class. Returns all instances
+           // Note that this returns paths setup and instances already
+           // filtered per the input criteria.
+           Array<CIMInstance> instances =  localEnumerateInstances(
+               context,
+               ref,
+               propertyList);
+
+              // deliver a single instance if found.
+              bool found = false;
+              for(Uint32 i = 0, n = instances.size(); i < n; i++)
+              {
+                  CIMObjectPath currentInstRef = instances[i].getPath();
+                  currentInstRef.setHost(instanceName.getHost());
+                  currentInstRef.setNameSpace(instanceName.getNameSpace());
+                  if(instanceName == currentInstRef)
+                  {
+                      retInstance = instances[i];
+                      found = true;
+                      break;
+                  }
+             }
+
+             PEG_METHOD_EXIT();
+             if (!found)
+             { 
+                 throw CIMObjectNotFoundException(instanceName.toString());
+             }
         }
     }
 
-    PEG_METHOD_EXIT();
-    if (!found)
-    {
-        throw CIMObjectNotFoundException(instanceName.toString());
-    }
     return retInstance;
 }
 

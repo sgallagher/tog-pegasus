@@ -292,6 +292,163 @@ void InteropProvider::extractSoftwareIdentityInfo(
     }
 }
 
+CIMInstance InteropProvider::getSoftwareIdentityInstance(
+    const CIMObjectPath &ref)
+{
+    Array<CIMKeyBinding> keyBindings = ref.getKeyBindings();
+    String id;
+
+    for (Uint32 j = 0, n = keyBindings.size(); j < n ; j++)
+    {
+        if (keyBindings[j].getName().equal(
+            SOFTWAREIDENTITY_PROPERTY_INSTANCEID))
+        {
+            id = keyBindings[j].getValue();
+            break;
+        }
+    }
+
+    Uint32 index;
+    String provModuleName;
+    String provName;
+
+    if ((index = id.find('+')) != PEG_NOT_FOUND)
+    {
+        provModuleName = id.subString(0, index);
+        provName = id.subString(index +1);
+    }
+    else
+    {
+        throw CIMObjectNotFoundException(ref.toString());
+    }
+
+    Array<CIMKeyBinding> provKeys;
+    
+    provKeys.append(
+        CIMKeyBinding(
+            PROVIDER_PROPERTY_PROVIDERMODULENAME,
+            provModuleName,
+            CIMKeyBinding::STRING));
+
+    provKeys.append(
+        CIMKeyBinding(
+            PROVIDER_PROPERTY_NAME,
+            provName,
+            CIMKeyBinding::STRING));
+
+    CIMObjectPath provRef(
+        String(),
+        PEGASUS_NAMESPACENAME_INTEROP,
+        PEGASUS_CLASSNAME_PROVIDER,
+        provKeys);
+
+    CIMInstance provider;
+    Boolean providerFound = true;
+    try
+    {
+        provider =  providerRegistrationManager->getInstance(
+            provRef);
+    }
+    catch(const CIMException&)
+    {
+        providerFound = false;
+    }
+
+    if (!providerFound)
+    {
+        Array<CIMInstance> instances = 
+            enumDefaultSoftwareIdentityInstances();
+      
+        for(Uint32 i = 0, n = instances.size(); i < n; i++)
+        {
+            CIMObjectPath currentInstRef = instances[i].getPath();
+            currentInstRef.setHost(ref.getHost());
+            currentInstRef.setNameSpace(ref.getNameSpace());
+            if(ref == currentInstRef)
+            {
+                return instances[i];
+            }
+        }
+        throw CIMObjectNotFoundException(ref.toString());
+     }
+
+    String moduleName;
+    String providerName;
+    String version;
+    String vendor;
+    String interfaceType;
+    Uint16 majorVersion;
+    Uint16 minorVersion;
+    Uint16 revisionNumber;
+    Uint16 buildNumber;
+    String elementName;
+    String caption;
+    bool extendedVersionInfo;
+
+    extractSoftwareIdentityInfo(
+        provider,
+        moduleName,
+        providerName,
+        vendor,
+        version,
+        majorVersion,
+        minorVersion,
+        revisionNumber,
+        buildNumber,
+        extendedVersionInfo,
+        interfaceType,
+        elementName,
+        caption);
+
+    return buildSoftwareIdentity(
+        moduleName,
+        providerName,
+        vendor,
+        version,
+        majorVersion,
+        minorVersion,
+        revisionNumber,
+        buildNumber,
+        extendedVersionInfo,
+        interfaceType,
+        elementName,
+        caption);
+}
+
+//Gets default software identity instances served by CIMOM
+Array<CIMInstance> InteropProvider::enumDefaultSoftwareIdentityInstances()
+{
+    Array<CIMInstance> instances;
+
+    // Interop provider
+    instances.append(buildSoftwareIdentity(PEGASUS_MODULE_NAME,
+        INTEROP_PROVIDER_NAME, PEGASUS_CIMOM_GENERIC_NAME,
+        PEGASUS_PRODUCT_VERSION,
+        0, 0, 0, 0, false, // no extended revision info
+        PEGASUS_INTERNAL_PROVIDER_TYPE, String::EMPTY, String::EMPTY));
+
+    // Pegasus Indication Service acts as Provider for CIM Event classes.
+    // If DMTF Indications Profile support is enabled create SoftwareIdentity
+    // instance with Pegasus Indication Service.
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    instances.append(
+        buildSoftwareIdentity(
+            PEGASUS_MODULE_NAME,
+            INDICATION_SERVICE_NAME,
+            PEGASUS_CIMOM_GENERIC_NAME,
+            PEGASUS_PRODUCT_VERSION,
+            0,
+            0,
+            0,
+            0,
+            false, // no extended revision info
+            PEGASUS_INTERNAL_SERVICE_TYPE,
+            String::EMPTY,
+            String::EMPTY));
+#endif
+    return instances;
+}
+
 //
 // Method that enumerates instances of the PG_SoftwareIdentity class. There
 // should be one instance for every provider registered with the CIMOM, i.e.
@@ -332,32 +489,7 @@ Array<CIMInstance> InteropProvider::enumSoftwareIdentityInstances()
             caption));
     }
 
-    // Always have the Interop provider
-    instances.append(buildSoftwareIdentity(PEGASUS_MODULE_NAME,
-        INTEROP_PROVIDER_NAME, PEGASUS_CIMOM_GENERIC_NAME,
-        PEGASUS_PRODUCT_VERSION,
-        0, 0, 0, 0, false, // no extended revision info
-        PEGASUS_INTERNAL_PROVIDER_TYPE, String::EMPTY, String::EMPTY));
-
-    // Pegasus Indication Service acts as Provider for CIM Event classes.
-    // If DMTF Indications Profile support is enabled create SoftwareIdentity
-    // instance with Pegasus Indication Service.
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-    instances.append(
-        buildSoftwareIdentity(
-            PEGASUS_MODULE_NAME,
-            INDICATION_SERVICE_NAME,
-            PEGASUS_CIMOM_GENERIC_NAME,
-            PEGASUS_PRODUCT_VERSION,
-            0,
-            0,
-            0,
-            0,
-            false, // no extended revision info
-            PEGASUS_INTERNAL_SERVICE_TYPE,
-            String::EMPTY,
-            String::EMPTY));
-#endif
+    instances.appendArray(enumDefaultSoftwareIdentityInstances());
 
     return instances;
 }

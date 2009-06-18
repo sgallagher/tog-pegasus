@@ -336,18 +336,17 @@ CIMInstance InteropProvider::getSoftwareIdentityInstance(
             provName,
             CIMKeyBinding::STRING));
 
-    CIMObjectPath provRef(
-        String(),
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PROVIDER,
-        provKeys);
-
     CIMInstance provider;
     Boolean providerFound = true;
     try
     {
         provider =  providerRegistrationManager->getInstance(
-            provRef);
+            CIMObjectPath( 
+                String(),
+                PEGASUS_NAMESPACENAME_INTEROP,
+                PEGASUS_CLASSNAME_PROVIDER,
+                provKeys)
+            );
     }
     catch(const CIMException&)
     {

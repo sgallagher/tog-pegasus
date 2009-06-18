@@ -26,12 +26,10 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ifndef PEGASUS_ROOT
-    $(error PEGASUS_ROOT environment variable undefined)
-endif
-ifndef PEGASUS_HOME
-    $(error PEGASUS_HOME environment variable undefined)
-endif
+
+ROOT = ../../../../../../../..
+
+include $(ROOT)/mak/config.mak
 
 all clean depend build poststarttests messages tests repository:
 	$(MAKE) -C LoadJMPI $(MFLAGS) $@

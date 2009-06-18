@@ -26,14 +26,12 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ifndef PEGASUS_ROOT
-    $(error PEGASUS_ROOT environment variable undefined)
-endif
-ifndef PEGASUS_HOME
-    $(error PEGASUS_HOME environment variable undefined)
-endif
 
-NAMESPACE        = root/SampleProvider
+ROOT = ../../../../../../../../..
+
+include $(ROOT)/mak/config.mak
+
+NAMESPACE = root/SampleProvider
 
 all clean depend build messages tests repository:
 

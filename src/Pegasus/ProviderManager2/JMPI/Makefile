@@ -26,6 +26,11 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
+ROOT = ../../../..
+
+DIR = Pegasus/ProviderManager2/JMPI
+
+include $(ROOT)/mak/config.mak
 
 all clean depend build poststarttests repository tests:
 	$(MAKE) "-f" jmpi.mak $(MFLAGS) $@

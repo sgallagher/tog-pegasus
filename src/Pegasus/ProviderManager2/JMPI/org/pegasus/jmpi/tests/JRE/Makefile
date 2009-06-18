@@ -26,16 +26,12 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ifndef PEGASUS_ROOT
-    $(error PEGASUS_ROOT environment variable undefined)
-endif
-ifndef PEGASUS_HOME
-    $(error PEGASUS_HOME environment variable undefined)
-endif
+
+ROOT = ../../../../../../../../..
 
 DIR = Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests/JRE
 
-include $(PEGASUS_ROOT)/mak/config.mak
+include $(ROOT)/mak/config.mak
 
 ifeq ($(OS_TYPE),windows)
    JAVALIBS=$(JAVA_SDK)/jre/lib/

@@ -26,29 +26,25 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //////////////////////////////////////////////////////////////////////////
-//
-// Author: Tony Fiorentino (fiorentino_tony@emc.com)
-//
 
-#include "Guid.h"
+#ifndef Guid_h
+#define Guid_h
 
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
-# include "GuidWindows.cpp"
-#else
-# include <unistd.h>
-# include <netdb.h>
-# include <arpa/inet.h>
-# include "GuidUnix.cpp"
-#endif
-
-PEGASUS_USING_STD;
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/System.h>
+#include <Pegasus/Common/CIMValue.h>
+#include <Pegasus/General/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-String Guid::getGuid()
+class PEGASUS_GENERAL_LINKAGE Guid
 {
-  return getGuid(String::EMPTY);
-}
+  public:
+    static String getGuid();
+    static String getGuid(const String &prefix);
+};
 
 PEGASUS_NAMESPACE_END
-// END_OF_FILE
+
+#endif // Guid_h

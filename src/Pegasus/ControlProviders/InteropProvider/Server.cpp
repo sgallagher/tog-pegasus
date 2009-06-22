@@ -56,9 +56,9 @@
 #include "InteropProvider.h"
 #include "InteropProviderUtils.h"
 #include "InteropConstants.h"
-#include "Guid.h"
 
 #include <Pegasus/Common/StatisticalData.h>
+#include <Pegasus/General/Guid.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN

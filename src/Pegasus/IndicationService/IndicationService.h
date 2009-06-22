@@ -414,6 +414,21 @@ private:
 
     /**
         Validates the specified property in the instance.
+        If the property does not exist, it is added with the GUID value.
+        If the property exists, but its value is NULL, its value is set to
+        the GUID value.
+        This function is called by the _canCreate function, and is used to
+        set the name of the Handler instance.
+
+        @param   instance              instance to be validated
+        @param   propertyName          name of property to be validated
+    */
+    String _checkPropertyWithGuid(
+        CIMInstance& instance,
+        const CIMName& propertyName);
+
+    /**
+        Validates the specified property in the instance.
         If the property does not exist, it is added with the default value.
         If the property exists, but its value is NULL, its value is set to
         the default value.

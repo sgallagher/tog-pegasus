@@ -45,11 +45,11 @@ LIBRARIES = \
     pegrepository \
     pegprovider \
     pegconfig \
+    peggeneral \
     pegcommon
 
 SOURCES = \
     ElementConformsToProfile.cpp \
-    Guid.cpp \
     InteropAssociationProvider.cpp \
     InteropInstanceProvider.cpp \
     InteropMethodProvider.cpp \
@@ -62,7 +62,7 @@ SOURCES = \
     
 
 ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
-NEEDS_LIBRARIES = -L$(LIB_DIR) -lpegcommon -lpegconfig -lpegprovider -lpegrepository
+NEEDS_LIBRARIES = -L$(LIB_DIR) -lpegcommon -lpeggeneral -lpegconfig -lpegprovider -lpegrepository
 endif
 
 ifeq ($(OS_TYPE),windows)

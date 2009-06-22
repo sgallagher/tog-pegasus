@@ -2705,6 +2705,21 @@ void _error (CIMClient & client)
         _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
     }
 
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+    {
+        //
+        //  Handler: Missing required Name key property, if indications profile
+        //  support is enabled CIMServer should populate this property.
+        //
+        CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
+        _addStringProperty (handler, "Destination",
+            "localhost/CIMListener/test1");
+        CIMObjectPath path =
+            client.createInstance (PEGASUS_NAMESPACENAME_INTEROP, handler);
+        // Now delete the instance
+        client.deleteInstance (PEGASUS_NAMESPACENAME_INTEROP, path);
+    }
+#else 
     //
     //  Handler: Missing required Name key property
     //
@@ -2739,6 +2754,7 @@ void _error (CIMClient & client)
     {
         _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
     }
+#endif
 
     //
     //  Handler: Required Name key property of incorrect type

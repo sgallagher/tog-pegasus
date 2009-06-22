@@ -38,27 +38,36 @@ PEGASUS_NAMESPACE_BEGIN
 
 String Guid::getGuid(const String &prefix)
 {
-  Uint32 seconds(0), milliSeconds(0);
-  System::getCurrentTime(seconds, milliSeconds);
-  CIMValue secondsValue(seconds);
-  CIMValue milliSecondsValue(milliSeconds);
-  String ipAddress;
-  int af;
-  String hostName(System::getHostName());
-  if (!System::getHostIP(hostName, &af, ipAddress))
-  {
-      // set default address if everything else failed
-      ipAddress = String("127.0.0.1");
-  }
-  // change the dots to dashes
-  for (Uint32 i=0; i<ipAddress.size(); i++)
+    Uint32 seconds(0), milliSeconds(0);
+    System::getCurrentTime(seconds, milliSeconds);
+    CIMValue secondsValue(seconds);
+    CIMValue milliSecondsValue(milliSeconds);
+    String ipAddress;
+    int af;
+
+    String hostName(System::getHostName());
+    if (!System::getHostIP(hostName, &af, ipAddress))
     {
-      if (ipAddress[i] == Char16('.'))
-        ipAddress[i] = Char16('-');
+        // set default address if everything else failed
+        ipAddress = String("127.0.0.1");
     }
 
-  return secondsValue.toString() + milliSecondsValue.toString() + "-" +
-      ipAddress;
+    // change the dots to dashes
+    for (Uint32 i=0; i<ipAddress.size(); i++)
+    {
+        if (ipAddress[i] == Char16('.'))
+        {
+            ipAddress[i] = Char16('-');
+        }
+    }
+
+    String guid(prefix);
+    guid.append(secondsValue.toString());
+    guid.append(milliSecondsValue.toString());
+    guid.append(Char16('-'));
+    guid.append(ipAddress);
+
+    return guid;
 }
 
 PEGASUS_NAMESPACE_END

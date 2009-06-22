@@ -1269,7 +1269,6 @@ extern "C"
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
 
-        Uint32 logSeverity = Logger::INFORMATION;
         String logString;
         if (id != NULL)
         {
@@ -1285,26 +1284,43 @@ extern "C"
         {
             logString.append(text);
         }
-        // There are no notion in CMPI spec about what 'severity' means.
-        // So we are going to try to map
-        if (severity <= 1)
+        /*
+            CMPI Severity Codes from Section 4.8
+            CMPI_SEV_ERROR = 1,
+            CMPI_SEV_INFO = 2,
+            CMPI_SEV_WARNING = 3,
+            CMPI_DEV_DEBUG = 4
+            Here we try to match CMPI Severity codes to the Pegauss Log levels.
+        */
+
+        Uint32 logSeverity;
+        Logger::LogFileType logFileType;
+
+        switch (severity)
         {
-            logSeverity = Logger::INFORMATION;
+            case CMPI_DEV_DEBUG:
+                logSeverity = Logger::TRACE;
+                logFileType = Logger::TRACE_LOG;
+                break;
+            case  CMPI_SEV_INFO:
+                logSeverity = Logger::INFORMATION;
+                logFileType = Logger::STANDARD_LOG;
+                break;
+            case CMPI_SEV_WARNING:
+                logSeverity = Logger::WARNING;
+                logFileType = Logger::STANDARD_LOG;
+                break;
+            case CMPI_SEV_ERROR:
+                logSeverity = Logger::SEVERE;
+                logFileType = Logger::ERROR_LOG;
+                break;
+            default:
+                logSeverity = Logger::INFORMATION;
+                logFileType = Logger::STANDARD_LOG;
         }
-        else if (severity == 2)
-        {
-            logSeverity = Logger::WARNING;
-        }
-        else if (severity == 3)
-        {
-            logSeverity = Logger::SEVERE;
-        }
-        else if (severity == 4)
-        {
-            logSeverity = Logger::FATAL;
-        }
+
         Logger::put(
-            Logger::STANDARD_LOG,
+            logFileType,
             System::CIMSERVER,
             logSeverity,
             logString);

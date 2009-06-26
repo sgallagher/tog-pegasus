@@ -63,7 +63,8 @@ SOURCES = \
     Stopwatch.cpp \
     SSLContextManager.cpp \
     MofWriter.cpp \
-    Guid.cpp
+    Guid.cpp \
+    VersionUtil.cpp
    
 ifdef PEGASUS_HAS_SSL
     ifeq ($(OS_TYPE),windows)

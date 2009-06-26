@@ -680,6 +680,8 @@ en:table {
 
         Clients.repupgrade.RepositoryUpgrade.OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR:string {"PGC01016: Error reading old repository dependent class {0} in namespace {1}."}
 
+        Clients.repupgrade.RepositoryUpgrade.INSTANCE_DELETION_ERROR:string {"PGC01017: Error deleting instance in namespace {0}."}
+
         // ==========================================================
         // Messages for CIMTrustCommand
         // Please use message prefix "PGC01100"

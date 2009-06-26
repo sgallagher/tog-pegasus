@@ -490,6 +490,24 @@ private:
            const String&           message);
 
     //
+    // Logs an error message to indicate an error while deleting an instance.
+    //
+    // @param CIMNamespaceName  contains the Namespace name.
+    //
+    // @param CIMObjectPath     contains the required instance object path.
+    //
+    // @param message           contains the error message if available
+    //                          otherwise set to String::EMPTY
+    //
+    // @exception               logs the request and propagates the
+    //                          error encountered during delete instance.
+    //
+    void _logDeleteInstanceError(
+        const CIMNamespaceName& namespaceName,
+        const CIMObjectPath& instanceName,
+        const String& message);
+
+    //
     // Logs an error message to indicate an error while adding an qualifier.
     //
     // @param CIMNamespaceName  contains the Namespace name.
@@ -506,6 +524,62 @@ private:
           const CIMNamespaceName& namespaceName,
           const CIMQualifierDecl& qualifier,
           const String&           message);
+
+    /**
+        Updates the Subscription instances in the repository. It calls
+        _updateFilterHandlerReferences() to update the SystemName key
+        in filter and hadler references.
+        @param   nameSpace     The current namespace being considered
+        @param   className     The name of the subscription, handler or filter
+                               class whose instances in the current namespace
+                               are to be checked and updated in case there
+                               is any inconsistency in system namecurrent
+                               namespace being considered
+    */
+    void _updateSubscriptionInstancesInRepository(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className);
+
+    /**
+        Updates the Handler, Filter and ObjectManager instances in the 
+        repository. It checks for the SystemName property value. If there
+        is any inconsistency with the current system name retrieved using
+        System::getFullyQualifiedSystemName() then the SystemName property
+        and keyBindings are updated to the current value.
+
+        @param   nameSpace     The current namespace being considered
+        @param   className     The name of the handler, filter or objectManager
+                               class whose instances in the current namespace
+                               are to be checked and updated in case there
+                               is any inconsistency in system namecurrent
+                               namespace being considered
+    */
+    void _updateSystemNameKeyPropertyOfInstancesForClass(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className);
+
+    /**
+        Updates the SytemName key property in Filter and Handler
+        references. It checks for the SystemName value in the
+        keyBindings of Filter and Handler references. If there is any
+        inconsistency with the current system name retrieved using
+        System::getFullyQualifiedSystemName() then the SystemName
+        keyBindings are updated to the current value.
+
+        @param   instance      The current subscription instance
+        @param   propertyName  The property of susbscription which needs to be
+                               updated for correct system name. Its value is
+                               either Filter or Handler
+    */
+    Boolean _updateFilterHandlerReference(
+        CIMInstance& instance,
+        const CIMName& propertyName);
+
+    /**
+        This function updates SystemName key property in subscription,
+        filter, handler and objectmanager instances to current System Name
+    */
+    void _updateSystemNameKeyProperty();
 
 #ifdef ENABLE_MODULE_PROCESSING
     //

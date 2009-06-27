@@ -1000,7 +1000,8 @@ void RepositoryUpgrade::_updateSystemNameKeyProperty()
             }
         }
     }
-    // Now update Object Manager.
+
+    // Now try to update Object Manager instance in the interop namespace.
     try
     {
         _updateSystemNameKeyPropertyOfInstancesForClass(
@@ -1010,9 +1011,10 @@ void RepositoryUpgrade::_updateSystemNameKeyProperty()
     catch (const CIMException& e)
     {
         //
-        // Some namespaces may not include the object manager class
+        // Interop namespace or object manager class may not exist
         //
-        if (e.getCode () != CIM_ERR_INVALID_CLASS)
+        if (e.getCode() != CIM_ERR_INVALID_CLASS &&
+            e.getCode() != CIM_ERR_INVALID_NAMESPACE)
         {
 #ifdef REPUPGRADE_DEBUG
             cout << "Exception caught in attempting to update "

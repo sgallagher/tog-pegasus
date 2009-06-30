@@ -335,11 +335,18 @@ void CMPIProviderManager::unloadIdleProviders()
         handler.setStatus(CIM_ERR_FAILED, "Unknown error."); \
     }
 
+/* setup the CMPI context based on the requests OperationContext
+   the OperationContext
+   nameSpace and remoteInfo are used by pointer instead of by reference to
+   avoid copies being generated, both CStrings are anchored on the stack in the
+   scope of the calling function to keep them valid across the lifetime of the
+   CMPI processing of a request
+*/    
 void CMPIProviderManager::_setupCMPIContexts(
     CMPI_ContextOnStack * eCtx,
     OperationContext * context,
-    ProviderIdContainer * pidc,
-    const String &nameSpace,
+    const CString * nameSpace,
+    const CString * remoteInfo,
     Boolean remote,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
@@ -382,20 +389,55 @@ void CMPIProviderManager::_setupCMPIContexts(
 
     // add initial namespace to context
     eCtx->ft->addEntry(
-    eCtx,
-    CMPIInitNameSpace,
-    (CMPIValue*)(const char*)nameSpace.getCString(),
-    CMPI_chars);
+        eCtx,
+        CMPIInitNameSpace,
+        (CMPIValue*)(const char*)(*nameSpace),
+        CMPI_chars);
 
     // add remote info to context
     if (remote)
     {
-        CString info=pidc->getRemoteInfo().getCString();
         eCtx->ft->addEntry(
             eCtx,
-            "CMPIRRemoteInfo",(CMPIValue*)(const char*)info,
+            "CMPIRRemoteInfo",(CMPIValue*)(const char*)(*remoteInfo),
             CMPI_chars);
     }
+}
+
+/*
+   Function resolves the provider name and gets the cached or loads new
+   provider module, also returns if operation is remote and the remote
+   information
+*/
+CMPIProvider & CMPIProviderManager::_resolveAndGetProvider(
+    OperationContext * context,
+    OpProviderHolder * ph,
+    CString * remoteInfo,
+    Boolean & isRemote)
+{
+        isRemote=false;
+
+        // resolve provider name
+        ProviderIdContainer pidc =
+            context->get(ProviderIdContainer::NAME);
+
+        ProviderName name = _resolveProviderName(pidc);
+
+        if ((isRemote=pidc.isRemoteNameSpace()))
+        {
+            *ph = providerManager.getRemoteProvider(
+                name.getLocation(), name.getLogicalName());
+        }
+        else
+        {
+            // get cached or load new provider module
+            *ph = providerManager.getProvider(
+                name.getPhysicalName(), name.getLogicalName());
+        }
+        *remoteInfo = pidc.getRemoteInfo().getCString();
+
+        // forward request
+        return ph->GetProvider();
 }
 
 Message * CMPIProviderManager::handleGetInstanceRequest(
@@ -426,49 +468,28 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
 
         Boolean remote=false;
         OpProviderHolder ph;
-
-        // resolve provider name
-        ProviderIdContainer pidc =
-            request->operationContext.get(ProviderIdContainer::NAME);
-
-        ProviderName name = _resolveProviderName(pidc);
-
-        if ((remote=pidc.isRemoteNameSpace()))
-        {
-            ph = providerManager.getRemoteProvider(
-                name.getLocation(), name.getLogicalName());
-        }
-        else
-        {
-            // get cached or load new provider module
-            ph = providerManager.getProvider(
-                name.getPhysicalName(), name.getLogicalName());
-        }
-
-        // convert arguments
-        OperationContext context;
-
-        context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
-        // forward request
-        CMPIProvider & pr=ph.GetProvider();
+        CString remoteInfo;
+        
+        CMPIProvider & pr = _resolveAndGetProvider(
+            &(request->operationContext),
+            &ph,
+            &remoteInfo,
+            remote);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
+        CMPI_ContextOnStack eCtx(request->operationContext);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         CMPIPropertyList props(request->propertyList);
+        CString nameSpace = request->nameSpace.getString().getCString();
 
         _setupCMPIContexts(
             &eCtx,
-            &context,
-            &pidc,
-            request->nameSpace.getString(),
+            &(request->operationContext),
+            &nameSpace,
+            &remoteInfo,
             remote,
             request->includeQualifiers,
             request->includeClassOrigin,
@@ -568,51 +589,29 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
 
         Boolean remote=false;
         OpProviderHolder ph;
-
-        // resolve provider name
-        ProviderIdContainer pidc =
-            request->operationContext.get(ProviderIdContainer::NAME);
-        ProviderName name = _resolveProviderName(pidc);
-
-        if ((remote=pidc.isRemoteNameSpace()))
-        {
-            ph = providerManager.getRemoteProvider(
-                name.getLocation(), name.getLogicalName());
-        }
-        else
-        {
-            // get cached or load new provider module
-            ph = providerManager.getProvider(
-                name.getPhysicalName(), name.getLogicalName());
-        }
-
-        // convert arguments
-        OperationContext context;
-
-        context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
+        CString remoteInfo;
+        
+        CMPIProvider & pr = _resolveAndGetProvider(
+            &(request->operationContext),
+            &ph,
+            &remoteInfo,
+            remote);
 
         CIMPropertyList propertyList(request->propertyList);
 
-        // forward request
-        CMPIProvider & pr=ph.GetProvider();
-
         CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
+        CMPI_ContextOnStack eCtx(request->operationContext);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
-
         CMPIPropertyList props(propertyList);
+        CString nameSpace = request->nameSpace.getString().getCString();
 
         _setupCMPIContexts(
             &eCtx,
-            &context,
-            &pidc,
-            request->nameSpace.getString(),
+            &(request->operationContext),
+            &nameSpace,
+            &remoteInfo,
             remote,
             request->includeQualifiers,
             request->includeClassOrigin,
@@ -713,45 +712,27 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
         Boolean remote=false;
         OpProviderHolder ph;
-
-        // resolve provider name
-        ProviderIdContainer pidc =
-            request->operationContext.get(ProviderIdContainer::NAME);
-        ProviderName name = _resolveProviderName(pidc);
-
-        if ((remote=pidc.isRemoteNameSpace()))
-        {
-            ph = providerManager.getRemoteProvider(
-                name.getLocation(), name.getLogicalName());
-        }
-        else
-        {
-            // get cached or load new provider module
-            ph = providerManager.getProvider(
-                name.getPhysicalName(), name.getLogicalName());
-        }
-
-        // convert arguments
-        OperationContext context;
-
-        context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
-        CMPIProvider & pr=ph.GetProvider();
+        CString remoteInfo;
+        
+        CMPIProvider & pr = _resolveAndGetProvider(
+            &(request->operationContext),
+            &ph,
+            &remoteInfo,
+            remote);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
+        CMPI_ContextOnStack eCtx(request->operationContext);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
+        CString nameSpace = request->nameSpace.getString().getCString();
+
         _setupCMPIContexts(
             &eCtx,
-            &context,
-            &pidc,
-            request->nameSpace.getString(),
+            &(request->operationContext),
+            &nameSpace,
+            &remoteInfo,
             remote,
             false,
             false,
@@ -854,47 +835,28 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
 
         Boolean remote=false;
         OpProviderHolder ph;
-
-        // resolve provider name
-        ProviderIdContainer pidc =
-            request->operationContext.get(ProviderIdContainer::NAME);
-        ProviderName name = _resolveProviderName(pidc);
-
-        if ((remote=pidc.isRemoteNameSpace()))
-        {
-            ph = providerManager.getRemoteProvider(
-                name.getLocation(), name.getLogicalName());
-        }
-        else
-        {
-            // get cached or load new provider module
-            ph = providerManager.getProvider(
-                name.getPhysicalName(), name.getLogicalName());
-        }
-
-        // convert arguments
-        OperationContext context;
-
-        context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
-        // forward request
-        CMPIProvider & pr=ph.GetProvider();
+        CString remoteInfo;
+        
+        CMPIProvider & pr = _resolveAndGetProvider(
+            &(request->operationContext),
+            &ph,
+            &remoteInfo,
+            remote);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
+        CMPI_ContextOnStack eCtx(request->operationContext);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_InstanceOnStack eInst(request->newInstance);
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
+        CString nameSpace = request->nameSpace.getString().getCString();
+
         _setupCMPIContexts(
             &eCtx,
-            &context,
-            &pidc,
-            request->nameSpace.getString(),
+            &(request->operationContext),
+            &nameSpace,
+            &remoteInfo,
             remote,
             false,
             false,
@@ -996,37 +958,16 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
 
         Boolean remote=false;
         OpProviderHolder ph;
-
-        // resolve provider name
-        ProviderIdContainer pidc =
-            request->operationContext.get(ProviderIdContainer::NAME);
-        ProviderName name = _resolveProviderName(pidc);
-
-        if ((remote=pidc.isRemoteNameSpace()))
-        {
-            ph = providerManager.getRemoteProvider(
-                name.getLocation(), name.getLogicalName());
-        }
-        else
-        {
-            // get cached or load new provider module
-            ph = providerManager.getProvider(
-                name.getPhysicalName(), name.getLogicalName());
-        }
-
-        // convert arguments
-        OperationContext context;
-
-        context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
-        // forward request
-        CMPIProvider & pr=ph.GetProvider();
+        CString remoteInfo;
+        
+        CMPIProvider & pr = _resolveAndGetProvider(
+            &(request->operationContext),
+            &ph,
+            &remoteInfo,
+            remote);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
+        CMPI_ContextOnStack eCtx(request->operationContext);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_InstanceOnStack eInst(request->modifiedInstance);
@@ -1034,11 +975,13 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
 
         CMPIPropertyList props(request->propertyList);
 
+        CString nameSpace = request->nameSpace.getString().getCString();
+
         _setupCMPIContexts(
             &eCtx,
-            &context,
-            &pidc,
-            request->nameSpace.getString(),
+            &(request->operationContext),
+            &nameSpace,
+            &remoteInfo,
             remote,
             request->includeQualifiers,
             false,
@@ -1141,46 +1084,27 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
 
         Boolean remote=false;
         OpProviderHolder ph;
-
-        // resolve provider name
-        ProviderIdContainer pidc =
-            request->operationContext.get(ProviderIdContainer::NAME);
-        ProviderName name = _resolveProviderName(pidc);
-
-        if ((remote=pidc.isRemoteNameSpace()))
-        {
-            ph = providerManager.getRemoteProvider(
-                name.getLocation(), name.getLogicalName());
-        }
-        else
-        {
-            // get cached or load new provider module
-            ph = providerManager.getProvider(
-                name.getPhysicalName(), name.getLogicalName());
-        }
-
-        // convert arguments
-        OperationContext context;
-
-        context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
-        // forward request
-        CMPIProvider & pr=ph.GetProvider();
+        CString remoteInfo;
+        
+        CMPIProvider & pr = _resolveAndGetProvider(
+            &(request->operationContext),
+            &ph,
+            &remoteInfo,
+            remote);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
+        CMPI_ContextOnStack eCtx(request->operationContext);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
+        CString nameSpace = request->nameSpace.getString().getCString();
+
         _setupCMPIContexts(
             &eCtx,
-            &context,
-            &pidc,
-            request->nameSpace.getString(),
+            &(request->operationContext),
+            &nameSpace,
+            &remoteInfo,
             remote,
             false,
             false,
@@ -1278,54 +1202,32 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
             request->className);
 
         Boolean remote=false;
-
         OpProviderHolder ph;
-
-        // resolve provider name
-        ProviderIdContainer pidc =
-            request->operationContext.get(ProviderIdContainer::NAME);
-        ProviderName name = _resolveProviderName(pidc);
-
-        if ((remote=pidc.isRemoteNameSpace()))
-        {
-            ph = providerManager.getRemoteProvider(
-                name.getLocation(), name.getLogicalName());
-        }
-        else
-        {
-            // get cached or load new provider module
-            ph = providerManager.getProvider(
-                name.getPhysicalName(), name.getLogicalName());
-        }
-
-        // convert arguments
-        OperationContext context;
-
-        context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
-
-        // forward request
-        CMPIProvider & pr=ph.GetProvider();
+        CString remoteInfo;
+        
+        CMPIProvider & pr = _resolveAndGetProvider(
+            &(request->operationContext),
+            &ph,
+            &remoteInfo,
+            remote);
 
         const char **props=NULL;
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
+        CMPI_ContextOnStack eCtx(request->operationContext);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         const CString queryLan=request->queryLanguage.getCString();
         const CString query=request->query.getCString();
+        CString nameSpace = request->nameSpace.getString().getCString();
 
         _setupCMPIContexts(
             &eCtx,
-            &context,
-            &pidc,
-            request->nameSpace.getString(),
+            &(request->operationContext),
+            &nameSpace,
+            &remoteInfo,
             remote,
             false,
             false,
@@ -1433,37 +1335,14 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
             request->assocClass.getString());
 
         Boolean remote=false;
-
         OpProviderHolder ph;
-
-        // resolve provider name
-        ProviderIdContainer pidc =
-            request->operationContext.get(ProviderIdContainer::NAME);
-        ProviderName name = _resolveProviderName(pidc);
-
-        if ((remote=pidc.isRemoteNameSpace()))
-        {
-            ph = providerManager.getRemoteProvider(
-                name.getLocation(), name.getLogicalName());
-        }
-        else
-        {
-            // get cached or load new provider module
-            ph = providerManager.getProvider(
-                name.getPhysicalName(), name.getLogicalName());
-        }
-
-        // convert arguments
-        OperationContext context;
-
-        context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
-
-        // forward request
-        CMPIProvider & pr=ph.GetProvider();
+        CString remoteInfo;
+        
+        CMPIProvider & pr = _resolveAndGetProvider(
+            &(request->operationContext),
+            &ph,
+            &remoteInfo,
+            remote);
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "--- CMPIProviderManager::associators < role: > %s%s",
@@ -1471,7 +1350,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
             (const char*)request->assocClass.getString().getCString()));
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
+        CMPI_ContextOnStack eCtx(request->operationContext);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
@@ -1479,14 +1358,15 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         const CString rClass=request->resultClass.getString().getCString();
         const CString rRole=request->role.getCString();
         const CString resRole=request->resultRole.getCString();
+        CString nameSpace = request->nameSpace.getString().getCString();
 
         CMPIPropertyList props(request->propertyList);
 
         _setupCMPIContexts(
             &eCtx,
-            &context,
-            &pidc,
-            request->nameSpace.getString(),
+            &(request->operationContext),
+            &nameSpace,
+            &remoteInfo,
             remote,
             request->includeQualifiers,
             request->includeClassOrigin,
@@ -1600,35 +1480,13 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
 
         Boolean remote=false;
         OpProviderHolder ph;
-
-        // resolve provider name
-        ProviderIdContainer pidc =
-            request->operationContext.get(ProviderIdContainer::NAME);
-        ProviderName name = _resolveProviderName(pidc);
-
-        if ((remote=pidc.isRemoteNameSpace()))
-        {
-            ph = providerManager.getRemoteProvider(
-                name.getLocation(), name.getLogicalName());
-        }
-        else
-        {
-            // get cached or load new provider module
-            ph = providerManager.getProvider(
-                name.getPhysicalName(), name.getLogicalName());
-        }
-
-        // convert arguments
-        OperationContext context;
-
-        context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
-
-        // forward request
-        CMPIProvider & pr=ph.GetProvider();
+        CString remoteInfo;
+        
+        CMPIProvider & pr = _resolveAndGetProvider(
+            &(request->operationContext),
+            &ph,
+            &remoteInfo,
+            remote);
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "--- CMPIProviderManager::associatorNames --  role: %s< aCls %s",
@@ -1636,7 +1494,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
             (const char*)request->assocClass.getString().getCString()));
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
+        CMPI_ContextOnStack eCtx(request->operationContext);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
@@ -1644,12 +1502,13 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
         const CString rClass=request->resultClass.getString().getCString();
         const CString rRole=request->role.getCString();
         const CString resRole=request->resultRole.getCString();
+        CString nameSpace = request->nameSpace.getString().getCString();
 
         _setupCMPIContexts(
             &eCtx,
-            &context,
-            &pidc,
-            request->nameSpace.getString(),
+            &(request->operationContext),
+            &nameSpace,
+            &remoteInfo,
             remote,
             false,
             false,
@@ -1759,34 +1618,13 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 
         Boolean remote=false;
         OpProviderHolder ph;
-
-        // resolve provider name
-        ProviderIdContainer pidc =
-            request->operationContext.get(ProviderIdContainer::NAME);
-        ProviderName name = _resolveProviderName(pidc);
-
-        if ((remote=pidc.isRemoteNameSpace()))
-        {
-            ph = providerManager.getRemoteProvider(
-                name.getLocation(), name.getLogicalName());
-        }
-        else
-        {
-            // get cached or load new provider module
-            ph = providerManager.getProvider(
-                name.getPhysicalName(), name.getLogicalName());
-        }
-
-        // convert arguments
-        OperationContext context;
-
-        context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
-        // forward request
-        CMPIProvider & pr=ph.GetProvider();
+        CString remoteInfo;
+        
+        CMPIProvider & pr = _resolveAndGetProvider(
+            &(request->operationContext),
+            &ph,
+            &remoteInfo,
+            remote);
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "--- CMPIProviderManager::references -- role:%s< aCls %s",
@@ -1794,20 +1632,21 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
             (const char*)request->resultClass.getString().getCString()));
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
+        CMPI_ContextOnStack eCtx(request->operationContext);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
         const CString rClass=request->resultClass.getString().getCString();
         const CString rRole=request->role.getCString();
+        CString nameSpace = request->nameSpace.getString().getCString();
 
         CMPIPropertyList props(request->propertyList);
 
         _setupCMPIContexts(
             &eCtx,
-            &context,
-            &pidc,
-            request->nameSpace.getString(),
+            &(request->operationContext),
+            &nameSpace,
+            &remoteInfo,
             remote,
             request->includeQualifiers,
             request->includeClassOrigin,
@@ -1917,33 +1756,13 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
 
         Boolean remote=false;
         OpProviderHolder ph;
-
-        // resolve provider name
-        ProviderIdContainer pidc =
-            request->operationContext.get(ProviderIdContainer::NAME);
-        ProviderName name = _resolveProviderName(pidc);
-
-        if ((remote=pidc.isRemoteNameSpace()))
-        {
-            ph = providerManager.getRemoteProvider(
-                name.getLocation(), name.getLogicalName());
-        }
-        else
-        {
-            // get cached or load new provider module
-            ph = providerManager.getProvider(
-                name.getPhysicalName(), name.getLogicalName());
-        }
-
-        // convert arguments
-        OperationContext context;
-
-        context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
-        CMPIProvider & pr=ph.GetProvider();
+        CString remoteInfo;
+        
+        CMPIProvider & pr = _resolveAndGetProvider(
+            &(request->operationContext),
+            &ph,
+            &remoteInfo,
+            remote);
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "--- CMPIProviderManager::referenceNames -- role: %s< aCls %s",
@@ -1951,18 +1770,20 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
             (const char*)request->resultClass.getString().getCString()));
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
+        CMPI_ContextOnStack eCtx(request->operationContext);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
         const CString rClass=request->resultClass.getString().getCString();
         const CString rRole=request->role.getCString();
 
+        CString nameSpace = request->nameSpace.getString().getCString();
+        
         _setupCMPIContexts(
             &eCtx,
-            &context,
-            &pidc,
-            request->nameSpace.getString(),
+            &(request->operationContext),
+            &nameSpace,
+            &remoteInfo,
             remote,
             false,
             false,
@@ -2065,43 +1886,21 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
 
         Boolean remote=false;
         OpProviderHolder ph;
-
-        // resolve provider name
-        ProviderIdContainer pidc =
-            request->operationContext.get(ProviderIdContainer::NAME);
-        ProviderName name = _resolveProviderName(pidc);
-
-        if ((remote=pidc.isRemoteNameSpace()))
-        {
-            ph = providerManager.getRemoteProvider(
-                name.getLocation(), name.getLogicalName());
-        }
-        else
-        {
-            // get cached or load new provider module
-            ph = providerManager.getProvider(
-                name.getPhysicalName(), name.getLogicalName());
-        }
-
-        // convert arguments
-        OperationContext context;
-
-        context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
+        CString remoteInfo;
+        
+        CMPIProvider & pr = _resolveAndGetProvider(
+            &(request->operationContext),
+            &ph,
+            &remoteInfo,
+            remote);
 
         CIMObjectPath instanceReference(request->instanceName);
 
         // ATTN: propagate namespace
         instanceReference.setNameSpace(request->nameSpace);
 
-        // forward request
-        CMPIProvider & pr=ph.GetProvider();
-
         CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
+        CMPI_ContextOnStack eCtx(request->operationContext);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
@@ -2109,12 +1908,13 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
         Array<CIMParamValue> outArgs;
         CMPI_ArgsOnStack eArgsOut(outArgs);
         CString mName=request->methodName.getString().getCString();
+        CString nameSpace = request->nameSpace.getString().getCString();
 
         _setupCMPIContexts(
             &eCtx,
-            &context,
-            &pidc,
-            request->nameSpace.getString(),
+            &(request->operationContext),
+            &nameSpace,
+            &remoteInfo,
             remote,
             false,
             false,
@@ -2212,7 +2012,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                 // EmbeddedInstances, so if the parameter definition has a type
                 // of EmbeddedInstance, the type of the output parameter must
                 // be changed.
-                if (paramValue.getType() == CIMTYPE_OBJECT &&
+                if (paramValue.getType() == CIMTYPE_OBJECT && 
                     methodIndex != PEG_NOT_FOUND)
                 {
                     String currentParamName(currentParam.getParameterName());
@@ -2364,23 +2164,18 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
 
         Boolean remote=false;
         OpProviderHolder ph;
-
-        if ((remote=pidc.isRemoteNameSpace()))
-        {
-            ph = providerManager.getRemoteProvider(
-                providerLocation, providerName);
-        }
-        else
-        {
-            // get cached or load new provider module
-            ph = providerManager.getProvider(
-                providerLocation, providerName);
-        }
+        CString remoteInfo;
+        
+        CMPIProvider & pr = _resolveAndGetProvider(
+            &(request->operationContext),
+            &ph,
+            &remoteInfo,
+            remote);
 
         indProvRecord *prec=NULL;
         {
             WriteLock writeLock(rwSemProvTab);
-            provTab.lookup(ph.GetProvider().getName(),prec);
+            provTab.lookup(pr.getName(),prec);
             if (prec) prec->count++;
             else
             {
@@ -2388,17 +2183,17 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
                 if (remote)
                 {
-                    prec->remoteInfo = pidc.getRemoteInfo();
+                    prec->remoteInfo.assign(remoteInfo);
                 }
 #endif
-                provTab.insert(ph.GetProvider().getName(),prec);
+                provTab.insert(pr.getName(),prec);
             }
         }
 
         //
         //  Save the provider instance from the request
         //
-        ph.GetProvider ().setProviderInstance (req_provider);
+        pr.setProviderInstance (req_provider);
 
         const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
 
@@ -2415,26 +2210,11 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             }
         }
 
-        // convert arguments
-        OperationContext context;
-        context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(SubscriptionInstanceContainer::NAME));
-        context.insert(
-            request->operationContext.get(
-            SubscriptionFilterConditionContainer::NAME));
-
         CIMObjectPath subscriptionName =
             request->subscriptionInstance.getPath();
 
-        CMPIProvider & pr=ph.GetProvider();
-
         CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
+        CMPI_ContextOnStack eCtx(request->operationContext);
         SubscriptionFilterConditionContainer sub_cntr =
             request->operationContext.get(
             SubscriptionFilterConditionContainer::NAME);
@@ -2446,7 +2226,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             *pr.getCIMOMHandle());
 
         CMPI_SelectExp *eSelx=new CMPI_SelectExp(
-            context,
+            request->operationContext,
             _context,
             request->query,
             sub_cntr.getQueryLanguage());
@@ -2483,14 +2263,15 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
         }
 
         Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
+        CString nameSpace = request->nameSpace.getString().getCString();
 
         // includeQualifiers and includeClassOrigin not of interest for
         // this type of request
         _setupCMPIContexts(
             &eCtx,
-            &context,
-            &pidc,
-            request->nameSpace.getString(),
+            &(request->operationContext),
+            &nameSpace,
+            &remoteInfo,
             remote);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -2661,30 +2442,24 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
 
         Boolean remote=false;
         OpProviderHolder ph;
-
-        if ((remote=pidc.isRemoteNameSpace()))
-        {
-            ph = providerManager.getRemoteProvider(
-                providerLocation, providerName);
-        }
-        else
-        {
-            // get cached or load new provider module
-            ph = providerManager.getProvider(
-                providerLocation, providerName);
-        }
-
+        CString remoteInfo;
+        
+        CMPIProvider & pr = _resolveAndGetProvider(
+            &(request->operationContext),
+            &ph,
+            &remoteInfo,
+            remote);
 
         indProvRecord *prec=NULL;
         {
             WriteLock writeLock(rwSemProvTab);
-            provTab.lookup(ph.GetProvider().getName(),prec);
+            provTab.lookup(pr.getName(),prec);
             if (--prec->count<=0)
             {
                 if (prec->handler)
                     delete prec->handler;
                 delete prec;
-                provTab.remove(ph.GetProvider().getName());
+                provTab.remove(pr.getName());
                 prec=NULL;
             }
         }
@@ -2714,32 +2489,22 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
             selxTab.remove(sPath);
         }
 
-        // convert arguments
-        OperationContext context;
-        context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(SubscriptionInstanceContainer::NAME));
-
         CIMObjectPath subscriptionName =
             request->subscriptionInstance.getPath();
 
-        CMPIProvider & pr=ph.GetProvider();
-
         CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
+        CMPI_ContextOnStack eCtx(request->operationContext);
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
+        
+        CString nameSpace = request->nameSpace.getString().getCString();
 
         // includeQualifiers and includeClassOrigin not of interest for
         // this type of request
         _setupCMPIContexts(
             &eCtx,
-            &context,
-            &pidc,
-            request->nameSpace.getString(),
+            &(request->operationContext),
+            &nameSpace,
+            &remoteInfo,
             remote);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -2846,7 +2611,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
             //
             //  Decrement count of current subscriptions for this provider
             //
-            if (ph.GetProvider ().decrementSubscriptionsAndTestIfZero ())
+            if (pr.decrementSubscriptionsAndTestIfZero ())
             {
                 //
                 //  If there are no current subscriptions after the decrement,
@@ -3207,34 +2972,13 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
 
         Boolean remote=false;
         OpProviderHolder ph;
-
-        // resolve provider name
-        ProviderIdContainer pidc =
-            request->operationContext.get(ProviderIdContainer::NAME);
-        ProviderName name = _resolveProviderName(pidc);
-
-        if ((remote=pidc.isRemoteNameSpace()))
-        {
-            ph = providerManager.getRemoteProvider(
-                name.getLocation(), name.getLogicalName());
-        }
-        else
-        {
-            // get cached or load new provider module
-            ph = providerManager.getProvider(
-                name.getPhysicalName(), name.getLogicalName());
-        }
-
-        // convert arguments
-        OperationContext context;
-
-        context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
-        // forward request
-        CMPIProvider & pr=ph.GetProvider();
+        CString remoteInfo;
+        
+        CMPIProvider & pr = _resolveAndGetProvider(
+            &(request->operationContext),
+            &ph,
+            &remoteInfo,
+            remote);
 
         AutoPtr<NormalizerContext> tmpNormalizerContext(
             new CIMOMHandleContext(*pr.getCIMOMHandle()));
@@ -3242,7 +2986,7 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
             NormalizerContextContainer(tmpNormalizerContext));
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
+        CMPI_ContextOnStack eCtx(request->operationContext);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(GI_handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
@@ -3251,13 +2995,14 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         // created containing the single property from the getProperty call.
         CMPIPropertyList props(localPropertyList);
 
+        CString nameSpace = request->nameSpace.getString().getCString();
         // Leave includeQualifiers and includeClassOrigin as false for this
         // call to getInstance
         _setupCMPIContexts(
             &eCtx,
-            &context,
-            &pidc,
-            request->nameSpace.getString(),
+            &(request->operationContext),
+            &nameSpace,
+            &remoteInfo,
             remote,
             false,
             false,
@@ -3425,50 +3170,30 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
 
         Boolean remote=false;
         OpProviderHolder ph;
-
-        // resolve provider name
-        ProviderIdContainer pidc =
-            request->operationContext.get(ProviderIdContainer::NAME);
-        ProviderName name = _resolveProviderName(pidc);
-
-        if ((remote=pidc.isRemoteNameSpace()))
-        {
-            ph = providerManager.getRemoteProvider(
-                name.getLocation(), name.getLogicalName());
-        }
-        else
-        {
-            // get cached or load new provider module
-            ph = providerManager.getProvider(
-                name.getPhysicalName(), name.getLogicalName());
-        }
-
-        // convert arguments
-        OperationContext context;
-
-        context.insert(request->operationContext.get(IdentityContainer::NAME));
-        context.insert(
-            request->operationContext.get(AcceptLanguageListContainer::NAME));
-        context.insert(
-            request->operationContext.get(ContentLanguageListContainer::NAME));
-        // forward request
-        CMPIProvider & pr=ph.GetProvider();
+        CString remoteInfo;
+        
+        CMPIProvider & pr = _resolveAndGetProvider(
+            &(request->operationContext),
+            &ph,
+            &remoteInfo,
+            remote);
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
-        CMPI_ContextOnStack eCtx(context);
+        CMPI_ContextOnStack eCtx(request->operationContext);
         CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(MI_handler,pr.getBroker());
         CMPI_InstanceOnStack eInst(localModifiedInstance);
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         CMPIPropertyList props(localPropertyList);
+        CString nameSpace = request->nameSpace.getString().getCString();
 
         // Leave includeQualifiers as false for this call to modifyInstance
         _setupCMPIContexts(
             &eCtx,
-            &context,
-            &pidc,
-            request->nameSpace.getString(),
+            &(request->operationContext),
+            &nameSpace,
+            &remoteInfo,
             remote,
             false,
             false,

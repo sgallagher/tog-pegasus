@@ -104,12 +104,18 @@ protected:
     void _setupCMPIContexts(
         CMPI_ContextOnStack * eCtx,
         OperationContext * context,
-        ProviderIdContainer * pidc,
-        const String & nameSpace,
+        const CString * nameSpace,
+        const CString * remoteInfo,
         Boolean remote,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
         Boolean setFlags = false);
+
+    CMPIProvider & _resolveAndGetProvider(
+        OperationContext * context,
+        OpProviderHolder * ph,
+        CString * remoteInfo,
+        Boolean & isRemote);
 
     Message * handleUnsupportedRequest(const Message * message);
 

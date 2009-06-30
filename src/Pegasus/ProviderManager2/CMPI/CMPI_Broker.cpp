@@ -192,7 +192,7 @@ extern "C"
         try
         {
             CIMInstance ci = CM_CIMOM(mb)->getInstance(
-                OperationContext(*CM_Context(ctx)),
+                *CM_Context(ctx),
                 CM_ObjectPath(cop)->getNameSpace(),
                 qop, //*CM_ObjectPath(cop),
                 false, // Use of localOnly is deprecated by DMTF.
@@ -228,7 +228,7 @@ extern "C"
         try
         {
             CIMObjectPath ncop = CM_CIMOM(mb)->createInstance(
-                OperationContext(*CM_Context(ctx)),
+                *CM_Context(ctx),
                 CM_ObjectPath(cop)->getNameSpace(),
                 *CM_Instance(ci));
             CMSetStatus(rc,CMPI_RC_OK);
@@ -262,7 +262,7 @@ extern "C"
             CIMInstance cmi(*CM_Instance(ci));
             cmi.setPath(*CM_ObjectPath(cop));
             CM_CIMOM(mb)->modifyInstance(
-                OperationContext(*CM_Context(ctx)),
+                *CM_Context(ctx),
                 CM_ObjectPath(cop)->getNameSpace(),
                 cmi,
                 CM_IncludeQualifiers(flgs),
@@ -291,7 +291,7 @@ extern "C"
         try
         {
             CM_CIMOM(mb)->deleteInstance(
-                OperationContext(*CM_Context(ctx)),
+                *CM_Context(ctx),
                 CM_ObjectPath(cop)->getNameSpace(),
                 qop); //*CM_ObjectPath(cop));
         }
@@ -315,7 +315,7 @@ extern "C"
         try
         {
             Array<CIMObject> const &en = CM_CIMOM(mb)->execQuery(
-                OperationContext(*CM_Context(ctx)),
+                *CM_Context(ctx),
                 CM_ObjectPath(cop)->getNameSpace(),
                 String(lang),
                 String(query));
@@ -352,7 +352,7 @@ extern "C"
         {
             Array<CIMInstance> const &en =
                 CM_CIMOM(mb)->enumerateInstances(
-                    OperationContext(*CM_Context(ctx)),
+                    *CM_Context(ctx),
                     CM_ObjectPath(cop)->getNameSpace(),
                     CM_ObjectPath(cop)->getClassName(),
                     CM_DeepInheritance(flgs),
@@ -406,7 +406,7 @@ extern "C"
         {
             Array<CIMObjectPath> const &en =
                 CM_CIMOM(mb)->enumerateInstanceNames(
-                    OperationContext(*CM_Context(ctx)),
+                    *CM_Context(ctx),
                     CM_ObjectPath(cop)->getNameSpace(),
                     CM_ObjectPath(cop)->getClassName());
                     CMSetStatus(rc,CMPI_RC_OK);
@@ -471,7 +471,7 @@ extern "C"
         {
             Array<CIMObject> const &en =
                 CM_CIMOM(mb)->associators(
-                    OperationContext(*CM_Context(ctx)),
+                    *CM_Context(ctx),
                     CM_ObjectPath(cop)->getNameSpace(),
                     qop,
                     assocClass ? CIMName(assocClass) : CIMName(),
@@ -544,7 +544,7 @@ extern "C"
         {
             Array<CIMObjectPath> const &en =
                 CM_CIMOM(mb)->associatorNames(
-                    OperationContext(*CM_Context(ctx)),
+                    *CM_Context(ctx),
                     CM_ObjectPath(cop)->getNameSpace(),
                     qop,
                     assocClass ? CIMName(assocClass) : CIMName(),
@@ -613,7 +613,7 @@ extern "C"
         {
             Array<CIMObject> const &en =
                 CM_CIMOM(mb)->references(
-                    OperationContext(*CM_Context(ctx)),
+                    *CM_Context(ctx),
                     CM_ObjectPath(cop)->getNameSpace(),
                     qop,
                     resultClass ? CIMName(resultClass) : CIMName(),
@@ -682,7 +682,7 @@ extern "C"
         {
             Array<CIMObjectPath> const &en =
                 CM_CIMOM(mb)->referenceNames(
-                    OperationContext(*CM_Context(ctx)),
+                    *CM_Context(ctx),
                     CM_ObjectPath(cop)->getNameSpace(),
                     qop,
                     resultClass ? CIMName(resultClass) : CIMName(),
@@ -737,7 +737,7 @@ extern "C"
         try
         {
             CIMValue v = CM_CIMOM(mb)->invokeMethod(
-                OperationContext(*CM_Context(ctx)),
+                *CM_Context(ctx),
                 CM_ObjectPath(cop)->getNameSpace(),
                 qop,
                 method ? String(method) : String::EMPTY,
@@ -775,7 +775,7 @@ extern "C"
         try
         {
             CM_CIMOM(mb)->setProperty(
-                OperationContext(*CM_Context(ctx)),
+                *CM_Context(ctx),
                 CM_ObjectPath(cop)->getNameSpace(),
                 *CM_ObjectPath(cop),
                 String(name),
@@ -803,7 +803,7 @@ extern "C"
         try
         {
             CIMValue v = CM_CIMOM(mb)->getProperty(
-                OperationContext(*CM_Context(ctx)),
+                *CM_Context(ctx),
                 CM_ObjectPath(cop)->getNameSpace(),
                 *CM_ObjectPath(cop),
                 String(name));
@@ -818,6 +818,12 @@ extern "C"
         return data; // "data" will be valid data or nullValue (in error case)
     }
 
+    /* With Bug#8541 the CMPI Provider Manager was changed to attach the 
+       complete requests operation context to the CMPI thread context.
+       In future, when we have a lot more containers on the operation context,
+       this might lead to an impact on memory usage here, when the entire
+       operation context gets copied to the new thread.
+    */
     static CMPIContext* mbPrepareAttachThread(
         const CMPIBroker* mb,
         const CMPIContext* eCtx)

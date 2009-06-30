@@ -1072,7 +1072,7 @@ CIMGetInstanceResponseMessage*
             messageId,
             cimException,
             QueueIdStack());
-        msg->setCimInstance(cimInstance);
+        msg->getResponseData().setCimInstance(cimInstance);
         return msg;
     }
     else
@@ -1214,7 +1214,7 @@ CIMEnumerateInstancesResponseMessage*
         cimException,
         QueueIdStack());
 
-    msg->setNamedInstances(namedInstances);
+    msg->getResponseData().setNamedInstances(namedInstances);
     return msg;
 }
 
@@ -1637,8 +1637,7 @@ CIMAssociatorsResponseMessage*
             return new CIMAssociatorsResponseMessage(
                 messageId,
                 cimException,
-                QueueIdStack(),
-                Array<CIMObject>());
+                QueueIdStack());
         }
 
         if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -1658,11 +1657,16 @@ CIMAssociatorsResponseMessage*
         }
     }
 
-    return new CIMAssociatorsResponseMessage(
+    CIMAssociatorsResponseMessage* msg;
+
+    msg = new CIMAssociatorsResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        objectWithPathArray);
+        QueueIdStack());
+
+    msg->getResponseData().setCIMObjects(objectWithPathArray);
+
+    return msg;
 }
 
 CIMExecQueryResponseMessage*
@@ -1682,8 +1686,7 @@ CIMExecQueryResponseMessage*
             return new CIMExecQueryResponseMessage(
                 messageId,
                 cimException,
-                QueueIdStack(),
-                Array<CIMObject>());
+                QueueIdStack());
         }
 
         if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -1697,11 +1700,16 @@ CIMExecQueryResponseMessage*
         }
     }
 
-    return new CIMExecQueryResponseMessage(
+    CIMExecQueryResponseMessage* msg;
+
+    msg = new CIMExecQueryResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        objectWithPathArray);
+        QueueIdStack());
+
+    msg->getResponseData().setCIMObjects(objectWithPathArray);
+
+    return msg;
 }
 
 CIMInvokeMethodResponseMessage*

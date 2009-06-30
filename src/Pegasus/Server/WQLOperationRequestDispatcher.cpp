@@ -45,7 +45,7 @@ void WQLOperationRequestDispatcher::applyQueryToEnumeration(
         (CIMEnumerateInstancesResponseMessage*) msg;
     WQLSelectStatement* qs = ((WQLQueryExpressionRep*)query)->_stmt;
 
-    Array<CIMInstance>& a = enr->getNamedInstances();
+    Array<CIMInstance>& a = enr->getResponseData().getNamedInstances();
 
     for (int i = a.size() - 1; i >= 0; i--)
     {
@@ -102,8 +102,7 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
             new CIMExecQueryResponseMessage(
                 request->messageId,
                 CIMException(),
-                request->queueIds.copyAndPop(),
-                Array<CIMObject>()));
+                request->queueIds.copyAndPop()));
         query->syncAttributes(request);
         toResponse = query.release();
     }
@@ -128,7 +127,8 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
             CIMClass cimClass;
 
             Boolean clsRead=false;
-            Array<CIMInstance>& a = fromResponse->getNamedInstances();
+            Array<CIMInstance>& a = 
+                fromResponse->getResponseData().getNamedInstances();
             for (Uint32 j = 0, m = a.size();
                  j < m; j++)
             {
@@ -150,7 +150,7 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
                 op.setHost(System::getHostName());
                 co.setPath(op);
                 if (manyResponses)
-                    toResponse->cimObjects.append(co);
+                    toResponse->getResponseData().getCIMObjects().append(co);
             }
         }
         else
@@ -159,9 +159,11 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
                 (CIMExecQueryResponseMessage*) response;
             CIMClass cimClass;
             Boolean clsRead=false;
-            for (Uint32 j = 0, m = fromResponse->cimObjects.size(); j < m; j++)
+            Array<CIMObject>& cimObjects = 
+                fromResponse->getResponseData().getCIMObjects();
+            for (Uint32 j = 0, m = cimObjects.size(); j < m; j++)
             {
-                CIMObject co=fromResponse->cimObjects[j];
+                CIMObject co=cimObjects[j];
                 CIMObjectPath op=co.getPath();
                 const Array<CIMKeyBinding>& kbs=op.getKeyBindings();
                 if (kbs.size()==0)
@@ -173,14 +175,14 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
                             false,true,false, CIMPropertyList());
                         clsRead=true;
                     }
-                    op = CIMInstance(fromResponse->cimObjects[j]).buildPath(
+                    op = CIMInstance(cimObjects[j]).buildPath(
                         cimClass);
                 }
                 op.setNameSpace(poA->_nameSpace);
                 op.setHost(System::getHostName());
                 co.setPath(op);
                 if (manyResponses)
-                    toResponse->cimObjects.append(co);
+                    toResponse->getResponseData().getCIMObjects().append(co);
             }
         }
 
@@ -375,7 +377,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
             try
             {
                 // Enumerate instances only for this class
-                response->setNamedInstances(
+                response->getResponseData().setNamedInstances(
                     _repository->enumerateInstancesForClass(
                         request->nameSpace,
                         providerInfo.className));

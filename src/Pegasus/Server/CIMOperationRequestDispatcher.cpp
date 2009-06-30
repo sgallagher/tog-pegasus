@@ -2590,7 +2590,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
         AutoPtr<CIMGetInstanceResponseMessage> response(
             dynamic_cast<CIMGetInstanceResponseMessage*>(
                 request->buildResponse()));
-        response->setCimInstance(cimInstance);
+        response->getResponseData().setCimInstance(cimInstance);
 
         _enqueueResponse(request, response.release());
     }
@@ -3225,7 +3225,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                     String::EMPTY);
             }
 
-            response->setNamedInstances(cimNamedInstances);
+            response->getResponseData().setNamedInstances(cimNamedInstances);
             response->cimException = cimException;
 
             poA->appendResponse(response.release());
@@ -3682,7 +3682,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         AutoPtr<CIMAssociatorsResponseMessage> response(
             dynamic_cast<CIMAssociatorsResponseMessage*>(
                 request->buildResponse()));
-        response->cimObjects = cimObjects;
+        response->getResponseData().setCIMObjects(cimObjects);
 
         _enqueueResponse(request, response.release());
     }
@@ -3722,7 +3722,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
             response.reset(dynamic_cast<CIMAssociatorsResponseMessage*>(
                 request->buildResponse()));
 
-            response->cimObjects = _repository->associators(
+            const Array<CIMObject>& cimObjects = _repository->associators(
                 request->nameSpace,
                 request->objectName,
                 request->assocClass,
@@ -3733,10 +3733,12 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                 request->includeClassOrigin,
                 request->propertyList);
 
+            response->getResponseData().setCIMObjects(cimObjects);
+
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "Associators repository access: class = %s, count = %u.",
                     (const char*)request->objectName.toString().getCString(),
-                    response->cimObjects.size()));
+                    response->getResponseData().getCIMObjects().size()));
         }
 
         if (providerCount == 0)
@@ -5027,20 +5029,27 @@ void CIMOperationRequestDispatcher::handleAssociatorsResponseAggregation(
         CIMAssociatorsResponseMessage* fromResponse =
             (CIMAssociatorsResponseMessage*)poA->getResponse(i);
 
-        for (Uint32 j = 0, n = fromResponse->cimObjects.size(); j < n; j++)
+        const Array<CIMObject>& cimObjects = 
+            fromResponse->getResponseData().getCIMObjects();
+
+        for (Uint32 j = 0, n = cimObjects.size(); j < n; j++)
         {
-            const CIMObject& object = fromResponse->cimObjects[j];
+            const CIMObject& object = cimObjects[j];
             CIMObjectPath& p = const_cast<CIMObjectPath&>(object.getPath());
 
             if (p.getHost().size() ==0)
+            {
                 p.setHost(cimAggregationLocalHost);
+            }
 
             if (p.getNameSpace().isNull())
+            {
                 p.setNameSpace(poA->_nameSpace);
+            }
 
             // only append if we are not the first response
             if (i > 0)
-                toResponse->cimObjects.append(object);
+                toResponse->getResponseData().getCIMObjects().append(object);
         }
 
         // only delete if we are not the first response, else we're done
@@ -5251,8 +5260,10 @@ void CIMOperationRequestDispatcher::
         CIMEnumerateInstancesResponseMessage* fromResponse =
             (CIMEnumerateInstancesResponseMessage*)poA->getResponse(i);
 
-        Array<CIMInstance>& from = fromResponse->getNamedInstances();
-        Array<CIMInstance>& to = toResponse->getNamedInstances();
+        Array<CIMInstance>& from = 
+            fromResponse->getResponseData().getNamedInstances();
+        Array<CIMInstance>& to = 
+            toResponse->getResponseData().getNamedInstances();
 
         for (Uint32 j = 0; j < from.size(); j++)
         {

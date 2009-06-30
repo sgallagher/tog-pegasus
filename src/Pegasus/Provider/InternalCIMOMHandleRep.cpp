@@ -787,7 +787,7 @@ CIMInstance InternalCIMOMHandleRep::getInstance(
     }
 
     // The CIM instance must be resolved from XML if any.
-    CIMInstance cimInstance = response->getCimInstance();
+    CIMInstance cimInstance = response->getResponseData().getCimInstance();
 
     PEG_METHOD_EXIT();
     return cimInstance;
@@ -857,7 +857,8 @@ Array<CIMInstance> InternalCIMOMHandleRep::enumerateInstances(
                 "Exception caught in CIMOMHandle"));
     }
 
-    const Array<CIMInstance>& cimInstances = response->getNamedInstances();
+    const Array<CIMInstance>& cimInstances = 
+        response->getResponseData().getNamedInstances();
 
     PEG_METHOD_EXIT();
     return cimInstances;
@@ -1168,7 +1169,8 @@ Array<CIMObject> InternalCIMOMHandleRep::execQuery(
                 "Exception caught in CIMOMHandle"));
     }
 
-    Array<CIMObject> cimObjects = response->cimObjects;
+    const Array<CIMObject>& cimObjects = 
+        response->getResponseData().getCIMObjects();
 
     PEG_METHOD_EXIT();
     return cimObjects;
@@ -1243,7 +1245,8 @@ Array<CIMObject> InternalCIMOMHandleRep::associators(
                 "Exception caught in CIMOMHandle"));
     }
 
-    Array<CIMObject> cimObjects = response->cimObjects;
+    const Array<CIMObject>& cimObjects = 
+        response->getResponseData().getCIMObjects();
 
     PEG_METHOD_EXIT();
     return cimObjects;

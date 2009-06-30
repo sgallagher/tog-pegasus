@@ -259,11 +259,11 @@ private:
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMExecQueryResponseMessage*
-        _getExecQueryResponseMessage(CIMBuffer& in);
+        _getExecQueryResponseMessage(CIMBuffer& in, bool binaryResponse);
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMAssociatorsResponseMessage*
-        _getAssociatorsResponseMessage(CIMBuffer& in);
+        _getAssociatorsResponseMessage(CIMBuffer& in, bool binaryResponse);
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMAssociatorNamesResponseMessage*

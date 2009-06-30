@@ -1344,7 +1344,7 @@ void testCIMGetInstanceResponseMessage(
     const CIMInstance& inst)
 {
     CIMGetInstanceResponseMessage inMessage(mid, ex, qids);
-    inMessage.setCimInstance(inst);
+    inMessage.getResponseData().setCimInstance(inst);
     inMessage.operationContext = oc;
     AutoPtr<CIMGetInstanceResponseMessage> outMessage(
         dynamic_cast<CIMGetInstanceResponseMessage*>(
@@ -1353,7 +1353,8 @@ void testCIMGetInstanceResponseMessage(
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
     validateCIMInstance(
-        inMessage.getCimInstance(), outMessage->getCimInstance());
+        inMessage.getResponseData().getCimInstance(), 
+        outMessage->getResponseData().getCimInstance());
 }
 
 //
@@ -1426,7 +1427,7 @@ void testCIMEnumerateInstancesResponseMessage(
     const Array<CIMInstance>& instances)
 {
     CIMEnumerateInstancesResponseMessage inMessage(mid, ex, qids);
-    inMessage.setNamedInstances(instances);
+    inMessage.getResponseData().setNamedInstances(instances);
     inMessage.operationContext = oc;
     AutoPtr<CIMEnumerateInstancesResponseMessage> outMessage(
         dynamic_cast<CIMEnumerateInstancesResponseMessage*>(
@@ -1437,7 +1438,8 @@ void testCIMEnumerateInstancesResponseMessage(
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
 
     validateCIMInstanceArray(
-        inMessage.getNamedInstances(), outMessage->getNamedInstances());
+        inMessage.getResponseData().getNamedInstances(), 
+        outMessage->getResponseData().getNamedInstances());
 }
 
 //
@@ -1473,7 +1475,8 @@ void testCIMExecQueryResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMObject>& objects)
 {
-    CIMExecQueryResponseMessage inMessage(mid, ex, qids, objects);
+    CIMExecQueryResponseMessage inMessage(mid, ex, qids);
+    inMessage.getResponseData().setCIMObjects(objects);
     inMessage.operationContext = oc;
     AutoPtr<CIMExecQueryResponseMessage> outMessage(
         dynamic_cast<CIMExecQueryResponseMessage*>(
@@ -1481,7 +1484,8 @@ void testCIMExecQueryResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMObjectArray(inMessage.cimObjects, outMessage->cimObjects);
+    validateCIMObjectArray(inMessage.getResponseData().getCIMObjects(), 
+                           outMessage->getResponseData().getCIMObjects());
 }
 
 //
@@ -1494,7 +1498,8 @@ void testCIMAssociatorsResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMObject>& objArray)
 {
-    CIMAssociatorsResponseMessage inMessage(mid, ex, qids, objArray);
+    CIMAssociatorsResponseMessage inMessage(mid, ex, qids);
+    inMessage.getResponseData().setCIMObjects(objArray);
     inMessage.operationContext = oc;
     AutoPtr<CIMAssociatorsResponseMessage> outMessage(
         dynamic_cast<CIMAssociatorsResponseMessage*>(
@@ -1502,7 +1507,8 @@ void testCIMAssociatorsResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMObjectArray(inMessage.cimObjects, outMessage->cimObjects);
+    validateCIMObjectArray(inMessage.getResponseData().getCIMObjects(), 
+                           outMessage->getResponseData().getCIMObjects());
 }
 
 //

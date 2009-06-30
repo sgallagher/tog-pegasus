@@ -478,7 +478,7 @@ CIMInstance CIMClientRep::getInstance(
 
     AutoPtr<CIMGetInstanceResponseMessage> destroyer(response);
 
-    return response->getCimInstance();
+    return response->getResponseData().getCimInstance();
 }
 
 void CIMClientRep::deleteClass(
@@ -686,7 +686,7 @@ Array<CIMInstance> CIMClientRep::enumerateInstances(
 
     AutoPtr<CIMEnumerateInstancesResponseMessage> destroyer(response);
 
-    return response->getNamedInstances();
+    return response->getResponseData().getNamedInstances();
 }
 
 Array<CIMObjectPath> CIMClientRep::enumerateInstanceNames(
@@ -730,7 +730,7 @@ Array<CIMObject> CIMClientRep::execQuery(
 
     AutoPtr<CIMExecQueryResponseMessage> destroyer(response);
 
-    return response->cimObjects;
+    return response->getResponseData().getCIMObjects();
 }
 
 Array<CIMObject> CIMClientRep::associators(
@@ -764,7 +764,7 @@ Array<CIMObject> CIMClientRep::associators(
 
     AutoPtr<CIMAssociatorsResponseMessage> destroyer(response);
 
-    return response->cimObjects;
+    return response->getResponseData().getCIMObjects();
 }
 
 Array<CIMObjectPath> CIMClientRep::associatorNames(

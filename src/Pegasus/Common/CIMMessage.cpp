@@ -210,8 +210,7 @@ CIMResponseMessage* CIMExecQueryRequestMessage::buildResponse() const
         new CIMExecQueryResponseMessage(
             messageId,
             CIMException(),
-            queueIds.copyAndPop(),
-            Array<CIMObject>()));
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
     return response.release();
 }
@@ -222,8 +221,7 @@ CIMResponseMessage* CIMAssociatorsRequestMessage::buildResponse() const
         new CIMAssociatorsResponseMessage(
             messageId,
             CIMException(),
-            queueIds.copyAndPop(),
-            Array<CIMObject>()));
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
     return response.release();
 }

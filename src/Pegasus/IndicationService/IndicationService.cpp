@@ -1983,7 +1983,7 @@ void IndicationService::_handleGetInstanceRequest(const Message* message)
         response->operationContext.set(ContentLanguageListContainer(
             LanguageParser::parseContentLanguageHeader(contentLangsString)));
     }
-    response->setCimInstance(instance);
+    response->getResponseData().setCimInstance(instance);
     _enqueueResponse(request, response);
 
     PEG_METHOD_EXIT();
@@ -2166,7 +2166,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
         response->operationContext.set(ContentLanguageListContainer(
             LanguageParser::parseContentLanguageHeader(aggregatedLangs)));
     }
-    response->setNamedInstances(returnedInstances);
+    response->getResponseData().setNamedInstances(returnedInstances);
     _enqueueResponse(request, response);
 
     PEG_METHOD_EXIT();

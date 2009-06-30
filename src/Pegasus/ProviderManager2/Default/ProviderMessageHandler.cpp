@@ -1096,7 +1096,8 @@ CIMResponseMessage* ProviderMessageHandler::_handleGetPropertyRequest(
 
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        CIMInstance instance = getInstanceResponse->getCimInstance();
+        CIMInstance instance = 
+            getInstanceResponse->getResponseData().getCimInstance();
 
         Uint32 pos = instance.findProperty(request->propertyName);
 

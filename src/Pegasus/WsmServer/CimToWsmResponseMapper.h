@@ -71,7 +71,7 @@ private:
 
     WxfGetResponse* _mapToWxfGetResponse(
         const WxfGetRequest* wsmRequest,
-        const CIMGetInstanceResponseMessage* response);
+        CIMGetInstanceResponseMessage* response);
     WxfPutResponse* _mapToWxfPutResponse(
         const WxfPutRequest* wsmRequest,
         const CIMModifyInstanceResponseMessage* response);
@@ -83,13 +83,13 @@ private:
         const CIMDeleteInstanceResponseMessage* response);
     WsenEnumerateResponse* _mapToWsenEnumerateResponseObject(
         const WsenEnumerateRequest* wsmRequest,
-        const CIMEnumerateInstancesResponseMessage* response);
+        CIMEnumerateInstancesResponseMessage* response);
     WsenEnumerateResponse* _mapToWsenEnumerateResponseObjectAndEPR(
         const WsenEnumerateRequest* wsmRequest,
-        const CIMEnumerateInstancesResponseMessage* response);
+        CIMEnumerateInstancesResponseMessage* response);
     WsenEnumerateResponse* _mapToWsenEnumerateResponseEPR(
         const WsenEnumerateRequest* wsmRequest,
-        const CIMEnumerateInstanceNamesResponseMessage* response);
+        CIMEnumerateInstanceNamesResponseMessage* response);
     WsmFaultResponse* _mapToWsmFaultResponse(
         const WsmRequest* wsmRequest,
         const CIMResponseMessage* message);

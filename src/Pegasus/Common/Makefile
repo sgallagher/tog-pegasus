@@ -91,6 +91,7 @@ SOURCES1 = \
     CIMInstance.cpp \
     CIMInstanceRep.cpp \
     CIMMessage.cpp \
+    CIMResponseData.cpp \
     CIMMethod.cpp \
     CIMMethodRep.cpp \
     CIMName.cpp \

@@ -356,7 +356,7 @@ static CIMEnumerateInstancesRequestMessage* _decodeEnumerateInstancesRequest(
 
 static void _encodeEnumerateInstancesResponseBody(
     CIMBuffer& out,
-    CIMEnumerateInstancesResponseMessage* msg,
+    CIMInstancesResponseData& data,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
@@ -364,15 +364,7 @@ static void _encodeEnumerateInstancesResponseBody(
     static const CIMName NAME("EnumerateInstances");
     name = NAME;
 
-    if (msg->resolveCallback && msg->binaryEncoding)
-    {
-        const Array<Uint8>& data = msg->binaryData;
-        out.putBytes(data.getData(), data.size());
-    }
-    else
-    {
-        out.putInstanceA(msg->getNamedInstances(), false);
-    }
+    data.encodeBinaryResponse(out);
 }
 
 static CIMEnumerateInstancesResponseMessage* _decodeEnumerateInstancesResponse(
@@ -402,7 +394,7 @@ static CIMEnumerateInstancesResponseMessage* _decodeEnumerateInstancesResponse(
         cimException,
         QueueIdStack());
 
-    msg->setNamedInstances(instances);
+    msg->getResponseData().setNamedInstances(instances);
     msg->binaryRequest = true;
     return msg;
 }
@@ -586,7 +578,7 @@ static CIMGetInstanceResponseMessage* _decodeGetInstanceResponse(
         cimException,
         QueueIdStack());
 
-    msg->setCimInstance(instance);
+    msg->getResponseData().setCimInstance(instance);
     msg->binaryRequest = true;
     return msg;
 }
@@ -623,21 +615,13 @@ static void _encodeGetInstanceRequest(
 
 static void _encodeGetInstanceResponseBody(
     CIMBuffer& out,
-    CIMGetInstanceResponseMessage* msg,
+    CIMInstanceResponseData& data,
     CIMName& name)
 {
     static const CIMName NAME("GetInstance");
     name = NAME;
 
-    if (msg->resolveCallback && msg->binaryEncoding)
-    {
-        const Array<Uint8>& data = msg->binaryData;
-        out.putBytes(data.getData(), data.size());
-    }
-    else
-    {
-        out.putInstance(msg->getCimInstance(), false, false);
-    }
+    data.encodeBinaryResponse(out);
 }
 
 //==============================================================================
@@ -1088,7 +1072,7 @@ static CIMAssociatorsRequestMessage* _decodeAssociatorsRequest(
 
 static void _encodeAssociatorsResponseBody(
     CIMBuffer& out,
-    CIMAssociatorsResponseMessage* msg,
+    CIMObjectsResponseData& data,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
@@ -1096,7 +1080,8 @@ static void _encodeAssociatorsResponseBody(
     static const CIMName NAME("Associators");
     name = NAME;
 
-    out.putObjectA(msg->cimObjects);
+
+    data.encodeBinaryResponse(out);
 }
 
 static CIMAssociatorsResponseMessage* _decodeAssociatorsResponse(
@@ -1124,9 +1109,9 @@ static CIMAssociatorsResponseMessage* _decodeAssociatorsResponse(
     msg = new CIMAssociatorsResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        cimObjects);
+        QueueIdStack());
 
+    msg->getResponseData().setCIMObjects(cimObjects);
     msg->binaryRequest = true;
     return msg;
 }
@@ -3099,7 +3084,7 @@ static CIMExecQueryRequestMessage* _decodeExecQueryRequest(
 
 static void _encodeExecQueryResponseBody(
     CIMBuffer& out,
-    CIMExecQueryResponseMessage* msg,
+    CIMObjectsResponseData& data,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
@@ -3107,7 +3092,7 @@ static void _encodeExecQueryResponseBody(
     static const CIMName NAME("ExecQuery");
     name = NAME;
 
-    out.putObjectA(msg->cimObjects, false);
+    data.encodeBinaryResponse(out);
 }
 
 static CIMExecQueryResponseMessage* _decodeExecQueryResponse(
@@ -3135,9 +3120,9 @@ static CIMExecQueryResponseMessage* _decodeExecQueryResponse(
     msg = new CIMExecQueryResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        cimObjects);
+        QueueIdStack());
 
+    msg->getResponseData().setCIMObjects(cimObjects);
     msg->binaryRequest = true;
     return msg;
 }
@@ -3689,8 +3674,10 @@ bool BinaryCodec::encodeResponseBody(
     {
         case CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:
         {
-            _encodeEnumerateInstancesResponseBody(buf,
-                (CIMEnumerateInstancesResponseMessage*)msg, name);
+            _encodeEnumerateInstancesResponseBody(
+                buf,
+                ((CIMEnumerateInstancesResponseMessage*)msg)->getResponseData(),
+                name);
             break;
         }
 
@@ -3703,8 +3690,10 @@ bool BinaryCodec::encodeResponseBody(
 
         case CIM_GET_INSTANCE_RESPONSE_MESSAGE:
         {
-            _encodeGetInstanceResponseBody(buf,
-                (CIMGetInstanceResponseMessage*)msg, name);
+            _encodeGetInstanceResponseBody(
+                buf,
+                ((CIMGetInstanceResponseMessage*)msg)->getResponseData(), 
+                name);
             break;
         }
 
@@ -3731,8 +3720,10 @@ bool BinaryCodec::encodeResponseBody(
 
         case CIM_ASSOCIATORS_RESPONSE_MESSAGE:
         {
-            _encodeAssociatorsResponseBody(buf,
-                (CIMAssociatorsResponseMessage*)msg, name);
+            _encodeAssociatorsResponseBody(
+                buf,
+                ((CIMAssociatorsResponseMessage*)msg)->getResponseData(), 
+                name);
             break;
         }
 
@@ -3850,8 +3841,10 @@ bool BinaryCodec::encodeResponseBody(
 
         case CIM_EXEC_QUERY_RESPONSE_MESSAGE:
         {
-            _encodeExecQueryResponseBody(buf,
-                (CIMExecQueryResponseMessage*)msg, name);
+            _encodeExecQueryResponseBody(
+                buf,
+                ((CIMExecQueryResponseMessage*)msg)->getResponseData(), 
+                name);
             break;
         }
 

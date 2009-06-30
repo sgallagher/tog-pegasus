@@ -381,7 +381,7 @@ void GetInstanceResponseHandler::transfer()
         CIMGetInstanceResponseMessage& msg =
             *static_cast<CIMGetInstanceResponseMessage*>(getResponse());
 
-        msg.setCimInstance(getObjects()[0]);
+        msg.getResponseData().setCimInstance(getObjects()[0]);
     }
 }
 
@@ -437,7 +437,7 @@ void EnumerateInstancesResponseHandler::transfer()
     CIMEnumerateInstancesResponseMessage& msg =
         *static_cast<CIMEnumerateInstancesResponseMessage*>(getResponse());
 
-    msg.setNamedInstances(getObjects());
+    msg.getResponseData().setNamedInstances(getObjects());
 }
 
 //
@@ -701,7 +701,7 @@ void ExecQueryResponseHandler::transfer()
     CIMExecQueryResponseMessage& msg =
         *static_cast<CIMExecQueryResponseMessage*>(getResponse());
 
-    msg.cimObjects = getObjects();
+    msg.getResponseData().setCIMObjects(getObjects());
 }
 
 Boolean ExecQueryResponseHandler::isAsync() const
@@ -745,7 +745,7 @@ void AssociatorsResponseHandler::transfer()
     CIMAssociatorsResponseMessage& msg =
         *static_cast<CIMAssociatorsResponseMessage*>(getResponse());
 
-    msg.cimObjects = getObjects();
+    msg.getResponseData().setCIMObjects(getObjects());
 }
 
 //

@@ -234,11 +234,13 @@ WsmFault CimToWsmResponseMapper::mapCimExceptionToWsmFault(
 
 WxfGetResponse* CimToWsmResponseMapper::_mapToWxfGetResponse(
     const WxfGetRequest* wsmRequest,
-    const CIMGetInstanceResponseMessage* response)
+    CIMGetInstanceResponseMessage* response)
 {
     WsmInstance wsmInstance;
 
-    convertCimToWsmInstance(response->getCimInstance(), wsmInstance,
+    convertCimToWsmInstance(
+        response->getResponseData().getCimInstance(),
+        wsmInstance,
         wsmRequest->epr.getNamespace());
 
     WxfGetResponse* wsmResponse =
@@ -295,14 +297,16 @@ WxfDeleteResponse* CimToWsmResponseMapper::_mapToWxfDeleteResponse(
 WsenEnumerateResponse*
     CimToWsmResponseMapper::_mapToWsenEnumerateResponseObject(
     const WsenEnumerateRequest* wsmRequest,
-    const CIMEnumerateInstancesResponseMessage* response)
+    CIMEnumerateInstancesResponseMessage* response)
 {
     Array<WsmInstance> instances;
     Array<WsmEndpointReference> EPRs;
-    for (Uint32 i = 0; i < response->getNamedInstances().size(); i++)
+    Array<CIMInstance>& namedInstances = 
+        response->getResponseData().getNamedInstances();
+    for (Uint32 i = 0; i < namedInstances.size(); i++)
     {
         WsmInstance wsmInstance;
-        convertCimToWsmInstance(response->getNamedInstances()[i], wsmInstance,
+        convertCimToWsmInstance(namedInstances[i], wsmInstance,
             wsmRequest->epr.getNamespace());
         instances.append(wsmInstance);
     }
@@ -320,19 +324,21 @@ WsenEnumerateResponse*
 WsenEnumerateResponse*
     CimToWsmResponseMapper::_mapToWsenEnumerateResponseObjectAndEPR(
     const WsenEnumerateRequest* wsmRequest,
-    const CIMEnumerateInstancesResponseMessage* response)
+    CIMEnumerateInstancesResponseMessage* response)
 {
     Array<WsmInstance> instances;
     Array<WsmEndpointReference> EPRs;
-    for (Uint32 i = 0; i < response->getNamedInstances().size(); i++)
+    Array<CIMInstance>& namedInstances =
+        response->getResponseData().getNamedInstances();
+    for (Uint32 i = 0; i < namedInstances.size(); i++)
     {
         WsmInstance wsmInstance;
-        convertCimToWsmInstance(response->getNamedInstances()[i], wsmInstance,
+        convertCimToWsmInstance(namedInstances[i], wsmInstance,
             wsmRequest->epr.getNamespace());
         instances.append(wsmInstance);
 
         WsmEndpointReference epr;
-        convertObjPathToEPR(response->getNamedInstances()[i].getPath(), epr,
+        convertObjPathToEPR(namedInstances[i].getPath(), epr,
             wsmRequest->epr.getNamespace());
         EPRs.append(epr);
     }
@@ -351,7 +357,7 @@ WsenEnumerateResponse*
 WsenEnumerateResponse*
 CimToWsmResponseMapper::_mapToWsenEnumerateResponseEPR(
     const WsenEnumerateRequest* wsmRequest,
-    const CIMEnumerateInstanceNamesResponseMessage* response)
+    CIMEnumerateInstanceNamesResponseMessage* response)
 {
     Array<WsmEndpointReference> EPRs;
     for (Uint32 i = 0; i < response->instanceNames.size(); i++)

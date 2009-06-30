@@ -50,6 +50,7 @@
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/Threads.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/CIMResponseData.h>
 
 /*   ProviderType should become part of Pegasus/Common     PEP# 99
    #include <Pegasus/ProviderManager2/ProviderType.h>
@@ -68,11 +69,6 @@
 
 
 PEGASUS_NAMESPACE_BEGIN
-
-typedef Array<Sint8> ArraySint8;
-#define PEGASUS_ARRAY_T ArraySint8
-# include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
 
 class PEGASUS_COMMON_LINKAGE CIMMessage : public Message
 {
@@ -1459,49 +1455,13 @@ public:
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
     : CIMResponseMessage(CIM_GET_INSTANCE_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_),
-        resolveCallback(0),
-        binaryEncoding(false)
+        messageId_, cimException_, queueIds_)
     {
     }
 
-    Boolean (*resolveCallback)(
-        CIMGetInstanceResponseMessage* msg,
-        CIMInstance& cimInstance);
-
-    Boolean binaryEncoding;
-
-    // For XML encoding:
-    Array<Sint8> instanceData;
-    Array<Sint8> referenceData;
-    CIMNamespaceName nameSpaceData;
-    String hostData;
-
-    // For Binary encoding:
-    Array<Uint8> binaryData;
-
-    CIMInstance& getCimInstance()
+    CIMInstanceResponseData& getResponseData()
     {
-        _resolve();
-        return _cimInstance;
-    }
-
-    const CIMConstInstance& getCimInstance() const
-    {
-        // Resolve the instance before returning it.  The resolve step requires
-        // non-const access, but does not fundamentally change the message
-        // contents.
-        const_cast<CIMGetInstanceResponseMessage*>(this)->_resolve();
-
-        // The CIMInstance is masqueraded as a CIMConstInstance for expedience,
-        // since the internal representations are the same.
-        return *((CIMConstInstance*)(void*)&_cimInstance);
-    }
-
-    void setCimInstance(const CIMInstance& x)
-    {
-        resolveCallback = 0;
-        _cimInstance = x;
+        return _responseData;
     }
 
 private:
@@ -1510,15 +1470,7 @@ private:
     CIMGetInstanceResponseMessage& operator=(
         const CIMGetInstanceResponseMessage&);
 
-    void _resolve()
-    {
-        if (resolveCallback)
-        {
-            (*resolveCallback)(this, _cimInstance);
-        }
-    }
-
-    CIMInstance _cimInstance;
+    CIMInstanceResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMExportIndicationResponseMessage
@@ -1669,63 +1621,18 @@ public:
         const QueueIdStack& queueIds_)
     : CIMResponseMessage(
         CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_),
-        resolveCallback(0),
-        binaryEncoding(false)
+        messageId_, cimException_, queueIds_)
     {
     }
 
-    Boolean (*resolveCallback)(
-        CIMEnumerateInstancesResponseMessage* msg,
-        Array<CIMInstance>& instances);
-
-    Boolean binaryEncoding;
-
-    // For XML encoding.
-    Array<ArraySint8> instancesData;
-    Array<ArraySint8> referencesData;
-    Array<String> hostsData;
-    Array<CIMNamespaceName> nameSpacesData;
-
-    // For binary encoding.
-    Array<Uint8> binaryData;
-
-    Array<CIMInstance>& getNamedInstances()
+    CIMInstancesResponseData& getResponseData()
     {
-        _resolve();
-        return _namedInstances;
-    }
-
-    const Array<CIMConstInstance>& getNamedInstances() const
-    {
-        // Resolve the instances before returning them.  The resolve step
-        // requires non-const access, but does not fundamentally change the
-        // message contents.
-        const_cast<CIMEnumerateInstancesResponseMessage*>(this)->_resolve();
-
-        // The Array<CIMInstance> is masqueraded as an Array<CIMConstInstance>
-        // for expedience, since the internal representations are the same.
-        return *((Array<CIMConstInstance>*)(void*)&_namedInstances);
-    }
-
-    void setNamedInstances(const Array<CIMInstance>& x)
-    {
-        resolveCallback = 0;
-        _namedInstances = x;
+        return _responseData;
     }
 
 private:
 
-    void _resolve()
-    {
-        if (resolveCallback)
-        {
-            (*resolveCallback)(this, _namedInstances);
-            resolveCallback = 0;
-        }
-    }
-
-    Array<CIMInstance> _namedInstances;
+    CIMInstancesResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMEnumerateInstanceNamesResponseMessage
@@ -1753,15 +1660,19 @@ public:
     CIMExecQueryResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_,
-        const Array<CIMObject>& cimObjects_)
+        const QueueIdStack& queueIds_)
     : CIMResponseMessage(CIM_EXEC_QUERY_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_),
-        cimObjects(cimObjects_)
+        messageId_, cimException_, queueIds_)
     {
     }
 
-    Array<CIMObject> cimObjects;
+    CIMObjectsResponseData& getResponseData()
+    {
+        return _responseData;
+    }
+
+private:
+    CIMObjectsResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMAssociatorsResponseMessage
@@ -1771,15 +1682,19 @@ public:
     CIMAssociatorsResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_,
-        const Array<CIMObject>& cimObjects_)
+        const QueueIdStack& queueIds_)
     : CIMResponseMessage(CIM_ASSOCIATORS_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_),
-        cimObjects(cimObjects_)
+        messageId_, cimException_, queueIds_)
     {
     }
 
-    Array<CIMObject> cimObjects;
+    CIMObjectsResponseData& getResponseData()
+    {
+        return _responseData;
+    }
+
+private:
+    CIMObjectsResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMAssociatorNamesResponseMessage

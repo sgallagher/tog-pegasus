@@ -408,7 +408,7 @@ CIMResponseMessage* CIMBinMsgDeserializer::_getResponseMessage(
             msg = _getEnumerateInstanceNamesResponseMessage(in);
             break;
         case CIM_EXEC_QUERY_RESPONSE_MESSAGE:
-            msg = _getExecQueryResponseMessage(in);
+            msg = _getExecQueryResponseMessage(in, binaryResponse);
             break;
         case CIM_GET_PROPERTY_RESPONSE_MESSAGE:
             msg = _getGetPropertyResponseMessage(in);
@@ -417,7 +417,7 @@ CIMResponseMessage* CIMBinMsgDeserializer::_getResponseMessage(
             msg = _getSetPropertyResponseMessage(in);
             break;
         case CIM_ASSOCIATORS_RESPONSE_MESSAGE:
-            msg = _getAssociatorsResponseMessage(in);
+            msg = _getAssociatorsResponseMessage(in, binaryResponse);
             break;
         case CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE:
             msg = _getAssociatorNamesResponseMessage(in);
@@ -1570,171 +1570,36 @@ CIMBinMsgDeserializer::_getSubscriptionInitCompleteRequestMessage(
         QueueIdStack());
 }
 
-static Boolean _resolveXMLInstance(
-    CIMGetInstanceResponseMessage* msg,
-    CIMInstance& cimInstance)
-{
-    // Deserialize instance:
-    {
-        XmlParser parser((char*)msg->instanceData.getData());
-
-        if (!XmlReader::getInstanceElement(parser, cimInstance))
-        {
-            cimInstance = CIMInstance();
-            return false;
-        }
-    }
-
-    // Deserialize path:
-    {
-        XmlParser parser((char*)msg->referenceData.getData());
-        CIMObjectPath cimObjectPath;
-
-        if (XmlReader::getValueReferenceElement(parser, cimObjectPath))
-        {
-            if (msg->hostData.size())
-                cimObjectPath.setHost(msg->hostData);
-
-            if (!msg->nameSpaceData.isNull())
-                cimObjectPath.setNameSpace(msg->nameSpaceData);
-
-            cimInstance.setPath(cimObjectPath);
-        }
-    }
-
-    return true;
-}
-
-static Boolean _resolveXMLInstances(
-    CIMEnumerateInstancesResponseMessage* msg,
-    Array<CIMInstance>& instances)
-{
-    instances.clear();
-
-    for (Uint32 i = 0; i < msg->instancesData.size(); i++)
-    {
-        CIMInstance cimInstance;
-
-        // Deserialize instance:
-        {
-            XmlParser parser((char*)msg->instancesData[i].getData());
-
-            if (!XmlReader::getInstanceElement(parser, cimInstance))
-            {
-                cimInstance = CIMInstance();
-            }
-        }
-
-        // Deserialize path:
-        {
-            XmlParser parser((char*)msg->referencesData[i].getData());
-            CIMObjectPath cimObjectPath;
-
-            if (XmlReader::getInstanceNameElement(parser, cimObjectPath))
-            {
-                if (!msg->nameSpacesData[i].isNull())
-                    cimObjectPath.setNameSpace(msg->nameSpacesData[i]);
-
-                if (msg->hostsData[i].size())
-                    cimObjectPath.setHost(msg->hostsData[i]);
-
-                cimInstance.setPath(cimObjectPath);
-            }
-        }
-
-        instances.append(cimInstance);
-    }
-
-    return true;
-}
-
-static Boolean _resolveBinaryInstance(
-    CIMGetInstanceResponseMessage* msg,
-    CIMInstance& instance)
-{
-    CIMBuffer in((char*)msg->binaryData.getData(), msg->binaryData.size());
-
-    if (!in.getInstance(instance))
-    {
-        instance = CIMInstance();
-        in.release();
-        return false;
-    }
-
-    in.release();
-    return true;
-}
-
-static Boolean _resolveBinaryInstances(
-    CIMEnumerateInstancesResponseMessage* msg,
-    Array<CIMInstance>& instances)
-{
-    instances.clear();
-
-    CIMBuffer in((char*)msg->binaryData.getData(), msg->binaryData.size());
-
-    if (!in.getInstanceA(instances))
-    {
-        in.release();
-        return false;
-    }
-
-    in.release();
-    return true;
-}
-
 CIMGetInstanceResponseMessage*
 CIMBinMsgDeserializer::_getGetInstanceResponseMessage(
     CIMBuffer& in,
     bool binaryResponse)
 {
+    CIMGetInstanceResponseMessage* msg = new CIMGetInstanceResponseMessage(
+        String::EMPTY,
+        CIMException(),
+        QueueIdStack());
+
+    CIMInstanceResponseData& responseData = msg->getResponseData();
+
     if (binaryResponse)
     {
-        CIMGetInstanceResponseMessage* msg = new CIMGetInstanceResponseMessage(
-            String::EMPTY,
-            CIMException(),
-            QueueIdStack());
-
-        if (!in.getUint8A(msg->binaryData))
+        if (!responseData.setBinaryCimInstance(in))
+        {
+            delete(msg);
             return 0;
-
-        msg->resolveCallback = _resolveBinaryInstance;
-        msg->binaryEncoding = true;
-
-        return msg;
+        }
     }
     else
     {
-        Array<Sint8> instanceData;
-        Array<Sint8> referenceData;
-        String hostData;
-        CIMNamespaceName nameSpaceData;
-
-        if (!in.getSint8A(instanceData))
-            return NULL;
-
-        if (!in.getSint8A(referenceData))
-            return NULL;
-
-        if (!in.getString(hostData))
-            return NULL;
-
-        if (!in.getNamespaceName(nameSpaceData))
-            return NULL;
-
-        CIMGetInstanceResponseMessage* msg = new CIMGetInstanceResponseMessage(
-            String::EMPTY,
-            CIMException(),
-            QueueIdStack());
-
-        msg->resolveCallback = _resolveXMLInstance;
-        msg->instanceData = instanceData;
-        msg->referenceData = referenceData;
-        msg->hostData = hostData;
-        msg->nameSpaceData = nameSpaceData;
-
-        return msg;
+        if (!responseData.setXmlCimInstance(in))
+        {
+            delete(msg);
+            return 0;
+        }
     }
+
+    return msg;
 }
 
 CIMDeleteInstanceResponseMessage*
@@ -1778,74 +1643,30 @@ CIMBinMsgDeserializer::_getEnumerateInstancesResponseMessage(
     CIMBuffer& in,
     bool binaryResponse)
 {
+    CIMEnumerateInstancesResponseMessage* msg;
+
+    msg = new CIMEnumerateInstancesResponseMessage(String::EMPTY,
+        CIMException(), QueueIdStack());
+
+    CIMInstancesResponseData& responseData = msg->getResponseData();
+
     if (binaryResponse)
     {
-        // Inject data into message so that the instances can be deserialized
-        // on demand later (hopefully never; hopefully it can be written out on
-        // the wire intact).
-
-        CIMEnumerateInstancesResponseMessage* msg;
-
-        msg = new CIMEnumerateInstancesResponseMessage(String::EMPTY,
-            CIMException(), QueueIdStack());
-
-        if (!in.getUint8A(msg->binaryData))
+        if (!responseData.setBinaryCimInstances(in))
+        {
+            delete(msg);
             return 0;
-
-        msg->resolveCallback = _resolveBinaryInstances;
-        msg->binaryEncoding = true;
+        }
 
         return msg;
     }
     else
     {
-        Uint32 count;
-
-        if (!in.getUint32(count))
-            return 0;
-
-        Array<ArraySint8> instancesData;
-        Array<ArraySint8> referencesData;
-        Array<String> hostsData;
-        Array<CIMNamespaceName> nameSpacesData;
-
-        for (Uint32 i = 0; i < count; i++)
+        if (!responseData.setXmlCimInstances(in))
         {
-            Array<Sint8> inst;
-            Array<Sint8> ref;
-            CIMNamespaceName ns;
-            String host;
-
-            if (!in.getSint8A(inst))
-                return 0;
-
-            if (!in.getSint8A(ref))
-                return 0;
-
-            if (!in.getString(host))
-                return 0;
-
-            if (!in.getNamespaceName(ns))
-                return 0;
-
-            instancesData.append(inst);
-            referencesData.append(ref);
-            hostsData.append(host);
-            nameSpacesData.append(ns);
+            delete(msg);
+            return 0;
         }
-
-        CIMEnumerateInstancesResponseMessage* msg;
-
-        msg = new CIMEnumerateInstancesResponseMessage(
-            String::EMPTY,
-            CIMException(),
-            QueueIdStack());
-
-        msg->resolveCallback = _resolveXMLInstances;
-        msg->instancesData = instancesData;
-        msg->referencesData = referencesData;
-        msg->hostsData = hostsData;
-        msg->nameSpacesData = nameSpacesData;
 
         return msg;
     }
@@ -1870,36 +1691,66 @@ CIMBinMsgDeserializer::_getEnumerateInstanceNamesResponseMessage(
 
 CIMExecQueryResponseMessage*
 CIMBinMsgDeserializer::_getExecQueryResponseMessage(
-    CIMBuffer& in)
+    CIMBuffer& in,
+    bool binaryResponse)
 {
-    XmlEntry entry;
-    Array<CIMObject> cimObjects;
+    CIMExecQueryResponseMessage* msg;
 
-    if (!in.getObjectA(cimObjects))
-        return false;
+    msg = new CIMExecQueryResponseMessage(String::EMPTY,
+        CIMException(), QueueIdStack());
 
-    return new CIMExecQueryResponseMessage(
-        String::EMPTY,
-        CIMException(),
-        QueueIdStack(),
-        cimObjects);
+    CIMObjectsResponseData& responseData = msg->getResponseData();
+
+    if (binaryResponse)
+    {
+        if (!responseData.setBinaryCimObjects(in))
+        {
+            delete(msg);
+            return 0;
+        }
+    }
+    else
+    {
+        if (!responseData.setXmlCimObjects(in))
+        {
+            delete(msg);
+            return 0;
+        }
+    }
+
+    return msg;
 }
 
 CIMAssociatorsResponseMessage*
 CIMBinMsgDeserializer::_getAssociatorsResponseMessage(
-    CIMBuffer& in)
+    CIMBuffer& in,
+    bool binaryResponse)
 {
-    XmlEntry entry;
-    Array<CIMObject> cimObjects;
+    CIMAssociatorsResponseMessage* msg;
 
-    if (!in.getObjectA(cimObjects))
-        return false;
+    msg = new CIMAssociatorsResponseMessage(String::EMPTY,
+        CIMException(), QueueIdStack());
 
-    return new CIMAssociatorsResponseMessage(
-        String::EMPTY,
-        CIMException(),
-        QueueIdStack(),
-        cimObjects);
+    CIMObjectsResponseData& responseData = msg->getResponseData();
+
+    if (binaryResponse)
+    {
+        if (!responseData.setBinaryCimObjects(in))
+        {
+            delete(msg);
+            return 0;
+        }
+    }
+    else
+    {
+        if (!responseData.setXmlCimObjects(in))
+        {
+            delete(msg);
+            return 0;
+        }
+    }
+
+    return msg;
 }
 
 CIMAssociatorNamesResponseMessage*

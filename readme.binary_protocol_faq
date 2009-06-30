@@ -246,6 +246,8 @@ On-demand de-serialization is implemented for the following operations:
 
     (1) EnumerateInstances
     (2) GetInstance
+    (3) Associators
+    (4) ExecQuery
 
 Where is the binary encoding/decoding code located?
 ===================================================
@@ -289,8 +291,6 @@ Yes, here are a few.
         following operations would benefit the most.
 
             (*) EnumerateInstanceNames
-            (*) ExecQuery
-            (*) Associators
             (*) AssociatorNames
             (*) References
             (*) ReferenceNames

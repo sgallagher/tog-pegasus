@@ -31,6 +31,7 @@
 
 #include <Pegasus/ProviderManager2/CMPI/CMPIClassCache.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPI_Broker.h>
+#include <Pegasus/ProviderManager2/CMPI/CMPI_ContextArgs.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Common/Tracer.h>
 
@@ -74,8 +75,10 @@ CIMClass* CMPIClassCache::getClass(
             return ccp;
         }
 
+        const CMPIContext *ctx = CMPI_ThreadContext::getContext();
+
         CIMClass cc = ((CIMOMHandle*)mb->hdl)->getClass(
-            OperationContext(),
+            *CM_Context(ctx),
             cop.getNameSpace(),
             cop.getClassName(),
             (bool)0,

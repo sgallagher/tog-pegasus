@@ -1006,7 +1006,7 @@ void RepositoryUpgrade::_updateSystemNameKeyProperty()
     {
         _updateSystemNameKeyPropertyOfInstancesForClass(
             PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PG_OBJECTMANAGER);
+            CIMNameCast("PG_ObjectManager"));
     }
     catch (const CIMException& e)
     {

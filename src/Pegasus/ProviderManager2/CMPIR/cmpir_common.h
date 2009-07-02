@@ -36,6 +36,7 @@ functions with different names */
 #define _CMPIR_PROXY_PROVIDER_H_
 
 #include <Pegasus/Common/Config.h>
+#include <stdlib.h>
 
 #ifdef PEGASUS_OS_TYPE_UNIX
 

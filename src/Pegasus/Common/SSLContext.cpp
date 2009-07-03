@@ -918,8 +918,9 @@ SSL_CTX* SSLContextRep::_makeSSLContext()
                 "---> SSL: No server certificate found in %s",
                 (const char*)_certPath.getCString()));
             MessageLoaderParms parms(
-                "Common.SSLContext.COULD_NOT_GET_SERVER_CERTIFICATE",
-                "Could not get server certificate.");
+                "Common.SSLContext.COULD_NOT_ACCESS_SERVER_CERTIFICATE",
+                "Could not access server certificate in $0.",
+                (const char*)_certPath.getCString());
             PEG_METHOD_EXIT();
             throw SSLException(parms);
         }

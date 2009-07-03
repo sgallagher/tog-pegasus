@@ -3019,6 +3019,10 @@ en:table {
 
         Common.SSLContext.COULD_NOT_LOAD_CERTIFICATES:string {"PGS09206: Cannot load certificates into certificate store."}
 
+        /**
+        * @note  PGS09207:
+        *   This message is no longer used as of version 2.10.0
+        */
         Common.SSLContext.COULD_NOT_GET_SERVER_CERTIFICATE:string {"PGS09207: Cannot get server certificate."}
 
         Common.SSLContext.COULD_NOT_GET_PRIVATE_KEY:string {"PGS09208: Cannot get private key."}
@@ -3037,6 +3041,12 @@ en:table {
         *    Substitution {0} is the name of a certificate file (a string)
         */
         Common.SSLContext.CERTIFICATE_EXPIRED:string {"PGS09211: Certificate {0} has expired."}
+    
+       /**
+        * @note  PGS09212:
+        *    Substitution {0} is the name of a certificate file (a string)
+        */
+        Common.SSLContext.COULD_NOT_ACCESS_SERVER_CERTIFICATE:string {"PGS09212: Could not access server certificate in {0}."}
 
         // ==========================================================
         // Messages for TraceFileHandler

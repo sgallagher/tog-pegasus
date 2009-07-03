@@ -265,9 +265,12 @@ Boolean XmlReader::testStartTagOrEmptyTag(
     XmlEntry& entry,
     const char* tagName)
 {
-    if (!parser.next(entry) ||
-       (entry.type != XmlEntry::START_TAG &&
-        entry.type != XmlEntry::EMPTY_TAG) ||
+    if (!parser.next(entry))
+    {
+        return false;
+    }
+    if ((entry.type != XmlEntry::START_TAG &&
+         entry.type != XmlEntry::EMPTY_TAG) ||
         strcmp(entry.text, tagName) != 0)
     {
         parser.putBack(entry);

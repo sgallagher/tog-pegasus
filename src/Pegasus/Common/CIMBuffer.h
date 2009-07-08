@@ -825,6 +825,29 @@ public:
         return true;
     }
 
+    // ATTENTION:
+    // This method returns a reference to the data in the buffer rather
+    // than a new copy. The data will only be valid through the lifetime 
+    // of the CIMBuffer.
+    bool getFastChar16Array(Char16** x, Uint32& n)
+    {
+        if (!getUint32(n))
+            return false;
+
+        size_t r = round(n * sizeof(Char16));
+
+        if (_end - _ptr < ptrdiff_t(r))
+            return false;
+
+        *x = (Char16*)_ptr;
+
+        if (_swap)
+            _swapChar16Data(*x, n);
+
+        _ptr += r;
+        return true;
+    }
+
     bool getStringA(Array<String>& x)
     {
         Uint32 n;
@@ -1314,6 +1337,24 @@ private:
     int _swap;
     int _validate;
 };
+
+
+struct CIMBufferReleaser
+{
+    CIMBufferReleaser(CIMBuffer& buf) : _buf(buf)
+    {
+    }
+
+    ~CIMBufferReleaser()
+    {
+        _buf.release();
+    }
+
+private:
+    CIMBuffer& _buf;
+};
+
+
 
 PEGASUS_NAMESPACE_END
 

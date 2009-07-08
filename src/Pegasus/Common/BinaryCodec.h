@@ -72,6 +72,9 @@ public:
     static CIMResponseMessage* decodeResponse(
         const Buffer& in);
 
+    static CIMResponseMessage* decodeResponse(
+        CIMBuffer& in);
+
     static Buffer formatSimpleIMethodRspMessage(
         const CIMName& iMethodName,
         const String& messageId,

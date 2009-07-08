@@ -44,17 +44,32 @@ PEGASUS_NAMESPACE_BEGIN
 //
 //-----------------------------------------------------------------------------
 
-bool CIMInstanceResponseData::setBinaryCimInstance(CIMBuffer& in)
+//------------------------------------------------------------------------------
+// Takes a binary stream representing an instances from a CIMBuffer and stores 
+// it in the responsedata.           
+// @param hasLen Indicates if the binary instance stream is prepended with an
+//               Uint32 value indicating the number of instances in the stream.
+//------------------------------------------------------------------------------
+bool CIMInstanceResponseData::setBinaryCimInstance(CIMBuffer& in, bool hasLen)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMInstanceResponseData::setBinaryCimInstance");
 
-    if (!in.getUint8A(_binaryData))
+    if (hasLen)
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to get binary instance data!");
-        PEG_METHOD_EXIT();
-        return false;
+        if (!in.getUint8A(_binaryData))
+        {
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                "Failed to get binary instance data!");
+            PEG_METHOD_EXIT();
+            return false;
+        }
+    }
+    else
+    {
+        size_t remainingDataLength = in.capacity() - in.size();
+
+        _binaryData.append((Uint8*)in.getPtr(), remainingDataLength);
     }
 
     _resolveCallback = _resolveBinaryInstance;
@@ -237,20 +252,30 @@ Boolean CIMInstanceResponseData::_resolveXMLInstance(
 //-----------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-// Reverts a binary instance array representation back into an array of
-// CIMInstance
+// Takes a binary stream of instances from a CIMBuffer and stores it in the
+// responsedata.           
+// @param hasLen Indicates if the binary instance stream is prepended with an
+//               Uint32 value indicating the number of instances in the stream.
 //------------------------------------------------------------------------------
-bool CIMInstancesResponseData::setBinaryCimInstances(CIMBuffer& in)
+bool CIMInstancesResponseData::setBinaryCimInstances(CIMBuffer& in, bool hasLen)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMInstancesResponseData::setBinaryCimInstances");
 
-    if (!in.getUint8A(_binaryData))
+    if (hasLen)
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to get binary instance data!");
-        PEG_METHOD_EXIT();
-        return false;
+        if (!in.getUint8A(_binaryData))
+        {
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                "Failed to get binary instance data!");
+            PEG_METHOD_EXIT();
+            return false;
+        }
+    }
+    else
+    {
+        size_t remainingDataLength = in.capacity() - in.size();
+        _binaryData.append((Uint8*)in.getPtr(), remainingDataLength);
     }
 
     _resolveCallback = _resolveBinaryInstances;
@@ -404,13 +429,16 @@ Boolean CIMInstancesResponseData::_resolveBinaryInstances(
 
     CIMBuffer in((char*)data->_binaryData.getData(), data->_binaryData.size());
 
-    if (!in.getInstanceA(instances))
+    while (in.more())
     {
-        in.release();
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to remove binary instance!");
-        PEG_METHOD_EXIT();
-        return false;
+        if (!in.getInstanceA(instances))
+        {
+            in.release();
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                "Failed to remove binary instance!");
+            PEG_METHOD_EXIT();
+            return false;
+        }
     }
 
     in.release();
@@ -482,17 +510,31 @@ Boolean CIMInstancesResponseData::_resolveXMLInstances(
 //-----------------------------------------------------------------------------
 
 
-bool CIMObjectsResponseData::setBinaryCimObjects(CIMBuffer& in)
+//------------------------------------------------------------------------------
+// Takes a binary stream of objects from a CIMBuffer and stores 
+// it in the responsedata.           
+// @param hasLen Indicates if the binary object stream is prepended with an
+//               Uint32 value indicating the number of objects in the stream.
+//------------------------------------------------------------------------------
+bool CIMObjectsResponseData::setBinaryCimObjects(CIMBuffer& in, bool hasLen)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMObjectsResponseData::setBinaryCimObjects");
 
-    if (!in.getUint8A(_binaryData))
+    if (hasLen)
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to get binary object data!");
-        PEG_METHOD_EXIT();
-        return false;
+        if (!in.getUint8A(_binaryData))
+        {
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                "Failed to get binary object data!");
+            PEG_METHOD_EXIT();
+            return false;
+        }
+    }
+    else
+    {
+        size_t remainingDataLength = in.capacity() - in.size();
+        _binaryData.append((Uint8*)in.getPtr(), remainingDataLength);
     }
 
     _resolveCallback = _resolveBinaryObjects;
@@ -644,14 +686,17 @@ Boolean CIMObjectsResponseData::_resolveBinaryObjects(
 
     CIMBuffer in((char*)data->_binaryData.getData(), data->_binaryData.size());
 
-    if (!in.getObjectA(cimObjects))
+    while (in.more())
     {
-        in.release();
+        if (!in.getObjectA(cimObjects))
+        {
+            in.release();
 
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to resolve binary data!");
-        PEG_METHOD_EXIT();
-        return false;
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                "Failed to resolve binary data!");
+            PEG_METHOD_EXIT();
+            return false;
+        }
     }
 
     in.release();

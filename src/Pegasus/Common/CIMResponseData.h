@@ -85,7 +85,7 @@ public:
         _cimInstance = x;
     }
 
-    bool setBinaryCimInstance(CIMBuffer& in);
+    bool setBinaryCimInstance(CIMBuffer& in, bool hasLen=true);
     bool setXmlCimInstance(CIMBuffer& in);
 
     void encodeBinaryResponse(CIMBuffer& out) const;
@@ -174,7 +174,7 @@ public:
         _namedInstances = x;
     }
 
-    bool setBinaryCimInstances(CIMBuffer& in);
+    bool setBinaryCimInstances(CIMBuffer& in, bool hasLen=true);
     bool setXmlCimInstances(CIMBuffer& in);
 
     void encodeBinaryResponse(CIMBuffer& out) const;
@@ -262,7 +262,7 @@ public:
         _cimObjects = x;
     }
 
-    bool setBinaryCimObjects(CIMBuffer& in);
+    bool setBinaryCimObjects(CIMBuffer& in, bool hasLen=true);
     bool setXmlCimObjects(CIMBuffer& in);
 
     void encodeBinaryResponse(CIMBuffer& out) const;

@@ -458,7 +458,8 @@ void CIMOperationResponseDecoder::_handleMethodResponse(
     {
         // Note: this may throw an excpetion which will be caught by caller.
 
-        Buffer in(content, contentLength);
+        CIMBuffer in((char*)content, contentLength);
+        CIMBufferReleaser buf_(in);
 
         CIMResponseMessage* msg = BinaryCodec::decodeResponse(in);
 

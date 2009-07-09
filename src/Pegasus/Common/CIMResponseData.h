@@ -85,6 +85,11 @@ public:
         _cimInstance = x;
     }
 
+    Array<Uint8>& getBinaryCimInstance()
+    {
+        return _binaryData;
+    }
+
     bool setBinaryCimInstance(CIMBuffer& in, bool hasLen=true);
     bool setXmlCimInstance(CIMBuffer& in);
 
@@ -174,6 +179,11 @@ public:
         _namedInstances = x;
     }
 
+    Array<Uint8>& getBinaryCimInstances()
+    {
+        return _binaryData;
+    }
+
     bool setBinaryCimInstances(CIMBuffer& in, bool hasLen=true);
     bool setXmlCimInstances(CIMBuffer& in);
 
@@ -260,6 +270,11 @@ public:
     {
         _resolveCallback = 0;
         _cimObjects = x;
+    }
+
+    Array<Uint8>& getBinaryCimObjects()
+    {
+        return _binaryData;
     }
 
     bool setBinaryCimObjects(CIMBuffer& in, bool hasLen=true);

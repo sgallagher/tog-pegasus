@@ -111,8 +111,7 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileRPRPInstances(
             enumRegisteredSubProfileInstances();
         profileInstances.appendArray(subprofileInstances);
         Array<CIMInstance> profilesForVersion = getProfilesForVersion(
-            profileInstances,
-            SNIA_VER_120);
+            profileInstances, SNIA_NUM, 1, 2, 0);
         for (Uint32 i = 0, n = profilesForVersion.size(); i < n; ++i)
         {
             instances.append(buildElementConformsToProfile(
@@ -120,22 +119,6 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileRPRPInstances(
                 profilesForVersion[i].getPath(),
                 elementConformsClass));
         }
-
-        //Add association between the 1.2 SMI-S registeredprofile and
-        //profileregistration registeredprofile with registeredversion 1.0.0
-        profRegProfile = buildDependencyReference(
-            hostName,
-            buildProfileInstanceId(
-                SNIA_NAME,
-                "Profile Registration",
-                SNIA_VER_100),
-            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
-        instances.append(buildElementConformsToProfile(
-            smisVersionProfile,
-            profRegProfile,
-            elementConformsClass));
-
-
     }
     return instances;
 }
@@ -288,17 +271,27 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
 }
 
 //Method that filters the registered profile or registered subprofile instances
-//for the SMI-S version.
+//whose versions are greater or equal to the given version.
 Array<CIMInstance> InteropProvider::getProfilesForVersion(
     Array<CIMInstance>& profiles,
-    const String version)
+    Uint16 regOrg,
+    Uint32 majorVer,
+    Uint32 minorVer,
+    Uint32 updateVer)
 {
+    static const String SMISProfileName("SMI-S");
+    static const String IndicationProfileName("Indication");
+    static const String ServerProfileName("Server");
+    static const String SoftwareProfileName("Software");
+
     Array<CIMInstance> instances;
     instances.clear();
     for (Uint32 i = 0, n = profiles.size(); i < n; ++i)
     {
         String versionNumber;
         String profileName;
+        Uint16 regOrgNo;
+
         Uint32 index = profiles[i].findProperty("RegisteredVersion");
         if (index != PEG_NOT_FOUND)
         {
@@ -317,10 +310,32 @@ Array<CIMInstance> InteropProvider::getProfilesForVersion(
                 tmpVal.get(profileName);
             }
         }
-
-        if ((versionNumber == version) && (profileName != String("SMI-S")))
+        index = profiles[i].findProperty("RegisteredOrganization");
+        if (index != PEG_NOT_FOUND)
         {
-            instances.append(profiles[i]);
+            const CIMValue &tmpVal = profiles[i].getProperty(index).getValue();
+            if (!tmpVal.isNull())
+            {
+                tmpVal.get(regOrgNo);
+            }
+        }
+
+        if (regOrg == regOrgNo)
+        {
+            if (profileName == ServerProfileName ||
+                profileName == IndicationProfileName ||
+                profileName == SoftwareProfileName)
+            {
+                if (VersionUtil::isVersionGreaterOrEqual(
+                    versionNumber, majorVer, minorVer, updateVer))
+                {
+                    instances.append(profiles[i]);
+                }
+            }
+            else if (profileName != SMISProfileName)
+            {
+                instances.append(profiles[i]);
+            }
         }
     }
     return instances;

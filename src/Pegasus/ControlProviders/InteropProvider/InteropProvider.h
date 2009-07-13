@@ -53,6 +53,7 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
+#include <Pegasus/General/VersionUtil.h>
 
 #include \
     <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
@@ -274,7 +275,10 @@ private:
     Array<CIMInstance> enumReferencedProfileInstances();
     Array<CIMInstance> getProfilesForVersion(
         Array<CIMInstance>& subprofs,
-        const String version);
+        Uint16 regOrg,
+        Uint32 majorVer,
+        Uint32 minorVer,
+        Uint32 updateVer);
     Array<CIMInstance> enumElementConformsToProfileInstances(
         const OperationContext & opContext,
         const CIMNamespaceName & opNamespace);

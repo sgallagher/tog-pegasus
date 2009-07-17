@@ -44,6 +44,7 @@
 #include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
 #include <Pegasus/ProviderManager2/CMPI/Linkage.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPI_ContextArgs.h>
+#include <Pegasus/ProviderManager2/CMPI/CMPI_Error.h>
 
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 PEGASUS_NAMESPACE_BEGIN
@@ -188,6 +189,10 @@ protected:
         CIMOMHandleQueryContext *context,
         String &query,
         String &lang);
+
+    void _throwCIMException(
+        CMPIStatus code,
+        CMPI_Error* cmpiError);
 };
 
 PEGASUS_NAMESPACE_END

@@ -894,6 +894,17 @@ CMPI_ResultOnStack::~CMPI_ResultOnStack()
 {
     try
     {
+        if (resError)
+        {
+            CMPI_Error* nextErr = NULL;
+            for (CMPI_Error* currErr=resError;
+                currErr!=NULL;
+                currErr=nextErr)
+            {
+                nextErr = currErr->nextError;    
+                ((CMPIError*)currErr)->ft->release(currErr);
+            }
+        } 
         if ((flags & RESULT_set)==0)
         {
             if (ft==CMPI_ResultRefOnStack_Ftab)

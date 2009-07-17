@@ -538,24 +538,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
             handler.setContext(response->operationContext);
         }
 
-        if (rc.rc!=CMPI_RC_OK)
-        {
-            CIMException cimException(
-                (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
-
-            if (eRes.resError)
-            {
-                for (CMPI_Error* currErr=eRes.resError;
-                    currErr!=NULL;
-                    currErr=currErr->nextError)
-                {
-                    cimException.addError(
-                        ((CIMError*)currErr->hdl)->getInstance());
-                }
-            }
-            throw cimException;
-        }
+        _throwCIMException(rc, eRes.resError);
     }
     HandlerCatch(handler);
 
@@ -660,25 +643,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
             handler.setContext(response->operationContext);
         }
 
-        if (rc.rc!=CMPI_RC_OK)
-        {
-            CIMException cimException(
-                (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
-
-            if (eRes.resError)
-            {
-                for (CMPI_Error* currErr=eRes.resError;
-                    currErr!=NULL;
-                    currErr=currErr->nextError)
-                {
-                    cimException.addError(
-                        ((CIMError*)currErr->hdl)->getInstance());
-                }
-            }
-            throw cimException;
-        }
-
+        _throwCIMException(rc, eRes.resError);
     }
     HandlerCatch(handler);
 
@@ -779,25 +744,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
                 CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
-
-        if (rc.rc!=CMPI_RC_OK)
-        {
-            CIMException cimException(
-                (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
-
-            if (eRes.resError)
-            {
-                for (CMPI_Error* currErr=eRes.resError;
-                    currErr!=NULL;
-                    currErr=currErr->nextError)
-                {
-                    cimException.addError(
-                        ((CIMError*)currErr->hdl)->getInstance());
-                }
-            }
-            throw cimException;
-        }
+        _throwCIMException(rc, eRes.resError);
     }
     HandlerCatch(handler);
 
@@ -904,25 +851,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
                 CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
-
-        if (rc.rc!=CMPI_RC_OK)
-        {
-            CIMException cimException(
-                (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
-
-            if (eRes.resError)
-            {
-                for (CMPI_Error* currErr=eRes.resError;
-                    currErr!=NULL;
-                    currErr=currErr->nextError)
-                {
-                    cimException.addError(
-                        ((CIMError*)currErr->hdl)->getInstance());
-                }
-            }
-            throw cimException;
-        }
+        _throwCIMException(rc, eRes.resError);
     }
     HandlerCatch(handler);
 
@@ -1030,25 +959,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
                 CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
-
-        if (rc.rc!=CMPI_RC_OK)
-        {
-            CIMException cimException(
-                (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
-
-            if (eRes.resError)
-            {
-                for (CMPI_Error* currErr=eRes.resError;
-                    currErr!=NULL;
-                    currErr=currErr->nextError)
-                {
-                    cimException.addError(
-                        ((CIMError*)currErr->hdl)->getInstance());
-                }
-            }
-            throw cimException;
-        }
+        _throwCIMException(rc, eRes.resError);
     }
     HandlerCatch(handler);
 
@@ -1151,25 +1062,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
                 CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
-
-        if (rc.rc!=CMPI_RC_OK)
-        {
-            CIMException cimException(
-                (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
-
-            if (eRes.resError)
-            {
-                for (CMPI_Error* currErr=eRes.resError;
-                    currErr!=NULL;
-                    currErr=currErr->nextError)
-                {
-                    cimException.addError(
-                        ((CIMError*)currErr->hdl)->getInstance());
-                }
-            }
-            throw cimException;
-        }
+        _throwCIMException(rc, eRes.resError);
     }
     HandlerCatch(handler);
 
@@ -1276,25 +1169,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
                 CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
-
-        if (rc.rc!=CMPI_RC_OK)
-        {
-            CIMException cimException(
-                (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
-
-            if (eRes.resError)
-            {
-                for (CMPI_Error* currErr=eRes.resError;
-                    currErr!=NULL;
-                    currErr=currErr->nextError)
-                {
-                    cimException.addError(
-                        ((CIMError*)currErr->hdl)->getInstance());
-                }
-            }
-            throw cimException;
-        }
+        _throwCIMException(rc, eRes.resError);
 
     }
     HandlerCatch(handler);
@@ -1420,25 +1295,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
                 CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
-
-        if (rc.rc!=CMPI_RC_OK)
-        {
-            CIMException cimException(
-                (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
-
-            if (eRes.resError)
-            {
-                for (CMPI_Error* currErr=eRes.resError;
-                    currErr!=NULL;
-                    currErr=currErr->nextError)
-                {
-                    cimException.addError(
-                        ((CIMError*)currErr->hdl)->getInstance());
-                }
-            }
-            throw cimException;
-        }
+        _throwCIMException(rc, eRes.resError);
     }
     HandlerCatch(handler);
 
@@ -1559,25 +1416,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
                 CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
-
-        if (rc.rc!=CMPI_RC_OK)
-        {
-            CIMException cimException(
-                (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
-
-            if (eRes.resError)
-            {
-                for (CMPI_Error* currErr=eRes.resError;
-                    currErr!=NULL;
-                    currErr=currErr->nextError)
-                {
-                    cimException.addError(
-                        ((CIMError*)currErr->hdl)->getInstance());
-                }
-            }
-            throw cimException;
-        }
+        _throwCIMException(rc, eRes.resError);
     }
     HandlerCatch(handler);
 
@@ -1696,25 +1535,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
                 CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
-
-        if (rc.rc!=CMPI_RC_OK)
-        {
-            CIMException cimException(
-                (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
-
-            if (eRes.resError)
-            {
-                for (CMPI_Error* currErr=eRes.resError;
-                    currErr!=NULL;
-                    currErr=currErr->nextError)
-                {
-                    cimException.addError(
-                        ((CIMError*)currErr->hdl)->getInstance());
-                }
-            }
-            throw cimException;
-        }
+        _throwCIMException(rc, eRes.resError);
     }
     HandlerCatch(handler);
 
@@ -1832,25 +1653,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
                 CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
-
-        if (rc.rc!=CMPI_RC_OK)
-        {
-            CIMException cimException(
-                (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
-
-            if (eRes.resError)
-            {
-                for (CMPI_Error* currErr=eRes.resError;
-                    currErr!=NULL;
-                    currErr=currErr->nextError)
-                {
-                    cimException.addError(
-                        ((CIMError*)currErr->hdl)->getInstance());
-                }
-            }
-            throw cimException;
-        }
+        _throwCIMException(rc, eRes.resError);
     }
     HandlerCatch(handler);
 
@@ -1964,25 +1767,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                 CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
-
-        if (rc.rc!=CMPI_RC_OK)
-        {
-            CIMException cimException(
-                (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
-
-            if (eRes.resError)
-            {
-                for (CMPI_Error* currErr=eRes.resError;
-                    currErr!=NULL;
-                    currErr=currErr->nextError)
-                {
-                    cimException.addError(
-                        ((CIMError*)currErr->hdl)->getInstance());
-                }
-            }
-            throw cimException;
-        }
+        _throwCIMException(rc, eRes.resError);
 
         // Even if external normalization is enabled we don't normalize the
         // Embedded instances present in output args. Normalize them here.
@@ -2131,6 +1916,30 @@ String CMPIProviderManager::_getClassNameFromQuery(
         PEGASUS_ASSERT(0);
     }
     return className;
+}
+
+void CMPIProviderManager::_throwCIMException(
+    CMPIStatus rc,
+    CMPI_Error* cmpiError)
+{
+    if (rc.rc!=CMPI_RC_OK)
+    {
+        CIMException cimException(
+            (CIMStatusCode)rc.rc,
+            rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
+        if (cmpiError)
+        {
+            for (CMPI_Error* currErr=cmpiError;
+                currErr!=NULL;
+                currErr=currErr->nextError)
+            {
+                cimException.addError(
+                    ((CIMError*)currErr->hdl)->getInstance());
+            }
+        }
+        throw cimException;
+    }
+
 }
 
 Message * CMPIProviderManager::handleCreateSubscriptionRequest(
@@ -3050,25 +2859,7 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
                 CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
-
-        if (rc.rc!=CMPI_RC_OK)
-        {
-            CIMException cimException(
-                (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
-
-            if (eRes.resError)
-            {
-                for (CMPI_Error* currErr=eRes.resError;
-                    currErr!=NULL;
-                    currErr=currErr->nextError)
-                {
-                    cimException.addError(
-                        ((CIMError*)currErr->hdl)->getInstance());
-                }
-            }
-            throw cimException;
-        }
+        _throwCIMException(rc, eRes.resError);
 
         // Copy property value from instance to getProperty response
         CIMInstance& instance = GI_response->getResponseData().getCimInstance();
@@ -3242,25 +3033,7 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
                 CMGetCharsPtr(cldata.value.string, NULL)))));
             handler.setContext(response->operationContext);
         }
-
-        if (rc.rc!=CMPI_RC_OK)
-        {
-            CIMException cimException(
-                (CIMStatusCode)rc.rc,
-                rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
-
-            if (eRes.resError)
-            {
-                for (CMPI_Error* currErr=eRes.resError;
-                    currErr!=NULL;
-                    currErr=currErr->nextError)
-                {
-                    cimException.addError(
-                        ((CIMError*)currErr->hdl)->getInstance());
-                }
-            }
-            throw cimException;
-        }
+        _throwCIMException(rc, eRes.resError);
     }
     HandlerCatch(handler);
 

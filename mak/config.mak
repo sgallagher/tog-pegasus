@@ -1183,6 +1183,23 @@ endif
 ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
     ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
         DEFINES += -DPEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
+        ifndef PEGASUS_JAVA_CLASSPATH_DELIMITER
+            PEGASUS_JAVA_CLASSPATH_DELIMITER = :
+        endif
+
+        ifndef PEGASUS_JVM
+            PEGASUS_JVM = sun
+        endif
+        ifeq ($(PEGASUS_JVM),gcj)
+            PEGASUS_JAVA_COMPILER           = gcj -C
+            PEGASUS_JAVA_JAR                = fastjar
+            PEGASUS_JAVA_INTERPRETER        = gij
+        else
+            PEGASUS_JAVA_COMPILER           = javac -target 1.4 -source 1.4
+            PEGASUS_JAVA_JAR                = jar
+            PEGASUS_JAVA_INTERPRETER        = java
+        endif
+
     else
         ifneq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), false)
             $(error PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER \
@@ -1372,23 +1389,6 @@ ifdef PEGASUS_USE_PAM_STANDALONE_PROC
 endif
 
 ##==============================================================================
-
-ifndef PEGASUS_JAVA_CLASSPATH_DELIMITER
-    PEGASUS_JAVA_CLASSPATH_DELIMITER = :
-endif
-
-ifndef PEGASUS_JVM
-	PEGASUS_JVM = sun
-endif
-ifeq ($(PEGASUS_JVM),gcj)
-	PEGASUS_JAVA_COMPILER		= gcj -C
-	PEGASUS_JAVA_JAR		= fastjar
-	PEGASUS_JAVA_INTERPRETER	= gij
-else
-	PEGASUS_JAVA_COMPILER		= javac -target 1.4 -source 1.4
-	PEGASUS_JAVA_JAR		= jar
-	PEGASUS_JAVA_INTERPRETER	= java
-endif
 
 # Disable client timeouts when we're doing a valgrind build
 ifdef PEGASUS_TEST_VALGRIND_LOG_DIR

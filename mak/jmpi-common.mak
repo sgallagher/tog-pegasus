@@ -26,46 +26,45 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT = ../../../..
 
-DIR = Pegasus/ProviderManager2/JMPI
-
-include $(ROOT)/mak/config.mak
-include $(ROOT)/mak/jmpi-common.mak
-
-LOCAL_DEFINES = -DPEGASUS_JMPIPM_INTERNAL -DPEGASUS_INTERNALONLY
-
-ifeq ($(OS_TYPE),vms)
- EXTRA_LIBRARIES += java\$jvm_shr
- VMS_VECTOR = PegasusCreateProviderManager
-endif
-
-LIBRARY = JMPIProviderManager
-
-LIBRARIES = \
-	pegprovidermanager \
-	pegconfig \
-	pegwql \
-	pegquerycommon \
-	pegprovider \
-	pegclient \
-	peggeneral \
-	pegcommon
-
-SOURCES = \
-        JMPIProviderManagerMain.cpp \
-        JMPIProviderManager.cpp \
-        JMPILocalProviderManager.cpp \
-        JMPIProviderModule.cpp \
-        JMPIProvider.cpp \
-        JMPIImpl.cpp
-
-include $(ROOT)/mak/dynamic-library.mak
-
-ifeq ($(OS_TYPE),vms)
-all:    $(FULL_PROGRAM)
+ifeq ($(OS_TYPE),windows)
+   JAVALIBS=$(JAVA_SDK)/jre/lib/
+   EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include -I$(JAVA_SDK)/include/win32
+   EXTRA_LIBRARIES += $(JAVA_SDK)/lib/jvm.lib
 else
-all:    $(FULL_LIB)
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+   SYS_INCLUDES += -I${JAVA_SDK}/include
+   EXTRA_LIBRARIES += ${JAVA_SDK}/bin/classic/libjvm.x
+else
+ifeq ($(PEGASUS_JVM),sun)
+   JAVALIBS=$(JAVA_SDK)/jre/lib/$(PEGASUS_JAVA_ARCH)
+   EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include -I$(JAVA_SDK)/include/linux
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/native_threads -L$(JAVALIBS)/$(PEGASUS_JAVA_TYPE) -ljvm -lhpi -lcrypt
 endif
 
-repository tests poststarttests:
+ifeq ($(PEGASUS_JVM),ibm)
+   JAVALIBS=$(JAVA_SDK)/jre/bin
+   EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/classic/ -L$(JAVALIBS)/ -ljvm -lhpi -lcrypt
+endif
+
+ifeq ($(PEGASUS_JVM),ibm64)
+   JAVALIBS=$(JAVA_SDK)/jre/bin
+   EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/j9vm/ -L$(JAVALIBS)/classic/ -L$(JAVALIBS)/ -ljvm
+endif
+
+ifeq ($(PEGASUS_JVM),bea)
+   JAVALIBS=$(JAVA_SDK)/jre/lib/$(PEGASUS_JAVA_ARCH)
+   EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include/ -I$(JAVA_SDK)/include/linux/
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/ -L$(JAVALIBS)/jrockit/ -L$(JAVALIBS)/native_threads/ -ljvm -lhpi -lcrypt
+endif
+
+ifeq ($(PEGASUS_JVM),gcj)
+   JAVALIBS=$(JAVA_SDK)/jre/lib/$(PEGASUS_JAVA_ARCH)
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/$(PEGASUS_JAVA_TYPE) -ljvm
+endif
+
+endif
+endif
+

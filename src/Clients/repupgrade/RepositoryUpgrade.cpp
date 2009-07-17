@@ -43,6 +43,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/General/VersionUtil.h>
 #include <Pegasus/getoopt/getoopt.h>
 #include <Clients/cliutils/CommandException.h>
 #include "RepositoryUpgrade.h"
@@ -1567,14 +1568,22 @@ Boolean RepositoryUpgrade::_compareVersion(const String& oldVersion,
     Sint32          iUpdateNew = -1;
     Boolean         retVal = false;
 
-    retVal = _parseVersion (oldVersion, iMajorOld, iMinorOld, iUpdateOld);
+    retVal = VersionUtil::parseVersion(
+        oldVersion,
+        iMajorOld,
+        iMinorOld,
+        iUpdateOld);
 
     // cimmof compiler rejects invalid versions.
     // ATTN-SF-P3-20050209: Need to identify invalid version formats and assert
     // here.
     // PEGASUS_ASSERT(retVal != false);
 
-    retVal = _parseVersion (newVersion, iMajorNew, iMinorNew, iUpdateNew);
+    retVal = VersionUtil::parseVersion(
+        newVersion,
+        iMajorNew,
+        iMinorNew,
+        iUpdateNew);
 
     // cimmof compiler rejects invalid versions.
     // ATTN-SF-P3-20050209: Need to identify invalid version formats and assert
@@ -1610,100 +1619,6 @@ Boolean RepositoryUpgrade::_compareVersion(const String& oldVersion,
         }
     }
     return retVal;
-}
-
-//
-// ATTN-SF-P3-20050209: The following needs to be consolidated with
-//                      cimmofParser::verifyVersion method.
-//
-Boolean RepositoryUpgrade::_parseVersion(
-    const String& version,
-    Sint32& iMajor,
-    Sint32& iMinor,
-    Sint32& iUpdate)
-{
-    const char CHAR_PERIOD = '.';
-
-    if (!version.size())
-    {
-        return true;
-    }
-
-    iMajor = 0;
-    iMinor = 0;
-    iUpdate = 0;
-
-    Uint32 indexM = 0;
-    Uint32 sizeM = PEG_NOT_FOUND;
-    Uint32 indexN = PEG_NOT_FOUND;
-    Uint32 sizeN = PEG_NOT_FOUND;
-    Uint32 indexU = PEG_NOT_FOUND;
-
-    // If "V" specified as first character, ignore it
-    if ((version[0] == 'V') || (version[0] == 'v'))
-    {
-        indexM = 1;
-    }
-
-    // Find the M, N, and U version fields delimited by '.' characters
-
-    indexN = version.find(indexM, CHAR_PERIOD);
-
-    if (indexN != PEG_NOT_FOUND)
-    {
-        sizeM = indexN++ - indexM;
-
-        indexU = version.find(indexN, CHAR_PERIOD);
-        if (indexU != PEG_NOT_FOUND)
-        {
-            sizeN = indexU++ - indexN;
-        }
-    }
-
-    // Parse the major version
-    char dummyChar;
-    int numConversions = sscanf(
-        version.subString(indexM, sizeM).getCString(),
-        "%u%c",
-        &iMajor,
-        &dummyChar);
-
-    if (numConversions != 1)
-    {
-        return false;
-    }
-
-    // Parse the minor version
-    if (indexN != PEG_NOT_FOUND)
-    {
-        numConversions = sscanf(
-            version.subString(indexN, sizeN).getCString(),
-            "%u%c",
-            &iMinor,
-            &dummyChar);
-
-        if (numConversions != 1)
-        {
-            return false;
-        }
-    }
-
-    // Parse the update version
-    if (indexU != PEG_NOT_FOUND)
-    {
-        numConversions = sscanf(
-            version.subString(indexU).getCString(),
-            "%u%c",
-            &iUpdate,
-            &dummyChar);
-
-        if (numConversions != 1)
-        {
-            return false;
-        }
-    }
-
-    return true;
 }
 
 void RepositoryUpgrade::_processNewClasses(

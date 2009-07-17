@@ -662,25 +662,6 @@ private:
     Boolean _compareVersion( const String& oldVersion,
                             const String& newVersion );
 
-    //
-    //  Parses a version string into major, minor and update components.
-    //
-    //  @param  version    the version string to be parsed
-    //
-    //  @param  iMajor     major number to be returned
-    //
-    //  @param  iMinor     minor number to be returned
-    //
-    //  @param  iUpdate    update number to be returned
-    //
-    //  @return true       if the version number is valid
-    //
-    //          false      if the version number is invalid
-    //
-    Boolean _parseVersion(const String& version,
-                                 Sint32& iMajor,
-                                 Sint32& iMinor,
-                                 Sint32& iUpdate);
 };
 
 PEGASUS_NAMESPACE_END

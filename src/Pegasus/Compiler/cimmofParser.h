@@ -103,12 +103,6 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
                 cimmofMessages::MsgCode& updateMessage,
                 Boolean& classExist);
 
-        Boolean parseVersion(
-                const String& version,
-                int& iM,
-                int& iN,
-                int& iU);
-
         // Here are the members added by this specialization
         const mofCompilerOptions *_cmdline;
 

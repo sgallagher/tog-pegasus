@@ -62,6 +62,7 @@ LIBRARIES = \
     pegclient  \
     pegrepository \
     pegconfig \
+    peggeneral \
     pegcommon
 
 PRE_DEPEND_INCLUDES = -I./depends

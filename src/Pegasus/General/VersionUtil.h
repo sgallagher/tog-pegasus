@@ -49,6 +49,27 @@ public:
         Uint32 minorV2,
         Uint32 updateV2);
 
+    //
+    //  Parses a version string into major, minor and update components.
+    //
+    //  @param  vi         the version string to be parsed
+    //
+    //  @param  majorV2    major number to be returned
+    //
+    //  @param  minorV2    minor number to be returned
+    //
+    //  @param  updateV2   update number to be returned
+    //
+    //  @return true       if the version number is valid
+    //
+    //          false      if the version number is invalid
+    //
+    
+    static Boolean parseVersion(
+        const String& v1,
+        Sint32& majorV2,
+        Sint32& minorV2,
+        Sint32& updateV2);
 private:
 
     VersionUtil() { }

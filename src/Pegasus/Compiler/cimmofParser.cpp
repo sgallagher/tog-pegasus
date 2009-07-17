@@ -58,6 +58,7 @@
 // Implementation of methods of cimmofParser class
 //
 //
+#include <Pegasus/General/VersionUtil.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMScope.h>
@@ -1567,7 +1568,7 @@ Boolean cimmofParser::updateClass(const CIMClass &classdecl,
     }
 
     // Verify version format specified in the Version qualifier of mof class
-    if (!parseVersion(iVersion, iM, iN, iU))
+    if (!VersionUtil::parseVersion(iVersion, iM, iN, iU))
     {
         updateMessage = cimmofMessages::INVALID_VERSION_FORMAT;
         return false;
@@ -1575,7 +1576,7 @@ Boolean cimmofParser::updateClass(const CIMClass &classdecl,
 
     // Verify version format specified in the Version qualifier of
     // repository class
-    if (!parseVersion(rVersion, rM, rN, rU))
+    if (!VersionUtil::parseVersion(rVersion, rM, rN, rU))
     {
         updateMessage = cimmofMessages::INVALID_VERSION_FORMAT;
         return false;
@@ -1748,94 +1749,4 @@ Boolean cimmofParser::updateClass(const CIMClass &classdecl,
     }
 
     return ret;
-}
-
-// Note: This method is the same as RepositoryUpgrade::_parseVersion in
-// pegasus/src/Clients/repupgrade/RepositoryUpgrade.cpp.
-Boolean cimmofParser::parseVersion(
-    const String& version,
-    int& iM,
-    int& iN,
-    int& iU)
-{
-    if (!version.size())
-    {
-        return true;
-    }
-
-    iM = 0;
-    iN = 0;
-    iU = 0;
-
-    Uint32 indexM = 0;
-    Uint32 sizeM = PEG_NOT_FOUND;
-    Uint32 indexN = PEG_NOT_FOUND;
-    Uint32 sizeN = PEG_NOT_FOUND;
-    Uint32 indexU = PEG_NOT_FOUND;
-
-    // If "V" specified as first character, ignore it
-    if ((version[0] == 'V') || (version[0] == 'v'))
-    {
-        indexM = 1;
-    }
-
-    // Find the M, N, and U version fields delimited by '.' characters
-
-    indexN = version.find(indexM, CHAR_PERIOD);
-
-    if (indexN != PEG_NOT_FOUND)
-    {
-        sizeM = indexN++ - indexM;
-
-        indexU = version.find(indexN, CHAR_PERIOD);
-        if (indexU != PEG_NOT_FOUND)
-        {
-            sizeN = indexU++ - indexN;
-        }
-    }
-
-    // Parse the major version
-    char dummyChar;
-    int numConversions = sscanf(
-        version.subString(indexM, sizeM).getCString(),
-        "%u%c",
-        &iM,
-        &dummyChar);
-
-    if (numConversions != 1)
-    {
-        return false;
-    }
-
-    // Parse the minor version
-    if (indexN != PEG_NOT_FOUND)
-    {
-        numConversions = sscanf(
-            version.subString(indexN, sizeN).getCString(),
-            "%u%c",
-            &iN,
-            &dummyChar);
-
-        if (numConversions != 1)
-        {
-            return false;
-        }
-    }
-
-    // Parse the update version
-    if (indexU != PEG_NOT_FOUND)
-    {
-        numConversions = sscanf(
-            version.subString(indexU).getCString(),
-            "%u%c",
-            &iU,
-            &dummyChar);
-
-        if (numConversions != 1)
-        {
-            return false;
-        }
-    }
-
-    return true;
 }

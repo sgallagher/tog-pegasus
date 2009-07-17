@@ -189,9 +189,6 @@ private:
 
     friend class BinaryStreamer;
     friend class SCMOClass;
-    friend class SCMOInstance;
-    friend class SCMODump;
-    friend class SCMOXmlWriter;
 };
 
 PEGASUS_NAMESPACE_END

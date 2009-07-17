@@ -111,30 +111,20 @@ public:
 
     static void appendValueObjectWithPathElement(
         Buffer& out,
-        const CIMObject& objectWithPath,
-        Boolean includeQualifiers = true,
-        Boolean includeClassOrigin = true,
-        Boolean isClassObject = false,
-        const CIMPropertyList& propertyList = CIMPropertyList());
+        const CIMObject& objectWithPath);
 
-    // Appends classPath or instancePath based on isClassPath param
     static void appendValueReferenceElement(
         Buffer& out,
         const CIMObjectPath& reference,
-        Boolean isClassPath,
         Boolean putValueWrapper);
 
     static void printValueReferenceElement(
         const CIMObjectPath& reference,
-        Boolean isClassPath,
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendValueNamedInstanceElement(
         Buffer& out,
-        const CIMInstance& namedInstance,
-        Boolean includeQualifiers = true,
-        Boolean includeClassOrigin = true,
-        const CIMPropertyList& propertyList = CIMPropertyList());
+        const CIMInstance& namedInstance);
 
     static void appendClassElement(
         Buffer& out,
@@ -146,11 +136,7 @@ public:
 
     static void appendInstanceElement(
         Buffer& out,
-        const CIMConstInstance& instance,
-        Boolean includeQualifiers = true,
-        Boolean includeClassOrigin = true,
-        const CIMPropertyList& propertyList = CIMPropertyList());
-
+        const CIMConstInstance& instance);
 
     static void printInstanceElement(
         const CIMConstInstance& instance,
@@ -158,16 +144,11 @@ public:
 
     static void appendObjectElement(
         Buffer& out,
-        const CIMConstObject& object,
-        Boolean includeQualifiers = true,
-        Boolean includeClassOrigin = true,
-        const CIMPropertyList& propertyList = CIMPropertyList());
+        const CIMConstObject& object);
 
     static void appendPropertyElement(
         Buffer& out,
-        const CIMConstProperty& property,
-        Boolean includeQualifiers = true,
-        Boolean includeClassOrigin = true);
+        const CIMConstProperty& property);
 
     static void printPropertyElement(
         const CIMConstProperty& property,
@@ -250,7 +231,6 @@ public:
 
     static void appendUnauthorizedResponseHeader(
         Buffer& out,
-        const String& errorDetail,
         const String& content);
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
@@ -286,6 +266,11 @@ public:
         Buffer& out,
         const char* name,
         const CIMObjectPath& instanceName);
+
+    static void appendObjectNameIParameter(
+        Buffer& out,
+        const char* name,
+        const CIMObjectPath& objectName);
 
     static void appendClassIParameter(
         Buffer& out,
@@ -513,14 +498,6 @@ private:
 
     static void _appendEMethodResponseElementEnd(
         Buffer& out);
-
-    static void appendValueInstancePathElement(
-        Buffer& out,
-        const CIMObjectPath& reference);
-
-    static void appendValueClassPathElement(
-        Buffer& out,
-        const CIMObjectPath& reference);
 
     XmlWriter();
 };

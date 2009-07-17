@@ -34,10 +34,9 @@ DIRS = \
     CIMError \
     DynLib \
     DynamicLibrary \
+    IndicationFormatter \
     OptionManager \
     Stopwatch \
-    ToMof \
-    SubscriptionKey
-
+    ToMof
 
 include $(ROOT)/mak/recurse.mak

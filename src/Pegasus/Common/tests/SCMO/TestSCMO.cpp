@@ -29,7 +29,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/SCMO.h>
+#include "TestSCMO.h"
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/Config.h>
@@ -42,47 +42,35 @@ PEGASUS_USING_STD;
 static Boolean verbose;
 
 
-void test1()
-{
-    CIMName theClassName("TheLongLongLongLongLongClassName");
-    CIMName theSuperClassName("TheSuperClass");
-    CIMNamespaceName theNameSpace("root/cimv2");
-    
-    CIMObjectPath theObjectPath;
-    theObjectPath.setClassName(theClassName);
-    theObjectPath.setNameSpace(theNameSpace);
-
-    CIMClass myClass(theClassName,theSuperClassName);
-    myClass.setPath(theObjectPath);
-
-    SCMOClass theSCMOClass(myClass);
-
-}
-
-void test2(char* filename)
+void test1(char* filename)
 {
     CIMClass myClass;
     Buffer text;
     FileSystem::loadFileToMemory(text, filename);
 
-    
+
     XmlParser theParser((char*)text.getData());
     XmlReader::getObject(theParser,myClass);
-    
+
     SCMOClass theSCMOClass(myClass);
-    
+
+    SCMODump dump;
+
+    dump.dumpSCMOClass(theSCMOClass);
+
     SCMOInstance myInstance(theSCMOClass);
 
     SCMOInstance cloneInstance = myInstance.clone();
-    
+
 }
+
 
 int main (int argc, char *argv[])
 {
 
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
-    test2("./TestSCMO.xml");
+    test1("./TestSCMO.xml");
 
     cout << argv[0] << " +++++ passed all tests" << endl;
     return 0;

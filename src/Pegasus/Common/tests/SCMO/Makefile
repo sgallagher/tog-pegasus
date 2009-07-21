@@ -33,6 +33,7 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
+
 PROGRAM = TestSCMO
 
 SOURCES = TestSCMO.cpp

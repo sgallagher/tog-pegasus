@@ -41,7 +41,6 @@ DIRS = \
     AuthenticationInfo \
     Base64 \
     Buffer \
-    CIMBuffer \
     CIMName \
     ClassDecl \
     Compare \
@@ -101,8 +100,7 @@ DIRS = \
     HostAddress \
     HostLocator \
     OrderedSet \
-    XmlWriter \
-    UintArgs
+    XmlWriter
 
 
 ifndef PEGASUS_DISABLE_PERFINST
@@ -113,6 +111,10 @@ endif
 ifeq ($(PEGASUS_ENABLE_SLP),true)
 DIRS += \
 	Attribute
+endif
+
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY),true)
+    DIRS += CIMBuffer
 endif
 
 include $(ROOT)/mak/recurse.mak

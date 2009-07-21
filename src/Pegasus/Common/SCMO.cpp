@@ -138,7 +138,7 @@ SCMOClass::SCMOClass(CIMClass& theCIMClass)
     PEGASUS_ASSERT(SCMB_INITIAL_MEMORY_CHUNK_SIZE
         - sizeof(SCMBClass_Main)>0);
 
-    cls.base = (unsigned char*)malloc(SCMB_INITIAL_MEMORY_CHUNK_SIZE);
+    cls.base = (char*)malloc(SCMB_INITIAL_MEMORY_CHUNK_SIZE);
     if (cls.base == NULL)
     {
         // Not enough memory!
@@ -217,7 +217,7 @@ SCMO_RC SCMOClass::_getKeyBindingNodeIndex(Uint32& node, const char* name) const
     Uint32 tag,len,hashIdx;
 
     len = strlen(name);
-    tag = _generateStringTag((const unsigned char*)name, len);
+    tag = _generateStringTag((const char*)name, len);
     // get the node index of the hash table
     hashIdx =
         cls.hdr->keyBindingSet.hashTable[tag%PEGASUS_KEYBINDIG_SCMB_HASHSIZE];
@@ -274,7 +274,7 @@ SCMO_RC SCMOClass::_getProperyNodeIndex(Uint32& node, const char* name) const
     Uint32 tag,len,hashIdx;
 
     len = strlen(name);
-    tag = _generateStringTag((const unsigned char*)name, len);
+    tag = _generateStringTag((const char*)name, len);
     // get the node index of the hash table
     hashIdx =
         cls.hdr->propertySet.hashTable[tag%PEGASUS_PROPERTY_SCMB_HASHSIZE];
@@ -672,7 +672,7 @@ void SCMOClass::_setProperty(
 
     // calculate the relative pointer for the default value
     Uint64 valueStart =
-        (unsigned char*)&scmoPropNode->theProperty.defaultValue - cls.base;
+        (char*)&scmoPropNode->theProperty.defaultValue - cls.base;
 
     _setValue(valueStart,propRep->_value);
 
@@ -770,7 +770,7 @@ QualifierNameEnum SCMOClass::_setQualifier(
     scmoQual->name = name;
     scmoQual->flavor = theCIMQualifier.getFlavor().cimFlavor;
 
-    valueStart = (unsigned char*)&scmoQual->value - cls.base;
+    valueStart = (char*)&scmoQual->value - cls.base;
 
     _setValue(valueStart,theCIMQualifier.getValue());
 
@@ -799,7 +799,7 @@ void SCMOClass::_setValue(Uint64 start, const CIMValue& theCIMValue)
     // Only initalized by for completeness.
     scmoValue->flags.isSet = false;
 
-    valueStart = (unsigned char*)&scmoValue->value - cls.base;
+    valueStart = (char*)&scmoValue->value - cls.base;
 
     if (rep->isNull)
     {
@@ -1251,12 +1251,12 @@ Boolean SCMOInstance::isSame(SCMOInstance& theInstance) const
     return inst.base == theInstance.inst.base;
 }
 
-const unsigned char* SCMOInstance::getHostName() const
+const char* SCMOInstance::getHostName() const
 {
   return _getCharString(inst.hdr->hostName,inst.base);
 }
 
-void SCMOInstance::setHostName(const unsigned char* hostName)
+void SCMOInstance::setHostName(const char* hostName)
 {
     Uint32 len;
 
@@ -1277,14 +1277,14 @@ void SCMOInstance::setHostName(const unsigned char* hostName)
     inst.hdr->hostName.length=0;
 }
 
-const unsigned char* SCMOInstance::getClassName() const
+const char* SCMOInstance::getClassName() const
 {
     return _getCharString(
         inst.hdr->theClass->cls.hdr->className,
         inst.hdr->theClass->cls.base);        
 }
 
-const unsigned char* SCMOInstance::getNameSpace() const
+const char* SCMOInstance::getNameSpace() const
 {
     return _getCharString(
         inst.hdr->theClass->cls.hdr->nameSpace,
@@ -1300,7 +1300,7 @@ void SCMOInstance::_initSCMOInstance(
         - sizeof(SCMBInstance_Main)>0);
 
 
-    inst.base = (unsigned char*)malloc(SCMB_INITIAL_MEMORY_CHUNK_SIZE);
+    inst.base = (char*)malloc(SCMB_INITIAL_MEMORY_CHUNK_SIZE);
     if (inst.base == NULL)
     {
         // Not enough memory!
@@ -1375,7 +1375,7 @@ SCMO_RC SCMOInstance::getProperty(
     Uint32& size ) const
 {
     Uint32 node;
-    const unsigned char** pname;
+    const char* pname;
     SCMO_RC rc = SCMO_OK;
 
     *pvalue = NULL;
@@ -1400,12 +1400,12 @@ SCMO_RC SCMOInstance::getProperty(
         }
     }
 
-    return  _getPropertyAtNodeIndex(node,pname,type,pvalue,isArray,size);
+    return  _getPropertyAtNodeIndex(node,&pname,type,pvalue,isArray,size);
 }
 
 SCMO_RC SCMOInstance::getPropertyAt(
         Uint32 idx,
-        const unsigned char** pname,
+        const char** pname,
         CIMType& type,
         const void** pvalue,
         Boolean& isArray,
@@ -1570,7 +1570,7 @@ void SCMOInstance::_setPropertyAtNodeIndex(
     else
     {
         Uint64 start =
-            (unsigned const char*)&(theInstPropNodeArray[node].value)-inst.base;
+            (const char*)&(theInstPropNodeArray[node].value)-inst.base;
 
         _setSCMBUnion(value,type,isArray,size,start);
     }
@@ -1831,7 +1831,7 @@ void SCMOInstance::_setSCMBUnion(
 
 SCMO_RC SCMOInstance::_getPropertyAtNodeIndex(
         Uint32 node,
-        const unsigned char** pname,
+        const char** pname,
         CIMType& type,
         const void** pvalue,
         Boolean& isArray,
@@ -1870,7 +1870,7 @@ SCMO_RC SCMOInstance::_getPropertyAtNodeIndex(
 
         // calculate the relative index for the value.
         Uint64 start =
-            (unsigned const char*)&(theInstPropNodeArray[node].value) -
+            (const char*)&(theInstPropNodeArray[node].value) -
             inst.base;
 
         // the caller has to copy the value !
@@ -1896,7 +1896,7 @@ SCMO_RC SCMOInstance::_getPropertyAtNodeIndex(
 
     // calcutate the relativ start address of the value
     Uint64 start =
-        (unsigned const char*)
+        (const char*)
                &(theClassPropNodeArray[node].theProperty.defaultValue.value) -
         (inst.hdr->theClass->cls.base);
 
@@ -1915,7 +1915,7 @@ SCMO_RC SCMOInstance::_getPropertyAtNodeIndex(
 SCMOInstance SCMOInstance::clone() const
 {
     SCMOInstance newInst;
-    newInst.inst.base = (unsigned char*)malloc(this->inst.mem->totalSize);
+    newInst.inst.base = (char*)malloc(this->inst.mem->totalSize);
     if (newInst.inst.base == NULL )
     {
         throw PEGASUS_STD(bad_alloc)();
@@ -1935,12 +1935,12 @@ Uint32 SCMOInstance::getPropertyCount() const
     return(inst.hdr->numberProperties);
 }
 
-const void* SCMOInstance::_getSCMBUnion(
+void* SCMOInstance::_getSCMBUnion(
     CIMType type,
     Boolean isArray,
     Uint32 size,
     Uint64 start,
-    unsigned char* base) const
+    char* base) const
 {
 
     SCMBUnion* u = (SCMBUnion*)&(base[start]);
@@ -1982,12 +1982,12 @@ const void* SCMOInstance::_getSCMBUnion(
     case CIMTYPE_STRING:
         {
             SCMBDataPtr *ptr;
-            unsigned char** tmp;
+            char** tmp=NULL;
 
             if (isArray)
             {
                 // allocate an array of char* pointers.
-                *tmp = (unsigned char*)malloc(size*sizeof(unsigned char*));
+                *tmp = (char*)malloc(size*sizeof(char*));
                 if (*tmp == NULL )
                 {
                     throw PEGASUS_STD(bad_alloc)();
@@ -1999,14 +1999,14 @@ const void* SCMOInstance::_getSCMBUnion(
                 for(Uint32 i = 0; i < size; i++)
                 {
                     // resolv relative pointer to absolute pointer
-                    tmp[i] = (unsigned char*)_getCharString(ptr[i],base);
+                    tmp[i] = (char*)_getCharString(ptr[i],base);
                 }
 
                 return((void*)*tmp);
             }
             else
             {
-                return(_getCharString(u->_stringValue,base));
+                return((void*)_getCharString(u->_stringValue,base));
             }
 
 
@@ -2040,9 +2040,9 @@ Uint32 SCMOInstance::getKeyBindingCount()
 
 SCMO_RC SCMOInstance::getKeyBindingAt(
         Uint32 node,
-        const unsigned char** pname,
+        const char** pname,
         CIMKeyBinding::Type& type,
-        const unsigned char** pvalue) const
+        const char** pvalue) const
 {
     *pname = NULL;
     *pvalue = NULL;
@@ -2058,12 +2058,12 @@ SCMO_RC SCMOInstance::getKeyBindingAt(
 SCMO_RC SCMOInstance::getKeyBinding(
     const char* name,
     CIMKeyBinding::Type& type,
-    const unsigned char** pvalue) const
+    const char** pvalue) const
 {
     pvalue = NULL;
     SCMO_RC rc;
     Uint32 node;
-    const unsigned char** pname;
+    const char** pname=NULL;
 
     rc = inst.hdr->theClass->_getKeyBindingNodeIndex(node,name);
     if (rc != SCMO_OK)
@@ -2077,9 +2077,9 @@ SCMO_RC SCMOInstance::getKeyBinding(
 
 SCMO_RC SCMOInstance::_getKeyBindingAtNodeIndex(
     Uint32 node,
-    const unsigned char** pname,
+    const char** pname,
     CIMKeyBinding::Type& type,
-    const unsigned char** pvalue) const
+    const char** pvalue) const
 {
 
     SCMBDataPtr* theInstKeyBindNodeArray =
@@ -2095,7 +2095,7 @@ SCMO_RC SCMOInstance::_getKeyBindingAtNodeIndex(
         theClassKeyBindNodeArray->name,
         inst.hdr->theClass->cls.base);
 
-        // There is no value set in the instance
+    // There is no value set in the instance
     // if the relative pointer has no start value.
     if (theInstKeyBindNodeArray[node].start==0)
     {
@@ -2301,7 +2301,7 @@ Boolean SCMOInstance::_isPropertyInFilter(Uint32 i) const
 void SCMODump::dumpSCMOClass(SCMOClass& testCls) const
 {
     SCMBClass_Main* clshdr = testCls.cls.hdr;
-    unsigned char* clsbase = testCls.cls.base;
+    char* clsbase = testCls.cls.base;
 
     printf("\n\nDump of SCMOClass\n");
     // The magic number for SCMO class
@@ -2342,23 +2342,23 @@ void SCMODump::dumpSCMOClass(SCMOClass& testCls) const
 void SCMODump::dumpSCMOClassQualifiers(SCMOClass& testCls) const
 {
     SCMBClass_Main* clshdr = testCls.cls.hdr;
-    unsigned char* clsbase = testCls.cls.base;
+    char* clsbase = testCls.cls.base;
 
     printf("\n\nTheClass qualfiers:");
     _dumpQualifierArray(
         clshdr->qualifierArray.start,
         clshdr->numberOfQualifiers,
         clsbase);
-    printf("\n");
+    printf("\n\n\n");
 
 }
 
 void SCMODump::hexDumpSCMOClass(SCMOClass& testCls) const
 {
-    unsigned char* tmp;
+    char* tmp;
 
     SCMBClass_Main* clshdr = testCls.cls.hdr;
-    unsigned char* clsbase = testCls.cls.base;
+    char* clsbase = testCls.cls.base;
 
     printf("\n\nHex dump of a SCMBClass:");
     printf("\n========================");
@@ -2371,7 +2371,7 @@ void SCMODump::hexDumpSCMOClass(SCMOClass& testCls) const
 void SCMODump::dumpKeyIndexList(SCMOClass& testCls) const
 {
     SCMBClass_Main* clshdr = testCls.cls.hdr;
-    unsigned char* clsbase = testCls.cls.base;
+    char* clsbase = testCls.cls.base;
 
     printf("\n\nKey Index List:");
     printf("\n===============\n");
@@ -2412,7 +2412,7 @@ void SCMODump::dumpKeyIndexList(SCMOClass& testCls) const
 void SCMODump::dumpKeyBindingSet(SCMOClass& testCls) const
 {
     SCMBClass_Main* clshdr = testCls.cls.hdr;
-    unsigned char* clsbase = testCls.cls.base;
+    char* clsbase = testCls.cls.base;
 
     printf("\n\nKey Binding Set:");
     printf("\n=================\n");
@@ -2428,7 +2428,7 @@ void SCMODump::dumpKeyBindingSet(SCMOClass& testCls) const
 void SCMODump::dumpClassKeyBindingNodeArray(SCMOClass& testCls) const
 {
     SCMBClass_Main* clshdr = testCls.cls.hdr;
-    unsigned char* clsbase = testCls.cls.base;
+    char* clsbase = testCls.cls.base;
 
     SCMBKeyBindingNode* nodeArray =
         (SCMBKeyBindingNode*)
@@ -2467,7 +2467,7 @@ void SCMODump::dumpClassKeyBindingNodeArray(SCMOClass& testCls) const
 void SCMODump::dumpClassProperties(SCMOClass& testCls) const
 {
     SCMBClass_Main* clshdr = testCls.cls.hdr;
-    unsigned char* clsbase = testCls.cls.base;
+    char* clsbase = testCls.cls.base;
 
     printf("\n\nClass Properties:");
     printf("\n=================\n");
@@ -2482,7 +2482,7 @@ void SCMODump::dumpClassProperties(SCMOClass& testCls) const
 void SCMODump::dumpClassPropertyNodeArray(SCMOClass& testCls) const
 {
     SCMBClass_Main* clshdr = testCls.cls.hdr;
-    unsigned char* clsbase = testCls.cls.base;
+    char* clsbase = testCls.cls.base;
 
     SCMBClassPropertyNode* nodeArray =
         (SCMBClassPropertyNode*)
@@ -2511,7 +2511,7 @@ void SCMODump::dumpClassPropertyNodeArray(SCMOClass& testCls) const
 
 void SCMODump::_dumpClassProperty(
     const SCMBClassProperty& prop,
-    unsigned char* clsbase) const
+    char* clsbase) const
 {
     printf("\nProperty name: %s",_getCharString(prop.name,clsbase));
 
@@ -2577,7 +2577,7 @@ void SCMODump::dumpHashTable(Uint32* hashTable,Uint32 size) const
 void SCMODump::_dumpQualifierArray(
     Uint64 start, 
     Uint32 size,
-    unsigned char* clsbase
+    char* clsbase
     ) const
 {
 
@@ -2591,7 +2591,7 @@ void SCMODump::_dumpQualifierArray(
 
 void SCMODump::_dumpQualifier(
     const SCMBQualifier& theQualifier,
-    unsigned char* clsbase
+    char* clsbase
     ) const
 {
      if(theQualifier.name == QUALNAME_USERDEFINED)
@@ -2616,7 +2616,7 @@ void SCMODump::_dumpQualifier(
 
 void SCMODump::printSCMOValue(
     const SCMBValue& theValue,
-    unsigned char* base) const
+    char* base) const
 {
    printf("\nValueType : %s",cimTypeToString(theValue.valueType));
    printf("\nValue was set by the provider: %s",
@@ -2652,7 +2652,7 @@ String SCMODump::printArrayValue(
     CIMType type,
     Uint32 size, 
     SCMBUnion u,
-    unsigned char* base) const
+    char* base) const
 {
     Buffer out;
 
@@ -2796,7 +2796,7 @@ String SCMODump::printArrayValue(
 String SCMODump::printUnionValue(
     CIMType type, 
     SCMBUnion u,
-    unsigned char* base) const
+    char* base) const
 {
     Buffer out;
 
@@ -2916,7 +2916,7 @@ void SCMODump::dumpKeyPropertyMask(SCMOClass& testCls ) const
 {
 
     SCMBClass_Main* clshdr = testCls.cls.hdr;
-    unsigned char* clsbase = testCls.cls.base;
+    char* clsbase = testCls.cls.base;
 
      Uint64 *theKeyMask = (Uint64*)&(clsbase[clshdr->keyPropertyMask.start]);
      Uint32 end, noProperties = clshdr->propertySet.number;
@@ -2959,13 +2959,13 @@ void SCMODump::dumpKeyPropertyMask(SCMOClass& testCls ) const
      }
 }
 
-void SCMODump::_hexDump(unsigned char* buffer,int length) const
+void SCMODump::_hexDump(char* buffer,int length) const
 {
 
-    unsigned char printLine[3][80];
+    char printLine[3][80];
     int p;
     int len;
-    unsigned char item;
+    char item;
 
     for (int i = 0; i < length;i=i+1)
     {
@@ -3021,14 +3021,14 @@ void SCMODump::_hexDump(unsigned char* buffer,int length) const
 
 static const void* _resolveDataPtr(
     const SCMBDataPtr& ptr,
-    unsigned char* base)
+    char* base)
 {
     return ((ptr.start==(Uint64)0 ? NULL : (void*)&(base[ptr.start])));
 }
 
-PEGASUS_COMMON_LINKAGE const unsigned char* _getCharString(
+PEGASUS_COMMON_LINKAGE const char* _getCharString(
     const SCMBDataPtr& ptr,
-    unsigned char* base)
+    char* base)
 {
     return ((ptr.start==(Uint64)0 ? NULL : &(base[ptr.start])));
 }
@@ -3036,13 +3036,13 @@ PEGASUS_COMMON_LINKAGE const unsigned char* _getCharString(
 
 static Uint32 _generateSCMOStringTag(
     const SCMBDataPtr& ptr,
-    unsigned char* base)
+    char* base)
 {
     // The lenght of a SCMBDataPtr to a UTF8 string includs the trailing '\0'.
     return _generateStringTag(_getCharString(ptr,base),ptr.length-1);
 }
 
-static Uint32 _generateStringTag(const unsigned char* str, Uint32 len)
+static Uint32 _generateStringTag(const char* str, Uint32 len)
 {
     if (len == 0)
     {
@@ -3081,7 +3081,7 @@ static CIMKeyBinding::Type _cimTypeToKeyBindType(CIMType cimType)
 
 static Boolean _equalUTF8Strings(
     const SCMBDataPtr& ptr_a,
-    unsigned char* base,
+    char* base,
     const char* name,
     Uint32 len)
 
@@ -3156,7 +3156,7 @@ static Uint64 _getFreeSpace(
     if (clear)
     {
         // If requested, set memory to 0.
-        memset(&((unsigned char*)(*pmem))[start],0,size);
+        memset(&((char*)(*pmem))[start],0,size);
     }
     return start;
 }
@@ -3183,7 +3183,7 @@ static void _setString(
        // --> use the returned start index.
        start = _getFreeSpace(ptr , length, pmem);
        // Copy string including trailing \0
-       memcpy(&((unsigned char*)(*pmem))[start],(const char*)theCString,length);
+       memcpy(&((char*)(*pmem))[start],(const char*)theCString,length);
     }
     else
     {
@@ -3210,7 +3210,7 @@ static void _setBinary(
         start = _getFreeSpace(ptr , bufferSize, pmem);
         // Copy buffer into SCMB
         memcpy(
-            &((unsigned char*)(*pmem))[start],
+            &((char*)(*pmem))[start],
             (const char*)theBuffer,
             bufferSize);
     }

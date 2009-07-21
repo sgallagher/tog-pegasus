@@ -572,7 +572,7 @@ private:
         // To access the memory management header
         SCMBMgmt_Header  *mem;
         // Generic access pointer
-        unsigned char *base;
+        char *base;
     }cls;
 
     friend class SCMOInstance;
@@ -697,7 +697,7 @@ public:
      */
     SCMO_RC getPropertyAt(
         Uint32 pos,
-        const unsigned char** pname,
+        const char** pname,
         CIMType& type,
         const void** pvalue,
         Boolean& isArray,
@@ -871,9 +871,9 @@ public:
      */
     SCMO_RC getKeyBindingAt(
         Uint32 idx,
-        const unsigned char** pname,
+        const char** pname,
         CIMKeyBinding::Type& type,
-        const unsigned char** pvalue) const;
+        const char** pvalue) const;
 
     /**
      * Get the named key binding.
@@ -890,7 +890,7 @@ public:
     SCMO_RC getKeyBinding(
         const char* name,
         CIMKeyBinding::Type& ptype,
-        const unsigned char** pvalue) const;
+        const char** pvalue) const;
 
     /**
      * Determines whether the object has been initialized.
@@ -908,25 +908,25 @@ public:
      * Get the host name of the instance. The caller has to make a copy !
      * @return The host name as UTF8.
      */
-    const unsigned char* getHostName() const;
+    const char* getHostName() const;
 
     /**
      * Sets the provided host name at the instance.
      * @param hostName The host name as UTF8.
      */
-    void setHostName(const unsigned char* hostName);
+    void setHostName(const char* hostName);
 
     /**
      * Get the class name of the instance. The cabler has to make a copy !
      * @return The class name as UTF8.
      */
-    const unsigned char* getClassName() const;
+    const char* getClassName() const;
 
     /**
      * Get the name space of the instance. The caller has to make a copy !
      * @return The name space as UTF8.
      */
-    const unsigned char* getNameSpace() const;
+    const char* getNameSpace() const;
 
 
 private:
@@ -966,7 +966,7 @@ private:
 
     SCMO_RC _getPropertyAtNodeIndex(
             Uint32 pos,
-            const unsigned char** pname,
+            const char** pname,
             CIMType& type,
             const void** pvalue,
             Boolean& isArray,
@@ -979,12 +979,12 @@ private:
         Boolean isArray,
         Uint32 size);
 
-    const void* _getSCMBUnion(
+    void* _getSCMBUnion(
         CIMType type,
         Boolean isArray,
         Uint32 size,
         Uint64 start,
-        unsigned char* base) const;
+        char* base) const;
 
     void _setSCMBUnion(
         void* value,
@@ -995,9 +995,9 @@ private:
 
     SCMO_RC _getKeyBindingAtNodeIndex(
         Uint32 pos,
-        const unsigned char** pname,
+        const char** pname,
         CIMKeyBinding::Type& ptype,
-        const unsigned char** pvalue) const;
+        const char** pvalue) const;
 
     Uint32 _initPropFilterWithKeys();
 
@@ -1013,7 +1013,7 @@ private:
         // To access the memory management header
         SCMBMgmt_Header     *mem;
         // Generic access pointer
-        unsigned char *base;
+        char *base;
     }inst;
 
     friend class SCMOClass;
@@ -1042,18 +1042,18 @@ public:
 
     void printSCMOValue(
         const SCMBValue& theValue,
-        unsigned char* base) const;
+        char* base) const;
 
     String printArrayValue(
         CIMType type,
         Uint32 size,
         SCMBUnion u,
-        unsigned char* base) const;
+        char* base) const;
 
     String printUnionValue(
         CIMType type, 
         SCMBUnion u,
-        unsigned char* base) const;
+        char* base) const;
 
 private:
 
@@ -1061,17 +1061,17 @@ private:
     void _dumpQualifierArray(
         Uint64 start, 
         Uint32 size,
-        unsigned char* clsbase) const;
+        char* clsbase) const;
 
     void _dumpQualifier(
         const SCMBQualifier& theQualifier,
-        unsigned char* clsbase) const;
+        char* clsbase) const;
 
     void _dumpClassProperty(
         const SCMBClassProperty& prop,
-        unsigned char* clsbase) const;
+        char* clsbase) const;
 
-   void _hexDump(unsigned char* buffer,int length) const;
+   void _hexDump(char* buffer,int length) const;
 };
 
 // The static definition of the common SCMO memory functions
@@ -1095,24 +1095,24 @@ static void _setBinary(
 
 static const void* _resolveDataPtr(
     const SCMBDataPtr& ptr,
-    unsigned char* base);
+    char* base);
 
-static const unsigned char* _getCharString(
+static const char* _getCharString(
     const SCMBDataPtr& ptr,
-    unsigned char* base);
+    char* base);
 
-static Uint32 _generateStringTag(const unsigned char* str, Uint32 len);
+static Uint32 _generateStringTag(const char* str, Uint32 len);
 
 
 static Uint32 _generateSCMOStringTag(
     const SCMBDataPtr& ptr,
-    unsigned char* base);
+    char* base);
 
 static CIMKeyBinding::Type _cimTypeToKeyBindType(CIMType cimType);
 
 static Boolean _equalUTF8Strings(
     const SCMBDataPtr& ptr_a,
-    unsigned char* base,
+    char* base,
     const char* name,
     Uint32 len);
 

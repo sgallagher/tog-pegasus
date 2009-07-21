@@ -114,14 +114,25 @@ void test2()
     SCMODump dump;
     SCMOClass theSCMOClass(myClass);
 
-    dump.dumpSCMOClassQualifiers(theSCMOClass);
+    // dump.dumpSCMOClassQualifiers(theSCMOClass);
 
     SCMOInstance myInstance(theSCMOClass);
 
-    Boolean boolValue;
+    // definition of return values.
+    const void* voidReturn;
+    CIMType typeReturn;
+    Boolean isArrayReturn;
+    Uint32 sizeReturn;
 
-    boolValue=true;
-    CIMDateTime dateTimeValue;
+    
+    Boolean boolValue=true;
+    CIMDateTime dateTimeValue(CIMDateTime::getCurrentDateTime());
+    
+
+
+    /**
+     * Negative test cases for setting a propertty
+     */
 
     rc = myInstance.setPropertyWithOrigin(
         "NotAProperty",
@@ -143,7 +154,34 @@ void test2()
         &dateTimeValue,
         true,10);
 
-    PEGASUS_TEST_ASSERT(rc==SCMO_WRONG_TYPE);
+    PEGASUS_TEST_ASSERT(rc==SCMO_NOT_AN_ARRAY);
+
+    rc = myInstance.setPropertyWithOrigin(
+        "DateTimePropertyArray",
+        CIMTYPE_DATETIME,
+        &dateTimeValue);
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_IS_AN_ARRAY);
+
+    Uint32 uint32value = 42;
+    
+    rc = myInstance.setPropertyWithOrigin(
+        "Uint32Property",
+        CIMTYPE_UINT32,
+        &uint32value);
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+
+    rc = myInstance.getProperty(
+        "Uint32Property",
+        typeReturn,
+        &voidReturn,
+        isArrayReturn,
+        sizeReturn);
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+
+    PEGASUS_TEST_ASSERT(uint32value == *((Uint32*)voidReturn));
 
 }
 

@@ -538,6 +538,7 @@ private:
     friend class CIMBuffer;
     friend class SCMOClass;
     friend class SCMODump;
+    friend class SCMOInstance;
 };
 
 /** Compares two CIMDateTime objects and returns true if they represent the

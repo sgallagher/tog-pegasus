@@ -1115,6 +1115,7 @@ void SCMOClass::_setUnionValue(Uint64 start, CIMType type, Union& u)
 
     case CIMTYPE_DATETIME:
         {
+
             memcpy(
                 &scmoUnion->_dateTimeValue,
                 (*((CIMDateTime*)((void*)&u)))._rep,
@@ -1182,7 +1183,7 @@ Boolean SCMOClass::_isSamePropOrigin(Uint32 node, const char* origin) const
 
 SCMO_RC SCMOClass::_isNodeSameType(
     Uint32 node,
-    CIMType type, 
+    CIMType type,
     Boolean isArray) const
 {
     SCMBClassPropertyNode* nodeArray =
@@ -1200,7 +1201,7 @@ SCMO_RC SCMOClass::_isNodeSameType(
         if (nodeArray[node].theProperty.defaultValue.flags.isArray)
         {
             return SCMO_OK;
-        } 
+        }
         else
         {
             return SCMO_NOT_AN_ARRAY;
@@ -1262,12 +1263,12 @@ void SCMOInstance::setHostName(const char* hostName)
 
     if (hostName!=NULL)
     {
-        
+
         len = strlen((const char*)hostName);
         if(len != 0)
         {
-            
-            // copy including trailing '\0'           
+
+            // copy including trailing '\0'
             _setBinary(hostName,len+1,inst.hdr->hostName,&inst.mem);
             return;
         }
@@ -1281,14 +1282,14 @@ const char* SCMOInstance::getClassName() const
 {
     return _getCharString(
         inst.hdr->theClass->cls.hdr->className,
-        inst.hdr->theClass->cls.base);        
+        inst.hdr->theClass->cls.base);
 }
 
 const char* SCMOInstance::getNameSpace() const
 {
     return _getCharString(
         inst.hdr->theClass->cls.hdr->nameSpace,
-        inst.hdr->theClass->cls.base);        
+        inst.hdr->theClass->cls.base);
 }
 
 void SCMOInstance::_initSCMOInstance(
@@ -1477,7 +1478,7 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
     if (rc != SCMO_OK)
     {
         return rc;
-    }    
+    }
 
     // is filtering on ?
     if (inst.hdr->flags.isFiltered)
@@ -1500,7 +1501,7 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
         }
     }
 
-    
+
     _setPropertyAtNodeIndex(node,type,value,isArray,size);
 
     return SCMO_OK;
@@ -1537,7 +1538,7 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
      if (rc != SCMO_OK)
      {
          return rc;
-     }    
+     }
 
      _setPropertyAtNodeIndex(node,type,value,isArray,size);
 
@@ -1767,6 +1768,21 @@ void SCMOInstance::_setSCMBUnion(
             break;
         }
 
+    case CIMTYPE_DATETIME:
+        {
+            if (isArray)
+            {
+                _setBinary(value,size*sizeof(SCMBDateTime),
+                           u->_arrayValue,
+                           &inst.mem );
+            }
+            else
+            {
+                u->_dateTimeValue = *((SCMBDateTime*)value);
+            }
+            break;
+        }
+
     case CIMTYPE_STRING:
         {
             if (isArray)
@@ -1797,21 +1813,6 @@ void SCMOInstance::_setSCMBUnion(
                     strlen((char*)value)+1,
                     u->_stringValue,
                     &inst.mem );
-            }
-            break;
-        }
-
-    case CIMTYPE_DATETIME:
-        {
-            if (isArray)
-            {
-                _setBinary(value,size*sizeof(SCMBDateTime),
-                           u->_arrayValue,
-                           &inst.mem );
-            }
-            else
-            {
-                memcpy(&u->_dateTimeValue,value,sizeof(SCMBDateTime));
             }
             break;
         }
@@ -1946,8 +1947,13 @@ void* SCMOInstance::_getSCMBUnion(
     SCMBUnion* u = (SCMBUnion*)&(base[start]);
 
     void* av = NULL;
+
     if (isArray)
     {
+        if (size == 0)
+        {
+            return NULL;
+        }
         av = (void*)&base[u->_arrayValue.start];
     }
 
@@ -1987,8 +1993,8 @@ void* SCMOInstance::_getSCMBUnion(
             if (isArray)
             {
                 // allocate an array of char* pointers.
-                *tmp = (char*)malloc(size*sizeof(char*));
-                if (*tmp == NULL )
+                tmp = (char**)malloc(size*sizeof(char*));
+                if (tmp == NULL )
                 {
                     throw PEGASUS_STD(bad_alloc)();
                 }
@@ -2002,7 +2008,7 @@ void* SCMOInstance::_getSCMBUnion(
                     tmp[i] = (char*)_getCharString(ptr[i],base);
                 }
 
-                return((void*)*tmp);
+                return((void*)tmp);
             }
             else
             {
@@ -2575,7 +2581,7 @@ void SCMODump::dumpHashTable(Uint32* hashTable,Uint32 size) const
 }
 
 void SCMODump::_dumpQualifierArray(
-    Uint64 start, 
+    Uint64 start,
     Uint32 size,
     char* clsbase
     ) const
@@ -2650,7 +2656,7 @@ void SCMODump::printSCMOValue(
 
 String SCMODump::printArrayValue(
     CIMType type,
-    Uint32 size, 
+    Uint32 size,
     SCMBUnion u,
     char* base) const
 {
@@ -2794,7 +2800,7 @@ String SCMODump::printArrayValue(
 }
 
 String SCMODump::printUnionValue(
-    CIMType type, 
+    CIMType type,
     SCMBUnion u,
     char* base) const
 {

@@ -39,6 +39,7 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMQualifierList.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/CIMDateTimeRep.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -162,20 +163,7 @@ enum QualifierNameEnum
     QUALNAME_WRITE
 };
 
-struct SCMBDateTime
-{
-    // Number of microseconds elapsed since January 1, 1 BCE.
-    Uint64 usec;
-
-    // UTC offset
-    Uint32 utcOffset;
-
-    // ':' for intervals. '-' or '+' for time stamps.
-    Uint16 sign;
-
-    // Number of wild characters ('*') used to initialize this object.
-    Uint16 numWildcards;
-};
+typedef CIMDateTimeRep SCMBDateTime;
 
 //
 // This union is used to represent the values of properties, qualifiers,
@@ -818,11 +806,11 @@ public:
      *             SCMO_INDEX_OUT_OF_BOUND : Given index not found
      *             SCMO_NOT_FOUND : The property at given node index
      *                              is not set due to filtering.
-     *             SCMO_WRONG_TYPE : The property at given node index 
+     *             SCMO_WRONG_TYPE : The property at given node index
      *                               has the wrong type.
-     *             SCMO_NOT_AN_ARRAY : The property at given node index 
+     *             SCMO_NOT_AN_ARRAY : The property at given node index
      *                                 is not an array.
-     *             SCMO_IS_AN_ARRAY  : The property at given node index 
+     *             SCMO_IS_AN_ARRAY  : The property at given node index
      *                                 is an array.
      */
     SCMO_RC setPropertyWithNodeIndex(
@@ -928,6 +916,41 @@ public:
      */
     const char* getNameSpace() const;
 
+    /**
+     *  To indicate the export processing ( eg. XMLWriter )
+     *  to include qualifiers for this instance.
+     */
+    void includeQualifiers()
+    {
+        inst.hdr->flags.includeQualifiers = true;
+    };
+
+    /**
+     *  To indicate the export processing ( eg. XMLWriter )
+     *  to NOT to include (exclude) qualifiers for this instance.
+     */
+    void excludeQualifiers()
+    {
+        inst.hdr->flags.includeQualifiers = false;
+    }
+
+    /**
+     *  To indicate the export processing ( eg. XMLWriter )
+     *  to include class origins for this instance.
+     */
+    void includeClassOrigins()
+    {
+        inst.hdr->flags.includeClassOrigin = true;
+    };
+
+    /**
+     *  To indicate the export processing ( eg. XMLWriter )
+     *  to NOT to include (exclude) class origins for this instance.
+     */
+    void excludeClassOrigins()
+    {
+        inst.hdr->flags.includeClassOrigin = false;
+    }
 
 private:
 
@@ -1020,7 +1043,7 @@ private:
     friend class SCMODump;
 };
 
-// The definiton of a dump class for SCMO 
+// The definiton of a dump class for SCMO
 class PEGASUS_COMMON_LINKAGE SCMODump
 {
 
@@ -1051,7 +1074,7 @@ public:
         char* base) const;
 
     String printUnionValue(
-        CIMType type, 
+        CIMType type,
         SCMBUnion u,
         char* base) const;
 
@@ -1059,7 +1082,7 @@ private:
 
     // context sensitive methods
     void _dumpQualifierArray(
-        Uint64 start, 
+        Uint64 start,
         Uint32 size,
         char* clsbase) const;
 

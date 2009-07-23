@@ -34,11 +34,11 @@
 
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AtomicInt.h>
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMQualifierList.h>
-#include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/CIMDateTimeRep.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -1059,6 +1059,15 @@ public:
     void dumpClassPropertyNodeArray(SCMOClass& testCls) const;
     void dumpKeyBindingSet(SCMOClass& testCls) const;
     void dumpClassKeyBindingNodeArray(SCMOClass& testCls) const;
+
+    // Methods for SCMOInstance only
+    void dumpSCMOInstance(SCMOInstance& testInst) const;
+    void dumpSCMOInstanceKeyBindings(SCMOInstance& testInst) const ;
+    void dumpSCMOInstancePropertyFilter(SCMOInstance& testInst) const ;
+    void dumpPropertyFilter(SCMOInstance& testInst) const;
+    void dumpPropertyFilterIndexMap(SCMOInstance& testInst) const;
+    void dumpInstanceProperties(SCMOInstance& testInst) const;
+
 
     // Methods for SCMOClass and SCMOInstance
     void dumpHashTable(Uint32* hashTable,Uint32 size)const;

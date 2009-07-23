@@ -2303,6 +2303,215 @@ Boolean SCMOInstance::_isPropertyInFilter(Uint32 i) const
 /******************************************************************************
  * SCMODump Print and Dump functions
  *****************************************************************************/
+void SCMODump::dumpSCMOInstance(SCMOInstance& testInst) const
+{
+    SCMBInstance_Main* insthdr = testInst.inst.hdr;
+    char* instbase = testInst.inst.base;
+
+    printf("\n\nDump of SCMOInstance\n");
+    // The magic number for SCMO class
+    printf("\nheader.magic=%08X",insthdr->header.magic);
+    // Total size of the instance memory block( # bytes )
+    printf("\nheader.totalSize=%llu",insthdr->header.totalSize);
+    // The # of bytes free
+    printf("\nheader.freeBytes=%llu",insthdr->header.freeBytes);
+    // Index to the start of the free space in this insance
+    printf("\nheader.StartOfFreeSpace=%llu",insthdr->header.startOfFreeSpace);
+    // The reference counter for this class
+    printf("\nrefCount=%i",insthdr->refCount.get());
+    printf("\ntheClass: %p",insthdr->theClass);
+    printf("\n\nThe Flags:");
+    printf("\n   includeQualifiers: %s",
+           (insthdr->flags.includeQualifiers ? "True" : "False"));
+    printf("\n   includeClassOrigin: %s",
+           (insthdr->flags.includeClassOrigin ? "True" : "False"));
+    printf("\n   isFiltered: %s",
+           (insthdr->flags.isFiltered ? "True" : "False"));
+    printf("\n\nhostName: \'%s\'",
+           _getCharString(insthdr->hostName,instbase));
+
+    dumpSCMOInstanceKeyBindings(testInst);
+
+    dumpSCMOInstancePropertyFilter(testInst);
+
+    dumpInstanceProperties(testInst);
+    printf("\n\n");
+
+}
+
+void SCMODump::dumpSCMOInstancePropertyFilter(SCMOInstance& testInst) const 
+{
+    SCMBInstance_Main* insthdr = testInst.inst.hdr;
+    char* instbase = testInst.inst.base;
+
+    if (!insthdr->flags.isFiltered)
+    {
+        printf("\n\nNo propterty filter!\n\n");
+        return;
+    }
+
+    printf("\n\nInstance Property Filter :");
+    printf("\n==========================");
+    printf("\n\nNumber of properties in the filter : %u"
+        ,insthdr->filterProperties);
+
+    dumpPropertyFilter(testInst);
+
+    dumpPropertyFilterIndexMap(testInst);
+
+}
+
+void SCMODump::dumpInstanceProperties(SCMOInstance& testInst) const
+{
+    SCMBInstance_Main* insthdr = testInst.inst.hdr;
+    char* instbase = testInst.inst.base;
+
+    SCMBValue* val = 
+        (SCMBValue*)_resolveDataPtr(insthdr->propertyArray,instbase);
+
+    printf("\n\nInstance Properties :");
+    printf("\n=====================");
+    printf("\n\nNumber of properties in instance : %u",
+           insthdr->numberProperties);
+
+    for (Uint32 i = 0; i < insthdr->numberProperties; i++)
+    {
+        printf("\n\nInstance property #%3u",i);
+        printf("\n=====================\n");
+        if(insthdr->flags.isFiltered && !testInst._isPropertyInFilter(i))
+        {
+            printf("\nProperty is filtered out!");
+        }
+        else
+        {
+            printSCMOValue(val[i],instbase);
+        }
+    }
+
+}
+
+void SCMODump::dumpPropertyFilterIndexMap(SCMOInstance& testInst) const
+{
+
+    SCMBInstance_Main* insthdr = testInst.inst.hdr;
+    char* instbase = testInst.inst.base;
+
+    if (!insthdr->flags.isFiltered)
+    {
+        printf("\n\nNo propterty filter!\n\n");
+        return;
+    }
+
+    printf("\n\nProperty Filter Index Max:");
+    printf("\n==========================\n");
+
+    // Get absolut pointer to key index list of the class
+    Uint32* keyIndex = 
+        (Uint32*)&(instbase)[insthdr->propertyFilterIndexMap.start];
+    Uint32 line,j,i;
+    for (j = 0; j < insthdr->filterProperties; j = j + line)
+    {
+        if ((insthdr->filterProperties-j)/16)
+        {
+            line = 16 ;
+        }
+        else
+        {
+            line = insthdr->filterProperties%16;
+        }
+
+
+        printf("Index :");
+        for (i = 0; i < line; i++)
+        {
+            printf(" %3u",j+i);
+        }
+
+        printf("\nNode  :");
+        for (i = 0; i < line; i++)
+        {
+            printf(" %3u",keyIndex[j+i]);
+        }
+
+        printf("\n\n");
+
+    }
+
+}
+
+void SCMODump::dumpPropertyFilter(SCMOInstance& testInst) const
+{
+
+    SCMBInstance_Main* insthdr = testInst.inst.hdr;
+    char* instbase = testInst.inst.base;
+
+    if (!insthdr->flags.isFiltered)
+    {
+        printf("\n\nNo propterty filter!");
+        return;
+    }
+
+    Uint64 *thePropertyFilter = 
+        (Uint64*)&(instbase[insthdr->propertyFilter.start]);
+     Uint32 end, noProperties = insthdr->filterProperties;
+     Uint32 noMasks = (noProperties-1)/64;
+     Uint64 printMask = 1;
+
+     for (Uint32 i = 0; i <= noMasks; i++ )
+     {
+         printMask = 1;
+         if (i < noMasks)
+         {
+             end = 64;
+         }
+         else
+         {
+             end = noProperties%64;
+         }
+
+         printf("\npropertyFilter[%02u]= ",i);
+
+         for (Uint32 j = 0; j < end; j++)
+         {
+             if (j > 0 && !(j%8))
+             {
+                 printf(" ");
+             }
+
+             if (thePropertyFilter[i] & printMask)
+             {
+                 printf("1");
+             }
+             else
+             {
+                 printf("0");
+             }
+
+             printMask = printMask << 1;
+         }
+         printf("\n");
+     }
+}
+
+void SCMODump::dumpSCMOInstanceKeyBindings(SCMOInstance& testInst) const 
+{
+    SCMBInstance_Main* insthdr = testInst.inst.hdr;
+    char* instbase = testInst.inst.base;
+
+    SCMBDataPtr* ptr = 
+        (SCMBDataPtr*)_resolveDataPtr(insthdr->keyBindingArray,instbase);
+
+    printf("\n\nInstacne Key Bindings :");
+    printf("\n=======================");
+    printf("\n\nNumber of Key Bindings : %u",insthdr->numberKeyBindings);
+
+    for (Uint32 i = 0; i < insthdr->numberKeyBindings; i++)
+    {
+        printf("\n\nNo %u",i);
+        printf("\nKey binding: %s",_getCharString(ptr[i],instbase));
+    }
+    printf("\n");
+}
 
 void SCMODump::dumpSCMOClass(SCMOClass& testCls) const
 {
@@ -2497,7 +2706,6 @@ void SCMODump::dumpClassPropertyNodeArray(SCMOClass& testCls) const
     for (Uint32 i = 0; i <  clshdr->propertySet.number; i++)
     {
 
-        printf("\n\n===================");
         printf("\nClass property #%3u",i);
         printf("\n===================");
 
@@ -2772,6 +2980,7 @@ String SCMODump::printArrayValue(
             {
                 memcpy(x._rep,&(p[i]),sizeof(SCMBDateTime));
                 _toString(out,x);
+                out.append(' ');
             }
             break;
         }

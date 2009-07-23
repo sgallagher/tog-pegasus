@@ -39,12 +39,15 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+#define VCOUT if (verbose) cout
+
 static Boolean verbose;
 
 void test1()
 {
     CIMClass myClass;
     Buffer text;
+    VCOUT << "Test 1: CIMClass to SCMOClass..." << endl;
     FileSystem::loadFileToMemory(text, "./TestSCMO.xml");
 
     try
@@ -78,6 +81,8 @@ void test1()
 
     SCMOInstance cloneInstance = myInstance.clone();
 
+    VCOUT << "Test 1: Done." << endl;
+
 }
 
 
@@ -88,6 +93,7 @@ void test2()
 
     SCMO_RC rc;
 
+    VCOUT << endl << "Test 2: SCMO tests ..." << endl;
     FileSystem::loadFileToMemory(text, "./TestSCMO2.xml");
 
     try
@@ -110,11 +116,14 @@ void test2()
         exit(-1);
     }
 
+    VCOUT << endl << "Test 2a: SCMOClass qualifer test ..." << endl;
 
     SCMODump dump;
     SCMOClass theSCMOClass(myClass);
-
+   
     // dump.dumpSCMOClassQualifiers(theSCMOClass);
+
+    VCOUT << "Test 2a: Done." << endl;
 
     SCMOInstance myInstance(theSCMOClass);
 
@@ -131,7 +140,12 @@ void test2()
      * Negative test cases for setting a propertty
      */
 
-    // Invalid property name
+    VCOUT << endl << 
+        "Test 2b: SCMOInstance Negative test cases for setting a property ..." 
+        << endl << endl;
+
+    VCOUT << "Invalid property name." << endl;
+
     rc = myInstance.setPropertyWithOrigin(
         "NotAProperty",
         CIMTYPE_BOOLEAN,
@@ -139,7 +153,8 @@ void test2()
 
     PEGASUS_TEST_ASSERT(rc==SCMO_NOT_FOUND);
 
-    // Property type is different
+    VCOUT << "Property type is differente." << endl;
+    
     rc = myInstance.setPropertyWithOrigin(
         "DateTimeProperty",
         CIMTYPE_BOOLEAN,
@@ -147,7 +162,8 @@ void test2()
 
     PEGASUS_TEST_ASSERT(rc==SCMO_WRONG_TYPE);
 
-    // Property is not an array
+    VCOUT << "Property is not an array." << endl;
+    
     rc = myInstance.setPropertyWithOrigin(
         "BooleanProperty",
         CIMTYPE_BOOLEAN,
@@ -156,7 +172,8 @@ void test2()
 
     PEGASUS_TEST_ASSERT(rc==SCMO_NOT_AN_ARRAY);
 
-    // Value is not an array
+    VCOUT << "Value is not an array." << endl;
+
     rc = myInstance.setPropertyWithOrigin(
         "BooleanPropertyArray",
         CIMTYPE_BOOLEAN,
@@ -164,7 +181,8 @@ void test2()
 
     PEGASUS_TEST_ASSERT(rc==SCMO_IS_AN_ARRAY);
 
-    // Empty Array
+    VCOUT << "Empty Array." << endl;
+    
     Uint32 uint32ArrayValue[]={};
 
     rc = myInstance.setPropertyWithOrigin(
@@ -187,9 +205,15 @@ void test2()
     PEGASUS_TEST_ASSERT(isArrayReturn);
     PEGASUS_TEST_ASSERT(voidReturn==NULL);
 
+    VCOUT << endl << "Test 2b: Done." << endl << endl;
+
+    VCOUT << "Test 2c: SCMOInstance setting and reading properties ..." << endl;
+
     /**
      * Test Char16
      */
+
+    VCOUT << endl << "Test Char16" << endl;
 
     Char16 char16value = 0x3F4A;
 
@@ -241,6 +265,7 @@ void test2()
     /**
      * Test Uint8
      */
+    VCOUT << "Test Uint8" << endl;
 
     Uint8 uint8value = 0x77;
 
@@ -292,6 +317,8 @@ void test2()
     /**
      * Test Uint16
      */
+
+    VCOUT << "Test Uint16" << endl;
 
     Uint16 uint16value = 0xF77F;
 
@@ -346,6 +373,8 @@ void test2()
      * Test Uint32
      */
 
+    VCOUT << "Test Uint32" << endl;
+
     Uint32 uint32value = 0xF7F7F7F7;
 
     rc = myInstance.setPropertyWithOrigin(
@@ -397,6 +426,8 @@ void test2()
     /**
      * Test Uint64
      */
+
+    VCOUT << "Test Uint64" << endl;
 
     Uint64 uint64value = PEGASUS_UINT64_LITERAL(0xA0A0B0B0C0C0D0D0);
 
@@ -457,6 +488,8 @@ void test2()
      * Test Sint8
      */
 
+    VCOUT << "Test Sint8" << endl;
+
     Sint8 sint8value = 0xF3;
 
     rc = myInstance.setPropertyWithOrigin(
@@ -507,6 +540,8 @@ void test2()
     /**
      * Test Sint16
      */
+
+    VCOUT << "Test Sint16" << endl;
 
     Sint16 sint16value = 0xF24B;
 
@@ -565,6 +600,8 @@ void test2()
      * Test Sint32
      */
 
+    VCOUT << "Test Sint32" << endl;
+
     Sint32 sint32value = 0xF0783C;
 
     rc = myInstance.setPropertyWithOrigin(
@@ -615,6 +652,8 @@ void test2()
     /**
      * Test Sint64
      */
+
+    VCOUT << "Test Sint64" << endl;
 
     Sint64 sint64value = (Sint64)-1;
 
@@ -667,6 +706,8 @@ void test2()
      * Test Real32
      */
 
+    VCOUT << "Test Real32" << endl;
+
     Real32 real32value = 2.4271e-4;
 
     rc = myInstance.setPropertyWithOrigin(
@@ -717,6 +758,8 @@ void test2()
     /**
      * Test Real64
      */
+
+    VCOUT << "Test Real64" << endl;
 
     Real64 real64value = Real64(2.4271e-400);
 
@@ -772,6 +815,8 @@ void test2()
      * Test Boolean
      */
 
+    VCOUT << "Test Boolean" << endl;
+
     boolValue=true;
 
     rc = myInstance.setPropertyWithOrigin(
@@ -823,7 +868,9 @@ void test2()
      * Test DateTime
      */
 
-    CIMDateTimeRep dateTimeValue = {1234,5678,123,456};
+    VCOUT << "Test DateTime" << endl;
+
+    CIMDateTimeRep dateTimeValue = {PEGASUS_UINT64_LITERAL(17236362),0,':',0};
 
     rc = myInstance.setPropertyWithOrigin(
         "DateTimeProperty",
@@ -847,9 +894,9 @@ void test2()
         memcmp(&dateTimeValue,voidReturn,sizeof(CIMDateTimeRep))== 0);
 
     CIMDateTimeRep dateTimeArrayValue[]=
-        {{Uint64(988243387),83202,123,23},
-         {Uint64(827383727),27283,38,18},
-         {Uint64(932933892),29383,90,23}};
+        {{Uint64(988243387),0,':',0},
+         {Uint64(827383727),0,':',0},
+         {Uint64(932933892),0,':',0}};
 
     rc = myInstance.setPropertyWithOrigin(
         "DateTimePropertyArray",
@@ -890,6 +937,8 @@ void test2()
     /**
      * Test string
      */
+
+    VCOUT << "Test String" << endl;
 
     char* stringValue = "This is a single String!";
 
@@ -947,7 +996,9 @@ void test2()
     // do not forget !!!
     free((void*)voidReturn);
 
+    VCOUT << endl << "Test 2c: Done." << endl << endl;
 
+    dump.dumpSCMOInstance(myInstance);
 }
 
 

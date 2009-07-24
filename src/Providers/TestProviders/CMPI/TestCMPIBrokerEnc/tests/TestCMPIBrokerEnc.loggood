@@ -61,12 +61,12 @@
  ++++ Status of mbEncGetType with input of type CMPIArray: (CMPI_RC_OK) type(CMPIArray)
  ++++ Status of mbEncGetType with input of type CMPIDateTime: (CMPI_RC_OK) type(CMPIDateTime)
  ++++ Status of mbEncGetType with input of type CMPIContext: (CMPI_RC_OK) type(CMPIContext)
- ++++ Status of mbEncGetType with input of type CMPIContext with CMPI_Context_Ftab: (CMPI_RC_OK) type(CMPIContext)
  ++++ Status of mbEncGetType with input of type CMPIResult: (CMPI_RC_OK) type(CMPIResult)
  ++++ CMNewSelectExp with rc set to NULL Called
  ++++ Status of CMNewSelectExp: (CMPI_RC_OK) 
  ++++ Status of mbEncGetType with input of type CMPISelectExp: (CMPI_RC_OK) type(CMPISelectExp)
  ++++ Status of CMRelease(objPath1): (CMPI_RC_ERR_INVALID_HANDLE)
+ ++++ Status of CMRelease(objPath1): (CMPI_RC_OK)
  ++++ Status of CMNewObjectPath for TestCMPI_Instance : (CMPI_RC_OK)
  ++++ Status of CBEnumInstances : (CMPI_RC_OK)
  ++++ Status of mbEncGetType with input of type CMPIEnumeration: (CMPI_RC_OK) type(CMPIEnumeration)
@@ -89,11 +89,10 @@
  ++++ CDIsOfType for CMPIResult status is (CMPI_RC_OK) : 1
  ++++ CDIsOfType for CMPIResult status is (CMPI_RC_ERR_FAILED) : 0
  ++++ CDIsOfType for CMPIContext status is (CMPI_RC_OK) : 1
- ++++ CDIsOfType for CMPIContext with CMPI_Context_Ftab status is (CMPI_RC_OK) : 1
  ++++ CDIsOfType for CMPIContext status is (CMPI_RC_ERR_FAILED) : 0
  ++++ CDIsOfType for CMPIEnumeration status is (CMPI_RC_OK) : 1
  ++++ CDIsOfType for CMPIEnumeration status is (CMPI_RC_ERR_FAILED) : 0
- ++++ Status of CMRelease on cmpiEnum with NULL handle:(CMPI_RC_OK)
+ ++++ Status of CMRelease on cmpiEnum :(CMPI_RC_OK)
  ++++ CDIsOfType for CMPISelectExp status is (CMPI_RC_OK) : 1
  ++++ CDIsOfType for CMPISelectExp status is (CMPI_RC_ERR_FAILED) : 0
  ++++ CDIsOfType for CMPIArgs status is (CMPI_RC_OK) : 1

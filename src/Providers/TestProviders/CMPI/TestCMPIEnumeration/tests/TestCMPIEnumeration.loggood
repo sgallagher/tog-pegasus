@@ -22,7 +22,7 @@
  ++++  CMClone for testEnumerationForAssociators : (rc:CMPI_RC_OK)
  ++++ Status of mbEncGetType with input of type CMPIEnumeration with CMPI_ObjEnumeration_Ftab: (CMPI_RC_OK) type(CMPIEnumeration)
  ++++ CDIsOfType for CMPIEnumeration with CMPI_ObjEnumeration_Ftab status is (CMPI_RC_OK) : 1
- ++++ CMRelease for testEnumerationForAssociators with NULL handle(CMPI_RC_OK)
+ ++++ CMRelease for testEnumerationForAssociators(CMPI_RC_OK)
  ++++ Associators-Broker : CBAssociatorNames
  ++++  CBAssociatorNames : (rc:CMPI_RC_OK)
  ++++  CMGetNext : (rc:CMPI_RC_OK)
@@ -38,7 +38,7 @@
  ++++ Status of mbEncGetType with input of type CMPIEnumeration with CMPI_OpEnumeration_Ftab: (CMPI_RC_OK) type(CMPIEnumeration)
  ++++ CDIsOfType for CMPIEnumeration with CMPI_OpEnumeration_Ftab status is (CMPI_RC_OK) : 1
  ++++  CMToArray for testEnumerationForAssociatorNamesClone: (rc:CMPI_RC_OK)
- ++++ CMRelease for testEnumerationForAssociatorNamesClone with NULL handle (CMPI_RC_OK)
+ ++++ CMRelease for testEnumerationForAssociatorNamesClone (CMPI_RC_OK)
  ++++ CMRelease for testEnumerationForAssociatorNames (CMPI_RC_OK)
  ++++  CBEnumInstances : (CMPI_RC_OK)
  ++++ Calling CMGetNext

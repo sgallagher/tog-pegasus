@@ -109,6 +109,7 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   const char* inOtherErrSourceFormat = "no idea";
   CMPIString* outOtherErrSourceFormat;
   CMPIData retData;
+  void* handle;
   PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 
   PROV_LOG ("Calling CBGetBrokerCapabilities");
@@ -333,10 +334,13 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   PROV_LOG ("Calling CMSetMessageArguments with input array of uint32");
   rc = CMSetMessageArguments(cmpiError, inMsgArgs);
   PROV_LOG ("++++ (%s) CMSetMessageArguments", strCMPIStatus (rc));
+
+  handle = inMsgArgs->hdl;
   inMsgArgs->hdl = NULL;
   PROV_LOG ("Calling CMSetMessageArguments with input array with NULL handle");
   rc = CMSetMessageArguments(cmpiError, inMsgArgs);
   PROV_LOG ("++++ (%s) CMSetMessageArguments", strCMPIStatus (rc));
+  inMsgArgs->hdl = handle;
 
   PROV_LOG ("Testing CMSetRecommendedActions");
   CMRelease(inRecActions);
@@ -349,13 +353,15 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   PROV_LOG ("Calling CMSetRecommendedActions with input array of CMPI_uint32");
   rc = CMSetRecommendedActions(cmpiError, inRecActions);
   PROV_LOG ("++++ (%s) CMSetRecommendedActions", strCMPIStatus (rc));
+  handle = inRecActions->hdl;
   inRecActions->hdl = NULL;
   PROV_LOG ("Calling CMSetRecommendedActions with input array"
       " with NULL handle");
   rc = CMSetRecommendedActions(cmpiError, inRecActions);
   PROV_LOG ("++++ (%s) CMSetRecommendedActions", strCMPIStatus (rc));
-
+  inRecActions->hdl = handle;
   /* Cases when CMPIError object handle is NULL*/
+  handle =  cmpiError->hdl;
   cmpiError->hdl = NULL;
 
   PROV_LOG ("Clone the CMPIError with NULL handle.");
@@ -510,7 +516,7 @@ TestCMPIErrorProviderInvokeMethod (CMPIMethodMI * mi,
   PROV_LOG ("Calling CMSetMessageArguments with NULL handle");
   rc = CMSetMessageArguments(cmpiError, inMsgArgs);
   PROV_LOG ("++++ (%s) CMSetMessageArguments", strCMPIStatus (rc));
-
+  cmpiError->hdl = handle;
   PROV_LOG_CLOSE();
   // Test case to increase coverage in CMPI_Broker.cpp
   objPath = CMNewObjectPath (_broker,

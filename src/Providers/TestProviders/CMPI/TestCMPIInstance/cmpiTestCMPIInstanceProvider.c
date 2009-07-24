@@ -103,6 +103,8 @@ static int _testInstance ()
     const char* property_name = "s";
     const char* origin = "origin";
 
+    void* handle;
+
     int flag = 1;
 
     value.uint64 = PEGASUS_UINT64_LITERAL(5000000000);
@@ -194,6 +196,7 @@ static int _testInstance ()
 
     /* Testing error paths by setting handle to CMPIInstance to NULL and using
        that in calls to instSetObjectPath and instSetPropertyFilter*/
+    handle = instance->hdl;
     instance->hdl = NULL ;
     rc = CMSetObjectPath(instance, NULL);
     if ( rc.rc == CMPI_RC_ERR_INVALID_HANDLE ||
@@ -210,6 +213,7 @@ static int _testInstance ()
         PROV_LOG("++++  CMSetPropertyFilter with NULL handle for CMPIInstance"
             " status : (%s)", strCMPIStatus (rc));
     }
+    instance->hdl = handle;
     /*-----------------------------------------------------------------------*/
     return flag;
 

@@ -172,6 +172,7 @@ static int _testEnumeration (const CMPIContext * ctx,
         &rc);
     PROV_LOG("++++  CMClone for testEnumerationForAssociators : (rc:%s)",
         strCMPIStatus (rc));
+    rc = CMRelease(testEnumerationForAssociatorsClone);
 
     type = CDGetType (_broker, testEnumerationForAssociators, &rc);
     PROV_LOG ("++++ Status of mbEncGetType with input of type CMPIEnumeration "
@@ -191,10 +192,8 @@ static int _testEnumeration (const CMPIContext * ctx,
             bol);
     }
 
-    testEnumerationForAssociators->hdl = NULL;
     rc = CMRelease(testEnumerationForAssociators);
-    PROV_LOG ("++++ CMRelease for testEnumerationForAssociators with NULL"
-        " handle(%s)",
+    PROV_LOG ("++++ CMRelease for testEnumerationForAssociators(%s)",
         strCMPIStatus (rc));
 
     //============================CBAssociatorNames============================
@@ -276,10 +275,8 @@ static int _testEnumeration (const CMPIContext * ctx,
         ": (rc:%s)",
         strCMPIStatus (rc));
 
-    testEnumerationForAssociatorNamesClone->hdl = NULL;
     rc = CMRelease(testEnumerationForAssociatorNamesClone);
-    PROV_LOG ("++++ CMRelease for testEnumerationForAssociatorNamesClone"
-        " with NULL handle (%s)",
+    PROV_LOG ("++++ CMRelease for testEnumerationForAssociatorNamesClone (%s)",
         strCMPIStatus (rc));
 
     rc = CMRelease(testEnumerationForAssociatorNames);

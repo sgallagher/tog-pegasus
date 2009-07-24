@@ -198,6 +198,7 @@
  ++++ cloning Array
  ++++  ArrayClone : (CMPI_RC_OK)
  ++++ clone Successful: 1
+ ++++ Cloned Array Release : (CMPI_RC_OK)
  ++++  CMGetArrayCount Error Path : (CMPI_RC_ERR_INVALID_HANDLE)
  ++++  CMGetArrayType Error Path: (CMPI_RC_ERR_INVALID_HANDLE)
  ++++  CMSetArrayElementAt Error Path : (CMPI_RC_ERR_INVALID_HANDLE)
@@ -234,8 +235,6 @@
  ++++ Getting data sucessful : CMPI_RC_OK
  ++++  CMGetContextEntryCount : (CMPI_RC_OK)
  ++++ Total number of data added : 2
- ++++  CMAddContextEntry Error Path : (CMPI_RC_ERR_INVALID_HANDLE)
- ++++  CMGetContextEntryCount Error Path: (CMPI_RC_ERR_INVALID_HANDLE)
  ++++ CMGetContextEntry Error Path : (CMPI_RC_ERR_NO_SUCH_PROPERTY)
  ++++ Calling CMReturnData+Done
  ++++ Calling CMAddArg
@@ -265,6 +264,7 @@
  ++++ is interval : 1
  ++++ cloning DateTime
  ++++  Cloning DateTime : (CMPI_RC_OK)
+ ++++  Cloned DateTime Release : (CMPI_RC_OK)
  ++++ clone Successful : 1 
  ++++  CMGetBinaryFormat ErrorPath: (CMPI_RC_ERR_INVALID_HANDLE)
  ++++  DateTimeClone Error Path: (CMPI_RC_ERR_INVALID_HANDLE)
@@ -310,6 +310,7 @@
  ++++ cloning CMPIInstance
  ++++  Cloning CMPIInstance : (CMPI_RC_OK)
  ++++ cloned data value 10 : 
+ ++++ Cloned Instance Release : (CMPI_RC_OK)
  ++++ clone Successful : 1 
  ++++  CMSetProperty Error Path : (CMPI_RC_ERR_INVALID_HANDLE)
  ++++  CMGetPropertyCount Error Path: (CMPI_RC_ERR_INVALID_HANDLE)
@@ -367,6 +368,7 @@
  ++++ Hostname set successfuly : 1
  ++++ cloning objectpath
  ++++  Cloning Objectpath : (CMPI_RC_OK)
+ ++++  Cloned ObjectPath Release : (CMPI_RC_OK)
  ++++ clone Successful : 1 
  ++++  CMNewObjectPath : (CMPI_RC_OK)
  ++++  CMAddKey : (CMPI_RC_OK)
@@ -448,6 +450,7 @@
  ++++  Cloning String status : (CMPI_RC_OK)
  ++++ Cloned String is : dataString
  ++++ clone Successful : 1 
+ ++++ Cloned String Release : (CMPI_RC_OK)
  ++++ Error Cloning String : (CMPI_RC_ERR_INVALID_HANDLE)
  ++++  Error String Release : (CMPI_RC_ERR_INVALID_HANDLE)
  ++++  Error String getCharsPtr : (CMPI_RC_ERR_INVALID_HANDLE)
@@ -480,6 +483,7 @@
  ++++ Added data value is 20
  ++++ cloning Args
  ++++  Cloning Args : (CMPI_RC_OK)
+ ++++  Cloned Args Release : (CMPI_RC_OK)
  ++++  CMGetArg-2 : (CMPI_RC_OK)
  ++++ clone Successful : 1 
  ++++ Error Cloning Args : (CMPI_RC_ERR_INVALID_HANDLE)

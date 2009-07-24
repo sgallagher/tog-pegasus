@@ -833,6 +833,7 @@ static int _testArrayClone(const CMPIContext* ctx)
         " position: (%s)",
         strCMPIStatus (rc));
 
+    CMRelease(arr);
     return flag;
 }
 
@@ -1670,6 +1671,8 @@ static int _testCMPIArray ()
         }
     }
     PROV_LOG("++++ clone Successful: %d", cloneSuccessful);
+    rc = new_arr_ptr->ft->release(new_arr_ptr);
+    PROV_LOG ("++++ Cloned Array Release : (%s)", strCMPIStatus (rc));
 
     //Error Paths
 
@@ -1750,8 +1753,6 @@ static int _testCMPIcontext (const CMPIContext* ctx)
     CMPIData data;
     CMPIUint32 count = 0;
     CMPIUint32  count_for_new_context = 0;
-    CMPIContext* new_ctx = NULL;
-    void *cptr;
     PROV_LOG ("++++ _testCMPIContext");
 
     count = CMGetContextEntryCount(ctx, &rc);
@@ -1785,25 +1786,6 @@ static int _testCMPIcontext (const CMPIContext* ctx)
               count_for_new_context - count);
 
     //Error Paths
-    new_ctx = CBPrepareAttachThread (_broker, ctx);
-    cptr = new_ctx->hdl;
-    new_ctx->hdl = NULL;
-
-    rc = CMAddContextEntry(new_ctx, "ctxEntry",
-             "threadType", CMPI_chars);
-    PROV_LOG ("++++  CMAddContextEntry Error Path : (%s)", strCMPIStatus (rc));
-    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
-    {
-        return 1;
-    }
-    CMGetContextEntryCount(new_ctx, &rc);
-    PROV_LOG ("++++  CMGetContextEntryCount Error Path: (%s)",
-        strCMPIStatus (rc));
-    if (rc.rc != CMPI_RC_ERR_INVALID_HANDLE)
-    {
-        return 1;
-    }
-    new_ctx->hdl = cptr;
     CMGetContextEntry(ctx, "noEntry", &rc);
     PROV_LOG ("++++ CMGetContextEntry Error Path : (%s)", strCMPIStatus (rc));
     if (rc.rc != CMPI_RC_ERR_NO_SUCH_PROPERTY)
@@ -1885,6 +1867,8 @@ static int _testCMPIDateTime ()
 
     stringDate = CMGetStringFormat(dateTime, &rc);
     clonedStringDate = CMGetStringFormat(clonedDateTime, &rc);
+    rc = clonedDateTime->ft->release(clonedDateTime);
+    PROV_LOG ("++++  Cloned DateTime Release : (%s)", strCMPIStatus (rc));
     normalString = CMGetCharsPtr(stringDate, &rc);
     clonedString = CMGetCharsPtr(clonedStringDate, &rc);
 
@@ -2030,7 +2014,8 @@ static int _testCMPIInstance ()
 
     clonedData1 = CMGetProperty(clonedInstance, name1, &rc);
     PROV_LOG("++++ cloned data value %d : ", clonedData1.value.uint32);
-
+    rc = clonedInstance->ft->release(clonedInstance);
+    PROV_LOG("++++ Cloned Instance Release : (%s)", strCMPIStatus (rc));
     if (returnedData1.value.uint32 == clonedData1.value.uint32)
     {
         cloneSuccessful = 1;
@@ -2235,6 +2220,8 @@ static int _testCMPIObjectPath ()
     clonedObjPath = objPath->ft->clone(objPath, &rc);
     PROV_LOG ("++++  Cloning Objectpath : (%s)", strCMPIStatus (rc));
     returnedObjectPath = CMObjectPathToString(clonedObjPath, &rc);
+    rc = clonedObjPath->ft->release(clonedObjPath);
+    PROV_LOG ("++++  Cloned ObjectPath Release : (%s)", strCMPIStatus (rc));
     objectPath2 = CMGetCharsPtr(returnedObjectPath, &rc);
 
     if (strcmp(objectPath1,objectPath2) == 0)
@@ -2531,12 +2518,15 @@ static int _testCMPIString()
 
     cloned_string = CMGetCharsPtr(clonedString, &rc);
     PROV_LOG("++++ Cloned String is : %s", cloned_string);
+
     if (strcmp(actual_string,cloned_string) == 0)
     {
         cloneSuccessful = 1;
     }
     PROV_LOG("++++ clone Successful : %d ",cloneSuccessful);
 
+    rc = clonedString->ft->release(clonedString);
+    PROV_LOG ("++++ Cloned String Release : (%s)", strCMPIStatus (rc));
     //Error Paths
 
     string_ptr = string->hdl;
@@ -2629,6 +2619,8 @@ static int _testCMPIArgs()
     clonedArgs = args->ft->clone(args, &rc);
     PROV_LOG("++++  Cloning Args : (%s)", strCMPIStatus (rc));
     clonedData = CMGetArg(clonedArgs, arg2, &rc);
+    rc = clonedArgs->ft->release(clonedArgs);
+    PROV_LOG("++++  Cloned Args Release : (%s)", strCMPIStatus (rc));
     PROV_LOG("++++  CMGetArg-2 : (%s)", strCMPIStatus (rc));
     if (data.value.uint32 == clonedData.value.uint32)
     {
@@ -3231,6 +3223,7 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
             ("++++ Calling CMReturnData+Done on returnInstance operation");
           CMReturnData (rslt, (CMPIValue *) & instance, CMPI_instance);
           CMReturnDone (rslt);
+          CMRelease(instance);
         }
       else if (
           strncmp("returnDateTime", methodName, strlen("returnDateTime")) == 0)
@@ -3396,6 +3389,8 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
         inst1->ft->release(inst1);
         inst2->ft->release(inst2);
         inst3->ft->release(inst3);
+        emInst2->ft->release(emInst2);
+        emInst3->ft->release(emInst3);        
     }
     else if (
         strncmp("testArrayTypes", methodName, strlen ("testArrayTypes"))== 0)

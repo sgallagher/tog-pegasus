@@ -99,7 +99,8 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     CMPIError* err;
     CMPIStatus* rc1 = NULL;
     CMPIArgs* args = NULL;
-    CMPIContext* new_ctx = NULL;
+    void* handle;
+    CMPIInstanceFT* funcTable;
 
     PROV_LOG ("++++ _testBrokerEnc ");
 
@@ -118,10 +119,12 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     PROV_LOG ("++++ New Instance with NULL object path : (%s)",
         strCMPIStatus (rc));
 
+    handle = objPath1->hdl;
     objPath1->hdl=NULL;
     instance = CMNewInstance(_broker, objPath1, &rc);
     PROV_LOG ("++++ New Instance with object path handle set to NULL: (%s)",
         strCMPIStatus (rc));
+    objPath1->hdl = handle;
 
     objPath = make_ObjectPath(_broker, _Namespace, _ClassName);
     instance = CMNewInstance(_broker, objPath, &rc);
@@ -239,7 +242,8 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     type = CDToString (_broker, objPath, &rc);
     PROV_LOG ("++++ Passing CMPIObjectPath to mbEncToString successes : (%s)",
         strCMPIStatus (rc));
-
+    handle = objPath1->hdl;
+    objPath1->hdl = NULL;
     type = CDToString (_broker, objPath1, &rc);
     if ( rc.rc == CMPI_RC_ERR_INVALID_PARAMETER)
     {
@@ -247,6 +251,7 @@ static int _testBrokerEnc (const CMPIContext * ctx,
             "NULL handle: (%s)",
             strCMPIStatus (rc));
     }
+    objPath1->hdl = handle;
 
     val.boolean = 1;
     rc = CMSetProperty (instance, "Boolean", &val, CMPI_boolean);
@@ -343,6 +348,7 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     }
 
     rc1 = NULL;
+    funcTable = instanceErr->ft;
     instanceErr->ft = NULL;
     type = CDGetType (_broker, instanceErr, rc1);
     if (!type)
@@ -354,6 +360,7 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     PROV_LOG ("++++ Error status of mbEncGetType with wrong input : (%s)",
         strCMPIStatus (rc));
 
+    instanceErr->ft = funcTable;
 
     type = CDGetType (_broker, NULL, &rc);
     PROV_LOG ("++++ Error status of mbEncGetType with NULL input : (%s)",
@@ -402,14 +409,6 @@ static int _testBrokerEnc (const CMPIContext * ctx,
         strCMPIStatus (rc),
         CMGetCharsPtr(type, NULL));
 
-    new_ctx = CBPrepareAttachThread(_broker, ctx);
-
-    type = CDGetType (_broker, new_ctx, &rc);
-    PROV_LOG ("++++ Status of mbEncGetType with input of type CMPIContext with "
-        "CMPI_Context_Ftab: (%s) type(%s)",
-        strCMPIStatus (rc),
-        CMGetCharsPtr(type, NULL));
-
     type = CDGetType (_broker, rslt, &rc);
     PROV_LOG ("++++ Status of mbEncGetType with input of type CMPIResult:"
         " (%s) type(%s)",
@@ -437,6 +436,12 @@ static int _testBrokerEnc (const CMPIContext * ctx,
         strCMPIStatus (rc),
         CMGetCharsPtr(type, NULL));
 
+    handle = objPath1->hdl;
+    objPath1->hdl = NULL;
+    rc = CMRelease(objPath1);
+    PROV_LOG ("++++ Status of CMRelease(objPath1): (%s)",
+        strCMPIStatus (rc));
+    objPath1->hdl = handle;
     rc = CMRelease(objPath1);
     PROV_LOG ("++++ Status of CMRelease(objPath1): (%s)",
         strCMPIStatus (rc));
@@ -602,16 +607,6 @@ static int _testBrokerEnc (const CMPIContext * ctx,
             strCMPIStatus (rc),
             bol);
     }
-
-    bol = CDIsOfType (_broker, new_ctx, "CMPIContext", &rc);
-    if (bol)
-    {
-        PROV_LOG ("++++ CDIsOfType for CMPIContext with CMPI_Context_Ftab "
-            "status is (%s) : %d",
-            strCMPIStatus (rc),
-            bol);
-    }
-
     bol = CDIsOfType (_broker, ctx, "CMPI", &rc);
     if (!bol)
     {
@@ -637,10 +632,8 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     }
 
     /* Testcase to increase coverage in CMPI_Enumeration.cpp*/
-    hdl = cmpiEnum->hdl;
-    cmpiEnum->hdl = NULL;
     rc = CMRelease(cmpiEnum);
-    PROV_LOG ("++++ Status of CMRelease on cmpiEnum with NULL handle:(%s)",
+    PROV_LOG ("++++ Status of CMRelease on cmpiEnum :(%s)",
         strCMPIStatus (rc));
 
     /**********************************************************/
@@ -953,6 +946,8 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     PROV_LOG ("++++ Status of CMCloseMessageFile (%s) ",
         strCMPIStatus (rc));
 
+    CMRelease(instance1);
+    CMRelease(instanceErr);
     return flag ;
 
 

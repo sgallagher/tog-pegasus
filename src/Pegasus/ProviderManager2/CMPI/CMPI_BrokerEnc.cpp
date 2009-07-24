@@ -36,6 +36,7 @@
 #include "CMPI_Ftabs.h"
 #include "CMPI_String.h"
 #include "CMPI_SelectExp.h"
+#include "CMPI_Array.h"
 #include "CMPIMsgHandleManager.h"
 
 #include <Pegasus/Common/CIMName.h>
@@ -421,8 +422,9 @@ extern "C"
             dta[i].state=CMPI_nullValue;
             dta[i].value.uint64=0;
         }
+        CMPI_Array *arr = new CMPI_Array(dta);
         CMPIArray* cmpiArray =
-            reinterpret_cast<CMPIArray*>(new CMPI_Object(dta));
+            reinterpret_cast<CMPIArray*>(new CMPI_Object(arr));
         PEG_METHOD_EXIT();
         return cmpiArray;
     }

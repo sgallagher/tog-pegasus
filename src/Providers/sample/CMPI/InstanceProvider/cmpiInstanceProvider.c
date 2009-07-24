@@ -381,6 +381,7 @@ CMPIStatus InstProvModifyInstance  (
                 }
             }
         }
+        CMRelease(inst);
         /*If match fails, throw exception, as instance to be mmodified is not
           found */
         if(!flag)
@@ -431,6 +432,11 @@ CMPIStatus InstProvDeleteInstance (
                 {
                     flag =1;
                     CMRelease(retInst.value.inst);
+                    CMSetArrayElementAt(
+                        clone_arr_ptr,
+                        j,
+                        &retInst.value.inst,
+                        CMPI_null);
                     valid[j] = 0;
                 }
             }

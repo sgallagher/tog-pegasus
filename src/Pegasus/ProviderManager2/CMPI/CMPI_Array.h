@@ -29,64 +29,24 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef _CMPI_Object_H_
-#define _CMPI_Object_H_
+#ifndef _CMPI_Array_H_
+#define _CMPI_Array_H_
 
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/CIMProperty.h>
-#include <Pegasus/Common/CIMObjectPath.h>
-#include <Pegasus/Common/CIMParamValue.h>
-#include <Pegasus/Common/CIMDateTime.h>
-#include <Pegasus/Common/OperationContext.h>
-
-#include <Pegasus/General/CIMError.h>
-
-#include <Pegasus/Provider/CMPI/cmpidt.h>
-
-#include "CMPI_ThreadContext.h"
-#include "CMPI_Enumeration.h"
-#include "CMPI_Array.h"
+#include <Pegasus/Provider/CMPI/cmpift.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CMPI_Object
+struct CMPI_Array : CMPIArray
 {
-    friend class CMPI_ThreadContext;
-    void *hdl;
-    void *ftab;
-    CMPI_Object *next,*prev;
-public:
-    void *priv;    // CMPI type specific usage
-    void *getHdl()
+    CMPIBoolean isCloned;
+    CMPI_Array(CMPIData *data, CMPIBoolean isCloned_ = false)
+        : isCloned(isCloned_)
     {
-        return hdl;
+        hdl = data;
     }
-    void *getFtab()
-    {
-        return ftab;
-    }
-    CMPI_Object(CIMInstance*);
-    CMPI_Object(CIMObjectPath*);
-    CMPI_Object(CIMDateTime*);
-    CMPI_Object(CIMError*);
-    CMPI_Object(OperationContext*);
-    CMPI_Object(const String&);
-    CMPI_Object(const char*);
-    CMPI_Object(Array<CIMParamValue>*);
-    CMPI_Object(CMPI_Array*);
-    CMPI_Object(CMPI_Object*);
-    CMPI_Object(CMPISelectCond*);
-    CMPI_Object(CMPISubCond*);
-    CMPI_Object(CMPIPredicate*);
-    CMPI_Object(struct CMPI_InstEnumeration*);
-    CMPI_Object(struct CMPI_ObjEnumeration*);
-    CMPI_Object(struct CMPI_OpEnumeration*);
-    ~CMPI_Object();
-    void unlinkAndDelete();
-    void unlink();
 };
 
 PEGASUS_NAMESPACE_END
 
 #endif
+

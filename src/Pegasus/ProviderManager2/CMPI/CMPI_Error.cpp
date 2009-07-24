@@ -495,9 +495,10 @@ extern "C"
             String s = pgRecommendedActions[i-1];
             dta[i].value.string=string2CMPIString(s);
         }
+        CMPI_Array *arr = new CMPI_Array(dta);
         CMSetStatus(rc,CMPI_RC_OK);
         PEG_METHOD_EXIT();
-        return reinterpret_cast<CMPIArray*>(new CMPI_Object(dta));
+        return reinterpret_cast<CMPIArray*>(new CMPI_Object(arr));
     }
 
     static CMPIString* errGetErrorSource(const CMPIError* eErr, CMPIStatus* rc)
@@ -748,7 +749,7 @@ extern "C"
         }
         CMSetStatus(rc,CMPI_RC_OK);
         CMPIArray* cmpiArray =
-            reinterpret_cast<CMPIArray*>(new CMPI_Object(dta));
+            reinterpret_cast<CMPIArray*>(new CMPI_Object(new CMPI_Array(dta)));
         PEG_METHOD_EXIT();
         return cmpiArray;
     }
@@ -859,8 +860,13 @@ extern "C"
         }
 
         Array<String> pgRecommendedActions;
-
-        CMPIData* dta=(CMPIData*)recommendedActions->hdl;
+        CMPI_Array* arr = (CMPI_Array*)recommendedActions->hdl;
+        if (!arr)
+        {
+            PEG_METHOD_EXIT();
+            CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+        }
+        CMPIData* dta=(CMPIData*)arr->hdl;
         if (!dta)
         {
             PEG_METHOD_EXIT();
@@ -1066,8 +1072,13 @@ extern "C"
         }
 
         Array<String> pgMessageArguments;
-
-        CMPIData* dta=(CMPIData*)messageArguments->hdl;
+        CMPI_Array* arr = (CMPI_Array*)messageArguments->hdl;
+        if (!arr)
+        {
+            PEG_METHOD_EXIT();
+            CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+        }
+        CMPIData* dta=(CMPIData*)arr->hdl;
         if (!dta)
         {
             PEG_METHOD_EXIT();

@@ -140,7 +140,7 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
         }
         // When data is not NULL and data->array is also set
         CMPIArray *ar=data->array;
-        CMPIData *aData=(CMPIData*)ar->hdl;
+        CMPIData *aData=(CMPIData*)((CMPI_Array*)ar->hdl)->hdl;
 
         //Get the type of the elements in the array
         CMPIType aType=aData->type&~CMPI_ARRAY;
@@ -533,7 +533,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                     return CMPI_RC_ERR_NOT_SUPPORTED;
             }
         data->value.array = reinterpret_cast<CMPIArray*>(
-        new CMPI_Object(aData-1));
+        new CMPI_Object(new CMPI_Array(aData-1)));
     }  // end of array porocessing
 
     //Start of non-array processing

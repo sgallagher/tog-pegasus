@@ -1658,7 +1658,7 @@ extern "C"
                 CMSetStatus (st, CMPI_RC_OK);
             }
             CMPI_SelectExp* cmpiSelectExp = new CMPI_SelectExp(
-                selectStatement, false, qcontext.clone());
+                selectStatement, false, (QueryContext*) &qcontext);
             PEG_METHOD_EXIT();
             return (cmpiSelectExp);
         }

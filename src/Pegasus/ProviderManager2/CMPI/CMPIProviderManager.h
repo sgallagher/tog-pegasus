@@ -86,7 +86,6 @@ public:
         {
         }
         CMPI_SelectExp *eSelx;
-        CIMOMHandleQueryContext *qContext;
         int count;
     };
 

@@ -159,8 +159,6 @@ CMPIProviderManager::~CMPIProviderManager()
             selxTab.lookup(i.key(), selx);
             if (selx->eSelx)
                 delete selx->eSelx;
-            if (selx->qContext)
-                delete selx->qContext;
             delete selx;
             //Same as above!
             //selxTab.remove(i.key());
@@ -2028,26 +2026,24 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             request->operationContext.get(
             SubscriptionFilterConditionContainer::NAME);
 
-        CIMOMHandleQueryContext *_context=
-            new CIMOMHandleQueryContext(
+        CIMOMHandleQueryContext _context(
             CIMNamespaceName(
             request->nameSpace.getString()),
             *pr.getCIMOMHandle());
 
         CMPI_SelectExp *eSelx=new CMPI_SelectExp(
             request->operationContext,
-            _context,
+            &_context,
             request->query,
             sub_cntr.getQueryLanguage());
 
         srec->eSelx=eSelx;
-        srec->qContext=_context;
 
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         String lang(sub_cntr.getQueryLanguage());
         CString className = _getClassNameFromQuery(
-            _context,
+            &_context,
             request->query,
             lang).getCString();
 
@@ -2185,7 +2181,6 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             if (--srec->count<=0)
             {
                 selxTab.remove(sPath);
-                delete _context;
                 delete eSelx;
                 delete srec;
             }
@@ -2288,7 +2283,6 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
         };
 
         CMPI_SelectExp *eSelx=srec->eSelx;
-        CIMOMHandleQueryContext *qContext=srec->qContext;
 
         CString className = eSelx->classNames[0].getClassName().
             getString().getCString();
@@ -2390,7 +2384,6 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
 
         if (srec->count<=0)
         {
-            delete qContext;
             delete eSelx;
             delete srec;
         }

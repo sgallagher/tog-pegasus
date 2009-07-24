@@ -658,13 +658,14 @@ CMPI_SelectExp::~CMPI_SelectExp()
     delete cql_dnf;
     delete cql_stmt;
 #endif
+    delete _context;
 }
 CMPI_SelectExp::CMPI_SelectExp (
     const OperationContext & ct,
     QueryContext * context,
     String cond_,
     String lang_):ctx (ct),cond (cond_),lang (lang_),
-                  _context (context),persistent(true)
+                  _context (context->clone()),persistent(true)
 {
     /**
       We do NOT add ourselves to the CMPI_Object as this is a persitent object.
@@ -710,7 +711,7 @@ CMPI_SelectExp::CMPI_SelectExp (
 #ifdef PEGASUS_ENABLE_CQL
 CMPI_SelectExp::CMPI_SelectExp (CQLSelectStatement * st, Boolean persistent_,
     QueryContext *context):ctx (OperationContext ()),cql_stmt (st),
-    _context(context), persistent (persistent_)
+    _context(context->clone()), persistent (persistent_)
 {
     /** Adding the object to the garbage collector.
     */

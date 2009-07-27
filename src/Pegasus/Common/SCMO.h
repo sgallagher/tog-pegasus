@@ -552,7 +552,11 @@ private:
     void _setArrayValue(Uint64 start, CIMType type, Union& u);
     QualifierNameEnum _getSCMOQualifierNameEnum(const CIMName& theCIMname);
     Boolean _isSamePropOrigin(Uint32 node, const char* origin) const;
-    SCMO_RC _isNodeSameType(Uint32 node,CIMType type, Boolean isArray) const;
+
+    inline SCMO_RC _isNodeSameType(
+        Uint32 node,
+        CIMType type, 
+        Boolean isArray) const;
 
     union{
         // To access the class main structure
@@ -785,7 +789,7 @@ public:
      * @param pos Returns the hash index.
      * @return     SCMO_OK
      *             SCMO_INVALID_PARAMETER: name was a NULL pointer.
-     *             SCMO_NOT_FOUND : Given property name not found.
+     *             SCMO_NOT_FOUND : Given property name not found or filtered.
      */
     SCMO_RC getPropertyNodeIndex(const char* name, Uint32& pos) const;
 

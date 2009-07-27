@@ -205,6 +205,19 @@ void test2()
     PEGASUS_TEST_ASSERT(isArrayReturn);
     PEGASUS_TEST_ASSERT(voidReturn==NULL);
 
+    VCOUT << "Get default value of the class." << endl;
+    rc = myInstance.getProperty(
+        "BooleanProperty",
+        typeReturn,
+        &voidReturn,
+        isArrayReturn,
+        sizeReturn);
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+    // The default value of this instance is TRUE
+    PEGASUS_TEST_ASSERT(*((Boolean*)voidReturn));
+
+ 
     VCOUT << endl << "Test 2b: Done." << endl << endl;
 
     VCOUT << "Test 2c: SCMOInstance setting and reading properties ..." << endl;
@@ -998,7 +1011,168 @@ void test2()
 
     VCOUT << endl << "Test 2c: Done." << endl << endl;
 
-    dump.dumpSCMOInstance(myInstance);
+    /** 
+     * Test Key bindings
+     */
+
+    VCOUT << "Test 2d: Key Bindings." << endl << endl;
+
+    VCOUT << "Test wrong key binding name." << endl;
+    // BooleanProperty is not a key !
+    rc = myInstance.setKeyBinding(
+        "BooleanProperty",
+        CIMKeyBinding::BOOLEAN,
+        "TRUE");
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_NOT_FOUND);
+
+    VCOUT << "Test wrong key binding type." << endl;
+    // Real32Property is a key property 
+    rc = myInstance.setKeyBinding(
+        "Real32Property",
+        CIMKeyBinding::BOOLEAN,
+        "3.9399998628365712e+30");
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_TYPE_MISSMATCH);
+
+    VCOUT << "Key binding not set." << endl;
+
+    CIMKeyBinding::Type returnKeyBindType;
+    const char * returnKeyBindValue;
+
+    rc = myInstance.getKeyBinding(
+        "Real32Property",
+        returnKeyBindType,
+        &returnKeyBindValue);
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_NULL_VALUE);
+    PEGASUS_TEST_ASSERT(returnKeyBindType==CIMKeyBinding::NUMERIC);
+    PEGASUS_TEST_ASSERT(returnKeyBindValue==NULL);
+
+    // set key bindings
+
+    rc = myInstance.setKeyBinding(
+        "StringProperty",
+        CIMKeyBinding::STRING,
+        "This is the String key binding.");
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+
+
+    rc = myInstance.setKeyBinding(
+        "Real32Property",
+        CIMKeyBinding::NUMERIC,
+        "3.9399998628365712e+30");
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+
+    rc = myInstance.setKeyBinding(
+        "Uint64Property",
+        CIMKeyBinding::NUMERIC,
+        "48349872897287");
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+
+    VCOUT << "Get Key binding by index." << endl;
+
+    Uint32 noKeyBind = myInstance.getKeyBindingCount();
+    const char * returnName;
+
+    PEGASUS_TEST_ASSERT(noKeyBind==3);
+
+    VCOUT << "Wrong index." << endl;
+
+    rc = myInstance.getKeyBindingAt(
+        noKeyBind+1,
+        &returnName,
+        returnKeyBindType,
+        &returnKeyBindValue);
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_INDEX_OUT_OF_BOUND);
+    PEGASUS_TEST_ASSERT(returnKeyBindValue==NULL);
+
+    VCOUT << "Iterate for index 0 to "<< noKeyBind-1 << "." << endl;
+    for (Uint32 i = 0; i < noKeyBind; i++)              
+    {
+        rc = myInstance.getKeyBindingAt(
+            i,
+            &returnName,
+            returnKeyBindType,
+            &returnKeyBindValue);
+
+        PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+    }
+
+    /**
+     * Test property filter
+     */
+
+    const char* propertyFilter[] =
+    {
+        "Uint16Property",
+        "StringPropertyArray",
+        "Sint16PropertyArray",
+        0
+    };
+
+    myInstance.setPropertyFilter(propertyFilter);
+
+    // 6 properties = 3 of filter + 3 key properies
+
+    PEGASUS_TEST_ASSERT(myInstance.getPropertyCount()==6);
+
+    const char * nameReturn;
+    for (Uint32 i = 0; i < myInstance.getPropertyCount();i++)
+    {
+        rc = myInstance.getPropertyAt(
+            i,
+            &nameReturn,
+            typeReturn,
+            &voidReturn,
+            isArrayReturn,
+            sizeReturn);
+
+        PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+    }
+
+    // the indey is just from 0 to 5. 6 is invalid !
+    rc = myInstance.getPropertyAt(
+        myInstance.getPropertyCount(),
+        &nameReturn,
+        typeReturn,
+        &voidReturn,
+        isArrayReturn,
+        sizeReturn);
+
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_INDEX_OUT_OF_BOUND);
+
+    Uint32 nodeIndex;
+    rc = myInstance.getPropertyNodeIndex("Uint32Property",nodeIndex);
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_NOT_FOUND);
+
+    rc = myInstance.getPropertyNodeIndex(NULL,nodeIndex);
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_INVALID_PARAMETER);
+
+    // reset filter
+    myInstance.setPropertyFilter(NULL);
+
+    PEGASUS_TEST_ASSERT(myInstance.getPropertyCount()==28);
+
+    const char* noPropertyFiler[] = { 0 };
+
+    // no properties in the filter
+    myInstance.setPropertyFilter(noPropertyFiler);
+
+    // you can not filter out key properties !
+    PEGASUS_TEST_ASSERT(myInstance.getPropertyCount()==3);
+
+
+    // dump.dumpSCMOInstance(myInstance);
+
+
 }
 
 

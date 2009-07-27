@@ -1181,7 +1181,7 @@ Boolean SCMOClass::_isSamePropOrigin(Uint32 node, const char* origin) const
        len));
 }
 
-SCMO_RC SCMOClass::_isNodeSameType(
+inline SCMO_RC SCMOClass::_isNodeSameType(
     Uint32 node,
     CIMType type,
     Boolean isArray) const
@@ -1345,20 +1345,6 @@ void SCMOInstance::_initSCMOInstance(
           &inst.mem,
           true);
 
-    // Allocate the SCMBPropertyFilter
-    _getFreeSpace(
-        inst.hdr->propertyFilter,
-        sizeof(Uint64)*(((inst.hdr->numberProperties-1)/64)+1),
-        &inst.mem,
-        true);
-
-    // Allocate the SCMBPropertyFilterIndexMap
-    _getFreeSpace(
-        inst.hdr->propertyFilterIndexMap,
-        sizeof(Uint32)*inst.hdr->numberProperties,
-        &inst.mem,
-        true);
-
     // Allocate the SCMBInstancePropertyArray
     _getFreeSpace(
         inst.hdr->propertyArray,
@@ -1449,12 +1435,24 @@ SCMO_RC SCMOInstance::getPropertyAt(
 
 SCMO_RC SCMOInstance::getPropertyNodeIndex(const char* name, Uint32& node) const
 {
+    SCMO_RC rc;
     if(name==NULL)
     {
         return SCMO_INVALID_PARAMETER;
     }
 
-    return (inst.hdr->theClass->_getProperyNodeIndex(node,name));
+    rc = inst.hdr->theClass->_getProperyNodeIndex(node,name);
+
+    if (inst.hdr->flags.isFiltered)
+    {
+        if (!_isPropertyInFilter(node))
+        {
+            return SCMO_NOT_FOUND;
+        }
+    }
+
+    return rc;
+
 }
 SCMO_RC SCMOInstance::setPropertyWithOrigin(
     const char* name,
@@ -1933,6 +1931,11 @@ SCMOInstance SCMOInstance::clone() const
 
 Uint32 SCMOInstance::getPropertyCount() const
 {
+    if (inst.hdr->flags.isFiltered)
+    {
+        return(inst.hdr->filterProperties);
+    }
+
     return(inst.hdr->numberProperties);
 }
 
@@ -2066,10 +2069,9 @@ SCMO_RC SCMOInstance::getKeyBinding(
     CIMKeyBinding::Type& type,
     const char** pvalue) const
 {
-    pvalue = NULL;
     SCMO_RC rc;
     Uint32 node;
-    const char** pname=NULL;
+    const char* pname=NULL;
 
     rc = inst.hdr->theClass->_getKeyBindingNodeIndex(node,name);
     if (rc != SCMO_OK)
@@ -2077,7 +2079,7 @@ SCMO_RC SCMOInstance::getKeyBinding(
         return rc;
     }
 
-    return _getKeyBindingAtNodeIndex(node,pname,type,pvalue);
+    return _getKeyBindingAtNodeIndex(node,&pname,type,pvalue);
 
 }
 
@@ -2096,15 +2098,17 @@ SCMO_RC SCMOInstance::_getKeyBindingAtNodeIndex(
     SCMBKeyBindingNode* theClassKeyBindNodeArray =
         (SCMBKeyBindingNode*)&(inst.hdr->theClass->cls.base)[idx];
 
-    type = theClassKeyBindNodeArray->type;
+    type = theClassKeyBindNodeArray[node].type;
+
     *pname = _getCharString(
-        theClassKeyBindNodeArray->name,
+        theClassKeyBindNodeArray[node].name,
         inst.hdr->theClass->cls.base);
 
     // There is no value set in the instance
     // if the relative pointer has no start value.
     if (theInstKeyBindNodeArray[node].start==0)
     {
+        *pvalue = NULL;
         return SCMO_NULL_VALUE;
     }
 
@@ -2154,6 +2158,22 @@ void SCMOInstance::setPropertyFilter(const char **propertyList)
     SCMO_RC rc;
     Uint32 node,i = 0;
 
+    if (inst.hdr->propertyFilter.start == 0)
+    {
+        // Allocate the SCMBPropertyFilter
+        _getFreeSpace(
+            inst.hdr->propertyFilter,
+            sizeof(Uint64)*(((inst.hdr->numberProperties-1)/64)+1),
+            &inst.mem,
+            true);
+
+        // Allocate the SCMBPropertyFilterIndexMap
+        _getFreeSpace(
+            inst.hdr->propertyFilterIndexMap,
+            sizeof(Uint32)*inst.hdr->numberProperties,
+            &inst.mem,
+            true);
+    }
     // Get absolut pointer to property filter index map of the instance
     Uint32* propertyFilterIndexMap =
         (Uint32*)&(inst.base[inst.hdr->propertyFilterIndexMap.start]);
@@ -2352,7 +2372,7 @@ void SCMODump::dumpSCMOInstancePropertyFilter(SCMOInstance& testInst) const
 
     printf("\n\nInstance Property Filter :");
     printf("\n==========================");
-    printf("\n\nNumber of properties in the filter : %u"
+    printf("\n\nNumber of properties in the filter : %u\n"
         ,insthdr->filterProperties);
 
     dumpPropertyFilter(testInst);
@@ -2453,7 +2473,7 @@ void SCMODump::dumpPropertyFilter(SCMOInstance& testInst) const
 
     Uint64 *thePropertyFilter = 
         (Uint64*)&(instbase[insthdr->propertyFilter.start]);
-     Uint32 end, noProperties = insthdr->filterProperties;
+     Uint32 end, noProperties = insthdr->numberProperties;
      Uint32 noMasks = (noProperties-1)/64;
      Uint64 printMask = 1;
 
@@ -2507,8 +2527,7 @@ void SCMODump::dumpSCMOInstanceKeyBindings(SCMOInstance& testInst) const
 
     for (Uint32 i = 0; i < insthdr->numberKeyBindings; i++)
     {
-        printf("\n\nNo %u",i);
-        printf("\nKey binding: %s",_getCharString(ptr[i],instbase));
+        printf("\n\nNo %u : '%s'",i,_getCharString(ptr[i],instbase));
     }
     printf("\n");
 }

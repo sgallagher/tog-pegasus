@@ -84,7 +84,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
     private:
         // This is meant to be a singleton, so we hide the constructor
         // and the destructor
-        friend struct DeletePtr<cimmofParser>;
+        friend class DeletePtr<cimmofParser>;
         static cimmofParser* _instance;
 
         cimmofParser();
@@ -198,10 +198,10 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
         CIMInstance *newInstance(const CIMName &name);
 
         // Called when a new property is discovered
-        CIMProperty *newProperty(const CIMName &name,
-            const CIMValue &val,
-            const int arraySize,
-            const CIMName &referencedObj = CIMName()) const;
+        CIMProperty *newProperty(const CIMName &name, const CIMValue &val,
+                const Boolean isArray,
+                const Uint32 arraySize,
+                const CIMName &referencedObj = CIMName()) const;
 
         // Called when a property production inside a class is complete
         int applyProperty(CIMClass &c, CIMProperty &p);
@@ -225,7 +225,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
 
         // Called when a qualifier value production is complete
         CIMValue *QualifierValue(const CIMName &qualifierName,
-                Boolean isNull, int g_strValType, const String &valstr);
+                Boolean isNull, const String &valstr);
 
         // Called to retrieve the value object for an existing parameter
         CIMProperty *PropertyFromInstance(CIMInstance &instance,
@@ -237,10 +237,12 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser
                 const CIMName &propertyName) const;
 
         // Called when a class alias is found
-        void addClassAlias(const String &alias, const CIMClass *cd);
+        void addClassAlias(const String &alias, const CIMClass *cd,
+                Boolean isInstance);
 
         // Called when an instance alias is found
-        Uint32 addInstanceAlias(const String &alias, const CIMInstance *cd);
+        Uint32 addInstanceAlias(const String &alias, const CIMInstance *cd,
+                Boolean isInstance);
 
         // Called when an instance alias reference is found
         Uint32 getInstanceAlias(const String &alias, CIMObjectPath &ObjPath);

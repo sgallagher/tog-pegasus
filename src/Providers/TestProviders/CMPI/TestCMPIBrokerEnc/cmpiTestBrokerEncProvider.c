@@ -73,12 +73,16 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     const CMPIResult * rslt)
 {
     int flag = 1 ;
+    int count;
+    char* msgId;
     char* illegal;
     char path[100];
+    void* hdl;
     CMPIStatus rc = { CMPI_RC_OK, NULL };
     CMPIString *type;
     CMPIString *cmpiStr;
     CMPIBoolean bol=0;
+    CMPIBoolean bool=0;
     CMPIArray* cmpiArray = NULL ;
     CMPIInstance* instance = NULL;
     CMPIInstance* instance1 = NULL;
@@ -294,7 +298,7 @@ static int _testBrokerEnc (const CMPIContext * ctx,
     PROV_LOG ("++++ Status of CMSetProperty of type CMPI_sint64 : (%s)",
         strCMPIStatus (rc));
 
-    val.real32 = 32.32f;
+    val.real32 = 32.32;
     rc = CMSetProperty (instance, "Real32", &val, CMPI_real32);
     PROV_LOG ("++++ Status of CMSetProperty of type CMPI_real32 : (%s)",
         strCMPIStatus (rc));
@@ -974,9 +978,15 @@ CMPIStatus TestCMPIBrokerEncProviderInvokeMethod (CMPIMethodMI * mi,
 
     CMPIString *argName = NULL;
 
+    CMPIInstance *instance = NULL;
+    CMPIInstance *paramInst = NULL;
+
     unsigned int arg_cnt = 0, index = 0;
 
     CMPIUint32 oper_rc = 1;
+
+    char *result = NULL;
+
 
     PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 
@@ -1041,8 +1051,8 @@ CMPIStatus TestCMPIBrokerEncProviderInvokeMethod (CMPIMethodMI * mi,
         else
         {
             PROV_LOG ("++++ Could not find the %s operation", methodName);
-            rc.rc = CMPI_RC_ERR_NOT_FOUND;
-            rc.msg=_broker->eft->newString(_broker,methodName,0);
+            CMSetStatusWithChars (_broker, &rc,
+                CMPI_RC_ERR_NOT_FOUND, methodName);
         }
     }
     PROV_LOG ("--- %s CMPI InvokeMethod() exited", _ClassName);

@@ -40,7 +40,6 @@
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include <Providers/TestProviders/CMPI/TestUtilLib/cmpiUtilLib.h>
 
-
 #define _ClassName "TestCMPIInstance_Method"
 #define _Namespace    "test/TestProvider"
 
@@ -313,8 +312,8 @@ CMPIStatus TestCMPIInstanceProviderInvokeMethod (CMPIMethodMI * mi,
         else
         {
             PROV_LOG ("++++ Could not find the %s operation", methodName);
-            rc.rc = CMPI_RC_ERR_NOT_FOUND;
-            rc.msg=_broker->eft->newString(_broker,methodName,0);
+            CMSetStatusWithChars (_broker, &rc,
+                CMPI_RC_ERR_NOT_FOUND, methodName);
         }
     }
     PROV_LOG ("--- %s CMPI InvokeMethod() exited", _ClassName);

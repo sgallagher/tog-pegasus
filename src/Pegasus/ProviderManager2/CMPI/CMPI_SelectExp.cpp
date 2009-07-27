@@ -36,7 +36,6 @@
 #include "CMPI_Value.h"
 #include "CMPI_String.h"
 #include "CMPI_SelectExpAccessor_WQL.h"
-#include "CMPI_ThreadContext.h"
 
 #ifdef PEGASUS_ENABLE_CQL
 # include "CMPI_SelectExpAccessor_CQL.h"
@@ -90,16 +89,14 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_SelectExp:selxClone()");
-
-        //initialise to silence uninitialised use warning
-        CMPI_SelectExp *new_se = NULL;
+        CMPI_SelectExp *new_se;
         CMPI_SelectExp *se = (CMPI_SelectExp*) eSx;
 
-        if((
+        if(
 #ifdef PEGASUS_ENABLE_CQL
         !se->cql_stmt &&
 #endif
-        !se->wql_stmt) || se->_context || se->hdl )
+        !se->wql_stmt || se->_context || se->hdl )
         {
             CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);
             PEG_METHOD_EXIT();
@@ -284,20 +281,7 @@ extern "C"
             PEG_METHOD_EXIT();
             return false;
         }
-
-        SCMOInstance * scmoInst = (SCMOInstance*) inst->hdl;
-        CIMInstance cimInstance;
-        SCMO_RC smrc = scmoInst->getCIMInstance(cimInstance);
-        if (SCMO_OK != smrc)
-        {
-            PEG_TRACE_CSTRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Failed to convert SCMOInstance to CIMInstance");
-            CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
-            PEG_METHOD_EXIT();
-            return false;
-        }
+        CIMInstance *instance = (CIMInstance *) inst->hdl;
 
         /**
            WQL
@@ -310,7 +294,7 @@ extern "C"
                 try
                 {
                     PEG_METHOD_EXIT();
-                    return sx->wql_stmt->evaluate (cimInstance);
+                    return sx->wql_stmt->evaluate (*(CIMInstance *) inst->hdl);
                 }
                 catch( const Exception &e )
                 {
@@ -357,7 +341,7 @@ extern "C"
                 try
                 {
                     PEG_METHOD_EXIT();
-                    return sx->cql_stmt->evaluate (cimInstance);
+                    return sx->cql_stmt->evaluate (*instance);
                 }
                 catch( const Exception &e )
                 {
@@ -575,17 +559,6 @@ extern "C"
                     PEG_METHOD_EXIT();
                     return NULL;
                 }
-                catch( ... )
-                {
-                    PEG_TRACE_CSTRING(
-                        TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL1,
-                        "Exception: Unknown Exception in selxGetDOC for WQL");
-                    delete dnf;
-                    CMSetStatus (rc, CMPI_RC_ERR_FAILED);
-                    PEG_METHOD_EXIT();
-                    return NULL;
-                }
                 sx->wql_dnf = dnf;
                 sx->tableau = sx->wql_dnf->getTableau ();
             }
@@ -626,17 +599,6 @@ extern "C"
                         (CMPIString*)string2CMPIString(e.getMessage()));
                     if( dnf )
                         delete dnf;
-                    PEG_METHOD_EXIT();
-                    return NULL;
-                }
-                catch( ... )
-                {
-                    PEG_TRACE_CSTRING(
-                        TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL1,
-                        "Exception: Unknown Exception in selxGetDOC for CQL");
-                    delete dnf;
-                    CMSetStatus (rc, CMPI_RC_ERR_FAILED);
                     PEG_METHOD_EXIT();
                     return NULL;
                 }

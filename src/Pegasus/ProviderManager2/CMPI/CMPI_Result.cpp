@@ -43,7 +43,6 @@
 #include <Pegasus/Common/Mutex.h>
 #include <string.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/ProviderManager2/CMPI/CMPI_ThreadContext.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -52,26 +51,6 @@ Mutex errorChainMutex;
 
 extern "C"
 {
-
-    // Gets the invaction flags from the thread context and sets them
-    // on an SCMOInstance object
-    PEGASUS_STATIC inline void appendInvocationFlags(SCMOInstance& inst)
-    {
-        const CMPIContext *ctx = CMPI_ThreadContext::getContext();
-        if (0!=ctx)
-        {
-            CMPIFlags flgs = ctx->ft->getEntry(
-                ctx,CMPIInvocationFlags,NULL).value.uint32;
-            if (flgs & CMPI_FLAG_IncludeQualifiers)
-            {
-                inst.includeQualifiers();
-            }
-            if (flgs & CMPI_FLAG_IncludeClassOrigin)
-            {
-                inst.includeClassOrigins();
-            }
-        }
-    }
 
     PEGASUS_STATIC CMPIStatus resultReturnData(
         const CMPIResult* eRes,
@@ -202,8 +181,7 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Result:resultReturnInstance()");
-        SimpleInstanceResponseHandler* res=
-            (SimpleInstanceResponseHandler*)eRes->hdl;
+        InstanceResponseHandler* res=(InstanceResponseHandler*)eRes->hdl;
         if ((res == NULL) || (eInst == NULL))
         {
             PEG_TRACE((
@@ -235,14 +213,19 @@ extern "C"
                 res->processing();
                 ((CMPI_Result*)eRes)->flags|=RESULT_set;
             }
-            SCMOInstance& inst=*(SCMOInstance*)(eInst->hdl);
-
-            appendInvocationFlags(inst);
-
-            // Ensure that the instance includes a valid ObjectPath with
-            // all key properties set, for which the according property
-            // has been set on the instance.
-            inst.buildKeyBindingsFromProperties();
+            CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
+            CMPI_Result *xRes=(CMPI_Result*)eRes;
+            const CIMObjectPath& op=inst.getPath();
+            //Build objectpath if keybindings are not found. This will happen
+            //when this instance is created with empty ObjectPath and Provider
+            //did not set objectpath in the instance.
+            if (op.getKeyBindings().size() == 0)
+            {
+                CIMClass *cc=mbGetClass(xRes->xBroker,op);
+                CIMObjectPath iop=inst.buildPath(*cc);
+                iop.setNameSpace(op.getNameSpace());
+                inst.setPath(iop);
+            }
 
             res->deliver(inst);
         }
@@ -267,8 +250,7 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Result:resultReturnObject()");
-        SimpleObjectResponseHandler* res=
-            (SimpleObjectResponseHandler*)eRes->hdl;
+        ObjectResponseHandler* res=(ObjectResponseHandler*)eRes->hdl;
 
         if ((res == NULL) || (eInst == NULL))
         {
@@ -301,14 +283,19 @@ extern "C"
                 res->processing();
                 ((CMPI_Result*)eRes)->flags|=RESULT_set;
             }
-            SCMOInstance& inst=*(SCMOInstance*)(eInst->hdl);
-
-            appendInvocationFlags(inst);
-
-            // Ensure that the instance includes a valid ObjectPath with
-            // all key properties set, for which the according property
-            // has been set on the instance.
-            inst.buildKeyBindingsFromProperties();
+            CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
+            CMPI_Result *xRes=(CMPI_Result*)eRes;
+            const CIMObjectPath& op=inst.getPath();
+            //Build objectpath if keybindings are not found. This will happen
+            //when this instance is created with empty ObjectPath and Provider
+            //did not set objectpath in the instance.
+            if (op.getKeyBindings().size() == 0)
+            {
+                CIMClass *cc=mbGetClass(xRes->xBroker,op);
+                CIMObjectPath iop=inst.buildPath(*cc);
+                iop.setNameSpace(op.getNameSpace());
+                inst.setPath(iop);
+            }
 
             res->deliver(inst);
         }
@@ -366,15 +353,8 @@ extern "C"
                 res->processing();
                 ((CMPI_Result*)eRes)->flags|=RESULT_set;
             }
-            SCMOInstance& inst=*(SCMOInstance*)(eInst->hdl);
-            
-            appendInvocationFlags(inst);
-
-            // Ensure that the instance includes a valid ObjectPath with
-            // all key properties set, for which the according property
-            // has been set on the instance.
-            inst.buildKeyBindingsFromProperties();
-
+            CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
+            CMPI_Result *xRes=(CMPI_Result*)eRes;
             res->deliver(inst);
         }
         catch (const CIMException &e)
@@ -397,8 +377,7 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Result:resultReturnObjectPath()");
-        SimpleObjectPathResponseHandler* res=
-            (SimpleObjectPathResponseHandler*)eRes->hdl;
+        ObjectPathResponseHandler* res=(ObjectPathResponseHandler*)eRes->hdl;
 
         if ((res == NULL) || (eRef == NULL))
         {
@@ -430,7 +409,7 @@ extern "C"
                 res->processing();
                 ((CMPI_Result*)eRes)->flags|=RESULT_set;
             }
-            SCMOInstance& ref=*(SCMOInstance*)(eRef->hdl);
+            CIMObjectPath& ref=*(CIMObjectPath*)(eRef->hdl);
             res->deliver(ref);
         }
         catch (const CIMException &e)
@@ -846,7 +825,7 @@ CMPIResultFT *CMPI_ResultResponseOnStack_Ftab=&resultResponseOnStack_FT;
 CMPIResultFT *CMPI_ResultExecQueryOnStack_Ftab=&resultExecQueryOnStack_FT;
 
 CMPI_ResultOnStack::CMPI_ResultOnStack(
-    const SimpleObjectPathResponseHandler & handler,
+    const ObjectPathResponseHandler & handler,
     CMPI_Broker *xMb)
 {
     hdl=(void*)&handler;
@@ -857,7 +836,7 @@ CMPI_ResultOnStack::CMPI_ResultOnStack(
 }
 
 CMPI_ResultOnStack::CMPI_ResultOnStack(
-    const SimpleInstanceResponseHandler& handler,
+    const InstanceResponseHandler& handler,
     CMPI_Broker *xMb)
 {
     hdl=(void*)&handler;
@@ -868,7 +847,7 @@ CMPI_ResultOnStack::CMPI_ResultOnStack(
 }
 
 CMPI_ResultOnStack::CMPI_ResultOnStack(
-    const SimpleObjectResponseHandler& handler,
+    const ObjectResponseHandler& handler,
     CMPI_Broker *xMb)
 {
     hdl=(void*)&handler;
@@ -922,20 +901,20 @@ CMPI_ResultOnStack::~CMPI_ResultOnStack()
                 currErr!=NULL;
                 currErr=nextErr)
             {
-                nextErr = currErr->nextError;
+                nextErr = currErr->nextError;    
                 ((CMPIError*)currErr)->ft->release(currErr);
             }
-        }
+        } 
         if ((flags & RESULT_set)==0)
         {
             if (ft==CMPI_ResultRefOnStack_Ftab)
-               ((SimpleObjectPathResponseHandler*)hdl)->processing();
+               ((ObjectPathResponseHandler*)hdl)->processing();
             else
             if (ft==CMPI_ResultInstOnStack_Ftab)
-                ((SimpleInstanceResponseHandler*)hdl)->processing();
+                ((InstanceResponseHandler*)hdl)->processing();
             else
             if (ft==CMPI_ResultObjOnStack_Ftab)
-               ((SimpleObjectResponseHandler*)hdl)->processing();
+               ((ObjectResponseHandler*)hdl)->processing();
             else
             if (ft==CMPI_ResultMethOnStack_Ftab)
                ((MethodResultResponseHandler*)hdl)->processing();
@@ -951,13 +930,13 @@ CMPI_ResultOnStack::~CMPI_ResultOnStack()
         if ((flags & RESULT_done)==0)
         {
             if (ft==CMPI_ResultRefOnStack_Ftab)
-               ((SimpleObjectPathResponseHandler*)hdl)->complete();
+               ((ObjectPathResponseHandler*)hdl)->complete();
             else
             if (ft==CMPI_ResultInstOnStack_Ftab)
-               ((SimpleInstanceResponseHandler*)hdl)->complete();
+               ((InstanceResponseHandler*)hdl)->complete();
             else
             if (ft==CMPI_ResultObjOnStack_Ftab)
-               ((SimpleObjectResponseHandler*)hdl)->complete();
+               ((ObjectResponseHandler*)hdl)->complete();
             else
             if (ft==CMPI_ResultMethOnStack_Ftab)
                ((MethodResultResponseHandler*)hdl)->complete();

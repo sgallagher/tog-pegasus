@@ -86,6 +86,7 @@ static int _testEnumeration (const CMPIContext * ctx,
     CMPIEnumeration* testEnumerationForAssociatorsClone = NULL;
     CMPIEnumeration* testEnumerationForAssociatorNames = NULL;
     CMPIEnumeration* testEnumerationForAssociatorNamesClone = NULL;
+    CMPIEnumeration* testEnumErrClone = NULL;
     CMPIEnumeration* enum_ptr = NULL;
 
     //data Arrays to store the values
@@ -396,8 +397,8 @@ CMPIStatus TestCMPIEnumerationProviderInvokeMethod (CMPIMethodMI * mi,
         else
         {
             PROV_LOG ("++++ Could not find the %s operation", methodName);
-            rc.rc = CMPI_RC_ERR_NOT_FOUND;
-            rc.msg=_broker->eft->newString(_broker,methodName,0);
+            CMSetStatusWithChars (_broker, &rc,
+                CMPI_RC_ERR_NOT_FOUND, methodName);
         }
     }
     PROV_LOG ("--- %s CMPI InvokeMethod() exited", _ClassName);

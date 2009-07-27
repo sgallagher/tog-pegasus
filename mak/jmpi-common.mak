@@ -26,74 +26,45 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-#
-#  NOTE:  The grammar and parser are no longer built in this makefile,
-#  and in fact flex and bison are assumed to already have been run
-#  and their output committed to CVS.  Run
-#      make grammar
-#           which executes the grammar makefile
-#  to generate cimmof_tab.cpp, cimmof_tab.h, and cimmof_lex.cpp.
-#  Remember to  commit them afterwards.
-#
-
-ROOT = ../../..
-
-DIR = Pegasus/Compiler
-
-include $(ROOT)/mak/config.mak
-
-EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 ifeq ($(OS_TYPE),windows)
-    EXTRA_INCLUDES += -I./nt_includes
+   JAVALIBS=$(JAVA_SDK)/jre/lib/
+   EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include -I$(JAVA_SDK)/include/win32
+   EXTRA_LIBRARIES += $(JAVA_SDK)/lib/jvm.lib
+else
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+   SYS_INCLUDES += -I${JAVA_SDK}/include
+   EXTRA_LIBRARIES += ${JAVA_SDK}/bin/classic/libjvm.x
+else
+ifeq ($(PEGASUS_JVM),sun)
+   JAVALIBS=$(JAVA_SDK)/jre/lib/$(PEGASUS_JAVA_ARCH)
+   EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include -I$(JAVA_SDK)/include/linux
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/native_threads -L$(JAVALIBS)/$(PEGASUS_JAVA_TYPE) -ljvm -lhpi -lcrypt
 endif
 
-LOCAL_CLEAN_TARGET = local_clean_target
-
-LOCAL_DEFINES = -DPEGASUS_COMPILER_INTERNAL -DPEGASUS_INTERNALONLY
-
-ifeq ($(OS_TYPE),vms)
-    STATIC=1
+ifeq ($(PEGASUS_JVM),ibm)
+   JAVALIBS=$(JAVA_SDK)/jre/bin
+   EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/classic/ -L$(JAVALIBS)/ -ljvm -lhpi -lcrypt
 endif
 
-LIBRARY = pegcompiler
-
-LIBRARIES = \
-    pegclient  \
-    pegrepository \
-    pegconfig \
-    peggeneral \
-    pegcommon
-
-PRE_DEPEND_INCLUDES = -I./depends
-
-SOURCES = \
-    cimmof_lex_wrapper.cpp \
-    cimmofParser.cpp \
-    cimmofMessages.cpp \
-    cimmofRepositoryInterface.cpp \
-    cimmofClient.cpp \
-    cimmofRepository.cpp \
-    cimmof_tab_wrapper.cpp \
-    parser.cpp \
-    valueFactory.cpp \
-    compilerDeclContext.cpp
-
-ifdef PEGASUS_ENABLE_MRR_GENERATION
-  SOURCES += cimmofMRR.cpp
-  SOURCES += Closure.cpp
-  LOCAL_DEFINES += -DPEGASUS_ENABLE_MRR_GENERATION
+ifeq ($(PEGASUS_JVM),ibm64)
+   JAVALIBS=$(JAVA_SDK)/jre/bin
+   EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/j9vm/ -L$(JAVALIBS)/classic/ -L$(JAVALIBS)/ -ljvm
 endif
 
-include $(ROOT)/mak/dynamic-library.mak
+ifeq ($(PEGASUS_JVM),bea)
+   JAVALIBS=$(JAVA_SDK)/jre/lib/$(PEGASUS_JAVA_ARCH)
+   EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include/ -I$(JAVA_SDK)/include/linux/
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/ -L$(JAVALIBS)/jrockit/ -L$(JAVALIBS)/native_threads/ -ljvm -lhpi -lcrypt
+endif
 
-$(OBJ_DIR)/cimmof_tab_wrapper$(OBJ) : cimmof_tab.cpp
+ifeq ($(PEGASUS_JVM),gcj)
+   JAVALIBS=$(JAVA_SDK)/jre/lib/$(PEGASUS_JAVA_ARCH)
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/$(PEGASUS_JAVA_TYPE) -ljvm
+endif
 
-$(OBJ_DIR)/cimmof_lex_wrapper$(OBJ) : cimmof_lex.cpp
+endif
+endif
 
-local_clean_target:
-	$(RM) cimmoftemp.out cimmoftemp.output
-	
-## Make the grammar files by executing Makefile.grammar
-grammar:
-	make -f Makefile.grammar

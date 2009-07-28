@@ -784,17 +784,19 @@ public:
     void setPropertyFilter(const char **propertyList);
 
     /**
-     * Gets the hash index for the named property.
+     * Gets the hash index for the named property. Filtering is ignored.
      * @param theName The property name
      * @param pos Returns the hash index.
      * @return     SCMO_OK
      *             SCMO_INVALID_PARAMETER: name was a NULL pointer.
-     *             SCMO_NOT_FOUND : Given property name not found or filtered.
+     *             SCMO_NOT_FOUND : Given property name not found.
      */
     SCMO_RC getPropertyNodeIndex(const char* name, Uint32& pos) const;
 
     /**
      * Set/replace a property in the instance at node index.
+     * Note: If node is filtered, the property is not set but the return value 
+     * is still SCMO_OK.
      * @param index The node index.
      * @param type The CIMType of the property
      * @param value A pointer to property  value.
@@ -808,8 +810,6 @@ public:
      *         this parameter is ignorer. Default 0.
      * @return     SCMO_OK
      *             SCMO_INDEX_OUT_OF_BOUND : Given index not found
-     *             SCMO_NOT_FOUND : The property at given node index
-     *                              is not set due to filtering.
      *             SCMO_WRONG_TYPE : The property at given node index
      *                               has the wrong type.
      *             SCMO_NOT_AN_ARRAY : The property at given node index
@@ -1053,6 +1053,9 @@ class PEGASUS_COMMON_LINKAGE SCMODump
 
 public:
 
+    SCMODump();
+    ~SCMODump();
+    SCMODump(char *filename);
     // Methods for SCMOClass only
     void hexDumpSCMOClass(SCMOClass& testCls) const;
     void dumpSCMOClass(SCMOClass& testCls) const;
@@ -1075,6 +1078,17 @@ public:
 
     // Methods for SCMOClass and SCMOInstance
     void dumpHashTable(Uint32* hashTable,Uint32 size)const;
+
+    // Methods use files for dumping.
+    void openFile(char *filename);
+    void closeFile();
+    String getFileName()
+    {
+        return _filename;
+    }
+
+    Boolean compareFile(String master);
+    void deleteFile();
 
     void printSCMOValue(
         const SCMBValue& theValue,
@@ -1108,6 +1122,10 @@ private:
         char* clsbase) const;
 
    void _hexDump(char* buffer,int length) const;
+
+   Boolean _fileOpen;
+   FILE *_out;
+   String _filename;
 };
 
 // The static definition of the common SCMO memory functions

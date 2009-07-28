@@ -124,6 +124,16 @@ empty_thread (void *args)
 /* ---------------------------------------------------------------------------*/
 /*                           Thread managament functions                      */
 /* ---------------------------------------------------------------------------*/
+int getThreadCount ()
+{
+  int threadCount = 0;
+  _broker->xft->lockMutex (threadCntMutex);
+   threadCount = threads;
+  _broker->xft->unlockMutex (threadCntMutex);
+
+  return threadCount;
+}
+
 void
 initThreads ()
 {
@@ -134,7 +144,10 @@ initThreads ()
   _broker->xft->newThread (good_thread, NULL, 0);
   _broker->xft->newThread (good_thread, NULL, 0);
   _broker->xft->newThread (good_thread, NULL, 0);
-
+  while(getThreadCount() < 3)
+  {
+    _broker->xft->threadSleep (25);
+  }
 // Only enable when the PEGASUS_DEBUG flag is not set. The
 // PEGASUS_DEBUG is mostly used by developers, and when this
 // flag is disabled the CIMServer kills the threads.
@@ -159,7 +172,7 @@ deleteThreads ()
   exitNow = 1;
 
   // Wait until the number of good threads reaches zero.
-  while (threads != 0)
+  while (getThreadCount() != 0)
     {
       gettimeofday (&t, NULL);
       // Set the time wait to 2 seconds.

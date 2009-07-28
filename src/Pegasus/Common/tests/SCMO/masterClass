@@ -4,12 +4,10 @@ Dump of SCMOClass
 
 header.magic=F00FABCD
 header.totalSize=32768
-header.freeBytes=1623
-header.StartOfFreeSpace=31145
 refCount=1
 
 superClassName: 'CIM_ManagedElement'
-nameSpace: '(null)'
+nameSpace: ''
 className: 'SCMO_TESTClass'
 
 TheClass qualfiers:
@@ -76,8 +74,8 @@ Next Node: N/A
 Property name: Caption
 Hash Tag 12382 Hash Index  30
 Propagated: TRUE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : string
 Value was set by the provider: False
 It's a NULL value.
@@ -102,8 +100,8 @@ Next Node: N/A
 Property name: Description
 Hash Tag 12404 Hash Index  52
 Propagated: TRUE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : string
 Value was set by the provider: False
 It's a NULL value.
@@ -121,8 +119,8 @@ Next Node:   8
 Property name: ElementName
 Hash Tag 12339 Hash Index  51
 Propagated: TRUE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : string
 Value was set by the provider: False
 It's a NULL value.
@@ -141,8 +139,8 @@ Next Node: N/A
 Property name: InstallDate
 Hash Tag 12435 Hash Index  19
 Propagated: TRUE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : datetime
 Value was set by the provider: False
 It's a NULL value.
@@ -168,8 +166,8 @@ Next Node:  22
 Property name: OperationalStatus
 Hash Tag 12719 Hash Index  47
 Propagated: TRUE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : uint16
 Value was set by the provider: False
 It's a NULL value.
@@ -229,8 +227,8 @@ Next Node:   6
 Property name: StatusDescriptions
 Hash Tag 13071 Hash Index  15
 Propagated: TRUE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : string
 Value was set by the provider: False
 It's a NULL value.
@@ -263,8 +261,8 @@ Next Node: N/A
 Property name: Status
 Hash Tag 13071 Hash Index  15
 Propagated: TRUE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : string
 Value was set by the provider: False
 It's a NULL value.
@@ -308,8 +306,8 @@ Next Node:  15
 Property name: HealthState
 Hash Tag 12433 Hash Index  17
 Propagated: TRUE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : uint16
 Value was set by the provider: False
 It's a NULL value.
@@ -351,8 +349,8 @@ Next Node: N/A
 Property name: EnabledState
 Hash Tag 12339 Hash Index  51
 Propagated: TRUE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : uint16
 Value was set by the provider: False
 The Value is: '5'
@@ -403,8 +401,8 @@ Next Node: N/A
 Property name: OtherEnabledState
 Hash Tag 12475 Hash Index  59
 Propagated: TRUE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : string
 Value was set by the provider: False
 It's a NULL value.
@@ -430,8 +428,8 @@ Next Node: N/A
 Property name: RequestedState
 Hash Tag 12825 Hash Index  25
 Propagated: TRUE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : uint16
 Value was set by the provider: False
 The Value is: '12'
@@ -480,8 +478,8 @@ Next Node: N/A
 Property name: EnabledDefault
 Hash Tag 12594 Hash Index  50
 Propagated: TRUE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : uint16
 Value was set by the provider: False
 The Value is: '2'
@@ -522,8 +520,8 @@ Next Node: N/A
 Property name: TimeOfLastStateChange
 Hash Tag 12849 Hash Index  49
 Propagated: TRUE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : datetime
 Value was set by the provider: False
 It's a NULL value.
@@ -541,8 +539,8 @@ Next Node: N/A
 Property name: CreationClassName
 Hash Tag 12315 Hash Index  27
 Propagated: TRUE isKey: TRUE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : string
 Value was set by the provider: False
 It's a NULL value.
@@ -574,8 +572,8 @@ Next Node: N/A
 Property name: Name
 Hash Tag 12473 Hash Index  57
 Propagated: TRUE isKey: TRUE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : string
 Value was set by the provider: False
 It's a NULL value.
@@ -614,8 +612,8 @@ Next Node: N/A
 Property name: PrimaryOwnerName
 Hash Tag 12817 Hash Index  17
 Propagated: TRUE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : string
 Value was set by the provider: False
 It's a NULL value.
@@ -655,8 +653,8 @@ Next Node: N/A
 Property name: PrimaryOwnerContact
 Hash Tag 13072 Hash Index  16
 Propagated: TRUE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : string
 Value was set by the provider: False
 It's a NULL value.
@@ -696,8 +694,8 @@ Next Node: N/A
 Property name: Roles
 Hash Tag 13069 Hash Index  13
 Propagated: TRUE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : string
 Value was set by the provider: False
 It's a NULL value.
@@ -723,8 +721,8 @@ Next Node: N/A
 Property name: OtherIdentifyingInfo
 Hash Tag 12543 Hash Index  63
 Propagated: TRUE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : string
 Value was set by the provider: False
 It's a NULL value.
@@ -764,8 +762,8 @@ Next Node: N/A
 Property name: IdentifyingDescriptions
 Hash Tag 12679 Hash Index   7
 Propagated: TRUE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : string
 Value was set by the provider: False
 It's a NULL value.
@@ -798,8 +796,8 @@ Next Node: N/A
 Property name: NameFormat
 Hash Tag 12728 Hash Index  56
 Propagated: FALSE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : string
 Value was set by the provider: False
 It's a NULL value.
@@ -839,8 +837,8 @@ Next Node: N/A
 Property name: Dedicated
 Hash Tag 12336 Hash Index  48
 Propagated: FALSE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : uint16
 Value was set by the provider: False
 It's a NULL value.
@@ -903,8 +901,8 @@ Next Node: N/A
 Property name: OtherDedicatedDescriptions
 Hash Tag 12719 Hash Index  47
 Propagated: FALSE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : string
 Value was set by the provider: False
 It's a NULL value.
@@ -937,8 +935,8 @@ Next Node: N/A
 Property name: ResetCapability
 Hash Tag 13129 Hash Index   9
 Propagated: FALSE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : uint16
 Value was set by the provider: False
 It's a NULL value.
@@ -980,8 +978,8 @@ Next Node: N/A
 Property name: PowerManagementCapabilities
 Hash Tag 13061 Hash Index   5
 Propagated: FALSE isKey: FALSE
-Origin class name: (null)
-Reference class name: (null)
+Origin class name: 
+Reference class name: 
 ValueType : uint16
 Value was set by the provider: False
 It's a NULL value.

@@ -43,11 +43,11 @@
   #include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
 #endif
 
-
 PEGASUS_USING_STD;
 
 #define SCMB_INITIAL_MEMORY_CHUNK_SIZE 4096
 
+#define DUMPSTR(x) ((x) == NULL ? "" : (x)) 
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -2354,7 +2354,7 @@ void SCMODump::openFile(char* filename)
     _filename.append("/");
     _filename.append(filename);
 
-    _out = fopen((const char*)_filename.getCString(),"a+");
+    _out = fopen((const char*)_filename.getCString(),"w+");
 
     _fileOpen = true;
 
@@ -2416,12 +2416,7 @@ void SCMODump::dumpSCMOInstance(SCMOInstance& testInst) const
     fprintf(_out,"\nheader.magic=%08X",insthdr->header.magic);
     // Total size of the instance memory block( # bytes )
     fprintf(_out,"\nheader.totalSize=%llu",insthdr->header.totalSize);
-    // The # of bytes free
-    fprintf(_out,"\nheader.freeBytes=%llu",insthdr->header.freeBytes);
-    // Index to the start of the free space in this insance
-    fprintf(_out,"\nheader.StartOfFreeSpace=%llu",
-            insthdr->header.startOfFreeSpace);
-    // The reference counter for this class
+    // The reference counter for this c++ class
     fprintf(_out,"\nrefCount=%i",insthdr->refCount.get());
     fprintf(_out,"\ntheClass: %p",insthdr->theClass);
     fprintf(_out,"\n\nThe Flags:");
@@ -2432,7 +2427,7 @@ void SCMODump::dumpSCMOInstance(SCMOInstance& testInst) const
     fprintf(_out,"\n   isFiltered: %s",
            (insthdr->flags.isFiltered ? "True" : "False"));
     fprintf(_out,"\n\nhostName: \'%s\'",
-           _getCharString(insthdr->hostName,instbase));
+           DUMPSTR(_getCharString(insthdr->hostName,instbase)));
 
     dumpSCMOInstanceKeyBindings(testInst);
 
@@ -2605,13 +2600,14 @@ void SCMODump::dumpSCMOInstanceKeyBindings(SCMOInstance& testInst) const
     SCMBDataPtr* ptr = 
         (SCMBDataPtr*)_resolveDataPtr(insthdr->keyBindingArray,instbase);
 
-    fprintf(_out,"\n\nInstacne Key Bindings :");
+    fprintf(_out,"\n\nInstance Key Bindings :");
     fprintf(_out,"\n=======================");
     fprintf(_out,"\n\nNumber of Key Bindings : %u",insthdr->numberKeyBindings);
 
     for (Uint32 i = 0; i < insthdr->numberKeyBindings; i++)
     {
-        fprintf(_out,"\n\nNo %u : '%s'",i,_getCharString(ptr[i],instbase));
+        fprintf(_out,"\n\nNo %u : '%s'",i,
+                DUMPSTR(_getCharString(ptr[i],instbase)));
     }
     fprintf(_out,"\n");
 }
@@ -2626,20 +2622,15 @@ void SCMODump::dumpSCMOClass(SCMOClass& testCls) const
     fprintf(_out,"\nheader.magic=%08X",clshdr->header.magic);
     // Total size of the instance memory block( # bytes )
     fprintf(_out,"\nheader.totalSize=%llu",clshdr->header.totalSize);
-    // The # of bytes free
-    fprintf(_out,"\nheader.freeBytes=%llu",clshdr->header.freeBytes);
-    // Index to the start of the free space in this insance
-    fprintf(_out,"\nheader.StartOfFreeSpace=%llu",
-            clshdr->header.startOfFreeSpace);
-    // The reference counter for this class
+    // The reference counter for this c++ class
     fprintf(_out,"\nrefCount=%i",clshdr->refCount.get());
 
     fprintf(_out,"\n\nsuperClassName: \'%s\'",
-           _getCharString(clshdr->superClassName,clsbase));
+           DUMPSTR(_getCharString(clshdr->superClassName,clsbase)));
     fprintf(_out,"\nnameSpace: \'%s\'",
-            _getCharString(clshdr->nameSpace,clsbase));
+            DUMPSTR(_getCharString(clshdr->nameSpace,clsbase)));
     fprintf(_out,"\nclassName: \'%s\'",
-            _getCharString(clshdr->className,clsbase));
+            DUMPSTR(_getCharString(clshdr->className,clsbase)));
     fprintf(_out,"\n\nTheClass qualfiers:");
     _dumpQualifierArray(
         clshdr->qualifierArray.start,
@@ -2683,8 +2674,7 @@ void SCMODump::hexDumpSCMOClass(SCMOClass& testCls) const
 
     fprintf(_out,"\n\nHex dump of a SCMBClass:");
     fprintf(_out,"\n========================");
-    fprintf(_out,"\n\n Size of SCMBClass: %llu",clshdr->header.totalSize);
-    fprintf(_out,"\n cls.base = %p\n\n",clsbase);
+    fprintf(_out,"\n\n Size of SCMBClass: %llu\n\n",clshdr->header.totalSize);
 
     _hexDump(clsbase,clshdr->header.totalSize);
 
@@ -2772,7 +2762,7 @@ void SCMODump::dumpClassKeyBindingNodeArray(SCMOClass& testCls) const
         }
 
         fprintf(_out,"\nKey Property name: %s",
-               _getCharString(nodeArray[i].name,clsbase));
+               DUMPSTR(_getCharString(nodeArray[i].name,clsbase)));
 
         fprintf(_out,"\nHash Tag %3u Hash Index %3u",
                nodeArray[i].nameHashTag,
@@ -2833,7 +2823,8 @@ void SCMODump::_dumpClassProperty(
     const SCMBClassProperty& prop,
     char* clsbase) const
 {
-    fprintf(_out,"\nProperty name: %s",_getCharString(prop.name,clsbase));
+    fprintf(_out,"\nProperty name: %s",
+            DUMPSTR(_getCharString(prop.name,clsbase)));
 
     fprintf(_out,"\nHash Tag %3u Hash Index %3u",
            prop.nameHashTag,
@@ -2844,9 +2835,9 @@ void SCMODump::_dumpClassProperty(
            );
 
     fprintf(_out,"\nOrigin class name: %s",
-           _getCharString(prop.originClassName,clsbase));
+           DUMPSTR(_getCharString(prop.originClassName,clsbase)));
     fprintf(_out,"\nReference class name: %s",
-           _getCharString(prop.refClassName,clsbase));
+           DUMPSTR(_getCharString(prop.refClassName,clsbase)));
 
     printSCMOValue(prop.defaultValue,clsbase);
 
@@ -2917,12 +2908,12 @@ void SCMODump::_dumpQualifier(
      if(theQualifier.name == QUALNAME_USERDEFINED)
      {
          fprintf(_out,"\n\nQualifier user defined name: \'%s\'",
-                _getCharString(theQualifier.userDefName,clsbase));
+                DUMPSTR(_getCharString(theQualifier.userDefName,clsbase)));
      }
      else
      {
          fprintf(_out,"\n\nQualifier DMTF defined name: \'%s\'",
-                _qualifierNameStrLit[theQualifier.name].str);
+                DUMPSTR(_qualifierNameStrLit[theQualifier.name].str));
      }
 
      fprintf(_out,"\nPropagated : %s",
@@ -3285,10 +3276,10 @@ void SCMODump::dumpKeyPropertyMask(SCMOClass& testCls ) const
 void SCMODump::_hexDump(char* buffer,int length) const
 {
 
-    char printLine[3][80];
+    unsigned char printLine[3][80];
     int p;
     int len;
-    char item;
+    unsigned char item;
 
     for (int i = 0; i < length;i=i+1)
     {
@@ -3322,7 +3313,7 @@ void SCMODump::_hexDump(char* buffer,int length) const
             fprintf(_out,"\n");
         }
 
-        item = buffer[i];
+        item = (unsigned char)buffer[i];
 
         if (item < 32 || item > 125 )
         {

@@ -53,6 +53,8 @@ Epoch:   1
 # Use "rpm -[iU]vh --define 'AUTOSTART 1'" in order to have cimserver enabled
 # (chkconfig --level=345 tog-pegasus on) after installation.
 #
+# Use "rpmbuild --define 'JMPI_PROVIDER_REQUESTED 1'" to include JMPI support.
+%{?!JMPI_PROVIDER_REQUESTED: %define JMPI_PROVIDER_REQUESTED 0}
 
 Summary:   OpenPegasus WBEM Services for Linux
 Name:      tog-pegasus
@@ -70,6 +72,10 @@ Source:    %{name}-%{version}-%{packageVersion}.tar.gz
 BuildRequires:      bash, sed, grep, coreutils, procps, gcc, gcc-c++
 BuildRequires:      libstdc++, make, pam-devel
 BuildRequires:      openssl-devel >= 0.9.6, e2fsprogs
+%if %{JMPI_PROVIDER_REQUESTED}
+BuildRequires:      gcc-java, libgcj-devel, libgcj, java-1.4.2-gcj-compat
+Requires:           libgcj, java-1.4.2-gcj-compat
+%endif
 BuildRequires:      net-snmp-devel
 #
 # End of section  pegasus/rpm/tog-specfiles/tog-pegasus-buildRequires.spec
@@ -214,6 +220,12 @@ export PEGASUS_EXTRA_LINK_FLAGS="$RPM_OPT_FLAGS"
 %if %{PEGASUS_BUILD_TEST_RPM}
 export PEGASUS_TMP=/usr/share/Pegasus/test/tmp
 export PEGASUS_DISPLAYCONSUMER_DIR="$PEGASUS_TMP"
+%endif
+
+%if %{JMPI_PROVIDER_REQUESTED}
+sed -i 's/PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER=.*$/PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER=true/' $PEGASUS_ENVVAR_FILE
+%else
+sed -i 's/PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER=.*$/PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER=false/' $PEGASUS_ENVVAR_FILE
 %endif
 
 make -f $PEGASUS_ROOT/Makefile.Release create_ProductVersionFile
@@ -480,6 +492,10 @@ fi
 %attr(755,root,pegasus) /usr/sbin/*
 %attr(755,root,pegasus) /usr/bin/*
 %attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/*.so.1
+%if %{JMPI_PROVIDER_REQUESTED}
+%attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/*.jar
+/usr/%PEGASUS_ARCH_LIB/libJMPIProviderManager.so
+%endif
 %attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/*.so.1
 %attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/Pegasus/providerManagers/*.so.1
 %attr(750,root,pegasus) /usr/share/Pegasus/scripts/*

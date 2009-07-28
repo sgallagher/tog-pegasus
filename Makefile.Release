@@ -125,6 +125,15 @@ PEGASUS_PROVIDER_MANAGERS += \
    libCMPIProviderManager
 endif
 
+PEGASUS_JARS =
+JAR_SUFFIX = .jar
+
+ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
+PEGASUS_LIBRARIES += \
+   libJMPIProviderManager
+PEGASUS_JARS += \
+   JMPIImpl
+endif
 
 ifdef PEGASUS_USE_NET_SNMP
    PEGASUS_LIBRARIES += \
@@ -142,6 +151,11 @@ PEGASUS_LIBRARY_LINKS = \
    libpegprovider \
    libDefaultProviderManager \
    libCIMxmlIndicationHandler
+
+ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
+   PEGASUS_LIBRARY_LINKS += \
+       libJMPIProviderManager
+endif
 
 ifdef PEGASUS_USE_NET_SNMP
 PEGASUS_LIBRARY_LINKS += \
@@ -283,6 +297,13 @@ stage_PegasusLocalAuthDirectory: FORCE
 	
 setpermissions_PegasusLocalAuthDirectory: FORCE
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_AUTH_DIR)
+
+stage_PegasusJarFiles: FORCE
+	$(foreach i, $(PEGASUS_JARS), $(COPY) $(PEGASUS_HOME)/lib/$(i)$(JAR_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(JAR_SUFFIX);)
+
+setpermissions_PegasusJarFiles: FORCE
+	$(foreach i, $(PEGASUS_JARS), $(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(JAR_SUFFIX);)
+
 	
 stage_PegasusLibraryDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_LIBRARIES), $(COPY) $(PEGASUS_HOME)/lib/$(i)$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_SUFFIX);)
@@ -404,6 +425,7 @@ stage_PegasusFiles: FORCE
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusDocFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusMOFDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusSystemFiles
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release stage_PegasusJarFiles
 
 setpermissions_PegasusFiles: FORCE
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusLibraryDirectoryFiles
@@ -417,6 +439,7 @@ setpermissions_PegasusFiles: FORCE
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusDocFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusMOFDirectoryFiles
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusSystemFiles
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions_PegasusJarFiles
 
 stage_PegasusSystemFiles: FORCE
 ifeq ($(OS),linux)
@@ -1080,6 +1103,13 @@ _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
            "$(PEGASUS_DEST_LIB_DIR_2)/*$(LIB_SUFFIX)" \
            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%if %{JMPI_PROVIDER_REQUESTED}"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
+           "$(PEGASUS_DEST_LIB_DIR_2)/*$(JAR_SUFFIX)" \
+           >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "$(PEGASUS_DEST_LIB_DIR_2)/libJMPIProviderManager$(LIB_LINK_SUFFIX)" \
+           >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%endif"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
            "$(PEGASUS_PROVIDER_LIB_DIR_2)/*$(LIB_SUFFIX)" \
            >> $(PEGASUS_RPM_SPEC_FILE_PATH)

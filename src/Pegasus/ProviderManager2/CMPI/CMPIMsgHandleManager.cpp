@@ -41,22 +41,22 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 
-CMPIMsgHandleManager* CMPIMsgHandleManager::_handleManagerInstance = NULL;
+AutoPtr<CMPIMsgHandleManager> CMPIMsgHandleManager::_handleManagerInstance;
 ReadWriteSem CMPIMsgHandleManager::_rwsemHandleTable;
 
 
 CMPIMsgHandleManager* CMPIMsgHandleManager::getCMPIMsgHandleManager(void)
 {
-    if (_handleManagerInstance == NULL)
+    if (_handleManagerInstance.get() == NULL)
     {
         WriteLock writeLock(_rwsemHandleTable);
-        if (_handleManagerInstance == NULL)
+        if (_handleManagerInstance.get() == NULL)
         {
-            _handleManagerInstance = new CMPIMsgHandleManager();
+            _handleManagerInstance.reset(new CMPIMsgHandleManager());
         }
     }
 
-    return _handleManagerInstance;
+    return _handleManagerInstance.get();
 };
 
 

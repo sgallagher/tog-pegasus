@@ -35,6 +35,7 @@
 #include <Pegasus/Common/ReadWriteSem.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/ArrayInternal.h>
+#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/ProviderManager2/CMPI/Linkage.h>
 
@@ -88,7 +89,7 @@ private:
 
     CMPIMsgHandleManager();
 
-    static CMPIMsgHandleManager* _handleManagerInstance;
+    static AutoPtr<CMPIMsgHandleManager> _handleManagerInstance;
 
     // auto-initialisation due to being on the stack
     Array<MessageLoaderParms*> handleTable;

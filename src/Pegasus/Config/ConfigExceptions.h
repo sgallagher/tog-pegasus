@@ -89,6 +89,30 @@ public:
               value))
     {
     }
+protected:
+    InvalidPropertyValue(const MessageLoaderParms& theMessage)
+         : Exception(theMessage)
+    {
+    }
+};
+
+
+/**
+    InvalidDirectoryPropertyValue Exception class
+*/
+class PEGASUS_CONFIG_LINKAGE InvalidDirectoryPropertyValue
+   : public InvalidPropertyValue
+{
+public:
+    InvalidDirectoryPropertyValue(const String& name, const String& value)
+        : InvalidPropertyValue(MessageLoaderParms(
+              "Config.ConfigExceptions.INVALID_DIRECTORY_PROPERTY_VALUE",
+              "For property $0 specified value $1 is not a directory or "
+                  "the directory is not writeable.",
+              name,
+              value))
+    {
+    }
 };
 
 

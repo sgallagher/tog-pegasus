@@ -298,7 +298,7 @@ Boolean FileSystemPropertyOwner::isValid(
 {
     if (!isDirValid(value))
     {
-        throw InvalidPropertyValue(name, value);
+        throw InvalidDirectoryPropertyValue(name, value);
     }
 
     return true;

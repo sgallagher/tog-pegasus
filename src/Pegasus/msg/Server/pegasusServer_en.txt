@@ -904,6 +904,13 @@ en:table {
         */
         Config.ConfigExceptions.FAILED_SAVE_PROPERTIES:string {"PGS02209: Failed to save configuration properties to file: {0}. Configuration property not set."}
 
+        /**
+        * @note  PGS02210:
+        *    Substitution {0} is the name of the property (a string)
+        *    Substitution {1} is a directory
+        */
+        Config.ConfigExceptions.INVALID_DIRECTORY_PROPERTY_VALUE:string { "PGS02210: For property {0} specified value {1} is not a directory or the directory is not writeable."}
+
         // ==========================================================
         // Messages for ConfigManager
         //  Please use message prefix "PGS02300"

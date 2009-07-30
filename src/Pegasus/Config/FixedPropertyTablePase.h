@@ -34,7 +34,6 @@
 
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
     {"enableRemotePrivilegedUserAccess",         "true"},
-    {"enableNamespaceAuthorization",             "true"},
     {"enableBinaryRepository",                  "false"},
     {"daemon",                                   "false"},
     {"passwordFilePath",                         "cimserver.passwd"},
@@ -43,6 +42,10 @@
 #endif
     {"authorizedUserGroups",                          ""},
     {"repositoryDir",         "/QOpenSys/QIBM/UserData/UME/Pegasus/repository"},
+    {"providerDir",           "/QOpenSys/QIBM/ProdData/UME/Pegasus/provider:"
+                                  "/QOpenSys/usr/lib"},
+    {"messageDir",            "/QOpenSys/QIBM/ProdData/UME/Pegasus/msg"},
+    {"providerManagerDir",    "/QOpenSys/QIBM/ProdData/UME/Pegasus/lib"},
 #endif
 
 #endif /* Pegasus_FixedPropertyTablePase_h */

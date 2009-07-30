@@ -44,12 +44,13 @@
     {"enableIndicationService", "true", IS_STATIC, IS_VISIBLE},
 #endif
     {"forceProviderProcesses", "true", IS_STATIC, IS_VISIBLE},
-    {"maxProviderProcesses","0", IS_DYNAMIC, IS_VISIBLE},
+    {"maxProviderProcesses","0", IS_STATIC, IS_VISIBLE},
 # ifdef PEGASUS_ENABLE_AUDIT_LOGGER
     {"enableAuditLog", "false", IS_DYNAMIC, IS_VISIBLE},
 # endif
 #ifdef PEGASUS_ENABLE_SLP
     {"slp", "true", IS_STATIC, IS_VISIBLE},
 #endif
+    {"enableNamespaceAuthorization", "false", IS_STATIC, IS_VISIBLE},
 
 #endif /* Pegasus_DefaultPropertyTablePase_h */

@@ -47,7 +47,14 @@ PEGASUS_USING_STD;
 
 #define SCMB_INITIAL_MEMORY_CHUNK_SIZE 4096
 
-#define DUMPSTR(x) ((x) == NULL ? "" : (x)) 
+/**
+ * This macro is used at the SCMODump class 
+ * for generating C/C++ runtime independend output.
+ * For example on Linux if fprintf got a NULL pointer 
+ * for a string format specification, the string "(null)" is
+ * substituted. On other platforms no string "" is substituded.
+ */
+#define NULLSTR(x) ((x) == NULL ? "" : (x)) 
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -2427,7 +2434,7 @@ void SCMODump::dumpSCMOInstance(SCMOInstance& testInst) const
     fprintf(_out,"\n   isFiltered: %s",
            (insthdr->flags.isFiltered ? "True" : "False"));
     fprintf(_out,"\n\nhostName: \'%s\'",
-           DUMPSTR(_getCharString(insthdr->hostName,instbase)));
+           NULLSTR(_getCharString(insthdr->hostName,instbase)));
 
     dumpSCMOInstanceKeyBindings(testInst);
 
@@ -2607,7 +2614,7 @@ void SCMODump::dumpSCMOInstanceKeyBindings(SCMOInstance& testInst) const
     for (Uint32 i = 0; i < insthdr->numberKeyBindings; i++)
     {
         fprintf(_out,"\n\nNo %u : '%s'",i,
-                DUMPSTR(_getCharString(ptr[i],instbase)));
+                NULLSTR(_getCharString(ptr[i],instbase)));
     }
     fprintf(_out,"\n");
 }
@@ -2626,11 +2633,11 @@ void SCMODump::dumpSCMOClass(SCMOClass& testCls) const
     fprintf(_out,"\nrefCount=%i",clshdr->refCount.get());
 
     fprintf(_out,"\n\nsuperClassName: \'%s\'",
-           DUMPSTR(_getCharString(clshdr->superClassName,clsbase)));
+           NULLSTR(_getCharString(clshdr->superClassName,clsbase)));
     fprintf(_out,"\nnameSpace: \'%s\'",
-            DUMPSTR(_getCharString(clshdr->nameSpace,clsbase)));
+            NULLSTR(_getCharString(clshdr->nameSpace,clsbase)));
     fprintf(_out,"\nclassName: \'%s\'",
-            DUMPSTR(_getCharString(clshdr->className,clsbase)));
+            NULLSTR(_getCharString(clshdr->className,clsbase)));
     fprintf(_out,"\n\nTheClass qualfiers:");
     _dumpQualifierArray(
         clshdr->qualifierArray.start,
@@ -2762,7 +2769,7 @@ void SCMODump::dumpClassKeyBindingNodeArray(SCMOClass& testCls) const
         }
 
         fprintf(_out,"\nKey Property name: %s",
-               DUMPSTR(_getCharString(nodeArray[i].name,clsbase)));
+               NULLSTR(_getCharString(nodeArray[i].name,clsbase)));
 
         fprintf(_out,"\nHash Tag %3u Hash Index %3u",
                nodeArray[i].nameHashTag,
@@ -2824,7 +2831,7 @@ void SCMODump::_dumpClassProperty(
     char* clsbase) const
 {
     fprintf(_out,"\nProperty name: %s",
-            DUMPSTR(_getCharString(prop.name,clsbase)));
+            NULLSTR(_getCharString(prop.name,clsbase)));
 
     fprintf(_out,"\nHash Tag %3u Hash Index %3u",
            prop.nameHashTag,
@@ -2835,9 +2842,9 @@ void SCMODump::_dumpClassProperty(
            );
 
     fprintf(_out,"\nOrigin class name: %s",
-           DUMPSTR(_getCharString(prop.originClassName,clsbase)));
+           NULLSTR(_getCharString(prop.originClassName,clsbase)));
     fprintf(_out,"\nReference class name: %s",
-           DUMPSTR(_getCharString(prop.refClassName,clsbase)));
+           NULLSTR(_getCharString(prop.refClassName,clsbase)));
 
     printSCMOValue(prop.defaultValue,clsbase);
 
@@ -2908,12 +2915,12 @@ void SCMODump::_dumpQualifier(
      if(theQualifier.name == QUALNAME_USERDEFINED)
      {
          fprintf(_out,"\n\nQualifier user defined name: \'%s\'",
-                DUMPSTR(_getCharString(theQualifier.userDefName,clsbase)));
+                NULLSTR(_getCharString(theQualifier.userDefName,clsbase)));
      }
      else
      {
          fprintf(_out,"\n\nQualifier DMTF defined name: \'%s\'",
-                DUMPSTR(_qualifierNameStrLit[theQualifier.name].str));
+                _qualifierNameStrLit[theQualifier.name].str);
      }
 
      fprintf(_out,"\nPropagated : %s",

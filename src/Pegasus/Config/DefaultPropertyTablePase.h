@@ -51,6 +51,5 @@
 #ifdef PEGASUS_ENABLE_SLP
     {"slp", "true", IS_STATIC, IS_VISIBLE},
 #endif
-    {"enableNamespaceAuthorization", "false", IS_STATIC, IS_VISIBLE},
 
 #endif /* Pegasus_DefaultPropertyTablePase_h */

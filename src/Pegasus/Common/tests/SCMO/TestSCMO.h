@@ -33,6 +33,9 @@
 #define _TestSCMO_H_
 
 #include <Pegasus/Common/SCMO.h>
+#include <Pegasus/Common/SCMOClass.h>
+#include <Pegasus/Common/SCMOInstance.h>
+#include <Pegasus/Common/SCMODump.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -29,7 +29,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "SCMO.h"
+#include <Pegasus/Common/SCMO.h>
+#include <Pegasus/Common/SCMOClass.h>
+#include <Pegasus/Common/SCMOInstance.h>
+#include <Pegasus/Common/SCMODump.h>
 #include <Pegasus/Common/CharSet.h>
 #include <Pegasus/Common/CIMDateTimeRep.h>
 #include <Pegasus/Common/CIMPropertyRep.h>

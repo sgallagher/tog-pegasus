@@ -27,16 +27,11 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// This code implements part of PEP#348 - The CMPI infrastructure using SCMO
-// (Single Chunk Memory Objects).
-// The design document can be found on the OpenPegasus website openpegasus.org
-// at https://collaboration.opengroup.org/pegasus/pp/documents/21210/PEP_348.pdf
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _SCMODUMP_H_
 #define _SCMODUMP_H_
-# ifdef PEGASUS_DEBUG
+
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
@@ -56,10 +51,10 @@ public:
 
     SCMODump();
     ~SCMODump();
-    SCMODump(const char *filename);
+    SCMODump(char *filename);
     // Methods for SCMOClass only
     void hexDumpSCMOClass(SCMOClass& testCls) const;
-    void dumpSCMOClass(SCMOClass& testCls,Boolean inclMemHdr = true) const;
+    void dumpSCMOClass(SCMOClass& testCls) const;
     void dumpSCMOClassQualifiers(SCMOClass& testCls) const;
     void dumpKeyPropertyMask(SCMOClass& testCls) const;
     void dumpClassProperties(SCMOClass& testCls) const;
@@ -69,25 +64,19 @@ public:
     void dumpClassKeyBindingNodeArray(SCMOClass& testCls) const;
 
     // Methods for SCMOInstance only
-    void dumpSCMOInstance(
-        SCMOInstance& testInst,
-        Boolean inclMemHdr = true) const;
-    void dumpSCMOInstanceKeyBindings(
-        SCMOInstance& testInst,
-        Boolean verbose = false) const ;
+    void dumpSCMOInstance(SCMOInstance& testInst) const;
+    void dumpSCMOInstanceKeyBindings(SCMOInstance& testInst) const ;
     void dumpSCMOInstancePropertyFilter(SCMOInstance& testInst) const ;
     void dumpPropertyFilter(SCMOInstance& testInst) const;
     void dumpPropertyFilterIndexMap(SCMOInstance& testInst) const;
-    void dumpInstanceProperties(
-        SCMOInstance& testInst,
-        Boolean verbose = false) const;
+    void dumpInstanceProperties(SCMOInstance& testInst) const;
 
 
     // Methods for SCMOClass and SCMOInstance
     void dumpHashTable(Uint32* hashTable,Uint32 size)const;
 
     // Methods use files for dumping.
-    void openFile(const char *filename);
+    void openFile(char *filename);
     void closeFile();
     String getFileName()
     {
@@ -99,21 +88,18 @@ public:
 
     void printSCMOValue(
         const SCMBValue& theValue,
-        char* base,
-        Boolean verbose = false) const;
+        char* base) const;
 
-    void printArrayValue(
+    String printArrayValue(
         CIMType type,
         Uint32 size,
         SCMBUnion u,
-        char* base,
-        Boolean verbose = false) const;
+        char* base) const;
 
-    void printUnionValue(
+    String printUnionValue(
         CIMType type,
         SCMBUnion u,
-        char* base,
-        Boolean verbose = false) const;
+        char* base) const;
 
 private:
 
@@ -131,16 +117,13 @@ private:
         const SCMBClassProperty& prop,
         char* clsbase) const;
 
-    void _dumpSCMBMgmt_Header(SCMBMgmt_Header& header,char* base) const;
+   void _hexDump(char* buffer,int length) const;
 
-    void _hexDump(char* buffer,Uint64 length) const;
-
-    Boolean _fileOpen;
-    FILE *_out;
-    String _filename;
+   Boolean _fileOpen;
+   FILE *_out;
+   String _filename;
 };
 
 PEGASUS_NAMESPACE_END
 
-# endif // PEGASUS_DEBUG
 #endif

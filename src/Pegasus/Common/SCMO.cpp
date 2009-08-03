@@ -226,6 +226,15 @@ void SCMOClass::getKeyNamesAsString(Array<String>& keyNames) const
     }
 }
 
+const char* SCMOClass::_getPropertyNameAtNode(Uint32 propNode) const
+{
+    SCMBClassPropertyNode* nodeArray =
+        (SCMBClassPropertyNode*)
+            &(cls.base[cls.hdr->propertySet.nodeArray.start]);
+
+    return(_getCharString(nodeArray[propNode].theProperty.name,cls.base));
+}
+
 SCMO_RC SCMOClass::_getKeyBindingNodeIndex(Uint32& node, const char* name) const
 {
 
@@ -1272,6 +1281,49 @@ const char* SCMOInstance::getHostName() const
   return _getCharString(inst.hdr->hostName,inst.base);
 }
 
+void SCMOInstance::buildKeyBindingsFromProperties()
+{
+
+    SCMBDataPtr* theInstKeyBindNodeArray =
+        (SCMBDataPtr*)&inst.base[inst.hdr->keyBindingArray.start];
+
+    Uint32* theClassKeyPropList =
+        (Uint32*) &(inst.hdr->theClass->cls.base)
+                          [(inst.hdr->theClass->cls.hdr->keyIndexList.start)];
+
+    SCMBValue* theInstPropNodeArray =
+        (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
+
+    Uint32 propNode;
+
+    for (Uint32 i = 0; i < inst.hdr->numberKeyBindings; i++)
+    {
+        // If the keybinding is not set.
+        if (theInstKeyBindNodeArray[i].start == 0)
+        {
+            // get the node index for this key binding form class            
+            propNode = theClassKeyPropList[i];
+
+            // if property was not set by the provider or it is null.
+            if (!theInstPropNodeArray[propNode].flags.isSet ||
+                 theInstPropNodeArray[propNode].flags.isNull)
+            {
+                const char * propName = 
+                    inst.hdr->theClass->_getPropertyNameAtNode(propNode);
+                throw NoSuchProperty(String(propName));
+            }
+
+
+            _setString(
+                _printUnionValue(
+                    theInstPropNodeArray[propNode].valueType,
+                     theInstPropNodeArray[propNode].value,inst.base),
+                theInstKeyBindNodeArray[i],
+                &inst.mem);
+
+        }
+    }
+}
 void SCMOInstance::setHostName(const char* hostName)
 {
     Uint32 len;
@@ -2485,8 +2537,8 @@ void SCMODump::dumpInstanceProperties(SCMOInstance& testInst) const
 
     for (Uint32 i = 0; i < insthdr->numberProperties; i++)
     {
-        fprintf(_out,"\n\nInstance property #%3u",i);
-        fprintf(_out,"\n=====================\n");
+        fprintf(_out,"\n\nInstance property (#%3u) %s\n",i,
+                NULLSTR(insthdr->theClass->_getPropertyNameAtNode(i)));
         if(insthdr->flags.isFiltered && !testInst._isPropertyInFilter(i))
         {
             fprintf(_out,"\nProperty is filtered out!");
@@ -2971,11 +3023,114 @@ void SCMODump::printSCMOValue(
 
 }
 
-String SCMODump::printArrayValue(
+void SCMODump::dumpKeyPropertyMask(SCMOClass& testCls ) const
+{
+
+    SCMBClass_Main* clshdr = testCls.cls.hdr;
+    char* clsbase = testCls.cls.base;
+
+     Uint64 *theKeyMask = (Uint64*)&(clsbase[clshdr->keyPropertyMask.start]);
+     Uint32 end, noProperties = clshdr->propertySet.number;
+     Uint32 noMasks = (noProperties-1)/64;
+     Uint64 printMask = 1;
+
+     for (Uint32 i = 0; i <= noMasks; i++ )
+     {
+         printMask = 1;
+         if (i < noMasks)
+         {
+             end = 64;
+         }
+         else
+         {
+             end = noProperties%64;
+         }
+
+         fprintf(_out,"\nkeyPropertyMask[%02u]= ",i);
+
+         for (Uint32 j = 0; j < end; j++)
+         {
+             if (j > 0 && !(j%8))
+             {
+                 fprintf(_out," ");
+             }
+
+             if (theKeyMask[i] & printMask)
+             {
+                 fprintf(_out,"1");
+             }
+             else
+             {
+                 fprintf(_out,"0");
+             }
+
+             printMask = printMask << 1;
+         }
+         fprintf(_out,"\n");
+     }
+}
+
+void SCMODump::_hexDump(char* buffer,int length) const
+{
+
+    unsigned char printLine[3][80];
+    int p;
+    int len;
+    unsigned char item;
+
+    for (int i = 0; i < length;i=i+1)
+    {
+        p = i%80;
+
+        if ((p == 0 && i > 0) || i == length-1 )
+        {
+            for (int y = 0; y < 3; y=y+1)
+            {
+                if (p == 0)
+                {
+                    len = 80;
+                } else
+                {
+                    len = p;
+                }
+
+                for (int x = 0; x < len; x=x+1)
+                {
+                    if (y == 0)
+                    {
+                        fprintf(_out,"%c",printLine[y][x]);
+                    }
+                    else
+                    {
+                        fprintf(_out,"%1X",printLine[y][x]);
+                    }
+                }
+                fprintf(_out,"\n");
+            }
+            fprintf(_out,"\n");
+        }
+
+        item = (unsigned char)buffer[i];
+
+        if (item < 32 || item > 125 )
+        {
+            printLine[0][p] = '.';
+        } else
+        {
+            printLine[0][p] = item;
+        }
+
+        printLine[1][p] = item/16;
+        printLine[2][p] = item%16;
+
+    }
+}
+
+String SCMOInstance::_printArrayValue(
     CIMType type,
     Uint32 size,
     SCMBUnion u,
-    char* base) const
+    char* base)
 {
     Buffer out;
 
@@ -3117,10 +3272,10 @@ String SCMODump::printArrayValue(
     return out.getData();
 }
 
-String SCMODump::printUnionValue(
+String SCMOInstance::_printUnionValue(
     CIMType type,
     SCMBUnion u,
-    char* base) const
+    char* base)
 {
     Buffer out;
 
@@ -3236,108 +3391,6 @@ String SCMODump::printUnionValue(
   return out.getData();
 }
 
-void SCMODump::dumpKeyPropertyMask(SCMOClass& testCls ) const
-{
-
-    SCMBClass_Main* clshdr = testCls.cls.hdr;
-    char* clsbase = testCls.cls.base;
-
-     Uint64 *theKeyMask = (Uint64*)&(clsbase[clshdr->keyPropertyMask.start]);
-     Uint32 end, noProperties = clshdr->propertySet.number;
-     Uint32 noMasks = (noProperties-1)/64;
-     Uint64 printMask = 1;
-
-     for (Uint32 i = 0; i <= noMasks; i++ )
-     {
-         printMask = 1;
-         if (i < noMasks)
-         {
-             end = 64;
-         }
-         else
-         {
-             end = noProperties%64;
-         }
-
-         fprintf(_out,"\nkeyPropertyMask[%02u]= ",i);
-
-         for (Uint32 j = 0; j < end; j++)
-         {
-             if (j > 0 && !(j%8))
-             {
-                 fprintf(_out," ");
-             }
-
-             if (theKeyMask[i] & printMask)
-             {
-                 fprintf(_out,"1");
-             }
-             else
-             {
-                 fprintf(_out,"0");
-             }
-
-             printMask = printMask << 1;
-         }
-         fprintf(_out,"\n");
-     }
-}
-
-void SCMODump::_hexDump(char* buffer,int length) const
-{
-
-    unsigned char printLine[3][80];
-    int p;
-    int len;
-    unsigned char item;
-
-    for (int i = 0; i < length;i=i+1)
-    {
-        p = i%80;
-
-        if ((p == 0 && i > 0) || i == length-1 )
-        {
-            for (int y = 0; y < 3; y=y+1)
-            {
-                if (p == 0)
-                {
-                    len = 80;
-                } else
-                {
-                    len = p;
-                }
-
-                for (int x = 0; x < len; x=x+1)
-                {
-                    if (y == 0)
-                    {
-                        fprintf(_out,"%c",printLine[y][x]);
-                    }
-                    else
-                    {
-                        fprintf(_out,"%1X",printLine[y][x]);
-                    }
-                }
-                fprintf(_out,"\n");
-            }
-            fprintf(_out,"\n");
-        }
-
-        item = (unsigned char)buffer[i];
-
-        if (item < 32 || item > 125 )
-        {
-            printLine[0][p] = '.';
-        } else
-        {
-            printLine[0][p] = item;
-        }
-
-        printLine[1][p] = item/16;
-        printLine[2][p] = item%16;
-
-    }
-}
 
 /*****************************************************************************
  * The constant functions

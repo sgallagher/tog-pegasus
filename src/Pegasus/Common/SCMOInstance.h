@@ -36,6 +36,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/SCMO.h>
+#include <Pegasus/Common/SCMOClass.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -236,10 +237,10 @@ public:
         const char* origin = NULL);
 
     /**
-     * Rebuilds the key bindings off the property values
+     * Rebuild of the key bindings from the property values.
      * if no or incomplete key properties are set on the instance.
      */
-    void rebuildKeyProperties();
+    void buildKeyBindingsFromProperties();
 
     /**
      * Set/replace a property filter on an instance.
@@ -504,6 +505,16 @@ private:
     Boolean _isPropertyInFilter(Uint32 i) const;
 
     void _clearPropertyFilter();
+
+    static String _printArrayValue(
+        CIMType type,
+        Uint32 size,
+        SCMBUnion u,
+        char* base);
+
+
+    static String _printUnionValue(CIMType type,SCMBUnion u,char* base);
+
 
     union{
         // To access the instance main structure

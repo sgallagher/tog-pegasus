@@ -144,6 +144,8 @@ private:
     QualifierNameEnum _getSCMOQualifierNameEnum(const CIMName& theCIMname);
     Boolean _isSamePropOrigin(Uint32 node, const char* origin) const;
 
+    const char* _getPropertyNameAtNode(Uint32 propNode) const;
+
     inline SCMO_RC _isNodeSameType(
         Uint32 node,
         CIMType type, 

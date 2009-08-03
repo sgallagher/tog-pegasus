@@ -83,6 +83,40 @@ void CIMClassToSCMOClass()
 
     SCMOInstance theSCMOInstance(theSCMOClass);
 
+    dump.closeFile();
+
+    char* tmp = "TestSCMO Class";
+    theSCMOInstance.setPropertyWithOrigin(
+        "CreationClassName",
+        CIMTYPE_STRING,
+        tmp);
+
+    Boolean isCought = false;
+
+    try
+    {
+        theSCMOInstance.buildKeyBindingsFromProperties();
+    }
+    catch(NoSuchProperty& e)
+    {
+         isCought = true;
+    }
+    if (!isCought)
+    {
+        cout << endl << "'NoSuchProperty' exception "
+                "in buildKeyBindingsFromProperties()!" << endl;
+        dump.dumpSCMOInstanceKeyBindings(theSCMOInstance);
+        exit(-1);
+    }
+
+    char* tmp2 ="This is the Name";
+    theSCMOInstance.setPropertyWithOrigin(
+        "Name",
+        CIMTYPE_STRING,
+        tmp2);
+
+    theSCMOInstance.buildKeyBindingsFromProperties();
+
     SCMOInstance cloneInstance = theSCMOInstance.clone();
 
     VCOUT << endl << "Test 1: Done." << endl;

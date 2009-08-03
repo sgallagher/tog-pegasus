@@ -2596,6 +2596,12 @@ Boolean CIMRepository::getNameSpaceAttributes(const CIMNamespaceName& nameSpace,
     return true;
 }
 
+Boolean CIMRepository::nameSpaceExists(const CIMNamespaceName& nameSpaceName)
+{
+    ReadLock lock(const_cast<ReadWriteSem&>(_rep->_lock));
+    return _rep->_nameSpaceManager.nameSpaceExists(nameSpaceName);
+}
+
 Boolean CIMRepository::isRemoteNameSpace(
     const CIMNamespaceName& nameSpaceName,
     String& remoteInfo)

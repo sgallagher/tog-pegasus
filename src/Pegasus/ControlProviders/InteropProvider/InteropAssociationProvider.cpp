@@ -50,6 +50,7 @@
 #include "InteropProvider.h"
 #include "InteropProviderUtils.h"
 #include "InteropConstants.h"
+#include <Pegasus/Common/ArrayIterator.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -116,20 +117,18 @@ void InteropProvider::associators(
             targetRole,
             CIMPropertyList(),
             resultClass);
-        for (Uint32 j = 0, n = refs.size(); j < n; ++j)
+
+        if( refs.size() )
         {
-            CIMInstance & currentRef = refs[j];
-            // Retrieve the "other side" of the association
-            CIMObjectPath currentTarget = getRequiredValue<CIMObjectPath>(
-                currentRef,
-                targetRole);
-            CIMInstance tmpInstance = localGetInstance(
-                context,
-                currentTarget,
-                propertyList);
-            tmpInstance.setPath(currentTarget);
-            handler.deliver(tmpInstance);
+            Array<CIMInstance> refObjs = 
+                getReferencedInstances(refs,targetRole,context,propertyList);
+            ConstArrayIterator<CIMInstance> refsIterator(refObjs);
+            for(Uint32 i = 0; i < refsIterator.size(); i++)
+            {
+                handler.deliver(refsIterator[i]);
+            }
         }
+
         if (numIterations == 2)
         {
             originRole = String("Dependent");

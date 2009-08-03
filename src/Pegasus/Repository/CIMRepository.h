@@ -304,6 +304,8 @@ public:
         const CIMNamespaceName& nameSpace,
         NameSpaceAttributes& attributes);
 
+    Boolean nameSpaceExists(const CIMNamespaceName& nameSpaceName);
+
     ////////////////////////////////////////////////////////////////////////////
 
     /** Indicates whether instance operations that do not have a provider

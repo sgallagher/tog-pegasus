@@ -58,6 +58,7 @@
 
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/StringConversion.h>
+#include <Pegasus/Common/ArrayIterator.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -190,6 +191,13 @@ CIMInstance InteropProvider::localGetInstance(
                 retInstance, instanceName, false, false, propertyList);
         }
         break;
+        case PG_NAMESPACE:
+        {
+            retInstance = getNameSpaceInstance(instanceName);
+            normalizeInstance(
+                retInstance, instanceName, false, false, propertyList);
+        }
+        break;
         // ATTN: Implement getIntstance for all other classes. Currently
         // this method calls localEnumerateInstances() to select instance
         // which is too expensive.
@@ -202,40 +210,150 @@ CIMInstance InteropProvider::localGetInstance(
             ref.setClassName(opClass);
             ref.setNameSpace(opNamespace);
 
-           // Enumerate instances for this class. Returns all instances
-           // Note that this returns paths setup and instances already
-           // filtered per the input criteria.
-           Array<CIMInstance> instances =  localEnumerateInstances(
-               context,
-               ref,
-               propertyList);
+            // Enumerate instances for this class. Returns all instances
+            // Note that this returns paths setup and instances already
+            // filtered per the input criteria.
+            Array<CIMInstance> instances =  localEnumerateInstances(
+                context,
+                ref,
+                propertyList);
+            ConstArrayIterator<CIMInstance> instancesIter(instances);
 
-              // deliver a single instance if found.
-              bool found = false;
-              for(Uint32 i = 0, n = instances.size(); i < n; i++)
-              {
-                  CIMObjectPath currentInstRef = instances[i].getPath();
-                  currentInstRef.setHost(instanceName.getHost());
-                  currentInstRef.setNameSpace(instanceName.getNameSpace());
-                  if(instanceName == currentInstRef)
-                  {
-                      retInstance = instances[i];
-                      found = true;
-                      break;
-                  }
-             }
+            // deliver a single instance if found.
+            bool found = false;
+            for(Uint32 i = 0; i < instancesIter.size(); i++)
+            {
+                CIMObjectPath currentInstRef = instancesIter[i].getPath();
+                currentInstRef.setHost(instanceName.getHost());
+                currentInstRef.setNameSpace(instanceName.getNameSpace());
+                if(instanceName == currentInstRef)
+                {
+                    retInstance = instancesIter[i];
+                    found = true;
+                    break;
+                }
+            }
 
-             PEG_METHOD_EXIT();
-             if (!found)
-             { 
-                 throw CIMObjectNotFoundException(instanceName.toString());
-             }
+            PEG_METHOD_EXIT();
+            if (!found)
+            { 
+                throw CIMObjectNotFoundException(instanceName.toString());
+            }
         }
     }
 
     return retInstance;
 }
 
+Array<CIMInstance> InteropProvider::getReferencedInstances(
+    const Array<CIMInstance> &refs,
+    const String targetRole,
+    const OperationContext & context,
+    const CIMPropertyList & propertyList)
+{
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, 
+        "InteropProvider::getReferencedObjects");
+
+    Array<CIMInstance> referencedInstances;
+    Array<CIMInstance> classInstances;
+    CIMName prevClassName;
+
+    ConstArrayIterator<CIMInstance> refsIter(refs);
+    for(Uint32 i = 0; i < refsIter.size(); i++)
+    {
+        CIMInstance thisRef = refsIter[i];
+        CIMObjectPath thisTarget = getRequiredValue<CIMObjectPath>(
+            thisRef,
+            targetRole);
+
+        // Test if we're looking for something outside of our namespace. This 
+        // will happen during associators calls from PG_RegisteredProfile 
+        // instances through the PG_ElementConformsToProfile association
+        CIMNamespaceName opNamespace = thisTarget.getNameSpace();
+        CIMName opClass = thisTarget.getClassName();
+
+        if(opNamespace != PEGASUS_NAMESPACENAME_INTEROP &&
+            opClass != PEGASUS_CLASSNAME_PG_ELEMENTCONFORMSTOPROFILE
+            // Get CIM_IndicationService instance from IndicationService.
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+            || opClass == PEGASUS_CLASSNAME_CIM_INDICATIONSERVICE
+#endif
+            ) 
+        {
+            AutoMutex mut(interopMut);
+            CIMInstance gotInstance = cimomHandle.getInstance(
+                context,
+                opNamespace,
+                thisTarget,
+                false,
+                false,
+                false,
+                propertyList);
+            referencedInstances.append(gotInstance);
+            continue;
+        }
+
+        TARGET_CLASS classEnum  = translateClassInput(opClass);
+        CIMInstance retInstance;
+        switch(classEnum)
+        {
+            case PG_SOFTWAREIDENTITY:
+            {
+                CIMInstance retInstance = 
+                    getSoftwareIdentityInstance(thisTarget);
+                normalizeInstance(
+                    retInstance, thisTarget, false, false, propertyList);
+                retInstance.setPath(thisTarget);
+                referencedInstances.append(retInstance);
+            }
+            break;
+            case PG_NAMESPACE:
+            {
+                CIMInstance retInstance = getNameSpaceInstance(thisTarget);
+                normalizeInstance(
+                    retInstance, thisTarget, false, false, propertyList);
+                retInstance.setPath(thisTarget);
+                referencedInstances.append(retInstance);
+            }
+            break;
+            default:
+            {
+                if( opClass != prevClassName )
+                {
+                    CIMObjectPath ref;
+                    ref.setHost(thisTarget.getHost());
+                    ref.setClassName(thisTarget.getClassName());
+                    ref.setNameSpace(thisTarget.getNameSpace());
+                    classInstances = localEnumerateInstances(
+                        context,
+                        ref,
+                        propertyList);
+                    ArrayIterator<CIMInstance> instsIter(classInstances);
+                    for(Uint32 n = 0; n < instsIter.size(); n++)
+                    {
+                        CIMObjectPath tmpInst = instsIter[n].getPath();
+                        tmpInst.setHost(thisTarget.getHost());
+                        tmpInst.setNameSpace(thisTarget.getNameSpace());
+                        instsIter[n].setPath(tmpInst);
+                    }
+                    prevClassName = opClass;
+                }
+                ConstArrayIterator<CIMInstance> instsConstIter(classInstances);
+                for(Uint32 j = 0; j < instsConstIter.size(); j++)
+                {
+                    if(thisTarget == instsConstIter[j].getPath())
+                    {
+                        referencedInstances.append(instsConstIter[j]);
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+    }
+    PEG_METHOD_EXIT();
+    return referencedInstances;
+}
 
 //
 // Local version of enumerateInstances to be used by other functions in the

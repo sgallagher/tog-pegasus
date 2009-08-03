@@ -49,6 +49,7 @@
 #include "InteropProvider.h"
 #include "InteropProviderUtils.h"
 #include "InteropConstants.h"
+#include <Pegasus/Common/ArrayIterator.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -272,6 +273,39 @@ CIMInstance InteropProvider::buildNamespaceInstance(
     instance.setPath(objPath);
     PEG_METHOD_EXIT();
     return instance;
+}
+
+CIMInstance InteropProvider::getNameSpaceInstance(
+    const CIMObjectPath & ref)
+{
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+        "getNameSpaceInstance()");
+    Array<CIMKeyBinding> keyBindings = ref.getKeyBindings();
+    ConstArrayIterator<CIMKeyBinding> keyIter(keyBindings);
+    String name;
+
+    for (Uint32 i = 0; i < keyIter.size(); i++)
+    {
+        if (keyIter[i].getName().equal(CIM_NAMESPACE_PROPERTY_NAME))
+        {
+            name = keyIter[i].getValue();
+            break;
+        }
+    }
+
+    if(repository->nameSpaceExists(name)) 
+    {
+        CIMInstance newInst = buildNamespaceInstance(name);
+        if( newInst.getPath() != ref )
+        {
+            throw CIMObjectNotFoundException(ref.toString());
+        }
+        PEG_METHOD_EXIT();
+        return newInst;
+    }
+
+    PEG_METHOD_EXIT();
+    throw CIMObjectNotFoundException(ref.toString());
 }
 
 //

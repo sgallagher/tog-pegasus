@@ -30,7 +30,6 @@
 #include "StringConversion.h"
 
 #include <errno.h>
-#include <stdio.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -223,69 +222,6 @@ struct Converter
     }
 };
 
-// On windows sprintf outputs 3 digit precision exponent prepending
-// zeros. Make it 2 digit precision if first digit is zero in the exponent.
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-void _normalizeRealValueString(char* str, Uint32& size)
-{
-    // skip initial sign value...
-    if (*str == '-' || *str == '+')
-    {
-        ++str;
-    }
-    while (*str && *str != '+' && *str != '-')
-    {
-        ++str;
-    }
-    if (*str && * ++str == '0')
-    {
-        *str = *(str+1);
-        *(str+1) = *(str+2);
-        *(str+2) = 0;
-        size--;
-    }
-}
-#endif
-
-// On z/OS sprintf outputs NaNQ(1), INF and -INF
-// need to normalize to nan, inf and -inf
-#ifdef PEGASUS_OS_ZOS
-void _normalizeRealValueString_NANandINF(char* str, Uint32& size)
-{
-    if ((str[0]=='n' || str[0]=='N') &&
-            (str[1]=='a' || str[1]=='A') && 
-                (str[2]=='n' || str[2]=='N'))
-    {
-        str[0] = 'n';
-        str[1] = 'a';
-        str[2] = 'n';
-        str[3] = '\0';
-        size=3;
-    }
-    if ((str[0]=='i' || str[0]=='I') &&
-            (str[1]=='n' || str[1]=='N') && 
-                (str[2]=='f' || str[2]=='F'))
-    {
-        str[0] = 'i';
-        str[1] = 'n';
-        str[2] = 'f';
-        str[3] = '\0';
-        size=3;
-    }
-    if ((str[0]=='-') && (str[1]=='i' || str[1]=='I') &&
-            (str[2]=='n' || str[2]=='N') && 
-                (str[3]=='f' || str[3]=='F'))
-    {
-        str[0] = '-';
-        str[1] = 'i';
-        str[2] = 'n';
-        str[3] = 'f';
-        str[4] = '\0';
-        size=4;
-    }
-}
-#endif
-
 const char* Uint8ToString(char buffer[22], Uint8 x, Uint32& size)
 {
     return Converter<Sint8, Uint8>::uintToString(buffer, x, size);
@@ -333,10 +269,7 @@ const char* Real32ToString(char buffer[128], Real32 x, Uint32& size)
     // (4 byte IEEE floating point)
     size = sprintf(buffer, "%.7e", x);
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-    _normalizeRealValueString(buffer, size);
-#endif
-#ifdef PEGASUS_OS_ZOS
-    _normalizeRealValueString_NANandINF(buffer, size);
+    _normalizeRealValueString(buffer);
 #endif
     return buffer;
 }
@@ -348,49 +281,9 @@ const char* Real64ToString(char buffer[128], Real64 x, Uint32& size)
     // by the CIM 2.2 spec (8 byte IEEE floating point)
     size = sprintf(buffer, "%.16e", x);
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-    _normalizeRealValueString(buffer, size);
-#endif
-#ifdef PEGASUS_OS_ZOS
-    _normalizeRealValueString_NANandINF(buffer, size);
+    _normalizeRealValueString(buffer);
 #endif
     return buffer;
-}
-
-
-//------------------------------------------------------------------------------
-//
-// stringToSignedInteger
-//
-//      [ "+" | "-" ] ( positiveDecimalDigit *decimalDigit | "0" )
-//    or
-//      [ "+" | "-" ] ( "0x" | "0X" ) 1*hexDigit
-//
-//------------------------------------------------------------------------------
-
-Boolean StringConversion::stringToSignedInteger(
-    const char* stringValue,
-    Sint64& x)
-{
-    return (stringToSint64(stringValue, decimalStringToUint64, x) ||
-            stringToSint64(stringValue, hexStringToUint64, x));
-}
-
-//------------------------------------------------------------------------------
-//
-// stringToUnsignedInteger
-//
-//      ( positiveDecimalDigit *decimalDigit | "0" )
-//    or
-//      ( "0x" | "0X" ) 1*hexDigit
-//
-//------------------------------------------------------------------------------
-
-Boolean StringConversion::stringToUnsignedInteger(
-    const char* stringValue,
-    Uint64& x)
-{
-    return (decimalStringToUint64(stringValue, x) ||
-            hexStringToUint64(stringValue, x));
 }
 
 
@@ -404,8 +297,7 @@ Boolean StringConversion::stringToUnsignedInteger(
 
 Boolean StringConversion::decimalStringToUint64(
     const char* stringValue,
-    Uint64& x,
-    Boolean allowLeadingZeros )
+    Uint64& x)
 {
     x = 0;
     const char* p = stringValue;
@@ -415,7 +307,7 @@ Boolean StringConversion::decimalStringToUint64(
         return false;
     }
 
-    if (*p == '0'&& !(allowLeadingZeros))
+    if (*p == '0')
     {
         // A decimal string that starts with '0' must be exactly "0".
         return p[1] == '\0';
@@ -454,8 +346,7 @@ Boolean StringConversion::decimalStringToUint64(
 
 Boolean StringConversion::hexStringToUint64(
     const char* stringValue,
-    Uint64& x,
-    Boolean)
+    Uint64& x)
 {
     x = 0;
     const char* p = stringValue;
@@ -464,7 +355,7 @@ Boolean StringConversion::hexStringToUint64(
     {
         return false;
     }
-   
+
     if ((p[0] != '0') || ((p[1] != 'x') && (p[1] != 'X')))
     {
         return false;
@@ -478,6 +369,7 @@ Boolean StringConversion::hexStringToUint64(
     {
         return false;
     }
+
     // Add on each digit, checking for overflow errors
     while (isxdigit(*p))
     {
@@ -489,6 +381,7 @@ Boolean StringConversion::hexStringToUint64(
 
         x = (x << 4) + Uint64(hexCharToNumeric(*p++));
     }
+
     // If we found a non-hexadecimal digit, report an error
     return (!*p);
 }
@@ -503,8 +396,7 @@ Boolean StringConversion::hexStringToUint64(
 
 Boolean StringConversion::octalStringToUint64(
     const char* stringValue,
-    Uint64& x,
-    Boolean)
+    Uint64& x)
 {
     x = 0;
     const char* p = stringValue;
@@ -551,8 +443,7 @@ Boolean StringConversion::octalStringToUint64(
 
 Boolean StringConversion::binaryStringToUint64(
     const char* stringValue,
-    Uint64& x,
-    Boolean)
+    Uint64& x)
 {
     x = 0;
     const char* p = stringValue;
@@ -621,7 +512,7 @@ Boolean StringConversion::checkUintBounds(
 
 Boolean StringConversion::stringToSint64(
     const char* stringValue,
-    Boolean (*uint64Converter)(const char*, Uint64&,Boolean),
+    Boolean (*uint64Converter)(const char*, Uint64&),
     Sint64& x)
 {
     x = 0;
@@ -643,7 +534,7 @@ Boolean StringConversion::stringToSint64(
     // Convert the remaining unsigned integer
 
     Uint64 uint64Value = 0;
-    if (!(uint64Converter(stringValue, uint64Value,false)))
+    if (!(uint64Converter(stringValue, uint64Value)))
     {
         return false;
     }
@@ -729,22 +620,23 @@ Boolean StringConversion::stringToReal64(
         p++;
 
     // Test required dot:
+
     if (*p++ != '.')
-          return false;
+        return false;
 
     // One or more digits required:
 
     if (!isdigit(*p++))
-           return false;
+        return false;
 
     while (isdigit(*p))
-           p++;
+        p++;
 
     // If there is an exponent now:
 
     if (*p)
     {
-         // Test exponent:
+        // Test exponent:
 
         if (*p != 'e' && *p != 'E')
             return false;
@@ -767,6 +659,7 @@ Boolean StringConversion::stringToReal64(
 
     if (*p)
         return false;
+
     //
     // Do the conversion
     //
@@ -777,5 +670,29 @@ Boolean StringConversion::stringToReal64(
 
     return (!*end && (errno != ERANGE));
 }
+
+// On windows sprintf outputs 3 digit precision exponent prepending
+// zeros. Make it 2 digit precision if first digit is zero in the exponent.
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+void StringConversion::_normalizeRealValueString(char* str)
+{
+    // skip initial sign value...
+    if (*str == '-' || *str == '+')
+    {
+        ++str;
+    }
+    while (*str && *str != '+' && *str != '-')
+    {
+        ++str;
+    }
+    if (*str && * ++str == '0')
+    {
+        *str = *(str+1);
+        *(str+1) = *(str+2);
+        *(str+2) = 0;
+    }
+}
+#endif
+
 
 PEGASUS_NAMESPACE_END

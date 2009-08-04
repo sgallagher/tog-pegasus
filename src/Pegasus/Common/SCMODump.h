@@ -94,14 +94,12 @@ public:
         CIMType type,
         Uint32 size,
         SCMBUnion u,
-        char* base) const
-    {return SCMOInstance::_printArrayValue(type,size,u,base);};
+        char* base) const;
 
     String printUnionValue(
         CIMType type,
         SCMBUnion u,
-        char* base) const
-    {return SCMOInstance::_printUnionValue(type,u,base);};
+        char* base) const;
 
 private:
 

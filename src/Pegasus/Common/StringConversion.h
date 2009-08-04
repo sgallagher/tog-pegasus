@@ -107,8 +107,7 @@ public:
     */
     static Boolean decimalStringToUint64(
         const char* stringValue,
-        Uint64& x,
-        Boolean allowLeadingZeros=false);
+        Uint64& x);
 
     /**
         Converts a character string to a Uint64 value according to the DMTF
@@ -121,8 +120,7 @@ public:
     */
     static Boolean octalStringToUint64(
         const char* stringValue,
-        Uint64& x,
-        Boolean allowLeadingZeros = false);
+        Uint64& x);
 
     /**
         Converts a character string to a Uint64 value according to the DMTF
@@ -135,8 +133,7 @@ public:
     */
     static Boolean hexStringToUint64(
         const char* stringValue,
-        Uint64& x,
-        Boolean allowLeadingZeros = false);
+        Uint64& x);
 
     /**
         Converts a character string to a Uint64 value according to the DMTF
@@ -149,8 +146,7 @@ public:
     */
     static Boolean binaryStringToUint64(
         const char* stringValue,
-        Uint64& x, 
-        Boolean allowLeadingZeros = false);
+        Uint64& x);
 
     /**
         Checks whether a specified Uint64 value will fit within a specified
@@ -178,7 +174,7 @@ public:
     */
     static Boolean stringToSint64(
         const char* stringValue,
-        Boolean (*uint64Converter)(const char*, Uint64&,Boolean),
+        Boolean (*uint64Converter)(const char*, Uint64&),
         Sint64& x);
 
     /**
@@ -205,15 +201,6 @@ public:
     static Boolean stringToReal64(
         const char* stringValue,
         Real64& x);
-
-    static Boolean stringToSignedInteger(
-        const char* stringValue,
-        Sint64& x);
-
-    static Boolean stringToUnsignedInteger(
-        const char* stringValue,
-        Uint64& x);
-
 };
 
 PEGASUS_NAMESPACE_END

@@ -41,6 +41,7 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/StringConversion.h>
 
 #ifdef PEGASUS_OS_ZOS
   #include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
@@ -1271,6 +1272,14 @@ SCMOInstance::SCMOInstance(
 
 }
 
+
+SCMOInstance::SCMOInstance(SCMOClass baseClass, const CIMInstance& cimInstance)
+{
+    
+    _initSCMOInstance(new SCMOClass(baseClass),false,false);
+
+}
+
 Boolean SCMOInstance::isSame(SCMOInstance& theInstance) const
 {
     return inst.base == theInstance.inst.base;
@@ -1313,17 +1322,172 @@ void SCMOInstance::buildKeyBindingsFromProperties()
                 throw NoSuchProperty(String(propName));
             }
 
-
-            _setString(
-                _printUnionValue(
-                    theInstPropNodeArray[propNode].valueType,
-                     theInstPropNodeArray[propNode].value,inst.base),
-                theInstKeyBindNodeArray[i],
-                &inst.mem);
-
+            _setKeyBindingFromSCMBUnion( 
+                theInstPropNodeArray[propNode].valueType,
+                theInstPropNodeArray[propNode].value,
+                theInstKeyBindNodeArray[i]);
         }
     }
 }
+
+void SCMOInstance::_setKeyBindingFromSCMBUnion(
+    CIMType type, 
+    SCMBUnion& u,
+    SCMBDataPtr& keyNode)
+{
+    Uint32 outputLength=0;
+    const char * output;
+    
+    switch (type)
+    {
+    case CIMTYPE_UINT8:
+        {
+            char buffer[22];
+            output = Uint8ToString(buffer, u._uint8Value, outputLength);
+            // including trailing '\0' !
+            _setBinary(output,outputLength+1,keyNode,&inst.mem);
+            break;
+        }
+
+    case CIMTYPE_UINT16:
+        {
+            char buffer[22];
+            output = Uint16ToString(buffer, u._uint16Value, outputLength);
+            // including trailing '\0' !
+            _setBinary(output,outputLength+1,keyNode,&inst.mem);
+            break;
+        }
+
+    case CIMTYPE_UINT32:
+        {
+            char buffer[22];
+            output = Uint32ToString(buffer, u._uint32Value, outputLength);
+            // including trailing '\0' !
+            _setBinary(output,outputLength+1,keyNode,&inst.mem);
+            break;
+        }
+
+    case CIMTYPE_UINT64:
+        {
+            char buffer[22];
+            output = Uint64ToString(buffer, u._uint64Value, outputLength);
+            // including trailing '\0' !
+            _setBinary(output,outputLength+1,keyNode,&inst.mem);
+            break;
+        }
+
+    case CIMTYPE_SINT8:
+        {
+            char buffer[22];
+            output = Sint8ToString(buffer, u._sint8Value, outputLength);
+            // including trailing '\0' !
+            _setBinary(output,outputLength+1,keyNode,&inst.mem);
+            break;
+        }
+
+    case CIMTYPE_SINT16:
+        {
+            char buffer[22];
+            output = Sint16ToString(buffer, u._sint16Value, outputLength);
+            // including trailing '\0' !
+            _setBinary(output,outputLength+1,keyNode,&inst.mem);
+            break;
+        }
+
+    case CIMTYPE_SINT32:
+        {
+            char buffer[22];
+            output = Sint32ToString(buffer, u._sint32Value, outputLength);
+            // including trailing '\0' !
+            _setBinary(output,outputLength+1,keyNode,&inst.mem);
+            break;
+        }
+
+    case CIMTYPE_SINT64:
+        {
+            char buffer[22];
+            output = Sint64ToString(buffer, u._sint64Value, outputLength);
+            // including trailing '\0' !
+            _setBinary(output,outputLength+1,keyNode,&inst.mem);
+            break;
+        }
+
+    case CIMTYPE_REAL32:
+        {
+            char buffer[128];
+            output = Real32ToString(buffer, u._real32Value, outputLength);
+            // including trailing '\0' !
+            _setBinary(output,outputLength+1,keyNode,&inst.mem);
+            break;
+        }
+
+    case CIMTYPE_REAL64:
+        {
+            char buffer[128];
+            output = Real64ToString(buffer, u._real64Value, outputLength);
+            // including trailing '\0' !
+            _setBinary(output,outputLength+1,keyNode,&inst.mem);
+            break;
+            break;
+        }
+
+    case CIMTYPE_CHAR16:
+        {
+            Buffer out;
+            _toString(out,u._char16Value);
+            // including trailing '\0' !
+            _setBinary(out.getData(),out.size()+1,keyNode,&inst.mem);
+            break;
+        }
+
+    case CIMTYPE_BOOLEAN:
+        {
+            if (u._booleanValue)
+            {
+                _setBinary("TRUE",strlen("TRUE")+1,keyNode,&inst.mem);
+            }
+            else
+            {
+                _setBinary("FALSE",strlen("FLASE")+1,keyNode,&inst.mem);
+            }
+            break;
+        }
+
+    case CIMTYPE_STRING:
+        {
+            _setBinary(
+                &inst.base[u._stringValue.start],
+                u._stringValue.length,
+                keyNode,
+                &inst.mem);
+            break;
+        }
+
+    case CIMTYPE_DATETIME:
+        {
+            _setString(
+                CIMDateTime(&u._dateTimeValue).toString(),
+                keyNode,
+                &inst.mem);
+            break;
+        }
+
+        case CIMTYPE_REFERENCE:
+
+            break;
+
+        case CIMTYPE_OBJECT:
+
+            break;
+        case CIMTYPE_INSTANCE:
+
+            break;
+    }
+
+
+
+}
+
 void SCMOInstance::setHostName(const char* hostName)
 {
     Uint32 len;
@@ -3126,11 +3290,11 @@ void SCMODump::_hexDump(char* buffer,int length) const
     }
 }
 
-String SCMOInstance::_printArrayValue(
+String SCMODump::printArrayValue(
     CIMType type,
     Uint32 size,
     SCMBUnion u,
-    char* base)
+    char* base) const
 {
     Buffer out;
 
@@ -3272,11 +3436,12 @@ String SCMOInstance::_printArrayValue(
     return out.getData();
 }
 
-String SCMOInstance::_printUnionValue(
+String SCMODump::printUnionValue(
     CIMType type,
     SCMBUnion u,
-    char* base)
+    char* base) const
 {
+    
     Buffer out;
 
     switch (type)

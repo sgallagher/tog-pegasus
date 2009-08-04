@@ -237,8 +237,9 @@ public:
         const char* origin = NULL);
 
     /**
-     * Rebuild of the key bindings from the property values.
+     * Rebuild of the key bindings from the property values
      * if no or incomplete key properties are set on the instance.
+     * @exception NoSuchProperty
      */
     void buildKeyBindingsFromProperties();
 
@@ -506,15 +507,10 @@ private:
 
     void _clearPropertyFilter();
 
-    static String _printArrayValue(
-        CIMType type,
-        Uint32 size,
-        SCMBUnion u,
-        char* base);
-
-
-    static String _printUnionValue(CIMType type,SCMBUnion u,char* base);
-
+    void _setKeyBindingFromSCMBUnion(
+        CIMType type, 
+        SCMBUnion& u,
+        SCMBDataPtr& keyNode);
 
     union{
         // To access the instance main structure

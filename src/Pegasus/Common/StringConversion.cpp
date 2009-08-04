@@ -222,6 +222,30 @@ struct Converter
     }
 };
 
+// On windows sprintf outputs 3 digit precision exponent prepending
+// zeros. Make it 2 digit precision if first digit is zero in the exponent.
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+void _normalizeRealValueString(char* str)
+{
+    // skip initial sign value...
+    if (*str == '-' || *str == '+')
+    {
+        ++str;
+    }
+    while (*str && *str != '+' && *str != '-')
+    {
+        ++str;
+    }
+    if (*str && * ++str == '0')
+    {
+        *str = *(str+1);
+        *(str+1) = *(str+2);
+        *(str+2) = 0;
+    }
+}
+#endif
+
+
 const char* Uint8ToString(char buffer[22], Uint8 x, Uint32& size)
 {
     return Converter<Sint8, Uint8>::uintToString(buffer, x, size);
@@ -670,29 +694,5 @@ Boolean StringConversion::stringToReal64(
 
     return (!*end && (errno != ERANGE));
 }
-
-// On windows sprintf outputs 3 digit precision exponent prepending
-// zeros. Make it 2 digit precision if first digit is zero in the exponent.
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-void StringConversion::_normalizeRealValueString(char* str)
-{
-    // skip initial sign value...
-    if (*str == '-' || *str == '+')
-    {
-        ++str;
-    }
-    while (*str && *str != '+' && *str != '-')
-    {
-        ++str;
-    }
-    if (*str && * ++str == '0')
-    {
-        *str = *(str+1);
-        *(str+1) = *(str+2);
-        *(str+2) = 0;
-    }
-}
-#endif
-
 
 PEGASUS_NAMESPACE_END

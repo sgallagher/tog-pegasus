@@ -1293,20 +1293,26 @@ const char* SCMOInstance::getHostName() const
 void SCMOInstance::buildKeyBindingsFromProperties()
 {
 
-    SCMBDataPtr* theInstKeyBindNodeArray =
-        (SCMBDataPtr*)&inst.base[inst.hdr->keyBindingArray.start];
-
     Uint32* theClassKeyPropList =
-        (Uint32*) &(inst.hdr->theClass->cls.base)
-                          [(inst.hdr->theClass->cls.hdr->keyIndexList.start)];
+        (Uint32*) &((inst.hdr->theClass->cls.base)
+                          [(inst.hdr->theClass->cls.hdr->keyIndexList.start)]);
 
-    SCMBValue* theInstPropNodeArray =
-        (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
+    SCMBDataPtr* theInstKeyBindNodeArray;
+    SCMBValue* theInstPropNodeArray;
 
     Uint32 propNode;
 
     for (Uint32 i = 0; i < inst.hdr->numberKeyBindings; i++)
     {
+        // the instance pointers has to be reinitialized eache time,
+        // because in _setKeyBindingFromSCMBUnion() 
+        // a reallocation can take place.
+        theInstKeyBindNodeArray =
+            (SCMBDataPtr*)&inst.base[inst.hdr->keyBindingArray.start];
+
+        theInstPropNodeArray =
+            (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
+
         // If the keybinding is not set.
         if (theInstKeyBindNodeArray[i].start == 0)
         {

@@ -294,23 +294,41 @@ public:
     */
     Boolean isUninitialized() const;
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    /**  <I><B>Experimental Interface</B></I><BR>
+        Filter the properties, qualifiers and class origin attributes from the
+        instance based on specified filtering criteria.  Information is not
+        added by this method, it is only removed.  This method is specifically
+        designed to allow providers to filter instances based on CIM operation
+        parameters.
 
-// This function has been deprecated. Property filtering is now done by the 
-// CIMOM infrastructure.
+        @param includeQualifiers A Boolean indicating whether qualifiers are
+            preserved in the instance and its properties.  If false, existing
+            qualifiers are removed; otherwise, qualifiers are not removed.
+            Because the CIM specification is unclear on the meaning of this
+            parameter and its relationship to instance operations, the
+            behavior when this parameter is true MAY change in the future
+            based on clarifications of the CIM specification.
+
+        @param includeClassOrigin A Boolean indicating whether ClassOrigin
+            attributes are preserved in the properties.  If false, ClassOrigin
+            attributes are removed from all properties; otherwise, ClassOrigin
+            attributes are not removed.
+
+        @param propertyList A CIMPropertyList defining the properties that
+            are preserved in the instance.  If the propertyList is not NULL,
+            properties absent from this list are removed from the instance.
+            If the propertyList is NULL, no properties are removed from the
+            instance.
+
+        @exception UninitializedObjectException If the object is not
+            initialized.
+    */
     void filter(
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList & propertyList);
 #endif
-
-//This is a replacement function for filter(), it has   
-//added for backward compatability and it is not optimized 
-//for performance.
-void instanceFilter(
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList & propertyList);         
 
 private:
 
@@ -327,7 +345,6 @@ private:
     friend class BinaryStreamer;
     friend class CIMClassRep;
     friend class SCMOInstance;
-    friend class SCMOClass;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

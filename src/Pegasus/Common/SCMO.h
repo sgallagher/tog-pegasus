@@ -490,6 +490,13 @@ static Boolean _equalUTF8Strings(
     const char* name,
     Uint32 len);
 
+
+static Boolean _equalNoCaseUTF8Strings(
+    const SCMBDataPtr& ptr_a,
+    char* base,
+    const char* name,
+    Uint32 len);
+
 PEGASUS_NAMESPACE_END
 
 

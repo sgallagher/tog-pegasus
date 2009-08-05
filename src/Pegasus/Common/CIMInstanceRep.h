@@ -69,7 +69,6 @@ public:
     void filter(Boolean includeQualifiers,
             Boolean includeClassOrigin,
             const CIMPropertyList & propertyList);
-   
 private:
 
     CIMInstanceRep(const CIMInstanceRep& x);
@@ -81,7 +80,6 @@ private:
     friend class CIMClassRep;
     friend class CIMBuffer;
     friend class SCMOInstance;
-    friend class SCMOClass;
 };
 
 PEGASUS_NAMESPACE_END

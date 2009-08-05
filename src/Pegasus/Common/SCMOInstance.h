@@ -106,8 +106,34 @@ public:
      * CIMInstance data into the new SCMOInstance.
      * @param baseClass The SCMOClass of this instance.
      * @param cimInstance A CIMInstace of the same class.
+     * @exception Exception if class name and name space does not match.
+     * @exception
+     *     Exception if CIMInstance has more key bindings then the SCMOClass.
+     * @exception
+     *     Exception if a key binding is not found as a key property
+     *     of the SCMOClass.
+     * @exception Exception if a key binding does not match
+     *     the class definition.
+     * @exception Exception if a property is not part of class definition.
+     * @exception Exception if a property does not match the class definition.
      */
     SCMOInstance(SCMOClass baseClass, const CIMInstance& cimInstance);
+
+    /**
+     * Builds a SCMOInstance from the given SCMOClass and copies all
+     * CIMObjectPath data into the new SCMOInstance.
+     * @param baseClass The SCMOClass of this instance.
+     * @param cimInstance A CIMObjectpath of the same class.
+     * @exception Exception if class name and name space does not match.
+     * @exception
+     *     Exception if CIMInstance has more key bindings then the SCMOClass.
+     * @exception
+     *     Exception if a key binding is not found as a key property
+     *     of the SCMOClass.
+     * @exception Exception if a key binding does not match
+     *     the class definition.
+     */
+    SCMOInstance(SCMOClass baseClass, const CIMObjectPath& cimObj);
 
     /**
      * Converts the SCMOInstance into a CIMInstance.
@@ -268,7 +294,7 @@ public:
 
     /**
      * Set/replace a property in the instance at node index.
-     * Note: If node is filtered, the property is not set but the return value 
+     * Note: If node is filtered, the property is not set but the return value
      * is still SCMO_OK.
      * @param index The node index.
      * @param type The CIMType of the property
@@ -479,6 +505,10 @@ private:
         Boolean isArray,
         Uint32 size);
 
+    void _setCIMValueAtNodeIndex(Uint32 node, CIMValueRep* valRep);
+
+    void _setCIMObjectPath(const CIMObjectPath& cimObj);
+
     void* _getSCMBUnion(
         CIMType type,
         Boolean isArray,
@@ -492,6 +522,19 @@ private:
         Boolean isArray,
         Uint32 size,
         Uint64 start);
+
+    static void _setUnionValue(
+        Uint64 start,
+        SCMBMgmt_Header** pmem,
+        CIMType type,
+        Union& u);
+
+    static void _setArrayValue(
+        Uint64 start,
+        SCMBMgmt_Header** pmem,
+        CIMType type,
+        Uint32& n,
+        Union& u);
 
     SCMO_RC _getKeyBindingAtNodeIndex(
         Uint32 pos,
@@ -508,7 +551,7 @@ private:
     void _clearPropertyFilter();
 
     void _setKeyBindingFromSCMBUnion(
-        CIMType type, 
+        CIMType type,
         SCMBUnion& u,
         SCMBDataPtr& keyNode);
 

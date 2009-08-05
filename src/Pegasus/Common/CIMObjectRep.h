@@ -42,7 +42,6 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/OrderedSet.h>
 #include <Pegasus/Common/CIMPropertyRep.h>
-#include <Pegasus/Common/ArrayInternal.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -53,11 +52,6 @@ PEGASUS_NAMESPACE_BEGIN
 
     This class contains what is common to CIMClass and CIMInstance.
 */
-
-typedef OrderedSet<CIMProperty,
-                   CIMPropertyRep,
-                   PEGASUS_PROPERTY_ORDEREDSET_HASHSIZE> PropertySet;
-
 class CIMObjectRep
 {
 public:
@@ -164,17 +158,15 @@ public:
             delete this;
     }
 
-    void instanceFilter(
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const CIMPropertyList & propertyList);
-
 protected:
 
     CIMObjectRep(const CIMObjectRep& x);
 
     CIMObjectPath _reference;
     CIMQualifierList _qualifiers;
+    typedef OrderedSet<CIMProperty,
+                       CIMPropertyRep,
+                       PEGASUS_PROPERTY_ORDEREDSET_HASHSIZE> PropertySet;
     PropertySet _properties;
 
 private:
@@ -190,8 +182,6 @@ private:
     friend class BinaryStreamer;
     friend class CIMBuffer;
     friend class SCMOInstance;
-    friend class SCMOClass;
-    friend class XmlWriter;
 };
 
 PEGASUS_NAMESPACE_END

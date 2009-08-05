@@ -139,8 +139,6 @@ private:
     Boolean _isPropertyKey(Uint32 i);
 
     void _setValue(Uint64 start, const CIMValue& theCIMValue);
-    void _setUnionValue(Uint64 start, CIMType type, Union& u);
-    void _setArrayValue(Uint64 start, CIMType type, Union& u);
     QualifierNameEnum _getSCMOQualifierNameEnum(const CIMName& theCIMname);
     Boolean _isSamePropOrigin(Uint32 node, const char* origin) const;
 
@@ -148,7 +146,7 @@ private:
 
     inline SCMO_RC _isNodeSameType(
         Uint32 node,
-        CIMType type, 
+        CIMType type,
         Boolean isArray) const;
 
     union{

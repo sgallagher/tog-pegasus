@@ -36,6 +36,8 @@
 #include <Pegasus/Common/CharSet.h>
 #include <Pegasus/Common/CIMDateTimeRep.h>
 #include <Pegasus/Common/CIMPropertyRep.h>
+#include <Pegasus/Common/CIMInstanceRep.h>
+#include <Pegasus/Common/CIMObjectPathRep.h>
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/StrLit.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -52,13 +54,13 @@ PEGASUS_USING_STD;
 #define SCMB_INITIAL_MEMORY_CHUNK_SIZE 4096
 
 /**
- * This macro is used at the SCMODump class 
+ * This macro is used at the SCMODump class
  * for generating C/C++ runtime independend output.
- * For example on Linux if fprintf got a NULL pointer 
+ * For example on Linux if fprintf got a NULL pointer
  * for a string format specification, the string "(null)" is
  * substituted. On other platforms no string "" is substituded.
  */
-#define NULLSTR(x) ((x) == NULL ? "" : (x)) 
+#define NULLSTR(x) ((x) == NULL ? "" : (x))
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -216,7 +218,7 @@ void SCMOClass::getKeyNamesAsString(Array<String>& keyNames) const
 
     keyNames.clear();
 
-    for (Uint32 i = 0 ; i < cls.hdr->propertySet.number; i++)
+    for (Uint32 i = 0, k = cls.hdr->propertySet.number; i < k; i++)
     {
         // Append the key property name.
         // The length has to be reduces by 1 not to copy the trailing '\0'
@@ -824,342 +826,31 @@ void SCMOClass::_setValue(Uint64 start, const CIMValue& theCIMValue)
     // Only initalized by for completeness.
     scmoValue->flags.isSet = false;
 
-    valueStart = (char*)&scmoValue->value - cls.base;
-
     if (rep->isNull)
     {
         return;
     }
 
+    valueStart = (char*)&scmoValue->value - cls.base;
+
     if (scmoValue->flags.isArray)
     {
-        scmoValue->valueArraySize = theCIMValue.getArraySize();
-        _setArrayValue(valueStart,rep->type, rep->u);
+        SCMOInstance::_setArrayValue(
+            valueStart,
+            &cls.mem,
+            rep->type,
+            // Is set to the number of array members by the function.
+            scmoValue->valueArraySize,
+            rep->u);
     }
     else
     {
-        _setUnionValue(valueStart, rep->type, rep->u);
+        SCMOInstance::_setUnionValue(
+            valueStart,
+            &cls.mem,
+            rep->type,
+            rep->u);
     }
-}
-
-void SCMOClass::_setArrayValue(Uint64 start, CIMType type, Union& u)
-{
-    SCMBUnion* scmoUnion = (SCMBUnion*)&(cls.base[start]);
-    Uint64 arrayStart;
-    Uint32 n;
-
-    switch (type)
-    {
-    case CIMTYPE_BOOLEAN:
-        {
-            Array<Boolean> *x = reinterpret_cast<Array<Boolean>*>(&u);
-            n = x->size();
-            arrayStart = _getFreeSpace(
-                scmoUnion->_arrayValue,
-                n*sizeof(Boolean),
-                &cls.mem);
-            memcpy(&cls.base[arrayStart],x->getData(),n * sizeof(Boolean));
-            break;
-        }
-
-    case CIMTYPE_UINT8:
-        {
-            Array<Uint8> *x = reinterpret_cast<Array<Uint8>*>(&u);
-            n = x->size();
-            arrayStart = _getFreeSpace(
-                scmoUnion->_arrayValue,
-                n*sizeof(Uint8),
-                &cls.mem);
-            memcpy(&cls.base[arrayStart],x->getData(),n * sizeof(Uint8));
-            break;
-        }
-
-    case CIMTYPE_SINT8:
-        {
-            Array<Sint8> *x = reinterpret_cast<Array<Sint8>*>(&u);
-            n = x->size();
-            arrayStart = _getFreeSpace(
-                scmoUnion->_arrayValue,
-                n*sizeof(Sint8),
-                &cls.mem);
-            memcpy(&cls.base[arrayStart],x->getData(),n * sizeof(Sint8));
-            break;
-        }
-
-    case CIMTYPE_UINT16:
-        {
-            Array<Uint16> *x = reinterpret_cast<Array<Uint16>*>(&u);
-            n = x->size();
-            arrayStart = _getFreeSpace(
-                scmoUnion->_arrayValue,
-                n*sizeof(Uint16),
-                &cls.mem);
-            memcpy(&cls.base[arrayStart],x->getData(),n * sizeof(Uint16));
-
-            break;
-        }
-
-    case CIMTYPE_SINT16:
-        {
-            Array<Sint16> *x = reinterpret_cast<Array<Sint16>*>(&u);
-            n = x->size();
-            arrayStart = _getFreeSpace(
-                scmoUnion->_arrayValue,
-                n*sizeof(Sint16),
-                &cls.mem);
-            memcpy(&cls.base[arrayStart],x->getData(),n * sizeof(Sint16));
-            break;
-        }
-
-    case CIMTYPE_UINT32:
-        {
-            Array<Uint32> *x = reinterpret_cast<Array<Uint32>*>(&u);
-            n = x->size();
-            arrayStart = _getFreeSpace(
-                scmoUnion->_arrayValue,
-                n*sizeof(Uint32),
-                &cls.mem);
-            memcpy(&cls.base[arrayStart],x->getData(),n * sizeof(Uint32));
-            break;
-        }
-
-    case CIMTYPE_SINT32:
-        {
-            Array<Sint32> *x = reinterpret_cast<Array<Sint32>*>(&u);
-            n = x->size();
-            arrayStart = _getFreeSpace(
-                scmoUnion->_arrayValue,
-                n*sizeof(Sint32),
-                &cls.mem);
-            memcpy(&cls.base[arrayStart],x->getData(),n * sizeof(Sint32));
-            break;
-        }
-
-    case CIMTYPE_UINT64:
-        {
-            Array<Uint64> *x = reinterpret_cast<Array<Uint64>*>(&u);
-            n = x->size();
-            arrayStart = _getFreeSpace(
-                scmoUnion->_arrayValue,
-                n*sizeof(Uint64),
-                &cls.mem);
-            memcpy(&cls.base[arrayStart],x->getData(),n * sizeof(Uint64));
-            break;
-        }
-
-    case CIMTYPE_SINT64:
-        {
-            Array<Sint64> *x = reinterpret_cast<Array<Sint64>*>(&u);
-            n = x->size();
-            arrayStart = _getFreeSpace(
-                scmoUnion->_arrayValue,
-                n*sizeof(Sint64),
-                &cls.mem);
-            memcpy(&cls.base[arrayStart],x->getData(),n * sizeof(Sint64));
-            break;
-        }
-
-    case CIMTYPE_REAL32:
-        {
-            Array<Real32> *x = reinterpret_cast<Array<Real32>*>(&u);
-            n = x->size();
-            arrayStart = _getFreeSpace(
-                scmoUnion->_arrayValue,
-                n*sizeof(Real32),
-                &cls.mem);
-            memcpy(&cls.base[arrayStart],x->getData(),n * sizeof(Real32));
-            break;
-        }
-
-    case CIMTYPE_REAL64:
-        {
-            Array<Real64> *x = reinterpret_cast<Array<Real64>*>(&u);
-            n = x->size();
-            arrayStart = _getFreeSpace(
-                scmoUnion->_arrayValue,
-                n*sizeof(Real64),
-                &cls.mem);
-            memcpy(&cls.base[arrayStart],x->getData(),n * sizeof(Real64));
-            break;
-        }
-
-    case CIMTYPE_CHAR16:
-        {
-            Array<Char16> *x = reinterpret_cast<Array<Char16>*>(&u);
-            n = x->size();
-            arrayStart = _getFreeSpace(
-                scmoUnion->_arrayValue,
-                n*sizeof(Char16),
-                &cls.mem);
-            memcpy(&cls.base[arrayStart],x->getData(),n * sizeof(Char16));
-            break;
-        }
-
-    case CIMTYPE_STRING:
-        {
-            SCMBDataPtr *ptr;
-
-            Array<String> *x = reinterpret_cast<Array<String>*>(&u);
-
-            n = x->size();
-            arrayStart = _getFreeSpace(
-                scmoUnion->_arrayValue,
-                n*sizeof(SCMBDataPtr),
-                &cls.mem);
-
-            for (Uint32 i = 0; i < n ; i++)
-            {
-                // the pointer has to be set eache loop,
-                // because a reallocation may take place.
-                ptr = (SCMBDataPtr*)(&cls.base[arrayStart]);
-                _setString( (*x)[i],ptr[i], &cls.mem );
-            }
-
-            break;
-        }
-
-    case CIMTYPE_DATETIME:
-        {
-            SCMBDateTime *ptr;
-            Array<CIMDateTime> *x = reinterpret_cast<Array<CIMDateTime>*>(&u);
-            n = x->size();
-            arrayStart = _getFreeSpace(
-                scmoUnion->_arrayValue,
-                n*sizeof(SCMBDateTime),
-                &cls.mem);
-
-            ptr=(SCMBDateTime*)(&cls.base[arrayStart]);
-
-            for (Uint32 i = 0; i < n ; i++)
-            {
-                memcpy(&(ptr[i]),(*x)[i]._rep,sizeof(SCMBDateTime));
-            }
-            break;
-        }
-
-        case CIMTYPE_REFERENCE:
-
-            break;
-
-        case CIMTYPE_OBJECT:
-
-            break;
-
-        case CIMTYPE_INSTANCE:
-
-            break;
-    }
-}
-
-
-void SCMOClass::_setUnionValue(Uint64 start, CIMType type, Union& u)
-{
-    SCMBUnion* scmoUnion = (SCMBUnion*)&(cls.base[start]);
-
-    switch (type)
-    {
-    case CIMTYPE_BOOLEAN:
-        {
-            scmoUnion->_booleanValue = u._booleanValue;
-            break;
-        }
-
-    case CIMTYPE_UINT8:
-        {
-            scmoUnion->_uint8Value = u._uint8Value;
-            break;
-        }
-
-    case CIMTYPE_SINT8:
-        {
-            scmoUnion->_sint8Value = u._sint8Value;
-            break;
-        }
-
-    case CIMTYPE_UINT16:
-        {
-            scmoUnion->_uint16Value = u._uint16Value;
-            break;
-        }
-
-    case CIMTYPE_SINT16:
-        {
-            scmoUnion->_sint16Value = u._sint16Value;
-            break;
-        }
-
-    case CIMTYPE_UINT32:
-        {
-            scmoUnion->_uint32Value = u._uint32Value;
-            break;
-        }
-
-    case CIMTYPE_SINT32:
-        {
-            scmoUnion->_sint32Value = u._sint32Value;
-            break;
-        }
-
-    case CIMTYPE_UINT64:
-        {
-            scmoUnion->_uint64Value = u._uint64Value;
-            break;
-        }
-
-    case CIMTYPE_SINT64:
-        {
-            scmoUnion->_sint64Value = u._sint64Value;
-            break;
-        }
-
-    case CIMTYPE_REAL32:
-        {
-            scmoUnion->_real32Value = u._real32Value;
-            break;
-        }
-
-    case CIMTYPE_REAL64:
-        {
-            scmoUnion->_real64Value = u._real64Value;
-            break;
-        }
-
-    case CIMTYPE_CHAR16:
-        {
-            scmoUnion->_char16Value = u._char16Value;
-            break;
-        }
-
-    case CIMTYPE_STRING:
-        {
-            _setString(*((String*)((void*)&u)),
-                       scmoUnion->_stringValue,
-                       &cls.mem );
-            break;
-        }
-
-    case CIMTYPE_DATETIME:
-        {
-
-            memcpy(
-                &scmoUnion->_dateTimeValue,
-                (*((CIMDateTime*)((void*)&u)))._rep,
-                sizeof(SCMBDateTime));
-            break;
-        }
-
-        case CIMTYPE_REFERENCE:
-
-            break;
-
-        case CIMTYPE_OBJECT:
-
-            break;
-        case CIMTYPE_INSTANCE:
-
-            break;
-    }
-
 }
 
 QualifierNameEnum SCMOClass::_getSCMOQualifierNameEnum(
@@ -1272,13 +963,184 @@ SCMOInstance::SCMOInstance(
 
 }
 
+SCMOInstance::SCMOInstance(SCMOClass baseClass, const CIMObjectPath& cimObj)
+{
+    _initSCMOInstance(new SCMOClass(baseClass),false,false);
+
+    _setCIMObjectPath(cimObj);
+
+}
 
 SCMOInstance::SCMOInstance(SCMOClass baseClass, const CIMInstance& cimInstance)
 {
-    
-    _initSCMOInstance(new SCMOClass(baseClass),false,false);
+
+    CIMPropertyRep* propRep;
+    Uint32 propNode;
+    Uint64 valueStart;
+    SCMO_RC rc;
+
+    CIMInstanceRep* instRep = cimInstance._rep;
+    Boolean hasQualifiers = (instRep->_qualifiers.getCount()>0);
+    Boolean hasClassOrigin = false;
+
+    _initSCMOInstance(new SCMOClass(baseClass),hasQualifiers,hasClassOrigin);
+
+    _setCIMObjectPath(instRep->_reference);
+
+    // Copy all properties
+    for (Uint32 i = 0, k = instRep->_properties.size(); i < k; i++)
+    {
+        propRep = instRep->_properties[i]._rep;
+        // if not already detected that qualifiers are specified and
+        // there are qualifers at that property.
+        if (!hasQualifiers && propRep->getQualifierCount() > 0)
+        {
+            includeQualifiers();
+        }
+        // if not already detected that class origins are specified and
+        // there is a class origin specified at that property.
+        if (!hasClassOrigin && !propRep->_classOrigin.isNull())
+        {
+            includeClassOrigins();
+        }
+
+        // get the property node index for the property
+        rc = inst.hdr->theClass->_getProperyNodeIndex(
+            propNode,
+            (const char*)propRep->_name.getString().getCString());
+
+        if (rc != SCMO_OK)
+        {
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NO_SUCH_PROPERTY,
+               propRep->_name.getString());
+        }
+        rc = inst.hdr->theClass->_isNodeSameType(
+                 propNode,
+                 propRep->_value._rep->type,
+                 propRep->_value._rep->isArray);
+        if (rc == SCMO_OK)
+        {
+            _setCIMValueAtNodeIndex(propNode, propRep->_value._rep);
+        }
+        else
+        {
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_TYPE_MISMATCH,
+               propRep->_name.getString());
+        }
+    }
 
 }
+
+void SCMOInstance::_setCIMObjectPath(const CIMObjectPath& cimObj)
+{
+    CIMObjectPathRep* objRep = cimObj._rep;
+    SCMO_RC rc;
+
+    // For better usability define pointers to SCMO Class data structures.
+    SCMBClass_Main* clshdr = inst.hdr->theClass->cls.hdr;
+    char* clsbase = inst.hdr->theClass->cls.base;
+
+    CString className = objRep->_className.getString().getCString();
+    CString nameSpace = objRep->_nameSpace.getString().getCString();
+
+    // Is the instance from the same class and name space ?
+    if (!(_equalNoCaseUTF8Strings(
+             clshdr->className,
+             clsbase,
+             (const char*)className,
+             strlen(className)) &&
+          _equalNoCaseUTF8Strings(
+             clshdr->nameSpace,
+             clsbase,
+             (const char*)nameSpace,
+             strlen(nameSpace)))
+        )
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS,
+           objRep->_className.getString());
+    }
+
+    //set host name
+    _setString(objRep->_host,inst.hdr->hostName,&inst.mem );
+
+    if (inst.hdr->numberKeyBindings < objRep->_keyBindings.size())
+    {
+        String message("CIMObjectPath has more keybindings "
+                       "than the associatied class key propertties.");
+        throw CIMException(CIM_ERR_FAILED, message);
+    }
+
+    for (Uint32 i = 0, k = objRep->_keyBindings.size(); i < k; i++)
+    {
+
+        rc = setKeyBinding(
+            (const char*)
+                    objRep->_keyBindings[i].getName().getString().getCString(),
+            objRep->_keyBindings[i].getType(),
+            (const char*) objRep->_keyBindings[i].getValue().getCString());
+
+        if (rc != SCMO_OK)
+        {
+            switch (rc)
+            {
+            case SCMO_NOT_FOUND:
+                {
+                    String message("CIMObjectPath key binding ");
+                    message.append(
+                        objRep->_keyBindings[i].getName().getString());
+                    message.append(" not found.");
+                    throw CIMException(CIM_ERR_FAILED, message);
+                }
+            default:
+                {
+                    String message("CIMObjectPath key binding ");
+                    message.append(
+                        objRep->_keyBindings[i].getName().getString());
+                    message.append(" does not match class definition!");
+                    throw CIMException(CIM_ERR_FAILED, message);
+                }
+            }
+        }
+    }
+
+}
+void SCMOInstance::_setCIMValueAtNodeIndex(Uint32 node, CIMValueRep* valRep)
+{
+    SCMBValue* theInstPropNodeArray =
+        (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
+
+
+    SCMBValue& theInstProp = theInstPropNodeArray[node];
+
+    theInstProp.valueType=valRep->type;
+    theInstProp.flags.isNull=valRep->isNull;
+    theInstProp.flags.isArray=valRep->isArray;
+    theInstProp.flags.isSet=true;
+    theInstProp.valueArraySize=0;
+
+    if (valRep->isNull)
+    {
+        return;
+    }
+
+    Uint64 start = ((const char*)&(theInstProp.value))-inst.base;
+
+    if (valRep->isArray)
+    {
+        _setArrayValue(
+            start,
+            &inst.mem,
+            valRep->type,
+            // Is set to the number of array members by the function.
+            theInstProp.valueArraySize,
+            valRep->u);
+    }
+    else
+    {
+        _setUnionValue(start,&inst.mem,valRep->type,valRep->u);
+    }
+}
+
 
 Boolean SCMOInstance::isSame(SCMOInstance& theInstance) const
 {
@@ -1302,10 +1164,10 @@ void SCMOInstance::buildKeyBindingsFromProperties()
 
     Uint32 propNode;
 
-    for (Uint32 i = 0; i < inst.hdr->numberKeyBindings; i++)
+    for (Uint32 i = 0, k = inst.hdr->numberKeyBindings; i < k; i++)
     {
         // the instance pointers has to be reinitialized eache time,
-        // because in _setKeyBindingFromSCMBUnion() 
+        // because in _setKeyBindingFromSCMBUnion()
         // a reallocation can take place.
         theInstKeyBindNodeArray =
             (SCMBDataPtr*)&inst.base[inst.hdr->keyBindingArray.start];
@@ -1316,19 +1178,19 @@ void SCMOInstance::buildKeyBindingsFromProperties()
         // If the keybinding is not set.
         if (theInstKeyBindNodeArray[i].start == 0)
         {
-            // get the node index for this key binding form class            
+            // get the node index for this key binding form class
             propNode = theClassKeyPropList[i];
 
             // if property was not set by the provider or it is null.
             if (!theInstPropNodeArray[propNode].flags.isSet ||
                  theInstPropNodeArray[propNode].flags.isNull)
             {
-                const char * propName = 
+                const char * propName =
                     inst.hdr->theClass->_getPropertyNameAtNode(propNode);
                 throw NoSuchProperty(String(propName));
             }
 
-            _setKeyBindingFromSCMBUnion( 
+            _setKeyBindingFromSCMBUnion(
                 theInstPropNodeArray[propNode].valueType,
                 theInstPropNodeArray[propNode].value,
                 theInstKeyBindNodeArray[i]);
@@ -1337,13 +1199,13 @@ void SCMOInstance::buildKeyBindingsFromProperties()
 }
 
 void SCMOInstance::_setKeyBindingFromSCMBUnion(
-    CIMType type, 
+    CIMType type,
     SCMBUnion& u,
     SCMBDataPtr& keyNode)
 {
     Uint32 outputLength=0;
     const char * output;
-    
+
     switch (type)
     {
     case CIMTYPE_UINT8:
@@ -2062,6 +1924,335 @@ void SCMOInstance::_setSCMBUnion(
     }
 }
 
+void SCMOInstance::_setArrayValue(
+    Uint64 start,
+    SCMBMgmt_Header** pmem,
+    CIMType type,
+    Uint32& n,
+    Union& u)
+{
+    SCMBUnion* scmoUnion = (SCMBUnion*)&(((char*)*pmem)[start]);
+    Uint64 arrayStart;
+
+    switch (type)
+    {
+    case CIMTYPE_BOOLEAN:
+        {
+            Array<Boolean> *x = reinterpret_cast<Array<Boolean>*>(&u);
+            n = x->size();
+            arrayStart = _getFreeSpace(
+                scmoUnion->_arrayValue,
+                n*sizeof(Boolean),
+                pmem);
+            memcpy(
+                &((char*)*pmem)[arrayStart],x->getData(),n * sizeof(Boolean));
+            break;
+        }
+
+    case CIMTYPE_UINT8:
+        {
+            Array<Uint8> *x = reinterpret_cast<Array<Uint8>*>(&u);
+            n = x->size();
+            arrayStart = _getFreeSpace(
+                scmoUnion->_arrayValue,
+                n*sizeof(Uint8),
+                pmem);
+            memcpy(&((char*)*pmem)[arrayStart],x->getData(),n * sizeof(Uint8));
+            break;
+        }
+
+    case CIMTYPE_SINT8:
+        {
+            Array<Sint8> *x = reinterpret_cast<Array<Sint8>*>(&u);
+            n = x->size();
+            arrayStart = _getFreeSpace(
+                scmoUnion->_arrayValue,
+                n*sizeof(Sint8),
+                pmem);
+            memcpy(&((char*)*pmem)[arrayStart],x->getData(),n * sizeof(Sint8));
+            break;
+        }
+
+    case CIMTYPE_UINT16:
+        {
+            Array<Uint16> *x = reinterpret_cast<Array<Uint16>*>(&u);
+            n = x->size();
+            arrayStart = _getFreeSpace(
+                scmoUnion->_arrayValue,
+                n*sizeof(Uint16),
+                pmem);
+            memcpy(&((char*)*pmem)[arrayStart],x->getData(),n * sizeof(Uint16));
+
+            break;
+        }
+
+    case CIMTYPE_SINT16:
+        {
+            Array<Sint16> *x = reinterpret_cast<Array<Sint16>*>(&u);
+            n = x->size();
+            arrayStart = _getFreeSpace(
+                scmoUnion->_arrayValue,
+                n*sizeof(Sint16),
+                pmem);
+            memcpy(&((char*)*pmem)[arrayStart],x->getData(),n * sizeof(Sint16));
+            break;
+        }
+
+    case CIMTYPE_UINT32:
+        {
+            Array<Uint32> *x = reinterpret_cast<Array<Uint32>*>(&u);
+            n = x->size();
+            arrayStart = _getFreeSpace(
+                scmoUnion->_arrayValue,
+                n*sizeof(Uint32),
+                pmem);
+            memcpy(&((char*)*pmem)[arrayStart],x->getData(),n * sizeof(Uint32));
+            break;
+        }
+
+    case CIMTYPE_SINT32:
+        {
+            Array<Sint32> *x = reinterpret_cast<Array<Sint32>*>(&u);
+            n = x->size();
+            arrayStart = _getFreeSpace(
+                scmoUnion->_arrayValue,
+                n*sizeof(Sint32),
+                pmem);
+            memcpy(&((char*)*pmem)[arrayStart],x->getData(),n * sizeof(Sint32));
+            break;
+        }
+
+    case CIMTYPE_UINT64:
+        {
+            Array<Uint64> *x = reinterpret_cast<Array<Uint64>*>(&u);
+            n = x->size();
+            arrayStart = _getFreeSpace(
+                scmoUnion->_arrayValue,
+                n*sizeof(Uint64),
+                pmem);
+            memcpy(&((char*)*pmem)[arrayStart],x->getData(),n * sizeof(Uint64));
+            break;
+        }
+
+    case CIMTYPE_SINT64:
+        {
+            Array<Sint64> *x = reinterpret_cast<Array<Sint64>*>(&u);
+            n = x->size();
+            arrayStart = _getFreeSpace(
+                scmoUnion->_arrayValue,
+                n*sizeof(Sint64),
+                pmem);
+            memcpy(&((char*)*pmem)[arrayStart],x->getData(),n * sizeof(Sint64));
+            break;
+        }
+
+    case CIMTYPE_REAL32:
+        {
+            Array<Real32> *x = reinterpret_cast<Array<Real32>*>(&u);
+            n = x->size();
+            arrayStart = _getFreeSpace(
+                scmoUnion->_arrayValue,
+                n*sizeof(Real32),
+                pmem);
+            memcpy(&((char*)*pmem)[arrayStart],x->getData(),n * sizeof(Real32));
+            break;
+        }
+
+    case CIMTYPE_REAL64:
+        {
+            Array<Real64> *x = reinterpret_cast<Array<Real64>*>(&u);
+            n = x->size();
+            arrayStart = _getFreeSpace(
+                scmoUnion->_arrayValue,
+                n*sizeof(Real64),
+                pmem);
+            memcpy(&((char*)*pmem)[arrayStart],x->getData(),n * sizeof(Real64));
+            break;
+        }
+
+    case CIMTYPE_CHAR16:
+        {
+            Array<Char16> *x = reinterpret_cast<Array<Char16>*>(&u);
+            n = x->size();
+            arrayStart = _getFreeSpace(
+                scmoUnion->_arrayValue,
+                n*sizeof(Char16),
+                pmem);
+            memcpy(&((char*)*pmem)[arrayStart],x->getData(),n * sizeof(Char16));
+            break;
+        }
+
+    case CIMTYPE_STRING:
+        {
+            SCMBDataPtr *ptr;
+
+            Array<String> *x = reinterpret_cast<Array<String>*>(&u);
+
+            n = x->size();
+            arrayStart = _getFreeSpace(
+                scmoUnion->_arrayValue,
+                n*sizeof(SCMBDataPtr),
+                pmem);
+
+            for (Uint32 i = 0; i < n ; i++)
+            {
+                // the pointer has to be set eache loop,
+                // because a reallocation may take place.
+                ptr = (SCMBDataPtr*)(&((char*)*pmem)[arrayStart]);
+                _setString( (*x)[i],ptr[i], pmem );
+            }
+
+            break;
+        }
+
+    case CIMTYPE_DATETIME:
+        {
+            SCMBDateTime *ptr;
+            Array<CIMDateTime> *x = reinterpret_cast<Array<CIMDateTime>*>(&u);
+            n = x->size();
+            arrayStart = _getFreeSpace(
+                scmoUnion->_arrayValue,
+                n*sizeof(SCMBDateTime),
+                pmem);
+
+            ptr=(SCMBDateTime*)(&((char*)*pmem)[arrayStart]);
+
+            for (Uint32 i = 0; i < n ; i++)
+            {
+                memcpy(&(ptr[i]),(*x)[i]._rep,sizeof(SCMBDateTime));
+            }
+            break;
+        }
+
+        case CIMTYPE_REFERENCE:
+
+            break;
+
+        case CIMTYPE_OBJECT:
+
+            break;
+
+        case CIMTYPE_INSTANCE:
+
+            break;
+    }
+}
+
+
+void SCMOInstance::_setUnionValue(
+    Uint64 start,
+    SCMBMgmt_Header** pmem,
+    CIMType type,
+    Union& u)
+{
+    SCMBUnion* scmoUnion = (SCMBUnion*)&(((char*)*pmem)[start]);
+
+    switch (type)
+    {
+    case CIMTYPE_BOOLEAN:
+        {
+            scmoUnion->_booleanValue = u._booleanValue;
+            break;
+        }
+
+    case CIMTYPE_UINT8:
+        {
+            scmoUnion->_uint8Value = u._uint8Value;
+            break;
+        }
+
+    case CIMTYPE_SINT8:
+        {
+            scmoUnion->_sint8Value = u._sint8Value;
+            break;
+        }
+
+    case CIMTYPE_UINT16:
+        {
+            scmoUnion->_uint16Value = u._uint16Value;
+            break;
+        }
+
+    case CIMTYPE_SINT16:
+        {
+            scmoUnion->_sint16Value = u._sint16Value;
+            break;
+        }
+
+    case CIMTYPE_UINT32:
+        {
+            scmoUnion->_uint32Value = u._uint32Value;
+            break;
+        }
+
+    case CIMTYPE_SINT32:
+        {
+            scmoUnion->_sint32Value = u._sint32Value;
+            break;
+        }
+
+    case CIMTYPE_UINT64:
+        {
+            scmoUnion->_uint64Value = u._uint64Value;
+            break;
+        }
+
+    case CIMTYPE_SINT64:
+        {
+            scmoUnion->_sint64Value = u._sint64Value;
+            break;
+        }
+
+    case CIMTYPE_REAL32:
+        {
+            scmoUnion->_real32Value = u._real32Value;
+            break;
+        }
+
+    case CIMTYPE_REAL64:
+        {
+            scmoUnion->_real64Value = u._real64Value;
+            break;
+        }
+
+    case CIMTYPE_CHAR16:
+        {
+            scmoUnion->_char16Value = u._char16Value;
+            break;
+        }
+
+    case CIMTYPE_STRING:
+        {
+            _setString(*((String*)((void*)&u)),
+                       scmoUnion->_stringValue,
+                       pmem );
+            break;
+        }
+
+    case CIMTYPE_DATETIME:
+        {
+
+            memcpy(
+                &scmoUnion->_dateTimeValue,
+                (*((CIMDateTime*)((void*)&u)))._rep,
+                sizeof(SCMBDateTime));
+            break;
+        }
+
+        case CIMTYPE_REFERENCE:
+
+            break;
+
+        case CIMTYPE_OBJECT:
+
+            break;
+        case CIMTYPE_INSTANCE:
+
+            break;
+    }
+
+}
+
 SCMO_RC SCMOInstance::_getPropertyAtNodeIndex(
         Uint32 node,
         const char** pname,
@@ -2670,7 +2861,7 @@ void SCMODump::dumpSCMOInstance(SCMOInstance& testInst) const
 
 }
 
-void SCMODump::dumpSCMOInstancePropertyFilter(SCMOInstance& testInst) const 
+void SCMODump::dumpSCMOInstancePropertyFilter(SCMOInstance& testInst) const
 {
     SCMBInstance_Main* insthdr = testInst.inst.hdr;
     char* instbase = testInst.inst.base;
@@ -2697,7 +2888,7 @@ void SCMODump::dumpInstanceProperties(SCMOInstance& testInst) const
     SCMBInstance_Main* insthdr = testInst.inst.hdr;
     char* instbase = testInst.inst.base;
 
-    SCMBValue* val = 
+    SCMBValue* val =
         (SCMBValue*)_resolveDataPtr(insthdr->propertyArray,instbase);
 
     fprintf(_out,"\n\nInstance Properties :");
@@ -2705,7 +2896,7 @@ void SCMODump::dumpInstanceProperties(SCMOInstance& testInst) const
     fprintf(_out,"\n\nNumber of properties in instance : %u",
            insthdr->numberProperties);
 
-    for (Uint32 i = 0; i < insthdr->numberProperties; i++)
+    for (Uint32 i = 0, k = insthdr->numberProperties; i < k; i++)
     {
         fprintf(_out,"\n\nInstance property (#%3u) %s\n",i,
                 NULLSTR(insthdr->theClass->_getPropertyNameAtNode(i)));
@@ -2737,10 +2928,12 @@ void SCMODump::dumpPropertyFilterIndexMap(SCMOInstance& testInst) const
     fprintf(_out,"\n==========================\n");
 
     // Get absolut pointer to key index list of the class
-    Uint32* keyIndex = 
+    Uint32* keyIndex =
         (Uint32*)&(instbase)[insthdr->propertyFilterIndexMap.start];
-    Uint32 line,j,i;
-    for (j = 0; j < insthdr->filterProperties; j = j + line)
+
+    Uint32 line,j,i,k = insthdr->filterProperties;
+
+    for (j = 0; j < k; j = j + line)
     {
         if ((insthdr->filterProperties-j)/16)
         {
@@ -2782,7 +2975,7 @@ void SCMODump::dumpPropertyFilter(SCMOInstance& testInst) const
         return;
     }
 
-    Uint64 *thePropertyFilter = 
+    Uint64 *thePropertyFilter =
         (Uint64*)&(instbase[insthdr->propertyFilter.start]);
      Uint32 end, noProperties = insthdr->numberProperties;
      Uint32 noMasks = (noProperties-1)/64;
@@ -2824,19 +3017,19 @@ void SCMODump::dumpPropertyFilter(SCMOInstance& testInst) const
      }
 }
 
-void SCMODump::dumpSCMOInstanceKeyBindings(SCMOInstance& testInst) const 
+void SCMODump::dumpSCMOInstanceKeyBindings(SCMOInstance& testInst) const
 {
     SCMBInstance_Main* insthdr = testInst.inst.hdr;
     char* instbase = testInst.inst.base;
 
-    SCMBDataPtr* ptr = 
+    SCMBDataPtr* ptr =
         (SCMBDataPtr*)_resolveDataPtr(insthdr->keyBindingArray,instbase);
 
     fprintf(_out,"\n\nInstance Key Bindings :");
     fprintf(_out,"\n=======================");
     fprintf(_out,"\n\nNumber of Key Bindings : %u",insthdr->numberKeyBindings);
 
-    for (Uint32 i = 0; i < insthdr->numberKeyBindings; i++)
+    for (Uint32 i = 0, k = insthdr->numberKeyBindings; i < k; i++)
     {
         fprintf(_out,"\n\nNo %u : '%s'",i,
                 NULLSTR(_getCharString(ptr[i],instbase)));
@@ -2921,8 +3114,8 @@ void SCMODump::dumpKeyIndexList(SCMOClass& testCls) const
 
     // Get absolut pointer to key index list of the class
     Uint32* keyIndex = (Uint32*)&(clsbase)[clshdr->keyIndexList.start];
-    Uint32 line,j,i;
-    for (j = 0; j < clshdr->propertySet.number; j = j + line)
+    Uint32 line,j,i,k = clshdr->propertySet.number;
+    for (j = 0; j < k; j = j + line)
     {
         if ((clshdr->propertySet.number-j)/16)
         {
@@ -2977,7 +3170,7 @@ void SCMODump::dumpClassKeyBindingNodeArray(SCMOClass& testCls) const
         (SCMBKeyBindingNode*)
              &(clsbase[clshdr->keyBindingSet.nodeArray.start]);
 
-    for (Uint32 i = 0; i <  clshdr->keyBindingSet.number; i++)
+    for (Uint32 i = 0, k = clshdr->keyBindingSet.number; i < k; i++)
     {
         fprintf(_out,"\n\n===================");
         fprintf(_out,"\nKey Binding #%3u",i);
@@ -3031,7 +3224,7 @@ void SCMODump::dumpClassPropertyNodeArray(SCMOClass& testCls) const
         (SCMBClassPropertyNode*)
             &(clsbase[clshdr->propertySet.nodeArray.start]);
 
-    for (Uint32 i = 0; i <  clshdr->propertySet.number; i++)
+    for (Uint32 i = 0, k =  clshdr->propertySet.number; i < k; i++)
     {
 
         fprintf(_out,"\nClass property #%3u",i);
@@ -3447,7 +3640,7 @@ String SCMODump::printUnionValue(
     SCMBUnion u,
     char* base) const
 {
-    
+
     Buffer out;
 
     switch (type)
@@ -3646,6 +3839,27 @@ static Boolean _equalUTF8Strings(
     return ( strncmp(a,name,len )== 0 );
 
 }
+
+static Boolean _equalNoCaseUTF8Strings(
+    const SCMBDataPtr& ptr_a,
+    char* base,
+    const char* name,
+    Uint32 len)
+
+{
+    // size without trailing '\0' !!
+    if (ptr_a.length-1 != len)
+    {
+        return false;
+    }
+
+    const char* a = (const char*)_getCharString(ptr_a,base);
+
+    // ToDo: Here an UTF8 complinet comparison should take place
+    return ( strncasecmp(a,name,len )== 0 );
+
+}
+
 
 /**
  * This function calcutates a free memory slot in the single chunk memory block.

@@ -1030,6 +1030,7 @@ private:
     friend class BinaryStreamer;
     friend class XmlWriter;
     friend class SCMOClass;
+    friend class SCMOInstance;
 };
 
 /**

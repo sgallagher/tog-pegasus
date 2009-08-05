@@ -374,6 +374,7 @@ private:
     friend class CIMPropertyContainer;
     friend class CIMPropertyInternal;
     friend class SCMOClass;
+    friend class SCMOInstance;
 
     CIMPropertyRep* _rep;
 };
@@ -612,6 +613,7 @@ private:
     friend class MofWriter;
     friend class CIMPropertyInternal;
     friend class SCMOClass;
+    friend class SCMOInstance;
 };
 
 #define PEGASUS_ARRAY_T CIMProperty

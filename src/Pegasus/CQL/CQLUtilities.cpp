@@ -663,7 +663,7 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
             {
                 MessageLoaderParms mload("CQL.CQLUtilities.INVALID_REAL_CHAR",
                     "Error converting string to $0.  Character '$1' in "
-                        "string '$2` is invalid.",
+                        "string '$2' is invalid.",
                     "Real64",
                     String(p, 1), stringNum);
                 throw CQLRuntimeException(mload);
@@ -680,8 +680,8 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
             {
                 MessageLoaderParms mload("CQL.CQLUtilities.INVALID_REAL_EXP",
                     "Error converting string to Real64.  String '$0'"
-                        " has a badly formed exponent.  Character '$1' is"
-                        " invalid.",
+                        " has an exponent that is not well formed.  Character"
+                        " '$1' is invalid.",
                     stringNum, String(p, 1));
                 throw CQLRuntimeException(mload);
             }

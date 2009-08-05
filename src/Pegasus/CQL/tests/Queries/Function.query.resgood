@@ -912,22 +912,22 @@ Error converting string to Real64.  Character 'a' in string '3a3.32' is not a de
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Real64.  Character 'a' in string '32.3a3` is invalid.
+Error converting string to Real64.  Character 'a' in string '32.3a3' is invalid.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Real64.  Character 'a' in string '32.3a3` is invalid.
+Error converting string to Real64.  Character 'a' in string '32.3a3' is invalid.
 
 =========     102     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyReal64 = STRINGTOREAL('32.33E-a2')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Real64.  String '32.33E-a2' has a badly formed exponent.  Character 'a' is invalid.
+Error converting string to Real64.  String '32.33E-a2' has an exponent that is not well formed.  Character 'a' is invalid.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Real64.  String '32.33E-a2' has a badly formed exponent.  Character 'a' is invalid.
+Error converting string to Real64.  String '32.33E-a2' has an exponent that is not well formed.  Character 'a' is invalid.
 
 =========     103     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyStringUint = NUMERICTOSTRING(347)

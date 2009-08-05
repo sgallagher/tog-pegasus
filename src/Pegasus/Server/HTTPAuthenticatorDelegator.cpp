@@ -1221,12 +1221,13 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 catch (const bad_alloc&)
                 {
                     delete httpMessage;
-                    _sendHttpError(
-                        queueId,
-                        HTTP_STATUS_REQUEST_TOO_LARGE,
-                        String::EMPTY,
-                        String::EMPTY,
-                        closeConnect);
+                    HTTPConnection *httpQueue =
+                        dynamic_cast<HTTPConnection*>(
+                             MessageQueue::lookup(queueId));
+                    if (httpQueue)
+                    {
+                        httpQueue->handleInternalServerError(0, true);
+                    }
                     PEG_METHOD_EXIT();
                     deleteMessage = false;
                     return;
@@ -1284,12 +1285,13 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 catch (const bad_alloc&)
                 {
                     delete httpMessage;
-                    _sendHttpError(
-                       queueId,
-                       HTTP_STATUS_REQUEST_TOO_LARGE,
-                       String::EMPTY,
-                       String::EMPTY,
-                       closeConnect);
+                    HTTPConnection *httpQueue =
+                        dynamic_cast<HTTPConnection*>(
+                             MessageQueue::lookup(queueId));
+                    if (httpQueue)
+                    {
+                        httpQueue->handleInternalServerError(0, true);
+                    }
                     PEG_METHOD_EXIT();
                     deleteMessage = false;
                     return;

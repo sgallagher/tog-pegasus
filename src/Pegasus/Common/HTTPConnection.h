@@ -104,6 +104,16 @@ public:
 
     Boolean closeConnectionOnTimeout(struct timeval* timeNow);
 
+    // This method is called in Server code when response encoders or
+    // HTTPAuthenticatorDelegator runs out-of-memory. This method calls 
+    // _handleWriteEvent() with a dummy HTTPMessage to maintain  response
+    // chunk sequence properly. Once all responses are  arrived, connection
+    // is closed. Param "respMsgIndex" indicates the response index and 
+    // isComplete indicates whether the response is complete or not.
+    void handleInternalServerError(
+        Uint32 respMsgIndex,
+        Boolean isComplete);
+
     // ATTN-RK-P1-20020521: This is a major hack, required to get the CIM
     // server and tests to run successfully.  The problem is that the
     // HTTPAcceptor is deleting an HTTPConnection before all the threads
@@ -221,6 +231,11 @@ private:
 #ifndef PEGASUS_INTEGERS_BOUNDARY_ALIGNED
     static Mutex _idleConnectionTimeoutSecondsMutex;
 #endif
+    // When this flag is set to true, it indicates that internal error on this
+    // connection occured. Currently this flag is used by the Server code when
+    // out-of-memory error is occurs and connection is closed by the server
+    // once all responses are arrived.
+    Boolean _internalError;
 
     friend class Monitor;
     friend class HTTPAcceptor;

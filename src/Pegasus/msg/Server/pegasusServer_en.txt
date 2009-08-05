@@ -2864,6 +2864,11 @@ en:table {
 
         Common.HTTPConnection.UNKNOWN_EXCEPTION:string {"PGS08100: Unknown exception caught while parsing HTTP message."}
 
+        /**
+        * @note  PGS08101:
+        *    Substitution {0} is a string containing the host of the CIMClient connection
+        */
+        Common.HTTPConnection.INTERNAL_SERVER_ERROR_CONNECTION_CLOSED:string {"PGS08101: Internal server error. Connection with IP address {0} closed."}
 
         // ==========================================================
         // Messages for LanguageParser

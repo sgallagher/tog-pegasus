@@ -125,7 +125,6 @@ void CIMOperationResponseEncoder::sendResponse(
     }
 
     Uint32 queueId = response->queueIds.top();
-    response->queueIds.pop();
 
     Boolean closeConnect = response->getCloseConnect();
     PEG_TRACE((
@@ -264,38 +263,15 @@ void CIMOperationResponseEncoder::sendResponse(
     }
     else
     {
-        // else non-error condition
-        try
-        {
-            message = formatResponse(
-                cimName,
-                messageId,
-                httpMethod,
-                contentLanguage,
-                body,
-                serverTime,
-                isFirst,
-                isLast);
-        }
-        catch (PEGASUS_STD(bad_alloc)&)
-        {
-            MessageLoaderParms parms(
-                "Server.CIMOperationResponseEncoder.OUT_OF_MEMORY",
-                "A System error has occurred. Please retry the CIM Operation "
-                    "at a later time.");
-
-            Logger::put_l(
-                Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
-                parms);
-
-            cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
-
-            // try again with new error and no body
-            body.clear();
-            sendResponse(response, name, isImplicit);
-            PEG_METHOD_EXIT();
-            return;
-        }
+        message = formatResponse(
+            cimName,
+            messageId,
+            httpMethod,
+            contentLanguage,
+            body,
+            serverTime,
+            isFirst,
+            isLast);
 
         STAT_BYTESSENT
     }
@@ -328,7 +304,33 @@ void CIMOperationResponseEncoder::sendResponse(
 
 void CIMOperationResponseEncoder::enqueue(Message* message)
 {
-    handleEnqueue(message);
+    try
+    {
+        handleEnqueue(message);
+    }
+    catch(PEGASUS_STD(bad_alloc)&)
+    {
+        MessageLoaderParms parms(
+            "Server.CIMOperationResponseEncoder.OUT_OF_MEMORY",
+            "A System error has occurred. Please retry the CIM Operation "
+                "at a later time.");
+
+        Logger::put_l(
+            Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE, parms);
+
+        CIMResponseMessage* response =
+            dynamic_cast<CIMResponseMessage*>(message);
+        Uint32 queueId = response->queueIds.top();
+        MessageQueue* queue = MessageQueue::lookup(queueId);
+        HTTPConnection* httpQueue = dynamic_cast<HTTPConnection*>(queue);
+        PEGASUS_ASSERT(httpQueue);
+
+        // Handle internal error on this connection.
+        httpQueue->handleInternalServerError(
+            response->getIndex(), response->isComplete());
+
+        delete message;
+    }
 }
 
 void CIMOperationResponseEncoder::handleEnqueue(Message* message)

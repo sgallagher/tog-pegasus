@@ -130,6 +130,11 @@ static const Uint32 numberAsStringLength = 10;
 static const String httpDetailDelimiter = headerValueSeparator;
 static const String httpStatusInternal = HTTP_STATUS_INTERNALSERVERERROR;
 
+static const char INTERNAL_SERVER_ERROR_CONNECTION_CLOSED_KEY[] =
+    "Common.HTTPConnection.INTERNAL_SERVER_ERROR_CONNECTION_CLOSED";
+static const char INTERNAL_SERVER_ERROR_CONNECTION_CLOSED[] =
+    "Internal server error. Connection with IP address $0 closed.";
+
 /*
  * throw given http code with detail, file, line
  * This is shared client/server code. The caller will decide what to do
@@ -226,7 +231,8 @@ HTTPConnection::HTTPConnection(
     _contentLength(-1),
     _connectionClosePending(false),
     _acceptPending(false),
-    _firstRead(true)
+    _firstRead(true),
+    _internalError(false)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::HTTPConnection");
 
@@ -288,6 +294,30 @@ HTTPConnection::~HTTPConnection()
 void HTTPConnection::enqueue(Message *message)
 {
     handleEnqueue(message);
+}
+
+void HTTPConnection::handleInternalServerError(
+    Uint32 respMsgIndex,
+    Boolean isComplete)
+{
+    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::handleInternalServerError");
+
+    PEG_TRACE((TRC_HTTP, Tracer::LEVEL1,
+        "Internal server error. Connection queue id : %u, IP address :%s, "
+            "Response Index :%u, Response is Complete :%u.",
+        getQueueId(),
+        (const char*)_ipAddress.getCString(),
+        respMsgIndex,
+        isComplete));
+
+    _internalError = true;
+    Buffer buffer;
+    HTTPMessage message(buffer);
+    message.setIndex(respMsgIndex);
+    message.setComplete(isComplete);
+    AutoMutex connectionLock(_connection_mut);
+    _handleWriteEvent(message); 
+    PEG_METHOD_EXIT();
 }
 
 void HTTPConnection::handleEnqueue(Message *message)
@@ -438,6 +468,27 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                     _throwEventFailure(
                         httpStatusInternal, "chunk sequence mismatch");
                 _transferEncodingChunkOffset++;
+            }
+
+            // If there is an internal error on this connection, just return
+            // from here if the current message is not the last message becasue
+            // this connection will be closed once all messages are received.
+            if (_internalError)
+            {
+                if (isLast)
+                {
+                    _responsePending = false;
+                    _closeConnection();
+                    Logger::put_l(
+                        Logger::ERROR_LOG,
+                        System::CIMSERVER,
+                        Logger::SEVERE,
+                        MessageLoaderParms(
+                            INTERNAL_SERVER_ERROR_CONNECTION_CLOSED_KEY,
+                            INTERNAL_SERVER_ERROR_CONNECTION_CLOSED,
+                            _ipAddress));
+                }
+                return true;
             }
 
             // save the first error
@@ -974,11 +1025,25 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
     catch (Exception &e)
     {
         httpStatusString = e.getMessage();
+        _internalError = true;
+    }
+    catch (PEGASUS_STD(bad_alloc)&)
+    {
+        httpStatusString = "Out of memory";
+        _internalError = true;
     }
     catch (...)
     {
-        httpStatusString = HTTP_STATUS_INTERNALSERVERERROR;
-        PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL1, "Unknown internal error");
+        httpStatusString = "Unknown error";
+        _internalError = true;
+    }
+
+    if (httpStatusString.size())
+    {
+        PEG_TRACE((TRC_HTTP, Tracer::LEVEL1,
+            "Internal error: %s, connection queue id: %u",
+            (const char*)httpStatusString.getCString(),
+            getQueueId()));
     }
 
     if (isLast == true)
@@ -1014,8 +1079,20 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
         //
         if (_isClient() == false)
         {
+            if (_internalError)
+            {
+                _closeConnection();
+                Logger::put_l(
+                    Logger::ERROR_LOG,
+                    System::CIMSERVER,
+                    Logger::SEVERE,
+                    MessageLoaderParms(
+                        INTERNAL_SERVER_ERROR_CONNECTION_CLOSED_KEY,
+                        INTERNAL_SERVER_ERROR_CONNECTION_CLOSED,
+                        _ipAddress));
+            }
             // Check for message to close
-            if (httpMessage.getCloseConnect())
+            else if (httpMessage.getCloseConnect())
             {
                 PEG_TRACE((TRC_HTTP, Tracer::LEVEL3,
                     "HTTPConnection::_handleWriteEvent: \"Connection: Close\" "

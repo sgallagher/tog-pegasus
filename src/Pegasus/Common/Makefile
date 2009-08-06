@@ -194,7 +194,8 @@ SOURCES2 = \
     HostAddress.cpp \
     HostLocator.cpp \
     BinaryCodec.cpp \
-    CIMBuffer.cpp
+    CIMBuffer.cpp \
+    VersionUtil.cpp
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
     SOURCES2 += PaseCcsid.cpp

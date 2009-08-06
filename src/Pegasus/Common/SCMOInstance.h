@@ -145,9 +145,11 @@ public:
     /**
      * Makes a deep copy of the instance.
      * This creates a new copy of the instance.
+     * @param objectPathOnly If set to true, only the object path relevant parts
+     *     host name and key bindings are part of the cloned instance.
      * @return A new copy of the SCMOInstance object.
      */
-    SCMOInstance clone() const;
+    SCMOInstance clone(Boolean objectPathOnly = false) const;
 
     /**
      * Returns the number of properties of the instance.
@@ -541,6 +543,8 @@ private:
         const char** pname,
         CIMKeyBinding::Type& ptype,
         const char** pvalue) const;
+
+    void _copyKeyBindings(SCMOInstance& targetInst) const;
 
     Uint32 _initPropFilterWithKeys();
 

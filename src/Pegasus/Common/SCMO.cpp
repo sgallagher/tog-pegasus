@@ -2336,8 +2336,23 @@ SCMO_RC SCMOInstance::_getPropertyAtNodeIndex(
 
 }
 
-SCMOInstance SCMOInstance::clone() const
+SCMOInstance SCMOInstance::clone(Boolean objectPathOnly) const
 {
+    if (objectPathOnly)
+    {
+        SCMOInstance newInst(*(this->inst.hdr->theClass));
+
+        _setBinary(
+            _resolveDataPtr(this->inst.hdr->hostName,this->inst.base),
+            this->inst.hdr->hostName.length,
+            newInst.inst.hdr->hostName,
+            &newInst.inst.mem);
+
+        this->_copyKeyBindings(newInst);
+
+        return newInst;
+    }
+
     SCMOInstance newInst;
     newInst.inst.base = (char*)malloc(this->inst.mem->totalSize);
     if (newInst.inst.base == NULL )
@@ -2354,6 +2369,27 @@ SCMOInstance SCMOInstance::clone() const
     return newInst;
 }
 
+void SCMOInstance::_copyKeyBindings(SCMOInstance& targetInst) const
+{
+    Uint32 noBindings = inst.hdr->numberKeyBindings;
+    SCMBDataPtr* sourceArray =
+        (SCMBDataPtr*)&inst.base[inst.hdr->keyBindingArray.start];
+
+    SCMBDataPtr* targetArray;
+
+    for (Uint32 i = 0; i < noBindings; i++)
+    {
+        // hast to be set everytime, because of reallocation.
+        targetArray=(SCMBDataPtr*)&targetInst.inst.base
+                             [targetInst.inst.hdr->keyBindingArray.start];
+        _setBinary(
+            _resolveDataPtr(sourceArray[i],inst.base),
+            sourceArray[i].length,
+            targetArray[i],
+            &targetInst.inst.mem);
+    }
+
+}
 Uint32 SCMOInstance::getPropertyCount() const
 {
     if (inst.hdr->flags.isFiltered)

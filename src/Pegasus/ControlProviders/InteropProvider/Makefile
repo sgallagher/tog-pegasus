@@ -27,7 +27,7 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 # Makes the dynamic load libs for the files named in DIR
-ROOT = ../../../..
+ROOT = $(PEGASUS_ROOT)
 
 MODULE_NAME=InteropProvider
 
@@ -35,17 +35,15 @@ DIR = Pegasus/ControlProviders/$(MODULE_NAME)
 
 include $(ROOT)/mak/config.mak
 
-LOCAL_DEFINES = -DPEGASUS_INTEROPPROVIDER_INTERNAL -DPEGASUS_INTERNALONLY -DPEGASUS_DISABLE_INTERNAL_INLINES
+LOCAL_DEFINES = -DPEGASUS_INTEROPPROVIDER_INTERNAL -DPEGASUS_INTERNALONLY
 
 STATIC=1
 LIBRARY = $(MODULE_NAME)
 
 LIBRARIES = \
-    pegprm \
     pegrepository \
     pegprovider \
     pegconfig \
-    peggeneral \
     pegcommon
 
 SOURCES = \
@@ -66,7 +64,7 @@ NEEDS_LIBRARIES = -L$(LIB_DIR) -lpegcommon -lpeggeneral -lpegconfig -lpegprovide
 endif
 
 ifeq ($(OS_TYPE),windows)
-SYS_LIBS = ws2_32.lib advapi32.lib
+SYS_LIBS = ole32.lib ws2_32.lib advapi32.lib
 endif
 
 

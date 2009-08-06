@@ -36,6 +36,7 @@
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/MessageQueue.h>
+#include <Pegasus/Common/Guid.h>
 #ifdef PEGASUS_INDICATION_PERFINST
 #include <Pegasus/Common/Stopwatch.h>
 #endif
@@ -3471,11 +3472,31 @@ Boolean IndicationService::_canCreate (
         //  If they exist but are NULL, set value to the default
         //  If they exist and are not NULL, validate the value
         //
-        _checkRequiredProperty(
-            instance,
-            PEGASUS_PROPERTYNAME_NAME,
-            CIMTYPE_STRING,
-            true);
+
+        if (instance.getClassName ().equal (PEGASUS_CLASSNAME_INDFILTER))
+        {
+            _checkRequiredProperty(
+                instance,
+                PEGASUS_PROPERTYNAME_NAME,
+                CIMTYPE_STRING,
+                true);
+        }
+        else
+        {
+#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
+            // Name is an optional property for Handler. If Name key property
+            // not found then set the Name value using GUID.
+            _checkPropertyWithGuid(
+                instance,
+                PEGASUS_PROPERTYNAME_NAME);
+#else
+            _checkRequiredProperty(
+                instance,
+                PEGASUS_PROPERTYNAME_NAME,
+                CIMTYPE_STRING,
+                true);
+#endif
+        }
 
         _initOrValidateStringProperty(
             instance,
@@ -4098,6 +4119,23 @@ void IndicationService::_checkPropertyWithOther (
     }
 
     PEG_METHOD_EXIT();
+}
+
+String IndicationService::_checkPropertyWithGuid(
+    CIMInstance& instance,
+    const CIMName& propertyName)
+{
+    PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
+        "IndicationService::_checkPropertyWithGuid");
+
+   String value = _checkPropertyWithDefault(
+       instance,
+       propertyName,
+       Guid::getGuid(PEGASUS_INSTANCEID_GLOBAL_PREFIX));
+
+   PEG_METHOD_EXIT();
+
+   return value;
 }
 
 String IndicationService::_checkPropertyWithDefault(

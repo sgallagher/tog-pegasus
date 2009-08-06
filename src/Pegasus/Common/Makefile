@@ -137,6 +137,7 @@ SOURCES2 = \
     InternalException.cpp \
     FileSystem.cpp \
     Formatter.cpp \
+    Guid.cpp \
     HashTable.cpp \
     HTTPAcceptor.cpp \
     HTTPConnection.cpp \

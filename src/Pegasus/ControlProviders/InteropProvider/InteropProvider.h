@@ -53,10 +53,7 @@
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
-#include <Pegasus/General/VersionUtil.h>
-
-#include \
-    <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+#include <Pegasus/Common/VersionUtil.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -100,10 +97,7 @@ class PEGASUS_INTEROPPROVIDER_LINKAGE InteropProvider :
 {
 public:
 
-    InteropProvider(
-        CIMRepository* repository,
-        ProviderRegistrationManager* provRegManager);
-
+    InteropProvider(CIMRepository* repository);
     virtual ~InteropProvider()
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
@@ -213,15 +207,6 @@ private:
         const CIMName& className,
         Boolean includeQualifiers,
         CIMClass& returnedClass);
-    /*
-     * CIM communication mechanism instance building starts with this function
-     * and completed by buildCIMXMLCommunicationMechanismInstance
-     */
-    void _buildCommInstSkeleton(
-        const Boolean isHttpsEnabled,
-        const Array<String> &ips,
-        const CIMClass &commMechClass,
-        Array<CIMInstance> &instances );
 
     CIMInstance buildCIMXMLCommunicationMechanismInstance(
         const String& namespaceType,
@@ -231,21 +216,17 @@ private:
 
     Array<CIMInstance> enumCIMXMLCommunicationMechanismInstances();
 
-    Array<CIMInstance> enumHostedAccessPointInstances(
-        const OperationContext &opContext);
+    Array<CIMInstance> enumHostedAccessPointInstances();
 
     CIMInstance getObjectManagerInstance();
 
-    CIMInstance getComputerSystemInstance(const OperationContext &opContext);
+    CIMInstance getComputerSystemInstance();
 
-    CIMInstance getHostedObjectManagerInstance(
-        const OperationContext &opContext);
+    CIMInstance getHostedObjectManagerInstance();
 
     Array<CIMInstance> enumNamespaceInstances();
 
     CIMInstance buildNamespaceInstance(const String & nameSpace);
-
-    CIMInstance getNameSpaceInstance(const CIMObjectPath & ref);
 
     CIMObjectPath createNamespace(const CIMInstance & namespaceInstance);
     void deleteNamespace(const CIMObjectPath & instanceName);
@@ -301,22 +282,16 @@ private:
     Array<CIMInstance> enumSubProfileRequiresProfileInstances();
     Array<CIMInstance> enumSoftwareIdentityInstances();
     Array<CIMInstance> enumElementSoftwareIdentityInstances();
-    Array<CIMInstance> enumInstalledSoftwareIdentityInstances(
-        const OperationContext &opContext);
-    Array<CIMInstance> enumDefaultSoftwareIdentityInstances();
-
-    CIMInstance getSoftwareIdentityInstance(
-        const CIMObjectPath &ref);
+    Array<CIMInstance> enumInstalledSoftwareIdentityInstances();
 
     Array<CIMInstance> enumProviderProfileCapabilityInstances(
         Boolean checkProviders = true,
+        Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
         const CIMPropertyList &propertyList = CIMPropertyList());
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-    Array<CIMInstance> enumIndicationServiceInstances(
-        const OperationContext &opContext);
     Array<CIMInstance> enumElementCapabilityInstances(
         const OperationContext & opContext);
     Array<CIMInstance> enumHostedIndicationServiceInstances(
@@ -389,13 +364,6 @@ private:
         const CIMObjectPath & instanceName,
         const CIMPropertyList & propertyList);
 
-    // This function fetches the other side of the reference.
-    Array<CIMInstance> getReferencedInstances(
-        const Array<CIMInstance> &refs,
-        const String &targetRole,
-        const OperationContext & context,
-        const CIMPropertyList & propertyList);
-
     void cacheProfileRegistrationInfo();
     void verifyCachedInfo();
     void initializeNamespaces();
@@ -411,11 +379,9 @@ private:
         const OperationContext & context);
 #endif
 
-
     // Repository Instance variable
     CIMOMHandle cimomHandle;
     CIMRepository * repository;
-    ProviderRegistrationManager *providerRegistrationManager;
     String objectManagerName;
     String hostName;
     CIMClass profileCapabilitiesClass;
@@ -433,9 +399,6 @@ private:
     Boolean enableSLP;
     String httpPort;
     String httpsPort;
-
-    // Cached CIM_ObjectManager instance.
-    CIMInstance _CIMObjectManagerInst;
 };
 
 PEGASUS_NAMESPACE_END

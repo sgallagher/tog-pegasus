@@ -267,28 +267,6 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
                 elementConformsClass));
 
     }
-
-#ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-    // Now add the  association between the Indication profile
-    // and IndicationService
-    if (opNamespace == PEGASUS_NAMESPACENAME_INTEROP)
-    {
-        CIMObjectPath serverProfile = buildDependencyReference(
-            hostName,
-            buildProfileInstanceId(DMTF_NAME, "Indications", DMTF_VER_110),
-            PEGASUS_CLASSNAME_PG_REGISTEREDPROFILE);
-        // Retrieve the IndicationService instance
-        Array<CIMInstance> indService =
-            enumIndicationServiceInstances(OperationContext());
-
-        instances.append(
-            buildElementConformsToProfile(
-                serverProfile,
-                indService[0].getPath(),
-                elementConformsClass));
-    }
-#endif
-
     return instances;
 }
 
@@ -302,8 +280,7 @@ Array<CIMInstance> InteropProvider::getProfilesForVersion(
     Uint32 updateVer)
 {
     static const String SMISProfileName("SMI-S");
-    static const String SNIAIndicationProfileName("Indication");
-    static const String DMTFIndicationProfileName("Indications");
+    static const String IndicationProfileName("Indication");
     static const String ServerProfileName("Server");
     static const String SoftwareProfileName("Software");
 
@@ -313,9 +290,7 @@ Array<CIMInstance> InteropProvider::getProfilesForVersion(
     {
         String versionNumber;
         String profileName;
-        //Can use 0 here as registered organization value of 0 is 
-        //ruled out(not specified in the CIM Schema
-        Uint16 regOrgNo = 0;
+        Uint16 regOrgNo;
 
         Uint32 index = profiles[i].findProperty("RegisteredVersion");
         if (index != PEG_NOT_FOUND)
@@ -345,13 +320,10 @@ Array<CIMInstance> InteropProvider::getProfilesForVersion(
             }
         }
 
-        if ( regOrgNo != 0 && regOrg == regOrgNo)
+        if (regOrg == regOrgNo)
         {
             if (profileName == ServerProfileName ||
-                (regOrg == SNIA_NUM &&
-                    profileName == SNIAIndicationProfileName) ||
-                (regOrg == DMTF_NUM
-                    && profileName == DMTFIndicationProfileName) ||
+                profileName == IndicationProfileName ||
                 profileName == SoftwareProfileName)
             {
                 if (VersionUtil::isVersionGreaterOrEqual(
@@ -414,7 +386,7 @@ Array<String> findProviderNamespacesForElement(
         propList.append(PROVIDERCAPABILITIES_PROPERTY_CLASSNAME);
         capabilities = repository->enumerateInstancesForClass(
             PEGASUS_NAMESPACENAME_INTEROP,
-            PEGASUS_CLASSNAME_PROVIDERCAPABILITIES, false, false);
+            PEGASUS_CLASSNAME_PROVIDERCAPABILITIES, false, false, false);
     }
     else
     {
@@ -492,6 +464,7 @@ void InteropProvider::cacheProfileRegistrationInfo()
     Array<CIMInstance> providerProfileInstances =
         enumProviderProfileCapabilityInstances(
             true,
+            false,
             false,
             false,
             CIMPropertyList(propList));
@@ -574,7 +547,8 @@ void InteropProvider::cacheProfileRegistrationInfo()
                 capPropList.append(PROVIDERCAPABILITIES_PROPERTY_CLASSNAME);
                 capabilities = repository->enumerateInstancesForClass(
                     PEGASUS_NAMESPACENAME_INTEROP,
-                    PEGASUS_CLASSNAME_PROVIDERCAPABILITIES, false, false);
+                    PEGASUS_CLASSNAME_PROVIDERCAPABILITIES, false, false,
+                    false);
             }
             Array<CIMInstance> capabilitiesForProvider;
             Array<CIMNamespaceName> namespacesForProvider;

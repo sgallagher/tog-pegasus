@@ -630,12 +630,14 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                             }
                             else
                             {
-                                PEG_TRACE_CSTRING(
-                                    TRC_HTTP,
-                                    Tracer::LEVEL1,
-                                    "HTTPAuthenticatorDelegator - Bailing, "
-                                        "the certificate used for "
-                                        "authentication is not valid.");
+                                PEG_TRACE((TRC_HTTP,Tracer::LEVEL1,
+                                    "HTTPAuthenticatorDelegator- Bailing,the "
+                                        "certificate used for authentication "
+                                        "is not valid for client IP address "
+                                        "%s.",
+                                    (const char*)
+                                        httpMessage->ipAddress.getCString())
+                                    );
 
                                 MessageLoaderParms msgParms(
                                     "Pegasus.Server.HTTPAuthenticatorDelegator."
@@ -660,12 +662,13 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                             // up the deletion but we would pick it up here
                             // when we went to look it up in the repository
 
-                            PEG_TRACE_CSTRING(
-                                TRC_HTTP,
-                                Tracer::LEVEL1,
-                                "HTTPAuthenticatorDelegator - Bailing, the "
+                            PEG_TRACE((TRC_HTTP,Tracer::LEVEL1,
+                                "HTTPAuthenticatorDelegator- Bailing,the "
                                     "certificate used for authentication is "
-                                    "not valid.");
+                                    "not valid for client IP address %s.",
+                                (const char*)
+                                    httpMessage->ipAddress.getCString()));
+                            
                             MessageLoaderParms msgParms(
                                 "Pegasus.Server.HTTPAuthenticatorDelegator."
                                     "BAD_CERTIFICATE",
@@ -698,6 +701,11 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
                 if (certUserName == String::EMPTY)
                 {
+                    PEG_TRACE((TRC_HTTP,Tracer::LEVEL1,
+                        "HTTPAuthenticatorDelegator-No username is registered "
+                            "to this certificate for client IP address %s.",
+                        (const char*)httpMessage->ipAddress.getCString()));
+
                     MessageLoaderParms msgParms(
                         "Pegasus.Server.HTTPAuthenticatorDelegator."
                             "BAD_CERTIFICATE_USERNAME",

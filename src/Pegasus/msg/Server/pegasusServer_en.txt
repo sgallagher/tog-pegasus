@@ -6533,6 +6533,7 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note  PGS17200:
         *    Substitution {0} is a user name (a string)
+        *    This message is no longer used as of version 2.10.0
         */
         Security.Authentication.BasicAuthenticationHandler.BASIC_AUTHENTICATION_FAILED:string {"PGS17200: Authentication failed for user {0}."}
 
@@ -6562,6 +6563,13 @@ CIM server listening on HTTPS port {0}."}
          */
          Security.Authentication.SecureBasicAuthenticator.APPLID_OMVSAPPL.PEGASUS_OS_ZOS:string {"PGS17204: CIM server authentication is using application ID OMVSAPPL."}
 
+        /**
+        * @note  PGS17205:
+        *    Substitution {0} is a user name (a string)
+        *    Substitution {1} is a ip address(a string)
+        */
+        Security.Authentication.BasicAuthenticationHandler.BASIC_AUTHENTICATION_FAILURE:string {"PGS17205: Authentication failed for user {0} from client IP address {1}."}
+
         // ==========================================================
         // Messages for Security LocalAuthenticationHandler
         //  Please use message prefix "PGS17400"
@@ -6577,8 +6585,16 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note  PGS17401:
         *    Substitution {0} is a user name (a string)
+        *    This message is no longer used as of version 2.10.0
         */
         Security.Authentication.LocalAuthenticationHandler.LOCAL_AUTHENTICATION_FAILED:string {"PGS17401: Local Authentication failed for user {0}."}
+
+        /**
+        * @note  PGS17402:
+        *    Substitution {0} is a user name (a string)
+        *    Substitution {1} is a ip address(a string)
+        */
+        Security.Authentication.LocalAuthenticationHandler.LOCAL_AUTHENTICATION_FAILURE:string {"PGS17402: Local Authentication failed for user {0} from client IP address {1}."}
 
         // ==========================================================
         // Messages for Security LocalAuthFile

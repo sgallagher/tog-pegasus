@@ -126,7 +126,8 @@ Boolean BasicAuthenticationHandler::authenticate(
             Logger::INFORMATION,
             MessageLoaderParms(
                 BASIC_AUTHENTICATION_FAILED_KEY,
-                BASIC_AUTHENTICATION_FAILED, badUserName));
+                BASIC_AUTHENTICATION_FAILED, badUserName,
+                authInfo->getIpAddress()));
         PEG_METHOD_EXIT();
         return false;
     }
@@ -173,7 +174,8 @@ Boolean BasicAuthenticationHandler::authenticate(
             Logger::INFORMATION,
             MessageLoaderParms(
                 BASIC_AUTHENTICATION_FAILED_KEY,
-                BASIC_AUTHENTICATION_FAILED, userName));
+                BASIC_AUTHENTICATION_FAILED, userName,
+                authInfo->getIpAddress()));
     }
 #endif
 

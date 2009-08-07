@@ -181,9 +181,9 @@ Boolean LocalAuthenticationHandler::authenticate(
             Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
             MessageLoaderParms(
                 "Security.Authentication.LocalAuthenticationHandler."
-                    "LOCAL_AUTHENTICATION_FAILED",
-                "Local Authentication failed for user $0.",
-                userName));
+                    "LOCAL_AUTHENTICATION_FAILURE",
+                "Local Authentication failed for user $0 from client "
+                "IP address $1.",userName,authInfo->getIpAddress()));
     }
 
     PEG_AUDIT_LOG(logLocalAuthentication(userName, authenticated));

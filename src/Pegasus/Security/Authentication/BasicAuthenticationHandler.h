@@ -49,10 +49,10 @@ PEGASUS_NAMESPACE_BEGIN
 
 static const char BASIC_AUTHENTICATION_FAILED_KEY [] =
     "Security.Authentication.BasicAuthenticationHandler."
-        "BASIC_AUTHENTICATION_FAILED";
+        "BASIC_AUTHENTICATION_FAILURE";
 
 static const char BASIC_AUTHENTICATION_FAILED [] =
-    "Authentication failed for user=$0.";
+    "Authentication failed for user $0 from client IP address $1.";
 
 class PEGASUS_SECURITY_LINKAGE BasicAuthenticationHandler
     : public Authenticator

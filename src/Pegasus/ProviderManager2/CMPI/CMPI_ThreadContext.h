@@ -39,6 +39,7 @@
 #endif
 
 #include <Pegasus/Common/TSDKey.h>
+#include <Pegasus/Common/Once.h>
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 
@@ -60,7 +61,7 @@ class CMPI_ThreadContext
        static pthread_key_t contextKey;
     */
     static TSDKeyType contextKey;
-    static int context_key_once;
+    static Once contextKeyOnce;
     static void context_key_alloc();
     /**
        static pthread_key_t getContextKey();

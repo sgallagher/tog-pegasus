@@ -43,7 +43,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 TSDKeyType CMPI_ThreadContext::contextKey;
-int CMPI_ThreadContext::context_key_once=1;
+Once CMPI_ThreadContext::contextKeyOnce = PEGASUS_ONCE_INITIALIZER;
 
 void CMPI_ThreadContext::context_key_alloc()
 {
@@ -52,11 +52,7 @@ void CMPI_ThreadContext::context_key_alloc()
 
 TSDKeyType CMPI_ThreadContext::getContextKey()
 {
-    if( context_key_once )
-    {
-        context_key_alloc();
-        context_key_once=0;
-    }
+    once(&contextKeyOnce, context_key_alloc);
     return contextKey;
 }
 

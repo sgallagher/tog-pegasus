@@ -206,18 +206,20 @@ void WsmResponseEncoder::enqueue(WsmResponse* response)
     }
     catch (PEGASUS_STD(bad_alloc)&)
     {
-        WsmFault fault(WsmFault::wsman_InternalError,
-            MessageLoaderParms(
-                "WsmServer.WsmResponseEncoder.OUT_OF_MEMORY",
-                "A System error has occurred. Please retry the "
-                    "WS-Management operation at a later time."));
-        WsmFaultResponse outofmem(
-            response->getRelatesTo(),
-            response->getQueueId(),
-            response->getHttpMethod(),
-            response->getHttpCloseConnect(),
-            fault);
-        _encodeWsmFaultResponse(&outofmem);
+       MessageLoaderParms parms(
+            "WsmServer.WsmResponseEncoder.OUT_OF_MEMORY",
+            "A System error has occurred. Please retry the "
+                "WS-Management operation at a later time.");
+
+        Logger::put_l(
+            Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE, parms);
+        
+        MessageQueue* queue = MessageQueue::lookup(response->getQueueId());
+        HTTPConnection* httpQueue = dynamic_cast<HTTPConnection*>(queue);
+        PEGASUS_ASSERT(httpQueue);
+
+        // Handle the internal server error on this connection.
+        httpQueue->handleInternalServerError(0, true);
     }
 
     PEG_METHOD_EXIT();

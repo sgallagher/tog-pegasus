@@ -38,7 +38,6 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Message.h>
-#include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/AuthenticationInfo.h>
 #include <Pegasus/Common/TLS.h>
@@ -71,16 +70,6 @@ public:
 
     virtual void enqueue(Message *);
 
-    /**
-        In this specialization of isActive a check is performed on the
-        non-blocking socket to see if it is active by reading 1 byte. Since the 
-        current thread is processing the request, its safe to try to read 1 byte
-        from the socket as there should be no data on the socket. If read 
-        returns a message of size zero, it is an indication that the client has 
-        closed the connection and the socket at the server end can be closed.
-    */
-    virtual Boolean isActive();
-
     /** This method is called whenever a SocketMessage is enqueued
         on the input queue of the HTTPConnection object.
     */
@@ -97,7 +86,7 @@ public:
     */
     Boolean isResponsePending();
 
-    Boolean run();
+    Boolean run(Uint32 milliseconds);
 
     HTTPAcceptor& getOwningAcceptor()
     {
@@ -113,11 +102,6 @@ public:
     static Uint32 getIdleConnectionTimeout();
 
     Boolean closeConnectionOnTimeout(struct timeval* timeNow);
-
-    // This method is called in Client code to decide reconnection with 
-    // the Server and can also be used in the server code to check if the 
-    // connection is still alive and take appropriate action.
-    Boolean needsReconnect();
 
     // This method is called in Server code when response encoders or
     // HTTPAuthenticatorDelegator runs out-of-memory. This method calls 
@@ -160,7 +144,7 @@ private:
 
     void _handleReadEvent();
 
-    Boolean _handleWriteEvent(HTTPMessage& httpMessage);
+    Boolean _handleWriteEvent(Message &message);
 
     void _handleReadEventFailure(const String& httpStatusWithDetail,
                                  const String& cimError = String());
@@ -208,10 +192,10 @@ private:
     // completed.
     Boolean _acceptPending;
 
-    // The _httpMethodNotChecked flag is disabled after the first bytes of a
-    // request were read and validated to be one of the supported HTTP methods
-    // "POST" or "M-POST".
-    Boolean _httpMethodNotChecked;
+    // The _firstRead flag is set to false if the first bytes of a
+    // request was read and validated that it is a supported
+    // HTTP method "POST" or "M-POST".
+    Boolean _firstRead;
 
     // Holds time since the accept pending condition was detected.
     struct timeval _acceptPendingStartTime;

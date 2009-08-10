@@ -144,6 +144,18 @@ void CIMOperationResponseEncoder::sendResponse(
         return;
     }
 
+    HTTPConnection* httpQueue = dynamic_cast<HTTPConnection*>(queue);
+
+    if (! httpQueue)
+    {
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "ERROR: Unknown queue type. queueId = %u, response not sent.",
+            queueId));
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    Boolean isChunkRequest = httpQueue->isChunkRequested();
     HttpMethod httpMethod = response->getHttpMethod();
     String& messageId = response->messageId;
     CIMException& cimException = response->cimException;
@@ -207,28 +219,16 @@ void CIMOperationResponseEncoder::sendResponse(
 
     if (cimException.getCode() != CIM_ERR_SUCCESS)
     {
-        HTTPConnection* httpQueue = dynamic_cast<HTTPConnection*>(queue);
-        Boolean isChunkRequest = false;
-        Boolean isFirstError = true;
-
-        // Note:  The WMI Mapper may use a non-HTTPConnection queue here.
-        if (httpQueue)
-        {
-            isChunkRequest = httpQueue->isChunkRequested();
-            isFirstError =
-                (httpQueue->cimException.getCode() == CIM_ERR_SUCCESS);
-        }
+        STAT_SERVEREND_ERROR
 
         // only process the FIRST error
-        if (isFirstError)
+        if (httpQueue->cimException.getCode() == CIM_ERR_SUCCESS)
         {
             // NOTE: even if this error occurs in the middle, HTTPConnection
             // will flush the entire queued message and reformat.
             if (isChunkRequest == false)
-            {
                 message =
                     formatError(name, messageId, httpMethod, cimException);
-            }
 
             // uri encode the error (for the http header) only when it is
             // non-chunking or the first error with chunking
@@ -282,7 +282,6 @@ void CIMOperationResponseEncoder::sendResponse(
         new HTTPMessage(message, 0, &cimException));
     httpMessage->setComplete(isLast);
     httpMessage->setIndex(messageIndex);
-    httpMessage->binaryResponse = response->binaryResponse;
 
     if (cimException.getCode() != CIM_ERR_SUCCESS)
     {
@@ -505,7 +504,7 @@ void CIMOperationResponseEncoder::handleEnqueue(Message* message)
 
         default:
             // Unexpected message type
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
             break;
     }
 
@@ -584,7 +583,16 @@ void CIMOperationResponseEncoder::encodeGetInstanceResponse(
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        response->getResponseData().encodeXmlResponse(body);
+        if (response->resolveCallback && !response->binaryEncoding)
+        {
+            body.append(
+                (char*)response->instanceData.getData(),
+                response->instanceData.size()-1);
+        }
+        else
+        {
+            XmlWriter::appendInstanceElement(body, response->getCimInstance());
+        }
     }
     sendResponse(response, "GetInstance", true, &body);
 }
@@ -602,7 +610,26 @@ void CIMOperationResponseEncoder::encodeEnumerateInstancesResponse(
 
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        response->getResponseData().encodeXmlResponse(body);
+        if (response->resolveCallback && !response->binaryEncoding)
+        {
+            const Array<ArraySint8>& a = response->instancesData;
+            const Array<ArraySint8>& b = response->referencesData;
+
+            for (Uint32 i = 0, n = a.size(); i < n; i++)
+            {
+                body << STRLIT("<VALUE.NAMEDINSTANCE>\n");
+                body.append((char*)b[i].getData(), b[i].size() - 1);
+                body.append((char*)a[i].getData(), a[i].size() - 1);
+                body << STRLIT("</VALUE.NAMEDINSTANCE>\n");
+            }
+        }
+        else
+        {
+            const Array<CIMInstance>& a = response->getNamedInstances();
+
+            for (Uint32 i = 0, n = a.size(); i < n; i++)
+                XmlWriter::appendValueNamedInstanceElement(body, a[i]);
+        }
     }
 
     sendResponse(response, "EnumerateInstances", true, &body);
@@ -615,7 +642,9 @@ void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
 
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        response->getResponseData().encodeXmlResponse(body);
+        for (Uint32 i = 0, n = response->instanceNames.size(); i < n; i++)
+            XmlWriter::appendInstanceNameElement(
+                body, response->instanceNames[i]);
     }
     sendResponse(response, "EnumerateInstanceNames", true, &body);
 }
@@ -679,9 +708,13 @@ void CIMOperationResponseEncoder::encodeReferenceNamesResponse(
 {
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-    {
-        response->getResponseData().encodeXmlResponse(body);
-    }
+        for (Uint32 i = 0, n = response->objectNames.size(); i < n; i++)
+        {
+            body << "<OBJECTPATH>\n";
+            XmlWriter::appendValueReferenceElement(
+                body, response->objectNames[i], false);
+            body << "</OBJECTPATH>\n";
+        }
     sendResponse(response, "ReferenceNames", true, &body);
 }
 
@@ -690,9 +723,9 @@ void CIMOperationResponseEncoder::encodeReferencesResponse(
 {
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-    {
-        response->getResponseData().encodeXmlResponse(body);
-    }
+        for (Uint32 i = 0, n = response->cimObjects.size(); i < n;i++)
+            XmlWriter::appendValueObjectWithPathElement(
+                body, response->cimObjects[i]);
     sendResponse(response, "References", true, &body);
 }
 
@@ -701,9 +734,13 @@ void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
 {
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-    {
-        response->getResponseData().encodeXmlResponse(body);
-    }
+        for (Uint32 i = 0, n = response->objectNames.size(); i < n; i++)
+        {
+            body << "<OBJECTPATH>\n";
+            XmlWriter::appendValueReferenceElement(
+                body, response->objectNames[i], false);
+            body << "</OBJECTPATH>\n";
+        }
     sendResponse(response, "AssociatorNames", true, &body);
 }
 
@@ -712,9 +749,9 @@ void CIMOperationResponseEncoder::encodeAssociatorsResponse(
 {
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-    {
-        response->getResponseData().encodeXmlResponse(body);
-    }
+        for (Uint32 i = 0, n = response->cimObjects.size(); i < n; i++)
+            XmlWriter::appendValueObjectWithPathElement(
+                body, response->cimObjects[i]);
     sendResponse(response, "Associators", true, &body);
 }
 
@@ -723,9 +760,9 @@ void CIMOperationResponseEncoder::encodeExecQueryResponse(
 {
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-    {
-        response->getResponseData().encodeXmlResponse(body);
-    }
+        for (Uint32 i = 0; i < response->cimObjects.size(); i++)
+            XmlWriter::appendValueObjectWithPathElement(
+                body, response->cimObjects[i]);
     sendResponse(response, "ExecQuery", true, &body);
 }
 

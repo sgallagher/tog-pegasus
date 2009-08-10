@@ -141,11 +141,9 @@ static const char INTERNAL_SERVER_ERROR_CONNECTION_CLOSED[] =
  * with the thrown message
  */
 
-static void _throwEventFailure(
-    const String &status,
-    const String &detail,
-    const char *file,
-    Uint32 line)
+static void _throwEventFailure(const String &status, const String &detail,
+    const char *func,
+    const char *file , Uint32 line)
 {
     String message = status + httpDetailDelimiter + detail;
     PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL1,
@@ -159,25 +157,29 @@ static void _throwEventFailure(
 // The macro allows is used for file, line inclusion for debugging
 
 #define _throwEventFailure(status, detail) \
-  _throwEventFailure(status, String(detail), __FILE__, __LINE__)
+  _throwEventFailure(status, String(detail), func, __FILE__, __LINE__)
 
 #define _socketWriteError()                                                   \
     do                                                                        \
     {                                                                         \
-        String failureText = PEGASUS_SYSTEM_NETWORK_ERRORMSG;                 \
-                                                                              \
         PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,                        \
-            "Could not write response to client. Client may have timed out. " \
-            "Socket write failed with error: %s ",                            \
-            (const char*)failureText.getCString()));                          \
-                                                                              \
-        throw SocketWriteError(failureText);                                  \
+            "Socket write failed with error %d; could not write response "    \
+                "to client.  (Client may have timed out.)",                   \
+            getSocketError()));                                               \
+        throw Exception("socket write error");                                \
     }                                                                         \
     while (0)
 
 static inline Uint32 _Min(Uint32 x, Uint32 y)
 {
     return x < y ? x : y;
+}
+
+// Used to test signal handling
+void * sigabrt_generator(void * parm)
+{
+    abort();
+    return 0;
 }
 
 
@@ -210,28 +212,6 @@ Uint32 HTTPConnection::getIdleConnectionTimeout()
     return _idleConnectionTimeoutSeconds;
 }
 
-/*
-    Note: This method is called in client code for reconnecting with the Server
-    and can also be used in the server code to check the connection status  and
-    take appropriate actions.it checks whether the connection is alive by
-    attempting to read 1 byte from the socket.This method MUST not be used when
-    incoming data is expected from the connection.
-
-    Returns TRUE when there is no data and peer has closed the connection
-    gracefully or there is an unanticipated incoming data, returns FALSE
-    otherwise. Note that this method does not consider the errors returned
-    from read().
-*/
-
-Boolean HTTPConnection::needsReconnect()
-{
-    char buffer;
-
-    int n =  _socket->read(&buffer, sizeof(buffer));
-
-    return n >= 0;
-}
-
 HTTPConnection::HTTPConnection(
     Monitor* monitor,
     SharedPtr<MP_Socket>& socket,
@@ -249,7 +229,7 @@ HTTPConnection::HTTPConnection(
     _contentLength(-1),
     _connectionClosePending(false),
     _acceptPending(false),
-    _httpMethodNotChecked(true),
+    _firstRead(true),
     _internalError(false)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::HTTPConnection");
@@ -304,7 +284,7 @@ HTTPConnection::~HTTPConnection()
     // HTTPConnection::handleEnqueue(), we are running a risk of
     // accessing a deleted object and crashing cimserver.
     AutoMutex connectionLock(_connection_mut);
-    _socket->close();
+     _socket->close();
 
     PEG_METHOD_EXIT();
 }
@@ -313,22 +293,6 @@ void HTTPConnection::enqueue(Message *message)
 {
     handleEnqueue(message);
 }
-
-Boolean HTTPConnection::isActive()
-{
-    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::isActive");
-    if(needsReconnect())
-    {
-        PEG_METHOD_EXIT();
-        return false;
-    }
-    else
-    {
-        PEG_METHOD_EXIT();
-        return true;
-    }
-}
-
 
 void HTTPConnection::handleInternalServerError(
     Uint32 respMsgIndex,
@@ -350,7 +314,7 @@ void HTTPConnection::handleInternalServerError(
     message.setIndex(respMsgIndex);
     message.setComplete(isComplete);
     AutoMutex connectionLock(_connection_mut);
-    _handleWriteEvent(message);
+    _handleWriteEvent(message); 
     PEG_METHOD_EXIT();
 }
 
@@ -383,9 +347,7 @@ void HTTPConnection::handleEnqueue(Message *message)
             PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
                 "HTTPConnection::handleEnqueue - HTTP_MESSAGE");
 
-            HTTPMessage* httpMessage = dynamic_cast<HTTPMessage*>(message);
-            PEGASUS_ASSERT(httpMessage);
-            _handleWriteEvent(*httpMessage);
+            _handleWriteEvent(*message);
             break;
         }
 
@@ -456,12 +418,14 @@ Boolean HTTPConnection::closeConnectionOnTimeout(struct timeval* timeNow)
  * has arrived.
  */
 
-Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
+Boolean HTTPConnection::_handleWriteEvent(Message &message)
 {
+    static const char func[] = "HTTPConnection::_handleWriteEvent";
     String httpStatusString;
+    HTTPMessage& httpMessage = *(HTTPMessage*)&message;
     Buffer& buffer = httpMessage.message;
-    Boolean isFirst = httpMessage.isFirst();
-    Boolean isLast = httpMessage.isComplete();
+    Boolean isFirst = message.isFirst();
+    Boolean isLast = message.isComplete();
     Sint32 totalBytesWritten = 0;
     Uint32 messageLength = buffer.size();
 
@@ -475,13 +439,17 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
         Uint32 bytesRemaining = messageLength;
         char *messageStart = (char *) buffer.getData();
         Uint32 bytesToWrite = httpTcpBufferSize;
-        Uint32 messageIndex = httpMessage.getIndex();
+        Uint32 messageIndex = message.getIndex();
         Boolean isChunkResponse = false;
         Boolean isChunkRequest = false;
         Boolean isFirstException = false;
 
         if (_isClient() == false)
         {
+            PEG_TRACE((TRC_XML_IO, Tracer::LEVEL4,
+                "<!-- Response: queue id: %u -->\n%s",
+                getQueueId(),
+                buffer.getData()));
             if (isFirst == true)
             {
                 _incomingBuffer.clear();
@@ -501,7 +469,7 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
             }
 
             // If there is an internal error on this connection, just return
-            // from here if the current message is not the last message because
+            // from here if the current message is not the last message becasue
             // this connection will be closed once all messages are received.
             if (_internalError)
             {
@@ -518,10 +486,6 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                             INTERNAL_SERVER_ERROR_CONNECTION_CLOSED,
                             _ipAddress));
                 }
-
-                // Cleanup Authentication Handle
-                // currently only PAM implemented, see Bug#9642
-                _authInfo->getAuthHandle().destroy();
                 return true;
             }
 
@@ -562,9 +526,21 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                 // save the entire FIRST error response for non-chunked error
                 // responses this will be used as the error message
 
-                if (isFirstException)
+                if (isFirstException == true)
                 {
-                    PEGASUS_ASSERT(messageLength != 0);
+                    // this shouldnt happen, but this is defensive ...
+                    if (messageLength == 0)
+                    {
+                        CIMStatusCode code = httpMessage.cimException.getCode();
+                        String httpDetail(cimStatusCodeToString(code));
+                        char s[11];
+                        sprintf(s, "%u", (unsigned int)code);
+                        String httpStatusCodeString(s);
+                        Buffer errorRsp = XmlWriter::formatHttpErrorRspMessage(
+                            httpStatusCodeString, String(), httpDetail);
+                        messageLength = errorRsp.size();
+                        messageStart = (char *) errorRsp.getData();
+                    }
                     cimException = CIMException(cimException.getCode(),
                         String(messageStart, messageLength));
                 }
@@ -607,8 +583,6 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                         // null terminate
                         messageStart = (char *) buffer.getData();
                         messageStart[messageLength] = 0;
-                        // Error messages are always encoded non-binary
-                        httpMessage.binaryResponse = false;
                     }
                     bytesRemaining = messageLength;
                 }
@@ -624,7 +598,8 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
             // because we are going to send it the traditional (i.e
             // non-chunked) way
 
-            if ((isChunkRequest && isFirst) || (!isChunkRequest && isLast))
+            if (isChunkRequest == true && isFirst == true ||
+                    isChunkRequest == false && isLast == true)
             {
                 // need to find the end of the header
                 String startLine;
@@ -641,145 +616,7 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                 String reasonPhrase;
                 Boolean isValid = httpMessage.parseStatusLine(
                     startLine, httpVersion, httpStatusCode, reasonPhrase);
-
                 Uint32 headerLength = messageLength - contentLength;
-                if (!isChunkRequest)
-                {
-                    if (contentLanguages.size() != 0)
-                    {
-                        // we must insert the content-language into the
-                        // header
-                        Buffer contentLanguagesString;
-
-                        // this is the keyword:value(s) + header line
-                        // terminator
-                        contentLanguagesString <<
-                            headerNameContentLanguage <<
-                            headerNameTerminator <<
-                            LanguageParser::buildContentLanguageHeader(
-                                contentLanguages).getCString() <<
-                            headerLineTerminator;
-
-                        Uint32 insertOffset =
-                            headerLength - headerLineTerminatorLength;
-                        messageLength =
-                            contentLanguagesString.size() + buffer.size();
-
-                        // Adding 8 bytes to capacity, since in the 
-                        // binary case we might add up to 7 null bytes
-                        buffer.reserveCapacity(messageLength+8);
-                        messageLength = contentLanguagesString.size();
-                        messageStart=(char *)contentLanguagesString.getData();
-
-                        // insert the content language line before end
-                        // of header
-                        // note: this can be expensive on large payloads
-
-                        if (!httpMessage.binaryResponse)
-                        {
-                            buffer.insert(
-                                insertOffset, messageStart, messageLength);
-                        }
-                        else
-                        {
-                            // Need to fixup the binary alignment 0 bytes
-                            // delete bytes if new is smaller than old
-                            // add bytes if old is smaller than new
-                            // if new and old amount equal -> do nothing
-
-                            // ((a+7) & ~7) <- round up to the next highest 
-                            // number dividable by eight
-                            Uint32 extraNullBytes =
-                                ((headerLength + 7) & ~7) - headerLength;
-                            Uint32 newHeaderSize = 
-                                headerLength+contentLanguagesString.size();
-                            Uint32 newExtraNullBytes =
-                                ((newHeaderSize + 7) & ~7) - newHeaderSize;
-
-                            if (extraNullBytes > newExtraNullBytes)
-                            {
-                                buffer.insertWithOverlay(
-                                    insertOffset,
-                                    messageStart,
-                                    messageLength,
-                                    extraNullBytes-newExtraNullBytes);
-
-                                contentLength -= 
-                                    (extraNullBytes-newExtraNullBytes);
-                            }
-                            else
-                            {
-                                Uint32 reqNullBytes = 
-                                    newExtraNullBytes - extraNullBytes;
-                                contentLanguagesString << headerLineTerminator;
-                                messageLength += headerLineTerminatorLength;
-                                // Cleverly attach the extra bytes upfront
-                                // to the contentLanguagesString
-                                for (Uint32 i = 0; i < reqNullBytes; i++)
-                                {
-                                    contentLanguagesString.append('\0');
-                                }
-                                messageLength+=reqNullBytes;
-                                buffer.insertWithOverlay(
-                                    insertOffset,
-                                    messageStart,
-                                    messageLength,
-                                    headerLineTerminatorLength);
-
-                                contentLength+=reqNullBytes;
-                            }
-                        }
-                        // null terminate
-                        messageLength = buffer.size();
-                        messageStart = (char *) buffer.getData();
-                        messageStart[messageLength] = 0;
-                        bytesRemaining = messageLength;
-                    } // if there were any content languages
-
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-                    // The following is processing to wrap (encrypt) the
-                    // response from the server when using kerberos
-                    // authentications.
-                    // If the security association does not exist then
-                    // kerberos authentication is not being used.
-                    CIMKerberosSecurityAssociation *sa =
-                        _authInfo->getSecurityAssociation();
-
-                    if (sa)
-                    {
-                        // The message needs to be parsed in order to
-                        // distinguish between the headers and content.
-                        // When parsing, the code breaks out of the loop
-                        // as soon as it finds the double separator that
-                        // terminates the headers so the headers and
-                        // content can be easily separated.
-
-                        Boolean authrecExists = false;
-                        const char* authorization;
-                        if (HTTPMessage::lookupHeader(
-                                headers, "WWW-Authenticate",
-                                authorization, false))
-                        {
-                            authrecExists = true;
-                        }
-
-                        // The following is processing to wrap (encrypt)
-                        // the response from the server when using
-                        // kerberos authentications.
-                        sa->wrapResponseMessage(
-                            buffer, contentLength, authrecExists);
-                        messageLength = buffer.size();
-
-                        // null terminate
-                        messageStart = (char *) buffer.getData();
-                        messageStart[messageLength] = 0;
-                        bytesRemaining = messageLength;
-                    }  // endif kerberos security assoc exists
-#endif
-                } // if chunk request is false
-
-                headerLength = messageLength - contentLength;
-
                 char save = messageStart[headerLength];
                 messageStart[headerLength] = 0;
 
@@ -900,6 +737,88 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
 
                 } // if content length was found
 
+                if (isChunkRequest == false)
+                {
+                    if (isLast == true)
+                    {
+                        if (contentLanguages.size() != 0)
+                        {
+                            // we must insert the content-language into the
+                            // header
+                            Buffer contentLanguagesString;
+
+                            // this is the keyword:value(s) + header line
+                            // terminator
+                            contentLanguagesString <<
+                                headerNameContentLanguage <<
+                                headerNameTerminator <<
+                                LanguageParser::buildContentLanguageHeader(
+                                    contentLanguages).getCString() <<
+                                headerLineTerminator;
+
+                            Uint32 insertOffset =
+                                headerLength - headerLineTerminatorLength;
+                            messageLength =
+                                contentLanguagesString.size() + buffer.size();
+                            buffer.reserveCapacity(messageLength+1);
+                            messageLength = contentLanguagesString.size();
+                            messageStart =
+                                (char *)contentLanguagesString.getData();
+                            // insert the content language line before end
+                            // of header
+                            // note: this can be expensive on large payloads
+                            buffer.insert(
+                                insertOffset, messageStart, messageLength);
+                            messageLength = buffer.size();
+                            // null terminate
+                            messageStart = (char *) buffer.getData();
+                            messageStart[messageLength] = 0;
+                            bytesRemaining = messageLength;
+                        } // if there were any content languages
+
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+                        // The following is processing to wrap (encrypt) the
+                        // response from the server when using kerberos
+                        // authentications.
+                        // If the security association does not exist then
+                        // kerberos authentication is not being used.
+                        CIMKerberosSecurityAssociation *sa =
+                            _authInfo->getSecurityAssociation();
+
+                        if (sa)
+                        {
+                            // The message needs to be parsed in order to
+                            // distinguish between the headers and content.
+                            // When parsing, the code breaks out of the loop
+                            // as soon as it finds the double separator that
+                            // terminates the headers so the headers and
+                            // content can be easily separated.
+
+                            Boolean authrecExists = false;
+                            const char* authorization;
+                            if (HTTPMessage::lookupHeader(
+                                    headers, "WWW-Authenticate",
+                                    authorization, false))
+                            {
+                                authrecExists = true;
+                            }
+
+                            // The following is processing to wrap (encrypt)
+                            // the response from the server when using
+                            // kerberos authentications.
+                            sa->wrapResponseMessage(
+                                buffer, contentLength, authrecExists);
+                            messageLength = buffer.size();
+
+                            // null terminate
+                            messageStart = (char *) buffer.getData();
+                            messageStart[messageLength] = 0;
+                            bytesRemaining = messageLength;
+                        }  // endif kerberos security assoc exists
+#endif
+                    } // if this is the last chunk
+                    else bytesRemaining = 0;
+                } // if chunk request is false
             } // if this is the first chunk containing the header
             else
             {
@@ -923,14 +842,6 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
         PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4,
                 "HTTPConnection::_handleWriteEvent: Server write event.");
 
-        // All possible fix ups have been done, trace the result
-        PEG_TRACE((TRC_XML_IO, Tracer::LEVEL4,
-            "<!-- Response: queue id: %u -->\n%s",
-            getQueueId(),
-            Tracer::traceFormatChars(
-                Buffer(messageStart,bytesRemaining),
-                httpMessage.binaryResponse).get()));
-
         SignalHandler::ignore(PEGASUS_SIGPIPE);
 
         const char *sendStart = messageStart;
@@ -943,9 +854,9 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
             // dont include header terminator yet
             Uint32 headerLength = bytesToWrite;
             bytesToWrite -= headerLineTerminatorLength;
-            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
-                "HTTPConnection::_handleWriteEvent: "
-                    "Sending header for chunked reponses.");
+            PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4,
+              "HTTPConnection::_handleWriteEvent: "
+              "Sending header for chunked reponses.");
 
             bytesWritten = _socket->write(sendStart, bytesToWrite);
             if (bytesWritten < 0)
@@ -959,12 +870,11 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                 _mpostPrefix << headerNameCode <<    headerValueSeparator <<
                 _mpostPrefix << headerNameDescription << headerValueSeparator <<
                 headerNameContentLanguage << headerLineTerminator;
-
             sendStart = trailer.getData();
             bytesToWrite = trailer.size();
 
-            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
-                "HTTPConnection::_handleWriteEvent: "
+            PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4,
+                    "HTTPConnection::_handleWriteEvent: "
                     "Sending trailer header for chunked responses.");
 
             bytesWritten = _socket->write(sendStart, bytesToWrite);
@@ -979,8 +889,8 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
             bytesToWrite = headerLineTerminatorLength;
             sendStart = messageStart + headerLength - bytesToWrite;
 
-            PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
-                "HTTPConnection::_handleWriteEvent: "
+            PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4,
+                    "HTTPConnection::_handleWriteEvent: "
                     "Sending header terminator for chunked responses.");
 
             bytesWritten = _socket->write(sendStart, bytesToWrite);
@@ -1009,8 +919,8 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                 sendStart = chunkLine;
                 Sint32 chunkBytesToWrite = (Sint32)strlen(sendStart);
 
-                PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
-                    "HTTPConnection::_handleWriteEvent: "
+                PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4,
+                        "HTTPConnection::_handleWriteEvent: "
                         "Sending chunk with chunk line terminator.");
 
                 bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
@@ -1035,8 +945,8 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
               sendStart = messageStart + messageLength - bytesRemaining;
               bytesToWrite = _Min(httpTcpBufferSize, bytesRemaining);
 
-              PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
-                  "HTTPConnection::_handleWriteEvent: "
+              PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4,
+                      "HTTPConnection::_handleWriteEvent: "
                       "Sending non-chunked data.");
 
               bytesWritten = _socket->write(sendStart, bytesToWrite);
@@ -1103,16 +1013,14 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                     PEG_TRACE((TRC_XML_IO, Tracer::LEVEL4,
                         "<!-- Trailer: queue id: %u -->\n%s",
                         getQueueId(),
-                        Tracer::traceFormatChars(
-                            trailer,
-                            httpMessage.binaryResponse).get()));
+                        trailer.getData()));
                 }
                 sendStart = trailer.getData();
                 Sint32 chunkBytesToWrite = (Sint32) trailer.size();
 
-                PEG_TRACE_CSTRING(TRC_HTTP, Tracer::LEVEL4,
-                    "HTTPConnection::_handleWriteEvent: "
-                        "Sending the last chunk with chunk body terminator");
+                PEG_TRACE_CSTRING(TRC_HTTP,Tracer::LEVEL4,
+                        "HTTPConnection::_handleWriteEvent: "
+                        "Sending the last chunk with chunk body terminator ");
 
                 bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
                 if (bytesWritten < 0)
@@ -1124,12 +1032,6 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
 
     } // try
 
-    catch (SocketWriteError &e)
-    {
-        // On the server side, the socket write error is suppressed
-        // and not handled as an internal error.
-        httpStatusString = e.getMessage();
-    }
     catch (Exception &e)
     {
         httpStatusString = e.getMessage();
@@ -1187,10 +1089,6 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
         //
         if (_isClient() == false)
         {
-            // Cleanup Authentication Handle
-            // currently only PAM implemented, see Bug#9642
-            _authInfo->getAuthHandle().destroy();
-
             if (_internalError)
             {
                 _closeConnection();
@@ -1203,11 +1101,14 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
                         INTERNAL_SERVER_ERROR_CONNECTION_CLOSED,
                         _ipAddress));
             }
+
             // Check for message to close
-            else if (httpMessage.getCloseConnect())
+            else if (message.getCloseConnect()== true)
             {
-                PEG_TRACE((TRC_HTTP, Tracer::LEVEL3,
-                    "HTTPConnection::_handleWriteEvent: \"Connection: Close\" "
+                PEG_TRACE((
+                    TRC_HTTP,
+                    Tracer::LEVEL3,
+                    "HTTPConnection::_handleWriteEvent - Connection: Close "
                         "in client message."));
                 _closeConnection();
             }
@@ -1250,9 +1151,7 @@ Boolean _IsBodylessMessage(const char* line)
     const char* METHOD_NAMES[] =
     {
         "GET",
-        "HEAD",
-        "OPTIONS",
-        "DELETE"
+        "HEAD"
     };
 
     // List of response codes which the client accepts and which should not
@@ -1337,6 +1236,8 @@ Boolean _IsBodylessMessage(const char* line)
 
 void HTTPConnection::_getContentLengthAndContentOffset()
 {
+    static const char func[] =
+    "HTTPConnection::_getContentLengthAndContentOffset";
     Uint32 size = _incomingBuffer.size();
     if (size == 0)
         return;
@@ -1350,7 +1251,8 @@ void HTTPConnection::_getContentLengthAndContentOffset()
     Boolean gotContentLanguage = false;
     Boolean gotTransferTE = false;
 
-    while ((sep = HTTPMessage::findSeparator(line)))
+    while ((sep =
+        HTTPMessage::findSeparator(line, (Uint32)(size - (line - data)))))
     {
         char save = *sep;
         *sep = '\0';
@@ -1674,8 +1576,9 @@ Boolean HTTPConnection::_isClient()
 
 void HTTPConnection::_handleReadEventTransferEncoding()
 {
-    PEG_METHOD_ENTER(TRC_HTTP,
-        "HTTPConnection::_handleReadEventTransferEncoding");
+    static const char func[] =
+        "HTTPConnection::_handleReadEventTransferEncoding";
+    PEG_METHOD_ENTER(TRC_HTTP, func);
 
     Uint32 messageLength = _incomingBuffer.size();
     Uint32 headerLength = (Uint32) _contentOffset;
@@ -1780,11 +1683,8 @@ void HTTPConnection::_handleReadEventTransferEncoding()
         chunkLineEnd += chunkLineTerminatorLength;
         Uint32 chunkLineLength = (Uint32)(chunkLineEnd - chunkLineStart);
         Uint32 chunkMetaLength = chunkLineLength;
-
-        // Always add chunkTerminatorLength since last-chunk should also
-        // contain chunkTerminator (CRLF)
-        chunkMetaLength += chunkTerminatorLength;
-
+        if (chunkLengthParsed > 0)
+            chunkMetaLength += chunkTerminatorLength;
         Uint32 chunkTerminatorOffset = _transferEncodingChunkOffset +
             chunkLineLength + chunkLengthParsed;
 
@@ -1797,14 +1697,14 @@ void HTTPConnection::_handleReadEventTransferEncoding()
         // Also, if this is the last chunk, then we have to know if there
         // is enough data in here to be able to verify that meta crlf for
         // the end of the whole chunked message is present.
-        // If chunkLengthParsed + chunkMetaLenght > reminderLength, it
+        // If chunkLengthParsed + chunkMetaLenght == reminderLength, it
         // means that there is a space only for meta crlf of the last chunk.
         // Therefore go back and re-read socket until you get enough data
         // for at least 2 crlfs.  One for the end of the last chunk or
         // the end of the optional trailer, and one for the end of whole
         // message.
 
-        if (chunkLengthParsed + chunkMetaLength > remainderLength)
+        if (chunkLengthParsed + chunkMetaLength >= remainderLength)
             break;
 
         // at this point we have a complete chunk. proceed and strip out
@@ -2103,7 +2003,8 @@ void HTTPConnection::_handleReadEventFailure(
 
 void HTTPConnection::_handleReadEvent()
 {
-    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::_handleReadEvent");
+    static const char func[] = "HTTPConnection::_handleReadEvent()";
+    PEG_METHOD_ENTER(TRC_HTTP, func);
 
     if (_acceptPending)
     {
@@ -2170,6 +2071,34 @@ void HTTPConnection::_handleReadEvent()
 
         Sint32 n = _socket->read(buffer, sizeof(buffer)-1);
 
+        // Check if this was the first read of a connection to the server.
+        // This has to happen inside the read loop, because there can be
+        // an incomplete SSL read.
+        if (_firstRead && n > 5 && !_isClient())
+        {
+            // The first bytes of a connection to the server have to contain
+            // a valid cim-over-http HTTP Method (M-POST or POST).
+            if ((strncmp(buffer, "POST", 4) != 0) &&
+                (strncmp(buffer, "M-POST", 6) != 0))
+            {
+                _clearIncoming();
+
+                PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
+                      "This Request has non-valid CIM-HTTP Method: "
+                      "%02X %02X %02X %02X %02X %02X",
+                      buffer[0],buffer[1],buffer[2],
+                      buffer[3],buffer[4],buffer[5]));
+
+                // Try to send message to client.
+                // This function also closes the connection.
+                _handleReadEventFailure(HTTP_STATUS_NOTIMPLEMENTED);
+
+                PEG_METHOD_EXIT();
+                return;
+            }
+            _firstRead = false;
+        }
+
         if (n <= 0)
         {
             // It is possible that SSL_read was not able to
@@ -2207,43 +2136,6 @@ void HTTPConnection::_handleReadEvent()
         }
 
         bytesRead += n;
-
-        // Check if this was the first read of a connection to the server.
-        // This has to happen inside the read loop, because there can be
-        // an incomplete SSL read.
-        if (_httpMethodNotChecked && (bytesRead > 5) && !_isClient())
-        {
-            char* buf = _incomingBuffer.getContentPtr();
-            // The first bytes of a connection to the server have to contain
-            // a valid HTTP Method.
-            if ((strncmp(buf, "POST", 4) != 0) &&
-                            (strncmp(buf, "PUT", 3) != 0) &&
-                            (strncmp(buf, "OPTIONS", 7) != 0) &&
-                            (strncmp(buf, "DELETE", 6) != 0) &&
-#if defined(PEGASUS_ENABLE_PROTOCOL_WEB)
-                            (strncmp(buf, "GET", 3) != 0) &&
-                            (strncmp(buf, "HEAD", 4) != 0) &&
-#endif
-                (strncmp(buf, "M-POST", 6) != 0))
-            {
-                _clearIncoming();
-
-                PEG_TRACE((TRC_HTTP, Tracer::LEVEL2,
-                      "This Request has an unknown HTTP Method: "
-                      "%02X %02X %02X %02X %02X %02X",
-                      buf[0],buf[1],buf[2],
-                      buf[3],buf[4],buf[5]));
-
-                // Try to send message to client.
-                // This function also closes the connection.
-                _handleReadEventFailure(HTTP_STATUS_NOTIMPLEMENTED);
-
-                PEG_METHOD_EXIT();
-                return;
-            }
-            _httpMethodNotChecked = false;
-        }
-
 #if defined (PEGASUS_OS_VMS)
         if (n < sizeof(buffer))
         {
@@ -2358,13 +2250,6 @@ void HTTPConnection::_handleReadEvent()
         {
             _outputMessageQueue->enqueue(message);
         }
-        catch(TooManyHTTPHeadersException& e)
-        {
-            String httpStatus(HTTP_STATUS_REQUEST_TOO_LARGE);
-            httpStatus.append(httpDetailDelimiter);
-            httpStatus.append(e.getMessage());
-            _handleReadEventFailure(httpStatus);
-        }
         catch (Exception& e)
         {
             String httpStatus =
@@ -2399,7 +2284,7 @@ Boolean HTTPConnection::isResponsePending()
     return _responsePending;
 }
 
-Boolean HTTPConnection::run()
+Boolean HTTPConnection::run(Uint32 milliseconds)
 {
     Boolean handled_events = false;
     int events = 0;

@@ -30,7 +30,8 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CMPI_Version.h"
-#include "CMPI_ThreadContext.h"
+
+#include "CMPI_Object.h"
 
 #if !defined(PEGASUS_OS_TYPE_WINDOWS)
 # include <pthread.h>
@@ -41,12 +42,75 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-// this static gets initialized on load of CMPIProviderManager library
-// in the constructor of CMPI_ThreadContextKey the key for the thread-specific
-// storage used by CMPI is created
-// This was done to ensure that the key gets created exactly once, saving the
-// need to check for it on later access.
-CMPI_ThreadContextKey CMPI_ThreadContext::globalThreadContextKey;
+TSDKeyType CMPI_ThreadContext::contextKey;
+Once CMPI_ThreadContext::contextKeyOnce = PEGASUS_ONCE_INITIALIZER;
+
+void CMPI_ThreadContext::context_key_alloc()
+{
+    TSDKey::create(&contextKey);
+}
+
+TSDKeyType CMPI_ThreadContext::getContextKey()
+{
+    once(&contextKeyOnce, context_key_alloc);
+    return contextKey;
+}
+
+void CMPI_ThreadContext::add(CMPI_Object *o)
+{
+    ENQ_TOP_LIST(o,CIMfirst,CIMlast,next,prev);
+}
+
+void CMPI_ThreadContext::addObject(CMPI_Object* o)
+{
+    CMPI_ThreadContext* ctx=getThreadContext();
+    if (ctx)
+    {
+        ctx->add(o);
+    }
+}
+
+void CMPI_ThreadContext::remove(CMPI_Object *o)
+{
+    if( o->next!=reinterpret_cast<CMPI_Object*>((void*)-1l))
+    {
+        DEQ_FROM_LIST(o,CIMfirst,CIMlast,next,prev);
+        o->next=reinterpret_cast<CMPI_Object*>((void*)-1l);
+    }
+}
+
+void CMPI_ThreadContext::remObject(CMPI_Object* o)
+{
+    CMPI_ThreadContext* ctx=getThreadContext();
+    if (ctx)
+    {
+        ctx->remove(o);
+    }
+}
+
+CMPI_ThreadContext* CMPI_ThreadContext::getThreadContext()
+{
+    TSDKeyType k=getContextKey();
+    return(CMPI_ThreadContext*)TSDKey::get_thread_specific(k);
+}
+
+const CMPIBroker* CMPI_ThreadContext::getBroker()
+{
+    /**
+      return getThreadContext()->broker;
+   */
+    CMPI_ThreadContext *ctx = getThreadContext();
+    if( ctx )
+    {
+        return ctx->broker;
+    }
+    return 0;
+}
+
+const CMPIContext* CMPI_ThreadContext::getContext()
+{
+    return getThreadContext()->context;
+}
 
 CMPI_ThreadContext::CMPI_ThreadContext(
 const CMPIBroker *mb,
@@ -55,9 +119,9 @@ const CMPIContext *ctx )
     CIMfirst=CIMlast=NULL;
     broker=mb;
     context=ctx;
-    prev=(CMPI_ThreadContext*)
-        TSDKey::get_thread_specific(globalThreadContextKey.contextKey);
-    TSDKey::set_thread_specific(globalThreadContextKey.contextKey,this);
+    TSDKeyType k=getContextKey();
+    prev=(CMPI_ThreadContext*)TSDKey::get_thread_specific(k);
+    TSDKey::set_thread_specific(k,this);
     return;
 }
 
@@ -69,8 +133,11 @@ CMPI_ThreadContext::~CMPI_ThreadContext()
         (reinterpret_cast<CMPIInstance*>(cur))->ft->release(
         reinterpret_cast<CMPIInstance*>(cur));
     }
-    TSDKey::set_thread_specific(globalThreadContextKey.contextKey,prev);
+
+    TSDKeyType k=getContextKey();
+    TSDKey::set_thread_specific(k,prev);
 }
+
 
 PEGASUS_NAMESPACE_END
 

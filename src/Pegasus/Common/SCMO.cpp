@@ -62,6 +62,8 @@ PEGASUS_USING_STD;
  */
 #define NULLSTR(x) ((x) == NULL ? "" : (x))
 
+#define NEWCIMSTR(ptr,base) (String(&(base)[(ptr).start],((ptr).length)-1))
+
 PEGASUS_NAMESPACE_BEGIN
 
 static StrLit _qualifierNameStrLit[] =
@@ -1031,6 +1033,419 @@ SCMOInstance::SCMOInstance(SCMOClass baseClass, const CIMInstance& cimInstance)
 
 }
 
+SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
+{
+
+    SCMO_RC rc = SCMO_OK;
+    Uint32 noProps;
+    CIMObjectPath objPath;
+
+    _getCIMObjectPath(objPath);
+
+    cimInstance.setPath(objPath);
+
+    if (inst.hdr->flags.isFiltered)
+    {
+        // Get absolut pointer to property filter index map of the instance
+        Uint32* propertyFilterIndexMap =
+            (Uint32*)&(inst.base[inst.hdr->propertyFilterIndexMap.start]);
+
+        for(Uint32 i = 0, k = inst.hdr->filterProperties; i<k; i++)
+        {
+            // Get absolut pointer to property filter index map
+            // of the instance get the real node index of the property.
+            CIMProperty theProperty=_getCIMPropertyAtNodeIndex(
+                propertyFilterIndexMap[i]);
+
+            cimInstance._rep->_properties.append(theProperty);
+        }
+
+    }
+    else
+    {
+        for(Uint32 i = 0, k = inst.hdr->numberProperties; i<k; i++)
+        {
+            // no filtering. Counter is node index
+            CIMProperty theProperty=_getCIMPropertyAtNodeIndex(i);
+
+            cimInstance._rep->_properties.append(theProperty);
+        }
+
+    }
+
+    return rc;
+}
+
+void SCMOInstance::_getCIMObjectPath(CIMObjectPath& cimObj) const
+{
+    // For better usability define pointers to SCMO Class data structures.
+    SCMBClass_Main* clshdr = inst.hdr->theClass->cls.hdr;
+    char* clsbase = inst.hdr->theClass->cls.base;
+
+    // Address the class keybinding information
+    SCMBKeyBindingNode* scmoClassArray =
+        (SCMBKeyBindingNode*)&clsbase[clshdr->keyBindingSet.nodeArray.start];
+
+    // Address the instance keybinding information
+    SCMBDataPtr* scmoInstArray =
+        (SCMBDataPtr*)&inst.base[inst.hdr->keyBindingArray.start];
+
+    Uint32 numberKeyBindings = inst.hdr->numberKeyBindings;
+
+    Array<CIMKeyBinding> cimBindings;
+
+    for (Uint32 i = 0; i < numberKeyBindings; i ++)
+    {
+        cimBindings.append(
+            CIMKeyBinding(CIMName(NEWCIMSTR(scmoClassArray[i].name,clsbase)),
+                          NEWCIMSTR(scmoInstArray[i],inst.base),
+                          scmoClassArray[i].type));
+    }
+
+    cimObj.set(NEWCIMSTR(inst.hdr->hostName,inst.base),
+               CIMNamespaceName(NEWCIMSTR(clshdr->nameSpace,clsbase)),
+               CIMName(NEWCIMSTR(clshdr->className,clsbase)),
+               cimBindings);
+}
+
+CIMProperty SCMOInstance::_getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const
+{
+    CIMValue theValue;
+    CIMProperty retProperty;
+
+    // For better usability define pointers to SCMO Class data structures.
+    SCMBClass_Main* clshdr = inst.hdr->theClass->cls.hdr;
+    char* clsbase = inst.hdr->theClass->cls.base;
+
+
+    SCMBClassPropertyNode& clsProp =
+        ((SCMBClassPropertyNode*)
+         &(clsbase[clshdr->propertySet.nodeArray.start]))[nodeIdx];
+
+    SCMBValue& instValue =
+        ((SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]))[nodeIdx];
+
+    _getCIMValueFromSCMBValue(theValue,instValue,inst.base);
+
+
+    if (inst.hdr->flags.includeClassOrigin)
+    {
+        retProperty = CIMProperty(
+            CIMName(NEWCIMSTR(clsProp.theProperty.name,clsbase)),
+            theValue,
+            theValue.getArraySize(),
+            CIMName(NEWCIMSTR(clsProp.theProperty.refClassName,clsbase)),
+            CIMName(NEWCIMSTR(clsProp.theProperty.originClassName,clsbase)),
+            clsProp.theProperty.flags.propagated);
+    }
+    else
+    {
+         retProperty = CIMProperty(
+            CIMName(NEWCIMSTR(clsProp.theProperty.name,clsbase)),
+            theValue,
+            theValue.getArraySize(),
+            CIMName(NEWCIMSTR(clsProp.theProperty.refClassName,clsbase)),
+            CIMName(),
+            clsProp.theProperty.flags.propagated);
+    }
+
+    if (inst.hdr->flags.includeQualifiers)
+    {
+        SCMBQualifier* qualiArray =
+            (SCMBQualifier*)
+                 &(clsbase[clsProp.theProperty.qualifierArray.start]);
+
+        CIMName qualiName;
+
+        Uint32 i, k = clsProp.theProperty.numberOfQualifiers;
+        for ( i = 0 ; i < k ; i++)
+        {
+            _getCIMValueFromSCMBValue(theValue,qualiArray[i].value,clsbase);
+
+            if (qualiArray[i].name == QUALNAME_USERDEFINED)
+            {
+                qualiName = NEWCIMSTR(qualiArray[i].userDefName,clsbase);
+            }
+            else
+            {
+                qualiName = String(
+                    _qualifierNameStrLit[qualiArray[i].name].str,
+                    _qualifierNameStrLit[qualiArray[i].name].size);
+            }
+
+            retProperty._rep->_qualifiers.addUnchecked(
+                CIMQualifier(
+                    qualiName,
+                    theValue,
+                    qualiArray[i].flavor,
+                    qualiArray[i].propagated));
+        }
+    }
+
+    return retProperty;
+
+}
+
+void SCMOInstance::_getCIMValueFromSCMBValue(
+    CIMValue& cimV,
+    const SCMBValue& scmbV,
+    const char * base) const
+{
+    if (scmbV.flags.isNull)
+    {
+        cimV.setNullValue(
+            scmbV.valueType,
+            scmbV.flags.isArray,
+            scmbV.valueArraySize);
+        return;
+    }
+
+    switch (scmbV.valueType)
+    {
+
+    case CIMTYPE_UINT8:
+        {
+            if (scmbV.flags.isArray)
+            {
+                const Uint8* u=(Uint8*)&(base[scmbV.value._arrayValue.start]);
+                const Array<Uint8> *x=reinterpret_cast<Array<Uint8>*>(&u);
+                cimV.set(&x);
+            }
+            else
+            {
+                cimV.set(scmbV.value._uint8Value);
+            }
+            break;
+        }
+
+    case CIMTYPE_UINT16:
+        {
+            if (scmbV.flags.isArray)
+            {
+                const Uint16* u=(Uint16*)&(base[scmbV.value._arrayValue.start]);
+                const Array<Uint16> *x=reinterpret_cast<Array<Uint16>*>(&u);
+                cimV.set(&x);
+            }
+            else
+            {
+                cimV.set(scmbV.value._uint16Value);
+            }
+            break;
+        }
+
+    case CIMTYPE_UINT32:
+        {
+            if (scmbV.flags.isArray)
+            {
+                const Uint32* u=(Uint32*)&(base[scmbV.value._arrayValue.start]);
+                const Array<Uint32> *x=reinterpret_cast<Array<Uint32>*>(&u);
+                cimV.set(&x);
+            }
+            else
+            {
+                cimV.set(scmbV.value._uint32Value);
+            }
+            break;
+        }
+
+    case CIMTYPE_UINT64:
+        {
+            if (scmbV.flags.isArray)
+            {
+                const Uint64* u=(Uint64*)&(base[scmbV.value._arrayValue.start]);
+                const Array<Uint64> *x=reinterpret_cast<Array<Uint64>*>(&u);
+                cimV.set(&x);
+            }
+            else
+            {
+                cimV.set(scmbV.value._uint64Value);
+            }
+            break;
+        }
+
+    case CIMTYPE_SINT8:
+        {
+            if (scmbV.flags.isArray)
+            {
+                const Sint8* u=(Sint8*)&(base[scmbV.value._arrayValue.start]);
+                const Array<Sint8> *x=reinterpret_cast<Array<Sint8>*>(&u);
+                cimV.set(&x);
+            }
+            else
+            {
+                cimV.set(scmbV.value._sint8Value);
+            }
+            break;
+        }
+
+    case CIMTYPE_SINT16:
+        {
+            if (scmbV.flags.isArray)
+            {
+                const Sint16* u=(Sint16*)&(base[scmbV.value._arrayValue.start]);
+                const Array<Sint16> *x=reinterpret_cast<Array<Sint16>*>(&u);
+                cimV.set(&x);
+            }
+            else
+            {
+                cimV.set(scmbV.value._sint16Value);
+            }
+            break;
+        }
+
+    case CIMTYPE_SINT32:
+        {
+            if (scmbV.flags.isArray)
+            {
+                const Sint32* u=(Sint32*)&(base[scmbV.value._arrayValue.start]);
+                const Array<Sint32> *x=reinterpret_cast<Array<Sint32>*>(&u);
+                cimV.set(&x);
+            }
+            else
+            {
+                cimV.set(scmbV.value._sint32Value);
+            }
+            break;
+        }
+
+    case CIMTYPE_SINT64:
+        {
+            if (scmbV.flags.isArray)
+            {
+                const Sint64* u=(Sint64*)&(base[scmbV.value._arrayValue.start]);
+                const Array<Sint64> *x=reinterpret_cast<Array<Sint64>*>(&u);
+                cimV.set(&x);
+            }
+            else
+            {
+                cimV.set(scmbV.value._sint64Value);
+            }
+            break;
+        }
+
+    case CIMTYPE_REAL32:
+        {
+            if (scmbV.flags.isArray)
+            {
+                const Real32* u=(Real32*)&(base[scmbV.value._arrayValue.start]);
+                const Array<Real32> *x=reinterpret_cast<Array<Real32>*>(&u);
+                cimV.set(&x);
+            }
+            else
+            {
+                cimV.set(scmbV.value._real32Value);
+            }
+            break;
+        }
+
+    case CIMTYPE_REAL64:
+        {
+            if (scmbV.flags.isArray)
+            {
+                const Real64* u=(Real64*)&(base[scmbV.value._arrayValue.start]);
+                const Array<Real64> *x=reinterpret_cast<Array<Real64>*>(&u);
+                cimV.set(&x);
+            }
+            else
+            {
+                cimV.set(scmbV.value._real64Value);
+            }
+            break;
+        }
+
+    case CIMTYPE_CHAR16:
+        {
+            if (scmbV.flags.isArray)
+            {
+                const Char16* u=(Char16*)&(base[scmbV.value._arrayValue.start]);
+                const Array<Char16> *x=reinterpret_cast<Array<Char16>*>(&u);
+                cimV.set(&x);
+            }
+            else
+            {
+                cimV.set(scmbV.value._char16Value);
+            }
+            break;
+        }
+
+    case CIMTYPE_BOOLEAN:
+        {
+            if (scmbV.flags.isArray)
+            {
+                const Boolean* u=
+                    (Boolean*)&(base[scmbV.value._arrayValue.start]);
+                const Array<Boolean> *x=reinterpret_cast<Array<Boolean>*>(&u);
+                cimV.set(&x);
+            }
+            else
+            {
+                cimV.set(scmbV.value._booleanValue);
+            }
+            break;
+        }
+
+    case CIMTYPE_STRING:
+        {
+            if (scmbV.flags.isArray)
+            {
+                // get the pointer to the array of relative SCMB pointers
+                const SCMBDataPtr *ptr =
+                    (SCMBDataPtr*)&(base[scmbV.value._arrayValue.start]);
+
+                Array<String> x;
+
+                for (Uint32 i = 0, k = scmbV.valueArraySize; i < k ; i++)
+                {
+                    x.append(NEWCIMSTR(ptr[i],base));
+                }
+                cimV.set(x);
+            }
+            else
+            {
+                cimV.set(NEWCIMSTR(scmbV.value._stringValue,base));
+            }
+            break;
+        }
+
+    case CIMTYPE_DATETIME:
+        {
+            if (scmbV.flags.isArray)
+            {
+                // get the pointer to the array of SCMBDateTime
+                const SCMBDateTime *ptr =
+                    (SCMBDateTime*)&(base[scmbV.value._arrayValue.start]);
+
+                Array<CIMDateTime> x;
+
+                for (Uint32 i = 0, k = scmbV.valueArraySize; i < k ; i++)
+                {
+                    x.append(CIMDateTime(&(ptr[i])));
+                }
+                cimV.set(x);
+            }
+            else
+            {
+                cimV.set(CIMDateTime(&scmbV.value._dateTimeValue));
+            }
+            break;
+
+        }
+
+        case CIMTYPE_REFERENCE:
+
+            break;
+
+        case CIMTYPE_OBJECT:
+
+            break;
+
+        case CIMTYPE_INSTANCE:
+
+            break;
+    }
+
+}
+
 void SCMOInstance::_setCIMObjectPath(const CIMObjectPath& cimObj)
 {
     CIMObjectPathRep* objRep = cimObj._rep;
@@ -1340,16 +1755,15 @@ void SCMOInstance::_setKeyBindingFromSCMBUnion(
             break;
         }
 
-        case CIMTYPE_REFERENCE:
+    case CIMTYPE_REFERENCE:
 
             break;
 
-        case CIMTYPE_OBJECT:
-
-            break;
-        case CIMTYPE_INSTANCE:
-
-            break;
+    case CIMTYPE_OBJECT:
+    case CIMTYPE_INSTANCE:
+        // From PEP 194: EmbeddedObjects cannot be keys.
+        throw TypeMismatchException();
+        break;
     }
 
 
@@ -2340,14 +2754,17 @@ SCMOInstance SCMOInstance::clone(Boolean objectPathOnly) const
 {
     if (objectPathOnly)
     {
+        // Create a new, empty SCMOInstance
         SCMOInstance newInst(*(this->inst.hdr->theClass));
 
+        // Copy the host name to tha new instance-
         _setBinary(
             _resolveDataPtr(this->inst.hdr->hostName,this->inst.base),
             this->inst.hdr->hostName.length,
             newInst.inst.hdr->hostName,
             &newInst.inst.mem);
 
+        // Copy the key bindings to that new instance.
         this->_copyKeyBindings(newInst);
 
         return newInst;
@@ -2379,7 +2796,7 @@ void SCMOInstance::_copyKeyBindings(SCMOInstance& targetInst) const
 
     for (Uint32 i = 0; i < noBindings; i++)
     {
-        // hast to be set everytime, because of reallocation.
+        // hast to be set every time, because of reallocation.
         targetArray=(SCMBDataPtr*)&targetInst.inst.base
                              [targetInst.inst.hdr->keyBindingArray.start];
         _setBinary(
@@ -2650,7 +3067,7 @@ void SCMOInstance::setPropertyFilter(const char **propertyList)
         memset(
             propertyFilterIndexMap,
             0,
-            sizeof(Uint32)*inst.hdr->filterProperties);
+            sizeof(Uint32)*inst.hdr->numberProperties);
 
         //reset number filter properties to all
         inst.hdr->filterProperties = inst.hdr->numberProperties;
@@ -2670,7 +3087,9 @@ void SCMOInstance::setPropertyFilter(const char **propertyList)
         // the hash index of the property if the property name is found
         rc = inst.hdr->theClass->_getProperyNodeIndex(node,propertyList[i]);
 
-        if (rc == SCMO_OK)
+        // if property is already in the filter
+        // ( eg. key properties ) do not add them !
+        if (rc == SCMO_OK && !_isPropertyInFilter(node))
         {
             // The property name was found. Otherwise ignore this property name.
             // insert the hash index into the filter index map

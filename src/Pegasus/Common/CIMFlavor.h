@@ -189,6 +189,7 @@ private:
 
     friend class BinaryStreamer;
     friend class SCMOClass;
+    friend class SCMOInstance;
     friend class SCMODump;
 };
 

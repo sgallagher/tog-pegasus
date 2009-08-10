@@ -77,19 +77,20 @@ void CIMClassToSCMOClass()
 
     PEGASUS_TEST_ASSERT(dump.compareFile(masterFile));
 
+    dump.closeFile();
     dump.deleteFile();
 
     VCOUT << "Creaing SCMO instance out of SCMOClass." << endl;
 
     SCMOInstance theSCMOInstance(theSCMOClass);
 
-    dump.closeFile();
-
     char* tmp = "TestSCMO Class";
     theSCMOInstance.setPropertyWithOrigin(
         "CreationClassName",
         CIMTYPE_STRING,
         tmp);
+
+    VCOUT << "Test of building key bindings from properties." << endl;
 
     Boolean isCought = false;
 
@@ -115,12 +116,51 @@ void CIMClassToSCMOClass()
         CIMTYPE_STRING,
         tmp2);
 
+
     theSCMOInstance.buildKeyBindingsFromProperties();
+
+    VCOUT << "Test of cloning SCMOInstances." << endl;
 
     SCMOInstance cloneInstance = theSCMOInstance.clone();
 
-    VCOUT << endl << "Test 1: Done." << endl;
+    SCMOInstance asObjectPath = theSCMOInstance.clone(true);
 
+    const char * tmp3;
+    CIMKeyBinding::Type keyType;
+    CIMType cimType;
+    Boolean isArray;
+    Uint32 number;
+    SCMO_RC rc;
+
+    // The key binding of the orignal instance has to be set on the only
+    // objectpath coning.
+    asObjectPath.getKeyBinding("Name",keyType,&tmp3);
+
+    PEGASUS_TEST_ASSERT(strcmp(tmp3,tmp2)==0);
+
+    // But the associated key property has to be empty.
+    rc = asObjectPath.getProperty(
+        "Name",
+        cimType,
+        (const void**)&tmp3,
+        isArray,
+        number);
+
+    PEGASUS_TEST_ASSERT(tmp3 == NULL);
+    PEGASUS_TEST_ASSERT(rc == SCMO_NULL_VALUE);
+
+    // But the in the full clone the property has to be set...
+    rc = cloneInstance.getProperty(
+        "Name",
+        cimType,
+        (const void**)&tmp3,
+        isArray,
+        number);
+
+    PEGASUS_TEST_ASSERT(strcmp(tmp3,tmp2)==0);
+
+
+    VCOUT << endl << "Test 1: Done." << endl;
 }
 
 
@@ -181,8 +221,8 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
      * Negative test cases for setting a propertty
      */
 
-    VCOUT << endl << 
-        "SCMOInstance Negative test cases for setting a property ..." 
+    VCOUT << endl <<
+        "SCMOInstance Negative test cases for setting a property ..."
         << endl << endl;
 
     VCOUT << "Invalid property name." << endl;
@@ -195,7 +235,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(rc==SCMO_NOT_FOUND);
 
     VCOUT << "Property type is differente." << endl;
-    
+
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "DateTimeProperty",
         CIMTYPE_BOOLEAN,
@@ -204,7 +244,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(rc==SCMO_WRONG_TYPE);
 
     VCOUT << "Property is not an array." << endl;
-    
+
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "BooleanProperty",
         CIMTYPE_BOOLEAN,
@@ -223,7 +263,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(rc==SCMO_IS_AN_ARRAY);
 
     VCOUT << "Empty Array." << endl;
-    
+
     Uint32 *uint32ArrayValue;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
@@ -258,7 +298,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     // The default value of this instance is TRUE
     PEGASUS_TEST_ASSERT(*((Boolean*)voidReturn));
 
- 
+
     VCOUT << endl << "Done." << endl << endl;
 
     VCOUT << "SCMOInstance setting and reading properties ..." << endl;
@@ -1064,7 +1104,7 @@ void SCMOInstanceKeyBindingsTest(SCMOInstance& SCMO_TESTClass2_Inst)
     const char * returnName;
 
 
-    /** 
+    /**
      * Test Key bindings
      */
 
@@ -1080,7 +1120,7 @@ void SCMOInstanceKeyBindingsTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(rc==SCMO_NOT_FOUND);
 
     VCOUT << "Wrong key binding type." << endl;
-    // Real32Property is a key property 
+    // Real32Property is a key property
     rc = SCMO_TESTClass2_Inst.setKeyBinding(
         "Real32Property",
         CIMKeyBinding::BOOLEAN,
@@ -1141,7 +1181,7 @@ void SCMOInstanceKeyBindingsTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(returnKeyBindValue==NULL);
 
     VCOUT << "Iterate for index 0 to " << noKeyBind-1 << "." << endl;
-    for (Uint32 i = 0; i < noKeyBind; i++)              
+    for (Uint32 i = 0; i < noKeyBind; i++)
     {
         rc = SCMO_TESTClass2_Inst.getKeyBindingAt(
             i,
@@ -1184,7 +1224,7 @@ void SCMOInstancePropertyFilterTest(SCMOInstance& SCMO_TESTClass2_Inst)
 
     // 6 properties = 3 of filter + 3 key properies
 
-    PEGASUS_TEST_ASSERT(SCMO_TESTClass2_Inst.getPropertyCount()==6);    
+    PEGASUS_TEST_ASSERT(SCMO_TESTClass2_Inst.getPropertyCount()==6);
 
     for (Uint32 i = 0; i < SCMO_TESTClass2_Inst.getPropertyCount();i++)
     {
@@ -1196,8 +1236,8 @@ void SCMOInstancePropertyFilterTest(SCMOInstance& SCMO_TESTClass2_Inst)
             isArrayReturn,
             sizeReturn);
 
-        if (isArrayReturn && 
-            typeReturn == CIMTYPE_STRING 
+        if (isArrayReturn &&
+            typeReturn == CIMTYPE_STRING
             && sizeReturn > 0)
         {
                 // do not forget !!!
@@ -1221,7 +1261,7 @@ void SCMOInstancePropertyFilterTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(rc==SCMO_INDEX_OUT_OF_BOUND);
 
     Uint32 nodeIndex;
-    // The property Uint32Property is not part of the filter 
+    // The property Uint32Property is not part of the filter
     // and not a key property!
     rc = SCMO_TESTClass2_Inst.getPropertyNodeIndex("Uint32Property",nodeIndex);
 
@@ -1293,7 +1333,7 @@ int main (int argc, char *argv[])
 
         SCMOClassQualifierTest( SCMO_TESTClass2 );
 
-        SCMOInstance SCMO_TESTClass2_Inst(SCMO_TESTClass2);    
+        SCMOInstance SCMO_TESTClass2_Inst(SCMO_TESTClass2);
 
         SCMOInstancePropertyTest(SCMO_TESTClass2_Inst);
 
@@ -1301,7 +1341,7 @@ int main (int argc, char *argv[])
 
         SCMOInstancePropertyFilterTest(SCMO_TESTClass2_Inst);
         */
-    }     
+    }
     catch (CIMException& e)
     {
         cout << endl << "CIMException: " ;
@@ -1319,7 +1359,7 @@ int main (int argc, char *argv[])
     {
         cout << endl << "Unkown excetption!" << endl << endl;
         exit(-1);
-    }     
+    }
 
     cout << endl << argv[0] << " +++++ passed all tests" << endl;
     return 0;

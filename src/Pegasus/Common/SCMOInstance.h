@@ -140,7 +140,7 @@ public:
      * It is a deep copy of the SCMOInstance into the CIMInstance.
      * @param cimInstance An empty CIMInstance.
      */
-    void getCIMInstance(CIMInstance& cimInstance) const;
+    SCMO_RC getCIMInstance(CIMInstance& cimInstance) const;
 
     /**
      * Makes a deep copy of the instance.
@@ -509,7 +509,16 @@ private:
 
     void _setCIMValueAtNodeIndex(Uint32 node, CIMValueRep* valRep);
 
+    void _getCIMValueFromSCMBValue(
+        CIMValue& cimV,
+        const SCMBValue& scmbV,
+        const char * base) const;
+
+    CIMProperty _getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const;
+
     void _setCIMObjectPath(const CIMObjectPath& cimObj);
+
+    void _getCIMObjectPath(CIMObjectPath& cimObj) const;
 
     void* _getSCMBUnion(
         CIMType type,

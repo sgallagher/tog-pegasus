@@ -534,7 +534,8 @@ public:
 private:
     CIMDateTimeRep* _rep;
     CIMDateTime(CIMDateTimeRep*);
-   
+    CIMDateTime(const CIMDateTimeRep*);
+
     friend class CIMBuffer;
     friend class SCMOClass;
     friend class SCMODump;

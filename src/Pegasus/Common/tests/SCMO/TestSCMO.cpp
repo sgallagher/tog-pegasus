@@ -47,6 +47,10 @@ const String MASTERQUALIFIER ("/src/Pegasus/Common/tests/SCMO/masterQualifier");
 const String MASTERCLASS ("/src/Pegasus/Common/tests/SCMO/masterClass");
 const String TESTSCMOXML("/src/Pegasus/Common/tests/SCMO/TestSCMO.xml");
 const String TESTSCMO2XML("/src/Pegasus/Common/tests/SCMO/TestSCMO2.xml");
+const String
+   TESTCSCLASSXML("/src/Pegasus/Common/tests/SCMO/CIMComputerSystemClass.xml");
+const String
+   TESTCSINSTXML("/src/Pegasus/Common/tests/SCMO/CIMComputerSystemInst.xml");
 
 void CIMClassToSCMOClass()
 {
@@ -1217,12 +1221,14 @@ void SCMOInstancePropertyFilterTest(SCMOInstance& SCMO_TESTClass2_Inst)
         "Uint16Property",
         "StringPropertyArray",
         "Sint16PropertyArray",
+        "StringProperty",   // it's a key property, already part of the filter.
         0
     };
 
     SCMO_TESTClass2_Inst.setPropertyFilter(propertyFilter);
 
-    // 6 properties = 3 of filter + 3 key properies
+    // 6 properties = 4 of filter + 3 key properies - 1 key property,
+    // per default part of the filter.
 
     PEGASUS_TEST_ASSERT(SCMO_TESTClass2_Inst.getPropertyCount()==6);
 
@@ -1313,6 +1319,54 @@ void SCMOInstancePropertyFilterTest(SCMOInstance& SCMO_TESTClass2_Inst)
 
 }
 
+void SCMOInstanceConverterTest()
+{
+
+    CIMClass CIM_CSClass;
+    CIMInstance CIM_CSInstance;
+    Buffer text;
+
+    VCOUT << endl << "Loading CIMComputerSystemClass.xml" << endl;
+
+    String TestCSClassXML (getenv("PEGASUS_ROOT"));
+    TestCSClassXML.append(TESTCSCLASSXML);
+
+    FileSystem::loadFileToMemory(text,(const char*)TestCSClassXML.getCString());
+
+    XmlParser theParser((char*)text.getData());
+    XmlReader::getObject(theParser,CIM_CSClass);
+
+    text.clear();
+
+    String TestCSInstXML (getenv("PEGASUS_ROOT"));
+    TestCSInstXML.append(TESTCSINSTXML);
+
+    FileSystem::loadFileToMemory(text,(const char*)TestCSInstXML.getCString());
+
+    XmlParser theParser2((char*)text.getData());
+    XmlReader::getObject(theParser2,CIM_CSInstance);
+
+    SCMOClass SCMO_CSClass(CIM_CSClass);
+
+    SCMOInstance SCMO_CSInstance(SCMO_CSClass,CIM_CSInstance);
+
+    SCMODump dump;
+
+    dump.dumpSCMOInstanceKeyBindings(SCMO_CSInstance);
+
+    CIMObjectPath cimPath = CIM_CSInstance.getPath();
+    const Array<CIMKeyBinding>& cimKeyBind = cimPath.getKeyBindings();
+
+    printf("\n--------------------------------------------");
+    printf("\n \nNumber of CIM KeyBindings %u",cimKeyBind.size());
+
+    CIMInstance newInstance;
+
+    SCMO_CSInstance.getCIMInstance(newInstance);
+
+    newInstance.identical(CIM_CSInstance);
+
+}
 
 
 int main (int argc, char *argv[])
@@ -1324,9 +1378,9 @@ int main (int argc, char *argv[])
 
     try
     {
-
+    /*
         CIMClassToSCMOClass();
-/*
+
         loadSCMO_TESTClass2(CIM_TESTClass2);
 
         SCMOClass SCMO_TESTClass2(CIM_TESTClass2);
@@ -1340,7 +1394,9 @@ int main (int argc, char *argv[])
         SCMOInstanceKeyBindingsTest(SCMO_TESTClass2_Inst);
 
         SCMOInstancePropertyFilterTest(SCMO_TESTClass2_Inst);
-        */
+     */
+        SCMOInstanceConverterTest();
+
     }
     catch (CIMException& e)
     {

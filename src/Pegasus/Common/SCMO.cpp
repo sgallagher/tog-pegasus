@@ -38,6 +38,7 @@
 #include <Pegasus/Common/CIMPropertyRep.h>
 #include <Pegasus/Common/CIMInstanceRep.h>
 #include <Pegasus/Common/CIMObjectPathRep.h>
+#include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/StrLit.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -62,7 +63,10 @@ PEGASUS_USING_STD;
  */
 #define NULLSTR(x) ((x) == NULL ? "" : (x))
 
-#define NEWCIMSTR(ptr,base) (String(&(base)[(ptr).start],((ptr).length)-1))
+#define NEWCIMSTR(ptr,base) \
+      ((ptr).length == 0 ?  \
+      (String()) :           \
+      (String(&(base)[(ptr).start],((ptr).length)-1)))
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -1042,7 +1046,7 @@ SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
 
     _getCIMObjectPath(objPath);
 
-    cimInstance.setPath(objPath);
+    cimInstance._rep =  new CIMInstanceRep(objPath);
 
     if (inst.hdr->flags.isFiltered)
     {
@@ -1087,25 +1091,27 @@ void SCMOInstance::_getCIMObjectPath(CIMObjectPath& cimObj) const
         (SCMBKeyBindingNode*)&clsbase[clshdr->keyBindingSet.nodeArray.start];
 
     // Address the instance keybinding information
-    SCMBDataPtr* scmoInstArray =
-        (SCMBDataPtr*)&inst.base[inst.hdr->keyBindingArray.start];
+    SCMBInstanceKeyBinding* scmoInstArray =
+        (SCMBInstanceKeyBinding*)&inst.base[inst.hdr->keyBindingArray.start];
 
     Uint32 numberKeyBindings = inst.hdr->numberKeyBindings;
 
-    Array<CIMKeyBinding> cimBindings;
-
     for (Uint32 i = 0; i < numberKeyBindings; i ++)
     {
-        cimBindings.append(
-            CIMKeyBinding(CIMName(NEWCIMSTR(scmoClassArray[i].name,clsbase)),
-                          NEWCIMSTR(scmoInstArray[i],inst.base),
-                          scmoClassArray[i].type));
+        if (scmoInstArray[i].isSet)
+        {
+            cimObj._rep->_keyBindings.append(
+                CIMKeyBinding(
+                    CIMNameCast(NEWCIMSTR(scmoClassArray[i].name,clsbase)),
+                    NEWCIMSTR(scmoInstArray[i].value,inst.base),
+                    scmoClassArray[i].type));
+        }
     }
 
-    cimObj.set(NEWCIMSTR(inst.hdr->hostName,inst.base),
-               CIMNamespaceName(NEWCIMSTR(clshdr->nameSpace,clsbase)),
-               CIMName(NEWCIMSTR(clshdr->className,clsbase)),
-               cimBindings);
+    cimObj._rep->_host = NEWCIMSTR(inst.hdr->hostName,inst.base);
+    cimObj._rep->_nameSpace =
+        CIMNamespaceNameCast(NEWCIMSTR(clshdr->nameSpace,clsbase));
+    cimObj._rep->_className=CIMNameCast(NEWCIMSTR(clshdr->className,clsbase));
 }
 
 CIMProperty SCMOInstance::_getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const
@@ -1131,20 +1137,20 @@ CIMProperty SCMOInstance::_getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const
     if (inst.hdr->flags.includeClassOrigin)
     {
         retProperty = CIMProperty(
-            CIMName(NEWCIMSTR(clsProp.theProperty.name,clsbase)),
+            CIMNameCast(NEWCIMSTR(clsProp.theProperty.name,clsbase)),
             theValue,
             theValue.getArraySize(),
-            CIMName(NEWCIMSTR(clsProp.theProperty.refClassName,clsbase)),
-            CIMName(NEWCIMSTR(clsProp.theProperty.originClassName,clsbase)),
+            CIMNameCast(NEWCIMSTR(clsProp.theProperty.refClassName,clsbase)),
+            CIMNameCast(NEWCIMSTR(clsProp.theProperty.originClassName,clsbase)),
             clsProp.theProperty.flags.propagated);
     }
     else
     {
          retProperty = CIMProperty(
-            CIMName(NEWCIMSTR(clsProp.theProperty.name,clsbase)),
+            CIMNameCast(NEWCIMSTR(clsProp.theProperty.name,clsbase)),
             theValue,
             theValue.getArraySize(),
-            CIMName(NEWCIMSTR(clsProp.theProperty.refClassName,clsbase)),
+            CIMNameCast(NEWCIMSTR(clsProp.theProperty.refClassName,clsbase)),
             CIMName(),
             clsProp.theProperty.flags.propagated);
     }
@@ -1574,7 +1580,7 @@ void SCMOInstance::buildKeyBindingsFromProperties()
         (Uint32*) &((inst.hdr->theClass->cls.base)
                           [(inst.hdr->theClass->cls.hdr->keyIndexList.start)]);
 
-    SCMBDataPtr* theInstKeyBindNodeArray;
+    SCMBInstanceKeyBinding* theInstKeyBindNodeArray;
     SCMBValue* theInstPropNodeArray;
 
     Uint32 propNode;
@@ -1585,13 +1591,13 @@ void SCMOInstance::buildKeyBindingsFromProperties()
         // because in _setKeyBindingFromSCMBUnion()
         // a reallocation can take place.
         theInstKeyBindNodeArray =
-            (SCMBDataPtr*)&inst.base[inst.hdr->keyBindingArray.start];
+           (SCMBInstanceKeyBinding*)&inst.base[inst.hdr->keyBindingArray.start];
 
         theInstPropNodeArray =
             (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
 
         // If the keybinding is not set.
-        if (theInstKeyBindNodeArray[i].start == 0)
+        if (!theInstKeyBindNodeArray[i].isSet)
         {
             // get the node index for this key binding form class
             propNode = theClassKeyPropList[i];
@@ -1608,7 +1614,7 @@ void SCMOInstance::buildKeyBindingsFromProperties()
             _setKeyBindingFromSCMBUnion(
                 theInstPropNodeArray[propNode].valueType,
                 theInstPropNodeArray[propNode].value,
-                theInstKeyBindNodeArray[i]);
+                theInstKeyBindNodeArray[i].value);
         }
     }
 }
@@ -1854,7 +1860,7 @@ void SCMOInstance::_initSCMOInstance(
     // Allocate the SCMOInstanceKeyBindingArray
     _getFreeSpace(
           inst.hdr->keyBindingArray,
-          sizeof(SCMBDataPtr)*inst.hdr->numberKeyBindings,
+          sizeof(SCMBInstanceKeyBinding)*inst.hdr->numberKeyBindings,
           &inst.mem,
           true);
 
@@ -2789,21 +2795,26 @@ SCMOInstance SCMOInstance::clone(Boolean objectPathOnly) const
 void SCMOInstance::_copyKeyBindings(SCMOInstance& targetInst) const
 {
     Uint32 noBindings = inst.hdr->numberKeyBindings;
-    SCMBDataPtr* sourceArray =
-        (SCMBDataPtr*)&inst.base[inst.hdr->keyBindingArray.start];
+    SCMBInstanceKeyBinding* sourceArray =
+        (SCMBInstanceKeyBinding*)&inst.base[inst.hdr->keyBindingArray.start];
 
-    SCMBDataPtr* targetArray;
+    SCMBInstanceKeyBinding* targetArray;
 
     for (Uint32 i = 0; i < noBindings; i++)
     {
         // hast to be set every time, because of reallocation.
-        targetArray=(SCMBDataPtr*)&targetInst.inst.base
+        targetArray=(SCMBInstanceKeyBinding*)&targetInst.inst.base
                              [targetInst.inst.hdr->keyBindingArray.start];
-        _setBinary(
-            _resolveDataPtr(sourceArray[i],inst.base),
-            sourceArray[i].length,
-            targetArray[i],
-            &targetInst.inst.mem);
+        if(sourceArray[i].isSet)
+        {
+            _setBinary(
+                _resolveDataPtr(sourceArray[i].value,inst.base),
+                sourceArray[i].value.length,
+                targetArray[i].value,
+                &targetInst.inst.mem);
+
+            targetArray[i].isSet=true;
+        }
     }
 
 }
@@ -2968,8 +2979,8 @@ SCMO_RC SCMOInstance::_getKeyBindingAtNodeIndex(
     const char** pvalue) const
 {
 
-    SCMBDataPtr* theInstKeyBindNodeArray =
-        (SCMBDataPtr*)&inst.base[inst.hdr->keyBindingArray.start];
+    SCMBInstanceKeyBinding* theInstKeyBindNodeArray =
+        (SCMBInstanceKeyBinding*)&inst.base[inst.hdr->keyBindingArray.start];
 
     // create a pointer to keybinding node array of the class.
     Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
@@ -2983,15 +2994,14 @@ SCMO_RC SCMOInstance::_getKeyBindingAtNodeIndex(
         inst.hdr->theClass->cls.base);
 
     // There is no value set in the instance
-    // if the relative pointer has no start value.
-    if (theInstKeyBindNodeArray[node].start==0)
+    if (!theInstKeyBindNodeArray[node].isSet)
     {
         *pvalue = NULL;
         return SCMO_NULL_VALUE;
     }
 
     // Set the absolut pointer to the key binding value
-    *pvalue = _getCharString(theInstKeyBindNodeArray[node],inst.base);
+    *pvalue = _getCharString(theInstKeyBindNodeArray[node].value,inst.base);
 
     return SCMO_OK;
 
@@ -3021,11 +3031,18 @@ SCMO_RC SCMOInstance::setKeyBinding(
         return SCMO_TYPE_MISSMATCH;
     }
 
-    SCMBDataPtr* theInstKeyBindNodeArray =
-        (SCMBDataPtr*)&inst.base[inst.hdr->keyBindingArray.start];
+    SCMBInstanceKeyBinding* theInstKeyBindNodeArray =
+        (SCMBInstanceKeyBinding*)&inst.base[inst.hdr->keyBindingArray.start];
 
     // copy the value including trailing '\0'
-    _setBinary(pvalue,strlen(pvalue)+1,theInstKeyBindNodeArray[node],&inst.mem);
+    _setBinary(
+        pvalue,
+        strlen(pvalue)+1,
+        theInstKeyBindNodeArray[node].value,
+        &inst.mem);
+
+
+    theInstKeyBindNodeArray[node].isSet=true;
 
     return SCMO_OK;
 
@@ -3477,8 +3494,9 @@ void SCMODump::dumpSCMOInstanceKeyBindings(SCMOInstance& testInst) const
     SCMBInstance_Main* insthdr = testInst.inst.hdr;
     char* instbase = testInst.inst.base;
 
-    SCMBDataPtr* ptr =
-        (SCMBDataPtr*)_resolveDataPtr(insthdr->keyBindingArray,instbase);
+    SCMBInstanceKeyBinding* ptr =
+        (SCMBInstanceKeyBinding*)
+             _resolveDataPtr(insthdr->keyBindingArray,instbase);
 
     fprintf(_out,"\n\nInstance Key Bindings :");
     fprintf(_out,"\n=======================");
@@ -3486,8 +3504,16 @@ void SCMODump::dumpSCMOInstanceKeyBindings(SCMOInstance& testInst) const
 
     for (Uint32 i = 0, k = insthdr->numberKeyBindings; i < k; i++)
     {
-        fprintf(_out,"\n\nNo %u : '%s'",i,
-                NULLSTR(_getCharString(ptr[i],instbase)));
+        if (ptr[i].isSet)
+        {
+            fprintf(_out,"\n\nNo %u : '%s'",i,
+                    NULLSTR(_getCharString(ptr[i].value,instbase)));
+        }
+        else
+        {
+            fprintf(_out,"\n\nNo %u : Not Set",i);
+
+        }
     }
     fprintf(_out,"\n");
 }
@@ -4282,6 +4308,12 @@ static Boolean _equalUTF8Strings(
     Uint32 len)
 
 {
+    //both are empty strings, so they are equal.
+    if (ptr_a.length == 0 && len == 0)
+    {
+        return true;
+    }
+
     // size without trailing '\0' !!
     if (ptr_a.length-1 != len)
     {
@@ -4302,6 +4334,13 @@ static Boolean _equalNoCaseUTF8Strings(
     Uint32 len)
 
 {
+
+    //both are empty strings, so they are equal.
+    if (ptr_a.length == 0 && len == 0)
+    {
+        return true;
+    }
+
     // size without trailing '\0' !!
     if (ptr_a.length-1 != len)
     {

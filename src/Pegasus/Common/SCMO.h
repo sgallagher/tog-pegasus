@@ -215,6 +215,15 @@ struct SCMBValue
     SCMBUnion       value;
 };
 
+struct SCMBInstanceKeyBinding
+{
+    // Boolean flag
+    Sint32       isSet;
+    // The string reperesntaion of the KeyBinding
+    SCMBDataPtr value;
+};
+
+
 struct SCMBQualifier
 {
     //Boolean flag

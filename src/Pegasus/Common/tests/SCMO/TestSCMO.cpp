@@ -1352,13 +1352,7 @@ void SCMOInstanceConverterTest()
 
     SCMODump dump;
 
-    dump.dumpSCMOInstanceKeyBindings(SCMO_CSInstance);
-
-    CIMObjectPath cimPath = CIM_CSInstance.getPath();
-    const Array<CIMKeyBinding>& cimKeyBind = cimPath.getKeyBindings();
-
-    printf("\n--------------------------------------------");
-    printf("\n \nNumber of CIM KeyBindings %u",cimKeyBind.size());
+    dump.dumpInstanceProperties(SCMO_CSInstance);
 
     CIMInstance newInstance;
 

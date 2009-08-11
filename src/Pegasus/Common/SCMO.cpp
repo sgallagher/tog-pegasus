@@ -1044,9 +1044,47 @@ SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
     Uint32 noProps;
     CIMObjectPath objPath;
 
+    // For better usability define pointers to SCMO Class data structures.
+    SCMBClass_Main* clshdr = inst.hdr->theClass->cls.hdr;
+    char* clsbase = inst.hdr->theClass->cls.base;
+
     _getCIMObjectPath(objPath);
 
     cimInstance._rep =  new CIMInstanceRep(objPath);
+
+    if (inst.hdr->flags.includeQualifiers)
+    {
+        SCMBQualifier* qualiArray =
+            (SCMBQualifier*)&(clsbase[clshdr->qualifierArray.start]);
+
+        CIMName qualiName;
+        CIMValue theValue;
+
+        Uint32 i, k = clshdr->numberOfQualifiers;
+
+        for ( i = 0 ; i < k ; i++)
+        {
+            _getCIMValueFromSCMBValue(theValue,qualiArray[i].value,clsbase);
+
+            if (qualiArray[i].name == QUALNAME_USERDEFINED)
+            {
+                qualiName = NEWCIMSTR(qualiArray[i].userDefName,clsbase);
+            }
+            else
+            {
+                qualiName = String(
+                    _qualifierNameStrLit[qualiArray[i].name].str,
+                    _qualifierNameStrLit[qualiArray[i].name].size);
+            }
+
+            cimInstance._rep->_qualifiers.addUnchecked(
+                CIMQualifier(
+                    qualiName,
+                    theValue,
+                    qualiArray[i].flavor,
+                    qualiArray[i].propagated));
+        }
+    }
 
     if (inst.hdr->flags.isFiltered)
     {
@@ -3021,6 +3059,16 @@ SCMO_RC SCMOInstance::setKeyBinding(
         return rc;
     }
 
+    return setKeyBindingAt(node, type, pvalue);
+}
+
+SCMO_RC SCMOInstance::setKeyBindingAt(
+        Uint32 node,
+        CIMKeyBinding::Type type,
+        const char* pvalue)
+{
+    SCMO_RC rc;
+
    // create a pointer to keybinding node array of the class.
     Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
     SCMBKeyBindingNode* theClassKeyBindNodeArray =
@@ -3045,8 +3093,8 @@ SCMO_RC SCMOInstance::setKeyBinding(
     theInstKeyBindNodeArray[node].isSet=true;
 
     return SCMO_OK;
-
 }
+
 
 void SCMOInstance::setPropertyFilter(const char **propertyList)
 {

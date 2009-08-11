@@ -341,6 +341,21 @@ public:
         const char* pvalue);
 
     /**
+     * Set/replace the named key binding
+     * @param node The node index of the key.
+     * @param type The type as CIMKeyBinding::Type.
+     * @parma value The value as string.
+     * @return     SCMO_OK
+     *             SCMO_TYPE_MISSMATCH : Given type does not
+     *                                   match to key binding type
+     *             SCMO_INDEX_OUT_OF_BOUND : Given index is our of range.
+     */
+    SCMO_RC setKeyBindingAt(
+        Uint32 node,
+        CIMKeyBinding::Type type,
+        const char* pvalue);
+
+    /**
      * Gets the key binding count.
      * @return the number of key bindings set.
      */

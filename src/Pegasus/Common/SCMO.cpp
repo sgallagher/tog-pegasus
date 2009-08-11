@@ -1252,8 +1252,9 @@ void SCMOInstance::_getCIMValueFromSCMBValue(
             if (scmbV.flags.isArray)
             {
                 const Uint8* u=(Uint8*)&(base[scmbV.value._arrayValue.start]);
-                const Array<Uint8> *x=reinterpret_cast<Array<Uint8>*>(&u);
-                cimV.set(&x);
+                Array<Uint8> x;
+                x.append(u,scmbV.valueArraySize);
+                cimV.set(x);
             }
             else
             {
@@ -1267,8 +1268,9 @@ void SCMOInstance::_getCIMValueFromSCMBValue(
             if (scmbV.flags.isArray)
             {
                 const Uint16* u=(Uint16*)&(base[scmbV.value._arrayValue.start]);
-                const Array<Uint16> *x=reinterpret_cast<Array<Uint16>*>(&u);
-                cimV.set(&x);
+                Array<Uint16> x;
+                x.append(u,scmbV.valueArraySize);
+                cimV.set(x);
             }
             else
             {
@@ -1282,8 +1284,9 @@ void SCMOInstance::_getCIMValueFromSCMBValue(
             if (scmbV.flags.isArray)
             {
                 const Uint32* u=(Uint32*)&(base[scmbV.value._arrayValue.start]);
-                const Array<Uint32> *x=reinterpret_cast<Array<Uint32>*>(&u);
-                cimV.set(&x);
+                Array<Uint32> x;
+                x.append(u,scmbV.valueArraySize);
+                cimV.set(x);
             }
             else
             {
@@ -1297,8 +1300,9 @@ void SCMOInstance::_getCIMValueFromSCMBValue(
             if (scmbV.flags.isArray)
             {
                 const Uint64* u=(Uint64*)&(base[scmbV.value._arrayValue.start]);
-                const Array<Uint64> *x=reinterpret_cast<Array<Uint64>*>(&u);
-                cimV.set(&x);
+                Array<Uint64> x;
+                x.append(u,scmbV.valueArraySize);
+                cimV.set(x);
             }
             else
             {
@@ -1312,8 +1316,9 @@ void SCMOInstance::_getCIMValueFromSCMBValue(
             if (scmbV.flags.isArray)
             {
                 const Sint8* u=(Sint8*)&(base[scmbV.value._arrayValue.start]);
-                const Array<Sint8> *x=reinterpret_cast<Array<Sint8>*>(&u);
-                cimV.set(&x);
+                Array<Sint8> x;
+                x.append(u,scmbV.valueArraySize);
+                cimV.set(x);
             }
             else
             {
@@ -1327,8 +1332,9 @@ void SCMOInstance::_getCIMValueFromSCMBValue(
             if (scmbV.flags.isArray)
             {
                 const Sint16* u=(Sint16*)&(base[scmbV.value._arrayValue.start]);
-                const Array<Sint16> *x=reinterpret_cast<Array<Sint16>*>(&u);
-                cimV.set(&x);
+                Array<Sint16> x;
+                x.append(u,scmbV.valueArraySize);
+                cimV.set(x);
             }
             else
             {
@@ -1342,8 +1348,9 @@ void SCMOInstance::_getCIMValueFromSCMBValue(
             if (scmbV.flags.isArray)
             {
                 const Sint32* u=(Sint32*)&(base[scmbV.value._arrayValue.start]);
-                const Array<Sint32> *x=reinterpret_cast<Array<Sint32>*>(&u);
-                cimV.set(&x);
+                Array<Sint32> x;
+                x.append(u,scmbV.valueArraySize);
+                cimV.set(x);
             }
             else
             {
@@ -1357,8 +1364,9 @@ void SCMOInstance::_getCIMValueFromSCMBValue(
             if (scmbV.flags.isArray)
             {
                 const Sint64* u=(Sint64*)&(base[scmbV.value._arrayValue.start]);
-                const Array<Sint64> *x=reinterpret_cast<Array<Sint64>*>(&u);
-                cimV.set(&x);
+                Array<Sint64> x;
+                x.append(u,scmbV.valueArraySize);
+                cimV.set(x);
             }
             else
             {
@@ -1372,8 +1380,9 @@ void SCMOInstance::_getCIMValueFromSCMBValue(
             if (scmbV.flags.isArray)
             {
                 const Real32* u=(Real32*)&(base[scmbV.value._arrayValue.start]);
-                const Array<Real32> *x=reinterpret_cast<Array<Real32>*>(&u);
-                cimV.set(&x);
+                Array<Real32> x;
+                x.append(u,scmbV.valueArraySize);
+                cimV.set(x);
             }
             else
             {
@@ -1387,8 +1396,9 @@ void SCMOInstance::_getCIMValueFromSCMBValue(
             if (scmbV.flags.isArray)
             {
                 const Real64* u=(Real64*)&(base[scmbV.value._arrayValue.start]);
-                const Array<Real64> *x=reinterpret_cast<Array<Real64>*>(&u);
-                cimV.set(&x);
+                Array<Real64> x;
+                x.append(u,scmbV.valueArraySize);
+                cimV.set(x);
             }
             else
             {
@@ -1402,8 +1412,9 @@ void SCMOInstance::_getCIMValueFromSCMBValue(
             if (scmbV.flags.isArray)
             {
                 const Char16* u=(Char16*)&(base[scmbV.value._arrayValue.start]);
-                const Array<Char16> *x=reinterpret_cast<Array<Char16>*>(&u);
-                cimV.set(&x);
+                Array<Char16> x;
+                x.append(u,scmbV.valueArraySize);
+                cimV.set(x);
             }
             else
             {
@@ -1418,8 +1429,9 @@ void SCMOInstance::_getCIMValueFromSCMBValue(
             {
                 const Boolean* u=
                     (Boolean*)&(base[scmbV.value._arrayValue.start]);
-                const Array<Boolean> *x=reinterpret_cast<Array<Boolean>*>(&u);
-                cimV.set(&x);
+                Array<Boolean> x;
+                x.append(u,scmbV.valueArraySize);
+                cimV.set(x);
             }
             else
             {
@@ -1653,6 +1665,8 @@ void SCMOInstance::buildKeyBindingsFromProperties()
                 theInstPropNodeArray[propNode].valueType,
                 theInstPropNodeArray[propNode].value,
                 theInstKeyBindNodeArray[i].value);
+
+            theInstKeyBindNodeArray[i].isSet=true;
         }
     }
 }
@@ -4121,8 +4135,15 @@ String SCMODump::printArrayValue(
             SCMBDataPtr* p = (SCMBDataPtr*)&(base[u._arrayValue.start]);
             for (Uint32 i = 0; i < size; i++)
             {
-                out.append((const char*)_getCharString(p[i],base),
-                           p[i].length-1);
+                if ( 0 != p[i].length)
+                {
+                    out.append((const char*)_getCharString(p[i],base),
+                               p[i].length-1);
+                }
+                else
+                {
+                  out.append(' ');
+                }
                 out.append(' ');
             }
             break;
@@ -4248,8 +4269,11 @@ String SCMODump::printUnionValue(
 
     case CIMTYPE_STRING:
         {
-            out.append((const char*)_getCharString(u._stringValue,base),
-                       u._stringValue.length-1);
+            if ( 0 != u._stringValue.length)
+            {
+                out.append((const char*)_getCharString(u._stringValue,base),
+                           u._stringValue.length-1);
+            }
             break;
         }
 

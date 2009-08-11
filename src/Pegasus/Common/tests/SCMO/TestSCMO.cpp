@@ -115,6 +115,13 @@ void CIMClassToSCMOClass()
     }
 
     char* tmp2 ="This is the Name";
+    const char * tmp3;
+    CIMKeyBinding::Type keyType;
+    CIMType cimType;
+    Boolean isArray;
+    Uint32 number;
+    SCMO_RC rc;
+
     theSCMOInstance.setPropertyWithOrigin(
         "Name",
         CIMTYPE_STRING,
@@ -123,21 +130,21 @@ void CIMClassToSCMOClass()
 
     theSCMOInstance.buildKeyBindingsFromProperties();
 
+    // The key binding should be generated out of the property.
+
+    theSCMOInstance.getKeyBinding("Name",keyType,&tmp3);
+
+    PEGASUS_TEST_ASSERT(strcmp(tmp3,tmp2)==0);
+
+
     VCOUT << "Test of cloning SCMOInstances." << endl;
 
     SCMOInstance cloneInstance = theSCMOInstance.clone();
 
     SCMOInstance asObjectPath = theSCMOInstance.clone(true);
 
-    const char * tmp3;
-    CIMKeyBinding::Type keyType;
-    CIMType cimType;
-    Boolean isArray;
-    Uint32 number;
-    SCMO_RC rc;
-
     // The key binding of the orignal instance has to be set on the only
-    // objectpath coning.
+    // objectpath cloning.
     asObjectPath.getKeyBinding("Name",keyType,&tmp3);
 
     PEGASUS_TEST_ASSERT(strcmp(tmp3,tmp2)==0);
@@ -1326,6 +1333,7 @@ void SCMOInstanceConverterTest()
     CIMInstance CIM_CSInstance;
     Buffer text;
 
+    VCOUT << endl << "Conversion Test CIM<->SCMO.." << endl;
     VCOUT << endl << "Loading CIMComputerSystemClass.xml" << endl;
 
     String TestCSClassXML (getenv("PEGASUS_ROOT"));
@@ -1338,6 +1346,8 @@ void SCMOInstanceConverterTest()
 
     text.clear();
 
+    VCOUT << "Loading CIMComputerSystemInstance.xml" << endl;
+
     String TestCSInstXML (getenv("PEGASUS_ROOT"));
     TestCSInstXML.append(TESTCSINSTXML);
 
@@ -1346,20 +1356,20 @@ void SCMOInstanceConverterTest()
     XmlParser theParser2((char*)text.getData());
     XmlReader::getObject(theParser2,CIM_CSInstance);
 
+    VCOUT << "Creating SCMOClass from CIMClass" << endl;
+
     SCMOClass SCMO_CSClass(CIM_CSClass);
 
+    VCOUT << "Creating SCMOInstance from CIMInstance" << endl;
     SCMOInstance SCMO_CSInstance(SCMO_CSClass,CIM_CSInstance);
-
-    SCMODump dump;
-
-    dump.dumpInstanceProperties(SCMO_CSInstance);
 
     CIMInstance newInstance;
 
+    VCOUT << "Converting CIMInstance from SCMOInstance" << endl;
     SCMO_CSInstance.getCIMInstance(newInstance);
 
-    newInstance.identical(CIM_CSInstance);
-
+    PEGASUS_TEST_ASSERT(newInstance.identical(CIM_CSInstance));
+    VCOUT << endl << "Done." << endl;
 }
 
 
@@ -1372,7 +1382,6 @@ int main (int argc, char *argv[])
 
     try
     {
-    /*
         CIMClassToSCMOClass();
 
         loadSCMO_TESTClass2(CIM_TESTClass2);
@@ -1388,7 +1397,7 @@ int main (int argc, char *argv[])
         SCMOInstanceKeyBindingsTest(SCMO_TESTClass2_Inst);
 
         SCMOInstancePropertyFilterTest(SCMO_TESTClass2_Inst);
-     */
+
         SCMOInstanceConverterTest();
 
     }

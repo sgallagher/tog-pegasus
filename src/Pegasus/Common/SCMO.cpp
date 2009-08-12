@@ -45,6 +45,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/StringConversion.h>
+#include <strings.h>
 
 #ifdef PEGASUS_OS_ZOS
   #include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>

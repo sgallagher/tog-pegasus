@@ -1369,7 +1369,7 @@ void SCMOInstanceConverterTest()
     SCMO_CSInstance.getCIMInstance(newInstance);
 
     PEGASUS_TEST_ASSERT(newInstance.identical(CIM_CSInstance));
-    VCOUT << endl << "Done." << endl;
+    VCOUT << endl << "Done." << endl << endl;
 }
 
 
@@ -1420,7 +1420,7 @@ int main (int argc, char *argv[])
         exit(-1);
     }
 
-    cout << endl << argv[0] << " +++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
     return 0;
 
 }

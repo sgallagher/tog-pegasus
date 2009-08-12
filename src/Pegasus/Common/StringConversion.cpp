@@ -30,6 +30,7 @@
 #include "StringConversion.h"
 
 #include <errno.h>
+#include <stdio.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

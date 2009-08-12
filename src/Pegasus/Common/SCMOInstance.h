@@ -331,6 +331,8 @@ public:
      * @param type The type as CIMKeyBinding::Type.
      * @parma value The value as string.
      * @return     SCMO_OK
+     *             SCMO_INVALID_PARAMETER : Given name or pvalue
+     *                                      is a NULL pointer.
      *             SCMO_TYPE_MISSMATCH : Given type does not
      *                                   match to key binding type
      *             SCMO_NOT_FOUND : Given property name not found.
@@ -346,6 +348,7 @@ public:
      * @param type The type as CIMKeyBinding::Type.
      * @parma value The value as string.
      * @return     SCMO_OK
+     *             SCMO_INVALID_PARAMETER : Given pvalue is a NULL pointer.
      *             SCMO_TYPE_MISSMATCH : Given type does not
      *                                   match to key binding type
      *             SCMO_INDEX_OUT_OF_BOUND : Given index is our of range.

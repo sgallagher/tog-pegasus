@@ -3068,6 +3068,11 @@ SCMO_RC SCMOInstance::setKeyBinding(
     SCMO_RC rc;
     Uint32 node;
 
+    if (NULL == name)
+    {
+        return SCMO_INVALID_PARAMETER;
+    }
+
     rc = inst.hdr->theClass->_getKeyBindingNodeIndex(node,name);
     if (rc != SCMO_OK)
     {
@@ -3088,6 +3093,11 @@ SCMO_RC SCMOInstance::setKeyBindingAt(
     Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
     SCMBKeyBindingNode* theClassKeyBindNodeArray =
         (SCMBKeyBindingNode*)&(inst.hdr->theClass->cls.base)[idx];
+
+    if (NULL == pvalue)
+    {
+        return SCMO_INVALID_PARAMETER;
+    }
 
     if (theClassKeyBindNodeArray[node].type != type)
     {

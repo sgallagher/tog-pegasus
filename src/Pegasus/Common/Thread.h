@@ -380,6 +380,11 @@ public:
         return _handle;
     }
 
+    Boolean isDetached()
+    {
+        return _is_detached;
+    }
+
     void detach();
 
     //

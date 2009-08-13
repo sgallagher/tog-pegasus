@@ -152,6 +152,15 @@ public:
     SCMOInstance clone(Boolean objectPathOnly = false) const;
 
     /**
+     * Retrieves the objectpath part of the SCMOInstance as an instance
+     * of class CIMObjectPath.                .
+     * @param cimObj Reference to an instantiated CIMObjectPath to be
+     *     populated with the data from the SCMOInstance.
+     * @return void
+     */
+    void getCIMObjectPath(CIMObjectPath& cimObj) const;
+
+    /**
      * Returns the number of properties of the instance.
      * @param Number of properties
      */
@@ -535,8 +544,6 @@ private:
     CIMProperty _getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const;
 
     void _setCIMObjectPath(const CIMObjectPath& cimObj);
-
-    void _getCIMObjectPath(CIMObjectPath& cimObj) const;
 
     void* _getSCMBUnion(
         CIMType type,

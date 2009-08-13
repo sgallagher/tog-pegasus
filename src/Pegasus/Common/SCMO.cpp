@@ -1049,7 +1049,7 @@ SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
     SCMBClass_Main* clshdr = inst.hdr->theClass->cls.hdr;
     char* clsbase = inst.hdr->theClass->cls.base;
 
-    _getCIMObjectPath(objPath);
+    getCIMObjectPath(objPath);
 
     cimInstance._rep =  new CIMInstanceRep(objPath);
 
@@ -1119,7 +1119,7 @@ SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
     return rc;
 }
 
-void SCMOInstance::_getCIMObjectPath(CIMObjectPath& cimObj) const
+void SCMOInstance::getCIMObjectPath(CIMObjectPath& cimObj) const
 {
     // For better usability define pointers to SCMO Class data structures.
     SCMBClass_Main* clshdr = inst.hdr->theClass->cls.hdr;

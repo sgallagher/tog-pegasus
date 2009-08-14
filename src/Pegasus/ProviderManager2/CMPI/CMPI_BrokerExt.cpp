@@ -33,7 +33,6 @@
 
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include "CMPI_Object.h"
-#include "CMPI_ThreadContext.h"
 #include "CMPI_Broker.h"
 #include "CMPI_Ftabs.h"
 #include "CMPI_String.h"
@@ -103,7 +102,6 @@ static ThreadReturnType PEGASUS_THREAD_CDECL start_driver(void *parm)
     Thread* my_thread = (Thread*)parm;
     thrd_data *pp = (thrd_data*)my_thread->get_parm();
     thrd_data data=*pp;
-    Thread::setCurrent(my_thread);
 
     delete pp;
     rc = (ThreadReturnType)(data.pgm)(data.parm);
@@ -160,15 +158,25 @@ extern "C"
         broker->provider->addThreadToWatch(t);
         data.release();
 
-        if (t->run() != PEGASUS_THREAD_OK)
+        ThreadStatus rtn = PEGASUS_THREAD_OK;
+        while ((rtn = t->run()) != PEGASUS_THREAD_OK)
         {
-            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1, \
-                "Could not allocate provider thread (%p) for %s provider.",
-                t, (const char *)broker->name.getCString()));
-            broker->provider->removeThreadFromWatch(t);
-            t = NULL;
+            if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+            {
+                Threads::yield();
+            }
+            else
+            {
+                PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1, \
+                    "Could not allocate provider thread (%p) for %s provider.",
+                    t, (const char *)broker->name.getCString()));
+                broker->provider->removeThreadFromWatch(t);
+                delete t;
+                t = 0;
+                break;
+            }
         }
-        else 
+        if (rtn == PEGASUS_THREAD_OK)
         {
             PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
                 "Started provider thread (%p) for %s.",

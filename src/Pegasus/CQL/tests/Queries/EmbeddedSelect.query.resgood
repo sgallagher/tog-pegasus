@@ -23,7 +23,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = SomeClass, Value = class of CIM_Process
 ----------Prop #5 Name = SomeString, Value = Huh?
 ======================================1
@@ -46,7 +46,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -79,7 +79,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = SomeClass, Value = class of CIM_Process
 ----------Prop #5 Name = SomeString, Value = Huh?
 ======================================3
@@ -102,7 +102,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -139,7 +139,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -172,7 +172,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = SomeClass, Value = class of CIM_Process
 ----------Prop #5 Name = SomeString, Value = Huh?
 ======================================7
@@ -195,7 +195,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = SomeClass, Value = class of CIM_Process
 ----------Prop #5 Name = SomeString, Value = Huh?
 -----Prop #1 Name = EmbObjSub
@@ -215,7 +215,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -249,7 +249,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = SomeClass, Value = class of CIM_Process
 ----------Prop #5 Name = SomeString, Value = Huh?
 -----Prop #2 Name = EmbObjSub
@@ -269,7 +269,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -303,7 +303,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = SomeClass, Value = class of CIM_Process
 ----------Prop #5 Name = SomeString, Value = Huh?
 -----Prop #2 Name = EmbObjSub
@@ -323,7 +323,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -357,7 +357,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = SomeClass, Value = class of CIM_Process
 ----------Prop #5 Name = SomeString, Value = Huh?
 -----Prop #2 Name = EmbObjSub
@@ -377,7 +377,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -411,7 +411,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = SomeClass, Value = class of CIM_Process
 ----------Prop #5 Name = SomeString, Value = Huh?
 -----Prop #2 Name = EmbObjSub
@@ -431,7 +431,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -465,7 +465,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = SomeClass, Value = class of CIM_Process
 ----------Prop #5 Name = SomeString, Value = Huh?
 -----Prop #2 Name = EmbObjSub
@@ -485,7 +485,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -519,7 +519,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = SomeClass, Value = class of CIM_Process
 ----------Prop #5 Name = SomeString, Value = Huh?
 -----Prop #2 Name = EmbObjSub
@@ -539,7 +539,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -573,7 +573,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = SomeClass, Value = class of CIM_Process
 ----------Prop #5 Name = SomeString, Value = Huh?
 -----Prop #2 Name = EmbObjSub
@@ -593,7 +593,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -613,7 +613,7 @@ Instance of class CQL_EmbeddedSubClass
 ----------Instance of class CQL_EmbeddedTestElement
 ----------Prop #0 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ======================================16
 SELECT EmbObjBase.CQL_EmbeddedTestElement::TEArray FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
@@ -653,7 +653,7 @@ Instance of class CQL_EmbeddedSubClass
 ----------Instance of class CQL_EmbeddedTestPropertyTypes
 ----------Prop #0 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ======================================21
 SELECT EmbObjSub.CQL_NonExistent::CS,EmbObjSub.CQL_NonExistent::TPT,EmbObjSub FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
@@ -674,7 +674,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -707,7 +707,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -740,7 +740,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -773,7 +773,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -806,7 +806,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -839,7 +839,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -872,7 +872,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -1012,7 +1012,7 @@ Instance of class CQL_EmbeddedSubClass
 ----------Prop #4 Name = SomeString, Value = Huh?
 ----------Prop #5 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 -----Prop #2 Name = EmbObjSub
 ----------Instance of class CQL_EmbeddedTestPropertyTypes
 ----------Prop #0 Name = InstanceID, Value = 1001
@@ -1030,7 +1030,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -1068,7 +1068,7 @@ Instance of class CQL_EmbeddedSubClass.  Allow missing properties.
 ----------Prop #4 Name = SomeString, Value = Huh?
 ----------Prop #5 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 -----Prop #2 Name = EmbObjSub
 ----------Instance of class CQL_EmbeddedTestPropertyTypes
 ----------Prop #0 Name = InstanceID, Value = 1001
@@ -1086,7 +1086,7 @@ Instance of class CQL_EmbeddedSubClass.  Allow missing properties.
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -1122,7 +1122,7 @@ Instance of class CQL_EmbeddedSubClass
 ----------Prop #4 Name = SomeString, Value = Huh?
 ----------Prop #5 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 -----Prop #2 Name = EmbObjSub
 ----------Instance of class CQL_EmbeddedTestPropertyTypes
 ----------Prop #0 Name = InstanceID, Value = 1001
@@ -1140,7 +1140,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -1176,7 +1176,7 @@ Instance of class CQL_EmbeddedSubClass
 ----------Prop #4 Name = SomeString, Value = Huh?
 ----------Prop #5 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 -----Prop #2 Name = EmbObjSub
 ----------Instance of class CQL_EmbeddedTestPropertyTypes
 ----------Prop #0 Name = InstanceID, Value = 1001
@@ -1194,7 +1194,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -1227,7 +1227,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -1268,7 +1268,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -1303,7 +1303,7 @@ Instance of class CQL_EmbeddedSubClass
 ----------Prop #4 Name = SomeString, Value = Huh?
 ----------Prop #5 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 -----Prop #1 Name = EmbObjSub
 ----------Instance of class CQL_EmbeddedTestPropertyTypes
 ----------Prop #0 Name = InstanceID, Value = 1001
@@ -1321,7 +1321,7 @@ Instance of class CQL_EmbeddedSubClass
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -1356,7 +1356,7 @@ Instance of class CQL_EmbeddedSubClass.  Allow missing properties.
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = SomeClass, Value = class of CIM_Process
 ----------Prop #5 Name = SomeString, Value = Huh?
 ======================================51
@@ -1378,7 +1378,7 @@ Instance of class CQL_EmbeddedSubClass.  Allow missing properties.
 --------------------Prop #0 Name = InstanceId, Value = 12
 ----------Prop #2 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #3 Name = SomeClass, Value = class of CIM_Process
 ----------Prop #4 Name = SomeString, Value = Huh?
 ----------Prop #5 Name = TE
@@ -1406,7 +1406,7 @@ Instance of class CQL_EmbeddedSubClass.  Allow missing properties.
 --------------------Prop #0 Name = InstanceId, Value = 10
 ----------Prop #3 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ----------Prop #4 Name = TPTArray
 --------------------Instance of class CQL_TestPropertyTypes
 --------------------Instance has 58 properties
@@ -1496,7 +1496,7 @@ Instance of class CQL_EmbeddedSubClass.  Allow missing properties.
 ----------Prop #0 Name = SomeString, Value = Huh?
 ----------Prop #1 Name = CS
 --------------------Instance of class CIM_ComputerSystem
---------------------Instance has 24 properties
+--------------------Instance has 31 properties
 ======================================58
 SELECT CQL_EmbeddedSubClass FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass

@@ -39,7 +39,7 @@
        Description (
           "An identifier that uniquely identifies each instance "
           "of the QExpr_TestElement hierarchy.") ]
-     uint64 InstanceId;
+     uint64 QExprInstanceId;
    };
 
 

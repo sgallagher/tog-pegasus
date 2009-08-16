@@ -730,7 +730,7 @@ DMTF:CQL ========Apply Projection Results========
 SELECT * FROM CIM_ComputerSystem
 
 Instance of class QExpr_TestPropertyTypes
------The property Caption is missing on the instance of class QExpr_TestPropertyTypes.
+-----The property InstanceID is missing on the instance of class QExpr_TestPropertyTypes.
 Instance of class QExpr_TestPropertyTypes.  Allow missing properties.
 -----No properties left after projection
 
@@ -770,7 +770,7 @@ DMTF:CQL ========Apply Projection Results========
 SELECT * FROM QExpr_TestElement
 
 Instance of class QExpr_TestPropertyTypes
------Prop #0 Name = InstanceId Value = 1
+-----Prop #0 Name = QExprInstanceId Value = 1
 
 DMTF:CQL ========Get Property List Results=======
 SELECT * FROM QExpr_TestElement
@@ -781,11 +781,11 @@ Get Class Path List
 Property List for the FROM class
 -----all properties required
 Property List for QExpr_TestPropertyTypes
------Required property InstanceId
+-----Required property QExprInstanceId
 SELECT Property List for the FROM class
 -----all properties required
 SELECT Property List for QExpr_TestPropertyTypes
------Required property InstanceId
+-----Required property QExprInstanceId
 WHERE Property List for the FROM class
 -----no properties required
 WHERE Property List for QExpr_TestPropertyTypes

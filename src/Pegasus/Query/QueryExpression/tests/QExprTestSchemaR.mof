@@ -29,12 +29,12 @@
 
 instance of QExpr_TestElement
 {
-   InstanceID = 0;
+   QExprInstanceID = 0;
 };
 
 instance of QExpr_TestPropertyTypes
 {
-   InstanceID = 1;
+   QExprInstanceID = 1;
 
    PropertyString = "Ten";
    PropertyStringArray = { "QExpr0","QExpr1","QExpr2","QExpr3" };

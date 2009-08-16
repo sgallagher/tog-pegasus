@@ -3419,9 +3419,9 @@ int main(int argc, char** argv)
         // Do the enumerate options tests for object manager object
         // classname, di, propertylist, expected rtn count
         it.testEnumerateOptions(
-            CIM_OBJECTMANAGER_CLASSNAME, true, CIMPropertyList(), 22);
+            CIM_OBJECTMANAGER_CLASSNAME, true, CIMPropertyList(), 29);
         it.testEnumerateOptions(
-            CIM_OBJECTMANAGER_CLASSNAME, false, CIMPropertyList(), 22);
+            CIM_OBJECTMANAGER_CLASSNAME, false, CIMPropertyList(), 29);
 
         CIMPropertyList pl1;
         Array<CIMName> pla1;
@@ -3441,9 +3441,9 @@ int main(int argc, char** argv)
         // Repeat the tests for the superclass.
         // classname, di, propertylist, expected rtn count
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true,
-                CIMPropertyList(),22);
+                CIMPropertyList(),29);
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false,
-                CIMPropertyList(), 21);
+                CIMPropertyList(), 28);
 
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, pl1, 1);
         // ATTN: The following test case is incorrect.  The

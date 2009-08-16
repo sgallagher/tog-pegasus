@@ -38,6 +38,8 @@ CIM_FileSystem
 </KEYBINDING>
 </INSTANCENAME>
 <INSTANCE CLASSNAME="CWS_Directory">
+<PROPERTY NAME="InstanceID" TYPE="string">
+</PROPERTY>
 <PROPERTY NAME="Caption" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="Description" TYPE="string">
@@ -53,6 +55,14 @@ CIM_FileSystem
 <PROPERTY NAME="Status" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="HealthState" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="CommunicationStatus" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="DetailedStatus" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="OperatingStatus" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="PrimaryStatus" TYPE="uint16">
 </PROPERTY>
 <PROPERTY NAME="CompressionMethod" TYPE="string">
 </PROPERTY>
@@ -152,6 +162,8 @@ CIM_FileSystem
 </KEYBINDING>
 </INSTANCENAME>
 <INSTANCE CLASSNAME="CWS_Directory">
+<PROPERTY NAME="InstanceID" TYPE="string">
+</PROPERTY>
 <PROPERTY NAME="Caption" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="Description" TYPE="string">
@@ -167,6 +179,14 @@ CIM_FileSystem
 <PROPERTY NAME="Status" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="HealthState" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="CommunicationStatus" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="DetailedStatus" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="OperatingStatus" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="PrimaryStatus" TYPE="uint16">
 </PROPERTY>
 <PROPERTY NAME="CompressionMethod" TYPE="string">
 </PROPERTY>
@@ -266,6 +286,8 @@ CIM_FileSystem
 </KEYBINDING>
 </INSTANCENAME>
 <INSTANCE CLASSNAME="CWS_Directory">
+<PROPERTY NAME="InstanceID" TYPE="string">
+</PROPERTY>
 <PROPERTY NAME="Caption" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="Description" TYPE="string">
@@ -281,6 +303,14 @@ CIM_FileSystem
 <PROPERTY NAME="Status" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="HealthState" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="CommunicationStatus" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="DetailedStatus" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="OperatingStatus" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="PrimaryStatus" TYPE="uint16">
 </PROPERTY>
 <PROPERTY NAME="CompressionMethod" TYPE="string">
 </PROPERTY>

@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -65,7 +67,7 @@ gettimeofday (struct timeval *t, void *timezone)
 {
   struct _timeb timebuffer;
   _ftime (&timebuffer);
-  t->tv_sec = (long)timebuffer.time;
+  t->tv_sec = timebuffer.time;
   t->tv_usec = 1000 * timebuffer.millitm;
 }
 #endif
@@ -75,7 +77,6 @@ static int exitNow = 0;
 static int threads = 0;
 
 static CMPI_MUTEX_TYPE threadCntMutex;
-static CMPI_THREAD_TYPE exitThr;
 
 /* ---------------------------------------------------------------------------*/
 /*                              Threads                                       */
@@ -98,12 +99,6 @@ bad_thread (void *args)
 
 }
 #endif
-
-static CMPI_THREAD_RETURN CMPI_THREAD_CDECL testExitThread (void *args)
-{
-  _broker->xft->exitThread(0);
-  return (CMPI_THREAD_RETURN) 0;
-}
 
 static CMPI_THREAD_RETURN CMPI_THREAD_CDECL
 good_thread (void *args)
@@ -152,9 +147,9 @@ initThreads ()
   _broker->xft->newThread (good_thread, NULL, 0);
   _broker->xft->newThread (good_thread, NULL, 0);
   while(getThreadCount() < 3)
-  {
-    _broker->xft->threadSleep (25);
-  }
+   {
+     _broker->xft->threadSleep (25);
+   }
 // Only enable when the PEGASUS_DEBUG flag is not set. The
 // PEGASUS_DEBUG is mostly used by developers, and when this
 // flag is disabled the CIMServer kills the threads.
@@ -163,7 +158,6 @@ initThreads ()
 #endif
   _broker->xft->newThread (empty_thread, NULL, 0);
 
-  exitThr = _broker->xft->newThread(testExitThread, NULL, 0);
 }
 
 void
@@ -195,12 +189,6 @@ deleteThreads ()
   // Make sure to de-allocate the mutexes and conditions.
   _broker->xft->destroyMutex (_mutex);
   _broker->xft->destroyCondition (_cond);
-
-  // join the exitThread
-  if (exitThr)
-  {
-      _broker->xft->joinThread(exitThr, 0);
-  }
 }
 
 CMPIStatus

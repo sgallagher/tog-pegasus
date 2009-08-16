@@ -35,6 +35,8 @@
 //              create DMTF CIM Schema Version 222 
 //              interface filesfiles compatible with OpenPegasus 
 //              build enviroment.
+//              ("DMTF/User/CIM_Credential.mof") has been added manually
+//              as class CIM_BIOSService requires CIM_Credential.
 //
 //=====================================================
  

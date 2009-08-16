@@ -14,9 +14,20 @@
 ## DMTF CIM Schema Version 2.11 and later to make them compatible with the
 ## OpenPegasus build enviroment that has been used for previous versions.
 ##
-##
-## The following files are needed and will each include the appropriate
-## DMTF files.
+## Pegasus depends on a particular file structure for the schema to
+## build the CIM schemas that are compiled in the build and test
+## scripts.
+## The characteristics are:
+##   Directory for each schema normally named CIM<schema ver> where the
+##      schema ver is the version of the schema without the period separators
+##      thus CIM 222 represents CIM 2.22.0 and CIM2221 represents CIM 2.22.1
+##   mof files in this directory for the major components of CIM as shown
+##      below including Event, Core, etc.  These are built by this script for
+##      each new version of CIM Schema installed
+##   Subdirectory named DMTF where the released DMTF mof is unzipped and
+##      maintained.
+## The following files are needed by Pegasus and will each include the 
+## appropriate DMTF files.
 ## In Schemas/CIMxxx where xxx is the schema directory
 ##      CIM_Schema.mof
 ##      CIM_Event.mof
@@ -34,7 +45,15 @@
 ##    2. Insure that $PEGASUS_ROOT is set
 ##    3. run the script with the following options
 ##        a.  parameter 1 the schema version (ex. 214)
-##        b.  parameter 2 is the location of the downloaded zip file.
+##        b.  parameter 2 is the location/name of the downloaded zip file.
+##        c.  parameter 3 is the name of the top level schema file without
+##            the extension (.mof)
+##            The 2nd and 3rd parameters implemented because somewhere between
+##            2.17 and 2.22 the zip file name AND the schema mof name
+##            changed to a more complex naming. The schema zipfile name
+##            became something like cim_schem_2.22.0Final-MOFS.zip and
+##            the schema top level mof file became something like
+##            cim_schema_2.22.0.zip 
 ##
 ##   NOTE: If the Schema directory already exists the user is offered
 ##         the option to replace the enitre directory.
@@ -45,6 +64,16 @@
 ##   2. This is a bash script and intended to be used only on systems
 ##      with the bash shell.
 ##   3. Does not test to determne if the input schema version is valid
+##   4. Two manual updates need to be made in the generated OpenPegasus mofs,
+##      since version 2.22 of the DMTF CIM Schema after running this script.
+##
+##          In CIM_Core.mof add the line:
+##          #pragma include ("DMTF/Interop/CIM_Error.mof")
+##          at the top of all other includes.
+##          In CIM_System.mof add the line:
+##          #pragma include ("DMTF/User/CIM_Credential.mof")
+##          before the include of "DMTF/System/CIM_BIOSService.mof"
+##         
 ##########################################################################
 
 ##########################################################################
@@ -54,8 +83,18 @@
 ##########################################################################
 
 function usage {
-    printf "\nUsage: %s <cim version> <DMTF CIM mof zip file>\n" $0 >&2
-    printf "    Example: %s 214 ~/cimv214Final-MOFs.zip\n" $0 >&2
+    echo $0
+    printf "\nUsage: <cim version> <DMTF CIM mof file> <schema file name>\n" >&2
+    printf " where:\n" >&2
+    printf "    cim version - version of cim to be used as directory name\n" >&2
+    printf "                  without separators ( ex. 222 or 221 )\n" >&2
+    printf "    DMTF mof file-The file name and location of the zip file\n" >&2
+    printf "                  containing the mof files as downloaded from\n"  >&2
+    printf "                  DMTF.\n" >&2
+    printf "    schema file name - The base name of the top level file from\n"  >&2
+    printf "                  the DMTF zip file that contains the includes\n"  >&2 
+    printf "                  for all theother mof files\n"  >&2
+    printf "    Example: %s 222 ~/Desktop/cim_schema_2.22.0Final-MOFs.zip cim_schema_2.22.0\n" >&2
 }
 
 ## INSERT_LICENSE ()
@@ -105,7 +144,7 @@ function INSERT_EXTRACTED_INCLUDES
     FILE=$1 ;
     NAME=$2 ;
 
-    grep "(\"${NAME}" DMTF/cimv${CIM_SCHEMA_VER}.mof | \
+    grep "(\"${NAME}" DMTF/${SCHEMA_FILE_NAME}.mof | \
         sed 's/include ("/include ("DMTF\//' >> ${FILE}.mof ;
     return 0 ;
 }
@@ -122,7 +161,7 @@ function CREATE_MOF_FILE {
     echo "// ====================================================" >> ${FILE}
     echo "// Title      : ${NAME} MOF" >> ${FILE}
     echo "// Filename   : ${NAME}.mof" >> ${FILE}
-    echo "// Version    :" >> ${FILE}
+    echo "// Version    : CIM ${CIM_SCHEMA_VER}" >> ${FILE}
     echo "// Date       : ${TODAY}" >> ${FILE}
     echo "// Description: This file was created by The OpenPegasus Group to" \
          >> ${FILE}
@@ -165,15 +204,23 @@ function choice {
 ## $1 - CIM Schema version to create in the #PEGASUS_ROOT/Schemas
 ##      directory (ex. 214)
 ## $2 - Name of the DMTF CIM release zip file to install.
-if (( $# < 2 )); then
+## $3 - Name of the DMTF top level Schema file being installed. This file
+##      will appear in the DMTF directory when the release mof file
+##      is installed.  This is the name only without file name extension.
+if (( $# < 3 )); then
     usage
     exit 1
 fi
 
 CIM_SCHEMA_VER=${1:?"Error. CIM Version parameter required ex. 214"}
-ZIP_FILE=${2:?"Error. Location of CIM MOF zip file required"}
+ZIP_FILE=${2:?"Error. Name of CIM MOF zip file required"}
+SCHEMA_FILE_NAME=${3:?"Error. Name on Top Level Schema file required"}
 
 SCHEMA_DIR=$PEGASUS_ROOT/Schemas/CIM${CIM_SCHEMA_VER}
+if [ ! -d "$PEGASUS_ROOT" ]; then
+    echo "PEGASUS_ROOT required to execute this script"
+    echo 1
+fi
 
 ## confirm that the zip file exists. Error if not
 if [ !  -e "$ZIP_FILE" ]; then
@@ -207,10 +254,17 @@ cd $SCHEMA_DIR
 ## Create DMTF directory and unzip the CIM release into this directory
 mkdir DMTF
 
-echo "Source $ZIP_FILE" >DMTFSchemaInfo.txt
+## Put the original fileName into a file as a reference in the directory
+echo "Source File: ${ZIP_FILE##*/}" >DMTFSchemaInfo.txt
 
 ## unzip because DMTF files zipped with pkzip or equivalent
 unzip $ZIP_FILE -d DMTF
+
+## confirm that the zip file exists. Error if not
+if [ !  -e "DMTF/$SCHEMA_FILE_NAME.mof" ]; then
+    echo "The schema mof file $SCHEMA_FILE_NAME.mof does not exist."
+    exit 1
+fi
 
 ##########################################################################
 ##
@@ -226,7 +280,7 @@ INSERT_BLANK_LINE Core_Qualifiers ;
 
 #### create CIM_Schema.mof
 CREATE_MOF_FILE CIM_Schema
-INSERT_LINE CIM_Schema "#pragma include (\"DMTF/cimv${CIM_SCHEMA_VER}.mof\")"
+INSERT_LINE CIM_Schema "#pragma include (\"DMTF/$SCHEMA_FILE_NAME.mof\")"
 INSERT_BLANK_LINE CIM_Schema ;
 
 #### create CIM_Core.mof

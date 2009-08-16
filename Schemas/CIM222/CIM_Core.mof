@@ -35,6 +35,7 @@
 //              create DMTF CIM Schema Version 222 
 //              interface filesfiles compatible with OpenPegasus 
 //              build enviroment.
+//              ("DMTF/Interop/CIM_Error.mof") has been added manually.
 //
 //=====================================================
  

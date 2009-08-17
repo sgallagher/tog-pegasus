@@ -32,84 +32,163 @@
 #include <Pegasus/ProviderManager2/CMPI/CMPIClassCache.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPI_Broker.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPI_ContextArgs.h>
-#include <Pegasus/ProviderManager2/CMPI/CMPI_ThreadContext.h>
-#include <Pegasus/Provider/CIMOMHandleRep.h>
+#include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/CIMNameCast.h>
-#include <Pegasus/Common/SCMOClassCache.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 CMPIClassCache::~CMPIClassCache()
 {
     // Cleanup the class cache
+    ClassCache::Iterator i=_clsCache->start();
+    for (; i; i++)
+    {
+        delete i.value();
+    }
+    delete _clsCache;
+
     ClassCacheSCMO::Iterator i2=_clsCacheSCMO->start();
     for (; i2; i2++)
     {
         delete i2.value();
     }
     delete _clsCacheSCMO;
+
+    if (_hint)
+    {
+        delete( _hint );
+    }
+}
+
+
+
+void CMPIClassCache::_setHint(ClassCacheEntry& hint, SCMOClass* hintClass)
+{
+    if (_hint)
+    {
+        delete(_hint);
+    }
+    _hint = new ClassCacheEntry(hint);
+    _hintClass = hintClass;
 }
 
 
 SCMOClass* CMPIClassCache::getSCMOClass(
     const CMPI_Broker *mb,
     const char* nsName,
-    Uint32 nsNameLen,
-    const char* className,
-    Uint32 classNameLen)
+    const char* className)
 {
-    if (!(nsName && className))
+    //fprintf(stderr,"CMPIClassCache::getSCMOClass - Enter()\n");
+
+    if (nsName && className)
     {
-        return 0;
-    }
-    SCMOClass *scmoClass = 0;
-    ClassCacheEntry key(nsName,nsNameLen,className,classNameLen);
-    {
-        ReadLock readLock(_rwsemClassCache);
-        if (_clsCacheSCMO->lookup(key,scmoClass))
+
+        ClassCacheEntry key(nsName, className);
+
+        SCMOClass *scmoClass;
+
         {
+            ReadLock readLock(_rwsemClassCache);
+
+            // We first check if the last lookup was for the same class
+            // so we could directly use the saved hint.
+            if (_hint && ClassCacheEntry::equal(*_hint, key))
+            {
+                return _hintClass;
+            }
+
+            if (_clsCacheSCMO->lookup(key,scmoClass))
+            {
+                _setHint(key, scmoClass);
+                return scmoClass;
+            }
+        }
+
+        try
+        {
+            WriteLock writeLock(_rwsemClassCache);
+
+            if (_clsCacheSCMO->lookup(key,scmoClass))
+            {
+                _setHint(key, scmoClass);
+                return scmoClass;
+            }
+
+            CIMClass cc = ((CIMOMHandle*)mb->hdl)->getClass(
+                OperationContext(),
+                CIMNamespaceNameCast(nsName),
+                CIMNameCast(className),
+                (bool)0,
+                (bool)1,
+                (bool)0,
+                CIMPropertyList());
+
+            scmoClass = new SCMOClass(cc,nsName);
+            _clsCacheSCMO->insert(key,scmoClass);
+
+            _setHint(key, scmoClass);
             return scmoClass;
         }
+        catch (const CIMException &e)
+        {
+            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                "CIMException: %s",(const char*)e.getMessage().getCString()));
+        }
     }
+
+    return 0;
+}
+
+
+
+
+CIMClass* CMPIClassCache::getClass(
+    const CMPI_Broker *mb,
+    const CIMObjectPath & cop)
+{
+    String clsId =
+        cop.getNameSpace().getString()+":"+cop.getClassName().getString();
+
+    CIMClass *ccp;
+
+    {
+        ReadLock readLock(_rwsemClassCache);
+
+        if (_clsCache->lookup(clsId,ccp))
+        {
+            return ccp;
+        }
+    }
+
     try
     {
         WriteLock writeLock(_rwsemClassCache);
-        if (_clsCacheSCMO->lookup(key,scmoClass))
-        {
-            return scmoClass;
-        }
-        SCMOClassCache* scmoCache = SCMOClassCache::getInstance();
 
-        SCMOClass tmp = scmoCache->getSCMOClass(
-            nsName, nsNameLen, className, classNameLen);
-
-        if (tmp.isEmpty())
+        if (_clsCache->lookup(clsId,ccp))
         {
-            // Do not add to cache, when we failed to retrieve a real class
-            return 0;
+            return ccp;
         }
 
-        SCMOClass* scmoClass = new SCMOClass(tmp);
-        _clsCacheSCMO->insert(key,scmoClass);
-        return scmoClass;
+        const CMPIContext *ctx = CMPI_ThreadContext::getContext();
+
+        CIMClass cc = ((CIMOMHandle*)mb->hdl)->getClass(
+            *CM_Context(ctx),
+            cop.getNameSpace(),
+            cop.getClassName(),
+            (bool)0,
+            (bool)1,
+            (bool)0,
+            CIMPropertyList());
+
+        ccp = new CIMClass(cc);
+        _clsCache->insert(clsId,ccp);
+        return ccp;
     }
     catch (const CIMException &e)
     {
         PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-            "Exception in CMPIClassCache::getClass() : %s",
-            (const char*)e.getMessage().getCString()));
-    }
-    catch (const Exception &e)
-    {
-        PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-             "Exception in CMPIClassCache::getClass() : %s",
-             (const char*)e.getMessage().getCString()));
-    }
-    catch (...)
-    {
-        PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-            "Unknown Exception in CMPIClassCache::getClass()"));
+            "CIMException: %s",(const char*)e.getMessage().getCString()));
     }
     return 0;
 }

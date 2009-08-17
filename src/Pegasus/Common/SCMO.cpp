@@ -158,7 +158,7 @@ SCMOClass::SCMOClass()
     cls.mem = NULL;
 }
 
-SCMOClass::SCMOClass(CIMClass& theCIMClass)
+SCMOClass::SCMOClass(CIMClass& theCIMClass, const char* nameSpaceName)
 {
     PEGASUS_ASSERT(SCMB_INITIAL_MEMORY_CHUNK_SIZE
         - sizeof(SCMBClass_Main)>0);
@@ -198,9 +198,19 @@ SCMOClass::SCMOClass(CIMClass& theCIMClass)
     CIMObjectPath theObjectPath=theCIMClass.getPath();
 
     //set name space
-   _setString(theObjectPath.getNameSpace().getString(),
-              cls.hdr->nameSpace,
-              &cls.mem );
+    if (nameSpaceName)
+    {
+        _setBinary(nameSpaceName,
+                   strlen(nameSpaceName)+1,
+                   cls.hdr->nameSpace,
+                   &cls.mem );
+    }
+    else
+    {
+        _setString(theObjectPath.getNameSpace().getString(),
+                  cls.hdr->nameSpace,
+                  &cls.mem );
+    }
 
 
 
@@ -1638,7 +1648,7 @@ void SCMOInstance::buildKeyBindingsFromProperties()
 
     for (Uint32 i = 0, k = inst.hdr->numberKeyBindings; i < k; i++)
     {
-        // the instance pointers has to be reinitialized eache time,
+        // the instance pointers has to be reinitialized each time,
         // because in _setKeyBindingFromSCMBUnion()
         // a reallocation can take place.
         theInstKeyBindNodeArray =
@@ -1790,7 +1800,7 @@ void SCMOInstance::_setKeyBindingFromSCMBUnion(
             }
             else
             {
-                _setBinary("FALSE",strlen("FLASE")+1,keyNode,&inst.mem);
+                _setBinary("FALSE",strlen("FALSE")+1,keyNode,&inst.mem);
             }
             break;
         }
@@ -1815,8 +1825,14 @@ void SCMOInstance::_setKeyBindingFromSCMBUnion(
         }
 
     case CIMTYPE_REFERENCE:
-
+        {
+            _setBinary(
+                (const void*)u._voidPtr,
+                sizeof(u._voidPtr),
+                keyNode,
+                &inst.mem);
             break;
+        }
 
     case CIMTYPE_OBJECT:
     case CIMTYPE_INSTANCE:
@@ -3114,6 +3130,67 @@ SCMO_RC SCMOInstance::setKeyBindingAt(
         theInstKeyBindNodeArray[node].value,
         &inst.mem);
 
+
+    theInstKeyBindNodeArray[node].isSet=true;
+
+    return SCMO_OK;
+}
+
+SCMO_RC SCMOInstance::setKeyBinding(
+    const char* name,
+    CIMType type,
+    void* keyvalue)
+{
+    SCMO_RC rc;
+    Uint32 node;
+
+    if (NULL == name)
+    {
+        return SCMO_INVALID_PARAMETER;
+    }
+
+    rc = inst.hdr->theClass->_getKeyBindingNodeIndex(node,name);
+    if (rc != SCMO_OK)
+    {
+        return rc;
+    }
+
+    return setKeyBindingAt(node, type, keyvalue);
+}
+
+SCMO_RC SCMOInstance::setKeyBindingAt(
+        Uint32 node,
+        CIMType type,
+        void* keyvalue)
+{
+    SCMO_RC rc;
+
+   // create a pointer to keybinding node array of the class.
+    Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
+    SCMBKeyBindingNode* theClassKeyBindNodeArray =
+        (SCMBKeyBindingNode*)&(inst.hdr->theClass->cls.base)[idx];
+
+    if (NULL == keyvalue)
+    {
+        return SCMO_INVALID_PARAMETER;
+    }
+
+    /*if (theClassKeyBindNodeArray[node].type != type)
+    {
+        return SCMO_TYPE_MISSMATCH;
+    }*/
+
+    SCMBInstanceKeyBinding* theInstKeyBindNodeArray =
+        (SCMBInstanceKeyBinding*)&inst.base[inst.hdr->keyBindingArray.start];
+
+    // TBD:
+    // For the time being set the keyvalue as string. But there is a strong
+    // need to store it binary instead 
+    // --> awaiting performance measurment results
+    _setKeyBindingFromSCMBUnion(
+        type,
+        *((SCMBUnion*)keyvalue),
+        theInstKeyBindNodeArray[node].value);
 
     theInstKeyBindNodeArray[node].isSet=true;
 

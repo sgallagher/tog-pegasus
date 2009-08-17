@@ -46,7 +46,6 @@ struct CMPI_String : CMPIString
 
 CMPI_String* string2CMPIString(const String &s);
 CMPI_String* string2CMPIString(const char* s);
-CMPI_String* string2CMPIString(const char* s, Uint32 len);
 
 PEGASUS_NAMESPACE_END
 

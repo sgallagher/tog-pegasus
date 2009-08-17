@@ -35,9 +35,6 @@
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include "cmpiPerf_TestClass.h"
 
-/* ---------------------------------------------------------------------------*/
-static char * _ClassName = "cmpiPerf_TestClassB";
-/* ---------------------------------------------------------------------------*/
 
 /* ---------------------------------------------------------------------------*/
 /*                            Factory functions                               */
@@ -49,20 +46,38 @@ CMPIObjectPath * _makePath_TestClass(
     const CMPIBroker * _broker,
     const CMPIContext * ctx,
     const CMPIObjectPath * ref,
+    CMPIStatus * rc,
     unsigned int theKey)
 {
-    CMPIValue keyValue;
-    CMPIObjectPath * op=NULL;
-    keyValue.uint32 = theKey;
+    CMPIObjectPath * op = NULL;
+
+    fprintf(stderr,"cmpiPerf_EIN: _makePath: Enter\n");
 
     op = CMNewObjectPath(
-        _broker,
-        CMGetCharsPtr(CMGetNameSpace(ref,NULL), NULL),
-        _ClassName,
-        0);
-    
-    CMAddKey(op, "theKey", &keyValue, CMPI_uint32);
+             _broker,
+             CMGetCharsPtr(CMGetNameSpace(ref,rc), NULL),
+             _ClassName, rc );
 
+    fprintf(stderr,"cmpiPerf_EIN: _makePath: ObjPath created\n");
+
+    if (CMIsNullObject(op))
+    {
+        CMSetStatusWithChars(
+            _broker,
+            rc,
+            CMPI_RC_ERR_FAILED,
+            "Create CMPIObjectPath failed." );
+        goto exit;
+    }
+
+    fprintf(stderr,"cmpiPerf_EIN: _makePath: now adding key\n");
+
+    CMAddKey(op, "theKey", &theKey, CMPI_uint32);
+
+    fprintf(stderr,"cmpiPerf_EIN: _makePath: key added\n");
+
+    exit:
+    fprintf(stderr,"cmpiPerf_EIN: _makePath: Exit\n");
     return op;
 }
 
@@ -73,32 +88,70 @@ CMPIInstance * _makeInst_TestClass(
     const CMPIContext * ctx,
     const CMPIObjectPath * ref,
     const char ** properties,
+    CMPIStatus * rc,
     unsigned int theKey)
 {
     CMPIValue opstatus;
     CMPIValue status;
-    char theName[20];
+    CMPIObjectPath * op     = NULL;
+    CMPIInstance   * ci     = NULL;
+    char * theName          = NULL;
     CMPIArray       *array  = NULL;
-    CMPIDateTime* my_dt;
-    CMPIObjectPath* op=NULL;
-    CMPIInstance* ci=NULL;
+    char     **keys      = NULL;
+    int              keyCount  = 0;
+    opstatus.uint16 = 0; /* Unknown */
+    status.uint16 = 2;  /* Enabled */
 
-    /* Unknown */
-    opstatus.uint16 = 0;
-    /* Enabled */
-    status.uint16 = 2;
+//
+// Initialize Name
+//
+    theName = calloc(1,20);
     sprintf(theName, "%u", theKey);
 
-
-    op = _makePath_TestClass(_broker,ctx,ref,theKey);
+//
+// Construct ObjectPath
+//
+    op = CMNewObjectPath(
+             _broker,
+             CMGetCharsPtr(CMGetNameSpace(ref,rc), NULL),
+             _ClassName,
+             rc);
+    if (CMIsNullObject(op))
+    {
+        CMSetStatusWithChars(
+            _broker,
+            rc,
+            CMPI_RC_ERR_FAILED,
+            "Create CMPIObjectPath failed." );
+        goto exit;
+    }
 
 //
 // Create a new instance and fill it's properties
 //
-    ci = CMNewInstance( _broker, op, NULL);
-    CMRelease(op);
+    ci = CMNewInstance( _broker, op, rc);
+    if (CMIsNullObject(ci))
+    {
+        CMSetStatusWithChars(
+            _broker,
+            rc,
+            CMPI_RC_ERR_FAILED,
+            "Create CMPIInstance failed." );
+        goto exit;
+    }
 
-    CMSetPropertyFilter(ci,properties,NULL);
+//
+// Set property filter
+//
+    keys = calloc(2,sizeof(char*));
+    keys[0] = strdup("theKey");
+    CMSetPropertyFilter(ci,properties,(const char**)keys);
+    for (;keys[keyCount]!=NULL;keyCount++)
+    {
+        free((char*)keys[keyCount]);
+    }
+    free(keys);
+
 //
 // Properties of CIM_ManagedElement
 //
@@ -108,21 +161,18 @@ CMPIInstance * _makeInst_TestClass(
         "Description",
         "Test class used for all kinds of testing",
         CMPI_chars);
-    
     CMSetProperty(ci,"ElementName",theName,CMPI_chars);
 
 //
 // Properties of CIM_ManagedSystemElement
 //
-     my_dt = CMNewDateTimeFromChars(
-         _broker,
-         "20090102030405.000000+120",
-         NULL);
+     CMPIDateTime* dt = CMNewDateTimeFromChars(_broker, 
+                                               "20090102030405.000000+120", 
+                                               rc);
+     CMSetProperty( ci, "InstallDate", (CMPIValue*)&(dt), CMPI_dateTime);
 
-     CMSetProperty( ci, "InstallDate", (CMPIValue*)&(my_dt), CMPI_dateTime);
-
-// TBD: InstallDate
-    array = CMNewArray(_broker,1,CMPI_uint16,NULL);
+    // TBD: InstallDate
+    array = CMNewArray(_broker,1,CMPI_uint16,rc);
     CMSetArrayElementAt(array,0,&opstatus,CMPI_uint16);
     CMSetProperty(ci,"OperationalStatus",(CMPIValue*)&(array),CMPI_uint16A);
 
@@ -138,7 +188,6 @@ CMPIInstance * _makeInst_TestClass(
 //
     CMSetProperty(ci,"theKey",&theKey , CMPI_uint32 );
     CMSetProperty(ci,"theData",&theKey , CMPI_uint32 );
-
     CMSetProperty(ci,"theString0","Test Data Number Zero",CMPI_chars);
     CMSetProperty(ci,"theString1","Test Data Number One",CMPI_chars);
     CMSetProperty(ci,"theString2","Test Data Number Two",CMPI_chars);
@@ -150,6 +199,9 @@ CMPIInstance * _makeInst_TestClass(
     CMSetProperty(ci,"theString8","Test Data Number Eight",CMPI_chars);
     CMSetProperty(ci,"theString9","Test Data Number Nine",CMPI_chars);
 
+
+    exit:
+    free(theName);
     return ci;
 }
 

@@ -27,11 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// This code implements part of PEP#348 - The CMPI infrastructure using SCMO
-// (Single Chunk Memory Objects).
-// The design document can be found on the OpenPegasus website openpegasus.org
-// at https://collaboration.opengroup.org/pegasus/pp/documents/21210/PEP_348.pdf
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CMPISCMOUtilities_H_
@@ -41,7 +36,6 @@
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMObjectPath.h>
-#include "CMPI_Broker.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -49,32 +43,10 @@ PEGASUS_NAMESPACE_BEGIN
 class CMPISCMOUtilities
 {
 public:
-    static CMPIrc scmoValue2CMPIData(
-        const SCMBUnion* scmoValue,
-        CMPIType type,
-        CMPIData *data,
-        Uint32 arraySize = 0);
-
-    static CMPIrc scmoValue2CMPIKeyData(
-        const SCMBUnion* scmoValue,
-        CMPIType type,
-        CMPIData *data);
-
+    static CMPIrc scmoValue2CMPIData(const void* scmoValue, 
+                                     CMPIType type, 
+                                     CMPIData *data);
     static CIMDateTimeRep* scmoDateTimeFromCMPI(CMPIDateTime* cmpidt);
-
-    static SCMOInstance* getSCMOFromCIMInstance(
-        const CIMInstance&,
-        const char* ns=0,
-        const char* cls=0);
-
-    static SCMOInstance* getSCMOFromCIMObjectPath(
-        const CIMObjectPath&,
-        const char* ns=0,
-        const char* cls=0);
-
-    static CMPIrc copySCMOKeyProperties(
-        const SCMOInstance* sourcePath,
-        SCMOInstance* targetPath );
 };
 
 

@@ -50,9 +50,10 @@ public:
     /**
      * Constructs a SCMOClass out of a CIMClass.
      * @param theCIMClass The source the SCMOClass is constucted off.
+     * @param nameSpaceName The namespace for the class, optional.
      * @return
      */
-    SCMOClass(CIMClass& theCIMClass );
+    SCMOClass(CIMClass& theCIMClass, const char* nameSpaceName=NULL );
 
     /**
      * Copy constructor for the SCMO class, used to implement refcounting.

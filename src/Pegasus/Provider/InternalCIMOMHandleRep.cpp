@@ -38,19 +38,10 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/AutoPtr.h>
-#include <Pegasus/ProviderManager2/AutoPThreadSecurity.h>
 
 #include "InternalCIMOMHandleRep.h"
 
 PEGASUS_NAMESPACE_BEGIN
-
-// If is class only, return true.  This is used only to determine
-// if the input for associators, etc. requests objectPath is a class or
-// instance request.
-Boolean _isClassRequest(const CIMObjectPath& ref)
-{
-    return ref.getKeyBindings().size () == 0;
-}
 
 InternalCIMOMHandleMessageQueue::InternalCIMOMHandleMessageQueue()
     : MessageQueue(PEGASUS_QUEUENAME_INTERNALCLIENT),
@@ -232,17 +223,6 @@ static OperationContext _filterOperationContext(const OperationContext& context)
     {
         temp.insert(ContentLanguageListContainer(ContentLanguageList()));
     }
-    
-    if (context.contains(UserRoleContainer::NAME))
-    {
-        // propagate the user role container if it exists (get() with throw
-        // an exception if it does not)
-        temp.insert(context.get(UserRoleContainer::NAME));
-    }
-    else
-    {
-        temp.insert(UserRoleContainer(String::EMPTY));
-    }
 
     return temp;
 }
@@ -375,8 +355,6 @@ CIMClass InternalCIMOMHandleRep::getClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::getClass");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
-
     // encode request
     CIMGetClassRequestMessage* request =
         new CIMGetClassRequestMessage(
@@ -447,8 +425,6 @@ Array<CIMClass> InternalCIMOMHandleRep::enumerateClasses(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::enumerateClasses");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
-
     CIMEnumerateClassesRequestMessage* request =
         new CIMEnumerateClassesRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -516,8 +492,6 @@ Array<CIMName> InternalCIMOMHandleRep::enumerateClassNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::enumerateClassNames");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
-
     CIMEnumerateClassNamesRequestMessage* request =
         new CIMEnumerateClassNamesRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -580,8 +554,6 @@ void InternalCIMOMHandleRep::createClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::createClass");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
-
     CIMCreateClassRequestMessage* request =
         new CIMCreateClassRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -640,8 +612,6 @@ void InternalCIMOMHandleRep::modifyClass(
     const CIMClass& modifiedClass)
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::modifyClass");
-
-    AutoPThreadSecurity revPthreadSec(context, true);
 
     CIMModifyClassRequestMessage* request =
         new CIMModifyClassRequestMessage(
@@ -702,7 +672,6 @@ void InternalCIMOMHandleRep::deleteClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::deleteClass");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     // encode request
     CIMDeleteClassRequestMessage* request =
         new CIMDeleteClassRequestMessage(
@@ -756,7 +725,7 @@ void InternalCIMOMHandleRep::deleteClass(
 }
 
 
-CIMResponseData InternalCIMOMHandleRep::getInstance(
+CIMInstance InternalCIMOMHandleRep::getInstance(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& instanceName,
@@ -766,7 +735,6 @@ CIMResponseData InternalCIMOMHandleRep::getInstance(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::getInstance");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
     // encode request
     CIMGetInstanceRequestMessage* request =
         new CIMGetInstanceRequestMessage(
@@ -818,11 +786,14 @@ CIMResponseData InternalCIMOMHandleRep::getInstance(
                 "Exception caught in CIMOMHandle"));
     }
 
+    // The CIM instance must be resolved from XML if any.
+    CIMInstance cimInstance = response->getResponseData().getCimInstance();
+
     PEG_METHOD_EXIT();
-    return response->getResponseData();
+    return cimInstance;
 }
 
-CIMResponseData InternalCIMOMHandleRep::enumerateInstances(
+Array<CIMInstance> InternalCIMOMHandleRep::enumerateInstances(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMName& className,
@@ -833,8 +804,6 @@ CIMResponseData InternalCIMOMHandleRep::enumerateInstances(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::enumerateInstances");
-
-    AutoPThreadSecurity revPthreadSec(context, true);
 
     // encode request
     CIMEnumerateInstancesRequestMessage* request =
@@ -888,20 +857,21 @@ CIMResponseData InternalCIMOMHandleRep::enumerateInstances(
                 "Exception caught in CIMOMHandle"));
     }
 
+    const Array<CIMInstance>& cimInstances = 
+        response->getResponseData().getNamedInstances();
+
     PEG_METHOD_EXIT();
-    return response->getResponseData();
+    return cimInstances;
 }
 
 
-CIMResponseData InternalCIMOMHandleRep::enumerateInstanceNames(
+Array<CIMObjectPath> InternalCIMOMHandleRep::enumerateInstanceNames(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMName& className)
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::enumerateInstanceNames");
-
-    AutoPThreadSecurity revPthreadSec(context, true);
 
     // encode request
     CIMEnumerateInstanceNamesRequestMessage* request =
@@ -950,8 +920,12 @@ CIMResponseData InternalCIMOMHandleRep::enumerateInstanceNames(
                 "Provider.CIMOMHandle.CAUGHT_EXCEPTION",
                 "Exception caught in CIMOMHandle"));
     }
+
+    Array<CIMObjectPath> cimObjectPaths = 
+        response->getResponseData().getInstanceNames();
+
     PEG_METHOD_EXIT();
-    return response->getResponseData();
+    return cimObjectPaths;
 }
 
 CIMObjectPath InternalCIMOMHandleRep::createInstance(
@@ -961,8 +935,6 @@ CIMObjectPath InternalCIMOMHandleRep::createInstance(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::createInstance");
-
-    AutoPThreadSecurity revPthreadSec(context, true);
 
     CIMCreateInstanceRequestMessage* request =
         new CIMCreateInstanceRequestMessage(
@@ -1028,8 +1000,6 @@ void InternalCIMOMHandleRep::modifyInstance(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::modifyInstance");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
-
     CIMModifyInstanceRequestMessage* request =
         new CIMModifyInstanceRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1092,8 +1062,6 @@ void InternalCIMOMHandleRep::deleteInstance(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::deleteInstance");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
-
     CIMDeleteInstanceRequestMessage* request =
         new CIMDeleteInstanceRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1146,15 +1114,13 @@ void InternalCIMOMHandleRep::deleteInstance(
 }
 
 
-CIMResponseData InternalCIMOMHandleRep::execQuery(
+Array<CIMObject> InternalCIMOMHandleRep::execQuery(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const String& queryLanguage,
     const String& query)
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::execQuery");
-
-    AutoPThreadSecurity revPthreadSec(context, true);
 
     CIMExecQueryRequestMessage* request =
         new CIMExecQueryRequestMessage(
@@ -1203,12 +1169,16 @@ CIMResponseData InternalCIMOMHandleRep::execQuery(
                 "Provider.CIMOMHandle.CAUGHT_EXCEPTION",
                 "Exception caught in CIMOMHandle"));
     }
+
+    const Array<CIMObject>& cimObjects = 
+        response->getResponseData().getCIMObjects();
+
     PEG_METHOD_EXIT();
-    return response->getResponseData();
+    return cimObjects;
 }
 
 
-CIMResponseData InternalCIMOMHandleRep::associators(
+Array<CIMObject> InternalCIMOMHandleRep::associators(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,
@@ -1222,8 +1192,6 @@ CIMResponseData InternalCIMOMHandleRep::associators(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::associators");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
-
     CIMAssociatorsRequestMessage* request =
         new CIMAssociatorsRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1236,8 +1204,7 @@ CIMResponseData InternalCIMOMHandleRep::associators(
             includeQualifiers,
             includeClassOrigin,
             propertyList,
-            QueueIdStack(),
-            _isClassRequest(objectName));
+            QueueIdStack());
 
     // copy and adjust, as needed, the operation context
     request->operationContext = _filterOperationContext(context);
@@ -1278,12 +1245,16 @@ CIMResponseData InternalCIMOMHandleRep::associators(
                 "Provider.CIMOMHandle.CAUGHT_EXCEPTION",
                 "Exception caught in CIMOMHandle"));
     }
+
+    const Array<CIMObject>& cimObjects = 
+        response->getResponseData().getCIMObjects();
+
     PEG_METHOD_EXIT();
-    return response->getResponseData();
+    return cimObjects;
 }
 
 
-CIMResponseData InternalCIMOMHandleRep::associatorNames(
+Array<CIMObjectPath> InternalCIMOMHandleRep::associatorNames(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,
@@ -1295,8 +1266,6 @@ CIMResponseData InternalCIMOMHandleRep::associatorNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::associatorNames");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
-
     CIMAssociatorNamesRequestMessage* request =
         new CIMAssociatorNamesRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1306,8 +1275,7 @@ CIMResponseData InternalCIMOMHandleRep::associatorNames(
             resultClass,
             role,
             resultRole,
-            QueueIdStack(),
-            _isClassRequest(objectName));
+            QueueIdStack());
 
     // copy and adjust, as needed, the operation context
     request->operationContext = _filterOperationContext(context);
@@ -1348,12 +1316,15 @@ CIMResponseData InternalCIMOMHandleRep::associatorNames(
                 "Provider.CIMOMHandle.CAUGHT_EXCEPTION",
                 "Exception caught in CIMOMHandle"));
     }
+
+    Array<CIMObjectPath> cimObjectPaths = response->objectNames;
+
     PEG_METHOD_EXIT();
-    return response->getResponseData();
+    return cimObjectPaths;
 }
 
 
-CIMResponseData InternalCIMOMHandleRep::references(
+Array<CIMObject> InternalCIMOMHandleRep::references(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,
@@ -1365,8 +1336,6 @@ CIMResponseData InternalCIMOMHandleRep::references(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::references");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
-
     CIMReferencesRequestMessage* request =
         new CIMReferencesRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1377,8 +1346,7 @@ CIMResponseData InternalCIMOMHandleRep::references(
             includeQualifiers,
             includeClassOrigin,
             propertyList,
-            QueueIdStack(),
-            _isClassRequest(objectName));
+            QueueIdStack());
 
     // copy and adjust, as needed, the operation context
     request->operationContext = _filterOperationContext(context);
@@ -1419,12 +1387,15 @@ CIMResponseData InternalCIMOMHandleRep::references(
                 "Provider.CIMOMHandle.CAUGHT_EXCEPTION",
                 "Exception caught in CIMOMHandle"));
     }
+
+    Array<CIMObject> cimObjects = response->cimObjects;
+
     PEG_METHOD_EXIT();
-    return response->getResponseData();
+    return cimObjects;
 }
 
 
-CIMResponseData InternalCIMOMHandleRep::referenceNames(
+Array<CIMObjectPath> InternalCIMOMHandleRep::referenceNames(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,
@@ -1434,8 +1405,6 @@ CIMResponseData InternalCIMOMHandleRep::referenceNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "InternalCIMOMHandleRep::referenceNames");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
-
     CIMReferenceNamesRequestMessage* request =
         new CIMReferenceNamesRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1443,8 +1412,7 @@ CIMResponseData InternalCIMOMHandleRep::referenceNames(
             objectName,
             resultClass,
             role,
-            QueueIdStack(),
-            _isClassRequest(objectName));
+            QueueIdStack());
 
     // copy and adjust, as needed, the operation context
     request->operationContext = _filterOperationContext(context);
@@ -1485,8 +1453,11 @@ CIMResponseData InternalCIMOMHandleRep::referenceNames(
                 "Provider.CIMOMHandle.CAUGHT_EXCEPTION",
                 "Exception caught in CIMOMHandle"));
     }
+
+    Array<CIMObjectPath> cimObjectPaths = response->objectNames;
+
     PEG_METHOD_EXIT();
-    return response->getResponseData();
+    return cimObjectPaths;
 }
 
 
@@ -1497,8 +1468,6 @@ CIMValue InternalCIMOMHandleRep::getProperty(
     const CIMName& propertyName)
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::getProperty");
-
-    AutoPThreadSecurity revPthreadSec(context, true);
 
     CIMGetPropertyRequestMessage* request =
         new CIMGetPropertyRequestMessage(
@@ -1574,8 +1543,6 @@ void InternalCIMOMHandleRep::setProperty(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::setProperty");
 
-    AutoPThreadSecurity revPthreadSec(context, true);
-
     CIMSetPropertyRequestMessage* request =
         new CIMSetPropertyRequestMessage(
             XmlWriter::getNextMessageId(),
@@ -1639,8 +1606,6 @@ CIMValue InternalCIMOMHandleRep::invokeMethod(
     Array<CIMParamValue>& outParameters)
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "InternalCIMOMHandleRep::invokeMethod");
-
-    AutoPThreadSecurity revPthreadSec(context, true);
 
     CIMInvokeMethodRequestMessage* request =
         new CIMInvokeMethodRequestMessage(

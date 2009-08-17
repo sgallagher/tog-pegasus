@@ -692,70 +692,62 @@ CMPIType type2CMPIType(CIMType pt, int array)
     return(CMPIType)t;
 }
 
-//Function to convert CMPIType to CIMType
-CIMType type2CIMType(CMPIType pt)
+//Function to convert a key string into CMPIData
+// Note: For a key of type reference, the key parameter is expected
+//       to point to an SCMOInstance rather than just a string!!!
+CMPIrc scmoKey2CMPIData(const char* key, CIMKeyBinding::Type t, CMPIData *data)
 {
-    switch( pt )
+    data->state=CMPI_keyValue;
+    switch( t )
     {
-        case CMPI_null:
-            return(CIMType)0;
+        case CIMKeyBinding::NUMERIC:
+            {
+                data->value.sint64 = 0;
+                if( *(key)=='-' )
+                {
+                    sscanf(key,
+                           "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
+                           &data->value.sint64);
+                    data->type=CMPI_sint64;
+                }
+                else
+                {
+                    sscanf(key,
+                           "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
+                           &data->value.uint64);
+                    data->type=CMPI_uint64;
+                }
+            }
+            break;
 
-        case CMPI_boolean:
-            return CIMTYPE_BOOLEAN;
+        case CIMKeyBinding::STRING:
+            data->value.string=string2CMPIString(key);
+            data->type=CMPI_string;
+            break;
 
-        case CMPI_char16:
-            return CIMTYPE_CHAR16;
+        case CIMKeyBinding::BOOLEAN:
+            data->value.boolean=(0==strcasecmp(key,"true"));
+            data->type=CMPI_boolean;
+            break;
 
-        case CMPI_real32:
-            return CIMTYPE_REAL32;
+        case CIMKeyBinding::REFERENCE:
+            {
+                // TBD: Verify that the SCMOInstance.getKeyBinding really
+                //      returns references a pointer to SCMOInstance !!!
+                SCMOInstance* orgRef = (SCMOInstance*)key;
+                SCMOInstance* newRef = new SCMOInstance(orgRef->clone(true));
+                data->value.ref=
+                    reinterpret_cast<CMPIObjectPath*>(new CMPI_Object(newRef));
+                data->type=CMPI_ref;
+            }
+            break;
 
-        case CMPI_real64:
-            return CIMTYPE_REAL64;
-
-        case CMPI_uint8:
-            return CIMTYPE_UINT8;
-
-        case CMPI_uint16:
-            return CIMTYPE_UINT16;
-
-        case CMPI_uint32:
-            return CIMTYPE_UINT32;
-
-        case CMPI_uint64:
-            return CIMTYPE_UINT64;
-
-        case CMPI_sint8:
-            return CIMTYPE_SINT8;
-
-        case CMPI_sint16:
-            return CIMTYPE_SINT16;
-
-        case CMPI_sint32:
-            return CIMTYPE_SINT32;
-
-        case CMPI_sint64:
-            return CIMTYPE_SINT64;
-
-        case CMPI_string:
-            return CIMTYPE_STRING;
-
-        case CMPI_chars:
-            return CIMTYPE_STRING;
-
-        case CMPI_charsptr:
-            return CIMTYPE_STRING;
-
-        case CMPI_dateTime:
-            return CIMTYPE_DATETIME;
-
-        case CMPI_ref:
-            return CIMTYPE_REFERENCE;
-        case CMPI_instance:
-            return CIMTYPE_INSTANCE;
         default:
-            return(CIMType)0;
+            return CMPI_RC_ERR_NOT_SUPPORTED;
     }
+    return CMPI_RC_OK;
 }
+
 
 //Function to convert CIMKeyBindings to CMPIData
 CMPIrc key2CMPIData(const String& v, CIMKeyBinding::Type t, CMPIData *data)

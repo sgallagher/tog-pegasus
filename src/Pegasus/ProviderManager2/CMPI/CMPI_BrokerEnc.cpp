@@ -42,6 +42,7 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/CIMPropertyList.h>
+#include <Pegasus/Common/SCMO.h>
 #if defined (CMPI_VER_85)
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/LanguageParser.h>
@@ -272,55 +273,28 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_BrokerEnc:mbEncNewInstance()");
-        if (!eCop)
+        if (!eCop || !eCop->hdl)
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
                 Tracer::LEVEL1,
-                "Received Invalid Parameter in CMPI_BrokerEnc:mbEncToString");
-            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
-            PEG_METHOD_EXIT();
-            return NULL;
-        }
-        CIMObjectPath* cop = (CIMObjectPath*)eCop->hdl;
-        if (!cop)
-        {
-            PEG_TRACE_CSTRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Received Invalid handle in CMPI_BrokerEnc:mbEncToString");
+                "Received inv. parameter in CMPI_BrokerEnc:mbEncNewInstance");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             PEG_METHOD_EXIT();
             return NULL;
         }
 
-        CIMClass *cls = mbGetClass(mb,*cop);
-        CIMInstance *ci = NULL;
+        // A CMPIObjectPath is already represented through a SCMOInstance.
+        SCMOInstance* scmoOp = (SCMOInstance*)eCop->hdl;
 
-        if (cls)
-        {
-            const CMPIContext *ctx = CMPI_ThreadContext::getContext();
-            CMPIFlags flgs=ctx->ft->getEntry(
-                ctx,CMPIInvocationFlags,rc).value.uint32;
-            CIMInstance newInst = cls->buildInstance(
-                Boolean(flgs & CMPI_FLAG_IncludeQualifiers),
-                false,
-                CIMPropertyList());
+        // Now we simply create a second reference of the SCMOInstance which we
+        // received as CMPIObjectPath and account it as CMPIInstance.
+        SCMOInstance* scmoInst = new SCMOInstance(*scmoOp);
+        //fprintf(stderr, "mbEncNewInstance(%p->%p)\n",scmoOp, scmoInst);
+        CMPIInstance* neInst = reinterpret_cast<CMPIInstance*>(
+            new CMPI_Object(scmoInst, true));
 
-            ci = new CIMInstance(newInst);
-        }
-        else
-        {
-            CMSetStatus(rc, CMPI_RC_ERR_NOT_FOUND);
-            PEG_METHOD_EXIT();
-            return NULL;
-        }
-
-        ci->setPath(*cop);
-        CMPIInstance* neInst =
-            reinterpret_cast<CMPIInstance*>(new CMPI_Object(ci));
         CMSetStatus(rc, CMPI_RC_OK);
-   //   CMPIString *str=mbEncToString(mb,neInst,NULL);
         PEG_METHOD_EXIT();
         return neInst;
     }
@@ -334,33 +308,19 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_BrokerEnc:mbEncNewObjectPath()");
-        Array<CIMKeyBinding> keyBindings;
-        String host;
-        CIMName className;
-        if (cls)
+
+        SCMOClass* scmoClass = mbGetSCMOClass(mb, ns, cls);
+        if (0 == scmoClass)
         {
-            className=Name(cls);
+            CMSetStatus(rc, CMPI_RC_ERR_NOT_FOUND);
+            PEG_METHOD_EXIT();
+            return 0;
         }
-        else
-        {
-            className=Name("");
-        }
-        CIMNamespaceName nameSpace;
-        if (ns)
-        {
-            nameSpace =NameSpaceName(ns);
-        }
-        else
-        {
-            nameSpace=NameSpaceName("");
-        }
-        CIMObjectPath *cop = new CIMObjectPath(
-            host,
-            nameSpace,
-            className,
-            keyBindings);
+
+        SCMOInstance* scmoInst = new SCMOInstance(*scmoClass);
+        //fprintf(stderr, "mbEncNewObjectPath(%p)\n",scmoInst);
         CMPIObjectPath *nePath = reinterpret_cast<CMPIObjectPath*>(
-            new CMPI_Object(cop));
+            new CMPI_Object(scmoInst));
         CMSetStatus(rc, CMPI_RC_OK);
         PEG_METHOD_EXIT();
         return nePath;

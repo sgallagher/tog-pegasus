@@ -36,7 +36,6 @@
 #include "CMPI_Ftabs.h"
 #include "CMPI_Value.h"
 #include "CMPI_String.h"
-#include "CMPI_Broker.h"
 #include "CMPISCMOUtilities.h"
 #include <Pegasus/Common/Tracer.h>
 
@@ -48,6 +47,7 @@ extern "C"
     static CMPIStatus refRelease(CMPIObjectPath* eRef)
     {
         SCMOInstance* ref = (SCMOInstance*)eRef->hdl;
+        //fprintf(stderr, "refRelease(%p)\n",ref);
         if (ref)
         {
             delete ref;
@@ -80,11 +80,8 @@ extern "C"
             // Since we make no difference between ObjectPath and Instance,
             // we simply clone using the ObjectPathOnly option.
             SCMOInstance* nRef = new SCMOInstance(ref->clone(true));
-            CMPI_Object* obj =
-                new CMPI_Object(nRef,CMPI_Object::ObjectTypeObjectPath);
-            obj->unlink();
             CMPIObjectPath* cmpiObjPath =
-                reinterpret_cast<CMPIObjectPath *>(obj);
+                reinterpret_cast<CMPIObjectPath *>(new CMPI_Object(nRef));
             CMSetStatus(rc,CMPI_RC_OK);
             return cmpiObjPath;
         }
@@ -117,18 +114,17 @@ extern "C"
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
 
+        // --rk-->TBD: Implement this
+        /*const char* prevNamespace = ref->getNameSpace();
+        const char* className = ref->getClassName();
 
-        // Check if the namespace is at all different from the one already set
-        Uint32 prevNamespaceL;
-        const char* prevNamespace = ref->getNameSpace_l(prevNamespaceL);
-        Uint32 nsL=strlen(ns);
-
-        if (prevNamespace &&
-            System::strncasecmp(prevNamespace,prevNamespaceL,ns,nsL))
+        if (prevNamespace && 
+            0==strcasecmp(prevNamespace,ns)
         {
-            CMReturn(CMPI_RC_OK);
         }
-        ref->setNameSpace_l(ns,nsL);
+
+
+        ref->setNameSpace(String(ns));*/
         CMReturn(CMPI_RC_OK);
     }
 
@@ -146,9 +142,8 @@ extern "C"
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
         }
-        Uint32 len=0;
-        const char *ns = ref->getNameSpace_l(len);
-        CMPIString *eNs = string2CMPIString(ns,len);
+        const char *ns = ref->getNameSpace();
+        CMPIString *eNs = string2CMPIString(ns);
         CMSetStatus(rc, CMPI_RC_OK);
         return eNs;
     }
@@ -191,9 +186,8 @@ extern "C"
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
         }
-        Uint32 len=0;
-        const char *hn = ref->getHostName_l(len);
-        CMPIString *eHn = string2CMPIString(hn,len);
+        const char* hn = ref->getHostName();
+        CMPIString *eHn = string2CMPIString(hn); 
         CMSetStatus(rc, CMPI_RC_OK);
         return eHn;
     }
@@ -218,17 +212,8 @@ extern "C"
                 CMPIObjectPath:refSetClassName", cn));
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
-
-        // Check if the classname is at all different from the one already set
-        Uint32 prevClsL;
-        const char* prevCls = ref->getClassName_l(prevClsL);
-        Uint32 cnL=strlen(cn);
-
-        if (prevCls && System::strncasecmp(prevCls,prevClsL,cn,cnL))
-        {
-            CMReturn(CMPI_RC_OK);
-        }
-        ref->setClassName_l(cn,cnL);
+        // --rk-->TBD: Implement this
+        //ref->setClassName(String(cn));
         CMReturn(CMPI_RC_OK);
     }
 
@@ -246,9 +231,8 @@ extern "C"
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
         }
-        Uint32 len=0;
-        const char* cn = ref->getClassName_l(len);
-        CMPIString* eCn = string2CMPIString(cn,len);
+        const char* cn = ref->getClassName();
+        CMPIString* eCn = string2CMPIString(cn); 
         CMSetStatus(rc, CMPI_RC_OK);
         return eCn;
     }
@@ -281,9 +265,7 @@ extern "C"
         }
 
 
-        if ((type & CMPI_ARRAY) ||
-            (type == CMPI_instance) ||
-            (type == CMPI_null))
+        if ((type & CMPI_ARRAY) || (type == CMPI_instance))
         {
             PEG_TRACE((
                 TRC_CMPIPROVIDERINTERFACE,
@@ -293,24 +275,20 @@ extern "C"
             CMReturn(CMPI_RC_ERR_INVALID_DATA_TYPE);
         }
 
-        CIMType cimType=type2CIMType(type);
-
-        CMPIrc cmpiRC = CMPI_RC_OK;
-        Boolean nullValue = false;
-        SCMBUnion scmoData = value2SCMOValue(data, type, nullValue);
-        if (cmpiRC != CMPI_RC_OK)
+        void* scmoData = (void*)data;
+        if (type == CMPI_dateTime)
         {
-            PEG_TRACE((
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Failed to convert CMPIData to SCMOValue in \
-                CMPIObjectPath:refAddKey(%d,%s)", type, name));
-            CMReturn(cmpiRC);
+            scmoData = CMPISCMOUtilities::scmoDateTimeFromCMPI(
+                data->dateTime);
         }
 
-        SCMO_RC rc = ref->setKeyBinding(name,
-                                        cimType,
-                                        nullValue ? 0 : &scmoData);
+        CIMType cimType=type2CIMType(type);
+
+        // The value structure of CMPIValue matches that of
+        // SCMO Values as long as not an array.
+        SCMO_RC rc = ref->setKeyBinding(name, 
+                                        cimType, 
+                                        scmoData);
 
         switch (rc)
         {
@@ -352,9 +330,6 @@ extern "C"
         CMPIStatus* rc)
     {
         SCMOInstance* ref = (SCMOInstance*)eRef->hdl;
-        // Attn: According to CMPI 2.0 specification CMPIData.state
-        //       shall be set to CMPI_noValue in case of an error.
-        //       But this is not yet defined in cmpidt.h
         CMPIData data = {0, CMPI_nullValue | CMPI_notFound, {0}};
 
         if (!ref)
@@ -377,32 +352,19 @@ extern "C"
             return data;
         }
 
-
-        const SCMBUnion* keyValue=0;
-        CIMType type;
+        const char* keyValue=0;
+        CIMKeyBinding::Type type = (CIMKeyBinding::Type)0;
 
         SCMO_RC src = ref->getKeyBinding(name, type, &keyValue);
         if (src == SCMO_OK)
         {
-            CMPIType ct=type2CMPIType(type, false);
-            CMPISCMOUtilities::scmoValue2CMPIKeyData( keyValue, ct, &data );
-
-            if ((ct&~CMPI_ARRAY) == CMPI_string)
-            {
-                // We always receive strings as an array of pointers
-                // with at least one element, which needs to be released
-                // after it was converted to CMPIData
-                free((void*)keyValue);
-            }
-
+            scmoKey2CMPIData(keyValue, type, &data);
             CMSetStatus(rc, CMPI_RC_OK);
         }
         else
         {
             // Either SCMO_NULL_VALUE or SCMO_NOT_FOUND
             CMSetStatus(rc, CMPI_RC_ERR_NOT_FOUND);
-            // TODO: According to the CMPI Specification this should be
-            //       really CMPI_RC_ERR_NO_SUCH_PROPERTY
         }
 
         return data;
@@ -428,22 +390,14 @@ extern "C"
         }
 
 
-        const SCMBUnion* keyValue=0;
+        const char* keyValue=0;
         const char* keyName=0;
-        CIMType type;
+        CIMKeyBinding::Type type = (CIMKeyBinding::Type)0;
 
         SCMO_RC src = ref->getKeyBindingAt(pos, &keyName, type, &keyValue);
         if (src == SCMO_OK)
         {
-            CMPIType ct=type2CMPIType(type, false);
-            CMPISCMOUtilities::scmoValue2CMPIKeyData( keyValue, ct, &data );
-            if ((ct&~CMPI_ARRAY) == CMPI_string)
-            {
-                // We always receive strings as an array of pointers
-                // with at least one element, which needs to be released
-                // after it was converted to CMPIData
-                free((void*)keyValue);
-            }
+            scmoKey2CMPIData(keyValue, type, &data);
             CMSetStatus(rc, CMPI_RC_OK);
         }
         else
@@ -456,7 +410,7 @@ extern "C"
             CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
         }
 
-        if (keyName && name)
+        if (keyName)
         {
             *name = (CMPIString*)string2CMPIString(keyName);
         }
@@ -484,8 +438,9 @@ extern "C"
         CMPIObjectPath* eRef,
         const CMPIObjectPath* eSrc)
     {
-        SCMOInstance* src = (SCMOInstance*)eSrc->hdl;
-        if (!src)
+        CIMObjectPath* ref = (CIMObjectPath*)eRef->hdl;
+        CIMObjectPath* src = (CIMObjectPath*)eSrc->hdl;
+        if (!ref || !src)
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
@@ -494,16 +449,17 @@ extern "C"
                 CMPIObjectPath:refSetNameSpaceFromObjectPath");
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
-
-        return refSetNameSpace(eRef, src->getNameSpace());
+        ref->setNameSpace(src->getNameSpace());
+        CMReturn(CMPI_RC_OK);
     }
 
     static CMPIStatus refSetHostAndNameSpaceFromObjectPath(
         CMPIObjectPath* eRef,
         const CMPIObjectPath* eSrc)
     {
-        SCMOInstance* src = (SCMOInstance*)eSrc->hdl;
-        if (!src)
+        CIMObjectPath* ref = (CIMObjectPath*)eRef->hdl;
+        CIMObjectPath* src = (CIMObjectPath*)eSrc->hdl;
+        if (!ref || !src)
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
@@ -512,20 +468,8 @@ extern "C"
                 CMPIObjectPath:refSetHostAndNameSpaceFromObjectPath");
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
-
-        CMPIStatus rc = refSetNameSpace(eRef, src->getNameSpace());
-
-        if (rc.rc != CMPI_RC_OK)
-        {
-            return rc;
-        }
-
-        SCMOInstance* ref = (SCMOInstance*)eRef->hdl;
-        if (ref)
-        {
-            ref->setHostName(src->getHostName());
-        }
-
+        ref->setNameSpace(src->getNameSpace());
+        ref->setHost(src->getHost());
         CMReturn(CMPI_RC_OK);
     }
 
@@ -607,24 +551,17 @@ CMPIObjectPathFT objectPathOnStack_FT =
 CMPIObjectPathFT *CMPI_ObjectPathOnStack_Ftab = &objectPathOnStack_FT;
 
 
-CMPI_ObjectPathOnStack::CMPI_ObjectPathOnStack(const SCMOInstance* cop)
-{
-    hdl = (void*)cop;
-    ft = CMPI_ObjectPathOnStack_Ftab;
-}
-
 CMPI_ObjectPathOnStack::CMPI_ObjectPathOnStack(const SCMOInstance& cop)
 {
-    hdl = (void*) new SCMOInstance(cop);
+    hdl = (void*)&cop;
     ft = CMPI_ObjectPathOnStack_Ftab;
 }
 
-CMPI_ObjectPathOnStack::~CMPI_ObjectPathOnStack()
+CMPI_ObjectPathOnStack::CMPI_ObjectPathOnStack(const CIMObjectPath& cop)
 {
-    if (hdl)
-    {
-        delete((SCMOInstance*)hdl);
-    }
+    fprintf(stderr,"Using non SCMO CMPI_ObjectPathOnStack!!!!\n");
+    hdl = (void*)&cop;
+    ft = CMPI_ObjectPathOnStack_Ftab;
 }
 
 

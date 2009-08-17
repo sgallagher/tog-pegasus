@@ -53,6 +53,20 @@ CMPI_Object::CMPI_Object(CIMInstance* ci)
     ftab = CMPI_Instance_Ftab;
 }
 
+CMPI_Object::CMPI_Object(SCMOInstance* si, Boolean isInstance)
+{
+    CMPI_ThreadContext::addObject(this);
+    hdl = (void*)si;
+    if (isInstance)
+    {
+        ftab = CMPI_Instance_Ftab;
+    }
+    else
+    {
+        ftab = CMPI_ObjectPath_Ftab;
+    }
+}
+
 CMPI_Object::CMPI_Object(CIMObjectPath* cop)
 {
     CMPI_ThreadContext::addObject(this);
@@ -95,6 +109,14 @@ CMPI_Object::CMPI_Object(Array<CIMParamValue> *args)
     hdl = (void*)args;
     ftab = CMPI_Args_Ftab;
 }
+
+CMPI_Object::CMPI_Object(CMPIArrayData* dta)
+{
+    CMPI_ThreadContext::addObject(this);
+    hdl = (void*)dta;
+    ftab = CMPI_Array_Ftab;
+}
+
 
 CMPI_Object::CMPI_Object(CMPI_Array *arr)
 {

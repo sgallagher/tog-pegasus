@@ -49,6 +49,7 @@ endif
 LIBRARIES = \
     pegprovider \
     pegprovidermanager \
+    pegprm \
     pegclient \
     pegquerycommon \
     pegwql \

@@ -39,10 +39,13 @@
 #include <Pegasus/Common/CIMParamValue.h>
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/OperationContext.h>
+#include <Pegasus/Common/SCMOClass.h>
+#include <Pegasus/Common/SCMOInstance.h>
 
 #include <Pegasus/General/CIMError.h>
 
 #include <Pegasus/Provider/CMPI/cmpidt.h>
+
 
 #include "CMPI_ThreadContext.h"
 #include "CMPI_Enumeration.h"
@@ -67,6 +70,7 @@ public:
         return ftab;
     }
     CMPI_Object(CIMInstance*);
+    CMPI_Object(SCMOInstance*, Boolean isInstance=false);
     CMPI_Object(CIMObjectPath*);
     CMPI_Object(CIMDateTime*);
     CMPI_Object(CIMError*);
@@ -74,6 +78,8 @@ public:
     CMPI_Object(const String&);
     CMPI_Object(const char*);
     CMPI_Object(Array<CIMParamValue>*);
+    CMPI_Object(CMPIData*);
+    CMPI_Object(CMPIArrayData*);
     CMPI_Object(CMPI_Array*);
     CMPI_Object(CMPI_Object*);
     CMPI_Object(CMPISelectCond*);

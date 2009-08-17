@@ -185,6 +185,7 @@ void SimpleInstanceResponseHandler::deliver(const Array<CIMInstance>& instances)
     }
 }
 
+
 const Array<CIMInstance> SimpleInstanceResponseHandler::getObjects() const
 {
     return _objects;
@@ -330,8 +331,8 @@ void SimpleMethodResultResponseHandler::deliver(const CIMValue& returnValue)
         "SimpleMethodResultResponseHandler::deliver()");
 
     _returnValue = returnValue;
-    // async delivers are not supported for returnValues and parameters
-    //send(false);
+
+    send(false);
 }
 
 const Array<CIMParamValue>
@@ -444,13 +445,12 @@ void SimpleObjectResponseHandler::complete()
 
 Uint32 SimpleObjectResponseHandler::size() const
 {
-    return _objects.size()+_scmoObjects.size();
+    return _objects.size();
 }
 
 void SimpleObjectResponseHandler::clear()
 {
     _objects.clear();
-    _scmoObjects.clear();
 }
 
 void SimpleObjectResponseHandler::deliver(const CIMObject& object)
@@ -462,29 +462,6 @@ void SimpleObjectResponseHandler::deliver(const CIMObject& object)
 
     _objects.append(object);
 
-    send(false);
-}
-
-void SimpleObjectResponseHandler::deliver(const CIMInstance& instance)
-{
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
-        "SimpleObjectResponseHandler::deliver()");
-
-    _objects.append(instance);
-
-    send(false);
-}
-
-void SimpleObjectResponseHandler::deliver(const SCMOInstance& object)
-{
-    PEG_TRACE_CSTRING(
-        TRC_PROVIDERMANAGER,
-        Tracer::LEVEL4,
-        "SimpleObjectResponseHandler::deliver()");
-
-    _scmoObjects.append(object);
     send(false);
 }
 
@@ -500,11 +477,6 @@ void SimpleObjectResponseHandler::deliver(const Array<CIMObject>& objects)
 const Array<CIMObject> SimpleObjectResponseHandler::getObjects() const
 {
     return _objects;
-}
-
-const Array<SCMOInstance> SimpleObjectResponseHandler::getSCMOObjects() const
-{
-    return _scmoObjects;
 }
 
 //
@@ -527,13 +499,12 @@ void SimpleInstance2ObjectResponseHandler::complete()
 
 Uint32 SimpleInstance2ObjectResponseHandler::size() const
 {
-    return _objects.size() + _scmoObjects.size();
+    return _objects.size();
 }
 
 void SimpleInstance2ObjectResponseHandler::clear()
 {
     _objects.clear();
-    _scmoObjects.clear();
 }
 
 void SimpleInstance2ObjectResponseHandler::deliver(const CIMInstance& object)
@@ -556,7 +527,8 @@ void SimpleInstance2ObjectResponseHandler::deliver(const SCMOInstance& object)
         Tracer::LEVEL4,
         "SimpleInstance2ObjectResponseHandler::deliver(SCMO)");
 
-    _scmoObjects.append(object);
+    //--rk->TBD
+    //_objects.append(CIMObject(object));
 
     // async delivers not yet supported
     //send(false);
@@ -575,12 +547,6 @@ void SimpleInstance2ObjectResponseHandler::deliver(
 const Array<CIMObject> SimpleInstance2ObjectResponseHandler::getObjects() const
 {
     return _objects;
-}
-
-const Array<SCMOInstance>
-SimpleInstance2ObjectResponseHandler::getSCMOObjects() const
-{
-    return _scmoObjects;
 }
 
 //

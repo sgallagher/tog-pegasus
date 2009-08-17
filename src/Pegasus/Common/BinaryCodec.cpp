@@ -61,6 +61,7 @@ PEGASUS_NAMESPACE_BEGIN
 static const Uint32 _MAGIC = 0xF00DFACE;
 static const Uint32 _REVERSE_MAGIC = 0xCEFA0DF0;
 static const Uint32 _VERSION = 1;
+static const size_t _DEFAULT_CIM_BUFFER_SIZE = 16*1024;
 
 enum Operation
 {
@@ -295,9 +296,7 @@ static CIMEnumerateInstancesRequestMessage* _decodeEnumerateInstancesRequest(
     STAT_GETSTARTTIME
 
     Boolean deepInheritance = flags & DEEP_INHERITANCE;
-#ifndef PEGASUS_DISABLE_INSTANCE_QUALIFIERS
     Boolean includeQualifiers = flags & INCLUDE_QUALIFIERS;
-#endif
     Boolean includeClassOrigin = flags & INCLUDE_CLASS_ORIGIN;
 
     // [NAMESPACE]
@@ -342,26 +341,20 @@ static CIMEnumerateInstancesRequestMessage* _decodeEnumerateInstancesRequest(
 
 static void _encodeEnumerateInstancesResponseBody(
     CIMBuffer& out,
-    CIMResponseData& data,
-    CIMName& name,
-    bool isFirst)
+    CIMInstancesResponseData& data,
+    CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
 
     static const CIMName NAME("EnumerateInstances");
     name = NAME;
 
-    // Only write the property list on the first provider response
-    if (isFirst)
-    {
-        // [PROPERTY-LIST]
-        out.putPropertyList(data.getPropertyList());
-    }
     data.encodeBinaryResponse(out);
 }
 
 static CIMEnumerateInstancesResponseMessage* _decodeEnumerateInstancesResponse(
     CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     CIMEnumerateInstancesResponseMessage* msg;
@@ -379,17 +372,8 @@ static CIMEnumerateInstancesResponseMessage* _decodeEnumerateInstancesResponse(
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
-    CIMResponseData& responseData = msg->getResponseData();
-
-    // [PROPERTY-LIST]
-    CIMPropertyList propertyList;
-    if (!in.getPropertyList(propertyList))
-    {
-        return 0;
-    }
-    responseData.setPropertyList(propertyList);
-
-    responseData.setRemainingBinaryData(in);
+    CIMInstancesResponseData& responseData = msg->getResponseData();
+    responseData.setBinaryCimInstances(in,false);
 
     msg->binaryRequest=true;
     return msg;
@@ -406,6 +390,7 @@ _decodeEnumerateInstanceNamesRequest(
     CIMBuffer& in,
     Uint32 queueId,
     Uint32 returnQueueId,
+    Uint32 flags,
     const String& messageId)
 {
     STAT_GETSTARTTIME
@@ -439,8 +424,21 @@ _decodeEnumerateInstanceNamesRequest(
 static CIMEnumerateInstanceNamesResponseMessage*
 _decodeEnumerateInstanceNamesResponse(
     CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
+/*    Array<CIMObjectPath> instanceNames;
+
+    while (in.more())
+    {
+        Array<CIMObjectPath> tmp;
+
+        if (!in.getObjectPathA(tmp))
+            return 0;
+
+        instanceNames.append(tmp.getData(), tmp.size());
+    }
+*/
     CIMEnumerateInstanceNamesResponseMessage* msg;
     CIMException cimException;
 
@@ -456,8 +454,8 @@ _decodeEnumerateInstanceNamesResponse(
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
-    CIMResponseData& responseData = msg->getResponseData();
-    responseData.setRemainingBinaryData(in);
+    CIMInstanceNamesResponseData& responseData = msg->getResponseData();
+    responseData.setBinaryCimInstanceNames(in,false);
 
     msg->binaryRequest = true;
     return msg;
@@ -484,7 +482,7 @@ static void _encodeEnumerateInstanceNamesRequest(
 
 static void _encodeEnumerateInstanceNamesResponseBody(
     CIMBuffer& out,
-    CIMResponseData& data,
+    CIMInstanceNamesResponseData& data,
     CIMName& name)
 {
     static const CIMName NAME("EnumerateInstanceNames");
@@ -509,9 +507,8 @@ static CIMGetInstanceRequestMessage* _decodeGetInstanceRequest(
     STAT_GETSTARTTIME
 
     // [FLAGS]
-#ifndef PEGASUS_DISABLE_INSTANCE_QUALIFIERS
+
     Boolean includeQualifiers = flags & INCLUDE_QUALIFIERS;
-#endif
     Boolean includeClassOrigin = flags & INCLUDE_CLASS_ORIGIN;
 
     // [NAMESPACE]
@@ -554,6 +551,7 @@ static CIMGetInstanceRequestMessage* _decodeGetInstanceRequest(
 
 static CIMGetInstanceResponseMessage* _decodeGetInstanceResponse(
     CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     CIMGetInstanceResponseMessage* msg;
@@ -571,8 +569,8 @@ static CIMGetInstanceResponseMessage* _decodeGetInstanceResponse(
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
-    CIMResponseData& responseData = msg->getResponseData();
-    responseData.setRemainingBinaryData(in);
+    CIMInstanceResponseData& responseData = msg->getResponseData();
+    responseData.setBinaryCimInstance(in,false);
 
     msg->binaryRequest = true;
     return msg;
@@ -610,7 +608,7 @@ static void _encodeGetInstanceRequest(
 
 static void _encodeGetInstanceResponseBody(
     CIMBuffer& out,
-    CIMResponseData& data,
+    CIMInstanceResponseData& data,
     CIMName& name)
 {
     static const CIMName NAME("GetInstance");
@@ -647,6 +645,7 @@ static CIMCreateInstanceRequestMessage* _decodeCreateInstanceRequest(
     CIMBuffer& in,
     Uint32 queueId,
     Uint32 returnQueueId,
+    Uint32 flags,
     const String& messageId)
 {
     STAT_GETSTARTTIME
@@ -692,6 +691,7 @@ static void _encodeCreateInstanceResponseBody(
 
 static CIMCreateInstanceResponseMessage* _decodeCreateInstanceResponse(
     CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     CIMObjectPath instanceName;
@@ -796,6 +796,8 @@ static CIMModifyInstanceRequestMessage* _decodeModifyInstanceRequest(
 }
 
 static void _encodeModifyInstanceResponseBody(
+    CIMBuffer& out,
+    CIMModifyInstanceResponseMessage* msg,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
@@ -806,6 +808,7 @@ static void _encodeModifyInstanceResponseBody(
 
 static CIMModifyInstanceResponseMessage* _decodeModifyInstanceResponse(
     CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Client/CIMOperationResponseDecoder.cpp */
@@ -864,6 +867,7 @@ static CIMDeleteInstanceRequestMessage* _decodeDeleteInstanceRequest(
     CIMBuffer& in,
     Uint32 queueId,
     Uint32 returnQueueId,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Server/CIMOperationRequestDecoder.cpp */
@@ -897,6 +901,8 @@ static CIMDeleteInstanceRequestMessage* _decodeDeleteInstanceRequest(
 }
 
 static void _encodeDeleteInstanceResponseBody(
+    CIMBuffer& out,
+    CIMDeleteInstanceResponseMessage* msg,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
@@ -906,6 +912,8 @@ static void _encodeDeleteInstanceResponseBody(
 }
 
 static CIMDeleteInstanceResponseMessage* _decodeDeleteInstanceResponse(
+    CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Client/CIMOperationResponseDecoder.cpp */
@@ -1057,7 +1065,7 @@ static CIMAssociatorsRequestMessage* _decodeAssociatorsRequest(
 
 static void _encodeAssociatorsResponseBody(
     CIMBuffer& out,
-    CIMResponseData& data,
+    CIMObjectsResponseData& data,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
@@ -1071,6 +1079,7 @@ static void _encodeAssociatorsResponseBody(
 
 static CIMAssociatorsResponseMessage* _decodeAssociatorsResponse(
     CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     CIMAssociatorsResponseMessage* msg;
@@ -1088,8 +1097,8 @@ static CIMAssociatorsResponseMessage* _decodeAssociatorsResponse(
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
-    CIMResponseData& responseData = msg->getResponseData();
-    responseData.setRemainingBinaryData(in);
+    CIMObjectsResponseData& responseData = msg->getResponseData();
+    responseData.setBinaryCimObjects(in,false);
 
     msg->binaryRequest = true;
     return msg;
@@ -1139,6 +1148,7 @@ static CIMAssociatorNamesRequestMessage* _decodeAssociatorNamesRequest(
     CIMBuffer& in,
     Uint32 queueId,
     Uint32 returnQueueId,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Server/CIMOperationRequestDecoder.cpp */
@@ -1206,37 +1216,44 @@ static CIMAssociatorNamesRequestMessage* _decodeAssociatorNamesRequest(
 
 static void _encodeAssociatorNamesResponseBody(
     CIMBuffer& out,
-    CIMResponseData& data,
+    CIMAssociatorNamesResponseMessage* msg,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
 
     static const CIMName NAME("AssociatorNames");
     name = NAME;
-    data.encodeBinaryResponse(out);
+
+    out.putObjectPathA(msg->objectNames);
 }
 
 static CIMAssociatorNamesResponseMessage* _decodeAssociatorNamesResponse(
     CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
+    /* See ../Client/CIMOperationResponseDecoder.cpp */
+
+    Array<CIMObjectPath> objectNames;
+
+    while (in.more())
+    {
+        Array<CIMObjectPath> tmp;
+
+        if (!in.getObjectPathA(tmp))
+            return 0;
+
+        objectNames.append(tmp.getData(), tmp.size());
+    }
+
     CIMAssociatorNamesResponseMessage* msg;
     CIMException cimException;
 
     msg = new CIMAssociatorNamesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack());
-
-    // Instead of resolving the binary data right here, we delegate this
-    // to a later point in time when the data is actually retrieved through
-    // a call to getNamedInstances, which is going to resolve the binary
-    // data when the callback function is registered.
-    // This allows an alternate client implementation to gain direct access
-    // to the binary data and pass this for example to the JNI implementation
-    // of the JSR48 CIM Client for Java.
-    CIMResponseData& responseData = msg->getResponseData();
-    responseData.setRemainingBinaryData(in);
+        QueueIdStack(),
+        objectNames);
 
     msg->binaryRequest = true;
     return msg;
@@ -1356,7 +1373,7 @@ static CIMReferencesRequestMessage* _decodeReferencesRequest(
 
 static void _encodeReferencesResponseBody(
     CIMBuffer& out,
-    CIMResponseData& data,
+    CIMReferencesResponseMessage* msg,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
@@ -1364,30 +1381,38 @@ static void _encodeReferencesResponseBody(
     static const CIMName NAME("References");
     name = NAME;
 
-    data.encodeBinaryResponse(out);
+    out.putObjectA(msg->cimObjects);
 }
 
 static CIMReferencesResponseMessage* _decodeReferencesResponse(
     CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
+    /* See ../Client/CIMOperationResponseDecoder.cpp */
+
+    Array<CIMObject> cimObjects;
+
+    while (in.more())
+    {
+        Array<CIMObject> tmp;
+
+        if (!in.getObjectA(tmp))
+        {
+            return 0;
+        }
+
+        cimObjects.append(tmp.getData(), tmp.size());
+    }
+
     CIMReferencesResponseMessage* msg;
     CIMException cimException;
 
     msg = new CIMReferencesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack());
-
-    // Instead of resolving the binary data right here, we delegate this
-    // to a later point in time when the data is actually retrieved through
-    // a call to getNamedInstances, which is going to resolve the binary
-    // data when the callback function is registered.
-    // This allows an alternate client implementation to gain direct access
-    // to the binary data and pass this for example to the JNI implementation
-    // of the JSR48 CIM Client for Java.
-    CIMResponseData& responseData = msg->getResponseData();
-    responseData.setRemainingBinaryData(in);
+        QueueIdStack(),
+        cimObjects);
 
     msg->binaryRequest = true;
     return msg;
@@ -1431,6 +1456,7 @@ static CIMReferenceNamesRequestMessage* _decodeReferenceNamesRequest(
     CIMBuffer& in,
     Uint32 queueId,
     Uint32 returnQueueId,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Server/CIMOperationRequestDecoder.cpp */
@@ -1482,21 +1508,35 @@ static CIMReferenceNamesRequestMessage* _decodeReferenceNamesRequest(
 
 static void _encodeReferenceNamesResponseBody(
     CIMBuffer& out,
-    CIMResponseData& data,
+    CIMReferenceNamesResponseMessage* msg,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
 
     static const CIMName NAME("ReferenceNames");
     name = NAME;
-    data.encodeBinaryResponse(out);
+
+    out.putObjectPathA(msg->objectNames);
 }
 
 static CIMReferenceNamesResponseMessage* _decodeReferenceNamesResponse(
     CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Client/CIMOperationResponseDecoder.cpp */
+
+    Array<CIMObjectPath> objectNames;
+
+    while (in.more())
+    {
+        Array<CIMObjectPath> tmp;
+
+        if (!in.getObjectPathA(tmp))
+            return 0;
+
+        objectNames.append(tmp.getData(), tmp.size());
+    }
 
     CIMReferenceNamesResponseMessage* msg;
     CIMException cimException;
@@ -1504,20 +1544,10 @@ static CIMReferenceNamesResponseMessage* _decodeReferenceNamesResponse(
     msg = new CIMReferenceNamesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack());
-
-    // Instead of resolving the binary data right here, we delegate this
-    // to a later point in time when the data is actually retrieved through
-    // a call to getNamedInstances, which is going to resolve the binary
-    // data when the callback function is registered.
-    // This allows an alternate client implementation to gain direct access
-    // to the binary data and pass this for example to the JNI implementation
-    // of the JSR48 CIM Client for Java.
-    CIMResponseData& responseData = msg->getResponseData();
-    responseData.setRemainingBinaryData(in);
+        QueueIdStack(),
+        objectNames);
 
     msg->binaryRequest = true;
-
     return msg;
 }
 
@@ -1627,6 +1657,7 @@ static void _encodeGetClassResponseBody(
 
 static CIMGetClassResponseMessage* _decodeGetClassResponse(
     CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Client/CIMOperationResponseDecoder.cpp */
@@ -1752,6 +1783,7 @@ static void _encodeEnumerateClassesResponseBody(
 
 static CIMEnumerateClassesResponseMessage* _decodeEnumerateClassesResponse(
     CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Client/CIMOperationResponseDecoder.cpp */
@@ -1870,6 +1902,7 @@ static void _encodeEnumerateClassNamesResponseBody(
 static CIMEnumerateClassNamesResponseMessage*
 _decodeEnumerateClassNamesResponse(
     CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Client/CIMOperationResponseDecoder.cpp */
@@ -1929,6 +1962,7 @@ static CIMCreateClassRequestMessage* _decodeCreateClassRequest(
     CIMBuffer& in,
     Uint32 queueId,
     Uint32 returnQueueId,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Server/CIMOperationRequestDecoder.cpp */
@@ -1963,6 +1997,8 @@ static CIMCreateClassRequestMessage* _decodeCreateClassRequest(
 }
 
 static void _encodeCreateClassResponseBody(
+    CIMBuffer& out,
+    CIMCreateClassResponseMessage* msg,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
@@ -1972,6 +2008,8 @@ static void _encodeCreateClassResponseBody(
 }
 
 static CIMCreateClassResponseMessage* _decodeCreateClassResponse(
+    CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Client/CIMOperationResponseDecoder.cpp */
@@ -2018,6 +2056,7 @@ static CIMDeleteClassRequestMessage* _decodeDeleteClassRequest(
     CIMBuffer& in,
     Uint32 queueId,
     Uint32 returnQueueId,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Server/CIMOperationRequestDecoder.cpp */
@@ -2052,6 +2091,8 @@ static CIMDeleteClassRequestMessage* _decodeDeleteClassRequest(
 }
 
 static void _encodeDeleteClassResponseBody(
+    CIMBuffer& out,
+    CIMDeleteClassResponseMessage* msg,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
@@ -2061,6 +2102,8 @@ static void _encodeDeleteClassResponseBody(
 }
 
 static CIMDeleteClassResponseMessage* _decodeDeleteClassResponse(
+    CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Client/CIMOperationResponseDecoder.cpp */
@@ -2107,6 +2150,7 @@ static CIMModifyClassRequestMessage* _decodeModifyClassRequest(
     CIMBuffer& in,
     Uint32 queueId,
     Uint32 returnQueueId,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Server/CIMOperationRequestDecoder.cpp */
@@ -2141,6 +2185,8 @@ static CIMModifyClassRequestMessage* _decodeModifyClassRequest(
 }
 
 static void _encodeModifyClassResponseBody(
+    CIMBuffer& out,
+    CIMModifyClassResponseMessage* msg,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
@@ -2150,6 +2196,8 @@ static void _encodeModifyClassResponseBody(
 }
 
 static CIMModifyClassResponseMessage* _decodeModifyClassResponse(
+    CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Client/CIMOperationResponseDecoder.cpp */
@@ -2196,6 +2244,7 @@ static CIMSetQualifierRequestMessage* _decodeSetQualifierRequest(
     CIMBuffer& in,
     Uint32 queueId,
     Uint32 returnQueueId,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Server/CIMOperationRequestDecoder.cpp */
@@ -2231,6 +2280,8 @@ static CIMSetQualifierRequestMessage* _decodeSetQualifierRequest(
 }
 
 static void _encodeSetQualifierResponseBody(
+    CIMBuffer& out,
+    CIMSetQualifierResponseMessage* msg,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
@@ -2240,6 +2291,8 @@ static void _encodeSetQualifierResponseBody(
 }
 
 static CIMSetQualifierResponseMessage* _decodeSetQualifierResponse(
+    CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Client/CIMOperationResponseDecoder.cpp */
@@ -2286,6 +2339,7 @@ static CIMGetQualifierRequestMessage* _decodeGetQualifierRequest(
     CIMBuffer& in,
     Uint32 queueId,
     Uint32 returnQueueId,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Server/CIMOperationRequestDecoder.cpp */
@@ -2334,6 +2388,7 @@ static void _encodeGetQualifierResponseBody(
 
 static CIMGetQualifierResponseMessage* _decodeGetQualifierResponse(
     CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Client/CIMOperationResponseDecoder.cpp */
@@ -2386,6 +2441,7 @@ static CIMDeleteQualifierRequestMessage* _decodeDeleteQualifierRequest(
     CIMBuffer& in,
     Uint32 queueId,
     Uint32 returnQueueId,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Server/CIMOperationRequestDecoder.cpp */
@@ -2420,6 +2476,8 @@ static CIMDeleteQualifierRequestMessage* _decodeDeleteQualifierRequest(
 }
 
 static void _encodeDeleteQualifierResponseBody(
+    CIMBuffer& out,
+    CIMDeleteQualifierResponseMessage* msg,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
@@ -2429,6 +2487,8 @@ static void _encodeDeleteQualifierResponseBody(
 }
 
 static CIMDeleteQualifierResponseMessage* _decodeDeleteQualifierResponse(
+    CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Client/CIMOperationResponseDecoder.cpp */
@@ -2472,6 +2532,7 @@ static CIMEnumerateQualifiersRequestMessage* _decodeEnumerateQualifiersRequest(
     CIMBuffer& in,
     Uint32 queueId,
     Uint32 returnQueueId,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Server/CIMOperationRequestDecoder.cpp */
@@ -2514,6 +2575,7 @@ static void _encodeEnumerateQualifiersResponseBody(
 static CIMEnumerateQualifiersResponseMessage*
     _decodeEnumerateQualifiersResponse(
     CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Client/CIMOperationResponseDecoder.cpp */
@@ -2576,6 +2638,7 @@ static CIMGetPropertyRequestMessage* _decodeGetPropertyRequest(
     CIMBuffer& in,
     Uint32 queueId,
     Uint32 returnQueueId,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Server/CIMOperationRequestDecoder.cpp */
@@ -2632,6 +2695,7 @@ static void _encodeGetPropertyResponseBody(
 
 static CIMGetPropertyResponseMessage* _decodeGetPropertyResponse(
     CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Client/CIMOperationResponseDecoder.cpp */
@@ -2702,6 +2766,7 @@ static CIMSetPropertyRequestMessage* _decodeSetPropertyRequest(
     CIMBuffer& in,
     Uint32 queueId,
     Uint32 returnQueueId,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Server/CIMOperationRequestDecoder.cpp */
@@ -2753,6 +2818,8 @@ static CIMSetPropertyRequestMessage* _decodeSetPropertyRequest(
 }
 
 static void _encodeSetPropertyResponseBody(
+    CIMBuffer& out,
+    CIMSetPropertyResponseMessage* msg,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
@@ -2762,6 +2829,8 @@ static void _encodeSetPropertyResponseBody(
 }
 
 static CIMSetPropertyResponseMessage* _decodeSetPropertyResponse(
+    CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Client/CIMOperationResponseDecoder.cpp */
@@ -2813,6 +2882,7 @@ static CIMInvokeMethodRequestMessage* _decodeInvokeMethodRequest(
     CIMBuffer& in,
     Uint32 queueId,
     Uint32 returnQueueId,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Server/CIMOperationRequestDecoder.cpp */
@@ -2884,6 +2954,7 @@ static void _encodeInvokeMethodResponseBody(
 
 static CIMInvokeMethodResponseMessage* _decodeInvokeMethodResponse(
     CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Client/CIMOperationResponseDecoder.cpp */
@@ -2958,6 +3029,7 @@ static CIMExecQueryRequestMessage* _decodeExecQueryRequest(
     CIMBuffer& in,
     Uint32 queueId,
     Uint32 returnQueueId,
+    Uint32 flags,
     const String& messageId)
 {
     /* See ../Server/CIMOperationRequestDecoder.cpp */
@@ -3000,7 +3072,7 @@ static CIMExecQueryRequestMessage* _decodeExecQueryRequest(
 
 static void _encodeExecQueryResponseBody(
     CIMBuffer& out,
-    CIMResponseData& data,
+    CIMObjectsResponseData& data,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
@@ -3013,6 +3085,7 @@ static void _encodeExecQueryResponseBody(
 
 static CIMExecQueryResponseMessage* _decodeExecQueryResponse(
     CIMBuffer& in,
+    Uint32 flags,
     const String& messageId)
 {
     CIMExecQueryResponseMessage* msg;
@@ -3030,12 +3103,66 @@ static CIMExecQueryResponseMessage* _decodeExecQueryResponse(
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
-    CIMResponseData& responseData = msg->getResponseData();
-    responseData.setRemainingBinaryData(in);
+    CIMObjectsResponseData& responseData = msg->getResponseData();
+    responseData.setBinaryCimObjects(in,false);
 
     msg->binaryRequest = true;
     return msg;
 }
+
+//==============================================================================
+//
+// BinaryCodec::hexDump()
+//
+//==============================================================================
+
+#if defined(PEGASUS_DEBUG)
+
+void BinaryCodec::hexDump(const void* data, size_t size)
+{
+    unsigned char* p = (unsigned char*)data;
+    unsigned char buf[16];
+    size_t n = 0;
+
+    for (size_t i = 0, col = 0; i < size; i++)
+    {
+        unsigned char c = p[i];
+        buf[n++] = c;
+
+        if (col == 0)
+            printf("%06X ", (unsigned int)i);
+
+        printf("%02X ", c);
+
+        if (col + 1 == sizeof(buf) || i + 1 == size)
+        {
+            for (size_t j = col + 1; j < sizeof(buf); j++)
+                printf("   ");
+
+            for (size_t j = 0; j < n; j++)
+            {
+                c = buf[j];
+
+                if (c >= ' ' && c <= '~')
+                    printf("%c", buf[j]);
+                else
+                    printf(".");
+            }
+
+            printf("\n");
+            n = 0;
+        }
+
+        if (col + 1 == sizeof(buf))
+            col = 0;
+        else
+            col++;
+    }
+
+    printf("\n");
+}
+
+#endif /* defined(PEGASUS_DEBUG) */
 
 //==============================================================================
 //
@@ -3044,14 +3171,16 @@ static CIMExecQueryResponseMessage* _decodeExecQueryResponse(
 //==============================================================================
 
 CIMOperationRequestMessage* BinaryCodec::decodeRequest(
-    CIMBuffer& in,
+    const Buffer& in,
     Uint32 queueId,
     Uint32 returnQueueId)
 {
+    CIMBuffer buf((char*)in.getData(), in.size());
+    CIMBufferReleaser buf_(buf);
 
     // Turn on validation:
 #if defined(ENABLE_VALIDATION)
-    in.setValidate(true);
+    buf.setValidate(true);
 #endif
 
     Uint32 flags;
@@ -3059,7 +3188,7 @@ CIMOperationRequestMessage* BinaryCodec::decodeRequest(
     Operation operation;
 
 
-    if (!_getHeader(in, flags, messageId, operation))
+    if (!_getHeader(buf, flags, messageId, operation))
     {
         return 0;
     }
@@ -3068,78 +3197,79 @@ CIMOperationRequestMessage* BinaryCodec::decodeRequest(
     {
         case OP_EnumerateInstances:
             return _decodeEnumerateInstancesRequest(
-                in, queueId, returnQueueId, flags, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_EnumerateInstanceNames:
             return _decodeEnumerateInstanceNamesRequest(
-                in, queueId, returnQueueId, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_GetInstance:
             return _decodeGetInstanceRequest(
-                in, queueId, returnQueueId, flags, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_CreateInstance:
             return _decodeCreateInstanceRequest(
-                in, queueId, returnQueueId, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_ModifyInstance:
             return _decodeModifyInstanceRequest(
-                in, queueId, returnQueueId, flags, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_DeleteInstance:
             return _decodeDeleteInstanceRequest(
-                in, queueId, returnQueueId, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_Associators:
             return _decodeAssociatorsRequest(
-                in, queueId, returnQueueId, flags, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_AssociatorNames:
             return _decodeAssociatorNamesRequest(
-                in, queueId, returnQueueId, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_References:
             return _decodeReferencesRequest(
-                in, queueId, returnQueueId, flags, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_ReferenceNames:
             return _decodeReferenceNamesRequest(
-                in, queueId, returnQueueId, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_GetClass:
             return _decodeGetClassRequest(
-                in, queueId, returnQueueId, flags, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_EnumerateClasses:
             return _decodeEnumerateClassesRequest(
-                in, queueId, returnQueueId, flags, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_EnumerateClassNames:
             return _decodeEnumerateClassNamesRequest(
-                in, queueId, returnQueueId, flags, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_CreateClass:
             return _decodeCreateClassRequest(
-                in, queueId, returnQueueId, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_DeleteClass:
             return _decodeDeleteClassRequest(
-                in, queueId, returnQueueId, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_ModifyClass:
             return _decodeModifyClassRequest(
-                in, queueId, returnQueueId, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_SetQualifier:
             return _decodeSetQualifierRequest(
-                in, queueId, returnQueueId, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_GetQualifier:
             return _decodeGetQualifierRequest(
-                in, queueId, returnQueueId, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_DeleteQualifier:
             return _decodeDeleteQualifierRequest(
-                in, queueId, returnQueueId, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_EnumerateQualifiers:
             return _decodeEnumerateQualifiersRequest(
-                in, queueId, returnQueueId, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_GetProperty:
            return _decodeGetPropertyRequest(
-                in, queueId, returnQueueId, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_SetProperty:
            return _decodeSetPropertyRequest(
-                in, queueId, returnQueueId, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_InvokeMethod:
            return _decodeInvokeMethodRequest(
-                in, queueId, returnQueueId, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         case OP_ExecQuery:
            return _decodeExecQueryRequest(
-                in, queueId, returnQueueId, messageId);
+                buf, queueId, returnQueueId, flags, messageId);
         default:
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            // Unexpected message type
+            PEGASUS_ASSERT(0);
             return 0;
     }
 }
@@ -3150,11 +3280,19 @@ CIMOperationRequestMessage* BinaryCodec::decodeRequest(
 //
 //==============================================================================
 
+CIMResponseMessage* BinaryCodec::decodeResponse(
+    const Buffer& in)
+{
+    CIMBuffer buf((char*)in.getData(), in.size());
+    CIMBufferReleaser buf_(buf);
+
+    return decodeResponse(buf);
+}
 
 CIMResponseMessage* BinaryCodec::decodeResponse(
     CIMBuffer& buf)
 {
-    // Turn on validation: This is a debugging tool
+    // Turn on validation:
 #if defined(ENABLE_VALIDATION)
     buf.setValidate(true);
 #endif
@@ -3174,80 +3312,80 @@ CIMResponseMessage* BinaryCodec::decodeResponse(
     switch (operation)
     {
         case OP_EnumerateInstances:
-            msg = _decodeEnumerateInstancesResponse(buf, messageId);
+            msg = _decodeEnumerateInstancesResponse(buf, flags, messageId);
             break;
         case OP_EnumerateInstanceNames:
-            msg = _decodeEnumerateInstanceNamesResponse(buf, messageId);
+            msg = _decodeEnumerateInstanceNamesResponse(buf, flags, messageId);
             break;
         case OP_GetInstance:
-            msg = _decodeGetInstanceResponse(buf, messageId);
+            msg = _decodeGetInstanceResponse(buf, flags, messageId);
             break;
         case OP_CreateInstance:
-            msg = _decodeCreateInstanceResponse(buf, messageId);
+            msg = _decodeCreateInstanceResponse(buf, flags, messageId);
             break;
         case OP_ModifyInstance:
-            msg = _decodeModifyInstanceResponse(buf, messageId);
+            msg = _decodeModifyInstanceResponse(buf, flags, messageId);
             break;
         case OP_DeleteInstance:
-            msg = _decodeDeleteInstanceResponse(messageId);
+            msg = _decodeDeleteInstanceResponse(buf, flags, messageId);
             break;
         case OP_Associators:
-            msg = _decodeAssociatorsResponse(buf, messageId);
+            msg = _decodeAssociatorsResponse(buf, flags, messageId);
             break;
         case OP_AssociatorNames:
-            msg = _decodeAssociatorNamesResponse(buf, messageId);
+            msg = _decodeAssociatorNamesResponse(buf, flags, messageId);
             break;
         case OP_References:
-            msg = _decodeReferencesResponse(buf, messageId);
+            msg = _decodeReferencesResponse(buf, flags, messageId);
             break;
         case OP_ReferenceNames:
-            msg = _decodeReferenceNamesResponse(buf, messageId);
+            msg = _decodeReferenceNamesResponse(buf, flags, messageId);
             break;
         case OP_GetClass:
-            msg = _decodeGetClassResponse(buf, messageId);
+            msg = _decodeGetClassResponse(buf, flags, messageId);
             break;
         case OP_EnumerateClasses:
-            msg = _decodeEnumerateClassesResponse(buf, messageId);
+            msg = _decodeEnumerateClassesResponse(buf, flags, messageId);
             break;
         case OP_EnumerateClassNames:
-            msg = _decodeEnumerateClassNamesResponse(buf, messageId);
+            msg = _decodeEnumerateClassNamesResponse(buf, flags, messageId);
             break;
         case OP_CreateClass:
-            msg = _decodeCreateClassResponse(messageId);
+            msg = _decodeCreateClassResponse(buf, flags, messageId);
             break;
         case OP_DeleteClass:
-            msg = _decodeDeleteClassResponse(messageId);
+            msg = _decodeDeleteClassResponse(buf, flags, messageId);
             break;
         case OP_ModifyClass:
-            msg = _decodeModifyClassResponse(messageId);
+            msg = _decodeModifyClassResponse(buf, flags, messageId);
             break;
         case OP_SetQualifier:
-            msg = _decodeSetQualifierResponse(messageId);
+            msg = _decodeSetQualifierResponse(buf, flags, messageId);
             break;
         case OP_GetQualifier:
-            msg = _decodeGetQualifierResponse(buf, messageId);
+            msg = _decodeGetQualifierResponse(buf, flags, messageId);
             break;
         case OP_DeleteQualifier:
-            msg = _decodeDeleteQualifierResponse(messageId);
+            msg = _decodeDeleteQualifierResponse(buf, flags, messageId);
             break;
         case OP_EnumerateQualifiers:
-            msg = _decodeEnumerateQualifiersResponse(buf, messageId);
+            msg = _decodeEnumerateQualifiersResponse(buf, flags, messageId);
             break;
         case OP_GetProperty:
-            msg = _decodeGetPropertyResponse(buf, messageId);
+            msg = _decodeGetPropertyResponse(buf, flags, messageId);
             break;
         case OP_SetProperty:
-            msg = _decodeSetPropertyResponse(messageId);
+            msg = _decodeSetPropertyResponse(buf, flags, messageId);
             break;
         case OP_InvokeMethod:
-            msg = _decodeInvokeMethodResponse(buf, messageId);
+            msg = _decodeInvokeMethodResponse(buf, flags, messageId);
             break;
         case OP_ExecQuery:
-            msg = _decodeExecQueryResponse(buf, messageId);
+            msg = _decodeExecQueryResponse(buf, flags, messageId);
             break;
         default:
             // Unexpected message type
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
             break;
     }
 
@@ -3271,7 +3409,7 @@ Buffer BinaryCodec::formatSimpleIMethodRspMessage(
     const Buffer& body,
     Uint64 serverResponseTime,
     Boolean isFirst,
-    Boolean)
+    Boolean isLast)
 {
     Buffer out;
 
@@ -3281,10 +3419,6 @@ Buffer BinaryCodec::formatSimpleIMethodRspMessage(
         XmlWriter::appendMethodResponseHeader(out, httpMethod,
             httpContentLanguages, 0, serverResponseTime, true);
 
-        for (size_t i=out.size(), k=CIMBuffer::round(i); i<k;i++)
-        {
-            out.append('\0');
-        }
         // Binary message header:
         CIMBuffer cb(128);
         _putHeader(cb, 0, messageId, _NameToOp(iMethodName));
@@ -3487,7 +3621,7 @@ bool BinaryCodec::encodeRequest(
 
         default:
             // Unexpected message type
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
             return false;
     }
 
@@ -3506,23 +3640,6 @@ bool BinaryCodec::encodeRequest(
         buf.size(),
         true, /* binaryRequest */
         binaryResponse);
-
-    // Need to pad the Buffer to the 64bit border since CIMBuffer is 64bit
-    // aligned, but Buffer only 8bit
-    Uint32 extraAlignBytes = CIMBuffer::round(out.size()) - out.size();
-    for (Uint32 i=0; i < extraAlignBytes;i++)
-    {
-        out.append('\0');
-    }
-    // Need fix-up Content-length value...
-    char * contentLengthValueStart =
-        (char*) strstr(out.getData(), "content-length");
-    contentLengthValueStart += sizeof("content-length: ")-1;
-    // using sprintf to stay equal to the macro OUTPUT_CONTENTLENGTH definition
-    // defined in XMLGenerator.h
-    char contentLengthP[11];
-    sprintf(contentLengthP,"%.10u", (unsigned int)buf.size()+extraAlignBytes);
-    memcpy(contentLengthValueStart,contentLengthP,10);
 
     out.append(buf.getData(), buf.size());
 
@@ -3549,8 +3666,7 @@ bool BinaryCodec::encodeResponseBody(
             _encodeEnumerateInstancesResponseBody(
                 buf,
                 ((CIMEnumerateInstancesResponseMessage*)msg)->getResponseData(),
-                name,
-                (msg->getIndex() == 0));
+                name);
             break;
         }
 
@@ -3581,13 +3697,15 @@ bool BinaryCodec::encodeResponseBody(
 
         case CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE:
         {
-            _encodeModifyInstanceResponseBody(name);
+            _encodeModifyInstanceResponseBody(buf,
+                (CIMModifyInstanceResponseMessage*)msg, name);
             break;
         }
 
         case CIM_DELETE_INSTANCE_RESPONSE_MESSAGE:
         {
-            _encodeDeleteInstanceResponseBody(name);
+            _encodeDeleteInstanceResponseBody(buf,
+                (CIMDeleteInstanceResponseMessage*)msg, name);
             break;
         }
 
@@ -3602,28 +3720,22 @@ bool BinaryCodec::encodeResponseBody(
 
         case CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE:
         {
-            _encodeAssociatorNamesResponseBody(
-                buf,
-                ((CIMAssociatorNamesResponseMessage*)msg)->getResponseData(),
-                name);
+            _encodeAssociatorNamesResponseBody(buf,
+                (CIMAssociatorNamesResponseMessage*)msg, name);
             break;
         }
 
         case CIM_REFERENCES_RESPONSE_MESSAGE:
         {
-            _encodeReferencesResponseBody(
-                buf,
-                ((CIMReferencesResponseMessage*)msg)->getResponseData(),
-                name);
+            _encodeReferencesResponseBody(buf,
+                (CIMReferencesResponseMessage*)msg, name);
             break;
         }
 
         case CIM_REFERENCE_NAMES_RESPONSE_MESSAGE:
         {
-            _encodeReferenceNamesResponseBody(
-                buf,
-                ((CIMReferenceNamesResponseMessage*)msg)->getResponseData(),
-                name);
+            _encodeReferenceNamesResponseBody(buf,
+                (CIMReferenceNamesResponseMessage*)msg, name);
             break;
         }
 
@@ -3650,25 +3762,29 @@ bool BinaryCodec::encodeResponseBody(
 
         case CIM_CREATE_CLASS_RESPONSE_MESSAGE:
         {
-            _encodeCreateClassResponseBody(name);
+            _encodeCreateClassResponseBody(buf,
+                (CIMCreateClassResponseMessage*)msg, name);
             break;
         }
 
         case CIM_DELETE_CLASS_RESPONSE_MESSAGE:
         {
-            _encodeDeleteClassResponseBody(name);
+            _encodeDeleteClassResponseBody(buf,
+                (CIMDeleteClassResponseMessage*)msg, name);
             break;
         }
 
         case CIM_MODIFY_CLASS_RESPONSE_MESSAGE:
         {
-            _encodeModifyClassResponseBody(name);
+            _encodeModifyClassResponseBody(buf,
+                (CIMModifyClassResponseMessage*)msg, name);
             break;
         }
 
         case CIM_SET_QUALIFIER_RESPONSE_MESSAGE:
         {
-            _encodeSetQualifierResponseBody(name);
+            _encodeSetQualifierResponseBody(buf,
+                (CIMSetQualifierResponseMessage*)msg, name);
             break;
         }
 
@@ -3681,7 +3797,8 @@ bool BinaryCodec::encodeResponseBody(
 
         case CIM_DELETE_QUALIFIER_RESPONSE_MESSAGE:
         {
-            _encodeDeleteQualifierResponseBody(name);
+            _encodeDeleteQualifierResponseBody(buf,
+                (CIMDeleteQualifierResponseMessage*)msg, name);
             break;
         }
 
@@ -3701,7 +3818,8 @@ bool BinaryCodec::encodeResponseBody(
 
         case CIM_SET_PROPERTY_RESPONSE_MESSAGE:
         {
-            _encodeSetPropertyResponseBody(name);
+            _encodeSetPropertyResponseBody(buf,
+                (CIMSetPropertyResponseMessage*)msg, name);
             break;
         }
 
@@ -3723,7 +3841,7 @@ bool BinaryCodec::encodeResponseBody(
 
         default:
             // Unexpected message type
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
             return false;
     }
 

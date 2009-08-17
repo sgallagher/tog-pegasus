@@ -223,18 +223,13 @@ public:
 
     virtual void deliver(const CIMObject& object);
 
-    virtual void deliver(const SCMOInstance& object);
-
-    virtual void deliver(const CIMInstance& instance);
-
     virtual void deliver(const Array<CIMObject>& objects);
 
     const Array<CIMObject> getObjects() const;
-    const Array<SCMOInstance> getSCMOObjects() const;
 
 private:
     Array<CIMObject> _objects;
-    Array<SCMOInstance> _scmoObjects;
+
 };
 
 class PEGASUS_PPM_LINKAGE SimpleInstance2ObjectResponseHandler :
@@ -258,11 +253,10 @@ public:
     virtual void deliver(const Array<CIMInstance>& objects);
 
     const Array<CIMObject> getObjects() const;
-    const Array<SCMOInstance> getSCMOObjects() const;
 
 private:
     Array<CIMObject> _objects;
-    Array<SCMOInstance> _scmoObjects;
+
 };
 
 class PEGASUS_PPM_LINKAGE SimpleValueResponseHandler :

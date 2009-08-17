@@ -37,6 +37,7 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/SCMO.h>
 #include <Pegasus/Common/SCMOClass.h>
+#include <Pegasus/Common/Union.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -338,7 +339,7 @@ public:
      * Set/replace the named key binding
      * @param name The key binding name.
      * @param type The type as CIMKeyBinding::Type.
-     * @parma value The value as string.
+     * @param value The value as string.
      * @return     SCMO_OK
      *             SCMO_INVALID_PARAMETER : Given name or pvalue
      *                                      is a NULL pointer.
@@ -352,7 +353,26 @@ public:
         const char* pvalue);
 
     /**
-     * Set/replace the named key binding
+     * Set/replace the named key binding using binary data
+     * @param name The key binding name.
+     * @param type The type as CIMType.
+     * @param value A pointer to the binary key value.
+     *         The value is copied into the instance
+     *         If the value == NULL, a null value is assumed.
+     * @return     SCMO_OK
+     *             SCMO_INVALID_PARAMETER : Given name or pvalue
+     *                                      is a NULL pointer.
+     *             SCMO_TYPE_MISSMATCH : Given type does not
+     *                                   match to key binding type
+     *             SCMO_NOT_FOUND : Given property name not found.
+     */
+    SCMO_RC setKeyBinding(
+        const char* name,
+        CIMType type,
+        void* keyvalue);
+
+    /**
+     * Set/replace the key binding at node
      * @param node The node index of the key.
      * @param type The type as CIMKeyBinding::Type.
      * @parma value The value as string.
@@ -366,6 +386,24 @@ public:
         Uint32 node,
         CIMKeyBinding::Type type,
         const char* pvalue);
+
+    /**
+     * Set/replace the key binding at node using binary data
+     * @param node The node index of the key.
+     * @param type The type as CIMType.
+     * @param value A pointer to the binary key value.
+     *         The value is copied into the instance
+     *         If the value == NULL, a null value is assumed.
+     * @return     SCMO_OK
+     *             SCMO_INVALID_PARAMETER : Given pvalue is a NULL pointer.
+     *             SCMO_TYPE_MISSMATCH : Given type does not
+     *                                   match to key binding type
+     *             SCMO_INDEX_OUT_OF_BOUND : Given index is our of range.
+     */
+    SCMO_RC setKeyBindingAt(
+        Uint32 node,
+        CIMType type,
+        void* keyvalue);
 
     /**
      * Gets the key binding count.

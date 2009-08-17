@@ -41,12 +41,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 CIMValue value2CIMValue(const CMPIValue* data,const CMPIType type, CMPIrc *rc);
-SCMBUnion value2SCMOValue(
-    const CMPIValue* data,
-    const CMPIType type,
-    Boolean &nullValue);
-
 CMPIrc value2CMPIData(const CIMValue&,CMPIType,CMPIData *data);
+CMPIrc key2CMPIData(const String& v, CIMKeyBinding::Type t, CMPIData *data);
+CMPIrc scmoKey2CMPIData(const char* key, CIMKeyBinding::Type t, CMPIData *data);
 CMPIType type2CMPIType(CIMType pt, int array);
 //Function to convert CMPIType to CIMType
 inline CIMType type2CIMType(CMPIType pt)
@@ -112,6 +109,112 @@ inline CIMType type2CIMType(CMPIType pt)
             return(CIMType)0;
     }
 }
+
+//Function to convert CMPIType to CIMType
+inline CIMKeyBinding::Type type2KeyType(CMPIType pt)
+{
+    switch( pt )
+    {
+        case CMPI_null:
+            return CIMKeyBinding::NUMERIC;
+
+        case CMPI_boolean:
+            return CIMKeyBinding::BOOLEAN;
+
+        case CMPI_char16:
+        case CMPI_string:
+        case CMPI_chars:
+        case CMPI_charsptr:
+        case CMPI_dateTime:
+            return CIMKeyBinding::STRING;
+
+        case CMPI_uint8:
+        case CMPI_uint16:
+        case CMPI_uint32:
+        case CMPI_uint64:
+        case CMPI_sint8:
+        case CMPI_sint16:
+        case CMPI_sint32:
+        case CMPI_sint64:
+        case CMPI_real32:
+        case CMPI_real64:
+            return CIMKeyBinding::NUMERIC;
+
+        case CMPI_ref:
+            return CIMKeyBinding::REFERENCE;
+
+        default:
+            return CIMKeyBinding::NUMERIC;
+    }
+}
+
+// Returns the size of bytes of the given CMPIType
+inline size_t sizeOfCmpiType(CMPIType type)
+{
+    switch( type )
+    {
+        case CMPI_null:
+            return sizeof(void*);
+
+        case CMPI_boolean:
+            return sizeof(CMPIBoolean);
+
+        case CMPI_char16:
+            return sizeof(CMPIChar16);
+
+        case CMPI_real32:
+            return sizeof(CMPIReal32);
+
+        case CMPI_real64:
+            return sizeof(CMPIReal64);
+
+        case CMPI_uint8:
+            return sizeof(CMPIUint8);
+
+        case CMPI_uint16:
+            return sizeof(CMPIUint16);
+
+        case CMPI_uint32:
+            return sizeof(CMPIUint32);
+
+        case CMPI_uint64:
+            return sizeof(CMPIUint64);
+
+        case CMPI_sint8:
+            return sizeof(CMPISint8);
+
+        case CMPI_sint16:
+            return sizeof(CMPISint16);
+
+        case CMPI_sint32:
+            return sizeof(CMPISint32);
+
+        case CMPI_sint64:
+            return sizeof(CMPISint64);
+
+        case CMPI_string:
+            return sizeof(void*);
+
+        case CMPI_chars:
+            return sizeof(void*);
+
+        case CMPI_charsptr:
+            return sizeof(void*);
+
+        case CMPI_dateTime:
+            return sizeof(void*);
+
+        case CMPI_ref:
+            return sizeof(void*);
+
+        case CMPI_instance:
+            return sizeof(void*);
+
+        default:
+            return sizeof(void*);
+    }
+}
+
 
 PEGASUS_NAMESPACE_END
 

@@ -31,9 +31,178 @@
 
 #include <Pegasus/Common/OperationContextInternal.h>
 #include "CIMBinMsgSerializer.h"
-#include "CIMInternalXmlEncoder.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+void _putXMLInstance(
+    CIMBuffer& out,
+    const CIMInstance& ci)
+{
+    if (ci.isUninitialized())
+    {
+        out.putUint32(0);
+        out.putUint32(0);
+        out.putString(String());
+        out.putNamespaceName(CIMNamespaceName());
+    }
+    else
+    {
+        Buffer buf(4096);
+
+        // Serialize instance as XML.
+        {
+            XmlWriter::appendInstanceElement(buf, ci);
+            buf.append('\0');
+
+            out.putUint32(buf.size());
+            out.putBytes(buf.getData(), buf.size());
+            buf.clear();
+        }
+
+        // Serialize object path as XML.
+
+        const CIMObjectPath& cop = ci.getPath();
+
+        if (cop.getClassName().isNull())
+        {
+            out.putUint32(0);
+            out.putString(String());
+            out.putNamespaceName(CIMNamespaceName());
+        }
+        else
+        {
+            XmlWriter::appendValueReferenceElement(buf, cop, true);
+            buf.append('\0');
+
+            out.putUint32(buf.size());
+            out.putBytes(buf.getData(), buf.size());
+            out.putString(cop.getHost());
+            out.putNamespaceName(cop.getNameSpace());
+        }
+    }
+}
+
+void _putXMLNamedInstance(
+    CIMBuffer& out,
+    const CIMInstance& ci)
+{
+    if (ci.isUninitialized())
+    {
+        out.putUint32(0);
+        out.putUint32(0);
+        out.putString(String());
+        out.putNamespaceName(CIMNamespaceName());
+    }
+    else
+    {
+        Buffer buf(4096);
+
+        // Serialize instance as XML.
+        {
+            XmlWriter::appendInstanceElement(buf, ci);
+            buf.append('\0');
+
+            out.putUint32(buf.size());
+            out.putBytes(buf.getData(), buf.size());
+            buf.clear();
+        }
+
+        // Serialize object path as XML.
+
+        const CIMObjectPath& cop = ci.getPath();
+
+        if (cop.getClassName().isNull())
+        {
+            out.putUint32(0);
+            out.putString(String());
+            out.putNamespaceName(CIMNamespaceName());
+        }
+        else
+        {
+            XmlWriter::appendInstanceNameElement(buf, cop);
+            buf.append('\0');
+
+            out.putUint32(buf.size());
+            out.putBytes(buf.getData(), buf.size());
+            out.putString(cop.getHost());
+            out.putNamespaceName(cop.getNameSpace());
+        }
+    }
+}
+
+void _putXMLInstanceName(
+    CIMBuffer& out,
+    const CIMObjectPath& cop)
+{
+    Buffer buf(4096);
+
+    // Serialize object path as XML.
+
+    if (cop.getClassName().isNull())
+    {
+        out.putUint32(0);
+        out.putString(String());
+        out.putNamespaceName(CIMNamespaceName());
+    }
+    else
+    {
+        XmlWriter::appendValueReferenceElement(buf, cop, true);
+        buf.append('\0');
+
+        out.putUint32(buf.size());
+        out.putBytes(buf.getData(), buf.size());
+        out.putString(cop.getHost());
+        out.putNamespaceName(cop.getNameSpace());
+    }
+}
+
+void _putXMLObject(
+    CIMBuffer& out,
+    const CIMObject& co)
+{
+    if (co.isUninitialized())
+    {
+        out.putUint32(0);
+        out.putUint32(0);
+        out.putString(String());
+        out.putNamespaceName(CIMNamespaceName());
+    }
+    else
+    {
+        Buffer buf(4096);
+
+        // Serialize instance as XML.
+        {
+            XmlWriter::appendObjectElement(buf, co);
+            buf.append('\0');
+
+            out.putUint32(buf.size());
+            out.putBytes(buf.getData(), buf.size());
+            buf.clear();
+        }
+
+        // Serialize object path as XML.
+
+        const CIMObjectPath& cop = co.getPath();
+
+        if (cop.getClassName().isNull())
+        {
+            out.putUint32(0);
+            out.putString(String());
+            out.putNamespaceName(CIMNamespaceName());
+        }
+        else
+        {
+            XmlWriter::appendValueReferenceElement(buf, cop, true);
+            buf.append('\0');
+
+            out.putUint32(buf.size());
+            out.putBytes(buf.getData(), buf.size());
+            out.putString(cop.getHost());
+            out.putNamespaceName(cop.getNameSpace());
+        }
+    }
+}
 
 void CIMBinMsgSerializer::serialize(
     CIMBuffer& out,
@@ -151,7 +320,8 @@ void CIMBinMsgSerializer::_putRequestMessage(
                     out, (CIMEnumerateInstancesRequestMessage*)msg);
                 break;
             case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-                // not implemented
+                _putEnumerateInstanceNamesRequestMessage(
+                    out, (CIMEnumerateInstanceNamesRequestMessage*)msg);
                 break;
             case CIM_EXEC_QUERY_REQUEST_MESSAGE:
                 _putExecQueryRequestMessage(
@@ -187,7 +357,7 @@ void CIMBinMsgSerializer::_putRequestMessage(
                 break;
 
             default:
-                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+                PEGASUS_ASSERT(0);
         }
     }
     else
@@ -221,7 +391,7 @@ void CIMBinMsgSerializer::_putRequestMessage(
                     out, (CIMDeleteSubscriptionRequestMessage*)msg);
                 break;
             default:
-                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+                PEGASUS_ASSERT(0);
         }
     }
     else
@@ -253,7 +423,7 @@ void CIMBinMsgSerializer::_putRequestMessage(
             break;
         case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
             _putStopAllProvidersRequestMessage(
-                 out, (CIMStopAllProvidersRequestMessage*)msg);
+                out, (CIMStopAllProvidersRequestMessage*)msg);
             break;
         case CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE:
             _putInitializeProviderAgentRequestMessage(
@@ -266,19 +436,17 @@ void CIMBinMsgSerializer::_putRequestMessage(
             break;
 
         case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
-            // not implemented
+            _putSubscriptionInitCompleteRequestMessage(
+                out, (CIMSubscriptionInitCompleteRequestMessage*)msg);
             break;
 
         case CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE:
-            // not implemented
-            break;
-        case PROVAGT_GET_SCMOCLASS_REQUEST_MESSAGE:
-            _putProvAgtGetScmoClassRequestMessage(
-                out,(ProvAgtGetScmoClassRequestMessage *)msg);
+            _putIndicationServiceDisabledRequestMessage(
+                out, (CIMIndicationServiceDisabledRequestMessage*)msg);
             break;
 
         default:
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
         }
     }
     else
@@ -306,14 +474,16 @@ void CIMBinMsgSerializer::_putResponseMessage(
                 out, (CIMGetInstanceResponseMessage*)cimMessage);
             break;
         case CIM_DELETE_INSTANCE_RESPONSE_MESSAGE:
-            // not implemented
+            _putDeleteInstanceResponseMessage(
+                out, (CIMDeleteInstanceResponseMessage*)cimMessage);
             break;
         case CIM_CREATE_INSTANCE_RESPONSE_MESSAGE:
             _putCreateInstanceResponseMessage(
                 out, (CIMCreateInstanceResponseMessage*)cimMessage);
             break;
         case CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE:
-            // not implemented
+            _putModifyInstanceResponseMessage(
+                out, (CIMModifyInstanceResponseMessage*)cimMessage);
             break;
         case CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:
             _putEnumerateInstancesResponseMessage(
@@ -332,7 +502,8 @@ void CIMBinMsgSerializer::_putResponseMessage(
                 out, (CIMGetPropertyResponseMessage*)cimMessage);
             break;
         case CIM_SET_PROPERTY_RESPONSE_MESSAGE:
-            // not implemented
+            _putSetPropertyResponseMessage(
+                out, (CIMSetPropertyResponseMessage*)cimMessage);
             break;
         case CIM_ASSOCIATORS_RESPONSE_MESSAGE:
             _putAssociatorsResponseMessage(
@@ -355,19 +526,24 @@ void CIMBinMsgSerializer::_putResponseMessage(
                 out, (CIMInvokeMethodResponseMessage*)cimMessage);
             break;
         case CIM_CREATE_SUBSCRIPTION_RESPONSE_MESSAGE:
-            // not implemented
+            _putCreateSubscriptionResponseMessage(
+                out, (CIMCreateSubscriptionResponseMessage*)cimMessage);
             break;
         case CIM_MODIFY_SUBSCRIPTION_RESPONSE_MESSAGE:
-            // not implemented
+            _putModifySubscriptionResponseMessage(
+                out, (CIMModifySubscriptionResponseMessage*)cimMessage);
             break;
         case CIM_DELETE_SUBSCRIPTION_RESPONSE_MESSAGE:
-            // not implemented
+            _putDeleteSubscriptionResponseMessage(
+                out, (CIMDeleteSubscriptionResponseMessage*)cimMessage);
             break;
         case CIM_EXPORT_INDICATION_RESPONSE_MESSAGE:
-            // not implemented
+            _putExportIndicationResponseMessage(
+                out, (CIMExportIndicationResponseMessage*)cimMessage);
             break;
         case CIM_PROCESS_INDICATION_RESPONSE_MESSAGE:
-            // not implemented
+            _putProcessIndicationResponseMessage(
+                out, (CIMProcessIndicationResponseMessage*)cimMessage);
             break;
         case CIM_DISABLE_MODULE_RESPONSE_MESSAGE:
             _putDisableModuleResponseMessage(
@@ -378,29 +554,32 @@ void CIMBinMsgSerializer::_putResponseMessage(
                 out, (CIMEnableModuleResponseMessage*)cimMessage);
             break;
         case CIM_STOP_ALL_PROVIDERS_RESPONSE_MESSAGE:
-            // not implemented
+            _putStopAllProvidersResponseMessage(
+                out, (CIMStopAllProvidersResponseMessage*)cimMessage);
             break;
         case CIM_INITIALIZE_PROVIDER_AGENT_RESPONSE_MESSAGE:
-            // not implemented
+            _putInitializeProviderAgentResponseMessage(
+                out, (CIMInitializeProviderAgentResponseMessage*)cimMessage);
             break;
         case CIM_NOTIFY_CONFIG_CHANGE_RESPONSE_MESSAGE:
-            // not implemented
+            _putNotifyConfigChangeResponseMessage(
+                out, (CIMNotifyConfigChangeResponseMessage*)cimMessage);
             break;
         case CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE:
-            // not implemented
+            _putSubscriptionInitCompleteResponseMessage(
+                out,
+                (CIMSubscriptionInitCompleteResponseMessage *)
+                cimMessage);
             break;
         case CIM_INDICATION_SERVICE_DISABLED_RESPONSE_MESSAGE:
-            // not implemented
-            break;
-        case PROVAGT_GET_SCMOCLASS_RESPONSE_MESSAGE:
-            _putProvAgtGetScmoClassResponseMessage(
+            _putIndicationServiceDisabledResponseMessage(
                 out,
-                (ProvAgtGetScmoClassResponseMessage *)
+                (CIMIndicationServiceDisabledResponseMessage *)
                 cimMessage);
             break;
 
         default:
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
     }
 }
 
@@ -602,21 +781,6 @@ void CIMBinMsgSerializer::_serializeOperationContext(
     }
     else
         out.putPresent(false);
-
-    // [UserRoleContainer]
-
-    if (operationContext.contains(UserRoleContainer::NAME))
-    {
-        out.putPresent(true);
-
-        const UserRoleContainer container =
-            operationContext.get(UserRoleContainer::NAME);
-
-        out.putString(container.getUserRole());
-    }
-    else
-        out.putPresent(false);
-
 }
 
 void CIMBinMsgSerializer::_serializeContentLanguageList(
@@ -754,6 +918,12 @@ void CIMBinMsgSerializer::_putEnumerateInstancesRequestMessage(
     _putPropertyList(out, msg->propertyList);
 }
 
+void CIMBinMsgSerializer::_putEnumerateInstanceNamesRequestMessage(
+    CIMBuffer& out,
+    CIMEnumerateInstanceNamesRequestMessage* msg)
+{
+}
+
 void CIMBinMsgSerializer::_putExecQueryRequestMessage(
     CIMBuffer& out,
     CIMExecQueryRequestMessage* msg)
@@ -885,7 +1055,6 @@ void CIMBinMsgSerializer::_putProcessIndicationRequestMessage(
     _putInstance(out, msg->indicationInstance);
     out.putObjectPathA(msg->subscriptionInstanceNames);
     _putInstance(out, msg->provider);
-    out.putUint32(msg->timeoutMilliSec);
 }
 
 void CIMBinMsgSerializer::_putDisableModuleRequestMessage(
@@ -905,6 +1074,12 @@ void CIMBinMsgSerializer::_putEnableModuleRequestMessage(
 {
     _serializeUserInfo(out, msg->authType, msg->userName);
     _putInstance(out, msg->providerModule);
+}
+
+void CIMBinMsgSerializer::_putStopAllProvidersRequestMessage(
+    CIMBuffer& out,
+    CIMStopAllProvidersRequestMessage* msg)
+{
 }
 
 void CIMBinMsgSerializer::_putInitializeProviderAgentRequestMessage(
@@ -933,20 +1108,16 @@ void CIMBinMsgSerializer::_putNotifyConfigChangeRequestMessage(
     out.putBoolean(msg->currentValueModified);
 }
 
-void CIMBinMsgSerializer::_putProvAgtGetScmoClassRequestMessage(
+void CIMBinMsgSerializer::_putSubscriptionInitCompleteRequestMessage(
     CIMBuffer& out,
-    ProvAgtGetScmoClassRequestMessage* msg)
+    CIMSubscriptionInitCompleteRequestMessage* msg)
 {
-    out.putString(msg->messageId);
-    out.putNamespaceName(msg->nameSpace);
-    out.putName(msg->className);
 }
 
-void CIMBinMsgSerializer::_putStopAllProvidersRequestMessage(
+void CIMBinMsgSerializer::_putIndicationServiceDisabledRequestMessage(
     CIMBuffer& out,
-    CIMStopAllProvidersRequestMessage *msg)
+    CIMIndicationServiceDisabledRequestMessage* msg)
 {
-    out.putUint32(msg->shutdownTimeout);
 }
 
 void CIMBinMsgSerializer::_putGetInstanceResponseMessage(
@@ -956,14 +1127,22 @@ void CIMBinMsgSerializer::_putGetInstanceResponseMessage(
     if (msg->binaryResponse)
     {
         CIMBuffer data(4096);
-        msg->getResponseData().encodeBinaryResponse(data);
-        out.putUint32((Uint32)data.size());
+        data.putInstance(msg->getResponseData().getCimInstance(),
+                         false,
+                         false);
+        out.putUint32(data.size());
         out.putBytes(data.getData(), data.size());
     }
     else
     {
-        msg->getResponseData().encodeInternalXmlResponse(out);
+        _putXMLInstance(out, msg->getResponseData().getCimInstance());
     }
+}
+
+void CIMBinMsgSerializer::_putDeleteInstanceResponseMessage(
+    CIMBuffer& out,
+    CIMDeleteInstanceResponseMessage* msg)
+{
 }
 
 void CIMBinMsgSerializer::_putCreateInstanceResponseMessage(
@@ -973,6 +1152,12 @@ void CIMBinMsgSerializer::_putCreateInstanceResponseMessage(
     _putObjectPath(out, msg->instanceName);
 }
 
+void CIMBinMsgSerializer::_putModifyInstanceResponseMessage(
+    CIMBuffer& out,
+    CIMModifyInstanceResponseMessage* msg)
+{
+}
+
 void CIMBinMsgSerializer::_putEnumerateInstancesResponseMessage(
     CIMBuffer& out,
     CIMEnumerateInstancesResponseMessage* msg)
@@ -980,13 +1165,21 @@ void CIMBinMsgSerializer::_putEnumerateInstancesResponseMessage(
     if (msg->binaryResponse)
     {
         CIMBuffer data(16 * 4096);
-        msg->getResponseData().encodeBinaryResponse(data);
-        out.putUint32((Uint32)data.size());
+        data.putInstanceA(msg->getResponseData().getNamedInstances(), false);
+        out.putUint32(data.size());
         out.putBytes(data.getData(), data.size());
     }
     else
     {
-        msg->getResponseData().encodeInternalXmlResponse(out);
+        const Array<CIMInstance>& a=msg->getResponseData().getNamedInstances();
+
+        Uint32 n = a.size();
+        out.putUint32(n);
+
+        for (Uint32 i = 0; i < n; i++)
+        {
+            _putXMLNamedInstance(out, a[i]);
+        }
     }
 }
 
@@ -994,10 +1187,26 @@ void CIMBinMsgSerializer::_putEnumerateInstanceNamesResponseMessage(
     CIMBuffer& out,
     CIMEnumerateInstanceNamesResponseMessage* msg)
 {
-    CIMBuffer data(16 * 4096);
-    msg->getResponseData().encodeBinaryResponse(data);
-    out.putUint32((Uint32)data.size());
-    out.putBytes(data.getData(), data.size());
+    if (msg->binaryResponse)
+    {
+        CIMBuffer data(16 * 4096);
+        data.putObjectPathA(msg->getResponseData().getInstanceNames());
+        out.putUint32(data.size());
+        out.putBytes(data.getData(), data.size());
+    }
+    else
+    {
+        const Array<CIMObjectPath>& a =
+            msg->getResponseData().getInstanceNames();
+
+        Uint32 n = a.size();
+        out.putUint32(n);
+
+        for (Uint32 i = 0; i < n; i++)
+        {
+            _putXMLInstanceName(out, a[i]);
+        }
+    }
 }
 
 void CIMBinMsgSerializer::_putExecQueryResponseMessage(
@@ -1007,13 +1216,21 @@ void CIMBinMsgSerializer::_putExecQueryResponseMessage(
     if (msg->binaryResponse)
     {
         CIMBuffer data(16 * 4096);
-        msg->getResponseData().encodeBinaryResponse(data);
-        out.putUint32((Uint32)data.size());
+        data.putObjectA(msg->getResponseData().getCIMObjects(), false);
+        out.putUint32(data.size());
         out.putBytes(data.getData(), data.size());
     }
     else
     {
-        msg->getResponseData().encodeInternalXmlResponse(out);
+        const Array<CIMObject>& a = msg->getResponseData().getCIMObjects();
+
+        Uint32 n = a.size();
+        out.putUint32(n);
+
+        for (Uint32 i = 0; i < n; i++)
+        {
+            _putXMLObject(out, a[i]);
+        }
     }
 }
 
@@ -1024,13 +1241,21 @@ void CIMBinMsgSerializer::_putAssociatorsResponseMessage(
     if (msg->binaryResponse)
     {
         CIMBuffer data(16 * 4096);
-        msg->getResponseData().encodeBinaryResponse(data);
-        out.putUint32((Uint32)data.size());
+        data.putObjectA(msg->getResponseData().getCIMObjects(), false);
+        out.putUint32(data.size());
         out.putBytes(data.getData(), data.size());
     }
     else
     {
-        msg->getResponseData().encodeInternalXmlResponse(out);
+        const Array<CIMObject>& a = msg->getResponseData().getCIMObjects();
+
+        Uint32 n = a.size();
+        out.putUint32(n);
+
+        for (Uint32 i = 0; i < n; i++)
+        {
+            _putXMLObject(out, a[i]);
+        }
     }
 }
 
@@ -1038,37 +1263,21 @@ void CIMBinMsgSerializer::_putAssociatorNamesResponseMessage(
     CIMBuffer& out,
     CIMAssociatorNamesResponseMessage* msg)
 {
-    CIMBuffer data(16 * 4096);
-    msg->getResponseData().encodeBinaryResponse(data);
-    out.putUint32((Uint32)data.size());
-    out.putBytes(data.getData(), data.size());
+    out.putObjectPathA(msg->objectNames);
 }
 
 void CIMBinMsgSerializer::_putReferencesResponseMessage(
     CIMBuffer& out,
     CIMReferencesResponseMessage* msg)
 {
-    if (msg->binaryResponse)
-    {
-        CIMBuffer data(16 * 4096);
-        msg->getResponseData().encodeBinaryResponse(data);
-        out.putUint32((Uint32)data.size());
-        out.putBytes(data.getData(), data.size());
-    }
-    else
-    {
-        msg->getResponseData().encodeInternalXmlResponse(out);
-    }
+    out.putObjectA(msg->cimObjects);
 }
 
 void CIMBinMsgSerializer::_putReferenceNamesResponseMessage(
     CIMBuffer& out,
     CIMReferenceNamesResponseMessage* msg)
 {
-    CIMBuffer data(16 * 4096);
-    msg->getResponseData().encodeBinaryResponse(data);
-    out.putUint32((Uint32)data.size());
-    out.putBytes(data.getData(), data.size());
+    out.putObjectPathA(msg->objectNames);
 }
 
 void CIMBinMsgSerializer::_putGetPropertyResponseMessage(
@@ -1079,6 +1288,12 @@ void CIMBinMsgSerializer::_putGetPropertyResponseMessage(
         msg->value, true));
 }
 
+void CIMBinMsgSerializer::_putSetPropertyResponseMessage(
+    CIMBuffer& out,
+    CIMSetPropertyResponseMessage* msg)
+{
+}
+
 void CIMBinMsgSerializer::_putInvokeMethodResponseMessage(
     CIMBuffer& out,
     CIMInvokeMethodResponseMessage* msg)
@@ -1087,6 +1302,36 @@ void CIMBinMsgSerializer::_putInvokeMethodResponseMessage(
         CIMParamValue(String("ignore"), msg->retValue, true));
     out.putParamValueA(msg->outParameters);
     _putName(out, msg->methodName);
+}
+
+void CIMBinMsgSerializer::_putCreateSubscriptionResponseMessage(
+    CIMBuffer& out,
+    CIMCreateSubscriptionResponseMessage* msg)
+{
+}
+
+void CIMBinMsgSerializer::_putModifySubscriptionResponseMessage(
+    CIMBuffer& out,
+    CIMModifySubscriptionResponseMessage* msg)
+{
+}
+
+void CIMBinMsgSerializer::_putDeleteSubscriptionResponseMessage(
+    CIMBuffer& out,
+    CIMDeleteSubscriptionResponseMessage* msg)
+{
+}
+
+void CIMBinMsgSerializer::_putExportIndicationResponseMessage(
+    CIMBuffer& out,
+    CIMExportIndicationResponseMessage* msg)
+{
+}
+
+void CIMBinMsgSerializer::_putProcessIndicationResponseMessage(
+    CIMBuffer& out,
+    CIMProcessIndicationResponseMessage* msg)
+{
 }
 
 void CIMBinMsgSerializer::_putDisableModuleResponseMessage(
@@ -1103,13 +1348,34 @@ void CIMBinMsgSerializer::_putEnableModuleResponseMessage(
     out.putUint16A(msg->operationalStatus);
 }
 
-void CIMBinMsgSerializer::_putProvAgtGetScmoClassResponseMessage(
+void CIMBinMsgSerializer::_putStopAllProvidersResponseMessage(
     CIMBuffer& out,
-    ProvAgtGetScmoClassResponseMessage* msg)
+    CIMStopAllProvidersResponseMessage* msg)
 {
-    out.putString(msg->messageId);
-    out.putSCMOClass(msg->scmoClass);
 }
 
+void CIMBinMsgSerializer::_putInitializeProviderAgentResponseMessage(
+    CIMBuffer& out,
+    CIMInitializeProviderAgentResponseMessage* msg)
+{
+}
+
+void CIMBinMsgSerializer::_putNotifyConfigChangeResponseMessage(
+    CIMBuffer& out,
+    CIMNotifyConfigChangeResponseMessage* msg)
+{
+}
+
+void CIMBinMsgSerializer::_putSubscriptionInitCompleteResponseMessage(
+    CIMBuffer& out,
+    CIMSubscriptionInitCompleteResponseMessage* msg)
+{
+}
+
+void CIMBinMsgSerializer::_putIndicationServiceDisabledResponseMessage(
+    CIMBuffer& out,
+    CIMIndicationServiceDisabledResponseMessage* msg)
+{
+}
 
 PEGASUS_NAMESPACE_END

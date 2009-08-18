@@ -1,12 +1,5 @@
-// Copyright (c) 2007 DMTF.  All rights reserved.
-//<change cr="WIPCR00354.005" type="change">Update IndicationService
-// to align with SettingData and add Capabilities</change>
-//<change cr="WIPCR00320.003" type="change">Add CIM_IndicationService
-//</change>
-// ==================================================================
-//  CIM_IndicationService 
-// ==================================================================
-   [Experimental, Version ( "2.14.0" ), 
+// Copyright (c) 2008 DMTF.  All rights reserved.
+   [Version ( "2.20.0" ), 
     UMLPackagePath ( "CIM::Event" ), 
     Description ( 
        "An IndicationService is a Service of the CIM Object Manager "
@@ -32,7 +25,9 @@ class CIM_IndicationService : CIM_Service {
           "only try to deliver the indication once. Note that "
           "implementations may preset this setting and not allow "
           "this value to be modified." ), 
-       MinValue ( 0 )]
+       MinValue ( 0 ), 
+       ModelCorrespondence { 
+          "CIM_IndicationService.DeliveryRetryInterval" }]
    uint16 DeliveryRetryAttempts = 3;
 
       [Description ( 
@@ -43,8 +38,10 @@ class CIM_IndicationService : CIM_Service {
           "due to QoS or other processing. Note that "
           "implementations may preset this setting and not allow "
           "this value to be modified." ), 
+       ModelCorrespondence { 
+          "CIM_IndicationService.DeliveryRetryAttempts" }, 
        PUnit ( "Seconds" )]
-   uint64 DeliveryRetryInterval = 30;
+   uint32 DeliveryRetryInterval = 30;
 
       [Description ( 
           "Defines the removal action for subscriptions that have "
@@ -71,7 +68,7 @@ class CIM_IndicationService : CIM_Service {
        ModelCorrespondence { 
           "CIM_IndicationService.SubscriptionRemovalAction" }, 
        PUnit ( "Seconds" )]
-   uint64 SubscriptionRemovalTimeInterval;
+   uint32 SubscriptionRemovalTimeInterval;
 
 
 };

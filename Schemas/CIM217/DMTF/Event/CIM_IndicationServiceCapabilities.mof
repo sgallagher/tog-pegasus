@@ -1,12 +1,5 @@
-// Copyright (c) 2007 DMTF.  All rights reserved.
-//<change cr="WIPCR00391.004" type="change">
-//Add CIM_IndicationServiceCapabilities.MaxListenerDestinations</change>
-//<change cr="WIPCR00396.002" type="change">Additional Advertisement 
-// of Indication Subscription capabilities</change>
-// ==================================================================
-//  CIM_IndicationServiceCapabilities
-// ==================================================================
-   [Experimental, Version ( "2.16.0" ), 
+// Copyright (c) 2008 DMTF.  All rights reserved.
+   [Version ( "2.20.0" ), 
     UMLPackagePath ( "CIM::Core::Capabilities" ), 
     Description ( 
        "IndicationServiceCapabilities describes whether properties on "

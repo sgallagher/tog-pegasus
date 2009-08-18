@@ -62,4 +62,6 @@
 #pragma include ("DMTF/Event/CIM_ClassCreation.mof")
 #pragma include ("DMTF/Event/CIM_ClassDeletion.mof")
 #pragma include ("DMTF/Event/CIM_FormattedIndicationSubscription.mof")
+#pragma include ("DMTF/Event/CIM_IndicationService.mof")
+#pragma include ("DMTF/Event/CIM_IndicationServiceCapabilities.mof")
  

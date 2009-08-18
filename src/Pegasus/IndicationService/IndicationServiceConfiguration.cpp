@@ -175,6 +175,45 @@ void IndicationServiceConfiguration::_setPropertyValue(
     }
 }
 
+
+
+void IndicationServiceConfiguration::_setIntervalPropertyValues(
+    CIMInstance& instance)
+{
+    Uint32 pos1 = instance.findProperty(
+        _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL);
+
+    Uint32 pos2 = instance.findProperty(_PROPERTY_DELIVERYRETRYINTERVAL);
+
+    if (pos1 != PEG_NOT_FOUND && pos2 != PEG_NOT_FOUND)
+    {
+        CIMProperty p1 = instance.getProperty(pos1);
+        if (CIMTYPE_UINT64 == p1.getType())
+        {
+            // Old CIM Schema 2.17 with experimental classes
+            p1.setValue(
+                Uint64(_PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL_VALUE));
+        }
+        else
+        {
+            // New CIM Schema 2.22 and up with final classes
+            p1.setValue(_PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL_VALUE);
+        }
+        CIMProperty p2 = instance.getProperty(pos2);
+        if (CIMTYPE_UINT64 == p2.getType())
+        {
+            // Old CIM Schema 2.17 with experimental classes
+            p2.setValue(
+                Uint64(_PROPERTY_DELIVERYRETRYINTERVAL_VALUE));
+        }
+        else
+        {
+            // New CIM Schema 2.22 and up with final classes
+            p2.setValue(_PROPERTY_DELIVERYRETRYINTERVAL_VALUE);
+        }        
+    }
+}
+
 CIMInstance IndicationServiceConfiguration::_getIndicationServiceInstance(
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
@@ -246,18 +285,10 @@ CIMInstance IndicationServiceConfiguration::_getIndicationServiceInstance(
 
     _setPropertyValue(
         instance,
-        _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL,
-        CIMValue(_PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL_VALUE));
-
-    _setPropertyValue(
-        instance,
         _PROPERTY_DELIVERYRETRYATTEMPTS,
         CIMValue(_PROPERTY_DELIVERYRETRYATTEMPTS_VALUE));
 
-    _setPropertyValue(
-        instance,
-        _PROPERTY_DELIVERYRETRYINTERVAL,
-        CIMValue(_PROPERTY_DELIVERYRETRYINTERVAL_VALUE));
+    _setIntervalPropertyValues(instance);
 
     _setPropertyValue(
         instance,

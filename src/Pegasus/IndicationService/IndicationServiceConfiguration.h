@@ -85,6 +85,8 @@ private:
         const CIMName &propertyName,
         const CIMValue &value);
 
+    void _setIntervalPropertyValues(CIMInstance& instance);
+
     CIMInstance _getIndicationServiceInstance(
         Boolean includeQualifiers,
         Boolean includeClassOrigin,

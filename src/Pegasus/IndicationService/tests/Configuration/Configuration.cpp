@@ -51,6 +51,46 @@ void _testPropertyValue(
     PEGASUS_TEST_ASSERT(testValue == value);
 }
 
+void _testSubscriptionRemovalIntervalValue(
+    CIMInstance& instance)
+{
+    CIMValue value =
+        instance.getProperty(
+            instance.findProperty(
+                _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL)).getValue();
+    if (value.getType() == CIMTYPE_UINT64)
+    {
+        // CIM Schema 2.17 experimental class
+        PEGASUS_TEST_ASSERT(
+            Uint64(_PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL_VALUE) == value);
+    }
+    else
+    {
+        // CIM Schema 2.22 and up
+        PEGASUS_TEST_ASSERT(
+            _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL_VALUE == value);
+    }
+}
+
+void _testDeliveryRetryIntervalValue(
+    CIMInstance& instance)
+{
+    CIMValue value =
+        instance.getProperty(
+            instance.findProperty(
+                _PROPERTY_DELIVERYRETRYINTERVAL)).getValue();
+    if (value.getType() == CIMTYPE_UINT64)
+    {
+        // CIM Schema 2.17 experimental class
+        PEGASUS_TEST_ASSERT(
+            Uint64(_PROPERTY_DELIVERYRETRYINTERVAL_VALUE) == value);
+    }
+    else
+    {
+        // CIM Schema 2.22 and up
+        PEGASUS_TEST_ASSERT(_PROPERTY_DELIVERYRETRYINTERVAL_VALUE == value);
+    }
+}
 
 void _testIndicationServiceInstance(CIMClient &client)
 {
@@ -83,20 +123,14 @@ void _testIndicationServiceInstance(CIMClient &client)
         _PROPERTY_SUBSCRIPTIONREMOVALACTION,
         CIMValue(_PROPERTY_SUBSCRIPTIONREMOVALACTION_VALUE));
 
-    _testPropertyValue(
-        instance,
-        _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL,
-        CIMValue(_PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL_VALUE));
+    _testSubscriptionRemovalIntervalValue(instance);
 
     _testPropertyValue(
         instance,
         _PROPERTY_DELIVERYRETRYATTEMPTS,
         CIMValue(_PROPERTY_DELIVERYRETRYATTEMPTS_VALUE));
 
-    _testPropertyValue(
-        instance,
-        _PROPERTY_DELIVERYRETRYINTERVAL,
-        CIMValue(_PROPERTY_DELIVERYRETRYINTERVAL_VALUE));
+    _testDeliveryRetryIntervalValue(instance);
 
     // Test GetInstance() on CIM_IndicationService,
     // with property list set.
@@ -118,10 +152,7 @@ void _testIndicationServiceInstance(CIMClient &client)
         _PROPERTY_DELIVERYRETRYATTEMPTS,
         CIMValue(_PROPERTY_DELIVERYRETRYATTEMPTS_VALUE));
 
-    _testPropertyValue(
-        seInstance,
-        _PROPERTY_DELIVERYRETRYINTERVAL,
-        CIMValue(_PROPERTY_DELIVERYRETRYINTERVAL_VALUE));
+    _testDeliveryRetryIntervalValue(instance);
 
     cout << "+++++ CIM_IndicationService instance"
                 " test completed successfully." << endl;

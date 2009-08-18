@@ -142,9 +142,8 @@ CIMInstance InteropProvider::buildSoftwareIdentity(
             SOFTWAREIDENTITY_PROPERTY_CAPTION, caption);
     }
 
-    CIMObjectPath path = softwareIdentity.buildPath(softwareIdentityClass);
-    path.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
-    softwareIdentity.setPath(path);
+    softwareIdentity.setPath(
+        softwareIdentity.buildPath(softwareIdentityClass));
 
     return softwareIdentity;
 }
@@ -186,7 +185,7 @@ void InteropProvider::extractSoftwareIdentityInfo(
         pmKeyBindings);
     CIMInstance providerModule = repository->getInstance(
         PEGASUS_NAMESPACENAME_INTEROP, providerModuleName,
-        false, false, CIMPropertyList());
+        false, false, false, CIMPropertyList());
 
     version = getRequiredValue<String>(providerModule,
         PROVIDERMODULE_PROPERTY_VERSION);
@@ -503,7 +502,7 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
     Array<CIMInstance> instances;
 
     Array<CIMInstance> profileCapabilities =
-        enumProviderProfileCapabilityInstances(true);
+        enumProviderProfileCapabilityInstances(true, false);
 
     CIMClass elementSoftwareIdentityClass = repository->getClass(
         PEGASUS_NAMESPACENAME_INTEROP,
@@ -685,8 +684,8 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
     String indProfileId = buildProfileInstanceId(
         DMTF_NAME,
-        "Indications",
-        DMTF_VER_110);
+        "Indication",
+        DMTF_VER_100);
 
     String indicationServiceSoftwareIdentity(PEGASUS_MODULE_NAME);
     indicationServiceSoftwareIdentity.append("+");
@@ -707,14 +706,13 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
 //
 // Enumerates instances of the InstalledSoftwareIdentity association class.
 //
-Array<CIMInstance> InteropProvider::enumInstalledSoftwareIdentityInstances(
-    const OperationContext &opContext)
+Array<CIMInstance> InteropProvider::enumInstalledSoftwareIdentityInstances()
 {
     // All of the software identity instances are associated to the
     // ComputerSystem on which the object manager resides. Simply loop through
     // all the instances and build the association.
     Array<CIMInstance> instances;
-    CIMObjectPath csPath = getComputerSystemInstance(opContext).getPath();
+    CIMObjectPath csPath = getComputerSystemInstance().getPath();
     Array<CIMInstance> softwareInstances = enumSoftwareIdentityInstances();
     CIMClass installedSoftwareClass;
     CIMInstance skeletonInst =  buildInstanceSkeleton(

@@ -382,7 +382,11 @@ void CIMServer::_init()
     // Create the interop control provider
     ProviderMessageHandler* interopProvider = new ProviderMessageHandler(
         "CIMServerControlProvider", "InteropProvider",
-        new InteropProvider(_repository), 0, 0, false);
+        new InteropProvider(
+                _repository, 
+                _providerRegistrationManager),
+        0, 0, false);
+
     _controlProviders.append(interopProvider);
     _controlService->register_module(
         PEGASUS_MODULENAME_INTEROPPROVIDER,

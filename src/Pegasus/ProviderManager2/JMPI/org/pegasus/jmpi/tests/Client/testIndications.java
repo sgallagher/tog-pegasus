@@ -336,25 +336,39 @@ public class testIndications
    private static CIMObjectPath testCreateClassIndicationFilter (CIMClient cc)
       throws Exception
    {
-      CIMClass      ccFilter  = cc.getClass (new CIMObjectPath ("CIM_IndicationFilter",
-                                                                nameSpaceInterOp),
-                                             false);
-      CIMInstance   ciFilter  = ccFilter.newInstance ();
+      CIMInstance ciFilter = new CIMInstance("CIM_IndicationFilter");
+      ciFilter.setObjectPath(
+          new CIMObjectPath("CIM_IndicationFilter",nameSpaceInterOp));
+
       CIMObjectPath copFilter = null;
 
-      ciFilter.setProperty ("CreationClassName",
-                            new CIMValue ("CIM_IndicationFilter"));
-      ciFilter.setProperty ("SystemCreationClassName",
-                            new CIMValue ("CIM_ComputerSystem"));
-      ciFilter.setProperty ("Name",
-                            new CIMValue ("classCreationFilter"));
-      ciFilter.setProperty ("SystemName", new CIMValue (getSystemName (cc)));
-      ciFilter.setProperty ("SourceNamespace", new CIMValue (nameSpaceClass));
-      ciFilter.setProperty ("Query",
-                            new CIMValue ("SELECT * FROM " + className));
-//////                      new CIMValue ("SELECT * FROM CIM_ClassCreation WHERE ClassDefinition ISA " + className));
-      ciFilter.setProperty ("QueryLanguage",
-                            new CIMValue ("DMTF:CQL"));
+      ciFilter.setProperty(
+          "CreationClassName",
+          new CIMValue ("CIM_IndicationFilter"));
+
+      ciFilter.setProperty(
+          "SystemCreationClassName",
+          new CIMValue ("CIM_ComputerSystem"));
+
+      ciFilter.setProperty(
+          "Name",
+          new CIMValue ("classCreationFilter"));
+
+      ciFilter.setProperty(
+          "SystemName",
+          new CIMValue (getSystemName (cc)));
+
+      ciFilter.setProperty(
+          "SourceNamespace",
+          new CIMValue (nameSpaceClass));
+
+      ciFilter.setProperty(
+          "Query",
+          new CIMValue("SELECT * FROM " + className));
+
+      ciFilter.setProperty(
+          "QueryLanguage",
+          new CIMValue("DMTF:CQL"));
 
       try
       {
@@ -389,17 +403,15 @@ public class testIndications
    private static CIMObjectPath testCreateClassIndicationHandler (CIMClient cc)
       throws Exception
    {
-      CIMClass      ccHandler  = null;
       CIMInstance   ciHandler  = null;
       CIMObjectPath copHandler = null;
 
       if (true)
       {
          // CIM_IndicationHandlerCIMXML
-         ccHandler = cc.getClass (new CIMObjectPath ("CIM_IndicationHandlerCIMXML",
-                                                     nameSpaceInterOp),
-                                  false);
-         ciHandler = ccHandler.newInstance ();
+         ciHandler = new CIMInstance("CIM_IndicationHandlerCIMXML");
+         ciHandler.setObjectPath(
+             new CIMObjectPath("CIM_IndicationHandlerCIMXML",nameSpaceInterOp));
 
          ciHandler.setProperty ("CreationClassName",
                                 new CIMValue ("CIM_IndicationHandlerCIMXML"));
@@ -417,23 +429,22 @@ public class testIndications
       else if (false)
       {
          // PG_ListenerDestinationSystemLog
-         ccHandler = cc.getClass (new CIMObjectPath ("PG_ListenerDestinationSystemLog",
-                                                     nameSpaceInterOp),
-                                  false);
-         ciHandler = ccHandler.newInstance ();
+         ciHandler = new CIMInstance("PG_ListenerDestinationSystemLog");
+         ciHandler.setObjectPath(
+             new CIMObjectPath(
+                 "PG_ListenerDestinationSystemLog",
+                 nameSpaceInterOp));
 
-         ciHandler.setProperty ("CreationClassName",
-                                new CIMValue ("PG_ListenerDestinationSystemLog"));
-
-         // returns: CIM_ERR_NOT_SUPPORTED (CIM_ERR_NOT_SUPPORTED: The requested operation is not supported: "The specified class is not served by the Indication Service")
+         ciHandler.setProperty(
+             "CreationClassName",
+             new CIMValue ("PG_ListenerDestinationSystemLog"));
       }
       else if (false)
       {
          // PG_ListenerDestinationEmail
-         ccHandler = cc.getClass (new CIMObjectPath ("PG_ListenerDestinationEmail",
-                                                     nameSpaceInterOp),
-                                  false);
-         ciHandler = ccHandler.newInstance ();
+         ciHandler = new CIMInstance("PG_ListenerDestinationEmail");
+         ciHandler.setObjectPath(
+             new CIMObjectPath("PG_ListenerDestinationEmail",nameSpaceInterOp));
 
          ciHandler.setProperty ("CreationClassName",
                                 new CIMValue ("PG_ListenerDestinationEmail"));

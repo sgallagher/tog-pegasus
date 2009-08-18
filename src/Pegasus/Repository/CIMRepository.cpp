@@ -42,11 +42,10 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/ReadWriteSem.h>
-#include <Pegasus/Common/SCMOClassCache.h>
 
-#include <Pegasus/Repository/XmlStreamer.h>
-#include <Pegasus/Repository/BinaryStreamer.h>
-#include <Pegasus/Repository/AutoStreamer.h>
+#include <Pegasus/Common/XmlStreamer.h>
+#include <Pegasus/Common/BinaryStreamer.h>
+#include <Pegasus/Common/AutoStreamer.h>
 
 #include "CIMRepository.h"
 #include "RepositoryDeclContext.h"
@@ -308,24 +307,40 @@ static void _stripPropagatedElements(CIMClass& cimClass)
 /* remove the properties from an instance based on attributes.
     @param Instance from which properties will be removed.
     @param propertyList PropertyList is used in the removal algorithm
+    @param localOnly - Boolean used in the removal.
     NOTE: This could be logical to move to CIMInstance since the
     usage is more general than just in the repository
 */
 static void _removeProperties(
     CIMInstance& cimInstance,
-    const CIMPropertyList& propertyList)
+    const CIMPropertyList& propertyList,
+    Boolean localOnly)
 {
-    if (!propertyList.isNull())
+    Boolean propertyListNull = propertyList.isNull();
+    if ((!propertyListNull) || localOnly)
     {
         // Loop through properties to remove those that do not filter through
         // local only attribute and are not in the property list.
+        Uint32 count = cimInstance.getPropertyCount();
         // Work backwards because removal may be cheaper. Sint32 covers count=0
-        for (Sint32 i = (cimInstance.getPropertyCount() - 1); i >= 0; i--)
+        for (Sint32 i = (count - 1); i >= 0; i--)
         {
-            // Since the propertyList is not NULL, only properties in the list
-            // should be included in the instance.
-            if (!_containsProperty(cimInstance.getProperty(i), propertyList))
+            CIMProperty p = cimInstance.getProperty(i);
+
+            // if localOnly == true, ignore properties defined in super class
+            if (localOnly && (p.getPropagated()))
+            {
                 cimInstance.removeProperty(i);
+                continue;
+            }
+
+            // propertyList NULL means deliver properties.  PropertyList
+            // empty, none.
+            // Test for removal if propertyList not NULL. The empty list option
+            // is covered by fact that property is not in the list.
+            if (!propertyListNull)
+                if (!_containsProperty(p, propertyList))
+                    cimInstance.removeProperty(i);
         }
     }
 }
@@ -370,14 +385,13 @@ static void _removeClassOrigins(CIMInstance& cimInstance)
 }
 
 /* Filters the properties, qualifiers, and classorigin out of a single instance.
-    Based on the parameters provided for propertyList, includeQualifiers,
+    Based on the parameters provided for localOnly, includeQualifiers,
     and includeClassOrigin, this function simply filters the properties
     qualifiers, and classOrigins out of a single instance.  This function
     was created to have a single piece of code that processes getinstance
     and enumerateInstances returns.
     @param cimInstance reference to instance to be processed.
-    @param propertyList If not null, defines the properties to be included in
-        the instance.
+    @param localOnly defines if request is for localOnly parameters.
     @param includeQualifiers Boolean defining if qualifiers to be returned.
     @param includeClassOrigin Boolean defining if ClassOrigin attribute to
     be removed from properties.
@@ -385,11 +399,12 @@ static void _removeClassOrigins(CIMInstance& cimInstance)
 static void _filterInstance(
     CIMInstance& cimInstance,
     const CIMPropertyList& propertyList,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
-    // Remove properties based on propertyList
-    _removeProperties(cimInstance, propertyList);
+    // Remove properties based on propertyList and localOnly flag
+    _removeProperties(cimInstance, propertyList, localOnly);
 
     // If includequalifiers false, remove all qualifiers from
     // properties.
@@ -481,6 +496,7 @@ static Array<ClassAssociation> _buildClassAssociationEntries(
 */
 static Array<InstanceAssociation> _buildInstanceAssociationEntries(
     const CIMNamespaceName& nameSpace,
+    const CIMConstClass& cimClass,
     const CIMInstance& cimInstance,
     const CIMObjectPath& instanceName)
 {
@@ -988,6 +1004,7 @@ Boolean CIMRepositoryRep::_checkInstanceAlreadyExists(
 CIMInstance CIMRepository::getInstance(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
@@ -999,6 +1016,7 @@ CIMInstance CIMRepository::getInstance(
     CIMInstance cimInstance = _getInstance(
         nameSpace,
         instanceName,
+        localOnly,
         includeQualifiers,
         includeClassOrigin,
         propertyList,
@@ -1011,6 +1029,7 @@ CIMInstance CIMRepository::getInstance(
 CIMInstance CIMRepository::_getInstance(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList,
@@ -1050,6 +1069,7 @@ CIMInstance CIMRepository::_getInstance(
     _filterInstance(
         cimInstance,
         propertyList,
+        localOnly,
         includeQualifiers,
         includeClassOrigin);
 
@@ -1101,10 +1121,6 @@ void CIMRepository::deleteClass(
     _rep->_classCache.evict(_getCacheKey(nameSpace, className));
 
 #endif /* PEGASUS_USE_CLASS_CACHE */
-
-    // Remove the class from the SCMOClassCache.
-    SCMOClassCache* pSCMOCache = SCMOClassCache::getInstance();
-    pSCMOCache->removeSCMOClass(nameSpace,className);
 
     //
     // Delete the class. The NameSpaceManager::deleteClass() method throws
@@ -1268,7 +1284,7 @@ CIMObjectPath CIMRepository::_createInstance(
     if (cimClass.isAssociation())
     {
         instAssocEntries = _buildInstanceAssociationEntries(
-            nameSpace, cimInstance, instanceName);
+            nameSpace, cimClass, cimInstance, instanceName);
     }
 
     //
@@ -1338,10 +1354,6 @@ void CIMRepository::_modifyClass(
 
 #endif /* PEGASUS_USE_CLASS_CACHE */
 
-    SCMOClassCache* pSCMOCache = SCMOClassCache::getInstance();
-    pSCMOCache->clear();
-
-
     Boolean isAssociation = cimClass.isAssociation();
     Array<ClassAssociation> classAssocEntries;
 
@@ -1407,6 +1419,7 @@ void CIMRepository::modifyInstance(
             cimInstance = _getInstance(
                 nameSpace,
                 modifiedInstance.getPath (),
+                false,
                 true,
                 true,
                 CIMPropertyList(),
@@ -1471,6 +1484,7 @@ void CIMRepository::modifyInstance(
         cimInstance = _getInstance(
             nameSpace,
             modifiedInstance.getPath(),
+            false,
             true,
             true,
             CIMPropertyList(),
@@ -1659,12 +1673,15 @@ Array<CIMName> CIMRepository::enumerateClassNames(
 Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
+    Boolean deepInheritance,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY,
         "CIMRepository::enumerateInstancesForSubtree");
+
     // It is not necessary to control access to the ReadWriteSem lock here.
     // This method calls enumerateInstancesForClass, which does its own
     // access control.
@@ -1688,10 +1705,12 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
     {
         Array<CIMInstance> localNamedInstances =
             enumerateInstancesForClass(nameSpace, classNames[i],
-                includeQualifiers, includeClassOrigin, propertyList);
+                false, includeQualifiers, includeClassOrigin, propertyList);
 
         // The propertyList, includeQualifiers, and includeClassOrigin
-        // filtering is done in enumerateInstancesForClass.
+        // filtering is done in enumerateInstancesForClass.  localOnly
+        // filtering is not performed, since this flag is deprecated and
+        // is not supported for instance operations.
         // ATTN: deepInheritance filtering is not performed.
 
         namedInstances.appendArray(localNamedInstances);
@@ -1704,6 +1723,7 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
 Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
@@ -1737,9 +1757,9 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
                 namedInstances[i], _rep->_context, nameSpace, true);
         }
 
-        _filterInstance(
-            namedInstances[i],
+        _filterInstance(namedInstances[i],
             propertyList,
+            localOnly,
             includeQualifiers,
             includeClassOrigin);
     }
@@ -1839,16 +1859,14 @@ Array<CIMObject> CIMRepository::associators(
         //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class also
-        //  has no key bindings.
-        //  This works today because we do not use singleton instances in
-        //  the model. See BUG_3302.
+        //  has no key bindings
         //
-        CIMObjectPath tmpRef = names[i];
-        tmpRef.setHost(String());
-        tmpRef.setNameSpace(CIMNamespaceName());
-
         if (names[i].getKeyBindings ().size () == 0)
         {
+            CIMObjectPath tmpRef = names[i];
+            tmpRef.setHost(String());
+            tmpRef.setNameSpace(CIMNamespaceName());
+
             CIMClass cimClass = _getClass(
                 tmpNameSpace,
                 tmpRef.getClassName(),
@@ -1863,9 +1881,14 @@ Array<CIMObject> CIMRepository::associators(
         }
         else
         {
+            CIMObjectPath tmpRef = names[i];
+            tmpRef.setHost(String());
+            tmpRef.setNameSpace(CIMNamespaceName());
+
             CIMInstance cimInstance = _getInstance(
                 tmpNameSpace,
                 tmpRef,
+                false,
                 includeQualifiers,
                 includeClassOrigin,
                 propertyList,
@@ -1934,8 +1957,7 @@ Array<CIMObjectPath> CIMRepository::_associatorNames(
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class also
     //  has no key bindings
-    //  This works today because we do not use singleton instances in
-    //  the model. See BUG_3302.
+    //
     if (objectName.getKeyBindings ().size () == 0)
     {
         CIMName className = objectName.getClassName();
@@ -2038,8 +2060,6 @@ Array<CIMObject> CIMRepository::references(
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class also
         //  has no key bindings
-        //  This works today because we do not use singleton instances in
-        //  the model. See BUG_3302.
         //
         if (objectName.getKeyBindings ().size () == 0)
         {
@@ -2060,6 +2080,7 @@ Array<CIMObject> CIMRepository::references(
             CIMInstance instance = _getInstance(
                 tmpNameSpace,
                 tmpRef,
+                false,
                 includeQualifiers,
                 includeClassOrigin,
                 propertyList,
@@ -2117,8 +2138,6 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class also
         //  has no key bindings
-        //  This works today because we do not use singleton instances in
-        //  the model. See BUG_3302.
         //
         if (objectName.getKeyBindings ().size () == 0)
         {
@@ -2205,7 +2224,7 @@ CIMValue CIMRepository::getProperty(
     //
 
     CIMInstance cimInstance = _getInstance(
-        nameSpace, instanceName, true, true, CIMPropertyList(), false);
+        nameSpace, instanceName, false, true, true, CIMPropertyList(), false);
 
     //
     // Get the requested property from the instance
@@ -2342,15 +2361,13 @@ void CIMRepository::_setQualifier(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_setQualifier");
 
-    _rep->_nameSpaceManager.checkNameSpaceUpdateAllowed(
-        nameSpace);
+    _rep->_nameSpaceManager.checkSetOrDeleteQualifier(
+        nameSpace, qualifierDecl.getName());
 
-    // Exception if namespace does not allow update
     _rep->_persistentStore->setQualifier(nameSpace, qualifierDecl);
 
     String qualifierCacheKey =
         _getCacheKey(nameSpace, qualifierDecl.getName());
-
     _rep->_qualifierCache.put(
         qualifierCacheKey, (CIMQualifierDecl&)qualifierDecl);
 
@@ -2366,9 +2383,8 @@ void CIMRepository::deleteQualifier(
     WriteLock lock(_rep->_lock);
     AutoFileLock fileLock(_rep->_lockFile);
 
-    // Exception exit if not allowed
-    _rep->_nameSpaceManager.checkNameSpaceUpdateAllowed(
-        nameSpace);
+    _rep->_nameSpaceManager.checkSetOrDeleteQualifier(
+        nameSpace, qualifierName);
 
     _rep->_persistentStore->deleteQualifier(nameSpace, qualifierName);
 
@@ -2513,26 +2529,6 @@ void CIMRepository::modifyNameSpace(
 
     _rep->_nameSpaceManager.modifyNameSpace(
         nameSpace, shareable, updatesAllowed);
-
-    PEG_METHOD_EXIT();
-}
-
-void CIMRepository::modifyNameSpaceName(
-        const CIMNamespaceName& nameSpace,
-        const CIMNamespaceName& newNameSpaceName)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyNameSpaceName");
-
-    WriteLock lock(_rep->_lock);
-    AutoFileLock fileLock(_rep->_lockFile);
-
-    _rep->_nameSpaceManager.validateNameSpace(nameSpace);
-
-    _rep->_persistentStore->modifyNameSpaceName(
-            nameSpace, newNameSpaceName);
-
-    _rep->_nameSpaceManager.modifyNameSpaceName(
-        nameSpace, newNameSpaceName);
 
     PEG_METHOD_EXIT();
 }

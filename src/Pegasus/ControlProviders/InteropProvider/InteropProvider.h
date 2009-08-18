@@ -234,6 +234,8 @@ private:
 
     CIMInstance buildNamespaceInstance(const String & nameSpace);
 
+    CIMInstance getNameSpaceInstance(const CIMObjectPath & ref);
+
     CIMObjectPath createNamespace(const CIMInstance & namespaceInstance);
     void deleteNamespace(const CIMObjectPath & instanceName);
 
@@ -372,6 +374,13 @@ private:
     CIMInstance localGetInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceName,
+        const CIMPropertyList & propertyList);
+
+    // This function fetches the other side of the reference.
+    Array<CIMInstance> getReferencedInstances(
+        const Array<CIMInstance> &refs,
+        const String targetRole,
+        const OperationContext & context,
         const CIMPropertyList & propertyList);
 
     void cacheProfileRegistrationInfo();

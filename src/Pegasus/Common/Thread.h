@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -79,78 +81,53 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-enum TSD_Key
+class PEGASUS_COMMON_LINKAGE thread_data : public Linkable
 {
-    TSD_ACCEPT_LANGUAGES,
-    TSD_SLEEP_SEM,
-    TSD_LAST_ACTIVITY_TIME,
-    TSD_WORK_FUNC,
-    TSD_WORK_PARM,
-    TSD_BLOCKING_SEM,
-    TSD_CIMOM_HANDLE_CONTENT_LANGUAGES,
-    TSD_RESERVED_1,
-    TSD_RESERVED_2,
-    TSD_RESERVED_3,
-    TSD_RESERVED_4,
-    TSD_RESERVED_5,
-    TSD_RESERVED_6,
-    TSD_RESERVED_7,
-    TSD_RESERVED_8,
-    // Add new TSD keys before this line.
-    TSD_COUNT
-};
-
-class thread_data
-{
-    /**
-     * This class is NOT build thread-safe.
-     * The Caller(user) of this class has to ensure there is no collision
-     * taking place.
-     *
-     * There is no mechanism in place to protect threads from manipulating
-     * the same thread-specific storage at one time.
-     * Make sure the possibility for a parallel access to the same
-     * threads-specific data from multiple threads cannot arise.
-     *
-     * In OpenPegasus this class is used in the ThreadPool
-     *        - on initialisation and creation of threads owned by ThreadPool
-     *        - on threads that are idle inside the ThreadPool
-     *        - on the ThreadPools main thread (the thread which the ThreadPool
-     *          runs in)
-     * In OpenPegasus this class is used in the
-     * ClientCIMOMHandleRep and InternalCIMOMHandleRep
-     *        - on the current active Thread which belongs to that CIMOMHandle
-     *
-     */
 public:
 
-    static void default_delete(void *data)
+    static void default_delete(void *data);
+
+    thread_data(const char *key) : _delete_func(NULL), _data(NULL), _size(0)
     {
-        if (data)
-            ::operator  delete(data);
+        PEGASUS_ASSERT(key != NULL);
+        size_t keysize = strlen(key);
+        _key.reset(new char[keysize + 1]);
+        memcpy(_key.get(), key, keysize);
+        _key.get()[keysize] = 0x00;
     }
 
-    thread_data(TSD_Key key) : _delete_func(0), _data(0), _size(0), _key(key)
+    thread_data(const char *key, size_t size) :
+        _delete_func(default_delete), _size(size)
     {
+        PEGASUS_ASSERT(key != NULL);
+        size_t keysize = strlen(key);
+        _key.reset(new char[keysize + 1]);
+        memcpy(_key.get(), key, keysize);
+        _key.get()[keysize] = 0x00;
+        _data =::operator  new(_size);
     }
 
-    thread_data(TSD_Key key, size_t size) :
-        _delete_func(default_delete), _size(size), _key(key)
+    thread_data(const char *key, size_t size, void *data)
+        : _delete_func(default_delete), _size(size)
     {
-        _data = ::operator  new(_size);
-    }
+        PEGASUS_ASSERT(key != NULL);
+        PEGASUS_ASSERT(data != NULL);
+        size_t keysize = strlen(key);
 
-    thread_data(TSD_Key key, size_t size, void* data)
-        : _delete_func(default_delete), _size(size), _key(key)
-    {
-        _data = ::operator  new(_size);
+        _key.reset(new char[keysize + 1]);
+        memcpy(_key.get(), key, keysize);
+        _key.get()[keysize] = 0x00;
+        _data =::operator  new(_size);
         memcpy(_data, data, size);
     }
 
     ~thread_data()
     {
-        if (_data && _delete_func)
-            (*_delete_func)(_data);
+        if (_data != NULL)
+            if (_delete_func != NULL)
+            {
+                _delete_func(_data);
+            }
     }
 
     /**
@@ -166,24 +143,21 @@ public:
      *
      * @exception NullPointer
     */
-    void put_data(void (*del)(void *), size_t size, void* data)
+    void put_data(void (*del) (void *), size_t size, void* data)
     {
-        if (_data && _delete_func)
-            (*_delete_func)(_data);
+        if (_data != NULL)
+            if (_delete_func != NULL)
+                _delete_func(_data);
 
         _delete_func = del;
         _data = data;
         _size = size;
+        return;
     }
 
     size_t get_size()
     {
         return _size;
-    }
-
-    void* get_data()
-    {
-        return _data;
     }
 
     /**
@@ -200,7 +174,7 @@ public:
      */
     void get_data(void** data, size_t* size)
     {
-        if (data == 0 || size == 0)
+        if (data == NULL || size == NULL)
             throw NullPointer();
 
         *data = _data;
@@ -210,25 +184,38 @@ public:
     // @exception NullPointer
     void copy_data(void** buf, size_t* size)
     {
-        if ((buf == 0) || (size == 0))
+        if ((buf == NULL) || (size == NULL))
             throw NullPointer();
-
-        *buf = ::operator new(_size);
+        *buf =::operator  new(_size);
         *size = _size;
         memcpy(*buf, _data, _size);
     }
 
+    inline Boolean operator==(const void* key) const
+    {
+        if (!strcmp(_key.get(), reinterpret_cast < const char *>(key)))
+            return true;
+        return false;
+    }
 
-private:
+    inline Boolean operator==(const thread_data& b) const
+    {
+        return operator==(b._key.get());
+    }
 
+    static bool equal(const thread_data* node, const void* key)
+    {
+        return ((thread_data *) node)->operator==(key);
+    }
+
+  private:
+    void (*_delete_func) (void* data);
     thread_data();
-    thread_data(const thread_data& x);
-    thread_data& operator=(const thread_data& x);
-
-    void (*_delete_func)(void*);
     void* _data;
     size_t _size;
-    TSD_Key _key;
+    AutoArrayPtr<char> _key;
+
+    friend class Thread;
 };
 
 
@@ -268,7 +255,7 @@ public:
     ThreadStatus run();
 
     // get the user parameter
-    void *get_parm()
+    inline void *get_parm()
     {
         return _thread_parm;
     }
@@ -299,78 +286,93 @@ public:
 
     // stack of functions to be called when thread terminates
     // will be called last in first out (LIFO)
+    // @exception IPCException
     void cleanup_push(void (*routine) (void *), void* parm);
 
+    // @exception IPCException
     void cleanup_pop(Boolean execute = true);
+
+    // create and initialize a tsd
+    // @exception IPCException
+    inline void create_tsd(const char* key, int size, void* buffer)
+    {
+        AutoPtr<thread_data> tsd(new thread_data(key, size, buffer));
+        _tsd.insert_front(tsd.get());
+        tsd.release();
+    }
 
     // get the buffer associated with the key
     // NOTE: this call leaves the tsd LOCKED !!!!
-    void* reference_tsd(TSD_Key key)
+    // @exception IPCException
+    inline void *reference_tsd(const char* key)
     {
-        if (_tsd[key])
-            return _tsd[key]->get_data();
-         else
-            return 0;
+        _tsd.lock();
+        thread_data *tsd = _tsd.find(thread_data::equal, key);
+        if (tsd != NULL)
+            return (void *) (tsd->_data);
+        else
+            return NULL;
     }
+
+    // @exception IPCException
+    inline void *try_reference_tsd(const char *key)
+    {
+        _tsd.try_lock();
+        thread_data *tsd = _tsd.find(thread_data::equal, key);
+        if (tsd != NULL)
+            return (void *) (tsd->_data);
+        else
+            return NULL;
+    }
+
 
     // release the lock held on the tsd
     // NOTE: assumes a corresponding and prior call to reference_tsd() !!!
-    void dereference_tsd()
+    // @exception IPCException
+    inline void dereference_tsd()
     {
+        _tsd.unlock();
     }
 
     // delete the tsd associated with the key
-    void delete_tsd(TSD_Key key)
+    // @exception IPCException
+    inline void delete_tsd(const char *key)
     {
-        thread_data* tsd;
-
-        tsd = _tsd[key];
-        _tsd[key] = 0;
-
-        if (tsd)
-            delete tsd;
+        AutoPtr < thread_data > tsd(_tsd.remove(thread_data::equal, key));
     }
 
-    void empty_tsd()
+    // @exception IPCException
+    inline void empty_tsd()
     {
-        thread_data* data[TSD_COUNT];
-
-        memcpy(data, _tsd, sizeof(_tsd));
-        memset(_tsd, 0, sizeof(_tsd));
-
-        for (size_t i = 0; i < TSD_COUNT; i++)
-        {
-            if (data[i])
-                delete data[i];
-        }
+        _tsd.clear();
     }
 
     // create or re-initialize tsd associated with the key
     // if the tsd already exists, delete the existing buffer
+    // @exception IPCException
     void put_tsd(
-        TSD_Key key,
-        void (*delete_func)(void*),
+        const char* key,
+        void (*delete_func) (void *),
         Uint32 size,
         void* value)
     {
-        thread_data* tsd = new thread_data(key);
-        tsd->put_data(delete_func, size, value);
-
-        thread_data* old;
-
-        old = _tsd[key];
-        _tsd[key] = tsd;
-
-        if (old)
-            delete old;
+        PEGASUS_ASSERT(key != NULL);
+        AutoPtr<thread_data> tsd;
+        // This may throw an IPCException
+        tsd.reset(_tsd.remove(thread_data::equal, key));
+        tsd.reset();
+        AutoPtr<thread_data> ntsd(new thread_data(key));
+        ntsd->put_data(delete_func, size, value);
+        // This may throw an IPCException
+        _tsd.insert_front(ntsd.get());
+        ntsd.release();
     }
 
-    ThreadReturnType get_exit()
+    inline ThreadReturnType get_exit()
     {
         return _exit_code;
     }
-
-    ThreadType self()
+    inline ThreadType self()
     {
         return Threads::self();
     }
@@ -427,6 +429,14 @@ private:
 
     static Sint8 initializeKey();
 
+    // @exception IPCException
+    inline void create_tsd(const char *key)
+    {
+        AutoPtr<thread_data> tsd(new thread_data(key));
+        _tsd.insert_front(tsd.get());
+        tsd.release();
+    }
+
     ThreadHandle _handle;
     Boolean _is_detached;
     Boolean _cancelled;
@@ -436,7 +446,7 @@ private:
 
     ThreadReturnType(PEGASUS_THREAD_CDECL* _start) (void *);
     List<cleanup_handler, Mutex> _cleanup;
-    thread_data* _tsd[TSD_COUNT];
+    List<thread_data, Mutex> _tsd;
 
     void* _thread_parm;
     ThreadReturnType _exit_code;

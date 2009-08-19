@@ -5657,7 +5657,7 @@ CIM server listening on HTTPS port {0}."}
         *     Substitution {1} is the character in the string that cannot be converted (a single character)
         *     Substitution {2} is the string being converted (a string)
         */
-        CQL.CQLUtilities.INVALID_REAL_CHAR:string {"PGS15110: Error converting string to {0}.  Character ''{1}'' in string ''{2}'' is not invalid."}
+        CQL.CQLUtilities.INVALID_REAL_CHAR:string {"PGS15110: Error converting string to {0}.  Character ''{1}'' in string ''{2}'' is invalid."}
 
         /**
         * @note  PGS15111
@@ -5665,7 +5665,7 @@ CIM server listening on HTTPS port {0}."}
         *     Substitution {1} is the character in the string that cannot be converted (a single character)
         *     Do not translate Real64 because it is the name of a data type
         */
-        CQL.CQLUtilities.INVALID_REAL_EXP:string {"PGS15111: Error converting string to Real64.  String ''{0}'' has an exponent that is not well formed.  Character ''{1}'' is not invalid."}
+        CQL.CQLUtilities.INVALID_REAL_EXP:string {"PGS15111: Error converting string to Real64.  String ''{0}'' has an exponent that is not well formed.  Character ''{1}'' is invalid."}
 
         /**
         * @note  PGS15112

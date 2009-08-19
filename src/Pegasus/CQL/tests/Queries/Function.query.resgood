@@ -461,99 +461,99 @@ FALSE
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Uint64.  String '18446744073709551616' is invalid or causes an overflow 
+Error converting string to Uint64.  String '18446744073709551616' caused an overflow.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Uint64.  String '18446744073709551616' is invalid or causes an overflow 
+Error converting string to Uint64.  String '18446744073709551616' caused an overflow.
 
 =========     61     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyUint64 = STRINGTOUINT('0x10000000000000000')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Uint64.  String '0x10000000000000000' is invalid or causes an overflow 
+Error converting string to Uint64.  String '0x10000000000000000' caused an overflow.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Uint64.  String '0x10000000000000000' is invalid or causes an overflow 
+Error converting string to Uint64.  String '0x10000000000000000' caused an overflow.
 
 =========     62     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyUint64 = STRINGTOUINT('10000000000000000000000000000000000000000000000000000000000000000B')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Uint64.  String '10000000000000000000000000000000000000000000000000000000000000000B' is invalid or causes an overflow 
+Error converting string to Uint64.  String '10000000000000000000000000000000000000000000000000000000000000000B' caused an overflow.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Uint64.  String '10000000000000000000000000000000000000000000000000000000000000000B' is invalid or causes an overflow 
+Error converting string to Uint64.  String '10000000000000000000000000000000000000000000000000000000000000000B' caused an overflow.
 
 =========     63     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint64Lower = STRINGTOSINT('-9223372036854775809')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Sint64.  String '-9223372036854775809' is invalid or causes an overflow 
+Error converting string to Sint64.  String '-9223372036854775809' caused an overflow.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Sint64.  String '-9223372036854775809' is invalid or causes an overflow 
+Error converting string to Sint64.  String '-9223372036854775809' caused an overflow.
 
 =========     64     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint64Lower = STRINGTOSINT('-0x8000000000000001')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Sint64.  String '-0x8000000000000001' is invalid or causes an overflow 
+Error converting string to Sint64.  String '-0x8000000000000001' caused an overflow.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Sint64.  String '-0x8000000000000001' is invalid or causes an overflow 
+Error converting string to Sint64.  String '-0x8000000000000001' caused an overflow.
 
 =========     65     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint64Lower = STRINGTOSINT('-1000000000000000000000000000000000000000000000000000000000000001b')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Sint64.  String '-1000000000000000000000000000000000000000000000000000000000000001b' is invalid or causes an overflow 
+Error converting string to Sint64.  String '-1000000000000000000000000000000000000000000000000000000000000001b' caused an overflow.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Sint64.  String '-1000000000000000000000000000000000000000000000000000000000000001b' is invalid or causes an overflow 
+Error converting string to Sint64.  String '-1000000000000000000000000000000000000000000000000000000000000001b' caused an overflow.
 
 =========     66     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE CQL_TestPropertyTypes.PropertySint64Upper = STRINGTOSINT('9223372036854775808')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Sint64.  String '9223372036854775808' is invalid or causes an overflow 
+Error converting string to Sint64.  String '9223372036854775808' caused an overflow.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Sint64.  String '9223372036854775808' is invalid or causes an overflow 
+Error converting string to Sint64.  String '9223372036854775808' caused an overflow.
 
 =========     67     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint64Upper = STRINGTOSINT('0x8000000000000000')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Sint64.  String '0x8000000000000000' is invalid or causes an overflow 
+Error converting string to Sint64.  String '0x8000000000000000' caused an overflow.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Sint64.  String '0x8000000000000000' is invalid or causes an overflow 
+Error converting string to Sint64.  String '0x8000000000000000' caused an overflow.
 
 =========     68     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint64Upper = STRINGTOSINT('1000000000000000000000000000000000000000000000000000000000000000B')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Sint64.  String '1000000000000000000000000000000000000000000000000000000000000000B' is invalid or causes an overflow 
+Error converting string to Sint64.  String '1000000000000000000000000000000000000000000000000000000000000000B' caused an overflow.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Sint64.  String '1000000000000000000000000000000000000000000000000000000000000000B' is invalid or causes an overflow 
+Error converting string to Sint64.  String '1000000000000000000000000000000000000000000000000000000000000000B' caused an overflow.
 
 =========     69     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyUint64 = STRINGTOUINT()
@@ -593,110 +593,110 @@ Parameter 1 for function STRINGTOUINT has type Uint64.  It must be type String.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Uint64.  String '' is invalid or causes an overflow 
+Error converting string to Uint64.  String cannot be empty.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Uint64.  String '' is invalid or causes an overflow 
+Error converting string to Uint64.  String cannot be empty.
 
 =========     73     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyUint64 = STRINGTOUINT('-27')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Uint64.  String '-27' is invalid or causes an overflow 
+Error converting string to Uint64.  String '-27' cannot begin with '-'.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Uint64.  String '-27' is invalid or causes an overflow 
+Error converting string to Uint64.  String '-27' cannot begin with '-'.
 
 =========     74     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyUint64 = STRINGTOUINT('+a22')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Uint64.  String '+a22' is invalid or causes an overflow 
+Error converting string to Uint64.  String '+a22' is badly formed.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Uint64.  String '+a22' is invalid or causes an overflow 
+Error converting string to Uint64.  String '+a22' is badly formed.
 
 =========     75     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyUint64 = STRINGTOUINT('a22')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Uint64.  String 'a22' is invalid or causes an overflow 
+Error converting string to Uint64.  String 'a22' is badly formed.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Uint64.  String 'a22' is invalid or causes an overflow 
+Error converting string to Uint64.  String 'a22' is badly formed.
 
 =========     76     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyUint64 = STRINGTOUINT('0121b')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Uint64.  String '0121b' is invalid or causes an overflow 
+Error converting string to Uint64.  Character '2' in string '0121b' is not a binary digit.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Uint64.  String '0121b' is invalid or causes an overflow 
+Error converting string to Uint64.  Character '2' in string '0121b' is not a binary digit.
 
 =========     77     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyUint64 = STRINGTOUINT('01a1b')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Uint64.  String '01a1b' is invalid or causes an overflow 
+Error converting string to Uint64.  Character 'a' in string '01a1b' is not a binary digit.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Uint64.  String '01a1b' is invalid or causes an overflow 
+Error converting string to Uint64.  Character 'a' in string '01a1b' is not a binary digit.
 
 =========     78     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyUint64 = STRINGTOUINT('0x')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Uint64.  String '0x' is invalid or causes an overflow 
+Error converting string to Uint64.  String '0x' needs a hexadecimal digit character following '0x'
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Uint64.  String '0x' is invalid or causes an overflow 
+Error converting string to Uint64.  String '0x' needs a hexadecimal digit character following '0x'
 
 =========     79     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyUint64 = STRINGTOUINT('0xFG2')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Uint64.  String '0xFG2' is invalid or causes an overflow 
+Error converting string to Uint64.  Character 'G' in string '0xFG2' is not a hexidecimal digit.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Uint64.  String '0xFG2' is invalid or causes an overflow 
+Error converting string to Uint64.  Character 'G' in string '0xFG2' is not a hexidecimal digit.
 
 =========     80     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyUint64 = STRINGTOUINT('02x34')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Uint64.  String '02x34' is invalid or causes an overflow 
+Error converting string to Uint64.  Character 'x' in string '02x34' is not a decimal digit.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Uint64.  String '02x34' is invalid or causes an overflow 
+Error converting string to Uint64.  Character 'x' in string '02x34' is not a decimal digit.
 
 =========     81     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyUint32 = STRINGTOUINT('0101bb')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Uint64.  String '0101bb' is invalid or causes an overflow 
+Error converting string to Uint64.  Character 'b' in string '0101bb' is not a binary digit.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Uint64.  String '0101bb' is invalid or causes an overflow 
+Error converting string to Uint64.  Character 'b' in string '0101bb' is not a binary digit.
 
 =========     82     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint64 = STRINGTOSINT()
@@ -736,99 +736,99 @@ Parameter 1 for function STRINGTOSINT has type Sint64.  It must be type String.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Sint64.  String '' is invalid or causes an overflow 
+Error converting string to Sint64.  String cannot be empty.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Sint64.  String '' is invalid or causes an overflow 
+Error converting string to Sint64.  String cannot be empty.
 
 =========     86     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint64 = STRINGTOSINT('-a22')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Sint64.  String '-a22' is invalid or causes an overflow 
+Error converting string to Uint64.  String '-a22' is badly formed.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Sint64.  String '-a22' is invalid or causes an overflow 
+Error converting string to Uint64.  String '-a22' is badly formed.
 
 =========     87     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint64 = STRINGTOSINT('a22')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Sint64.  String 'a22' is invalid or causes an overflow 
+Error converting string to Uint64.  String 'a22' is badly formed.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Sint64.  String 'a22' is invalid or causes an overflow 
+Error converting string to Uint64.  String 'a22' is badly formed.
 
 =========     88     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint64 = STRINGTOSINT('-0121b')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Sint64.  String '-0121b' is invalid or causes an overflow 
+Error converting string to Sint64.  Character '2' in string '-0121b' is not a binary digit.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Sint64.  String '-0121b' is invalid or causes an overflow 
+Error converting string to Sint64.  Character '2' in string '-0121b' is not a binary digit.
 
 =========     89     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint64 = STRINGTOSINT('-01a1b')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Sint64.  String '-01a1b' is invalid or causes an overflow 
+Error converting string to Sint64.  Character 'a' in string '-01a1b' is not a binary digit.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Sint64.  String '-01a1b' is invalid or causes an overflow 
+Error converting string to Sint64.  Character 'a' in string '-01a1b' is not a binary digit.
 
 =========     90     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint64 = STRINGTOSINT('-0x')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Sint64.  String '-0x' is invalid or causes an overflow 
+Error converting string to Sint64.  String '-0x' needs a hexadecimal digit character following '0x'.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Sint64.  String '-0x' is invalid or causes an overflow 
+Error converting string to Sint64.  String '-0x' needs a hexadecimal digit character following '0x'.
 
 =========     91     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint64 = STRINGTOSINT('-0xFG2')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Sint64.  String '-0xFG2' is invalid or causes an overflow 
+Error converting string to Sint64.  Character 'G' in string '-0xFG2' is not a hexidecimal digit.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Sint64.  String '-0xFG2' is invalid or causes an overflow 
+Error converting string to Sint64.  Character 'G' in string '-0xFG2' is not a hexidecimal digit.
 
 =========     92     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint64 = STRINGTOSINT('-02x34')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Sint64.  String '-02x34' is invalid or causes an overflow 
+Error converting string to Sint64.  Character 'x' in string '-02x34' is not a decimal digit.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Sint64.  String '-02x34' is invalid or causes an overflow 
+Error converting string to Sint64.  Character 'x' in string '-02x34' is not a decimal digit.
 
 =========     93     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertySint32 = STRINGTOSINT('-0101bb')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Sint64.  String '-0101bb' is invalid or causes an overflow 
+Error converting string to Sint64.  Character 'b' in string '-0101bb' is not a binary digit.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Sint64.  String '-0101bb' is invalid or causes an overflow 
+Error converting string to Sint64.  Character 'b' in string '-0101bb' is not a binary digit.
 
 =========     94     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyReal64 = STRINGTOREAL()
@@ -879,55 +879,55 @@ Parameter 1 for function STRINGTOREAL has type Real.  It must be type String.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Uint64.  String '' is invalid or causes an overflow 
+Error converting string to Real64.  String cannot be empty.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Uint64.  String '' is invalid or causes an overflow 
+Error converting string to Real64.  String cannot be empty.
 
 =========     99     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyReal64 = STRINGTOREAL('32.')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Real64.  String '32.' is invalid or causes an overflow 
+Error converting string to Real64.  String '32.' must have a digit character following the decimal point.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Real64.  String '32.' is invalid or causes an overflow 
+Error converting string to Real64.  String '32.' must have a digit character following the decimal point.
 
 =========     100     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyReal64 = STRINGTOREAL('3a3.32')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Real64.  String '3a3.32' is invalid or causes an overflow 
+Error converting string to Real64.  Character 'a' in string '3a3.32' is not a decimal digit.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Real64.  String '3a3.32' is invalid or causes an overflow 
+Error converting string to Real64.  Character 'a' in string '3a3.32' is not a decimal digit.
 
 =========     101     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyReal64 = STRINGTOREAL('32.3a3')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Real64.  String '32.3a3' is invalid or causes an overflow 
+Error converting string to Real64.  Character 'a' in string '32.3a3' is invalid.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Real64.  String '32.3a3' is invalid or causes an overflow 
+Error converting string to Real64.  Character 'a' in string '32.3a3' is invalid.
 
 =========     102     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyReal64 = STRINGTOREAL('32.33E-a2')
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-Error converting string to Real64.  String '32.33E-a2' is invalid or causes an overflow 
+Error converting string to Real64.  String '32.33E-a2' has an exponent that is not well formed.  Character 'a' is invalid.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-Error converting string to Real64.  String '32.33E-a2' is invalid or causes an overflow 
+Error converting string to Real64.  String '32.33E-a2' has an exponent that is not well formed.  Character 'a' is invalid.
 
 =========     103     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE PropertyStringUint = NUMERICTOSTRING(347)
@@ -1062,11 +1062,11 @@ TRUE
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
 
 =========     120     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE CLASSNAME(TestPropertyTypes) = 'CQL_TestPropertyTypes'
@@ -1105,11 +1105,11 @@ TRUE
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
 
 =========     125     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE NAMESPACENAME(TestPropertyTypes) = 'root/SampleProvider'
@@ -1163,11 +1163,11 @@ Function HOSTPORT has 0 parameters.  It must have between 1 and 1.
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
 
 =========     131     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE HOSTPORT(TestPropertyTypes) = 'a.b.com'
@@ -1206,11 +1206,11 @@ TRUE
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
 
 =========     136     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE MODELPATH(TestPropertyTypes) = 'CQL_TestPropertyTypes.InstanceId=2'
@@ -1260,11 +1260,11 @@ Parameter 1 for function CLASSPATH has type Identifier.  It must be type Referen
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
 
 =========     142     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE REFERENCETOSTRING(OBJECTPATH()) = '//a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2'
@@ -1303,11 +1303,11 @@ Parameter 1 for function OBJECTPATH has type Identifier.  It must be type Refere
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2
 ERROR!
-malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2, reason:"host specified, missing namespace"
+malformed object name: //a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2
 
 =========     147     =========
 -----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE REFERENCETOSTRING(INSTANCETOREFERENCE()) = 'root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2'

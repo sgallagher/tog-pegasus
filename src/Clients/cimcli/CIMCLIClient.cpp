@@ -28,109 +28,25 @@
 //////////////////////////////////////////////////////////////////////////
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-/*
-    This file defines the cicml operations(action functions).
-    Each function is called from a specific cimcli input parameter opcode.
-    The parameters for each operation are defined in the.
-    options structure.
-*/
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/MofWriter.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/ArrayInternal.h>
-
-#include <Pegasus/Common/PegasusVersion.h>
-
-#include <Pegasus/General/MofWriter.h>
-#include <Pegasus/Common/Print.h>
-#include <Pegasus/Common/HashTable.h>
-#include <Pegasus/Common/Pegasus_inl.h>
-
 #include "CIMCLIClient.h"
-
-#include "ObjectBuilder.h"
-#include "CIMCLIOutput.h"
-#include "CIMCLIHelp.h"
-#include "CIMCLIOptions.h"
-#include "CIMCLICommon.h"
-#include "CIMCLIOperations.h"
-
+#include <Pegasus/Common/PegasusVersion.h>
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 const String DEFAULT_NAMESPACE = "root/cimv2";
 
-
-/************************************************************************
-*
-*   Start and Stop timer to provide execution times for
-*   operation action functions.
-*
-*************************************************************************/
-
-/* Common function for all command action functions to start the
-   elapsed timer that will time command execution
-*/
-void _startCommandTimer(Options& opts)
+String _toString(Boolean x)
 {
-    if (opts.time)
-    {
-        opts.elapsedTime.reset();
-        opts.elapsedTime.start();
-    }
+    return(x ? "true" : "false");
 }
-
-/* Common function for all command action functions to
-   Stop and save the command timer if it was started
-*/
-void _stopCommandTimer(Options& opts)
-{
-    if (opts.time)
-    {
-        opts.elapsedTime.stop();
-        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
-    }
-}
-
-/************************************************************************
-*
-*   Display functions to support the verbose display of input parameters
-*
-*************************************************************************/
-
-void _showValueParameters(const Options& opts)
-{
-    for (Uint32 i = 0; i < opts.valueParams.size(); i++)
-    {
-        cout << opts.valueParams[i] << " ";
-    }
-    cout << endl;
-}
-
-// Map the keybinding values from any CIMObjectPath that was input into
-// our standard input form for use by objectBuilder.
-void mapKeyBindingsToInputParameters(Options& opts)
-{
-    Array<CIMKeyBinding> keys = opts.getTargetObjectName().getKeyBindings();
-    for (Uint32 i = 0 ; i < keys.size() ; i++)
-    {
-        String param = keys[i].getName().getString();
-        param.append("=");
-        param.append(keys[i].getValue());
-        opts.valueParams.append(param);
-    }
-}
-
-/*************************************************************
-*
-*  Functions for interactive selection from the console
-*
-*************************************************************/
 /** Select one item from an array of items presented to
     the user. This prints the list and requests user input for
     the response.
@@ -139,6 +55,8 @@ void mapKeyBindingsToInputParameters(Options& opts)
     @param what String that defines for the output string what type
     of items the select is based on (ex: "Instance Names");
     @return Uint32 representing the item to be selected.
+    TODO: Find a way to do a reject.
+
 */
 Uint32 _selectStringItem(const Array<String>& selectList, const String& what)
 {
@@ -146,9 +64,7 @@ Uint32 _selectStringItem(const Array<String>& selectList, const String& what)
     Uint32 listSize = selectList.size();
 
     for (Uint32 i = 0 ; i < listSize; i++)
-    {
-        cout << i + 1 << ": " << selectList[i].getCString() << endl;
-    }
+        cout << i + 1 << ": " << selectList[i] << endl;
 
     while (rtn < 1 || rtn > listSize)
     {
@@ -166,878 +82,775 @@ Uint32 _selectStringItem(const Array<String>& selectList, const String& what)
         }
     }
 
-    return rtn-1;
+    return (rtn - 1);
 }
 
-/** Allow user to select one instance name. Do server
-    EnumerateNames for input className and ask user to select a
-    singe result from the enumerates returned.
+/** Allow user to select one instance name. Enumerates names given className and
+    requests input of one index
+    @param
+    @param
     @param className CIMName for the class to enumerate.
-    @param instancePath CIMObjectPath of instance selected
-    @return True if at least one instance returned by server.
+    @param instancePath CIMObjectPath of instance found
+    @return True if instance provided and the path is in instancePath.
     Else False and there is nothing in the instancePath
-
-    NOTE: There is no clean way for the user to respond "none of
-    the above" to the request to select a single item from the
-    list.  They must select one or execute a program kill (ex.
-    Ctrl C)
 */
-Boolean _selectInstance(Options& opts,
-    const CIMName& className,
+Boolean _selectInstance(CIMClient& client, Options& opts,
+                        const CIMName& className,
     CIMObjectPath & instancePath)
 {
-    // Enumerate instance Names based on input class to get list
     Array<CIMObjectPath> instanceNames =
-        opts.client.enumerateInstanceNames(opts.nameSpace,
+        client.enumerateInstanceNames(opts.nameSpace,
                                       className);
-    // create a corresponding String list
     Array<String> list;
     for (Uint32 i = 0 ; i < instanceNames.size() ; i++)
-    {
         list.append(instanceNames[i].toString());
-    }
 
-    // return false if nothing in list
     if (list.size() == 0)
     {
-        if (opts.verboseTest)
-        {
-            cout << "No instances exist for class " << className.getString()
-                 << endl;
-        }
-        return false;
+        return(false);
     }
-
-    // ask user to select a single entry
     Uint32 rtn = _selectStringItem(list, "an Instance");
 
     instancePath = instanceNames[rtn];
 
-    return true;
+    return(true);
 }
 
+
 /** Use the interactive selection mechanism to get the instance if
-    the input object is a class AND if opts.interactive flag is
-    set.  This function is used by the associator/reference
-    functions because just the existence of the object as class
-    is insufficient since these functions accept both class and
-    instance input for processing. If the tests are passed this
-    function calls the server to enumerate the instance names
-    possible and displays them for the user to select one.
+    the input object is a class AND if the opts.interactive flag is
+    set.  This function is used by the association functions because
+    just the existence of the object as class is insufficient since
+    these functions accept both class and instance input for processing.
+    If the tests are passed this function calls the server to enumerate
+    the instance names possible and displays them for the user to
+    select one.
+    @param client CIMClient context for the operation required
     @param opts the context structure for this operaiton
+    @param name String of the object that is the target of the request.
     @param instancePath CIMObjectPath of instance selected if return
     is true.  Else, unchanged.
     @return Boolean True if an instance path is to be returned. If nothing
     is selected, returns False.
 */
-Boolean _conditionalSelectInstance(Options& opts,
+Boolean _conditionalSelectInstance(CIMClient& client, Options& opts,
     CIMObjectPath & instancePath)
 {
     // if class level and interactive set.
     if ((instancePath.getKeyBindings().size() == 0) && opts.interactive)
     {
-        // Ask the user to select an instance. returns instancePath
-        // with selected path
+        // Ask the user to select an instance
 
-        return _selectInstance(opts, opts.getTargetObjectNameClassName(),
-                               instancePath);
+        return(_selectInstance(client, opts, CIMName(opts.objectName),
+                    instancePath));
     }
 
-    return true;
+    return(true);
 }
 
-// Display detailed differences between two properties. They are assumed
-// to be the same property with the same name. Displays the xml definition
-// of the property and details about which characteristics differ.
-// If testDetails true, attributes other than simply the value are tested
-// for differences.
-Boolean _compareProperty(CIMProperty& propTest,
-                         CIMProperty& propRtnd,
-                         const Options& opts,
-                         Boolean detailedTest = false,
-                         Boolean display = false)
+
+// Character sequences used in help/usage output.
+String buildPropertyListString(CIMPropertyList& pl)
 {
-    bool rtn = true;
+    String rtn;
+    Array<CIMName> pls = pl.getPropertyNameArray();
+    if (pl.isNull())
+        return("NULL");
 
-    if (propTest.getName() != propRtnd.getName())
+    if (pl.size() == 0)
+        return("EMPTY");
+
+    for (Uint32 i = 0 ; i < pls.size() ; i++)
     {
-        if (display)
-        {
-            cout << "Names differ. "
-                 << propTest.getName().getString()
-                 << " vs. "
-                 << propRtnd.getName().getString()
-                 << endl;
-        }
-        rtn = false;
+        if (i != 0)
+            rtn.append(", ");
+        rtn.append(pls[i].getString());
     }
-
-    if (propTest.getType() != propRtnd.getType())
-    {
-        if (display)
-        {
-            cout << "Types differ. "
-                 << propTest.getType()
-                 << " vs. "
-                 << propRtnd.getType()
-                 << endl;
-        }
-        rtn = false;
-    }
-
-    if (propTest.getValue() != propRtnd.getValue())
-    {
-        if (display)
-        {
-            cout << "Values differ" << endl;
-            cout << ". Test Instance ";
-            CIMCLIOutput::displayProperty(opts, propTest);
-            cout << endl <<"Returned instance ";
-            CIMCLIOutput::displayProperty(opts ,propRtnd);
-            cout << endl;
-        }
-        rtn = false;
-    }
-    if (propTest.isArray() != propRtnd.isArray())
-    {
-        if (display)
-        {
-            cout << "isArray Attributes differ differ. "
-                 << boolToString(propTest.isArray())
-                 << " vs. "
-                 << boolToString(propRtnd.isArray())
-                 << endl;
-        }
-        rtn = false;
-    }
-
-    // if detailed test specified, we test arraysize, classOrigin,
-    // propagated, and qualifiers also
-    if (detailedTest)
-    {
-        if (propTest.getArraySize() !=
-            propRtnd.getArraySize())
-        {
-            if (display)
-            {
-                cout << "ArraySize Attributes differ differ. "
-                     << propTest.getArraySize()
-                     << " vs. "
-                     << propRtnd.getArraySize()
-                     << endl;
-            }
-            rtn = false;
-        }
-
-        if (propTest.getClassOrigin() !=
-             propRtnd.getClassOrigin())
-        {
-            if (display)
-            {
-                cout << "ClassOrigin values differ.  "
-                     << propTest.getClassOrigin().getString()
-                     << " vs. "
-                     << propRtnd.getClassOrigin().getString()
-                     << endl;
-            }
-            rtn = false;
-        }
-        if (propTest.getPropagated() !=
-             propRtnd.getPropagated())
-        {
-            if (display)
-            {
-                cout << "getPropagated values differ.  "
-                     << boolToString(propTest.getPropagated())
-                     << " vs. "
-                     << boolToString(propRtnd.getPropagated())
-                     << endl;
-            }
-            rtn = false;
-        }
-
-        if (propTest.getQualifierCount() !=
-             propRtnd.getQualifierCount())
-        {
-            if (display)
-            {
-                cout << "ClassOrigin values differ. "
-                     << propTest.getQualifierCount()
-                     << " vs. "
-                     << propRtnd.getQualifierCount()
-                     << endl;
-            }
-            rtn = false;
-        }
-    }
-    return rtn;
-}
-/*
-    Compare two instances for equality in terms of number and names of
-    properties and property values
-    ASSUMPTION: Firstproperty is test, second is returned instance. We use
-    this assumption in outputs
-*/
-Boolean _compareInstances(CIMInstance& inst1,
-                          CIMInstance& inst2,
-                          Options& opts,
-                          Boolean detailedTest,
-                          Boolean verbose)
-{
-    Boolean returnValue = true;
-
-
-    // If the number of properties not the same in the two instances
-    // rtnd instance  must have more than test instance.
-    if (inst1.getPropertyCount() != inst2.getPropertyCount())
-    {
-        returnValue = false;
-        if (verbose)
-        {
-            for (Uint32 i = 0 ; i < inst2.getPropertyCount() ; i++)
-            {
-                CIMProperty inst2Property = inst2.getProperty(i);
-                CIMName testName = inst2Property.getName();
-                if (inst1.findProperty(testName) == PEG_NOT_FOUND)
-                {
-                    cout << "Error: property " << testName.getString()
-                        << " not found in test instance" << endl;
-                }
-            }
-            for (Uint32 i = 0 ; i < inst1.getPropertyCount() ; i++)
-            {
-                CIMProperty inst1Property = inst1.getProperty(i);
-                CIMName testName = inst1Property.getName();
-                if (inst2.findProperty(testName) == PEG_NOT_FOUND)
-                {
-                    cout << "Error: property " << testName.getString()
-                        << " not found in returned instance" << endl;
-                }
-            }
-        }
-        return returnValue;
-    }
-    // for each property in the test instance.
-    // If there are extra properties in the returned instance we do not not
-    // that here.  See next set of tests.
-    for (Uint32 i = 0 ; i < inst1.getPropertyCount(); i++)
-    {
-        CIMProperty inst1Property = inst1.getProperty(i);
-        CIMName testName = inst1Property.getName();
-        Uint32 pos;
-
-        // test for property in returned instance
-        if ((pos = inst2.findProperty(testName)) != PEG_NOT_FOUND)
-        {
-            CIMProperty inst2Property = inst2.getProperty(pos);
-
-            // if the instances are identical pass the test
-            // else we will compare in detail
-            if (!inst1Property.identical(inst2Property))
-            {
-                // compare the properties.  Normally we test primarily
-                // on value but there is a detailed test for all of the
-                // attributes.
-                returnValue = _compareProperty(inst1Property,
-                                               inst2Property,
-                                               opts,
-                                               detailedTest,
-                                               verbose);
-            }
-        }
-
-        else   // Property not found in second instance
-        {
-            returnValue = false;
-            if (verbose)
-            {
-                cout << "Error: Property " << testName.getString()
-                    << "not found in returned instance" << endl;
-            }
-            return returnValue;
-        }
-
-    }
-    for (Uint32 i = 0; i < inst2.getPropertyCount(); i++ )
-    {
-        CIMProperty inst2Property = inst2.getProperty(i);
-        CIMName testName = inst2Property.getName();
-        Uint32 pos;
-
-        // test for property in returned instance
-        if ((pos = inst1.findProperty(testName)) != PEG_NOT_FOUND)
-        {
-            CIMProperty inst1Property = inst1.getProperty(pos);
-
-            // if the instances are identical pass the test
-            // else we will compare in detail
-            if (!inst2Property.identical(inst1Property))
-            {
-                // compare the properties.  Normally we test primarily
-                // on value but there is a detailed test for all of the
-                // attributes.
-                returnValue = _compareProperty(inst2Property,
-                                 inst1Property,
-                                 opts,
-                                 detailedTest,
-                                 verbose);
-            }
-        }
-        else   // Property not found in second instance
-        {
-            returnValue = false;
-            if (verbose)
-            {
-                cout << "Error: Property " << testName.getString()
-                     << "not found in test instance" << endl;
-            }
-            return returnValue;
-        }
-    }
-    return returnValue;
-}
-/******************************************************************************
-//
-//  Functions to get the interop namespace and the namespaces in the
-//  target cimserver.
-//
-******************************************************************************/
-/*
-    Find the most likely candidate for the interop namespace using the class
-    CIM_Namespace which should exist in the Interop namespace.  This function
-    tests the standard expected inputs and appends namespaces input in the
-    nsList input. It returns the namespace found and the instances of the
-    CIM_Namespace class in that namespace.
-    If the interop namespace found, the instances of CIM_Namespace are
-    returned in the instances parameter.
-    FUTURE: Determine a more complete algorithm for determining the
-    interop namespace.  Simply the existence of this class may not always
-    be sufficient.
-*/
-Boolean _findInteropNamespace(Options& opts,
-                              const Array<CIMNamespaceName> & nsList,
-                              Array<CIMInstance>& instances,
-                              CIMNamespaceName& nsSelected)
-{
-    CIMName className = PEGASUS_CLASSNAME_CIMNAMESPACE;
-    Array<CIMNamespaceName> interopNs;
-
-    interopNs.appendArray(nsList);
-    interopNs.append(PEGASUS_NAMESPACENAME_INTEROP);
-    interopNs.append("interop");
-    interopNs.append("root/interop");
-    Boolean nsFound = false;
-
-    for (Uint32 i = 0 ; i < interopNs.size() ; i++)
-    {
-        try
-        {
-            instances = opts.client.enumerateInstances(interopNs[i],
-                                                       className);
-
-            nsFound = true;
-
-            if (opts.verboseTest)
-            {
-                cout << "Found CIM_NamespaceName in namespace "
-                    << interopNs[i].getString()
-                    << " with " << instances.size() << " instances "
-                    << endl;
-            }
-            nsSelected = interopNs[i];
-            break;
-        }
-        catch(CIMException & e)
-        {
-            /* If exceptions caught here for all namespaces tested assume that
-               target CIMOM does not support CIM_Namespace class.
-               Therefore we have to revert to the __namespaces class to
-               get namespace information. (Which may only retrun a subset of
-               namspaces.
-               NOTE: Possible exceptions include namespace does not exist
-                     and class does not exist.
-            */
-            cerr << "Info: CIMException return to CIM_NamespaceName enumerate"
-                " request. "
-                << e.getMessage() << endl;
-        }
-    }
-    return nsFound;
-}
-/*
-    Use the __namespace class to attempt to get namespace names.  Returns
-    an array containing namespaces found. Used by _getNameSpaceNames(...)
-*/
-Array<CIMNamespaceName> _getNameSpacesWith__namespace(Options& opts)
-{
-    Array<CIMNamespaceName> namespaceNames;
-    CIMName nsClassName = CIMName("__namespace");
-
-    // TODO Determine if we really need this statement
-    opts.nameSpace = PEGASUS_NAMESPACENAME_INTEROP.getString();
-
-    // Build the namespaces incrementally starting at the root
-    // ATTN: 20030319 KS today we start with the "root" directory but
-    // this is wrong. We should be
-    // starting with null (no directory) but today we get an xml error
-    // return in Pegasus
-    // returned for this call. Note that the specification requires
-    // that the root namespace be used
-    // when __namespace is defined but does not require that it be
-    // the root for all namespaces. That  is a hole is the spec,
-    // not in our code.
-
-    // Determine why we need the following statement
-    namespaceNames.append(opts.nameSpace);
-
-    Uint32 start = 0;
-    Uint32 end = namespaceNames.size();
-
-    do
-    {
-        // for all new elements in the output array
-        for (Uint32 range = start; range < end; range ++)
-        {
-            // Get the next increment in naming for all a name element
-            // in the array
-            Array<CIMInstance> instances = opts.client.enumerateInstances(
-                namespaceNames[range],nsClassName);
-            for (Uint32 i = 0 ; i < instances.size(); i++)
-            {
-                Uint32 pos;
-                // if we find the property and it is a string, use it.
-                if ((pos = instances[i].findProperty("name"))
-                        != PEG_NOT_FOUND)
-                {
-                    CIMValue value;
-                    String namespaceComponent;
-                    value = instances[i].getProperty(pos).getValue();
-                    if (value.getType() == CIMTYPE_STRING)
-                    {
-                        value.get(namespaceComponent);
-
-                        String ns = namespaceNames[range].getString();
-                        ns.append("/");
-                        ns.append(namespaceComponent);
-                        namespaceNames.append(ns);
-                    }
-                }
-            }
-            start = end;
-            end = namespaceNames.size();
-        }
-    }
-    while (start != end);
-
-    return namespaceNames;
+    return(rtn);
 }
 
-/*
-    List the namespaces in the target host CIMObjectManager.
-    This function tries several options to generate a list of the
-    namespaces in the target CIMOM including:
-    1. Try to list a target Class in the interop namespace.  Note that
-    it tries several different guesses to get the target namespace
-    2. If a class name is provided as opts.Classname (i.e typically as
-    argv2 in the direct call operation, that class is substituted for
-    the CIM Namespace class.
-    3. If a namespace is provided in opts.namespace (typically through
-    the -n input option) that namespace is used as the target namespace
-    4. If an asterick "*" is found in opts.namespace, a selection of
-    possible namespaces is used including the pegasus default, interop,
-    and root/interop.
-    5. Finally, if no namespace can be found with the namespace class
-    an attempt is made to get the namespace with the __namespace class
-    and its incremental descent algorithm.
-*/
-
-Array<CIMNamespaceName> _getNameSpaceNames(Options& opts)
+void printPropertyList(CIMPropertyList& pl)
 {
-    //CIMName className = PEGASUS_CLASSNAME_CIMNAMESPACE;
+    cout << buildPropertyListString(pl);
+}
+static const char * usage = "This command executes single CIM Operations.\n";
 
-    Array<CIMNamespaceName> namespaceNames;
-    Array<CIMInstance> instances;
-    Array<CIMNamespaceName> interopNs;
+static const char* optionText = "Valid options for this command are : ";
+static const char* commonOptions = "    -count, -d, -delay, -p, -l, -u, -o, -x,\
+ -v, --sum, --timeout, -r, --t ";
 
-    // if there is a name in the input namespace, use it.
-    if (opts.nameSpace != "*" && opts.nameSpace.size() != 0)
+struct CommandExampleWithOptionStruct
+{
+    const char* msgKey;  //Message key for globalization of example string
+    const char* Example; //Example String
+    const char* optionsKey; //Message key for option string
+    const char* Options; //Option supported
+};
+
+CommandExampleWithOptionStruct examples[] = {
+    {"Clients.cimcli.CIMCLIClient.NI_COMMAND_EXAMPLE",
+    "cimcli ni -n test/TestProvider TEST_Person\n"
+        "    -- Enumerate Instance Names of class\n",
+    "Clients.cimcli.CIMCLIClient.NI_COMMAND_OPTIONS",
+    "    -n, classname\n"},
+
+    {"Clients.cimcli.CIMCLIClient.NIALL_COMMAND_EXAMPLE",
+    "cimcli niall -n root/cimv2\n"
+        "    -- Enumerate Instance Names of  all classes under\n"
+        "       the namespace root/cimv2\n",
+    "Clients.cimcli.CIMCLIClient.NIALL_COMMAND_OPTIONS",
+    "    -n, -di, classname\n"},
+
+    {"Clients.cimcli.CIMCLIClient.EI_COMMAND_EXAMPLE",
+    "cimcli ei PG_ComputerSystem   -- Enumerate Instances of class\n",
+    "Clients.cimcli.CIMCLIClient.EI_COMMAND_OPTIONS",
+    "    -n, -di, -lo, -iq, -pl, classname, includeClassOrigin\n"},
+
+    {"Clients.cimcli.CIMCLIClient.NC_COMMAND_EXAMPLE",
+    "cimcli nc -- Enumerate class names from root/cimv2.\n",
+    "Clients.cimcli.CIMCLIClient.NC_COMMAND_OPTIONS",
+    "    -n, -di, classname\n"},
+
+    {"Clients.cimcli.CIMCLIClient.EC_COMMAND_EXAMPLE",
+    "cimcli ec -n root/cimv2\n"
+        "    -- Enumerate classes from namespace root/cimv2.\n",
+    "Clients.cimcli.CIMCLIClient.EC_COMMAND_OPTIONS",
+    "    -n, -di, -lo, -iq, includeClassOrigin\n"},
+
+    {"Clients.cimcli.CIMCLIClient.GC_COMMAND_EXAMPLE",
+    "cimcli gc CIM_door -u guest -p guest\n"
+        "    -- Get class user = guest and password = guest.\n",
+    "Clients.cimcli.CIMCLIClient.GC_COMMAND_OPTIONS",
+    "    -n, -lo, -iq, -pl, className, includeClassOrigin\n"},
+
+    {"Clients.cimcli.CIMCLIClient.GI_COMMAND_EXAMPLE",
+    "cimcli gi -n test/TestProvider TEST_Person\n"
+        "    -- Get Instance of class\n",
+    "Clients.cimcli.CIMCLIClient.GI_COMMAND_OPTIONS",
+    "    -n, -lo, -iq, -pl, includeClassOrigin\n"},
+
+    {"Clients.cimcli.CIMCLIClient.CI_COMMAND_EXAMPLE",
+    "cimcli ci -n test/TestProvider TEST_Person Name=Michael\n"
+        "    -- Create Instance of  class \n",
+    "Clients.cimcli.CIMCLIClient.CI_COMMAND_OPTIONS",
+    "    -n\n"},
+
+    {"Clients.cimcli.CIMCLIClient.DI_COMMAND_EXAMPLE",
+    "cimcli di -n test/TestProvider TEST_Person\n"
+        "    -- Delete Instance of class interactively\n",
+    "Clients.cimcli.CIMCLIClient.DI_COMMAND_OPTIONS",
+    "    -n\n"},
+
+    {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "Operation Not supported..\n",
+    "Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "\n"},
+
+    {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "Operation Not supported..\n",
+    "Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "\n"},
+
+    {"Clients.cimcli.CIMCLIClient.DC_COMMAND_EXAMPLE",
+    "cimcli dc -n test/TestProvider TEST_Person\n"
+        "    -- Deletes the Class when there are no instance and\n"
+        "        sub-class for this class\n",
+    "Clients.cimcli.CIMCLIClient.DC_COMMAND_OPTIONS",
+    "    -n\n"},
+
+    {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "Operation Not supported..\n",
+    "Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "\n"},
+
+    {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "Operation Not supported..\n",
+    "Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "\n"},
+
+    {"Clients.cimcli.CIMCLIClient.GQ_COMMAND_EXAMPLE",
+    "cimcli gq Association\n"
+        "    -- Get the qualifiers in mof output format\n",
+    "Clients.cimcli.CIMCLIClient.GQ_COMMAND_OPTIONS",
+    "    -n, qualifierName\n"},
+
+    {"Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "Operation Not supported..\n",
+    "Clients.cimcli.CIMCLIClient.OPERATION_NOT_SUPPORTED",
+    "\n"},
+
+    {"Clients.cimcli.CIMCLIClient.EQ_COMMAND_EXAMPLE",
+    "cimcli eq -n test/TestProvider\n"
+        "    -- Enumerate Qualifiers of namespace test/TestProvider\n",
+    "Clients.cimcli.CIMCLIClient.EQ_COMMAND_OPTIONS",
+    "    -n\n"},
+
+    {"Clients.cimcli.CIMCLIClient.DQ_COMMAND_EXAMPLE",
+    "cimcli dq -n test/TestProvider ASSOCIATION\n"
+        "    -- Delete Qualifier Association in namespace\n"
+        "        test/TestProvider\n",
+    "Clients.cimcli.CIMCLIClient.DQ_COMMAND_OPTIONS",
+    "    -n, qualifierName\n"},
+
+    {"Clients.cimcli.CIMCLIClient.A_COMMAND_EXAMPLE",
+    "cimcli a TST_Person.name=\\\"Mike\\\" -n test/TestProvider\n"
+        "    -ac TST_Lineager"
+        "\n or\n"
+        "cimcli a TST_Person -n test/TestProvider -ac TST_Lineage\n",
+    "Clients.cimcli.CIMCLIClient.A_COMMAND_OPTIONS",
+    "    -n, -ac, -rc, -r, -rr, -iq, -pl, includeClassOrigin, -i\n"},
+
+    {"Clients.cimcli.CIMCLIClient.AN_COMMAND_EXAMPLE",
+    "cimcli an TST_Person.name=\\\"Mike\\\" -n test/TestProvider\n"
+        "    -ac TST_Lineage"
+        "\n or\n"
+        "cimcli an TST_Person -n test/TestProvider -ac TST_Lineage\n",
+    "Clients.cimcli.CIMCLIClient.AN_COMMAND_OPTIONS",
+    "    -n, -ac, -rc, -r, -rr, -i\n"},
+
+    {"Clients.cimcli.CIMCLIClient.R_COMMAND_EXAMPLE",
+    "cimcli r TST_Person.name=\\\"Mike\\\" -n test/TestProvider\n"
+        "    -rc TST_Lineage"
+        "\n or\n"
+        "cimcli r TST_Person -n test/TestProvider -rc TST_Lineage\n",
+    "Clients.cimcli.CIMCLIClient.R_COMMAND_OPTIONS",
+    "    -n, -rc, -r, -iq, -pl, includeClassOrigin, -i\n"},
+
+    {"Clients.cimcli.CIMCLIClient.RN_COMMAND_EXAMPLE",
+    "cimcli rn TST_Person.name=\\\"Mike\\\" -n test/TestProvider\n"
+        "    -rc TST_Lineage"
+        "\n or\n"
+        "cimcli rn TST_Person -n test/TestProvider -rc TST_Lineage\n",
+    "Clients.cimcli.CIMCLIClient.RN_COMMAND_OPTIONS",
+    "    -n, -rc, -r, -i\n"},
+
+    {"Clients.cimcli.CIMCLIClient.IM_COMMAND_EXAMPLE",
+    "cimcli im Sample_MethodProviderClass.Name=\\\"mooo\\\" SayHello\n"
+        "    -n root/SampleProvider -ip p1=fred\n",
+    "Clients.cimcli.CIMCLIClient.IM_COMMAND_OPTIONS",
+        "    -n, -ip\n"},
+
+    {"Clients.cimcli.CIMCLIClient.XQ_COMMAND_EXAMPLE",
+    "cimcli xq \"select * from CIM_ComputerSystem\"\n"
+        "    -- This command will work when the code is compiled with\n"
+        "        ExecQuery enabled\n",
+    "Clients.cimcli.CIMCLIClient.XQ_COMMAND_OPTIONS",
+    "    -n, queryLanguage, query\n"},
+
+    {"Clients.cimcli.CIMCLIClient.NS_COMMAND_EXAMPLE",
+    "cimcli ns  -- Enumerate all Namespaces in repository\n",
+    "Clients.cimcli.CIMCLIClient.NO_OPTIONS_REQUIRED",
+    " No options Required\n"},
+
+    {"Clients.cimcli.CIMCLIClient.SON_COMMAND_EXAMPLE",
+    "cimcli son  -- Switch On's the statistical information on CIMServer\n",
+    "Clients.cimcli.CIMCLIClient.NO_OPTIONS_REQUIRED",
+    " No options Required\n"},
+
+    {"Clients.cimcli.CIMCLIClient.SOFF_COMMAND_EXAMPLE",
+    "cimcli soff  -- Switch OFF's the statistical information on CIMServer\n",
+    "Clients.cimcli.CIMCLIClient.NO_OPTIONS_REQUIRED",
+    " No options Required\n"},
+
+    {"Clients.cimcli.CIMCLIClient.?_COMMAND_EXAMPLE",
+    "cimcli ?  -- Displays help command\n",
+    "Clients.cimcli.CIMCLIClient.NO_OPTIONS_REQUIRED",
+    "    No options Required"}
+};
+
+void showExamples()
+{
+    Uint32 numExamples = sizeof(examples) / sizeof(examples[0]);
+    cout <<
+        loadMessage(
+            "Clients.cimcli.CIMCLIClient.EXAMPLES_STRING",
+            "Examples : ")
+         << endl;
+
+    for (Uint32 i=0; i < numExamples; i++)
     {
-        interopNs.append(opts.nameSpace);
+        cout << loadMessage(examples[i].msgKey, examples[i].Example) << endl;
     }
-
-    // if a namespace with the CIM_Namespace class is found and instances are
-    // returned, we can simply list information from the instances.
-    // Assumption: all namespaces containing this class will return the
-    // same information.
-
-    CIMNamespaceName interopNamespaceFnd;
-    if (_findInteropNamespace(opts, interopNs, instances, interopNamespaceFnd))
-    {
-        for (Uint32 i = 0 ; i < instances.size(); i++)
-        {
-            Uint32 pos;
-            // If we find the property and it is a string, use it.
-            if ((pos = instances[i].findProperty("name")) != PEG_NOT_FOUND)
-            {
-                CIMValue value;
-                String namespaceComponent;
-                value = instances[i].getProperty(pos).getValue();
-                if (value.getType() == CIMTYPE_STRING)
-                {
-                    value.get(namespaceComponent);
-                    namespaceNames.append(CIMNamespaceName(
-                        namespaceComponent));
-                }
-            }
-        }
-    }
-    else  // No  namespace with CIM_Namespace class found.
-    {
-        if (opts.verboseTest)
-        {
-            cout << "Using __namespace class to find namespaces"
-                << endl;
-        }
-        namespaceNames = _getNameSpacesWith__namespace(opts);
-    }
-
-    // Validate that all of the returned entities are really namespaces.
-    // It is legal for us to have a name component that is really not a
-    // namespace (ex. root/fred/john is a namespace  but root/fred is not.
-    // There is no clearly defined test for this so we will simply try to
-    // get something, in this case a well known assoication
-
-    Array<CIMNamespaceName> rtns;
-
-    for (Uint32 i = 0 ; i < namespaceNames.size() ; i++)
-    {
-        try
-        {
-            CIMQualifierDecl cimQualifierDecl;
-            cimQualifierDecl = opts.client.getQualifier(namespaceNames[i],
-                                           "Association");
-
-            rtns.append(namespaceNames[i]);
-        }
-        catch(CIMException& e)
-        {
-            if (e.getCode() != CIM_ERR_INVALID_NAMESPACE)
-            {
-                rtns.append(namespaceNames[i]);
-            }
-            else
-            {
-                cerr << "Warning: " << namespaceNames[i].getString()
-                     << " Apparently not a real namespace. Ignored"
-                     << endl;
-            }
-        }
-    }
-    return rtns;
 }
 
-/*
-    Determine whether cimcli sets includequalifiers true or false for
-    operation based on default (i.e. what is default for this operation)
-    and the includeQualifiersRequest, notIncludeQualifiersRequest
-    parameters.
-    Result put into incudeQualifiers and returned as String for
-    display.  This required because some operations have default true
-    and other false.
-    */
-void _resolveIncludeQualifiers(Options& opts, Boolean defaultValue)
+void _displaySummary(Uint32 count, String& description, String item,
+                     Options& opts)
 {
-    // Assure niq and iq not both supplied. They are incompatible
-    if (opts.includeQualifiersRequested && opts.notIncludeQualifiersRequested)
-    {
-        cerr << "Error: -niq and -iq parameters cannot be used together"
-             << endl;
-        cimcliExit(CIMCLI_INPUT_ERR);
-    }
-    // if default is true (ex class operations), we test for -niq received
-    // depend only on the -niq input.
-    if (defaultValue)
-    {
-        opts.includeQualifiers = opts.notIncludeQualifiersRequested ?
-                                    false : true;
-    }
-    else
-    {
-        opts.includeQualifiers = opts.includeQualifiersRequested ?
-                                    true : false;
-    }
-    return;
-}
-
-/////////////////////////////////////////////////////////////////////////////
-//                                                                         //
-//     The following code section defines the action functions             //
-//     These functions are a combination of                                //
-//     a. the CIM Operations as defined by the DMTF specification          //
-//       ex. getInstance implemented for cimcli.                           //
-//     b. Other operations such as ns for get namespaces that              //
-//        might be useful to CIMOM testers                                 //
-//     Input parameters are defined in the                                 //
-//     opts structure.  There are no exception catches.                    //
-//     exception handling is in the main path.                             //
-/////////////////////////////////////////////////////////////////////////////
-
-/*********************** enumerateAllInstanceNames ***************************/
-
-/* This command searches an entire namespace and displays names of
-   all instances.
-   It is in effect enumerate classes followed by enumerate instances.
-   The user may either provide a starting class or not, in which case
-   it enumerates instance names for the complete namespace, not simply the
-   defined class.
-
-   It normally returns all instances of all classes below the input class name
-   (a single enumerateInstances)
-   unless no class was provided with the command.  Then it enumerates
-   all classes in the namespace.
-
-   If the --sum option is defined it returns only the count of instances
-   for classes that return instances.  NOTE: This is the count for each
-   class where an instance is returned. Thus inputting a single class name
-   may return a list of instances of multiple classes.  The summary enumerates
-   the number of instances of each class in the enumerateInstancesNames
-   response.
-
-   This operation also allows processing all namespaces in a Server with
-   a single request by defining the input namespace as "*".  In that case,
-   it gets a list of all namespaces and process them all. Summary results
-   are returned for each namespace.
-*/
-
-int enumerateAllInstanceNames(Options& opts)
-{
-    if (opts.verboseTest)
-    {
-        cout << "enumerateAllInstanceNames (niall) "
-            << "Namespace = " << opts.nameSpace
-            << ", Class = " << opts.className.getString()
-            << endl;
-    }
-
-    // This operation allows * as namespace value which means get
-    // from all namespaces.
-    Array<CIMNamespaceName> nsList;
-    if (opts.nameSpace != "*")
-    {
-        nsList.append(opts.nameSpace);
-    }
-    else
-    {
-        nsList = _getNameSpaceNames(opts);
-    }
-
-    if (opts.verboseTest)
-    {
-        cout << "Namespaces List for niall: ";
-        for (Uint32 i = 0 ; i < nsList.size() ; i++)
-        {
-            cout << ((i > 0)? ", " : "")
-                 << nsList[i].getString() << endl;
-        }
+        cout << count << " " << description
+            << " " << item << " returned. ";
+        if (opts.repeat > 0)
+            cout << opts.repeat;
+        if(opts.time && opts.repeat)
+            cout << " " << opts.saveElapsedTime;
         cout << endl;
-    }
-
-    CIMName saveClassName = opts.className;
-
-    // loop to process for each namespace
-    for (Uint32 i = 0 ; i < nsList.size() ; i++)
-    {
-        opts.nameSpace = nsList[i].getString();
-        Array<CIMName> classNames;
-
-        // The timer really has no meaning for this operation since
-        // we merge output and acquisition over multiple operations
-        _startCommandTimer(opts);
-
-        // If className is null, assume that user wants to start at
-        // class hiearchy root and we get top level class names. Else
-        // we will enumerate just the classname provided.
-        opts.className = saveClassName;
-        if (opts.className.isNull())
+        if ((opts.count) != 29346 && (opts.count != count))
         {
-            if (opts.verboseTest)
-            {
-                cout << "EnumerateClassNames for namespace "
-                    << opts.nameSpace << endl;
-            }
-            try
-            {
-                classNames = opts.client.enumerateClassNames(opts.nameSpace,
-                                                    opts.className,
-                                                    false);
-            }
-            catch(CIMException& e)
-            {
-                if (e.getCode() == CIM_ERR_INVALID_CLASS)
-                {
-                    cerr << "Class " << opts.className.getString()
-                         << " does not exist in namespace "
-                         << opts.nameSpace << endl;
-                    continue;
-                }
-            }
+            cout << "Failed count test. Expected= " << opts.count
+                 << " Actual rcvd= " << count << endl;
+            opts.termCondition = 1;
+        }
+}
 
-            _stopCommandTimer(opts);
+/**** NOT TESTED
+String _nextToken(String& input, Uint32 start, Char16 separator)
+{
+    String rtn;
+    Uint32 end;
+    end = input.find(input.find(start, separator));
+    if (end == PEG_NOT_FOUND)
+    {
+        start = PEG_NOT_FOUND
+        rtn = input.subString(start,(input.size() - start);
+    }
+    else
+    {
+        rtn = input.subString(start,end);
+        start = end + 1;
+    }
+    return(rtn);
+}
+*/
+/** tokenize an input string into an array of Strings,
+ * separating the tokens at the separator character
+ * provided
+ * @param input String
+ * @param separator character
+ * @returns Array of separated strings
+ * */
+Array<String> _tokenize(const String& input, const Char16 separator)
+{
+    Array<String> tokens;
+    if (input.size() != 0)
+    {
+        Uint32 start = 0;
+        Uint32 length = 0;
+        Uint32 end = 0;
+        while ((end = input.find(start, separator)) != PEG_NOT_FOUND)
+        {
+            length = end - start;
+            tokens.append(input.subString(start, length));
+            start += (length + 1);
+        }
+        //Replaced < with <= to consider input param like A="" as valid param.
+        //key in this param is 'A'and value is NULL.
+        //It also takes care of A= param.
+        if(start <= input.size())
+        {
+            tokens.append(input.subString(start));
+        }
+    }
+    return tokens;
+}
+
+Boolean _tokenPair(const String& input, String& key, String& value)
+{
+
+    Array<String> pair = _tokenize(input, '=');
+    if (pair.size() < 2)
+    {
+        cout << "Input Parameter error. Expected name=value. Received  "
+             << input << endl;
+        return(false);
+    }
+    // If there is more than 1 "=" it is part of the reference and we
+    // rebuild the reference.
+    if (pair.size() > 2)
+    {
+        for (Uint32 i = 2 ; i < pair.size() ; i++)
+        {
+            pair[1].append("=");
+            pair[1].append(pair[i]);
+        }
+    }
+    key = pair[0];
+    value = pair[1];
+    return(true);
+}
+
+
+void _nextParamToken(String& input, String& token)
+{
+    unsigned int end;
+    // Check for Character Literal
+    if (input.find('\'') == 0)
+    {
+        input.remove(0,1);  // remove quote
+        if ((end = input.find("\'")) != PEG_NOT_FOUND)
+        {
+            token = input.subString(0, end);
+            input.remove(0, end + 1);   // +1 to delete final quote char
         }
         else
         {
-            classNames.append(opts.className);
+            printf(" ERROR -- no matching quote!");
         }
-
-        if (opts.verboseTest)
+        return;
+    }
+    // Check for String Literal
+    if (input.find('\"') == 0)
+    {
+        input.remove(0,1);  // remove quote
+        if ((end = input.find("\"")) != PEG_NOT_FOUND)
         {
-            cout << "Evaluate for following list of classes:" << endl;
-
-            for (Uint32 iClass = 0; iClass < classNames.size(); iClass++)
-            {
-                cout << ((iClass > 0)? ", " : "")
-                     << classNames[iClass].getString();
-            }
-            cout << endl;
+            token = input.subString(0, end);
+            input.remove(0, end + 1);   // +1 to delete final quote char
         }
-
-        // Create associative array to count instances of each
-        // class in returned instance names list. Value function is
-        // Uint32 to count instances of each class in array
-        typedef HashTable<String, Uint32, EqualFunc<String>,
-            HashFunc<String> > InstCounter;
-        InstCounter instCounter;
-
-        // Enumerate instance names for all classes in list. This is
-        // tree of all classes below defined classname input or just
-        // the input classname if one was supplied with request
-        Uint32 totalInstances = 0;
-        for (Uint32 iClass = 0; iClass < classNames.size(); iClass++)
+        else
         {
-            if (opts.verboseTest)
-            {
-                cout << "EnumerateInstanceNames "
-                    << "Namespace = " << opts.nameSpace
-                    << ", Class = " << classNames[iClass].getString()
-                    << endl;
-            }
-
-            Array<CIMObjectPath> instanceNames;
-            try
-            {
-                instanceNames =
-                    opts.client.enumerateInstanceNames(opts.nameSpace,
-                                                       classNames[iClass]);
-                totalInstances += instanceNames.size();
-            }
-            catch(CIMException& e )
-            {
-                cerr << "Warning: Exception in niall for"
-                        " enumerateInstanceNames "
-                     << " Namespace=" << opts.nameSpace
-                     << " Class=" << classNames[iClass].getString()
-                     << ".  " << e.getMessage() << ". Continuing." << endl;
-                continue;
-            }
-
-            String s = "instances of class";
-            opts.className = classNames[iClass];
-            if (!opts.summary)
-            {
-                CIMCLIOutput::displayPaths(opts, instanceNames, s);
-            }
-
-            // Insert new classnames in instCounter table and
-            // increment count for existing names.
-            for (Uint32 i = 0 ; i < instanceNames.size(); i++)
-            {
-                String className = instanceNames[i].getClassName().getString();
-
-                // Insert new entry in hash table or increment
-                // current entry counter
-                if (!instCounter.insert(className, 1))
-                {
-                    Uint32* value=0;
-                    instCounter.lookupReference(className, value);
-                    *value = *value + 1;
-                }
-            }
+            printf("ERROR -- no matching quote!");
         }
+        return;
+    }
+    // Take line up to separator (, or }) as token
+    if ((end = input.find(',')) != PEG_NOT_FOUND)
+    {
+        token = input.subString(0, end);
+        input.remove(0, end+1); // +1 to capture the comma
+        return;
+    }
+    if ((end = input.find('}')) != PEG_NOT_FOUND)
+    {
+        token = input.subString(0, end);
+        input.remove(0, end+1); // +1 to capture the brace
+        return;
+    }
 
-        // Get max size of key property to justify output columns
-        size_t maxSize = 0;
-        for (InstCounter::Iterator i = instCounter.start(); i; i++)
-            if (i.key().size() > maxSize)
-                maxSize = i.key().size();
-
-        // Output namespace, className, instance count for all classes that
-        // have nonzero instance count (i.e. all entries in the hash table
-        for (InstCounter::Iterator i = instCounter.start(); i; i++)
-        {
-            String key = i.key();
-            while (key.size() < maxSize)
-            {
-                key.append(" ");
-            }
-
-            cout << opts.nameSpace << " "
-                 << key
-                 << " " << i.value() << endl;
-        }
-
-        // get list of all classes in namespace for summary info.
-        Array<CIMName> classesNamesTotal = opts.client.enumerateClassNames(
-                                    opts.nameSpace,
-                                    CIMName(),
-                                    true);
-        // get list of all classes below specified class
-        String enumCount;
-        String enumTxt;
-        if (classNames.size() == 1)
-        {
-            try
-            {
-                Array<CIMName> classNamesEnum =
-                    opts.client.enumerateClassNames(
-                        opts.nameSpace,
-                        opts.className,
-                        true);
-                enumTxt = " Enumerated=";
-                char buf[22];
-                Uint32 sz;
-                enumTxt.append(Uint32ToString(buf,classNamesEnum.size(), sz));
-            }
-            catch(CIMException& e )
-            {
-                cerr << "Warning: Exception in niall for"
-                        " enumerateClassNames "
-                     << " Namespace=" << opts.nameSpace
-                     << " Class=" << opts.className.getString()
-                     << ".  " << e.getMessage() << ". Continuing." << endl;
-                continue;
-            }
-        }
-
-        // for this namespace, print number in each class
-        cout << opts.nameSpace
-             << " Total Classes=" << classesNamesTotal.size() + 1
-             << enumTxt
-             << ", with Instances="
-             << instCounter.size()
-             << ", Instances=" << totalInstances
-             << endl;
-    }  // end processing namespace for loop
-
-    return CIMCLI_RTN_CODE_OK;
+    if((end = input.find(']')) != PEG_NOT_FOUND)
+    {
+        token = input.subString(0, end);
+        input.remove(0, end+1); // +1 to capture the bracket
+        return;
+    }
+    // Fall through.. take entire input as token
+    token = input;
+    input = "";
+    return;
 }
 
+CIMParamValue _createMethodParamValue(const String& input, const Options& opts)
+{
+    String key;
+    String value;
+    if (!_tokenPair(input, key, value))
+    {
+        cout <<"Error in param parsing with input " << input << endl;
+        exit(1);
+    }
 
-/*********************** enumerateInstanceNames  ***************************/
-/*
-    This action function executes the client enumerateInstanceNames
-    client operation.  Inputs are the namespace and classname
+    if (opts.verboseTest)
+    {
+        cout << "Name = " << key << ", Value= " << value << endl;
+    }
+    // ATTN: KS 20030423 P2 This is incomplete since it only allows us
+    // to do string input.
+    // We don't include the typing information.
+    //Array<String> valuePair = _tokenize(pair[1], ':');
+    //if (validType(valuePair[0] >= 0)
+    //{
+    //
+    //}
+
+    String tmp = value;
+    if (value.find('{') == 0)
+    {
+        // assume brace at first character position indictates an
+        // array value
+        tmp.remove(0,1);  // remove open brace
+        Array<String> arr;
+        while (tmp.size() != 0)
+        {
+            String token;
+            _nextParamToken(tmp, token);
+            arr.append(token);
+            // Now remove token separators (comma, brace or whitespace)
+            while ((tmp.size() > 0) &&
+                   ((tmp.find(",") == 0) || (tmp.find("}") == 0) ||
+                    (tmp.find(" ") == 0)))
+                tmp.remove(0,1);
+        }
+        CIMValue v(arr);
+        CIMParamValue pv(key, v);
+        return pv;
+    }
+
+    // Check for References starting with '[' and ending with ']'
+    if(tmp.find('[') == 0)
+    {
+        if(tmp.find(']') == tmp.size()-1)
+        {
+            Array<CIMKeyBinding> keys;
+            Array<String> arr;
+            String className;
+            tmp.remove(0,1);  // remove open bracket
+
+            // Iterate over the input param to extract class name,
+            // key names and values.
+            while(tmp.size() != 0)
+            {
+                String token, identifier, refKey;
+                _nextParamToken(tmp, token);
+                Uint32 dotIndex = 0, equalIndex = 0;
+
+                // Get the class name and key1/value1 from class.key = value
+                if (((dotIndex = token.find('.')) != PEG_NOT_FOUND)  &&
+                     (((equalIndex = token.find('=')) != PEG_NOT_FOUND) &&
+                       dotIndex < equalIndex-1))
+                {
+                    //extract class name, key1 and value1
+                    className = token.subString(0, dotIndex);
+                    identifier = token.subString(dotIndex+1,
+                                                 equalIndex-1-dotIndex);
+                    refKey = token.subString(equalIndex+1, token.size());
+                    keys.append(CIMKeyBinding(identifier, refKey,
+                                              CIMKeyBinding::STRING));
+                }
+
+                // Get the simple keyX = valueX (where X>1)
+                else if((equalIndex = token.find('=')) != PEG_NOT_FOUND)
+                {
+                    identifier = token.subString(0, equalIndex);
+                    refKey = token.subString(equalIndex+1, token.size());
+                    keys.append(CIMKeyBinding(identifier, refKey,
+                                              CIMKeyBinding::STRING));
+                }
+                else
+                {
+                    cout << " Error in the reference param this could be"
+                                " a string param" << endl;
+                    exit(1);
+                }
+                // Now remove token separators (comma, bracket or whitespace)
+                while((tmp.size() > 0) &&
+                      ((tmp.find(",") == 0) ||
+                       (tmp.find("]") == 0) ||
+                       (tmp.find(" ") == 0)))
+                {
+                    tmp.remove(0,1);
+                }
+            }
+            // Reference param specified is valid.
+            // Make CIM Object Path from the token.
+            CIMName cimclassName(className);
+            CIMObjectPath cop(String::EMPTY,CIMNamespaceName(opts.nameSpace),
+                              cimclassName,keys);
+            CIMValue v(cop);
+            CIMParamValue pv(key, v, false);
+            return pv;
+        }
+        else
+        {
+            cout <<"Treat this as String param " << input << endl;
+        }
+    }
+
+    // Fallthrough...
+    CIMValue v(value);
+    CIMParamValue pv(key, v, false);
+    return pv;
+}
+
+void outputFormatInstance(const OutputType format, CIMInstance& instance)
+{
+    cout << "path= " << instance.getPath().toString() << endl;
+    if (format == OUTPUT_XML)
+        XmlWriter::printInstanceElement(instance, cout);
+    else if (format == OUTPUT_MOF)
+    {
+        // Reset the propagated flag to assure that these entities
+        // are all shown in the MOF output.
+        for (Uint32 i = 0 ; i < instance.getPropertyCount() ; i++)
+        {
+            CIMProperty p = instance.getProperty(i);
+            p.setPropagated(false);
+        }
+
+        Buffer x;
+        MofWriter::appendInstanceElement(x, instance);
+        mofFormat(cout, x.getData(), 4);
+    }
+}
+void outputFormatParamValue(const OutputType format, const CIMParamValue& pv)
+{
+    if (format == OUTPUT_XML)
+        XmlWriter::printParamValueElement(pv, cout);
+
+    else if (format == OUTPUT_MOF)
+    {
+        if (!pv.isUninitialized())
+        {
+           CIMValue v =  pv.getValue();
+           CIMType type = v.getType();
+           if (pv.isTyped())
+               cout << cimTypeToString (type) << " ";
+           else
+               cout << "UnTyped ";
+
+           cout << pv.getParameterName() << "="
+                << v.toString() << endl;
+        }
+        else
+            cout << "ParamValue not initialized" << endl;
+    }
+    else
+        cout << "Error, Format Definition Error" << endl;
+}
+
+void outputFormatClass(const OutputType format, CIMClass& myClass)
+{
+    if (format == OUTPUT_XML)
+        XmlWriter::printClassElement(myClass, cout);
+    else if (format == OUTPUT_MOF)
+    {
+        // Reset the propagated flag to assure that these entities
+        // are all shown in the MOF output.
+        for (Uint32 i = 0 ; i < myClass.getPropertyCount() ; i++)
+        {
+            CIMProperty p = myClass.getProperty(i);
+            p.setPropagated(false);
+        }
+        for (Uint32 i = 0 ; i < myClass.getMethodCount() ; i++)
+        {
+            CIMMethod m = myClass.getMethod(i);
+            m.setPropagated(false);
+        }
+        Buffer x;
+        MofWriter::appendClassElement(x, myClass);
+        mofFormat(cout, x.getData(), 4);
+    }
+    else
+        cout << "Error, Format Definition Error" << endl;
+}
+
+void outputFormatObject(const OutputType format, const CIMObject& myObject)
+{
+
+    if (myObject.isClass())
+    {
+        CIMClass c(myObject);
+        outputFormatClass(format, c);
+    }
+    else if (myObject.isInstance())
+    {
+        CIMInstance i(myObject);
+        outputFormatInstance(format, i);
+    }
+    else
+        cout << "Error, Object is neither class or instance" << endl;
+}
+
+void outputFormatQualifierDecl(const OutputType format,
+                               const CIMQualifierDecl& myQualifierDecl)
+{
+    if (format == OUTPUT_XML)
+        XmlWriter::printQualifierDeclElement(myQualifierDecl, cout);
+    else if (format == OUTPUT_MOF)
+    {
+        Buffer x;
+        MofWriter::appendQualifierDeclElement(x, myQualifierDecl);
+        mofFormat(cout, x.getData(), 4);
+    }
+    else
+    {
+        cout << "Format type error" << endl;
+    }
+}
+
+void outputFormatCIMValue(const OutputType format, const CIMValue& myValue)
+{
+    if (format == OUTPUT_XML)
+    {
+        XmlWriter::printValueElement(myValue, cout);
+    }
+    else if (format == OUTPUT_MOF)
+    {
+        Buffer x;
+        MofWriter::appendValueElement(x, myValue);
+        mofFormat(cout, x.getData(), 4);
+    }
+    else
+    {
+        cout << " Format type error" << endl;
+    }
+}
+
+///////////////////////////////////////////////////////////////////
+//                                                               //
+//     The following section  defines each action function       //
+//     ex. getInstance. Parameters are defined in the            //
+//     opts structure.  There are not exception catches.         //
+//     exception handling is in the main path                    //
+///////////////////////////////////////////////////////////////////
+
+/* This command searches the entire namespace and displays names of
+   all instances.
+   It is in effect enumerate classes followed by enumerate instances.
+   The user may either provide a starting class or not, in which case
+   it searches the complete namespace, not simply the defined class.
 */
-int enumerateInstanceNames(Options& opts)
+int enumerateAllInstanceNames(CIMClient& client, Options& opts)
+{
+    if (opts.verboseTest)
+    {
+        cout << "EnumerateClasseNames "
+            << "Namespace = " << opts.nameSpace
+            << ", Class = " << opts.className.getString()
+            << ", deepInheritance = " << _toString(opts.deepInheritance)
+            << endl;
+    }
+    // Added to allow "" string input to represent NULL CIMName.
+    CIMName myClassName = CIMName();
+    /****if (opts.className != "")
+    {
+        myClassName = opts.className;
+    }*/
+
+    Array<CIMName> classNames;
+
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
+
+    classNames = client.enumerateClassNames(opts.nameSpace,
+                                        opts.className,
+                                        opts.deepInheritance);
+
+    for (Uint32 iClass = 0; iClass < classNames.size(); iClass++)
+    {
+        if (opts.verboseTest)
+        {
+            cout << "EnumerateInstanceNames "
+                << "Namespace = " << opts.nameSpace
+                << ", Class = " << classNames[iClass].getString()
+                << endl;
+        }
+        Array<CIMObjectPath> instanceNames =
+        client.enumerateInstanceNames(opts.nameSpace, classNames[iClass]);
+        if (opts.summary)
+        {
+      String s = "instance names of class";
+      _displaySummary(instanceNames.size(), s, opts.className.getString(),opts);
+        }
+        else
+        {
+            //simply output the list one per line for the moment.
+            for (Uint32 i = 0; i < instanceNames.size(); i++)
+                        cout << instanceNames[i].toString() << endl;
+        }
+    }
+
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
+    return(0);
+}
+
+int enumerateInstanceNames(CIMClient& client, Options& opts)
 {
     if (opts.verboseTest)
     {
@@ -1047,51 +860,62 @@ int enumerateInstanceNames(Options& opts)
             << endl;
     }
 
-    _startCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
     Array<CIMObjectPath> instanceNames =
-        opts.client.enumerateInstanceNames(opts.nameSpace,
+        client.enumerateInstanceNames(opts.nameSpace,
                                       opts.className);
 
-    _stopCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
 
-    CIMCLIOutput::displayPaths(opts,instanceNames);
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
-    return CIMCLI_RTN_CODE_OK;
+    if (opts.summary)
+    {
+      String s = "instances names of class";
+      _displaySummary(instanceNames.size(), s, opts.className.getString(),opts);
+    }
+    else
+    {
+        //Output the list one per line for the moment.
+        for (Uint32 i = 0; i < instanceNames.size(); i++)
+                    cout << instanceNames[i].toString() << endl;
+    }
+
+    return(0);
 }
 
-
-/************************** enumerateInstances  ***************************/
-/*
-    This action function executes the enumerateInstances
-    client operation. Inputs are the parameters for the CIMCLient call
-*/
-
-int enumerateInstances(Options& opts)
+int enumerateInstances(CIMClient& client, Options& opts)
 {
-    // Resolve the IncludeQualifiers -iq vs -niq qualifiers default is true.
-    _resolveIncludeQualifiers(opts, false);
-
     if (opts.verboseTest)
     {
         cout << "EnumerateInstances "
             << "Namespace = " << opts.nameSpace
             << ", Class = " << opts.className.getString()
-            << ", deepInheritance = " << boolToString(opts.deepInheritance)
-            << ", localOnly = " << boolToString(opts.localOnly)
-            << ", includeQualifiers = "
-                << boolToString(opts.includeQualifiers)
-            << ", includeClassOrigin = "
-                << boolToString(opts.includeClassOrigin)
-            << ", PropertyList = " << opts.propertyList.toString()
+            << ", deepInheritance = " << _toString(opts.deepInheritance)
+            << ", localOnly = " << _toString(opts.localOnly)
+            << ", includeQualifiers = " << _toString(opts.includeQualifiers)
+            << ", includeClassOrigin = " << _toString(opts.includeClassOrigin)
+            << ", PropertyList = " << buildPropertyListString(opts.propertyList)
             << endl;
     }
 
     Array<CIMInstance> instances;
 
-    _startCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
-    instances = opts.client.enumerateInstances( opts.nameSpace,
+    instances = client.enumerateInstances( opts.nameSpace,
                                            opts.className,
                                            opts.deepInheritance,
                                            opts.localOnly,
@@ -1099,20 +923,39 @@ int enumerateInstances(Options& opts)
                                            opts.includeClassOrigin,
                                            opts.propertyList );
 
-    _stopCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
 
-    CIMCLIOutput::displayInstances(opts, instances);
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
-    return CIMCLI_RTN_CODE_OK;
+    if (opts.summary)
+    {
+      String s = "instances of class";
+        _displaySummary(instances.size(), s, opts.className.getString(),opts);
+    }
+    else
+    {
+        if (instances.size() > 0 && opts.outputType == OUTPUT_TABLE)
+        {
+            tableFormat(cout, instances);
+            return(0);
+        }
+
+        // Output the returned instances
+        for (Uint32 i = 0; i < instances.size(); i++)
+        {
+            CIMInstance instance = instances[i];
+            // Check Output Format to print results
+            outputFormatInstance(opts.outputType, instance);
+        }
+    }
+
+    return(0);
 }
 
-
-/************************** executeQuery  ***************************/
-/*
-    Execute the client ExecQuery function. The parameters are:
-    namespace, queryLanguage, and the query string
-*/
-int execQuery(Options& opts)
+int executeQuery(CIMClient& client, Options& opts)
 {
     if (opts.verboseTest)
     {
@@ -1125,190 +968,172 @@ int execQuery(Options& opts)
 
     Array<CIMObject> objects;
 
-    _startCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
-    objects = opts.client.execQuery(opts.nameSpace,
+    objects = client.execQuery( opts.nameSpace,
                                 opts.queryLanguage,
                                 opts.query );
 
-    _stopCommandTimer(opts);
-
-    String s = "instances of class";
-    CIMCLIOutput::displayObjects(opts, objects, s);
-
-    return CIMCLI_RTN_CODE_OK;
-}
-
-/* local function to get the object path for the target defined by input.
-    The path is built or acquired from information provided by input as
-    follows:
-    The InstanceName/Class parameter is special in that it has several options:
-       - objectPath(Class plus keys) - Use the object path directly
-       - Class only (No keys) -  cimcli uses interactive mode to list instances
-         of class for selection
-       - Class only in objectName plus entries in extra parameters - cimcli
-         builds instance from extra parameters and then builds path from
-         instance to retrieve.
-    This function is used by all of the action functions that require
-    cimObjectPath input BUT do not utilize the -i (interactive option) to
-    make the decision.
-    @param opts -  Input arg, options specified by the user
-    @param thisPath - Output arg,  CIMObjectPath which either contains the path
-    to be used or an empty CIMObjectPath if there is no path for the operation.
-    @return Returns true if CIMObjectPath returned have keybindings else false.
-*/
-
-Boolean _getObjectPath(Options& opts, CIMObjectPath &thisPath)
-{
-    // try to build path from input objectName property
-    // Uses try block because this input generates an exception based on
-    // input syntax and we can use this to more clearly tell the user
-    // what the issue is than the text of the standard malformed object
-    // exception
-
-    thisPath = opts.getTargetObjectName();
-
-    // If there are no keybindings and there are extra input parameters,
-    // build path from input arguments. If there are no keybindings
-    // and no extra parameters do the select instance.
-    if (opts.targetObjectName.getKeyBindings().size() == 0)
+    if (opts.time)
     {
-        if (opts.valueParams.size() > 1)
-        {
-            ObjectBuilder ob(
-                opts.valueParams,
-                opts.client,
-                opts.nameSpace,
-                opts.targetObjectName.getClassName(),
-                CIMPropertyList(),
-                opts.verboseTest);
+        opts.elapsedTime.stop();
 
-            thisPath = ob.buildCIMObjectPath();
-            if (opts.verboseTest && thisPath.getKeyBindings().size() == 0)
-            {
-                cout << "No valid object path defined. "
-                     << thisPath.toString()
-                     << endl;
-            }
-        }
-        else  // no extra parameters.
-        {
-            // get the instance from a console request
-            if (!_selectInstance(opts, opts.getTargetObjectNameClassName(),
-                                thisPath))
-            {
-                thisPath = CIMObjectPath();
-            }
-        }
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
     }
 
-    return thisPath.getKeyBindings().size() > 0;
+    if (opts.summary)
+    {
+      String s = "instances of class";
+        _displaySummary(objects.size(), s, opts.className.getString(),opts);
+    }
+    else
+    {
+        // Output the returned instances
+        for (Uint32 i = 0; i < objects.size(); i++)
+            outputFormatObject(opts.outputType, objects[i]);
+
+    }
+
+    return(0);
 }
 
-
-/************************** deleteInstance  ***************************/
-/*
-    Execute the client operation deleteInstance with the parameters
-    namespace and object or classname.  If only the classname is provided
-    an interactive operation is executed and the user is presented with
-    a list of instances in the namespace/class from which they can select
-    an instance to delete.
-*/
-int deleteInstance(Options& opts)
+int deleteInstance(CIMClient& client, Options& opts)
 {
     if (opts.verboseTest)
     {
         cout << "deleteInstance "
             << "Namespace = " << opts.nameSpace
-            << ", ObjectName/ClassName = " << opts.getTargetObjectNameStr()
+            << ", Object = " << opts.objectName
             << endl;
-        _showValueParameters(opts);
     }
-
-    // Build or get path based in info in opts. If function returns false
-    // (valid object path not provided), return OK without executing
-    // CIM Operation
-    CIMObjectPath thisPath;
-    if (_getObjectPath(opts, thisPath))
+    // if request is class only, do this interactively
+    // Need to get this into objectpath format before doing the call.
+    CIMObjectPath thisObject(opts.objectName);
+    if ((thisObject.getKeyBindings().size() == 0) ? true : false)
     {
-        _startCommandTimer(opts);
-        opts.client.deleteInstance(opts.nameSpace, thisPath);
-        _stopCommandTimer(opts);
+        // get the instance to delete
+        if(!_selectInstance(client, opts, CIMName(opts.objectName), thisObject))
+            return(0);
     }
 
-    return CIMCLI_RTN_CODE_OK;
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
+
+    client.deleteInstance(opts.nameSpace,
+                          thisObject);
+
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
+    return(0);
 }
-
-
-/***************************** getInstance  ******************************/
-/*  Execute the CIMCLient getInstance function with the parameters provided.
-    The majority of the parameters are a direct interpretation of the
-    client getInstance input parameters
-    The InstanceName/Class parameter is special in that it has several options:
-       - objectPath form - Use the object path directly
-       - Class only -  cimcli uses interactive mode to list instances of class
-         for selection
-       - Class only in objectName plus entries in extra parameters - cimcli
-         builds instance from extra parameters and then builds path from
-         instance to retrieve.
-         FUTURE: Test if properties suppled include all key properties. At best
-         we would issue a warning since we do not want to eliminate
-         ability to make error calls
+/*
+NAMESPACE = 1
+Class = 2
+OBJECT = Object*2
+OBJECTNAME = OBJECT*2
+INSTANCENAME = OBJECTNAME * 2
+METHODNAME = INSTANCENAME * 2
+PROPERTYNAME = 2
+PROPERTYVALUE=2
+INPARAMS = 2
+DEEPINHERITANCE = 2
+LOCALONLY = 2
+ASSOCCLASS = 4
+RESULTCLASS = 8
+ROLE = 16
+RESULTROLE = 32
+InCLUDEQUALIFIERS = 64
+INCLUDECLASSORIGIN = 128
+PROPDERTYLIST = 256
 */
-int getInstance(Options& opts)
+
+int getInstance(CIMClient& client, Options& opts)
 {
-    // Resolve the IncludeQualifiers -iq vs -niq qualifiers default is true.
-    _resolveIncludeQualifiers(opts, false);
     if (opts.verboseTest)
     {
         cout << "getInstance "
             << "Namespace = " << opts.nameSpace
-            << ", InstanceName/class = " << opts.getTargetObjectNameStr()
-            << ", localOnly = " << boolToString(opts.localOnly)
-            << ", includeQualifiers = "
-                << boolToString(opts.includeQualifiers)
-            << ", includeClassOrigin = "
-                << boolToString(opts.includeClassOrigin)
-            << ", PropertyList = " << opts.propertyList.toString()
+            << ", Instance = " << opts.objectName
+            << ", localOnly = " << _toString(opts.localOnly)
+            << ", includeQualifiers = " << _toString(opts.includeQualifiers)
+            << ", includeClassOrigin = " << _toString(opts.includeClassOrigin)
+            << ", PropertyList = " << buildPropertyListString(opts.propertyList)
             << endl;
-        _showValueParameters(opts);
     }
 
-    // Build or get path based in info in opts. If function returns false
-    // (valid object path not provided), return OK without executing
-    // CIM Operation
-    CIMObjectPath thisPath;
-    if (_getObjectPath(opts, thisPath))
+    CIMObjectPath thisObject(opts.objectName);
+
+    if ((thisObject.getKeyBindings().size() == 0) ? true : false)
     {
-        _startCommandTimer(opts);
-        CIMInstance cimInstance = opts.client.getInstance(opts.nameSpace,
-            thisPath,
-            opts.localOnly,
-            opts.includeQualifiers,
-            opts.includeClassOrigin,
-            opts.propertyList);
-        _stopCommandTimer(opts);
-
-        CIMCLIOutput::displayInstance(opts, cimInstance);
+        // get the instance to delete
+        if(!_selectInstance(client, opts, CIMName(opts.objectName),thisObject))
+            return(0);
     }
 
-    return CIMCLI_RTN_CODE_OK;
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
+
+    CIMInstance cimInstance = client.getInstance(opts.nameSpace,
+                                                 thisObject,
+                                                 opts.localOnly,
+                                                 opts.includeQualifiers,
+                                                 opts.includeClassOrigin,
+                                                 opts.propertyList);
+
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
+    // Check Output Format to print results
+    if (opts.summary)
+    {
+        if (opts.time)
+        {
+            cout << opts.saveElapsedTime << endl;
+        }
+    }
+    else
+    {
+        if (opts.outputType == OUTPUT_TABLE)
+        {
+            Array<CIMInstance> instances;
+            instances.append(cimInstance);
+            tableFormat(cout, instances);
+        }
+        else
+        {
+            outputFormatInstance(opts.outputType, cimInstance);
+        }
+    }
+
+    return(0);
 }
 
-/***************************** createInstance  ******************************/
 /****
-    This action function executes a create instance.
-
-    The CIM Client operation is:
-        CIMObjectPath createInstance(
-            const CIMNamespaceName& nameSpace,
-            const CIMInstance& newInstance
-        );
-
-    The input parameters are the classname and the name/value pairs
-    that are used to build properties of the instance.
-***/
-int createInstance(Options& opts)
+    CIMObjectPath createInstance(
+    const CIMNamespaceName& nameSpace,
+    const CIMInstance& newInstance
+    );
+ ***/
+int createInstance(CIMClient& client, Options& opts)
 {
     if (opts.verboseTest)
     {
@@ -1316,369 +1141,207 @@ int createInstance(Options& opts)
             << "Namespace = " << opts.nameSpace
             << ", ClassName = " << opts.className.getString()
             << endl;
-        _showValueParameters(opts);
     }
+    // get the class. Exceptions including class_not_found are automatic
+    CIMClass thisClass =
+        client.getClass(opts.nameSpace, opts.className,
+                        false,true,true,CIMPropertyList());
 
-    ObjectBuilder ob(opts.valueParams,
-            opts.client,
-            opts.nameSpace,
-            opts.className,
-            CIMPropertyList(),
-            opts.verboseTest);
+    // Tokenize the parameter pairs
+    //Array<keyValuePair> inputs;
 
-    // create the instance with the defined properties
-    CIMInstance newInstance = ob.buildInstance(
-        opts.includeQualifiers,
-        opts.includeClassOrigin,
-        CIMPropertyList());
+    Array<CIMName> propertyNameList;
+    Array<String> propertyValueList;
 
-    if (opts.verboseTest)
+    // ATTN: Need to account for returning key without value here.
+    if (opts.extraParams != 0)
     {
-        CIMCLIOutput::displayInstance(opts, newInstance);
+        /* Here loop starts from 1, since the Class Name is coming as
+         * first parameter and we want only the property name and value here
+        */
+        for (Uint32 i = 1 ; i < opts.extraParams.size() ; i++)
+        {
+            String key;
+            String value;
+            _tokenPair(opts.extraParams[i], key, value);
+            propertyNameList.append(CIMName(key));
+            propertyValueList.append(value);
+            if (thisClass.findProperty(CIMName(key)) == PEG_NOT_FOUND)
+                cout << "Warning property Name not in class: "
+                     << opts.extraParams[i] << endl;
+        }
+
+        if (opts.verboseTest)
+        {
+            // This loop gives all the property names and property values
+            // of the instance
+            for (Uint32 i=0; i < propertyNameList.size(); i++)
+            {
+                cout << "Property: " << propertyNameList[i].getString()
+                     << " value: " << propertyValueList[i]
+                     << endl;
+            }
+        }
     }
 
-    _startCommandTimer(opts);
+    CIMPropertyList myPropertyList(propertyNameList);
+    // create the instance with the defined properties
+    CIMInstance newInstance = thisClass.buildInstance(true, true,
+                                                      myPropertyList);
 
-    CIMObjectPath rtnPath = opts.client.createInstance(opts.nameSpace,
+    // Set all the property Values to the instance
+    for (Uint32 i=0; i < propertyValueList.size(); i++)
+    {
+        newInstance.getProperty(i).setValue(CIMValue( propertyValueList[i]));
+    }
+    // Now add the parameters from the input. Array.
+    //Note that we do NO checking.  Each input parameter is a simple
+    //name=value.
+    // At this point we also treat them all as strings since we have not
+    // defined a means to handle typing.
+
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
+
+    CIMObjectPath rtndPath = client.createInstance(opts.nameSpace,
                                                  newInstance);
 
-    _stopCommandTimer(opts);
+    // Need to put values into the parameters.
+
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
     // Check Output Format to print results
-    String description = "Returned Path ";
-    CIMCLIOutput::displayPath(opts, rtnPath, description);
-
-    return CIMCLI_RTN_CODE_OK;
-}
-
-
-/***************************** testInstance  ******************************/
-/*  Test the instance defined by the input parameters
-    against the same instance in the target system.
-    1. Get class from classname input
-    2. Build the test instance from input parameters
-    3. Build path from input and class
-    4. getInstance from system using property list from test instance unless
-       there is a list provided with the input.
-    5. Compare properties in testInstance against the
-       same named properties in returned instance
-    6 If there is an error, display differences (if verbose set)
-    returns 0 if all properties are the same. Else returns
-    CIMCLI_RTN_CODE_ERR_COMPARE_FAILED as an error
-    NOTE: Only does exact property compare. Today this function DOES NOT
-    have ability to do logical compares such as < >, etc.  Also cannot
-    test parameters against an input object name.  MUST BE class name
-    on input.
-*/
-int testInstance(Options& opts)
-{
-    // Resolve the IncludeQualifiers -iq vs -niq qualifiers default is true.
-    _resolveIncludeQualifiers(opts, false);
-
-    if (opts.verboseTest)
+    if (opts.summary)
     {
-        cout << "testInstance "
-            << "Namespace = " << opts.nameSpace
-            << ", InstanceName/ClassName = " << opts.getTargetObjectNameStr()
-            << ", includeQualifiers = " << boolToString(opts.includeQualifiers)
-            << ", includeClassOrigin = "
-                << boolToString(opts.includeClassOrigin)
-            << ", PropertyList = " << opts.propertyList.toString()
-            << endl;
-        _showValueParameters(opts);
-    }
-
-    // build the instance from all input properties. It is allowable
-    // to build an instance with no properties.
-    ObjectBuilder ob(
-        opts.valueParams,
-        opts.client,
-        opts.nameSpace,
-        opts.getTargetObjectNameClassName(),
-        CIMPropertyList(),
-        opts.verboseTest);
-
-    CIMInstance testInstance = ob.buildInstance(
-        opts.includeQualifiers,
-        opts.includeClassOrigin,
-        CIMPropertyList());
-
-    // If the objectName keybindings are zero create the path from the
-    // built instance unless the interactive bit is set. Then ask the
-    // select from existing instances.
-    // Else use the path built above from the objectName
-
-    if (opts.targetObjectNameClassOnly())
-    {
-        if (!_conditionalSelectInstance(opts, opts.targetObjectName) ||
-            !opts.interactive)
+        if (opts.time)
         {
-            CIMClass thisClass =
-            opts.client.getClass(opts.nameSpace,
-                                 opts.getTargetObjectNameClassName(),
-                                 false,true,true,CIMPropertyList());
-            opts.targetObjectName = testInstance.buildPath(
-                thisClass);
+            cout << opts.saveElapsedTime << endl;
         }
-    }
-
-    // If there is no input property list substitute a list created from
-    // the test instance. This means we acquire only the properties that were
-    // defined on input as part of the test instance. Note that this may
-    // not work since not all providers honor the propertylist but we test for
-    // correct response later.
-    if (opts.propertyList.size() == 0)
-    {
-        opts.propertyList = _buildPropertyList(testInstance);
-    }
-
-    _startCommandTimer(opts);
-
-    CIMInstance rtndInstance = opts.client.getInstance(opts.nameSpace,
-                                        opts.targetObjectName,
-                                        opts.localOnly,
-                                        opts.includeQualifiers,
-                                        opts.includeClassOrigin,
-                                        opts.propertyList);
-
-    // Compare the property count of the request and response.
-    // Put out a warning if they do not have the same property count.
-    // If they do not match filter the response so that we actually
-    // test the properties defined as of interest by the parameters in
-    // the request. The warning is simply a flag for the user.
-    if (rtndInstance.getPropertyCount() != opts.propertyList.size())
-    {
-        cerr << "Warning: Response returned different property"
-            " set than requested."
-            << "\nRequested = " << opts.propertyList.toString() << endl
-            << "Returned = " << _buildPropertyList(rtndInstance).toString()
-            << "\nContinuing and testing against requested property list"
-            << endl;
-        rtndInstance.instanceFilter(opts.includeQualifiers,
-            opts.includeClassOrigin,
-            opts.propertyList);
-    }
-
-    // Compare created and returned (possibly modified) instances
-    Boolean detailedTest = false;
-
-    // This test compares and if there are differences displays the difference
-    // depending on opt.verbose.  It also conducts either a detailed test
-    // or a value only test depending on the detailedTest parameter
-    if (!_compareInstances(testInstance, rtndInstance, opts, detailedTest,
-                           opts.verboseTest))
-    {
-        cerr << "Error: Test Instance differs from Server returned Instance."
-            << "Rtn Code " << CIMCLI_RTN_CODE_ERR_COMPARE_FAILED << endl;
-
-        // optional display of all the instances if you really have problems
-        // finding differences.
-        if (opts.verboseTest && opts.debug)
-        {
-            cout << "Test Instance =" << endl;
-            CIMCLIOutput::displayInstance(opts, testInstance);
-            cout << "Returned Instance =" << endl;
-            CIMCLIOutput::displayInstance(opts, rtndInstance);
-        }
-        return CIMCLI_RTN_CODE_ERR_COMPARE_FAILED;
-    }
-    else
-        cout << "Test instance " << opts.targetObjectName.toString()
-             << " OK" << endl;
-
-    _stopCommandTimer(opts);
-
-    return CIMCLI_RTN_CODE_OK;
-}
-
-
-/***************************** modifyInstance  ******************************/
-/****
-    The function executes the CIM Operation modify instance.
-    CIMObjectPath modifyInstance(
-        const CIMNamespaceName& nameSpace,
-        const CIMInstance& modifiedInstance,
-        Boolean includeQualifiers = true,
-        const CIMPropertyList& propertyList = CIMPropertyList());
-
-    NOTE: We do not support the includequalifiers option so this
-    is always set to false.
-    This command is similar to create instance but more complex in that
-    it is based on an existing instance name and the creation of a
-    possibly incomplete instance.
-
-    Therefore, it takes as input an object name which may be just a
-    class name and the extra parameters to build an instance.
-
-    This operation differes from the create instance in that the CIM Operation
-    input requires a namedInstance rather than simply an instance.  It is the
-    name that is used to identify the instance to be modified.  Therefore
-    the operation must allow for the name component of the instance to
-    be created independently from the input instance
-
-    If the input object name is just a class name, the parameters are used to
-    build an instance which MUST include all of the key properties.  Then the
-    instance is used to build a path which becomes the path in the
-    input instance.
-
-    If the input includes the keys component of a
-    cim object path, the logic uses that as the instance name and the
-    extra parameters to build the instance.
-
-    If only the classname is provided or not provide any key property,
-    an interactive operation is executed
-***/
-
-int modifyInstance(Options& opts)
-{
-    if (opts.verboseTest)
-    {
-        cout << "modifyInstance "
-            << "Namespace = " << opts.nameSpace
-            << ", InstanceName/ClassName = " << opts.getTargetObjectNameStr()
-            << ", Property List = " << opts.propertyList.toString()
-            << endl;
-        _showValueParameters(opts);
-    }
-
-    // Determine if the input form was with an object path or with individual
-    // properties listed including the key properties or specifically
-    // interactive (-i) where an enumerateinstance names will be used tl
-    // determine object path.
-    Array<CIMKeyBinding> keys = opts.getTargetObjectName().getKeyBindings();
-    if (!opts.targetObjectNameClassOnly())
-    {
-        mapKeyBindingsToInputParameters(opts);
     }
     else
     {
-        if (opts.interactive)
-        {
-            if (_conditionalSelectInstance(opts, opts.targetObjectName))
-            {
-                mapKeyBindingsToInputParameters(opts);
-            }
-            else
-            {
-                cerr << "Error: no path for instance set" << endl;
-                cimcliExit(CIMCLI_INPUT_ERR);
-            }
-
-
-        }
+        cout << rtndPath.toString() << endl;;
     }
 
-    // build the instance from all input properties. It is allowable
-    // to build an instance with no properties.
-    ObjectBuilder ob(
-        opts.valueParams,
-        opts.client,
-        opts.nameSpace,
-        opts.getTargetObjectNameClassName(),
-        CIMPropertyList(),
-        opts.verboseTest);
-
-    CIMInstance modifiedInstance = ob.buildInstance(
-        opts.includeQualifiers,
-        opts.includeClassOrigin,
-        CIMPropertyList());
-
-    opts.targetObjectName = ob.buildCIMObjectPath();
-
-    // put the path into the modifiedInstance
-    modifiedInstance.setPath(opts.targetObjectName);
-
-    _startCommandTimer(opts);
-
-    opts.client.modifyInstance(opts.nameSpace,
-                         modifiedInstance,
-                         false,
-                         opts.propertyList);
-
-    // Need to put values into the parameters.
-    _stopCommandTimer(opts);
-
-    CIMCLIOutput::display(opts, "modified");
-
-    return CIMCLI_RTN_CODE_OK;
+    return(0);
 }
 
-/***************************** enumerateClassNames  **************************/
-/*
-    Execute the client operation enumerateClassNames with the input parameters
-    Namespace, ClassName, and the DeepInheritance option.
-*/
-int enumerateClassNames(Options& opts)
+int enumerateClassNames(CIMClient& client, Options& opts)
 {
+
     if (opts.verboseTest)
     {
         cout << "EnumerateClasseNames "
             << "Namespace= " << opts.nameSpace
             << ", Class= " << opts.className.getString()
-            << ", deepInheritance= " << boolToString(opts.deepInheritance)
+            << ", deepInheritance= " << (opts.deepInheritance? "true" : "false")
             << endl;
     }
     Array<CIMName> classNames;
 
-    _startCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
-    classNames = opts.client.enumerateClassNames(opts.nameSpace,
+    classNames = client.enumerateClassNames(opts.nameSpace,
                                         opts.className,
                                         opts.deepInheritance);
 
-    _stopCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
 
-    CIMCLIOutput::displayClassNames(opts, classNames);
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
-    return CIMCLI_RTN_CODE_OK;
+    if (opts.summary)
+    {
+      String s = "class names";
+        _displaySummary(classNames.size(), s,
+             opts.className.getString(),opts);
+    }
+    else
+    {
+        //simply output the list one per line for the moment.
+        for (Uint32 i = 0; i < classNames.size(); i++)
+                cout << classNames[i].getString() << endl;
+    }
+
+    return(0);
 }
 
-/***************************** enumerateClasses  ******************************/
-/*
-    Execute the client operation enumerateClasses with the input parameters
-    Namespace, ClassName, and the DeepInheritance localOnly,
-    includeQualifiers, and includeClassOrigin option.
-*/
-int enumerateClasses(Options& opts)
+int enumerateClasses(CIMClient& client, Options& opts)
 {
-    // Resolve the IncludeQualifiers -iq vs -niq qualifiers default is true.
-    _resolveIncludeQualifiers(opts, true);
     if (opts.verboseTest)
     {
         cout << "EnumerateClasses "
             << "Namespace= " << opts.nameSpace
             << ", Class= " << opts.className.getString()
-            << ", deepInheritance= " << boolToString(opts.deepInheritance)
-            << ", localOnly= " << boolToString(opts.localOnly)
-            << ", includeQualifiers= "
-                << boolToString(opts.includeQualifiers)
-            << ", includeClassOrigin= "
-                << boolToString(opts.includeClassOrigin)
+            << ", deepInheritance= " << _toString(opts.deepInheritance)
+            << ", localOnly= " << _toString(opts.localOnly)
+            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
+            << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
             << endl;
     }
+    // Added to allow "" string input to represent NULL CIMName.
+    /*
+    CIMName myClassName = CIMName();
+    if (opts.className != "")
+    {
+        myClassName = opts.className;
+    }
+    */
+    Array<CIMClass> classes;
 
-    _startCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
-    Array<CIMClass> classes = opts.client.enumerateClasses(opts.nameSpace,
+    classes = client.enumerateClasses(opts.nameSpace,
                                         opts.className,
                                         opts.deepInheritance,
                                         opts.localOnly,
                                         opts.includeQualifiers,
                                         opts.includeClassOrigin);
 
-    _stopCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
 
-    CIMCLIOutput::displayClasses(opts, classes);
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
-    return CIMCLI_RTN_CODE_OK;
+    if (opts.summary)
+    {
+        String s = "classes";
+        _displaySummary(classes.size(), s, opts.className.getString(),opts);
+    }
+    else
+    {
+        // Output the returned instances
+        for (Uint32 i = 0; i < classes.size(); i++)
+        {
+            CIMClass myClass = classes[i];
+            outputFormatClass(opts.outputType, myClass);
+        }
+    }
+
+    return(0);
 }
 
-/***************************** deleteClass  ******************************/
-/*
-    Execute the client operation deleteClass with the input parameters
-    Namespace and ClassName.
-*/
-int deleteClass(Options& opts)
+int deleteClass(CIMClient& client, Options& opts)
 {
     if (opts.verboseTest)
     {
@@ -1688,157 +1351,154 @@ int deleteClass(Options& opts)
             << endl;
     }
 
-    _startCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
-    opts.client.deleteClass(opts.nameSpace, opts.className);
+    client.deleteClass(opts.nameSpace, opts.className);
 
-    _stopCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
 
-    return CIMCLI_RTN_CODE_OK;
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
+    return(0);
 }
 
-/***************************** getClass  ******************************/
-/*
-    Execute the client operation getClass with the input parameters
-    Namespace and ClassName and the options deepInheritance, localOnly,
-    includeQualifiers, includeClassOrigin, and a possible propertyList
-*/
-int getClass(Options& opts)
+int getClass(CIMClient& client, Options& opts)
 {
-    // Resolve the IncludeQualifiers -iq vs -niq qualifiers default is true.
-    _resolveIncludeQualifiers(opts, true);
-
     if (opts.verboseTest)
     {
         cout << "getClass "
             << "Namespace= " << opts.nameSpace
             << ", Class= " << opts.className.getString()
-            << ", deepInheritance= " << boolToString(opts.deepInheritance)
-            << ", localOnly= " << boolToString(opts.localOnly)
-            << ", includeQualifiers= " << boolToString(opts.includeQualifiers)
-            << ", includeClassOrigin= " << boolToString(opts.includeClassOrigin)
-            << ", PropertyList= " << opts.propertyList.toString()
+            << ", deepInheritance= " << _toString(opts.deepInheritance)
+            << ", localOnly= " << _toString(opts.localOnly)
+            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
+            << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
+            << ", PropertyList= " << buildPropertyListString(opts.propertyList)
             << endl;
     }
 
-    _startCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
-    CIMClass cimClass = opts.client.getClass(opts.nameSpace,
+    CIMClass cimClass = client.getClass(opts.nameSpace,
                                         opts.className,
                                         opts.localOnly,
                                         opts.includeQualifiers,
                                         opts.includeClassOrigin,
                                         opts.propertyList);
 
-    _stopCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
 
-    CIMCLIOutput::displayClass(opts, cimClass);
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
-    return CIMCLI_RTN_CODE_OK;
+    if (opts.summary)
+    {
+        if (opts.time)
+        {
+            cout << opts.saveElapsedTime << endl;
+        }
+    }
+    else
+    {
+        outputFormatClass(opts.outputType, cimClass);
+    }
+    return(0);
 }
 
-/***************************** getProperty  ******************************/
-/*
-    Execute the client operation getProperty with the input parameters
-    Namespace, InstanceName, and propertyName
-*/
-int getProperty(Options& opts)
+int getProperty(CIMClient& client, Options& opts)
 {
     if (opts.verboseTest)
     {
         cout << "getProperty "
             << "Namespace= " << opts.nameSpace
-            << ", InstanceName= " << opts.getTargetObjectNameStr()
+            << ", Instance= " << opts.instanceName.toString()
             << ", propertyName= " << opts.propertyName
             << endl;
-        _showValueParameters(opts);
     }
 
-    // Build or get path based in info in opts. If function returns false
-    // (valid object path not provided), return OK without executing
-    // CIM Operation
-    CIMObjectPath thisPath;
+    CIMValue cimValue;
 
-    if (_getObjectPath(opts, thisPath))
+    if (opts.time)
     {
-        CIMValue cimValue;
-        _startCommandTimer(opts);
-        cimValue = opts.client.getProperty(
-            opts.nameSpace,
-            thisPath,
-            opts.propertyName);
-        _stopCommandTimer(opts);
-        if (opts.summary)
-        {
-            if (opts.time)
-            {
-                cout << opts.saveElapsedTime << endl;
-            }
-        }
-        else
-        {
-            cout << opts.propertyName << " = " << cimValue.toString() << endl;
-        }
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
     }
 
-    return CIMCLI_RTN_CODE_OK;
+    cimValue = client.getProperty( opts.nameSpace,
+                                   opts.instanceName,
+                                   opts.propertyName);
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
+    if (opts.summary)
+    {
+        if (opts.time)
+        {
+            cout << opts.saveElapsedTime << endl;
+        }
+    }
+    else
+    {
+        cout << opts.propertyName << " = " << cimValue.toString() << endl;
+    }
+
+    return(0);
 }
 
-/***************************** setProperty  ******************************/
-/*
-    Execute the client operation setProperty with the input parameters
-    Namespace, InstanceName, propertyName and new property value
-*/
-int setProperty(Options& opts)
+int setProperty(CIMClient& client, Options& opts)
 {
     if (opts.verboseTest)
     {
         cout << "setProperty "
             << "Namespace= " << opts.nameSpace
-            << ", InstanceName= " << opts.getTargetObjectNameStr()
+            << ", Instance= " << opts.instanceName.toString()
             << ", propertyName= " << opts.propertyName
-            << ", newValue= " << opts.newValue
+            << ", newValue= " << opts.newValue.toString()
             << endl;
-        _showValueParameters(opts);
     }
 
-    // Build or get path based in info in opts. If function returns false
-    // (valid object path not provided), return OK without executing
-    // CIM Operation
-    CIMObjectPath thisPath;
-    if (_getObjectPath(opts, thisPath))
+    if (opts.time)
     {
-        ObjectBuilder ob(opts.valueParams,
-                opts.client,
-                opts.nameSpace,
-                thisPath.getClassName(),
-                CIMPropertyList(),
-                opts.verboseTest);
-
-        CIMValue cimValue =
-            ob.buildPropertyValue(opts.propertyName,opts.newValue);
-
-        _startCommandTimer(opts);
-
-        opts.client.setProperty( opts.nameSpace,
-                                       thisPath,
-                                       opts.propertyName,
-                                       cimValue);
-
-        _stopCommandTimer(opts);
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
     }
 
-    return CIMCLI_RTN_CODE_OK;
+    client.setProperty( opts.nameSpace,
+                                   opts.instanceName,
+                                   opts.propertyName,
+                                   opts.newValue);
+
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
+
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
+    return(0);
 }
 
-/***************************** getQualifier  ******************************/
-/*
-    Execute the client operation getQualifier with the input parameters
-    Namespace and qualifierName.
-*/
-int getQualifier(Options& opts)
+int getQualifier(CIMClient& client, Options& opts)
 {
-    if (opts.verboseTest)
+    cout << "entering getQualifier " << endl;
+    //if (opts.verboseTest)
     {
         cout << "getQualifier "
             << "Namespace= " << opts.nameSpace
@@ -1848,21 +1508,30 @@ int getQualifier(Options& opts)
 
     CIMQualifierDecl cimQualifierDecl;
 
-    _startCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
-    cimQualifierDecl = opts.client.getQualifier( opts.nameSpace,
+    cimQualifierDecl = client.getQualifier( opts.nameSpace,
                                    opts.qualifierName);
 
-    _stopCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
 
-    // display received qualifier
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
-    CIMCLIOutput::displayQualDecl(opts, cimQualifierDecl);
+    // display new qualifier
 
-    return CIMCLI_RTN_CODE_OK;
+    outputFormatQualifierDecl(opts.outputType, cimQualifierDecl);
+
+    return(0);
 }
 
-int setQualifier(Options& opts)
+int setQualifier(CIMClient& client, Options& opts)
 {
     if (opts.verboseTest)
     {
@@ -1872,45 +1541,54 @@ int setQualifier(Options& opts)
             << endl;
     }
 
-    _startCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
-    opts.client.setQualifier(opts.nameSpace, opts.qualifierDeclaration);
+    client.setQualifier( opts.nameSpace,
+                         opts.qualifierDeclaration);
 
-    _stopCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
 
-    return CIMCLI_RTN_CODE_OK;
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
+    return(0);
 }
 
-/***************************** deleteQualifier  ******************************/
-/*
-    Execute the client operation deleteQualifier with the input parameters
-    Namespace and qualifierName.
-*/
-int deleteQualifier(Options& opts)
+int deleteQualifier(CIMClient& client, Options& opts)
 {
     if (opts.verboseTest)
     {
         cout << "deleteQualifiers "
             << "Namespace= " << opts.nameSpace
-            << " QualifierName= " << opts.qualifierName
+            << " Qualifier= " << opts.qualifierName
             << endl;
     }
 
-    _startCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
-    opts.client.deleteQualifier(opts.nameSpace, opts.qualifierName);
+    client.deleteQualifier( opts.nameSpace,
+                            opts.qualifierName);
 
-    _stopCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
 
-    return CIMCLI_RTN_CODE_OK;
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
+
+    return(0);
 }
-
-/***************************** enumerateQualifiers  **************************/
-/*
-    Execute the client operation enumerateQualifiers with the input parameters
-    Namespace.
-*/
-int enumerateQualifiers(Options& opts)
+int enumerateQualifiers(CIMClient& client, Options& opts)
 {
     if (opts.verboseTest)
     {
@@ -1921,77 +1599,101 @@ int enumerateQualifiers(Options& opts)
 
     Array<CIMQualifierDecl> qualifierDecls;
 
-    _startCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
+    }
 
-    qualifierDecls = opts.client.enumerateQualifiers(opts.nameSpace);
+    qualifierDecls = client.enumerateQualifiers( opts.nameSpace);
 
-    _stopCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
 
-    CIMCLIOutput::displayQualDecls(opts, qualifierDecls);
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
-    return CIMCLI_RTN_CODE_OK;
+    if (opts.summary)
+        cout << qualifierDecls.size() << " returned." << endl;
+    else
+    {
+        // Output the returned instances
+        for (Uint32 i = 0; i < qualifierDecls.size(); i++)
+        {
+            CIMQualifierDecl myQualifierDecl = qualifierDecls[i];
+            outputFormatQualifierDecl(opts.outputType, myQualifierDecl);
+        }
+    }
+
+    return(0);
 }
 
-
-/***************************** referenceNames  ******************************/
-/*
-    Execute CIM Operation referencenames.  The signature of the
-    client CIM Operation is:
-
-    Array<CIMObjectPath> referenceNames(
+/*Array<CIMObjectPath> referenceNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& resultClass = CIMName(),
-        const String& role = String()
+        const String& role = String::EMPTY
 */
-int referenceNames(Options& opts)
+int referenceNames(CIMClient& client, Options& opts)
 {
     if (opts.verboseTest)
     {
         cout << "ReferenceNames "
             << "Namespace= " << opts.nameSpace
-            << ", ObjectPath= " << opts.getTargetObjectNameStr()
+            << ", ObjectPath= " << opts.objectName
             << ", resultClass= " << opts.resultClass.getString()
             << ", role= " << opts.role
             << endl;
     }
     // do conditional select of instance if params properly set.
+    CIMObjectPath thisObjectPath(opts.objectName);
+    if (!_conditionalSelectInstance(client, opts, thisObjectPath))
+        return(0);
 
-    CIMObjectPath thisObjectPath(opts.getTargetObjectName());
-
-    if (!_conditionalSelectInstance(opts, thisObjectPath))
+    if (opts.time)
     {
-        return CIMCLI_RTN_CODE_OK;
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
     }
 
-    _startCommandTimer(opts);
-
     Array<CIMObjectPath> referenceNames =
-        opts.client.referenceNames( opts.nameSpace,
+        client.referenceNames( opts.nameSpace,
                                thisObjectPath,
                                opts.resultClass,
                                opts.role);
 
-    _stopCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
 
-    String s = "referenceNames";
-    opts.className = thisObjectPath.getClassName();
-    CIMCLIOutput::displayPaths(opts, referenceNames, s);
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
-    return CIMCLI_RTN_CODE_OK;
+    /*
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& resultClass = CIMName(),
+    const String& role = String::EMPTY */
+
+    if (opts.summary)
+    {
+      String s = "referenceNames";
+        _displaySummary(referenceNames.size(),s,
+             opts.objectName,opts);
+    }
+    else
+    {
+        //simply output the list one per line for the moment.
+        for (Uint32 i = 0; i < referenceNames.size(); i++)
+                    cout << referenceNames[i].toString() << endl;
+    }
+
+    return(0);
 }
 
 
-/***************************** references  ******************************/
 /****
-  get references for the target input object using the client references
-  operation. This operation uses the interactive option to determine if
-  the input target is to be selected interactively.  This is required
-  because the reference operation can have either a class or path as
-  input (returns either classes or instances depending on this input).
-  The interactive option requests that the instance interactive selector
-  be used to allow the user to select instances for a particular class
-  input.
      Array<CIMObject> references(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -2001,36 +1703,36 @@ int referenceNames(Options& opts)
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
-*/
-int references(Options& opts)
+    */
+int references(CIMClient& client, Options& opts)
 {
-    // Resolve the IncludeQualifiers -iq vs -niq qualifiers default is true.
-    _resolveIncludeQualifiers(opts, false);
     if (opts.verboseTest)
     {
         cout << "References "
             << "Namespace= " << opts.nameSpace
-            << ", ObjectName = " << opts.getTargetObjectNameStr()
+            << ", Object= " << opts.objectName
             << ", resultClass= " << opts.resultClass.getString()
             << ", role= " << opts.role
-            << ", includeQualifiers= " << boolToString(opts.includeQualifiers)
-            << ", includeClassOrigin= " << boolToString(opts.includeClassOrigin)
-            << ", CIMPropertyList= " << opts.propertyList.toString()
+            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
+            << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
+            << ", CIMPropertyList= "
+            << buildPropertyListString(opts.propertyList)
             << endl;
     }
 
     // do conditional select of instance if params properly set.
-    CIMObjectPath thisObjectPath(opts.getTargetObjectName());
+    CIMObjectPath thisObjectPath(opts.objectName);
+    if (!_conditionalSelectInstance(client, opts, thisObjectPath))
+        return(0);
 
-    if (!_conditionalSelectInstance(opts, thisObjectPath))
+    if (opts.time)
     {
-        return CIMCLI_RTN_CODE_OK;
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
     }
 
-    _startCommandTimer(opts);
-
     Array<CIMObject> objects =
-        opts.client.references(  opts.nameSpace,
+        client.references(  opts.nameSpace,
                             thisObjectPath,
                             opts.resultClass,
                             opts.role,
@@ -2038,37 +1740,47 @@ int references(Options& opts)
                             opts.includeClassOrigin,
                             opts.propertyList);
 
-    _stopCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
 
-    String s = "references";
-    CIMCLIOutput::displayObjects(opts,objects,s);
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
-    return CIMCLI_RTN_CODE_OK;
+    if (opts.summary)
+    {
+      String s = "references";
+        _displaySummary(objects.size(), s, opts.objectName,opts);
+    }
+    else
+    {
+        // Output the returned instances
+        for (Uint32 i = 0; i < objects.size(); i++)
+            outputFormatObject(opts.outputType, objects[i]);
+    }
+
+    return(0);
 }
 
-
-/***************************** associatorNames  ******************************/
 /*
-    Use the client associatorNames operation to return associated classes
-    or instances for the target inputs. Note that this operation uses the
-    interactive option.
-
     Array<CIMObjectPath> associatorNames(
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& objectName,
-        const CIMName& assocClass = CIMName(),
-        const CIMName& resultClass = CIMName(),
-        const String& role = String::EMPTY,
-        const String& resultRole = String::EMPTY
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& assocClass = CIMName(),
+    const CIMName& resultClass = CIMName(),
+    const String& role = String::EMPTY,
+    const String& resultRole = String::EMPTY
     );
+
 */
-int associatorNames(Options& opts)
+int associatorNames(CIMClient& client, Options& opts)
 {
+
     if (opts.verboseTest)
     {
         cout << "associatorNames "
             << "Namespace= " << opts.nameSpace
-            << ", ObjectName= " << opts.getTargetObjectNameStr()
+            << ", Object= " << opts.objectName
             << ", assocClass= " << opts.assocClass.getString()
             << ", resultClass= " << opts.resultClass.getString()
             << ", role= " << opts.role
@@ -2077,40 +1789,55 @@ int associatorNames(Options& opts)
     }
 
     // do conditional select of instance if params properly set.
-    CIMObjectPath thisObjectPath(opts.getTargetObjectName());
+    CIMObjectPath thisObjectPath(opts.objectName);
+    if(!_conditionalSelectInstance(client, opts, thisObjectPath))
+        return(0);
 
-    if (!_conditionalSelectInstance(opts, thisObjectPath))
+    if (opts.time)
     {
-        return CIMCLI_RTN_CODE_OK;
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
     }
 
-    _startCommandTimer(opts);
-
     Array<CIMObjectPath> associatorNames =
-        opts.client.associatorNames( opts.nameSpace,
-                                    thisObjectPath,
-                                    opts.assocClass,
-                                    opts.resultClass,
-                                    opts.role,
-                                    opts.resultRole);
+    client.associatorNames( opts.nameSpace,
+                            thisObjectPath,
+                            opts.assocClass,
+                            opts.resultClass,
+                            opts.role,
+                            opts.resultRole);
 
-    _stopCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
 
-    String s = "associator names";
-    opts.className = thisObjectPath.getClassName();
-    CIMCLIOutput::displayPaths(opts, associatorNames, s);
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
-    return CIMCLI_RTN_CODE_OK;
+    /*
+    const CIMNamespaceName& nameSpace,
+    const CIMObjectPath& objectName,
+    const CIMName& resultClass = CIMName(),
+    const String& role = String::EMPTY */
+
+    if (opts.summary)
+    {
+      String s = "associator names";
+        _displaySummary(associatorNames.size(), s,
+             opts.objectName,opts);
+    }
+    else
+    {
+        // Output the list one per line for the moment.
+        for (Uint32 i = 0; i < associatorNames.size(); i++)
+                    cout << associatorNames[i].toString() << endl;
+    }
+
+    return(0);
 }
 
 
-/***************************** associators  ******************************/
-/*
-    Execute the CIM Client Operation associators. Note that this function
-    uses the interactive operation to allow the user to select the
-    object to be the target objecName. The signature of
-    the function is:
-
+/****
     Array<CIMObject> associators(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -2123,56 +1850,67 @@ int associatorNames(Options& opts)
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
  */
-int associators(Options& opts)
+int associators(CIMClient& client, Options& opts)
 {
-    // Resolve the IncludeQualifiers -iq vs -niq qualifiers default is true.
-    _resolveIncludeQualifiers(opts, false);
-
     if (opts.verboseTest)
     {
         cout << "Associators "
             << "Namespace= " << opts.nameSpace
-            << ", Object= " << opts.getTargetObjectNameStr()
+            << ", Object= " << opts.objectName
             << ", assocClass= " << opts.assocClass.getString()
             << ", resultClass= " << opts.resultClass.getString()
             << ", role= " << opts.role
             << ", resultRole= " << opts.resultRole
-            << ", includeQualifiers= " << boolToString(opts.includeQualifiers)
-            << ", includeClassOrigin= " << boolToString(opts.includeClassOrigin)
-            << ", propertyList= " << opts.propertyList.toString()
+            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
+            << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
+            << ", propertyList= " << buildPropertyListString(opts.propertyList)
             << endl;
     }
 
     // do conditional select of instance if params properly set.
-    CIMObjectPath thisObjectPath(opts.getTargetObjectName());
+    CIMObjectPath thisObjectPath(opts.objectName);
+    if(!_conditionalSelectInstance(client, opts, thisObjectPath))
+        return(0);
 
-    if (!_conditionalSelectInstance(opts, thisObjectPath))
+    if (opts.time)
     {
-        return CIMCLI_RTN_CODE_OK;
+        opts.elapsedTime.reset();
+        opts.elapsedTime.start();
     }
 
-    _startCommandTimer(opts);
-
     Array<CIMObject> objects =
-        opts.client.associators( opts.nameSpace,
-                            thisObjectPath,
-                            opts.assocClass,
-                            opts.resultClass,
-                            opts.role,
-                            opts.resultRole,
-                            opts.includeQualifiers,
-                            opts.includeClassOrigin,
-                            opts.propertyList);
+    client.associators( opts.nameSpace,
+                        thisObjectPath,
+                        opts.assocClass,
+                        opts.resultClass,
+                        opts.role,
+                        opts.resultRole,
+                        opts.includeQualifiers,
+                        opts.includeClassOrigin,
+                        opts.propertyList);
 
-    _stopCommandTimer(opts);
+    if (opts.time)
+    {
+        opts.elapsedTime.stop();
 
-    String s = "associators";
-    CIMCLIOutput::displayObjects(opts,objects,s);
+        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+    }
 
-    return CIMCLI_RTN_CODE_OK;
+    if (opts.summary)
+    {
+      String s = "associators";
+        _displaySummary(objects.size(), s, opts.objectName,opts);
+    }
+    else
+    {
+        // Output the returned instances
+        for (Uint32 i = 0; i < objects.size(); i++)
+            outputFormatObject(opts.outputType, objects[i]);
+    }
+
+    return(0);
 }
 
-/***************************** invokeMethod  ******************************/
 /*
     CIMValue invokeMethod(
         const CIMNamespaceName& nameSpace,
@@ -2181,72 +1919,66 @@ int associators(Options& opts)
         const Array<CIMParamValue>& inParameters,
         Array<CIMParamValue>& outParameters
 */
-/***************************** invokeMethod  ******************************/
- int invokeMethod(Options& opts)
+
+ int invokeMethod(CIMClient& client, Options& opts)
  {
      {
+         // Display the parameter set if verbose requested.
          if (opts.verboseTest)
          {
              cout << "invokeMethod"
                  << " Namespace= " << opts.nameSpace
-                 << ", ObjectName= " << opts.getTargetObjectNameStr()
+                 << ", ObjectName= " << opts.objectName
                  << ", methodName= " << opts.methodName.getString()
                  << ", inParams Count= " << opts.inParams.size()
                  << endl;
-
-             CIMCLIOutput::displayParamValues(opts, opts.inParams);
-
-             _showValueParameters(opts);
+             for (Uint32 i=0; i< opts.inParams.size(); i++)
+                 outputFormatParamValue(opts.outputType, opts.inParams[i]);
         }
-
-        ObjectBuilder ob(
-            opts.valueParams,
-            opts.client,
-            opts.nameSpace,
-            opts.getTargetObjectNameClassName(),
-            CIMPropertyList(),
-            opts.verboseTest);
-
-        Array<CIMParamValue> params = ob.buildMethodParameters(opts.methodName);
 
          // Create array for output parameters
         CIMValue retValue;
         Array<CIMParamValue> outParams;
 
-        _startCommandTimer(opts);
+        if (opts.time)
+        {
+            opts.elapsedTime.reset();
+            opts.elapsedTime.start();
+        }
 
         // Call invoke method with the parameters
-        retValue = opts.client.invokeMethod(opts.nameSpace,
-                                            opts.getTargetObjectName(),
-                                            opts.methodName,
-                                            params,
-                                            outParams);
+        retValue = client.invokeMethod(opts.nameSpace, opts.objectName,
+            opts.methodName, opts.inParams, outParams);
 
-        _stopCommandTimer(opts);
+        if (opts.time)
+        {
+            opts.elapsedTime.stop();
+
+            opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+        }
 
         // Display the return value CIMValue
         cout << "Return Value= ";
-
-        CIMCLIOutput::displayValue(opts, retValue);
-        cout << endl;
+        if (opts.outputType == OUTPUT_XML)
+            XmlWriter::printValueElement(retValue, cout);
+        else
+            cout << retValue.toString() << endl;
 
         // Display any outparms
+        for (Uint32 i = 0; i < outParams.size() ; i++)
+            outputFormatParamValue(opts.outputType, outParams[i]);
 
-        CIMCLIOutput::displayParamValues(opts, outParams);
      }
 
-    return CIMCLI_RTN_CODE_OK;
+     return(0);
  }
 
-/************************ enumerateNamespace names **********************/
-/* Enumerate the Namespace names.  This function is based on using either
-    the CIM_Namespace class or if this does not exist the
+ /* Enumerate the Namespaces.  This function is based on using the
     __Namespace class and either returns all namespaces or simply the ones
     starting at the namespace input as the namespace variable.
     It assumes that the input classname is __Namespace.
-*/
-
-int enumerateNamespaceNames(Options& opts)
+ */
+int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
 {
     if (opts.verboseTest)
     {
@@ -2256,683 +1988,1204 @@ int enumerateNamespaceNames(Options& opts)
             << endl;
     }
 
-    _startCommandTimer(opts);
+    Boolean usingPegasus = true;
+    Array<CIMInstance> instances;
 
-    Array<CIMNamespaceName> ns = _getNameSpaceNames(opts);
+    try
+    {
+        instances = client.enumerateInstances(
+            (CIMNamespaceName)(opts.nameSpace),opts.className);
+    }
+    catch(CIMException &)
+    {
+        /*if an exception was caught here then we assume we are not useing
+        the open pegasus CIMOM. There for we should only check the
+        __namespaces class. (Which may only retrun a subset of all namspaces
+        */
+        usingPegasus = false;
+        opts.className = CIMName("__namespace");
+        opts.nameSpace = PEGASUS_NAMESPACENAME_INTEROP.getString();
+    }
 
-    _stopCommandTimer(opts);
+    if (usingPegasus)
+    {
+        for (Uint32 i = 0 ; i < instances.size(); i++)
+        {
+            Uint32 pos;
+            // if we find the property and it is a string, use it.
+            if ((pos = instances[i].findProperty("name")) != PEG_NOT_FOUND)
+            {
+                CIMValue value;
+                String namespaceComponent;
+                value = instances[i].getProperty(pos).getValue();
+                if (value.getType() == CIMTYPE_STRING)
+                {
+                    value.get(namespaceComponent);
+                    cout << namespaceComponent << endl;
+                }
+            }
+        }
 
-    CIMCLIOutput::displayNamespaceNames(opts, ns);
+    }
+    else
+    {
+        Array<CIMNamespaceName> namespaceNames;
 
-    return CIMCLI_RTN_CODE_OK;
+        // Build the namespaces incrementally starting at the root
+        // ATTN: 20030319 KS today we start with the "root" directory but
+        // this is wrong. We should be
+        // starting with null (no directory) but today we get an xml error
+        // return in Pegasus
+        // returned for this call. Note that the specification requires
+        // that the root namespace be used
+        // when __namespace is defined but does not require that it be
+        // the root for allnamespaces. That
+        // is a hole is the spec, not in our code.
+        namespaceNames.append(opts.nameSpace);
+        Uint32 start = 0;
+        Uint32 end = namespaceNames.size();
+
+
+        if (opts.time)
+        {
+            opts.elapsedTime.reset();
+            opts.elapsedTime.start();
+        }
+
+        do
+        {
+            // for all new elements in the output array
+            for (Uint32 range = start; range < end; range ++)
+            {
+                // Get the next increment in naming for all a name element
+                // in the array
+                instances = client.enumerateInstances(
+                    namespaceNames[range],opts.className);
+                for (Uint32 i = 0 ; i < instances.size(); i++)
+                {
+                    Uint32 pos;
+                    // if we find the property and it is a string, use it.
+                    if ((pos = instances[i].findProperty("name"))
+                            != PEG_NOT_FOUND)
+                    {
+                        CIMValue value;
+                        String namespaceComponent;
+                        value = instances[i].getProperty(pos).getValue();
+                        if (value.getType() == CIMTYPE_STRING)
+                        {
+                            value.get(namespaceComponent);
+
+                                String ns = namespaceNames[range].getString();
+                                ns.append("/");
+                                ns.append(namespaceComponent);
+                                namespaceNames.append(ns);
+                        }
+                    }
+                }
+                start = end;
+                end = namespaceNames.size();
+            }
+        }
+        while (start != end);
+
+
+        // Validate that all of the returned entities are really namespaces.
+        // It is legal for us to have an name component that is really not a
+        // namespace (ex. root/fred/john is a namespace  but root/fred is not.
+        // There is no clearly defined test for this so we will simply try to
+        // get something, in this
+        // case a wellknown assoication
+          Array<CIMNamespaceName> returnNamespaces;
+
+        for (Uint32 i = 0 ; i < namespaceNames.size() ; i++)
+        {
+            try
+            {
+                CIMQualifierDecl cimQualifierDecl;
+                cimQualifierDecl = client.getQualifier(namespaceNames[i],
+                                               "Association");
+
+                returnNamespaces.append(namespaceNames[i]);
+            }
+            catch(CIMException& e)
+            {
+                if (e.getCode() != CIM_ERR_INVALID_NAMESPACE)
+                    returnNamespaces.append(namespaceNames[i]);
+            }
+        }
+
+        if (opts.time)
+        {
+            opts.elapsedTime.stop();
+
+            opts.saveElapsedTime = opts.elapsedTime.getElapsed();
+        }
+
+        if (opts.summary)
+        {
+            cout << returnNamespaces.size() << " namespaces " << " returned."
+                << endl;
+        }
+        else
+        {
+            for( Uint32 cnt = 0 ; cnt < returnNamespaces.size(); cnt++ )
+            {
+                cout << returnNamespaces[cnt].getString() << endl;;
+            }
+        }
+    }
+
+    return(0);
+}
+
+/*
+    This function loads the message from resourcebundle using the key passed
+*/
+String loadMessage(const char* key, const char* defMessage)
+{
+    MessageLoaderParms parms(key, defMessage);
+    parms.msg_src_path = MSG_PATH;
+    return MessageLoader::getMessage(parms);
+}
+
+/////////////////////////////////////////////////////////////////////
+// The following section manages the input options.  It includes   //
+// both the options processor (based on common/options             //
+// and the options table.                                          //
+/////////////////////////////////////////////////////////////////////
+
+void GetOptions(
+    OptionManager& om,
+    int& argc,
+    char** argv,
+    const String& testHome)
+{
+    static const char* outputFormats[] = { "xml", "mof", "txt", "table"};
+    static const Uint32 NUM_OUTPUTFORMATS = sizeof(outputFormats) /
+                                            sizeof(outputFormats[0]);
+    static OptionRowWithMsg optionsTable[] =
+        //optionname defaultvalue rqd  type domain domainsize clname msgkey
+        // hlpmsg
+    {
+        {"count", "29346", false, Option::WHOLE_NUMBER, 0, 0, "count",
+        "Clients.cimcli.CIMCLIClient.COUNT_OPTION_HELP",
+        "Expected count of objects returned if summary set.\n"
+            "    Test count and display difference.\n"
+            "    Return nonzero if test fails"},
+
+        {"debug", "false", false, Option::BOOLEAN, 0, 0, "d",
+        "Clients.cimcli.CIMCLIClient.DEBUG_OPTION_HELP",
+        "More detailed debug messages"},
+
+        {"delay", "0", false, Option::WHOLE_NUMBER, 0, 0, "delay",
+        "Clients.cimcli.CIMCLIClient.DELAY_OPTION_HELP",
+        "Delay between connection and request"},
+
+        {"Password", "", false, Option::STRING, 0, 0, "p",
+        "Clients.cimcli.CIMCLIClient.PASSWORD_OPTION_HELP",
+        "Defines password for authentication" },
+
+        {"location", "", false, Option::STRING, 0, 0, "l",
+        "Clients.cimcli.CIMCLIClient.LOCATION_OPTION_HELP",
+        "Specifies system and port (HostName:port).\n"
+            "    Port is optional" },
+
+#ifdef PEGASUS_HAS_SSL
+        {"ssl", "false", false, Option::BOOLEAN, 0, 0, "s",
+        "Clients.cimcli.CIMCLIClient.SSL_OPTION_HELP",
+        "Specifies to connect over HTTPS" },
+
+        {"clientCert", "", false, Option::STRING, 0, 0, "-cert",
+        "Clients.cimcli.CIMCLIClient.CLIENTCERT_OPTION_HELP",
+        "Specifies a client certificate to present to the server.\n"
+            "    This is optional and only has an effect on connections\n"
+            "    made over HTTPS using -s" },
+
+        {"clientKey", "", false, Option::STRING, 0, 0, "-key",
+        "Clients.cimcli.CIMCLIClient.CLIENTKEY_OPTION_HELP",
+        "Specifies a client private key.\n"
+            "    This is optional and only has an effect on connections\n"
+            "    made over HTTPS using -s" },
+#endif
+        {"User", "", false, Option::STRING, 0, 0, "u",
+        "Clients.cimcli.CIMCLIClient.USER_OPTION_HELP",
+        "Defines User Name for authentication" },
+
+        {"namespace", "root/cimv2", false, Option::STRING, 0, 0, "n",
+        "Clients.cimcli.CIMCLIClient.NAMESPACE_OPTION_HELP",
+        "Specifies namespace to use for operation" },
+
+        {"deepInheritance", "false", false, Option::BOOLEAN, 0, 0, "di",
+        "Clients.cimcli.CIMCLIClient.DEEPINHERITANCE_OPTION_HELP",
+        "If set deepInheritance parameter\n"
+            "    set true"},
+
+        {"localOnly", "true", false, Option::BOOLEAN, 0, 0, "lo",
+        "Clients.cimcli.CIMCLIClient.LOCALONLY_OPTION_HELP",
+        "DEPRECATED. This was used to set LocalOnly.\n"
+            "    However, default should be true and we cannot use True\n"
+            "    as default. See -nlo"},
+
+        {"notLocalOnly", "false", false, Option::BOOLEAN, 0, 0, "nlo",
+        "Clients.cimcli.CIMCLIClient.NOTLOCALONLY_OPTION_HELP",
+        "When set, sets LocalOnly = false on\n"
+            "    operations"},
+
+        {"includeQualifiers", "true", false, Option::BOOLEAN, 0, 0, "iq",
+        "Clients.cimcli.CIMCLIClient.INCLUDEQUALIFIERS_OPTION_HELP",
+        "Deprecated. Sets includeQualifiers = True.\n"
+            "    However, default=true"},
+
+        {"notIncludeQualifiers", "false", false, Option::BOOLEAN, 0, 0, "niq",
+        "Clients.cimcli.CIMCLIClient.NOTINCLUDEQUALIFIERS_OPTION_HELP",
+        "Sets includeQualifiers = false\n"
+            "    on operations"},
+
+        // Uses a magic string as shown below to indicate never used.
+        {"propertyList", "###!###", false, Option::STRING, 0, 0, "pl",
+        "Clients.cimcli.CIMCLIClient.PROPERTYLIST_OPTION_HELP",
+        "Defines a propertyNameList. Format is p1,p2,p3\n"
+            "    (without spaces). Use \"\" for empty"},
+
+        {"assocClass", "", false, Option::STRING, 0, 0, "ac",
+        "Clients.cimcli.CIMCLIClient.ASSOCCLASS_OPTION_HELP",
+        "Defines a assocClass string for Associator calls"},
+
+        {"assocRole", "", false, Option::STRING, 0, 0, "ar",
+        "Clients.cimcli.CIMCLIClient.ASSOCROLE_OPTION_HELP",
+        "Defines a role string for Associatiors AssocRole\n"
+            "    parameter"},
+
+        {"role", "", false, Option::STRING, 0, 0, "r",
+        "Clients.cimcli.CIMCLIClient.ROLE_OPTION_HELP",
+        "Defines a role string for reference role parameter"},
+
+        {"resultClass", "", false, Option::STRING, 0, 0, "rc",
+        "Clients.cimcli.CIMCLIClient.RESULTCLASS_OPTION_HELP",
+        "Defines a resultClass string for References and\n"
+            "    Associatiors"},
+
+        {"resultRole", "", false, Option::STRING, 0, 0, "rr",
+        "Clients.cimcli.CIMCLIClient.RESULTROLE_OPTION_HELP",
+        "Defines a role string for associators operation resultRole\n"
+            "    parameter"},
+
+        {"inputParameters", "", false, Option::STRING, 0, 0, "ip",
+        "Clients.cimcli.CIMCLIClient.INPUTPARAMETERS_OPTION_HELP",
+        "Defines an invokeMethod input parameter list.\n"
+            "    Format is p1=v1 p2=v2 .. pn=vn\n"
+            "    (parameters are seperated by spaces)"},
+
+        {"filter", "", false, Option::STRING, 0, 0, "f",
+        "Clients.cimcli.CIMCLIClient.FILTER_OPTION_HELP",
+        "Defines a filter to use for query. Single String input"},
+
+        // This was never used.  Delete. KS
+        //{"substitute", "", false, Option::STRING, 0, 0, "-s",
+        //  "Defines a conditional substition of input parameters. ) "},
+
+        // KS change the output formats to use the enum options function
+        // Deprecate this function.
+        {"outputformats", "mof", false, Option::STRING, 0,NUM_OUTPUTFORMATS,
+        "o",
+        "Clients.cimcli.CIMCLIClient.OUTPUTFORMATS_OPTION_HELP",
+        "Output in xml, mof, txt, table"},
+
+        {"xmlOutput", "false", false, Option::BOOLEAN, 0,0, "x",
+        "Clients.cimcli.CIMCLIClient.XMLOUTPUT_OPTION_HELP",
+        "Output objects in xml instead of mof format"},
+
+        {"version", "false", false, Option::BOOLEAN, 0, 0, "-version",
+        "Clients.cimcli.CIMCLIClient.VERSION_OPTION_HELP",
+        "Displays software Version"},
+
+        {"verbose", "false", false, Option::BOOLEAN, 0, 0, "v",
+        "Clients.cimcli.CIMCLIClient.VERBOSE_OPTION_HELP",
+        "Verbose Display. Includes Detailed Param Input\n"
+            "    display"},
+
+        {"summary", "false", false, Option::BOOLEAN, 0, 0, "-sum",
+        "Clients.cimcli.CIMCLIClient.SUMMARY_OPTION_HELP",
+        "Displays only summary count for enumerations,\n"
+            "    associators, etc."},
+
+        {"help", "false", false, Option::BOOLEAN, 0, 0, "h",
+        "Clients.cimcli.CIMCLIClient.HELP_OPTION_HELP",
+        "Prints help usage message"},
+
+        {"full help", "false", false, Option::BOOLEAN, 0, 0, "-help",
+        "Clients.cimcli.CIMCLIClient.FULLHELP_OPTION_HELP",
+        "Prints full help message with commands, options,\n"
+            "    examples"},
+
+        {"help options", "false", false, Option::BOOLEAN, 0, 0, "ho",
+        "Clients.cimcli.CIMCLIClient.HELPOPTIONS_OPTION_HELP",
+        "Prints list of options"},
+
+        {"help commands", "false", false, Option::BOOLEAN, 0, 0, "hc",
+        "Clients.cimcli.CIMCLIClient.HELPCOMMANDS_OPTION_HELP",
+        "Prints CIM Operation command list"},
+
+        {"connecttimeout", "0", false, Option::WHOLE_NUMBER, 0, 0, "-timeout",
+        "Clients.cimcli.CIMCLIClient.CONNECTIONTIMEOUT_OPTION_HELP",
+        "Set the connection timeout in seconds."},
+
+        {"interactive", "false", false, Option::BOOLEAN, 0, 0, "i",
+        "Clients.cimcli.CIMCLIClient.INTERACTIVE_OPTION_HELP",
+        "Interactively ask user to select instances.\n"
+            "    Used with associator and reference operations"},
+
+        {"trace", "0", false, Option::WHOLE_NUMBER, 0, 0, "trace",
+        "Clients.cimcli.CIMCLIClient.TRACE_OPTION_HELP",
+        "Set Pegasus Common Components Trace. Sets the Trace level.\n"
+            "    0 is off"},
+
+        {"repeat", "0", false, Option::WHOLE_NUMBER, 0, 0, "-r",
+        "Clients.cimcli.CIMCLIClient.REPEAT_OPTION_HELP",
+        "Number of times to repeat the function.\n"
+            "    Zero means one time"},
+
+        {"time", "false", false, Option::BOOLEAN, 0, 0, "-t",
+        "Clients.cimcli.CIMCLIClient.TIME_OPTION_HELP",
+        "Measure time for the operation and present results"}
+
+    };
+    const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
+
+    om.registerOptions(optionsTable, NUM_OPTIONS);
+
+    String configFile = "cimcli.conf";
+
+    //cout << "Config file from " << configFile << endl;
+
+    if (FileSystem::exists(configFile))
+    {
+        om.mergeFile(configFile);
+    }
+    om.mergeCommandLine(argc, argv);
+
+    om.checkRequiredOptions();
+
+}
+
+/* Remap a long string into a string that can be positioned on a line
+   starting at pos and with length but broken into multiple lines.
+   The input string is recreated and filled from the left so that the
+   returned string can be output as a multiline string starting at pos.
+*/
+String formatLongString (const char * input, Uint32 pos, Uint32 length)
+{
+    String output;
+    String work = input;
+    Array<String> list;
+
+    // create the fill string starting with the newline character
+    String fill;
+    fill.append("\n");
+    for (Uint32 i = 0; i < pos; i++)
+        fill.append (" ");
+
+    list = _tokenize(work, ' ');
+
+    for (Uint32 i = 0 ; i < list.size() ; i++)
+    {
+        // move a single word and either a space or create new line
+        if (((output.size() % length) + list[i].size()) >= (length))
+            output.append(fill);
+        else
+            output.append(" ");
+
+        output.append(list[i]);
+    }
+    return(output);
+}
+
+void showUsage()
+{
+    String usage;
+    usage =
+        "Usage: cimcli <command> <CIMObject> <Options> *<extra parameters>\n"
+        "    -hc    for <command> set and <CimObject> for each command\n"
+        "    -ho    for <Options> set\n"
+        "    -h xx  for <command> and <Example> for <xx> operation \n"
+        "    -h     for this summary\n"
+        "    --help for full help\n";
+    CString str = usage.getCString();
+    cout << loadMessage("Clients.cimcli.CIMCLIClient.MENU.STANDARD",
+        (const char*)str);
+}
+/* showCommands - Display the list of operation commands.
+*/
+const char * helpSummary =
+    " -h for all help, -hc for commands, -ho for options";
+void showCommands(const char* pgmName)
+{
+    for( Uint32 i = 0; i < NUM_COMMANDS; i++ )
+    {
+        char * cmdStr= new char[500];
+        String txtFormat = formatLongString(
+            CommandTable[i].UsageText,
+            28,
+            75 - 28 );
+        CString ctxtFormat=txtFormat.getCString();
+        sprintf(
+            cmdStr,
+            "\n%-5s %-21s",
+            CommandTable[i].ShortCut,
+            CommandTable[i].CommandName);
+        cmdStr = strcat(cmdStr, (const char*)ctxtFormat);
+        cout << loadMessage(
+            CommandTable[i].msgKey,
+            const_cast<const char*>(cmdStr))
+            << endl;
+
+        delete[] cmdStr;
+    }
+    cout << loadMessage(
+        "Clients.cimcli.CIMCLIClient.HELP_SUMMARY",
+        helpSummary)
+        << endl;
+
+}
+
+void showVersion(const char* pgmName, OptionManager& om)
+{
+    String str = "";
+    str.append("Version ");
+    str.append(PEGASUS_PRODUCT_VERSION);
+
+    CString cstr = str.getCString();
+    MessageLoaderParms parms(
+        "Clients.cimcli.CIMCLIClient.VERSION",
+        (const char*)cstr,
+        PEGASUS_PRODUCT_VERSION);
+    parms.msg_src_path = MSG_PATH;
+    cout << MessageLoader::getMessage(parms) << endl;
+}
+
+void showOptions(const char* pgmName, OptionManager& om)
+{
+
+    String optionsTrailer = loadMessage(
+        "Clients.cimcli.CIMCLIClient.OPTIONS_TRAILER",
+        "Options vary by command consistent with CIM Operations");
+    cout << loadMessage(
+        "Clients.cimcli.CIMCLIClient.OPTIONS_HEADER",
+        "The options for this command are:\n");
+    String usageStr;
+    usageStr = loadMessage(
+        "Clients.cimcli.CIMCLIClient.OPTIONS_USAGE",
+        usage);
+    om.printOptionsHelpTxt(usageStr, optionsTrailer);
+}
+
+/* PrintHelpMsg - This is temporary until we expand the options manager to allow
+   options help to be defined with the OptionRow entries and presented from
+   those entries.
+*/
+void printHelpMsg(
+    const char* pgmName,
+    const char* usage_,
+    OptionManager& om)
+{
+    showUsage();
+
+    showVersion(pgmName, om);
+
+    showOptions(pgmName, om);
+
+    showCommands(pgmName);
+
+    cout << endl;
+
+    showExamples();
+}
+
+void printUsageMsg(const char* pgmName,OptionManager& om)
+{
+    printHelpMsg(pgmName, usage, om);
+}
+
+int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
+{
+    // Catch the verbose and debug options first so they can control other
+    // processing
+    Boolean verboseTest = (om.valueEquals("verbose", "true")) ? true :false;
+    Boolean debug = (om.valueEquals("debug", "true")) ? true :false;
+
+    if (verboseTest)
+        opts.verboseTest = verboseTest;
+
+    if (debug)
+    {
+        opts.debug= debug;
+    }
+
+    // Base code for parameter substition.  Dispabled until complete
+    /*{
+        String target;
+        if (om.lookupValue("substitution", target))
+        {
+            // Get directory for file
+            Array<String> fileList;
+            String fileName = "/conditions.txt";
+            String temp = ".";
+            temp.append(fileName);
+            fileList.append(temp);
+            const char* tmpDir = getenv ("PEGASUS_HOME");
+            if (tmpDir != NULL)
+            {
+                temp = tmpDir;
+                temp.append(fileName);
+                fileList.append(temp);
+            }
+    }*/
+
+
+    if (om.isTrue("full help"))
+    {
+        printHelpMsg(argv[0], usage, om);
+        exit(0);
+    }
+
+    if (om.isTrue("help"))
+    {
+        if (argv[1])
+        {
+            for (Uint32 i=0; i<NUM_COMMANDS;i++)
+            {
+                if (strcmp(argv[1], CommandTable[i].ShortCut) == 0)
+                {
+                    char * cmdStr= new char[500];
+                    String txtFormat = formatLongString(
+                        CommandTable[i].UsageText,28 ,75 - 28 );
+                    CString ctxtFormat=txtFormat.getCString();
+                    sprintf(
+                        cmdStr,
+                        "\n%-5s %-21s",
+                        CommandTable[i].ShortCut,
+                        CommandTable[i].CommandName);
+                    cmdStr = strcat(cmdStr, (const char*)ctxtFormat);
+                    cout << loadMessage(
+                        CommandTable[i].msgKey,
+                        const_cast<const char*>(cmdStr))
+                        << endl;
+
+                    delete[] cmdStr;
+
+                    cout << loadMessage(
+                        "Clients.cimcli.CIMCLIClient.EXAMPLE_STRING",
+                        "Example : ")
+                        << endl;
+                    cout << loadMessage(
+                        examples[i].msgKey,
+                        examples[i].Example)
+                        << endl;
+                    cout << loadMessage(
+                        "Clients.cimcli.CIMCLIClient.OPTIONS_STRING",
+                        optionText)
+                        << endl;
+                    cout << loadMessage(
+                        examples[i].optionsKey,
+                        examples[i].Options)
+                        << endl;
+
+                    char * commonOptStr = new char[100];
+                    sprintf(commonOptStr, "%s", "Common Options are : \n");
+                    commonOptStr = strcat(commonOptStr, commonOptions);
+                    cout << loadMessage(
+                        "Clients.cimcli.CIMCLIClient."
+                            "COMMON_OPTIONS_STRING",
+                        commonOptStr)
+                        << endl;
+                    delete[] commonOptStr;
+                    exit(0);
+                }
+            }
+            cout << "Command not found. Type cimcli -hc to list valid commands."
+                 << endl;
+            exit(1);
+        }
+
+        showUsage();
+        exit(0);
+    }
+
+    if (om.isTrue("version"))
+    {
+        showVersion(argv[0], om);
+        exit(0);
+    }
+
+    if (om.isTrue("help options"))
+    {
+        showOptions(argv[0], om);
+        exit(0);
+    }
+
+    if (om.isTrue("help commands"))
+    {
+        showCommands(argv[0]);
+        exit(0);
+    }
+
+    // Establish the namespace from the input parameters
+    //String nameSpace;
+    if(om.lookupValue("namespace", opts.nameSpace))
+    {
+        if (verboseTest && debug)
+            cout << "Namespace = " << opts.nameSpace << endl;
+    }
+
+    String temprole;
+    if(om.lookupValue("role", temprole))
+    {
+        // we need to deliver String::EMPTY when no param.
+        if (temprole != "")
+            opts.role = temprole;
+        if (verboseTest && debug && temprole != "")
+           cout << "role = " << opts.role << endl;
+    }
+
+    String tempResultRole;
+    if(om.lookupValue("resultRole", tempResultRole))
+    {
+        // we need to deliver String::EMPTY when no param.
+        if (tempResultRole != "")
+            opts.resultRole = tempResultRole;
+        if (verboseTest && debug && tempResultRole != "")
+           cout << "resultRole= " << opts.resultRole << endl;
+    }
+
+    // Get value for location, i.e. host, etc.
+    om.lookupValue("location", opts.location);
+
+#ifdef PEGASUS_HAS_SSL
+    // Determine whether to connect over HTTPS
+    opts.ssl = om.isTrue("ssl");
+
+    // Get value for client certificate
+    om.lookupValue("clientCert", opts.clientCert);
+
+    // Get value for client key
+    om.lookupValue("clientKey", opts.clientKey);
+
+    if (verboseTest && debug && opts.ssl)
+    {
+        cout << "ssl = true" << endl;
+        if (opts.clientCert != "" && opts.clientKey != "")
+        {
+            cout << "clientCert = " << opts.clientCert << endl;
+            cout << "clientKey = " << opts.clientKey << endl;
+        }
+    }
+#endif
+
+    // Assign the result class
+    if(om.lookupValue("resultClass", opts.resultClassName))
+    {
+
+       if (opts.resultClassName != "")
+       {
+           //Covers fact that assigning to CIMName can cause exception.
+           try
+           {
+               opts.resultClass = opts.resultClassName;
+           }
+           catch(Exception& e)
+           {
+               cout << "Error in Result Class. Exception " << e.getMessage()
+                   << endl;
+               exit(1);
+           }
+       }
+       if (verboseTest && debug && opts.resultClassName != "")
+           cout << "resultClassName = " << opts.resultClassName << endl;
+    }
+
+    if(om.lookupValue("assocClass", opts.assocClassName))
+    {
+       if (verboseTest && debug && opts.assocClassName != "")
+           cout << "assocClassName = " << opts.assocClassName << endl;
+       if (opts.assocClassName != "")
+       {
+           try
+           {
+               opts.assocClass = opts.assocClassName;
+           }
+           catch(Exception& e)
+           {
+               cout << "Error in assoc Class. Exception " << e.getMessage()
+                   << endl;
+               exit(1);
+           }
+       }
+    }
+
+    // Evaluate connectiontimeout option.
+    opts.connectionTimeout = 0;
+    if (!om.lookupIntegerValue("connecttimeout", opts.connectionTimeout))
+    {
+        opts.connectionTimeout = 0;
+    }
+
+    if (verboseTest && debug && opts.connectionTimeout != 0)
+    {
+        cout << "Connection Timeout= " << opts.connectionTimeout << " Seconds"
+            << endl;
+    }
+
+    if (!om.lookupIntegerValue("delay", opts.delay))
+    {
+        opts.delay = 0;
+    }
+
+    if (verboseTest && debug && opts.delay != 0)
+    {
+        cout << "delay= " << opts.delay << " Seconds" << endl;
+    }
+
+    // Set the interactive request flag based on input
+    opts.interactive = om.isTrue("interactive");
+    if (om.isTrue("interactive")  && verboseTest && debug)
+        cout << "interactive request" << endl;
+
+    // set the deepInheritance flag based on input
+    opts.deepInheritance = om.isTrue("deepInheritance");
+    if (om.isTrue("deepInheritance")  && verboseTest && debug)
+        cout << "deepInteritance set" << endl;
+
+    // process localOnly and notlocalOnly parameters
+    opts.localOnly = om.isTrue("localOnly");
+    if (om.isTrue("notLocalOnly"))
+    {
+        opts.localOnly = false;
+    }
+
+    // Used the not version because the DMTF and pegasus default is true
+    if (verboseTest && debug && om.isTrue("notLocalOnly"))
+    {
+        cout << "localOnly= " << _toString(opts.localOnly) << endl;;
+    }
+
+    // Process includeQualifiers and notincludeQualifiers
+    opts.includeQualifiers = om.isTrue("includeQualifiers");
+
+    if (om.isTrue("notIncludeQualifiers"))
+    {
+        opts.includeQualifiers = false;
+    }
+
+    if (verboseTest && debug && om.isTrue("notIncludeQualifiers"))
+    {
+        cout << "includeQualifiers = " << _toString(opts.includeQualifiers)
+            << endl;
+    }
+
+    opts.includeClassOrigin = om.isTrue("includeClassOrigin");
+    if (om.isTrue("includeClassOrigin")  && verboseTest && debug)
+        cout << "includeClassOrigin set" << endl;
+
+    opts.time = om.isTrue("time");
+    if (om.isTrue("time")  && verboseTest && debug)
+        cout << "time set" << endl;
+
+    if(!om.lookupIntegerValue("trace", opts.trace))
+    {
+            opts.trace = 0;
+    }
+    else
+    {
+        Uint32 traceLevel = 0;
+        switch (opts.trace)
+        {
+            case 0:             // This covers the default.
+                break;
+            case 1 :
+                traceLevel = Tracer::LEVEL1;
+                break;
+            case 2 :
+                traceLevel = Tracer::LEVEL2;
+                break;
+            case 3 :
+                traceLevel = Tracer::LEVEL3;
+                break;
+            case 4 :
+                traceLevel = Tracer::LEVEL4;
+                break;
+            default:
+                cout << "Illegal value for Trace. Max = 4" << endl;
+        }
+        opts.trace = traceLevel;
+    }
+    if (verboseTest && debug && opts.trace != 0)
+    {
+        cout << "Pegasus Trace set to  Level  " << opts.trace << endl;
+    }
+
+    opts.summary = om.isTrue("summary");
+
+    // get User name and password if set.
+     if(om.lookupValue("User", opts.user))
+     {
+         if (opts.user.size() == 0)
+             opts.user = String::EMPTY;
+         if (debug && verboseTest)
+             cout << "User= " << opts.user << endl;
+     }
+
+     if(om.lookupValue("Password", opts.password))
+     {
+         if (opts.password.size() == 0)
+             opts.password = String::EMPTY;
+         if (debug && verboseTest)
+             cout << "Password= " << opts.password << endl;
+     }
+
+    // Create a variable with the format output and a correponding type.
+    // Suggest we might change this whole thing to the option type that
+    // mike used in the example of colors so that  you could do -red -blue
+    // or in our case -mof -xml, etc.
+
+     opts.isXmlOutput = om.isTrue("xmlOutput");
+     if (opts.isXmlOutput  && debug && verboseTest)
+         cout << "xmlOutput set" << endl;
+
+    if(om.lookupValue("outputformats", opts.outputFormat))
+     {
+        if (debug && verboseTest)
+            cout << "Output Format = " << opts.outputFormat << endl;
+     }
+
+    // Get the output format parameter and save it
+    Uint32 cnt = 0;
+    opts.outputFormat.toLower();
+
+    for( ; cnt < NUM_OUTPUTS; cnt++ )
+    {
+        if (opts.outputFormat == OutputTable[cnt].OutputName)
+                break;
+    }
+    // Note that this makes no notice of a not found
+    if (cnt != NUM_OUTPUTS)
+    {
+        opts.outputFormatType = cnt;
+        opts.outputType = OutputTable[cnt].OutputType;
+    }
+
+    if(!om.lookupIntegerValue("repeat", opts.repeat))
+    {
+            opts.repeat = 0;
+
+    }
+    if (debug && verboseTest)
+    {
+        cout << "Repeat Count= " << opts.repeat << endl;
+    }
+
+    if(!om.lookupIntegerValue("count", opts.count))
+    {
+            opts.count = 29346;
+    }
+    if (debug && verboseTest)
+    {
+        if (opts.count != 29346)
+        {
+        cout << "Comparison Count= " << opts.count << endl;
+        }
+    }
+
+    /*  Property List parameter.
+        Separate an input stream into an array of Strings
+        Two special situations, empty list and NULL list
+        Use NULL when there is no list.
+        Use empty if
+    */
+    {
+        String properties;
+        if(om.lookupValue("propertyList", properties))
+        {
+            if (properties == "###!###")
+            {
+                opts.propertyList.clear();
+            }
+            else
+            {
+                Array<CIMName> pList;
+                Array<String> pListString =  _tokenize(properties, ',');
+
+                for (Uint32 i = 0 ; i < pListString.size(); i++)
+                {
+                    pList.append(CIMName(pListString[i]));
+                }
+                opts.propertyList.set(pList);
+            }
+            if (debug && verboseTest && properties != "###!###")
+            {
+                cout << "PropertyList= ";
+                printPropertyList(opts.propertyList);
+                cout << endl;
+            }
+        }
+    }
+
+    /* Method input parameters processing.  Process as one
+       string containing multiple parameters in the form
+       name=value
+       ATTN: KS 20030426 Note that we have not accounted for
+       the typing on parameters.
+    */
+    String inputParameters;
+    if(om.lookupValue("inputParameters", inputParameters))
+    {
+        // first tokenization is the ' '
+        Array<String> pList =  _tokenize(inputParameters, ' ');
+        for (Uint32 i = 0 ; i< pList.size() ; i++)
+        {
+            CIMParamValue pv;
+            pv = _createMethodParamValue(pList[i], opts);
+            opts.inParams.append(pv);
+        }
+    }
+    return 0;
 }
 
 
-/************************ setObjectManagerStatistics **********************/
-/*
-    Set the statistics on/off flag in the objectmanager Class.  This should
-    be considered temporary code pending a more general solution for
-    setting many of these attributes. Do not count on this being in
-    future versions of cimcli.
-    DEPRECATED - This should be replaced with a special function but since
-    the whole use of the statistics setting functions is in question in
-    the DMTF we left it for now.
-*/
-int setObjectManagerStatistics(Options& opts, Boolean newState,
-                                   Boolean& stateAfterMod)
+//------------------------------------------------------------------------------
+//
+// mofFormat
+//
+//------------------------------------------------------------------------------
+
+static void _indent(PEGASUS_STD(ostream)& os, Uint32 level, Uint32 indentSize)
 {
-    CIMName gathStatName ("GatherStatisticalData");
-
-    Array<CIMInstance> instancesObjectManager;
-    CIMInstance instObjectManager;
-    Uint32 prop_num;
-    Array<CIMName> plA;
-    plA.append(gathStatName);
-    CIMPropertyList statPropertyList(plA);
-
-    // Create property list that represents correct request
-    // get instance.  Get only the gatherstatitistics property
-    instancesObjectManager  =
-        opts.client.enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP,
-            "CIM_ObjectManager",
-            true, false, false, false, statPropertyList);
-    PEGASUS_TEST_ASSERT(instancesObjectManager.size() == 1);
-    instObjectManager = instancesObjectManager[0];
-
-    // set correct path into instance
-    instObjectManager.setPath(instancesObjectManager[0].getPath());
-
-    prop_num = instObjectManager.findProperty(gathStatName);
-    PEGASUS_TEST_ASSERT(prop_num != PEG_NOT_FOUND);
-
-    instObjectManager.getProperty(prop_num).setValue(CIMValue(newState));
-
-    opts.client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP, instObjectManager,
-         false, statPropertyList);
-
-    // get updated instance to confirm change made
-    CIMInstance updatedInstance =
-        opts.client.getInstance(PEGASUS_NAMESPACENAME_INTEROP,
-        instObjectManager.getPath(),
-        false, false, false, statPropertyList);
-
-    prop_num = updatedInstance.findProperty(gathStatName);
-    PEGASUS_TEST_ASSERT(prop_num != PEG_NOT_FOUND);
-    CIMProperty p = updatedInstance.getProperty(prop_num);
-    CIMValue v = p.getValue();
-    v.get(stateAfterMod);
-
-    cout << "Updated Status= " << ((stateAfterMod)? "true" : "false") << endl;
-
-    if (stateAfterMod != newState)
+    Uint32 n = level * indentSize;
+    if (n > 50)
     {
-        cerr << "Error: State change error. Expected: "
-            << ((newState)? "true" : "false")
-            << " Rcvd: " << ((stateAfterMod)? "true" : "false") << endl;
+    cout << "Jumped Ship " << level << " size " << indentSize << endl;
+    exit(1);
     }
 
-    return CIMCLI_RTN_CODE_OK;
+    for (Uint32 i = 0; i < n; i++)
+        os << ' ';
+}
+
+/* Format the output stream for indented MOF format
+*/
+void mofFormat(
+    PEGASUS_STD(ostream)& os,
+    const char* text,
+    Uint32 indentSize)
+{
+    char* var = new char[strlen(text)+1];
+    char* tmp = strcpy(var, text);
+    Uint32 count = 0;
+    Uint32 indent = 0;
+    Boolean quoteState = false;
+    Boolean qualifierState = false;
+    char c;
+    char prevchar = 0;
+    while ((c = *tmp++))
+    {
+        count++;
+        // This is too simplistic and must move to a token based mini parser
+        // but will do for now. One problem is tokens longer than 12
+        // characters that overrun the max line length.
+        switch (c)
+        {
+            case '\n':
+                os << c;
+                prevchar = c;
+                count = 0 + (indent * indentSize);
+                _indent(os, indent, indentSize);
+                break;
+
+            case '\"':   // quote
+                os << c;
+                prevchar = c;
+                quoteState = !quoteState;
+                break;
+
+            case ' ':
+                os << c;
+                prevchar = c;
+                if (count > 66)
+                {
+                    if (quoteState)
+                    {
+                        os << "\"\n";
+                        _indent(os, indent + 1, indentSize);
+                        os <<"\"";
+                    }
+                    else
+                    {
+                        os <<"\n";
+                        _indent(os, indent + 1,  indentSize);
+                    }
+                    count = 0 + ((indent + 1) * indentSize);
+                }
+                break;
+            case '[':
+                if (prevchar == '\n')
+                {
+                    indent++;
+                    _indent(os, indent,  indentSize);
+                    qualifierState = true;
+                }
+                os << c;
+                prevchar = c;
+                break;
+
+            case ']':
+                if (qualifierState)
+                {
+                    if (indent > 0)
+                        indent--;
+                    qualifierState = false;
+                }
+                os << c;
+                prevchar = c;
+                break;
+
+            default:
+                os << c;
+                prevchar = c;
+        }
+
+    }
+    delete [] var;
 }
 
 /*****************************************************************************
 *
-*        Show tree view of classes
-*        Options include:
-*           ClassName - Starting place in the hiearchy for the display
-*           -nlo - Reverse and do the superclasses of this class as tree
-*           -di  - Append info on reference properties to association classes
+*       Formatting and print functions for table output of instances
 *
 ******************************************************************************/
+//
+//  Definition for String entries for each column in the output
+//
+typedef Array <String> ColumnEntry;
 
-/*
-    Return an array of CIMName containing the property names of any
-    Reference properties in the Class
+/* Output a single table String entry filling to ColSize or adding an
+   eol if last specified
 */
-
-Array<CIMName> getAssocRefs(const CIMClass& c)
+void _printTableEntry(
+    const String& entryStr,
+    const Uint32 colSize,
+    Boolean last,
+    PEGASUS_STD(ostream)& outPrintWriter)
 {
-    Array<CIMName> rtn;
-    if(c.isAssociation())
-    {
-        for (Uint32 i = 0; i < c.getPropertyCount(); i++)
-        {
-            CIMConstProperty p = c.getProperty(i);
-            if (p.getType() == CIMTYPE_REFERENCE)
-            {
-                  rtn.append(p.getReferenceClassName());
-            }
-        }
-    }
-    return rtn;
-}
+    Uint32 fillerLen = colSize - entryStr.size() + 2;
 
-// Structure defines a single class and subclass set
-struct classTreeEntry
-{
-    CIMName _class;
-    Array<CIMName> _subclasses;
-
-    Array<CIMName> _assocRefs;
-    Boolean _isAssociation;
-
-    classTreeEntry(){}
-    classTreeEntry(const CIMName& className, Array<CIMName>& subclasses,
-        Options& opts)
-        : _class(className), _subclasses(subclasses), _isAssociation(false)
-    {
-        // Null CIMName indicates top level request and there is no
-        // classname. Assumes this is not an association
-        if (!className.isNull())
-        {
-            CIMClass c = opts.client.getClass(opts.nameSpace, className,
-                true, true);
-            if (opts.deepInheritance)
-            {
-                _assocRefs = getAssocRefs(c);
-            }
-            _isAssociation = c.isAssociation();
-        }
-    }
-
-    classTreeEntry(const CIMClass& c, Array<CIMName>& subclasses, Options& opts)
-    {
-        _class = c.getClassName();
-        _subclasses = subclasses;
-        if (opts.deepInheritance)
-        {
-            _assocRefs = getAssocRefs(c);
-        }
-        _isAssociation = c.isAssociation();
-    }
-
-    // Diagnostic Display of a single classTreeEntry struct
-    void show(Uint32 i)
-    {
-        cout << "Entry " << i << " class= "
-             << _class.getString()
-             << "  subclassesCnt=" << _subclasses.size() << " "
-             << " subclasses=" << _toString(_subclasses)
-             << " assocRefs=" << _toString(_assocRefs) << " "
-             << " isAssociation=" << boolToString(_isAssociation)
-             << endl;
-    }
-};
-
-// Create a Pegasus array type for classTreeEntry
-#include <Pegasus/Common/ArrayIterator.h>
-#define PEGASUS_ARRAY_T classTreeEntry
-# include <Pegasus/Common/ArrayInter.h>
-# include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
-
-/*
-    Class defining the container for classTreeEntry items.  As classes are
-    analyzed, classTreeEntry items are put into this container and at the
-    end the displayTree displays the complete tree.
-*/
-class classTreeList
-{
-public:
-    classTreeList() {}
-
-    // Constructor for the class tree container
-    classTreeList(Options& opts)
-    {
-        _topLevelClassName = opts.className;
-        _opts = &opts;
-    }
-
-    // find a single entry with name. It is a programming error if
-    // the name does not exist.
-    classTreeEntry findEntry(CIMName& name)
-    {
-        for (Uint32 i = 0 ; i < _classTreeList.size() ; i++)
-        {
-            if (_classTreeList[i]._class == name)
-            {
-                return _classTreeList[i];
-            }
-        }
-
-        cimcliMsg::exit(CIMCLI_INTERNAL_ERR,
-            "class %s not found in classTreeArray",
-            (const char *)name.getString().getCString());
-
-        PEGASUS_UNREACHABLE(return classTreeEntry();)
-    }
-
-    // Display a single tree entry
-    Boolean displayTreeEntry(CIMName& className, Uint32 level, bool isLast);
-
-    // Add an entry to the list
-    void add(classTreeEntry& entry)
-    {
-        _classTreeList.append(entry);
-    }
-
-    // create a new entry in the list with just the classname
-    void add(const CIMName& className, Array<CIMName>& subclasses)
-    {
-        classTreeEntry entry(className, subclasses, *_opts);
-        add(entry);
-    }
-
-    // Create a new entry in the list with the provider class
-    void add(const CIMClass& c, Array<CIMName>& subclasses)
-    {
-        classTreeEntry entry(c, subclasses, *_opts);
-        add(entry);
-    }
-
-    void displayTree()
-    {
-        Uint32 level = 0;
-        displayTreeEntry(_topLevelClassName,level, false);
-    }
-
-    // Set the starting point of the tree
-    void setTopLevel(const CIMName& name)
-    {
-        _topLevelClassName = name;
-    }
-    String generateLevelGraphic(Uint32 index, bool last);
-
-private:
-    Array<classTreeEntry> _classTreeList;
-    CIMName _topLevelClassName;
-    Options * _opts;
-};
-
-/*
-    Create String representing level.  This is a string that uses
-    |, _, + to show the place in the hiearchy for a class.
-    Asterick at end indicates an association class
-    Ex.
-    CIM_System
-    |__CIM_ApplicationSystem
-    |  |__CIM_J2eeServer
-    |  |__CIM_DatabaseSystem
-    |  |__CIM_J2eeApplication
-*/
-
-String classTreeList::generateLevelGraphic(Uint32 index, bool last)
-{
-    // Array controls use of the | mark. Do not want it set if on last
-    // class for this level.
-    static Array<Boolean> lastForLevel;
-    static Uint32 prevLevel = 0;
-
-    // append new entry if array too small
-    if (lastForLevel.size() <= index)
-    {
-        lastForLevel.append(false);
-    }
-
-    Uint32 indent = 2;
-    Uint32 gap = indent-1;
-    String rtn;
-
-    for (Uint32 i = 0 ; i < index ; i++)
-    {
-        // set vertical line (becomes blank after last entry)
-        rtn.append((lastForLevel[i]) ? " " : "|");
-
-        // Set horizontal line for last indent "_" or " "
-        rtn.append(fillString(gap,((i == (index-1)) ? '_' : ' ')));
-    }
-
-    // if uplevel, reset vertical line on all lower levels.
-    if (index < prevLevel)
-    {
-        for (Uint32 i = index ; i < lastForLevel.size() ; i++)
-        {
-            lastForLevel[i] = false;
-        }
-    }
-    prevLevel = index;
-
-    // Set indicator for level display of '|' or ' '
+    outPrintWriter << entryStr;
     if (last)
     {
-        lastForLevel[index-1] = true;
-    }
-
-    return rtn;
-}
-
-/*
-    Display a single classTreeEntry as a part of a tree
-    @param array of classTreeEntry items where each item defines a
-    single class/subclasses relationship
-    @return true if subclasses exist
-*/
-bool classTreeList::displayTreeEntry(CIMName& className,
-    Uint32 level, bool isLast)
-{
-    classTreeEntry entry = findEntry(className);
-
-    String assocInfo;
-
-    // if is association try to build the assoc info
-    if (entry._isAssociation)
-    {
-        assocInfo.append("(");
-        for (Uint32 i = 0; i < entry._assocRefs.size() ; i++)
-        {
-            if (i > 0)
-            {
-                assocInfo.append(" ");
-            }
-            assocInfo.append(entry._assocRefs[i].getString());
-        }
-        assocInfo.append(")");
-    }
-
-    // Display entry for this class including linking lines
-    cout << generateLevelGraphic(level, isLast)
-         << className.getString()
-         << (entry._isAssociation? "*" : "")
-         << assocInfo
-         << endl;
-
-    // return false if no more subclasses
-    if (entry._subclasses.size() == 0)
-    {
-        return false;
-    }
-
-    // recall for subclasses for the next level
-    level++;
-    for (Uint32 i = 0; i < entry._subclasses.size() ; i++)
-    {
-        bool isLast = ((i+1 == entry._subclasses.size())? true: false);
-        displayTreeEntry(entry._subclasses[i], level, isLast);
-    }
-    return true;
-}
-
-// CIMCLI operation to display class tree on the console.
-int classTree(Options& opts)
-{
-    // Set the options for this output
-    // This option shows reference property information for assciation
-    // properties
-    Boolean showAssocRefs = false;
-
-    // flag to show superclasses vs subclasses based on localOnly option flag
-    Boolean showSuperClasses = !opts.localOnly;
-
-    // Today, we use deepInheritance as flag for showAssocRefs
-    if (opts.deepInheritance)
-    {
-        showAssocRefs = true;
-    }
-
-    if (opts.verboseTest)
-    {
-        cout << "classTree. className=" << opts.className.getString()
-             << " namespace=" << opts.nameSpace << endl
-             << "Output (deepInheritance flag)"
-             << (showAssocRefs? "with Assoc Info" : "No assoc Info") << endl
-             << "Show  (localOnly flag)"
-             << (!showSuperClasses? "SuperClasses" : "Subclasses") << endl;
-    }
-
-    classTreeList classTree(opts);
-
-    if (showSuperClasses) // build tree of superclasses
-    {
-        // Must have a class name for tail of tree if showing superclasses
-        if (opts.className.isNull())
-        {
-            cimcliMsg::exit(0, "Class input required");
-        }
-
-        CIMName cn = opts.className;
-        CIMClass c;
-        CIMName prevClassName;
-
-        // Loop to get superclasses starting at the input class
-        do
-        {
-            c = opts.client.getClass(opts.nameSpace, cn);
-
-            // Put this class into the classTree container.
-            Array<CIMName> subclasses;
-            if (!prevClassName.isNull())
-            {
-                subclasses.append(prevClassName);
-            }
-
-            classTree.add(c, subclasses);
-
-            prevClassName = c.getClassName();
-            cn = c.getSuperClassName();
-        }
-        while (!cn.isNull());
-
-        // set the classname for the top of tree
-        classTree.setTopLevel(c.getClassName());
-    }
-
-    else // build tree of subclasses
-    {
-        // get all classnames in namespace starting at the classname
-        // provided with input
-        Array<CIMName> classes = opts.client.enumerateClassNames(
-            opts.nameSpace,
-            opts.className,
-            true);
-
-        // get first subclass at current level with shallow request
-        // This class is not part of the classes array
-        Array<CIMName> subclasses = opts.client.enumerateClassNames(
-            opts.nameSpace,
-            opts.className,
-            false);
-
-        // put top level entry into array
-        classTree.add(opts.className, subclasses);
-
-        // for each classname, do shallow enumClassNames to get first level
-        // subclasses
-        for (size_t i = 0 ; i < classes.size() ; i++)
-        {
-            Array<CIMName> subclasses = opts.client.enumerateClassNames(
-                opts.nameSpace,
-                classes[i],
-                false);
-
-            // Create table entry for this class
-            classTree.add(classes[i], subclasses);
-        }
-    }
-
-    classTree.displayTree();
-
-    return 0;
-}
-
-/************************ countInstances ***********************************
-*
-*    CountInstances
-*    parameters:
-*        optional - classname
-*    Count the number of instances for each class that contains instances
-*    in a namespace. This is different than enumerate instance in that it
-*    actually reports the number of instances by class, not by class and
-*    subclass.
-*    If classname option provided it counts only for that class
-*
-***************************************************************************/
-/*
-    Determine if class defined by name is an association.  Does lookup
-    of classname.
-*/
-Boolean isAssociation(Options& opts,const CIMName& className)
-{
-    CIMClass c = opts.client.getClass(opts.nameSpace, className,true, true);
-    return(c.isAssociation());
-}
-
-// Structure to keep count of number of instances
-struct instanceCounter
-{
-    String _name;
-    Uint32 _count;
-
-    instanceCounter(String& name) :
-        _name(name),
-        _count(1){}
-
-    instanceCounter(){}
-
-    const char* name()
-    {
-        return (const char*)_name.getCString();
-    }
-    void inc()
-    {
-        _count++;
-    }
-};
-
-// Define array of instanceCounter struct
-
-#include <Pegasus/Common/ArrayIterator.h>
-#define PEGASUS_ARRAY_T instanceCounter
-# include <Pegasus/Common/ArrayInter.h>
-# include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
-
-// find an instance in array of instanceCounter. Returns true if found
-static bool _findInstance(Array<instanceCounter>& x, String& name, Uint32& pos)
-{
-    for (pos = 0; pos < x.size(); pos++)
-    {
-        if (x[pos]._name == name)
-            return true;
-    }
-    return false;
-}
-
-//
-// Sort the array of instanceCounter
-//
-// Compare  function for qsort. Compares two instanceCounter items
-static int _compareInstanceCounterNames (const void* p1, const void* p2)
-{
-    const  instanceCounter * pa = (const instanceCounter*)p1;
-    const  instanceCounter *pb =  (const instanceCounter*)p2;
-    // use the string compare w or w/o  case sensitiveas as required
-    return String::compareNoCase( pa->_name,   pb->_name);
-}
-
-// sort the array of instanceCounter items in an array
-static void sort(Array<instanceCounter>& x)
-{
-    instanceCounter* data = (instanceCounter*)x.getData();
-
-    Uint32 size = x.size();
-
-    if (size > 1)
-    {
-        qsort((void*)data, size, sizeof(instanceCounter),
-              _compareInstanceCounterNames);
-    }
-}
-
-/*
-    CIMCLI operation to count instances and display result
-*/
-int countInstances(Options& opts)
-{
-    if (opts.verboseTest)
-    {
-        cout << "countInstances. ";
-        if (opts.className.isNull())
-        {
-            cout << "Count all instances in ";
-        }
-        else
-        {
-            cout << "Count Instance starting at "
-                 << opts.className.getString()
-                 << " in class hiearchy in ";
-        }
-        cout << opts.nameSpace << endl;
-    }
-
-    Array<CIMName> classNames;
-
-    // Since this operation involves multiple calls to the server the
-    // operation time does not mean much.
-    _startCommandTimer(opts);
-
-    // Get list of classes to explore.  This is just the input
-    // classname if operationTarget is supplied. Otherwise it is all top
-    // level class names.
-    if (opts.className.isNull())
-    {
-        classNames = opts.client.enumerateClassNames(opts.nameSpace,
-            opts.className,
-            true);
+        outPrintWriter << endl;
     }
     else
     {
-        classNames.append(opts.className);
+        for (Uint32 j = 0; j < fillerLen; j++)
+        {
+             outPrintWriter << ' ';
+        }
     }
+}
 
-    Array<instanceCounter> instCtrArray;
-    Uint32 maxNameLen = 0;
-
-    // loop to enumerateInstanceNames for all classes in list
-    for (Uint32 iClass = 0; iClass < classNames.size(); iClass++)
+/* Print the formatted table form of the instances as defined by
+   the parameters for the column width for each column and the array
+   of column entries (outputTable).
+*/
+void _printTables(
+    const Array<Uint32>& maxColumnWidth,
+    const Array<ColumnEntry>& outputTable,
+    PEGASUS_STD(ostream)& outPrintWriter)
+{
+    for (Uint32 i = 0; i < outputTable[0].size(); i++)
     {
-        Array<CIMObjectPath> instanceNames;
-        try
+        for (Uint32 column = 0; column < maxColumnWidth.size(); column++)
         {
-            instanceNames = opts.client.enumerateInstanceNames(
-                opts.nameSpace, classNames[iClass]);
-
-            // verbose diagnostic to show actual
-            if (instanceNames.size() != 0 && opts.verboseTest)
-            {
-                cout << "Class  " << classNames[iClass].getString()
-                     << " enumeration returned " << instanceNames.size()
-                     << " instances" << endl;
+            Boolean last = (column == maxColumnWidth.size() - 1);
+            _printTableEntry(outputTable[column][i],
+                maxColumnWidth[column],
+                last,
+                outPrintWriter);
             }
-        }
+    }
+}
 
-        // Continue after exceptions to the enumerateInstanceNames operation.
-        // Results will probably enoreous but may give more info than
-        // just stopping
-        catch(CIMException& e)
-        {
-            cerr << "CIMException " << classNames[iClass].getString() << " "
-                 << e.getMessage() << " Code " << e.getCode() << endl;
-            continue;
-        }
-        catch(Exception& e)
-        {
-            cerr << " Pegasus Exception: " << e.getMessage() << " "
-                 << classNames[iClass].getString() << endl;
-            continue;
-        }
+/* Format the output stream to be a table with column for each property
+   and row for the properties in each instance.
+*/
+void tableFormat(
+    PEGASUS_STD(ostream)& outPrintWriter,
+    const Array<CIMInstance>& instances)
+{
+    Array<ColumnEntry> outputTable;
+    Array<Uint32> maxColumnWidth;
+    Array<String> propertyNameArray;
 
-        // insert counter of instances into table
-        for (Uint32 j = 0; j < instanceNames.size(); j++)
-        {
-            String name = instanceNames[j].getClassName().getString();
+    // find set of all properties returned for all instances
+    for (Uint32 i = 0; i < instances.size(); i++)
+    {
+        for (Uint32 j = 0; j < instances[i].getPropertyCount(); j++)
+        {    
+        String propertyNameStr =
+                instances[i].getProperty(j).getName().getString();
 
-            maxNameLen = LOCAL_MAX(name.size(), maxNameLen);
-
-            // Search table for this entry and if not there insert
-            // otherwise, increment counter
-            Uint32 pos;
-            if (_findInstance(instCtrArray, name, pos))
+            // Add to outputTable if not already there
+            if (!(Contains(propertyNameArray, propertyNameStr)))
             {
-                instCtrArray[pos].inc();
-            }
-
-            else
-            {
-                instanceCounter item(name);
-                instCtrArray.append(item);
+                //outputTable.append(propertyNameStr);
+        maxColumnWidth.append(propertyNameStr.size());
+                propertyNameArray.append(propertyNameStr);
             }
         }
     }
-    _stopCommandTimer(opts);
 
-    // Display result. There is no summary option for this output. The first
-    // line summarizes the call parameters and number of classes with
-    // instances
-    cout << instCtrArray.size()
-         << ((instCtrArray.size() == 1) ? " class" : " classes")
-         << " with instances. " << opts.nameSpace;
+    // Build the complete table output in ascii.  We must build the 
+    // complete table to determine column widths.
+    // NOTE: This code creates tables with column width to match the 
+    // maximum width of the string representation of the property name or
+    // string representation of the value.  This can create REALLY
+    // REALLY wide columns for Strings and for Array properties.
+    // 
+    // TODO: Add code to create multiline colums for things like array
+    // entries or possibly long strings.
 
-    if (!opts.className.isNull())
+    for (Uint32 i = 0; i < propertyNameArray.size(); i++)
     {
-        cout << " Start " << opts.className.getString();
+        // array for a single column of property values
+        Array<String> propertyValueArray;
+
+        String propertyNameStr = propertyNameArray[i];
+
+        // First entry in propertyValueArray array is the propery name
+        propertyValueArray.append(propertyNameStr);
+
+        // for all instances get value for the property in
+        // propertyNameArray
+        for (Uint32 j = 0; j < instances.size(); j++)
+        {
+            Uint32 pos = instances[j].findProperty(propertyNameStr);
+
+            // Get the value or empty string if there is no property
+            // with this name
+            String propertyValueStr = (pos != PEG_NOT_FOUND) ?
+                    instances[j].getProperty(pos).getValue().toString()
+                :
+                    String::EMPTY;
+
+            propertyValueArray.append(propertyValueStr);
+
+            if (propertyValueStr.size() > maxColumnWidth[i])
+            {
+                maxColumnWidth[i] = propertyValueStr.size();
+            }
+        }
+        // Append the value array for this property to the outputTable
+        outputTable.append(propertyValueArray);
     }
-
-    cout << " (*)association" << endl;
-
-    // sort the array by name for display
-    sort(instCtrArray);
-
-    // Display complete array of
-    for (Uint32 i = 0; i < instCtrArray.size(); i++)
-    {
-        // display Name with assoc indicator and count
-        String name = instCtrArray[i]._name;
-        cout << name << ((isAssociation(opts,
-                            instCtrArray[i]._name))? "*" : " ")
-             << fillString(maxNameLen + 1 - name.size())
-             << instCtrArray[i]._count << endl;
-    }
-
-    return(0);
+    _printTables(maxColumnWidth, outputTable, outPrintWriter);
 }
 
 PEGASUS_NAMESPACE_END

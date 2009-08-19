@@ -59,6 +59,7 @@ public:
     CIMInstance getInstance (
         const CIMNamespaceName & nameSpace,
         const CIMObjectPath & instanceName,
+        Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
         const CIMPropertyList & propertyList = CIMPropertyList());
@@ -66,6 +67,7 @@ public:
     Array <CIMInstance> enumerateInstancesForClass (
         const CIMNamespaceName & nameSpace,
         const CIMName & className,
+        Boolean localOnly = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
         const CIMPropertyList & propertyList = CIMPropertyList());
@@ -73,24 +75,6 @@ public:
     Array <CIMObjectPath> enumerateInstanceNamesForClass (
         const CIMNamespaceName & nameSpace,
         const CIMName & className);
-
-    Uint16 getEnabledState()
-    {
-       return _enabledState;
-    }
-    Uint16 getHealthState()
-    {
-       return _healthState;
-    }
-    void setEnabledState(Uint16 enabledState)
-    {
-       _enabledState = enabledState;
-    }
-    void setHealthState(Uint16 healthState)
-    {
-       _healthState = healthState;
-    }
-
 private:
 
     CIMInstance _buildInstanceSkeleton(
@@ -117,8 +101,6 @@ private:
 
     // Used for getting the Class defintions from the Repository.
     CIMRepository * _cimRepository;
-    Uint16 _enabledState;
-    Uint16 _healthState;
 };
 
 PEGASUS_NAMESPACE_END

@@ -133,6 +133,12 @@ extern const CIMName _PROPERTY_ONFATALERRORPOLICY;
 extern const CIMName _PROPERTY_OTHERONFATALERRORPOLICY;
 
 /**
+    The name of the Failure Trigger Time Interval property for Indication
+    Subscription class
+ */
+extern const CIMName _PROPERTY_FAILURETRIGGERTIMEINTERVAL;
+
+/**
     The name of the Time Of Last State Change property for Indication
     Subscription class
  */
@@ -157,7 +163,36 @@ extern const CIMName _PROPERTY_DURATION;
 extern const CIMName _PROPERTY_TIMEREMAINING;
 
 /**
+    The name of the Repeat Notification Interval property for indication
+    subscription class
+ */
+extern const CIMName _PROPERTY_REPEATNOTIFICATIONINTERVAL;
 
+/**
+    The name of the Repeat Notification Gap property for indication
+    subscription class
+ */
+extern const CIMName _PROPERTY_REPEATNOTIFICATIONGAP;
+
+/**
+    The name of the Repeat Notification Count property for indication
+    subscription class
+ */
+extern const CIMName _PROPERTY_REPEATNOTIFICATIONCOUNT;
+
+/**
+    The name of the TextFormatOwningEntity property for Formatted Indication
+    Subscription class
+*/
+extern const CIMName _PROPERTY_TEXTFORMATOWNINGENTITY;
+
+/**
+    The name of the TextFormatID property for Formatted Indication
+    Subscription class
+*/
+extern const CIMName _PROPERTY_TEXTFORMATID;
+
+/**
     The name of the Caption property for Managed Element class
  */
 extern const CIMName _PROPERTY_CAPTION;
@@ -178,11 +213,6 @@ extern const CIMName _PROPERTY_ELEMENTNAME;
 extern const CIMName _PROPERTY_SOURCENAMESPACE;
 
 /**
-    The name of the Source Namespaces property for indication filter class
- */
-extern const CIMName _PROPERTY_SOURCENAMESPACES;
-
-/**
     The name of the System Name property for indication filter and indications
     handler classes
  */
@@ -201,6 +231,11 @@ extern const CIMName _PROPERTY_SYSTEMCREATIONCLASSNAME;
 extern const CIMName _PROPERTY_OTHERPERSISTENCETYPE;
 
 /**
+    The name of the Owner property for Indication Handler class
+ */
+extern const CIMName _PROPERTY_OWNER;
+
+/**
     The name of the TargetHostFormat property for SNMP Mapper Indication
     Handler subclass
  */
@@ -211,6 +246,24 @@ extern const CIMName _PROPERTY_TARGETHOSTFORMAT;
     Handler subclass
  */
 extern const CIMName _PROPERTY_OTHERTARGETHOSTFORMAT;
+
+/**
+    The name of the Port Number property for SNMP Mapper Indication Handler
+    subclass
+ */
+extern const CIMName _PROPERTY_PORTNUMBER;
+
+/**
+    The name of the SNMP Security Name property for SNMP Mapper Indication
+    Handler subclass
+ */
+extern const CIMName _PROPERTY_SNMPSECURITYNAME;
+
+/**
+    The name of the SNMP Engine ID property for SNMP Mapper Indication Handler
+    subclass
+ */
+extern const CIMName _PROPERTY_SNMPENGINEID;
 
 /**
     The name of the Alert Type property for Alert Indication class
@@ -243,6 +296,11 @@ extern const CIMName _PROPERTY_CREATIONCLASSNAME;
 extern const CIMName _PROPERTY_NAME;
 
 /**
+    The name of the ElementName property of CIM_MangedElement class.
+*/
+extern const CIMName _PROPERTY_ELEMENTNAME;
+
+/**
     The name of the Started property of CIM_Service class.
 */
 extern const CIMName _PROPERTY_STARTED;
@@ -264,6 +322,13 @@ PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_FILTERCREATIONENABLED;
     class.
 */
 PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_SUBSCRIPTIONREMOVALACTION;
+
+/**
+    The name of the SubscriptionRemovalTimeInterval property of
+    IndicationService class.
+*/
+PEGASUS_SERVER_LINKAGE extern const
+    CIMName _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL;
 
 /**
     The name of the DeliveryRetryAttempts property of
@@ -341,61 +406,7 @@ const Uint32 _PROPERTY_SUBSCRIPTIONREMOVALTIMEINTERVAL_VALUE = 2592000;
 const Uint16 _PROPERTY_DELIVERYRETRYATTEMPTS_VALUE = 3;
 const Uint32 _PROPERTY_DELIVERYRETRYINTERVAL_VALUE = 30;
 
-/**
-    Return codes for CIM_EnabledLogicalElement.RequestStateChange() method.
-*/
-
-const Uint32 _RETURNCODE_COMPLETEDWITHNOERROR = 0;
-const Uint32 _RETURNCODE_NOTSUPPORTED = 1;
-const Uint32 _RETURNCODE_TIMEOUT = 3;
-const Uint32 _RETURNCODE_FAILED = 4;
-const Uint32 _RETURNCODE_INVALIDPARAMETER = 5;
-
-/**
-    The name of the CIM_EnabledLogicalElement.RequestStateChange() method.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName _METHOD_REQUESTSTATECHANGE;
-
-/**
-    The name of the RequestedState parameter(input) of
-    CIM_EnabledLogicalElement.RequestStateChange() method.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName _PARAM_REQUESTEDSTATE;
-
-/**
-    The name of the TimeoutPeriod parameter(input) of
-    CIM_EnabledLogicalElement.RequestStateChange() method.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName _PARAM_TIMEOUTPERIOD;
-
-/**
-    The name of the CIM_EnabledLogicalElement.EnabledState property.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_ENABLEDSTATE;
-
-/**
-    The name of the CIM_ManagedSystemElement.EnabledState property.
-*/
-PEGASUS_SERVER_LINKAGE extern const CIMName _PROPERTY_HEALTHSTATE;
-
 #endif
-
-/**
-    CIM_EnabledLogicalElement.EnabledState values.
-*/
-const Uint16 _ENABLEDSTATE_SHUTTINGDOWN = 4;
-const Uint16 _ENABLEDSTATE_STARTING = 10;
-const Uint16 _ENABLEDSTATE_ENABLED = 2;
-const Uint16 _ENABLEDSTATE_DISABLED = 3;
-const Uint16 _ENABLEDSTATE_UNKNOWN = 0;
-
-/**
-    Service health States. See CIM_ManagedSystemElement.HealthState
-*/
-
-const Uint16 _HEALTHSTATE_OK = 5;
-const Uint16 _HEALTHSTATE_DEGRADEDWARNING = 10;
-
 
 //
 //  Qualifier names

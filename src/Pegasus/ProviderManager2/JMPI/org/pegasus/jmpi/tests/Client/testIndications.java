@@ -505,13 +505,16 @@ public class testIndications
                                                                        CIMObjectPath copHandler)
       throws Exception
    {
-      CIMInstance   ciSubscription  = new CIMInstance("CIM_IndicationSubscription");
-      ciSubscription.setObjectPath(new CIMObjectPath ("CIM_IndicationSubscription",nameSpaceInterOp));
+      CIMClass      ccSubscription  = cc.getClass (new CIMObjectPath ("CIM_IndicationSubscription",
+                                                                      nameSpaceInterOp),
+                                                   false);
+      CIMInstance   ciSubscription  = ccSubscription.newInstance ();
+      CIMObjectPath copSubscription = null;
+
       ciSubscription.setProperty ("Filter", new CIMValue (copFilter));
       ciSubscription.setProperty ("Handler", new CIMValue (copHandler));
       ciSubscription.setProperty ("SubscriptionState", new CIMValue (new UnsignedInt16 ("2")));
 
-      CIMObjectPath copSubscription = null;
       try
       {
          copSubscription = createInstance (cc,

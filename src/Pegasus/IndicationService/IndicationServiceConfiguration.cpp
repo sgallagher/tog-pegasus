@@ -30,39 +30,27 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/StringConversion.h>
 
-#include "IndicationService.h"
 #include "IndicationConstants.h"
 #include "IndicationServiceConfiguration.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-static Uint32 _getConfigValue(const String &name)
-{
-    Uint64 v;
-    ConfigManager* configManager = ConfigManager::getInstance();
-    String strValue = configManager->getCurrentValue(name);
-    StringConversion::decimalStringToUint64(strValue.getCString(), v);
-
-    return (Uint32)v;
-}
-
 IndicationServiceConfiguration::IndicationServiceConfiguration(
     CIMRepository * repository)
     : _cimRepository (repository)
 {
-   _enabledState = _ENABLEDSTATE_DISABLED;
-   _healthState = _HEALTHSTATE_OK;
 }
 
 IndicationServiceConfiguration::~IndicationServiceConfiguration()
 {
 }
 
+
 CIMInstance IndicationServiceConfiguration::getInstance(
     const CIMNamespaceName & nameSpace,
     const CIMObjectPath & instanceName,
+    Boolean localOnly,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
@@ -103,6 +91,7 @@ Array<CIMInstance> IndicationServiceConfiguration::
     enumerateInstancesForClass(
         const CIMNamespaceName & nameSpace,
         const CIMName & className,
+        Boolean localOnly,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList & propertyList)
@@ -216,13 +205,13 @@ void IndicationServiceConfiguration::_setIntervalPropertyValues(
         {
             // Old CIM Schema 2.17 with experimental classes
             p2.setValue(
-                Uint64(_getConfigValue("minIndicationDeliveryRetryInterval")));
+                Uint64(_PROPERTY_DELIVERYRETRYINTERVAL_VALUE));
         }
         else
         {
             // New CIM Schema 2.22 and up with final classes
-            p2.setValue(_getConfigValue("minIndicationDeliveryRetryInterval"));
-        }
+            p2.setValue(_PROPERTY_DELIVERYRETRYINTERVAL_VALUE);
+        }        
     }
 }
 
@@ -234,6 +223,7 @@ CIMInstance IndicationServiceConfiguration::_getIndicationServiceInstance(
     PEG_METHOD_ENTER(TRC_INDICATION_SERVICE,
         "IndicationServiceConfiguration::"
             "_getIndicationServiceInstance");
+
     CIMInstance instance;
     CIMClass returnedClass;
 
@@ -293,28 +283,19 @@ CIMInstance IndicationServiceConfiguration::_getIndicationServiceInstance(
         instance,
         _PROPERTY_SUBSCRIPTIONREMOVALACTION,
         CIMValue(_PROPERTY_SUBSCRIPTIONREMOVALACTION_VALUE));
- 
+
     _setPropertyValue(
         instance,
         _PROPERTY_DELIVERYRETRYATTEMPTS,
-        CIMValue(
-            Uint16(_getConfigValue("maxIndicationDeliveryRetryAttempts"))));
+        CIMValue(_PROPERTY_DELIVERYRETRYATTEMPTS_VALUE));
 
     _setIntervalPropertyValues(instance);
-
-    _setPropertyValue(
-        instance,
-        _PROPERTY_ENABLEDSTATE,
-        CIMValue(_enabledState));
-
-    _setPropertyValue(
-        instance,
-        _PROPERTY_HEALTHSTATE,
-        CIMValue(_healthState));
 
     CIMObjectPath path = instance.buildPath(returnedClass);
     path.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instance.setPath(path);
+    instance.filter(includeQualifiers, includeClassOrigin, propertyList);
+
     PEG_METHOD_EXIT();
 
     return instance;
@@ -403,6 +384,8 @@ CIMInstance IndicationServiceConfiguration::
     CIMObjectPath path = instance.buildPath(returnedClass);
     path.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
     instance.setPath(path);
+    instance.filter(includeQualifiers, includeClassOrigin, propertyList);
+
     PEG_METHOD_EXIT();
     return instance;
 }

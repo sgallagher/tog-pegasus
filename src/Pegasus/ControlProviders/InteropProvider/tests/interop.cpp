@@ -35,15 +35,14 @@
 #include <Pegasus/Common/TLS.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/HostLocator.h>
+
 #include <Pegasus/Common/Tracer.h>
-
-#include <Pegasus/General/OptionManager.h>
-
 /* This is a test program for the Interop Control Provider.
  * It provides tests for the functions in this provider including;
 
@@ -76,6 +75,8 @@ char * pgmName;
 static Boolean verbose;
 
 static const CIMNamespaceName __NAMESPACE_NAMESPACE = CIMNamespaceName ("root");
+
+static const char programVersion[] =  "1.0";
 
 // Property Names for __Namespace Class
 static const CIMName NAMESPACE_PROPERTYNAME  = CIMName ("Name");
@@ -248,8 +249,6 @@ public:
     Boolean testClassExists(const CIMName & className);
 
     // Methods associated with overall testing
-    void testPGProviderProfileCapabilities();
-
     void testNameSpacesManagement();
 
     void testSharedNameSpacesManagement();
@@ -295,6 +294,7 @@ public:
 
     Boolean testEnumerateOptions(
         const CIMName& className,
+        Boolean localOnly,
         Boolean deepInheritance,
         const CIMPropertyList propertyList,
         const Uint32 expectedPropertyCount);
@@ -312,6 +312,7 @@ public:
     Boolean testGetInstancesForEnum(
         const Array<CIMObjectPath>& paths,
         const Array<CIMInstance>& instances,
+        const Boolean localOnly,
         const Boolean includeQualifiers,
         const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
@@ -521,6 +522,7 @@ Boolean InteropTest::testEnumAgainstEnumNames(
 */
 Boolean InteropTest::testGetInstancesForEnum(const Array<CIMObjectPath>& paths,
                                         const Array<CIMInstance>& instances,
+                                        const Boolean localOnly,
                                         const Boolean includeQualifiers,
                                         const Boolean includeClassOrigin,
                                         const CIMPropertyList& propertyList)
@@ -531,7 +533,7 @@ Boolean InteropTest::testGetInstancesForEnum(const Array<CIMObjectPath>& paths,
         CIMInstance instance =
             _client.getInstance(PEGASUS_NAMESPACENAME_INTEROP,
                                           paths[i],
-                                          false,
+                                          localOnly,
                                           includeQualifiers,
                                           includeClassOrigin,
                                           propertyList);
@@ -657,9 +659,9 @@ Boolean InteropTest::matchPathsAndObjectPaths(Array<CIMObjectPath>& paths,
     }
     return (true);
 }
-
 Boolean InteropTest::testEnumerateOptions(
         const CIMName& className,
+        Boolean localOnly,
         Boolean deepInheritance,
         const CIMPropertyList propertyList,
         const Uint32 expectedPropertyCount)
@@ -670,7 +672,7 @@ Boolean InteropTest::testEnumerateOptions(
                                  PEGASUS_NAMESPACENAME_INTEROP,
                                  className,
                                  deepInheritance,
-                                 false,  // localOnly
+                                 localOnly,
                                  false,  // include qualifiers = false
                                  false,
                                  propertyList);
@@ -696,6 +698,7 @@ Boolean InteropTest::testEnumerateOptions(
     {
         cout << "Error in enumerate options. "
              << " Class " << className.getString()
+             << " lo= "   << _toString(localOnly)
              << " di= "   << _toString(deepInheritance)
              << " Expected Property count " << expectedPropertyCount
              << " Received Property Count " << instance.getPropertyCount()
@@ -1304,6 +1307,9 @@ Boolean InteropTest::_namespaceCreatePG_Namespace(const CIMNamespaceName& name)
     // method to construct the correct keys.
     CIMInstance instance = instances[0];
 
+    // remove the qualifiers, etc.
+    // NOTE should do this as part of the get.
+    instance.filter(false, false, CIMPropertyList());
     // Modify the name property value for new name
     Uint32 pos = instance.findProperty(NAMESPACE_PROPERTYNAME);
     if (pos == PEG_NOT_FOUND)
@@ -1400,6 +1406,9 @@ Boolean InteropTest::_namespaceCreateCIM_Namespace(const CIMNamespaceName& name,
         newInstance.addProperty(instance.getProperty(i).clone());
     }
 
+    // remove the qualifiers, etc.
+    // NOTE should do this as part of the get.
+    instance.filter(false, false, CIMPropertyList());
     // Modify the name property value for new name
     Uint32 pos = instance.findProperty(NAMESPACE_PROPERTYNAME);
     if (pos == PEG_NOT_FOUND)
@@ -1705,317 +1714,6 @@ Boolean InteropTest::testClassExists(const CIMName & className)
     return(false);
 }
 
-
-
-// This function registers providers dynamically required to test 
-// PG_ProviderProfileCapability class
-void _registerProvider(
-    CIMClient& client,
-    String provName,
-    String className,
-    CIMObjectPath& returnProvRef,
-    CIMObjectPath& returnProvCapRef)
-{
-    CIMInstance cimProvInstance(PEGASUS_CLASSNAME_PROVIDER);
-    CIMInstance cimProvCapInstance(PEGASUS_CLASSNAME_PROVIDERCAPABILITIES);
-
-    cimProvInstance.addProperty(CIMProperty(
-        CIMName("ProviderModuleName"),
-        String("TestServerProfileProvidersModule")));
-    cimProvInstance.addProperty(
-        CIMProperty(CIMName("Name"),
-        provName));
-
-    returnProvRef =
-        client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimProvInstance);
-
-    Array <String> namespaces;
-    Array <Uint16> providerType;
-    Array <String> supportedMethods;
-    Array <String> supportedProperties;
-    namespaces.append("test/TestProvider");
-    providerType.append(2);
-
-    cimProvCapInstance.addProperty(CIMProperty(
-        CIMName("ProviderModuleName"),
-        String("TestServerProfileProvidersModule")));
-    cimProvCapInstance.addProperty(CIMProperty(
-        CIMName("ProviderName"),
-        provName));
-    cimProvCapInstance.addProperty(CIMProperty(
-        CIMName("CapabilityID"),
-        className));
-    cimProvCapInstance.addProperty(CIMProperty(
-        CIMName("ClassName"),
-        className));
-    cimProvCapInstance.addProperty(CIMProperty(
-        CIMName("Namespaces"),
-        namespaces));
-    cimProvCapInstance.addProperty(CIMProperty(
-        CIMName("ProviderType"),
-        providerType));
-    cimProvCapInstance.addProperty(CIMProperty(
-        CIMName("SupportedMethods"),
-        supportedMethods));
-    cimProvCapInstance.addProperty(CIMProperty(
-        CIMName("SupportedProperties"),
-        supportedProperties));
-
-    returnProvCapRef = client.createInstance(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        cimProvCapInstance);
-
-}
-
-// Create ProviderProfileCapability instance for main profile and test it
-void _testProvProfCapInstCreation(
-    CIMClient &client,
-    CIMObjectPath &provProfCapRef)
-{
-    String capId;
-    CIMInstance cimInstProvProfCap(
-        PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES);
-
-    Array<Uint16> registeredSubProfiles;
-    registeredSubProfiles.append(0); //Other
-    registeredSubProfiles.append(0); //Other
-
-    Array<String> subProfileVersions;
-    subProfileVersions.append("1.1.0");
-    subProfileVersions.append("0.1.0");
-
-    Array<String> otherRegisteredSubProfiles;
-    otherRegisteredSubProfiles.append("DynamicSubprofile1");
-    otherRegisteredSubProfiles.append("DynamicSubprofile2");
-
-    Array<String> otherSubProfileOrganizations;
-    otherSubProfileOrganizations.append("OpenPegasus");
-    otherSubProfileOrganizations.append("OpenPegasus");
-
-    Array<String> subProfileProviderModuleNames;
-    subProfileProviderModuleNames.append("TestServerProfileProvidersModule");
-    subProfileProviderModuleNames.append("TestServerProfileProvidersModule");
-
-    Array<String> subProfileProviderNames;
-    subProfileProviderNames.append("TestDynamicSubProfile1CapabilityProvider");
-    subProfileProviderNames.append("TestDynamicSubProfile2CapabilityProvider");
-
-    Array<String> conformingElements;
-    conformingElements.append("Test_DynamicProfile");
-
-    cimInstProvProfCap.addProperty(CIMProperty(
-        "ProviderModuleName",
-        String("TestServerProfileProvidersModule")));
-    cimInstProvProfCap.addProperty(CIMProperty(
-        "ProviderName",
-        String("TestDynamicProfileCapabilityProvider")));
-    cimInstProvProfCap.addProperty(CIMProperty(
-        "CapabilityID",
-        String("DynamicProfileCapability")));
-    cimInstProvProfCap.addProperty(
-        CIMProperty("RegisteredProfile", Uint16(0)));
-    cimInstProvProfCap.addProperty(
-        CIMProperty("OtherRegisteredProfile", String("DynamicProfile")));
-    cimInstProvProfCap.addProperty(
-        CIMProperty("ProfileVersion", String("0.1.0")));
-    cimInstProvProfCap.addProperty(
-        CIMProperty("OtherProfileOrganization", String("OpenPegasus")));
-    cimInstProvProfCap.addProperty(
-        CIMProperty("RegisteredSubProfiles", registeredSubProfiles));
-    cimInstProvProfCap.addProperty(
-        CIMProperty("SubprofileVersions", subProfileVersions));
-    cimInstProvProfCap.addProperty(
-        CIMProperty("OtherRegisteredSubProfiles", otherRegisteredSubProfiles));
-    cimInstProvProfCap.addProperty(CIMProperty(
-        "OtherSubProfileOrganizations",
-        otherSubProfileOrganizations));
-    cimInstProvProfCap.addProperty(CIMProperty(
-        "SubProfileProviderModuleNames",
-        subProfileProviderModuleNames));
-    cimInstProvProfCap.addProperty(
-        CIMProperty("SubProfileProviderNames", subProfileProviderNames));
-    cimInstProvProfCap.addProperty(
-        CIMProperty("ConformingElements", conformingElements));
-    provProfCapRef = client.createInstance(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        cimInstProvProfCap);
-    // Test to see if the ProviderProfileCapability instance is created 
-    // properly
-    CIMInstance instance = client.getInstance(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        provProfCapRef);
-    instance.getProperty(
-        instance.findProperty("CapabilityId")).getValue().get(capId);
-    PEGASUS_TEST_ASSERT(capId == "DynamicProfileCapability");
-    
-    // Enumerate PG_ProviderProfileCapability instances
-    Array<CIMObjectPath> pathsProfCap = client.enumerateInstanceNames(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        PEGASUS_CLASSNAME_PG_PROVIDERPROFILECAPABILITIES);
-
-    PEGASUS_TEST_ASSERT(pathsProfCap.size() > 0);
-    Uint32 i = 0;
-    for (Uint32 n = pathsProfCap.size(); i < n; i++)
-    {
-        if (pathsProfCap[i] == provProfCapRef)
-        {
-            break;
-        }
-    }
-    PEGASUS_TEST_ASSERT(i < pathsProfCap.size()); 
-}
-
-// Test dynamic profile associations using 
-// CIM_ElementConformsToProfile association instances and 
-// PG_ElementSoftwareIdentity association instances
-void _testDynamicProfileAssociations(CIMClient &client)
-{
-    Array<CIMInstance> instances = client.enumerateInstances(
-        PEGASUS_NAMESPACENAME_INTEROP, "CIM_RegisteredProfile");
-
-    String registeredName;
-    Array<CIMObject> associators;
-    String name;
-    Uint32 count = 0;
-    for (Uint32 i = 0, n = instances.size(); i < n; i++)
-    {
-        instances[i].getProperty(instances[i].findProperty("RegisteredName")).
-            getValue().get(registeredName);
-
-        if (String::equal(registeredName, "DynamicProfile") ||
-            String::equal(registeredName, "DynamicSubprofile1") ||
-            String::equal(registeredName, "DynamicSubprofile2"))
-        {
-            count++;
-            if (String::equal(registeredName, "DynamicProfile"))
-            {
-                associators = client.associators(PEGASUS_NAMESPACENAME_INTEROP,
-                    instances[i].getPath(),
-                    PEGASUS_CLASSNAME_CIM_ELEMENTCONFORMSTOPROFILE);
-                PEGASUS_TEST_ASSERT(associators.size() == 2);
-            }
-            associators = client.associators(
-                PEGASUS_NAMESPACENAME_INTEROP,
-                instances[i].getPath(),
-                PEGASUS_CLASSNAME_PG_ELEMENTSOFTWAREIDENTITY);
-            PEGASUS_TEST_ASSERT(associators.size() == 1);
-        }
-    }
-    PEGASUS_TEST_ASSERT(count == 3);
-}
-
-// Test to cover error conditions in InteropProvider::invokeMethod 
-void _testInvokeMethodErrorConditions(
-    CIMClient &client,
-    CIMObjectPath& provProfCapRef)
-{
-    Array<CIMParamValue> inParams;
-    Array<CIMParamValue> outParams;
-
-    // Passing wrong function name
-    const CIMName methodName1("update");
-    const CIMName methodName2("updateCache");
-    try
-    {
-        CIMValue returnValue = client.invokeMethod(
-            PEGASUS_NAMESPACENAME_INTEROP,
-            provProfCapRef,
-            methodName1,
-            inParams,
-            outParams);
-    }
-    catch(CIMException& e)
-    {
-        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
-    }
-
-    // Passing unsupported Class name to InteropProvider::invokeMethod 
-    CIMObjectPath pgNamespaceObjPath;
-    pgNamespaceObjPath.setNameSpace("root/PG_Interop");
-    pgNamespaceObjPath.setClassName(PEGASUS_CLASSNAME_PGNAMESPACE);
-    try
-    {
-        CIMValue returnValue = client.invokeMethod(
-            PEGASUS_NAMESPACENAME_INTEROP,
-            pgNamespaceObjPath,
-            methodName2,
-            inParams,
-            outParams);
-    }
-    catch(CIMException& e)
-    {
-        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
-    }
-}
-
-//
-// Tests the various operations with PG_ProviderProfileCapability class
-//
-void InteropTest::testPGProviderProfileCapabilities()
-{
-    CIMObjectPath retRefProvProfCap;
-    CIMObjectPath retRefProv, retRefProvCap;
-    CIMObjectPath retRefProv1, retRefProvCap1;
-    CIMObjectPath retRefProv2, retRefProvCap2;
-
-    // Register required provider for main profile
-    _registerProvider(_client,
-        "TestDynamicProfileCapabilityProvider",
-        "Test_DynamicProfile",
-        retRefProv,
-        retRefProvCap);
-
-    // Register required providers for sub profiles
-    _registerProvider(_client,
-        "TestDynamicSubProfile1CapabilityProvider",
-        "Test_DynamicSubProfile1",
-        retRefProv1,
-        retRefProvCap1);
-    _registerProvider(_client,
-        "TestDynamicSubProfile2CapabilityProvider",
-        "Test_DynamicSubProfile2",
-        retRefProv2,
-        retRefProvCap2);
-
-    // Create PG_ProviderProfileCapability instance and test its successful
-    // creation
-    _testProvProfCapInstCreation(_client, retRefProvProfCap);
-    
-    // Test dynamic profile associations using
-    // CIM_ElementConformsToProfile association instances and 
-    // PG_ElementSoftwareIdentity association instances
-    _testDynamicProfileAssociations(_client);
-
-    // Test to cover error conditions in InteropProvider::invokeMethod 
-    _testInvokeMethodErrorConditions(_client, retRefProvProfCap);
-   
-    //Test to check successful deletion of PG_ProviderProfileCapability 
-    //instance
-    _client.deleteInstance(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        retRefProvProfCap);
-  
-    try
-    {
-        CIMInstance instance = _client.getInstance(
-            PEGASUS_NAMESPACENAME_INTEROP,
-            retRefProvProfCap);
-    }
-    catch (CIMException& e)
-    {
-        PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
-    }
-
-    _client.deleteInstance(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        retRefProv);
-    _client.deleteInstance(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        retRefProv1);
-    _client.deleteInstance(
-        PEGASUS_NAMESPACENAME_INTEROP,
-        retRefProv2);
-}
 
 /* Execute the tests to assure that the namespace manager works and
    that the results match what is returned from the __Namespace manager
@@ -2489,11 +2187,10 @@ void InteropTest::testObjectManagerClass()
             {
                 try
                 {
-                    Array <CIMObjectPath> paths =
-                        _client.enumerateInstanceNames(
-                            namespaceList[i],
-                            CIM_OBJECTMANAGER_CLASSNAME);
-                    PEGASUS_TEST_ASSERT(paths.size() == 0);
+                Array <CIMObjectPath> paths = _client.enumerateInstanceNames(
+                        namespaceList[i],
+                        CIM_OBJECTMANAGER_CLASSNAME);
+                PEGASUS_TEST_ASSERT(paths.size() == 0);
                 }
                 // Catch block for this enum test.  We test class not exist.
                 catch(CIMException& e)
@@ -2501,9 +2198,9 @@ void InteropTest::testObjectManagerClass()
                     if ((e.getCode() != CIM_ERR_INVALID_CLASS) &&
                             (e.getCode() != CIM_ERR_NOT_SUPPORTED))
                     {
-                        cout << "Unexpected CIMException " << e.getMessage()
+                        cout << " CIMException " << e.getMessage()
                             << "namespace " << namespaceList[i].getString()
-                            << " EnumerateInstances of CIMObjectManager "
+                            << "EnumerateInstances of CIMObjectManager "
                             << endl;
                         errFound = true;
                     }
@@ -2512,18 +2209,15 @@ void InteropTest::testObjectManagerClass()
                 {
                     errFound= true;
                     cout <<
-                        "Unexpected Exception in look for cimobject manager "
-                            "in Namespace "
-                        << namespaceList[i].getString() << ". " 
+                        "Exception in look for cimobject manager"
+                        " in strange places "
                         << e.getMessage() << endl;
                 }
                 catch(...)
                 {
                     errFound = true;
-                    cout << "Unexpected Exception in look for cimobject"
-                            " manager in namespace "
-                        << namespaceList[i].getString()
-                        << endl;
+                    cout << "Exception in look for cimobject manager "
+                        "in strange places" << endl;
                 }
             }
         }
@@ -2550,6 +2244,7 @@ void InteropTest::setStatisticsState(const Boolean flag)
     Array<CIMName> plA;
     plA.append(CIMName("gatherstatisticaldata"));
     CIMPropertyList myPropertyList(plA);
+    sendInstance.filter(false, false, myPropertyList);
 
     Uint32 pos;
     if ((pos = sendInstance.findProperty("gatherstatisticaldata")) !=
@@ -2697,6 +2392,8 @@ void InteropTest::testStatisticsEnable()
         else
             PEGASUS_TEST_ASSERT(false);
 
+        // Test with Multiple Properties in instance and qualifiers removed
+        sendInstance.filter(false, false, CIMPropertyList());
         // try modify with multiple properties . Should set statistics true
         if(!testStatisticsSetOperationError(sendInstance, myPropertyList,
                 true, false, CIM_ERR_NOT_SUPPORTED))
@@ -2743,6 +2440,7 @@ void InteropTest::testStatisticsEnable()
         plA2.append(CIMName("RequestStateChange"));
         CIMPropertyList myPropertyList2(plA2);
         CIMInstance sendInstance2 = sendInstance.clone();
+        sendInstance2.filter(false, false, myPropertyList2);
         if(!testStatisticsSetOperationError(sendInstance, myPropertyList2,
                                     false, false, CIM_ERR_NOT_SUPPORTED))
         TERMINATE("Set Should fail. Bad Property in modifiedInstance");
@@ -2753,6 +2451,7 @@ void InteropTest::testStatisticsEnable()
         Array<CIMName> plA3;
         myPropertyList2.set(plA3);
         sendInstance2 = sendInstance.clone();
+        sendInstance2.filter(false, false, myPropertyList);
         if(!testStatisticsSetOperationError(sendInstance, myPropertyList2,
                                     true, false, CIM_ERR_NOT_SUPPORTED))
            TERMINATE("Set with propertylist empty should pass");
@@ -2818,6 +2517,7 @@ void InteropTest::testCommunicationClass()
                              PEGASUS_NAMESPACENAME_INTEROP,
                              CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME);
         Boolean deepInheritance = false;
+        Boolean localOnly = false;
         Boolean includeQualifiers = true;
         Boolean includeClassOrigin = true;
 
@@ -2825,7 +2525,7 @@ void InteropTest::testCommunicationClass()
                             PEGASUS_NAMESPACENAME_INTEROP,
                             CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME,
                             deepInheritance,
-                            false,    // localOnly
+                            localOnly,
                             includeQualifiers, includeClassOrigin,
                             CIMPropertyList());
 
@@ -2889,7 +2589,7 @@ void InteropTest::testCommunicationClass()
                               PEGASUS_NAMESPACENAME_INTEROP,
                               CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME,
                               deepInheritance,
-                              false,    // localOnly
+                              localOnly,
                               includeQualifiers, includeClassOrigin,
                               CIMPropertyList());
 
@@ -2899,7 +2599,7 @@ void InteropTest::testCommunicationClass()
          // must be deepInheritance to assure that all properties are returned.
          /* TODO
          PEGASUS_TEST_ASSERT(testGetInstancesForEnum(pathsCommMech,
-            instancesCommMech,
+            instancesCommMech, localOnly,
             includeQualifiers, includeClassOrigin, CIMPropertyList()));
          */
          // COMMENT KS - There is no reason for this.
@@ -3125,6 +2825,7 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
         Array<CIMInstance> namespaceInstances = _getCIMNamespaceInstances();
 
         Boolean deepInheritance = false;
+        Boolean localOnly = false;
         Boolean includeQualifiers = true;
         Boolean includeClassOrigin = true;
 
@@ -3134,7 +2835,7 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
                      PEGASUS_NAMESPACENAME_INTEROP,
                      CIM_NAMESPACEINMANAGER_CLASSNAME,
                      deepInheritance,                    // deepInheritance
-                     false,                              // localOnly
+                     localOnly,                          // localOnly
                      includeQualifiers,                  // includeQualifiers
                      includeClassOrigin,                 // includeClassOrigin
                      CIMPropertyList());
@@ -3181,6 +2882,7 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
                 true,                                // includeQualifiers
                 true,                                // includeClassOrigin
                 CIMPropertyList());                  // propertyList
+
         // test if references and referencenames return same size
         PEGASUS_TEST_ASSERT(references.size() == referenceNames.size());
         PEGASUS_TEST_ASSERT( matchPathsAndInstancePaths(referenceNames,
@@ -3338,6 +3040,7 @@ int main(int argc, char** argv)
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
     pgmName = argv[0];
+    Boolean showNamespaces = false;
     if (argc > 1)
     {
         String cmd = argv[1];
@@ -3397,25 +3100,22 @@ int main(int argc, char** argv)
                 exit(1);
             }
         }
-        it.testPGProviderProfileCapabilities();
-        //If PEGASUS_INTEROP_NAMESPACE is set to interop, interop namespace
-        //does not come under root.The below test need not to run in 
-        //this scenario. 
-        if(PEGASUS_NAMESPACENAME_INTEROP.getString() != "interop" )
-        {
-            it.testNameSpacesManagement();
-        }
+        it.testNameSpacesManagement();
 
         it.testSharedNameSpacesManagement();
 
         it.testObjectManagerClass();
 
         // Do the enumerate options tests for object manager object
-        // classname, di, propertylist, expected rtn count
-        it.testEnumerateOptions(
-            CIM_OBJECTMANAGER_CLASSNAME, true, CIMPropertyList(), 29);
-        it.testEnumerateOptions(
-            CIM_OBJECTMANAGER_CLASSNAME, false, CIMPropertyList(), 29);
+        // classname, lo, di, propertylist, expected rtn count
+        //it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true,
+        //CIMPropertyList(), 4);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, true,
+                CIMPropertyList(), 29);
+        //it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false,
+        //CIMPropertyList(), 4);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, false,
+                CIMPropertyList(), 29);
 
         CIMPropertyList pl1;
         Array<CIMName> pla1;
@@ -3426,28 +3126,55 @@ int main(int argc, char** argv)
         Array<CIMName> pla2;
         pl2.set(pla2);
 
-        it.testEnumerateOptions(CIM_OBJECTMANAGER_CLASSNAME, true, pl1, 1);
-        it.testEnumerateOptions(CIM_OBJECTMANAGER_CLASSNAME, false, pl1, 1);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true,
+                pl1, 1);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, true,
+                pl1, 1);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false,
+                pl1, 1);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, false,
+                pl1, 1);
 
-        it.testEnumerateOptions(CIM_OBJECTMANAGER_CLASSNAME, true, pl2, 0);
-        it.testEnumerateOptions(CIM_OBJECTMANAGER_CLASSNAME, false, pl2, 0);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true,
+                pl2, 0);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, true,
+                pl2, 0);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false,
+                pl2, 0);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, false,
+                pl2, 0);
 
         // Repeat the tests for the superclass.
-        // classname, di, propertylist, expected rtn count
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true,
+        // classname, lo, di, propertylist, expected rtn count
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true,
                 CIMPropertyList(),29);
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false,
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, true,
+                CIMPropertyList(), 29);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false,
+                CIMPropertyList(), 28);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false,
                 CIMPropertyList(), 28);
 
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, pl1, 1);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true,
+                pl1, 1);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, true,
+                pl1, 1);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false,
+                pl1, 1);
         // ATTN: The following test case is incorrect.  The
         // GatherStatisticalData property is not defined in the
         // CIM_WBEMService class, so it should not be returned on a
         // non-deep enumeration operation.
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, pl1, 1);
+        //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false,
+        //pl1, 1);
 
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, pl2, 0);
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, pl2, 0);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, pl2, 0);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, true,
+                pl2, 0);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false,
+                pl2, 0);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false,
+                pl2, 0);
 
 #ifndef PEGASUS_DISABLE_PERFINST
         it.testStatisticsEnable();

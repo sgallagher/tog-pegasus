@@ -321,7 +321,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
             {
                service->_handle_incoming_operation(operation);
             }
-        } while (operation);
+        } while (operation && !service->_incoming_queue_shutdown.get());
     }
     catch (const Exception& e)
     {
@@ -538,7 +538,15 @@ void MessageQueueService::handle_AsyncIoClose(AsyncIoClose *req)
 #endif
     // set the closing flag, don't accept any more messages
     service->_incoming_queue_shutdown = 1;
-
+    //Wait until no more threads are running in the service except ourself.
+    //Note that if we don't  wait for all threads to terminate here, deletion
+    //of this service later may destruct derived class members while still
+    //running threads in this service trying to access them.
+    while (service->_threads.get() > 1)
+    {
+        Threads::yield();
+        Threads::sleep(50);
+    }
     // respond to this message. this is fire and forget, so we
     // don't need to delete anything.
     // this takes care of two problems that were being found

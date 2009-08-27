@@ -1,31 +1,33 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,12 +38,13 @@
 
 // Pegasus Common includes
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/StringConversion.h>
 
 // standard includes
 #include <errno.h>
 
 // symbol defines
+#define PEGASUS_SINT64_MIN (PEGASUS_SINT64_LITERAL(0x8000000000000000))
+#define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFFFF)
 
 // required for the windows compile
 #ifndef _MSC_VER
@@ -50,240 +53,670 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-const char CQLUtilities::KEY[] = "CQL.CQLUtilities.INVALID_STRING";
-const char CQLUtilities::MSG[] = "Error converting string to $0. "
-    " String '$1' is invalid or causes an overflow ";
+inline Uint8 _CQLUtilities_hexCharToNumeric(Char16 c)
+{
+    Uint8 n;
+
+    if (isdigit(c))
+        n = (c - '0');
+    else if (isupper(c))
+        n = (c - 'A' + 10);
+    else // if (islower(c))
+        n = (c - 'a' + 10);
+
+    return n;
+}
 
 Uint64 CQLUtilities::stringToUint64(const String &stringNum)
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLUtilities::stringToUint64()");
+    
     Uint64 x = 0;
-    CString cstrNum = stringNum.getCString();
-    const char *p = (const char*)cstrNum;
-    const char *pstart = p;
-    Boolean isError = false;
-    Uint32 endStr = 0;
-
-    if (*p)
+    const Char16* p = stringNum.getChar16Data();
+    const Char16* pStart = p;
+    
+    if (String::equal(stringNum, String::EMPTY))
     {
-        endStr = stringNum.size() - 1;
+        MessageLoaderParms mload("CQL.CQLUtilities.EMPTY_STRING",
+            "Error converting string to $0.  String cannot be $1.",
+            "Uint64", "empty");
+        throw CQLRuntimeException(mload);    
+    }
+  
+    if (!p)
+    {
+        MessageLoaderParms mload("CQL.CQLUtilities.EMPTY_STRING",
+            "Error converting string to $0.  String cannot be $1.",
+            "Uint64", "NULL");
+        throw CQLRuntimeException(mload);    
     }
 
-    // If the string is a real number, use stringToReal, then convert to
+    // If the string is a real number, use stringToReal, then convert to 
     // a Uint64
     if (isReal(stringNum))
     {
         // Note:  the cast will rip off any non-whole number precision.
-        // CQL spec is silent on whether to round up, round down, throw an
-        // error, or allow the platform to round as it sees fit.
+        // CQL spec is silent on whether to round up, round down, throw an 
+        // error, or allow the platform to round as it sees fit.  
         // We chose the latter for now.
         return (Uint64) stringToReal64(stringNum);
     }
 
-    if (*p == '+')
+    // There cannot be a negative '-' sign
+    if (*p == '-')
     {
-        ++p;
+         MessageLoaderParms mload("CQL.CQLUtilities.INVALID_NEG",
+             "Error converting string to $0.  String '$1' cannot begin"
+                 " with '-'.",
+             "Uint64",
+             stringNum);
+         throw CQLRuntimeException(mload);    
+    }
+    if (*p == '+')
+        p++;  // skip over the positive sign
+
+    if (!((*p >= '0') && (*p <= '9')))
+    {
+         MessageLoaderParms mload("CQL.CQLUtilities.INVALID_NUM_FORMAT",
+            "Error converting string to $0.  String '$1' is badly"
+                " formed.",
+            "Uint64",
+            stringNum);
+         throw CQLRuntimeException(mload);    
     }
 
-    // There cannot be a negative '-' sign or empty string
-    if (*p == '-' || !*p)
-    {
-         isError = true;
-    }
-    else if (!((*p >= '0') && (*p <= '9')))
-    {
-         isError = true;
-    }
     // if hexidecimal
-    else  if ( ((*p == '0') && ((p[1] == 'x') || (p[1] == 'X'))))
+    if ( (*p == '0') && ((p[1] == 'x') || (p[1] == 'X')) )
     {
-         if (!StringConversion::hexStringToUint64(p,x,true))
-         {
-            isError = true;
-         }
-    }
-    else if (pstart[endStr] == 'b' || pstart[endStr] == 'B')
+        // Convert a hexadecimal string
+        
+        // Skip over the "0x"
+        p+=2;
+        
+        // At least one hexadecimal digit is required
+        if (!*p)
+        {
+            MessageLoaderParms mload("CQL.CQLUtilities.INVALID_HEX_FORMAT",
+                "Error converting string to $0.  String '$1' needs a"
+                    " hexadecimal digit character following '0x'",
+                "Uint64",
+                stringNum);
+            throw CQLRuntimeException(mload);    
+        }
+        
+        // Add on each digit, checking for overflow errors
+        while (isascii(*p) && isxdigit(*p))
+        {
+            // Make sure we won't overflow when we multiply by 16
+            if (x > PEGASUS_UINT64_MAX/16)
+            {
+                MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                    "Error converting string to $0.  String '$1' caused"
+                        " an overflow.",
+                    "Uint64",
+                    stringNum);
+                throw CQLRuntimeException(mload);    
+            }
+            
+            x = x << 4;
+            
+            // We can't overflow when we add the next digit
+            Uint64 newDigit = Uint64(_CQLUtilities_hexCharToNumeric(*p++));
+            if (PEGASUS_UINT64_MAX - x < newDigit)
+            {
+                MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                    "Error converting string to $0.  String '$1' caused"
+                        " an overflow.",
+                    "Uint64",
+                    stringNum);
+                throw CQLRuntimeException(mload);    
+            }
+            
+            x = x + newDigit;
+        }
+        
+        // If we found a non-hexadecimal digit, report an error
+        if (*p)
+        {
+            MessageLoaderParms mload("CQL.CQLUtilities.INVALID_HEX_CHAR",
+                "Error converting string to $0.  Character '$1' in"
+                    " string '$2' is not a hexidecimal digit.",
+                "Uint64",
+                String(p, 1), stringNum);
+            throw CQLRuntimeException(mload);    
+        }
+        
+        // return value from the hex string
+        PEG_METHOD_EXIT();
+        return x;
+  }  // end if hexidecimal     
+
+    // if binary
+    Uint32 endString = stringNum.size() - 1;
+    if ( (pStart[endString] == 'b') || (pStart[endString] == 'B') )
     {
-         if (!StringConversion::binaryStringToUint64(p,x,true))
-         {
-            isError = true;
-         }
+        // Add on each digit, checking for overflow errors
+        while ((*p == '0') || (*p == '1'))
+        {
+            // Make sure we won't overflow when we multiply by 2
+            if (x > PEGASUS_UINT64_MAX/2)
+            {
+                MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                    "Error converting string to $0.  String '$1' caused"
+                        " an overflow.",
+                    "Uint64",
+                    stringNum);
+                throw CQLRuntimeException(mload);    
+            }
+            
+            x = x << 1;
+            
+            // We can't overflow when we add the next digit
+            Uint64 newDigit = 0;
+            if (*p++ == '1')
+            newDigit = 1;
+        
+            if (PEGASUS_UINT64_MAX - x < newDigit)
+            {
+                MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                    "Error converting string to $0.  String '$1' caused"
+                        " an overflow.",
+                    "Uint64",
+                    stringNum);
+                throw CQLRuntimeException(mload);    
+            }
+            
+            x = x + newDigit;
+        }
+        
+        // If we found a non-binary digit before the terminating 'b', then
+        // report an error
+        if (*p && (p-pStart < (Sint32)endString || (*p != 'b' && *p != 'B')))
+        {
+            MessageLoaderParms mload("CQL.CQLUtilities.INVALID_BIN_CHAR",
+                "Error converting string to $0.  Character '$1' in"
+                  " string '$2' is not a binary digit.",
+                "Uint64",
+                String(p, 1), stringNum);
+            throw CQLRuntimeException(mload);    
     }
-    else if (!StringConversion::decimalStringToUint64(p,x,true))
+    
+    // return value from the binary string
+    PEG_METHOD_EXIT();
+    return x;      
+    } // end if binary
+
+
+  // Expect a positive decimal digit:
+
+  // Add on each digit, checking for overflow errors
+    while ((*p >= '0') && (*p <= '9'))
     {
-         isError = true;
+        // Make sure we won't overflow when we multiply by 10
+        if (x > PEGASUS_UINT64_MAX/10)
+        {
+            MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                "Error converting string to $0.  String '$1' caused an"
+                    " overflow.",
+                "Uint64",
+                stringNum);
+            throw CQLRuntimeException(mload);    
+        }
+        x = 10 * x;
+        
+        // Make sure we won't overflow when we add the next digit
+        Uint64 newDigit = (*p++ - '0');
+        if (PEGASUS_UINT64_MAX - x < newDigit)
+        {
+            MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                "Error converting string to $0.  String '$1' caused an"
+                    " overflow.",
+                "Uint64",
+                stringNum);
+            throw CQLRuntimeException(mload);    
+        }
+    
+    x = x + newDigit;
     }
+
+    // If we found a non-decimal digit, report an error
+    if (*p)
+    {
+        MessageLoaderParms mload("CQL.CQLUtilities.INVALID_DECIMAL_CHAR",
+            "Error converting string to $0.  Character '$1' in"
+                " string '$2' is not a decimal digit.",
+            "Uint64",
+            String(p, 1), stringNum);
+        throw CQLRuntimeException(mload);    
+    }
+    
     // return the value for the decimal string
-    if(isError)
-    {
-       MessageLoaderParms mload(
-           CQLUtilities::KEY,
-           CQLUtilities::MSG,
-           "Uint64",
-           stringNum);
-       throw CQLRuntimeException(mload);
-    }
-    else
-    {
-      PEG_METHOD_EXIT();
-      return x;
-    }
+    PEG_METHOD_EXIT();
+    return x;
 }
 
 Sint64 CQLUtilities::stringToSint64(const String &stringNum)
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLUtilities::stringToSint64()");
+    
     Sint64 x = 0;
-    CString cstrNum = stringNum.getCString();
-    const char *p = (const char*)cstrNum;
-    const char* pstart = p;
-    Boolean isError = false;
-    Uint32 endStr = 0;
-
-    if (*p)
+    Boolean invert = false;
+    const Char16* p = stringNum.getChar16Data();
+    const Char16* pStart = p;
+    
+    if (String::equal(stringNum, String::EMPTY))
     {
-        endStr = stringNum.size() - 1;
+        MessageLoaderParms mload("CQL.CQLUtilities.EMPTY_STRING",
+            "Error converting string to $0.  String cannot be $1.",
+            "Sint64", "empty");
+        throw CQLRuntimeException(mload);    
+    }
+  
+    if (!p)
+    {
+        MessageLoaderParms mload("CQL.CQLUtilities.EMPTY_STRING",
+            "Error converting string to $0.  String cannot be $1.",
+            "Sint64", "NULL");
+        throw CQLRuntimeException(mload);    
     }
 
-    // If the string is a real number, use stringToReal, then convert to
+    // If the string is a real number, use stringToReal, then convert to 
     // a Sint64
     if (isReal(stringNum))
     {
-        // Note:  the cast will rip off any non-whole number precision.
+        // Note:  the cast will rip off any non-whole number precision.   
         // CQL spec is silent on whether to round up, round down, throw
-        // an error, or allow the platform to round as it sees fit.
+        // an error, or allow the platform to round as it sees fit.  
         // We chose the latter for now.
         return (Sint64) stringToReal64(stringNum);
     }
-
+  
     // skip over the sign if there is one
-    if ((*p == '-')||(*p == '+'))
+    if (*p == '-')
     {
+        invert = true;
         p++;
     }
-
-    if (!(*p >= '0') && (*p <= '9'))
+    if (*p == '+')
+        p++;
+    
+    if (!((*p >= '0') && (*p <= '9')))
     {
-        isError = true;
+         MessageLoaderParms mload("CQL.CQLUtilities.INVALID_NUM_FORMAT",
+            "Error converting string to $0.  String '$1' is badly"
+                " formed.",
+            "Uint64",
+            stringNum);
+        throw CQLRuntimeException(mload);    
     }
 
     // ********************
     // Build the Sint64 as a negative number, regardless of the
     // eventual sign (negative numbers can be bigger than positive ones)
     // ********************
-
-    // if hexadecimal
-    else if ( (*p == '0') && (p[1] == 'x' || p[1] == 'X'))
+  
+    // if hexidecimal
+    if ( (*p == '0') && ((p[1] == 'x') || (p[1] == 'X')) )
     {
         // Convert a hexadecimal string
-        if (!StringConversion::stringToSint64(
-            (const char *)(stringNum.getCString()),
-            StringConversion::hexStringToUint64,
-            x))
+        
+        // Skip over the "0x"
+        p+=2;
+        
+        // At least one hexidecimal digit is required
+        if (!*p)
         {
-           isError = true;
+        MessageLoaderParms mload("CQL.CQLUtilities.INVALID_HEX_FORMAT",
+            "Error converting string to $0.  String '$1' needs a"
+                " hexadecimal digit character following '0x'.",
+            "Sint64",
+            stringNum);
+        throw CQLRuntimeException(mload);    
         }
 
-        // return value from the hex string
+        // Add on each digit, checking for overflow errors
+        while (isascii(*p) && isxdigit(*p))
+        {
+            // Make sure we won't overflow when we multiply by 16
+            if (x < PEGASUS_SINT64_MIN/16)
+            {
+                MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                    "Error converting string to $0.  String '$1' caused"
+                        " an overflow.",
+                    "Sint64",
+                    stringNum);
+                throw CQLRuntimeException(mload);    
+            }
 
-    }  // end if hexidecimal
+            x = x << 4;
+
+            // We can't overflow when we add the next digit
+            Sint64 newDigit = Sint64(_CQLUtilities_hexCharToNumeric(*p++));
+            if (PEGASUS_SINT64_MIN - x > -newDigit)
+            {
+                MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                   "Error converting string to $0.  String '$1' caused"
+                       " an overflow.",
+                   "Sint64",
+                   stringNum);
+                throw CQLRuntimeException(mload);    
+            }
+
+            x = x - newDigit;
+        }
+
+        // If we found a non-hexidecimal digit, report an error
+        if (*p)
+        {
+            MessageLoaderParms mload("CQL.CQLUtilities.INVALID_HEX_CHAR",
+                "Error converting string to $0.  Character '$1' in "
+                     "string '$2' is not a hexidecimal digit.",
+                "Sint64",
+                String(p, 1), stringNum);
+            throw CQLRuntimeException(mload);    
+        }
+        
+        // Return the integer to positive, if necessary, checking for an
+        // overflow error
+        if (!invert)
+        {
+            if (x == PEGASUS_SINT64_MIN)
+            {
+                MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                    "Error converting string to $0.  String '$1' caused"
+                           " an overflow.",
+                    "Sint64",
+                    stringNum);
+                throw CQLRuntimeException(mload);    
+            }
+            x = -x;
+        }
+    
+        // return value from the hex string
+        PEG_METHOD_EXIT();
+        return x;
+    }  // end if hexidecimal     
 
     // if binary
-
-    else if ( (pstart[endStr] == 'b') || (pstart[endStr] == 'B') )
+    Uint32 endString = stringNum.size() - 1;
+    if ( (pStart[endString] == 'b') || (pStart[endString] == 'B') )
     {
     // Add on each digit, checking for overflow errors
-      if (!StringConversion::stringToSint64(
-          (const char *)(stringNum.getCString()),
-          StringConversion::binaryStringToUint64,
-          x))
-       {
-          isError = true;
-       }
+    while ((*p == '0') || (*p == '1'))
+    {
+        // Make sure we won't overflow when we multiply by 2
+        if (x < PEGASUS_SINT64_MIN/2)
+        {
+            MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                "Error converting string to $0.  String '$1' caused"
+                       " an overflow.",
+                "Sint64",
+                stringNum);
+            throw CQLRuntimeException(mload);    
+        }
 
+        x = x << 1;
+
+        // We can't overflow when we add the next digit
+        Sint64 newDigit = 0;
+        if (*p++ == '1')
+            newDigit = 1;
+        if (PEGASUS_SINT64_MIN - x > -newDigit)
+        {
+            MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                "Error converting string to $0.  String '$1' caused an"
+                       " overflow.",
+                "Sint64",
+                stringNum);
+            throw CQLRuntimeException(mload);    
+        }
+        
+        x = x - newDigit;
+    }
+
+    // If we found a non-binary digit before the terminating 'b', then
+    // report an error
+    if (*p && (p-pStart < (Sint32)endString || (*p != 'b' && *p != 'B')))
+    {
+        MessageLoaderParms mload("CQL.CQLUtilities.INVALID_BIN_CHAR",
+            "Error converting string to $0.  Character '$1' in"
+                 " string '$2' is not a binary digit.",
+            "Sint64",
+            String(p, 1), stringNum);
+        throw CQLRuntimeException(mload);    
+    }
+
+    // Return the integer to positive, if necessary, checking for an
+    // overflow error
+    if (!invert)
+    {
+        if (x == PEGASUS_SINT64_MIN)
+        {
+            MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                "Error converting string to $0.  String '$1' caused"
+                     " an overflow.",
+                "Sint64",
+                stringNum);
+            throw CQLRuntimeException(mload);    
+        }
+        x = -x;
+    }
+    
     // return value from the binary string
-
+    PEG_METHOD_EXIT();
+    return x;      
     }  // end if binary
 
     // Expect a positive decimal digit:
-
-
-    else if (!StringConversion::stringToSint64(
-         (const char *)(stringNum.getCString()),
-         StringConversion::decimalStringToUint64,
-         x))
+    
+    // Add on each digit, checking for overflow errors
+    while ((*p >= '0') && (*p <= '9'))
     {
-       isError = true;
-    }
-    if(isError)
-    {
-      MessageLoaderParms mload(
-          CQLUtilities::KEY,
-          CQLUtilities::MSG,
-          "Sint64",
-          stringNum);
-      throw CQLRuntimeException(mload);
+        // Make sure we won't overflow when we multiply by 10
+        if (x < PEGASUS_SINT64_MIN/10)
+        {
+            MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                "Error converting string to $0.  String '$1' caused an"
+                       " overflow.",
+                "Sint64",
+                stringNum);
+            throw CQLRuntimeException(mload);    
+        }
+        x = 10 * x;
 
-    }
-    else
-    {
-      PEG_METHOD_EXIT();
-      return x;
+        // Make sure we won't overflow when we add the next digit
+        Sint64 newDigit = (*p++ - '0');
+        if (PEGASUS_SINT64_MIN - x > -newDigit)
+        {
+            MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                "Error converting string to $0.  String '$1' caused an"
+                       " overflow.",
+                "Sint64",
+                stringNum);
+            throw CQLRuntimeException(mload);    
+        }
+        
+        x = x - newDigit;
     }
 
+    // If we found a non-decimal digit, report an error
+    if (*p)
+    {
+        MessageLoaderParms mload("CQL.CQLUtilities.INVALID_DECIMAL_CHAR",
+            "Error converting string to $0.  Character '$1' in string"
+                   " '$2' is not a decimal digit.",
+            "Sint64",
+            String(p, 1), stringNum);
+        throw CQLRuntimeException(mload);    
+    }
+
+    // Return the integer to positive, if necessary, checking for an
+    // overflow error
+    if (!invert)
+    {
+        if (x == PEGASUS_SINT64_MIN)
+        {
+            MessageLoaderParms mload("CQL.CQLUtilities.OVERFLOW",
+                "Error converting string to $0.  String '$1' caused an"
+                       " overflow.",
+                "Sint64",
+                stringNum);
+            throw CQLRuntimeException(mload);    
+        }
+        x = -x;
+    }
+
+    // return the value for the decimal string
+    PEG_METHOD_EXIT();
+    return x;  
 }
 
 Real64 CQLUtilities::stringToReal64(const String &stringNum)
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLUtilities::stringToReal64()");
-
+    
     Real64 x = 0;
-    CString cstrNum = stringNum.getCString();
-    const char *p = (const char*)cstrNum;
+    const Char16* p = stringNum.getChar16Data();
     Boolean neg = false;
-
+    const Char16* pStart = p;
+    
+    if (String::equal(stringNum, String::EMPTY))
+    {
+        MessageLoaderParms mload("CQL.CQLUtilities.EMPTY_STRING",
+            "Error converting string to $0.  String cannot be $1.",
+            "Real64", "empty");
+        throw CQLRuntimeException(mload);    
+    }
+  
+    if (!p)
+    {
+        MessageLoaderParms mload("CQL.CQLUtilities.EMPTY_STRING",
+            "Error converting string to $0.  String cannot be $1.",
+            "Real64", "NULL");
+        throw CQLRuntimeException(mload);    
+    }
+  
+    // Skip optional sign:
+    
+    if (*p == '+')
+        p++;
+    
     if (*p  == '-')
     {
         neg = true;
-    }
-    if(!isReal(stringNum))
+        p++;
+    };
+  
+    // Check if it it is a binary or hex integer
+    Uint32 endString = stringNum.size() - 1;
+    if ((*p == '0' && (p[1] == 'x' || p[1] == 'X')) ||  // hex OR
+        pStart[endString] == 'b' || pStart[endString] == 'B')  // binary
     {
-      // Check if it it is a binary or hex integer
         if (neg)
             x = stringToSint64(stringNum);
         else
 
 // Check if the complier is MSVC 6, which does not support the conversion
-//  operator from Uint64 to Real64
+//  operator from Uint64 to Real64      
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC) && (_MSC_VER < 1300)
-       {
-         Uint64 num = stringToUint64(stringNum);
-         Sint64 half = num / 2;
-         x = half;
-         x += half;
-         if (num % 2)  // if odd, then add the lost remainder
-             x += 1;
-       }
+    {
+        Uint64 num = stringToUint64(stringNum);
+        Sint64 half = num / 2;
+        x = half;
+        x += half;
+        if (num % 2)  // if odd, then add the lost remainder
+            x += 1;
+    }
 #else
         x = stringToUint64(stringNum);
-#endif
+#endif    
         PEG_METHOD_EXIT();
         return x;
-    }
+    }  
+  
+    // Skip optional first set of digits:
+    
+    while ((*p >= '0') && (*p <= '9'))
+        p++;
 
+    // Test if optional dot is there
+    if (*p++ == '.')
+    {
+        // One or more digits required:
+        if (!((*p >= '0') && (*p <= '9')))
+        {
+            MessageLoaderParms mload("CQL.CQLUtilities.INVALID_CHAR_POST_DOT",
+                "Error converting string to Real64.  String '$0' must "
+                    "have a digit character following the decimal point.",
+                stringNum);
+            throw CQLRuntimeException(mload);    
+        }
+        p++;
+        
+        while ((*p >= '0') && (*p <= '9'))
+            p++;
+        
+        // If there is an exponent now:
+        if (*p)
+        {
+            // Test exponent:
+            
+            if (*p != 'e' && *p != 'E')
+            {
+                MessageLoaderParms mload("CQL.CQLUtilities.INVALID_REAL_CHAR",
+                    "Error converting string to $0.  Character '$1' in "
+                        "string '$2' is invalid.",
+                    "Real64",
+                    String(p, 1), stringNum);
+                throw CQLRuntimeException(mload);    
+            }
+            p++;
+        
+            // Skip optional sign:
+            
+            if (*p == '+' || *p  == '-')
+                p++;
+        
+            // One or more digits required:
+            if (!((*p >= '0') && (*p <= '9')))
+            {
+                MessageLoaderParms mload("CQL.CQLUtilities.INVALID_REAL_EXP",
+                    "Error converting string to Real64.  String '$0'"
+                        " has an exponent that is not well formed.  Character"
+                        " '$1' is invalid.",
+                    stringNum, String(p, 1));
+                throw CQLRuntimeException(mload);    
+            }
+            p++;
+            
+            while ((*p >= '0') && (*p <= '9'))
+                p++;
+        }
+    } // end-if optional decimal point
+    if (p - pStart < (Sint32) stringNum.size())
+    {
+        //  printf("This is char # %d\n", p - pStart);
+        MessageLoaderParms mload("CQL.CQLUtilities.INVALID_DECIMAL_CHAR",
+            "Error converting string to $0.  Character '$1' in string"
+                   " '$2' is not a decimal digit.",
+            "Real64",
+            String(p-1, 1), stringNum);
+        throw CQLRuntimeException(mload);    
+    }
     //
     // Do the conversion
     //
-    if (!StringConversion::stringToReal64(
-        (const char *)(stringNum.getCString()),
-        x))
+    char* end;
+    errno = 0;
+    CString temp = stringNum.getCString();
+    x = strtod((const char *) temp, &end);
+    if (*end || (errno == ERANGE))
     {
-      MessageLoaderParms mload(
-          CQLUtilities::KEY,
-          CQLUtilities::MSG,
-          "Real64",
-          stringNum);
-      throw CQLRuntimeException(mload);
+        MessageLoaderParms mload("CQL.CQLUtilities.CONVERSION_REAL_ERROR",
+            "String '$0' was unable to be converted to a Real64."
+                   "  It could be out of range.",
+            stringNum);
+        throw CQLRuntimeException(mload);    
     }
     PEG_METHOD_EXIT();
     //  printf("String %s = %.16e\n", (const char *)stringNum.getCString(), x);
@@ -295,31 +728,31 @@ String CQLUtilities::formatRealStringExponent(const String &realString)
     String newString(realString);
     Uint32 expIndex = PEG_NOT_FOUND;
     Uint32 index = newString.size() - 1;
-
+    
     expIndex = newString.find('E');
     if (expIndex == PEG_NOT_FOUND)
         expIndex = newString.find('e');
-
+    
     if (expIndex == PEG_NOT_FOUND)
         return newString;  // no exponent symbol, so just return
-
+    
     // format the exponent
     index = expIndex + 1;  // start index at next character
     if (newString[index] == '+')
         newString.remove(index, 1);  // remove the '+' symbol
-
+    
     if (newString[index] == '-')
         index++;   // skip the '-' exponent sign
-
-    while (index < newString.size() && newString[index] == '0')
+    
+    while (newString[index] == '0' && index < newString.size())
     {
         newString.remove(index, 1);
     }
-
+    
     // If only an 'e' is left (only 0's behind it) then strip the 'e'
     if (index >= newString.size())
         newString.remove(expIndex, 1);
-
+    
     return newString;
 }
 

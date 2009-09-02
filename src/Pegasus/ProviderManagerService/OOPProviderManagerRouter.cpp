@@ -361,8 +361,16 @@ ProviderAgentContainer::~ProviderAgentContainer()
     {
         if (isInitialized())
         {
-            // Stop the responseProcessor thread by closing its connection
-            _pipeFromAgent->closeReadHandle();
+            {
+                AutoMutex lock(_agentMutex);
+                // Check if the _pipeFromAgent is alive.
+                if( _pipeFromAgent.get() != 0 ) 
+                {
+                    // Stop the responseProcessor thread by closing its 
+                    // connection.
+                    _pipeFromAgent->closeReadHandle();
+                }
+            }
 
             // Wait for the responseProcessor thread to exit
             while (isInitialized())
@@ -1145,7 +1153,6 @@ void ProviderAgentContainer::_processResponses()
                 "Ignoring exception");
         }
     }
-
 }
 
 ThreadReturnType PEGASUS_THREAD_CDECL

@@ -71,7 +71,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-static StrLit _qualifierNameStrLit[] =
+const StrLit SCMOClass::_qualifierNameStrLit[72] =
 {
     STRLIT(""),
     STRLIT("ABSTRACT"),
@@ -884,12 +884,12 @@ QualifierNameEnum SCMOClass::_getSCMOQualifierNameEnum(
     // list.
     for (Uint32 i = 1; i < _NUM_QUALIFIER_NAMES; i++)
     {
-        if (_qualifierNameStrLit[i].size == length)
+        if (qualifierNameStrLit(i).size == length)
         {
             // TBD: Make it more efficent...
             if(String::equalNoCase(
                 theCIMName.getString(),
-                _qualifierNameStrLit[i].str))
+                qualifierNameStrLit(i).str))
             {
                 return (QualifierNameEnum)i;
             }
@@ -1084,8 +1084,8 @@ SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
             else
             {
                 qualiName = String(
-                    _qualifierNameStrLit[qualiArray[i].name].str,
-                    _qualifierNameStrLit[qualiArray[i].name].size);
+                    SCMOClass::qualifierNameStrLit(qualiArray[i].name).str,
+                    SCMOClass::qualifierNameStrLit(qualiArray[i].name).size);
             }
 
             cimInstance._rep->_qualifiers.addUnchecked(
@@ -1224,8 +1224,8 @@ CIMProperty SCMOInstance::_getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const
             else
             {
                 qualiName = String(
-                    _qualifierNameStrLit[qualiArray[i].name].str,
-                    _qualifierNameStrLit[qualiArray[i].name].size);
+                    SCMOClass::qualifierNameStrLit(qualiArray[i].name).str,
+                    SCMOClass::qualifierNameStrLit(qualiArray[i].name).size);
             }
 
             retProperty._rep->_qualifiers.addUnchecked(
@@ -1548,7 +1548,7 @@ void SCMOInstance::_setCIMObjectPath(const CIMObjectPath& cimObj)
     if (inst.hdr->numberKeyBindings < objRep->_keyBindings.size())
     {
         String message("CIMObjectPath has more keybindings "
-                       "than the associatied class key propertties.");
+                       "than the associated class key properties.");
         throw CIMException(CIM_ERR_FAILED, message);
     }
 
@@ -1840,9 +1840,6 @@ void SCMOInstance::_setKeyBindingFromSCMBUnion(
         throw TypeMismatchException();
         break;
     }
-
-
-
 }
 
 void SCMOInstance::setHostName(const char* hostName)
@@ -1872,6 +1869,17 @@ const char* SCMOInstance::getClassName() const
         inst.hdr->theClass->cls.hdr->className,
         inst.hdr->theClass->cls.base);
 }
+
+const char* SCMOInstance::getClassName_l(Uint64 & length) const
+{
+    SCMOClass * scmoCls = inst.hdr->theClass;
+    length = scmoCls->cls.hdr->className.length;
+    return _getCharString(
+        scmoCls->cls.hdr->className,
+        scmoCls->cls.base);
+
+}
+
 
 const char* SCMOInstance::getNameSpace() const
 {
@@ -2026,6 +2034,68 @@ SCMO_RC SCMOInstance::getPropertyAt(
 
     return  _getPropertyAtNodeIndex(node,pname,type,pvalue,isArray,size);
 }
+
+SCMO_RC SCMOInstance::getPropertyAt(
+    Uint32 pos,
+    SCMBValue** value,
+    const char ** valueBase,
+    SCMBClassProperty ** propDef) const
+{
+    Uint32 node;
+    // is filtering on ?
+    if (inst.hdr->flags.isFiltered)
+    {
+        // check the number of properties part of the filter
+        if (pos >= inst.hdr->filterProperties)
+        {
+            return SCMO_INDEX_OUT_OF_BOUND;
+        }
+
+        // Get absolut pointer to property filter index map of the instance
+        Uint32* propertyFilterIndexMap =
+        (Uint32*)&(inst.base[inst.hdr->propertyFilterIndexMap.start]);
+
+        // get the real node index of the property.
+        node = propertyFilterIndexMap[pos];
+    }
+    else
+    {
+        // the index is used as node index.
+        node = pos;
+        if (node >= inst.hdr->numberProperties)
+        {
+            return SCMO_INDEX_OUT_OF_BOUND;
+        }
+    }
+
+    SCMBValue* theInstPropNodeArray =
+        (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
+
+    // create a pointer to property node array of the class.
+    Uint64 idx = inst.hdr->theClass->cls.hdr->propertySet.nodeArray.start;
+    SCMBClassPropertyNode* theClassPropNodeArray =
+        (SCMBClassPropertyNode*)&(inst.hdr->theClass->cls.base)[idx];
+
+    // return the absolute pointer to the property definition
+    *propDef= &(theClassPropNodeArray[node].theProperty);
+
+    // need check if property set or not, if not set use the default value
+    if (theInstPropNodeArray[node].flags.isSet)
+    {
+        // return the absolute pointer to the property value in the instance
+        *value = &(theInstPropNodeArray[node]);
+        *valueBase = inst.base;
+    }
+    else
+    {
+        // return the absolute pointer to 
+        *value = &(theClassPropNodeArray[node].theProperty.defaultValue);
+        *valueBase = inst.hdr->theClass->cls.base;
+    }
+
+    return SCMO_OK;
+}
+
 
 SCMO_RC SCMOInstance::getPropertyNodeIndex(const char* name, Uint32& node) const
 {
@@ -2999,7 +3069,7 @@ void* SCMOInstance::_getSCMBUnion(
     return NULL;
 }
 
-Uint32 SCMOInstance::getKeyBindingCount()
+Uint32 SCMOInstance::getKeyBindingCount() const
 {
     return(inst.hdr->numberKeyBindings);
 }
@@ -3047,7 +3117,20 @@ SCMO_RC SCMOInstance::_getKeyBindingAtNodeIndex(
     CIMKeyBinding::Type& type,
     const char** pvalue) const
 {
+    Uint32 pnameLen=0;
+    Uint32 pvalueLen=0;
+    return 
+        _getKeyBindingAtNodeIndex_l(node,pname,pnameLen,type,pvalue,pvalueLen);
+}
 
+SCMO_RC SCMOInstance::_getKeyBindingAtNodeIndex_l(
+    Uint32 node,
+    const char** pname,
+    Uint32 & pnameLen,
+    CIMKeyBinding::Type& type,
+    const char** pvalue,
+    Uint32 & pvalueLen) const
+{
     SCMBInstanceKeyBinding* theInstKeyBindNodeArray =
         (SCMBInstanceKeyBinding*)&inst.base[inst.hdr->keyBindingArray.start];
 
@@ -3058,9 +3141,12 @@ SCMO_RC SCMOInstance::_getKeyBindingAtNodeIndex(
 
     type = theClassKeyBindNodeArray[node].type;
 
+    /* First resolve pointer to the property name */
+
+    pnameLen = theClassKeyBindNodeArray[node].name.length;
     *pname = _getCharString(
         theClassKeyBindNodeArray[node].name,
-        inst.hdr->theClass->cls.base);
+        inst.hdr->theClass->cls.base);    
 
     // There is no value set in the instance
     if (!theInstKeyBindNodeArray[node].isSet)
@@ -3069,11 +3155,11 @@ SCMO_RC SCMOInstance::_getKeyBindingAtNodeIndex(
         return SCMO_NULL_VALUE;
     }
 
+    pvalueLen = theInstKeyBindNodeArray[node].value.length;    
     // Set the absolut pointer to the key binding value
     *pvalue = _getCharString(theInstKeyBindNodeArray[node].value,inst.base);
 
     return SCMO_OK;
-
 }
 
 SCMO_RC SCMOInstance::setKeyBinding(
@@ -3969,7 +4055,7 @@ void SCMODump::_dumpQualifier(
      else
      {
          fprintf(_out,"\n\nQualifier DMTF defined name: \'%s\'",
-                _qualifierNameStrLit[theQualifier.name].str);
+                SCMOClass::qualifierNameStrLit(theQualifier.name).str);
      }
 
      fprintf(_out,"\nPropagated : %s",
@@ -4401,40 +4487,6 @@ String SCMODump::printUnionValue(
  * The constant functions
  *****************************************************************************/
 
-static const void* _resolveDataPtr(
-    const SCMBDataPtr& ptr,
-    char* base)
-{
-    return ((ptr.start==(Uint64)0 ? NULL : (void*)&(base[ptr.start])));
-}
-
-PEGASUS_COMMON_LINKAGE const char* _getCharString(
-    const SCMBDataPtr& ptr,
-    char* base)
-{
-    return ((ptr.start==(Uint64)0 ? NULL : &(base[ptr.start])));
-}
-
-
-static Uint32 _generateSCMOStringTag(
-    const SCMBDataPtr& ptr,
-    char* base)
-{
-    // The lenght of a SCMBDataPtr to a UTF8 string includs the trailing '\0'.
-    return _generateStringTag(_getCharString(ptr,base),ptr.length-1);
-}
-
-static Uint32 _generateStringTag(const char* str, Uint32 len)
-{
-    if (len == 0)
-    {
-        return 0;
-    }
-    return
-        (Uint32(CharSet::toUpperHash(str[0]) << 1) |
-        Uint32(CharSet::toUpperHash(str[len-1])));
-}
-
 static CIMKeyBinding::Type _cimTypeToKeyBindType(CIMType cimType)
 {
     switch (cimType)
@@ -4461,6 +4513,7 @@ static CIMKeyBinding::Type _cimTypeToKeyBindType(CIMType cimType)
     }
 }
 
+/* OLD THILO VERSION
 static Boolean _equalUTF8Strings(
     const SCMBDataPtr& ptr_a,
     char* base,
@@ -4486,6 +4539,59 @@ static Boolean _equalUTF8Strings(
     return ( strncmp(a,name,len )== 0 );
 
 }
+*/
+
+static Boolean _equalUTF8Strings(
+    const SCMBDataPtr& ptr_a,
+    char* base,
+    const char* name,
+    Uint32 len)
+
+{
+    // size without trailing '\0' !!
+    if (ptr_a.length-1 != len)
+    {
+        return false;
+    }
+    const char* a = (const char*)_getCharString(ptr_a,base);
+
+    // lets do a loop-unrolling optimized compare here
+    while (len >= 8)
+    {
+        if ((a[0] - name[0]) || (a[1] - name[1]) ||
+            (a[2] - name[2]) || (a[3] - name[3]) ||
+            (a[4] - name[4]) || (a[5] - name[5]) ||
+            (a[6] - name[6]) || (a[7] - name[7]))
+        {
+            return false;
+        }
+        len -= 8;
+        a += 8;
+        name += 8;
+    }
+    while (len >= 4)
+    {
+        if ((a[0] - name[0]) || (a[1] - name[1]) ||
+            (a[2] - name[2]) || (a[3] - name[3]))
+        {
+            return false;
+        }
+        len -= 4;
+        a += 4;
+        name += 4;
+    }
+    while (len--)
+    {
+        if (a[0] - name[0])
+        {
+            return false;
+        }
+        a++;
+        name++;
+    }
+    return true;
+}
+
 
 static Boolean _equalNoCaseUTF8Strings(
     const SCMBDataPtr& ptr_a,
@@ -4562,12 +4668,12 @@ static Uint64 _getFreeSpace(
             throw PEGASUS_STD(bad_alloc)();
         }
         // increase the total size and free space
-        (*pmem)->freeBytes= (*pmem)->freeBytes + oldSize;
-        (*pmem)->totalSize= (*pmem)->totalSize + oldSize;
+        (*pmem)->freeBytes+=oldSize;
+        (*pmem)->totalSize+=oldSize;
     }
 
-    (*pmem)->freeBytes = (*pmem)->freeBytes - size;
-    (*pmem)->startOfFreeSpace = (*pmem)->startOfFreeSpace + size;
+    (*pmem)->freeBytes -= size;
+    (*pmem)->startOfFreeSpace += size;
 
     if (clear)
     {

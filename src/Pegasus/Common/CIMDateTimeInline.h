@@ -29,9 +29,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CIMDateTimeInline_h
-#define Pegasus_CIMDateTimeInline_h
-
 #include <cstring>
 #include <cassert>
 #include "CIMDateTime.h"
@@ -90,181 +87,18 @@ static inline void _fromJulianDay(
     year  = b*100 + d - 4800 + m/10;
 }
 
-static char _intToNumStrTable[][2] =
-{
-    { '0', '0', },
-    { '0', '1', },
-    { '0', '2', },
-    { '0', '3', },
-    { '0', '4', },
-    { '0', '5', },
-    { '0', '6', },
-    { '0', '7', },
-    { '0', '8', },
-    { '0', '9', },
-    { '1', '0', },
-    { '1', '1', },
-    { '1', '2', },
-    { '1', '3', },
-    { '1', '4', },
-    { '1', '5', },
-    { '1', '6', },
-    { '1', '7', },
-    { '1', '8', },
-    { '1', '9', },
-    { '2', '0', },
-    { '2', '1', },
-    { '2', '2', },
-    { '2', '3', },
-    { '2', '4', },
-    { '2', '5', },
-    { '2', '6', },
-    { '2', '7', },
-    { '2', '8', },
-    { '2', '9', },
-    { '3', '0', },
-    { '3', '1', },
-    { '3', '2', },
-    { '3', '3', },
-    { '3', '4', },
-    { '3', '5', },
-    { '3', '6', },
-    { '3', '7', },
-    { '3', '8', },
-    { '3', '9', },
-    { '4', '0', },
-    { '4', '1', },
-    { '4', '2', },
-    { '4', '3', },
-    { '4', '4', },
-    { '4', '5', },
-    { '4', '6', },
-    { '4', '7', },
-    { '4', '8', },
-    { '4', '9', },
-    { '5', '0', },
-    { '5', '1', },
-    { '5', '2', },
-    { '5', '3', },
-    { '5', '4', },
-    { '5', '5', },
-    { '5', '6', },
-    { '5', '7', },
-    { '5', '8', },
-    { '5', '9', },
-};
-
-
-// generated string format: "%04u%02u%02u%02u%02u%02u.%06u%c%03u"
-// Function is eight times faster than using sprintf()
-static inline void _fullYearFormat(
-    char buffer[26],
-    Uint32 year,
-    Uint32 month,
-    Uint32 day,
-    Uint32 hours,
-    Uint32 minutes,
-    Uint32 seconds,
-    Uint32 microseconds,
-    char sign,
-    Uint32 utcOffset)
-{
-    // 48 = ASCII '0'
-    buffer[0] = year/1000 + 48;
-    buffer[1] = (year%1000)/100 + 48;
-    buffer[2] = (year%100)/10 + 48;
-    buffer[3] = (year%10) + 48;
-
-    buffer[4] = _intToNumStrTable[month][0];
-    buffer[5] = _intToNumStrTable[month][1];
-
-    buffer[6] = _intToNumStrTable[day][0];
-    buffer[7] = _intToNumStrTable[day][1];
-
-    buffer[8] = _intToNumStrTable[hours][0];
-    buffer[9] = _intToNumStrTable[hours][1];
-
-    buffer[10] = _intToNumStrTable[minutes][0];
-    buffer[11] = _intToNumStrTable[minutes][1];
-
-    buffer[12] = _intToNumStrTable[seconds][0];
-    buffer[13] = _intToNumStrTable[seconds][1];
-
-    buffer[14] = '.';
-
-    buffer[15] = (microseconds/100000) + 48;
-    buffer[16] = (microseconds%100000)/10000 + 48;
-    buffer[17] = (microseconds%10000)/1000 + 48;
-    buffer[18] = (microseconds%1000)/100 + 48;
-    buffer[19] = (microseconds%100)/10 + 48;
-    buffer[20] = (microseconds%10) + 48;
-
-    buffer[21] = sign;
-
-    buffer[22] = (utcOffset/100) + 48;
-    buffer[23] = (utcOffset%100)/10 + 48;
-    buffer[24] = (utcOffset%10) + 48;
-
-    buffer[25] = '\0';
-}
-
-// generated string format: ""%08u%02u%02u%02u.%06u:000"
-// Function is eight times faster than using sprintf()
-static inline void _fullDayFormat(
-    char buffer[26],
-    Uint32 day,
-    Uint32 hours,
-    Uint32 minutes,
-    Uint32 seconds,
-    Uint32 microseconds)
-{
-    // 48 = ASCII '0'
-    buffer[0] = (day/10000000) + 48;
-    buffer[1] = (day%10000000)/1000000 + 48;
-    buffer[2] = (day%1000000)/100000 + 48;
-    buffer[3] = (day%100000)/10000 + 48;
-    buffer[4] = (day%10000)/1000 + 48;
-    buffer[5] = (day%1000)/100 + 48;
-    buffer[6] = (day%100)/10 + 48;
-    buffer[7] = (day%10) + 48;
-
-    buffer[8] = _intToNumStrTable[hours][0];
-    buffer[9] = _intToNumStrTable[hours][1];
-
-    buffer[10] = _intToNumStrTable[minutes][0];
-    buffer[11] = _intToNumStrTable[minutes][1];
-
-    buffer[12] = _intToNumStrTable[seconds][0];
-    buffer[13] = _intToNumStrTable[seconds][1];
-
-    buffer[14] = '.';
-
-    buffer[15] = (microseconds/100000) + 48;
-    buffer[16] = (microseconds%100000)/10000 + 48;
-    buffer[17] = (microseconds%10000)/1000 + 48;
-    buffer[18] = (microseconds%1000)/100 + 48;
-    buffer[19] = (microseconds%100)/10 + 48;
-    buffer[20] = (microseconds%10) + 48;
-
-    buffer[21] = ':';
-    buffer[22] = '0';
-    buffer[23] = '0';
-    buffer[24] = '0';
-    buffer[25] = '\0';
-}
-
 /** Converts a CIMDateTimeRep representation to its canonical string
     representation as defined in the "CIM infrastructure Specification".
     Note that this implementation preserves any wildcard characters used
     to initially create the CIMDateTime object.
 */
-static inline void _DateTimetoCStr(const CIMDateTimeRep& rep, char buffer[26])
+static inline void _DateTimetoCStr(const CIMDateTimeRep* rep, char buffer[26])
 {
-    if (rep.sign == ':')
+    if (rep->sign == ':')
     {
         // Extract components:
 
-        Uint64 usec = rep.usec;
+        Uint64 usec = rep->usec;
         Uint32 microseconds = Uint32(usec % SECOND);
         Uint32 seconds = Uint32((usec / SECOND) % 60);
         Uint32 minutes = Uint32((usec / MINUTE) % 60);
@@ -272,18 +106,21 @@ static inline void _DateTimetoCStr(const CIMDateTimeRep& rep, char buffer[26])
         Uint32 days = Uint32((usec / DAY));
 
         // Format the string.
-        _fullDayFormat(
+
+        sprintf(
             buffer,
-            days,
-            hours,
-            minutes,
-            seconds,
-            microseconds);
+            "%08u%02u%02u%02u.%06u:000",
+            Uint32(days),
+            Uint32(hours),
+            Uint32(minutes),
+            Uint32(seconds),
+            Uint32(microseconds));
     }
     else
     {
         // Extract components:
-        Uint64 usec = rep.usec;
+
+        Uint64 usec = rep->usec;
         Uint32 microseconds = Uint32(usec % SECOND);
         Uint32 seconds = Uint32((usec / SECOND) % 60);
         Uint32 minutes = Uint32((usec / MINUTE) % 60);
@@ -299,26 +136,27 @@ static inline void _DateTimetoCStr(const CIMDateTimeRep& rep, char buffer[26])
         _fromJulianDay(jd, year, month, day);
 
         // Format the string.
-        _fullYearFormat(
+
+        sprintf(
             buffer,
-            year,
-            month,
-            day,
-            hours,
-            minutes,
-            seconds,
-            microseconds,
-            char(rep.sign),
-            rep.utcOffset);
+            "%04u%02u%02u%02u%02u%02u.%06u%c%03u",
+            Uint32(year),
+            Uint32(month),
+            Uint32(day),
+            Uint32(hours),
+            Uint32(minutes),
+            Uint32(seconds),
+            Uint32(microseconds),
+            rep->sign,
+            rep->utcOffset);
     }
 
     // Fill buffer with '*' chars (if any).
-    if (rep.numWildcards > 0)
     {
         char* first = buffer + 20;
-        char* last = buffer + 20 - rep.numWildcards;
+        char* last = buffer + 20 - rep->numWildcards;
 
-        if (rep.numWildcards > 6)
+        if (rep->numWildcards > 6)
             last--;
 
         for (; first != last; first--)
@@ -330,5 +168,3 @@ static inline void _DateTimetoCStr(const CIMDateTimeRep& rep, char buffer[26])
 }
 
 PEGASUS_NAMESPACE_END
-
-#endif /* Pegasus_CIMDateTimeInline_h */

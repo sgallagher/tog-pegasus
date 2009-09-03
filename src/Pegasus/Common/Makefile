@@ -61,6 +61,8 @@ endif
 ##
 
 SOURCES1 = \
+    SCMO.cpp \
+    SCMOXmlWriter.cpp \
     Print.cpp \
     Executor.cpp \
     Once.cpp \
@@ -183,8 +185,7 @@ SOURCES2 = \
     HostAddress.cpp \
     HostLocator.cpp \
     BinaryCodec.cpp \
-    CIMBuffer.cpp \
-    SCMO.cpp
+    CIMBuffer.cpp
 
 ifeq ($(PEGASUS_PLATFORM),PASE_ISERIES_IBMCXX)
     SOURCES2 += PaseCcsid.cpp

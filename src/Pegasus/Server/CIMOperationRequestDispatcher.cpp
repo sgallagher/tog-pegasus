@@ -5266,15 +5266,10 @@ void CIMOperationRequestDispatcher::
         CIMEnumerateInstancesResponseMessage* fromResponse =
             (CIMEnumerateInstancesResponseMessage*)poA->getResponse(i);
 
-        Array<CIMInstance>& from = 
-            fromResponse->getResponseData().getNamedInstances();
-        Array<CIMInstance>& to = 
-            toResponse->getResponseData().getNamedInstances();
+        CIMInstancesResponseData & from = fromResponse->getResponseData();
+        CIMInstancesResponseData & to = toResponse->getResponseData();
 
-        for (Uint32 j = 0; j < from.size(); j++)
-        {
-            to.append(from[j]);
-        }
+        to.appendResponseData(from);
 
         poA->deleteResponse(i);
     }

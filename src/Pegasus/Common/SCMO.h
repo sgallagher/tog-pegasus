@@ -458,7 +458,40 @@ struct SCMBProperty_Main
 };
 
 // The static definition of the common SCMO memory functions
+inline const void* _resolveDataPtr(
+    const SCMBDataPtr& ptr,
+    char* base)
+{
+    return ((ptr.start==(Uint64)0 ? NULL : (void*)&(base[ptr.start])));
+}
 
+inline const char* _getCharString(
+    const SCMBDataPtr& ptr,
+    char* base)
+{
+    return ((ptr.start==(Uint64)0 ? NULL : &(base[ptr.start])));
+}
+
+inline Uint32 _generateStringTag(const char* str, Uint32 len)
+{
+    if (len == 0)
+    {
+        return 0;
+    }
+    return
+        (Uint32(CharSet::toUpperHash(str[0]) << 1) |
+        Uint32(CharSet::toUpperHash(str[len-1])));
+}
+
+inline Uint32 _generateSCMOStringTag(
+    const SCMBDataPtr& ptr,
+    char* base)
+{
+    // The lenght of a SCMBDataPtr to a UTF8 string includs the trailing '\0'.
+    return _generateStringTag(_getCharString(ptr,base),ptr.length-1);
+}
+
+// The static declaration of the common SCMO memory functions
 static Uint64 _getFreeSpace(
     SCMBDataPtr& ptr,
     Uint64 size,
@@ -475,21 +508,6 @@ static void _setBinary(
     Uint64 bufferSize,
     SCMBDataPtr& ptr,
     SCMBMgmt_Header** pmem);
-
-static const void* _resolveDataPtr(
-    const SCMBDataPtr& ptr,
-    char* base);
-
-static const char* _getCharString(
-    const SCMBDataPtr& ptr,
-    char* base);
-
-static Uint32 _generateStringTag(const char* str, Uint32 len);
-
-
-static Uint32 _generateSCMOStringTag(
-    const SCMBDataPtr& ptr,
-    char* base);
 
 static CIMKeyBinding::Type _cimTypeToKeyBindType(CIMType cimType);
 

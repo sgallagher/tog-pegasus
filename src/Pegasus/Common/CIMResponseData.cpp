@@ -31,6 +31,7 @@
 
 #include "CIMResponseData.h"
 #include "XmlWriter.h"
+#include "SCMOXmlWriter.h"
 #include "XmlReader.h"
 #include "Tracer.h"
 
@@ -452,6 +453,7 @@ void CIMInstanceResponseData::encodeXmlResponse(Buffer& out) const
     else
     {
         XmlWriter::appendInstanceElement(out, _cimInstance);
+        //SCMOXmlWriter::appendValueSCMOInstanceElement(out, _cimInstance);
     }
     PEG_METHOD_EXIT();
 }
@@ -681,8 +683,21 @@ void CIMInstancesResponseData::encodeXmlResponse(Buffer& out)
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMInstancesResponseData::encodeXmlResponse");
 
+    /*
+    fprintf(
+        stderr,
+        "CIMInstancesResponseData::encodeXmlResponse\n");
+    fflush(stderr);
+    */
+
     if (_resolveCallback && (_encoding == RESP_ENC_XML))
     {
+        /*
+        fprintf(
+            stderr,
+            "_resolveCallback && (_encoding == RESP_ENC_XML)\n");
+        fflush(stderr);
+        */
         const Array<ArraySint8>& a = _instancesData;
         const Array<ArraySint8>& b = _referencesData;
 
@@ -696,10 +711,26 @@ void CIMInstancesResponseData::encodeXmlResponse(Buffer& out)
     }
     else
     {
-        _resolve();
+        // DO NOT RESOLVE, use the SCMOXmlWriter to encode
+        // _resolve();
         for (Uint32 i = 0, n = _namedInstances.size(); i < n; i++)
+        {
             XmlWriter::appendValueNamedInstanceElement(
                 out, _namedInstances[i]);
+        }
+        for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
+        {
+            SCMOXmlWriter::appendValueSCMOInstanceElement(
+                out, _scmoInstances[i]);
+
+/*            
+            fprintf(
+                stderr,
+                "After appendValueNamedInstanceElement()\n%s",
+                out.getData());
+            fflush(stderr);
+*/
+        }
     }
     PEG_METHOD_EXIT();
 }

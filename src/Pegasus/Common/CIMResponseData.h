@@ -296,7 +296,7 @@ public:
 
     Array<CIMInstance>& getNamedInstances()
     {
-        _resolve();
+        //_resolve();
         return _namedInstances;
     }
 
@@ -305,7 +305,7 @@ public:
         // Resolve the instances before returning them.  The resolve step
         // requires non-const access, but does not fundamentally change the
         // message contents.
-        const_cast<CIMInstancesResponseData*>(this)->_resolve();
+        // const_cast<CIMInstancesResponseData*>(this)->_resolve();
 
         // The Array<CIMInstance> is masqueraded as an Array<CIMConstInstance>
         // for expedience, since the internal representations are the same.
@@ -342,6 +342,12 @@ public:
             "CIMResponseData::appendSCMOInstance(cb=%p)\n",
             _resolveCallback);
         _scmoInstances.append(x);
+    }
+
+    void appendResponseData(const CIMInstancesResponseData & x)
+    {
+        _namedInstances.appendArray(x._namedInstances);
+        _scmoInstances.appendArray(x._scmoInstances);
     }
 
     Array<Uint8>& getBinaryCimInstances()

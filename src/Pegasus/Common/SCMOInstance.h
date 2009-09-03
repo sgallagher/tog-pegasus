@@ -206,6 +206,42 @@ public:
         Uint32& size ) const;
 
     /**
+     * Gets the property name, type, and value addressed by a positional index.
+     * The property name and value has to be copied by the caller !
+     * @param pos The positional index of the property
+     * @param pname Returns the property name as '\0' terminated string.
+     *              Has to be copied by caller.
+     *              It is set to NULL if rc != SCMO_OK.
+     * @param value Returns an absolute pointer to the value of property.
+     *                  Sub-pointers are NOT resolved!
+     *               The value has to be copied by the caller !
+     *               It returns NULL if rc != SCMO_OK.
+     *               If the value is an array, the
+     *               value array is stored in continuous memory.
+     *               e.g. If the CIMType is CIMTYPE_UINT32:
+     *               value = (void*)Uint32[0 to size-1]
+     *               If it is an array of CIMTYPE_STRING, an array
+     *               of char* to the string values is returned.
+     *               This array has to be freed by the caller !
+     * @param valueBase Returns an absolute pointer to the base of value,
+     *                  because subsequent pointers in the value are NOT 
+     *                  resolved.
+     * @param propDef Returns an absolute pointer to the property definition
+     *                  Sub-pointers are NOT resolved!
+     *             It is invalid if rc == SCMO_INDEX_OUT_OF_BOUND.
+     *
+     * @return     SCMO_OK
+     *             SCMO_NULL_VALUE : The value is a null value.
+     *             SCMO_INDEX_OUT_OF_BOUND : Given index not found
+     *
+     */
+    SCMO_RC getPropertyAt(
+        Uint32 pos,
+        SCMBValue** value,
+        const char ** valueBase,
+        SCMBClassProperty ** propDef) const;
+
+    /**
      * Gets the type and value of the named property.
      * The value has to be copied by the caller !
      * @param name The property name
@@ -409,7 +445,7 @@ public:
      * Gets the key binding count.
      * @return the number of key bindings set.
      */
-    Uint32 getKeyBindingCount();
+    Uint32 getKeyBindingCount() const;
 
     /**
      * Get the indexed key binding.
@@ -475,10 +511,16 @@ public:
     void setHostName(const char* hostName);
 
     /**
-     * Get the class name of the instance. The cabler has to make a copy !
+     * Get the class name of the instance. The caller has to make a copy !
      * @return The class name as UTF8.
      */
     const char* getClassName() const;
+
+    /**
+     * Get the class name of the instance. The caller has to make a copy !
+     * @return The class name as UTF8. Return length of result string.
+     */
+    const char* getClassName_l(Uint64 & length) const;
 
     /**
      * Get the name space of the instance. The caller has to make a copy !
@@ -616,6 +658,14 @@ private:
         CIMKeyBinding::Type& ptype,
         const char** pvalue) const;
 
+    SCMO_RC _getKeyBindingAtNodeIndex_l(
+        Uint32 node,
+        const char** pname,
+        Uint32 & pnameLen,
+        CIMKeyBinding::Type& type,
+        const char** pvalue,
+        Uint32 & pvalueLen) const;
+
     void _copyKeyBindings(SCMOInstance& targetInst) const;
 
     Uint32 _initPropFilterWithKeys();
@@ -642,6 +692,7 @@ private:
 
     friend class SCMOClass;
     friend class SCMODump;
+    friend class SCMOXmlWriter;
 };
 
 

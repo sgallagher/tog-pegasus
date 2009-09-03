@@ -88,6 +88,11 @@ public:
      */
     Boolean isUninitialized( ) const {return (cls.base == NULL); };
 
+    static StrLit qualifierNameStrLit(Uint32 num)
+    {
+        return _qualifierNameStrLit[num];
+    }
+
 private:
 
     void Ref()
@@ -159,9 +164,11 @@ private:
         char *base;
     }cls;
 
+    static const StrLit _qualifierNameStrLit[72];
+
     friend class SCMOInstance;
     friend class SCMODump;
-
+    friend class SCMOXmlWriter;
 };
 
 

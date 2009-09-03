@@ -248,6 +248,19 @@ Buffer& operator<<(Buffer& out, const ContentLanguageList& cl)
     return out;
 }
 
+const StrLit XmlGenerator::_XmlWriterTypeStrings[17] =
+{
+    STRLIT("TYPE=\"boolean\""),   STRLIT("TYPE=\"uint8\""),
+    STRLIT("TYPE=\"sint8\""),     STRLIT("TYPE=\"uint16\""),
+    STRLIT("TYPE=\"sint16\""),    STRLIT("TYPE=\"uint32\""),
+    STRLIT("TYPE=\"sint32\""),    STRLIT("TYPE=\"uint64\""),
+    STRLIT("TYPE=\"sint64\""),    STRLIT("TYPE=\"real32\""),
+    STRLIT("TYPE=\"real64\""),    STRLIT("TYPE=\"char16\""),
+    STRLIT("TYPE=\"string\""),    STRLIT("TYPE=\"datetime\""),
+    STRLIT("TYPE=\"reference\""), STRLIT("TYPE=\"object\""),
+    STRLIT("TYPE=\"instance\"")
+};
+
 void XmlGenerator::_appendChar(Buffer& out, const Char16& c)
 {
     // We need to convert the Char16 to UTF8 then append the UTF8
@@ -563,6 +576,180 @@ void XmlGenerator::appendSpecial(Buffer& out, const String& str)
         out.append(STRLIT_ARGS("&#32;"));
     }
 }
+
+void XmlGenerator::appendSpecial(Buffer& out, const char* str, Uint32 size)
+{
+    // employ loop unrolling and a less checking optimized Buffer access
+    
+
+    // Buffer cannot grow more than 6*size characters (ie. 4*size+2*size)
+    out.reserveCapacity(out.capacity() + size << 2 + size << 1);
+
+    while (size>=8)
+    {
+        register int c;
+        c = str[0];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[1];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[2];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[3];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[4];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[5];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[6];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[7];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        str+=8;
+        size-=8;
+    }
+
+    while (size>=4)
+    {
+        register int c;
+        c = str[0];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[1];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[2];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[3];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        str+=4;
+        size-=4;
+    }
+
+    while (size--)
+    {
+        register int c;
+        c=*str;
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        str++;
+    }
+        
+}
+
 
 // See http://www.ietf.org/rfc/rfc2396.txt section 2
 // Reserved characters = ';' '/' '?' ':' '@' '&' '=' '+' '$' ','

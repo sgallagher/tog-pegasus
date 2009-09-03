@@ -172,7 +172,11 @@ int Threads::create(
     // Initialize thread attributes:
 
     pthread_attr_t attr;
-    pthread_attr_init(&attr);
+    int rc = pthread_attr_init(&attr);
+    if(rc != 0)
+    {
+        return rc;
+    }
 
     // Detached:
 
@@ -211,12 +215,11 @@ int Threads::create(
 
     // Create thread:
 
-    int rc = pthread_create(&thread.thread, &attr, start, arg);
+    rc = pthread_create(&thread.thread, &attr, start, arg);
 
     if (rc != 0)
     {
         thread = ThreadType();
-        return rc;
     }
 
     // Destroy attributes now.
@@ -225,7 +228,7 @@ int Threads::create(
 
     // Return:
 
-    return 0;
+    return rc;
 }
 
 ThreadType Threads::self()

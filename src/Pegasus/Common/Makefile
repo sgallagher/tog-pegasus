@@ -268,7 +268,7 @@ endif
 
 # Note that PEGASUS_WINDOWS_SDK_HOME only needs to be specified if using VC6.
 ifeq ($(OS_TYPE),windows)
-    SYS_LIBS += ws2_32.lib advapi32.lib netapi32.lib
+    SYS_LIBS += ole32.lib ws2_32.lib advapi32.lib netapi32.lib
     ifdef PEGASUS_WINDOWS_SDK_HOME
         FLAGS += -DPEGASUS_WINDOWS_SDK_HOME
         SYS_LIBS += /libpath:$(PEGASUS_WINDOWS_SDK_HOME)/lib secur32.lib

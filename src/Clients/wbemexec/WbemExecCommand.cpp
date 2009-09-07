@@ -982,6 +982,10 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
         }
     }
 
+    if (!_userNameSet)
+    {
+        _userName = System::getEffectiveUserName();
+    }
 /*
     //
     // Some more validations

@@ -314,6 +314,43 @@ const char* Real64ToString(char buffer[128], Real64 x, Uint32& size)
 
 //------------------------------------------------------------------------------
 //
+// stringToSignedInteger
+//
+//      [ "+" | "-" ] ( positiveDecimalDigit *decimalDigit | "0" )
+//    or
+//      [ "+" | "-" ] ( "0x" | "0X" ) 1*hexDigit
+//
+//------------------------------------------------------------------------------
+
+Boolean StringConversion::stringToSignedInteger(
+    const char* stringValue,
+    Sint64& x)
+{
+    return (stringToSint64(stringValue, decimalStringToUint64, x) ||
+            stringToSint64(stringValue, hexStringToUint64, x));
+}
+
+//------------------------------------------------------------------------------
+//
+// stringToUnsignedInteger
+//
+//      ( positiveDecimalDigit *decimalDigit | "0" )
+//    or
+//      ( "0x" | "0X" ) 1*hexDigit
+//
+//------------------------------------------------------------------------------
+
+Boolean StringConversion::stringToUnsignedInteger(
+    const char* stringValue,
+    Uint64& x)
+{
+    return (decimalStringToUint64(stringValue, x) ||
+            hexStringToUint64(stringValue, x));
+}
+
+
+//------------------------------------------------------------------------------
+//
 // decimalStringToUint64
 //
 //      ( positiveDecimalDigit *decimalDigit | "0" )

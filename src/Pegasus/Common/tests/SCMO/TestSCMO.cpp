@@ -115,8 +115,8 @@ void CIMClassToSCMOClass()
     }
 
     char* tmp2 ="This is the Name";
-    const char * tmp3;
-    CIMKeyBinding::Type keyType;
+    const void * tmp3;
+    CIMType keyType;
     CIMType cimType;
     Boolean isArray;
     Uint32 number;
@@ -134,7 +134,7 @@ void CIMClassToSCMOClass()
 
     theSCMOInstance.getKeyBinding("Name",keyType,&tmp3);
 
-    PEGASUS_TEST_ASSERT(strcmp(tmp3,tmp2)==0);
+    PEGASUS_TEST_ASSERT(strcmp((const char*)tmp3,tmp2)==0);
 
 
     VCOUT << "Test of cloning SCMOInstances." << endl;
@@ -147,29 +147,18 @@ void CIMClassToSCMOClass()
     // objectpath cloning.
     asObjectPath.getKeyBinding("Name",keyType,&tmp3);
 
-    PEGASUS_TEST_ASSERT(strcmp(tmp3,tmp2)==0);
+    PEGASUS_TEST_ASSERT(strcmp((const char*)tmp3,tmp2)==0);
 
     // But the associated key property has to be empty.
-    rc = asObjectPath.getProperty(
-        "Name",
-        cimType,
-        (const void**)&tmp3,
-        isArray,
-        number);
+    rc = asObjectPath.getProperty("Name",cimType,&tmp3,isArray,number);
 
     PEGASUS_TEST_ASSERT(tmp3 == NULL);
     PEGASUS_TEST_ASSERT(rc == SCMO_NULL_VALUE);
 
     // But the in the full clone the property has to be set...
-    rc = cloneInstance.getProperty(
-        "Name",
-        cimType,
-        (const void**)&tmp3,
-        isArray,
-        number);
+    rc = cloneInstance.getProperty("Name",cimType,&tmp3,isArray,number);
 
-    PEGASUS_TEST_ASSERT(strcmp(tmp3,tmp2)==0);
-
+    PEGASUS_TEST_ASSERT(strcmp((const char*)tmp3,tmp2)==0);
 
     VCOUT << endl << "Test 1: Done." << endl;
 }
@@ -1109,11 +1098,15 @@ void SCMOInstanceKeyBindingsTest(SCMOInstance& SCMO_TESTClass2_Inst)
 {
     SCMO_RC rc;
 
-    CIMKeyBinding::Type returnKeyBindType;
-    const char * returnKeyBindValue;
+    CIMType returnKeyBindType;
+    const void * returnKeyBindValue;
     Uint32 noKeyBind;
     const char * returnName;
 
+    Uint64 uint64KeyVal = PEGASUS_UINT64_LITERAL(4834987289728);
+    Boolean boolKeyVal = true;
+    Real32 real32KeyVal = 3.9399998628365712e+30;
+    char * stringKeyVal = "This is the String key binding.";
 
     /**
      * Test Key bindings
@@ -1122,11 +1115,12 @@ void SCMOInstanceKeyBindingsTest(SCMOInstance& SCMO_TESTClass2_Inst)
     VCOUT << "Key Bindings Tests." << endl << endl;
 
     VCOUT << "Wrong key binding name." << endl;
-    // BooleanProperty is not a key !
+
+    // BooleanProperty is not a key binding!
     rc = SCMO_TESTClass2_Inst.setKeyBinding(
         "BooleanProperty",
-        CIMKeyBinding::BOOLEAN,
-        "TRUE");
+        CIMTYPE_BOOLEAN,
+        &boolKeyVal);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_NOT_FOUND);
 
@@ -1134,8 +1128,8 @@ void SCMOInstanceKeyBindingsTest(SCMOInstance& SCMO_TESTClass2_Inst)
     // Real32Property is a key property
     rc = SCMO_TESTClass2_Inst.setKeyBinding(
         "Real32Property",
-        CIMKeyBinding::BOOLEAN,
-        "3.9399998628365712e+30");
+        CIMTYPE_BOOLEAN,
+        &real32KeyVal);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_TYPE_MISSMATCH);
 
@@ -1147,32 +1141,52 @@ void SCMOInstanceKeyBindingsTest(SCMOInstance& SCMO_TESTClass2_Inst)
         &returnKeyBindValue);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_NULL_VALUE);
-    PEGASUS_TEST_ASSERT(returnKeyBindType==CIMKeyBinding::NUMERIC);
+    PEGASUS_TEST_ASSERT(returnKeyBindType==CIMTYPE_REAL32);
     PEGASUS_TEST_ASSERT(returnKeyBindValue==NULL);
 
     // set key bindings
 
     rc = SCMO_TESTClass2_Inst.setKeyBinding(
         "StringProperty",
-        CIMKeyBinding::STRING,
-        "This is the String key binding.");
+        CIMTYPE_STRING,
+        stringKeyVal);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
 
     rc = SCMO_TESTClass2_Inst.setKeyBinding(
         "Real32Property",
-        CIMKeyBinding::NUMERIC,
-        "3.9399998628365712e+30");
+        CIMTYPE_REAL32,
+        &real32KeyVal);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+
 
     rc = SCMO_TESTClass2_Inst.setKeyBinding(
         "Uint64Property",
-        CIMKeyBinding::NUMERIC,
-        "48349872897287");
+        CIMTYPE_UINT64,
+        &uint64KeyVal);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+
+    rc = SCMO_TESTClass2_Inst.getKeyBinding(
+        "Real32Property",
+        returnKeyBindType,
+        &returnKeyBindValue);
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+    PEGASUS_TEST_ASSERT(returnKeyBindType==CIMTYPE_REAL32);
+    PEGASUS_TEST_ASSERT(*((const Real32*)returnKeyBindValue) == real32KeyVal);
+
+    rc = SCMO_TESTClass2_Inst.getKeyBinding(
+        "Uint64Property",
+        returnKeyBindType,
+        &returnKeyBindValue);
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+    PEGASUS_TEST_ASSERT(returnKeyBindType==CIMTYPE_UINT64);
+    PEGASUS_TEST_ASSERT(*((const Uint64*)returnKeyBindValue) == uint64KeyVal);
+
 
     VCOUT << "Get Key binding by index." << endl;
 

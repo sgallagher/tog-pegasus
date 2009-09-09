@@ -1045,7 +1045,7 @@ Has next: FALSE
 Next Node: N/A
 Key Property name: CreationClassName
 Hash Tag 12315 Hash Index  27
-Key binding type: string
+Type: string
 
 ===================
 Key Binding #  1
@@ -1054,5 +1054,5 @@ Has next: FALSE
 Next Node: N/A
 Key Property name: Name
 Hash Tag 12473 Hash Index  25
-Key binding type: string
+Type: string
 

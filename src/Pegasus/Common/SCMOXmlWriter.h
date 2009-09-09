@@ -51,10 +51,10 @@ public:
         const SCMOInstance& scmoInstance)
     {
         out << STRLIT("<VALUE.NAMEDINSTANCE>\n");
-        
+
         appendInstanceNameElement(out, scmoInstance);
         appendInstanceElement(out, scmoInstance);
-        
+
         out << STRLIT("</VALUE.NAMEDINSTANCE>\n");
     }
 
@@ -71,28 +71,27 @@ public:
         for (Uint32 i = 0, n = scmoInstance.getKeyBindingCount(); i < n; i++)
         {
             const char * kbName;
-            const char * kbValue;
-            CIMKeyBinding::Type kbType;
+            const SCMBUnion * kbValue;
+            CIMType kbType;
             Uint32 kbNameLen;
-            Uint32 kbValueLen;
 
-            scmoInstance._getKeyBindingAtNodeIndex_l(
+            scmoInstance._getKeyBindingDataAtNodeIndex(
                 i,
                 &kbName,
                 kbNameLen,
                 kbType,
-                &kbValue,
-                kbValueLen);
-            
+                &kbValue);
+
+            /* TODO: NEED to handle new _getKeyBindingDataAtNodeIndex()
             out << STRLIT("<KEYBINDING NAME=\"");
             out.append(kbName,kbNameLen-1);
             out << STRLIT("\">\n");
 
             if (kbType == CIMKeyBinding::REFERENCE)
             {
-                /* TODO: NEED RESOLvE the value down to a SCMO.... 
+                TODO: NEED RESOLvE the value down to a SCMO....
                 CIMObjectPath ref = keyBindings[i].getValue();
-                appendValueReferenceElement(out, ref, true);       */
+                appendValueReferenceElement(out, ref, true);
             }
             else
             {
@@ -106,6 +105,7 @@ public:
                 out << STRLIT("</KEYVALUE>\n");
             }
             out << STRLIT("</KEYBINDING>\n");
+            */
         }
         out << STRLIT("</INSTANCENAME>\n");
     }
@@ -138,7 +138,7 @@ public:
             SCMBClass_Main *classMain=scmoInstance.inst.hdr->theClass->cls.hdr;
             char* clsbase = scmoInstance.inst.hdr->theClass->cls.base;
 
-            SCMBQualifier *theArray = 
+            SCMBQualifier *theArray =
                 (SCMBQualifier*)&(clsbase[classMain->qualifierArray.start]);
             // need to iterate
             for (Uint32 i=0, n=classMain->numberOfQualifiers;i<n;i++)
@@ -150,7 +150,7 @@ public:
         // Append Properties:
         for (Uint32 i=0,k=scmoInstance.inst.hdr->numberProperties;i<k;i++)
         {
-            if (scmoInstance.inst.hdr->flags.isFiltered && 
+            if (scmoInstance.inst.hdr->flags.isFiltered &&
                 !scmoInstance._isPropertyInFilter(i))
             {
                 // Property is filtered, ignore and go to next
@@ -193,7 +193,7 @@ public:
                 out.append(
                     &(base[theQualifier.userDefName.start]),
                     theQualifier.userDefName.length-1);
-            }            
+            }
         }
         else
         {
@@ -201,7 +201,7 @@ public:
         }
 
         out << STRLIT("\" ");
-        
+
         // Append type
         out << xmlWriterTypeStrings(theQualifier.value.valueType);
         // append PROPAGATED if set
@@ -213,13 +213,13 @@ public:
         SCMOXmlWriter::appendQualifierFlavorEntity(
             out,
             CIMFlavor(theQualifier.flavor));
-    
+
         out << STRLIT(">\n");
         // append the value of the qualifier
-        
+
         // TODO: Implement and call appendValueElement
         //SCMOXmlWriter::appendValueElement(out, theQualifier.value, clsbase);
-    
+
         out << STRLIT("</QUALIFIER>\n");
     }
 
@@ -260,7 +260,7 @@ public:
         const char* propertyName;
         Uint32 propertyNameLen;
         CIMType propertyType;
-        
+
         // This is an absolute pointer at a SCMBValue
         SCMBValue * propertyValue;
         const char * propertyValueBase;
@@ -285,14 +285,14 @@ public:
             out << STRLIT("<PROPERTY.ARRAY NAME=\"")
                 << rep->getName()
                 << STRLIT("\" ");
-    
+
             if (propertyType == CIMTYPE_OBJECT)
             {
                 // If the property array type is CIMObject, then
                 //    encode the property in CIM-XML as a string array with the
                 //    EmbeddedObject attribute (there is not currently a CIM-XML
                 //    "object" datatype)
-    
+
                 Array<CIMObject> a;
                 rep->getValue().get(a);
                 out << STRLIT(" TYPE=\"string\"");
@@ -332,19 +332,19 @@ public:
                 //   encode the property in CIM-XML as a string array with the
                 //   EmbeddedObject attribute (there is not currently a CIM-XML
                 //   "instance" datatype)
-    
+
                 Array<CIMInstance> a;
                 rep->getValue().get(a);
                 out << STRLIT(" TYPE=\"string\"");
-    
+
                 // add the EmbeddedObject attribute
                 if (a.size() > 0)
                 {
                     out << STRLIT(" EmbeddedObject=\"instance\""
                                   " EMBEDDEDOBJECT=\"instance\"");
-    
+
                     // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY
-                    // is defined, then the EmbeddedInstance qualifier will be 
+                    // is defined, then the EmbeddedInstance qualifier will be
                     // added
 # ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
                     if (rep->findQualifier(
@@ -355,7 +355,7 @@ public:
                         // CIMQualifierRep.In this case we really do want to add
                         // the EmbeddedInstance qualifier, so we cast away the
                         // constness.
-    
+
                         // For now, we assume that all the embedded instances in
                         // the array are of the same type
                         CIMPropertyRep* tmpRep=const_cast<CIMPropertyRep*>(rep);
@@ -371,7 +371,7 @@ public:
                 out.append(' ');
                 out << xmlWriterTypeStrings(rep->getValue().getType());
             }
-    
+
             if (rep->getArraySize())
             {
                 char buffer[32];
@@ -379,61 +379,61 @@ public:
                 out << STRLIT(" ARRAYSIZE=\"") << buffer;
                 out.append('"');
             }
-    
+
             if (!rep->getClassOrigin().isNull())
             {
                 out << STRLIT(" CLASSORIGIN=\"") << rep->getClassOrigin();
                 out.append('"');
             }
-    
+
             if (rep->getPropagated())
             {
                 out << STRLIT(" PROPAGATED=\"true\"");
             }
-    
+
             out << STRLIT(">\n");
-    
+
             for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
                 XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
-    
+
             XmlWriter::appendValueElement(out, rep->getValue());
-    
+
             out << STRLIT("</PROPERTY.ARRAY>\n");
-*/            
+*/
         }
         else if (propertyType == CIMTYPE_REFERENCE)
         {
 /*
             out << STRLIT("<PROPERTY.REFERENCE"
                           " NAME=\"") << rep->getName() << STRLIT("\" ");
-    
+
             if (!rep->getReferenceClassName().isNull())
             {
-                out << STRLIT(" REFERENCECLASS=\"") 
+                out << STRLIT(" REFERENCECLASS=\"")
                     << rep->getReferenceClassName();
                 out.append('"');
             }
-    
+
             if (!rep->getClassOrigin().isNull())
             {
                 out << STRLIT(" CLASSORIGIN=\"") << rep->getClassOrigin();
                 out.append('"');
             }
-    
+
             if (rep->getPropagated())
             {
                 out << STRLIT(" PROPAGATED=\"true\"");
             }
-    
+
             out << STRLIT(">\n");
-    
+
             for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
                 XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
-    
+
             XmlWriter::appendValueElement(out, rep->getValue());
-    
+
             out << STRLIT("</PROPERTY.REFERENCE>\n");
-*/            
+*/
         }
         else
         {
@@ -445,7 +445,7 @@ public:
                 propertyDef->name.length-1);
 
             out << STRLIT("\" ");
-            
+
             if (scmoInstance.inst.hdr->flags.includeClassOrigin)
             {
                 if (propertyDef->originClassName.start != 0)
@@ -456,12 +456,12 @@ public:
                         propertyDef->originClassName.length-1);
                     out.append('"');
                 }
-            }    
+            }
             if (propertyDef->flags.propagated)
             {
                 out << STRLIT(" PROPAGATED=\"true\"");
             }
-            
+
             if (propertyType == CIMTYPE_OBJECT)
             {
 /*
@@ -469,11 +469,11 @@ public:
                 //   encode the property in CIM-XML as a string with the
                 //   EmbeddedObject attribute (there is not currently a CIM-XML
                 //   "object" datatype)
-    
+
                 CIMObject a;
                 rep->getValue().get(a);
                 out << STRLIT(" TYPE=\"string\"");
-    
+
                 // If the Embedded Object is an instance, always add the
                 // EmbeddedObject attribute.
                 if (a.isInstance())
@@ -503,7 +503,7 @@ public:
                                          true));
                     }
                 }
-*/                
+*/
             }
             else if (propertyType == CIMTYPE_INSTANCE)
             {
@@ -513,7 +513,7 @@ public:
                 out << STRLIT(" TYPE=\"string\""
                               " EmbeddedObject=\"instance\""
                               " EMBEDDEDOBJECT=\"instance\"");
-    
+
 # ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
                 if (rep->findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT)
                     == PEG_NOT_FOUND)
@@ -534,9 +534,9 @@ public:
             {
                 out.append(' ');
                 out << xmlWriterTypeStrings(propertyType);
-            }            
+            }
             out << STRLIT(">\n");
-    
+
             // Append Instance Qualifiers:
             if (scmoInstance.inst.hdr->flags.includeQualifiers)
             {
@@ -551,7 +551,7 @@ public:
                         theArray[i],
                         clsbase);
                 }
-            }            
+            }
             SCMOXmlWriter::appendValueElement(
                 out,
                 propertyValue,
@@ -594,7 +594,7 @@ public:
                     _xmlWritter_appendValueArray(out, a.getData(), a.size());
                     break;
                 }
-    
+
                 case CIMTYPE_UINT8:
                 {
                     Array<Uint8> a;
@@ -602,7 +602,7 @@ public:
                     _xmlWritter_appendValueArray(out, a.getData(), a.size());
                     break;
                 }
-    
+
                 case CIMTYPE_SINT8:
                 {
                     Array<Sint8> a;
@@ -610,7 +610,7 @@ public:
                     _xmlWritter_appendValueArray(out, a.getData(), a.size());
                     break;
                 }
-    
+
                 case CIMTYPE_UINT16:
                 {
                     Array<Uint16> a;
@@ -618,7 +618,7 @@ public:
                     _xmlWritter_appendValueArray(out, a.getData(), a.size());
                     break;
                 }
-    
+
                 case CIMTYPE_SINT16:
                 {
                     Array<Sint16> a;
@@ -626,7 +626,7 @@ public:
                     _xmlWritter_appendValueArray(out, a.getData(), a.size());
                     break;
                 }
-    
+
                 case CIMTYPE_UINT32:
                 {
                     Array<Uint32> a;
@@ -634,7 +634,7 @@ public:
                     _xmlWritter_appendValueArray(out, a.getData(), a.size());
                     break;
                 }
-    
+
                 case CIMTYPE_SINT32:
                 {
                     Array<Sint32> a;
@@ -642,7 +642,7 @@ public:
                     _xmlWritter_appendValueArray(out, a.getData(), a.size());
                     break;
                 }
-    
+
                 case CIMTYPE_UINT64:
                 {
                     Array<Uint64> a;
@@ -650,7 +650,7 @@ public:
                     _xmlWritter_appendValueArray(out, a.getData(), a.size());
                     break;
                 }
-    
+
                 case CIMTYPE_SINT64:
                 {
                     Array<Sint64> a;
@@ -658,7 +658,7 @@ public:
                     _xmlWritter_appendValueArray(out, a.getData(), a.size());
                     break;
                 }
-    
+
                 case CIMTYPE_REAL32:
                 {
                     Array<Real32> a;
@@ -666,7 +666,7 @@ public:
                     _xmlWritter_appendValueArray(out, a.getData(), a.size());
                     break;
                 }
-    
+
                 case CIMTYPE_REAL64:
                 {
                     Array<Real64> a;
@@ -674,7 +674,7 @@ public:
                     _xmlWritter_appendValueArray(out, a.getData(), a.size());
                     break;
                 }
-    
+
                 case CIMTYPE_CHAR16:
                 {
                     Array<Char16> a;
@@ -682,7 +682,7 @@ public:
                     _xmlWritter_appendValueArray(out, a.getData(), a.size());
                     break;
                 }
-    
+
                 case CIMTYPE_STRING:
                 {
                     const String* data;
@@ -691,7 +691,7 @@ public:
                     _xmlWritter_appendValueArray(out, data, size);
                     break;
                 }
-    
+
                 case CIMTYPE_DATETIME:
                 {
                     Array<CIMDateTime> a;
@@ -699,7 +699,7 @@ public:
                     _xmlWritter_appendValueArray(out, a.getData(), a.size());
                     break;
                 }
-    
+
                 case CIMTYPE_REFERENCE:
                 {
                     Array<CIMObjectPath> a;
@@ -707,7 +707,7 @@ public:
                     _xmlWritter_appendValueArray(out, a.getData(), a.size());
                     break;
                 }
-    
+
                 case CIMTYPE_OBJECT:
                 {
                     Array<CIMObject> a;
@@ -725,21 +725,21 @@ public:
                 default:
                     PEGASUS_ASSERT(false);
             }
-*/            
+*/
         }
         else if (value->valueType == CIMTYPE_REFERENCE)
         {
-/*        
+/*
             // Has to be separate because it uses VALUE.REFERENCE tag
             CIMObjectPath v;
             value.get(v);
             _xmlWritter_appendValue(out, v);
-*/            
+*/
         }
         else
         {
             out << STRLIT("<VALUE>");
-    
+
             switch (value->valueType)
             {
                 case CIMTYPE_BOOLEAN:
@@ -747,67 +747,67 @@ public:
                     SCMOXmlWriter::append(out, value->value._booleanValue);
                     break;
                 }
-    
+
                 case CIMTYPE_UINT8:
                 {
                     SCMOXmlWriter::append(out, value->value._uint8Value);
                     break;
                 }
-    
+
                 case CIMTYPE_SINT8:
                 {
                     SCMOXmlWriter::append(out, value->value._sint8Value);
                     break;
                 }
-    
+
                 case CIMTYPE_UINT16:
                 {
                     SCMOXmlWriter::append(out, value->value._uint16Value);
                     break;
                 }
-    
+
                 case CIMTYPE_SINT16:
                 {
                     SCMOXmlWriter::append(out, value->value._sint16Value);
                     break;
                 }
-    
+
                 case CIMTYPE_UINT32:
                 {
                     SCMOXmlWriter::append(out, value->value._uint32Value);
                     break;
                 }
-    
+
                 case CIMTYPE_SINT32:
                 {
                     SCMOXmlWriter::append(out, value->value._uint32Value);
                     break;
                 }
-    
+
                 case CIMTYPE_UINT64:
                 {
                     SCMOXmlWriter::append(out, value->value._uint64Value);
                     break;
                 }
-    
+
                 case CIMTYPE_SINT64:
                 {
                     SCMOXmlWriter::append(out, value->value._sint64Value);
                     break;
                 }
-    
+
                 case CIMTYPE_REAL32:
                 {
                     SCMOXmlWriter::append(out, value->value._real32Value);
                     break;
                 }
-    
+
                 case CIMTYPE_REAL64:
                 {
                     SCMOXmlWriter::append(out, value->value._real64Value);
                     break;
                 }
-    
+
                 case CIMTYPE_CHAR16:
                 {
                     SCMOXmlWriter::appendSpecial(out,value->value._char16Value);
@@ -822,7 +822,7 @@ public:
                         value->value._stringValue.length-1);
                     break;
                 }
-    
+
                 case CIMTYPE_DATETIME:
                 {
                     // an SCMBDateTime is a CIMDateTimeRep
@@ -833,7 +833,7 @@ public:
                     out.append(buffer,sizeof(buffer)-1);
                     break;
                 }
-/*    
+/*
                 case CIMTYPE_OBJECT:
                 {
                     CIMObject v;
@@ -847,11 +847,11 @@ public:
                     value.get(v);
                     _xmlWritter_appendValue(out, v);
                     break;
-                }                
+                }
                 default:
                     PEGASUS_ASSERT(false);
-*/                    
-            }    
+*/
+            }
             out << STRLIT("</VALUE>\n");
         }
     }

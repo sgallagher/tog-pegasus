@@ -276,6 +276,7 @@ Boolean CIMKeyBinding::equal(CIMValue value)
         case CIMTYPE_INSTANCE:
             // From PEP 194: EmbeddedObjects cannot be keys.
             return false;
+            break;
         default:  // Numerics
             if (getType() != NUMERIC) return false;
             kbValue = XmlReader::stringToValue(0, getValue().getCString(),
@@ -313,9 +314,11 @@ Boolean operator==(const CIMKeyBinding& x, const CIMKeyBinding& y)
             // If CIMObjectPath parsing fails, just compare strings
             return String::equal(x.getValue(), y.getValue());
         }
+        break;
     case CIMKeyBinding::BOOLEAN:
         // Case-insensitive comparison is sufficient for booleans
         return String::equalNoCase(x.getValue(), y.getValue());
+        break;
     case CIMKeyBinding::NUMERIC:
         // Note: This comparison assumes XML syntax for integers
         // First try comparing as unsigned integers
@@ -345,8 +348,10 @@ Boolean operator==(const CIMKeyBinding& x, const CIMKeyBinding& y)
         // Note: Keys may not be real values, so don't try comparing as reals
         // We couldn't parse the numbers, so just compare the strings
         return String::equal(x.getValue(), y.getValue());
+        break;
     default:  // CIMKeyBinding::STRING
         return String::equal(x.getValue(), y.getValue());
+        break;
     }
 
     PEGASUS_UNREACHABLE(return false;)
@@ -466,12 +471,7 @@ void CIMObjectPath::set(
 {
     if ((host != String::EMPTY) && !CIMObjectPathRep::isValidHostname(host))
     {
-        MessageLoaderParms mlParms(
-            "Common.CIMObjectPath.INVALID_HOSTNAME",
-            "$0, reason:\"invalid hostname\"",
-            host);
-
-        throw MalformedObjectNameException(mlParms);
+        throw MalformedObjectNameException(host);
     }
 
     _rep = _copyOnWriteCIMObjectPathRep(_rep);
@@ -502,21 +502,13 @@ Boolean _parseHostElement(
     char* slash = strchr(p, '/');
     if (!slash)
     {
-        MessageLoaderParms mlParms(
-            "Common.CIMObjectPath.MISSING_SLASH_AFTER_HOST",
-            "$0, reason:\"missing slash after hostname\"",
-            objectName);
-        throw MalformedObjectNameException(mlParms);
+        throw MalformedObjectNameException(objectName);
     }
 
     String hostname = String(p, (Uint32)(slash - p));
     if (!CIMObjectPathRep::isValidHostname(hostname))
     {
-        MessageLoaderParms mlParms(
-            "Common.CIMObjectPath.INVALID_HOSTNAME",
-            "$0, reason:\"invalid hostname\"",
-            objectName);
-        throw MalformedObjectNameException(mlParms);
+        throw MalformedObjectNameException(objectName);
     }
     host = hostname;
 
@@ -559,11 +551,7 @@ Boolean _parseNamespaceElement(
     String namespaceName = String(p, (Uint32)(colon - p));
     if (!CIMNamespaceName::legal(namespaceName))
     {
-        MessageLoaderParms mlParms(
-            "Common.CIMObjectPath.INVALID_NAMESPACE",
-            "$0, reason:\"invalid namespace name\"",
-            objectName);
-        throw MalformedObjectNameException(mlParms);
+        throw MalformedObjectNameException(objectName);
     }
     nameSpace = namespaceName;
 
@@ -603,24 +591,13 @@ void _parseKeyBindingPairs(
         char* equalsign = strchr(p, '=');
         if (!equalsign)
         {
-            MessageLoaderParms mlParms(
-                "Common.CIMObjectPath.INVALID_KEYVALUEPAIR",
-                "$0, reason:\"invalid key-value pair, missing equal sign\"",
-                objectName);
-            throw MalformedObjectNameException(mlParms);
+            throw MalformedObjectNameException(objectName);
         }
 
         *equalsign = 0;
 
         if (!CIMName::legal(p))
-        {
-            MessageLoaderParms mlParms(
-                "Common.CIMObjectPath.INVALID_KEYNAME",
-                "$0, reason:\"invalid key-value pair, invalid key name:$1\"",
-                objectName,
-                p);
-            throw MalformedObjectNameException(mlParms);
-        }
+            throw MalformedObjectNameException(objectName);
 
         CIMName keyName (p);
 
@@ -646,12 +623,7 @@ void _parseKeyBindingPairs(
 
                     if ((*p != '\\') && (*p != '"'))
                     {
-                        MessageLoaderParms mlParms(
-                            "Common.CIMObjectPath.INVALID_KEYVALUE",
-                            "$0, reason:\"invalid key-value pair, "
-                                "malformed value\"",
-                            objectName);
-                        throw MalformedObjectNameException(mlParms);
+                        throw MalformedObjectNameException(objectName);
                     }
                 }
 
@@ -659,14 +631,7 @@ void _parseKeyBindingPairs(
             }
 
             if (*p++ != '"')
-            {
-                MessageLoaderParms mlParms(
-                    "Common.CIMObjectPath.INVALID_KEYVALUEPAIR_MISSINGQUOTE",
-                    "$0, reason:\"invalid key-value pair, "
-                        "missing quote in key value\"",
-                    objectName);
-                throw MalformedObjectNameException(mlParms);
-            }
+                throw MalformedObjectNameException(objectName);
 
             // Convert the UTF-8 value to a UTF-16 String
 
@@ -720,14 +685,7 @@ void _parseKeyBindingPairs(
 
             if (!(((strncmp(p, "TRUE", n) == 0) && n == 4) ||
                   ((strncmp(p, "FALSE", n) == 0) && n == 5)))
-            {
-                MessageLoaderParms mlParms(
-                    "Common.CIMObjectPath.INVALID_BOOLVALUE",
-                    "$0, reason:\"invalid key-value pair, "
-                        "value should be TRUE or FALSE\"",
-                    objectName);
-                throw MalformedObjectNameException(mlParms);
-            }
+                throw MalformedObjectNameException(objectName);
 
             valueString.assign(p, n);
 
@@ -757,29 +715,13 @@ void _parseKeyBindingPairs(
             {
                 Sint64 x;
                 if (!StringConversion::stringToSignedInteger(p, x))
-                {
-                    MessageLoaderParms mlParms(
-                        "Common.CIMObjectPath.INVALID_NEGATIVNUMBER_VALUE",
-                        "$0, reason:\"invalid key-value pair, "
-                            "invalid negative number value $1\"",
-                        objectName,
-                        p);
-                    throw MalformedObjectNameException(mlParms);
-                }
+                    throw MalformedObjectNameException(objectName);
             }
             else
             {
                 Uint64 x;
                 if (!StringConversion::stringToUnsignedInteger(p, x))
-                {
-                    MessageLoaderParms mlParms(
-                        "Common.CIMObjectPath.INVALID_NEGATIVNUMBER_VALUE",
-                        "$0, reason:\"invalid key-value pair, "
-                            "invalid number value $1\"",
-                        objectName,
-                        p);
-                    throw MalformedObjectNameException(mlParms);
-                }
+                    throw MalformedObjectNameException(objectName);
             }
 
             valueString.assign(p, n);
@@ -799,12 +741,7 @@ void _parseKeyBindingPairs(
         {
             if (*p++ != ',')
             {
-                MessageLoaderParms mlParms(
-                    "Common.CIMObjectPath.INVALID_KEYVALUEPAIR_MISSCOMMA",
-                    "$0, reason:\"invalid key-value pair, "
-                        "next key-value pair has to start with comma\"",
-                    objectName);
-                throw MalformedObjectNameException(mlParms);
+                throw MalformedObjectNameException(objectName);
             }
         }
     }
@@ -837,11 +774,7 @@ void CIMObjectPath::set(const String& objectName)
 
     if (gotHost && !gotNamespace)
     {
-        MessageLoaderParms mlParms(
-            "Common.CIMObjectPath.MISSING_NAMESPACE",
-            "$0, reason:\"host specified, missing namespace\"",
-            objectName);
-        throw MalformedObjectNameException(mlParms);
+        throw MalformedObjectNameException(objectName);
     }
 
     // Extract the class name:
@@ -852,12 +785,7 @@ void CIMObjectPath::set(const String& objectName)
     {
         if (!CIMName::legal(p))
         {
-            MessageLoaderParms mlParms(
-                "Common.CIMObjectPath.INVALID_CLASSNAME",
-                "$0, reason:\"class name $1 not a legal CIM name\"",
-                objectName,
-                p);
-            throw MalformedObjectNameException(mlParms);
+            throw MalformedObjectNameException(objectName);
         }
 
         // ATTN: remove this later: a reference should only be able to hold
@@ -870,12 +798,7 @@ void CIMObjectPath::set(const String& objectName)
     String className = String(p, (Uint32)(dot - p));
     if (!CIMName::legal(className))
     {
-        MessageLoaderParms mlParms(
-            "Common.CIMObjectPath.INVALID_CLASSNAME",
-            "$0, reason:\"class name $1 not a legal CIM name\"",
-            objectName,
-            className);
-        throw MalformedObjectNameException(mlParms);
+        throw MalformedObjectNameException(objectName);
     }
     _rep->_className = className;
 
@@ -904,11 +827,7 @@ void CIMObjectPath::setHost(const String& host)
         (host != System::getHostName()) &&
         !CIMObjectPathRep::isValidHostname(host))
     {
-        MessageLoaderParms mlParms(
-            "Common.CIMObjectPath.INVALID_HOSTNAME",
-            "$0, reason:\"invalid hostname\"",
-            host);
-        throw MalformedObjectNameException(mlParms);
+        throw MalformedObjectNameException(host);
     }
     _rep = _copyOnWriteCIMObjectPathRep(_rep);
 
@@ -978,7 +897,7 @@ String CIMObjectPath::toString() const
     //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class has no
-    //  key bindings. See BUG_3302
+    //  key bindings
     //
     if (_rep->_keyBindings.size () != 0)
     {

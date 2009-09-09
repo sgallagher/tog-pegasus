@@ -215,12 +215,12 @@ struct SCMBValue
     SCMBUnion       value;
 };
 
-struct SCMBInstanceKeyBinding
+struct SCMBKeyBindingValue
 {
     // Boolean flag
     Sint32       isSet;
-    // The string reperesntaion of the KeyBinding
-    SCMBDataPtr value;
+    // The value of the KeyBinding
+    SCMBUnion    data;
 };
 
 
@@ -317,8 +317,8 @@ struct SCMBKeyBindingNode
     // Relativer pointer to the key property name.
     SCMBDataPtr     name;
     Uint32          nameHashTag;
-    // Key binding type.
-    CIMKeyBinding::Type type;
+    // The type of the key binding.
+    CIMType         type;
 };
 
 struct SCMBKeyBindingSet_Header
@@ -336,7 +336,7 @@ struct SCMBKeyBindingSet_Header
     // The hashTable contains the index of the SCMBKeyBindingNode
     // in the keyBindingNodeArray.
     Uint32          hashTable[PEGASUS_KEYBINDIG_SCMB_HASHSIZE];
-    // Relative pointer to an array of SCMBKeyBindingNode.
+    // Relative pointer to an array of SCMBKeyBindingValue.
     SCMBDataPtr     nodeArray;
 };
 
@@ -509,7 +509,7 @@ static void _setBinary(
     SCMBDataPtr& ptr,
     SCMBMgmt_Header** pmem);
 
-static CIMKeyBinding::Type _cimTypeToKeyBindType(CIMType cimType);
+// static CIMKeyBinding::Type _cimTypeToKeyBindType(CIMType cimType);
 
 static Boolean _equalUTF8Strings(
     const SCMBDataPtr& ptr_a,

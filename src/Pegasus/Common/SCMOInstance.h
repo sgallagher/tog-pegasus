@@ -224,7 +224,7 @@ public:
      *               of char* to the string values is returned.
      *               This array has to be freed by the caller !
      * @param valueBase Returns an absolute pointer to the base of value,
-     *                  because subsequent pointers in the value are NOT 
+     *                  because subsequent pointers in the value are NOT
      *                  resolved.
      * @param propDef Returns an absolute pointer to the property definition
      *                  Sub-pointers are NOT resolved!
@@ -372,27 +372,10 @@ public:
         Uint32 size = 0);
 
     /**
-     * Set/replace the named key binding
-     * @param name The key binding name.
-     * @param type The type as CIMKeyBinding::Type.
-     * @param value The value as string.
-     * @return     SCMO_OK
-     *             SCMO_INVALID_PARAMETER : Given name or pvalue
-     *                                      is a NULL pointer.
-     *             SCMO_TYPE_MISSMATCH : Given type does not
-     *                                   match to key binding type
-     *             SCMO_NOT_FOUND : Given property name not found.
-     */
-    SCMO_RC setKeyBinding(
-        const char* name,
-        CIMKeyBinding::Type type,
-        const char* pvalue);
-
-    /**
      * Set/replace the named key binding using binary data
      * @param name The key binding name.
      * @param type The type as CIMType.
-     * @param value A pointer to the binary key value.
+     * @param keyvalue A pointer to the binary key value.
      *         The value is copied into the instance
      *         If the value == NULL, a null value is assumed.
      * @return     SCMO_OK
@@ -410,24 +393,8 @@ public:
     /**
      * Set/replace the key binding at node
      * @param node The node index of the key.
-     * @param type The type as CIMKeyBinding::Type.
-     * @parma value The value as string.
-     * @return     SCMO_OK
-     *             SCMO_INVALID_PARAMETER : Given pvalue is a NULL pointer.
-     *             SCMO_TYPE_MISSMATCH : Given type does not
-     *                                   match to key binding type
-     *             SCMO_INDEX_OUT_OF_BOUND : Given index is our of range.
-     */
-    SCMO_RC setKeyBindingAt(
-        Uint32 node,
-        CIMKeyBinding::Type type,
-        const char* pvalue);
-
-    /**
-     * Set/replace the key binding at node using binary data
-     * @param node The node index of the key.
      * @param type The type as CIMType.
-     * @param value A pointer to the binary key value.
+     * @param keyvalue A pointer to the binary key value.
      *         The value is copied into the instance
      *         If the value == NULL, a null value is assumed.
      * @return     SCMO_OK
@@ -453,9 +420,9 @@ public:
      * @parm pname Returns the name.
      *             Has to be copied by caller.
      *             It is invalid if rc == SCMO_INDEX_OUT_OF_BOUND.
-     * @param type Returns the type as CIMKeyBinding::Type.
+     * @param type Returns the type as CIMType.
      *             It is invalid if rc == SCMO_INDEX_OUT_OF_BOUND.
-     * @parma pvalue Returns the value as string.
+     * @param keyvalue A pointer to the binary key value.
      *             Has to be copied by caller.
      *             It is only valid if rc == SCMO_OK.
      * @return     SCMO_OK
@@ -466,15 +433,15 @@ public:
     SCMO_RC getKeyBindingAt(
         Uint32 idx,
         const char** pname,
-        CIMKeyBinding::Type& type,
-        const char** pvalue) const;
+        CIMType& type,
+        const void** keyvalue) const;
 
     /**
      * Get the named key binding.
      * @parm name The name of the key binding.
-     * @param type Returns the type as CIMKeyBinding::Type.
+     * @param type Returns the type as CIMType.
      *             It is invalid if rc == SCMO_INDEX_OUT_OF_BOUND.
-     * @parma value Returns the value as string.
+     * @param keyvalue A pointer to the binary key value.
      *             Has to be copied by caller.
      *             It is only valid if rc == SCMO_OK.
      * @return     SCMO_OK
@@ -483,8 +450,8 @@ public:
      */
     SCMO_RC getKeyBinding(
         const char* name,
-        CIMKeyBinding::Type& ptype,
-        const char** pvalue) const;
+        CIMType& ptype,
+        const void** keyvalue) const;
 
     /**
      * Determines whether the object has been initialized.
@@ -616,6 +583,15 @@ private:
 
     void _setCIMValueAtNodeIndex(Uint32 node, CIMValueRep* valRep);
 
+    void _getCIMValueFromSCMBUnion(
+        CIMValue& cimV,
+        const CIMType type,
+        const Boolean isNull,
+        const Boolean isArray,
+        const Uint32 arraySize,
+        const SCMBUnion& scmbUn,
+        const char * base) const;
+
     void _getCIMValueFromSCMBValue(
         CIMValue& cimV,
         const SCMBValue& scmbV,
@@ -625,7 +601,7 @@ private:
 
     void _setCIMObjectPath(const CIMObjectPath& cimObj);
 
-    void* _getSCMBUnion(
+    void* _resolveSCMBUnion(
         CIMType type,
         Boolean isArray,
         Uint32 size,
@@ -637,7 +613,7 @@ private:
         CIMType type,
         Boolean isArray,
         Uint32 size,
-        Uint64 start);
+        SCMBUnion & u);
 
     static void _setUnionValue(
         Uint64 start,
@@ -645,26 +621,19 @@ private:
         CIMType type,
         Union& u);
 
-    static void _setArrayValue(
+    static void _setUnionArrayValue(
         Uint64 start,
         SCMBMgmt_Header** pmem,
         CIMType type,
         Uint32& n,
         Union& u);
 
-    SCMO_RC _getKeyBindingAtNodeIndex(
-        Uint32 pos,
-        const char** pname,
-        CIMKeyBinding::Type& ptype,
-        const char** pvalue) const;
-
-    SCMO_RC _getKeyBindingAtNodeIndex_l(
+    SCMO_RC _getKeyBindingDataAtNodeIndex(
         Uint32 node,
         const char** pname,
         Uint32 & pnameLen,
-        CIMKeyBinding::Type& type,
-        const char** pvalue,
-        Uint32 & pvalueLen) const;
+        CIMType& type,
+        const SCMBUnion** pdata) const;
 
     void _copyKeyBindings(SCMOInstance& targetInst) const;
 
@@ -678,8 +647,19 @@ private:
 
     void _setKeyBindingFromSCMBUnion(
         CIMType type,
-        SCMBUnion& u,
-        SCMBDataPtr& keyNode);
+        const SCMBUnion& u,
+        const char * uBase,
+        SCMBKeyBindingValue& keyData);
+
+    SCMO_RC _setKeyBindingFromString(const char* name,String cimKeyBinding);
+
+    Boolean _setCimKeyBindingStringToSCMOKeyBindigValue(
+        const char* v,
+        Uint32 len,
+        CIMType type,
+        SCMBKeyBindingValue& scmoKBV
+        );
+
 
     union{
         // To access the instance main structure

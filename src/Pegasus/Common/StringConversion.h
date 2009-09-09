@@ -201,6 +201,15 @@ public:
     static Boolean stringToReal64(
         const char* stringValue,
         Real64& x);
+
+    static Boolean stringToSignedInteger(
+        const char* stringValue,
+        Sint64& x);
+
+    static Boolean stringToUnsignedInteger(
+        const char* stringValue,
+        Uint64& x);
+
 };
 
 PEGASUS_NAMESPACE_END

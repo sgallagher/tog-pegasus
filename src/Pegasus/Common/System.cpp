@@ -588,7 +588,6 @@ Boolean System::isLoopBack(int af, void *binIPAddress)
 #ifdef PEGASUS_ENABLE_IPV6
     struct in6_addr ip6 = PEGASUS_IPV6_LOOPBACK_INIT;
 #endif
-    Uint32 ip4 = PEGASUS_IPV4_LOOPBACK_INIT;
     switch (af)
     {
 #ifdef PEGASUS_ENABLE_IPV6
@@ -600,7 +599,8 @@ Boolean System::isLoopBack(int af, void *binIPAddress)
             Uint32 tmp;
             memcpy(&tmp, binIPAddress, sizeof(Uint32));
             Uint32 n = ntohl(tmp);
-            return !memcmp(&ip4, &n, sizeof (ip4));
+            return n >= PEGASUS_IPV4_LOOPBACK_RANGE_START && 
+                n <= PEGASUS_IPV4_LOOPBACK_RANGE_END;
         }
     }
 

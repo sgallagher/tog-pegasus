@@ -73,6 +73,21 @@ static void _testIPv6()
         "127.0.0.1", binAddr) == 1);
     PEGASUS_TEST_ASSERT(System::isLoopBack(HostAddress::AT_IPV4, binAddr));
 
+    PEGASUS_TEST_ASSERT(HostAddress::convertTextToBinary(HostAddress::AT_IPV4,
+        "127.0.0.8", binAddr) == 1);
+    PEGASUS_TEST_ASSERT(System::isLoopBack(HostAddress::AT_IPV4, binAddr));
+
+    PEGASUS_TEST_ASSERT(HostAddress::convertTextToBinary(HostAddress::AT_IPV4,
+        "127.10.120.18", binAddr) == 1);
+    PEGASUS_TEST_ASSERT(System::isLoopBack(HostAddress::AT_IPV4, binAddr));
+
+    PEGASUS_TEST_ASSERT(HostAddress::convertTextToBinary(HostAddress::AT_IPV4,
+        "127.255.255.255", binAddr) == 1);
+    PEGASUS_TEST_ASSERT(System::isLoopBack(HostAddress::AT_IPV4, binAddr));
+
+    PEGASUS_TEST_ASSERT(HostAddress::convertTextToBinary(HostAddress::AT_IPV4,
+        "127.0.0.0", binAddr) == 1);
+    PEGASUS_TEST_ASSERT(System::isLoopBack(HostAddress::AT_IPV4, binAddr));
 
     PEGASUS_TEST_ASSERT(HostAddress::convertTextToBinary(HostAddress::AT_IPV6,
         "::1", binAddr) == 1);

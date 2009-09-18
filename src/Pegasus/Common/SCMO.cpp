@@ -2079,7 +2079,7 @@ SCMO_RC SCMOInstance::getPropertyNodeIndex(const char* name, Uint32& node) const
 SCMO_RC SCMOInstance::setPropertyWithOrigin(
     const char* name,
     CIMType type,
-    SCMBUnion* pInVal,
+    const SCMBUnion* pInVal,
     Boolean isArray,
     Uint32 size,
     const char* origin)
@@ -2130,7 +2130,7 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
  SCMO_RC SCMOInstance::setPropertyWithNodeIndex(
      Uint32 node,
      CIMType type,
-     SCMBUnion* pInVal,
+     const SCMBUnion* pInVal,
      Boolean isArray,
      Uint32 size)
  {
@@ -2167,7 +2167,7 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
 void SCMOInstance::_setPropertyAtNodeIndex(
     Uint32 node,
     CIMType type,
-    SCMBUnion* pInVal,
+    const SCMBUnion* pInVal,
     Boolean isArray,
     Uint32 size)
 {
@@ -2199,7 +2199,7 @@ void SCMOInstance::_setPropertyAtNodeIndex(
 }
 
 void SCMOInstance::_setSCMBUnion(
-    SCMBUnion* pInVal,
+    const SCMBUnion* pInVal,
     CIMType type,
     Boolean isArray,
     Uint32 size,
@@ -3365,7 +3365,7 @@ SCMO_RC SCMOInstance::_setKeyBindingFromString(
 SCMO_RC SCMOInstance::setKeyBinding(
     const char* name,
     CIMType type,
-    SCMBUnion* keyvalue)
+    const SCMBUnion* keyvalue)
 {
     SCMO_RC rc;
     Uint32 node;
@@ -3387,7 +3387,7 @@ SCMO_RC SCMOInstance::setKeyBinding(
 SCMO_RC SCMOInstance::setKeyBindingAt(
         Uint32 node,
         CIMType type,
-        SCMBUnion* keyvalue)
+        const SCMBUnion* keyvalue)
 {
     SCMO_RC rc;
 

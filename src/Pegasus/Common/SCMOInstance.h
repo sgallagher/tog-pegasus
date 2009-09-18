@@ -321,7 +321,7 @@ public:
     SCMO_RC setPropertyWithOrigin(
         const char* name,
         CIMType type,
-        SCMBUnion* value,
+        const SCMBUnion* value,
         Boolean isArray=false,
         Uint32 size = 0,
         const char* origin = NULL);
@@ -395,7 +395,7 @@ public:
     SCMO_RC setPropertyWithNodeIndex(
         Uint32 node,
         CIMType type,
-        SCMBUnion* pInVal,
+        const SCMBUnion* pInVal,
         Boolean isArray=false,
         Uint32 size = 0);
 
@@ -427,7 +427,7 @@ public:
     SCMO_RC setKeyBinding(
         const char* name,
         CIMType type,
-        SCMBUnion* keyvalue);
+        const SCMBUnion* keyvalue);
 
     /**
      * Set/replace the key binding at node
@@ -453,7 +453,7 @@ public:
     SCMO_RC setKeyBindingAt(
         Uint32 node,
         CIMType type,
-        SCMBUnion* keyvalue);
+        const SCMBUnion* keyvalue);
 
     /**
      * Gets the key binding count.
@@ -636,7 +636,7 @@ private:
     void _setPropertyAtNodeIndex(
         Uint32 pos,
         CIMType type,
-        SCMBUnion* pInVal,
+        const SCMBUnion* pInVal,
         Boolean isArray,
         Uint32 size);
 
@@ -668,7 +668,7 @@ private:
         char* base) const;
 
     void _setSCMBUnion(
-        SCMBUnion* pInVal,
+        const SCMBUnion* pInVal,
         CIMType type,
         Boolean isArray,
         Uint32 size,

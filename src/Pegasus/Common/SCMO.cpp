@@ -411,9 +411,6 @@ void SCMOClass::_setClassProperties(CIMClass& theCIMClass)
 
         _clearKeyPropertyMask();
 
-        //reset number of external referecnes
-        cls.hdr->numberExternalReferences=0;
-
         for (Uint32 i = 0; i < noProps; i++)
         {
 
@@ -839,14 +836,6 @@ void SCMOClass::_setValue(Uint64 start, const CIMValue& theCIMValue)
 
     SCMBValue* scmoValue = (SCMBValue*)&(cls.base[start]);
     scmoValue->valueType = rep->type;
-
-    if (rep->type == CIMTYPE_REFERENCE ||
-        rep->type == CIMTYPE_INSTANCE ||
-        rep->type == CIMTYPE_OBJECT)
-    {
-        // increase the number of properties with external reference
-        cls.hdr->numberExternalReferences++;
-    }
 
     scmoValue->valueArraySize = 0;
     scmoValue->flags.isNull = rep->isNull;
@@ -1898,7 +1887,6 @@ void SCMOInstance::_initSCMOInstance(
     inst.hdr->flags.includeQualifiers=inclQual;
     inst.hdr->flags.includeClassOrigin=inclOrigin;
     inst.hdr->flags.isFiltered=false;
-    inst.hdr->flags.isClassOnly=false;
 
     inst.hdr->hostName.start=0;
     inst.hdr->hostName.length=0;

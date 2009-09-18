@@ -150,6 +150,8 @@ private:
 
     const char* _getPropertyNameAtNode(Uint32 propNode) const;
 
+    void _setUnionValue(SCMBUnion& scmoU,CIMType type,Union& cimU);
+
     inline SCMO_RC _isNodeSameType(
         Uint32 node,
         CIMType type,
@@ -170,7 +172,6 @@ private:
     friend class SCMODump;
     friend class SCMOXmlWriter;
 };
-
 
 PEGASUS_NAMESPACE_END
 

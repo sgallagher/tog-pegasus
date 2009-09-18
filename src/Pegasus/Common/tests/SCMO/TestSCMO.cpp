@@ -88,11 +88,15 @@ void CIMClassToSCMOClass()
 
     SCMOInstance theSCMOInstance(theSCMOClass);
 
-    char* tmp = "TestSCMO Class";
+    
+    SCMBUnion tmp;
+    tmp.extString.pchar  = "TestSCMO Class";
+    tmp.extString.length = strlen("TestSCMO Class");
+
     theSCMOInstance.setPropertyWithOrigin(
         "CreationClassName",
         CIMTYPE_STRING,
-        tmp);
+        &tmp);
 
     VCOUT << "Test of building key bindings from properties." << endl;
 
@@ -114,8 +118,11 @@ void CIMClassToSCMOClass()
         exit(-1);
     }
 
-    char* tmp2 ="This is the Name";
-    const void * tmp3;
+    SCMBUnion tmp2;
+    tmp2.extString.pchar  = "This is the Name";
+    tmp2.extString.length = strlen("This is the Name");
+
+    const SCMBUnion * tmp3;
     CIMType keyType;
     CIMType cimType;
     Boolean isArray;
@@ -125,7 +132,7 @@ void CIMClassToSCMOClass()
     theSCMOInstance.setPropertyWithOrigin(
         "Name",
         CIMTYPE_STRING,
-        tmp2);
+        &tmp2);
 
 
     theSCMOInstance.buildKeyBindingsFromProperties();
@@ -134,8 +141,12 @@ void CIMClassToSCMOClass()
 
     theSCMOInstance.getKeyBinding("Name",keyType,&tmp3);
 
-    PEGASUS_TEST_ASSERT(strcmp((const char*)tmp3,tmp2)==0);
+    PEGASUS_TEST_ASSERT(keyType == CIMTYPE_STRING);
+    PEGASUS_TEST_ASSERT(tmp3->extString.length==tmp2.extString.length);
+    PEGASUS_TEST_ASSERT(strcmp(tmp3->extString.pchar,tmp2.extString.pchar)==0);
 
+    // do not forget to clean up tmp3, because it is a string
+    free((void*)tmp3);
 
     VCOUT << "Test of cloning SCMOInstances." << endl;
 
@@ -147,7 +158,12 @@ void CIMClassToSCMOClass()
     // objectpath cloning.
     asObjectPath.getKeyBinding("Name",keyType,&tmp3);
 
-    PEGASUS_TEST_ASSERT(strcmp((const char*)tmp3,tmp2)==0);
+    PEGASUS_TEST_ASSERT(keyType == CIMTYPE_STRING);
+    PEGASUS_TEST_ASSERT(tmp3->extString.length==tmp2.extString.length);
+    PEGASUS_TEST_ASSERT(strcmp(tmp3->extString.pchar,tmp2.extString.pchar)==0);
+
+    // do not forget to clean up tmp3, because it is a string
+    free((void*)tmp3);
 
     // But the associated key property has to be empty.
     rc = asObjectPath.getProperty("Name",cimType,&tmp3,isArray,number);
@@ -158,7 +174,12 @@ void CIMClassToSCMOClass()
     // But the in the full clone the property has to be set...
     rc = cloneInstance.getProperty("Name",cimType,&tmp3,isArray,number);
 
-    PEGASUS_TEST_ASSERT(strcmp((const char*)tmp3,tmp2)==0);
+    PEGASUS_TEST_ASSERT(keyType == CIMTYPE_STRING);
+    PEGASUS_TEST_ASSERT(tmp3->extString.length==tmp2.extString.length);
+    PEGASUS_TEST_ASSERT(strcmp(tmp3->extString.pchar,tmp2.extString.pchar)==0);
+
+    // do not forget to clean up tmp3, because it is a string
+    free((void*)tmp3);
 
     VCOUT << endl << "Test 1: Done." << endl;
 }
@@ -209,13 +230,15 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     SCMO_RC rc;
 
     // definition of return values.
-    const void* voidReturn;
+    const SCMBUnion* unionReturn;
     CIMType typeReturn;
     Boolean isArrayReturn;
     Uint32 sizeReturn;
 
 
-    Boolean boolValue=true;
+    SCMBUnion boolValue;
+    boolValue.simple.val.bin=true;
+    boolValue.simple.hasValue=true;
 
     /**
      * Negative test cases for setting a propertty
@@ -264,12 +287,13 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
 
     VCOUT << "Empty Array." << endl;
 
-    Uint32 *uint32ArrayValue;
+    // this just to get an valid pointer but I put no elements in it
+    SCMBUnion *uint32ArrayValue = (SCMBUnion*)malloc(1*sizeof(Uint32));
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Uint32PropertyArray",
         CIMTYPE_UINT32,
-        &uint32ArrayValue,
+        uint32ArrayValue,
         true,0);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
@@ -277,26 +301,29 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Uint32PropertyArray",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
     PEGASUS_TEST_ASSERT(sizeReturn==0);
     PEGASUS_TEST_ASSERT(isArrayReturn);
-    PEGASUS_TEST_ASSERT(voidReturn==NULL);
+    PEGASUS_TEST_ASSERT(unionReturn==NULL);
+
+    free(uint32ArrayValue);
 
     VCOUT << "Get default value of the class." << endl;
     rc = SCMO_TESTClass2_Inst.getProperty(
         "BooleanProperty",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
     // The default value of this instance is TRUE
-    PEGASUS_TEST_ASSERT(*((Boolean*)voidReturn));
+    PEGASUS_TEST_ASSERT(unionReturn->simple.val.bin);
+    PEGASUS_TEST_ASSERT(unionReturn->simple.hasValue);
 
 
     VCOUT << endl << "Done." << endl << endl;
@@ -309,7 +336,9 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
 
     VCOUT << endl << "Test Char16" << endl;
 
-    Char16 char16value = 0x3F4A;
+    SCMBUnion char16value;
+    char16value.simple.val.c16=0x3F4A;
+    char16value.simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Char16Property",
@@ -321,22 +350,29 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Char16Property",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
     PEGASUS_TEST_ASSERT(sizeReturn==0);
     PEGASUS_TEST_ASSERT(!isArrayReturn);
+    PEGASUS_TEST_ASSERT(
+        char16value.simple.val.c16 == unionReturn->simple.val.c16);
+    PEGASUS_TEST_ASSERT(unionReturn->simple.hasValue);
 
-    PEGASUS_TEST_ASSERT(char16value == *((Char16*)voidReturn));
-
-    Char16 char16ArrayValue[]={1024,2048,4096};
+    SCMBUnion char16ArrayValue[3];
+    char16ArrayValue[0].simple.val.c16 = 1024;
+    char16ArrayValue[0].simple.hasValue=true;
+    char16ArrayValue[1].simple.val.c16 = 2048;
+    char16ArrayValue[1].simple.hasValue=true;
+    char16ArrayValue[2].simple.val.c16 = 4096;
+    char16ArrayValue[2].simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Char16PropertyArray",
         CIMTYPE_CHAR16,
-        &char16ArrayValue,
+        char16ArrayValue,
         true,3);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
@@ -344,7 +380,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Char16PropertyArray",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -352,16 +388,24 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(isArrayReturn);
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
-    PEGASUS_TEST_ASSERT(char16ArrayValue[0] == ((Char16*)voidReturn)[0]);
-    PEGASUS_TEST_ASSERT(char16ArrayValue[1] == ((Char16*)voidReturn)[1]);
-    PEGASUS_TEST_ASSERT(char16ArrayValue[2] == ((Char16*)voidReturn)[2]);
+    PEGASUS_TEST_ASSERT(
+        char16ArrayValue[0].simple.val.c16 == unionReturn[0].simple.val.c16);
+    PEGASUS_TEST_ASSERT(unionReturn[0].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        char16ArrayValue[1].simple.val.c16 == unionReturn[1].simple.val.c16);
+    PEGASUS_TEST_ASSERT(unionReturn[1].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        char16ArrayValue[2].simple.val.c16 == unionReturn[2].simple.val.c16);
+    PEGASUS_TEST_ASSERT(unionReturn[2].simple.hasValue);
 
     /**
      * Test Uint8
      */
     VCOUT << "Test Uint8" << endl;
 
-    Uint8 uint8value = 0x77;
+    SCMBUnion uint8value;
+    uint8value.simple.val.u8=0x77;
+    uint8value.simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Uint8Property",
@@ -373,7 +417,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Uint8Property",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -381,14 +425,22 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(sizeReturn==0);
     PEGASUS_TEST_ASSERT(!isArrayReturn);
 
-    PEGASUS_TEST_ASSERT(uint8value == *((Uint8*)voidReturn));
+    PEGASUS_TEST_ASSERT(
+        uint8value.simple.val.u8 == unionReturn->simple.val.u8);
+    PEGASUS_TEST_ASSERT(unionReturn->simple.hasValue);
 
-    Uint8 uint8ArrayValue[]={42,155,192};
+    SCMBUnion uint8ArrayValue[3];
+    uint8ArrayValue[0].simple.val.u8 = 42;
+    uint8ArrayValue[0].simple.hasValue=true;
+    uint8ArrayValue[1].simple.val.u8 = 155;
+    uint8ArrayValue[1].simple.hasValue=true;
+    uint8ArrayValue[2].simple.val.u8 = 192;
+    uint8ArrayValue[2].simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Uint8PropertyArray",
         CIMTYPE_UINT8,
-        &uint8ArrayValue,
+        uint8ArrayValue,
         true,3);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
@@ -396,7 +448,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Uint8PropertyArray",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -404,9 +456,15 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(isArrayReturn);
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
-    PEGASUS_TEST_ASSERT(uint8ArrayValue[0] == ((Uint8*)voidReturn)[0]);
-    PEGASUS_TEST_ASSERT(uint8ArrayValue[1] == ((Uint8*)voidReturn)[1]);
-    PEGASUS_TEST_ASSERT(uint8ArrayValue[2] == ((Uint8*)voidReturn)[2]);
+    PEGASUS_TEST_ASSERT(
+        uint8ArrayValue[0].simple.val.u8 == unionReturn[0].simple.val.u8);
+    PEGASUS_TEST_ASSERT(unionReturn[0].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        uint8ArrayValue[1].simple.val.u8 == unionReturn[1].simple.val.u8);
+    PEGASUS_TEST_ASSERT(unionReturn[1].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        uint8ArrayValue[2].simple.val.u8 == unionReturn[2].simple.val.u8);
+    PEGASUS_TEST_ASSERT(unionReturn[2].simple.hasValue);
 
     /**
      * Test Uint16
@@ -414,7 +472,9 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
 
     VCOUT << "Test Uint16" << endl;
 
-    Uint16 uint16value = 0xF77F;
+    SCMBUnion uint16value;
+    uint16value.simple.val.u16=0xF77F;
+    uint16value.simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Uint16Property",
@@ -426,7 +486,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Uint16Property",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -434,14 +494,22 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(sizeReturn==0);
     PEGASUS_TEST_ASSERT(!isArrayReturn);
 
-    PEGASUS_TEST_ASSERT(uint16value == *((Uint16*)voidReturn));
+    PEGASUS_TEST_ASSERT(
+        uint16value.simple.val.u16 == unionReturn->simple.val.u16);
+    PEGASUS_TEST_ASSERT(unionReturn->simple.hasValue);
 
-    Uint16 uint16ArrayValue[]={218,2673,172};
+    SCMBUnion uint16ArrayValue[3];
+    uint16ArrayValue[0].simple.val.u16 = 218;
+    uint16ArrayValue[0].simple.hasValue=true;
+    uint16ArrayValue[1].simple.val.u16 = 2673;
+    uint16ArrayValue[1].simple.hasValue=true;
+    uint16ArrayValue[2].simple.val.u16 = 172;
+    uint16ArrayValue[2].simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Uint16PropertyArray",
         CIMTYPE_UINT16,
-        &uint16ArrayValue,
+        uint16ArrayValue,
         true,3);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
@@ -449,7 +517,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Uint16PropertyArray",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -457,9 +525,15 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(sizeReturn==3);
     PEGASUS_TEST_ASSERT(isArrayReturn);
 
-    PEGASUS_TEST_ASSERT(uint16ArrayValue[0] == ((Uint16*)voidReturn)[0]);
-    PEGASUS_TEST_ASSERT(uint16ArrayValue[1] == ((Uint16*)voidReturn)[1]);
-    PEGASUS_TEST_ASSERT(uint16ArrayValue[2] == ((Uint16*)voidReturn)[2]);
+    PEGASUS_TEST_ASSERT(
+        uint16ArrayValue[0].simple.val.u16 == unionReturn[0].simple.val.u16);
+    PEGASUS_TEST_ASSERT(unionReturn[0].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        uint16ArrayValue[1].simple.val.u16 == unionReturn[1].simple.val.u16);
+    PEGASUS_TEST_ASSERT(unionReturn[1].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        uint16ArrayValue[2].simple.val.u16 == unionReturn[2].simple.val.u16);
+    PEGASUS_TEST_ASSERT(unionReturn[2].simple.hasValue);
 
 
 
@@ -469,7 +543,9 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
 
     VCOUT << "Test Uint32" << endl;
 
-    Uint32 uint32value = 0xF7F7F7F7;
+    SCMBUnion uint32value;
+    uint32value.simple.val.u32=0xF7F7F7F7;
+    uint32value.simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Uint32Property",
@@ -481,7 +557,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Uint32Property",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -489,14 +565,22 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(sizeReturn==0);
     PEGASUS_TEST_ASSERT(!isArrayReturn);
 
-    PEGASUS_TEST_ASSERT(uint32value == *((Uint32*)voidReturn));
+    PEGASUS_TEST_ASSERT(
+        uint32value.simple.val.u32 == unionReturn->simple.val.u32);
+    PEGASUS_TEST_ASSERT(unionReturn->simple.hasValue);
 
-    Uint32 uint32ArrayValue2[]={42,289,192};
+    SCMBUnion uint32ArrayValue2[3];
+    uint32ArrayValue2[0].simple.val.u32 = 42;
+    uint32ArrayValue2[0].simple.hasValue=true;
+    uint32ArrayValue2[1].simple.val.u32 = 289;
+    uint32ArrayValue2[1].simple.hasValue=true;
+    uint32ArrayValue2[2].simple.val.u32 = 192;
+    uint32ArrayValue2[2].simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Uint32PropertyArray",
         CIMTYPE_UINT32,
-        &uint32ArrayValue2,
+        uint32ArrayValue2,
         true,3);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
@@ -504,7 +588,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Uint32PropertyArray",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -512,9 +596,15 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(isArrayReturn);
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
-    PEGASUS_TEST_ASSERT(uint32ArrayValue2[0] == ((Uint32*)voidReturn)[0]);
-    PEGASUS_TEST_ASSERT(uint32ArrayValue2[1] == ((Uint32*)voidReturn)[1]);
-    PEGASUS_TEST_ASSERT(uint32ArrayValue2[2] == ((Uint32*)voidReturn)[2]);
+    PEGASUS_TEST_ASSERT(
+        uint32ArrayValue2[0].simple.val.u32 == unionReturn[0].simple.val.u32);
+    PEGASUS_TEST_ASSERT(unionReturn[0].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        uint32ArrayValue2[1].simple.val.u32 == unionReturn[1].simple.val.u32);
+    PEGASUS_TEST_ASSERT(unionReturn[1].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        uint32ArrayValue2[2].simple.val.u32 == unionReturn[2].simple.val.u32);
+    PEGASUS_TEST_ASSERT(unionReturn[2].simple.hasValue);
 
 
     /**
@@ -523,7 +613,9 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
 
     VCOUT << "Test Uint64" << endl;
 
-    Uint64 uint64value = PEGASUS_UINT64_LITERAL(0xA0A0B0B0C0C0D0D0);
+    SCMBUnion uint64value;
+    uint64value.simple.val.u64=PEGASUS_UINT64_LITERAL(0xA0A0B0B0C0C0D0D0);
+    uint64value.simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Uint64Property",
@@ -535,7 +627,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Uint64Property",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -543,19 +635,25 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(sizeReturn==0);
     PEGASUS_TEST_ASSERT(!isArrayReturn);
 
-    PEGASUS_TEST_ASSERT(uint64value == *((Uint64*)voidReturn));
+    PEGASUS_TEST_ASSERT(
+        uint64value.simple.val.u64 == unionReturn->simple.val.u64);
+    PEGASUS_TEST_ASSERT(unionReturn->simple.hasValue);
 
-    Uint64 uint64ArrayValue[]={
-        394,
-        483734,
-        PEGASUS_UINT64_LITERAL(0x1234567890ABCDEF),
-        23903483
-        };
+    SCMBUnion uint64ArrayValue[4];
+    uint64ArrayValue[0].simple.val.u64 = 394;
+    uint64ArrayValue[0].simple.hasValue=true;
+    uint64ArrayValue[1].simple.val.u64 = 483734;
+    uint64ArrayValue[1].simple.hasValue=true;
+    uint64ArrayValue[2].simple.val.u64 = 
+        PEGASUS_UINT64_LITERAL(0x1234567890ABCDEF);
+    uint64ArrayValue[2].simple.hasValue=true;
+    uint64ArrayValue[3].simple.val.u64 = 23903483;
+    uint64ArrayValue[3].simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Uint64PropertyArray",
         CIMTYPE_UINT64,
-        &uint64ArrayValue,
+        uint64ArrayValue,
         true,4);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
@@ -563,7 +661,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Uint64PropertyArray",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -571,20 +669,27 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(isArrayReturn);
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
-    PEGASUS_TEST_ASSERT(uint64ArrayValue[0] == ((Uint64*)voidReturn)[0]);
-    PEGASUS_TEST_ASSERT(uint64ArrayValue[1] == ((Uint64*)voidReturn)[1]);
-    PEGASUS_TEST_ASSERT(uint64ArrayValue[2] == ((Uint64*)voidReturn)[2]);
-    PEGASUS_TEST_ASSERT(uint64ArrayValue[3] == ((Uint64*)voidReturn)[3]);
-
-
+    PEGASUS_TEST_ASSERT(
+        uint64ArrayValue[0].simple.val.u64 == unionReturn[0].simple.val.u64);
+    PEGASUS_TEST_ASSERT(unionReturn[0].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        uint64ArrayValue[1].simple.val.u64 == unionReturn[1].simple.val.u64);
+    PEGASUS_TEST_ASSERT(unionReturn[1].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        uint64ArrayValue[2].simple.val.u64 == unionReturn[2].simple.val.u64);
+    PEGASUS_TEST_ASSERT(unionReturn[2].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        uint64ArrayValue[3].simple.val.u64 == unionReturn[3].simple.val.u64);
+    PEGASUS_TEST_ASSERT(unionReturn[3].simple.hasValue);
 
     /**
      * Test Sint8
      */
-
     VCOUT << "Test Sint8" << endl;
 
-    Sint8 sint8value = 0xF3;
+    SCMBUnion sint8value;
+    sint8value.simple.val.s8=0xF3;
+    sint8value.simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Sint8Property",
@@ -596,7 +701,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Sint8Property",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -604,14 +709,22 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(sizeReturn==0);
     PEGASUS_TEST_ASSERT(!isArrayReturn);
 
-    PEGASUS_TEST_ASSERT(sint8value == *((Sint8*)voidReturn));
+    PEGASUS_TEST_ASSERT(
+        sint8value.simple.val.s8 == unionReturn->simple.val.s8);
+    PEGASUS_TEST_ASSERT(unionReturn->simple.hasValue);
 
-    Sint8 sint8ArrayValue[]={-2,94,-123};
+    SCMBUnion sint8ArrayValue[3];
+    sint8ArrayValue[0].simple.val.s8 = -2;
+    sint8ArrayValue[0].simple.hasValue=true;
+    sint8ArrayValue[1].simple.val.s8 = 94;
+    sint8ArrayValue[1].simple.hasValue=true;
+    sint8ArrayValue[2].simple.val.s8 = -123;
+    sint8ArrayValue[2].simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Sint8PropertyArray",
         CIMTYPE_SINT8,
-        &sint8ArrayValue,
+        sint8ArrayValue,
         true,3);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
@@ -619,7 +732,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Sint8PropertyArray",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -627,9 +740,15 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(isArrayReturn);
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
-    PEGASUS_TEST_ASSERT(sint8ArrayValue[0] == ((Sint8*)voidReturn)[0]);
-    PEGASUS_TEST_ASSERT(sint8ArrayValue[1] == ((Sint8*)voidReturn)[1]);
-    PEGASUS_TEST_ASSERT(sint8ArrayValue[2] == ((Sint8*)voidReturn)[2]);
+    PEGASUS_TEST_ASSERT(
+        sint8ArrayValue[0].simple.val.s8 == unionReturn[0].simple.val.s8);
+    PEGASUS_TEST_ASSERT(unionReturn[0].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        sint8ArrayValue[1].simple.val.s8 == unionReturn[1].simple.val.s8);
+    PEGASUS_TEST_ASSERT(unionReturn[1].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        sint8ArrayValue[2].simple.val.s8 == unionReturn[2].simple.val.s8);
+    PEGASUS_TEST_ASSERT(unionReturn[2].simple.hasValue);
 
     /**
      * Test Sint16
@@ -637,7 +756,9 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
 
     VCOUT << "Test Sint16" << endl;
 
-    Sint16 sint16value = 0xF24B;
+    SCMBUnion sint16value;
+    sint16value.simple.val.s16=0xF24B;
+    sint16value.simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Sint16Property",
@@ -649,7 +770,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Sint16Property",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -657,18 +778,24 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(sizeReturn==0);
     PEGASUS_TEST_ASSERT(!isArrayReturn);
 
-    PEGASUS_TEST_ASSERT(sint16value == *((Sint16*)voidReturn));
+    PEGASUS_TEST_ASSERT(
+        sint16value.simple.val.s16 == unionReturn->simple.val.s16);
+    PEGASUS_TEST_ASSERT(unionReturn->simple.hasValue);
 
-    Sint16 sint16ArrayValue[]={
-        -8,
-        23872,
-        334,
-        0xF00F};
+    SCMBUnion sint16ArrayValue[4];
+    sint16ArrayValue[0].simple.val.s16 = -8;
+    sint16ArrayValue[0].simple.hasValue=true;
+    sint16ArrayValue[1].simple.val.s16 = 23872;
+    sint16ArrayValue[1].simple.hasValue=true;
+    sint16ArrayValue[2].simple.val.s16 = 334;
+    sint16ArrayValue[2].simple.hasValue=true;
+    sint16ArrayValue[3].simple.val.s16 = 0xF00F;
+    sint16ArrayValue[3].simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Sint16PropertyArray",
         CIMTYPE_SINT16,
-        &sint16ArrayValue,
+        sint16ArrayValue,
         true,4);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
@@ -676,7 +803,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Sint16PropertyArray",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -684,19 +811,28 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(sizeReturn==4);
     PEGASUS_TEST_ASSERT(isArrayReturn);
 
-    PEGASUS_TEST_ASSERT(sint16ArrayValue[0] == ((Sint16*)voidReturn)[0]);
-    PEGASUS_TEST_ASSERT(sint16ArrayValue[1] == ((Sint16*)voidReturn)[1]);
-    PEGASUS_TEST_ASSERT(sint16ArrayValue[2] == ((Sint16*)voidReturn)[2]);
-    PEGASUS_TEST_ASSERT(sint16ArrayValue[3] == ((Sint16*)voidReturn)[3]);
-
+    PEGASUS_TEST_ASSERT(
+        sint16ArrayValue[0].simple.val.s16 == unionReturn[0].simple.val.s16);
+    PEGASUS_TEST_ASSERT(unionReturn[0].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        sint16ArrayValue[1].simple.val.s16 == unionReturn[1].simple.val.s16);
+    PEGASUS_TEST_ASSERT(unionReturn[1].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        sint16ArrayValue[2].simple.val.s16 == unionReturn[2].simple.val.s16);
+    PEGASUS_TEST_ASSERT(unionReturn[2].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        sint16ArrayValue[3].simple.val.s16 == unionReturn[3].simple.val.s16);
+    PEGASUS_TEST_ASSERT(unionReturn[3].simple.hasValue);
 
     /**
      * Test Sint32
      */
 
     VCOUT << "Test Sint32" << endl;
-
-    Sint32 sint32value = 0xF0783C;
+   
+    SCMBUnion sint32value;
+    sint32value.simple.val.s32=0xF0783C;
+    sint32value.simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Sint32Property",
@@ -708,7 +844,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Sint32Property",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -716,14 +852,22 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(sizeReturn==0);
     PEGASUS_TEST_ASSERT(!isArrayReturn);
 
-    PEGASUS_TEST_ASSERT(sint32value == *((Sint32*)voidReturn));
+    PEGASUS_TEST_ASSERT(
+        sint32value.simple.val.s32 == unionReturn->simple.val.s32);
+    PEGASUS_TEST_ASSERT(unionReturn->simple.hasValue);
 
-    Sint32 sint32ArrayValue[]={42,-28937332,19248372};
+    SCMBUnion sint32ArrayValue2[3];
+    sint32ArrayValue2[0].simple.val.s32 = 42;
+    sint32ArrayValue2[0].simple.hasValue=true;
+    sint32ArrayValue2[1].simple.val.s32 = -28937332;
+    sint32ArrayValue2[1].simple.hasValue=true;
+    sint32ArrayValue2[2].simple.val.s32 = 19248372;
+    sint32ArrayValue2[2].simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Sint32PropertyArray",
         CIMTYPE_SINT32,
-        &sint32ArrayValue,
+        sint32ArrayValue2,
         true,3);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
@@ -731,25 +875,33 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Sint32PropertyArray",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
-    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
     PEGASUS_TEST_ASSERT(sizeReturn==3);
     PEGASUS_TEST_ASSERT(isArrayReturn);
+    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
-    PEGASUS_TEST_ASSERT(sint32ArrayValue[0] == ((Sint32*)voidReturn)[0]);
-    PEGASUS_TEST_ASSERT(sint32ArrayValue[1] == ((Sint32*)voidReturn)[1]);
-    PEGASUS_TEST_ASSERT(sint32ArrayValue[2] == ((Sint32*)voidReturn)[2]);
+    PEGASUS_TEST_ASSERT(
+        sint32ArrayValue2[0].simple.val.s32 == unionReturn[0].simple.val.s32);
+    PEGASUS_TEST_ASSERT(unionReturn[0].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        sint32ArrayValue2[1].simple.val.s32 == unionReturn[1].simple.val.s32);
+    PEGASUS_TEST_ASSERT(unionReturn[1].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        sint32ArrayValue2[2].simple.val.s32 == unionReturn[2].simple.val.s32);
+    PEGASUS_TEST_ASSERT(unionReturn[2].simple.hasValue);
 
     /**
-     * Test Sint64
+     * Test Uint64
      */
 
-    VCOUT << "Test Sint64" << endl;
+    VCOUT << "Test Uint64" << endl;
 
-    Sint64 sint64value = (Sint64)-1;
+    SCMBUnion sint64value;
+    sint64value.simple.val.s64=(Sint64)-1;
+    sint64value.simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Sint64Property",
@@ -761,7 +913,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Sint64Property",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -769,32 +921,51 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(sizeReturn==0);
     PEGASUS_TEST_ASSERT(!isArrayReturn);
 
-    PEGASUS_TEST_ASSERT(sint64value == *((Sint64*)voidReturn));
+    PEGASUS_TEST_ASSERT(
+        sint64value.simple.val.s64 == unionReturn->simple.val.s64);
+    PEGASUS_TEST_ASSERT(unionReturn->simple.hasValue);
 
-    Sint64 sint64ArrayValue[]={394,-483734324,232349034};
+    SCMBUnion sint64ArrayValue[4];
+    sint64ArrayValue[0].simple.val.s64 = 394;
+    sint64ArrayValue[0].simple.hasValue=true;
+    sint64ArrayValue[1].simple.val.s64 = -483734324;
+    sint64ArrayValue[1].simple.hasValue=true;
+    sint64ArrayValue[2].simple.val.s64 = 232349034;
+    sint64ArrayValue[2].simple.hasValue=true;
+    sint64ArrayValue[3].simple.val.s64 = 0;
+    sint64ArrayValue[3].simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Sint64PropertyArray",
         CIMTYPE_SINT64,
-        &sint64ArrayValue,
-        true,3);
+        sint64ArrayValue,
+        true,4);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Sint64PropertyArray",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
-    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
-    PEGASUS_TEST_ASSERT(sizeReturn==3);
+    PEGASUS_TEST_ASSERT(sizeReturn==4);
     PEGASUS_TEST_ASSERT(isArrayReturn);
+    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
-    PEGASUS_TEST_ASSERT(sint64ArrayValue[0] == ((Sint64*)voidReturn)[0]);
-    PEGASUS_TEST_ASSERT(sint64ArrayValue[1] == ((Sint64*)voidReturn)[1]);
-    PEGASUS_TEST_ASSERT(sint64ArrayValue[2] == ((Sint64*)voidReturn)[2]);
+    PEGASUS_TEST_ASSERT(
+        sint64ArrayValue[0].simple.val.s64 == unionReturn[0].simple.val.s64);
+    PEGASUS_TEST_ASSERT(unionReturn[0].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        sint64ArrayValue[1].simple.val.s64 == unionReturn[1].simple.val.s64);
+    PEGASUS_TEST_ASSERT(unionReturn[1].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        sint64ArrayValue[2].simple.val.s64 == unionReturn[2].simple.val.s64);
+    PEGASUS_TEST_ASSERT(unionReturn[2].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        sint64ArrayValue[3].simple.val.s64 == unionReturn[3].simple.val.s64);
+    PEGASUS_TEST_ASSERT(unionReturn[3].simple.hasValue);
 
     /**
      * Test Real32
@@ -802,7 +973,9 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
 
     VCOUT << "Test Real32" << endl;
 
-    Real32 real32value = 2.4271e-4;
+    SCMBUnion real32value;
+    real32value.simple.val.r32=2.4271e-4;
+    real32value.simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Real32Property",
@@ -814,7 +987,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Real32Property",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -822,14 +995,22 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(sizeReturn==0);
     PEGASUS_TEST_ASSERT(!isArrayReturn);
 
-    PEGASUS_TEST_ASSERT(real32value == *((Real32*)voidReturn));
+    PEGASUS_TEST_ASSERT(
+        real32value.simple.val.r32 == unionReturn->simple.val.r32);
+    PEGASUS_TEST_ASSERT(unionReturn->simple.hasValue);
 
-    Real32 real32ArrayValue[]={3.94e30,-4.83734324e-35,2.323490e34};
+    SCMBUnion real32ArrayValue[3];
+    real32ArrayValue[0].simple.val.r32 = 3.94e30;
+    real32ArrayValue[0].simple.hasValue=true;
+    real32ArrayValue[1].simple.val.r32 = -4.83734324e-35;
+    real32ArrayValue[1].simple.hasValue=true;
+    real32ArrayValue[2].simple.val.r32 = 2.323490e34;
+    real32ArrayValue[2].simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Real32PropertyArray",
         CIMTYPE_REAL32,
-        &real32ArrayValue,
+        real32ArrayValue,
         true,3);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
@@ -837,7 +1018,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Real32PropertyArray",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -845,9 +1026,15 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(sizeReturn==3);
     PEGASUS_TEST_ASSERT(isArrayReturn);
 
-    PEGASUS_TEST_ASSERT(real32ArrayValue[0] == ((Real32*)voidReturn)[0]);
-    PEGASUS_TEST_ASSERT(real32ArrayValue[1] == ((Real32*)voidReturn)[1]);
-    PEGASUS_TEST_ASSERT(real32ArrayValue[2] == ((Real32*)voidReturn)[2]);
+    PEGASUS_TEST_ASSERT(
+        real32ArrayValue[0].simple.val.r32 == unionReturn[0].simple.val.r32);
+    PEGASUS_TEST_ASSERT(unionReturn[0].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        real32ArrayValue[1].simple.val.r32 == unionReturn[1].simple.val.r32);
+    PEGASUS_TEST_ASSERT(unionReturn[1].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        real32ArrayValue[2].simple.val.r32 == unionReturn[2].simple.val.r32);
+    PEGASUS_TEST_ASSERT(unionReturn[2].simple.hasValue);
 
     /**
      * Test Real64
@@ -855,7 +1042,9 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
 
     VCOUT << "Test Real64" << endl;
 
-    Real64 real64value = Real64(2.4271e-40);
+    SCMBUnion real64value;
+    real64value.simple.val.r64=Real64(2.4271e-40);
+    real64value.simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Real64Property",
@@ -867,7 +1056,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Real64Property",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -875,17 +1064,22 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(sizeReturn==0);
     PEGASUS_TEST_ASSERT(!isArrayReturn);
 
-    PEGASUS_TEST_ASSERT(real64value == *((Real64*)voidReturn));
+    PEGASUS_TEST_ASSERT(
+        real64value.simple.val.r64 == unionReturn->simple.val.r64);
+    PEGASUS_TEST_ASSERT(unionReturn->simple.hasValue);
 
-    Real64 real64ArrayValue[]={
-        Real64(3.94e38),
-        Real64(-4.83734644e-35),
-        Real64(2.643490e34)};
+    SCMBUnion real64ArrayValue[3];
+    real64ArrayValue[0].simple.val.r64 = Real64(3.94e38);
+    real64ArrayValue[0].simple.hasValue=true;
+    real64ArrayValue[1].simple.val.r64 = Real64(-4.83734644e-35);
+    real64ArrayValue[1].simple.hasValue=true;
+    real64ArrayValue[2].simple.val.r64 = Real64(2.643490e34);
+    real64ArrayValue[2].simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "Real64PropertyArray",
         CIMTYPE_REAL64,
-        &real64ArrayValue,
+        real64ArrayValue,
         true,3);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
@@ -893,7 +1087,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Real64PropertyArray",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -901,9 +1095,15 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(sizeReturn==3);
     PEGASUS_TEST_ASSERT(isArrayReturn);
 
-    PEGASUS_TEST_ASSERT(real64ArrayValue[0] == ((Real64*)voidReturn)[0]);
-    PEGASUS_TEST_ASSERT(real64ArrayValue[1] == ((Real64*)voidReturn)[1]);
-    PEGASUS_TEST_ASSERT(real64ArrayValue[2] == ((Real64*)voidReturn)[2]);
+    PEGASUS_TEST_ASSERT(
+        real64ArrayValue[0].simple.val.r64 == unionReturn[0].simple.val.r64);
+    PEGASUS_TEST_ASSERT(unionReturn[0].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        real64ArrayValue[1].simple.val.r64 == unionReturn[1].simple.val.r64);
+    PEGASUS_TEST_ASSERT(unionReturn[1].simple.hasValue);
+    PEGASUS_TEST_ASSERT(
+        real64ArrayValue[2].simple.val.r64 == unionReturn[2].simple.val.r64);
+    PEGASUS_TEST_ASSERT(unionReturn[2].simple.hasValue);
 
     /**
      * Test Boolean
@@ -911,7 +1111,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
 
     VCOUT << "Test Boolean" << endl;
 
-    boolValue=true;
+    boolValue.simple.val.bin=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "BooleanProperty",
@@ -923,7 +1123,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "BooleanProperty",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -931,14 +1131,21 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(sizeReturn==0);
     PEGASUS_TEST_ASSERT(!isArrayReturn);
 
-    PEGASUS_TEST_ASSERT(*((Boolean*)voidReturn));
+    PEGASUS_TEST_ASSERT(unionReturn->simple.val.bin);
 
-    Boolean boolArrayValue[]={true,false,true};
+    SCMBUnion boolArrayValue[3];
+    boolArrayValue[0].simple.val.bin = true;
+    boolArrayValue[0].simple.hasValue= true;
+    boolArrayValue[1].simple.val.bin = false;
+    boolArrayValue[1].simple.hasValue= true;
+    boolArrayValue[2].simple.val.bin = true;
+    boolArrayValue[2].simple.hasValue= true;
+
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "BooleanPropertyArray",
         CIMTYPE_BOOLEAN,
-        &boolArrayValue,
+        boolArrayValue,
         true,3);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
@@ -946,7 +1153,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "BooleanPropertyArray",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -954,9 +1161,12 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(sizeReturn==3);
     PEGASUS_TEST_ASSERT(isArrayReturn);
 
-    PEGASUS_TEST_ASSERT(((Boolean*)voidReturn)[0]);
-    PEGASUS_TEST_ASSERT(!((Boolean*)voidReturn)[1]);
-    PEGASUS_TEST_ASSERT(((Boolean*)voidReturn)[2]);
+    PEGASUS_TEST_ASSERT(unionReturn[0].simple.val.bin);
+    PEGASUS_TEST_ASSERT(unionReturn[0].simple.hasValue);
+    PEGASUS_TEST_ASSERT(!unionReturn[1].simple.val.bin);
+    PEGASUS_TEST_ASSERT(unionReturn[1].simple.hasValue);
+    PEGASUS_TEST_ASSERT(unionReturn[2].simple.val.bin);
+    PEGASUS_TEST_ASSERT(unionReturn[2].simple.hasValue);
 
     /**
      * Test DateTime
@@ -964,68 +1174,87 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
 
     VCOUT << "Test DateTime" << endl;
 
-    CIMDateTimeRep dateTimeValue = {PEGASUS_UINT64_LITERAL(17236362),0,':',0};
+    SCMBUnion myDateTimeValue;
+    myDateTimeValue.dateTimeValue.usec = PEGASUS_UINT64_LITERAL(17236362);
+    myDateTimeValue.dateTimeValue.utcOffset = 0;
+    myDateTimeValue.dateTimeValue.sign = ':';
+    myDateTimeValue.dateTimeValue.numWildcards = 0;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "DateTimeProperty",
         CIMTYPE_DATETIME,
-        &dateTimeValue);
-
-    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+        &myDateTimeValue);
+                                            
+    PEGASUS_TEST_ASSERT(rc==SCMO_OK);       
 
     rc = SCMO_TESTClass2_Inst.getProperty(
         "DateTimeProperty",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
-        sizeReturn);
-
+        sizeReturn);                     
+                                            
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
     PEGASUS_TEST_ASSERT(sizeReturn==0);
-    PEGASUS_TEST_ASSERT(!isArrayReturn);
+    PEGASUS_TEST_ASSERT(!isArrayReturn); 
 
     PEGASUS_TEST_ASSERT(
-        memcmp(&dateTimeValue,voidReturn,sizeof(CIMDateTimeRep))== 0);
+        memcmp(
+            &(myDateTimeValue.dateTimeValue),
+            &(unionReturn->dateTimeValue),
+            sizeof(CIMDateTimeRep))== 0);
 
-    CIMDateTimeRep dateTimeArrayValue[]=
-        {{Uint64(988243387),0,':',0},
-         {Uint64(827383727),0,':',0},
-         {Uint64(932933892),0,':',0}};
+    SCMBUnion dateTimeArrayValue[3];        
 
+    dateTimeArrayValue[0].dateTimeValue.usec = Uint64(988243387);
+    dateTimeArrayValue[0].dateTimeValue.utcOffset = 0;
+    dateTimeArrayValue[0].dateTimeValue.sign = ':';
+    dateTimeArrayValue[0].dateTimeValue.numWildcards = 0;
+                                            
+    dateTimeArrayValue[1].dateTimeValue.usec = Uint64(827383727);
+    dateTimeArrayValue[1].dateTimeValue.utcOffset = 0;
+    dateTimeArrayValue[1].dateTimeValue.sign = ':';
+    dateTimeArrayValue[1].dateTimeValue.numWildcards = 0;
+
+    dateTimeArrayValue[2].dateTimeValue.usec = Uint64(932933892);
+    dateTimeArrayValue[2].dateTimeValue.utcOffset = 0;
+    dateTimeArrayValue[2].dateTimeValue.sign = ':';
+    dateTimeArrayValue[2].dateTimeValue.numWildcards = 0;
+                                            
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "DateTimePropertyArray",
         CIMTYPE_DATETIME,
-        &dateTimeArrayValue,
+        dateTimeArrayValue,
         true,3);
-
-    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+                                            
+    PEGASUS_TEST_ASSERT(rc==SCMO_OK);           
 
     rc = SCMO_TESTClass2_Inst.getProperty(
         "DateTimePropertyArray",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
     PEGASUS_TEST_ASSERT(sizeReturn==3);
-    PEGASUS_TEST_ASSERT(isArrayReturn);
+    PEGASUS_TEST_ASSERT(isArrayReturn);     
 
-
+    
+    PEGASUS_TEST_ASSERT(
+        memcmp(&(dateTimeArrayValue[0].dateTimeValue),
+               &(unionReturn[0].dateTimeValue),
+               sizeof(CIMDateTimeRep)
+               )== 0);
     PEGASUS_TEST_ASSERT(
         memcmp(
-            &(dateTimeArrayValue[0]),
-            &(((CIMDateTimeRep*)voidReturn)[0]),
+            &(dateTimeArrayValue[1].dateTimeValue),
+            &(unionReturn[1].dateTimeValue),
             sizeof(CIMDateTimeRep))== 0);
     PEGASUS_TEST_ASSERT(
         memcmp(
-            &(dateTimeArrayValue[1]),
-            &(((CIMDateTimeRep*)voidReturn)[1]),
-            sizeof(CIMDateTimeRep))== 0);
-    PEGASUS_TEST_ASSERT(
-        memcmp(
-            &(dateTimeArrayValue[2]),
-            &(((CIMDateTimeRep*)voidReturn)[2]),
+            &(dateTimeArrayValue[2].dateTimeValue),
+            &(unionReturn[2].dateTimeValue),
             sizeof(CIMDateTimeRep))== 0);
 
     /**
@@ -1034,19 +1263,21 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
 
     VCOUT << "Test String" << endl;
 
-    char* stringValue = "This is a single String!";
+    SCMBUnion stringValue;
+    stringValue.extString.pchar = "This is a single String!";
+    stringValue.extString.length = sizeof("This is a single String!")-1;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "StringProperty",
         CIMTYPE_STRING,
-        stringValue);
+        &stringValue);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
     rc = SCMO_TESTClass2_Inst.getProperty(
         "StringProperty",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -1054,13 +1285,25 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(sizeReturn==0);
     PEGASUS_TEST_ASSERT(!isArrayReturn);
 
-    PEGASUS_TEST_ASSERT(strcmp(stringValue,(const char*)voidReturn) == 0);
+    PEGASUS_TEST_ASSERT(
+        stringValue.extString.length==unionReturn->extString.length);
+    PEGASUS_TEST_ASSERT(
+        strcmp(
+            stringValue.extString.pchar,
+            unionReturn->extString.pchar) == 0);
 
+    free((void*)unionReturn);
 
-    char* stringArrayValue[]=
-        {"The Array String Number one.",
-         "The Array String Number two.",
-         "The Array String Number three."};
+    SCMBUnion stringArrayValue[3];
+    stringArrayValue[0].extString.pchar="The Array String Number one.";
+    stringArrayValue[0].extString.length=
+        sizeof("The Array String Number one.")-1;
+    stringArrayValue[1].extString.pchar="The Array String Number two.";
+    stringArrayValue[1].extString.length=
+        sizeof("The Array String Number two.")-1;
+    stringArrayValue[2].extString.pchar="The Array String Number three.";
+    stringArrayValue[2].extString.length=
+        sizeof("The Array String Number three.")-1;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "StringPropertyArray",
@@ -1073,7 +1316,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "StringPropertyArray",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -1082,13 +1325,26 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     PEGASUS_TEST_ASSERT(isArrayReturn);
 
     PEGASUS_TEST_ASSERT(
-        strcmp(stringArrayValue[0],((const char**)voidReturn)[0]) == 0);
+        stringArrayValue[0].extString.length==unionReturn[0].extString.length);
     PEGASUS_TEST_ASSERT(
-        strcmp(stringArrayValue[1],((const char**)voidReturn)[1]) == 0);
+        strcmp(
+            stringArrayValue[0].extString.pchar,
+            unionReturn[0].extString.pchar) == 0);
     PEGASUS_TEST_ASSERT(
-        strcmp(stringArrayValue[2],((const char**)voidReturn)[2]) == 0);
+        stringArrayValue[1].extString.length==unionReturn[1].extString.length);
+    PEGASUS_TEST_ASSERT(
+        strcmp(
+            stringArrayValue[1].extString.pchar,
+            unionReturn[1].extString.pchar) == 0);
+    PEGASUS_TEST_ASSERT(
+        stringArrayValue[2].extString.length==unionReturn[2].extString.length);
+    PEGASUS_TEST_ASSERT(
+        strcmp(
+            stringArrayValue[2].extString.pchar,
+            unionReturn[2].extString.pchar) == 0);
+
     // do not forget !!!
-    free((void*)voidReturn);
+    free((void*)unionReturn);
 
     VCOUT << endl << "Done." << endl << endl;
 
@@ -1099,14 +1355,26 @@ void SCMOInstanceKeyBindingsTest(SCMOInstance& SCMO_TESTClass2_Inst)
     SCMO_RC rc;
 
     CIMType returnKeyBindType;
-    const void * returnKeyBindValue;
+    const SCMBUnion * returnKeyBindValue;
     Uint32 noKeyBind;
     const char * returnName;
 
-    Uint64 uint64KeyVal = PEGASUS_UINT64_LITERAL(4834987289728);
-    Boolean boolKeyVal = true;
-    Real32 real32KeyVal = 3.9399998628365712e+30;
-    char * stringKeyVal = "This is the String key binding.";
+    SCMBUnion uint64KeyVal;
+    uint64KeyVal.simple.val.u64 = PEGASUS_UINT64_LITERAL(4834987289728);
+    uint64KeyVal.simple.hasValue= true;
+
+    SCMBUnion boolKeyVal;
+    boolKeyVal.simple.val.bin  = true;
+    boolKeyVal.simple.hasValue = true;
+
+    SCMBUnion real32KeyVal;
+    real32KeyVal.simple.val.r32 = 3.9399998628365712e+30;
+    real32KeyVal.simple.hasValue = true;
+
+    SCMBUnion stringKeyVal;
+    stringKeyVal.extString.pchar = "This is the String key binding.";
+    stringKeyVal.extString.length =
+        sizeof("This is the String key binding.")-1;
 
     /**
      * Test Key bindings
@@ -1149,10 +1417,9 @@ void SCMOInstanceKeyBindingsTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.setKeyBinding(
         "StringProperty",
         CIMTYPE_STRING,
-        stringKeyVal);
+        &stringKeyVal);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
-
 
     rc = SCMO_TESTClass2_Inst.setKeyBinding(
         "Real32Property",
@@ -1160,7 +1427,6 @@ void SCMOInstanceKeyBindingsTest(SCMOInstance& SCMO_TESTClass2_Inst)
         &real32KeyVal);
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
-
 
     rc = SCMO_TESTClass2_Inst.setKeyBinding(
         "Uint64Property",
@@ -1176,7 +1442,8 @@ void SCMOInstanceKeyBindingsTest(SCMOInstance& SCMO_TESTClass2_Inst)
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
     PEGASUS_TEST_ASSERT(returnKeyBindType==CIMTYPE_REAL32);
-    PEGASUS_TEST_ASSERT(*((const Real32*)returnKeyBindValue) == real32KeyVal);
+    PEGASUS_TEST_ASSERT(returnKeyBindValue->simple.val.r32 == 
+                        real32KeyVal.simple.val.r32);
 
     rc = SCMO_TESTClass2_Inst.getKeyBinding(
         "Uint64Property",
@@ -1185,8 +1452,26 @@ void SCMOInstanceKeyBindingsTest(SCMOInstance& SCMO_TESTClass2_Inst)
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
     PEGASUS_TEST_ASSERT(returnKeyBindType==CIMTYPE_UINT64);
-    PEGASUS_TEST_ASSERT(*((const Uint64*)returnKeyBindValue) == uint64KeyVal);
+    PEGASUS_TEST_ASSERT(returnKeyBindValue->simple.val.u64 == 
+                        uint64KeyVal.simple.val.u64);
 
+    rc = SCMO_TESTClass2_Inst.getKeyBinding(
+        "StringProperty",
+        returnKeyBindType,
+        &returnKeyBindValue);
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+    PEGASUS_TEST_ASSERT(returnKeyBindType==CIMTYPE_STRING);
+
+    PEGASUS_TEST_ASSERT(
+        stringKeyVal.extString.length==returnKeyBindValue->extString.length);
+    PEGASUS_TEST_ASSERT(
+        strcmp(
+            stringKeyVal.extString.pchar,
+            returnKeyBindValue->extString.pchar) == 0);
+
+    // do not forget !
+    free((void*)returnKeyBindValue);
 
     VCOUT << "Get Key binding by index." << endl;
 
@@ -1214,6 +1499,10 @@ void SCMOInstanceKeyBindingsTest(SCMOInstance& SCMO_TESTClass2_Inst)
             returnKeyBindType,
             &returnKeyBindValue);
 
+        if (returnKeyBindType == CIMTYPE_STRING)
+        {
+            free((void*)returnKeyBindValue);
+        }
         PEGASUS_TEST_ASSERT(rc==SCMO_OK);
     }
 
@@ -1225,7 +1514,7 @@ void SCMOInstancePropertyFilterTest(SCMOInstance& SCMO_TESTClass2_Inst)
     SCMO_RC rc;
 
     // definition of return values.
-    const void* voidReturn;
+    const SCMBUnion* unionReturn;
     CIMType typeReturn;
     Boolean isArrayReturn;
     Uint32 sizeReturn;
@@ -1259,16 +1548,14 @@ void SCMOInstancePropertyFilterTest(SCMOInstance& SCMO_TESTClass2_Inst)
             i,
             &nameReturn,
             typeReturn,
-            &voidReturn,
+            &unionReturn,
             isArrayReturn,
             sizeReturn);
 
-        if (isArrayReturn &&
-            typeReturn == CIMTYPE_STRING
-            && sizeReturn > 0)
+        if (typeReturn == CIMTYPE_STRING)
         {
                 // do not forget !!!
-                free((void*)voidReturn);
+                free((void*)unionReturn);
         }
 
         PEGASUS_TEST_ASSERT(rc==SCMO_OK);
@@ -1280,7 +1567,7 @@ void SCMOInstancePropertyFilterTest(SCMOInstance& SCMO_TESTClass2_Inst)
         SCMO_TESTClass2_Inst.getPropertyCount(),
         &nameReturn,
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
@@ -1294,7 +1581,9 @@ void SCMOInstancePropertyFilterTest(SCMOInstance& SCMO_TESTClass2_Inst)
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
-    Uint32 uint32value = 0x123456;
+    SCMBUnion uint32value;
+    uint32value.simple.val.u32 = 0x123456;
+    uint32value.simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithNodeIndex(
         nodeIndex,
@@ -1317,13 +1606,14 @@ void SCMOInstancePropertyFilterTest(SCMOInstance& SCMO_TESTClass2_Inst)
     rc = SCMO_TESTClass2_Inst.getProperty(
         "Uint32Property",
         typeReturn,
-        &voidReturn,
+        &unionReturn,
         isArrayReturn,
         sizeReturn);
 
     // The property should not have changed! The setPropertyWithNodeIndex()
     // must not have changed the value.
-    PEGASUS_TEST_ASSERT(uint32value != *((Uint32*)voidReturn));
+    PEGASUS_TEST_ASSERT(
+        uint32value.simple.val.u32 != unionReturn->simple.val.u32);
 
     const char* noPropertyFiler[] = { 0 };
 

@@ -158,7 +158,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 1
-The values are: 'MIF.DMTF|ComponentID|001.5 '
+The values are: 'MIF.DMTF|ComponentID|001.5';
 Class property #  4
 ===================
 Has next: TRUE
@@ -196,7 +196,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : uint32
 Value was set by the provider: False
 The value is an Array of size: 19
-The values are: '0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 '
+The values are: '0'(hasValue=TRUE);'1'(hasValue=TRUE);'2'(hasValue=TRUE);'3'(hasValue=TRUE);'4'(hasValue=TRUE);'5'(hasValue=TRUE);'6'(hasValue=TRUE);'7'(hasValue=TRUE);'8'(hasValue=TRUE);'9'(hasValue=TRUE);'10'(hasValue=TRUE);'11'(hasValue=TRUE);'12'(hasValue=TRUE);'13'(hasValue=TRUE);'14'(hasValue=TRUE);'15'(hasValue=TRUE);'16'(hasValue=TRUE);'17'(hasValue=TRUE);'18'(hasValue=TRUE);
 
 Qualifier DMTF defined name: 'VALUES'
 Propagated : False
@@ -204,7 +204,7 @@ Flavor : OVERRIDABLE TOSUBCLASS TRANSLATABLE
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 21
-The values are: 'Unknown Other OK Degraded Stressed Predictive Failure Error Non-Recoverable Error Starting Stopping Stopped In Service No Contact Lost Communication Aborted Dormant Supporting Entity in Error Completed Power Mode DMTF Reserved Vendor Reserved '
+The values are: 'Unknown';'Other';'OK';'Degraded';'Stressed';'Predictive Failure';'Error';'Non-Recoverable Error';'Starting';'Stopping';'Stopped';'In Service';'No Contact';'Lost Communication';'Aborted';'Dormant';'Supporting Entity in Error';'Completed';'Power Mode';'DMTF Reserved';'Vendor Reserved';
 
 Qualifier DMTF defined name: 'ARRAYTYPE'
 Propagated : False
@@ -219,7 +219,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 1
-The values are: 'CIM_ManagedSystemElement.StatusDescriptions '
+The values are: 'CIM_ManagedSystemElement.StatusDescriptions';
 Class property #  5
 ===================
 Has next: TRUE
@@ -253,7 +253,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 1
-The values are: 'CIM_ManagedSystemElement.OperationalStatus '
+The values are: 'CIM_ManagedSystemElement.OperationalStatus';
 Class property #  6
 ===================
 Has next: FALSE
@@ -273,7 +273,7 @@ Flavor : OVERRIDABLE RESTRICTED
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 1
-The values are: 'CIM_ManagedSystemElement.OperationalStatus '
+The values are: 'CIM_ManagedSystemElement.OperationalStatus';
 
 Qualifier DMTF defined name: 'DESCRIPTION'
 Propagated : False
@@ -291,7 +291,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 13
-The values are: 'OK Error Degraded Unknown Pred Fail Starting Stopping Service Stressed NonRecover No Contact Lost Comm Stopped '
+The values are: 'OK';'Error';'Degraded';'Unknown';'Pred Fail';'Starting';'Stopping';'Service';'Stressed';'NonRecover';'No Contact';'Lost Comm';'Stopped';
 
 Qualifier DMTF defined name: 'MAXLEN'
 Propagated : False
@@ -333,7 +333,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 8
-The values are: '0 5 10 15 20 25 30 .. '
+The values are: '0';'5';'10';'15';'20';'25';'30';'..';
 
 Qualifier DMTF defined name: 'VALUES'
 Propagated : False
@@ -341,7 +341,7 @@ Flavor : OVERRIDABLE TOSUBCLASS TRANSLATABLE
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 8
-The values are: 'Unknown OK Degraded/Warning Minor failure Major failure Critical failure Non-recoverable error DMTF Reserved '
+The values are: 'Unknown';'OK';'Degraded/Warning';'Minor failure';'Major failure';'Critical failure';'Non-recoverable error';'DMTF Reserved';
 Class property #  8
 ===================
 Has next: FALSE
@@ -377,7 +377,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 13
-The values are: '0 1 2 3 4 5 6 7 8 9 10 11..32767 32768..65535 '
+The values are: '0';'1';'2';'3';'4';'5';'6';'7';'8';'9';'10';'11..32767';'32768..65535';
 
 Qualifier DMTF defined name: 'VALUES'
 Propagated : False
@@ -385,7 +385,7 @@ Flavor : OVERRIDABLE TOSUBCLASS TRANSLATABLE
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 13
-The values are: 'Unknown Other Enabled Disabled Shutting Down Not Applicable Enabled but Offline In Test Deferred Quiesce Starting DMTF Reserved Vendor Reserved '
+The values are: 'Unknown';'Other';'Enabled';'Disabled';'Shutting Down';'Not Applicable';'Enabled but Offline';'In Test';'Deferred';'Quiesce';'Starting';'DMTF Reserved';'Vendor Reserved';
 
 Qualifier DMTF defined name: 'MODELCORRESPONDENCE'
 Propagated : False
@@ -393,7 +393,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 1
-The values are: 'CIM_EnabledLogicalElement.OtherEnabledState '
+The values are: 'CIM_EnabledLogicalElement.OtherEnabledState';
 Class property #  9
 ===================
 Has next: FALSE
@@ -420,7 +420,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 1
-The values are: 'CIM_EnabledLogicalElement.EnabledState '
+The values are: 'CIM_EnabledLogicalElement.EnabledState';
 Class property # 10
 ===================
 Has next: FALSE
@@ -454,7 +454,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 14
-The values are: '0 2 3 4 5 6 7 8 9 10 11 12 .. 32768..65535 '
+The values are: '0';'2';'3';'4';'5';'6';'7';'8';'9';'10';'11';'12';'..';'32768..65535';
 
 Qualifier DMTF defined name: 'VALUES'
 Propagated : False
@@ -462,7 +462,7 @@ Flavor : OVERRIDABLE TOSUBCLASS TRANSLATABLE
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 14
-The values are: 'Unknown Enabled Disabled Shut Down No Change Offline Test Deferred Quiesce Reboot Reset Not Applicable DMTF Reserved Vendor Reserved '
+The values are: 'Unknown';'Enabled';'Disabled';'Shut Down';'No Change';'Offline';'Test';'Deferred';'Quiesce';'Reboot';'Reset';'Not Applicable';'DMTF Reserved';'Vendor Reserved';
 
 Qualifier DMTF defined name: 'MODELCORRESPONDENCE'
 Propagated : False
@@ -470,7 +470,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 1
-The values are: 'CIM_EnabledLogicalElement.EnabledState '
+The values are: 'CIM_EnabledLogicalElement.EnabledState';
 Class property # 11
 ===================
 Has next: FALSE
@@ -504,7 +504,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 8
-The values are: '2 3 5 6 7 9 .. 32768..65535 '
+The values are: '2';'3';'5';'6';'7';'9';'..';'32768..65535';
 
 Qualifier DMTF defined name: 'VALUES'
 Propagated : False
@@ -512,7 +512,7 @@ Flavor : OVERRIDABLE TOSUBCLASS TRANSLATABLE
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 8
-The values are: 'Enabled Disabled Not Applicable Enabled but Offline No Default Quiesce DMTF Reserved Vendor Reserved '
+The values are: 'Enabled';'Disabled';'Not Applicable';'Enabled but Offline';'No Default';'Quiesce';'DMTF Reserved';'Vendor Reserved';
 Class property # 12
 ===================
 Has next: FALSE
@@ -645,7 +645,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 1
-The values are: 'MIF.DMTF|General Information|001.3 '
+The values are: 'MIF.DMTF|General Information|001.3';
 Class property # 16
 ===================
 Has next: FALSE
@@ -686,7 +686,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 1
-The values are: 'MIF.DMTF|General Information|001.4 '
+The values are: 'MIF.DMTF|General Information|001.4';
 Class property # 17
 ===================
 Has next: FALSE
@@ -754,7 +754,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 1
-The values are: 'CIM_System.IdentifyingDescriptions '
+The values are: 'CIM_System.IdentifyingDescriptions';
 Class property # 19
 ===================
 Has next: FALSE
@@ -788,7 +788,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 1
-The values are: 'CIM_System.OtherIdentifyingInfo '
+The values are: 'CIM_System.OtherIdentifyingInfo';
 Class property # 20
 ===================
 Has next: FALSE
@@ -829,7 +829,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 16
-The values are: 'Other IP Dial HID NWA HWA X25 ISDN IPX DCC ICD E.164 SNA OID/OSI WWN NAA '
+The values are: 'Other';'IP';'Dial';'HID';'NWA';'HWA';'X25';'ISDN';'IPX';'DCC';'ICD';'E.164';'SNA';'OID/OSI';'WWN';'NAA';
 Class property # 21
 ===================
 Has next: FALSE
@@ -862,7 +862,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 38
-The values are: '0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36..32567 32568..65535 '
+The values are: '0';'1';'2';'3';'4';'5';'6';'7';'8';'9';'10';'11';'12';'13';'14';'15';'16';'17';'18';'19';'20';'21';'22';'23';'24';'25';'26';'27';'28';'29';'30';'31';'32';'33';'34';'35';'36..32567';'32568..65535';
 
 Qualifier DMTF defined name: 'VALUES'
 Propagated : False
@@ -870,7 +870,7 @@ Flavor : OVERRIDABLE TOSUBCLASS TRANSLATABLE
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 38
-The values are: 'Not Dedicated Unknown Other Storage Router Switch Layer 3 Switch Central Office Switch Hub Access Server Firewall Print I/O Web Caching Management Block Server File Server Mobile User Device Repeater Bridge/Extender Gateway Storage Virtualizer Media Library ExtenderNode NAS Head Self-contained NAS UPS IP Phone Management Controller Chassis Manager Host-based RAID controller Storage Device Enclosure Desktop Laptop Virtual Tape Library Virtual Library System DMTF Reserved Vendor Reserved '
+The values are: 'Not Dedicated';'Unknown';'Other';'Storage';'Router';'Switch';'Layer 3 Switch';'Central Office Switch';'Hub';'Access Server';'Firewall';'Print';'I/O';'Web Caching';'Management';'Block Server';'File Server';'Mobile User Device';'Repeater';'Bridge/Extender';'Gateway';'Storage Virtualizer';'Media Library';'ExtenderNode';'NAS Head';'Self-contained NAS';'UPS';'IP Phone';'Management Controller';'Chassis Manager';'Host-based RAID controller';'Storage Device Enclosure';'Desktop';'Laptop';'Virtual Tape Library';'Virtual Library System';'DMTF Reserved';'Vendor Reserved';
 
 Qualifier DMTF defined name: 'ARRAYTYPE'
 Propagated : False
@@ -885,7 +885,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 2
-The values are: 'MIB.IETF|MIB-II.sysServices FC-GS.INCITS-T11 | Platform | PlatformType '
+The values are: 'MIB.IETF|MIB-II.sysServices';'FC-GS.INCITS-T11 | Platform | PlatformType';
 
 Qualifier DMTF defined name: 'MODELCORRESPONDENCE'
 Propagated : False
@@ -893,7 +893,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 1
-The values are: 'CIM_ComputerSystem.OtherDedicatedDescriptions '
+The values are: 'CIM_ComputerSystem.OtherDedicatedDescriptions';
 Class property # 22
 ===================
 Has next: FALSE
@@ -927,7 +927,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 1
-The values are: 'CIM_ComputerSystem.Dedicated '
+The values are: 'CIM_ComputerSystem.Dedicated';
 Class property # 23
 ===================
 Has next: FALSE
@@ -954,7 +954,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 5
-The values are: '1 2 3 4 5 '
+The values are: '1';'2';'3';'4';'5';
 
 Qualifier DMTF defined name: 'VALUES'
 Propagated : False
@@ -962,7 +962,7 @@ Flavor : OVERRIDABLE TOSUBCLASS TRANSLATABLE
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 5
-The values are: 'Other Unknown Disabled Enabled Not Implemented '
+The values are: 'Other';'Unknown';'Disabled';'Enabled';'Not Implemented';
 
 Qualifier DMTF defined name: 'MAPPINGSTRINGS'
 Propagated : False
@@ -970,7 +970,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 1
-The values are: 'MIF.DMTF|System Hardware Security|001.4 '
+The values are: 'MIF.DMTF|System Hardware Security|001.4';
 Class property # 24
 ===================
 Has next: FALSE
@@ -990,7 +990,7 @@ Flavor : OVERRIDABLE RESTRICTED
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 1
-The values are: 'CIM_PowerManagementCapabilities.PowerCapabilities '
+The values are: 'CIM_PowerManagementCapabilities.PowerCapabilities';
 
 Qualifier DMTF defined name: 'DESCRIPTION'
 Propagated : False
@@ -1005,7 +1005,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 8
-The values are: '0 1 2 3 4 5 6 7 '
+The values are: '0';'1';'2';'3';'4';'5';'6';'7';
 
 Qualifier DMTF defined name: 'VALUES'
 Propagated : False
@@ -1013,7 +1013,7 @@ Flavor : OVERRIDABLE TOSUBCLASS TRANSLATABLE
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 8
-The values are: 'Unknown Not Supported Disabled Enabled Power Saving Modes Entered Automatically Power State Settable Power Cycling Supported Timed Power On Supported '
+The values are: 'Unknown';'Not Supported';'Disabled';'Enabled';'Power Saving Modes Entered Automatically';'Power State Settable';'Power Cycling Supported';'Timed Power On Supported';
 
 Qualifier DMTF defined name: 'MAPPINGSTRINGS'
 Propagated : False
@@ -1021,7 +1021,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 1
-The values are: 'MIF.DMTF|System Power Controls|001.2 '
+The values are: 'MIF.DMTF|System Power Controls|001.2';
 
 
 Key Binding Set:

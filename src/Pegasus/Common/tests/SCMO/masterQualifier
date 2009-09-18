@@ -50,7 +50,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 2
-The values are: 'BitMap1 BitMap2 '
+The values are: 'BitMap1';'BitMap2';
 
 Qualifier DMTF defined name: 'BITVALUES'
 Propagated : False
@@ -58,7 +58,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 1
-The values are: 'BitValue 1 '
+The values are: 'BitValue 1';
 
 Qualifier DMTF defined name: 'CLASSCONSTRAINT'
 Propagated : False
@@ -66,7 +66,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 0
-The values are: ''
+The values are: 
 
 Qualifier DMTF defined name: 'COMPOSITION'
 Propagated : False
@@ -81,7 +81,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 3
-The values are: 'Correlatable 1 Correlatable 2 Correlatable 3 '
+The values are: 'Correlatable 1';'Correlatable 2';'Correlatable 3';
 
 Qualifier DMTF defined name: 'COUNTER'
 Propagated : False
@@ -96,7 +96,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 0
-The values are: ''
+The values are: 
 
 Qualifier DMTF defined name: 'DESCRIPTION'
 Propagated : False
@@ -363,7 +363,7 @@ Flavor : OVERRIDABLE TOSUBCLASS
 ValueType : string
 Value was set by the provider: False
 The value is an Array of size: 9
-The values are: '1 3 5 7 9 2 4 6 8 '
+The values are: '1';'3';'5';'7';'9';'2';'4';'6';'8';
 
 Qualifier DMTF defined name: 'VALUES'
 Propagated : False

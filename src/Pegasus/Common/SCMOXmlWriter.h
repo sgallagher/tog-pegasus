@@ -744,73 +744,75 @@ public:
             {
                 case CIMTYPE_BOOLEAN:
                 {
-                    SCMOXmlWriter::append(out, value->value._booleanValue);
+                    SCMOXmlWriter::append(out, value->value.simple.val.bin);
                     break;
                 }
 
                 case CIMTYPE_UINT8:
                 {
-                    SCMOXmlWriter::append(out, value->value._uint8Value);
+                    SCMOXmlWriter::append(out, value->value.simple.val.u8);
                     break;
                 }
 
                 case CIMTYPE_SINT8:
                 {
-                    SCMOXmlWriter::append(out, value->value._sint8Value);
+                    SCMOXmlWriter::append(out, value->value.simple.val.s8);
                     break;
                 }
 
                 case CIMTYPE_UINT16:
                 {
-                    SCMOXmlWriter::append(out, value->value._uint16Value);
+                    SCMOXmlWriter::append(out, value->value.simple.val.u16);
                     break;
                 }
 
                 case CIMTYPE_SINT16:
                 {
-                    SCMOXmlWriter::append(out, value->value._sint16Value);
+                    SCMOXmlWriter::append(out, value->value.simple.val.s16);
                     break;
                 }
 
                 case CIMTYPE_UINT32:
                 {
-                    SCMOXmlWriter::append(out, value->value._uint32Value);
+                    SCMOXmlWriter::append(out, value->value.simple.val.u32);
                     break;
                 }
 
                 case CIMTYPE_SINT32:
                 {
-                    SCMOXmlWriter::append(out, value->value._uint32Value);
+                    SCMOXmlWriter::append(out, value->value.simple.val.s32);
                     break;
                 }
 
                 case CIMTYPE_UINT64:
                 {
-                    SCMOXmlWriter::append(out, value->value._uint64Value);
+                    SCMOXmlWriter::append(out, value->value.simple.val.u64);
                     break;
                 }
 
                 case CIMTYPE_SINT64:
                 {
-                    SCMOXmlWriter::append(out, value->value._sint64Value);
+                    SCMOXmlWriter::append(out, value->value.simple.val.s64);
                     break;
                 }
 
                 case CIMTYPE_REAL32:
                 {
-                    SCMOXmlWriter::append(out, value->value._real32Value);
+                    SCMOXmlWriter::append(out, value->value.simple.val.r32);
                     break;
                 }
 
                 case CIMTYPE_REAL64:
                 {
-                    SCMOXmlWriter::append(out, value->value._real64Value);
+                    SCMOXmlWriter::append(out, value->value.simple.val.r64);
                     break;
                 }
 
                 case CIMTYPE_CHAR16:
                 {
-                    SCMOXmlWriter::appendSpecial(out,value->value._char16Value);
+                    SCMOXmlWriter::appendSpecial(
+                        out,
+                        value->value.simple.val.c16);
                     break;
                 }
 
@@ -818,8 +820,8 @@ public:
                 {
                     SCMOXmlWriter::appendSpecial(
                         out,
-                        &(base[value->value._stringValue.start]),
-                        value->value._stringValue.length-1);
+                        &(base[value->value.stringValue.start]),
+                        value->value.stringValue.length-1);
                     break;
                 }
 
@@ -828,7 +830,7 @@ public:
                     // an SCMBDateTime is a CIMDateTimeRep
                     // this should help us to reuse existing optimized Datetime
                     char buffer[26];
-                    _DateTimetoCStr(&(value->value._dateTimeValue), buffer);
+                    _DateTimetoCStr(&(value->value.dateTimeValue), buffer);
                     // datetime value is formatted with a \0 at end, ignore
                     out.append(buffer,sizeof(buffer)-1);
                     break;

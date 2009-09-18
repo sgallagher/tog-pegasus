@@ -175,15 +175,21 @@ public:
      *              Has to be copied by caller.
      *              It is set to NULL if rc != SCMO_OK.
      * @param pvalue Returns a pointer to the value of property.
-     *               The value has to be copied by the caller !
+     *               The value is strored in a SCMBUnion
+     *                and has to be copied by the caller !
      *               It returns NULL if rc != SCMO_OK.
+     *               
      *               If the value is an array, the
      *               value array is stored in continuous memory.
-     *               e.g. If the CIMType is CIMTYPE_UINT32:
-     *               value = (void*)Uint32[0 to size-1]
-     *               If it is an array of CIMTYPE_STRING, an array
-     *               of char* to the string values is returned.
-     *               This array has to be freed by the caller !
+     *               e.g. (SCMBUnion*)value[0 to size-1]
+     *               
+     *               If the value is type of CIMTYPE_STRING, 
+     *               the string is referenced by the structure 
+     *               SCMBUnion.extString: 
+     *                       pchar contains the absolut pointer to the string 
+     *                       length contains the size of the string 
+     *                              without trailing '\0'.
+     *               Only for strings the caller has to free pvalue !
      * @param type Returns the CIMType of the property
      *             It is invalid if rc == SCMO_INDEX_OUT_OF_BOUND.
      * @param isArray Returns if the value is an array.
@@ -201,7 +207,7 @@ public:
         Uint32 pos,
         const char** pname,
         CIMType& type,
-        const void** pvalue,
+        const SCMBUnion** pvalue,
         Boolean& isArray,
         Uint32& size ) const;
 
@@ -216,13 +222,6 @@ public:
      *                  Sub-pointers are NOT resolved!
      *               The value has to be copied by the caller !
      *               It returns NULL if rc != SCMO_OK.
-     *               If the value is an array, the
-     *               value array is stored in continuous memory.
-     *               e.g. If the CIMType is CIMTYPE_UINT32:
-     *               value = (void*)Uint32[0 to size-1]
-     *               If it is an array of CIMTYPE_STRING, an array
-     *               of char* to the string values is returned.
-     *               This array has to be freed by the caller !
      * @param valueBase Returns an absolute pointer to the base of value,
      *                  because subsequent pointers in the value are NOT
      *                  resolved.
@@ -246,15 +245,21 @@ public:
      * The value has to be copied by the caller !
      * @param name The property name
      * @param pvalue Returns a pointer to the value of property.
-     *               The value has to be copied by the caller !
+     *               The value is strored in a SCMBUnion
+     *                and has to be copied by the caller !
      *               It returns NULL if rc != SCMO_OK.
+     *               
      *               If the value is an array, the
      *               value array is stored in continuous memory.
-     *               e.g. If the CIMType is CIMTYPE_UINT32:
-     *               value = (void*)Uint32[0 to size-1]
-     *               If it is an array of CIMTYPE_STRING, an array
-     *               of char* to the string values is returned.
-     *               This array has to be freed by the caller !
+     *               e.g. (SCMBUnion*)value[0 to size-1]
+     *               
+     *               If the value is type of CIMTYPE_STRING, 
+     *               the string is referenced by the structure 
+     *               SCMBUnion.extString: 
+     *                       pchar contains the absolut pointer to the string 
+     *                       length contains the size of the string 
+     *                              without trailing '\0'.
+     *               Only for strings the caller has to free pvalue !
      * @param type Returns the CIMType of the property
      *             It is invalid if rc == SCMO_NOT_FOUND.
      * @param isArray Returns if the value is an array.
@@ -270,7 +275,7 @@ public:
     SCMO_RC getProperty(
         const char* name,
         CIMType& type,
-        const void** pvalue,
+        const SCMBUnion** pvalue,
         Boolean& isArray,
         Uint32& size ) const;
 
@@ -282,13 +287,24 @@ public:
      * be set/replaced.
      * @param name The name of the property to be set.
      * @param type The CIMType of the property
-     * @param value A pointer to property  value.
-     *         The value is copied into the instance
-     *         If the value == NULL, a null value is assumed.
-     *         If the value is an array, the
-     *         value array must be stored in continuous memory.
-     *         e.g. If the CIMType is CIMTYPE_UINT32:
-     *         value = (void*)Uint32[0 to size-1]
+     * @param value A pointer to the value to be set at the named property.
+     *              The value has to be in a SCMBUnion.
+     *              The value is copied into the instance
+     *              If the value == NULL, a null value is assumed.
+     *              If the value is an array, the value array has to be 
+     *              stored in continuous memory.
+     *              e.g. (SCMBUnion*)value[0 to size-1]
+     *              
+     *              To store an array of size 0, The value pointer has to 
+     *              not NULL ( value != NULL ) but the size has to be 0
+     *              (size == 0).
+     *              
+     *              If the value is type of CIMTYPE_STRING, 
+     *              the string is referenced by the structure 
+     *              SCMBUnion.extString: 
+     *                       pchar contains the absolut pointer to the string 
+     *                       length contains the size of the string 
+     *                              without trailing '\0'.
      * @param isArray Indicate that the value is an array. Default false.
      * @param size Returns the size of the array. If not an array this
      *         this parameter is ignorer. Default 0.
@@ -305,7 +321,7 @@ public:
     SCMO_RC setPropertyWithOrigin(
         const char* name,
         CIMType type,
-        void* value,
+        SCMBUnion* value,
         Boolean isArray=false,
         Uint32 size = 0,
         const char* origin = NULL);
@@ -346,12 +362,24 @@ public:
      * is still SCMO_OK.
      * @param index The node index.
      * @param type The CIMType of the property
-     * @param value A pointer to property  value.
-     *         The value is copied into the instance
-     *         If the value is an array, the
-     *         value array must be stored in continuous memory.
-     *         e.g. If the CIMType is CIMTYPE_UINT32:
-     *         value = (void*)Uint32[0 to size-1]
+     * @param pInVal A pointer to the value to be set at the named property.
+     *               The value has to be in a SCMBUnion.
+     *               The value is copied into the instance
+     *               If the value == NULL, a null value is assumed.
+     *               If the value is an array, the value array has to be 
+     *               stored in continuous memory.
+     *               e.g. (SCMBUnion*)value[0 to size-1]
+     *               
+     *              To store an array of size 0, The value pointer has to 
+     *               not NULL ( value != NULL ) but the size has to be 0
+     *                (size == 0).
+     *               
+     *               If the value is type of CIMTYPE_STRING, 
+     *               the string is referenced by the structure 
+     *               SCMBUnion.extString: 
+     *                        pchar contains the absolut pointer to the string 
+     *                       length contains the size of the string 
+     *                                without trailing '\0'.
      * @param isArray Indicate that the value is an array. Default false.
      * @param size The size of the array. If not an array this
      *         this parameter is ignorer. Default 0.
@@ -367,7 +395,7 @@ public:
     SCMO_RC setPropertyWithNodeIndex(
         Uint32 node,
         CIMType type,
-        void* value,
+        SCMBUnion* pInVal,
         Boolean isArray=false,
         Uint32 size = 0);
 
@@ -378,6 +406,17 @@ public:
      * @param keyvalue A pointer to the binary key value.
      *         The value is copied into the instance
      *         If the value == NULL, a null value is assumed.
+     * @param keyvalue A pointer to the value to be set at the key binding,
+     *               The keyvalue has to be in a SCMBUnion.
+     *               The keyvalue is copied into the instance.
+     *               If the keyvalue == NULL, a null value is assumed.
+     *               
+     *               If the keyvalue is type of CIMTYPE_STRING, 
+     *               the string is referenced by the structure 
+     *               SCMBUnion.extString: 
+     *                        pchar contains the absolut pointer to the string 
+     *                       length contains the size of the string 
+     *                                without trailing '\0'.
      * @return     SCMO_OK
      *             SCMO_INVALID_PARAMETER : Given name or pvalue
      *                                      is a NULL pointer.
@@ -388,15 +427,23 @@ public:
     SCMO_RC setKeyBinding(
         const char* name,
         CIMType type,
-        void* keyvalue);
+        SCMBUnion* keyvalue);
 
     /**
      * Set/replace the key binding at node
      * @param node The node index of the key.
      * @param type The type as CIMType.
-     * @param keyvalue A pointer to the binary key value.
-     *         The value is copied into the instance
-     *         If the value == NULL, a null value is assumed.
+     * @param keyvalue A pointer to the value to be set at the key binding,
+     *               The keyvalue has to be in a SCMBUnion.
+     *               The keyvalue is copied into the instance.
+     *               If the keyvalue == NULL, a null value is assumed.
+     *               
+     *               If the keyvalue is type of CIMTYPE_STRING, 
+     *               the string is referenced by the structure 
+     *               SCMBUnion.extString: 
+     *                        pchar contains the absolut pointer to the string 
+     *                       length contains the size of the string 
+     *                                without trailing '\0'.
      * @return     SCMO_OK
      *             SCMO_INVALID_PARAMETER : Given pvalue is a NULL pointer.
      *             SCMO_TYPE_MISSMATCH : Given type does not
@@ -406,7 +453,7 @@ public:
     SCMO_RC setKeyBindingAt(
         Uint32 node,
         CIMType type,
-        void* keyvalue);
+        SCMBUnion* keyvalue);
 
     /**
      * Gets the key binding count.
@@ -434,13 +481,25 @@ public:
         Uint32 idx,
         const char** pname,
         CIMType& type,
-        const void** keyvalue) const;
+        const SCMBUnion** keyvalue) const;
 
     /**
      * Get the named key binding.
      * @parm name The name of the key binding.
      * @param type Returns the type as CIMType.
      *             It is invalid if rc == SCMO_INDEX_OUT_OF_BOUND.
+     * @param keyvalue Returns a pointer to the value of keybinding.
+     *               The value is strored in a SCMBUnion
+     *                and has to be copied by the caller !
+     *               It returns NULL if rc != SCMO_OK.
+     *               
+     *               If the value is type of CIMTYPE_STRING, 
+     *               the string is referenced by the structure 
+     *               SCMBUnion.extString: 
+     *                       pchar contains the absolut pointer to the string 
+     *                       length contains the size of the string 
+     *                              without trailing '\0'.
+     *               Only for strings the caller has to free pvalue !
      * @param keyvalue A pointer to the binary key value.
      *             Has to be copied by caller.
      *             It is only valid if rc == SCMO_OK.
@@ -451,7 +510,7 @@ public:
     SCMO_RC getKeyBinding(
         const char* name,
         CIMType& ptype,
-        const void** keyvalue) const;
+        const SCMBUnion** keyvalue) const;
 
     /**
      * Determines whether the object has been initialized.
@@ -570,14 +629,14 @@ private:
             Uint32 pos,
             const char** pname,
             CIMType& type,
-            const void** pvalue,
+            const SCMBUnion** pvalue,
             Boolean& isArray,
             Uint32& size ) const;
 
     void _setPropertyAtNodeIndex(
         Uint32 pos,
         CIMType type,
-        void* value,
+        SCMBUnion* pInVal,
         Boolean isArray,
         Uint32 size);
 
@@ -601,7 +660,7 @@ private:
 
     void _setCIMObjectPath(const CIMObjectPath& cimObj);
 
-    void* _resolveSCMBUnion(
+    SCMBUnion* _resolveSCMBUnion(
         CIMType type,
         Boolean isArray,
         Uint32 size,
@@ -609,13 +668,13 @@ private:
         char* base) const;
 
     void _setSCMBUnion(
-        void* value,
+        SCMBUnion* pInVal,
         CIMType type,
         Boolean isArray,
         Uint32 size,
         SCMBUnion & u);
 
-    static void _setUnionValue(
+    static void _setNonRefUnionValue(
         Uint64 start,
         SCMBMgmt_Header** pmem,
         CIMType type,

@@ -595,6 +595,7 @@ private:
 
     friend class SQLiteStore;
     friend class SCMOInstance;
+    friend class SCMOClass;
 };
 
 /**

@@ -50,6 +50,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_KEYBINDIG_SCMB_HASHSIZE 32
 
 class SCMOClass;
+class SCMOInstance;
 
 // The enum of return values for SCMO functions.
 enum SCMO_RC
@@ -174,25 +175,43 @@ typedef CIMDateTimeRep SCMBDateTime;
 //
 union SCMBUnion
 {
-    Boolean     _booleanValue;
-    Uint8       _uint8Value;
-    Sint8       _sint8Value;
-    Uint16      _uint16Value;
-    Sint16      _sint16Value;
-    Uint32      _uint32Value;
-    Sint32      _sint32Value;
-    Uint64      _uint64Value;
-    Sint64      _sint64Value;
-    Real32      _real32Value;
-    Real64      _real64Value;
-    Uint16      _char16Value;
-    // A relative pointer to SCMBInstance_Main
-    SCMBDataPtr _referenceValue;
-    SCMBDataPtr _arrayValue;
-    SCMBDataPtr _stringValue;
-    SCMBDateTime _dateTimeValue;
-    // used for embedded instances and objects.
-    void*       _voidPtr;
+    struct           
+    {
+        union
+        {        
+            Boolean  bin;
+            Uint8    u8;
+            Sint8    s8;
+            Uint16   u16;
+            Sint16   s16;
+            Uint32   u32;
+            Sint32   s32;
+            Uint64   u64;
+            Sint64   s64;
+            Real32   r32;
+            Real64   r64;
+            Uint16   c16;
+        }val;
+        // SCMBUnion used in array values.
+        // This indicates if the single array member is a Null value.
+        // The type of size 64 is used to fill up the whole union.
+        Uint64 hasValue;
+    }simple;
+
+    SCMBDataPtr arrayValue;
+    SCMBDataPtr stringValue;
+    SCMBDateTime dateTimeValue;
+    // Used for embedded referecnes, instances, and objects
+    // as an external references to SCMO_Instances.
+    SCMOInstance* extRefPtr;
+
+    // This structure is used to handle an absolute char* 
+    // including the length 
+    struct
+    {
+        Uint64 length;
+        char*  pchar;
+    }extString;
 };
 
 struct SCMBValue

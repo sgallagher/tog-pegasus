@@ -78,8 +78,6 @@ public:
     CMPI_Object(const String&);
     CMPI_Object(const char*);
     CMPI_Object(Array<CIMParamValue>*);
-    CMPI_Object(CMPIData*);
-    CMPI_Object(CMPIArrayData*);
     CMPI_Object(CMPI_Array*);
     CMPI_Object(CMPI_Object*);
     CMPI_Object(CMPISelectCond*);

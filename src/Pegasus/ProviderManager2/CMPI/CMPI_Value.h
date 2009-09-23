@@ -41,6 +41,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 
 CIMValue value2CIMValue(const CMPIValue* data,const CMPIType type, CMPIrc *rc);
+SCMBUnion value2SCMOValue(const CMPIValue* data, const CMPIType type);
 CMPIrc value2CMPIData(const CIMValue&,CMPIType,CMPIData *data);
 CMPIrc key2CMPIData(const String& v, CIMKeyBinding::Type t, CMPIData *data);
 CMPIrc scmoKey2CMPIData(const char* key, CIMKeyBinding::Type t, CMPIData *data);

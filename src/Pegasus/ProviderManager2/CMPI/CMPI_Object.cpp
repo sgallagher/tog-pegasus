@@ -110,14 +110,6 @@ CMPI_Object::CMPI_Object(Array<CIMParamValue> *args)
     ftab = CMPI_Args_Ftab;
 }
 
-CMPI_Object::CMPI_Object(CMPIArrayData* dta)
-{
-    CMPI_ThreadContext::addObject(this);
-    hdl = (void*)dta;
-    ftab = CMPI_Array_Ftab;
-}
-
-
 CMPI_Object::CMPI_Object(CMPI_Array *arr)
 {
     CMPI_ThreadContext::addObject(this);

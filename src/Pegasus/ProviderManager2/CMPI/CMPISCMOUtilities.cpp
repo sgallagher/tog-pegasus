@@ -51,7 +51,7 @@ CIMDateTimeRep* CMPISCMOUtilities::scmoDateTimeFromCMPI(CMPIDateTime* cmpidt)
 
 // Function to convert a SCMO Value into a CMPIData structure
 CMPIrc CMPISCMOUtilities::scmoValue2CMPIData(
-    const void* scmoValue, CMPIType type, CMPIData *data)
+    const SCMBUnion* scmoValue, CMPIType type, CMPIData *data)
 {
     //Initialize CMPIData object
     data->type = type;
@@ -77,17 +77,26 @@ CMPIrc CMPISCMOUtilities::scmoValue2CMPIData(
         case CMPI_chars:
         case CMPI_string:
             {
-                data->value.string = reinterpret_cast<CMPIString*>(
-                    new CMPI_Object((const char*)scmoValue));
-                data->type = CMPI_string;
+                if (scmoValue->extString.pchar)
+                {
+                    data->value.string = reinterpret_cast<CMPIString*>(
+                        new CMPI_Object(scmoValue->extString.pchar));
+                    data->type = CMPI_string;
+                }
+                else
+                {
+                    data->state=CMPI_nullValue;
+                }
+                // TBD: Check if we shouldn't better leave it to the caller
+                //      to release the memory for strings.
+                free((void*)scmoValue);
                 break;
             }
 
         case CMPI_dateTime:
             {
-                CIMDateTimeRep* dtrep = (CIMDateTimeRep*)scmoValue;
-                CIMDateTime* cimdt = new CIMDateTime();
-                *(cimdt->_rep) = *dtrep;
+                CIMDateTime* cimdt = 
+                    new CIMDateTime(&scmoValue->dateTimeValue);
                 data->value.dateTime = reinterpret_cast<CMPIDateTime*>
                     (new CMPI_Object(cimdt));
                 break;
@@ -96,19 +105,19 @@ CMPIrc CMPISCMOUtilities::scmoValue2CMPIData(
         case CMPI_ref:
             {
                 data->value.ref = reinterpret_cast<CMPIObjectPath*>
-                    (new CMPI_Object((SCMOInstance*)scmoValue));
+                    (new CMPI_Object(scmoValue->extRefPtr));
             }
             break;
 
         case CMPI_instance:
             {
                 data->value.inst = reinterpret_cast<CMPIInstance*>
-                    (new CMPI_Object((SCMOInstance*)scmoValue, true));
+                    (new CMPI_Object(scmoValue->extRefPtr, true));
             }
             break;
         default:
             {
-                data->value.uint64 = *(Uint64*)scmoValue;
+                data->value.uint64 = scmoValue->simple.val.u64;
                 break;
             }
         }

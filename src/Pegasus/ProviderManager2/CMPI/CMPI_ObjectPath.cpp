@@ -275,20 +275,23 @@ extern "C"
             CMReturn(CMPI_RC_ERR_INVALID_DATA_TYPE);
         }
 
-        void* scmoData = (void*)data;
-        if (type == CMPI_dateTime)
-        {
-            scmoData = CMPISCMOUtilities::scmoDateTimeFromCMPI(
-                data->dateTime);
-        }
-
         CIMType cimType=type2CIMType(type);
 
-        // The value structure of CMPIValue matches that of
-        // SCMO Values as long as not an array.
+        CMPIrc cmpiRC = CMPI_RC_OK;
+        SCMBUnion scmoData = value2SCMOValue(data, type);
+        if (cmpiRC != CMPI_RC_OK)
+        {
+            PEG_TRACE((
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Failed to convert CMPIData to SCMOValue in \
+                CMPIObjectPath:refAddKey(%d,%s)", type, name));
+            CMReturn(cmpiRC);
+        }
+
         SCMO_RC rc = ref->setKeyBinding(name, 
                                         cimType, 
-                                        scmoData);
+                                        &scmoData);
 
         switch (rc)
         {
@@ -352,13 +355,15 @@ extern "C"
             return data;
         }
 
-        const char* keyValue=0;
-        CIMKeyBinding::Type type = (CIMKeyBinding::Type)0;
+
+        const SCMBUnion* keyValue=0;
+        CIMType type;
 
         SCMO_RC src = ref->getKeyBinding(name, type, &keyValue);
         if (src == SCMO_OK)
         {
-            scmoKey2CMPIData(keyValue, type, &data);
+            CMPIType ct=type2CMPIType(type, false);
+            CMPISCMOUtilities::scmoValue2CMPIData( keyValue, ct, &data );
             CMSetStatus(rc, CMPI_RC_OK);
         }
         else
@@ -390,14 +395,15 @@ extern "C"
         }
 
 
-        const char* keyValue=0;
+        const SCMBUnion* keyValue=0;
         const char* keyName=0;
-        CIMKeyBinding::Type type = (CIMKeyBinding::Type)0;
+        CIMType type;
 
         SCMO_RC src = ref->getKeyBindingAt(pos, &keyName, type, &keyValue);
         if (src == SCMO_OK)
         {
-            scmoKey2CMPIData(keyValue, type, &data);
+            CMPIType ct=type2CMPIType(type, false);
+            CMPISCMOUtilities::scmoValue2CMPIData( keyValue, ct, &data );
             CMSetStatus(rc, CMPI_RC_OK);
         }
         else

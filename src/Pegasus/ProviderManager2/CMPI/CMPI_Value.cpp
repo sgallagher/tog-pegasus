@@ -33,6 +33,7 @@
 
 #include "CMPI_String.h"
 #include "CMPI_Value.h"
+#include "CMPISCMOUtilities.h"
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -108,6 +109,80 @@ PEGASUS_NAMESPACE_BEGIN
                 new CMPI_Object(new pt(ar##pt[i]))); \
         } \
     }
+
+/**
+  Function to convert CMPIValue to SCMBUnion
+*/
+SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
+{
+    SCMBUnion scmoData;
+    scmoData.simple.val.u64 = data->uint64;
+    scmoData.simple.hasValue = 1;
+
+    if (!(type&CMPI_ARRAY))
+    {
+
+        switch (type)
+        {
+        case CMPI_dateTime:
+            {
+                CIMDateTimeRep * cimdt = 
+                    CMPISCMOUtilities::scmoDateTimeFromCMPI(data->dateTime);
+                if (cimdt)
+                {
+                    scmoData.dateTimeValue = *cimdt;
+                }
+                break;
+            }
+        case CMPI_chars:
+            {
+                scmoData.extString.pchar = (char*)data;
+                if (scmoData.extString.pchar)
+                {
+                    scmoData.extString.length = 
+                        strlen(scmoData.extString.pchar);
+                }
+                break;
+            }
+        case CMPI_charsptr:
+            {
+                if (data && *(char**)data)
+                {
+                    scmoData.extString.pchar = *(char**)data;
+                    scmoData.extString.length = 
+                        strlen(scmoData.extString.pchar);
+                }
+                break;
+            }
+        case CMPI_string:
+            {
+
+                scmoData.extString.pchar = (char*)data->string->hdl;
+                if (scmoData.extString.pchar)
+                {
+                    scmoData.extString.length = 
+                        strlen(scmoData.extString.pchar);
+                }
+                break;
+            }
+        case CMPI_ref:
+        case CMPI_instance:
+            {
+                if (data->inst)
+                {
+                    scmoData.extRefPtr = (SCMOInstance*)data->inst->hdl;
+                }
+                break;
+            }
+        }
+    }
+    else
+    {
+        //Array Implementation goes here ....
+    }
+    return scmoData;
+}
+
 
 /**
   Function to convert CMPIValue to CIMValue

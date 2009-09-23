@@ -33,30 +33,8 @@
 #define _CMPI_Array_H_
 
 #include <Pegasus/Provider/CMPI/cmpift.h>
-#include <Pegasus/Common/SCMO.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-typedef struct _CMPIArrayData
-{
-    /**
-        An array of unsigned short representing the type of the CMPIData object.
-    */
-    CMPIType *types;
-    /**
-        An array of unsigned short representing whether this CMPIData object is
-        valid or not.
-    */
-    CMPIValueState *states;
-    /**
-        A pointer to the actual underlying value of the data object.
-    */
-    SCMBUnion *values;
-    /**
-        The size of the array
-    */
-    CMPICount size;
-} CMPIArrayData;
 
 struct CMPI_Array : CMPIArray
 {

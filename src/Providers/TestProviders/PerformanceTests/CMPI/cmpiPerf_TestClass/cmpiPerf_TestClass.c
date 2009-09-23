@@ -51,14 +51,10 @@ CMPIObjectPath * _makePath_TestClass(
 {
     CMPIObjectPath * op = NULL;
 
-    fprintf(stderr,"cmpiPerf_EIN: _makePath: Enter\n");
-
     op = CMNewObjectPath(
              _broker,
              CMGetCharsPtr(CMGetNameSpace(ref,rc), NULL),
              _ClassName, rc );
-
-    fprintf(stderr,"cmpiPerf_EIN: _makePath: ObjPath created\n");
 
     if (CMIsNullObject(op))
     {
@@ -70,14 +66,9 @@ CMPIObjectPath * _makePath_TestClass(
         goto exit;
     }
 
-    fprintf(stderr,"cmpiPerf_EIN: _makePath: now adding key\n");
-
     CMAddKey(op, "theKey", &theKey, CMPI_uint32);
 
-    fprintf(stderr,"cmpiPerf_EIN: _makePath: key added\n");
-
     exit:
-    fprintf(stderr,"cmpiPerf_EIN: _makePath: Exit\n");
     return op;
 }
 

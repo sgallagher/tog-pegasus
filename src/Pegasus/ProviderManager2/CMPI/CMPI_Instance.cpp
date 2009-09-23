@@ -115,7 +115,7 @@ extern "C"
             return data;
         }
 
-        const void* value = 0;
+        const SCMBUnion* value = 0;
         Boolean isArray = 0;
         Uint32 size = 0;
         CIMType type = (CIMType)0;
@@ -197,7 +197,7 @@ extern "C"
             return data;
         }
 
-        const void* value = 0;
+        const SCMBUnion* value = 0;
         Boolean isArray = 0;
         Uint32 size = 0;
         CIMType type = (CIMType)0;
@@ -262,8 +262,11 @@ extern "C"
         return inst->getPropertyCount();
     }
 
-    static CMPIStatus instSetPropertyWithOrigin(const CMPIInstance* eInst,
-        const char* name, const CMPIValue* data, const CMPIType type,
+    static CMPIStatus instSetPropertyWithOrigin(
+        const CMPIInstance* eInst,
+        const char* name, 
+        const CMPIValue* data, 
+        const CMPIType type,
         const char* origin)
     {
         PEG_METHOD_ENTER(
@@ -280,29 +283,50 @@ extern "C"
         CMPIStatus cmpiRC = {CMPI_RC_OK,0};
         SCMO_RC rc;
 
-        void* scmoData = (void*)data;
-
-        CIMType cimType=type2CIMType(type);
         if (!(type&CMPI_ARRAY))
         {
+            CIMType cimType=type2CIMType(type);
+            SCMBUnion scmoData = value2SCMOValue(data, type);
 
-            if (type == CMPI_dateTime)
-            {
-                scmoData = CMPISCMOUtilities::scmoDateTimeFromCMPI(
-                    data->dateTime);
-            }
-            // The value structure of CMPIValue matches that of
-            // SCMO Values as long as not an array.
             rc = inst->setPropertyWithOrigin(name,
                                              cimType,
-                                             scmoData,
+                                             &scmoData,
                                              false,  // isArray
                                              0,      // arraySize
                                              origin);
-
         }
         else
         {
+            //Return if data itself is NULL or Array is NULL
+            if( data == NULL || data->array == NULL )
+            {
+                //CMPIType aType=type&~CMPI_ARRAY;
+                //return CIMValue(type2CIMType(aType),true);
+            }
+            // When data is not NULL and data->array is also set
+            CMPI_Array* ar = (CMPI_Array*)data->array->hdl;
+            CMPIData* arrData = (CMPIData*)ar->hdl;
+
+            //Get the type of the elements in the array
+            CMPIType aType=type&~CMPI_ARRAY;
+            Uint32 arraySize = arrData->value.uint32;
+            CIMType cimType=type2CIMType(aType);
+
+
+            // Need to convert the array of CMPIData to an array of SCMBUnion
+            SCMBUnion scmbArray[arraySize];
+            for (unsigned int x=0; x<arraySize; x++)
+            {
+                scmbArray[x] = value2SCMOValue(&(arrData[x].value), type);
+            }
+
+            rc = inst->setPropertyWithOrigin(name,
+                                             cimType,
+                                             &(scmbArray[0]),
+                                             true,          // isArray
+                                             arraySize,
+                                             origin);
+
             // --rk-> TBD
             return(cmpiRC);
             /* The CMPI interface uses the type "CMPI_instance" to represent
@@ -523,9 +547,9 @@ extern "C"
                 // one by one
                 SCMO_RC rc;
                 const char* keyName = 0;
-                const char* keyValue = 0;
+                const SCMBUnion* keyValue = 0;
 
-                CIMKeyBinding::Type keyType = (CIMKeyBinding::Type)0;
+                CIMType keyType;
 
                 Uint32 numKeys = ref->getKeyBindingCount();
                 for (Uint32 x=0; x < numKeys; x++)

@@ -37,6 +37,8 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/SCMO.h>
 #include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Common/CIMClassRep.h>
+#include <Pegasus/Common/CIMObjectRep.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -53,7 +55,7 @@ public:
      * @param nameSpaceName The namespace for the class, optional.
      * @return
      */
-    SCMOClass(CIMClass& theCIMClass, const char* nameSpaceName=NULL );
+    SCMOClass(const CIMClass& theCIMClass, const char* nameSpaceName=NULL );
 
     /**
      * Copy constructor for the SCMO class, used to implement refcounting.
@@ -121,18 +123,26 @@ private:
      */
     SCMOClass();
 
+    inline void _initSCMOClass();
+
+    void _setKeyBindingsFromCIMObjectPath(CIMObjectPath& cimObjPath);
+
     SCMO_RC _getProperyNodeIndex(Uint32& node, const char* name) const;
     SCMO_RC _getKeyBindingNodeIndex(Uint32& node, const char* name) const;
 
-    void _setClassQualifers(CIMClass& theCIMClass);
+    void _setClassQualifers(const CIMQualifierList& theQualifierList);
+
     QualifierNameEnum  _setQualifier(
         Uint64 start,
         const CIMQualifier& theCIMQualifier);
 
-    void _setClassProperties(CIMClass& theCIMClass);
-    void _setProperty(Uint64 start,
-                         Boolean* isKey,
-                         const CIMProperty& theCIMProperty);
+    void _setClassProperties(PropertySet& theCIMProperties);
+
+    void _setProperty(
+        Uint64 start,
+        Boolean* isKey,
+        const CIMProperty& theCIMProperty);
+
     Boolean _setPropertyQualifiers(
         Uint64 start,
         const CIMQualifierList& theQualifierList);

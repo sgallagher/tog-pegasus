@@ -345,6 +345,7 @@ private:
     friend class BinaryStreamer;
     friend class CIMClassRep;
     friend class SCMOInstance;
+    friend class SCMOClass;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -63,6 +63,7 @@ endif
 SOURCES1 = \
     SCMO.cpp \
     SCMOXmlWriter.cpp \
+    SCMOClassCache.cpp \
     Print.cpp \
     Executor.cpp \
     Once.cpp \

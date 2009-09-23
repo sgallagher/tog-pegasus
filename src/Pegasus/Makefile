@@ -38,24 +38,10 @@ DIRS = \
     Config \
     Repository \
     getoopt \
-    WQL \
-	Handler \
-    RSServer
+    WQL
 
 ifeq ($(PEGASUS_ENABLE_CQL),true)
     DIRS += CQL
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-    DIRS += \
-        WsmServer
-    TEST_DIRS += \
-        WsmServer/tests
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WEB),true)
-    DIRS += \
-        WebServer
 endif
 
 DIRS += \
@@ -89,57 +75,43 @@ ifneq ($(OS),HPUX)
         Compiler/cmdline/tests
 endif
 
-ifndef PEGASUS_PAM_AUTHENTICATION
-    DIRS += Security/UserManager \
-	    ControlProviders/UserAuthProvider
-    TEST_DIRS += Security/UserManager/tests
-endif
-
-
 DIRS += \
     ExportClient \
     Server/ProviderRegistrationManager \
     ExportServer \
     Listener \
+    Security/UserManager \
     Security/Authentication \
     ControlProviders/ConfigSettingProvider \
+    ControlProviders/UserAuthProvider \
     ControlProviders/ProviderRegistrationProvider \
     ControlProviders/NamespaceProvider \
     HandlerService \
     IndicationService \
     ManagedClient \
-    DynListener
+    DynListener \
 
 TEST_DIRS += \
     ExportClient/tests \
     Server/ProviderRegistrationManager/tests \
     ExportServer/tests \
     Listener/tests \
+    Security/UserManager/tests \
     Security/Authentication/tests \
     ControlProviders/ProviderRegistrationProvider/tests \
     HandlerService/tests \
     IndicationService/tests \
-    DynListener/tests 
+    DynListener/tests
+
 
 ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
     DIRS += \
         Handler/SystemLogListenerDestination
-    TEST_DIRS += \
-        Handler/SystemLogListenerDestination/tests
 endif
 
 ifdef PEGASUS_ENABLE_EMAIL_HANDLER
     DIRS += \
         Handler/EmailListenerDestination
-    TEST_DIRS += \
-        Handler/EmailListenerDestination/tests
-endif
-
-ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
-    DIRS += \
-        Handler/wsmanIndicationHandler
-    TEST_DIRS += \
-        Handler/wsmanIndicationHandler/tests/Destination
 endif
 
 DIRS += \
@@ -150,11 +122,11 @@ TEST_DIRS += \
     ProviderManager2/tests \
     ProviderManager2/Default/tests
 
-ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-    DIRS += \
-        Provider/CMPI \
-        ProviderManager2/CMPI
-endif
+# ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
+#    DIRS += \
+#        Provider/CMPI \
+#        ProviderManager2/CMPI
+#endif
 
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
 
@@ -173,7 +145,6 @@ ifeq ($(PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER), true)
 endif
 
 DIRS += \
-    ProviderManagerRouter \
     ProviderManagerService \
     ProviderManagerService/ProviderAgent
 
@@ -209,42 +180,25 @@ ifdef PEGASUS_HAS_SSL
         ControlProviders/CertificateProvider
 endif
 
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_WSMAN),true)
+    DIRS += \
+        WsmServer
+    TEST_DIRS += \
+        WsmServer/tests
+endif
+
 DIRS += \
     Server \
     Handler/CIMxmlIndicationHandler \
-    Handler/FileURIHandler  \
+    Handler/snmpIndicationHandler \
     msg/Server \
     msg/CLI \
     msg/Listener
 
-ifeq ($(PEGASUS_USE_EMANATE), true)
-    DIRS += \
-        Handler/snmpIndicationHandler
-endif
-
-ifeq ($(PEGASUS_USE_NET_SNMP), true)
-    DIRS += \
-        Handler/snmpIndicationHandler
-endif
-
 TEST_DIRS += \
     Server/tests \
-    Server/tests/InterfaceRestriction \
     Handler/CIMxmlIndicationHandler/tests/Destination \
-    Handler/FileURIHandler/tests
-
-ifeq ($(PEGASUS_USE_EMANATE), true)
-    TEST_DIRS += \
-        Handler/snmpIndicationHandler/tests/testclient \
-        Handler/snmpIndicationHandler/tests/SnmpHandlerException
-endif
-
-
-ifeq ($(PEGASUS_USE_NET_SNMP), true)
-    TEST_DIRS += \
-        Handler/snmpIndicationHandler/tests/testclient \
-        Handler/snmpIndicationHandler/tests/SnmpHandlerException
-endif
-
+    Handler/snmpIndicationHandler/tests/testclient \
+    Handler/snmpIndicationHandler/tests/SnmpHandlerException
 
 include $(ROOT)/mak/recurse.mak

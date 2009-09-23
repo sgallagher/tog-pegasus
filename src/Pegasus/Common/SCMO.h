@@ -175,10 +175,10 @@ typedef CIMDateTimeRep SCMBDateTime;
 //
 union SCMBUnion
 {
-    struct           
+    struct
     {
         union
-        {        
+        {
             Boolean  bin;
             Uint8    u8;
             Sint8    s8;
@@ -205,8 +205,8 @@ union SCMBUnion
     // as an external references to SCMO_Instances.
     SCMOInstance* extRefPtr;
 
-    // This structure is used to handle an absolute char* 
-    // including the length 
+    // This structure is used to handle an absolute char*
+    // including the length
     struct
     {
         Uint64 length;

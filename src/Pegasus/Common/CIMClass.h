@@ -402,7 +402,9 @@ public:
     */
     Boolean isUninitialized() const;
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     /**
+        <I><B>Experimental Interface</B></I><BR>
         Builds a CIMInstance based on this CIMClass.  Properties in the
         instance are initialized to the default values (if any) specified
         in the class definition.  The method arguments determine whether
@@ -450,6 +452,7 @@ public:
     CIMInstance buildInstance(Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const CIMPropertyList & propertyList) const;
+#endif
 
 private:
 

@@ -159,9 +159,7 @@ SCMOClass::SCMOClass()
     cls.mem = NULL;
 }
 
-SCMOClass::SCMOClass(
-    CIMClass& theCIMClass,
-    const char* nameSpaceName)
+inline void SCMOClass::_initSCMOClass()
 {
     PEGASUS_ASSERT(SCMB_INITIAL_MEMORY_CHUNK_SIZE
         - sizeof(SCMBClass_Main)>0);
@@ -172,6 +170,8 @@ SCMOClass::SCMOClass(
         // Not enough memory!
         throw PEGASUS_STD(bad_alloc)();
     }
+
+    memset(cls.base,0,sizeof(SCMBClass_Main));
 
     // initalize eye catcher
     cls.hdr->header.magic=PEGASUS_SCMB_CLASS_MAGIC;
@@ -184,6 +184,15 @@ SCMOClass::SCMOClass(
     cls.hdr->header.startOfFreeSpace=sizeof(SCMBClass_Main);
 
     cls.hdr->refCount=1;
+
+}
+
+SCMOClass::SCMOClass(
+    const CIMClass& theCIMClass,
+    const char* nameSpaceName)
+{
+
+    _initSCMOClass();
 
     try
     {
@@ -221,10 +230,10 @@ SCMOClass::SCMOClass(
                &cls.mem );
 
     //set class Qualifiers
-    _setClassQualifers(theCIMClass);
+    _setClassQualifers(theCIMClass._rep->_qualifiers);
 
     //set properties
-    _setClassProperties(theCIMClass);
+    _setClassProperties(theCIMClass._rep->_properties);
 
 }
 
@@ -367,9 +376,9 @@ SCMO_RC SCMOClass::_getProperyNodeIndex(Uint32& node, const char* name) const
 
 }
 
-void SCMOClass::_setClassProperties(CIMClass& theCIMClass)
+void SCMOClass::_setClassProperties(PropertySet& theCIMProperties)
 {
-    Uint32 noProps = theCIMClass.getPropertyCount();
+    Uint32 noProps = theCIMProperties.size();
     Uint64 start, startKeyIndexList;
     Uint32 noKeys = 0;
     Boolean isKey = false;
@@ -414,7 +423,7 @@ void SCMOClass::_setClassProperties(CIMClass& theCIMClass)
         for (Uint32 i = 0; i < noProps; i++)
         {
 
-            _setProperty(start,&isKey ,theCIMClass.getProperty(i));
+            _setProperty(start,&isKey ,theCIMProperties[i]);
             if(isKey)
             {
                 // if the property is a key
@@ -452,7 +461,7 @@ void SCMOClass::_setClassProperties(CIMClass& theCIMClass)
             for (Uint32 i = 0 ; i < noKeys; i++)
             {
 
-                _setClassKeyBinding(start,theCIMClass.getProperty(keyIndex[i]));
+                _setClassKeyBinding(start,theCIMProperties[keyIndex[i]]);
                 // Adjust ordered set management structures.
                 _insertKeyBindingIntoOrderedSet(start,i);
 
@@ -768,10 +777,11 @@ Boolean SCMOClass::_setPropertyQualifiers(
 
     return isKey;
 }
-void SCMOClass::_setClassQualifers(CIMClass& theCIMClass)
+
+void SCMOClass::_setClassQualifers(const CIMQualifierList& theQualifierList)
 {
 
-    Uint32 noQuali = theCIMClass.getQualifierCount();
+    Uint32 noQuali = theQualifierList.getCount();
     Uint64 start;
 
     cls.hdr->numberOfQualifiers = noQuali;
@@ -784,7 +794,7 @@ void SCMOClass::_setClassQualifers(CIMClass& theCIMClass)
                       &cls.mem);
         for (Uint32 i = 0; i < noQuali; i++)
         {
-            _setQualifier(start,theCIMClass.getQualifier(i));
+            _setQualifier(start,theQualifierList.getQualifier(i));
             start = start + sizeof(SCMBQualifier);
 
         }
@@ -795,8 +805,6 @@ void SCMOClass::_setClassQualifers(CIMClass& theCIMClass)
         cls.hdr->qualifierArray.start=0;
         cls.hdr->qualifierArray.length=0;
     }
-
-
 }
 
 QualifierNameEnum SCMOClass::_setQualifier(
@@ -840,8 +848,7 @@ void SCMOClass::_setValue(Uint64 start, const CIMValue& theCIMValue)
     scmoValue->valueArraySize = 0;
     scmoValue->flags.isNull = rep->isNull;
     scmoValue->flags.isArray = rep->isArray;
-    // Only initalized by for completeness.
-    scmoValue->flags.isSet = false;
+    scmoValue->flags.isSet = true;
 
     if (rep->isNull)
     {
@@ -990,7 +997,7 @@ SCMOInstance::SCMOInstance()
 
 SCMOInstance::SCMOInstance(SCMOClass baseClass)
 {
-    _initSCMOInstance(new SCMOClass(baseClass),false,false);
+    _initSCMOInstance(new SCMOClass(baseClass));
 }
 
 SCMOInstance::SCMOInstance(
@@ -1000,10 +1007,10 @@ SCMOInstance::SCMOInstance(
     const char** propertyList)
 {
 
-    _initSCMOInstance(
-        new SCMOClass(baseClass),
-        includeQualifiers,
-        includeClassOrigin);
+    _initSCMOInstance(new SCMOClass(baseClass));
+
+    inst.hdr->flags.includeQualifiers=includeQualifiers;
+    inst.hdr->flags.includeClassOrigin=includeClassOrigin;
 
     setPropertyFilter(propertyList);
 
@@ -1011,69 +1018,17 @@ SCMOInstance::SCMOInstance(
 
 SCMOInstance::SCMOInstance(SCMOClass baseClass, const CIMObjectPath& cimObj)
 {
-    _initSCMOInstance(new SCMOClass(baseClass),false,false);
+    _initSCMOInstance(new SCMOClass(baseClass));
 
     _setCIMObjectPath(cimObj);
-
 }
 
 SCMOInstance::SCMOInstance(SCMOClass baseClass, const CIMInstance& cimInstance)
 {
 
-    CIMPropertyRep* propRep;
-    Uint32 propNode;
-    Uint64 valueStart;
-    SCMO_RC rc;
+    _initSCMOInstance(new SCMOClass(baseClass));
 
-    CIMInstanceRep* instRep = cimInstance._rep;
-    Boolean hasQualifiers = (instRep->_qualifiers.getCount()>0);
-    Boolean hasClassOrigin = false;
-
-    _initSCMOInstance(new SCMOClass(baseClass),hasQualifiers,hasClassOrigin);
-
-    _setCIMObjectPath(instRep->_reference);
-
-    // Copy all properties
-    for (Uint32 i = 0, k = instRep->_properties.size(); i < k; i++)
-    {
-        propRep = instRep->_properties[i]._rep;
-        // if not already detected that qualifiers are specified and
-        // there are qualifers at that property.
-        if (!hasQualifiers && propRep->getQualifierCount() > 0)
-        {
-            includeQualifiers();
-        }
-        // if not already detected that class origins are specified and
-        // there is a class origin specified at that property.
-        if (!hasClassOrigin && !propRep->_classOrigin.isNull())
-        {
-            includeClassOrigins();
-        }
-
-        // get the property node index for the property
-        rc = inst.hdr->theClass->_getProperyNodeIndex(
-            propNode,
-            (const char*)propRep->_name.getString().getCString());
-
-        if (rc != SCMO_OK)
-        {
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NO_SUCH_PROPERTY,
-               propRep->_name.getString());
-        }
-        rc = inst.hdr->theClass->_isNodeSameType(
-                 propNode,
-                 propRep->_value._rep->type,
-                 propRep->_value._rep->isArray);
-        if (rc == SCMO_OK)
-        {
-            _setCIMValueAtNodeIndex(propNode, propRep->_value._rep);
-        }
-        else
-        {
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_TYPE_MISMATCH,
-               propRep->_name.getString());
-        }
-    }
+    _setCIMInstance(cimInstance);
 
 }
 
@@ -1290,7 +1245,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
     const char * base) const
 {
 
-    const SCMBUnion* psourceUnion = NULL;
+    const SCMBUnion* pscmbArrayUn = NULL;
 
     if (isNull)
     {
@@ -1300,7 +1255,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
 
     if (isArray)
     {
-        psourceUnion =(SCMBUnion*)&(base[scmbUn.arrayValue.start]);
+        pscmbArrayUn =(SCMBUnion*)&(base[scmbUn.arrayValue.start]);
     }
 
     switch (type)
@@ -1313,7 +1268,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
                 Array<Uint8> x;
                 for (Uint32 i = 0, k = arraySize; i < k ; i++)
                 {
-                    x.append(psourceUnion[i].simple.val.u8);
+                    x.append(pscmbArrayUn[i].simple.val.u8);
                 }
                 cimV.set(x);
             }
@@ -1331,7 +1286,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
                 Array<Uint16> x;
                 for (Uint32 i = 0, k = arraySize; i < k ; i++)
                 {
-                    x.append(psourceUnion[i].simple.val.u16);
+                    x.append(pscmbArrayUn[i].simple.val.u16);
                 }
                 cimV.set(x);
             }
@@ -1349,7 +1304,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
                 Array<Uint32> x;
                 for (Uint32 i = 0, k = arraySize; i < k ; i++)
                 {
-                    x.append(psourceUnion[i].simple.val.u32);
+                    x.append(pscmbArrayUn[i].simple.val.u32);
                 }
                 cimV.set(x);
             }
@@ -1367,7 +1322,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
                 Array<Uint64> x;
                 for (Uint32 i = 0, k = arraySize; i < k ; i++)
                 {
-                    x.append(psourceUnion[i].simple.val.u64);
+                    x.append(pscmbArrayUn[i].simple.val.u64);
                 }
                 cimV.set(x);
             }
@@ -1385,7 +1340,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
                 Array<Sint8> x;
                 for (Uint32 i = 0, k = arraySize; i < k ; i++)
                 {
-                    x.append(psourceUnion[i].simple.val.s8);
+                    x.append(pscmbArrayUn[i].simple.val.s8);
                 }
                 cimV.set(x);
             }
@@ -1403,7 +1358,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
                 Array<Sint16> x;
                 for (Uint32 i = 0, k = arraySize; i < k ; i++)
                 {
-                    x.append(psourceUnion[i].simple.val.s16);
+                    x.append(pscmbArrayUn[i].simple.val.s16);
                 }
                 cimV.set(x);
             }
@@ -1421,7 +1376,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
                 Array<Sint32> x;
                 for (Uint32 i = 0, k = arraySize; i < k ; i++)
                 {
-                    x.append(psourceUnion[i].simple.val.s32);
+                    x.append(pscmbArrayUn[i].simple.val.s32);
                 }
                 cimV.set(x);
             }
@@ -1439,7 +1394,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
                 Array<Sint64> x;
                 for (Uint32 i = 0, k = arraySize; i < k ; i++)
                 {
-                    x.append(psourceUnion[i].simple.val.s64);
+                    x.append(pscmbArrayUn[i].simple.val.s64);
                 }
                 cimV.set(x);
             }
@@ -1457,7 +1412,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
                 Array<Real32> x;
                 for (Uint32 i = 0, k = arraySize; i < k ; i++)
                 {
-                    x.append(psourceUnion[i].simple.val.r32);
+                    x.append(pscmbArrayUn[i].simple.val.r32);
                 }
                 cimV.set(x);
             }
@@ -1475,7 +1430,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
                 Array<Real64> x;
                 for (Uint32 i = 0, k = arraySize; i < k ; i++)
                 {
-                    x.append(psourceUnion[i].simple.val.r64);
+                    x.append(pscmbArrayUn[i].simple.val.r64);
                 }
                 cimV.set(x);
             }
@@ -1493,7 +1448,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
                 Array<Char16> x;
                 for (Uint32 i = 0, k = arraySize; i < k ; i++)
                 {
-                    x.append(psourceUnion[i].simple.val.c16);
+                    x.append(pscmbArrayUn[i].simple.val.c16);
                 }
                 cimV.set(x);
             }
@@ -1511,7 +1466,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
                 Array<Boolean> x;
                 for (Uint32 i = 0, k = arraySize; i < k ; i++)
                 {
-                    x.append(psourceUnion[i].simple.val.bin);
+                    x.append(pscmbArrayUn[i].simple.val.bin);
                 }
                 cimV.set(x);
             }
@@ -1531,7 +1486,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
 
                 for (Uint32 i = 0, k = arraySize; i < k ; i++)
                 {
-                    x.append(NEWCIMSTR(psourceUnion[i].stringValue,base));
+                    x.append(NEWCIMSTR(pscmbArrayUn[i].stringValue,base));
                 }
                 cimV.set(x);
             }
@@ -1550,7 +1505,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
 
                 for (Uint32 i = 0, k = arraySize; i < k ; i++)
                 {
-                    x.append(CIMDateTime(&(psourceUnion[i].dateTimeValue)));
+                    x.append(CIMDateTime(&(pscmbArrayUn[i].dateTimeValue)));
                 }
                 cimV.set(x);
             }
@@ -1853,10 +1808,7 @@ const char* SCMOInstance::getNameSpace() const
         inst.hdr->theClass->cls.base);
 }
 
-void SCMOInstance::_initSCMOInstance(
-    SCMOClass* pClass,
-    Boolean inclQual,
-    Boolean inclOrigin)
+void SCMOInstance::_initSCMOInstance(SCMOClass* pClass)
 {
     PEGASUS_ASSERT(SCMB_INITIAL_MEMORY_CHUNK_SIZE
         - sizeof(SCMBInstance_Main)>0);
@@ -1884,8 +1836,8 @@ void SCMOInstance::_initSCMOInstance(
     inst.hdr->theClass = pClass;
 
     // Init flags
-    inst.hdr->flags.includeQualifiers=inclQual;
-    inst.hdr->flags.includeClassOrigin=inclOrigin;
+    inst.hdr->flags.includeQualifiers=false;
+    inst.hdr->flags.includeClassOrigin=false;
     inst.hdr->flags.isFiltered=false;
 
     inst.hdr->hostName.start=0;
@@ -1919,6 +1871,66 @@ void SCMOInstance::_initSCMOInstance(
     inst.hdr->propertyFilterIndexMap.length=0;
 
 
+}
+
+void SCMOInstance::_setCIMInstance(const CIMInstance& cimInstance)
+{
+    CIMPropertyRep* propRep;
+    Uint32 propNode;
+    Uint64 valueStart;
+    SCMO_RC rc;
+
+    CIMInstanceRep* instRep = cimInstance._rep;
+
+    // Test if the instance has qualifiers.
+    // The instance level qualifiers are stored on the associated SCMOClass.
+    inst.hdr->flags.includeQualifiers=(instRep->_qualifiers.getCount()>0);
+
+    _setCIMObjectPath(instRep->_reference);
+
+    // Copy all properties
+    for (Uint32 i = 0, k = instRep->_properties.size(); i < k; i++)
+    {
+        propRep = instRep->_properties[i]._rep;
+        // if not already detected that qualifiers are specified and
+        // there are qualifers at that property.
+        if (!inst.hdr->flags.includeQualifiers &&
+            propRep->getQualifierCount() > 0)
+        {
+            includeQualifiers();
+        }
+        // if not already detected that class origins are specified and
+        // there is a class origin specified at that property.
+        if (!inst.hdr->flags.includeClassOrigin && 
+            !propRep->_classOrigin.isNull())
+        {
+            includeClassOrigins();
+        }
+
+        // get the property node index for the property
+        rc = inst.hdr->theClass->_getProperyNodeIndex(
+            propNode,
+            (const char*)propRep->_name.getString().getCString());
+
+        if (rc != SCMO_OK)
+        {
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NO_SUCH_PROPERTY,
+               propRep->_name.getString());
+        }
+        rc = inst.hdr->theClass->_isNodeSameType(
+                 propNode,
+                 propRep->_value._rep->type,
+                 propRep->_value._rep->isArray);
+        if (rc == SCMO_OK)
+        {
+            _setCIMValueAtNodeIndex(propNode, propRep->_value._rep);
+        }
+        else
+        {
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_TYPE_MISMATCH,
+               propRep->_name.getString());
+        }
+    }
 }
 
 SCMO_RC SCMOInstance::getProperty(
@@ -2980,7 +2992,7 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
             else
             {
                 ptr = (SCMBUnion*)malloc(sizeof(SCMBUnion));
-                ptr->extString.pchar = 
+                ptr->extString.pchar =
                     (char*)_getCharString(u->stringValue,base);
                 // lenght with out the trailing /0 !
                 ptr->extString.length = u->stringValue.length-1;
@@ -4225,7 +4237,7 @@ void SCMODump::printSCMOValue(
     char* base) const
 {
    fprintf(_out,"\nValueType : %s",cimTypeToString(theValue.valueType));
-   fprintf(_out,"\nValue was set by the provider: %s",
+   fprintf(_out,"\nValue was set: %s",
        (theValue.flags.isSet ? "True" : "False"));
    if (theValue.flags.isNull)
    {

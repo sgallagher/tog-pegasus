@@ -53,10 +53,6 @@ class CIMExportRequestDispatcher;
 class CIMExportResponseEncoder;
 class CIMExportRequestDecoder;
 class WsmProcessor;
-class RsProcessor;
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-class WebServer;
-#endif /* PEGASUS_ENABLE_PROTOCOL_WEB */
 class HTTPAcceptor;
 class CIMRepository;
 
@@ -93,8 +89,7 @@ public:
     void addAcceptor(
         Uint16 connectionType,
         Uint32 portNumber,
-        Boolean useSSL,
-        HostAddress *ipAddress = 0);
+        Boolean useSSL);
 
     /** Bind the acceptors to the specified listen sockets.
         @exception - This function may receive exceptions from
@@ -175,10 +170,6 @@ private:
     CIMExportRequestDecoder* _cimExportRequestDecoder;
     HTTPAuthenticatorDelegator* _httpAuthenticatorDelegator;
 
-    RsProcessor* _rsProcessor;
-#ifdef PEGASUS_ENABLE_PROTOCOL_WEB
-    WebServer* _webServer;
-#endif
 #ifdef PEGASUS_ENABLE_PROTOCOL_WSMAN
     WsmProcessor* _wsmProcessor;
 #endif
@@ -194,10 +185,11 @@ private:
     ProviderRegistrationManager* _providerRegistrationManager;
     SSLContextManager* _sslContextMgr;
 
-    static SCMOClass _scmoClassCache_GetClass(
+    static CIMClass _scmoClassCache_GetClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
-    
+    SCMOClassCache* _scmoClassCache;
+
     void _init();
     SSLContext* _getSSLContext();
 };

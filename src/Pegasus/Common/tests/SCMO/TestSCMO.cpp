@@ -34,6 +34,7 @@
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/SCMOClassCache.h>
 
 
 PEGASUS_USING_PEGASUS;
@@ -42,6 +43,7 @@ PEGASUS_USING_STD;
 #define VCOUT if (verbose) cout
 
 static Boolean verbose;
+static Boolean loadClassOnce;
 
 const String MASTERQUALIFIER ("/src/Pegasus/Common/tests/SCMO/masterQualifier");
 const String MASTERCLASS ("/src/Pegasus/Common/tests/SCMO/masterClass");
@@ -51,6 +53,36 @@ const String
    TESTCSCLASSXML("/src/Pegasus/Common/tests/SCMO/CIMComputerSystemClass.xml");
 const String
    TESTCSINSTXML("/src/Pegasus/Common/tests/SCMO/CIMComputerSystemInst.xml");
+
+CIMClass _scmoClassCache_GetClass(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className)
+{
+    CIMClass CIM_TESTClass2;   
+    Buffer text;
+    SCMO_RC rc;
+
+    VCOUT << endl << "Loading CIM SCMO_TESTClass2" << endl;
+
+    // check if the class was alrady loaded.
+    // If this fails, the class was requested to be loaded more then once !
+    PEGASUS_TEST_ASSERT(!loadClassOnce);
+
+    String TestSCMO2XML (getenv("PEGASUS_ROOT"));
+    TestSCMO2XML.append(TESTSCMO2XML);
+
+    FileSystem::loadFileToMemory(text,(const char*)TestSCMO2XML.getCString());
+
+    XmlParser theParser((char*)text.getData());
+    XmlReader::getObject(theParser,CIM_TESTClass2);
+
+    // The class was loaded.
+    loadClassOnce = true;
+
+    VCOUT << endl << "Done." << endl;
+
+    return CIM_TESTClass2;
+}
 
 void CIMClassToSCMOClass()
 {
@@ -184,31 +216,20 @@ void CIMClassToSCMOClass()
     VCOUT << endl << "Test 1: Done." << endl;
 }
 
-
-void loadSCMO_TESTClass2(CIMClass& CIM_TESTClass2)
+void SCMOClassQualifierTest()
 {
-    Buffer text;
 
     SCMO_RC rc;
+    VCOUT << endl << "Getting SCMOClass from cache ..." << endl;
 
-    VCOUT << endl << "Loading CIM SCMO_TESTClass2" << endl;
+    SCMOClassCache* _theCache = SCMOClassCache::getInstance();
 
-    String TestSCMO2XML (getenv("PEGASUS_ROOT"));
-    TestSCMO2XML.append(TESTSCMO2XML);
+    SCMOClass* SCMO_TESTClass2 = _theCache->getSCMOClass(
+            "cimv2",
+            strlen("cimv2"),
+            "SCMO_TESTClass2",
+            strlen("SCMO_TESTClass2"));
 
-    FileSystem::loadFileToMemory(text,(const char*)TestSCMO2XML.getCString());
-
-    XmlParser theParser((char*)text.getData());
-    XmlReader::getObject(theParser,CIM_TESTClass2);
-
-    VCOUT << endl << "Done." << endl;
-
-    return;
-}
-
-void SCMOClassQualifierTest(SCMOClass& SCMO_TESTClass2)
-{
-    SCMO_RC rc;
     VCOUT << endl << "SCMOClass qualifer test ..." << endl;
 
     String masterFile (getenv("PEGASUS_ROOT"));
@@ -216,7 +237,7 @@ void SCMOClassQualifierTest(SCMOClass& SCMO_TESTClass2)
 
     SCMODump dump("TestSCMOClassQualifier.log");
 
-    dump.dumpSCMOClassQualifiers(SCMO_TESTClass2);
+    dump.dumpSCMOClassQualifiers(*SCMO_TESTClass2);
 
     PEGASUS_TEST_ASSERT(dump.compareFile(masterFile));
 
@@ -225,7 +246,7 @@ void SCMOClassQualifierTest(SCMOClass& SCMO_TESTClass2)
     VCOUT << "Done." << endl;
 }
 
-void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
+void SCMOInstancePropertyTest()
 {
     SCMO_RC rc;
 
@@ -239,6 +260,16 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
     SCMBUnion boolValue;
     boolValue.simple.val.bin=true;
     boolValue.simple.hasValue=true;
+
+    SCMOClassCache* _theCache = SCMOClassCache::getInstance();
+
+    SCMOClass* SCMO_TESTClass2 = _theCache->getSCMOClass(
+            "cimv2",
+            strlen("cimv2"),
+            "SCMO_TESTClass2",
+            strlen("SCMO_TESTClass2"));
+
+    SCMOInstance SCMO_TESTClass2_Inst(*SCMO_TESTClass2);
 
     /**
      * Negative test cases for setting a propertty
@@ -1350,7 +1381,7 @@ void SCMOInstancePropertyTest(SCMOInstance& SCMO_TESTClass2_Inst)
 
 }
 
-void SCMOInstanceKeyBindingsTest(SCMOInstance& SCMO_TESTClass2_Inst)
+void SCMOInstanceKeyBindingsTest()
 {
     SCMO_RC rc;
 
@@ -1358,6 +1389,16 @@ void SCMOInstanceKeyBindingsTest(SCMOInstance& SCMO_TESTClass2_Inst)
     const SCMBUnion * returnKeyBindValue;
     Uint32 noKeyBind;
     const char * returnName;
+
+    SCMOClassCache* _theCache = SCMOClassCache::getInstance();
+
+    SCMOClass* SCMO_TESTClass2 = _theCache->getSCMOClass(
+            "cimv2",
+            strlen("cimv2"),
+            "SCMO_TESTClass2",
+            strlen("SCMO_TESTClass2"));
+
+    SCMOInstance SCMO_TESTClass2_Inst(*SCMO_TESTClass2);
 
     SCMBUnion uint64KeyVal;
     uint64KeyVal.simple.val.u64 = PEGASUS_UINT64_LITERAL(4834987289728);
@@ -1509,7 +1550,7 @@ void SCMOInstanceKeyBindingsTest(SCMOInstance& SCMO_TESTClass2_Inst)
     VCOUT << endl << "Done." << endl;
 }
 
-void SCMOInstancePropertyFilterTest(SCMOInstance& SCMO_TESTClass2_Inst)
+void SCMOInstancePropertyFilterTest()
 {
     SCMO_RC rc;
 
@@ -1519,6 +1560,25 @@ void SCMOInstancePropertyFilterTest(SCMOInstance& SCMO_TESTClass2_Inst)
     Boolean isArrayReturn;
     Uint32 sizeReturn;
     const char * nameReturn;
+
+    SCMOClassCache* _theCache = SCMOClassCache::getInstance();
+
+    SCMOClass* SCMO_TESTClass2 = _theCache->getSCMOClass(
+            "cimv2",
+            strlen("cimv2"),
+            "SCMO_TESTClass2",
+            strlen("SCMO_TESTClass2"));
+
+    SCMOInstance SCMO_TESTClass2_Inst(*SCMO_TESTClass2);
+
+    SCMBUnion uint32value;
+    uint32value.simple.val.u32 = 0x654321;
+    uint32value.simple.hasValue=true;
+
+    rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
+        "Uint32Property",
+        CIMTYPE_UINT32,
+        &uint32value);
 
     /**
      * Test property filter
@@ -1552,13 +1612,14 @@ void SCMOInstancePropertyFilterTest(SCMOInstance& SCMO_TESTClass2_Inst)
             isArrayReturn,
             sizeReturn);
 
-        if (typeReturn == CIMTYPE_STRING)
+        if (typeReturn == CIMTYPE_STRING &&
+            rc == SCMO_OK)
         {
                 // do not forget !!!
                 free((void*)unionReturn);
         }
 
-        PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+        PEGASUS_TEST_ASSERT(rc!=SCMO_INDEX_OUT_OF_BOUND);
     }
 
     VCOUT << "Check indexing." << endl;
@@ -1581,9 +1642,7 @@ void SCMOInstancePropertyFilterTest(SCMOInstance& SCMO_TESTClass2_Inst)
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
-    SCMBUnion uint32value;
     uint32value.simple.val.u32 = 0x123456;
-    uint32value.simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithNodeIndex(
         nodeIndex,
@@ -1666,13 +1725,14 @@ void SCMOInstanceConverterTest()
 
     VCOUT << "Creating SCMOInstance from CIMInstance" << endl;
     SCMOInstance SCMO_CSInstance(SCMO_CSClass,CIM_CSInstance);
-
+    
     CIMInstance newInstance;
 
     VCOUT << "Converting CIMInstance from SCMOInstance" << endl;
     SCMO_CSInstance.getCIMInstance(newInstance);
 
     PEGASUS_TEST_ASSERT(newInstance.identical(CIM_CSInstance));
+
     VCOUT << endl << "Done." << endl << endl;
 }
 
@@ -1684,26 +1744,28 @@ int main (int argc, char *argv[])
 
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
 
+    // check if cache is loading the class only once
+    loadClassOnce = false;
+
     try
     {
+
         CIMClassToSCMOClass();
 
-        loadSCMO_TESTClass2(CIM_TESTClass2);
+        // init the cache.
+        SCMOClassCache* _thecache = SCMOClassCache::getInstance();
+        _thecache->setCallBack(_scmoClassCache_GetClass);
 
-        SCMOClass SCMO_TESTClass2(CIM_TESTClass2);
+        SCMOClassQualifierTest();
 
-        SCMOClassQualifierTest( SCMO_TESTClass2 );
+        SCMOInstancePropertyTest();
 
-        SCMOInstance SCMO_TESTClass2_Inst(SCMO_TESTClass2);
+        SCMOInstanceKeyBindingsTest();
 
-        SCMOInstancePropertyTest(SCMO_TESTClass2_Inst);
-
-        SCMOInstanceKeyBindingsTest(SCMO_TESTClass2_Inst);
-
-        SCMOInstancePropertyFilterTest(SCMO_TESTClass2_Inst);
+        SCMOInstancePropertyFilterTest();
 
         SCMOInstanceConverterTest();
-
+        
     }
     catch (CIMException& e)
     {

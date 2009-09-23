@@ -619,19 +619,17 @@ private:
      */
     SCMOInstance();
 
-    void _initSCMOInstance(
-        SCMOClass* pClass,
-        Boolean inclQual,
-        Boolean inclOrigin);
+    void _initSCMOInstance(SCMOClass* pClass);
 
+    void _setCIMInstance(const CIMInstance& cimInstance);
 
     SCMO_RC _getPropertyAtNodeIndex(
-            Uint32 pos,
-            const char** pname,
-            CIMType& type,
-            const SCMBUnion** pvalue,
-            Boolean& isArray,
-            Uint32& size ) const;
+        Uint32 pos,
+        const char** pname,
+        CIMType& type,
+        const SCMBUnion** pvalue,
+        Boolean& isArray,
+        Uint32& size ) const;
 
     void _setPropertyAtNodeIndex(
         Uint32 pos,

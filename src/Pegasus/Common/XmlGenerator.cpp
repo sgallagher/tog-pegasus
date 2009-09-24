@@ -261,6 +261,22 @@ const StrLit XmlGenerator::_XmlWriterTypeStrings[17] =
     STRLIT("TYPE=\"instance\"")
 };
 
+const StrLit XmlGenerator::_XmlWriterKeyTypeStrings[17] =
+{
+    STRLIT("boolean"), STRLIT("numeric"),
+    STRLIT("numeric"), STRLIT("numeric"),
+    STRLIT("numeric"), STRLIT("numeric"),
+    STRLIT("numeric"), STRLIT("numeric"),
+    STRLIT("numeric"), STRLIT("numeric"),
+    STRLIT("numeric"), STRLIT("string"),
+    STRLIT("string"),  STRLIT("string"),
+    /* The following are not valid values for a keytype, but left in here
+       so in case something is going wrong it can be easily concluded from the
+       generated XML */
+    STRLIT("reference"), STRLIT("object"),
+    STRLIT("instance")
+};
+
 void XmlGenerator::_appendChar(Buffer& out, const Char16& c)
 {
     // We need to convert the Char16 to UTF8 then append the UTF8

@@ -84,6 +84,11 @@ public:
     {
         return _XmlWriterTypeStrings[type];
     }
+    
+    static StrLit xmlWriterKeyTypeStrings(CIMType type)
+    {
+        return _XmlWriterKeyTypeStrings[type];
+    }
 
 private:
 
@@ -114,6 +119,7 @@ private:
         XmlGenerator();
 
     static const StrLit _XmlWriterTypeStrings[17];
+    static const StrLit _XmlWriterKeyTypeStrings[17];
 };
 
 PEGASUS_COMMON_LINKAGE Buffer& operator<<(

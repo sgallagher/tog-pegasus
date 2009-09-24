@@ -722,14 +722,13 @@ void CIMInstancesResponseData::encodeXmlResponse(Buffer& out)
         {
             SCMOXmlWriter::appendValueSCMOInstanceElement(
                 out, _scmoInstances[i]);
-
-/*            
+/*
             fprintf(
                 stderr,
                 "After appendValueNamedInstanceElement()\n%s",
                 out.getData());
             fflush(stderr);
-*/
+*/            
         }
     }
     PEG_METHOD_EXIT();

@@ -82,30 +82,33 @@ public:
                 kbType,
                 &kbValue);
 
-            /* TODO: NEED to handle new _getKeyBindingDataAtNodeIndex()
             out << STRLIT("<KEYBINDING NAME=\"");
             out.append(kbName,kbNameLen-1);
             out << STRLIT("\">\n");
 
-            if (kbType == CIMKeyBinding::REFERENCE)
+            if (kbType == CIMTYPE_REFERENCE)
             {
+                /*
                 TODO: NEED RESOLvE the value down to a SCMO....
                 CIMObjectPath ref = keyBindings[i].getValue();
                 appendValueReferenceElement(out, ref, true);
+                */
             }
             else
             {
                 out << STRLIT("<KEYVALUE VALUETYPE=\"");
-                out << keyBindingTypeToString(kbType);
+                out << xmlWriterKeyTypeStrings(kbType);
                 out << STRLIT("\">");
 
-                // fixed the special character problem - Markus
+                SCMOXmlWriter::appendSCMBUnion(
+                    out,
+                    *kbValue,
+                    kbType,
+                    scmoInstance.inst.base);
 
-                appendSpecial(out, kbValue, kbValueLen-1);
                 out << STRLIT("</KEYVALUE>\n");
             }
             out << STRLIT("</KEYBINDING>\n");
-            */
         }
         out << STRLIT("</INSTANCENAME>\n");
     }
@@ -554,7 +557,7 @@ public:
             }
             SCMOXmlWriter::appendValueElement(
                 out,
-                propertyValue,
+                *propertyValue,
                 propertyValueBase);
 
             out << STRLIT("</PROPERTY>\n");
@@ -575,14 +578,14 @@ public:
 
     static void appendValueElement(
         Buffer& out,
-        SCMBValue * value,
+        SCMBValue & value,
         const char * base)
     {
-        if (value->flags.isNull)
+        if (value.flags.isNull)
         {
             return;
         }
-        if (value->flags.isArray)
+        if (value.flags.isArray)
         {
 /*
             switch (value.getType())
@@ -727,7 +730,7 @@ public:
             }
 */
         }
-        else if (value->valueType == CIMTYPE_REFERENCE)
+        else if (value.valueType == CIMTYPE_REFERENCE)
         {
 /*
             // Has to be separate because it uses VALUE.REFERENCE tag
@@ -740,121 +743,132 @@ public:
         {
             out << STRLIT("<VALUE>");
 
-            switch (value->valueType)
-            {
-                case CIMTYPE_BOOLEAN:
-                {
-                    SCMOXmlWriter::append(out, value->value.simple.val.bin);
-                    break;
-                }
+            // Call function to write a SCMBUnion + type field
+            appendSCMBUnion(out,value.value, value.valueType,base);
 
-                case CIMTYPE_UINT8:
-                {
-                    SCMOXmlWriter::append(out, value->value.simple.val.u8);
-                    break;
-                }
-
-                case CIMTYPE_SINT8:
-                {
-                    SCMOXmlWriter::append(out, value->value.simple.val.s8);
-                    break;
-                }
-
-                case CIMTYPE_UINT16:
-                {
-                    SCMOXmlWriter::append(out, value->value.simple.val.u16);
-                    break;
-                }
-
-                case CIMTYPE_SINT16:
-                {
-                    SCMOXmlWriter::append(out, value->value.simple.val.s16);
-                    break;
-                }
-
-                case CIMTYPE_UINT32:
-                {
-                    SCMOXmlWriter::append(out, value->value.simple.val.u32);
-                    break;
-                }
-
-                case CIMTYPE_SINT32:
-                {
-                    SCMOXmlWriter::append(out, value->value.simple.val.s32);
-                    break;
-                }
-
-                case CIMTYPE_UINT64:
-                {
-                    SCMOXmlWriter::append(out, value->value.simple.val.u64);
-                    break;
-                }
-
-                case CIMTYPE_SINT64:
-                {
-                    SCMOXmlWriter::append(out, value->value.simple.val.s64);
-                    break;
-                }
-
-                case CIMTYPE_REAL32:
-                {
-                    SCMOXmlWriter::append(out, value->value.simple.val.r32);
-                    break;
-                }
-
-                case CIMTYPE_REAL64:
-                {
-                    SCMOXmlWriter::append(out, value->value.simple.val.r64);
-                    break;
-                }
-
-                case CIMTYPE_CHAR16:
-                {
-                    SCMOXmlWriter::appendSpecial(
-                        out,
-                        value->value.simple.val.c16);
-                    break;
-                }
-
-                case CIMTYPE_STRING:
-                {
-                    SCMOXmlWriter::appendSpecial(
-                        out,
-                        &(base[value->value.stringValue.start]),
-                        value->value.stringValue.length-1);
-                    break;
-                }
-
-                case CIMTYPE_DATETIME:
-                {
-                    // an SCMBDateTime is a CIMDateTimeRep
-                    // this should help us to reuse existing optimized Datetime
-                    char buffer[26];
-                    _DateTimetoCStr(&(value->value.dateTimeValue), buffer);
-                    // datetime value is formatted with a \0 at end, ignore
-                    out.append(buffer,sizeof(buffer)-1);
-                    break;
-                }
-/*
-                case CIMTYPE_OBJECT:
-                {
-                    CIMObject v;
-                    value.get(v);
-                    _xmlWritter_appendValue(out, v);
-                    break;
-                }
-                case CIMTYPE_INSTANCE:
-                {
-                    CIMInstance v;
-                    value.get(v);
-                    _xmlWritter_appendValue(out, v);
-                    break;
-                }
-                default:
-                    PEGASUS_ASSERT(false);
-*/
-            }
             out << STRLIT("</VALUE>\n");
+        }
+    }
+
+    static void appendSCMBUnion(
+        Buffer& out,
+        const SCMBUnion & u,
+        const CIMType & valueType,
+        const char * base)
+    {
+        switch (valueType)
+        {
+            case CIMTYPE_BOOLEAN:
+            {
+                SCMOXmlWriter::append(out, u.simple.val.bin);
+                break;
+            }
+
+            case CIMTYPE_UINT8:
+            {
+                SCMOXmlWriter::append(out, u.simple.val.u8);
+                break;
+            }
+
+            case CIMTYPE_SINT8:
+            {
+                SCMOXmlWriter::append(out, u.simple.val.s8);
+                break;
+            }
+
+            case CIMTYPE_UINT16:
+            {
+                SCMOXmlWriter::append(out, u.simple.val.u16);
+                break;
+            }
+
+            case CIMTYPE_SINT16:
+            {
+                SCMOXmlWriter::append(out, u.simple.val.s16);
+                break;
+            }
+
+            case CIMTYPE_UINT32:
+            {
+                SCMOXmlWriter::append(out, u.simple.val.u32);
+                break;
+            }
+
+            case CIMTYPE_SINT32:
+            {
+                SCMOXmlWriter::append(out, u.simple.val.s32);
+                break;
+            }
+
+            case CIMTYPE_UINT64:
+            {
+                SCMOXmlWriter::append(out, u.simple.val.u64);
+                break;
+            }
+
+            case CIMTYPE_SINT64:
+            {
+                SCMOXmlWriter::append(out, u.simple.val.s64);
+                break;
+            }
+
+            case CIMTYPE_REAL32:
+            {
+                SCMOXmlWriter::append(out, u.simple.val.r32);
+                break;
+            }
+
+            case CIMTYPE_REAL64:
+            {
+                SCMOXmlWriter::append(out, u.simple.val.r64);
+                break;
+            }
+
+            case CIMTYPE_CHAR16:
+            {
+                SCMOXmlWriter::appendSpecial(
+                    out,
+                    u.simple.val.c16);
+                break;
+            }
+
+            case CIMTYPE_STRING:
+            {
+                SCMOXmlWriter::appendSpecial(
+                    out,
+                    &(base[u.stringValue.start]),
+                    u.stringValue.length-1);
+                break;
+            }
+
+            case CIMTYPE_DATETIME:
+            {
+                // an SCMBDateTime is a CIMDateTimeRep
+                // this should help us to reuse existing optimized Datetime
+                char buffer[26];
+                _DateTimetoCStr(&(u.dateTimeValue), buffer);
+                // datetime value is formatted with a \0 at end, ignore
+                out.append(buffer,sizeof(buffer)-1);
+                break;
+            }
+/*
+            case CIMTYPE_OBJECT:
+            {
+                CIMObject v;
+                value.get(v);
+                _xmlWritter_appendValue(out, v);
+                break;
+            }
+            case CIMTYPE_INSTANCE:
+            {
+                CIMInstance v;
+                value.get(v);
+                _xmlWritter_appendValue(out, v);
+                break;
+            }
+            default:
+                PEGASUS_ASSERT(false);
+*/
         }
     }
 

@@ -45,7 +45,8 @@ class CMPISCMOUtilities
 public:
     static CMPIrc scmoValue2CMPIData(const SCMBUnion* scmoValue, 
                                      CMPIType type, 
-                                     CMPIData *data);
+                                     CMPIData *data,
+                                     Uint32 arraySize = 0);
     static CIMDateTimeRep* scmoDateTimeFromCMPI(CMPIDateTime* cmpidt);
 };
 

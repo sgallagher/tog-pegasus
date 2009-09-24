@@ -364,6 +364,13 @@ extern "C"
         {
             CMPIType ct=type2CMPIType(type, false);
             CMPISCMOUtilities::scmoValue2CMPIData( keyValue, ct, &data );
+            if ((ct&~CMPI_ARRAY) == CMPI_string)
+            {
+                // We always receive strings as an array of pointers
+                // with at least one element, which needs to be released
+                // after it was converted to CMPIData
+                free((void*)keyValue);
+            }
             CMSetStatus(rc, CMPI_RC_OK);
         }
         else
@@ -404,6 +411,13 @@ extern "C"
         {
             CMPIType ct=type2CMPIType(type, false);
             CMPISCMOUtilities::scmoValue2CMPIData( keyValue, ct, &data );
+            if ((ct&~CMPI_ARRAY) == CMPI_string)
+            {
+                // We always receive strings as an array of pointers
+                // with at least one element, which needs to be released
+                // after it was converted to CMPIData
+                free((void*)keyValue);
+            }
             CMSetStatus(rc, CMPI_RC_OK);
         }
         else

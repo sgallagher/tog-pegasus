@@ -122,11 +122,11 @@ TEST_DIRS += \
     ProviderManager2/tests \
     ProviderManager2/Default/tests
 
-# ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
-#    DIRS += \
-#        Provider/CMPI \
-#        ProviderManager2/CMPI
-#endif
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
+    DIRS += \
+        Provider/CMPI \
+        ProviderManager2/CMPI
+endif
 
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
 

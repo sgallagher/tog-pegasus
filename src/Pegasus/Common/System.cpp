@@ -44,12 +44,8 @@
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "SystemWindows.cpp"
-#elif defined(PEGASUS_OS_TYPE_UNIX)
+#elif defined(PEGASUS_OS_TYPE_UNIX) || defined(PEGASUS_OS_VMS)
 # include "SystemPOSIX.cpp"
-# include "SystemUnix.cpp"
-#elif defined(PEGASUS_OS_VMS)
-# include "SystemPOSIX.cpp"
-# include "SystemVms.cpp"
 #else
 # error "Unsupported platform"
 #endif
@@ -59,14 +55,6 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 Boolean System::bindVerbose = false;
-
-Mutex System::_mutexForGetHostName;
-
-Mutex System::_mutexForGetFQHN;
-
-String System::_hostname;
-String System::_fullyQualifiedHostname;
-
 
 Boolean System::copyFile(const char* fromPath, const char* toPath)
 {
@@ -144,64 +132,6 @@ Sint32 System::strcasecmp(const char* s1, const char* s2)
     return r;
 }
 
-bool System::strncasecmp(
-    const char* s1,
-    size_t s1_l,
-    const char* s2,
-    size_t s2_l)
-{
-    // Function is even faster than System::strcasecmp()
-    if (s1_l != s2_l)
-    {
-        return false;
-    }
-    Uint8* p = (Uint8*)s1;
-    Uint8* q = (Uint8*)s2;
-    register int len = s1_l;
-   // lets do a loop-unrolling optimized compare here
-    while (len >= 8)
-    {
-        if ((_toLowerTable[p[0]]-_toLowerTable[q[0]]) ||
-            (_toLowerTable[p[1]]-_toLowerTable[q[1]]) ||
-            (_toLowerTable[p[2]]-_toLowerTable[q[2]]) ||
-            (_toLowerTable[p[3]]-_toLowerTable[q[3]]) ||
-            (_toLowerTable[p[4]]-_toLowerTable[q[4]]) ||
-            (_toLowerTable[p[5]]-_toLowerTable[q[5]]) ||
-            (_toLowerTable[p[6]]-_toLowerTable[q[6]]) ||
-            (_toLowerTable[p[7]]-_toLowerTable[q[7]]))
-        {
-            return false;
-        }
-        len -= 8;
-        p += 8;
-        q += 8;
-    }
-    while (len >= 4)
-    {
-        if ((_toLowerTable[p[0]]-_toLowerTable[q[0]]) ||
-            (_toLowerTable[p[1]]-_toLowerTable[q[1]]) ||
-            (_toLowerTable[p[2]]-_toLowerTable[q[2]]) ||
-            (_toLowerTable[p[3]]-_toLowerTable[q[3]]))
-        {
-            return false;
-        }
-        len -= 4;
-        p += 4;
-        q += 4;
-    }
-    while (len--)
-    {
-        if ((_toLowerTable[p[0]]-_toLowerTable[q[0]]))
-        {
-            return false;
-        }
-        p++;
-        q++;
-    }
-    return true;
-}
-
-
 // Return the just the file name from the path into basename
 char *System::extract_file_name(const char *fullpath, char *basename)
 {
@@ -249,37 +179,29 @@ char *System::extract_file_path(const char *fullpath, char *dirname)
     return dirname;
 }
 
-//Wrapper on ::gethostname to be used in different parts of
-//this file avoiding class membership fee
-//
-// If gethostname() fails, an empty or truncated value is used.
-static void _get_hostName(char *hostname, const Uint32 len)
-{
-    if( 0 > gethostname(hostname, len))
-    {
-        hostname[0] = 0;
-        PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
-           "gethostname failed: %s",
-           (const char*)PEGASUS_SYSTEM_ERRORMSG.getCString()));
-    }
-}
-
 String System::getHostName()
 {
+    static String _hostname;
+    static MutexType _mutex = PEGASUS_MUTEX_INITIALIZER;
+
     // Use double-checked locking pattern to avoid overhead of
     // mutex on subsequent calls.
 
     if (0 == _hostname.size())
     {
-        AutoMutex lock(_mutexForGetHostName);
+        mutex_lock(&_mutex);
 
         if (0 == _hostname.size())
         {
             char hostname[PEGASUS_MAXHOSTNAMELEN + 1];
-            _get_hostName(hostname, sizeof(hostname));
+            // If gethostname() fails, an empty or truncated value is used.
+            hostname[0] = 0;
+            gethostname(hostname, sizeof(hostname));
             hostname[sizeof(hostname)-1] = 0;
             _hostname.assign(hostname);
         }
+
+        mutex_unlock(&_mutex);
     }
 
     return _hostname;
@@ -289,7 +211,10 @@ static String _getFullyQualifiedHostName()
 {
     char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
 
-    _get_hostName(hostName, sizeof(hostName));
+    // Get the short name of the local host.
+    // If gethostname() fails, an empty or truncated value is used.
+    hostName[0] = 0;
+    gethostname(hostName, sizeof(hostName));
     hostName[sizeof(hostName)-1] = 0;
 
 #if defined(PEGASUS_OS_ZOS)|| \
@@ -347,55 +272,37 @@ static String _getFullyQualifiedHostName()
 
 String System::getFullyQualifiedHostName()
 {
+    static String _hostname;
+    static MutexType _mutex = PEGASUS_MUTEX_INITIALIZER;
+
     // Use double-checked locking pattern to avoid overhead of
     // mutex on subsequent calls.
 
-    if (0 == _fullyQualifiedHostname.size())
+    if (0 == _hostname.size())
     {
-        AutoMutex lock(_mutexForGetFQHN);
+        mutex_lock(&_mutex);
 
-        if (0 == _fullyQualifiedHostname.size())
+        if (0 == _hostname.size())
         {
-            _fullyQualifiedHostname = _getFullyQualifiedHostName();
+            try
+            {
+                _hostname = _getFullyQualifiedHostName();
+            }
+            catch (...)
+            {
+                mutex_unlock(&_mutex);
+                throw;
+            }
         }
+
+        mutex_unlock(&_mutex);
     }
 
-    return _fullyQualifiedHostname;
+    return _hostname;
 }
-
-void System::setHostName(const String & hostName)
-{
-    AutoMutex lock(_mutexForGetHostName);
-    _hostname.assign(hostName);
-}
-
-void System::setFullyQualifiedHostName(const String & fullHostName)
-{
-    AutoMutex lock(_mutexForGetFQHN);
-    _fullyQualifiedHostname.assign(fullHostName);
-}
-
 
 Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
 {
-    CString hostNameCString = hostName.getCString();
-    char localHostName[PEGASUS_MAXHOSTNAMELEN+1] = {};
-    const char* hostNamePtr;
-    
-    // In case hostName equals _hostname or _fullyQualifiedHostname
-    // we need to use the system-supplied hostname instead for IP resolution
-    // _hostname or _fullyQualifiedHostname might be configured values
-    // which cannot be resolved by the system to an IP address
-    if (String::equalNoCase(hostName, _hostname) || 
-        String::equalNoCase(hostName, _fullyQualifiedHostname))
-    {
-        _get_hostName(localHostName, sizeof(localHostName));
-        hostNamePtr= (const char*) localHostName;
-    }
-    else
-    {
-        hostNamePtr = hostNameCString;
-    }
 #ifdef PEGASUS_ENABLE_IPV6
     struct addrinfo *info, hints;
     memset (&hints, 0, sizeof(struct addrinfo));
@@ -405,7 +312,7 @@ Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
     hints.ai_family = *af;
     hints.ai_protocol = IPPROTO_TCP;
     hints.ai_socktype = SOCK_STREAM;
-    if (!getAddrInfo(hostNamePtr, 0, &hints, &info))
+    if (!getAddrInfo(hostName.getCString(), 0, &hints, &info))
     {
         char ipAddress[PEGASUS_INET_ADDRSTR_LEN];
         HostAddress::convertBinaryToText(info->ai_family,
@@ -422,7 +329,7 @@ Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
     hints.ai_family = *af;
     hints.ai_protocol = IPPROTO_TCP;
     hints.ai_socktype = SOCK_STREAM;
-    if (!getAddrInfo(hostNamePtr, 0, &hints, &info))
+    if (!getAddrInfo(hostName.getCString(), 0, &hints, &info))
     {
         char ipAddress[PEGASUS_INET6_ADDRSTR_LEN];
         HostAddress::convertBinaryToText(info->ai_family,
@@ -440,6 +347,8 @@ Boolean System::getHostIP(const String &hostName, int *af, String &hostIP)
     struct hostent* hostEntry;
     struct in_addr inaddr;
     String ipAddress;
+    CString hostNameCString = hostName.getCString();
+    const char* hostNamePtr = hostNameCString;
 
     char hostEntryBuffer[8192];
     struct hostent hostEntryStruct;
@@ -696,22 +605,12 @@ Boolean System::isLoopBack(int af, void *binIPAddress)
 
 Boolean System::isLocalHost(const String &hostName)
 {
-    // if value of hostName is "localhost" or equals the value of _hostname or 
-    // equals the value of _fullyQualifiedHostname we can safely assume it to
-    // be the local host
-    if (String::equalNoCase(hostName,String("localhost")) ||
-        String::equalNoCase(hostName, _hostname) || 
-        String::equalNoCase(hostName, _fullyQualifiedHostname))
-    {
-        return true;
-    }
-
 // Get all ip addresses on the node and compare them with the given hostname.
 #ifdef PEGASUS_ENABLE_IPV6
     CString csName = hostName.getCString();
     struct addrinfo hints, *res1, *res2, *res1root, *res2root;
     char localHostName[PEGASUS_MAXHOSTNAMELEN];
-    _get_hostName(localHostName, sizeof(localHostName));
+    gethostname(localHostName, PEGASUS_MAXHOSTNAMELEN);
     Boolean isLocal = false;
 
     memset(&hints, 0, sizeof(hints));
@@ -846,6 +745,8 @@ Boolean System::isLocalHost(const String &hostName)
 
     if (!hostNameIsIPNotation)  // if hostname is not an IP address
     {
+        // localhost ?
+        if (String::equalNoCase(hostName,String("localhost"))) return true;
         char localHostName[PEGASUS_MAXHOSTNAMELEN];
         CString cstringLocalHostName = System::getHostName().getCString();
         strcpy(localHostName, (const char*) cstringLocalHostName);
@@ -919,7 +820,7 @@ struct hostent* System::getHostByName(
         char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
         if (String::equalNoCase("localhost", String(name)))
         {
-            _get_hostName(hostName, sizeof(hostName));
+            gethostname(hostName, PEGASUS_MAXHOSTNAMELEN);
             hostName[sizeof(hostName) - 1] = 0;
             hostEntry = gethostbyname(hostName);
         }
@@ -984,6 +885,9 @@ struct hostent* System::getHostByAddr(
     return hostEntry;
 }
 
+#if defined(PEGASUS_OS_ZOS) || \
+    defined(PEGASUS_OS_VMS) || \
+    defined(PEGASUS_ENABLE_IPV6)
 
 int System::getAddrInfo(
     const char *hostname,
@@ -992,7 +896,7 @@ int System::getAddrInfo(
     struct addrinfo **res)
 {
     int rc = 0;
-    Uint16 maxTries = 5;
+    unsigned int maxTries = 5;
 
 #ifdef PEGASUS_OS_PASE
     CString hostNameCString;
@@ -1003,19 +907,12 @@ int System::getAddrInfo(
     }
 #endif
 
-    do
-    {
-        rc = getaddrinfo(hostname,
+    while ((rc = getaddrinfo(hostname,
                      servname,
                      hints,
-                     res);
-        if( 0 != rc && rc != EAI_AGAIN)
-        {
-            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
-                        "getaddrinfo failed: %s",gai_strerror(rc)));
-            break;
-        }
-    } while( rc == EAI_AGAIN && --maxTries > 0);
+                     res)) == EAI_AGAIN &&
+           maxTries-- > 0)
+        ;
     return rc;
 }
 
@@ -1029,32 +926,23 @@ int System::getNameInfo(
     int flags)
 {
     int rc = 0;
-    Uint16 maxTries = 5;
-    do
-    {
-        rc = getnameinfo(sa,
-                salen,
-                host,
-                hostlen,
-                serv,
-                servlen,
-                flags);
-        if( rc != 0 && rc != EAI_AGAIN)
-        {
-            PEG_TRACE((TRC_OS_ABSTRACTION, Tracer::LEVEL1,
-                        "getnameinfo failed: %s",gai_strerror(rc)));
-            break;
-        }
-    } while( rc == EAI_AGAIN && --maxTries > 0);
+    unsigned int maxTries = 5;
+
+    while ((rc = getnameinfo(sa,
+                     salen,
+                     host,
+                     hostlen,
+                     serv,
+                     servlen,
+                     flags)) == EAI_AGAIN &&
+           maxTries-- > 0)
+        ;
     return rc;
 }
 
+#endif
 
 // System ID constants for Logger::put and Logger::trace
-#ifdef PEGASUS_FLAVOR
-    const String System::CIMLISTENER = "cimlistener" PEGASUS_FLAVOR;
-#else
-    const String System::CIMLISTENER = "cimlistener"; // Listener systme ID
-#endif
+const String System::CIMLISTENER = "cimlistener"; // Listener systme ID
 
 PEGASUS_NAMESPACE_END

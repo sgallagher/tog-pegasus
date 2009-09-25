@@ -80,7 +80,7 @@ static char heap[2052];
 static char buf[2052];
 static char *_lslp_strdup(const char *s);
 void attrerror(const char *, ...);
-void attr_close_lexer(uint32 handle);
+void attr_close_lexer(size_t handle);
 size_t attr_init_lexer(const char *s);
 
 %}
@@ -190,7 +190,7 @@ static char *_lslp_strdup(const char *s)
   return(p);
 }
 
-void attr_close_lexer(uint32 handle)
+void attr_close_lexer(size_t handle)
 {
   PEGASUS_ASSERT(handle != 0);
   attr_delete_buffer((YY_BUFFER_STATE)handle);

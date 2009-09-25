@@ -71,7 +71,7 @@ void urlerror(const char *, ...);
 int32 urlwrap(void);
 int32 urllex(void);
 int32 urlparse(void);
-void url_close_lexer(uint32 handle);
+void url_close_lexer(size_t handle);
 size_t url_init_lexer(const char *s);
 
 
@@ -688,7 +688,7 @@ lslpAtomizedURL *_lslpDecodeURLs(char *u[], int32 count)
 {
   int32 i;
 
-  uint32 lexer = 0;
+  size_t lexer = 0;
   lslpAtomizedURL *temp = NULL;
   PEGASUS_ASSERT(u != NULL && u[count - 1] != NULL);
   lslpInitURLList();

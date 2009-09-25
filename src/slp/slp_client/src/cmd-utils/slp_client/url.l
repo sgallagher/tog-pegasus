@@ -82,7 +82,7 @@ static char buf[2052];
 char atalk_state = 0;
 
 static char *_lslp_strdup(const char *s);
-void url_close_lexer(uint32 handle);
+void url_close_lexer(size_t handle);
 size_t url_init_lexer(const char *s);
 
 %}
@@ -239,7 +239,7 @@ ip6addr			{hexpart}|{hexpart}":"{ip4addr}
 %%
 
 
-void url_close_lexer(uint32 handle)
+void url_close_lexer(size_t handle)
 {
   PEGASUS_ASSERT(handle != 0);
   url_delete_buffer((YY_BUFFER_STATE)handle);

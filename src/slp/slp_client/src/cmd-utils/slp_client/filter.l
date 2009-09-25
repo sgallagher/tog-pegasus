@@ -88,7 +88,7 @@ static char heap[2052];
 static char buf[2052];
 
 static char *_lslp_strdup(const char *s);
-void filter_close_lexer(uint32 handle);
+void filter_close_lexer(size_t handle);
 size_t filter_init_lexer(const char *s);
 
 
@@ -168,7 +168,7 @@ not_reserved            [^()\&|!=<>~\n]
 
 %%
 
-void filter_close_lexer(uint32 handle)
+void filter_close_lexer(size_t handle)
 {
   PEGASUS_ASSERT(handle != 0);
   filter_delete_buffer((YY_BUFFER_STATE)handle);

@@ -73,7 +73,7 @@
   int32 filterlex(void);
 
 int32 filterparse(void);
-void filter_close_lexer(uint32 handle);
+void filter_close_lexer(size_t handle);
 size_t filter_init_lexer(const char *s);
 
 /* have a place to put attributes and the filter while the parser is working */
@@ -269,7 +269,7 @@ lslpLDAPFilter *_lslpDecodeLDAPFilter(char *filter)
 {
 
   lslpLDAPFilter *temp = NULL;
-  uint32 lexer = 0;
+  size_t lexer = 0;
   PEGASUS_ASSERT(filter != NULL && strlen(filter));
   lslpInitFilterList();
   nesting_level = 1;

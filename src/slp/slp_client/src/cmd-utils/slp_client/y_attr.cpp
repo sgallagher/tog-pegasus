@@ -29,6 +29,7 @@
 
 //NOCHKSRC
 
+
 /* A Bison parser, made by GNU Bison 2.3.  */
 
 /* Skeleton implementation for Bison's Yacc-like parsers in C
@@ -129,7 +130,7 @@
 
 
 /* Copy the first part of user declarations.  */
-#line 64 "attr.y"
+#line 63 "attr.y"
 
 #include "slp_client.h"
 void attrerror(const char *, ...);
@@ -137,7 +138,7 @@ int32 attrwrap(void);
 int32 attrlex(void);
 int32 attrparse(void);
 BOOL bt = TRUE, bf = FALSE;
-void attr_close_lexer(uint32 handle);
+void attr_close_lexer(size_t handle);
 size_t attr_init_lexer(const char *s);
 
 lslpAttrList attrHead =
@@ -178,7 +179,7 @@ lslpAttrList inProcessTag =
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 95 "attr.y"
+#line 94 "attr.y"
 {
 	int32 _i;
 	char *_s;
@@ -485,8 +486,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   111,   111,   121,   133,   140,   147,   155,   167,   174,
-     181,   184,   187,   190,   204
+       0,   110,   110,   120,   132,   139,   146,   154,   166,   173,
+     180,   183,   186,   189,   203
 };
 #endif
 
@@ -1397,7 +1398,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 111 "attr.y"
+#line 110 "attr.y"
     {
 			while (! _LSLP_IS_HEAD(inProcessAttr.next))
 			{
@@ -1411,7 +1412,7 @@ yyreduce:
     break;
 
   case 3:
-#line 121 "attr.y"
+#line 120 "attr.y"
     {
 		/* both of these non-terminals are really lists */
 		/* ignore the first non-terminal */
@@ -1425,7 +1426,7 @@ yyreduce:
     break;
 
   case 4:
-#line 133 "attr.y"
+#line 132 "attr.y"
     {
 			(yyval._atl) =  lslpAllocAttr((yyvsp[(1) - (1)]._s), tag, NULL, 0);
 			if (NULL != (yyval._atl))
@@ -1436,7 +1437,7 @@ yyreduce:
     break;
 
   case 5:
-#line 140 "attr.y"
+#line 139 "attr.y"
     {
 			(yyval._atl) =  lslpAllocAttr((yyvsp[(2) - (3)]._s), tag, NULL, 0);
 			if (NULL != (yyval._atl))
@@ -1447,7 +1448,7 @@ yyreduce:
     break;
 
   case 6:
-#line 147 "attr.y"
+#line 146 "attr.y"
     {
   			(yyval._atl) =  lslpAllocAttr((yyvsp[(2) - (4)]._s), tag, NULL, 0);
 			if (NULL != (yyval._atl))
@@ -1458,7 +1459,7 @@ yyreduce:
     break;
 
   case 7:
-#line 155 "attr.y"
+#line 154 "attr.y"
     {
 			(yyval._atl) = inProcessTag.next;
 			while (! _LSLP_IS_HEAD((yyval._atl)))
@@ -1472,7 +1473,7 @@ yyreduce:
     break;
 
   case 8:
-#line 167 "attr.y"
+#line 166 "attr.y"
     {
 
 			if(NULL != (yyvsp[(1) - (1)]._atl))
@@ -1483,7 +1484,7 @@ yyreduce:
     break;
 
   case 9:
-#line 174 "attr.y"
+#line 173 "attr.y"
     {
 			if (NULL != (yyvsp[(3) - (3)]._atl))
 			{
@@ -1493,28 +1494,28 @@ yyreduce:
     break;
 
   case 10:
-#line 181 "attr.y"
+#line 180 "attr.y"
     {
 			(yyval._atl) = lslpAllocAttr(NULL, bool_type,  &bt, sizeof(BOOL));
 		;}
     break;
 
   case 11:
-#line 184 "attr.y"
+#line 183 "attr.y"
     {
 			(yyval._atl) = lslpAllocAttr(NULL, bool_type,  &bf, sizeof(BOOL));
 		;}
     break;
 
   case 12:
-#line 187 "attr.y"
+#line 186 "attr.y"
     {
 			(yyval._atl) = lslpAllocAttr(NULL, opaque, (yyvsp[(1) - (1)]._s), (int16)(strlen((yyvsp[(1) - (1)]._s)) + 1));
 		;}
     break;
 
   case 13:
-#line 190 "attr.y"
+#line 189 "attr.y"
     {
 	                     if(strlen((yyvsp[(1) - (1)]._s)) > 5 ) {
 				if( *((yyvsp[(1) - (1)]._s)) == '\\' && ((*((yyvsp[(1) - (1)]._s) + 1) == 'f') || (*((yyvsp[(1) - (1)]._s) + 1) == 'F')) &&  ((*((yyvsp[(1) - (1)]._s) + 2) == 'f') || (*((yyvsp[(1) - (1)]._s) + 2) == 'F'))) {
@@ -1531,7 +1532,7 @@ yyreduce:
     break;
 
   case 14:
-#line 204 "attr.y"
+#line 203 "attr.y"
     {
 			(yyval._atl) = lslpAllocAttr(NULL, integer, &((yyvsp[(1) - (1)]._i)), sizeof(int32));
 		;}
@@ -1753,7 +1754,7 @@ yyreturn:
 }
 
 
-#line 209 "attr.y"
+#line 208 "attr.y"
 
 
 void _lslpInitInternalAttrList(void)
@@ -1769,7 +1770,7 @@ void _lslpInitInternalAttrList(void)
 
 lslpAttrList *_lslpDecodeAttrString(char *s)
 {
-  uint32 lexer = 0;
+  size_t lexer = 0;
   lslpAttrList *temp = NULL;
   PEGASUS_ASSERT(s != NULL);
   _lslpInitInternalAttrList();

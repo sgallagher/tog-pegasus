@@ -67,7 +67,7 @@ int32 attrwrap(void);
 int32 attrlex(void);
 int32 attrparse(void);
 BOOL bt = TRUE, bf = FALSE;
-void attr_close_lexer(uint32 handle);
+void attr_close_lexer(size_t handle);
 size_t attr_init_lexer(const char *s);
 
 lslpAttrList attrHead =
@@ -220,7 +220,7 @@ void _lslpInitInternalAttrList(void)
 
 lslpAttrList *_lslpDecodeAttrString(char *s)
 {
-  uint32 lexer = 0;
+  size_t lexer = 0;
   lslpAttrList *temp = NULL;
   PEGASUS_ASSERT(s != NULL);
   _lslpInitInternalAttrList();

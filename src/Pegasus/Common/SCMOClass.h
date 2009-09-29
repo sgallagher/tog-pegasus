@@ -78,6 +78,13 @@ public:
     }
 
     /**
+     * Converts the SCMOClass into a CIMClass.
+     * It is a deep copy of the SCMOClass into the CIMClass.
+     * @param cimClass An empty CIMClass.
+     */
+    void getCIMClass(CIMClass& cimClass) const;
+
+    /**
      * Gets the key property names as a string array
      * @return An Array of String objects containing the names of the key
      * properties.
@@ -103,20 +110,9 @@ private:
         // printf("\ncls.hdr->refCount=%u\n",cls.hdr->refCount.get());
     };
 
-    void Unref()
-    {
-        if (cls.hdr->refCount.decAndTestIfZero())
-        {
-            // printf("\ncls.hdr->refCount=%u\n",cls.hdr->refCount.get());
-            free(cls.base);
-            cls.base=NULL;
-        }
-        else
-        {
-            // printf("\ncls.hdr->refCount=%u\n",cls.hdr->refCount.get());
-        }
+    void Unref();
 
-    };
+    void _destroyExternalReferences();
 
     /**
      * Constructs an uninitialized SCMOClass object.
@@ -124,8 +120,6 @@ private:
     SCMOClass();
 
     inline void _initSCMOClass();
-
-    void _setKeyBindingsFromCIMObjectPath(CIMObjectPath& cimObjPath);
 
     SCMO_RC _getProperyNodeIndex(Uint32& node, const char* name) const;
     SCMO_RC _getKeyBindingNodeIndex(Uint32& node, const char* name) const;
@@ -150,7 +144,7 @@ private:
     void _setClassKeyBinding(Uint64 start, const CIMProperty& theCIMProperty);
     void _insertPropertyIntoOrderedSet(Uint64 start, Uint32 newIndex);
     void _insertKeyBindingIntoOrderedSet(Uint64 start, Uint32 newIndex);
-    void _clearKeyPropertyMask();
+
     void _setPropertyAsKeyInMask(Uint32 i);
     Boolean _isPropertyKey(Uint32 i);
 
@@ -160,12 +154,16 @@ private:
 
     const char* _getPropertyNameAtNode(Uint32 propNode) const;
 
-    void _setUnionValue(SCMBUnion& scmoU,CIMType type,Union& cimU);
-
     inline SCMO_RC _isNodeSameType(
         Uint32 node,
         CIMType type,
         Boolean isArray) const;
+
+    CIMProperty _getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const;
+    static void _getCIMQualifierFromSCMBQualifier(
+        CIMQualifier& theCIMQualifier,
+        const SCMBQualifier& scmbQualifier,
+        const char* base);
 
     union{
         // To access the class main structure

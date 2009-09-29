@@ -33,6 +33,7 @@
 #include <Pegasus/Common/SCMOClass.h>
 #include <Pegasus/Common/SCMOInstance.h>
 #include <Pegasus/Common/SCMODump.h>
+#include <Pegasus/Common/SCMOClassCache.h>
 #include <Pegasus/Common/CharSet.h>
 #include <Pegasus/Common/CIMDateTimeRep.h>
 #include <Pegasus/Common/CIMPropertyRep.h>
@@ -152,11 +153,111 @@ const StrLit SCMOClass::_qualifierNameStrLit[72] =
            (sizeof(_qualifierNameStrLit)/sizeof(_qualifierNameStrLit[0]))
 
 /*****************************************************************************
+ * Internal inline functions.
+ *****************************************************************************/
+
+inline SCMOClass* _getSCMOClass(const CIMObjectPath& theCIMObj)
+{
+
+    if (theCIMObj.getClassName().isNull())
+    {
+        // this is an empty ObjectPath
+        return 0;
+    }
+
+    CString nameSpace = theCIMObj.getNameSpace().getString().getCString();
+    CString clsName = theCIMObj.getClassName().getString().getCString();
+
+    SCMOClassCache* theCache = SCMOClassCache::getInstance();
+    SCMOClass* theClass = theCache->getSCMOClass(
+        (const char*)nameSpace,strlen(nameSpace),
+        (const char*)clsName,strlen(clsName));
+
+    if (theClass == 0)
+    {
+        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS,
+           theCIMObj.toString());
+    }
+    return theClass;
+}
+
+inline void _deleteArrayExtReference(
+    SCMBDataPtr& theArray,
+    SCMBMgmt_Header** pmem )
+{
+    SCMBUnion* ptr;
+    // if the array was already set,
+    // the previous references has to be deleted
+    if(theArray.length != 0)
+    {
+        Uint32 oldArraySize=(theArray.length/sizeof(SCMBUnion));
+
+        ptr = (SCMBUnion*)&(((char*)*pmem)[theArray.start]);
+        for (Uint32 i = 0 ; i < oldArraySize ; i++)
+        {
+            delete ptr[i].extRefPtr;
+        }
+    }
+}
+
+
+/*****************************************************************************
  * The SCMOClass methods
  *****************************************************************************/
 SCMOClass::SCMOClass()
 {
     cls.mem = NULL;
+}
+
+void SCMOClass::Unref()
+{
+    if (cls.hdr->refCount.decAndTestIfZero())
+    {
+        // printf("\ncls.hdr->refCount=%u\n",cls.hdr->refCount.get());
+        _destroyExternalReferences();
+        free(cls.base);
+        cls.base=NULL;
+    }
+    else
+    {
+        // printf("\ncls.hdr->refCount=%u\n",cls.hdr->refCount.get());
+    }
+
+};
+
+void SCMOClass::_destroyExternalReferences()
+{
+    // Address the property array
+    SCMBClassPropertyNode* nodeArray =
+        (SCMBClassPropertyNode*)
+            &(cls.base[cls.hdr->propertySet.nodeArray.start]);
+
+    SCMBValue* theValue;
+
+    for (Uint32 i = 0; i < cls.hdr->propertySet.number; i++)
+    {
+        theValue = &(nodeArray[i].theProperty.defaultValue);
+
+        // if not an NULL value !
+        if(!theValue->flags.isNull)
+        {
+            if (theValue->valueType == CIMTYPE_REFERENCE ||
+                theValue->valueType == CIMTYPE_OBJECT ||
+                theValue->valueType == CIMTYPE_INSTANCE )
+            {
+                if (theValue->flags.isArray)
+                {
+                    _deleteArrayExtReference(
+                        theValue->value.arrayValue,
+                        &cls.mem);
+                }
+                else
+                {
+                    delete theValue->value.extRefPtr;
+                }  // end is Array
+            } // end is ext. reference.
+        }// end is not null
+    }// loop throug all properties
 }
 
 inline void SCMOClass::_initSCMOClass()
@@ -235,6 +336,142 @@ SCMOClass::SCMOClass(
     //set properties
     _setClassProperties(theCIMClass._rep->_properties);
 
+}
+
+void  SCMOClass::getCIMClass(CIMClass& cimClass) const
+{
+    CIMClass newCimClass(
+        CIMNameCast(NEWCIMSTR(cls.hdr->className,cls.base)),
+        CIMNameCast(NEWCIMSTR(cls.hdr->superClassName,cls.base)));
+
+    // set the name space
+    newCimClass._rep->_reference._rep->_nameSpace=
+        CIMNamespaceNameCast(NEWCIMSTR(cls.hdr->nameSpace,cls.base));
+
+    // Add class qualifier if exist
+    if (0 != cls.hdr->numberOfQualifiers)
+    {
+        SCMBQualifier* qualiArray =
+            (SCMBQualifier*)&(cls.base[cls.hdr->qualifierArray.start]);
+
+        CIMQualifier theCimQualifier;
+
+        Uint32 i, k = cls.hdr->numberOfQualifiers;
+        for ( i = 0 ; i < k ; i++)
+        {
+            _getCIMQualifierFromSCMBQualifier(
+                theCimQualifier,
+                qualiArray[i],
+                cls.base);
+
+            newCimClass._rep->_qualifiers.addUnchecked(theCimQualifier);
+        }
+    }
+
+    // If properties are in that class
+    if (0 != cls.hdr->propertySet.number)
+    {
+        Uint32 i, k = cls.hdr->propertySet.number;
+        for ( i = 0 ; i < k ; i++)
+        {
+           newCimClass._rep->_properties.append(
+               _getCIMPropertyAtNodeIndex(i));
+        }
+    }
+
+    cimClass = newCimClass;
+}
+
+CIMProperty SCMOClass::_getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const
+{
+    CIMValue theCimValue;
+    CIMProperty retCimProperty;
+
+    SCMBClassPropertyNode& clsProp =
+        ((SCMBClassPropertyNode*)
+         &(cls.base[cls.hdr->propertySet.nodeArray.start]))[nodeIdx];
+
+    // get the default value
+    SCMOInstance::_getCIMValueFromSCMBValue(
+        theCimValue,
+        clsProp.theProperty.defaultValue,
+        cls.base);
+
+    // have to check if there is the origin class name set.
+    // An empty origin class name is differnt then a NULL class name
+    if (0 != clsProp.theProperty.originClassName.start)
+    {
+        retCimProperty = CIMProperty(
+            CIMNameCast(NEWCIMSTR(clsProp.theProperty.name,cls.base)),
+            theCimValue,
+            theCimValue.getArraySize(),
+            CIMNameCast(NEWCIMSTR(clsProp.theProperty.refClassName,cls.base)),
+            CIMNameCast(NEWCIMSTR(
+                clsProp.theProperty.originClassName,cls.base)),
+            clsProp.theProperty.flags.propagated);
+    }
+    else
+    {
+         retCimProperty = CIMProperty(
+            CIMNameCast(NEWCIMSTR(clsProp.theProperty.name,cls.base)),
+            theCimValue,
+            theCimValue.getArraySize(),
+            CIMNameCast(NEWCIMSTR(clsProp.theProperty.refClassName,cls.base)),
+            CIMName(),
+            clsProp.theProperty.flags.propagated);
+    }
+
+    SCMBQualifier* qualiArray =
+        (SCMBQualifier*)
+             &(cls.base[clsProp.theProperty.qualifierArray.start]);
+
+    CIMQualifier theCimQualifier;
+    Uint32 i, k = clsProp.theProperty.numberOfQualifiers;
+    for ( i = 0 ; i < k ; i++)
+    {
+        _getCIMQualifierFromSCMBQualifier(
+            theCimQualifier,
+            qualiArray[i],
+            cls.base);
+
+        retCimProperty._rep->_qualifiers.addUnchecked(theCimQualifier);
+    }
+
+    return retCimProperty;
+
+}
+
+void SCMOClass::_getCIMQualifierFromSCMBQualifier(
+    CIMQualifier& theCimQualifier,
+    const SCMBQualifier& scmbQualifier,
+    const char* base)
+
+{
+
+    CIMName theCimQualiName;
+    CIMValue theCimValue;
+
+    SCMOInstance::_getCIMValueFromSCMBValue(
+        theCimValue,
+        scmbQualifier.value,
+        base);
+
+    if (scmbQualifier.name == QUALNAME_USERDEFINED)
+    {
+        theCimQualiName = NEWCIMSTR(scmbQualifier.userDefName,base);
+    }
+    else
+    {
+        theCimQualiName = String(
+            SCMOClass::qualifierNameStrLit(scmbQualifier.name).str,
+            SCMOClass::qualifierNameStrLit(scmbQualifier.name).size);
+    }
+
+    theCimQualifier = CIMQualifier(
+        theCimQualiName,
+        theCimValue,
+        scmbQualifier.flavor,
+        scmbQualifier.propagated);
 }
 
 void SCMOClass::getKeyNamesAsString(Array<String>& keyNames) const
@@ -406,19 +643,18 @@ void SCMOClass::_setClassProperties(PropertySet& theCIMProperties)
         // (68 - 1) / 64 = 1 --> The mask consists of two Uint64 values.
         _getFreeSpace(cls.hdr->keyPropertyMask,
               sizeof(Uint64)*(((noProps-1)/64)+1),
-              &cls.mem);
+              &cls.mem,true);
 
         // allocate property array and save the start index of the array.
         start = _getFreeSpace(cls.hdr->propertySet.nodeArray,
                       sizeof(SCMBClassPropertyNode)*noProps,
-                      &cls.mem);
+                      &cls.mem,true);
 
         // clear the hash table
         memset(cls.hdr->propertySet.hashTable,
                0,
                PEGASUS_PROPERTY_SCMB_HASHSIZE*sizeof(Uint32));
 
-        _clearKeyPropertyMask();
 
         for (Uint32 i = 0; i < noProps; i++)
         {
@@ -620,25 +856,6 @@ void SCMOClass::_setClassKeyBinding(
     scmoKeyBindNode->type = propRep->_value.getType();
     scmoKeyBindNode->hasNext=false;
     scmoKeyBindNode->nextNode=0;
-
-}
-
-void SCMOClass::_clearKeyPropertyMask()
-{
-
-    Uint64 *keyMask;
-
-    // Calculate the real pointer to the Uint64 array
-    keyMask = (Uint64*)&cls.base[cls.hdr->keyPropertyMask.start];
-
-    // the number of Uint64 in the key mask is :
-    // Decrease the number of properties by 1
-    // since the array is starting at index 0!
-    // Divide with the number of bits in a Uint64.
-    // e.g. number of Properties = 68
-    // (68 - 1) / 64 = 1 --> The mask consists of 2 Uint64
-
-    memset(keyMask,0, sizeof(Uint64)*(((cls.hdr->propertySet.number-1)/64)+1));
 
 }
 
@@ -844,7 +1061,6 @@ void SCMOClass::_setValue(Uint64 start, const CIMValue& theCIMValue)
 
     SCMBValue* scmoValue = (SCMBValue*)&(cls.base[start]);
     scmoValue->valueType = rep->type;
-
     scmoValue->valueArraySize = 0;
     scmoValue->flags.isNull = rep->isNull;
     scmoValue->flags.isArray = rep->isArray;
@@ -869,43 +1085,14 @@ void SCMOClass::_setValue(Uint64 start, const CIMValue& theCIMValue)
     }
     else
     {
-        _setUnionValue(scmoValue->value,rep->type,rep->u);
+        SCMOInstance::_setUnionValue(
+            valueStart,
+            &cls.mem,
+            rep->type,
+            rep->u);
     }
 }
 
-void SCMOClass::_setUnionValue(
-        SCMBUnion& scmoU,
-        CIMType type,
-        Union& cimU)
-{
-    switch (type)
-    {
-    case CIMTYPE_REFERENCE:
-        {
-            break;
-        }
-    case CIMTYPE_OBJECT:
-        {
-            break;
-        }
-    case CIMTYPE_INSTANCE:
-        {
-            break;
-        }
-    default:
-        {
-            Uint64 valueStart = (char*)&scmoU - cls.base;
-
-            SCMOInstance::_setNonRefUnionValue(
-                valueStart,
-                &cls.mem,
-                type,
-                cimU);
-            break;
-        }
-    }
-
-}
 QualifierNameEnum SCMOClass::_getSCMOQualifierNameEnum(
     const CIMName& theCIMName)
 {
@@ -995,6 +1182,26 @@ SCMOInstance::SCMOInstance()
     inst.base = NULL;
 }
 
+void SCMOInstance::Unref()
+{
+    if (inst.hdr->refCount.decAndTestIfZero())
+    {
+        // printf("\ninst.hdr->refCount=%u\n",inst.hdr->refCount.get());
+        // All external references has to be destroyed.
+        _destroyExternalReferences();
+        // The class has also be dereferenced.
+        delete inst.hdr->theClass;
+        free(inst.base);
+        inst.base=NULL;
+    }
+    else
+    {
+        // printf("\ninst.hdr->refCount=%u\n",inst.hdr->refCount.get());
+    }
+
+};
+
+
 SCMOInstance::SCMOInstance(SCMOClass baseClass)
 {
     _initSCMOInstance(new SCMOClass(baseClass));
@@ -1032,6 +1239,57 @@ SCMOInstance::SCMOInstance(SCMOClass baseClass, const CIMInstance& cimInstance)
 
 }
 
+void SCMOInstance::_destroyExternalReferences()
+{
+    // create a pointer to keybinding node array of the class.
+    Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
+    SCMBKeyBindingNode* theClassKeyBindNodeArray =
+        (SCMBKeyBindingNode*)&((inst.hdr->theClass->cls.base)[idx]);
+
+    // create a pointer to instanc key binding array.
+    SCMBKeyBindingValue* theInstanceKeyBindingNodeArray =
+        (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
+
+    for (Uint32 i = 0; i < inst.hdr->numberKeyBindings; i++)
+    {
+        if (theInstanceKeyBindingNodeArray[i].isSet)
+        {
+            // only references can be a key binding
+            if (theClassKeyBindNodeArray[i].type == CIMTYPE_REFERENCE)
+            {
+               delete theInstanceKeyBindingNodeArray[i].data.extRefPtr;
+            }
+        }
+    }// for all key bindings
+
+    SCMBValue* theInstPropArray =
+        (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
+
+    for (Uint32 i = 0; i < inst.hdr->numberProperties; i++)
+    {
+        // was the property set by the provider ?
+        if(theInstPropArray[i].flags.isSet)
+        {
+            // is the property type reference,instance or object?
+            if (theInstPropArray[i].valueType == CIMTYPE_REFERENCE ||
+                theInstPropArray[i].valueType == CIMTYPE_OBJECT ||
+                theInstPropArray[i].valueType == CIMTYPE_INSTANCE )
+            {
+                if (theInstPropArray[i].flags.isArray)
+                {
+                    _deleteArrayExtReference(
+                        theInstPropArray[i].value.arrayValue,
+                        &inst.mem);
+                }
+                else
+                {
+                    delete theInstPropArray[i].value.extRefPtr;
+                } // end is arry
+            } // end is reference
+        }// end is set
+    } // for all properties.
+}
+
 SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
 {
 
@@ -1045,39 +1303,26 @@ SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
 
     getCIMObjectPath(objPath);
 
-    cimInstance._rep =  new CIMInstanceRep(objPath);
+    CIMInstance newInstance;
+    newInstance._rep = new CIMInstanceRep(objPath);
 
     if (inst.hdr->flags.includeQualifiers)
     {
         SCMBQualifier* qualiArray =
             (SCMBQualifier*)&(clsbase[clshdr->qualifierArray.start]);
 
-        CIMName qualiName;
-        CIMValue theValue;
 
+        CIMQualifier theCimQualifier;
         Uint32 i, k = clshdr->numberOfQualifiers;
 
         for ( i = 0 ; i < k ; i++)
         {
-            _getCIMValueFromSCMBValue(theValue,qualiArray[i].value,clsbase);
+            SCMOClass::_getCIMQualifierFromSCMBQualifier(
+                theCimQualifier,
+                qualiArray[i],
+                clsbase);
 
-            if (qualiArray[i].name == QUALNAME_USERDEFINED)
-            {
-                qualiName = NEWCIMSTR(qualiArray[i].userDefName,clsbase);
-            }
-            else
-            {
-                qualiName = String(
-                    SCMOClass::qualifierNameStrLit(qualiArray[i].name).str,
-                    SCMOClass::qualifierNameStrLit(qualiArray[i].name).size);
-            }
-
-            cimInstance._rep->_qualifiers.addUnchecked(
-                CIMQualifier(
-                    qualiName,
-                    theValue,
-                    qualiArray[i].flavor,
-                    qualiArray[i].propagated));
+            newInstance._rep->_qualifiers.addUnchecked(theCimQualifier);
         }
     }
 
@@ -1094,7 +1339,7 @@ SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
             CIMProperty theProperty=_getCIMPropertyAtNodeIndex(
                 propertyFilterIndexMap[i]);
 
-            cimInstance._rep->_properties.append(theProperty);
+            newInstance._rep->_properties.append(theProperty);
         }
 
     }
@@ -1105,16 +1350,21 @@ SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
             // no filtering. Counter is node index
             CIMProperty theProperty=_getCIMPropertyAtNodeIndex(i);
 
-            cimInstance._rep->_properties.append(theProperty);
+            newInstance._rep->_properties.append(theProperty);
         }
 
     }
+
+    cimInstance = newInstance;
 
     return rc;
 }
 
 void SCMOInstance::getCIMObjectPath(CIMObjectPath& cimObj) const
 {
+
+    CIMObjectPath newObjectPath;
+
     // For better usability define pointers to SCMO Class data structures.
     SCMBClass_Main* clshdr = inst.hdr->theClass->cls.hdr;
     char* clsbase = inst.hdr->theClass->cls.base;
@@ -1143,7 +1393,7 @@ void SCMOInstance::getCIMObjectPath(CIMObjectPath& cimObj) const
                 0,
                 scmoInstArray[i].data,
                 inst.base);
-            cimObj._rep->_keyBindings.append(
+            newObjectPath._rep->_keyBindings.append(
                 CIMKeyBinding(
                     CIMNameCast(NEWCIMSTR(scmoClassArray[i].name,clsbase)),
                     theKeyBindingValue
@@ -1151,10 +1401,13 @@ void SCMOInstance::getCIMObjectPath(CIMObjectPath& cimObj) const
         }
     }
 
-    cimObj._rep->_host = NEWCIMSTR(inst.hdr->hostName,inst.base);
-    cimObj._rep->_nameSpace =
+    newObjectPath._rep->_host = NEWCIMSTR(inst.hdr->hostName,inst.base);
+    newObjectPath._rep->_nameSpace =
         CIMNamespaceNameCast(NEWCIMSTR(clshdr->nameSpace,clsbase));
-    cimObj._rep->_className=CIMNameCast(NEWCIMSTR(clshdr->className,clsbase));
+    newObjectPath._rep->_className=
+        CIMNameCast(NEWCIMSTR(clshdr->className,clsbase));
+
+    cimObj = newObjectPath;
 }
 
 CIMProperty SCMOInstance::_getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const
@@ -1204,35 +1457,21 @@ CIMProperty SCMOInstance::_getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const
             (SCMBQualifier*)
                  &(clsbase[clsProp.theProperty.qualifierArray.start]);
 
-        CIMName qualiName;
+        CIMQualifier theCimQualifier;
 
         Uint32 i, k = clsProp.theProperty.numberOfQualifiers;
         for ( i = 0 ; i < k ; i++)
         {
-            _getCIMValueFromSCMBValue(theValue,qualiArray[i].value,clsbase);
+            SCMOClass::_getCIMQualifierFromSCMBQualifier(
+                theCimQualifier,
+                qualiArray[i],
+                clsbase);
 
-            if (qualiArray[i].name == QUALNAME_USERDEFINED)
-            {
-                qualiName = NEWCIMSTR(qualiArray[i].userDefName,clsbase);
-            }
-            else
-            {
-                qualiName = String(
-                    SCMOClass::qualifierNameStrLit(qualiArray[i].name).str,
-                    SCMOClass::qualifierNameStrLit(qualiArray[i].name).size);
-            }
-
-            retProperty._rep->_qualifiers.addUnchecked(
-                CIMQualifier(
-                    qualiName,
-                    theValue,
-                    qualiArray[i].flavor,
-                    qualiArray[i].propagated));
+            retProperty._rep->_qualifiers.addUnchecked(theCimQualifier);
         }
     }
 
     return retProperty;
-
 }
 
 void SCMOInstance::_getCIMValueFromSCMBUnion(
@@ -1242,7 +1481,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
     const Boolean isArray,
     const Uint32 arraySize,
     const SCMBUnion& scmbUn,
-    const char * base) const
+    const char * base)
 {
 
     const SCMBUnion* pscmbArrayUn = NULL;
@@ -1517,26 +1756,66 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
 
         }
 
-        case CIMTYPE_REFERENCE:
+    case CIMTYPE_REFERENCE:
+        {
+            CIMObjectPath theObjPath;
+
+            if(isArray)
+            {
+                Array<CIMObjectPath> x;
+                for (Uint32 i = 0, k = arraySize; i < k ; i++)
+                {
+                    if (0 != pscmbArrayUn[i].extRefPtr)
+                    {
+                        pscmbArrayUn[i].extRefPtr->getCIMObjectPath(theObjPath);
+                        x.append(theObjPath);
+                    }
+                    else
+                    {
+                        // set an empty objectpath
+                        x.append(CIMObjectPath());
+                    }
+                }
+                cimV.set(x);
+            }
+            else
+            {
+
+                if (0 != scmbUn.extRefPtr)
+                {
+                    scmbUn.extRefPtr->getCIMObjectPath(theObjPath);
+                    cimV.set(theObjPath);
+                }
+                else
+                {
+                    cimV.set(CIMObjectPath());
+                }
+            }
+            break;
+        }
+    case CIMTYPE_OBJECT:
+    case CIMTYPE_INSTANCE:
+        {
+            if(isArray)
+            {
+
+            }
+            else
+            {
+
+            }
 
             break;
-
-        case CIMTYPE_OBJECT:
-
-            break;
-
-        case CIMTYPE_INSTANCE:
-
-            break;
+        }
     }
 }
 
 void SCMOInstance::_getCIMValueFromSCMBValue(
     CIMValue& cimV,
     const SCMBValue& scmbV,
-    const char * base) const
+    const char * base)
 {
-    _getCIMValueFromSCMBUnion(
+    SCMOInstance::_getCIMValueFromSCMBUnion(
         cimV,
         scmbV.valueType,
         scmbV.flags.isNull,
@@ -1652,7 +1931,7 @@ void SCMOInstance::_setCIMValueAtNodeIndex(Uint32 node, CIMValueRep* valRep)
     }
     else
     {
-        _setNonRefUnionValue(start,&inst.mem,valRep->type,valRep->u);
+        _setUnionValue(start,&inst.mem,valRep->type,valRep->u);
     }
 }
 
@@ -1752,13 +2031,29 @@ void SCMOInstance::_setKeyBindingFromSCMBUnion(
         }
     case CIMTYPE_REFERENCE:
         {
+            if(0 != keyData.data.extRefPtr)
+            {
+                delete keyData.data.extRefPtr;
+            }
+
+            if(u.extRefPtr)
+            {
+                keyData.data.extRefPtr = new SCMOInstance(*u.extRefPtr);
+            }
+            else
+            {
+                keyData.data.extRefPtr=0;
+            }
+            keyData.isSet=true;
             break;
         }
-    case CIMTYPE_OBJECT:
-    case CIMTYPE_INSTANCE:
-        // From PEP 194: EmbeddedObjects cannot be keys.
-        throw TypeMismatchException();
-        break;
+    case CIMTYPE_OBJECT: // N/A
+    case CIMTYPE_INSTANCE: // N/A
+        {
+            // From PEP 194: EmbeddedObjects cannot be keys.
+            throw TypeMismatchException();
+            break;
+        }
     }
 }
 
@@ -1839,6 +2134,7 @@ void SCMOInstance::_initSCMOInstance(SCMOClass* pClass)
     inst.hdr->flags.includeQualifiers=false;
     inst.hdr->flags.includeClassOrigin=false;
     inst.hdr->flags.isFiltered=false;
+    inst.hdr->flags.isClassOnly=false;
 
     inst.hdr->hostName.start=0;
     inst.hdr->hostName.length=0;
@@ -1901,7 +2197,7 @@ void SCMOInstance::_setCIMInstance(const CIMInstance& cimInstance)
         }
         // if not already detected that class origins are specified and
         // there is a class origin specified at that property.
-        if (!inst.hdr->flags.includeClassOrigin && 
+        if (!inst.hdr->flags.includeClassOrigin &&
             !propRep->_classOrigin.isNull())
         {
             includeClassOrigins();
@@ -2256,7 +2552,7 @@ void SCMOInstance::_setSCMBUnion(
                 startPtr = _getFreeSpace(
                     u.arrayValue,
                     size*sizeof(SCMBUnion),
-                    &inst.mem,false);
+                    &inst.mem,true);
 
                 for (Uint32 i = 0; i < size; i++)
                 {
@@ -2281,16 +2577,58 @@ void SCMOInstance::_setSCMBUnion(
             break;
         }
 
-        case CIMTYPE_REFERENCE:
+    case CIMTYPE_REFERENCE:
+    case CIMTYPE_OBJECT:  //done
+    case CIMTYPE_INSTANCE:
+        {
+            if(isArray)
+            {
+                SCMBUnion* ptr;
+                Uint64 startPtr;
 
+                // if the array was previously set, delete the references !
+                _deleteArrayExtReference(u.arrayValue,&inst.mem);
+
+                // get new array
+                startPtr = _getFreeSpace(
+                    u.arrayValue,
+                    size*sizeof(SCMBUnion),
+                    &inst.mem,false);
+
+                ptr = (SCMBUnion*)&(inst.base[startPtr]);
+
+                for (Uint32 i = 0 ; i < size ; i++)
+                {
+                    if(pInVal[i].extRefPtr)
+                    {
+                        ptr[i].extRefPtr=
+                            new SCMOInstance(*(pInVal[i].extRefPtr));
+                    }
+                    else
+                    {
+                        ptr[i].extRefPtr = 0;
+                    }
+                }
+
+            }
+            else
+            {
+                if(0 != u.extRefPtr)
+                {
+                    delete u.extRefPtr;
+                }
+
+                if(pInVal->extRefPtr)
+                {
+                    u.extRefPtr = new SCMOInstance(*(pInVal->extRefPtr));
+                }
+                else
+                {
+                    u.extRefPtr = 0;
+                }
+            }
             break;
-
-        case CIMTYPE_OBJECT:
-
-            break;
-        case CIMTYPE_INSTANCE:
-
-            break;
+        }
     }
 }
 
@@ -2580,7 +2918,7 @@ inline void SCMOInstance::_setUnionArrayValue(
 
             arrayStart = _getFreeSpace(
                 scmoUnion->arrayValue,
-                loop*sizeof(SCMBDataPtr),
+                loop*sizeof(SCMBUnion),
                 pmem);
 
             ConstArrayIterator<String> iterator(*x);
@@ -2604,7 +2942,7 @@ inline void SCMOInstance::_setUnionArrayValue(
 
             arrayStart = _getFreeSpace(
                 scmoUnion->arrayValue,
-                loop*sizeof(SCMBDateTime),
+                loop*sizeof(SCMBUnion),
                 pmem);
 
             ConstArrayIterator<CIMDateTime> iterator(*x);
@@ -2621,22 +2959,59 @@ inline void SCMOInstance::_setUnionArrayValue(
             break;
         }
 
-        case CIMTYPE_REFERENCE:
+    case CIMTYPE_REFERENCE:
+        {
+            Array<CIMObjectPath> *x =
+                reinterpret_cast<Array<CIMObjectPath>*>(&u);
+
+            // if the array was previously set, delete the references !
+            _deleteArrayExtReference(scmoUnion->arrayValue,pmem);
+
+            // n can be invalid after reallocation in _getFreeSpace !
+            loop = n = x->size();
+
+            arrayStart = _getFreeSpace(
+                scmoUnion->arrayValue,
+                loop*sizeof(SCMBUnion),
+                pmem);
+
+            ConstArrayIterator<CIMObjectPath> iterator(*x);
+
+            ptargetUnion = (SCMBUnion*)(&((char*)*pmem)[arrayStart]);
+
+            SCMOClass* theRefClass;
+
+            for (Uint32 i = 0; i < loop ; i++)
+            {
+
+                theRefClass = _getSCMOClass(iterator[i]);
+
+                if (theRefClass != NULL)
+                {
+                    ptargetUnion[i].extRefPtr =
+                        new SCMOInstance(*theRefClass,iterator[i]);
+                } else
+                {
+                    // the ObjectPath was empty.
+                    ptargetUnion[i].extRefPtr = 0;
+                }
+            }
 
             break;
-
-        case CIMTYPE_OBJECT:
-
+        }
+    case CIMTYPE_OBJECT:
+        {
             break;
-
-        case CIMTYPE_INSTANCE:
-
+        }
+    case CIMTYPE_INSTANCE:
+        {
             break;
+        }
     }
 }
 
 
-void SCMOInstance::_setNonRefUnionValue(
+void SCMOInstance::_setUnionValue(
     Uint64 start,
     SCMBMgmt_Header** pmem,
     CIMType type,
@@ -2748,10 +3123,40 @@ void SCMOInstance::_setNonRefUnionValue(
         }
 
     case CIMTYPE_REFERENCE:
+        {
+            if (0 != scmoUnion->extRefPtr)
+            {
+                delete scmoUnion->extRefPtr;
+                scmoUnion->extRefPtr = 0;
+            }
+
+            if (0 == u._referenceValue)
+            {
+              scmoUnion->extRefPtr=0;
+              return;
+            }
+
+            CIMObjectPath* theCIMObj =
+                (CIMObjectPath*)((void*)&u._referenceValue);
+
+            SCMOClass* theRefClass = _getSCMOClass(*theCIMObj);
+            if (theRefClass != NULL)
+            {
+                scmoUnion->extRefPtr =
+                    new SCMOInstance(*theRefClass,*theCIMObj);
+            } else
+            {
+                // the ObjectPath was empty.
+                scmoUnion->extRefPtr = 0;
+            }
+            break;
+        }
     case CIMTYPE_OBJECT:
+        {
+            break;
+        }
     case CIMTYPE_INSTANCE:
         {
-            // has to be handled by SCMOClass or SCMOInstance separatly
             break;
         }
     }
@@ -2939,7 +3344,6 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
         av = (SCMBUnion*)&base[u->arrayValue.start];
     }
 
-
     switch (type)
     {
     case CIMTYPE_BOOLEAN:
@@ -2955,6 +3359,9 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
     case CIMTYPE_REAL64:
     case CIMTYPE_CHAR16:
     case CIMTYPE_DATETIME:
+    case CIMTYPE_REFERENCE:
+    case CIMTYPE_OBJECT: // done
+    case CIMTYPE_INSTANCE:
         {
             if(isArray)
             {
@@ -3001,19 +3408,6 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
              return(ptr);
             break;
         }
-
-    case CIMTYPE_REFERENCE:
-
-        break;
-
-    case CIMTYPE_OBJECT:
-
-        break;
-
-    case CIMTYPE_INSTANCE:
-
-        break;
-
     default:
         PEGASUS_ASSERT(false);
         break;
@@ -3111,7 +3505,7 @@ SCMO_RC SCMOInstance::_getKeyBindingDataAtNodeIndex(
     // create a pointer to keybinding node array of the class.
     Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
     SCMBKeyBindingNode* theClassKeyBindNodeArray =
-        (SCMBKeyBindingNode*)&(inst.hdr->theClass->cls.base)[idx];
+        (SCMBKeyBindingNode*)&((inst.hdr->theClass->cls.base)[idx]);
 
     type = theClassKeyBindNodeArray[node].type;
 
@@ -3133,19 +3527,21 @@ SCMO_RC SCMOInstance::_getKeyBindingDataAtNodeIndex(
 }
 
 Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindigValue(
-    const char* v,
-    Uint32 len,
+    const String& kbs,
     CIMType type,
     SCMBKeyBindingValue& scmoKBV
     )
 {
     scmoKBV.isSet=false;
 
-    if (v == NULL || len == 0 && type != CIMTYPE_STRING)
+    if ( kbs.size() == 0 && type != CIMTYPE_STRING)
     {
         // The string is empty ! Do nothing.
         return true;
     }
+
+    const char* v = kbs.getCString();
+
     switch (type)
     {
     case CIMTYPE_UINT8:
@@ -3288,23 +3684,21 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindigValue(
 
     case CIMTYPE_CHAR16:
         {
-            // Converts UTF-8 to UTF-16
-            String tmp(v, len);
-            if (tmp.size() == 1)
+            if (kbs.size() == 1)
             {
-                scmoKBV.data.simple.val.c16 = tmp[0];
+                scmoKBV.data.simple.val.c16 = kbs[0];
                 scmoKBV.isSet=true;
             }
             break;
         }
     case CIMTYPE_BOOLEAN:
         {
-            if (strncasecmp(v, "TRUE",len) == 0)
+            if (String::equalNoCase(kbs,"TRUE"))
             {
                 scmoKBV.data.simple.val.bin = true;
                 scmoKBV.isSet=true;
             }
-            else if (strncasecmp(v, "FALSE",len) == 0)
+            else if (String::equalNoCase(kbs,"FALSE"))
                  {
                      scmoKBV.data.simple.val.bin = false;
                      scmoKBV.isSet=true;
@@ -3316,16 +3710,34 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindigValue(
         {
             scmoKBV.isSet=true;
             // Can cause reallocation !
-            _setBinary(v,len,scmoKBV.data.stringValue,&inst.mem);
+            _setString(kbs,scmoKBV.data.stringValue,&inst.mem);
             return true;
             break;
         }
     case CIMTYPE_REFERENCE:
         {
+            if (0 != scmoKBV.data.extRefPtr)
+            {
+                delete scmoKBV.data.extRefPtr;
+                scmoKBV.data.extRefPtr = 0;
+                scmoKBV.isSet=false;
+            }
+            // TBD: Optimize parsing and SCMOInstance creation.
+            CIMObjectPath theCIMObj(kbs);
+            SCMOClass* theRefClass = _getSCMOClass(theCIMObj);
+            if (theRefClass != NULL)
+            {
+                scmoKBV.data.extRefPtr =
+                    new SCMOInstance(*theRefClass,theCIMObj);
+            } else
+            {
+                scmoKBV.data.extRefPtr = 0;
+            }
+            scmoKBV.isSet=true;
             break;
         }
-    case CIMTYPE_OBJECT:
-    case CIMTYPE_INSTANCE:
+    case CIMTYPE_OBJECT: // N/A
+    case CIMTYPE_INSTANCE: // N/A
         // From PEP 194: EmbeddedObjects cannot be keys.
         throw TypeMismatchException();
         break;
@@ -3355,16 +3767,14 @@ SCMO_RC SCMOInstance::_setKeyBindingFromString(
    // create a pointer to keybinding node array of the class.
     Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
     SCMBKeyBindingNode* theClassKeyBindNodeArray =
-        (SCMBKeyBindingNode*)&(inst.hdr->theClass->cls.base)[idx];
+        (SCMBKeyBindingNode*)&((inst.hdr->theClass->cls.base)[idx]);
 
     // create a pointer to instance keybinding values
     SCMBKeyBindingValue* theInstKeyBindValueArray =
         (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
 
-    CString tmp = cimKeyBinding.getCString();
     if ( _setCimKeyBindingStringToSCMOKeyBindigValue(
-            (const char*)tmp,
-            strlen((const char*)tmp),
+            cimKeyBinding,
             theClassKeyBindNodeArray[node].type,
             theInstKeyBindValueArray[node]))
     {
@@ -3406,7 +3816,7 @@ SCMO_RC SCMOInstance::setKeyBindingAt(
    // create a pointer to keybinding node array of the class.
     Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
     SCMBKeyBindingNode* theClassKeyBindNodeArray =
-        (SCMBKeyBindingNode*)&(inst.hdr->theClass->cls.base)[idx];
+        (SCMBKeyBindingNode*)&((inst.hdr->theClass->cls.base)[idx]);
 
     if (NULL == keyvalue)
     {
@@ -3891,7 +4301,7 @@ void SCMODump::dumpSCMOInstanceKeyBindings(SCMOInstance& testInst) const
     // create a pointer to keybinding node array of the class.
     Uint64 idx = insthdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
     SCMBKeyBindingNode* theClassKeyBindNodeArray =
-        (SCMBKeyBindingNode*)&(insthdr->theClass->cls.base)[idx];
+        (SCMBKeyBindingNode*)&((insthdr->theClass->cls.base)[idx]);
 
     SCMBKeyBindingValue* ptr =
         (SCMBKeyBindingValue*)
@@ -4599,17 +5009,10 @@ String SCMODump::printArrayValue(
         }
 
     case CIMTYPE_REFERENCE:
-        {
-            break;
-        }
-
-    case CIMTYPE_OBJECT:
-        {
-            break;
-        }
-
+    case CIMTYPE_OBJECT: //Dump
     case CIMTYPE_INSTANCE:
         {
+            // ToDo: has to dump SCMOInstance ...
             break;
         }
     default:
@@ -4722,17 +5125,10 @@ String SCMODump::printUnionValue(
         }
 
     case CIMTYPE_REFERENCE:
-        {
-            break;
-        }
-
-    case CIMTYPE_OBJECT:
-        {
-            break;
-        }
-
+    case CIMTYPE_OBJECT: // Dump
     case CIMTYPE_INSTANCE:
         {
+            // TODO: Has to dump SCMOInstance.
             break;
         }
     default:
@@ -4748,61 +5144,6 @@ String SCMODump::printUnionValue(
 /*****************************************************************************
  * The constant functions
  *****************************************************************************/
-
-/*
-static CIMKeyBinding::Type _cimTypeToKeyBindType(CIMType cimType)
-{
-    switch (cimType)
-    {
-    case CIMTYPE_BOOLEAN:
-        return(CIMKeyBinding::BOOLEAN);
-        break;
-    case CIMTYPE_CHAR16:
-    case CIMTYPE_STRING:
-    case CIMTYPE_DATETIME:
-        return(CIMKeyBinding::STRING);
-        break;
-    case CIMTYPE_REFERENCE:
-        return(CIMKeyBinding::REFERENCE);
-        break;
-    case CIMTYPE_OBJECT:
-    case CIMTYPE_INSTANCE:
-        // From PEP 194: EmbeddedObjects cannot be keys.
-        throw TypeMismatchException();
-        break;
-    default:
-        return(CIMKeyBinding::NUMERIC);
-        break;
-    }
-}
-*/
-/* OLD THILO VERSION
-static Boolean _equalUTF8Strings(
-    const SCMBDataPtr& ptr_a,
-    char* base,
-    const char* name,
-    Uint32 len)
-
-{
-    //both are empty strings, so they are equal.
-    if (ptr_a.length == 0 && len == 0)
-    {
-        return true;
-    }
-
-    // size without trailing '\0' !!
-    if (ptr_a.length-1 != len)
-    {
-        return false;
-    }
-
-    const char* a = (const char*)_getCharString(ptr_a,base);
-
-    // ToDo: Here an UTF8 complinet comparison should take place
-    return ( strncmp(a,name,len )== 0 );
-
-}
-*/
 
 static Boolean _equalUTF8Strings(
     const SCMBDataPtr& ptr_a,
@@ -5005,6 +5346,5 @@ static void _setBinary(
         ptr.length = 0;
     }
 }
-
 
 PEGASUS_NAMESPACE_END

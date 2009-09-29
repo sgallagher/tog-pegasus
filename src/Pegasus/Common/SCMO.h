@@ -405,6 +405,7 @@ struct SCMBInstance_Main
       unsigned includeQualifiers  :1;
       unsigned includeClassOrigin :1;
       unsigned isFiltered:1;
+      unsigned isClassOnly:1;
     }flags;
     // For a full object path is build using the name space and class name
     // of the referenced class.
@@ -542,6 +543,7 @@ static Boolean _equalNoCaseUTF8Strings(
     char* base,
     const char* name,
     Uint32 len);
+
 
 PEGASUS_NAMESPACE_END
 

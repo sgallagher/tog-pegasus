@@ -116,6 +116,21 @@ void CIMClassToSCMOClass()
     dump.closeFile();
     dump.deleteFile();
 
+    VCOUT << "Creating CIMClass out of SCMOClass." << endl;
+    CIMClass newCimClass;
+
+    theSCMOClass.getCIMClass(newCimClass);
+
+    // Before the newCimClass can be compared with the orginal class,
+    // the methods of the original class has to be removed, 
+    // because the SCMOClass currently does not support methods.
+    while (0 != theCIMClass.getMethodCount())
+    {
+        theCIMClass.removeMethod(0);
+    }
+
+    PEGASUS_TEST_ASSERT(newCimClass.identical(theCIMClass));
+
     VCOUT << "Creaing SCMO instance out of SCMOClass." << endl;
 
     SCMOInstance theSCMOInstance(theSCMOClass);
@@ -1765,6 +1780,9 @@ int main (int argc, char *argv[])
         SCMOInstancePropertyFilterTest();
 
         SCMOInstanceConverterTest();
+
+        // destroy the cache.
+        _thecache->destroy();
         
     }
     catch (CIMException& e)

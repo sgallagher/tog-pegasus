@@ -598,22 +598,10 @@ private:
         // printf("\ninst.hdr->refCount=%u\n",inst.hdr->refCount.get());
     };
 
-    void Unref()
-    {
-        if (inst.hdr->refCount.decAndTestIfZero())
-        {
-            // printf("\ninst.hdr->refCount=%u\n",inst.hdr->refCount.get());
-            // The class has also be dereferenced.
-            delete inst.hdr->theClass;
-            free(inst.base);
-            inst.base=NULL;
-        }
-        else
-        {
-            // printf("\ninst.hdr->refCount=%u\n",inst.hdr->refCount.get());
-        }
+    void Unref();
 
-    };
+    void _destroyExternalReferences();
+
     /**
      * A SCMOInstance can only be created by a SCMOClass
      */
@@ -640,19 +628,19 @@ private:
 
     void _setCIMValueAtNodeIndex(Uint32 node, CIMValueRep* valRep);
 
-    void _getCIMValueFromSCMBUnion(
+    static void _getCIMValueFromSCMBUnion(
         CIMValue& cimV,
         const CIMType type,
         const Boolean isNull,
         const Boolean isArray,
         const Uint32 arraySize,
         const SCMBUnion& scmbUn,
-        const char * base) const;
+        const char * base);
 
-    void _getCIMValueFromSCMBValue(
+    static void _getCIMValueFromSCMBValue(
         CIMValue& cimV,
         const SCMBValue& scmbV,
-        const char * base) const;
+        const char * base);
 
     CIMProperty _getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const;
 
@@ -672,7 +660,7 @@ private:
         Uint32 size,
         SCMBUnion & u);
 
-    static void _setNonRefUnionValue(
+    static void _setUnionValue(
         Uint64 start,
         SCMBMgmt_Header** pmem,
         CIMType type,
@@ -711,8 +699,7 @@ private:
     SCMO_RC _setKeyBindingFromString(const char* name,String cimKeyBinding);
 
     Boolean _setCimKeyBindingStringToSCMOKeyBindigValue(
-        const char* v,
-        Uint32 len,
+        const String& kbs,
         CIMType type,
         SCMBKeyBindingValue& scmoKBV
         );

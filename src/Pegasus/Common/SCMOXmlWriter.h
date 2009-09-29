@@ -70,7 +70,7 @@ public:
 
     static void appendValueElement(
         Buffer& out,
-        SCMBValue & value,
+        const SCMBValue & value,
         const char * base);
 
     static void appendSCMBUnion(

@@ -207,9 +207,7 @@ void SCMOXmlWriter::appendQualifierElement(
 
     out << STRLIT(">\n");
     // append the value of the qualifier
-
-    // TODO: Implement and call appendValueElement
-    //SCMOXmlWriter::appendValueElement(out, theQualifier.value, clsbase);
+    SCMOXmlWriter::appendValueElement(out, theQualifier.value, base);
 
     out << STRLIT("</QUALIFIER>\n");
 }
@@ -281,7 +279,7 @@ void SCMOXmlWriter::appendPropertyElement(
         out << STRLIT("\" ");
         if (propertyType == CIMTYPE_OBJECT)
         {
-/*
+/*          TODO: Implement writing CIM_OBJECT
             // If the property array type is CIMObject, then
             //    encode the property in CIM-XML as a string array with the
             //    EmbeddedObject attribute (there is not currently a CIM-XML
@@ -323,7 +321,7 @@ void SCMOXmlWriter::appendPropertyElement(
         }
         else if (propertyType == CIMTYPE_INSTANCE)
         {
-/*
+/*          TODO: Implement writing embedded instance
             // If the property array type is CIMInstance, then
             //   encode the property in CIM-XML as a string array with the
             //   EmbeddedObject attribute (there is not currently a CIM-XML
@@ -419,7 +417,7 @@ void SCMOXmlWriter::appendPropertyElement(
     }
     else if (propertyType == CIMTYPE_REFERENCE)
     {
-/*
+/*      TODO: Implement writing Reference
         out << STRLIT("<PROPERTY.REFERENCE"
                       " NAME=\"") << rep->getName() << STRLIT("\" ");
 
@@ -479,7 +477,7 @@ void SCMOXmlWriter::appendPropertyElement(
 
         if (propertyType == CIMTYPE_OBJECT)
         {
-/*
+/*          TODO: Implement writing Embedded Object
             // If the property type is CIMObject, then
             //   encode the property in CIM-XML as a string with the
             //   EmbeddedObject attribute (there is not currently a CIM-XML
@@ -522,7 +520,7 @@ void SCMOXmlWriter::appendPropertyElement(
             }
             else if (propertyType == CIMTYPE_INSTANCE)
             {
-/*
+/*              TODO: Implement writing Embedded Instance
                 CIMInstance a;
                 rep->getValue().get(a);
                 out << STRLIT(" TYPE=\"string\""
@@ -586,7 +584,7 @@ void SCMOXmlWriter::appendPropertyElement(
 
 void SCMOXmlWriter::appendValueElement(
     Buffer& out,
-    SCMBValue & value,
+    const SCMBValue & value,
     const char * base)
 {
     if (value.flags.isNull)
@@ -604,7 +602,7 @@ void SCMOXmlWriter::appendValueElement(
     }
     else if (value.valueType == CIMTYPE_REFERENCE)
     {
-/*
+/*      TODO: Implement writing an object path as value
         // Has to be separate because it uses VALUE.REFERENCE tag
         CIMObjectPath v;
         value.get(v);

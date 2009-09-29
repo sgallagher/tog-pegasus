@@ -79,6 +79,13 @@ public:
         const CIMType & valueType,
         const char * base);
 
+    static void appendSCMBUnionArray(
+        Buffer& out,
+        const SCMBUnion & u,
+        const CIMType & valueType,
+        Uint32 numElements,
+        const char * base);
+
 private:
 
     SCMOXmlWriter();

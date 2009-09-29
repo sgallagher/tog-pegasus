@@ -272,13 +272,16 @@ void SCMOXmlWriter::appendPropertyElement(
 
     if (propertyValue->flags.isArray)
     {
-/*
-        out << STRLIT("<PROPERTY.ARRAY NAME=\"")
-            << rep->getName()
-            << STRLIT("\" ");
+        out << STRLIT("<PROPERTY.ARRAY NAME=\"");
 
+        out.append(
+            &(clsbase[propertyDef->name.start]),
+            propertyDef->name.length-1);
+
+        out << STRLIT("\" ");
         if (propertyType == CIMTYPE_OBJECT)
         {
+/*
             // If the property array type is CIMObject, then
             //    encode the property in CIM-XML as a string array with the
             //    EmbeddedObject attribute (there is not currently a CIM-XML
@@ -316,9 +319,11 @@ void SCMOXmlWriter::appendPropertyElement(
                                      true));
                 }
             }
+*/            
         }
         else if (propertyType == CIMTYPE_INSTANCE)
         {
+/*
             // If the property array type is CIMInstance, then
             //   encode the property in CIM-XML as a string array with the
             //   EmbeddedObject attribute (there is not currently a CIM-XML
@@ -356,41 +361,61 @@ void SCMOXmlWriter::appendPropertyElement(
                 }
 # endif
             }
+*/            
         }
         else
-        {
+        {        
             out.append(' ');
-            out << xmlWriterTypeStrings(rep->getValue().getType());
+            out << xmlWriterTypeStrings(propertyType);
         }
+        
+        Uint32 arraySize=propertyValue->valueArraySize;
 
-        if (rep->getArraySize())
+        if (0 != arraySize)
         {
-            char buffer[32];
-            sprintf(buffer, "%u", rep->getArraySize());
-            out << STRLIT(" ARRAYSIZE=\"") << buffer;
+            out << STRLIT(" ARRAYSIZE=\"");
+            SCMOXmlWriter::append(out, arraySize);
             out.append('"');
         }
 
-        if (!rep->getClassOrigin().isNull())
-        {
-            out << STRLIT(" CLASSORIGIN=\"") << rep->getClassOrigin();
-            out.append('"');
-        }
 
-        if (rep->getPropagated())
+        if (scmoInstance.inst.hdr->flags.includeClassOrigin)
+        {
+            if (propertyDef->originClassName.start != 0)
+            {
+                out << STRLIT(" CLASSORIGIN=\"");
+                out.append(
+                    &(clsbase[propertyDef->originClassName.start]),
+                    propertyDef->originClassName.length-1);
+                out.append('"');
+            }
+        }
+        if (propertyDef->flags.propagated)
         {
             out << STRLIT(" PROPAGATED=\"true\"");
         }
 
         out << STRLIT(">\n");
 
-        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
-            XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
+        // Append Instance Qualifiers:
+        if (scmoInstance.inst.hdr->flags.includeQualifiers)
+        {
+            SCMBQualifier * theArray=
+                (SCMBQualifier*)
+                    &(clsbase[propertyDef->qualifierArray.start]);
+            // need to iterate
+            for (Uint32 i=0, n=propertyDef->numberOfQualifiers;i<n;i++)
+            {
+                SCMOXmlWriter::appendQualifierElement(
+                    out,
+                    theArray[i],
+                    clsbase);
+            }
+        }
 
-        XmlWriter::appendValueElement(out, rep->getValue());
+        SCMOXmlWriter::appendValueElement(out,*propertyValue,propertyValueBase);
 
         out << STRLIT("</PROPERTY.ARRAY>\n");
-*/
     }
     else if (propertyType == CIMTYPE_REFERENCE)
     {
@@ -428,7 +453,6 @@ void SCMOXmlWriter::appendPropertyElement(
     }
     else
     {
-        // TODO: Optimize the property name using length as input
         out << STRLIT("<PROPERTY NAME=\"");
 
         out.append(
@@ -543,11 +567,7 @@ void SCMOXmlWriter::appendPropertyElement(
                     clsbase);
             }
         }
-        SCMOXmlWriter::appendValueElement(
-            out,
-            *propertyValue,
-            propertyValueBase);
-
+        SCMOXmlWriter::appendValueElement(out,*propertyValue,propertyValueBase);
         out << STRLIT("</PROPERTY>\n");
     }
 }
@@ -575,148 +595,12 @@ void SCMOXmlWriter::appendValueElement(
     }
     if (value.flags.isArray)
     {
-/*
-        switch (value.getType())
-        {
-            case CIMTYPE_BOOLEAN:
-            {
-                Array<Boolean> a;
-                value.get(a);
-                _xmlWritter_appendValueArray(out, a.getData(), a.size());
-                break;
-            }
-
-            case CIMTYPE_UINT8:
-            {
-                Array<Uint8> a;
-                value.get(a);
-                _xmlWritter_appendValueArray(out, a.getData(), a.size());
-                break;
-            }
-
-            case CIMTYPE_SINT8:
-            {
-                Array<Sint8> a;
-                value.get(a);
-                _xmlWritter_appendValueArray(out, a.getData(), a.size());
-                break;
-            }
-
-            case CIMTYPE_UINT16:
-            {
-                Array<Uint16> a;
-                value.get(a);
-                _xmlWritter_appendValueArray(out, a.getData(), a.size());
-                break;
-            }
-
-            case CIMTYPE_SINT16:
-            {
-                Array<Sint16> a;
-                value.get(a);
-                _xmlWritter_appendValueArray(out, a.getData(), a.size());
-                break;
-            }
-
-            case CIMTYPE_UINT32:
-            {
-                Array<Uint32> a;
-                value.get(a);
-                _xmlWritter_appendValueArray(out, a.getData(), a.size());
-                break;
-            }
-
-            case CIMTYPE_SINT32:
-            {
-                Array<Sint32> a;
-                value.get(a);
-                _xmlWritter_appendValueArray(out, a.getData(), a.size());
-                break;
-            }
-
-            case CIMTYPE_UINT64:
-            {
-                Array<Uint64> a;
-                value.get(a);
-                _xmlWritter_appendValueArray(out, a.getData(), a.size());
-                break;
-            }
-
-            case CIMTYPE_SINT64:
-            {
-                Array<Sint64> a;
-                value.get(a);
-                _xmlWritter_appendValueArray(out, a.getData(), a.size());
-                break;
-            }
-
-            case CIMTYPE_REAL32:
-            {
-                Array<Real32> a;
-                value.get(a);
-                _xmlWritter_appendValueArray(out, a.getData(), a.size());
-                break;
-            }
-
-            case CIMTYPE_REAL64:
-            {
-                Array<Real64> a;
-                value.get(a);
-                _xmlWritter_appendValueArray(out, a.getData(), a.size());
-                break;
-            }
-
-            case CIMTYPE_CHAR16:
-            {
-                Array<Char16> a;
-                value.get(a);
-                _xmlWritter_appendValueArray(out, a.getData(), a.size());
-                break;
-            }
-
-            case CIMTYPE_STRING:
-            {
-                const String* data;
-                Uint32 size;
-                value._get(data, size);
-                _xmlWritter_appendValueArray(out, data, size);
-                break;
-            }
-
-            case CIMTYPE_DATETIME:
-            {
-                Array<CIMDateTime> a;
-                value.get(a);
-                _xmlWritter_appendValueArray(out, a.getData(), a.size());
-                break;
-            }
-
-            case CIMTYPE_REFERENCE:
-            {
-                Array<CIMObjectPath> a;
-                value.get(a);
-                _xmlWritter_appendValueArray(out, a.getData(), a.size());
-                break;
-            }
-
-            case CIMTYPE_OBJECT:
-            {
-                Array<CIMObject> a;
-                value.get(a);
-                _xmlWritter_appendValueArray(out, a.getData(), a.size());
-                break;
-            }
-            case CIMTYPE_INSTANCE:
-            {
-                Array<CIMInstance> a;
-                value.get(a);
-                _xmlWritter_appendValueArray(out, a.getData(), a.size());
-                break;
-            }
-            default:
-                PEGASUS_ASSERT(false);
-        }
-*/
+        appendSCMBUnionArray(
+            out,
+            value.value,
+            value.valueType,
+            value.valueArraySize,
+            base);
     }
     else if (value.valueType == CIMTYPE_REFERENCE)
     {
@@ -859,6 +743,243 @@ void SCMOXmlWriter::appendSCMBUnion(
 */
     }
 }
+
+void SCMOXmlWriter::appendSCMBUnionArray(
+    Buffer& out,
+    const SCMBUnion & u,
+    const CIMType & valueType,
+    Uint32 numElements,
+    const char * base)
+{
+    SCMBUnion* arr = (SCMBUnion*) &(base[u.arrayValue.start]);
+    switch (valueType)
+    {
+        case CIMTYPE_BOOLEAN:
+        {
+            out << STRLIT("<VALUE.ARRAY>\n");
+            while (numElements--)
+            {
+                out << STRLIT("<VALUE>");
+                SCMOXmlWriter::append(out, arr->simple.val.bin);
+                arr++;
+                out << STRLIT("</VALUE>\n");
+            }
+            out << STRLIT("</VALUE.ARRAY>\n");
+            break;
+        }
+        case CIMTYPE_UINT8:
+        {
+            out << STRLIT("<VALUE.ARRAY>\n");
+            while (numElements--)
+            {
+                out << STRLIT("<VALUE>");
+                SCMOXmlWriter::append(out, arr->simple.val.u8);
+                arr++;
+                out << STRLIT("</VALUE>\n");
+            }
+            out << STRLIT("</VALUE.ARRAY>\n");
+            break;
+        }
+    
+        case CIMTYPE_SINT8:
+        {
+            out << STRLIT("<VALUE.ARRAY>\n");
+            while (numElements--)
+            {
+                out << STRLIT("<VALUE>");
+                SCMOXmlWriter::append(out, arr->simple.val.s8);
+                arr++;
+                out << STRLIT("</VALUE>\n");
+            }
+            out << STRLIT("</VALUE.ARRAY>\n");
+            break;
+        }
+    
+        case CIMTYPE_UINT16:
+        {
+            out << STRLIT("<VALUE.ARRAY>\n");
+            while (numElements--)
+            {
+                out << STRLIT("<VALUE>");
+                SCMOXmlWriter::append(out, arr->simple.val.u16);
+                arr++;
+                out << STRLIT("</VALUE>\n");
+            }
+            out << STRLIT("</VALUE.ARRAY>\n");
+            break;
+        }
+    
+        case CIMTYPE_SINT16:
+        {
+            out << STRLIT("<VALUE.ARRAY>\n");
+            while (numElements--)
+            {
+                out << STRLIT("<VALUE>");
+                SCMOXmlWriter::append(out, arr->simple.val.s16);
+                arr++;
+                out << STRLIT("</VALUE>\n");
+            }
+            out << STRLIT("</VALUE.ARRAY>\n");
+            break;
+        }
+    
+        case CIMTYPE_UINT32:
+        {
+            out << STRLIT("<VALUE.ARRAY>\n");
+            while (numElements--)
+            {
+                out << STRLIT("<VALUE>");
+                SCMOXmlWriter::append(out, arr->simple.val.u32);
+                arr++;
+                out << STRLIT("</VALUE>\n");
+            }
+            out << STRLIT("</VALUE.ARRAY>\n");
+            break;
+        }
+    
+        case CIMTYPE_SINT32:
+        {
+            out << STRLIT("<VALUE.ARRAY>\n");
+            while (numElements--)
+            {
+                out << STRLIT("<VALUE>");
+                SCMOXmlWriter::append(out, arr->simple.val.s32);
+                arr++;
+                out << STRLIT("</VALUE>\n");
+            }
+            out << STRLIT("</VALUE.ARRAY>\n");
+            break;
+        }
+    
+        case CIMTYPE_UINT64:
+        {
+            out << STRLIT("<VALUE.ARRAY>\n");
+            while (numElements--)
+            {
+                out << STRLIT("<VALUE>");
+                SCMOXmlWriter::append(out, arr->simple.val.u64);
+                arr++;
+                out << STRLIT("</VALUE>\n");
+            }
+            out << STRLIT("</VALUE.ARRAY>\n");
+            break;
+        }
+    
+        case CIMTYPE_SINT64:
+        {
+            out << STRLIT("<VALUE.ARRAY>\n");
+            while (numElements--)
+            {
+                out << STRLIT("<VALUE>");
+                SCMOXmlWriter::append(out, arr->simple.val.s64);
+                arr++;
+                out << STRLIT("</VALUE>\n");
+            }
+            out << STRLIT("</VALUE.ARRAY>\n");
+            break;
+        }
+    
+        case CIMTYPE_REAL32:
+        {
+            out << STRLIT("<VALUE.ARRAY>\n");
+            while (numElements--)
+            {
+                out << STRLIT("<VALUE>");
+                SCMOXmlWriter::append(out, arr->simple.val.r32);
+                arr++;
+                out << STRLIT("</VALUE>\n");
+            }
+            out << STRLIT("</VALUE.ARRAY>\n");
+            break;
+        }
+    
+        case CIMTYPE_REAL64:
+        {
+            out << STRLIT("<VALUE.ARRAY>\n");
+            while (numElements--)
+            {
+                out << STRLIT("<VALUE>");
+                SCMOXmlWriter::append(out, arr->simple.val.r64);
+                arr++;
+                out << STRLIT("</VALUE>\n");
+            }
+            out << STRLIT("</VALUE.ARRAY>\n");
+            break;
+        }
+    
+        case CIMTYPE_CHAR16:
+        {
+            out << STRLIT("<VALUE.ARRAY>\n");
+            while (numElements--)
+            {
+                out << STRLIT("<VALUE>");
+                SCMOXmlWriter::append(out, arr->simple.val.bin);
+                SCMOXmlWriter::appendSpecial(out, arr->simple.val.c16);
+                arr++;
+                out << STRLIT("</VALUE>\n");
+            }
+            out << STRLIT("</VALUE.ARRAY>\n");
+            break;
+        }
+    
+        case CIMTYPE_STRING:
+        {
+            out << STRLIT("<VALUE.ARRAY>\n");
+            while (numElements--)
+            {
+                out << STRLIT("<VALUE>");
+                SCMOXmlWriter::appendSpecial(
+                    out,
+                    &(base[arr->stringValue.start]),
+                    arr->stringValue.length-1);
+                arr++;
+                out << STRLIT("</VALUE>\n");
+            }
+            out << STRLIT("</VALUE.ARRAY>\n");
+            
+            break;
+        }
+    
+        case CIMTYPE_DATETIME:
+        {
+            out << STRLIT("<VALUE.ARRAY>\n");
+            char buffer[26];
+            while (numElements--)
+            {
+                out << STRLIT("<VALUE>");
+                // an SCMBDateTime is a CIMDateTimeRep
+                // this should help us to reuse existing optimized Datetime
+                _DateTimetoCStr(&(arr->dateTimeValue), buffer);
+                // datetime value is formatted with a \0 at end, ignore
+                out.append(buffer,sizeof(buffer)-1);
+                arr++;
+                out << STRLIT("</VALUE>\n");
+            }
+            out << STRLIT("</VALUE.ARRAY>\n");        
+            break;
+        }        
+/*
+        case CIMTYPE_OBJECT:
+        {
+            CIMObject v;
+            value.get(v);
+            _xmlWritter_appendValue(out, v);
+            break;
+        }
+        case CIMTYPE_INSTANCE:
+        {
+            CIMInstance v;
+            value.get(v);
+            _xmlWritter_appendValue(out, v);
+            break;
+        }
+        default:
+            PEGASUS_ASSERT(false);
+*/
+    }
+
+}
+
 
 
 PEGASUS_NAMESPACE_END

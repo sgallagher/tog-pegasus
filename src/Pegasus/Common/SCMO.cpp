@@ -1934,20 +1934,13 @@ void SCMOInstance::_setCIMObjectPath(const CIMObjectPath& cimObj)
     char* clsbase = inst.hdr->theClass->cls.base;
 
     CString className = objRep->_className.getString().getCString();
-    CString nameSpace = objRep->_nameSpace.getString().getCString();
 
-    // Is the instance from the same class and name space ?
+    // Is the instance from the same class ?
     if (!(_equalNoCaseUTF8Strings(
              clshdr->className,
              clsbase,
              (const char*)className,
-             strlen(className)) &&
-          _equalNoCaseUTF8Strings(
-             clshdr->nameSpace,
-             clsbase,
-             (const char*)nameSpace,
-             strlen(nameSpace)))
-        )
+             strlen(className))))
     {
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS,
            objRep->_className.getString());

@@ -55,7 +55,7 @@ public:
      * @param nameSpaceName The namespace for the class, optional.
      * @return
      */
-    SCMOClass(const CIMClass& theCIMClass, const char* nameSpaceName=NULL );
+    SCMOClass(const CIMClass& theCIMClass, const char* nameSpaceName=0 );
 
     /**
      * Copy constructor for the SCMO class, used to implement refcounting.
@@ -95,7 +95,7 @@ public:
      * Determines whether the object has been initialized.
      * @return True if the object has not been initialized, false otherwise.
      */
-    Boolean isUninitialized( ) const {return (cls.base == NULL); };
+    Boolean isUninitialized( ) const {return (cls.base == 0); };
 
     static StrLit qualifierNameStrLit(Uint32 num)
     {
@@ -110,7 +110,21 @@ private:
         // printf("\ncls.hdr->refCount=%u\n",cls.hdr->refCount.get());
     };
 
-    void Unref();
+    void Unref()
+    {
+        if (cls.hdr->refCount.decAndTestIfZero())
+        {
+            // printf("\ncls.hdr->refCount=%u\n",cls.hdr->refCount.get());
+            _destroyExternalReferences();
+            free(cls.base);
+            cls.base=0;
+        }
+        else
+        {
+            // printf("\ncls.hdr->refCount=%u\n",cls.hdr->refCount.get());
+        }
+
+    };
 
     void _destroyExternalReferences();
 
@@ -180,6 +194,7 @@ private:
     friend class SCMODump;
     friend class SCMOXmlWriter;
 };
+
 
 PEGASUS_NAMESPACE_END
 

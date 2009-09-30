@@ -516,7 +516,7 @@ public:
      * Determines whether the object has been initialized.
      * @return True if the object has not been initialized, false otherwise.
      */
-    Boolean isUninitialized( ) const {return (inst.base == NULL); };
+    Boolean isUninitialized( ) const {return (0 == inst.base); };
 
     /**
      * Determies if two objects are referencing to the same instance
@@ -598,7 +598,25 @@ private:
         // printf("\ninst.hdr->refCount=%u\n",inst.hdr->refCount.get());
     };
 
-    void Unref();
+    void Unref()
+    {
+        if (inst.hdr->refCount.decAndTestIfZero())
+        {
+            // printf("\ninst.hdr->refCount=%u\n",inst.hdr->refCount.get());
+            // All external references has to be destroyed.
+            _destroyExternalReferences();
+            // The class has also be dereferenced.
+            delete inst.hdr->theClass;
+            free(inst.base);
+            inst.base=NULL;
+        }
+        else
+        {
+            // printf("\ninst.hdr->refCount=%u\n",inst.hdr->refCount.get());
+        }
+
+    };
+
 
     void _destroyExternalReferences();
 

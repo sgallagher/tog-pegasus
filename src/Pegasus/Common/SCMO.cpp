@@ -65,7 +65,7 @@ PEGASUS_USING_STD;
  * for a string format specification, the string "(null)" is
  * substituted. On other platforms no string "" is substituded.
  */
-#define NULLSTR(x) ((x) == NULL ? "" : (x))
+#define NULLSTR(x) ((x) == 0 ? "" : (x))
 
 #define NEWCIMSTR(ptr,base) \
       ((ptr).length == 0 ?  \
@@ -212,24 +212,8 @@ inline void _deleteArrayExtReference(
  *****************************************************************************/
 SCMOClass::SCMOClass()
 {
-    cls.mem = NULL;
+    cls.mem = 0;
 }
-
-void SCMOClass::Unref()
-{
-    if (cls.hdr->refCount.decAndTestIfZero())
-    {
-        // printf("\ncls.hdr->refCount=%u\n",cls.hdr->refCount.get());
-        _destroyExternalReferences();
-        free(cls.base);
-        cls.base=NULL;
-    }
-    else
-    {
-        // printf("\ncls.hdr->refCount=%u\n",cls.hdr->refCount.get());
-    }
-
-};
 
 void SCMOClass::_destroyExternalReferences()
 {
@@ -273,7 +257,7 @@ inline void SCMOClass::_initSCMOClass()
         - sizeof(SCMBClass_Main)>0);
 
     cls.base = (char*)malloc(SCMB_INITIAL_MEMORY_CHUNK_SIZE);
-    if (cls.base == NULL)
+    if (cls.base == 0)
     {
         // Not enough memory!
         throw PEGASUS_STD(bad_alloc)();
@@ -1186,28 +1170,8 @@ inline SCMO_RC SCMOClass::_isNodeSameType(
 
 SCMOInstance::SCMOInstance()
 {
-    inst.base = NULL;
+    inst.base = 0;
 }
-
-void SCMOInstance::Unref()
-{
-    if (inst.hdr->refCount.decAndTestIfZero())
-    {
-        // printf("\ninst.hdr->refCount=%u\n",inst.hdr->refCount.get());
-        // All external references has to be destroyed.
-        _destroyExternalReferences();
-        // The class has also be dereferenced.
-        delete inst.hdr->theClass;
-        free(inst.base);
-        inst.base=NULL;
-    }
-    else
-    {
-        // printf("\ninst.hdr->refCount=%u\n",inst.hdr->refCount.get());
-    }
-
-};
-
 
 SCMOInstance::SCMOInstance(SCMOClass baseClass)
 {
@@ -1492,7 +1456,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
     const char * base)
 {
 
-    const SCMBUnion* pscmbArrayUn = NULL;
+    const SCMBUnion* pscmbArrayUn = 0;
 
     if (isNull)
     {
@@ -2157,7 +2121,7 @@ void SCMOInstance::setHostName(const char* hostName)
 {
     Uint32 len;
 
-    if (hostName!=NULL)
+    if (hostName!=0)
     {
 
         len = strlen((const char*)hostName);
@@ -2206,7 +2170,7 @@ void SCMOInstance::_initSCMOInstance(SCMOClass* pClass)
 
 
     inst.base = (char*)malloc(SCMB_INITIAL_MEMORY_CHUNK_SIZE);
-    if (inst.base == NULL)
+    if (inst.base == 0)
     {
         // Not enough memory!
         throw PEGASUS_STD(bad_alloc)();
@@ -2336,7 +2300,7 @@ SCMO_RC SCMOInstance::getProperty(
     const char* pname;
     SCMO_RC rc = SCMO_OK;
 
-    *pOutVal = NULL;
+    *pOutVal = 0;
     isArray = false;
     size = 0;
 
@@ -2369,8 +2333,8 @@ SCMO_RC SCMOInstance::getPropertyAt(
         Boolean& isArray,
         Uint32& size ) const
 {
-    *pname = NULL;
-    *pOutVal = NULL;
+    *pname = 0;
+    *pOutVal = 0;
     isArray = false;
     size = 0;
     Uint32 node;
@@ -2469,7 +2433,7 @@ SCMO_RC SCMOInstance::getPropertyAt(
 SCMO_RC SCMOInstance::getPropertyNodeIndex(const char* name, Uint32& node) const
 {
     SCMO_RC rc;
-    if(name==NULL)
+    if(name==0)
     {
         return SCMO_INVALID_PARAMETER;
     }
@@ -2517,7 +2481,7 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
     }
 
     // check class origin if set.
-    if (origin!= NULL)
+    if (origin!= 0)
     {
         if(!inst.hdr->theClass->_isSamePropOrigin(node,origin))
         {
@@ -2587,7 +2551,7 @@ void SCMOInstance::_setPropertyAtNodeIndex(
         theInstPropNodeArray[node].valueArraySize=size;
     }
 
-    if (pInVal==NULL)
+    if (pInVal==0)
     {
         theInstPropNodeArray[node].flags.isNull=true;
     }
@@ -3087,7 +3051,7 @@ void SCMOInstance::_setUnionArrayValue(
 
                 theRefClass = _getSCMOClass(iterator[i]);
 
-                if (theRefClass != NULL)
+                if (theRefClass != 0)
                 {
                     ptargetUnion[i].extRefPtr =
                         new SCMOInstance(*theRefClass,iterator[i]);
@@ -3144,7 +3108,7 @@ void SCMOInstance::_setUnionArrayValue(
                         CIMInstance theInst(iterator[i]);
                         theRefClass = _getSCMOClass(theInst.getPath());
 
-                        if (theRefClass != NULL)
+                        if (theRefClass != 0)
                         {
                             ptargetUnion[i].extRefPtr =
                                 new SCMOInstance(*theRefClass,theInst);
@@ -3193,7 +3157,7 @@ void SCMOInstance::_setUnionArrayValue(
                 {
                     theRefClass = _getSCMOClass(iterator[i].getPath());
 
-                    if (theRefClass != NULL)
+                    if (theRefClass != 0)
                     {
                         ptargetUnion[i].extRefPtr =
                             new SCMOInstance(*theRefClass,iterator[i]);
@@ -3345,7 +3309,7 @@ void SCMOInstance::_setUnionValue(
                 (CIMObjectPath*)((void*)&u._referenceValue);
 
             SCMOClass* theRefClass = _getSCMOClass(*theCIMObj);
-            if (theRefClass != NULL)
+            if (theRefClass != 0)
             {
                 scmoUnion->extRefPtr =
                     new SCMOInstance(*theRefClass,*theCIMObj);
@@ -3392,7 +3356,7 @@ void SCMOInstance::_setUnionValue(
                     CIMInstance theInst(*theCIMObject);
                     theRefClass = _getSCMOClass(theInst.getPath());
 
-                    if (theRefClass != NULL)
+                    if (theRefClass != 0)
                     {
                         scmoUnion->extRefPtr =
                             new SCMOInstance(*theRefClass,theInst);
@@ -3431,7 +3395,7 @@ void SCMOInstance::_setUnionValue(
             else
             {
                 SCMOClass* theRefClass = _getSCMOClass(theCIMInst->getPath());
-                if (theRefClass != NULL)
+                if (theRefClass != 0)
                 {
                     scmoUnion->extRefPtr =
                         new SCMOInstance(*theRefClass,*theCIMInst);
@@ -3556,7 +3520,7 @@ SCMOInstance SCMOInstance::clone(Boolean objectPathOnly) const
 
     SCMOInstance newInst;
     newInst.inst.base = (char*)malloc(this->inst.mem->totalSize);
-    if (newInst.inst.base == NULL )
+    if (newInst.inst.base == 0 )
     {
         throw PEGASUS_STD(bad_alloc)();
     }
@@ -3622,13 +3586,13 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
 
     SCMBUnion* u = (SCMBUnion*)&(base[start]);
 
-    SCMBUnion* av = NULL;
+    SCMBUnion* av = 0;
 
     if (isArray)
     {
         if (size == 0)
         {
-            return NULL;
+            return 0;
         }
         av = (SCMBUnion*)&base[u->arrayValue.start];
     }
@@ -3671,7 +3635,7 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
             {
 
                 ptr = (SCMBUnion*)malloc(size*sizeof(SCMBUnion));
-                if (ptr == NULL )
+                if (ptr == 0 )
                 {
                     throw PEGASUS_STD(bad_alloc)();
                 }
@@ -3703,7 +3667,7 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
             break;
         }
     }
-    return NULL;
+    return 0;
 }
 
 Uint32 SCMOInstance::getKeyBindingCount() const
@@ -3719,11 +3683,11 @@ SCMO_RC SCMOInstance::getKeyBindingAt(
         const SCMBUnion** pvalue) const
 {
     SCMO_RC rc;
-    const SCMBUnion* pdata=NULL;
+    const SCMBUnion* pdata=0;
     Uint32 pnameLen=0;
 
-    *pname = NULL;
-    *pvalue = NULL;
+    *pname = 0;
+    *pvalue = 0;
 
     if (node >= inst.hdr->numberKeyBindings)
     {
@@ -3754,11 +3718,11 @@ SCMO_RC SCMOInstance::getKeyBinding(
 {
     SCMO_RC rc;
     Uint32 node;
-    const char* pname=NULL;
-    const SCMBUnion* pdata=NULL;
+    const char* pname=0;
+    const SCMBUnion* pdata=0;
     Uint32 pnameLen=0;
 
-    *pvalue = NULL;
+    *pvalue = 0;
 
     rc = inst.hdr->theClass->_getKeyBindingNodeIndex(node,name);
     if (rc != SCMO_OK)
@@ -3831,7 +3795,8 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindigValue(
         return true;
     }
 
-    const char* v = kbs.getCString();
+    CString a = kbs.getCString();
+    const char* v = a;
 
     switch (type)
     {
@@ -4016,7 +3981,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindigValue(
             // TBD: Optimize parsing and SCMOInstance creation.
             CIMObjectPath theCIMObj(kbs);
             SCMOClass* theRefClass = _getSCMOClass(theCIMObj);
-            if (theRefClass != NULL)
+            if (theRefClass != 0)
             {
                 scmoKBV.data.extRefPtr =
                     new SCMOInstance(*theRefClass,theCIMObj);
@@ -4051,7 +4016,7 @@ SCMO_RC SCMOInstance::_setKeyBindingFromString(
     SCMO_RC rc;
     Uint32 node;
 
-    if (NULL == name)
+    if (0 == name)
     {
         return SCMO_INVALID_PARAMETER;
     }
@@ -4090,7 +4055,7 @@ SCMO_RC SCMOInstance::setKeyBinding(
     SCMO_RC rc;
     Uint32 node;
 
-    if (NULL == name)
+    if (0 == name)
     {
         return SCMO_INVALID_PARAMETER;
     }
@@ -4116,7 +4081,7 @@ SCMO_RC SCMOInstance::setKeyBindingAt(
     SCMBKeyBindingNode* theClassKeyBindNodeArray =
         (SCMBKeyBindingNode*)&((inst.hdr->theClass->cls.base)[idx]);
 
-    if (NULL == keyvalue)
+    if (0 == keyvalue)
     {
         return SCMO_INVALID_PARAMETER;
     }
@@ -4176,7 +4141,7 @@ void SCMOInstance::setPropertyFilter(const char **propertyList)
         (Uint32*)&(inst.base[inst.hdr->propertyFilterIndexMap.start]);
 
     // All properties are accepted
-    if (propertyList == NULL)
+    if (propertyList == 0)
     {
         // Clear filtering:
         // Switch filtering off.
@@ -4201,7 +4166,7 @@ void SCMOInstance::setPropertyFilter(const char **propertyList)
     inst.hdr->filterProperties=_initPropFilterWithKeys();
 
     // add the properties to the filter.
-    while (propertyList[i] != NULL)
+    while (propertyList[i] != 0)
     {
         // the hash index of the property if the property name is found
         rc = inst.hdr->theClass->_getProperyNodeIndex(node,propertyList[i]);
@@ -4342,7 +4307,7 @@ void SCMODump::openFile(char* filename)
 {
     const char* pegasusHomeDir = getenv("PEGASUS_HOME");
 
-    if (pegasusHomeDir == NULL)
+    if (pegasusHomeDir == 0)
     {
         pegasusHomeDir = ".";
     }
@@ -5566,7 +5531,7 @@ static Uint64 _getFreeSpace(
         // reallocate the buffer, double the space !
         // This is a working approach until a better algorithm is found.
         (*pmem) = (SCMBMgmt_Header*)realloc((*pmem),oldSize*2);
-        if ((*pmem) == NULL)
+        if ((*pmem) == 0)
         {
             // Not enough memory!
             throw PEGASUS_STD(bad_alloc)();
@@ -5626,7 +5591,7 @@ static void _setBinary(
 {
 
     // If buffer is not empty.
-    if (bufferSize != 1 && theBuffer != NULL)
+    if (bufferSize != 1 && theBuffer != 0)
     {
 
         Uint64 start;

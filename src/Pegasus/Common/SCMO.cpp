@@ -3781,7 +3781,7 @@ SCMO_RC SCMOInstance::_getKeyBindingDataAtNodeIndex(
     return SCMO_OK;
 }
 
-Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindigValue(
+Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
     const String& kbs,
     CIMType type,
     SCMBKeyBindingValue& scmoKBV
@@ -3792,7 +3792,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindigValue(
     if ( kbs.size() == 0 && type != CIMTYPE_STRING)
     {
         // The string is empty ! Do nothing.
-        return true;
+        return false;
     }
 
     CString a = kbs.getCString();
@@ -4036,7 +4036,8 @@ SCMO_RC SCMOInstance::_setKeyBindingFromString(
     SCMBKeyBindingValue* theInstKeyBindValueArray =
         (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
 
-    if ( _setCimKeyBindingStringToSCMOKeyBindigValue(
+    // If the set was not successful, the conversion was not successful 
+    if ( !_setCimKeyBindingStringToSCMOKeyBindingValue(
             cimKeyBinding,
             theClassKeyBindNodeArray[node].type,
             theInstKeyBindValueArray[node]))

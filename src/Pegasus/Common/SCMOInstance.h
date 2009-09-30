@@ -716,7 +716,7 @@ private:
 
     SCMO_RC _setKeyBindingFromString(const char* name,String cimKeyBinding);
 
-    Boolean _setCimKeyBindingStringToSCMOKeyBindigValue(
+    Boolean _setCimKeyBindingStringToSCMOKeyBindingValue(
         const String& kbs,
         CIMType type,
         SCMBKeyBindingValue& scmoKBV

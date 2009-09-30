@@ -47,6 +47,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/ArrayIterator.h>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <strings.h>
 
 #ifdef PEGASUS_OS_ZOS
@@ -165,6 +166,11 @@ inline SCMOClass* _getSCMOClass(const CIMObjectPath& theCIMObj)
         return 0;
     }
 
+    // TODO: If there is a case, where no name space is provided at
+    //       the object path, the ns has to be routed at setting
+    //       CIMTYPE_REFERENCE, CIMTYPE_INSTANCE, CIMTYPE_OBJECT
+    PEGASUS_DEBUG_ASSERT(!theCIMObj.getNameSpace().isNull());
+
     CString nameSpace = theCIMObj.getNameSpace().getString().getCString();
     CString clsName = theCIMObj.getClassName().getString().getCString();
 
@@ -227,6 +233,7 @@ void SCMOClass::Unref()
 
 void SCMOClass::_destroyExternalReferences()
 {
+    // TODO: Has to be optimized not to loop through all props.
     // Address the property array
     SCMBClassPropertyNode* nodeArray =
         (SCMBClassPropertyNode*)
@@ -1241,6 +1248,7 @@ SCMOInstance::SCMOInstance(SCMOClass baseClass, const CIMInstance& cimInstance)
 
 void SCMOInstance::_destroyExternalReferences()
 {
+    // TODO: Has to be optimized not to loop through all props.
     // create a pointer to keybinding node array of the class.
     Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
     SCMBKeyBindingNode* theClassKeyBindNodeArray =
@@ -1772,7 +1780,7 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
                     }
                     else
                     {
-                        // set an empty objectpath
+                        // set an empty object
                         x.append(CIMObjectPath());
                     }
                 }
@@ -1794,17 +1802,107 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
             break;
         }
     case CIMTYPE_OBJECT:
-    case CIMTYPE_INSTANCE:
         {
+            CIMInstance theInstance;
+            CIMClass theClass;
+
             if(isArray)
             {
-
+                Array<CIMObject> x;
+                for (Uint32 i = 0, k = arraySize; i < k ; i++)
+                {
+                    if (0 != pscmbArrayUn[i].extRefPtr)
+                    {
+                        // check if the Object is an emedded instance or class
+                        if(pscmbArrayUn[i].extRefPtr->
+                               inst.hdr->flags.isClassOnly)
+                        {
+                            pscmbArrayUn[i].extRefPtr->
+                                inst.hdr->theClass->getCIMClass(theClass);
+                            x.append(CIMObject(theClass));
+                        }
+                        else
+                        {
+                            pscmbArrayUn[i].extRefPtr->
+                                getCIMInstance(theInstance);
+                            x.append(CIMObject(theInstance));
+                        }
+                    }
+                    else
+                    {
+                        // set an empty object
+                        x.append(CIMObject());
+                    }
+                }
+                cimV.set(x);
             }
             else
             {
 
+                if (0 != scmbUn.extRefPtr)
+                {
+                    // check if the Object is an emedded instance or class
+                    if(scmbUn.extRefPtr->inst.hdr->flags.isClassOnly)
+                    {
+                        scmbUn.extRefPtr->
+                            inst.hdr->theClass->getCIMClass(theClass);
+                        cimV.set(CIMObject(theClass));
+                    }
+                    else
+                    {
+                        scmbUn.extRefPtr->getCIMInstance(theInstance);
+                        cimV.set(CIMObject(theInstance));
+                    }
+                }
+                else
+                {
+                    cimV.set(CIMObject());
+                }
             }
+            break;
+        }
 
+    case CIMTYPE_INSTANCE:
+        {
+            CIMInstance theInstance;
+
+            if(isArray)
+            {
+                Array<CIMInstance> x;
+                for (Uint32 i = 0, k = arraySize; i < k ; i++)
+                {
+                    if (0 != pscmbArrayUn[i].extRefPtr)
+                    {
+                        pscmbArrayUn[i].extRefPtr->
+                            getCIMInstance(theInstance);
+                        x.append(theInstance);
+                    }
+                    else
+                    {
+                        // set an empty object
+                        x.append(CIMInstance());
+                    }
+                }
+                cimV.set(x);
+            }
+            else
+            {
+
+                if (0 != scmbUn.extRefPtr)
+                {
+                    scmbUn.extRefPtr->getCIMInstance(theInstance);
+                    cimV.set(theInstance);
+                }
+                else
+                {
+                    cimV.set(CIMInstance());
+                }
+            }
+            break;
+        }
+    default:
+        {
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -2047,11 +2145,16 @@ void SCMOInstance::_setKeyBindingFromSCMBUnion(
             keyData.isSet=true;
             break;
         }
-    case CIMTYPE_OBJECT: // N/A
-    case CIMTYPE_INSTANCE: // N/A
+    case CIMTYPE_OBJECT:
+    case CIMTYPE_INSTANCE:
         {
             // From PEP 194: EmbeddedObjects cannot be keys.
             throw TypeMismatchException();
+            break;
+        }
+    default:
+        {
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -2578,7 +2681,7 @@ void SCMOInstance::_setSCMBUnion(
         }
 
     case CIMTYPE_REFERENCE:
-    case CIMTYPE_OBJECT:  //done
+    case CIMTYPE_OBJECT:
     case CIMTYPE_INSTANCE:
         {
             if(isArray)
@@ -2629,10 +2732,15 @@ void SCMOInstance::_setSCMBUnion(
             }
             break;
         }
+    default:
+        {
+            PEGASUS_ASSERT(false);
+            break;
+        }
     }
 }
 
-inline void SCMOInstance::_setUnionArrayValue(
+void SCMOInstance::_setUnionArrayValue(
     Uint64 start,
     SCMBMgmt_Header** pmem,
     CIMType type,
@@ -2992,7 +3100,7 @@ inline void SCMOInstance::_setUnionArrayValue(
                         new SCMOInstance(*theRefClass,iterator[i]);
                 } else
                 {
-                    // the ObjectPath was empty.
+                    //There is no reference class for the object path
                     ptargetUnion[i].extRefPtr = 0;
                 }
             }
@@ -3001,10 +3109,114 @@ inline void SCMOInstance::_setUnionArrayValue(
         }
     case CIMTYPE_OBJECT:
         {
+            Array<CIMObject> *x =
+                reinterpret_cast<Array<CIMObject>*>(&u);
+
+            // if the array was previously set, delete the references !
+            _deleteArrayExtReference(scmoUnion->arrayValue,pmem);
+
+            // n can be invalid after reallocation in _getFreeSpace !
+            loop = n = x->size();
+
+            arrayStart = _getFreeSpace(
+                scmoUnion->arrayValue,
+                loop*sizeof(SCMBUnion),
+                pmem);
+
+            ConstArrayIterator<CIMObject> iterator(*x);
+
+            ptargetUnion = (SCMBUnion*)(&((char*)*pmem)[arrayStart]);
+
+            SCMOClass* theRefClass;
+
+            for (Uint32 i = 0; i < loop ; i++)
+            {
+                if (iterator[i].isUninitialized())
+                {
+                    // the Object was empty.
+                    ptargetUnion[i].extRefPtr = 0;
+                }
+                else
+                {
+                    if (iterator[i].isClass())
+                    {
+                        CIMClass theClass(iterator[i]);
+                        ptargetUnion[i].extRefPtr = new SCMOInstance(theClass);
+                        // marke as class only !
+                        ptargetUnion[i].extRefPtr->
+                            inst.hdr->flags.isClassOnly=true;
+                    }
+                    else
+                    {
+                        CIMInstance theInst(iterator[i]);
+                        theRefClass = _getSCMOClass(theInst.getPath());
+
+                        if (theRefClass != NULL)
+                        {
+                            ptargetUnion[i].extRefPtr =
+                                new SCMOInstance(*theRefClass,theInst);
+                        } else
+                        {
+                            //There is no reference class for the object path
+                            ptargetUnion[i].extRefPtr = 0;
+                        }
+
+                    }
+                }
+            }
+
             break;
         }
     case CIMTYPE_INSTANCE:
         {
+            Array<CIMInstance> *x =
+                reinterpret_cast<Array<CIMInstance>*>(&u);
+
+            // if the array was previously set, delete the references !
+            _deleteArrayExtReference(scmoUnion->arrayValue,pmem);
+
+            // n can be invalid after reallocation in _getFreeSpace !
+            loop = n = x->size();
+
+            arrayStart = _getFreeSpace(
+                scmoUnion->arrayValue,
+                loop*sizeof(SCMBUnion),
+                pmem);
+
+            ConstArrayIterator<CIMInstance> iterator(*x);
+
+            ptargetUnion = (SCMBUnion*)(&((char*)*pmem)[arrayStart]);
+
+            SCMOClass* theRefClass;
+
+            for (Uint32 i = 0; i < loop ; i++)
+            {
+                if (iterator[i].isUninitialized())
+                {
+                    // the Instance was empty.
+                    ptargetUnion[i].extRefPtr = 0;
+                }
+                else
+                {
+                    theRefClass = _getSCMOClass(iterator[i].getPath());
+
+                    if (theRefClass != NULL)
+                    {
+                        ptargetUnion[i].extRefPtr =
+                            new SCMOInstance(*theRefClass,iterator[i]);
+                    } else
+                    {
+                        //There is no reference class for the object path
+                        ptargetUnion[i].extRefPtr = 0;
+                    }
+                }
+            }
+
+            break;
+        }
+    default:
+        {
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -3146,17 +3358,101 @@ void SCMOInstance::_setUnionValue(
                     new SCMOInstance(*theRefClass,*theCIMObj);
             } else
             {
-                // the ObjectPath was empty.
+                //There is no reference class for the object path
                 scmoUnion->extRefPtr = 0;
             }
             break;
         }
     case CIMTYPE_OBJECT:
         {
+            if (0 != scmoUnion->extRefPtr)
+            {
+                delete scmoUnion->extRefPtr;
+                scmoUnion->extRefPtr = 0;
+            }
+
+            if (0 == u._referenceValue)
+            {
+              scmoUnion->extRefPtr=0;
+              return;
+            }
+
+            CIMObject* theCIMObject =(CIMObject*)((void*)&u._objectValue);
+            SCMOClass* theRefClass;
+
+            if (theCIMObject->isUninitialized())
+            {
+                // the Object was empty.
+                scmoUnion->extRefPtr = 0;
+            }
+            else
+            {
+                if (theCIMObject->isClass())
+                {
+                    CIMClass theClass(*theCIMObject);
+                    scmoUnion->extRefPtr = new SCMOInstance(theClass);
+                    // marke as class only !
+                    scmoUnion->extRefPtr->inst.hdr->flags.isClassOnly=true;
+                }
+                else
+                {
+                    CIMInstance theInst(*theCIMObject);
+                    theRefClass = _getSCMOClass(theInst.getPath());
+
+                    if (theRefClass != NULL)
+                    {
+                        scmoUnion->extRefPtr =
+                            new SCMOInstance(*theRefClass,theInst);
+                    } else
+                    {
+                        //There is no reference class for the object path
+                        scmoUnion->extRefPtr = 0;
+                    }
+
+                }
+            }
             break;
         }
     case CIMTYPE_INSTANCE:
         {
+            if (0 != scmoUnion->extRefPtr)
+            {
+                delete scmoUnion->extRefPtr;
+                scmoUnion->extRefPtr = 0;
+            }
+
+            if (0 == u._referenceValue)
+            {
+              scmoUnion->extRefPtr=0;
+              return;
+            }
+
+            CIMInstance* theCIMInst =
+                (CIMInstance*)((void*)&u._instanceValue);
+
+            if (theCIMInst->isUninitialized())
+            {
+                // the Instance was empty.
+                scmoUnion->extRefPtr = 0;
+            }
+            else
+            {
+                SCMOClass* theRefClass = _getSCMOClass(theCIMInst->getPath());
+                if (theRefClass != NULL)
+                {
+                    scmoUnion->extRefPtr =
+                        new SCMOInstance(*theRefClass,*theCIMInst);
+                } else
+                {
+                    //There is no reference class for the object path
+                    scmoUnion->extRefPtr = 0;
+                }
+            }
+            break;
+        }
+    default:
+        {
+            PEGASUS_ASSERT(false);
             break;
         }
     }
@@ -3360,7 +3656,7 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
     case CIMTYPE_CHAR16:
     case CIMTYPE_DATETIME:
     case CIMTYPE_REFERENCE:
-    case CIMTYPE_OBJECT: // done
+    case CIMTYPE_OBJECT:
     case CIMTYPE_INSTANCE:
         {
             if(isArray)
@@ -3409,8 +3705,10 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
             break;
         }
     default:
-        PEGASUS_ASSERT(false);
-        break;
+        {
+            PEGASUS_ASSERT(false);
+            break;
+        }
     }
     return NULL;
 }
@@ -3736,11 +4034,18 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindigValue(
             scmoKBV.isSet=true;
             break;
         }
-    case CIMTYPE_OBJECT: // N/A
-    case CIMTYPE_INSTANCE: // N/A
-        // From PEP 194: EmbeddedObjects cannot be keys.
-        throw TypeMismatchException();
-        break;
+    case CIMTYPE_OBJECT:
+    case CIMTYPE_INSTANCE:
+        {
+            // From PEP 194: EmbeddedObjects cannot be keys.
+            throw TypeMismatchException();
+            break;
+        }
+    default:
+        {
+            PEGASUS_ASSERT(false);
+            break;
+        }
     }
 
     return scmoKBV.isSet;
@@ -5009,15 +5314,16 @@ String SCMODump::printArrayValue(
         }
 
     case CIMTYPE_REFERENCE:
-    case CIMTYPE_OBJECT: //Dump
+    case CIMTYPE_OBJECT:
     case CIMTYPE_INSTANCE:
         {
-            // ToDo: has to dump SCMOInstance ...
+            // TODO: has to dump SCMOInstance ...
             break;
         }
     default:
         {
-            PEGASUS_ASSERT(0);
+            PEGASUS_ASSERT(false);
+            break;
         }
     }
 
@@ -5125,7 +5431,7 @@ String SCMODump::printUnionValue(
         }
 
     case CIMTYPE_REFERENCE:
-    case CIMTYPE_OBJECT: // Dump
+    case CIMTYPE_OBJECT:
     case CIMTYPE_INSTANCE:
         {
             // TODO: Has to dump SCMOInstance.
@@ -5133,7 +5439,8 @@ String SCMODump::printUnionValue(
         }
     default:
         {
-            PEGASUS_ASSERT(0);
+            PEGASUS_ASSERT(false);
+            break;
         }
     }
 

@@ -188,9 +188,16 @@ class PEGASUS_COMMON_LINKAGE CIMInstanceResponseData
 {
 public:
 
+    enum ResponseDataEncoding {
+        RESP_ENC_CIM,
+        RESP_ENC_BINARY,
+        RESP_ENC_XML,
+        RESP_ENC_SCMO
+    };
+
     CIMInstanceResponseData():
         _resolveCallback(0),
-        _binaryEncoding(false)
+        _encoding(RESP_ENC_CIM)
     {
     }
 
@@ -211,6 +218,16 @@ public:
         return *((CIMConstInstance*)(void*)&_cimInstance);
     }
 
+    void setSCMOInstance(const SCMOInstance& x)
+    {
+        _resolveCallback = _resolveSCMOInstance;
+        fprintf(
+            stderr,
+            "CIMResponseData::setSCMOInstance(cb=%p)\n",
+            _resolveCallback);
+        _scmoInstances.append(x);
+    }
+
     void setCimInstance(const CIMInstance& x)
     {
         _resolveCallback = 0;
@@ -226,7 +243,7 @@ public:
     bool setXmlCimInstance(CIMBuffer& in);
 
     void encodeBinaryResponse(CIMBuffer& out) const;
-    void encodeXmlResponse(Buffer& out) const;
+    void encodeXmlResponse(Buffer& out);
 
 private:
 
@@ -239,6 +256,10 @@ private:
         CIMInstance& instance);
 
     static Boolean _resolveBinaryInstance(
+        CIMInstanceResponseData* data,
+        CIMInstance& instance);
+
+    static Boolean _resolveSCMOInstance(
         CIMInstanceResponseData* data,
         CIMInstance& instance);
 
@@ -255,7 +276,7 @@ private:
         }
     }
 
-    Boolean _binaryEncoding;
+    ResponseDataEncoding _encoding;
 
     // For XML encoding:
     Array<Sint8> _instanceData;
@@ -267,7 +288,7 @@ private:
     Array<Uint8> _binaryData;
 
     CIMInstance _cimInstance;
-
+    Array<SCMOInstance> _scmoInstances;
 };
 
 

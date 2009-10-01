@@ -78,6 +78,32 @@ PEGASUS_NAMESPACE_BEGIN
         v.set(ar##pt); \
     }
 
+#define CopyToInstanceArray() \
+    { \
+        Array<CIMInstance> arCIMInstance(aSize); \
+        for (int i=0; i<aSize; i++) \
+        { \
+            SCMOInstance* scmoInst = (SCMOInstance*)data[i].inst->hdl; \
+            CIMInstance inst; \
+            scmoInst->getCIMInstance(inst); \
+            arCIMInstance[i]=inst; \
+        } \
+        v.set(arCIMInstance); \
+    }
+
+#define CopyToObjectPathArray() \
+    { \
+        Array<CIMObjectPath> arCIMObjectPath(aSize); \
+        for (int i=0; i<aSize; i++) \
+        { \
+            SCMOInstance* scmoInst = (SCMOInstance*)data[i].ref->hdl; \
+            CIMObjectPath ref; \
+            scmoInst->getCIMObjectPath(ref); \
+            arCIMObjectPath[i]=ref; \
+        } \
+        v.set(arCIMObjectPath); \
+    }
+
 #define CopyFromArray(pt,ct) \
     { \
         Array<pt> ar##pt; \
@@ -292,14 +318,14 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
             switch( aType )
             {
                 case CMPI_ref:
-                    CopyToEncArray(CIMObjectPath,ref);
+                    CopyToObjectPathArray();
                     break;
 
                 case CMPI_dateTime:
                     CopyToEncArray(CIMDateTime,dateTime);
                     break;
                 case CMPI_instance:
-                    CopyToEncArray(CIMObject,inst);
+                    CopyToInstanceArray();
                     break;
                 case CMPI_boolean:
                     CopyToArray(Boolean,boolean);
@@ -415,7 +441,10 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
             case CMPI_instance:
                 if( data->inst && data->inst->hdl )
                 {
-                    v.set(*((CIMObject*) data->inst->hdl));
+                    SCMOInstance* scmoInst = (SCMOInstance*)data->inst->hdl;
+                    CIMInstance inst;
+                    scmoInst->getCIMInstance(inst);
+                    v.set((CIMObject)inst);
                 }
                 else
                 {
@@ -426,7 +455,10 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
             case CMPI_ref:
                 if( data->ref && data->ref->hdl )
                 {
-                    v.set(*((CIMObjectPath*)data->ref->hdl));
+                    SCMOInstance* scmoInst = (SCMOInstance*)data->ref->hdl;
+                    CIMObjectPath ref;
+                    scmoInst->getCIMObjectPath(ref);
+                    v.set(ref);
                 }
                 else
                 {
@@ -673,7 +705,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
         }
     }
 
-    //Checking for remaining encapulated and simple types
+    //Checking for remaining encapsulated and simple types
     else
         switch( t )
         {
@@ -681,8 +713,10 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                 {
                     CIMObjectPath ref;
                     v.get(ref);
+                    SCMOInstance* scmoRef = 
+                       CMPISCMOUtilities:: getSCMOFromCIMObjectPath(ref);
                     data->value.ref = reinterpret_cast<CMPIObjectPath*>(
-                    new CMPI_Object(new CIMObjectPath(ref)));
+                    new CMPI_Object(scmoRef));
                 }
                 break;
 
@@ -699,9 +733,10 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                     {
                         v.get(inst);
                     }
-
+                    SCMOInstance* scmoInst = 
+                        CMPISCMOUtilities::getSCMOFromCIMInstance(inst);
                     data->value.inst = reinterpret_cast<CMPIInstance*>(
-                    new CMPI_Object(new CIMInstance(inst)));
+                    new CMPI_Object(scmoInst));
                 }
                 break;
 

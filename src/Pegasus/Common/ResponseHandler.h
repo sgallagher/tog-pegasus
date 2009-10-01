@@ -297,6 +297,7 @@ public:
         not consistent with the corresponding request or associated schema.
     */
     virtual void deliver(const CIMObject & object) = 0;
+    virtual void deliver(const SCMOInstance & instance) = 0;
 
     /**
         Delivers multiple object results to the CIM Server.  This method

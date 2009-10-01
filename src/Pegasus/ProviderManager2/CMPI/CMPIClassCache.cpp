@@ -121,7 +121,7 @@ SCMOClass* CMPIClassCache::getSCMOClass(
                 CIMNameCast(className),
                 (bool)0,
                 (bool)1,
-                (bool)0,
+                (bool)1,
                 CIMPropertyList());
 
             scmoClass = new SCMOClass(cc,nsName);

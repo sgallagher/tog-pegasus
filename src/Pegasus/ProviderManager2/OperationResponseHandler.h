@@ -132,6 +132,7 @@ public:
     {
         SimpleInstanceResponseHandler::deliver(cimInstanceArray);
     }
+    virtual void deliver(const SCMOInstance& cimInstance);
 
     virtual void complete();
 
@@ -213,6 +214,7 @@ public:
     {
         SimpleObjectPathResponseHandler::deliver(cimObjectPathArray);
     }
+    virtual void deliver(const SCMOInstance& cimInstance);
 
     virtual void complete();
 
@@ -329,6 +331,7 @@ public:
     {
         SimpleObjectResponseHandler::deliver(cimObjectArray);
     }
+    virtual void deliver(const SCMOInstance& cimInstance);
 
 protected:
     virtual String getClass() const;
@@ -351,6 +354,7 @@ public:
     {
         SimpleObjectPathResponseHandler::deliver(cimObjectPathArray);
     }
+    virtual void deliver(const SCMOInstance& cimInstance);
 
 protected:
     virtual String getClass() const;
@@ -373,6 +377,7 @@ public:
     {
         SimpleObjectResponseHandler::deliver(cimObjectArray);
     }
+    virtual void deliver(const SCMOInstance& cimInstance);
 
 protected:
     virtual String getClass() const;
@@ -395,6 +400,7 @@ public:
     {
         SimpleObjectPathResponseHandler::deliver(cimObjectPathArray);
     }
+    virtual void deliver(const SCMOInstance& cimInstance);
 
 protected:
     virtual String getClass() const;

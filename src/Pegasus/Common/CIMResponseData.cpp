@@ -363,7 +363,7 @@ bool CIMInstanceResponseData::setBinaryCimInstance(CIMBuffer& in, bool hasLen)
     }
 
     _resolveCallback = _resolveBinaryInstance;
-    _binaryEncoding = true;
+    _encoding = RESP_ENC_BINARY;
 
     PEG_METHOD_EXIT();
     return true;
@@ -407,6 +407,7 @@ bool CIMInstanceResponseData::setXmlCimInstance(CIMBuffer& in)
     }
 
     _resolveCallback = _resolveXMLInstance;
+    _encoding = RESP_ENC_XML;
 
     PEG_METHOD_EXIT();
     return true;
@@ -423,7 +424,7 @@ void CIMInstanceResponseData::encodeBinaryResponse(CIMBuffer& out) const
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMInstanceResponseData::encodeBinaryResponse");
 
-    if (_resolveCallback && _binaryEncoding)
+    if (_resolveCallback && (_encoding == RESP_ENC_BINARY))
     {
         const Array<Uint8>& data = _binaryData;
         out.putBytes(data.getData(), data.size());
@@ -441,17 +442,18 @@ void CIMInstanceResponseData::encodeBinaryResponse(CIMBuffer& out) const
 // This code corresponds to method _resolveXmlInstance, which is used
 // revert a CIM-XML instance representation back into a CIMInstance.
 //------------------------------------------------------------------------------
-void CIMInstanceResponseData::encodeXmlResponse(Buffer& out) const
+void CIMInstanceResponseData::encodeXmlResponse(Buffer& out)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMInstanceResponseData::encodeXmlResponse");
 
-    if (_resolveCallback && !_binaryEncoding)
+    if (_resolveCallback && (_encoding == RESP_ENC_XML))
     {
         out.append( (char*)_instanceData.getData(),_instanceData.size()-1);
     }
     else
     {
+        _resolve();
         XmlWriter::appendInstanceElement(out, _cimInstance);
         //SCMOXmlWriter::appendValueSCMOInstanceElement(out, _cimInstance);
     }
@@ -483,6 +485,54 @@ Boolean CIMInstanceResponseData::_resolveBinaryInstance(
     }
 
     in.release();
+    PEG_METHOD_EXIT();
+    return true;
+}
+
+//------------------------------------------------------------------------------
+// Instantiates a CIMInstance from a SCMOInstance
+// Returns true on success.
+//------------------------------------------------------------------------------
+Boolean CIMInstanceResponseData::_resolveSCMOInstance(
+    CIMInstanceResponseData* data,
+    CIMInstance& instance)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMInstanceResponseData::_resolveSCMOInstance");
+
+    //--rk-->TBD: Do the actual coding here
+
+    fprintf(stderr,"CIMInstanceResponseData::_resolveSCMOInstance() "
+            "Poorly implemented!!!\n");
+    try
+    {
+        /*SCMODump dmp;
+        dmp.dumpSCMOInstanceKeyBindings(data->_scmoInstances[0]);
+        dmp.dumpInstanceProperties(data->_scmoInstances[0]);*/
+        data->_scmoInstances[0].getCIMInstance(instance);
+    }
+    catch (CIMException& ex)
+    {
+        fprintf(stderr,"CIMInstanceResponseData::_resolveSCMOInstance() "
+                "Exception:\n%s\n",(const char*)ex.getMessage().getCString());
+    }
+    catch (Exception& ex)
+    {
+        fprintf(stderr,"CIMInstanceResponseData::_resolveSCMOInstance() "
+                "Exception:\n%s\n",(const char*)ex.getMessage().getCString());
+    }
+    catch (exception& ex)
+    {
+        fprintf(stderr,"CIMInstanceResponseData::_resolveSCMOInstance() "
+                "exception:\n%s\n",(const char*)ex.what());
+    }
+    catch (...)
+    {
+        fprintf(stderr,"CIMInstancesResponseData::_resolveSCMOInstances() "
+                "Exception: UNKNOWN\n");
+    }
+    data->_resolveCallback = 0;
+
     PEG_METHOD_EXIT();
     return true;
 }
@@ -720,15 +770,19 @@ void CIMInstancesResponseData::encodeXmlResponse(Buffer& out)
         }
         for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
         {
+            /*SCMODump dmp;
+            dmp.dumpSCMOInstanceKeyBindings(_scmoInstances[i]);
+            dmp.dumpInstanceProperties(_scmoInstances[i]);*/
+
             SCMOXmlWriter::appendValueSCMOInstanceElement(
                 out, _scmoInstances[i]);
-/*
-            fprintf(
+
+/*            fprintf(
                 stderr,
                 "After appendValueNamedInstanceElement()\n%s",
                 out.getData());
-            fflush(stderr);
-*/            
+            fflush(stderr);*/
+            
         }
     }
     PEG_METHOD_EXIT();

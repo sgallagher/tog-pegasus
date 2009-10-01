@@ -49,6 +49,43 @@ CIMDateTimeRep* CMPISCMOUtilities::scmoDateTimeFromCMPI(CMPIDateTime* cmpidt)
     return cimdt;
 }
 
+// Function to convert a CIMInstance into an SCMOInstance
+// CAUTION: This function requires access to the CMPIClassCache, and
+//          therefore can only be called from within a CMPI provider !!!
+SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMInstance(
+    const CIMInstance& cimInst)
+{
+    const CIMObjectPath& cimPath = cimInst.getPath();
+    CString nameSpace = cimPath.getNameSpace().getString().getCString();
+    CString className = cimPath.getClassName().getString().getCString();
+    SCMOClass* scmoClass = mbGetSCMOClass(
+        0,
+        (const char*)nameSpace,
+        (const char*)className);
+
+    SCMOInstance* scmoInst = new SCMOInstance(*scmoClass, cimInst);
+
+    return scmoInst;
+}
+
+// Function to convert a CIMObjectPath into an SCMOInstance
+// CAUTION: This function requires access to the CMPIClassCache, and
+//          therefore can only be called from within a CMPI provider !!!
+SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMObjectPath(
+    const CIMObjectPath& cimPath)
+{
+    CString nameSpace = cimPath.getNameSpace().getString().getCString();
+    CString className = cimPath.getClassName().getString().getCString();
+    SCMOClass* scmoClass = mbGetSCMOClass(
+        0,
+        (const char*)nameSpace,
+        (const char*)className);
+
+    SCMOInstance* scmoRef = new SCMOInstance(*scmoClass, cimPath);
+
+    return scmoRef;
+}
+
 // Function to convert a SCMO Value into a CMPIData structure
 CMPIrc CMPISCMOUtilities::scmoValue2CMPIData(
     const SCMBUnion* scmoValue, 
@@ -133,15 +170,19 @@ CMPIrc CMPISCMOUtilities::scmoValue2CMPIData(
 
             case CMPI_ref:
                 {
+                    SCMOInstance* ref = 
+                        new SCMOInstance(*(scmoValue->extRefPtr));
                     data->value.ref = reinterpret_cast<CMPIObjectPath*>
-                        (new CMPI_Object(scmoValue->extRefPtr));
+                        (new CMPI_Object(ref));
                 }
                 break;
 
             case CMPI_instance:
                 {
+                    SCMOInstance* inst = 
+                        new SCMOInstance(*(scmoValue->extRefPtr));
                     data->value.inst = reinterpret_cast<CMPIInstance*>
-                        (new CMPI_Object(scmoValue->extRefPtr, true));
+                        (new CMPI_Object(inst, true));
                 }
                 break;
             default:

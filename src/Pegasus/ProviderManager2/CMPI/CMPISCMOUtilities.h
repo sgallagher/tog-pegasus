@@ -36,6 +36,7 @@
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMObjectPath.h>
+#include "CMPI_Broker.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -48,6 +49,8 @@ public:
                                      CMPIData *data,
                                      Uint32 arraySize = 0);
     static CIMDateTimeRep* scmoDateTimeFromCMPI(CMPIDateTime* cmpidt);
+    static SCMOInstance* getSCMOFromCIMInstance(const CIMInstance&);
+    static SCMOInstance* getSCMOFromCIMObjectPath(const CIMObjectPath&);
 };
 
 

@@ -278,19 +278,13 @@ extern "C"
                 res->processing();
                 ((CMPI_Result*)eRes)->flags|=RESULT_set;
             }
-            CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
+            SCMOInstance& inst=*(SCMOInstance*)(eInst->hdl);
             CMPI_Result *xRes=(CMPI_Result*)eRes;
-            const CIMObjectPath& op=inst.getPath();
-            //Build objectpath if keybindings are not found. This will happen
-            //when this instance is created with empty ObjectPath and Provider
-            //did not set objectpath in the instance.
-            if (op.getKeyBindings().size() == 0)
-            {
-                CIMClass *cc=mbGetClass(xRes->xBroker,op);
-                CIMObjectPath iop=inst.buildPath(*cc);
-                iop.setNameSpace(op.getNameSpace());
-                inst.setPath(iop);
-            }
+
+            // Ensure that the instance includes a valid ObjectPath with
+            // all key properties set, for which the according property
+            // has been set on the instance.
+            inst.buildKeyBindingsFromProperties();
 
             res->deliver(inst);
         }
@@ -348,7 +342,7 @@ extern "C"
                 res->processing();
                 ((CMPI_Result*)eRes)->flags|=RESULT_set;
             }
-            CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
+            SCMOInstance& inst=*(SCMOInstance*)(eInst->hdl);
             CMPI_Result *xRes=(CMPI_Result*)eRes;
             res->deliver(inst);
         }

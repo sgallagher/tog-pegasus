@@ -36,6 +36,7 @@
 #include "CMPI_Ftabs.h"
 #include "CMPI_Value.h"
 #include "CMPI_String.h"
+#include "CMPI_Broker.h"
 #include "CMPISCMOUtilities.h"
 #include <Pegasus/Common/Tracer.h>
 
@@ -47,7 +48,6 @@ extern "C"
     static CMPIStatus refRelease(CMPIObjectPath* eRef)
     {
         SCMOInstance* ref = (SCMOInstance*)eRef->hdl;
-        //fprintf(stderr, "refRelease(%p)\n",ref);
         if (ref)
         {
             delete ref;
@@ -114,17 +114,38 @@ extern "C"
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
 
-        // --rk-->TBD: Implement this
-        /*const char* prevNamespace = ref->getNameSpace();
-        const char* className = ref->getClassName();
 
-        if (prevNamespace && 
-            0==strcasecmp(prevNamespace,ns)
+        // Check if the namespace is at all different from the one already set
+        const char* prevNamespace = ref->getNameSpace();
+        if (prevNamespace && 0==strcasecmp(prevNamespace,ns))
         {
+            CMReturn(CMPI_RC_OK);
         }
 
+        // If we got here, we need to create a new objectpath to accomodate
+        // the different namespace.
+        // This whole processing seems a bit overkill
+        // --> Alternate design would be to implement CMPIObjectPath via a 
+        //     separate encapsulation object.
+        const char* cls = ref->getClassName();
+        SCMOClass* scmoClass = mbGetSCMOClass(0, ns, cls);
+        if (0 == scmoClass)
+        {
+            PEG_TRACE((
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Class %s does not exist in namespace %s",
+                cls,ns));
+            CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+        }
 
-        ref->setNameSpace(String(ns));*/
+        // TBD: Need a new copy constructor here, that lets me create an
+        //      instance from an existing one with a new class.
+        SCMOInstance* scmoInst = new SCMOInstance(*scmoClass/*ref*/);
+
+        delete(ref);
+        eRef->hdl = scmoInst;
+
         CMReturn(CMPI_RC_OK);
     }
 
@@ -212,8 +233,38 @@ extern "C"
                 CMPIObjectPath:refSetClassName", cn));
             CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
         }
-        // --rk-->TBD: Implement this
-        //ref->setClassName(String(cn));
+
+        // Check if the classname is at all different from the one already set
+        const char* prevCls = ref->getClassName();
+        if (prevCls && 0==strcasecmp(prevCls,cn))
+        {
+            CMReturn(CMPI_RC_OK);
+        }
+
+        // If we got here, we need to create a new objectpath to accomodate
+        // the different namespace.
+        // This whole processing seems a bit overkill
+        // --> Alternate design would be to implement CMPIObjectPath via a 
+        //     separate encapsulation object.
+        const char* ns = ref->getNameSpace();
+        SCMOClass* scmoClass = mbGetSCMOClass(0, ns, cn);
+        if (0 == scmoClass)
+        {
+            PEG_TRACE((
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Class %s does not exist in namespace %s",
+                cn,ns));
+            CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+        }
+
+        // TBD: Need a new copy constructor here, that lets me create an
+        //      instance from an existing one with a new class.
+        SCMOInstance* scmoInst = new SCMOInstance(*scmoClass/*ref*/);
+
+        delete(ref);
+        eRef->hdl = scmoInst;
+
         CMReturn(CMPI_RC_OK);
     }
 
@@ -458,9 +509,8 @@ extern "C"
         CMPIObjectPath* eRef,
         const CMPIObjectPath* eSrc)
     {
-        CIMObjectPath* ref = (CIMObjectPath*)eRef->hdl;
-        CIMObjectPath* src = (CIMObjectPath*)eSrc->hdl;
-        if (!ref || !src)
+        SCMOInstance* src = (SCMOInstance*)eSrc->hdl;
+        if (!src)
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
@@ -469,17 +519,17 @@ extern "C"
                 CMPIObjectPath:refSetNameSpaceFromObjectPath");
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
-        ref->setNameSpace(src->getNameSpace());
-        CMReturn(CMPI_RC_OK);
+        // Warning, this call will replace eRef->hdl
+        return refSetNameSpace(eRef,
+                               src->getNameSpace());
     }
 
     static CMPIStatus refSetHostAndNameSpaceFromObjectPath(
         CMPIObjectPath* eRef,
         const CMPIObjectPath* eSrc)
     {
-        CIMObjectPath* ref = (CIMObjectPath*)eRef->hdl;
-        CIMObjectPath* src = (CIMObjectPath*)eSrc->hdl;
-        if (!ref || !src)
+        SCMOInstance* src = (SCMOInstance*)eSrc->hdl;
+        if (!src)
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
@@ -488,8 +538,22 @@ extern "C"
                 CMPIObjectPath:refSetHostAndNameSpaceFromObjectPath");
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
-        ref->setNameSpace(src->getNameSpace());
-        ref->setHost(src->getHost());
+
+        // Warning, this call will replace eRef->hdl
+        CMPIStatus rc = refSetNameSpace(eRef,
+                                        src->getNameSpace());
+
+        if (rc.rc != CMPI_RC_OK)
+        {
+            return rc;
+        }
+
+        SCMOInstance* ref = (SCMOInstance*)eRef->hdl;
+        if (ref)
+        {
+            ref->setHostName(src->getHostName());
+        }
+
         CMReturn(CMPI_RC_OK);
     }
 

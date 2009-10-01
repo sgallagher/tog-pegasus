@@ -50,6 +50,11 @@ class PEGASUS_COMMON_LINKAGE SCMOInstance
 public:
 
     /**
+     * A SCMOInstance can only be created by a SCMOClass
+     */
+    SCMOInstance();
+
+    /**
      * Creating a SCMOInstance using a SCMOClass.
      * @param baseClass A SCMOClass.
      */
@@ -620,11 +625,6 @@ private:
 
     void _destroyExternalReferences();
 
-    /**
-     * A SCMOInstance can only be created by a SCMOClass
-     */
-    SCMOInstance();
-
     void _initSCMOInstance(SCMOClass* pClass);
 
     void _setCIMInstance(const CIMInstance& cimInstance);
@@ -734,9 +734,13 @@ private:
 
     friend class SCMOClass;
     friend class SCMODump;
-    friend class SCMOXmlWriter;
+    friend class SCMOXmlWriter;    
 };
 
+
+#define PEGASUS_ARRAY_T SCMOInstance
+# include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END
 

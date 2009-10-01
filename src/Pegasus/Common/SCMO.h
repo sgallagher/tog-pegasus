@@ -529,14 +529,11 @@ static void _setBinary(
     SCMBDataPtr& ptr,
     SCMBMgmt_Header** pmem);
 
-// static CIMKeyBinding::Type _cimTypeToKeyBindType(CIMType cimType);
-
 static Boolean _equalUTF8Strings(
     const SCMBDataPtr& ptr_a,
     char* base,
     const char* name,
     Uint32 len);
-
 
 static Boolean _equalNoCaseUTF8Strings(
     const SCMBDataPtr& ptr_a,
@@ -544,6 +541,12 @@ static Boolean _equalNoCaseUTF8Strings(
     const char* name,
     Uint32 len);
 
+#ifdef PEGASUS_HAS_ICU
+static Uint32 _utf8ICUncasecmp(
+    const char* a,
+    const char* b,
+    Uint32 len);
+#endif
 
 PEGASUS_NAMESPACE_END
 

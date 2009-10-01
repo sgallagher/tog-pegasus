@@ -54,6 +54,15 @@
   #include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
 #endif
 
+#ifdef PEGASUS_HAS_ICU
+# include <unicode/platform.h>
+# include <unicode/urename.h>
+# include <unicode/ures.h>
+# include <unicode/ustring.h>
+# include <unicode/uchar.h>
+# include <unicode/ucnv.h>
+#endif
+
 PEGASUS_USING_STD;
 
 #define SCMB_INITIAL_MEMORY_CHUNK_SIZE 4096
@@ -73,6 +82,11 @@ PEGASUS_USING_STD;
       (String(&(base)[(ptr).start],((ptr).length)-1)))
 
 PEGASUS_NAMESPACE_BEGIN
+
+#define PEGASUS_ARRAY_T SCMOInstance
+# include "ArrayImpl.h"
+#undef PEGASUS_ARRAY_T
+
 
 const StrLit SCMOClass::_qualifierNameStrLit[72] =
 {
@@ -1164,6 +1178,16 @@ inline SCMO_RC SCMOClass::_isNodeSameType(
     return SCMO_OK;
 
 }
+
+void SCMOClass::_setNameSpace( const char* nsName, Uint32 nsNameLen)
+{
+    _setBinary(nsName,
+               nsNameLen+1, // including trailing '\0'
+               cls.hdr->nameSpace,
+               &cls.mem );
+    
+}
+
 /*****************************************************************************
  * The SCMOInstance methods
  *****************************************************************************/
@@ -5485,11 +5509,95 @@ static Boolean _equalNoCaseUTF8Strings(
 
     const char* a = (const char*)_getCharString(ptr_a,base);
 
-    // ToDo: Here an UTF8 complinet comparison should take place
+#ifdef PEGASUS_HAS_ICU
+    return ( _utf8ICUncasecmp(a,name,len)== 0);
+#else
     return ( strncasecmp(a,name,len )== 0 );
-
+#endif
 }
 
+#ifdef PEGASUS_HAS_ICU
+static Uint32 _utf8ICUncasecmp(
+    const char* a,
+    const char* b,
+    Uint32 len)
+{
+    UErrorCode errorCode=U_ZERO_ERROR;
+
+    Uint32 rc, a16len,b16len,utf16BufLen = len*sizeof(UChar);
+
+    UChar* a_UTF16 = (UChar*)malloc(utf16BufLen);
+    UChar* b_UTF16 = (UChar*)malloc(utf16BufLen);
+
+    UConverter *conv = ucnv_open(0, &errorCode);
+    if(U_FAILURE(errorCode))
+    {
+        free(a_UTF16);
+        free(b_UTF16);         
+        String message("SCMO::_utf8ICUncasecmp() ICUError: ");
+        message.append(u_errorName(errorCode));
+        message.append(" Can not open ICU default converter!");
+        throw CIMException(CIM_ERR_FAILED,message );
+    }
+
+    a16len = ucnv_toUChars(conv,a_UTF16,utf16BufLen,a,len,&errorCode);
+
+    if(U_FAILURE(errorCode))
+    {
+        free(a_UTF16);
+        free(b_UTF16); 
+        ucnv_close(conv);
+        String message("SCMO::_utf8ICUncasecmp() ICUError: ");
+        message.append(u_errorName(errorCode));
+        message.append(" Can not convert string a:'");
+        message.append(String(a,len));
+        message.append('\'');
+        throw CIMException(CIM_ERR_FAILED,message );
+    }
+
+    b16len = ucnv_toUChars(conv,b_UTF16,utf16BufLen,b,len,&errorCode);
+
+    if(U_FAILURE(errorCode))
+    {
+        free(a_UTF16);
+        free(b_UTF16); 
+        ucnv_close(conv);
+        String message("SCMO::_utf8ICUncasecmp() ICUError: ");
+        message.append(u_errorName(errorCode));
+        message.append(" Can not convert string b:'");
+        message.append(String(b,len));
+        message.append('\'');
+        throw CIMException(CIM_ERR_FAILED,message );
+    }
+
+    rc = u_strCaseCompare(
+        a_UTF16,a16len,
+        b_UTF16,b16len,
+        U_FOLD_CASE_DEFAULT,
+        &errorCode);
+
+    if(U_FAILURE(errorCode))
+    {
+        free(a_UTF16);
+        free(b_UTF16); 
+        ucnv_close(conv);
+        String message("SCMO::_utf8ICUncasecmp() ICUError: ");
+        message.append(u_errorName(errorCode));
+        message.append(" Can not compare string a:'");
+        message.append(String(a,len));
+        message.append("' with b: '");
+        message.append(String(b,len));
+        message.append('\'');
+        throw CIMException(CIM_ERR_FAILED,message );
+    }
+
+    free(a_UTF16);
+    free(b_UTF16); 
+    ucnv_close(conv);
+
+    return(rc);
+}
+#endif
 
 /**
  * This function calcutates a free memory slot in the single chunk memory block.

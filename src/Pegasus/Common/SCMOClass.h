@@ -144,6 +144,8 @@ private:
         Uint64 start,
         const CIMQualifier& theCIMQualifier);
 
+    void _setNameSpace( const char* nsName, Uint32 nsNameLen);
+
     void _setClassProperties(PropertySet& theCIMProperties);
 
     void _setProperty(
@@ -193,6 +195,7 @@ private:
     friend class SCMOInstance;
     friend class SCMODump;
     friend class SCMOXmlWriter;
+    friend class SCMOClassCache;
 };
 
 

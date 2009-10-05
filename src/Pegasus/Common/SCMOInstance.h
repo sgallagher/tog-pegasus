@@ -625,6 +625,8 @@ private:
 
     void _destroyExternalReferences();
 
+    void _copyExternalReferences();
+
     void _initSCMOInstance(SCMOClass* pClass);
 
     void _setCIMInstance(const CIMInstance& cimInstance);
@@ -734,7 +736,7 @@ private:
 
     friend class SCMOClass;
     friend class SCMODump;
-    friend class SCMOXmlWriter;    
+    friend class SCMOXmlWriter;
 };
 
 

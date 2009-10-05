@@ -220,6 +220,27 @@ inline void _deleteArrayExtReference(
     }
 }
 
+inline void _copyArrayExtReference(
+    SCMBDataPtr& theArray,
+    SCMBMgmt_Header** pmem )
+{
+    SCMBUnion* ptr;
+    // if the array was already set,
+    // the previous references has to be deleted
+    if(theArray.length != 0)
+    {
+        Uint32 oldArraySize=(theArray.length/sizeof(SCMBUnion));
+
+        ptr = (SCMBUnion*)&(((char*)*pmem)[theArray.start]);
+        for (Uint32 i = 0 ; i < oldArraySize ; i++)
+        {
+            if (ptr[i].extRefPtr != 0)
+            {
+                ptr[i].extRefPtr = new SCMOInstance(*ptr[i].extRefPtr);
+            }
+        }
+    }
+}
 
 /*****************************************************************************
  * The SCMOClass methods
@@ -1185,7 +1206,7 @@ void SCMOClass::_setNameSpace( const char* nsName, Uint32 nsNameLen)
                nsNameLen+1, // including trailing '\0'
                cls.hdr->nameSpace,
                &cls.mem );
-    
+
 }
 
 /*****************************************************************************
@@ -1232,6 +1253,64 @@ SCMOInstance::SCMOInstance(SCMOClass baseClass, const CIMInstance& cimInstance)
 
     _setCIMInstance(cimInstance);
 
+}
+
+void SCMOInstance::_copyExternalReferences()
+{
+    // TODO: Has to be optimized not to loop through all props.
+    // create a pointer to keybinding node array of the class.
+    Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
+    SCMBKeyBindingNode* theClassKeyBindNodeArray =
+        (SCMBKeyBindingNode*)&((inst.hdr->theClass->cls.base)[idx]);
+
+    // create a pointer to instanc key binding array.
+    SCMBKeyBindingValue* theInstanceKeyBindingNodeArray =
+        (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
+
+    for (Uint32 i = 0; i < inst.hdr->numberKeyBindings; i++)
+    {
+        if (theInstanceKeyBindingNodeArray[i].isSet)
+        {
+            // only references can be a key binding.
+            if (theClassKeyBindNodeArray[i].type == CIMTYPE_REFERENCE)
+            {
+                // Use the copy constructro to ref. count the reference.
+                // These objects are handeld by the SCMOInstance it sef.
+                // No one can modify these instances.
+                theInstanceKeyBindingNodeArray[i].data.extRefPtr =
+                    new SCMOInstance(
+                        *theInstanceKeyBindingNodeArray[i].data.extRefPtr);
+            }
+        }
+    }// for all key bindings
+
+    SCMBValue* theInstPropArray =
+        (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
+
+    for (Uint32 i = 0; i < inst.hdr->numberProperties; i++)
+    {
+        // was the property set by the provider ?
+        if(theInstPropArray[i].flags.isSet)
+        {
+            // is the property type reference,instance or object?
+            if (theInstPropArray[i].valueType == CIMTYPE_REFERENCE ||
+                theInstPropArray[i].valueType == CIMTYPE_OBJECT ||
+                theInstPropArray[i].valueType == CIMTYPE_INSTANCE )
+            {
+                if (theInstPropArray[i].flags.isArray)
+                {
+                    _copyArrayExtReference(
+                        theInstPropArray[i].value.arrayValue,
+                        &inst.mem);
+                }
+                else
+                {
+                    theInstPropArray[i].value.extRefPtr =
+                        new SCMOInstance(*theInstPropArray[i].value.extRefPtr);
+                } // end is arry
+            } // end is reference
+        }// end is set
+    } // for all properties.
 }
 
 void SCMOInstance::_destroyExternalReferences()
@@ -1343,10 +1422,17 @@ SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
     {
         for(Uint32 i = 0, k = inst.hdr->numberProperties; i<k; i++)
         {
-            // no filtering. Counter is node index
-            CIMProperty theProperty=_getCIMPropertyAtNodeIndex(i);
+            SCMBValue* theInstPropArray =
+                (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
 
-            newInstance._rep->_properties.append(theProperty);
+            // was the property set by the provider ?
+            if(theInstPropArray[i].flags.isSet)
+            {
+                // no filtering. Counter is node index
+                CIMProperty theProperty=_getCIMPropertyAtNodeIndex(i);
+
+                newInstance._rep->_properties.append(theProperty);
+            }
         }
 
     }
@@ -3552,8 +3638,10 @@ SCMOInstance SCMOInstance::clone(Boolean objectPathOnly) const
     memcpy( newInst.inst.base,this->inst.base,this->inst.mem->totalSize);
     // reset the refcounter of this new instance
     newInst.inst.hdr->refCount = 1;
-    // kepp the ref counter of the class correct !
+    // keep the ref counter of the class correct !
     newInst.inst.hdr->theClass = new SCMOClass(*(this->inst.hdr->theClass));
+    // keep the ref count for external references
+    newInst._copyExternalReferences();
 
     return newInst;
 }
@@ -4060,7 +4148,7 @@ SCMO_RC SCMOInstance::_setKeyBindingFromString(
     SCMBKeyBindingValue* theInstKeyBindValueArray =
         (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
 
-    // If the set was not successful, the conversion was not successful 
+    // If the set was not successful, the conversion was not successful
     if ( !_setCimKeyBindingStringToSCMOKeyBindingValue(
             cimKeyBinding,
             theClassKeyBindNodeArray[node].type,
@@ -5533,7 +5621,7 @@ static Uint32 _utf8ICUncasecmp(
     if(U_FAILURE(errorCode))
     {
         free(a_UTF16);
-        free(b_UTF16);         
+        free(b_UTF16);
         String message("SCMO::_utf8ICUncasecmp() ICUError: ");
         message.append(u_errorName(errorCode));
         message.append(" Can not open ICU default converter!");
@@ -5545,7 +5633,7 @@ static Uint32 _utf8ICUncasecmp(
     if(U_FAILURE(errorCode))
     {
         free(a_UTF16);
-        free(b_UTF16); 
+        free(b_UTF16);
         ucnv_close(conv);
         String message("SCMO::_utf8ICUncasecmp() ICUError: ");
         message.append(u_errorName(errorCode));
@@ -5560,7 +5648,7 @@ static Uint32 _utf8ICUncasecmp(
     if(U_FAILURE(errorCode))
     {
         free(a_UTF16);
-        free(b_UTF16); 
+        free(b_UTF16);
         ucnv_close(conv);
         String message("SCMO::_utf8ICUncasecmp() ICUError: ");
         message.append(u_errorName(errorCode));
@@ -5579,7 +5667,7 @@ static Uint32 _utf8ICUncasecmp(
     if(U_FAILURE(errorCode))
     {
         free(a_UTF16);
-        free(b_UTF16); 
+        free(b_UTF16);
         ucnv_close(conv);
         String message("SCMO::_utf8ICUncasecmp() ICUError: ");
         message.append(u_errorName(errorCode));
@@ -5592,7 +5680,7 @@ static Uint32 _utf8ICUncasecmp(
     }
 
     free(a_UTF16);
-    free(b_UTF16); 
+    free(b_UTF16);
     ucnv_close(conv);
 
     return(rc);

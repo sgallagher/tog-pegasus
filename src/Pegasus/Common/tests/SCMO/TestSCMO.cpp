@@ -84,6 +84,10 @@ CIMClass _scmoClassCache_GetClass(
     return CIM_TESTClass2;
 }
 
+void ObjectPathTests()
+{
+
+}
 void CIMClassToSCMOClass()
 {
     CIMClass theCIMClass;
@@ -1765,6 +1769,7 @@ int main (int argc, char *argv[])
     try
     {
 
+    /*
         CIMClassToSCMOClass();
 
         // init the cache.
@@ -1783,7 +1788,7 @@ int main (int argc, char *argv[])
 
         // destroy the cache.
         _thecache->destroy();
-        
+     */   
     }
     catch (CIMException& e)
     {

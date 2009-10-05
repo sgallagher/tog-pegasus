@@ -130,11 +130,17 @@ SCMOClass* SCMOClassCache::getSCMOClass(
                 CIMNamespaceNameCast(String(nsName,nsNameLen)),
                 CIMNameCast(String(className,classNameLen)));
 
-            scmoClass = new SCMOClass(cc,nsName);
-
-            _clsCacheSCMO->insert(key,scmoClass);
-
-            _setHint(key, scmoClass);
+            if (cc.isUninitialized())
+            {
+                scmoClass = NULL;
+            }
+            else
+            {
+                scmoClass = new SCMOClass(cc,nsName);
+                _clsCacheSCMO->insert(key,scmoClass);
+                _setHint(key, scmoClass);
+            }
+            
             return scmoClass;
         }
         catch (const CIMException &e)

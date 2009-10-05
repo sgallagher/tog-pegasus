@@ -1175,7 +1175,14 @@ inline SCMO_RC SCMOClass::_isNodeSameType(
 
     if(nodeArray[node].theProperty.defaultValue.valueType != type)
     {
-        return SCMO_WRONG_TYPE;
+        // Accept an property of type instance also 
+        // for an CIMTYPE_OBJECT property.
+        if (!(type == CIMTYPE_INSTANCE && 
+              nodeArray[node].theProperty.defaultValue.valueType 
+              == CIMTYPE_OBJECT))
+        {
+            return SCMO_WRONG_TYPE;
+        }        
     }
 
     if (isArray)

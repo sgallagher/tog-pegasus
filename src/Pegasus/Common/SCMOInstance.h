@@ -596,10 +596,10 @@ public:
      * @return true if name space or class name was set manually by 
      *          setNameSpace() or setClassName()
      */
-    const Boolean isCompromised() const
+    Boolean isCompromised() const
     {
         return inst.hdr->flags.isCompromised;
-    }
+    };
 
     /**
      *  To indicate the export processing ( eg. XMLWriter )

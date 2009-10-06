@@ -144,8 +144,6 @@ private:
         Uint64 start,
         const CIMQualifier& theCIMQualifier);
 
-    void _setNameSpace( const char* nsName, Uint32 nsNameLen);
-
     void _setClassProperties(PropertySet& theCIMProperties);
 
     void _setProperty(
@@ -165,15 +163,17 @@ private:
     Boolean _isPropertyKey(Uint32 i);
 
     void _setValue(Uint64 start, const CIMValue& theCIMValue);
+
     QualifierNameEnum _getSCMOQualifierNameEnum(const CIMName& theCIMname);
     Boolean _isSamePropOrigin(Uint32 node, const char* origin) const;
 
     const char* _getPropertyNameAtNode(Uint32 propNode) const;
 
-    inline SCMO_RC _isNodeSameType(
+    SCMO_RC _isNodeSameType(
         Uint32 node,
         CIMType type,
-        Boolean isArray) const;
+        Boolean isArray,
+        CIMType& realType) const;
 
     CIMProperty _getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const;
     static void _getCIMQualifierFromSCMBQualifier(

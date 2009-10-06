@@ -369,7 +369,7 @@ struct SCMBClass_Main
     SCMBDataPtr     superClassName;
     // Relative pointer to classname
     SCMBDataPtr     className;
-    // Relative pointer to namespace
+    // Relative pointer to name space
     SCMBDataPtr     nameSpace;
     // The key properties of this class are identified
     // by a SCMBKeyPropertyMask
@@ -406,9 +406,14 @@ struct SCMBInstance_Main
       unsigned includeClassOrigin :1;
       unsigned isFiltered:1;
       unsigned isClassOnly:1;
+      unsigned isCompromised:1;
     }flags;
-    // For a full object path is build using the name space and class name
-    // of the referenced class.
+    // Relative pointers to the name space name and class name.
+    // Will be initialized by with the values of the linked SCMOClass.
+    // If it was overwritten, the new value is stored 
+    // and the the flag isCompromised is set to true.
+    SCMBDataPtr     instNameSpace;
+    SCMBDataPtr     instClassName;
     // Relative pointer to hostname
     SCMBDataPtr     hostName;
     // Number of key bindings of the instance

@@ -530,16 +530,30 @@ public:
     Boolean isSame(SCMOInstance& theInstance) const;
 
     /**
+     * Sets the provided host name at the instance.
+     * @param hostName The host name as UTF8.
+     */
+    void setHostName(const char* hostName);
+
+    /**
      * Get the host name of the instance. The caller has to make a copy !
      * @return The host name as UTF8.
      */
     const char* getHostName() const;
 
     /**
-     * Sets the provided host name at the instance.
-     * @param hostName The host name as UTF8.
+     * Get the host name of the instance.
+     * @param Return length of result string.
+     * @return The class name as UTF8.
      */
-    void setHostName(const char* hostName);
+    const char* getHostName_l(Uint64 & length) const;
+
+    /** 
+     * Sets the provided class name at the instance. By caling this function
+     * the instance is in an inconsitacne state and is maked as isCompromised. 
+     * @param className The class name as UTF8.
+     */
+    void setClassName(const char* className);
 
     /**
      * Get the class name of the instance. The caller has to make a copy !
@@ -549,15 +563,43 @@ public:
 
     /**
      * Get the class name of the instance. The caller has to make a copy !
-     * @return The class name as UTF8. Return length of result string.
+     * @param Return length of result string.
+     * @return The class name as UTF8.
      */
     const char* getClassName_l(Uint64 & length) const;
+
+    /** 
+     * Sets the provided name space name at the instance. 
+     * By caling this function the instance is in an inconsitacne state and 
+     * is maked as isCompromised. 
+     * @param nameSpaceName The name space name as UTF8.
+     */
+    void setNameSpace(const char* nameSpace);
 
     /**
      * Get the name space of the instance. The caller has to make a copy !
      * @return The name space as UTF8.
      */
     const char* getNameSpace() const;
+
+    /**
+     * Get the class name of the instance. The caller has to make a copy !
+     * @param Return length of result string.
+     * @return The class name as UTF8.
+     */
+    const char* getNameSpace_l(Uint64 & length) const;
+
+    /** 
+     * Is the name space or class name of the instance the origianl values
+     * set by the used SCMOClass.
+     * The class name and/or name space may differ with the associated class.
+     * @return true if name space or class name was set manually by 
+     *          setNameSpace() or setClassName()
+     */
+    const Boolean isCompromised() const
+    {
+        return inst.hdr->flags.isCompromised;
+    }
 
     /**
      *  To indicate the export processing ( eg. XMLWriter )
@@ -646,7 +688,10 @@ private:
         Boolean isArray,
         Uint32 size);
 
-    void _setCIMValueAtNodeIndex(Uint32 node, CIMValueRep* valRep);
+    void _setCIMValueAtNodeIndex(
+        Uint32 node, 
+        CIMValueRep* valRep,
+        CIMType realType);
 
     static void _getCIMValueFromSCMBUnion(
         CIMValue& cimV,
@@ -684,6 +729,8 @@ private:
         Uint64 start,
         SCMBMgmt_Header** pmem,
         CIMType type,
+        Uint64 startNS,
+        Uint64 lenNS,
         Union& u);
 
     static void _setUnionArrayValue(
@@ -691,6 +738,8 @@ private:
         SCMBMgmt_Header** pmem,
         CIMType type,
         Uint32& n,
+        Uint64 startNS,
+        Uint64 lenNS,
         Union& u);
 
     SCMO_RC _getKeyBindingDataAtNodeIndex(

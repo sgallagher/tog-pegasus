@@ -171,33 +171,45 @@ const StrLit SCMOClass::_qualifierNameStrLit[72] =
  * Internal inline functions.
  *****************************************************************************/
 
-inline SCMOClass* _getSCMOClass(const CIMObjectPath& theCIMObj)
+inline SCMOClass* _getSCMOClass(
+    const CIMObjectPath& theCIMObj,
+    const char* altNS,
+    Uint64 altNSlength)
 {
+    SCMOClass* theClass=0;
 
     if (theCIMObj.getClassName().isNull())
     {
-        // this is an empty ObjectPath
         return 0;
     }
 
-    // TODO: If there is a case, where no name space is provided at
-    //       the object path, the ns has to be routed at setting
-    //       CIMTYPE_REFERENCE, CIMTYPE_INSTANCE, CIMTYPE_OBJECT
-    PEGASUS_DEBUG_ASSERT(!theCIMObj.getNameSpace().isNull());
-
-    CString nameSpace = theCIMObj.getNameSpace().getString().getCString();
-    CString clsName = theCIMObj.getClassName().getString().getCString();
-
-    SCMOClassCache* theCache = SCMOClassCache::getInstance();
-    SCMOClass* theClass = theCache->getSCMOClass(
-        (const char*)nameSpace,strlen(nameSpace),
-        (const char*)clsName,strlen(clsName));
-
-    if (theClass == 0)
+    if (theCIMObj.getNameSpace().isNull())
     {
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS,
-           theCIMObj.toString());
+        // the name space of the object path is empty,
+        // use alternative name space.
+        CString clsName = theCIMObj.getClassName().getString().getCString();
+
+        SCMOClassCache* theCache = SCMOClassCache::getInstance();
+        theClass = theCache->getSCMOClass(
+            altNS,
+            altNSlength,
+            (const char*)clsName,
+            strlen(clsName));
+
     }
+    else
+    {
+        CString nameSpace = theCIMObj.getNameSpace().getString().getCString();
+        CString clsName = theCIMObj.getClassName().getString().getCString();
+
+        SCMOClassCache* theCache = SCMOClassCache::getInstance();
+        theClass = theCache->getSCMOClass(
+            (const char*)nameSpace,
+            strlen(nameSpace),
+            (const char*)clsName,
+            strlen(clsName));
+    }
+
     return theClass;
 }
 
@@ -1079,7 +1091,9 @@ QualifierNameEnum SCMOClass::_setQualifier(
     return name;
 }
 
-void SCMOClass::_setValue(Uint64 start, const CIMValue& theCIMValue)
+void SCMOClass::_setValue(
+    Uint64 start,
+    const CIMValue& theCIMValue)
 {
     Uint64 valueStart;
 
@@ -1107,6 +1121,8 @@ void SCMOClass::_setValue(Uint64 start, const CIMValue& theCIMValue)
             rep->type,
             // Is set to the number of array members by the function.
             scmoValue->valueArraySize,
+            cls.hdr->nameSpace.start,
+            cls.hdr->nameSpace.length,
             rep->u);
     }
     else
@@ -1115,6 +1131,8 @@ void SCMOClass::_setValue(Uint64 start, const CIMValue& theCIMValue)
             valueStart,
             &cls.mem,
             rep->type,
+            cls.hdr->nameSpace.start,
+            cls.hdr->nameSpace.length,
             rep->u);
     }
 }
@@ -1163,26 +1181,31 @@ Boolean SCMOClass::_isSamePropOrigin(Uint32 node, const char* origin) const
        len));
 }
 
-inline SCMO_RC SCMOClass::_isNodeSameType(
+SCMO_RC SCMOClass::_isNodeSameType(
     Uint32 node,
     CIMType type,
-    Boolean isArray) const
+    Boolean isArray,
+    CIMType& realType) const
 {
+
     SCMBClassPropertyNode* nodeArray =
         (SCMBClassPropertyNode*)
             &(cls.base[cls.hdr->propertySet.nodeArray.start]);
 
+    // The type stored in the class information is set on realType.
+    // It must be used in further calls to guaranty consistence.
+    realType = nodeArray[node].theProperty.defaultValue.valueType;
 
     if(nodeArray[node].theProperty.defaultValue.valueType != type)
     {
-        // Accept an property of type instance also 
+        // Accept an property of type instance also
         // for an CIMTYPE_OBJECT property.
-        if (!(type == CIMTYPE_INSTANCE && 
-              nodeArray[node].theProperty.defaultValue.valueType 
+        if (!(type == CIMTYPE_INSTANCE &&
+              nodeArray[node].theProperty.defaultValue.valueType
               == CIMTYPE_OBJECT))
         {
             return SCMO_WRONG_TYPE;
-        }        
+        }
     }
 
     if (isArray)
@@ -1204,15 +1227,6 @@ inline SCMO_RC SCMOClass::_isNodeSameType(
     }
 
     return SCMO_OK;
-
-}
-
-void SCMOClass::_setNameSpace( const char* nsName, Uint32 nsNameLen)
-{
-    _setBinary(nsName,
-               nsNameLen+1, // including trailing '\0'
-               cls.hdr->nameSpace,
-               &cls.mem );
 
 }
 
@@ -2070,7 +2084,10 @@ void SCMOInstance::_setCIMObjectPath(const CIMObjectPath& cimObj)
     }
 
 }
-void SCMOInstance::_setCIMValueAtNodeIndex(Uint32 node, CIMValueRep* valRep)
+void SCMOInstance::_setCIMValueAtNodeIndex(
+    Uint32 node,
+    CIMValueRep* valRep,
+    CIMType realType)
 {
     SCMBValue* theInstPropNodeArray =
         (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
@@ -2078,7 +2095,7 @@ void SCMOInstance::_setCIMValueAtNodeIndex(Uint32 node, CIMValueRep* valRep)
 
     SCMBValue& theInstProp = theInstPropNodeArray[node];
 
-    theInstProp.valueType=valRep->type;
+    theInstProp.valueType=realType;
     theInstProp.flags.isNull=valRep->isNull;
     theInstProp.flags.isArray=valRep->isArray;
     theInstProp.flags.isSet=true;
@@ -2096,14 +2113,22 @@ void SCMOInstance::_setCIMValueAtNodeIndex(Uint32 node, CIMValueRep* valRep)
         _setUnionArrayValue(
             start,
             &inst.mem,
-            valRep->type,
+            realType,
             // Is set to the number of array members by the function.
             theInstProp.valueArraySize,
+            inst.hdr->instNameSpace.start,
+            inst.hdr->instNameSpace.length,
             valRep->u);
     }
     else
     {
-        _setUnionValue(start,&inst.mem,valRep->type,valRep->u);
+        _setUnionValue(
+            start,
+            &inst.mem,
+            realType,
+            inst.hdr->instNameSpace.start,
+            inst.hdr->instNameSpace.length,
+            valRep->u);
     }
 }
 
@@ -2113,9 +2138,110 @@ Boolean SCMOInstance::isSame(SCMOInstance& theInstance) const
     return inst.base == theInstance.inst.base;
 }
 
+void SCMOInstance::setHostName(const char* hostName)
+{
+    Uint32 len;
+
+    if (hostName!=0)
+    {
+
+        len = strlen((const char*)hostName);
+        if(len != 0)
+        {
+
+            // copy including trailing '\0'
+            _setBinary(hostName,len+1,inst.hdr->hostName,&inst.mem);
+            return;
+        }
+
+    }
+    inst.hdr->hostName.start=0;
+    inst.hdr->hostName.length=0;
+}
+
 const char* SCMOInstance::getHostName() const
 {
-  return _getCharString(inst.hdr->hostName,inst.base);
+    return _getCharString(inst.hdr->hostName,inst.base);
+}
+
+const char* SCMOInstance::getHostName_l(Uint64& length) const
+{
+    length = inst.hdr->hostName.length;
+    return _getCharString(inst.hdr->hostName,inst.base);
+}
+
+void SCMOInstance::setClassName(const char* className)
+{
+    Uint32 len;
+
+    if (className!=0)
+    {
+
+        len = strlen((const char*)className);
+        if(len != 0)
+        {
+
+            // copy including trailing '\0'
+            _setBinary(className,len+1,inst.hdr->instClassName,&inst.mem);
+            return;
+        }
+
+    }
+
+    inst.hdr->instClassName.start=0;
+    inst.hdr->instClassName.length=0;
+
+    // flag the instance as compromized
+    inst.hdr->flags.isCompromised=true;
+
+}
+
+const char* SCMOInstance::getClassName() const
+{
+    return _getCharString(inst.hdr->instClassName,inst.base);
+}
+
+const char* SCMOInstance::getClassName_l(Uint64 & length) const
+{
+    length = inst.hdr->instClassName.length;
+    return _getCharString(inst.hdr->instClassName,inst.base);
+}
+
+void SCMOInstance::setNameSpace(const char* nameSpace)
+{
+    Uint32 len;
+
+    if (nameSpace!=0)
+    {
+
+        len = strlen((const char*)nameSpace);
+        if(len != 0)
+        {
+
+            // copy including trailing '\0'
+            _setBinary(nameSpace,len+1,inst.hdr->instNameSpace,&inst.mem);
+            return;
+        }
+
+    }
+
+    inst.hdr->instNameSpace.start=0;
+    inst.hdr->instNameSpace.length=0;
+
+    // flag the instance as compromized
+    inst.hdr->flags.isCompromised=true;
+
+}
+
+const char* SCMOInstance::getNameSpace() const
+{
+    return _getCharString(inst.hdr->instNameSpace,inst.base);
+}
+
+const char* SCMOInstance::getNameSpace_l(Uint64 & length) const
+{
+    length = inst.hdr->instNameSpace.length;
+    return _getCharString(inst.hdr->instNameSpace,inst.base);
 }
 
 void SCMOInstance::buildKeyBindingsFromProperties()
@@ -2234,52 +2360,6 @@ void SCMOInstance::_setKeyBindingFromSCMBUnion(
     }
 }
 
-void SCMOInstance::setHostName(const char* hostName)
-{
-    Uint32 len;
-
-    if (hostName!=0)
-    {
-
-        len = strlen((const char*)hostName);
-        if(len != 0)
-        {
-
-            // copy including trailing '\0'
-            _setBinary(hostName,len+1,inst.hdr->hostName,&inst.mem);
-            return;
-        }
-
-    }
-    inst.hdr->hostName.start=0;
-    inst.hdr->hostName.length=0;
-}
-
-const char* SCMOInstance::getClassName() const
-{
-    return _getCharString(
-        inst.hdr->theClass->cls.hdr->className,
-        inst.hdr->theClass->cls.base);
-}
-
-const char* SCMOInstance::getClassName_l(Uint64 & length) const
-{
-    SCMOClass * scmoCls = inst.hdr->theClass;
-    length = scmoCls->cls.hdr->className.length;
-    return _getCharString(
-        scmoCls->cls.hdr->className,
-        scmoCls->cls.base);
-
-}
-
-
-const char* SCMOInstance::getNameSpace() const
-{
-    return _getCharString(
-        inst.hdr->theClass->cls.hdr->nameSpace,
-        inst.hdr->theClass->cls.base);
-}
-
 void SCMOInstance::_initSCMOInstance(SCMOClass* pClass)
 {
     PEGASUS_ASSERT(SCMB_INITIAL_MEMORY_CHUNK_SIZE
@@ -2312,6 +2392,7 @@ void SCMOInstance::_initSCMOInstance(SCMOClass* pClass)
     inst.hdr->flags.includeClassOrigin=false;
     inst.hdr->flags.isFiltered=false;
     inst.hdr->flags.isClassOnly=false;
+    inst.hdr->flags.isCompromised=false;
 
     inst.hdr->hostName.start=0;
     inst.hdr->hostName.length=0;
@@ -2323,6 +2404,21 @@ void SCMOInstance::_initSCMOInstance(SCMOClass* pClass)
     // Number of properties
     inst.hdr->numberProperties =
         inst.hdr->theClass->cls.hdr->propertySet.number;
+
+    // Copy name space name and class name of the class
+    _setBinary(
+        _getCharString(inst.hdr->theClass->cls.hdr->className,
+                       inst.hdr->theClass->cls.base),
+        inst.hdr->theClass->cls.hdr->className.length,
+        inst.hdr->instClassName,
+        &inst.mem);
+
+    _setBinary(
+        _getCharString(inst.hdr->theClass->cls.hdr->nameSpace,
+                       inst.hdr->theClass->cls.base),
+        inst.hdr->theClass->cls.hdr->nameSpace.length,
+        inst.hdr->instNameSpace,
+        &inst.mem);
 
     // Allocate the SCMOInstanceKeyBindingArray
     _getFreeSpace(
@@ -2352,6 +2448,7 @@ void SCMOInstance::_setCIMInstance(const CIMInstance& cimInstance)
     Uint32 propNode;
     Uint64 valueStart;
     SCMO_RC rc;
+    CIMType realType;
 
     CIMInstanceRep* instRep = cimInstance._rep;
 
@@ -2390,13 +2487,16 @@ void SCMOInstance::_setCIMInstance(const CIMInstance& cimInstance)
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NO_SUCH_PROPERTY,
                propRep->_name.getString());
         }
+        // The type stored in the class information is set on realType.
+        // It must be used in further calls to guaranty consistence.
         rc = inst.hdr->theClass->_isNodeSameType(
                  propNode,
                  propRep->_value._rep->type,
-                 propRep->_value._rep->isArray);
+                 propRep->_value._rep->isArray,
+                 realType);
         if (rc == SCMO_OK)
         {
-            _setCIMValueAtNodeIndex(propNode, propRep->_value._rep);
+            _setCIMValueAtNodeIndex(propNode, propRep->_value._rep,realType);
         }
         else
         {
@@ -2571,6 +2671,7 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
 {
     Uint32 node;
     SCMO_RC rc;
+    CIMType realType;
 
     rc = inst.hdr->theClass->_getProperyNodeIndex(node,name);
     if (rc != SCMO_OK)
@@ -2579,7 +2680,9 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
     }
 
     // Is the traget type OK ?
-    rc = inst.hdr->theClass->_isNodeSameType(node,type,isArray);
+    // The type stored in the class information is set on realType.
+    // It must be used in further calls to guaranty consistence.
+    rc = inst.hdr->theClass->_isNodeSameType(node,type,isArray,realType);
     if (rc != SCMO_OK)
     {
         return rc;
@@ -2607,7 +2710,7 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
     }
 
 
-    _setPropertyAtNodeIndex(node,type,pInVal,isArray,size);
+    _setPropertyAtNodeIndex(node,realType,pInVal,isArray,size);
 
     return SCMO_OK;
 }
@@ -2620,6 +2723,7 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
      Uint32 size)
  {
      SCMO_RC rc;
+     CIMType realType;
 
      if (node >= inst.hdr->numberProperties)
      {
@@ -2638,13 +2742,15 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
      }
 
      // Is the traget type OK ?
-     rc = inst.hdr->theClass->_isNodeSameType(node,type,isArray);
+     // The type stored in the class information is set on realType.
+     // It must be used in further calls to guaranty consistence.
+     rc = inst.hdr->theClass->_isNodeSameType(node,type,isArray,realType);
      if (rc != SCMO_OK)
      {
          return rc;
      }
 
-     _setPropertyAtNodeIndex(node,type,pInVal,isArray,size);
+     _setPropertyAtNodeIndex(node,realType,pInVal,isArray,size);
 
      return SCMO_OK;
  }
@@ -2819,6 +2925,8 @@ void SCMOInstance::_setUnionArrayValue(
     SCMBMgmt_Header** pmem,
     CIMType type,
     Uint32& n,
+    Uint64 startNS,
+    Uint64 lenNS,
     Union& u)
 {
     SCMBUnion* scmoUnion = (SCMBUnion*)&(((char*)*pmem)[start]);
@@ -3166,7 +3274,10 @@ void SCMOInstance::_setUnionArrayValue(
             for (Uint32 i = 0; i < loop ; i++)
             {
 
-                theRefClass = _getSCMOClass(iterator[i]);
+                theRefClass = _getSCMOClass(
+                    iterator[i],
+                    &(((const char*)*pmem)[startNS]),
+                    lenNS);
 
                 if (theRefClass != 0)
                 {
@@ -3223,7 +3334,10 @@ void SCMOInstance::_setUnionArrayValue(
                     else
                     {
                         CIMInstance theInst(iterator[i]);
-                        theRefClass = _getSCMOClass(theInst.getPath());
+                        theRefClass = _getSCMOClass(
+                            theInst.getPath(),
+                            &(((const char*)*pmem)[startNS]),
+                            lenNS);
 
                         if (theRefClass != 0)
                         {
@@ -3272,7 +3386,11 @@ void SCMOInstance::_setUnionArrayValue(
                 }
                 else
                 {
-                    theRefClass = _getSCMOClass(iterator[i].getPath());
+                    theRefClass = _getSCMOClass(
+                        iterator[i].getPath(),
+                        &(((const char*)*pmem)[startNS]),
+                        lenNS);
+
 
                     if (theRefClass != 0)
                     {
@@ -3301,6 +3419,8 @@ void SCMOInstance::_setUnionValue(
     Uint64 start,
     SCMBMgmt_Header** pmem,
     CIMType type,
+    Uint64 startNS,
+    Uint64 lenNS,
     Union& u)
 {
     SCMBUnion* scmoUnion = (SCMBUnion*)&(((char*)*pmem)[start]);
@@ -3425,7 +3545,11 @@ void SCMOInstance::_setUnionValue(
             CIMObjectPath* theCIMObj =
                 (CIMObjectPath*)((void*)&u._referenceValue);
 
-            SCMOClass* theRefClass = _getSCMOClass(*theCIMObj);
+            SCMOClass* theRefClass = _getSCMOClass(
+                *theCIMObj,
+                &(((const char*)*pmem)[startNS]),
+                lenNS);
+
             if (theRefClass != 0)
             {
                 scmoUnion->extRefPtr =
@@ -3471,7 +3595,10 @@ void SCMOInstance::_setUnionValue(
                 else
                 {
                     CIMInstance theInst(*theCIMObject);
-                    theRefClass = _getSCMOClass(theInst.getPath());
+                    theRefClass = _getSCMOClass(
+                        theInst.getPath(),
+                        &(((const char*)*pmem)[startNS]),
+                        lenNS);
 
                     if (theRefClass != 0)
                     {
@@ -3511,7 +3638,10 @@ void SCMOInstance::_setUnionValue(
             }
             else
             {
-                SCMOClass* theRefClass = _getSCMOClass(theCIMInst->getPath());
+                SCMOClass* theRefClass = _getSCMOClass(
+                    theCIMInst->getPath(),
+                    &(((const char*)*pmem)[startNS]),
+                    lenNS);
                 if (theRefClass != 0)
                 {
                     scmoUnion->extRefPtr =
@@ -4099,7 +4229,11 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
             }
             // TBD: Optimize parsing and SCMOInstance creation.
             CIMObjectPath theCIMObj(kbs);
-            SCMOClass* theRefClass = _getSCMOClass(theCIMObj);
+            SCMOClass* theRefClass = _getSCMOClass(
+                theCIMObj,
+                _getCharString(inst.hdr->instNameSpace,inst.base),
+                inst.hdr->instNameSpace.length);
+
             if (theRefClass != 0)
             {
                 scmoKBV.data.extRefPtr =
@@ -4508,6 +4642,14 @@ void SCMODump::dumpSCMOInstance(SCMOInstance& testInst) const
            (insthdr->flags.includeClassOrigin ? "True" : "False"));
     fprintf(_out,"\n   isFiltered: %s",
            (insthdr->flags.isFiltered ? "True" : "False"));
+    fprintf(_out,"\n   isClassOnly: %s",
+           (insthdr->flags.isClassOnly ? "True" : "False"));
+    fprintf(_out,"\n   isCompromised: %s",
+           (insthdr->flags.isCompromised ? "True" : "False"));
+    fprintf(_out,"\n\ninstNameSpace: \'%s\'",
+           NULLSTR(_getCharString(insthdr->instNameSpace,instbase)));
+    fprintf(_out,"\n\ninstClassName: \'%s\'",
+           NULLSTR(_getCharString(insthdr->instClassName,instbase)));
     fprintf(_out,"\n\nhostName: \'%s\'",
            NULLSTR(_getCharString(insthdr->hostName,instbase)));
 

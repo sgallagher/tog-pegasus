@@ -46,7 +46,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 #define CM_Context(ctx) (((CMPI_Context*)ctx)->ctx)
 #define CM_Instance(ci) ((CIMInstance*)ci->hdl)
+#define SCMO_Instance(ci) ((SCMOInstance*)ci->hdl)
 #define CM_ObjectPath(cop) ((CIMObjectPath*)cop->hdl)
+#define SCMO_ObjectPath(cop) ((SCMOInstance*)cop->hdl)
 
 #define CM_ClassOrigin(flgs) (((flgs) & CMPI_FLAG_IncludeClassOrigin)!=0)
 #define CM_IncludeQualifiers(flgs) (((flgs) & CMPI_FLAG_IncludeQualifiers)!=0)

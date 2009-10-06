@@ -83,7 +83,7 @@ PEGASUS_NAMESPACE_BEGIN
         Array<CIMInstance> arCIMInstance(aSize); \
         for (int i=0; i<aSize; i++) \
         { \
-            SCMOInstance* scmoInst = (SCMOInstance*)data[i].inst->hdl; \
+            SCMOInstance* scmoInst = (SCMOInstance*)aData[i].value.inst->hdl; \
             CIMInstance inst; \
             scmoInst->getCIMInstance(inst); \
             arCIMInstance[i]=inst; \
@@ -96,7 +96,7 @@ PEGASUS_NAMESPACE_BEGIN
         Array<CIMObjectPath> arCIMObjectPath(aSize); \
         for (int i=0; i<aSize; i++) \
         { \
-            SCMOInstance* scmoInst = (SCMOInstance*)data[i].ref->hdl; \
+            SCMOInstance* scmoInst = (SCMOInstance*)aData[i].value.ref->hdl; \
             CIMObjectPath ref; \
             scmoInst->getCIMObjectPath(ref); \
             arCIMObjectPath[i]=ref; \
@@ -596,12 +596,25 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
             switch( aType )
             {
                 case CMPI_ref:
-                    CopyFromEncArray(CIMObjectPath,CMPIObjectPath,ref);
+                    { 
+                        Array<CIMObjectPath> arRef; 
+                        v.get(arRef); 
+                        for (int i=0; i<aSize; i++) 
+                        { 
+                            SCMOInstance* scmoRef = 
+                                CMPISCMOUtilities::
+                                getSCMOFromCIMObjectPath(arRef[i]); 
+                            aData[i].value.ref=
+                                reinterpret_cast<CMPIObjectPath*>(
+                                    new CMPI_Object(scmoRef)); 
+                        } 
+                    }
                     break;
 
                 case CMPI_dateTime:
                     CopyFromEncArray(CIMDateTime,CMPIDateTime,dateTime);
                     break;
+
                 case CMPI_instance:
                     if (v.getType() == CIMTYPE_OBJECT)
                     {
@@ -609,13 +622,27 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                         v.get(tmpObjs);
                         for (int i = 0; i < aSize ; ++i)
                         {
-                          aData[i].value.inst = reinterpret_cast<CMPIInstance*>(
-                                new CMPI_Object(new CIMInstance(tmpObjs[i])));
+                            CIMInstance inst = CIMInstance(tmpObjs[i]);
+                            SCMOInstance* scmoInst = 
+                                CMPISCMOUtilities::getSCMOFromCIMInstance(inst);
+                            aData[i].value.inst = 
+                                reinterpret_cast<CMPIInstance*>(
+                                    new CMPI_Object(scmoInst,true));
                         }
                     }
                     else
                     {
-                        CopyFromEncArray(CIMInstance,CMPIInstance,inst);
+                        Array<CIMInstance> arInst;
+                        v.get(arInst);
+                        for (int i = 0; i < aSize ; ++i)
+                        {
+                            SCMOInstance* scmoInst = 
+                                CMPISCMOUtilities::
+                                getSCMOFromCIMInstance(arInst[i]);
+                            aData[i].value.inst = 
+                                reinterpret_cast<CMPIInstance*>(
+                                    new CMPI_Object(scmoInst, true));
+                        }
                     }
                     break;
                 case CMPI_boolean:
@@ -736,7 +763,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                     SCMOInstance* scmoInst = 
                         CMPISCMOUtilities::getSCMOFromCIMInstance(inst);
                     data->value.inst = reinterpret_cast<CMPIInstance*>(
-                    new CMPI_Object(scmoInst));
+                    new CMPI_Object(scmoInst, true));
                 }
                 break;
 

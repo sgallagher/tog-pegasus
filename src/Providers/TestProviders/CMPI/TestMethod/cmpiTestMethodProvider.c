@@ -419,8 +419,10 @@ _createInstance()
 
   // Create a new ObjectPath, in a different namespace.
   PROV_LOG("Calling CMNewObjectPath for %s", "TestCMPI_Instance");
+  //fprintf(stderr,"Tweaking namespace to %s\n",_Namespace);
   fake_objPath =
       CMNewObjectPath (_broker, "root/cimv2", "TestCMPI_Instance", &rc);
+  //    CMNewObjectPath (_broker, _Namespace, "TestCMPI_Instance", &rc);
   CMAddKey (fake_objPath, "ElementName", (CMPIValue *) "Fake_ObjPath",
       CMPI_chars);
 
@@ -1051,7 +1053,9 @@ static int _testArrayTypes()
                 break;
 
             case CMPI_ref:
+                //fprintf(stderr,"Tweaking namespace to %s\n",_Namespace);
                 value.ref = CMNewObjectPath (_broker,
+                    //_Namespace,
                     "root/cimv2",
                     "TestCMPI_Instance",
                     &rc);
@@ -2236,7 +2240,11 @@ static int _testCMPIObjectPath ()
 
     // Create a new ObjectPath, in a different namespace.
 
-    fakeObjPath = CMNewObjectPath (_broker, "root#cimv2",
+    fprintf(stderr,
+            "Running testcase tweak in cmpiTestMethodProvider line 2240!!\n");
+    fakeObjPath = CMNewObjectPath (_broker, "root/cimv2",
+    //fakeObjPath = CMNewObjectPath (_broker, "root#cimv2",
+    //fakeObjPath = CMNewObjectPath (_broker, "test/testprovider",
         "TestCMPI_Instance", &rc);
     PROV_LOG ("++++  CMNewObjectPath : (%s)", strCMPIStatus (rc));
     rc = CMAddKey (fakeObjPath, "ElementName",
@@ -2717,6 +2725,14 @@ static int _testCMPIBroker (const CMPIContext* ctx)
     //Getting ObjectPaths for different Classes
     opForAssociatorFunctions = make_ObjectPath(_broker, _Namespace,
         _PersonClass);
+    fprintf(stderr,
+            "Another tweak for a valid objectPath - adding key 'name'\n");
+    // Following just added to tweak test, since ElementName is not valid
+    // key property for the person class 
+    CMAddKey(opForAssociatorFunctions,
+             "name",
+             (CMPIValue *) _PersonClass, 
+             CMPI_chars);
 
     opForErrorAssociatorFunctions = make_ObjectPath(_broker, _Namespace,
         _PersonClass);

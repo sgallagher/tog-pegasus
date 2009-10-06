@@ -44,13 +44,23 @@ PEGASUS_NAMESPACE_BEGIN
 class CMPISCMOUtilities
 {
 public:
-    static CMPIrc scmoValue2CMPIData(const SCMBUnion* scmoValue, 
-                                     CMPIType type, 
-                                     CMPIData *data,
-                                     Uint32 arraySize = 0);
+    static CMPIrc scmoValue2CMPIData(
+        const SCMBUnion* scmoValue, 
+        CMPIType type, 
+        CMPIData *data,
+        Uint32 arraySize = 0);
+
     static CIMDateTimeRep* scmoDateTimeFromCMPI(CMPIDateTime* cmpidt);
-    static SCMOInstance* getSCMOFromCIMInstance(const CIMInstance&);
-    static SCMOInstance* getSCMOFromCIMObjectPath(const CIMObjectPath&);
+
+    static SCMOInstance* getSCMOFromCIMInstance(
+        const CIMInstance&,
+        const char* ns=0,
+        const char* cls=0);
+
+    static SCMOInstance* getSCMOFromCIMObjectPath(
+        const CIMObjectPath&,
+        const char* ns=0,
+        const char* cls=0);
 };
 
 

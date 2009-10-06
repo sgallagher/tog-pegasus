@@ -53,15 +53,18 @@ CIMDateTimeRep* CMPISCMOUtilities::scmoDateTimeFromCMPI(CMPIDateTime* cmpidt)
 // CAUTION: This function requires access to the CMPIClassCache, and
 //          therefore can only be called from within a CMPI provider !!!
 SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMInstance(
-    const CIMInstance& cimInst)
+    const CIMInstance& cimInst,
+    const char* ns,
+    const char* cls)
 {
     const CIMObjectPath& cimPath = cimInst.getPath();
-    CString nameSpace = cimPath.getNameSpace().getString().getCString();
-    CString className = cimPath.getClassName().getString().getCString();
+
+    const CString nameSpace = cimPath.getNameSpace().getString().getCString();
+    const CString className = cimPath.getClassName().getString().getCString();
     SCMOClass* scmoClass = mbGetSCMOClass(
         0,
-        (const char*)nameSpace,
-        (const char*)className);
+        ns ? ns : (const char*)nameSpace,
+        cls ? cls : (const char*)className);
 
     SCMOInstance* scmoInst = new SCMOInstance(*scmoClass, cimInst);
 
@@ -72,14 +75,16 @@ SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMInstance(
 // CAUTION: This function requires access to the CMPIClassCache, and
 //          therefore can only be called from within a CMPI provider !!!
 SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMObjectPath(
-    const CIMObjectPath& cimPath)
+    const CIMObjectPath& cimPath,
+    const char* ns,
+    const char* cls)
 {
     CString nameSpace = cimPath.getNameSpace().getString().getCString();
     CString className = cimPath.getClassName().getString().getCString();
     SCMOClass* scmoClass = mbGetSCMOClass(
         0,
-        (const char*)nameSpace,
-        (const char*)className);
+        ns ? ns : (const char*)nameSpace,
+        cls ? cls : (const char*)className);
 
     SCMOInstance* scmoRef = new SCMOInstance(*scmoClass, cimPath);
 

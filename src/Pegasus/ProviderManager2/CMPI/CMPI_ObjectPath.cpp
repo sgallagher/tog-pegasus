@@ -481,7 +481,7 @@ extern "C"
             CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
         }
 
-        if (keyName)
+        if (keyName && name)
         {
             *name = (CMPIString*)string2CMPIString(keyName);
         }

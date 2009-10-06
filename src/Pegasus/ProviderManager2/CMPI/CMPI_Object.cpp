@@ -99,7 +99,7 @@ CMPI_Object::CMPI_Object(const String& str)
 CMPI_Object::CMPI_Object(const char *str)
 {
     CMPI_ThreadContext::addObject(this);
-    hdl = (void*)strdup(str);
+    hdl = str ? (void*)strdup(str) : (void*)strdup("");
     ftab = CMPI_String_Ftab;
 }
 

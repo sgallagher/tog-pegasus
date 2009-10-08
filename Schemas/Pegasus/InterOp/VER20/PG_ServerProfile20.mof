@@ -78,7 +78,7 @@ class PG_ProviderProfileCapabilities : PG_Capabilities {
               "SNIA:SML_Events", //47
               "OpenPegasus Reserved", //48..500
                // DMTF Profiles.
-              "DMTF:Base server", "DMTF:SM CLP Admin Domain", // 502
+              "DMTF:Base Server", "DMTF:SM CLP Admin Domain", // 502
               "DMTF:Modular Systems","DMTF:Record Log", // 504
               "DMTF:Service Processor", "DMTF:System Virtualization", // 506
               "DMTF:Computer System", "DMTF:Virtual System", // 508
@@ -323,7 +323,7 @@ class PG_ProviderReferencedProfiles : PG_Capabilities {
               "SNIA:Composite Storage Services","SNIA:Data Placement Service",
               "SNIA:SML_Events", //47
               "OpenPegasus Reserved For Profiles",
-              "DMTF:Base server", "DMTF:SM CLP Admin Domain", // 502
+              "DMTF:Base Server", "DMTF:SM CLP Admin Domain", // 502
               "DMTF:Modular Systems","DMTF:Record Log", // 504
               "DMTF:Service Processor", "DMTF:System Virtualization", // 506
               "DMTF:Computer System", "DMTF:Virtual System", // 508
@@ -448,7 +448,7 @@ class PG_ProviderReferencedProfiles : PG_Capabilities {
               "SNIA:Composite Storage Services","SNIA:Data Placement Service",
               "SNIA:SML_Events", //47
               "OpenPegasus Reserved For Profiles", //48..500
-              "DMTF:Base server", "DMTF:SM CLP Admin Domain", // 502
+              "DMTF:Base Server", "DMTF:SM CLP Admin Domain", // 502
               "DMTF:Modular Systems","DMTF:Record Log", // 504
               "DMTF:Service Processor", "DMTF:System Virtualization", // 506
               "DMTF:Computer System", "DMTF:Virtual System", // 508

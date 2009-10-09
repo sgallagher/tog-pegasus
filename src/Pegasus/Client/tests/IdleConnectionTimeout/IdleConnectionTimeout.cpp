@@ -96,13 +96,8 @@ ThreadReturnType PEGASUS_THREAD_CDECL _runningThd(void *parm)
         }
         catch(Exception& e)
         {
-            // Ignore idle timeout -- may happen on slow or loaded systems.
-            if (!String::equal(
-                e.getMessage(),"Connection closed by CIM Server."))
-            {
-                cerr << "Error: " << e.getMessage() << endl;
-                throw;
-            }
+            cerr << "Error: " << e.getMessage() << endl;
+            throw;
         }
 
         client.disconnect();
@@ -143,21 +138,15 @@ ThreadReturnType PEGASUS_THREAD_CDECL _idleThd(void *parm)
         {
             Threads::sleep(1000);
         }
-
+        //the client shall reconnect if the connection was closed and 
+        //so the operation should succeed.
         CIMClass tmpClass2 =
             client.getClass (OSINFO_NAMESPACE, OSINFO_CLASSNAME);
     }
     catch(Exception& e)
     {
-        if (String::equal(e.getMessage(),"Connection closed by CIM Server."))
-        {
-            test2CaughtException = true;
-            cout << "Expected error: " << e.getMessage() << endl;
-        }
-        else
-        {
-            cerr << "Error: " << e.getMessage() << endl;
-        }
+        test2CaughtException = true;
+        cerr << "Error: " << e.getMessage() << endl;
     }
     client.disconnect();
 
@@ -222,12 +211,12 @@ Boolean _test1(
     return TEST_PASSED;
 }
 
-// _test2 verifies that a CIM Operation on a client connection does not
+// _test2 verifies that a CIM Operation on a client connection will still
 // succeed when the idleConnectionTimeout period is exceeded (_idleThd) *and*
 // there is concurrent server activity (_runningThd) so that the Monitor
-// will wake up and check for timeouts. In this case, the second call to
-// getClass() in _idleThd() should receive an exception because the
-// connection has been closed due to the timeout.
+// will wake up and check for timeouts and close the connection.
+// In this case, the second call to getClass() in _idleThd() will reconnect 
+// and send the request.
 Boolean _test2(
     int durationSeconds, const char * testUserid, const char * testPasswd)
 {
@@ -266,9 +255,8 @@ Boolean _test2(
         return TEST_FAILED;
     }
 
-    // We except the exception in this case, so if it was caught
-    // then the test passed.
-    return test2CaughtException;
+    // We do not expect exception in this case.
+    return (test2CaughtException == false);
 }
 
 int main(int argc, char** argv)

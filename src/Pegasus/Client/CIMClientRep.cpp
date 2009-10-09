@@ -1151,6 +1151,13 @@ Message* CIMClientRep::_doRequest(
         throw NotConnectedException();
     }
 
+    // Check if the connection has to be re-established
+    if (_httpConnection->needsReconnect())
+    {
+        _disconnect();
+        _doReconnect = true;
+    }
+
     if (_doReconnect)
     {
         _connect(_binaryRequest, _binaryResponse);

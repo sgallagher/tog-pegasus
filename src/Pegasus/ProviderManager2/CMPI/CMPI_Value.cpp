@@ -78,32 +78,6 @@ PEGASUS_NAMESPACE_BEGIN
         v.set(ar##pt); \
     }
 
-#define CopyToInstanceArray() \
-    { \
-        Array<CIMInstance> arCIMInstance(aSize); \
-        for (int i=0; i<aSize; i++) \
-        { \
-            SCMOInstance* scmoInst = (SCMOInstance*)aData[i].value.inst->hdl; \
-            CIMInstance inst; \
-            scmoInst->getCIMInstance(inst); \
-            arCIMInstance[i]=inst; \
-        } \
-        v.set(arCIMInstance); \
-    }
-
-#define CopyToObjectPathArray() \
-    { \
-        Array<CIMObjectPath> arCIMObjectPath(aSize); \
-        for (int i=0; i<aSize; i++) \
-        { \
-            SCMOInstance* scmoInst = (SCMOInstance*)aData[i].value.ref->hdl; \
-            CIMObjectPath ref; \
-            scmoInst->getCIMObjectPath(ref); \
-            arCIMObjectPath[i]=ref; \
-        } \
-        v.set(arCIMObjectPath); \
-    }
-
 #define CopyFromArray(pt,ct) \
     { \
         Array<pt> ar##pt; \
@@ -318,14 +292,37 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
             switch( aType )
             {
                 case CMPI_ref:
-                    CopyToObjectPathArray();
+                    {
+                        Array<CIMObjectPath> arCIMObjectPath(aSize);
+                        for (int i=0; i<aSize; i++)
+                        {
+                            SCMOInstance* scmoInst = 
+                                (SCMOInstance*)aData[i].value.ref->hdl;
+                            CIMObjectPath ref;
+                            scmoInst->getCIMObjectPath(ref);
+                            arCIMObjectPath[i]=ref;
+                        }
+                        v.set(arCIMObjectPath);
+                    }
                     break;
 
                 case CMPI_dateTime:
                     CopyToEncArray(CIMDateTime,dateTime);
                     break;
                 case CMPI_instance:
-                    CopyToInstanceArray();
+                    { 
+                        Array<CIMObject> arCIMInstance(aSize); 
+                        for (int i=0; i<aSize; i++) 
+                        {
+                            SCMOInstance* scmoInst = 
+                                (SCMOInstance*)aData[i].value.inst->hdl;
+                            CIMInstance inst;
+                            scmoInst->getCIMInstance(inst);
+                            CIMObject obj(inst);
+                            arCIMInstance[i]=obj;
+                        }
+                        v.set(arCIMInstance);
+                    }
                     break;
                 case CMPI_boolean:
                     CopyToArray(Boolean,boolean);
@@ -444,7 +441,8 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
                     SCMOInstance* scmoInst = (SCMOInstance*)data->inst->hdl;
                     CIMInstance inst;
                     scmoInst->getCIMInstance(inst);
-                    v.set((CIMObject)inst);
+                    CIMObject obj(inst);
+                    v.set(obj);
                 }
                 else
                 {

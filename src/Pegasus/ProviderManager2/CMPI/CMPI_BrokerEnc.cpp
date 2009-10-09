@@ -318,7 +318,6 @@ extern "C"
         }
 
         SCMOInstance* scmoInst = new SCMOInstance(*scmoClass);
-        //fprintf(stderr, "mbEncNewObjectPath(%p)\n",scmoInst);
         CMPIObjectPath *nePath = reinterpret_cast<CMPIObjectPath*>(
             new CMPI_Object(scmoInst));
         CMSetStatus(rc, CMPI_RC_OK);

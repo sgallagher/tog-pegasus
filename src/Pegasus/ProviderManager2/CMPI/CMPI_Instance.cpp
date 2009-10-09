@@ -311,35 +311,39 @@ extern "C"
         }
         else
         {
-            //Return if data itself is NULL or Array is NULL
-            if( data == NULL || data->array == NULL )
-            {
-                //CMPIType aType=type&~CMPI_ARRAY;
-                //return CIMValue(type2CIMType(aType),true);
-            }
-            // When data is not NULL and data->array is also set
-            CMPI_Array* ar = (CMPI_Array*)data->array->hdl;
-            CMPIData* arrData = (CMPIData*)ar->hdl;
-
             //Get the type of the elements in the array
             CMPIType aType=type&~CMPI_ARRAY;
-            Uint32 arraySize = arrData->value.uint32;
             CIMType cimType=type2CIMType(aType);
 
-
-            // Need to convert the array of CMPIData to an array of SCMBUnion
-            SCMBUnion scmbArray[arraySize];
-            for (unsigned int x=0; x<arraySize; x++)
+            if( data == NULL || data->array == NULL )
             {
-                scmbArray[x] = value2SCMOValue(&(arrData[x].value), type);
+                // In this case just set a NULL Value
+                rc = inst->setPropertyWithOrigin(name,cimType,0,true,0,origin);
             }
+            else
+            {
+                // When data is not NULL and data->array is also set
+                CMPI_Array* ar = (CMPI_Array*)data->array->hdl;
+                CMPIData* arrData = (CMPIData*)ar->hdl;
 
-            rc = inst->setPropertyWithOrigin(name,
-                                             cimType,
-                                             &(scmbArray[0]),
-                                             true,          // isArray
-                                             arraySize,
-                                             origin);
+
+                Uint32 arraySize = arrData->value.uint32;
+
+
+                // Convert the array of CMPIData to an array of SCMBUnion
+                SCMBUnion scmbArray[arraySize];
+                for (unsigned int x=0; x<arraySize; x++)
+                {
+                    scmbArray[x] = value2SCMOValue(&(arrData[x].value), type);
+                }
+
+                rc = inst->setPropertyWithOrigin(name,
+                                                 cimType,
+                                                 &(scmbArray[0]),
+                                                 true,          // isArray
+                                                 arraySize,
+                                                 origin);
+            }
         }
 
         if (rc != SCMO_OK)
@@ -425,8 +429,9 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Instance:instSetObjectPath()");
-        SCMOInstance* inst=(SCMOInstance*)eInst->hdl;
-        if (inst==NULL)
+
+        SCMOInstance* prevInst=(SCMOInstance*)eInst->hdl;
+        if (prevInst==NULL)
         {
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
@@ -438,14 +443,14 @@ extern "C"
         }
 
         SCMOInstance* ref = (SCMOInstance*)(obj->hdl);
-        if (ref->isSame(*inst))
+        if (ref->isSame(*prevInst))
         {
             // Since we represent CMPIObjectPath as well as CMPIInstance
             // through SCMOInstance, in this case both point to the same
             // physical SCMB and the objectPath is already set.
             // So this path is a nop.
             PEG_METHOD_EXIT();
-            CMReturn ( CMPI_RC_OK);
+            CMReturn(CMPI_RC_OK);
         }
         else
         {
@@ -454,45 +459,144 @@ extern "C"
             const char* nsRef = ref->getNameSpace();
             const char* clsRef = ref->getClassName();
 
-            if ((0 == strcasecmp(nsRef, inst->getNameSpace())) &&
-                (0 == strcasecmp(clsRef, inst->getClassName())))
+            if (0 == strcasecmp(clsRef, prevInst->getClassName()))
             {
-                // Just loop through the key properties and set them
-                // one by one
-                SCMO_RC rc;
-                const char* keyName = 0;
-                const SCMBUnion* keyValue = 0;
+                SCMOInstance* newInstance = 0;
 
-                CIMType keyType;
-
-                Uint32 numKeys = ref->getKeyBindingCount();
-                for (Uint32 x=0; x < numKeys; x++)
+                // For compatibility with older CMPI implementations, it is
+                // possible to set a non-valid namespace/classname pair on an
+                // objectpath. Therefore we first check, if the objectPath
+                // has been manipulated since it was originally created and
+                // valid.
+                if (ref->isCompromised()) 
                 {
-                    rc = ref->getKeyBindingAt(x, &keyName, keyType, &keyValue);
-                    if ((rc != SCMO_OK) || (0==keyValue))
+                    // In case the objectPath has not been validated, we try
+                    // to obtain the class definition and create a new one.
+                    SCMOClass* scmoClass = mbGetSCMOClass(0, nsRef, clsRef);
+                    if (0 == scmoClass)
                     {
-                        PEG_TRACE_CSTRING(
+                        PEG_TRACE((
                             TRC_CMPIPROVIDERINTERFACE,
                             Tracer::LEVEL1,
-                            "Failed to retrieve keybinding");
+                            "Cannot set objectpath because it points to a"
+                            "non-existant class: %s:%s",nsRef, clsRef));
                         PEG_METHOD_EXIT();
-                        CMReturn(CMPI_RC_ERR_FAILED);
+                        CMReturn(CMPI_RC_ERR_NOT_FOUND);
                     }
-                    rc = inst->setKeyBindingAt(x, keyType, keyValue);
-                    if (rc != SCMO_OK)
+
+                    newInstance = new SCMOInstance(*scmoClass);
+
+                    // Now we try to copy the key properties from the given
+                    // ObjectPath to the newly created one by just looping
+                    // through the key properties and set them one by one
+
+                    SCMO_RC rc;
+                    const char* keyName = 0;
+                    const SCMBUnion* keyValue = 0;
+                    CIMType keyType;
+
+                    Uint32 numKeys = ref->getKeyBindingCount();
+                    for (Uint32 x=0; x < numKeys; x++)
                     {
-                        PEG_TRACE_CSTRING(
-                            TRC_CMPIPROVIDERINTERFACE,
-                            Tracer::LEVEL1,
-                            "Failed to set keybinding");
-                        PEG_METHOD_EXIT();
-                        CMReturn(CMPI_RC_ERR_FAILED);
+                        rc = ref->getKeyBindingAt(
+                            x, &keyName, keyType, &keyValue);
+                        if ((rc != SCMO_OK) || (0==keyValue))
+                        {
+                            PEG_TRACE_CSTRING(
+                                TRC_CMPIPROVIDERINTERFACE,
+                                Tracer::LEVEL1,
+                                "Failed to retrieve keybinding");
+                            PEG_METHOD_EXIT();
+                            CMReturn(CMPI_RC_ERR_FAILED);
+                        }
+                        rc = newInstance->setKeyBinding(
+                            keyName, keyType, keyValue);
+                        if (rc != SCMO_OK)
+                        {
+                            PEG_TRACE_CSTRING(
+                                TRC_CMPIPROVIDERINTERFACE,
+                                Tracer::LEVEL1,
+                                "Failed to set keybinding");
+                            PEG_METHOD_EXIT();
+                            CMReturn(CMPI_RC_ERR_FAILED);
+                        }
                     }
                 }
+                else
+                {
+                    // If the new objectPath has already been validated we
+                    // simply clone it.
+                    newInstance = new SCMOInstance(ref->clone(true));
+                }
+
+
+                // Here we have a new Instance with the ObjectPath set.
+                // All that's left for now is to add the properties from the
+                // original instance back to the new instance.
+
+                Uint32 numProps = prevInst->getPropertyCount();
+
+                SCMO_RC scmoRc=SCMO_OK;
+                const char* propertyName=0;
+                CIMType propertyType=CIMTYPE_BOOLEAN;
+                const SCMBUnion* propertyValue=0;
+                Boolean isArray=false;
+                Uint32 arraySize=0;
+
+
+                for (Uint32 x=0; x < numProps; x++)
+                {
+                    scmoRc = prevInst->getPropertyAt(
+                        x,
+                        &propertyName,
+                        propertyType,
+                        &propertyValue,
+                        isArray,
+                        arraySize);
+
+                    if (SCMO_OK == scmoRc) 
+                    {
+                        scmoRc = newInstance->setPropertyWithOrigin(
+                            propertyName,
+                            propertyType,
+                            propertyValue,
+                            isArray,
+                            arraySize);
+                        if (SCMO_OK != scmoRc) 
+                        {
+                            // We failed to set the property to the instance
+                            // with the new objectpath for any reason.
+                            // This can happen when they are not compatible
+                            // and therefore we just log a warning trace
+                            PEG_TRACE((
+                                TRC_CMPIPROVIDERINTERFACE,
+                                Tracer::LEVEL2,
+                                "Failed to set property %s, SCMO_RC=%d",
+                                propertyName, scmoRc));
+                        }
+
+                        // For strings, we have to release the returned
+                        // value:
+                        if (CIMTYPE_STRING==propertyType)
+                        {
+                            // We always receive strings as an array of pointers
+                            // with at least one element, which needs to be 
+                            // released when we no longer need it
+                            free((void*)propertyValue);
+                        }
+
+                    }
+
+                }
+
+                // Finally release the previous instance and anchor the newly
+                // created instance in the CMPI_Instance handle.
+                delete(prevInst);
+                eInst->hdl=newInstance;
             }
             else
             {
-                // Uurrgh, changing class and/or namespace on an existing
+                // Uurrgh, changing class on an existing
                 // CMPIInstance is a prohibited change.
                 // Simply returning an error
                 PEG_TRACE_CSTRING(
@@ -502,13 +606,13 @@ extern "C"
                     "or namespace of instance");
                 PEG_METHOD_EXIT();
                 CMReturnWithString(
-                    CMPI_RC_ERR_FAILED,
+                    CMPI_RC_ERR_TYPE_MISMATCH,
                     string2CMPIString("Incompatible ObjectPath"));
             }
         }
 
         PEG_METHOD_EXIT();
-        CMReturn ( CMPI_RC_OK);
+        CMReturn(CMPI_RC_OK);
     }
 
 

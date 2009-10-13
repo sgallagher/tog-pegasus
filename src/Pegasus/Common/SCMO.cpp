@@ -1335,13 +1335,13 @@ void SCMOInstance::_copyExternalReferences()
     }// for all key bindings defined in the class
 
     // Are there user defined key bindings ?
-    if (0 != inst.hdr->numberUserKeyBindindigs)
+    if (0 != inst.hdr->numberUserKeyBindings)
     {
         SCMBUserKeyBindingElement* theUserDefKBElement =
             (SCMBUserKeyBindingElement*)
                  &(inst.base[inst.hdr->userKeyBindingElement.start]);
 
-        for(Uint32 i = 0; i < inst.hdr->numberUserKeyBindindigs; i++)
+        for(Uint32 i = 0; i < inst.hdr->numberUserKeyBindings; i++)
         {
             if (theUserDefKBElement->value.isSet)
             {
@@ -1417,13 +1417,13 @@ void SCMOInstance::_destroyExternalReferences()
     }// for all key bindings
 
     // Are there user defined key bindings ?
-    if (0 != inst.hdr->numberUserKeyBindindigs)
+    if (0 != inst.hdr->numberUserKeyBindings)
     {
         SCMBUserKeyBindingElement* theUserDefKBElement =
             (SCMBUserKeyBindingElement*)
                  &(inst.base[inst.hdr->userKeyBindingElement.start]);
 
-        for(Uint32 i = 0; i < inst.hdr->numberUserKeyBindindigs; i++)
+        for(Uint32 i = 0; i < inst.hdr->numberUserKeyBindings; i++)
         {
             if (theUserDefKBElement->value.isSet)
             {
@@ -1587,13 +1587,13 @@ void SCMOInstance::getCIMObjectPath(CIMObjectPath& cimObj) const
     }
 
     // Are there user defined key bindings ?
-    if (0 != inst.hdr->numberUserKeyBindindigs)
+    if (0 != inst.hdr->numberUserKeyBindings)
     {
         SCMBUserKeyBindingElement* theUserDefKBElement =
             (SCMBUserKeyBindingElement*)
                  &(inst.base[inst.hdr->userKeyBindingElement.start]);
 
-        for(Uint32 i = 0; i < inst.hdr->numberUserKeyBindindigs; i++)
+        for(Uint32 i = 0; i < inst.hdr->numberUserKeyBindings; i++)
         {
             if (theUserDefKBElement->value.isSet)
             {
@@ -2404,6 +2404,12 @@ void SCMOInstance::_setKeyBindingFromSCMBUnion(
     case CIMTYPE_REAL64:
     case CIMTYPE_CHAR16:
     case CIMTYPE_BOOLEAN:
+        {
+            memcpy(&keyData.data,&u,sizeof(SCMBUnion));
+            keyData.data.simple.hasValue=true;
+            keyData.isSet=true;
+            break;
+        }
     case CIMTYPE_DATETIME:
         {
             memcpy(&keyData.data,&u,sizeof(SCMBUnion));
@@ -2889,7 +2895,21 @@ void SCMOInstance::_setSCMBUnion(
     case CIMTYPE_SINT64:
     case CIMTYPE_REAL32:
     case CIMTYPE_REAL64:
-    case CIMTYPE_CHAR16:
+    case CIMTYPE_CHAR16:    
+        {
+            if (isArray)
+            {
+                _setBinary(pInVal,size*sizeof(SCMBUnion),
+                           u.arrayValue,
+                           &inst.mem );
+            }
+            else
+            {
+                memcpy(&u,pInVal,sizeof(SCMBUnion));
+                u.simple.hasValue=true;
+            }
+            break;
+        }
     case CIMTYPE_DATETIME:
         {
             if (isArray)
@@ -2901,6 +2921,7 @@ void SCMOInstance::_setSCMBUnion(
             else
             {
                 memcpy(&u,pInVal,sizeof(SCMBUnion));
+
             }
             break;
         }
@@ -3838,6 +3859,9 @@ SCMOInstance SCMOInstance::clone(Boolean objectPathOnly) const
             newInst.inst.hdr->hostName,
             &newInst.inst.mem);
 
+        newInst.inst.hdr->flags.isCompromised = 
+            this->inst.hdr->flags.isCompromised;
+
         // Copy the key bindings to that new instance.
         this->_copyKeyBindings(newInst);
 
@@ -3894,13 +3918,13 @@ void SCMOInstance::_copyKeyBindings(SCMOInstance& targetInst) const
     }
 
     // Are there user defined key bindings ?
-    if (0 != inst.hdr->numberUserKeyBindindigs)
+    if (0 != inst.hdr->numberUserKeyBindings)
     {
         SCMBUserKeyBindingElement* theUserDefKBElement =
             (SCMBUserKeyBindingElement*)
                  &(inst.base[inst.hdr->userKeyBindingElement.start]);
 
-        for(Uint32 i = 0; i < inst.hdr->numberUserKeyBindindigs; i++)
+        for(Uint32 i = 0; i < inst.hdr->numberUserKeyBindings; i++)
         {
             if (theUserDefKBElement->value.isSet)
             {
@@ -3999,7 +4023,7 @@ SCMBUserKeyBindingElement* SCMOInstance::_getUserDefinedKeyBinding(
         inst.hdr->userKeyBindingElement.start = newElement.start;
         inst.hdr->userKeyBindingElement.length = newElement.length;
         // Adjust the couter of user defined key bindings.
-        inst.hdr->numberUserKeyBindindigs++;
+        inst.hdr->numberUserKeyBindings++;
 
 
         // Copy the type
@@ -4128,7 +4152,7 @@ Uint32 SCMOInstance::getKeyBindingCount() const
 {
     // count of class keys + user definded keys
     return(inst.hdr->numberKeyBindings+
-           inst.hdr->numberUserKeyBindindigs);
+           inst.hdr->numberUserKeyBindings);
 }
 
 
@@ -4147,7 +4171,7 @@ SCMO_RC SCMOInstance::getKeyBindingAt(
 
     // count of class keys + user definded keys
     if (node >= (inst.hdr->numberKeyBindings+
-                 inst.hdr->numberUserKeyBindindigs))
+                 inst.hdr->numberUserKeyBindings))
     {
         return SCMO_INDEX_OUT_OF_BOUND;
     }
@@ -4367,6 +4391,8 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
     )
 {
     scmoKBV.isSet=false;
+    // If it not a simple value, it will be over written.
+    scmoKBV.data.simple.hasValue=false;
 
     if ( kbs.size() == 0 && type != CIMTYPE_STRING)
     {
@@ -4386,6 +4412,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
                 StringConversion::checkUintBounds(x, type))
             {
               scmoKBV.data.simple.val.u8 = Uint8(x);
+              scmoKBV.data.simple.hasValue=true;
               scmoKBV.isSet=true;
             }
             break;
@@ -4397,6 +4424,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
                 StringConversion::checkUintBounds(x, type))
             {
               scmoKBV.data.simple.val.u16 = Uint16(x);
+              scmoKBV.data.simple.hasValue=true;
               scmoKBV.isSet=true;
             }
             break;
@@ -4409,6 +4437,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
                 StringConversion::checkUintBounds(x, type))
             {
               scmoKBV.data.simple.val.u32 = Uint32(x);
+              scmoKBV.data.simple.hasValue=true;
               scmoKBV.isSet=true;
             }
             break;
@@ -4420,6 +4449,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
             if (StringConversion::stringToUnsignedInteger(v, x))
             {
               scmoKBV.data.simple.val.u64 = x;
+              scmoKBV.data.simple.hasValue=true;
               scmoKBV.isSet=true;
             }
             break;
@@ -4432,6 +4462,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
                 StringConversion::checkSintBounds(x, type))
             {
               scmoKBV.data.simple.val.s8 = Sint8(x);
+              scmoKBV.data.simple.hasValue=true;
               scmoKBV.isSet=true;
             }
             break;
@@ -4444,6 +4475,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
                 StringConversion::checkSintBounds(x, type))
             {
               scmoKBV.data.simple.val.s16 = Sint16(x);
+              scmoKBV.data.simple.hasValue=true;
               scmoKBV.isSet=true;
             }
             break;
@@ -4456,6 +4488,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
                 StringConversion::checkSintBounds(x, type))
             {
               scmoKBV.data.simple.val.s32 = Sint32(x);
+              scmoKBV.data.simple.hasValue=true;
               scmoKBV.isSet=true;
             }
             break;
@@ -4467,6 +4500,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
             if (StringConversion::stringToSignedInteger(v, x))
             {
               scmoKBV.data.simple.val.s64 = x;
+              scmoKBV.data.simple.hasValue=true;
               scmoKBV.isSet=true;
             }
             break;
@@ -4500,6 +4534,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
             if (StringConversion::stringToReal64(v, x))
             {
               scmoKBV.data.simple.val.r32 = Real32(x);
+              scmoKBV.data.simple.hasValue=true;
               scmoKBV.isSet=true;
             }
             break;
@@ -4512,6 +4547,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
             if (StringConversion::stringToReal64(v, x))
             {
               scmoKBV.data.simple.val.r64 = x;
+              scmoKBV.data.simple.hasValue=true;
               scmoKBV.isSet=true;
             }
             break;
@@ -4522,6 +4558,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
             if (kbs.size() == 1)
             {
                 scmoKBV.data.simple.val.c16 = kbs[0];
+                scmoKBV.data.simple.hasValue=true;
                 scmoKBV.isSet=true;
             }
             break;
@@ -4531,11 +4568,13 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
             if (String::equalNoCase(kbs,"TRUE"))
             {
                 scmoKBV.data.simple.val.bin = true;
+                scmoKBV.data.simple.hasValue=true;
                 scmoKBV.isSet=true;
             }
             else if (String::equalNoCase(kbs,"FALSE"))
                  {
                      scmoKBV.data.simple.val.bin = false;
+                     scmoKBV.data.simple.hasValue=true;
                      scmoKBV.isSet=true;
                  }
             break;
@@ -4715,7 +4754,7 @@ SCMO_RC SCMOInstance::setKeyBindingAt(
 
     // count of class keys + user definded keys
     if (node >= (inst.hdr->numberKeyBindings+
-                 inst.hdr->numberUserKeyBindindigs))
+                 inst.hdr->numberUserKeyBindings))
     {
         return SCMO_INDEX_OUT_OF_BOUND;
     }
@@ -5401,13 +5440,18 @@ void SCMODump::dumpSCMOInstanceKeyBindings(SCMOInstance& testInst) const
 
     fprintf(_out,"\n\nInstance Key Bindings :");
     fprintf(_out,"\n=======================");
-    fprintf(_out,"\n\nNumber of Key Bindings : %u",insthdr->numberKeyBindings);
+    fprintf(_out,"\n\nNumber of Key Bindings defined in the Class: %u",
+            insthdr->numberKeyBindings);
 
     for (Uint32 i = 0, k = insthdr->numberKeyBindings; i < k; i++)
     {
         if (ptr[i].isSet)
         {
-            fprintf(_out,"\n\nNo %u : '%s'",i,
+            fprintf(_out,"\n\n    %s : %s '%s'",
+                NULLSTR(_getCharString(
+                    theClassKeyBindNodeArray[i].name,
+                    insthdr->theClass->cls.base)),
+                cimTypeToString(theClassKeyBindNodeArray[i].type),    
                 (const char*)printUnionValue(
                     theClassKeyBindNodeArray[i].type,
                     ptr[i].data,
@@ -5415,11 +5459,45 @@ void SCMODump::dumpSCMOInstanceKeyBindings(SCMOInstance& testInst) const
         }
         else
         {
-            fprintf(_out,"\n\nNo %u : Not Set",i);
-
+            fprintf(_out,"\n\n    %s : Not Set",
+                NULLSTR(_getCharString(
+                    theClassKeyBindNodeArray[i].name,
+                    insthdr->theClass->cls.base)));
         }
     }
-    fprintf(_out,"\n");
+
+    fprintf(_out,"\n\nNumber of User Defined Key Bindings: %u",
+            insthdr->numberUserKeyBindings);
+
+
+    SCMBUserKeyBindingElement* theUserDefKBElement;
+
+    Uint64 start = insthdr->userKeyBindingElement.start;
+    while (start != 0)
+    {
+        theUserDefKBElement = (SCMBUserKeyBindingElement*)&(instbase[start]);
+
+        if (theUserDefKBElement->value.isSet)
+        {
+            fprintf(_out,"\n\n    %s : %s '%s'",
+                NULLSTR(_getCharString(theUserDefKBElement->name,instbase)),
+                cimTypeToString(theUserDefKBElement->type),    
+                (const char*)printUnionValue(
+                    theUserDefKBElement->type,
+                    theUserDefKBElement->value.data,
+                    instbase).getCString());
+        }
+        else
+        {
+            fprintf(_out,"\n\n    %s : Not Set",
+                NULLSTR(_getCharString(theUserDefKBElement->name,instbase)));
+
+        }
+        start = theUserDefKBElement->nextElement.start;
+    } // for all user def. key bindings.
+
+    fprintf(_out,"\n\n");
+
 }
 
 void SCMODump::dumpSCMOClass(SCMOClass& testCls) const
@@ -6104,8 +6182,14 @@ String SCMODump::printArrayValue(
     case CIMTYPE_OBJECT:
     case CIMTYPE_INSTANCE:
         {
-            // TODO: has to dump SCMOInstance ...
+            for (Uint32 i = 0; i < size; i++)
+            {
+                out << STRLIT("Pointer to external Reference : \'");
+                out << (Uint32)p[i].extRefPtr;                
+                out.append('\'');
+            }
             break;
+
         }
     default:
         {
@@ -6221,7 +6305,9 @@ String SCMODump::printUnionValue(
     case CIMTYPE_OBJECT:
     case CIMTYPE_INSTANCE:
         {
-            // TODO: Has to dump SCMOInstance.
+            out << STRLIT("Pointer to external Reference : \'");
+            out << (Uint32)u.extRefPtr;                
+            out.append('\'');
             break;
         }
     default:

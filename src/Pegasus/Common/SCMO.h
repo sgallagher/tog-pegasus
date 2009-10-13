@@ -423,7 +423,7 @@ struct SCMBInstance_Main
     }flags;
 
     // Number of user defined key bindings
-    Uint32          numberUserKeyBindindigs;
+    Uint32          numberUserKeyBindings;
     // Relative pointer  SCMBUserKeyBindingElement
     SCMBDataPtr     userKeyBindingElement;
     // Relative pointers to the name space name and class name.

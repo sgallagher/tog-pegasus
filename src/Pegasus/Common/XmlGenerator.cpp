@@ -596,10 +596,13 @@ void XmlGenerator::appendSpecial(Buffer& out, const String& str)
 void XmlGenerator::appendSpecial(Buffer& out, const char* str, Uint32 size)
 {
     // employ loop unrolling and a less checking optimized Buffer access
-    
 
     // Buffer cannot grow more than 6*size characters (ie. 4*size+2*size)
-    out.reserveCapacity(out.capacity() + size << 2 + size << 1);
+    Uint32 newMaxSize = (size << 2) + (size << 1);
+    if (out.size() + newMaxSize <= out.capacity())
+    {
+        out.reserveCapacity(out.capacity() + newMaxSize);
+    }
 
     while (size>=8)
     {
@@ -763,7 +766,6 @@ void XmlGenerator::appendSpecial(Buffer& out, const char* str, Uint32 size)
         }
         str++;
     }
-        
 }
 
 

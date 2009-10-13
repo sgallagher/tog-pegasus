@@ -31,16 +31,12 @@
 
 
 #include "CIMInternalXmlEncoder.h"
-#include "XmlWriter.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-void CIMInternalXmlEncoder::_putXMLInstance(
+void _putXMLInstance(
     CIMBuffer& out,
-    const CIMInstance& ci,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMInstance& ci)
 {
     if (ci.isUninitialized())
     {
@@ -55,12 +51,7 @@ void CIMInternalXmlEncoder::_putXMLInstance(
 
         // Serialize instance as XML.
         {
-            XmlWriter::appendInstanceElement(
-                buf,
-                ci,
-                includeQualifiers,
-                includeClassOrigin,
-                propertyList);
+            XmlWriter::appendInstanceElement(buf, ci);
             buf.append('\0');
 
             out.putUint32(buf.size());
@@ -80,9 +71,7 @@ void CIMInternalXmlEncoder::_putXMLInstance(
         }
         else
         {
-            // add ValueReferenceElement with VALUE.REFERENCE as instancePath
-            // and with VALUE.REFERENCE wrapper
-            XmlWriter::appendValueReferenceElement(buf, cop, false, true);
+            XmlWriter::appendValueReferenceElement(buf, cop, true);
             buf.append('\0');
 
             out.putUint32(buf.size());
@@ -93,12 +82,9 @@ void CIMInternalXmlEncoder::_putXMLInstance(
     }
 }
 
-void CIMInternalXmlEncoder::_putXMLNamedInstance(
+void _putXMLNamedInstance(
     CIMBuffer& out,
-    const CIMInstance& ci,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMInstance& ci)
 {
     if (ci.isUninitialized())
     {
@@ -113,12 +99,7 @@ void CIMInternalXmlEncoder::_putXMLNamedInstance(
 
         // Serialize instance as XML.
         {
-            XmlWriter::appendInstanceElement(
-                buf,
-                ci,
-                includeQualifiers,
-                includeClassOrigin,
-                propertyList);
+            XmlWriter::appendInstanceElement(buf, ci);
             buf.append('\0');
 
             out.putUint32(buf.size());
@@ -149,12 +130,35 @@ void CIMInternalXmlEncoder::_putXMLNamedInstance(
     }
 }
 
-void CIMInternalXmlEncoder::_putXMLObject(
+void _putXMLInstanceName(
     CIMBuffer& out,
-    const CIMObject& co,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
+    const CIMObjectPath& cop)
+{
+    Buffer buf(4096);
+
+    // Serialize object path as XML.
+
+    if (cop.getClassName().isNull())
+    {
+        out.putUint32(0);
+        out.putString(String());
+        out.putNamespaceName(CIMNamespaceName());
+    }
+    else
+    {
+        XmlWriter::appendValueReferenceElement(buf, cop, true);
+        buf.append('\0');
+
+        out.putUint32(buf.size());
+        out.putBytes(buf.getData(), buf.size());
+        out.putString(cop.getHost());
+        out.putNamespaceName(cop.getNameSpace());
+    }
+}
+
+void _putXMLObject(
+    CIMBuffer& out,
+    const CIMObject& co)
 {
     if (co.isUninitialized())
     {
@@ -169,12 +173,7 @@ void CIMInternalXmlEncoder::_putXMLObject(
 
         // Serialize instance as XML.
         {
-            XmlWriter::appendObjectElement(
-                buf,
-                co,
-                includeQualifiers,
-                includeClassOrigin,
-                propertyList);
+            XmlWriter::appendObjectElement(buf, co);
             buf.append('\0');
 
             out.putUint32(buf.size());
@@ -194,7 +193,7 @@ void CIMInternalXmlEncoder::_putXMLObject(
         }
         else
         {
-            _appendValueReferenceElement(buf, cop);
+            XmlWriter::appendValueReferenceElement(buf, cop, true);
             buf.append('\0');
 
             out.putUint32(buf.size());
@@ -203,23 +202,6 @@ void CIMInternalXmlEncoder::_putXMLObject(
             out.putNamespaceName(cop.getNameSpace());
         }
     }
-}
-
-
-// Calls appendInstanceName the other calls appendValueReference
-// This is a shortcut function that puts VALUE.REFERENCE around
-// InstanceNameElement directly.  It bypasses host and namespace components
-// and assumes that it is an instance. Note mechanisms above to add
-// host and namespace info different per function
-void CIMInternalXmlEncoder::_appendValueReferenceElement(
-    Buffer& out,
-    const CIMObjectPath& reference)
-{
-    out << STRLIT("<VALUE.REFERENCE>\n");
-
-    XmlWriter::appendInstanceNameElement(out, reference);
-
-    out << STRLIT("</VALUE.REFERENCE>\n");
 }
 
 PEGASUS_NAMESPACE_END

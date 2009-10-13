@@ -27,11 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// This code implements part of PEP#348 - The CMPI infrastructure using SCMO
-// (Single Chunk Memory Objects).
-// The design document can be found on the OpenPegasus website openpegasus.org
-// at https://collaboration.opengroup.org/pegasus/pp/documents/21210/PEP_348.pdf
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_SCMOInternalXmlEncoder_h
@@ -43,26 +38,13 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE SCMOInternalXmlEncoder
-{
-public:
-    static void _putXMLInstance(
-        CIMBuffer& out,
-        const SCMOInstance& ci,
-        const CIMPropertyList& propertyList = CIMPropertyList());
-    static void _putXMLNamedInstance(
-        CIMBuffer& out,
-        const Array<SCMOInstance> & _scmoInstances,    
-        const CIMPropertyList& propertyList = CIMPropertyList());
-    static void _putXMLObject(
-        CIMBuffer& out,
-        const Array<SCMOInstance> & co,
-        const CIMPropertyList& propertyList = CIMPropertyList());
-    static void _appendValueReferenceElement(
-        Buffer& out,
-        const SCMOInstance& ref);
+void _putXMLInstance(CIMBuffer& out, const SCMOInstance& ci);
 
-};
+void _putXMLNamedInstance(CIMBuffer& out, const SCMOInstance& ci);
+
+void _putXMLInstanceName(CIMBuffer& out, const SCMOInstance& cop);
+
+void _putXMLObject(CIMBuffer& out, const SCMOInstance& co);
 
 PEGASUS_NAMESPACE_END
 

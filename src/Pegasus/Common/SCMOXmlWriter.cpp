@@ -141,7 +141,7 @@ void SCMOXmlWriter::appendInstanceElement(
     }
 
     // Append Properties:
-    for (Uint32 i=0,k=scmoInstance.inst.hdr->numberProperties;i<k;i++)
+    for (Uint32 i=0,k=scmoInstance.getPropertyCount();i<k;i++)
     {
         if (scmoInstance.inst.hdr->flags.isFiltered &&
             !scmoInstance._isPropertyInFilter(i))
@@ -417,37 +417,54 @@ void SCMOXmlWriter::appendPropertyElement(
     }
     else if (propertyType == CIMTYPE_REFERENCE)
     {
-/*      TODO: Implement writing Reference
-        out << STRLIT("<PROPERTY.REFERENCE"
-                      " NAME=\"") << rep->getName() << STRLIT("\" ");
+        out << STRLIT("<PROPERTY.REFERENCE NAME=\""); 
+        out.append(
+            &(clsbase[propertyDef->name.start]),
+            propertyDef->name.length-1);
+        out << STRLIT("\" ");
 
-        if (!rep->getReferenceClassName().isNull())
+        if (0 != propertyDef->refClassName.start)
         {
-            out << STRLIT(" REFERENCECLASS=\"")
-                << rep->getReferenceClassName();
+            out << STRLIT(" REFERENCECLASS=\"");
+            out.append(
+                &(clsbase[propertyDef->refClassName.start]),
+                propertyDef->refClassName.length-1);
             out.append('"');
         }
 
-        if (!rep->getClassOrigin().isNull())
+        if (scmoInstance.inst.hdr->flags.includeClassOrigin)
         {
-            out << STRLIT(" CLASSORIGIN=\"") << rep->getClassOrigin();
-            out.append('"');
+            if (propertyDef->originClassName.start != 0)
+            {
+                out << STRLIT(" CLASSORIGIN=\"");
+                out.append(
+                    &(clsbase[propertyDef->originClassName.start]),
+                    propertyDef->originClassName.length-1);
+                out.append('"');
+            }
         }
-
-        if (rep->getPropagated())
+        if (propertyDef->flags.propagated)
         {
             out << STRLIT(" PROPAGATED=\"true\"");
         }
-
         out << STRLIT(">\n");
-
-        for (Uint32 i = 0, n = rep->getQualifierCount(); i < n; i++)
-            XmlWriter::appendQualifierElement(out, rep->getQualifier(i));
-
-        XmlWriter::appendValueElement(out, rep->getValue());
-
+        // Append Instance Qualifiers:
+        if (scmoInstance.inst.hdr->flags.includeQualifiers)
+        {
+            SCMBQualifier * theArray=
+                (SCMBQualifier*)
+                    &(clsbase[propertyDef->qualifierArray.start]);
+            // need to iterate
+            for (Uint32 i=0, n=propertyDef->numberOfQualifiers;i<n;i++)
+            {
+                SCMOXmlWriter::appendQualifierElement(
+                    out,
+                    theArray[i],
+                    clsbase);
+            }
+        }
+        SCMOXmlWriter::appendValueElement(out,*propertyValue,propertyValueBase);
         out << STRLIT("</PROPERTY.REFERENCE>\n");
-*/
     }
     else
     {
@@ -607,6 +624,7 @@ void SCMOXmlWriter::appendValueElement(
         CIMObjectPath v;
         value.get(v);
         _xmlWritter_appendValue(out, v);
+        ----> same as: XmlWriter::appendValueReferenceElement(out, x, true);
 */
     }
     else
@@ -618,6 +636,96 @@ void SCMOXmlWriter::appendValueElement(
 
         out << STRLIT("</VALUE>\n");
     }
+}
+
+//------------------------------------------------------------------------------
+//
+// appendValueReferenceElement()
+//
+//    <!ELEMENT VALUE.REFERENCE
+//        (CLASSPATH|LOCALCLASSPATH|CLASSNAME|INSTANCEPATH|LOCALINSTANCEPATH|
+//         INSTANCENAME)>
+//
+//------------------------------------------------------------------------------
+
+void SCMOXmlWriter::appendValueReferenceElement(
+    Buffer& out,
+    const SCMOInstance& ref,
+    Boolean putValueWrapper)
+{
+    if (putValueWrapper)
+        out << STRLIT("<VALUE.REFERENCE>\n");
+
+    // See if it is a class or instance reference (instance references have
+    // key-bindings; class references do not).
+
+    // differentiate between instance and class using the SCMO flag
+    if (ref.inst.hdr->flags.isClassOnly)
+    {
+        // class
+        if (0 != ref.inst.hdr->hostName.start)
+        {
+            appendClassPathElement(out, ref);
+        }
+/*      TODO: Implement
+        else if (!reference.getNameSpace().isNull())
+        {
+            appendLocalClassPathElement(out, reference);
+        }
+        else
+        {
+            appendClassNameElement(out, reference.getClassName());
+        }
+*/
+    }
+    else
+    {
+        // instance
+        if (0 != ref.inst.hdr->hostName.start)
+        {
+            // appendInstancePathElement(out, reference);
+        }
+/*      TODO: Implement
+        else if (!reference.getNameSpace().isNull())
+        {
+            appendLocalInstancePathElement(out, reference);
+        }
+        else
+        {
+            appendInstanceNameElement(out, reference);
+        }
+*/
+    }
+    if (putValueWrapper)
+        out << STRLIT("</VALUE.REFERENCE>\n");
+}
+
+//------------------------------------------------------------------------------
+//
+// appendClassPathElement()
+//
+//     <!ELEMENT CLASSPATH (NAMESPACEPATH,CLASSNAME)>
+//
+//------------------------------------------------------------------------------
+
+void SCMOXmlWriter::appendClassPathElement(
+    Buffer& out,
+    const SCMOInstance& classPath)
+{
+    out << STRLIT("<CLASSPATH>\n");
+
+    Uint64 hostnameLength=0;
+    const char* hostname=classPath.getHostName_l(hostnameLength);
+    Uint64 nsLength=0;
+    const char* ns=classPath.getNameSpace_l(nsLength);
+
+    appendNameSpacePathElement(out,hostname,hostnameLength,ns,nsLength);
+
+    Uint64 classNameLength=0;
+    const char* className = classPath.getClassName_l(classNameLength);
+
+    appendClassNameElement(out, className, classNameLength-1);
+    out << STRLIT("</CLASSPATH>\n");
 }
 
 void SCMOXmlWriter::appendSCMBUnion(

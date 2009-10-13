@@ -2968,8 +2968,9 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         }
         _throwCIMException(rc, eRes.resError);
 
+        // TODO: Differentiate here between SCMO and C++ 
         // Copy property value from instance to getProperty response
-        CIMInstance& instance = GI_response->getResponseData().getCimInstance();
+        CIMInstance& instance = GI_response->getResponseData().getInstance();
         if(!(instance.isUninitialized()))
         {
             Uint32 pos = instance.findProperty(request->propertyName);

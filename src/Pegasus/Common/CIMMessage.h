@@ -1455,11 +1455,12 @@ public:
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
     : CIMResponseMessage(CIM_GET_INSTANCE_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_)
+        messageId_, cimException_, queueIds_),
+      _responseData(CIMResponseData::RESP_INSTANCE)
     {
     }
 
-    CIMInstanceResponseData& getResponseData()
+    CIMResponseData& getResponseData()
     {
         return _responseData;
     }
@@ -1470,7 +1471,7 @@ private:
     CIMGetInstanceResponseMessage& operator=(
         const CIMGetInstanceResponseMessage&);
 
-    CIMInstanceResponseData _responseData;
+    CIMResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMExportIndicationResponseMessage
@@ -1621,18 +1622,19 @@ public:
         const QueueIdStack& queueIds_)
     : CIMResponseMessage(
         CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_)
+        messageId_, cimException_, queueIds_),
+      _responseData(CIMResponseData::RESP_INSTANCES)
     {
     }
 
-    CIMInstancesResponseData& getResponseData()
+    CIMResponseData& getResponseData()
     {
         return _responseData;
     }
 
 private:
 
-    CIMInstancesResponseData _responseData;
+    CIMResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMEnumerateInstanceNamesResponseMessage
@@ -1644,18 +1646,19 @@ public:
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
     : CIMResponseMessage(CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_)
+        messageId_, cimException_, queueIds_),
+      _responseData(CIMResponseData::RESP_INSTNAMES)
     {
     }
 
-    CIMInstanceNamesResponseData& getResponseData()
+    CIMResponseData& getResponseData()
     {
         return _responseData;
     }
 
 private:
 
-    CIMInstanceNamesResponseData _responseData;
+    CIMResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMExecQueryResponseMessage
@@ -1667,17 +1670,18 @@ public:
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
     : CIMResponseMessage(CIM_EXEC_QUERY_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_)
+        messageId_, cimException_, queueIds_),
+      _responseData(CIMResponseData::RESP_OBJECTS)
     {
     }
 
-    CIMObjectsResponseData& getResponseData()
+    CIMResponseData& getResponseData()
     {
         return _responseData;
     }
 
 private:
-    CIMObjectsResponseData _responseData;
+    CIMResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMAssociatorsResponseMessage
@@ -1689,17 +1693,17 @@ public:
         const CIMException& cimException_,
         const QueueIdStack& queueIds_)
     : CIMResponseMessage(CIM_ASSOCIATORS_RESPONSE_MESSAGE,
-        messageId_, cimException_, queueIds_)
+        messageId_, cimException_, queueIds_),
+      _responseData(CIMResponseData::RESP_INSTANCES)
     {
     }
 
-    CIMObjectsResponseData& getResponseData()
+    CIMResponseData& getResponseData()
     {
         return _responseData;
     }
-
 private:
-    CIMObjectsResponseData _responseData;
+    CIMResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMAssociatorNamesResponseMessage
@@ -1713,11 +1717,15 @@ public:
         const Array<CIMObjectPath>& objectNames_)
     : CIMResponseMessage(CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_),
-        objectNames(objectNames_)
+        _responseData(CIMResponseData::RESP_OBJECTPATHS)
     {
     }
-
-    Array<CIMObjectPath> objectNames;
+    CIMResponseData& getResponseData()
+    {
+        return _responseData;
+    }
+private:
+    CIMResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMReferencesResponseMessage
@@ -1731,11 +1739,15 @@ public:
         const Array<CIMObject>& cimObjects_)
     : CIMResponseMessage(CIM_REFERENCES_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_),
-        cimObjects(cimObjects_)
+        _responseData(CIMResponseData::RESP_OBJECTS)
     {
     }
-
-    Array<CIMObject> cimObjects;
+    CIMResponseData& getResponseData()
+    {
+        return _responseData;
+    }
+private:
+    CIMResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMReferenceNamesResponseMessage
@@ -1749,11 +1761,15 @@ public:
         const Array<CIMObjectPath>& objectNames_)
     : CIMResponseMessage(CIM_REFERENCE_NAMES_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_),
-        objectNames(objectNames_)
+        _responseData(CIMResponseData::RESP_OBJECTPATHS)
     {
     }
-
-    Array<CIMObjectPath> objectNames;
+    CIMResponseData& getResponseData()
+    {
+        return _responseData;
+    }
+private:
+    CIMResponseData _responseData;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMGetPropertyResponseMessage

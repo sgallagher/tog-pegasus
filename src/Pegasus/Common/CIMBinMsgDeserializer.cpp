@@ -1580,11 +1580,11 @@ CIMBinMsgDeserializer::_getGetInstanceResponseMessage(
         CIMException(),
         QueueIdStack());
 
-    CIMInstanceResponseData& responseData = msg->getResponseData();
+    CIMResponseData& responseData = msg->getResponseData();
 
     if (binaryResponse)
     {
-        if (!responseData.setBinaryCimInstance(in))
+        if (!responseData.setBinary(in))
         {
             delete(msg);
             return 0;
@@ -1592,7 +1592,7 @@ CIMBinMsgDeserializer::_getGetInstanceResponseMessage(
     }
     else
     {
-        if (!responseData.setXmlCimInstance(in))
+        if (!responseData.setXml(in))
         {
             delete(msg);
             return 0;
@@ -1648,11 +1648,11 @@ CIMBinMsgDeserializer::_getEnumerateInstancesResponseMessage(
     msg = new CIMEnumerateInstancesResponseMessage(String::EMPTY,
         CIMException(), QueueIdStack());
 
-    CIMInstancesResponseData& responseData = msg->getResponseData();
+    CIMResponseData& responseData = msg->getResponseData();
 
     if (binaryResponse)
     {
-        if (!responseData.setBinaryCimInstances(in))
+        if (!responseData.setBinary(in))
         {
             delete(msg);
             return 0;
@@ -1662,7 +1662,7 @@ CIMBinMsgDeserializer::_getEnumerateInstancesResponseMessage(
     }
     else
     {
-        if (!responseData.setXmlCimInstances(in))
+        if (!responseData.setXml(in))
         {
             delete(msg);
             return 0;
@@ -1683,11 +1683,11 @@ CIMBinMsgDeserializer::_getEnumerateInstanceNamesResponseMessage(
                                                        CIMException(),
                                                        QueueIdStack());
 
-    CIMInstanceNamesResponseData& responseData = msg->getResponseData();
+    CIMResponseData& responseData = msg->getResponseData();
 
     if (binaryResponse)
     {
-        if (!responseData.setBinaryCimInstanceNames(in))
+        if (!responseData.setBinary(in))
         {
             delete(msg);
             return 0;
@@ -1697,7 +1697,7 @@ CIMBinMsgDeserializer::_getEnumerateInstanceNamesResponseMessage(
     }
     else
     {
-        if (!responseData.setXmlCimInstanceNames(in))
+        if (!responseData.setXml(in))
         {
             delete(msg);
             return 0;
@@ -1717,11 +1717,11 @@ CIMBinMsgDeserializer::_getExecQueryResponseMessage(
     msg = new CIMExecQueryResponseMessage(String::EMPTY,
         CIMException(), QueueIdStack());
 
-    CIMObjectsResponseData& responseData = msg->getResponseData();
+    CIMResponseData& responseData = msg->getResponseData();
 
     if (binaryResponse)
     {
-        if (!responseData.setBinaryCimObjects(in))
+        if (!responseData.setBinary(in))
         {
             delete(msg);
             return 0;
@@ -1729,7 +1729,7 @@ CIMBinMsgDeserializer::_getExecQueryResponseMessage(
     }
     else
     {
-        if (!responseData.setXmlCimObjects(in))
+        if (!responseData.setXml(in))
         {
             delete(msg);
             return 0;
@@ -1749,11 +1749,11 @@ CIMBinMsgDeserializer::_getAssociatorsResponseMessage(
     msg = new CIMAssociatorsResponseMessage(String::EMPTY,
         CIMException(), QueueIdStack());
 
-    CIMObjectsResponseData& responseData = msg->getResponseData();
+    CIMResponseData& responseData = msg->getResponseData();
 
     if (binaryResponse)
     {
-        if (!responseData.setBinaryCimObjects(in))
+        if (!responseData.setBinary(in))
         {
             delete(msg);
             return 0;
@@ -1761,7 +1761,7 @@ CIMBinMsgDeserializer::_getAssociatorsResponseMessage(
     }
     else
     {
-        if (!responseData.setXmlCimObjects(in))
+        if (!responseData.setXml(in))
         {
             delete(msg);
             return 0;

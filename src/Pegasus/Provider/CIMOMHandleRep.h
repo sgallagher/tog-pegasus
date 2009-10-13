@@ -97,7 +97,7 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMName& className) = 0;
 
-    virtual CIMResponseData getInstance(
+    virtual CIMResponseData& getInstance(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
@@ -105,7 +105,7 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList) = 0;
 
-    virtual CIMResponseData enumerateInstances(
+    virtual CIMResponseData& enumerateInstances(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
@@ -114,7 +114,7 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList) = 0;
 
-    virtual CIMResponseData enumerateInstanceNames(
+    virtual CIMResponseData& enumerateInstanceNames(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMName& className) = 0;
@@ -136,13 +136,13 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName) = 0;
 
-    virtual CIMResponseData execQuery(
+    virtual CIMResponseData& execQuery(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const String& queryLanguage,
         const String& query) = 0;
 
-    virtual CIMResponseData associators(
+    virtual CIMResponseData& associators(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -154,7 +154,7 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList) = 0;
 
-    virtual CIMResponseData associatorNames(
+    virtual CIMResponseData& associatorNames(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -163,7 +163,7 @@ public:
         const String& role,
         const String& resultRole) = 0;
 
-    virtual CIMResponseData references(
+    virtual CIMResponseData& references(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -173,7 +173,7 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList) = 0;
 
-    virtual CIMResponseData referenceNames(
+    virtual CIMResponseData& referenceNames(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,

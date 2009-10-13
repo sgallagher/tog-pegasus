@@ -461,7 +461,7 @@ CIMClass CIMClientRep::getClass(
     return response->cimClass;
 }
 
-CIMInstance CIMClientRep::getInstance(
+CIMResponseData& CIMClientRep::getInstance(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
     Boolean localOnly,
@@ -487,7 +487,7 @@ CIMInstance CIMClientRep::getInstance(
 
     AutoPtr<CIMGetInstanceResponseMessage> destroyer(response);
 
-    return response->getResponseData().getCimInstance();
+    return response->getResponseData();
 }
 
 #if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
@@ -517,7 +517,7 @@ Array<Uint8> CIMClientRep::getBinaryInstance(
 
     AutoPtr<CIMGetInstanceResponseMessage> destroyer(response);
 
-    return response->getResponseData().getBinaryCimInstance();
+    return response->getResponseData().getBinary();
 }
 #endif // PEGASUS_ENABLE_PROTOCOL_BINARY
 
@@ -698,7 +698,7 @@ Array<CIMName> CIMClientRep::enumerateClassNames(
     return classNameArray;
 }
 
-Array<CIMInstance> CIMClientRep::enumerateInstances(
+CIMResponseData& CIMClientRep::enumerateInstances(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
     Boolean deepInheritance,
@@ -727,9 +727,10 @@ Array<CIMInstance> CIMClientRep::enumerateInstances(
 
     AutoPtr<CIMEnumerateInstancesResponseMessage> destroyer(response);
 
-    return response->getResponseData().getNamedInstances();
+    return response->getResponseData();
 }
 
+// TODO: DEPRECATE ALL THESE FUNCTIONS
 #if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
 Array<Uint8> CIMClientRep::enumerateBinaryInstances(
     const CIMNamespaceName& nameSpace,
@@ -761,11 +762,11 @@ Array<Uint8> CIMClientRep::enumerateBinaryInstances(
     AutoPtr<CIMEnumerateInstancesResponseMessage> destroyer(response);
 
 
-    return response->getResponseData().getBinaryCimInstances();
+    return response->getResponseData().getBinary();
 }
 #endif // PEGASUS_ENABLE_PROTOCOL_BINARY
 
-Array<CIMObjectPath> CIMClientRep::enumerateInstanceNames(
+CIMResponseData& CIMClientRep::enumerateInstanceNames(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
@@ -784,10 +785,10 @@ Array<CIMObjectPath> CIMClientRep::enumerateInstanceNames(
 
     AutoPtr<CIMEnumerateInstanceNamesResponseMessage> destroyer(response);
 
-    return response->getResponseData().getInstanceNames();
+    return response->getResponseData();
 }
 
-Array<CIMObject> CIMClientRep::execQuery(
+CIMResponseData& CIMClientRep::execQuery(
     const CIMNamespaceName& nameSpace,
     const String& queryLanguage,
     const String& query)
@@ -806,7 +807,7 @@ Array<CIMObject> CIMClientRep::execQuery(
 
     AutoPtr<CIMExecQueryResponseMessage> destroyer(response);
 
-    return response->getResponseData().getCIMObjects();
+    return response->getResponseData();
 }
 
 #if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
@@ -829,11 +830,11 @@ Array<Uint8> CIMClientRep::execQueryBinary(
 
     AutoPtr<CIMExecQueryResponseMessage> destroyer(response);
 
-    return response->getResponseData().getBinaryCimObjects();
+    return response->getResponseData().getBinary();
 }
 #endif
 
-Array<CIMObject> CIMClientRep::associators(
+CIMResponseData& CIMClientRep::associators(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& assocClass,
@@ -864,7 +865,7 @@ Array<CIMObject> CIMClientRep::associators(
 
     AutoPtr<CIMAssociatorsResponseMessage> destroyer(response);
 
-    return response->getResponseData().getCIMObjects();
+    return response->getResponseData();
 }
 
 #if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
@@ -899,11 +900,11 @@ Array<Uint8> CIMClientRep::associatorsBinary(
 
     AutoPtr<CIMAssociatorsResponseMessage> destroyer(response);
 
-    return response->getResponseData().getBinaryCimObjects();
+    return response->getResponseData().getBinary();
 }
 #endif
 
-Array<CIMObjectPath> CIMClientRep::associatorNames(
+CIMResponseData& CIMClientRep::associatorNames(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& assocClass,
@@ -929,10 +930,10 @@ Array<CIMObjectPath> CIMClientRep::associatorNames(
 
     AutoPtr<CIMAssociatorNamesResponseMessage> destroyer(response);
 
-    return response->objectNames;
+    return response->getResponseData();
 }
 
-Array<CIMObject> CIMClientRep::references(
+CIMResponseData& CIMClientRep::references(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& resultClass,
@@ -959,10 +960,10 @@ Array<CIMObject> CIMClientRep::references(
 
     AutoPtr<CIMReferencesResponseMessage> destroyer(response);
 
-    return response->cimObjects;
+    return response->getResponseData();
 }
 
-Array<CIMObjectPath> CIMClientRep::referenceNames(
+CIMResponseData& CIMClientRep::referenceNames(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& resultClass,
@@ -984,7 +985,7 @@ Array<CIMObjectPath> CIMClientRep::referenceNames(
 
     AutoPtr<CIMReferenceNamesResponseMessage> destroyer(response);
 
-    return response->objectNames;
+    return response->getResponseData();
 }
 
 CIMValue CIMClientRep::getProperty(

@@ -317,11 +317,11 @@ int UTF8toUTF16 (const Uint8** srcHead,
 
 Boolean isUTF8Aux(const char *legal)
 {
-    unsigned char numBytes = UTF_8_COUNT_TRAIL_BYTES(*legal)+1;
+    char numBytes = UTF_8_COUNT_TRAIL_BYTES(*legal)+1;
 
     // Validate that the string is long enough to hold all the expected bytes.
     // Note that if legal[0] == 0, numBytes will be 1.
-    for (unsigned char i=1; i<numBytes; i++)
+    for (char i=1; i<numBytes; i++)
     {
         if (legal[i] == 0)
         {

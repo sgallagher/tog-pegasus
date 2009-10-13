@@ -318,43 +318,6 @@ GetInstanceResponseHandler::GetInstanceResponseHandler(
         _normalizer);
 }
 
-void GetInstanceResponseHandler::deliver(const SCMOInstance& cimInstance)
-{
-    if (cimInstance.isUninitialized())
-    {
-        MessageLoaderParms message(
-            "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
-            "The object is not initialized.");
-
-        throw CIMException(CIM_ERR_FAILED, message);
-    }
-
-    if (SimpleInstanceResponseHandler::size() != 0)
-    {
-        MessageLoaderParms message(
-            "Server.OperationResponseHandler.TOO_MANY_OBJECTS_DELIVERED",
-            "Too many objects delivered.");
-
-        throw CIMException(CIM_ERR_FAILED, message);
-    }
-
-    SCMOInstance localInstance(cimInstance);
-#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-    // The normalizer expects an object path embedded in instances even
-    // though it is not required by this operation. Use the requested
-    // object path is missing from the instance.
-    if (localInstance.getPath().getKeyBindings().size() == 0)
-    {
-        // ATTN: should clone before modification
-        localInstance.setPath(static_cast<CIMGetInstanceRequestMessage*>(
-            getRequest())->instanceName);
-    }
-#endif
-    SimpleInstanceResponseHandler::deliver(localInstance);
-    // TBD
-    //_normalizer.processInstance(localInstance));
-}
-
 void GetInstanceResponseHandler::deliver(const CIMInstance& cimInstance)
 {
     if (cimInstance.isUninitialized())
@@ -391,6 +354,29 @@ void GetInstanceResponseHandler::deliver(const CIMInstance& cimInstance)
         _normalizer.processInstance(localInstance));
 }
 
+void GetInstanceResponseHandler::deliver(const SCMOInstance& cimInstance)
+{
+    if (cimInstance.isUninitialized())
+    {
+        MessageLoaderParms message(
+            "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
+            "The object is not initialized.");
+
+        throw CIMException(CIM_ERR_FAILED, message);
+    }
+
+    if (SimpleInstanceResponseHandler::size() != 0)
+    {
+        MessageLoaderParms message(
+            "Server.OperationResponseHandler.TOO_MANY_OBJECTS_DELIVERED",
+            "Too many objects delivered.");
+
+        throw CIMException(CIM_ERR_FAILED, message);
+    }
+
+    SimpleInstanceResponseHandler::deliver(cimInstance);
+}
+
 void GetInstanceResponseHandler::complete()
 {
     if (SimpleInstanceResponseHandler::size() == 0)
@@ -417,10 +403,16 @@ void GetInstanceResponseHandler::transfer()
     {
         CIMGetInstanceResponseMessage& msg =
             *static_cast<CIMGetInstanceResponseMessage*>(getResponse());
-
-        msg.getResponseData().setSCMOInstance(getSCMOObjects()[0]);
-        // TODO --RK--> enable for C++ Providers again
-        // msg.getResponseData().setCimInstance(getObjects()[0]);
+        Array<CIMInstance> cimObjs= getObjects();
+        Array<SCMOInstance> scmoObjs= getSCMOObjects();
+        if (cimObjs.size() != 0)
+        {
+            msg.getResponseData().setInstance(cimObjs[0]);
+        }
+        else
+        {
+            msg.getResponseData().setSCMO(scmoObjs);
+        }
     }
 }
 
@@ -466,9 +458,10 @@ void EnumerateInstancesResponseHandler::deliver(const CIMInstance& cimInstance)
         _normalizer.processInstance(cimInstance));
 }
 
-void EnumerateInstancesResponseHandler::deliver(const SCMOInstance& cimInstance)
+void EnumerateInstancesResponseHandler::deliver(
+    const SCMOInstance& scmoInstance)
 {
-    if (cimInstance.isUninitialized())
+    if (scmoInstance.isUninitialized())
     {
         MessageLoaderParms message(
             "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
@@ -476,10 +469,7 @@ void EnumerateInstancesResponseHandler::deliver(const SCMOInstance& cimInstance)
 
         throw CIMException(CIM_ERR_FAILED, message);
     }
-
-    SimpleInstanceResponseHandler::deliver(cimInstance);
-    // TBD
-    //    _normalizer.processInstance(cimInstance));
+    SimpleInstanceResponseHandler::deliver(scmoInstance);
 }
 
 String EnumerateInstancesResponseHandler::getClass() const
@@ -492,8 +482,16 @@ void EnumerateInstancesResponseHandler::transfer()
     CIMEnumerateInstancesResponseMessage& msg =
         *static_cast<CIMEnumerateInstancesResponseMessage*>(getResponse());
 
-    // TBD --RK--> enable for C++ Providers again
-    msg.getResponseData().setSCMOInstances(getSCMOObjects());
+    Array<CIMInstance> cimObjs= getObjects();
+    Array<SCMOInstance> scmoObjs= getSCMOObjects();
+    if (cimObjs.size() != 0)
+    {
+        msg.getResponseData().setInstances(cimObjs);
+    }
+    if (scmoObjs.size() != 0)
+    {
+        msg.getResponseData().setSCMO(scmoObjs);
+    }
 }
 
 //
@@ -542,8 +540,6 @@ void EnumerateInstanceNamesResponseHandler::deliver(
     }
 
     SimpleObjectPathResponseHandler::deliver(scmoObjectPath);
-    // TBD
-    //        _normalizer.processInstanceObjectPath(cimObjectPath));
 }
 
 String EnumerateInstanceNamesResponseHandler::getClass() const
@@ -556,8 +552,16 @@ void EnumerateInstanceNamesResponseHandler::transfer()
     CIMEnumerateInstanceNamesResponseMessage& msg =
         *static_cast<CIMEnumerateInstanceNamesResponseMessage*>(getResponse());
 
-    // TODO --RK--> enable for C++ Providers again
-    msg.getResponseData().setSCMOInstanceNames(getSCMOObjects());
+    Array<CIMObjectPath> cimObjs= getObjects();
+    Array<SCMOInstance> scmoObjs= getSCMOObjects();
+    if (cimObjs.size() != 0)
+    {
+        msg.getResponseData().setInstanceNames(cimObjs);
+    }
+    if (scmoObjs.size() != 0)
+    {
+        msg.getResponseData().setSCMO(scmoObjs);
+    }
 }
 
 //
@@ -575,29 +579,6 @@ CreateInstanceResponseHandler::CreateInstanceResponseHandler(
 void CreateInstanceResponseHandler::deliver(const CIMObjectPath& cimObjectPath)
 {
     if (cimObjectPath.getClassName().isNull())
-    {
-        MessageLoaderParms message(
-            "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
-            "The object is not initialized.");
-
-        throw CIMException(CIM_ERR_FAILED, message);
-    }
-
-    if (SimpleObjectPathResponseHandler::size() != 0)
-    {
-        MessageLoaderParms message(
-            "Server.OperationResponseHandler.TOO_MANY_OBJECTS_DELIVERED",
-            "Too many objects delivered.");
-
-        throw CIMException(CIM_ERR_FAILED, message);
-    }
-
-    SimpleObjectPathResponseHandler::deliver(cimObjectPath);
-}
-
-void CreateInstanceResponseHandler::deliver(const SCMOInstance& cimObjectPath)
-{
-    if (cimObjectPath.getClassName() == 0)
     {
         MessageLoaderParms message(
             "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
@@ -788,9 +769,9 @@ void ExecQueryResponseHandler::deliver(const CIMInstance& cimInstance)
     SimpleInstance2ObjectResponseHandler::deliver(cimInstance);
 }
 
-void ExecQueryResponseHandler::deliver(const SCMOInstance& cimInstance)
+void ExecQueryResponseHandler::deliver(const SCMOInstance& scmoInstance)
 {
-    if (cimInstance.isUninitialized())
+    if (scmoInstance.isUninitialized())
     {
         MessageLoaderParms message(
             "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
@@ -799,7 +780,7 @@ void ExecQueryResponseHandler::deliver(const SCMOInstance& cimInstance)
         throw CIMException(CIM_ERR_FAILED, message);
     }
 
-    SimpleInstance2ObjectResponseHandler::deliver(cimInstance);
+    SimpleInstance2ObjectResponseHandler::deliver(scmoInstance);
 }
 
 String ExecQueryResponseHandler::getClass() const
@@ -812,7 +793,16 @@ void ExecQueryResponseHandler::transfer()
     CIMExecQueryResponseMessage& msg =
         *static_cast<CIMExecQueryResponseMessage*>(getResponse());
 
-    msg.getResponseData().setCIMObjects(getObjects());
+    Array<CIMObject> cimObjs= getObjects();
+    Array<SCMOInstance> scmoObjs= getSCMOObjects();
+    if (cimObjs.size() != 0)
+    {
+        msg.getResponseData().setObjects(cimObjs);
+    }
+    if (scmoObjs.size() != 0)
+    {
+        msg.getResponseData().setSCMO(scmoObjs);
+    }
 }
 
 Boolean ExecQueryResponseHandler::isAsync() const
@@ -846,9 +836,9 @@ void AssociatorsResponseHandler::deliver(const CIMObject& cimObject)
     SimpleObjectResponseHandler::deliver(cimObject);
 }
 
-void AssociatorsResponseHandler::deliver(const SCMOInstance& cimObject)
+void AssociatorsResponseHandler::deliver(const SCMOInstance& scmoObject)
 {
-    if (cimObject.isUninitialized())
+    if (scmoObject.isUninitialized())
     {
         MessageLoaderParms message(
             "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
@@ -856,8 +846,7 @@ void AssociatorsResponseHandler::deliver(const SCMOInstance& cimObject)
 
         throw CIMException(CIM_ERR_FAILED, message);
     }
-
-    SimpleObjectResponseHandler::deliver(cimObject);
+    SimpleObjectResponseHandler::deliver(scmoObject);
 }
 
 String AssociatorsResponseHandler::getClass() const
@@ -870,8 +859,16 @@ void AssociatorsResponseHandler::transfer()
     CIMAssociatorsResponseMessage& msg =
         *static_cast<CIMAssociatorsResponseMessage*>(getResponse());
 
-    // TODO --RK--> enable for C++ Providers again
-    msg.getResponseData().setCIMObjects(getObjects());
+    Array<CIMObject> cimObjs= getObjects();
+    Array<SCMOInstance> scmoObjs= getSCMOObjects();
+    if (cimObjs.size() != 0)
+    {
+        msg.getResponseData().setObjects(cimObjs);
+    }
+    if (scmoObjs.size() != 0)
+    {
+        msg.getResponseData().setSCMO(scmoObjs);
+    }
 }
 
 //
@@ -900,18 +897,9 @@ void AssociatorNamesResponseHandler::deliver(const CIMObjectPath& cimObjectPath)
     SimpleObjectPathResponseHandler::deliver(cimObjectPath);
 }
 
-void AssociatorNamesResponseHandler::deliver(const SCMOInstance& cimObjectPath)
+void AssociatorNamesResponseHandler::deliver(const SCMOInstance& scmoObjectPath)
 {
-    if (cimObjectPath.getClassName() == 0)
-    {
-        MessageLoaderParms message(
-            "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
-            "The object is not initialized.");
-
-        throw CIMException(CIM_ERR_FAILED, message);
-    }
-
-    SimpleObjectPathResponseHandler::deliver(cimObjectPath);
+    SimpleObjectPathResponseHandler::deliver(scmoObjectPath);
 }
 
 String AssociatorNamesResponseHandler::getClass() const
@@ -924,7 +912,16 @@ void AssociatorNamesResponseHandler::transfer()
     CIMAssociatorNamesResponseMessage& msg =
         *static_cast<CIMAssociatorNamesResponseMessage*>(getResponse());
 
-    msg.objectNames = getObjects();
+    Array<CIMObjectPath> cimObjs= getObjects();
+    Array<SCMOInstance> scmoObjs= getSCMOObjects();
+    if (cimObjs.size() != 0)
+    {
+        msg.getResponseData().setInstanceNames(cimObjs);
+    }
+    if (scmoObjs.size() != 0)
+    {
+        msg.getResponseData().setSCMO(scmoObjs);
+    }
 }
 
 //
@@ -953,9 +950,9 @@ void ReferencesResponseHandler::deliver(const CIMObject& cimObject)
     SimpleObjectResponseHandler::deliver(cimObject);
 }
 
-void ReferencesResponseHandler::deliver(const SCMOInstance& cimObject)
+void ReferencesResponseHandler::deliver(const SCMOInstance& scmoObject)
 {
-    if (cimObject.isUninitialized())
+    if (scmoObject.isUninitialized())
     {
         MessageLoaderParms message(
             "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
@@ -963,8 +960,7 @@ void ReferencesResponseHandler::deliver(const SCMOInstance& cimObject)
 
         throw CIMException(CIM_ERR_FAILED, message);
     }
-
-    SimpleObjectResponseHandler::deliver(cimObject);
+    SimpleObjectResponseHandler::deliver(scmoObject);
 }
 
 String ReferencesResponseHandler::getClass() const
@@ -977,7 +973,16 @@ void ReferencesResponseHandler::transfer()
     CIMReferencesResponseMessage& msg =
         *static_cast<CIMReferencesResponseMessage*>(getResponse());
 
-    msg.cimObjects = getObjects();
+    Array<CIMObject> cimObjs= getObjects();
+    Array<SCMOInstance> scmoObjs= getSCMOObjects();
+    if (cimObjs.size() != 0)
+    {
+        msg.getResponseData().setObjects(cimObjs);
+    }
+    if (scmoObjs.size() != 0)
+    {
+        msg.getResponseData().setSCMO(scmoObjs);
+    }
 }
 
 //
@@ -1006,18 +1011,9 @@ void ReferenceNamesResponseHandler::deliver(const CIMObjectPath& cimObjectPath)
     SimpleObjectPathResponseHandler::deliver(cimObjectPath);
 }
 
-void ReferenceNamesResponseHandler::deliver(const SCMOInstance& cimObjectPath)
+void ReferenceNamesResponseHandler::deliver(const SCMOInstance& scmoObjectPath)
 {
-    if (cimObjectPath.getClassName() == 0)
-    {
-        MessageLoaderParms message(
-            "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
-            "The object is not initialized.");
-
-        throw CIMException(CIM_ERR_FAILED, message);
-    }
-
-    SimpleObjectPathResponseHandler::deliver(cimObjectPath);
+    SimpleObjectPathResponseHandler::deliver(scmoObjectPath);
 }
 
 String ReferenceNamesResponseHandler::getClass() const
@@ -1030,7 +1026,16 @@ void ReferenceNamesResponseHandler::transfer()
     CIMReferenceNamesResponseMessage& msg =
         *static_cast<CIMReferenceNamesResponseMessage*>(getResponse());
 
-    msg.objectNames = getObjects();
+    Array<CIMObjectPath> cimObjs= getObjects();
+    Array<SCMOInstance> scmoObjs= getSCMOObjects();
+    if (cimObjs.size() != 0)
+    {
+        msg.getResponseData().setInstanceNames(cimObjs);
+    }
+    if (scmoObjs.size() != 0)
+    {
+        msg.getResponseData().setSCMO(scmoObjs);
+    }
 }
 
 //

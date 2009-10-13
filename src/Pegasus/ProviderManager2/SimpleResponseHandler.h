@@ -106,6 +106,7 @@ public:
 private:
     Array<CIMInstance> _objects;
     Array<SCMOInstance> _scmoObjects;
+    //CIMInstanceResponseData responseData;
 };
 
 class PEGASUS_PPM_LINKAGE SimpleObjectPathResponseHandler :
@@ -227,7 +228,6 @@ public:
     virtual void deliver(const Array<CIMObject>& objects);
 
     const Array<CIMObject> getObjects() const;
-
     const Array<SCMOInstance> getSCMOObjects() const;
 
 private:
@@ -256,10 +256,11 @@ public:
     virtual void deliver(const Array<CIMInstance>& objects);
 
     const Array<CIMObject> getObjects() const;
+    const Array<SCMOInstance> getSCMOObjects() const;
 
 private:
     Array<CIMObject> _objects;
-
+    Array<SCMOInstance> _scmoObjects;
 };
 
 class PEGASUS_PPM_LINKAGE SimpleValueResponseHandler :

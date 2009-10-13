@@ -445,12 +445,13 @@ void SimpleObjectResponseHandler::complete()
 
 Uint32 SimpleObjectResponseHandler::size() const
 {
-    return _objects.size() + _scmoObjects.size();
+    return _objects.size()+_scmoObjects.size();
 }
 
 void SimpleObjectResponseHandler::clear()
 {
     _objects.clear();
+    _scmoObjects.clear();
 }
 
 void SimpleObjectResponseHandler::deliver(const CIMObject& object)
@@ -465,15 +466,14 @@ void SimpleObjectResponseHandler::deliver(const CIMObject& object)
     send(false);
 }
 
-void SimpleObjectResponseHandler::deliver(const SCMOInstance& instance)
+void SimpleObjectResponseHandler::deliver(const SCMOInstance& object)
 {
     PEG_TRACE_CSTRING(
         TRC_PROVIDERMANAGER,
         Tracer::LEVEL4,
-        "SimpleObjectResponseHandler::deliver(SCMOInstance)");
+        "SimpleObjectResponseHandler::deliver()");
 
-    _scmoObjects.append(instance);
-
+    _scmoObjects.append(object);
     send(false);
 }
 
@@ -496,7 +496,6 @@ const Array<SCMOInstance> SimpleObjectResponseHandler::getSCMOObjects() const
     return _scmoObjects;
 }
 
-
 //
 // SimpleInstance2ObjectResponseHandler
 //
@@ -517,12 +516,13 @@ void SimpleInstance2ObjectResponseHandler::complete()
 
 Uint32 SimpleInstance2ObjectResponseHandler::size() const
 {
-    return _objects.size();
+    return _objects.size() + _scmoObjects.size();
 }
 
 void SimpleInstance2ObjectResponseHandler::clear()
 {
     _objects.clear();
+    _scmoObjects.clear();
 }
 
 void SimpleInstance2ObjectResponseHandler::deliver(const CIMInstance& object)
@@ -545,8 +545,7 @@ void SimpleInstance2ObjectResponseHandler::deliver(const SCMOInstance& object)
         Tracer::LEVEL4,
         "SimpleInstance2ObjectResponseHandler::deliver(SCMO)");
 
-    //--rk->TBD
-    //_objects.append(CIMObject(object));
+    _scmoObjects.append(object);
 
     // async delivers not yet supported
     //send(false);
@@ -565,6 +564,12 @@ void SimpleInstance2ObjectResponseHandler::deliver(
 const Array<CIMObject> SimpleInstance2ObjectResponseHandler::getObjects() const
 {
     return _objects;
+}
+
+const Array<SCMOInstance> 
+SimpleInstance2ObjectResponseHandler::getSCMOObjects() const
+{
+    return _scmoObjects;
 }
 
 //

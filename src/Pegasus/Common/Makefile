@@ -204,6 +204,8 @@ ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
 endif
 
 ifeq ($(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY),true)
+    SOURCES2 += CIMInternalXmlEncoder.cpp
+    SOURCES2 += SCMOInternalXmlEncoder.cpp
     SOURCES2 += CIMBinMsgSerializer.cpp
     SOURCES2 += CIMBinMsgDeserializer.cpp
 else

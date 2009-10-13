@@ -2590,7 +2590,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
         AutoPtr<CIMGetInstanceResponseMessage> response(
             dynamic_cast<CIMGetInstanceResponseMessage*>(
                 request->buildResponse()));
-        response->getResponseData().setCimInstance(cimInstance);
+        response->getResponseData().setInstance(cimInstance);
 
         _enqueueResponse(request, response.release());
     }
@@ -3225,7 +3225,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                     String::EMPTY);
             }
 
-            response->getResponseData().setNamedInstances(cimNamedInstances);
+            response->getResponseData().setInstances(cimNamedInstances);
             response->cimException = cimException;
 
             poA->appendResponse(response.release());
@@ -3683,7 +3683,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         AutoPtr<CIMAssociatorsResponseMessage> response(
             dynamic_cast<CIMAssociatorsResponseMessage*>(
                 request->buildResponse()));
-        response->getResponseData().setCIMObjects(cimObjects);
+        response->getResponseData().setObjects(cimObjects);
 
         _enqueueResponse(request, response.release());
     }
@@ -3734,12 +3734,12 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                 request->includeClassOrigin,
                 request->propertyList);
 
-            response->getResponseData().setCIMObjects(cimObjects);
+            response->getResponseData().setObjects(cimObjects);
 
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "Associators repository access: class = %s, count = %u.",
                     (const char*)request->objectName.toString().getCString(),
-                    response->getResponseData().getCIMObjects().size()));
+                    response->getResponseData().getObjects().size()));
         }
 
         if (providerCount == 0)
@@ -3921,7 +3921,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         AutoPtr<CIMAssociatorNamesResponseMessage> response(
             dynamic_cast<CIMAssociatorNamesResponseMessage*>(
                 request->buildResponse()));
-        response->objectNames = objectNames;
+        response->getResponseData().setInstanceNames(objectNames);
 
         _enqueueResponse(request, response.release());
     }
@@ -3961,18 +3961,19 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
             response.reset(dynamic_cast<CIMAssociatorNamesResponseMessage*>(
                 request->buildResponse()));
 
-            response->objectNames = _repository->associatorNames(
+            Array<CIMObjectPath> objectNames = _repository->associatorNames(
                 request->nameSpace,
                 request->objectName,
                 request->assocClass,
                 request->resultClass,
                 request->role,
                 request->resultRole);
+            response->getResponseData().setInstanceNames(objectNames);
 
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "AssociatorNames repository access: class = %s, count = %u.",
                     (const char*)request->objectName.toString().getCString(),
-                    response->objectNames.size()));
+                    objectNames.size()));
         }
 
         if (providerCount == 0)
@@ -4142,7 +4143,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         AutoPtr<CIMReferencesResponseMessage> response(
             dynamic_cast<CIMReferencesResponseMessage*>(
                 request->buildResponse()));
-        response->cimObjects = cimObjects;
+        response->getResponseData().setObjects(cimObjects);
 
         _enqueueResponse(request, response.release());
     }
@@ -4182,7 +4183,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
             response.reset(dynamic_cast<CIMReferencesResponseMessage*>(
                 request->buildResponse()));
 
-            response->cimObjects = _repository->references(
+            Array<CIMObject> cimObjects = _repository->references(
                 request->nameSpace,
                 request->objectName,
                 request->resultClass,
@@ -4190,11 +4191,12 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                 request->includeQualifiers,
                 request->includeClassOrigin,
                 request->propertyList);
+            response->getResponseData().setObjects(cimObjects);
 
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "References repository access: class = %s, count = %u.",
                     (const char*)request->objectName.toString().getCString(),
-                    response->cimObjects.size()));
+                    cimObjects.size()));
         }
 
         if (providerCount == 0)
@@ -4368,7 +4370,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         AutoPtr<CIMReferenceNamesResponseMessage> response(
             dynamic_cast<CIMReferenceNamesResponseMessage*>(
                 request->buildResponse()));
-        response->objectNames = objectNames;
+        response->getResponseData().setInstanceNames(objectNames);
 
         _enqueueResponse(request, response.release());
     }
@@ -4408,16 +4410,17 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
             response.reset(dynamic_cast<CIMReferenceNamesResponseMessage*>(
                 request->buildResponse()));
 
-            response->objectNames = _repository->referenceNames(
+            Array<CIMObjectPath> objectNames = _repository->referenceNames(
                 request->nameSpace,
                 request->objectName,
                 request->resultClass,
                 request->role);
+            response->getResponseData().setInstanceNames(objectNames);
 
             PEG_TRACE((TRC_DISPATCHER, Tracer::LEVEL4,
                 "ReferenceNames repository access: class = %s, count = %u.",
                     (const char*)request->objectName.toString().getCString(),
-                    response->objectNames.size()));
+                    objectNames.size()));
         }
 
         if (providerCount == 0)
@@ -4971,20 +4974,23 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesResponseAggregation(
         CIMAssociatorNamesResponseMessage* fromResponse =
             (CIMAssociatorNamesResponseMessage*)poA->getResponse(i);
 
+/* TODO: Old code copied host and namespace into each object to have a fallback
+         on Xml writing
         for (Uint32 j = 0, n = fromResponse->objectNames.size(); j < n; j++)
         {
             CIMObjectPath& p = fromResponse->objectNames[j];
-
             if (p.getHost().size() == 0)
                 p.setHost(cimAggregationLocalHost);
-
             if (p.getNameSpace().isNull())
                 p.setNameSpace(poA->_nameSpace);
-
             // only append if we are not the first response
             if (i > 0)
                 toResponse->objectNames.append(p);
         }
+*/
+        CIMResponseData & from = fromResponse->getResponseData();
+        CIMResponseData & to = toResponse->getResponseData();
+        to.appendResponseData(from);
 
         // only delete if we are not the first response, else we're done
         if (i == 0)
@@ -5030,8 +5036,10 @@ void CIMOperationRequestDispatcher::handleAssociatorsResponseAggregation(
         CIMAssociatorsResponseMessage* fromResponse =
             (CIMAssociatorsResponseMessage*)poA->getResponse(i);
 
+/* TODO: Old code copied host and namespace into each object to have a fallback
+         on Xml writing
         const Array<CIMObject>& cimObjects = 
-            fromResponse->getResponseData().getCIMObjects();
+            fromResponse->getResponseData().getObjects();
 
         for (Uint32 j = 0, n = cimObjects.size(); j < n; j++)
         {
@@ -5050,8 +5058,12 @@ void CIMOperationRequestDispatcher::handleAssociatorsResponseAggregation(
 
             // only append if we are not the first response
             if (i > 0)
-                toResponse->getResponseData().getCIMObjects().append(object);
+                toResponse->getResponseData().getObjects().append(object);
         }
+*/
+        CIMResponseData & from = fromResponse->getResponseData();
+        CIMResponseData & to = toResponse->getResponseData();
+        to.appendResponseData(from);
 
         // only delete if we are not the first response, else we're done
         if (i == 0)
@@ -5097,6 +5109,8 @@ void CIMOperationRequestDispatcher::handleReferencesResponseAggregation(
         CIMReferencesResponseMessage* fromResponse =
             (CIMReferencesResponseMessage*)poA->getResponse(i);
 
+/* TODO: Old code copied host and namespace into each object to have a fallback
+         on Xml writing
         for (Uint32 j = 0, n = fromResponse->cimObjects.size(); j < n; j++)
         {
             // Test and complete path if necessary. Required because
@@ -5114,6 +5128,10 @@ void CIMOperationRequestDispatcher::handleReferencesResponseAggregation(
             if (i > 0)
                 toResponse->cimObjects.append(object);
         }
+*/
+        CIMResponseData & from = fromResponse->getResponseData();
+        CIMResponseData & to = toResponse->getResponseData();
+        to.appendResponseData(from);
 
         // only delete if we are not the first response, else we're done
         if (i == 0)
@@ -5161,6 +5179,8 @@ void CIMOperationRequestDispatcher::handleReferenceNamesResponseAggregation(
         CIMReferenceNamesResponseMessage* fromResponse =
             (CIMReferenceNamesResponseMessage*)poA->getResponse(i);
 
+/* TODO: Old code copied host and namespace into each object to have a fallback
+         on Xml writing
         for (Uint32 j = 0, n = fromResponse->objectNames.size(); j < n; j++)
         {
             CIMObjectPath& p = fromResponse->objectNames[j];
@@ -5175,6 +5195,10 @@ void CIMOperationRequestDispatcher::handleReferenceNamesResponseAggregation(
             if (i > 0)
                 toResponse->objectNames.append(p);
         }
+*/
+        CIMResponseData & from = fromResponse->getResponseData();
+        CIMResponseData & to = toResponse->getResponseData();
+        to.appendResponseData(from);
 
         // only delete if we are not the first response, else we're done
         if (i == 0)
@@ -5213,17 +5237,10 @@ void CIMOperationRequestDispatcher::
         CIMEnumerateInstanceNamesResponseMessage* fromResponse =
             (CIMEnumerateInstanceNamesResponseMessage*)poA->getResponse(i);
 
-        Array<CIMObjectPath>& from = 
-            fromResponse->getResponseData().getInstanceNames();
-        Array<CIMObjectPath>& to = 
-            toResponse->getResponseData().getInstanceNames();
+        CIMResponseData & from = fromResponse->getResponseData();
+        CIMResponseData & to = toResponse->getResponseData();
+        to.appendResponseData(from);
 
-        for (Uint32 j = 0; j < from.size(); j++)
-        {
-            // Duplicate test goes here if we decide to eliminate dups in
-            // the future.
-            to.append(from[j]);
-        }
         poA->deleteResponse(i);
     }
     PEG_METHOD_EXIT();
@@ -5266,9 +5283,8 @@ void CIMOperationRequestDispatcher::
         CIMEnumerateInstancesResponseMessage* fromResponse =
             (CIMEnumerateInstancesResponseMessage*)poA->getResponse(i);
 
-        CIMInstancesResponseData & from = fromResponse->getResponseData();
-        CIMInstancesResponseData & to = toResponse->getResponseData();
-
+        CIMResponseData & from = fromResponse->getResponseData();
+        CIMResponseData & to = toResponse->getResponseData();
         to.appendResponseData(from);
 
         poA->deleteResponse(i);

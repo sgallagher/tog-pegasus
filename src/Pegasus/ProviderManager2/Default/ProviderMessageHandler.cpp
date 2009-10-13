@@ -302,7 +302,7 @@ CIMResponseMessage* ProviderMessageHandler::processMessage(
             break;
 
         default:
-            PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+            PEGASUS_ASSERT(0);
             break;
         }
     }
@@ -344,11 +344,6 @@ OperationContext ProviderMessageHandler::_createProviderOperationContext(
     providerContext.insert(context.get(IdentityContainer::NAME));
     providerContext.insert(context.get(AcceptLanguageListContainer::NAME));
     providerContext.insert(context.get(ContentLanguageListContainer::NAME));
-
-    if (context.contains(UserRoleContainer::NAME))
-    {
-        providerContext.insert(context.get(UserRoleContainer::NAME));
-    }
 
     return providerContext;
 }
@@ -1590,6 +1585,8 @@ CIMResponseMessage* ProviderMessageHandler::_handleExportIndicationRequest(
 // make sure that Content-Language is set in the consume msg.
     providerContext.insert(request->operationContext.get(
         ContentLanguageListContainer::NAME));
+
+    AutoPThreadSecurity threadLevelSecurity(providerContext);
 
     CIMIndicationConsumerProvider* provider =
         getProviderInterface<CIMIndicationConsumerProvider>(_provider);

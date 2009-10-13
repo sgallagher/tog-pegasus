@@ -38,35 +38,13 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE CIMInternalXmlEncoder
-{
-public:
-    static void _putXMLInstance(
-        CIMBuffer& out,
-        const CIMInstance& ci,
-        Boolean includeQualifiers = true,
-        Boolean includeClassOrigin = true,
-        const CIMPropertyList& propertyList = CIMPropertyList());
+void _putXMLInstance(CIMBuffer& out, const CIMInstance& ci);
 
-    static void _putXMLNamedInstance(
-        CIMBuffer& out,
-        const CIMInstance& ci,
-        Boolean includeQualifiers = true,
-        Boolean includeClassOrigin = true,
-        const CIMPropertyList& propertyList = CIMPropertyList());
+void _putXMLNamedInstance(CIMBuffer& out, const CIMInstance& ci);
 
-    static void _putXMLObject(
-        CIMBuffer& out,
-        const CIMObject& co,
-        Boolean includeQualifiers = true,
-        Boolean includeClassOrigin = true,
-        const CIMPropertyList& propertyList = CIMPropertyList());
+void _putXMLInstanceName(CIMBuffer& out, const CIMObjectPath& cop);
 
-    static void _appendValueReferenceElement(
-        Buffer& out,
-        const CIMObjectPath& reference);
-
-};
+void _putXMLObject(CIMBuffer& out, const CIMObject& co);
 
 PEGASUS_NAMESPACE_END
 

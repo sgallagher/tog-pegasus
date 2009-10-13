@@ -1073,7 +1073,7 @@ CIMGetInstanceResponseMessage*
             messageId,
             cimException,
             QueueIdStack());
-        msg->getResponseData().setCimInstance(cimInstance);
+        msg->getResponseData().setInstance(cimInstance);
         return msg;
     }
     else
@@ -1218,7 +1218,7 @@ CIMEnumerateInstancesResponseMessage*
         cimException,
         QueueIdStack());
 
-    msg->getResponseData().setNamedInstances(namedInstances);
+    msg->getResponseData().setInstances(namedInstances);
     return msg;
 }
 
@@ -1668,7 +1668,7 @@ CIMAssociatorsResponseMessage*
         cimException,
         QueueIdStack());
 
-    msg->getResponseData().setCIMObjects(objectWithPathArray);
+    msg->getResponseData().setObjects(objectWithPathArray);
 
     return msg;
 }
@@ -1711,7 +1711,7 @@ CIMExecQueryResponseMessage*
         cimException,
         QueueIdStack());
 
-    msg->getResponseData().setCIMObjects(objectWithPathArray);
+    msg->getResponseData().setObjects(objectWithPathArray);
 
     return msg;
 }

@@ -53,11 +53,11 @@ public:
     static void appendInstanceNameElement(
         Buffer& out,
         const SCMOInstance& scmoInstance);
-    
+
     static void appendInstanceElement(
         Buffer& out,
         const SCMOInstance& scmoInstance);
-    
+
     static void appendQualifierElement(
         Buffer& out,
         const SCMBQualifier& theQualifier,
@@ -73,6 +73,15 @@ public:
         const SCMBValue & value,
         const char * base);
 
+    static void appendValueReferenceElement(
+        Buffer& out,
+        const SCMOInstance& ref,
+        Boolean putValueWrapper);
+
+    static void appendClassPathElement(
+        Buffer& out,
+        const SCMOInstance& classPath);
+
     static void appendSCMBUnion(
         Buffer& out,
         const SCMBUnion & u,
@@ -87,8 +96,91 @@ public:
         const char * base);
 
 private:
-
     SCMOXmlWriter();
+
+//------------------------------------------------------------------------------
+//
+// appendLocalNameSpacePathElement()
+//
+//     <!ELEMENT LOCALNAMESPACEPATH (NAMESPACE+)>
+//
+//------------------------------------------------------------------------------
+    static void appendLocalNameSpacePathElement(
+        Buffer& out,
+        const char * nameSpace,
+        Uint64 nameSpaceLength)
+    {
+        // add one byte for the closing \0
+        nameSpaceLength++;
+        out << STRLIT("<LOCALNAMESPACEPATH>\n");
+
+        char fixed[64];
+        char* nameSpaceCopy;    
+        if (nameSpaceLength > 64)
+        {
+            nameSpaceCopy=(char*)malloc(nameSpaceLength);
+        }
+        else
+        {
+            nameSpaceCopy = &(fixed[0]);
+        }
+        memcpy(nameSpaceCopy, nameSpace, nameSpaceLength);
+
+#if !defined(PEGASUS_COMPILER_MSVC) && !defined(PEGASUS_OS_ZOS)
+        char *last;
+        for (const char* p = strtok_r(nameSpaceCopy, "/", &last); p;
+            p = strtok_r(NULL, "/", &last))
+#else
+        for (const char* p = strtok(nameSpaceCopy, "/"); p; 
+            p = strtok(NULL, "/"))
+#endif
+        {
+            out << STRLIT("<NAMESPACE NAME=\"") << p << STRLIT("\"/>\n");
+        }
+        if (nameSpaceLength > 64)
+        {
+            free(nameSpaceCopy);
+        }
+        out << STRLIT("</LOCALNAMESPACEPATH>\n");
+    }
+
+//------------------------------------------------------------------------------
+//
+// appendNameSpacePathElement()
+//
+//     <!ELEMENT NAMESPACEPATH (HOST,LOCALNAMESPACEPATH)>
+//
+//------------------------------------------------------------------------------
+
+    static void appendNameSpacePathElement(
+        Buffer& out,
+        const char* host,
+        Uint64 hostLength,
+        const char * nameSpace,
+        Uint64 nameSpaceLength)
+    {
+        out << STRLIT("<NAMESPACEPATH>\n""<HOST>");
+        out.append(host, hostLength);
+        out << STRLIT("</HOST>\n");
+        appendLocalNameSpacePathElement(out, nameSpace, nameSpaceLength);
+        out << STRLIT("</NAMESPACEPATH>\n");
+    }
+
+//------------------------------------------------------------------------------
+// appendClassNameElement()
+//     <!ELEMENT CLASSNAME EMPTY>
+//     <!ATTLIST CLASSNAME
+//              %CIMName;>
+//------------------------------------------------------------------------------
+    static void appendClassNameElement(
+        Buffer& out,
+        const char* className,
+        Uint64 classNameLength)
+    {
+        out << STRLIT("<CLASSNAME NAME=\"");
+        out.append(className, classNameLength);
+        out << STRLIT("\"/>\n");
+    }
 };
 
 PEGASUS_NAMESPACE_END

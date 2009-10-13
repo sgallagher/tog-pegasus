@@ -30,32 +30,76 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CIMResponseData.h"
-#include "XmlWriter.h"
-#include "SCMOXmlWriter.h"
-#include "XmlReader.h"
-#include "Tracer.h"
+#include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/SCMOXmlWriter.h>
+#include <Pegasus/Common/XmlReader.h>
+#include <Pegasus/Common/SCMOClassCache.h>
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-//-----------------------------------------------------------------------------
-//
-//  CIMInstanceNamesResponseData
-//
-//-----------------------------------------------------------------------------
+// C++ objects interface handling
 
-//------------------------------------------------------------------------------
-// Takes a binary stream of object paths from a CIMBuffer and stores it in the
-// responsedata.
-// @param hasLen Indicates if the binary object path stream is prepended with an
-//               Uint32 value indicating the number of paths in the stream.
-//------------------------------------------------------------------------------
-bool CIMInstanceNamesResponseData::setBinaryCimInstanceNames(
-    CIMBuffer& in, bool hasLen)
+// Instance Names handling
+Array<CIMObjectPath>& CIMResponseData::getInstanceNames()
+{
+    PEGASUS_DEBUG_ASSERT(
+    (_dataType==RESP_INSTNAMES || _dataType==RESP_OBJECTPATHS));
+    _resolveToCIM();
+    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_CIM);
+    return _instanceNames;
+}
+
+// Instance handling
+CIMInstance& CIMResponseData::getInstance()
+{
+    PEGASUS_DEBUG_ASSERT(_dataType == RESP_INSTANCE);
+    _resolveToCIM();
+    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_CIM);
+    return _instances[0];
+}
+
+// Instances handling
+Array<CIMInstance>& CIMResponseData::getInstances()
+{
+    PEGASUS_DEBUG_ASSERT(_dataType == RESP_INSTANCES);
+    _resolveToCIM();
+    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_CIM);
+    return _instances;
+}
+
+// Objects handling
+Array<CIMObject>& CIMResponseData::getObjects()
+{
+    PEGASUS_DEBUG_ASSERT(_dataType == RESP_OBJECTS);
+    _resolveToCIM();
+    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_CIM);
+    return _objects;
+}
+
+// SCMO representation, single instance stored as one element array
+// object paths are represented as SCMOInstance
+Array<SCMOInstance>& CIMResponseData::getSCMO()
+{
+    _resolveToSCMO();
+    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_SCMO);
+    return _scmoInstances;
+}
+
+// Binary data is just a data stream
+Array<Uint8>& CIMResponseData::getBinary()
+{
+    // TODO: Check if the following condition might come true
+    // One actually should resolve everything down to binary in here ...
+    return _binaryData;
+}
+
+bool CIMResponseData::setBinary(CIMBuffer& in, bool hasLen)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstanceNamesResponseData::setBinaryCimInstanceNames");
+        "CIMResponseData::setBinary");
 
     if (hasLen)
     {
@@ -72,1131 +116,824 @@ bool CIMInstanceNamesResponseData::setBinaryCimInstanceNames(
         size_t remainingDataLength = in.capacity() - in.size();
         _binaryData.append((Uint8*)in.getPtr(), remainingDataLength);
     }
-
-    _resolveCallback = _resolveBinaryInstanceNames;
-    _encoding = RESP_ENC_BINARY;
-
+    _encoding |= RESP_ENC_BINARY;
     PEG_METHOD_EXIT();
     return true;
-};
+}
 
-bool CIMInstanceNamesResponseData::setXmlCimInstanceNames(CIMBuffer& in)
+bool CIMResponseData::setXml(CIMBuffer& in)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstanceNamesResponseData::setXmlCimInstanceNames");
+        "CIMResponseData::setXml");
 
-    Uint32 count;
-
-    if (!in.getUint32(count))
+    if (_dataType == RESP_INSTNAMES)
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to get XML objectpath data (number of paths)!");
-        PEG_METHOD_EXIT();
-        return false;
+        Uint32 count;
+    
+        if (!in.getUint32(count))
+        {
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                "Failed to get XML objectpath data (number of paths)!");
+            PEG_METHOD_EXIT();
+            return false;
+        }
+    
+        for (Uint32 i = 0; i < count; i++)
+        {
+            Array<Sint8> ref;
+            CIMNamespaceName ns;
+            String host;
+    
+            if (!in.getSint8A(ref))
+            {
+                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                    "Failed to get XML objectpath data (references)!");
+                PEG_METHOD_EXIT();
+                return false;
+            }
+    
+            if (!in.getString(host))
+            {
+                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                    "Failed to get XML instance data (host)!");
+                PEG_METHOD_EXIT();
+                return false;
+            }
+    
+            if (!in.getNamespaceName(ns))
+            {
+                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                    "Failed to get XML instance data (namespace)!");
+                PEG_METHOD_EXIT();
+                return false;
+            }
+    
+            _referencesData.append(ref);
+            _hostsData.append(host);
+            _nameSpacesData.append(ns);
+        }
     }
+    // TODO: Code the left out types
 
-    for (Uint32 i = 0; i < count; i++)
-    {
-        Array<Sint8> ref;
-        CIMNamespaceName ns;
-        String host;
-
-        if (!in.getSint8A(ref))
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to get XML objectpath data (references)!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
-
-        if (!in.getString(host))
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to get XML instance data (host)!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
-
-        if (!in.getNamespaceName(ns))
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to get XML instance data (namespace)!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
-
-        _referencesData.append(ref);
-        _hostsData.append(host);
-        _nameSpacesData.append(ns);
-    }
-
-    _resolveCallback = _resolveXMLInstanceNames;
-    _encoding = RESP_ENC_XML;
-
+    _encoding |= RESP_ENC_XML;
     PEG_METHOD_EXIT();
     return true;
-};
+}
 
+// function used by OperationAggregator to aggregate response data in a
+// single ResponseData object
+void CIMResponseData::appendResponseData(const CIMResponseData & x)
+{
+    // as the Messages set the data types, this should be impossible
+    PEGASUS_DEBUG_ASSERT(_dataType == x._dataType);
+    _encoding |= x._encoding;
 
+    // add all binary data
+    _binaryData.appendArray(x._binaryData);
 
+    // add all the C++ stuff
+    _instanceNames.appendArray(x._instanceNames);
+    _instances.appendArray(x._instances);
+    _objects.appendArray(x._objects);
 
-//------------------------------------------------------------------------------
-// Encodes the array of CIMObjectPath representation contained in the current
-// CIMResponseData object in binary response message format.
-// This code corresponds to method _resolveBinaryInstanceNames, which is used
-// revert a binary objectpath array representation back into an array of
-// CIMInstance
-//------------------------------------------------------------------------------
-void CIMInstanceNamesResponseData::encodeBinaryResponse(CIMBuffer& out)
+    // add the SCMO instances
+    _scmoInstances.appendArray(x._scmoInstances);
+
+    // add Xml encodings too
+    _referencesData.appendArray(x._referencesData);
+    _instanceData.appendArray(x._instanceData);
+    _hostsData.appendArray(x._hostsData);
+    _nameSpacesData.appendArray(x._nameSpacesData);
+}
+
+// Encoding responses into output format
+void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstanceNamesResponseData::encodeBinaryResponse");
+        "CIMResponseData::encodeBinaryResponse");
 
-    if (_resolveCallback && (_encoding == RESP_ENC_BINARY))
+    // Need to do a complete job here by transferring all contained data
+    // into binary format and handing it out in the CIMBuffer
+    if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
     {
+        // Binary does NOT need a marker as it consists of C++ and SCMO
         const Array<Uint8>& data = _binaryData;
         out.putBytes(data.getData(), data.size());
     }
-    else
+    if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
     {
-        _resolve();
-        out.putObjectPathA(_instanceNames, false);
-    }
-    PEG_METHOD_EXIT();
-}
-
-//------------------------------------------------------------------------------
-// Encodes the array of CIMObjectPath representation contained in the current
-// CIMResponseData object in xml response message format.
-// This code corresponds to method _resolveXmlInstanceNames, which is used
-// revert a CIM-XML objectpath array representation back into an array of
-// CIMObjectPath.
-//------------------------------------------------------------------------------
-void CIMInstanceNamesResponseData::encodeXmlResponse(Buffer& out)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstanceNamesResponseData::encodeXmlResponse");
-
-    if (_resolveCallback && (_encoding == RESP_ENC_XML))
-    {
-        const Array<ArraySint8>& a = _referencesData;
-
-        for (Uint32 i = 0, n = a.size(); i < n; i++)
+        // TODO: Set Marker for C++ data 
+        switch (_dataType)
         {
-            out.append((char*)a[i].getData(), a[i].size() - 1);
-        }
-    }
-    else
-    {
-        _resolve();
-        for (Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
-            XmlWriter::appendInstanceNameElement(out,_instanceNames[i]);
-    }
-    PEG_METHOD_EXIT();
-}
-
-//------------------------------------------------------------------------------
-// Instantiates an array of ObjectPath from a binary representation created by
-// the CIMBinMessageSerializer.
-// Returns true on success.
-//------------------------------------------------------------------------------
-Boolean CIMInstanceNamesResponseData::_resolveBinaryInstanceNames(
-    CIMInstanceNamesResponseData* data,
-    Array<CIMObjectPath>& cops)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstanceNamesResponseData::_resolveBinaryInstanceNames");
-
-    cops.clear();
-
-    CIMBuffer in((char*)data->_binaryData.getData(), data->_binaryData.size());
-
-    while (in.more())
-    {
-        if (!in.getObjectPathA(cops))
-        {
-            in.release();
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to resolve binary objectpath!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
-    }
-
-    in.release();
-    PEG_METHOD_EXIT();
-    return true;
-}
-
-
-
-//------------------------------------------------------------------------------
-// Instantiates an array of CIMObjectPath from an xml representation created by
-// the CIMBinMessageSerializer.
-// Returns true on success.
-//------------------------------------------------------------------------------
-Boolean CIMInstanceNamesResponseData::_resolveXMLInstanceNames(
-    CIMInstanceNamesResponseData* data,
-    Array<CIMObjectPath>& cops)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstanceNamesResponseData::_resolveXMLInstanceNames");
-
-    cops.clear();
-
-    for (Uint32 i = 0; i < data->_referencesData.size(); i++)
-    {
-        CIMObjectPath cop;
-
-        // Deserialize path:
-        {
-            XmlParser parser((char*)data->_referencesData[i].getData());
-
-            if (XmlReader::getInstanceNameElement(parser, cop))
+            case RESP_INSTNAMES:
             {
-                if (!data->_nameSpacesData[i].isNull())
-                    cop.setNameSpace(data->_nameSpacesData[i]);
-
-                if (data->_hostsData[i].size())
-                    cop.setHost(data->_hostsData[i]);
+                out.putObjectPathA(_instanceNames, false);
+                break;
+            }
+            case RESP_INSTANCE:
+            {
+                if (0 != _instances.size())
+                {
+                    out.putInstance(_instances[0], false, false);
+                }
+                break;
+            }
+            case RESP_INSTANCES:
+            {
+                out.putInstanceA(_instances, false);
+                break;
+            }
+            case RESP_OBJECTS:
+            {
+                out.putObjectA(_objects);
+                break;
+            }
+            case RESP_OBJECTPATHS:
+            {
+                // TODO: Determine what to do here
+                break;
+            }
+            default:
+            {
+                // TODO:
+                // Argl, not nice, but not a problem yet, ignore this
             }
         }
-
-        cops.append(cop);
     }
-
-    PEG_METHOD_EXIT();
-    return true;
-}
-
-//------------------------------------------------------------------------------
-// Instantiates an array of CIMObjectPath from an array of SCMOInstances
-// Returns true on success.
-//------------------------------------------------------------------------------
-Boolean CIMInstanceNamesResponseData::_resolveSCMOInstanceNames(
-    CIMInstanceNamesResponseData* data,
-    Array<CIMObjectPath>& cops)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstanceNamesResponseData::_resolveSCMOInstanceNames");
-
-    cops.clear();
-
-    //--rk-->TBD: Do the actual coding here
-
-    fprintf(stderr,"CIMInstanceNamesResponseData::_resolveSCMOInstanceNames() "
-            "Poorly implemented!!!\n");
-    try
+    if (RESP_ENC_SCMO == (_encoding & RESP_ENC_SCMO))
     {
-        for (Uint32 x=0; x < data->_scmoInstanceNames.size(); x++)
-        {
-            /*SCMODump dmp;
-            dmp.dumpSCMOInstanceKeyBindings(data->_scmoInstanceNames[x]);*/
-            CIMObjectPath cop;
-                data->_scmoInstanceNames[x].getCIMObjectPath(cop);
-            cops.append(cop);
-        }
+        // TODO: Set Marker for SCMO data
+
+        // Call magic here to transform a SCMO object into binary format
+        fprintf(stderr, "Watch wat ya do'n! SCMO to binary ? NO OOP yet.\n");
+        fflush(stderr);
     }
-    catch (CIMException& ex)
+    if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
-        fprintf(stderr,
-                "CIMInstanceNamesResponseData::_resolveSCMOInstanceNames() "
-                "Exception:\n%s\n",(const char*)ex.getMessage().getCString());
-    }
-    catch (Exception& ex)
-    {
-        fprintf(stderr,
-                "CIMInstanceNamesResponseData::_resolveSCMOInstanceNames() "
-                "Exception:\n%s\n",(const char*)ex.getMessage().getCString());
-    }
-    catch (exception& ex)
-    {
-        fprintf(stderr,
-                "CIMInstanceNamesResponseData::_resolveSCMOInstanceNames() "
-                "exception:\n%s\n",(const char*)ex.what());
-    }
-    catch (...)
-    {
-        fprintf(stderr,
-                "CIMInstanceNamesResponseData::_resolveSCMOInstanceNames() "
-                "Exception: UNKNOWN\n");
-    }
-    data->_resolveCallback = 0;
-
-    PEG_METHOD_EXIT();
-    return true;
-}
-
-
-//-----------------------------------------------------------------------------
-//
-//  CIMInstanceResponseData
-//
-//-----------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Takes a binary stream representing an instances from a CIMBuffer and stores
-// it in the responsedata.
-// @param hasLen Indicates if the binary instance stream is prepended with an
-//               Uint32 value indicating the number of instances in the stream.
-//------------------------------------------------------------------------------
-bool CIMInstanceResponseData::setBinaryCimInstance(CIMBuffer& in, bool hasLen)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstanceResponseData::setBinaryCimInstance");
-
-    if (hasLen)
-    {
-        if (!in.getUint8A(_binaryData))
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to get binary instance data!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
-    }
-    else
-    {
-        size_t remainingDataLength = in.capacity() - in.size();
-
-        _binaryData.append((Uint8*)in.getPtr(), remainingDataLength);
+        // This actually should not happen following general code logic
+        PEGASUS_DEBUG_ASSERT(true);
     }
 
-    _resolveCallback = _resolveBinaryInstance;
-    _encoding = RESP_ENC_BINARY;
-
-    PEG_METHOD_EXIT();
-    return true;
-};
-
-bool CIMInstanceResponseData::setXmlCimInstance(CIMBuffer& in)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstanceResponseData::setXmlCimInstance");
-
-    if (!in.getSint8A(_instanceData))
-    {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to get XML instance data!");
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
-    if (!in.getSint8A(_referenceData))
-    {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to get XML instance data (reference)!");
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
-    if (!in.getString(_hostData))
-    {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to get XML instance data (host)!");
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
-    if (!in.getNamespaceName(_nameSpaceData))
-    {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to get XML instance data (namespace)!");
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
-    _resolveCallback = _resolveXMLInstance;
-    _encoding = RESP_ENC_XML;
-
-    PEG_METHOD_EXIT();
-    return true;
-};
-
-//------------------------------------------------------------------------------
-// Encodes the CIMInstance representation contained in the current
-// CIMResponseData object in binary response message format.
-// This code corresponds to method _resolveBinaryInstance, which is used
-// revert a binary instance representation back into a CIMInstance
-//------------------------------------------------------------------------------
-void CIMInstanceResponseData::encodeBinaryResponse(CIMBuffer& out) const
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstanceResponseData::encodeBinaryResponse");
-
-    if (_resolveCallback && (_encoding == RESP_ENC_BINARY))
-    {
-        const Array<Uint8>& data = _binaryData;
-        out.putBytes(data.getData(), data.size());
-    }
-    else
-    {
-        out.putInstance(_cimInstance, false, false);
-    }
     PEG_METHOD_EXIT();
 }
 
-//------------------------------------------------------------------------------
-// Encodes the CIMInstanc representation contained in the current
-// CIMResponseData object in xml response message format.
-// This code corresponds to method _resolveXmlInstance, which is used
-// revert a CIM-XML instance representation back into a CIMInstance.
-//------------------------------------------------------------------------------
-void CIMInstanceResponseData::encodeXmlResponse(Buffer& out)
+void CIMResponseData::encodeXmlResponse(Buffer& out)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstanceResponseData::encodeXmlResponse");
+        "CIMResponseData::encodeXmlResponse");
 
-    if (_resolveCallback && (_encoding == RESP_ENC_XML))
-    {
-        out.append( (char*)_instanceData.getData(),_instanceData.size()-1);
-    }
-    else
-    {
-        _resolve();
-        XmlWriter::appendInstanceElement(out, _cimInstance);
-        //SCMOXmlWriter::appendValueSCMOInstanceElement(out, _cimInstance);
-    }
-    PEG_METHOD_EXIT();
-}
-
-//------------------------------------------------------------------------------
-// Instantiates a CIMInstance from a binary representation created by
-// the CIMBinMessageSerializer.
-// Returns true on success.
-//------------------------------------------------------------------------------
-Boolean CIMInstanceResponseData::_resolveBinaryInstance(
-    CIMInstanceResponseData* data,
-    CIMInstance& instance)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstanceResponseData::_resolveBinaryInstance");
-
-    CIMBuffer in((char*)data->_binaryData.getData(), data->_binaryData.size());
-
-    if (!in.getInstance(instance))
-    {
-        instance = CIMInstance();
-        in.release();
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to resolve binary instance!");
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
-    in.release();
-    PEG_METHOD_EXIT();
-    return true;
-}
-
-//------------------------------------------------------------------------------
-// Instantiates a CIMInstance from a SCMOInstance
-// Returns true on success.
-//------------------------------------------------------------------------------
-Boolean CIMInstanceResponseData::_resolveSCMOInstance(
-    CIMInstanceResponseData* data,
-    CIMInstance& instance)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstanceResponseData::_resolveSCMOInstance");
-
-    //--rk-->TBD: Do the actual coding here
-
-    fprintf(stderr,"CIMInstanceResponseData::_resolveSCMOInstance() "
-            "Poorly implemented!!!\n");
-    try
-    {
-        /*SCMODump dmp;
-        dmp.dumpSCMOInstanceKeyBindings(data->_scmoInstances[0]);
-        dmp.dumpInstanceProperties(data->_scmoInstances[0]);*/
-        data->_scmoInstances[0].getCIMInstance(instance);
-    }
-    catch (CIMException& ex)
-    {
-        fprintf(stderr,"CIMInstanceResponseData::_resolveSCMOInstance() "
-                "Exception:\n%s\n",(const char*)ex.getMessage().getCString());
-    }
-    catch (Exception& ex)
-    {
-        fprintf(stderr,"CIMInstanceResponseData::_resolveSCMOInstance() "
-                "Exception:\n%s\n",(const char*)ex.getMessage().getCString());
-    }
-    catch (exception& ex)
-    {
-        fprintf(stderr,"CIMInstanceResponseData::_resolveSCMOInstance() "
-                "exception:\n%s\n",(const char*)ex.what());
-    }
-    catch (...)
-    {
-        fprintf(stderr,"CIMInstancesResponseData::_resolveSCMOInstances() "
-                "Exception: UNKNOWN\n");
-    }
-    data->_resolveCallback = 0;
-
-    PEG_METHOD_EXIT();
-    return true;
-}
-
-//------------------------------------------------------------------------------
-// Instantiates a CIMInstance from an xml representation created by
-// the CIMBinMessageSerializer.
-// Returns true on success.
-//------------------------------------------------------------------------------
-Boolean CIMInstanceResponseData::_resolveXMLInstance(
-    CIMInstanceResponseData* data,
-    CIMInstance& cimInstance)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstanceResponseData::_resolveXMLInstance");
-
-    // Deserialize instance:
-    {
-        XmlParser parser((char*)data->_instanceData.getData());
-
-        if (!XmlReader::getInstanceElement(parser, cimInstance))
-        {
-            cimInstance = CIMInstance();
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to resolve XML instance, parser error!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
-    }
-
-    // Deserialize path:
-    {
-        XmlParser parser((char*)data->_referenceData.getData());
-        CIMObjectPath cimObjectPath;
-
-        if (XmlReader::getValueReferenceElement(parser, cimObjectPath))
-        {
-            if (data->_hostData.size())
-                cimObjectPath.setHost(data->_hostData);
-
-            if (!data->_nameSpaceData.isNull())
-                cimObjectPath.setNameSpace(data->_nameSpaceData);
-
-            cimInstance.setPath(cimObjectPath);
-        }
-    }
-
-    PEG_METHOD_EXIT();
-    return true;
-}
-
-
-
-//-----------------------------------------------------------------------------
-//
-//  CIMInstancesResponseData
-//
-//-----------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Takes a binary stream of instances from a CIMBuffer and stores it in the
-// responsedata.
-// @param hasLen Indicates if the binary instance stream is prepended with an
-//               Uint32 value indicating the number of instances in the stream.
-//------------------------------------------------------------------------------
-bool CIMInstancesResponseData::setBinaryCimInstances(CIMBuffer& in, bool hasLen)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstancesResponseData::setBinaryCimInstances");
-
-    if (hasLen)
-    {
-        if (!in.getUint8A(_binaryData))
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to get binary instance data!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
-    }
-    else
-    {
-        size_t remainingDataLength = in.capacity() - in.size();
-        _binaryData.append((Uint8*)in.getPtr(), remainingDataLength);
-    }
-
-    _resolveCallback = _resolveBinaryInstances;
-    _encoding = RESP_ENC_BINARY;
-
-    PEG_METHOD_EXIT();
-    return true;
-};
-
-bool CIMInstancesResponseData::setXmlCimInstances(CIMBuffer& in)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstancesResponseData::setXmlCimInstances");
-
-    Uint32 count;
-
-    if (!in.getUint32(count))
-    {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to get XML instance data (number of instance)!");
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
-    for (Uint32 i = 0; i < count; i++)
-    {
-        Array<Sint8> inst;
-        Array<Sint8> ref;
-        CIMNamespaceName ns;
-        String host;
-
-        if (!in.getSint8A(inst))
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to get XML instance data (instances)!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
-
-        if (!in.getSint8A(ref))
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to get XML instance data (references)!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
-
-        if (!in.getString(host))
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to get XML instance data (host)!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
-
-        if (!in.getNamespaceName(ns))
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to get XML instance data (namespace)!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
-
-        _instancesData.append(inst);
-        _referencesData.append(ref);
-        _hostsData.append(host);
-        _nameSpacesData.append(ns);
-    }
-
-    _resolveCallback = _resolveXMLInstances;
-    _encoding = RESP_ENC_XML;
-
-    PEG_METHOD_EXIT();
-    return true;
-};
-
-
-
-
-//------------------------------------------------------------------------------
-// Encodes the array of CIMInstance representation contained in the current
-// CIMResponseData object in binary response message format.
-// This code corresponds to method _resolveBinaryInstances, which is used
-// revert a binary instance array representation back into an array of
-// CIMInstance
-//------------------------------------------------------------------------------
-void CIMInstancesResponseData::encodeBinaryResponse(CIMBuffer& out)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstancesResponseData::encodeBinaryResponse");
-
-    if (_resolveCallback && (_encoding == RESP_ENC_BINARY))
-    {
-        const Array<Uint8>& data = _binaryData;
-        out.putBytes(data.getData(), data.size());
-    }
-    else
-    {
-        _resolve();
-        out.putInstanceA(_namedInstances, false);
-    }
-    PEG_METHOD_EXIT();
-}
-
-//------------------------------------------------------------------------------
-// Encodes the array of CIMInstance representation contained in the current
-// CIMResponseData object in xml response message format.
-// This code corresponds to method _resolveXmlInstances, which is used
-// revert a CIM-XML object array representation back into an array of
-// CIMInstance.
-//------------------------------------------------------------------------------
-void CIMInstancesResponseData::encodeXmlResponse(Buffer& out)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstancesResponseData::encodeXmlResponse");
-
-    /*
     fprintf(
         stderr,
-        "CIMInstancesResponseData::encodeXmlResponse\n");
+        "encodeXmlResponse(encoding=%X,content=%X)\n",
+        _encoding,
+        _dataType);
     fflush(stderr);
-    */
 
-    if (_resolveCallback && (_encoding == RESP_ENC_XML))
+    if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
-        /*
-        fprintf(
-            stderr,
-            "_resolveCallback && (_encoding == RESP_ENC_XML)\n");
+        switch (_dataType)
+        {
+            case RESP_INSTNAMES:
+            {
+                const Array<ArraySint8>& a = _referencesData;
+                for (Uint32 i = 0, n = a.size(); i < n; i++)
+                {
+                    out.append((char*)a[i].getData(), a[i].size() - 1);
+                }
+                break;
+            }
+            case RESP_INSTANCE:
+            {
+                out.append(
+                    (char*)_instanceData.getData(),
+                    _instanceData.size()-1);
+                break;
+            }
+            case RESP_INSTANCES:
+            {
+                const Array<ArraySint8>& a = _instanceData;
+                const Array<ArraySint8>& b = _referencesData;
+
+                for (Uint32 i = 0, n = a.size(); i < n; i++)
+                {
+                    out << STRLIT("<VALUE.NAMEDINSTANCE>\n");
+                    out.append((char*)b[i].getData(), b[i].size() - 1);
+                    out.append((char*)a[i].getData(), a[i].size() - 1);
+                    out << STRLIT("</VALUE.NAMEDINSTANCE>\n");
+                }
+                break;
+            }
+            case RESP_OBJECTS:
+            {
+                const Array<ArraySint8>& a = _instanceData;
+                const Array<ArraySint8>& b = _referencesData;
+
+                for (Uint32 i = 0, n = a.size(); i < n; i++)
+                {
+                    out << STRLIT("<VALUE.OBJECTWITHPATH>\n");
+                    out.append((char*)b[i].getData(), b[i].size() - 1);
+                    out.append((char*)a[i].getData(), a[i].size() - 1);
+                    out << STRLIT("</VALUE.OBJECTWITHPATH>\n");
+                }
+                break;
+            }
+            case RESP_OBJECTPATHS:
+            {
+                // TODO: Check what to do in this case
+                const Array<ArraySint8>& a = _instanceData;
+                const Array<ArraySint8>& b = _referencesData;
+
+                for (Uint32 i = 0, n = a.size(); i < n; i++)
+                {
+                    out << STRLIT("<VALUE.OBJECTWITHPATH>\n");
+                    out.append((char*)b[i].getData(), b[i].size() - 1);
+                    out.append((char*)a[i].getData(), a[i].size() - 1);
+                    out << STRLIT("</VALUE.OBJECTWITHPATH>\n");
+                }
+            }
+            default:
+            {
+                // TODO:
+                // Argl, not nice, but not a problem yet, ignore this
+            }
+        }
+    }
+
+    if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
+    {
+        fprintf(stderr,"Got CIM data...\n");
         fflush(stderr);
-        */
-        const Array<ArraySint8>& a = _instancesData;
-        const Array<ArraySint8>& b = _referencesData;
-
-        for (Uint32 i = 0, n = a.size(); i < n; i++)
+        // TODO: Set Marker for C++ data 
+        switch (_dataType)
         {
-            out << STRLIT("<VALUE.NAMEDINSTANCE>\n");
-            out.append((char*)b[i].getData(), b[i].size() - 1);
-            out.append((char*)a[i].getData(), a[i].size() - 1);
-            out << STRLIT("</VALUE.NAMEDINSTANCE>\n");
-        }
-    }
-    else
-    {
-        // DO NOT RESOLVE, use the SCMOXmlWriter to encode
-        // _resolve();
-        for (Uint32 i = 0, n = _namedInstances.size(); i < n; i++)
-        {
-            XmlWriter::appendValueNamedInstanceElement(
-                out, _namedInstances[i]);
-        }
-        for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
-        {
-            /*SCMODump dmp;
-            dmp.dumpSCMOInstanceKeyBindings(_scmoInstances[i]);
-            dmp.dumpInstanceProperties(_scmoInstances[i]);*/
-
-            SCMOXmlWriter::appendValueSCMOInstanceElement(
-                out, _scmoInstances[i]);
-
-/*            fprintf(
-                stderr,
-                "After appendValueNamedInstanceElement()\n%s",
-                out.getData());
-            fflush(stderr);*/
-            
-        }
-    }
-    PEG_METHOD_EXIT();
-}
-
-//------------------------------------------------------------------------------
-// Instantiates an array of CIMInstances from a binary representation created by
-// the CIMBinMessageSerializer.
-// Returns true on success.
-//------------------------------------------------------------------------------
-Boolean CIMInstancesResponseData::_resolveBinaryInstances(
-    CIMInstancesResponseData* data,
-    Array<CIMInstance>& instances)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstancesResponseData::_resolveBinaryInstances");
-
-    instances.clear();
-
-    CIMBuffer in((char*)data->_binaryData.getData(), data->_binaryData.size());
-
-    while (in.more())
-    {
-        if (!in.getInstanceA(instances))
-        {
-            in.release();
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to remove binary instance!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
-    }
-
-    in.release();
-    PEG_METHOD_EXIT();
-    return true;
-}
-
-
-
-//------------------------------------------------------------------------------
-// Instantiates an array of CIMInstances from an xml representation created by
-// the CIMBinMessageSerializer.
-// Returns true on success.
-//------------------------------------------------------------------------------
-Boolean CIMInstancesResponseData::_resolveXMLInstances(
-    CIMInstancesResponseData* data,
-    Array<CIMInstance>& instances)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstancesResponseData::_resolveXMLInstances");
-
-    instances.clear();
-
-    for (Uint32 i = 0; i < data->_instancesData.size(); i++)
-    {
-        CIMInstance cimInstance;
-
-        // Deserialize instance:
-        {
-            XmlParser parser((char*)data->_instancesData[i].getData());
-
-            if (!XmlReader::getInstanceElement(parser, cimInstance))
+            case RESP_INSTNAMES:
             {
-                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                    "Failed to resolve XML instance. Creating empty instance!");
-                cimInstance = CIMInstance();
+                for (Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
+                {
+                    XmlWriter::appendInstanceNameElement(out,_instanceNames[i]);
+                }
+                break;
+            }
+            case RESP_INSTANCE:
+            {
+                if (_instances.size()>0)
+                {
+                    XmlWriter::appendInstanceElement(out, _instances[0]);
+                }
+                break;
+            }
+            case RESP_INSTANCES:
+            {
+                for (Uint32 i = 0, n = _instances.size(); i < n; i++)
+                {
+                    XmlWriter::appendValueNamedInstanceElement(
+                        out, _instances[i]);
+                }
+                break;
+            }
+            case RESP_OBJECTS:
+            {
+                for (Uint32 i = 0; i < _objects.size(); i++)
+                {
+                    XmlWriter::appendValueObjectWithPathElement(
+                        out,
+                        _objects[i]);
+                }
+                break;
+            }
+            case RESP_OBJECTPATHS:
+            {
+                for (Uint32 i = 0, n = _instanceNames.size(); i < n; i++)
+                {
+                    out << "<OBJECTPATH>\n";
+                    XmlWriter::appendValueReferenceElement(
+                        out,
+                        _instanceNames[i],
+                        false);
+                    out << "</OBJECTPATH>\n";
+                }
+                break;
+            }
+            default:
+            {
+                // TODO:
+                // Argl, not nice, but not a problem yet, ignore this
             }
         }
+    }
+    if (RESP_ENC_SCMO == (_encoding & RESP_ENC_SCMO))
+    {
+        /*SCMODump dmp;
+        dmp.dumpSCMOInstanceKeyBindings(_scmoInstances[i]);
+        dmp.dumpInstanceProperties(_scmoInstances[i]);*/
 
-        // Deserialize path:
+        switch (_dataType)
         {
-            XmlParser parser((char*)data->_referencesData[i].getData());
-            CIMObjectPath cimObjectPath;
-
-            if (XmlReader::getInstanceNameElement(parser, cimObjectPath))
+            case RESP_INSTNAMES:
             {
-                if (!data->_nameSpacesData[i].isNull())
-                    cimObjectPath.setNameSpace(data->_nameSpacesData[i]);
+                for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
+                {
+                    SCMOXmlWriter::appendInstanceNameElement(
+                        out,
+                        _scmoInstances[i]);
+                }
+                break;
+            }
+            case RESP_INSTANCE:
+            {
+                if (_scmoInstances.size() > 0)
+                {
+                    SCMOXmlWriter::appendInstanceElement(out,_scmoInstances[0]);
+                }
+                break;
+            }
+            case RESP_INSTANCES:
+            {
+                fprintf(
+                    stderr,"encodeXmlResponse(SCMO)=%dinstances...\n",
+                    _scmoInstances.size());
+                fflush(stderr);
 
-                if (data->_hostsData[i].size())
-                    cimObjectPath.setHost(data->_hostsData[i]);
-
-                cimInstance.setPath(cimObjectPath);
+                for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
+                {
+                    SCMOXmlWriter::appendValueSCMOInstanceElement(
+                        out,
+                        _scmoInstances[i]);
+                }
+                break;
+            }
+            case RESP_OBJECTS:
+            {
+                for (Uint32 i = 0; i < _scmoInstances.size(); i++)
+                {
+/*
+                    SCMOXmlWriter::appendValueObjectWithPathElement(
+                        out,
+                        _scmoInstances[i]);
+*/
+                }
+                break;
+            }
+            case RESP_OBJECTPATHS:
+            {
+                break;
+            }
+            default:
+            {
+                // TODO:
+                // Argl, not nice, but not a problem yet, ignore this
             }
         }
-
-        instances.append(cimInstance);
+/*      fprintf(
+            stderr,
+            "After XmlWrite()\n%s",
+            out.getData());
+        fflush(stderr);*/
     }
 
-    PEG_METHOD_EXIT();
-    return true;
 }
 
-//------------------------------------------------------------------------------
-// Instantiates an array of CIMInstances from an array of SCMOInstances
-// Returns true on success.
-//------------------------------------------------------------------------------
-Boolean CIMInstancesResponseData::_resolveSCMOInstances(
-    CIMInstancesResponseData* data,
-    Array<CIMInstance>& instances)
+// contrary to encodeXmlResponse this function encodes the Xml in a format
+// not usable by clients
+void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMInstancesResponseData::_resolveSCMOInstances");
-
-    instances.clear();
-
-    //--rk-->TBD: Do the actual coding here
-
-    fprintf(stderr,"CIMInstancesResponseData::_resolveSCMOInstances() "
-            "Poorly implemented!!!\n");
-    try
-    {
-        for (Uint32 x=0; x < data->_scmoInstances.size(); x++)
-        {
-            /*SCMODump dmp;
-            dmp.dumpSCMOInstanceKeyBindings(data->_scmoInstances[x]);
-            dmp.dumpInstanceProperties(data->_scmoInstances[x]);*/
-            CIMInstance newInstance;
-                data->_scmoInstances[x].getCIMInstance(newInstance);
-            instances.append(newInstance);
-        }
-    }
-    catch (CIMException& ex)
-    {
-        fprintf(stderr,"CIMInstancesResponseData::_resolveSCMOInstances() "
-                "Exception:\n%s\n",(const char*)ex.getMessage().getCString());
-    }
-    catch (Exception& ex)
-    {
-        fprintf(stderr,"CIMInstancesResponseData::_resolveSCMOInstances() "
-                "Exception:\n%s\n",(const char*)ex.getMessage().getCString());
-    }
-    catch (exception& ex)
-    {
-        fprintf(stderr,"CIMInstancesResponseData::_resolveSCMOInstances() "
-                "exception:\n%s\n",(const char*)ex.what());
-    }
-    catch (...)
-    {
-        fprintf(stderr,"CIMInstancesResponseData::_resolveSCMOInstances() "
-                "Exception: UNKNOWN\n");
-    }
-    data->_resolveCallback = 0;
-
-    PEG_METHOD_EXIT();
-    return true;
+    // TODO: Implement
+    // Need the full switch here again
+    // Should use the internal data available SCMO, C++ and InternalXML
+    // to generate the InternalXML by CIMInternalEncoder and SCMOInternalEncoder
+    fprintf(stderr, "Watch wat ya do'n! SCMO to InternalXml ? NO OOP yet.\n");
+    fflush(stderr);
 }
 
-
-//-----------------------------------------------------------------------------
-//
-//  CIMObjectsResponseData
-//
-//-----------------------------------------------------------------------------
-
-
-//------------------------------------------------------------------------------
-// Takes a binary stream of objects from a CIMBuffer and stores
-// it in the responsedata.
-// @param hasLen Indicates if the binary object stream is prepended with an
-//               Uint32 value indicating the number of objects in the stream.
-//------------------------------------------------------------------------------
-bool CIMObjectsResponseData::setBinaryCimObjects(CIMBuffer& in, bool hasLen)
+void CIMResponseData::_resolveToCIM()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMObjectsResponseData::setBinaryCimObjects");
+    fprintf(
+        stderr,
+        "_resolveToCIM(encoding=%X,content=%X)\n",
+        _encoding,
+        _dataType);
+    fflush(stderr);
 
-    if (hasLen)
+    if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
-        if (!in.getUint8A(_binaryData))
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to get binary object data!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
+        _resolveXmlToCIM();
     }
-    else
+    if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
     {
-        size_t remainingDataLength = in.capacity() - in.size();
-        _binaryData.append((Uint8*)in.getPtr(), remainingDataLength);
+        _resolveBinary();
     }
-
-    _resolveCallback = _resolveBinaryObjects;
-    _binaryEncoding = true;
-
-    PEG_METHOD_EXIT();
-    return true;
-};
-
-bool CIMObjectsResponseData::setXmlCimObjects(CIMBuffer& in)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMObjectsResponseData::setXmlCimObjects");
-
-    Uint32 count;
-
-    if (!in.getUint32(count))
+    if (RESP_ENC_SCMO == (_encoding & RESP_ENC_SCMO))
     {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to get XML object data (number of objects)!");
-        PEG_METHOD_EXIT();
-        return false;
+        _resolveSCMOToCIM();
     }
-
-    for (Uint32 i = 0; i < count; i++)
-    {
-        Array<Sint8> obj;
-        Array<Sint8> ref;
-        CIMNamespaceName ns;
-        String host;
-
-        if (!in.getSint8A(obj))
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to get XML object data (object)!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
-
-        if (!in.getSint8A(ref))
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to get XML object data (reference)!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
-
-        if (!in.getString(host))
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to get XML object data (host)!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
-
-        if (!in.getNamespaceName(ns))
-        {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to get XML object data (namespace)!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
-
-        _cimObjectsData.append(obj);
-        _referencesData.append(ref);
-        _hostsData.append(host);
-        _nameSpacesData.append(ns);
-    }
-
-    _resolveCallback = _resolveXMLObjects;
-    _binaryEncoding = false;
-
-    PEG_METHOD_EXIT();
-    return true;
+    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_CIM);
 }
 
-//------------------------------------------------------------------------------
-// Encodes the array of CIMObject representation contained in the current
-// CIMResponseData object in binary response message format.
-// This code corresponds to method _resolveBinaryObjects, which is used
-// revert a binary object array representation back into an array of
-// CIMObject.
-//------------------------------------------------------------------------------
-void CIMObjectsResponseData::encodeBinaryResponse(CIMBuffer& out) const
+void CIMResponseData::_resolveToSCMO()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMObjectsResponseData::encodeBinaryResponse");
-
-    if (_resolveCallback && _binaryEncoding)
+    fprintf(
+        stderr,
+        "_resolveToSCMO(encoding=%X,content=%X)\n",
+        _encoding,
+        _dataType);
+    fflush(stderr);
+    
+    if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
-        const Array<Uint8>& data = _binaryData;
-        out.putBytes(data.getData(), data.size());
+        _resolveXmlToSCMO();
     }
-    else
+    if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
     {
-        out.putObjectA(_cimObjects);
+        _resolveBinary();
     }
-    PEG_METHOD_EXIT();
+    if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
+    {
+        _resolveCIMToSCMO();
+    }
+    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_SCMO);
 }
 
-//------------------------------------------------------------------------------
-// Encodes the array of CIMObject representation contained in the current
-// CIMResponseData object in xml response message format.
-// This code corresponds to method _resolveXmlObjects, which is used
-// revert a CIM-XML object array representation back into an array of
-// CIMObject.
-//------------------------------------------------------------------------------
-void CIMObjectsResponseData::encodeXmlResponse(Buffer& out) const
+// helper functions to transform different formats into one-another
+// functions work on the internal data and calling of them should be
+// avoided whenever possible
+void CIMResponseData::_resolveBinary()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMObjectsResponseData::encodeXmlResponse");
+    // Call magic here to resolve binary format
+    fprintf(stderr, "Watch wat ya do'n! binary ? NO OOP yet.\n");
+    fflush(stderr);
 
-    if (_resolveCallback && !_binaryEncoding)
+    switch (_dataType)
     {
-        const Array<ArraySint8>& a = _cimObjectsData;
-        const Array<ArraySint8>& b = _referencesData;
-
-        for (Uint32 i = 0, n = a.size(); i < n; i++)
+        case RESP_INSTNAMES:
         {
-            out << STRLIT("<VALUE.OBJECTWITHPATH>\n");
-            out.append((char*)b[i].getData(), b[i].size() - 1);
-            out.append((char*)a[i].getData(), a[i].size() - 1);
-            out << STRLIT("</VALUE.OBJECTWITHPATH>\n");
+            break;
+        }
+        case RESP_INSTANCE:
+        {
+            break;
+        }
+        case RESP_INSTANCES:
+        {
+            break;
+        }
+        case RESP_OBJECTS:
+        {
+            break;
+        }
+        case RESP_OBJECTPATHS:
+        {
+            break;
+        }
+        default:
+        {
+            // TODO:
+            // Argl, not nice, but not a problem yet, ignore this
         }
     }
-    else
-    {
-        for (Uint32 i = 0; i < _cimObjects.size(); i++)
-        {
-            XmlWriter::appendValueObjectWithPathElement(out, _cimObjects[i]);
-        }
-     }
-    PEG_METHOD_EXIT();
 }
 
-//------------------------------------------------------------------------------
-// Instantiates an array of CIMObjects from a binary representation created by
-// the CIMBinMessageSerializer.
-// Returns true on success.
-//------------------------------------------------------------------------------
-Boolean CIMObjectsResponseData::_resolveBinaryObjects(
-    CIMObjectsResponseData* data,
-    Array<CIMObject>& cimObjects)
+void CIMResponseData::_resolveXmlToCIM()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMObjectsResponseData::_resolveBinaryObjects");
-
-    cimObjects.clear();
-
-    CIMBuffer in((char*)data->_binaryData.getData(), data->_binaryData.size());
-
-    while (in.more())
+    switch (_dataType)
     {
-        if (!in.getObjectA(cimObjects))
+        case RESP_INSTNAMES:
         {
-            in.release();
+            for (Uint32 i = 0; i < _referencesData.size(); i++)
+            {
+                CIMObjectPath cop;
+                // Deserialize path:
+                {
+                    XmlParser parser((char*)_referencesData[i].getData());
 
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to resolve binary data!");
-            PEG_METHOD_EXIT();
-            return false;
+                    if (XmlReader::getInstanceNameElement(parser, cop))
+                    {
+                        if (!_nameSpacesData[i].isNull())
+                            cop.setNameSpace(_nameSpacesData[i]);
+
+                        if (_hostsData[i].size())
+                            cop.setHost(_hostsData[i]);
+                    }
+                }
+                _instanceNames.append(cop);
+            }
+            break;
         }
-    }
-
-    in.release();
-    PEG_METHOD_EXIT();
-    return true;
-}
-
-//------------------------------------------------------------------------------
-// Instantiates an array of CIMObjects from an xml representation created by
-// the CIMBinMessageSerializer.
-// Returns true on success.
-//------------------------------------------------------------------------------
-Boolean CIMObjectsResponseData::_resolveXMLObjects(
-    CIMObjectsResponseData* data,
-    Array<CIMObject>& cimObjects)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMObjectsResponseData::_resolveXMLObjects");
-
-    cimObjects.clear();
-
-    for (Uint32 i=0, n=data->_cimObjectsData.size(); i<n; i++)
-    {
-        CIMObject cimObject;
-
-        // Deserialize Objects:
+        case RESP_INSTANCE:
         {
-            XmlParser parser((char*)data->_cimObjectsData[i].getData());
-
             CIMInstance cimInstance;
-            CIMClass cimClass;
+            // Deserialize instance:
+            {
+                XmlParser parser((char*)_instanceData[0].getData());
 
-            if (XmlReader::getInstanceElement(parser, cimInstance))
-            {
-                cimObject = CIMObject(cimInstance);
+                if (!XmlReader::getInstanceElement(parser, cimInstance))
+                {
+                    cimInstance = CIMInstance();
+                    PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                        "Failed to resolve XML instance, parser error!");
+                }
             }
-            else if (XmlReader::getClassElement(parser, cimClass))
+            // Deserialize path:
             {
-                cimObject = CIMObject(cimClass);
+                XmlParser parser((char*)_referencesData[0].getData());
+                CIMObjectPath cimObjectPath;
+
+                if (XmlReader::getValueReferenceElement(parser, cimObjectPath))
+                {
+                    if (_hostsData.size())
+                    {
+                        cimObjectPath.setHost(_hostsData[0]);
+                    }
+                    if (!_nameSpacesData[0].isNull())
+                    {
+                        cimObjectPath.setNameSpace(_nameSpacesData[0]);
+                    }
+                    cimInstance.setPath(cimObjectPath);
+                    // only if everything works we add the CIMInstance to the
+                    // array
+                    _instances.append(cimInstance);
+                }
             }
-            else
-            {
-                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                    "Failed to get XML object data!");
-            }
+            break;
         }
-
-        // Deserialize paths:
+        case RESP_INSTANCES:
         {
-            XmlParser parser((char*)data->_referencesData[i].getData());
-            CIMObjectPath cimObjectPath;
-
-            if (XmlReader::getValueReferenceElement(parser, cimObjectPath))
+            for (Uint32 i = 0; i < _instanceData.size(); i++)
             {
-                if (!data->_nameSpacesData[i].isNull())
-                    cimObjectPath.setNameSpace(data->_nameSpacesData[i]);
+                CIMInstance cimInstance;
+                // Deserialize instance:
+                {
+                    XmlParser parser((char*)_instanceData[i].getData());
 
-                if (data->_hostsData[i].size())
-                    cimObjectPath.setHost(data->_hostsData[i]);
+                    if (!XmlReader::getInstanceElement(parser, cimInstance))
+                    {
+                        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                            "Failed to resolve XML instance."
+                                " Creating empty instance!");
+                        cimInstance = CIMInstance();
+                    }
+                }
 
-                cimObject.setPath(cimObjectPath);
+                // Deserialize path:
+                {
+                    XmlParser parser((char*)_referencesData[i].getData());
+                    CIMObjectPath cimObjectPath;
+
+                    if (XmlReader::getInstanceNameElement(parser,cimObjectPath))
+                    {
+                        if (!_nameSpacesData[i].isNull())
+                            cimObjectPath.setNameSpace(_nameSpacesData[i]);
+
+                        if (_hostsData[i].size())
+                            cimObjectPath.setHost(_hostsData[i]);
+
+                        cimInstance.setPath(cimObjectPath);
+                    }
+                }
+
+                _instances.append(cimInstance);
             }
+            break;
         }
+        case RESP_OBJECTS:
+        {
+            for (Uint32 i=0, n=_instanceData.size(); i<n; i++)
+            {
+                CIMObject cimObject;
 
-        cimObjects.append(cimObject);
+                // Deserialize Objects:
+                {
+                    XmlParser parser((char*)_instanceData[i].getData());
+
+                    CIMInstance cimInstance;
+                    CIMClass cimClass;
+
+                    if (XmlReader::getInstanceElement(parser, cimInstance))
+                    {
+                        cimObject = CIMObject(cimInstance);
+                    }
+                    else if (XmlReader::getClassElement(parser, cimClass))
+                    {
+                        cimObject = CIMObject(cimClass);
+                    }
+                    else
+                    {
+                        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                            "Failed to get XML object data!");
+                    }
+                }
+
+                // Deserialize paths:
+                {
+                    XmlParser parser((char*)_referencesData[i].getData());
+                    CIMObjectPath cimObjectPath;
+
+                    if (XmlReader::getValueReferenceElement(
+                            parser,
+                            cimObjectPath))
+                    {
+                        if (!_nameSpacesData[i].isNull())
+                            cimObjectPath.setNameSpace(_nameSpacesData[i]);
+
+                        if (_hostsData[i].size())
+                            cimObjectPath.setHost(_hostsData[i]);
+
+                        cimObject.setPath(cimObjectPath);
+                    }
+                }
+                _objects.append(cimObject);
+            }
+            break;
+        }
+        case RESP_OBJECTPATHS:
+        {
+            // TODO: ????
+        }
+        default:
+        {
+            // TODO:
+            // Argl, not nice, but not a problem yet, ignore this
+        }
     }
-
-    PEG_METHOD_EXIT();
-    return true;
+    // Xml was resolved, release Xml content now
+    _referencesData.clear();
+    _hostsData.clear();
+    _nameSpacesData.clear();
+    _instanceData.clear();
+    // remove Xml Encoding flag
+    _encoding &=(!RESP_ENC_XML);
+    // add CIM Encoding flag
+    _encoding |=RESP_ENC_CIM;
 }
 
+void CIMResponseData::_resolveXmlToSCMO()
+{
+    // Not optimal, can probably be improved
+    // but on the other hand, since using the binary format this case should
+    // actually not ever happen.
+    _resolveXmlToCIM();
+    _resolveCIMToSCMO();
+}
+
+void CIMResponseData::_resolveSCMOToCIM()
+{
+    switch(_dataType)
+    {
+        case RESP_INSTNAMES:
+        case RESP_OBJECTPATHS:
+        {
+            for (Uint32 x=0, n=_scmoInstances.size(); x < n; x++)
+            {
+                CIMObjectPath newObjectPath;
+                _scmoInstances[x].getCIMObjectPath(newObjectPath);
+                _instanceNames.append(newObjectPath);
+            }
+            break;
+        }
+        case RESP_INSTANCE:
+        {
+            CIMInstance newInstance;
+            _scmoInstances[0].getCIMInstance(newInstance);
+            _instances.append(newInstance);
+            break;
+        }
+        case RESP_INSTANCES:
+        {
+            for (Uint32 x=0, n=_scmoInstances.size(); x < n; x++)
+            {
+                CIMInstance newInstance;
+                _scmoInstances[x].getCIMInstance(newInstance);
+                _instances.append(newInstance);
+            }
+            break;
+        }
+        case RESP_OBJECTS:
+        {
+            for (Uint32 x=0, n=_scmoInstances.size(); x < n; x++)
+            {
+                CIMInstance newInstance;
+                _scmoInstances[x].getCIMInstance(newInstance);
+                _objects.append(CIMObject(newInstance));
+            }
+            break;
+        }
+        default:
+        {
+            // TODO:
+            // Argl, not nice, but not a problem yet, ignore this
+        }
+    }
+
+    _scmoInstances.clear();
+    // remove CIM Encoding flag
+    _encoding &=(!RESP_ENC_SCMO);
+    // add SCMO Encoding flag
+    _encoding |=RESP_ENC_CIM;
+}
+
+void CIMResponseData::_resolveCIMToSCMO()
+{
+    switch (_dataType)
+    {
+        case RESP_INSTNAMES:
+        case RESP_OBJECTPATHS:
+        {
+            for (Uint32 i=0,n=_instanceNames.size();i<n;i++)
+            {
+                SCMOInstance addme =
+                    _getSCMOFromCIMObjectPath(_instanceNames[i]);
+                _scmoInstances.append(addme);
+            }
+            break;
+        }
+        case RESP_INSTANCE:
+        {
+            SCMOInstance addme =
+                _getSCMOFromCIMInstance(_instances[0]);
+            _scmoInstances.append(addme);
+            break;
+        }
+        case RESP_INSTANCES:
+        {
+            for (Uint32 i=0,n=_instances.size();i<n;i++)
+            {
+                SCMOInstance addme =
+                    _getSCMOFromCIMInstance(_instances[i]);
+                _scmoInstances.append(addme);
+            }
+            break;
+        }
+        case RESP_OBJECTS:
+        {
+            // TODO: Implement, but how ???
+            break;
+        }
+        default:
+        {
+            // TODO:
+            // Argl, not nice, but not a problem yet, ignore this
+            break;
+        }
+    }
+
+    // remove CIM Encoding flag
+    _encoding &=(!RESP_ENC_CIM);
+    // add SCMO Encoding flag
+    _encoding |=RESP_ENC_SCMO;
+}
+
+
+// Function to convert a CIMInstance into an SCMOInstance
+SCMOInstance CIMResponseData::_getSCMOFromCIMInstance(
+    const CIMInstance& cimInst)
+{
+    const CIMObjectPath& cimPath = cimInst.getPath();
+
+    const CString nameSpace = cimPath.getNameSpace().getString().getCString();
+    const CString className = cimPath.getClassName().getString().getCString();
+    // TODO: What do when either or both are 0 ?
+
+    SCMOClass * scmoClass = _getSCMOClass(
+        (const char*)nameSpace,
+        (const char*)className);
+    // TODO: What do when there is no such class ?
+
+    // TODO: Interrogate Thilo about need to call new
+    SCMOInstance scmoInst = SCMOInstance(*scmoClass, cimInst);
+
+    return scmoInst;
+}
+
+// Function to convert a CIMObjectPath into an SCMOInstance
+SCMOInstance CIMResponseData::_getSCMOFromCIMObjectPath(
+    const CIMObjectPath& cimPath)
+{
+    CString nameSpace = cimPath.getNameSpace().getString().getCString();
+    CString className = cimPath.getClassName().getString().getCString();
+
+    // TODO: What do when either or both are 0 ?
+
+    SCMOClass * scmoClass = _getSCMOClass(
+        (const char*)nameSpace,
+        (const char*)className);
+
+    // TODO: What do when there is no such class ?
+
+    // TODO: Interrogate Thilo about need to call new
+    SCMOInstance scmoRef = SCMOInstance(*scmoClass, cimPath);
+
+    return scmoRef;
+}
+
+SCMOClass* CIMResponseData::_getSCMOClass(
+    const char* nameSpace,
+    const char* cls)
+{
+    SCMOClassCache* local = SCMOClassCache::getInstance();
+    return local->getSCMOClass(
+        nameSpace,
+        strlen(nameSpace),
+        cls,
+        strlen(cls));
+}
 
 PEGASUS_NAMESPACE_END

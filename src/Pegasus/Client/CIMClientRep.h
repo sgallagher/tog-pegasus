@@ -135,7 +135,7 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
-    virtual CIMResponseData getInstance(
+    virtual CIMResponseData& getInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         Boolean localOnly = true,
@@ -143,6 +143,17 @@ public:
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
+
+#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
+    virtual Array<Uint8> getBinaryInstance(
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& instanceName,
+        Boolean localOnly = true,
+        Boolean includeQualifiers = false,
+        Boolean includeClassOrigin = false,
+        const CIMPropertyList& propertyList = CIMPropertyList()
+    );
+#endif
 
     virtual void deleteClass(
         const CIMNamespaceName& nameSpace,
@@ -191,7 +202,7 @@ public:
         Boolean deepInheritance = false
     );
 
-    virtual CIMResponseData enumerateInstances(
+    virtual CIMResponseData& enumerateInstances(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Boolean deepInheritance = true,
@@ -201,18 +212,38 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
-    virtual CIMResponseData enumerateInstanceNames(
+#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
+    virtual Array<Uint8> enumerateBinaryInstances(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className,
+        Boolean deepInheritance = true,
+        Boolean localOnly = true,
+        Boolean includeQualifiers = false,
+        Boolean includeClassOrigin = false,
+        const CIMPropertyList& propertyList = CIMPropertyList()
+    );
+#endif
+
+    virtual CIMResponseData& enumerateInstanceNames(
         const CIMNamespaceName& nameSpace,
         const CIMName& className
     );
 
-    virtual CIMResponseData execQuery(
+    virtual CIMResponseData& execQuery(
         const CIMNamespaceName& nameSpace,
         const String& queryLanguage,
         const String& query
     );
 
-    virtual CIMResponseData associators(
+#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
+    virtual Array<Uint8> execQueryBinary(
+        const CIMNamespaceName& nameSpace,
+        const String& queryLanguage,
+        const String& query
+    );
+#endif
+
+    virtual CIMResponseData& associators(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& assocClass = CIMName(),
@@ -224,7 +255,21 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
-    virtual CIMResponseData associatorNames(
+#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
+    virtual Array<Uint8> associatorsBinary(
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& objectName,
+        const CIMName& assocClass = CIMName(),
+        const CIMName& resultClass = CIMName(),
+        const String& role = String::EMPTY,
+        const String& resultRole = String::EMPTY,
+        Boolean includeQualifiers = false,
+        Boolean includeClassOrigin = false,
+        const CIMPropertyList& propertyList = CIMPropertyList()
+    );
+#endif
+
+    virtual CIMResponseData& associatorNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& assocClass = CIMName(),
@@ -233,7 +278,7 @@ public:
         const String& resultRole = String::EMPTY
     );
 
-    virtual CIMResponseData references(
+    virtual CIMResponseData& references(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& resultClass = CIMName(),
@@ -243,7 +288,7 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
-    virtual CIMResponseData referenceNames(
+    virtual CIMResponseData& referenceNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& resultClass = CIMName(),
@@ -299,15 +344,10 @@ public:
 
     void setBinaryRequest(bool x) { _binaryRequest = x; }
 
-    void connectLocalBinary();
-
-    bool _binaryResponse;
-
 private:
 
     void _connect(bool binaryRequest, bool binaryResponse);
-    void _disconnect(bool keepChallengeStatus = false);
-    void _connectLocal(bool binary);
+    void _disconnect();
 
     Message* _doRequest(
         AutoPtr<CIMRequestMessage>& request,
@@ -344,62 +384,8 @@ private:
     ContentLanguageList requestContentLanguages;
     ContentLanguageList responseContentLanguages;
     bool _binaryRequest;
+    bool _binaryResponse;
     bool _localConnect;
-};
-
-/****************************************************************************
-**
-**   Implementation of ClientTrace class.  This allows setup of variables
-**   to control display of Client network send and receive.
-**
-****************************************************************************/
-// Tests for Display optons of the form:
-// Env variable PEGASUS_CLIENT_TRACE= <intrace> : <outtrace
-// intrace = "con" | "log" | "both"
-// outtrace = intrace
-// ex set PEGASUS_CLIENT_TRACE=BOTH:BOTH traces input and output
-// to console and log
-// Keywords are case insensitive.
-// PEP 90
-// options allowed are:
-//     keyword:keyword  separately define input and output
-//     keyword:         Input only
-//     :keyword         Output Only
-//     keyword          Input and output defined by keyword
-//
-class ClientTrace
-{
-public:
-    // Bit flags, that define what is to be displayed.
-    enum TraceType
-    {
-        TRACE_NONE = 0,
-        TRACE_CON = 1,
-        TRACE_LOG = 2,
-        TRACE_BOTH = 3
-    };
-
-    // setup the control variables from env variable
-    static void setup();
-
-    // Called from OperationRequest and Response handlers to test for
-    // particular masks set.  Return true if the TraceType mask defined by
-    // tt is set in the state variable.
-    static Boolean displayOutput(TraceType tt);
-    static Boolean displayInput(TraceType tt);
-
-private:
-    // constructors, etc. are private and not to be used.
-    ClientTrace();
-    ClientTrace(ClientTrace const&);
-    ClientTrace& operator=(ClientTrace const&);
-
-    // internal function to translate input strings to TraceTypes
-    static TraceType selectType(const String& str);
-
-    // Define the display states set by setup.
-    static Uint32 inputState;
-    static Uint32 outputState;
 };
 
 PEGASUS_NAMESPACE_END

@@ -58,7 +58,7 @@ CIMClass _scmoClassCache_GetClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
-    CIMClass CIM_TESTClass2;   
+    CIMClass CIM_TESTClass2;
     Buffer text;
     SCMO_RC rc;
 
@@ -108,7 +108,8 @@ void CIMClassToSCMOClass()
 
     SCMOClass theSCMOClass(theCIMClass);
 
-    SCMODump dump("TestSCMOClass.log");
+    const char TestCSMOClassLog[]="TestSCMOClass.log";
+    SCMODump dump(&(TestCSMOClassLog[0]));
 
     dump.dumpSCMOClass(theSCMOClass);
 
@@ -126,7 +127,7 @@ void CIMClassToSCMOClass()
     theSCMOClass.getCIMClass(newCimClass);
 
     // Before the newCimClass can be compared with the orginal class,
-    // the methods of the original class has to be removed, 
+    // the methods of the original class has to be removed,
     // because the SCMOClass currently does not support methods.
     while (0 != theCIMClass.getMethodCount())
     {
@@ -139,10 +140,10 @@ void CIMClassToSCMOClass()
 
     SCMOInstance theSCMOInstance(theSCMOClass);
 
-    
+    char TestSCMOClass[]= "TestSCMO Class";
     SCMBUnion tmp;
-    tmp.extString.pchar  = "TestSCMO Class";
-    tmp.extString.length = strlen("TestSCMO Class");
+    tmp.extString.pchar = &(TestSCMOClass[0]);
+    tmp.extString.length = strlen(TestSCMOClass);
 
     theSCMOInstance.setPropertyWithOrigin(
         "CreationClassName",
@@ -169,9 +170,10 @@ void CIMClassToSCMOClass()
         exit(-1);
     }
 
+    char ThisIsTheName[] = "This is the Name";
     SCMBUnion tmp2;
-    tmp2.extString.pchar  = "This is the Name";
-    tmp2.extString.length = strlen("This is the Name");
+    tmp2.extString.pchar  = &(ThisIsTheName[0]);
+    tmp2.extString.length = strlen(ThisIsTheName);
 
     const SCMBUnion * tmp3;
     CIMType keyType;
@@ -694,7 +696,7 @@ void SCMOInstancePropertyTest()
     uint64ArrayValue[0].simple.hasValue=true;
     uint64ArrayValue[1].simple.val.u64 = 483734;
     uint64ArrayValue[1].simple.hasValue=true;
-    uint64ArrayValue[2].simple.val.u64 = 
+    uint64ArrayValue[2].simple.val.u64 =
         PEGASUS_UINT64_LITERAL(0x1234567890ABCDEF);
     uint64ArrayValue[2].simple.hasValue=true;
     uint64ArrayValue[3].simple.val.u64 = 23903483;
@@ -879,7 +881,7 @@ void SCMOInstancePropertyTest()
      */
 
     VCOUT << "Test Sint32" << endl;
-   
+
     SCMBUnion sint32value;
     sint32value.simple.val.s32=0xF0783C;
     sint32value.simple.hasValue=true;
@@ -1234,19 +1236,19 @@ void SCMOInstancePropertyTest()
         "DateTimeProperty",
         CIMTYPE_DATETIME,
         &myDateTimeValue);
-                                            
-    PEGASUS_TEST_ASSERT(rc==SCMO_OK);       
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
     rc = SCMO_TESTClass2_Inst.getProperty(
         "DateTimeProperty",
         typeReturn,
         &unionReturn,
         isArrayReturn,
-        sizeReturn);                     
-                                            
+        sizeReturn);
+
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
     PEGASUS_TEST_ASSERT(sizeReturn==0);
-    PEGASUS_TEST_ASSERT(!isArrayReturn); 
+    PEGASUS_TEST_ASSERT(!isArrayReturn);
 
     PEGASUS_TEST_ASSERT(
         memcmp(
@@ -1254,13 +1256,13 @@ void SCMOInstancePropertyTest()
             &(unionReturn->dateTimeValue),
             sizeof(CIMDateTimeRep))== 0);
 
-    SCMBUnion dateTimeArrayValue[3];        
+    SCMBUnion dateTimeArrayValue[3];
 
     dateTimeArrayValue[0].dateTimeValue.usec = Uint64(988243387);
     dateTimeArrayValue[0].dateTimeValue.utcOffset = 0;
     dateTimeArrayValue[0].dateTimeValue.sign = ':';
     dateTimeArrayValue[0].dateTimeValue.numWildcards = 0;
-                                            
+
     dateTimeArrayValue[1].dateTimeValue.usec = Uint64(827383727);
     dateTimeArrayValue[1].dateTimeValue.utcOffset = 0;
     dateTimeArrayValue[1].dateTimeValue.sign = ':';
@@ -1270,14 +1272,14 @@ void SCMOInstancePropertyTest()
     dateTimeArrayValue[2].dateTimeValue.utcOffset = 0;
     dateTimeArrayValue[2].dateTimeValue.sign = ':';
     dateTimeArrayValue[2].dateTimeValue.numWildcards = 0;
-                                            
+
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "DateTimePropertyArray",
         CIMTYPE_DATETIME,
         dateTimeArrayValue,
         true,3);
-                                            
-    PEGASUS_TEST_ASSERT(rc==SCMO_OK);           
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
 
     rc = SCMO_TESTClass2_Inst.getProperty(
         "DateTimePropertyArray",
@@ -1288,9 +1290,9 @@ void SCMOInstancePropertyTest()
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
     PEGASUS_TEST_ASSERT(sizeReturn==3);
-    PEGASUS_TEST_ASSERT(isArrayReturn);     
+    PEGASUS_TEST_ASSERT(isArrayReturn);
 
-    
+
     PEGASUS_TEST_ASSERT(
         memcmp(&(dateTimeArrayValue[0].dateTimeValue),
                &(unionReturn[0].dateTimeValue),
@@ -1313,9 +1315,10 @@ void SCMOInstancePropertyTest()
 
     VCOUT << "Test String" << endl;
 
+    char ThisIsASingleString[] = "This is a single String!";
     SCMBUnion stringValue;
-    stringValue.extString.pchar = "This is a single String!";
-    stringValue.extString.length = sizeof("This is a single String!")-1;
+    stringValue.extString.pchar = &(ThisIsASingleString[0]);
+    stringValue.extString.length = strlen(ThisIsASingleString);
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "StringProperty",
@@ -1344,16 +1347,18 @@ void SCMOInstancePropertyTest()
 
     free((void*)unionReturn);
 
+    char arraySting0[] = "The Array String Number one.";
+    char arraySting1[] = "The Array String Number two.";
+    char arraySting2[] = "The Array String Number three.";
     SCMBUnion stringArrayValue[3];
-    stringArrayValue[0].extString.pchar="The Array String Number one.";
-    stringArrayValue[0].extString.length=
-        sizeof("The Array String Number one.")-1;
-    stringArrayValue[1].extString.pchar="The Array String Number two.";
-    stringArrayValue[1].extString.length=
-        sizeof("The Array String Number two.")-1;
-    stringArrayValue[2].extString.pchar="The Array String Number three.";
-    stringArrayValue[2].extString.length=
-        sizeof("The Array String Number three.")-1;
+    stringArrayValue[0].extString.pchar= &(arraySting0[0]);
+    stringArrayValue[0].extString.length= strlen(arraySting0);
+
+    stringArrayValue[1].extString.pchar=&(arraySting1[0]);
+    stringArrayValue[1].extString.length=strlen(arraySting1);
+
+    stringArrayValue[2].extString.pchar=&(arraySting2[0]);
+    stringArrayValue[2].extString.length=strlen(arraySting2);
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
         "StringPropertyArray",
@@ -1431,26 +1436,16 @@ void SCMOInstanceKeyBindingsTest()
     real32KeyVal.simple.val.r32 = 3.9399998628365712e+30;
     real32KeyVal.simple.hasValue = true;
 
+    char stringKeyBinding[] = "This is the String key binding.";
     SCMBUnion stringKeyVal;
-    stringKeyVal.extString.pchar = "This is the String key binding.";
-    stringKeyVal.extString.length =
-        sizeof("This is the String key binding.")-1;
+    stringKeyVal.extString.pchar = &(stringKeyBinding[0]);
+    stringKeyVal.extString.length = strlen(stringKeyBinding);
 
     /**
      * Test Key bindings
      */
 
     VCOUT << "Key Bindings Tests." << endl << endl;
-
-    VCOUT << "Wrong key binding name." << endl;
-
-    // BooleanProperty is not a key binding!
-    rc = SCMO_TESTClass2_Inst.setKeyBinding(
-        "BooleanProperty",
-        CIMTYPE_BOOLEAN,
-        &boolKeyVal);
-
-    PEGASUS_TEST_ASSERT(rc==SCMO_NOT_FOUND);
 
     VCOUT << "Wrong key binding type." << endl;
     // Real32Property is a key property
@@ -1502,7 +1497,7 @@ void SCMOInstanceKeyBindingsTest()
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
     PEGASUS_TEST_ASSERT(returnKeyBindType==CIMTYPE_REAL32);
-    PEGASUS_TEST_ASSERT(returnKeyBindValue->simple.val.r32 == 
+    PEGASUS_TEST_ASSERT(returnKeyBindValue->simple.val.r32 ==
                         real32KeyVal.simple.val.r32);
 
     rc = SCMO_TESTClass2_Inst.getKeyBinding(
@@ -1512,7 +1507,7 @@ void SCMOInstanceKeyBindingsTest()
 
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
     PEGASUS_TEST_ASSERT(returnKeyBindType==CIMTYPE_UINT64);
-    PEGASUS_TEST_ASSERT(returnKeyBindValue->simple.val.u64 == 
+    PEGASUS_TEST_ASSERT(returnKeyBindValue->simple.val.u64 ==
                         uint64KeyVal.simple.val.u64);
 
     rc = SCMO_TESTClass2_Inst.getKeyBinding(
@@ -1542,7 +1537,7 @@ void SCMOInstanceKeyBindingsTest()
     VCOUT << "Test index boundaries." << endl;
 
     rc = SCMO_TESTClass2_Inst.getKeyBindingAt(
-        noKeyBind+1,
+        noKeyBind,
         &returnName,
         returnKeyBindType,
         &returnKeyBindValue);
@@ -1565,6 +1560,112 @@ void SCMOInstanceKeyBindingsTest()
         }
         PEGASUS_TEST_ASSERT(rc==SCMO_OK);
     }
+
+    VCOUT << "Test User defined Key Bindings." << endl;
+
+    char stringKeyBinding2[]="This is the as User defined String key binding.";
+    SCMBUnion stringUserKeyVal;
+    stringUserKeyVal.extString.pchar = &(stringKeyBinding2[0]);
+    stringUserKeyVal.extString.length = strlen(stringKeyBinding2);
+
+    rc = SCMO_TESTClass2_Inst.setKeyBinding(
+        "UserStringProperty",
+        CIMTYPE_STRING,
+        &stringUserKeyVal);
+
+
+    rc = SCMO_TESTClass2_Inst.getKeyBinding(
+        "UserStringProperty",
+        returnKeyBindType,
+        &returnKeyBindValue);
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+    PEGASUS_TEST_ASSERT(returnKeyBindType==CIMTYPE_STRING);
+
+    PEGASUS_TEST_ASSERT(
+        stringUserKeyVal.extString.length==
+        returnKeyBindValue->extString.length);
+    PEGASUS_TEST_ASSERT(
+        strcmp(
+            stringUserKeyVal.extString.pchar,
+            returnKeyBindValue->extString.pchar) == 0);
+
+    // do not forget !
+    free((void*)returnKeyBindValue);
+
+    VCOUT << "Test User defined Key Bindings with index." << endl;
+
+    noKeyBind = SCMO_TESTClass2_Inst.getKeyBindingCount();
+    PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+    PEGASUS_TEST_ASSERT(noKeyBind == 4);
+
+    rc = SCMO_TESTClass2_Inst.getKeyBindingAt(
+        noKeyBind,
+        &returnName,
+        returnKeyBindType,
+        &returnKeyBindValue);
+
+    PEGASUS_TEST_ASSERT(rc==SCMO_INDEX_OUT_OF_BOUND);
+    PEGASUS_TEST_ASSERT(returnKeyBindValue==NULL);
+
+    VCOUT << "Iterate for index 0 to " << noKeyBind-1 << "." << endl;
+    for (Uint32 i = 0; i < noKeyBind; i++)
+    {
+        rc = SCMO_TESTClass2_Inst.getKeyBindingAt(
+            i,
+            &returnName,
+            returnKeyBindType,
+            &returnKeyBindValue);
+
+        if (returnKeyBindType == CIMTYPE_STRING)
+        {
+            free((void*)returnKeyBindValue);
+        }
+        PEGASUS_TEST_ASSERT(rc==SCMO_OK);
+    }
+
+    VCOUT << "Test CIMObjectpath." << endl;
+
+    CIMObjectPath theCIMPath;
+
+    SCMO_TESTClass2_Inst.getCIMObjectPath(theCIMPath);
+
+     Array<CIMKeyBinding> theCIMKeyBindings = 
+         theCIMPath.getKeyBindings();
+
+    PEGASUS_TEST_ASSERT(theCIMKeyBindings.size() == 4);
+
+    SCMOInstance theDummyInstance(
+        SCMOClass(SCMO_TESTClass2_Inst.getClassName(),
+                  SCMO_TESTClass2_Inst.getNameSpace()),
+        theCIMPath);
+
+    theDummyInstance.markAsCompromised();
+
+    for (Uint32 i = 0 ; i < theDummyInstance.getKeyBindingCount();i++)
+    {
+        rc = theDummyInstance.getKeyBindingAt(
+            i,
+            &returnName,
+            returnKeyBindType,
+            &returnKeyBindValue);
+
+        PEGASUS_ASSERT(rc==SCMO_OK);
+
+        rc = SCMO_TESTClass2_Inst.setKeyBinding(
+            returnName,
+            returnKeyBindType,
+            returnKeyBindValue);
+
+        PEGASUS_ASSERT(rc==SCMO_OK);
+
+        if (returnKeyBindType == CIMTYPE_STRING)
+        {
+            free((void*)returnKeyBindValue);
+        }
+
+    }
+
 
     VCOUT << endl << "Done." << endl;
 }
@@ -1744,7 +1845,7 @@ void SCMOInstanceConverterTest()
 
     VCOUT << "Creating SCMOInstance from CIMInstance" << endl;
     SCMOInstance SCMO_CSInstance(SCMO_CSClass,CIM_CSInstance);
-    
+
     CIMInstance newInstance;
 
     VCOUT << "Converting CIMInstance from SCMOInstance" << endl;
@@ -1769,7 +1870,6 @@ int main (int argc, char *argv[])
     try
     {
 
-    /*
         CIMClassToSCMOClass();
 
         // init the cache.
@@ -1788,7 +1888,6 @@ int main (int argc, char *argv[])
 
         // destroy the cache.
         _thecache->destroy();
-     */   
     }
     catch (CIMException& e)
     {

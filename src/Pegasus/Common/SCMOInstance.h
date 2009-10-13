@@ -601,6 +601,15 @@ public:
         return inst.hdr->flags.isCompromised;
     };
 
+
+    /** 
+     * Mark the instance as a non validated instance.
+     */
+    void markAsCompromised() 
+    {
+        inst.hdr->flags.isCompromised = true;
+    };
+
     /**
      *  To indicate the export processing ( eg. XMLWriter )
      *  to include qualifiers for this instance.
@@ -765,7 +774,43 @@ private:
         const char * uBase,
         SCMBKeyBindingValue& keyData);
 
-    SCMO_RC _setKeyBindingFromString(const char* name,String cimKeyBinding);
+    SCMO_RC _setKeyBindingFromString(
+        const char* name, 
+        CIMType type, 
+        String cimKeyBinding);
+
+    SCMBUserKeyBindingElement* _getUserDefinedKeyBinding(
+        const char* name,
+        Uint32 nameLen,
+        CIMType type);
+
+    void _setUserDefinedKeyBinding(
+        SCMBUserKeyBindingElement& theInsertElement,
+        char* elementBase);
+    /**
+     * Set a SCMO user defined key binding using the class CIM type tolerating 
+     * CIM key binding types converted to CIM types by fuction 
+     *  _CIMTypeFromKeyBindingType(). 
+     * 
+     * @parm classType The type of the key binding in the class definition
+     * @parm setType The type of the key binding to be set.
+     * @param keyValue A pointer to the key binding to be set.
+     * @param kbValue Out parameter, the SCMO keybinding to be set.
+     * 
+     **/
+    SCMO_RC _setKeyBindingTypeTolerate(
+        CIMType classType,
+        CIMType setType,
+        const SCMBUnion* keyValue,
+        SCMBKeyBindingValue& kbValue);
+
+    CIMType _CIMTypeFromKeyBindingType(
+        const char* key, 
+        CIMKeyBinding::Type t);
+
+    SCMO_RC _getUserKeyBindingNodeIndex(Uint32& node, const char* name) const;
+
+    SCMBUserKeyBindingElement* _getUserDefinedKeyBindingAt(Uint32 index) const;
 
     Boolean _setCimKeyBindingStringToSCMOKeyBindingValue(
         const String& kbs,

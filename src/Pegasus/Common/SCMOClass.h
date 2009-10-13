@@ -69,6 +69,17 @@ public:
     }
 
     /**
+     * Constructs an empty SCMOClass only with name space and class name.
+     * If you contruc a SCMOInstance using this class, you must mark it as
+     * compromized using SCMOInstance.markAsCompromised().
+     * 
+     * @param className The name for the class.
+     * @param nameSpaceName The namespace for the class.
+     */
+    SCMOClass(const char* className, const char* nameSpaceName );
+
+
+    /**
      * Destructor is decrementing the refcount. If refcount is zero, the
      * singele chunk memory object is deallocated.
      */

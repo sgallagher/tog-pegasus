@@ -51,7 +51,7 @@ public:
 
     SCMODump();
     ~SCMODump();
-    SCMODump(char *filename);
+    SCMODump(const char *filename);
     // Methods for SCMOClass only
     void hexDumpSCMOClass(SCMOClass& testCls) const;
     void dumpSCMOClass(SCMOClass& testCls) const;
@@ -76,7 +76,7 @@ public:
     void dumpHashTable(Uint32* hashTable,Uint32 size)const;
 
     // Methods use files for dumping.
-    void openFile(char *filename);
+    void openFile(const char *filename);
     void closeFile();
     String getFileName()
     {

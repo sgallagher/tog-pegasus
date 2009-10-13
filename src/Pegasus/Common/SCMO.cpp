@@ -326,6 +326,34 @@ inline void SCMOClass::_initSCMOClass()
 
 }
 
+SCMOClass::SCMOClass(const char* className, const char* nameSpaceName )
+{
+    if (0 == className)
+    {
+        String message("SCMOClass: Class name not set (null pointer)!");
+        throw CIMException(CIM_ERR_FAILED,message );
+    }
+
+    if (0 == nameSpaceName)
+    {
+        String message("SCMOClass: Name Space not set (null pointer)!");
+        throw CIMException(CIM_ERR_FAILED,message );
+    }
+
+    _initSCMOClass();
+
+    _setBinary(className,
+               strlen(className)+1,
+               cls.hdr->className,
+               &cls.mem );
+
+    _setBinary(nameSpaceName,
+               strlen(nameSpaceName)+1,
+               cls.hdr->nameSpace,
+               &cls.mem );
+
+}
+
 SCMOClass::SCMOClass(
     const CIMClass& theCIMClass,
     const char* nameSpaceName)
@@ -911,7 +939,7 @@ void SCMOClass::_setPropertyAsKeyInMask(Uint32 i)
     Uint64 filter = ( (Uint64)1 << (i%64));
 
     // Calculate the real pointer to the Uint64 array
-    keyMask = (Uint64*)&cls.base[cls.hdr->keyPropertyMask.start];
+    keyMask = (Uint64*)&(cls.base[cls.hdr->keyPropertyMask.start]);
 
     keyMask[idx] = keyMask[idx] | filter ;
 }
@@ -931,7 +959,7 @@ Boolean SCMOClass::_isPropertyKey(Uint32 i)
     Uint64 filter = ( (Uint64)1 << (i%64));
 
     // Calculate the real pointer to the Uint64 array
-    keyMask = (Uint64*)&cls.base[cls.hdr->keyPropertyMask.start];
+    keyMask = (Uint64*)&(cls.base[cls.hdr->keyPropertyMask.start]);
 
     return keyMask[idx] & filter ;
 
@@ -1104,7 +1132,7 @@ void SCMOClass::_setValue(
     scmoValue->valueArraySize = 0;
     scmoValue->flags.isNull = rep->isNull;
     scmoValue->flags.isArray = rep->isArray;
-    scmoValue->flags.isSet = true;
+    scmoValue->flags.isSet = false;
 
     if (rep->isNull)
     {
@@ -1276,6 +1304,7 @@ SCMOInstance::SCMOInstance(SCMOClass baseClass, const CIMInstance& cimInstance)
 
 }
 
+
 void SCMOInstance::_copyExternalReferences()
 {
     // TODO: Has to be optimized not to loop through all props.
@@ -1303,7 +1332,36 @@ void SCMOInstance::_copyExternalReferences()
                         *theInstanceKeyBindingNodeArray[i].data.extRefPtr);
             }
         }
-    }// for all key bindings
+    }// for all key bindings defined in the class
+
+    // Are there user defined key bindings ?
+    if (0 != inst.hdr->numberUserKeyBindindigs)
+    {
+        SCMBUserKeyBindingElement* theUserDefKBElement =
+            (SCMBUserKeyBindingElement*)
+                 &(inst.base[inst.hdr->userKeyBindingElement.start]);
+
+        for(Uint32 i = 0; i < inst.hdr->numberUserKeyBindindigs; i++)
+        {
+            if (theUserDefKBElement->value.isSet)
+            {
+                // only references can be a key binding.
+                if (theUserDefKBElement->type == CIMTYPE_REFERENCE)
+                {
+                    // Use the copy constructro to ref. count the reference.
+                    // These objects are handeld by the SCMOInstance it sef.
+                    // No one can modify these instances.
+                    theUserDefKBElement->value.data.extRefPtr =
+                        new SCMOInstance(
+                            *theUserDefKBElement->value.data.extRefPtr);
+                }
+            }
+
+            theUserDefKBElement = 
+                (SCMBUserKeyBindingElement*)
+                     &(inst.base[theUserDefKBElement->nextElement.start]);
+        } // for all user def. key bindings.
+    }
 
     SCMBValue* theInstPropArray =
         (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
@@ -1357,6 +1415,30 @@ void SCMOInstance::_destroyExternalReferences()
             }
         }
     }// for all key bindings
+
+    // Are there user defined key bindings ?
+    if (0 != inst.hdr->numberUserKeyBindindigs)
+    {
+        SCMBUserKeyBindingElement* theUserDefKBElement =
+            (SCMBUserKeyBindingElement*)
+                 &(inst.base[inst.hdr->userKeyBindingElement.start]);
+
+        for(Uint32 i = 0; i < inst.hdr->numberUserKeyBindindigs; i++)
+        {
+            if (theUserDefKBElement->value.isSet)
+            {
+                // only references can be a key binding.
+                if (theUserDefKBElement->type == CIMTYPE_REFERENCE)
+                {
+                    delete theUserDefKBElement->value.data.extRefPtr;
+                }
+            }
+
+            theUserDefKBElement = 
+                (SCMBUserKeyBindingElement*)
+                     &(inst.base[theUserDefKBElement->nextElement.start]);
+        } // for all user def. key bindings.
+    }
 
     SCMBValue* theInstPropArray =
         (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
@@ -1474,11 +1556,11 @@ void SCMOInstance::getCIMObjectPath(CIMObjectPath& cimObj) const
 
     // Address the class keybinding information
     SCMBKeyBindingNode* scmoClassArray =
-        (SCMBKeyBindingNode*)&clsbase[clshdr->keyBindingSet.nodeArray.start];
+        (SCMBKeyBindingNode*)&(clsbase[clshdr->keyBindingSet.nodeArray.start]);
 
     // Address the instance keybinding information
     SCMBKeyBindingValue* scmoInstArray =
-        (SCMBKeyBindingValue*)&inst.base[inst.hdr->keyBindingArray.start];
+        (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
 
     Uint32 numberKeyBindings = inst.hdr->numberKeyBindings;
 
@@ -1504,11 +1586,44 @@ void SCMOInstance::getCIMObjectPath(CIMObjectPath& cimObj) const
         }
     }
 
+    // Are there user defined key bindings ?
+    if (0 != inst.hdr->numberUserKeyBindindigs)
+    {
+        SCMBUserKeyBindingElement* theUserDefKBElement =
+            (SCMBUserKeyBindingElement*)
+                 &(inst.base[inst.hdr->userKeyBindingElement.start]);
+
+        for(Uint32 i = 0; i < inst.hdr->numberUserKeyBindindigs; i++)
+        {
+            if (theUserDefKBElement->value.isSet)
+            {
+                _getCIMValueFromSCMBUnion(
+                    theKeyBindingValue,
+                    theUserDefKBElement->type,
+                    false, // can never be a null value
+                    false, // can never be an array
+                    0,
+                    theUserDefKBElement->value.data,
+                    inst.base);
+
+                newObjectPath._rep->_keyBindings.append(
+                    CIMKeyBinding(
+                        CIMNameCast(
+                            NEWCIMSTR(theUserDefKBElement->name,inst.base)),
+                    theKeyBindingValue));
+            }
+            theUserDefKBElement = 
+                (SCMBUserKeyBindingElement*)
+                     &(inst.base[theUserDefKBElement->nextElement.start]);
+        } // for all user def. key bindings.
+    }
+    
     newObjectPath._rep->_host = NEWCIMSTR(inst.hdr->hostName,inst.base);
+    // Use name space and class name of the instance
     newObjectPath._rep->_nameSpace =
-        CIMNamespaceNameCast(NEWCIMSTR(clshdr->nameSpace,clsbase));
+        CIMNamespaceNameCast(NEWCIMSTR(inst.hdr->instNameSpace,inst.base));
     newObjectPath._rep->_className=
-        CIMNameCast(NEWCIMSTR(clshdr->className,clsbase));
+        CIMNameCast(NEWCIMSTR(inst.hdr->instClassName,inst.base));    
 
     cimObj = newObjectPath;
 }
@@ -2024,16 +2139,12 @@ void SCMOInstance::_setCIMObjectPath(const CIMObjectPath& cimObj)
     CIMObjectPathRep* objRep = cimObj._rep;
     SCMO_RC rc;
 
-    // For better usability define pointers to SCMO Class data structures.
-    SCMBClass_Main* clshdr = inst.hdr->theClass->cls.hdr;
-    char* clsbase = inst.hdr->theClass->cls.base;
-
     CString className = objRep->_className.getString().getCString();
 
     // Is the instance from the same class ?
     if (!(_equalNoCaseUTF8Strings(
-             clshdr->className,
-             clsbase,
+             inst.hdr->instClassName,
+             inst.base,
              (const char*)className,
              strlen(className))))
     {
@@ -2044,42 +2155,24 @@ void SCMOInstance::_setCIMObjectPath(const CIMObjectPath& cimObj)
     //set host name
     _setString(objRep->_host,inst.hdr->hostName,&inst.mem );
 
-    if (inst.hdr->numberKeyBindings < objRep->_keyBindings.size())
-    {
-        String message("CIMObjectPath has more keybindings "
-                       "than the associated class key properties.");
-        throw CIMException(CIM_ERR_FAILED, message);
-    }
-
     for (Uint32 i = 0, k = objRep->_keyBindings.size(); i < k; i++)
     {
-
+        String key = objRep->_keyBindings[i].getValue();
         rc = _setKeyBindingFromString(
             (const char*)
-                    objRep->_keyBindings[i].getName().getString().getCString(),
-            objRep->_keyBindings[i].getValue());
+                objRep->_keyBindings[i].getName().getString().getCString(),
+            _CIMTypeFromKeyBindingType(
+                (const char*)key.getCString(),
+                objRep->_keyBindings[i].getType()),
+            key);
 
         if (rc != SCMO_OK)
         {
-            switch (rc)
-            {
-            case SCMO_NOT_FOUND:
-                {
-                    String message("CIMObjectPath key binding ");
-                    message.append(
-                        objRep->_keyBindings[i].getName().getString());
-                    message.append(" not found.");
-                    throw CIMException(CIM_ERR_FAILED, message);
-                }
-            default:
-                {
-                    String message("CIMObjectPath key binding ");
-                    message.append(
-                        objRep->_keyBindings[i].getName().getString());
-                    message.append(" does not match class definition!");
-                    throw CIMException(CIM_ERR_FAILED, message);
-                }
-            }
+               String message("Can not set CIMObjectPath key binding:'");
+               message.append(
+                   objRep->_keyBindings[i].getName().getString());
+               message.append("'");
+               throw CIMException(CIM_ERR_FAILED, message);
         }
     }
 
@@ -2090,7 +2183,7 @@ void SCMOInstance::_setCIMValueAtNodeIndex(
     CIMType realType)
 {
     SCMBValue* theInstPropNodeArray =
-        (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
+        (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
 
 
     SCMBValue& theInstProp = theInstPropNodeArray[node];
@@ -2373,6 +2466,8 @@ void SCMOInstance::_initSCMOInstance(SCMOClass* pClass)
         throw PEGASUS_STD(bad_alloc)();
     }
 
+    memset(inst.base,0,sizeof(SCMBInstance_Main));
+
     // initalize eye catcher
     inst.hdr->header.magic=PEGASUS_SCMB_INSTANCE_MAGIC;
     inst.hdr->header.totalSize=SCMB_INITIAL_MEMORY_CHUNK_SIZE;
@@ -2386,24 +2481,6 @@ void SCMOInstance::_initSCMOInstance(SCMOClass* pClass)
 
     //Assign the SCMBClass structure this instance based on.
     inst.hdr->theClass = pClass;
-
-    // Init flags
-    inst.hdr->flags.includeQualifiers=false;
-    inst.hdr->flags.includeClassOrigin=false;
-    inst.hdr->flags.isFiltered=false;
-    inst.hdr->flags.isClassOnly=false;
-    inst.hdr->flags.isCompromised=false;
-
-    inst.hdr->hostName.start=0;
-    inst.hdr->hostName.length=0;
-
-    // Number of key bindings
-    inst.hdr->numberKeyBindings =
-        inst.hdr->theClass->cls.hdr->keyBindingSet.number;
-
-    // Number of properties
-    inst.hdr->numberProperties =
-        inst.hdr->theClass->cls.hdr->propertySet.number;
 
     // Copy name space name and class name of the class
     _setBinary(
@@ -2420,6 +2497,14 @@ void SCMOInstance::_initSCMOInstance(SCMOClass* pClass)
         inst.hdr->instNameSpace,
         &inst.mem);
 
+    // Number of key bindings
+    inst.hdr->numberKeyBindings =
+        inst.hdr->theClass->cls.hdr->keyBindingSet.number;
+
+    // Number of properties
+    inst.hdr->numberProperties =
+        inst.hdr->theClass->cls.hdr->propertySet.number;
+
     // Allocate the SCMOInstanceKeyBindingArray
     _getFreeSpace(
           inst.hdr->keyBindingArray,
@@ -2433,12 +2518,6 @@ void SCMOInstance::_initSCMOInstance(SCMOClass* pClass)
         sizeof(SCMBValue)*inst.hdr->numberProperties,
         &inst.mem,
         true);
-
-    inst.hdr->propertyFilter.start=0;
-    inst.hdr->propertyFilter.length=0;
-    inst.hdr->propertyFilterIndexMap.start=0;
-    inst.hdr->propertyFilterIndexMap.length=0;
-
 
 }
 
@@ -2619,7 +2698,7 @@ SCMO_RC SCMOInstance::getPropertyAt(
     }
 
     SCMBValue* theInstPropNodeArray =
-        (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
+        (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
 
     // create a pointer to property node array of the class.
     Uint64 idx = inst.hdr->theClass->cls.hdr->propertySet.nodeArray.start;
@@ -2763,7 +2842,7 @@ void SCMOInstance::_setPropertyAtNodeIndex(
     Uint32 size)
 {
     SCMBValue* theInstPropNodeArray =
-        (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
+        (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
 
 
     theInstPropNodeArray[node].flags.isSet=true;
@@ -3788,13 +3867,13 @@ void SCMOInstance::_copyKeyBindings(SCMOInstance& targetInst) const
     Uint32 noBindings = inst.hdr->numberKeyBindings;
 
     SCMBKeyBindingValue* sourceArray =
-        (SCMBKeyBindingValue*)&inst.base[inst.hdr->keyBindingArray.start];
+        (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
 
     // Address the class keybinding information
     const SCMBClass_Main* clshdr = inst.hdr->theClass->cls.hdr;
     const char * clsbase = inst.hdr->theClass->cls.base;
     SCMBKeyBindingNode* scmoClassArray =
-        (SCMBKeyBindingNode*)&clsbase[clshdr->keyBindingSet.nodeArray.start];
+        (SCMBKeyBindingNode*)&(clsbase[clshdr->keyBindingSet.nodeArray.start]);
 
     SCMBKeyBindingValue* targetArray;
 
@@ -3814,7 +3893,133 @@ void SCMOInstance::_copyKeyBindings(SCMOInstance& targetInst) const
         }
     }
 
+    // Are there user defined key bindings ?
+    if (0 != inst.hdr->numberUserKeyBindindigs)
+    {
+        SCMBUserKeyBindingElement* theUserDefKBElement =
+            (SCMBUserKeyBindingElement*)
+                 &(inst.base[inst.hdr->userKeyBindingElement.start]);
+
+        for(Uint32 i = 0; i < inst.hdr->numberUserKeyBindindigs; i++)
+        {
+            if (theUserDefKBElement->value.isSet)
+            {
+                targetInst._setUserDefinedKeyBinding(*theUserDefKBElement,
+                                                        inst.base);
+            }
+
+            theUserDefKBElement = 
+                (SCMBUserKeyBindingElement*)
+                     &(inst.base[theUserDefKBElement->nextElement.start]);
+        } // for all user def. key bindings.
+    }
 }
+
+
+void SCMOInstance::_setUserDefinedKeyBinding(
+        SCMBUserKeyBindingElement& theInsertElement,
+        char* elementBase)
+{
+
+    SCMBUserKeyBindingElement* ptrNewElement;
+
+    // get an exsiting or new user defined key binding
+    ptrNewElement = _getUserDefinedKeyBinding(
+        _getCharString(theInsertElement.name,elementBase),
+        // lenght is without the trailing '\0'
+        theInsertElement.name.length-1,
+        theInsertElement.type);
+
+    // Copy the data
+    _setKeyBindingFromSCMBUnion(
+                theInsertElement.type,
+                theInsertElement.value.data,
+                elementBase,
+                ptrNewElement->value);
+
+}
+
+
+SCMBUserKeyBindingElement* SCMOInstance::_getUserDefinedKeyBindingAt(
+    Uint32 index ) const
+{
+
+    // Get the start element
+    SCMBUserKeyBindingElement *ptrNewElement =
+        (SCMBUserKeyBindingElement*)
+             &(inst.base[inst.hdr->userKeyBindingElement.start]);
+
+    // calculate the index within the user defined key bindings
+    index = index - inst.hdr->numberKeyBindings;
+
+    // traverse trough the user defindes key binding nodes.
+    for (Uint32 i = 0; i < index; i ++)
+    {
+        PEGASUS_ASSERT(ptrNewElement->nextElement.start != 0);
+        ptrNewElement = (SCMBUserKeyBindingElement*)
+              &(inst.base[ptrNewElement->nextElement.start]);
+    }
+
+    return ptrNewElement;
+}
+
+SCMBUserKeyBindingElement* SCMOInstance::_getUserDefinedKeyBinding(
+    const char* name,
+    Uint32 nameLen,
+    CIMType type)
+{
+    SCMBDataPtr newElement;
+    SCMBUserKeyBindingElement* ptrNewElement;
+    Uint32 node;
+
+    // is the key binding already stored as user defind in the instance ?
+    if (SCMO_OK == _getUserKeyBindingNodeIndex(node,name))
+    {
+       ptrNewElement = _getUserDefinedKeyBindingAt(node); 
+    }
+    else // Not found, create a new user defined key binding.
+    {
+
+        _getFreeSpace(newElement,
+                      sizeof(SCMBUserKeyBindingElement),
+                      &inst.mem);
+
+        ptrNewElement =
+            (SCMBUserKeyBindingElement*)&(inst.base[newElement.start]);
+
+        // link new first user defined key binding element into chain:
+        // - Assing the start point of user key binding element chain 
+        //   to the next element of the new element.
+        ptrNewElement->nextElement.start = 
+            inst.hdr->userKeyBindingElement.start;
+        ptrNewElement->nextElement.length = 
+            inst.hdr->userKeyBindingElement.length;
+        // - Assing the the new element 
+        //   to the  start point of user key binding element chain 
+        inst.hdr->userKeyBindingElement.start = newElement.start;
+        inst.hdr->userKeyBindingElement.length = newElement.length;
+        // Adjust the couter of user defined key bindings.
+        inst.hdr->numberUserKeyBindindigs++;
+
+
+        // Copy the type
+        ptrNewElement->type = type;
+        ptrNewElement->value.isSet=false;          
+
+        // Copy the key binding name including the trailing '\0'
+        _setBinary(name,nameLen+1,ptrNewElement->name,&inst.mem);
+
+        // reset the pointer. May the instance was reallocated.
+        ptrNewElement =
+            (SCMBUserKeyBindingElement*)&(inst.base[newElement.start]);
+
+    }
+
+
+    return ptrNewElement;
+
+}
+
 Uint32 SCMOInstance::getPropertyCount() const
 {
     if (inst.hdr->flags.isFiltered)
@@ -3843,7 +4048,7 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
         {
             return 0;
         }
-        av = (SCMBUnion*)&base[u->arrayValue.start];
+        av = (SCMBUnion*)&(base[u->arrayValue.start]);
     }
 
     switch (type)
@@ -3921,7 +4126,9 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
 
 Uint32 SCMOInstance::getKeyBindingCount() const
 {
-    return(inst.hdr->numberKeyBindings);
+    // count of class keys + user definded keys
+    return(inst.hdr->numberKeyBindings+
+           inst.hdr->numberUserKeyBindindigs);
 }
 
 
@@ -3938,7 +4145,9 @@ SCMO_RC SCMOInstance::getKeyBindingAt(
     *pname = 0;
     *pvalue = 0;
 
-    if (node >= inst.hdr->numberKeyBindings)
+    // count of class keys + user definded keys
+    if (node >= (inst.hdr->numberKeyBindings+
+                 inst.hdr->numberUserKeyBindindigs))
     {
         return SCMO_INDEX_OUT_OF_BOUND;
     }
@@ -3976,10 +4185,16 @@ SCMO_RC SCMOInstance::getKeyBinding(
     rc = inst.hdr->theClass->_getKeyBindingNodeIndex(node,name);
     if (rc != SCMO_OK)
     {
-        return rc;
+        // look at the user defined key bindings.
+        rc = _getUserKeyBindingNodeIndex(node,name);
+        if (rc != SCMO_OK)
+        {
+            return rc;
+        }        
     }
 
     rc = _getKeyBindingDataAtNodeIndex(node,&pname,pnameLen,type,&pdata);
+
     if (rc != SCMO_OK)
     {
         return rc;
@@ -4003,31 +4218,146 @@ SCMO_RC SCMOInstance::_getKeyBindingDataAtNodeIndex(
     CIMType & type,
     const SCMBUnion** pdata) const
 {
-    SCMBKeyBindingValue* theInstKeyBindValueArray =
-        (SCMBKeyBindingValue*)&inst.base[inst.hdr->keyBindingArray.start];
-
-    // create a pointer to keybinding node array of the class.
-    Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
-    SCMBKeyBindingNode* theClassKeyBindNodeArray =
-        (SCMBKeyBindingNode*)&((inst.hdr->theClass->cls.base)[idx]);
-
-    type = theClassKeyBindNodeArray[node].type;
-
-    /* First resolve pointer to the property name */
-    pnameLen = theClassKeyBindNodeArray[node].name.length;
-    *pname = _getCharString(
-        theClassKeyBindNodeArray[node].name,
-        inst.hdr->theClass->cls.base);
-
-    // There is no value set in the instance
-    if (!theInstKeyBindValueArray[node].isSet)
+    if (node < inst.hdr->numberKeyBindings)
     {
-        return SCMO_NULL_VALUE;
+        SCMBKeyBindingValue* theInstKeyBindValueArray =
+            (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
+
+        // create a pointer to key binding node array of the class.
+        Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
+        SCMBKeyBindingNode* theClassKeyBindNodeArray =
+            (SCMBKeyBindingNode*)&((inst.hdr->theClass->cls.base)[idx]);
+
+        type = theClassKeyBindNodeArray[node].type;
+
+        // First resolve pointer to the key binding name 
+        pnameLen = theClassKeyBindNodeArray[node].name.length;
+        *pname = _getCharString(
+            theClassKeyBindNodeArray[node].name,
+            inst.hdr->theClass->cls.base);
+
+        // There is no value set in the instance
+        if (!theInstKeyBindValueArray[node].isSet)
+        {
+            return SCMO_NULL_VALUE;
+        }
+
+        *pdata = &(theInstKeyBindValueArray[node].data);
+    }
+    else // look at the user defined key bindings
+    {
+
+        SCMBUserKeyBindingElement* theElem = _getUserDefinedKeyBindingAt(node); 
+
+        type = theElem->type;
+
+        pnameLen = theElem->name.length;
+        *pname = _getCharString(theElem->name,inst.base);
+
+        // There is no value set in the instance
+        if (!theElem->value.isSet)
+        {
+            return SCMO_NULL_VALUE;
+        }
+
+        *pdata = &(theElem->value.data);
+
     }
 
-    *pdata = &(theInstKeyBindValueArray[node].data);
-
     return SCMO_OK;
+}
+
+SCMO_RC SCMOInstance::_getUserKeyBindingNodeIndex(
+    Uint32& node, 
+    const char* name) const
+{
+    
+    Uint32 len = strlen(name);
+    node = 0;
+    SCMBUserKeyBindingElement* theUserDefKBElement;
+
+    Uint64 elementStart = inst.hdr->userKeyBindingElement.start;
+
+    while (elementStart != 0)
+    {
+        SCMBUserKeyBindingElement* theUserDefKBElement =
+            (SCMBUserKeyBindingElement*)&(inst.base[elementStart]);
+
+        if (_equalUTF8Strings(theUserDefKBElement->name,inst.base,name,len))
+        {
+            // the node index of a user defined key binding has an offset
+            // by the number of key bindings defined in the class
+            node = node + inst.hdr->numberKeyBindings;
+            return SCMO_OK;
+        }
+        node = node + 1;
+        elementStart = theUserDefKBElement->nextElement.start;
+    }
+
+    return SCMO_NOT_FOUND;
+
+}
+
+CIMType SCMOInstance::_CIMTypeFromKeyBindingType(
+    const char* key, 
+    CIMKeyBinding::Type t)
+{
+    switch( t )
+    {
+        case CIMKeyBinding::NUMERIC:
+            {
+                if( *(key)=='-' )
+                {
+                   Sint64 x;
+                   // check if it is realy an integer 
+                   if (StringConversion::stringToSignedInteger(key, x))
+                   {
+                       return CIMTYPE_SINT64;
+                   }
+                   else
+                   {
+                       return CIMTYPE_REAL64;
+                   }                    
+                }
+                else
+                {
+                    Uint64 x;
+                    // check if it is realy an integer 
+                    if (StringConversion::stringToUnsignedInteger(key, x))
+                    {
+                        return CIMTYPE_UINT64;
+                    }
+                    else
+                    {
+                        return CIMTYPE_REAL64;
+                    }                    
+                }
+                break;
+            }
+            
+
+        case CIMKeyBinding::STRING:
+        {
+            return CIMTYPE_STRING;
+            break;
+        }            
+
+        case CIMKeyBinding::BOOLEAN:
+        {
+            return CIMTYPE_BOOLEAN;
+            break;
+        }
+
+        case CIMKeyBinding::REFERENCE:
+        {
+            return CIMTYPE_REFERENCE;
+            break;
+        }
+
+        default:
+            return CIMTYPE_UINT64;
+    }
+    return CIMTYPE_UINT64;
 }
 
 Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
@@ -4167,7 +4497,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
         {
             Real64 x;
 
-            if (!StringConversion::stringToReal64(v, x))
+            if (StringConversion::stringToReal64(v, x))
             {
               scmoKBV.data.simple.val.r32 = Real32(x);
               scmoKBV.isSet=true;
@@ -4179,9 +4509,9 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
         {
             Real64 x;
 
-            if (!StringConversion::stringToReal64(v, x))
+            if (StringConversion::stringToReal64(v, x))
             {
-              scmoKBV.data.simple.val.r32 = x;
+              scmoKBV.data.simple.val.r64 = x;
               scmoKBV.isSet=true;
             }
             break;
@@ -4264,6 +4594,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
 
 SCMO_RC SCMOInstance::_setKeyBindingFromString(
     const char* name,
+    CIMType type,
     String cimKeyBinding)
 {
     SCMO_RC rc;
@@ -4273,27 +4604,42 @@ SCMO_RC SCMOInstance::_setKeyBindingFromString(
     {
         return SCMO_INVALID_PARAMETER;
     }
-
-    rc = inst.hdr->theClass->_getKeyBindingNodeIndex(node,name);
-    if (rc != SCMO_OK)
+    
+    if (SCMO_OK == inst.hdr->theClass->_getKeyBindingNodeIndex(node,name))
     {
-        return rc;
+        // create a pointer to keybinding node array of the class.
+        Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
+        SCMBKeyBindingNode* theClassKeyBindNodeArray =
+            (SCMBKeyBindingNode*)&((inst.hdr->theClass->cls.base)[idx]);
+
+        // create a pointer to instance keybinding values
+        SCMBKeyBindingValue* theInstKeyBindValueArray =
+            (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
+
+        // If the set was not successful, the conversion was not successful
+        if ( !_setCimKeyBindingStringToSCMOKeyBindingValue(
+                cimKeyBinding,
+                theClassKeyBindNodeArray[node].type,
+                theInstKeyBindValueArray[node]))
+        {
+            return SCMO_TYPE_MISSMATCH;
+        }
+
+        return SCMO_OK;
     }
 
-   // create a pointer to keybinding node array of the class.
-    Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
-    SCMBKeyBindingNode* theClassKeyBindNodeArray =
-        (SCMBKeyBindingNode*)&((inst.hdr->theClass->cls.base)[idx]);
+    // the key binig does not belong to the associated class
+    // add/set it as user defined key binding.
+    SCMBUserKeyBindingElement* ptrNewElement;
 
-    // create a pointer to instance keybinding values
-    SCMBKeyBindingValue* theInstKeyBindValueArray =
-        (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
+    ptrNewElement = _getUserDefinedKeyBinding( name,strlen(name),type);
 
+    // Copy the data.
     // If the set was not successful, the conversion was not successful
     if ( !_setCimKeyBindingStringToSCMOKeyBindingValue(
             cimKeyBinding,
-            theClassKeyBindNodeArray[node].type,
-            theInstKeyBindValueArray[node]))
+            type,
+            ptrNewElement->value))
     {
         return SCMO_TYPE_MISSMATCH;
     }
@@ -4314,10 +4660,37 @@ SCMO_RC SCMOInstance::setKeyBinding(
         return SCMO_INVALID_PARAMETER;
     }
 
+    if (0 == keyvalue)
+    {
+        return SCMO_INVALID_PARAMETER;
+    }
+
     rc = inst.hdr->theClass->_getKeyBindingNodeIndex(node,name);
     if (rc != SCMO_OK)
     {
-        return rc;
+        // the key bindig does not belong to the associated class
+        // add/set it as user defined key binding.
+        SCMBUserKeyBindingElement *theNode;
+
+        theNode = _getUserDefinedKeyBinding( name,strlen(name),type);
+
+        // Is this a new node or an existing user key binding?        
+        if (theNode->value.isSet && (theNode->type != type))
+        {            
+            return SCMO_TYPE_MISSMATCH;
+
+        } 
+
+        theNode->value.isSet=true;
+
+        _setSCMBUnion(
+            keyvalue,
+            type,
+            false, // a key binding can never be an array.
+            0,
+            theNode->value.data);
+
+         return SCMO_OK;
     }
 
     return setKeyBindingAt(node, type, keyvalue);
@@ -4340,32 +4713,226 @@ SCMO_RC SCMOInstance::setKeyBindingAt(
         return SCMO_INVALID_PARAMETER;
     }
 
-    if (node >= inst.hdr->numberKeyBindings)
+    // count of class keys + user definded keys
+    if (node >= (inst.hdr->numberKeyBindings+
+                 inst.hdr->numberUserKeyBindindigs))
     {
         return SCMO_INDEX_OUT_OF_BOUND;
     }
 
-    if (theClassKeyBindNodeArray[node].type != type)
-    {
-        return SCMO_TYPE_MISSMATCH;
+    // is the node a user defined key binding ?
+    if (node >= inst.hdr->numberKeyBindings)
+    {       
+        SCMBUserKeyBindingElement* theNode = _getUserDefinedKeyBindingAt(node);
+
+        // Does the new value for the user defined keybinding match?
+        if (theNode->type != type)
+        {
+            return SCMO_TYPE_MISSMATCH;
+        }
+
+        _setSCMBUnion(
+            keyvalue,
+            type,
+            false, // a key binding can never be an array.
+            0,
+            theNode->value.data);
+
+         return SCMO_OK;
+
     }
 
     SCMBKeyBindingValue* theInstKeyBindValueArray =
-        (SCMBKeyBindingValue*)&inst.base[inst.hdr->keyBindingArray.start];
+        (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
 
 
-    // Has to be set first,
-    // because reallocaton can take place in _setSCMBUnion()
-    theInstKeyBindValueArray[node].isSet=true;
+    if (theClassKeyBindNodeArray[node].type == type)
+    {
 
-    _setSCMBUnion(
+        // Has to be set first,
+        // because reallocaton can take place in _setSCMBUnion()
+        theInstKeyBindValueArray[node].isSet=true;
+
+        _setSCMBUnion(
+            keyvalue,
+            type,
+            false, // a key binding can never be an array.
+            0,
+            theInstKeyBindValueArray[node].data);
+
+        return SCMO_OK;
+
+    }
+
+    // The type does not match.
+    return _setKeyBindingTypeTolerate( 
+        theClassKeyBindNodeArray[node].type, 
+        type, 
         keyvalue,
-        type,
-        false, // a key binding can never be an array.
-        0,
-        theInstKeyBindValueArray[node].data);
+        theInstKeyBindValueArray[node]);
+        
+}
 
-    return SCMO_OK;
+/**
+ * Set a SCMO user defined key binding using the class CIM type tolerating 
+ * CIM key binding types converted to CIM types by fuction 
+ *  _CIMTypeFromKeyBindingType(). 
+ * 
+ * @parm classType The type of the key binding in the class definition
+ * @parm setType The type of the key binding to be set.
+ * @param keyValue A pointer to the key binding to be set.
+ * @param kbValue Out parameter, the SCMO keybinding to be set.
+ * 
+ **/
+SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
+    CIMType classType,
+    CIMType setType,
+    const SCMBUnion* keyValue,
+    SCMBKeyBindingValue& kbValue)
+{
+    if (setType == CIMTYPE_UINT64 )
+    {
+        switch (classType)
+        {
+
+        case CIMTYPE_UINT8:
+            {
+                kbValue.isSet=true;
+                kbValue.data.simple.hasValue=true;
+                kbValue.data.simple.val.u8=Uint8(keyValue->simple.val.u64);
+                return SCMO_OK;
+                break;
+            }
+        case CIMTYPE_UINT16:
+            {
+                kbValue.isSet=true;
+                kbValue.data.simple.hasValue=true;
+                kbValue.data.simple.val.u16=Uint16(keyValue->simple.val.u64);
+                return SCMO_OK;
+                break;
+            }
+        case CIMTYPE_UINT32:
+            {
+                kbValue.isSet=true;
+                kbValue.data.simple.hasValue=true;
+                kbValue.data.simple.val.u32=Uint32(keyValue->simple.val.u64);
+                return SCMO_OK;
+                break;
+            }
+        case CIMTYPE_UINT64:
+            {
+                kbValue.isSet=true;
+                kbValue.data.simple.hasValue=true;
+                kbValue.data.simple.val.u64=keyValue->simple.val.u64;
+                return SCMO_OK;
+                break;
+            }
+        default:
+            {
+                return SCMO_TYPE_MISSMATCH;
+                break;
+            }
+        }
+    }
+
+    if (setType == CIMTYPE_SINT64)
+    {
+        switch (classType)
+        {
+
+        case CIMTYPE_SINT8:
+            {
+                kbValue.isSet=true;
+                kbValue.data.simple.hasValue=true;
+                kbValue.data.simple.val.s8=Sint8(keyValue->simple.val.s64);
+                return SCMO_OK;
+                break;
+            }
+        case CIMTYPE_SINT16:
+            {
+                kbValue.isSet=true;
+                kbValue.data.simple.hasValue=true;
+                kbValue.data.simple.val.s16=Sint16(keyValue->simple.val.s64);
+                return SCMO_OK;
+                break;
+            }
+        case CIMTYPE_SINT32:
+            {
+                kbValue.isSet=true;
+                kbValue.data.simple.hasValue=true;
+                kbValue.data.simple.val.s32=Sint32(keyValue->simple.val.s64);
+                return SCMO_OK;
+                break;
+            }
+        case CIMTYPE_SINT64:
+            {
+                kbValue.isSet=true;
+                kbValue.data.simple.hasValue=true;
+                kbValue.data.simple.val.s64=keyValue->simple.val.s64;
+                return SCMO_OK;
+                break;
+            }
+        default:
+            {
+                return SCMO_TYPE_MISSMATCH;
+                break;
+            }
+        }
+    }
+
+    if (setType == CIMTYPE_REAL64)
+    {
+        switch (classType)
+        {
+        case CIMTYPE_REAL32:
+            {
+                kbValue.isSet=true;
+                kbValue.data.simple.hasValue=true;
+                kbValue.data.simple.val.r32=Real32(keyValue->simple.val.r64);
+                return SCMO_OK;
+                break;
+            }
+        case CIMTYPE_REAL64:
+            {
+                kbValue.isSet=true;
+                kbValue.data.simple.hasValue=true;
+                kbValue.data.simple.val.r64=keyValue->simple.val.r64;
+                return SCMO_OK;
+                break;
+            }
+        default:
+            {
+                return SCMO_TYPE_MISSMATCH;
+                break;
+            }
+        }
+    }
+    else
+    {
+        switch (classType)
+        {
+        case CIMTYPE_BOOLEAN:
+        case CIMTYPE_UINT64:
+        case CIMTYPE_SINT64:
+        case CIMTYPE_REAL64:
+        case CIMTYPE_STRING:
+        case CIMTYPE_REFERENCE:
+            {
+                kbValue.isSet=true;
+                _setSCMBUnion(keyValue,classType,false, 0,kbValue.data);
+                return SCMO_OK;
+                break;
+            }
+        default:
+            {
+                return SCMO_TYPE_MISSMATCH;
+                break;
+            }
+        }
+    }
+
+    return SCMO_TYPE_MISSMATCH;
+
 }
 
 
@@ -4482,7 +5049,7 @@ void SCMOInstance::_clearPropertyFilter()
     Uint64 *propertyFilter;
 
     // Calculate the real pointer to the Uint64 array
-    propertyFilter = (Uint64*)&inst.base[inst.hdr->propertyFilter.start];
+    propertyFilter = (Uint64*)&(inst.base[inst.hdr->propertyFilter.start]);
 
     // the number of Uint64 in the key mask is :
     // Decrease the number of properties by 1
@@ -4530,7 +5097,7 @@ Boolean SCMOInstance::_isPropertyInFilter(Uint32 i) const
     Uint64 filter = ( (Uint64)1 << (i%64));
 
     // Calculate the real pointer to the Uint64 array
-    propertyFilter = (Uint64*)&inst.base[inst.hdr->propertyFilter.start];
+    propertyFilter = (Uint64*)&(inst.base[inst.hdr->propertyFilter.start]);
 
     // If the bit is set the property is NOT filtered.
     // So the result has to be negated!
@@ -4552,12 +5119,12 @@ SCMODump::SCMODump()
 
 }
 
-SCMODump::SCMODump(char* filename)
+SCMODump::SCMODump(const char* filename)
 {
     openFile(filename);
 }
 
-void SCMODump::openFile(char* filename)
+void SCMODump::openFile(const char* filename)
 {
     const char* pegasusHomeDir = getenv("PEGASUS_HOME");
 
@@ -5761,7 +6328,8 @@ static Uint32 _utf8ICUncasecmp(
 {
     UErrorCode errorCode=U_ZERO_ERROR;
 
-    Uint32 rc, a16len,b16len,utf16BufLen = len*sizeof(UChar);
+    Uint32 rc, a16len,b16len,utf16BufLen;
+    utf16BufLen = (len*sizeof(UChar))+2;
 
     UChar* a_UTF16 = (UChar*)malloc(utf16BufLen);
     UChar* b_UTF16 = (UChar*)malloc(utf16BufLen);

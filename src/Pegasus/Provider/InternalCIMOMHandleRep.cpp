@@ -725,7 +725,7 @@ void InternalCIMOMHandleRep::deleteClass(
 }
 
 
-CIMResponseData& InternalCIMOMHandleRep::getInstance(
+CIMResponseData InternalCIMOMHandleRep::getInstance(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& instanceName,
@@ -790,7 +790,7 @@ CIMResponseData& InternalCIMOMHandleRep::getInstance(
     return response->getResponseData();
 }
 
-CIMResponseData& InternalCIMOMHandleRep::enumerateInstances(
+CIMResponseData InternalCIMOMHandleRep::enumerateInstances(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMName& className,
@@ -859,7 +859,7 @@ CIMResponseData& InternalCIMOMHandleRep::enumerateInstances(
 }
 
 
-CIMResponseData& InternalCIMOMHandleRep::enumerateInstanceNames(
+CIMResponseData InternalCIMOMHandleRep::enumerateInstanceNames(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMName& className)
@@ -1104,7 +1104,7 @@ void InternalCIMOMHandleRep::deleteInstance(
 }
 
 
-CIMResponseData& InternalCIMOMHandleRep::execQuery(
+CIMResponseData InternalCIMOMHandleRep::execQuery(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const String& queryLanguage,
@@ -1164,7 +1164,7 @@ CIMResponseData& InternalCIMOMHandleRep::execQuery(
 }
 
 
-CIMResponseData& InternalCIMOMHandleRep::associators(
+CIMResponseData InternalCIMOMHandleRep::associators(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,
@@ -1236,7 +1236,7 @@ CIMResponseData& InternalCIMOMHandleRep::associators(
 }
 
 
-CIMResponseData& InternalCIMOMHandleRep::associatorNames(
+CIMResponseData InternalCIMOMHandleRep::associatorNames(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,
@@ -1303,7 +1303,7 @@ CIMResponseData& InternalCIMOMHandleRep::associatorNames(
 }
 
 
-CIMResponseData& InternalCIMOMHandleRep::references(
+CIMResponseData InternalCIMOMHandleRep::references(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,
@@ -1371,7 +1371,7 @@ CIMResponseData& InternalCIMOMHandleRep::references(
 }
 
 
-CIMResponseData& InternalCIMOMHandleRep::referenceNames(
+CIMResponseData InternalCIMOMHandleRep::referenceNames(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,

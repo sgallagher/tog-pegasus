@@ -88,6 +88,20 @@ Array<SCMOInstance>& CIMResponseData::getSCMO()
     return _scmoInstances;
 }
 
+void CIMResponseData::setSCMO(const Array<SCMOInstance>& x)
+{
+    // Just assignment bears danger of us being dependent on the original array
+    // content staying valid
+    // _scmoInstances=x;
+    for (Uint32 loop=0, max=x.size(); loop<max; loop++)
+    {
+        _scmoInstances.append(x[loop]);
+    }
+    // _scmoInstances.appendArray(x);
+    _encoding |= RESP_ENC_SCMO;
+}
+
+
 // Binary data is just a data stream
 Array<Uint8>& CIMResponseData::getBinary()
 {
@@ -129,7 +143,7 @@ bool CIMResponseData::setXml(CIMBuffer& in)
     if (_dataType == RESP_INSTNAMES)
     {
         Uint32 count;
-    
+
         if (!in.getUint32(count))
         {
             PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
@@ -137,13 +151,13 @@ bool CIMResponseData::setXml(CIMBuffer& in)
             PEG_METHOD_EXIT();
             return false;
         }
-    
+
         for (Uint32 i = 0; i < count; i++)
         {
             Array<Sint8> ref;
             CIMNamespaceName ns;
             String host;
-    
+
             if (!in.getSint8A(ref))
             {
                 PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
@@ -151,7 +165,7 @@ bool CIMResponseData::setXml(CIMBuffer& in)
                 PEG_METHOD_EXIT();
                 return false;
             }
-    
+
             if (!in.getString(host))
             {
                 PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
@@ -159,7 +173,7 @@ bool CIMResponseData::setXml(CIMBuffer& in)
                 PEG_METHOD_EXIT();
                 return false;
             }
-    
+
             if (!in.getNamespaceName(ns))
             {
                 PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
@@ -167,7 +181,7 @@ bool CIMResponseData::setXml(CIMBuffer& in)
                 PEG_METHOD_EXIT();
                 return false;
             }
-    
+
             _referencesData.append(ref);
             _hostsData.append(host);
             _nameSpacesData.append(ns);
@@ -222,7 +236,7 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
     }
     if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
     {
-        // TODO: Set Marker for C++ data 
+        // TODO: Set Marker for C++ data
         switch (_dataType)
         {
             case RESP_INSTNAMES:
@@ -363,7 +377,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
     {
         fprintf(stderr,"Got CIM data...\n");
         fflush(stderr);
-        // TODO: Set Marker for C++ data 
+        // TODO: Set Marker for C++ data
         switch (_dataType)
         {
             case RESP_INSTNAMES:
@@ -484,13 +498,12 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
                 // Argl, not nice, but not a problem yet, ignore this
             }
         }
-/*      fprintf(
-            stderr,
-            "After XmlWrite()\n%s",
-            out.getData());
-        fflush(stderr);*/
     }
-
+    fprintf(
+        stderr,
+        "After XmlWrite()\n%s",
+        out.getData());
+    fflush(stderr);
 }
 
 // contrary to encodeXmlResponse this function encodes the Xml in a format
@@ -537,7 +550,7 @@ void CIMResponseData::_resolveToSCMO()
         _encoding,
         _dataType);
     fflush(stderr);
-    
+
     if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
         _resolveXmlToSCMO();

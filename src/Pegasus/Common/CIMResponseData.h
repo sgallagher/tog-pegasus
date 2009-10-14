@@ -75,7 +75,7 @@ public:
         _dataType(content)
     {
         fprintf(stderr,"CIMResponseData() called with content=%X\n",content);
-        fflush(stderr);        
+        fflush(stderr);
     };
 
     // C++ objects interface handling
@@ -135,11 +135,8 @@ public:
     // object paths are represented as SCMOInstance
     Array<SCMOInstance>& getSCMO();
 
-    void setSCMO(const Array<SCMOInstance>& x)
-    {
-        _scmoInstances=x;
-        _encoding |= RESP_ENC_SCMO;
-    }
+    void setSCMO(const Array<SCMOInstance>& x);
+
     void appendSCMO(const Array<SCMOInstance>& x)
     {
         _scmoInstances.appendArray(x);
@@ -149,7 +146,7 @@ public:
     // Binary data is just a data stream
     Array<Uint8>& getBinary();
     bool setBinary(CIMBuffer& in, bool hasLen=true);
-    
+
     // Xml data is unformatted, no need to differentiate between instance
     // instances and object paths or objects
     bool setXml(CIMBuffer& in);

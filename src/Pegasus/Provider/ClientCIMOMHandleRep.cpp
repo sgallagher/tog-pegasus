@@ -406,7 +406,7 @@ void ClientCIMOMHandleRep::deleteClass(
     PEG_METHOD_EXIT();
 }
 
-CIMResponseData& ClientCIMOMHandleRep::getInstance(
+CIMResponseData ClientCIMOMHandleRep::getInstance(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& instanceName,
@@ -429,7 +429,7 @@ CIMResponseData& ClientCIMOMHandleRep::getInstance(
         propertyList);
 }
 
-CIMResponseData& ClientCIMOMHandleRep::enumerateInstances(
+CIMResponseData ClientCIMOMHandleRep::enumerateInstances(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMName& className,
@@ -455,7 +455,7 @@ CIMResponseData& ClientCIMOMHandleRep::enumerateInstances(
         propertyList);
 }
 
-CIMResponseData& ClientCIMOMHandleRep::enumerateInstanceNames(
+CIMResponseData ClientCIMOMHandleRep::enumerateInstanceNames(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMName& className)
@@ -529,7 +529,7 @@ void ClientCIMOMHandleRep::deleteInstance(
     PEG_METHOD_EXIT();
 }
 
-CIMResponseData& ClientCIMOMHandleRep::execQuery(
+CIMResponseData ClientCIMOMHandleRep::execQuery(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const String& queryLanguage,
@@ -547,7 +547,7 @@ CIMResponseData& ClientCIMOMHandleRep::execQuery(
         query);
 }
 
-CIMResponseData& ClientCIMOMHandleRep::associators(
+CIMResponseData ClientCIMOMHandleRep::associators(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,
@@ -577,7 +577,7 @@ CIMResponseData& ClientCIMOMHandleRep::associators(
         propertyList);
 }
 
-CIMResponseData& ClientCIMOMHandleRep::associatorNames(
+CIMResponseData ClientCIMOMHandleRep::associatorNames(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,
@@ -602,7 +602,7 @@ CIMResponseData& ClientCIMOMHandleRep::associatorNames(
         resultRole);
 }
 
-CIMResponseData& ClientCIMOMHandleRep::references(
+CIMResponseData ClientCIMOMHandleRep::references(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,
@@ -628,7 +628,7 @@ CIMResponseData& ClientCIMOMHandleRep::references(
         propertyList);
 }
 
-CIMResponseData& ClientCIMOMHandleRep::referenceNames(
+CIMResponseData ClientCIMOMHandleRep::referenceNames(
     const OperationContext & context,
     const CIMNamespaceName &nameSpace,
     const CIMObjectPath& objectName,

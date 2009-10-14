@@ -78,6 +78,18 @@ public:
         const SCMOInstance& ref,
         Boolean putValueWrapper);
 
+    static void appendLocalInstancePathElement(
+        Buffer& out,
+        const SCMOInstance& instancePath);
+
+    static void appendInstancePathElement(
+        Buffer& out,
+        const SCMOInstance& instancePath);
+
+    static void appendLocalClassPathElement(
+        Buffer& out,
+        const SCMOInstance& classPath);
+
     static void appendClassPathElement(
         Buffer& out,
         const SCMOInstance& classPath);
@@ -115,7 +127,7 @@ private:
         out << STRLIT("<LOCALNAMESPACEPATH>\n");
 
         char fixed[64];
-        char* nameSpaceCopy;    
+        char* nameSpaceCopy;
         if (nameSpaceLength > 64)
         {
             nameSpaceCopy=(char*)malloc(nameSpaceLength);
@@ -131,7 +143,7 @@ private:
         for (const char* p = strtok_r(nameSpaceCopy, "/", &last); p;
             p = strtok_r(NULL, "/", &last))
 #else
-        for (const char* p = strtok(nameSpaceCopy, "/"); p; 
+        for (const char* p = strtok(nameSpaceCopy, "/"); p;
             p = strtok(NULL, "/"))
 #endif
         {

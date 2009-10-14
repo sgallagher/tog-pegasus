@@ -153,10 +153,15 @@ CMPIStatus cmpiPerf_TestAssocClassProviderCreateInstance(
     const CMPIObjectPath * cop,
     const CMPIInstance * ci)
 {
-    CMReturnWithChars(
+    CMPIStatus rc = {CMPI_RC_OK, NULL};
+
+
+    CMSetStatusWithChars(
         _broker,
+        &rc,
         CMPI_RC_ERR_NOT_SUPPORTED,
-        "CIM_ERR_NOT_SUPPORTED");
+        "CIM_ERR_NOT_SUPPORTED" );
+    return rc;
 }
 
 CMPIStatus cmpiPerf_TestAssocClassProviderModifyInstance(
@@ -167,10 +172,13 @@ CMPIStatus cmpiPerf_TestAssocClassProviderModifyInstance(
     const CMPIInstance * ci,
     const char **properties)
 {
-    CMReturnWithChars(
+    CMPIStatus rc = {CMPI_RC_OK, NULL};
+    CMSetStatusWithChars(
         _broker,
+        &rc,
         CMPI_RC_ERR_NOT_SUPPORTED,
-        "CIM_ERR_NOT_SUPPORTED");
+        "CIM_ERR_NOT_SUPPORTED" );
+    return rc;
 }
 
 CMPIStatus cmpiPerf_TestAssocClassProviderDeleteInstance(
@@ -179,10 +187,13 @@ CMPIStatus cmpiPerf_TestAssocClassProviderDeleteInstance(
     const CMPIResult * rslt,
     const CMPIObjectPath * cop)
 {
-    CMReturnWithChars(
+    CMPIStatus rc = {CMPI_RC_OK, NULL};
+    CMSetStatusWithChars(
         _broker,
+        &rc,
         CMPI_RC_ERR_NOT_SUPPORTED,
-        "CIM_ERR_NOT_SUPPORTED");
+        "CIM_ERR_NOT_SUPPORTED" );
+    return rc;
 }
 
 CMPIStatus cmpiPerf_TestAssocClassProviderExecQuery(
@@ -193,10 +204,13 @@ CMPIStatus cmpiPerf_TestAssocClassProviderExecQuery(
     const char * lang,
     const char * query)
 {
-    CMReturnWithChars(
+    CMPIStatus rc = {CMPI_RC_OK, NULL};
+    CMSetStatusWithChars(
         _broker,
+        &rc,
         CMPI_RC_ERR_NOT_SUPPORTED,
-        "CIM_ERR_NOT_SUPPORTED");
+        "CIM_ERR_NOT_SUPPORTED" );
+    return rc;
 }
 
 
@@ -238,10 +252,12 @@ CMPIStatus cmpiPerf_TestAssocClassProviderAssociators(
 
         if (op==NULL)
         {
-            CMReturnWithChars(
+            CMSetStatusWithChars(
                 _broker,
+                &rc,
                 CMPI_RC_ERR_FAILED,
-                "Create CMPIObjectPath failed.");
+                "Create CMPIObjectPath failed." );
+            return rc;
         }
     }
 
@@ -310,10 +326,12 @@ CMPIStatus cmpiPerf_TestAssocClassProviderAssociatorNames(
                  &rc );
         if (op==NULL)
         {
-            CMReturnWithChars(
+            CMSetStatusWithChars(
                 _broker,
+                &rc,
                 CMPI_RC_ERR_FAILED,
                 "Create CMPIObjectPath failed.");
+            return rc;
         }
     }
 
@@ -380,10 +398,12 @@ CMPIStatus cmpiPerf_TestAssocClassProviderReferences(
 
         if (op==NULL)
         {
-            CMReturnWithChars(
+            CMSetStatusWithChars(
                 _broker,
+                &rc,
                 CMPI_RC_ERR_FAILED,
                 "Create CMPIObjectPath failed.");
+            return rc;
         }
     }
 
@@ -447,10 +467,12 @@ CMPIStatus cmpiPerf_TestAssocClassProviderReferenceNames(
                &rc);
         if (op==NULL)
         {
-            CMReturnWithChars(
+            CMSetStatusWithChars(
                 _broker,
+                &rc,
                 CMPI_RC_ERR_FAILED,
-                "Create CMPIObjectPath failed.");
+                "Create CMPIObjectPath failed." );
+            return rc;
         }
     }
     if ((0==assocClass) || (CMClassPathIsA(_broker,op,assocClass,&rc)==1))

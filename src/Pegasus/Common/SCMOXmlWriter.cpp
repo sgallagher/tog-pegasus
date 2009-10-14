@@ -78,11 +78,8 @@ void SCMOXmlWriter::appendInstanceNameElement(
 
         if (kbType == CIMTYPE_REFERENCE)
         {
-            /*
-            TODO: NEED RESOLvE the value down to a SCMO....
-            CIMObjectPath ref = keyBindings[i].getValue();
-            appendValueReferenceElement(out, ref, true);
-            */
+            SCMOInstance * ref = kbValue->extRefPtr;
+            appendValueReferenceElement(out, *ref, true);
         }
         else
         {
@@ -317,7 +314,7 @@ void SCMOXmlWriter::appendPropertyElement(
                                      true));
                 }
             }
-*/            
+*/
         }
         else if (propertyType == CIMTYPE_INSTANCE)
         {
@@ -359,14 +356,14 @@ void SCMOXmlWriter::appendPropertyElement(
                 }
 # endif
             }
-*/            
+*/
         }
         else
-        {        
+        {
             out.append(' ');
             out << xmlWriterTypeStrings(propertyType);
         }
-        
+
         Uint32 arraySize=propertyValue->valueArraySize;
 
         if (0 != arraySize)
@@ -417,7 +414,7 @@ void SCMOXmlWriter::appendPropertyElement(
     }
     else if (propertyType == CIMTYPE_REFERENCE)
     {
-        out << STRLIT("<PROPERTY.REFERENCE NAME=\""); 
+        out << STRLIT("<PROPERTY.REFERENCE NAME=\"");
         out.append(
             &(clsbase[propertyDef->name.start]),
             propertyDef->name.length-1);
@@ -619,13 +616,8 @@ void SCMOXmlWriter::appendValueElement(
     }
     else if (value.valueType == CIMTYPE_REFERENCE)
     {
-/*      TODO: Implement writing an object path as value
-        // Has to be separate because it uses VALUE.REFERENCE tag
-        CIMObjectPath v;
-        value.get(v);
-        _xmlWritter_appendValue(out, v);
-        ----> same as: XmlWriter::appendValueReferenceElement(out, x, true);
-*/
+        SCMOInstance * ref = value.value.extRefPtr;
+        appendValueReferenceElement(out, *ref, true);
     }
     else
     {
@@ -647,14 +639,15 @@ void SCMOXmlWriter::appendValueElement(
 //         INSTANCENAME)>
 //
 //------------------------------------------------------------------------------
-
 void SCMOXmlWriter::appendValueReferenceElement(
     Buffer& out,
     const SCMOInstance& ref,
     Boolean putValueWrapper)
 {
     if (putValueWrapper)
+    {
         out << STRLIT("<VALUE.REFERENCE>\n");
+    }
 
     // See if it is a class or instance reference (instance references have
     // key-bindings; class references do not).
@@ -667,47 +660,93 @@ void SCMOXmlWriter::appendValueReferenceElement(
         {
             appendClassPathElement(out, ref);
         }
-/*      TODO: Implement
-        else if (!reference.getNameSpace().isNull())
+        else if (0 != ref.inst.hdr->instNameSpace.start)
         {
-            appendLocalClassPathElement(out, reference);
+            appendLocalClassPathElement(out, ref);
         }
         else
         {
-            appendClassNameElement(out, reference.getClassName());
+            Uint64 classNameLength=0;
+            const char* className = ref.getClassName_l(classNameLength);
+            appendClassNameElement(out, className, classNameLength-1);
         }
-*/
     }
     else
     {
         // instance
         if (0 != ref.inst.hdr->hostName.start)
         {
-            // appendInstancePathElement(out, reference);
+            appendInstancePathElement(out, ref);
         }
-/*      TODO: Implement
-        else if (!reference.getNameSpace().isNull())
+        else if (0 != ref.inst.hdr->instNameSpace.start)
         {
-            appendLocalInstancePathElement(out, reference);
+            appendLocalInstancePathElement(out, ref);
         }
         else
         {
-            appendInstanceNameElement(out, reference);
+            appendInstanceNameElement(out, ref);
         }
-*/
     }
     if (putValueWrapper)
+    {
         out << STRLIT("</VALUE.REFERENCE>\n");
+    }
 }
 
-//------------------------------------------------------------------------------
-//
-// appendClassPathElement()
-//
-//     <!ELEMENT CLASSPATH (NAMESPACEPATH,CLASSNAME)>
-//
-//------------------------------------------------------------------------------
+// appendLocalInstancePathElement()
+//     <!ELEMENT LOCALINSTANCEPATH (LOCALNAMESPACEPATH, INSTANCENAME)>
+void SCMOXmlWriter::appendLocalInstancePathElement(
+    Buffer& out,
+    const SCMOInstance& instancePath)
+{
+    out << STRLIT("<LOCALINSTANCEPATH>\n");
+    Uint64 nsLength=0;
+    const char* ns=instancePath.getNameSpace_l(nsLength);
+    appendLocalNameSpacePathElement(out, ns, nsLength-1);
+    appendInstanceNameElement(out, instancePath);
+    out << STRLIT("</LOCALINSTANCEPATH>\n");
+}
 
+// appendInstancePathElement()
+//     <!ELEMENT INSTANCEPATH (NAMESPACEPATH,INSTANCENAME)>
+void SCMOXmlWriter::appendInstancePathElement(
+    Buffer& out,
+    const SCMOInstance& instancePath)
+{
+    out << STRLIT("<INSTANCEPATH>\n");
+
+    Uint64 hostnameLength=0;
+    const char* hostname=instancePath.getHostName_l(hostnameLength);
+    Uint64 nsLength=0;
+    const char* ns=instancePath.getNameSpace_l(nsLength);
+    appendNameSpacePathElement(out,hostname,hostnameLength-1,ns,nsLength-1);
+
+    appendInstanceNameElement(out, instancePath);
+    out << STRLIT("</INSTANCEPATH>\n");
+}
+
+// appendLocalClassPathElement()
+//     <!ELEMENT LOCALCLASSPATH (LOCALNAMESPACEPATH, CLASSNAME)>
+void SCMOXmlWriter::appendLocalClassPathElement(
+    Buffer& out,
+    const SCMOInstance& classPath)
+{
+    out << STRLIT("<LOCALCLASSPATH>\n");
+    Uint64 hostnameLength=0;
+    const char* hostname=classPath.getHostName_l(hostnameLength);
+    Uint64 nsLength=0;
+    const char* ns=classPath.getNameSpace_l(nsLength);
+
+    appendNameSpacePathElement(out,hostname,hostnameLength-1,ns,nsLength-1);
+
+    Uint64 classNameLength=0;
+    const char* className = classPath.getClassName_l(classNameLength);
+    appendClassNameElement(out, className, classNameLength-1);
+    out << STRLIT("</LOCALCLASSPATH>\n");
+}
+
+// appendClassPathElement()
+//     <!ELEMENT CLASSPATH (NAMESPACEPATH,CLASSNAME)>
 void SCMOXmlWriter::appendClassPathElement(
     Buffer& out,
     const SCMOInstance& classPath)
@@ -886,7 +925,7 @@ void SCMOXmlWriter::appendSCMBUnionArray(
             out << STRLIT("</VALUE.ARRAY>\n");
             break;
         }
-    
+
         case CIMTYPE_SINT8:
         {
             out << STRLIT("<VALUE.ARRAY>\n");
@@ -900,7 +939,7 @@ void SCMOXmlWriter::appendSCMBUnionArray(
             out << STRLIT("</VALUE.ARRAY>\n");
             break;
         }
-    
+
         case CIMTYPE_UINT16:
         {
             out << STRLIT("<VALUE.ARRAY>\n");
@@ -914,7 +953,7 @@ void SCMOXmlWriter::appendSCMBUnionArray(
             out << STRLIT("</VALUE.ARRAY>\n");
             break;
         }
-    
+
         case CIMTYPE_SINT16:
         {
             out << STRLIT("<VALUE.ARRAY>\n");
@@ -928,7 +967,7 @@ void SCMOXmlWriter::appendSCMBUnionArray(
             out << STRLIT("</VALUE.ARRAY>\n");
             break;
         }
-    
+
         case CIMTYPE_UINT32:
         {
             out << STRLIT("<VALUE.ARRAY>\n");
@@ -942,7 +981,7 @@ void SCMOXmlWriter::appendSCMBUnionArray(
             out << STRLIT("</VALUE.ARRAY>\n");
             break;
         }
-    
+
         case CIMTYPE_SINT32:
         {
             out << STRLIT("<VALUE.ARRAY>\n");
@@ -956,7 +995,7 @@ void SCMOXmlWriter::appendSCMBUnionArray(
             out << STRLIT("</VALUE.ARRAY>\n");
             break;
         }
-    
+
         case CIMTYPE_UINT64:
         {
             out << STRLIT("<VALUE.ARRAY>\n");
@@ -970,7 +1009,7 @@ void SCMOXmlWriter::appendSCMBUnionArray(
             out << STRLIT("</VALUE.ARRAY>\n");
             break;
         }
-    
+
         case CIMTYPE_SINT64:
         {
             out << STRLIT("<VALUE.ARRAY>\n");
@@ -984,7 +1023,7 @@ void SCMOXmlWriter::appendSCMBUnionArray(
             out << STRLIT("</VALUE.ARRAY>\n");
             break;
         }
-    
+
         case CIMTYPE_REAL32:
         {
             out << STRLIT("<VALUE.ARRAY>\n");
@@ -998,7 +1037,7 @@ void SCMOXmlWriter::appendSCMBUnionArray(
             out << STRLIT("</VALUE.ARRAY>\n");
             break;
         }
-    
+
         case CIMTYPE_REAL64:
         {
             out << STRLIT("<VALUE.ARRAY>\n");
@@ -1012,7 +1051,7 @@ void SCMOXmlWriter::appendSCMBUnionArray(
             out << STRLIT("</VALUE.ARRAY>\n");
             break;
         }
-    
+
         case CIMTYPE_CHAR16:
         {
             out << STRLIT("<VALUE.ARRAY>\n");
@@ -1027,7 +1066,7 @@ void SCMOXmlWriter::appendSCMBUnionArray(
             out << STRLIT("</VALUE.ARRAY>\n");
             break;
         }
-    
+
         case CIMTYPE_STRING:
         {
             out << STRLIT("<VALUE.ARRAY>\n");
@@ -1042,10 +1081,10 @@ void SCMOXmlWriter::appendSCMBUnionArray(
                 out << STRLIT("</VALUE>\n");
             }
             out << STRLIT("</VALUE.ARRAY>\n");
-            
+
             break;
         }
-    
+
         case CIMTYPE_DATETIME:
         {
             out << STRLIT("<VALUE.ARRAY>\n");
@@ -1061,9 +1100,9 @@ void SCMOXmlWriter::appendSCMBUnionArray(
                 arr++;
                 out << STRLIT("</VALUE>\n");
             }
-            out << STRLIT("</VALUE.ARRAY>\n");        
+            out << STRLIT("</VALUE.ARRAY>\n");
             break;
-        }        
+        }
 /*
         case CIMTYPE_OBJECT:
         {

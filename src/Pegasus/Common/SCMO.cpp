@@ -552,14 +552,10 @@ void SCMOClass::getKeyNamesAsString(Array<String>& keyNames) const
 
     keyNames.clear();
 
-    for (Uint32 i = 0, k = cls.hdr->propertySet.number; i < k; i++)
+    for (Uint32 i = 0, k = cls.hdr->keyBindingSet.number; i < k; i++)
     {
         // Append the key property name.
-        // The length has to be reduces by 1 not to copy the trailing '\0'
-        keyNames.append(
-            String((const char*)_getCharString(nodeArray[i].name,cls.base),
-                   nodeArray[i].name.length-1));
-
+        keyNames.append(NEWCIMSTR(nodeArray[i].name,cls.base));
     }
 }
 

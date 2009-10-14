@@ -440,6 +440,10 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
         /*SCMODump dmp;
         dmp.dumpSCMOInstanceKeyBindings(_scmoInstances[i]);
         dmp.dumpInstanceProperties(_scmoInstances[i]);*/
+        fprintf(
+            stderr,"encodeXmlResponse(SCMO)=%d instances...\n",
+            _scmoInstances.size());
+        fflush(stderr);
 
         switch (_dataType)
         {
@@ -463,11 +467,6 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
             }
             case RESP_INSTANCES:
             {
-                fprintf(
-                    stderr,"encodeXmlResponse(SCMO)=%dinstances...\n",
-                    _scmoInstances.size());
-                fflush(stderr);
-
                 for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
                 {
                     SCMOXmlWriter::appendValueSCMOInstanceElement(
@@ -480,16 +479,23 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
             {
                 for (Uint32 i = 0; i < _scmoInstances.size(); i++)
                 {
-/*
                     SCMOXmlWriter::appendValueObjectWithPathElement(
                         out,
                         _scmoInstances[i]);
-*/
                 }
                 break;
             }
             case RESP_OBJECTPATHS:
             {
+                for (Uint32 i = 0, n = _scmoInstances.size(); i < n; i++)
+                {
+                    out << "<OBJECTPATH>\n";
+                    SCMOXmlWriter::appendValueReferenceElement(
+                        out,
+                        _scmoInstances[i],
+                        false);
+                    out << "</OBJECTPATH>\n";
+                }
                 break;
             }
             default:

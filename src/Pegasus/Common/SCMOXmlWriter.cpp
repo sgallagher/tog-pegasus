@@ -725,6 +725,96 @@ void SCMOXmlWriter::appendInstancePathElement(
     out << STRLIT("</INSTANCEPATH>\n");
 }
 
+// appendValueObjectWithPathElement()
+//     <!ELEMENT VALUE.OBJECTWITHPATH
+//         ((CLASSPATH,CLASS)|(INSTANCEPATH,INSTANCE))>
+void SCMOXmlWriter::appendValueObjectWithPathElement(
+    Buffer& out,
+    const SCMOInstance& objectWithPath)
+{
+    out << STRLIT("<VALUE.OBJECTWITHPATH>\n");
+
+    appendValueReferenceElement(out, objectWithPath, false);
+    appendObjectElement(out, objectWithPath);
+
+    out << STRLIT("</VALUE.OBJECTWITHPATH>\n");
+}
+
+// appendObjectElement()
+// May refer to a CLASS or an INSTANCE
+void SCMOXmlWriter::appendObjectElement(
+    Buffer& out,
+    const SCMOInstance& object)
+{
+    if (object.inst.hdr->flags.isClassOnly)
+    {
+        appendClassElement(out, object);
+    }
+    else
+    {
+        appendInstanceElement(out, object);
+    }
+}
+
+//------------------------------------------------------------------------------
+//
+// appendClassElement()
+//
+//     <!ELEMENT CLASS
+//         (QUALIFIER*,(PROPERTY|PROPERTY.ARRAY|PROPERTY.REFERENCE)*,METHOD*)>
+//     <!ATTLIST CLASS
+//         %CIMName;
+//         %SuperClass;>
+//
+//------------------------------------------------------------------------------
+
+void SCMOXmlWriter::appendClassElement(
+    Buffer& out,
+    const SCMOInstance& cimClass)
+{
+
+    SCMBClass_Main* theClass = cimClass.inst.hdr->theClass->cls.hdr;
+    const char* clsBase = cimClass.inst.hdr->theClass->cls.base;
+
+    // Class opening element:
+    out << STRLIT("<CLASS NAME=\"");
+    out.append(
+        &(clsBase[theClass->className.start]),
+        theClass->className.length-1);
+
+    out << STRLIT("\" ");
+    if (0 != theClass->superClassName.start)
+    {
+        out << STRLIT(" SUPERCLASS=\"");
+        out.append(
+            &(clsBase[theClass->superClassName.start]),
+            theClass->superClassName.length-1);
+        out << STRLIT("\" ");
+    }
+    out << STRLIT(">\n");
+
+    // Append class qualifiers
+    SCMBQualifier *theArray =
+        (SCMBQualifier*)&(clsBase[theClass->qualifierArray.start]);
+    for (Uint32 i=0, n=theClass->numberOfQualifiers;i<n;i++)
+    {
+        SCMOXmlWriter::appendQualifierElement(out,theArray[i],clsBase);
+    }
+
+    // Append Property definitions:
+    for (Uint32 i=0,k=cimClass.getPropertyCount();i<k;i++)
+    {
+            SCMOXmlWriter::appendPropertyElement(out,cimClass,i);
+    }
+
+    // TODO: What do with Method definitions ?
+    // for (Uint32 i = 0, n = rep->getMethodCount(); i < n; i++)
+    //    XmlWriter::appendMethodElement(out, rep->getMethod(i));
+
+    // Class closing element:
+    out << STRLIT("</CLASS>\n");
+}
+
 // appendLocalClassPathElement()
 //     <!ELEMENT LOCALCLASSPATH (LOCALNAMESPACEPATH, CLASSNAME)>
 void SCMOXmlWriter::appendLocalClassPathElement(

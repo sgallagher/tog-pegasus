@@ -86,6 +86,18 @@ public:
         Buffer& out,
         const SCMOInstance& instancePath);
 
+    static void appendValueObjectWithPathElement(
+        Buffer& out,
+        const SCMOInstance& objectWithPath);
+
+    static void appendObjectElement(
+        Buffer& out,
+        const SCMOInstance& object);
+
+    static void appendClassElement(
+        Buffer& out,
+        const SCMOInstance& cimClass);
+
     static void appendLocalClassPathElement(
         Buffer& out,
         const SCMOInstance& classPath);

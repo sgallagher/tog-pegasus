@@ -65,11 +65,15 @@ public:
 
     // Methods for SCMOInstance only
     void dumpSCMOInstance(SCMOInstance& testInst) const;
-    void dumpSCMOInstanceKeyBindings(SCMOInstance& testInst) const ;
+    void dumpSCMOInstanceKeyBindings(
+        SCMOInstance& testInst,
+        Boolean verbose = false) const ;
     void dumpSCMOInstancePropertyFilter(SCMOInstance& testInst) const ;
     void dumpPropertyFilter(SCMOInstance& testInst) const;
     void dumpPropertyFilterIndexMap(SCMOInstance& testInst) const;
-    void dumpInstanceProperties(SCMOInstance& testInst) const;
+    void dumpInstanceProperties(
+        SCMOInstance& testInst,
+        Boolean verbose = false) const;
 
 
     // Methods for SCMOClass and SCMOInstance
@@ -88,18 +92,21 @@ public:
 
     void printSCMOValue(
         const SCMBValue& theValue,
-        char* base) const;
+        char* base,
+        Boolean verbose = false) const;
 
-    String printArrayValue(
+    void printArrayValue(
         CIMType type,
         Uint32 size,
         SCMBUnion u,
-        char* base) const;
+        char* base,
+        Boolean verbose = false) const;
 
-    String printUnionValue(
+    void printUnionValue(
         CIMType type,
         SCMBUnion u,
-        char* base) const;
+        char* base,
+        Boolean verbose = false) const;
 
 private:
 

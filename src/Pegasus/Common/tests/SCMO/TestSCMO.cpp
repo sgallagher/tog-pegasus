@@ -1599,10 +1599,6 @@ void SCMOInstanceKeyBindingsTest()
     PEGASUS_TEST_ASSERT(rc==SCMO_OK);
     PEGASUS_TEST_ASSERT(noKeyBind == 4);
 
-
-    SCMODump theDumper;
-    theDumper.dumpSCMOInstanceKeyBindings(SCMO_TESTClass2_Inst);
-
     rc = SCMO_TESTClass2_Inst.getKeyBindingAt(
         noKeyBind,
         &returnName,

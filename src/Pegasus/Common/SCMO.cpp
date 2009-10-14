@@ -5290,7 +5290,9 @@ void SCMODump::dumpSCMOInstancePropertyFilter(SCMOInstance& testInst) const
 
 }
 
-void SCMODump::dumpInstanceProperties(SCMOInstance& testInst) const
+void SCMODump::dumpInstanceProperties(
+    SCMOInstance& testInst,
+    Boolean verbose) const
 {
     SCMBInstance_Main* insthdr = testInst.inst.hdr;
     char* instbase = testInst.inst.base;
@@ -5313,7 +5315,7 @@ void SCMODump::dumpInstanceProperties(SCMOInstance& testInst) const
         }
         else
         {
-            printSCMOValue(val[i],instbase);
+            printSCMOValue(val[i],instbase,verbose);
         }
     }
 
@@ -5424,7 +5426,9 @@ void SCMODump::dumpPropertyFilter(SCMOInstance& testInst) const
      }
 }
 
-void SCMODump::dumpSCMOInstanceKeyBindings(SCMOInstance& testInst) const
+void SCMODump::dumpSCMOInstanceKeyBindings(
+    SCMOInstance& testInst,
+    Boolean verbose) const
 {
     SCMBInstance_Main* insthdr = testInst.inst.hdr;
     char* instbase = testInst.inst.base;
@@ -5447,19 +5451,20 @@ void SCMODump::dumpSCMOInstanceKeyBindings(SCMOInstance& testInst) const
     {
         if (ptr[i].isSet)
         {
-            fprintf(_out,"\n\n    %s : %s '%s'",
+            fprintf(_out,"\n\nName: '%s'\nType: '%s'",
                 NULLSTR(_getCharString(
                     theClassKeyBindNodeArray[i].name,
                     insthdr->theClass->cls.base)),
-                cimTypeToString(theClassKeyBindNodeArray[i].type),    
-                (const char*)printUnionValue(
-                    theClassKeyBindNodeArray[i].type,
-                    ptr[i].data,
-                    instbase).getCString());
+                cimTypeToString(theClassKeyBindNodeArray[i].type));
+            printUnionValue(
+                theClassKeyBindNodeArray[i].type,
+                ptr[i].data,
+                instbase,
+                verbose);
         }
         else
         {
-            fprintf(_out,"\n\n    %s : Not Set",
+            fprintf(_out,"\n\nName: '%s': Not Set",
                 NULLSTR(_getCharString(
                     theClassKeyBindNodeArray[i].name,
                     insthdr->theClass->cls.base)));
@@ -5479,13 +5484,14 @@ void SCMODump::dumpSCMOInstanceKeyBindings(SCMOInstance& testInst) const
 
         if (theUserDefKBElement->value.isSet)
         {
-            fprintf(_out,"\n\n    %s : %s '%s'",
+            fprintf(_out,"\n\nName: '%s'\nType: '%s'",
                 NULLSTR(_getCharString(theUserDefKBElement->name,instbase)),
-                cimTypeToString(theUserDefKBElement->type),    
-                (const char*)printUnionValue(
-                    theUserDefKBElement->type,
-                    theUserDefKBElement->value.data,
-                    instbase).getCString());
+                cimTypeToString(theUserDefKBElement->type));
+            printUnionValue(
+                theUserDefKBElement->type,
+                theUserDefKBElement->value.data,
+                instbase,
+                verbose);
         }
         else
         {
@@ -5814,7 +5820,8 @@ void SCMODump::_dumpQualifier(
 
 void SCMODump::printSCMOValue(
     const SCMBValue& theValue,
-    char* base) const
+    char* base,
+    Boolean verbose) const
 {
    fprintf(_out,"\nValueType : %s",cimTypeToString(theValue.valueType));
    fprintf(_out,"\nValue was set: %s",
@@ -5826,22 +5833,20 @@ void SCMODump::printSCMOValue(
    }
    if (theValue.flags.isArray)
    {
-       fprintf(_out,
-               "\nThe value is an Array of size: %u",
-               theValue.valueArraySize);
-       fprintf(_out,"\nThe values are: %s",
-              (const char*)printArrayValue(
-                  theValue.valueType,
-                  theValue.valueArraySize,
-                  theValue.value,
-                  base).getCString());
+       fprintf(
+           _out,
+           "\nThe value is an Array of size: %u",
+           theValue.valueArraySize);
+       printArrayValue(
+           theValue.valueType,
+           theValue.valueArraySize,
+           theValue.value,
+           base,
+           verbose);
    }
    else
    {
-      fprintf(_out,"\nThe Value is: '%s'",
-          (const char*)
-             printUnionValue(theValue.valueType,theValue.value,base)
-             .getCString());
+       printUnionValue(theValue.valueType,theValue.value,base,verbose);
    }
 
    return;
@@ -5951,11 +5956,12 @@ void SCMODump::_hexDump(char* buffer,int length) const
     }
 }
 
-String SCMODump::printArrayValue(
+void SCMODump::printArrayValue(
     CIMType type,
     Uint32 size,
     SCMBUnion u,
-    char* base) const
+    char* base,
+    Boolean verbose) const
 {
     Buffer out;
 
@@ -5976,6 +5982,7 @@ String SCMODump::printArrayValue(
                           STRLIT("FALSE)"));
                 out.append(';');
             }
+            fprintf(_out,"\nThe values are: %s",out.getData());
             break;
         }
 
@@ -5991,6 +5998,7 @@ String SCMODump::printArrayValue(
                           STRLIT("FALSE)"));
                 out.append(';');
             }
+            fprintf(_out,"\nThe values are: %s",out.getData());
             break;
         }
 
@@ -6006,6 +6014,7 @@ String SCMODump::printArrayValue(
                           STRLIT("FALSE)"));
                 out.append(';');
             }
+            fprintf(_out,"\nThe values are: %s",out.getData());
             break;
         }
 
@@ -6021,6 +6030,7 @@ String SCMODump::printArrayValue(
                           STRLIT("FALSE)"));
                 out.append(';');
             }
+            fprintf(_out,"\nThe values are: %s",out.getData());
             break;
         }
 
@@ -6036,6 +6046,7 @@ String SCMODump::printArrayValue(
                           STRLIT("FALSE)"));
                 out.append(';');
             }
+            fprintf(_out,"\nThe values are: %s",out.getData());
             break;
         }
 
@@ -6051,6 +6062,7 @@ String SCMODump::printArrayValue(
                           STRLIT("FALSE)"));
                 out.append(';');
             }
+            fprintf(_out,"\nThe values are: %s",out.getData());
             break;
         }
 
@@ -6066,6 +6078,7 @@ String SCMODump::printArrayValue(
                           STRLIT("FALSE)"));
                 out.append(';');
             }
+            fprintf(_out,"\nThe values are: %s",out.getData());
             break;
         }
 
@@ -6081,6 +6094,7 @@ String SCMODump::printArrayValue(
                           STRLIT("FALSE)"));
                 out.append(';');
             }
+            fprintf(_out,"\nThe values are: %s",out.getData());
             break;
         }
 
@@ -6096,6 +6110,7 @@ String SCMODump::printArrayValue(
                           STRLIT("FALSE)"));
                 out.append(';');
             }
+            fprintf(_out,"\nThe values are: %s",out.getData());
             break;
         }
 
@@ -6111,6 +6126,7 @@ String SCMODump::printArrayValue(
                           STRLIT("FALSE)"));
                 out.append(';');
             }
+            fprintf(_out,"\nThe values are: %s",out.getData());
             break;
         }
 
@@ -6126,6 +6142,7 @@ String SCMODump::printArrayValue(
                           STRLIT("FALSE)"));
                 out.append(';');
             }
+            fprintf(_out,"\nThe values are: %s",out.getData());
             break;
         }
 
@@ -6141,6 +6158,7 @@ String SCMODump::printArrayValue(
                           STRLIT("FALSE)"));
                 out.append(';');
             }
+            fprintf(_out,"\nThe values are: %s",out.getData());
             break;
         }
 
@@ -6162,6 +6180,7 @@ String SCMODump::printArrayValue(
                 }
                 out.append(';');
             }
+            fprintf(_out,"\nThe values are: %s",out.getData());
             break;
         }
 
@@ -6175,6 +6194,7 @@ String SCMODump::printArrayValue(
                 _toString(out,x);
                 out.append(' ');
             }
+            fprintf(_out,"\nThe values are: %s",out.getData());
             break;
         }
 
@@ -6182,12 +6202,32 @@ String SCMODump::printArrayValue(
     case CIMTYPE_OBJECT:
     case CIMTYPE_INSTANCE:
         {
-            for (Uint32 i = 0; i < size; i++)
+            if (verbose)
             {
-                out << STRLIT("Pointer to external Reference : \'");
-                out << (Uint32)p[i].extRefPtr;                
-                out.append('\'');
+                for (Uint32 i = 0; i < size; i++)
+                {
+                    fprintf(_out,"\n-----------> "
+                                  "Start of embedded external reference [%d]"
+                                  " <-----------\n\n",i);
+                    dumpSCMOInstance(*u.extRefPtr);
+                    fprintf(_out,"\n-----------> "
+                                  "End of embedded external reference [%d]"
+                                  " <-----------\n\n",i);
+                }
+
+            } else
+            {
+                fprintf(_out,"\nThe values are: ");
+
+                for (Uint32 i = 0; i < size; i++)
+                {
+                    fprintf(
+                        _out,
+                        "Pointer to external Reference[%d] : \'%p\';",
+                        i,p[i].extRefPtr);
+                }
             }
+
             break;
 
         }
@@ -6198,13 +6238,14 @@ String SCMODump::printArrayValue(
         }
     }
 
-    return out.getData();
+    return;
 }
 
-String SCMODump::printUnionValue(
+void SCMODump::printUnionValue(
     CIMType type,
     SCMBUnion u,
-    char* base) const
+    char* base,
+    Boolean verbose) const
 {
 
     Buffer out;
@@ -6214,72 +6255,84 @@ String SCMODump::printUnionValue(
     case CIMTYPE_BOOLEAN:
         {
             _toString(out,u.simple.val.bin);
+            fprintf(_out,"\nThe Value is: '%s'",out.getData());
             break;
         }
 
     case CIMTYPE_UINT8:
         {
             _toString(out,u.simple.val.u8);
+            fprintf(_out,"\nThe Value is: '%s'",out.getData());
             break;
         }
 
     case CIMTYPE_SINT8:
         {
             _toString(out,u.simple.val.s8);
+            fprintf(_out,"\nThe Value is: '%s'",out.getData());
             break;
         }
 
     case CIMTYPE_UINT16:
         {
             _toString(out,(Uint32)u.simple.val.u16);
+            fprintf(_out,"\nThe Value is: '%s'",out.getData());
             break;
         }
 
     case CIMTYPE_SINT16:
         {
             _toString(out,u.simple.val.s16);
+            fprintf(_out,"\nThe Value is: '%s'",out.getData());
             break;
         }
 
     case CIMTYPE_UINT32:
         {
             _toString(out,u.simple.val.u32);
+            fprintf(_out,"\nThe Value is: '%s'",out.getData());
             break;
         }
 
     case CIMTYPE_SINT32:
         {
             _toString(out,u.simple.val.s32);
+            fprintf(_out,"\nThe Value is: '%s'",out.getData());
             break;
         }
 
     case CIMTYPE_UINT64:
         {
             _toString(out,u.simple.val.u64);
+            fprintf(_out,"\nThe Value is: '%s'",out.getData());
             break;
         }
 
     case CIMTYPE_SINT64:
         {
             _toString(out,u.simple.val.s64);
+            fprintf(_out,"\nThe Value is: '%s'",out.getData());
             break;
         }
 
     case CIMTYPE_REAL32:
         {
             _toString(out,u.simple.val.r32);
+            fprintf(_out,"\nThe Value is: '%s'",out.getData());
             break;
         }
 
     case CIMTYPE_REAL64:
         {
             _toString(out,u.simple.val.r32);
+            fprintf(_out,"\nThe Value is: '%s'",out.getData());
             break;
         }
 
     case CIMTYPE_CHAR16:
         {
             _toString(out,u.simple.val.c16);
+            fprintf(_out,"\nThe Value is: '%s'",out.getData());
             break;
         }
 
@@ -6290,6 +6343,7 @@ String SCMODump::printUnionValue(
                 out.append((const char*)_getCharString(u.stringValue,base),
                            u.stringValue.length-1);
             }
+            fprintf(_out,"\nThe Value is: '%s'",out.getData());
             break;
         }
 
@@ -6298,6 +6352,7 @@ String SCMODump::printUnionValue(
             CIMDateTime x;
             memcpy(x._rep,&(u.dateTimeValue),sizeof(SCMBDateTime));
             _toString(out,x);
+            fprintf(_out,"\nThe Value is: '%s'",out.getData());
             break;
         }
 
@@ -6305,9 +6360,23 @@ String SCMODump::printUnionValue(
     case CIMTYPE_OBJECT:
     case CIMTYPE_INSTANCE:
         {
-            out << STRLIT("Pointer to external Reference : \'");
-            out << (Uint32)u.extRefPtr;                
-            out.append('\'');
+            if (verbose)
+            {
+                fprintf(_out,"\n-----------> "
+                              "Start of embedded external reference"
+                              " <-----------\n\n");
+                dumpSCMOInstance(*u.extRefPtr);
+                fprintf(_out,"\n-----------> "
+                             "End of embedded external reference"
+                             " <-----------\n\n");
+            } else
+            {
+                fprintf(
+                    _out,
+                    "Pointer to external Reference : \'%p\'",
+                    u.extRefPtr);
+            }
+
             break;
         }
     default:
@@ -6317,7 +6386,7 @@ String SCMODump::printUnionValue(
         }
     }
 
-  return out.getData();
+  return;
 }
 
 

@@ -404,6 +404,11 @@ SCMOClass::SCMOClass(
 
 }
 
+const char* SCMOClass::getSuperClassName() const
+{
+    return _getCharString(cls.hdr->superClassName,cls.base);
+}
+
 void  SCMOClass::getCIMClass(CIMClass& cimClass) const
 {
     CIMClass newCimClass(
@@ -1357,7 +1362,7 @@ void SCMOInstance::_copyExternalReferences()
                 }
             }
 
-            theUserDefKBElement = 
+            theUserDefKBElement =
                 (SCMBUserKeyBindingElement*)
                      &(inst.base[theUserDefKBElement->nextElement.start]);
         } // for all user def. key bindings.
@@ -1434,7 +1439,7 @@ void SCMOInstance::_destroyExternalReferences()
                 }
             }
 
-            theUserDefKBElement = 
+            theUserDefKBElement =
                 (SCMBUserKeyBindingElement*)
                      &(inst.base[theUserDefKBElement->nextElement.start]);
         } // for all user def. key bindings.
@@ -1612,18 +1617,18 @@ void SCMOInstance::getCIMObjectPath(CIMObjectPath& cimObj) const
                             NEWCIMSTR(theUserDefKBElement->name,inst.base)),
                     theKeyBindingValue));
             }
-            theUserDefKBElement = 
+            theUserDefKBElement =
                 (SCMBUserKeyBindingElement*)
                      &(inst.base[theUserDefKBElement->nextElement.start]);
         } // for all user def. key bindings.
     }
-    
+
     newObjectPath._rep->_host = NEWCIMSTR(inst.hdr->hostName,inst.base);
     // Use name space and class name of the instance
     newObjectPath._rep->_nameSpace =
         CIMNamespaceNameCast(NEWCIMSTR(inst.hdr->instNameSpace,inst.base));
     newObjectPath._rep->_className=
-        CIMNameCast(NEWCIMSTR(inst.hdr->instClassName,inst.base));    
+        CIMNameCast(NEWCIMSTR(inst.hdr->instClassName,inst.base));
 
     cimObj = newObjectPath;
 }
@@ -2895,7 +2900,7 @@ void SCMOInstance::_setSCMBUnion(
     case CIMTYPE_SINT64:
     case CIMTYPE_REAL32:
     case CIMTYPE_REAL64:
-    case CIMTYPE_CHAR16:    
+    case CIMTYPE_CHAR16:
         {
             if (isArray)
             {
@@ -3859,8 +3864,26 @@ SCMOInstance SCMOInstance::clone(Boolean objectPathOnly) const
             newInst.inst.hdr->hostName,
             &newInst.inst.mem);
 
-        newInst.inst.hdr->flags.isCompromised = 
+        newInst.inst.hdr->flags.isCompromised =
             this->inst.hdr->flags.isCompromised;
+
+        // If the instance contains a user set class and/or name space name
+        if (this->inst.hdr->flags.isCompromised)
+        {
+            // Copy the class name to tha new instance-
+            _setBinary(
+                _resolveDataPtr(this->inst.hdr->instClassName,this->inst.base),
+                this->inst.hdr->instClassName.length,
+                newInst.inst.hdr->instClassName,
+                &newInst.inst.mem);
+
+            // Copy the name space name to tha new instance-
+            _setBinary(
+                _resolveDataPtr(this->inst.hdr->instNameSpace,this->inst.base),
+                this->inst.hdr->instNameSpace.length,
+                newInst.inst.hdr->instNameSpace,
+                &newInst.inst.mem);
+        }
 
         // Copy the key bindings to that new instance.
         this->_copyKeyBindings(newInst);
@@ -3932,7 +3955,7 @@ void SCMOInstance::_copyKeyBindings(SCMOInstance& targetInst) const
                                                         inst.base);
             }
 
-            theUserDefKBElement = 
+            theUserDefKBElement =
                 (SCMBUserKeyBindingElement*)
                      &(inst.base[theUserDefKBElement->nextElement.start]);
         } // for all user def. key bindings.
@@ -3999,7 +4022,7 @@ SCMBUserKeyBindingElement* SCMOInstance::_getUserDefinedKeyBinding(
     // is the key binding already stored as user defind in the instance ?
     if (SCMO_OK == _getUserKeyBindingNodeIndex(node,name))
     {
-       ptrNewElement = _getUserDefinedKeyBindingAt(node); 
+       ptrNewElement = _getUserDefinedKeyBindingAt(node);
     }
     else // Not found, create a new user defined key binding.
     {
@@ -4012,14 +4035,14 @@ SCMBUserKeyBindingElement* SCMOInstance::_getUserDefinedKeyBinding(
             (SCMBUserKeyBindingElement*)&(inst.base[newElement.start]);
 
         // link new first user defined key binding element into chain:
-        // - Assing the start point of user key binding element chain 
+        // - Assing the start point of user key binding element chain
         //   to the next element of the new element.
-        ptrNewElement->nextElement.start = 
+        ptrNewElement->nextElement.start =
             inst.hdr->userKeyBindingElement.start;
-        ptrNewElement->nextElement.length = 
+        ptrNewElement->nextElement.length =
             inst.hdr->userKeyBindingElement.length;
-        // - Assing the the new element 
-        //   to the  start point of user key binding element chain 
+        // - Assing the the new element
+        //   to the  start point of user key binding element chain
         inst.hdr->userKeyBindingElement.start = newElement.start;
         inst.hdr->userKeyBindingElement.length = newElement.length;
         // Adjust the couter of user defined key bindings.
@@ -4028,7 +4051,7 @@ SCMBUserKeyBindingElement* SCMOInstance::_getUserDefinedKeyBinding(
 
         // Copy the type
         ptrNewElement->type = type;
-        ptrNewElement->value.isSet=false;          
+        ptrNewElement->value.isSet=false;
 
         // Copy the key binding name including the trailing '\0'
         _setBinary(name,nameLen+1,ptrNewElement->name,&inst.mem);
@@ -4214,7 +4237,7 @@ SCMO_RC SCMOInstance::getKeyBinding(
         if (rc != SCMO_OK)
         {
             return rc;
-        }        
+        }
     }
 
     rc = _getKeyBindingDataAtNodeIndex(node,&pname,pnameLen,type,&pdata);
@@ -4254,7 +4277,7 @@ SCMO_RC SCMOInstance::_getKeyBindingDataAtNodeIndex(
 
         type = theClassKeyBindNodeArray[node].type;
 
-        // First resolve pointer to the key binding name 
+        // First resolve pointer to the key binding name
         pnameLen = theClassKeyBindNodeArray[node].name.length;
         *pname = _getCharString(
             theClassKeyBindNodeArray[node].name,
@@ -4271,7 +4294,7 @@ SCMO_RC SCMOInstance::_getKeyBindingDataAtNodeIndex(
     else // look at the user defined key bindings
     {
 
-        SCMBUserKeyBindingElement* theElem = _getUserDefinedKeyBindingAt(node); 
+        SCMBUserKeyBindingElement* theElem = _getUserDefinedKeyBindingAt(node);
 
         type = theElem->type;
 
@@ -4292,10 +4315,10 @@ SCMO_RC SCMOInstance::_getKeyBindingDataAtNodeIndex(
 }
 
 SCMO_RC SCMOInstance::_getUserKeyBindingNodeIndex(
-    Uint32& node, 
+    Uint32& node,
     const char* name) const
 {
-    
+
     Uint32 len = strlen(name);
     node = 0;
     SCMBUserKeyBindingElement* theUserDefKBElement;
@@ -4323,7 +4346,7 @@ SCMO_RC SCMOInstance::_getUserKeyBindingNodeIndex(
 }
 
 CIMType SCMOInstance::_CIMTypeFromKeyBindingType(
-    const char* key, 
+    const char* key,
     CIMKeyBinding::Type t)
 {
     switch( t )
@@ -4333,7 +4356,7 @@ CIMType SCMOInstance::_CIMTypeFromKeyBindingType(
                 if( *(key)=='-' )
                 {
                    Sint64 x;
-                   // check if it is realy an integer 
+                   // check if it is realy an integer
                    if (StringConversion::stringToSignedInteger(key, x))
                    {
                        return CIMTYPE_SINT64;
@@ -4341,12 +4364,12 @@ CIMType SCMOInstance::_CIMTypeFromKeyBindingType(
                    else
                    {
                        return CIMTYPE_REAL64;
-                   }                    
+                   }
                 }
                 else
                 {
                     Uint64 x;
-                    // check if it is realy an integer 
+                    // check if it is realy an integer
                     if (StringConversion::stringToUnsignedInteger(key, x))
                     {
                         return CIMTYPE_UINT64;
@@ -4354,17 +4377,17 @@ CIMType SCMOInstance::_CIMTypeFromKeyBindingType(
                     else
                     {
                         return CIMTYPE_REAL64;
-                    }                    
+                    }
                 }
                 break;
             }
-            
+
 
         case CIMKeyBinding::STRING:
         {
             return CIMTYPE_STRING;
             break;
-        }            
+        }
 
         case CIMKeyBinding::BOOLEAN:
         {
@@ -4643,7 +4666,7 @@ SCMO_RC SCMOInstance::_setKeyBindingFromString(
     {
         return SCMO_INVALID_PARAMETER;
     }
-    
+
     if (SCMO_OK == inst.hdr->theClass->_getKeyBindingNodeIndex(node,name))
     {
         // create a pointer to keybinding node array of the class.
@@ -4713,12 +4736,12 @@ SCMO_RC SCMOInstance::setKeyBinding(
 
         theNode = _getUserDefinedKeyBinding( name,strlen(name),type);
 
-        // Is this a new node or an existing user key binding?        
+        // Is this a new node or an existing user key binding?
         if (theNode->value.isSet && (theNode->type != type))
-        {            
+        {
             return SCMO_TYPE_MISSMATCH;
 
-        } 
+        }
 
         theNode->value.isSet=true;
 
@@ -4761,7 +4784,7 @@ SCMO_RC SCMOInstance::setKeyBindingAt(
 
     // is the node a user defined key binding ?
     if (node >= inst.hdr->numberKeyBindings)
-    {       
+    {
         SCMBUserKeyBindingElement* theNode = _getUserDefinedKeyBindingAt(node);
 
         // Does the new value for the user defined keybinding match?
@@ -4804,24 +4827,24 @@ SCMO_RC SCMOInstance::setKeyBindingAt(
     }
 
     // The type does not match.
-    return _setKeyBindingTypeTolerate( 
-        theClassKeyBindNodeArray[node].type, 
-        type, 
+    return _setKeyBindingTypeTolerate(
+        theClassKeyBindNodeArray[node].type,
+        type,
         keyvalue,
         theInstKeyBindValueArray[node]);
-        
+
 }
 
 /**
- * Set a SCMO user defined key binding using the class CIM type tolerating 
- * CIM key binding types converted to CIM types by fuction 
- *  _CIMTypeFromKeyBindingType(). 
- * 
+ * Set a SCMO user defined key binding using the class CIM type tolerating
+ * CIM key binding types converted to CIM types by fuction
+ *  _CIMTypeFromKeyBindingType().
+ *
  * @parm classType The type of the key binding in the class definition
  * @parm setType The type of the key binding to be set.
  * @param keyValue A pointer to the key binding to be set.
  * @param kbValue Out parameter, the SCMO keybinding to be set.
- * 
+ *
  **/
 SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
     CIMType classType,

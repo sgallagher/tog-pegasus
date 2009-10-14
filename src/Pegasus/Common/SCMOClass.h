@@ -72,7 +72,7 @@ public:
      * Constructs an empty SCMOClass only with name space and class name.
      * If you contruc a SCMOInstance using this class, you must mark it as
      * compromized using SCMOInstance.markAsCompromised().
-     * 
+     *
      * @param className The name for the class.
      * @param nameSpaceName The namespace for the class.
      */
@@ -101,6 +101,13 @@ public:
      * properties.
      */
     void getKeyNamesAsString(Array<String>& keyNames) const;
+
+    /**
+     * Gets the super class name of the class.
+     * @retuns The super class name.
+     *         If not available a NULL pointer is returned
+     */
+    const char* getSuperClassName() const;
 
     /**
      * Determines whether the object has been initialized.

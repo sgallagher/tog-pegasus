@@ -70,13 +70,8 @@ public:
         RESP_OBJECTPATHS =5
     };
 
-    CIMResponseData(ResponseDataContent content):
-        _encoding(0),
-        _dataType(content)
-    {
-        fprintf(stderr,"CIMResponseData() called with content=%X\n",content);
-        fflush(stderr);
-    };
+    CIMResponseData(ResponseDataContent content):_encoding(0),_dataType(content)
+    {};
 
     // C++ objects interface handling
 
@@ -155,6 +150,13 @@ public:
     // single ResponseData object
     void appendResponseData(const CIMResponseData & x);
 
+    // Function primarily used by CIMOperationRequestDispatcher to complete
+    // namespace and hostname on a,an,r and rn operations in the
+    // OperationAggregator
+    void completeHostNameAndNamespace(
+        const String & hn,
+        const CIMNamespaceName & ns);
+
     // Encoding responses
 
     // binary format used with Provider Agents and OP Clients
@@ -183,6 +185,7 @@ private:
 
     // Helper functions for this class only, do NOT externalize
     SCMOInstance _getSCMOFromCIMInstance(const CIMInstance& cimInst);
+    SCMOInstance _getSCMOFromCIMObject(const CIMObject& cimObj);
     SCMOInstance _getSCMOFromCIMObjectPath(const CIMObjectPath& cimPath);
     SCMOClass* _getSCMOClass(const char* ns,const char* cls);
 

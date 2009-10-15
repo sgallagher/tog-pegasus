@@ -292,17 +292,102 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
     PEG_METHOD_EXIT();
 }
 
+void CIMResponseData::completeHostNameAndNamespace(
+    const String & hn,
+    const CIMNamespaceName & ns)
+{
+    // Internal XML always has host name and namespace
+    // binary data shhould not ever be present here
+    PEGASUS_DEBUG_ASSERT((RESP_ENC_BINARY != (_encoding & RESP_ENC_BINARY)));
+
+    if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
+    {
+        switch (_dataType)
+        {
+            case RESP_OBJECTS:
+            {
+                for (Uint32 j = 0, n = _objects.size(); j < n; j++)
+                {
+                    const CIMObject& object = _objects[j];
+                    CIMObjectPath& p =
+                        const_cast<CIMObjectPath&>(object.getPath());
+                    if (p.getHost().size()==0)
+                    {
+                        p.setHost(hn);
+                    }
+                    if (p.getNameSpace().isNull())
+                    {
+                        p.setNameSpace(ns);
+                    }
+                }
+                break;
+            }
+            case RESP_OBJECTPATHS:
+            {
+                for (Uint32 j = 0, n = _instanceNames.size(); j < n; j++)
+                {
+                    CIMObjectPath& p = _instanceNames[j];
+                    if (p.getHost().size() == 0)
+                        p.setHost(hn);
+                    if (p.getNameSpace().isNull())
+                        p.setNameSpace(ns);
+                }
+                break;
+            }
+            default:
+            {
+                PEGASUS_DEBUG_ASSERT(false);
+            }
+        }
+    }
+    if (RESP_ENC_SCMO == (_encoding & RESP_ENC_SCMO))
+    {
+        CString hnCString=hn.getCString();
+        const char* hnChars = hnCString;
+        Uint32 hnLen = strlen(hnChars);
+        CString nsCString=ns.getString().getCString();
+        const char* nsChars=nsCString;
+        Uint32 nsLen = strlen(nsChars);
+        switch (_dataType)
+        {
+            case RESP_OBJECTS:
+            case RESP_OBJECTPATHS:
+            {
+                for (Uint32 j = 0, n = _scmoInstances.size(); j < n; j++)
+                {
+                    SCMOInstance & scmoInst=_scmoInstances[j];
+                    if (0 == scmoInst.getHostName())
+                    {
+                        scmoInst.setHostName_l(hnChars,hnLen);
+                    }
+                    if (0 == scmoInst.getNameSpace())
+                    {
+                        scmoInst.setNameSpace_l(nsChars,nsLen);
+                    }
+                }
+                break;
+            }
+            default:
+            {
+                PEGASUS_DEBUG_ASSERT(false);
+            }
+        }
+    }
+}
+
 void CIMResponseData::encodeXmlResponse(Buffer& out)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMResponseData::encodeXmlResponse");
 
+/*  TODO: Transform into a trace statement
     fprintf(
         stderr,
         "encodeXmlResponse(encoding=%X,content=%X)\n",
         _encoding,
         _dataType);
     fflush(stderr);
+*/
 
     if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
@@ -375,8 +460,6 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
 
     if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
     {
-        fprintf(stderr,"Got CIM data...\n");
-        fflush(stderr);
         // TODO: Set Marker for C++ data
         switch (_dataType)
         {
@@ -439,10 +522,6 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
         /*SCMODump dmp;
         dmp.dumpSCMOInstanceKeyBindings(_scmoInstances[i]);
         dmp.dumpInstanceProperties(_scmoInstances[i]);*/
-        fprintf(
-            stderr,"encodeXmlResponse(SCMO)=%d instances...\n",
-            _scmoInstances.size());
-        fflush(stderr);
 
         switch (_dataType)
         {
@@ -503,11 +582,13 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
             }
         }
     }
+/*  TODO: Transform into a trace statement
     fprintf(
         stderr,
         "After XmlWrite()\n%s",
         out.getData());
     fflush(stderr);
+*/
 }
 
 // contrary to encodeXmlResponse this function encodes the Xml in a format
@@ -524,13 +605,14 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
 
 void CIMResponseData::_resolveToCIM()
 {
+/*  TODO: Transform into warning trace statement
     fprintf(
         stderr,
         "_resolveToCIM(encoding=%X,content=%X)\n",
         _encoding,
         _dataType);
     fflush(stderr);
-
+*/
     if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
         _resolveXmlToCIM();
@@ -548,13 +630,14 @@ void CIMResponseData::_resolveToCIM()
 
 void CIMResponseData::_resolveToSCMO()
 {
+/*  TODO: Transform into warning trace statement
     fprintf(
         stderr,
         "_resolveToSCMO(encoding=%X,content=%X)\n",
         _encoding,
         _dataType);
     fflush(stderr);
-
+*/
     if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
         _resolveXmlToSCMO();
@@ -851,7 +934,6 @@ void CIMResponseData::_resolveCIMToSCMO()
     switch (_dataType)
     {
         case RESP_INSTNAMES:
-        case RESP_OBJECTPATHS:
         {
             for (Uint32 i=0,n=_instanceNames.size();i<n;i++)
             {
@@ -887,13 +969,26 @@ void CIMResponseData::_resolveCIMToSCMO()
         {
             for (Uint32 i=0,n=_objects.size();i<n;i++)
             {
-                // TODO: Use a new constructor here
-                // SCMOInstance(CIMObject)
-                SCMOInstance addme=
-                    _getSCMOFromCIMInstance(CIMInstance(_objects[i]));
+                SCMOInstance addme= _getSCMOFromCIMObject(_objects[i]);
                 _scmoInstances.append(addme);
             }
             _objects.clear();
+            break;
+        }
+        case RESP_OBJECTPATHS:
+        {
+            for (Uint32 i=0,n=_instanceNames.size();i<n;i++)
+            {
+                SCMOInstance addme =
+                    _getSCMOFromCIMObjectPath(_instanceNames[i]);
+                if (0 == _instanceNames[i].getKeyBindings().size())
+                {
+                    // if there is no keybinding, this is a class
+                    addme.setIsClassOnly(true);
+                }
+                _scmoInstances.append(addme);
+            }
+            _instanceNames.clear();
             break;
         }
         default:
@@ -927,6 +1022,19 @@ SCMOInstance CIMResponseData::_getSCMOFromCIMInstance(
     SCMOInstance scmoInst = SCMOInstance(*scmoClass, cimInst);
 
     return scmoInst;
+}
+
+SCMOInstance CIMResponseData::_getSCMOFromCIMObject(
+    const CIMObject& cimObj)
+{
+    if (cimObj.isClass())
+    {
+        CIMClass retClass(cimObj);
+        SCMOInstance theInstance(retClass);
+        theInstance.setIsClassOnly(true);
+        return theInstance;
+    }
+    return _getSCMOFromCIMInstance(CIMInstance(cimObj));
 }
 
 // Function to convert a CIMObjectPath into an SCMOInstance

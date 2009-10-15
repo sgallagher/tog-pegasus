@@ -527,25 +527,17 @@ public:
      * Determines whether the instance is used as a class container.
      * @return True if the instance is used as a class container only.
      */
-    Boolean isClassOnly( ) const
+    Boolean getIsClassOnly( ) const
     {
         return inst.hdr->flags.isClassOnly;
     }
 
     /**
-     * Mark this instance to be a class only container.
+     * To mark if this instance is a class only container.
      */
-    void setClassOnly( )
+    void setIsClassOnly( Boolean b )
     {
-        inst.hdr->flags.isClassOnly = true;
-    }
-
-    /**
-     * Mark this instance is a real instance.
-     */
-    void clearClassOnly( )
-    {
-        inst.hdr->flags.isClassOnly = false;
+        inst.hdr->flags.isClassOnly = b;
     }
 
     /**

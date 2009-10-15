@@ -92,11 +92,13 @@ void CIMResponseData::setSCMO(const Array<SCMOInstance>& x)
 {
     // Just assignment bears danger of us being dependent on the original array
     // content staying valid
-    // _scmoInstances=x;
+    _scmoInstances=x;
+/*
     for (Uint32 loop=0, max=x.size(); loop<max; loop++)
     {
         _scmoInstances.append(x[loop]);
     }
+*/
     // _scmoInstances.appendArray(x);
     _encoding |= RESP_ENC_SCMO;
 }
@@ -269,8 +271,7 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
             }
             default:
             {
-                // TODO:
-                // Argl, not nice, but not a problem yet, ignore this
+                PEGASUS_DEBUG_ASSERT(false);
             }
         }
     }
@@ -285,7 +286,7 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
     if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
         // This actually should not happen following general code logic
-        PEGASUS_DEBUG_ASSERT(true);
+        PEGASUS_DEBUG_ASSERT(false);
     }
 
     PEG_METHOD_EXIT();
@@ -367,8 +368,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
             }
             default:
             {
-                // TODO:
-                // Argl, not nice, but not a problem yet, ignore this
+                PEGASUS_DEBUG_ASSERT(false);
             }
         }
     }
@@ -430,8 +430,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
             }
             default:
             {
-                // TODO:
-                // Argl, not nice, but not a problem yet, ignore this
+                PEGASUS_DEBUG_ASSERT(false);
             }
         }
     }
@@ -500,8 +499,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
             }
             default:
             {
-                // TODO:
-                // Argl, not nice, but not a problem yet, ignore this
+                PEGASUS_DEBUG_ASSERT(false);
             }
         }
     }
@@ -605,8 +603,7 @@ void CIMResponseData::_resolveBinary()
         }
         default:
         {
-            // TODO:
-            // Argl, not nice, but not a problem yet, ignore this
+            PEGASUS_DEBUG_ASSERT(false);
         }
     }
 }
@@ -769,8 +766,7 @@ void CIMResponseData::_resolveXmlToCIM()
         }
         default:
         {
-            // TODO:
-            // Argl, not nice, but not a problem yet, ignore this
+            PEGASUS_DEBUG_ASSERT(false);
         }
     }
     // Xml was resolved, release Xml content now
@@ -779,7 +775,7 @@ void CIMResponseData::_resolveXmlToCIM()
     _nameSpacesData.clear();
     _instanceData.clear();
     // remove Xml Encoding flag
-    _encoding &=(!RESP_ENC_XML);
+    _encoding &=(~RESP_ENC_XML);
     // add CIM Encoding flag
     _encoding |=RESP_ENC_CIM;
 }
@@ -810,9 +806,12 @@ void CIMResponseData::_resolveSCMOToCIM()
         }
         case RESP_INSTANCE:
         {
-            CIMInstance newInstance;
-            _scmoInstances[0].getCIMInstance(newInstance);
-            _instances.append(newInstance);
+            if (_scmoInstances.size() > 0)
+            {
+                CIMInstance newInstance;
+                _scmoInstances[0].getCIMInstance(newInstance);
+                _instances.append(newInstance);
+            }
             break;
         }
         case RESP_INSTANCES:
@@ -837,14 +836,12 @@ void CIMResponseData::_resolveSCMOToCIM()
         }
         default:
         {
-            // TODO:
-            // Argl, not nice, but not a problem yet, ignore this
+            PEGASUS_DEBUG_ASSERT(false);
         }
     }
-
     _scmoInstances.clear();
     // remove CIM Encoding flag
-    _encoding &=(!RESP_ENC_SCMO);
+    _encoding &=(~RESP_ENC_SCMO);
     // add SCMO Encoding flag
     _encoding |=RESP_ENC_CIM;
 }
@@ -862,40 +859,51 @@ void CIMResponseData::_resolveCIMToSCMO()
                     _getSCMOFromCIMObjectPath(_instanceNames[i]);
                 _scmoInstances.append(addme);
             }
+            _instanceNames.clear();
             break;
         }
         case RESP_INSTANCE:
         {
-            SCMOInstance addme =
-                _getSCMOFromCIMInstance(_instances[0]);
-            _scmoInstances.append(addme);
+            if (_instances.size() > 0)
+            {
+                SCMOInstance addme =
+                    _getSCMOFromCIMInstance(_instances[0]);
+                _scmoInstances.append(addme);
+                _instances.clear();
+            }
             break;
         }
         case RESP_INSTANCES:
         {
             for (Uint32 i=0,n=_instances.size();i<n;i++)
             {
-                SCMOInstance addme =
-                    _getSCMOFromCIMInstance(_instances[i]);
+                SCMOInstance addme = _getSCMOFromCIMInstance(_instances[i]);
                 _scmoInstances.append(addme);
             }
+            _instances.clear();
             break;
         }
         case RESP_OBJECTS:
         {
-            // TODO: Implement, but how ???
+            for (Uint32 i=0,n=_objects.size();i<n;i++)
+            {
+                // TODO: Use a new constructor here
+                // SCMOInstance(CIMObject)
+                SCMOInstance addme=
+                    _getSCMOFromCIMInstance(CIMInstance(_objects[i]));
+                _scmoInstances.append(addme);
+            }
+            _objects.clear();
             break;
         }
         default:
         {
-            // TODO:
-            // Argl, not nice, but not a problem yet, ignore this
-            break;
+            PEGASUS_DEBUG_ASSERT(false);
         }
     }
 
     // remove CIM Encoding flag
-    _encoding &=(!RESP_ENC_CIM);
+    _encoding &=(~RESP_ENC_CIM);
     // add SCMO Encoding flag
     _encoding |=RESP_ENC_SCMO;
 }
@@ -916,7 +924,6 @@ SCMOInstance CIMResponseData::_getSCMOFromCIMInstance(
         (const char*)className);
     // TODO: What do when there is no such class ?
 
-    // TODO: Interrogate Thilo about need to call new
     SCMOInstance scmoInst = SCMOInstance(*scmoClass, cimInst);
 
     return scmoInst;

@@ -152,7 +152,8 @@ int main (int argc, char * argv [])
         //  Test readMessage and writeMessage
         //
         CIMMessage * message;
-        pipeFromParent->readMessage(message);
+        AnonymousPipe::Status readMessageStatus = pipeFromParent->readMessage
+            (message);
 
         AutoPtr<CIMGetInstanceRequestMessage> request;
         request.reset(dynamic_cast<CIMGetInstanceRequestMessage*>(message));

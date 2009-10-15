@@ -38,6 +38,8 @@
 #include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/CIMDateTimeRep.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/StringRep.h>
 
 #define PEGASUS_USE_MAGIC
 
@@ -260,7 +262,7 @@ public:
         putUint32(n);
         putBytes(x.getChar16Data(), n * sizeof(Char16));
     }
-    
+
     // This function needs to transform UTF-8 encoded data into UTF-16
     // data will be read as String later
     void putUTF8AsString(const char * x, size_t x_size)
@@ -281,7 +283,7 @@ public:
         putUint64(x._rep->usec);
         putUint32(x._rep->utcOffset);
         putUint16(x._rep->sign);
-        putUint16(x._rep->numWildcards); 
+        putUint16(x._rep->numWildcards);
     }
 
     void putBooleanA(const Array<Boolean>& x)
@@ -591,7 +593,7 @@ public:
         rep->usec = usec;
         rep->utcOffset = utcOffset;
         rep->sign = sign;
-        rep->numWildcards = numWildcards; 
+        rep->numWildcards = numWildcards;
         x = CIMDateTime(rep);
         return true;
     }
@@ -842,7 +844,7 @@ public:
 
     // ATTENTION:
     // This method returns a reference to the data in the buffer rather
-    // than a new copy. The data will only be valid through the lifetime 
+    // than a new copy. The data will only be valid through the lifetime
     // of the CIMBuffer.
     bool getFastChar16Array(Char16** x, Uint32& n)
     {

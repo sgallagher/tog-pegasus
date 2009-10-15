@@ -1344,7 +1344,7 @@ void testCIMGetInstanceResponseMessage(
     const CIMInstance& inst)
 {
     CIMGetInstanceResponseMessage inMessage(mid, ex, qids);
-    inMessage.getResponseData().setCimInstance(inst);
+    inMessage.getResponseData().setInstance(inst);
     inMessage.operationContext = oc;
     AutoPtr<CIMGetInstanceResponseMessage> outMessage(
         dynamic_cast<CIMGetInstanceResponseMessage*>(
@@ -1353,8 +1353,8 @@ void testCIMGetInstanceResponseMessage(
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
     validateCIMInstance(
-        inMessage.getResponseData().getCimInstance(), 
-        outMessage->getResponseData().getCimInstance());
+        inMessage.getResponseData().getInstance(),
+        outMessage->getResponseData().getInstance());
 }
 
 //
@@ -1427,7 +1427,7 @@ void testCIMEnumerateInstancesResponseMessage(
     const Array<CIMInstance>& instances)
 {
     CIMEnumerateInstancesResponseMessage inMessage(mid, ex, qids);
-    inMessage.getResponseData().setNamedInstances(instances);
+    inMessage.getResponseData().setInstances(instances);
     inMessage.operationContext = oc;
     AutoPtr<CIMEnumerateInstancesResponseMessage> outMessage(
         dynamic_cast<CIMEnumerateInstancesResponseMessage*>(
@@ -1438,8 +1438,8 @@ void testCIMEnumerateInstancesResponseMessage(
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
 
     validateCIMInstanceArray(
-        inMessage.getResponseData().getNamedInstances(), 
-        outMessage->getResponseData().getNamedInstances());
+        inMessage.getResponseData().getInstances(),
+        outMessage->getResponseData().getInstances());
 }
 
 //
@@ -1462,7 +1462,7 @@ void testCIMEnumerateInstanceNamesResponseMessage(
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
     validateCIMObjectPathArray(
-        inMessage.getResponseData().getInstanceNames(), 
+        inMessage.getResponseData().getInstanceNames(),
         outMessage->getResponseData().getInstanceNames());
 }
 
@@ -1477,7 +1477,7 @@ void testCIMExecQueryResponseMessage(
     const Array<CIMObject>& objects)
 {
     CIMExecQueryResponseMessage inMessage(mid, ex, qids);
-    inMessage.getResponseData().setCIMObjects(objects);
+    inMessage.getResponseData().setObjects(objects);
     inMessage.operationContext = oc;
     AutoPtr<CIMExecQueryResponseMessage> outMessage(
         dynamic_cast<CIMExecQueryResponseMessage*>(
@@ -1485,8 +1485,9 @@ void testCIMExecQueryResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMObjectArray(inMessage.getResponseData().getCIMObjects(), 
-                           outMessage->getResponseData().getCIMObjects());
+    validateCIMObjectArray(
+        inMessage.getResponseData().getObjects(),
+        outMessage->getResponseData().getObjects());
 }
 
 //
@@ -1500,7 +1501,7 @@ void testCIMAssociatorsResponseMessage(
     const Array<CIMObject>& objArray)
 {
     CIMAssociatorsResponseMessage inMessage(mid, ex, qids);
-    inMessage.getResponseData().setCIMObjects(objArray);
+    inMessage.getResponseData().setObjects(objArray);
     inMessage.operationContext = oc;
     AutoPtr<CIMAssociatorsResponseMessage> outMessage(
         dynamic_cast<CIMAssociatorsResponseMessage*>(
@@ -1508,8 +1509,9 @@ void testCIMAssociatorsResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMObjectArray(inMessage.getResponseData().getCIMObjects(), 
-                           outMessage->getResponseData().getCIMObjects());
+    validateCIMObjectArray(
+        inMessage.getResponseData().getObjects(),
+        outMessage->getResponseData().getObjects());
 }
 
 //
@@ -1530,7 +1532,9 @@ void testCIMAssociatorNamesResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMObjectPathArray(inMessage.objectNames, outMessage->objectNames);
+    validateCIMObjectPathArray(
+        inMessage.getResponseData().getInstanceNames(),
+        outMessage->getResponseData().getInstanceNames());
 }
 
 //
@@ -1551,7 +1555,9 @@ void testCIMReferencesResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMObjectArray(inMessage.cimObjects, outMessage->cimObjects);
+    validateCIMObjectArray(
+        inMessage.getResponseData().getObjects(),
+        outMessage->getResponseData().getObjects());
 }
 
 //
@@ -1572,7 +1578,9 @@ void testCIMReferenceNamesResponseMessage(
     PEGASUS_TEST_ASSERT(outMessage.get() != 0);
 
     validateCIMResponseMessageAttributes(&inMessage, outMessage.get());
-    validateCIMObjectPathArray(inMessage.objectNames, outMessage->objectNames);
+    validateCIMObjectPathArray(
+        inMessage.getResponseData().getInstanceNames(),
+        outMessage->getResponseData().getInstanceNames());
 }
 
 //

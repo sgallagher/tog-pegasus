@@ -127,7 +127,7 @@ void InteropProvider::createInstance(
             "ControlProviders.InteropProvider.CREATE_INSTANCE_NOT_ALLOWED",
             "Create instance operation not allowed by Interop Provider for "
                 "class $0.",
-            PEGASUS_CLASSNAME_PGNAMESPACE.getString());
+            instClassName.getString());
         throw CIMNotSupportedException(mparms);
     }
 

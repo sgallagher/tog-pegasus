@@ -183,16 +183,16 @@ public:
      *               The value is strored in a SCMBUnion
      *                and has to be copied by the caller !
      *               It returns NULL if rc != SCMO_OK.
-     *               
+     *
      *               If the value is an array, the
      *               value array is stored in continuous memory.
      *               e.g. (SCMBUnion*)value[0 to size-1]
-     *               
-     *               If the value is type of CIMTYPE_STRING, 
-     *               the string is referenced by the structure 
-     *               SCMBUnion.extString: 
-     *                       pchar contains the absolut pointer to the string 
-     *                       length contains the size of the string 
+     *
+     *               If the value is type of CIMTYPE_STRING,
+     *               the string is referenced by the structure
+     *               SCMBUnion.extString:
+     *                       pchar contains the absolut pointer to the string
+     *                       length contains the size of the string
      *                              without trailing '\0'.
      *               Only for strings the caller has to free pvalue !
      * @param type Returns the CIMType of the property
@@ -253,16 +253,16 @@ public:
      *               The value is strored in a SCMBUnion
      *                and has to be copied by the caller !
      *               It returns NULL if rc != SCMO_OK.
-     *               
+     *
      *               If the value is an array, the
      *               value array is stored in continuous memory.
      *               e.g. (SCMBUnion*)value[0 to size-1]
-     *               
-     *               If the value is type of CIMTYPE_STRING, 
-     *               the string is referenced by the structure 
-     *               SCMBUnion.extString: 
-     *                       pchar contains the absolut pointer to the string 
-     *                       length contains the size of the string 
+     *
+     *               If the value is type of CIMTYPE_STRING,
+     *               the string is referenced by the structure
+     *               SCMBUnion.extString:
+     *                       pchar contains the absolut pointer to the string
+     *                       length contains the size of the string
      *                              without trailing '\0'.
      *               Only for strings the caller has to free pvalue !
      * @param type Returns the CIMType of the property
@@ -296,19 +296,19 @@ public:
      *              The value has to be in a SCMBUnion.
      *              The value is copied into the instance
      *              If the value == NULL, a null value is assumed.
-     *              If the value is an array, the value array has to be 
+     *              If the value is an array, the value array has to be
      *              stored in continuous memory.
      *              e.g. (SCMBUnion*)value[0 to size-1]
-     *              
-     *              To store an array of size 0, The value pointer has to 
+     *
+     *              To store an array of size 0, The value pointer has to
      *              not NULL ( value != NULL ) but the size has to be 0
      *              (size == 0).
-     *              
-     *              If the value is type of CIMTYPE_STRING, 
-     *              the string is referenced by the structure 
-     *              SCMBUnion.extString: 
-     *                       pchar contains the absolut pointer to the string 
-     *                       length contains the size of the string 
+     *
+     *              If the value is type of CIMTYPE_STRING,
+     *              the string is referenced by the structure
+     *              SCMBUnion.extString:
+     *                       pchar contains the absolut pointer to the string
+     *                       length contains the size of the string
      *                              without trailing '\0'.
      * @param isArray Indicate that the value is an array. Default false.
      * @param size Returns the size of the array. If not an array this
@@ -371,19 +371,19 @@ public:
      *               The value has to be in a SCMBUnion.
      *               The value is copied into the instance
      *               If the value == NULL, a null value is assumed.
-     *               If the value is an array, the value array has to be 
+     *               If the value is an array, the value array has to be
      *               stored in continuous memory.
      *               e.g. (SCMBUnion*)value[0 to size-1]
-     *               
-     *              To store an array of size 0, The value pointer has to 
+     *
+     *              To store an array of size 0, The value pointer has to
      *               not NULL ( value != NULL ) but the size has to be 0
      *                (size == 0).
-     *               
-     *               If the value is type of CIMTYPE_STRING, 
-     *               the string is referenced by the structure 
-     *               SCMBUnion.extString: 
-     *                        pchar contains the absolut pointer to the string 
-     *                       length contains the size of the string 
+     *
+     *               If the value is type of CIMTYPE_STRING,
+     *               the string is referenced by the structure
+     *               SCMBUnion.extString:
+     *                        pchar contains the absolut pointer to the string
+     *                       length contains the size of the string
      *                                without trailing '\0'.
      * @param isArray Indicate that the value is an array. Default false.
      * @param size The size of the array. If not an array this
@@ -415,12 +415,12 @@ public:
      *               The keyvalue has to be in a SCMBUnion.
      *               The keyvalue is copied into the instance.
      *               If the keyvalue == NULL, a null value is assumed.
-     *               
-     *               If the keyvalue is type of CIMTYPE_STRING, 
-     *               the string is referenced by the structure 
-     *               SCMBUnion.extString: 
-     *                        pchar contains the absolut pointer to the string 
-     *                       length contains the size of the string 
+     *
+     *               If the keyvalue is type of CIMTYPE_STRING,
+     *               the string is referenced by the structure
+     *               SCMBUnion.extString:
+     *                        pchar contains the absolut pointer to the string
+     *                       length contains the size of the string
      *                                without trailing '\0'.
      * @return     SCMO_OK
      *             SCMO_INVALID_PARAMETER : Given name or pvalue
@@ -442,12 +442,12 @@ public:
      *               The keyvalue has to be in a SCMBUnion.
      *               The keyvalue is copied into the instance.
      *               If the keyvalue == NULL, a null value is assumed.
-     *               
-     *               If the keyvalue is type of CIMTYPE_STRING, 
-     *               the string is referenced by the structure 
-     *               SCMBUnion.extString: 
-     *                        pchar contains the absolut pointer to the string 
-     *                       length contains the size of the string 
+     *
+     *               If the keyvalue is type of CIMTYPE_STRING,
+     *               the string is referenced by the structure
+     *               SCMBUnion.extString:
+     *                        pchar contains the absolut pointer to the string
+     *                       length contains the size of the string
      *                                without trailing '\0'.
      * @return     SCMO_OK
      *             SCMO_INVALID_PARAMETER : Given pvalue is a NULL pointer.
@@ -497,12 +497,12 @@ public:
      *               The value is strored in a SCMBUnion
      *                and has to be copied by the caller !
      *               It returns NULL if rc != SCMO_OK.
-     *               
-     *               If the value is type of CIMTYPE_STRING, 
-     *               the string is referenced by the structure 
-     *               SCMBUnion.extString: 
-     *                       pchar contains the absolut pointer to the string 
-     *                       length contains the size of the string 
+     *
+     *               If the value is type of CIMTYPE_STRING,
+     *               the string is referenced by the structure
+     *               SCMBUnion.extString:
+     *                       pchar contains the absolut pointer to the string
+     *                       length contains the size of the string
      *                              without trailing '\0'.
      *               Only for strings the caller has to free pvalue !
      * @param keyvalue A pointer to the binary key value.
@@ -518,10 +518,35 @@ public:
         const SCMBUnion** keyvalue) const;
 
     /**
-     * Determines whether the object has been initialized.
-     * @return True if the object has not been initialized, false otherwise.
+     * Determines whether the c++ object has been initialized.
+     * @return True if the c++ object has not been initialized, false otherwise.
      */
     Boolean isUninitialized( ) const {return (0 == inst.base); };
+
+    /**
+     * Determines whether the instance is used as a class container.
+     * @return True if the instance is used as a class container only.
+     */
+    Boolean isClassOnly( ) const
+    {
+        return inst.hdr->flags.isClassOnly;
+    }
+
+    /**
+     * Mark this instance to be a class only container.
+     */
+    void setClassOnly( )
+    {
+        inst.hdr->flags.isClassOnly = true;
+    }
+
+    /**
+     * Mark this instance is a real instance.
+     */
+    void clearClassOnly( )
+    {
+        inst.hdr->flags.isClassOnly = false;
+    }
 
     /**
      * Determies if two objects are referencing to the same instance
@@ -548,9 +573,9 @@ public:
      */
     const char* getHostName_l(Uint64 & length) const;
 
-    /** 
+    /**
      * Sets the provided class name at the instance. By caling this function
-     * the instance is in an inconsitacne state and is maked as isCompromised. 
+     * the instance is in an inconsitacne state and is maked as isCompromised.
      * @param className The class name as UTF8.
      */
     void setClassName(const char* className);
@@ -568,10 +593,10 @@ public:
      */
     const char* getClassName_l(Uint64 & length) const;
 
-    /** 
-     * Sets the provided name space name at the instance. 
-     * By caling this function the instance is in an inconsitacne state and 
-     * is maked as isCompromised. 
+    /**
+     * Sets the provided name space name at the instance.
+     * By caling this function the instance is in an inconsitacne state and
+     * is maked as isCompromised.
      * @param nameSpaceName The name space name as UTF8.
      */
     void setNameSpace(const char* nameSpace);
@@ -589,11 +614,11 @@ public:
      */
     const char* getNameSpace_l(Uint64 & length) const;
 
-    /** 
+    /**
      * Is the name space or class name of the instance the origianl values
      * set by the used SCMOClass.
      * The class name and/or name space may differ with the associated class.
-     * @return true if name space or class name was set manually by 
+     * @return true if name space or class name was set manually by
      *          setNameSpace() or setClassName()
      */
     Boolean isCompromised() const
@@ -602,10 +627,10 @@ public:
     };
 
 
-    /** 
+    /**
      * Mark the instance as a non validated instance.
      */
-    void markAsCompromised() 
+    void markAsCompromised()
     {
         inst.hdr->flags.isCompromised = true;
     };
@@ -698,7 +723,7 @@ private:
         Uint32 size);
 
     void _setCIMValueAtNodeIndex(
-        Uint32 node, 
+        Uint32 node,
         CIMValueRep* valRep,
         CIMType realType);
 
@@ -775,8 +800,8 @@ private:
         SCMBKeyBindingValue& keyData);
 
     SCMO_RC _setKeyBindingFromString(
-        const char* name, 
-        CIMType type, 
+        const char* name,
+        CIMType type,
         String cimKeyBinding);
 
     SCMBUserKeyBindingElement* _getUserDefinedKeyBinding(
@@ -788,15 +813,15 @@ private:
         SCMBUserKeyBindingElement& theInsertElement,
         char* elementBase);
     /**
-     * Set a SCMO user defined key binding using the class CIM type tolerating 
-     * CIM key binding types converted to CIM types by fuction 
-     *  _CIMTypeFromKeyBindingType(). 
-     * 
+     * Set a SCMO user defined key binding using the class CIM type tolerating
+     * CIM key binding types converted to CIM types by fuction
+     *  _CIMTypeFromKeyBindingType().
+     *
      * @parm classType The type of the key binding in the class definition
      * @parm setType The type of the key binding to be set.
      * @param keyValue A pointer to the key binding to be set.
      * @param kbValue Out parameter, the SCMO keybinding to be set.
-     * 
+     *
      **/
     SCMO_RC _setKeyBindingTypeTolerate(
         CIMType classType,
@@ -805,7 +830,7 @@ private:
         SCMBKeyBindingValue& kbValue);
 
     CIMType _CIMTypeFromKeyBindingType(
-        const char* key, 
+        const char* key,
         CIMKeyBinding::Type t);
 
     SCMO_RC _getUserKeyBindingNodeIndex(Uint32& node, const char* name) const;

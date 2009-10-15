@@ -1646,7 +1646,18 @@ CIMProperty SCMOInstance::_getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const
     SCMBValue& instValue =
         ((SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]))[nodeIdx];
 
-    _getCIMValueFromSCMBValue(theValue,instValue,inst.base);
+    if (instValue.flags.isSet)
+    {
+        _getCIMValueFromSCMBValue(theValue,instValue,inst.base);
+    }
+    else
+    {
+        _getCIMValueFromSCMBValue(
+            theValue,
+            clsProp.theProperty.defaultValue,
+            clsbase);
+    }
+
 
 
     if (inst.hdr->flags.includeClassOrigin)

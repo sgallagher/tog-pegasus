@@ -461,138 +461,25 @@ extern "C"
 
             if (0 == strcasecmp(clsRef, prevInst->getClassName()))
             {
-                SCMOInstance* newInstance = 0;
+                // Set the new namespace
+                prevInst->setNameSpace(nsRef);
 
-                // For compatibility with older CMPI implementations, it is
-                // possible to set a non-valid namespace/classname pair on an
-                // objectpath. Therefore we first check, if the objectPath
-                // has been manipulated since it was originally created and
-                // valid.
-                if (ref->isCompromised()) 
+                // Now we try to copy the key properties from the given
+                // ObjectPath
+                // TODO: Remove the previously set key properties.
+                //       Set isSet to false and remove userdefined keys.
+                CMPIrc rc = CMPISCMOUtilities::copySCMOKeyProperties(
+                    ref,            // source
+                    prevInst);      // target
+                if (rc != CMPI_RC_OK)
                 {
-                    // In case the objectPath has not been validated, we try
-                    // to obtain the class definition and create a new one.
-                    SCMOClass* scmoClass = mbGetSCMOClass(0, nsRef, clsRef);
-                    if (0 == scmoClass)
-                    {
-                        PEG_TRACE((
-                            TRC_CMPIPROVIDERINTERFACE,
-                            Tracer::LEVEL1,
-                            "Cannot set objectpath because it points to a"
-                            "non-existant class: %s:%s",nsRef, clsRef));
-                        PEG_METHOD_EXIT();
-                        CMReturn(CMPI_RC_ERR_NOT_FOUND);
-                    }
-
-                    newInstance = new SCMOInstance(*scmoClass);
-
-                    // Now we try to copy the key properties from the given
-                    // ObjectPath to the newly created one by just looping
-                    // through the key properties and set them one by one
-
-                    SCMO_RC rc;
-                    const char* keyName = 0;
-                    const SCMBUnion* keyValue = 0;
-                    CIMType keyType;
-
-                    Uint32 numKeys = ref->getKeyBindingCount();
-                    for (Uint32 x=0; x < numKeys; x++)
-                    {
-                        rc = ref->getKeyBindingAt(
-                            x, &keyName, keyType, &keyValue);
-                        if ((rc != SCMO_OK) || (0==keyValue))
-                        {
-                            PEG_TRACE_CSTRING(
-                                TRC_CMPIPROVIDERINTERFACE,
-                                Tracer::LEVEL1,
-                                "Failed to retrieve keybinding");
-                            PEG_METHOD_EXIT();
-                            CMReturn(CMPI_RC_ERR_FAILED);
-                        }
-                        rc = newInstance->setKeyBinding(
-                            keyName, keyType, keyValue);
-                        if (rc != SCMO_OK)
-                        {
-                            PEG_TRACE_CSTRING(
-                                TRC_CMPIPROVIDERINTERFACE,
-                                Tracer::LEVEL1,
-                                "Failed to set keybinding");
-                            PEG_METHOD_EXIT();
-                            CMReturn(CMPI_RC_ERR_FAILED);
-                        }
-                    }
+                    PEG_TRACE_CSTRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL1,
+                        "Failed to copy key bindings");
+                    PEG_METHOD_EXIT();
+                    CMReturn(CMPI_RC_ERR_FAILED);
                 }
-                else
-                {
-                    // If the new objectPath has already been validated we
-                    // simply clone it.
-                    newInstance = new SCMOInstance(ref->clone(true));
-                }
-
-
-                // Here we have a new Instance with the ObjectPath set.
-                // All that's left for now is to add the properties from the
-                // original instance back to the new instance.
-
-                Uint32 numProps = prevInst->getPropertyCount();
-
-                SCMO_RC scmoRc=SCMO_OK;
-                const char* propertyName=0;
-                CIMType propertyType=CIMTYPE_BOOLEAN;
-                const SCMBUnion* propertyValue=0;
-                Boolean isArray=false;
-                Uint32 arraySize=0;
-
-
-                for (Uint32 x=0; x < numProps; x++)
-                {
-                    scmoRc = prevInst->getPropertyAt(
-                        x,
-                        &propertyName,
-                        propertyType,
-                        &propertyValue,
-                        isArray,
-                        arraySize);
-
-                    if (SCMO_OK == scmoRc) 
-                    {
-                        scmoRc = newInstance->setPropertyWithOrigin(
-                            propertyName,
-                            propertyType,
-                            propertyValue,
-                            isArray,
-                            arraySize);
-                        if (SCMO_OK != scmoRc) 
-                        {
-                            // We failed to set the property to the instance
-                            // with the new objectpath for any reason.
-                            // This can happen when they are not compatible
-                            // and therefore we just log a warning trace
-                            PEG_TRACE((
-                                TRC_CMPIPROVIDERINTERFACE,
-                                Tracer::LEVEL2,
-                                "Failed to set property %s, SCMO_RC=%d",
-                                propertyName, scmoRc));
-                        }
-
-                        // For strings, we have to release the returned
-                        // value:
-                        if (CIMTYPE_STRING==propertyType)
-                        {
-                            // We always receive strings as an array of pointers
-                            // with at least one element, which needs to be 
-                            // released when we no longer need it
-                            free((void*)propertyValue);
-                        }
-
-                    }
-
-                }
-
-                // Finally release the previous instance and anchor the newly
-                // created instance in the CMPI_Instance handle.
-                delete(prevInst);
-                eInst->hdl=newInstance;
             }
             else
             {

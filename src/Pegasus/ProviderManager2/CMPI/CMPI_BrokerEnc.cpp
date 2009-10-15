@@ -38,6 +38,7 @@
 #include "CMPI_SelectExp.h"
 #include "CMPI_Array.h"
 #include "CMPIMsgHandleManager.h"
+#include "CMPISCMOUtilities.h"
 
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMNameCast.h>
@@ -287,6 +288,44 @@ extern "C"
         // A CMPIObjectPath is already represented through a SCMOInstance.
         SCMOInstance* scmoOp = (SCMOInstance*)eCop->hdl;
 
+#ifndef PEGASUS_DISALLOW_DIRTY_SCMO
+        if (scmoOp->isCompromised()) 
+        {
+            SCMOClass* scmoClass = mbGetSCMOClass(
+                mb, 
+                scmoOp->getNameSpace(), 
+                scmoOp->getClassName());
+            if (0 == scmoClass)
+            {
+                CMSetStatus(rc, CMPI_RC_ERR_NOT_FOUND);
+                PEG_METHOD_EXIT();
+                return NULL;
+            }
+            else
+            {
+                // Create a new clean objectPath ...
+                SCMOInstance* scmoNewOp = new SCMOInstance(*scmoClass);
+
+                // ... copy the key properties from the dirty one ...
+                CMPIrc cmpirc = CMPISCMOUtilities::copySCMOKeyProperties(
+                    scmoOp,     // source
+                    scmoNewOp); // target
+                if (cmpirc != CMPI_RC_OK)
+                {
+                    PEG_TRACE_CSTRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL1,
+                        "Failed to copy key bindings");
+                    CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+                    PEG_METHOD_EXIT();
+                    return NULL;
+                }
+
+                // ... and finally use the new clean ObjectPath
+                scmoOp = scmoNewOp;
+            }
+        }
+#endif
         // Now we simply create a second reference of the SCMOInstance which we
         // received as CMPIObjectPath and account it as CMPIInstance.
         SCMOInstance* scmoInst = new SCMOInstance(*scmoOp);
@@ -309,15 +348,44 @@ extern "C"
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_BrokerEnc:mbEncNewObjectPath()");
 
+#ifndef PEGASUS_DISALLOW_DIRTY_SCMO
+        Boolean isDirty=false;
+#endif
+
         SCMOClass* scmoClass = mbGetSCMOClass(mb, ns, cls);
         if (0 == scmoClass)
         {
+#ifndef PEGASUS_DISALLOW_DIRTY_SCMO
+            // Though it is not desirable to let providers create objectPaths
+            // for non-existant classes, this has to be allowed for backwards
+            // compatibility with previous CMPI implementation :-(
+            // So we simply create a 'dirty' SCMOClass object here.
+            isDirty=true;
+            if (!ns) 
+            {
+                ns="";
+            }
+            if (!cls) 
+            {
+                cls="";
+            }
+            scmoClass = new SCMOClass(cls,ns);
+#else
             CMSetStatus(rc, CMPI_RC_ERR_NOT_FOUND);
             PEG_METHOD_EXIT();
             return 0;
+#endif
         }
 
         SCMOInstance* scmoInst = new SCMOInstance(*scmoClass);
+
+#ifndef PEGASUS_DISALLOW_DIRTY_SCMO
+        if (isDirty) 
+        {
+            scmoInst->markAsCompromised();
+        }
+#endif
+
         CMPIObjectPath *nePath = reinterpret_cast<CMPIObjectPath*>(
             new CMPI_Object(scmoInst));
         CMSetStatus(rc, CMPI_RC_OK);
@@ -501,21 +569,35 @@ extern "C"
         if (obj->getFtab() == (void*)CMPI_Instance_Ftab ||
             obj->getFtab() == (void*)CMPI_InstanceOnStack_Ftab)
         {
-            CIMInstance *ci=(CIMInstance*)obj->getHdl();
-            str="Instance of "+ci->getClassName().getString()+" {\n";
-            for (int i=0,m=ci->getPropertyCount(); i<m; i++)
+            // TODO: Optimize using native SCMOInstance toString
+            SCMOInstance *scmoInst=(SCMOInstance*)obj->getHdl();
+            CIMInstance ci;
+            SCMO_RC src=scmoInst->getCIMInstance(ci);
+            if (SCMO_OK==src) 
             {
-                CIMConstProperty p = ci->getProperty(i);
-                str.append("  "+typeToString(p.getType())+
-                    " "+p.getName().getString()+
-                    " = "+p.getValue().toString()+";\n");
+                str="Instance of "+ci.getClassName().getString()+" {\n";
+                for (int i=0,m=ci.getPropertyCount(); i<m; i++)
+                {
+                    CIMConstProperty p = ci.getProperty(i);
+                    str.append("  "+typeToString(p.getType())+
+                        " "+p.getName().getString()+
+                        " = "+p.getValue().toString()+";\n");
+                }
+                str.append("};\n");
             }
-            str.append("};\n");
+            else
+            {
+                str.append("Failed to convert instance to string");
+            }
         }
         else if (obj->getFtab() == (void*)CMPI_ObjectPath_Ftab ||
             obj->getFtab() == (void*)CMPI_ObjectPathOnStack_Ftab)
         {
-            str = ((CIMObjectPath*)obj->getHdl())->toString();
+            // TODO: Optimize using native SCMOInstance toString
+            SCMOInstance * scmoObj = (SCMOInstance*)obj->getHdl();
+            CIMObjectPath obj;
+            scmoObj->getCIMObjectPath(obj);
+            str = obj.toString();
         }
         else if (obj->getFtab()==(void*)CMPI_String_Ftab)
         {
@@ -583,39 +665,38 @@ extern "C"
             PEG_METHOD_EXIT();
             return 0;
         }
-        CIMObjectPath* cop = (CIMObjectPath*)eCp->hdl;
+        SCMOInstance* cop = (SCMOInstance*)eCp->hdl;
+        const char *ns = cop->getNameSpace();
+        const char *cls = cop->getClassName();
 
-        const CIMName tcn(type);
-
-        if (tcn == cop->getClassName())
+        if (!strcasecmp(type, cls))
         {
             PEG_METHOD_EXIT();
             return 1;
         }
 
-        CIMClass *cc = mbGetClass(mb,*cop);
+        SCMOClass *cc = mbGetSCMOClass(mb, ns, cls);
         if (cc == NULL)
         {
             PEG_METHOD_EXIT();
             return 0;
         }
-        CIMObjectPath  scp(*cop);
-        scp.setClassName(cc->getSuperClassName());
+        cls = cc->getSuperClassName();
 
-        for (; !scp.getClassName().isNull(); )
+        while(NULL!=cls)
         {
-            cc = mbGetClass(mb,scp);
+            cc = mbGetSCMOClass(mb, ns, cls);
             if (cc == NULL)
             {
                 PEG_METHOD_EXIT();
                 return 0;
             }
-            if (cc->getClassName() == tcn)
+            if (strcasecmp(cls,type))
             {
                 PEG_METHOD_EXIT();
                 return 1;
             }
-            scp.setClassName(cc->getSuperClassName());
+            cls = cc->getSuperClassName();
         };
         PEG_METHOD_EXIT();
         return 0;
@@ -1657,7 +1738,7 @@ extern "C"
             PEG_METHOD_EXIT();
             return NULL;
         }
-        CIMObjectPath *op = (CIMObjectPath*)cop->hdl;
+        SCMOInstance *op = (SCMOInstance*)cop->hdl;
 
         if (!op)
         {
@@ -1670,17 +1751,25 @@ extern "C"
             PEG_METHOD_EXIT();
             return NULL;
         }
-        CIMClass *cls = mbGetClass(mb,*op);
-        Array<String> keys;
-        for (int i=0,m=cls->getPropertyCount(); i<m; i++)
+        SCMOClass *cls = mbGetSCMOClass(
+            mb,
+            op->getNamespace(),
+            op->getClassName());
+        if (0==cls) 
         {
-            CIMConstProperty p = cls->getProperty(i);
-            Uint32 k = p.findQualifier("key");
-            if (k != PEG_NOT_FOUND)
-            {
-                keys.append(p.getName().getString());
-            }
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Invalid Parameter cop (class not found) in \
+                CMPI_BrokerEnc:mbEncGetKeyList");
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
+            return NULL;
         }
+
+        //TODO: Eventually implement getKeyNamesAsString using native C-strings
+        Array<String> keys;
+        cls->getKeyNamesAsString(keys);
         CMPIArray *ar = mb->eft->newArray(mb, keys.size(), CMPI_string, NULL);
         for (Uint32 i=0,m=keys.size(); i<m; i++)
         {

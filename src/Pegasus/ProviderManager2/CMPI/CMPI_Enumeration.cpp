@@ -164,7 +164,9 @@ extern "C"
             if (ie->cursor<ie->max)
             {
                 data.value.inst = reinterpret_cast<CMPIInstance*>
-                    (new CMPI_Object(new SCMOInstance((*ia)[ie->cursor++])));
+                    (new CMPI_Object(
+                        new SCMOInstance((*ia)[ie->cursor++]),
+                        true));
                 CMSetStatus(rc, CMPI_RC_OK);
             }
             else
@@ -180,7 +182,9 @@ extern "C"
             if (ie->cursor<ie->max)
             {
                 data.value.inst = reinterpret_cast<CMPIInstance*>
-                    (new CMPI_Object(new SCMOInstance((*ia)[ie->cursor++])));
+                    (new CMPI_Object(
+                        new SCMOInstance((*ia)[ie->cursor++]),
+                        true));
                 CMSetStatus(rc, CMPI_RC_OK);
             }
             else
@@ -196,7 +200,8 @@ extern "C"
             if (oe->cursor<oe->max)
             {
                 data.value.ref = reinterpret_cast<CMPIObjectPath*>
-                    (new CMPI_Object(new SCMOInstance((*opa)[oe->cursor++])));
+                    (new CMPI_Object(
+                        new SCMOInstance((*opa)[oe->cursor++])));
                 CMSetStatus(rc, CMPI_RC_OK);
             }
             else

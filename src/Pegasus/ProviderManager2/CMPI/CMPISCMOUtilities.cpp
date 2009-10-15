@@ -35,6 +35,8 @@
 #include "CMPI_Value.h"
 #include "CMPISCMOUtilities.h"
 
+#include <Pegasus/Common/Tracer.h>
+
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
@@ -47,6 +49,62 @@ CIMDateTimeRep* CMPISCMOUtilities::scmoDateTimeFromCMPI(CMPIDateTime* cmpidt)
         cimdt = ((CIMDateTime*)cmpidt->hdl)->_rep;
     }
     return cimdt;
+}
+
+
+// Function to copy all key bindings from one SCMOInstance to another
+CMPIrc CMPISCMOUtilities::copySCMOKeyProperties( const SCMOInstance* sourcePath,
+                                                 SCMOInstance* targetPath )
+{
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPISCMOUtilities::copySCMOKeyProperties()");
+
+    if ((0!=sourcePath) && (0!=targetPath)) 
+    {
+        SCMO_RC rc;
+        const char* keyName = 0;
+        const SCMBUnion* keyValue = 0;
+        CIMType keyType;
+
+        Uint32 numKeys = sourcePath->getKeyBindingCount();
+        for (Uint32 x=0; x < numKeys; x++)
+        {
+            rc = sourcePath->getKeyBindingAt(
+                x, &keyName, keyType, &keyValue);
+            if ((rc != SCMO_OK) || (0==keyValue))
+            {
+                PEG_TRACE_CSTRING(
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL1,
+                    "Failed to retrieve keybinding");
+                PEG_METHOD_EXIT();
+                return CMPI_RC_ERR_FAILED;
+            }
+            rc = targetPath->setKeyBinding(
+                keyName, keyType, keyValue);
+            if (rc != SCMO_OK)
+            {
+                PEG_TRACE_CSTRING(
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL1,
+                    "Failed to set keybinding");
+                PEG_METHOD_EXIT();
+                return CMPI_RC_ERR_FAILED;
+            }
+        }
+    }
+    else
+    {
+        PEG_TRACE_CSTRING(
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL1,
+            "Called with Nullpointer for source or target");
+        PEG_METHOD_EXIT();
+        return CMPI_RC_ERR_FAILED;
+    }
+
+    return CMPI_RC_OK;
 }
 
 // Function to convert a CIMInstance into an SCMOInstance

@@ -2268,6 +2268,9 @@ void SCMOInstance::setClassName(const char* className)
 {
     Uint32 len;
 
+    // flag the instance as compromized
+    inst.hdr->flags.isCompromised=true;
+
     if (className!=0)
     {
 
@@ -2284,10 +2287,6 @@ void SCMOInstance::setClassName(const char* className)
 
     inst.hdr->instClassName.start=0;
     inst.hdr->instClassName.length=0;
-
-    // flag the instance as compromized
-    inst.hdr->flags.isCompromised=true;
-
 }
 
 const char* SCMOInstance::getClassName() const
@@ -2305,6 +2304,9 @@ void SCMOInstance::setNameSpace(const char* nameSpace)
 {
     Uint32 len;
 
+    // flag the instance as compromized
+    inst.hdr->flags.isCompromised=true;
+
     if (nameSpace!=0)
     {
 
@@ -2321,10 +2323,6 @@ void SCMOInstance::setNameSpace(const char* nameSpace)
 
     inst.hdr->instNameSpace.start=0;
     inst.hdr->instNameSpace.length=0;
-
-    // flag the instance as compromized
-    inst.hdr->flags.isCompromised=true;
-
 }
 
 const char* SCMOInstance::getNameSpace() const

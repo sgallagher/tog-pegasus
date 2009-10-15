@@ -1694,7 +1694,7 @@ public:
         const QueueIdStack& queueIds_)
     : CIMResponseMessage(CIM_ASSOCIATORS_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_),
-      _responseData(CIMResponseData::RESP_INSTANCES)
+      _responseData(CIMResponseData::RESP_OBJECTS)
     {
     }
 

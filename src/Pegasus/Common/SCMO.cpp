@@ -2253,6 +2253,12 @@ void SCMOInstance::setHostName(const char* hostName)
     inst.hdr->hostName.length=0;
 }
 
+void SCMOInstance::setHostName_l(const char* hostName, Uint32 len)
+{
+    // copy including trailing '\0'
+    _setBinary(hostName,len+1,inst.hdr->hostName,&inst.mem);
+}
+
 const char* SCMOInstance::getHostName() const
 {
     return _getCharString(inst.hdr->hostName,inst.base);
@@ -2323,6 +2329,14 @@ void SCMOInstance::setNameSpace(const char* nameSpace)
 
     inst.hdr->instNameSpace.start=0;
     inst.hdr->instNameSpace.length=0;
+}
+
+void SCMOInstance::setNameSpace_l(const char* nameSpace, Uint32 len)
+{
+    // flag the instance as compromized
+    inst.hdr->flags.isCompromised=true;
+    // copy including trailing '\0'
+    _setBinary(nameSpace,len+1,inst.hdr->instNameSpace,&inst.mem);
 }
 
 const char* SCMOInstance::getNameSpace() const

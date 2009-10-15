@@ -553,6 +553,13 @@ public:
     void setHostName(const char* hostName);
 
     /**
+     * Sets the provided host name unchecked at the instance.
+     * @param hostName The host name as UTF8.
+     * @param len The strlen of the host name.
+     */
+    void setHostName_l(const char* hostName, Uint32 len);
+
+    /**
      * Get the host name of the instance. The caller has to make a copy !
      * @return The host name as UTF8.
      */
@@ -592,6 +599,15 @@ public:
      * @param nameSpaceName The name space name as UTF8.
      */
     void setNameSpace(const char* nameSpace);
+
+    /**
+     * Sets the provided name space name unchecked at the instance.
+     * By caling this function the instance is in an inconsitacne state and
+     * is maked as isCompromised.
+     * @param nameSpaceName The name space name as UTF8.
+     * @param len The strlen of the name space.
+     */
+    void setNameSpace_l(const char* nameSpace, Uint32 len);
 
     /**
      * Get the name space of the instance. The caller has to make a copy !

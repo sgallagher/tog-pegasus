@@ -340,6 +340,9 @@ extern "C"
         CMPIStatus* rc)
     {
         SCMOInstance* ref = (SCMOInstance*)eRef->hdl;
+        // Attn: According to CMPI 2.0 specification CMPIData.state
+        //       shall be set to CMPI_noValue in case of an error.
+        //       But this is not yet defined in cmpidt.h
         CMPIData data = {0, CMPI_nullValue | CMPI_notFound, {0}};
 
         if (!ref)
@@ -371,6 +374,7 @@ extern "C"
         {
             CMPIType ct=type2CMPIType(type, false);
             CMPISCMOUtilities::scmoValue2CMPIData( keyValue, ct, &data );
+
             if ((ct&~CMPI_ARRAY) == CMPI_string)
             {
                 // We always receive strings as an array of pointers
@@ -378,12 +382,42 @@ extern "C"
                 // after it was converted to CMPIData
                 free((void*)keyValue);
             }
+
+            data.state |= CMPI_keyValue;
+
+            //TODO: Convert all types to keytypes
+            //      datetime->string
+            //      real->string
+            switch (ct) 
+            {
+            case CMPI_uint8:
+                data.value.uint64=(CMPIUint64)data.value.uint8;
+                break;
+            case CMPI_uint16:
+                data.value.uint64=(CMPIUint64)data.value.uint16;
+                break;
+            case CMPI_uint32:
+                data.value.uint64=(CMPIUint64)data.value.uint32;
+                break;
+            case CMPI_sint8:
+                data.value.sint64=(CMPISint64)data.value.sint8;
+                break;
+            case CMPI_sint16:
+                data.value.sint64=(CMPISint64)data.value.sint16;
+                break;
+            case CMPI_sint32:
+                data.value.sint64=(CMPISint64)data.value.sint32;
+                break;
+            }
+
             CMSetStatus(rc, CMPI_RC_OK);
         }
         else
         {
             // Either SCMO_NULL_VALUE or SCMO_NOT_FOUND
             CMSetStatus(rc, CMPI_RC_ERR_NOT_FOUND);
+            // TODO: According to the CMPI Specification this should be
+            //       really CMPI_RC_ERR_NO_SUCH_PROPERTY
         }
 
         return data;

@@ -115,16 +115,43 @@ SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMInstance(
     const char* ns,
     const char* cls)
 {
+    Boolean isDirty=false;
     const CIMObjectPath& cimPath = cimInst.getPath();
 
     const CString nameSpace = cimPath.getNameSpace().getString().getCString();
     const CString className = cimPath.getClassName().getString().getCString();
-    SCMOClass* scmoClass = mbGetSCMOClass(
-        0,
-        ns ? ns : (const char*)nameSpace,
-        cls ? cls : (const char*)className);
+
+    if (!ns) 
+    {
+        ns = (const char*)nameSpace;
+    }
+    if (!cls) 
+    {
+        cls = (const char*)className;
+    }
+
+    SCMOClass* scmoClass = mbGetSCMOClass(0,ns,cls);
+
+    if (0 == scmoClass)
+    {
+        isDirty=true;
+        if (!ns) 
+        {
+            ns="";
+        }
+        if (!cls) 
+        {
+            cls="";
+        }
+        scmoClass = new SCMOClass(cls,ns);
+    }
 
     SCMOInstance* scmoInst = new SCMOInstance(*scmoClass, cimInst);
+
+    if (isDirty) 
+    {
+        scmoInst->markAsCompromised();
+    }
 
     return scmoInst;
 }
@@ -137,14 +164,41 @@ SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMObjectPath(
     const char* ns,
     const char* cls)
 {
+    Boolean isDirty=false;
     CString nameSpace = cimPath.getNameSpace().getString().getCString();
     CString className = cimPath.getClassName().getString().getCString();
-    SCMOClass* scmoClass = mbGetSCMOClass(
-        0,
-        ns ? ns : (const char*)nameSpace,
-        cls ? cls : (const char*)className);
+
+    if (!ns) 
+    {
+        ns = (const char*)nameSpace;
+    }
+    if (!cls) 
+    {
+        cls = (const char*)className;
+    }
+
+
+    SCMOClass* scmoClass = mbGetSCMOClass(0,ns,cls);
+
+    if (0 == scmoClass)
+    {
+        isDirty=true;
+        if (!ns) 
+        {
+            ns="";
+        }
+        if (!cls) 
+        {
+            cls="";
+        }
+        scmoClass = new SCMOClass(cls,ns);
+    }
 
     SCMOInstance* scmoRef = new SCMOInstance(*scmoClass, cimPath);
+    if (isDirty) 
+    {
+        scmoRef->markAsCompromised();
+    }
 
     return scmoRef;
 }
@@ -263,7 +317,6 @@ CMPIrc CMPISCMOUtilities::scmoValue2CMPIData(
             if (scmoValue->simple.hasValue)
             {
                 data->value.uint64 = scmoValue->simple.val.u64;
-                data->state = CMPI_goodValue;
             }
             else
             {

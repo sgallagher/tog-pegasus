@@ -135,7 +135,7 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
-    virtual CIMResponseData& getInstance(
+    virtual CIMResponseData getInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         Boolean localOnly = true,
@@ -202,7 +202,7 @@ public:
         Boolean deepInheritance = false
     );
 
-    virtual CIMResponseData& enumerateInstances(
+    virtual CIMResponseData enumerateInstances(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Boolean deepInheritance = true,
@@ -224,12 +224,12 @@ public:
     );
 #endif
 
-    virtual CIMResponseData& enumerateInstanceNames(
+    virtual CIMResponseData enumerateInstanceNames(
         const CIMNamespaceName& nameSpace,
         const CIMName& className
     );
 
-    virtual CIMResponseData& execQuery(
+    virtual CIMResponseData execQuery(
         const CIMNamespaceName& nameSpace,
         const String& queryLanguage,
         const String& query
@@ -243,7 +243,7 @@ public:
     );
 #endif
 
-    virtual CIMResponseData& associators(
+    virtual CIMResponseData associators(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& assocClass = CIMName(),
@@ -269,7 +269,7 @@ public:
     );
 #endif
 
-    virtual CIMResponseData& associatorNames(
+    virtual CIMResponseData associatorNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& assocClass = CIMName(),
@@ -278,7 +278,7 @@ public:
         const String& resultRole = String::EMPTY
     );
 
-    virtual CIMResponseData& references(
+    virtual CIMResponseData references(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& resultClass = CIMName(),
@@ -288,7 +288,7 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
-    virtual CIMResponseData& referenceNames(
+    virtual CIMResponseData referenceNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& resultClass = CIMName(),

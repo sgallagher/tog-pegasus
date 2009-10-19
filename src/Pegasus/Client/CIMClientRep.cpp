@@ -461,7 +461,7 @@ CIMClass CIMClientRep::getClass(
     return response->cimClass;
 }
 
-CIMResponseData& CIMClientRep::getInstance(
+CIMResponseData CIMClientRep::getInstance(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
     Boolean localOnly,
@@ -698,7 +698,7 @@ Array<CIMName> CIMClientRep::enumerateClassNames(
     return classNameArray;
 }
 
-CIMResponseData& CIMClientRep::enumerateInstances(
+CIMResponseData CIMClientRep::enumerateInstances(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
     Boolean deepInheritance,
@@ -766,7 +766,7 @@ Array<Uint8> CIMClientRep::enumerateBinaryInstances(
 }
 #endif // PEGASUS_ENABLE_PROTOCOL_BINARY
 
-CIMResponseData& CIMClientRep::enumerateInstanceNames(
+CIMResponseData CIMClientRep::enumerateInstanceNames(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
@@ -788,7 +788,7 @@ CIMResponseData& CIMClientRep::enumerateInstanceNames(
     return response->getResponseData();
 }
 
-CIMResponseData& CIMClientRep::execQuery(
+CIMResponseData CIMClientRep::execQuery(
     const CIMNamespaceName& nameSpace,
     const String& queryLanguage,
     const String& query)
@@ -834,7 +834,7 @@ Array<Uint8> CIMClientRep::execQueryBinary(
 }
 #endif
 
-CIMResponseData& CIMClientRep::associators(
+CIMResponseData CIMClientRep::associators(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& assocClass,
@@ -904,7 +904,7 @@ Array<Uint8> CIMClientRep::associatorsBinary(
 }
 #endif
 
-CIMResponseData& CIMClientRep::associatorNames(
+CIMResponseData CIMClientRep::associatorNames(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& assocClass,
@@ -933,7 +933,7 @@ CIMResponseData& CIMClientRep::associatorNames(
     return response->getResponseData();
 }
 
-CIMResponseData& CIMClientRep::references(
+CIMResponseData CIMClientRep::references(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& resultClass,
@@ -963,7 +963,7 @@ CIMResponseData& CIMClientRep::references(
     return response->getResponseData();
 }
 
-CIMResponseData& CIMClientRep::referenceNames(
+CIMResponseData CIMClientRep::referenceNames(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& resultClass,

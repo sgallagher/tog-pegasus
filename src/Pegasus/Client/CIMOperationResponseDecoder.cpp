@@ -1512,8 +1512,7 @@ CIMReferenceNamesResponseMessage*
             return new CIMReferenceNamesResponseMessage(
                 messageId,
                 cimException,
-                QueueIdStack(),
-                Array<CIMObjectPath>());
+                QueueIdStack());
         }
 
         if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -1530,11 +1529,16 @@ CIMReferenceNamesResponseMessage*
         }
     }
 
-    return new CIMReferenceNamesResponseMessage(
+    CIMReferenceNamesResponseMessage* msg;
+
+    msg = new CIMReferenceNamesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        objectPaths);
+        QueueIdStack());
+
+    msg->getResponseData().setInstanceNames(objectPaths);
+
+    return msg;
 }
 
 CIMReferencesResponseMessage*
@@ -1554,8 +1558,7 @@ CIMReferencesResponseMessage*
             return new CIMReferencesResponseMessage(
                 messageId,
                 cimException,
-                QueueIdStack(),
-                Array<CIMObject>());
+                QueueIdStack());
         }
 
         if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -1575,11 +1578,16 @@ CIMReferencesResponseMessage*
         }
     }
 
-    return new CIMReferencesResponseMessage(
+    CIMReferencesResponseMessage *msg;
+
+    msg = new CIMReferencesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        objectWithPathArray);
+        QueueIdStack());
+
+    msg->getResponseData().setObjects(objectWithPathArray);
+
+    return msg;
 }
 
 CIMAssociatorNamesResponseMessage*
@@ -1599,8 +1607,7 @@ CIMAssociatorNamesResponseMessage*
             return new CIMAssociatorNamesResponseMessage(
                 messageId,
                 cimException,
-                QueueIdStack(),
-                Array<CIMObjectPath>());
+                QueueIdStack());
         }
 
         if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -1617,11 +1624,16 @@ CIMAssociatorNamesResponseMessage*
         }
     }
 
-    return new CIMAssociatorNamesResponseMessage(
+    CIMAssociatorNamesResponseMessage* msg;
+
+    msg = new CIMAssociatorNamesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        objectPaths);
+        QueueIdStack());
+
+    msg->getResponseData().setInstanceNames(objectPaths);
+
+    return msg;
 }
 
 CIMAssociatorsResponseMessage*

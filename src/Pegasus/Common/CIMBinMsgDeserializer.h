@@ -268,15 +268,15 @@ private:
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMAssociatorNamesResponseMessage*
-        _getAssociatorNamesResponseMessage(CIMBuffer& in);
+        _getAssociatorNamesResponseMessage(CIMBuffer& in, bool binaryResponse);
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMReferencesResponseMessage*
-        _getReferencesResponseMessage(CIMBuffer& in);
+        _getReferencesResponseMessage(CIMBuffer& in, bool binaryResponse);
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMReferenceNamesResponseMessage*
-        _getReferenceNamesResponseMessage(CIMBuffer& in);
+        _getReferenceNamesResponseMessage(CIMBuffer& in, bool binaryResponse);
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMGetPropertyResponseMessage*

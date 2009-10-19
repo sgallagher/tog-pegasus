@@ -1713,8 +1713,7 @@ public:
     CIMAssociatorNamesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_,
-        const Array<CIMObjectPath>& objectNames_)
+        const QueueIdStack& queueIds_)
     : CIMResponseMessage(CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_),
         _responseData(CIMResponseData::RESP_OBJECTPATHS)
@@ -1735,8 +1734,7 @@ public:
     CIMReferencesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_,
-        const Array<CIMObject>& cimObjects_)
+        const QueueIdStack& queueIds_)
     : CIMResponseMessage(CIM_REFERENCES_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_),
         _responseData(CIMResponseData::RESP_OBJECTS)
@@ -1757,8 +1755,7 @@ public:
     CIMReferenceNamesResponseMessage(
         const String& messageId_,
         const CIMException& cimException_,
-        const QueueIdStack& queueIds_,
-        const Array<CIMObjectPath>& objectNames_)
+        const QueueIdStack& queueIds_)
     : CIMResponseMessage(CIM_REFERENCE_NAMES_RESPONSE_MESSAGE,
         messageId_, cimException_, queueIds_),
         _responseData(CIMResponseData::RESP_OBJECTPATHS)

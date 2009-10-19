@@ -1231,28 +1231,23 @@ static CIMAssociatorNamesResponseMessage* _decodeAssociatorNamesResponse(
     Uint32 flags,
     const String& messageId)
 {
-    /* See ../Client/CIMOperationResponseDecoder.cpp */
-
-    Array<CIMObjectPath> objectNames;
-
-    while (in.more())
-    {
-        Array<CIMObjectPath> tmp;
-
-        if (!in.getObjectPathA(tmp))
-            return 0;
-
-        objectNames.append(tmp.getData(), tmp.size());
-    }
-
     CIMAssociatorNamesResponseMessage* msg;
     CIMException cimException;
 
     msg = new CIMAssociatorNamesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        objectNames);
+        QueueIdStack());
+
+    // Instead of resolving the binary data right here, we delegate this
+    // to a later point in time when the data is actually retrieved through
+    // a call to getNamedInstances, which is going to resolve the binary
+    // data when the callback function is registered.
+    // This allows an alternate client implementation to gain direct access
+    // to the binary data and pass this for example to the JNI implementation
+    // of the JSR48 CIM Client for Java.
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setBinary(in,false);
 
     msg->binaryRequest = true;
     return msg;
@@ -1388,30 +1383,23 @@ static CIMReferencesResponseMessage* _decodeReferencesResponse(
     Uint32 flags,
     const String& messageId)
 {
-    /* See ../Client/CIMOperationResponseDecoder.cpp */
-
-    Array<CIMObject> cimObjects;
-
-    while (in.more())
-    {
-        Array<CIMObject> tmp;
-
-        if (!in.getObjectA(tmp))
-        {
-            return 0;
-        }
-
-        cimObjects.append(tmp.getData(), tmp.size());
-    }
-
     CIMReferencesResponseMessage* msg;
     CIMException cimException;
 
     msg = new CIMReferencesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        cimObjects);
+        QueueIdStack());
+
+    // Instead of resolving the binary data right here, we delegate this
+    // to a later point in time when the data is actually retrieved through
+    // a call to getNamedInstances, which is going to resolve the binary
+    // data when the callback function is registered.
+    // This allows an alternate client implementation to gain direct access
+    // to the binary data and pass this for example to the JNI implementation
+    // of the JSR48 CIM Client for Java.
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setBinary(in,false);
 
     msg->binaryRequest = true;
     return msg;
@@ -1524,28 +1512,26 @@ static CIMReferenceNamesResponseMessage* _decodeReferenceNamesResponse(
 {
     /* See ../Client/CIMOperationResponseDecoder.cpp */
 
-    Array<CIMObjectPath> objectNames;
-
-    while (in.more())
-    {
-        Array<CIMObjectPath> tmp;
-
-        if (!in.getObjectPathA(tmp))
-            return 0;
-
-        objectNames.append(tmp.getData(), tmp.size());
-    }
-
     CIMReferenceNamesResponseMessage* msg;
     CIMException cimException;
 
     msg = new CIMReferenceNamesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        objectNames);
+        QueueIdStack());
+
+    // Instead of resolving the binary data right here, we delegate this
+    // to a later point in time when the data is actually retrieved through
+    // a call to getNamedInstances, which is going to resolve the binary
+    // data when the callback function is registered.
+    // This allows an alternate client implementation to gain direct access
+    // to the binary data and pass this for example to the JNI implementation
+    // of the JSR48 CIM Client for Java.
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setBinary(in,false);
 
     msg->binaryRequest = true;
+
     return msg;
 }
 

@@ -420,13 +420,13 @@ CIMResponseMessage* CIMBinMsgDeserializer::_getResponseMessage(
             msg = _getAssociatorsResponseMessage(in, binaryResponse);
             break;
         case CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE:
-            msg = _getAssociatorNamesResponseMessage(in);
+            msg = _getAssociatorNamesResponseMessage(in, binaryResponse);
             break;
         case CIM_REFERENCES_RESPONSE_MESSAGE:
-            msg = _getReferencesResponseMessage(in);
+            msg = _getReferencesResponseMessage(in, binaryResponse);
             break;
         case CIM_REFERENCE_NAMES_RESPONSE_MESSAGE:
-            msg = _getReferenceNamesResponseMessage(in);
+            msg = _getReferenceNamesResponseMessage(in, binaryResponse);
             break;
         case CIM_INVOKE_METHOD_RESPONSE_MESSAGE:
             msg = _getInvokeMethodResponseMessage(in);
@@ -1773,53 +1773,98 @@ CIMBinMsgDeserializer::_getAssociatorsResponseMessage(
 
 CIMAssociatorNamesResponseMessage*
 CIMBinMsgDeserializer::_getAssociatorNamesResponseMessage(
-    CIMBuffer& in)
+    CIMBuffer& in,
+    bool binaryResponse)
 {
-    XmlEntry entry;
-    Array<CIMObjectPath> objectNames;
+    CIMAssociatorNamesResponseMessage* msg;
 
-    if (!in.getObjectPathA(objectNames))
-        return false;
+    msg = new CIMAssociatorNamesResponseMessage(String::EMPTY,
+        CIMException(), QueueIdStack());
 
-    return new CIMAssociatorNamesResponseMessage(
-        String::EMPTY,
-        CIMException(),
-        QueueIdStack(),
-        objectNames);
+    CIMResponseData& responseData = msg->getResponseData();
+
+    if (binaryResponse)
+    {
+        if (!responseData.setBinary(in))
+        {
+            delete(msg);
+            return 0;
+        }
+    }
+    else
+    {
+        if (!responseData.setXml(in))
+        {
+            delete(msg);
+            return 0;
+        }
+    }
+
+    return msg;
 }
 
 CIMReferencesResponseMessage*
 CIMBinMsgDeserializer::_getReferencesResponseMessage(
-    CIMBuffer& in)
+    CIMBuffer& in,
+    bool binaryResponse)
 {
-    XmlEntry entry;
-    Array<CIMObject> cimObjects;
+    CIMReferencesResponseMessage* msg;
 
-    if (!in.getObjectA(cimObjects))
-        return false;
+    msg = new CIMReferencesResponseMessage(String::EMPTY,
+        CIMException(), QueueIdStack());
 
-    return new CIMReferencesResponseMessage(
-        String::EMPTY,
-        CIMException(),
-        QueueIdStack(),
-        cimObjects);
+    CIMResponseData& responseData = msg->getResponseData();
+
+    if (binaryResponse)
+    {
+        if (!responseData.setBinary(in))
+        {
+            delete(msg);
+            return 0;
+        }
+    }
+    else
+    {
+        if (!responseData.setXml(in))
+        {
+            delete(msg);
+            return 0;
+        }
+    }
+
+    return msg;
 }
 
 CIMReferenceNamesResponseMessage*
 CIMBinMsgDeserializer::_getReferenceNamesResponseMessage(
-    CIMBuffer& in)
+    CIMBuffer& in,
+    bool binaryResponse)
 {
-    XmlEntry entry;
-    Array<CIMObjectPath> objectNames;
+    CIMReferenceNamesResponseMessage* msg;
 
-    if (!in.getObjectPathA(objectNames))
-        return false;
+    msg = new CIMReferenceNamesResponseMessage(String::EMPTY,
+        CIMException(), QueueIdStack());
 
-    return new CIMReferenceNamesResponseMessage(
-        String::EMPTY,
-        CIMException(),
-        QueueIdStack(),
-        objectNames);
+    CIMResponseData& responseData = msg->getResponseData();
+
+    if (binaryResponse)
+    {
+        if (!responseData.setBinary(in))
+        {
+            delete(msg);
+            return 0;
+        }
+    }
+    else
+    {
+        if (!responseData.setXml(in))
+        {
+            delete(msg);
+            return 0;
+        }
+    }
+
+    return msg;
 }
 
 CIMGetPropertyResponseMessage*

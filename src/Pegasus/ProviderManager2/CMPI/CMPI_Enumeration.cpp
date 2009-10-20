@@ -308,7 +308,7 @@ extern "C"
             for (Uint32 i=0; i<size; i++)
             {
                 SCMOInstance &inst = (*ia)[i];
-                obj = new CMPI_Object(new SCMOInstance(inst));
+                obj = new CMPI_Object(new SCMOInstance(inst),true);
                 arraySetElementAt(nar,i,(CMPIValue*)&obj,CMPI_instance);
             }
         }

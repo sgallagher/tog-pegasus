@@ -197,7 +197,7 @@ SCMOClass* mbGetSCMOClass(
 
     SCMOClass* scmoCls = xBroker->classCache.getSCMOClass(xBroker, ns, cls);
 
-    if (!scmoCls) 
+    if (!scmoCls)
     {
         fprintf(stderr,"mbGetSCMOClass() failed for class %s:%s\n",ns,cls);
     }
@@ -244,11 +244,11 @@ extern "C"
             // TBD - Scaffold only!!!
             SCMOInstance* scmoInst=
                 CMPISCMOUtilities::getSCMOFromCIMInstance(
-                    ci, 
+                    ci,
                     scmoObjPath->getNameSpace());
             CMSetStatus(rc,CMPI_RC_OK);
             CMPIInstance* cmpiInst = reinterpret_cast<CMPIInstance*>(
-                new CMPI_Object(scmoInst));
+                new CMPI_Object(scmoInst,true));
             PEG_METHOD_EXIT();
             return cmpiInst;
         }
@@ -284,7 +284,7 @@ extern "C"
             // TBD - Scaffold only!!!
             SCMOInstance* newScmoInst=
                 CMPISCMOUtilities::getSCMOFromCIMObjectPath(
-                    ncop, 
+                    ncop,
                     scmoInst->getNameSpace());
 
             CMSetStatus(rc,CMPI_RC_OK);
@@ -925,7 +925,7 @@ extern "C"
         return data; // "data" will be valid data or nullValue (in error case)
     }
 
-    /* With Bug#8541 the CMPI Provider Manager was changed to attach the 
+    /* With Bug#8541 the CMPI Provider Manager was changed to attach the
        complete requests operation context to the CMPI thread context.
        In future, when we have a lot more containers on the operation context,
        this might lead to an impact on memory usage here, when the entire

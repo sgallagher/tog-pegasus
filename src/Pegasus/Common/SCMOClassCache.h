@@ -38,6 +38,8 @@
 #include <Pegasus/Common/ReadWriteSem.h>
 #include <Pegasus/Common/CharSet.h>
 #include <Pegasus/Common/SCMOClass.h>
+#include <Pegasus/Common/System.h>
+
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -89,12 +91,9 @@ public:
         }
     }
 
-    static Boolean equal (const ClassCacheEntry& x, const ClassCacheEntry& y)
+    static Boolean equal(const ClassCacheEntry& x, const ClassCacheEntry& y)
     {
-        return ((x.clsLen == y.clsLen) &&
-                (x.nsLen == y.nsLen) &&
-                (0 == strcasecmp(x.clsName, y.clsName)) &&
-                (0 == strcasecmp(x.nsName, y.nsName)));
+        return System::strncasecmp(x.clsName,x.clsLen,y.clsName,y.clsLen);
     }
 
     static Uint32 hash(const ClassCacheEntry& entry)
@@ -128,7 +127,7 @@ public:
 
 private:
 
-    typedef HashTable<ClassCacheEntry, SCMOClass *, 
+    typedef HashTable<ClassCacheEntry, SCMOClass *,
         ClassCacheEntry, ClassCacheEntry> SCMOClassHashTable;
 
     static SCMOClassCache* _theInstance;
@@ -137,7 +136,7 @@ private:
         : _hintClass(NULL),
           _hint(NULL),
           _resolveCallBack(NULL)
-    {        
+    {
         _clsCacheSCMO = new SCMOClassHashTable();
     };
 

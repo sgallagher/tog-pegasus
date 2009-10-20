@@ -79,7 +79,10 @@ void SCMOXmlWriter::appendInstanceNameElement(
         if (kbType == CIMTYPE_REFERENCE)
         {
             SCMOInstance * ref = kbValue->extRefPtr;
-            appendValueReferenceElement(out, *ref, true);
+            if (ref)
+            {
+                appendValueReferenceElement(out, *ref, true);
+            }
         }
         else
         {
@@ -236,16 +239,13 @@ void SCMOXmlWriter::appendQualifierElement(
 //              %Propagated;>
 //
 //------------------------------------------------------------------------------
-
 void SCMOXmlWriter::appendPropertyElement(
     Buffer& out,
     const SCMOInstance& scmoInstance,
     Uint32 pos)
 {
-    // Get most of the property data from the instance
-    const char* propertyName;
-    Uint32 propertyNameLen;
     CIMType propertyType;
+    Buffer embeddedQualifierOutput;
 
     // This is an absolute pointer at a SCMBValue
     SCMBValue * propertyValue;
@@ -267,6 +267,8 @@ void SCMOXmlWriter::appendPropertyElement(
 
     if (propertyValue->flags.isArray)
     {
+        Uint32 arraySize=propertyValue->valueArraySize;
+
         out << STRLIT("<PROPERTY.ARRAY NAME=\"");
 
         out.append(
@@ -276,95 +278,42 @@ void SCMOXmlWriter::appendPropertyElement(
         out << STRLIT("\" ");
         if (propertyType == CIMTYPE_OBJECT)
         {
-/*          TODO: Implement writing CIM_OBJECT
             // If the property array type is CIMObject, then
             //    encode the property in CIM-XML as a string array with the
             //    EmbeddedObject attribute (there is not currently a CIM-XML
             //    "object" datatype)
 
-            Array<CIMObject> a;
-            rep->getValue().get(a);
             out << STRLIT(" TYPE=\"string\"");
             // If the Embedded Object is an instance, always add the
             // EmbeddedObject attribute.
-            if (a.size() > 0 && a[0].isInstance())
+            SCMOInstance * instPtr = propertyValue->value.extRefPtr;
+            if ((0 != instPtr) &&
+                    (arraySize > 0) &&
+                        !(instPtr->inst.hdr->flags.isClassOnly))
             {
                 out << STRLIT(" EmbeddedObject=\"object\""
                               " EMBEDDEDOBJECT=\"object\"");
             }
-#ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
-            else
-#endif
-            {
-                // Else the Embedded Object is a class, always add the
-                // EmbeddedObject qualifier.  Note that if the macro
-                // PEGASUS_SNIA_INTEROP_COMPATIBILITY is defined, then
-                // the EmbeddedObject qualifier will always be added,
-                // whether it's a class or an instance.
-                if (rep->findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT)
-                   == PEG_NOT_FOUND)
-                {
-                    // Note that addQualifiers() cannot be called on a const
-                    // CIMQualifierRep.In this case we really do want to add
-                    // the EmbeddedObject qualifier, so we cast away the
-                    // constness.
-                    CIMPropertyRep* tmpRep=const_cast<CIMPropertyRep*>(rep);
-                    tmpRep->addQualifier(
-                        CIMQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT,
-                                     true));
-                }
-            }
-*/
         }
         else if (propertyType == CIMTYPE_INSTANCE)
         {
-/*          TODO: Implement writing embedded instance
             // If the property array type is CIMInstance, then
             //   encode the property in CIM-XML as a string array with the
             //   EmbeddedObject attribute (there is not currently a CIM-XML
             //   "instance" datatype)
-
-            Array<CIMInstance> a;
-            rep->getValue().get(a);
             out << STRLIT(" TYPE=\"string\"");
-
             // add the EmbeddedObject attribute
-            if (a.size() > 0)
+            if (arraySize > 0)
             {
                 out << STRLIT(" EmbeddedObject=\"instance\""
                               " EMBEDDEDOBJECT=\"instance\"");
-
-                // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY
-                // is defined, then the EmbeddedInstance qualifier will be
-                // added
-# ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
-                if (rep->findQualifier(
-                        PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE ==
-                        PEG_NOT_FOUND)
-                {
-                    // Note that addQualifiers() cannot be called on a const
-                    // CIMQualifierRep.In this case we really do want to add
-                    // the EmbeddedInstance qualifier, so we cast away the
-                    // constness.
-
-                    // For now, we assume that all the embedded instances in
-                    // the array are of the same type
-                    CIMPropertyRep* tmpRep=const_cast<CIMPropertyRep*>(rep);
-                    tmpRep->addQualifier(CIMQualifier(
-                        PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE,
-                        a[0].getClassName().getString()));
-                }
-# endif
             }
-*/
         }
         else
         {
             out.append(' ');
             out << xmlWriterTypeStrings(propertyType);
         }
-
-        Uint32 arraySize=propertyValue->valueArraySize;
 
         if (0 != arraySize)
         {
@@ -491,71 +440,25 @@ void SCMOXmlWriter::appendPropertyElement(
 
         if (propertyType == CIMTYPE_OBJECT)
         {
-/*          TODO: Implement writing Embedded Object
             // If the property type is CIMObject, then
             //   encode the property in CIM-XML as a string with the
             //   EmbeddedObject attribute (there is not currently a CIM-XML
             //   "object" datatype)
-
-            CIMObject a;
-            rep->getValue().get(a);
             out << STRLIT(" TYPE=\"string\"");
-
             // If the Embedded Object is an instance, always add the
             // EmbeddedObject attribute.
-            if (a.isInstance())
+            SCMOInstance * a = propertyValue->value.extRefPtr;
+            if (a && !(a->inst.hdr->flags.isClassOnly))
             {
                 out << STRLIT(" EmbeddedObject=\"object\""
                               " EMBEDDEDOBJECT=\"object\"");
             }
-            // Else the Embedded Object is a class, always add the
-            // EmbeddedObject qualifier.
-#ifndef PEGASUS_SNIA_INTEROP_COMPATIBILITY
-            else
-#endif
-            {
-                // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY
-                // is defined, then the EmbeddedObject qualifier will always
-                // be added, whether it's a class or an instance.
-                if (rep->findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT)
-                    == PEG_NOT_FOUND)
-                {
-                    // Note that addQualifiers() cannot be called on a const
-                    // CIMQualifierRep.  In this case we really do want to
-                    // add the EmbeddedObject qualifier, so we cast away the
-                    // constness.
-                    CIMPropertyRep* tmpRep=const_cast<CIMPropertyRep*>(rep);
-                    tmpRep->addQualifier(
-                        CIMQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT,
-                                     true));
-                }
-            }
-*/
-            }
             else if (propertyType == CIMTYPE_INSTANCE)
             {
-/*              TODO: Implement writing Embedded Instance
-                CIMInstance a;
-                rep->getValue().get(a);
                 out << STRLIT(" TYPE=\"string\""
                               " EmbeddedObject=\"instance\""
                               " EMBEDDEDOBJECT=\"instance\"");
-
-# ifdef PEGASUS_SNIA_INTEROP_COMPATIBILITY
-                if (rep->findQualifier(PEGASUS_QUALIFIERNAME_EMBEDDEDOBJECT)
-                    == PEG_NOT_FOUND)
-                {
-                    // Note that addQualifiers() cannot be called on a const
-                    // CIMQualifierRep.  In this case we really do want to add
-                    // the EmbeddedInstance qualifier, so we cast away the
-                    // constness.
-                    CIMPropertyRep* tmpRep = const_cast<CIMPropertyRep*>(rep);
-                    tmpRep->addQualifier(CIMQualifier(
-                        PEGASUS_QUALIFIERNAME_EMBEDDEDINSTANCE,
-                        a.getClassName().getString()));
-                }
-# endif
-*/
+            }
         }
         else
         {
@@ -617,7 +520,10 @@ void SCMOXmlWriter::appendValueElement(
     else if (value.valueType == CIMTYPE_REFERENCE)
     {
         SCMOInstance * ref = value.value.extRefPtr;
-        appendValueReferenceElement(out, *ref, true);
+        if (ref)
+        {
+            appendValueReferenceElement(out, *ref, true);
+        }
     }
     else
     {
@@ -807,9 +713,9 @@ void SCMOXmlWriter::appendClassElement(
             SCMOXmlWriter::appendPropertyElement(out,cimClass,i);
     }
 
-    // TODO: What do with Method definitions ?
-    // for (Uint32 i = 0, n = rep->getMethodCount(); i < n; i++)
-    //    XmlWriter::appendMethodElement(out, rep->getMethod(i));
+    // ATTN: No method definitions with SCMO today, so do nothing with them
+    //       Actually this code does not serve a purpose, but is kept here
+    //       for completeness.
 
     // Class closing element:
     out << STRLIT("</CLASS>\n");
@@ -867,84 +773,123 @@ void SCMOXmlWriter::appendSCMBUnion(
     {
         case CIMTYPE_BOOLEAN:
         {
-            SCMOXmlWriter::append(out, u.simple.val.bin);
+            if (u.simple.hasValue)
+            {
+                SCMOXmlWriter::append(out, u.simple.val.bin);
+            }
             break;
         }
 
         case CIMTYPE_UINT8:
         {
-            SCMOXmlWriter::append(out, u.simple.val.u8);
+            if (u.simple.hasValue)
+            {
+                SCMOXmlWriter::append(out, u.simple.val.u8);
+            }
             break;
         }
 
         case CIMTYPE_SINT8:
         {
-            SCMOXmlWriter::append(out, u.simple.val.s8);
+            if (u.simple.hasValue)
+            {
+                SCMOXmlWriter::append(out, u.simple.val.s8);
+            }
             break;
         }
 
         case CIMTYPE_UINT16:
         {
-            SCMOXmlWriter::append(out, u.simple.val.u16);
+            if (u.simple.hasValue)
+            {
+                SCMOXmlWriter::append(out, u.simple.val.u16);
+            }
             break;
         }
 
         case CIMTYPE_SINT16:
         {
-            SCMOXmlWriter::append(out, u.simple.val.s16);
+            if (u.simple.hasValue)
+            {
+                SCMOXmlWriter::append(out, u.simple.val.s16);
+            }
             break;
         }
 
         case CIMTYPE_UINT32:
         {
-            SCMOXmlWriter::append(out, u.simple.val.u32);
+            if (u.simple.hasValue)
+            {
+                SCMOXmlWriter::append(out, u.simple.val.u32);
+            }
             break;
         }
 
         case CIMTYPE_SINT32:
         {
-            SCMOXmlWriter::append(out, u.simple.val.s32);
+            if (u.simple.hasValue)
+            {
+                SCMOXmlWriter::append(out, u.simple.val.s32);
+            }
             break;
         }
 
         case CIMTYPE_UINT64:
         {
-            SCMOXmlWriter::append(out, u.simple.val.u64);
+            if (u.simple.hasValue)
+            {
+                SCMOXmlWriter::append(out, u.simple.val.u64);
+            }
             break;
         }
 
         case CIMTYPE_SINT64:
         {
-            SCMOXmlWriter::append(out, u.simple.val.s64);
+            if (u.simple.hasValue)
+            {
+                SCMOXmlWriter::append(out, u.simple.val.s64);
+            }
             break;
         }
 
         case CIMTYPE_REAL32:
         {
-            SCMOXmlWriter::append(out, u.simple.val.r32);
+            if (u.simple.hasValue)
+            {
+                SCMOXmlWriter::append(out, u.simple.val.r32);
+            }
             break;
         }
 
         case CIMTYPE_REAL64:
         {
-            SCMOXmlWriter::append(out, u.simple.val.r64);
+            if (u.simple.hasValue)
+            {
+                SCMOXmlWriter::append(out, u.simple.val.r64);
+            }
             break;
         }
 
         case CIMTYPE_CHAR16:
         {
-            SCMOXmlWriter::appendSpecial(
-                out,
-                u.simple.val.c16);
+            if (u.simple.hasValue)
+            {
+                SCMOXmlWriter::appendSpecial(
+                    out,
+                    u.simple.val.c16);
+            }
             break;
         }
 
         case CIMTYPE_STRING:
         {
-            SCMOXmlWriter::appendSpecial(
-                out,
-                &(base[u.stringValue.start]),
-                u.stringValue.length-1);
+            if (u.stringValue.start)
+            {
+                SCMOXmlWriter::appendSpecial(
+                    out,
+                    &(base[u.stringValue.start]),
+                    u.stringValue.length-1);
+            }
             break;
         }
 
@@ -958,24 +903,26 @@ void SCMOXmlWriter::appendSCMBUnion(
             out.append(buffer,sizeof(buffer)-1);
             break;
         }
-/*
+        // Object and Instance are both written the same way, namely as
+        // object element which then is encoded using appendSpecial
         case CIMTYPE_OBJECT:
-        {
-            CIMObject v;
-            value.get(v);
-            _xmlWritter_appendValue(out, v);
-            break;
-        }
         case CIMTYPE_INSTANCE:
         {
-            CIMInstance v;
-            value.get(v);
-            _xmlWritter_appendValue(out, v);
+            Buffer toEncodeObject(4000);
+            SCMOInstance * obj = u.extRefPtr;
+            if (obj)
+            {
+                appendObjectElement(toEncodeObject, *obj);
+                SCMOXmlWriter::appendSpecial(
+                    out,
+                    toEncodeObject.getData(),
+                    toEncodeObject.size());
+            }
             break;
         }
         default:
-            PEGASUS_ASSERT(false);
-*/
+            // CIMTYPE_REFERENCE has been handled upfront, do nothing here
+            break;
     }
 }
 
@@ -1193,24 +1140,46 @@ void SCMOXmlWriter::appendSCMBUnionArray(
             out << STRLIT("</VALUE.ARRAY>\n");
             break;
         }
-/*
-        case CIMTYPE_OBJECT:
+        case CIMTYPE_REFERENCE:
         {
-            CIMObject v;
-            value.get(v);
-            _xmlWritter_appendValue(out, v);
-            break;
+            out << STRLIT("<VALUE.REFARRAY>\n");
+            while (numElements--)
+            {
+                SCMOInstance * ref = arr->extRefPtr;
+                if (ref)
+                {
+                    appendValueReferenceElement(out, *ref, true);
+                }
+                arr++;
+            }
+            out << STRLIT("</VALUE.REFARRAY>\n");
         }
+        case CIMTYPE_OBJECT:
         case CIMTYPE_INSTANCE:
         {
-            CIMInstance v;
-            value.get(v);
-            _xmlWritter_appendValue(out, v);
+            out << STRLIT("<VALUE.ARRAY>\n");
+            Buffer toEncodeObject(4000);
+            while (numElements--)
+            {
+                toEncodeObject.clear();
+                out << STRLIT("<VALUE>");
+                SCMOInstance * obj = arr->extRefPtr;
+                if (obj)
+                {
+                    appendObjectElement(toEncodeObject, *obj);
+                    SCMOXmlWriter::appendSpecial(
+                        out,
+                        toEncodeObject.getData(),
+                        toEncodeObject.size());
+                }
+                arr++;
+                out << STRLIT("</VALUE>\n");
+            }
+            out << STRLIT("</VALUE.ARRAY>\n");
             break;
         }
         default:
-            PEGASUS_ASSERT(false);
-*/
+            PEGASUS_DEBUG_ASSERT(false);
     }
 
 }

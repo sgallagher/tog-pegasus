@@ -107,8 +107,7 @@ void CIMResponseData::setSCMO(const Array<SCMOInstance>& x)
 // Binary data is just a data stream
 Array<Uint8>& CIMResponseData::getBinary()
 {
-    // TODO: Check if the following condition might come true
-    // One actually should resolve everything down to binary in here ...
+    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_BINARY);
     return _binaryData;
 }
 
@@ -377,17 +376,10 @@ void CIMResponseData::completeHostNameAndNamespace(
 
 void CIMResponseData::encodeXmlResponse(Buffer& out)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMResponseData::encodeXmlResponse");
-
-/*  TODO: Transform into a trace statement
-    fprintf(
-        stderr,
-        "encodeXmlResponse(encoding=%X,content=%X)\n",
+    PEG_TRACE((TRC_XML, Tracer::LEVEL3,
+        "CIMResponseData::encodeXmlResponse(encoding=%X,content=%X)\n",
         _encoding,
-        _dataType);
-    fflush(stderr);
-*/
+        _dataType));
 
     if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
@@ -460,7 +452,6 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
 
     if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
     {
-        // TODO: Set Marker for C++ data
         switch (_dataType)
         {
             case RESP_INSTNAMES:
@@ -519,10 +510,6 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
     }
     if (RESP_ENC_SCMO == (_encoding & RESP_ENC_SCMO))
     {
-        /*SCMODump dmp;
-        dmp.dumpSCMOInstanceKeyBindings(_scmoInstances[i]);
-        dmp.dumpInstanceProperties(_scmoInstances[i]);*/
-
         switch (_dataType)
         {
             case RESP_INSTNAMES:
@@ -582,13 +569,6 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
             }
         }
     }
-/*  TODO: Transform into a trace statement
-    fprintf(
-        stderr,
-        "After XmlWrite()\n%s",
-        out.getData());
-    fflush(stderr);
-*/
 }
 
 // contrary to encodeXmlResponse this function encodes the Xml in a format
@@ -605,14 +585,11 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
 
 void CIMResponseData::_resolveToCIM()
 {
-/*  TODO: Transform into warning trace statement
-    fprintf(
-        stderr,
-        "_resolveToCIM(encoding=%X,content=%X)\n",
+    PEG_TRACE((TRC_XML, Tracer::LEVEL2,
+        "CIMResponseData::_resolveToCIM(encoding=%X,content=%X)\n",
         _encoding,
-        _dataType);
-    fflush(stderr);
-*/
+        _dataType));
+
     if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
         _resolveXmlToCIM();
@@ -630,14 +607,11 @@ void CIMResponseData::_resolveToCIM()
 
 void CIMResponseData::_resolveToSCMO()
 {
-/*  TODO: Transform into warning trace statement
-    fprintf(
-        stderr,
-        "_resolveToSCMO(encoding=%X,content=%X)\n",
+    PEG_TRACE((TRC_XML, Tracer::LEVEL2,
+        "CIMResponseData::_resolveToSCMO(encoding=%X,content=%X)\n",
         _encoding,
-        _dataType);
-    fflush(stderr);
-*/
+        _dataType));
+
     if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
         _resolveXmlToSCMO();
@@ -695,6 +669,8 @@ void CIMResponseData::_resolveXmlToCIM()
 {
     switch (_dataType)
     {
+        // same encoding for instance names and object paths
+        case RESP_OBJECTPATHS:
         case RESP_INSTNAMES:
         {
             for (Uint32 i = 0; i < _referencesData.size(); i++)
@@ -842,10 +818,6 @@ void CIMResponseData::_resolveXmlToCIM()
                 _objects.append(cimObject);
             }
             break;
-        }
-        case RESP_OBJECTPATHS:
-        {
-            // TODO: ????
         }
         default:
         {
@@ -1008,19 +980,33 @@ void CIMResponseData::_resolveCIMToSCMO()
 SCMOInstance CIMResponseData::_getSCMOFromCIMInstance(
     const CIMInstance& cimInst)
 {
+    bool isDirty=false;
     const CIMObjectPath& cimPath = cimInst.getPath();
 
     const CString nameSpace = cimPath.getNameSpace().getString().getCString();
     const CString className = cimPath.getClassName().getString().getCString();
-    // TODO: What do when either or both are 0 ?
 
     SCMOClass * scmoClass = _getSCMOClass(
         (const char*)nameSpace,
         (const char*)className);
-    // TODO: What do when there is no such class ?
+    // if class cannot be found we get 0 back from class cache
+    if (0 == scmoClass)
+    {
+        PEG_TRACE((TRC_XML, Tracer::LEVEL2,
+            "In _getSCMOFromCIMInstance() could not resolve class for "
+                "nameSpace=\"%s\", className=\"%s\"\n",
+            (const char*) nameSpace,
+            (const char*) className));
 
+        isDirty=true;
+        scmoClass = new SCMOClass("","");
+    }
     SCMOInstance scmoInst = SCMOInstance(*scmoClass, cimInst);
 
+    if (isDirty)
+    {
+        scmoInst.markAsCompromised();
+    }
     return scmoInst;
 }
 
@@ -1041,20 +1027,31 @@ SCMOInstance CIMResponseData::_getSCMOFromCIMObject(
 SCMOInstance CIMResponseData::_getSCMOFromCIMObjectPath(
     const CIMObjectPath& cimPath)
 {
+    bool isDirty=false;
     CString nameSpace = cimPath.getNameSpace().getString().getCString();
     CString className = cimPath.getClassName().getString().getCString();
-
-    // TODO: What do when either or both are 0 ?
 
     SCMOClass * scmoClass = _getSCMOClass(
         (const char*)nameSpace,
         (const char*)className);
 
-    // TODO: What do when there is no such class ?
+    // if class cannot be found we get 0 back from class cache
+    if (0 == scmoClass)
+    {
+        PEG_TRACE((TRC_XML, Tracer::LEVEL2,
+            "In _getSCMOFromCIMObjectPath() could not resolve class for "
+                "nameSpace=\"%s\", className=\"%s\"\n",
+            (const char*) nameSpace,
+            (const char*) className));
 
-    // TODO: Interrogate Thilo about need to call new
+        isDirty=true;
+        scmoClass = new SCMOClass("","");
+    }
     SCMOInstance scmoRef = SCMOInstance(*scmoClass, cimPath);
-
+    if (isDirty)
+    {
+        scmoRef.markAsCompromised();
+    }
     return scmoRef;
 }
 

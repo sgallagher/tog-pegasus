@@ -90,7 +90,7 @@ SCMOClass* SCMOClassCache::getSCMOClass(
 {
     //fprintf(stderr,"SCMOClassCache::getSCMOClass - Enter()\n");
 
-    if (nsName && className)
+    if (nsName && className && nsNameLen && classNameLen)
     {
 
         ClassCacheEntry key(nsName,nsNameLen,className,classNameLen);
@@ -140,7 +140,7 @@ SCMOClass* SCMOClassCache::getSCMOClass(
                 _clsCacheSCMO->insert(key,scmoClass);
                 _setHint(key, scmoClass);
             }
-            
+
             return scmoClass;
         }
         catch (const CIMException &e)

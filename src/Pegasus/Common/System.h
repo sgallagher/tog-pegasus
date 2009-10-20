@@ -38,8 +38,6 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Network.h>
-#include <Pegasus/Common/Mutex.h>
-#include <Pegasus/Common/Pegasus_inl.h>
 #include <sys/stat.h>
 
 
@@ -132,10 +130,6 @@ public:
     */
     static void getCurrentTimeUsec(Uint32& seconds, Uint32& microseconds);
 
-    /** Similar to getCurrentTime() above but get the full time in microseconds
-    */
-    static Uint64  getCurrentTimeUsec();
-
     /** getCurrentASCIITime Gets time/date in a fixed format. The format is
         YY MM DD-HH:MM:SS
         @return Returns String with the ASCII time date.
@@ -202,13 +196,14 @@ public:
         char* buf = 0,
         size_t buflen = 0);
 
+#if defined(PEGASUS_OS_ZOS) || \
+    defined(PEGASUS_OS_VMS) || \
+    defined(PEGASUS_ENABLE_IPV6)
 
     // The following 2 methods are wrappers around system functions
     // getaddrinfo/getnameinfo.
     // In addition to calling corresponding system functions, these
     // methods introduce re-tries on EAI_AGAIN error returns.
-    //
-    // Callers are expected to call freeaddrinfo when using System::getAddrInfo
     static int getAddrInfo(
         const char *hostname,
         const char *servname,
@@ -222,6 +217,8 @@ public:
         char *serv,
         size_t servlen,
         int flags);
+
+#endif
 
     // Gets IP address assosiated with hostName. af indicates the
     // type of address (ipv4 or ipv6) returned.
@@ -479,30 +476,12 @@ public:
 
     static void closelog();
 
-    /** Function to set hostname and thus override system supplied value */
-    static void setHostName(const String & hostName);
-
-    /** Function to set fully qualified hostname and thus override system
-        supplied value */
-    static void setFullyQualifiedHostName(const String & fullHostName);
-
     // System ID constants for Logger::put and Logger::trace
     static const String CIMSERVER;
 
     // System ID constants for Logger::put and Logger::trace
     static const String CIMLISTENER;
 
-    // mutex used for synchronising threads calling getHostName.
-    static Mutex _mutexForGetHostName;
-
-    // mutex used for synchronising threads calling getFullyQualifiedHostName
-    static Mutex _mutexForGetFQHN;
-
-private:
-    // Strings caching hostnames to avoid repeated resolver lookups and to
-    // enable setting by configuration
-    static String _hostname;
-    static String _fullyQualifiedHostname;
 };
 
 /**

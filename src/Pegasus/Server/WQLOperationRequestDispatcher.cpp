@@ -127,7 +127,7 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
             CIMClass cimClass;
 
             Boolean clsRead=false;
-            Array<CIMInstance>& a = 
+            Array<CIMInstance>& a =
                 fromResponse->getResponseData().getInstances();
             for (Uint32 j = 0, m = a.size();
                  j < m; j++)
@@ -150,7 +150,7 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
                 op.setHost(System::getHostName());
                 co.setPath(op);
                 if (manyResponses)
-                    toResponse->getResponseData().getObjects().append(co);
+                    toResponse->getResponseData().appendObject(co);
             }
         }
         else
@@ -159,7 +159,7 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
                 (CIMExecQueryResponseMessage*) response;
             CIMClass cimClass;
             Boolean clsRead=false;
-            Array<CIMObject>& cimObjects = 
+            Array<CIMObject>& cimObjects =
                 fromResponse->getResponseData().getObjects();
             for (Uint32 j = 0, m = cimObjects.size(); j < m; j++)
             {
@@ -182,7 +182,7 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
                 op.setHost(System::getHostName());
                 co.setPath(op);
                 if (manyResponses)
-                    toResponse->getResponseData().getObjects().append(co);
+                    toResponse->getResponseData().appendObject(co);
             }
         }
 

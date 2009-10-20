@@ -48,7 +48,7 @@ Array<CIMObjectPath>& CIMResponseData::getInstanceNames()
     PEGASUS_DEBUG_ASSERT(
     (_dataType==RESP_INSTNAMES || _dataType==RESP_OBJECTPATHS));
     _resolveToCIM();
-    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_CIM);
+    PEGASUS_DEBUG_ASSERT(_encoding==RESP_ENC_CIM || _encoding == 0);
     return _instanceNames;
 }
 
@@ -57,7 +57,6 @@ CIMInstance& CIMResponseData::getInstance()
 {
     PEGASUS_DEBUG_ASSERT(_dataType == RESP_INSTANCE);
     _resolveToCIM();
-    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_CIM);
     return _instances[0];
 }
 
@@ -66,7 +65,6 @@ Array<CIMInstance>& CIMResponseData::getInstances()
 {
     PEGASUS_DEBUG_ASSERT(_dataType == RESP_INSTANCES);
     _resolveToCIM();
-    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_CIM);
     return _instances;
 }
 
@@ -75,7 +73,6 @@ Array<CIMObject>& CIMResponseData::getObjects()
 {
     PEGASUS_DEBUG_ASSERT(_dataType == RESP_OBJECTS);
     _resolveToCIM();
-    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_CIM);
     return _objects;
 }
 
@@ -84,7 +81,6 @@ Array<CIMObject>& CIMResponseData::getObjects()
 Array<SCMOInstance>& CIMResponseData::getSCMO()
 {
     _resolveToSCMO();
-    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_SCMO);
     return _scmoInstances;
 }
 
@@ -107,7 +103,7 @@ void CIMResponseData::setSCMO(const Array<SCMOInstance>& x)
 // Binary data is just a data stream
 Array<Uint8>& CIMResponseData::getBinary()
 {
-    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_BINARY);
+    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_BINARY || _encoding == 0);
     return _binaryData;
 }
 
@@ -602,7 +598,7 @@ void CIMResponseData::_resolveToCIM()
     {
         _resolveSCMOToCIM();
     }
-    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_CIM);
+    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_CIM || _encoding == 0);
 }
 
 void CIMResponseData::_resolveToSCMO()
@@ -624,7 +620,7 @@ void CIMResponseData::_resolveToSCMO()
     {
         _resolveCIMToSCMO();
     }
-    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_SCMO);
+    PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_SCMO || _encoding == 0);
 }
 
 // helper functions to transform different formats into one-another

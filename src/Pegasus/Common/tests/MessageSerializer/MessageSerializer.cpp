@@ -1524,7 +1524,8 @@ void testCIMAssociatorNamesResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMObjectPath>& pathArray)
 {
-    CIMAssociatorNamesResponseMessage inMessage(mid, ex, qids, pathArray);
+    CIMAssociatorNamesResponseMessage inMessage(mid, ex, qids);
+    inMessage.getResponseData().setInstanceNames(pathArray);
     inMessage.operationContext = oc;
     AutoPtr<CIMAssociatorNamesResponseMessage> outMessage(
         dynamic_cast<CIMAssociatorNamesResponseMessage*>(
@@ -1547,7 +1548,8 @@ void testCIMReferencesResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMObject>& objArray)
 {
-    CIMReferencesResponseMessage inMessage(mid, ex, qids, objArray);
+    CIMReferencesResponseMessage inMessage(mid, ex, qids);
+    inMessage.getResponseData().setObjects(objArray);
     inMessage.operationContext = oc;
     AutoPtr<CIMReferencesResponseMessage> outMessage(
         dynamic_cast<CIMReferencesResponseMessage*>(
@@ -1570,7 +1572,8 @@ void testCIMReferenceNamesResponseMessage(
     const QueueIdStack& qids,
     const Array<CIMObjectPath>& pathArray)
 {
-    CIMReferenceNamesResponseMessage inMessage(mid, ex, qids, pathArray);
+    CIMReferenceNamesResponseMessage inMessage(mid, ex, qids);
+    inMessage.getResponseData().setInstanceNames(pathArray);
     inMessage.operationContext = oc;
     AutoPtr<CIMReferenceNamesResponseMessage> outMessage(
         dynamic_cast<CIMReferenceNamesResponseMessage*>(

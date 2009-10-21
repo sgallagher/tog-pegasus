@@ -217,35 +217,6 @@ public:
         Uint32& size ) const;
 
     /**
-     * Gets the property name, type, and value addressed by a positional index.
-     * The property name and value has to be copied by the caller !
-     * @param pos The positional index of the property
-     * @param pname Returns the property name as '\0' terminated string.
-     *              Has to be copied by caller.
-     *              It is set to NULL if rc != SCMO_OK.
-     * @param value Returns an absolute pointer to the value of property.
-     *                  Sub-pointers are NOT resolved!
-     *               The value has to be copied by the caller !
-     *               It returns NULL if rc != SCMO_OK.
-     * @param valueBase Returns an absolute pointer to the base of value,
-     *                  because subsequent pointers in the value are NOT
-     *                  resolved.
-     * @param propDef Returns an absolute pointer to the property definition
-     *                  Sub-pointers are NOT resolved!
-     *             It is invalid if rc == SCMO_INDEX_OUT_OF_BOUND.
-     *
-     * @return     SCMO_OK
-     *             SCMO_NULL_VALUE : The value is a null value.
-     *             SCMO_INDEX_OUT_OF_BOUND : Given index not found
-     *
-     */
-    SCMO_RC getPropertyAt(
-        Uint32 pos,
-        SCMBValue** value,
-        const char ** valueBase,
-        SCMBClassProperty ** propDef) const;
-
-    /**
      * Gets the type and value of the named property.
      * The value has to be copied by the caller !
      * @param name The property name
@@ -714,6 +685,12 @@ private:
     void _initSCMOInstance(SCMOClass* pClass);
 
     void _setCIMInstance(const CIMInstance& cimInstance);
+
+    void _getPropertyAt(
+        Uint32 pos,
+        SCMBValue** value,
+        const char ** valueBase,
+        SCMBClassProperty ** propDef) const;
 
     SCMO_RC _getPropertyAtNodeIndex(
         Uint32 pos,

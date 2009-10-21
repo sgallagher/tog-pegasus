@@ -150,8 +150,9 @@ public:
     // single ResponseData object
     void appendResponseData(const CIMResponseData & x);
 
-    // Function used to complete the namespace on all data held
-    void completeNamespace(const char * ns, Uint32 len);
+    // Function used by CMPI layer to complete the namespace on all data held
+    // Input (x) has to have a valid namespace
+    void completeNamespace(const SCMOInstance * x);
 
     // Function primarily used by CIMOperationRequestDispatcher to complete
     // namespace and hostname on a,an,r and rn operations in the

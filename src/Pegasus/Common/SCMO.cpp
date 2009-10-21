@@ -2679,7 +2679,7 @@ SCMO_RC SCMOInstance::getPropertyAt(
     return  _getPropertyAtNodeIndex(node,pname,type,pOutVal,isArray,size);
 }
 
-SCMO_RC SCMOInstance::getPropertyAt(
+void SCMOInstance::_getPropertyAt(
     Uint32 pos,
     SCMBValue** value,
     const char ** valueBase,
@@ -2689,16 +2689,9 @@ SCMO_RC SCMOInstance::getPropertyAt(
     // is filtering on ?
     if (inst.hdr->flags.isFiltered)
     {
-        // check the number of properties part of the filter
-        if (pos >= inst.hdr->filterProperties)
-        {
-            return SCMO_INDEX_OUT_OF_BOUND;
-        }
-
         // Get absolut pointer to property filter index map of the instance
         Uint32* propertyFilterIndexMap =
         (Uint32*)&(inst.base[inst.hdr->propertyFilterIndexMap.start]);
-
         // get the real node index of the property.
         node = propertyFilterIndexMap[pos];
     }
@@ -2706,10 +2699,6 @@ SCMO_RC SCMOInstance::getPropertyAt(
     {
         // the index is used as node index.
         node = pos;
-        if (node >= inst.hdr->numberProperties)
-        {
-            return SCMO_INDEX_OUT_OF_BOUND;
-        }
     }
 
     SCMBValue* theInstPropNodeArray =
@@ -2736,8 +2725,6 @@ SCMO_RC SCMOInstance::getPropertyAt(
         *value = &(theClassPropNodeArray[node].theProperty.defaultValue);
         *valueBase = inst.hdr->theClass->cls.base;
     }
-
-    return SCMO_OK;
 }
 
 

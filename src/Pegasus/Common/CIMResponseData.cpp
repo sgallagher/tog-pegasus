@@ -287,8 +287,11 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
     PEG_METHOD_EXIT();
 }
 
-void CIMResponseData::completeNamespace(const char * ns, Uint32 len)
+void CIMResponseData::completeNamespace(const SCMOInstance * x)
 {
+    const char * ns;
+    Uint64 len;
+    ns = x->getNameSpace_l(len);
     // Both internal XML as well as binary always contain a namespace
     // don't have to do anything for those two encodings
     if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))

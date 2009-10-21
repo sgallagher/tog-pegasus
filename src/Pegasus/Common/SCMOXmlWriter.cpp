@@ -258,14 +258,13 @@ void SCMOXmlWriter::appendPropertyElement(
     // instance starts
     const char* clsbase = scmoInstance.inst.hdr->theClass->cls.base;
 
-    SCMO_RC rc = scmoInstance.getPropertyAt(
+    scmoInstance._getPropertyAt(
         pos,
         &propertyValue,
         &propertyValueBase,
         &propertyDef);
 
     propertyType = propertyValue->valueType;
-
 
     if (propertyValue->flags.isArray)
     {
@@ -284,7 +283,6 @@ void SCMOXmlWriter::appendPropertyElement(
             //    encode the property in CIM-XML as a string array with the
             //    EmbeddedObject attribute (there is not currently a CIM-XML
             //    "object" datatype)
-
             out << STRLIT(" TYPE=\"string\"");
             // If the Embedded Object is an instance, always add the
             // EmbeddedObject attribute.
@@ -294,7 +292,7 @@ void SCMOXmlWriter::appendPropertyElement(
                         !(instPtr->inst.hdr->flags.isClassOnly))
             {
                 out << STRLIT(" EmbeddedObject=\"object\""
-                              " EMBEDDEDOBJECT=\"object\"");
+                                " EMBEDDEDOBJECT=\"object\"");
             }
         }
         else if (propertyType == CIMTYPE_INSTANCE)
@@ -358,9 +356,7 @@ void SCMOXmlWriter::appendPropertyElement(
                     clsbase);
             }
         }
-
         SCMOXmlWriter::appendValueElement(out,*propertyValue,propertyValueBase);
-
         out << STRLIT("</PROPERTY.ARRAY>\n");
     }
     else if (propertyType == CIMTYPE_REFERENCE)

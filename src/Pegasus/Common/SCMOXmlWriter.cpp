@@ -55,7 +55,7 @@ void SCMOXmlWriter::appendInstanceNameElement(
     out << STRLIT("<INSTANCENAME CLASSNAME=\"");
     Uint64 len;
     const char * className = scmoInstance.getClassName_l(len);
-    out.append(className,len-1);
+    out.append(className,len);
     out << STRLIT("\">\n");
 
     for (Uint32 i = 0, n = scmoInstance.getKeyBindingCount(); i < n; i++)
@@ -124,7 +124,7 @@ void SCMOXmlWriter::appendInstanceElement(
     out << STRLIT("<INSTANCE CLASSNAME=\"");
     Uint64 len;
     const char * className = scmoInstance.getClassName_l(len);
-    out.append(className,len-1);
+    out.append(className,len);
     out << STRLIT("\" >\n");
 
     // Append Instance Qualifiers:
@@ -576,7 +576,7 @@ void SCMOXmlWriter::appendValueReferenceElement(
         {
             Uint64 classNameLength=0;
             const char* className = ref.getClassName_l(classNameLength);
-            appendClassNameElement(out, className, classNameLength-1);
+            appendClassNameElement(out, className, classNameLength);
         }
     }
     else
@@ -610,7 +610,7 @@ void SCMOXmlWriter::appendLocalInstancePathElement(
     out << STRLIT("<LOCALINSTANCEPATH>\n");
     Uint64 nsLength=0;
     const char* ns=instancePath.getNameSpace_l(nsLength);
-    appendLocalNameSpacePathElement(out, ns, nsLength-1);
+    appendLocalNameSpacePathElement(out, ns, nsLength);
     appendInstanceNameElement(out, instancePath);
     out << STRLIT("</LOCALINSTANCEPATH>\n");
 }
@@ -627,7 +627,7 @@ void SCMOXmlWriter::appendInstancePathElement(
     const char* hostname=instancePath.getHostName_l(hostnameLength);
     Uint64 nsLength=0;
     const char* ns=instancePath.getNameSpace_l(nsLength);
-    appendNameSpacePathElement(out,hostname,hostnameLength-1,ns,nsLength-1);
+    appendNameSpacePathElement(out,hostname,hostnameLength,ns,nsLength);
 
     appendInstanceNameElement(out, instancePath);
     out << STRLIT("</INSTANCEPATH>\n");
@@ -735,11 +735,11 @@ void SCMOXmlWriter::appendLocalClassPathElement(
     Uint64 nsLength=0;
     const char* ns=classPath.getNameSpace_l(nsLength);
 
-    appendNameSpacePathElement(out,hostname,hostnameLength-1,ns,nsLength-1);
+    appendNameSpacePathElement(out,hostname,hostnameLength,ns,nsLength);
 
     Uint64 classNameLength=0;
     const char* className = classPath.getClassName_l(classNameLength);
-    appendClassNameElement(out, className, classNameLength-1);
+    appendClassNameElement(out, className, classNameLength);
     out << STRLIT("</LOCALCLASSPATH>\n");
 }
 
@@ -761,7 +761,7 @@ void SCMOXmlWriter::appendClassPathElement(
     Uint64 classNameLength=0;
     const char* className = classPath.getClassName_l(classNameLength);
 
-    appendClassNameElement(out, className, classNameLength-1);
+    appendClassNameElement(out, className, classNameLength);
     out << STRLIT("</CLASSPATH>\n");
 }
 

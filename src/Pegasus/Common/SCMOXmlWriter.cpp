@@ -65,7 +65,7 @@ void SCMOXmlWriter::appendInstanceNameElement(
         CIMType kbType;
         Uint32 kbNameLen;
 
-        scmoInstance._getKeyBindingDataAtNodeIndex(
+        SCMO_RC smrc = scmoInstance._getKeyBindingDataAtNodeIndex(
             i,
             &kbName,
             kbNameLen,
@@ -78,9 +78,9 @@ void SCMOXmlWriter::appendInstanceNameElement(
 
         if (kbType == CIMTYPE_REFERENCE)
         {
-            SCMOInstance * ref = kbValue->extRefPtr;
-            if (ref)
+            if (SCMO_OK == smrc)
             {
+                SCMOInstance * ref = kbValue->extRefPtr;
                 appendValueReferenceElement(out, *ref, true);
             }
         }
@@ -90,12 +90,14 @@ void SCMOXmlWriter::appendInstanceNameElement(
             out << xmlWriterKeyTypeStrings(kbType);
             out << STRLIT("\">");
 
-            SCMOXmlWriter::appendSCMBUnion(
-                out,
-                *kbValue,
-                kbType,
-                scmoInstance.inst.base);
-
+            if (SCMO_OK == smrc)
+            {
+                SCMOXmlWriter::appendSCMBUnion(
+                    out,
+                    *kbValue,
+                    kbType,
+                    scmoInstance.inst.base);
+            }
             out << STRLIT("</KEYVALUE>\n");
         }
         out << STRLIT("</KEYBINDING>\n");

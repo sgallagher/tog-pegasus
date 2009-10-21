@@ -801,11 +801,6 @@ void SCMOClass::_insertKeyBindingIntoOrderedSet(Uint64 start, Uint32 newIndex)
 
     Uint32 *hashTable = cls.hdr->keyBindingSet.hashTable;
 
-    if ( newIndex >= cls.hdr->keyBindingSet.number)
-    {
-        throw IndexOutOfBoundsException();
-    }
-
     // calculate the new hash index of the new property.
     Uint32 hash = newKeyNode->nameHashTag % PEGASUS_KEYBINDIG_SCMB_HASHSIZE;
 
@@ -856,11 +851,6 @@ void SCMOClass::_insertPropertyIntoOrderedSet(Uint64 start, Uint32 newIndex)
              &(cls.base[cls.hdr->propertySet.nodeArray.start]);
 
     Uint32 *hashTable = cls.hdr->propertySet.hashTable;
-
-    if ( newIndex >= cls.hdr->propertySet.number)
-    {
-        throw IndexOutOfBoundsException();
-    }
 
     // calcuate the new hash index of the new property.
     Uint32 hash = newPropNode->theProperty.nameHashTag %
@@ -2390,20 +2380,16 @@ void SCMOInstance::buildKeyBindingsFromProperties()
             // get the node index for this key binding form class
             propNode = theClassKeyPropList[i];
 
-            // if property was not set by the provider or it is null.
-            if (!theInstPropNodeArray[propNode].flags.isSet ||
-                 theInstPropNodeArray[propNode].flags.isNull)
+            // if property was set by the provider and it is not null.
+            if ( theInstPropNodeArray[propNode].flags.isSet &&
+                !theInstPropNodeArray[propNode].flags.isNull)
             {
-                const char * propName =
-                    inst.hdr->theClass->_getPropertyNameAtNode(propNode);
-                throw NoSuchProperty(String(propName));
+                _setKeyBindingFromSCMBUnion(
+                    theInstPropNodeArray[propNode].valueType,
+                    theInstPropNodeArray[propNode].value,
+                    inst.base,
+                    theKeyBindValueArray[i]);
             }
-
-            _setKeyBindingFromSCMBUnion(
-                theInstPropNodeArray[propNode].valueType,
-                theInstPropNodeArray[propNode].value,
-                inst.base,
-                theKeyBindValueArray[i]);
         }
     }
 }

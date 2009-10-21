@@ -567,7 +567,7 @@ public:
 
     /**
      * Get the host name of the instance.
-     * @param Return length of result string.
+     * @param Return strlen of result string.
      * @return The class name as UTF8.
      */
     const char* getHostName_l(Uint64 & length) const;
@@ -587,7 +587,7 @@ public:
 
     /**
      * Get the class name of the instance. The caller has to make a copy !
-     * @param Return length of result string.
+     * @param Return strlen of result string.
      * @return The class name as UTF8.
      */
     const char* getClassName_l(Uint64 & length) const;
@@ -617,7 +617,7 @@ public:
 
     /**
      * Get the class name of the instance. The caller has to make a copy !
-     * @param Return length of result string.
+     * @param Return strlen of result string.
      * @return The class name as UTF8.
      */
     const char* getNameSpace_l(Uint64 & length) const;

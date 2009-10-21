@@ -2266,7 +2266,7 @@ const char* SCMOInstance::getHostName() const
 
 const char* SCMOInstance::getHostName_l(Uint64& length) const
 {
-    length = inst.hdr->hostName.length;
+    length = inst.hdr->hostName.length-1;
     return _getCharString(inst.hdr->hostName,inst.base);
 }
 
@@ -2302,7 +2302,7 @@ const char* SCMOInstance::getClassName() const
 
 const char* SCMOInstance::getClassName_l(Uint64 & length) const
 {
-    length = inst.hdr->instClassName.length;
+    length = inst.hdr->instClassName.length-1;
     return _getCharString(inst.hdr->instClassName,inst.base);
 }
 
@@ -2346,7 +2346,7 @@ const char* SCMOInstance::getNameSpace() const
 
 const char* SCMOInstance::getNameSpace_l(Uint64 & length) const
 {
-    length = inst.hdr->instNameSpace.length;
+    length = inst.hdr->instNameSpace.length-1;
     return _getCharString(inst.hdr->instNameSpace,inst.base);
 }
 

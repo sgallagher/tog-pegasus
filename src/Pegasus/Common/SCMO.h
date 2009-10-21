@@ -167,9 +167,9 @@ typedef CIMDateTimeRep SCMBDateTime;
 // method return values, and method arguments.
 //
 // This union is only used for simple CIMTypes.
-// If the CIMType is a String the union contains a relative pointer to the 
+// If the CIMType is a String the union contains a relative pointer to the
 // string.
-// If the CIMType is an Array the union contains 
+// If the CIMType is an Array the union contains
 // a relative pointer to of SCMBUnion[].
 //
 // To be able to return an absloute pointer to a string including the string
@@ -428,7 +428,7 @@ struct SCMBInstance_Main
     SCMBDataPtr     userKeyBindingElement;
     // Relative pointers to the name space name and class name.
     // Will be initialized by with the values of the linked SCMOClass.
-    // If it was overwritten, the new value is stored in the SCMOInstance 
+    // If it was overwritten, the new value is stored in the SCMOInstance
     // and the the flag isCompromised is set to true.
     SCMBDataPtr     instNameSpace;
     SCMBDataPtr     instClassName;
@@ -550,12 +550,6 @@ static void _setBinary(
     Uint64 bufferSize,
     SCMBDataPtr& ptr,
     SCMBMgmt_Header** pmem);
-
-static Boolean _equalUTF8Strings(
-    const SCMBDataPtr& ptr_a,
-    char* base,
-    const char* name,
-    Uint32 len);
 
 static Boolean _equalNoCaseUTF8Strings(
     const SCMBDataPtr& ptr_a,

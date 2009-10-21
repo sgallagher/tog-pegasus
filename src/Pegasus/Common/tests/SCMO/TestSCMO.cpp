@@ -152,24 +152,6 @@ void CIMClassToSCMOClass()
 
     VCOUT << "Test of building key bindings from properties." << endl;
 
-    Boolean isCought = false;
-
-    try
-    {
-        theSCMOInstance.buildKeyBindingsFromProperties();
-    }
-    catch(NoSuchProperty& e)
-    {
-         isCought = true;
-    }
-    if (!isCought)
-    {
-        cout << endl << "'NoSuchProperty' exception "
-                "in buildKeyBindingsFromProperties()!" << endl;
-        dump.dumpSCMOInstanceKeyBindings(theSCMOInstance);
-        exit(-1);
-    }
-
     char ThisIsTheName[] = "This is the Name";
     SCMBUnion tmp2;
     tmp2.extString.pchar  = &(ThisIsTheName[0]);
@@ -182,11 +164,20 @@ void CIMClassToSCMOClass()
     Uint32 number;
     SCMO_RC rc;
 
+    theSCMOInstance.buildKeyBindingsFromProperties();
+
+    // Only one of two key properties are set in the instance.
+    // After creating key bindings out of key properies,
+    // the key binding 'Name' must not be set.
+
+    rc = theSCMOInstance.getKeyBinding("Name",keyType,&tmp3);
+    PEGASUS_TEST_ASSERT(rc == SCMO_NULL_VALUE);
+    PEGASUS_TEST_ASSERT(keyType == CIMTYPE_STRING);
+
     theSCMOInstance.setPropertyWithOrigin(
         "Name",
         CIMTYPE_STRING,
         &tmp2);
-
 
     theSCMOInstance.buildKeyBindingsFromProperties();
 
@@ -1630,7 +1621,7 @@ void SCMOInstanceKeyBindingsTest()
 
     SCMO_TESTClass2_Inst.getCIMObjectPath(theCIMPath);
 
-     Array<CIMKeyBinding> theCIMKeyBindings = 
+     Array<CIMKeyBinding> theCIMKeyBindings =
          theCIMPath.getKeyBindings();
 
     PEGASUS_TEST_ASSERT(theCIMKeyBindings.size() == 4);

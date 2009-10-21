@@ -600,8 +600,7 @@ SCMO_RC SCMOClass::_getKeyBindingNodeIndex(Uint32& node, const char* name) const
         if (nodeArray[node].nameHashTag == tag)
         {
             // Now it is worth to compare the two names
-            if (_equalUTF8Strings(
-                nodeArray[node].name,cls.base,name,len))
+            if (_equalNoCaseUTF8Strings(nodeArray[node].name,cls.base,name,len))
             {
                 // we found the property !
                 return SCMO_OK;
@@ -656,7 +655,7 @@ SCMO_RC SCMOClass::_getProperyNodeIndex(Uint32& node, const char* name) const
         if (nodeArray[node].theProperty.nameHashTag == tag)
         {
             // Now it is worth to compare the two names
-            if (_equalUTF8Strings(
+            if (_equalNoCaseUTF8Strings(
                 nodeArray[node].theProperty.name,cls.base,name,len))
             {
                 // we found the property !
@@ -1193,7 +1192,7 @@ Boolean SCMOClass::_isSamePropOrigin(Uint32 node, const char* origin) const
        (SCMBClassPropertyNode*)
            &(cls.base[cls.hdr->propertySet.nodeArray.start]);
 
-   return(_equalUTF8Strings(
+   return(_equalNoCaseUTF8Strings(
        nodeArray[node].theProperty.originClassName,
        cls.base,
        origin,
@@ -4335,7 +4334,8 @@ SCMO_RC SCMOInstance::_getUserKeyBindingNodeIndex(
         SCMBUserKeyBindingElement* theUserDefKBElement =
             (SCMBUserKeyBindingElement*)&(inst.base[elementStart]);
 
-        if (_equalUTF8Strings(theUserDefKBElement->name,inst.base,name,len))
+        if (_equalNoCaseUTF8Strings(
+            theUserDefKBElement->name,inst.base,name,len))
         {
             // the node index of a user defined key binding has an offset
             // by the number of key bindings defined in the class
@@ -6422,58 +6422,6 @@ void SCMODump::printUnionValue(
  * The constant functions
  *****************************************************************************/
 
-static Boolean _equalUTF8Strings(
-    const SCMBDataPtr& ptr_a,
-    char* base,
-    const char* name,
-    Uint32 len)
-
-{
-    // size without trailing '\0' !!
-    if (ptr_a.length-1 != len)
-    {
-        return false;
-    }
-    const char* a = (const char*)_getCharString(ptr_a,base);
-
-    // lets do a loop-unrolling optimized compare here
-    while (len >= 8)
-    {
-        if ((a[0] - name[0]) || (a[1] - name[1]) ||
-            (a[2] - name[2]) || (a[3] - name[3]) ||
-            (a[4] - name[4]) || (a[5] - name[5]) ||
-            (a[6] - name[6]) || (a[7] - name[7]))
-        {
-            return false;
-        }
-        len -= 8;
-        a += 8;
-        name += 8;
-    }
-    while (len >= 4)
-    {
-        if ((a[0] - name[0]) || (a[1] - name[1]) ||
-            (a[2] - name[2]) || (a[3] - name[3]))
-        {
-            return false;
-        }
-        len -= 4;
-        a += 4;
-        name += 4;
-    }
-    while (len--)
-    {
-        if (a[0] - name[0])
-        {
-            return false;
-        }
-        a++;
-        name++;
-    }
-    return true;
-}
-
-
 static Boolean _equalNoCaseUTF8Strings(
     const SCMBDataPtr& ptr_a,
     char* base,
@@ -6499,7 +6447,7 @@ static Boolean _equalNoCaseUTF8Strings(
 #ifdef PEGASUS_HAS_ICU
     return ( _utf8ICUncasecmp(a,name,len)== 0);
 #else
-    return ( strncasecmp(a,name,len )== 0 );
+    return ( System::strncasecmp(a,ptr_a.length-1,name,len )== 0 );
 #endif
 }
 

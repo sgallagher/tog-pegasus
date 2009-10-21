@@ -150,6 +150,9 @@ public:
     // single ResponseData object
     void appendResponseData(const CIMResponseData & x);
 
+    // Function used to complete the namespace on all data held
+    void completeNamespace(const char * ns, Uint32 len);
+
     // Function primarily used by CIMOperationRequestDispatcher to complete
     // namespace and hostname on a,an,r and rn operations in the
     // OperationAggregator

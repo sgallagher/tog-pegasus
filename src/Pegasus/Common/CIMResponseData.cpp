@@ -287,12 +287,92 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
     PEG_METHOD_EXIT();
 }
 
+void CIMResponseData::completeNamespace(const char * ns, Uint32 len)
+{
+    // Both internal XML as well as binary always contain a namespace
+    // don't have to do anything for those two encodings
+    if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
+    {
+        CIMNamespaceName nsName(ns);
+        switch (_dataType)
+        {
+            case RESP_INSTANCE:
+            {
+                    const CIMInstance& inst = _instances[0];
+                    CIMObjectPath& p =
+                        const_cast<CIMObjectPath&>(inst.getPath());
+                    if (p.getNameSpace().isNull())
+                    {
+                        p.setNameSpace(nsName);
+                    }
+            }
+            case RESP_INSTANCES:
+            {
+                for (Uint32 j = 0, n = _instances.size(); j < n; j++)
+                {
+                    const CIMInstance& inst = _instances[j];
+                    CIMObjectPath& p =
+                        const_cast<CIMObjectPath&>(inst.getPath());
+                    if (p.getNameSpace().isNull())
+                    {
+                        p.setNameSpace(nsName);
+                    }
+                }
+                break;
+            }
+            case RESP_OBJECTS:
+            {
+                for (Uint32 j = 0, n = _objects.size(); j < n; j++)
+                {
+                    const CIMObject& object = _objects[j];
+                    CIMObjectPath& p =
+                        const_cast<CIMObjectPath&>(object.getPath());
+                    if (p.getNameSpace().isNull())
+                    {
+                        p.setNameSpace(nsName);
+                    }
+                }
+                break;
+            }
+            case RESP_INSTNAMES:
+            case RESP_OBJECTPATHS:
+            {
+                for (Uint32 j = 0, n = _instanceNames.size(); j < n; j++)
+                {
+                    CIMObjectPath& p = _instanceNames[j];
+                    if (p.getNameSpace().isNull())
+                    {
+                        p.setNameSpace(nsName);
+                    }
+                }
+                break;
+            }
+            default:
+            {
+                PEGASUS_DEBUG_ASSERT(false);
+            }
+        }
+    }
+    if (RESP_ENC_SCMO == (_encoding & RESP_ENC_SCMO))
+    {
+        for (Uint32 j = 0, n = _scmoInstances.size(); j < n; j++)
+        {
+            SCMOInstance & scmoInst=_scmoInstances[j];
+            if (0 == scmoInst.getNameSpace())
+            {
+                scmoInst.setNameSpace_l(ns,len);
+            }
+        }
+    }
+}
+
+
 void CIMResponseData::completeHostNameAndNamespace(
     const String & hn,
     const CIMNamespaceName & ns)
 {
     // Internal XML always has host name and namespace
-    // binary data shhould not ever be present here
+    // binary data should not ever be present here
     PEGASUS_DEBUG_ASSERT((RESP_ENC_BINARY != (_encoding & RESP_ENC_BINARY)));
 
     if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))

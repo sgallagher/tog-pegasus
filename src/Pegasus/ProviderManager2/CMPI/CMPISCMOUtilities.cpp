@@ -135,14 +135,6 @@ SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMInstance(
     if (0 == scmoClass)
     {
         isDirty=true;
-        if (!ns) 
-        {
-            ns="";
-        }
-        if (!cls) 
-        {
-            cls="";
-        }
         scmoClass = new SCMOClass(cls,ns);
     }
 
@@ -183,14 +175,6 @@ SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMObjectPath(
     if (0 == scmoClass)
     {
         isDirty=true;
-        if (!ns) 
-        {
-            ns="";
-        }
-        if (!cls) 
-        {
-            cls="";
-        }
         scmoClass = new SCMOClass(cls,ns);
     }
 
@@ -290,7 +274,9 @@ CMPIrc CMPISCMOUtilities::scmoValue2CMPIData(
                     SCMOInstance* ref = 
                         new SCMOInstance(*(scmoValue->extRefPtr));
                     data->value.ref = reinterpret_cast<CMPIObjectPath*>
-                        (new CMPI_Object(ref));
+                        (new CMPI_Object(
+                            ref,
+                            CMPI_Object::ObjectTypeObjectPath));
                 }
                 break;
 
@@ -299,7 +285,9 @@ CMPIrc CMPISCMOUtilities::scmoValue2CMPIData(
                     SCMOInstance* inst = 
                         new SCMOInstance(*(scmoValue->extRefPtr));
                     data->value.inst = reinterpret_cast<CMPIInstance*>
-                        (new CMPI_Object(inst, true));
+                        (new CMPI_Object(
+                            inst, 
+                            CMPI_Object::ObjectTypeInstance));
                 }
                 break;
             default:

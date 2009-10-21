@@ -331,7 +331,7 @@ extern "C"
         SCMOInstance* scmoInst = new SCMOInstance(*scmoOp);
         //fprintf(stderr, "mbEncNewInstance(%p->%p)\n",scmoOp, scmoInst);
         CMPIInstance* neInst = reinterpret_cast<CMPIInstance*>(
-            new CMPI_Object(scmoInst, true));
+            new CMPI_Object(scmoInst, CMPI_Object::ObjectTypeInstance));
 
         CMSetStatus(rc, CMPI_RC_OK);
         PEG_METHOD_EXIT();
@@ -387,7 +387,7 @@ extern "C"
 #endif
 
         CMPIObjectPath *nePath = reinterpret_cast<CMPIObjectPath*>(
-            new CMPI_Object(scmoInst));
+            new CMPI_Object(scmoInst, CMPI_Object::ObjectTypeObjectPath));
         CMSetStatus(rc, CMPI_RC_OK);
         PEG_METHOD_EXIT();
         return nePath;
@@ -1454,7 +1454,7 @@ extern "C"
             }
 
             // Create the CIMOMHandle wrapper.
-            CIMOMHandle *cm_handle = CM_CIMOM (mb);
+            CIMOMHandle *cm_handle = (CIMOMHandle*)mb->hdl;
             CIMOMHandleQueryContext qcontext(
                 CIMNamespaceName(CMGetCharsPtr(data.value.string,NULL)),
                 *cm_handle);
@@ -1581,7 +1581,7 @@ extern "C"
             }
 
             // Create the CIMOMHandle wrapper.
-            CIMOMHandle *cm_handle = CM_CIMOM (mb);
+            CIMOMHandle *cm_handle = (CIMOMHandle*)mb->hdl;
             CIMOMHandleQueryContext qcontext(
                 CIMNamespaceName(CMGetCharsPtr(data.value.string, NULL)),
                 *cm_handle);

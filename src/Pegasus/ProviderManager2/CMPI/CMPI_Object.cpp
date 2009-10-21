@@ -53,11 +53,11 @@ CMPI_Object::CMPI_Object(CIMInstance* ci)
     ftab = CMPI_Instance_Ftab;
 }
 
-CMPI_Object::CMPI_Object(SCMOInstance* si, Boolean isInstance)
+CMPI_Object::CMPI_Object(SCMOInstance* si, SCMOInstanceObjectType type)
 {
     CMPI_ThreadContext::addObject(this);
     hdl = (void*)si;
-    if (isInstance)
+    if (type == ObjectTypeInstance)
     {
         ftab = CMPI_Instance_Ftab;
     }

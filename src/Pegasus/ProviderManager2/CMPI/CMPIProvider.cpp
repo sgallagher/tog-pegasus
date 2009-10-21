@@ -42,7 +42,6 @@
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
-#include <Pegasus/ProviderManager2/CMPI/CMPI_ThreadContext.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -58,12 +57,10 @@ static const char _MSG_CANNOT_INIT_API[] =
 // until the provider has had a chance to initialize
 CMPIProvider::CMPIProvider(
     const String & name,
-    const String & moduleName,
     CMPIProviderModule *module,
     ProviderVector *mv)
-    : _status(UNINITIALIZED), _module(module), _cimom_handle(0), _name(name),
-    _moduleName(moduleName), _no_unload(0),  _threadWatchList(),
-    _cleanedThreads()
+    : _status(UNINITIALIZED), _module(module), _cimom_handle(0), _name(name), 
+    _no_unload(0),  _threadWatchList(), _cleanedThreads()
 {
     PEG_METHOD_ENTER(
         TRC_CMPIPROVIDERINTERFACE,
@@ -103,8 +100,6 @@ void CMPIProvider::set(
 
 void CMPIProvider::reset()
 {
-    
-    _currentSubscriptions = 0;
     _module = 0;
     _cimom_handle = 0;
     _no_unload = 0;
@@ -115,11 +110,6 @@ void CMPIProvider::reset()
 CMPIProviderModule *CMPIProvider::getModule() const
 {
     return(_module);
-}
-
-String CMPIProvider::getModuleName() const
-{
-    return _moduleName;
 }
 
 String CMPIProvider::getName() const
@@ -181,7 +171,7 @@ void CMPIProvider::initialize(
     CMPI_Broker & broker)
 {
     PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPIProvider::initialize()");
-    broker.hdl=&cimom;
+    broker.hdl=cimom._rep;
     broker.bft=CMPI_Broker_Ftab;
     broker.eft=CMPI_BrokerEnc_Ftab;
     broker.xft=CMPI_BrokerExt_Ftab;
@@ -402,7 +392,7 @@ void CMPIProvider::_terminate(Boolean terminating)
         waitUntilThreadsDone();
 
     }
-    // We have killed all threads running in provider forcibly. Set
+    // We have killed all threads running in provider forcibly. Set 
     // unloadStatus of provider to OK.
     if (terminating)
     {
@@ -417,6 +407,7 @@ void CMPIProvider::terminate()
     PEG_METHOD_ENTER(
         TRC_CMPIPROVIDERINTERFACE,
         "CMPIProvider::terminate()");
+    Status savedStatus=_status;
     if (_status == INITIALIZED)
     {
         try
@@ -640,6 +631,12 @@ Boolean CMPIProvider::testSubscriptions ()
     return currentSubscriptions;
 }
 
+void CMPIProvider::resetSubscriptions ()
+{
+    AutoMutex lock (_currentSubscriptionsMutex);
+    _currentSubscriptions = 0;
+}
+
 void CMPIProvider::setProviderInstance (const CIMInstance & instance)
 {
     _providerInstance = instance;
@@ -688,7 +685,8 @@ CMPIInstanceMI *CMPIProvider::getInstMI()
             String providerName = _broker.name;
             CMPIInstanceMI *mi = NULL;
 
-            if (_miVector.genericMode && _miVector.createGenInstMI)
+            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Instance);
+            if (_miVector.genericMode)
             {
                 mi = _miVector.createGenInstMI(
                     &_broker,
@@ -696,7 +694,7 @@ CMPIInstanceMI *CMPIProvider::getInstMI()
                     (const char *)providerName.getCString(),
                     &rc);
             }
-            else if (_miVector.createInstMI)
+            else
             {
                 mi = _miVector.createInstMI(&_broker, &eCtx, &rc);
             }
@@ -737,9 +735,9 @@ CMPIMethodMI *CMPIProvider::getMethMI()
             CMPI_ContextOnStack eCtx(opc);
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
-            CMPIMethodMI *mi = 0;
-
-            if (_miVector.genericMode && _miVector.createGenMethMI)
+            CMPIMethodMI *mi;
+            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Method);
+            if (_miVector.genericMode)
             {
                 mi = _miVector.createGenMethMI(
                     &_broker,
@@ -747,7 +745,7 @@ CMPIMethodMI *CMPIProvider::getMethMI()
                     (const char *)providerName.getCString(),
                     &rc);
             }
-            else if (_miVector.createMethMI)
+            else
             {
                 mi = _miVector.createMethMI(&_broker, &eCtx, &rc);
             }
@@ -787,9 +785,9 @@ CMPIAssociationMI *CMPIProvider::getAssocMI()
             CMPI_ContextOnStack eCtx(opc);
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
-            CMPIAssociationMI *mi = 0;
-
-            if (_miVector.genericMode && _miVector.createGenAssocMI)
+            CMPIAssociationMI *mi;
+            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Association);
+            if (_miVector.genericMode)
             {
                 mi = _miVector.createGenAssocMI(
                     &_broker,
@@ -797,7 +795,7 @@ CMPIAssociationMI *CMPIProvider::getAssocMI()
                     (const char *)providerName.getCString(),
                     &rc);
             }
-            else if (_miVector.createAssocMI)
+            else
             {
                 mi = _miVector.createAssocMI(&_broker, &eCtx, &rc);
             }
@@ -838,9 +836,10 @@ CMPIPropertyMI *CMPIProvider::getPropMI()
             CMPI_ContextOnStack eCtx(opc);
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
-            CMPIPropertyMI *mi = 0;
+            CMPIPropertyMI *mi;
+            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Property);
 
-            if (_miVector.genericMode && _miVector.createGenPropMI)
+            if (_miVector.genericMode)
             {
                 mi = _miVector.createGenPropMI(
                     &_broker,
@@ -848,7 +847,7 @@ CMPIPropertyMI *CMPIProvider::getPropMI()
                     (const char *)providerName.getCString(),
                     &rc);
             }
-            else if (_miVector.createPropMI)
+            else
             {
                 mi = _miVector.createPropMI(&_broker, &eCtx, &rc);
             }
@@ -889,9 +888,9 @@ CMPIIndicationMI *CMPIProvider::getIndMI()
             CMPI_ContextOnStack eCtx(opc);
             CMPIStatus rc = {CMPI_RC_OK, NULL};
             String providerName = _broker.name;
-            CMPIIndicationMI *mi = 0;
-
-            if (_miVector.genericMode && _miVector.createGenIndMI)
+            CMPIIndicationMI *mi;
+            PEGASUS_ASSERT(_miVector.miTypes & CMPI_MIType_Indication);
+            if (_miVector.genericMode)
             {
                 mi = _miVector.createGenIndMI(
                     &_broker,
@@ -899,7 +898,7 @@ CMPIIndicationMI *CMPIProvider::getIndMI()
                     (const char *)providerName.getCString(),
                     &rc);
             }
-            else if (_miVector.createIndMI)
+            else
             {
                 mi = _miVector.createIndMI(&_broker, &eCtx, &rc);
             }

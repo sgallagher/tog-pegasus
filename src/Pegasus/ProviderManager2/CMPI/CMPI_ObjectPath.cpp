@@ -81,7 +81,8 @@ extern "C"
             // we simply clone using the ObjectPathOnly option.
             SCMOInstance* nRef = new SCMOInstance(ref->clone(true));
             CMPIObjectPath* cmpiObjPath =
-                reinterpret_cast<CMPIObjectPath *>(new CMPI_Object(nRef));
+                reinterpret_cast<CMPIObjectPath *>
+                (new CMPI_Object(nRef,CMPI_Object::ObjectTypeObjectPath));
             CMSetStatus(rc,CMPI_RC_OK);
             return cmpiObjPath;
         }

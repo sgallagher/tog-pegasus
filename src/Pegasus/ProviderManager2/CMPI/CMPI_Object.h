@@ -69,8 +69,15 @@ public:
     {
         return ftab;
     }
+
+    enum SCMOInstanceObjectType
+    {
+        ObjectTypeInstance,
+        ObjectTypeObjectPath
+    };
+
     CMPI_Object(CIMInstance*);
-    CMPI_Object(SCMOInstance*, Boolean isInstance=false);
+    CMPI_Object(SCMOInstance*, SCMOInstanceObjectType type);
     CMPI_Object(CIMObjectPath*);
     CMPI_Object(CIMDateTime*);
     CMPI_Object(CIMError*);

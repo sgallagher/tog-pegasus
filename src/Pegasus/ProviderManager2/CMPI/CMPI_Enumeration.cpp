@@ -166,7 +166,7 @@ extern "C"
                 data.value.inst = reinterpret_cast<CMPIInstance*>
                     (new CMPI_Object(
                         new SCMOInstance((*ia)[ie->cursor++]),
-                        true));
+                        CMPI_Object::ObjectTypeInstance));
                 CMSetStatus(rc, CMPI_RC_OK);
             }
             else
@@ -184,7 +184,7 @@ extern "C"
                 data.value.inst = reinterpret_cast<CMPIInstance*>
                     (new CMPI_Object(
                         new SCMOInstance((*ia)[ie->cursor++]),
-                        true));
+                        CMPI_Object::ObjectTypeInstance));
                 CMSetStatus(rc, CMPI_RC_OK);
             }
             else
@@ -201,7 +201,8 @@ extern "C"
             {
                 data.value.ref = reinterpret_cast<CMPIObjectPath*>
                     (new CMPI_Object(
-                        new SCMOInstance((*opa)[oe->cursor++])));
+                        new SCMOInstance((*opa)[oe->cursor++]),
+                        CMPI_Object::ObjectTypeObjectPath));
                 CMSetStatus(rc, CMPI_RC_OK);
             }
             else
@@ -308,7 +309,8 @@ extern "C"
             for (Uint32 i=0; i<size; i++)
             {
                 SCMOInstance &inst = (*ia)[i];
-                obj = new CMPI_Object(new SCMOInstance(inst),true);
+                obj = new CMPI_Object(new SCMOInstance(inst),
+                                      CMPI_Object::ObjectTypeInstance);
                 arraySetElementAt(nar,i,(CMPIValue*)&obj,CMPI_instance);
             }
         }
@@ -321,7 +323,8 @@ extern "C"
             for (Uint32 i=0; i<size; i++)
             {
                 SCMOInstance &op = (*opa)[i];
-                obj = new CMPI_Object(new SCMOInstance(op));
+                obj = new CMPI_Object(new SCMOInstance(op),
+                                      CMPI_Object::ObjectTypeObjectPath);
                 arraySetElementAt(nar,i,(CMPIValue*)&obj,CMPI_ref);
             }
         }

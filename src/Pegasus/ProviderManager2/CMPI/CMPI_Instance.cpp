@@ -89,7 +89,8 @@ extern "C"
         {
             SCMOInstance* cInst = new SCMOInstance(inst->clone());
             CMPIInstance* cmpiInstance =
-                reinterpret_cast<CMPIInstance *>(new CMPI_Object(cInst,true));
+                reinterpret_cast<CMPIInstance *>
+                (new CMPI_Object(cInst,CMPI_Object::ObjectTypeInstance));
             CMSetStatus(rc,CMPI_RC_OK);
             PEG_METHOD_EXIT();
             return cmpiInstance;
@@ -127,52 +128,52 @@ extern "C"
                                           &value,
                                           isArray,
                                           size);
-        if (src != SCMO_OK)
+        switch(src)
         {
-            switch(src)
+            case SCMO_OK:
             {
-            case SCMO_INDEX_OUT_OF_BOUND:
+                CMPIType ct=type2CMPIType(type, isArray);
+                CMPISCMOUtilities::scmoValue2CMPIData( value, ct, &data );
+                if ((ct&~CMPI_ARRAY) == CMPI_string)
                 {
-                    CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
-                    CMPIData rdata={0,CMPI_nullValue|CMPI_notFound,{0}};
-                    return rdata;
+                    // We always receive strings as an array of pointers
+                    // with at least one element, which needs to be released
+                    // after it was converted to CMPIData
+                    free((void*)value);
                 }
                 break;
+            }
+            case SCMO_INDEX_OUT_OF_BOUND:
+            {
+                CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
+                CMPIData rdata={0,CMPI_nullValue|CMPI_notFound,{0}};
+                return rdata;
+                break;
+            }
 
             case SCMO_NULL_VALUE:
-                {
-                    // A NullValue does not indicate an error, but simply that
-                    // no value has been set for the property.
-                    data.type = type2CMPIType(type, isArray);
-                    data.state = CMPI_nullValue;
-                    data.value.uint64 = 0;
-                }
+            {
+                // A NullValue does not indicate an error, but simply that
+                // no value has been set for the property.
+                data.type = type2CMPIType(type, isArray);
+                data.state = CMPI_nullValue;
+                data.value.uint64 = 0;
                 break;
+            }
 
             default:
-                {
-                    PEG_TRACE((
-                        TRC_CMPIPROVIDERINTERFACE,
-                        Tracer::LEVEL1,
-                        "Unexpected RC from SCMOInstance.instGetPropertyAt: %d",
-                        src));
-                    CMSetStatus(rc, CMPI_RC_ERR_FAILED);
-                    return data;
-                }
-                break;
-            }
-        }
-        else
-        {
-            CMPIType ct=type2CMPIType(type, isArray);
-            CMPISCMOUtilities::scmoValue2CMPIData( value, ct, &data );
-            if ((ct&~CMPI_ARRAY) == CMPI_string)
             {
-                // We always receive strings as an array of pointers
-                // with at least one element, which needs to be released
-                // after it was converted to CMPIData
-                free((void*)value);
+                // Other return codes should not appear here, but are possible
+                // code wise (i.e. SCMO_NOT_FOUND etc.)
+                PEG_TRACE((
+                    TRC_CMPIPROVIDERINTERFACE,
+                    Tracer::LEVEL2,
+                    "Unexpected RC from SCMOInstance.instGetPropertyAt: %d",
+                    src));
+                CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+                return data;
             }
+            break;
         }
 
 
@@ -405,11 +406,16 @@ extern "C"
 
         try
         {
+            // Generate keys from instance
+            inst->buildKeyBindingsFromProperties();
+
             // Since we make no difference between ObjectPath and Instance,
             // we simply clone using the ObjectPathOnly option.
             SCMOInstance* cInst = new SCMOInstance(inst->clone(true));
+
             CMPIObjectPath* cmpiObjPath =
-                reinterpret_cast<CMPIObjectPath *>(new CMPI_Object(cInst));
+                reinterpret_cast<CMPIObjectPath *>
+                (new CMPI_Object(cInst,CMPI_Object::ObjectTypeObjectPath));
             CMSetStatus(rc,CMPI_RC_OK);
             PEG_METHOD_EXIT();
             return cmpiObjPath;

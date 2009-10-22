@@ -6434,7 +6434,7 @@ static Boolean _equalNoCaseUTF8Strings(
 #ifdef PEGASUS_HAS_ICU
     return ( _utf8ICUncasecmp(a,name,len)== 0);
 #else
-    return ( System::strncasecmp(a,ptr_a.length-1,name,len )== 0 );
+    return ( System::strncasecmp(a,ptr_a.length-1,name,len ));
 #endif
 }
 

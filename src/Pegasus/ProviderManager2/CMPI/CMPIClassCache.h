@@ -31,6 +31,7 @@
 #ifndef _CMPIClassCache_H_
 #define _CMPIClassCache_H_
 
+#include <strings.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/HashTable.h>

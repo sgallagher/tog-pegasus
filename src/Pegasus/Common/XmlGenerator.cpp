@@ -599,7 +599,7 @@ void XmlGenerator::appendSpecial(Buffer& out, const char* str, Uint32 size)
 
     // Buffer cannot grow more than 6*size characters (ie. 4*size+2*size)
     Uint32 newMaxSize = (size << 2) + (size << 1);
-    if (out.size() + newMaxSize <= out.capacity())
+    if (out.size() + newMaxSize >= out.capacity())
     {
         out.reserveCapacity(out.capacity() + newMaxSize);
     }

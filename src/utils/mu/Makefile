@@ -30,6 +30,7 @@ DIR = utils/mu
 include $(PEGASUS_ROOT)/mak/config.mak
 
 PROGRAM = mu
+MANIFEST = .manifest
 
 OBJ_DIR = .
 INCLUDES = -I$(PEGASUS_ROOT)/src $(EXTRA_INCLUDES)
@@ -42,6 +43,7 @@ ifeq ($(OS_TYPE),windows)
     RM = del
     BACKWARD_SLASH = 1
     MU_EXE_LOCATION = $(subst /,\,$(BIN_DIR)\$(PROGRAM)$(EXE))
+    MU_EXE_MANIFEST_LOCATION = $(subst /,\,$(BIN_DIR)\$(PROGRAM)$(EXE)$(MANIFEST))
 else
     PLATFORM_SOURCES = FilesUnix.cpp
     # some platforms (Mac) require space before pgm name
@@ -54,11 +56,14 @@ endif
 ifdef PEGASUS_MU_BIN_DIR
     ifdef BACKWARD_SLASH
        FULL_PROGRAM = $(PEGASUS_MU_BIN_DIR)\$(PROGRAM)$(EXE)
+       FULL_PROGRAM_MANIFEST = $(PEGASUS_MU_BIN_DIR)\$(PROGRAM)$(EXE)$(MANIFEST)
     else
        FULL_PROGRAM = $(PEGASUS_MU_BIN_DIR)/$(PROGRAM)$(EXE)
+       FULL_PROGRAM_MANIFEST = $(PEGASUS_MU_BIN_DIR)/$(PROGRAM)$(EXE)$(MANIFEST)
     endif
 else
     FULL_PROGRAM = $(PROGRAM)$(EXE)
+    FULL_PROGRAM_MANIFEST = $(PROGRAM)$(EXE)$(MANIFEST)
 endif
 
 
@@ -93,12 +98,15 @@ $(FULL_PROGRAM): $(OBJECTS)
 	$(LINK_WRAPPER) $(CXX) $(FLAGS) $(EXE_OUTPUT) $(OBJECTS) $(FULL_LIBRARIES) $(SYS_LIB)
 	$(MKDIRHIER) $(BIN_DIR)
 	-$(RM) $(MU_EXE_LOCATION)
+	-$(RM) $(MU_EXE_MANIFEST_LOCATION)
+	-$(COPY) $(FULL_PROGRAM_MANIFEST) $(MU_EXE_MANIFEST_LOCATION)
 	$(COPY) $(FULL_PROGRAM) $(MU_EXE_LOCATION)
 
 clean:
 	$(RM) $(OBJECTS)
 	$(RM) $(FULL_PROGRAM)
 	-$(RM) $(MU_EXE_LOCATION)
+	-$(RM) $(MU_EXE_MANIFEST_LOCATION)
 
 tests:
 

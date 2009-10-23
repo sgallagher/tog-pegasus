@@ -37,13 +37,14 @@
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Provider/CIMOMHandleRep.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIClassCache.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 #define CM_BROKER (CMPI_ThreadContext::getBroker())
-#define CM_CIMOM(mb) ((CIMOMHandleRep*)mb->hdl)
+#define CM_CIMOM(mb) (CMPI_BrokerHdl::getRep(mb))
 
 #define CM_Context(ctx) (((CMPI_Context*)ctx)->ctx)
 #define CM_Instance(ci) ((CIMInstance*)ci->hdl)
@@ -59,6 +60,15 @@ CIMClass *mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop);
 SCMOClass *mbGetSCMOClass(const CMPIBroker *mb,
                           const char* ns,
                           const char* cls);
+
+class CMPI_BrokerHdl
+{
+public:
+    static inline CIMOMHandleRep* getRep(const CMPIBroker *mb)
+    {
+        return ((CIMOMHandle*)mb->hdl)->_rep;
+    }
+};
 
 class CMPIProvider;
 

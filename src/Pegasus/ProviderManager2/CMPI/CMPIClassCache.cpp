@@ -115,7 +115,9 @@ SCMOClass* CMPIClassCache::getSCMOClass(
                 return scmoClass;
             }
 
-            const CIMClass cc = CM_CIMOM(mb)->getClass(
+            CIMOMHandleRep* handle=CM_CIMOM(mb);
+
+            const CIMClass cc = handle->getClass(
                 OperationContext(),
                 CIMNamespaceNameCast(nsName),
                 CIMNameCast(className),

@@ -39,6 +39,7 @@
 #include "CMPI_Result.h"
 #include "CMPI_SelectExp.h"
 #include "CMPISCMOUtilities.h"
+#include "CMPI_Value.h"
 
 
 #include <Pegasus/Common/CIMMessage.h>
@@ -2879,13 +2880,6 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
                 request->instanceName.getClassName().getString().getCString(),
             (const char*) request->propertyName.getString().getCString()));
 
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
-
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
@@ -2903,7 +2897,6 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
-        CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(GI_handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
@@ -2912,6 +2905,9 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         CMPIPropertyList props(localPropertyList);
 
         CString nameSpace = request->nameSpace.getString().getCString();
+        CString className = 
+            request->instanceName.getClassName().getString().getCString();
+
         // Leave includeQualifiers and includeClassOrigin as false for this
         // call to getInstance
         _setupCMPIContexts(
@@ -2923,6 +2919,30 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
             false,
             false,
             true);
+
+        // make target object path
+        SCMOClass* scmoClass = 
+            mbGetSCMOClass(
+                pr.getBroker(),
+                (const char*)nameSpace,
+                (const char*)className);
+        if (0 == scmoClass)
+        {
+            // This indicates a severe error, since we should't have come
+            // here at all, if the class is invalid
+            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
+                "CMPIProviderManager::handleGetInstanceRequest - "
+                "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
+                (const char*) nameSpace,
+                (const char*) className));
+
+            CIMException cimException(CIM_ERR_NOT_FOUND);
+            throw cimException;
+        }
+
+        SCMOInstance objectPath(*scmoClass,request->instanceName);
+        objectPath.setHostName((const char*)System::getHostName().getCString());
+        CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -2968,24 +2988,42 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         }
         _throwCIMException(rc, eRes.resError);
 
-        // TODO: Differentiate here between SCMO and C++ 
         // Copy property value from instance to getProperty response
-        CIMInstance& instance = GI_response->getResponseData().getInstance();
-        if(!(instance.isUninitialized()))
+        Array<SCMOInstance>& arInstance =
+            GI_response->getResponseData().getSCMO();
+        if (arInstance.size() > 0) 
         {
-            Uint32 pos = instance.findProperty(request->propertyName);
+            SCMOInstance& instance = arInstance[0];
+            if(!(instance.isUninitialized()))
+            {
+                CString pName = 
+                    request->propertyName.getString().getCString();
 
-            if (pos != PEG_NOT_FOUND)
-            {
-                response->value = instance.getProperty(pos).getValue();
-            }
-            // Else property not found. Return CIM_ERR_NO_SUCH_PROPERTY.
-            else
-            {
-                throw PEGASUS_CIM_EXCEPTION(
-                    CIM_ERR_NO_SUCH_PROPERTY,
-                    request->propertyName.getString()
-                    );
+                // Construct a temporary CMPI Instance object, on which we
+                // can use the encpsulation functions to retrieve the property.
+                CMPIInstance* tmpInst = reinterpret_cast<CMPIInstance*>(
+                    new CMPI_Object(
+                        &instance, CMPI_Object::ObjectTypeInstance));
+
+                CMPIStatus trc;
+                CMPIData data = 
+                    CMGetProperty(tmpInst, (const char*)pName, &trc);
+
+                if (trc.rc == CMPI_RC_OK)
+                {
+                    // Convert the CMPIData to a CIMValue
+                    CIMValue val = 
+                        value2CIMValue(&(data.value), data.type, &(trc.rc));
+
+                    response->value = val;
+                }
+                // Else property not found. Return CIM_ERR_NO_SUCH_PROPERTY.
+                else
+                {
+                    throw PEGASUS_CIM_EXCEPTION(
+                        CIM_ERR_NO_SUCH_PROPERTY,
+                        request->propertyName.getString());
+                }
             }
         }
     }
@@ -3050,22 +3088,18 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
 
     try
     {
+        CString nameSpace = request->nameSpace.getString().getCString();
+        CString className = 
+            request->instanceName.getClassName().getString().getCString();
+
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
             "CMPIProviderManager::handleSetPropertyRequest"
             " - Host name: %s  Name space: %s  "
                 "Class name: %s  Property name: %s",
             (const char*) System::getHostName().getCString(),
-            (const char*) request->nameSpace.getString().getCString(),
-            (const char*)
-                request->instanceName.getClassName().getString().getCString(),
+            (const char*) nameSpace,
+            (const char*) className,
             (const char*) request->propertyName.getString().getCString()));
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
 
         Boolean remote=false;
         OpProviderHolder ph;
@@ -3079,13 +3113,11 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
-        CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(MI_handler,pr.getBroker());
         CMPI_InstanceOnStack eInst(localModifiedInstance);
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         CMPIPropertyList props(localPropertyList);
-        CString nameSpace = request->nameSpace.getString().getCString();
 
         // Leave includeQualifiers as false for this call to modifyInstance
         _setupCMPIContexts(
@@ -3097,6 +3129,30 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
             false,
             false,
             true);
+
+        // make target object path
+        SCMOClass* scmoClass = 
+            mbGetSCMOClass(
+                pr.getBroker(),
+                (const char*)nameSpace,
+                (const char*)className);
+        if (0 == scmoClass)
+        {
+            // This indicates a severe error, since we should't have come
+            // here at all, if the class is invalid
+            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
+                "CMPIProviderManager::handleGetInstanceRequest - "
+                "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
+                (const char*) nameSpace,
+                (const char*) className));
+
+            CIMException cimException(CIM_ERR_NOT_FOUND);
+            throw cimException;
+        }
+
+        SCMOInstance objectPath(*scmoClass,request->instanceName);
+        objectPath.setHostName((const char*)System::getHostName().getCString());
+        CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 

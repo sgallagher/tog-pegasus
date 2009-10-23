@@ -171,7 +171,7 @@ void CMPIProvider::initialize(
     CMPI_Broker & broker)
 {
     PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPIProvider::initialize()");
-    broker.hdl=cimom._rep;
+    broker.hdl=&cimom;
     broker.bft=CMPI_Broker_Ftab;
     broker.eft=CMPI_BrokerEnc_Ftab;
     broker.xft=CMPI_BrokerExt_Ftab;

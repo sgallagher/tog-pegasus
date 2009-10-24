@@ -629,13 +629,6 @@ CMPI_ObjectPathOnStack::CMPI_ObjectPathOnStack(const SCMOInstance& cop)
     ft = CMPI_ObjectPathOnStack_Ftab;
 }
 
-CMPI_ObjectPathOnStack::CMPI_ObjectPathOnStack(const CIMObjectPath& cop)
-{
-    fprintf(stderr,"Using non SCMO CMPI_ObjectPathOnStack!!!!\n");
-    hdl = (void*)&cop;
-    ft = CMPI_ObjectPathOnStack_Ftab;
-}
-
 
 PEGASUS_NAMESPACE_END
 

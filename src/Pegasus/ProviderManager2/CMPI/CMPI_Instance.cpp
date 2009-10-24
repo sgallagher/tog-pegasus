@@ -226,9 +226,25 @@ extern "C"
                 {
                     // A NullValue does not indicate an error, but simply that
                     // no value has been set for the property.
-                    data.type = type2CMPIType(type, isArray);
-                    data.state = CMPI_nullValue;
-                    data.value.uint64 = 0;
+
+                    // TBD: Though the CMPI specification mandates to return a 
+                    // nullvalue when a property exists on an instance but has 
+                    // not yet been assigned a value, for compatibility with 
+                    // previous versions we return CMPI_RC_ERR_NO_SUCH_PROPERTY 
+                    // in this case.
+                    // If SCMO would distinguish between nullvalues and values
+                    // that have not been set at all on an instance, we could
+                    // be more precise here.
+                    /*
+                         // Correct code for nullvalues
+                         data.type = type2CMPIType(type, isArray);
+                         data.state = CMPI_nullValue;
+                         data.value.uint64 = 0;
+                    */
+                    // Code for properties that have not been set
+                    CMSetStatus(rc, CMPI_RC_ERR_NO_SUCH_PROPERTY);
+                    return data;
+
                 }
                 break;
 
@@ -362,7 +378,10 @@ extern "C"
                     cmpiRC.rc = CMPI_RC_ERR_INVALID_PARAMETER;
                     break;
                 case SCMO_NOT_FOUND:
-                    cmpiRC.rc = CMPI_RC_ERR_NO_SUCH_PROPERTY;
+                    //TBD: Should return an error here, but previous impl.
+                    //     returned OK. Is this correct?
+                    //cmpiRC.rc = CMPI_RC_ERR_NO_SUCH_PROPERTY;
+                    cmpiRC.rc = CMPI_RC_OK;
                     break;
                 case SCMO_WRONG_TYPE:
                     cmpiRC.rc = CMPI_RC_ERR_INVALID_DATA_TYPE;
@@ -499,7 +518,7 @@ extern "C"
                     "or namespace of instance");
                 PEG_METHOD_EXIT();
                 CMReturnWithString(
-                    CMPI_RC_ERR_TYPE_MISMATCH,
+                    CMPI_RC_ERR_FAILED,
                     string2CMPIString("Incompatible ObjectPath"));
             }
         }
@@ -592,7 +611,7 @@ CMPIInstanceFT *CMPI_Instance_Ftab=&instance_FT;
 CMPIInstanceFT *CMPI_InstanceOnStack_Ftab=&instanceOnStack_FT;
 
 
-CMPI_InstanceOnStack::CMPI_InstanceOnStack(const CIMInstance& ci)
+CMPI_InstanceOnStack::CMPI_InstanceOnStack(const SCMOInstance& ci)
 {
     PEG_METHOD_ENTER(
         TRC_CMPIPROVIDERINTERFACE,

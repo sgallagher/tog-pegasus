@@ -79,8 +79,6 @@ SCMOClass* CMPIClassCache::getSCMOClass(
     const char* nsName,
     const char* className)
 {
-    //fprintf(stderr,"CMPIClassCache::getSCMOClass - Enter()\n");
-
     if (nsName && className)
     {
 

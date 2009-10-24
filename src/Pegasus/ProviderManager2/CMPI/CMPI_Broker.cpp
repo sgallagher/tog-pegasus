@@ -197,11 +197,6 @@ SCMOClass* mbGetSCMOClass(
 
     SCMOClass* scmoCls = xBroker->classCache.getSCMOClass(xBroker, ns, cls);
 
-    if (!scmoCls)
-    {
-        fprintf(stderr,"mbGetSCMOClass() failed for class %s:%s\n",ns,cls);
-    }
-
     PEG_METHOD_EXIT();
     return scmoCls;
 }

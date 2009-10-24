@@ -329,7 +329,6 @@ extern "C"
         // Now we simply create a second reference of the SCMOInstance which we
         // received as CMPIObjectPath and account it as CMPIInstance.
         SCMOInstance* scmoInst = new SCMOInstance(*scmoOp);
-        //fprintf(stderr, "mbEncNewInstance(%p->%p)\n",scmoOp, scmoInst);
         CMPIInstance* neInst = reinterpret_cast<CMPIInstance*>(
             new CMPI_Object(scmoInst, CMPI_Object::ObjectTypeInstance));
 

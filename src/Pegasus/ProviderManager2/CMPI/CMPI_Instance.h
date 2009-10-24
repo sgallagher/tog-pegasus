@@ -42,9 +42,7 @@ PEGASUS_NAMESPACE_BEGIN
 struct CMPI_InstanceOnStack : CMPIInstance
 {
     CMPI_Object *next,*prev;
-    CMPI_InstanceOnStack(const SCMOInstance* ci);
     CMPI_InstanceOnStack(const SCMOInstance& ci);
-    ~CMPI_InstanceOnStack();
 };
 
 PEGASUS_NAMESPACE_END

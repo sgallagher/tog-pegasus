@@ -281,7 +281,20 @@ extern "C"
             PEG_METHOD_EXIT();
             return false;
         }
-        CIMInstance *instance = (CIMInstance *) inst->hdl;
+
+        SCMOInstance * scmoInst = (SCMOInstance*) inst->hdl;
+        CIMInstance cimInstance;
+        SCMO_RC smrc = scmoInst->getCIMInstance(cimInstance);
+        if (SCMO_OK != smrc) 
+        {
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Failed to convert SCMOInstance to CIMInstance");
+            CMSetStatus (rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
+            return false;
+        }
 
         /**
            WQL
@@ -294,7 +307,7 @@ extern "C"
                 try
                 {
                     PEG_METHOD_EXIT();
-                    return sx->wql_stmt->evaluate (*(CIMInstance *) inst->hdl);
+                    return sx->wql_stmt->evaluate (cimInstance);
                 }
                 catch( const Exception &e )
                 {
@@ -341,7 +354,7 @@ extern "C"
                 try
                 {
                     PEG_METHOD_EXIT();
-                    return sx->cql_stmt->evaluate (*instance);
+                    return sx->cql_stmt->evaluate (cimInstance);
                 }
                 catch( const Exception &e )
                 {

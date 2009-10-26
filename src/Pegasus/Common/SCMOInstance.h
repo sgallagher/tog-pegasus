@@ -843,6 +843,53 @@ private:
     friend class SCMOXmlWriter;
 };
 
+inline void SCMOInstance::_getPropertyAt(
+    Uint32 pos,
+    SCMBValue** value,
+    const char ** valueBase,
+    SCMBClassProperty ** propDef) const
+{
+    Uint32 node;
+    // is filtering on ?
+    if (inst.hdr->flags.isFiltered)
+    {
+        // Get absolut pointer to property filter index map of the instance
+        Uint32* propertyFilterIndexMap =
+        (Uint32*)&(inst.base[inst.hdr->propertyFilterIndexMap.start]);
+        // get the real node index of the property.
+        node = propertyFilterIndexMap[pos];
+    }
+    else
+    {
+        // the index is used as node index.
+        node = pos;
+    }
+
+    SCMBValue* theInstPropNodeArray =
+        (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
+
+    // create a pointer to property node array of the class.
+    Uint64 idx = inst.hdr->theClass->cls.hdr->propertySet.nodeArray.start;
+    SCMBClassPropertyNode* theClassPropNodeArray =
+        (SCMBClassPropertyNode*)&(inst.hdr->theClass->cls.base)[idx];
+
+    // return the absolute pointer to the property definition
+    *propDef= &(theClassPropNodeArray[node].theProperty);
+
+    // need check if property set or not, if not set use the default value
+    if (theInstPropNodeArray[node].flags.isSet)
+    {
+        // return the absolute pointer to the property value in the instance
+        *value = &(theInstPropNodeArray[node]);
+        *valueBase = inst.base;
+    }
+    else
+    {
+        // return the absolute pointer to
+        *value = &(theClassPropNodeArray[node].theProperty.defaultValue);
+        *valueBase = inst.hdr->theClass->cls.base;
+    }
+}
 
 #define PEGASUS_ARRAY_T SCMOInstance
 # include <Pegasus/Common/ArrayInter.h>

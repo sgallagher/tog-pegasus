@@ -56,7 +56,8 @@ void SCMOXmlWriter::appendInstanceNameElement(
     Uint64 len;
     const char * className = scmoInstance.getClassName_l(len);
     out.append(className,len);
-    out << STRLIT("\">\n");
+    // TODO: check performance impact
+    out.append('"','>','\n');
 
     for (Uint32 i = 0, n = scmoInstance.getKeyBindingCount(); i < n; i++)
     {
@@ -74,7 +75,7 @@ void SCMOXmlWriter::appendInstanceNameElement(
 
         out << STRLIT("<KEYBINDING NAME=\"");
         out.append(kbName,kbNameLen-1);
-        out << STRLIT("\">\n");
+        out.append('"','>','\n');
 
         if (kbType == CIMTYPE_REFERENCE)
         {
@@ -88,7 +89,7 @@ void SCMOXmlWriter::appendInstanceNameElement(
         {
             out << STRLIT("<KEYVALUE VALUETYPE=\"");
             out << xmlWriterKeyTypeStrings(kbType);
-            out << STRLIT("\">");
+            out.append('"','>');
 
             if (SCMO_OK == smrc)
             {
@@ -125,7 +126,8 @@ void SCMOXmlWriter::appendInstanceElement(
     Uint64 len;
     const char * className = scmoInstance.getClassName_l(len);
     out.append(className,len);
-    out << STRLIT("\" >\n");
+    out.append('"',' ','>','\n');
+    //out << STRLIT("\" >\n");
 
     // Append Instance Qualifiers:
     if (scmoInstance.inst.hdr->flags.includeQualifiers)
@@ -143,18 +145,13 @@ void SCMOXmlWriter::appendInstanceElement(
     }
 
     // Append Properties:
+    // getPropertyCount() returns number of properties, only non-filtered ones
     for (Uint32 i=0,k=scmoInstance.getPropertyCount();i<k;i++)
     {
-        if (scmoInstance.inst.hdr->flags.isFiltered &&
-            !scmoInstance._isPropertyInFilter(i))
-        {
-            // Property is filtered, ignore and go to next
-            continue;
-        }
-        else
-        {
-            SCMOXmlWriter::appendPropertyElement(out,scmoInstance,i);
-        }
+        // function _getPropertyAt() used by appendPropertyElement
+        // translates the filter position of a property into the real one
+        // for us
+        SCMOXmlWriter::appendPropertyElement(out,scmoInstance,i);
     }
     // Instance closing element:
     out << STRLIT("</INSTANCE>\n");
@@ -192,8 +189,8 @@ void SCMOXmlWriter::appendQualifierElement(
     {
         out << SCMOClass::qualifierNameStrLit(theQualifier.name);
     }
-
-    out << STRLIT("\" ");
+    out.append('"',' ');
+    //out << STRLIT("\" ");
 
     // Append type
     out << xmlWriterTypeStrings(theQualifier.value.valueType);
@@ -207,7 +204,8 @@ void SCMOXmlWriter::appendQualifierElement(
         out,
         CIMFlavor(theQualifier.flavor));
 
-    out << STRLIT(">\n");
+    out.append('>','\n');
+    //out << STRLIT(">\n");
     // append the value of the qualifier
     SCMOXmlWriter::appendValueElement(out, theQualifier.value, base);
 
@@ -276,7 +274,8 @@ void SCMOXmlWriter::appendPropertyElement(
             &(clsbase[propertyDef->name.start]),
             propertyDef->name.length-1);
 
-        out << STRLIT("\" ");
+        out.append('"',' ');
+        //out << STRLIT("\" ");
         if (propertyType == CIMTYPE_OBJECT)
         {
             // If the property array type is CIMObject, then
@@ -339,7 +338,8 @@ void SCMOXmlWriter::appendPropertyElement(
             out << STRLIT(" PROPAGATED=\"true\"");
         }
 
-        out << STRLIT(">\n");
+        out.append('>','\n');
+        //out << STRLIT(">\n");
 
         // Append Instance Qualifiers:
         if (scmoInstance.inst.hdr->flags.includeQualifiers)
@@ -365,7 +365,8 @@ void SCMOXmlWriter::appendPropertyElement(
         out.append(
             &(clsbase[propertyDef->name.start]),
             propertyDef->name.length-1);
-        out << STRLIT("\" ");
+        out.append('"',' ');
+        //out << STRLIT("\" ");
 
         if (0 != propertyDef->refClassName.start)
         {
@@ -391,7 +392,8 @@ void SCMOXmlWriter::appendPropertyElement(
         {
             out << STRLIT(" PROPAGATED=\"true\"");
         }
-        out << STRLIT(">\n");
+        out.append('>','\n');
+        //out << STRLIT(">\n");
         // Append Instance Qualifiers:
         if (scmoInstance.inst.hdr->flags.includeQualifiers)
         {
@@ -418,7 +420,8 @@ void SCMOXmlWriter::appendPropertyElement(
             &(clsbase[propertyDef->name.start]),
             propertyDef->name.length-1);
 
-        out << STRLIT("\" ");
+        out.append('"',' ');
+        //out << STRLIT("\" ");
 
         if (scmoInstance.inst.hdr->flags.includeClassOrigin)
         {
@@ -463,7 +466,8 @@ void SCMOXmlWriter::appendPropertyElement(
             out.append(' ');
             out << xmlWriterTypeStrings(propertyType);
         }
-        out << STRLIT(">\n");
+        out.append('>','\n');
+        //out << STRLIT(">\n");
 
         // Append Instance Qualifiers:
         if (scmoInstance.inst.hdr->flags.includeQualifiers)
@@ -686,16 +690,16 @@ void SCMOXmlWriter::appendClassElement(
         &(clsBase[theClass->className.start]),
         theClass->className.length-1);
 
-    out << STRLIT("\" ");
+    out.append('"',' ');
     if (0 != theClass->superClassName.start)
     {
         out << STRLIT(" SUPERCLASS=\"");
         out.append(
             &(clsBase[theClass->superClassName.start]),
             theClass->superClassName.length-1);
-        out << STRLIT("\" ");
+        out.append('"',' ');
     }
-    out << STRLIT(">\n");
+    out.append('>','\n');
 
     // Append class qualifiers
     SCMBQualifier *theArray =

@@ -40,7 +40,6 @@
 #include <Pegasus/Common/SCMOClass.h>
 #include <Pegasus/Common/System.h>
 
-
 PEGASUS_NAMESPACE_BEGIN
 
 typedef CIMClass (*SCMOClassCacheCallbackPtr)(
@@ -50,9 +49,9 @@ typedef CIMClass (*SCMOClassCacheCallbackPtr)(
 
 class PEGASUS_COMMON_LINKAGE ClassCacheEntry
 {
-    const char* nsName;
+    char* nsName;
     Uint32 nsLen;
-    const char* clsName;
+    char* clsName;
     Uint32 clsLen;
     Boolean allocated;
 
@@ -60,35 +59,50 @@ public:
     ClassCacheEntry(const char* namespaceName,
                     Uint32 namespaceNameLen,
                     const char* className,
-                    Uint32 classNameLen )
+                    Uint32 classNameLen ):
+        nsLen(namespaceNameLen),        
+        clsLen(classNameLen)
     {
-        nsLen = namespaceNameLen;
-        clsLen = classNameLen;
-        nsName = namespaceName;
-        clsName = className;
-        allocated = false;
+        nsName = (char*) malloc(nsLen+1);
+        clsName = (char*) malloc(clsLen+1);
+        if (0 == clsName || 0 == nsName)
+        {
+            free(nsName);
+            free(clsName);
+            throw PEGASUS_STD(bad_alloc)();
+        }
+        memcpy(nsName, namespaceName, namespaceNameLen);
+        memcpy(clsName, className, classNameLen);        
     };
 
-    ClassCacheEntry( const ClassCacheEntry& oldEntry)
+    ClassCacheEntry( const ClassCacheEntry& x)
     {
-        nsLen = oldEntry.nsLen;
-        nsName = new char[nsLen+1];
-        memcpy((void*)nsName, oldEntry.nsName, nsLen+1);
+        // free up what we currently have, whatever that might be
+        free(nsName);
+        free(clsName);
 
-        clsLen = oldEntry.clsLen;
-        clsName = new char[clsLen+1];
-        memcpy((void*)clsName, oldEntry.clsName, clsLen+1);
+        nsName = (char*) malloc(x.nsLen+1);
+        clsName = (char*) malloc(x.clsLen+1);
+        if (0 == clsName || 0 == nsName)
+        {
+            free(nsName);
+            free(clsName);
+            nsName=0;
+            clsName=0;
+            throw PEGASUS_STD(bad_alloc)();
+        }
 
-        allocated = true;
+        nsLen = x.nsLen;
+        clsLen = x.clsLen;
+
+        memcpy(nsName, x.nsName, nsLen+1);
+        memcpy(clsName, x.clsName, clsLen+1);
     };
 
     ~ClassCacheEntry()
     {
-        if (allocated)
-        {
-            delete[](clsName);
-            delete[](nsName);
-        }
+        free(clsName);
+        free(nsName);
     }
 
     static Boolean equal(const ClassCacheEntry& x, const ClassCacheEntry& y)

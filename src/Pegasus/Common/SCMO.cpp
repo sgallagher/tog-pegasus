@@ -48,7 +48,13 @@
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/ArrayIterator.h>
 #include <Pegasus/Common/PegasusAssert.h>
-#include <strings.h>
+#include <Pegasus/Common/CIMValueRep.h>
+
+# if defined PEGASUS_OS_ZOS
+#  include <strings.h>
+# else
+#  include <string.h>
+# endif
 
 #ifdef PEGASUS_OS_ZOS
   #include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>

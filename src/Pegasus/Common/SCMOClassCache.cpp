@@ -58,7 +58,7 @@ SCMOClassCache::~SCMOClassCache()
 void SCMOClassCache::destroy()
 {
     delete _theInstance;
-    _theInstance == NULL;
+    _theInstance=0;
 }
 
 SCMOClassCache* SCMOClassCache::getInstance()

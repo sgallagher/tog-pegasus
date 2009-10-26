@@ -38,7 +38,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMDateTimeRep;
+struct CIMDateTimeRep;
 class CMPISCMOUtilities;
 
 /**

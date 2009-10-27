@@ -60,7 +60,7 @@ public:
                     Uint32 namespaceNameLen,
                     const char* className,
                     Uint32 classNameLen ):
-        nsLen(namespaceNameLen),        
+        nsLen(namespaceNameLen),
         clsLen(classNameLen)
     {
         nsName = (char*) malloc(nsLen+1);
@@ -72,15 +72,11 @@ public:
             throw PEGASUS_STD(bad_alloc)();
         }
         memcpy(nsName, namespaceName, namespaceNameLen);
-        memcpy(clsName, className, classNameLen);        
+        memcpy(clsName, className, classNameLen);
     };
 
     ClassCacheEntry( const ClassCacheEntry& x)
     {
-        // free up what we currently have, whatever that might be
-        free(nsName);
-        free(clsName);
-
         nsName = (char*) malloc(x.nsLen+1);
         clsName = (char*) malloc(x.clsLen+1);
         if (0 == clsName || 0 == nsName)

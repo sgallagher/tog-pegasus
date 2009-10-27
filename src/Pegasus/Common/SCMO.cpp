@@ -692,7 +692,7 @@ void SCMOClass::_setClassProperties(PropertySet& theCIMProperties)
     Uint32 noKeys = 0;
     Boolean isKey = false;
 
-    Uint32 keyIndex[noProps];
+    Array<Uint32> keyIndex(noProps);
 
     cls.hdr->propertySet.number=noProps;
 
@@ -763,7 +763,7 @@ void SCMOClass::_setClassProperties(PropertySet& theCIMProperties)
             // fill the key index list
             memcpy(
                 &(cls.base[startKeyIndexList]),
-                keyIndex,
+                keyIndex.getData(),
                 noKeys*sizeof(Uint32));
 
             for (Uint32 i = 0 ; i < noKeys; i++)

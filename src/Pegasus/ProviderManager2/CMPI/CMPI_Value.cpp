@@ -126,7 +126,7 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
         {
         case CMPI_dateTime:
             {
-                CIMDateTimeRep * cimdt = 
+                CIMDateTimeRep * cimdt =
                     CMPISCMOUtilities::scmoDateTimeFromCMPI(data->dateTime);
                 if (cimdt)
                 {
@@ -139,7 +139,7 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
                 scmoData.extString.pchar = (char*)data;
                 if (scmoData.extString.pchar)
                 {
-                    scmoData.extString.length = 
+                    scmoData.extString.length =
                         strlen(scmoData.extString.pchar);
                 }
                 break;
@@ -149,7 +149,7 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
                 if (data && *(char**)data)
                 {
                     scmoData.extString.pchar = *(char**)data;
-                    scmoData.extString.length = 
+                    scmoData.extString.length =
                         strlen(scmoData.extString.pchar);
                 }
                 break;
@@ -160,7 +160,7 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
                 scmoData.extString.pchar = (char*)data->string->hdl;
                 if (scmoData.extString.pchar)
                 {
-                    scmoData.extString.length = 
+                    scmoData.extString.length =
                         strlen(scmoData.extString.pchar);
                 }
                 break;
@@ -296,7 +296,7 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
                         Array<CIMObjectPath> arCIMObjectPath(aSize);
                         for (int i=0; i<aSize; i++)
                         {
-                            SCMOInstance* scmoInst = 
+                            SCMOInstance* scmoInst =
                                 (SCMOInstance*)aData[i].value.ref->hdl;
                             CIMObjectPath ref;
                             scmoInst->getCIMObjectPath(ref);
@@ -310,11 +310,11 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
                     CopyToEncArray(CIMDateTime,dateTime);
                     break;
                 case CMPI_instance:
-                    { 
-                        Array<CIMObject> arCIMInstance(aSize); 
-                        for (int i=0; i<aSize; i++) 
+                    {
+                        Array<CIMObject> arCIMInstance(aSize);
+                        for (int i=0; i<aSize; i++)
                         {
-                            SCMOInstance* scmoInst = 
+                            SCMOInstance* scmoInst =
                                 (SCMOInstance*)aData[i].value.inst->hdl;
                             CIMInstance inst;
                             scmoInst->getCIMInstance(inst);
@@ -594,20 +594,20 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
             switch( aType )
             {
                 case CMPI_ref:
-                    { 
-                        Array<CIMObjectPath> arRef; 
-                        v.get(arRef); 
-                        for (int i=0; i<aSize; i++) 
-                        { 
-                            SCMOInstance* scmoRef = 
+                    {
+                        Array<CIMObjectPath> arRef;
+                        v.get(arRef);
+                        for (int i=0; i<aSize; i++)
+                        {
+                            SCMOInstance* scmoRef =
                                 CMPISCMOUtilities::
-                                getSCMOFromCIMObjectPath(arRef[i]); 
+                                getSCMOFromCIMObjectPath(arRef[i]);
                             aData[i].value.ref=
                                 reinterpret_cast<CMPIObjectPath*>(
                                     new CMPI_Object(
                                         scmoRef,
-                                        CMPI_Object::ObjectTypeObjectPath)); 
-                        } 
+                                        CMPI_Object::ObjectTypeObjectPath));
+                        }
                     }
                     break;
 
@@ -623,9 +623,9 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                         for (int i = 0; i < aSize ; ++i)
                         {
                             CIMInstance inst = CIMInstance(tmpObjs[i]);
-                            SCMOInstance* scmoInst = 
+                            SCMOInstance* scmoInst =
                                 CMPISCMOUtilities::getSCMOFromCIMInstance(inst);
-                            aData[i].value.inst = 
+                            aData[i].value.inst =
                                 reinterpret_cast<CMPIInstance*>(
                                     new CMPI_Object(
                                         scmoInst,
@@ -638,13 +638,13 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                         v.get(arInst);
                         for (int i = 0; i < aSize ; ++i)
                         {
-                            SCMOInstance* scmoInst = 
+                            SCMOInstance* scmoInst =
                                 CMPISCMOUtilities::
                                 getSCMOFromCIMInstance(arInst[i]);
-                            aData[i].value.inst = 
+                            aData[i].value.inst =
                                 reinterpret_cast<CMPIInstance*>
                                 (new CMPI_Object(
-                                    scmoInst, 
+                                    scmoInst,
                                     CMPI_Object::ObjectTypeInstance));
                         }
                     }
@@ -744,7 +744,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                 {
                     CIMObjectPath ref;
                     v.get(ref);
-                    SCMOInstance* scmoRef = 
+                    SCMOInstance* scmoRef =
                        CMPISCMOUtilities:: getSCMOFromCIMObjectPath(ref);
                     data->value.ref = reinterpret_cast<CMPIObjectPath*>(
                     new CMPI_Object(scmoRef,CMPI_Object::ObjectTypeObjectPath));
@@ -764,7 +764,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                     {
                         v.get(inst);
                     }
-                    SCMOInstance* scmoInst = 
+                    SCMOInstance* scmoInst =
                         CMPISCMOUtilities::getSCMOFromCIMInstance(inst);
                     data->value.inst = reinterpret_cast<CMPIInstance*>(
                     new CMPI_Object(scmoInst, CMPI_Object::ObjectTypeInstance));
@@ -867,7 +867,8 @@ CMPIrc scmoKey2CMPIData(const char* key, CIMKeyBinding::Type t, CMPIData *data)
             break;
 
         case CIMKeyBinding::BOOLEAN:
-            data->value.boolean=(0==strcasecmp(key,"true"));
+            data->value.boolean=
+                System::strncasecmp(key,strlen(key),STRLIT_ARGS("true"));
             data->type=CMPI_boolean;
             break;
 

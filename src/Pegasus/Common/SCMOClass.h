@@ -110,6 +110,15 @@ public:
     const char* getSuperClassName() const;
 
     /**
+     * Gets the super class name of the class.
+     * @param Return strlen of result string.
+     * @retuns The super class name.
+     *         If not available a NULL pointer is returned
+     */
+    const char* getSuperClassName_l(Uint64 & length) const;
+
+
+    /**
      * Determines whether the object has been initialized.
      * @return True if the object has not been initialized, false otherwise.
      */

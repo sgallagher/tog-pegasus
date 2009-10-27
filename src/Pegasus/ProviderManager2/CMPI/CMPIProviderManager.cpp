@@ -61,6 +61,7 @@
 #include <Pegasus/ProviderManager2/AutoPThreadSecurity.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
+#include <Pegasus/ProviderManager2/CMPI/CMPI_ThreadContext.h>
 #include <Pegasus/Query/QueryExpression/QueryExpression.h>
 #include <Pegasus/Query/QueryCommon/QueryException.h>
 
@@ -342,7 +343,7 @@ void CMPIProviderManager::unloadIdleProviders()
    avoid copies being generated, both CStrings are anchored on the stack in the
    scope of the calling function to keep them valid across the lifetime of the
    CMPI processing of a request
-*/    
+*/
 void CMPIProviderManager::_setupCMPIContexts(
     CMPI_ContextOnStack * eCtx,
     OperationContext * context,
@@ -463,7 +464,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -490,11 +491,13 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
             true);
 
         // make target object path
-        SCMOClass* scmoClass = 
+        SCMOClass* scmoClass =
             mbGetSCMOClass(
                 pr.getBroker(),
                 (const char*)nameSpace,
-                (const char*)className);
+                strlen((const char*)nameSpace),
+                (const char*)className,
+                strlen((const char*)className));
         if (0 == scmoClass)
         {
             // This indicates a severe error, since we should't have come
@@ -586,7 +589,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -614,11 +617,13 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
             true);
 
         // make target object path
-        SCMOClass* scmoClass = 
+        SCMOClass* scmoClass =
             mbGetSCMOClass(
                 pr.getBroker(),
                 (const char*)nameSpace,
-                (const char*)className);
+                strlen((const char*)nameSpace),
+                (const char*)className,
+                strlen((const char*)className));
         if (0 == scmoClass)
         {
             // This indicates a severe error, since we should't have come
@@ -708,7 +713,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -734,11 +739,13 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
             true);
 
         // make target object path
-        SCMOClass* scmoClass = 
+        SCMOClass* scmoClass =
             mbGetSCMOClass(
                 pr.getBroker(),
                 (const char*)nameSpace,
-                (const char*)className);
+                strlen((const char*)nameSpace),
+                (const char*)className,
+                strlen((const char*)className));
         if (0 == scmoClass)
         {
             // This indicates a severe error, since we should't have come
@@ -828,7 +835,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -855,11 +862,13 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
             true);
 
         // make target object path and new instance
-        SCMOClass* scmoClass = 
+        SCMOClass* scmoClass =
             mbGetSCMOClass(
                 pr.getBroker(),
                 (const char*)nameSpace,
-                (const char*)className);
+                strlen((const char*)nameSpace),
+                (const char*)className,
+                strlen((const char*)className));
         if (0 == scmoClass)
         {
             // This indicates a severe error, since we should't have come
@@ -952,7 +961,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -981,11 +990,13 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
             true);
 
         // make target object path and modified instance
-        SCMOClass* scmoClass = 
+        SCMOClass* scmoClass =
             mbGetSCMOClass(
                 pr.getBroker(),
                 (const char*)nameSpace,
-                (const char*)className);
+                strlen((const char*)nameSpace),
+                (const char*)className,
+                strlen((const char*)className));
         if (0 == scmoClass)
         {
             // This indicates a severe error, since we should't have come
@@ -1079,7 +1090,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -1106,11 +1117,13 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
             true);
 
         // make target object path
-        SCMOClass* scmoClass = 
+        SCMOClass* scmoClass =
             mbGetSCMOClass(
                 pr.getBroker(),
                 (const char*)nameSpace,
-                (const char*)className);
+                strlen((const char*)nameSpace),
+                (const char*)className,
+                strlen((const char*)className));
         if (0 == scmoClass)
         {
             // This indicates a severe error, since we should't have come
@@ -1199,7 +1212,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -1229,11 +1242,13 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
             true);
 
         // make target object path
-        SCMOClass* scmoClass = 
+        SCMOClass* scmoClass =
             mbGetSCMOClass(
                 pr.getBroker(),
                 (const char*)nameSpace,
-                (const char*)className);
+                strlen((const char*)nameSpace),
+                (const char*)className,
+                strlen((const char*)className));
         if (0 == scmoClass)
         {
             // This indicates a severe error, since we should't have come
@@ -1325,7 +1340,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -1346,7 +1361,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         const CString rRole=request->role.getCString();
         const CString resRole=request->resultRole.getCString();
         CString nameSpace = request->nameSpace.getString().getCString();
-        CString className = 
+        CString className =
             request->objectName.getClassName().getString().getCString();
 
         CMPIPropertyList props(request->propertyList);
@@ -1362,11 +1377,13 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
             true);
 
         // make target object path
-        SCMOClass* scmoClass = 
+        SCMOClass* scmoClass =
             mbGetSCMOClass(
                 pr.getBroker(),
                 (const char*)nameSpace,
-                (const char*)className);
+                strlen((const char*)nameSpace),
+                (const char*)className,
+                strlen((const char*)className));
         if (0 == scmoClass)
         {
             // This indicates a severe error, since we should't have come
@@ -1463,7 +1480,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -1484,7 +1501,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
         const CString rRole=request->role.getCString();
         const CString resRole=request->resultRole.getCString();
         CString nameSpace = request->nameSpace.getString().getCString();
-        CString className = 
+        CString className =
             request->objectName.getClassName().getString().getCString();
 
         _setupCMPIContexts(
@@ -1498,11 +1515,13 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
             true);
 
         // make target object path
-        SCMOClass* scmoClass = 
+        SCMOClass* scmoClass =
             mbGetSCMOClass(
                 pr.getBroker(),
                 (const char*)nameSpace,
-                (const char*)className);
+                strlen((const char*)nameSpace),
+                (const char*)className,
+                strlen((const char*)className));
         if (0 == scmoClass)
         {
             // This indicates a severe error, since we should't have come
@@ -1595,7 +1614,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -1614,7 +1633,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         const CString rClass=request->resultClass.getString().getCString();
         const CString rRole=request->role.getCString();
         CString nameSpace = request->nameSpace.getString().getCString();
-        CString className = 
+        CString className =
             request->objectName.getClassName().getString().getCString();
 
         CMPIPropertyList props(request->propertyList);
@@ -1630,11 +1649,13 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
             true);
 
         // make target object path
-        SCMOClass* scmoClass = 
+        SCMOClass* scmoClass =
             mbGetSCMOClass(
                 pr.getBroker(),
                 (const char*)nameSpace,
-                (const char*)className);
+                strlen((const char*)nameSpace),
+                (const char*)className,
+                strlen((const char*)className));
         if (0 == scmoClass)
         {
             // This indicates a severe error, since we should't have come
@@ -1727,7 +1748,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -1747,9 +1768,9 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
         const CString rRole=request->role.getCString();
 
         CString nameSpace = request->nameSpace.getString().getCString();
-        CString className = 
+        CString className =
             request->objectName.getClassName().getString().getCString();
-        
+
         _setupCMPIContexts(
             &eCtx,
             &(request->operationContext),
@@ -1761,11 +1782,13 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
             true);
 
         // make target object path
-        SCMOClass* scmoClass = 
+        SCMOClass* scmoClass =
             mbGetSCMOClass(
                 pr.getBroker(),
                 (const char*)nameSpace,
-                (const char*)className);
+                strlen((const char*)nameSpace),
+                (const char*)className,
+                strlen((const char*)className));
         if (0 == scmoClass)
         {
             // This indicates a severe error, since we should't have come
@@ -1857,7 +1880,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -1886,11 +1909,13 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
             true);
 
         // make target object path
-        SCMOClass* scmoClass = 
+        SCMOClass* scmoClass =
             mbGetSCMOClass(
                 pr.getBroker(),
                 (const char*)nameSpace,
-                (const char*)className);
+                strlen((const char*)nameSpace),
+                (const char*)className,
+                strlen((const char*)className));
         if (0 == scmoClass)
         {
             // This indicates a severe error, since we should't have come
@@ -1983,7 +2008,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                 // EmbeddedInstances, so if the parameter definition has a type
                 // of EmbeddedInstance, the type of the output parameter must
                 // be changed.
-                if (paramValue.getType() == CIMTYPE_OBJECT && 
+                if (paramValue.getType() == CIMTYPE_OBJECT &&
                     methodIndex != PEG_NOT_FOUND)
                 {
                     String currentParamName(currentParam.getParameterName());
@@ -2160,7 +2185,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -2243,14 +2268,16 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
 
         eSelx->classNames.append(indClassPath);
 
-        SCMOClass* scmoIndClass = 
+        SCMOClass* scmoIndClass =
             mbGetSCMOClass(
                 pr.getBroker(),
                 (const char*)nameSpace,
-                (const char*)className);
+                strlen((const char*)nameSpace),
+                (const char*)className,
+                strlen((const char*)className));
         if (0 == scmoIndClass)
         {
-            // This indicates a severe error, since we should't have 
+            // This indicates a severe error, since we should't have
             // come here at all, if the class is invalid
             PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
                 "CMPIProviderManager::handleCreateSubscriptionRequest-"
@@ -2309,7 +2336,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             // filter can be activated for any of the subclasses.
             for (Uint32 i = 0, n = request->classNames.size(); i < n; i++)
             {
-                CString subClassName = 
+                CString subClassName =
                     request->classNames[i].getString().getCString();
 
                 // make target object paths
@@ -2318,14 +2345,16 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
                     request->nameSpace,
                     request->classNames[i]);
 
-                SCMOClass* scmoClass = 
+                SCMOClass* scmoClass =
                     mbGetSCMOClass(
                         pr.getBroker(),
                         (const char*)nameSpace,
-                        (const char*)subClassName);
+                        strlen((const char*)nameSpace),
+                        (const char*)className,
+                        strlen((const char*)className));
                 if (0 == scmoClass)
                 {
-                    // This indicates a severe error, since we should't have 
+                    // This indicates a severe error, since we should't have
                     // come here at all, if the class is invalid
                     PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
                         "CMPIProviderManager::handleCreateSubscriptionRequest-"
@@ -2489,7 +2518,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -2540,7 +2569,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
-        
+
         CString nameSpace = request->nameSpace.getString().getCString();
 
         // includeQualifiers and includeClassOrigin not of interest for
@@ -3010,7 +3039,7 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -3032,7 +3061,7 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         CMPIPropertyList props(localPropertyList);
 
         CString nameSpace = request->nameSpace.getString().getCString();
-        CString className = 
+        CString className =
             request->instanceName.getClassName().getString().getCString();
 
         // Leave includeQualifiers and includeClassOrigin as false for this
@@ -3048,11 +3077,13 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
             true);
 
         // make target object path
-        SCMOClass* scmoClass = 
+        SCMOClass* scmoClass =
             mbGetSCMOClass(
                 pr.getBroker(),
                 (const char*)nameSpace,
-                (const char*)className);
+                strlen((const char*)nameSpace),
+                (const char*)className,
+                strlen((const char*)className));
         if (0 == scmoClass)
         {
             // This indicates a severe error, since we should't have come
@@ -3118,12 +3149,12 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         // Copy property value from instance to getProperty response
         Array<SCMOInstance>& arInstance =
             GI_response->getResponseData().getSCMO();
-        if (arInstance.size() > 0) 
+        if (arInstance.size() > 0)
         {
             SCMOInstance& instance = arInstance[0];
             if(!(instance.isUninitialized()))
             {
-                CString pName = 
+                CString pName =
                     request->propertyName.getString().getCString();
 
                 // Construct a temporary CMPI Instance object, on which we
@@ -3131,13 +3162,13 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
                 CMPI_InstanceOnStack tmpInst(instance);
 
                 CMPIStatus trc;
-                CMPIData data = 
+                CMPIData data =
                     CMGetProperty(&tmpInst, (const char*)pName, &trc);
 
                 if (trc.rc == CMPI_RC_OK)
                 {
                     // Convert the CMPIData to a CIMValue
-                    CIMValue val = 
+                    CIMValue val =
                         value2CIMValue(&(data.value), data.type, &(trc.rc));
 
                     response->value = val;
@@ -3214,7 +3245,7 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
     try
     {
         CString nameSpace = request->nameSpace.getString().getCString();
-        CString className = 
+        CString className =
             request->instanceName.getClassName().getString().getCString();
 
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
@@ -3229,7 +3260,7 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -3255,11 +3286,13 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
             true);
 
         // make target object path
-        SCMOClass* scmoClass = 
+        SCMOClass* scmoClass =
             mbGetSCMOClass(
                 pr.getBroker(),
                 (const char*)nameSpace,
-                (const char*)className);
+                strlen((const char*)nameSpace),
+                (const char*)className,
+                strlen((const char*)className));
         if (0 == scmoClass)
         {
             // This indicates a severe error, since we should't have come

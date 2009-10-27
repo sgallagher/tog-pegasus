@@ -634,16 +634,16 @@ static int _compare(const CIMDateTimeRep* x, const CIMDateTimeRep* y)
 
             char s1[26];
             char s2[26];
-            _DateTimetoCStr(&x1, s1);
-            _DateTimetoCStr(&y1, s2);
+            _DateTimetoCStr(x1, s1);
+            _DateTimetoCStr(y1, s2);
             return _matchTimeStampStrings(s1, s2);
         }
         else
         {
             char s1[26];
             char s2[26];
-            _DateTimetoCStr(x, s1);
-            _DateTimetoCStr(y, s2);
+            _DateTimetoCStr(*x, s1);
+            _DateTimetoCStr(*y, s2);
             return _matchTimeStampStrings(s1, s2);
         }
     }

@@ -32,6 +32,7 @@
 #include <Pegasus/ProviderManager2/CMPI/CMPIClassCache.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPI_Broker.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPI_ContextArgs.h>
+#include <Pegasus/ProviderManager2/CMPI/CMPI_ThreadContext.h>
 #include <Pegasus/Provider/CIMOMHandleRep.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/CIMNameCast.h>
@@ -77,12 +78,14 @@ void CMPIClassCache::_setHint(ClassCacheEntry& hint, SCMOClass* hintClass)
 SCMOClass* CMPIClassCache::getSCMOClass(
     const CMPI_Broker *mb,
     const char* nsName,
-    const char* className)
+    Uint32 nsNameLen,
+    const char* className,
+    Uint32 classNameLen)
 {
     if (nsName && className)
     {
 
-        ClassCacheEntry key(nsName, className);
+        ClassCacheEntry key(nsName,nsNameLen,className,classNameLen);
 
         SCMOClass *scmoClass;
 

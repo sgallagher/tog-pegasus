@@ -551,6 +551,14 @@ public:
     void setClassName(const char* className);
 
     /**
+     * Sets the provided class name at the instance. By caling this function
+     * the instance is in an inconsitacne state and is maked as isCompromised.
+     * @param className The class name as UTF8.
+     * @param len The strlen of the name space.
+     */
+    void setClassName_l(const char* className, Uint64 len);
+
+    /**
      * Get the class name of the instance. The caller has to make a copy !
      * @return The class name as UTF8.
      */

@@ -38,6 +38,7 @@
 #include <Pegasus/Common/ReadWriteSem.h>
 #include <Pegasus/Common/CharSet.h>
 #include <Pegasus/Common/SCMOClass.h>
+#include <Pegasus/Common/System.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -54,15 +55,19 @@ class ClassCacheEntry
     Boolean allocated;
 
 public:
-    ClassCacheEntry(const char* namespaceName, 
-                    const char* className )
+    ClassCacheEntry(
+        const char* namespaceName,
+        Uint32 namespaceNameLen,
+        const char* className,
+        Uint32 classNameLen)
     {
-        nsLen = strlen(namespaceName);
-        clsLen = strlen(className);
+        nsLen = namespaceNameLen;
+        clsLen = classNameLen;
         nsName = namespaceName;
         clsName = className;
         allocated = false;
     };
+
 
     ClassCacheEntry( const ClassCacheEntry& oldEntry)
     {
@@ -88,10 +93,7 @@ public:
 
     static Boolean equal (const ClassCacheEntry& x, const ClassCacheEntry& y)
     {
-        return ((x.clsLen == y.clsLen) &&
-                (x.nsLen == y.nsLen) &&
-                (0 == strcasecmp(x.clsName, y.clsName)) &&
-                (0 == strcasecmp(x.nsName, y.nsName)));
+        return System::strncasecmp(x.clsName,x.clsLen,y.clsName,y.clsLen);
     }
 
     static Uint32 hash(const ClassCacheEntry& entry)
@@ -127,14 +129,16 @@ public:
     SCMOClass* getSCMOClass(
         const CMPI_Broker *mb,
         const char* nsName,
-        const char* className);
+        Uint32 nsNameLen,
+        const char* className,
+        Uint32 classNameLen);
 
 private:
 
     typedef HashTable<String, CIMClass *,
         EqualFunc<String>,  HashFunc<String> > ClassCache;
 
-    typedef HashTable<ClassCacheEntry, SCMOClass *, 
+    typedef HashTable<ClassCacheEntry, SCMOClass *,
         ClassCacheEntry, ClassCacheEntry> ClassCacheSCMO;
 
     ClassCache * _clsCache;

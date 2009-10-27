@@ -227,10 +227,10 @@ extern "C"
                     // A NullValue does not indicate an error, but simply that
                     // no value has been set for the property.
 
-                    // TBD: Though the CMPI specification mandates to return a 
-                    // nullvalue when a property exists on an instance but has 
-                    // not yet been assigned a value, for compatibility with 
-                    // previous versions we return CMPI_RC_ERR_NO_SUCH_PROPERTY 
+                    // TBD: Though the CMPI specification mandates to return a
+                    // nullvalue when a property exists on an instance but has
+                    // not yet been assigned a value, for compatibility with
+                    // previous versions we return CMPI_RC_ERR_NO_SUCH_PROPERTY
                     // in this case.
                     // If SCMO would distinguish between nullvalues and values
                     // that have not been set at all on an instance, we could
@@ -295,8 +295,8 @@ extern "C"
 
     static CMPIStatus instSetPropertyWithOrigin(
         const CMPIInstance* eInst,
-        const char* name, 
-        const CMPIValue* data, 
+        const char* name,
+        const CMPIValue* data,
         const CMPIType type,
         const char* origin)
     {
@@ -384,11 +384,7 @@ extern "C"
                     cmpiRC.rc = CMPI_RC_OK;
                     break;
                 case SCMO_WRONG_TYPE:
-                    cmpiRC.rc = CMPI_RC_ERR_INVALID_DATA_TYPE;
-                    break;
                 case SCMO_NOT_AN_ARRAY:
-                    cmpiRC.rc = CMPI_RC_ERR_INVALID_DATA_TYPE;
-                    break;
                 case SCMO_IS_AN_ARRAY:
                     cmpiRC.rc = CMPI_RC_ERR_INVALID_DATA_TYPE;
                     break;
@@ -482,9 +478,12 @@ extern "C"
             // It is not possible to have an instance or objectPath in
             // this implementation without a classname or namespace.
             const char* nsRef = ref->getNameSpace();
-            const char* clsRef = ref->getClassName();
+            Uint64 clsRefL;
+            const char* clsRef = ref->getClassName_l(clsRefL);
+            Uint64 clsPrevInstL;
+            const char* clsPrevInst = prevInst->getClassName_l(clsPrevInstL);
 
-            if (0 == strcasecmp(clsRef, prevInst->getClassName()))
+            if (System::strncasecmp(clsRef,clsRefL,clsPrevInst,clsPrevInstL))
             {
                 // Set the new namespace
                 prevInst->setNameSpace(nsRef);

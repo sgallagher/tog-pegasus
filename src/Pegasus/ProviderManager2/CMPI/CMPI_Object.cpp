@@ -159,20 +159,16 @@ CMPI_Object::CMPI_Object(CMPI_OpEnumeration *dta)
     ftab = CMPI_OpEnumeration_Ftab;
 }
 
-CMPI_Object::~CMPI_Object()
-{
-}
-
 void CMPI_Object::unlinkAndDelete()
 {
     CMPI_ThreadContext::remObject(this);
     delete this;
-}
+};
 
 void CMPI_Object::unlink()
 {
     CMPI_ThreadContext::remObject(this);
-}
+};
 
 PEGASUS_NAMESPACE_END
 

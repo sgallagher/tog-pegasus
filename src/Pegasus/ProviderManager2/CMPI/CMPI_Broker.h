@@ -59,7 +59,9 @@ PEGASUS_NAMESPACE_BEGIN
 CIMClass *mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop);
 SCMOClass *mbGetSCMOClass(const CMPIBroker *mb,
                           const char* ns,
-                          const char* cls);
+                          Uint32 nsL,
+                          const char* cls,
+                          Uint32 clsL);
 
 class CMPI_BrokerHdl
 {

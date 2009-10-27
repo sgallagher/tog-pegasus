@@ -40,6 +40,7 @@
 #include <Pegasus/Common/AtomicInt.h>
 #include <Pegasus/Common/CIMQualifierList.h>
 #include <Pegasus/Common/CIMObjectPath.h>
+#include <Pegasus/Common/System.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -563,6 +564,31 @@ static Uint32 _utf8ICUncasecmp(
     const char* b,
     Uint32 len);
 #endif
+
+static inline Boolean _equalNoCaseUTF8Strings(
+    const SCMBDataPtr& ptr_a,
+    char* base,
+    const char* name,
+    Uint32 len)
+
+{
+#ifdef PEGASUS_HAS_ICU
+    //both are empty strings, so they are equal.
+    if (ptr_a.length == 0 && len == 0)
+    {
+        return true;
+    }
+    // size without trailing '\0' !!
+    if (ptr_a.length-1 != len)
+    {
+        return false;
+    }
+    const char* a = (const char*)_getCharString(ptr_a,base);
+    return ( _utf8ICUncasecmp(a,name,len)== 0);
+#else
+    return System::strncasecmp(&base[ptr_a.start],ptr_a.length-1,name,len);
+#endif
+}
 
 PEGASUS_NAMESPACE_END
 

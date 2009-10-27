@@ -117,14 +117,16 @@ extern "C"
 
 
         // Check if the namespace is at all different from the one already set
-        const char* prevNamespace = ref->getNameSpace();
-        if (prevNamespace && 0==strcasecmp(prevNamespace,ns))
+        Uint64 prevNamespaceL;
+        const char* prevNamespace = ref->getNameSpace_l(prevNamespaceL);
+        Uint64 nsL=strlen(ns);
+
+        if (prevNamespace &&
+            System::strncasecmp(prevNamespace,prevNamespaceL,ns,nsL))
         {
             CMReturn(CMPI_RC_OK);
         }
-
-        ref->setNameSpace(ns);
-
+        ref->setNameSpace_l(ns,nsL);
         CMReturn(CMPI_RC_OK);
     }
 
@@ -187,7 +189,7 @@ extern "C"
             return NULL;
         }
         const char* hn = ref->getHostName();
-        CMPIString *eHn = string2CMPIString(hn); 
+        CMPIString *eHn = string2CMPIString(hn);
         CMSetStatus(rc, CMPI_RC_OK);
         return eHn;
     }
@@ -214,14 +216,15 @@ extern "C"
         }
 
         // Check if the classname is at all different from the one already set
-        const char* prevCls = ref->getClassName();
-        if (prevCls && 0==strcasecmp(prevCls,cn))
+        Uint64 prevClsL;
+        const char* prevCls = ref->getClassName_l(prevClsL);
+        Uint64 cnL=strlen(cn);
+
+        if (prevCls && System::strncasecmp(prevCls,prevClsL,cn,cnL))
         {
             CMReturn(CMPI_RC_OK);
         }
-
-        ref->setClassName(cn);
-
+        ref->setClassName_l(cn,cnL);
         CMReturn(CMPI_RC_OK);
     }
 
@@ -240,7 +243,7 @@ extern "C"
             return NULL;
         }
         const char* cn = ref->getClassName();
-        CMPIString* eCn = string2CMPIString(cn); 
+        CMPIString* eCn = string2CMPIString(cn);
         CMSetStatus(rc, CMPI_RC_OK);
         return eCn;
     }
@@ -297,8 +300,8 @@ extern "C"
             CMReturn(cmpiRC);
         }
 
-        SCMO_RC rc = ref->setKeyBinding(name, 
-                                        cimType, 
+        SCMO_RC rc = ref->setKeyBinding(name,
+                                        cimType,
                                         &scmoData);
 
         switch (rc)
@@ -389,7 +392,7 @@ extern "C"
             //TODO: Convert all types to keytypes
             //      datetime->string
             //      real->string
-            switch (ct) 
+            switch (ct)
             {
             case CMPI_uint8:
                 data.value.uint64=(CMPIUint64)data.value.uint8;

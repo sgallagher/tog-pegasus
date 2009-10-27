@@ -415,6 +415,12 @@ const char* SCMOClass::getSuperClassName() const
     return _getCharString(cls.hdr->superClassName,cls.base);
 }
 
+const char* SCMOClass::getSuperClassName_l(Uint64 & length) const
+{
+    length = cls.hdr->superClassName.length-1;
+    return _getCharString(cls.hdr->superClassName,cls.base);
+}
+
 void  SCMOClass::getCIMClass(CIMClass& cimClass) const
 {
     CIMClass newCimClass(
@@ -2278,27 +2284,25 @@ const char* SCMOInstance::getHostName_l(Uint64& length) const
 
 void SCMOInstance::setClassName(const char* className)
 {
-    Uint32 len;
-
+    Uint32 len=0;
     // flag the instance as compromized
     inst.hdr->flags.isCompromised=true;
-
     if (className!=0)
     {
-
         len = strlen((const char*)className);
-        if(len != 0)
-        {
-
-            // copy including trailing '\0'
-            _setBinary(className,len+1,inst.hdr->instClassName,&inst.mem);
-            return;
-        }
-
     }
+    // copy including trailing '\0'
+    // _setBinary also sets the name to 0 if either className==0 or len+1==1
+    _setBinary(className,len+1,inst.hdr->instClassName,&inst.mem);
+}
 
-    inst.hdr->instClassName.start=0;
-    inst.hdr->instClassName.length=0;
+void SCMOInstance::setClassName_l(const char* className, Uint64 len)
+{
+    // flag the instance as compromised
+    inst.hdr->flags.isCompromised=true;
+    // copy including trailing '\0'
+    // _setBinary also sets the name to 0 if either className==0 or len+1==1
+    _setBinary(className,len+1,inst.hdr->instClassName,&inst.mem);
 }
 
 const char* SCMOInstance::getClassName() const
@@ -6365,35 +6369,6 @@ void SCMODump::printUnionValue(
 /*****************************************************************************
  * The constant functions
  *****************************************************************************/
-
-static Boolean _equalNoCaseUTF8Strings(
-    const SCMBDataPtr& ptr_a,
-    char* base,
-    const char* name,
-    Uint32 len)
-
-{
-
-    //both are empty strings, so they are equal.
-    if (ptr_a.length == 0 && len == 0)
-    {
-        return true;
-    }
-
-    // size without trailing '\0' !!
-    if (ptr_a.length-1 != len)
-    {
-        return false;
-    }
-
-    const char* a = (const char*)_getCharString(ptr_a,base);
-
-#ifdef PEGASUS_HAS_ICU
-    return ( _utf8ICUncasecmp(a,name,len)== 0);
-#else
-    return ( System::strncasecmp(a,ptr_a.length-1,name,len ));
-#endif
-}
 
 #ifdef PEGASUS_HAS_ICU
 static Uint32 _utf8ICUncasecmp(

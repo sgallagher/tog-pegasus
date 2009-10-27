@@ -39,6 +39,7 @@
 #include "CMPIProviderManager.h"
 #include "CMPI_String.h"
 #include <Pegasus/ProviderManager2/CMPI/CMPIClassCache.h>
+#include <Pegasus/ProviderManager2/CMPI/CMPI_ThreadContext.h>
 
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMPropertyList.h>
@@ -169,7 +170,9 @@ CIMClass* mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop)
 SCMOClass* mbGetSCMOClass(
     const CMPIBroker *mb,
     const char* nameSpace,
-    const char* cls)
+    Uint32 nsL,
+    const char* cls,
+    Uint32 clsL)
 {
     PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_Broker:mbGetSCMOClass()");
 
@@ -177,7 +180,7 @@ SCMOClass* mbGetSCMOClass(
     CMPI_Broker *xBroker=(CMPI_Broker*)mb;
 
     const char* ns=nameSpace;
-    if (0==ns || 0==*ns)
+    if (0 == nsL)
     {
         //If we don't have a namespace here, we use the initnamespace from
         // the thread context, since we need one to be able to lookup the class
@@ -195,7 +198,8 @@ SCMOClass* mbGetSCMOClass(
     }
 
 
-    SCMOClass* scmoCls = xBroker->classCache.getSCMOClass(xBroker, ns, cls);
+    SCMOClass* scmoCls =
+        xBroker->classCache.getSCMOClass(xBroker, ns, nsL, cls, clsL);
 
     PEG_METHOD_EXIT();
     return scmoCls;
@@ -239,7 +243,7 @@ extern "C"
             SCMOInstance* scmoInst = new SCMOInstance(scmoOrgInst);
 
             // Rebuild the objectPath
-            if (0==scmoInst->getNameSpace()) 
+            if (0==scmoInst->getNameSpace())
             {
                 scmoInst->setNameSpace(scmoObjPath->getNameSpace());
             }
@@ -383,7 +387,7 @@ extern "C"
                 String(query));
 
 
-            Array<SCMOInstance>* aObj = 
+            Array<SCMOInstance>* aObj =
                 new Array<SCMOInstance>(resData.getSCMO());
 
 
@@ -428,11 +432,11 @@ extern "C"
                     props);
 
             // When running out of process the returned instances don't contain
-            // a namespace. 
+            // a namespace.
             // Add the namespace from the input parameters where neccessary
             resData.completeNamespace(SCMO_ObjectPath(cop));
 
-            Array<SCMOInstance>* aInst = 
+            Array<SCMOInstance>* aInst =
                 new Array<SCMOInstance>(resData.getSCMO());
 
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
@@ -467,11 +471,11 @@ extern "C"
                     SCMO_ObjectPath(cop)->getClassName());
 
             // When running out of process the returned instances don't contain
-            // a namespace. 
+            // a namespace.
             // Add the namespace from the input parameters where neccessary
             resData.completeNamespace(SCMO_ObjectPath(cop));
 
-            Array<SCMOInstance>* aRef = 
+            Array<SCMOInstance>* aRef =
                 new Array<SCMOInstance>(resData.getSCMO());
 
 
@@ -536,11 +540,11 @@ extern "C"
                     props);
 
             // When running out of process the returned instances don't contain
-            // a namespace. 
+            // a namespace.
             // Add the namespace from the input parameters where neccessary
             resData.completeNamespace(scmoObjPath);
 
-            Array<SCMOInstance>* aObj = 
+            Array<SCMOInstance>* aObj =
                 new Array<SCMOInstance>(resData.getSCMO());
 
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
@@ -597,11 +601,11 @@ extern "C"
                     resultRole ? String(resultRole) : String::EMPTY);
 
             // When running out of process the returned instances don't contain
-            // a namespace. 
+            // a namespace.
             // Add the namespace from the input parameters where neccessary
             resData.completeNamespace(scmoObjPath);
 
-            Array<SCMOInstance>* aRef = 
+            Array<SCMOInstance>* aRef =
                 new Array<SCMOInstance>(resData.getSCMO());
 
 
@@ -667,7 +671,7 @@ extern "C"
             // Add the namespace from the input parameters when neccessary
             resData.completeNamespace(scmoObjPath);
 
-            Array<SCMOInstance>* aObj = 
+            Array<SCMOInstance>* aObj =
                 new Array<SCMOInstance>(resData.getSCMO());
 
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
@@ -720,7 +724,7 @@ extern "C"
             // Add the namespace from the input parameters when neccessary
             resData.completeNamespace(scmoObjPath);
 
-            Array<SCMOInstance>* aRef = 
+            Array<SCMOInstance>* aRef =
                 new Array<SCMOInstance>(resData.getSCMO());
 
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(

@@ -60,7 +60,7 @@ CMPIrc CMPISCMOUtilities::copySCMOKeyProperties( const SCMOInstance* sourcePath,
         TRC_CMPIPROVIDERINTERFACE,
         "CMPISCMOUtilities::copySCMOKeyProperties()");
 
-    if ((0!=sourcePath) && (0!=targetPath)) 
+    if ((0!=sourcePath) && (0!=targetPath))
     {
         SCMO_RC rc;
         const char* keyName = 0;
@@ -121,16 +121,16 @@ SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMInstance(
     const CString nameSpace = cimPath.getNameSpace().getString().getCString();
     const CString className = cimPath.getClassName().getString().getCString();
 
-    if (!ns) 
+    if (!ns)
     {
         ns = (const char*)nameSpace;
     }
-    if (!cls) 
+    if (!cls)
     {
         cls = (const char*)className;
     }
 
-    SCMOClass* scmoClass = mbGetSCMOClass(0,ns,cls);
+    SCMOClass* scmoClass = mbGetSCMOClass(0,ns,strlen(ns),cls,strlen(cls));
 
     if (0 == scmoClass)
     {
@@ -140,7 +140,7 @@ SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMInstance(
 
     SCMOInstance* scmoInst = new SCMOInstance(*scmoClass, cimInst);
 
-    if (isDirty) 
+    if (isDirty)
     {
         scmoInst->markAsCompromised();
     }
@@ -160,17 +160,17 @@ SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMObjectPath(
     CString nameSpace = cimPath.getNameSpace().getString().getCString();
     CString className = cimPath.getClassName().getString().getCString();
 
-    if (!ns) 
+    if (!ns)
     {
         ns = (const char*)nameSpace;
     }
-    if (!cls) 
+    if (!cls)
     {
         cls = (const char*)className;
     }
 
 
-    SCMOClass* scmoClass = mbGetSCMOClass(0,ns,cls);
+    SCMOClass* scmoClass = mbGetSCMOClass(0,ns,strlen(ns),cls,strlen(cls));
 
     if (0 == scmoClass)
     {
@@ -179,7 +179,7 @@ SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMObjectPath(
     }
 
     SCMOInstance* scmoRef = new SCMOInstance(*scmoClass, cimPath);
-    if (isDirty) 
+    if (isDirty)
     {
         scmoRef->markAsCompromised();
     }
@@ -189,9 +189,9 @@ SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMObjectPath(
 
 // Function to convert a SCMO Value into a CMPIData structure
 CMPIrc CMPISCMOUtilities::scmoValue2CMPIData(
-    const SCMBUnion* scmoValue, 
-    CMPIType type, 
-    CMPIData *data, 
+    const SCMBUnion* scmoValue,
+    CMPIType type,
+    CMPIData *data,
     Uint32 arraySize)
 {
     //Initialize CMPIData object
@@ -234,7 +234,7 @@ CMPIrc CMPISCMOUtilities::scmoValue2CMPIData(
         CMPI_Array *arr = new CMPI_Array(arrayRoot);
 
         // Set the encapsulated array as data
-        data->value.array = 
+        data->value.array =
             reinterpret_cast<CMPIArray*>(new CMPI_Object(arr));
     }
     else
@@ -262,7 +262,7 @@ CMPIrc CMPISCMOUtilities::scmoValue2CMPIData(
 
             case CMPI_dateTime:
                 {
-                    CIMDateTime* cimdt = 
+                    CIMDateTime* cimdt =
                         new CIMDateTime(&scmoValue->dateTimeValue);
                     data->value.dateTime = reinterpret_cast<CMPIDateTime*>
                         (new CMPI_Object(cimdt));
@@ -271,7 +271,7 @@ CMPIrc CMPISCMOUtilities::scmoValue2CMPIData(
 
             case CMPI_ref:
                 {
-                    SCMOInstance* ref = 
+                    SCMOInstance* ref =
                         new SCMOInstance(*(scmoValue->extRefPtr));
                     data->value.ref = reinterpret_cast<CMPIObjectPath*>
                         (new CMPI_Object(
@@ -282,11 +282,11 @@ CMPIrc CMPISCMOUtilities::scmoValue2CMPIData(
 
             case CMPI_instance:
                 {
-                    SCMOInstance* inst = 
+                    SCMOInstance* inst =
                         new SCMOInstance(*(scmoValue->extRefPtr));
                     data->value.inst = reinterpret_cast<CMPIInstance*>
                         (new CMPI_Object(
-                            inst, 
+                            inst,
                             CMPI_Object::ObjectTypeInstance));
                 }
                 break;

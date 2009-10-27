@@ -32,6 +32,7 @@
 #include "CMPI_Version.h"
 
 #include "CMPI_Object.h"
+#include "CMPI_ThreadContext.h"
 #include "CMPI_Broker.h"
 #include "CMPI_Ftabs.h"
 #include "CMPI_String.h"
@@ -289,12 +290,14 @@ extern "C"
         SCMOInstance* scmoOp = (SCMOInstance*)eCop->hdl;
 
 #ifndef PEGASUS_DISALLOW_DIRTY_SCMO
-        if (scmoOp->isCompromised()) 
+        if (scmoOp->isCompromised())
         {
-            SCMOClass* scmoClass = mbGetSCMOClass(
-                mb, 
-                scmoOp->getNameSpace(), 
-                scmoOp->getClassName());
+            Uint64 nsL;
+            const char* ns = scmoOp->getNameSpace_l(nsL);
+            Uint64 cnL;
+            const char* cn = scmoOp->getClassName_l(cnL);
+            SCMOClass* scmoClass =
+                mbGetSCMOClass(mb,ns,nsL,cn,cnL);
             if (0 == scmoClass)
             {
                 CMSetStatus(rc, CMPI_RC_ERR_NOT_FOUND);
@@ -351,7 +354,8 @@ extern "C"
         Boolean isDirty=false;
 #endif
 
-        SCMOClass* scmoClass = mbGetSCMOClass(mb, ns, cls);
+        SCMOClass* scmoClass =
+            mbGetSCMOClass(mb, ns, strlen(ns), cls, strlen(cls));
         if (0 == scmoClass)
         {
 #ifndef PEGASUS_DISALLOW_DIRTY_SCMO
@@ -360,11 +364,11 @@ extern "C"
             // compatibility with previous CMPI implementation :-(
             // So we simply create a 'dirty' SCMOClass object here.
             isDirty=true;
-            if (!ns) 
+            if (!ns)
             {
                 ns="";
             }
-            if (!cls) 
+            if (!cls)
             {
                 cls="";
             }
@@ -379,7 +383,7 @@ extern "C"
         SCMOInstance* scmoInst = new SCMOInstance(*scmoClass);
 
 #ifndef PEGASUS_DISALLOW_DIRTY_SCMO
-        if (isDirty) 
+        if (isDirty)
         {
             scmoInst->markAsCompromised();
         }
@@ -572,7 +576,7 @@ extern "C"
             SCMOInstance *scmoInst=(SCMOInstance*)obj->getHdl();
             CIMInstance ci;
             SCMO_RC src=scmoInst->getCIMInstance(ci);
-            if (SCMO_OK==src) 
+            if (SCMO_OK==src)
             {
                 str="Instance of "+ci.getClassName().getString()+" {\n";
                 for (int i=0,m=ci.getPropertyCount(); i<m; i++)
@@ -665,37 +669,40 @@ extern "C"
             return 0;
         }
         SCMOInstance* cop = (SCMOInstance*)eCp->hdl;
-        const char *ns = cop->getNameSpace();
-        const char *cls = cop->getClassName();
+        Uint64 nsL;
+        const char *ns = cop->getNameSpace_l(nsL);
+        Uint64 clsL;
+        const char *cls = cop->getClassName_l(clsL);
+        Uint64 typeL=strlen(type);
 
-        if (!strcasecmp(type, cls))
+        if (System::strncasecmp(type, typeL, cls, clsL))
         {
             PEG_METHOD_EXIT();
             return 1;
         }
 
-        SCMOClass *cc = mbGetSCMOClass(mb, ns, cls);
+        SCMOClass *cc = mbGetSCMOClass(mb, ns, nsL, cls, clsL);
         if (cc == NULL)
         {
             PEG_METHOD_EXIT();
             return 0;
         }
-        cls = cc->getSuperClassName();
+        cls = cc->getSuperClassName_l(clsL);
 
         while(NULL!=cls)
         {
-            cc = mbGetSCMOClass(mb, ns, cls);
+            cc = mbGetSCMOClass(mb, ns, nsL, cls, clsL);
             if (cc == NULL)
             {
                 PEG_METHOD_EXIT();
                 return 0;
             }
-            if (strcasecmp(cls,type))
+            if (System::strncasecmp(cls,clsL,type,typeL))
             {
                 PEG_METHOD_EXIT();
                 return 1;
             }
-            cls = cc->getSuperClassName();
+            cls = cc->getSuperClassName_l(clsL);
         };
         PEG_METHOD_EXIT();
         return 0;
@@ -1750,11 +1757,12 @@ extern "C"
             PEG_METHOD_EXIT();
             return NULL;
         }
-        SCMOClass *cls = mbGetSCMOClass(
-            mb,
-            op->getNamespace(),
-            op->getClassName());
-        if (0==cls) 
+        Uint32 nsL;
+        const char* ns = op->getNamespace(nsL);
+        Uint32 cnL;
+        const char* cn = op->getClassName_L(cnL);
+        SCMOClass *cls = mbGetSCMOClass(mb,ns,nsL,cn,cnL);
+        if (0==cls)
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,

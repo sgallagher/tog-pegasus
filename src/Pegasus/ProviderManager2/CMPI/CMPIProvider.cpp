@@ -42,6 +42,7 @@
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
+#include <Pegasus/ProviderManager2/CMPI/CMPI_ThreadContext.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -59,7 +60,7 @@ CMPIProvider::CMPIProvider(
     const String & name,
     CMPIProviderModule *module,
     ProviderVector *mv)
-    : _status(UNINITIALIZED), _module(module), _cimom_handle(0), _name(name), 
+    : _status(UNINITIALIZED), _module(module), _cimom_handle(0), _name(name),
     _no_unload(0),  _threadWatchList(), _cleanedThreads()
 {
     PEG_METHOD_ENTER(
@@ -392,7 +393,7 @@ void CMPIProvider::_terminate(Boolean terminating)
         waitUntilThreadsDone();
 
     }
-    // We have killed all threads running in provider forcibly. Set 
+    // We have killed all threads running in provider forcibly. Set
     // unloadStatus of provider to OK.
     if (terminating)
     {

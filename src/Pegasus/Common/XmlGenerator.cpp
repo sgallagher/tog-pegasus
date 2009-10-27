@@ -204,6 +204,18 @@ static const int _isSpecialChar7[] =
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
 };
 
+// If _isSpecialChar7[ch] is true, then ch is a special character, which must
+// have a special encoding in XML. But only use 7-biat ASCII characters to
+// index this array.
+static const int _isNormalChar7[] =
+{
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,
+    1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Buffer& operator<<(Buffer& out, const Char16& x)
@@ -593,6 +605,9 @@ void XmlGenerator::appendSpecial(Buffer& out, const String& str)
     }
 }
 
+// str has to be UTF-8 encoded
+// that means the characters used cannot be larger than 7bit ASCII in value
+// range
 void XmlGenerator::appendSpecial(Buffer& out, const char* str, Uint32 size)
 {
     // employ loop unrolling and a less checking optimized Buffer access
@@ -603,6 +618,24 @@ void XmlGenerator::appendSpecial(Buffer& out, const char* str, Uint32 size)
     {
         out.reserveCapacity(out.capacity() + newMaxSize);
     }
+
+    // Before using a loop unrolled algorithm to pick out the special chars
+    // we are going to assume there is no special char as this is the case most
+    // of the time anyway
+    Uint32 sizeStart=size;
+    const Uint8* p= (const Uint8*) str;
+
+    while (size >= 4 &&
+             (_isNormalChar7[p[0]] |
+              _isNormalChar7[p[1]] |
+              _isNormalChar7[p[2]] |
+              _isNormalChar7[p[3]]))
+    {
+        size -= 4;
+        p += 4;
+    }
+    out.append_unchecked(str,sizeStart-size);
+    str=(const char*)p;
 
     while (size>=8)
     {

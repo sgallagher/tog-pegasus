@@ -900,7 +900,7 @@ void SCMOXmlWriter::appendSCMBUnion(
             // an SCMBDateTime is a CIMDateTimeRep
             // this should help us to reuse existing optimized Datetime
             char buffer[26];
-            _DateTimetoCStr(&(u.dateTimeValue), buffer);
+            _DateTimetoCStr(u.dateTimeValue, buffer);
             // datetime value is formatted with a \0 at end, ignore
             out.append(buffer,sizeof(buffer)-1);
             break;
@@ -1133,7 +1133,7 @@ void SCMOXmlWriter::appendSCMBUnionArray(
                 out << STRLIT("<VALUE>");
                 // an SCMBDateTime is a CIMDateTimeRep
                 // this should help us to reuse existing optimized Datetime
-                _DateTimetoCStr(&(arr->dateTimeValue), buffer);
+                _DateTimetoCStr(arr->dateTimeValue, buffer);
                 // datetime value is formatted with a \0 at end, ignore
                 out.append(buffer,sizeof(buffer)-1);
                 arr++;

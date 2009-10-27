@@ -45,10 +45,6 @@
 #include <Pegasus/General/CIMError.h>
 
 #include <Pegasus/Provider/CMPI/cmpidt.h>
-
-
-#include "CMPI_ThreadContext.h"
-#include "CMPI_Enumeration.h"
 #include "CMPI_Array.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -93,7 +89,8 @@ public:
     CMPI_Object(struct CMPI_InstEnumeration*);
     CMPI_Object(struct CMPI_ObjEnumeration*);
     CMPI_Object(struct CMPI_OpEnumeration*);
-    ~CMPI_Object();
+
+    ~CMPI_Object() {};
     void unlinkAndDelete();
     void unlink();
 };

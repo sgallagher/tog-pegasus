@@ -36,6 +36,7 @@
 #include "CMPI_Value.h"
 #include "CMPI_String.h"
 #include "CMPI_SelectExpAccessor_WQL.h"
+#include "CMPI_ThreadContext.h"
 
 #ifdef PEGASUS_ENABLE_CQL
 # include "CMPI_SelectExpAccessor_CQL.h"
@@ -285,7 +286,7 @@ extern "C"
         SCMOInstance * scmoInst = (SCMOInstance*) inst->hdl;
         CIMInstance cimInstance;
         SCMO_RC smrc = scmoInst->getCIMInstance(cimInstance);
-        if (SCMO_OK != smrc) 
+        if (SCMO_OK != smrc)
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,

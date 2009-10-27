@@ -54,22 +54,18 @@ PEGASUS_NAMESPACE_BEGIN
                     { if (i->n) i->n->p=i->p; else l=i->p; \
                       if (i->p) i->p->n=i->n; else f=i->n;}
 
-class CMPI_ThreadContextKey
-{
-public:
-    CMPI_ThreadContextKey()
-    {
-        TSDKey::create(&contextKey);
-    };
-    ~CMPI_ThreadContextKey()
-    {
-        TSDKey::destroy(contextKey);
-    };
-    TSDKeyType contextKey;
-};
-
 class CMPI_ThreadContext
 {
+    /**
+       static pthread_key_t contextKey;
+    */
+    static TSDKeyType contextKey;
+    static int context_key_once;
+    static void context_key_alloc();
+    /**
+       static pthread_key_t getContextKey();
+    */
+    static TSDKeyType getContextKey();
     CMPI_ThreadContext* prev;
     const CMPIBroker *broker;
     const CMPIContext *context;
@@ -89,8 +85,6 @@ public:
    */
     CMPI_ThreadContext(const CMPIBroker*,const CMPIContext*);
     ~CMPI_ThreadContext();
-
-    static CMPI_ThreadContextKey globalThreadContextKey;
 };
 
 PEGASUS_NAMESPACE_END
@@ -99,6 +93,21 @@ PEGASUS_NAMESPACE_END
 // as they do very little real work, but are called many times
 
 PEGASUS_NAMESPACE_BEGIN
+
+inline void CMPI_ThreadContext::context_key_alloc()
+{
+    TSDKey::create(&contextKey);
+}
+
+inline TSDKeyType CMPI_ThreadContext::getContextKey()
+{
+    if( context_key_once )
+    {
+        context_key_alloc();
+        context_key_once=0;
+    }
+    return contextKey;
+}
 
 inline void CMPI_ThreadContext::add(CMPI_Object *o)
 {
@@ -134,8 +143,8 @@ inline void CMPI_ThreadContext::remObject(CMPI_Object* o)
 
 inline CMPI_ThreadContext* CMPI_ThreadContext::getThreadContext()
 {
-    return (CMPI_ThreadContext*)
-        TSDKey::get_thread_specific(globalThreadContextKey.contextKey);
+    TSDKeyType k=getContextKey();
+    return(CMPI_ThreadContext*)TSDKey::get_thread_specific(k);
 }
 
 inline const CMPIBroker* CMPI_ThreadContext::getBroker()

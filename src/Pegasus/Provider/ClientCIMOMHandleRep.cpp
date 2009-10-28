@@ -32,6 +32,7 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/ProviderManager2/AutoPThreadSecurity.h>
 
 #include "ClientCIMOMHandleRep.h"
 
@@ -297,6 +298,7 @@ CIMClass ClientCIMOMHandleRep::getClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::getClass");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -322,6 +324,7 @@ Array<CIMClass> ClientCIMOMHandleRep::enumerateClasses(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::enumerateClasses");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -344,6 +347,7 @@ Array<CIMName> ClientCIMOMHandleRep::enumerateClassNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::enumerateClassNames");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -361,6 +365,7 @@ void ClientCIMOMHandleRep::createClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::createClass");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -378,6 +383,7 @@ void ClientCIMOMHandleRep::modifyClass(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::modifyClass");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -396,6 +402,7 @@ void ClientCIMOMHandleRep::deleteClass(
 
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::deleteClass");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -416,6 +423,7 @@ CIMResponseData ClientCIMOMHandleRep::getInstance(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::getInstance");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -441,6 +449,7 @@ CIMResponseData ClientCIMOMHandleRep::enumerateInstances(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::enumerateInstances");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -463,6 +472,7 @@ CIMResponseData ClientCIMOMHandleRep::enumerateInstanceNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::enumerateInstanceNames");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -480,6 +490,7 @@ CIMObjectPath ClientCIMOMHandleRep::createInstance(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::createInstance");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -499,6 +510,7 @@ void ClientCIMOMHandleRep::modifyInstance(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::modifyInstance");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -519,6 +531,7 @@ void ClientCIMOMHandleRep::deleteInstance(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::deleteInstance");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -537,6 +550,7 @@ CIMResponseData ClientCIMOMHandleRep::execQuery(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::execQuery");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -561,6 +575,7 @@ CIMResponseData ClientCIMOMHandleRep::associators(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::associators");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -589,6 +604,7 @@ CIMResponseData ClientCIMOMHandleRep::associatorNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::associatorNames");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -614,6 +630,7 @@ CIMResponseData ClientCIMOMHandleRep::references(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::references");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -638,6 +655,7 @@ CIMResponseData ClientCIMOMHandleRep::referenceNames(
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE,
         "ClientCIMOMHandleRep::referenceNames");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -657,6 +675,7 @@ CIMValue ClientCIMOMHandleRep::getProperty(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::getProperty");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -676,6 +695,7 @@ void ClientCIMOMHandleRep::setProperty(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::setProperty");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 
@@ -698,6 +718,7 @@ CIMValue ClientCIMOMHandleRep::invokeMethod(
 {
     PEG_METHOD_ENTER(TRC_CIMOM_HANDLE, "ClientCIMOMHandleRep::invokeMethod");
 
+    AutoPThreadSecurity revPthreadSec(context, true);
     ClientCIMOMHandleAccessController access(_clientMutex);
     ClientCIMOMHandleSetup setup(_client, context);
 

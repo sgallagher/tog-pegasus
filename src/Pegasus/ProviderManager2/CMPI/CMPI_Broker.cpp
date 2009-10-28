@@ -426,7 +426,7 @@ extern "C"
                     *CM_Context(ctx),
                     SCMO_ObjectPath(cop)->getNameSpace(),
                     SCMO_ObjectPath(cop)->getClassName(),
-                    CM_DeepInheritance(flgs),
+                    true,
                     CM_IncludeQualifiers(flgs),
                     CM_ClassOrigin(flgs),
                     props);

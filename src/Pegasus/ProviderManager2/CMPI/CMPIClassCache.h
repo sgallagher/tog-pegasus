@@ -93,13 +93,15 @@ public:
 
     static Boolean equal (const ClassCacheEntry& x, const ClassCacheEntry& y)
     {
-        return System::strncasecmp(x.clsName,x.clsLen,y.clsName,y.clsLen);
+        return 
+            System::strncasecmp(x.clsName,x.clsLen,y.clsName,y.clsLen) &&
+            System::strncasecmp(x.nsName,x.nsLen,y.nsName,y.nsLen);
     }
 
     static Uint32 hash(const ClassCacheEntry& entry)
     {
         // Simply use the lenght of the classname as hash.
-        return entry.clsLen;
+        return entry.clsLen+entry.nsLen;
     }
 };
 

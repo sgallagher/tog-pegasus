@@ -355,7 +355,12 @@ extern "C"
 #endif
 
         SCMOClass* scmoClass =
-            mbGetSCMOClass(mb, ns, strlen(ns), cls, strlen(cls));
+            mbGetSCMOClass(
+                mb,
+                ns,
+                ns ? strlen(ns) : 0,
+                cls,
+                cls ? strlen(cls) : 0);
         if (0 == scmoClass)
         {
 #ifndef PEGASUS_DISALLOW_DIRTY_SCMO

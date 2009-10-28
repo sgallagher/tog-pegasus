@@ -1918,13 +1918,13 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
                 Array<Char16> x;
                 for (Uint32 i = 0, k = arraySize; i < k ; i++)
                 {
-                    x.append(pscmbArrayUn[i].simple.val.c16);
+                    x.append(Char16(pscmbArrayUn[i].simple.val.c16));
                 }
                 cimV.set(x);
             }
             else
             {
-                cimV.set(scmbUn.simple.val.c16);
+                cimV.set(Char16(scmbUn.simple.val.c16));
             }
             break;
         }

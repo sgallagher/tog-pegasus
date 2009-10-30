@@ -432,6 +432,14 @@ public:
         const SCMBUnion* keyvalue);
 
     /**
+     * Clears all key bindings in an instance.
+     * Warning: External references are freed but only the internal
+     * control structures are resetted. No memory is freed and at setting
+     * new key bindings the instance will grow in memory usage.
+     **/
+    void clearKeyBindings();
+
+    /**
      * Gets the key binding count.
      * @return the number of key bindings set.
      */
@@ -687,6 +695,8 @@ private:
 
 
     void _destroyExternalReferences();
+
+    void _destroyExternalKeyBindings();
 
     void _copyExternalReferences();
 

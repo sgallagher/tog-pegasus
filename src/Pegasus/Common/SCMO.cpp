@@ -1394,9 +1394,9 @@ void SCMOInstance::_copyExternalReferences()
     } // for all properties.
 }
 
-void SCMOInstance::_destroyExternalReferences()
+void SCMOInstance::_destroyExternalKeyBindings()
 {
-    // TODO: Has to be optimized not to loop through all props.
+    // TODO: Has to be optimized not to loop through all key bindings.
     // create a pointer to keybinding node array of the class.
     Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
     SCMBKeyBindingNode* theClassKeyBindNodeArray =
@@ -1441,6 +1441,11 @@ void SCMOInstance::_destroyExternalReferences()
                      &(inst.base[theUserDefKBElement->nextElement.start]);
         } // for all user def. key bindings.
     }
+}
+
+void SCMOInstance::_destroyExternalReferences()
+{
+    _destroyExternalKeyBindings();
 
     SCMBValue* theInstPropArray =
         (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
@@ -2378,7 +2383,7 @@ void SCMOInstance::buildKeyBindingsFromProperties()
         // because in _setKeyBindingFromSCMBUnion()
         // a reallocation can take place.
         theKeyBindValueArray =
-           (SCMBKeyBindingValue*)&inst.base[inst.hdr->keyBindingArray.start];
+           (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
 
         theInstPropNodeArray =
             (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
@@ -4121,6 +4126,24 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
         }
     }
     return 0;
+}
+
+void SCMOInstance::clearKeyBindings()
+{
+    // First destroy all external references in the key bindings
+    _destroyExternalKeyBindings();
+
+    // reset user keybindings
+    inst.hdr->numberUserKeyBindings = 0;
+    inst.hdr->userKeyBindingElement.start = 0;
+    inst.hdr->userKeyBindingElement.size = 0;
+
+    // Allocate a clean the SCMOInstanceKeyBindingArray
+    _getFreeSpace(
+          inst.hdr->keyBindingArray,
+          sizeof(SCMBKeyBindingValue)*inst.hdr->numberKeyBindings,
+          &inst.mem,
+          true);
 }
 
 Uint32 SCMOInstance::getKeyBindingCount() const

@@ -3334,7 +3334,7 @@ void SCMOInstance::_setUnionArrayValue(
                 theRefClass = _getSCMOClass(
                     iterator[i],
                     &(((const char*)*pmem)[startNS]),
-                    lenNS);
+                    lenNS-1);
 
                 if (theRefClass != 0)
                 {
@@ -3394,7 +3394,7 @@ void SCMOInstance::_setUnionArrayValue(
                         theRefClass = _getSCMOClass(
                             theInst.getPath(),
                             &(((const char*)*pmem)[startNS]),
-                            lenNS);
+                            lenNS-1);
 
                         if (theRefClass != 0)
                         {
@@ -3446,7 +3446,7 @@ void SCMOInstance::_setUnionArrayValue(
                     theRefClass = _getSCMOClass(
                         iterator[i].getPath(),
                         &(((const char*)*pmem)[startNS]),
-                        lenNS);
+                        lenNS-1);
 
 
                     if (theRefClass != 0)
@@ -3605,7 +3605,7 @@ void SCMOInstance::_setUnionValue(
             SCMOClass* theRefClass = _getSCMOClass(
                 *theCIMObj,
                 &(((const char*)*pmem)[startNS]),
-                lenNS);
+                lenNS-1);
 
             if (theRefClass != 0)
             {
@@ -3655,7 +3655,7 @@ void SCMOInstance::_setUnionValue(
                     theRefClass = _getSCMOClass(
                         theInst.getPath(),
                         &(((const char*)*pmem)[startNS]),
-                        lenNS);
+                        lenNS-1);
 
                     if (theRefClass != 0)
                     {
@@ -3698,7 +3698,7 @@ void SCMOInstance::_setUnionValue(
                 SCMOClass* theRefClass = _getSCMOClass(
                     theCIMInst->getPath(),
                     &(((const char*)*pmem)[startNS]),
-                    lenNS);
+                    lenNS-1);
                 if (theRefClass != 0)
                 {
                     scmoUnion->extRefPtr =
@@ -4577,7 +4577,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
             SCMOClass* theRefClass = _getSCMOClass(
                 theCIMObj,
                 _getCharString(inst.hdr->instNameSpace,inst.base),
-                inst.hdr->instNameSpace.length);
+                inst.hdr->instNameSpace.length-1);
 
             if (theRefClass != 0)
             {

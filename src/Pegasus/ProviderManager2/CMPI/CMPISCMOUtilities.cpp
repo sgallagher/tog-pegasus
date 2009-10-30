@@ -36,6 +36,8 @@
 #include "CMPISCMOUtilities.h"
 
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/CIMDateTimeInline.h>
+#include <Pegasus/Common/StringConversion.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -192,6 +194,155 @@ SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMObjectPath(
 
     return scmoRef;
 }
+
+// Converts SCMOUnion values to CMPIData for keys.
+// Includes special handling for the following types:
+//  Real32/64 -> Converted to CMPI_String
+//  DateTime  -> Converted to CMPI_String
+CMPIrc CMPISCMOUtilities::scmoValue2CMPIKeyData(
+    const SCMBUnion* scmoValue,
+    CMPIType type,
+    CMPIData *data)
+{
+    //Initialize CMPIData object
+    data->type = type;
+    data->value.uint64 = 0;
+    data->state = CMPI_goodValue|CMPI_keyValue;
+
+    //Check for NULL CIMValue
+    if( scmoValue == 0 )
+    {
+        data->state |= CMPI_nullValue;
+        return CMPI_RC_OK;
+    }
+
+    switch (type)
+    {
+        case CMPI_uint8:
+            data->value.uint64=(CMPIUint64)scmoValue->simple.val.u8;
+            data->type=CMPI_keyInteger;
+            break;
+        case CMPI_uint16:
+            data->value.uint64=(CMPIUint64)scmoValue->simple.val.u16;
+            data->type=CMPI_keyInteger;
+            break;
+        case CMPI_uint32:
+            data->value.uint64=(CMPIUint64)scmoValue->simple.val.u32;
+            data->type=CMPI_keyInteger;
+            break;
+        case CMPI_uint64:
+            data->value.uint64=scmoValue->simple.val.u64;
+            data->type=CMPI_keyInteger;
+            break;
+        case CMPI_sint8:
+            data->value.sint64=(CMPISint64)scmoValue->simple.val.s8;
+            data->type=CMPI_keyInteger;
+            break;
+        case CMPI_sint16:
+            data->value.sint64=(CMPISint64)scmoValue->simple.val.s16;
+            data->type=CMPI_keyInteger;
+            break;
+        case CMPI_sint32:
+            data->value.sint64=(CMPISint64)scmoValue->simple.val.s32;
+            data->type=CMPI_keyInteger;
+            break;
+        case CMPI_sint64:
+            data->value.sint64=scmoValue->simple.val.s64;
+            data->type=CMPI_keyInteger;
+            break;
+        case CMPI_char16:
+            data->value.uint64=(CMPIUint64)scmoValue->simple.val.c16;
+            data->type=CMPI_keyInteger;
+            break;
+        case CMPI_boolean:
+            data->value.boolean=scmoValue->simple.val.bin;
+            data->type=CMPI_keyBoolean;
+            break;
+
+        case CMPI_real32:
+            {
+                char buffer[128];
+                Uint32 size=0;
+                Real32ToString(buffer, scmoValue->simple.val.r32, size);
+                data->value.string = reinterpret_cast<CMPIString*>(
+                    new CMPI_Object(buffer));
+                data->type=CIMKeyBinding::STRING;
+                break;
+            }
+
+        case CMPI_real64:
+            {
+                char buffer[128];
+                Uint32 size=0;
+                Real64ToString(buffer, scmoValue->simple.val.r64, size);
+                data->value.string = reinterpret_cast<CMPIString*>(
+                    new CMPI_Object(buffer));
+                data->type=CIMKeyBinding::STRING;
+                break;
+            }
+
+        case CMPI_charsptr:
+        case CMPI_chars:
+        case CMPI_string:
+            {
+                if (scmoValue->extString.pchar)
+                {
+                    data->value.string = reinterpret_cast<CMPIString*>(
+                        new CMPI_Object(scmoValue->extString.pchar));
+                    data->type = CMPI_string;
+                }
+                else
+                {
+                    data->state|=CMPI_nullValue;
+                }
+                data->type=CMPI_keyString;
+                break;
+            }
+
+        case CMPI_dateTime:
+            {
+                char buffer[26];
+                _DateTimetoCStr(scmoValue->dateTimeValue, buffer);
+                data->value.string = reinterpret_cast<CMPIString*>(
+                    new CMPI_Object(buffer));
+                data->type=CIMKeyBinding::STRING;
+                break;
+            }
+
+        case CMPI_ref:
+            {
+                SCMOInstance* ref =
+                    new SCMOInstance(*(scmoValue->extRefPtr));
+                data->value.ref = reinterpret_cast<CMPIObjectPath*>
+                    (new CMPI_Object(
+                        ref,
+                        CMPI_Object::ObjectTypeObjectPath));
+            }
+            break;
+
+        default:
+            {
+                // Not supported for this CMPItype
+                data->state = CMPI_badValue;
+                return CMPI_RC_ERR_NOT_SUPPORTED;
+                break;
+            }
+    }
+
+    if (!(type&CMPI_ENC))
+    {
+        // For non-encapsulated type simply verify that we have a valid value
+        // otherwise set to CMPI_nullValue
+        if (!scmoValue->simple.hasValue)
+        {
+            data->value.uint64 = 0;
+            data->state = CMPI_nullValue;
+        }
+    }
+
+    return CMPI_RC_OK;
+}
+
 
 // Function to convert a SCMO Value into a CMPIData structure
 CMPIrc CMPISCMOUtilities::scmoValue2CMPIData(

@@ -492,8 +492,7 @@ extern "C"
                 prevInst->setNameSpace(nsRef);
 
                 // Remove the previous key properties
-                // TODO, enable as soon as availabe
-                //prevInst->clearKeys();
+                prevInst->clearKeyBindings();
 
                 // Copy the key properties from the given ObjectPath
                 CMPIrc rc = CMPISCMOUtilities::copySCMOKeyProperties(

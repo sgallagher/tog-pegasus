@@ -575,7 +575,6 @@ extern "C"
         if (obj->getFtab() == (void*)CMPI_Instance_Ftab ||
             obj->getFtab() == (void*)CMPI_InstanceOnStack_Ftab)
         {
-            // TODO: Optimize using native SCMOInstance toString
             SCMOInstance *scmoInst=(SCMOInstance*)obj->getHdl();
             CIMInstance ci;
             SCMO_RC src=scmoInst->getCIMInstance(ci);
@@ -599,7 +598,6 @@ extern "C"
         else if (obj->getFtab() == (void*)CMPI_ObjectPath_Ftab ||
             obj->getFtab() == (void*)CMPI_ObjectPathOnStack_Ftab)
         {
-            // TODO: Optimize using native SCMOInstance toString
             SCMOInstance * scmoObj = (SCMOInstance*)obj->getHdl();
             CIMObjectPath obj;
             scmoObj->getCIMObjectPath(obj);

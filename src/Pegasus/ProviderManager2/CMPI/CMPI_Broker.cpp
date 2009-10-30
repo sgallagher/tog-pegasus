@@ -765,9 +765,11 @@ extern "C"
                 method ? String(method) : String::EMPTY,
                 *CM_Args(in),
                 *CM_Args(out));
-                CIMType vType=v.getType();
-                CMPIType t = type2CMPIType(vType,v.isArray());
-                value2CMPIData(v,t,&data);
+
+            CIMType vType=v.getType();
+            CMPIType t = type2CMPIType(vType,v.isArray());
+            value2CMPIData(v,t,&data);
+
             if (rc)
             {
                 CMSetStatus(rc,CMPI_RC_OK);

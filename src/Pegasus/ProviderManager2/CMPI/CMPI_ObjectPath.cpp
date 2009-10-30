@@ -379,7 +379,7 @@ extern "C"
         if (src == SCMO_OK)
         {
             CMPIType ct=type2CMPIType(type, false);
-            CMPISCMOUtilities::scmoValue2CMPIData( keyValue, ct, &data );
+            CMPISCMOUtilities::scmoValue2CMPIKeyData( keyValue, ct, &data );
 
             if ((ct&~CMPI_ARRAY) == CMPI_string)
             {
@@ -387,33 +387,6 @@ extern "C"
                 // with at least one element, which needs to be released
                 // after it was converted to CMPIData
                 free((void*)keyValue);
-            }
-
-            data.state |= CMPI_keyValue;
-
-            //TODO: Convert all types to keytypes
-            //      datetime->string
-            //      real->string
-            switch (ct)
-            {
-            case CMPI_uint8:
-                data.value.uint64=(CMPIUint64)data.value.uint8;
-                break;
-            case CMPI_uint16:
-                data.value.uint64=(CMPIUint64)data.value.uint16;
-                break;
-            case CMPI_uint32:
-                data.value.uint64=(CMPIUint64)data.value.uint32;
-                break;
-            case CMPI_sint8:
-                data.value.sint64=(CMPISint64)data.value.sint8;
-                break;
-            case CMPI_sint16:
-                data.value.sint64=(CMPISint64)data.value.sint16;
-                break;
-            case CMPI_sint32:
-                data.value.sint64=(CMPISint64)data.value.sint32;
-                break;
             }
 
             CMSetStatus(rc, CMPI_RC_OK);
@@ -457,7 +430,7 @@ extern "C"
         if (src == SCMO_OK)
         {
             CMPIType ct=type2CMPIType(type, false);
-            CMPISCMOUtilities::scmoValue2CMPIData( keyValue, ct, &data );
+            CMPISCMOUtilities::scmoValue2CMPIKeyData( keyValue, ct, &data );
             if ((ct&~CMPI_ARRAY) == CMPI_string)
             {
                 // We always receive strings as an array of pointers

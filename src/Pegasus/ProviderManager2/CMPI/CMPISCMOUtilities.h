@@ -45,10 +45,15 @@ class CMPISCMOUtilities
 {
 public:
     static CMPIrc scmoValue2CMPIData(
-        const SCMBUnion* scmoValue, 
-        CMPIType type, 
+        const SCMBUnion* scmoValue,
+        CMPIType type,
         CMPIData *data,
         Uint32 arraySize = 0);
+
+    static CMPIrc scmoValue2CMPIKeyData(
+        const SCMBUnion* scmoValue,
+        CMPIType type,
+        CMPIData *data);
 
     static CIMDateTimeRep* scmoDateTimeFromCMPI(CMPIDateTime* cmpidt);
 

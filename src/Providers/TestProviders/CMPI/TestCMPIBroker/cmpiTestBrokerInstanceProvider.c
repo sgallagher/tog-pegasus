@@ -56,6 +56,7 @@ int _setProperty1 (CMPIInstance * ci, const char *p)
     CMPIValue val;
     const char *property;
     CMPIStatus rc = { CMPI_RC_OK, NULL };
+    CMPIData retData;
 
     property = p;
     PROV_LOG ("--- _setProperty: %s -> %s", p, property);

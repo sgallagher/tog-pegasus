@@ -182,7 +182,7 @@ void SCMOXmlWriter::appendQualifierElement(
         {
             out.append(
                 &(base[theQualifier.userDefName.start]),
-                theQualifier.userDefName.length-1);
+                theQualifier.userDefName.size-1);
         }
     }
     else
@@ -272,7 +272,7 @@ void SCMOXmlWriter::appendPropertyElement(
 
         out.append(
             &(clsbase[propertyDef->name.start]),
-            propertyDef->name.length-1);
+            propertyDef->name.size-1);
 
         out.append('"',' ');
         //out << STRLIT("\" ");
@@ -329,7 +329,7 @@ void SCMOXmlWriter::appendPropertyElement(
                 out << STRLIT(" CLASSORIGIN=\"");
                 out.append(
                     &(clsbase[propertyDef->originClassName.start]),
-                    propertyDef->originClassName.length-1);
+                    propertyDef->originClassName.size-1);
                 out.append('"');
             }
         }
@@ -364,7 +364,7 @@ void SCMOXmlWriter::appendPropertyElement(
         out << STRLIT("<PROPERTY.REFERENCE NAME=\"");
         out.append(
             &(clsbase[propertyDef->name.start]),
-            propertyDef->name.length-1);
+            propertyDef->name.size-1);
         out.append('"',' ');
         //out << STRLIT("\" ");
 
@@ -373,7 +373,7 @@ void SCMOXmlWriter::appendPropertyElement(
             out << STRLIT(" REFERENCECLASS=\"");
             out.append(
                 &(clsbase[propertyDef->refClassName.start]),
-                propertyDef->refClassName.length-1);
+                propertyDef->refClassName.size-1);
             out.append('"');
         }
 
@@ -384,7 +384,7 @@ void SCMOXmlWriter::appendPropertyElement(
                 out << STRLIT(" CLASSORIGIN=\"");
                 out.append(
                     &(clsbase[propertyDef->originClassName.start]),
-                    propertyDef->originClassName.length-1);
+                    propertyDef->originClassName.size-1);
                 out.append('"');
             }
         }
@@ -418,7 +418,7 @@ void SCMOXmlWriter::appendPropertyElement(
 
         out.append(
             &(clsbase[propertyDef->name.start]),
-            propertyDef->name.length-1);
+            propertyDef->name.size-1);
 
         out.append('"',' ');
         //out << STRLIT("\" ");
@@ -430,7 +430,7 @@ void SCMOXmlWriter::appendPropertyElement(
                 out << STRLIT(" CLASSORIGIN=\"");
                 out.append(
                     &(clsbase[propertyDef->originClassName.start]),
-                    propertyDef->originClassName.length-1);
+                    propertyDef->originClassName.size-1);
                 out.append('"');
             }
         }
@@ -688,7 +688,7 @@ void SCMOXmlWriter::appendClassElement(
     out << STRLIT("<CLASS NAME=\"");
     out.append(
         &(clsBase[theClass->className.start]),
-        theClass->className.length-1);
+        theClass->className.size-1);
 
     out.append('"',' ');
     if (0 != theClass->superClassName.start)
@@ -696,7 +696,7 @@ void SCMOXmlWriter::appendClassElement(
         out << STRLIT(" SUPERCLASS=\"");
         out.append(
             &(clsBase[theClass->superClassName.start]),
-            theClass->superClassName.length-1);
+            theClass->superClassName.size-1);
         out.append('"',' ');
     }
     out.append('>','\n');
@@ -890,7 +890,7 @@ void SCMOXmlWriter::appendSCMBUnion(
                 SCMOXmlWriter::appendSpecial(
                     out,
                     &(base[u.stringValue.start]),
-                    u.stringValue.length-1);
+                    u.stringValue.size-1);
             }
             break;
         }
@@ -1115,7 +1115,7 @@ void SCMOXmlWriter::appendSCMBUnionArray(
                 SCMOXmlWriter::appendSpecial(
                     out,
                     &(base[arr->stringValue.start]),
-                    arr->stringValue.length-1);
+                    arr->stringValue.size-1);
                 arr++;
                 out << STRLIT("</VALUE>\n");
             }

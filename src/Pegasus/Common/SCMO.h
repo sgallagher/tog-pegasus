@@ -74,8 +74,8 @@ struct SCMBDataPtr
 {
     // start index of the data area
     Uint64      start;
-    // length of data area
-    Uint64      length;
+    // size of data area
+    Uint64      size;
 };
 
 //
@@ -531,7 +531,7 @@ inline Uint32 _generateSCMOStringTag(
     char* base)
 {
     // The lenght of a SCMBDataPtr to a UTF8 string includs the trailing '\0'.
-    return _generateStringTag(_getCharString(ptr,base),ptr.length-1);
+    return _generateStringTag(_getCharString(ptr,base),ptr.size-1);
 }
 
 // The static declaration of the common SCMO memory functions
@@ -574,19 +574,19 @@ static inline Boolean _equalNoCaseUTF8Strings(
 {
 #ifdef PEGASUS_HAS_ICU
     //both are empty strings, so they are equal.
-    if (ptr_a.length == 0 && len == 0)
+    if (ptr_a.size == 0 && len == 0)
     {
         return true;
     }
     // size without trailing '\0' !!
-    if (ptr_a.length-1 != len)
+    if (ptr_a.size-1 != len)
     {
         return false;
     }
     const char* a = (const char*)_getCharString(ptr_a,base);
     return ( _utf8ICUncasecmp(a,name,len)== 0);
 #else
-    return System::strncasecmp(&base[ptr_a.start],ptr_a.length-1,name,len);
+    return System::strncasecmp(&base[ptr_a.start],ptr_a.size-1,name,len);
 #endif
 }
 

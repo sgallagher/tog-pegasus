@@ -83,9 +83,9 @@ PEGASUS_USING_STD;
 #define NULLSTR(x) ((x) == 0 ? "" : (x))
 
 #define NEWCIMSTR(ptr,base) \
-      ((ptr).length == 0 ?  \
+      ((ptr).size == 0 ?  \
       (String()) :           \
-      (String(&(base)[(ptr).start],((ptr).length)-1)))
+      (String(&(base)[(ptr).start],((ptr).size)-1)))
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -226,9 +226,9 @@ inline void _deleteArrayExtReference(
     SCMBUnion* ptr;
     // if the array was already set,
     // the previous references has to be deleted
-    if(theArray.length != 0)
+    if(theArray.size != 0)
     {
-        Uint32 oldArraySize=(theArray.length/sizeof(SCMBUnion));
+        Uint32 oldArraySize=(theArray.size/sizeof(SCMBUnion));
 
         ptr = (SCMBUnion*)&(((char*)*pmem)[theArray.start]);
         for (Uint32 i = 0 ; i < oldArraySize ; i++)
@@ -245,9 +245,9 @@ inline void _copyArrayExtReference(
     SCMBUnion* ptr;
     // if the array was already set,
     // the previous references has to be deleted
-    if(theArray.length != 0)
+    if(theArray.size != 0)
     {
-        Uint32 oldArraySize=(theArray.length/sizeof(SCMBUnion));
+        Uint32 oldArraySize=(theArray.size/sizeof(SCMBUnion));
 
         ptr = (SCMBUnion*)&(((char*)*pmem)[theArray.start]);
         for (Uint32 i = 0 ; i < oldArraySize ; i++)
@@ -377,7 +377,7 @@ SCMOClass::SCMOClass(
     {
         // there is no Super ClassName
         cls.hdr->superClassName.start=0;
-        cls.hdr->superClassName.length=0;
+        cls.hdr->superClassName.size=0;
     }
 
     CIMObjectPath theObjectPath=theCIMClass.getPath();
@@ -417,7 +417,7 @@ const char* SCMOClass::getSuperClassName() const
 
 const char* SCMOClass::getSuperClassName_l(Uint64 & length) const
 {
-    length = cls.hdr->superClassName.length-1;
+    length = cls.hdr->superClassName.size-1;
     return _getCharString(cls.hdr->superClassName,cls.base);
 }
 
@@ -786,17 +786,17 @@ void SCMOClass::_setClassProperties(PropertySet& theCIMProperties)
         else
         {
             cls.hdr->keyBindingSet.nodeArray.start=0;
-            cls.hdr->keyBindingSet.nodeArray.length=0;
+            cls.hdr->keyBindingSet.nodeArray.size=0;
         }
     }
     else
     {
         cls.hdr->propertySet.nodeArray.start=0;
-        cls.hdr->propertySet.nodeArray.length=0;
+        cls.hdr->propertySet.nodeArray.size=0;
         cls.hdr->keyPropertyMask.start=0;
-        cls.hdr->keyPropertyMask.length=0;
+        cls.hdr->keyPropertyMask.size=0;
         cls.hdr->keyBindingSet.nodeArray.start=0;
-        cls.hdr->keyBindingSet.nodeArray.length=0;
+        cls.hdr->keyBindingSet.nodeArray.size=0;
     }
 }
 
@@ -1057,7 +1057,7 @@ Boolean SCMOClass::_setPropertyQualifiers(
     else
     {
         scmoPropNode->theProperty.qualifierArray.start=0;
-        scmoPropNode->theProperty.qualifierArray.length=0;
+        scmoPropNode->theProperty.qualifierArray.size=0;
     }
 
     return isKey;
@@ -1088,7 +1088,7 @@ void SCMOClass::_setClassQualifers(const CIMQualifierList& theQualifierList)
     else
     {
         cls.hdr->qualifierArray.start=0;
-        cls.hdr->qualifierArray.length=0;
+        cls.hdr->qualifierArray.size=0;
     }
 }
 
@@ -1152,7 +1152,7 @@ void SCMOClass::_setValue(
             // Is set to the number of array members by the function.
             scmoValue->valueArraySize,
             cls.hdr->nameSpace.start,
-            cls.hdr->nameSpace.length,
+            cls.hdr->nameSpace.size,
             rep->u);
     }
     else
@@ -1162,7 +1162,7 @@ void SCMOClass::_setValue(
             &cls.mem,
             rep->type,
             cls.hdr->nameSpace.start,
-            cls.hdr->nameSpace.length,
+            cls.hdr->nameSpace.size,
             rep->u);
     }
 }
@@ -2223,7 +2223,7 @@ void SCMOInstance::_setCIMValueAtNodeIndex(
             // Is set to the number of array members by the function.
             theInstProp.valueArraySize,
             inst.hdr->instNameSpace.start,
-            inst.hdr->instNameSpace.length,
+            inst.hdr->instNameSpace.size,
             valRep->u);
     }
     else
@@ -2233,7 +2233,7 @@ void SCMOInstance::_setCIMValueAtNodeIndex(
             &inst.mem,
             realType,
             inst.hdr->instNameSpace.start,
-            inst.hdr->instNameSpace.length,
+            inst.hdr->instNameSpace.size,
             valRep->u);
     }
 }
@@ -2262,7 +2262,7 @@ void SCMOInstance::setHostName(const char* hostName)
 
     }
     inst.hdr->hostName.start=0;
-    inst.hdr->hostName.length=0;
+    inst.hdr->hostName.size=0;
 }
 
 void SCMOInstance::setHostName_l(const char* hostName, Uint32 len)
@@ -2278,7 +2278,7 @@ const char* SCMOInstance::getHostName() const
 
 const char* SCMOInstance::getHostName_l(Uint64& length) const
 {
-    length = inst.hdr->hostName.length-1;
+    length = inst.hdr->hostName.size-1;
     return _getCharString(inst.hdr->hostName,inst.base);
 }
 
@@ -2312,7 +2312,7 @@ const char* SCMOInstance::getClassName() const
 
 const char* SCMOInstance::getClassName_l(Uint64 & length) const
 {
-    length = inst.hdr->instClassName.length-1;
+    length = inst.hdr->instClassName.size-1;
     return _getCharString(inst.hdr->instClassName,inst.base);
 }
 
@@ -2338,7 +2338,7 @@ void SCMOInstance::setNameSpace(const char* nameSpace)
     }
 
     inst.hdr->instNameSpace.start=0;
-    inst.hdr->instNameSpace.length=0;
+    inst.hdr->instNameSpace.size=0;
 }
 
 void SCMOInstance::setNameSpace_l(const char* nameSpace, Uint32 len)
@@ -2356,7 +2356,7 @@ const char* SCMOInstance::getNameSpace() const
 
 const char* SCMOInstance::getNameSpace_l(Uint64 & length) const
 {
-    length = inst.hdr->instNameSpace.length-1;
+    length = inst.hdr->instNameSpace.size-1;
     return _getCharString(inst.hdr->instNameSpace,inst.base);
 }
 
@@ -2440,7 +2440,7 @@ void SCMOInstance::_setKeyBindingFromSCMBUnion(
             keyData.isSet=true;
             _setBinary(
                 &uBase[u.stringValue.start],
-                u.stringValue.length,
+                u.stringValue.size,
                 keyData.data.stringValue,
                 &inst.mem);
             break;
@@ -2511,14 +2511,14 @@ void SCMOInstance::_initSCMOInstance(SCMOClass* pClass)
     _setBinary(
         _getCharString(inst.hdr->theClass->cls.hdr->className,
                        inst.hdr->theClass->cls.base),
-        inst.hdr->theClass->cls.hdr->className.length,
+        inst.hdr->theClass->cls.hdr->className.size,
         inst.hdr->instClassName,
         &inst.mem);
 
     _setBinary(
         _getCharString(inst.hdr->theClass->cls.hdr->nameSpace,
                        inst.hdr->theClass->cls.base),
-        inst.hdr->theClass->cls.hdr->nameSpace.length,
+        inst.hdr->theClass->cls.hdr->nameSpace.size,
         inst.hdr->instNameSpace,
         &inst.mem);
 
@@ -3812,7 +3812,7 @@ SCMOInstance SCMOInstance::clone(Boolean objectPathOnly) const
         // Copy the host name to tha new instance-
         _setBinary(
             _resolveDataPtr(this->inst.hdr->hostName,this->inst.base),
-            this->inst.hdr->hostName.length,
+            this->inst.hdr->hostName.size,
             newInst.inst.hdr->hostName,
             &newInst.inst.mem);
 
@@ -3825,14 +3825,14 @@ SCMOInstance SCMOInstance::clone(Boolean objectPathOnly) const
             // Copy the class name to tha new instance-
             _setBinary(
                 _resolveDataPtr(this->inst.hdr->instClassName,this->inst.base),
-                this->inst.hdr->instClassName.length,
+                this->inst.hdr->instClassName.size,
                 newInst.inst.hdr->instClassName,
                 &newInst.inst.mem);
 
             // Copy the name space name to tha new instance-
             _setBinary(
                 _resolveDataPtr(this->inst.hdr->instNameSpace,this->inst.base),
-                this->inst.hdr->instNameSpace.length,
+                this->inst.hdr->instNameSpace.size,
                 newInst.inst.hdr->instNameSpace,
                 &newInst.inst.mem);
         }
@@ -3926,7 +3926,7 @@ void SCMOInstance::_setUserDefinedKeyBinding(
     ptrNewElement = _getUserDefinedKeyBinding(
         _getCharString(theInsertElement.name,elementBase),
         // lenght is without the trailing '\0'
-        theInsertElement.name.length-1,
+        theInsertElement.name.size-1,
         theInsertElement.type);
 
     // Copy the data
@@ -3991,12 +3991,12 @@ SCMBUserKeyBindingElement* SCMOInstance::_getUserDefinedKeyBinding(
         //   to the next element of the new element.
         ptrNewElement->nextElement.start =
             inst.hdr->userKeyBindingElement.start;
-        ptrNewElement->nextElement.length =
-            inst.hdr->userKeyBindingElement.length;
+        ptrNewElement->nextElement.size =
+            inst.hdr->userKeyBindingElement.size;
         // - Assing the the new element
         //   to the  start point of user key binding element chain
         inst.hdr->userKeyBindingElement.start = newElement.start;
-        inst.hdr->userKeyBindingElement.length = newElement.length;
+        inst.hdr->userKeyBindingElement.size = newElement.size;
         // Adjust the couter of user defined key bindings.
         inst.hdr->numberUserKeyBindings++;
 
@@ -4099,7 +4099,7 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
                     ptr[i].extString.pchar =
                         (char*)_getCharString(av[i].stringValue,base);
                     // lenght with out the trailing /0 !
-                    ptr[i].extString.length = av[i].stringValue.length-1;
+                    ptr[i].extString.length = av[i].stringValue.size-1;
                 }
             }
             else
@@ -4108,7 +4108,7 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
                 ptr->extString.pchar =
                     (char*)_getCharString(u->stringValue,base);
                 // lenght with out the trailing /0 !
-                ptr->extString.length = u->stringValue.length-1;
+                ptr->extString.length = u->stringValue.size-1;
             }
 
              return(ptr);
@@ -4230,7 +4230,7 @@ SCMO_RC SCMOInstance::_getKeyBindingDataAtNodeIndex(
         type = theClassKeyBindNodeArray[node].type;
 
         // First resolve pointer to the key binding name
-        pnameLen = theClassKeyBindNodeArray[node].name.length;
+        pnameLen = theClassKeyBindNodeArray[node].name.size;
         *pname = _getCharString(
             theClassKeyBindNodeArray[node].name,
             inst.hdr->theClass->cls.base);
@@ -4250,7 +4250,7 @@ SCMO_RC SCMOInstance::_getKeyBindingDataAtNodeIndex(
 
         type = theElem->type;
 
-        pnameLen = theElem->name.length;
+        pnameLen = theElem->name.size;
         *pname = _getCharString(theElem->name,inst.base);
 
         // There is no value set in the instance
@@ -4577,7 +4577,7 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
             SCMOClass* theRefClass = _getSCMOClass(
                 theCIMObj,
                 _getCharString(inst.hdr->instNameSpace,inst.base),
-                inst.hdr->instNameSpace.length-1);
+                inst.hdr->instNameSpace.size-1);
 
             if (theRefClass != 0)
             {
@@ -6143,11 +6143,11 @@ void SCMODump::printArrayValue(
             SCMBDataPtr* p = (SCMBDataPtr*)&(base[u.arrayValue.start]);
             for (Uint32 i = 0; i < size; i++)
             {
-                if ( 0 != p[i].length)
+                if ( 0 != p[i].size)
                 {
                     out.append('\'');
                     out.append((const char*)_getCharString(p[i],base),
-                               p[i].length-1);
+                               p[i].size-1);
                     out.append('\'');
                 }
                 else
@@ -6314,10 +6314,10 @@ void SCMODump::printUnionValue(
 
     case CIMTYPE_STRING:
         {
-            if ( 0 != u.stringValue.length)
+            if ( 0 != u.stringValue.size)
             {
                 out.append((const char*)_getCharString(u.stringValue,base),
-                           u.stringValue.length-1);
+                           u.stringValue.size-1);
             }
             fprintf(_out,"\nThe Value is: '%s'",out.getData());
             break;
@@ -6479,14 +6479,14 @@ static Uint64 _getFreeSpace(
     if (size == 0)
     {
         ptr.start = 0;
-        ptr.length = 0;
+        ptr.size = 0;
         return 0;
     }
 
     // The SCMBDataPtr has to be set before any reallocation.
     start = (*pmem)->startOfFreeSpace;
     ptr.start = start;
-    ptr.length = size;
+    ptr.size = size;
 
     while ((*pmem)->freeBytes < size)
     {
@@ -6543,7 +6543,7 @@ static void _setString(
     else
     {
         ptr.start = 0;
-        ptr.length = 0;
+        ptr.size = 0;
     }
 }
 
@@ -6572,7 +6572,7 @@ static void _setBinary(
     else
     {
         ptr.start = 0;
-        ptr.length = 0;
+        ptr.size = 0;
     }
 }
 

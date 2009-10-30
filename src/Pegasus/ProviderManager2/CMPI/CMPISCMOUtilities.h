@@ -67,8 +67,9 @@ public:
         const char* ns=0,
         const char* cls=0);
 
-    static CMPIrc copySCMOKeyProperties( const SCMOInstance* sourcePath,
-                                         SCMOInstance* targetPath );
+    static CMPIrc copySCMOKeyProperties(
+        const SCMOInstance* sourcePath,
+        SCMOInstance* targetPath );
 };
 
 

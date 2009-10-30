@@ -156,8 +156,11 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
             }
         case CMPI_string:
             {
-
-                scmoData.extString.pchar = (char*)data->string->hdl;
+                scmoData.extString.pchar = 0; 
+                if (data->string)
+                {
+                    scmoData.extString.pchar = (char*)data->string->hdl;
+                }
                 if (scmoData.extString.pchar)
                 {
                     scmoData.extString.length =

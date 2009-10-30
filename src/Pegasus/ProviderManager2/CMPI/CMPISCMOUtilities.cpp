@@ -72,25 +72,31 @@ CMPIrc CMPISCMOUtilities::copySCMOKeyProperties( const SCMOInstance* sourcePath,
         {
             rc = sourcePath->getKeyBindingAt(
                 x, &keyName, keyType, &keyValue);
-            if ((rc != SCMO_OK) || (0==keyValue))
+            if (rc==SCMO_OK)
             {
-                PEG_TRACE_CSTRING(
-                    TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL1,
-                    "Failed to retrieve keybinding");
-                PEG_METHOD_EXIT();
-                return CMPI_RC_ERR_FAILED;
+                rc = targetPath->setKeyBinding(
+                    keyName, keyType, keyValue);
+                if (rc != SCMO_OK)
+                {
+                    PEG_TRACE_CSTRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL2,
+                        "Failed to set keybinding");
+                    PEG_METHOD_EXIT();
+                    return CMPI_RC_ERR_FAILED;
+                }
             }
-            rc = targetPath->setKeyBinding(
-                keyName, keyType, keyValue);
-            if (rc != SCMO_OK)
+            else
             {
-                PEG_TRACE_CSTRING(
-                    TRC_CMPIPROVIDERINTERFACE,
-                    Tracer::LEVEL1,
-                    "Failed to set keybinding");
-                PEG_METHOD_EXIT();
-                return CMPI_RC_ERR_FAILED;
+                if (rc!=SCMO_NULL_VALUE)
+                {
+                    PEG_TRACE_CSTRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL2,
+                        "Failed to retrieve keybinding");
+                    PEG_METHOD_EXIT();
+                    return CMPI_RC_ERR_FAILED;
+                }
             }
         }
     }
@@ -130,7 +136,7 @@ SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMInstance(
         cls = (const char*)className;
     }
 
-    SCMOClass* scmoClass = mbGetSCMOClass(0,ns,strlen(ns),cls,strlen(cls));
+    SCMOClass* scmoClass = mbGetSCMOClass(ns,strlen(ns),cls,strlen(cls));
 
     if (0 == scmoClass)
     {
@@ -170,7 +176,7 @@ SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMObjectPath(
     }
 
 
-    SCMOClass* scmoClass = mbGetSCMOClass(0,ns,strlen(ns),cls,strlen(cls));
+    SCMOClass* scmoClass = mbGetSCMOClass(ns,strlen(ns),cls,strlen(cls));
 
     if (0 == scmoClass)
     {

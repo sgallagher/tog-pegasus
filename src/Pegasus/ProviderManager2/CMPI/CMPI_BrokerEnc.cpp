@@ -296,8 +296,7 @@ extern "C"
             const char* ns = scmoOp->getNameSpace_l(nsL);
             Uint64 cnL;
             const char* cn = scmoOp->getClassName_l(cnL);
-            SCMOClass* scmoClass =
-                mbGetSCMOClass(mb,ns,nsL,cn,cnL);
+            SCMOClass* scmoClass = mbGetSCMOClass(ns,nsL,cn,cnL);
             if (0 == scmoClass)
             {
                 CMSetStatus(rc, CMPI_RC_ERR_NOT_FOUND);
@@ -356,7 +355,6 @@ extern "C"
 
         SCMOClass* scmoClass =
             mbGetSCMOClass(
-                mb,
                 ns,
                 ns ? strlen(ns) : 0,
                 cls,
@@ -686,7 +684,7 @@ extern "C"
             return 1;
         }
 
-        SCMOClass *cc = mbGetSCMOClass(mb, ns, nsL, cls, clsL);
+        SCMOClass *cc = mbGetSCMOClass(ns, nsL, cls, clsL);
         if (cc == NULL)
         {
             PEG_METHOD_EXIT();
@@ -696,7 +694,7 @@ extern "C"
 
         while(NULL!=cls)
         {
-            cc = mbGetSCMOClass(mb, ns, nsL, cls, clsL);
+            cc = mbGetSCMOClass(ns, nsL, cls, clsL);
             if (cc == NULL)
             {
                 PEG_METHOD_EXIT();
@@ -1766,7 +1764,7 @@ extern "C"
         const char* ns = op->getNamespace(nsL);
         Uint32 cnL;
         const char* cn = op->getClassName_L(cnL);
-        SCMOClass *cls = mbGetSCMOClass(mb,ns,nsL,cn,cnL);
+        SCMOClass *cls = mbGetSCMOClass(ns,nsL,cn,cnL);
         if (0==cls)
         {
             PEG_TRACE_CSTRING(

@@ -80,9 +80,11 @@ extern "C"
             // Since we make no difference between ObjectPath and Instance,
             // we simply clone using the ObjectPathOnly option.
             SCMOInstance* nRef = new SCMOInstance(ref->clone(true));
+            CMPI_Object* obj =
+                new CMPI_Object(nRef,CMPI_Object::ObjectTypeObjectPath);
+            obj->unlink();
             CMPIObjectPath* cmpiObjPath =
-                reinterpret_cast<CMPIObjectPath *>
-                (new CMPI_Object(nRef,CMPI_Object::ObjectTypeObjectPath));
+                reinterpret_cast<CMPIObjectPath *>(obj);
             CMSetStatus(rc,CMPI_RC_OK);
             return cmpiObjPath;
         }
@@ -626,10 +628,24 @@ CMPIObjectPathFT objectPathOnStack_FT =
 CMPIObjectPathFT *CMPI_ObjectPathOnStack_Ftab = &objectPathOnStack_FT;
 
 
+CMPI_ObjectPathOnStack::CMPI_ObjectPathOnStack(const SCMOInstance* cop)
+{
+    hdl = (void*)cop;
+    ft = CMPI_ObjectPathOnStack_Ftab;
+}
+
 CMPI_ObjectPathOnStack::CMPI_ObjectPathOnStack(const SCMOInstance& cop)
 {
-    hdl = (void*)&cop;
+    hdl = (void*) new SCMOInstance(cop);
     ft = CMPI_ObjectPathOnStack_Ftab;
+}
+
+CMPI_ObjectPathOnStack::~CMPI_ObjectPathOnStack()
+{
+    if (hdl)
+    {
+        delete((SCMOInstance*)hdl);
+    }
 }
 
 

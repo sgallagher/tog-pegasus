@@ -192,6 +192,21 @@ protected:
     void _throwCIMException(
         CMPIStatus code,
         CMPI_Error* cmpiError);
+
+    SCMOInstance* getSCMOClassFromRequest(
+        CString& nameSpace,
+        CString& className );
+
+    SCMOInstance* getSCMOObjectPathFromRequest(
+        CString& nameSpace,
+        CString& className,
+        CIMObjectPath& cimObjPath );
+    
+    SCMOInstance* getSCMOInstanceFromRequest(
+        CString& nameSpace,
+        CString& className,
+        CIMInstance& cimInstance );
+
 };
 
 PEGASUS_NAMESPACE_END

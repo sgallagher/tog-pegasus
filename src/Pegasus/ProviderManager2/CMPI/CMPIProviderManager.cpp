@@ -172,6 +172,97 @@ CMPIProviderManager::~CMPIProviderManager()
     PEG_METHOD_EXIT();
 }
 
+
+SCMOInstance* CMPIProviderManager::getSCMOClassFromRequest(
+    CString& nameSpace,
+    CString& className )
+{
+    SCMOClass* scmoClass = mbGetSCMOClass(
+        (const char*)nameSpace,
+        strlen((const char*)nameSpace),
+        (const char*)className,
+        strlen((const char*)className));
+
+    if (0 == scmoClass)
+    {
+        // This indicates a severe error, since we should't have come
+        // here at all, if the class is invalid
+        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL2,
+            "CMPIProviderManager::getSCMOClassFromRequest - "
+            "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
+            (const char*) nameSpace,
+            (const char*) className));
+
+        CIMException cimException(CIM_ERR_NOT_FOUND);
+        throw cimException;
+    }
+
+    return new SCMOInstance(*scmoClass);
+}
+
+SCMOInstance* CMPIProviderManager::getSCMOObjectPathFromRequest(
+    CString& nameSpace,
+    CString& className,
+    CIMObjectPath& cimObjPath )
+{
+    SCMOClass* scmoClass = mbGetSCMOClass(
+        (const char*)nameSpace,
+        strlen((const char*)nameSpace),
+        (const char*)className,
+        strlen((const char*)className));
+
+    if (0 == scmoClass)
+    {
+        // This indicates a severe error, since we should't have come
+        // here at all, if the class is invalid
+        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
+            "CMPIProviderManager::getSCMOObjectPathFromRequest - "
+            "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
+            (const char*) nameSpace,
+            (const char*) className));
+
+        CIMException cimException(CIM_ERR_NOT_FOUND);
+        throw cimException;
+    }
+
+    SCMOInstance * objectPath = new SCMOInstance(*scmoClass,cimObjPath);
+    objectPath->setHostName((const char*)System::getHostName().getCString());
+    return objectPath;
+}
+
+SCMOInstance* CMPIProviderManager::getSCMOInstanceFromRequest(
+    CString& nameSpace,
+    CString& className,
+    CIMInstance& cimInstance )
+{
+    SCMOClass* scmoClass = mbGetSCMOClass(
+        (const char*)nameSpace,
+        strlen((const char*)nameSpace),
+        (const char*)className,
+        strlen((const char*)className));
+
+    if (0 == scmoClass)
+    {
+        // This indicates a severe error, since we should't have come
+        // here at all, if the class is invalid
+        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
+            "CMPIProviderManager::getSCMOInstanceFromRequest - "
+            "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
+            (const char*) nameSpace,
+            (const char*) className));
+
+        CIMException cimException(CIM_ERR_NOT_FOUND);
+        throw cimException;
+    }
+
+    SCMOInstance * newInstance = new SCMOInstance(*scmoClass, cimInstance);
+    newInstance->setHostName((const char*)System::getHostName().getCString());
+
+    return newInstance;
+}
+
+
+
 Message * CMPIProviderManager::processMessage(Message * request)
 {
     PEG_METHOD_ENTER(
@@ -490,30 +581,10 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
             request->includeClassOrigin,
             true);
 
-        // make target object path
-        SCMOClass* scmoClass =
-            mbGetSCMOClass(
-                pr.getBroker(),
-                (const char*)nameSpace,
-                strlen((const char*)nameSpace),
-                (const char*)className,
-                strlen((const char*)className));
-        if (0 == scmoClass)
-        {
-            // This indicates a severe error, since we should't have come
-            // here at all, if the class is invalid
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
-                "CMPIProviderManager::handleGetInstanceRequest - "
-                "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
-                (const char*) nameSpace,
-                (const char*) className));
 
-            CIMException cimException(CIM_ERR_NOT_FOUND);
-            throw cimException;
-        }
+        SCMOInstance * objectPath = getSCMOObjectPathFromRequest(
+            nameSpace, className, request->instanceName);
 
-        SCMOInstance objectPath(*scmoClass,request->instanceName);
-        objectPath.setHostName((const char*)System::getHostName().getCString());
         CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -616,29 +687,9 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
             request->includeClassOrigin,
             true);
 
-        // make target object path
-        SCMOClass* scmoClass =
-            mbGetSCMOClass(
-                pr.getBroker(),
-                (const char*)nameSpace,
-                strlen((const char*)nameSpace),
-                (const char*)className,
-                strlen((const char*)className));
-        if (0 == scmoClass)
-        {
-            // This indicates a severe error, since we should't have come
-            // here at all, if the class is invalid
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
-                "CMPIProviderManager::handleEnumerateInstancesRequest - "
-                "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
-                (const char*) nameSpace,
-                (const char*) className));
+        SCMOInstance * objectPath =
+            getSCMOClassFromRequest(nameSpace, className);
 
-            CIMException cimException(CIM_ERR_NOT_FOUND);
-            throw cimException;
-        }
-
-        SCMOInstance objectPath(*scmoClass);
         CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -738,29 +789,9 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
             false,
             true);
 
-        // make target object path
-        SCMOClass* scmoClass =
-            mbGetSCMOClass(
-                pr.getBroker(),
-                (const char*)nameSpace,
-                strlen((const char*)nameSpace),
-                (const char*)className,
-                strlen((const char*)className));
-        if (0 == scmoClass)
-        {
-            // This indicates a severe error, since we should't have come
-            // here at all, if the class is invalid
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
-                "CMPIProviderManager::handleEnumerateInstanceNamesRequest - "
-                "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
-                (const char*) nameSpace,
-                (const char*) className));
+        SCMOInstance * objectPath =
+            getSCMOClassFromRequest(nameSpace, className);
 
-            CIMException cimException(CIM_ERR_NOT_FOUND);
-            throw cimException;
-        }
-
-        SCMOInstance objectPath(*scmoClass);
         CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -861,33 +892,12 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
             false,
             true);
 
-        // make target object path and new instance
-        SCMOClass* scmoClass =
-            mbGetSCMOClass(
-                pr.getBroker(),
-                (const char*)nameSpace,
-                strlen((const char*)nameSpace),
-                (const char*)className,
-                strlen((const char*)className));
-        if (0 == scmoClass)
-        {
-            // This indicates a severe error, since we should't have come
-            // here at all, if the class is invalid
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
-                "CMPIProviderManager::handleGetInstanceRequest - "
-                "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
-                (const char*) nameSpace,
-                (const char*) className));
-
-            CIMException cimException(CIM_ERR_NOT_FOUND);
-            throw cimException;
-        }
-
-        SCMOInstance newInstance(*scmoClass,request->newInstance);
-        newInstance.setHostName(
-            (const char*)System::getHostName().getCString());
-        CMPI_ObjectPathOnStack eRef(newInstance);
+        SCMOInstance * newInstance = getSCMOInstanceFromRequest(
+            nameSpace, className, request->newInstance);
         CMPI_InstanceOnStack eInst(newInstance);
+
+        // This will create a second reference for the same SCMOInstance
+        CMPI_ObjectPathOnStack eRef(*newInstance);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -989,33 +999,13 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
             false,
             true);
 
-        // make target object path and modified instance
-        SCMOClass* scmoClass =
-            mbGetSCMOClass(
-                pr.getBroker(),
-                (const char*)nameSpace,
-                strlen((const char*)nameSpace),
-                (const char*)className,
-                strlen((const char*)className));
-        if (0 == scmoClass)
-        {
-            // This indicates a severe error, since we should't have come
-            // here at all, if the class is invalid
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
-                "CMPIProviderManager::handleGetInstanceRequest - "
-                "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
-                (const char*) nameSpace,
-                (const char*) className));
 
-            CIMException cimException(CIM_ERR_NOT_FOUND);
-            throw cimException;
-        }
-
-        SCMOInstance modInstance(*scmoClass,request->modifiedInstance);
-        modInstance.setHostName(
-            (const char*)System::getHostName().getCString());
-        CMPI_ObjectPathOnStack eRef(modInstance);
+        SCMOInstance * modInstance = getSCMOInstanceFromRequest(
+            nameSpace, className, request->modifiedInstance);
         CMPI_InstanceOnStack eInst(modInstance);
+
+        // This will create a second reference for the same SCMOInstance
+        CMPI_ObjectPathOnStack eRef(*modInstance);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1116,30 +1106,9 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
             false,
             true);
 
-        // make target object path
-        SCMOClass* scmoClass =
-            mbGetSCMOClass(
-                pr.getBroker(),
-                (const char*)nameSpace,
-                strlen((const char*)nameSpace),
-                (const char*)className,
-                strlen((const char*)className));
-        if (0 == scmoClass)
-        {
-            // This indicates a severe error, since we should't have come
-            // here at all, if the class is invalid
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
-                "CMPIProviderManager::handleGetInstanceRequest - "
-                "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
-                (const char*) nameSpace,
-                (const char*) className));
+        SCMOInstance * objectPath = getSCMOObjectPathFromRequest(
+            nameSpace, className, request->instanceName);
 
-            CIMException cimException(CIM_ERR_NOT_FOUND);
-            throw cimException;
-        }
-
-        SCMOInstance objectPath(*scmoClass, request->instanceName);
-        objectPath.setHostName((const char*)System::getHostName().getCString());
         CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -1241,31 +1210,8 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
             false,
             true);
 
-        // make target object path
-        SCMOClass* scmoClass =
-            mbGetSCMOClass(
-                pr.getBroker(),
-                (const char*)nameSpace,
-                strlen((const char*)nameSpace),
-                (const char*)className,
-                strlen((const char*)className));
-        if (0 == scmoClass)
-        {
-            // This indicates a severe error, since we should't have come
-            // here at all, if the class is invalid
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
-                "CMPIProviderManager::handleGetInstanceRequest - "
-                "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
-                (const char*) nameSpace,
-                (const char*) className));
-
-            CIMException cimException(CIM_ERR_NOT_FOUND);
-            throw cimException;
-        }
-
-        SCMOInstance objectPath(*scmoClass);
-        objectPath.setHostName((const char*)System::getHostName().getCString());
-        CMPI_ObjectPathOnStack eRef(objectPath);
+        SCMOInstance * classPath = getSCMOClassFromRequest(nameSpace,className);
+        CMPI_ObjectPathOnStack eRef(classPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1376,30 +1322,9 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
             request->includeClassOrigin,
             true);
 
-        // make target object path
-        SCMOClass* scmoClass =
-            mbGetSCMOClass(
-                pr.getBroker(),
-                (const char*)nameSpace,
-                strlen((const char*)nameSpace),
-                (const char*)className,
-                strlen((const char*)className));
-        if (0 == scmoClass)
-        {
-            // This indicates a severe error, since we should't have come
-            // here at all, if the class is invalid
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
-                "CMPIProviderManager::handleAssociatorsRequest - "
-                "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
-                (const char*) nameSpace,
-                (const char*) className));
+        SCMOInstance * objectPath = getSCMOObjectPathFromRequest(
+            nameSpace, className, request->objectName);
 
-            CIMException cimException(CIM_ERR_NOT_FOUND);
-            throw cimException;
-        }
-
-        SCMOInstance objectPath(*scmoClass,request->objectName);
-        objectPath.setHostName((const char*)System::getHostName().getCString());
         CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -1514,30 +1439,9 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
             false,
             true);
 
-        // make target object path
-        SCMOClass* scmoClass =
-            mbGetSCMOClass(
-                pr.getBroker(),
-                (const char*)nameSpace,
-                strlen((const char*)nameSpace),
-                (const char*)className,
-                strlen((const char*)className));
-        if (0 == scmoClass)
-        {
-            // This indicates a severe error, since we should't have come
-            // here at all, if the class is invalid
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
-                "CMPIProviderManager::handleAssociatorNamesRequest - "
-                "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
-                (const char*) nameSpace,
-                (const char*) className));
+        SCMOInstance * objectPath = getSCMOObjectPathFromRequest(
+            nameSpace, className, request->objectName);
 
-            CIMException cimException(CIM_ERR_NOT_FOUND);
-            throw cimException;
-        }
-
-        SCMOInstance objectPath(*scmoClass,request->objectName);
-        objectPath.setHostName((const char*)System::getHostName().getCString());
         CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -1648,30 +1552,9 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
             request->includeClassOrigin,
             true);
 
-        // make target object path
-        SCMOClass* scmoClass =
-            mbGetSCMOClass(
-                pr.getBroker(),
-                (const char*)nameSpace,
-                strlen((const char*)nameSpace),
-                (const char*)className,
-                strlen((const char*)className));
-        if (0 == scmoClass)
-        {
-            // This indicates a severe error, since we should't have come
-            // here at all, if the class is invalid
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
-                "CMPIProviderManager::handleAssociatorsRequest - "
-                "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
-                (const char*) nameSpace,
-                (const char*) className));
+        SCMOInstance * objectPath = getSCMOObjectPathFromRequest(
+            nameSpace, className, request->objectName);
 
-            CIMException cimException(CIM_ERR_NOT_FOUND);
-            throw cimException;
-        }
-
-        SCMOInstance objectPath(*scmoClass,request->objectName);
-        objectPath.setHostName((const char*)System::getHostName().getCString());
         CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -1781,30 +1664,9 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
             false,
             true);
 
-        // make target object path
-        SCMOClass* scmoClass =
-            mbGetSCMOClass(
-                pr.getBroker(),
-                (const char*)nameSpace,
-                strlen((const char*)nameSpace),
-                (const char*)className,
-                strlen((const char*)className));
-        if (0 == scmoClass)
-        {
-            // This indicates a severe error, since we should't have come
-            // here at all, if the class is invalid
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
-                "CMPIProviderManager::handleAssociatorNamesRequest - "
-                "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
-                (const char*) nameSpace,
-                (const char*) className));
+        SCMOInstance * objectPath = getSCMOObjectPathFromRequest(
+            nameSpace, className, request->objectName);
 
-            CIMException cimException(CIM_ERR_NOT_FOUND);
-            throw cimException;
-        }
-
-        SCMOInstance objectPath(*scmoClass,request->objectName);
-        objectPath.setHostName((const char*)System::getHostName().getCString());
         CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -1908,30 +1770,10 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
             false,
             true);
 
-        // make target object path
-        SCMOClass* scmoClass =
-            mbGetSCMOClass(
-                pr.getBroker(),
-                (const char*)nameSpace,
-                strlen((const char*)nameSpace),
-                (const char*)className,
-                strlen((const char*)className));
-        if (0 == scmoClass)
-        {
-            // This indicates a severe error, since we should't have come
-            // here at all, if the class is invalid
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
-                "CMPIProviderManager::handleGetInstanceRequest - "
-                "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
-                (const char*) nameSpace,
-                (const char*) className));
 
-            CIMException cimException(CIM_ERR_NOT_FOUND);
-            throw cimException;
-        }
+        SCMOInstance * objectPath = getSCMOObjectPathFromRequest(
+            nameSpace, className, request->instanceName);
 
-        SCMOInstance objectPath(*scmoClass,request->instanceName);
-        objectPath.setHostName((const char*)System::getHostName().getCString());
         CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -2268,32 +2110,12 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
 
         eSelx->classNames.append(indClassPath);
 
-        SCMOClass* scmoIndClass =
-            mbGetSCMOClass(
-                pr.getBroker(),
-                (const char*)nameSpace,
-                strlen((const char*)nameSpace),
-                (const char*)className,
-                strlen((const char*)className));
-        if (0 == scmoIndClass)
-        {
-            // This indicates a severe error, since we should't have
-            // come here at all, if the class is invalid
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
-                "CMPIProviderManager::handleCreateSubscriptionRequest-"
-                "Failed to obtain CIMClass for Namespace: %s "
-                " Classname: %s",
-                (const char*) nameSpace,
-                (const char*) className));
-
-            CIMException cimException(CIM_ERR_NOT_FOUND);
-            throw cimException;
-        }
-
-        SCMOInstance indClassPathSCMO(*scmoIndClass);
-        indClassPathSCMO.setHostName(
+        SCMOInstance * indClassPathSCMO =
+            getSCMOClassFromRequest(nameSpace, className);
+        indClassPathSCMO->setHostName(
             (const char*)System::getHostName().getCString());
-        eSelx->classNamesSCMO.append(indClassPathSCMO);
+        eSelx->classNamesSCMO.append(*indClassPathSCMO);
+        delete indClassPathSCMO;
 
         CIMPropertyList propertyList = request->propertyList;
         if (!propertyList.isNull())
@@ -2345,30 +2167,9 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
                     request->nameSpace,
                     request->classNames[i]);
 
-                SCMOClass* scmoClass =
-                    mbGetSCMOClass(
-                        pr.getBroker(),
-                        (const char*)nameSpace,
-                        strlen((const char*)nameSpace),
-                        (const char*)className,
-                        strlen((const char*)className));
-                if (0 == scmoClass)
-                {
-                    // This indicates a severe error, since we should't have
-                    // come here at all, if the class is invalid
-                    PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
-                        "CMPIProviderManager::handleCreateSubscriptionRequest-"
-                        "Failed to obtain CIMClass for Namespace: %s "
-                        " Classname: %s",
-                        (const char*) nameSpace,
-                        (const char*) className));
-
-                    CIMException cimException(CIM_ERR_NOT_FOUND);
-                    throw cimException;
-                }
-
-                SCMOInstance classPathSCMO(*scmoClass);
-                classPathSCMO.setHostName(
+                SCMOInstance * classPathSCMO =
+                    getSCMOClassFromRequest(nameSpace, className);
+                classPathSCMO->setHostName(
                     (const char*)System::getHostName().getCString());
                 CMPI_ObjectPathOnStack eRef(classPathSCMO);
 
@@ -2406,7 +2207,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
                 {
                     filterActivated = true;
                     eSelx->classNames.append(classPath);
-                    eSelx->classNamesSCMO.append(classPathSCMO);
+                    eSelx->classNamesSCMO.append(*classPathSCMO);
 
                 }
                 else
@@ -2594,7 +2395,6 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
 
             StatProviderTimeMeasurement providerTime(response);
 
-            Array<CIMObjectPath> subClassPaths = eSelx->classNames;
             // Call deactivateFilter() for each subclass name those were
             // activated previously using activateFilter().
             // Note: Start from Index 1, first name is actual class name in
@@ -3076,30 +2876,8 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
             false,
             true);
 
-        // make target object path
-        SCMOClass* scmoClass =
-            mbGetSCMOClass(
-                pr.getBroker(),
-                (const char*)nameSpace,
-                strlen((const char*)nameSpace),
-                (const char*)className,
-                strlen((const char*)className));
-        if (0 == scmoClass)
-        {
-            // This indicates a severe error, since we should't have come
-            // here at all, if the class is invalid
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
-                "CMPIProviderManager::handleGetInstanceRequest - "
-                "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
-                (const char*) nameSpace,
-                (const char*) className));
-
-            CIMException cimException(CIM_ERR_NOT_FOUND);
-            throw cimException;
-        }
-
-        SCMOInstance objectPath(*scmoClass,request->instanceName);
-        objectPath.setHostName((const char*)System::getHostName().getCString());
+        SCMOInstance * objectPath = getSCMOObjectPathFromRequest(
+            nameSpace, className, request->instanceName);
         CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
@@ -3158,7 +2936,7 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
                     request->propertyName.getString().getCString();
 
                 // Construct a temporary CMPI Instance object, on which we
-                // can use the encpsulation functions to retrieve the property.
+                // can use the encapsulation functions to retrieve the property.
                 CMPI_InstanceOnStack tmpInst(instance);
 
                 CMPIStatus trc;
@@ -3285,33 +3063,14 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
             false,
             true);
 
-        // make target object path
-        SCMOClass* scmoClass =
-            mbGetSCMOClass(
-                pr.getBroker(),
-                (const char*)nameSpace,
-                strlen((const char*)nameSpace),
-                (const char*)className,
-                strlen((const char*)className));
-        if (0 == scmoClass)
-        {
-            // This indicates a severe error, since we should't have come
-            // here at all, if the class is invalid
-            PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
-                "CMPIProviderManager::handleGetInstanceRequest - "
-                "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
-                (const char*) nameSpace,
-                (const char*) className));
 
-            CIMException cimException(CIM_ERR_NOT_FOUND);
-            throw cimException;
-        }
-
-        SCMOInstance modInst(*scmoClass, localModifiedInstance);
-        modInst.setHostName((const char*)System::getHostName().getCString());
-        modInst.setPropertyFilter((const char **)props.getList());
-        CMPI_ObjectPathOnStack eRef(modInst);
+        SCMOInstance * modInst = getSCMOInstanceFromRequest(
+            nameSpace, className, localModifiedInstance);
+        modInst->setPropertyFilter((const char **)props.getList());
         CMPI_InstanceOnStack eInst(modInst);
+
+        // This will create a second reference for the same SCMOInstance
+        CMPI_ObjectPathOnStack eRef(*modInst);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 

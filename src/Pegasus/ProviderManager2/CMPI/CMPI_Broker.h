@@ -55,12 +55,8 @@ PEGASUS_NAMESPACE_BEGIN
 #define CM_ClassOrigin(flgs) (((flgs) & CMPI_FLAG_IncludeClassOrigin)!=0)
 #define CM_IncludeQualifiers(flgs) (((flgs) & CMPI_FLAG_IncludeQualifiers)!=0)
 
-CIMClass *mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop);
-SCMOClass *mbGetSCMOClass(const CMPIBroker *mb,
-                          const char* ns,
-                          Uint32 nsL,
-                          const char* cls,
-                          Uint32 clsL);
+SCMOClass *mbGetSCMOClass(
+    const char* ns, Uint32 nsL, const char* cls, Uint32 clsL);
 
 class CMPI_BrokerHdl
 {

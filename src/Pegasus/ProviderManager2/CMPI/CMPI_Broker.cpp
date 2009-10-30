@@ -156,19 +156,7 @@ static CIMPropertyList getList(const char** l)
     return pl;
 }
 
-CIMClass* mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop)
-{
-    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_Broker:mbGetClass()");
-
-    mb=CM_BROKER;
-    CMPI_Broker *xBroker=(CMPI_Broker*)mb;
-    CIMClass * ccp = xBroker->classCache.getClass(xBroker, cop);
-    PEG_METHOD_EXIT();
-    return ccp;
-}
-
 SCMOClass* mbGetSCMOClass(
-    const CMPIBroker *mb,
     const char* nameSpace,
     Uint32 nsL,
     const char* cls,
@@ -176,8 +164,8 @@ SCMOClass* mbGetSCMOClass(
 {
     PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_Broker:mbGetSCMOClass()");
 
-    mb=CM_BROKER;
-    CMPI_Broker *xBroker=(CMPI_Broker*)mb;
+    const CMPIBroker * mb = CMPI_ThreadContext::getBroker();
+    CMPI_Broker *xBroker = (CMPI_Broker*)mb;
 
     const char* ns=nameSpace;
     if (0 == nsL)
@@ -525,6 +513,8 @@ extern "C"
         try
         {
             scmoObjPath->getCIMObjectPath(qop);
+            // For compatibility with previous implementations have empty ns
+            qop.setNameSpace(CIMNamespaceName());
 
             CIMResponseData resData =
                 CM_CIMOM(mb)->associators(
@@ -589,6 +579,8 @@ extern "C"
         try
         {
             scmoObjPath->getCIMObjectPath(qop);
+            // For compatibility with previous implementations have empty ns
+            qop.setNameSpace(CIMNamespaceName());
 
             CIMResponseData resData =
                 CM_CIMOM(mb)->associatorNames(
@@ -654,6 +646,8 @@ extern "C"
         try
         {
             scmoObjPath->getCIMObjectPath(qop);
+            // For compatibility with previous implementations have empty ns
+            qop.setNameSpace(CIMNamespaceName());
 
             CIMResponseData resData =
                 CM_CIMOM(mb)->references(
@@ -712,6 +706,8 @@ extern "C"
         try
         {
             scmoObjPath->getCIMObjectPath(qop);
+            // For compatibility with previous implementations have empty ns
+            qop.setNameSpace(CIMNamespaceName());
 
             CIMResponseData resData =
                 CM_CIMOM(mb)->referenceNames(

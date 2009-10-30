@@ -42,7 +42,9 @@ PEGASUS_NAMESPACE_BEGIN
 struct CMPI_ObjectPathOnStack : CMPIObjectPath
 {
     CMPI_Object *next,*prev;
+    CMPI_ObjectPathOnStack(const SCMOInstance* cop);
     CMPI_ObjectPathOnStack(const SCMOInstance& cop);
+    ~CMPI_ObjectPathOnStack();
 };
 
 PEGASUS_NAMESPACE_END

@@ -87,10 +87,13 @@ extern "C"
         }
         try
         {
-            SCMOInstance* cInst = new SCMOInstance(inst->clone());
+            AutoPtr<SCMOInstance> cInst(new SCMOInstance(inst->clone()));
+            AutoPtr<CMPI_Object> obj(
+                new CMPI_Object(cInst.get(),CMPI_Object::ObjectTypeInstance));
+            cInst.release();
+            obj->unlink();
             CMPIInstance* cmpiInstance =
-                reinterpret_cast<CMPIInstance *>
-                (new CMPI_Object(cInst,CMPI_Object::ObjectTypeInstance));
+                reinterpret_cast<CMPIInstance *>(obj.release());
             CMSetStatus(rc,CMPI_RC_OK);
             PEG_METHOD_EXIT();
             return cmpiInstance;
@@ -488,10 +491,11 @@ extern "C"
                 // Set the new namespace
                 prevInst->setNameSpace(nsRef);
 
-                // Now we try to copy the key properties from the given
-                // ObjectPath
-                // TODO: Remove the previously set key properties.
-                //       Set isSet to false and remove userdefined keys.
+                // Remove the previous key properties
+                // TODO, enable as soon as availabe
+                //prevInst->clearKeys();
+
+                // Copy the key properties from the given ObjectPath
                 CMPIrc rc = CMPISCMOUtilities::copySCMOKeyProperties(
                     ref,            // source
                     prevInst);      // target
@@ -610,15 +614,34 @@ CMPIInstanceFT *CMPI_Instance_Ftab=&instance_FT;
 CMPIInstanceFT *CMPI_InstanceOnStack_Ftab=&instanceOnStack_FT;
 
 
+CMPI_InstanceOnStack::CMPI_InstanceOnStack(const SCMOInstance* ci)
+{
+    PEG_METHOD_ENTER(
+        TRC_CMPIPROVIDERINTERFACE,
+        "CMPI_InstanceOnStack::CMPI_InstanceOnStack()");
+
+    hdl=(void*)ci;
+    ft=CMPI_InstanceOnStack_Ftab;
+    PEG_METHOD_EXIT();
+}
+
 CMPI_InstanceOnStack::CMPI_InstanceOnStack(const SCMOInstance& ci)
 {
     PEG_METHOD_ENTER(
         TRC_CMPIPROVIDERINTERFACE,
         "CMPI_InstanceOnStack::CMPI_InstanceOnStack()");
 
-    hdl=(void*)&ci;
+    hdl=(void*) new SCMOInstance(ci);
     ft=CMPI_InstanceOnStack_Ftab;
     PEG_METHOD_EXIT();
+}
+
+CMPI_InstanceOnStack::~CMPI_InstanceOnStack()
+{
+    if (hdl)
+    {
+        delete((SCMOInstance*)hdl);
+    }
 }
 
 

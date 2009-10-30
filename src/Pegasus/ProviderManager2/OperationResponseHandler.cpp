@@ -636,7 +636,19 @@ void CreateInstanceResponseHandler::transfer()
         CIMCreateInstanceResponseMessage& msg =
             *static_cast<CIMCreateInstanceResponseMessage*>(getResponse());
 
-        msg.instanceName = getObjects()[0];
+        // TBD: Extend CIMCreateInstanceResponseMessage with ResponseData.
+        Array<CIMObjectPath> cimObjs= getObjects();
+        Array<SCMOInstance> scmoObjs= getSCMOObjects();
+        if (cimObjs.size() != 0)
+        {
+            msg.instanceName = cimObjs[0];
+        }
+        else
+        {
+            fprintf(stderr,"TBD: Scaffold code for "
+                    "CreateInstanceResponseHandler::transfer()\n");
+            scmoObjs[0].getCIMObjectPath(msg.instanceName);
+        }
     }
 }
 

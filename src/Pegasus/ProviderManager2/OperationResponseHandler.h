@@ -326,6 +326,7 @@ public:
         PEGASUS_RESPONSE_CHUNK_CALLBACK_T responseChunkCallback);
 
     virtual void deliver(const CIMObject& cimObject);
+    virtual void deliver(const CIMInstance& cimInstance);
     virtual void deliver(const Array<CIMObject>& cimObjectArray)
     {
         SimpleObjectResponseHandler::deliver(cimObjectArray);

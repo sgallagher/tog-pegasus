@@ -43,8 +43,6 @@ PEGASUS_NAMESPACE_BEGIN
 
 #define PEGASUS_SCMB_INSTANCE_MAGIC 0xD00D1234
 
-class SCMOClass;
-
 class PEGASUS_COMMON_LINKAGE SCMOInstance
 {
 public:
@@ -58,7 +56,16 @@ public:
      * Creating a SCMOInstance using a SCMOClass.
      * @param baseClass A SCMOClass.
      */
-    SCMOInstance(SCMOClass baseClass);
+    SCMOInstance(SCMOClass& baseClass);
+
+
+    /**
+     * Creating a SCMOInstance using a CIMClass
+     * using an optional name space name,
+     * @param baseClass A SCMOClass.
+     * @param nameSpaceName An optional name space name.
+     */
+    SCMOInstance(CIMClass& theCIMClass, const char* nameSpaceName=0);
 
     /**
      * Copy constructor for the SCMO instance, used to implement refcounting.
@@ -102,7 +109,7 @@ public:
      *
      */
     SCMOInstance(
-        SCMOClass baseClass,
+        SCMOClass& baseClass,
         Boolean includeQualifiers,
         Boolean includeClassOrigin,
         const char** propertyList);
@@ -112,34 +119,73 @@ public:
      * CIMInstance data into the new SCMOInstance.
      * @param baseClass The SCMOClass of this instance.
      * @param cimInstance A CIMInstace of the same class.
-     * @exception Exception if class name and name space does not match.
-     * @exception
-     *     Exception if CIMInstance has more key bindings then the SCMOClass.
-     * @exception
-     *     Exception if a key binding is not found as a key property
-     *     of the SCMOClass.
-     * @exception Exception if a key binding does not match
-     *     the class definition.
+     * @exception Exception if class name does not match.
      * @exception Exception if a property is not part of class definition.
      * @exception Exception if a property does not match the class definition.
      */
-    SCMOInstance(SCMOClass baseClass, const CIMInstance& cimInstance);
+    SCMOInstance(SCMOClass& baseClass, const CIMInstance& cimInstance);
 
     /**
      * Builds a SCMOInstance from the given SCMOClass and copies all
      * CIMObjectPath data into the new SCMOInstance.
      * @param baseClass The SCMOClass of this instance.
      * @param cimInstance A CIMObjectpath of the same class.
-     * @exception Exception if class name and name space does not match.
-     * @exception
-     *     Exception if CIMInstance has more key bindings then the SCMOClass.
-     * @exception
-     *     Exception if a key binding is not found as a key property
-     *     of the SCMOClass.
-     * @exception Exception if a key binding does not match
-     *     the class definition.
+     * @exception Exception if class name does not match.
      */
-    SCMOInstance(SCMOClass baseClass, const CIMObjectPath& cimObj);
+    SCMOInstance(SCMOClass& baseClass, const CIMObjectPath& cimObj);
+
+    /**
+     * Builds a SCMOInstance from the given CIMInstance copying all data.
+     * The SCMOClass is retrieved from SCMOClassCache using
+     * the class and name space of the CIMInstance.
+     * If the SCMOClass was not found, an empty SCMOInstance will be returned
+     * and the resulting SCMOInstance is compromized.
+     * If the CIMInstance does not contain a name space, the optional fall back
+     * name space is used.
+     * @param cimInstance A CIMInstace with class name and name space.
+     * @param altNameSpace An alternative name space name.
+     * @exception Exception if a property is not part of class definition.
+     * @exception Exception if a property does not match the class definition.
+     */
+    SCMOInstance(
+        const CIMInstance& cimInstance,
+        const char* altNameSpace=0,
+        Uint64 altNSLen=0);
+
+    /**
+     * Builds a SCMOInstance from the given CIMObjectPath copying all data.
+     * The SCMOClass is retrieved from SCMOClassCache using
+     * the class and name space of the CIMObjectPath.
+     * If the SCMOClass was not found, an empty SCMOInstance will be returned
+     * and the resulting SCMOInstance is compromized.
+     * If the CIMObjectPath does not contain a name space,
+     * the optional fall back name space is used.
+     * @param cimObj A CIMObjectpath with name space and name
+     * @param altNameSpace An alternative name space name.
+     * @
+     */
+    SCMOInstance(
+        const CIMObjectPath& cimObj,
+        const char* altNameSpace=0,
+        Uint64 altNSLen=0);
+
+    /**
+     * Builds a SCMOInstance from the given CIMObject copying all data.
+     * The SCMOClass is retrieved from SCMOClassCache using
+     * the class and name space of the CIMObject.
+     * If the SCMOClass was not found, an empty SCMOInstance will be returned
+     * and the resulting SCMOInstance is compromized.
+     * If the CIMInstance does not contain a name space, the optional fall back
+     * name space is used.
+     * @param cimInstance A CIMInstace with class name and name space.
+     * @param altNameSpace An alternative name space name.
+     * @exception Exception if a property is not part of class definition.
+     * @exception Exception if a property does not match the class definition.
+     */
+    SCMOInstance(
+        const CIMObject& cimObject,
+        const char* altNameSpace=0,
+        Uint64 altNSLen=0);
 
     /**
      * Converts the SCMOInstance into a CIMInstance.
@@ -503,6 +549,13 @@ public:
     Boolean isUninitialized( ) const {return (0 == inst.base); };
 
     /**
+     * Determines if the SCMOInstance does not contain any property information.
+     * Maybe only the class name and/or name space are available.
+     * @return True if the SCMOInstacne is empty, false otherwise.
+     */
+    Boolean isEmpty( ) const {return (inst.hdr->theClass->isEmpty()); };
+
+    /**
      * Determines whether the instance is used as a class container.
      * @return True if the instance is used as a class container only.
      */
@@ -536,7 +589,7 @@ public:
      * @param hostName The host name as UTF8.
      * @param len The strlen of the host name.
      */
-    void setHostName_l(const char* hostName, Uint32 len);
+    void setHostName_l(const char* hostName, Uint64 len);
 
     /**
      * Get the host name of the instance. The caller has to make a copy !
@@ -574,7 +627,7 @@ public:
 
     /**
      * Get the class name of the instance. The caller has to make a copy !
-     * @param Return strlen of result string.
+     * @param lenght Return strlen of result string.
      * @return The class name as UTF8.
      */
     const char* getClassName_l(Uint64 & length) const;
@@ -594,7 +647,7 @@ public:
      * @param nameSpaceName The name space name as UTF8.
      * @param len The strlen of the name space.
      */
-    void setNameSpace_l(const char* nameSpace, Uint32 len);
+    void setNameSpace_l(const char* nameSpace, Uint64 len);
 
     /**
      * Get the name space of the instance. The caller has to make a copy !
@@ -743,6 +796,11 @@ private:
         CIMValue& cimV,
         const SCMBValue& scmbV,
         const char * base);
+
+    static SCMOClass _getSCMOClass(
+        const CIMObjectPath& theCIMObj,
+        const char* altNS,
+        Uint64 altNSlength);
 
     CIMProperty _getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const;
 

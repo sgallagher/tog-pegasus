@@ -225,6 +225,8 @@ public:
 
     virtual void deliver(const SCMOInstance& object);
 
+    virtual void deliver(const CIMInstance& instance);
+
     virtual void deliver(const Array<CIMObject>& objects);
 
     const Array<CIMObject> getObjects() const;

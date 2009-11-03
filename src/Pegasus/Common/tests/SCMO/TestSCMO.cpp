@@ -1626,10 +1626,10 @@ void SCMOInstanceKeyBindingsTest()
 
     PEGASUS_TEST_ASSERT(theCIMKeyBindings.size() == 4);
 
-    SCMOInstance theDummyInstance(
-        SCMOClass(SCMO_TESTClass2_Inst.getClassName(),
-                  SCMO_TESTClass2_Inst.getNameSpace()),
-        theCIMPath);
+    SCMOClass theDummySCMOInstance(SCMO_TESTClass2_Inst.getClassName(),
+                  SCMO_TESTClass2_Inst.getNameSpace());
+
+    SCMOInstance theDummyInstance(theDummySCMOInstance,theCIMPath);
 
     theDummyInstance.markAsCompromised();
 

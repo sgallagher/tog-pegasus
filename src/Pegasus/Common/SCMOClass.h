@@ -55,7 +55,7 @@ public:
      * @param nameSpaceName The namespace for the class, optional.
      * @return
      */
-    SCMOClass(const CIMClass& theCIMClass, const char* nameSpaceName=0 );
+    SCMOClass(const CIMClass& theCIMClass, const char* altNameSpace=0 );
 
     /**
      * Copy constructor for the SCMO class, used to implement refcounting.
@@ -70,7 +70,8 @@ public:
 
     /**
      * Constructs an empty SCMOClass only with name space and class name.
-     * If you contruc a SCMOInstance using this class, you must mark it as
+     *
+     * If you construct a SCMOInstance using this class, you must mark it as
      * compromized using SCMOInstance.markAsCompromised().
      *
      * @param className The name for the class.
@@ -117,16 +118,21 @@ public:
      */
     const char* getSuperClassName_l(Uint64 & length) const;
 
-
-    /**
-     * Determines whether the object has been initialized.
-     * @return True if the object has not been initialized, false otherwise.
-     */
-    Boolean isUninitialized( ) const {return (cls.base == 0); };
-
     static StrLit qualifierNameStrLit(Uint32 num)
     {
         return _qualifierNameStrLit[num];
+    }
+
+    /**
+     * Determines if the SCMOClass is an empty class.
+     * A empty class is a class with no information about properties.
+     * Maybe only the class name and/or name space are available.
+     * @return True if it an empty class.
+     **/
+    Boolean isEmpty( )const
+    {
+        // The size of one indicates that only an empty string was stored.
+        return (cls.hdr->flags.isEmpty);
     }
 
 private:
@@ -156,7 +162,7 @@ private:
     void _destroyExternalReferences();
 
     /**
-     * Constructs an uninitialized SCMOClass object.
+     * Constructs an empty SCMOClass object.
      */
     SCMOClass();
 

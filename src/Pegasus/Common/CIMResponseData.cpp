@@ -34,7 +34,6 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/SCMOXmlWriter.h>
 #include <Pegasus/Common/XmlReader.h>
-#include <Pegasus/Common/SCMOClassCache.h>
 
 PEGASUS_USING_STD;
 
@@ -988,8 +987,7 @@ void CIMResponseData::_resolveCIMToSCMO()
         {
             for (Uint32 i=0,n=_instanceNames.size();i<n;i++)
             {
-                SCMOInstance addme =
-                    _getSCMOFromCIMObjectPath(_instanceNames[i]);
+                SCMOInstance addme(_instanceNames[i]);
                 _scmoInstances.append(addme);
             }
             _instanceNames.clear();
@@ -999,8 +997,7 @@ void CIMResponseData::_resolveCIMToSCMO()
         {
             if (_instances.size() > 0)
             {
-                SCMOInstance addme =
-                    _getSCMOFromCIMInstance(_instances[0]);
+                SCMOInstance addme(_instances[0]);
                 _scmoInstances.append(addme);
                 _instances.clear();
             }
@@ -1010,7 +1007,7 @@ void CIMResponseData::_resolveCIMToSCMO()
         {
             for (Uint32 i=0,n=_instances.size();i<n;i++)
             {
-                SCMOInstance addme = _getSCMOFromCIMInstance(_instances[i]);
+                SCMOInstance addme(_instances[i]);
                 _scmoInstances.append(addme);
             }
             _instances.clear();
@@ -1020,7 +1017,7 @@ void CIMResponseData::_resolveCIMToSCMO()
         {
             for (Uint32 i=0,n=_objects.size();i<n;i++)
             {
-                SCMOInstance addme= _getSCMOFromCIMObject(_objects[i]);
+                SCMOInstance addme(_objects[i]);
                 _scmoInstances.append(addme);
             }
             _objects.clear();
@@ -1030,8 +1027,8 @@ void CIMResponseData::_resolveCIMToSCMO()
         {
             for (Uint32 i=0,n=_instanceNames.size();i<n;i++)
             {
-                SCMOInstance addme =
-                    _getSCMOFromCIMObjectPath(_instanceNames[i]);
+                SCMOInstance addme(_instanceNames[i]);
+                // TODO: More description about this.
                 if (0 == _instanceNames[i].getKeyBindings().size())
                 {
                     // if there is no keybinding, this is a class
@@ -1052,98 +1049,6 @@ void CIMResponseData::_resolveCIMToSCMO()
     _encoding &=(~RESP_ENC_CIM);
     // add SCMO Encoding flag
     _encoding |=RESP_ENC_SCMO;
-}
-
-
-// Function to convert a CIMInstance into an SCMOInstance
-SCMOInstance CIMResponseData::_getSCMOFromCIMInstance(
-    const CIMInstance& cimInst)
-{
-    bool isDirty=false;
-    const CIMObjectPath& cimPath = cimInst.getPath();
-
-    const CString nameSpace = cimPath.getNameSpace().getString().getCString();
-    const CString className = cimPath.getClassName().getString().getCString();
-
-    SCMOClass * scmoClass = _getSCMOClass(
-        (const char*)nameSpace,
-        (const char*)className);
-    // if class cannot be found we get 0 back from class cache
-    if (0 == scmoClass)
-    {
-        PEG_TRACE((TRC_XML, Tracer::LEVEL2,
-            "In _getSCMOFromCIMInstance() could not resolve class for "
-                "nameSpace=\"%s\", className=\"%s\"\n",
-            (const char*) nameSpace,
-            (const char*) className));
-
-        isDirty=true;
-        scmoClass = new SCMOClass("","");
-    }
-    SCMOInstance scmoInst = SCMOInstance(*scmoClass, cimInst);
-
-    if (isDirty)
-    {
-        scmoInst.markAsCompromised();
-    }
-    return scmoInst;
-}
-
-SCMOInstance CIMResponseData::_getSCMOFromCIMObject(
-    const CIMObject& cimObj)
-{
-    if (cimObj.isClass())
-    {
-        CIMClass retClass(cimObj);
-        SCMOInstance theInstance(retClass);
-        theInstance.setIsClassOnly(true);
-        return theInstance;
-    }
-    return _getSCMOFromCIMInstance(CIMInstance(cimObj));
-}
-
-// Function to convert a CIMObjectPath into an SCMOInstance
-SCMOInstance CIMResponseData::_getSCMOFromCIMObjectPath(
-    const CIMObjectPath& cimPath)
-{
-    bool isDirty=false;
-    CString nameSpace = cimPath.getNameSpace().getString().getCString();
-    CString className = cimPath.getClassName().getString().getCString();
-
-    SCMOClass * scmoClass = _getSCMOClass(
-        (const char*)nameSpace,
-        (const char*)className);
-
-    // if class cannot be found we get 0 back from class cache
-    if (0 == scmoClass)
-    {
-        PEG_TRACE((TRC_XML, Tracer::LEVEL2,
-            "In _getSCMOFromCIMObjectPath() could not resolve class for "
-                "nameSpace=\"%s\", className=\"%s\"\n",
-            (const char*) nameSpace,
-            (const char*) className));
-
-        isDirty=true;
-        scmoClass = new SCMOClass("","");
-    }
-    SCMOInstance scmoRef = SCMOInstance(*scmoClass, cimPath);
-    if (isDirty)
-    {
-        scmoRef.markAsCompromised();
-    }
-    return scmoRef;
-}
-
-SCMOClass* CIMResponseData::_getSCMOClass(
-    const char* nameSpace,
-    const char* cls)
-{
-    SCMOClassCache* local = SCMOClassCache::getInstance();
-    return local->getSCMOClass(
-        nameSpace,
-        strlen(nameSpace),
-        cls,
-        strlen(cls));
 }
 
 PEGASUS_NAMESPACE_END

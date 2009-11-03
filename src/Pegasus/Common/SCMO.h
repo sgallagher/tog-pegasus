@@ -379,6 +379,11 @@ struct SCMBClass_Main
     SCMBMgmt_Header     header;
     // The reference counter for this class
     AtomicInt       refCount;
+    // Object flags
+    struct{
+      unsigned isEmpty :1;
+    }flags;
+
     // SuperClassName
     SCMBDataPtr     superClassName;
     // Relative pointer to classname

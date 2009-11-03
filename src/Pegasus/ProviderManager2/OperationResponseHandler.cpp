@@ -848,6 +848,20 @@ void AssociatorsResponseHandler::deliver(const CIMObject& cimObject)
     SimpleObjectResponseHandler::deliver(cimObject);
 }
 
+void AssociatorsResponseHandler::deliver(const CIMInstance& cimInstance)
+{
+    if (cimInstance.isUninitialized())
+    {
+        MessageLoaderParms message(
+            "Common.Exception.UNINITIALIZED_OBJECT_EXCEPTION",
+            "The object is not initialized.");
+
+        throw CIMException(CIM_ERR_FAILED, message);
+    }
+
+    SimpleObjectResponseHandler::deliver(cimInstance);
+}
+
 void AssociatorsResponseHandler::deliver(const SCMOInstance& scmoObject)
 {
     if (scmoObject.isUninitialized())

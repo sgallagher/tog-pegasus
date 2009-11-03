@@ -466,6 +466,18 @@ void SimpleObjectResponseHandler::deliver(const CIMObject& object)
     send(false);
 }
 
+void SimpleObjectResponseHandler::deliver(const CIMInstance& instance)
+{
+    PEG_TRACE_CSTRING(
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL4,
+        "SimpleObjectResponseHandler::deliver()");
+
+    _objects.append(instance);
+
+    send(false);
+}
+
 void SimpleObjectResponseHandler::deliver(const SCMOInstance& object)
 {
     PEG_TRACE_CSTRING(
@@ -566,7 +578,7 @@ const Array<CIMObject> SimpleInstance2ObjectResponseHandler::getObjects() const
     return _objects;
 }
 
-const Array<SCMOInstance> 
+const Array<SCMOInstance>
 SimpleInstance2ObjectResponseHandler::getSCMOObjects() const
 {
     return _scmoObjects;

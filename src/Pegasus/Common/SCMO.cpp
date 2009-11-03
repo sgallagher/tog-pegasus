@@ -177,48 +177,6 @@ const StrLit SCMOClass::_qualifierNameStrLit[72] =
  * Internal inline functions.
  *****************************************************************************/
 
-inline SCMOClass* _getSCMOClass(
-    const CIMObjectPath& theCIMObj,
-    const char* altNS,
-    Uint64 altNSlength)
-{
-    SCMOClass* theClass=0;
-
-    if (theCIMObj.getClassName().isNull())
-    {
-        return 0;
-    }
-
-    if (theCIMObj.getNameSpace().isNull())
-    {
-        // the name space of the object path is empty,
-        // use alternative name space.
-        CString clsName = theCIMObj.getClassName().getString().getCString();
-
-        SCMOClassCache* theCache = SCMOClassCache::getInstance();
-        theClass = theCache->getSCMOClass(
-            altNS,
-            altNSlength,
-            (const char*)clsName,
-            strlen(clsName));
-
-    }
-    else
-    {
-        CString nameSpace = theCIMObj.getNameSpace().getString().getCString();
-        CString clsName = theCIMObj.getClassName().getString().getCString();
-
-        SCMOClassCache* theCache = SCMOClassCache::getInstance();
-        theClass = theCache->getSCMOClass(
-            (const char*)nameSpace,
-            strlen(nameSpace),
-            (const char*)clsName,
-            strlen(clsName));
-    }
-
-    return theClass;
-}
-
 inline void _deleteArrayExtReference(
     SCMBDataPtr& theArray,
     SCMBMgmt_Header** pmem )
@@ -265,7 +223,8 @@ inline void _copyArrayExtReference(
  *****************************************************************************/
 SCMOClass::SCMOClass()
 {
-    cls.mem = 0;
+    _initSCMOClass();
+    cls.hdr->flags.isEmpty=true;
 }
 
 void SCMOClass::_destroyExternalReferences()
@@ -334,13 +293,16 @@ inline void SCMOClass::_initSCMOClass()
 
 SCMOClass::SCMOClass(const char* className, const char* nameSpaceName )
 {
-    if (0 == className)
+    Uint32 clsNameLen = strlen(className);
+    Uint32 nsNameLen = strlen(nameSpaceName);
+
+    if (0 == className )
     {
         String message("SCMOClass: Class name not set (null pointer)!");
         throw CIMException(CIM_ERR_FAILED,message );
     }
 
-    if (0 == nameSpaceName)
+    if (0 == nameSpaceName || nsNameLen <= 1)
     {
         String message("SCMOClass: Name Space not set (null pointer)!");
         throw CIMException(CIM_ERR_FAILED,message );
@@ -348,15 +310,11 @@ SCMOClass::SCMOClass(const char* className, const char* nameSpaceName )
 
     _initSCMOClass();
 
-    _setBinary(className,
-               strlen(className)+1,
-               cls.hdr->className,
-               &cls.mem );
+    _setBinary(className,clsNameLen+1,cls.hdr->className,&cls.mem );
 
-    _setBinary(nameSpaceName,
-               strlen(nameSpaceName)+1,
-               cls.hdr->nameSpace,
-               &cls.mem );
+    _setBinary(nameSpaceName,nsNameLen+1,cls.hdr->nameSpace,&cls.mem );
+
+    cls.hdr->flags.isEmpty=true;
 
 }
 
@@ -1269,13 +1227,13 @@ SCMOInstance::SCMOInstance()
     inst.base = 0;
 }
 
-SCMOInstance::SCMOInstance(SCMOClass baseClass)
+SCMOInstance::SCMOInstance(SCMOClass& baseClass)
 {
     _initSCMOInstance(new SCMOClass(baseClass));
 }
 
 SCMOInstance::SCMOInstance(
-    SCMOClass baseClass,
+    SCMOClass& baseClass,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const char** propertyList)
@@ -1290,20 +1248,156 @@ SCMOInstance::SCMOInstance(
 
 }
 
-SCMOInstance::SCMOInstance(SCMOClass baseClass, const CIMObjectPath& cimObj)
+SCMOInstance::SCMOInstance(SCMOClass& baseClass, const CIMObjectPath& cimObj)
 {
     _initSCMOInstance(new SCMOClass(baseClass));
 
     _setCIMObjectPath(cimObj);
 }
 
-SCMOInstance::SCMOInstance(SCMOClass baseClass, const CIMInstance& cimInstance)
+SCMOInstance::SCMOInstance(SCMOClass& baseClass, const CIMInstance& cimInstance)
 {
 
     _initSCMOInstance(new SCMOClass(baseClass));
 
     _setCIMInstance(cimInstance);
 
+}
+
+SCMOInstance::SCMOInstance(CIMClass& theCIMClass, const char* altNameSpace)
+{
+    _initSCMOInstance(new SCMOClass(theCIMClass,altNameSpace));
+
+}
+
+SCMOInstance::SCMOInstance(
+    const CIMInstance& cimInstance,
+    const char* altNameSpace,
+    Uint64 altNSLen)
+{
+    SCMOClass theSCMOClass = _getSCMOClass(
+        cimInstance._rep->_reference,
+        altNameSpace,
+        altNSLen);
+
+    _initSCMOInstance( new SCMOClass(theSCMOClass));
+
+    if(theSCMOClass.isEmpty())
+    {
+        // flag the instance as compromized
+        inst.hdr->flags.isCompromised=true;
+    }
+    else
+    {
+        _setCIMInstance(cimInstance);
+    }
+}
+
+SCMOInstance::SCMOInstance(
+    const CIMObject& cimObject,
+    const char* altNameSpace,
+    Uint64 altNSLen)
+{
+    if (cimObject.isClass())
+    {
+        CIMClass cimClass(cimObject);
+
+        _initSCMOInstance(new SCMOClass(cimClass,altNameSpace));
+
+        inst.hdr->flags.isClassOnly=true;
+    }
+    else
+    {
+        CIMInstance cimInstance(cimObject);
+
+        SCMOClass theSCMOClass = _getSCMOClass(
+            cimInstance._rep->_reference,
+            altNameSpace,
+            altNSLen);
+
+        _initSCMOInstance( new SCMOClass(theSCMOClass));
+
+        if(theSCMOClass.isEmpty())
+        {
+            // flag the instance as compromized
+            inst.hdr->flags.isCompromised=true;
+        }
+        else
+        {
+            _setCIMInstance(cimInstance);
+        }
+    }
+}
+
+SCMOInstance::SCMOInstance(
+    const CIMObjectPath& cimObj,
+    const char* altNameSpace,
+    Uint64 altNSLen)
+{
+    SCMOClass theSCMOClass = _getSCMOClass(
+        cimObj,
+        altNameSpace,
+        altNSLen);
+
+    _initSCMOInstance( new SCMOClass(theSCMOClass));
+
+    if(theSCMOClass.isEmpty())
+    {
+        // flag the instance as compromized
+        inst.hdr->flags.isCompromised=true;
+    }
+    else
+    {
+        _setCIMObjectPath(cimObj);
+    }
+}
+
+SCMOClass SCMOInstance::_getSCMOClass(
+    const CIMObjectPath& theCIMObj,
+    const char* altNS,
+    Uint64 altNSlength)
+{
+    SCMOClass* theClass=0;
+
+    if (theCIMObj.getClassName().isNull())
+    {
+        return SCMOClass();
+    }
+
+    if (theCIMObj.getNameSpace().isNull())
+    {
+        // the name space of the object path is empty,
+        // use alternative name space.
+        CString clsName = theCIMObj.getClassName().getString().getCString();
+
+        SCMOClassCache* theCache = SCMOClassCache::getInstance();
+        theClass = theCache->getSCMOClass(
+            altNS,
+            altNSlength,
+            (const char*)clsName,
+            strlen(clsName));
+
+    }
+    else
+    {
+        CString nameSpace = theCIMObj.getNameSpace().getString().getCString();
+        CString clsName = theCIMObj.getClassName().getString().getCString();
+
+        SCMOClassCache* theCache = SCMOClassCache::getInstance();
+        theClass = theCache->getSCMOClass(
+            (const char*)nameSpace,
+            strlen(nameSpace),
+            (const char*)clsName,
+            strlen(clsName));
+    }
+
+    // if the class was not found.
+    if (theClass == 0)
+    {
+        return SCMOClass();
+    }
+
+    return SCMOClass(*theClass);
 }
 
 
@@ -2155,7 +2249,6 @@ void SCMOInstance::_getCIMValueFromSCMBValue(
 void SCMOInstance::_setCIMObjectPath(const CIMObjectPath& cimObj)
 {
     CIMObjectPathRep* objRep = cimObj._rep;
-    SCMO_RC rc;
 
     CString className = objRep->_className.getString().getCString();
 
@@ -2176,22 +2269,13 @@ void SCMOInstance::_setCIMObjectPath(const CIMObjectPath& cimObj)
     for (Uint32 i = 0, k = objRep->_keyBindings.size(); i < k; i++)
     {
         String key = objRep->_keyBindings[i].getValue();
-        rc = _setKeyBindingFromString(
+        _setKeyBindingFromString(
             (const char*)
                 objRep->_keyBindings[i].getName().getString().getCString(),
             _CIMTypeFromKeyBindingType(
                 (const char*)key.getCString(),
                 objRep->_keyBindings[i].getType()),
             key);
-
-        if (rc != SCMO_OK)
-        {
-               String message("Can not set CIMObjectPath key binding:'");
-               message.append(
-                   objRep->_keyBindings[i].getName().getString());
-               message.append("'");
-               throw CIMException(CIM_ERR_FAILED, message);
-        }
     }
 
 }
@@ -2270,7 +2354,7 @@ void SCMOInstance::setHostName(const char* hostName)
     inst.hdr->hostName.size=0;
 }
 
-void SCMOInstance::setHostName_l(const char* hostName, Uint32 len)
+void SCMOInstance::setHostName_l(const char* hostName, Uint64 len)
 {
     // copy including trailing '\0'
     _setBinary(hostName,len+1,inst.hdr->hostName,&inst.mem);
@@ -2346,7 +2430,7 @@ void SCMOInstance::setNameSpace(const char* nameSpace)
     inst.hdr->instNameSpace.size=0;
 }
 
-void SCMOInstance::setNameSpace_l(const char* nameSpace, Uint32 len)
+void SCMOInstance::setNameSpace_l(const char* nameSpace, Uint64 len)
 {
     // flag the instance as compromized
     inst.hdr->flags.isCompromised=true;
@@ -2988,7 +3072,7 @@ void SCMOInstance::_setUnionArrayValue(
     CIMType type,
     Uint32& n,
     Uint64 startNS,
-    Uint64 lenNS,
+    Uint64 sizeNS,
     Union& u)
 {
     SCMBUnion* scmoUnion = (SCMBUnion*)&(((char*)*pmem)[start]);
@@ -3331,23 +3415,18 @@ void SCMOInstance::_setUnionArrayValue(
 
             ptargetUnion = (SCMBUnion*)(&((char*)*pmem)[arrayStart]);
 
-            SCMOClass* theRefClass;
-
             for (Uint32 i = 0; i < loop ; i++)
             {
-
-                theRefClass = _getSCMOClass(
-                    iterator[i],
-                    &(((const char*)*pmem)[startNS]),
-                    lenNS-1);
-
-                if (theRefClass != 0)
+                ptargetUnion[i].extRefPtr =
+                    new SCMOInstance(
+                        iterator[i],
+                        &(((const char*)*pmem)[startNS]),
+                        sizeNS-1);
+                // Was the conversion successful?
+                if (ptargetUnion[i].extRefPtr->isEmpty())
                 {
-                    ptargetUnion[i].extRefPtr =
-                        new SCMOInstance(*theRefClass,iterator[i]);
-                } else
-                {
-                    //There is no reference class for the object path
+                    // N0, delete the SCMOInstance.
+                    delete ptargetUnion[i].extRefPtr;
                     ptargetUnion[i].extRefPtr = 0;
                 }
             }
@@ -3388,7 +3467,11 @@ void SCMOInstance::_setUnionArrayValue(
                     if (iterator[i].isClass())
                     {
                         CIMClass theClass(iterator[i]);
-                        ptargetUnion[i].extRefPtr = new SCMOInstance(theClass);
+
+                        ptargetUnion[i].extRefPtr =
+                            new SCMOInstance(
+                                theClass,
+                                (&((const char*)*pmem)[startNS]));
                         // marke as class only !
                         ptargetUnion[i].extRefPtr->
                             inst.hdr->flags.isClassOnly=true;
@@ -3396,21 +3479,19 @@ void SCMOInstance::_setUnionArrayValue(
                     else
                     {
                         CIMInstance theInst(iterator[i]);
-                        theRefClass = _getSCMOClass(
-                            theInst.getPath(),
-                            &(((const char*)*pmem)[startNS]),
-                            lenNS-1);
 
-                        if (theRefClass != 0)
-                        {
-                            ptargetUnion[i].extRefPtr =
-                                new SCMOInstance(*theRefClass,theInst);
-                        } else
-                        {
-                            //There is no reference class for the object path
-                            ptargetUnion[i].extRefPtr = 0;
-                        }
-
+                        ptargetUnion[i].extRefPtr =
+                            new SCMOInstance(
+                                theInst,
+                                &(((const char*)*pmem)[startNS]),
+                                sizeNS-1);
+                         // Was the conversion successful?
+                         if (ptargetUnion[i].extRefPtr->isEmpty())
+                         {
+                             // N0, delete the SCMOInstance.
+                             delete ptargetUnion[i].extRefPtr;
+                             ptargetUnion[i].extRefPtr = 0;
+                         }
                     }
                 }
             }
@@ -3437,8 +3518,6 @@ void SCMOInstance::_setUnionArrayValue(
 
             ptargetUnion = (SCMBUnion*)(&((char*)*pmem)[arrayStart]);
 
-            SCMOClass* theRefClass;
-
             for (Uint32 i = 0; i < loop ; i++)
             {
                 if (iterator[i].isUninitialized())
@@ -3448,19 +3527,16 @@ void SCMOInstance::_setUnionArrayValue(
                 }
                 else
                 {
-                    theRefClass = _getSCMOClass(
-                        iterator[i].getPath(),
-                        &(((const char*)*pmem)[startNS]),
-                        lenNS-1);
-
-
-                    if (theRefClass != 0)
+                    ptargetUnion[i].extRefPtr =
+                        new SCMOInstance(
+                            iterator[i],
+                            &(((const char*)*pmem)[startNS]),
+                            sizeNS-1);
+                    // Was the conversion successful?
+                    if (ptargetUnion[i].extRefPtr->isEmpty())
                     {
-                        ptargetUnion[i].extRefPtr =
-                            new SCMOInstance(*theRefClass,iterator[i]);
-                    } else
-                    {
-                        //There is no reference class for the object path
+                        // N0, delete the SCMOInstance.
+                        delete ptargetUnion[i].extRefPtr;
                         ptargetUnion[i].extRefPtr = 0;
                     }
                 }
@@ -3482,7 +3558,7 @@ void SCMOInstance::_setUnionValue(
     SCMBMgmt_Header** pmem,
     CIMType type,
     Uint64 startNS,
-    Uint64 lenNS,
+    Uint64 sizeNS,
     Union& u)
 {
     SCMBUnion* scmoUnion = (SCMBUnion*)&(((char*)*pmem)[start]);
@@ -3600,27 +3676,27 @@ void SCMOInstance::_setUnionValue(
 
             if (0 == u._referenceValue)
             {
-              scmoUnion->extRefPtr=0;
+              scmoUnion->extRefPtr = 0;
               return;
             }
 
             CIMObjectPath* theCIMObj =
                 (CIMObjectPath*)((void*)&u._referenceValue);
 
-            SCMOClass* theRefClass = _getSCMOClass(
-                *theCIMObj,
-                &(((const char*)*pmem)[startNS]),
-                lenNS-1);
+            scmoUnion->extRefPtr =
+                new SCMOInstance(
+                    *theCIMObj,
+                    &(((const char*)*pmem)[startNS]),
+                    sizeNS-1);
 
-            if (theRefClass != 0)
+            // Was the conversion successful?
+            if (scmoUnion->extRefPtr->isEmpty())
             {
-                scmoUnion->extRefPtr =
-                    new SCMOInstance(*theRefClass,*theCIMObj);
-            } else
-            {
-                //There is no reference class for the object path
+                // N0, delete the SCMOInstance.
+                delete scmoUnion->extRefPtr;
                 scmoUnion->extRefPtr = 0;
             }
+
             break;
         }
     case CIMTYPE_OBJECT:
@@ -3650,28 +3726,32 @@ void SCMOInstance::_setUnionValue(
                 if (theCIMObject->isClass())
                 {
                     CIMClass theClass(*theCIMObject);
-                    scmoUnion->extRefPtr = new SCMOInstance(theClass);
+
+                    scmoUnion->extRefPtr =
+                        new SCMOInstance(
+                            theClass,
+                            (&((const char*)*pmem)[startNS]));
                     // marke as class only !
+
                     scmoUnion->extRefPtr->inst.hdr->flags.isClassOnly=true;
                 }
                 else
                 {
-                    CIMInstance theInst(*theCIMObject);
-                    theRefClass = _getSCMOClass(
-                        theInst.getPath(),
-                        &(((const char*)*pmem)[startNS]),
-                        lenNS-1);
+                    CIMInstance theCIMInst(*theCIMObject);
 
-                    if (theRefClass != 0)
-                    {
-                        scmoUnion->extRefPtr =
-                            new SCMOInstance(*theRefClass,theInst);
-                    } else
-                    {
-                        //There is no reference class for the object path
-                        scmoUnion->extRefPtr = 0;
-                    }
+                    scmoUnion->extRefPtr =
+                        new SCMOInstance(
+                            theCIMInst,
+                            &(((const char*)*pmem)[startNS]),
+                            sizeNS-1);
 
+                     // Was the conversion successful?
+                     if (scmoUnion->extRefPtr->isEmpty())
+                     {
+                         // N0, delete the SCMOInstance.
+                         delete scmoUnion->extRefPtr;
+                         scmoUnion->extRefPtr = 0;
+                     }
                 }
             }
             break;
@@ -3700,19 +3780,19 @@ void SCMOInstance::_setUnionValue(
             }
             else
             {
-                SCMOClass* theRefClass = _getSCMOClass(
-                    theCIMInst->getPath(),
-                    &(((const char*)*pmem)[startNS]),
-                    lenNS-1);
-                if (theRefClass != 0)
-                {
-                    scmoUnion->extRefPtr =
-                        new SCMOInstance(*theRefClass,*theCIMInst);
-                } else
-                {
-                    //There is no reference class for the object path
-                    scmoUnion->extRefPtr = 0;
-                }
+                scmoUnion->extRefPtr =
+                    new SCMOInstance(
+                        *theCIMInst,
+                        &(((const char*)*pmem)[startNS]),
+                        sizeNS-1);
+
+                 // Was the conversion successful?
+                 if (scmoUnion->extRefPtr->isEmpty())
+                 {
+                     // N0, delete the SCMOInstance.
+                     delete scmoUnion->extRefPtr;
+                     scmoUnion->extRefPtr = 0;
+                 }
             }
             break;
         }
@@ -4597,20 +4677,18 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
             }
             // TBD: Optimize parsing and SCMOInstance creation.
             CIMObjectPath theCIMObj(kbs);
-            SCMOClass* theRefClass = _getSCMOClass(
-                theCIMObj,
-                _getCharString(inst.hdr->instNameSpace,inst.base),
-                inst.hdr->instNameSpace.size-1);
 
-            if (theRefClass != 0)
-            {
-                scmoKBV.data.extRefPtr =
-                    new SCMOInstance(*theRefClass,theCIMObj);
-            } else
-            {
-                scmoKBV.data.extRefPtr = 0;
-            }
+            scmoKBV.data.extRefPtr = new SCMOInstance(theCIMObj);
             scmoKBV.isSet=true;
+
+            // Was the conversion successful?
+            if (scmoKBV.data.extRefPtr->isEmpty())
+            {
+                // N0, delete the SCMOInstance.
+                delete scmoKBV.data.extRefPtr;
+                scmoKBV.data.extRefPtr = 0;
+                scmoKBV.isSet=false;
+            }
             break;
         }
     case CIMTYPE_OBJECT:

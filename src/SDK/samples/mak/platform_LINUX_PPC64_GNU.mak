@@ -27,4 +27,7 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 
+CXX_MACHINE_OPTIONS = -m64
+LINK_MACHINE_OPTIONS = -m64
+
 include $(ROOT)/mak/platform_LINUX_GNU.mak

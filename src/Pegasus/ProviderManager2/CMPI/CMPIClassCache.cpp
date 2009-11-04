@@ -42,38 +42,21 @@ PEGASUS_NAMESPACE_BEGIN
 CMPIClassCache::~CMPIClassCache()
 {
     // Cleanup the class cache
-    ClassCache::Iterator i=_clsCache->start();
-    for (; i; i++)
-    {
-        delete i.value();
-    }
-    delete _clsCache;
-
     ClassCacheSCMO::Iterator i2=_clsCacheSCMO->start();
     for (; i2; i2++)
     {
         delete i2.value();
     }
     delete _clsCacheSCMO;
-
-    if (_hint)
-    {
-        delete( _hint );
-    }
+    delete _hint;
 }
-
-
 
 void CMPIClassCache::_setHint(ClassCacheEntry& hint, SCMOClass* hintClass)
 {
-    if (_hint)
-    {
-        delete(_hint);
-    }
+    delete _hint;
     _hint = new ClassCacheEntry(hint);
     _hintClass = hintClass;
 }
-
 
 SCMOClass* CMPIClassCache::getSCMOClass(
     const CMPI_Broker *mb,
@@ -82,85 +65,26 @@ SCMOClass* CMPIClassCache::getSCMOClass(
     const char* className,
     Uint32 classNameLen)
 {
-    if (nsName && className)
+    if (!(nsName && className))
     {
-
-        ClassCacheEntry key(nsName,nsNameLen,className,classNameLen);
-
-        SCMOClass *scmoClass;
-
-        {
-            ReadLock readLock(_rwsemClassCache);
-
-            // We first check if the last lookup was for the same class
-            // so we could directly use the saved hint.
-            if (_hint && ClassCacheEntry::equal(*_hint, key))
-            {
-                return _hintClass;
-            }
-
-            if (_clsCacheSCMO->lookup(key,scmoClass))
-            {
-                _setHint(key, scmoClass);
-                return scmoClass;
-            }
-        }
-
-        try
-        {
-            WriteLock writeLock(_rwsemClassCache);
-
-            if (_clsCacheSCMO->lookup(key,scmoClass))
-            {
-                _setHint(key, scmoClass);
-                return scmoClass;
-            }
-
-            CIMOMHandleRep* handle=CM_CIMOM(mb);
-
-            const CIMClass cc = handle->getClass(
-                OperationContext(),
-                CIMNamespaceNameCast(nsName),
-                CIMNameCast(className),
-                (bool)0,
-                (bool)1,
-                (bool)1,
-                CIMPropertyList());
-
-            scmoClass = new SCMOClass(cc,nsName);
-            _clsCacheSCMO->insert(key,scmoClass);
-
-            _setHint(key, scmoClass);
-            return scmoClass;
-        }
-        catch (const CIMException &e)
-        {
-            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-                "CIMException: %s",(const char*)e.getMessage().getCString()));
-        }
+        return 0;
     }
-
-    return 0;
-}
-
-
-
-
-CIMClass* CMPIClassCache::getClass(
-    const CMPI_Broker *mb,
-    const CIMObjectPath & cop)
-{
-    String clsId =
-        cop.getNameSpace().getString()+":"+cop.getClassName().getString();
-
-    CIMClass *ccp;
-
+    SCMOClass *scmoClass = 0;
+    ClassCacheEntry key(nsName,nsNameLen,className,classNameLen);
     {
         ReadLock readLock(_rwsemClassCache);
 
-        if (_clsCache->lookup(clsId,ccp))
+        // We first check if the last lookup was for the same class
+        // so we could directly use the saved hint.
+        if (_hint && ClassCacheEntry::equal(*_hint, key))
         {
-            return ccp;
+            return _hintClass;
+        }
+
+        if (_clsCacheSCMO->lookup(key,scmoClass))
+        {
+            _setHint(key, scmoClass);
+            return scmoClass;
         }
     }
 
@@ -168,25 +92,26 @@ CIMClass* CMPIClassCache::getClass(
     {
         WriteLock writeLock(_rwsemClassCache);
 
-        if (_clsCache->lookup(clsId,ccp))
+        if (_clsCacheSCMO->lookup(key,scmoClass))
         {
-            return ccp;
+            _setHint(key, scmoClass);
+            return scmoClass;
         }
+        CIMOMHandleRep* handle=CM_CIMOM(mb);
 
-        const CMPIContext *ctx = CMPI_ThreadContext::getContext();
-
-        CIMClass cc = CM_CIMOM(mb)->getClass(
-            *CM_Context(ctx),
-            cop.getNameSpace(),
-            cop.getClassName(),
+        const CIMClass cc = handle->getClass(
+            OperationContext(),
+            CIMNamespaceNameCast(nsName),
+            CIMNameCast(className),
             (bool)0,
             (bool)1,
-            (bool)0,
+            (bool)1,
             CIMPropertyList());
 
-        ccp = new CIMClass(cc);
-        _clsCache->insert(clsId,ccp);
-        return ccp;
+        scmoClass = new SCMOClass(cc,nsName);
+        _clsCacheSCMO->insert(key,scmoClass);
+        _setHint(key, scmoClass);
+        return scmoClass;
     }
     catch (const CIMException &e)
     {

@@ -5,8 +5,6 @@
 <IMETHODRESPONSE NAME="GetInstance">
 <IRETURNVALUE>
 <INSTANCE CLASSNAME="CWS_Directory">
-<PROPERTY NAME="InstanceID" PROPAGATED="true" TYPE="string">
-</PROPERTY>
 <PROPERTY NAME="Caption" PROPAGATED="true" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="Description" PROPAGATED="true" TYPE="string">
@@ -22,14 +20,6 @@
 <PROPERTY NAME="Status" PROPAGATED="true" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="HealthState" PROPAGATED="true" TYPE="uint16">
-</PROPERTY>
-<PROPERTY NAME="CommunicationStatus" PROPAGATED="true" TYPE="uint16">
-</PROPERTY>
-<PROPERTY NAME="DetailedStatus" PROPAGATED="true" TYPE="uint16">
-</PROPERTY>
-<PROPERTY NAME="OperatingStatus" PROPAGATED="true" TYPE="uint16">
-</PROPERTY>
-<PROPERTY NAME="PrimaryStatus" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
 <PROPERTY NAME="CompressionMethod" PROPAGATED="true" TYPE="string">
 </PROPERTY>

@@ -40,6 +40,7 @@
 #include "CMPI_SelectExp.h"
 #include "CMPISCMOUtilities.h"
 #include "CMPI_Value.h"
+#include "CMPIMsgHandleManager.h"
 
 
 #include <Pegasus/Common/CIMMessage.h>
@@ -169,6 +170,13 @@ CMPIProviderManager::~CMPIProviderManager()
             selx=NULL;
         }
     }
+
+    /* clean up the MessageHandleManager Singleton object */
+    CMPIMsgHandleManager* handleMgr =
+        CMPIMsgHandleManager::getCMPIMsgHandleManager();
+
+    delete(handleMgr);
+
     PEG_METHOD_EXIT();
 }
 

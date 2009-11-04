@@ -78,6 +78,10 @@ CMPIrc CMPISCMOUtilities::copySCMOKeyProperties( const SCMOInstance* sourcePath,
             {
                 rc = targetPath->setKeyBinding(
                     keyName, keyType, keyValue);
+                if (keyType == CIMTYPE_STRING)
+                {
+                    free((void*)keyValue);
+                }
                 if (rc != SCMO_OK)
                 {
                     PEG_TRACE_CSTRING(
@@ -164,9 +168,9 @@ SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMObjectPath(
     const char* ns,
     const char* cls)
 {
-    Boolean isDirty=false;
     CString nameSpace = cimPath.getNameSpace().getString().getCString();
     CString className = cimPath.getClassName().getString().getCString();
+    SCMOInstance* scmoRef;
 
     if (!ns)
     {
@@ -182,15 +186,15 @@ SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMObjectPath(
 
     if (0 == scmoClass)
     {
-        isDirty=true;
-        scmoClass = new SCMOClass(cls,ns);
-    }
-
-    SCMOInstance* scmoRef = new SCMOInstance(*scmoClass, cimPath);
-    if (isDirty)
-    {
+        SCMOClass localDirtySCMOClass(cls,ns);
+        scmoRef = new SCMOInstance(localDirtySCMOClass, cimPath);
         scmoRef->markAsCompromised();
     }
+    else
+    {
+        scmoRef = new SCMOInstance(*scmoClass, cimPath);
+    }
+
 
     return scmoRef;
 }

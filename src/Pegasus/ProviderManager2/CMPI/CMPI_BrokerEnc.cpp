@@ -288,8 +288,8 @@ extern "C"
 
         // A CMPIObjectPath is already represented through a SCMOInstance.
         SCMOInstance* scmoOp = (SCMOInstance*)eCop->hdl;
+        SCMOInstance* newScmoInst;
 
-#ifndef PEGASUS_DISALLOW_DIRTY_SCMO
         if (scmoOp->isCompromised())
         {
             Uint64 nsL;
@@ -306,12 +306,12 @@ extern "C"
             else
             {
                 // Create a new clean objectPath ...
-                SCMOInstance* scmoNewOp = new SCMOInstance(*scmoClass);
+                SCMOInstance scmoNewOp(*scmoClass);
 
                 // ... copy the key properties from the dirty one ...
                 CMPIrc cmpirc = CMPISCMOUtilities::copySCMOKeyProperties(
                     scmoOp,     // source
-                    scmoNewOp); // target
+                    &scmoNewOp); // target
                 if (cmpirc != CMPI_RC_OK)
                 {
                     PEG_TRACE_CSTRING(
@@ -324,15 +324,17 @@ extern "C"
                 }
 
                 // ... and finally use the new clean ObjectPath
-                scmoOp = scmoNewOp;
+                newScmoInst = new SCMOInstance(scmoNewOp);
             }
         }
-#endif
-        // Now we simply create a second reference of the SCMOInstance which we
-        // received as CMPIObjectPath and account it as CMPIInstance.
-        SCMOInstance* scmoInst = new SCMOInstance(*scmoOp);
+        else
+        {
+            // Now we simply create a second reference of the SCMOInstance which
+            // we received as CMPIObjectPath and account it as CMPIInstance.
+            newScmoInst = new SCMOInstance(*scmoOp);
+        }
         CMPIInstance* neInst = reinterpret_cast<CMPIInstance*>(
-            new CMPI_Object(scmoInst, CMPI_Object::ObjectTypeInstance));
+            new CMPI_Object(newScmoInst, CMPI_Object::ObjectTypeInstance));
 
         CMSetStatus(rc, CMPI_RC_OK);
         PEG_METHOD_EXIT();
@@ -349,9 +351,7 @@ extern "C"
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_BrokerEnc:mbEncNewObjectPath()");
 
-#ifndef PEGASUS_DISALLOW_DIRTY_SCMO
-        Boolean isDirty=false;
-#endif
+        SCMOInstance* scmoInst;
 
         SCMOClass* scmoClass =
             mbGetSCMOClass(
@@ -361,12 +361,10 @@ extern "C"
                 cls ? strlen(cls) : 0);
         if (0 == scmoClass)
         {
-#ifndef PEGASUS_DISALLOW_DIRTY_SCMO
             // Though it is not desirable to let providers create objectPaths
             // for non-existant classes, this has to be allowed for backwards
             // compatibility with previous CMPI implementation :-(
             // So we simply create a 'dirty' SCMOClass object here.
-            isDirty=true;
             if (!ns)
             {
                 ns="";
@@ -375,22 +373,20 @@ extern "C"
             {
                 cls="";
             }
-            scmoClass = new SCMOClass(cls,ns);
-#else
-            CMSetStatus(rc, CMPI_RC_ERR_NOT_FOUND);
-            PEG_METHOD_EXIT();
-            return 0;
-#endif
-        }
-
-        SCMOInstance* scmoInst = new SCMOInstance(*scmoClass);
-
-#ifndef PEGASUS_DISALLOW_DIRTY_SCMO
-        if (isDirty)
-        {
+            SCMOClass localDirtyClass(cls,ns);
+            scmoInst = new SCMOInstance(localDirtyClass);
             scmoInst->markAsCompromised();
+
+            PEG_TRACE((
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Created invalid ObjectPath for non-existant class %s/%s",
+                ns,cls));
         }
-#endif
+        else
+        {
+            scmoInst = new SCMOInstance(*scmoClass);
+        }
 
         CMPIObjectPath *nePath = reinterpret_cast<CMPIObjectPath*>(
             new CMPI_Object(scmoInst, CMPI_Object::ObjectTypeObjectPath));

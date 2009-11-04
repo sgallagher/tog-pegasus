@@ -31,6 +31,7 @@
 
 #include "CMPI_Version.h"
 
+#include <Pegasus/Common/Tracer.h>
 #include "CMPI_String.h"
 #include "CMPI_Value.h"
 #include "CMPISCMOUtilities.h"
@@ -116,8 +117,6 @@ PEGASUS_NAMESPACE_BEGIN
 SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
 {
     SCMBUnion scmoData;
-    scmoData.simple.val.u64 = data->uint64;
-    scmoData.simple.hasValue = 1;
 
     if (!(type&CMPI_ARRAY))
     {
@@ -156,7 +155,7 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
             }
         case CMPI_string:
             {
-                scmoData.extString.pchar = 0; 
+                scmoData.extString.pchar = 0;
                 if (data->string)
                 {
                     scmoData.extString.pchar = (char*)data->string->hdl;
@@ -177,11 +176,23 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
                 }
                 break;
             }
+        default:
+            scmoData.simple.val.u64 = data->uint64;
+            scmoData.simple.hasValue = 1;
+            break;
         }
     }
     else
     {
-        //Array Implementation goes here ....
+        // This function does not convert array values, but only single
+        // value elements.
+        memset(&scmoData, sizeof(SCMBUnion), 0);
+
+        PEG_TRACE_CSTRING(
+            TRC_CMPIPROVIDERINTERFACE,
+            Tracer::LEVEL2,
+            "value2SCMOValue does not support array values!!!");
+
     }
     return scmoData;
 }

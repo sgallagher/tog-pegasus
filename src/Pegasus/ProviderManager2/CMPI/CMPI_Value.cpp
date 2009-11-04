@@ -32,6 +32,7 @@
 #include "CMPI_Version.h"
 
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/ArrayIterator.h>
 #include "CMPI_String.h"
 #include "CMPI_Value.h"
 #include "CMPISCMOUtilities.h"
@@ -118,82 +119,71 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
 {
     SCMBUnion scmoData;
 
-    if (!(type&CMPI_ARRAY))
-    {
+    PEGASUS_ASSERT(!(type&CMPI_ARRAY));
 
-        switch (type)
-        {
+    switch (type)
+    {
         case CMPI_dateTime:
+        {
+            CIMDateTimeRep * cimdt =
+                CMPISCMOUtilities::scmoDateTimeFromCMPI(data->dateTime);
+            if (cimdt)
             {
-                CIMDateTimeRep * cimdt =
-                    CMPISCMOUtilities::scmoDateTimeFromCMPI(data->dateTime);
-                if (cimdt)
-                {
-                    scmoData.dateTimeValue = *cimdt;
-                }
-                break;
+                scmoData.dateTimeValue = *cimdt;
             }
+            break;
+        }
         case CMPI_chars:
+        {
+            scmoData.extString.pchar = (char*)data;
+            if (scmoData.extString.pchar)
             {
-                scmoData.extString.pchar = (char*)data;
-                if (scmoData.extString.pchar)
-                {
-                    scmoData.extString.length =
-                        strlen(scmoData.extString.pchar);
-                }
-                break;
+                scmoData.extString.length =
+                    strlen(scmoData.extString.pchar);
             }
+            break;
+        }
         case CMPI_charsptr:
+        {
+            if (data && *(char**)data)
             {
-                if (data && *(char**)data)
-                {
-                    scmoData.extString.pchar = *(char**)data;
-                    scmoData.extString.length =
-                        strlen(scmoData.extString.pchar);
-                }
-                break;
+                scmoData.extString.pchar = *(char**)data;
+                scmoData.extString.length =
+                    strlen(scmoData.extString.pchar);
             }
+            break;
+        }
         case CMPI_string:
+        {
+            scmoData.extString.pchar = 0;
+            if (data->string)
             {
-                scmoData.extString.pchar = 0;
-                if (data->string)
-                {
-                    scmoData.extString.pchar = (char*)data->string->hdl;
-                }
-                if (scmoData.extString.pchar)
-                {
-                    scmoData.extString.length =
-                        strlen(scmoData.extString.pchar);
-                }
-                break;
+                scmoData.extString.pchar = (char*)data->string->hdl;
             }
+            if (scmoData.extString.pchar)
+            {
+                scmoData.extString.length =
+                    strlen(scmoData.extString.pchar);
+            }
+            break;
+        }
         case CMPI_ref:
         case CMPI_instance:
+        {
+            if (data->inst)
             {
-                if (data->inst)
-                {
-                    scmoData.extRefPtr = (SCMOInstance*)data->inst->hdl;
-                }
-                break;
+                scmoData.extRefPtr = (SCMOInstance*)data->inst->hdl;
             }
+            break;
+        }
         default:
+        {
             scmoData.simple.val.u64 = data->uint64;
             scmoData.simple.hasValue = 1;
             break;
         }
     }
-    else
-    {
-        // This function does not convert array values, but only single
-        // value elements.
-        memset(&scmoData, sizeof(SCMBUnion), 0);
 
-        PEG_TRACE_CSTRING(
-            TRC_CMPIPROVIDERINTERFACE,
-            Tracer::LEVEL2,
-            "value2SCMOValue does not support array values!!!");
-
-    }
     return scmoData;
 }
 
@@ -308,13 +298,12 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
                 case CMPI_ref:
                     {
                         Array<CIMObjectPath> arCIMObjectPath(aSize);
+                        ArrayIterator<CIMObjectPath> iterator(arCIMObjectPath);
                         for (int i=0; i<aSize; i++)
                         {
                             SCMOInstance* scmoInst =
                                 (SCMOInstance*)aData[i].value.ref->hdl;
-                            CIMObjectPath ref;
-                            scmoInst->getCIMObjectPath(ref);
-                            arCIMObjectPath[i]=ref;
+                            scmoInst->getCIMObjectPath(iterator[i]);
                         }
                         v.set(arCIMObjectPath);
                     }
@@ -326,6 +315,7 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
                 case CMPI_instance:
                     {
                         Array<CIMObject> arCIMInstance(aSize);
+                        ArrayIterator<CIMObject> iterator(arCIMInstance);
                         for (int i=0; i<aSize; i++)
                         {
                             SCMOInstance* scmoInst =
@@ -333,7 +323,7 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
                             CIMInstance inst;
                             scmoInst->getCIMInstance(inst);
                             CIMObject obj(inst);
-                            arCIMInstance[i]=obj;
+                            iterator[i]=obj;
                         }
                         v.set(arCIMInstance);
                     }
@@ -605,25 +595,26 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
             }
         }
         else
+        {
             switch( aType )
             {
                 case CMPI_ref:
+                {
+                    Array<CIMObjectPath> arRef;
+                    v.get(arRef);
+                    for (int i=0; i<aSize; i++)
                     {
-                        Array<CIMObjectPath> arRef;
-                        v.get(arRef);
-                        for (int i=0; i<aSize; i++)
-                        {
-                            SCMOInstance* scmoRef =
-                                CMPISCMOUtilities::
-                                getSCMOFromCIMObjectPath(arRef[i]);
-                            aData[i].value.ref=
-                                reinterpret_cast<CMPIObjectPath*>(
-                                    new CMPI_Object(
-                                        scmoRef,
-                                        CMPI_Object::ObjectTypeObjectPath));
-                        }
+                        SCMOInstance* scmoRef =
+                            CMPISCMOUtilities::getSCMOFromCIMObjectPath(
+                                arRef[i]);
+                        aData[i].value.ref=
+                            reinterpret_cast<CMPIObjectPath*>(
+                                new CMPI_Object(
+                                    scmoRef,
+                                    CMPI_Object::ObjectTypeObjectPath));
                     }
                     break;
+                }
 
                 case CMPI_dateTime:
                     CopyFromEncArray(CIMDateTime,CMPIDateTime,dateTime);
@@ -653,8 +644,8 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                         for (int i = 0; i < aSize ; ++i)
                         {
                             SCMOInstance* scmoInst =
-                                CMPISCMOUtilities::
-                                getSCMOFromCIMInstance(arInst[i]);
+                                CMPISCMOUtilities::getSCMOFromCIMInstance(
+                                    arInst[i]);
                             aData[i].value.inst =
                                 reinterpret_cast<CMPIInstance*>
                                 (new CMPI_Object(
@@ -684,6 +675,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                     delete [] aData;
                     return CMPI_RC_ERR_NOT_SUPPORTED;
             }
+        }
         data->value.array = reinterpret_cast<CMPIArray*>(
         new CMPI_Object(new CMPI_Array(aData-1)));
     }  // end of array porocessing

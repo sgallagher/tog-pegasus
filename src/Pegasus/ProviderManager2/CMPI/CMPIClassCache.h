@@ -113,7 +113,6 @@ class CMPIClassCache
 public:
     CMPIClassCache()
     {
-        _clsCache = new ClassCache();
         _clsCacheSCMO = new ClassCacheSCMO();
         _hintClass = NULL;
         _hint = NULL;
@@ -124,10 +123,6 @@ public:
 
     // a single function as point of control for now
     // target is to reduce the critical section as much as possible
-    CIMClass* getClass(
-        const CMPI_Broker *mb,
-        const CIMObjectPath &cop);
-
     SCMOClass* getSCMOClass(
         const CMPI_Broker *mb,
         const char* nsName,

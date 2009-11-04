@@ -245,7 +245,6 @@ void SCMOXmlWriter::appendPropertyElement(
     Uint32 pos)
 {
     CIMType propertyType;
-    Buffer embeddedQualifierOutput;
 
     // This is an absolute pointer at a SCMBValue
     SCMBValue * propertyValue;

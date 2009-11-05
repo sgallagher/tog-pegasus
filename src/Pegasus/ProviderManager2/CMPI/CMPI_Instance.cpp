@@ -354,7 +354,8 @@ extern "C"
                 SCMBUnion scmbArray[arraySize];
                 for (unsigned int x=0; x<arraySize; x++)
                 {
-                    scmbArray[x] = value2SCMOValue(&(arrData[x].value), type);
+                    // Note, aType is the single array element type
+                    scmbArray[x] = value2SCMOValue(&(arrData[x].value), aType);
                 }
 
                 rc = inst->setPropertyWithOrigin(name,

@@ -1360,7 +1360,7 @@ SCMOClass SCMOInstance::_getSCMOClass(
     Uint64 altNSlength)
 {
     SCMOClass theClass;
-  
+
     if (theCIMObj.getClassName().isNull())
     {
         return SCMOClass();
@@ -1377,7 +1377,7 @@ SCMOClass SCMOInstance::_getSCMOClass(
             altNS,
             altNSlength,
             (const char*)clsName,
-            strlen(clsName));        
+            strlen(clsName));
     }
     else
     {
@@ -1389,7 +1389,7 @@ SCMOClass SCMOInstance::_getSCMOClass(
             (const char*)nameSpace,
             strlen(nameSpace),
             (const char*)clsName,
-            strlen(clsName));        
+            strlen(clsName));
     }
 
     return theClass;
@@ -5031,6 +5031,10 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
 
 }
 
+static int _indexComp(const void* left, const void* right)
+{
+    return((*(Uint32 *)left)-(*(Uint32 *)right));
+}
 
 void SCMOInstance::setPropertyFilter(const char **propertyList)
 {
@@ -5102,8 +5106,13 @@ void SCMOInstance::setPropertyFilter(const char **propertyList)
         i++;
     }
 
+    // sort the filter index to be in order as properties stored in the class.
+    qsort(
+        propertyFilterIndexMap,
+        inst.hdr->filterProperties,
+        sizeof(Uint32),
+        _indexComp);
 }
-
 
 Uint32 SCMOInstance::_initPropFilterWithKeys()
 {

@@ -29,31 +29,15 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Linkage.h>
+
 #include <Pegasus/Common/SCMOClassCache.h>
-#include <Pegasus/Provider/CIMOMHandle.h>
-#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/CIMNameCast.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-SCMOClassCache* SCMOClassCache::_theInstance = NULL;
+PEGASUS_USING_STD;
 
-SCMOClassCache::~SCMOClassCache()
-{
-    // Cleanup the class cache
-    SCMOClassHashTable::Iterator i2=_clsCacheSCMO->start();
-    for (; i2; i2++)
-    {
-        delete i2.value();
-    }
-    delete _clsCacheSCMO;
-
-    if (_hint)
-    {
-        delete( _hint );
-    }
-}
+SCMOClassCache* SCMOClassCache::_theInstance = 0;
 
 void SCMOClassCache::destroy()
 {
@@ -70,87 +54,360 @@ SCMOClassCache* SCMOClassCache::getInstance()
     return _theInstance;
 }
 
+#ifdef PEGASUS_USE_SCMO_CLASS_CACHE
 
-void SCMOClassCache::_setHint(ClassCacheEntry& hint, SCMOClass* hintClass)
+SCMOClassCache::~SCMOClassCache()
 {
-    if (_hint)
+    // Signal to all callers and work in progress that the SMOClassCache
+    // will be destroyed soon.
+    // As from now, no other caller can get the the lock. They are blocked out.
+    _dying = true;
+
+    // Cleanup the class cache
+    for (Uint32 i = 0 ; i < PEGASUS_SCMO_CLASS_CACHE_SIZE; i++)
     {
-        delete(_hint);
+        delete _theCache[i].data;
     }
-    _hint = new ClassCacheEntry(hint);
-    _hintClass = hintClass;
 }
 
+Uint64 SCMOClassCache::_generateKey(
+    const char* className,
+    Uint32 classNameLen,
+    const char* nameSpaceName,
+    Uint32 nameSpaceNameLen)
+{
+    Uint64 key = 0;
 
-SCMOClass* SCMOClassCache::getSCMOClass(
+    key  =  (Uint64(classNameLen) << 48 ) |
+            (Uint64(className[0]) << 40 ) |
+            (Uint64(className[classNameLen-1]) << 32 ) |
+            (Uint64(nameSpaceNameLen) << 16 ) |
+            (Uint64(nameSpaceName[0]) << 8 ) |
+            Uint64(nameSpaceName[nameSpaceNameLen-1]);
+
+    /*
+    fprintf(stderr,"Class Name(%s) \'%04X%02X%02X\' "
+                   "Name Space(%s) \'%04X%02X%02X\' "
+                   "Key = %016llX\n",
+            className,classNameLen,className[0],className[classNameLen-1],
+            nameSpaceName,nameSpaceNameLen,nameSpaceName[0],
+            nameSpaceName[nameSpaceNameLen-1],key);
+    */
+    return key;
+}
+
+inline Boolean SCMOClassCache::_lockEntry(Uint32 index)
+{
+    // The lock is implemented as a spin loop, since the action to
+    // verify for the right cache entry is very short.
+
+    if ( _dying )
+    {
+        // The cache is going to be destroyed.
+        // The caller will never get the lock.
+        return false;
+    }
+
+    while ( true )
+    {
+        if ( _dying )
+        {
+            // The cache is going to be destroyed.
+            // The caller will never get the lock.
+            return false;
+        }
+
+        // If the lock counter not 1,an other caller is reading the entry.
+        if ( _theCache[index].lock.get() == 1 )
+        {
+            // Decrement the atomic lock counter and test if we do have lock:
+            // _theCache[index].lock == 0
+            if ( _theCache[index].lock.decAndTestIfZero() )
+            {
+                // We do have lock!
+                return true;
+            }
+        }
+        // I did not get the lock. So signal the scheduer to change the active
+        // thread to allow other threads to proceed. This also prevents from
+        // looping in a tight loop that causes a dead look due to the
+        // lock obtaining thread does not get any time ot finsh his work.
+#ifdef PEGASUS_DEBUG
+        _contentionCount.inc();
+#endif
+        Threads::yield();
+    }
+    return false;
+}
+
+inline Boolean SCMOClassCache::_sameSCMOClass(
+        const char* nsName,
+        Uint32 nsNameLen,
+        const char* className,
+        Uint32 classNameLen,
+        SCMOClass* theClass)
+{
+    if (_equalNoCaseUTF8Strings(
+            theClass->cls.hdr->className,
+            theClass->cls.base,
+            className,
+            classNameLen))
+    {
+        return _equalNoCaseUTF8Strings(
+                theClass->cls.hdr->nameSpace,
+                theClass->cls.base,
+                nsName,
+                nsNameLen);
+    }
+
+    return false;
+}
+
+SCMOClass SCMOClassCache::_addClassToCache(
+        const char* nsName,
+        Uint32 nsNameLen,
+        const char* className,
+        Uint32 classNameLen,
+        Uint64 theKey)
+{
+    WriteLock modifyLock(_modifyCacheLock);
+
+    if ( _dying )
+    {
+        // The cache is going to be destroyed.
+        return SCMOClass();
+    }
+
+    Uint32 startIndex =_lastSuccessIndex % PEGASUS_SCMO_CLASS_CACHE_SIZE;
+    Uint32 nextIndex = startIndex;
+    // The number of used entries is form 0 to PEGASUS_SCMO_CLASS_CACHE_SIZE
+    Uint32 usedEntries = _fillingLevel % (PEGASUS_SCMO_CLASS_CACHE_SIZE + 1);
+
+    // This constallation would cause an infitloop below.
+    // A miss read of global variables has happen
+    if (nextIndex > usedEntries)
+    {
+        // start from the beginning
+        startIndex = 0;
+        nextIndex = 0;
+    }
+
+    // Check the cache if the class was already added while waiting for the
+    // modifyLock.
+    //
+    // Note: The lock for each cache entry must not be obtained,
+    //       because it is used to signal a modify operation, that some
+    //       body is reading it. Due to we are the modify task, we know
+    //       that we are reading the cache entries!
+    //
+    for (Uint32 i = 0; i < usedEntries; i++)
+    {
+        // Does the key match for the entry and the requested class ?
+        if (0 != _theCache[nextIndex].key &&
+            theKey == _theCache[nextIndex].key)
+        {
+            // To get sure we found the right class, compare name space
+            // and class name.
+            if (_sameSCMOClass(nsName,nsNameLen,className,classNameLen,
+                               _theCache[nextIndex].data))
+            {
+                // The entry was added while waiting for the modify lock.
+                // The modify lock is destroyed automaticaly !
+#ifdef PEGASUS_DEBUG
+                _cacheReadHit++;
+#endif
+                _lastSuccessIndex = nextIndex;
+                return SCMOClass(*_theCache[nextIndex].data);
+            }
+        }
+
+        // go to the next used entries.
+        nextIndex = (nextIndex + 1) % usedEntries;
+    }
+
+    PEGASUS_ASSERT(_resolveCallBack);
+
+#ifdef PEGASUS_DEBUG
+    _cacheReadMiss++;
+#endif
+
+    CIMClass cc = _resolveCallBack(
+         CIMNamespaceNameCast(String(nsName,nsNameLen)),
+         CIMNameCast(String(className,classNameLen)));
+
+     if (cc.isUninitialized())
+     {
+         // The requested class was not found !
+         // The modify lock is destroyed automaticaly !
+         return SCMOClass();
+     }
+
+     SCMOClass* scmoClass = new SCMOClass(cc,nsName);
+
+     _lastWrittenIndex = (_lastWrittenIndex + 1)%PEGASUS_SCMO_CLASS_CACHE_SIZE;
+
+     // Ensure that nobody is reading the enty, so I can write.
+     if (_lockEntry(_lastWrittenIndex))
+     {
+         _theCache[_lastWrittenIndex].key = theKey;
+
+         // If the entry was reused, release old object form the cache.
+         if (0 != _theCache[_lastWrittenIndex].data )
+         {
+#ifdef PEGASUS_DEBUG
+             _cacheRemoveLRU++;
+#endif
+             delete _theCache[_lastWrittenIndex].data;
+         }
+
+         _theCache[_lastWrittenIndex].data = scmoClass;
+
+         if (_fillingLevel  < PEGASUS_SCMO_CLASS_CACHE_SIZE)
+         {
+             _fillingLevel ++;
+         }
+
+         _lastSuccessIndex = _lastWrittenIndex;
+
+         _unlockEntry(_lastWrittenIndex);
+     }
+     else
+     {
+         // The cache is going to be destroyed.
+         // The lock can not be obtained.
+         delete scmoClass;
+         return SCMOClass();
+     }
+
+     // The modify lock is destroyed automaticaly !
+     return SCMOClass(*scmoClass);
+}
+
+SCMOClass SCMOClassCache::getSCMOClass(
         const char* nsName,
         Uint32 nsNameLen,
         const char* className,
         Uint32 classNameLen)
 {
-    //fprintf(stderr,"SCMOClassCache::getSCMOClass - Enter()\n");
+    Uint64 theKey;
+
+    // Due to the _lastSuccessIndex may contain an invalid value,
+    // use the modulo to ensure it the index is in a valid range.
+    Uint32 startIndex =_lastSuccessIndex % PEGASUS_SCMO_CLASS_CACHE_SIZE;
+    Uint32 nextIndex = startIndex;
+    // The number of used entries form 0 to PEGASUS_SCMO_CLASS_CACHE_SIZE
+    Uint32 usedEntries = _fillingLevel % (PEGASUS_SCMO_CLASS_CACHE_SIZE + 1);
+
+    // This constallation would cause an infitloop below.
+    // A miss read of global variables has happen
+    if (nextIndex > usedEntries)
+    {
+        // start from the beginning
+        startIndex = 0;
+        nextIndex = 0;
+    }
 
     if (nsName && className && nsNameLen && classNameLen)
     {
+      theKey = _generateKey(className,classNameLen,nsName,nsNameLen);
 
-        ClassCacheEntry key(nsName,nsNameLen,className,classNameLen);
+      for (Uint32 i = 0; i < usedEntries; i++)
+      {
+          if(_lockEntry(nextIndex))
+          {
+              // does the key match for the entry and the requested class ?
+              if ( 0 != _theCache[nextIndex].key &&
+                  theKey == _theCache[nextIndex].key)
+              {
+                  // To get sure we found the right class, compare name space
+                  // and class name.
+                  if (_sameSCMOClass(nsName,nsNameLen,className,classNameLen,
+                                     _theCache[nextIndex].data))
+                  {
+                      // Yes, we got it !
+                      SCMOClass theClass(*_theCache[nextIndex].data);
+                      _lastSuccessIndex = nextIndex;
+#ifdef PEGASUS_DEBUG
+                       _cacheReadHit++;
+#endif
+                      _unlockEntry(nextIndex);
+                      return theClass;
+                  }
+              }
+              // It was the wrong entry, go to the next.
+              _unlockEntry(nextIndex);
+          }
+          else
+          {
+              // The cache is going to be destroyed.
+              // The lock can not be obtained. Give up.
+              return SCMOClass();
+          }
+          // It was the wrong entry, go to the next used entry..
+          nextIndex = (nextIndex + 1) % usedEntries;
 
-        SCMOClass *scmoClass;
+      }
 
-        {
-            ReadLock readLock(_rwsemClassCache);
-
-            // We first check if the last lookup was for the same class
-            // so we could directly use the saved hint.
-            if (_hint && ClassCacheEntry::equal(*_hint, key))
-            {
-                return _hintClass;
-            }
-
-            if (_clsCacheSCMO->lookup(key,scmoClass))
-            {
-                _setHint(key, scmoClass);
-                return scmoClass;
-            }
-        }
-
-        try
-        {
-            WriteLock writeLock(_rwsemClassCache);
-
-            if (_clsCacheSCMO->lookup(key,scmoClass))
-            {
-                _setHint(key, scmoClass);
-                return scmoClass;
-            }
-
-            PEGASUS_ASSERT(_resolveCallBack);
-
-            CIMClass cc = _resolveCallBack(
-                CIMNamespaceNameCast(String(nsName,nsNameLen)),
-                CIMNameCast(String(className,classNameLen)));
-
-            if (cc.isUninitialized())
-            {
-                scmoClass = NULL;
-            }
-            else
-            {
-                scmoClass = new SCMOClass(cc,nsName);
-                _clsCacheSCMO->insert(key,scmoClass);
-                _setHint(key, scmoClass);
-            }
-
-            return scmoClass;
-        }
-        catch (const CIMException &e)
-        {
-            PEG_TRACE((TRC_SERVER,Tracer::LEVEL1,
-                "CIMException: %s",(const char*)e.getMessage().getCString()));
-        }
+      // If we end up here, the class is not in the cache !
+      // We have to get it from the repositroy and add it into the cache.
+      return _addClassToCache(nsName,nsNameLen,className,classNameLen,theKey);
     }
 
-    return 0;
+    return SCMOClass();
 }
 
+#ifdef PEGASUS_DEBUG
+void SCMOClassCache::DisplayCacheStatistics()
+{
+    PEGASUS_STD(cout) << "SCMOClass Cache Statistics:" <<
+        PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << "  Size (current/max): " <<
+        _fillingLevel << "/" << PEGASUS_SCMO_CLASS_CACHE_SIZE <<
+        PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << "  Requests satisfied from cache: " <<
+        _cacheReadHit << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << "  Requests *not* satisfied from cache: " <<
+        _cacheReadMiss << " (implies write to cache)" << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) <<
+        "  Cache entries \"aged out\" due to cache size constraints: " <<
+        _cacheRemoveLRU << PEGASUS_STD(endl);
+    PEGASUS_STD(cout) << "  Number of lock contentions: " <<
+        _contentionCount.get() << PEGASUS_STD(endl);
+
+}
+#endif
+
+
+#else // PEGASUS_USE_SCMO_CLASS_CACHE
+SCMOClass SCMOClassCache::getSCMOClass(
+        const char* nsName,
+        Uint32 nsNameLen,
+        const char* className,
+        Uint32 classNameLen)
+{
+    PEGASUS_ASSERT(_resolveCallBack);
+
+     CIMClass cc = _resolveCallBack(
+         CIMNamespaceNameCast(String(nsName,nsNameLen)),
+         CIMNameCast(String(className,classNameLen)));
+
+     if (cc.isUninitialized())
+     {
+         // The requested class was not found !
+         return SCMOClass();
+     }
+
+     return SCMOClass(cc,nsName);
+
+}
+
+void SCMOClassCache::removeSCMOClass(CIMNamespaceName nsName,CIMName className)
+{
+}
+
+#ifdef PEGASUS_DEBUG
+void SCMOClassCache::DisplayCacheStatistics(){}
+#endif
+
+#endif
 PEGASUS_NAMESPACE_END

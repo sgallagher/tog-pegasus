@@ -266,7 +266,7 @@ void CIMServer::_init()
     UserManager* userManager = UserManager::getInstance(_repository);
 
     // -- Create a SCMOClass Cache and set call back for the repository
-    
+
     _scmoClassCache = SCMOClassCache::getInstance();
     _scmoClassCache->setCallBack(_scmoClassCache_GetClass);
 
@@ -402,7 +402,7 @@ void CIMServer::_init()
     ProviderMessageHandler* interopProvider = new ProviderMessageHandler(
         "CIMServerControlProvider", "InteropProvider",
         new InteropProvider(
-                _repository, 
+                _repository,
                 _providerRegistrationManager),
         0, 0, false);
 
@@ -632,7 +632,7 @@ CIMServer::~CIMServer ()
     SCMOClassCache::destroy();
     UserManager::destroy();
     ShutdownService::destroy();
-    
+
 
     PEG_METHOD_EXIT ();
 }
@@ -759,6 +759,8 @@ void CIMServer::shutdown()
 
 #ifdef PEGASUS_DEBUG
     _repository->DisplayCacheStatistics();
+    _scmoClassCache = SCMOClassCache::getInstance();
+    _scmoClassCache->DisplayCacheStatistics();
 #endif
 
     _dieNow = true;

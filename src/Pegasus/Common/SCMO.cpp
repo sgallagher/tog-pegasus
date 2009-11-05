@@ -224,6 +224,9 @@ inline void _copyArrayExtReference(
 SCMOClass::SCMOClass()
 {
     _initSCMOClass();
+
+    _setBinary("",1,cls.hdr->className,&cls.mem );
+    _setBinary("",1,cls.hdr->nameSpace,&cls.mem );
     cls.hdr->flags.isEmpty=true;
 }
 
@@ -302,7 +305,7 @@ SCMOClass::SCMOClass(const char* className, const char* nameSpaceName )
         throw CIMException(CIM_ERR_FAILED,message );
     }
 
-    if (0 == nameSpaceName || nsNameLen <= 1)
+    if (0 == nameSpaceName)
     {
         String message("SCMOClass: Name Space not set (null pointer)!");
         throw CIMException(CIM_ERR_FAILED,message );
@@ -664,8 +667,7 @@ void SCMOClass::_setClassProperties(PropertySet& theCIMProperties)
     startKeyIndexList = _getFreeSpace(
         cls.hdr->keyIndexList,
         noProps*sizeof(Uint32),
-        &cls.mem,
-        true);
+        &cls.mem);
 
     if(noProps != 0)
     {
@@ -679,12 +681,12 @@ void SCMOClass::_setClassProperties(PropertySet& theCIMProperties)
         // (68 - 1) / 64 = 1 --> The mask consists of two Uint64 values.
         _getFreeSpace(cls.hdr->keyPropertyMask,
               sizeof(Uint64)*(((noProps-1)/64)+1),
-              &cls.mem,true);
+              &cls.mem);
 
         // allocate property array and save the start index of the array.
         start = _getFreeSpace(cls.hdr->propertySet.nodeArray,
                       sizeof(SCMBClassPropertyNode)*noProps,
-                      &cls.mem,true);
+                      &cls.mem);
 
         // clear the hash table
         memset(cls.hdr->propertySet.hashTable,
@@ -1357,8 +1359,8 @@ SCMOClass SCMOInstance::_getSCMOClass(
     const char* altNS,
     Uint64 altNSlength)
 {
-    SCMOClass* theClass=0;
-
+    SCMOClass theClass;
+  
     if (theCIMObj.getClassName().isNull())
     {
         return SCMOClass();
@@ -1375,8 +1377,7 @@ SCMOClass SCMOInstance::_getSCMOClass(
             altNS,
             altNSlength,
             (const char*)clsName,
-            strlen(clsName));
-
+            strlen(clsName));        
     }
     else
     {
@@ -1388,16 +1389,10 @@ SCMOClass SCMOInstance::_getSCMOClass(
             (const char*)nameSpace,
             strlen(nameSpace),
             (const char*)clsName,
-            strlen(clsName));
+            strlen(clsName));        
     }
 
-    // if the class was not found.
-    if (theClass == 0)
-    {
-        return SCMOClass();
-    }
-
-    return SCMOClass(*theClass);
+    return theClass;
 }
 
 
@@ -2623,15 +2618,13 @@ void SCMOInstance::_initSCMOInstance(SCMOClass* pClass)
     _getFreeSpace(
           inst.hdr->keyBindingArray,
           sizeof(SCMBKeyBindingValue)*inst.hdr->numberKeyBindings,
-          &inst.mem,
-          true);
+          &inst.mem);
 
     // Allocate the SCMBInstancePropertyArray
     _getFreeSpace(
         inst.hdr->propertyArray,
         sizeof(SCMBValue)*inst.hdr->numberProperties,
-        &inst.mem,
-        true);
+        &inst.mem);
 
 }
 
@@ -2981,7 +2974,7 @@ void SCMOInstance::_setSCMBUnion(
                 startPtr = _getFreeSpace(
                     u.arrayValue,
                     size*sizeof(SCMBUnion),
-                    &inst.mem,true);
+                    &inst.mem);
 
                 for (Uint32 i = 0; i < size; i++)
                 {
@@ -3022,7 +3015,7 @@ void SCMOInstance::_setSCMBUnion(
                 startPtr = _getFreeSpace(
                     u.arrayValue,
                     size*sizeof(SCMBUnion),
-                    &inst.mem,false);
+                    &inst.mem);
 
                 ptr = (SCMBUnion*)&(inst.base[startPtr]);
 
@@ -3090,8 +3083,7 @@ void SCMOInstance::_setUnionArrayValue(
             arrayStart = _getFreeSpace(
                 scmoUnion->arrayValue,
                 loop*sizeof(SCMBUnion),
-                pmem,
-                true);
+                pmem);
 
             ConstArrayIterator<Boolean> iterator(*x);
 
@@ -3112,8 +3104,7 @@ void SCMOInstance::_setUnionArrayValue(
             arrayStart = _getFreeSpace(
                 scmoUnion->arrayValue,
                 loop*sizeof(SCMBUnion),
-                pmem,
-                true);
+                pmem);
 
             ConstArrayIterator<Uint8> iterator(*x);
 
@@ -3134,8 +3125,7 @@ void SCMOInstance::_setUnionArrayValue(
             arrayStart = _getFreeSpace(
                 scmoUnion->arrayValue,
                 loop*sizeof(SCMBUnion),
-                pmem,
-                true);
+                pmem);
 
             ConstArrayIterator<Sint8> iterator(*x);
 
@@ -3156,8 +3146,7 @@ void SCMOInstance::_setUnionArrayValue(
             arrayStart = _getFreeSpace(
                 scmoUnion->arrayValue,
                 loop*sizeof(SCMBUnion),
-                pmem,
-                true);
+                pmem);
 
             ConstArrayIterator<Uint16> iterator(*x);
 
@@ -3178,8 +3167,7 @@ void SCMOInstance::_setUnionArrayValue(
             arrayStart = _getFreeSpace(
                 scmoUnion->arrayValue,
                 loop*sizeof(SCMBUnion),
-                pmem,
-                true);
+                pmem);
 
             ConstArrayIterator<Sint16> iterator(*x);
 
@@ -3200,8 +3188,7 @@ void SCMOInstance::_setUnionArrayValue(
             arrayStart = _getFreeSpace(
                 scmoUnion->arrayValue,
                 loop*sizeof(SCMBUnion),
-                pmem,
-                true);
+                pmem);
 
             ConstArrayIterator<Uint32> iterator(*x);
 
@@ -3222,8 +3209,7 @@ void SCMOInstance::_setUnionArrayValue(
             arrayStart = _getFreeSpace(
                 scmoUnion->arrayValue,
                 loop*sizeof(SCMBUnion),
-                pmem,
-                true);
+                pmem);
 
             ConstArrayIterator<Sint32> iterator(*x);
 
@@ -3244,8 +3230,7 @@ void SCMOInstance::_setUnionArrayValue(
             arrayStart = _getFreeSpace(
                 scmoUnion->arrayValue,
                 loop*sizeof(SCMBUnion),
-                pmem,
-                true);
+                pmem);
 
             ConstArrayIterator<Uint64> iterator(*x);
 
@@ -3266,8 +3251,7 @@ void SCMOInstance::_setUnionArrayValue(
             arrayStart = _getFreeSpace(
                 scmoUnion->arrayValue,
                 loop*sizeof(SCMBUnion),
-                pmem,
-                true);
+                pmem);
 
             ConstArrayIterator<Sint64> iterator(*x);
 
@@ -3288,8 +3272,7 @@ void SCMOInstance::_setUnionArrayValue(
             arrayStart = _getFreeSpace(
                 scmoUnion->arrayValue,
                 loop*sizeof(SCMBUnion),
-                pmem,
-                true);
+                pmem);
 
             ConstArrayIterator<Real32> iterator(*x);
 
@@ -3310,8 +3293,7 @@ void SCMOInstance::_setUnionArrayValue(
             arrayStart = _getFreeSpace(
                 scmoUnion->arrayValue,
                 loop*sizeof(SCMBUnion),
-                pmem,
-                true);
+                pmem);
 
             ConstArrayIterator<Real64> iterator(*x);
 
@@ -3332,8 +3314,7 @@ void SCMOInstance::_setUnionArrayValue(
             arrayStart = _getFreeSpace(
                 scmoUnion->arrayValue,
                 loop*sizeof(SCMBUnion),
-                pmem,
-                true);
+                pmem);
 
             ConstArrayIterator<Char16> iterator(*x);
 
@@ -4222,8 +4203,7 @@ void SCMOInstance::clearKeyBindings()
     _getFreeSpace(
           inst.hdr->keyBindingArray,
           sizeof(SCMBKeyBindingValue)*inst.hdr->numberKeyBindings,
-          &inst.mem,
-          true);
+          &inst.mem);
 }
 
 Uint32 SCMOInstance::getKeyBindingCount() const
@@ -5063,15 +5043,13 @@ void SCMOInstance::setPropertyFilter(const char **propertyList)
         _getFreeSpace(
             inst.hdr->propertyFilter,
             sizeof(Uint64)*(((inst.hdr->numberProperties-1)/64)+1),
-            &inst.mem,
-            true);
+            &inst.mem);
 
         // Allocate the SCMBPropertyFilterIndexMap
         _getFreeSpace(
             inst.hdr->propertyFilterIndexMap,
             sizeof(Uint32)*inst.hdr->numberProperties,
-            &inst.mem,
-            true);
+            &inst.mem);
     }
     // Get absolut pointer to property filter index map of the instance
     Uint32* propertyFilterIndexMap =
@@ -6572,8 +6550,7 @@ static Uint32 _utf8ICUncasecmp(
 static Uint64 _getFreeSpace(
     SCMBDataPtr& ptr,
     Uint64 size,
-    SCMBMgmt_Header** pmem,
-    Boolean clear)
+    SCMBMgmt_Header** pmem)
 {
     Uint64 oldSize, start;
 
@@ -6609,11 +6586,9 @@ static Uint64 _getFreeSpace(
     (*pmem)->freeBytes -= size;
     (*pmem)->startOfFreeSpace += size;
 
-    if (clear)
-    {
-        // If requested, set memory to 0.
-        memset(&((char*)(*pmem))[start],0,size);
-    }
+    // Init memory to 0.
+    memset(&((char*)(*pmem))[start],0,size);
+
     return start;
 }
 

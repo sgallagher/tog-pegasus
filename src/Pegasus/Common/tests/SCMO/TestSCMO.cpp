@@ -84,10 +84,6 @@ CIMClass _scmoClassCache_GetClass(
     return CIM_TESTClass2;
 }
 
-void ObjectPathTests()
-{
-
-}
 void CIMClassToSCMOClass()
 {
     CIMClass theCIMClass;
@@ -236,7 +232,7 @@ void SCMOClassQualifierTest()
 
     SCMOClassCache* _theCache = SCMOClassCache::getInstance();
 
-    SCMOClass* SCMO_TESTClass2 = _theCache->getSCMOClass(
+    SCMOClass SCMO_TESTClass2 = _theCache->getSCMOClass(
             "cimv2",
             strlen("cimv2"),
             "SCMO_TESTClass2",
@@ -249,7 +245,7 @@ void SCMOClassQualifierTest()
 
     SCMODump dump("TestSCMOClassQualifier.log");
 
-    dump.dumpSCMOClassQualifiers(*SCMO_TESTClass2);
+    dump.dumpSCMOClassQualifiers(SCMO_TESTClass2);
 
     PEGASUS_TEST_ASSERT(dump.compareFile(masterFile));
 
@@ -275,13 +271,13 @@ void SCMOInstancePropertyTest()
 
     SCMOClassCache* _theCache = SCMOClassCache::getInstance();
 
-    SCMOClass* SCMO_TESTClass2 = _theCache->getSCMOClass(
+    SCMOClass SCMO_TESTClass2 = _theCache->getSCMOClass(
             "cimv2",
             strlen("cimv2"),
             "SCMO_TESTClass2",
             strlen("SCMO_TESTClass2"));
 
-    SCMOInstance SCMO_TESTClass2_Inst(*SCMO_TESTClass2);
+    SCMOInstance SCMO_TESTClass2_Inst(SCMO_TESTClass2);
 
     /**
      * Negative test cases for setting a propertty
@@ -1407,13 +1403,13 @@ void SCMOInstanceKeyBindingsTest()
 
     SCMOClassCache* _theCache = SCMOClassCache::getInstance();
 
-    SCMOClass* SCMO_TESTClass2 = _theCache->getSCMOClass(
+    SCMOClass SCMO_TESTClass2 = _theCache->getSCMOClass(
             "cimv2",
             strlen("cimv2"),
             "SCMO_TESTClass2",
             strlen("SCMO_TESTClass2"));
 
-    SCMOInstance SCMO_TESTClass2_Inst(*SCMO_TESTClass2);
+    SCMOInstance SCMO_TESTClass2_Inst(SCMO_TESTClass2);
 
     SCMBUnion uint64KeyVal;
     uint64KeyVal.simple.val.u64 = PEGASUS_UINT64_LITERAL(4834987289728);
@@ -1674,13 +1670,13 @@ void SCMOInstancePropertyFilterTest()
 
     SCMOClassCache* _theCache = SCMOClassCache::getInstance();
 
-    SCMOClass* SCMO_TESTClass2 = _theCache->getSCMOClass(
+    SCMOClass SCMO_TESTClass2 = _theCache->getSCMOClass(
             "cimv2",
             strlen("cimv2"),
             "SCMO_TESTClass2",
             strlen("SCMO_TESTClass2"));
 
-    SCMOInstance SCMO_TESTClass2_Inst(*SCMO_TESTClass2);
+    SCMOInstance SCMO_TESTClass2_Inst(SCMO_TESTClass2);
 
     SCMBUnion uint32value;
     uint32value.simple.val.u32 = 0x654321;

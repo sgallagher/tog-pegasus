@@ -69,6 +69,21 @@ public:
     }
 
     /**
+     * Assignment operator for the SCMO class,
+     * @param theSCMOClass The right hand value
+     **/
+    SCMOClass& operator=(const SCMOClass& theSCMOClass)
+    {
+        if (cls.hdr != theSCMOClass.cls.hdr)
+        {
+            Unref();
+            cls.hdr = theSCMOClass.cls.hdr;
+            Ref();
+        }
+        return *this;
+    }
+
+    /**
      * Constructs an empty SCMOClass only with name space and class name.
      *
      * If you construct a SCMOInstance using this class, you must mark it as

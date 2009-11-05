@@ -32,13 +32,10 @@
 #define _SCMOClassCache_H_
 
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMClass.h>
-#include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/ReadWriteSem.h>
-#include <Pegasus/Common/CharSet.h>
 #include <Pegasus/Common/SCMOClass.h>
-#include <Pegasus/Common/System.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -46,88 +43,72 @@ typedef CIMClass (*SCMOClassCacheCallbackPtr)(
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
 
+//==============================================================================
+//
+// The class cache caches up PEGASUS_SCMO_CLASS_CACHE_SIZE SCMOClass
+// definitions in memory.  To override the default, define
+// PEGASUS_SCMO_CLASS_CACHE_SIZE in your build environment.
+// The functionality to deliver SCMOClass is needed anyway but the cache can be
+// degrated to a pass through functionality.
+// To suppress caching set PEGASUS_SCMO_CLASS_CACHE_SIZE to 0 in your build
+// environment.
+//==============================================================================
 
-class PEGASUS_COMMON_LINKAGE ClassCacheEntry
+#if !defined(PEGASUS_SCMO_CLASS_CACHE_SIZE)
+# define PEGASUS_SCMO_CLASS_CACHE_SIZE 30
+#endif
+
+#if (PEGASUS_SCMO_CLASS_CACHE_SIZE != 0)
+# define PEGASUS_USE_SCMO_CLASS_CACHE
+#endif
+
+struct SCMBClassCacheEntry
 {
-    char* nsName;
-    Uint32 nsLen;
-    char* clsName;
-    Uint32 clsLen;
-    Boolean allocated;
-
-public:
-    ClassCacheEntry(const char* namespaceName,
-                    Uint32 namespaceNameLen,
-                    const char* className,
-                    Uint32 classNameLen ):
-        nsLen(namespaceNameLen),
-        clsLen(classNameLen)
-    {
-        nsName = (char*) malloc(nsLen+1);
-        clsName = (char*) malloc(clsLen+1);
-        if (0 == clsName || 0 == nsName)
-        {
-            free(nsName);
-            free(clsName);
-            throw PEGASUS_STD(bad_alloc)();
-        }
-        memcpy(nsName, namespaceName, namespaceNameLen);
-        memcpy(clsName, className, classNameLen);
-    };
-
-    ClassCacheEntry( const ClassCacheEntry& x)
-    {
-        nsName = (char*) malloc(x.nsLen+1);
-        clsName = (char*) malloc(x.clsLen+1);
-        if (0 == clsName || 0 == nsName)
-        {
-            free(nsName);
-            free(clsName);
-            nsName=0;
-            clsName=0;
-            throw PEGASUS_STD(bad_alloc)();
-        }
-
-        nsLen = x.nsLen;
-        clsLen = x.clsLen;
-
-        memcpy(nsName, x.nsName, nsLen+1);
-        memcpy(clsName, x.clsName, clsLen+1);
-    };
-
-    ~ClassCacheEntry()
-    {
-        free(clsName);
-        free(nsName);
-    }
-
-    static Boolean equal(const ClassCacheEntry& x, const ClassCacheEntry& y)
-    {
-        return System::strncasecmp(x.clsName,x.clsLen,y.clsName,y.clsLen);
-    }
-
-    static Uint32 hash(const ClassCacheEntry& entry)
-    {
-        // Simply use the lenght of the classname as hash.
-        return entry.clsLen;
-    }
+    // Spin-lock to serialize the access to the entry
+    AtomicInt lock;
+    // The key to identify the entry
+    Uint64    key;
+    // Pointer to the cached SCMOClass
+    SCMOClass* data;
 };
-
-
 
 class PEGASUS_COMMON_LINKAGE SCMOClassCache
 {
 
 public:
 
-    SCMOClass* getSCMOClass(
+    /**
+     * This function returns the SCMOClass for the given class name and
+     * name space.
+     * @param ndName The UTF8 encoded name space. '\0' terminated
+     * @param nsNameLan The strlen of ndName ( without '\0')
+     * @param className The UTF8 encoded class name. '\0' terminated
+     * @param nsNameLan The strlen of className ( without '\0')
+     * @return A pointer to SCMOClass. If the class was not found, NULL is
+     *         returned. The caller has to delete the class.
+     **/
+    SCMOClass getSCMOClass(
         const char* nsName,
         Uint32 nsNameLen,
         const char* className,
         Uint32 classNameLen);
 
+    /**
+     * Removes the named SCMOClass from the cache.
+     * @param nsName The name space name of the SCMOClass to remove.
+     * @param className The class name of the SCMOClass to remove.
+     **/
+    void removeSCMOClass(CIMNamespaceName nsName,CIMName className);
+
+    /**
+     * Returns the pointer to an instance of SCMOClassCache.
+     */
     static SCMOClassCache* getInstance();
 
+    /**
+     * Set the call back function for the SCMOClass to retrieve CIMClasses.
+     * @param clb The static call back function.
+     */
     void setCallBack(SCMOClassCacheCallbackPtr clb)
     {
        _resolveCallBack = clb;
@@ -135,39 +116,108 @@ public:
 
     static void destroy();
 
+#ifdef PEGASUS_DEBUG
+void DisplayCacheStatistics();
+#endif
+
 private:
 
-    typedef HashTable<ClassCacheEntry, SCMOClass *,
-        ClassCacheEntry, ClassCacheEntry> SCMOClassHashTable;
-
+    // Singleton instance pointer
     static SCMOClassCache* _theInstance;
 
+#ifdef PEGASUS_USE_SCMO_CLASS_CACHE
+
+    // The cache array
+    SCMBClassCacheEntry _theCache[PEGASUS_SCMO_CLASS_CACHE_SIZE];
+
+    // Lock to prevent parallel modifies on the cache.
+    ReadWriteSem _modifyCacheLock;
+
+    // Last successful read index.
+    Uint32 _lastSuccessIndex;
+
+    // Last successful written cache index.
+    Uint32 _lastWrittenIndex;
+    Uint32 _fillingLevel;
+
+    // Indicator for destruction of the cache.
+    Boolean _dying;
+
+    // The call back function pointer to get CIMClass's
+    SCMOClassCacheCallbackPtr _resolveCallBack;
+
+#  ifdef PEGASUS_DEBUG
+    // Statistical data
+    Uint32 _cacheReadHit;
+    Uint32 _cacheReadMiss;
+    Uint32 _cacheRemoveLRU;
+    AtomicInt _contentionCount;
+#  endif
+
     SCMOClassCache()
-        : _hintClass(NULL),
-          _hint(NULL),
+        : _lastSuccessIndex(0),
+          _lastWrittenIndex(PEGASUS_SCMO_CLASS_CACHE_SIZE-1),
+          _fillingLevel(0),
+          _dying(false),
           _resolveCallBack(NULL)
     {
-        _clsCacheSCMO = new SCMOClassHashTable();
+        // intialize the the cache
+        for (Uint32 i = 0 ; i < PEGASUS_SCMO_CLASS_CACHE_SIZE; i++)
+        {
+            _theCache[i].data = 0;
+            _theCache[i].key = 0;
+            // set the lock counter to 1 to allow one next user to enter.
+            _theCache[i].lock.set(1);
+        }
+#  ifdef PEGASUS_DEBUG
+        // Statistical data
+        _cacheReadHit = 0;
+        _cacheReadMiss = 0;
+        _cacheRemoveLRU = 0;
+        _contentionCount.set(0);
+#  endif
+
     };
 
     // clean-up cache data
     ~SCMOClassCache();
 
-    SCMOClassHashTable * _clsCacheSCMO;
+    Uint64 _generateKey(
+        const char* className,
+        Uint32 classNameLen,
+        const char* nameSpaceNameLen,
+        Uint32 nameSpaceName);
 
-    // auto-initialisation due to being on the stack
-    ReadWriteSem _rwsemClassCache;
+    Boolean _sameSCMOClass(
+        const char* nsName,
+        Uint32 nsNameLen,
+        const char* className,
+        Uint32 classNameLen,
+        SCMOClass* theClass);
 
-    SCMOClass* _hintClass;
-    ClassCacheEntry* _hint;
+    SCMOClass _addClassToCache(
+            const char* nsName,
+            Uint32 nsNameLen,
+            const char* className,
+            Uint32 classNameLen,
+            Uint64 theKey);
 
-    // the call back function pointer to get CIMClass's
-    SCMOClassCacheCallbackPtr _resolveCallBack;
 
-    //Optimization for continuos lookups of the same class
-    //Simply store away the last lookup result
-    void _setHint(ClassCacheEntry& hint, SCMOClass* hintClass);
+    /**
+     * Get a lock on a cache entry.
+     * @return true if the lock was optained
+     *         false if the lock was NOT optained, give up !!!
+     **/
+    Boolean _lockEntry(Uint32 index);
 
+    void _unlockEntry(Uint32 index)
+    {
+        // set the lock counter to 1 to allow one next user to enter
+        // the critical section.
+        _theCache[index].lock.set(1);
+
+    };
+#endif
 };
 
 PEGASUS_NAMESPACE_END

@@ -543,8 +543,7 @@ inline Uint32 _generateSCMOStringTag(
 static Uint64 _getFreeSpace(
     SCMBDataPtr& ptr,
     Uint64 size,
-    SCMBMgmt_Header** pmem,
-    Boolean clear = false);
+    SCMBMgmt_Header** pmem);
 
 static void _setString(
     const String& theString,

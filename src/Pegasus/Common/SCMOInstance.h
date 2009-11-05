@@ -79,6 +79,21 @@ public:
     }
 
     /**
+     * Assignment operator for the SCMO instance,
+     * @param theSCMOClass The right hand value
+     **/
+    SCMOInstance& operator=(const SCMOInstance& theSCMOInstance)
+    {
+        if (inst.hdr != theSCMOInstance.inst.hdr)
+        {
+            Unref();
+            inst.hdr = theSCMOInstance.inst.hdr;
+            Ref();
+        }
+        return *this;
+    }
+
+    /**
      * Destructor is decrementing the refcount. If refcount is zero, the
      * singele chunk memory object is deallocated.
      */

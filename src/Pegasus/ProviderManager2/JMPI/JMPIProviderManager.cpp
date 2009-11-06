@@ -799,12 +799,6 @@ Message * JMPIProviderManager::handleGetInstanceRequest(
         context.insert(
             request->operationContext.get(ContentLanguageListContainer::NAME));
 
-        if (request->operationContext.contains(UserRoleContainer::NAME))
-        {
-            context.insert(
-                request->operationContext.get(UserRoleContainer::NAME));
-        }
-
         // forward request
         JMPIProvider &pr=ph.GetProvider();
 

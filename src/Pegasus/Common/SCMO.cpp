@@ -6459,7 +6459,7 @@ void SCMODump::printUnionValue(
  *****************************************************************************/
 
 #ifdef PEGASUS_HAS_ICU
-static Uint32 _utf8ICUncasecmp(
+Uint32 _utf8ICUncasecmp(
     const char* a,
     const char* b,
     Uint32 len)

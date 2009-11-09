@@ -36,6 +36,7 @@
 #include <Pegasus/Provider/CIMOMHandleRep.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/CIMNameCast.h>
+#include <Pegasus/Common/SCMOClassCache.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -97,18 +98,19 @@ SCMOClass* CMPIClassCache::getSCMOClass(
             _setHint(key, scmoClass);
             return scmoClass;
         }
-        CIMOMHandleRep* handle=CM_CIMOM(mb);
 
-        const CIMClass cc = handle->getClass(
-            OperationContext(),
-            CIMNamespaceNameCast(nsName),
-            CIMNameCast(className),
-            (bool)0,
-            (bool)1,
-            (bool)1,
-            CIMPropertyList());
+        SCMOClassCache* scmoCache = SCMOClassCache::getInstance();
 
-        scmoClass = new SCMOClass(cc,nsName);
+        SCMOClass tmp = scmoCache->getSCMOClass(
+            nsName, nsNameLen, className, classNameLen);
+
+        if (tmp.isEmpty())
+        {
+            // Do not add to cache, when we failed to retrieve a real class
+            return 0;
+        }
+
+        SCMOClass* scmoClass = new SCMOClass(tmp);
         _clsCacheSCMO->insert(key,scmoClass);
         _setHint(key, scmoClass);
         return scmoClass;
@@ -117,6 +119,11 @@ SCMOClass* CMPIClassCache::getSCMOClass(
     {
         PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
             "CIMException: %s",(const char*)e.getMessage().getCString()));
+    }
+    catch (const Exception &e)
+    {
+        PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+            "Exception: %s",(const char*)e.getMessage().getCString()));
     }
     return 0;
 }

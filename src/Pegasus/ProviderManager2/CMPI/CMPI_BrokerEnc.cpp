@@ -447,7 +447,7 @@ extern "C"
         dta->value.uint32=count;
         for (unsigned int i=1; i<=count; i++)
         {
-            dta[i].type=type;
+            dta[i].type=(type&~CMPI_ARRAY);
             dta[i].state=CMPI_nullValue;
             dta[i].value.uint64=0;
         }

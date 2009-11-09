@@ -354,8 +354,11 @@ extern "C"
                 SCMBUnion scmbArray[arraySize];
                 for (unsigned int x=0; x<arraySize; x++)
                 {
-                    // Note, aType is the single array element type
-                    scmbArray[x] = value2SCMOValue(&(arrData[x].value), aType);
+                    // Note:  First element is the array status information,
+                    //        therefore cmpi array starts at index 1!!!
+                    scmbArray[x] = value2SCMOValue(
+                        &(arrData[x+1].value),
+                        arrData[x+1].type);
                 }
 
                 rc = inst->setPropertyWithOrigin(name,

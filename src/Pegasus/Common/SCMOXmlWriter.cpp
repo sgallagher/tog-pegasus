@@ -1096,7 +1096,6 @@ void SCMOXmlWriter::appendSCMBUnionArray(
             while (numElements--)
             {
                 out << STRLIT("<VALUE>");
-                SCMOXmlWriter::append(out, arr->simple.val.bin);
                 SCMOXmlWriter::appendSpecial(out, arr->simple.val.c16);
                 arr++;
                 out << STRLIT("</VALUE>\n");
@@ -1111,10 +1110,13 @@ void SCMOXmlWriter::appendSCMBUnionArray(
             while (numElements--)
             {
                 out << STRLIT("<VALUE>");
-                SCMOXmlWriter::appendSpecial(
-                    out,
-                    &(base[arr->stringValue.start]),
-                    arr->stringValue.size-1);
+                if (0!=arr->stringValue.start)
+                {
+                    SCMOXmlWriter::appendSpecial(
+                        out,
+                        &(base[arr->stringValue.start]),
+                        arr->stringValue.size-1);
+                }
                 arr++;
                 out << STRLIT("</VALUE>\n");
             }

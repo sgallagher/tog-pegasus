@@ -626,9 +626,9 @@ void XmlGenerator::appendSpecial(Buffer& out, const char* str, Uint32 size)
     const Uint8* p= (const Uint8*) str;
 
     while (size >= 4 &&
-             (_isNormalChar7[p[0]] |
-              _isNormalChar7[p[1]] |
-              _isNormalChar7[p[2]] |
+             (_isNormalChar7[p[0]] &
+              _isNormalChar7[p[1]] &
+              _isNormalChar7[p[2]] &
               _isNormalChar7[p[3]]))
     {
         size -= 4;

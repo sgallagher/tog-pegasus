@@ -48,8 +48,6 @@ typedef Array<Sint8> ArraySint8;
 #undef PEGASUS_ARRAY_T
 
 
-// TODO: Consider a reference counting for this class
-// Contra thesis: Mostly used by pointer reference, i.e. never really copied
 class PEGASUS_COMMON_LINKAGE CIMResponseData
 {
 public:
@@ -58,8 +56,7 @@ public:
         RESP_ENC_CIM = 1,
         RESP_ENC_BINARY = 2,
         RESP_ENC_XML = 4,
-        RESP_ENC_SCMO = 8,
-        RESP_ENC_MIXED = 16
+        RESP_ENC_SCMO = 8
     };
 
     enum ResponseDataContent {

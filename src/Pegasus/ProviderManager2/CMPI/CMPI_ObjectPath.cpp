@@ -278,7 +278,9 @@ extern "C"
         }
 
 
-        if ((type & CMPI_ARRAY) || (type == CMPI_instance))
+        if ((type & CMPI_ARRAY) ||
+            (type == CMPI_instance) ||
+            (type == CMPI_null))
         {
             PEG_TRACE((
                 TRC_CMPIPROVIDERINTERFACE,

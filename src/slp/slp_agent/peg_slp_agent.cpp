@@ -434,22 +434,7 @@ void slp_service_agent::unregister()
                 rp->url,
                 SLPRegCallback,
                 &callbackErr);
-            if ((slpErr != SLP_OK) || (callbackErr != SLP_OK))
-            {
-                SLPClose(slp_handle);
-                /* No need to report error since we're probably shutting
-                   down anyway.
-                */
-                continue;
-            }
             SLPClose(slp_handle);
-        }
-        else
-        {
-            /* No need to report error since we're probably shutting
-               down anyway.
-            */
-            continue;
         }
 #elif PEGASUS_SLP_REG_TIMEOUT
         // Unregister with external SLP SA.

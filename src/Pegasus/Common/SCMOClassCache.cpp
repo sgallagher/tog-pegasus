@@ -311,6 +311,8 @@ SCMOClass SCMOClassCache::getSCMOClass(
     {
       theKey = _generateKey(className,classNameLen,nsName,nsNameLen);
 
+      // The counter i is never used as index. 
+      // It is used to ensure to look through all used entries.
       for (Uint32 i = 0; i < usedEntries; i++)
       {
           if(_lockEntry(nextIndex))
@@ -356,6 +358,96 @@ SCMOClass SCMOClassCache::getSCMOClass(
     return SCMOClass();
 }
 
+void SCMOClassCache::removeSCMOClass(
+    CIMNamespaceName cimNameSpace,
+    CIMName cimClassName)
+{
+
+    if (cimClassName.isNull() || cimNameSpace.isNull())
+    {
+        return ;
+    }
+
+   CString nsName = cimNameSpace.getString().getCString();
+   Uint32 nsNameLen = strlen(nsName);
+   CString clsName = cimClassName.getString().getCString();
+   Uint32 clsNameLen = strlen(clsName);
+
+   // The number of used entries form 0 to PEGASUS_SCMO_CLASS_CACHE_SIZE
+   Uint32 usedEntries = _fillingLevel % (PEGASUS_SCMO_CLASS_CACHE_SIZE + 1);
+
+   Uint64  theKey = _generateKey(clsName,clsNameLen,nsName,nsNameLen);
+
+   // A straight forward loop through all used entries,
+   // ignoring the last success.
+   for (Uint32 i = 0; i < usedEntries; i++)
+   {
+       if(_lockEntry(i))
+       {
+           // does the key match for the entry and the requested class ?
+           if ( 0 != _theCache[i].key && theKey == _theCache[i].key)
+           {
+               // To get sure we found the right class, compare name space
+               // and class name.
+               if (_sameSCMOClass(nsName,nsNameLen,clsName,clsNameLen,
+                                  _theCache[i].data))
+               {
+                   // Yes, we got it !
+                   _theCache[i].key = 0;
+                   delete _theCache[i].data;
+                   _theCache[i].data = 0;
+                   _unlockEntry(i);
+                   return;
+               }
+           }
+           // It was the wrong entry, go to the next.
+           _unlockEntry(i);
+       }
+       else
+       {
+           // We do not get the lock, if the cache is going to be destroyed.
+           return;
+       }
+   }   
+}
+
+void SCMOClassCache::clear()
+{
+    WriteLock modifyLock(_modifyCacheLock);
+
+    if ( _dying )
+    {
+        // The cache is going to be destroyed.
+        return ;
+    }
+
+    // The number of used entries form 0 to PEGASUS_SCMO_CLASS_CACHE_SIZE
+    Uint32 usedEntries = _fillingLevel % (PEGASUS_SCMO_CLASS_CACHE_SIZE + 1);
+
+    // A straight forwar loop through all used entries,
+    // ignoring the last success.
+    for (Uint32 i = 0; i < usedEntries; i++)
+    {
+        if(_lockEntry(i))
+        {
+            _theCache[i].key = 0;
+            delete _theCache[i].data;
+            _theCache[i].data = 0;
+            _unlockEntry(i);
+        }
+        else
+        {
+            // We do not get the lock, if the cache is going to be destroyed.
+            return;
+        }
+    }
+    // Reset all controll data
+    _fillingLevel = 0;
+    _lastSuccessIndex = 0;
+    _lastWrittenIndex = PEGASUS_SCMO_CLASS_CACHE_SIZE-1;
+
+
+}
 #ifdef PEGASUS_DEBUG
 void SCMOClassCache::DisplayCacheStatistics()
 {
@@ -385,29 +477,42 @@ SCMOClass SCMOClassCache::getSCMOClass(
         const char* className,
         Uint32 classNameLen)
 {
-    PEGASUS_ASSERT(_resolveCallBack);
+    if (nsName && className && nsNameLen && classNameLen)
+    {
 
-     CIMClass cc = _resolveCallBack(
-         CIMNamespaceNameCast(String(nsName,nsNameLen)),
-         CIMNameCast(String(className,classNameLen)));
+         PEGASUS_ASSERT(_resolveCallBack);
 
-     if (cc.isUninitialized())
-     {
-         // The requested class was not found !
-         return SCMOClass();
-     }
+          CIMClass cc = _resolveCallBack(
+              CIMNamespaceNameCast(String(nsName,nsNameLen)),
+              CIMNameCast(String(className,classNameLen)));
 
-     return SCMOClass(cc,nsName);
+          if (cc.isUninitialized())
+          {
+              // The requested class was not found !
+              return SCMOClass();
+          }
+
+          return SCMOClass(cc,nsName);
+    }
+
+    return SCMOClass();
 
 }
 
-void SCMOClassCache::removeSCMOClass(CIMNamespaceName nsName,CIMName className)
+void SCMOClassCache::removeSCMOClass(
+    CIMNamespaceName cimNameSpace,
+    CIMName cimClassName)
 {
 }
 
-#ifdef PEGASUS_DEBUG
+
+void SCMOClassCache::clear()
+{
+}
+
+#  ifdef PEGASUS_DEBUG
 void SCMOClassCache::DisplayCacheStatistics(){}
-#endif
+#  endif
 
 #endif
 PEGASUS_NAMESPACE_END

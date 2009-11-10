@@ -481,6 +481,7 @@ static Array<ClassAssociation> _buildClassAssociationEntries(
 */
 static Array<InstanceAssociation> _buildInstanceAssociationEntries(
     const CIMNamespaceName& nameSpace,
+    const CIMConstClass& cimClass,
     const CIMInstance& cimInstance,
     const CIMObjectPath& instanceName)
 {
@@ -1268,7 +1269,7 @@ CIMObjectPath CIMRepository::_createInstance(
     if (cimClass.isAssociation())
     {
         instAssocEntries = _buildInstanceAssociationEntries(
-            nameSpace, cimInstance, instanceName);
+            nameSpace, cimClass, cimInstance, instanceName);
     }
 
     //
@@ -1659,12 +1660,14 @@ Array<CIMName> CIMRepository::enumerateClassNames(
 Array<CIMInstance> CIMRepository::enumerateInstancesForSubtree(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
+    Boolean deepInheritance,
     Boolean includeQualifiers,
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY,
         "CIMRepository::enumerateInstancesForSubtree");
+
     // It is not necessary to control access to the ReadWriteSem lock here.
     // This method calls enumerateInstancesForClass, which does its own
     // access control.
@@ -1839,16 +1842,14 @@ Array<CIMObject> CIMRepository::associators(
         //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class also
-        //  has no key bindings.
-        //  This works today because we do not use singleton instances in
-        //  the model. See BUG_3302.
+        //  has no key bindings
         //
-        CIMObjectPath tmpRef = names[i];
-        tmpRef.setHost(String());
-        tmpRef.setNameSpace(CIMNamespaceName());
-
         if (names[i].getKeyBindings ().size () == 0)
         {
+            CIMObjectPath tmpRef = names[i];
+            tmpRef.setHost(String());
+            tmpRef.setNameSpace(CIMNamespaceName());
+
             CIMClass cimClass = _getClass(
                 tmpNameSpace,
                 tmpRef.getClassName(),
@@ -1863,6 +1864,10 @@ Array<CIMObject> CIMRepository::associators(
         }
         else
         {
+            CIMObjectPath tmpRef = names[i];
+            tmpRef.setHost(String());
+            tmpRef.setNameSpace(CIMNamespaceName());
+
             CIMInstance cimInstance = _getInstance(
                 tmpNameSpace,
                 tmpRef,
@@ -1934,8 +1939,7 @@ Array<CIMObjectPath> CIMRepository::_associatorNames(
     //  distinguish instanceNames from classNames in every case
     //  The instanceName of a singleton instance of a keyless class also
     //  has no key bindings
-    //  This works today because we do not use singleton instances in
-    //  the model. See BUG_3302.
+    //
     if (objectName.getKeyBindings ().size () == 0)
     {
         CIMName className = objectName.getClassName();
@@ -2038,8 +2042,6 @@ Array<CIMObject> CIMRepository::references(
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class also
         //  has no key bindings
-        //  This works today because we do not use singleton instances in
-        //  the model. See BUG_3302.
         //
         if (objectName.getKeyBindings ().size () == 0)
         {
@@ -2117,8 +2119,6 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class also
         //  has no key bindings
-        //  This works today because we do not use singleton instances in
-        //  the model. See BUG_3302.
         //
         if (objectName.getKeyBindings ().size () == 0)
         {
@@ -2342,15 +2342,13 @@ void CIMRepository::_setQualifier(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_setQualifier");
 
-    _rep->_nameSpaceManager.checkNameSpaceUpdateAllowed(
-        nameSpace);
+    _rep->_nameSpaceManager.checkSetOrDeleteQualifier(
+        nameSpace, qualifierDecl.getName());
 
-    // Exception if namespace does not allow update
     _rep->_persistentStore->setQualifier(nameSpace, qualifierDecl);
 
     String qualifierCacheKey =
         _getCacheKey(nameSpace, qualifierDecl.getName());
-
     _rep->_qualifierCache.put(
         qualifierCacheKey, (CIMQualifierDecl&)qualifierDecl);
 
@@ -2366,9 +2364,8 @@ void CIMRepository::deleteQualifier(
     WriteLock lock(_rep->_lock);
     AutoFileLock fileLock(_rep->_lockFile);
 
-    // Exception exit if not allowed
-    _rep->_nameSpaceManager.checkNameSpaceUpdateAllowed(
-        nameSpace);
+    _rep->_nameSpaceManager.checkSetOrDeleteQualifier(
+        nameSpace, qualifierName);
 
     _rep->_persistentStore->deleteQualifier(nameSpace, qualifierName);
 
@@ -2517,26 +2514,6 @@ void CIMRepository::modifyNameSpace(
     PEG_METHOD_EXIT();
 }
 
-void CIMRepository::modifyNameSpaceName(
-        const CIMNamespaceName& nameSpace,
-        const CIMNamespaceName& newNameSpaceName)
-{
-    PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyNameSpaceName");
-
-    WriteLock lock(_rep->_lock);
-    AutoFileLock fileLock(_rep->_lockFile);
-
-    _rep->_nameSpaceManager.validateNameSpace(nameSpace);
-
-    _rep->_persistentStore->modifyNameSpaceName(
-            nameSpace, newNameSpaceName);
-
-    _rep->_nameSpaceManager.modifyNameSpaceName(
-        nameSpace, newNameSpaceName);
-
-    PEG_METHOD_EXIT();
-}
-
 Array<CIMNamespaceName> CIMRepository::enumerateNameSpaces() const
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::enumerateNameSpaces");
@@ -2626,12 +2603,6 @@ Boolean CIMRepository::getNameSpaceAttributes(const CIMNamespaceName& nameSpace,
 
     PEG_METHOD_EXIT();
     return true;
-}
-
-Boolean CIMRepository::nameSpaceExists(const CIMNamespaceName& nameSpaceName)
-{
-    ReadLock lock(const_cast<ReadWriteSem&>(_rep->_lock));
-    return _rep->_nameSpaceManager.nameSpaceExists(nameSpaceName);
 }
 
 Boolean CIMRepository::isRemoteNameSpace(

@@ -2336,13 +2336,9 @@ void SCMOInstance::setHostName(const char* hostName)
     {
 
         len = strlen((const char*)hostName);
-        if(len != 0)
-        {
-
-            // copy including trailing '\0'
-            _setBinary(hostName,len+1,inst.hdr->hostName,&inst.mem);
-            return;
-        }
+        // copy including trailing '\0'
+        _setBinary(hostName,len+1,inst.hdr->hostName,&inst.mem);
+        return;
 
     }
     inst.hdr->hostName.start=0;
@@ -2411,16 +2407,10 @@ void SCMOInstance::setNameSpace(const char* nameSpace)
     {
 
         len = strlen((const char*)nameSpace);
-        if(len != 0)
-        {
-
-            // copy including trailing '\0'
-            _setBinary(nameSpace,len+1,inst.hdr->instNameSpace,&inst.mem);
-            return;
-        }
-
+        // copy including trailing '\0'
+        _setBinary(nameSpace,len+1,inst.hdr->instNameSpace,&inst.mem);
+        return;
     }
-
     inst.hdr->instNameSpace.start=0;
     inst.hdr->instNameSpace.size=0;
 }
@@ -5005,8 +4995,17 @@ SCMO_RC SCMOInstance::_setKeyBindingTypeTolerate(
     }
     else
     {
+        // If type defined in the class and the provided type does not match
+        // at this point, no convertaion can be done and the provided type
+        // is handlend as type missmatch.
+        if (classType != setType)
+        {
+            return SCMO_TYPE_MISSMATCH;
+        }
+
         switch (classType)
         {
+        case CIMTYPE_DATETIME:
         case CIMTYPE_BOOLEAN:
         case CIMTYPE_UINT64:
         case CIMTYPE_SINT64:
@@ -6640,7 +6639,7 @@ static void _setBinary(
 {
 
     // If buffer is not empty.
-    if (bufferSize != 1 && theBuffer != 0)
+    if (bufferSize != 0 && theBuffer != 0)
     {
 
         Uint64 start;

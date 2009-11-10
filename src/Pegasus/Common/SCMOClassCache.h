@@ -55,7 +55,7 @@ typedef CIMClass (*SCMOClassCacheCallbackPtr)(
 //==============================================================================
 
 #if !defined(PEGASUS_SCMO_CLASS_CACHE_SIZE)
-# define PEGASUS_SCMO_CLASS_CACHE_SIZE 30
+# define PEGASUS_SCMO_CLASS_CACHE_SIZE 32
 #endif
 
 #if (PEGASUS_SCMO_CLASS_CACHE_SIZE != 0)
@@ -84,8 +84,9 @@ public:
      * @param nsNameLan The strlen of ndName ( without '\0')
      * @param className The UTF8 encoded class name. '\0' terminated
      * @param nsNameLan The strlen of className ( without '\0')
-     * @return A pointer to SCMOClass. If the class was not found, NULL is
-     *         returned. The caller has to delete the class.
+     * @return A pointer to SCMOClass. If the class was not found, an empty
+     *         SCMOClass is returned.  This can be checked by using the
+     *         SCMOClass.isEmptx() method.
      **/
     SCMOClass getSCMOClass(
         const char* nsName,
@@ -95,10 +96,19 @@ public:
 
     /**
      * Removes the named SCMOClass from the cache.
-     * @param nsName The name space name of the SCMOClass to remove.
-     * @param className The class name of the SCMOClass to remove.
+     * @param cimNameSpace The name space name of the SCMOClass to remove.
+     * @param cimClassName The class name of the SCMOClass to remove.
      **/
-    void removeSCMOClass(CIMNamespaceName nsName,CIMName className);
+    void removeSCMOClass(CIMNamespaceName cimNameSpace,CIMName cimClassName);
+
+    /**
+     * Cleares the whole cache.
+     * This should be only done at modification of a class.
+     * This may invalidate subclass definitions in the cache.
+     * Since class modification is relatively rare, we just flush the entire
+     * cache rather than specifically evicting subclass definitions.
+     **/
+    void clear();
 
     /**
      * Returns the pointer to an instance of SCMOClassCache.
@@ -125,6 +135,9 @@ private:
     // Singleton instance pointer
     static SCMOClassCache* _theInstance;
 
+    // The call back function pointer to get CIMClass's
+    SCMOClassCacheCallbackPtr _resolveCallBack;
+
 #ifdef PEGASUS_USE_SCMO_CLASS_CACHE
 
     // The cache array
@@ -138,13 +151,12 @@ private:
 
     // Last successful written cache index.
     Uint32 _lastWrittenIndex;
+
+    // Counter of used cache entries.
     Uint32 _fillingLevel;
 
     // Indicator for destruction of the cache.
     Boolean _dying;
-
-    // The call back function pointer to get CIMClass's
-    SCMOClassCacheCallbackPtr _resolveCallBack;
 
 #  ifdef PEGASUS_DEBUG
     // Statistical data
@@ -155,11 +167,11 @@ private:
 #  endif
 
     SCMOClassCache()
-        : _lastSuccessIndex(0),
+        : _resolveCallBack(NULL),
+          _lastSuccessIndex(0),
           _lastWrittenIndex(PEGASUS_SCMO_CLASS_CACHE_SIZE-1),
           _fillingLevel(0),
-          _dying(false),
-          _resolveCallBack(NULL)
+          _dying(false)
     {
         // intialize the the cache
         for (Uint32 i = 0 ; i < PEGASUS_SCMO_CLASS_CACHE_SIZE; i++)

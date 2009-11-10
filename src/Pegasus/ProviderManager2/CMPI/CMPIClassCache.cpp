@@ -90,11 +90,18 @@ CIMClass* CMPIClassCache::getClass(
         _clsCache->insert(clsId,ccp);
         return ccp;
     }
-    catch (const CIMException &e)
+    catch (const Exception &e)
     {
         PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-            "CIMException: %s",(const char*)e.getMessage().getCString()));
+            "Exception in CMPIClassCache::getClass() : %s",
+            (const char*)e.getMessage().getCString()));
     }
+    catch (...)
+    {
+        PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+            "Unknown Exception in CMPIClassCache::getClass()"));
+    }
+
     return 0;
 }
 

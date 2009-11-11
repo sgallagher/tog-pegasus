@@ -34,7 +34,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-void _putXMLInstance(
+void SCMOInternalXmlEncoder::_putXMLInstance(
     CIMBuffer& out,
     const SCMOInstance& ci)
 {
@@ -49,34 +49,41 @@ void _putXMLInstance(
     else
     {
         Buffer buf(4096);
-    
+
         // Serialize instance as XML.
         SCMOXmlWriter::appendInstanceElement(buf, ci);
         buf.append('\0');
-    
+
         out.putUint32(buf.size());
         out.putBytes(buf.getData(), buf.size());
         buf.clear();
-    
-        // Serialize object path as XML.
-    
-        // TODO: Enable this function to do its work
-        //SCMOXmlWriter::appendValueReferenceElement(buf, ci, true);
-        buf.append('\0');
-    
-        out.putUint32(buf.size());
-        out.putBytes(buf.getData(), buf.size());
-    
-        // Write hostname and namespace in UTF-16 format
-        Uint64 len=0;
-        const char* hn = ci.getHostName_l(len);
-        out.putUTF8AsString(hn, len);
-        const char * ns = ci.getNameSpace_l(len);
-        out.putUTF8AsString(ns, len);
+
+        if (0 == ci.getClassName())
+        {
+            out.putUint32(0);
+            out.putString(String());
+            out.putNamespaceName(CIMNamespaceName());
+        }
+        else
+        {
+            // Serialize object path as XML.
+            SCMOXmlWriter::appendValueReferenceElement(buf, ci, true);
+            buf.append('\0');
+
+            out.putUint32(buf.size());
+            out.putBytes(buf.getData(), buf.size());
+
+            // Write hostname and namespace in UTF-16 format
+            Uint64 len=0;
+            const char* hn = ci.getHostName_l(len);
+            out.putUTF8AsString(hn, len);
+            const char * ns = ci.getNameSpace_l(len);
+            out.putUTF8AsString(ns, len);
+        }
     }
 }
 
-void _putXMLNamedInstance(
+void SCMOInternalXmlEncoder::_putXMLNamedInstance(
     CIMBuffer& out,
     const SCMOInstance& ci)
 {
@@ -90,38 +97,46 @@ void _putXMLNamedInstance(
     else
     {
         Buffer buf(4096);
-    
+
         // Serialize instance as XML.
-        
+
         SCMOXmlWriter::appendInstanceElement(buf, ci);
         buf.append('\0');
-    
+
         out.putUint32(buf.size());
         out.putBytes(buf.getData(), buf.size());
         buf.clear();
-        
-    
-        // Serialize object path as XML.
-        SCMOXmlWriter::appendInstanceNameElement(buf, ci);
-        buf.append('\0');
-    
-        out.putUint32(buf.size());
-        out.putBytes(buf.getData(), buf.size());
-        
-        // Write hostname and namespace in UTF-16 format
-        Uint64 len=0;
-        const char* hn = ci.getHostName_l(len);
-        out.putUTF8AsString(hn, len);
-        const char * ns = ci.getNameSpace_l(len);
-        out.putUTF8AsString(ns, len);
+
+        if (0 == ci.getClassName())
+        {
+            out.putUint32(0);
+            out.putString(String());
+            out.putNamespaceName(CIMNamespaceName());
+        }
+        else
+        {
+            // Serialize object path as XML.
+            SCMOXmlWriter::appendInstanceNameElement(buf, ci);
+            buf.append('\0');
+
+            out.putUint32(buf.size());
+            out.putBytes(buf.getData(), buf.size());
+
+            // Write hostname and namespace in UTF-16 format
+            Uint64 len=0;
+            const char* hn = ci.getHostName_l(len);
+            out.putUTF8AsString(hn, len);
+            const char * ns = ci.getNameSpace_l(len);
+            out.putUTF8AsString(ns, len);
+        }
     }
 }
 
-void _putXMLInstanceName(
+void SCMOInternalXmlEncoder::_putXMLInstanceName(
     CIMBuffer& out,
     const SCMOInstance& cop)
 {
-    if (cop.isUninitialized())
+    if (0 == cop.getClassName())
     {
         out.putUint32(0);
         out.putUint32(0);
@@ -131,16 +146,14 @@ void _putXMLInstanceName(
     else
     {
         Buffer buf(4096);
-    
+
         // Serialize object path as XML.
-    
-        // TODO: Activate after implementing it in SCMOXmlWriter
-        //SCMOXmlWriter::appendValueReferenceElement(buf, cop, true);
+        SCMOXmlWriter::appendValueReferenceElement(buf, cop, true);
         buf.append('\0');
-     
+
         out.putUint32(buf.size());
         out.putBytes(buf.getData(), buf.size());
-    
+
         // Write hostname and namespace in UTF-16 format
         Uint64 len=0;
         const char* hn = cop.getHostName_l(len);
@@ -150,7 +163,7 @@ void _putXMLInstanceName(
     }
 }
 
-void _putXMLObject(
+void SCMOInternalXmlEncoder::_putXMLObject(
     CIMBuffer& out,
     const SCMOInstance& co)
 {
@@ -164,33 +177,38 @@ void _putXMLObject(
     else
     {
         Buffer buf(4096);
-    
+
         // Serialize instance as XML.
-        
-        // TODO: Activate after implementing it in SCMOXmlWriter        
-        // SCMOXmlWriter::appendObjectElement(buf, co);
+
+        SCMOXmlWriter::appendObjectElement(buf, co);
         buf.append('\0');
-    
+
         out.putUint32(buf.size());
         out.putBytes(buf.getData(), buf.size());
         buf.clear();
-        
-    
-        // Serialize object path as XML.
-    
-        // TODO: Activate after implementing it in SCMOXmlWriter
-        //SCMOXmlWriter::appendValueReferenceElement(buf, cop, true);
-        buf.append('\0');
-    
-        out.putUint32(buf.size());
-        out.putBytes(buf.getData(), buf.size());
 
-        // Write hostname and namespace in UTF-16 format
-        Uint64 len=0;
-        const char* hn = co.getHostName_l(len);
-        out.putUTF8AsString(hn, len);
-        const char * ns = co.getNameSpace_l(len);
-        out.putUTF8AsString(ns, len);
+        if (0 == co.getClassName())
+        {
+            out.putUint32(0);
+            out.putString(String());
+            out.putNamespaceName(CIMNamespaceName());
+        }
+        else
+        {
+            // Serialize object path as XML.
+            SCMOXmlWriter::appendValueReferenceElement(buf, co, true);
+            buf.append('\0');
+
+            out.putUint32(buf.size());
+            out.putBytes(buf.getData(), buf.size());
+
+            // Write hostname and namespace in UTF-16 format
+            Uint64 len=0;
+            const char* hn = co.getHostName_l(len);
+            out.putUTF8AsString(hn, len);
+            const char * ns = co.getNameSpace_l(len);
+            out.putUTF8AsString(ns, len);
+        }
     }
 }
 

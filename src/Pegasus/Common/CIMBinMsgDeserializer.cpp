@@ -1685,26 +1685,13 @@ CIMBinMsgDeserializer::_getEnumerateInstanceNamesResponseMessage(
 
     CIMResponseData& responseData = msg->getResponseData();
 
-    if (binaryResponse)
+    if (!responseData.setBinary(in))
     {
-        if (!responseData.setBinary(in))
-        {
-            delete(msg);
-            return 0;
-        }
-
-        return msg;
+        delete(msg);
+        return 0;
     }
-    else
-    {
-        if (!responseData.setXml(in))
-        {
-            delete(msg);
-            return 0;
-        }
 
-        return msg;
-    }
+    return msg;
 }
 
 CIMExecQueryResponseMessage*
@@ -1783,21 +1770,10 @@ CIMBinMsgDeserializer::_getAssociatorNamesResponseMessage(
 
     CIMResponseData& responseData = msg->getResponseData();
 
-    if (binaryResponse)
+    if (!responseData.setBinary(in))
     {
-        if (!responseData.setBinary(in))
-        {
-            delete(msg);
-            return 0;
-        }
-    }
-    else
-    {
-        if (!responseData.setXml(in))
-        {
-            delete(msg);
-            return 0;
-        }
+        delete(msg);
+        return 0;
     }
 
     return msg;
@@ -1815,21 +1791,10 @@ CIMBinMsgDeserializer::_getReferencesResponseMessage(
 
     CIMResponseData& responseData = msg->getResponseData();
 
-    if (binaryResponse)
+    if (!responseData.setBinary(in))
     {
-        if (!responseData.setBinary(in))
-        {
-            delete(msg);
-            return 0;
-        }
-    }
-    else
-    {
-        if (!responseData.setXml(in))
-        {
-            delete(msg);
-            return 0;
-        }
+        delete(msg);
+        return 0;
     }
 
     return msg;
@@ -1847,21 +1812,10 @@ CIMBinMsgDeserializer::_getReferenceNamesResponseMessage(
 
     CIMResponseData& responseData = msg->getResponseData();
 
-    if (binaryResponse)
+    if (!responseData.setBinary(in))
     {
-        if (!responseData.setBinary(in))
-        {
-            delete(msg);
-            return 0;
-        }
-    }
-    else
-    {
-        if (!responseData.setXml(in))
-        {
-            delete(msg);
-            return 0;
-        }
+        delete(msg);
+        return 0;
     }
 
     return msg;

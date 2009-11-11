@@ -964,8 +964,7 @@ void CIMBinMsgSerializer::_putGetInstanceResponseMessage(
     }
     else
     {
-        msg->getResponseData().encodeInternalXmlResponse(out);        
-        // _putXMLInstance(out, msg->getResponseData().getCimInstance());
+        msg->getResponseData().encodeInternalXmlResponse(out);
     }
 }
 
@@ -1002,17 +1001,6 @@ void CIMBinMsgSerializer::_putEnumerateInstancesResponseMessage(
     else
     {
         msg->getResponseData().encodeInternalXmlResponse(out);
-/*
-        const Array<CIMInstance>& a=msg->getResponseData().getNamedInstances();
-
-        Uint32 n = a.size();
-        out.putUint32(n);
-
-        for (Uint32 i = 0; i < n; i++)
-        {
-            _putXMLNamedInstance(out, a[i]);
-        }
-*/        
     }
 }
 
@@ -1020,29 +1008,10 @@ void CIMBinMsgSerializer::_putEnumerateInstanceNamesResponseMessage(
     CIMBuffer& out,
     CIMEnumerateInstanceNamesResponseMessage* msg)
 {
-    if (msg->binaryResponse)
-    {
-        CIMBuffer data(16 * 4096);
-        msg->getResponseData().encodeBinaryResponse(data);
-        out.putUint32(data.size());
-        out.putBytes(data.getData(), data.size());
-    }
-    else
-    {
-        msg->getResponseData().encodeInternalXmlResponse(out);
-/*
-        const Array<CIMObjectPath>& a =
-            msg->getResponseData().getInstanceNames();
-
-        Uint32 n = a.size();
-        out.putUint32(n);
-
-        for (Uint32 i = 0; i < n; i++)
-        {
-            _putXMLInstanceName(out, a[i]);
-        }
-*/        
-    }
+    CIMBuffer data(16 * 4096);
+    msg->getResponseData().encodeBinaryResponse(data);
+    out.putUint32(data.size());
+    out.putBytes(data.getData(), data.size());
 }
 
 void CIMBinMsgSerializer::_putExecQueryResponseMessage(
@@ -1059,17 +1028,6 @@ void CIMBinMsgSerializer::_putExecQueryResponseMessage(
     else
     {
         msg->getResponseData().encodeInternalXmlResponse(out);
-/*
-        const Array<CIMObject>& a = msg->getResponseData().getCIMObjects();
-
-        Uint32 n = a.size();
-        out.putUint32(n);
-
-        for (Uint32 i = 0; i < n; i++)
-        {
-            _putXMLObject(out, a[i]);
-        }
-*/        
     }
 }
 
@@ -1087,17 +1045,6 @@ void CIMBinMsgSerializer::_putAssociatorsResponseMessage(
     else
     {
         msg->getResponseData().encodeInternalXmlResponse(out);
-/*
-        const Array<CIMObject>& a = msg->getResponseData().getCIMObjects();
-
-        Uint32 n = a.size();
-        out.putUint32(n);
-
-        for (Uint32 i = 0; i < n; i++)
-        {
-            _putXMLObject(out, a[i]);
-        }
-*/        
     }
 }
 
@@ -1105,8 +1052,7 @@ void CIMBinMsgSerializer::_putAssociatorNamesResponseMessage(
     CIMBuffer& out,
     CIMAssociatorNamesResponseMessage* msg)
 {
-    msg->getResponseData().encodeInternalXmlResponse(out);
-/*
+/*  TODO: Implement for binary here, InternalXml response not supported
     out.putObjectPathA(msg->objectNames);
 */
 }
@@ -1115,8 +1061,7 @@ void CIMBinMsgSerializer::_putReferencesResponseMessage(
     CIMBuffer& out,
     CIMReferencesResponseMessage* msg)
 {
-    msg->getResponseData().encodeInternalXmlResponse(out);
-/*
+/*  TODO: Implement for binary here, InternalXml response not supported
     out.putObjectA(msg->cimObjects);
 */
 }
@@ -1125,8 +1070,7 @@ void CIMBinMsgSerializer::_putReferenceNamesResponseMessage(
     CIMBuffer& out,
     CIMReferenceNamesResponseMessage* msg)
 {
-    msg->getResponseData().encodeInternalXmlResponse(out);
-/*
+/*  TODO: Implement for binary here, InternalXml response not supported
     out.putObjectPathA(msg->objectNames);
 */
 }

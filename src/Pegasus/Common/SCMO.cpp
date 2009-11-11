@@ -378,7 +378,15 @@ const char* SCMOClass::getSuperClassName() const
 
 const char* SCMOClass::getSuperClassName_l(Uint64 & length) const
 {
-    length = cls.hdr->superClassName.size-1;
+    length = cls.hdr->superClassName.size;
+    if (0 == length)
+    {
+        return 0;
+    }
+    else
+    {
+        length--;
+    }
     return _getCharString(cls.hdr->superClassName,cls.base);
 }
 
@@ -2358,7 +2366,15 @@ const char* SCMOInstance::getHostName() const
 
 const char* SCMOInstance::getHostName_l(Uint64& length) const
 {
-    length = inst.hdr->hostName.size-1;
+    length = inst.hdr->hostName.size;
+    if (0 == length)
+    {
+        return 0;
+    }
+    else
+    {
+        length--;
+    }
     return _getCharString(inst.hdr->hostName,inst.base);
 }
 
@@ -2392,7 +2408,15 @@ const char* SCMOInstance::getClassName() const
 
 const char* SCMOInstance::getClassName_l(Uint64 & length) const
 {
-    length = inst.hdr->instClassName.size-1;
+    length = inst.hdr->instClassName.size;
+    if (0 == length)
+    {
+        return 0;
+    }
+    else
+    {
+        length--;
+    }
     return _getCharString(inst.hdr->instClassName,inst.base);
 }
 
@@ -2430,7 +2454,15 @@ const char* SCMOInstance::getNameSpace() const
 
 const char* SCMOInstance::getNameSpace_l(Uint64 & length) const
 {
-    length = inst.hdr->instNameSpace.size-1;
+    length = inst.hdr->instNameSpace.size;
+    if (0 == length)
+    {
+        return 0;
+    }
+    else
+    {
+        length--;
+    }
     return _getCharString(inst.hdr->instNameSpace,inst.base);
 }
 

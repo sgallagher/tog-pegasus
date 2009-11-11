@@ -267,15 +267,21 @@ public:
     // data will be read as String later
     void putUTF8AsString(const char * x, size_t x_size)
     {
-        // Won't need more than 2*length of x bytes
-        Uint16 * p = (Uint16*) malloc(x_size << 1);
-
-        size_t utf8_error_index;
-        size_t new_size = _convert(p, x, x_size, utf8_error_index);
-
-        putUint32(new_size);
-        putBytes(p, new_size << 1);
-        free(p);
+        if (0 == x_size || 0 == x)
+        {
+            putUint32(0);
+            putBytes("", 0);
+        }
+        else
+        {
+            // Won't need more than 2*length of x bytes
+            Uint16 * p = (Uint16*) malloc(x_size << 1);
+            size_t utf8_error_index;
+            size_t new_size = _convert(p, x, x_size, utf8_error_index);
+            putUint32(new_size);
+            putBytes(p, new_size << 1);
+            free(p);
+        }
     }
 
     void putDateTime(const CIMDateTime& x)

@@ -31,10 +31,11 @@
 
 
 #include "CIMInternalXmlEncoder.h"
+#include "XmlWriter.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-void _putXMLInstance(
+void CIMInternalXmlEncoder::_putXMLInstance(
     CIMBuffer& out,
     const CIMInstance& ci)
 {
@@ -82,7 +83,7 @@ void _putXMLInstance(
     }
 }
 
-void _putXMLNamedInstance(
+void CIMInternalXmlEncoder::_putXMLNamedInstance(
     CIMBuffer& out,
     const CIMInstance& ci)
 {
@@ -130,7 +131,7 @@ void _putXMLNamedInstance(
     }
 }
 
-void _putXMLInstanceName(
+void CIMInternalXmlEncoder::_putXMLInstanceName(
     CIMBuffer& out,
     const CIMObjectPath& cop)
 {
@@ -156,7 +157,7 @@ void _putXMLInstanceName(
     }
 }
 
-void _putXMLObject(
+void CIMInternalXmlEncoder::_putXMLObject(
     CIMBuffer& out,
     const CIMObject& co)
 {

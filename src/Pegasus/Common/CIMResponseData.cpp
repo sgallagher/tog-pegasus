@@ -34,6 +34,8 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/SCMOXmlWriter.h>
 #include <Pegasus/Common/XmlReader.h>
+#include <Pegasus/Common/CIMInternalXmlEncoder.h>
+#include <Pegasus/Common/SCMOInternalXmlEncoder.h>
 
 PEGASUS_USING_STD;
 
@@ -56,6 +58,10 @@ CIMInstance& CIMResponseData::getInstance()
 {
     PEGASUS_DEBUG_ASSERT(_dataType == RESP_INSTANCE);
     _resolveToCIM();
+    if (0 == _instances.size())
+    {
+        _instances.append(CIMInstance());
+    }
     return _instances[0];
 }
 
@@ -133,60 +139,146 @@ bool CIMResponseData::setBinary(CIMBuffer& in, bool hasLen)
 
 bool CIMResponseData::setXml(CIMBuffer& in)
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-        "CIMResponseData::setXml");
-
-    if (_dataType == RESP_INSTNAMES)
+    switch (_dataType)
     {
-        Uint32 count;
-
-        if (!in.getUint32(count))
+        case RESP_INSTANCE:
         {
-            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                "Failed to get XML objectpath data (number of paths)!");
-            PEG_METHOD_EXIT();
-            return false;
-        }
-
-        for (Uint32 i = 0; i < count; i++)
-        {
+            Array<Sint8> inst;
             Array<Sint8> ref;
             CIMNamespaceName ns;
             String host;
-
+            if (!in.getSint8A(inst))
+            {
+                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                    "Failed to get XML instance data!");
+                return false;
+            }
+            _instanceData.insert(0,inst);
             if (!in.getSint8A(ref))
             {
                 PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-                    "Failed to get XML objectpath data (references)!");
-                PEG_METHOD_EXIT();
+                    "Failed to get XML instance data (reference)!");
                 return false;
             }
-
+            _referencesData.insert(0,ref);
             if (!in.getString(host))
             {
                 PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                     "Failed to get XML instance data (host)!");
-                PEG_METHOD_EXIT();
                 return false;
             }
-
+            _hostsData.insert(0,host);
             if (!in.getNamespaceName(ns))
             {
                 PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
                     "Failed to get XML instance data (namespace)!");
-                PEG_METHOD_EXIT();
                 return false;
             }
-
-            _referencesData.append(ref);
-            _hostsData.append(host);
-            _nameSpacesData.append(ns);
+            _nameSpacesData.insert(0,ns);
+            break;
+        }
+        case RESP_INSTANCES:
+        {
+            Uint32 count;
+            if (!in.getUint32(count))
+            {
+                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                    "Failed to get XML instance data (number of instance)!");
+                return false;
+            }
+            for (Uint32 i = 0; i < count; i++)
+            {
+                Array<Sint8> inst;
+                Array<Sint8> ref;
+                CIMNamespaceName ns;
+                String host;
+                if (!in.getSint8A(inst))
+                {
+                    PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                        "Failed to get XML instance data (instances)!");
+                    return false;
+                }
+                if (!in.getSint8A(ref))
+                {
+                    PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                        "Failed to get XML instance data (references)!");
+                    return false;
+                }
+                if (!in.getString(host))
+                {
+                    PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                        "Failed to get XML instance data (host)!");
+                    return false;
+                }
+                if (!in.getNamespaceName(ns))
+                {
+                    PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                        "Failed to get XML instance data (namespace)!");
+                    return false;
+                }
+                _instanceData.append(inst);
+                _referencesData.append(ref);
+                _hostsData.append(host);
+                _nameSpacesData.append(ns);
+            }
+            break;
+        }
+        case RESP_OBJECTS:
+        {
+            Uint32 count;
+            if (!in.getUint32(count))
+            {
+                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                    "Failed to get XML object data (number of objects)!");
+                return false;
+            }
+            for (Uint32 i = 0; i < count; i++)
+            {
+                Array<Sint8> obj;
+                Array<Sint8> ref;
+                CIMNamespaceName ns;
+                String host;
+                if (!in.getSint8A(obj))
+                {
+                    PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                        "Failed to get XML object data (object)!");
+                    return false;
+                }
+                if (!in.getSint8A(ref))
+                {
+                    PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                        "Failed to get XML object data (reference)!");
+                    return false;
+                }
+                if (!in.getString(host))
+                {
+                    PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                        "Failed to get XML object data (host)!");
+                    return false;
+                }
+                if (!in.getNamespaceName(ns))
+                {
+                    PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                        "Failed to get XML object data (namespace)!");
+                    return false;
+                }
+                _instanceData.append(obj);
+                _referencesData.append(ref);
+                _hostsData.append(host);
+                _nameSpacesData.append(ns);
+            }
+            break;
+        }
+        // internal xml encoding of instance names and object paths not
+        // done today
+        case RESP_INSTNAMES:
+        case RESP_OBJECTPATHS:
+        default:
+        {
+            PEGASUS_DEBUG_ASSERT(false);
         }
     }
-    // TODO: Code the left out types
-
     _encoding |= RESP_ENC_XML;
-    PEG_METHOD_EXIT();
     return true;
 }
 
@@ -242,10 +334,11 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
             }
             case RESP_INSTANCE:
             {
-                if (0 != _instances.size())
+                if (0 == _instances.size())
                 {
-                    out.putInstance(_instances[0], false, false);
+                    _instances.append(CIMInstance());
                 }
+                out.putInstance(_instances[0], false, false);
                 break;
             }
             case RESP_INSTANCES:
@@ -300,6 +393,8 @@ void CIMResponseData::completeNamespace(const SCMOInstance * x)
         {
             case RESP_INSTANCE:
             {
+                if (_instances.size() > 0)
+                {
                     const CIMInstance& inst = _instances[0];
                     CIMObjectPath& p =
                         const_cast<CIMObjectPath&>(inst.getPath());
@@ -307,6 +402,7 @@ void CIMResponseData::completeNamespace(const SCMOInstance * x)
                     {
                         p.setNameSpace(nsName);
                     }
+                }
             }
             case RESP_INSTANCES:
             {
@@ -463,20 +559,10 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
     {
         switch (_dataType)
         {
-            case RESP_INSTNAMES:
-            {
-                const Array<ArraySint8>& a = _referencesData;
-                for (Uint32 i = 0, n = a.size(); i < n; i++)
-                {
-                    out.append((char*)a[i].getData(), a[i].size() - 1);
-                }
-                break;
-            }
             case RESP_INSTANCE:
             {
-                out.append(
-                    (char*)_instanceData.getData(),
-                    _instanceData.size()-1);
+                const Array<ArraySint8>& a = _instanceData;
+                out.append((char*)a[0].getData(), a[0].size() - 1);
                 break;
             }
             case RESP_INSTANCES:
@@ -507,20 +593,10 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
                 }
                 break;
             }
+            // internal xml encoding of instance names and object paths not
+            // done today
+            case RESP_INSTNAMES:
             case RESP_OBJECTPATHS:
-            {
-                // TODO: Check what to do in this case
-                const Array<ArraySint8>& a = _instanceData;
-                const Array<ArraySint8>& b = _referencesData;
-
-                for (Uint32 i = 0, n = a.size(); i < n; i++)
-                {
-                    out << STRLIT("<VALUE.OBJECTWITHPATH>\n");
-                    out.append((char*)b[i].getData(), b[i].size() - 1);
-                    out.append((char*)a[i].getData(), a[i].size() - 1);
-                    out << STRLIT("</VALUE.OBJECTWITHPATH>\n");
-                }
-            }
             default:
             {
                 PEGASUS_DEBUG_ASSERT(false);
@@ -542,7 +618,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
             }
             case RESP_INSTANCE:
             {
-                if (_instances.size()>0)
+                if (_instances.size() > 0)
                 {
                     XmlWriter::appendInstanceElement(out, _instances[0]);
                 }
@@ -653,12 +729,105 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
 // not usable by clients
 void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
 {
-    // TODO: Implement
-    // Need the full switch here again
-    // Should use the internal data available SCMO, C++ and InternalXML
-    // to generate the InternalXML by CIMInternalEncoder and SCMOInternalEncoder
-    fprintf(stderr, "Watch wat ya do'n! SCMO to InternalXml ? NO OOP yet.\n");
-    fflush(stderr);
+    // already existing Internal XML does not need to be encoded further
+    // binary input is not actually impossible here, but we have an established
+    // fallback
+    if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
+    {
+        _resolveBinary();
+    }
+    if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
+    {
+        switch (_dataType)
+        {
+            case RESP_INSTANCE:
+            {
+                if (0 == _instances.size())
+                {
+                    _instances.append(CIMInstance());
+                }
+                CIMInternalXmlEncoder::_putXMLInstance(out, _instances[0]);
+                break;
+            }
+            case RESP_INSTANCES:
+            {
+                Uint32 n = _instances.size();
+                out.putUint32(n);
+                for (Uint32 i = 0; i < n; i++)
+                {
+                    CIMInternalXmlEncoder::_putXMLNamedInstance(
+                        out,
+                        _instances[i]);
+                }
+                break;
+            }
+            case RESP_OBJECTS:
+            {
+                Uint32 n = _objects.size();
+                out.putUint32(n);
+                for (Uint32 i = 0; i < n; i++)
+                {
+                    CIMInternalXmlEncoder::_putXMLObject(out, _objects[i]);
+                }
+                break;
+            }
+            // internal xml encoding of instance names and object paths not
+            // done today
+            case RESP_INSTNAMES:
+            case RESP_OBJECTPATHS:
+            default:
+            {
+                PEGASUS_DEBUG_ASSERT(false);
+            }
+        }
+    }
+    if (RESP_ENC_SCMO == (_encoding & RESP_ENC_SCMO))
+    {
+        switch (_dataType)
+        {
+            case RESP_INSTANCE:
+            {
+                if (0 == _scmoInstances.size())
+                {
+                    _scmoInstances.append(SCMOInstance());
+                }
+                SCMOInternalXmlEncoder::_putXMLInstance(out, _scmoInstances[0]);
+                break;
+            }
+            case RESP_INSTANCES:
+            {
+                Uint32 n = _scmoInstances.size();
+                out.putUint32(n);
+                for (Uint32 i = 0; i < n; i++)
+                {
+                    SCMOInternalXmlEncoder::_putXMLNamedInstance(
+                            out,
+                            _scmoInstances[i]);
+                }
+                break;
+            }
+            case RESP_OBJECTS:
+            {
+                Uint32 n = _scmoInstances.size();
+                out.putUint32(n);
+                for (Uint32 i = 0; i < n; i++)
+                {
+                    SCMOInternalXmlEncoder::_putXMLObject(
+                        out,
+                        _scmoInstances[i]);
+                }
+                break;
+            }
+            // internal xml encoding of instance names and object paths not
+            // done today
+            case RESP_INSTNAMES:
+            case RESP_OBJECTPATHS:
+            default:
+            {
+                PEGASUS_DEBUG_ASSERT(false);
+            }
+        }
+    }
 }
 
 void CIMResponseData::_resolveToCIM()
@@ -998,6 +1167,7 @@ void CIMResponseData::_resolveCIMToSCMO()
             if (_instances.size() > 0)
             {
                 SCMOInstance addme(_instances[0]);
+                _scmoInstances.clear();
                 _scmoInstances.append(addme);
                 _instances.clear();
             }

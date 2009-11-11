@@ -329,9 +329,7 @@ extern "C"
         }
         else
         {
-            // Now we simply create a second reference of the SCMOInstance which
-            // we received as CMPIObjectPath and account it as CMPIInstance.
-            newScmoInst = new SCMOInstance(*scmoOp);
+            newScmoInst = new SCMOInstance(scmoOp->clone());
         }
         CMPIInstance* neInst = reinterpret_cast<CMPIInstance*>(
             new CMPI_Object(newScmoInst, CMPI_Object::ObjectTypeInstance));

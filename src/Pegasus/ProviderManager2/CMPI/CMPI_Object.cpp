@@ -103,6 +103,19 @@ CMPI_Object::CMPI_Object(const char *str)
     ftab = CMPI_String_Ftab;
 }
 
+CMPI_Object::CMPI_Object(const char *str, Uint64 len)
+{
+    CMPI_ThreadContext::addObject(this);
+    char * newStr = (char*)malloc(len+1);
+    if (0!=str)
+    {
+        memcpy(newStr, str, len);
+    }
+    newStr[len]='\0';
+    hdl = newStr;
+    ftab = CMPI_String_Ftab;
+}
+
 CMPI_Object::CMPI_Object(Array<CIMParamValue> *args)
 {
     CMPI_ThreadContext::addObject(this);

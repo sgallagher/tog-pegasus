@@ -146,8 +146,9 @@ extern "C"
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
         }
-        const char *ns = ref->getNameSpace();
-        CMPIString *eNs = string2CMPIString(ns);
+        Uint64 len=0;
+        const char *ns = ref->getNameSpace_l(len);
+        CMPIString *eNs = string2CMPIString(ns,len);
         CMSetStatus(rc, CMPI_RC_OK);
         return eNs;
     }
@@ -190,8 +191,9 @@ extern "C"
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
         }
-        const char* hn = ref->getHostName();
-        CMPIString *eHn = string2CMPIString(hn);
+        Uint64 len=0;
+        const char *hn = ref->getHostName_l(len);
+        CMPIString *eHn = string2CMPIString(hn,len);
         CMSetStatus(rc, CMPI_RC_OK);
         return eHn;
     }
@@ -244,8 +246,9 @@ extern "C"
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
         }
-        const char* cn = ref->getClassName();
-        CMPIString* eCn = string2CMPIString(cn);
+        Uint64 len=0;
+        const char* cn = ref->getClassName_l(len);
+        CMPIString* eCn = string2CMPIString(cn,len);
         CMSetStatus(rc, CMPI_RC_OK);
         return eCn;
     }

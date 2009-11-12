@@ -80,6 +80,7 @@ public:
     CMPI_Object(OperationContext*);
     CMPI_Object(const String&);
     CMPI_Object(const char*);
+    CMPI_Object(const char*, Uint64 len);
     CMPI_Object(Array<CIMParamValue>*);
     CMPI_Object(CMPI_Array*);
     CMPI_Object(CMPI_Object*);

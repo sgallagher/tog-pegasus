@@ -176,6 +176,12 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
             }
             break;
         }
+        case CMPI_boolean:
+        {
+            scmoData.simple.val.u64 = data->boolean;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
         case CMPI_uint8:
         {
             scmoData.simple.val.u64 = data->uint8;
@@ -224,12 +230,35 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
             scmoData.simple.hasValue = 1;
             break;
         }
+        case CMPI_real32:
+        {
+            scmoData.simple.val.u64 = data->real32;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_real64:
+        {
+            scmoData.simple.val.u64 = data->sint64;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_char16:
+        {
+            scmoData.simple.val.u64 = data->char16;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
         default:
         {
-            PEGASUS_ASSERT(false);
+            // received a non-valid CMPIType as input
+            // place a trace message and do nothing
+            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                "value2SCMOValue() received invalid CMPIType(%hu).",type));
+            fprintf(stderr,"value2SCMOValue() received type=%hu\n",type);
+            fflush(stderr);
+            PEGASUS_DEBUG_ASSERT(false);
         }
     }
-
     return scmoData;
 }
 

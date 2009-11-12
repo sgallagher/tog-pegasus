@@ -43,6 +43,7 @@
 #include <Pegasus/Common/Mutex.h>
 #include <string.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/ProviderManager2/CMPI/CMPI_ThreadContext.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -51,6 +52,26 @@ Mutex errorChainMutex;
 
 extern "C"
 {
+
+    // Gets the invaction flags from the thread context and sets them
+    // on an SCMOInstance object
+    PEGASUS_STATIC inline void appendInvocationFlags(SCMOInstance& inst)
+    {
+        const CMPIContext *ctx = CMPI_ThreadContext::getContext();
+        if (0!=ctx)
+        {
+            CMPIFlags flgs = ctx->ft->getEntry(
+                ctx,CMPIInvocationFlags,NULL).value.uint32;
+            if (flgs & CMPI_FLAG_IncludeQualifiers)
+            {
+                inst.includeQualifiers();
+            }
+            if (flgs & CMPI_FLAG_IncludeClassOrigin)
+            {
+                inst.includeClassOrigins();
+            }
+        }
+    }
 
     PEGASUS_STATIC CMPIStatus resultReturnData(
         const CMPIResult* eRes,
@@ -217,6 +238,8 @@ extern "C"
             SCMOInstance& inst=*(SCMOInstance*)(eInst->hdl);
             CMPI_Result *xRes=(CMPI_Result*)eRes;
 
+            appendInvocationFlags(inst);
+
             // Ensure that the instance includes a valid ObjectPath with
             // all key properties set, for which the according property
             // has been set on the instance.
@@ -280,6 +303,8 @@ extern "C"
             }
             SCMOInstance& inst=*(SCMOInstance*)(eInst->hdl);
             CMPI_Result *xRes=(CMPI_Result*)eRes;
+
+            appendInvocationFlags(inst);
 
             // Ensure that the instance includes a valid ObjectPath with
             // all key properties set, for which the according property
@@ -890,10 +915,10 @@ CMPI_ResultOnStack::~CMPI_ResultOnStack()
                 currErr!=NULL;
                 currErr=nextErr)
             {
-                nextErr = currErr->nextError;    
+                nextErr = currErr->nextError;
                 ((CMPIError*)currErr)->ft->release(currErr);
             }
-        } 
+        }
         if ((flags & RESULT_set)==0)
         {
             if (ft==CMPI_ResultRefOnStack_Ftab)

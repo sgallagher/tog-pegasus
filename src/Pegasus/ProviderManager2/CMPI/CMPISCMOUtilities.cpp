@@ -127,7 +127,6 @@ SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMInstance(
     const char* ns,
     const char* cls)
 {
-    Boolean isDirty=false;
     const CIMObjectPath& cimPath = cimInst.getPath();
 
     const CString nameSpace = cimPath.getNameSpace().getString().getCString();
@@ -142,18 +141,18 @@ SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMInstance(
         cls = (const char*)className;
     }
 
+    SCMOInstance* scmoInst=0;
+
     SCMOClass* scmoClass = mbGetSCMOClass(ns,strlen(ns),cls,strlen(cls));
 
-    if (0 == scmoClass)
+    if (0 != scmoClass)
     {
-        isDirty=true;
-        scmoClass = new SCMOClass(cls,ns);
+        scmoInst = new SCMOInstance(*scmoClass, cimInst);
     }
-
-    SCMOInstance* scmoInst = new SCMOInstance(*scmoClass, cimInst);
-
-    if (isDirty)
+    else
     {
+        SCMOClass localDirtySCMOClass(cls,ns);
+        scmoInst = new SCMOInstance(localDirtySCMOClass, cimInst);
         scmoInst->markAsCompromised();
     }
 
@@ -184,15 +183,15 @@ SCMOInstance* CMPISCMOUtilities::getSCMOFromCIMObjectPath(
 
     SCMOClass* scmoClass = mbGetSCMOClass(ns,strlen(ns),cls,strlen(cls));
 
-    if (0 == scmoClass)
+    if (0 != scmoClass)
+    {
+        scmoRef = new SCMOInstance(*scmoClass, cimPath);
+    }
+    else
     {
         SCMOClass localDirtySCMOClass(cls,ns);
         scmoRef = new SCMOInstance(localDirtySCMOClass, cimPath);
         scmoRef->markAsCompromised();
-    }
-    else
-    {
-        scmoRef = new SCMOInstance(*scmoClass, cimPath);
     }
 
 

@@ -232,13 +232,13 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
         }
         case CMPI_real32:
         {
-            scmoData.simple.val.u64 = data->real32;
+            scmoData.simple.val.r32 = data->real32;
             scmoData.simple.hasValue = 1;
             break;
         }
         case CMPI_real64:
         {
-            scmoData.simple.val.u64 = data->sint64;
+            scmoData.simple.val.r64 = data->real64;
             scmoData.simple.hasValue = 1;
             break;
         }

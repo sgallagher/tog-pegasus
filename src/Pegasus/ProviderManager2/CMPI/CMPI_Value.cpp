@@ -176,11 +176,57 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
             }
             break;
         }
-        default:
+        case CMPI_uint8:
+        {
+            scmoData.simple.val.u64 = data->uint8;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_uint16:
+        {
+            scmoData.simple.val.u64 = data->uint16;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_uint32:
+        {
+            scmoData.simple.val.u64 = data->uint32;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_uint64:
         {
             scmoData.simple.val.u64 = data->uint64;
             scmoData.simple.hasValue = 1;
             break;
+        }
+        case CMPI_sint8:
+        {
+            scmoData.simple.val.s64 = data->sint8;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_sint16:
+        {
+            scmoData.simple.val.s64 = data->sint16;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_sint32:
+        {
+            scmoData.simple.val.s64 = data->sint32;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_sint64:
+        {
+            scmoData.simple.val.s64 = data->sint64;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        default:
+        {
+            PEGASUS_ASSERT(false);
         }
     }
 
@@ -479,8 +525,11 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
                 break;
 
             case CMPI_boolean:
-                v.set((Boolean&)data->boolean);
-                break;
+                {
+                    Boolean tmp=data->boolean;
+                    v.set(tmp);
+                    break;
+                }
 
             case CMPI_char16:
                 v.set((Char16)data->char16);
@@ -787,8 +836,12 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                 break;
 
             case CMPI_boolean:
-                v.get((Boolean&)data->value.boolean);
+            {
+                Boolean tmp=0;
+                v.get(tmp);
+                data->value.boolean = (CMPIBoolean)(tmp);
                 break;
+            }
 
             case CMPI_char16:
                 v.get((Char16&)data->value.char16);

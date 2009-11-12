@@ -192,28 +192,7 @@ inline void _deleteArrayExtReference(
         for (Uint32 i = 0 ; i < oldArraySize ; i++)
         {
             delete ptr[i].extRefPtr;
-        }
-    }
-}
-
-inline void _copyArrayExtReference(
-    SCMBDataPtr& theArray,
-    SCMBMgmt_Header** pmem )
-{
-    SCMBUnion* ptr;
-    // if the array was already set,
-    // the previous references has to be deleted
-    if(theArray.size != 0)
-    {
-        Uint32 oldArraySize=(theArray.size/sizeof(SCMBUnion));
-
-        ptr = (SCMBUnion*)&(((char*)*pmem)[theArray.start]);
-        for (Uint32 i = 0 ; i < oldArraySize ; i++)
-        {
-            if (ptr[i].extRefPtr != 0)
-            {
-                ptr[i].extRefPtr = new SCMOInstance(*ptr[i].extRefPtr);
-            }
+            ptr[i].extRefPtr = 0;
         }
     }
 }
@@ -228,42 +207,6 @@ SCMOClass::SCMOClass()
     _setBinary("",1,cls.hdr->className,&cls.mem );
     _setBinary("",1,cls.hdr->nameSpace,&cls.mem );
     cls.hdr->flags.isEmpty=true;
-}
-
-void SCMOClass::_destroyExternalReferences()
-{
-    // TODO: Has to be optimized not to loop through all props.
-    // Address the property array
-    SCMBClassPropertyNode* nodeArray =
-        (SCMBClassPropertyNode*)
-            &(cls.base[cls.hdr->propertySet.nodeArray.start]);
-
-    SCMBValue* theValue;
-
-    for (Uint32 i = 0; i < cls.hdr->propertySet.number; i++)
-    {
-        theValue = &(nodeArray[i].theProperty.defaultValue);
-
-        // if not an NULL value !
-        if(!theValue->flags.isNull)
-        {
-            if (theValue->valueType == CIMTYPE_REFERENCE ||
-                theValue->valueType == CIMTYPE_OBJECT ||
-                theValue->valueType == CIMTYPE_INSTANCE )
-            {
-                if (theValue->flags.isArray)
-                {
-                    _deleteArrayExtReference(
-                        theValue->value.arrayValue,
-                        &cls.mem);
-                }
-                else
-                {
-                    delete theValue->value.extRefPtr;
-                }  // end is Array
-            } // end is ext. reference.
-        }// end is not null
-    }// loop throug all properties
 }
 
 inline void SCMOClass::_initSCMOClass()
@@ -369,6 +312,11 @@ SCMOClass::SCMOClass(
     //set properties
     _setClassProperties(theCIMClass._rep->_properties);
 
+}
+
+void SCMOClass::_destroyExternalReferences()
+{
+    _destroyExternalReferencesInternal(cls.mem);
 }
 
 const char* SCMOClass::getSuperClassName() const
@@ -1362,6 +1310,12 @@ SCMOInstance::SCMOInstance(
     }
 }
 
+
+void SCMOInstance::_destroyExternalReferences()
+{
+    _destroyExternalReferencesInternal(inst.mem);
+}
+
 SCMOClass SCMOInstance::_getSCMOClass(
     const CIMObjectPath& theCIMObj,
     const char* altNS,
@@ -1403,98 +1357,85 @@ SCMOClass SCMOInstance::_getSCMOClass(
     return theClass;
 }
 
+#define PEGASUS_SIZE_REFERENCE_INDEX_ARRAY 8
+
+void SCMOInstance::_setExtRefIndex(SCMBUnion* pInst, SCMBMgmt_Header** pmem)
+{
+
+    Uint64 idx =(((char *)pInst) - (char *)(*pmem));
+    SCMBMgmt_Header* memHdr = (*pmem);
+
+    // Allocate the external reflerence array
+    // if it is full or empty ( 0 == 0 ).
+    if (memHdr->numberExtRef == memHdr->sizeExtRefIndexArray)
+    {
+        Uint64 oldArrayStart = memHdr->extRefIndexArray.start;
+        Uint32 newSize =
+            memHdr->sizeExtRefIndexArray + PEGASUS_SIZE_REFERENCE_INDEX_ARRAY;
+
+        // Allocate the external reference index array
+        _getFreeSpace(
+              memHdr->extRefIndexArray,
+              sizeof(Uint64)*newSize,
+              pmem);
+
+        // reset the pointer. It could be changed due to reallocation !
+        memHdr = (*pmem);
+
+        // Assign new size.
+        memHdr->sizeExtRefIndexArray=newSize;
+
+        // Get absolute pointer to old index array.
+        Uint64* oldArray = (Uint64*)&(((char*)(*pmem))[oldArrayStart]);
+        // Get absolute pointer to new index array
+        Uint64* newArray =
+            (Uint64*)&(((char*)(*pmem))[memHdr->extRefIndexArray.start]);
+        // Save the number of external references in the array
+        Uint32 noExtRef = memHdr->numberExtRef;
+
+        // Copy all elements of the old array to the new.
+        // If noExtRef = 0, no elements are copied.
+        for (Uint32 i = 0 ; i < noExtRef ; i++)
+        {
+            newArray[i] = oldArray[i];
+        }
+    }
+
+    // Get absolute pointer to the array
+    Uint64* array =
+        (Uint64*)&(((char*)(*pmem))[memHdr->extRefIndexArray.start]);
+    // Set the new index
+    array[memHdr->numberExtRef] = idx;
+    // increment the nuber of external references of this SCMOInstance;
+    memHdr->numberExtRef++;
+
+}
 
 void SCMOInstance::_copyExternalReferences()
 {
-    // TODO: Has to be optimized not to loop through all props.
-    // create a pointer to keybinding node array of the class.
-    Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
-    SCMBKeyBindingNode* theClassKeyBindNodeArray =
-        (SCMBKeyBindingNode*)&((inst.hdr->theClass->cls.base)[idx]);
+    Uint32 number = inst.mem->numberExtRef;
 
-    // create a pointer to instanc key binding array.
-    SCMBKeyBindingValue* theInstanceKeyBindingNodeArray =
-        (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
-
-    for (Uint32 i = 0; i < inst.hdr->numberKeyBindings; i++)
+    if (0 != number)
     {
-        if (theInstanceKeyBindingNodeArray[i].isSet)
+        SCMBUnion* pUnion;
+        Uint64* array =
+            (Uint64*)&(inst.base[inst.mem->extRefIndexArray.start]);
+        for (Uint32 i = 0; i < number; i++)
         {
-            // only references can be a key binding.
-            if (theClassKeyBindNodeArray[i].type == CIMTYPE_REFERENCE)
+            pUnion = (SCMBUnion*)(&(inst.base[array[i]]));
+            if (0 != pUnion)
             {
-                // Use the copy constructro to ref. count the reference.
-                // These objects are handeld by the SCMOInstance it sef.
-                // No one can modify these instances.
-                theInstanceKeyBindingNodeArray[i].data.extRefPtr =
-                    new SCMOInstance(
-                        *theInstanceKeyBindingNodeArray[i].data.extRefPtr);
+                pUnion->extRefPtr = new SCMOInstance(*(pUnion->extRefPtr));
             }
         }
-    }// for all key bindings defined in the class
 
-    // Are there user defined key bindings ?
-    if (0 != inst.hdr->numberUserKeyBindings)
-    {
-        SCMBUserKeyBindingElement* theUserDefKBElement =
-            (SCMBUserKeyBindingElement*)
-                 &(inst.base[inst.hdr->userKeyBindingElement.start]);
-
-        for(Uint32 i = 0; i < inst.hdr->numberUserKeyBindings; i++)
-        {
-            if (theUserDefKBElement->value.isSet)
-            {
-                // only references can be a key binding.
-                if (theUserDefKBElement->type == CIMTYPE_REFERENCE)
-                {
-                    // Use the copy constructro to ref. count the reference.
-                    // These objects are handeld by the SCMOInstance it sef.
-                    // No one can modify these instances.
-                    theUserDefKBElement->value.data.extRefPtr =
-                        new SCMOInstance(
-                            *theUserDefKBElement->value.data.extRefPtr);
-                }
-            }
-
-            theUserDefKBElement =
-                (SCMBUserKeyBindingElement*)
-                     &(inst.base[theUserDefKBElement->nextElement.start]);
-        } // for all user def. key bindings.
     }
 
-    SCMBValue* theInstPropArray =
-        (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
-
-    for (Uint32 i = 0; i < inst.hdr->numberProperties; i++)
-    {
-        // was the property set by the provider ?
-        if(theInstPropArray[i].flags.isSet)
-        {
-            // is the property type reference,instance or object?
-            if (theInstPropArray[i].valueType == CIMTYPE_REFERENCE ||
-                theInstPropArray[i].valueType == CIMTYPE_OBJECT ||
-                theInstPropArray[i].valueType == CIMTYPE_INSTANCE )
-            {
-                if (theInstPropArray[i].flags.isArray)
-                {
-                    _copyArrayExtReference(
-                        theInstPropArray[i].value.arrayValue,
-                        &inst.mem);
-                }
-                else
-                {
-                    theInstPropArray[i].value.extRefPtr =
-                        new SCMOInstance(*theInstPropArray[i].value.extRefPtr);
-                } // end is arry
-            } // end is reference
-        }// end is set
-    } // for all properties.
 }
 
 void SCMOInstance::_destroyExternalKeyBindings()
 {
-    // TODO: Has to be optimized not to loop through all key bindings.
-    // create a pointer to keybinding node array of the class.
+    // Create a pointer to keybinding node array of the class.
     Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
     SCMBKeyBindingNode* theClassKeyBindNodeArray =
         (SCMBKeyBindingNode*)&((inst.hdr->theClass->cls.base)[idx]);
@@ -1538,38 +1479,6 @@ void SCMOInstance::_destroyExternalKeyBindings()
                      &(inst.base[theUserDefKBElement->nextElement.start]);
         } // for all user def. key bindings.
     }
-}
-
-void SCMOInstance::_destroyExternalReferences()
-{
-    _destroyExternalKeyBindings();
-
-    SCMBValue* theInstPropArray =
-        (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
-
-    for (Uint32 i = 0; i < inst.hdr->numberProperties; i++)
-    {
-        // was the property set by the provider ?
-        if(theInstPropArray[i].flags.isSet)
-        {
-            // is the property type reference,instance or object?
-            if (theInstPropArray[i].valueType == CIMTYPE_REFERENCE ||
-                theInstPropArray[i].valueType == CIMTYPE_OBJECT ||
-                theInstPropArray[i].valueType == CIMTYPE_INSTANCE )
-            {
-                if (theInstPropArray[i].flags.isArray)
-                {
-                    _deleteArrayExtReference(
-                        theInstPropArray[i].value.arrayValue,
-                        &inst.mem);
-                }
-                else
-                {
-                    delete theInstPropArray[i].value.extRefPtr;
-                } // end is arry
-            } // end is reference
-        }// end is set
-    } // for all properties.
 }
 
 SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
@@ -2561,12 +2470,16 @@ void SCMOInstance::_setKeyBindingFromSCMBUnion(
             if(u.extRefPtr)
             {
                 keyData.data.extRefPtr = new SCMOInstance(*u.extRefPtr);
+                keyData.isSet=true;
+                // This function can cause a reallocation !
+                // Pointers can be invalid after the call.
+                _setExtRefIndex(&(keyData.data),&inst.mem);
             }
             else
             {
+                keyData.isSet=true;
                 keyData.data.extRefPtr=0;
             }
-            keyData.isSet=true;
             break;
         }
     case CIMTYPE_OBJECT:
@@ -3047,6 +2960,10 @@ void SCMOInstance::_setSCMBUnion(
                     {
                         ptr[i].extRefPtr=
                             new SCMOInstance(*(pInVal[i].extRefPtr));
+
+                        // This function can cause a reallocation !
+                        // Pointers can be invalid after the call.
+                        _setExtRefIndex(&(ptr[i]),&inst.mem);
                     }
                     else
                     {
@@ -3065,6 +2982,10 @@ void SCMOInstance::_setSCMBUnion(
                 if(pInVal->extRefPtr)
                 {
                     u.extRefPtr = new SCMOInstance(*(pInVal->extRefPtr));
+                    // This function can cause a reallocation !
+                    // Pointers can be invalid after the call.
+                    _setExtRefIndex(&u,&inst.mem);
+
                 }
                 else
                 {
@@ -3420,6 +3341,7 @@ void SCMOInstance::_setUnionArrayValue(
 
             for (Uint32 i = 0; i < loop ; i++)
             {
+
                 ptargetUnion[i].extRefPtr =
                     new SCMOInstance(
                         iterator[i],
@@ -3431,6 +3353,10 @@ void SCMOInstance::_setUnionArrayValue(
                     // N0, delete the SCMOInstance.
                     delete ptargetUnion[i].extRefPtr;
                     ptargetUnion[i].extRefPtr = 0;
+                }
+                else
+                {
+                    _setExtRefIndex(&(ptargetUnion[i]),pmem);
                 }
             }
 
@@ -3478,6 +3404,10 @@ void SCMOInstance::_setUnionArrayValue(
                         // marke as class only !
                         ptargetUnion[i].extRefPtr->
                             inst.hdr->flags.isClassOnly=true;
+
+                        // This function can cause a reallocation !
+                        // Pointers can be invalid after the call.
+                        _setExtRefIndex(&(ptargetUnion[i]),pmem);
                     }
                     else
                     {
@@ -3494,6 +3424,12 @@ void SCMOInstance::_setUnionArrayValue(
                              // N0, delete the SCMOInstance.
                              delete ptargetUnion[i].extRefPtr;
                              ptargetUnion[i].extRefPtr = 0;
+                         }
+                         else
+                         {
+                             // This function can cause a reallocation !
+                             // Pointers can be invalid after the call.
+                             _setExtRefIndex(&(ptargetUnion[i]),pmem);
                          }
                     }
                 }
@@ -3542,6 +3478,13 @@ void SCMOInstance::_setUnionArrayValue(
                         delete ptargetUnion[i].extRefPtr;
                         ptargetUnion[i].extRefPtr = 0;
                     }
+                    else
+                    {
+                        // This function can cause a reallocation !
+                        // Pointers can be invalid after the call.
+                        _setExtRefIndex(&(ptargetUnion[i]),pmem);
+                    }
+
                 }
             }
 
@@ -3699,6 +3642,12 @@ void SCMOInstance::_setUnionValue(
                 delete scmoUnion->extRefPtr;
                 scmoUnion->extRefPtr = 0;
             }
+            else
+            {
+                // This function can cause a reallocation !
+                // Pointers can be invalid after the call.
+                _setExtRefIndex(scmoUnion,pmem);
+            }
 
             break;
         }
@@ -3735,8 +3684,11 @@ void SCMOInstance::_setUnionValue(
                             theClass,
                             (&((const char*)*pmem)[startNS]));
                     // marke as class only !
-
                     scmoUnion->extRefPtr->inst.hdr->flags.isClassOnly=true;
+
+                    // This function can cause a reallocation !
+                    // Pointers can be invalid after the call.
+                    _setExtRefIndex(scmoUnion,pmem);
                 }
                 else
                 {
@@ -3754,6 +3706,12 @@ void SCMOInstance::_setUnionValue(
                          // N0, delete the SCMOInstance.
                          delete scmoUnion->extRefPtr;
                          scmoUnion->extRefPtr = 0;
+                     }
+                     else
+                     {
+                         // This function can cause a reallocation !
+                         // Pointers can be invalid after the call.
+                         _setExtRefIndex(scmoUnion,pmem);
                      }
                 }
             }
@@ -3795,6 +3753,12 @@ void SCMOInstance::_setUnionValue(
                      // N0, delete the SCMOInstance.
                      delete scmoUnion->extRefPtr;
                      scmoUnion->extRefPtr = 0;
+                 }
+                 else
+                 {
+                     // This function can cause a reallocation !
+                     // Pointers can be invalid after the call.
+                     _setExtRefIndex(scmoUnion,pmem);
                  }
             }
             break;
@@ -4690,6 +4654,12 @@ Boolean SCMOInstance::_setCimKeyBindingStringToSCMOKeyBindingValue(
                 delete scmoKBV.data.extRefPtr;
                 scmoKBV.data.extRefPtr = 0;
                 scmoKBV.isSet=false;
+            }
+            else
+            {
+                // This function can cause a reallocation !
+                // Pointers can be invalid after the call.
+                _setExtRefIndex(&(scmoKBV.data),&inst.mem);
             }
             break;
         }
@@ -6689,6 +6659,24 @@ static void _setBinary(
     {
         ptr.start = 0;
         ptr.size = 0;
+    }
+}
+
+static void _destroyExternalReferencesInternal(SCMBMgmt_Header* memHdr)
+{
+
+    Uint32 number = memHdr->numberExtRef;
+
+    if (0 != number)
+    {
+        char * base = ((char*)memHdr);
+        Uint64* array =
+            (Uint64*)&(base[memHdr->extRefIndexArray.start]);
+        for (Uint32 i = 0; i < number; i++)
+        {
+             delete ((SCMBUnion*)(&(base[array[i]])))->extRefPtr;
+        }
+
     }
 }
 

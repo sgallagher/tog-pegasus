@@ -768,6 +768,8 @@ private:
 
     void _copyExternalReferences();
 
+    void _setExtRefIndex(Uint64 idx);
+
     void _initSCMOInstance(SCMOClass* pClass);
 
     void _setCIMInstance(const CIMInstance& cimInstance);
@@ -851,6 +853,8 @@ private:
         Uint64 startNS,
         Uint64 lenNS,
         Union& u);
+
+    static void _setExtRefIndex(SCMBUnion* pInst, SCMBMgmt_Header** pmem);
 
     SCMO_RC _getKeyBindingDataAtNodeIndex(
         Uint32 node,

@@ -174,14 +174,14 @@ private:
 
     };
 
-    void _destroyExternalReferences();
-
     /**
      * Constructs an empty SCMOClass object.
      */
     SCMOClass();
 
     inline void _initSCMOClass();
+
+    void _destroyExternalReferences();
 
     SCMO_RC _getProperyNodeIndex(Uint32& node, const char* name) const;
     SCMO_RC _getKeyBindingNodeIndex(Uint32& node, const char* name) const;

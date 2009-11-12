@@ -281,6 +281,13 @@ struct SCMBMgmt_Header
     Uint64          freeBytes;
     // Index to the start of the free space in this SCMB memory block.
     Uint64          startOfFreeSpace;
+    // Number of external references in this instance.
+    Uint32          numberExtRef;
+    // Size of external reference index array;
+    Uint32          sizeExtRefIndexArray;
+    // Relative pointer to the external reference Array.
+    SCMBDataPtr     extRefIndexArray;
+
 };
 
 //
@@ -459,7 +466,7 @@ struct SCMBInstance_Main
 // The index of an instance key binding is the same as the class.
 // If a key binding has to be find by name, the class key binding ordered set
 // has to be used to find the right index.
-typedef SCMBKeyBindingValue SCMOInstanceKeyBindingArray[];
+typedef SCMBKeyBindingValue SCMBInstanceKeyBindingArray[];
 
 // The index of an instance property is the same as the class property.
 // If a property has to be find by name, the class property ordered set
@@ -555,6 +562,8 @@ static void _setBinary(
     Uint64 bufferSize,
     SCMBDataPtr& ptr,
     SCMBMgmt_Header** pmem);
+
+static void _destroyExternalReferencesInternal(SCMBMgmt_Header* memHdr);
 
 #ifdef PEGASUS_HAS_ICU
 Uint32 _utf8ICUncasecmp(

@@ -6610,12 +6610,13 @@ static Uint64 _getFreeSpace(
         oldSize = (*pmem)->totalSize;
         // reallocate the buffer, double the space !
         // This is a working approach until a better algorithm is found.
-        (*pmem) = (SCMBMgmt_Header*)realloc((*pmem),oldSize*2);
-        if ((*pmem) == 0)
+        void* newBlockPtr = realloc((*pmem),oldSize*2);
+        if ((newBlockPtr) == 0)
         {
             // Not enough memory!
             throw PEGASUS_STD(bad_alloc)();
         }
+        (*pmem) = (SCMBMgmt_Header*)newBlockPtr;
         // increase the total size and free space
         (*pmem)->freeBytes+=oldSize;
         (*pmem)->totalSize+=oldSize;

@@ -746,6 +746,30 @@ public:
         inst.hdr->flags.includeClassOrigin = false;
     }
 
+
+    /**
+     * Returns the number of external references hosted by the instance.
+     **/
+    Uint32 numberExtRef()
+    {
+        return inst.mem->numberExtRef;
+    }
+
+    /**
+     * Gets the pointer of an external reference of the instance.
+     * Warning: The pointer is purely returned. No management is done.
+     * @parm idx The index of the external reference.
+     **/
+    SCMOInstance* getExtRef(Uint32 idx);
+
+    /**
+     * Sets a pointer of an external reference of the instance.
+     * Warning: The pointer is purely returned. No management is done.
+     * @parm idx The index of the external reference.
+     * @parm ptr The pointer to an SCMOInstance
+     **/
+    void putExtRef(Uint32 idx,SCMOInstance* ptr);
+
 private:
 
     void Ref()

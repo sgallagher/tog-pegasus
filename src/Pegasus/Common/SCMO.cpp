@@ -1362,7 +1362,7 @@ SCMOClass SCMOInstance::_getSCMOClass(
 void SCMOInstance::_setExtRefIndex(SCMBUnion* pInst, SCMBMgmt_Header** pmem)
 {
 
-    Uint64 idx =(((char *)pInst) - (char *)(*pmem));
+    Uint64 refPtr =(((char *)pInst) - (char *)(*pmem));
     SCMBMgmt_Header* memHdr = (*pmem);
     // Save the number of external references in the array
     Uint32 noExtRef = memHdr->numberExtRef;
@@ -1408,17 +1408,35 @@ void SCMOInstance::_setExtRefIndex(SCMBUnion* pInst, SCMBMgmt_Header** pmem)
     for (Uint32 i = 0 ; i < noExtRef ; i++)
     {
         // is the index already part of the array
-        if (array[i] == idx)
+        if (array[i] == refPtr)
         {
             // leave.
             return;
         }
     }
     // It is not part of the array -> set the new index.
-    array[noExtRef] = idx;
+    array[noExtRef] = refPtr;
     // increment the nuber of external references of this instance.
     memHdr->numberExtRef++;
 
+}
+
+SCMOInstance* SCMOInstance::getExtRef(Uint32 idx)
+{
+    Uint64* array =
+        (Uint64*)&(inst.base[inst.mem->extRefIndexArray.start]);
+    SCMBUnion* pUnion;
+    pUnion = (SCMBUnion*)(&(inst.base[array[idx]]));
+    return pUnion->extRefPtr;
+}
+
+void SCMOInstance::putExtRef(Uint32 idx,SCMOInstance* ptr)
+{
+    Uint64* array =
+        (Uint64*)&(inst.base[inst.mem->extRefIndexArray.start]);
+    SCMBUnion* pUnion;
+    pUnion = (SCMBUnion*)(&(inst.base[array[idx]]));
+    pUnion->extRefPtr = ptr;
 }
 
 void SCMOInstance::_copyExternalReferences()

@@ -1364,10 +1364,12 @@ void SCMOInstance::_setExtRefIndex(SCMBUnion* pInst, SCMBMgmt_Header** pmem)
 
     Uint64 idx =(((char *)pInst) - (char *)(*pmem));
     SCMBMgmt_Header* memHdr = (*pmem);
+    // Save the number of external references in the array
+    Uint32 noExtRef = memHdr->numberExtRef;
 
     // Allocate the external reflerence array
     // if it is full or empty ( 0 == 0 ).
-    if (memHdr->numberExtRef == memHdr->sizeExtRefIndexArray)
+    if (noExtRef == memHdr->sizeExtRefIndexArray)
     {
         Uint64 oldArrayStart = memHdr->extRefIndexArray.start;
         Uint32 newSize =
@@ -1390,8 +1392,6 @@ void SCMOInstance::_setExtRefIndex(SCMBUnion* pInst, SCMBMgmt_Header** pmem)
         // Get absolute pointer to new index array
         Uint64* newArray =
             (Uint64*)&(((char*)(*pmem))[memHdr->extRefIndexArray.start]);
-        // Save the number of external references in the array
-        Uint32 noExtRef = memHdr->numberExtRef;
 
         // Copy all elements of the old array to the new.
         // If noExtRef = 0, no elements are copied.
@@ -1404,9 +1404,19 @@ void SCMOInstance::_setExtRefIndex(SCMBUnion* pInst, SCMBMgmt_Header** pmem)
     // Get absolute pointer to the array
     Uint64* array =
         (Uint64*)&(((char*)(*pmem))[memHdr->extRefIndexArray.start]);
-    // Set the new index
-    array[memHdr->numberExtRef] = idx;
-    // increment the nuber of external references of this SCMOInstance;
+    // look in the table if the index is already in the array
+    for (Uint32 i = 0 ; i < noExtRef ; i++)
+    {
+        // is the index already part of the array
+        if (array[i] == idx)
+        {
+            // leave.
+            return;
+        }
+    }
+    // It is not part of the array -> set the new index.
+    array[noExtRef] = idx;
+    // increment the nuber of external references of this instance.
     memHdr->numberExtRef++;
 
 }

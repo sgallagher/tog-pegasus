@@ -69,6 +69,17 @@ public:
     }
 
     /**
+     * Constructs a SCMOClass from a memory object of type SCMBClass_Main.
+     * It incremets the referece counter of the memory object.
+     * @param hdr A memory object of type SCMBClass_Main.
+     **/
+    SCMOClass(SCMBClass_Main* hdr)
+    {
+        cls.hdr = hdr;
+        Ref();
+    }
+
+    /**
      * Assignment operator for the SCMO class,
      * @param theSCMOClass The right hand value
      **/

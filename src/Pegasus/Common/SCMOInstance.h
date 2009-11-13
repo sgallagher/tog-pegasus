@@ -79,6 +79,18 @@ public:
     }
 
     /**
+     * Constructs a SCMOInstance from a memory object of type SCMBInstance_Main.
+     * It incremets the referece counter of the memory object.
+     * @param hdr A memory object of type SCMBInstance_Main.
+     **/
+    SCMOInstance(SCMBInstance_Main* hdr)
+    {
+        inst.hdr = hdr;
+        Ref();
+    }
+
+
+    /**
      * Assignment operator for the SCMO instance,
      * @param theSCMOClass The right hand value
      **/

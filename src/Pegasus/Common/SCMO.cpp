@@ -2481,11 +2481,43 @@ void SCMOInstance::_setKeyBindingFromSCMBUnion(
     case CIMTYPE_STRING:
         {
             keyData.isSet=true;
-            _setBinary(
-                &uBase[u.stringValue.start],
-                u.stringValue.size,
-                keyData.data.stringValue,
-                &inst.mem);
+            // Check if we are in the same inst!
+            if (uBase == inst.base)
+            {
+                // We are doing a in instance copy of data.
+                // We can not use the _setBinary() function because
+                // all real pointer can be in valid after
+                // the _getFreeSprace() function!
+                // We have to save all relative pointer on the stack.
+                Uint64 start;
+                SCMBDataPtr tmp;
+                tmp.size = u.stringValue.size;
+                tmp.start = u.stringValue.start;
+
+                // In this function a reallocation may take place!
+                // The keyData.data.stringValue is set before the rallocation.
+                start = _getFreeSpace(
+                    keyData.data.stringValue,
+                    u.stringValue.size,
+                    &inst.mem);
+                // Copy the string,
+                // but using the own base pointer and the saved relative
+                // string pointer.
+                memcpy(
+                    &(inst.base[start]),
+                    _getCharString(tmp,inst.base),
+                    tmp.size);
+
+            }
+            else
+            {
+                _setBinary(
+                    &uBase[u.stringValue.start],
+                    u.stringValue.size,
+                    keyData.data.stringValue,
+                    &inst.mem);
+            }
+
             break;
         }
     case CIMTYPE_REFERENCE:

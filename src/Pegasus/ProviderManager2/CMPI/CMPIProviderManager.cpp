@@ -401,13 +401,17 @@ CMPIProvider & CMPIProviderManager::_resolveAndGetProvider(
         if ((isRemote=pidc.isRemoteNameSpace()))
         {
             *ph = providerManager.getRemoteProvider(
-                name.getLocation(), name.getLogicalName());
+                name.getLocation(),
+                name.getLogicalName(),
+                name.getModuleName());
         }
         else
         {
             // get cached or load new provider module
             *ph = providerManager.getProvider(
-                name.getPhysicalName(), name.getLogicalName());
+                name.getPhysicalName(),
+                name.getLogicalName(),
+                name.getModuleName());
         }
         *remoteInfo = pidc.getRemoteInfo().getCString();
 
@@ -2421,6 +2425,9 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
         request->
         providerModule.findProperty("Location")).getValue().toString());
 
+    String moduleName= request->providerModule.getProperty(
+        request->providerModule.findProperty("Name")).getValue().toString();
+
     for (Uint32 i = 0, n = _pInstances.size(); i < n; i++)
     {
         String providerName;
@@ -2429,7 +2436,7 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
 
         Uint32 pos = _pInstances[i].findProperty(PEGASUS_PROPERTYNAME_NAME);
 
-        if (!providerManager.isProviderActive(providerName))
+        if (!providerManager.isProviderActive(providerName, moduleName))
         {
             continue;
         }
@@ -2438,7 +2445,8 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
             physicalName,
             _pInstances[i].getProperty(
                 _pInstances[i].findProperty(PEGASUS_PROPERTYNAME_NAME)
-                ).getValue ().toString ());
+                ).getValue ().toString (),
+            moduleName);
 
         if (!unloadOk)
         {
@@ -2457,8 +2465,9 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
                 {
                     OpProviderHolder ph =
                         providerManager.getProvider(
-                        physicalName,
-                        providerName);
+                            physicalName,
+                            providerName,
+                            moduleName);
                     ph.GetProvider ().resetSubscriptions ();
                 }
                 catch (const Exception &e)
@@ -2626,13 +2635,15 @@ Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest(
             {
                 ph = providerManager.getRemoteProvider
                     (enableProviders [i]->getModule ()->getFileName (),
-                    enableProviders [i]->getName ());
+                    enableProviders [i]->getName (),
+                    enableProviders[i]->getModuleName());
             }
             else
             {
                 ph = providerManager.getProvider
                     (enableProviders [i]->getModule ()->getFileName (),
-                    enableProviders [i]->getName ());
+                    enableProviders [i]->getName (),
+                    enableProviders[i]->getModuleName());
             }
             _callEnableIndications(
                 provider,

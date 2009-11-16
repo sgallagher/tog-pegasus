@@ -360,8 +360,8 @@ bool SCMOStreamer::_getInstances()
     }
 
     // Instance to class resolution table
-    SCMOResultionTable instArray[numInst];
-    if(!_buf.getBytes(&instArray, numInst*sizeof(SCMOResultionTable)))
+    SCMOResultionTable *instArray = new SCMOResultionTable[numInst];
+    if(!_buf.getBytes(instArray, numInst*sizeof(SCMOResultionTable)))
     {
         return false;
     }
@@ -374,11 +374,11 @@ bool SCMOStreamer::_getInstances()
     }
 
     // Instance references resolution table
-    SCMOResultionTable extRefArray[numExtRefs];
+    SCMOResultionTable *extRefArray = new SCMOResultionTable[numExtRefs];
     Uint32 extRefIndex=0;
     if (numExtRefs > 0)
     {
-        if(!_buf.getBytes(&extRefArray, numExtRefs*sizeof(SCMOResultionTable)))
+        if(!_buf.getBytes(extRefArray, numExtRefs*sizeof(SCMOResultionTable)))
         {
             return false;
         }
@@ -455,6 +455,8 @@ bool SCMOStreamer::_getInstances()
             delete (SCMOInstance*)instArray[x].scmbptr;
         }
     }
+    delete [] instArray;
+    delete [] extRefArray;
 
     return true;
 }

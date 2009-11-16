@@ -565,7 +565,7 @@ static void _setBinary(
 
 static void _destroyExternalReferencesInternal(SCMBMgmt_Header* memHdr);
 
-#ifdef PEGASUS_STRING_ENABLE_ICU
+#ifdef PEGASUS_HAS_ICU
 Uint32 _utf8ICUncasecmp(
     const char* a,
     const char* b,
@@ -579,7 +579,7 @@ static inline Boolean _equalNoCaseUTF8Strings(
     Uint32 len)
 
 {
-#ifdef PEGASUS_STRING_ENABLE_ICU
+#ifdef PEGASUS_HAS_ICU
     //both are empty strings, so they are equal.
     if (ptr_a.size == 0 && len == 0)
     {

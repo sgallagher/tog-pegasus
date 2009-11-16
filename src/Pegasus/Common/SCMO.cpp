@@ -60,7 +60,7 @@
   #include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
 #endif
 
-#ifdef PEGASUS_STRING_ENABLE_ICU
+#ifdef PEGASUS_HAS_ICU
 # include <unicode/platform.h>
 # include <unicode/urename.h>
 # include <unicode/ures.h>
@@ -6562,7 +6562,7 @@ void SCMODump::printUnionValue(
  * The constant functions
  *****************************************************************************/
 
-#ifdef PEGASUS_STRING_ENABLE_ICU
+#ifdef PEGASUS_HAS_ICU
 Uint32 _utf8ICUncasecmp(
     const char* a,
     const char* b,

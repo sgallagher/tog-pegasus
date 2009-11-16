@@ -750,7 +750,7 @@ public:
     /**
      * Returns the number of external references hosted by the instance.
      **/
-    Uint32 numberExtRef()
+    Uint32 numberExtRef() const
     {
         return inst.mem->numberExtRef;
     }
@@ -760,7 +760,7 @@ public:
      * Warning: The pointer is purely returned. No management is done.
      * @parm idx The index of the external reference.
      **/
-    SCMOInstance* getExtRef(Uint32 idx);
+    SCMOInstance* getExtRef(Uint32 idx) const;
 
     /**
      * Sets a pointer of an external reference of the instance.
@@ -984,6 +984,7 @@ private:
     friend class SCMOClass;
     friend class SCMODump;
     friend class SCMOXmlWriter;
+    friend class SCMOStreamer;
 };
 
 inline void SCMOInstance::_getPropertyAt(

@@ -91,16 +91,7 @@ Array<SCMOInstance>& CIMResponseData::getSCMO()
 
 void CIMResponseData::setSCMO(const Array<SCMOInstance>& x)
 {
-    // Just assignment bears danger of us being dependent on the original array
-    // content staying valid
     _scmoInstances=x;
-/*
-    for (Uint32 loop=0, max=x.size(); loop<max; loop++)
-    {
-        _scmoInstances.append(x[loop]);
-    }
-*/
-    // _scmoInstances.appendArray(x);
     _encoding |= RESP_ENC_SCMO;
 }
 
@@ -324,7 +315,7 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
     }
     if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
     {
-        // TODO: Set Marker for C++ data
+        out.putTypeMarker(BIN_TYPE_MARKER_CPPD);
         switch (_dataType)
         {
             case RESP_INSTNAMES:
@@ -353,7 +344,7 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
             }
             case RESP_OBJECTPATHS:
             {
-                // TODO: Determine what to do here
+                out.putObjectPathA(_instanceNames, false);
                 break;
             }
             default:
@@ -364,11 +355,8 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
     }
     if (RESP_ENC_SCMO == (_encoding & RESP_ENC_SCMO))
     {
-        // TODO: Set Marker for SCMO data
-
-        // Call magic here to transform a SCMO object into binary format
-        fprintf(stderr, "Watch wat ya do'n! SCMO to binary ? NO OOP yet.\n");
-        fflush(stderr);
+        out.putTypeMarker(BIN_TYPE_MARKER_SCMO);
+        out.putSCMOInstanceA(_scmoInstances);
     }
     if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
@@ -849,6 +837,7 @@ void CIMResponseData::_resolveToCIM()
     {
         _resolveSCMOToCIM();
     }
+
     PEGASUS_DEBUG_ASSERT(_encoding == RESP_ENC_CIM || _encoding == 0);
 }
 
@@ -879,37 +868,113 @@ void CIMResponseData::_resolveToSCMO()
 // avoided whenever possible
 void CIMResponseData::_resolveBinary()
 {
-    // Call magic here to resolve binary format
-    fprintf(stderr, "Watch wat ya do'n! binary ? NO OOP yet.\n");
-    fflush(stderr);
+    PEG_METHOD_ENTER(TRC_DISPATCHER,
+        "CIMResponseData::_resolveBinary");
 
-    switch (_dataType)
+    CIMBuffer in((char*)_binaryData.getData(), _binaryData.size());
+
+    while (in.more())
     {
-        case RESP_INSTNAMES:
+        Uint32 binaryTypeMarker=0;
+        if(!in.getTypeMarker(binaryTypeMarker))
         {
-            break;
+            PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                "Failed to get type marker for binary objects!");
+            PEG_METHOD_EXIT();
+            in.release();
+            return;
         }
-        case RESP_INSTANCE:
+
+        if (BIN_TYPE_MARKER_SCMO==binaryTypeMarker)
         {
-            break;
+            if (!in.getSCMOInstanceA(_scmoInstances))
+            {
+                _encoding &=(~RESP_ENC_BINARY);
+                in.release();
+                PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                    "Failed to resolve binary SCMOInstances!");
+                PEG_METHOD_EXIT();
+                return;
+            }
+
+            _encoding |= RESP_ENC_SCMO;
         }
-        case RESP_INSTANCES:
+        else
         {
-            break;
-        }
-        case RESP_OBJECTS:
-        {
-            break;
-        }
-        case RESP_OBJECTPATHS:
-        {
-            break;
-        }
-        default:
-        {
-            PEGASUS_DEBUG_ASSERT(false);
-        }
+            switch (_dataType)
+            {
+                // TODO: Decide what to decode based on marker
+                case RESP_INSTNAMES:
+                case RESP_OBJECTPATHS:
+                {
+                    if (!in.getObjectPathA(_instanceNames))
+                    {
+                        _encoding &=(~RESP_ENC_BINARY);
+                        in.release();
+                        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                            "Failed to resolve binary CIMObjectPaths!");
+                        PEG_METHOD_EXIT();
+                        return;
+                    }
+                    break;
+                }
+                case RESP_INSTANCE:
+                {
+                    CIMInstance instance;
+                    if (!in.getInstance(instance))
+                    {
+                        _encoding &=(~RESP_ENC_BINARY);
+                        _encoding |= RESP_ENC_CIM;
+                        _instances.append(instance);
+                        in.release();
+                        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                            "Failed to resolve binary instance!");
+                        PEG_METHOD_EXIT();
+                        return;
+                    }
+
+                    _instances.append(instance);
+                    break;
+                }
+                case RESP_INSTANCES:
+                {
+                    if (!in.getInstanceA(_instances))
+                    {
+                        _encoding &=(~RESP_ENC_BINARY);
+                        in.release();
+                        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                            "Failed to resolve binary CIMInstances!");
+                        PEG_METHOD_EXIT();
+                        return;
+                    }
+                    break;
+                }
+                case RESP_OBJECTS:
+                {
+                    if (!in.getObjectA(_objects))
+                    {
+                        in.release();
+                        _encoding &=(~RESP_ENC_BINARY);
+                        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+                            "Failed to resolve binary CIMObjects!");
+                        PEG_METHOD_EXIT();
+                        return;
+                    }
+                    break;
+                }
+                default:
+                {
+                    PEGASUS_DEBUG_ASSERT(false);
+                }
+            } // switch
+            _encoding |= RESP_ENC_CIM;
+        } // else SCMO
     }
+
+    _encoding &=(~RESP_ENC_BINARY);
+
+    in.release();
+    PEG_METHOD_EXIT();
 }
 
 void CIMResponseData::_resolveXmlToCIM()

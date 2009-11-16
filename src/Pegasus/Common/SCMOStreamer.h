@@ -27,11 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// This code implements part of PEP#348 - The CMPI infrastructure using SCMO
-// (Single Chunk Memory Objects).
-// The design document can be found on the OpenPegasus website openpegasus.org
-// at https://collaboration.opengroup.org/pegasus/pp/documents/21210/PEP_348.pdf
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_SCMOStreamer_h
@@ -47,23 +42,13 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-struct SCMOResolutionTable
+struct SCMOResultionTable
 {
-    // Though we only store pointers here, it is stored as union of size 64bit
-    // to become independent from 64bit versus 32bit incarnations of the struct.
-    union
-    {
-        Uint64 uint64;
-        SCMOInstance* scmoInst;
-        SCMBInstance_Main * scmbMain;
-    } scmbptr;
+    SCMOResultionTable():scmbptr(0),index(0) {};
 
-    Uint64 index;
+    void* scmbptr;
+    Uint32 index;
 };
-
-#define PEGASUS_ARRAY_T SCMOResolutionTable
-# include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
 
 
 class PEGASUS_COMMON_LINKAGE SCMOStreamer
@@ -80,12 +65,6 @@ public:
     // this instance of SCMOStreamer, including their referenced Classes and
     // Instances
     bool deserialize();
-
-    // Writes a single SCMOClass to the given CIMBuffer
-    static void serializeClass(CIMBuffer& out, const SCMOClass& scmoClass);
-
-    // Reads a single SCMOClass from the given CIMBuffer
-    static bool deserializeClass(CIMBuffer& in, SCMOClass& scmoClass);
 
 private:
 
@@ -106,7 +85,7 @@ private:
     //
     // Returns the index position at which the instance was inserted in the
     // instance resolver table.
-    Uint32 _appendToInstResolverTable(SCMOInstance& inst, Uint32 idx);
+    Uint32 _appendToInstResolverTable(const SCMOInstance& inst, Uint32 idx);
 
 
     // Adds an instance to the class resolution table.
@@ -123,8 +102,8 @@ private:
     // and returns the new index position of the class.
     Uint32 _appendToClassTable(const SCMOInstance& inst);
 
-    static void _putClasses(CIMBuffer& out,Array<SCMBClass_Main*>& classTable);
-    static bool _getClasses(CIMBuffer& in,Array<SCMBClass_Main*>& classTable);
+    void _putClasses();
+    bool _getClasses();
     void _putInstances();
     bool _getInstances();
 
@@ -139,16 +118,21 @@ private:
     // The array of SCMOInstances to be streamed
     Array<SCMOInstance>& _scmoInstances;
 
+    // Counters for the total number of classes and scmo instances
+    // to be streamed. These counters increase during streaming process.
+    Uint32 _ttlNumInstances;
+    Uint32 _ttlNumClasses;
+
     // Index table used to resolve the absolute pointers to SCMOClasses
     // to a relative sequence number (index) in the stream
-    Array<SCMOResolutionTable> _clsResolverTable;
+    Array<SCMOResultionTable> _clsResolverTable;
 
     // Index table used to resolve the absolute pointers to SCMOInstances
     // to a relative sequence number (index) in the stream
-    Array<SCMOResolutionTable> _instResolverTable;
+    Array<SCMOResultionTable> _instResolverTable;
 
     // Table of pointers to SCMOClasses to be streamed
-    Array<SCMBClass_Main*> _classTable;
+    Array<const SCMBClass_Main*> _classTable;
 };
 
 PEGASUS_NAMESPACE_END

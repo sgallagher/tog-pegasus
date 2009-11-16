@@ -40,10 +40,16 @@
 #include <Pegasus/Common/CIMDateTimeRep.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/StringRep.h>
+#include <Pegasus/Common/SCMOInstance.h>
 
 #define PEGASUS_USE_MAGIC
 
 PEGASUS_NAMESPACE_BEGIN
+
+#define BIN_TYPE_MARKER 0xFFFF0000
+#define BIN_TYPE_MARKER_CPPD    ( BIN_TYPE_MARKER | (1 << 1) )
+#define BIN_TYPE_MARKER_SCMO    ( BIN_TYPE_MARKER | (1 << 2) )
+
 
 /** This class serializes/deserializes CIM objects (String, CIMInstance, etc.)
     to/from a binary message stream. Serialized objects have two main
@@ -1057,6 +1063,10 @@ public:
         bool includeHostAndNamespace = true,
         bool includeKeyBindings = true);
 
+    void putSCMOInstanceA(Array<SCMOInstance>& x);
+
+    bool getSCMOInstanceA(Array<SCMOInstance>& x);
+
     bool getInstanceA(Array<CIMInstance>& x)
     {
         Uint32 n;
@@ -1199,6 +1209,16 @@ public:
     void putPresent(Boolean flag);
 
     bool getPresent(Boolean& flag);
+
+    void putTypeMarker(Uint32 typeMarker)
+    {
+        putUint32(typeMarker);
+    }
+
+    bool getTypeMarker(Uint32& typeMarker)
+    {
+        return getUint32(typeMarker);
+    }
 
 private:
 

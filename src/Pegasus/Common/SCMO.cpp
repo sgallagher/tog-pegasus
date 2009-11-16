@@ -60,7 +60,7 @@
   #include <Pegasus/General/SetFileDescriptorToEBCDICEncoding.h>
 #endif
 
-#ifdef PEGASUS_HAS_ICU
+#ifdef PEGASUS_STRING_ENABLE_ICU
 # include <unicode/platform.h>
 # include <unicode/urename.h>
 # include <unicode/ures.h>
@@ -1420,7 +1420,7 @@ void SCMOInstance::_setExtRefIndex(SCMBUnion* pInst, SCMBMgmt_Header** pmem)
 
 }
 
-SCMOInstance* SCMOInstance::getExtRef(Uint32 idx)
+SCMOInstance* SCMOInstance::getExtRef(Uint32 idx) const
 {
     Uint64* array =
         (Uint64*)&(inst.base[inst.mem->extRefIndexArray.start]);
@@ -6562,7 +6562,7 @@ void SCMODump::printUnionValue(
  * The constant functions
  *****************************************************************************/
 
-#ifdef PEGASUS_HAS_ICU
+#ifdef PEGASUS_STRING_ENABLE_ICU
 Uint32 _utf8ICUncasecmp(
     const char* a,
     const char* b,

@@ -27,11 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// This code implements part of PEP#348 - The CMPI infrastructure using SCMO
-// (Single Chunk Memory Objects).
-// The design document can be found on the OpenPegasus website openpegasus.org
-// at https://collaboration.opengroup.org/pegasus/pp/documents/21210/PEP_348.pdf
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -46,51 +41,14 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 
-#define PEGASUS_ARRAY_T SCMOResolutionTable
-# include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
-
 SCMOStreamer::SCMOStreamer(CIMBuffer& out, Array<SCMOInstance>& x) :
     _buf(out),
-    _scmoInstances(x)
+    _scmoInstances(x),
+    _ttlNumInstances(0),
+    _ttlNumClasses(0)
 {
 };
 
-// Writes a single SCMOClass to the given CIMBuffer
-void SCMOStreamer::serializeClass(CIMBuffer& out, const SCMOClass& scmoClass)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,"SCMOStreamer::serializeClass");
-
-    Array<SCMBClass_Main*> classTable;
-    classTable.append(scmoClass.cls.hdr);
-
-    _putClasses(out, classTable);
-
-    PEG_METHOD_EXIT();
-};
-
-// Reads a single SCMOClass from the given CIMBuffer
-bool SCMOStreamer::deserializeClass(CIMBuffer& in, SCMOClass& scmoClass)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,"SCMOStreamer::deserializeClass");
-
-    Array<SCMBClass_Main*> classTable;
-    if(!_getClasses(in, classTable))
-    {
-        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to get Class!");
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
-    if (classTable.size() > 0)
-    {
-        scmoClass = SCMOClass(classTable[0]);
-    }
-
-    PEG_METHOD_EXIT();
-    return true;
-};
 
 // Writes the list of SCMOInstances stored in this instance of SCMOStreamer
 // to the output buffer, including their referenced Classes and Instances
@@ -112,7 +70,7 @@ void SCMOStreamer::serialize()
         _appendToResolverTables(inst);
     }
 
-    _putClasses(_buf,_classTable);
+    _putClasses();
 
     _putInstances();
 
@@ -125,9 +83,9 @@ void SCMOStreamer::serialize()
 // instance of SCMOStreamer, including their referenced Classes and Instances
 bool SCMOStreamer::deserialize()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,"SCMOStreamer::deserialize");
+    PEG_METHOD_ENTER(TRC_DISPATCHER,"SCMOStreamer::serialize");
 
-    if(!_getClasses(_buf,_classTable))
+    if(!_getClasses())
     {
         PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Failed to get Classes!");
@@ -180,11 +138,12 @@ Uint32 SCMOStreamer::_appendToResolverTables(const SCMOInstance& inst)
 // Returns the index position at which the instance was inserted in the
 // instance resolver table.
 Uint32 SCMOStreamer::_appendToInstResolverTable(
-    SCMOInstance& inst,
+    const SCMOInstance& inst,
     Uint32 idx)
 {
-    SCMOResolutionTable tableEntry;
-    tableEntry.scmbptr.scmoInst = &inst;
+    SCMOResultionTable tableEntry;
+
+    tableEntry.scmbptr = (void*)&inst;
     tableEntry.index = idx;
 
     _instResolverTable.append(tableEntry);
@@ -208,9 +167,11 @@ Uint32 SCMOStreamer::_appendToClassResolverTable(const SCMOInstance& inst)
 
 
     // Now build a new entry for the class resolution table
-    SCMOResolutionTable tableEntry;
-    tableEntry.scmbptr.scmbMain = inst.inst.hdr;
+    SCMOResultionTable tableEntry;
+
+    tableEntry.scmbptr = (void*)inst.inst.hdr;
     tableEntry.index = clsIdx;
+
     _clsResolverTable.append(tableEntry);
 
     // The number of elements in the array minus 1 is the index position
@@ -226,7 +187,7 @@ Uint32 SCMOStreamer::_appendToClassResolverTable(const SCMOInstance& inst)
 Uint32 SCMOStreamer::_appendToClassTable(const SCMOInstance& inst)
 {
     Uint32 clsTableSize = _classTable.size();
-    SCMBClass_Main* clsPtr = inst.inst.hdr->theClass.ptr->cls.hdr;
+    const SCMBClass_Main* clsPtr = inst.inst.hdr->theClass->cls.hdr;
 
     const SCMBClass_Main* const* clsArray = _classTable.getData();
 
@@ -262,18 +223,18 @@ void SCMOStreamer::_dumpTables()
     fprintf(stderr,"INSTANCES:\n");
     for (Uint32 x=0; x < _clsResolverTable.size(); x++)
     {
-        fprintf(stderr,"\t[%2d] I = %llx - cls = %2lld\n",
+        fprintf(stderr,"\t[%2d] I = %p - cls = %2d\n",
                 x,
-                _clsResolverTable[x].scmbptr.uint64,
+                _clsResolverTable[x].scmbptr,
                 _clsResolverTable[x].index);
     }
 
     fprintf(stderr,"INSTANCE REFERENCES:\n");
     for (Uint32 x=0; x < _instResolverTable.size(); x++)
     {
-        fprintf(stderr,"\t[%2d] R = %llx - I = %2lld\n",
+        fprintf(stderr,"\t[%2d] R = %p - I = %2d\n",
                 x,
-                _instResolverTable[x].scmbptr.uint64,
+                _instResolverTable[x].scmbptr,
                 _instResolverTable[x].index);
     }
     fprintf(stderr,"=====================================================\n");
@@ -282,15 +243,13 @@ void SCMOStreamer::_dumpTables()
 
 
 // Adds the list of SCMOClasses from the ClassTable to the output buffer
-void SCMOStreamer::_putClasses(
-    CIMBuffer& out,
-    Array<SCMBClass_Main*>& classTable)
+void SCMOStreamer::_putClasses()
 {
-    Uint32 numClasses = classTable.size();
-    const SCMBClass_Main* const* clsArray = classTable.getData();
+    Uint32 numClasses = _classTable.size();
+    const SCMBClass_Main* const* clsArray = _classTable.getData();
 
     // Number of classes
-    out.putUint32(numClasses);
+    _buf.putUint32(numClasses);
 
     // SCMOClasses, one by one
     for (Uint32 x=0; x < numClasses; x++)
@@ -298,22 +257,20 @@ void SCMOStreamer::_putClasses(
         // Calculate the in-use size of the SCMOClass data
         Uint64 size =
             clsArray[x]->header.totalSize - clsArray[x]->header.freeBytes;
-        out.putUint64(size);
+        _buf.putUint64(size);
 
         // Write class data
-        out.putBytes(clsArray[x],(size_t)size);
+        _buf.putBytes(clsArray[x],size);
     }
 
 }
 
 // Reads a list of SCMOClasses from the input buffer
-bool SCMOStreamer::_getClasses(
-    CIMBuffer& in,
-    Array<SCMBClass_Main*>& classTable)
+bool SCMOStreamer::_getClasses()
 {
     // Number of classes
     Uint32 numClasses;
-    if(! in.getUint32(numClasses) )
+    if(! _buf.getUint32(numClasses) )
     {
         return false;
     }
@@ -322,20 +279,20 @@ bool SCMOStreamer::_getClasses(
     for (Uint32 x=0; x < numClasses; x++)
     {
         Uint64 size;
-        if (!in.getUint64(size))
+        if (!_buf.getUint64(size))
         {
             return false;
         }
 
         // Read class data
-        SCMBClass_Main* scmbClassPtr = (SCMBClass_Main*)malloc((size_t)size);
+        SCMBClass_Main* scmbClassPtr = (SCMBClass_Main*)malloc(size);
         if (0 == scmbClassPtr)
         {
             // Not enough memory!
             throw PEGASUS_STD(bad_alloc)();
         }
 
-        if (!in.getBytes(scmbClassPtr,(size_t)size))
+        if (!_buf.getBytes(scmbClassPtr,size))
         {
             return false;
         }
@@ -346,7 +303,7 @@ bool SCMOStreamer::_getClasses(
         scmbClassPtr->header.freeBytes = 0;
         scmbClassPtr->refCount.set(0);
 
-        classTable.append(scmbClassPtr);
+        _classTable.append(scmbClassPtr);
     }
 
     return true;
@@ -357,35 +314,35 @@ bool SCMOStreamer::_getClasses(
 void SCMOStreamer::_putInstances()
 {
     Uint32 numInst = _clsResolverTable.size();
-    const SCMOResolutionTable* instArray = _clsResolverTable.getData();
+    const SCMOResultionTable* instArray = _clsResolverTable.getData();
 
     // Number of instances
     _buf.putUint32(numInst);
 
     // Instance to class resolution table
-    _buf.putBytes(instArray, numInst*sizeof(SCMOResolutionTable));
+    _buf.putBytes(instArray, numInst*sizeof(SCMOResultionTable));
 
 
     Uint32 numExtRefs = _instResolverTable.size();
-    const SCMOResolutionTable* extRefArray = _instResolverTable.getData();
+    const SCMOResultionTable* extRefArray = _instResolverTable.getData();
 
     // Number of references
     _buf.putUint32(numExtRefs);
 
     // Instance references resolution table
-    _buf.putBytes(extRefArray, numExtRefs*sizeof(SCMOResolutionTable));
+    _buf.putBytes(extRefArray, numExtRefs*sizeof(SCMOResultionTable));
 
 
     // SCMOInstances, one by one
     for (Uint32 x=0; x < numInst; x++)
     {
         // Calculate the in-use size of the SCMOInstance data
-        SCMBInstance_Main* instPtr = instArray[x].scmbptr.scmbMain;
+        SCMBInstance_Main* instPtr = (SCMBInstance_Main*)instArray[x].scmbptr;
         Uint64 size = instPtr->header.totalSize - instPtr->header.freeBytes;
         _buf.putUint64(size);
 
         // Write class data
-        _buf.putBytes(instPtr,(size_t)size);
+        _buf.putBytes(instPtr,size);
     }
 }
 
@@ -403,8 +360,8 @@ bool SCMOStreamer::_getInstances()
     }
 
     // Instance to class resolution table
-    SCMOResolutionTable *instArray = new SCMOResolutionTable[numInst];
-    if(!_buf.getBytes(instArray, numInst*sizeof(SCMOResolutionTable)))
+    SCMOResultionTable instArray[numInst];
+    if(!_buf.getBytes(&instArray, numInst*sizeof(SCMOResultionTable)))
     {
         return false;
     }
@@ -417,11 +374,11 @@ bool SCMOStreamer::_getInstances()
     }
 
     // Instance references resolution table
-    SCMOResolutionTable *extRefArray = new SCMOResolutionTable[numExtRefs];
+    SCMOResultionTable extRefArray[numExtRefs];
     Uint32 extRefIndex=0;
     if (numExtRefs > 0)
     {
-        if(!_buf.getBytes(extRefArray, numExtRefs*sizeof(SCMOResolutionTable)))
+        if(!_buf.getBytes(&extRefArray, numExtRefs*sizeof(SCMOResultionTable)))
         {
             return false;
         }
@@ -443,15 +400,14 @@ bool SCMOStreamer::_getInstances()
         // updates without reallocation
 
         // Read instance data
-        SCMBInstance_Main* scmbInstPtr =
-            (SCMBInstance_Main*)malloc((size_t)size+64);
+        SCMBInstance_Main* scmbInstPtr = (SCMBInstance_Main*)malloc(size+64);
         if (0 == scmbInstPtr)
         {
             // Not enough memory!
             throw PEGASUS_STD(bad_alloc)();
         }
 
-        if(!_buf.getBytes(scmbInstPtr,(size_t)size))
+        if(!_buf.getBytes(scmbInstPtr,size))
         {
             return false;
         }
@@ -460,7 +416,7 @@ bool SCMOStreamer::_getInstances()
         scmbInstPtr->header.totalSize = size+64;
         scmbInstPtr->header.freeBytes = 64;
         scmbInstPtr->refCount.set(0);
-        scmbInstPtr->theClass.ptr =
+        scmbInstPtr->theClass =
              new SCMOClass((SCMBClass_Main*)clsArray[instArray[x].index]);
 
         SCMOInstance* scmoInstPtr = new SCMOInstance(scmbInstPtr);
@@ -472,17 +428,18 @@ bool SCMOStreamer::_getInstances()
             for (Uint32 i=0; i < numExtRefs; i++)
             {
                 Uint32 extRefPos = extRefArray[extRefIndex].index;
-                SCMOInstance* extRefPtr = instArray[extRefPos].scmbptr.scmoInst;
+                SCMOInstance* extRefPtr =
+                    (SCMOInstance*)instArray[extRefPos].scmbptr;
                 scmoInstPtr->putExtRef(i,extRefPtr);
 
                 // Mark instance as already consumed
-                instArray[extRefPos].scmbptr.uint64 = 0;
+                instArray[extRefPos].scmbptr = 0;
 
                 extRefIndex++;
             }
         }
 
-        instArray[x].scmbptr.scmoInst = scmoInstPtr;
+        instArray[x].scmbptr = (void*)scmoInstPtr;
 
 #ifdef PEGASUS_DEBUG
         _clsResolverTable.append(instArray[x]);
@@ -492,14 +449,12 @@ bool SCMOStreamer::_getInstances()
     // Append all non-referenced instances to output array
     for (Uint32 x=0; x < numInst; x++)
     {
-        if (0 != instArray[x].scmbptr.scmoInst)
+        if (instArray[x].scmbptr)
         {
-            _scmoInstances.append(*(instArray[x].scmbptr.scmoInst));
-            delete instArray[x].scmbptr.scmoInst;
+            _scmoInstances.append(*((SCMOInstance*)instArray[x].scmbptr));
+            delete (SCMOInstance*)instArray[x].scmbptr;
         }
     }
-    delete [] instArray;
-    delete [] extRefArray;
 
     return true;
 }

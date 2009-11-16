@@ -46,8 +46,8 @@
 #include "StringRep.h"
 #include "StringInline.h"
 #include "Buffer.h"
+#include "BinaryCodec.h"
 #include "SCMOStreamer.h"
-#include "Pegasus_inl.h"
 
 #define INSTANCE_MAGIC 0xD6EF2219
 #define CLASS_MAGIC 0xA8D7DE41
@@ -184,7 +184,12 @@ void CIMBuffer::_grow(size_t size)
     if (size > n)
         cap += size;
 
-    _data = (char*)peg_inln_realloc(_data, cap);
+    _data = (char*)realloc(_data, cap);
+
+    if (!_data)
+    {
+        throw PEGASUS_STD(bad_alloc)();
+    }
 
     _end = _data + cap;
     _ptr = _data + m;
@@ -263,7 +268,7 @@ bool CIMBuffer::getNamespaceName(CIMNamespaceName& x)
 
     if (_validate)
     {
-        // Get string without validation and validate namespace below.
+        // Get string without validation since we will validate namespace below.
 
         _validate = false;
 
@@ -386,7 +391,7 @@ void CIMBuffer::putValue(const CIMValue& x)
                     false, false);
                 break;
             default:
-                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+                PEGASUS_ASSERT(0);
                 break;
         }
     }
@@ -446,7 +451,7 @@ void CIMBuffer::putValue(const CIMValue& x)
                 putObject(*((CIMObject*)rep->u._instanceValue), false, false);
                 break;
             default:
-                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+                PEGASUS_ASSERT(0);
                 break;
         }
     }
@@ -622,7 +627,7 @@ bool CIMBuffer::getValue(CIMValue& x)
                 return true;
             }
             default:
-                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+                PEGASUS_ASSERT(0);
                 break;
         }
     }
@@ -767,7 +772,7 @@ bool CIMBuffer::getValue(CIMValue& x)
                 return true;
             }
             default:
-                PEGASUS_UNREACHABLE(PEGASUS_ASSERT(0);)
+                PEGASUS_ASSERT(0);
                 break;
         }
     }
@@ -1571,14 +1576,6 @@ void CIMBuffer::putPropertyList(const CIMPropertyList& x)
 
         for (Uint32 i = 0; i < n; i++)
             putName(rep->propertyNames[i]);
-
-        Uint32 tagCount = rep->cimNameTags.size();
-        putUint32(tagCount);
-      
-        for(Uint32 j = 0; j < tagCount; j++)
-        {
-            putUint32(rep->cimNameTags[j]);
-        } 
     }
 }
 
@@ -1615,23 +1612,6 @@ bool CIMBuffer::getPropertyList(CIMPropertyList& x)
 
         x.~CIMPropertyList();
         new(&x) CIMPropertyList(names);
-      
-        Uint32 tagCount;
-        if (!getUint32(tagCount))
-        {
-            return false;
-        }
-
-        for(Uint32 j=0;j<tagCount;j++)
-        {
-            Uint32 tag;
-            if (!getUint32(tag))
-            {
-                return false;
-            }
-            x.appendCIMNameTag(tag);
-        }
-
     }
 
     return true;
@@ -1791,25 +1771,10 @@ void CIMBuffer::putInstanceA(
         putInstance(x[i], includeHostAndNamespace, includeKeyBindings);
 }
 
-
-void CIMBuffer::putSCMOClass(const SCMOClass& scmoClass)
-{
-    SCMOStreamer::serializeClass(*this, scmoClass);
-}
-
-bool CIMBuffer::getSCMOClass(SCMOClass& scmoClass)
-{
-    return SCMOStreamer::deserializeClass(*this, scmoClass);
-}
-
-
 void CIMBuffer::putSCMOInstanceA(Array<SCMOInstance>& x)
 {
     Uint32 n = x.size();
-    _grow(n<<13);
-
     putUint32(n);
-
 
     SCMOStreamer scmoStreamer(*this,x);
     scmoStreamer.serialize();

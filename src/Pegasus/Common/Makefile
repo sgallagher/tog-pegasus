@@ -64,6 +64,7 @@ SOURCES1 = \
     SCMO.cpp \
     SCMOXmlWriter.cpp \
     SCMOClassCache.cpp \
+    SCMOStreamer.cpp \
     Print.cpp \
     Executor.cpp \
     Once.cpp \

@@ -64,7 +64,7 @@ public:
         RESP_INSTANCES = 2,
         RESP_INSTANCE = 3,
         RESP_OBJECTS = 4,
-        RESP_OBJECTPATHS =5
+        RESP_OBJECTPATHS = 5
     };
 
     CIMResponseData(ResponseDataContent content):_encoding(0),_dataType(content)

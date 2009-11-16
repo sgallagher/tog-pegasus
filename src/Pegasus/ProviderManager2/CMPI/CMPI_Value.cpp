@@ -178,25 +178,25 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
         }
         case CMPI_boolean:
         {
-            scmoData.simple.val.u64 = data->boolean;
+            scmoData.simple.val.bin = data->boolean;
             scmoData.simple.hasValue = 1;
             break;
         }
         case CMPI_uint8:
         {
-            scmoData.simple.val.u64 = data->uint8;
+            scmoData.simple.val.u8 = data->uint8;
             scmoData.simple.hasValue = 1;
             break;
         }
         case CMPI_uint16:
         {
-            scmoData.simple.val.u64 = data->uint16;
+            scmoData.simple.val.u16 = data->uint16;
             scmoData.simple.hasValue = 1;
             break;
         }
         case CMPI_uint32:
         {
-            scmoData.simple.val.u64 = data->uint32;
+            scmoData.simple.val.u32 = data->uint32;
             scmoData.simple.hasValue = 1;
             break;
         }
@@ -208,19 +208,19 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
         }
         case CMPI_sint8:
         {
-            scmoData.simple.val.s64 = data->sint8;
+            scmoData.simple.val.s8 = data->sint8;
             scmoData.simple.hasValue = 1;
             break;
         }
         case CMPI_sint16:
         {
-            scmoData.simple.val.s64 = data->sint16;
+            scmoData.simple.val.s16 = data->sint16;
             scmoData.simple.hasValue = 1;
             break;
         }
         case CMPI_sint32:
         {
-            scmoData.simple.val.s64 = data->sint32;
+            scmoData.simple.val.s32 = data->sint32;
             scmoData.simple.hasValue = 1;
             break;
         }
@@ -244,7 +244,7 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
         }
         case CMPI_char16:
         {
-            scmoData.simple.val.u64 = data->char16;
+            scmoData.simple.val.c16 = data->char16;
             scmoData.simple.hasValue = 1;
             break;
         }

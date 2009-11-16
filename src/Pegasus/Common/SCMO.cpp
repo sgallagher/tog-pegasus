@@ -2363,7 +2363,7 @@ const char* SCMOInstance::getClassName_l(Uint64 & length) const
 
 void SCMOInstance::setNameSpace(const char* nameSpace)
 {
-    Uint32 len;
+    Uint32 len = 0;
 
     _copyOnWrite();
 

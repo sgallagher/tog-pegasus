@@ -1310,7 +1310,6 @@ SCMOInstance::SCMOInstance(
     }
 }
 
-
 void SCMOInstance::_destroyExternalReferences()
 {
     _destroyExternalReferencesInternal(inst.mem);
@@ -2275,23 +2274,23 @@ Boolean SCMOInstance::isSame(SCMOInstance& theInstance) const
 
 void SCMOInstance::setHostName(const char* hostName)
 {
-    Uint32 len;
+    Uint32 len = 0;
+
+    _copyOnWrite();
 
     if (hostName!=0)
     {
 
         len = strlen((const char*)hostName);
-        // copy including trailing '\0'
-        _setBinary(hostName,len+1,inst.hdr->hostName,&inst.mem);
-        return;
-
     }
-    inst.hdr->hostName.start=0;
-    inst.hdr->hostName.size=0;
+    // copy including trailing '\0'
+    _setBinary(hostName,len+1,inst.hdr->hostName,&inst.mem);
 }
 
 void SCMOInstance::setHostName_l(const char* hostName, Uint64 len)
 {
+    _copyOnWrite();
+
     // copy including trailing '\0'
     _setBinary(hostName,len+1,inst.hdr->hostName,&inst.mem);
 }
@@ -2318,6 +2317,9 @@ const char* SCMOInstance::getHostName_l(Uint64& length) const
 void SCMOInstance::setClassName(const char* className)
 {
     Uint32 len=0;
+
+    _copyOnWrite();
+
     // flag the instance as compromized
     inst.hdr->flags.isCompromised=true;
     if (className!=0)
@@ -2331,6 +2333,8 @@ void SCMOInstance::setClassName(const char* className)
 
 void SCMOInstance::setClassName_l(const char* className, Uint64 len)
 {
+    _copyOnWrite();
+
     // flag the instance as compromised
     inst.hdr->flags.isCompromised=true;
     // copy including trailing '\0'
@@ -2361,6 +2365,8 @@ void SCMOInstance::setNameSpace(const char* nameSpace)
 {
     Uint32 len;
 
+    _copyOnWrite();
+
     // flag the instance as compromized
     inst.hdr->flags.isCompromised=true;
 
@@ -2368,16 +2374,15 @@ void SCMOInstance::setNameSpace(const char* nameSpace)
     {
 
         len = strlen((const char*)nameSpace);
-        // copy including trailing '\0'
-        _setBinary(nameSpace,len+1,inst.hdr->instNameSpace,&inst.mem);
-        return;
     }
-    inst.hdr->instNameSpace.start=0;
-    inst.hdr->instNameSpace.size=0;
+    // copy including trailing '\0'
+    _setBinary(nameSpace,len+1,inst.hdr->instNameSpace,&inst.mem);
 }
 
 void SCMOInstance::setNameSpace_l(const char* nameSpace, Uint64 len)
 {
+    _copyOnWrite();
+
     // flag the instance as compromized
     inst.hdr->flags.isCompromised=true;
     // copy including trailing '\0'
@@ -2405,7 +2410,6 @@ const char* SCMOInstance::getNameSpace_l(Uint64 & length) const
 
 void SCMOInstance::buildKeyBindingsFromProperties()
 {
-
     Uint32* theClassKeyPropList =
         (Uint32*) &((inst.hdr->theClass->cls.base)
                           [(inst.hdr->theClass->cls.hdr->keyIndexList.start)]);
@@ -2436,6 +2440,8 @@ void SCMOInstance::buildKeyBindingsFromProperties()
             if ( theInstPropNodeArray[propNode].flags.isSet &&
                 !theInstPropNodeArray[propNode].flags.isNull)
             {
+                _copyOnWrite();
+
                 _setKeyBindingFromSCMBUnion(
                     theInstPropNodeArray[propNode].valueType,
                     theInstPropNodeArray[propNode].value,
@@ -2481,32 +2487,43 @@ void SCMOInstance::_setKeyBindingFromSCMBUnion(
     case CIMTYPE_STRING:
         {
             keyData.isSet=true;
-            // Check if we are in the same inst!
+            // Check if a key binding is set with in the same instance.
+            // If this is the case, a reallocation can take place and the
+            // uBase pointer can be invalid and cause a read in freed memory!
             if (uBase == inst.base)
             {
-                // We are doing a in instance copy of data.
-                // We can not use the _setBinary() function because
-                // all real pointer can be in valid after
-                // the _getFreeSprace() function!
-                // We have to save all relative pointer on the stack.
-                Uint64 start;
-                SCMBDataPtr tmp;
-                tmp.size = u.stringValue.size;
-                tmp.start = u.stringValue.start;
+                if (0 != u.stringValue.size )
+                {
+                    // We are doing a in instance copy of data.
+                    // We can not use the _setBinary() function because
+                    // all real pointer can be in valid after
+                    // the _getFreeSprace() function!
+                    // We have to save all relative pointer on the stack.
+                    Uint64 start;
+                    SCMBDataPtr tmp;
+                    tmp.size = u.stringValue.size;
+                    tmp.start = u.stringValue.start;
 
-                // In this function a reallocation may take place!
-                // The keyData.data.stringValue is set before the rallocation.
-                start = _getFreeSpace(
-                    keyData.data.stringValue,
-                    u.stringValue.size,
-                    &inst.mem);
-                // Copy the string,
-                // but using the own base pointer and the saved relative
-                // string pointer.
-                memcpy(
-                    &(inst.base[start]),
-                    _getCharString(tmp,inst.base),
-                    tmp.size);
+                    // In this function a reallocation may take place!
+                    // The keyData.data.stringValue is set
+                    // before the rallocation.
+                    start = _getFreeSpace(
+                        keyData.data.stringValue,
+                        u.stringValue.size,
+                        &inst.mem);
+                    // Copy the string,
+                    // but using the own base pointer and the saved relative
+                    // string pointer.
+                    memcpy(
+                        &(inst.base[start]),
+                        _getCharString(tmp,inst.base),
+                        tmp.size);
+                }
+                else
+                {
+                   keyData.data.stringValue.size=0;
+                   keyData.data.stringValue.start=0;
+                }
 
             }
             else
@@ -2788,6 +2805,8 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
     Uint32 size,
     const char* origin)
 {
+    // In this function no  _copyOnWrite(), it does not change the instance.
+
     Uint32 node;
     SCMO_RC rc;
     CIMType realType;
@@ -2834,45 +2853,47 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
     return SCMO_OK;
 }
 
- SCMO_RC SCMOInstance::setPropertyWithNodeIndex(
-     Uint32 node,
-     CIMType type,
-     const SCMBUnion* pInVal,
-     Boolean isArray,
-     Uint32 size)
- {
-     SCMO_RC rc;
-     CIMType realType;
+SCMO_RC SCMOInstance::setPropertyWithNodeIndex(
+    Uint32 node,
+    CIMType type,
+    const SCMBUnion* pInVal,
+    Boolean isArray,
+    Uint32 size)
+{
+    // In this function no  _copyOnWrite(), it does not change the instance.
 
-     if (node >= inst.hdr->numberProperties)
-     {
-         return SCMO_INDEX_OUT_OF_BOUND;
-     }
+    SCMO_RC rc;
+    CIMType realType;
 
-     // is filtering on ?
-     if (inst.hdr->flags.isFiltered)
-     {
-         // Is the property NOT in the property filter ?
-         if(!_isPropertyInFilter(node))
-         {
-             // The proptery of the is not set due to filtering.
-             return SCMO_OK;
-         }
-     }
+    if (node >= inst.hdr->numberProperties)
+    {
+        return SCMO_INDEX_OUT_OF_BOUND;
+    }
 
-     // Is the traget type OK ?
-     // The type stored in the class information is set on realType.
-     // It must be used in further calls to guaranty consistence.
-     rc = inst.hdr->theClass->_isNodeSameType(node,type,isArray,realType);
-     if (rc != SCMO_OK)
-     {
-         return rc;
-     }
+    // is filtering on ?
+    if (inst.hdr->flags.isFiltered)
+    {
+        // Is the property NOT in the property filter ?
+        if(!_isPropertyInFilter(node))
+        {
+            // The proptery of the is not set due to filtering.
+            return SCMO_OK;
+        }
+    }
 
-     _setPropertyAtNodeIndex(node,realType,pInVal,isArray,size);
+    // Is the traget type OK ?
+    // The type stored in the class information is set on realType.
+    // It must be used in further calls to guaranty consistence.
+    rc = inst.hdr->theClass->_isNodeSameType(node,type,isArray,realType);
+    if (rc != SCMO_OK)
+    {
+        return rc;
+    }
 
-     return SCMO_OK;
- }
+    _setPropertyAtNodeIndex(node,realType,pInVal,isArray,size);
+
+    return SCMO_OK;
+}
 
 void SCMOInstance::_setPropertyAtNodeIndex(
     Uint32 node,
@@ -2881,6 +2902,9 @@ void SCMOInstance::_setPropertyAtNodeIndex(
     Boolean isArray,
     Uint32 size)
 {
+
+    _copyOnWrite();
+
     SCMBValue* theInstPropNodeArray =
         (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
 
@@ -3956,21 +3980,32 @@ SCMOInstance SCMOInstance::clone(Boolean objectPathOnly) const
     }
 
     SCMOInstance newInst;
-    newInst.inst.base = (char*)malloc(this->inst.mem->totalSize);
-    if (newInst.inst.base == 0 )
+    newInst.inst.base = inst.base;
+    newInst._clone();
+
+    return newInst;
+}
+
+void SCMOInstance::_clone()
+{
+    char* newBase;
+    newBase = (char*)malloc(inst.mem->totalSize);
+    if (0 == newBase )
     {
         throw PEGASUS_STD(bad_alloc)();
     }
 
-    memcpy( newInst.inst.base,this->inst.base,this->inst.mem->totalSize);
-    // reset the refcounter of this new instance
-    newInst.inst.hdr->refCount = 1;
-    // keep the ref counter of the class correct !
-    newInst.inst.hdr->theClass = new SCMOClass(*(this->inst.hdr->theClass));
-    // keep the ref count for external references
-    newInst._copyExternalReferences();
+    memcpy( newBase,inst.base,inst.mem->totalSize);
 
-    return newInst;
+    // make new new memory block to mine.
+    inst.base = newBase;
+    // reset the refcounter of this instance
+    inst.hdr->refCount = 1;
+    // keep the ref counter of the class correct !
+    inst.hdr->theClass = new SCMOClass(*(inst.hdr->theClass));
+    // keep the ref count for external references
+    _copyExternalReferences();
+
 }
 
 void SCMOInstance::_copyKeyBindings(SCMOInstance& targetInst) const
@@ -4237,6 +4272,8 @@ SCMBUnion * SCMOInstance::_resolveSCMBUnion(
 
 void SCMOInstance::clearKeyBindings()
 {
+    _copyOnWrite();
+
     // First destroy all external references in the key bindings
     _destroyExternalKeyBindings();
 
@@ -4813,6 +4850,8 @@ SCMO_RC SCMOInstance::setKeyBinding(
         return SCMO_INVALID_PARAMETER;
     }
 
+    _copyOnWrite();
+
     rc = inst.hdr->theClass->_getKeyBindingNodeIndex(node,name);
     if (rc != SCMO_OK)
     {
@@ -4851,11 +4890,6 @@ SCMO_RC SCMOInstance::setKeyBindingAt(
 {
     SCMO_RC rc;
 
-   // create a pointer to keybinding node array of the class.
-    Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
-    SCMBKeyBindingNode* theClassKeyBindNodeArray =
-        (SCMBKeyBindingNode*)&((inst.hdr->theClass->cls.base)[idx]);
-
     if (0 == keyvalue)
     {
         return SCMO_INVALID_PARAMETER;
@@ -4867,6 +4901,13 @@ SCMO_RC SCMOInstance::setKeyBindingAt(
     {
         return SCMO_INDEX_OUT_OF_BOUND;
     }
+
+    _copyOnWrite();
+
+   // create a pointer to keybinding node array of the class.
+    Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
+    SCMBKeyBindingNode* theClassKeyBindNodeArray =
+        (SCMBKeyBindingNode*)&((inst.hdr->theClass->cls.base)[idx]);
 
     // is the node a user defined key binding ?
     if (node >= inst.hdr->numberKeyBindings)
@@ -5101,6 +5142,8 @@ void SCMOInstance::setPropertyFilter(const char **propertyList)
 {
     SCMO_RC rc;
     Uint32 node,i = 0;
+
+    _copyOnWrite();
 
     if (inst.hdr->propertyFilter.start == 0)
     {

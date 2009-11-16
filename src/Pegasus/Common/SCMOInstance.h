@@ -798,6 +798,18 @@ private:
     };
 
 
+    void _copyOnWrite()
+    {
+        if ( 1 < inst.hdr->refCount.get() )
+        {
+            fprintf(stderr,"!! Copy on Write (%d) !!\n",
+                    inst.hdr->refCount.get() );
+            _clone();
+        }
+    };
+
+    void _clone();
+
     void _destroyExternalReferences();
 
     void _destroyExternalKeyBindings();

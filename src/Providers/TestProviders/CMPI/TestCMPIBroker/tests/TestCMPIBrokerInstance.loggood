@@ -35,7 +35,7 @@
  ++++ Status of CMGetClassName : (CMPI_RC_OK)
  ++++ Status of CMGetCharsPtr : (CMPI_RC_OK)
  ++++ Status of CMGetCharsPtr : (CMPI_RC_OK)
- ++++Namespace (_inst): () Class (*TestCMPI_BrokerInstance)
+ ++++Namespace (_inst): (test/TestProvider) Class (*TestCMPI_BrokerInstance)
  ++++ Status of CMGetProperty : (CMPI_RC_OK)
  n64 = 64
  GetInstance

@@ -369,6 +369,8 @@ extern "C"
                         const CIMObjectPath &ref=inst->buildPath(
                             *(reinterpret_cast<const CIMConstClass*>(cc)));
                         objPath.reset(new CIMObjectPath(ref));
+                        objPath->setHost(clsRef.getHost());
+                        objPath->setNameSpace(clsRef.getNameSpace());
                     }
                     catch(const Exception &e)
                     {

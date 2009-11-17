@@ -41,6 +41,10 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 
+#define PEGASUS_ARRAY_T SCMOResultionTable
+# include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+
 SCMOStreamer::SCMOStreamer(CIMBuffer& out, Array<SCMOInstance>& x) :
     _buf(out),
     _scmoInstances(x),

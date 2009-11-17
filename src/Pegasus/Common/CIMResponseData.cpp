@@ -457,9 +457,8 @@ void CIMResponseData::completeHostNameAndNamespace(
     const String & hn,
     const CIMNamespaceName & ns)
 {
-    // Internal XML always has host name and namespace
-    // binary data should not ever be present here
-    PEGASUS_DEBUG_ASSERT((RESP_ENC_BINARY != (_encoding & RESP_ENC_BINARY)));
+    // Only perform this operation when we have instantiated data.
+    // Do nothing for binary and internal xml data.
 
     if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
     {

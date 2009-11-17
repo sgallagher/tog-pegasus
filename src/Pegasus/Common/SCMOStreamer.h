@@ -44,11 +44,13 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct SCMOResultionTable
 {
-    SCMOResultionTable():scmbptr(0),index(0) {};
-
     void* scmbptr;
     Uint32 index;
 };
+
+#define PEGASUS_ARRAY_T SCMOResultionTable
+# include <Pegasus/Common/ArrayInter.h>
+#undef PEGASUS_ARRAY_T
 
 
 class PEGASUS_COMMON_LINKAGE SCMOStreamer

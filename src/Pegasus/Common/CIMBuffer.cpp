@@ -1774,7 +1774,10 @@ void CIMBuffer::putInstanceA(
 void CIMBuffer::putSCMOInstanceA(Array<SCMOInstance>& x)
 {
     Uint32 n = x.size();
+    _grow(n<<13);
+
     putUint32(n);
+
 
     SCMOStreamer scmoStreamer(*this,x);
     scmoStreamer.serialize();

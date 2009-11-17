@@ -1052,27 +1052,39 @@ void CIMBinMsgSerializer::_putAssociatorNamesResponseMessage(
     CIMBuffer& out,
     CIMAssociatorNamesResponseMessage* msg)
 {
-/*  TODO: Implement for binary here, InternalXml response not supported
-    out.putObjectPathA(msg->objectNames);
-*/
+    // InternalXml response not supported
+    PEGASUS_DEBUG_ASSERT(msg->binaryResponse);
+
+    CIMBuffer data(16 * 4096);
+    msg->getResponseData().encodeBinaryResponse(data);
+    out.putUint32(data.size());
+    out.putBytes(data.getData(), data.size());
 }
 
 void CIMBinMsgSerializer::_putReferencesResponseMessage(
     CIMBuffer& out,
     CIMReferencesResponseMessage* msg)
 {
-/*  TODO: Implement for binary here, InternalXml response not supported
-    out.putObjectA(msg->cimObjects);
-*/
+    // InternalXml response not supported
+    PEGASUS_DEBUG_ASSERT(msg->binaryResponse);
+
+    CIMBuffer data(16 * 4096);
+    msg->getResponseData().encodeBinaryResponse(data);
+    out.putUint32(data.size());
+    out.putBytes(data.getData(), data.size());
 }
 
 void CIMBinMsgSerializer::_putReferenceNamesResponseMessage(
     CIMBuffer& out,
     CIMReferenceNamesResponseMessage* msg)
 {
-/*  TODO: Implement for binary here, InternalXml response not supported
-    out.putObjectPathA(msg->objectNames);
-*/
+    // InternalXml response not supported
+    PEGASUS_DEBUG_ASSERT(msg->binaryResponse);
+
+    CIMBuffer data(16 * 4096);
+    msg->getResponseData().encodeBinaryResponse(data);
+    out.putUint32(data.size());
+    out.putBytes(data.getData(), data.size());
 }
 
 void CIMBinMsgSerializer::_putGetPropertyResponseMessage(

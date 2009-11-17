@@ -92,7 +92,7 @@ public:
 
     /**
      * Assignment operator for the SCMO instance,
-     * @param theSCMOClass The right hand value
+     * @param theSCMOInstance The right hand value
      **/
     SCMOInstance& operator=(const SCMOInstance& theSCMOInstance)
     {
@@ -253,7 +253,7 @@ public:
      *              Has to be copied by caller.
      *              It is set to NULL if rc != SCMO_OK.
      * @param pvalue Returns a pointer to the value of property.
-     *               The value is strored in a SCMBUnion
+     *               The value is stored in a SCMBUnion
      *                and has to be copied by the caller !
      *               It returns NULL if rc != SCMO_OK.
      *
@@ -294,7 +294,7 @@ public:
      * The value has to be copied by the caller !
      * @param name The property name
      * @param pvalue Returns a pointer to the value of property.
-     *               The value is strored in a SCMBUnion
+     *               The value is stored in a SCMBUnion
      *                and has to be copied by the caller !
      *               It returns NULL if rc != SCMO_OK.
      *
@@ -546,7 +546,7 @@ public:
      * @param type Returns the type as CIMType.
      *             It is invalid if rc == SCMO_INDEX_OUT_OF_BOUND.
      * @param keyvalue Returns a pointer to the value of keybinding.
-     *               The value is strored in a SCMBUnion
+     *               The value is stored in a SCMBUnion
      *                and has to be copied by the caller !
      *               It returns NULL if rc != SCMO_OK.
      *

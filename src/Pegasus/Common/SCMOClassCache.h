@@ -86,7 +86,7 @@ public:
      * @param nsNameLan The strlen of className ( without '\0')
      * @return A pointer to SCMOClass. If the class was not found, an empty
      *         SCMOClass is returned.  This can be checked by using the
-     *         SCMOClass.isEmptx() method.
+     *         SCMOClass.isEmpty() method.
      **/
     SCMOClass getSCMOClass(
         const char* nsName,
@@ -102,7 +102,7 @@ public:
     void removeSCMOClass(CIMNamespaceName cimNameSpace,CIMName cimClassName);
 
     /**
-     * Cleares the whole cache.
+     * Clears the whole cache.
      * This should be only done at modification of a class.
      * This may invalidate subclass definitions in the cache.
      * Since class modification is relatively rare, we just flush the entire
@@ -143,7 +143,7 @@ private:
     // The cache array
     SCMBClassCacheEntry _theCache[PEGASUS_SCMO_CLASS_CACHE_SIZE];
 
-    // Lock to prevent parallel modifies on the cache.
+    // Lock to prevent parallel modifications of the cache.
     ReadWriteSem _modifyCacheLock;
 
     // Last successful read index.

@@ -51,7 +51,7 @@ public:
 
     /**
      * Constructs a SCMOClass out of a CIMClass.
-     * @param theCIMClass The source the SCMOClass is constucted off.
+     * @param theCIMClass The source the SCMOClass is constructed off.
      * @param nameSpaceName The namespace for the class, optional.
      * @return
      */

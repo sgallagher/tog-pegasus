@@ -239,7 +239,7 @@ struct SCMBValue
 
 struct SCMBKeyBindingValue
 {
-    // Boolean flag
+    // Boolean flag, if the key binding was set by the provider.
     Sint32       isSet;
     // The value of the key binding
     SCMBUnion    data;
@@ -312,7 +312,7 @@ struct SCMBClassProperty
     SCMBDataPtr     originClassName;
     // Relative pointer to the reference class name
     SCMBDataPtr     refClassName;
-    // Default value
+    // Contains the default value if specified
     SCMBValue       defaultValue;
     // Number of qualifiers in the array
     Uint32          numberOfQualifiers;
@@ -400,7 +400,7 @@ struct SCMBClass_Main
     // The key properties of this class are identified
     // by a SCMBKeyPropertyMask
     SCMBDataPtr     keyPropertyMask;
-    // A list of index to the key propertis in the property set node array.
+    // A list of index to the key properties in the property set node array.
     SCMBDataPtr     keyIndexList;
     // Keybinding orderd set
     SCMBKeyBindingSet_Header keyBindingSet;

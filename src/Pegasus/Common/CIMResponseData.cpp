@@ -374,6 +374,18 @@ void CIMResponseData::completeNamespace(const SCMOInstance * x)
     ns = x->getNameSpace_l(len);
     // Both internal XML as well as binary always contain a namespace
     // don't have to do anything for those two encodings
+    if ((RESP_ENC_BINARY == (_encoding&RESP_ENC_BINARY)) && (len != 0))
+    {
+        _defaultNamespace = (char*)malloc(len+1);
+        if (0==_defaultNamespace)
+        {
+            return;
+        }
+        memcpy(_defaultNamespace, ns, len+1);
+        _defaultNamespaceLen = len;
+    }
+
+
     if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
     {
         CIMNamespaceName nsName(ns);
@@ -541,6 +553,14 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
         "CIMResponseData::encodeXmlResponse(encoding=%X,content=%X)\n",
         _encoding,
         _dataType));
+
+    // already existing Internal XML does not need to be encoded further
+    // binary input is not actually impossible here, but we have an established
+    // fallback
+    if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
+    {
+        _resolveBinary();
+    }
 
     if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
@@ -716,6 +736,11 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
 // not usable by clients
 void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
 {
+    PEG_TRACE((TRC_XML, Tracer::LEVEL3,
+        "CIMResponseData::encodeInternalXmlResponse(encoding=%X,content=%X)\n",
+        _encoding,
+        _dataType));
+
     // already existing Internal XML does not need to be encoded further
     // binary input is not actually impossible here, but we have an established
     // fallback
@@ -723,7 +748,8 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
     {
         _resolveBinary();
     }
-    if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
+    if ((0 == _encoding) ||
+        (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM)))
     {
         switch (_dataType)
         {
@@ -1220,7 +1246,10 @@ void CIMResponseData::_resolveCIMToSCMO()
         {
             for (Uint32 i=0,n=_instanceNames.size();i<n;i++)
             {
-                SCMOInstance addme(_instanceNames[i]);
+                SCMOInstance addme(
+                    _instanceNames[i],
+                    _defaultNamespace,
+                    _defaultNamespaceLen);
                 _scmoInstances.append(addme);
             }
             _instanceNames.clear();
@@ -1230,7 +1259,10 @@ void CIMResponseData::_resolveCIMToSCMO()
         {
             if (_instances.size() > 0)
             {
-                SCMOInstance addme(_instances[0]);
+                SCMOInstance addme(
+                    _instances[0],
+                    _defaultNamespace,
+                    _defaultNamespaceLen);
                 _scmoInstances.clear();
                 _scmoInstances.append(addme);
                 _instances.clear();
@@ -1241,7 +1273,10 @@ void CIMResponseData::_resolveCIMToSCMO()
         {
             for (Uint32 i=0,n=_instances.size();i<n;i++)
             {
-                SCMOInstance addme(_instances[i]);
+                SCMOInstance addme(
+                    _instances[i],
+                    _defaultNamespace,
+                    _defaultNamespaceLen);
                 _scmoInstances.append(addme);
             }
             _instances.clear();
@@ -1251,7 +1286,10 @@ void CIMResponseData::_resolveCIMToSCMO()
         {
             for (Uint32 i=0,n=_objects.size();i<n;i++)
             {
-                SCMOInstance addme(_objects[i]);
+                SCMOInstance addme(
+                    _objects[i],
+                    _defaultNamespace,
+                    _defaultNamespaceLen);
                 _scmoInstances.append(addme);
             }
             _objects.clear();
@@ -1261,7 +1299,10 @@ void CIMResponseData::_resolveCIMToSCMO()
         {
             for (Uint32 i=0,n=_instanceNames.size();i<n;i++)
             {
-                SCMOInstance addme(_instanceNames[i]);
+                SCMOInstance addme(
+                    _instanceNames[i],
+                    _defaultNamespace,
+                    _defaultNamespaceLen);
                 // TODO: More description about this.
                 if (0 == _instanceNames[i].getKeyBindings().size())
                 {

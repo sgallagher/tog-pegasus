@@ -67,8 +67,16 @@ public:
         RESP_OBJECTPATHS = 5
     };
 
-    CIMResponseData(ResponseDataContent content):_encoding(0),_dataType(content)
+    CIMResponseData(ResponseDataContent content):
+        _encoding(0),_dataType(content),
+        _defaultNamespace(0), _defaultNamespaceLen(0)
     {};
+
+
+    ~CIMResponseData()
+    {
+        free(_defaultNamespace);
+    }
 
     // C++ objects interface handling
 
@@ -208,8 +216,11 @@ private:
     Array<String> _hostsData;
     Array<CIMNamespaceName> _nameSpacesData;
 
+
     // For binary encoding.
     Array<Uint8> _binaryData;
+    char* _defaultNamespace;
+    Uint32 _defaultNamespaceLen;
 
     // Default C++ encoding
     Array<CIMObjectPath> _instanceNames;

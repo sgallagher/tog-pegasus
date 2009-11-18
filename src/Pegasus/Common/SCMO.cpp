@@ -824,7 +824,6 @@ void SCMOClass::_setClassKeyBinding(
     const CIMProperty& theCIMProperty)
 {
     CIMPropertyRep* propRep = theCIMProperty._rep;
-    Uint64 valueStart;
 
     // First do all _setString(). Can cause reallocation.
     _setString(propRep->_name.getString(),
@@ -1512,7 +1511,6 @@ SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
 {
 
     SCMO_RC rc = SCMO_OK;
-    Uint32 noProps;
     CIMObjectPath objPath;
 
     // For better usability define pointers to SCMO Class data structures.
@@ -2644,7 +2642,6 @@ void SCMOInstance::_setCIMInstance(const CIMInstance& cimInstance)
 {
     CIMPropertyRep* propRep;
     Uint32 propNode;
-    Uint64 valueStart;
     SCMO_RC rc;
     CIMType realType;
 
@@ -3466,8 +3463,6 @@ void SCMOInstance::_setUnionArrayValue(
 
             ptargetUnion = (SCMBUnion*)(&((char*)*pmem)[arrayStart]);
 
-            SCMOClass* theRefClass;
-
             for (Uint32 i = 0; i < loop ; i++)
             {
                 if (iterator[i].isUninitialized())
@@ -3750,7 +3745,6 @@ void SCMOInstance::_setUnionValue(
             }
 
             CIMObject* theCIMObject =(CIMObject*)((void*)&u._objectValue);
-            SCMOClass* theRefClass;
 
             if (theCIMObject->isUninitialized())
             {
@@ -4439,7 +4433,6 @@ SCMO_RC SCMOInstance::_getUserKeyBindingNodeIndex(
 
     Uint32 len = strlen(name);
     node = 0;
-    SCMBUserKeyBindingElement* theUserDefKBElement;
 
     Uint64 elementStart = inst.hdr->userKeyBindingElement.start;
 
@@ -4782,7 +4775,6 @@ SCMO_RC SCMOInstance::_setKeyBindingFromString(
     CIMType type,
     String cimKeyBinding)
 {
-    SCMO_RC rc;
     Uint32 node;
 
     if (0 == name)
@@ -4888,8 +4880,6 @@ SCMO_RC SCMOInstance::setKeyBindingAt(
         CIMType type,
         const SCMBUnion* keyvalue)
 {
-    SCMO_RC rc;
-
     if (0 == keyvalue)
     {
         return SCMO_INVALID_PARAMETER;
@@ -5729,8 +5719,6 @@ void SCMODump::dumpSCMOClassQualifiers(SCMOClass& testCls) const
 
 void SCMODump::hexDumpSCMOClass(SCMOClass& testCls) const
 {
-    char* tmp;
-
     SCMBClass_Main* clshdr = testCls.cls.hdr;
     char* clsbase = testCls.cls.base;
 

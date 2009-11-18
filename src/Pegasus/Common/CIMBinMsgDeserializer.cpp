@@ -1931,7 +1931,6 @@ CIMBinMsgDeserializer::_getDisableModuleResponseMessage(
 {
     XmlEntry entry;
     CIMValue genericValue;
-    Uint16 genericUint16;
     Array<Uint16> operationalStatus;
 
     if (!in.getUint16A(operationalStatus))
@@ -1950,7 +1949,6 @@ CIMBinMsgDeserializer::_getEnableModuleResponseMessage(
 {
     XmlEntry entry;
     CIMValue genericValue;
-    Uint16 genericUint16;
     Array<Uint16> operationalStatus;
 
     if (!in.getUint16A(operationalStatus))

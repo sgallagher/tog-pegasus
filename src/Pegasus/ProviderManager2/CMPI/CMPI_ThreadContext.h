@@ -102,11 +102,7 @@ inline void CMPI_ThreadContext::context_key_alloc()
 
 inline TSDKeyType CMPI_ThreadContext::getContextKey()
 {
-    if( context_key_once )
-    {
-        context_key_alloc();
-        context_key_once=0;
-    }
+    once(&contextKeyOnce, context_key_alloc);
     return contextKey;
 }
 

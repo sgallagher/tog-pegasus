@@ -38,6 +38,8 @@ CWS_Directory_CXX
 </KEYBINDING>
 </INSTANCENAME>
 <INSTANCE CLASSNAME="CWS_Directory_CXX">
+<PROPERTY NAME="InstanceID" PROPAGATED="true" TYPE="string">
+</PROPERTY>
 <PROPERTY NAME="Caption" PROPAGATED="true" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="Description" PROPAGATED="true" TYPE="string">
@@ -53,6 +55,14 @@ CWS_Directory_CXX
 <PROPERTY NAME="Status" PROPAGATED="true" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="HealthState" PROPAGATED="true" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="CommunicationStatus" PROPAGATED="true" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="DetailedStatus" PROPAGATED="true" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="OperatingStatus" PROPAGATED="true" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="PrimaryStatus" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
 <PROPERTY NAME="CompressionMethod" PROPAGATED="true" TYPE="string">
 </PROPERTY>
@@ -152,6 +162,8 @@ CWS_Directory_CXX
 </KEYBINDING>
 </INSTANCENAME>
 <INSTANCE CLASSNAME="CWS_Directory_CXX">
+<PROPERTY NAME="InstanceID" PROPAGATED="true" TYPE="string">
+</PROPERTY>
 <PROPERTY NAME="Caption" PROPAGATED="true" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="Description" PROPAGATED="true" TYPE="string">
@@ -167,6 +179,14 @@ CWS_Directory_CXX
 <PROPERTY NAME="Status" PROPAGATED="true" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="HealthState" PROPAGATED="true" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="CommunicationStatus" PROPAGATED="true" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="DetailedStatus" PROPAGATED="true" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="OperatingStatus" PROPAGATED="true" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="PrimaryStatus" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
 <PROPERTY NAME="CompressionMethod" PROPAGATED="true" TYPE="string">
 </PROPERTY>
@@ -266,6 +286,8 @@ CWS_Directory_CXX
 </KEYBINDING>
 </INSTANCENAME>
 <INSTANCE CLASSNAME="CWS_Directory_CXX">
+<PROPERTY NAME="InstanceID" PROPAGATED="true" TYPE="string">
+</PROPERTY>
 <PROPERTY NAME="Caption" PROPAGATED="true" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="Description" PROPAGATED="true" TYPE="string">
@@ -281,6 +303,14 @@ CWS_Directory_CXX
 <PROPERTY NAME="Status" PROPAGATED="true" TYPE="string">
 </PROPERTY>
 <PROPERTY NAME="HealthState" PROPAGATED="true" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="CommunicationStatus" PROPAGATED="true" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="DetailedStatus" PROPAGATED="true" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="OperatingStatus" PROPAGATED="true" TYPE="uint16">
+</PROPERTY>
+<PROPERTY NAME="PrimaryStatus" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
 <PROPERTY NAME="CompressionMethod" PROPAGATED="true" TYPE="string">
 </PROPERTY>

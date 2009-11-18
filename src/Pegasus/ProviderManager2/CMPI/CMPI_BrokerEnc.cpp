@@ -1145,7 +1145,7 @@ extern "C"
         {
             parms = handleMgr->releaseHandle(msgFileHandle);
         }
-        catch( IndexOutOfBoundsException& e )
+        catch( IndexOutOfBoundsException&)
         {
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
@@ -1180,7 +1180,7 @@ extern "C"
         {
             parms = handleMgr->getDataForHandle(msgFileHandle);
         }
-        catch( IndexOutOfBoundsException& e )
+        catch( IndexOutOfBoundsException&)
         {
             if (rc)
             {

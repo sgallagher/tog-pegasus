@@ -26,21 +26,95 @@
 #// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//////////////////////////////////////////////////////////////////////////
-ROOT = ../../../../..
-DIR = Pegasus/Common/tests/SCMO
+ROOT = ../../../..
+
 include $(ROOT)/mak/config.mak
-include ../libraries.mak
 
-LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+DIRS = \
+    Abstract \
+    AnonymousPipe \
+    Array \
+    AutoPtr \
+    AuditLogger \
+    async_callback \
+    AtomicInt \
+    AuthenticationInfo \
+    Base64 \
+    Buffer \
+    CIMName \
+    ClassDecl \
+    Compare \
+    Config \
+    DateTime \
+    Dir \
+    Executor \
+    FileLock \
+    FileSystem \
+    Flavor \
+    Formatter \
+    HashTable \
+    HTTPMessage \
+    InstanceDecl \
+    L10N \
+    L10N/msg \
+    Logger \
+    MessageQueue \
+    MessageQueueService \
+    MessageSerializer \
+    Method \
+    ModuleController \
+    Mutex \
+    Object \
+    ObjectNormalizer \
+    OperationContext \
+    ParamValue \
+    Parameter \
+    Property \
+    Qualifier \
+    QualifierDecl \
+    QualifierList \
+    Reference \
+    Resolve \
+    Scope \
+    SCMO \
+    SpinLock \
+    Stack \
+    StrToInstName \
+    String \
+    StringConversion \
+    System \
+    Thread \
+    ThreadPool \
+    TimeValue \
+    Tracer \
+    ValidateClass \
+    Value \
+    XmlDump \
+    XmlParser \
+    XmlPrint \
+    XmlReader \
+    List \
+    AsyncQueue \
+    IDFactory \
+    SharedPtr \
+    HostAddress \
+    HostLocator \
+    OrderedSet \
+    XmlWriter
 
 
-PROGRAM = TestSCMO
+ifndef PEGASUS_DISABLE_PERFINST
+DIRS += \
+	StatisticalData
+endif
 
-SOURCES = TestSCMO.cpp
+ifeq ($(PEGASUS_ENABLE_SLP),true)
+DIRS += \
+	Attribute
+endif
 
-include $(ROOT)/mak/program.mak
+ifeq ($(PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY),true)
+    DIRS += CIMBuffer
+endif
 
-tests:
-	$(PROGRAM)
-
-poststarttests:
+include $(ROOT)/mak/recurse.mak

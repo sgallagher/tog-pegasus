@@ -32,7 +32,11 @@
 #define _CMPIClassCache_H_
 
 #include <Pegasus/Common/Config.h>
+
+#ifndef PEGASUS_OS_TYPE_WINDOWS
 #include <strings.h>
+#endif
+
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/HashTable.h>
@@ -64,11 +68,20 @@ public:
     ClassCacheEntry( const ClassCacheEntry& oldEntry)
     {
         nsLen = oldEntry.nsLen;
-        nsName = new char[nsLen+1];
+        nsName = (char*) malloc(nsLen+1);
+        if (0 == nsName)
+        {
+            throw PEGASUS_STD(bad_alloc)();
+        }
         memcpy((void*)nsName, oldEntry.nsName, nsLen+1);
 
         clsLen = oldEntry.clsLen;
-        clsName = new char[clsLen+1];
+        clsName =  (char*) malloc(clsLen+1);
+        if (0 == clsName)
+        {
+            free((void*)nsName);
+            throw PEGASUS_STD(bad_alloc)();
+        }
         memcpy((void*)clsName, oldEntry.clsName, clsLen+1);
 
         allocated = true;
@@ -78,8 +91,8 @@ public:
     {
         if (allocated)
         {
-            delete[](clsName);
-            delete[](nsName);
+            free((void*)clsName);
+            free((void*)nsName);
         }
     }
 

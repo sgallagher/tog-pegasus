@@ -62,7 +62,7 @@ extern "C"
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
 
-        if (arr->isCloned == true)
+        if (arr->isCloned != 0)
         {
             for (unsigned int i=1; i<=dta->value.uint32; i++)
             {

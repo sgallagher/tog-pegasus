@@ -346,12 +346,19 @@ extern "C"
                 CMPI_Array* ar = (CMPI_Array*)data->array->hdl;
                 CMPIData* arrData = (CMPIData*)ar->hdl;
 
-
                 Uint32 arraySize = arrData->value.uint32;
 
-
                 // Convert the array of CMPIData to an array of SCMBUnion
-                SCMBUnion scmbArray[arraySize];
+                SCMBUnion * scmbArray = 0;
+                SCMBUnion scmbArrayBuf[8];
+                if (arraySize > 8)
+                {
+                    scmbArray=(SCMBUnion *)malloc(arraySize*sizeof(SCMBUnion));
+                }
+                else
+                {
+                    scmbArray=&(scmbArrayBuf[0]);
+                }
                 for (unsigned int x=0; x<arraySize; x++)
                 {
                     // Note:  First element is the array status information,
@@ -361,12 +368,17 @@ extern "C"
                         arrData[x+1].type);
                 }
 
-                rc = inst->setPropertyWithOrigin(name,
-                                                 cimType,
-                                                 &(scmbArray[0]),
-                                                 true,          // isArray
-                                                 arraySize,
-                                                 origin);
+                rc = inst->setPropertyWithOrigin(
+                    name,
+                    cimType,
+                    scmbArray,
+                    true,          // isArray
+                    arraySize,
+                    origin);
+                if (arraySize > 8)
+                {
+                    free(scmbArray);
+                }
             }
         }
 

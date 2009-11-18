@@ -60,7 +60,6 @@ CIMClass _scmoClassCache_GetClass(
 {
     CIMClass CIM_TESTClass2;
     Buffer text;
-    SCMO_RC rc;
 
     VCOUT << endl << "Loading CIM SCMO_TESTClass2" << endl;
 
@@ -226,8 +225,6 @@ void CIMClassToSCMOClass()
 
 void SCMOClassQualifierTest()
 {
-
-    SCMO_RC rc;
     VCOUT << endl << "Getting SCMOClass from cache ..." << endl;
 
     SCMOClassCache* _theCache = SCMOClassCache::getInstance();
@@ -727,7 +724,7 @@ void SCMOInstancePropertyTest()
     VCOUT << "Test Sint8" << endl;
 
     SCMBUnion sint8value;
-    sint8value.simple.val.s8=0xF3;
+    sint8value.simple.val.s8=Sint8(0xF3);
     sint8value.simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
@@ -796,7 +793,7 @@ void SCMOInstancePropertyTest()
     VCOUT << "Test Sint16" << endl;
 
     SCMBUnion sint16value;
-    sint16value.simple.val.s16=0xF24B;
+    sint16value.simple.val.s16=Sint16(0xF24B);
     sint16value.simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
@@ -822,13 +819,13 @@ void SCMOInstancePropertyTest()
     PEGASUS_TEST_ASSERT(unionReturn->simple.hasValue);
 
     SCMBUnion sint16ArrayValue[4];
-    sint16ArrayValue[0].simple.val.s16 = -8;
+    sint16ArrayValue[0].simple.val.s16 = Sint16(-8);
     sint16ArrayValue[0].simple.hasValue=true;
-    sint16ArrayValue[1].simple.val.s16 = 23872;
+    sint16ArrayValue[1].simple.val.s16 = Sint16(23872);
     sint16ArrayValue[1].simple.hasValue=true;
-    sint16ArrayValue[2].simple.val.s16 = 334;
+    sint16ArrayValue[2].simple.val.s16 = Sint16(334);
     sint16ArrayValue[2].simple.hasValue=true;
-    sint16ArrayValue[3].simple.val.s16 = 0xF00F;
+    sint16ArrayValue[3].simple.val.s16 = Sint16(0xF00F);
     sint16ArrayValue[3].simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
@@ -1013,7 +1010,7 @@ void SCMOInstancePropertyTest()
     VCOUT << "Test Real32" << endl;
 
     SCMBUnion real32value;
-    real32value.simple.val.r32=2.4271e-4;
+    real32value.simple.val.r32=Real32(2.4271e-4);
     real32value.simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(
@@ -1039,11 +1036,11 @@ void SCMOInstancePropertyTest()
     PEGASUS_TEST_ASSERT(unionReturn->simple.hasValue);
 
     SCMBUnion real32ArrayValue[3];
-    real32ArrayValue[0].simple.val.r32 = 3.94e30;
+    real32ArrayValue[0].simple.val.r32 = Real32(3.94e30);
     real32ArrayValue[0].simple.hasValue=true;
-    real32ArrayValue[1].simple.val.r32 = -4.83734324e-35;
+    real32ArrayValue[1].simple.val.r32 = Real32(-4.83734324e-35);
     real32ArrayValue[1].simple.hasValue=true;
-    real32ArrayValue[2].simple.val.r32 = 2.323490e34;
+    real32ArrayValue[2].simple.val.r32 = Real32(2.323490e34);
     real32ArrayValue[2].simple.hasValue=true;
 
     rc = SCMO_TESTClass2_Inst.setPropertyWithOrigin(

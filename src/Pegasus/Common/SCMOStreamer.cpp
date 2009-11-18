@@ -41,7 +41,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 
-#define PEGASUS_ARRAY_T SCMOResultionTable
+#define PEGASUS_ARRAY_T SCMOResolutionTable
 # include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
@@ -145,7 +145,7 @@ Uint32 SCMOStreamer::_appendToInstResolverTable(
     const SCMOInstance& inst,
     Uint32 idx)
 {
-    SCMOResultionTable tableEntry;
+    SCMOResolutionTable tableEntry;
 
     tableEntry.scmbptr = (void*)&inst;
     tableEntry.index = idx;
@@ -171,7 +171,7 @@ Uint32 SCMOStreamer::_appendToClassResolverTable(const SCMOInstance& inst)
 
 
     // Now build a new entry for the class resolution table
-    SCMOResultionTable tableEntry;
+    SCMOResolutionTable tableEntry;
 
     tableEntry.scmbptr = (void*)inst.inst.hdr;
     tableEntry.index = clsIdx;
@@ -318,23 +318,23 @@ bool SCMOStreamer::_getClasses()
 void SCMOStreamer::_putInstances()
 {
     Uint32 numInst = _clsResolverTable.size();
-    const SCMOResultionTable* instArray = _clsResolverTable.getData();
+    const SCMOResolutionTable* instArray = _clsResolverTable.getData();
 
     // Number of instances
     _buf.putUint32(numInst);
 
     // Instance to class resolution table
-    _buf.putBytes(instArray, numInst*sizeof(SCMOResultionTable));
+    _buf.putBytes(instArray, numInst*sizeof(SCMOResolutionTable));
 
 
     Uint32 numExtRefs = _instResolverTable.size();
-    const SCMOResultionTable* extRefArray = _instResolverTable.getData();
+    const SCMOResolutionTable* extRefArray = _instResolverTable.getData();
 
     // Number of references
     _buf.putUint32(numExtRefs);
 
     // Instance references resolution table
-    _buf.putBytes(extRefArray, numExtRefs*sizeof(SCMOResultionTable));
+    _buf.putBytes(extRefArray, numExtRefs*sizeof(SCMOResolutionTable));
 
 
     // SCMOInstances, one by one
@@ -364,8 +364,8 @@ bool SCMOStreamer::_getInstances()
     }
 
     // Instance to class resolution table
-    SCMOResultionTable *instArray = new SCMOResultionTable[numInst];
-    if(!_buf.getBytes(instArray, numInst*sizeof(SCMOResultionTable)))
+    SCMOResolutionTable *instArray = new SCMOResolutionTable[numInst];
+    if(!_buf.getBytes(instArray, numInst*sizeof(SCMOResolutionTable)))
     {
         return false;
     }
@@ -378,11 +378,11 @@ bool SCMOStreamer::_getInstances()
     }
 
     // Instance references resolution table
-    SCMOResultionTable *extRefArray = new SCMOResultionTable[numExtRefs];
+    SCMOResolutionTable *extRefArray = new SCMOResolutionTable[numExtRefs];
     Uint32 extRefIndex=0;
     if (numExtRefs > 0)
     {
-        if(!_buf.getBytes(extRefArray, numExtRefs*sizeof(SCMOResultionTable)))
+        if(!_buf.getBytes(extRefArray, numExtRefs*sizeof(SCMOResolutionTable)))
         {
             return false;
         }

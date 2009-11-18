@@ -42,13 +42,13 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-struct SCMOResultionTable
+struct SCMOResolutionTable
 {
     void* scmbptr;
     Uint32 index;
 };
 
-#define PEGASUS_ARRAY_T SCMOResultionTable
+#define PEGASUS_ARRAY_T SCMOResolutionTable
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
@@ -127,11 +127,11 @@ private:
 
     // Index table used to resolve the absolute pointers to SCMOClasses
     // to a relative sequence number (index) in the stream
-    Array<SCMOResultionTable> _clsResolverTable;
+    Array<SCMOResolutionTable> _clsResolverTable;
 
     // Index table used to resolve the absolute pointers to SCMOInstances
     // to a relative sequence number (index) in the stream
-    Array<SCMOResultionTable> _instResolverTable;
+    Array<SCMOResolutionTable> _instResolverTable;
 
     // Table of pointers to SCMOClasses to be streamed
     Array<const SCMBClass_Main*> _classTable;

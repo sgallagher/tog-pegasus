@@ -149,6 +149,10 @@ static const char   LONG_HELP []  = "help";
 static const char   LONG_VERSION []  = "version";
 
 static const char MSG_PATH []               = "pegasus/pegasusCLI";
+static const char REQUIRED_ARGS_MISSING [] = "Required arguments missing.";
+
+static const char REQUIRED_ARGS_MISSING_KEY [] =
+    "Clients.cimuser.CIMUserCommand.REQUIRED_ARGS_MISSING";
 
 static const char ERR_USAGE [] =
     "Use '--help' to obtain command syntax.";
@@ -341,7 +345,7 @@ WbemExecCommand::WbemExecCommand ()
             client.connect(host, portNumber, &sslcontext, _userName, _password);
         }
 #else
-        PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+        PEGASUS_ASSERT(false);
 #endif
     }
     else
@@ -393,9 +397,7 @@ void WbemExecCommand::_printContent(
                 // The message ID starts after the last ':' char. (See,
                 // DSP0226 R5.4.4-1.). Position to the last ':' char.
                 const char* colonPos = uuidEnd;
-                for ( ; colonPos >= uuidStart && *colonPos != ':'; colonPos--)
-                {
-                }
+                for ( ; colonPos >= uuidStart && *colonPos != ':'; colonPos--);
 
                 char* beginPtr = contentCopy.get() + (colonPos+1 - content);
                 char* endPtr   = contentCopy.get() + (uuidEnd - content);

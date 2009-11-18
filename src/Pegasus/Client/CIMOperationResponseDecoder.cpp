@@ -126,6 +126,9 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         ClientExceptionMessage * response =
             new ClientExceptionMessage(malformedHTTPException);
 
+       //reconnect and resend next request
+        response->setCloseConnect(true);
+
         _outputQueue->enqueue(response);
         return;
     }

@@ -118,13 +118,21 @@ SCMOClass* CMPIClassCache::getSCMOClass(
     catch (const CIMException &e)
     {
         PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-            "CIMException: %s",(const char*)e.getMessage().getCString()));
+            "Exception in CMPIClassCache::getClass() : %s",
+            (const char*)e.getMessage().getCString()));
     }
     catch (const Exception &e)
     {
         PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
-            "Exception: %s",(const char*)e.getMessage().getCString()));
+             "Exception in CMPIClassCache::getClass() : %s",
+             (const char*)e.getMessage().getCString()));
     }
+    catch (...)
+    {
+        PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+            "Unknown Exception in CMPIClassCache::getClass()"));
+    }
+
     return 0;
 }
 

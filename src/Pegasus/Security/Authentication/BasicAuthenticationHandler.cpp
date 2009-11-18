@@ -39,9 +39,6 @@
 
 #include "SecureBasicAuthenticator.h"
 #include "PAMBasicAuthenticator.h"
-# if defined(PEGASUS_PAM_SESSION_SECURITY)
-#include "PAMSessionBasicAuthenticator.h"
-#endif
 #include "BasicAuthenticationHandler.h"
 #include "AuthenticationManager.h"
 
@@ -57,12 +54,8 @@ BasicAuthenticationHandler::BasicAuthenticationHandler()
 
 #ifdef PEGASUS_PAM_AUTHENTICATION
     _basicAuthenticator = (BasicAuthenticator*) new PAMBasicAuthenticator();
-#else 
-# if defined(PEGASUS_PAM_SESSION_SECURITY)
-    _basicAuthenticator=(BasicAuthenticator*)new PAMSessionBasicAuthenticator();
-# else
+#else
     _basicAuthenticator = (BasicAuthenticator*) new SecureBasicAuthenticator();
-# endif
 #endif
 
     PEG_METHOD_EXIT();
@@ -78,13 +71,16 @@ BasicAuthenticationHandler::~BasicAuthenticationHandler()
     PEG_METHOD_EXIT();
 }
 
-AuthenticationStatus BasicAuthenticationHandler::authenticate(
+Boolean BasicAuthenticationHandler::authenticate(
     const String& authHeader,
     AuthenticationInfo* authInfo)
 {
     PEG_METHOD_ENTER(
         TRC_AUTHENTICATION, "BasicAuthenticationHandler::authenticate()");
 
+    Boolean authenticated = false;
+
+    //
     // copy userPass string to char array for decoding
     //
     Buffer userPassArray;
@@ -94,7 +90,7 @@ AuthenticationStatus BasicAuthenticationHandler::authenticate(
     userPassArray.reserveCapacity( length );
     userPassArray.clear();
 
-    for( Uint32 i = 0; i < length; ++i )
+    for( Uint32 i = 0; i < length; i++ )
     {
         userPassArray.append( static_cast<char>(authHeader[i]) );
     }
@@ -114,60 +110,58 @@ AuthenticationStatus BasicAuthenticationHandler::authenticate(
     if (pos == PEG_NOT_FOUND)
     {
         PEG_METHOD_EXIT();
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        return (authenticated);
     }
 
     String userName = decodedStr.subString(0, pos);
 
     String password = decodedStr.subString(pos + 1);
 
-    const Uint32 userNameLen = userName.size();
+    Uint32 userNameLen = userName.size();
     if (userNameLen > PEGASUS_MAX_USER_NAME_LEN)
     {
+        String badUserName = userName.subString(0, PEGASUS_MAX_USER_NAME_LEN);
+
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,
             Logger::INFORMATION,
             MessageLoaderParms(
                 BASIC_AUTHENTICATION_FAILED_KEY,
-                BASIC_AUTHENTICATION_FAILED, userName,
+                BASIC_AUTHENTICATION_FAILED, badUserName,
                 authInfo->getIpAddress()));
         PEG_METHOD_EXIT();
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        return false;
     }
 
     // PASE APIs require user profile to be uppercase
 #ifdef PEGASUS_OS_PASE
-    for (Uint32 i = 0; i < userNameLen; ++i)
+    for (Uint32 i = 0; i < userNameLen; i++)
     {
         userName[i] = toupper(userName[i]);
     }
 #endif
 
 #ifdef PEGASUS_WMIMAPPER
+    authenticated = true;
 
     authInfo->setAuthenticatedUser(userName);
     authInfo->setAuthenticatedPassword(password);
-
 #else
 
     if (!AuthenticationManager::isRemotePrivilegedUserAccessAllowed(userName))
     {
-        return AuthenticationStatus(AUTHSC_UNAUTHORIZED);
+        return false;
     }
     authInfo->setRemotePrivilegedUserAccessChecked();
 
-    AuthenticationStatus authStatus=
-        _basicAuthenticator->authenticate(
-            userName,
-            password,
-            authInfo);
+    authenticated = _basicAuthenticator->authenticate(userName, password);
 
     // Log audit message.
     PEG_AUDIT_LOG(logBasicAuthentication(
         userName,
         authInfo->getIpAddress(),
-        authStatus.isSuccess()));
+        authenticated));
 
-    if (authStatus.isSuccess())
+    if (authenticated)
     {
         authInfo->setAuthenticatedUser(userName);
     }
@@ -186,14 +180,13 @@ AuthenticationStatus BasicAuthenticationHandler::authenticate(
 #endif
 
     PEG_METHOD_EXIT();
-    return authStatus;
+
+    return (authenticated);
 }
 
-AuthenticationStatus BasicAuthenticationHandler::validateUser(
-    const String& userName,
-    AuthenticationInfo* authInfo)
+Boolean BasicAuthenticationHandler::validateUser(const String& userName)
 {
-    return _basicAuthenticator->validateUser(userName,authInfo);
+    return _basicAuthenticator->validateUser(userName);
 }
 
 String BasicAuthenticationHandler::getAuthResponseHeader(

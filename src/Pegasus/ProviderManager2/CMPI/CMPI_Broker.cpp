@@ -913,7 +913,7 @@ extern "C"
             "CMPI_Broker:mbDeliverIndication()");
         eMb = CM_BROKER;
         CMPI_Broker *mb = (CMPI_Broker*)eMb;
-        CMPIProviderManager::indProvRecord *prec;
+        IndProvRecord *indProvRec;
         OperationContext* context = CM_Context(ctx);
 
         SCMOInstance* scmoInst = SCMO_Instance(ind);
@@ -935,9 +935,9 @@ extern "C"
             provider_name = mb->name;
         }
         ReadLock readLock(CMPIProviderManager::rwSemProvTab);
-        if (CMPIProviderManager::provTab.lookup(provider_name,prec))
+        if (CMPIProviderManager::indProvTab.lookup(provider_name, indProvRec))
         {
-            if (prec->enabled)
+            if (indProvRec->isEnabled())
             {
                 try
                 {
@@ -956,7 +956,7 @@ extern "C"
                 CIMIndication cimIndication(indInst);
                 try
                 {
-                    prec->handler->deliver(
+                    indProvRec->getHandler()->deliver(
                         *context,
    //                   OperationContext(*CM_Context(ctx)),
                         cimIndication);

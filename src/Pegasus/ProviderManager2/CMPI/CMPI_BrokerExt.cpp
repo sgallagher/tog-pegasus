@@ -107,8 +107,25 @@ static ThreadReturnType PEGASUS_THREAD_CDECL start_driver(void *parm)
     delete pp;
     rc = (ThreadReturnType)(data.pgm)(data.parm);
 
-    // Remove the thread from the watch-list (and clean it up).
-    data.provider->removeThreadFromWatch(my_thread);
+    // Remove the thread from the watch-list (and clean it up) if this (self)
+    // was created in detached mode. Don't delete the thread if this thread
+    // was not created in detached mode because it is possible that join()
+    // my be called on this thread later. This thread object is deleted when
+    // joinThread() is called later. If joinThread() is not called memory is
+    // leaked which is true as per Pthread semantics and as defined by CMPI.
+    if (!my_thread->isDetached())
+    {
+        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
+            "Thread %s is not detached, not removed from provider watch-list",
+            Threads::id().buffer));
+    }
+    else
+    {
+        data.provider->removeThreadFromWatch(my_thread);
+        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
+            "Thread %s is detached and removed from provider watch-list",
+            Threads::id().buffer));
+    }
     PEG_METHOD_EXIT();
     return rc;
 }
@@ -174,8 +191,14 @@ extern "C"
         CMPI_THREAD_TYPE thread,
         CMPI_THREAD_RETURN *returnCode)
     {
+        const CMPIBroker *brk = CM_BROKER;
+        const CMPI_Broker *broker = (CMPI_Broker*)brk;
         ((Thread*)thread)->join();
-        *returnCode = (CMPI_THREAD_RETURN)((Thread*)thread)->get_exit();
+        if (returnCode)
+        {
+            *returnCode = (CMPI_THREAD_RETURN)((Thread*)thread)->get_exit();
+        }
+        broker->provider->removeThreadFromWatch((Thread*)thread);
         return 0;
     }
 

@@ -151,6 +151,7 @@ Sint32 CMPILocalProviderManager::_provider_ctrl (
 
 
                 ph->SetProvider (pr);
+                ph->GetProvider ().update_idle_timer ();
                 break;
             }
 
@@ -418,6 +419,7 @@ ThreadReturnType PEGASUS_THREAD_CDECL CMPILocalProviderManager::_reaper(
     PEG_METHOD_ENTER(
         TRC_PROVIDERMANAGER,
         "CMPILocalProviderManager::_reaper()");
+    Thread *myself = reinterpret_cast<Thread *>(parm);
     do
     {
         _pollingSem.wait();
@@ -503,19 +505,22 @@ void CMPILocalProviderManager::cleanupThread(Thread *t, CMPIProvider *p)
     if (_reaperThread == 0)
     {
         _reaperThread = new Thread(_reaper, NULL, false);
-
-        if (_reaperThread->run() != PEGASUS_THREAD_OK)
+        ThreadStatus rtn = PEGASUS_THREAD_OK;
+        while ((rtn = _reaperThread->run()) != PEGASUS_THREAD_OK)
         {
-            PEG_TRACE_CSTRING(
-                TRC_PROVIDERMANAGER,
-                Tracer::LEVEL1,
-                "Could not allocate thread to take care of deleting "
-                    "user threads, will be cleaned up later.");
-
-            delete _reaperThread; 
-            _reaperThread = 0;
-            PEG_METHOD_EXIT();
-            return;
+            if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+                Threads::yield();
+            else
+            {
+                PEG_TRACE_CSTRING(
+                    TRC_PROVIDERMANAGER,
+                    Tracer::LEVEL1,
+                    "Could not allocate thread to take care of deleting "
+                    "user threads. ");
+                delete _reaperThread; _reaperThread = 0;
+                PEG_METHOD_EXIT();
+                return;
+            }
         }
     }
     // Wake up the reaper.
@@ -1047,7 +1052,6 @@ CMPIProvider * CMPILocalProviderManager::_lookupProvider(
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL4,
             "Created provider %s",(const char*)pr->getName().getCString()));
     }
-    pr->update_idle_timer();
 
     PEG_METHOD_EXIT ();
     return(pr);

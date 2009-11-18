@@ -58,10 +58,12 @@ static const char _MSG_CANNOT_INIT_API[] =
 // until the provider has had a chance to initialize
 CMPIProvider::CMPIProvider(
     const String & name,
+    const String & moduleName,
     CMPIProviderModule *module,
     ProviderVector *mv)
     : _status(UNINITIALIZED), _module(module), _cimom_handle(0), _name(name),
-    _no_unload(0),  _threadWatchList(), _cleanedThreads()
+    _moduleName(moduleName), _no_unload(0),  _threadWatchList(),
+    _cleanedThreads()
 {
     PEG_METHOD_ENTER(
         TRC_CMPIPROVIDERINTERFACE,
@@ -111,6 +113,11 @@ void CMPIProvider::reset()
 CMPIProviderModule *CMPIProvider::getModule() const
 {
     return(_module);
+}
+
+String CMPIProvider::getModuleName() const
+{
+    return _moduleName;
 }
 
 String CMPIProvider::getName() const

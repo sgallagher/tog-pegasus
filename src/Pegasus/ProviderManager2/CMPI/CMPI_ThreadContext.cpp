@@ -42,7 +42,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 TSDKeyType CMPI_ThreadContext::contextKey;
-int CMPI_ThreadContext::context_key_once=1;
+Once CMPI_ThreadContext::contextKeyOnce = PEGASUS_ONCE_INITIALIZER;
 
 CMPI_ThreadContext::CMPI_ThreadContext(
 const CMPIBroker *mb,

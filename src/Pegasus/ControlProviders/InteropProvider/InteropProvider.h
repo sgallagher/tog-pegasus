@@ -213,15 +213,6 @@ private:
         const CIMName& className,
         Boolean includeQualifiers,
         CIMClass& returnedClass);
-    /*
-     * CIM communication mechanism instance building starts with this function
-     * and completed by buildCIMXMLCommunicationMechanismInstance
-     */
-    void _buildCommInstSkeleton(
-        const Boolean isHttpsEnabled,
-        const Array<String> &ips,
-        const CIMClass &commMechClass,
-        Array<CIMInstance> &instances );
 
     CIMInstance buildCIMXMLCommunicationMechanismInstance(
         const String& namespaceType,
@@ -231,15 +222,13 @@ private:
 
     Array<CIMInstance> enumCIMXMLCommunicationMechanismInstances();
 
-    Array<CIMInstance> enumHostedAccessPointInstances(
-        const OperationContext &opContext);
+    Array<CIMInstance> enumHostedAccessPointInstances();
 
     CIMInstance getObjectManagerInstance();
 
-    CIMInstance getComputerSystemInstance(const OperationContext &opContext);
+    CIMInstance getComputerSystemInstance();
 
-    CIMInstance getHostedObjectManagerInstance(
-        const OperationContext &opContext);
+    CIMInstance getHostedObjectManagerInstance();
 
     Array<CIMInstance> enumNamespaceInstances();
 
@@ -301,8 +290,7 @@ private:
     Array<CIMInstance> enumSubProfileRequiresProfileInstances();
     Array<CIMInstance> enumSoftwareIdentityInstances();
     Array<CIMInstance> enumElementSoftwareIdentityInstances();
-    Array<CIMInstance> enumInstalledSoftwareIdentityInstances(
-        const OperationContext &opContext);
+    Array<CIMInstance> enumInstalledSoftwareIdentityInstances();
     Array<CIMInstance> enumDefaultSoftwareIdentityInstances();
 
     CIMInstance getSoftwareIdentityInstance(
@@ -315,8 +303,6 @@ private:
         const CIMPropertyList &propertyList = CIMPropertyList());
 
 #ifdef PEGASUS_ENABLE_DMTF_INDICATION_PROFILE_SUPPORT
-    Array<CIMInstance> enumIndicationServiceInstances(
-        const OperationContext &opContext);
     Array<CIMInstance> enumElementCapabilityInstances(
         const OperationContext & opContext);
     Array<CIMInstance> enumHostedIndicationServiceInstances(
@@ -392,7 +378,7 @@ private:
     // This function fetches the other side of the reference.
     Array<CIMInstance> getReferencedInstances(
         const Array<CIMInstance> &refs,
-        const String &targetRole,
+        const String targetRole,
         const OperationContext & context,
         const CIMPropertyList & propertyList);
 
@@ -433,9 +419,6 @@ private:
     Boolean enableSLP;
     String httpPort;
     String httpsPort;
-
-    // Cached CIM_ObjectManager instance.
-    CIMInstance _CIMObjectManagerInst;
 };
 
 PEGASUS_NAMESPACE_END

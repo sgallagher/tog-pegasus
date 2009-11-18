@@ -519,6 +519,7 @@ CIMObjectPath InteropProvider::createNamespace(
     CIMRepository::NameSpaceAttributes attributes;
 
     // Set shareable attribute to "false" if property is not present
+    Boolean shareable = false;
     if (getPropertyValue(namespaceInstance,
         PG_NAMESPACE_PROPERTY_ISSHAREABLE, false))
     {
@@ -530,6 +531,7 @@ CIMObjectPath InteropProvider::createNamespace(
     }
 
     // Set updatesAllowed attribute to "false" if property is not present
+    Boolean updatesAllowed = false;
     if (getPropertyValue(namespaceInstance,
         PG_NAMESPACE_PROPERTY_SCHEMAUPDATESALLOWED, false))
     {
@@ -551,13 +553,15 @@ CIMObjectPath InteropProvider::createNamespace(
     // Create the namespace with the retrieved attributes.
     //
     repository->createNameSpace(newNamespaceName, attributes);
-  
+
     PEG_TRACE((
         TRC_CONTROLPROVIDER,
         Tracer::LEVEL4,
-        "Namespace %s: Parent: %s"
+        "Namespace %s: Shareable = %s, Updates allowed: %s, Parent: %s"
             "  successfully created.",
         (const char*) newNamespaceName.getString().getCString(),
+        shareable? "true" : "false",
+        updatesAllowed? "true" : "false",
         (const char*) parent.getCString()));
 
     return newInstanceReference;

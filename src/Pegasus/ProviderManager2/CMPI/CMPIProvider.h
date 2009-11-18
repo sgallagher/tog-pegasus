@@ -178,6 +178,7 @@ public:
 
     CMPIProvider(
         const String & name,
+        const String & moduleName,
         CMPIProviderModule *module,
         ProviderVector *mv);
 
@@ -196,6 +197,7 @@ public:
     Status getStatus();
     String getName() const;
     String getNameWithType() const;
+    String getModuleName() const;
 
     void reset();
 
@@ -367,6 +369,7 @@ private:
     class OpProviderHolder;
     CIMOMHandle *_cimom_handle;
     String _name;
+    String _moduleName;
     AtomicInt _no_unload;
     Uint32 _quantum;
     AtomicInt _current_operations;

@@ -101,6 +101,62 @@ void Threads::sleep(int msec)
 
 //==============================================================================
 //
+// _get_stack_multiplier()
+//
+//==============================================================================
+
+static inline int _get_stack_multiplier()
+{
+#if defined(PEGASUS_OS_VMS)
+
+    static int _multiplier = 0;
+    static MutexType _multiplier_mutex = PEGASUS_MUTEX_INITIALIZER;
+
+    //
+    // This code uses a, 'hidden' (non-documented), VMS only, logical
+    //  name (environment variable), PEGASUS_VMS_THREAD_STACK_MULTIPLIER,
+    //  to allow in the field adjustment of the thread stack size.
+    //
+    // We only check for the logical name once to not have an
+    //  impact on performance.
+    //
+    // Note:  This code may have problems in a multithreaded environment
+    //  with the setting of doneOnce to true.
+    //
+    // Current code in Cimserver and the clients do some serial thread
+    //  creations first so this is not a problem now.
+    //
+
+    if (_multiplier == 0)
+    {
+        mutex_lock(&_multiplier_mutex);
+
+        if (_multiplier == 0)
+        {
+            const char *env = getenv("PEGASUS_VMS_THREAD_STACK_MULTIPLIER");
+
+            if (env)
+                _multiplier = atoi(env);
+
+            if (_multiplier == 0)
+                _multiplier = 2;
+        }
+
+        mutex_unlock(&_multiplier_mutex);
+    }
+
+    return _multiplier;
+#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+    return 2;
+#elif defined(PEGASUS_OS_AIX)
+    return 2;
+#else
+    return 1;
+#endif
+}
+
+//==============================================================================
+//
 // PEGASUS_HAVE_PTHREADS
 //
 //==============================================================================
@@ -135,8 +191,19 @@ int Threads::create(
     }
 
     // Stack size:
-    rc = pthread_attr_setstacksize(&attr, PEGASUS_INITIAL_THREADSTACK_SIZE);
-    PEGASUS_ASSERT(rc == 0);
+
+    int multiplier = _get_stack_multiplier();
+
+    if (multiplier != 1)
+    {
+        size_t stacksize;
+
+        if (pthread_attr_getstacksize(&attr, &stacksize) == 0)
+        {
+            int rc = pthread_attr_setstacksize(&attr, stacksize * multiplier);
+            PEGASUS_ASSERT(rc == 0);
+        }
+    }
 
     // Scheduling policy:
 

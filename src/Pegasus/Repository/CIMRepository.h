@@ -149,7 +149,7 @@ public:
         This method mimics the client behavior for the EnumerateInstances
         operation, but of course it can only return the instances that reside
         in the repository.  This method does not perform deepInheritance
-        filtering.
+        filtering regardless of the value given for that parameter.
 
         This method is useful mainly for testing purposes, and should not be
         relied upon for complete results in a CIM Server environment.
@@ -157,6 +157,7 @@ public:
     Array<CIMInstance> enumerateInstancesForSubtree(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
+        Boolean deepInheritance = true,
         Boolean includeQualifiers = false,
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
@@ -208,37 +209,8 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
 
-    /**
-        Get the associated(reference) classes or instances for the
-        input ObjectName filtered by the assocClass,resultClass,
-        role and result role parameters. This is analogous to the
-        operation defined in the DMTF spec DSP200.
-        @param nameSpace CIMNamespaceName for the operation
-        @param objectName CIMObjectPath for the operation.  If this includes
-        ONLY a class in the object with no keys the return is CIMClasses. Else
-        it is CIMInstances. See bug 3302
-        @param assocClass CIMName with name of association class for which this
-        is to be filtered or Null if no filtering
-        @param resultClass CIMName with name of associated class for which
-        response is to be filtered or Null of no filtering.
-        @param role String defining role parameter from association class to
-        objectName
-        @param resultRole String defining role between association and
-        associated classes.
-        @param includeQualifiers Boolean to force inclusion of Qualifiers if
-        true and if this is a class request.
-        @param includeClassOrigin Boolean to force inclusion of ClassOrigin
-        information if true
-        @param propertyList CIMPropertyList (optional). if Null,
-        return all properties. If empty but not Null, return no
-        properties. Else return only properties in the list.
-        @return Array<CIMObject> containing either the classes or
-                instances requested.
-        @exception CIMException Error code CIM_ERR_INVALID_CLASS if the class
-            does not exist.
-        @exception - Throws NoSuchDirectory if the Namespace
-                       does not exist.
-    */
+
+    /// associators
     Array<CIMObject> associators(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -250,30 +222,7 @@ public:
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
-    /**
-        Get the associated class or instance object paths for the
-        input ObjectName filtered by the assocClass,resultClass,
-        role and result role parameters. This is analogous to the
-        operation defined in the DMTF spec DSP200.
-        @param nameSpace CIMNamespaceName for the operation
-        @param objectName CIMObjectPath for the operation.  If this includes
-        ONLY a class in the object with no keys the return is CIMClasses. Else
-        it is CIMInstances. See bug 3302
-        @param assocClass CIMName with name of association class for which this
-        is to be filtered or Null if no filtering
-        @param resultClass CIMName with name of associated class for which
-        response is to be filtered or Null of no filtering.
-        @param role String defining role parameter from association class to
-        objectName
-        @param resultRole String defining role between association and
-        associated classes.
-        @return Array<CIMObjectPath> containing  the path of either
-                classes or instances requested.
-        @exception CIMException Error code CIM_ERR_INVALID_CLASS if the class
-            does not exist.
-        @exception - Throws NoSuchDirectory if the Namespace
-                       does not exist.        
-    */
+    /// associatorNames
     Array<CIMObjectPath> associatorNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -282,33 +231,7 @@ public:
         const String& role = String::EMPTY,
         const String& resultRole = String::EMPTY);
 
-    /**
-        Get the association classes or instances for the input
-        ObjectName filtered by the resultClass and role parameters.
-        This is analogous to the operation defined in the DMTF spec
-        DSP200.
-        @param nameSpace CIMNamespaceName for the operation
-        @param objectName CIMObjectPath for the operation.  If this includes
-        ONLY a class in the object with no keys the return is CIMClasses. Else
-        it is CIMInstances. See bug 3302
-        @param role String defining role parameter from association class to
-        objectName
-        @param resultRole String defining role between association and
-        associated classes.
-        @param includeQualifiers Boolean to force inclusion of Qualifiers if
-        true and if this is a class request.
-        @param includeClassOrigin Boolean to force inclusion of ClassOrigin
-        information if true
-        @param propertyList CIMPropertyList (optional). if Null,
-        return all properties. If empty but not Null, return no
-        properties. Else return only properties in the list.
-        @return Array<CIMObject> containing either the classes or
-                instances requested.
-        @exception CIMException Error code CIM_ERR_INVALID_CLASS if the class
-            does not exist.
-        @exception - Throws NoSuchDirectory if the Namespace does
-            not exist. 
-    */
+    /// references
     Array<CIMObject> references(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -318,26 +241,7 @@ public:
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList());
 
-    /**
-        Get the association class or instance object paths for the
-        input ObjectName filtered by the assocClass,resultClass,
-        role and result role parameters. This is analogous to the
-        operation defined in the DMTF spec DSP200.
-        @param nameSpace CIMNamespaceName for the operation
-        @param objectName CIMObjectPath for the operation.  If this includes
-        ONLY a class in the object with no keys the return is CIMClasses. Else
-        it is CIMInstances. See bug 3302
-        @param role String defining role parameter from association class to
-        objectName
-        @param resultRole String defining role between association and
-        associated classes.
-        @return Array<CIMObjectPath> containing  the path of either
-                classes or instances requested.
-        @exception CIMException Error code CIM_ERR_INVALID_CLASS if the class
-            does not exist.
-        @exception - Throws NoSuchDirectory if the Namespace
-                       does not exist.        
-    */
+    /// referenceNames
     Array<CIMObjectPath> referenceNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -384,9 +288,6 @@ public:
 
     void modifyNameSpace(const CIMNamespaceName& nameSpace,
         const NameSpaceAttributes& attributes = NameSpaceAttributes());
-
-    void modifyNameSpaceName(const CIMNamespaceName& nameSpace,
-        const CIMNamespaceName& newNameSpaceName);
 
     Array<CIMNamespaceName> enumerateNameSpaces() const;
 

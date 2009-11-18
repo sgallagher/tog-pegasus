@@ -71,10 +71,8 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 
-ReadWriteSem    CMPIProviderManager::rwSemProvTab;
-ReadWriteSem    CMPIProviderManager::rwSemSelxTab;
-CMPIProviderManager::IndProvTab    CMPIProviderManager::provTab;
-CMPIProviderManager::IndSelectTab  CMPIProviderManager::selxTab;
+ReadWriteSem CMPIProviderManager::rwSemProvTab;
+CMPIProviderManager::IndProvTab CMPIProviderManager::indProvTab;
 
 class CMPIPropertyList
 {
@@ -138,37 +136,15 @@ CMPIProviderManager::~CMPIProviderManager()
     PEG_METHOD_ENTER(
         TRC_PROVIDERMANAGER,
         "CMPIProviderManager::~CMPIProviderManager()");
-    /* Clean up the hash-tables */
-    indProvRecord *prec=NULL;
-    {
-        WriteLock writeLock(rwSemProvTab);
-        for (IndProvTab::Iterator i = provTab.start(); i; i++)
-        {
-            provTab.lookup(i.key(),prec);
-            if (prec->handler)
-                delete prec->handler;
-            delete prec;
-            //Remove is not neccessary, since the hashtable destructor takes
-            //care of this already. But instead removing entries while
-            //iterating the hashtable sometimes causes a segmentation fault!!!
-            //provTab.remove(i.key());
-            prec=NULL;
-        }
-    }
 
-    indSelectRecord *selx=NULL;
+    IndProvRecord *indProvRec;
+
+    WriteLock lock(rwSemProvTab);
+
+    for (IndProvTab::Iterator i = indProvTab.start(); i; i++)
     {
-        WriteLock writeLock(rwSemSelxTab);
-        for (IndSelectTab::Iterator i = selxTab.start(); i; i++)
-        {
-            selxTab.lookup(i.key(), selx);
-            if (selx->eSelx)
-                delete selx->eSelx;
-            delete selx;
-            //Same as above!
-            //selxTab.remove(i.key());
-            selx=NULL;
-        }
+        indProvTab.lookup(i.key(), indProvRec);
+        delete indProvRec;
     }
 
     /* clean up the MessageHandleManager Singleton object */
@@ -527,13 +503,17 @@ CMPIProvider & CMPIProviderManager::_resolveAndGetProvider(
         if ((isRemote=pidc.isRemoteNameSpace()))
         {
             *ph = providerManager.getRemoteProvider(
-                name.getLocation(), name.getLogicalName());
+                name.getLocation(),
+                name.getLogicalName(),
+                name.getModuleName());
         }
         else
         {
             // get cached or load new provider module
             *ph = providerManager.getProvider(
-                name.getPhysicalName(), name.getLogicalName());
+                name.getPhysicalName(),
+                name.getLogicalName(),
+                name.getModuleName());
         }
         *remoteInfo = pidc.getRemoteInfo().getCString();
 
@@ -2042,43 +2022,10 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             &remoteInfo,
             remote);
 
-        indProvRecord *prec=NULL;
-        {
-            WriteLock writeLock(rwSemProvTab);
-            provTab.lookup(pr.getName(),prec);
-            if (prec) prec->count++;
-            else
-            {
-                prec=new indProvRecord();
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
-                if (remote)
-                {
-                    prec->remoteInfo.assign(remoteInfo);
-                }
-#endif
-                provTab.insert(pr.getName(),prec);
-            }
-        }
-
         //
         //  Save the provider instance from the request
         //
         pr.setProviderInstance (req_provider);
-
-        const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
-
-        indSelectRecord *srec=NULL;
-
-        {
-            WriteLock writeLock(rwSemSelxTab);
-            selxTab.lookup(sPath,srec);
-            if (srec) srec->count++;
-            else
-            {
-                srec=new indSelectRecord();
-                selxTab.insert(sPath,srec);
-            }
-        }
 
         CIMObjectPath subscriptionName =
             request->subscriptionInstance.getPath();
@@ -2100,7 +2047,28 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             request->query,
             sub_cntr.getQueryLanguage());
 
-        srec->eSelx=eSelx;
+        IndProvRecord *indProvRec=NULL;
+        const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
+
+        {
+            WriteLock lock(rwSemProvTab);
+            indProvTab.lookup(pr.getName(), indProvRec);
+            if (indProvRec == NULL)
+            {
+                indProvRec = new IndProvRecord();
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+                if (remote)
+                {
+                    indProvRec->setRemoteInfo((const char*)remoteInfo);
+                }
+#endif
+                indProvTab.insert(pr.getName(), indProvRec);                
+            }
+            // Note that per provider subscription path MUST be unique.
+            Boolean ok = indProvRec->addSelectExp(sPath, eSelx);
+            PEGASUS_ASSERT(ok);
+        }
+
 
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
@@ -2138,8 +2106,6 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             eSelx->props[pCount]=NULL;
         }
 
-        Uint16 repeatNotificationPolicy = request->repeatNotificationPolicy;
-
         // includeQualifiers and includeClassOrigin not of interest for
         // this type of request
         _setupCMPIContexts(
@@ -2162,6 +2128,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             AutoPThreadSecurity threadLevelSecurity(request->operationContext);
 
             StatProviderTimeMeasurement providerTime(response);
+
             // Call activateFilter() on each subclass name, Check if atleast one
             // filter can be activated for any of the subclasses.
             for (Uint32 i = 0, n = request->classNames.size(); i < n; i++)
@@ -2189,7 +2156,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
                         eSelx,
                         CHARS(className),
                         &eRef,
-                        false);
+                        i == 0);
                 }
                 else
                 {
@@ -2209,14 +2176,14 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
                                   eSelx,
                                   CHARS(className),
                                   &eRef,
-                                  false);
+                                  i == 0);
                 }
+
                 if (rc.rc == CMPI_RC_OK)
                 {
                     filterActivated = true;
                     eSelx->classNames.append(classPath);
                     eSelx->classNamesSCMO.append(*classPathSCMO);
-
                 }
                 else
                 {
@@ -2256,14 +2223,11 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
 
         if (!filterActivated)
         {
-            //  Removed the select expression from the cache
-            WriteLock lock(rwSemSelxTab);
-            if (--srec->count<=0)
-            {
-                selxTab.remove(sPath);
-                delete eSelx;
-                delete srec;
-            }
+            //  Remove the select expression from the cache
+            WriteLock lock(rwSemProvTab);
+            Boolean ok = indProvRec->deleteSelectExp(sPath);
+            PEGASUS_ASSERT(ok);
+            delete eSelx;
             throw CIMException((CIMStatusCode)rc.rc,
                 rc.msg ? CMGetCharsPtr(rc.msg, NULL) : String::EMPTY);
         }
@@ -2334,43 +2298,27 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
             &remoteInfo,
             remote);
 
-        indProvRecord *prec=NULL;
-        {
-            WriteLock writeLock(rwSemProvTab);
-            provTab.lookup(pr.getName(),prec);
-            if (--prec->count<=0)
-            {
-                if (prec->handler)
-                    delete prec->handler;
-                delete prec;
-                provTab.remove(pr.getName());
-                prec=NULL;
-            }
-        }
-
-        indSelectRecord *srec=NULL;
         const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
-
-        WriteLock writeLock(rwSemSelxTab);
-        if (!selxTab.lookup(sPath,srec))
+        IndProvRecord *indProvRec=NULL;
+        CMPI_SelectExp *eSelx=NULL;
         {
-            MessageLoaderParms parms(
-                "ProviderManager.CMPI.CMPIProviderManager."
-                "FAILED_LOCATE_SUBSCRIPTION_FILTER",
-                "Failed to locate the subscription filter.");
-            // failed to get select expression from hash table
-            throw CIMException(CIM_ERR_FAILED, parms);
-        };
-
-        CMPI_SelectExp *eSelx=srec->eSelx;
+            WriteLock lock(rwSemProvTab);
+            indProvTab.lookup(pr.getName(),indProvRec);
+            if (!indProvRec->lookupSelectExp(sPath, eSelx))
+            {
+                MessageLoaderParms parms(
+                    "ProviderManager.CMPI.CMPIProviderManager."
+                        "FAILED_LOCATE_SUBSCRIPTION_FILTER",
+                    "Failed to locate the subscription filter.");
+                // failed to get select expression from hash table
+                throw CIMException(CIM_ERR_FAILED, parms);
+            }
+            Boolean ok = indProvRec->deleteSelectExp(sPath);
+            PEGASUS_ASSERT(ok);
+        }
 
         CString className = eSelx->classNames[0].getClassName().
             getString().getCString();
-
-        if (--srec->count<=0)
-        {
-            selxTab.remove(sPath);
-        }
 
         CIMObjectPath subscriptionName =
             request->subscriptionInstance.getPath();
@@ -2418,7 +2366,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
                         eSelx,
                         CHARS(className),
                         &eRef,
-                        prec==NULL);
+                        i == n - 1);
                 }
                 else
                 {
@@ -2438,7 +2386,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
                             eSelx,
                             CHARS(className),
                             &eRef,
-                            prec==NULL);
+                            i == n - 1);
                 }
                 if (rc.rc != CMPI_RC_OK)
                 {
@@ -2461,11 +2409,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
             "Returning from provider.deleteSubscriptionRequest: %s",
             (const char*)pr.getName().getCString()));
 
-        if (srec->count<=0)
-        {
-            delete eSelx;
-            delete srec;
-        }
+        delete eSelx;
 
 //      Need to save ContentLanguage value into operation context of response
 //      Do this before checking rc from provider to throw exception in case
@@ -2494,12 +2438,23 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
             //
             if (pr.decrementSubscriptionsAndTestIfZero ())
             {
+                Boolean callDisable = false;
+                {
+                    WriteLock lock(rwSemProvTab);
+                    if (!indProvRec->getSelectExpCount())
+                    {
+                        indProvTab.remove(pr.getName());
+                        delete indProvRec;
+                        callDisable = true;
+                    }
+                }
+
                 //
                 //  If there are no current subscriptions after the decrement,
                 //  the last subscription has been deleted
                 //  Call the provider's disableIndications method
                 //
-                if (_subscriptionInitComplete)
+                if (_subscriptionInitComplete && callDisable)
                 {
                     _callDisableIndications(
                         ph,
@@ -2546,6 +2501,9 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
         request->
         providerModule.findProperty("Location")).getValue().toString());
 
+    String moduleName= request->providerModule.getProperty(
+        request->providerModule.findProperty("Name")).getValue().toString();
+
     for (Uint32 i = 0, n = _pInstances.size(); i < n; i++)
     {
         String providerName;
@@ -2554,7 +2512,7 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
 
         Uint32 pos = _pInstances[i].findProperty(PEGASUS_PROPERTYNAME_NAME);
 
-        if (!providerManager.isProviderActive(providerName))
+        if (!providerManager.isProviderActive(providerName, moduleName))
         {
             continue;
         }
@@ -2563,7 +2521,8 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
             physicalName,
             _pInstances[i].getProperty(
                 _pInstances[i].findProperty(PEGASUS_PROPERTYNAME_NAME)
-                ).getValue ().toString ());
+                ).getValue ().toString (),
+            moduleName);
 
         if (!unloadOk)
         {
@@ -2582,8 +2541,9 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
                 {
                     OpProviderHolder ph =
                         providerManager.getProvider(
-                        physicalName,
-                        providerName);
+                            physicalName,
+                            providerName,
+                            moduleName);
                     ph.GetProvider ().resetSubscriptions ();
                 }
                 catch (const Exception &e)
@@ -2734,12 +2694,12 @@ Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest(
 
             CString info;
 #ifdef PEGASUS_ENABLE_REMOTE_CMPI
-            indProvRecord *provRec = 0;
-            if (provTab.lookup (enableProviders [i]->getName(), provRec))
+            IndProvRecord *provRec = 0;
+            if (indProvTab.lookup (enableProviders [i]->getName(), provRec))
             {
-                if (provRec->remoteInfo != String::EMPTY)
+                if (provRec->getRemoteInfo() != String::EMPTY)
                 {
-                    info = provRec->remoteInfo.getCString();
+                    info = provRec->getRemoteInfo().getCString();
                 }
             }
 #endif
@@ -2751,13 +2711,15 @@ Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest(
             {
                 ph = providerManager.getRemoteProvider
                     (enableProviders [i]->getModule ()->getFileName (),
-                    enableProviders [i]->getName ());
+                    enableProviders [i]->getName (),
+                    enableProviders[i]->getModuleName());
             }
             else
             {
                 ph = providerManager.getProvider
                     (enableProviders [i]->getModule ()->getFileName (),
-                    enableProviders [i]->getName ());
+                    enableProviders [i]->getName (),
+                    enableProviders[i]->getModuleName());
             }
             _callEnableIndications(
                 provider,
@@ -3213,21 +3175,20 @@ void CMPIProviderManager::_callEnableIndications
 
     try
     {
-        indProvRecord *provRec =0;
+        IndProvRecord *indProvRec =0;
         {
             WriteLock lock(rwSemProvTab);
 
-            if (provTab.lookup (ph.GetProvider ().getName (), provRec))
+            if (indProvTab.lookup (ph.GetProvider ().getName (),indProvRec))
             {
-                provRec->enabled = true;
                 CIMRequestMessage * request = 0;
                 CIMResponseMessage * response = 0;
-                provRec->handler=new EnableIndicationsResponseHandler(
+                indProvRec->setHandler(new EnableIndicationsResponseHandler(
                     request,
                     response,
                     req_provider,
                     _indicationCallback,
-                    _responseChunkCallback);
+                    _responseChunkCallback));
             }
         }
 
@@ -3327,17 +3288,6 @@ void CMPIProviderManager::_callDisableIndications
 
     try
     {
-        indProvRecord * provRec = 0;
-        {
-            WriteLock writeLock(rwSemProvTab);
-            if (provTab.lookup (ph.GetProvider ().getName (), provRec))
-            {
-                provRec->enabled = false;
-                if (provRec->handler) delete provRec->handler;
-                provRec->handler = NULL;
-            }
-        }
-
         CMPIProvider & pr=ph.GetProvider();
 
         //

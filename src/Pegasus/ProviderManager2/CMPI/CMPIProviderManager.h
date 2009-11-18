@@ -45,11 +45,96 @@
 #include <Pegasus/ProviderManager2/CMPI/Linkage.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPI_ContextArgs.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPI_Error.h>
+#include <Pegasus/ProviderManager2/CMPI/CMPI_SelectExp.h>
 
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 PEGASUS_NAMESPACE_BEGIN
 
-struct CMPI_SelectExp;
+/**
+    This record is created for each indication provider to keep track of
+    CMPI_SelectExp objects they are servicing.
+*/
+class PEGASUS_CMPIPM_LINKAGE IndProvRecord
+{
+public:
+    IndProvRecord() : _handler(0), selectExpTab(4)
+    {
+    }
+
+    ~IndProvRecord()    
+    {
+        CMPI_SelectExp *eSelx;
+        for (SelectExpTab::Iterator i = selectExpTab.start(); i; i++)
+        {
+            selectExpTab.lookup(i.key(), eSelx);
+            delete eSelx;
+        }
+        delete _handler;
+    }
+
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+    void setRemoteInfo(const String &remoteInfo)
+    {
+        _remoteInfo = remoteInfo;
+    }
+
+    String getRemoteInfo()
+    {
+        return _remoteInfo;
+    }
+#endif
+
+    void setHandler(EnableIndicationsResponseHandler *handler)
+    {
+        _handler = handler;
+    }
+
+    EnableIndicationsResponseHandler* getHandler()
+    {
+        return _handler;
+    }
+
+    Boolean isEnabled()
+    {
+        return _handler != 0;
+    }
+
+    Boolean getSelectExpCount()
+    {
+        return selectExpTab.size();
+    }
+
+    Boolean lookupSelectExp(
+        const CIMObjectPath &path,
+        CMPI_SelectExp *&eSelx)
+    {
+        return selectExpTab.lookup(path, eSelx);
+    }
+
+    Boolean addSelectExp(
+        const CIMObjectPath &path,
+        CMPI_SelectExp *eSelx)
+    {
+        return selectExpTab.insert(path, eSelx);
+    }
+
+    Boolean deleteSelectExp(
+        const CIMObjectPath &path)
+    {
+        return selectExpTab.remove(path);
+    }
+
+private:
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
+    String _remoteInfo;
+#endif
+    EnableIndicationsResponseHandler* _handler;
+
+    typedef HashTable<CIMObjectPath, CMPI_SelectExp*,
+        EqualFunc<CIMObjectPath>, HashFunc<CIMObjectPath> > SelectExpTab;
+
+    SelectExpTab selectExpTab;
+};
 
 class PEGASUS_CMPIPM_LINKAGE CMPIProviderManager : public ProviderManager
 {
@@ -67,37 +152,11 @@ public:
         return true;
     }
 
-    struct indProvRecord
-    {
-        indProvRecord() : enabled(false), count(1), handler(NULL)
-        {
-        }
-        Boolean enabled;
-        int count;
-#ifdef PEGASUS_ENABLE_REMOTE_CMPI
-        String remoteInfo;
-#endif
-        EnableIndicationsResponseHandler* handler;
-    };
-
-    struct indSelectRecord
-    {
-        indSelectRecord() : eSelx(NULL), count(1)
-        {
-        }
-        CMPI_SelectExp *eSelx;
-        int count;
-    };
-
-    typedef HashTable<String,indProvRecord*, \
+    typedef HashTable<String, IndProvRecord*,
         EqualFunc<String>,HashFunc<String> > IndProvTab;
-    typedef HashTable<CIMObjectPath,indSelectRecord*, \
-        EqualFunc<CIMObjectPath>,HashFunc<CIMObjectPath> > IndSelectTab;
 
-    static IndProvTab provTab;
-    static ReadWriteSem  rwSemProvTab;
-    static IndSelectTab selxTab;
-    static ReadWriteSem  rwSemSelxTab;
+    static IndProvTab indProvTab;
+    static ReadWriteSem rwSemProvTab;
 protected:
     CMPILocalProviderManager providerManager;
 

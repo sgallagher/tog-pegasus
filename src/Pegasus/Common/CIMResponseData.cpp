@@ -320,7 +320,7 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
         {
             case RESP_INSTNAMES:
             {
-                out.putObjectPathA(_instanceNames, false);
+                out.putObjectPathA(_instanceNames);
                 break;
             }
             case RESP_INSTANCE:
@@ -344,7 +344,7 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
             }
             case RESP_OBJECTPATHS:
             {
-                out.putObjectPathA(_instanceNames, false);
+                out.putObjectPathA(_instanceNames);
                 break;
             }
             default:

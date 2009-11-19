@@ -2287,8 +2287,11 @@ void SCMOInstance::setHostName(const char* hostName)
 
 void SCMOInstance::setHostName_l(const char* hostName, Uint64 len)
 {
-    _copyOnWrite();
-
+    // Copy on Write is only necessary if a realloc() becomes necessary
+    if (inst.mem->freeBytes < len)
+    {
+        _copyOnWrite();
+    }
     // copy including trailing '\0'
     _setBinary(hostName,len+1,inst.hdr->hostName,&inst.mem);
 }
@@ -2379,8 +2382,11 @@ void SCMOInstance::setNameSpace(const char* nameSpace)
 
 void SCMOInstance::setNameSpace_l(const char* nameSpace, Uint64 len)
 {
-    _copyOnWrite();
-
+    // Copy on Write is only necessary if a realloc() becomes necessary
+    if (inst.mem->freeBytes < len)
+    {
+        _copyOnWrite();
+    }
     // flag the instance as compromized
     inst.hdr->flags.isCompromised=true;
     // copy including trailing '\0'

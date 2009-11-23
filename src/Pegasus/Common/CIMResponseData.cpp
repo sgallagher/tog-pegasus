@@ -329,12 +329,12 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
                 {
                     _instances.append(CIMInstance());
                 }
-                out.putInstance(_instances[0], false, false);
+                out.putInstance(_instances[0], true, true);
                 break;
             }
             case RESP_INSTANCES:
             {
-                out.putInstanceA(_instances, false);
+                out.putInstanceA(_instances);
                 break;
             }
             case RESP_OBJECTS:
@@ -741,6 +741,11 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
         _encoding,
         _dataType));
 
+    // For mixed (CIM+SCMO) responses, we need to tell the receiver the
+    // total number of instances. The totalSize variable is used to keep track
+    // of this.
+    Uint32 totalSize = 0;
+
     // already existing Internal XML does not need to be encoded further
     // binary input is not actually impossible here, but we have an established
     // fallback
@@ -765,7 +770,8 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
             case RESP_INSTANCES:
             {
                 Uint32 n = _instances.size();
-                out.putUint32(n);
+                totalSize = n + _scmoInstances.size();
+                out.putUint32(totalSize);
                 for (Uint32 i = 0; i < n; i++)
                 {
                     CIMInternalXmlEncoder::_putXMLNamedInstance(
@@ -777,7 +783,8 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
             case RESP_OBJECTS:
             {
                 Uint32 n = _objects.size();
-                out.putUint32(n);
+                totalSize = n + _scmoInstances.size();
+                out.putUint32(totalSize);
                 for (Uint32 i = 0; i < n; i++)
                 {
                     CIMInternalXmlEncoder::_putXMLObject(out, _objects[i]);
@@ -810,7 +817,11 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
             case RESP_INSTANCES:
             {
                 Uint32 n = _scmoInstances.size();
-                out.putUint32(n);
+                // Only put the size when not already done above
+                if (0==totalSize)
+                {
+                    out.putUint32(n);
+                }
                 for (Uint32 i = 0; i < n; i++)
                 {
                     SCMOInternalXmlEncoder::_putXMLNamedInstance(
@@ -822,7 +833,11 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
             case RESP_OBJECTS:
             {
                 Uint32 n = _scmoInstances.size();
-                out.putUint32(n);
+                // Only put the size when not already done above
+                if (0==totalSize)
+                {
+                    out.putUint32(n);
+                }
                 for (Uint32 i = 0; i < n; i++)
                 {
                     SCMOInternalXmlEncoder::_putXMLObject(

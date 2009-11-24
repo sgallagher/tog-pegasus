@@ -1585,8 +1585,7 @@ SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
 
 void SCMOInstance::getCIMObjectPath(CIMObjectPath& cimObj) const
 {
-
-    CIMObjectPath newObjectPath;
+    Array<CIMKeyBinding> keys;
 
     // For better usability define pointers to SCMO Class data structures.
     SCMBClass_Main* clshdr = inst.hdr->theClass->cls.hdr;
@@ -1616,7 +1615,7 @@ void SCMOInstance::getCIMObjectPath(CIMObjectPath& cimObj) const
                 0,
                 scmoInstArray[i].data,
                 inst.base);
-            newObjectPath._rep->_keyBindings.append(
+            keys.append(
                 CIMKeyBinding(
                     CIMNameCast(NEWCIMSTR(scmoClassArray[i].name,clsbase)),
                     theKeyBindingValue
@@ -1644,7 +1643,7 @@ void SCMOInstance::getCIMObjectPath(CIMObjectPath& cimObj) const
                     theUserDefKBElement->value.data,
                     inst.base);
 
-                newObjectPath._rep->_keyBindings.append(
+                keys.append(
                     CIMKeyBinding(
                         CIMNameCast(
                             NEWCIMSTR(theUserDefKBElement->name,inst.base)),
@@ -1656,14 +1655,16 @@ void SCMOInstance::getCIMObjectPath(CIMObjectPath& cimObj) const
         } // for all user def. key bindings.
     }
 
-    newObjectPath._rep->_host = NEWCIMSTR(inst.hdr->hostName,inst.base);
+    String host = NEWCIMSTR(inst.hdr->hostName,inst.base);
+
     // Use name space and class name of the instance
-    newObjectPath._rep->_nameSpace =
+    CIMNamespaceName nameSpace =
         CIMNamespaceNameCast(NEWCIMSTR(inst.hdr->instNameSpace,inst.base));
-    newObjectPath._rep->_className=
+
+    CIMName className =
         CIMNameCast(NEWCIMSTR(inst.hdr->instClassName,inst.base));
 
-    cimObj = newObjectPath;
+    cimObj.set(host,nameSpace,className,keys);
 }
 
 CIMProperty SCMOInstance::_getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const

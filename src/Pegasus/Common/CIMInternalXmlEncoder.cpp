@@ -131,32 +131,6 @@ void CIMInternalXmlEncoder::_putXMLNamedInstance(
     }
 }
 
-void CIMInternalXmlEncoder::_putXMLInstanceName(
-    CIMBuffer& out,
-    const CIMObjectPath& cop)
-{
-    Buffer buf(4096);
-
-    // Serialize object path as XML.
-
-    if (cop.getClassName().isNull())
-    {
-        out.putUint32(0);
-        out.putString(String());
-        out.putNamespaceName(CIMNamespaceName());
-    }
-    else
-    {
-        XmlWriter::appendValueReferenceElement(buf, cop, true);
-        buf.append('\0');
-
-        out.putUint32(buf.size());
-        out.putBytes(buf.getData(), buf.size());
-        out.putString(cop.getHost());
-        out.putNamespaceName(cop.getNameSpace());
-    }
-}
-
 void CIMInternalXmlEncoder::_putXMLObject(
     CIMBuffer& out,
     const CIMObject& co)

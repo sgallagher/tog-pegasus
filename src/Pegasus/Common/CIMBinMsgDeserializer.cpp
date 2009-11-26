@@ -405,7 +405,7 @@ CIMResponseMessage* CIMBinMsgDeserializer::_getResponseMessage(
             msg = _getEnumerateInstancesResponseMessage(in, binaryResponse);
             break;
         case CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE:
-            msg = _getEnumerateInstanceNamesResponseMessage(in, binaryResponse);
+            msg = _getEnumerateInstanceNamesResponseMessage(in);
             break;
         case CIM_EXEC_QUERY_RESPONSE_MESSAGE:
             msg = _getExecQueryResponseMessage(in, binaryResponse);
@@ -420,13 +420,13 @@ CIMResponseMessage* CIMBinMsgDeserializer::_getResponseMessage(
             msg = _getAssociatorsResponseMessage(in, binaryResponse);
             break;
         case CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE:
-            msg = _getAssociatorNamesResponseMessage(in, binaryResponse);
+            msg = _getAssociatorNamesResponseMessage(in);
             break;
         case CIM_REFERENCES_RESPONSE_MESSAGE:
-            msg = _getReferencesResponseMessage(in, binaryResponse);
+            msg = _getReferencesResponseMessage(in);
             break;
         case CIM_REFERENCE_NAMES_RESPONSE_MESSAGE:
-            msg = _getReferenceNamesResponseMessage(in, binaryResponse);
+            msg = _getReferenceNamesResponseMessage(in);
             break;
         case CIM_INVOKE_METHOD_RESPONSE_MESSAGE:
             msg = _getInvokeMethodResponseMessage(in);
@@ -1674,8 +1674,7 @@ CIMBinMsgDeserializer::_getEnumerateInstancesResponseMessage(
 
 CIMEnumerateInstanceNamesResponseMessage*
 CIMBinMsgDeserializer::_getEnumerateInstanceNamesResponseMessage(
-    CIMBuffer& in,
-    bool binaryResponse)
+    CIMBuffer& in)
 {
     CIMEnumerateInstanceNamesResponseMessage* msg;
 
@@ -1760,8 +1759,7 @@ CIMBinMsgDeserializer::_getAssociatorsResponseMessage(
 
 CIMAssociatorNamesResponseMessage*
 CIMBinMsgDeserializer::_getAssociatorNamesResponseMessage(
-    CIMBuffer& in,
-    bool binaryResponse)
+    CIMBuffer& in)
 {
     CIMAssociatorNamesResponseMessage* msg;
 
@@ -1781,8 +1779,7 @@ CIMBinMsgDeserializer::_getAssociatorNamesResponseMessage(
 
 CIMReferencesResponseMessage*
 CIMBinMsgDeserializer::_getReferencesResponseMessage(
-    CIMBuffer& in,
-    bool binaryResponse)
+    CIMBuffer& in)
 {
     CIMReferencesResponseMessage* msg;
 
@@ -1802,8 +1799,7 @@ CIMBinMsgDeserializer::_getReferencesResponseMessage(
 
 CIMReferenceNamesResponseMessage*
 CIMBinMsgDeserializer::_getReferenceNamesResponseMessage(
-    CIMBuffer& in,
-    bool binaryResponse)
+    CIMBuffer& in)
 {
     CIMReferenceNamesResponseMessage* msg;
 

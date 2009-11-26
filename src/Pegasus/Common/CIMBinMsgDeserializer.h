@@ -255,8 +255,7 @@ private:
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMEnumerateInstanceNamesResponseMessage*
-        _getEnumerateInstanceNamesResponseMessage(
-            CIMBuffer& in, bool binaryResponse);
+        _getEnumerateInstanceNamesResponseMessage(CIMBuffer& in);
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMExecQueryResponseMessage*
@@ -268,15 +267,15 @@ private:
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMAssociatorNamesResponseMessage*
-        _getAssociatorNamesResponseMessage(CIMBuffer& in, bool binaryResponse);
+        _getAssociatorNamesResponseMessage(CIMBuffer& in);
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMReferencesResponseMessage*
-        _getReferencesResponseMessage(CIMBuffer& in, bool binaryResponse);
+        _getReferencesResponseMessage(CIMBuffer& in);
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMReferenceNamesResponseMessage*
-        _getReferenceNamesResponseMessage(CIMBuffer& in, bool binaryResponse);
+        _getReferenceNamesResponseMessage(CIMBuffer& in);
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMGetPropertyResponseMessage*

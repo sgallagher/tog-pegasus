@@ -376,16 +376,8 @@ void CIMResponseData::completeNamespace(const SCMOInstance * x)
     // don't have to do anything for those two encodings
     if ((RESP_ENC_BINARY == (_encoding&RESP_ENC_BINARY)) && (len != 0))
     {
-        _defaultNamespace = (char*)malloc(len+1);
-        if (0==_defaultNamespace)
-        {
-            return;
-        }
-        memcpy(_defaultNamespace, ns, len+1);
-        _defaultNamespaceLen = len;
+        _defaultNamespace = CIMNamespaceName(ns);
     }
-
-
     if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
     {
         CIMNamespaceName nsName(ns);
@@ -469,9 +461,30 @@ void CIMResponseData::completeHostNameAndNamespace(
     const String & hn,
     const CIMNamespaceName & ns)
 {
-    // Only perform this operation when we have instantiated data.
-    // Do nothing for binary and internal xml data.
-
+    if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
+    {
+        // On binary need remember hostname and namespace in case someone
+        // builds C++ default objects or Xml types from it later on
+        // -> usage: See resolveBinary()
+        _defaultNamespace=ns;
+        _defaultHostname=hn;
+    }
+    // InternalXml does not support objectPath calls
+    if ((RESP_ENC_XML == (_encoding & RESP_ENC_XML)) &&
+            (RESP_OBJECTS == _dataType))
+    {
+        for (Uint32 j = 0, n = _referencesData.size(); j < n; j++)
+        {
+            if (0 == _hostsData[j].size())
+            {
+                _hostsData[j]=hn;
+            }
+            if (_nameSpacesData[j].isNull())
+            {
+                _nameSpacesData[j]=ns;
+            }
+        }
+    }
     if (RESP_ENC_CIM == (_encoding & RESP_ENC_CIM))
     {
         switch (_dataType)
@@ -554,14 +567,6 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
         _encoding,
         _dataType));
 
-    // already existing Internal XML does not need to be encoded further
-    // binary input is not actually impossible here, but we have an established
-    // fallback
-    if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
-    {
-        _resolveBinary();
-    }
-
     if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
         switch (_dataType)
@@ -590,11 +595,22 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
             {
                 const Array<ArraySint8>& a = _instanceData;
                 const Array<ArraySint8>& b = _referencesData;
-
                 for (Uint32 i = 0, n = a.size(); i < n; i++)
                 {
                     out << STRLIT("<VALUE.OBJECTWITHPATH>\n");
-                    out.append((char*)b[i].getData(), b[i].size() - 1);
+                    out << STRLIT("<INSTANCEPATH>\n");
+                    XmlWriter::appendNameSpacePathElement(
+                            out,
+                            _hostsData[i],
+                            _nameSpacesData[i]);
+                    // Leave out the surrounding tags "<VALUE.REFERENCE>\n"
+                    // and "</VALUE.REFERENCE>\n" which are 18 and 19 characters
+                    // long
+                    out.append(
+                        ((char*)b[i].getData())+18,
+                        b[i].size() - 1 - 18 -19);
+                    out << STRLIT("</INSTANCEPATH>\n");
+                    // append instance body
                     out.append((char*)a[i].getData(), a[i].size() - 1);
                     out << STRLIT("</VALUE.OBJECTWITHPATH>\n");
                 }
@@ -943,7 +959,6 @@ void CIMResponseData::_resolveBinary()
         {
             switch (_dataType)
             {
-                // TODO: Decide what to decode based on marker
                 case RESP_INSTNAMES:
                 case RESP_OBJECTPATHS:
                 {
@@ -1010,9 +1025,13 @@ void CIMResponseData::_resolveBinary()
             _encoding |= RESP_ENC_CIM;
         } // else SCMO
     }
-
     _encoding &=(~RESP_ENC_BINARY);
-
+    // fix up the hostname and namespace for objects if defaults
+    // were set
+    if (_defaultHostname.size() > 0 && !_defaultNamespace.isNull())
+    {
+        completeHostNameAndNamespace(_defaultHostname, _defaultNamespace);
+    }
     in.release();
     PEG_METHOD_EXIT();
 }
@@ -1021,28 +1040,10 @@ void CIMResponseData::_resolveXmlToCIM()
 {
     switch (_dataType)
     {
-        // same encoding for instance names and object paths
+        // Xml encoding for instance names and object paths not used
         case RESP_OBJECTPATHS:
         case RESP_INSTNAMES:
         {
-            for (Uint32 i = 0; i < _referencesData.size(); i++)
-            {
-                CIMObjectPath cop;
-                // Deserialize path:
-                {
-                    XmlParser parser((char*)_referencesData[i].getData());
-
-                    if (XmlReader::getInstanceNameElement(parser, cop))
-                    {
-                        if (!_nameSpacesData[i].isNull())
-                            cop.setNameSpace(_nameSpacesData[i]);
-
-                        if (_hostsData[i].size())
-                            cop.setHost(_hostsData[i]);
-                    }
-                }
-                _instanceNames.append(cop);
-            }
             break;
         }
         case RESP_INSTANCE:
@@ -1255,6 +1256,17 @@ void CIMResponseData::_resolveSCMOToCIM()
 
 void CIMResponseData::_resolveCIMToSCMO()
 {
+    CString nsCString=_defaultNamespace.getString().getCString();
+    const char* _defNamespace = nsCString;
+    Uint32 _defNamespaceLen;
+    if (_defaultNamespace.isNull())
+    {
+        _defNamespaceLen=0;
+    }
+    else
+    {
+        _defNamespaceLen=strlen(_defNamespace);
+    }
     switch (_dataType)
     {
         case RESP_INSTNAMES:
@@ -1263,8 +1275,8 @@ void CIMResponseData::_resolveCIMToSCMO()
             {
                 SCMOInstance addme(
                     _instanceNames[i],
-                    _defaultNamespace,
-                    _defaultNamespaceLen);
+                    _defNamespace,
+                    _defNamespaceLen);
                 _scmoInstances.append(addme);
             }
             _instanceNames.clear();
@@ -1276,8 +1288,8 @@ void CIMResponseData::_resolveCIMToSCMO()
             {
                 SCMOInstance addme(
                     _instances[0],
-                    _defaultNamespace,
-                    _defaultNamespaceLen);
+                    _defNamespace,
+                    _defNamespaceLen);
                 _scmoInstances.clear();
                 _scmoInstances.append(addme);
                 _instances.clear();
@@ -1290,8 +1302,8 @@ void CIMResponseData::_resolveCIMToSCMO()
             {
                 SCMOInstance addme(
                     _instances[i],
-                    _defaultNamespace,
-                    _defaultNamespaceLen);
+                    _defNamespace,
+                    _defNamespaceLen);
                 _scmoInstances.append(addme);
             }
             _instances.clear();
@@ -1303,8 +1315,8 @@ void CIMResponseData::_resolveCIMToSCMO()
             {
                 SCMOInstance addme(
                     _objects[i],
-                    _defaultNamespace,
-                    _defaultNamespaceLen);
+                    _defNamespace,
+                    _defNamespaceLen);
                 _scmoInstances.append(addme);
             }
             _objects.clear();
@@ -1316,8 +1328,8 @@ void CIMResponseData::_resolveCIMToSCMO()
             {
                 SCMOInstance addme(
                     _instanceNames[i],
-                    _defaultNamespace,
-                    _defaultNamespaceLen);
+                    _defNamespace,
+                    _defNamespaceLen);
                 // TODO: More description about this.
                 if (0 == _instanceNames[i].getKeyBindings().size())
                 {

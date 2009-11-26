@@ -43,7 +43,6 @@ class PEGASUS_COMMON_LINKAGE CIMInternalXmlEncoder
 public:
     static void _putXMLInstance(CIMBuffer& out, const CIMInstance& ci);
     static void _putXMLNamedInstance(CIMBuffer& out, const CIMInstance& ci);
-    static void _putXMLInstanceName(CIMBuffer& out, const CIMObjectPath& cop);
     static void _putXMLObject(CIMBuffer& out, const CIMObject& co);
 };
 

@@ -68,14 +68,12 @@ public:
     };
 
     CIMResponseData(ResponseDataContent content):
-        _encoding(0),_dataType(content),
-        _defaultNamespace(0), _defaultNamespaceLen(0)
+        _encoding(0),_dataType(content)
     {};
 
 
     ~CIMResponseData()
     {
-        free(_defaultNamespace);
     }
 
     // C++ objects interface handling
@@ -219,8 +217,8 @@ private:
 
     // For binary encoding.
     Array<Uint8> _binaryData;
-    char* _defaultNamespace;
-    Uint32 _defaultNamespaceLen;
+    CIMNamespaceName _defaultNamespace;
+    String _defaultHostname;
 
     // Default C++ encoding
     Array<CIMObjectPath> _instanceNames;

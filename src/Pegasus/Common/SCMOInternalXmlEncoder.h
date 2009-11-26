@@ -43,7 +43,6 @@ class PEGASUS_COMMON_LINKAGE SCMOInternalXmlEncoder
 public:
     static void _putXMLInstance(CIMBuffer& out, const SCMOInstance& ci);
     static void _putXMLNamedInstance(CIMBuffer& out, const SCMOInstance& ci);
-    static void _putXMLInstanceName(CIMBuffer& out, const SCMOInstance& cop);
     static void _putXMLObject(CIMBuffer& out, const SCMOInstance& co);
 };
 

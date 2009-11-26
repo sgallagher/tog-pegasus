@@ -132,37 +132,6 @@ void SCMOInternalXmlEncoder::_putXMLNamedInstance(
     }
 }
 
-void SCMOInternalXmlEncoder::_putXMLInstanceName(
-    CIMBuffer& out,
-    const SCMOInstance& cop)
-{
-    if (0 == cop.getClassName())
-    {
-        out.putUint32(0);
-        out.putUint32(0);
-        out.putString(String());
-        out.putNamespaceName(CIMNamespaceName());
-    }
-    else
-    {
-        Buffer buf(4096);
-
-        // Serialize object path as XML.
-        SCMOXmlWriter::appendValueReferenceElement(buf, cop, true);
-        buf.append('\0');
-
-        out.putUint32(buf.size());
-        out.putBytes(buf.getData(), buf.size());
-
-        // Write hostname and namespace in UTF-16 format
-        Uint64 len=0;
-        const char* hn = cop.getHostName_l(len);
-        out.putUTF8AsString(hn, len);
-        const char * ns = cop.getNameSpace_l(len);
-        out.putUTF8AsString(ns, len);
-    }
-}
-
 void SCMOInternalXmlEncoder::_putXMLObject(
     CIMBuffer& out,
     const SCMOInstance& co)

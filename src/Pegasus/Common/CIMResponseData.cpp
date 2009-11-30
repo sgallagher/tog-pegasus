@@ -567,6 +567,14 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
         _encoding,
         _dataType));
 
+    // already existing Internal XML does not need to be encoded further
+    // binary input is not actually impossible here, but we have an established
+    // fallback
+    if (RESP_ENC_BINARY == (_encoding & RESP_ENC_BINARY))
+    {
+        _resolveBinary();
+    }
+
     if (RESP_ENC_XML == (_encoding & RESP_ENC_XML))
     {
         switch (_dataType)

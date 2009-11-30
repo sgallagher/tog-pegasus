@@ -86,11 +86,6 @@ public:
         _instanceNames=x;
         _encoding |= RESP_ENC_CIM;
     }
-    void appendInstanceName(const CIMObjectPath& x)
-    {
-        _instanceNames.append(x);
-        _encoding |= RESP_ENC_CIM;
-    }
 
     // Instance handling
     CIMInstance& getInstance();

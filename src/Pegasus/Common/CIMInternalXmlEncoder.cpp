@@ -168,7 +168,7 @@ void CIMInternalXmlEncoder::_putXMLObject(
         }
         else
         {
-            XmlWriter::appendValueReferenceElement(buf, cop, true);
+            _appendValueReferenceElement(buf, cop);
             buf.append('\0');
 
             out.putUint32(buf.size());
@@ -177,6 +177,18 @@ void CIMInternalXmlEncoder::_putXMLObject(
             out.putNamespaceName(cop.getNameSpace());
         }
     }
+}
+
+
+void CIMInternalXmlEncoder::_appendValueReferenceElement(
+    Buffer& out,
+    const CIMObjectPath& reference)
+{
+    out << STRLIT("<VALUE.REFERENCE>\n");
+
+    XmlWriter::appendInstanceNameElement(out, reference);
+
+    out << STRLIT("</VALUE.REFERENCE>\n");
 }
 
 PEGASUS_NAMESPACE_END

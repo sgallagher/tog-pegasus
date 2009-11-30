@@ -150,13 +150,27 @@ CIMInstance CIMClient::getInstance(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    return _rep->getInstance(
+    CIMInstance inst = _rep->getInstance(
         nameSpace,
         instanceName,
         localOnly,
         includeQualifiers,
         includeClassOrigin,
         propertyList).getInstance();
+
+    if (!inst.isUninitialized())
+    {
+        // remove key bindings, name space and host name form object path.
+        CIMObjectPath& p =
+            const_cast<CIMObjectPath&>(inst.getPath());
+
+        CIMName cls = p.getClassName();
+        p.clear();
+        p.setClassName(cls);
+
+    }
+
+    return inst;
 }
 
 void CIMClient::deleteClass(
@@ -254,23 +268,50 @@ Array<CIMInstance> CIMClient::enumerateInstances(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    return _rep->enumerateInstances(
-        nameSpace,
-        className,
-        deepInheritance,
-        localOnly,
-        includeQualifiers,
-        includeClassOrigin,
-        propertyList).getInstances();
+
+    Array<CIMInstance> a = _rep->enumerateInstances(
+            nameSpace,
+            className,
+            deepInheritance,
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin,
+            propertyList).getInstances();    
+
+    // remove name space and host name to be instance names
+    for (Uint32 i = 0, n = a.size(); i < n ; i++)
+    {
+        if (!a[i].isUninitialized())
+        {
+            CIMObjectPath& p = const_cast<CIMObjectPath&>(a[i].getPath());
+            p.setNameSpace(CIMNamespaceName());
+            p.setHost(String());
+        }
+    }
+
+
+    return a;
 }
 
 Array<CIMObjectPath> CIMClient::enumerateInstanceNames(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
-    return _rep->enumerateInstanceNames(
+
+    Array<CIMObjectPath> p = _rep->enumerateInstanceNames(
         nameSpace,
         className).getInstanceNames();
+
+    // remover name space and host name from object paths to be 
+    // instance names.
+    for (Uint32 i = 0, n = p.size(); i < n ; i++)
+    {
+        p[i].setNameSpace(CIMNamespaceName());
+        p[i].setHost(String());
+    }
+
+    return p;
+
 }
 
 Array<CIMObject> CIMClient::execQuery(

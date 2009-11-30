@@ -515,7 +515,7 @@ struct SCMBProperty_Main
 // The static definition of the common SCMO memory functions
 inline const void* _resolveDataPtr(
     const SCMBDataPtr& ptr,
-    char* base)
+    const char* base)
 {
     return ((ptr.start==(Uint64)0 ? NULL : (void*)&(base[ptr.start])));
 }

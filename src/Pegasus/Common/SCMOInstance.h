@@ -289,6 +289,13 @@ public:
         Boolean& isArray,
         Uint32& size ) const;
 
+    void getSCMBValuePropertyAt(
+        Uint32 pos,
+        SCMBValue** value,
+        const char ** valueBase,
+        SCMBClassProperty ** propDef,
+        const char ** classBase) const;
+
     /**
      * Gets the type and value of the named property.
      * The value has to be copied by the caller !
@@ -539,6 +546,14 @@ public:
         const char** pname,
         CIMType& type,
         const SCMBUnion** keyvalue) const;
+
+    SCMO_RC getKeyBindingAtUnresolved(
+        Uint32 node,
+        const char** pname,
+        Uint32 & pnameLen,
+        CIMType& type,
+        const SCMBUnion** pdata,
+        const char** valueBase) const;
 
     /**
      * Get the named key binding.
@@ -1045,6 +1060,33 @@ inline void SCMOInstance::_getPropertyAt(
         *valueBase = inst.hdr->theClass->cls.base;
     }
 }
+
+inline void SCMOInstance::getSCMBValuePropertyAt(
+    Uint32 pos,
+    SCMBValue** value,
+    const char ** valueBase,
+    SCMBClassProperty ** propDef,
+    const char ** propDefBase) const
+{
+    _getPropertyAt(pos,value,valueBase,propDef);
+
+    *propDefBase = inst.hdr->theClass->cls.base;
+}
+
+inline SCMO_RC SCMOInstance::getKeyBindingAtUnresolved(
+        Uint32 node,
+        const char** pname,
+        Uint32 & pnameLen,
+        CIMType& type,
+        const SCMBUnion** pdata,
+        const char** valueBase) const
+{
+    SCMO_RC rc = _getKeyBindingDataAtNodeIndex(node,pname,pnameLen,type,pdata);
+    *valueBase = inst.base;
+    return rc;
+}
+
+
 
 #define PEGASUS_ARRAY_T SCMOInstance
 # include <Pegasus/Common/ArrayInter.h>

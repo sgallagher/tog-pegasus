@@ -37,6 +37,7 @@
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/SharedPtr.h>
 
 #include "WsmConstants.h"
 #include "WsmReader.h"
@@ -45,6 +46,61 @@
 #include "WsmRequestDecoder.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+static bool _parseInvokeAction(
+    const String& action,
+    String& className,
+    String& methodName)
+{
+    // Parse the action as though it is a method invocation. If so, set
+    // className and methodName and return true. Else return false. Invoke
+    // actions have the following form:
+    //
+    //     http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/<CLASS>/<METHOD>
+
+    // Expect "http://" prefix.
+
+    CString cstr = action.getCString();
+    const char* p = cstr;
+
+    if (strncmp(p, "http://", 7) != 0)
+        return false;
+
+    p += 7;
+
+    // Find slash that terminates the host name.
+
+    if (!(p = strchr(p, '/')))
+        return false;
+
+    p++;
+
+    // Expect "wbem/wscim/1/cim-schema/2/" sequence.
+
+    if (strncmp(p, "wbem/wscim/1/cim-schema/2/", 26) != 0)
+        return false;
+
+    p += 26;
+
+    // Get classname:
+
+    char* slash = strchr(const_cast<char*>(p), '/');
+
+    if (!slash)
+        return false;
+
+    *slash = '\0';
+    className = p;
+    *slash = '/';
+    p = slash + 1;
+
+    // Get methodname:
+
+    methodName = p;
+
+    // If we got this far, then action refers to a method.
+    return true;
+}
 
 WsmRequestDecoder::WsmRequestDecoder(WsmProcessor* wsmProcessor)
     : MessageQueue(PEGASUS_QUEUENAME_WSMREQDECODER),
@@ -208,6 +264,33 @@ void WsmRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
     content = (char*) httpMessage->message.getData() +
         httpMessage->message.size() - contentLength;
 
+    // Lookup HTTP "User-Agent" header. For example:
+    //
+    //     User-Agent: Microsoft WinRM Client
+    //
+    // If it contains "WinRM", then omit the XML processing instruction from
+    // the response (first line of XML response). A typical XML processing
+    // instruction looks like this:
+    //
+    //     <?xml version="1.0" encoding="utf-8"?>
+    //
+    // The WinRM user agent should never receive this line.
+
+    Boolean omitXMLProcessingInstruction;
+    {
+        String value;
+
+        if (HTTPMessage::lookupHeader(headers, "User-Agent", value, true) &&
+            value.find("WinRM") != Uint32(-1))
+        {
+            omitXMLProcessingInstruction = true;
+        }
+        else
+        {
+            omitXMLProcessingInstruction = false;
+        }
+    }
+
     // Validate the "Content-Type" header:
     const char* contentType;
     Boolean contentTypeHeaderFound = HTTPMessage::lookupHeader(
@@ -233,6 +316,21 @@ void WsmRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         return;
     }
 
+    if (String::equalNoCase(charset, "utf-16"))
+    {
+        // Reject utf-16 requests.
+        WsmFault fault(
+            WsmFault::wsman_EncodingLimit,
+            "UTF-16 is not supported; Please use UTF-8",
+            ContentLanguageList(),
+            WSMAN_FAULTDETAIL_CHARACTERSET);
+         _wsmProcessor->sendResponse(new WsmFaultResponse(
+             String::EMPTY, queueId, httpMethod, httpCloseConnect,
+                omitXMLProcessingInstruction, fault));
+         PEG_METHOD_EXIT();
+         return;
+    }
+
     if (!String::equalNoCase(charset, "utf-8"))
     {
         // DSP0226 R13.1-5:  A service shall emit Responses using the same
@@ -248,7 +346,8 @@ void WsmRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
             ContentLanguageList(),
             WSMAN_FAULTDETAIL_CHARACTERSET);
          _wsmProcessor->sendResponse(new WsmFaultResponse(
-             String::EMPTY, queueId, httpMethod, httpCloseConnect, fault));
+              String::EMPTY, queueId, httpMethod, httpCloseConnect,
+              omitXMLProcessingInstruction, fault));
          PEG_METHOD_EXIT();
          return;
     }
@@ -301,7 +400,8 @@ void WsmRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
         httpMessage->ipAddress,
         httpMessage->acceptLanguages,
         httpMessage->contentLanguages,
-        httpCloseConnect);
+        httpCloseConnect,
+        omitXMLProcessingInstruction);
 
     PEG_METHOD_EXIT();
 }
@@ -317,9 +417,11 @@ void WsmRequestDecoder::handleWsmMessage(
     const String& ipAddress,
     const AcceptLanguageList& httpAcceptLanguages,
     const ContentLanguageList& httpContentLanguages,
-    Boolean httpCloseConnect)
+    Boolean httpCloseConnect,
+    Boolean omitXMLProcessingInstruction)
 {
     PEG_METHOD_ENTER(TRC_WSMSERVER, "WsmRequestDecoder::handleWsmMessage()");
+
 
     // If CIMOM is shutting down, return "Service Unavailable" response
     if (_serverTerminating)
@@ -397,6 +499,15 @@ void WsmRequestDecoder::handleWsmMessage(
                 e.getContentLanguages());
         }
 
+        // If no "Action" header was found, then this might still be a legal
+        // identify request.
+
+        if (wsaAction.size() == 0 && _isIdentifyRequest(wsmReader))
+        {
+            _sendIdentifyResponse(queueId);
+            return;
+        }
+
         // Set the Locale language into the thread for processing this request.
         Thread::setLanguages(wsmLocale);
 
@@ -468,6 +579,9 @@ void WsmRequestDecoder::handleWsmMessage(
         // Parse the SOAP Body while decoding each action
         //
 
+        String className;
+        String methodName;
+
         if (wsaAction == WSM_ACTION_GET)
         {
             request.reset(_decodeWSTransferGet(
@@ -519,6 +633,15 @@ void WsmRequestDecoder::handleWsmMessage(
                 wsaMessageId,
                 epr));
         }
+        else if (_parseInvokeAction(wsaAction, className, methodName))
+        {
+            request.reset(_decodeWSInvoke(
+                wsmReader,
+                wsaMessageId,
+                epr,
+                className,
+                methodName));
+        }
         else
         {
             throw WsmFault(
@@ -539,6 +662,7 @@ void WsmRequestDecoder::handleWsmMessage(
         request->acceptLanguages = wsmLocale;
         request->contentLanguages = httpContentLanguages;
         request->httpCloseConnect = httpCloseConnect;
+        request->omitXMLProcessingInstruction = omitXMLProcessingInstruction;
         request->queueId = queueId;
         request->requestEpr = wsmRequestEpr;
         request->maxEnvelopeSize = wsmMaxEnvelopeSize;
@@ -546,14 +670,16 @@ void WsmRequestDecoder::handleWsmMessage(
     catch (WsmFault& fault)
     {
         _wsmProcessor->sendResponse(new WsmFaultResponse(
-            wsaMessageId, queueId, httpMethod, httpCloseConnect, fault));
+            wsaMessageId, queueId, httpMethod, httpCloseConnect,
+            omitXMLProcessingInstruction, fault));
         PEG_METHOD_EXIT();
         return;
     }
     catch (SoapNotUnderstoodFault& fault)
     {
         _wsmProcessor->sendResponse(new SoapFaultResponse(
-            wsaMessageId, queueId, httpMethod, httpCloseConnect, fault));
+            wsaMessageId, queueId, httpMethod, httpCloseConnect,
+            omitXMLProcessingInstruction, fault));
         PEG_METHOD_EXIT();
         return;
     }
@@ -564,7 +690,8 @@ void WsmRequestDecoder::handleWsmMessage(
             e.getMessage(),
             e.getContentLanguages());
         _wsmProcessor->sendResponse(new WsmFaultResponse(
-            wsaMessageId, queueId, httpMethod, httpCloseConnect, fault));
+            wsaMessageId, queueId, httpMethod, httpCloseConnect,
+            omitXMLProcessingInstruction, fault));
         PEG_METHOD_EXIT();
         return;
     }
@@ -575,7 +702,8 @@ void WsmRequestDecoder::handleWsmMessage(
             e.getMessage(),
             e.getContentLanguages());
         _wsmProcessor->sendResponse(new WsmFaultResponse(
-            wsaMessageId, queueId, httpMethod, httpCloseConnect, fault));
+            wsaMessageId, queueId, httpMethod, httpCloseConnect,
+            omitXMLProcessingInstruction, fault));
         PEG_METHOD_EXIT();
         return;
     }
@@ -583,7 +711,8 @@ void WsmRequestDecoder::handleWsmMessage(
     {
         WsmFault fault(WsmFault::wsman_InternalError, e.what());
         _wsmProcessor->sendResponse(new WsmFaultResponse(
-            wsaMessageId, queueId, httpMethod, httpCloseConnect, fault));
+            wsaMessageId, queueId, httpMethod, httpCloseConnect,
+            omitXMLProcessingInstruction, fault));
         PEG_METHOD_EXIT();
         return;
     }
@@ -591,7 +720,8 @@ void WsmRequestDecoder::handleWsmMessage(
     {
         WsmFault fault(WsmFault::wsman_InternalError);
         _wsmProcessor->sendResponse(new WsmFaultResponse(
-            wsaMessageId, queueId, httpMethod, httpCloseConnect, fault));
+            wsaMessageId, queueId, httpMethod, httpCloseConnect,
+            omitXMLProcessingInstruction, fault));
         PEG_METHOD_EXIT();
         return;
     }
@@ -725,6 +855,9 @@ WsenEnumerateRequest* WsmRequestDecoder::_decodeWSEnumerationEnumerate(
     WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
     Boolean optimized = false;
     Uint32 maxElements = 0;
+    String queryLanguage;
+    String query;
+    SharedPtr<WQLSelectStatement> selectStatement;
 
     XmlEntry entry;
     wsmReader.expectStartOrEmptyTag(
@@ -732,7 +865,8 @@ WsenEnumerateRequest* WsmRequestDecoder::_decodeWSEnumerationEnumerate(
     if (entry.type != XmlEntry::EMPTY_TAG)
     {
         wsmReader.decodeEnumerateBody(expiration, polymorphismMode,
-            enumerationMode, optimized, maxElements);
+            enumerationMode, optimized, maxElements, queryLanguage, query,
+            selectStatement);
         wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
     }
 
@@ -752,7 +886,11 @@ WsenEnumerateRequest* WsmRequestDecoder::_decodeWSEnumerationEnumerate(
         // wsmb:PolymorphismModeNotSupported fault for requests using the
         // all classes ResourceURI if the PolymorphismMode is present and
         // does not equal IncludeSubClassProperties.
-        if (epr.resourceUri == WSM_RESOURCEURI_ALLCLASSES &&
+
+        CString tmp(epr.resourceUri.getCString());
+        const char* suffix = WsmUtils::skipHostUri(tmp);
+
+        if (strcmp(suffix, WSM_RESOURCEURI_ALLCLASSES_SUFFIX) == 0 &&
             polymorphismMode != WSMB_PM_INCLUDE_SUBCLASS_PROPERTIES)
         {
             throw WsmFault(
@@ -786,7 +924,10 @@ WsenEnumerateRequest* WsmRequestDecoder::_decodeWSEnumerationEnumerate(
         optimized,
         maxElements,
         enumerationMode,
-        polymorphismMode);
+        polymorphismMode,
+        queryLanguage,
+        query,
+        selectStatement);
 }
 
 WsenPullRequest* WsmRequestDecoder::_decodeWSEnumerationPull(
@@ -844,6 +985,112 @@ WsenReleaseRequest* WsmRequestDecoder::_decodeWSEnumerationRelease(
         messageId,
         epr,
         enumerationContext);
+}
+
+WsmRequest* WsmRequestDecoder::_decodeWSInvoke(
+    WsmReader& wsmReader,
+    const String& messageId,
+    const WsmEndpointReference& epr,
+    const String& className,
+    const String& methodName)
+{
+    XmlEntry entry;
+
+    //
+    // Parse the <s:Body> element. Here is an example:
+    //
+    //   <s:Body>
+    //     <p:Foo_INPUT xmlns:p=
+    //       "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/SomeClass">
+    //       <p:Arg1>
+    //         1234
+    //       </p:Arg1>
+    //       <p:Arg2>
+    //         Hello!
+    //       </p:Arg2>
+    //     </p:Foo_INPUT>
+    //   </s:Body>
+    //
+
+    WsmInstance instance;
+    wsmReader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
+    wsmReader.decodeInvokeInputBody(className, methodName, instance);
+    wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
+
+    return new WsInvokeRequest(messageId, epr, className, methodName, instance);
+}
+
+bool WsmRequestDecoder::_isIdentifyRequest(WsmReader& wsmReader)
+{
+    // Parse the <s:Body> element. Here is an example:
+    //
+    //   <s:Body>
+    //     <wsmid:Identify>
+    //   </s:Body>
+
+    XmlEntry entry;
+    wsmReader.setHideEmptyTags(true);
+    wsmReader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Body");
+
+    try
+    {
+        // Expect an identify element. Ignore the namespace to be more
+        // tolerant.
+        int nsType = wsmReader.expectStartTag(entry, "Identify");
+        wsmReader.expectEndTag(nsType, "Identify");
+    }
+    catch (...)
+    {
+        wsmReader.setHideEmptyTags(false);
+        return false;
+    }
+
+    wsmReader.expectEndTag(WsmNamespaces::SOAP_ENVELOPE, "Body");
+    wsmReader.setHideEmptyTags(false);
+
+    return true;
+}
+
+void WsmRequestDecoder::_sendIdentifyResponse(Uint32 queueId)
+{
+    const char HTTP[] =
+        "HTTP/1.1 200 OK\r\n"
+        "Content-Type: application/soap+xml;charset=UTF-8\r\n"
+        "Content-Length: ";
+
+    const char XML[] =
+        "<s:Envelope xmlns:s=\""
+        "http://www.w3.org/2003/05/soap-envelope"
+        "\" xmlns:wsmid=\""
+        "http://schemas.dmtf.org/wbem/wsman/identify/1/wsmanidentity.xsd"
+        "\">"
+        "<s:Header>"
+        "</s:Header>"
+        "<s:Body>"
+        "<wsmid:IdentifyResponse>"
+        "<wsmid:ProtocolVersion>"
+        WSMAN_PROTOCOL_VERSION
+        "</wsmid:ProtocolVersion>"
+        "<wsmid:ProductVendor>"
+        WSMAN_PRODUCT_VENDOR
+        "</wsmid:ProductVendor>"
+        "<wsmid:ProductVersion>"
+        WSMAN_PRODUCT_VERSION
+        "</wsmid:ProductVersion>"
+        "</wsmid:IdentifyResponse>"
+        "</s:Body>"
+        "</s:Envelope>";
+
+    Buffer message;
+    message.append(HTTP, sizeof(HTTP) - 1);
+
+    char buf[32];
+    int n = sprintf(buf, "%d\r\n\r\n", int(sizeof(XML) - 1));
+    message.append(buf, n);
+
+    message.append(XML, sizeof(XML) - 1);
+
+    sendResponse(queueId, message, false);
 }
 
 PEGASUS_NAMESPACE_END

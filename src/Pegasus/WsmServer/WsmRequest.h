@@ -38,9 +38,11 @@
 #include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/Message.h>
+#include <Pegasus/Common/SharedPtr.h>
 #include <Pegasus/WsmServer/WsmConstants.h>
 #include <Pegasus/WsmServer/WsmSelectorSet.h>
 #include <Pegasus/WsmServer/WsmInstance.h>
+#include <Pegasus/WQL/WQLParser.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -58,7 +60,10 @@ enum WsmOperationType
 
     WS_ENUMERATION_ENUMERATE,
     WS_ENUMERATION_PULL,
-    WS_ENUMERATION_RELEASE
+    WS_ENUMERATION_RELEASE,
+
+    /* WS-Management invoke */
+    WS_INVOKE
     // etc.
 };
 
@@ -72,6 +77,7 @@ public:
         : messageId(messageId_),
           httpMethod(HTTP_METHOD__POST),
           httpCloseConnect(false),
+          omitXMLProcessingInstruction(false),
           queueId(0),
           requestEpr(false),
           maxEnvelopeSize(0),
@@ -96,6 +102,7 @@ public:
     AcceptLanguageList acceptLanguages;
     ContentLanguageList contentLanguages;
     Boolean httpCloseConnect;
+    Boolean omitXMLProcessingInstruction;
     Uint32 queueId;
     Boolean requestEpr;
     Uint32 maxEnvelopeSize;
@@ -183,7 +190,10 @@ public:
         Boolean optimized_,
         Uint32 maxElements_,
         WsenEnumerationMode enumerationMode_,
-        WsmbPolymorphismMode polymorphismMode_)
+        WsmbPolymorphismMode polymorphismMode_,
+        const String& queryLanguage_,
+        const String& query_,
+        SharedPtr<WQLSelectStatement> selectStatement_)
         : WsmRequest(WS_ENUMERATION_ENUMERATE, messageId),
           epr(epr_),
           expiration(expiration_),
@@ -191,7 +201,14 @@ public:
           optimized(optimized_),
           maxElements(maxElements_),
           enumerationMode(enumerationMode_),
-          polymorphismMode(polymorphismMode_)
+          polymorphismMode(polymorphismMode_),
+          queryLanguage(queryLanguage_),
+          query(query_),
+          selectStatement(selectStatement_)
+    {
+    }
+
+    ~WsenEnumerateRequest()
     {
     }
 
@@ -202,6 +219,9 @@ public:
     Uint32 maxElements;
     WsenEnumerationMode enumerationMode;
     WsmbPolymorphismMode polymorphismMode;
+    const String queryLanguage;
+    const String query;
+    SharedPtr<WQLSelectStatement> selectStatement;
 };
 
 class WsenPullRequest : public WsmRequest
@@ -250,6 +270,31 @@ public:
 
     WsmEndpointReference epr;
     Uint64 enumerationContext;
+};
+
+class WsInvokeRequest : public WsmRequest
+{
+public:
+
+    WsInvokeRequest(
+        const String& messageId,
+        const WsmEndpointReference& epr_,
+        const String& className_,
+        const String& methodName_,
+        const WsmInstance& instance_)
+        :
+        WsmRequest(WS_INVOKE, messageId),
+        epr(epr_),
+        className(className_),
+        methodName(methodName_),
+        instance(instance_)
+    {
+    }
+
+    WsmEndpointReference epr;
+    String className;
+    String methodName;
+    WsmInstance instance;
 };
 
 PEGASUS_NAMESPACE_END

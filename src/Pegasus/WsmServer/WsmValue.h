@@ -49,7 +49,6 @@ enum WsmType
     WSMTYPE_OTHER
 };
 
-
 class PEGASUS_WSMSERVER_LINKAGE WsmValue
 {
 public:
@@ -63,17 +62,14 @@ public:
     WsmValue(const Array<String>& str);
     WsmValue(const WsmValue& val);
 
-    ~WsmValue()
-    {
-        _release();
-    }
+    ~WsmValue();
 
     WsmValue& operator=(const WsmValue& val);
 
-    Boolean isArray() const { return _isArray; }
-    Boolean isNull() const { return _isNull; }
+    Boolean isArray() const;
+    Boolean isNull() const;
     void setNull();
-    WsmType getType() const { return _type; }
+    WsmType getType() const;
     Uint32 getArraySize();
 
     void toArray();
@@ -94,22 +90,7 @@ public:
     void set(const Array<String>& str);
 
 private:
-
-    void _release();
-
-    WsmType _type;
-    Boolean _isArray;
-    Boolean _isNull;
-
-    union WsmValueRep
-    {
-        WsmEndpointReference* ref;
-        Array<WsmEndpointReference>* refa;
-        WsmInstance* inst;
-        Array<WsmInstance>* insta;
-        Array<String>* stra;
-        String* str;
-    } _rep;
+    struct WsmValueRep* _rep;
 };
 
 PEGASUS_NAMESPACE_END

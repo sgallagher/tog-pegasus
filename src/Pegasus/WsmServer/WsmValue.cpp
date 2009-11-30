@@ -29,6 +29,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <new>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/PegasusAssert.h>
 
@@ -38,95 +39,118 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-WsmValue::WsmValue()
-    : _type(WSMTYPE_OTHER),
-      _isArray(false),
-      _isNull(true)
-{
-    _rep.str = 0;
-}
+//==============================================================================
+//
+// WsmValueRep
+//
+//==============================================================================
 
-WsmValue::WsmValue(const WsmValue& val)
-    : _type(WSMTYPE_OTHER),
-      _isArray(false),
-      _isNull(true)
+struct WsmValueRep
 {
-    *this = val;
-}
+    typedef WsmEndpointReference Ref;
+    typedef Array<WsmEndpointReference> RefA;
+    typedef WsmInstance Inst;
+    typedef Array<WsmInstance> InstA;
+    typedef String Str;
+    typedef Array<String> StrA;
 
-WsmValue::WsmValue(const WsmEndpointReference& ref)
-    : _type(WSMTYPE_REFERENCE),
-      _isArray(false),
-      _isNull(false)
-{
-    _rep.ref = new WsmEndpointReference(ref);
-}
+    AtomicInt refCount;
+    WsmType type;
+    Boolean isArray;
+    Boolean isNull;
 
-WsmValue::WsmValue(const Array<WsmEndpointReference>& ref)
-    : _type(WSMTYPE_REFERENCE),
-      _isArray(true),
-      _isNull(false)
-{
-    _rep.refa = new Array<WsmEndpointReference>(ref);
-}
-
-WsmValue::WsmValue(const WsmInstance& inst)
-    : _type(WSMTYPE_INSTANCE),
-      _isArray(false),
-      _isNull(false)
-{
-    _rep.inst = new WsmInstance(inst);
-}
-
-WsmValue::WsmValue(const Array<WsmInstance>& inst)
-    : _type(WSMTYPE_INSTANCE),
-      _isArray(true),
-      _isNull(false)
-{
-    _rep.insta = new Array<WsmInstance>(inst);
-}
-
-WsmValue::WsmValue(const String& str)
-    : _type(WSMTYPE_OTHER),
-      _isArray(false),
-      _isNull(false)
-{
-    _rep.str = new String(str);
-}
-
-WsmValue::WsmValue(const Array<String>& str)
-    : _type(WSMTYPE_OTHER),
-      _isArray(true),
-      _isNull(false)
-{
-    _rep.stra = new Array<String>(str);
-}
-
-WsmValue& WsmValue::operator=(const WsmValue& val)
-{
-    if (this == &val)
+    // This union makes enough space for each of the given types in raw memory.
+    // WsmValue takes care or doing placement construction and destruction as
+    // needed.
+    union
     {
-        return *this;
+        // Be sure all types are aligned on 64-bit boundary.
+        Uint64 _alignment_;
+        char _ref_[sizeof(Ref)];
+        char _refa_[sizeof(RefA)];
+        char _inst_[sizeof(Inst)];
+        char _insta_[sizeof(InstA)];
+        char _stra_[sizeof(StrA)];
+        char _str_[sizeof(Str)];
+        char buf[1];
+    };
+
+    enum EmptyRepTag { EMPTY_REP_TAG };
+
+    WsmValueRep(EmptyRepTag) :
+        refCount(2), type(WSMTYPE_OTHER), isArray(false), isNull(true)
+    {
+        // This construction is for the empty representation. By maintaining
+        // a reference count of one, it will never fall to zero and never
+        // be deleted by _unref() below.
     }
 
-    _release();
-
-    if (!val._isNull)
+    // Construct a null rep.
+    WsmValueRep() :
+        refCount(1), type(WSMTYPE_OTHER), isArray(false), isNull(true)
     {
-        if (val._isArray)
+    }
+
+    WsmValueRep(const Ref& x) :
+        refCount(1), type(WSMTYPE_REFERENCE), isArray(false), isNull(false)
+    {
+        new(buf) Ref(x);
+    }
+
+    WsmValueRep(const RefA& x) :
+        refCount(1), type(WSMTYPE_REFERENCE), isArray(true), isNull(false)
+    {
+        new(buf) RefA(x);
+    }
+
+    WsmValueRep(const Inst& x) :
+        refCount(1), type(WSMTYPE_INSTANCE), isArray(false), isNull(false)
+    {
+        new(buf) Inst(x);
+    }
+
+    WsmValueRep(const InstA& x) :
+        refCount(1), type(WSMTYPE_INSTANCE), isArray(true), isNull(false)
+    {
+        new(buf) InstA(x);
+    }
+
+    WsmValueRep(const Str& x) :
+        refCount(1), type(WSMTYPE_OTHER), isArray(false), isNull(false)
+    {
+        new(buf) Str(x);
+    }
+
+    WsmValueRep(const StrA& x) :
+        refCount(1), type(WSMTYPE_OTHER), isArray(true), isNull(false)
+    {
+        new(buf) StrA(x);
+    }
+
+    ~WsmValueRep()
+    {
+        clear();
+    }
+
+    void clear()
+    {
+        if (isNull)
+            return;
+
+        if (isArray)
         {
-            switch (val._type)
+            switch (type)
             {
                 case WSMTYPE_REFERENCE:
-                    _rep.refa = new Array<WsmEndpointReference>(*val._rep.refa);
+                    ((RefA*)buf)->~RefA();
                     break;
 
                 case WSMTYPE_INSTANCE:
-                    _rep.insta = new Array<WsmInstance>(*val._rep.insta);
+                    ((InstA*)buf)->~InstA();
                     break;
 
                 case WSMTYPE_OTHER:
-                    _rep.stra = new Array<String>(*val._rep.stra);
+                    ((StrA*)buf)->~StrA();
                     break;
 
                 default:
@@ -136,18 +160,18 @@ WsmValue& WsmValue::operator=(const WsmValue& val)
         }
         else
         {
-            switch (val._type)
+            switch (type)
             {
                 case WSMTYPE_REFERENCE:
-                    _rep.ref = new WsmEndpointReference(*val._rep.ref);
+                    ((Ref*)buf)->~Ref();
                     break;
 
                 case WSMTYPE_INSTANCE:
-                    _rep.inst = new WsmInstance(*val._rep.inst);
+                    ((Inst*)buf)->~Inst();
                     break;
 
                 case WSMTYPE_OTHER:
-                    _rep.str = new String(*val._rep.str);
+                    ((Str*)buf)->~Str();
                     break;
 
                 default:
@@ -155,29 +179,164 @@ WsmValue& WsmValue::operator=(const WsmValue& val)
                     break;
             }
         }
+
+        type = WSMTYPE_OTHER;
+        isNull = true;
+        isArray = false;
     }
 
-    _type = val._type;
-    _isArray = val._isArray;
-    _isNull = val._isNull;
+    WsmValueRep* clone() const
+    {
+        if (isNull)
+            return new WsmValueRep();
+
+        if (isArray)
+        {
+            switch (type)
+            {
+                case WSMTYPE_REFERENCE:
+                    return new WsmValueRep(*((RefA*)buf));
+                case WSMTYPE_INSTANCE:
+                    return new WsmValueRep(*((InstA*)buf));
+                case WSMTYPE_OTHER:
+                    return new WsmValueRep(*((StrA*)buf));
+                default:
+                    PEGASUS_ASSERT(0);
+                    break;
+            }
+        }
+        else
+        {
+            switch (type)
+            {
+                case WSMTYPE_REFERENCE:
+                    return new WsmValueRep(*((Ref*)buf));
+                case WSMTYPE_INSTANCE:
+                    return new WsmValueRep(*((Inst*)buf));
+                case WSMTYPE_OTHER:
+                    return new WsmValueRep(*((Str*)buf));
+                default:
+                    PEGASUS_ASSERT(0);
+                    break;
+            }
+        }
+
+        // Unreachable!
+        return 0;
+    }
+
+    Ref& ref() { return *((Ref*)buf); }
+    const Ref& ref() const { return *((Ref*)buf); }
+
+    RefA& refa() { return *((RefA*)buf); }
+    const RefA& refa() const { return *((RefA*)buf); }
+
+    Inst& inst() { return *((Inst*)buf); }
+    const Inst& inst() const { return *((Inst*)buf); }
+
+    InstA& insta() { return *((InstA*)buf); }
+    const InstA& insta() const { return *((InstA*)buf); }
+
+    Str& str() { return *((Str*)buf); }
+    const Str& str() const { return *((Str*)buf); }
+
+    StrA& stra() { return *((StrA*)buf); }
+    const StrA& stra() const { return *((StrA*)buf); }
+};
+
+static WsmValueRep _emptyRep(WsmValueRep::EMPTY_REP_TAG);
+
+inline void _ref(const WsmValueRep* rep_)
+{
+    WsmValueRep* rep = (WsmValueRep*)rep_;
+
+    if (rep && rep != &_emptyRep)
+        rep->refCount.inc();
+}
+
+inline void _unref(const WsmValueRep* rep_)
+{
+    WsmValueRep* rep = (WsmValueRep*)rep_;
+
+    if (rep && rep != &_emptyRep && rep->refCount.decAndTestIfZero())
+        delete rep;
+}
+
+//==============================================================================
+//
+// WsmValue
+//
+//==============================================================================
+
+WsmValue::WsmValue() : _rep(&_emptyRep)
+{
+}
+
+WsmValue::WsmValue(const WsmValue& x)
+{
+    _ref(_rep = x._rep);
+}
+
+WsmValue::WsmValue(const WsmEndpointReference& x)
+{
+    _rep = new WsmValueRep(x);
+}
+
+WsmValue::WsmValue(const Array<WsmEndpointReference>& x)
+{
+    _rep = new WsmValueRep(x);
+}
+
+WsmValue::WsmValue(const WsmInstance& x)
+{
+    _rep = new WsmValueRep(x);
+}
+
+WsmValue::WsmValue(const Array<WsmInstance>& x)
+{
+    _rep = new WsmValueRep(x);
+}
+
+WsmValue::WsmValue(const String& x)
+{
+    _rep = new WsmValueRep(x);
+}
+
+WsmValue::WsmValue(const Array<String>& x)
+{
+    _rep = new WsmValueRep(x);
+}
+
+WsmValue::~WsmValue()
+{
+    _unref(_rep);
+}
+
+WsmValue& WsmValue::operator=(const WsmValue& x)
+{
+    if (this != &x)
+    {
+        _unref(_rep);
+        _ref(_rep = x._rep);
+    }
 
     return *this;
 }
 
 Uint32 WsmValue::getArraySize()
 {
-    if (_isArray)
+    if (_rep->isArray)
     {
-        switch (_type)
+        switch (_rep->type)
         {
             case WSMTYPE_REFERENCE:
-                return _rep.refa->size();
+                return _rep->refa().size();
 
             case WSMTYPE_INSTANCE:
-                return _rep.insta->size();
+                return _rep->insta().size();
 
             case WSMTYPE_OTHER:
-                return _rep.stra->size();
+                return _rep->stra().size();
 
             default:
                 PEGASUS_ASSERT(0);
@@ -187,195 +346,144 @@ Uint32 WsmValue::getArraySize()
     return 0;
 }
 
-void WsmValue::_release()
-{
-    if (_isNull)
-        return;
-
-    if (_isArray)
-    {
-        switch (_type)
-        {
-            case WSMTYPE_REFERENCE:
-                delete _rep.refa;
-                break;
-
-            case WSMTYPE_INSTANCE:
-                delete _rep.insta;
-                break;
-
-            case WSMTYPE_OTHER:
-                delete _rep.stra;
-                break;
-
-            default:
-                PEGASUS_ASSERT(0);
-                break;
-        }
-    }
-    else
-    {
-        switch (_type)
-        {
-            case WSMTYPE_REFERENCE:
-                delete _rep.ref;
-                break;
-
-            case WSMTYPE_INSTANCE:
-                delete _rep.inst;
-                break;
-
-            case WSMTYPE_OTHER:
-                delete _rep.str;
-                break;
-
-            default:
-                PEGASUS_ASSERT(0);
-                break;
-        }
-    }
-}
-
 void WsmValue::get(WsmEndpointReference& ref) const
 {
-    if (_type != WSMTYPE_REFERENCE || _isArray)
+    if (_rep->type != WSMTYPE_REFERENCE || _rep->isArray)
         throw TypeMismatchException();
 
-    if (!_isNull)
-        ref = *_rep.ref;
+    if (!_rep->isNull)
+        ref = _rep->ref();
 }
 
 void WsmValue::get(Array<WsmEndpointReference>& ref) const
 {
-    if (_type != WSMTYPE_REFERENCE || !_isArray)
+    if (_rep->type != WSMTYPE_REFERENCE || !_rep->isArray)
         throw TypeMismatchException();
 
-    if (!_isNull)
-        ref = *_rep.refa;
+    if (!_rep->isNull)
+        ref = _rep->refa();
 }
 
 void WsmValue::get(WsmInstance& inst) const
 {
-    if (_type != WSMTYPE_INSTANCE || _isArray)
+    if (_rep->type != WSMTYPE_INSTANCE || _rep->isArray)
         throw TypeMismatchException();
 
-    if (!_isNull)
-        inst = *_rep.inst;
+    if (!_rep->isNull)
+        inst = _rep->inst();
 }
 
 void WsmValue::get(Array<WsmInstance>& inst) const
 {
-    if (_type != WSMTYPE_INSTANCE || !_isArray)
+    if (_rep->type != WSMTYPE_INSTANCE || !_rep->isArray)
         throw TypeMismatchException();
 
-    if (!_isNull)
-        inst = *_rep.insta;
+    if (!_rep->isNull)
+        inst = _rep->insta();
 }
 
 void WsmValue::get(String& str) const
 {
-    if (_type != WSMTYPE_OTHER || _isArray)
+    if (_rep->type != WSMTYPE_OTHER || _rep->isArray)
         throw TypeMismatchException();
 
-    if (!_isNull)
-        str = *_rep.str;
+    if (!_rep->isNull)
+        str = _rep->str();
 }
 
 void WsmValue::get(Array<String>& str) const
 {
-    if (_type != WSMTYPE_OTHER || !_isArray)
+    if (_rep->type != WSMTYPE_OTHER || !_rep->isArray)
         throw TypeMismatchException();
 
-    if (!_isNull)
-        str = *_rep.stra;
+    if (!_rep->isNull)
+        str = _rep->stra();
 }
 
-void WsmValue::set(const WsmEndpointReference& ref)
+void WsmValue::set(const WsmEndpointReference& x)
 {
-    _release();
-    _type = WSMTYPE_REFERENCE;
-    _isArray = false;
-    _isNull = false;
-    _rep.ref = new WsmEndpointReference(ref);
+    _unref(_rep);
+    _rep = new WsmValueRep(x);
 }
 
-void WsmValue::set(const Array<WsmEndpointReference>& ref)
+void WsmValue::set(const Array<WsmEndpointReference>& x)
 {
-    _release();
-    _type = WSMTYPE_REFERENCE;
-    _isArray = true;
-    _isNull = false;
-    _rep.refa = new Array<WsmEndpointReference>(ref);
+    _unref(_rep);
+    _rep = new WsmValueRep(x);
 }
 
-void WsmValue::set(const WsmInstance& inst)
+void WsmValue::set(const WsmInstance& x)
 {
-    _release();
-    _type = WSMTYPE_INSTANCE;
-    _isArray = false;
-    _isNull = false;
-    _rep.inst = new WsmInstance(inst);
+    _unref(_rep);
+    _rep = new WsmValueRep(x);
 }
 
-void WsmValue::set(const Array<WsmInstance>& inst)
+void WsmValue::set(const Array<WsmInstance>& x)
 {
-    _release();
-    _type = WSMTYPE_INSTANCE;
-    _isArray = true;
-    _isNull = false;
-    _rep.insta = new Array<WsmInstance>(inst);
+    _unref(_rep);
+    _rep = new WsmValueRep(x);
 }
 
-void WsmValue::set(const String& str)
+void WsmValue::set(const String& x)
 {
-    _release();
-    _type = WSMTYPE_OTHER;
-    _isArray = false;
-    _isNull = false;
-    _rep.str = new String(str);
+    _unref(_rep);
+    _rep = new WsmValueRep(x);
 }
 
-void WsmValue::set(const Array<String>& str)
+void WsmValue::set(const Array<String>& x)
 {
-    _release();
-    _type = WSMTYPE_OTHER;
-    _isArray = true;
-    _isNull = false;
-    _rep.stra = new Array<String>(str);
+    _unref(_rep);
+    _rep = new WsmValueRep(x);
 }
 
 void WsmValue::setNull()
 {
-    _release();
-    _type = WSMTYPE_OTHER;
-    _isArray = false;
-    _isNull = true;
+    if (_rep->refCount.get() == 1)
+    {
+        _rep->clear();
+    }
+    else
+    {
+        WsmValueRep* rep = new WsmValueRep();
+        _unref(_rep);
+        _rep = rep;
+    }
 }
 
-void WsmValue::add(const WsmValue& val)
+void WsmValue::add(const WsmValue& x)
 {
-    PEGASUS_ASSERT(!val._isArray);
+    PEGASUS_ASSERT(!x._rep->isArray);
 
-    if (_type != val._type)
+    if (x._rep->isArray)
+        return;
+
+    if (_rep->type != x._rep->type)
         throw TypeMismatchException();
 
-    if (_isArray)
+    if (_rep->isArray)
     {
-        switch (_type)
+        if (_rep->refCount.get() != 1)
+        {
+            WsmValueRep* rep = _rep->clone();
+            _unref(_rep);
+            _rep = rep;
+        }
+
+        switch (_rep->type)
         {
             case WSMTYPE_REFERENCE:
             {
-                _rep.refa->append(*val._rep.ref);
+                _rep->refa().append(x._rep->ref());
                 break;
             }
             case WSMTYPE_INSTANCE:
             {
-                _rep.insta->append(*val._rep.inst);
+                _rep->insta().append(x._rep->inst());
                 break;
             }
             case WSMTYPE_OTHER:
             {
-                _rep.stra->append(*val._rep.str);
+                _rep->stra().append(x._rep->str());
                 break;
             }
             default:
@@ -387,30 +495,30 @@ void WsmValue::add(const WsmValue& val)
     }
     else
     {
-        switch (_type)
+        switch (_rep->type)
         {
             case WSMTYPE_REFERENCE:
             {
-                Array<WsmEndpointReference> ref;
-                ref.append(*_rep.ref);
-                ref.append(*val._rep.ref);
-                set(ref);
+                Array<WsmEndpointReference> t;
+                t.append(_rep->ref());
+                t.append(x._rep->ref());
+                set(t);
                 break;
             }
             case WSMTYPE_INSTANCE:
             {
-                Array<WsmInstance> inst;
-                inst.append(*_rep.inst);
-                inst.append(*val._rep.inst);
-                set(inst);
+                Array<WsmInstance> t;
+                t.append(_rep->inst());
+                t.append(x._rep->inst());
+                set(t);
                 break;
             }
             case WSMTYPE_OTHER:
             {
-                Array<String> str;
-                str.append(*_rep.str);
-                str.append(*val._rep.str);
-                set(str);
+                Array<String> t;
+                t.append(_rep->str());
+                t.append(x._rep->str());
+                set(t);
                 break;
             }
             default:
@@ -422,33 +530,32 @@ void WsmValue::add(const WsmValue& val)
     }
 }
 
-
 void WsmValue::toArray()
 {
-    if (_isArray)
+    if (_rep->isArray)
         return;
 
-    switch (_type)
+    switch (_rep->type)
     {
         case WSMTYPE_REFERENCE:
         {
-            Array<WsmEndpointReference> ref;
-            ref.append(*_rep.ref);
-            set(ref);
+            Array<WsmEndpointReference> x;
+            x.append(_rep->ref());
+            set(x);
             break;
         }
         case WSMTYPE_INSTANCE:
         {
-            Array<WsmInstance> inst;
-            inst.append(*_rep.inst);
-            set(inst);
+            Array<WsmInstance> x;
+            x.append(_rep->inst());
+            set(x);
             break;
         }
         case WSMTYPE_OTHER:
         {
-            Array<String> str;
-            str.append(*_rep.str);
-            set(str);
+            Array<String> x;
+            x.append(_rep->str());
+            set(x);
             break;
         }
         default:
@@ -457,6 +564,21 @@ void WsmValue::toArray()
             break;
         }
     }
+}
+
+Boolean WsmValue::isArray() const
+{
+    return _rep->isArray;
+}
+
+Boolean WsmValue::isNull() const
+{
+    return _rep->isNull;
+}
+
+WsmType WsmValue::getType() const
+{
+    return _rep->type;
 }
 
 PEGASUS_NAMESPACE_END

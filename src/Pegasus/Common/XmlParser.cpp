@@ -306,14 +306,15 @@ XmlSemanticError::XmlSemanticError(
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-XmlParser::XmlParser(char* text, XmlNamespace* ns)
+XmlParser::XmlParser(char* text, XmlNamespace* ns, Boolean hideEmptyTags)
     : _line(1),
       _current(text),
       _restoreChar('\0'),
       _foundRoot(false),
       _supportedNamespaces(ns),
       // Start valid indexes with -2. -1 is reserved for not found.
-      _currentUnsupportedNSType(-2)
+      _currentUnsupportedNSType(-2),
+      _hideEmptyTags(hideEmptyTags)
 {
 }
 
@@ -554,7 +555,7 @@ static inline void _normalizeAttributeValue(
     }
 }
 
-Boolean XmlParser::next(
+Boolean XmlParser::_next(
     XmlEntry& entry,
     Boolean includeComment)
 {
@@ -726,6 +727,38 @@ Boolean XmlParser::next(
     }
 
     return true;
+}
+
+Boolean XmlParser::next(XmlEntry& entry, Boolean includeComment)
+{
+    if (_hideEmptyTags)
+    {
+        // Get the next tag.
+
+        if (!_next(entry, includeComment))
+            return false;
+
+        // If an EMPTY_TAG is encountered, then convert it to a START_TAG and 
+        // push a matching END_TAG on the put-back stack. This hides every
+        // EMPTY_TAG from the caller.
+
+        if (entry.type == XmlEntry::EMPTY_TAG)
+        {
+            entry.type = XmlEntry::START_TAG;
+
+            XmlEntry tmp;
+            tmp.type = XmlEntry::END_TAG;
+            tmp.text = entry.text;
+            tmp.nsType = entry.nsType;
+            tmp.localName = entry.localName;
+
+            _putBackStack.push(tmp);
+        }
+
+        return true;
+    }
+    else
+        return _next(entry, includeComment);
 }
 
 // Get the namespace type of the given tag

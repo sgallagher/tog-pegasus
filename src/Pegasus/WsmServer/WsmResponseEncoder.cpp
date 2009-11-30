@@ -127,6 +127,7 @@ void WsmResponseEncoder::_sendUnreportableSuccess(WsmResponse* response)
         response->getQueueId(),
         response->getHttpMethod(),
         response->getHttpCloseConnect(),
+        response->getOmitXMLProcessingInstruction(),
         fault);
 
     SoapResponse soapResponse(&faultResponse);
@@ -147,6 +148,7 @@ SoapResponse* WsmResponseEncoder::_buildEncodingLimitFault(
         response->getQueueId(),
         response->getHttpMethod(),
         response->getHttpCloseConnect(),
+        response->getOmitXMLProcessingInstruction(),
         fault);
 
     return new SoapResponse(&faultResponse);
@@ -194,6 +196,10 @@ void WsmResponseEncoder::enqueue(WsmResponse* response)
                 _encodeSoapFaultResponse((SoapFaultResponse*) response);
                 break;
 
+            case WS_INVOKE:
+                _encodeWsInvokeResponse((WsInvokeResponse*)response);
+                break;
+
             case WS_ENUMERATION_ENUMERATE:
             case WS_ENUMERATION_PULL:
                 // These cases are handled specially to allow for the message
@@ -213,7 +219,7 @@ void WsmResponseEncoder::enqueue(WsmResponse* response)
 
         Logger::put_l(
             Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE, parms);
-        
+
         MessageQueue* queue = MessageQueue::lookup(response->getQueueId());
         HTTPConnection* httpQueue = dynamic_cast<HTTPConnection*>(queue);
         PEGASUS_ASSERT(httpQueue);
@@ -229,7 +235,8 @@ void WsmResponseEncoder::_encodeWxfGetResponse(WxfGetResponse* response)
 {
     SoapResponse soapResponse(response);
     Buffer body;
-    WsmWriter::appendInstanceElement(body, response->getInstance());
+    WsmWriter::appendInstanceElement(body, response->getResourceUri(),
+        response->getInstance(), PEGASUS_INSTANCE_NS, false);
     if (soapResponse.appendBodyContent(body))
     {
         _sendResponse(&soapResponse);
@@ -335,7 +342,8 @@ SoapResponse* WsmResponseEncoder::encodeWsenEnumerateResponse(
             response->getEnumerationContext(),
             response->isComplete(),
             response->getEnumerationData(),
-            numDataItemsEncoded))
+            numDataItemsEncoded,
+            response->getResourceUri()))
     {
         soapResponse.reset(_buildEncodingLimitFault(response));
     }
@@ -357,7 +365,8 @@ SoapResponse* WsmResponseEncoder::encodeWsenPullResponse(
             response->getEnumerationContext(),
             response->isComplete(),
             response->getEnumerationData(),
-            numDataItemsEncoded))
+            numDataItemsEncoded,
+            response->getResourceUri()))
     {
         soapResponse.reset(_buildEncodingLimitFault(response));
     }
@@ -372,7 +381,8 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
     Uint64 contextId,
     Boolean isComplete,
     WsenEnumerationData& data,
-    Uint32& numDataItemsEncoded)
+    Uint32& numDataItemsEncoded,
+    const String& resourceUri)
 {
     Buffer bodyHeader, bodyTrailer;
 
@@ -444,7 +454,7 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
     }
 
     // Now add the list of items
-    Uint32 i;
+    Uint32 i = 0;
 
     if (data.enumerationMode == WSEN_EM_OBJECT)
     {
@@ -462,7 +472,9 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
                         data.classUri).getString());
             }
 
-            WsmWriter::appendInstanceElement(body, data.instances[i]);
+            WsmWriter::appendInstanceElement(body, resourceUri,
+                data.instances[i], PEGASUS_INSTANCE_NS, false);
+
             if (!soapResponse.appendBodyContent(body))
             {
                 break;
@@ -511,7 +523,8 @@ Boolean WsmResponseEncoder::_encodeEnumerationData(
                         data.classUri).getString());
             }
 
-            WsmWriter::appendInstanceElement(body, data.instances[i]);
+            WsmWriter::appendInstanceElement(body, resourceUri,
+                data.instances[i], PEGASUS_INSTANCE_NS, false);
 
             WsmWriter::appendStartTag(
                 body,
@@ -613,6 +626,31 @@ void WsmResponseEncoder::_encodeSoapFaultResponse(SoapFaultResponse* response)
 {
     SoapResponse soapResponse(response);
     _sendResponse(&soapResponse);
+}
+
+void WsmResponseEncoder::_encodeWsInvokeResponse(
+    WsInvokeResponse* response)
+{
+    SoapResponse* soapResponse = new SoapResponse(response);
+
+    Buffer body;
+    WsmWriter::appendInvokeOutputElement(
+        body,
+        response->resourceUri,
+        response->className,
+        response->methodName,
+        response->instance,
+        PEGASUS_INVOKE_NS);
+
+    if (soapResponse->appendBodyContent(body))
+    {
+        _sendResponse(soapResponse);
+    }
+    else
+    {
+        delete soapResponse;
+        _sendUnreportableSuccess(response);
+    }
 }
 
 PEGASUS_NAMESPACE_END

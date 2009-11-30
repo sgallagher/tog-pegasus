@@ -40,14 +40,14 @@ PEGASUS_USING_STD;
 
 Boolean verbose = false;
 
-static void _parseFile(const char* fileName)
+static void _parseFile(const char* fileName, Boolean hideEmptyTags)
 {
     // cout << "Parsing: " << fileName << endl;
 
     Buffer text;
     FileSystem::loadFileToMemory(text, fileName);
 
-    XmlParser parser((char*)text.getData());
+    XmlParser parser((char*)text.getData(), 0, hideEmptyTags);
 
     XmlEntry entry;
 
@@ -90,7 +90,7 @@ static void _parseFile(const char* fileName)
         PEGASUS_ASSERT(caughtException); \
     } while(0)
 
-void testNamespaceSupport()
+void testNamespaceSupport(Boolean hideEmptyTags)
 {
     XmlNamespace testNamespaces[] =
     {
@@ -131,7 +131,7 @@ void testNamespaceSupport()
             " <d:tag xmlns:d=\"urn:x\"/>"
             " <b:tag xmlns:b=\"urn:1\"/>"
             "</a:tag>";
-        XmlParser p(xmlContent, testNamespaces);
+        XmlParser p(xmlContent, testNamespaces, hideEmptyTags);
 
         // <a:tag xmlns:a=\"urn:0\" xmlns:b=\"urn:1\">
         PEGASUS_ASSERT(p.next(entry));
@@ -164,12 +164,27 @@ void testNamespaceSupport()
         PEGASUS_ASSERT(strcmp(attr->localName, "ignore") == 0);
         PEGASUS_ASSERT(strcmp(attr->value, "false") == 0);
 
-        // <tag/>
+        // <tag>
         PEGASUS_ASSERT(p.next(entry));
-        PEGASUS_ASSERT(entry.type == XmlEntry::EMPTY_TAG);
+
+        if (hideEmptyTags)
+            PEGASUS_ASSERT(entry.type == XmlEntry::START_TAG);
+        else
+            PEGASUS_ASSERT(entry.type == XmlEntry::EMPTY_TAG);
+
         PEGASUS_ASSERT(!strcmp(entry.text, "tag"));
         PEGASUS_ASSERT(entry.nsType == 2);
         PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
+
+        if (hideEmptyTags)
+        {
+            // </tag>
+            PEGASUS_ASSERT(p.next(entry));
+            PEGASUS_ASSERT(entry.type == XmlEntry::END_TAG);
+            PEGASUS_ASSERT(!strcmp(entry.text, "tag"));
+            PEGASUS_ASSERT(entry.nsType == 2);
+            PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
+        }
 
         // </b:tag>
         PEGASUS_ASSERT(p.next(entry));
@@ -209,17 +224,38 @@ void testNamespaceSupport()
         PEGASUS_ASSERT(entry.nsType == 0);
         PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
 
-        // <d:tag xmlns:d=\"urn:x\"/>
+        // <d:tag xmlns:d=\"urn:x\">
         PEGASUS_ASSERT(p.next(entry));
-        PEGASUS_ASSERT(entry.type == XmlEntry::EMPTY_TAG);
+
+        if (hideEmptyTags)
+            PEGASUS_ASSERT(entry.type == XmlEntry::START_TAG);
+        else
+            PEGASUS_ASSERT(entry.type == XmlEntry::EMPTY_TAG);
+
         PEGASUS_ASSERT(!strcmp(entry.text, "d:tag"));
         PEGASUS_ASSERT(entry.nsType == -2);
         PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
         PEGASUS_ASSERT(p.getNamespace(-2) != 0);
 
-        // <b:tag xmlns:b=\"urn:1\"/>
+        if (hideEmptyTags)
+        {
+            // </d:tag>
+            PEGASUS_ASSERT(p.next(entry));
+            PEGASUS_ASSERT(entry.type == XmlEntry::END_TAG);
+            PEGASUS_ASSERT(!strcmp(entry.text, "d:tag"));
+            PEGASUS_ASSERT(entry.nsType == -2);
+            PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
+            PEGASUS_ASSERT(p.getNamespace(-2) != 0);
+        }
+
+        // <b:tag xmlns:b=\"urn:1\">
         PEGASUS_ASSERT(p.next(entry));
-        PEGASUS_ASSERT(entry.type == XmlEntry::EMPTY_TAG);
+
+        if (hideEmptyTags)
+            PEGASUS_ASSERT(entry.type == XmlEntry::START_TAG);
+        else
+            PEGASUS_ASSERT(entry.type == XmlEntry::EMPTY_TAG);
+
         PEGASUS_ASSERT(!strcmp(entry.text, "b:tag"));
         PEGASUS_ASSERT(entry.nsType == 1);
         PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
@@ -227,6 +263,20 @@ void testNamespaceSupport()
         PEGASUS_ASSERT(p.getNamespace(0) != 0);
         PEGASUS_ASSERT(p.getNamespace(1) != 0);
         PEGASUS_ASSERT(p.getNamespace(2) == 0);
+
+        if (hideEmptyTags)
+        {
+            // </b:tag xmlns:b=\"urn:1\">
+            PEGASUS_ASSERT(p.next(entry));
+            PEGASUS_ASSERT(entry.type == XmlEntry::END_TAG);
+            PEGASUS_ASSERT(!strcmp(entry.text, "b:tag"));
+            PEGASUS_ASSERT(entry.nsType == 1);
+            PEGASUS_ASSERT(!strcmp(entry.localName, "tag"));
+            PEGASUS_ASSERT(p.getNamespace(-2) == 0);
+            PEGASUS_ASSERT(p.getNamespace(0) != 0);
+            PEGASUS_ASSERT(p.getNamespace(1) != 0);
+            PEGASUS_ASSERT(p.getNamespace(2) == 0);
+        }
 
         // </a:tag>
         PEGASUS_ASSERT(p.next(entry));
@@ -241,38 +291,38 @@ void testNamespaceSupport()
     // Test undeclared namespace
     {
         char xmlContent[] = "<a:tag xmlns:b=\"urn:1\"/>";
-        XmlParser p(xmlContent, testNamespaces);
+        XmlParser p(xmlContent, testNamespaces, hideEmptyTags);
         ASSERT_XML_EXCEPTION(p.next(entry));
     }
 
     // Test invalid QNames
     {
         char xmlContent[] = "<.a:tag xmlns:a=\"urn:0\"/>";
-        XmlParser p(xmlContent, testNamespaces);
+        XmlParser p(xmlContent, testNamespaces, hideEmptyTags);
         ASSERT_XML_EXCEPTION(p.next(entry));
     }
 
     {
         char xmlContent[] = "<a&:tag xmlns:a=\"urn:0\"/>";
-        XmlParser p(xmlContent, testNamespaces);
+        XmlParser p(xmlContent, testNamespaces, hideEmptyTags);
         ASSERT_XML_EXCEPTION(p.next(entry));
     }
 
     {
         char xmlContent[] = "<a:.tag xmlns:a=\"urn:0\"/>";
-        XmlParser p(xmlContent, testNamespaces);
+        XmlParser p(xmlContent, testNamespaces, hideEmptyTags);
         ASSERT_XML_EXCEPTION(p.next(entry));
     }
 
     {
         char xmlContent[] = "<a:ta:g xmlns:a=\"urn:0\"/>";
-        XmlParser p(xmlContent, testNamespaces);
+        XmlParser p(xmlContent, testNamespaces, hideEmptyTags);
         ASSERT_XML_EXCEPTION(p.next(entry));
     }
 
     {
         char xmlContent[] = "<a:ta";
-        XmlParser p(xmlContent, testNamespaces);
+        XmlParser p(xmlContent, testNamespaces, hideEmptyTags);
         ASSERT_XML_EXCEPTION(p.next(entry));
     }
 }
@@ -313,7 +363,8 @@ int main(int argc, char** argv)
     {
         try
         {
-            _parseFile(argv[i]);
+            _parseFile(argv[i], true);
+            _parseFile(argv[i], false);
         }
         catch (Exception& e)
         {
@@ -324,7 +375,8 @@ int main(int argc, char** argv)
 
     testWhitespaceHandling();
 
-    testNamespaceSupport();
+    testNamespaceSupport(true);
+    testNamespaceSupport(false);
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

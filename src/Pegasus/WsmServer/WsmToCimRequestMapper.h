@@ -63,6 +63,8 @@ public:
         WsenEnumerateRequest* request);
     CIMEnumerateInstanceNamesRequestMessage*
         mapToCimEnumerateInstanceNamesRequest(WsenEnumerateRequest* request);
+    CIMInvokeMethodRequestMessage* mapToCimInvokeMethodRequest(
+        WsInvokeRequest* request);
 
     static CIMName convertResourceUriToClassName(const String& resourceUri);
     String convertEPRAddressToHostname(const String& addr);
@@ -95,6 +97,13 @@ public:
 
     static void convertWsmToCimDatetime(
         const String& wsmDT, CIMDateTime& cimDT);
+
+    void convertWsmToCimParameters(
+        const CIMNamespaceName& nameSpace,
+        const String& className,
+        const String& methodName,
+        WsmInstance& instance,
+        Array<CIMParamValue>& parameters);
 
 private:
 

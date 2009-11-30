@@ -48,7 +48,24 @@ PEGASUS_NAMESPACE_BEGIN
 inline void _writeNewlineForReadability(Buffer& out)
 {
     // Uncomment this statement for XML response readability.
-    //out << '\n';
+    // out << '\n';
+}
+
+// Append something like this to buffer: "<class:"
+static inline void _appendStartPrefix(Buffer& out, const char* ns)
+{
+    out.append('<');
+    out.append(ns, strlen(ns));
+    out.append(':');
+}
+
+// Append something like this to buffer: "</class:"
+static inline void _appendEndPrefix(Buffer& out, const char* ns)
+{
+    out.append('<');
+    out.append('/');
+    out.append(ns, strlen(ns));
+    out.append(':');
 }
 
 //-----------------------------------------------------------------------------
@@ -172,14 +189,20 @@ void WsmWriter::appendWsmFaultBody(
 
 void WsmWriter::appendInstanceElement(
     Buffer& out,
+    const String& resourceUri,
     WsmInstance& instance,
+    const char* ns,
     Boolean isEmbedded)
 {
+    size_t nsLength = strlen(ns);
+
     // Class opening element:
-    out << STRLIT("<class:") << instance.getClassName();
-    out << STRLIT(" xmlns:class=\"");
-    out << WsmNamespaces::supportedNamespaces[WsmNamespaces::WS_CIM_SCHEMA].
-        extendedName;
+    _appendStartPrefix(out, ns);
+    out << instance.getClassName();
+    out << STRLIT(" xmlns:");
+    out.append(ns, nsLength);
+    out << STRLIT("=\"");
+    out << WsmUtils::getRootResourceUri(resourceUri);
     out << STRLIT("/") << instance.getClassName();
     out << STRLIT("\"");
 
@@ -203,23 +226,36 @@ void WsmWriter::appendInstanceElement(
 
     // Properties:
     for (Uint32 i = 0, n = instance.getPropertyCount(); i < n; i++)
-        appendPropertyElement(out, instance.getProperty(i));
+        appendPropertyElement(out, resourceUri, instance.getProperty(i), ns);
 
     // Class closing element:
-    out << STRLIT("</class:") << instance.getClassName() << STRLIT(">");
+    _appendEndPrefix(out, ns);
+    out << instance.getClassName() << STRLIT(">");
     _writeNewlineForReadability(out);
 }
 
 void WsmWriter::appendPropertyElement(
     Buffer& out,
-    WsmProperty& property)
+    const String& resourceUri,
+    WsmProperty& property,
+    const char* ns)
 {
     WsmValue val = property.getValue();
     String propName = property.getName();
 
+    // Form start element prefix. For example: "<class:"
+    Buffer startBuffer;
+    _appendStartPrefix(startBuffer, ns);
+    StrLit start(startBuffer.getData(), startBuffer.size());
+
+    // Form end element prefix. For example: "</class:"
+    Buffer endBuffer;
+    _appendEndPrefix(endBuffer, ns);
+    StrLit end(endBuffer.getData(), endBuffer.size());
+
     if (val.isNull())
     {
-        out << STRLIT("<class:") << propName;
+        out << start << propName;
         out << " " << WsmNamespaces::supportedNamespaces[
             WsmNamespaces::XML_SCHEMA_INSTANCE].localName;
         out << STRLIT(":nil=\"true\"/>");
@@ -236,10 +272,10 @@ void WsmWriter::appendPropertyElement(
                 val.get(eprs);
                 for (Uint32 i = 0, n = eprs.size(); i < n; i++)
                 {
-                    out << STRLIT("<class:") << propName << STRLIT(">");
+                    out << start << propName << STRLIT(">");
                     _writeNewlineForReadability(out);
                     appendEPRElement(out, eprs[i]);
-                    out << STRLIT("</class:") << propName << STRLIT(">");
+                    out << end << propName << STRLIT(">");
                     _writeNewlineForReadability(out);
                 }
                 break;
@@ -250,10 +286,11 @@ void WsmWriter::appendPropertyElement(
                 val.get(instances);
                 for (Uint32 i = 0, n = instances.size(); i < n; i++)
                 {
-                    out << STRLIT("<class:") << propName << STRLIT(">");
+                    out << start << propName << STRLIT(">");
                     _writeNewlineForReadability(out);
-                    appendInstanceElement(out, instances[i], true);
-                    out << STRLIT("</class:") << propName << STRLIT(">");
+                    appendInstanceElement(out, resourceUri, instances[i],
+                        PEGASUS_INSTANCE_NS, true);
+                    out << end << propName << STRLIT(">");
                     _writeNewlineForReadability(out);
                 }
                 break;
@@ -264,10 +301,10 @@ void WsmWriter::appendPropertyElement(
                 val.get(strs);
                 for (Uint32 i = 0, n = strs.size(); i < n; i++)
                 {
-                    out << STRLIT("<class:") << propName << STRLIT(">");
+                    out << start << propName << STRLIT(">");
                     _writeNewlineForReadability(out);
                     appendStringElement(out, strs[i]);
-                    out << STRLIT("</class:") << propName << STRLIT(">");
+                    out << end << propName << STRLIT(">");
                     _writeNewlineForReadability(out);
                 }
                 break;
@@ -286,10 +323,10 @@ void WsmWriter::appendPropertyElement(
             {
                 WsmEndpointReference epr;
                 val.get(epr);
-                out << STRLIT("<class:") << propName << STRLIT(">");
+                out << start << propName << STRLIT(">");
                 _writeNewlineForReadability(out);
                 appendEPRElement(out, epr);
-                out << STRLIT("</class:") << propName << STRLIT(">");
+                out << end << propName << STRLIT(">");
                 _writeNewlineForReadability(out);
                 break;
             }
@@ -297,10 +334,11 @@ void WsmWriter::appendPropertyElement(
             {
                 WsmInstance instance;
                 val.get(instance);
-                out << STRLIT("<class:") << propName << STRLIT(">");
+                out << start << propName << STRLIT(">");
                 _writeNewlineForReadability(out);
-                appendInstanceElement(out, instance, true);
-                out << STRLIT("</class:") << propName << STRLIT(">");
+                appendInstanceElement(out, resourceUri, instance,
+                    PEGASUS_INSTANCE_NS, true);
+                out << end << propName << STRLIT(">");
                 _writeNewlineForReadability(out);
                 break;
             }
@@ -308,10 +346,10 @@ void WsmWriter::appendPropertyElement(
             {
                 String str;
                 val.get(str);
-                out << STRLIT("<class:") << propName << STRLIT(">");
+                out << start << propName << STRLIT(">");
                 _writeNewlineForReadability(out);
                 appendStringElement(out, str);
-                out << STRLIT("</class:") << propName << STRLIT(">");
+                out << end << propName << STRLIT(">");
                 _writeNewlineForReadability(out);
                 break;
             }
@@ -432,6 +470,7 @@ void WsmWriter::appendHTTPResponseHeader(
     Buffer& out,
     const String& action,
     HttpMethod httpMethod,
+    Boolean omitXMLProcessingInstruction,
     const ContentLanguageList& contentLanguages,
     Boolean isFault,
     Uint32 contentLength)
@@ -470,7 +509,11 @@ void WsmWriter::appendHTTPResponseHeader(
     }
     out << STRLIT("\r\n");
 
-    out << STRLIT("<?xml version=\"1.0\" encoding=\"utf-8\" ?>");
+    if (!omitXMLProcessingInstruction)
+    {
+        out << STRLIT("<?xml version=\"1.0\" encoding=\"utf-8\" ?>");
+    }
+
     _writeNewlineForReadability(out);
 }
 
@@ -556,9 +599,57 @@ void WsmWriter::appendSoapHeader(
     appendTagValue(
         out, WsmNamespaces::WS_ADDRESSING, STRLIT("MessageID"), messageId);
 
-    // Add <wsa:RelatesTo> entry
-    appendTagValue(
-        out, WsmNamespaces::WS_ADDRESSING, STRLIT("RelatesTo"), relatesTo);
+    // Add <wsa:RelatesTo> entry only if necessary. An empty relates to tag
+    // breaks some WS-Management clients (such as WinRM).
+    if (relatesTo.size())
+    {
+        appendTagValue(
+            out, WsmNamespaces::WS_ADDRESSING, STRLIT("RelatesTo"), relatesTo);
+    }
+}
+
+void WsmWriter::appendInvokeOutputElement(
+    Buffer& out,
+    const String& resourceUri,
+    const String& className,
+    const String& methodName,
+    WsmInstance& instance,
+    const char* ns)
+{
+    CString mn(methodName.getCString());
+
+    // Form tagname.
+    Buffer tagBuffer;
+    tagBuffer.append(ns, strlen(ns));
+    tagBuffer.append(':');
+    tagBuffer.append(mn, strlen(mn));
+    tagBuffer.append("_OUTPUT", 7);
+    const char* tag = tagBuffer.getData();
+    size_t tagSize = tagBuffer.size();
+
+    // Write start tag.
+    out.append('<');
+    out.append(tag, tagSize);
+
+    out << STRLIT(" xmlns:");
+    out.append(ns, strlen(ns));
+    out << STRLIT("=\"");
+    out << WsmUtils::getRootResourceUri(resourceUri);
+    out << STRLIT("/");
+    out << className;
+    out << STRLIT("\">");
+    _writeNewlineForReadability(out);
+
+    // Write properties:
+    for (Uint32 i = 0, n = instance.getPropertyCount(); i < n; i++)
+        appendPropertyElement(out, resourceUri, instance.getProperty(i), ns);
+
+    // Write end tag.
+    out << STRLIT("</");
+    out.append(tag, tagSize);
+    out.append('>');
+
+    _writeNewlineForReadability(out);
 }
 
 PEGASUS_NAMESPACE_END

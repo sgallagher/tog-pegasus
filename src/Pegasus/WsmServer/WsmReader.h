@@ -35,10 +35,12 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/AcceptLanguageList.h>
+#include <Pegasus/Common/SharedPtr.h>
 #include <Pegasus/WsmServer/WsmInstance.h>
 #include <Pegasus/WsmServer/WsmSelectorSet.h>
 #include <Pegasus/WsmServer/WsmEndpointReference.h>
 #include <Pegasus/WsmServer/WsmUtils.h>
+#include <Pegasus/WQL/WQLParser.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -48,6 +50,8 @@ public:
 
     WsmReader(char* text);
     ~WsmReader();
+
+    void setHideEmptyTags(Boolean flag);
 
     Boolean getXmlDeclaration(
         const char*& xmlVersion, const char*& xmlEncoding);
@@ -66,10 +70,17 @@ public:
         XmlEntry& entry,
         int nsType,
         const char* tagName);
+
+    // Expect a start tag with the given name and return the namespace id.
+    int expectStartTag(
+        XmlEntry& entry,
+        const char* tagName);
+
     void expectStartOrEmptyTag(
         XmlEntry& entry,
         int nsType,
         const char* tagName);
+
     void expectEndTag(
         int nsType,
         const char* tagName);
@@ -121,7 +132,10 @@ public:
         WsmbPolymorphismMode& polymorphismMode,
         WsenEnumerationMode& enumerationMode,
         Boolean& optimized,
-        Uint32& maxElements);
+        Uint32& maxElements,
+        String& queryLanguage,
+        String& query,
+        SharedPtr<WQLSelectStatement>& selectStatement);
 
     void decodePullBody(
         Uint64& enumerationContext,
@@ -131,12 +145,22 @@ public:
 
     void decodeReleaseBody(Uint64& enumerationContext);
 
+   void decodeInvokeInputBody(
+       const String& className,
+       const String& methodName,
+       WsmInstance& instance);
+
     void getInstanceElement(WsmInstance& instance);
     Boolean getPropertyElement(
         int nsType,
         String& propName,
         WsmValue& propValue);
     void getValueElement(WsmValue& value, int nsType, const char* propNameTag);
+
+    void decodeFilter(
+        String& queryLanguage,
+        String& query,
+        SharedPtr<WQLSelectStatement>& selectStatement);
 
 private:
 

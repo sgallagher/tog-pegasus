@@ -73,44 +73,62 @@ static const char* _typeStrings[] =
 };
 
 template<class T>
-static void _print(ostream& os, const T& x)
+struct Print
 {
-    os << x;
-}
+    static void func(ostream& os, const T& x)
+    {
+        os << x;
+    }
+};
 
 PEGASUS_TEMPLATE_SPECIALIZATION
-void _print(ostream& os, const Boolean& x)
+struct Print<Boolean>
 {
-    os << (x ? "true" : "false");
-}
+    static void func(ostream& os, const Boolean& x)
+    {
+        os << (x ? "true" : "false");
+    }
+};
 
 PEGASUS_TEMPLATE_SPECIALIZATION
-void _print(ostream& os, const Uint64& x)
+struct Print<Uint64>
 {
-    char buf[32];
-    sprintf(buf, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", x);
-    os << buf;
-}
+    static void func(ostream& os, const Uint64& x)
+    {
+        char buf[32];
+        sprintf(buf, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", x);
+        os << buf;
+    }
+};
 
 PEGASUS_TEMPLATE_SPECIALIZATION
-void _print(ostream& os, const Sint64& x)
+struct Print<Sint64>
 {
-    char buf[32];
-    sprintf(buf, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", x);
-    os << buf;
-}
+    static void func(ostream& os, const Sint64& x)
+    {
+        char buf[32];
+        sprintf(buf, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", x);
+        os << buf;
+    }
+};
 
 PEGASUS_TEMPLATE_SPECIALIZATION
-void _print(ostream& os, const Char16& x)
+struct Print<Uint16>
 {
-    os << Uint16(x);
-}
+    static void func(ostream& os, const Char16& x)
+    {
+        os << Uint16(x);
+    }
+};
 
 PEGASUS_TEMPLATE_SPECIALIZATION
-void _print(ostream& os, const CIMDateTime& x)
+struct Print<CIMDateTime>
 {
-    os << x.toString();
-}
+    static void func(ostream& os, const CIMDateTime& x)
+    {
+        os << x.toString();
+    }
+};
 
 template<class T>
 struct PrintArray
@@ -124,7 +142,8 @@ struct PrintArray
 
         for (Uint32 i = 0; i < a.size(); i++)
         {
-            _print<T>(os, a[i]);
+            const T& r = a[i];
+            Print<T>::func(os, r);
 
             if (i + 1 != a.size())
                 os << ", ";
@@ -143,7 +162,7 @@ struct PrintScalar
     {
         T x;
         cv.get(x);
-        _print<T>(os, x);
+        Print<T>::func(os, x);
         os << endl;
     }
 };
@@ -505,6 +524,34 @@ void PEGASUS_COMMON_LINKAGE PrintQualifierDecl(
     os << Ind(n) << "    flavor=" << x.getFlavor().toString() << endl;
     os << Ind(n) << "    arraySize=" << x.getArraySize() << endl;
     PrintValue(os, x.getValue(), n + 1);
+    os << Ind(n) << "}" << endl;
+}
+
+PEGASUS_COMMON_LINKAGE void PrintParamValue(
+    PEGASUS_STD(ostream)& os,
+    const CIMParamValue& x,
+    Uint32 n)
+{
+    os << Ind(n) << "CIMParamValue" << endl;
+    os << Ind(n) << "{" << endl;
+    os << Ind(n) << "    name=" << x.getParameterName() << endl;
+    PrintValue(os, x.getValue(), n + 1);
+    os << Ind(n) << "}" << endl;
+}
+
+PEGASUS_COMMON_LINKAGE void PrintParamValueArray(
+    PEGASUS_STD(ostream)& os,
+    const Array<CIMParamValue>& x,
+    Uint32 n)
+{
+    os << Ind(n) << "Array<CIMParamValue>" << endl;
+    os << Ind(n) << "{" << endl;
+
+    for (Uint32 i = 0; i < x.size(); i++)
+    {
+        PrintParamValue(os, x[i], n + 1);
+    }
+
     os << Ind(n) << "}" << endl;
 }
 

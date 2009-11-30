@@ -56,6 +56,7 @@ protected:
           _queueId(request->queueId),
           _httpMethod(request->httpMethod),
           _httpCloseConnect(request->httpCloseConnect),
+          _omitXMLProcessingInstruction(request->omitXMLProcessingInstruction),
           _maxEnvelopeSize(request->maxEnvelopeSize),
           _contentLanguages(contentLanguages)
     {
@@ -67,6 +68,7 @@ protected:
         Uint32 queueId,
         HttpMethod httpMethod,
         Boolean httpCloseConnect,
+        Boolean omitXMLProcessingInstruction,
         const ContentLanguageList& contentLanguages)
         : _type(type),
           _messageId(WsmUtils::getMessageId()),
@@ -74,6 +76,7 @@ protected:
           _queueId(queueId),
           _httpMethod(httpMethod),
           _httpCloseConnect(httpCloseConnect),
+          _omitXMLProcessingInstruction(omitXMLProcessingInstruction),
           _maxEnvelopeSize(0),
           _contentLanguages(contentLanguages)
     {
@@ -125,6 +128,11 @@ public:
         return _contentLanguages;
     }
 
+    Boolean getOmitXMLProcessingInstruction() const
+    {
+        return _omitXMLProcessingInstruction;
+    }
+
 private:
 
     WsmResponse(const WsmResponse&);
@@ -136,6 +144,7 @@ private:
     Uint32 _queueId;
     HttpMethod _httpMethod;
     Boolean _httpCloseConnect;
+    Boolean _omitXMLProcessingInstruction;
     Uint32 _maxEnvelopeSize;
     ContentLanguageList _contentLanguages;
 };
@@ -149,6 +158,7 @@ public:
         Uint32 queueId,
         HttpMethod httpMethod,
         Boolean httpCloseConnect,
+        Boolean omitXMLProcessingInstruction,
         const WsmFault& fault)
         : WsmResponse(
               WSM_FAULT,
@@ -156,6 +166,7 @@ public:
               queueId,
               httpMethod,
               httpCloseConnect,
+              omitXMLProcessingInstruction,
               fault.getReasonLanguage()),
           _fault(fault)
     {
@@ -195,6 +206,7 @@ public:
         Uint32 queueId,
         HttpMethod httpMethod,
         Boolean httpCloseConnect,
+        Boolean omitXMLProcessingInstruction,
         const SoapNotUnderstoodFault& fault)
         : WsmResponse(
               SOAP_FAULT,
@@ -202,6 +214,7 @@ public:
               queueId,
               httpMethod,
               httpCloseConnect,
+              omitXMLProcessingInstruction,
               fault.getMessageLanguage()),
           _fault(fault)
     {
@@ -233,7 +246,8 @@ public:
               WS_TRANSFER_GET,
               request,
               contentLanguages),
-          _instance(inst)
+          _instance(inst),
+          _resourceUri(request->epr.resourceUri)
     {
     }
 
@@ -246,9 +260,15 @@ public:
         return _instance;
     }
 
+    const String& getResourceUri() const
+    {
+        return _resourceUri;
+    }
+
 private:
 
     WsmInstance _instance;
+    String _resourceUri;
 };
 
 class WxfPutResponse : public WsmResponse
@@ -289,6 +309,7 @@ private:
     // EPR in the request.
     WsmEndpointReference _reference;
     Boolean _requestedEPR;
+    String _resourceUri;
 };
 
 class WxfCreateResponse : public WsmResponse
@@ -510,7 +531,8 @@ public:
               contentLanguages),
           _enumerationContext((Uint64) -1),
           _isComplete(false),
-          _enumerationData(data)
+          _enumerationData(data),
+          _resourceUri(request->epr.resourceUri)
     {
     }
     ~WsenPullResponse()
@@ -557,11 +579,17 @@ public:
         _enumerationContext = context;
     }
 
+    const String& getResourceUri() const
+    {
+        return _resourceUri;
+    }
+
 private:
 
     Uint64 _enumerationContext;
     Boolean _isComplete;
     WsenEnumerationData _enumerationData;
+    String _resourceUri;
 };
 
 class WsenEnumerateResponse : public WsmResponse
@@ -583,7 +611,8 @@ public:
           _requestItemCount(request->requestItemCount),
           _itemCount(itemCount),
           _enumerationData(inst, epr, request->polymorphismMode,
-              request->epr.resourceUri)
+              request->epr.resourceUri),
+          _resourceUri(request->epr.resourceUri)
     {
         PEGASUS_ASSERT(request->enumerationMode == WSEN_EM_OBJECT ||
             request->enumerationMode == WSEN_EM_OBJECT_AND_EPR);
@@ -602,7 +631,8 @@ public:
           _requestItemCount(request->requestItemCount),
           _itemCount(itemCount),
           _enumerationData(inst, request->polymorphismMode,
-              request->epr.resourceUri)
+              request->epr.resourceUri),
+          _resourceUri(request->epr.resourceUri)
     {
         PEGASUS_ASSERT(request->enumerationMode == WSEN_EM_OBJECT);
     }
@@ -619,7 +649,8 @@ public:
           _isComplete(false),
           _requestItemCount(request->requestItemCount),
           _itemCount(itemCount),
-          _enumerationData(epr)
+          _enumerationData(epr),
+          _resourceUri(request->epr.resourceUri)
     {
         PEGASUS_ASSERT(request->enumerationMode == WSEN_EM_EPR);
     }
@@ -636,7 +667,8 @@ public:
           _isComplete(false),
           _requestItemCount(request->requestItemCount),
           _itemCount(itemCount),
-          _enumerationData(data)
+          _enumerationData(data),
+          _resourceUri(request->epr.resourceUri)
     {
         PEGASUS_ASSERT(request->enumerationMode == data.enumerationMode);
     }
@@ -708,6 +740,11 @@ public:
         _enumerationContext = context;
     }
 
+    const String& getResourceUri() const
+    {
+        return _resourceUri;
+    }
+
 private:
 
     Uint64 _enumerationContext;
@@ -715,6 +752,7 @@ private:
     Boolean _requestItemCount;
     Uint32 _itemCount;
     WsenEnumerationData _enumerationData;
+    String _resourceUri;
 };
 
 class WsenReleaseResponse : public WsmResponse
@@ -734,6 +772,34 @@ public:
     ~WsenReleaseResponse()
     {
     }
+};
+
+class WsInvokeResponse : public WsmResponse
+{
+public:
+
+    WsInvokeResponse(
+        const String& nameSpace_,
+        const String& className_,
+        const String& methodName_,
+        const WsmInstance& instance_,
+        const WsInvokeRequest* request_,
+        const ContentLanguageList& contentLanguages_)
+        :
+        WsmResponse(WS_INVOKE, request_, contentLanguages_),
+        nameSpace(nameSpace_),
+        className(className_),
+        methodName(methodName_),
+        instance(instance_),
+        resourceUri(request_->epr.resourceUri)
+    {
+    }
+
+    String nameSpace;
+    String className;
+    String methodName;
+    WsmInstance instance;
+    String resourceUri;
 };
 
 PEGASUS_NAMESPACE_END

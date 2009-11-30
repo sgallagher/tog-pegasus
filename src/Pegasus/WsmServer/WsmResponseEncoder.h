@@ -77,6 +77,7 @@ private:
     void _encodeWsenReleaseResponse(WsenReleaseResponse* response);
     void _encodeWsmFaultResponse(WsmFaultResponse* response);
     void _encodeSoapFaultResponse(SoapFaultResponse* response);
+    void _encodeWsInvokeResponse(WsInvokeResponse* response);
 
     Boolean _encodeEnumerationData(
         SoapResponse& soapResponse,
@@ -85,7 +86,8 @@ private:
         Uint64 contextId,
         Boolean isComplete,
         WsenEnumerationData& data,
-        Uint32& numDataItemsEncoded);
+        Uint32& numDataItemsEncoded,
+        const String& resourceUri);
 };
 
 PEGASUS_NAMESPACE_END

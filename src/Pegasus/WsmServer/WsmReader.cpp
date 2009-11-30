@@ -35,8 +35,11 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/XmlReader.h>
+#include <Pegasus/WQL/WQLSelectStatement.h>
+#include <Pegasus/WQL/WQLParser.h>
 #include <Pegasus/WsmServer/WsmConstants.h>
 #include <Pegasus/WsmServer/WsmFault.h>
 #include "WsmReader.h"
@@ -56,6 +59,11 @@ WsmReader::WsmReader(char* text)
 
 WsmReader::~WsmReader()
 {
+}
+
+void WsmReader::setHideEmptyTags(Boolean flag)
+{
+    _parser.setHideEmptyTags(flag);
 }
 
 //-----------------------------------------------------------------------------
@@ -184,6 +192,40 @@ void WsmReader::expectStartTag(
             tagName, nsUri);
         throw XmlValidationError(_parser.getLine(), mlParms);
     }
+}
+
+int WsmReader::expectStartTag(
+    XmlEntry& entry,
+    const char* tagName)
+{
+    if (!_parser.next(entry) ||
+        entry.type != XmlEntry::START_TAG ||
+        strcmp(entry.localName, tagName) != 0)
+    {
+        const char* nsUri;
+        int nsType = entry.nsType;
+
+        // The nsType must have already been declared in the XML or it must be
+        // a supported namespace.
+        XmlNamespace* ns = _parser.getNamespace(nsType);
+        if (ns)
+        {
+            nsUri = ns->extendedName;
+        }
+        else
+        {
+            PEGASUS_ASSERT((nsType >= 0) && (nsType < WsmNamespaces::LAST));
+            nsUri = WsmNamespaces::supportedNamespaces[nsType].extendedName;
+        }
+
+        MessageLoaderParms mlParms(
+            "WsmServer.WsmReader.EXPECTED_OPEN",
+            "Expecting a start tag for \"$0\" element in namespace \"$1\".",
+            tagName, nsUri);
+        throw XmlValidationError(_parser.getLine(), mlParms);
+    }
+
+    return entry.nsType;
 }
 
 void WsmReader::expectStartOrEmptyTag(
@@ -573,7 +615,10 @@ void WsmReader::decodeRequestSoapHeaders(
     XmlEntry entry;
     Boolean gotEntry;
 
+    // The wsidentify operation may send an empty header element.
+    _parser.setHideEmptyTags(true);
     expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Header");
+    _parser.setHideEmptyTags(false);
 
     while ((gotEntry = _parser.next(entry)) &&
            ((entry.type == XmlEntry::START_TAG) ||
@@ -854,11 +899,12 @@ void WsmReader::getInstanceElement(WsmInstance& instance)
         // http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/<class name>
         if (ns)
         {
-            const char* pos = strrchr(ns->extendedName, '/');
-            if ((pos == ns->extendedName +
-                sizeof(WSM_RESOURCEURI_CIMSCHEMAV2) - 1) &&
-                (strncmp(ns->extendedName, WSM_RESOURCEURI_CIMSCHEMAV2,
-                    sizeof(WSM_RESOURCEURI_CIMSCHEMAV2) - 1) == 0) &&
+            const char* suffix = WsmUtils::skipHostUri(ns->extendedName);
+            const char* pos = strrchr(suffix, '/');
+            if ((pos == suffix +
+                sizeof(WSM_RESOURCEURI_CIMSCHEMAV2_SUFFIX) - 1) &&
+                (strncmp(suffix, WSM_RESOURCEURI_CIMSCHEMAV2_SUFFIX,
+                    sizeof(WSM_RESOURCEURI_CIMSCHEMAV2_SUFFIX) - 1) == 0) &&
                 (strcmp(pos + 1, classNameTag) == 0))
             {
                 // All properties must be qualified with the class namespace
@@ -1017,7 +1063,10 @@ void WsmReader::decodeEnumerateBody(
     WsmbPolymorphismMode& polymorphismMode,
     WsenEnumerationMode& enumerationMode,
     Boolean& optimized,
-    Uint32& maxElements)
+    Uint32& maxElements,
+    String& queryLanguage,
+    String& query,
+    SharedPtr<WQLSelectStatement>& selectStatement)
 {
     XmlEntry entry;
     expectStartOrEmptyTag(
@@ -1057,14 +1106,12 @@ void WsmReader::decodeEnumerateBody(
                 checkDuplicateHeader(entry.text, expiration.size());
                 expiration = getElementContent(entry);
             }
-            else if ((nsType == WsmNamespaces::WS_ENUMERATION) &&
+            else if ((nsType == WsmNamespaces::WS_MAN) &&
                 (strcmp(elementName, "Filter") == 0))
             {
-                throw WsmFault(
-                    WsmFault::wsen_FilteringNotSupported,
-                    MessageLoaderParms(
-                        "WsmServer.WsmReader.ENUMERATE_FILTERING_UNSUPPORTED",
-                        "Filtered enumerations are not supported."));
+                _parser.putBack(entry);
+                decodeFilter(queryLanguage, query, selectStatement);
+                needEndTag = false;
             }
             else if ((nsType == WsmNamespaces::WS_MAN) &&
                 (strcmp(elementName, "OptimizeEnumeration") == 0))
@@ -1298,6 +1345,114 @@ void WsmReader::decodeReleaseBody(Uint64& enumerationContext)
     }
 
     expectEndTag(WsmNamespaces::WS_ENUMERATION, "Release");
+}
+
+void WsmReader::decodeInvokeInputBody(
+    const String& className,
+    const String& methodName,
+    WsmInstance& instance)
+{
+    XmlEntry entry;
+
+    //
+    // Parse the <s:Body> element. Here is an example:
+    //
+    //   <p:Foo_INPUT xmlns:p=
+    //     "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/SomeClass">
+    //     <p:Arg1>
+    //       ...
+    //     </p:Arg1>
+    //     <p:Arg2>
+    //       ...
+    //     </p:Arg2>
+    //   </p:Foo_INPUT>
+    //
+
+    // Expect <METHODNAME_INPUT>
+    Buffer tagName;
+    tagName.append(methodName.getCString(), methodName.size());
+    tagName.append("_INPUT", 6);
+
+    _parser.setHideEmptyTags(true);
+    int nsType = expectStartTag(entry, tagName.getData());
+
+    // The following elements are input parameter.
+    String name;
+    WsmValue value;
+
+    while (getPropertyElement(nsType, name, value))
+    {
+        instance.addProperty(WsmProperty(name, value));
+    }
+
+    // Expect </METHODNAME_INPUT>
+    expectEndTag(nsType, tagName.getData());
+    _parser.setHideEmptyTags(false);
+}
+
+void WsmReader::decodeFilter(
+    String& queryLanguage,
+    String& query,
+    SharedPtr<WQLSelectStatement>& selectStatement)
+{
+    // Expect "Filter" element.
+    _parser.setHideEmptyTags(true);
+    XmlEntry entry;
+    expectStartTag(entry, WsmNamespaces::WS_MAN, "Filter");
+
+    // Check Filter.Dialect attribute.
+    {
+        const char* value;
+
+        if (!entry.getAttributeValue("Dialect", value))
+        {
+            MessageLoaderParms parms(
+                "WsmServer.WsmReader.MISSING_ATTRIBUTE",
+                "The attribute $0.$1 is missing.", "Filter", "Dialect");
+            throw XmlValidationError(_parser.getLine(), parms);
+        }
+
+        const char* suffix = WsmUtils::skipHostUri(value);
+
+        if (strcmp(suffix, WSMAN_FILTER_DIALECT_WQL_SUFFIX) != 0)
+        {
+            MessageLoaderParms parms(
+                "WsmServer.WsmReader.UNSUPPORTED_FILTER_DIALECT",
+                "Unsupported filter dialect: \"$0\".",
+                value);
+            throw WsmFault(
+                WsmFault::wsen_FilterDialectRequestedUnavailable, parms);
+        }
+
+        // We only support "WQL" so far.
+        queryLanguage = "WQL";
+    }
+
+    // Expect query expression (contains the query text).
+
+    expectContentOrCData(entry);
+    query = entry.text;
+
+    // Compile the query filter.
+
+    try
+    {
+        selectStatement.reset(new WQLSelectStatement);
+        WQLParser::parse(query, *selectStatement.get());
+    }
+    catch (ParseError& e)
+    {
+        MessageLoaderParms parms(
+            "WsmServer.WsmReader.INVALID_FILTER_QUERY_EXPRESSION",
+            "Invalid filter query expression: \"$0\".",
+            entry.text);
+        throw WsmFault(WsmFault::wsen_CannotProcessFilter, parms);
+    }
+
+    // Expect </Filter>
+
+    expectEndTag(WsmNamespaces::WS_MAN, "Filter");
+    _parser.setHideEmptyTags(false);
 }
 
 PEGASUS_NAMESPACE_END

@@ -34,6 +34,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMName.h>
+#include <Pegasus/Common/PegasusVersion.h>
 
 //
 // Message Queue Names
@@ -60,9 +61,22 @@
 #define WSM_RESOURCEURI_ALLCLASSES \
     "http://schemas.dmtf.org/wbem/wscim/1/*"
 
+// WSM_RESOURCEURI_ALLCLASSES without the leading HOST URI prefix.
+#define WSM_RESOURCEURI_ALLCLASSES_SUFFIX \
+    "/wbem/wscim/1/*"
+
 #define WSM_RESOURCEURI_CIMSCHEMAV2 \
     "http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2"
 
+// WSM_RESOURCEURI_CIMSCHEMAV2 without the host URI prefix.
+#define WSM_RESOURCEURI_CIMSCHEMAV2_SUFFIX \
+    "/wbem/wscim/1/cim-schema/2"
+
+// The WQL filter dialect URI.
+#define WSMAN_FILTER_DIALECT_WQL "http://schemas.dmtf.org/wbem/wsman/1/WQL"
+
+// WSMAN_FILTER_DIALECT_WQL without the host URI prefix.
+#define WSMAN_FILTER_DIALECT_WQL_SUFFIX "/wbem/wsman/1/WQL"
 
 //
 // Action URIs
@@ -171,6 +185,22 @@
 
 #define WSMAN_FAULTDETAIL_ENUMERATION_MODE_UNSUPPORTED \
     "http://schemas.dmtf.org/wbem/wsman/1/wsman/faultDetail/EnumerationMode"
+
+// The namespace to encode instance response data with.
+#define PEGASUS_INSTANCE_NS "p"
+
+// The namespace to encode invoke response data with.
+#define PEGASUS_INVOKE_NS "n1"
+
+// The current version URI for WS-Management.
+#define WSMAN_PROTOCOL_VERSION "http://schemas.dmtf.org/wbem/wsman/1/wsman.xsd"
+
+// Vendor of this WS-Management implementation.
+#define WSMAN_PRODUCT_VENDOR "The Open Group (OpenPegasus)"
+
+// Version of this WS-Management implementation.
+
+#define WSMAN_PRODUCT_VERSION PEGASUS_PRODUCT_VERSION
 
 enum WsmbPolymorphismMode
 {

@@ -54,14 +54,26 @@ public:
     WsmFault mapCimExceptionToWsmFault(const CIMException& cimException);
 
     void convertCimToWsmInstance(
+        const String& resourceUri,
         const CIMConstInstance& cimInstance,
         WsmInstance& wsmInstance,
         const String& nameSpace);
+
+    void convertCimToWsmParameters(
+        const String& resourceUri,
+        const String& nameSpace,
+        const Array<CIMParamValue>& parameters,
+        const CIMValue& returnValue,
+        WsmInstance& instance);
+
     void convertCimToWsmValue(
+        const String& resourceUri,
         const CIMValue& cimValue,
         WsmValue& wsmValue,
         const String& nameSpace);
+
     void convertObjPathToEPR(
+        const String& resourceUri,
         const CIMObjectPath& objPath,
         WsmEndpointReference& epr,
         const String& nameSpace);
@@ -93,6 +105,10 @@ private:
     WsmFaultResponse* _mapToWsmFaultResponse(
         const WsmRequest* wsmRequest,
         const CIMResponseMessage* message);
+
+    WsInvokeResponse* _mapToWsInvokeResponse(
+        const WsInvokeRequest* wsmRequest,
+        const CIMInvokeMethodResponseMessage* response);
 
     ContentLanguageList _getContentLanguages(const OperationContext& context)
     {

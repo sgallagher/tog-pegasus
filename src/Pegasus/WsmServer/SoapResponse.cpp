@@ -99,12 +99,29 @@ SoapResponse::SoapResponse(WsmResponse* response)
                 ((SoapFaultResponse*) response)->getFault());
             break;
 
+        case WS_INVOKE:
+        {
+            WsInvokeResponse* rsp = (WsInvokeResponse*)response;
+
+            // Get root of resource URI.
+            String root = WsmUtils::getRootResourceUri(rsp->resourceUri);
+
+            // Build the action.
+            action = root;
+            action.append('/');
+            action.append(rsp->className);
+            action.append('/');
+            action.append(rsp->methodName);
+            break;
+        }
+
         default:
             PEGASUS_ASSERT(0);
     }
 
     WsmWriter::appendHTTPResponseHeader(_httpHeader, action,
-       response->getHttpMethod(), response->getContentLanguages(),
+       response->getHttpMethod(), response->getOmitXMLProcessingInstruction(),
+       response->getContentLanguages(),
        response->getType() == WSM_FAULT || response->getType() == SOAP_FAULT,
        0);
 

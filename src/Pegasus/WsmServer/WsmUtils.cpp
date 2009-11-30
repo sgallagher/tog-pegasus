@@ -32,6 +32,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include "WsmUtils.h"
+#include "WsmConstants.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -168,6 +169,55 @@ String WsmUtils::getMessageId()
         rand(),
         rand() & 0xFFFF);
     return String(uuid, 41);
+}
+
+const char* WsmUtils::skipHostUri(const char* uri)
+{
+    const char* p = uri;
+
+    // Skip over "http://" part:
+
+    if (p[0] != 'h')
+        return &p[0];
+    if (p[1] != 't')
+        return &p[1];
+    if (p[2] != 't')
+        return &p[2];
+    if (p[3] != 'p')
+        return &p[3];
+    if (p[4] != ':')
+        return &p[4];
+    if (p[5] != '/')
+        return &p[5];
+    if (p[6] != '/')
+        return &p[6];
+
+    p += 7;
+
+    // Return the first character that is not a '/' (or return pointer to
+    // zero terminator).
+
+    while (*p && *p != '/')
+        p++;
+
+    return p;
+}
+
+String WsmUtils::getRootResourceUri(const String& resourceUri)
+{
+    CString cstr(resourceUri.getCString());
+    const char* start = cstr;
+    const char* end = skipHostUri(start);
+    const size_t n = sizeof(WSM_RESOURCEURI_CIMSCHEMAV2_SUFFIX) - 1;
+
+    if (strncmp(end, WSM_RESOURCEURI_CIMSCHEMAV2_SUFFIX, n) == 0)
+    {
+        end += n;
+        return String(start, end - start);
+    }
+
+    const int NS = WsmNamespaces::WS_CIM_SCHEMA;
+    return String(WsmNamespaces::supportedNamespaces[NS].extendedName);
 }
 
 PEGASUS_NAMESPACE_END

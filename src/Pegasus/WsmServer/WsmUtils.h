@@ -80,6 +80,17 @@ public:
 
     static String getMessageId();
 
+    // Attempt to skip over the host URI of the form: http://host
+    // return a pointer to the character immdiately after the host URI
+    // (a slash or a zero terminator). Otherwise return a pointer to the
+    // first nonmatching character.
+    static const char* skipHostUri(const char* str);
+
+    // Return the leading part of resourceUri that matches the
+    // following expression (where <SERVER> is any server expression.
+    //     http://<SERVER>/wbem/wscim/1/cim-schema/2"
+    static String getRootResourceUri(const String& resourceUri);
+
 private:
 
     WsmUtils();

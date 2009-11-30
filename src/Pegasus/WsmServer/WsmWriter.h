@@ -75,9 +75,18 @@ public:
         const String& errorDetail = String::EMPTY);
 
     static void appendInstanceElement(
-        Buffer& out, WsmInstance& instance, Boolean isEmbedded = false);
-    static void appendPropertyElement(
-        Buffer& out, WsmProperty& property);
+        Buffer& out,
+        const String& resourceUri,
+        WsmInstance& instance,
+        const char* ns,
+        Boolean isEmbedded);
+
+     static void appendPropertyElement(
+        Buffer& out,
+        const String& resourceUri,
+        WsmProperty& property,
+        const char* ns);
+
     static void appendEPRElement(
         Buffer& out, const WsmEndpointReference& epr);
     static void appendStringElement(
@@ -109,6 +118,7 @@ public:
         Buffer& out,
         const String& action,
         HttpMethod httpMethod,
+        Boolean omitXMLProcessingInstruction,
         const ContentLanguageList& contentLanguages,
         Boolean isFault,
         Uint32 contentLength = 0);
@@ -127,6 +137,14 @@ public:
         const String& action,
         const String& messageId,
         const String& relatesTo);
+
+    static void appendInvokeOutputElement(
+        Buffer& out,
+        const String& resourceUri,
+        const String& className,
+        const String& methodName,
+        WsmInstance& instance,
+        const char* ns);
 
 private:
 

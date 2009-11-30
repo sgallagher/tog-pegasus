@@ -43,6 +43,8 @@ PEGASUS_USING_STD;
 
 static Boolean verbose;
 
+static const String& ruri = WSM_RESOURCEURI_CIMSCHEMAV2;
+
 /* This template provides a set of tests of simple CIMValues (excluding
    reference and embedded instance types). */
 template<class T>
@@ -58,7 +60,7 @@ void testSimpleType(const T& x)
     {
         cimStr.toLower();
     }
-    mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
+    mapper.convertCimToWsmValue(ruri, cimValue, wsmValue, String::EMPTY);
     wsmValue.get(wsmStr);
     if (wsmValue.getType() != WSMTYPE_OTHER || wsmValue.isArray() ||
         wsmValue.isNull() || wsmStr != cimStr)
@@ -96,42 +98,42 @@ static void _testValues(void)
     Real32 f1 = strtod("nan", 0);
     CIMValue cimf1(f1);
     WsmValue wsmf1;
-    mapper.convertCimToWsmValue(cimf1, wsmf1, String::EMPTY);
+    mapper.convertCimToWsmValue(ruri, cimf1, wsmf1, String::EMPTY);
     wsmf1.get(str);
     PEGASUS_TEST_ASSERT(str == "NaN");
 
     Real32 f2 = strtod("inf", 0);
     CIMValue cimf2(f2);
     WsmValue wsmf2;
-    mapper.convertCimToWsmValue(cimf2, wsmf2, String::EMPTY);
+    mapper.convertCimToWsmValue(ruri, cimf2, wsmf2, String::EMPTY);
     wsmf2.get(str);
     PEGASUS_TEST_ASSERT(str == "INF");
 
     Real32 f3 = strtod("-inf", 0);
     CIMValue cimf3(f3);
     WsmValue wsmf3;
-    mapper.convertCimToWsmValue(cimf3, wsmf3, String::EMPTY);
+    mapper.convertCimToWsmValue(ruri, cimf3, wsmf3, String::EMPTY);
     wsmf3.get(str);
     PEGASUS_TEST_ASSERT(str == "-INF");
 
     Real64 d1 = strtod("nan", 0);
     CIMValue cimd1(d1);
     WsmValue wsmd1;
-    mapper.convertCimToWsmValue(cimd1, wsmd1, String::EMPTY);
+    mapper.convertCimToWsmValue(ruri, cimd1, wsmd1, String::EMPTY);
     wsmd1.get(str);
     PEGASUS_TEST_ASSERT(str == "NaN");
 
     Real64 d2 = strtod("inf", 0);
     CIMValue cimd2(d2);
     WsmValue wsmd2;
-    mapper.convertCimToWsmValue(cimd2, wsmd2, String::EMPTY);
+    mapper.convertCimToWsmValue(ruri, cimd2, wsmd2, String::EMPTY);
     wsmd2.get(str);
     PEGASUS_TEST_ASSERT(str == "INF");
 
     Real64 d3 = strtod("-inf", 0);
     CIMValue cimd3(d3);
     WsmValue wsmd3;
-    mapper.convertCimToWsmValue(cimd3, wsmd3, String::EMPTY);
+    mapper.convertCimToWsmValue(ruri, cimd3, wsmd3, String::EMPTY);
     wsmd3.get(str);
     PEGASUS_TEST_ASSERT(str == "-INF");
 
@@ -190,7 +192,7 @@ static void _testValues(void)
         cimInst.addProperty(CIMProperty(CIMName("count"), Uint32(55)));
         cimInst.addProperty(CIMProperty(CIMName("flag"), Boolean(true)));
         CIMValue cimValue(cimInst);
-        mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
+        mapper.convertCimToWsmValue(ruri, cimValue, wsmValue, String::EMPTY);
         wsmValue.get(wsmInst);
         if (wsmInst.getClassName() != "MyClass" ||
             wsmInst.getPropertyCount() != 3)
@@ -218,7 +220,7 @@ static void _testValues(void)
         cimInst.addProperty(CIMProperty(CIMName("flag"), Boolean(true)));
         CIMObject cimObj(cimInst);
         CIMValue cimValue(cimObj);
-        mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
+        mapper.convertCimToWsmValue(ruri, cimValue, wsmValue, String::EMPTY);
         wsmValue.get(wsmInst);
         if (wsmInst.getClassName() != "MyClass" ||
             wsmInst.getPropertyCount() != 3)
@@ -241,7 +243,7 @@ static void _testValues(void)
         WsmValue wsmValue;
         CIMObjectPath op("//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\"");
         CIMValue cimValue(op);
-        mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
+        mapper.convertCimToWsmValue(ruri, cimValue, wsmValue, String::EMPTY);
         wsmValue.get(epr);
         if (epr.address != "http://atp:77/wsman" ||
             epr.resourceUri !=
@@ -265,7 +267,7 @@ void testArrayType(const Array<T>& x)
     WsmValue wsmValue;
     Array<String> arr;
     CIMValue cimValue(x);
-    mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
+    mapper.convertCimToWsmValue(ruri, cimValue, wsmValue, String::EMPTY);
     wsmValue.get(arr);
 
     if (wsmValue.getType() != WSMTYPE_OTHER || !wsmValue.isArray() ||
@@ -368,7 +370,7 @@ static void _testArrayValues(void)
         cimDTs.append(CIMDateTime("20001224120000.000000+360"));
         CIMValue cimValue(cimDTs);
         WsmValue wsmValue;
-        mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
+        mapper.convertCimToWsmValue(ruri, cimValue, wsmValue, String::EMPTY);
         wsmValue.get(wsmDTs);
         PEGASUS_TEST_ASSERT(wsmDTs.size() == 2 &&
             wsmDTs[0] == "1999-12-24T12:00:00+06:00" &&
@@ -390,7 +392,7 @@ static void _testArrayValues(void)
         cimInst2.addProperty(CIMProperty(CIMName("prop4"), String("value4")));
         cimInstArray.append(cimInst2);
         CIMValue cimValue(cimInstArray);
-        mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
+        mapper.convertCimToWsmValue(ruri, cimValue, wsmValue, String::EMPTY);
         wsmValue.get(wsmInstArray);
 
         if (wsmInstArray.size() != 2 ||
@@ -430,7 +432,7 @@ static void _testArrayValues(void)
         cimInst2.addProperty(CIMProperty(CIMName("prop4"), String("value4")));
         cimObjArray.append(CIMObject(cimInst2));
         CIMValue cimValue(cimObjArray);
-        mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
+        mapper.convertCimToWsmValue(ruri, cimValue, wsmValue, String::EMPTY);
         wsmValue.get(wsmInstArray);
 
         if (wsmInstArray.size() != 2 ||
@@ -466,7 +468,7 @@ static void _testArrayValues(void)
         opArray.append(op1);
         opArray.append(op2);
         CIMValue cimValue(opArray);
-        mapper.convertCimToWsmValue(cimValue, wsmValue, String::EMPTY);
+        mapper.convertCimToWsmValue(ruri, cimValue, wsmValue, String::EMPTY);
         wsmValue.get(eprArray);
 
         if (eprArray[0].address != "http://atp:11/wsman" ||

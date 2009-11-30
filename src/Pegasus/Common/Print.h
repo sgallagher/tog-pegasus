@@ -35,6 +35,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
+#include <Pegasus/Common/CIMParamValue.h>
 #include <Pegasus/Common/Linkage.h>
 #include <iostream>
 
@@ -83,6 +84,16 @@ PEGASUS_COMMON_LINKAGE void PrintInstance(
 PEGASUS_COMMON_LINKAGE void PrintQualifierDecl(
     PEGASUS_STD(ostream)& os,
     const CIMConstQualifierDecl& x,
+    Uint32 n = 0);
+
+PEGASUS_COMMON_LINKAGE void PrintParamValue(
+    PEGASUS_STD(ostream)& os, 
+    const CIMParamValue& x, 
+    Uint32 n = 0);
+
+PEGASUS_COMMON_LINKAGE void PrintParamValueArray(
+    PEGASUS_STD(ostream)& os, 
+    const Array<CIMParamValue>& x, 
     Uint32 n = 0);
 
 PEGASUS_NAMESPACE_END

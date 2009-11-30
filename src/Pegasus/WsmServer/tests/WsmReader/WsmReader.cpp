@@ -895,9 +895,12 @@ static void _testEnumerateBody(WsmReader& reader)
     WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
     Boolean optimized = false;
     Uint32 maxElements = 0;
+    String lang;
+    String query;
+    SharedPtr<WQLSelectStatement> selectStatement;
 
     reader.decodeEnumerateBody(expiration, polymorphismMode, enumerationMode,
-        optimized, maxElements);
+        optimized, maxElements, lang, query, selectStatement);
     if (expiration != "PT123S" ||
         polymorphismMode != WSMB_PM_EXCLUDE_SUBCLASS_PROPERTIES ||
         enumerationMode != WSEN_EM_EPR ||
@@ -916,9 +919,13 @@ static void _testEnumerateBodyErrors(WsmReader& reader)
         WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
         Boolean optimized = false;
         Uint32 maxElements = 0;
+        String lang;
+        String query;
+        SharedPtr<WQLSelectStatement> selectStatement;
 
         reader.decodeEnumerateBody(expiration, polymorphismMode,
-            enumerationMode, optimized, maxElements);
+            enumerationMode, optimized, maxElements, lang, query,
+            selectStatement);
 
         throw Exception("Expected duplicate headers fault");
     }
@@ -938,9 +945,13 @@ static void _testEnumerateBodyErrors(WsmReader& reader)
         WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
         Boolean optimized = false;
         Uint32 maxElements = 0;
+        String lang;
+        String query;
+        SharedPtr<WQLSelectStatement> selectStatement;
 
         reader.decodeEnumerateBody(expiration, polymorphismMode,
-            enumerationMode, optimized, maxElements);
+            enumerationMode, optimized, maxElements, lang, query,
+            selectStatement);
 
         throw Exception("Expected unsupported feature fault");
     }
@@ -960,11 +971,13 @@ static void _testEnumerateBodyErrors(WsmReader& reader)
         WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
         Boolean optimized = false;
         Uint32 maxElements = 0;
+        String lang;
+        String query;
+        SharedPtr<WQLSelectStatement> selectStatement;
 
         reader.decodeEnumerateBody(expiration, polymorphismMode,
-            enumerationMode, optimized, maxElements);
-
-        throw Exception("Expected filtering not supported fault");
+            enumerationMode, optimized, maxElements, lang, query,
+            selectStatement);
     }
     catch (WsmFault& fault)
     {
@@ -982,9 +995,13 @@ static void _testEnumerateBodyErrors(WsmReader& reader)
         WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
         Boolean optimized = false;
         Uint32 maxElements = 0;
+        String lang;
+        String query;
+        SharedPtr<WQLSelectStatement> selectStatement;
 
         reader.decodeEnumerateBody(expiration, polymorphismMode,
-            enumerationMode, optimized, maxElements);
+            enumerationMode, optimized, maxElements, lang, query,
+            selectStatement);
 
         throw Exception("Expected unsupported feature fault");
     }
@@ -1004,9 +1021,13 @@ static void _testEnumerateBodyErrors(WsmReader& reader)
         WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
         Boolean optimized = false;
         Uint32 maxElements = 0;
+        String lang;
+        String query;
+        SharedPtr<WQLSelectStatement> selectStatement;
 
         reader.decodeEnumerateBody(expiration, polymorphismMode,
-            enumerationMode, optimized, maxElements);
+            enumerationMode, optimized, maxElements, lang, query,
+            selectStatement);
 
         throw Exception("Expected unsupported polymorphism mode fault");
     }
@@ -1106,6 +1127,114 @@ static void _testPullBodyErrors(WsmReader& reader)
     }
 }
 
+static void _testEnumerateWithFilterBody(WsmReader& reader)
+{
+    XmlEntry entry;
+    reader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Envelope");
+
+    String expiration;
+    WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
+    WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
+    Boolean optimized = false;
+    Uint32 maxElements = 0;
+    String lang;
+    String query;
+    SharedPtr<WQLSelectStatement> selectStatement;
+
+    reader.decodeEnumerateBody(expiration, polymorphismMode, enumerationMode,
+        optimized, maxElements, lang, query, selectStatement);
+
+    if (lang != "WQL")
+    {
+        throw Exception("expected WQL dialect");
+    }
+
+    if (query != "select Status from CIM_ComputerSystem")
+    {
+        throw Exception("failed to get query from Filter");
+    }
+}
+
+static void _testInvokeBody(WsmReader& reader)
+{
+    WsmInstance inst;
+    reader.decodeInvokeInputBody("MyClass", "MyMethod", inst);
+
+    for (Uint32 i = 0; i < inst.getPropertyCount(); i++)
+    {
+        WsmProperty prop = inst.getProperty(i);
+        const String& name = prop.getName();
+        WsmValue& value = prop.getValue();
+        String str;
+        value.get(str);
+
+        if (name == "BooleanScalar")
+        {
+            if (str != "true")
+                throw Exception("bad parameter value for " + name);
+        }
+        else if (name == "Uint8Scalar")
+        {
+            if (str != "8")
+                throw Exception("bad parameter value for " + name);
+        }
+        else if (name == "Sint8Scalar")
+        {
+            if (str != "-8")
+                throw Exception("bad parameter value for " + name);
+        }
+        else if (name == "Uint16Scalar")
+        {
+            if (str != "16")
+                throw Exception("bad parameter value for " + name);
+        }
+        else if (name == "Sint16Scalar")
+        {
+            if (str != "-16")
+                throw Exception("bad parameter value for " + name);
+        }
+        else if (name == "Uint32Scalar")
+        {
+            if (str != "32")
+                throw Exception("bad parameter value for " + name);
+        }
+        else if (name == "Sint32Scalar")
+        {
+            if (str != "-32")
+                throw Exception("bad parameter value for " + name);
+        }
+        else if (name == "Real32Scalar")
+        {
+            if (str != "32.32")
+                throw Exception("bad parameter value for " + name);
+        }
+        else if (name == "Real64Scalar")
+        {
+            if (str != "64.64")
+                throw Exception("bad parameter value for " + name);
+        }
+        else if (name == "StringScalar")
+        {
+            if (str != "My String")
+                throw Exception("bad parameter value for " + name);
+        }
+        else
+        {
+            throw Exception("unexpected parameter:" + name);
+        }
+    }
+}
+
+static void _testIdentifyBody(WsmReader& reader)
+{
+    XmlEntry entry;
+    reader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Envelope");
+
+    reader.setHideEmptyTags(true);
+    int nsType = reader.expectStartTag(entry, "Identify");
+    reader.expectEndTag(nsType, "Identify");
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
@@ -1176,6 +1305,42 @@ int main(int argc, char** argv)
                 cout << "Testing instances." << endl;
             _testPullBody(reader);
             _testPullBodyErrors(reader);
+        }
+
+        /* Enumerate with Filter test */
+        {
+            Buffer text;
+            FileSystem::loadFileToMemory(text, "./wsfilter.xml");
+            WsmReader reader((char*)text.getData());
+
+            if (verbose)
+                cout << "Testing instances." << endl;
+
+            _testEnumerateWithFilterBody(reader);
+        }
+
+        /* WS-Management Invoke test */
+        {
+            Buffer text;
+            FileSystem::loadFileToMemory(text, "./wsinvoke.xml");
+            WsmReader reader((char*)text.getData());
+
+            if (verbose)
+                cout << "Testing instances." << endl;
+
+            _testInvokeBody(reader);
+        }
+
+        /* WS-Management Identify test */
+        {
+            Buffer text;
+            FileSystem::loadFileToMemory(text, "./wsidentify.xml");
+            WsmReader reader((char*)text.getData());
+
+            if (verbose)
+                cout << "Testing instances." << endl;
+
+            _testIdentifyBody(reader);
         }
     }
     catch(Exception& e)

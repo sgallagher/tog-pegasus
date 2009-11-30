@@ -185,7 +185,8 @@ static void _checkInstance(WsmInstance& inst, const char* text)
 {
     Buffer out;
     _appendSoapEnvelopeStart(out);
-    WsmWriter::appendInstanceElement(out, inst);
+    WsmWriter::appendInstanceElement(out, WSM_RESOURCEURI_CIMSCHEMAV2, inst,
+        PEGASUS_INSTANCE_NS, false);
     WsmWriter::appendEndTag(
         out, WsmNamespaces::SOAP_ENVELOPE, STRLIT("Envelope"));
 
@@ -400,7 +401,8 @@ static void  _testResponseFormatting(void)
     WsmInstance inst("testClass");
     WsmValue val("value");
     inst.addProperty(WsmProperty("property", val));
-    WsmWriter::appendInstanceElement(body, inst);
+    WsmWriter::appendInstanceElement(body, WSM_RESOURCEURI_CIMSCHEMAV2, inst,
+        PEGASUS_INSTANCE_NS, false);
 
     String messageId = WsmUtils::getMessageId();
     WxfGetRequest request(messageId, WsmEndpointReference());
@@ -477,7 +479,7 @@ static void  _testFaultFormatting(void)
         SoapNotUnderstoodFault soapFault(WsmNamespaces::supportedNamespaces[
             WsmNamespaces::WS_MAN].extendedName, "RequestedEPR");
         SoapFaultResponse response(relatesTo, 0, HTTP_METHOD__POST,
-            false, soapFault);
+            false, false, soapFault);
         SoapResponse soapResponse(&response);
 
         Buffer out = soapResponse.getResponseContent();
@@ -550,7 +552,7 @@ static void  _testFaultFormatting(void)
         WsmFault wsmFault(WsmFault::wsman_AccessDenied, "Whatever reason",
             ContentLanguageList(), "Whatever fault detail");
         WsmFaultResponse response(relatesTo, 0, HTTP_METHOD__POST,
-            false, wsmFault);
+            false, false, wsmFault);
         SoapResponse soapResponse(&response);
 
         Buffer out = soapResponse.getResponseContent();

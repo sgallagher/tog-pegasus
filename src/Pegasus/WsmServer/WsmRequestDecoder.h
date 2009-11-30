@@ -83,10 +83,18 @@ public:
         const String& ipAddress,
         const AcceptLanguageList& httpAcceptLanguages,
         const ContentLanguageList& httpContentLanguages,
-        Boolean httpCloseConnect);
+        Boolean httpCloseConnect,
+        Boolean omitXMLProcessingInstruction);
 
     // Sets the flag to indicate whether or not the CIMServer is shutting down.
     void setServerTerminating(Boolean flag) { _serverTerminating = flag; }
+
+    WsmRequest* _decodeWSInvoke(
+        WsmReader& wsmReader,
+        const String& messageId,
+        const WsmEndpointReference& epr,
+        const String& className,
+        const String& methodName);
 
 private:
 
@@ -132,6 +140,10 @@ private:
         WsmReader& wsmReader,
         const String& messageId,
         const WsmEndpointReference& epr);
+
+    bool _isIdentifyRequest(WsmReader& wsmReader);
+
+    void _sendIdentifyResponse(Uint32 queueId);
 
     // The queue to which to forward the decoded WsmRequests.
     WsmProcessor* _wsmProcessor;

@@ -137,7 +137,7 @@ CMPIProviderManager::~CMPIProviderManager()
         TRC_PROVIDERMANAGER,
         "CMPIProviderManager::~CMPIProviderManager()");
 
-    IndProvRecord *indProvRec;
+    IndProvRecord *indProvRec = 0;
 
     WriteLock lock(rwSemProvTab);
 
@@ -146,12 +146,6 @@ CMPIProviderManager::~CMPIProviderManager()
         indProvTab.lookup(i.key(), indProvRec);
         delete indProvRec;
     }
-
-    /* clean up the MessageHandleManager Singleton object */
-    CMPIMsgHandleManager* handleMgr =
-        CMPIMsgHandleManager::getCMPIMsgHandleManager();
-
-    delete(handleMgr);
 
     PEG_METHOD_EXIT();
 }
@@ -173,7 +167,7 @@ SCMOInstance* CMPIProviderManager::getSCMOClassFromRequest(
         // here at all, if the class is invalid
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL2,
             "CMPIProviderManager::getSCMOClassFromRequest - "
-            "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
+            "Failed to obtain SCMOClass for Namespace: %s  Classname: %s",
             (const char*) nameSpace,
             (const char*) className));
 

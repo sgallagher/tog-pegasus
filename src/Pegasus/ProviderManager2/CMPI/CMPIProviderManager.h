@@ -63,7 +63,7 @@ public:
 
     ~IndProvRecord()    
     {
-        CMPI_SelectExp *eSelx;
+        CMPI_SelectExp *eSelx = 0;
         for (SelectExpTab::Iterator i = selectExpTab.start(); i; i++)
         {
             selectExpTab.lookup(i.key(), eSelx);

@@ -1531,6 +1531,32 @@ void testCIMSubscriptionInitCompleteRequestMessage(
 }
 
 //
+// testProvAgtGetScmoClassRequestMessage
+//
+void testProvAgtGetScmoClassRequestMessage(
+    const String& mid,
+    const CIMNamespaceName& ns,
+    const CIMName& className,
+    const QueueIdStack& qids)
+{
+    ProvAgtGetScmoClassRequestMessage inMessage(mid, ns, className, qids);    
+    AutoPtr<ProvAgtGetScmoClassRequestMessage> outMessage(
+        dynamic_cast<ProvAgtGetScmoClassRequestMessage*>(
+            serializeDeserializeMessage(&inMessage)));
+    PEGASUS_TEST_ASSERT(outMessage.get() != 0);
+
+    PEGASUS_TEST_ASSERT(
+        inMessage.nameSpace == outMessage->nameSpace);
+    PEGASUS_TEST_ASSERT(
+        inMessage.className == outMessage->className);
+
+    if (verbose)
+    {
+        cout << "testProvAgtGetScmoClassRequestMessage - OK" << endl;
+    }
+}
+
+//
 // testCIMGetInstanceResponseMessage
 //
 void testCIMGetInstanceResponseMessage(
@@ -2265,8 +2291,7 @@ void testCIMSubscriptionInitCompleteResponseMessage(
     }
 }
 
-
-CIMClass GetLocalCIMClass(
+SCMOClass _scmoClassCache_GetClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
@@ -2278,13 +2303,61 @@ CIMClass GetLocalCIMClass(
             if (cls.getClassName() == className &&
                 cls.getPath().getNameSpace() == nameSpace )
             {
-                return cls;
+                return SCMOClass(cls);
             }
         }
     }
 
-    return CIMClass();
+    return SCMOClass("","");
 }
+
+//
+// testProvAgtGetScmoClassResponseMessage
+//
+void testProvAgtGetScmoClassResponseMessage(
+    const String& mid,
+    const CIMException& ex,
+    const CIMClass& cls,
+    const QueueIdStack& qids)
+{
+
+    CIMClass inCls;
+    CIMClass outCls;
+
+    SCMOClass inc = SCMOClass("","");
+
+    if (!cls.isUninitialized())
+    {
+        inc = SCMOClass(cls);
+    }
+
+    ProvAgtGetScmoClassResponseMessage inMessage(mid, ex, qids, inc);    
+    AutoPtr<ProvAgtGetScmoClassResponseMessage> outMessage(
+        dynamic_cast<ProvAgtGetScmoClassResponseMessage*>(
+            serializeDeserializeMessage(&inMessage)));
+    PEGASUS_TEST_ASSERT(outMessage.get() != 0);
+
+
+    if (!inMessage.scmoClass.isEmpty() && 
+        !outMessage->scmoClass.isEmpty())
+    {
+        inMessage.scmoClass.getCIMClass(inCls);
+        outMessage->scmoClass.getCIMClass(outCls);
+        PEGASUS_TEST_ASSERT(inCls.identical(outCls));
+    }
+    else
+    {
+       PEGASUS_TEST_ASSERT(
+           inMessage.scmoClass.isEmpty() && 
+           outMessage->scmoClass.isEmpty());
+    }
+
+    if (verbose)
+    {
+        cout << "testProvAgtGetScmoClassResponseMessage - OK" << endl;
+    }
+}
+
 
 void testMessageSerialization()
 {
@@ -2294,7 +2367,7 @@ void testMessageSerialization()
 
 
     SCMOClassCache* scmoCache = SCMOClassCache::getInstance();
-    scmoCache->setCallBack(GetLocalCIMClass);
+    scmoCache->setCallBack(_scmoClassCache_GetClass);
 
 
 
@@ -2830,6 +2903,20 @@ void testMessageSerialization()
     testCIMSubscriptionInitCompleteRequestMessage(oc2, mid3, qids4);
     testCIMSubscriptionInitCompleteRequestMessage(oc3, mid4, qids1);
     testCIMSubscriptionInitCompleteRequestMessage(oc4, mid1, qids2);
+
+    testProvAgtGetScmoClassRequestMessage(mid4,ns2,name1,qids3);
+    testProvAgtGetScmoClassRequestMessage(mid1,ns3,name3,qids2);
+    testProvAgtGetScmoClassRequestMessage(mid2,ns1,name4,qids4);
+    testProvAgtGetScmoClassRequestMessage(mid3,ns4,name2,qids1);
+
+    testProvAgtGetScmoClassResponseMessage(mid2,ex1,class3,qids4);
+    testProvAgtGetScmoClassResponseMessage(mid1,ex3,class2,qids3);
+    testProvAgtGetScmoClassResponseMessage(mid4,ex2,class1,qids2);
+#ifdef PEGASUS_ENABLE_PROTOCOL_INTERNAL_BINARY
+    // This test case is only valid if binary protocol is used.
+    // At XML not all flavors for properties are transfered.
+    testProvAgtGetScmoClassResponseMessage(mid3,ex4,class4,qids1);
+#endif
 
     testCIMGetInstanceResponseMessage(oc4, mid1, ex2, qids3, inst4);
     testCIMGetInstanceResponseMessage(oc1, mid2, ex3, qids4, inst1);

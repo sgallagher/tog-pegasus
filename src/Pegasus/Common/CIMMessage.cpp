@@ -524,6 +524,18 @@ CIMResponseMessage* CIMNotifyConfigChangeRequestMessage::buildResponse() const
     return response.release();
 }
 
+CIMResponseMessage* ProvAgtGetScmoClassRequestMessage::buildResponse() const
+{
+    AutoPtr<ProvAgtGetScmoClassResponseMessage> response(
+        new ProvAgtGetScmoClassResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            SCMOClass("","")));
+    response->syncAttributes(this);
+    return response.release();
+}
+
 CIMMessage::CIMMessage(
     MessageType type,
     const String& messageId_)

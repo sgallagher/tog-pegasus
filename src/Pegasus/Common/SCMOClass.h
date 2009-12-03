@@ -255,7 +255,7 @@ private:
     friend class SCMODump;
     friend class SCMOXmlWriter;
     friend class SCMOClassCache;
-    friend class SCMOStreamer;
+    friend class SCMOStreamer;    
 };
 
 

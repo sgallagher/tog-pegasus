@@ -39,7 +39,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-typedef CIMClass (*SCMOClassCacheCallbackPtr)(
+typedef SCMOClass (*SCMOClassCacheCallbackPtr)(
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
 

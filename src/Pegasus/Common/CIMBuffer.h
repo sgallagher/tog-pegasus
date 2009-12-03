@@ -1058,6 +1058,9 @@ public:
         return true;
     }
 
+    void putSCMOClass(const SCMOClass& scmoClass);
+    bool getSCMOClass(SCMOClass& scmoClass);
+
     void putInstanceA(
         const Array<CIMInstance>& x,
         bool includeHostAndNamespace = true,

@@ -1771,6 +1771,18 @@ void CIMBuffer::putInstanceA(
         putInstance(x[i], includeHostAndNamespace, includeKeyBindings);
 }
 
+
+void CIMBuffer::putSCMOClass(const SCMOClass& scmoClass)
+{
+    SCMOStreamer::serializeClass(*this, scmoClass);
+}
+
+bool CIMBuffer::getSCMOClass(SCMOClass& scmoClass)
+{
+    return SCMOStreamer::deserializeClass(*this, scmoClass);
+}
+
+
 void CIMBuffer::putSCMOInstanceA(Array<SCMOInstance>& x)
 {
     Uint32 n = x.size();

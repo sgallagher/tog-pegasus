@@ -231,56 +231,56 @@ SCMOClass SCMOClassCache::_addClassToCache(
     _cacheReadMiss++;
 #endif
 
-    CIMClass cc = _resolveCallBack(
+    SCMOClass tmp = _resolveCallBack(
          CIMNamespaceNameCast(String(nsName,nsNameLen)),
          CIMNameCast(String(className,classNameLen)));
 
-     if (cc.isUninitialized())
-     {
+    if (tmp.isEmpty())
+    {
          // The requested class was not found !
          // The modify lock is destroyed automaticaly !
          return SCMOClass();
-     }
+    }
 
-     SCMOClass* scmoClass = new SCMOClass(cc,nsName);
+    SCMOClass* scmoClass = new SCMOClass(tmp);
 
-     _lastWrittenIndex = (_lastWrittenIndex + 1)%PEGASUS_SCMO_CLASS_CACHE_SIZE;
+    _lastWrittenIndex = (_lastWrittenIndex + 1)%PEGASUS_SCMO_CLASS_CACHE_SIZE;
 
-     // Ensure that nobody is reading the enty, so I can write.
-     if (_lockEntry(_lastWrittenIndex))
-     {
-         _theCache[_lastWrittenIndex].key = theKey;
+    // Ensure that nobody is reading the enty, so I can write.
+    if (_lockEntry(_lastWrittenIndex))
+    {
+        _theCache[_lastWrittenIndex].key = theKey;
 
-         // If the entry was reused, release old object form the cache.
-         if (0 != _theCache[_lastWrittenIndex].data )
-         {
+        // If the entry was reused, release old object form the cache.
+        if (0 != _theCache[_lastWrittenIndex].data )
+        {
 #ifdef PEGASUS_DEBUG
-             _cacheRemoveLRU++;
+            _cacheRemoveLRU++;
 #endif
-             delete _theCache[_lastWrittenIndex].data;
-         }
+            delete _theCache[_lastWrittenIndex].data;
+        }
 
-         _theCache[_lastWrittenIndex].data = scmoClass;
+        _theCache[_lastWrittenIndex].data = scmoClass;
 
-         if (_fillingLevel  < PEGASUS_SCMO_CLASS_CACHE_SIZE)
-         {
-             _fillingLevel ++;
-         }
+        if (_fillingLevel  < PEGASUS_SCMO_CLASS_CACHE_SIZE)
+        {
+            _fillingLevel ++;
+        }
 
-         _lastSuccessIndex = _lastWrittenIndex;
+        _lastSuccessIndex = _lastWrittenIndex;
 
-         _unlockEntry(_lastWrittenIndex);
-     }
-     else
-     {
-         // The cache is going to be destroyed.
-         // The lock can not be obtained.
-         delete scmoClass;
-         return SCMOClass();
-     }
+        _unlockEntry(_lastWrittenIndex);
+    }
+    else
+    {
+        // The cache is going to be destroyed.
+        // The lock can not be obtained.
+        delete scmoClass;
+        return SCMOClass();
+    }
 
-     // The modify lock is destroyed automaticaly !
-     return SCMOClass(*scmoClass);
+    // The modify lock is destroyed automaticaly !
+    return SCMOClass(*scmoClass);
 }
 
 SCMOClass SCMOClassCache::getSCMOClass(
@@ -482,17 +482,19 @@ SCMOClass SCMOClassCache::getSCMOClass(
 
          PEGASUS_ASSERT(_resolveCallBack);
 
-          CIMClass cc = _resolveCallBack(
+
+          SCMOClass tmp = _resolveCallBack(
               CIMNamespaceNameCast(String(nsName,nsNameLen)),
               CIMNameCast(String(className,classNameLen)));
 
-          if (cc.isUninitialized())
+          if (tmp->isEpmpty())
           {
-              // The requested class was not found !
-              return SCMOClass();
-          }
+               // The requested class was not found !
+               // The modify lock is destroyed automaticaly !
+               return SCMOClass();
+          }          
 
-          return SCMOClass(cc,nsName);
+          return SCMOClass(tmp);
     }
 
     return SCMOClass();

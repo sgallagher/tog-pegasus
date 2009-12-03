@@ -53,6 +53,41 @@ SCMOStreamer::SCMOStreamer(CIMBuffer& out, Array<SCMOInstance>& x) :
 {
 };
 
+// Writes a single SCMOClass to the given CIMBuffer
+void SCMOStreamer::serializeClass(CIMBuffer& out, const SCMOClass& scmoClass)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,"SCMOStreamer::serializeClass");
+
+    Array<SCMBClass_Main*> classTable;
+    classTable.append(scmoClass.cls.hdr);
+
+    _putClasses(out, classTable);
+
+    PEG_METHOD_EXIT();
+};
+
+// Reads a single SCMOClass from the given CIMBuffer
+bool SCMOStreamer::deserializeClass(CIMBuffer& in, SCMOClass& scmoClass)
+{
+    PEG_METHOD_ENTER(TRC_DISPATCHER,"SCMOStreamer::deserializeClass");
+
+    Array<SCMBClass_Main*> classTable;
+    if(!_getClasses(in, classTable))
+    {
+        PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Failed to get Class!");
+        PEG_METHOD_EXIT();
+        return false;
+    }
+
+    if (classTable.size() > 0)
+    {
+        scmoClass = SCMOClass(classTable[0]);
+    }
+
+    PEG_METHOD_EXIT();
+    return true;
+};
 
 // Writes the list of SCMOInstances stored in this instance of SCMOStreamer
 // to the output buffer, including their referenced Classes and Instances
@@ -74,7 +109,7 @@ void SCMOStreamer::serialize()
         _appendToResolverTables(inst);
     }
 
-    _putClasses();
+    _putClasses(_buf,_classTable);
 
     _putInstances();
 
@@ -89,7 +124,7 @@ bool SCMOStreamer::deserialize()
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,"SCMOStreamer::serialize");
 
-    if(!_getClasses())
+    if(!_getClasses(_buf,_classTable))
     {
         PEG_TRACE_CSTRING(TRC_DISCARDED_DATA, Tracer::LEVEL1,
             "Failed to get Classes!");
@@ -191,7 +226,7 @@ Uint32 SCMOStreamer::_appendToClassResolverTable(const SCMOInstance& inst)
 Uint32 SCMOStreamer::_appendToClassTable(const SCMOInstance& inst)
 {
     Uint32 clsTableSize = _classTable.size();
-    const SCMBClass_Main* clsPtr = inst.inst.hdr->theClass->cls.hdr;
+    SCMBClass_Main* clsPtr = inst.inst.hdr->theClass->cls.hdr;
 
     const SCMBClass_Main* const* clsArray = _classTable.getData();
 
@@ -247,13 +282,15 @@ void SCMOStreamer::_dumpTables()
 
 
 // Adds the list of SCMOClasses from the ClassTable to the output buffer
-void SCMOStreamer::_putClasses()
+void SCMOStreamer::_putClasses(
+    CIMBuffer& out,
+    Array<SCMBClass_Main*>& classTable)
 {
-    Uint32 numClasses = _classTable.size();
-    const SCMBClass_Main* const* clsArray = _classTable.getData();
+    Uint32 numClasses = classTable.size();
+    const SCMBClass_Main* const* clsArray = classTable.getData();
 
     // Number of classes
-    _buf.putUint32(numClasses);
+    out.putUint32(numClasses);
 
     // SCMOClasses, one by one
     for (Uint32 x=0; x < numClasses; x++)
@@ -261,20 +298,22 @@ void SCMOStreamer::_putClasses()
         // Calculate the in-use size of the SCMOClass data
         Uint64 size =
             clsArray[x]->header.totalSize - clsArray[x]->header.freeBytes;
-        _buf.putUint64(size);
+        out.putUint64(size);
 
         // Write class data
-        _buf.putBytes(clsArray[x],size);
+        out.putBytes(clsArray[x],size);
     }
 
 }
 
 // Reads a list of SCMOClasses from the input buffer
-bool SCMOStreamer::_getClasses()
+bool SCMOStreamer::_getClasses(
+    CIMBuffer& in,
+    Array<SCMBClass_Main*>& classTable)
 {
     // Number of classes
     Uint32 numClasses;
-    if(! _buf.getUint32(numClasses) )
+    if(! in.getUint32(numClasses) )
     {
         return false;
     }
@@ -283,7 +322,7 @@ bool SCMOStreamer::_getClasses()
     for (Uint32 x=0; x < numClasses; x++)
     {
         Uint64 size;
-        if (!_buf.getUint64(size))
+        if (!in.getUint64(size))
         {
             return false;
         }
@@ -296,7 +335,7 @@ bool SCMOStreamer::_getClasses()
             throw PEGASUS_STD(bad_alloc)();
         }
 
-        if (!_buf.getBytes(scmbClassPtr,size))
+        if (!in.getBytes(scmbClassPtr,size))
         {
             return false;
         }
@@ -307,7 +346,7 @@ bool SCMOStreamer::_getClasses()
         scmbClassPtr->header.freeBytes = 0;
         scmbClassPtr->refCount.set(0);
 
-        _classTable.append(scmbClassPtr);
+        classTable.append(scmbClassPtr);
     }
 
     return true;

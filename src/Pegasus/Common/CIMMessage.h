@@ -1424,6 +1424,31 @@ public:
 };
 
 
+class PEGASUS_COMMON_LINKAGE ProvAgtGetScmoClassRequestMessage
+    : public CIMRequestMessage
+{
+public:
+    ProvAgtGetScmoClassRequestMessage(
+        const String& messageId_,
+        const CIMNamespaceName& nameSpace_,
+        const CIMName& className_,
+        const QueueIdStack& queueIds_)
+    : CIMRequestMessage(
+        PROVAGT_GET_SCMOCLASS_REQUEST_MESSAGE,
+        messageId_,
+        queueIds_),
+        nameSpace(nameSpace_),
+        className(className_)
+    {
+    }
+
+    virtual CIMResponseMessage* buildResponse() const;
+
+    CIMNamespaceName nameSpace;
+    CIMName className;
+
+};
+
 //
 // CIMResponseMessages
 //
@@ -2142,6 +2167,23 @@ public:
     }
 };
 
+class PEGASUS_COMMON_LINKAGE ProvAgtGetScmoClassResponseMessage
+    : public CIMResponseMessage
+{
+public:
+    ProvAgtGetScmoClassResponseMessage(
+        const String& messageId_,
+        const CIMException& cimException_,
+        const QueueIdStack& queueIds_,
+        const SCMOClass& scmoClass_)
+    : CIMResponseMessage(PROVAGT_GET_SCMOCLASS_RESPONSE_MESSAGE,
+        messageId_, cimException_, queueIds_),
+        scmoClass(scmoClass_)
+    {
+    }
+
+    SCMOClass scmoClass;
+};
 
 PEGASUS_NAMESPACE_END
 

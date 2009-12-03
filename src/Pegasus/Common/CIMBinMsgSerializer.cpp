@@ -275,6 +275,10 @@ void CIMBinMsgSerializer::_putRequestMessage(
             _putIndicationServiceDisabledRequestMessage(
                 out, (CIMIndicationServiceDisabledRequestMessage*)msg);
             break;
+        case PROVAGT_GET_SCMOCLASS_REQUEST_MESSAGE:
+            _putProvAgtGetScmoClassRequestMessage(
+                out,(ProvAgtGetScmoClassRequestMessage *)msg);
+            break;
 
         default:
             PEGASUS_ASSERT(0);
@@ -406,6 +410,12 @@ void CIMBinMsgSerializer::_putResponseMessage(
             _putIndicationServiceDisabledResponseMessage(
                 out,
                 (CIMIndicationServiceDisabledResponseMessage *)
+                cimMessage);
+            break;
+        case PROVAGT_GET_SCMOCLASS_RESPONSE_MESSAGE:
+            _putProvAgtGetScmoClassResponseMessage(
+                out,
+                (ProvAgtGetScmoClassResponseMessage *)
                 cimMessage);
             break;
 
@@ -951,6 +961,15 @@ void CIMBinMsgSerializer::_putIndicationServiceDisabledRequestMessage(
 {
 }
 
+void CIMBinMsgSerializer::_putProvAgtGetScmoClassRequestMessage(
+    CIMBuffer& out,
+    ProvAgtGetScmoClassRequestMessage* msg)
+{
+    out.putNamespaceName(msg->nameSpace);
+    out.putName(msg->className);    
+}
+
+
 void CIMBinMsgSerializer::_putGetInstanceResponseMessage(
     CIMBuffer& out,
     CIMGetInstanceResponseMessage* msg)
@@ -1175,5 +1194,13 @@ void CIMBinMsgSerializer::_putIndicationServiceDisabledResponseMessage(
     CIMIndicationServiceDisabledResponseMessage* msg)
 {
 }
+
+void CIMBinMsgSerializer::_putProvAgtGetScmoClassResponseMessage(
+    CIMBuffer& out,
+    ProvAgtGetScmoClassResponseMessage* msg)
+{
+    out.putSCMOClass(msg->scmoClass);
+}
+
 
 PEGASUS_NAMESPACE_END

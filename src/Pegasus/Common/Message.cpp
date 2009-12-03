@@ -45,7 +45,7 @@ Message::~Message()
 {
 }
 
-
+#ifdef PEGASUS_DEBUG
 void Message::print(ostream& os, Boolean printHeader) const
 {
     if (printHeader)
@@ -61,7 +61,7 @@ void Message::print(ostream& os, Boolean printHeader) const
         os << "}";
     }
 }
-
+#endif
 
 static const char* _MESSAGE_TYPE_STRINGS[] =
 {
@@ -174,16 +174,8 @@ static const char* _MESSAGE_TYPE_STRINGS[] =
     "CIM_INDICATION_SERVICE_DISABLED_RESPONSE_MESSAGE",
 
     "PROVAGT_GET_SCMOCLASS_REQUEST_MESSAGE",
-    "PROVAGT_GET_SCMOCLASS_RESPONSE_MESSAGE",
+    "PROVAGT_GET_SCMOCLASS_RESPONSE_MESSAGE"
 
-    "CIM_NOTIFY_SUBSCRIPTION_NOT_ACTIVE_REQUEST_MESSAGE",
-    "CIM_NOTIFY_SUBSCRIPTION_NOT_ACTIVE_RESPONSE_MESSAGE",
-
-    "CIM_NOTIFY_LISTENER_NOT_ACTIVE_REQUEST_MESSAGE",
-    "CIM_NOTIFY_LISTENER_NOT_ACTIVE_RESPONSE_MESSAGE",
-
-    "WSMAN_EXPORT_INDICATION_REQUEST_MESSAGE",
-    "WSMAN_EXPORT_INDICATION_RESPONSE_MESSAGE"
 };
 
 const char* MessageTypeToString(MessageType messageType)
@@ -326,7 +318,7 @@ CIMOperationType Message::convertMessageTypetoCIMOpType(MessageType type)
 
         default:
              // exicution should never get to this point
-             PEGASUS_UNREACHABLE(PEGASUS_ASSERT(false);)
+             PEGASUS_ASSERT(false);
     }
     return enum_type;
 }

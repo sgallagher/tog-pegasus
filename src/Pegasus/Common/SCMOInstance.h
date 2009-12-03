@@ -818,12 +818,11 @@ private:
         if ( 1 < inst.hdr->refCount.get() )
         {
             SCMBInstance_Main * oldRef = inst.hdr;
-            fprintf(stderr,"!! Copy on Write (%d) !!\n",
-                    inst.hdr->refCount.get() );
+            // fprintf(stderr,"!! Copy on Write (%d) !!\n",
+            //        inst.hdr->refCount.get() );
             _clone();
             if (oldRef->refCount.decAndTestIfZero())
             {
-                // printf("\ninst.hdr->refCount=%u\n",inst.hdr->refCount.get());
                 // All external references has to be destroyed.
                 _destroyExternalReferencesInternal((SCMBMgmt_Header*)oldRef);
                 // The class has also be dereferenced.

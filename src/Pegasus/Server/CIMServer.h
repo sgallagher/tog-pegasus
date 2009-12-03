@@ -185,11 +185,10 @@ private:
     ProviderRegistrationManager* _providerRegistrationManager;
     SSLContextManager* _sslContextMgr;
 
-    static CIMClass _scmoClassCache_GetClass(
+    static SCMOClass _scmoClassCache_GetClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
-    SCMOClassCache* _scmoClassCache;
-
+    
     void _init();
     SSLContext* _getSSLContext();
 };

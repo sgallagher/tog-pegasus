@@ -68,6 +68,12 @@ public:
     // Instances
     bool deserialize();
 
+    // Writes a single SCMOClass to the given CIMBuffer
+    static void serializeClass(CIMBuffer& out, const SCMOClass& scmoClass);
+
+    // Reads a single SCMOClass from the given CIMBuffer
+    static bool deserializeClass(CIMBuffer& in, SCMOClass& scmoClass);
+
 private:
 
 
@@ -104,8 +110,8 @@ private:
     // and returns the new index position of the class.
     Uint32 _appendToClassTable(const SCMOInstance& inst);
 
-    void _putClasses();
-    bool _getClasses();
+    static void _putClasses(CIMBuffer& out,Array<SCMBClass_Main*>& classTable);
+    static bool _getClasses(CIMBuffer& in,Array<SCMBClass_Main*>& classTable);
     void _putInstances();
     bool _getInstances();
 
@@ -134,7 +140,7 @@ private:
     Array<SCMOResolutionTable> _instResolverTable;
 
     // Table of pointers to SCMOClasses to be streamed
-    Array<const SCMBClass_Main*> _classTable;
+    Array<SCMBClass_Main*> _classTable;
 };
 
 PEGASUS_NAMESPACE_END

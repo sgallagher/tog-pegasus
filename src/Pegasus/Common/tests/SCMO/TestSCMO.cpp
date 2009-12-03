@@ -54,7 +54,7 @@ const String
 const String
    TESTCSINSTXML("/src/Pegasus/Common/tests/SCMO/CIMComputerSystemInst.xml");
 
-CIMClass _scmoClassCache_GetClass(
+SCMOClass _scmoClassCache_GetClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
@@ -80,7 +80,9 @@ CIMClass _scmoClassCache_GetClass(
 
     VCOUT << endl << "Done." << endl;
 
-    return CIM_TESTClass2;
+    return SCMOClass(
+        CIM_TESTClass2,
+        (const char*)nameSpace.getString().getCString());
 }
 
 void CIMClassToSCMOClass()

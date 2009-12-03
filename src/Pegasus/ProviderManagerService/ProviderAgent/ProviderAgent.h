@@ -33,6 +33,7 @@
 #define Pegasus_ProviderAgent_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Semaphore.h>
 #include <Pegasus/Common/AnonymousPipe.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/ThreadPool.h>
@@ -208,25 +209,24 @@ private:
      */
     ThreadPool _threadPool;
 
-    /**
-     * A CIMOM Handle for the SCMOClassCache to call back to the server to 
-     * retrieve CIMClasses
-     */
-    static CIMOMHandle* _pCIMOMHandle;
 
     /**
      * Call back for the SCMOClassCache.
      */
-    static CIMClass _scmoClassCache_GetClass(
+    static SCMOClass _scmoClassCache_GetClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className);
 
-    /**
-     * The SCMOClassCache.
-     */
-    SCMOClassCache* _scmoClassCache;
+    void _processGetSCMOClassResponse(
+        ProvAgtGetScmoClassResponseMessage* response);
 
-    
+    /**
+     * Condition variable and transger pointer for the provider agend to 
+     * the SCMOClassCache.
+     **/
+    static Semaphore  _scmoClassDelivered;
+    static SCMOClass* _transferSCMOClass;
+
     /**
        Indicates if the provider agent has been successful initialised already.
      */

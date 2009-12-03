@@ -304,6 +304,13 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
                 cimMessage);
             break;
 
+        case PROVAGT_GET_SCMOCLASS_REQUEST_MESSAGE:
+            _serializeProvAgtGetScmoClassRequestMessage(
+                out,
+                (ProvAgtGetScmoClassRequestMessage *)
+                cimMessage);
+            break;
+
         default:
             PEGASUS_ASSERT(0);
         }
@@ -497,6 +504,12 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
             _serializeCIMIndicationServiceDisabledResponseMessage(
                 out,
                 (CIMIndicationServiceDisabledResponseMessage *)
+                cimMessage);
+            break;
+        case PROVAGT_GET_SCMOCLASS_RESPONSE_MESSAGE:
+            _serializeProvAgtGetScmoClassResponseMessage(
+                out,
+                (ProvAgtGetScmoClassResponseMessage *)
                 cimMessage);
             break;
 
@@ -1296,6 +1309,18 @@ void CIMMessageSerializer::_serializeCIMIndicationServiceDisabledRequestMessage(
 }
 
 //
+// _serializeProvAgtGetScmoClassRequestMessage
+//
+void CIMMessageSerializer::_serializeProvAgtGetScmoClassRequestMessage(
+    Buffer& out,
+    ProvAgtGetScmoClassRequestMessage* message)
+{
+    _serializeCIMNamespaceName(out, message->nameSpace);
+
+    _serializeCIMName(out, message->className);
+}
+
+//
 //
 // Response Messages
 //
@@ -1660,6 +1685,26 @@ CIMMessageSerializer::_serializeCIMIndicationServiceDisabledResponseMessage(
         CIMIndicationServiceDisabledResponseMessage* message)
 {
     // No additional attributes to serialize!
+}
+
+//
+// _serializeProvAgtGetScmoClassResponseMessage
+//
+void CIMMessageSerializer::_serializeProvAgtGetScmoClassResponseMessage(
+        Buffer& out,
+        ProvAgtGetScmoClassResponseMessage* message)
+{
+   CIMClass cimClass;
+   if (!message->scmoClass.isEmpty())
+   {
+       message->scmoClass.getCIMClass(cimClass);
+       XmlWriter::appendClassElement(out, cimClass);
+       // The namespace has to be added separately, because a XML encodes a
+       // CIMClass without, but it is needed in a SCMOClass.
+       _serializeCIMNamespaceName(out,cimClass.getPath().getNameSpace());
+
+   }
+
 }
 
 PEGASUS_NAMESPACE_END

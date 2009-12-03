@@ -86,11 +86,11 @@ public:
 /////////////////////////////////////////////////////////////////////////////
 
 
-// Initialze the CIMOMHandle for the SCMOClassCache call back function.
-CIMOMHandle* ProviderAgent::_pCIMOMHandle = 0;
-
 // Time values used in ThreadPool construction
 static struct timeval deallocateWait = {300, 0};
+
+Semaphore ProviderAgent::_scmoClassDelivered(0);
+SCMOClass* ProviderAgent::_transferSCMOClass = 0;
 
 ProviderAgent* ProviderAgent::_providerAgent = 0;
 
@@ -114,12 +114,8 @@ ProviderAgent::ProviderAgent(
     _isInitialised = false;
     _providersStopped = false;
 
-    // Allocate the CIMOMHandle for the SCMOClassCache.
-    _pCIMOMHandle = new CIMOMHandle();
-
     // Create a SCMOClass Cache and set call back for the repository.
-    _scmoClassCache = SCMOClassCache::getInstance();
-    _scmoClassCache->setCallBack(_scmoClassCache_GetClass);
+    SCMOClassCache::getInstance()->setCallBack(_scmoClassCache_GetClass);
 
     PEG_METHOD_EXIT();
 }
@@ -131,10 +127,11 @@ ProviderAgent::~ProviderAgent()
     _providerAgent = 0;
     // Destroy the singleton services
     SCMOClassCache::destroy();
-    delete _pCIMOMHandle;
-    _pCIMOMHandle = 0;
-
-
+    if (_transferSCMOClass)
+    {
+       delete _transferSCMOClass;
+    }
+    
     PEG_METHOD_EXIT();
 }
 
@@ -302,6 +299,28 @@ Boolean ProviderAgent::_readAndProcessRequest()
     // A "wake up" message means we should unload idle providers
     if (request == 0)
     {
+        // it was no empty message send !
+        if (0 != cimMessage )
+        {
+            if (cimMessage->getType() == PROVAGT_GET_SCMOCLASS_RESPONSE_MESSAGE)
+            {
+
+                AutoPtr<ProvAgtGetScmoClassResponseMessage> response(
+                    dynamic_cast<ProvAgtGetScmoClassResponseMessage*>
+                        (cimMessage));
+
+                PEGASUS_DEBUG_ASSERT(response.get());
+
+                _processGetSCMOClassResponse(response.get());
+
+                PEG_METHOD_EXIT();
+                return false;
+
+
+           }
+
+        }        
+
         PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL4,
             "Got a wake up message.");
 
@@ -610,6 +629,31 @@ Message* ProviderAgent::_processRequest(CIMRequestMessage* request)
     return response;
 }
 
+void ProviderAgent::_processGetSCMOClassResponse(
+    ProvAgtGetScmoClassResponseMessage* response)
+{
+    //
+    // The provider agent requests a SCMOClass from the server by
+    // _scmoClassCache_GetClass()
+    //
+
+    if (0 != _transferSCMOClass)
+    {
+         PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL1,
+             "_transferSCMOClass was not cleand up!");
+         delete  _transferSCMOClass;
+         _transferSCMOClass = 0;
+    }
+
+
+    // Copy class from response
+    _transferSCMOClass = new SCMOClass(response->scmoClass);
+
+    // signal delivery of SCMOClass to _scmoClassCache_GetClass()
+    _scmoClassDelivered.signal();
+
+}
+
 void ProviderAgent::_writeResponse(Message* message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "ProviderAgent::_writeResponse");
@@ -810,18 +854,58 @@ void ProviderAgent::_terminateSignalHandler(
     PEG_METHOD_EXIT();
 }
 
-CIMClass ProviderAgent::_scmoClassCache_GetClass(
+SCMOClass ProviderAgent::_scmoClassCache_GetClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
-    return _pCIMOMHandle->getClass(
-        OperationContext(),
+
+    PEG_METHOD_ENTER(TRC_PROVIDERAGENT,
+        "ProviderAgent::_scmoClassCache_GetClass");
+
+    // create message
+    ProvAgtGetScmoClassRequestMessage* message =
+        new ProvAgtGetScmoClassRequestMessage(
+        XmlWriter::getNextMessageId(),
         nameSpace,
         className,
-        false, // localOnly
-        true, // includeQualifiers
-        true, // includeClassOrigin
-        CIMPropertyList());
+        QueueIdStack()); 
+
+    // Send the request for the SCMOClass to the server
+    _providerAgent->_writeResponse(message);
+
+    // Wait for semaphore signaled by _readAndProcessRequest()
+    if (!_scmoClassDelivered.time_wait(
+            PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS))
+    {
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "Timed-out waiting for SCMOClass for "
+                    "Name Space Name '%s' Class Name '%s'",
+                (const char*)nameSpace.getString().getCString(),
+                (const char*)className.getString().getCString()));
+        PEG_METHOD_EXIT();
+        return SCMOClass("","");
+    }
+
+    if ( 0 == _transferSCMOClass)
+    {
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
+            "No SCMOClass received for Name Space Name '%s' Class Name '%s'",
+                (const char*)nameSpace.getString().getCString(),
+                (const char*)className.getString().getCString()));
+        PEG_METHOD_EXIT();
+        return SCMOClass("","");
+    }
+
+    // Create a local copy.
+    SCMOClass ret = SCMOClass(*_transferSCMOClass);
+
+    // Delete the transferred instance.
+    delete _transferSCMOClass;
+    _transferSCMOClass = 0;
+
+    PEG_METHOD_EXIT();
+    return ret;
+
 }
 
 //

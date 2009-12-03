@@ -352,6 +352,10 @@ CIMRequestMessage* CIMBinMsgDeserializer::_getRequestMessage(
             case CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE:
                 msg = _getIndicationServiceDisabledRequestMessage(in);
                 break;
+            case PROVAGT_GET_SCMOCLASS_REQUEST_MESSAGE:
+                msg = _getProvAgtGetScmoClassRequestMessage(in);            
+                break;
+
 
             default:
                 PEGASUS_ASSERT(0);
@@ -467,6 +471,9 @@ CIMResponseMessage* CIMBinMsgDeserializer::_getResponseMessage(
             break;
         case CIM_INDICATION_SERVICE_DISABLED_RESPONSE_MESSAGE:
             msg = _getIndicationServiceDisabledResponseMessage(in);
+            break;
+        case PROVAGT_GET_SCMOCLASS_RESPONSE_MESSAGE:
+            msg = _getProvAgtGetScmoClassResponseMessage(in);            
             break;
 
         default:
@@ -1570,6 +1577,26 @@ CIMBinMsgDeserializer::_getSubscriptionInitCompleteRequestMessage(
         QueueIdStack());
 }
 
+ProvAgtGetScmoClassRequestMessage*
+CIMBinMsgDeserializer::_getProvAgtGetScmoClassRequestMessage(
+    CIMBuffer& in)
+{
+    CIMName className;
+    CIMNamespaceName nsName;
+
+    if (!in.getNamespaceName(nsName))
+        return false;
+
+    if (!in.getName(className))
+        return false;
+
+    return new ProvAgtGetScmoClassRequestMessage(
+        String::EMPTY,
+        nsName,
+        className,
+        QueueIdStack());
+}
+
 CIMGetInstanceResponseMessage*
 CIMBinMsgDeserializer::_getGetInstanceResponseMessage(
     CIMBuffer& in,
@@ -2005,6 +2032,23 @@ CIMBinMsgDeserializer::_getIndicationServiceDisabledResponseMessage(
         String(),
         CIMException(),
         QueueIdStack());
+}
+
+ProvAgtGetScmoClassResponseMessage*
+CIMBinMsgDeserializer::_getProvAgtGetScmoClassResponseMessage(
+    CIMBuffer& in)
+{
+    SCMOClass theClass("","");
+
+
+    if (!in.getSCMOClass(theClass))
+        return false;
+
+    return new ProvAgtGetScmoClassResponseMessage(
+        String::EMPTY,
+        CIMException(),
+        QueueIdStack(),
+        theClass);
 }
 
 PEGASUS_NAMESPACE_END

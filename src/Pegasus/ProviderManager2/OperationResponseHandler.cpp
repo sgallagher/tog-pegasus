@@ -636,7 +636,6 @@ void CreateInstanceResponseHandler::transfer()
         CIMCreateInstanceResponseMessage& msg =
             *static_cast<CIMCreateInstanceResponseMessage*>(getResponse());
 
-        // TBD: Extend CIMCreateInstanceResponseMessage with ResponseData.
         Array<CIMObjectPath> cimObjs= getObjects();
         Array<SCMOInstance> scmoObjs= getSCMOObjects();
         if (cimObjs.size() != 0)

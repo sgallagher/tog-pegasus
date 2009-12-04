@@ -45,7 +45,6 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/OperationContext.h>
 
-
 PEGASUS_NAMESPACE_BEGIN
 
 /**

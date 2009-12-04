@@ -39,7 +39,6 @@
 #include <Pegasus/Common/ThreadPool.h>
 #include <Pegasus/Common/Signal.h>
 #include <Pegasus/Common/SCMOClassCache.h>
-#include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/ProviderManagerService/BasicProviderManagerRouter.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -221,7 +220,7 @@ private:
         ProvAgtGetScmoClassResponseMessage* response);
 
     /**
-     * Condition variable and transger pointer for the provider agend to 
+     * Condition variable and transger pointer for the provider agend to
      * the SCMOClassCache.
      **/
     static Semaphore  _scmoClassDelivered;

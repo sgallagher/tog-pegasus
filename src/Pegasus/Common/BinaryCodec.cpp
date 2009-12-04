@@ -427,18 +427,6 @@ _decodeEnumerateInstanceNamesResponse(
     Uint32 flags,
     const String& messageId)
 {
-/*    Array<CIMObjectPath> instanceNames;
-
-    while (in.more())
-    {
-        Array<CIMObjectPath> tmp;
-
-        if (!in.getObjectPathA(tmp))
-            return 0;
-
-        instanceNames.append(tmp.getData(), tmp.size());
-    }
-*/
     CIMEnumerateInstanceNamesResponseMessage* msg;
     CIMException cimException;
 

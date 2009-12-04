@@ -37,7 +37,6 @@
 #include <Pegasus/Common/CommonUTF.h>
 #include <new>
 
-
 PEGASUS_NAMESPACE_BEGIN
 
 struct PEGASUS_COMMON_LINKAGE StringRep

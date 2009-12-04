@@ -144,17 +144,6 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
-#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
-    virtual Array<Uint8> getBinaryInstance(
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& instanceName,
-        Boolean localOnly = true,
-        Boolean includeQualifiers = false,
-        Boolean includeClassOrigin = false,
-        const CIMPropertyList& propertyList = CIMPropertyList()
-    );
-#endif
-
     virtual void deleteClass(
         const CIMNamespaceName& nameSpace,
         const CIMName& className
@@ -212,18 +201,6 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
-#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
-    virtual Array<Uint8> enumerateBinaryInstances(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Boolean deepInheritance = true,
-        Boolean localOnly = true,
-        Boolean includeQualifiers = false,
-        Boolean includeClassOrigin = false,
-        const CIMPropertyList& propertyList = CIMPropertyList()
-    );
-#endif
-
     virtual CIMResponseData enumerateInstanceNames(
         const CIMNamespaceName& nameSpace,
         const CIMName& className
@@ -234,14 +211,6 @@ public:
         const String& queryLanguage,
         const String& query
     );
-
-#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
-    virtual Array<Uint8> execQueryBinary(
-        const CIMNamespaceName& nameSpace,
-        const String& queryLanguage,
-        const String& query
-    );
-#endif
 
     virtual CIMResponseData associators(
         const CIMNamespaceName& nameSpace,
@@ -254,20 +223,6 @@ public:
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
-
-#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
-    virtual Array<Uint8> associatorsBinary(
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& objectName,
-        const CIMName& assocClass = CIMName(),
-        const CIMName& resultClass = CIMName(),
-        const String& role = String::EMPTY,
-        const String& resultRole = String::EMPTY,
-        Boolean includeQualifiers = false,
-        Boolean includeClassOrigin = false,
-        const CIMPropertyList& propertyList = CIMPropertyList()
-    );
-#endif
 
     virtual CIMResponseData associatorNames(
         const CIMNamespaceName& nameSpace,

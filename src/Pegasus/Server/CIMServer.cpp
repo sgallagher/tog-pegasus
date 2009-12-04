@@ -658,7 +658,6 @@ CIMServer::~CIMServer ()
     UserManager::destroy();
     ShutdownService::destroy();
 
-
     PEG_METHOD_EXIT ();
 }
 

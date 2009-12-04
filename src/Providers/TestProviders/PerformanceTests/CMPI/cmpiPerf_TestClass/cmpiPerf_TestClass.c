@@ -167,7 +167,7 @@ CMPIInstance * _makeInst_TestClass(
 
      CMSetProperty( ci, "InstallDate", (CMPIValue*)&(my_dt), CMPI_dateTime);
 
-    // TBD: InstallDate
+// TBD: InstallDate
     array = CMNewArray(_broker,1,CMPI_uint16,rc);
     CMSetArrayElementAt(array,0,&opstatus,CMPI_uint16);
     CMSetProperty(ci,"OperationalStatus",(CMPIValue*)&(array),CMPI_uint16A);

@@ -85,7 +85,6 @@ public:
 //
 /////////////////////////////////////////////////////////////////////////////
 
-
 // Time values used in ThreadPool construction
 static struct timeval deallocateWait = {300, 0};
 
@@ -100,7 +99,7 @@ ProviderAgent::ProviderAgent(
     AnonymousPipe* pipeToServer)
   : _providerManagerRouter(_indicationCallback, _responseChunkCallback,
     DefaultProviderManager::createDefaultProviderManagerCallback),
-    _threadPool(0, "ProviderAgent", 0, 0, deallocateWait)    
+    _threadPool(0, "ProviderAgent", 0, 0, deallocateWait)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "ProviderAgent::ProviderAgent");
 
@@ -131,7 +130,7 @@ ProviderAgent::~ProviderAgent()
     {
        delete _transferSCMOClass;
     }
-    
+
     PEG_METHOD_EXIT();
 }
 
@@ -319,7 +318,7 @@ Boolean ProviderAgent::_readAndProcessRequest()
 
            }
 
-        }        
+        }
 
         PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL4,
             "Got a wake up message.");
@@ -868,7 +867,7 @@ SCMOClass ProviderAgent::_scmoClassCache_GetClass(
         XmlWriter::getNextMessageId(),
         nameSpace,
         className,
-        QueueIdStack()); 
+        QueueIdStack());
 
     // Send the request for the SCMOClass to the server
     _providerAgent->_writeResponse(message);

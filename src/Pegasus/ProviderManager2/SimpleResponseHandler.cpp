@@ -185,7 +185,6 @@ void SimpleInstanceResponseHandler::deliver(const Array<CIMInstance>& instances)
     }
 }
 
-
 const Array<CIMInstance> SimpleInstanceResponseHandler::getObjects() const
 {
     return _objects;

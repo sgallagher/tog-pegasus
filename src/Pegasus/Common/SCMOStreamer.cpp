@@ -122,7 +122,7 @@ void SCMOStreamer::serialize()
 // instance of SCMOStreamer, including their referenced Classes and Instances
 bool SCMOStreamer::deserialize()
 {
-    PEG_METHOD_ENTER(TRC_DISPATCHER,"SCMOStreamer::serialize");
+    PEG_METHOD_ENTER(TRC_DISPATCHER,"SCMOStreamer::deserialize");
 
     if(!_getClasses(_buf,_classTable))
     {
@@ -182,7 +182,7 @@ Uint32 SCMOStreamer::_appendToInstResolverTable(
 {
     SCMOResolutionTable tableEntry;
 
-    tableEntry.scmbptr = (void*)&inst;
+    tableEntry.scmbptr = (Uint64)(void*)&inst;
     tableEntry.index = idx;
 
     _instResolverTable.append(tableEntry);
@@ -208,7 +208,7 @@ Uint32 SCMOStreamer::_appendToClassResolverTable(const SCMOInstance& inst)
     // Now build a new entry for the class resolution table
     SCMOResolutionTable tableEntry;
 
-    tableEntry.scmbptr = (void*)inst.inst.hdr;
+    tableEntry.scmbptr = (Uint64)(void*)inst.inst.hdr;
     tableEntry.index = clsIdx;
 
     _clsResolverTable.append(tableEntry);
@@ -482,7 +482,7 @@ bool SCMOStreamer::_getInstances()
             }
         }
 
-        instArray[x].scmbptr = (void*)scmoInstPtr;
+        instArray[x].scmbptr = (Uint64)(void*)scmoInstPtr;
 
 #ifdef PEGASUS_DEBUG
         _clsResolverTable.append(instArray[x]);

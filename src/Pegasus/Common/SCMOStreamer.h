@@ -44,7 +44,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct SCMOResolutionTable
 {
-    void* scmbptr;
+    // Though we really store a pointer here, it is stored as Uint64 to
+    // become independent from 64bit versus 32bit incarnations of the struct.
+    Uint64 scmbptr;
     Uint32 index;
 };
 

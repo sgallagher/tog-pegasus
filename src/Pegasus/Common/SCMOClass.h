@@ -166,21 +166,15 @@ private:
     void Ref()
     {
         cls.hdr->refCount++;
-        // printf("\ncls.hdr->refCount=%u\n",cls.hdr->refCount.get());
     };
 
     void Unref()
     {
         if (cls.hdr->refCount.decAndTestIfZero())
         {
-            // printf("\ncls.hdr->refCount=%u\n",cls.hdr->refCount.get());
             _destroyExternalReferences();
             free(cls.base);
             cls.base=0;
-        }
-        else
-        {
-            // printf("\ncls.hdr->refCount=%u\n",cls.hdr->refCount.get());
         }
 
     };
@@ -255,7 +249,7 @@ private:
     friend class SCMODump;
     friend class SCMOXmlWriter;
     friend class SCMOClassCache;
-    friend class SCMOStreamer;    
+    friend class SCMOStreamer;
 };
 
 

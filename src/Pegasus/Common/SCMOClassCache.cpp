@@ -85,14 +85,6 @@ Uint64 SCMOClassCache::_generateKey(
             (Uint64(nameSpaceName[0]) << 8 ) |
             Uint64(nameSpaceName[nameSpaceNameLen-1]);
 
-    /*
-    fprintf(stderr,"Class Name(%s) \'%04X%02X%02X\' "
-                   "Name Space(%s) \'%04X%02X%02X\' "
-                   "Key = %016llX\n",
-            className,classNameLen,className[0],className[classNameLen-1],
-            nameSpaceName,nameSpaceNameLen,nameSpaceName[0],
-            nameSpaceName[nameSpaceNameLen-1],key);
-    */
     return key;
 }
 
@@ -311,7 +303,7 @@ SCMOClass SCMOClassCache::getSCMOClass(
     {
       theKey = _generateKey(className,classNameLen,nsName,nsNameLen);
 
-      // The counter i is never used as index. 
+      // The counter i is never used as index.
       // It is used to ensure to look through all used entries.
       for (Uint32 i = 0; i < usedEntries; i++)
       {
@@ -408,7 +400,7 @@ void SCMOClassCache::removeSCMOClass(
            // We do not get the lock, if the cache is going to be destroyed.
            return;
        }
-   }   
+   }
 }
 
 void SCMOClassCache::clear()
@@ -492,7 +484,7 @@ SCMOClass SCMOClassCache::getSCMOClass(
                // The requested class was not found !
                // The modify lock is destroyed automaticaly !
                return SCMOClass();
-          }          
+          }
 
           return SCMOClass(tmp);
     }

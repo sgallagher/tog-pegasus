@@ -790,24 +790,18 @@ private:
     void Ref()
     {
         inst.hdr->refCount++;
-        // printf("\ninst.hdr->refCount=%u\n",inst.hdr->refCount.get());
     };
 
     void Unref()
     {
         if (inst.hdr->refCount.decAndTestIfZero())
         {
-            // printf("\ninst.hdr->refCount=%u\n",inst.hdr->refCount.get());
             // All external references has to be destroyed.
             _destroyExternalReferences();
             // The class has also be dereferenced.
             delete inst.hdr->theClass;
             free(inst.base);
             inst.base=NULL;
-        }
-        else
-        {
-            // printf("\ninst.hdr->refCount=%u\n",inst.hdr->refCount.get());
         }
 
     };
@@ -818,8 +812,6 @@ private:
         if ( 1 < inst.hdr->refCount.get() )
         {
             SCMBInstance_Main * oldRef = inst.hdr;
-            // fprintf(stderr,"!! Copy on Write (%d) !!\n",
-            //        inst.hdr->refCount.get() );
             _clone();
             if (oldRef->refCount.decAndTestIfZero())
             {

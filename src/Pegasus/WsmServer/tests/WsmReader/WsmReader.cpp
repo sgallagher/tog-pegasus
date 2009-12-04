@@ -39,7 +39,6 @@
 #include <Pegasus/WsmServer/WsmEndpointReference.h>
 #include <Pegasus/WsmServer/WsmInstance.h>
 #include <Pegasus/WsmServer/WsmSelectorSet.h>
-#include <Pegasus/WsmServer/WsmFilter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -697,7 +696,6 @@ static void _testHeaders(WsmReader& reader)
     String wsaFrom;
     String wsaReplyTo;
     String wsaFaultTo;
-    String wsaIdentifier;
     WsmEndpointReference epr;
     Uint32 wsmMaxEnvelopeSize = 0;
     AcceptLanguageList wsmLocale;
@@ -706,7 +704,7 @@ static void _testHeaders(WsmReader& reader)
     reader.decodeRequestSoapHeaders(
         wsaMessageId, epr.address, wsaAction, wsaFrom, wsaReplyTo,
         wsaFaultTo, epr.resourceUri, *epr.selectorSet, wsmMaxEnvelopeSize,
-        wsmLocale, wsmRequestEpr, wsmRequestItemCount,wsaIdentifier);
+        wsmLocale, wsmRequestEpr, wsmRequestItemCount);
 
     if (wsaMessageId != "1111")
         throw Exception("Invalid message ID");
@@ -748,7 +746,6 @@ static void _testHeaderErrors(WsmReader& reader)
     try
     {
         String wsaMessageId, wsaAction, wsaFrom, wsaReplyTo, wsaFaultTo;
-        String wsaIdentifier;
         WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
         AcceptLanguageList wsmLocale;
@@ -757,7 +754,7 @@ static void _testHeaderErrors(WsmReader& reader)
         reader.decodeRequestSoapHeaders(
             wsaMessageId, epr.address, wsaAction, wsaFrom, wsaReplyTo,
             wsaFaultTo, epr.resourceUri, *epr.selectorSet, wsmMaxEnvelopeSize,
-            wsmLocale, wsmRequestEpr, wsmRequestItemCount,wsaIdentifier);
+            wsmLocale, wsmRequestEpr, wsmRequestItemCount);
         throw Exception("Expected duplicate headers fault");
     }
     catch (WsmFault& fault)
@@ -773,7 +770,6 @@ static void _testHeaderErrors(WsmReader& reader)
     try
     {
         String wsaMessageId, wsaAction, wsaFrom, wsaReplyTo, wsaFaultTo;
-        String wsaIdentifier;
         WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
         AcceptLanguageList wsmLocale;
@@ -782,7 +778,7 @@ static void _testHeaderErrors(WsmReader& reader)
         reader.decodeRequestSoapHeaders(
             wsaMessageId, epr.address, wsaAction, wsaFrom, wsaReplyTo,
             wsaFaultTo, epr.resourceUri, *epr.selectorSet, wsmMaxEnvelopeSize,
-            wsmLocale, wsmRequestEpr, wsmRequestItemCount,wsaIdentifier);
+            wsmLocale, wsmRequestEpr, wsmRequestItemCount);
         throw Exception("Expected Soap NotUnderstood fault");
     }
     catch (SoapNotUnderstoodFault&)
@@ -796,7 +792,6 @@ static void _testHeaderErrors(WsmReader& reader)
     try
     {
         String wsaMessageId, wsaAction, wsaFrom, wsaReplyTo, wsaFaultTo;
-        String wsaIdentifier;
         WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
         AcceptLanguageList wsmLocale;
@@ -805,7 +800,7 @@ static void _testHeaderErrors(WsmReader& reader)
         reader.decodeRequestSoapHeaders(
             wsaMessageId, epr.address, wsaAction, wsaFrom, wsaReplyTo,
             wsaFaultTo, epr.resourceUri, *epr.selectorSet, wsmMaxEnvelopeSize,
-            wsmLocale, wsmRequestEpr, wsmRequestItemCount,wsaIdentifier);
+            wsmLocale, wsmRequestEpr, wsmRequestItemCount);
         throw Exception("Expected OperationTimeout unsupported feature fault");
     }
     catch (WsmFault& fault)
@@ -821,7 +816,6 @@ static void _testHeaderErrors(WsmReader& reader)
     try
     {
         String wsaMessageId, wsaAction, wsaFrom, wsaReplyTo, wsaFaultTo;
-        String wsaIdentifier;
         WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
         AcceptLanguageList wsmLocale;
@@ -830,7 +824,7 @@ static void _testHeaderErrors(WsmReader& reader)
         reader.decodeRequestSoapHeaders(
             wsaMessageId, epr.address, wsaAction, wsaFrom, wsaReplyTo,
             wsaFaultTo, epr.resourceUri, *epr.selectorSet, wsmMaxEnvelopeSize,
-            wsmLocale, wsmRequestEpr, wsmRequestItemCount,wsaIdentifier);
+            wsmLocale, wsmRequestEpr, wsmRequestItemCount);
         throw Exception("Expected invalid MaxEnvelopeSize fault");
     }
     catch (WsmFault& fault)
@@ -846,7 +840,6 @@ static void _testHeaderErrors(WsmReader& reader)
     try
     {
         String wsaMessageId, wsaAction, wsaFrom, wsaReplyTo, wsaFaultTo;
-        String wsaIdentifier;
         WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
         AcceptLanguageList wsmLocale;
@@ -855,7 +848,7 @@ static void _testHeaderErrors(WsmReader& reader)
         reader.decodeRequestSoapHeaders(
             wsaMessageId, epr.address, wsaAction, wsaFrom, wsaReplyTo,
             wsaFaultTo, epr.resourceUri, *epr.selectorSet, wsmMaxEnvelopeSize,
-            wsmLocale, wsmRequestEpr, wsmRequestItemCount,wsaIdentifier);
+            wsmLocale, wsmRequestEpr, wsmRequestItemCount);
         throw Exception("Expected Soap NotUnderstood fault");
     }
     catch (SoapNotUnderstoodFault&)
@@ -869,7 +862,6 @@ static void _testHeaderErrors(WsmReader& reader)
     try
     {
         String wsaMessageId, wsaAction, wsaFrom, wsaReplyTo, wsaFaultTo;
-        String wsaIdentifier;
         WsmEndpointReference epr;
         Uint32 wsmMaxEnvelopeSize = 0;
         AcceptLanguageList wsmLocale;
@@ -878,7 +870,7 @@ static void _testHeaderErrors(WsmReader& reader)
         reader.decodeRequestSoapHeaders(
             wsaMessageId, epr.address, wsaAction, wsaFrom, wsaReplyTo,
             wsaFaultTo, epr.resourceUri, *epr.selectorSet, wsmMaxEnvelopeSize,
-            wsmLocale, wsmRequestEpr, wsmRequestItemCount,wsaIdentifier);
+            wsmLocale, wsmRequestEpr, wsmRequestItemCount);
         throw Exception("Expected Locale unsupported feature fault");
     }
     catch (WsmFault& fault)
@@ -903,11 +895,12 @@ static void _testEnumerateBody(WsmReader& reader)
     WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
     Boolean optimized = false;
     Uint32 maxElements = 0;
-    WsmFilter wsmFilter;
+    String lang;
+    String query;
+    SharedPtr<WQLSelectStatement> selectStatement;
 
     reader.decodeEnumerateBody(expiration, polymorphismMode, enumerationMode,
-        optimized, maxElements, wsmFilter);
-
+        optimized, maxElements, lang, query, selectStatement);
     if (expiration != "PT123S" ||
         polymorphismMode != WSMB_PM_EXCLUDE_SUBCLASS_PROPERTIES ||
         enumerationMode != WSEN_EM_EPR ||
@@ -926,10 +919,13 @@ static void _testEnumerateBodyErrors(WsmReader& reader)
         WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
         Boolean optimized = false;
         Uint32 maxElements = 0;
-        WsmFilter wsmFilter;
+        String lang;
+        String query;
+        SharedPtr<WQLSelectStatement> selectStatement;
 
-    reader.decodeEnumerateBody(expiration, polymorphismMode, enumerationMode,
-        optimized, maxElements, wsmFilter);
+        reader.decodeEnumerateBody(expiration, polymorphismMode,
+            enumerationMode, optimized, maxElements, lang, query,
+            selectStatement);
 
         throw Exception("Expected duplicate headers fault");
     }
@@ -949,12 +945,13 @@ static void _testEnumerateBodyErrors(WsmReader& reader)
         WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
         Boolean optimized = false;
         Uint32 maxElements = 0;
-        WsmFilter wsmFilter;
+        String lang;
+        String query;
+        SharedPtr<WQLSelectStatement> selectStatement;
 
-        CIMPropertyList propertyList;
-
-    reader.decodeEnumerateBody(expiration, polymorphismMode, enumerationMode,
-        optimized, maxElements, wsmFilter);
+        reader.decodeEnumerateBody(expiration, polymorphismMode,
+            enumerationMode, optimized, maxElements, lang, query,
+            selectStatement);
 
         throw Exception("Expected unsupported feature fault");
     }
@@ -974,14 +971,13 @@ static void _testEnumerateBodyErrors(WsmReader& reader)
         WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
         Boolean optimized = false;
         Uint32 maxElements = 0;
-        WsmFilter wsmFilter;
+        String lang;
+        String query;
+        SharedPtr<WQLSelectStatement> selectStatement;
 
         reader.decodeEnumerateBody(expiration, polymorphismMode,
-            enumerationMode, optimized, maxElements,wsmFilter);
-        if (wsmFilter.filterDialect != WsmFilter::NONE)
-        {
-            throw Exception("No filter expected.");
-        }
+            enumerationMode, optimized, maxElements, lang, query,
+            selectStatement);
     }
     catch (WsmFault& fault)
     {
@@ -999,10 +995,13 @@ static void _testEnumerateBodyErrors(WsmReader& reader)
         WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
         Boolean optimized = false;
         Uint32 maxElements = 0;
-        WsmFilter wsmFilter;
+        String lang;
+        String query;
+        SharedPtr<WQLSelectStatement> selectStatement;
 
         reader.decodeEnumerateBody(expiration, polymorphismMode,
-            enumerationMode, optimized, maxElements, wsmFilter);
+            enumerationMode, optimized, maxElements, lang, query,
+            selectStatement);
 
         throw Exception("Expected unsupported feature fault");
     }
@@ -1022,10 +1021,13 @@ static void _testEnumerateBodyErrors(WsmReader& reader)
         WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
         Boolean optimized = false;
         Uint32 maxElements = 0;
-        WsmFilter wsmFilter;
+        String lang;
+        String query;
+        SharedPtr<WQLSelectStatement> selectStatement;
 
         reader.decodeEnumerateBody(expiration, polymorphismMode,
-            enumerationMode, optimized, maxElements, wsmFilter);
+            enumerationMode, optimized, maxElements, lang, query,
+            selectStatement);
 
         throw Exception("Expected unsupported polymorphism mode fault");
     }
@@ -1125,7 +1127,7 @@ static void _testPullBodyErrors(WsmReader& reader)
     }
 }
 
-static void _testEnumerateWithWQLFilterBody(WsmReader& reader)
+static void _testEnumerateWithFilterBody(WsmReader& reader)
 {
     XmlEntry entry;
     reader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Envelope");
@@ -1135,231 +1137,22 @@ static void _testEnumerateWithWQLFilterBody(WsmReader& reader)
     WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
     Boolean optimized = false;
     Uint32 maxElements = 0;
-    WsmFilter wsmFilter;
+    String lang;
+    String query;
+    SharedPtr<WQLSelectStatement> selectStatement;
 
     reader.decodeEnumerateBody(expiration, polymorphismMode, enumerationMode,
-        optimized, maxElements, wsmFilter);
+        optimized, maxElements, lang, query, selectStatement);
 
-    switch(wsmFilter.filterDialect)
+    if (lang != "WQL")
     {
-        case WsmFilter::NONE:
-        {
-            throw Exception("Filter expected for this request.");
-        }
-
-        case WsmFilter::WQL:
-        {
-            if (wsmFilter.WQLFilter.queryLanguage != "WQL")
-            {
-                throw Exception("expected WQL dialect");
-            }
-
-            if (wsmFilter.WQLFilter.query !=
-                "select Status from CIM_ComputerSystem")
-            {
-                throw Exception("failed to get query from Filter");
-            }
-            break;
-        }
-        case WsmFilter::ASSOCIATION:
-        {
-            throw Exception("Association filter not expected");
-        }
-    }
-}
-
-// process the associationfilter.xml file.  This file presents multiple
-// association filters to be processed.
-static void _testEnumerateWithAssociatedFilterBody(WsmReader& reader)
-{
-    XmlEntry entry;
-
-    // First filter. Includes Envelope
-    reader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Envelope");
-    {
-        String expiration;
-        WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
-        WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
-        Boolean optimized = false;
-        Uint32 maxElements = 0;
-        WsmFilter wsmFilter;
-
-        // Read the first valid associated request. No 1
-        reader.decodeEnumerateBody(expiration, polymorphismMode,
-            enumerationMode, optimized, maxElements, wsmFilter);
-
-        PEGASUS_TEST_ASSERT(wsmFilter.filterDialect == WsmFilter::ASSOCIATION);
-        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.assocFilterType ==
-                       WsmFilter::ASSOCIATED_INSTANCES);
-
-        PEGASUS_TEST_ASSERT(
-            wsmFilter.AssocFilter.object.getNamespace() == "interop");
-
-        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.assocClassName == CIMName());
-
-        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.resultRole == "" );
-
-        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.role == "parent");
-
-        PEGASUS_TEST_ASSERT(
-           wsmFilter.AssocFilter.resultClassName.equal("CIM_SystemPackaging"));
+        throw Exception("expected WQL dialect");
     }
 
-    // No 2 Second filter. Expect valid association Filter
+    if (query != "select Status from CIM_ComputerSystem")
     {
-        String expiration;
-        WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
-        WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
-        Boolean optimized = false;
-        Uint32 maxElements = 0;
-        WsmFilter wsmFilter;
-
-        // Read the first valid associated request.
-        reader.decodeEnumerateBody(expiration, polymorphismMode,
-            enumerationMode, optimized, maxElements, wsmFilter);
-
-        PEGASUS_TEST_ASSERT(wsmFilter.filterDialect == WsmFilter::ASSOCIATION);
-
-        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.assocFilterType ==
-                       WsmFilter::ASSOCIATION_INSTANCES);
-
-        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.resultRole == "child" );
-
-        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.role == "parent");
-
-        PEGASUS_TEST_ASSERT(
-            wsmFilter.AssocFilter.assocClassName.equal("CIM_SomeClass"));
-        PEGASUS_TEST_ASSERT(
-            wsmFilter.AssocFilter.resultClassName.equal("CIM_SystemPackaging"));
+        throw Exception("failed to get query from Filter");
     }
-
-    // No 3. Third Association Filter. Empty ResultRole and Role
-    {
-        String expiration;
-        WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
-        WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
-        Boolean optimized = false;
-        Uint32 maxElements = 0;
-        WsmFilter wsmFilter;
-
-        // Read the first valid associated request.
-        reader.decodeEnumerateBody(expiration, polymorphismMode,
-            enumerationMode, optimized, maxElements, wsmFilter);
-
-        PEGASUS_TEST_ASSERT(wsmFilter.filterDialect == WsmFilter::ASSOCIATION);
-
-        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.assocFilterType ==
-                       WsmFilter::ASSOCIATION_INSTANCES);
-
-        // Confirm that each of the Role parameter is an empty string.
-
-        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.resultRole == "" );
-
-        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.role == "" );
-
-        PEGASUS_TEST_ASSERT(
-            wsmFilter.AssocFilter.assocClassName.equal("CIM_SomeClass"));
-        PEGASUS_TEST_ASSERT(
-            wsmFilter.AssocFilter.resultClassName.equal("CIM_SystemPackaging"));
-    }
-    // No 4. Invalid namespace on Association type property
-    {
-        String expiration;
-        WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
-        WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
-        Boolean optimized = false;
-        Uint32 maxElements = 0;
-        WsmFilter wsmFilter;
-
-        try
-        {
-            reader.decodeEnumerateBody(expiration, polymorphismMode,
-                enumerationMode, optimized, maxElements, wsmFilter);
-        }
-        catch (WsmFault& fault)
-        {
-            PEGASUS_TEST_ASSERT(
-                fault.getSubcode() == "wsen:CannotProcessFilter");
-            // move forward to end of Enumerate for next test
-            while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
-               strcmp(entry.localName, "Enumerate") != 0));
-        }
-    }
-
-    // No 5. Object tag missing, i.e. no address for association.
-    {
-        String expiration;
-        WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
-        WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
-        Boolean optimized = false;
-        Uint32 maxElements = 0;
-        WsmFilter wsmFilter;
-        Boolean exception = false;
-
-        try
-        {
-            reader.decodeEnumerateBody(expiration, polymorphismMode,
-                enumerationMode, optimized, maxElements, wsmFilter);
-        }
-        catch (XmlException&)
-        {
-            exception = true;
-
-            while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
-               strcmp(entry.localName, "Enumerate") != 0));
-        }
-        PEGASUS_TEST_ASSERT(exception);
-    }
-
-    // No 6. Default for all optional properties
-    {
-        String expiration;
-        WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
-        WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
-        Boolean optimized = false;
-        Uint32 maxElements = 0;
-        WsmFilter wsmFilter;
-
-        reader.decodeEnumerateBody(expiration, polymorphismMode,
-            enumerationMode, optimized, maxElements, wsmFilter);
-
-        PEGASUS_TEST_ASSERT(wsmFilter.filterDialect == WsmFilter::ASSOCIATION);
-
-        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.assocFilterType ==
-                       WsmFilter::ASSOCIATION_INSTANCES);
-
-        // Confirm that each of the Role parameters is an empty string.
-        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.resultRole == "" );
-        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.role == "" );
-
-        // confirm that the class parameters are Null values
-        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.assocClassName.isNull());
-        PEGASUS_TEST_ASSERT(wsmFilter.AssocFilter.resultClassName.isNull());
-    }
-    // No 7. Filter with Duplicate Filter elements
-    {
-        String expiration;
-        WsmbPolymorphismMode polymorphismMode = WSMB_PM_UNKNOWN;
-        WsenEnumerationMode enumerationMode = WSEN_EM_UNKNOWN;
-        Boolean optimized = false;
-        Uint32 maxElements = 0;
-        WsmFilter wsmFilter;
-
-        try
-        {
-            reader.decodeEnumerateBody(expiration, polymorphismMode,
-                enumerationMode, optimized, maxElements, wsmFilter);
-        }
-        catch (WsmFault& fault)
-        {
-            PEGASUS_TEST_ASSERT(
-                fault.getSubcode() == "wsa:InvalidMessageInformationHeader");
-            // move forward to end of Enumerate for next test
-            while (reader.next(entry) && (entry.type != XmlEntry::END_TAG ||
-               strcmp(entry.localName, "Enumerate") != 0));
-        }
-    }
-
 }
 
 static void _testInvokeBody(WsmReader& reader)
@@ -1442,59 +1235,6 @@ static void _testIdentifyBody(WsmReader& reader)
     reader.expectEndTag(nsType, "Identify");
 }
 
-static void _testSubscribeBody(WsmReader& reader)
-{
-    XmlEntry entry;
-    reader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Envelope");
-
-    String deliveryMode;
-    String destination;
-    String subExpiration;
-    WsmFilter wsmFilter;
-
-    reader.decodeSubscribeBody(
-        deliveryMode,
-        destination,
-        subExpiration,
-        wsmFilter);
-
-    if (subExpiration != "30000000" ||
-        deliveryMode != "2" ||
-        destination != "http://localhost:80/eventsink" ||
-        wsmFilter.filterDialect != WsmFilter::WQL ||
-        wsmFilter.WQLFilter.query != "SELECT * FROM IndicationStressTestClass")
-    {
-        throw Exception("Invalid subscribe body");
-    } 
-}
-
-static void _testSubscribeBodyPushWithAck(WsmReader& reader)
-{
-    XmlEntry entry;
-    reader.expectStartTag(entry, WsmNamespaces::SOAP_ENVELOPE, "Envelope");
-
-    String deliveryMode;
-    String destination;
-    String subExpiration;
-    WsmFilter wsmFilter;
-
-    reader.decodeSubscribeBody(
-        deliveryMode,
-        destination,
-        subExpiration,
-        wsmFilter);
-
-    if (subExpiration != "30000000" ||
-        deliveryMode != "3" ||
-        destination != "http://localhost:80/eventsink" ||
-        wsmFilter.filterDialect != WsmFilter::WQL ||
-        wsmFilter.WQLFilter.query != "SELECT * FROM IndicationStressTestClass")
-    {
-        throw Exception("Invalid subscribe body");
-    }
-}
-
-
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
@@ -1576,7 +1316,7 @@ int main(int argc, char** argv)
             if (verbose)
                 cout << "Testing instances." << endl;
 
-            _testEnumerateWithWQLFilterBody(reader);
+            _testEnumerateWithFilterBody(reader);
         }
 
         /* WS-Management Invoke test */
@@ -1601,42 +1341,6 @@ int main(int argc, char** argv)
                 cout << "Testing instances." << endl;
 
             _testIdentifyBody(reader);
-        }
-
-        /* WS-AssociatedFilter test */
-        {
-            Buffer text;
-            FileSystem::loadFileToMemory(text, "./wsAssociatedFilter.xml");
-            WsmReader reader((char*)text.getData());
-
-            if (verbose)
-                cout << "Testing instances." << endl;
-
-            _testEnumerateWithAssociatedFilterBody(reader);
-        }
-        /*WS-Subscribe test */
-        {
-            Buffer text;
-            FileSystem::loadFileToMemory(text, "./subscribe_body.xml");
-            WsmReader reader((char*)text.getData());
-
-            if (verbose)
-                cout << "Testing wsman subscribe." << endl;
-
-            _testSubscribeBody(reader);
-        }
-        /*WS-Subscribe with push_WITH_ACK delivery mode tests*/
-        {
-            Buffer text;
-            FileSystem::loadFileToMemory(
-                text,
-                "./subscribe_bodyPushWithAck.xml");
-            WsmReader reader((char*)text.getData());
-
-            if (verbose)
-                cout << "Testing wsman subscribe with PUSH_WITH_ACK." << endl;
-
-            _testSubscribeBodyPushWithAck(reader);
         }
     }
     catch(Exception& e)

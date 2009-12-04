@@ -41,8 +41,7 @@
 #include <Pegasus/WsmServer/WsmEndpointReference.h>
 #include <Pegasus/WsmServer/WsmUtils.h>
 #include <Pegasus/WQL/WQLParser.h>
-#include <Pegasus/WsmServer/WsmFilter.h>
-#include <Pegasus/Common/Constants.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_WSMSERVER_LINKAGE WsmReader
@@ -126,8 +125,7 @@ public:
         Uint32& wsmMaxEnvelopeSize,
         AcceptLanguageList& wsmLocale,
         Boolean& wsmRequestEpr,
-        Boolean& wsmRequestItemCount,
-        String& wseIdentifier);
+        Boolean& wsmRequestItemCount);
 
     void decodeEnumerateBody(
         String& expiration,
@@ -135,7 +133,9 @@ public:
         WsenEnumerationMode& enumerationMode,
         Boolean& optimized,
         Uint32& maxElements,
-        WsmFilter& wsmFilter);
+        String& queryLanguage,
+        String& query,
+        SharedPtr<WQLSelectStatement>& selectStatement);
 
     void decodePullBody(
         Uint64& enumerationContext,
@@ -157,45 +157,14 @@ public:
         WsmValue& propValue);
     void getValueElement(WsmValue& value, int nsType, const char* propNameTag);
 
-    void decodeFilter(WsmFilter& wsmFilter, int nsType = WsmNamespaces::WS_MAN);
-//      Uint32& filterDialect,
-//      String& queryLanguage,
-//      String& query,
-//      SharedPtr<WQLSelectStatement>& selectStatement,
-//      Boolean& associated,
-//      WsmEndpointReference& object,
-//      CIMName& assocClassName,
-//      CIMName& resultClassName,
-//      String& role,
-//      String& resultRole,
-//      CIMPropertyList& propertyList);
+    void decodeFilter(
+        String& queryLanguage,
+        String& query,
+        SharedPtr<WQLSelectStatement>& selectStatement);
 
-    void decodeAssociationFilter(WsmFilter& wsmFilter);
-//      Boolean& associated,
-//      WsmEndpointReference& object,
-//      CIMName& assocClassName,
-//      CIMName& resultClassName,
-//      String& role,
-//      String& resultRole,
-//      CIMPropertyList& propertyList);
-
-    void decodeSubscribeBody(
-        String& deliveryMode,
-        String& notifyTo,
-        String& subExpiration,
-        WsmFilter & wsmFilter);
- 
-    void checkDuplicateHeader(
-        const char* elementName,
-        Boolean isDuplicate);
-
-    XmlParser& getParser();
 private:
 
     XmlParser _parser;
-    void _decodeDeliveryField(
-        String & deliveryMode,
-        String & destination);
 };
 
 PEGASUS_NAMESPACE_END

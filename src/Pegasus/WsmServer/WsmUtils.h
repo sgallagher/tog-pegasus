@@ -35,7 +35,6 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/XmlParser.h>
-#include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/WsmServer/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -91,14 +90,6 @@ public:
     // following expression (where <SERVER> is any server expression.
     //     http://<SERVER>/wbem/wscim/1/cim-schema/2"
     static String getRootResourceUri(const String& resourceUri);
-   
-    /** Returns a string representing the DateTime value of the
-        CIMDateTime object in the microsecond format.
-        @return String representing the DateTime value in the microsecond
-        format.
-    */
-    static String toMicroSecondString(const CIMDateTime &rep);
-
 
 private:
 

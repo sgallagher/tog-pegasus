@@ -90,16 +90,9 @@ private:
     WxfCreateResponse* _mapToWxfCreateResponse(
         const WxfCreateRequest* wsmRequest,
         const CIMCreateInstanceResponseMessage* response);
-    WxfSubCreateResponse* _mapToWxfSubCreateResponse(
-        const WxfSubCreateRequest* wsmRequest,
-        const CIMCreateInstanceResponseMessage* response);
     WxfDeleteResponse* _mapToWxfDeleteResponse(
         const WxfDeleteRequest* wsmRequest,
         const CIMDeleteInstanceResponseMessage* response);
-    WxfSubDeleteResponse* _mapToWxfSubDeleteResponse(
-        const WxfSubDeleteRequest* wsmRequest,
-        const CIMDeleteInstanceResponseMessage* response);
-
     WsenEnumerateResponse* _mapToWsenEnumerateResponseObject(
         const WsenEnumerateRequest* wsmRequest,
         CIMEnumerateInstancesResponseMessage* response);
@@ -109,27 +102,6 @@ private:
     WsenEnumerateResponse* _mapToWsenEnumerateResponseEPR(
         const WsenEnumerateRequest* wsmRequest,
         CIMEnumerateInstanceNamesResponseMessage* response);
-
-    WsenEnumerateResponse* _mapToWsenEnumerateResponseObject(
-        const WsenEnumerateRequest* wsmRequest,
-        CIMReferencesResponseMessage* response);
-    WsenEnumerateResponse* _mapToWsenEnumerateResponseObjectAndEPR(
-        const WsenEnumerateRequest* wsmRequest,
-        CIMReferencesResponseMessage* response);
-    WsenEnumerateResponse* _mapToWsenEnumerateResponseEPR(
-        const WsenEnumerateRequest* wsmRequest,
-        CIMReferenceNamesResponseMessage* response);
-
-    WsenEnumerateResponse* _mapToWsenEnumerateResponseObject(
-        const WsenEnumerateRequest* wsmRequest,
-        CIMAssociatorsResponseMessage* response);
-    WsenEnumerateResponse* _mapToWsenEnumerateResponseObjectAndEPR(
-        const WsenEnumerateRequest* wsmRequest,
-        CIMAssociatorsResponseMessage* response);
-    WsenEnumerateResponse* _mapToWsenEnumerateResponseEPR(
-        const WsenEnumerateRequest* wsmRequest,
-        CIMAssociatorNamesResponseMessage* response);
-
     WsmFaultResponse* _mapToWsmFaultResponse(
         const WsmRequest* wsmRequest,
         const CIMResponseMessage* message);

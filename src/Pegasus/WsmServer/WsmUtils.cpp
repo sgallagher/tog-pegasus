@@ -30,7 +30,6 @@
 //%////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include "WsmUtils.h"
 #include "WsmConstants.h"
@@ -219,16 +218,6 @@ String WsmUtils::getRootResourceUri(const String& resourceUri)
 
     const int NS = WsmNamespaces::WS_CIM_SCHEMA;
     return String(WsmNamespaces::supportedNamespaces[NS].extendedName);
-}
-
-String WsmUtils::toMicroSecondString(const CIMDateTime &rep)
-{
-    const Uint32 strDurationLength=26;
-    Uint64 duration = rep.toMicroSeconds();
-    Uint32 outputLength = 0;
-    char buffer[strDurationLength];
-    const char* output = Uint64ToString(buffer, duration, outputLength); 
-    return String(output, outputLength);
 }
 
 PEGASUS_NAMESPACE_END

@@ -204,7 +204,7 @@ Boolean XmlReader::expectContentOrCData(
     {
         MessageLoaderParms mlParms(
             "Common.XmlReader.EXPECTED_CDATA",
-            "Expected content of CDATA");
+            "Expected content or CDATA");
         throw XmlValidationError(parser.getLine(), mlParms);
     }
 

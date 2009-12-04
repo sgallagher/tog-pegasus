@@ -56,24 +56,13 @@ public:
     CIMModifyInstanceRequestMessage* mapToCimModifyInstanceRequest(
         WxfPutRequest* request);
     CIMCreateInstanceRequestMessage* mapToCimCreateInstanceRequest(
-        WsmRequest * request,Boolean isSubCreate=false);
+        WxfCreateRequest* request);
     CIMDeleteInstanceRequestMessage* mapToCimDeleteInstanceRequest(
-        WsmRequest* request,Boolean isSubDeleteReq=false);
+        WxfDeleteRequest* request);
     CIMEnumerateInstancesRequestMessage* mapToCimEnumerateInstancesRequest(
         WsenEnumerateRequest* request);
     CIMEnumerateInstanceNamesRequestMessage*
         mapToCimEnumerateInstanceNamesRequest(WsenEnumerateRequest* request);
-
-    // Support Associated filter
-    CIMReferencesRequestMessage* mapToCimReferencesRequest(
-        WsenEnumerateRequest* request);
-    CIMReferenceNamesRequestMessage* mapToCimReferenceNamesRequest(
-        WsenEnumerateRequest* request);
-    CIMAssociatorsRequestMessage* mapToCimAssociatorsRequest(
-        WsenEnumerateRequest* request);
-    CIMAssociatorNamesRequestMessage* mapToCimAssociatorNamesRequest(
-        WsenEnumerateRequest* request);
-
     CIMInvokeMethodRequestMessage* mapToCimInvokeMethodRequest(
         WsInvokeRequest* request);
 

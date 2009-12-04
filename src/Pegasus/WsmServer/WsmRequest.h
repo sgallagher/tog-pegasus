@@ -43,7 +43,6 @@
 #include <Pegasus/WsmServer/WsmSelectorSet.h>
 #include <Pegasus/WsmServer/WsmInstance.h>
 #include <Pegasus/WQL/WQLParser.h>
-#include <Pegasus/WsmServer/WsmFilter.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -64,23 +63,18 @@ enum WsmOperationType
     WS_ENUMERATION_RELEASE,
 
     /* WS-Management invoke */
-    WS_INVOKE,
-    WS_EXPORT_INDICATION,
+    WS_INVOKE
     // etc.
-    
-    WS_SUBSCRIPTION_CREATE,
-    WS_SUBSCRIPTION_DELETE
 };
 
-class WsmRequest : public Message 
+class WsmRequest
 {
 public:
 
     WsmRequest(
         WsmOperationType type,
-        const String& messageId_,
-        MessageType msgType=DUMMY_MESSAGE)
-        : Message(msgType),messageId(messageId_),
+        const String& messageId_)
+        : messageId(messageId_),
           httpMethod(HTTP_METHOD__POST),
           httpCloseConnect(false),
           omitXMLProcessingInstruction(false),
@@ -98,22 +92,6 @@ public:
     WsmOperationType getType() const
     {
         return _type;
-    }
-
-    void copyRequestProperties(const AutoPtr<WsmRequest> &request)
-    {
-        authType = request->authType;
-        userName = request->userName;
-        ipAddress = request->ipAddress;
-        httpMethod = request->httpMethod;
-        acceptLanguages = request->acceptLanguages;
-        contentLanguages = request->contentLanguages;
-        httpCloseConnect = request->httpCloseConnect;
-        omitXMLProcessingInstruction = 
-            request->omitXMLProcessingInstruction;
-        queueId = request->queueId;
-        requestEpr = request->requestEpr;
-        maxEnvelopeSize = request->maxEnvelopeSize;
     }
 
     String messageId;
@@ -185,24 +163,6 @@ public:
     WsmInstance instance;
 };
 
-class WxfSubCreateRequest : public WsmRequest
-{
-public:
-
-    WxfSubCreateRequest(
-        const String& messageId,
-        const WsmEndpointReference& epr_,
-        const WsmInstance& instance_)
-        : WsmRequest(WS_SUBSCRIPTION_CREATE, messageId),
-          epr(epr_),
-          instance(instance_)
-    {
-    }
-
-    WsmEndpointReference epr;
-    WsmInstance instance;
-};
-
 class WxfDeleteRequest : public WsmRequest
 {
 public:
@@ -215,23 +175,6 @@ public:
     {
     }
 
-    WsmEndpointReference epr;
-};
-
-class WxfSubDeleteRequest : public WsmRequest
-{
-public:
-
-    WxfSubDeleteRequest(
-        const String& messageId,
-        const WsmEndpointReference& epr_,
-        String className_)
-        : WsmRequest(WS_SUBSCRIPTION_DELETE, messageId),
-          className(className_),
-          epr(epr_)
-    {
-    }
-    String className;
     WsmEndpointReference epr;
 };
 
@@ -248,8 +191,9 @@ public:
         Uint32 maxElements_,
         WsenEnumerationMode enumerationMode_,
         WsmbPolymorphismMode polymorphismMode_,
-        WsmFilter wsmFilter_
-        )
+        const String& queryLanguage_,
+        const String& query_,
+        SharedPtr<WQLSelectStatement> selectStatement_)
         : WsmRequest(WS_ENUMERATION_ENUMERATE, messageId),
           epr(epr_),
           expiration(expiration_),
@@ -258,7 +202,9 @@ public:
           maxElements(maxElements_),
           enumerationMode(enumerationMode_),
           polymorphismMode(polymorphismMode_),
-          wsmFilter(wsmFilter_)
+          queryLanguage(queryLanguage_),
+          query(query_),
+          selectStatement(selectStatement_)
     {
     }
 
@@ -273,7 +219,9 @@ public:
     Uint32 maxElements;
     WsenEnumerationMode enumerationMode;
     WsmbPolymorphismMode polymorphismMode;
-    WsmFilter wsmFilter;
+    const String queryLanguage;
+    const String query;
+    SharedPtr<WQLSelectStatement> selectStatement;
 };
 
 class WsenPullRequest : public WsmRequest
@@ -349,30 +297,6 @@ public:
     WsmInstance instance;
 };
 
-class WsExportIndicationRequest : public WsmRequest
-{
-public :
-    
-    WsExportIndicationRequest(
-        const String& messageId,
-        const String& url_,
-        const String& destination_,
-        const WsmInstance& instance_)
-        :WsmRequest(
-            WS_EXPORT_INDICATION,
-            messageId,
-            WSMAN_EXPORT_INDICATION_REQUEST_MESSAGE),
-        url(url_),
-        destination(destination_),
-        IndicationInstance(instance_) 
-    {
-    }
-
-    String url;
-    String destination;
-    WsmInstance IndicationInstance;   
-    
-};
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_WsmRequest_h */

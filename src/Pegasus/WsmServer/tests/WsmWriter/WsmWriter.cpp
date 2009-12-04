@@ -104,7 +104,7 @@ static Boolean _compareValues(WsmValue& val1, WsmValue& val2)
                 break;
             }
             default:
-                PEGASUS_TEST_ASSERT(0);
+                PEGASUS_ASSERT(0);
         }
     }
     else
@@ -133,7 +133,7 @@ static Boolean _compareValues(WsmValue& val1, WsmValue& val2)
                 return str1 == str2;
             }
             default:
-                PEGASUS_TEST_ASSERT(0);
+                PEGASUS_ASSERT(0);
         }
     }
 
@@ -432,7 +432,6 @@ static void  _testResponseFormatting(void)
     String wsaFrom;
     String wsaReplyTo;
     String wsaFaultTo;
-    String WsaIdentifier;
     WsmEndpointReference epr;
     Uint32 wsmMaxEnvelopeSize = 0;
     AcceptLanguageList wsmLocale;
@@ -441,7 +440,7 @@ static void  _testResponseFormatting(void)
     reader.decodeRequestSoapHeaders(
         wsaMessageId, epr.address, wsaAction, wsaFrom, wsaReplyTo,
         wsaFaultTo, epr.resourceUri, *epr.selectorSet, wsmMaxEnvelopeSize,
-        wsmLocale, wsmRequestEpr, wsmRequestItemCount,WsaIdentifier);
+        wsmLocale, wsmRequestEpr, wsmRequestItemCount);
 
     if (epr.address != WSM_ADDRESS_ANONYMOUS ||
         wsaAction != WSM_ACTION_GET_RESPONSE ||

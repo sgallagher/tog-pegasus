@@ -44,6 +44,30 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+static bool _isInputParameter(const CIMParameter& cp)
+{
+    // Check to see if the given parameter is an input parameter (whether
+    // it bears a true "In" qualifier).
+
+    static const CIMName IN("In");
+    Uint32 pos = cp.findQualifier(IN);
+
+    if (pos != PEG_NOT_FOUND)
+    {
+        CIMConstQualifier cq = cp.getQualifier(pos);
+        const CIMValue& cv = cq.getValue();
+
+        if (cv.getType() == CIMTYPE_BOOLEAN)
+        {
+            Boolean in;
+            cv.get(in);
+            return in;
+        }
+    }
+
+    return false;
+}
+
 WsmToCimRequestMapper::WsmToCimRequestMapper(CIMRepository* repository)
     : _repository(repository)
 {
@@ -107,6 +131,13 @@ CIMOperationRequestMessage* WsmToCimRequestMapper::mapToCimRequest(
         case WS_ENUMERATION_RELEASE:
             break;
 
+        case WS_INVOKE:
+        {
+            cimRequest.reset(mapToCimInvokeMethodRequest(
+                (WsInvokeRequest*)request));
+            break;
+        }
+
         default:
             PEGASUS_ASSERT(0);
     }
@@ -130,7 +161,7 @@ CIMOperationRequestMessage* WsmToCimRequestMapper::mapToCimRequest(
 
 CIMGetInstanceRequestMessage*
     WsmToCimRequestMapper::mapToCimGetInstanceRequest(
-        WxfGetRequest* request)
+    WxfGetRequest* request)
 {
     CIMNamespaceName nameSpace;
     CIMObjectPath instanceName;
@@ -307,6 +338,48 @@ CIMEnumerateInstanceNamesRequestMessage*
     return cimRequest;
 }
 
+CIMInvokeMethodRequestMessage*
+WsmToCimRequestMapper::mapToCimInvokeMethodRequest(
+    WsInvokeRequest* request)
+{
+    // EPR to object path does a generic conversion, including conversion
+    // of EPR address to host and namespace selector to CIM namespace.
+    // For CreateInstance operation instance name should only contain a
+    // class name and key bindings.
+
+    CIMNamespaceName nameSpace;
+    CIMObjectPath instanceName;
+    convertEPRToObjectPath(request->epr, instanceName);
+    nameSpace = instanceName.getNameSpace();
+    instanceName.setNameSpace(CIMNamespaceName());
+    instanceName.setHost(String::EMPTY);
+
+    // Convert to array of CIMParamValue.
+
+    Array<CIMParamValue> parameters;
+
+    convertWsmToCimParameters(
+        nameSpace,
+        request->className,
+        request->methodName,
+        request->instance,
+        parameters);
+
+    CIMInvokeMethodRequestMessage* cimRequest =
+        new CIMInvokeMethodRequestMessage(
+            XmlWriter::getNextMessageId(),
+            nameSpace,
+            instanceName,
+            request->methodName,
+            parameters,
+            QueueIdStack(request->queueId),
+            request->authType,
+            request->userName);
+    cimRequest->ipAddress = request->ipAddress;
+
+    return cimRequest;
+}
+
 void WsmToCimRequestMapper::_disallowAllClassesResourceUri(
     const String& resourceUri)
 {
@@ -315,7 +388,10 @@ void WsmToCimRequestMapper::_disallowAllClassesResourceUri(
     // operations, even if this ResourceURI is supported for enumerations or
     // eventing.
 
-    if (resourceUri == WSM_RESOURCEURI_ALLCLASSES)
+    CString cstr(resourceUri.getCString());
+    const char* suffix = WsmUtils::skipHostUri(cstr);
+
+    if (strcmp(suffix, WSM_RESOURCEURI_ALLCLASSES_SUFFIX) == 0)
     {
         throw WsmFault(
             WsmFault::wsa_ActionNotSupported,
@@ -330,20 +406,17 @@ void WsmToCimRequestMapper::_disallowAllClassesResourceUri(
 CIMName WsmToCimRequestMapper::convertResourceUriToClassName(
     const String& resourceUri)
 {
-    static const String RESOURCEURI_PREFIX =
-        String(WSM_RESOURCEURI_CIMSCHEMAV2) + "/";
+    CString cstr(resourceUri.getCString());
+    const char* suffix = WsmUtils::skipHostUri(cstr);
+    size_t n = sizeof(WSM_RESOURCEURI_CIMSCHEMAV2_SUFFIX) - 1;
 
-    if (String::compare(
-            resourceUri,
-            RESOURCEURI_PREFIX,
-            RESOURCEURI_PREFIX.size()) == 0)
+    if (strncmp(suffix, WSM_RESOURCEURI_CIMSCHEMAV2_SUFFIX, n) == 0 &&
+        suffix[n] == '/')
     {
-        String className = resourceUri.subString(RESOURCEURI_PREFIX.size());
+        const char* className = &suffix[n + 1];
 
-        if (CIMName::legal(className))
-        {
-            return CIMNameCast(className);
-        }
+        if (CIMNameLegalASCII(className))
+            return CIMNameCast(String(className));
     }
 
     throw WsmFault(
@@ -1381,6 +1454,69 @@ void WsmToCimRequestMapper::convertWsmToCimDatetime(
                 "WsmServer.WsmToCimRequestMapper.INVALID_DT_VALUE",
                 "The datetime value \"$0\" is not valid", wsmDT),
             WSMAN_FAULTDETAIL_INVALIDVALUE);
+    }
+}
+
+void WsmToCimRequestMapper::convertWsmToCimParameters(
+    const CIMNamespaceName& nameSpace,
+    const String& className,
+    const String& methodName,
+    WsmInstance& instance,
+    Array<CIMParamValue>& parameters)
+{
+    parameters.clear();
+
+    // Get class from repository.
+
+    CIMClass cc = _repository->getClass(nameSpace, CIMName(className), false);
+
+    // Look up the method.
+
+    Uint32 pos = cc.findMethod(methodName);
+
+    if (pos == PEG_NOT_FOUND)
+    {
+        MessageLoaderParms params(
+            "WsmServer.WsmToCimRequestMapper.NO_SUCH_METHOD",
+            "The $0 method does not exist.",
+            methodName);
+        throw WsmFault(WsmFault::wsman_SchemaValidationError, params);
+    }
+
+    CIMMethod cm = cc.getMethod(pos);
+
+    // Translate parameters:
+
+    for (Uint32 i = 0, n = instance.getPropertyCount(); i < n; i++)
+    {
+        WsmProperty& wp = instance.getProperty(i);
+        const String& wname = wp.getName();
+        WsmValue& wvalue= wp.getValue();
+
+        if (CIMName::legal(wname))
+        {
+            Uint32 pos = cm.findParameter(CIMName(wname));
+
+            if (pos != PEG_NOT_FOUND)
+            {
+                CIMParameter cp = cm.getParameter(pos);
+
+                // Reject if not an input parameter.
+                if (_isInputParameter(cp))
+                {
+                    const CIMName& cn = cp.getName();
+                    CIMValue cv(cp.getType(), cp.isArray());
+                    convertWsmToCimValue(wvalue, nameSpace, cv);
+                    parameters.append(CIMParamValue(cn.getString(), cv));
+                    continue;
+                }
+            }
+        }
+
+        MessageLoaderParms params(
+            "WsmServer.WsmToCimRequestMapper.NO_SUCH_PARAMETER",
+            "The $0 input parameter does not exist.", wname);
+        throw WsmFault(WsmFault::wsman_SchemaValidationError, params);
     }
 }
 

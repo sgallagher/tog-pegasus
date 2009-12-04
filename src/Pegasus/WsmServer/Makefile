@@ -42,13 +42,10 @@ LIBRARY = pegwsmserver
 LIBRARIES = \
     pegrepository \
     pegwql \
-    pegquerycommon \
     pegconfig \
-    pegcommon \
-	pegclient 
+    pegcommon
 
 SOURCES = \
-    WsmFilter.cpp \
     WsmConstants.cpp \
     WsmUtils.cpp \
     WsmEndpointReference.cpp \

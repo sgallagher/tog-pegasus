@@ -190,7 +190,7 @@ public:
 
     void setHideEmptyTags(bool flag) { _hideEmptyTags = flag; }
 
-    bool getHideEmptyTags() const { return _hideEmptyTags; }
+    bool getHideEmptyTags(bool flag) const { return _hideEmptyTags; }
 
 private:
 

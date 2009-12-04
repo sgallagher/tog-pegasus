@@ -424,8 +424,13 @@ struct SCMBInstance_Main
     SCMBMgmt_Header     header;
     // The reference counter for this instance
     AtomicInt           refCount;
-    // A absolute pointer/reference to the class SCMB for this instance
+
+    // Adjust alignment for 32/64 bit to compensate class pointer
+    // On 64 bit systems this is an element of zero size
+    char alignClassPtr32to64[8-sizeof(void*)];
+    // An absolute pointer/reference to the class SCMB for this instance
     SCMOClass*          theClass;
+
     // Instance flags
     struct{
       unsigned includeQualifiers  :1;

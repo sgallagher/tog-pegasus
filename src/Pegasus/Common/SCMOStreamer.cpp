@@ -226,7 +226,7 @@ Uint32 SCMOStreamer::_appendToClassResolverTable(const SCMOInstance& inst)
 Uint32 SCMOStreamer::_appendToClassTable(const SCMOInstance& inst)
 {
     Uint32 clsTableSize = _classTable.size();
-    SCMBClass_Main* clsPtr = inst.inst.hdr->theClass->cls.hdr;
+    SCMBClass_Main* clsPtr = inst.inst.hdr->theClass.ptr->cls.hdr;
 
     const SCMBClass_Main* const* clsArray = _classTable.getData();
 
@@ -459,7 +459,7 @@ bool SCMOStreamer::_getInstances()
         scmbInstPtr->header.totalSize = size+64;
         scmbInstPtr->header.freeBytes = 64;
         scmbInstPtr->refCount.set(0);
-        scmbInstPtr->theClass =
+        scmbInstPtr->theClass.ptr =
              new SCMOClass((SCMBClass_Main*)clsArray[instArray[x].index]);
 
         SCMOInstance* scmoInstPtr = new SCMOInstance(scmbInstPtr);

@@ -595,7 +595,7 @@ public:
      * Maybe only the class name and/or name space are available.
      * @return True if the SCMOInstacne is empty, false otherwise.
      */
-    Boolean isEmpty( ) const {return (inst.hdr->theClass->isEmpty()); };
+    Boolean isEmpty( ) const {return (inst.hdr->theClass.ptr->isEmpty()); };
 
     /**
      * Determines whether the instance is used as a class container.
@@ -799,7 +799,7 @@ private:
             // All external references has to be destroyed.
             _destroyExternalReferences();
             // The class has also be dereferenced.
-            delete inst.hdr->theClass;
+            delete inst.hdr->theClass.ptr;
             free(inst.base);
             inst.base=NULL;
         }
@@ -818,7 +818,7 @@ private:
                 // All external references has to be destroyed.
                 _destroyExternalReferencesInternal((SCMBMgmt_Header*)oldRef);
                 // The class has also be dereferenced.
-                delete oldRef->theClass;
+                delete oldRef->theClass.ptr;
                 free((void*)oldRef);
                 oldRef=0;
             }
@@ -1030,9 +1030,9 @@ inline void SCMOInstance::_getPropertyAt(
         (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
 
     // create a pointer to property node array of the class.
-    Uint64 idx = inst.hdr->theClass->cls.hdr->propertySet.nodeArray.start;
+    Uint64 idx = inst.hdr->theClass.ptr->cls.hdr->propertySet.nodeArray.start;
     SCMBClassPropertyNode* theClassPropNodeArray =
-        (SCMBClassPropertyNode*)&(inst.hdr->theClass->cls.base)[idx];
+        (SCMBClassPropertyNode*)&(inst.hdr->theClass.ptr->cls.base)[idx];
 
     // return the absolute pointer to the property definition
     *propDef= &(theClassPropNodeArray[node].theProperty);
@@ -1048,7 +1048,7 @@ inline void SCMOInstance::_getPropertyAt(
     {
         // return the absolute pointer to
         *value = &(theClassPropNodeArray[node].theProperty.defaultValue);
-        *valueBase = inst.hdr->theClass->cls.base;
+        *valueBase = inst.hdr->theClass.ptr->cls.base;
     }
 }
 
@@ -1061,7 +1061,7 @@ inline void SCMOInstance::getSCMBValuePropertyAt(
 {
     _getPropertyAt(pos,value,valueBase,propDef);
 
-    *propDefBase = inst.hdr->theClass->cls.base;
+    *propDefBase = inst.hdr->theClass.ptr->cls.base;
 }
 
 inline SCMO_RC SCMOInstance::getKeyBindingAtUnresolved(

@@ -1462,9 +1462,9 @@ void SCMOInstance::_copyExternalReferences()
 void SCMOInstance::_destroyExternalKeyBindings()
 {
     // Create a pointer to keybinding node array of the class.
-    Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
+    Uint64 idx = inst.hdr->theClass.ptr->cls.hdr->keyBindingSet.nodeArray.start;
     SCMBKeyBindingNode* theClassKeyBindNodeArray =
-        (SCMBKeyBindingNode*)&((inst.hdr->theClass->cls.base)[idx]);
+        (SCMBKeyBindingNode*)&((inst.hdr->theClass.ptr->cls.base)[idx]);
 
     // create a pointer to instanc key binding array.
     SCMBKeyBindingValue* theInstanceKeyBindingNodeArray =
@@ -1514,8 +1514,8 @@ SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
     CIMObjectPath objPath;
 
     // For better usability define pointers to SCMO Class data structures.
-    SCMBClass_Main* clshdr = inst.hdr->theClass->cls.hdr;
-    char* clsbase = inst.hdr->theClass->cls.base;
+    SCMBClass_Main* clshdr = inst.hdr->theClass.ptr->cls.hdr;
+    char* clsbase = inst.hdr->theClass.ptr->cls.base;
 
     getCIMObjectPath(objPath);
 
@@ -1588,8 +1588,8 @@ void SCMOInstance::getCIMObjectPath(CIMObjectPath& cimObj) const
     Array<CIMKeyBinding> keys;
 
     // For better usability define pointers to SCMO Class data structures.
-    SCMBClass_Main* clshdr = inst.hdr->theClass->cls.hdr;
-    char* clsbase = inst.hdr->theClass->cls.base;
+    SCMBClass_Main* clshdr = inst.hdr->theClass.ptr->cls.hdr;
+    char* clsbase = inst.hdr->theClass.ptr->cls.base;
 
     // Address the class keybinding information
     SCMBKeyBindingNode* scmoClassArray =
@@ -1673,8 +1673,8 @@ CIMProperty SCMOInstance::_getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const
     CIMProperty retProperty;
 
     // For better usability define pointers to SCMO Class data structures.
-    SCMBClass_Main* clshdr = inst.hdr->theClass->cls.hdr;
-    char* clsbase = inst.hdr->theClass->cls.base;
+    SCMBClass_Main* clshdr = inst.hdr->theClass.ptr->cls.hdr;
+    char* clsbase = inst.hdr->theClass.ptr->cls.base;
 
 
     SCMBClassPropertyNode& clsProp =
@@ -2063,8 +2063,8 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
         }
     case CIMTYPE_OBJECT:
         {
-            CIMInstance theInstance;
-            CIMClass theClass;
+            CIMInstance cimInstance;
+            CIMClass cimClass;
 
             if(isArray)
             {
@@ -2078,14 +2078,14 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
                                inst.hdr->flags.isClassOnly)
                         {
                             pscmbArrayUn[i].extRefPtr->
-                                inst.hdr->theClass->getCIMClass(theClass);
-                            x.append(CIMObject(theClass));
+                                inst.hdr->theClass.ptr->getCIMClass(cimClass);
+                            x.append(CIMObject(cimClass));
                         }
                         else
                         {
                             pscmbArrayUn[i].extRefPtr->
-                                getCIMInstance(theInstance);
-                            x.append(CIMObject(theInstance));
+                                getCIMInstance(cimInstance);
+                            x.append(CIMObject(cimInstance));
                         }
                     }
                     else
@@ -2105,13 +2105,13 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
                     if(scmbUn.extRefPtr->inst.hdr->flags.isClassOnly)
                     {
                         scmbUn.extRefPtr->
-                            inst.hdr->theClass->getCIMClass(theClass);
-                        cimV.set(CIMObject(theClass));
+                            inst.hdr->theClass.ptr->getCIMClass(cimClass);
+                        cimV.set(CIMObject(cimClass));
                     }
                     else
                     {
-                        scmbUn.extRefPtr->getCIMInstance(theInstance);
-                        cimV.set(CIMObject(theInstance));
+                        scmbUn.extRefPtr->getCIMInstance(cimInstance);
+                        cimV.set(CIMObject(cimInstance));
                     }
                 }
                 else
@@ -2415,9 +2415,9 @@ const char* SCMOInstance::getNameSpace_l(Uint64 & length) const
 
 void SCMOInstance::buildKeyBindingsFromProperties()
 {
-    Uint32* theClassKeyPropList =
-        (Uint32*) &((inst.hdr->theClass->cls.base)
-                          [(inst.hdr->theClass->cls.hdr->keyIndexList.start)]);
+    Uint32* theClassKeyPropList = 
+        (Uint32*) &((inst.hdr->theClass.ptr->cls.base)
+                    [(inst.hdr->theClass.ptr->cls.hdr->keyIndexList.start)]);
 
     SCMBKeyBindingValue* theKeyBindValueArray;
     SCMBValue* theInstPropNodeArray;
@@ -2606,30 +2606,30 @@ void SCMOInstance::_initSCMOInstance(SCMOClass* pClass)
     inst.hdr->refCount=1;
 
     //Assign the SCMBClass structure this instance based on.
-    inst.hdr->theClass = pClass;
+    inst.hdr->theClass.ptr = pClass;
 
     // Copy name space name and class name of the class
     _setBinary(
-        _getCharString(inst.hdr->theClass->cls.hdr->className,
-                       inst.hdr->theClass->cls.base),
-        inst.hdr->theClass->cls.hdr->className.size,
+        _getCharString(inst.hdr->theClass.ptr->cls.hdr->className,
+                       inst.hdr->theClass.ptr->cls.base),
+        inst.hdr->theClass.ptr->cls.hdr->className.size,
         inst.hdr->instClassName,
         &inst.mem);
 
     _setBinary(
-        _getCharString(inst.hdr->theClass->cls.hdr->nameSpace,
-                       inst.hdr->theClass->cls.base),
-        inst.hdr->theClass->cls.hdr->nameSpace.size,
+        _getCharString(inst.hdr->theClass.ptr->cls.hdr->nameSpace,
+                       inst.hdr->theClass.ptr->cls.base),
+        inst.hdr->theClass.ptr->cls.hdr->nameSpace.size,
         inst.hdr->instNameSpace,
         &inst.mem);
 
     // Number of key bindings
     inst.hdr->numberKeyBindings =
-        inst.hdr->theClass->cls.hdr->keyBindingSet.number;
+        inst.hdr->theClass.ptr->cls.hdr->keyBindingSet.number;
 
     // Number of properties
     inst.hdr->numberProperties =
-        inst.hdr->theClass->cls.hdr->propertySet.number;
+        inst.hdr->theClass.ptr->cls.hdr->propertySet.number;
 
     // Allocate the SCMOInstanceKeyBindingArray
     _getFreeSpace(
@@ -2680,7 +2680,7 @@ void SCMOInstance::_setCIMInstance(const CIMInstance& cimInstance)
         }
 
         // get the property node index for the property
-        rc = inst.hdr->theClass->_getProperyNodeIndex(
+        rc = inst.hdr->theClass.ptr->_getProperyNodeIndex(
             propNode,
             (const char*)propRep->_name.getString().getCString());
 
@@ -2691,7 +2691,7 @@ void SCMOInstance::_setCIMInstance(const CIMInstance& cimInstance)
         }
         // The type stored in the class information is set on realType.
         // It must be used in further calls to guaranty consistence.
-        rc = inst.hdr->theClass->_isNodeSameType(
+        rc = inst.hdr->theClass.ptr->_isNodeSameType(
                  propNode,
                  propRep->_value._rep->type,
                  propRep->_value._rep->isArray,
@@ -2723,7 +2723,7 @@ SCMO_RC SCMOInstance::getProperty(
     isArray = false;
     size = 0;
 
-    rc = inst.hdr->theClass->_getProperyNodeIndex(node,name);
+    rc = inst.hdr->theClass.ptr->_getProperyNodeIndex(node,name);
     if (rc != SCMO_OK)
     {
         return rc;
@@ -2795,7 +2795,7 @@ SCMO_RC SCMOInstance::getPropertyNodeIndex(const char* name, Uint32& node) const
         return SCMO_INVALID_PARAMETER;
     }
 
-    rc = inst.hdr->theClass->_getProperyNodeIndex(node,name);
+    rc = inst.hdr->theClass.ptr->_getProperyNodeIndex(node,name);
 
     return rc;
 
@@ -2815,7 +2815,7 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
     SCMO_RC rc;
     CIMType realType;
 
-    rc = inst.hdr->theClass->_getProperyNodeIndex(node,name);
+    rc = inst.hdr->theClass.ptr->_getProperyNodeIndex(node,name);
     if (rc != SCMO_OK)
     {
         return rc;
@@ -2824,7 +2824,7 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
     // Is the traget type OK ?
     // The type stored in the class information is set on realType.
     // It must be used in further calls to guaranty consistence.
-    rc = inst.hdr->theClass->_isNodeSameType(node,type,isArray,realType);
+    rc = inst.hdr->theClass.ptr->_isNodeSameType(node,type,isArray,realType);
     if (rc != SCMO_OK)
     {
         return rc;
@@ -2845,7 +2845,7 @@ SCMO_RC SCMOInstance::setPropertyWithOrigin(
     // check class origin if set.
     if (origin!= 0)
     {
-        if(!inst.hdr->theClass->_isSamePropOrigin(node,origin))
+        if(!inst.hdr->theClass.ptr->_isSamePropOrigin(node,origin))
         {
             return SCMO_NOT_SAME_ORIGIN;
         }
@@ -2888,7 +2888,7 @@ SCMO_RC SCMOInstance::setPropertyWithNodeIndex(
     // Is the traget type OK ?
     // The type stored in the class information is set on realType.
     // It must be used in further calls to guaranty consistence.
-    rc = inst.hdr->theClass->_isNodeSameType(node,type,isArray,realType);
+    rc = inst.hdr->theClass.ptr->_isNodeSameType(node,type,isArray,realType);
     if (rc != SCMO_OK)
     {
         return rc;
@@ -3481,11 +3481,11 @@ void SCMOInstance::_setUnionArrayValue(
                 {
                     if (iterator[i].isClass())
                     {
-                        CIMClass theClass(iterator[i]);
+                        CIMClass cimClass(iterator[i]);
 
                         ptargetUnion[i].extRefPtr =
                             new SCMOInstance(
-                                theClass,
+                                cimClass,
                                 (&((const char*)*pmem)[startNS]));
                         // marke as class only !
                         ptargetUnion[i].extRefPtr->
@@ -3762,11 +3762,11 @@ void SCMOInstance::_setUnionValue(
             {
                 if (theCIMObject->isClass())
                 {
-                    CIMClass theClass(*theCIMObject);
+                    CIMClass cimClass(*theCIMObject);
 
                     scmoUnion->extRefPtr =
                         new SCMOInstance(
-                            theClass,
+                            cimClass,
                             (&((const char*)*pmem)[startNS]));
                     // marke as class only !
                     scmoUnion->extRefPtr->inst.hdr->flags.isClassOnly=true;
@@ -3868,16 +3868,16 @@ SCMO_RC SCMOInstance::_getPropertyAtNodeIndex(
         (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
 
     // create a pointer to property node array of the class.
-    Uint64 idx = inst.hdr->theClass->cls.hdr->propertySet.nodeArray.start;
+    Uint64 idx = inst.hdr->theClass.ptr->cls.hdr->propertySet.nodeArray.start;
     SCMBClassPropertyNode* theClassPropNodeArray =
-        (SCMBClassPropertyNode*)&(inst.hdr->theClass->cls.base)[idx];
+        (SCMBClassPropertyNode*)&(inst.hdr->theClass.ptr->cls.base)[idx];
 
     // the property name is always from the class.
     // return the absolut pointer to the property name,
     // the caller has to copy the name!
     *pname=_getCharString(
         theClassPropNodeArray[node].theProperty.name,
-        inst.hdr->theClass->cls.base);
+        inst.hdr->theClass.ptr->cls.base);
 
     // the property was set by the provider.
     if (theInstPropNodeArray[node].flags.isSet)
@@ -3925,14 +3925,14 @@ SCMO_RC SCMOInstance::_getPropertyAtNodeIndex(
     Uint64 start =
         (const char*)
                &(theClassPropNodeArray[node].theProperty.defaultValue.value) -
-        (inst.hdr->theClass->cls.base);
+        (inst.hdr->theClass.ptr->cls.base);
 
     *pvalue = _resolveSCMBUnion(
         type,
         isArray,
         size,
         start,
-        (inst.hdr->theClass->cls.base)
+        (inst.hdr->theClass.ptr->cls.base)
         );
 
     return SCMO_OK;
@@ -3944,7 +3944,7 @@ SCMOInstance SCMOInstance::clone(Boolean objectPathOnly) const
     if (objectPathOnly)
     {
         // Create a new, empty SCMOInstance
-        SCMOInstance newInst(*(this->inst.hdr->theClass));
+        SCMOInstance newInst(*(this->inst.hdr->theClass.ptr));
 
         // Copy the host name to tha new instance-
         _setBinary(
@@ -4003,7 +4003,7 @@ void SCMOInstance::_clone()
     // reset the refcounter of this instance
     inst.hdr->refCount = 1;
     // keep the ref counter of the class correct !
-    inst.hdr->theClass = new SCMOClass(*(inst.hdr->theClass));
+    inst.hdr->theClass.ptr = new SCMOClass(*(inst.hdr->theClass.ptr));
     // keep the ref count for external references
     _copyExternalReferences();
 
@@ -4017,8 +4017,8 @@ void SCMOInstance::_copyKeyBindings(SCMOInstance& targetInst) const
         (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
 
     // Address the class keybinding information
-    const SCMBClass_Main* clshdr = inst.hdr->theClass->cls.hdr;
-    const char * clsbase = inst.hdr->theClass->cls.base;
+    const SCMBClass_Main* clshdr = inst.hdr->theClass.ptr->cls.hdr;
+    const char * clsbase = inst.hdr->theClass.ptr->cls.base;
     SCMBKeyBindingNode* scmoClassArray =
         (SCMBKeyBindingNode*)&(clsbase[clshdr->keyBindingSet.nodeArray.start]);
 
@@ -4348,7 +4348,7 @@ SCMO_RC SCMOInstance::getKeyBinding(
 
     *pvalue = 0;
 
-    rc = inst.hdr->theClass->_getKeyBindingNodeIndex(node,name);
+    rc = inst.hdr->theClass.ptr->_getKeyBindingNodeIndex(node,name);
     if (rc != SCMO_OK)
     {
         // look at the user defined key bindings.
@@ -4390,9 +4390,10 @@ SCMO_RC SCMOInstance::_getKeyBindingDataAtNodeIndex(
             (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
 
         // create a pointer to key binding node array of the class.
-        Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
+        Uint64 idx = inst.hdr->theClass.ptr->cls.hdr->
+            keyBindingSet.nodeArray.start;
         SCMBKeyBindingNode* theClassKeyBindNodeArray =
-            (SCMBKeyBindingNode*)&((inst.hdr->theClass->cls.base)[idx]);
+            (SCMBKeyBindingNode*)&((inst.hdr->theClass.ptr->cls.base)[idx]);
 
         type = theClassKeyBindNodeArray[node].type;
 
@@ -4400,7 +4401,7 @@ SCMO_RC SCMOInstance::_getKeyBindingDataAtNodeIndex(
         pnameLen = theClassKeyBindNodeArray[node].name.size;
         *pname = _getCharString(
             theClassKeyBindNodeArray[node].name,
-            inst.hdr->theClass->cls.base);
+            inst.hdr->theClass.ptr->cls.base);
 
         // There is no value set in the instance
         if (!theInstKeyBindValueArray[node].isSet)
@@ -4789,12 +4790,13 @@ SCMO_RC SCMOInstance::_setKeyBindingFromString(
         return SCMO_INVALID_PARAMETER;
     }
 
-    if (SCMO_OK == inst.hdr->theClass->_getKeyBindingNodeIndex(node,name))
+    if (SCMO_OK == inst.hdr->theClass.ptr->_getKeyBindingNodeIndex(node,name))
     {
         // create a pointer to keybinding node array of the class.
-        Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
+        Uint64 idx = inst.hdr->theClass.ptr->cls.hdr->
+            keyBindingSet.nodeArray.start;
         SCMBKeyBindingNode* theClassKeyBindNodeArray =
-            (SCMBKeyBindingNode*)&((inst.hdr->theClass->cls.base)[idx]);
+            (SCMBKeyBindingNode*)&((inst.hdr->theClass.ptr->cls.base)[idx]);
 
         // create a pointer to instance keybinding values
         SCMBKeyBindingValue* theInstKeyBindValueArray =
@@ -4851,7 +4853,7 @@ SCMO_RC SCMOInstance::setKeyBinding(
 
     _copyOnWrite();
 
-    rc = inst.hdr->theClass->_getKeyBindingNodeIndex(node,name);
+    rc = inst.hdr->theClass.ptr->_getKeyBindingNodeIndex(node,name);
     if (rc != SCMO_OK)
     {
         // the key bindig does not belong to the associated class
@@ -4902,9 +4904,10 @@ SCMO_RC SCMOInstance::setKeyBindingAt(
     _copyOnWrite();
 
    // create a pointer to keybinding node array of the class.
-    Uint64 idx = inst.hdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
+    Uint64 idx = inst.hdr->theClass.ptr->cls.hdr->
+        keyBindingSet.nodeArray.start;
     SCMBKeyBindingNode* theClassKeyBindNodeArray =
-        (SCMBKeyBindingNode*)&((inst.hdr->theClass->cls.base)[idx]);
+        (SCMBKeyBindingNode*)&((inst.hdr->theClass.ptr->cls.base)[idx]);
 
     // is the node a user defined key binding ?
     if (node >= inst.hdr->numberKeyBindings)
@@ -5189,7 +5192,7 @@ void SCMOInstance::setPropertyFilter(const char **propertyList)
     while (propertyList[i] != 0)
     {
         // the hash index of the property if the property name is found
-        rc = inst.hdr->theClass->_getProperyNodeIndex(node,propertyList[i]);
+        rc = inst.hdr->theClass.ptr->_getProperyNodeIndex(node,propertyList[i]);
 
         // if property is already in the filter
         // ( eg. key properties ) do not add them !
@@ -5219,8 +5222,8 @@ Uint32 SCMOInstance::_initPropFilterWithKeys()
 {
 
     // Get absolut pointer to the key property mask of the class.
-    Uint64 idx = inst.hdr->theClass->cls.hdr->keyPropertyMask.start;
-    Uint64* keyMask =(Uint64*)&(inst.hdr->theClass->cls.base)[idx];
+    Uint64 idx = inst.hdr->theClass.ptr->cls.hdr->keyPropertyMask.start;
+    Uint64* keyMask =(Uint64*)&(inst.hdr->theClass.ptr->cls.base)[idx];
 
     // Get absolut pointer to property filter mask
     Uint64* propertyFilterMask =
@@ -5233,14 +5236,14 @@ Uint32 SCMOInstance::_initPropFilterWithKeys()
         sizeof(Uint64)*(((inst.hdr->numberProperties-1)/64)+1));
 
     // Get absolut pointer to key index list of the class
-    idx=inst.hdr->theClass->cls.hdr->keyIndexList.start;
-    Uint32* keyIndex = (Uint32*)&(inst.hdr->theClass->cls.base)[idx];
+    idx=inst.hdr->theClass.ptr->cls.hdr->keyIndexList.start;
+    Uint32* keyIndex = (Uint32*)&(inst.hdr->theClass.ptr->cls.base)[idx];
 
     // Get absolut pointer to property filter index map of the instance
     Uint32* propertyFilterIndexMap =
         (Uint32*)&(inst.base[inst.hdr->propertyFilterIndexMap.start]);
 
-    Uint32 noKeys = inst.hdr->theClass->cls.hdr->keyBindingSet.number;
+    Uint32 noKeys = inst.hdr->theClass.ptr->cls.hdr->keyBindingSet.number;
     memcpy(propertyFilterIndexMap,keyIndex,sizeof(Uint32)*noKeys);
 
     // return the number of properties already in the filter index map
@@ -5405,7 +5408,7 @@ void SCMODump::dumpSCMOInstance(SCMOInstance& testInst) const
     fprintf(_out,"\nheader.totalSize=%llu",insthdr->header.totalSize);
     // The reference counter for this c++ class
     fprintf(_out,"\nrefCount=%i",insthdr->refCount.get());
-    fprintf(_out,"\ntheClass: %p",insthdr->theClass);
+    fprintf(_out,"\ntheClass: %p",insthdr->theClass.ptr);
     fprintf(_out,"\n\nThe Flags:");
     fprintf(_out,"\n   includeQualifiers: %s",
            (insthdr->flags.includeQualifiers ? "True" : "False"));
@@ -5473,7 +5476,7 @@ void SCMODump::dumpInstanceProperties(
     for (Uint32 i = 0, k = insthdr->numberProperties; i < k; i++)
     {
         fprintf(_out,"\n\nInstance property (#%3u) %s\n",i,
-                NULLSTR(insthdr->theClass->_getPropertyNameAtNode(i)));
+                NULLSTR(insthdr->theClass.ptr->_getPropertyNameAtNode(i)));
         if(insthdr->flags.isFiltered && !testInst._isPropertyInFilter(i))
         {
             fprintf(_out,"\nProperty is filtered out!");
@@ -5599,9 +5602,9 @@ void SCMODump::dumpSCMOInstanceKeyBindings(
     char* instbase = testInst.inst.base;
 
     // create a pointer to keybinding node array of the class.
-    Uint64 idx = insthdr->theClass->cls.hdr->keyBindingSet.nodeArray.start;
+    Uint64 idx = insthdr->theClass.ptr->cls.hdr->keyBindingSet.nodeArray.start;
     SCMBKeyBindingNode* theClassKeyBindNodeArray =
-        (SCMBKeyBindingNode*)&((insthdr->theClass->cls.base)[idx]);
+        (SCMBKeyBindingNode*)&((insthdr->theClass.ptr->cls.base)[idx]);
 
     SCMBKeyBindingValue* ptr =
         (SCMBKeyBindingValue*)
@@ -5619,7 +5622,7 @@ void SCMODump::dumpSCMOInstanceKeyBindings(
             fprintf(_out,"\n\nName: '%s'\nType: '%s'",
                 NULLSTR(_getCharString(
                     theClassKeyBindNodeArray[i].name,
-                    insthdr->theClass->cls.base)),
+                    insthdr->theClass.ptr->cls.base)),
                 cimTypeToString(theClassKeyBindNodeArray[i].type));
             printUnionValue(
                 theClassKeyBindNodeArray[i].type,
@@ -5632,7 +5635,7 @@ void SCMODump::dumpSCMOInstanceKeyBindings(
             fprintf(_out,"\n\nName: '%s': Not Set",
                 NULLSTR(_getCharString(
                     theClassKeyBindNodeArray[i].name,
-                    insthdr->theClass->cls.base)));
+                    insthdr->theClass.ptr->cls.base)));
         }
     }
 

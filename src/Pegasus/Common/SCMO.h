@@ -428,8 +428,15 @@ struct SCMBInstance_Main
     // Adjust alignment for 32/64 bit to compensate class pointer
     // On 64 bit systems this is an element of zero size
     char alignClassPtr32to64[8-sizeof(void*)];
-    // An absolute pointer/reference to the class SCMB for this instance
-    SCMOClass*          theClass;
+    
+    union
+    {
+        // An absolute pointer/reference to the class SCMB for this instance
+        SCMOClass*   ptr;
+        // To keept 64 Bit space for the pointer the same 
+        // size on 32 and 64 Bit systems.
+        Uint64       placeHolder; 
+    }theClass;    
 
     // Instance flags
     struct{

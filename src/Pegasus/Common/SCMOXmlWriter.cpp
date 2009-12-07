@@ -132,8 +132,8 @@ void SCMOXmlWriter::appendInstanceElement(
     // Append Instance Qualifiers:
     if (scmoInstance.inst.hdr->flags.includeQualifiers)
     {
-        SCMBClass_Main *classMain=scmoInstance.inst.hdr->theClass->cls.hdr;
-        char* clsbase = scmoInstance.inst.hdr->theClass->cls.base;
+        SCMBClass_Main *classMain=scmoInstance.inst.hdr->theClass.ptr->cls.hdr;
+        char* clsbase = scmoInstance.inst.hdr->theClass.ptr->cls.base;
 
         SCMBQualifier *theArray =
             (SCMBQualifier*)&(clsbase[classMain->qualifierArray.start]);
@@ -253,7 +253,7 @@ void SCMOXmlWriter::appendPropertyElement(
     SCMBClassProperty * propertyDef;
     // This is the absolute pointer at which the class info for the given
     // instance starts
-    const char* clsbase = scmoInstance.inst.hdr->theClass->cls.base;
+    const char* clsbase = scmoInstance.inst.hdr->theClass.ptr->cls.base;
 
     scmoInstance._getPropertyAt(
         pos,
@@ -680,30 +680,30 @@ void SCMOXmlWriter::appendClassElement(
     const SCMOInstance& cimClass)
 {
 
-    SCMBClass_Main* theClass = cimClass.inst.hdr->theClass->cls.hdr;
-    const char* clsBase = cimClass.inst.hdr->theClass->cls.base;
+    SCMBClass_Main* ptrClass = cimClass.inst.hdr->theClass.ptr->cls.hdr;
+    const char* clsBase = cimClass.inst.hdr->theClass.ptr->cls.base;
 
     // Class opening element:
     out << STRLIT("<CLASS NAME=\"");
     out.append(
-        &(clsBase[theClass->className.start]),
-        theClass->className.size-1);
+        &(clsBase[ptrClass->className.start]),
+        ptrClass->className.size-1);
 
     out.append('"',' ');
-    if (0 != theClass->superClassName.start)
+    if (0 != ptrClass->superClassName.start)
     {
         out << STRLIT(" SUPERCLASS=\"");
         out.append(
-            &(clsBase[theClass->superClassName.start]),
-            theClass->superClassName.size-1);
+            &(clsBase[ptrClass->superClassName.start]),
+            ptrClass->superClassName.size-1);
         out.append('"',' ');
     }
     out.append('>','\n');
 
     // Append class qualifiers
     SCMBQualifier *theArray =
-        (SCMBQualifier*)&(clsBase[theClass->qualifierArray.start]);
-    for (Uint32 i=0, n=theClass->numberOfQualifiers;i<n;i++)
+        (SCMBQualifier*)&(clsBase[ptrClass->qualifierArray.start]);
+    for (Uint32 i=0, n=ptrClass->numberOfQualifiers;i<n;i++)
     {
         SCMOXmlWriter::appendQualifierElement(out,theArray[i],clsBase);
     }

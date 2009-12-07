@@ -1073,6 +1073,11 @@ inline SCMO_RC SCMOInstance::getKeyBindingAtUnresolved(
         const char** valueBase) const
 {
     SCMO_RC rc = _getKeyBindingDataAtNodeIndex(node,pname,pnameLen,type,pdata);
+    // Adjust size to string length
+    if (pnameLen)
+    {
+        pnameLen--;
+    }
     *valueBase = inst.base;
     return rc;
 }

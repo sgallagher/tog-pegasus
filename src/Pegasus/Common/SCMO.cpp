@@ -6708,7 +6708,7 @@ Uint32 _utf8ICUncasecmp(
  * @return The relaive index of the free memory slot.
  */
 
-static Uint64 _getFreeSpace(
+Uint64 _getFreeSpace(
     SCMBDataPtr& ptr,
     Uint64 size,
     SCMBMgmt_Header** pmem)
@@ -6754,7 +6754,7 @@ static Uint64 _getFreeSpace(
     return start;
 }
 
-static void _setString(
+void _setString(
     const String& theString,
     SCMBDataPtr& ptr,
     SCMBMgmt_Header** pmem)
@@ -6785,7 +6785,7 @@ static void _setString(
     }
 }
 
-static void _setBinary(
+void _setBinary(
     const void* theBuffer,
     Uint64 bufferSize,
     SCMBDataPtr& ptr,
@@ -6814,7 +6814,7 @@ static void _setBinary(
     }
 }
 
-static void _destroyExternalReferencesInternal(SCMBMgmt_Header* memHdr)
+void _destroyExternalReferencesInternal(SCMBMgmt_Header* memHdr)
 {
 
     Uint32 number = memHdr->numberExtRef;

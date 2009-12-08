@@ -180,6 +180,7 @@ SCMOClass* mbGetSCMOClass(
             if (rc.rc == CMPI_RC_OK)
             {
                 ns = CMGetCharsPtr(nsCtxData.value.string, 0);
+                nsL = strlen(ns);
             }
         }
 

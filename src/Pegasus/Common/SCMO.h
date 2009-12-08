@@ -445,6 +445,7 @@ struct SCMBInstance_Main
       unsigned isFiltered:1;
       unsigned isClassOnly:1;
       unsigned isCompromised:1;
+      unsigned exportSetOnly:1;
     }flags;
 
     // Number of user defined key bindings

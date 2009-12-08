@@ -644,8 +644,6 @@ void CreateInstanceResponseHandler::transfer()
         }
         else
         {
-            fprintf(stderr,"TBD: Scaffold code for "
-                    "CreateInstanceResponseHandler::transfer()\n");
             scmoObjs[0].getCIMObjectPath(msg.instanceName);
         }
     }

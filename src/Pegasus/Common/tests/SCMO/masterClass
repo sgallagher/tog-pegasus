@@ -6,6 +6,9 @@ header.magic=F00FABCD
 header.totalSize=32768
 refCount=1
 
+The Flags:
+   isEmpty: False
+
 superClassName: 'CIM_ManagedElement'
 nameSpace: ''
 className: 'SCMO_TESTClass'

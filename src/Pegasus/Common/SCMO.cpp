@@ -42,6 +42,7 @@
 #include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/StrLit.h>
+#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
@@ -1561,23 +1562,39 @@ SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
     }
     else
     {
-        for(Uint32 i = 0, k = inst.hdr->numberProperties; i<k; i++)
-        {
-            SCMBValue* theInstPropArray =
-                (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
 
-            // was the property set by the provider ?
-            if(theInstPropArray[i].flags.isSet)
-            {
-                // no filtering. Counter is node index
-                CIMProperty theProperty=_getCIMPropertyAtNodeIndex(i);
+        if (inst.hdr->flags.exportSetOnly)
+         {
+             for(Uint32 i = 0, k = inst.hdr->numberProperties; i<k; i++)
+             {
+                 SCMBValue* theInstPropArray =
+                     (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
 
-                newInstance._rep->_properties.append(theProperty);
-            }
-        }
+                 // was the property set by the provider ?
+                 if(theInstPropArray[i].flags.isSet)
+                 {
+                     // no filtering. Counter is node index
+                     CIMProperty theProperty=_getCIMPropertyAtNodeIndex(i);
 
+                     newInstance._rep->_properties.append(theProperty);
+                 }
+             }
+         }
+         else
+         {
+             for(Uint32 i = 0, k = inst.hdr->numberProperties; i<k; i++)
+             {
+                 SCMBValue* theInstPropArray =
+                     (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
+
+                 // Set all properties in the CIMInstance gegarding they
+                 // are part of the SCMOInstance or the SCMOClass.
+                 CIMProperty theProperty=_getCIMPropertyAtNodeIndex(i);
+
+                 newInstance._rep->_properties.append(theProperty);
+             }
+         }
     }
-
     cimInstance = newInstance;
 
     return rc;
@@ -2415,7 +2432,7 @@ const char* SCMOInstance::getNameSpace_l(Uint64 & length) const
 
 void SCMOInstance::buildKeyBindingsFromProperties()
 {
-    Uint32* theClassKeyPropList = 
+    Uint32* theClassKeyPropList =
         (Uint32*) &((inst.hdr->theClass.ptr->cls.base)
                     [(inst.hdr->theClass.ptr->cls.hdr->keyIndexList.start)]);
 
@@ -2658,6 +2675,10 @@ void SCMOInstance::_setCIMInstance(const CIMInstance& cimInstance)
     // The instance level qualifiers are stored on the associated SCMOClass.
     inst.hdr->flags.includeQualifiers=(instRep->_qualifiers.getCount()>0);
 
+    // To ensure that at converting a CIMInstance to a SCMOInstance
+    // and vice versa do have the same property set.
+    inst.hdr->flags.exportSetOnly=true;
+
     _setCIMObjectPath(instRep->_reference);
 
     // Copy all properties
@@ -2684,26 +2705,50 @@ void SCMOInstance::_setCIMInstance(const CIMInstance& cimInstance)
             propNode,
             (const char*)propRep->_name.getString().getCString());
 
-        if (rc != SCMO_OK)
-        {
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NO_SUCH_PROPERTY,
-               propRep->_name.getString());
-        }
-        // The type stored in the class information is set on realType.
-        // It must be used in further calls to guaranty consistence.
-        rc = inst.hdr->theClass.ptr->_isNodeSameType(
-                 propNode,
-                 propRep->_value._rep->type,
-                 propRep->_value._rep->isArray,
-                 realType);
         if (rc == SCMO_OK)
         {
-            _setCIMValueAtNodeIndex(propNode, propRep->_value._rep,realType);
+            // The type stored in the class information is set on realType.
+            // It must be used in further calls to guaranty consistence.
+            rc = inst.hdr->theClass.ptr->_isNodeSameType(
+                     propNode,
+                     propRep->_value._rep->type,
+                     propRep->_value._rep->isArray,
+                     realType);
+            if (rc == SCMO_OK)
+            {
+                _setCIMValueAtNodeIndex(
+                    propNode,
+                    propRep->_value._rep,
+                    realType);
+            }
+            else
+            {
+                PEG_TRACE((TRC_DISCARDED_DATA,Tracer::LEVEL2,
+                    "CIMProperty '%s' with type '%s' "
+                        "can not be set at SCMOInstance."
+                        "It is has not same type '%s' as defined in "
+                        "class '%s' of name space '%s'",
+                     cimTypeToString(propRep->_value._rep->type),
+                    (const char*)propRep->_name.getString().getCString(),
+                     cimTypeToString(realType),
+                    (const char*)instRep->_reference._rep->
+                           _className.getString().getCString(),
+                    (const char*)instRep->_reference._rep->
+                           _nameSpace.getString().getCString()));
+            }
+
         }
         else
         {
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_TYPE_MISMATCH,
-               propRep->_name.getString());
+
+            PEG_TRACE((TRC_DISCARDED_DATA,Tracer::LEVEL2,
+                "CIMProperty '%s' can not be set at SCMOInstance."
+                    "It is not part of class '%s' of name space '%s'",
+                (const char*)propRep->_name.getString().getCString(),
+                (const char*)instRep->_reference._rep->
+                       _className.getString().getCString(),
+                (const char*)instRep->_reference._rep->
+                       _nameSpace.getString().getCString()));
         }
     }
 }
@@ -2927,6 +2972,7 @@ void SCMOInstance::_setPropertyAtNodeIndex(
     }
     else
     {
+        theInstPropNodeArray[node].flags.isNull=false;
         _setSCMBUnion(
             pInVal,
             type,
@@ -5420,6 +5466,8 @@ void SCMODump::dumpSCMOInstance(SCMOInstance& testInst) const
            (insthdr->flags.isClassOnly ? "True" : "False"));
     fprintf(_out,"\n   isCompromised: %s",
            (insthdr->flags.isCompromised ? "True" : "False"));
+    fprintf(_out,"\n   exportSetOnly: %s",
+           (insthdr->flags.exportSetOnly ? "True" : "False"));
     fprintf(_out,"\n\ninstNameSpace: \'%s\'",
            NULLSTR(_getCharString(insthdr->instNameSpace,instbase)));
     fprintf(_out,"\n\ninstClassName: \'%s\'",
@@ -5686,7 +5734,9 @@ void SCMODump::dumpSCMOClass(SCMOClass& testCls) const
     fprintf(_out,"\nheader.totalSize=%llu",clshdr->header.totalSize);
     // The reference counter for this c++ class
     fprintf(_out,"\nrefCount=%i",clshdr->refCount.get());
-
+    fprintf(_out,"\n\nThe Flags:");
+    fprintf(_out,"\n   isEmpty: %s",
+           (clshdr->flags.isEmpty ? "True" : "False"));
     fprintf(_out,"\n\nsuperClassName: \'%s\'",
            NULLSTR(_getCharString(clshdr->superClassName,clsbase)));
     fprintf(_out,"\nnameSpace: \'%s\'",

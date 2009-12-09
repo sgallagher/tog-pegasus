@@ -295,14 +295,18 @@ Boolean ProviderAgent::_readAndProcessRequest()
         return false;
     }
 
-    // A "wake up" message means we should unload idle providers
+    // The message was not a request message.
     if (request == 0)
     {
-        // it was no empty message send !
+        // The message was not empty.
         if (0 != cimMessage )
         {
+            // The message was not a "wake up" message.
             if (cimMessage->getType() == PROVAGT_GET_SCMOCLASS_RESPONSE_MESSAGE)
             {
+
+                PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL3,
+                    "Processing a SCMOClassResponseMessage.");
 
                 AutoPtr<ProvAgtGetScmoClassResponseMessage> response(
                     dynamic_cast<ProvAgtGetScmoClassResponseMessage*>
@@ -312,14 +316,13 @@ Boolean ProviderAgent::_readAndProcessRequest()
 
                 _processGetSCMOClassResponse(response.get());
 
+                // The provider agent is still busy.
                 PEG_METHOD_EXIT();
-                return false;
-
-
+                return true;
            }
-
         }
 
+        // A "wake up" message means we should unload idle providers
         PEG_TRACE_CSTRING(TRC_PROVIDERAGENT, Tracer::LEVEL4,
             "Got a wake up message.");
 
@@ -631,6 +634,8 @@ Message* ProviderAgent::_processRequest(CIMRequestMessage* request)
 void ProviderAgent::_processGetSCMOClassResponse(
     ProvAgtGetScmoClassResponseMessage* response)
 {
+    PEG_METHOD_ENTER(TRC_PROVIDERAGENT,
+        "ProviderAgent::_processGetSCMOClassResponse");
     //
     // The provider agent requests a SCMOClass from the server by
     // _scmoClassCache_GetClass()
@@ -651,6 +656,7 @@ void ProviderAgent::_processGetSCMOClassResponse(
     // signal delivery of SCMOClass to _scmoClassCache_GetClass()
     _scmoClassDelivered.signal();
 
+    PEG_METHOD_EXIT();
 }
 
 void ProviderAgent::_writeResponse(Message* message)

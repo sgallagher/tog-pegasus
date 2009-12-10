@@ -292,9 +292,9 @@ extern "C"
 
         if (scmoOp->isCompromised())
         {
-            Uint64 nsL;
+            Uint32 nsL;
             const char* ns = scmoOp->getNameSpace_l(nsL);
-            Uint64 cnL;
+            Uint32 cnL;
             const char* cn = scmoOp->getClassName_l(cnL);
             SCMOClass* scmoClass = mbGetSCMOClass(ns,nsL,cn,cnL);
             if (0 == scmoClass)
@@ -664,11 +664,11 @@ extern "C"
             return 0;
         }
         SCMOInstance* cop = (SCMOInstance*)eCp->hdl;
-        Uint64 nsL;
+        Uint32 nsL;
         const char *ns = cop->getNameSpace_l(nsL);
-        Uint64 clsL;
+        Uint32 clsL;
         const char *cls = cop->getClassName_l(clsL);
-        Uint64 typeL=strlen(type);
+        Uint32 typeL=strlen(type);
 
         if (System::strncasecmp(type, typeL, cls, clsL))
         {

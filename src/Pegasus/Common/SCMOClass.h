@@ -142,7 +142,7 @@ public:
      * @retuns The super class name.
      *         If not available a NULL pointer is returned
      */
-    const char* getSuperClassName_l(Uint64 & length) const;
+    const char* getSuperClassName_l(Uint32 & length) const;
 
     static StrLit qualifierNameStrLit(Uint32 num)
     {

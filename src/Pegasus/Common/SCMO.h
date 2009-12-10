@@ -75,7 +75,7 @@ struct SCMBDataPtr
     // start index of the data area
     Uint64      start;
     // size of data area
-    Uint64      size;
+    Uint32      size;
 };
 
 //
@@ -212,7 +212,7 @@ union SCMBUnion
     // including the length ( without traling '\0')
     struct
     {
-        Uint64 length;
+        Uint32 length;
         char*  pchar;
     }extString;
 };
@@ -425,10 +425,6 @@ struct SCMBInstance_Main
     // The reference counter for this instance
     AtomicInt           refCount;
 
-    // Adjust alignment for 32/64 bit to compensate class pointer
-    // On 64 bit systems this is an element of zero size
-    char alignClassPtr32to64[8-sizeof(void*)];
-
     union
     {
         // An absolute pointer/reference to the class SCMB for this instance
@@ -562,7 +558,7 @@ inline Uint32 _generateSCMOStringTag(
 // The static declaration of the common SCMO memory functions
 static Uint64 _getFreeSpace(
     SCMBDataPtr& ptr,
-    Uint64 size,
+    Uint32 size,
     SCMBMgmt_Header** pmem);
 
 static void _setString(
@@ -572,7 +568,7 @@ static void _setString(
 
 static void _setBinary(
     const void* theBuffer,
-    Uint64 bufferSize,
+    Uint32 bufferSize,
     SCMBDataPtr& ptr,
     SCMBMgmt_Header** pmem);
 
@@ -607,7 +603,9 @@ static inline Boolean _equalNoCaseUTF8Strings(
     const char* a = (const char*)_getCharString(ptr_a,base);
     return ( _utf8ICUncasecmp(a,name,len)== 0);
 #else
-    return System::strncasecmp(&base[ptr_a.start],ptr_a.size-1,name,len);
+    return System::strncasecmp(
+        &base[ptr_a.start],
+        Uint32(ptr_a.size-1),name,len);
 #endif
 }
 

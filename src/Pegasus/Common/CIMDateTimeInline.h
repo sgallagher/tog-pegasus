@@ -305,7 +305,7 @@ static inline void _DateTimetoCStr(const CIMDateTimeRep& rep, char buffer[26])
             minutes,
             seconds,
             microseconds,
-            rep.sign,
+            char(rep.sign),
             rep.utcOffset);
     }
 

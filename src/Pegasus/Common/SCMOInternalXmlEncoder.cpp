@@ -74,7 +74,7 @@ void SCMOInternalXmlEncoder::_putXMLInstance(
             out.putBytes(buf.getData(), buf.size());
 
             // Write hostname and namespace in UTF-16 format
-            Uint64 len=0;
+            Uint32 len=0;
             const char* hn = ci.getHostName_l(len);
             out.putUTF8AsString(hn, len);
             const char * ns = ci.getNameSpace_l(len);
@@ -123,7 +123,7 @@ void SCMOInternalXmlEncoder::_putXMLNamedInstance(
             out.putBytes(buf.getData(), buf.size());
 
             // Write hostname and namespace in UTF-16 format
-            Uint64 len=0;
+            Uint32 len=0;
             const char* hn = ci.getHostName_l(len);
             out.putUTF8AsString(hn, len);
             const char * ns = ci.getNameSpace_l(len);
@@ -172,7 +172,7 @@ void SCMOInternalXmlEncoder::_putXMLObject(
             out.putBytes(buf.getData(), buf.size());
 
             // Write hostname and namespace in UTF-16 format
-            Uint64 len=0;
+            Uint32 len=0;
             const char* hn = co.getHostName_l(len);
             out.putUTF8AsString(hn, len);
             const char * ns = co.getNameSpace_l(len);

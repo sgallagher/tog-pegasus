@@ -325,7 +325,7 @@ const char* SCMOClass::getSuperClassName() const
     return _getCharString(cls.hdr->superClassName,cls.base);
 }
 
-const char* SCMOClass::getSuperClassName_l(Uint64 & length) const
+const char* SCMOClass::getSuperClassName_l(Uint32 & length) const
 {
     length = cls.hdr->superClassName.size;
     if (0 == length)
@@ -1231,7 +1231,7 @@ SCMOInstance::SCMOInstance(CIMClass& theCIMClass, const char* altNameSpace)
 SCMOInstance::SCMOInstance(
     const CIMInstance& cimInstance,
     const char* altNameSpace,
-    Uint64 altNSLen)
+    Uint32 altNSLen)
 {
     SCMOClass theSCMOClass = _getSCMOClass(
         cimInstance._rep->_reference,
@@ -1254,7 +1254,7 @@ SCMOInstance::SCMOInstance(
 SCMOInstance::SCMOInstance(
     const CIMObject& cimObject,
     const char* altNameSpace,
-    Uint64 altNSLen)
+    Uint32 altNSLen)
 {
     if (cimObject.isClass())
     {
@@ -1290,7 +1290,7 @@ SCMOInstance::SCMOInstance(
 SCMOInstance::SCMOInstance(
     const CIMObjectPath& cimObj,
     const char* altNameSpace,
-    Uint64 altNSLen)
+    Uint32 altNSLen)
 {
     SCMOClass theSCMOClass = _getSCMOClass(
         cimObj,
@@ -1318,7 +1318,7 @@ void SCMOInstance::_destroyExternalReferences()
 SCMOClass SCMOInstance::_getSCMOClass(
     const CIMObjectPath& theCIMObj,
     const char* altNS,
-    Uint64 altNSlength)
+    Uint32 altNSlength)
 {
     SCMOClass theClass;
 
@@ -2303,7 +2303,7 @@ void SCMOInstance::setHostName(const char* hostName)
     _setBinary(hostName,len+1,inst.hdr->hostName,&inst.mem);
 }
 
-void SCMOInstance::setHostName_l(const char* hostName, Uint64 len)
+void SCMOInstance::setHostName_l(const char* hostName, Uint32 len)
 {
     // Copy on Write is only necessary if a realloc() becomes necessary
     if (inst.mem->freeBytes < len)
@@ -2319,7 +2319,7 @@ const char* SCMOInstance::getHostName() const
     return _getCharString(inst.hdr->hostName,inst.base);
 }
 
-const char* SCMOInstance::getHostName_l(Uint64& length) const
+const char* SCMOInstance::getHostName_l(Uint32& length) const
 {
     length = inst.hdr->hostName.size;
     if (0 == length)
@@ -2350,7 +2350,7 @@ void SCMOInstance::setClassName(const char* className)
     _setBinary(className,len+1,inst.hdr->instClassName,&inst.mem);
 }
 
-void SCMOInstance::setClassName_l(const char* className, Uint64 len)
+void SCMOInstance::setClassName_l(const char* className, Uint32 len)
 {
     _copyOnWrite();
 
@@ -2366,7 +2366,7 @@ const char* SCMOInstance::getClassName() const
     return _getCharString(inst.hdr->instClassName,inst.base);
 }
 
-const char* SCMOInstance::getClassName_l(Uint64 & length) const
+const char* SCMOInstance::getClassName_l(Uint32 & length) const
 {
     length = inst.hdr->instClassName.size;
     if (0 == length)
@@ -2398,7 +2398,7 @@ void SCMOInstance::setNameSpace(const char* nameSpace)
     _setBinary(nameSpace,len+1,inst.hdr->instNameSpace,&inst.mem);
 }
 
-void SCMOInstance::setNameSpace_l(const char* nameSpace, Uint64 len)
+void SCMOInstance::setNameSpace_l(const char* nameSpace, Uint32 len)
 {
     // Copy on Write is only necessary if a realloc() becomes necessary
     if (inst.mem->freeBytes < len)
@@ -2416,7 +2416,7 @@ const char* SCMOInstance::getNameSpace() const
     return _getCharString(inst.hdr->instNameSpace,inst.base);
 }
 
-const char* SCMOInstance::getNameSpace_l(Uint64 & length) const
+const char* SCMOInstance::getNameSpace_l(Uint32 & length) const
 {
     length = inst.hdr->instNameSpace.size;
     if (0 == length)
@@ -3142,7 +3142,7 @@ void SCMOInstance::_setUnionArrayValue(
     CIMType type,
     Uint32& n,
     Uint64 startNS,
-    Uint64 sizeNS,
+    Uint32 sizeNS,
     Union& u)
 {
     SCMBUnion* scmoUnion = (SCMBUnion*)&(((char*)*pmem)[start]);
@@ -3636,7 +3636,7 @@ void SCMOInstance::_setUnionValue(
     SCMBMgmt_Header** pmem,
     CIMType type,
     Uint64 startNS,
-    Uint64 sizeNS,
+    Uint32 sizeNS,
     Union& u)
 {
     SCMBUnion* scmoUnion = (SCMBUnion*)&(((char*)*pmem)[start]);
@@ -4036,13 +4036,13 @@ SCMOInstance SCMOInstance::clone(Boolean objectPathOnly) const
 void SCMOInstance::_clone()
 {
     char* newBase;
-    newBase = (char*)malloc(inst.mem->totalSize);
+    newBase = (char*)malloc((size_t)inst.mem->totalSize);
     if (0 == newBase )
     {
         throw PEGASUS_STD(bad_alloc)();
     }
 
-    memcpy( newBase,inst.base,inst.mem->totalSize);
+    memcpy( newBase,inst.base,(size_t)inst.mem->totalSize);
 
     // make new new memory block to mine.
     inst.base = newBase;
@@ -5431,15 +5431,35 @@ SCMODump::~SCMODump()
 
 Boolean SCMODump::compareFile(String master)
 {
-
     if (!_fileOpen)
     {
         return false;
     }
-
     closeFile();
 
-    return (FileSystem::compareFiles(_filename, master));
+    ifstream isMaster;
+    ifstream isDumpFile;
+
+    Open(isDumpFile, _filename);
+    Open(isMaster, master);
+
+    String aLine;
+    String bLine;
+
+    while (GetLine(isDumpFile, aLine) && GetLine(isMaster, bLine))
+    {
+        if (aLine != bLine)
+        {
+            cout << "|" << aLine << "|" << endl;
+            cout << "|" << bLine << "|" << endl;
+            isDumpFile.close();
+            isMaster.close();
+            return false;
+        }
+    };
+    isDumpFile.close();
+    isMaster.close();
+    return true;
 }
 
 void SCMODump::dumpSCMOInstance(SCMOInstance& testInst) const
@@ -6116,7 +6136,7 @@ void SCMODump::dumpKeyPropertyMask(SCMOClass& testCls ) const
      }
 }
 
-void SCMODump::_hexDump(char* buffer,int length) const
+void SCMODump::_hexDump(char* buffer,Uint64 length) const
 {
 
     unsigned char printLine[3][80];
@@ -6124,9 +6144,9 @@ void SCMODump::_hexDump(char* buffer,int length) const
     int len;
     unsigned char item;
 
-    for (int i = 0; i < length;i=i+1)
+    for (Uint64 i = 0; i < length;i=i+1)
     {
-        p = i%80;
+        p = (int)i%80;
 
         if ((p == 0 && i > 0) || i == length-1 )
         {
@@ -6380,14 +6400,14 @@ void SCMODump::printArrayValue(
 
     case CIMTYPE_STRING:
         {
-            SCMBDataPtr* p = (SCMBDataPtr*)&(base[u.arrayValue.start]);
             for (Uint32 i = 0; i < size; i++)
             {
-                if ( 0 != p[i].size)
+                if ( 0 != p[i].stringValue.size)
                 {
                     out.append('\'');
-                    out.append((const char*)_getCharString(p[i],base),
-                               p[i].size-1);
+                    out.append(
+                        (const char*)_getCharString(p[i].stringValue,base),
+                        p[i].stringValue.size-1);
                     out.append('\'');
                 }
                 else
@@ -6402,11 +6422,10 @@ void SCMODump::printArrayValue(
 
     case CIMTYPE_DATETIME:
         {
-            SCMBDateTime* p = (SCMBDateTime*)&(base[u.arrayValue.start]);
             CIMDateTime x;
             for (Uint32 i = 0; i < size; i++)
             {
-                memcpy(x._rep,&(p[i]),sizeof(SCMBDateTime));
+                memcpy(x._rep,&(p[i].dateTimeValue),sizeof(SCMBDateTime));
                 _toString(out,x);
                 out.append(' ');
             }
@@ -6425,7 +6444,7 @@ void SCMODump::printArrayValue(
                     fprintf(_out,"\n-----------> "
                                   "Start of embedded external reference [%d]"
                                   " <-----------\n\n",i);
-                    dumpSCMOInstance(*u.extRefPtr);
+                    dumpSCMOInstance(*(p[i].extRefPtr));
                     fprintf(_out,"\n-----------> "
                                   "End of embedded external reference [%d]"
                                   " <-----------\n\n",i);
@@ -6710,7 +6729,7 @@ Uint32 _utf8ICUncasecmp(
 
 Uint64 _getFreeSpace(
     SCMBDataPtr& ptr,
-    Uint64 size,
+    Uint32 size,
     SCMBMgmt_Header** pmem)
 {
     Uint64 oldSize, start;
@@ -6733,7 +6752,7 @@ Uint64 _getFreeSpace(
         oldSize = (*pmem)->totalSize;
         // reallocate the buffer, double the space !
         // This is a working approach until a better algorithm is found.
-        void* newBlockPtr = realloc((*pmem),oldSize*2);
+        void* newBlockPtr = realloc((*pmem),(size_t)oldSize*2);
         if ((newBlockPtr) == 0)
         {
             // Not enough memory!
@@ -6749,7 +6768,7 @@ Uint64 _getFreeSpace(
     (*pmem)->startOfFreeSpace += size;
 
     // Init memory to 0.
-    memset(&((char*)(*pmem))[start],0,size);
+    memset(&((char*)(*pmem))[start],0,(size_t)size);
 
     return start;
 }
@@ -6765,7 +6784,8 @@ void _setString(
     // Get the real size of the UTF8 sting + \0.
     // It maybe greater then the length in the String due to
     // 4 byte encoding of non ASCII chars.
-    Uint64 start,length = strlen((const char*)theCString)+1;
+    Uint64 start;
+    Uint32 length = strlen((const char*)theCString)+1;
 
     // If the string is not empty.
     if (length != 1)
@@ -6787,7 +6807,7 @@ void _setString(
 
 void _setBinary(
     const void* theBuffer,
-    Uint64 bufferSize,
+    Uint32 bufferSize,
     SCMBDataPtr& ptr,
     SCMBMgmt_Header** pmem)
 {

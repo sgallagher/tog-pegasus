@@ -301,7 +301,7 @@ void SCMOStreamer::_putClasses(
         out.putUint64(size);
 
         // Write class data
-        out.putBytes(clsArray[x],size);
+        out.putBytes(clsArray[x],(size_t)size);
     }
 
 }
@@ -328,14 +328,14 @@ bool SCMOStreamer::_getClasses(
         }
 
         // Read class data
-        SCMBClass_Main* scmbClassPtr = (SCMBClass_Main*)malloc(size);
+        SCMBClass_Main* scmbClassPtr = (SCMBClass_Main*)malloc((size_t)size);
         if (0 == scmbClassPtr)
         {
             // Not enough memory!
             throw PEGASUS_STD(bad_alloc)();
         }
 
-        if (!in.getBytes(scmbClassPtr,size))
+        if (!in.getBytes(scmbClassPtr,(size_t)size))
         {
             return false;
         }
@@ -385,7 +385,7 @@ void SCMOStreamer::_putInstances()
         _buf.putUint64(size);
 
         // Write class data
-        _buf.putBytes(instPtr,size);
+        _buf.putBytes(instPtr,(size_t)size);
     }
 }
 
@@ -443,14 +443,15 @@ bool SCMOStreamer::_getInstances()
         // updates without reallocation
 
         // Read instance data
-        SCMBInstance_Main* scmbInstPtr = (SCMBInstance_Main*)malloc(size+64);
+        SCMBInstance_Main* scmbInstPtr =
+            (SCMBInstance_Main*)malloc((size_t)size+64);
         if (0 == scmbInstPtr)
         {
             // Not enough memory!
             throw PEGASUS_STD(bad_alloc)();
         }
 
-        if(!_buf.getBytes(scmbInstPtr,size))
+        if(!_buf.getBytes(scmbInstPtr,(size_t)size))
         {
             return false;
         }

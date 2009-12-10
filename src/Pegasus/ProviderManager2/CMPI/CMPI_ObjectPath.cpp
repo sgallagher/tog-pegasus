@@ -119,9 +119,9 @@ extern "C"
 
 
         // Check if the namespace is at all different from the one already set
-        Uint64 prevNamespaceL;
+        Uint32 prevNamespaceL;
         const char* prevNamespace = ref->getNameSpace_l(prevNamespaceL);
-        Uint64 nsL=strlen(ns);
+        Uint32 nsL=strlen(ns);
 
         if (prevNamespace &&
             System::strncasecmp(prevNamespace,prevNamespaceL,ns,nsL))
@@ -146,7 +146,7 @@ extern "C"
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
         }
-        Uint64 len=0;
+        Uint32 len=0;
         const char *ns = ref->getNameSpace_l(len);
         CMPIString *eNs = string2CMPIString(ns,len);
         CMSetStatus(rc, CMPI_RC_OK);
@@ -191,7 +191,7 @@ extern "C"
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
         }
-        Uint64 len=0;
+        Uint32 len=0;
         const char *hn = ref->getHostName_l(len);
         CMPIString *eHn = string2CMPIString(hn,len);
         CMSetStatus(rc, CMPI_RC_OK);
@@ -220,9 +220,9 @@ extern "C"
         }
 
         // Check if the classname is at all different from the one already set
-        Uint64 prevClsL;
+        Uint32 prevClsL;
         const char* prevCls = ref->getClassName_l(prevClsL);
-        Uint64 cnL=strlen(cn);
+        Uint32 cnL=strlen(cn);
 
         if (prevCls && System::strncasecmp(prevCls,prevClsL,cn,cnL))
         {
@@ -246,7 +246,7 @@ extern "C"
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_HANDLE);
             return NULL;
         }
-        Uint64 len=0;
+        Uint32 len=0;
         const char* cn = ref->getClassName_l(len);
         CMPIString* eCn = string2CMPIString(cn,len);
         CMSetStatus(rc, CMPI_RC_OK);

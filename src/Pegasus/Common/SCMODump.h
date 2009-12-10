@@ -124,7 +124,7 @@ private:
         const SCMBClassProperty& prop,
         char* clsbase) const;
 
-   void _hexDump(char* buffer,int length) const;
+   void _hexDump(char* buffer,Uint64 length) const;
 
    Boolean _fileOpen;
    FILE *_out;

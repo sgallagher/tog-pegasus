@@ -177,7 +177,7 @@ public:
     SCMOInstance(
         const CIMInstance& cimInstance,
         const char* altNameSpace=0,
-        Uint64 altNSLen=0);
+        Uint32 altNSLen=0);
 
     /**
      * Builds a SCMOInstance from the given CIMObjectPath copying all data.
@@ -194,7 +194,7 @@ public:
     SCMOInstance(
         const CIMObjectPath& cimObj,
         const char* altNameSpace=0,
-        Uint64 altNSLen=0);
+        Uint32 altNSLen=0);
 
     /**
      * Builds a SCMOInstance from the given CIMObject copying all data.
@@ -212,7 +212,7 @@ public:
     SCMOInstance(
         const CIMObject& cimObject,
         const char* altNameSpace=0,
-        Uint64 altNSLen=0);
+        Uint32 altNSLen=0);
 
     /**
      * Converts the SCMOInstance into a CIMInstance.
@@ -631,7 +631,7 @@ public:
      * @param hostName The host name as UTF8.
      * @param len The strlen of the host name.
      */
-    void setHostName_l(const char* hostName, Uint64 len);
+    void setHostName_l(const char* hostName, Uint32 len);
 
     /**
      * Get the host name of the instance. The caller has to make a copy !
@@ -644,7 +644,7 @@ public:
      * @param Return strlen of result string.
      * @return The class name as UTF8.
      */
-    const char* getHostName_l(Uint64 & length) const;
+    const char* getHostName_l(Uint32 & length) const;
 
     /**
      * Sets the provided class name at the instance. By caling this function
@@ -659,7 +659,7 @@ public:
      * @param className The class name as UTF8.
      * @param len The strlen of the name space.
      */
-    void setClassName_l(const char* className, Uint64 len);
+    void setClassName_l(const char* className, Uint32 len);
 
     /**
      * Get the class name of the instance. The caller has to make a copy !
@@ -672,7 +672,7 @@ public:
      * @param lenght Return strlen of result string.
      * @return The class name as UTF8.
      */
-    const char* getClassName_l(Uint64 & length) const;
+    const char* getClassName_l(Uint32 & length) const;
 
     /**
      * Sets the provided name space name at the instance.
@@ -689,7 +689,7 @@ public:
      * @param nameSpaceName The name space name as UTF8.
      * @param len The strlen of the name space.
      */
-    void setNameSpace_l(const char* nameSpace, Uint64 len);
+    void setNameSpace_l(const char* nameSpace, Uint32 len);
 
     /**
      * Get the name space of the instance. The caller has to make a copy !
@@ -702,7 +702,7 @@ public:
      * @param Return strlen of result string.
      * @return The class name as UTF8.
      */
-    const char* getNameSpace_l(Uint64 & length) const;
+    const char* getNameSpace_l(Uint32 & length) const;
 
     /**
      * Is the name space or class name of the instance the origianl values
@@ -882,7 +882,7 @@ private:
     static SCMOClass _getSCMOClass(
         const CIMObjectPath& theCIMObj,
         const char* altNS,
-        Uint64 altNSlength);
+        Uint32 altNSlength);
 
     CIMProperty _getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const;
 
@@ -907,7 +907,7 @@ private:
         SCMBMgmt_Header** pmem,
         CIMType type,
         Uint64 startNS,
-        Uint64 lenNS,
+        Uint32 lenNS,
         Union& u);
 
     static void _setUnionArrayValue(
@@ -916,7 +916,7 @@ private:
         CIMType type,
         Uint32& n,
         Uint64 startNS,
-        Uint64 lenNS,
+        Uint32 lenNS,
         Union& u);
 
     static void _setExtRefIndex(SCMBUnion* pInst, SCMBMgmt_Header** pmem);

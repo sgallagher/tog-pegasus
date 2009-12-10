@@ -497,9 +497,9 @@ extern "C"
             // It is not possible to have an instance or objectPath in
             // this implementation without a classname or namespace.
             const char* nsRef = ref->getNameSpace();
-            Uint64 clsRefL;
+            Uint32 clsRefL;
             const char* clsRef = ref->getClassName_l(clsRefL);
-            Uint64 clsPrevInstL;
+            Uint32 clsPrevInstL;
             const char* clsPrevInst = prevInst->getClassName_l(clsPrevInstL);
 
             if (System::strncasecmp(clsRef,clsRefL,clsPrevInst,clsPrevInstL))

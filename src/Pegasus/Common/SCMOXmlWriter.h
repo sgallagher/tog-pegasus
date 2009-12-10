@@ -132,7 +132,7 @@ private:
     static void appendLocalNameSpacePathElement(
         Buffer& out,
         const char * nameSpace,
-        Uint64 nameSpaceLength)
+        Uint32 nameSpaceLength)
     {
         // add one byte for the closing \0
         nameSpaceLength++;
@@ -179,9 +179,9 @@ private:
     static void appendNameSpacePathElement(
         Buffer& out,
         const char* host,
-        Uint64 hostLength,
+        Uint32 hostLength,
         const char * nameSpace,
-        Uint64 nameSpaceLength)
+        Uint32 nameSpaceLength)
     {
         out << STRLIT("<NAMESPACEPATH>\n""<HOST>");
         out.append(host, hostLength);
@@ -199,7 +199,7 @@ private:
     static void appendClassNameElement(
         Buffer& out,
         const char* className,
-        Uint64 classNameLength)
+        Uint32 classNameLength)
     {
         out << STRLIT("<CLASSNAME NAME=\"");
         out.append(className, classNameLength);

@@ -370,7 +370,7 @@ void CIMResponseData::encodeBinaryResponse(CIMBuffer& out)
 void CIMResponseData::completeNamespace(const SCMOInstance * x)
 {
     const char * ns;
-    Uint64 len;
+    Uint32 len;
     ns = x->getNameSpace_l(len);
     // Both internal XML as well as binary always contain a namespace
     // don't have to do anything for those two encodings

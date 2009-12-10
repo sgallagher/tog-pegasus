@@ -103,7 +103,7 @@ CMPI_Object::CMPI_Object(const char *str)
     ftab = CMPI_String_Ftab;
 }
 
-CMPI_Object::CMPI_Object(const char *str, Uint64 len)
+CMPI_Object::CMPI_Object(const char *str, Uint32 len)
 {
     CMPI_ThreadContext::addObject(this);
     char * newStr = (char*)malloc(len+1);

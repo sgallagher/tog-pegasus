@@ -44,6 +44,10 @@ public:
     static void _putXMLInstance(CIMBuffer& out, const SCMOInstance& ci);
     static void _putXMLNamedInstance(CIMBuffer& out, const SCMOInstance& ci);
     static void _putXMLObject(CIMBuffer& out, const SCMOInstance& co);
+    static void _appendValueReferenceElement(
+        Buffer& out,
+        const SCMOInstance& ref);
+
 };
 
 PEGASUS_NAMESPACE_END

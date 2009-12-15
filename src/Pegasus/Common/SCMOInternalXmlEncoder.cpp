@@ -165,7 +165,7 @@ void SCMOInternalXmlEncoder::_putXMLObject(
         else
         {
             // Serialize object path as XML.
-            SCMOXmlWriter::appendValueReferenceElement(buf, co, true);
+            _appendValueReferenceElement(buf, co);
             buf.append('\0');
 
             out.putUint32(buf.size());
@@ -179,6 +179,17 @@ void SCMOInternalXmlEncoder::_putXMLObject(
             out.putUTF8AsString(ns, len);
         }
     }
+}
+
+void SCMOInternalXmlEncoder::_appendValueReferenceElement(
+    Buffer& out,
+    const SCMOInstance& ref)
+{
+    out << STRLIT("<VALUE.REFERENCE>\n");
+
+    SCMOXmlWriter::appendInstanceNameElement(out, ref);
+
+    out << STRLIT("</VALUE.REFERENCE>\n");
 }
 
 PEGASUS_NAMESPACE_END

@@ -11,7 +11,7 @@
 %{?!JMPI_PROVIDER_REQUESTED: %define JMPI_PROVIDER_REQUESTED 0}
 
 Summary:   OpenPegasus WBEM Services for Linux
-Name:      tog-pegasus
+Name:      %{Flavor}-pegasus
 Group:     Systems Management/Base
 License:   Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root

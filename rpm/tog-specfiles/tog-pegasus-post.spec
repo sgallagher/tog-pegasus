@@ -7,11 +7,11 @@
 
    if [ $1 -eq 1 ]; then
 %if %{AUTOSTART}
-       /sbin/chkconfig --add tog-pegasus
+       /sbin/chkconfig --add %{Flavor}-pegasus
 %endif
    :;
    elif [ $1 -gt 0 ]; then
-       /etc/init.d/tog-pegasus condrestart
+       /etc/init.d/%{Flavor}-pegasus condrestart
    :;
    fi
 #

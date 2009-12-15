@@ -56,6 +56,12 @@
 
 #define CIMSERVER_COMMAND_TIMEOUT_SECONDS 240
 
+#ifdef PEGASUS_FLAVOR
+# define CIMSERVER_LOG_IDENTITY "cimserver" PEGASUS_FLAVOR
+#else
+# define CIMSERVER_LOG_IDENTITY "cimserver"
+#endif
+
 /*
 **==============================================================================
 **
@@ -266,6 +272,7 @@ void DefineExecutorMacros(void)
 **==============================================================================
 */
 
+
 int main(int argc, char** argv)
 {
     const char* cimservermainPath;
@@ -291,7 +298,7 @@ int main(int argc, char** argv)
 
     /* Open the log. */
 
-    OpenLog("cimserver");
+    OpenLog(CIMSERVER_LOG_IDENTITY);
 
     /* Define macros needed by the executor. */
 

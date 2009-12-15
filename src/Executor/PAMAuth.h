@@ -49,6 +49,12 @@
 #include <Executor/Defines.h>
 #include <Executor/Socket.h>
 
+#ifdef PEGASUS_FLAVOR
+# define PAM_CONFIG_FILE "wbem" PEGASUS_FLAVOR
+#else
+# define PAM_CONFIG_FILE "wbem"
+#endif
+
 /*
 **==============================================================================
 **
@@ -403,7 +409,7 @@ static int PAMAuthenticateInProcess(
     pconv.appdata_ptr = &data;
 
 
-    if (pam_start("wbem", username, &pconv, &handle) != PAM_SUCCESS)
+    if (pam_start(PAM_CONFIG_FILE, username, &pconv, &handle) != PAM_SUCCESS)
         return -1;
 
     if (pam_authenticate(handle, 0) != PAM_SUCCESS)
@@ -442,7 +448,7 @@ static int PAMValidateUserInProcess(const char* username)
     pconv.conv = PAMValidateUserCallback;
     pconv.appdata_ptr = &data;
 
-    if (pam_start("wbem", username, &pconv, &phandle) != PAM_SUCCESS)
+    if (pam_start(PAM_CONFIG_FILE, username, &pconv, &phandle) != PAM_SUCCESS)
         return -1;
 
     if (pam_acct_mgmt(phandle, 0) != PAM_SUCCESS)

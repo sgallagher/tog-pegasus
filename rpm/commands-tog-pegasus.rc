@@ -33,7 +33,7 @@ if [ ! -x $CIMSERVER_BIN ]; then
     exit 1;
 fi;
 
-[ -e /etc/sysconfig/tog-pegasus ] && . /etc/sysconfig/tog-pegasus;
+[ -e /etc/sysconfig/${PEGASUS_FLAVOR}-pegasus ] && . /etc/sysconfig/${PEGASUS_FLAVOR}-pegasus;
 
 . /lib/lsb/init-functions
 RETVAL=0
@@ -43,7 +43,7 @@ case "$1" in
 	if [ ! -e ${PEGASUS_SSL_CONF_FILE} ] || [ ! -e ${PEGASUS_SSL_CERT_FILE} ] ||
 	   [ ! -e ${PEGASUS_SSL_KEY_FILE} ]  || [ ! -e ${PEGASUS_SSL_TRUSTSTORE} ]; then
 	   if [ -x $PEGASUS_SCRIPT_DIR/genOpenPegasusSSLCerts ]; then
-	       echo -n "tog-pegasus: Generating cimserver SSL certificates...";
+	       echo -n "$(PEGASUS_FLAVOR)-pegasus: Generating cimserver SSL certificates...";
 	       $PEGASUS_SCRIPT_DIR/genOpenPegasusSSLCerts;
 	       if [ $? -eq 0 ]; then
 		   echo "SSL certificates generated";
@@ -62,7 +62,7 @@ case "$1" in
 
      stop)
 	echo -n $"Shutting down CIM server: "
-	killproc cimserver
+	killproc $CIMSERVER_BIN
 	RETVAL=$?
 	[ "$RETVAL" -eq 0 ] && log_success_msg $"$prog stop" || log_failure_msg $"$prog stop"
 	echo

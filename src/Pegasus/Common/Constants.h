@@ -336,10 +336,19 @@
 # else
 #  define PEGASUS_CIMSERVER_STARTFILES_DIR "/tmp"
 # endif
+
+#ifdef PEGASUS_FLAVOR
+# define PEGASUS_CIMSERVER_START_FILE      \
+    PEGASUS_CIMSERVER_STARTFILES_DIR "/cimserver" PEGASUS_FLAVOR "_start.conf"
+# define PEGASUS_CIMSERVER_START_LOCK_FILE \
+    PEGASUS_CIMSERVER_STARTFILES_DIR "/cimserver" PEGASUS_FLAVOR "_start.lock"
+#else
 # define PEGASUS_CIMSERVER_START_FILE      \
     PEGASUS_CIMSERVER_STARTFILES_DIR "/cimserver_start.conf"
 # define PEGASUS_CIMSERVER_START_LOCK_FILE \
     PEGASUS_CIMSERVER_STARTFILES_DIR "/cimserver_start.lock"
+#endif
+
 # define PEGASUS_REPOSITORY_DIR            "repository"
 # define PEGASUS_CURRENT_CONFIG_FILE_PATH  "cimserver_current.conf"
 # define PEGASUS_PLANNED_CONFIG_FILE_PATH  "cimserver_planned.conf"
@@ -347,8 +356,15 @@
 # define PEGASUS_SSLCLIENT_RANDOMFILE      "ssl.rnd"
 # define PEGASUS_SSLSERVER_RANDOMFILE      "cimserver.rnd"
 # define PEGASUS_LOCAL_AUTH_DIR            PEGASUS_CIMSERVER_STARTFILES_DIR
+
+#ifdef PEGASUS_FLAVOR
+# define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  \
+    PEGASUS_CIMSERVER_STARTFILES_DIR "/cimxml" PEGASUS_FLAVOR ".socket"
+#else
 # define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  \
     PEGASUS_CIMSERVER_STARTFILES_DIR "/cimxml.socket"
+#endif
+
 # define PEGASUS_PAM_STANDALONE_PROC_NAME  "bin/cimservera"
 # define PEGASUS_PROVIDER_AGENT_PROC_NAME  "bin/cimprovagt"
 # undef PEGASUS_DEFAULT_MESSAGE_SOURCE      /* Not defined */

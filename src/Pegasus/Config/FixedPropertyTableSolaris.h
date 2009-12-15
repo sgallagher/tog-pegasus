@@ -37,8 +37,10 @@
 #endif
 
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+#ifndef PEGASUS_FLAVOR
     {"httpPort",            "5988"},
     {"httpsPort",           "5989"},
+#endif
 #ifdef PEGASUS_ENABLE_SLP
     {"slp",                 "false"},
 #endif

@@ -1690,6 +1690,29 @@ additional information.</p>
      titled "Configuration Properties" for additional detail.<br>
 </ul>
 
+<h5>PEGASUS_FLAVOR</h5>
+<ul>
+  <b>Description:&nbsp;</b> This variable is used for configuring Multi CIMOM 
+     on same OS by eliminating single point for storage of PID's and configuration
+     files. Flavor is used in structuring the release dirs,configuration file names,
+     log identity and PAM config file.
+     If set, OpenPegasus is built using the flavor value. By default OpenPegasus is
+     built using "tog" as the flavor. RPMs are named using the flavor value.
+  <br>
+  <b>Default Value:&nbsp;</b>tog<br>
+  <b>Recommended Value (Development Build):&nbsp;</b>tog<br>
+  <b>Recommended Value (Release Build):&nbsp;</b>tog<br>
+  <b>Required:&nbsp;</b>No<br>
+  <b>Considerations:&nbsp;</b>
+     To build RPM using flavor, RPM spec file needs to be regenerated after setting the flavor value.
+     This can be done using the create_OpenPegasusRPMSpecFile target in the Makefile.Release.
+     Platforms have to define their own release dir structure using the flavor for release builds.
+     An error will be reported if both PEGASUS_FLAVOR and PEGASUS_USE_RELEASE_DIRS are set and
+     PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS is not set.
+     RPM build on linux defines PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS by default.
+  <br>
+</ul>
+
 <h5>PEGASUS_USE_SQLITE_REPOSITORY</h5>
 <ul>
   <b>Description:&nbsp;</b>If true, new repository stores are created

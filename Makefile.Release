@@ -291,6 +291,8 @@ setpermissions_PegasusProductDirectories: FORCE
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_DIR)
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_MANAGER_LIB_DIR)
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)
 
 stage_PegasusSocketDirectory: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)
@@ -457,27 +459,28 @@ stage_PegasusSystemFiles: FORCE
 ifeq ($(OS),linux)
 ifdef PEGASUS_PAM_AUTHENTICATION
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PAM_CONFIG_DIR)
-	$(COPY) $(ROOT)/rpm/wbem $(PEGASUS_STAGING_DIR)$(PAM_CONFIG_DIR)/wbem
+	$(COPY) $(ROOT)/rpm/wbem $(PEGASUS_STAGING_DIR)$(PAM_CONFIG_DIR)/$(PAM_CONFIG_FILE)
 	$(COPY) $(ROOT)/rpm/access.conf $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/access.conf
 endif
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)/etc/init.d
-	$(COPY) $(ROOT)/rpm/preamble-tog-pegasus.rc $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
-	@$(ECHO-E) "CIMSERVER_BIN=$(PEGASUS_SBIN_DIR)/cimserver" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
-	@$(ECHO-E) "PEGASUS_SCRIPT_DIR=$(PEGASUS_SCRIPT_DIR)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
-	@$(ECHO-E) "PEGASUS_SSL_CONF_FILE=$(PEGASUS_PEM_DIR)/ssl.cnf" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
-	@$(ECHO-E) "PEGASUS_SSL_CERT_FILE=$(PEGASUS_SSL_CERT_FILE_PATH)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
-	@$(ECHO-E) "PEGASUS_SSL_KEY_FILE=$(PEGASUS_SSL_KEY_FILE_PATH)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
-	@$(ECHO-E) "PEGASUS_SSL_TRUSTSTORE=$(PEGASUS_SSL_CLIENT_TRUSTSTORE)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
-	$(CAT) $(ROOT)/rpm/commands-tog-pegasus.rc >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
+	$(COPY) $(ROOT)/rpm/preamble-tog-pegasus.rc $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
+	@$(ECHO-E) "CIMSERVER_BIN=$(PEGASUS_SBIN_DIR)/cimserver" >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
+	@$(ECHO-E) "PEGASUS_SCRIPT_DIR=$(PEGASUS_SCRIPT_DIR)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
+	@$(ECHO-E) "PEGASUS_SSL_CONF_FILE=$(PEGASUS_PEM_DIR)/ssl.cnf" >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
+	@$(ECHO-E) "PEGASUS_SSL_CERT_FILE=$(PEGASUS_SSL_CERT_FILE_PATH)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
+	@$(ECHO-E) "PEGASUS_SSL_KEY_FILE=$(PEGASUS_SSL_KEY_FILE_PATH)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
+	@$(ECHO-E) "PEGASUS_SSL_TRUSTSTORE=$(PEGASUS_SSL_CLIENT_TRUSTSTORE)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
+	@$(ECHO-E) "PEGASUS_FLAVOR=$(PEGASUS_FLAVOR)" >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
+	$(CAT) $(ROOT)/rpm/commands-tog-pegasus.rc >> $(PEGASUS_STAGING_DIR)/etc/init.d/$(PEGASUS_FLAVOR)-pegasus
 endif
 
 setpermissions_PegasusSystemFiles: FORCE
 ifeq ($(OS),linux)
 ifdef PEGASUS_PAM_AUTHENTICATION
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prw_r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PAM_CONFIG_DIR)/wbem
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prw_r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PAM_CONFIG_DIR)/$(PAM_CONFIG_FILE)
 	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prw_______)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/access.conf
 endif
-	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)etc/init.d/tog-pegasus
+	$(MAKE) --directory=$(ROOT) -f Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)etc/init.d/$(PEGASUS_FLAVOR)-pegasus
 endif
 
 stage_PegasusEmptyFiles: FORCE
@@ -702,7 +705,7 @@ create_ProductInstallationVerificationScript: FORCE
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "ls -ld $(PAM_CONFIG_DIR)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
-	@$(ECHO-E) "ls -l $(PAM_CONFIG_DIR)/wbem" \
+	@$(ECHO-E) "ls -l $(PAM_CONFIG_DIR)/$(PAM_CONFIG_FILE)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS TRACE FILES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
@@ -754,6 +757,8 @@ _append_OpenPegasusLicenseToSpecFile: FORCE
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_PreambleToSpecFile: FORCE
+	@$(ECHO-E) "%define Flavor  $(PEGASUS_FLAVOR)" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%define packageVersion $(PEGASUS_PACKAGE_VERSION)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "Version: $(PEGASUS_PRODUCT_VERSION)" \
@@ -899,7 +904,7 @@ ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "    /usr/sbin/groupadd $(CIMSERVERMAIN_GRP) > /dev/null" \
             "2>&1 || :;" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "    /usr/sbin/useradd -c \"tog-pegasus OpenPegasus"\
+	@$(ECHO-E) "    /usr/sbin/useradd -c \"$(PEGASUS_FLAVOR)-pegasus OpenPegasus"\
             "WBEM/CIM services\" \\" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "        -g $(CIMSERVERMAIN_GRP) -s /sbin/nologin -r -d" \
             "%PEGASUS_VARDATA_DIR $(CIMSERVERMAIN_USR) \\" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
@@ -929,7 +934,7 @@ _append_postSectionToSpecFile: FORCE
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   if [ \"\044isRunning\" ]; then" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "       /etc/init.d/tog-pegasus stop" \
+	@$(ECHO-E) "       /etc/init.d/$(PEGASUS_FLAVOR)-pegasus stop" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   if [ -d %PEGASUS_PREV_REPOSITORY_DIR ]; then" \
@@ -957,7 +962,7 @@ ifeq ($(PEGASUS_ENABLE_PRIVILEGE_SEPARATION),true)
 endif
 	@$(ECHO-E) "   if [ \"\044isRunning\" ]; then" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "       /etc/init.d/tog-pegasus start" \
+	@$(ECHO-E) "       /etc/init.d/$(PEGASUS_FLAVOR)-pegasus start" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
@@ -1082,14 +1087,14 @@ _append_filesSectionToSpecFile: FORCE
              "$(PEGASUS_TRACE_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%config %attr($(Prwxr_x___),$(INSTALL_USR),$(INSTALL_GRP))"\
-            "/etc/init.d/tog-pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+            "/etc/init.d/$(PEGASUS_FLAVOR)-pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%config(noreplace)" \
             "%attr($(Prw_r__r__),$(CIMSERVER_USR),$(CIMSERVER_GRP))" \
             "$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%config(noreplace) $(PEGASUS_CONFIG_DIR)/access.conf" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%config(noreplace) $(PAM_CONFIG_DIR)/wbem" \
+	@$(ECHO-E) "%config(noreplace) $(PAM_CONFIG_DIR)/$(PAM_CONFIG_FILE)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%ghost %config(noreplace)" \

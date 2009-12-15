@@ -3,8 +3,8 @@
 %package devel
 Summary: The OpenPegasus Software Development Kit
 Group: Systems Management/Base
-Requires: tog-pegasus >= %{version}
-Obsoletes: tog-pegasus-sdk
+Requires: %{Flavor}-pegasus >= %{version}
+Obsoletes: %{Flavor}-pegasus-sdk
 
 %description devel
 The OpenPegasus WBEM Services for Linux SDK is the developer's kit for the
@@ -16,7 +16,7 @@ supports C provider developers via the CMPI interface.
 %package test
 Summary: The OpenPegasus Tests
 Group: Systems Management/Base
-Requires: tog-pegasus >= %{version}
+Requires: %{Flavor}-pegasus >= %{version}
 
 %description test
 The OpenPegasus WBEM tests for the OpenPegasus %{version} Linux rpm.

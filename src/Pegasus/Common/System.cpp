@@ -947,6 +947,10 @@ int System::getNameInfo(
 #endif
 
 // System ID constants for Logger::put and Logger::trace
+#ifdef PEGASUS_FLAVOR
+const String System::CIMLISTENER = "cimlistener" PEGASUS_FLAVOR;
+#else
 const String System::CIMLISTENER = "cimlistener"; // Listener systme ID
+#endif
 
 PEGASUS_NAMESPACE_END

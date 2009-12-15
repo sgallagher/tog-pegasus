@@ -81,9 +81,17 @@ PEGASUS_NAMESPACE_BEGIN
 
 // System ID constants for Logger::put and Logger::trace
 #if defined(PEGASUS_OS_ZOS)
+# ifdef PEGASUS_FLAVOR
+  const String System::CIMSERVER = "CFZCIM" PEGASUS_FLAVOR;
+# else
 const String System::CIMSERVER = "CFZCIM";  // Server system ID
+# endif
+#else
+# ifdef PEGASUS_FLAVOR
+  const String System::CIMSERVER = "cimserver" PEGASUS_FLAVOR;//Server system ID
 #else
 const String System::CIMSERVER = "cimserver";  // Server system ID
+#endif
 #endif
 
 void System::getCurrentTime(Uint32& seconds, Uint32& milliseconds)

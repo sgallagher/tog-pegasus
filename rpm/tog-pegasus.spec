@@ -39,6 +39,7 @@
 # be lost the next time this file is regenerated and submitted to CVS.
 #
 
+%define Flavor  tog
 %define packageVersion 1
 Version: 2.10.0
 Release: %{packageVersion}%{?LINUX_VERSION:.%{LINUX_VERSION}}
@@ -57,7 +58,7 @@ Epoch:   1
 %{?!JMPI_PROVIDER_REQUESTED: %define JMPI_PROVIDER_REQUESTED 0}
 
 Summary:   OpenPegasus WBEM Services for Linux
-Name:      tog-pegasus
+Name:      %{Flavor}-pegasus
 Group:     Systems Management/Base
 License:   Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -101,8 +102,8 @@ Requires:           net-snmp
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-desc.spec
 #
 Conflicts: openwbem
-Provides: tog-pegasus-cimserver
-BuildConflicts: tog-pegasus
+Provides: %{Flavor}-pegasus-cimserver
+BuildConflicts: %{Flavor}-pegasus
 
 %description
 OpenPegasus WBEM Services for Linux enables management solutions that deliver
@@ -174,8 +175,8 @@ sources.
 %package devel
 Summary: The OpenPegasus Software Development Kit
 Group: Systems Management/Base
-Requires: tog-pegasus >= %{version}
-Obsoletes: tog-pegasus-sdk
+Requires: %{Flavor}-pegasus >= %{version}
+Obsoletes: %{Flavor}-pegasus-sdk
 
 %description devel
 The OpenPegasus WBEM Services for Linux SDK is the developer's kit for the
@@ -187,7 +188,7 @@ supports C provider developers via the CMPI interface.
 %package test
 Summary: The OpenPegasus Tests
 Group: Systems Management/Base
-Requires: tog-pegasus >= %{version}
+Requires: %{Flavor}-pegasus >= %{version}
 
 %description test
 The OpenPegasus WBEM tests for the OpenPegasus %{version} Linux rpm.
@@ -299,7 +300,7 @@ fi
 if [ $1 -gt 0 ]; then
    #  Create the 'pegasus' user and group:
    /usr/sbin/groupadd pegasus > /dev/null 2>&1 || :;
-   /usr/sbin/useradd -c "tog-pegasus OpenPegasus WBEM/CIM services" \
+   /usr/sbin/useradd -c "%{Flavor}-pegasus OpenPegasus WBEM/CIM services" \
         -g pegasus -s /sbin/nologin -r -d %PEGASUS_VARDATA_DIR pegasus \
          > /dev/null 2>&1 || :;
 fi
@@ -358,11 +359,11 @@ if [ $1 -eq 1 ]; then
 
    if [ $1 -eq 1 ]; then
 %if %{AUTOSTART}
-       /sbin/chkconfig --add tog-pegasus
+       /sbin/chkconfig --add %{Flavor}-pegasus
 %endif
    :;
    elif [ $1 -gt 0 ]; then
-       /etc/init.d/tog-pegasus condrestart
+       /etc/init.d/%{Flavor}-pegasus condrestart
    :;
    fi
 #
@@ -398,7 +399,7 @@ if [ $1 -eq 0 ]; then
    if [ "$isRunning" ]; then
       %PEGASUS_SBIN_DIR/cimserver -s
    fi
-   /sbin/chkconfig --del tog-pegasus;
+   /sbin/chkconfig --del %{Flavor}-pegasus;
    rm -f %PEGASUS_VARDATA_DIR/cimserver_current.conf;
    [ -d %PEGASUS_REPOSITORY_DIR ]  && rm -rf %PEGASUS_REPOSITORY_DIR;
    [ -d %PEGASUS_VARDATA_CACHE_DIR ]  && rm -rf %PEGASUS_VARDATA_CACHE_DIR;

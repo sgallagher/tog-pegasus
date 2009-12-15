@@ -365,6 +365,7 @@ ifdef PEGASUS_HAS_MESSAGES
     endif
 endif
 
+
 ifeq ($(PEGASUS_HAS_ICU),true)
     DEFINES += -DPEGASUS_HAS_ICU
 
@@ -1476,4 +1477,15 @@ endif
 
 ifndef PLATFORM_CORE_PATTERN
     PLATFORM_CORE_PATTERN = core*
+endif
+
+ifdef PEGASUS_FLAVOR
+  ifdef PEGASUS_USE_RELEASE_DIRS
+    ifndef PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS
+      $(error "PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS must be defined when both PEGASUS_FLAVOR and PEGASUS_USE_RELEASE_DIRS options are used")
+    endif
+  endif
+  ifneq ($(PEGASUS_FLAVOR), tog)
+      DEFINES += -DPEGASUS_FLAVOR=\"$(PEGASUS_FLAVOR)\"
+  endif
 endif

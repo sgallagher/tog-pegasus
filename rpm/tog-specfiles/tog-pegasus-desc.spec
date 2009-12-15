@@ -1,8 +1,8 @@
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-desc.spec
 #
 Conflicts: openwbem
-Provides: tog-pegasus-cimserver
-BuildConflicts: tog-pegasus
+Provides: %{Flavor}-pegasus-cimserver
+BuildConflicts: %{Flavor}-pegasus
 
 %description
 OpenPegasus WBEM Services for Linux enables management solutions that deliver

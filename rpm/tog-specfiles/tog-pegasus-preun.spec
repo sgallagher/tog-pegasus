@@ -7,7 +7,7 @@ if [ $1 -eq 0 ]; then
    if [ "$isRunning" ]; then
       %PEGASUS_SBIN_DIR/cimserver -s
    fi
-   /sbin/chkconfig --del tog-pegasus;
+   /sbin/chkconfig --del %{Flavor}-pegasus;
    rm -f %PEGASUS_VARDATA_DIR/cimserver_current.conf;
    [ -d %PEGASUS_REPOSITORY_DIR ]  && rm -rf %PEGASUS_REPOSITORY_DIR;
    [ -d %PEGASUS_VARDATA_CACHE_DIR ]  && rm -rf %PEGASUS_VARDATA_CACHE_DIR;

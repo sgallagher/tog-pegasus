@@ -30,6 +30,7 @@
 #include "StringConversion.h"
 
 #include <errno.h>
+#include <stdio.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -222,6 +223,30 @@ struct Converter
     }
 };
 
+// On windows sprintf outputs 3 digit precision exponent prepending
+// zeros. Make it 2 digit precision if first digit is zero in the exponent.
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+void _normalizeRealValueString(char* str)
+{
+    // skip initial sign value...
+    if (*str == '-' || *str == '+')
+    {
+        ++str;
+    }
+    while (*str && *str != '+' && *str != '-')
+    {
+        ++str;
+    }
+    if (*str && * ++str == '0')
+    {
+        *str = *(str+1);
+        *(str+1) = *(str+2);
+        *(str+2) = 0;
+    }
+}
+#endif
+
+
 const char* Uint8ToString(char buffer[22], Uint8 x, Uint32& size)
 {
     return Converter<Sint8, Uint8>::uintToString(buffer, x, size);
@@ -261,6 +286,68 @@ const char* Sint64ToString(char buffer[22], Sint64 x, Uint32& size)
 {
     return Converter<Sint64, Uint64>::sintToString(buffer, x, size);
 }
+
+const char* Real32ToString(char buffer[128], Real32 x, Uint32& size)
+{
+    // %.7e gives '[-]m.ddddddde+/-xx', which seems compatible with the format
+    // given in the CIM/XML spec, and the precision required by the CIM 2.2 spec
+    // (4 byte IEEE floating point)
+    size = sprintf(buffer, "%.7e", x);
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    _normalizeRealValueString(buffer);
+#endif
+    return buffer;
+}
+
+const char* Real64ToString(char buffer[128], Real64 x, Uint32& size)
+{
+    // %.16e gives '[-]m.dddddddddddddddde+/-xx', which seems compatible
+    // with the format given in the CIM/XML spec, and the precision required
+    // by the CIM 2.2 spec (8 byte IEEE floating point)
+    size = sprintf(buffer, "%.16e", x);
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    _normalizeRealValueString(buffer);
+#endif
+    return buffer;
+}
+
+
+//------------------------------------------------------------------------------
+//
+// stringToSignedInteger
+//
+//      [ "+" | "-" ] ( positiveDecimalDigit *decimalDigit | "0" )
+//    or
+//      [ "+" | "-" ] ( "0x" | "0X" ) 1*hexDigit
+//
+//------------------------------------------------------------------------------
+
+Boolean StringConversion::stringToSignedInteger(
+    const char* stringValue,
+    Sint64& x)
+{
+    return (stringToSint64(stringValue, decimalStringToUint64, x) ||
+            stringToSint64(stringValue, hexStringToUint64, x));
+}
+
+//------------------------------------------------------------------------------
+//
+// stringToUnsignedInteger
+//
+//      ( positiveDecimalDigit *decimalDigit | "0" )
+//    or
+//      ( "0x" | "0X" ) 1*hexDigit
+//
+//------------------------------------------------------------------------------
+
+Boolean StringConversion::stringToUnsignedInteger(
+    const char* stringValue,
+    Uint64& x)
+{
+    return (decimalStringToUint64(stringValue, x) ||
+            hexStringToUint64(stringValue, x));
+}
+
 
 //------------------------------------------------------------------------------
 //

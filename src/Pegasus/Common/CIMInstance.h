@@ -344,6 +344,8 @@ private:
     friend class MofWriter;
     friend class BinaryStreamer;
     friend class CIMClassRep;
+    friend class SCMOInstance;
+    friend class SCMOClass;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -561,6 +563,7 @@ private:
     friend class XmlWriter;
     friend class MofWriter;
     friend class BinaryStreamer;
+    friend class SCMOInstance;
 };
 
 #define PEGASUS_ARRAY_T CIMInstance

@@ -467,6 +467,7 @@ private:
     friend class XmlWriter;
     friend class MofWriter;
     friend class BinaryStreamer;
+    friend class SCMOClass;
 };
 
 #define PEGASUS_ARRAY_T CIMClass
@@ -750,6 +751,7 @@ private:
     friend class XmlWriter;
     friend class MofWriter;
     friend class BinaryStreamer;
+    friend class SCMOClass;
 };
 
 PEGASUS_NAMESPACE_END

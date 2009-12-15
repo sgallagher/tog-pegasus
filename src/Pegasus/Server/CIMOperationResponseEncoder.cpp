@@ -612,9 +612,7 @@ void CIMOperationResponseEncoder::encodeEnumerateInstanceNamesResponse(
 
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
     {
-        for (Uint32 i = 0, n = response->instanceNames.size(); i < n; i++)
-            XmlWriter::appendInstanceNameElement(
-                body, response->instanceNames[i]);
+        response->getResponseData().encodeXmlResponse(body);
     }
     sendResponse(response, "EnumerateInstanceNames", true, &body);
 }
@@ -678,13 +676,9 @@ void CIMOperationResponseEncoder::encodeReferenceNamesResponse(
 {
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
-        for (Uint32 i = 0, n = response->objectNames.size(); i < n; i++)
-        {
-            body << "<OBJECTPATH>\n";
-            XmlWriter::appendValueReferenceElement(
-                body, response->objectNames[i], false);
-            body << "</OBJECTPATH>\n";
-        }
+    {
+        response->getResponseData().encodeXmlResponse(body);
+    }
     sendResponse(response, "ReferenceNames", true, &body);
 }
 
@@ -693,9 +687,14 @@ void CIMOperationResponseEncoder::encodeReferencesResponse(
 {
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    {
+        response->getResponseData().encodeXmlResponse(body);
+    }
+/*
         for (Uint32 i = 0, n = response->cimObjects.size(); i < n;i++)
             XmlWriter::appendValueObjectWithPathElement(
                 body, response->cimObjects[i]);
+*/
     sendResponse(response, "References", true, &body);
 }
 
@@ -704,6 +703,10 @@ void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
 {
     Buffer body;
     if (response->cimException.getCode() == CIM_ERR_SUCCESS)
+    {
+        response->getResponseData().encodeXmlResponse(body);
+    }
+/*
         for (Uint32 i = 0, n = response->objectNames.size(); i < n; i++)
         {
             body << "<OBJECTPATH>\n";
@@ -711,6 +714,7 @@ void CIMOperationResponseEncoder::encodeAssociatorNamesResponse(
                 body, response->objectNames[i], false);
             body << "</OBJECTPATH>\n";
         }
+*/
     sendResponse(response, "AssociatorNames", true, &body);
 }
 

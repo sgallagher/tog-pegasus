@@ -198,8 +198,7 @@ CIMResponseMessage*
         new CIMEnumerateInstanceNamesResponseMessage(
             messageId,
             CIMException(),
-            queueIds.copyAndPop(),
-            Array<CIMObjectPath>()));
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
     return response.release();
 }
@@ -232,8 +231,7 @@ CIMResponseMessage* CIMAssociatorNamesRequestMessage::buildResponse() const
         new CIMAssociatorNamesResponseMessage(
             messageId,
             CIMException(),
-            queueIds.copyAndPop(),
-            Array<CIMObjectPath>()));
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
     return response.release();
 }
@@ -244,8 +242,7 @@ CIMResponseMessage* CIMReferencesRequestMessage::buildResponse() const
         new CIMReferencesResponseMessage(
             messageId,
             CIMException(),
-            queueIds.copyAndPop(),
-            Array<CIMObject>()));
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
     return response.release();
 }
@@ -256,8 +253,7 @@ CIMResponseMessage* CIMReferenceNamesRequestMessage::buildResponse() const
         new CIMReferenceNamesResponseMessage(
             messageId,
             CIMException(),
-            queueIds.copyAndPop(),
-            Array<CIMObjectPath>()));
+            queueIds.copyAndPop()));
     response->syncAttributes(this);
     return response.release();
 }
@@ -524,6 +520,18 @@ CIMResponseMessage* CIMNotifyConfigChangeRequestMessage::buildResponse() const
             messageId,
             CIMException(),
             queueIds.copyAndPop()));
+    response->syncAttributes(this);
+    return response.release();
+}
+
+CIMResponseMessage* ProvAgtGetScmoClassRequestMessage::buildResponse() const
+{
+    AutoPtr<ProvAgtGetScmoClassResponseMessage> response(
+        new ProvAgtGetScmoClassResponseMessage(
+            messageId,
+            CIMException(),
+            queueIds.copyAndPop(),
+            SCMOClass("","")));
     response->syncAttributes(this);
     return response.release();
 }

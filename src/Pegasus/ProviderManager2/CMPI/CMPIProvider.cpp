@@ -42,6 +42,7 @@
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
+#include <Pegasus/ProviderManager2/CMPI/CMPI_ThreadContext.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -178,7 +179,7 @@ void CMPIProvider::initialize(
     CMPI_Broker & broker)
 {
     PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPIProvider::initialize()");
-    broker.hdl=& cimom;
+    broker.hdl=&cimom;
     broker.bft=CMPI_Broker_Ftab;
     broker.eft=CMPI_BrokerEnc_Ftab;
     broker.xft=CMPI_BrokerExt_Ftab;
@@ -399,7 +400,7 @@ void CMPIProvider::_terminate(Boolean terminating)
         waitUntilThreadsDone();
 
     }
-    // We have killed all threads running in provider forcibly. Set 
+    // We have killed all threads running in provider forcibly. Set
     // unloadStatus of provider to OK.
     if (terminating)
     {

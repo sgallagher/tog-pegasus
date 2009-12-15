@@ -594,6 +594,8 @@ private:
     CIMObjectPathRep* _rep;
 
     friend class SQLiteStore;
+    friend class SCMOInstance;
+    friend class SCMOClass;
 };
 
 /**

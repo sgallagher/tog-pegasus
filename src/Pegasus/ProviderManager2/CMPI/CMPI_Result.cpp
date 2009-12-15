@@ -43,6 +43,7 @@
 #include <Pegasus/Common/Mutex.h>
 #include <string.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/ProviderManager2/CMPI/CMPI_ThreadContext.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -51,6 +52,26 @@ Mutex errorChainMutex;
 
 extern "C"
 {
+
+    // Gets the invaction flags from the thread context and sets them
+    // on an SCMOInstance object
+    PEGASUS_STATIC inline void appendInvocationFlags(SCMOInstance& inst)
+    {
+        const CMPIContext *ctx = CMPI_ThreadContext::getContext();
+        if (0!=ctx)
+        {
+            CMPIFlags flgs = ctx->ft->getEntry(
+                ctx,CMPIInvocationFlags,NULL).value.uint32;
+            if (flgs & CMPI_FLAG_IncludeQualifiers)
+            {
+                inst.includeQualifiers();
+            }
+            if (flgs & CMPI_FLAG_IncludeClassOrigin)
+            {
+                inst.includeClassOrigins();
+            }
+        }
+    }
 
     PEGASUS_STATIC CMPIStatus resultReturnData(
         const CMPIResult* eRes,
@@ -181,7 +202,8 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Result:resultReturnInstance()");
-        InstanceResponseHandler* res=(InstanceResponseHandler*)eRes->hdl;
+        InstanceResponseHandler* res=
+            (InstanceResponseHandler*)eRes->hdl;
         if ((res == NULL) || (eInst == NULL))
         {
             PEG_TRACE((
@@ -213,19 +235,15 @@ extern "C"
                 res->processing();
                 ((CMPI_Result*)eRes)->flags|=RESULT_set;
             }
-            CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
+            SCMOInstance& inst=*(SCMOInstance*)(eInst->hdl);
             CMPI_Result *xRes=(CMPI_Result*)eRes;
-            const CIMObjectPath& op=inst.getPath();
-            //Build objectpath if keybindings are not found. This will happen
-            //when this instance is created with empty ObjectPath and Provider
-            //did not set objectpath in the instance.
-            if (op.getKeyBindings().size() == 0)
-            {
-                CIMClass *cc=mbGetClass(xRes->xBroker,op);
-                CIMObjectPath iop=inst.buildPath(*cc);
-                iop.setNameSpace(op.getNameSpace());
-                inst.setPath(iop);
-            }
+
+            appendInvocationFlags(inst);
+
+            // Ensure that the instance includes a valid ObjectPath with
+            // all key properties set, for which the according property
+            // has been set on the instance.
+            inst.buildKeyBindingsFromProperties();
 
             res->deliver(inst);
         }
@@ -283,19 +301,15 @@ extern "C"
                 res->processing();
                 ((CMPI_Result*)eRes)->flags|=RESULT_set;
             }
-            CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
+            SCMOInstance& inst=*(SCMOInstance*)(eInst->hdl);
             CMPI_Result *xRes=(CMPI_Result*)eRes;
-            const CIMObjectPath& op=inst.getPath();
-            //Build objectpath if keybindings are not found. This will happen
-            //when this instance is created with empty ObjectPath and Provider
-            //did not set objectpath in the instance.
-            if (op.getKeyBindings().size() == 0)
-            {
-                CIMClass *cc=mbGetClass(xRes->xBroker,op);
-                CIMObjectPath iop=inst.buildPath(*cc);
-                iop.setNameSpace(op.getNameSpace());
-                inst.setPath(iop);
-            }
+
+            appendInvocationFlags(inst);
+
+            // Ensure that the instance includes a valid ObjectPath with
+            // all key properties set, for which the according property
+            // has been set on the instance.
+            inst.buildKeyBindingsFromProperties();
 
             res->deliver(inst);
         }
@@ -353,7 +367,7 @@ extern "C"
                 res->processing();
                 ((CMPI_Result*)eRes)->flags|=RESULT_set;
             }
-            CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
+            SCMOInstance& inst=*(SCMOInstance*)(eInst->hdl);
             CMPI_Result *xRes=(CMPI_Result*)eRes;
             res->deliver(inst);
         }
@@ -409,7 +423,7 @@ extern "C"
                 res->processing();
                 ((CMPI_Result*)eRes)->flags|=RESULT_set;
             }
-            CIMObjectPath& ref=*(CIMObjectPath*)(eRef->hdl);
+            SCMOInstance& ref=*(SCMOInstance*)(eRef->hdl);
             res->deliver(ref);
         }
         catch (const CIMException &e)
@@ -901,10 +915,10 @@ CMPI_ResultOnStack::~CMPI_ResultOnStack()
                 currErr!=NULL;
                 currErr=nextErr)
             {
-                nextErr = currErr->nextError;    
+                nextErr = currErr->nextError;
                 ((CMPIError*)currErr)->ft->release(currErr);
             }
-        } 
+        }
         if ((flags & RESULT_set)==0)
         {
             if (ft==CMPI_ResultRefOnStack_Ftab)

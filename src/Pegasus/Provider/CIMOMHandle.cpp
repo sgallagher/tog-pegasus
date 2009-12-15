@@ -32,7 +32,6 @@
 
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/MessageQueue.h>
-#include <Pegasus/ProviderManager2/AutoPThreadSecurity.h>
 #include "CIMOMHandleRep.h"
 #include "InternalCIMOMHandleRep.h"
 #include "ClientCIMOMHandleRep.h"
@@ -89,7 +88,6 @@ CIMClass CIMOMHandle::getClass(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     return _rep->getClass(
         context,
         nameSpace,
@@ -109,7 +107,6 @@ Array<CIMClass> CIMOMHandle::enumerateClasses(
     Boolean includeQualifiers,
     Boolean includeClassOrigin)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     return _rep->enumerateClasses(
         context,
         nameSpace,
@@ -126,7 +123,6 @@ Array<CIMName> CIMOMHandle::enumerateClassNames(
     const CIMName& className,
     Boolean deepInheritance)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     return _rep->enumerateClassNames(
         context,
         nameSpace,
@@ -139,7 +135,6 @@ void CIMOMHandle::createClass(
     const CIMNamespaceName& nameSpace,
     const CIMClass& newClass)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     _rep->createClass(
         context,
         nameSpace,
@@ -151,7 +146,6 @@ void CIMOMHandle::modifyClass(
     const CIMNamespaceName& nameSpace,
     const CIMClass& modifiedClass)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     _rep->modifyClass(
         context,
         nameSpace,
@@ -163,7 +157,6 @@ void CIMOMHandle::deleteClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     _rep->deleteClass(
         context,
         nameSpace,
@@ -179,14 +172,13 @@ CIMInstance CIMOMHandle::getInstance(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     return _rep->getInstance(
         context,
         nameSpace,
         instanceName,
         includeQualifiers,
         includeClassOrigin,
-        propertyList);
+        propertyList).getInstance();
 }
 
 Array<CIMInstance> CIMOMHandle::enumerateInstances(
@@ -199,7 +191,6 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     return _rep->enumerateInstances(
         context,
         nameSpace,
@@ -207,7 +198,7 @@ Array<CIMInstance> CIMOMHandle::enumerateInstances(
         deepInheritance,
         includeQualifiers,
         includeClassOrigin,
-        propertyList);
+        propertyList).getInstances();
 }
 
 Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
@@ -215,11 +206,10 @@ Array<CIMObjectPath> CIMOMHandle::enumerateInstanceNames(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     return _rep->enumerateInstanceNames(
         context,
         nameSpace,
-        className);
+        className).getInstanceNames();
 }
 
 CIMObjectPath CIMOMHandle::createInstance(
@@ -227,7 +217,6 @@ CIMObjectPath CIMOMHandle::createInstance(
     const CIMNamespaceName& nameSpace,
     const CIMInstance& newInstance)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     return _rep->createInstance(
         context,
         nameSpace,
@@ -241,7 +230,6 @@ void CIMOMHandle::modifyInstance(
     Boolean includeQualifiers,
     const CIMPropertyList& propertyList)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     _rep->modifyInstance(
         context,
         nameSpace,
@@ -255,7 +243,6 @@ void CIMOMHandle::deleteInstance(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     _rep->deleteInstance(
         context,
         nameSpace,
@@ -268,12 +255,11 @@ Array<CIMObject> CIMOMHandle::execQuery(
     const String& queryLanguage,
     const String& query)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     return _rep->execQuery(
         context,
         nameSpace,
         queryLanguage,
-        query);
+        query).getObjects();
 }
 
 Array<CIMObject> CIMOMHandle::associators(
@@ -288,7 +274,6 @@ Array<CIMObject> CIMOMHandle::associators(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     return _rep->associators(
         context,
         nameSpace,
@@ -299,7 +284,7 @@ Array<CIMObject> CIMOMHandle::associators(
         resultRole,
         includeQualifiers,
         includeClassOrigin,
-        propertyList);
+        propertyList).getObjects();
 }
 
 Array<CIMObjectPath> CIMOMHandle::associatorNames(
@@ -311,7 +296,6 @@ Array<CIMObjectPath> CIMOMHandle::associatorNames(
     const String& role,
     const String& resultRole)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     return _rep->associatorNames(
         context,
         nameSpace,
@@ -319,7 +303,7 @@ Array<CIMObjectPath> CIMOMHandle::associatorNames(
         assocClass,
         resultClass,
         role,
-        resultRole);
+        resultRole).getInstanceNames();
 }
 
 Array<CIMObject> CIMOMHandle::references(
@@ -332,7 +316,6 @@ Array<CIMObject> CIMOMHandle::references(
     Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     return _rep->references(
         context,
         nameSpace,
@@ -341,7 +324,7 @@ Array<CIMObject> CIMOMHandle::references(
         role,
         includeQualifiers,
         includeClassOrigin,
-        propertyList);
+        propertyList).getObjects();
 }
 
 Array<CIMObjectPath> CIMOMHandle::referenceNames(
@@ -351,13 +334,12 @@ Array<CIMObjectPath> CIMOMHandle::referenceNames(
     const CIMName& resultClass,
     const String& role)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     return _rep->referenceNames(
         context,
         nameSpace,
         objectName,
         resultClass,
-        role);
+        role).getInstanceNames();
 }
 
 CIMValue CIMOMHandle::getProperty(
@@ -366,7 +348,6 @@ CIMValue CIMOMHandle::getProperty(
     const CIMObjectPath& instanceName,
     const CIMName& propertyName)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     return _rep->getProperty(
         context,
         nameSpace,
@@ -381,7 +362,6 @@ void CIMOMHandle::setProperty(
     const CIMName& propertyName,
     const CIMValue& newValue)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     _rep->setProperty(
         context,
         nameSpace,
@@ -398,7 +378,6 @@ CIMValue CIMOMHandle::invokeMethod(
     const Array<CIMParamValue>& inParameters,
     Array<CIMParamValue>& outParameters)
 {
-    AutoPThreadSecurity revPthreadSec(context, true);
     return _rep->invokeMethod(
         context,
         nameSpace,

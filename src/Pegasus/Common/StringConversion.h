@@ -66,6 +66,13 @@ const char* Sint32ToString(char buffer[22], Sint32 x, Uint32& size);
 PEGASUS_COMMON_LINKAGE
 const char* Sint64ToString(char buffer[22], Sint64 x, Uint32& size);
 
+PEGASUS_COMMON_LINKAGE
+const char* Real32ToString(char buffer[128], Real32 x, Uint32& size);
+
+PEGASUS_COMMON_LINKAGE
+const char* Real64ToString(char buffer[128], Real64 x, Uint32& size);
+
+
 class PEGASUS_COMMON_LINKAGE StringConversion
 {
 public:
@@ -194,6 +201,15 @@ public:
     static Boolean stringToReal64(
         const char* stringValue,
         Real64& x);
+
+    static Boolean stringToSignedInteger(
+        const char* stringValue,
+        Sint64& x);
+
+    static Boolean stringToUnsignedInteger(
+        const char* stringValue,
+        Uint64& x);
+
 };
 
 PEGASUS_NAMESPACE_END

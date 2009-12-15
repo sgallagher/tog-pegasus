@@ -37,22 +37,35 @@
 
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMClass.h>
+#include <Pegasus/Provider/CIMOMHandle.h>
+#include <Pegasus/Provider/CIMOMHandleRep.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIClassCache.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 #define CM_BROKER (CMPI_ThreadContext::getBroker())
-#define CM_CIMOM(mb) ((CIMOMHandle*)mb->hdl)
+#define CM_CIMOM(mb) (CMPI_BrokerHdl::getRep(mb))
 
 #define CM_Context(ctx) (((CMPI_Context*)ctx)->ctx)
 #define CM_Instance(ci) ((CIMInstance*)ci->hdl)
+#define SCMO_Instance(ci) ((SCMOInstance*)ci->hdl)
 #define CM_ObjectPath(cop) ((CIMObjectPath*)cop->hdl)
+#define SCMO_ObjectPath(cop) ((SCMOInstance*)cop->hdl)
 
 #define CM_ClassOrigin(flgs) (((flgs) & CMPI_FLAG_IncludeClassOrigin)!=0)
 #define CM_IncludeQualifiers(flgs) (((flgs) & CMPI_FLAG_IncludeQualifiers)!=0)
-#define CM_DeepInheritance(flgs) (((flgs) & CMPI_FLAG_DeepInheritance)!=0)
 
-CIMClass *mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop);
+SCMOClass *mbGetSCMOClass(
+    const char* ns, Uint32 nsL, const char* cls, Uint32 clsL);
+
+class CMPI_BrokerHdl
+{
+public:
+    static inline CIMOMHandleRep* getRep(const CMPIBroker *mb)
+    {
+        return ((CIMOMHandle*)mb->hdl)->_rep;
+    }
+};
 
 class CMPIProvider;
 

@@ -1076,7 +1076,7 @@ CIMGetInstanceResponseMessage*
             messageId,
             cimException,
             QueueIdStack());
-        msg->getResponseData().setCimInstance(cimInstance);
+        msg->getResponseData().setInstance(cimInstance);
         return msg;
     }
     else
@@ -1140,8 +1140,7 @@ CIMEnumerateInstanceNamesResponseMessage*
             return new CIMEnumerateInstanceNamesResponseMessage(
                 messageId,
                 cimException,
-                QueueIdStack(),
-                Array<CIMObjectPath>());
+                QueueIdStack());
         }
 
         if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -1167,11 +1166,15 @@ CIMEnumerateInstanceNamesResponseMessage*
         }
     }
 
-    return new CIMEnumerateInstanceNamesResponseMessage(
+    CIMEnumerateInstanceNamesResponseMessage* msg;
+
+    msg = new CIMEnumerateInstanceNamesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        instanceNames);
+        QueueIdStack());
+
+    msg->getResponseData().setInstanceNames(instanceNames);
+    return msg;
 }
 
 CIMEnumerateInstancesResponseMessage*
@@ -1218,7 +1221,7 @@ CIMEnumerateInstancesResponseMessage*
         cimException,
         QueueIdStack());
 
-    msg->getResponseData().setNamedInstances(namedInstances);
+    msg->getResponseData().setInstances(namedInstances);
     return msg;
 }
 
@@ -1512,8 +1515,7 @@ CIMReferenceNamesResponseMessage*
             return new CIMReferenceNamesResponseMessage(
                 messageId,
                 cimException,
-                QueueIdStack(),
-                Array<CIMObjectPath>());
+                QueueIdStack());
         }
 
         if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -1530,11 +1532,16 @@ CIMReferenceNamesResponseMessage*
         }
     }
 
-    return new CIMReferenceNamesResponseMessage(
+    CIMReferenceNamesResponseMessage* msg;
+
+    msg = new CIMReferenceNamesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        objectPaths);
+        QueueIdStack());
+
+    msg->getResponseData().setInstanceNames(objectPaths);
+
+    return msg;
 }
 
 CIMReferencesResponseMessage*
@@ -1554,8 +1561,7 @@ CIMReferencesResponseMessage*
             return new CIMReferencesResponseMessage(
                 messageId,
                 cimException,
-                QueueIdStack(),
-                Array<CIMObject>());
+                QueueIdStack());
         }
 
         if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -1575,11 +1581,16 @@ CIMReferencesResponseMessage*
         }
     }
 
-    return new CIMReferencesResponseMessage(
+    CIMReferencesResponseMessage *msg;
+
+    msg = new CIMReferencesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        objectWithPathArray);
+        QueueIdStack());
+
+    msg->getResponseData().setObjects(objectWithPathArray);
+
+    return msg;
 }
 
 CIMAssociatorNamesResponseMessage*
@@ -1599,8 +1610,7 @@ CIMAssociatorNamesResponseMessage*
             return new CIMAssociatorNamesResponseMessage(
                 messageId,
                 cimException,
-                QueueIdStack(),
-                Array<CIMObjectPath>());
+                QueueIdStack());
         }
 
         if (XmlReader::testStartTagOrEmptyTag(parser, entry, "IRETURNVALUE"))
@@ -1617,11 +1627,16 @@ CIMAssociatorNamesResponseMessage*
         }
     }
 
-    return new CIMAssociatorNamesResponseMessage(
+    CIMAssociatorNamesResponseMessage* msg;
+
+    msg = new CIMAssociatorNamesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        objectPaths);
+        QueueIdStack());
+
+    msg->getResponseData().setInstanceNames(objectPaths);
+
+    return msg;
 }
 
 CIMAssociatorsResponseMessage*
@@ -1668,7 +1683,7 @@ CIMAssociatorsResponseMessage*
         cimException,
         QueueIdStack());
 
-    msg->getResponseData().setCIMObjects(objectWithPathArray);
+    msg->getResponseData().setObjects(objectWithPathArray);
 
     return msg;
 }
@@ -1711,7 +1726,7 @@ CIMExecQueryResponseMessage*
         cimException,
         QueueIdStack());
 
-    msg->getResponseData().setCIMObjects(objectWithPathArray);
+    msg->getResponseData().setObjects(objectWithPathArray);
 
     return msg;
 }

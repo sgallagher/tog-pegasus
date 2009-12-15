@@ -428,7 +428,8 @@ const char * _CMPIrcName ( CMPIrc rc )
             return "CMPI_RC_ERROR_SYSTEM";
         case CMPI_RC_ERROR:
             return "CMPI_RC_ERROR";
-
+        case CMPI_RC_ERR_INVALID_DATA_TYPE:
+            return "CMPI_RC_ERR_INVALID_DATA_TYPE";
         default:
             return "Unknown";
     }

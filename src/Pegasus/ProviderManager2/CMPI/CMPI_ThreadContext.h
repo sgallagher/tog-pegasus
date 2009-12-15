@@ -42,6 +42,8 @@
 #include <Pegasus/Common/Once.h>
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
+#include "CMPI_Object.h"
+#include "CMPI_Enumeration.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -52,8 +54,6 @@ PEGASUS_NAMESPACE_BEGIN
 #define DEQ_FROM_LIST(i,f,l,n,p) \
                     { if (i->n) i->n->p=i->p; else l=i->p; \
                       if (i->p) i->p->n=i->n; else f=i->n;}
-
-class CMPI_Object;
 
 class CMPI_ThreadContext
 {
@@ -87,6 +87,80 @@ public:
     CMPI_ThreadContext(const CMPIBroker*,const CMPIContext*);
     ~CMPI_ThreadContext();
 };
+
+PEGASUS_NAMESPACE_END
+
+// Most of the functions really should be inlined whereever possible
+// as they do very little real work, but are called many times
+
+PEGASUS_NAMESPACE_BEGIN
+
+inline void CMPI_ThreadContext::context_key_alloc()
+{
+    TSDKey::create(&contextKey);
+}
+
+inline TSDKeyType CMPI_ThreadContext::getContextKey()
+{
+    once(&contextKeyOnce, context_key_alloc);
+    return contextKey;
+}
+
+inline void CMPI_ThreadContext::add(CMPI_Object *o)
+{
+    ENQ_TOP_LIST(o,CIMfirst,CIMlast,next,prev);
+}
+
+inline void CMPI_ThreadContext::addObject(CMPI_Object* o)
+{
+    CMPI_ThreadContext* ctx=getThreadContext();
+    if (ctx)
+    {
+        ctx->add(o);
+    }
+}
+
+inline void CMPI_ThreadContext::remove(CMPI_Object *o)
+{
+    if( o->next!=reinterpret_cast<CMPI_Object*>((void*)-1l))
+    {
+        DEQ_FROM_LIST(o,CIMfirst,CIMlast,next,prev);
+        o->next=reinterpret_cast<CMPI_Object*>((void*)-1l);
+    }
+}
+
+inline void CMPI_ThreadContext::remObject(CMPI_Object* o)
+{
+    CMPI_ThreadContext* ctx=getThreadContext();
+    if (ctx)
+    {
+        ctx->remove(o);
+    }
+}
+
+inline CMPI_ThreadContext* CMPI_ThreadContext::getThreadContext()
+{
+    TSDKeyType k=getContextKey();
+    return(CMPI_ThreadContext*)TSDKey::get_thread_specific(k);
+}
+
+inline const CMPIBroker* CMPI_ThreadContext::getBroker()
+{
+    /**
+      return getThreadContext()->broker;
+   */
+    CMPI_ThreadContext *ctx = getThreadContext();
+    if( ctx )
+    {
+        return ctx->broker;
+    }
+    return 0;
+}
+
+inline const CMPIContext* CMPI_ThreadContext::getContext()
+{
+    return getThreadContext()->context;
+}
 
 PEGASUS_NAMESPACE_END
 

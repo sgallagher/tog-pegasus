@@ -137,6 +137,7 @@ private:
     friend class CIMInstanceRep;
     friend class BinaryStreamer;
     friend class CIMBuffer;
+    friend class SCMOClass;
 };
 
 PEGASUS_NAMESPACE_END

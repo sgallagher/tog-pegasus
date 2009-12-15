@@ -44,6 +44,7 @@
 #include <Pegasus/Common/CIMParamValue.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/CIMResponseData.h>
 #include <Pegasus/Provider/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -96,7 +97,7 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMName& className) = 0;
 
-    virtual CIMInstance getInstance(
+    virtual CIMResponseData getInstance(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
@@ -104,7 +105,7 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList) = 0;
 
-    virtual Array<CIMInstance> enumerateInstances(
+    virtual CIMResponseData enumerateInstances(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
@@ -113,7 +114,7 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList) = 0;
 
-    virtual Array<CIMObjectPath> enumerateInstanceNames(
+    virtual CIMResponseData enumerateInstanceNames(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMName& className) = 0;
@@ -135,13 +136,13 @@ public:
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName) = 0;
 
-    virtual Array<CIMObject> execQuery(
+    virtual CIMResponseData execQuery(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const String& queryLanguage,
         const String& query) = 0;
 
-    virtual Array<CIMObject> associators(
+    virtual CIMResponseData associators(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -153,7 +154,7 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList) = 0;
 
-    virtual Array<CIMObjectPath> associatorNames(
+    virtual CIMResponseData associatorNames(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -162,7 +163,7 @@ public:
         const String& role,
         const String& resultRole) = 0;
 
-    virtual Array<CIMObject> references(
+    virtual CIMResponseData references(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
@@ -172,7 +173,7 @@ public:
         Boolean includeClassOrigin,
         const CIMPropertyList& propertyList) = 0;
 
-    virtual Array<CIMObjectPath> referenceNames(
+    virtual CIMResponseData referenceNames(
         const OperationContext & context,
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,

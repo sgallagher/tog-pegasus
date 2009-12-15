@@ -219,6 +219,8 @@ private:
     friend class CIMProperty;
     friend class CIMPropertyInternal;
     friend class CIMBuffer;
+    friend class SCMOClass;
+    friend class SCMOInstance;
 };
 
 PEGASUS_NAMESPACE_END

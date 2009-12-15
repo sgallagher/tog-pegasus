@@ -140,9 +140,8 @@ Array<CIMObjectPath> CIMManagedClient::enumerateInstanceNames(
     hasHostandNameSpace(host, nameSpace);
     CIMClientRep *   _rep;
     _rep = getTargetCIMOM(host, port, nameSpace);
-    Array<CIMObjectPath> returnedInstanceNames = _rep->enumerateInstanceNames(
-                                                     nameSpace,
-                                                     className);
+    Array<CIMObjectPath> returnedInstanceNames =
+        _rep->enumerateInstanceNames(nameSpace,className).getInstanceNames();
     for (Uint32 i = 0; i < returnedInstanceNames.size(); i++)
     {
         returnedInstanceNames[i].setHost(_getHostwithPort(host, port));
@@ -175,7 +174,7 @@ Array<CIMInstance> CIMManagedClient::enumerateInstances(
         localOnly,
         includeQualifiers,
         includeClassOrigin,
-        propertyList);
+        propertyList).getInstances();
 
     // adding host, port and namespace to every Instance
     // ensures object path is full specified
@@ -207,7 +206,7 @@ Array<CIMObject> CIMManagedClient::execQuery(
     Array<CIMObject> returnedCimObjects = _rep->execQuery(
         nameSpace,
         queryLanguage,
-        query);
+        query).getObjects();
     // check if all objects contain a full specified object path
     for (Uint32 i = 0; i < returnedCimObjects.size(); i++)
     {
@@ -520,7 +519,7 @@ CIMInstance CIMManagedClient::getInstance(
         localOnly,
         includeQualifiers,
         includeClassOrigin,
-        propertyList);
+        propertyList).getInstance();
 /*
     CIMObjectPath chgObjectPath = CIMObjectPath(returnedCimInstance.getPath());
 
@@ -587,7 +586,7 @@ Array<CIMObjectPath> CIMManagedClient::associatorNames(
         assocClass,
         resultClass,
         role,
-        resultRole);
+        resultRole).getInstanceNames();
 
     for (Uint32 i = 0; i < retAssocNames.size(); i++)
     {
@@ -632,7 +631,7 @@ Array<CIMObject> CIMManagedClient::associators(
         resultRole,
         includeQualifiers,
         includeClassOrigin,
-        propertyList);
+        propertyList).getObjects();
     for (Uint32 i = 0; i < retAssoc.size(); i++)
     {
         // check if all object paths are fully qualified
@@ -672,8 +671,7 @@ Array<CIMObject> CIMManagedClient::references(
         role,
         includeQualifiers,
         includeClassOrigin,
-        propertyList);
-
+        propertyList).getObjects();
     for (Uint32 i = 0; i < retRefer.size(); i++)
     {
         // check if all object paths are fully qualified
@@ -707,7 +705,7 @@ Array<CIMObjectPath> CIMManagedClient::referenceNames(
         objectName.getNameSpace(),
         objectName,
         resultClass,
-        role);
+        role).getInstanceNames();
     for (Uint32 i = 0; i < retReferNames.size(); i++)
     {
         try

@@ -37,6 +37,6 @@ DIRS = \
     IndicationFormatter \
     OptionManager \
     Stopwatch \
-    ToMof 
+    ToMof
 
 include $(ROOT)/mak/recurse.mak

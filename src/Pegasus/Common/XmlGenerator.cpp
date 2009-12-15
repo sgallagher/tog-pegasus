@@ -204,6 +204,18 @@ static const int _isSpecialChar7[] =
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
 };
 
+// If _isSpecialChar7[ch] is true, then ch is a special character, which must
+// have a special encoding in XML. But only use 7-biat ASCII characters to
+// index this array.
+static const int _isNormalChar7[] =
+{
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,
+    1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Buffer& operator<<(Buffer& out, const Char16& x)
@@ -247,6 +259,35 @@ Buffer& operator<<(Buffer& out, const ContentLanguageList& cl)
     XmlGenerator::append(out, LanguageParser::buildContentLanguageHeader(cl));
     return out;
 }
+
+const StrLit XmlGenerator::_XmlWriterTypeStrings[17] =
+{
+    STRLIT("TYPE=\"boolean\""),   STRLIT("TYPE=\"uint8\""),
+    STRLIT("TYPE=\"sint8\""),     STRLIT("TYPE=\"uint16\""),
+    STRLIT("TYPE=\"sint16\""),    STRLIT("TYPE=\"uint32\""),
+    STRLIT("TYPE=\"sint32\""),    STRLIT("TYPE=\"uint64\""),
+    STRLIT("TYPE=\"sint64\""),    STRLIT("TYPE=\"real32\""),
+    STRLIT("TYPE=\"real64\""),    STRLIT("TYPE=\"char16\""),
+    STRLIT("TYPE=\"string\""),    STRLIT("TYPE=\"datetime\""),
+    STRLIT("TYPE=\"reference\""), STRLIT("TYPE=\"object\""),
+    STRLIT("TYPE=\"instance\"")
+};
+
+const StrLit XmlGenerator::_XmlWriterKeyTypeStrings[17] =
+{
+    STRLIT("boolean"), STRLIT("numeric"),
+    STRLIT("numeric"), STRLIT("numeric"),
+    STRLIT("numeric"), STRLIT("numeric"),
+    STRLIT("numeric"), STRLIT("numeric"),
+    STRLIT("numeric"), STRLIT("numeric"),
+    STRLIT("numeric"), STRLIT("string"),
+    STRLIT("string"),  STRLIT("string"),
+    /* The following are not valid values for a keytype, but left in here
+       so in case something is going wrong it can be easily concluded from the
+       generated XML */
+    STRLIT("reference"), STRLIT("object"),
+    STRLIT("instance")
+};
 
 void XmlGenerator::_appendChar(Buffer& out, const Char16& c)
 {
@@ -360,29 +401,6 @@ void XmlGenerator::_appendSpecial(PEGASUS_STD(ostream)& os, const char* str)
         _appendSpecialChar(os, *str++);
 }
 
-// On windows sprintf outputs 3 digit precision exponent prepending
-// zeros. Make it 2 digit precision if first digit is zero in the exponent.
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-void XmlGenerator::_normalizeRealValueString(char* str)
-{
-    // skip initial sign value...
-    if (*str == '-' || *str == '+')
-    {
-        ++str;
-    }
-    while (*str && *str != '+' && *str != '-')
-    {
-        ++str;
-    }
-    if (*str && * ++str == '0')
-    {
-        *str = *(str+1);
-        *(str+1) = *(str+2);
-        *(str+2) = 0;
-    }
-}
-#endif
-
 void XmlGenerator::append(Buffer& out, const Char16& x)
 {
     _appendChar(out, x);
@@ -430,28 +448,18 @@ void XmlGenerator::append(Buffer& out, Sint64 x)
 
 void XmlGenerator::append(Buffer& out, Real32 x)
 {
+    Uint32 outputLength=0;
     char buffer[128];
-    // %.7e gives '[-]m.ddddddde+/-xx', which seems compatible with the format
-    // given in the CIM/XML spec, and the precision required by the CIM 2.2 spec
-    // (4 byte IEEE floating point)
-    sprintf(buffer, "%.7e", x);
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    _normalizeRealValueString(buffer);
-#endif
-    append(out, buffer);
+    const char * output = Real32ToString(buffer, x, outputLength);
+    out.append(output, outputLength);
 }
 
 void XmlGenerator::append(Buffer& out, Real64 x)
 {
+    Uint32 outputLength=0;
     char buffer[128];
-    // %.16e gives '[-]m.dddddddddddddddde+/-xx', which seems compatible
-    // with the format given in the CIM/XML spec, and the precision required
-    // by the CIM 2.2 spec (8 byte IEEE floating point)
-    sprintf(buffer, "%.16e", x);
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    _normalizeRealValueString(buffer);
-#endif
-    append(out, buffer);
+    const char * output = Real64ToString(buffer, x, outputLength);
+    out.append(output, outputLength);
 }
 
 void XmlGenerator::append(Buffer& out, const char* str)
@@ -596,6 +604,203 @@ void XmlGenerator::appendSpecial(Buffer& out, const String& str)
         out.append(STRLIT_ARGS("&#32;"));
     }
 }
+
+// str has to be UTF-8 encoded
+// that means the characters used cannot be larger than 7bit ASCII in value
+// range
+void XmlGenerator::appendSpecial(Buffer& out, const char* str, Uint32 size)
+{
+    // employ loop unrolling and a less checking optimized Buffer access
+
+    // Buffer cannot grow more than 6*size characters (ie. 4*size+2*size)
+    Uint32 newMaxSize = (size << 2) + (size << 1);
+    if (out.size() + newMaxSize >= out.capacity())
+    {
+        out.reserveCapacity(out.capacity() + newMaxSize);
+    }
+
+    // Before using a loop unrolled algorithm to pick out the special chars
+    // we are going to assume there is no special char as this is the case most
+    // of the time anyway
+    Uint32 sizeStart=size;
+    const Uint8* p= (const Uint8*) str;
+
+    while (size >= 4 &&
+             (_isNormalChar7[p[0]] &
+              _isNormalChar7[p[1]] &
+              _isNormalChar7[p[2]] &
+              _isNormalChar7[p[3]]))
+    {
+        size -= 4;
+        p += 4;
+    }
+    out.append_unchecked(str,sizeStart-size);
+    str=(const char*)p;
+
+    while (size>=8)
+    {
+        register int c;
+        c = str[0];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[1];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[2];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[3];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[4];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[5];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[6];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[7];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        str+=8;
+        size-=8;
+    }
+
+    while (size>=4)
+    {
+        register int c;
+        c = str[0];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[1];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[2];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        c = str[3];
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        str+=4;
+        size-=4;
+    }
+
+    while (size--)
+    {
+        register int c;
+        c=*str;
+        if (_isSpecialChar7[c])
+        {
+            out.append_unchecked(
+                _specialChars[c].str,
+                _specialChars[c].size);
+        }
+        else
+        {
+            out.append_unchecked(c);
+        }
+        str++;
+    }
+}
+
 
 // See http://www.ietf.org/rfc/rfc2396.txt section 2
 // Reserved characters = ';' '/' '?' ':' '@' '&' '=' '+' '$' ','

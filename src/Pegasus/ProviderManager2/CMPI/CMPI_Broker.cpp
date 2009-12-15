@@ -39,12 +39,14 @@
 #include "CMPIProviderManager.h"
 #include "CMPI_String.h"
 #include <Pegasus/ProviderManager2/CMPI/CMPIClassCache.h>
+#include <Pegasus/ProviderManager2/CMPI/CMPI_ThreadContext.h>
 
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMType.h>
+#include "CMPISCMOUtilities.h"
 
 
 PEGASUS_USING_STD;
@@ -154,15 +156,42 @@ static CIMPropertyList getList(const char** l)
     return pl;
 }
 
-CIMClass* mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop)
+SCMOClass* mbGetSCMOClass(
+    const char* nameSpace,
+    Uint32 nsL,
+    const char* cls,
+    Uint32 clsL)
 {
-    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_Broker:mbGetClass()");
+    PEG_METHOD_ENTER(TRC_CMPIPROVIDERINTERFACE, "CMPI_Broker:mbGetSCMOClass()");
 
-    mb=CM_BROKER;
-    CMPI_Broker *xBroker=(CMPI_Broker*)mb;
-    CIMClass * ccp = xBroker->classCache.getClass(xBroker, cop);
+    const CMPIBroker * mb = CMPI_ThreadContext::getBroker();
+    CMPI_Broker *xBroker = (CMPI_Broker*)mb;
+
+    const char* ns=nameSpace;
+    if (0 == nsL)
+    {
+        //If we don't have a namespace here, we use the initnamespace from
+        // the thread context, since we need one to be able to lookup the class
+        const CMPIContext* ctx = CMPI_ThreadContext::getContext();
+        if (0!=ctx)
+        {
+            CMPIStatus rc;
+            CMPIData nsCtxData = CMGetContextEntry(ctx, CMPIInitNameSpace,&rc);
+            if (rc.rc == CMPI_RC_OK)
+            {
+                ns = CMGetCharsPtr(nsCtxData.value.string, 0);
+                nsL = strlen(ns);
+            }
+        }
+
+    }
+
+
+    SCMOClass* scmoCls =
+        xBroker->classCache.getSCMOClass(xBroker, ns, nsL, cls, clsL);
+
     PEG_METHOD_EXIT();
-    return ccp;
+    return scmoCls;
 }
 
 extern "C"
@@ -183,27 +212,40 @@ extern "C"
         CMPIFlags flgs =
             ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
         const CIMPropertyList props = getList(properties);
-        CIMObjectPath qop(
-            String::EMPTY,
-            CIMNamespaceName(),
-            CM_ObjectPath(cop)->getClassName(),
-            CM_ObjectPath(cop)->getKeyBindings());
 
+        SCMOInstance* scmoObjPath = SCMO_ObjectPath(cop);
+        CIMObjectPath qop;
         try
         {
-            CIMInstance ci = CM_CIMOM(mb)->getInstance(
+            scmoObjPath->getCIMObjectPath(qop);
+
+            CIMResponseData resData = CM_CIMOM(mb)->getInstance(
                 *CM_Context(ctx),
-                CM_ObjectPath(cop)->getNameSpace(),
-                qop, //*CM_ObjectPath(cop),
-                false, // Use of localOnly is deprecated by DMTF.
+                scmoObjPath->getNameSpace(),
+                qop,
                 CM_IncludeQualifiers(flgs),
                 CM_ClassOrigin(flgs),
                 props);
 
-            ci.setPath(*CM_ObjectPath(cop));
-            CMSetStatus(rc,CMPI_RC_OK);
+            SCMOInstance& scmoOrgInst = resData.getSCMO()[0];
+
+            SCMOInstance* scmoInst = new SCMOInstance(scmoOrgInst);
+
+            // Rebuild the objectPath
+            if (0==scmoInst->getNameSpace())
+            {
+                scmoInst->setNameSpace(scmoObjPath->getNameSpace());
+            }
+            if (0==scmoInst->getClassName())
+            {
+                scmoInst->setClassName(scmoObjPath->getClassName());
+            }
+            scmoInst->buildKeyBindingsFromProperties();
+
             CMPIInstance* cmpiInst = reinterpret_cast<CMPIInstance*>(
-                new CMPI_Object(new CIMInstance(ci)));
+                new CMPI_Object(scmoInst,CMPI_Object::ObjectTypeInstance));
+
+            CMSetStatus(rc,CMPI_RC_OK);
             PEG_METHOD_EXIT();
             return cmpiInst;
         }
@@ -225,15 +267,26 @@ extern "C"
 
         mb = CM_BROKER;
 
+        SCMOInstance* scmoInst = SCMO_Instance(ci);
+        CIMInstance inst;
         try
         {
+            scmoInst->getCIMInstance(inst);
+
             CIMObjectPath ncop = CM_CIMOM(mb)->createInstance(
                 *CM_Context(ctx),
-                CM_ObjectPath(cop)->getNameSpace(),
-                *CM_Instance(ci));
-            CMSetStatus(rc,CMPI_RC_OK);
+                scmoInst->getNameSpace(),
+                inst);
+
+            SCMOInstance* newScmoInst=
+                CMPISCMOUtilities::getSCMOFromCIMObjectPath(
+                    ncop,
+                    scmoInst->getNameSpace());
+
             CMPIObjectPath* cmpiObjPath = reinterpret_cast<CMPIObjectPath*>(
-                new CMPI_Object(new CIMObjectPath(ncop)));
+                new CMPI_Object(newScmoInst,CMPI_Object::ObjectTypeObjectPath));
+
+            CMSetStatus(rc,CMPI_RC_OK);
             PEG_METHOD_EXIT();
             return cmpiObjPath;
         }
@@ -257,14 +310,16 @@ extern "C"
             ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
         const CIMPropertyList props = getList(properties);
 
+        SCMOInstance* scmoInst = SCMO_Instance(ci);
+        CIMInstance inst;
         try
         {
-            CIMInstance cmi(*CM_Instance(ci));
-            cmi.setPath(*CM_ObjectPath(cop));
+            scmoInst->getCIMInstance(inst);
+
             CM_CIMOM(mb)->modifyInstance(
                 *CM_Context(ctx),
-                CM_ObjectPath(cop)->getNameSpace(),
-                cmi,
+                SCMO_ObjectPath(cop)->getNameSpace(),
+                inst,
                 CM_IncludeQualifiers(flgs),
                 props);
         }
@@ -283,17 +338,17 @@ extern "C"
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_Broker:mbDeleteInstance()");
         mb = CM_BROKER;
-        CIMObjectPath qop(
-            String::EMPTY,CIMNamespaceName(),
-            CM_ObjectPath(cop)->getClassName(),
-            CM_ObjectPath(cop)->getKeyBindings());
 
+        SCMOInstance* scmoObjPath = SCMO_ObjectPath(cop);
+        CIMObjectPath qop;
         try
         {
+            scmoObjPath->getCIMObjectPath(qop);
+
             CM_CIMOM(mb)->deleteInstance(
                 *CM_Context(ctx),
-                CM_ObjectPath(cop)->getNameSpace(),
-                qop); //*CM_ObjectPath(cop));
+                SCMO_ObjectPath(cop)->getNameSpace(),
+                qop);
         }
         HandlerCatchReturnStatus();
 
@@ -314,16 +369,21 @@ extern "C"
 
         try
         {
-            Array<CIMObject> const &en = CM_CIMOM(mb)->execQuery(
+            CIMResponseData resData = CM_CIMOM(mb)->execQuery(
                 *CM_Context(ctx),
-                CM_ObjectPath(cop)->getNameSpace(),
+                SCMO_ObjectPath(cop)->getNameSpace(),
                 String(lang),
                 String(query));
-                CMSetStatus(rc,CMPI_RC_OK);
 
-            CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*> (
-                new CMPI_Object(
-                new CMPI_ObjEnumeration(new Array<CIMObject>(en))));
+
+            Array<SCMOInstance>* aObj =
+                new Array<SCMOInstance>(resData.getSCMO());
+
+
+            CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
+                new CMPI_Object(new CMPI_ObjEnumeration(aObj)));
+
+            CMSetStatus(rc,CMPI_RC_OK);
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
@@ -350,39 +410,28 @@ extern "C"
 
         try
         {
-            Array<CIMInstance> const &en =
+            CIMResponseData resData =
                 CM_CIMOM(mb)->enumerateInstances(
                     *CM_Context(ctx),
-                    CM_ObjectPath(cop)->getNameSpace(),
-                    CM_ObjectPath(cop)->getClassName(),
-                    CM_DeepInheritance(flgs),
-                    false, //Use of localOnly is deprecated by DMTF.
+                    SCMO_ObjectPath(cop)->getNameSpace(),
+                    SCMO_ObjectPath(cop)->getClassName(),
+                    true,
                     CM_IncludeQualifiers(flgs),
                     CM_ClassOrigin(flgs),
                     props);
 
-            CMSetStatus(rc,CMPI_RC_OK);
-
-            // Workaround for bugzilla 4620
             // When running out of process the returned instances don't contain
-            // a name space. Create a writable copy of the array and add the
-            // namespace from the input parameters.
+            // a namespace.
+            // Add the namespace from the input parameters where neccessary
+            resData.completeNamespace(SCMO_ObjectPath(cop));
 
-            Array<CIMInstance> * aInst = new Array<CIMInstance>(en);
-            Uint32 arrSize = aInst->size();
-            if (arrSize && (*aInst)[0].getPath().getNameSpace().
-                getString().size() == 0)
-            {
-                for (Uint32 index = 0; index < arrSize; index++)
-                {
-                    CIMObjectPath orgCop = (*aInst)[index].getPath();
-                    orgCop.setNameSpace(CM_ObjectPath(cop)->getNameSpace());
-                    (*aInst)[index].setPath(orgCop);
-                }
-            }
+            Array<SCMOInstance>* aInst =
+                new Array<SCMOInstance>(resData.getSCMO());
 
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
                 new CMPI_Object(new CMPI_InstEnumeration(aInst)));
+
+            CMSetStatus(rc,CMPI_RC_OK);
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
@@ -404,28 +453,25 @@ extern "C"
 
         try
         {
-            Array<CIMObjectPath> const &en =
+            CIMResponseData resData =
                 CM_CIMOM(mb)->enumerateInstanceNames(
                     *CM_Context(ctx),
-                    CM_ObjectPath(cop)->getNameSpace(),
-                    CM_ObjectPath(cop)->getClassName());
-                    CMSetStatus(rc,CMPI_RC_OK);
+                    SCMO_ObjectPath(cop)->getNameSpace(),
+                    SCMO_ObjectPath(cop)->getClassName());
 
             // When running out of process the returned instances don't contain
-            // a name space. Create a writable copy of the array and add the
-            // namespace from the input parameters.
-            Array<CIMObjectPath> * aRef = new Array<CIMObjectPath>(en);
-            Uint32 arrSize = aRef->size();
-            if (arrSize && (*aRef)[0].getNameSpace().getString().size() == 0)
-            {
-                for (Uint32 index = 0; index < arrSize; index++)
-                {
-                    (*aRef)[index].setNameSpace(
-                        CM_ObjectPath(cop)->getNameSpace());
-                }
-            }
+            // a namespace.
+            // Add the namespace from the input parameters where neccessary
+            resData.completeNamespace(SCMO_ObjectPath(cop));
+
+            Array<SCMOInstance>* aRef =
+                new Array<SCMOInstance>(resData.getSCMO());
+
+
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
                 new CMPI_Object(new CMPI_OpEnumeration(aRef)));
+
+            CMSetStatus(rc,CMPI_RC_OK);
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
@@ -453,7 +499,7 @@ extern "C"
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class has no
         //  key bindings
-        if (!CM_ObjectPath(cop)->getKeyBindings().size())
+        if (!SCMO_ObjectPath(cop)->getKeyBindingCount())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             PEG_METHOD_EXIT();
@@ -462,17 +508,19 @@ extern "C"
         CMPIFlags flgs =
             ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
         const CIMPropertyList props = getList(properties);
-        CIMObjectPath qop(
-            String::EMPTY,CIMNamespaceName(),
-            CM_ObjectPath(cop)->getClassName(),
-            CM_ObjectPath(cop)->getKeyBindings());
 
+        SCMOInstance* scmoObjPath = SCMO_ObjectPath(cop);
+        CIMObjectPath qop;
         try
         {
-            Array<CIMObject> const &en =
+            scmoObjPath->getCIMObjectPath(qop);
+            // For compatibility with previous implementations have empty ns
+            qop.setNameSpace(CIMNamespaceName());
+
+            CIMResponseData resData =
                 CM_CIMOM(mb)->associators(
                     *CM_Context(ctx),
-                    CM_ObjectPath(cop)->getNameSpace(),
+                    SCMO_ObjectPath(cop)->getNameSpace(),
                     qop,
                     assocClass ? CIMName(assocClass) : CIMName(),
                     resultClass ? CIMName(resultClass) : CIMName(),
@@ -482,27 +530,18 @@ extern "C"
                     CM_ClassOrigin(flgs),
                     props);
 
-            CMSetStatus(rc,CMPI_RC_OK);
-
-            // Workaround for bugzilla 4620
             // When running out of process the returned instances don't contain
-            // a name space. Create a writable copy of the array and add the
-            // namespace from the input parameters.
-            Array<CIMObject> * aObj = new Array<CIMObject>(en);
-            Uint32 arrSize = aObj->size();
-            if (arrSize && (*aObj)[0].getPath().getNameSpace().
-                getString().size() == 0)
-            {
-                for (Uint32 index = 0; index < arrSize; index++)
-                {
-                    CIMObjectPath orgCop = (*aObj)[index].getPath();
-                    orgCop.setNameSpace(CM_ObjectPath(cop)->getNameSpace());
-                    (*aObj)[index].setPath(orgCop);
-                }
-            }
+            // a namespace.
+            // Add the namespace from the input parameters where neccessary
+            resData.completeNamespace(scmoObjPath);
+
+            Array<SCMOInstance>* aObj =
+                new Array<SCMOInstance>(resData.getSCMO());
 
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
                 new CMPI_Object(new CMPI_ObjEnumeration(aObj)));
+
+            CMSetStatus(rc,CMPI_RC_OK);
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
@@ -529,46 +568,44 @@ extern "C"
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class has no
         //  key bindings
-        if (!CM_ObjectPath(cop)->getKeyBindings().size())
+        if (!SCMO_ObjectPath(cop)->getKeyBindingCount())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             PEG_METHOD_EXIT();
             return 0;
         }
-        CIMObjectPath qop(
-            String::EMPTY,CIMNamespaceName(),
-            CM_ObjectPath(cop)->getClassName(),
-            CM_ObjectPath(cop)->getKeyBindings());
 
+        SCMOInstance* scmoObjPath = SCMO_ObjectPath(cop);
+        CIMObjectPath qop;
         try
         {
-            Array<CIMObjectPath> const &en =
+            scmoObjPath->getCIMObjectPath(qop);
+            // For compatibility with previous implementations have empty ns
+            qop.setNameSpace(CIMNamespaceName());
+
+            CIMResponseData resData =
                 CM_CIMOM(mb)->associatorNames(
                     *CM_Context(ctx),
-                    CM_ObjectPath(cop)->getNameSpace(),
+                    scmoObjPath->getNameSpace(),
                     qop,
                     assocClass ? CIMName(assocClass) : CIMName(),
                     resultClass ? CIMName(resultClass) : CIMName(),
                     role ? String(role) : String::EMPTY,
                     resultRole ? String(resultRole) : String::EMPTY);
-                    CMSetStatus(rc,CMPI_RC_OK);
 
             // When running out of process the returned instances don't contain
-            // a name space. Create a writable copy of the array and add the
-            // namespace from the input parameters.
-            Array<CIMObjectPath> * aRef = new Array<CIMObjectPath>(en);
-            Uint32 arrSize = aRef->size();
-            if (arrSize && (*aRef)[0].getNameSpace().getString().size() == 0)
-            {
-                for (Uint32 index = 0; index < arrSize; index++)
-                {
-                    (*aRef)[index].setNameSpace(
-                        CM_ObjectPath(cop)->getNameSpace());
-                }
-            }
+            // a namespace.
+            // Add the namespace from the input parameters where neccessary
+            resData.completeNamespace(scmoObjPath);
+
+            Array<SCMOInstance>* aRef =
+                new Array<SCMOInstance>(resData.getSCMO());
+
 
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
                 new CMPI_Object(new CMPI_OpEnumeration(aRef)));
+
+            CMSetStatus(rc,CMPI_RC_OK);
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
@@ -594,7 +631,7 @@ extern "C"
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class has no
         //  key bindings
-        if (!CM_ObjectPath(cop)->getKeyBindings().size())
+        if (!SCMO_ObjectPath(cop)->getKeyBindingCount())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             PEG_METHOD_EXIT();
@@ -603,18 +640,20 @@ extern "C"
         CMPIFlags flgs =
            ctx->ft->getEntry(ctx,CMPIInvocationFlags,NULL).value.uint32;
         CIMPropertyList props = getList(properties);
-        CIMObjectPath qop(
-            String::EMPTY,
-            CIMNamespaceName(),
-            CM_ObjectPath(cop)->getClassName(),
-            CM_ObjectPath(cop)->getKeyBindings());
 
+
+        SCMOInstance* scmoObjPath = SCMO_ObjectPath(cop);
+        CIMObjectPath qop;
         try
         {
-            Array<CIMObject> const &en =
+            scmoObjPath->getCIMObjectPath(qop);
+            // For compatibility with previous implementations have empty ns
+            qop.setNameSpace(CIMNamespaceName());
+
+            CIMResponseData resData =
                 CM_CIMOM(mb)->references(
                     *CM_Context(ctx),
-                    CM_ObjectPath(cop)->getNameSpace(),
+                    scmoObjPath->getNameSpace(),
                     qop,
                     resultClass ? CIMName(resultClass) : CIMName(),
                     role ? String(role) : String::EMPTY,
@@ -623,22 +662,12 @@ extern "C"
                     props);
 
             CMSetStatus(rc,CMPI_RC_OK);
-            // Workaround for bugzilla 4620
-            // When running out of process the returned instances don't contain
-            // a name space. Create a writable copy of the array and add the
-            // namespace from the input parameters.
-            Array<CIMObject> * aObj = new Array<CIMObject>(en);
-            Uint32 arrSize = aObj->size();
-            if (arrSize && (*aObj)[0].getPath().getNameSpace().
-                getString().size() == 0)
-            {
-                for (Uint32 index = 0; index < arrSize; index++)
-                {
-                    CIMObjectPath orgCop = (*aObj)[index].getPath();
-                    orgCop.setNameSpace(CM_ObjectPath(cop)->getNameSpace());
-                    (*aObj)[index].setPath(orgCop);
-                }
-            }
+
+            // Add the namespace from the input parameters when neccessary
+            resData.completeNamespace(scmoObjPath);
+
+            Array<SCMOInstance>* aObj =
+                new Array<SCMOInstance>(resData.getSCMO());
 
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
                 new CMPI_Object(new CMPI_ObjEnumeration(aObj)));
@@ -666,45 +695,38 @@ extern "C"
         //  distinguish instanceNames from classNames in every case
         //  The instanceName of a singleton instance of a keyless class has no
         //  key bindings
-        if (!CM_ObjectPath(cop)->getKeyBindings().size())
+        if (!SCMO_ObjectPath(cop)->getKeyBindingCount())
         {
             CMSetStatus(rc, CMPI_RC_ERR_FAILED);
             PEG_METHOD_EXIT();
             return 0;
         }
-        CIMObjectPath qop(
-            String::EMPTY,
-            CIMNamespaceName(),
-            CM_ObjectPath(cop)->getClassName(),
-            CM_ObjectPath(cop)->getKeyBindings());
 
+        SCMOInstance* scmoObjPath = SCMO_ObjectPath(cop);
+        CIMObjectPath qop;
         try
         {
-            Array<CIMObjectPath> const &en =
+            scmoObjPath->getCIMObjectPath(qop);
+            // For compatibility with previous implementations have empty ns
+            qop.setNameSpace(CIMNamespaceName());
+
+            CIMResponseData resData =
                 CM_CIMOM(mb)->referenceNames(
                     *CM_Context(ctx),
-                    CM_ObjectPath(cop)->getNameSpace(),
+                    scmoObjPath->getNameSpace(),
                     qop,
                     resultClass ? CIMName(resultClass) : CIMName(),
                     role ? String(role) : String::EMPTY);
-                    CMSetStatus(rc,CMPI_RC_OK);
 
-            // When running out of process the returned instances don't contain
-            // a name space. Create a writable copy of the array and add the
-            // namespace from the input parameters.
-            Array<CIMObjectPath> * aRef = new Array<CIMObjectPath>(en);
-            Uint32 arrSize = aRef->size();
-            if (arrSize && (*aRef)[0].getNameSpace().getString().size() == 0)
-            {
-                for (Uint32 index = 0; index < arrSize; index++)
-                {
-                    (*aRef)[index].setNameSpace(
-                        CM_ObjectPath(cop)->getNameSpace());
-                }
-            }
+            // Add the namespace from the input parameters when neccessary
+            resData.completeNamespace(scmoObjPath);
+
+            Array<SCMOInstance>* aRef =
+                new Array<SCMOInstance>(resData.getSCMO());
 
             CMPIEnumeration* cmpiEnum = reinterpret_cast<CMPIEnumeration*>(
                 new CMPI_Object(new CMPI_OpEnumeration(aRef)));
+            CMSetStatus(rc,CMPI_RC_OK);
             PEG_METHOD_EXIT();
             return cmpiEnum;
         }
@@ -729,23 +751,26 @@ extern "C"
             "CMPI_Broker:mbInvokeMethod()");
         CMPIData data = {0,CMPI_nullValue,{0}};
         mb = CM_BROKER;
-        CIMObjectPath qop(
-            String::EMPTY,CIMNamespaceName(),
-            CM_ObjectPath(cop)->getClassName(),
-            CM_ObjectPath(cop)->getKeyBindings());
 
+
+        SCMOInstance* scmoObjPath = SCMO_ObjectPath(cop);
+        CIMObjectPath qop;
         try
         {
+            scmoObjPath->getCIMObjectPath(qop);
+
             CIMValue v = CM_CIMOM(mb)->invokeMethod(
                 *CM_Context(ctx),
-                CM_ObjectPath(cop)->getNameSpace(),
+                SCMO_ObjectPath(cop)->getNameSpace(),
                 qop,
                 method ? String(method) : String::EMPTY,
                 *CM_Args(in),
                 *CM_Args(out));
-                CIMType vType=v.getType();
-                CMPIType t = type2CMPIType(vType,v.isArray());
-                value2CMPIData(v,t,&data);
+
+            CIMType vType=v.getType();
+            CMPIType t = type2CMPIType(vType,v.isArray());
+            value2CMPIData(v,t,&data);
+
             if (rc)
             {
                 CMSetStatus(rc,CMPI_RC_OK);
@@ -772,12 +797,16 @@ extern "C"
         CMPIrc rc;
         CIMValue v = value2CIMValue(val,type,&rc);
 
+        SCMOInstance* scmoObjPath = SCMO_ObjectPath(cop);
+        CIMObjectPath qop;
         try
         {
+            scmoObjPath->getCIMObjectPath(qop);
+
             CM_CIMOM(mb)->setProperty(
                 *CM_Context(ctx),
-                CM_ObjectPath(cop)->getNameSpace(),
-                *CM_ObjectPath(cop),
+                SCMO_ObjectPath(cop)->getNameSpace(),
+                qop,
                 String(name),
                 v);
         }
@@ -800,12 +829,16 @@ extern "C"
         mb = CM_BROKER;
         CMPIData data = {0,CMPI_nullValue,{0}};
 
+        SCMOInstance* scmoObjPath = SCMO_ObjectPath(cop);
+        CIMObjectPath qop;
+        scmoObjPath->getCIMObjectPath(qop);
+
         try
         {
             CIMValue v = CM_CIMOM(mb)->getProperty(
                 *CM_Context(ctx),
-                CM_ObjectPath(cop)->getNameSpace(),
-                *CM_ObjectPath(cop),
+                SCMO_ObjectPath(cop)->getNameSpace(),
+                qop,
                 String(name));
             CIMType vType = v.getType();
             CMPIType t = type2CMPIType(vType,v.isArray());
@@ -818,7 +851,7 @@ extern "C"
         return data; // "data" will be valid data or nullValue (in error case)
     }
 
-    /* With Bug#8541 the CMPI Provider Manager was changed to attach the 
+    /* With Bug#8541 the CMPI Provider Manager was changed to attach the
        complete requests operation context to the CMPI thread context.
        In future, when we have a lot more containers on the operation context,
        this might lead to an impact on memory usage here, when the entire
@@ -883,6 +916,11 @@ extern "C"
         CMPI_Broker *mb = (CMPI_Broker*)eMb;
         IndProvRecord *indProvRec;
         OperationContext* context = CM_Context(ctx);
+
+        SCMOInstance* scmoInst = SCMO_Instance(ind);
+        CIMInstance indInst;
+        scmoInst->getCIMInstance(indInst);
+
         // When an indication to be delivered comes from Remote providers,
         // the CMPIBroker contains the name of the provider in the form
         // of physical-name:logical-name. Search using logical-name. -V 5884
@@ -916,7 +954,7 @@ extern "C"
                         SubscriptionInstanceNamesContainer(
                             subscriptionInstanceNames));
                 }
-                CIMIndication cimIndication(*CM_Instance(ind));
+                CIMIndication cimIndication(indInst);
                 try
                 {
                     indProvRec->getHandler()->deliver(

@@ -63,7 +63,7 @@ public:
 
     ~IndProvRecord()    
     {
-        CMPI_SelectExp *eSelx;
+        CMPI_SelectExp *eSelx = 0;
         for (SelectExpTab::Iterator i = selectExpTab.start(); i; i++)
         {
             selectExpTab.lookup(i.key(), eSelx);
@@ -251,6 +251,21 @@ protected:
     void _throwCIMException(
         CMPIStatus code,
         CMPI_Error* cmpiError);
+
+    SCMOInstance* getSCMOClassFromRequest(
+        CString& nameSpace,
+        CString& className );
+
+    SCMOInstance* getSCMOObjectPathFromRequest(
+        CString& nameSpace,
+        CString& className,
+        CIMObjectPath& cimObjPath );
+    
+    SCMOInstance* getSCMOInstanceFromRequest(
+        CString& nameSpace,
+        CString& className,
+        CIMInstance& cimInstance );
+
 };
 
 PEGASUS_NAMESPACE_END

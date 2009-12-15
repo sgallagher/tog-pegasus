@@ -34,11 +34,13 @@
 
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/AtomicInt.h>
-#include <Pegasus/Common/CIMType.h>
-#include <Pegasus/Common/CIMClass.h>
-#include <Pegasus/Common/CIMQualifierList.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/CIMDateTimeRep.h>
+#include <Pegasus/Common/CIMType.h>
+#include <Pegasus/Common/AtomicInt.h>
+#include <Pegasus/Common/CIMQualifierList.h>
+#include <Pegasus/Common/CIMObjectPath.h>
+#include <Pegasus/Common/System.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -48,11 +50,8 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_PROPERTY_SCMB_HASHSIZE 64
 #define PEGASUS_KEYBINDIG_SCMB_HASHSIZE 32
 
-#define PEGASUS_SCMB_CLASS_MAGIC 0xF00FABCD
-#define PEGASUS_SCMB_INSTANCE_MAGIC 0xD00D1234
-
 class SCMOClass;
-class SCMODump;
+class SCMOInstance;
 
 // The enum of return values for SCMO functions.
 enum SCMO_RC
@@ -63,7 +62,10 @@ enum SCMO_RC
     SCMO_INDEX_OUT_OF_BOUND,
     SCMO_NOT_SAME_ORIGIN,
     SCMO_INVALID_PARAMETER,
-    SCMO_TYPE_MISSMATCH
+    SCMO_TYPE_MISSMATCH,
+    SCMO_WRONG_TYPE,
+    SCMO_NOT_AN_ARRAY,
+    SCMO_IS_AN_ARRAY
 };
 
 // This the definition of a relative pointer for objects stored in
@@ -72,8 +74,8 @@ struct SCMBDataPtr
 {
     // start index of the data area
     Uint64      start;
-    // length of data area
-    Uint64      length;
+    // size of data area
+    Uint32      size;
 };
 
 //
@@ -91,6 +93,7 @@ enum QualifierNameEnum
     QUALNAME_AGGREGATION,
     QUALNAME_ALIAS,
     QUALNAME_ARRAYTYPE,
+    QUALNAME_ASSOCIATION,
     QUALNAME_BITMAP,
     QUALNAME_BITVALUES,
     QUALNAME_CLASSCONSTRAINT,
@@ -111,6 +114,7 @@ enum QualifierNameEnum
     QUALNAME_GAUGE,
     QUALNAME_IFDELETE,
     QUALNAME_IN,
+    QUALNAME_INDICATION,
     QUALNAME_INVISIBLE,
     QUALNAME_ISPUNIT,
     QUALNAME_KEY,
@@ -157,53 +161,60 @@ enum QualifierNameEnum
     QUALNAME_WRITE
 };
 
-struct SCMBDateTime
-{
-    // Number of microseconds elapsed since January 1, 1 BCE.
-    Uint64 usec;
-
-    // UTC offset
-    Uint32 utcOffset;
-
-    // ':' for intervals. '-' or '+' for time stamps.
-    Uint16 sign;
-
-    // Number of wild characters ('*') used to initialize this object.
-    Uint16 numWildcards;
-};
+typedef CIMDateTimeRep SCMBDateTime;
 
 //
 // This union is used to represent the values of properties, qualifiers,
 // method return values, and method arguments.
 //
 // This union is only used for simple CIMTypes.
-// If the CIMType is an Array or String the union contains the start index of
-// this value with in the SCMB memory block.
+// If the CIMType is a String the union contains a relative pointer to the
+// string.
+// If the CIMType is an Array the union contains
+// a relative pointer to of SCMBUnion[].
 //
-// For EmbeddedObjects and EmbeddedInstances the union
-// contains an external pointer.
+// To be able to return an absloute pointer to a string including the string
+// length ( without trailing '\0' ) the union contains the element extString.
 //
 union SCMBUnion
 {
-    Boolean     _booleanValue;
-    Uint8       _uint8Value;
-    Sint8       _sint8Value;
-    Uint16      _uint16Value;
-    Sint16      _sint16Value;
-    Uint32      _uint32Value;
-    Sint32      _sint32Value;
-    Uint64      _uint64Value;
-    Sint64      _sint64Value;
-    Real32      _real32Value;
-    Real64      _real64Value;
-    Uint16      _char16Value;
-    // A relative pointer to SCMBInstance_Main
-    SCMBDataPtr _referenceValue;
-    SCMBDataPtr _arrayValue;
-    SCMBDataPtr _stringValue;
-    SCMBDateTime _dateTimeValue;
-    // used for embedded instances and objects.
-    void*       _voidPtr;
+    struct
+    {
+        union
+        {
+            Boolean  bin;
+            Uint8    u8;
+            Sint8    s8;
+            Uint16   u16;
+            Sint16   s16;
+            Uint32   u32;
+            Sint32   s32;
+            Uint64   u64;
+            Sint64   s64;
+            Real32   r32;
+            Real64   r64;
+            Uint16   c16;
+        }val;
+        // SCMBUnion used in array values.
+        // This indicates if the single array member is a Null value.
+        // The type of size 64 is used to fill up the whole union.
+        Uint64 hasValue;
+    }simple;
+
+    SCMBDataPtr arrayValue;
+    SCMBDataPtr stringValue;
+    SCMBDateTime dateTimeValue;
+    // Used for embedded referecnes, instances, and objects
+    // as an external references to SCMO_Instances.
+    SCMOInstance* extRefPtr;
+
+    // This structure is used to handle an absolute char*
+    // including the length ( without traling '\0')
+    struct
+    {
+        Uint32 length;
+        char*  pchar;
+    }extString;
 };
 
 struct SCMBValue
@@ -224,6 +235,26 @@ struct SCMBValue
     Uint32          valueArraySize;
 
     SCMBUnion       value;
+};
+
+struct SCMBKeyBindingValue
+{
+    // Boolean flag, if the key binding was set by the provider.
+    Sint32       isSet;
+    // The value of the key binding
+    SCMBUnion    data;
+};
+
+struct SCMBUserKeyBindingElement
+{
+    // If not 0, a relative pointer to the next element.
+    SCMBDataPtr   nextElement;
+    // The cim type
+    CIMType       type;
+    // Relativer pointer to the key property name.
+    SCMBDataPtr   name;
+    // The value.
+    SCMBKeyBindingValue value;
 };
 
 struct SCMBQualifier
@@ -250,6 +281,13 @@ struct SCMBMgmt_Header
     Uint64          freeBytes;
     // Index to the start of the free space in this SCMB memory block.
     Uint64          startOfFreeSpace;
+    // Number of external references in this instance.
+    Uint32          numberExtRef;
+    // Size of external reference index array;
+    Uint32          sizeExtRefIndexArray;
+    // Relative pointer to the external reference Array.
+    SCMBDataPtr     extRefIndexArray;
+
 };
 
 //
@@ -274,7 +312,7 @@ struct SCMBClassProperty
     SCMBDataPtr     originClassName;
     // Relative pointer to the reference class name
     SCMBDataPtr     refClassName;
-    // Default value
+    // Contains the default value if specified
     SCMBValue       defaultValue;
     // Number of qualifiers in the array
     Uint32          numberOfQualifiers;
@@ -319,14 +357,14 @@ struct SCMBKeyBindingNode
     // Relativer pointer to the key property name.
     SCMBDataPtr     name;
     Uint32          nameHashTag;
-    // Key binding type.
-    CIMKeyBinding::Type type;
+    // The type of the key binding.
+    CIMType         type;
 };
 
 struct SCMBKeyBindingSet_Header
 {
 
-    // Number of keybindings in the keyBindingNodeArray.
+    // Number of keybindings in the nodeArray.
     Uint32          number;
     // Used for name based lookups based on the name tags
     // A tag is generated by entangling the bit values of a first
@@ -348,16 +386,21 @@ struct SCMBClass_Main
     SCMBMgmt_Header     header;
     // The reference counter for this class
     AtomicInt       refCount;
+    // Object flags
+    struct{
+      unsigned isEmpty :1;
+    }flags;
+
     // SuperClassName
     SCMBDataPtr     superClassName;
     // Relative pointer to classname
     SCMBDataPtr     className;
-    // Relative pointer to namespace
+    // Relative pointer to name space
     SCMBDataPtr     nameSpace;
     // The key properties of this class are identified
     // by a SCMBKeyPropertyMask
     SCMBDataPtr     keyPropertyMask;
-    // A list of index to the key propertis in the property set node array.
+    // A list of index to the key properties in the property set node array.
     SCMBDataPtr     keyIndexList;
     // Keybinding orderd set
     SCMBKeyBindingSet_Header keyBindingSet;
@@ -381,21 +424,41 @@ struct SCMBInstance_Main
     SCMBMgmt_Header     header;
     // The reference counter for this instance
     AtomicInt           refCount;
-    // A absolute pointer/reference to the class SCMB for this instance
-    SCMOClass*          theClass;
+
+    union
+    {
+        // An absolute pointer/reference to the class SCMB for this instance
+        SCMOClass*   ptr;
+        // To keept 64 Bit space for the pointer the same
+        // size on 32 and 64 Bit systems.
+        Uint64       placeHolder;
+    }theClass;
+
     // Instance flags
     struct{
       unsigned includeQualifiers  :1;
       unsigned includeClassOrigin :1;
       unsigned isFiltered:1;
+      unsigned isClassOnly:1;
+      unsigned isCompromised:1;
+      unsigned exportSetOnly:1;
     }flags;
-    // For a full object path is build using the name space and class name
-    // of the referenced class.
+
+    // Number of user defined key bindings
+    Uint32          numberUserKeyBindings;
+    // Relative pointer  SCMBUserKeyBindingElement
+    SCMBDataPtr     userKeyBindingElement;
+    // Relative pointers to the name space name and class name.
+    // Will be initialized by with the values of the linked SCMOClass.
+    // If it was overwritten, the new value is stored in the SCMOInstance
+    // and the the flag isCompromised is set to true.
+    SCMBDataPtr     instNameSpace;
+    SCMBDataPtr     instClassName;
     // Relative pointer to hostname
     SCMBDataPtr     hostName;
     // Number of key bindings of the instance
     Uint32          numberKeyBindings;
-    // Relative pointer to SCMOInstanceKeyBindingArray
+    // Relative pointer to SCMBInstanceKeyBindingArray
     SCMBDataPtr     keyBindingArray;
     // Relative pointer to SCMBPropertyFilter
     SCMBDataPtr     propertyFilter;
@@ -412,8 +475,7 @@ struct SCMBInstance_Main
 // The index of an instance key binding is the same as the class.
 // If a key binding has to be find by name, the class key binding ordered set
 // has to be used to find the right index.
-// The key bindings of an instances contains only the value as strings.
-typedef SCMBDataPtr SCMOInstanceKeyBindingArray[];
+typedef SCMBKeyBindingValue SCMBInstanceKeyBindingArray[];
 
 // The index of an instance property is the same as the class property.
 // If a property has to be find by name, the class property ordered set
@@ -459,581 +521,45 @@ struct SCMBProperty_Main
     SCMBValue       value;
 };
 
-class PEGASUS_COMMON_LINKAGE SCMOClass
-{
-public:
-
-    /**
-     * Constructs a SCMOClass out of a CIMClass.
-     * @param theCIMClass The source the SCMOClass is constucted off.
-     * @return
-     */
-    SCMOClass(CIMClass& theCIMClass );
-
-    /**
-     * Copy constructor for the SCMO class, used to implement refcounting.
-     * @param theSCMOClass The class for which to create a copy
-     * @return
-     */
-    SCMOClass(const SCMOClass& theSCMOClass )
-    {
-        cls.hdr = theSCMOClass.cls.hdr;
-        Ref();
-    }
-
-    /**
-     * Destructor is decrementing the refcount. If refcount is zero, the
-     * singele chunk memory object is deallocated.
-     */
-    ~SCMOClass()
-    {
-        Unref();
-    }
-
-    /**
-     * Gets the key property names as a string array
-     * @return An Array of String objects containing the names of the key
-     * properties.
-     */
-    void getKeyNamesAsString(Array<String>& keyNames) const;
-
-    /**
-     * Determines whether the object has been initialized.
-     * @return True if the object has not been initialized, false otherwise.
-     */
-    Boolean isUninitialized( ) const {return (cls.base == NULL); };
-
-private:
-
-    void Ref()
-    {
-        cls.hdr->refCount++;
-        // printf("\ncls.hdr->refCount=%u\n",cls.hdr->refCount.get());
-    };
-
-    void Unref()
-    {
-        if (cls.hdr->refCount.decAndTestIfZero())
-        {
-            // printf("\ncls.hdr->refCount=%u\n",cls.hdr->refCount.get());
-            free(cls.base);
-            cls.base=NULL;
-        }
-        else
-        {
-            // printf("\ncls.hdr->refCount=%u\n",cls.hdr->refCount.get());
-        }
-
-    };
-
-    /**
-     * Constructs an uninitialized SCMOClass object.
-     */
-    SCMOClass();
-
-    SCMO_RC _getProperyNodeIndex(Uint32& pos, const char* name) const;
-    SCMO_RC _getKeyBindingNodeIndex(Uint32& pos, const char* name) const;
-
-    void _setClassQualifers(CIMClass& theCIMClass);
-    QualifierNameEnum  _setQualifier(
-        Uint64 start,
-        const CIMQualifier& theCIMQualifier);
-
-    void _setClassProperties(CIMClass& theCIMClass);
-    void _setProperty(Uint64 start,
-                         Boolean* isKey,
-                         const CIMProperty& theCIMProperty);
-    Boolean _setPropertyQualifiers(
-        Uint64 start,
-        const CIMQualifierList& theQualifierList);
-
-    void _setClassKeyBinding(Uint64 start, const CIMProperty& theCIMProperty);
-    void _insertPropertyIntoOrderedSet(Uint64 start, Uint32 newIndex);
-    void _insertKeyBindingIntoOrderedSet(Uint64 start, Uint32 newIndex);
-    void _clearKeyPropertyMask();
-    void _setPropertyAsKeyInMask(Uint32 i);
-    Boolean _isPropertyKey(Uint32 i);
-
-    void _setValue(Uint64 start, const CIMValue& theCIMValue);
-    void _setUnionValue(Uint64 start, CIMType type, Union& u);
-    void _setArrayValue(Uint64 start, CIMType type, Union& u);
-    QualifierNameEnum _getSCMOQualifierNameEnum(const CIMName& theCIMname);
-    Boolean _isSamePropOrigin(Uint32 node, const char* origin) const;
-
-    union{
-        // To access the class main structure
-        SCMBClass_Main *hdr;
-        // To access the memory management header
-        SCMBMgmt_Header  *mem;
-        // Generic access pointer
-        unsigned char *base;
-    }cls;
-
-    friend class SCMOInstance;
-    friend class SCMODump;
-
-};
-
-class PEGASUS_COMMON_LINKAGE SCMOInstance
-{
-public:
-
-    /**
-     * Creating a SCMOInstance using a SCMBClass.
-     * @param base A pointer to an SCMBClass_Main
-     */
-    SCMOInstance(SCMOClass baseClass);
-
-    /**
-     * Copy constructor for the SCMO instance, used to implement refcounting.
-     * @param theSCMOClass The instance for which to create a copy
-     * @return
-     */
-    SCMOInstance(const SCMOInstance& theSCMOInstance )
-    {
-        inst.hdr = theSCMOInstance.inst.hdr;
-        Ref();
-    }
-
-    /**
-     * Destructor is decrementing the refcount. If refcount is zero, the
-     * singele chunk memory object is deallocated.
-     */
-    ~SCMOInstance()
-    {
-        Unref();
-    }
-
-    /**
-     * Builds a SCMOInstance based on this SCMOClass.
-     * The method arguments determine whether qualifiers are included,
-     * the class origin attributes are included,
-     * and which properties are included in the new instance.
-     * @param baseClass The SCMOClass of this instance.
-     * @param includeQualifiers A Boolean indicating whether qualifiers in
-     * the class definition (and its properties) are to be added to the
-     * instance.  The TOINSTANCE flavor is ignored.
-     * @param includeClassOrigin A Boolean indicating whether ClassOrigin
-     * attributes are to be added to the instance.
-     * @param propertyList Is an NULL terminated array of char* to property
-     * names defining the properties that are included in the created instance.
-     * If the propertyList is NULL, all properties are included to the instance.
-     * If the propertyList is empty, no properties are added.
-     *
-     * Note that this function does NOT generate an error if a property name
-     * is supplied that is NOT in the class;
-     * it simply does not add that property to the instance.
-     *
-     */
-    SCMOInstance(
-        SCMOClass baseClass,
-        Boolean includeQualifiers,
-        Boolean includeClassOrigin,
-        const char** propertyList);
-
-    /**
-     * Builds a SCMOInstance from the given SCMOClass and copies all
-     * CIMInstance data into the new SCMOInstance.
-     * @param baseClass The SCMOClass of this instance.
-     * @param cimInstance A CIMInstace of the same class.
-     */
-    SCMOInstance(SCMOClass baseClass, const CIMInstance& cimInstance);
-
-    /**
-     * Converts the SCMOInstance into a CIMInstance.
-     * It is a deep copy of the SCMOInstance into the CIMInstance.
-     * @param cimInstance An empty CIMInstance.
-     */
-    void getCIMInstance(CIMInstance& cimInstance) const;
-
-    /**
-     * Makes a deep copy of the instance.
-     * This creates a new copy of the instance.
-     * @return A new copy of the SCMOInstance object.
-     */
-    SCMOInstance clone() const;
-
-    /**
-     * Returns the number of properties of the instance.
-     * @param Number of properties
-     */
-    Uint32 getPropertyCount() const;
-
-    /**
-     * Gets the property name, type, and value addressed by a positional index.
-     * The property name and value has to be copied by the caller !
-     * @param pos The positional index of the property
-     * @param pname Returns the property name as '\0' terminated string.
-     *              Has to be copied by caller.
-     *              It is set to NULL if rc != SCMO_OK.
-     * @param pvalue Returns a pointer to the value of property.
-     *               The value has to be copied by the caller !
-     *               It returns NULL if rc != SCMO_OK.
-     *               If the value is an array, the
-     *               value array is stored in continuous memory.
-     *               e.g. If the CIMType is CIMTYPE_UINT32:
-     *               value = (void*)Uint32[0 to size-1]
-     *               If it is an array of CIMTYPE_STRING, an array
-     *               of char* to the string values is returned.
-     *               This array has to be freed by the caller !
-     * @param type Returns the CIMType of the property
-     *             It is invalid if rc == SCMO_INDEX_OUT_OF_BOUND.
-     * @param isArray Returns if the value is an array.
-     *             It is invalid if rc == SCMO_INDEX_OUT_OF_BOUND.
-     * @param size Returns the size of the array.
-     *             If it is not an array, 0 is returned.
-     *             It is invalid if rc == SCMO_INDEX_OUT_OF_BOUND.
-     *
-     * @return     SCMO_OK
-     *             SCMO_NULL_VALUE : The value is a null value.
-     *             SCMO_INDEX_OUT_OF_BOUND : Given index not found
-     *
-     */
-    SCMO_RC getPropertyAt(
-        Uint32 pos,
-        const unsigned char** pname,
-        CIMType& type,
-        const void** pvalue,
-        Boolean& isArray,
-        Uint32& size ) const;
-
-    /**
-     * Gets the type and value of the named property.
-     * The value has to be copied by the caller !
-     * @param name The property name
-     * @param pvalue Returns a pointer to the value of property.
-     *               The value has to be copied by the caller !
-     *               It returns NULL if rc != SCMO_OK.
-     *               If the value is an array, the
-     *               value array is stored in continuous memory.
-     *               e.g. If the CIMType is CIMTYPE_UINT32:
-     *               value = (void*)Uint32[0 to size-1]
-     *               If it is an array of CIMTYPE_STRING, an array
-     *               of char* to the string values is returned.
-     *               This array has to be freed by the caller !
-     * @param type Returns the CIMType of the property
-     *             It is invalid if rc == SCMO_NOT_FOUND.
-     * @param isArray Returns if the value is an array.
-     *             It is invalid if rc == SCMO_NOT_FOUND.
-     * @param size Returns the size of the array.
-     *             If it is not an array, 0 is returned.
-     *             It is invalid if rc == SCMO_NOT_FOUND.
-     *
-     * @return     SCMO_OK
-     *             SCMO_NULL_VALUE : The value is a null value.
-     *             SCMO_NOT_FOUND : Given property name not found.
-     */
-    SCMO_RC getProperty(
-        const char* name,
-        CIMType& type,
-        const void** pvalue,
-        Boolean& isArray,
-        Uint32& size ) const;
-
-    /**
-     * Set/replace a property in the instance.
-     * If the class origin is specified, it is honored at identifying
-     * the property within the instance.
-     * Note: Only properties which are already part of the instance/class can
-     * be set/replaced.
-     * @param name The name of the property to be set.
-     * @param type The CIMType of the property
-     * @param value A pointer to property  value.
-     *         The value is copied into the instance
-     *         If the value == NULL, a null value is assumed.
-     *         If the value is an array, the
-     *         value array must be stored in continuous memory.
-     *         e.g. If the CIMType is CIMTYPE_UINT32:
-     *         value = (void*)Uint32[0 to size-1]
-     * @param isArray Indicate that the value is an array. Default false.
-     * @param size Returns the size of the array. If not an array this
-     *         this parameter is ignorer. Default 0.
-     * @param origin The class originality of the property.
-     *               If NULL, then it is ignorred. Default NULL.
-     * @return     SCMO_OK
-     *             SCMO_NOT_SAME_ORIGIN : The property name was found, but
-     *                                    the origin was not the same.
-     *             SCMO_NOT_FOUND : Given property name not found.
-     */
-    SCMO_RC setPropertyWithOrigin(
-        const char* name,
-        CIMType type,
-        void* value,
-        Boolean isArray=false,
-        Uint32 size = 0,
-        const char* origin = NULL);
-
-    /**
-     * Rebuilds the key bindings off the property values
-     * if no or incomplete key properties are set on the instance.
-     */
-    void rebuildKeyProperties();
-
-    /**
-     * Set/replace a property filter on an instance.
-     * The filter is a white list of property names.
-     * A property part of the list can be accessed by name or index and
-     * is eligible to be returned to requester.
-     * Key properties can not be filtered. They are always a part of the
-     * instance. If a key property is not part of the property list,
-     * it will not be filtered out.
-     * @param propertyList Is an NULL terminated array of char* to
-     * property names
-     */
-    void setPropertyFilter(const char **propertyList);
-
-    /**
-     * Gets the hash index for the named property.
-     * @param theName The property name
-     * @param pos Returns the hash index.
-     * @return     SCMO_OK
-     *             SCMO_INVALID_PARAMETER: name was a NULL pointer.
-     *             SCMO_NOT_FOUND : Given property name not found.
-     */
-    SCMO_RC getPropertyNodeIndex(const char* name, Uint32& pos) const;
-
-    /**
-     * Set/replace a property in the instance at node index.
-     * @param index The node index.
-     * @param type The CIMType of the property
-     * @param value A pointer to property  value.
-     *         The value is copied into the instance
-     *         If the value is an array, the
-     *         value array must be stored in continuous memory.
-     *         e.g. If the CIMType is CIMTYPE_UINT32:
-     *         value = (void*)Uint32[0 to size-1]
-     * @param isArray Indicate that the value is an array. Default false.
-     * @param size The size of the array. If not an array this
-     *         this parameter is ignorer. Default 0.
-     * @return     SCMO_OK
-     *             SCMO_INDEX_OUT_OF_BOUND : Given index not found
-     *             SCMO_NOT_FOUND : The property at given node index
-     *                              is not set due to filtering.
-     */
-    SCMO_RC setPropertyWithNodeIndex(
-        Uint32 node,
-        CIMType type,
-        void* value,
-        Boolean isArray=false,
-        Uint32 size = 0);
-
-    /**
-     * Set/replace the named key binding
-     * @param name The key binding name.
-     * @param type The type as CIMKeyBinding::Type.
-     * @parma value The value as string.
-     * @return     SCMO_OK
-     *             SCMO_TYPE_MISSMATCH : Given type does not
-     *                                   match to key binding type
-     *             SCMO_NOT_FOUND : Given property name not found.
-     */
-    SCMO_RC setKeyBinding(
-        const char* name,
-        CIMKeyBinding::Type type,
-        const char* pvalue);
-
-    /**
-     * Gets the key binding count.
-     * @return the number of key bindings set.
-     */
-    Uint32 getKeyBindingCount();
-
-    /**
-     * Get the indexed key binding.
-     * @parm idx The key bining index
-     * @parm pname Returns the name.
-     *             Has to be copied by caller.
-     *             It is invalid if rc == SCMO_INDEX_OUT_OF_BOUND.
-     * @param type Returns the type as CIMKeyBinding::Type.
-     *             It is invalid if rc == SCMO_INDEX_OUT_OF_BOUND.
-     * @parma pvalue Returns the value as string.
-     *             Has to be copied by caller.
-     *             It is only valid if rc == SCMO_OK.
-     * @return     SCMO_OK
-     *             SCMO_NULL_VALUE : The key binding is not set.
-     *             SCMO_INDEX_OUT_OF_BOUND : Given index not found
-     *
-     */
-    SCMO_RC getKeyBindingAt(
-        Uint32 idx,
-        const unsigned char** pname,
-        CIMKeyBinding::Type& type,
-        const unsigned char** pvalue) const;
-
-    /**
-     * Get the named key binding.
-     * @parm name The name of the key binding.
-     * @param type Returns the type as CIMKeyBinding::Type.
-     *             It is invalid if rc == SCMO_INDEX_OUT_OF_BOUND.
-     * @parma value Returns the value as string.
-     *             Has to be copied by caller.
-     *             It is only valid if rc == SCMO_OK.
-     * @return     SCMO_OK
-     *             SCMO_NULL_VALUE : The key binding is not set.
-     *             SCMO_NOT_FOUND : Given property name not found.
-     */
-    SCMO_RC getKeyBinding(
-        const char* name,
-        CIMKeyBinding::Type& ptype,
-        const unsigned char** pvalue) const;
-
-    /**
-     * Determines whether the object has been initialized.
-     * @return True if the object has not been initialized, false otherwise.
-     */
-    Boolean isUninitialized( ) const {return (inst.base == NULL); };
-
-private:
-
-    void Ref()
-    {
-        inst.hdr->refCount++;
-        // printf("\ninst.hdr->refCount=%u\n",inst.hdr->refCount.get());
-    };
-
-    void Unref()
-    {
-        if (inst.hdr->refCount.decAndTestIfZero())
-        {
-            // printf("\ninst.hdr->refCount=%u\n",inst.hdr->refCount.get());
-            // The class has also be dereferenced.
-            delete inst.hdr->theClass;
-            free(inst.base);
-            inst.base=NULL;
-        }
-        else
-        {
-            // printf("\ninst.hdr->refCount=%u\n",inst.hdr->refCount.get());
-        }
-
-    };
-    /**
-     * A SCMOInstance can only be created by a SCMOClass
-     */
-    SCMOInstance();
-
-    void _initSCMOInstance(
-        SCMOClass* pClass,
-        Boolean inclQual,
-        Boolean inclOrigin);
-
-
-    SCMO_RC _getPropertyAtNodeIndex(
-            Uint32 pos,
-            const unsigned char** pname,
-            CIMType& type,
-            const void** pvalue,
-            Boolean& isArray,
-            Uint32& size ) const;
-
-    void _setPropertyAtNodeIndex(
-        Uint32 pos,
-        CIMType type,
-        void* value,
-        Boolean isArray,
-        Uint32 size);
-
-    const void* _getSCMBUnion(
-        CIMType type,
-        Boolean isArray,
-        Uint32 size,
-        Uint64 start,
-        unsigned char* base) const;
-
-    void _setSCMBUnion(
-        void* value,
-        CIMType type,
-        Boolean isArray,
-        Uint32 size,
-        Uint64 start);
-
-    SCMO_RC _getKeyBindingAtNodeIndex(
-        Uint32 pos,
-        const unsigned char** pname,
-        CIMKeyBinding::Type& ptype,
-        const unsigned char** pvalue) const;
-
-    Uint32 _initPropFilterWithKeys();
-
-    void _setPropertyInPropertyFilter(Uint32 i);
-
-    Boolean _isPropertyInFilter(Uint32 i) const;
-
-    void _clearPropertyFilter();
-
-    union{
-        // To access the instance main structure
-        SCMBInstance_Main *hdr;
-        // To access the memory management header
-        SCMBMgmt_Header     *mem;
-        // Generic access pointer
-        unsigned char *base;
-    }inst;
-
-    friend class SCMOClass;
-    friend class SCMODump;
-};
-
-// The definiton of a dump class for SCMO 
-class PEGASUS_COMMON_LINKAGE SCMODump
-{
-
-public:
-
-    // Methods for SCMOClass only
-    void hexDumpSCMOClass(SCMOClass& testCls) const;
-    void dumpSCMOClass(SCMOClass& testCls) const;
-    void dumpKeyPropertyMask(SCMOClass& testCls) const;
-    void dumpClassProperties(SCMOClass& testCls) const;
-    void dumpKeyIndexList(SCMOClass& testCls) const;
-    void dumpClassPropertyNodeArray(SCMOClass& testCls) const;
-    void dumpKeyBindingSet(SCMOClass& testCls) const;
-    void dumpClassKeyBindingNodeArray(SCMOClass& testCls) const;
-
-    // Methods for SCMOClass and SCMOInstance
-    void dumpHashTable(Uint32* hashTable,Uint32 size)const;
-
-    void printSCMOValue(
-        const SCMBValue& theValue,
-        unsigned char* base) const;
-
-    String printArrayValue(
-        CIMType type,
-        Uint32 size,
-        SCMBUnion u,
-        unsigned char* base) const;
-
-    String printUnionValue(
-        CIMType type, 
-        SCMBUnion u,
-        unsigned char* base) const;
-
-private:
-
-    // context sensitive methods
-    void _dumpQualifierArray(
-        Uint64 start, 
-        Uint32 size,
-        unsigned char* clsbase) const;
-
-    void _dumpQualifier(
-        const SCMBQualifier& theQualifier,
-        unsigned char* clsbase) const;
-
-    void _dumpClassProperty(
-        const SCMBClassProperty& prop,
-        unsigned char* clsbase) const;
-
-   void _hexDump(unsigned char* buffer,int length) const;
-};
-
 // The static definition of the common SCMO memory functions
+inline const void* _resolveDataPtr(
+    const SCMBDataPtr& ptr,
+    const char* base)
+{
+    return ((ptr.start==(Uint64)0 ? NULL : (void*)&(base[ptr.start])));
+}
 
+inline const char* _getCharString(
+    const SCMBDataPtr& ptr,
+    const char* base)
+{
+    return ((ptr.start==(Uint64)0 ? NULL : &(base[ptr.start])));
+}
+
+inline Uint32 _generateStringTag(const char* str, Uint32 len)
+{
+    if (len == 0)
+    {
+        return 0;
+    }
+    return
+        (Uint32(CharSet::toUpperHash(str[0]) << 1) |
+        Uint32(CharSet::toUpperHash(str[len-1])));
+}
+
+inline Uint32 _generateSCMOStringTag(
+    const SCMBDataPtr& ptr,
+    char* base)
+{
+    // The lenght of a SCMBDataPtr to a UTF8 string includs the trailing '\0'.
+    return _generateStringTag(_getCharString(ptr,base),ptr.size-1);
+}
+
+// The static declaration of the common SCMO memory functions
 static Uint64 _getFreeSpace(
     SCMBDataPtr& ptr,
-    Uint64 size,
-    SCMBMgmt_Header** pmem,
-    Boolean clear = false);
+    Uint32 size,
+    SCMBMgmt_Header** pmem);
 
 static void _setString(
     const String& theString,
@@ -1042,32 +568,46 @@ static void _setString(
 
 static void _setBinary(
     const void* theBuffer,
-    Uint64 bufferSize,
+    Uint32 bufferSize,
     SCMBDataPtr& ptr,
     SCMBMgmt_Header** pmem);
 
-static const void* _resolveDataPtr(
-    const SCMBDataPtr& ptr,
-    unsigned char* base);
+PEGASUS_COMMON_LINKAGE extern void _destroyExternalReferencesInternal(
+    SCMBMgmt_Header* memHdr);
 
-static const unsigned char* _getCharString(
-    const SCMBDataPtr& ptr,
-    unsigned char* base);
-
-static Uint32 _generateStringTag(const unsigned char* str, Uint32 len);
-
-
-static Uint32 _generateSCMOStringTag(
-    const SCMBDataPtr& ptr,
-    unsigned char* base);
-
-static CIMKeyBinding::Type _cimTypeToKeyBindType(CIMType cimType);
-
-static Boolean _equalUTF8Strings(
-    const SCMBDataPtr& ptr_a,
-    unsigned char* base,
-    const char* name,
+#ifdef PEGASUS_HAS_ICU
+Uint32 _utf8ICUncasecmp(
+    const char* a,
+    const char* b,
     Uint32 len);
+#endif
+
+static inline Boolean _equalNoCaseUTF8Strings(
+    const SCMBDataPtr& ptr_a,
+    char* base,
+    const char* name,
+    Uint32 len)
+
+{
+#ifdef PEGASUS_HAS_ICU
+    //both are empty strings, so they are equal.
+    if (ptr_a.size == 0 && len == 0)
+    {
+        return true;
+    }
+    // size without trailing '\0' !!
+    if (ptr_a.size-1 != len)
+    {
+        return false;
+    }
+    const char* a = (const char*)_getCharString(ptr_a,base);
+    return ( _utf8ICUncasecmp(a,name,len)== 0);
+#else
+    return System::strncasecmp(
+        &base[ptr_a.start],
+        Uint32(ptr_a.size-1),name,len);
+#endif
+}
 
 PEGASUS_NAMESPACE_END
 

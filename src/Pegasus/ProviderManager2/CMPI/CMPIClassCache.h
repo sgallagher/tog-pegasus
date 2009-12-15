@@ -31,14 +31,94 @@
 #ifndef _CMPIClassCache_H_
 #define _CMPIClassCache_H_
 
+#include <Pegasus/Common/Config.h>
+
+#ifndef PEGASUS_OS_TYPE_WINDOWS
+#include <strings.h>
+#endif
+
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/ReadWriteSem.h>
+#include <Pegasus/Common/CharSet.h>
+#include <Pegasus/Common/SCMOClass.h>
+#include <Pegasus/Common/System.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 struct CMPI_Broker;
+
+class ClassCacheEntry
+{
+public:
+    ClassCacheEntry(
+        const char* namespaceName,
+        Uint32 namespaceNameLen,
+        const char* className,
+        Uint32 classNameLen)
+    {
+        nsLen = namespaceNameLen;
+        clsLen = classNameLen;
+        nsName = namespaceName;
+        clsName = className;
+        allocated = false;
+    };
+
+    ClassCacheEntry( const ClassCacheEntry& oldEntry)
+    {
+        nsLen = oldEntry.nsLen;
+        nsName = (char*) malloc(nsLen+1);
+        if (0 == nsName)
+        {
+            throw PEGASUS_STD(bad_alloc)();
+        }
+        memcpy((void*)nsName, oldEntry.nsName, nsLen+1);
+
+        clsLen = oldEntry.clsLen;
+        clsName =  (char*) malloc(clsLen+1);
+        if (0 == clsName)
+        {
+            free((void*)nsName);
+            throw PEGASUS_STD(bad_alloc)();
+        }
+        memcpy((void*)clsName, oldEntry.clsName, clsLen+1);
+
+        allocated = true;
+    };
+
+    ~ClassCacheEntry()
+    {
+        if (allocated)
+        {
+            free((void*)clsName);
+            free((void*)nsName);
+        }
+    }
+
+    static Boolean equal(const ClassCacheEntry& x, const ClassCacheEntry& y)
+    {
+        return
+            System::strncasecmp(x.clsName,x.clsLen,y.clsName,y.clsLen) &&
+            System::strncasecmp(x.nsName,x.nsLen,y.nsName,y.nsLen);
+    }
+
+    static Uint32 hash(const ClassCacheEntry& entry)
+    {
+        // Simply use the lenght of the classname and namespace name as hash.
+        return entry.clsLen+entry.nsLen;
+    }
+
+private:
+    const char* nsName;
+    Uint32 nsLen;
+    const char* clsName;
+    Uint32 clsLen;
+    Boolean allocated;
+
+};
+
+
 
 class CMPIClassCache
 {
@@ -46,7 +126,9 @@ class CMPIClassCache
 public:
     CMPIClassCache()
     {
-        _clsCache = new ClassCache();
+        _clsCacheSCMO = new ClassCacheSCMO();
+        _hintClass = NULL;
+        _hint = NULL;
     };
 
     // clean-up cache data
@@ -54,18 +136,26 @@ public:
 
     // a single function as point of control for now
     // target is to reduce the critical section as much as possible
-    CIMClass* getClass(
+    SCMOClass* getSCMOClass(
         const CMPI_Broker *mb,
-        const CIMObjectPath &cop);
+        const char* nsName,
+        Uint32 nsNameLen,
+        const char* className,
+        Uint32 classNameLen);
 
 private:
+    typedef HashTable<ClassCacheEntry, SCMOClass *,
+        ClassCacheEntry, ClassCacheEntry> ClassCacheSCMO;
 
-    typedef HashTable<String, CIMClass *,
-        EqualFunc<String>,  HashFunc<String> > ClassCache;
-
-    ClassCache * _clsCache;
+    ClassCacheSCMO * _clsCacheSCMO;
     // auto-initialisation due to being on the stack
     ReadWriteSem _rwsemClassCache;
+
+    //Optimization for continuos lookups of the same class
+    //Simply store away the last lookup result
+    void _setHint(ClassCacheEntry& hint, SCMOClass* hintClass);
+    SCMOClass* _hintClass;
+    ClassCacheEntry* _hint;
 
 };
 

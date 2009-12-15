@@ -48,6 +48,18 @@ CMPI_String* string2CMPIString(const String &s)
     return reinterpret_cast<CMPI_String*>(obj);
 }
 
+CMPI_String* string2CMPIString(const char* s)
+{
+    CMPI_Object *obj= new CMPI_Object(s);
+    return reinterpret_cast<CMPI_String*>(obj);
+}
+
+CMPI_String* string2CMPIString(const char* s, Uint32 len)
+{
+    CMPI_Object *obj= new CMPI_Object(s,len);
+    return reinterpret_cast<CMPI_String*>(obj);
+}
+
 extern "C"
 {
 

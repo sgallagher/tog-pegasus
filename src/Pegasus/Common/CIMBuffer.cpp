@@ -47,6 +47,7 @@
 #include "StringInline.h"
 #include "Buffer.h"
 #include "BinaryCodec.h"
+#include "SCMOStreamer.h"
 
 #define INSTANCE_MAGIC 0xD6EF2219
 #define CLASS_MAGIC 0xA8D7DE41
@@ -1769,5 +1770,42 @@ void CIMBuffer::putInstanceA(
     for (size_t i = 0; i < n; i++)
         putInstance(x[i], includeHostAndNamespace, includeKeyBindings);
 }
+
+
+void CIMBuffer::putSCMOClass(const SCMOClass& scmoClass)
+{
+    SCMOStreamer::serializeClass(*this, scmoClass);
+}
+
+bool CIMBuffer::getSCMOClass(SCMOClass& scmoClass)
+{
+    return SCMOStreamer::deserializeClass(*this, scmoClass);
+}
+
+
+void CIMBuffer::putSCMOInstanceA(Array<SCMOInstance>& x)
+{
+    Uint32 n = x.size();
+    _grow(n<<13);
+
+    putUint32(n);
+
+
+    SCMOStreamer scmoStreamer(*this,x);
+    scmoStreamer.serialize();
+}
+
+bool CIMBuffer::getSCMOInstanceA(Array<SCMOInstance>& x)
+{
+    Uint32 n;
+
+    if (!getUint32(n))
+        return false;
+
+    SCMOStreamer scmoStreamer(*this,x);
+    return scmoStreamer.deserialize();
+}
+
+
 
 PEGASUS_NAMESPACE_END

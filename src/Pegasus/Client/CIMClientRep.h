@@ -135,7 +135,7 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
-    virtual CIMInstance getInstance(
+    virtual CIMResponseData getInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         Boolean localOnly = true,
@@ -143,17 +143,6 @@ public:
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
-
-#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
-    virtual Array<Uint8> getBinaryInstance(
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& instanceName,
-        Boolean localOnly = true,
-        Boolean includeQualifiers = false,
-        Boolean includeClassOrigin = false,
-        const CIMPropertyList& propertyList = CIMPropertyList()
-    );
-#endif
 
     virtual void deleteClass(
         const CIMNamespaceName& nameSpace,
@@ -202,7 +191,7 @@ public:
         Boolean deepInheritance = false
     );
 
-    virtual Array<CIMInstance> enumerateInstances(
+    virtual CIMResponseData enumerateInstances(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Boolean deepInheritance = true,
@@ -212,38 +201,18 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
-#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
-    virtual Array<Uint8> enumerateBinaryInstances(
-        const CIMNamespaceName& nameSpace,
-        const CIMName& className,
-        Boolean deepInheritance = true,
-        Boolean localOnly = true,
-        Boolean includeQualifiers = false,
-        Boolean includeClassOrigin = false,
-        const CIMPropertyList& propertyList = CIMPropertyList()
-    );
-#endif
-
-    virtual Array<CIMObjectPath> enumerateInstanceNames(
+    virtual CIMResponseData enumerateInstanceNames(
         const CIMNamespaceName& nameSpace,
         const CIMName& className
     );
 
-    virtual Array<CIMObject> execQuery(
+    virtual CIMResponseData execQuery(
         const CIMNamespaceName& nameSpace,
         const String& queryLanguage,
         const String& query
     );
 
-#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
-    virtual Array<Uint8> execQueryBinary(
-        const CIMNamespaceName& nameSpace,
-        const String& queryLanguage,
-        const String& query
-    );
-#endif
-
-    virtual Array<CIMObject> associators(
+    virtual CIMResponseData associators(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& assocClass = CIMName(),
@@ -255,21 +224,7 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
-#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
-    virtual Array<Uint8> associatorsBinary(
-        const CIMNamespaceName& nameSpace,
-        const CIMObjectPath& objectName,
-        const CIMName& assocClass = CIMName(),
-        const CIMName& resultClass = CIMName(),
-        const String& role = String::EMPTY,
-        const String& resultRole = String::EMPTY,
-        Boolean includeQualifiers = false,
-        Boolean includeClassOrigin = false,
-        const CIMPropertyList& propertyList = CIMPropertyList()
-    );
-#endif
-
-    virtual Array<CIMObjectPath> associatorNames(
+    virtual CIMResponseData associatorNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& assocClass = CIMName(),
@@ -278,7 +233,7 @@ public:
         const String& resultRole = String::EMPTY
     );
 
-    virtual Array<CIMObject> references(
+    virtual CIMResponseData references(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& resultClass = CIMName(),
@@ -288,7 +243,7 @@ public:
         const CIMPropertyList& propertyList = CIMPropertyList()
     );
 
-    virtual Array<CIMObjectPath> referenceNames(
+    virtual CIMResponseData referenceNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& resultClass = CIMName(),

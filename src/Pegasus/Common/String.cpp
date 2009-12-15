@@ -32,7 +32,6 @@
 #include <Pegasus/Common/PegasusAssert.h>
 #include <cstring>
 #include "InternalException.h"
-#include "CommonUTF.h"
 #include "MessageLoader.h"
 #include "StringRep.h"
 
@@ -170,42 +169,6 @@ static Uint32 _roundUpToPow2(Uint32 x)
     return x;
 }
 
-template<class P, class Q>
-static void _copy(P* p, const Q* q, size_t n)
-{
-    // The following employs loop unrolling for efficiency. Please do not
-    // eliminate.
-
-    while (n >= 8)
-    {
-        p[0] = q[0];
-        p[1] = q[1];
-        p[2] = q[2];
-        p[3] = q[3];
-        p[4] = q[4];
-        p[5] = q[5];
-        p[6] = q[6];
-        p[7] = q[7];
-        p += 8;
-        q += 8;
-        n -= 8;
-    }
-
-    while (n >= 4)
-    {
-        p[0] = q[0];
-        p[1] = q[1];
-        p[2] = q[2];
-        p[3] = q[3];
-        p += 4;
-        q += 4;
-        n -= 4;
-    }
-
-    while (n--)
-        *p++ = *q++;
-}
-
 static Uint16* _find(const Uint16* s, size_t n, Uint16 c)
 {
     // The following employs loop unrolling for efficiency. Please do not
@@ -313,103 +276,6 @@ static void _StringThrowBadUTF8(Uint32 index)
     throw Exception(parms);
 }
 
-static size_t _copyFromUTF8(
-    Uint16* dest,
-    const char* src,
-    size_t n,
-    size_t& utf8_error_index)
-{
-    Uint16* p = dest;
-    const Uint8* q = (const Uint8*)src;
-
-    // Process leading 7-bit ASCII characters (to avoid UTF8 overhead later).
-    // Use loop-unrolling.
-
-    while (n >=8 && ((q[0]|q[1]|q[2]|q[3]|q[4]|q[5]|q[6]|q[7]) & 0x80) == 0)
-    {
-        p[0] = q[0];
-        p[1] = q[1];
-        p[2] = q[2];
-        p[3] = q[3];
-        p[4] = q[4];
-        p[5] = q[5];
-        p[6] = q[6];
-        p[7] = q[7];
-        p += 8;
-        q += 8;
-        n -= 8;
-    }
-
-    while (n >=4 && ((q[0]|q[1]|q[2]|q[3]) & 0x80) == 0)
-    {
-        p[0] = q[0];
-        p[1] = q[1];
-        p[2] = q[2];
-        p[3] = q[3];
-        p += 4;
-        q += 4;
-        n -= 4;
-    }
-
-    switch (n)
-    {
-        case 0:
-            return p - dest;
-        case 1:
-            if (q[0] < 128)
-            {
-                p[0] = q[0];
-                return p + 1 - dest;
-            }
-            break;
-        case 2:
-            if (((q[0]|q[1]) & 0x80) == 0)
-            {
-                p[0] = q[0];
-                p[1] = q[1];
-                return p + 2 - dest;
-            }
-            break;
-        case 3:
-            if (((q[0]|q[1]|q[2]) & 0x80) == 0)
-            {
-                p[0] = q[0];
-                p[1] = q[1];
-                p[2] = q[2];
-                return p + 3 - dest;
-            }
-            break;
-    }
-
-    // Process remaining characters.
-
-    while (n)
-    {
-        // Optimize for 7-bit ASCII case.
-
-        if (*q < 128)
-        {
-            *p++ = *q++;
-            n--;
-        }
-        else
-        {
-            Uint8 c = UTF_8_COUNT_TRAIL_BYTES(*q) + 1;
-
-            if (c > n || !isValid_U8(q, c) ||
-                UTF8toUTF16(&q, q + c, &p, p + n) != 0)
-            {
-                utf8_error_index = q - (const Uint8*)src;
-                return size_t(-1);
-            }
-
-            n -= c;
-        }
-    }
-
-    return p - dest;
-}
-
 // Note: dest must be at least three times src (plus an extra byte for
 // terminator).
 static inline size_t _copyToUTF8(char* dest, const Uint16* src, size_t n)
@@ -466,17 +332,6 @@ static inline size_t _copyToUTF8(char* dest, const Uint16* src, size_t n)
     UTF16toUTF8(&q, q + n, &p, p + 3 * n);
 
     return p - (Uint8*)dest;
-}
-
-static inline size_t _convert(
-    Uint16* p, const char* q, size_t n, size_t& utf8_error_index)
-{
-#ifdef PEGASUS_STRING_NO_UTF8
-    _copy(p, q, n);
-    return n;
-#else
-    return _copyFromUTF8(p, q, n, utf8_error_index);
-#endif
 }
 
 //==============================================================================

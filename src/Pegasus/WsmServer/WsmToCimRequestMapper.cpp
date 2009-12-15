@@ -35,7 +35,6 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/StringConversion.h>
-#include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HostLocator.h>
 #include <Pegasus/Common/CIMNameCast.h>
@@ -784,7 +783,7 @@ void WsmToCimRequestMapper::convertStringToCimValue(
         case CIMTYPE_UINT64:
         {
             Uint64 val;
-            if (!XmlReader::stringToUnsignedInteger(
+            if (!StringConversion::stringToUnsignedInteger(
                 (const char*) str.getCString(), val))
             {
                 throw WsmFault(
@@ -864,7 +863,7 @@ void WsmToCimRequestMapper::convertStringToCimValue(
         case CIMTYPE_SINT64:
         {
             Sint64 val;
-            if (!XmlReader::stringToSignedInteger(
+            if (!StringConversion::stringToSignedInteger(
                 (const char*) str.getCString(), val))
             {
                 throw WsmFault(

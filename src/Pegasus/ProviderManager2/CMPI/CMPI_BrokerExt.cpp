@@ -33,6 +33,7 @@
 
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include "CMPI_Object.h"
+#include "CMPI_ThreadContext.h"
 #include "CMPI_Broker.h"
 #include "CMPI_Ftabs.h"
 #include "CMPI_String.h"

@@ -842,44 +842,6 @@ String XmlReader::decodeURICharacters(String uriString)
 
 //------------------------------------------------------------------------------
 //
-// stringToSignedInteger
-//
-//      [ "+" | "-" ] ( positiveDecimalDigit *decimalDigit | "0" )
-//    or
-//      [ "+" | "-" ] ( "0x" | "0X" ) 1*hexDigit
-//
-//------------------------------------------------------------------------------
-
-Boolean XmlReader::stringToSignedInteger(
-    const char* stringValue,
-    Sint64& x)
-{
-    return (StringConversion::stringToSint64(
-                stringValue, StringConversion::decimalStringToUint64, x) ||
-            StringConversion::stringToSint64(
-                stringValue, StringConversion::hexStringToUint64, x));
-}
-
-//------------------------------------------------------------------------------
-//
-// stringToUnsignedInteger
-//
-//      ( positiveDecimalDigit *decimalDigit | "0" )
-//    or
-//      ( "0x" | "0X" ) 1*hexDigit
-//
-//------------------------------------------------------------------------------
-
-Boolean XmlReader::stringToUnsignedInteger(
-    const char* stringValue,
-    Uint64& x)
-{
-    return (StringConversion::decimalStringToUint64(stringValue, x) ||
-            StringConversion::hexStringToUint64(stringValue, x));
-}
-
-//------------------------------------------------------------------------------
-//
 // stringToValue()
 //
 // Return: CIMValue. If the string input is zero length creates a CIMValue
@@ -953,7 +915,7 @@ CIMValue XmlReader::stringToValue(
         {
             Uint64 x;
 
-            if (!stringToUnsignedInteger(valueString, x))
+            if (!StringConversion::stringToUnsignedInteger(valueString, x))
             {
                 MessageLoaderParms mlParms(
                     "Common.XmlReader.INVALID_UI_VALUE",
@@ -1008,7 +970,7 @@ CIMValue XmlReader::stringToValue(
         {
             Sint64 x;
 
-            if (!stringToSignedInteger(valueString, x))
+            if (!StringConversion::stringToSignedInteger(valueString, x))
             {
                 MessageLoaderParms mlParms(
                     "Common.XmlReader.INVALID_SI_VALUE",
@@ -1266,8 +1228,8 @@ Boolean XmlReader::getValueElement(
     if (!empty)
 #endif
         value = stringToValue(
-            parser.getLine(), 
-            valueString, 
+            parser.getLine(),
+            valueString,
             valueStringLen,
             type);
 
@@ -1395,7 +1357,7 @@ CIMValue StringArrayToValueAux(
     for (Uint32 i = 0, n = stringArray.size(); i < n; i++)
     {
         CIMValue value = XmlReader::stringToValue(
-            lineNumber, 
+            lineNumber,
             stringArray[i].value,
             stringArray[i].length,
             type);
@@ -1925,7 +1887,8 @@ Boolean XmlReader::getArraySizeAttribute(
 
     Uint64 arraySize;
 
-    if (!stringToUnsignedInteger(tmp, arraySize) || (arraySize == 0) ||
+    if (!StringConversion::stringToUnsignedInteger(tmp, arraySize) ||
+        (arraySize == 0) ||
         !StringConversion::checkUintBounds(arraySize, CIMTYPE_UINT32))
     {
         char message[128];

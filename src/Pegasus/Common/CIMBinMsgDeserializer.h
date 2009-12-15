@@ -224,13 +224,15 @@ private:
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMSubscriptionInitCompleteRequestMessage*
-        _getSubscriptionInitCompleteRequestMessage
-            (CIMBuffer& in);
+        _getSubscriptionInitCompleteRequestMessage(CIMBuffer& in);
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMIndicationServiceDisabledRequestMessage*
-        _getIndicationServiceDisabledRequestMessage
-            (CIMBuffer& in);
+        _getIndicationServiceDisabledRequestMessage(CIMBuffer& in);
+
+    PEGASUS_HIDDEN_LINKAGE
+    static ProvAgtGetScmoClassRequestMessage*
+        _getProvAgtGetScmoClassRequestMessage(CIMBuffer& in);
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMGetInstanceResponseMessage* _getGetInstanceResponseMessage(
@@ -250,8 +252,8 @@ private:
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMEnumerateInstancesResponseMessage*
-    _getEnumerateInstancesResponseMessage(
-        CIMBuffer& in, bool binaryResponse);
+        _getEnumerateInstancesResponseMessage(
+            CIMBuffer& in, bool binaryResponse);
 
     PEGASUS_HIDDEN_LINKAGE
     static CIMEnumerateInstanceNamesResponseMessage*
@@ -339,6 +341,11 @@ private:
     static CIMIndicationServiceDisabledResponseMessage*
         _getIndicationServiceDisabledResponseMessage
             (CIMBuffer& in);
+
+    PEGASUS_HIDDEN_LINKAGE
+    static ProvAgtGetScmoClassResponseMessage*
+        _getProvAgtGetScmoClassResponseMessage(CIMBuffer& in);
+
 
 };
 

@@ -40,7 +40,7 @@
 #include <Pegasus/Common/List.h>
 #include <Pegasus/Common/Mutex.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
-#include <Pegasus/Provider/CIMOMHandle.h>
+#include <Pegasus/Provider/CIMOMHandleRep.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>

@@ -197,7 +197,6 @@ static void _asynchronousSignalHandler(int s_n, PEGASUS_SIGINFO_T* s_info,
 }
 #endif
 
-
 CIMServer::CIMServer()
     : _dieNow(false)
 {
@@ -212,6 +211,46 @@ void CIMServer::tickle_monitor()
 {
     _monitor->tickle();
 }
+
+SCMOClass CIMServer::_scmoClassCache_GetClass(
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className)
+{
+    CIMClass cc;
+
+    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::_scmoClassCache_GetClass()");
+    try 
+    {
+        cc = _cimserver->_repository->getClass(
+            nameSpace,
+            className,
+            false, // localOnly
+            true, // includeQualifiers
+            true, // includeClassOrigin
+            CIMPropertyList());
+    }
+    catch (Exception& e)
+    {
+        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                   "Exception from the repositroy: %s",
+                   (const char*)e.getMessage().getCString()));
+        // Return a empty class.
+        PEG_METHOD_EXIT();
+        return SCMOClass("","");        
+    }
+
+    if (cc.isUninitialized())
+    {
+        // The requested class was not found !
+        // Return a empty class.
+        PEG_METHOD_EXIT();
+        return SCMOClass("","");
+    }
+    PEG_METHOD_EXIT();
+    return SCMOClass(cc,(const char*)nameSpace.getString().getCString());
+
+}
+
 
 void CIMServer::_init()
 {
@@ -251,6 +290,10 @@ void CIMServer::_init()
     // -- Create a UserManager object:
 
     UserManager* userManager = UserManager::getInstance(_repository);
+
+    // -- Create a SCMOClass Cache and set call back for the repository
+
+    SCMOClassCache::getInstance()->setCallBack(_scmoClassCache_GetClass);
 
     // -- Create a CIMServerState object:
 
@@ -384,7 +427,7 @@ void CIMServer::_init()
     ProviderMessageHandler* interopProvider = new ProviderMessageHandler(
         "CIMServerControlProvider", "InteropProvider",
         new InteropProvider(
-                _repository, 
+                _repository,
                 _providerRegistrationManager),
         0, 0, false);
 
@@ -611,6 +654,7 @@ CIMServer::~CIMServer ()
     delete _repository;
 
     // Destroy the singleton services
+    SCMOClassCache::destroy();
     UserManager::destroy();
     ShutdownService::destroy();
 
@@ -739,6 +783,7 @@ void CIMServer::shutdown()
 
 #ifdef PEGASUS_DEBUG
     _repository->DisplayCacheStatistics();
+    SCMOClassCache::getInstance()->DisplayCacheStatistics();
 #endif
 
     _dieNow = true;

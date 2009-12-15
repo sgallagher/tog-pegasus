@@ -70,6 +70,8 @@ public:
     static void appendSpecial(Buffer& out, const char* str);
     static void appendSpecial(Buffer& out, const String& str);
 
+    static void appendSpecial(Buffer& out, const char* str, Uint32 size);
+
     static String encodeURICharacters(const Buffer& uriString);
     static String encodeURICharacters(const String& uriString);
 
@@ -77,6 +79,16 @@ public:
         PEGASUS_STD(ostream)& os,
         const char* text,
         Uint32 indentChars = 2);
+
+    static StrLit xmlWriterTypeStrings(CIMType type)
+    {
+        return _XmlWriterTypeStrings[type];
+    }
+    
+    static StrLit xmlWriterKeyTypeStrings(CIMType type)
+    {
+        return _XmlWriterKeyTypeStrings[type];
+    }
 
 private:
 
@@ -105,6 +117,9 @@ private:
         Uint32 indentChars);
 
         XmlGenerator();
+
+    static const StrLit _XmlWriterTypeStrings[17];
+    static const StrLit _XmlWriterKeyTypeStrings[17];
 };
 
 PEGASUS_COMMON_LINKAGE Buffer& operator<<(

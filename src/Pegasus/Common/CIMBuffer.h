@@ -38,10 +38,18 @@
 #include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/CIMDateTimeRep.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/StringRep.h>
+#include <Pegasus/Common/SCMOInstance.h>
 
 #define PEGASUS_USE_MAGIC
 
 PEGASUS_NAMESPACE_BEGIN
+
+#define BIN_TYPE_MARKER 0xFFFF0000
+#define BIN_TYPE_MARKER_CPPD    ( BIN_TYPE_MARKER | (1 << 1) )
+#define BIN_TYPE_MARKER_SCMO    ( BIN_TYPE_MARKER | (1 << 2) )
+
 
 /** This class serializes/deserializes CIM objects (String, CIMInstance, etc.)
     to/from a binary message stream. Serialized objects have two main
@@ -261,12 +269,33 @@ public:
         putBytes(x.getChar16Data(), n * sizeof(Char16));
     }
 
+    // This function needs to transform UTF-8 encoded data into UTF-16
+    // data will be read as String later
+    void putUTF8AsString(const char * x, size_t x_size)
+    {
+        if (0 == x_size || 0 == x)
+        {
+            putUint32(0);
+            putBytes("", 0);
+        }
+        else
+        {
+            // Won't need more than 2*length of x bytes
+            Uint16 * p = (Uint16*) malloc(x_size << 1);
+            size_t utf8_error_index;
+            size_t new_size = _convert(p, x, x_size, utf8_error_index);
+            putUint32(new_size);
+            putBytes(p, new_size << 1);
+            free(p);
+        }
+    }
+
     void putDateTime(const CIMDateTime& x)
     {
         putUint64(x._rep->usec);
         putUint32(x._rep->utcOffset);
         putUint16(x._rep->sign);
-        putUint16(x._rep->numWildcards); 
+        putUint16(x._rep->numWildcards);
     }
 
     void putBooleanA(const Array<Boolean>& x)
@@ -576,7 +605,7 @@ public:
         rep->usec = usec;
         rep->utcOffset = utcOffset;
         rep->sign = sign;
-        rep->numWildcards = numWildcards; 
+        rep->numWildcards = numWildcards;
         x = CIMDateTime(rep);
         return true;
     }
@@ -827,7 +856,7 @@ public:
 
     // ATTENTION:
     // This method returns a reference to the data in the buffer rather
-    // than a new copy. The data will only be valid through the lifetime 
+    // than a new copy. The data will only be valid through the lifetime
     // of the CIMBuffer.
     bool getFastChar16Array(Char16** x, Uint32& n)
     {
@@ -1029,10 +1058,17 @@ public:
         return true;
     }
 
+    void putSCMOClass(const SCMOClass& scmoClass);
+    bool getSCMOClass(SCMOClass& scmoClass);
+
     void putInstanceA(
         const Array<CIMInstance>& x,
         bool includeHostAndNamespace = true,
         bool includeKeyBindings = true);
+
+    void putSCMOInstanceA(Array<SCMOInstance>& x);
+
+    bool getSCMOInstanceA(Array<SCMOInstance>& x);
 
     bool getInstanceA(Array<CIMInstance>& x)
     {
@@ -1176,6 +1212,16 @@ public:
     void putPresent(Boolean flag);
 
     bool getPresent(Boolean& flag);
+
+    void putTypeMarker(Uint32 typeMarker)
+    {
+        putUint32(typeMarker);
+    }
+
+    bool getTypeMarker(Uint32& typeMarker)
+    {
+        return getUint32(typeMarker);
+    }
 
 private:
 

@@ -136,6 +136,64 @@ Sint32 System::strcasecmp(const char* s1, const char* s2)
     return r;
 }
 
+bool System::strncasecmp(
+    const char* s1,
+    size_t s1_l,
+    const char* s2,
+    size_t s2_l)
+{
+    // Function is even faster than System::strcasecmp()
+    if (s1_l != s2_l)
+    {
+        return false;
+    }
+    Uint8* p = (Uint8*)s1;
+    Uint8* q = (Uint8*)s2;
+    register int len = s1_l;
+   // lets do a loop-unrolling optimized compare here
+    while (len >= 8)
+    {
+        if ((_toLowerTable[p[0]]-_toLowerTable[q[0]]) ||
+            (_toLowerTable[p[1]]-_toLowerTable[q[1]]) ||
+            (_toLowerTable[p[2]]-_toLowerTable[q[2]]) ||
+            (_toLowerTable[p[3]]-_toLowerTable[q[3]]) ||
+            (_toLowerTable[p[4]]-_toLowerTable[q[4]]) ||
+            (_toLowerTable[p[5]]-_toLowerTable[q[5]]) ||
+            (_toLowerTable[p[6]]-_toLowerTable[q[6]]) ||
+            (_toLowerTable[p[7]]-_toLowerTable[q[7]]))
+        {
+            return false;
+        }
+        len -= 8;
+        p += 8;
+        q += 8;
+    }
+    while (len >= 4)
+    {
+        if ((_toLowerTable[p[0]]-_toLowerTable[q[0]]) ||
+            (_toLowerTable[p[1]]-_toLowerTable[q[1]]) ||
+            (_toLowerTable[p[2]]-_toLowerTable[q[2]]) ||
+            (_toLowerTable[p[3]]-_toLowerTable[q[3]]))
+        {
+            return false;
+        }
+        len -= 4;
+        p += 4;
+        q += 4;
+    }
+    while (len--)
+    {
+        if ((_toLowerTable[p[0]]-_toLowerTable[q[0]]))
+        {
+            return false;
+        }
+        p++;
+        q++;
+    }
+    return true;
+}
+
+
 // Return the just the file name from the path into basename
 char *System::extract_file_name(const char *fullpath, char *basename)
 {

@@ -62,7 +62,7 @@ extern "C"
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
         }
 
-        if (arr->isCloned == true)
+        if (arr->isCloned != 0)
         {
             for (unsigned int i=1; i<=dta->value.uint32; i++)
             {
@@ -192,7 +192,7 @@ extern "C"
                                     &rrc);
                         }
                         break;
-          
+
                     case CMPI_ref:
                         if (dta[i].value.ref)
                         {
@@ -245,7 +245,7 @@ extern "C"
                     case CMPI_charsptr:
                         if (dta[i].value.dataPtr.length>0)
                         {
-                            nDta[i].value.dataPtr.length = 
+                            nDta[i].value.dataPtr.length =
                                 dta[i].value.dataPtr.length;
                             nDta[i].value.dataPtr.ptr =
                                 malloc(nDta[i].value.dataPtr.length);
@@ -457,7 +457,3 @@ static CMPIArrayFT array_FT =
 CMPIArrayFT *CMPI_Array_Ftab = &array_FT;
 
 PEGASUS_NAMESPACE_END
-
-
-
-

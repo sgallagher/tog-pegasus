@@ -341,7 +341,7 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
                         break;
                     }
                     CMAddKey(opRef,"GroupComponent",&cop,CMPI_ref);
-                    CMAddKey(opRef,"PathComponent",&op,CMPI_ref);
+                    CMAddKey(opRef,"PartComponent",&op,CMPI_ref);
                     CMReturnObjectPath(rslt,opRef);
                 }
                 CWS_End_Enum(enumhdl);

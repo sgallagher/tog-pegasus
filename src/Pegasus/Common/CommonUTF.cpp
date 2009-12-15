@@ -33,6 +33,7 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Logger.h>
 #include "CommonUTF.h"
+#include <Pegasus/Common/String.h>
 #include <cstdio>
 #include <cstring>
 #include <cctype>

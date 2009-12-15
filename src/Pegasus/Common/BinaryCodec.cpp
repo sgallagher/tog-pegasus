@@ -341,7 +341,7 @@ static CIMEnumerateInstancesRequestMessage* _decodeEnumerateInstancesRequest(
 
 static void _encodeEnumerateInstancesResponseBody(
     CIMBuffer& out,
-    CIMInstancesResponseData& data,
+    CIMResponseData& data,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
@@ -372,8 +372,8 @@ static CIMEnumerateInstancesResponseMessage* _decodeEnumerateInstancesResponse(
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
-    CIMInstancesResponseData& responseData = msg->getResponseData();
-    responseData.setBinaryCimInstances(in,false);
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setBinary(in,false);
 
     msg->binaryRequest=true;
     return msg;
@@ -427,26 +427,23 @@ _decodeEnumerateInstanceNamesResponse(
     Uint32 flags,
     const String& messageId)
 {
-    Array<CIMObjectPath> instanceNames;
-
-    while (in.more())
-    {
-        Array<CIMObjectPath> tmp;
-
-        if (!in.getObjectPathA(tmp))
-            return 0;
-
-        instanceNames.append(tmp.getData(), tmp.size());
-    }
-
     CIMEnumerateInstanceNamesResponseMessage* msg;
     CIMException cimException;
 
     msg = new CIMEnumerateInstanceNamesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        instanceNames);
+        QueueIdStack());
+
+    // Instead of resolving the binary data right here, we delegate this
+    // to a later point in time when the data is actually retrieved through
+    // a call to getInstanceNames, which is going to resolve the binary
+    // data when the callback function is registered.
+    // This allows an alternate client implementation to gain direct access
+    // to the binary data and pass this for example to the JNI implementation
+    // of the JSR48 CIM Client for Java.
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setBinary(in,false);
 
     msg->binaryRequest = true;
     return msg;
@@ -473,13 +470,13 @@ static void _encodeEnumerateInstanceNamesRequest(
 
 static void _encodeEnumerateInstanceNamesResponseBody(
     CIMBuffer& out,
-    CIMEnumerateInstanceNamesResponseMessage* msg,
+    CIMResponseData& data,
     CIMName& name)
 {
     static const CIMName NAME("EnumerateInstanceNames");
     name = NAME;
 
-    out.putObjectPathA(msg->instanceNames, false);
+    data.encodeBinaryResponse(out);
 }
 
 //==============================================================================
@@ -560,8 +557,8 @@ static CIMGetInstanceResponseMessage* _decodeGetInstanceResponse(
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
-    CIMInstanceResponseData& responseData = msg->getResponseData();
-    responseData.setBinaryCimInstance(in,false);
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setBinary(in,false);
 
     msg->binaryRequest = true;
     return msg;
@@ -599,7 +596,7 @@ static void _encodeGetInstanceRequest(
 
 static void _encodeGetInstanceResponseBody(
     CIMBuffer& out,
-    CIMInstanceResponseData& data,
+    CIMResponseData& data,
     CIMName& name)
 {
     static const CIMName NAME("GetInstance");
@@ -1056,7 +1053,7 @@ static CIMAssociatorsRequestMessage* _decodeAssociatorsRequest(
 
 static void _encodeAssociatorsResponseBody(
     CIMBuffer& out,
-    CIMObjectsResponseData& data,
+    CIMResponseData& data,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
@@ -1088,8 +1085,8 @@ static CIMAssociatorsResponseMessage* _decodeAssociatorsResponse(
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
-    CIMObjectsResponseData& responseData = msg->getResponseData();
-    responseData.setBinaryCimObjects(in,false);
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setBinary(in,false);
 
     msg->binaryRequest = true;
     return msg;
@@ -1207,15 +1204,14 @@ static CIMAssociatorNamesRequestMessage* _decodeAssociatorNamesRequest(
 
 static void _encodeAssociatorNamesResponseBody(
     CIMBuffer& out,
-    CIMAssociatorNamesResponseMessage* msg,
+    CIMResponseData& data,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
 
     static const CIMName NAME("AssociatorNames");
     name = NAME;
-
-    out.putObjectPathA(msg->objectNames);
+    data.encodeBinaryResponse(out);
 }
 
 static CIMAssociatorNamesResponseMessage* _decodeAssociatorNamesResponse(
@@ -1223,28 +1219,23 @@ static CIMAssociatorNamesResponseMessage* _decodeAssociatorNamesResponse(
     Uint32 flags,
     const String& messageId)
 {
-    /* See ../Client/CIMOperationResponseDecoder.cpp */
-
-    Array<CIMObjectPath> objectNames;
-
-    while (in.more())
-    {
-        Array<CIMObjectPath> tmp;
-
-        if (!in.getObjectPathA(tmp))
-            return 0;
-
-        objectNames.append(tmp.getData(), tmp.size());
-    }
-
     CIMAssociatorNamesResponseMessage* msg;
     CIMException cimException;
 
     msg = new CIMAssociatorNamesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        objectNames);
+        QueueIdStack());
+
+    // Instead of resolving the binary data right here, we delegate this
+    // to a later point in time when the data is actually retrieved through
+    // a call to getNamedInstances, which is going to resolve the binary
+    // data when the callback function is registered.
+    // This allows an alternate client implementation to gain direct access
+    // to the binary data and pass this for example to the JNI implementation
+    // of the JSR48 CIM Client for Java.
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setBinary(in,false);
 
     msg->binaryRequest = true;
     return msg;
@@ -1364,7 +1355,7 @@ static CIMReferencesRequestMessage* _decodeReferencesRequest(
 
 static void _encodeReferencesResponseBody(
     CIMBuffer& out,
-    CIMReferencesResponseMessage* msg,
+    CIMResponseData& data,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
@@ -1372,7 +1363,7 @@ static void _encodeReferencesResponseBody(
     static const CIMName NAME("References");
     name = NAME;
 
-    out.putObjectA(msg->cimObjects);
+    data.encodeBinaryResponse(out);
 }
 
 static CIMReferencesResponseMessage* _decodeReferencesResponse(
@@ -1380,30 +1371,23 @@ static CIMReferencesResponseMessage* _decodeReferencesResponse(
     Uint32 flags,
     const String& messageId)
 {
-    /* See ../Client/CIMOperationResponseDecoder.cpp */
-
-    Array<CIMObject> cimObjects;
-
-    while (in.more())
-    {
-        Array<CIMObject> tmp;
-
-        if (!in.getObjectA(tmp))
-        {
-            return 0;
-        }
-
-        cimObjects.append(tmp.getData(), tmp.size());
-    }
-
     CIMReferencesResponseMessage* msg;
     CIMException cimException;
 
     msg = new CIMReferencesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        cimObjects);
+        QueueIdStack());
+
+    // Instead of resolving the binary data right here, we delegate this
+    // to a later point in time when the data is actually retrieved through
+    // a call to getNamedInstances, which is going to resolve the binary
+    // data when the callback function is registered.
+    // This allows an alternate client implementation to gain direct access
+    // to the binary data and pass this for example to the JNI implementation
+    // of the JSR48 CIM Client for Java.
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setBinary(in,false);
 
     msg->binaryRequest = true;
     return msg;
@@ -1499,15 +1483,14 @@ static CIMReferenceNamesRequestMessage* _decodeReferenceNamesRequest(
 
 static void _encodeReferenceNamesResponseBody(
     CIMBuffer& out,
-    CIMReferenceNamesResponseMessage* msg,
+    CIMResponseData& data,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
 
     static const CIMName NAME("ReferenceNames");
     name = NAME;
-
-    out.putObjectPathA(msg->objectNames);
+    data.encodeBinaryResponse(out);
 }
 
 static CIMReferenceNamesResponseMessage* _decodeReferenceNamesResponse(
@@ -1517,28 +1500,26 @@ static CIMReferenceNamesResponseMessage* _decodeReferenceNamesResponse(
 {
     /* See ../Client/CIMOperationResponseDecoder.cpp */
 
-    Array<CIMObjectPath> objectNames;
-
-    while (in.more())
-    {
-        Array<CIMObjectPath> tmp;
-
-        if (!in.getObjectPathA(tmp))
-            return 0;
-
-        objectNames.append(tmp.getData(), tmp.size());
-    }
-
     CIMReferenceNamesResponseMessage* msg;
     CIMException cimException;
 
     msg = new CIMReferenceNamesResponseMessage(
         messageId,
         cimException,
-        QueueIdStack(),
-        objectNames);
+        QueueIdStack());
+
+    // Instead of resolving the binary data right here, we delegate this
+    // to a later point in time when the data is actually retrieved through
+    // a call to getNamedInstances, which is going to resolve the binary
+    // data when the callback function is registered.
+    // This allows an alternate client implementation to gain direct access
+    // to the binary data and pass this for example to the JNI implementation
+    // of the JSR48 CIM Client for Java.
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setBinary(in,false);
 
     msg->binaryRequest = true;
+
     return msg;
 }
 
@@ -3063,7 +3044,7 @@ static CIMExecQueryRequestMessage* _decodeExecQueryRequest(
 
 static void _encodeExecQueryResponseBody(
     CIMBuffer& out,
-    CIMObjectsResponseData& data,
+    CIMResponseData& data,
     CIMName& name)
 {
     /* See ../Server/CIMOperationResponseEncoder.cpp */
@@ -3094,8 +3075,8 @@ static CIMExecQueryResponseMessage* _decodeExecQueryResponse(
     // This allows an alternate client implementation to gain direct access
     // to the binary data and pass this for example to the JNI implementation
     // of the JSR48 CIM Client for Java.
-    CIMObjectsResponseData& responseData = msg->getResponseData();
-    responseData.setBinaryCimObjects(in,false);
+    CIMResponseData& responseData = msg->getResponseData();
+    responseData.setBinary(in,false);
 
     msg->binaryRequest = true;
     return msg;
@@ -3663,8 +3644,10 @@ bool BinaryCodec::encodeResponseBody(
 
         case CIM_ENUMERATE_INSTANCE_NAMES_RESPONSE_MESSAGE:
         {
-            _encodeEnumerateInstanceNamesResponseBody(buf,
-                (CIMEnumerateInstanceNamesResponseMessage*)msg, name);
+            _encodeEnumerateInstanceNamesResponseBody(
+            buf,
+            ((CIMEnumerateInstanceNamesResponseMessage*)msg)->getResponseData(),
+            name);
             break;
         }
 
@@ -3672,7 +3655,7 @@ bool BinaryCodec::encodeResponseBody(
         {
             _encodeGetInstanceResponseBody(
                 buf,
-                ((CIMGetInstanceResponseMessage*)msg)->getResponseData(), 
+                ((CIMGetInstanceResponseMessage*)msg)->getResponseData(),
                 name);
             break;
         }
@@ -3702,29 +3685,35 @@ bool BinaryCodec::encodeResponseBody(
         {
             _encodeAssociatorsResponseBody(
                 buf,
-                ((CIMAssociatorsResponseMessage*)msg)->getResponseData(), 
+                ((CIMAssociatorsResponseMessage*)msg)->getResponseData(),
                 name);
             break;
         }
 
         case CIM_ASSOCIATOR_NAMES_RESPONSE_MESSAGE:
         {
-            _encodeAssociatorNamesResponseBody(buf,
-                (CIMAssociatorNamesResponseMessage*)msg, name);
+            _encodeAssociatorNamesResponseBody(
+                buf,
+                ((CIMAssociatorNamesResponseMessage*)msg)->getResponseData(),
+                name);
             break;
         }
 
         case CIM_REFERENCES_RESPONSE_MESSAGE:
         {
-            _encodeReferencesResponseBody(buf,
-                (CIMReferencesResponseMessage*)msg, name);
+            _encodeReferencesResponseBody(
+                buf,
+                ((CIMReferencesResponseMessage*)msg)->getResponseData(),
+                name);
             break;
         }
 
         case CIM_REFERENCE_NAMES_RESPONSE_MESSAGE:
         {
-            _encodeReferenceNamesResponseBody(buf,
-                (CIMReferenceNamesResponseMessage*)msg, name);
+            _encodeReferenceNamesResponseBody(
+                buf,
+                ((CIMReferenceNamesResponseMessage*)msg)->getResponseData(),
+                name);
             break;
         }
 
@@ -3823,7 +3812,7 @@ bool BinaryCodec::encodeResponseBody(
         {
             _encodeExecQueryResponseBody(
                 buf,
-                ((CIMExecQueryResponseMessage*)msg)->getResponseData(), 
+                ((CIMExecQueryResponseMessage*)msg)->getResponseData(),
                 name);
             break;
         }

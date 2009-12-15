@@ -373,6 +373,8 @@ private:
     friend class CIMObjectRep;
     friend class CIMPropertyContainer;
     friend class CIMPropertyInternal;
+    friend class SCMOClass;
+    friend class SCMOInstance;
 
     CIMPropertyRep* _rep;
 };
@@ -610,6 +612,8 @@ private:
     friend class XmlWriter;
     friend class MofWriter;
     friend class CIMPropertyInternal;
+    friend class SCMOClass;
+    friend class SCMOInstance;
 };
 
 #define PEGASUS_ARRAY_T CIMProperty

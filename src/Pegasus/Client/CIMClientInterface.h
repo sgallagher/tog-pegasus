@@ -48,6 +48,7 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/ContentLanguageList.h>
+#include <Pegasus/Common/CIMResponseData.h>
 #include <Pegasus/Client/ClientOpPerformanceDataHandler.h> //PEP# 128
 
 PEGASUS_NAMESPACE_BEGIN
@@ -112,7 +113,7 @@ public:
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList()) = 0;
 
-    virtual CIMInstance getInstance(
+    virtual CIMResponseData getInstance(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& instanceName,
         Boolean localOnly = true,
@@ -159,7 +160,7 @@ public:
         const CIMName& className = CIMName(),
         Boolean deepInheritance = false) = 0;
 
-    virtual Array<CIMInstance> enumerateInstances(
+    virtual CIMResponseData enumerateInstances(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
         Boolean deepInheritance = true,
@@ -168,16 +169,16 @@ public:
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList()) = 0;
 
-    virtual Array<CIMObjectPath> enumerateInstanceNames(
+    virtual CIMResponseData enumerateInstanceNames(
         const CIMNamespaceName& nameSpace,
         const CIMName& className) = 0;
 
-    virtual Array<CIMObject> execQuery(
+    virtual CIMResponseData execQuery(
         const CIMNamespaceName& nameSpace,
         const String& queryLanguage,
         const String& query) = 0;
 
-    virtual Array<CIMObject> associators(
+    virtual CIMResponseData associators(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& assocClass = CIMName(),
@@ -188,7 +189,7 @@ public:
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList()) = 0;
 
-    virtual Array<CIMObjectPath> associatorNames(
+    virtual CIMResponseData associatorNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& assocClass = CIMName(),
@@ -196,7 +197,7 @@ public:
         const String& role = String::EMPTY,
         const String& resultRole = String::EMPTY) = 0;
 
-    virtual Array<CIMObject> references(
+    virtual CIMResponseData references(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& resultClass = CIMName(),
@@ -205,7 +206,7 @@ public:
         Boolean includeClassOrigin = false,
         const CIMPropertyList& propertyList = CIMPropertyList()) = 0;
 
-    virtual Array<CIMObjectPath> referenceNames(
+    virtual CIMResponseData referenceNames(
         const CIMNamespaceName& nameSpace,
         const CIMObjectPath& objectName,
         const CIMName& resultClass = CIMName(),

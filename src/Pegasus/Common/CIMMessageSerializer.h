@@ -293,6 +293,11 @@ private:
         Buffer& out,
         CIMIndicationServiceDisabledRequestMessage* message);
 
+    PEGASUS_HIDDEN_LINKAGE
+    static void _serializeProvAgtGetScmoClassRequestMessage(
+        Buffer& out,
+        ProvAgtGetScmoClassRequestMessage* message);
+
     //
     //
     // CIM Response Messages
@@ -440,6 +445,11 @@ private:
     static void _serializeCIMIndicationServiceDisabledResponseMessage(
         Buffer& out,
         CIMIndicationServiceDisabledResponseMessage* message);
+
+    PEGASUS_HIDDEN_LINKAGE
+    static void _serializeProvAgtGetScmoClassResponseMessage(
+        Buffer& out,
+        ProvAgtGetScmoClassResponseMessage* message);
 };
 
 PEGASUS_NAMESPACE_END

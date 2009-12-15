@@ -5,11 +5,6 @@
 <IMETHODRESPONSE NAME="EnumerateInstanceNames">
 <IRETURNVALUE>
 <INSTANCENAME CLASSNAME="CWS_Directory">
-<KEYBINDING NAME="CreationClassName">
-<KEYVALUE VALUETYPE="string">
-CWS_Directory
-</KEYVALUE>
-</KEYBINDING>
 <KEYBINDING NAME="CSCreationClassName">
 <KEYVALUE VALUETYPE="string">
 CIM_UnitaryComputerSystem
@@ -28,6 +23,11 @@ CIM_FileSystem
 <KEYBINDING NAME="FSName">
 <KEYVALUE VALUETYPE="string">
 /Simulated/CMPI/tests/
+</KEYVALUE>
+</KEYBINDING>
+<KEYBINDING NAME="CreationClassName">
+<KEYVALUE VALUETYPE="string">
+CWS_Directory
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -37,11 +37,6 @@ CIM_FileSystem
 </KEYBINDING>
 </INSTANCENAME>
 <INSTANCENAME CLASSNAME="CWS_Directory">
-<KEYBINDING NAME="CreationClassName">
-<KEYVALUE VALUETYPE="string">
-CWS_Directory
-</KEYVALUE>
-</KEYBINDING>
 <KEYBINDING NAME="CSCreationClassName">
 <KEYVALUE VALUETYPE="string">
 CIM_UnitaryComputerSystem
@@ -60,6 +55,11 @@ CIM_FileSystem
 <KEYBINDING NAME="FSName">
 <KEYVALUE VALUETYPE="string">
 /Simulated/CMPI/tests/
+</KEYVALUE>
+</KEYBINDING>
+<KEYBINDING NAME="CreationClassName">
+<KEYVALUE VALUETYPE="string">
+CWS_Directory
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -69,11 +69,6 @@ CIM_FileSystem
 </KEYBINDING>
 </INSTANCENAME>
 <INSTANCENAME CLASSNAME="CWS_Directory">
-<KEYBINDING NAME="CreationClassName">
-<KEYVALUE VALUETYPE="string">
-CWS_Directory
-</KEYVALUE>
-</KEYBINDING>
 <KEYBINDING NAME="CSCreationClassName">
 <KEYVALUE VALUETYPE="string">
 CIM_UnitaryComputerSystem
@@ -92,6 +87,11 @@ CIM_FileSystem
 <KEYBINDING NAME="FSName">
 <KEYVALUE VALUETYPE="string">
 /Simulated/CMPI/tests/
+</KEYVALUE>
+</KEYBINDING>
+<KEYBINDING NAME="CreationClassName">
+<KEYVALUE VALUETYPE="string">
+CWS_Directory
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">

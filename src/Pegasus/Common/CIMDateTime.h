@@ -38,7 +38,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class CIMDateTimeRep;
+struct CIMDateTimeRep;
+class CMPISCMOUtilities;
 
 /**
     The CIMDateTime class represents the CIM datetime data type as a C++ class
@@ -534,8 +535,13 @@ public:
 private:
     CIMDateTimeRep* _rep;
     CIMDateTime(CIMDateTimeRep*);
-   
+    CIMDateTime(const CIMDateTimeRep*);
+
     friend class CIMBuffer;
+    friend class SCMOClass;
+    friend class SCMODump;
+    friend class SCMOInstance;
+    friend class CMPISCMOUtilities;
 };
 
 /** Compares two CIMDateTime objects and returns true if they represent the

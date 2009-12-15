@@ -85,8 +85,6 @@ struct CMPI_ResultOnStack : CMPIResult
     ~CMPI_ResultOnStack();
 };
 
-CIMClass *mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop);
-
 PEGASUS_NAMESPACE_END
 
 #endif

@@ -304,6 +304,13 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
                 cimMessage);
             break;
 
+        case PROVAGT_GET_SCMOCLASS_REQUEST_MESSAGE:
+            _serializeProvAgtGetScmoClassRequestMessage(
+                out,
+                (ProvAgtGetScmoClassRequestMessage *)
+                cimMessage);
+            break;
+
         default:
             PEGASUS_ASSERT(0);
         }
@@ -497,6 +504,12 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
             _serializeCIMIndicationServiceDisabledResponseMessage(
                 out,
                 (CIMIndicationServiceDisabledResponseMessage *)
+                cimMessage);
+            break;
+        case PROVAGT_GET_SCMOCLASS_RESPONSE_MESSAGE:
+            _serializeProvAgtGetScmoClassResponseMessage(
+                out,
+                (ProvAgtGetScmoClassResponseMessage *)
                 cimMessage);
             break;
 
@@ -1296,6 +1309,18 @@ void CIMMessageSerializer::_serializeCIMIndicationServiceDisabledRequestMessage(
 }
 
 //
+// _serializeProvAgtGetScmoClassRequestMessage
+//
+void CIMMessageSerializer::_serializeProvAgtGetScmoClassRequestMessage(
+    Buffer& out,
+    ProvAgtGetScmoClassRequestMessage* message)
+{
+    _serializeCIMNamespaceName(out, message->nameSpace);
+
+    _serializeCIMName(out, message->className);
+}
+
+//
 //
 // Response Messages
 //
@@ -1314,7 +1339,7 @@ void CIMMessageSerializer::_serializeCIMGetInstanceResponseMessage(
     Buffer& out,
     CIMGetInstanceResponseMessage* message)
 {
-    _serializeCIMInstance(out, message->getCimInstance());
+    _serializeCIMInstance(out, message->getResponseData().getInstance());
 }
 
 //
@@ -1357,7 +1382,7 @@ void CIMMessageSerializer::_serializeCIMEnumerateInstancesResponseMessage(
     // Use PGINSTARRAY element to encapsulate the CIMInstance elements
     XmlWriter::append(out, "<PGINSTARRAY>\n");
 
-    const Array<CIMInstance>& a = message->getNamedInstances();
+    const Array<CIMInstance>& a = message->getResponseData().getInstances();
     for (Uint32 i=0; i < a.size(); i++)
     {
         _serializeCIMInstance(out, a[i]);
@@ -1374,9 +1399,11 @@ void CIMMessageSerializer::_serializeCIMEnumerateInstanceNamesResponseMessage(
 {
     // Use PGPATHARRAY element to encapsulate the object path elements
     XmlWriter::append(out, "<PGPATHARRAY>\n");
-    for (Uint32 i=0; i < message->instanceNames.size(); i++)
+    for (Uint32 i=0;i<message->getResponseData().getInstanceNames().size();i++)
     {
-        _serializeCIMObjectPath(out, message->instanceNames[i]);
+        _serializeCIMObjectPath(
+            out,
+            message->getResponseData().getInstanceNames()[i]);
     }
     XmlWriter::append(out, "</PGPATHARRAY>\n");
 }
@@ -1390,9 +1417,9 @@ void CIMMessageSerializer::_serializeCIMExecQueryResponseMessage(
 {
     // Use PGOBJARRAY element to encapsulate the CIMObject elements
     XmlWriter::append(out, "<PGOBJARRAY>\n");
-    for (Uint32 i=0; i < message->cimObjects.size(); i++)
+    for (Uint32 i=0; i < message->getResponseData().getObjects().size(); i++)
     {
-        _serializeCIMObject(out, message->cimObjects[i]);
+        _serializeCIMObject(out, message->getResponseData().getObjects()[i]);
     }
     XmlWriter::append(out, "</PGOBJARRAY>\n");
 }
@@ -1406,9 +1433,9 @@ void CIMMessageSerializer::_serializeCIMAssociatorsResponseMessage(
 {
     // Use PGOBJARRAY element to encapsulate the CIMObject elements
     XmlWriter::append(out, "<PGOBJARRAY>\n");
-    for (Uint32 i=0; i < message->cimObjects.size(); i++)
+    for (Uint32 i=0; i < message->getResponseData().getObjects().size(); i++)
     {
-        _serializeCIMObject(out, message->cimObjects[i]);
+        _serializeCIMObject(out, message->getResponseData().getObjects()[i]);
     }
     XmlWriter::append(out, "</PGOBJARRAY>\n");
 }
@@ -1422,9 +1449,11 @@ void CIMMessageSerializer::_serializeCIMAssociatorNamesResponseMessage(
 {
     // Use PGPATHARRAY element to encapsulate the object path elements
     XmlWriter::append(out, "<PGPATHARRAY>\n");
-    for (Uint32 i=0; i < message->objectNames.size(); i++)
+    for (Uint32 i=0;i<message->getResponseData().getInstanceNames().size();i++)
     {
-        _serializeCIMObjectPath(out, message->objectNames[i]);
+        _serializeCIMObjectPath(
+            out,
+            message->getResponseData().getInstanceNames()[i]);
     }
     XmlWriter::append(out, "</PGPATHARRAY>\n");
 }
@@ -1438,9 +1467,9 @@ void CIMMessageSerializer::_serializeCIMReferencesResponseMessage(
 {
     // Use PGOBJARRAY element to encapsulate the CIMObject elements
     XmlWriter::append(out, "<PGOBJARRAY>\n");
-    for (Uint32 i=0; i < message->cimObjects.size(); i++)
+    for (Uint32 i=0; i < message->getResponseData().getObjects().size(); i++)
     {
-        _serializeCIMObject(out, message->cimObjects[i]);
+        _serializeCIMObject(out, message->getResponseData().getObjects()[i]);
     }
     XmlWriter::append(out, "</PGOBJARRAY>\n");
 }
@@ -1454,9 +1483,11 @@ void CIMMessageSerializer::_serializeCIMReferenceNamesResponseMessage(
 {
     // Use PGPATHARRAY element to encapsulate the object path elements
     XmlWriter::append(out, "<PGPATHARRAY>\n");
-    for (Uint32 i=0; i < message->objectNames.size(); i++)
+    for (Uint32 i=0;i<message->getResponseData().getInstanceNames().size();i++)
     {
-        _serializeCIMObjectPath(out, message->objectNames[i]);
+        _serializeCIMObjectPath(
+            out,
+            message->getResponseData().getInstanceNames()[i]);
     }
     XmlWriter::append(out, "</PGPATHARRAY>\n");
 }
@@ -1654,6 +1685,26 @@ CIMMessageSerializer::_serializeCIMIndicationServiceDisabledResponseMessage(
         CIMIndicationServiceDisabledResponseMessage* message)
 {
     // No additional attributes to serialize!
+}
+
+//
+// _serializeProvAgtGetScmoClassResponseMessage
+//
+void CIMMessageSerializer::_serializeProvAgtGetScmoClassResponseMessage(
+        Buffer& out,
+        ProvAgtGetScmoClassResponseMessage* message)
+{
+   CIMClass cimClass;
+   if (!message->scmoClass.isEmpty())
+   {
+       message->scmoClass.getCIMClass(cimClass);
+       XmlWriter::appendClassElement(out, cimClass);
+       // The namespace has to be added separately, because a XML encodes a
+       // CIMClass without, but it is needed in a SCMOClass.
+       _serializeCIMNamespaceName(out,cimClass.getPath().getNameSpace());
+
+   }
+
 }
 
 PEGASUS_NAMESPACE_END

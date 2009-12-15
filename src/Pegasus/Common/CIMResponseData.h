@@ -29,15 +29,16 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CIMResponseData_h 
+#ifndef Pegasus_CIMResponseData_h
 #define Pegasus_CIMResponseData_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/CIMBuffer.h>
-
-
+#include <Pegasus/Common/SCMOClass.h>
+#include <Pegasus/Common/SCMOInstance.h>
+#include <Pegasus/Common/SCMODump.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -46,283 +47,182 @@ typedef Array<Sint8> ArraySint8;
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
-//-----------------------------------------------------------------------------
-//
-//  CIMInstanceResponseData
-//
-//-----------------------------------------------------------------------------
 
-class PEGASUS_COMMON_LINKAGE CIMInstanceResponseData
+class PEGASUS_COMMON_LINKAGE CIMResponseData
 {
 public:
 
-    CIMInstanceResponseData():
-        _resolveCallback(0),
-        _binaryEncoding(false)
+    enum ResponseDataEncoding {
+        RESP_ENC_CIM = 1,
+        RESP_ENC_BINARY = 2,
+        RESP_ENC_XML = 4,
+        RESP_ENC_SCMO = 8
+    };
+
+    enum ResponseDataContent {
+        RESP_INSTNAMES = 1,
+        RESP_INSTANCES = 2,
+        RESP_INSTANCE = 3,
+        RESP_OBJECTS = 4,
+        RESP_OBJECTPATHS = 5
+    };
+
+    CIMResponseData(ResponseDataContent content):
+        _encoding(0),_dataType(content)
+    {};
+
+
+    ~CIMResponseData()
     {
     }
 
-    CIMInstance& getCimInstance()
+    // C++ objects interface handling
+
+    // Instance Names handling
+    Array<CIMObjectPath>& getInstanceNames();
+
+    void setInstanceNames(const Array<CIMObjectPath>& x)
     {
-        _resolve();
-        return _cimInstance;
+        _instanceNames=x;
+        _encoding |= RESP_ENC_CIM;
     }
 
-    const CIMConstInstance& getCimInstance() const
-    {
-        // Resolve the instance before returning it.  The resolve step requires
-        // non-const access, but does not fundamentally change the response
-        const_cast<CIMInstanceResponseData*>(this)->_resolve();
+    // Instance handling
+    CIMInstance& getInstance();
 
-        // The CIMInstance is masqueraded as a CIMConstInstance for expedience,
-        // since the internal representations are the same.
-        return *((CIMConstInstance*)(void*)&_cimInstance);
+    void setInstance(const CIMInstance& x)
+    {
+        _instances.clear();
+        _instances.append(x);
+        _encoding |= RESP_ENC_CIM;
     }
 
-    void setCimInstance(const CIMInstance& x)
+    // Instances handling
+    Array<CIMInstance>& getInstances();
+
+    void setInstances(const Array<CIMInstance>& x)
     {
-        _resolveCallback = 0;
-        _cimInstance = x;
+        _instances=x;
+        _encoding |= RESP_ENC_CIM;
+    }
+    void appendInstance(const CIMInstance& x)
+    {
+        _instances.append(x);
+        _encoding |= RESP_ENC_CIM;
     }
 
-    Array<Uint8>& getBinaryCimInstance()
+    // Objects handling
+    Array<CIMObject>& getObjects();
+    void setObjects(const Array<CIMObject>& x)
     {
-        return _binaryData;
+        _objects=x;
+        _encoding |= RESP_ENC_CIM;
+    }
+    void appendObject(const CIMObject& x)
+    {
+        _objects.append(x);
+        _encoding |= RESP_ENC_CIM;
     }
 
-    bool setBinaryCimInstance(CIMBuffer& in, bool hasLen=true);
-    bool setXmlCimInstance(CIMBuffer& in);
+    // SCMO representation, single instance stored as one element array
+    // object paths are represented as SCMOInstance
+    Array<SCMOInstance>& getSCMO();
 
-    void encodeBinaryResponse(CIMBuffer& out) const;
-    void encodeXmlResponse(Buffer& out) const;
+    void setSCMO(const Array<SCMOInstance>& x);
+
+    void appendSCMO(const Array<SCMOInstance>& x)
+    {
+        _scmoInstances.appendArray(x);
+        _encoding |= RESP_ENC_SCMO;
+    }
+
+    // Binary data is just a data stream
+    Array<Uint8>& getBinary();
+    bool setBinary(CIMBuffer& in, bool hasLen=true);
+
+    // Xml data is unformatted, no need to differentiate between instance
+    // instances and object paths or objects
+    bool setXml(CIMBuffer& in);
+
+    // function used by OperationAggregator to aggregate response data in a
+    // single ResponseData object
+    void appendResponseData(const CIMResponseData & x);
+
+    // Function used by CMPI layer to complete the namespace on all data held
+    // Input (x) has to have a valid namespace
+    void completeNamespace(const SCMOInstance * x);
+
+    // Function primarily used by CIMOperationRequestDispatcher to complete
+    // namespace and hostname on a,an,r and rn operations in the
+    // OperationAggregator
+    void completeHostNameAndNamespace(
+        const String & hn,
+        const CIMNamespaceName & ns);
+
+    // Encoding responses
+
+    // binary format used with Provider Agents and OP Clients
+    void encodeBinaryResponse(CIMBuffer& out);
+    // Xml format used with Provider Agents only
+    void encodeInternalXmlResponse(CIMBuffer& out);
+    // official Xml format(CIM over Http) used to communicate to clients
+    void encodeXmlResponse(Buffer& out);
 
 private:
 
-    CIMInstanceResponseData(const CIMInstanceResponseData&);
-    CIMInstanceResponseData& operator=(
-        const CIMInstanceResponseData&);
+    // helper functions to transform different formats into one-another
+    // functions work on the internal data and calling of them should be
+    // avoided
 
-    static Boolean _resolveXMLInstance(
-        CIMInstanceResponseData* data,
-        CIMInstance& instance);
+    void _resolveToCIM();
+    void _resolveToSCMO();
 
-    static Boolean _resolveBinaryInstance(
-        CIMInstanceResponseData* data,
-        CIMInstance& instance);
+    void _resolveBinary();
 
-    Boolean (*_resolveCallback)(
-        CIMInstanceResponseData* msg,
-        CIMInstance& cimInstance);
+    void _resolveXmlToSCMO();
+    void _resolveXmlToCIM();
 
-    void _resolve()
-    {
-        if (_resolveCallback)
-        {
-            (*_resolveCallback)(this, _cimInstance);
-            _resolveCallback = 0;
-        }
-    }
+    void _resolveSCMOToCIM();
+    void _resolveCIMToSCMO();
 
-    Boolean _binaryEncoding;
+    // Helper functions for this class only, do NOT externalize
+    SCMOInstance _getSCMOFromCIMInstance(const CIMInstance& cimInst);
+    SCMOInstance _getSCMOFromCIMObject(const CIMObject& cimObj);
+    SCMOInstance _getSCMOFromCIMObjectPath(const CIMObjectPath& cimPath);
+    SCMOClass* _getSCMOClass(const char* ns,const char* cls);
 
-    // For XML encoding:
-    Array<Sint8> _instanceData;
-    Array<Sint8> _referenceData;
-    CIMNamespaceName _nameSpaceData;
-    String _hostData;
+    // Bitflags in this integer will reflect what data representation types
+    // are currently stored in this CIMResponseData object
+    Uint32 _encoding;
 
-    // For Binary encoding:
-    Array<Uint8> _binaryData;
+    // Storing type of data in this enumeration
+    ResponseDataContent _dataType;
 
-    CIMInstance _cimInstance;
-
-};
-
-
-//-----------------------------------------------------------------------------
-//
-//  CIMInstancesResponseData
-//
-//-----------------------------------------------------------------------------
-
-class PEGASUS_COMMON_LINKAGE CIMInstancesResponseData
-{
-public:
-
-    CIMInstancesResponseData():
-        _resolveCallback(0),
-        _binaryEncoding(false)
-    {
-    }
-
-    Array<CIMInstance>& getNamedInstances()
-    {
-        _resolve();
-        return _namedInstances;
-    }
-
-    const Array<CIMConstInstance>& getNamedInstances() const
-    {
-        // Resolve the instances before returning them.  The resolve step
-        // requires non-const access, but does not fundamentally change the
-        // message contents.
-        const_cast<CIMInstancesResponseData*>(this)->_resolve();
-
-        // The Array<CIMInstance> is masqueraded as an Array<CIMConstInstance>
-        // for expedience, since the internal representations are the same.
-        return *((Array<CIMConstInstance>*)(void*)&_namedInstances);
-    }
-
-    void setNamedInstances(const Array<CIMInstance>& x)
-    {
-        _resolveCallback = 0;
-        _namedInstances = x;
-    }
-
-    Array<Uint8>& getBinaryCimInstances()
-    {
-        return _binaryData;
-    }
-
-    bool setBinaryCimInstances(CIMBuffer& in, bool hasLen=true);
-    bool setXmlCimInstances(CIMBuffer& in);
-
-    void encodeBinaryResponse(CIMBuffer& out) const;
-    void encodeXmlResponse(Buffer& out) const;
-
-private:
-
-    CIMInstancesResponseData(const CIMInstancesResponseData&);
-    CIMInstancesResponseData& operator=(
-        const CIMInstancesResponseData&);
-
-    static Boolean _resolveXMLInstances(
-        CIMInstancesResponseData* data,
-        Array<CIMInstance>& instances);
-
-    static Boolean _resolveBinaryInstances(
-        CIMInstancesResponseData* data,
-        Array<CIMInstance>& instances);
-
-    Boolean (*_resolveCallback)(
-        CIMInstancesResponseData* data,
-        Array<CIMInstance>& cimInstance);
-
-    void _resolve()
-    {
-        if (_resolveCallback)
-        {
-            (*_resolveCallback)(this, _namedInstances);
-            _resolveCallback = 0;
-        }
-    }
-
-    Boolean _binaryEncoding;
+    // unused arrays are represented by ArrayRepBase _empty_rep
+    // which is a 16 byte large static shared across all of them
+    // so, even though this object looks large, it holds just
+    // 2 integer and 9 pointers
 
     // For XML encoding.
-    Array<ArraySint8> _instancesData;
     Array<ArraySint8> _referencesData;
+    Array<ArraySint8> _instanceData;
     Array<String> _hostsData;
     Array<CIMNamespaceName> _nameSpacesData;
 
-    // For binary encoding.
-    Array<Uint8> _binaryData;
-
-    Array<CIMInstance> _namedInstances;
-};
-
-
-//-----------------------------------------------------------------------------
-//
-//  CIMObjectsResponseData
-//
-//-----------------------------------------------------------------------------
-
-class PEGASUS_COMMON_LINKAGE CIMObjectsResponseData
-{
-public:
-
-    CIMObjectsResponseData():
-        _resolveCallback(0),
-        _binaryEncoding(false)
-    {
-    }
-
-    Array<CIMObject>& getCIMObjects()
-    {
-        _resolve();
-        return _cimObjects;
-    }
-
-    const Array<CIMConstObject>& getCIMObjects() const
-    {
-        // Resolve the instances before returning them.  The resolve step
-        // requires non-const access, but does not fundamentally change the
-        // message contents.
-        const_cast<CIMObjectsResponseData*>(this)->_resolve();
-
-        // The Array<CIMInstance> is masqueraded as an Array<CIMConstInstance>
-        // for expedience, since the internal representations are the same.
-        return *((Array<CIMConstObject>*)(void*)&_cimObjects);
-    }
-
-    void setCIMObjects(const Array<CIMObject>& x)
-    {
-        _resolveCallback = 0;
-        _cimObjects = x;
-    }
-
-    Array<Uint8>& getBinaryCimObjects()
-    {
-        return _binaryData;
-    }
-
-    bool setBinaryCimObjects(CIMBuffer& in, bool hasLen=true);
-    bool setXmlCimObjects(CIMBuffer& in);
-
-    void encodeBinaryResponse(CIMBuffer& out) const;
-    void encodeXmlResponse(Buffer& out) const;
-
-private:
-
-    CIMObjectsResponseData(const CIMObjectsResponseData&);
-    CIMObjectsResponseData& operator=(
-        const CIMObjectsResponseData&);
-
-    static Boolean _resolveXMLObjects(
-        CIMObjectsResponseData* data,
-        Array<CIMObject>& objects);
-
-    static Boolean _resolveBinaryObjects(
-        CIMObjectsResponseData* data,
-        Array<CIMObject>& objects);
-
-    Boolean (*_resolveCallback)(
-        CIMObjectsResponseData* data,
-        Array<CIMObject>& cimObjects);
-
-    void _resolve()
-    {
-        if (_resolveCallback)
-        {
-            (*_resolveCallback)(this, _cimObjects);
-            _resolveCallback = 0;
-        }
-    }
-
-    Boolean _binaryEncoding;
-
-    // For XML encoding.
-    // For XML encoding.
-    Array<ArraySint8> _cimObjectsData;
-    Array<ArraySint8> _referencesData;
-    Array<String> _hostsData;
-    Array<CIMNamespaceName> _nameSpacesData;
 
     // For binary encoding.
     Array<Uint8> _binaryData;
+    CIMNamespaceName _defaultNamespace;
+    String _defaultHostname;
 
-    Array<CIMObject> _cimObjects;
+    // Default C++ encoding
+    Array<CIMObjectPath> _instanceNames;
+    Array<CIMInstance> _instances;
+    Array<CIMObject> _objects;
+
+    // SCMO encoding
+    Array<SCMOInstance> _scmoInstances;
+
 };
 
 PEGASUS_NAMESPACE_END

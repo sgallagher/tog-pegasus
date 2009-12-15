@@ -89,6 +89,7 @@ SOURCES = \
 	CMPI_String.cpp \
 	CMPI_ThreadContext.cpp \
 	CMPI_Value.cpp \
+	CMPISCMOUtilities.cpp \
 	CMPI_Query2Dnf.cpp \
         CMPI_Wql2Dnf.cpp \
         CMPI_SelectExp.cpp \

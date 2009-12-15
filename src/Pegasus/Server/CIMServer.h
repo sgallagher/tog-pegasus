@@ -41,6 +41,7 @@
 #include <Pegasus/Server/CIMServerState.h>
 #include <Pegasus/Server/HTTPAuthenticatorDelegator.h>
 #include <Pegasus/Server/Linkage.h>
+#include <Pegasus/Common/SCMOClassCache.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -184,6 +185,10 @@ private:
     ProviderRegistrationManager* _providerRegistrationManager;
     SSLContextManager* _sslContextMgr;
 
+    static SCMOClass _scmoClassCache_GetClass(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className);
+    
     void _init();
     SSLContext* _getSSLContext();
 };

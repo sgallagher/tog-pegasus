@@ -40,8 +40,8 @@ static const CMPIBroker * _broker;
 /* ---------------------------------------------------------------------------*/
 
 #define  _ClassName     "cmpiPerf_TestAssocClass"
-#define  _RefLeft       "Antecedent"
-#define  _RefRight      "Dependent"
+#define  _RefLeft       "from"
+#define  _RefRight      "to"
 #define  _RefLeftClass  "cmpiPerf_TestClassA"
 #define  _RefRightClass "cmpiPerf_TestClassB"
 

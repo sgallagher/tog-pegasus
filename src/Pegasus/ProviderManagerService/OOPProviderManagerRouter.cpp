@@ -47,6 +47,7 @@
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/Executor.h>
 #include <Pegasus/Common/StringConversion.h>
+#include <Pegasus/Common/SCMOClassCache.h>
 
 #if defined (PEGASUS_OS_TYPE_WINDOWS)
 # include <windows.h>  // For CreateProcess()
@@ -202,6 +203,13 @@ private:
     void _processResponses();
     static ThreadReturnType PEGASUS_THREAD_CDECL
         _responseProcessor(void* arg);
+
+    /**
+        Process the ProvAgtGetScmoClassRequestMessage and sends the
+        requested SCMOClass back to the agent.
+     */
+    void _processGetSCMOClassRequest(
+        ProvAgtGetScmoClassRequestMessage* request);
 
     //
     // Private data
@@ -364,9 +372,9 @@ ProviderAgentContainer::~ProviderAgentContainer()
             {
                 AutoMutex lock(_agentMutex);
                 // Check if the _pipeFromAgent is alive.
-                if( _pipeFromAgent.get() != 0 ) 
+                if( _pipeFromAgent.get() != 0 )
                 {
-                    // Stop the responseProcessor thread by closing its 
+                    // Stop the responseProcessor thread by closing its
                     // connection.
                     _pipeFromAgent->closeReadHandle();
                 }
@@ -1040,6 +1048,76 @@ void ProviderAgentContainer::unloadIdleProviders()
     PEG_METHOD_EXIT();
 }
 
+void ProviderAgentContainer::_processGetSCMOClassRequest(
+    ProvAgtGetScmoClassRequestMessage* request)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "ProviderAgentContainer::_processGetSCMOClassRequest");
+
+    AutoPtr<ProvAgtGetScmoClassResponseMessage> response(
+        new ProvAgtGetScmoClassResponseMessage(
+            XmlWriter::getNextMessageId(),
+            CIMException(),
+            QueueIdStack(),
+            SCMOClass("","")));
+
+    CString ns = request->nameSpace.getString().getCString();
+    CString cn = request->className.getString().getCString();
+
+    response->scmoClass = SCMOClassCache::getInstance()->getSCMOClass(
+                              ns,strlen(ns),
+                              cn,strlen(cn));
+
+    //
+    // Lock the Provider Agent Container and
+    // writing the response to the connection
+    //
+    {
+
+        AutoMutex lock(_agentMutex);
+
+        //
+        // Write the message to the pipe
+        //
+        try
+        {
+
+            AnonymousPipe::Status writeStatus =
+                _pipeToAgent->writeMessage(response.get());
+
+            if (writeStatus != AnonymousPipe::STATUS_SUCCESS)
+            {
+                PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
+                    "Failed to write message to pipe.  writeStatus = %d.",
+                    writeStatus));
+
+                PEG_METHOD_EXIT();
+                return;
+            }
+
+        }
+        catch (Exception & e)
+        {
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1,
+                "Exception: Failed to write message to pipe. Error: %s",
+                       (const char*)e.getMessage().getCString()));
+            PEG_METHOD_EXIT();
+            throw;
+        }
+        catch (...)
+        {
+
+            PEG_TRACE_CSTRING(TRC_PROVIDERMANAGER, Tracer::LEVEL1,
+                "Unkonwn exception. Failed to write message to pipe.");
+            PEG_METHOD_EXIT();
+            throw;
+        }
+    }
+
+    PEG_METHOD_EXIT();
+    return;
+}
+
 void ProviderAgentContainer::_processResponses()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
@@ -1088,6 +1166,13 @@ void ProviderAgentContainer::_processResponses()
 
                 _indicationCallback(
                     reinterpret_cast<CIMProcessIndicationRequestMessage*>(
+                        message));
+            }
+            else if (message->getType()==PROVAGT_GET_SCMOCLASS_REQUEST_MESSAGE)
+            {
+
+                _processGetSCMOClassRequest(
+                    reinterpret_cast<ProvAgtGetScmoClassRequestMessage*>(
                         message));
             }
             else if (!message->isComplete())

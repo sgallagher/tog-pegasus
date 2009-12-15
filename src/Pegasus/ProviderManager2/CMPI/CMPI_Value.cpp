@@ -31,8 +31,11 @@
 
 #include "CMPI_Version.h"
 
+#include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/ArrayIterator.h>
 #include "CMPI_String.h"
 #include "CMPI_Value.h"
+#include "CMPISCMOUtilities.h"
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -108,6 +111,157 @@ PEGASUS_NAMESPACE_BEGIN
                 new CMPI_Object(new pt(ar##pt[i]))); \
         } \
     }
+
+/**
+  Function to convert CMPIValue to SCMBUnion
+*/
+SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
+{
+    SCMBUnion scmoData;
+
+    PEGASUS_ASSERT(!(type&CMPI_ARRAY));
+
+    switch (type)
+    {
+        case CMPI_dateTime:
+        {
+            CIMDateTimeRep * cimdt =
+                CMPISCMOUtilities::scmoDateTimeFromCMPI(data->dateTime);
+            if (cimdt)
+            {
+                scmoData.dateTimeValue = *cimdt;
+            }
+            break;
+        }
+        case CMPI_chars:
+        {
+            scmoData.extString.pchar = (char*)data;
+            if (scmoData.extString.pchar)
+            {
+                scmoData.extString.length =
+                    strlen(scmoData.extString.pchar);
+            }
+            break;
+        }
+        case CMPI_charsptr:
+        {
+            if (data && *(char**)data)
+            {
+                scmoData.extString.pchar = *(char**)data;
+                scmoData.extString.length =
+                    strlen(scmoData.extString.pchar);
+            }
+            break;
+        }
+        case CMPI_string:
+        {
+            scmoData.extString.pchar = 0;
+            if (data->string)
+            {
+                scmoData.extString.pchar = (char*)data->string->hdl;
+            }
+            if (scmoData.extString.pchar)
+            {
+                scmoData.extString.length =
+                    strlen(scmoData.extString.pchar);
+            }
+            break;
+        }
+        case CMPI_ref:
+        case CMPI_instance:
+        {
+            if (data->inst)
+            {
+                scmoData.extRefPtr = (SCMOInstance*)data->inst->hdl;
+            }
+            break;
+        }
+        case CMPI_boolean:
+        {
+            scmoData.simple.val.bin = data->boolean;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_uint8:
+        {
+            scmoData.simple.val.u8 = data->uint8;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_uint16:
+        {
+            scmoData.simple.val.u16 = data->uint16;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_uint32:
+        {
+            scmoData.simple.val.u32 = data->uint32;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_uint64:
+        {
+            scmoData.simple.val.u64 = data->uint64;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_sint8:
+        {
+            scmoData.simple.val.s8 = data->sint8;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_sint16:
+        {
+            scmoData.simple.val.s16 = data->sint16;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_sint32:
+        {
+            scmoData.simple.val.s32 = data->sint32;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_sint64:
+        {
+            scmoData.simple.val.s64 = data->sint64;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_real32:
+        {
+            scmoData.simple.val.r32 = data->real32;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_real64:
+        {
+            scmoData.simple.val.r64 = data->real64;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        case CMPI_char16:
+        {
+            scmoData.simple.val.c16 = data->char16;
+            scmoData.simple.hasValue = 1;
+            break;
+        }
+        default:
+        {
+            // received a non-valid CMPIType as input
+            // place a trace message and do nothing
+            PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
+                "value2SCMOValue() received invalid CMPIType(%hu).",type));
+            fprintf(stderr,"value2SCMOValue() received type=%hu\n",type);
+            fflush(stderr);
+            PEGASUS_DEBUG_ASSERT(false);
+        }
+    }
+    return scmoData;
+}
+
 
 /**
   Function to convert CMPIValue to CIMValue
@@ -217,14 +371,37 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
             switch( aType )
             {
                 case CMPI_ref:
-                    CopyToEncArray(CIMObjectPath,ref);
+                    {
+                        Array<CIMObjectPath> arCIMObjectPath(aSize);
+                        ArrayIterator<CIMObjectPath> iterator(arCIMObjectPath);
+                        for (int i=0; i<aSize; i++)
+                        {
+                            SCMOInstance* scmoInst =
+                                (SCMOInstance*)aData[i].value.ref->hdl;
+                            scmoInst->getCIMObjectPath(iterator[i]);
+                        }
+                        v.set(arCIMObjectPath);
+                    }
                     break;
 
                 case CMPI_dateTime:
                     CopyToEncArray(CIMDateTime,dateTime);
                     break;
                 case CMPI_instance:
-                    CopyToEncArray(CIMObject,inst);
+                    {
+                        Array<CIMObject> arCIMInstance(aSize);
+                        ArrayIterator<CIMObject> iterator(arCIMInstance);
+                        for (int i=0; i<aSize; i++)
+                        {
+                            SCMOInstance* scmoInst =
+                                (SCMOInstance*)aData[i].value.inst->hdl;
+                            CIMInstance inst;
+                            scmoInst->getCIMInstance(inst);
+                            CIMObject obj(inst);
+                            iterator[i]=obj;
+                        }
+                        v.set(arCIMInstance);
+                    }
                     break;
                 case CMPI_boolean:
                     CopyToArray(Boolean,boolean);
@@ -340,7 +517,11 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
             case CMPI_instance:
                 if( data->inst && data->inst->hdl )
                 {
-                    v.set(*((CIMObject*) data->inst->hdl));
+                    SCMOInstance* scmoInst = (SCMOInstance*)data->inst->hdl;
+                    CIMInstance inst;
+                    scmoInst->getCIMInstance(inst);
+                    CIMObject obj(inst);
+                    v.set(obj);
                 }
                 else
                 {
@@ -351,7 +532,10 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
             case CMPI_ref:
                 if( data->ref && data->ref->hdl )
                 {
-                    v.set(*((CIMObjectPath*)data->ref->hdl));
+                    SCMOInstance* scmoInst = (SCMOInstance*)data->ref->hdl;
+                    CIMObjectPath ref;
+                    scmoInst->getCIMObjectPath(ref);
+                    v.set(ref);
                 }
                 else
                 {
@@ -370,8 +554,11 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc)
                 break;
 
             case CMPI_boolean:
-                v.set((Boolean&)data->boolean);
-                break;
+                {
+                    Boolean tmp=data->boolean;
+                    v.set(tmp);
+                    break;
+                }
 
             case CMPI_char16:
                 v.set((Char16)data->char16);
@@ -486,15 +673,31 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
             }
         }
         else
+        {
             switch( aType )
             {
                 case CMPI_ref:
-                    CopyFromEncArray(CIMObjectPath,CMPIObjectPath,ref);
+                {
+                    Array<CIMObjectPath> arRef;
+                    v.get(arRef);
+                    for (int i=0; i<aSize; i++)
+                    {
+                        SCMOInstance* scmoRef =
+                            CMPISCMOUtilities::getSCMOFromCIMObjectPath(
+                                arRef[i]);
+                        aData[i].value.ref=
+                            reinterpret_cast<CMPIObjectPath*>(
+                                new CMPI_Object(
+                                    scmoRef,
+                                    CMPI_Object::ObjectTypeObjectPath));
+                    }
                     break;
+                }
 
                 case CMPI_dateTime:
                     CopyFromEncArray(CIMDateTime,CMPIDateTime,dateTime);
                     break;
+
                 case CMPI_instance:
                     if (v.getType() == CIMTYPE_OBJECT)
                     {
@@ -502,13 +705,31 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                         v.get(tmpObjs);
                         for (int i = 0; i < aSize ; ++i)
                         {
-                          aData[i].value.inst = reinterpret_cast<CMPIInstance*>(
-                                new CMPI_Object(new CIMInstance(tmpObjs[i])));
+                            CIMInstance inst = CIMInstance(tmpObjs[i]);
+                            SCMOInstance* scmoInst =
+                                CMPISCMOUtilities::getSCMOFromCIMInstance(inst);
+                            aData[i].value.inst =
+                                reinterpret_cast<CMPIInstance*>(
+                                    new CMPI_Object(
+                                        scmoInst,
+                                        CMPI_Object::ObjectTypeInstance));
                         }
                     }
                     else
                     {
-                        CopyFromEncArray(CIMInstance,CMPIInstance,inst);
+                        Array<CIMInstance> arInst;
+                        v.get(arInst);
+                        for (int i = 0; i < aSize ; ++i)
+                        {
+                            SCMOInstance* scmoInst =
+                                CMPISCMOUtilities::getSCMOFromCIMInstance(
+                                    arInst[i]);
+                            aData[i].value.inst =
+                                reinterpret_cast<CMPIInstance*>
+                                (new CMPI_Object(
+                                    scmoInst,
+                                    CMPI_Object::ObjectTypeInstance));
+                        }
                     }
                     break;
                 case CMPI_boolean:
@@ -532,6 +753,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                     delete [] aData;
                     return CMPI_RC_ERR_NOT_SUPPORTED;
             }
+        }
         data->value.array = reinterpret_cast<CMPIArray*>(
         new CMPI_Object(new CMPI_Array(aData-1)));
     }  // end of array porocessing
@@ -598,7 +820,7 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
         }
     }
 
-    //Checking for remaining encapulated and simple types
+    //Checking for remaining encapsulated and simple types
     else
         switch( t )
         {
@@ -606,8 +828,10 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                 {
                     CIMObjectPath ref;
                     v.get(ref);
+                    SCMOInstance* scmoRef =
+                       CMPISCMOUtilities:: getSCMOFromCIMObjectPath(ref);
                     data->value.ref = reinterpret_cast<CMPIObjectPath*>(
-                    new CMPI_Object(new CIMObjectPath(ref)));
+                    new CMPI_Object(scmoRef,CMPI_Object::ObjectTypeObjectPath));
                 }
                 break;
 
@@ -624,9 +848,10 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                     {
                         v.get(inst);
                     }
-
+                    SCMOInstance* scmoInst =
+                        CMPISCMOUtilities::getSCMOFromCIMInstance(inst);
                     data->value.inst = reinterpret_cast<CMPIInstance*>(
-                    new CMPI_Object(new CIMInstance(inst)));
+                    new CMPI_Object(scmoInst, CMPI_Object::ObjectTypeInstance));
                 }
                 break;
 
@@ -640,8 +865,12 @@ CMPIrc value2CMPIData(const CIMValue& v, CMPIType t, CMPIData *data)
                 break;
 
             case CMPI_boolean:
-                v.get((Boolean&)data->value.boolean);
+            {
+                Boolean tmp=0;
+                v.get(tmp);
+                data->value.boolean = (CMPIBoolean)(tmp);
                 break;
+            }
 
             case CMPI_char16:
                 v.get((Char16&)data->value.char16);
@@ -690,123 +919,6 @@ CMPIType type2CMPIType(CIMType pt, int array)
         t|=CMPI_ARRAY;
     }
     return(CMPIType)t;
-}
-
-//Function to convert CMPIType to CIMType
-CIMType type2CIMType(CMPIType pt)
-{
-    switch( pt )
-    {
-        case CMPI_null:
-            return(CIMType)0;
-
-        case CMPI_boolean:
-            return CIMTYPE_BOOLEAN;
-
-        case CMPI_char16:
-            return CIMTYPE_CHAR16;
-
-        case CMPI_real32:
-            return CIMTYPE_REAL32;
-
-        case CMPI_real64:
-            return CIMTYPE_REAL64;
-
-        case CMPI_uint8:
-            return CIMTYPE_UINT8;
-
-        case CMPI_uint16:
-            return CIMTYPE_UINT16;
-
-        case CMPI_uint32:
-            return CIMTYPE_UINT32;
-
-        case CMPI_uint64:
-            return CIMTYPE_UINT64;
-
-        case CMPI_sint8:
-            return CIMTYPE_SINT8;
-
-        case CMPI_sint16:
-            return CIMTYPE_SINT16;
-
-        case CMPI_sint32:
-            return CIMTYPE_SINT32;
-
-        case CMPI_sint64:
-            return CIMTYPE_SINT64;
-
-        case CMPI_string:
-            return CIMTYPE_STRING;
-
-        case CMPI_chars:
-            return CIMTYPE_STRING;
-
-        case CMPI_charsptr:
-            return CIMTYPE_STRING;
-
-        case CMPI_dateTime:
-            return CIMTYPE_DATETIME;
-
-        case CMPI_ref:
-            return CIMTYPE_REFERENCE;
-        case CMPI_instance:
-            return CIMTYPE_INSTANCE;
-        default:
-            return(CIMType)0;
-    }
-}
-
-//Function to convert CIMKeyBindings to CMPIData
-CMPIrc key2CMPIData(const String& v, CIMKeyBinding::Type t, CMPIData *data)
-{
-    data->state=CMPI_keyValue;
-    switch( t )
-    {
-        case CIMKeyBinding::NUMERIC:
-            {
-                CString vp=v.getCString();
-
-                data->value.sint64 = 0;
-                if( *((const char*)vp)=='-' )
-                {
-                    sscanf(
-                        (const char*)vp,
-                        "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
-                    &data->value.sint64);
-                    data->type=CMPI_sint64;
-                }
-                else
-                {
-                    sscanf(
-                        (const char*)vp,
-                        "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
-                    &data->value.uint64);
-                    data->type=CMPI_uint64;
-                }
-            }
-            break;
-
-        case CIMKeyBinding::STRING:
-            data->value.string=string2CMPIString(v);
-            data->type=CMPI_string;
-            break;
-
-        case CIMKeyBinding::BOOLEAN:
-            data->value.boolean=(String::equalNoCase(v,"true"));
-            data->type=CMPI_boolean;
-            break;
-
-        case CIMKeyBinding::REFERENCE:
-            data->value.ref=reinterpret_cast<CMPIObjectPath*>(
-            new CMPI_Object(new CIMObjectPath(v)));
-            data->type=CMPI_ref;
-            break;
-
-        default:
-            return CMPI_RC_ERR_NOT_SUPPORTED;
-    }
-    return CMPI_RC_OK;
 }
 
 PEGASUS_NAMESPACE_END

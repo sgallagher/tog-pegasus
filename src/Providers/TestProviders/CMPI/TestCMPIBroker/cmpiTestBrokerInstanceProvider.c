@@ -282,7 +282,7 @@ CMPIStatus TestCMPIBrokerInstanceProviderCreateInstance (CMPIInstanceMI * mi,
         _inst = CMClone(ci, &rc);
         PROV_LOG("++++ Status of CMClone(ci) : (%s)",
             strCMPIStatus(rc));
-        CMSetObjectPath (_inst, cop);
+        rc = CMSetObjectPath (_inst, cop);
         PROV_LOG("++++ Status of CMSetObjectPath(_inst) : (%s)",
             strCMPIStatus(rc));
         _setProperty1(_inst, "*");
@@ -348,7 +348,7 @@ CMPIStatus TestCMPIBrokerInstanceProviderGetInstance (CMPIInstanceMI * mi,
 
     PROV_LOG_OPEN (_ClassName, _ProviderLocation);
     PROV_LOG("GetInstance");
-    PROV_LOG("++++Namespace ");
+    PROV_LOG("++++Namespace");
 
     obj = CMGetObjectPath(_inst, &rc);
     PROV_LOG("++++ Status of CMGetObjectPath : (%s)",

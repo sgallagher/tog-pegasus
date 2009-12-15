@@ -31,152 +31,9 @@
 
 #include <Pegasus/Common/OperationContextInternal.h>
 #include "CIMBinMsgSerializer.h"
+#include "CIMInternalXmlEncoder.h"
 
 PEGASUS_NAMESPACE_BEGIN
-
-void _putXMLInstance(
-    CIMBuffer& out,
-    const CIMInstance& ci)
-{
-    if (ci.isUninitialized())
-    {
-        out.putUint32(0);
-        out.putUint32(0);
-        out.putString(String());
-        out.putNamespaceName(CIMNamespaceName());
-    }
-    else
-    {
-        Buffer buf(4096);
-
-        // Serialize instance as XML.
-        {
-            XmlWriter::appendInstanceElement(buf, ci);
-            buf.append('\0');
-
-            out.putUint32(buf.size());
-            out.putBytes(buf.getData(), buf.size());
-            buf.clear();
-        }
-
-        // Serialize object path as XML.
-
-        const CIMObjectPath& cop = ci.getPath();
-
-        if (cop.getClassName().isNull())
-        {
-            out.putUint32(0);
-            out.putString(String());
-            out.putNamespaceName(CIMNamespaceName());
-        }
-        else
-        {
-            XmlWriter::appendValueReferenceElement(buf, cop, true);
-            buf.append('\0');
-
-            out.putUint32(buf.size());
-            out.putBytes(buf.getData(), buf.size());
-            out.putString(cop.getHost());
-            out.putNamespaceName(cop.getNameSpace());
-        }
-    }
-}
-
-void _putXMLNamedInstance(
-    CIMBuffer& out,
-    const CIMInstance& ci)
-{
-    if (ci.isUninitialized())
-    {
-        out.putUint32(0);
-        out.putUint32(0);
-        out.putString(String());
-        out.putNamespaceName(CIMNamespaceName());
-    }
-    else
-    {
-        Buffer buf(4096);
-
-        // Serialize instance as XML.
-        {
-            XmlWriter::appendInstanceElement(buf, ci);
-            buf.append('\0');
-
-            out.putUint32(buf.size());
-            out.putBytes(buf.getData(), buf.size());
-            buf.clear();
-        }
-
-        // Serialize object path as XML.
-
-        const CIMObjectPath& cop = ci.getPath();
-
-        if (cop.getClassName().isNull())
-        {
-            out.putUint32(0);
-            out.putString(String());
-            out.putNamespaceName(CIMNamespaceName());
-        }
-        else
-        {
-            XmlWriter::appendInstanceNameElement(buf, cop);
-            buf.append('\0');
-
-            out.putUint32(buf.size());
-            out.putBytes(buf.getData(), buf.size());
-            out.putString(cop.getHost());
-            out.putNamespaceName(cop.getNameSpace());
-        }
-    }
-}
-
-void _putXMLObject(
-    CIMBuffer& out,
-    const CIMObject& co)
-{
-    if (co.isUninitialized())
-    {
-        out.putUint32(0);
-        out.putUint32(0);
-        out.putString(String());
-        out.putNamespaceName(CIMNamespaceName());
-    }
-    else
-    {
-        Buffer buf(4096);
-
-        // Serialize instance as XML.
-        {
-            XmlWriter::appendObjectElement(buf, co);
-            buf.append('\0');
-
-            out.putUint32(buf.size());
-            out.putBytes(buf.getData(), buf.size());
-            buf.clear();
-        }
-
-        // Serialize object path as XML.
-
-        const CIMObjectPath& cop = co.getPath();
-
-        if (cop.getClassName().isNull())
-        {
-            out.putUint32(0);
-            out.putString(String());
-            out.putNamespaceName(CIMNamespaceName());
-        }
-        else
-        {
-            XmlWriter::appendValueReferenceElement(buf, cop, true);
-            buf.append('\0');
-
-            out.putUint32(buf.size());
-            out.putBytes(buf.getData(), buf.size());
-            out.putString(cop.getHost());
-            out.putNamespaceName(cop.getNameSpace());
-        }
-    }
-}
 
 void CIMBinMsgSerializer::serialize(
     CIMBuffer& out,
@@ -418,6 +275,10 @@ void CIMBinMsgSerializer::_putRequestMessage(
             _putIndicationServiceDisabledRequestMessage(
                 out, (CIMIndicationServiceDisabledRequestMessage*)msg);
             break;
+        case PROVAGT_GET_SCMOCLASS_REQUEST_MESSAGE:
+            _putProvAgtGetScmoClassRequestMessage(
+                out,(ProvAgtGetScmoClassRequestMessage *)msg);
+            break;
 
         default:
             PEGASUS_ASSERT(0);
@@ -549,6 +410,12 @@ void CIMBinMsgSerializer::_putResponseMessage(
             _putIndicationServiceDisabledResponseMessage(
                 out,
                 (CIMIndicationServiceDisabledResponseMessage *)
+                cimMessage);
+            break;
+        case PROVAGT_GET_SCMOCLASS_RESPONSE_MESSAGE:
+            _putProvAgtGetScmoClassResponseMessage(
+                out,
+                (ProvAgtGetScmoClassResponseMessage *)
                 cimMessage);
             break;
 
@@ -1094,6 +961,15 @@ void CIMBinMsgSerializer::_putIndicationServiceDisabledRequestMessage(
 {
 }
 
+void CIMBinMsgSerializer::_putProvAgtGetScmoClassRequestMessage(
+    CIMBuffer& out,
+    ProvAgtGetScmoClassRequestMessage* msg)
+{
+    out.putNamespaceName(msg->nameSpace);
+    out.putName(msg->className);    
+}
+
+
 void CIMBinMsgSerializer::_putGetInstanceResponseMessage(
     CIMBuffer& out,
     CIMGetInstanceResponseMessage* msg)
@@ -1101,15 +977,13 @@ void CIMBinMsgSerializer::_putGetInstanceResponseMessage(
     if (msg->binaryResponse)
     {
         CIMBuffer data(4096);
-        data.putInstance(msg->getResponseData().getCimInstance(), 
-                         false, 
-                         false);
+        msg->getResponseData().encodeBinaryResponse(data);
         out.putUint32(data.size());
         out.putBytes(data.getData(), data.size());
     }
     else
     {
-        _putXMLInstance(out, msg->getResponseData().getCimInstance());
+        msg->getResponseData().encodeInternalXmlResponse(out);
     }
 }
 
@@ -1139,21 +1013,13 @@ void CIMBinMsgSerializer::_putEnumerateInstancesResponseMessage(
     if (msg->binaryResponse)
     {
         CIMBuffer data(16 * 4096);
-        data.putInstanceA(msg->getResponseData().getNamedInstances(), false);
+        msg->getResponseData().encodeBinaryResponse(data);
         out.putUint32(data.size());
         out.putBytes(data.getData(), data.size());
     }
     else
     {
-        const Array<CIMInstance>& a=msg->getResponseData().getNamedInstances();
-
-        Uint32 n = a.size();
-        out.putUint32(n);
-
-        for (Uint32 i = 0; i < n; i++)
-        {
-            _putXMLNamedInstance(out, a[i]);
-        }
+        msg->getResponseData().encodeInternalXmlResponse(out);
     }
 }
 
@@ -1161,7 +1027,10 @@ void CIMBinMsgSerializer::_putEnumerateInstanceNamesResponseMessage(
     CIMBuffer& out,
     CIMEnumerateInstanceNamesResponseMessage* msg)
 {
-    out.putObjectPathA(msg->instanceNames);
+    CIMBuffer data(16 * 4096);
+    msg->getResponseData().encodeBinaryResponse(data);
+    out.putUint32(data.size());
+    out.putBytes(data.getData(), data.size());
 }
 
 void CIMBinMsgSerializer::_putExecQueryResponseMessage(
@@ -1171,21 +1040,13 @@ void CIMBinMsgSerializer::_putExecQueryResponseMessage(
     if (msg->binaryResponse)
     {
         CIMBuffer data(16 * 4096);
-        data.putObjectA(msg->getResponseData().getCIMObjects(), false);
+        msg->getResponseData().encodeBinaryResponse(data);
         out.putUint32(data.size());
         out.putBytes(data.getData(), data.size());
     }
     else
     {
-        const Array<CIMObject>& a = msg->getResponseData().getCIMObjects();
-
-        Uint32 n = a.size();
-        out.putUint32(n);
-
-        for (Uint32 i = 0; i < n; i++)
-        {
-            _putXMLObject(out, a[i]);
-        }
+        msg->getResponseData().encodeInternalXmlResponse(out);
     }
 }
 
@@ -1196,21 +1057,13 @@ void CIMBinMsgSerializer::_putAssociatorsResponseMessage(
     if (msg->binaryResponse)
     {
         CIMBuffer data(16 * 4096);
-        data.putObjectA(msg->getResponseData().getCIMObjects(), false);
+        msg->getResponseData().encodeBinaryResponse(data);
         out.putUint32(data.size());
         out.putBytes(data.getData(), data.size());
     }
     else
     {
-        const Array<CIMObject>& a = msg->getResponseData().getCIMObjects();
-
-        Uint32 n = a.size();
-        out.putUint32(n);
-
-        for (Uint32 i = 0; i < n; i++)
-        {
-            _putXMLObject(out, a[i]);
-        }
+        msg->getResponseData().encodeInternalXmlResponse(out);
     }
 }
 
@@ -1218,21 +1071,30 @@ void CIMBinMsgSerializer::_putAssociatorNamesResponseMessage(
     CIMBuffer& out,
     CIMAssociatorNamesResponseMessage* msg)
 {
-    out.putObjectPathA(msg->objectNames);
+    CIMBuffer data(16 * 4096);
+    msg->getResponseData().encodeBinaryResponse(data);
+    out.putUint32(data.size());
+    out.putBytes(data.getData(), data.size());
 }
 
 void CIMBinMsgSerializer::_putReferencesResponseMessage(
     CIMBuffer& out,
     CIMReferencesResponseMessage* msg)
 {
-    out.putObjectA(msg->cimObjects);
+    CIMBuffer data(16 * 4096);
+    msg->getResponseData().encodeBinaryResponse(data);
+    out.putUint32(data.size());
+    out.putBytes(data.getData(), data.size());
 }
 
 void CIMBinMsgSerializer::_putReferenceNamesResponseMessage(
     CIMBuffer& out,
     CIMReferenceNamesResponseMessage* msg)
 {
-    out.putObjectPathA(msg->objectNames);
+    CIMBuffer data(16 * 4096);
+    msg->getResponseData().encodeBinaryResponse(data);
+    out.putUint32(data.size());
+    out.putBytes(data.getData(), data.size());
 }
 
 void CIMBinMsgSerializer::_putGetPropertyResponseMessage(
@@ -1332,5 +1194,13 @@ void CIMBinMsgSerializer::_putIndicationServiceDisabledResponseMessage(
     CIMIndicationServiceDisabledResponseMessage* msg)
 {
 }
+
+void CIMBinMsgSerializer::_putProvAgtGetScmoClassResponseMessage(
+    CIMBuffer& out,
+    ProvAgtGetScmoClassResponseMessage* msg)
+{
+    out.putSCMOClass(msg->scmoClass);
+}
+
 
 PEGASUS_NAMESPACE_END

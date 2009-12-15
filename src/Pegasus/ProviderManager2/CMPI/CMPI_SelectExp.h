@@ -70,6 +70,7 @@ struct PEGASUS_CMPIPM_LINKAGE CMPI_SelectExp : CMPISelectExp
     CMPI_Object *next,*prev;
     const char **props;
     Array<CIMObjectPath> classNames;
+    Array<SCMOInstance> classNamesSCMO;
     const OperationContext ctx;
     SubscriptionFilterConditionContainer* fcc;
     String cond,lang;

@@ -38,6 +38,10 @@
 #include "CMPI_ObjectPath.h"
 #include "CMPI_Result.h"
 #include "CMPI_SelectExp.h"
+#include "CMPISCMOUtilities.h"
+#include "CMPI_Value.h"
+#include "CMPIMsgHandleManager.h"
+
 
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/OperationContext.h>
@@ -58,6 +62,7 @@
 #include <Pegasus/ProviderManager2/AutoPThreadSecurity.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
+#include <Pegasus/ProviderManager2/CMPI/CMPI_ThreadContext.h>
 #include <Pegasus/Query/QueryExpression/QueryExpression.h>
 #include <Pegasus/Query/QueryCommon/QueryException.h>
 
@@ -132,7 +137,7 @@ CMPIProviderManager::~CMPIProviderManager()
         TRC_PROVIDERMANAGER,
         "CMPIProviderManager::~CMPIProviderManager()");
 
-    IndProvRecord *indProvRec;
+    IndProvRecord *indProvRec = 0;
 
     WriteLock lock(rwSemProvTab);
 
@@ -144,6 +149,97 @@ CMPIProviderManager::~CMPIProviderManager()
 
     PEG_METHOD_EXIT();
 }
+
+
+SCMOInstance* CMPIProviderManager::getSCMOClassFromRequest(
+    CString& nameSpace,
+    CString& className )
+{
+    SCMOClass* scmoClass = mbGetSCMOClass(
+        (const char*)nameSpace,
+        strlen((const char*)nameSpace),
+        (const char*)className,
+        strlen((const char*)className));
+
+    if (0 == scmoClass)
+    {
+        // This indicates a severe error, since we should't have come
+        // here at all, if the class is invalid
+        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL2,
+            "CMPIProviderManager::getSCMOClassFromRequest - "
+            "Failed to obtain SCMOClass for Namespace: %s  Classname: %s",
+            (const char*) nameSpace,
+            (const char*) className));
+
+        CIMException cimException(CIM_ERR_NOT_FOUND);
+        throw cimException;
+    }
+
+    return new SCMOInstance(*scmoClass);
+}
+
+SCMOInstance* CMPIProviderManager::getSCMOObjectPathFromRequest(
+    CString& nameSpace,
+    CString& className,
+    CIMObjectPath& cimObjPath )
+{
+    SCMOClass* scmoClass = mbGetSCMOClass(
+        (const char*)nameSpace,
+        strlen((const char*)nameSpace),
+        (const char*)className,
+        strlen((const char*)className));
+
+    if (0 == scmoClass)
+    {
+        // This indicates a severe error, since we should't have come
+        // here at all, if the class is invalid
+        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
+            "CMPIProviderManager::getSCMOObjectPathFromRequest - "
+            "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
+            (const char*) nameSpace,
+            (const char*) className));
+
+        CIMException cimException(CIM_ERR_NOT_FOUND);
+        throw cimException;
+    }
+
+    SCMOInstance * objectPath = new SCMOInstance(*scmoClass,cimObjPath);
+    objectPath->setHostName((const char*)System::getHostName().getCString());
+    return objectPath;
+}
+
+SCMOInstance* CMPIProviderManager::getSCMOInstanceFromRequest(
+    CString& nameSpace,
+    CString& className,
+    CIMInstance& cimInstance )
+{
+    SCMOClass* scmoClass = mbGetSCMOClass(
+        (const char*)nameSpace,
+        strlen((const char*)nameSpace),
+        (const char*)className,
+        strlen((const char*)className));
+
+    if (0 == scmoClass)
+    {
+        // This indicates a severe error, since we should't have come
+        // here at all, if the class is invalid
+        PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL1,
+            "CMPIProviderManager::getSCMOInstanceFromRequest - "
+            "Failed to obtain CIMClass for Namespace: %s  Classname: %s",
+            (const char*) nameSpace,
+            (const char*) className));
+
+        CIMException cimException(CIM_ERR_NOT_FOUND);
+        throw cimException;
+    }
+
+    SCMOInstance * newInstance = new SCMOInstance(*scmoClass, cimInstance);
+    newInstance->setHostName((const char*)System::getHostName().getCString());
+
+    return newInstance;
+}
+
+
 
 Message * CMPIProviderManager::processMessage(Message * request)
 {
@@ -316,7 +412,7 @@ void CMPIProviderManager::unloadIdleProviders()
    avoid copies being generated, both CStrings are anchored on the stack in the
    scope of the calling function to keep them valid across the lifetime of the
    CMPI processing of a request
-*/    
+*/
 void CMPIProviderManager::_setupCMPIContexts(
     CMPI_ContextOnStack * eCtx,
     OperationContext * context,
@@ -438,17 +534,10 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
             (const char*)
                 request->instanceName.getClassName().getString().getCString()));
 
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
-
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -457,12 +546,12 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
-        CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         CMPIPropertyList props(request->propertyList);
         CString nameSpace = request->nameSpace.getString().getCString();
+        CString className = request->className.getString().getCString();
 
         _setupCMPIContexts(
             &eCtx,
@@ -473,6 +562,12 @@ Message * CMPIProviderManager::handleGetInstanceRequest(
             request->includeQualifiers,
             request->includeClassOrigin,
             true);
+
+
+        SCMOInstance * objectPath = getSCMOObjectPathFromRequest(
+            nameSpace, className, request->instanceName);
+
+        CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -543,16 +638,11 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
             (const char*) request->nameSpace.getString().getCString(),
             (const char*) request->className.getString().getCString()));
 
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->className);
 
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -563,11 +653,11 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
-        CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
         CMPIPropertyList props(propertyList);
         CString nameSpace = request->nameSpace.getString().getCString();
+        CString className = request->className.getString().getCString();
 
         _setupCMPIContexts(
             &eCtx,
@@ -578,6 +668,11 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(
             request->includeQualifiers,
             request->includeClassOrigin,
             true);
+
+        SCMOInstance * objectPath =
+            getSCMOClassFromRequest(nameSpace, className);
+
+        CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -648,16 +743,10 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
             (const char*) request->nameSpace.getString().getCString(),
             (const char*) request->className.getString().getCString()));
 
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->className);
-
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -666,11 +755,11 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
-        CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         CString nameSpace = request->nameSpace.getString().getCString();
+        CString className = request->className.getString().getCString();
 
         _setupCMPIContexts(
             &eCtx,
@@ -681,6 +770,11 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(
             false,
             false,
             true);
+
+        SCMOInstance * objectPath =
+            getSCMOClassFromRequest(nameSpace, className);
+
+        CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -751,18 +845,10 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
           request->newInstance.getPath().getClassName().getString().getCString()
         ));
 
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->newInstance.getPath().getClassName(),
-            request->newInstance.getPath().getKeyBindings());
-        request->newInstance.setPath(objectPath);
-
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -771,12 +857,12 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
-        CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
-        CMPI_InstanceOnStack eInst(request->newInstance);
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         CString nameSpace = request->nameSpace.getString().getCString();
+        CString className = request->newInstance.getPath().getClassName().
+            getString().getCString();
 
         _setupCMPIContexts(
             &eCtx,
@@ -787,6 +873,13 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(
             false,
             false,
             true);
+
+        SCMOInstance * newInstance = getSCMOInstanceFromRequest(
+            nameSpace, className, request->newInstance);
+        CMPI_InstanceOnStack eInst(newInstance);
+
+        // This will create a second reference for the same SCMOInstance
+        CMPI_ObjectPathOnStack eRef(*newInstance);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -857,17 +950,10 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
             (const char*) request->modifiedInstance.\
                 getPath().getClassName().getString().getCString()));
 
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->modifiedInstance.getPath ().getClassName(),
-            request->modifiedInstance.getPath ().getKeyBindings());
-
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -876,14 +962,14 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
-        CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
-        CMPI_InstanceOnStack eInst(request->modifiedInstance);
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         CMPIPropertyList props(request->propertyList);
 
         CString nameSpace = request->nameSpace.getString().getCString();
+        CString className = request->modifiedInstance.getPath().getClassName().
+            getString().getCString();
 
         _setupCMPIContexts(
             &eCtx,
@@ -894,6 +980,14 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(
             request->includeQualifiers,
             false,
             true);
+
+
+        SCMOInstance * modInstance = getSCMOInstanceFromRequest(
+            nameSpace, className, request->modifiedInstance);
+        CMPI_InstanceOnStack eInst(modInstance);
+
+        // This will create a second reference for the same SCMOInstance
+        CMPI_ObjectPathOnStack eRef(*modInstance);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -965,17 +1059,10 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
             (const char*)
                 request->instanceName.getClassName().getString().getCString()));
 
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
-
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -984,11 +1071,12 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
-        CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         CString nameSpace = request->nameSpace.getString().getCString();
+        CString className = request->instanceName.getClassName().
+            getString().getCString();
 
         _setupCMPIContexts(
             &eCtx,
@@ -999,6 +1087,11 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(
             false,
             false,
             true);
+
+        SCMOInstance * objectPath = getSCMOObjectPathFromRequest(
+            nameSpace, className, request->instanceName);
+
+        CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1067,16 +1160,10 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
             (const char*) request->nameSpace.getString().getCString(),
             (const char*) request->className.getString().getCString()));
 
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->className);
-
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -1087,13 +1174,13 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
-        CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         const CString queryLan=request->queryLanguage.getCString();
         const CString query=request->query.getCString();
         CString nameSpace = request->nameSpace.getString().getCString();
+        CString className = request->className.getString().getCString();
 
         _setupCMPIContexts(
             &eCtx,
@@ -1104,6 +1191,9 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
             false,
             false,
             true);
+
+        SCMOInstance * classPath = getSCMOClassFromRequest(nameSpace,className);
+        CMPI_ObjectPathOnStack eRef(classPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1175,23 +1265,10 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
             (const char*)
                 request->objectName.getClassName().getString().getCString()));
 
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->objectName.getClassName());
-
-        objectPath.setKeyBindings(request->objectName.getKeyBindings());
-
-        CIMObjectPath assocPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->assocClass.getString());
-
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -1205,7 +1282,6 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
-        CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
         const CString aClass=request->assocClass.getString().getCString();
@@ -1213,6 +1289,8 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         const CString rRole=request->role.getCString();
         const CString resRole=request->resultRole.getCString();
         CString nameSpace = request->nameSpace.getString().getCString();
+        CString className =
+            request->objectName.getClassName().getString().getCString();
 
         CMPIPropertyList props(request->propertyList);
 
@@ -1225,6 +1303,11 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
             request->includeQualifiers,
             request->includeClassOrigin,
             true);
+
+        SCMOInstance * objectPath = getSCMOObjectPathFromRequest(
+            nameSpace, className, request->objectName);
+
+        CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1301,23 +1384,10 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
             (const char*)
                 request->objectName.getClassName().getString().getCString()));
 
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->objectName.getClassName());
-
-        objectPath.setKeyBindings(request->objectName.getKeyBindings());
-
-        CIMObjectPath assocPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->assocClass.getString());
-
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -1331,7 +1401,6 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
-        CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
         const CString aClass=request->assocClass.getString().getCString();
@@ -1339,6 +1408,8 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
         const CString rRole=request->role.getCString();
         const CString resRole=request->resultRole.getCString();
         CString nameSpace = request->nameSpace.getString().getCString();
+        CString className =
+            request->objectName.getClassName().getString().getCString();
 
         _setupCMPIContexts(
             &eCtx,
@@ -1349,6 +1420,11 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(
             false,
             false,
             true);
+
+        SCMOInstance * objectPath = getSCMOObjectPathFromRequest(
+            nameSpace, className, request->objectName);
+
+        CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1421,23 +1497,10 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
             (const char*)
                 request->objectName.getClassName().getString().getCString()));
 
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->objectName.getClassName());
-
-        objectPath.setKeyBindings(request->objectName.getKeyBindings());
-
-        CIMObjectPath resultPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->resultClass.getString());
-
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -1451,12 +1514,13 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
-        CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
         const CString rClass=request->resultClass.getString().getCString();
         const CString rRole=request->role.getCString();
         CString nameSpace = request->nameSpace.getString().getCString();
+        CString className =
+            request->objectName.getClassName().getString().getCString();
 
         CMPIPropertyList props(request->propertyList);
 
@@ -1469,6 +1533,11 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
             request->includeQualifiers,
             request->includeClassOrigin,
             true);
+
+        SCMOInstance * objectPath = getSCMOObjectPathFromRequest(
+            nameSpace, className, request->objectName);
+
+        CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1541,23 +1610,10 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
             (const char*)
                 request->objectName.getClassName().getString().getCString()));
 
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->objectName.getClassName());
-
-        objectPath.setKeyBindings(request->objectName.getKeyBindings());
-
-        CIMObjectPath resultPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->resultClass.getString());
-
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -1571,14 +1627,15 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
-        CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
         const CString rClass=request->resultClass.getString().getCString();
         const CString rRole=request->role.getCString();
 
         CString nameSpace = request->nameSpace.getString().getCString();
-        
+        CString className =
+            request->objectName.getClassName().getString().getCString();
+
         _setupCMPIContexts(
             &eCtx,
             &(request->operationContext),
@@ -1588,6 +1645,11 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(
             false,
             false,
             true);
+
+        SCMOInstance * objectPath = getSCMOObjectPathFromRequest(
+            nameSpace, className, request->objectName);
+
+        CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1659,31 +1721,18 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
             (const char*)
                 request->instanceName.getClassName().getString().getCString()));
 
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
-
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
             &remoteInfo,
             remote);
 
-        CIMObjectPath instanceReference(request->instanceName);
-
-        // ATTN: propagate namespace
-        instanceReference.setNameSpace(request->nameSpace);
-
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
-        CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
         CMPI_ArgsOnStack eArgsIn(request->inParameters);
@@ -1691,6 +1740,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
         CMPI_ArgsOnStack eArgsOut(outArgs);
         CString mName=request->methodName.getString().getCString();
         CString nameSpace = request->nameSpace.getString().getCString();
+        CString className = request->className.getString().getCString();
 
         _setupCMPIContexts(
             &eCtx,
@@ -1701,6 +1751,12 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
             false,
             false,
             true);
+
+
+        SCMOInstance * objectPath = getSCMOObjectPathFromRequest(
+            nameSpace, className, request->instanceName);
+
+        CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1776,7 +1832,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(
                 // EmbeddedInstances, so if the parameter definition has a type
                 // of EmbeddedInstance, the type of the output parameter must
                 // be changed.
-                if (paramValue.getType() == CIMTYPE_OBJECT && 
+                if (paramValue.getType() == CIMTYPE_OBJECT &&
                     methodIndex != PEG_NOT_FOUND)
                 {
                     String currentParamName(currentParam.getParameterName());
@@ -1953,7 +2009,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -2015,6 +2071,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             &_context,
             request->query,
             lang).getCString();
+        CString nameSpace = request->nameSpace.getString().getCString();
 
         CIMObjectPath indClassPath(
             System::getHostName(),
@@ -2022,6 +2079,13 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             (const char*)className);
 
         eSelx->classNames.append(indClassPath);
+
+        SCMOInstance * indClassPathSCMO =
+            getSCMOClassFromRequest(nameSpace, className);
+        indClassPathSCMO->setHostName(
+            (const char*)System::getHostName().getCString());
+        eSelx->classNamesSCMO.append(*indClassPathSCMO);
+        delete indClassPathSCMO;
 
         CIMPropertyList propertyList = request->propertyList;
         if (!propertyList.isNull())
@@ -2035,8 +2099,6 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             }
             eSelx->props[pCount]=NULL;
         }
-
-        CString nameSpace = request->nameSpace.getString().getCString();
 
         // includeQualifiers and includeClassOrigin not of interest for
         // this type of request
@@ -2065,12 +2127,20 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
             // filter can be activated for any of the subclasses.
             for (Uint32 i = 0, n = request->classNames.size(); i < n; i++)
             {
+                CString subClassName =
+                    request->classNames[i].getString().getCString();
+
+                // make target object paths
                 CIMObjectPath classPath(
                     System::getHostName(),
                     request->nameSpace,
                     request->classNames[i]);
 
-                CMPI_ObjectPathOnStack eRef(classPath);
+                SCMOInstance * classPathSCMO =
+                    getSCMOClassFromRequest(nameSpace, className);
+                classPathSCMO->setHostName(
+                    (const char*)System::getHostName().getCString());
+                CMPI_ObjectPathOnStack eRef(classPathSCMO);
 
                 if (pr.getIndMI()->ft->ftVersion >= 100)
                 {
@@ -2107,6 +2177,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(
                 {
                     filterActivated = true;
                     eSelx->classNames.append(classPath);
+                    eSelx->classNamesSCMO.append(*classPathSCMO);
                 }
                 else
                 {
@@ -2214,7 +2285,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -2249,7 +2320,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
-        
+
         CString nameSpace = request->nameSpace.getString().getCString();
 
         // includeQualifiers and includeClassOrigin not of interest for
@@ -2274,14 +2345,13 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
 
             StatProviderTimeMeasurement providerTime(response);
 
-            Array<CIMObjectPath> subClassPaths = eSelx->classNames;
             // Call deactivateFilter() for each subclass name those were
             // activated previously using activateFilter().
             // Note: Start from Index 1, first name is actual class name in
             // the FROM clause of filter query.
             for (Uint32 i = 1, n = eSelx->classNames.size(); i < n ; ++i)
             {
-                CMPI_ObjectPathOnStack eRef(eSelx->classNames[i]);
+                CMPI_ObjectPathOnStack eRef(eSelx->classNamesSCMO[i]);
                 if (pr.getIndMI()->ft->ftVersion >= 100)
                 {
                     rc = pr.getIndMI()->ft->deActivateFilter(
@@ -2372,7 +2442,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(
                         callDisable = true;
                     }
                 }
-                
+
                 //
                 //  If there are no current subscriptions after the decrement,
                 //  the last subscription has been deleted
@@ -2730,17 +2800,10 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
                 request->instanceName.getClassName().getString().getCString(),
             (const char*) request->propertyName.getString().getCString()));
 
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
-
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -2754,7 +2817,6 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
-        CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(GI_handler,pr.getBroker());
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
@@ -2763,6 +2825,9 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         CMPIPropertyList props(localPropertyList);
 
         CString nameSpace = request->nameSpace.getString().getCString();
+        CString className =
+            request->instanceName.getClassName().getString().getCString();
+
         // Leave includeQualifiers and includeClassOrigin as false for this
         // call to getInstance
         _setupCMPIContexts(
@@ -2774,6 +2839,10 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
             false,
             false,
             true);
+
+        SCMOInstance * objectPath = getSCMOObjectPathFromRequest(
+            nameSpace, className, request->instanceName);
+        CMPI_ObjectPathOnStack eRef(objectPath);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -2820,22 +2889,39 @@ Message * CMPIProviderManager::handleGetPropertyRequest(
         _throwCIMException(rc, eRes.resError);
 
         // Copy property value from instance to getProperty response
-        CIMInstance& instance = GI_response->getResponseData().getCimInstance();
-        if(!(instance.isUninitialized()))
+        Array<SCMOInstance>& arInstance =
+            GI_response->getResponseData().getSCMO();
+        if (arInstance.size() > 0)
         {
-            Uint32 pos = instance.findProperty(request->propertyName);
+            SCMOInstance& instance = arInstance[0];
+            if(!(instance.isUninitialized()))
+            {
+                CString pName =
+                    request->propertyName.getString().getCString();
 
-            if (pos != PEG_NOT_FOUND)
-            {
-                response->value = instance.getProperty(pos).getValue();
-            }
-            // Else property not found. Return CIM_ERR_NO_SUCH_PROPERTY.
-            else
-            {
-                throw PEGASUS_CIM_EXCEPTION(
-                    CIM_ERR_NO_SUCH_PROPERTY,
-                    request->propertyName.getString()
-                    );
+                // Construct a temporary CMPI Instance object, on which we
+                // can use the encapsulation functions to retrieve the property.
+                CMPI_InstanceOnStack tmpInst(instance);
+
+                CMPIStatus trc;
+                CMPIData data =
+                    CMGetProperty(&tmpInst, (const char*)pName, &trc);
+
+                if (trc.rc == CMPI_RC_OK)
+                {
+                    // Convert the CMPIData to a CIMValue
+                    CIMValue val =
+                        value2CIMValue(&(data.value), data.type, &(trc.rc));
+
+                    response->value = val;
+                }
+                // Else property not found. Return CIM_ERR_NO_SUCH_PROPERTY.
+                else
+                {
+                    throw PEGASUS_CIM_EXCEPTION(
+                        CIM_ERR_NO_SUCH_PROPERTY,
+                        request->propertyName.getString());
+                }
             }
         }
     }
@@ -2900,27 +2986,23 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
 
     try
     {
+        CString nameSpace = request->nameSpace.getString().getCString();
+        CString className =
+            request->instanceName.getClassName().getString().getCString();
+
         PEG_TRACE((TRC_PROVIDERMANAGER,Tracer::LEVEL3,
             "CMPIProviderManager::handleSetPropertyRequest"
             " - Host name: %s  Name space: %s  "
                 "Class name: %s  Property name: %s",
             (const char*) System::getHostName().getCString(),
-            (const char*) request->nameSpace.getString().getCString(),
-            (const char*)
-                request->instanceName.getClassName().getString().getCString(),
+            (const char*) nameSpace,
+            (const char*) className,
             (const char*) request->propertyName.getString().getCString()));
-
-        // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
 
         Boolean remote=false;
         OpProviderHolder ph;
         CString remoteInfo;
-        
+
         CMPIProvider & pr = _resolveAndGetProvider(
             &(request->operationContext),
             &ph,
@@ -2929,13 +3011,10 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
 
         CMPIStatus rc={CMPI_RC_OK,NULL};
         CMPI_ContextOnStack eCtx(request->operationContext);
-        CMPI_ObjectPathOnStack eRef(objectPath);
         CMPI_ResultOnStack eRes(MI_handler,pr.getBroker());
-        CMPI_InstanceOnStack eInst(localModifiedInstance);
         CMPI_ThreadContext thr(pr.getBroker(),&eCtx);
 
         CMPIPropertyList props(localPropertyList);
-        CString nameSpace = request->nameSpace.getString().getCString();
 
         // Leave includeQualifiers as false for this call to modifyInstance
         _setupCMPIContexts(
@@ -2947,6 +3026,15 @@ Message * CMPIProviderManager::handleSetPropertyRequest(
             false,
             false,
             true);
+
+
+        SCMOInstance * modInst = getSCMOInstanceFromRequest(
+            nameSpace, className, localModifiedInstance);
+        modInst->setPropertyFilter((const char **)props.getList());
+        CMPI_InstanceOnStack eInst(modInst);
+
+        // This will create a second reference for the same SCMOInstance
+        CMPI_ObjectPathOnStack eRef(*modInst);
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 

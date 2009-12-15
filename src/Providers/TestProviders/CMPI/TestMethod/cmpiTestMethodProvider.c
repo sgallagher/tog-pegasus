@@ -2236,7 +2236,7 @@ static int _testCMPIObjectPath ()
 
     // Create a new ObjectPath, in a different namespace.
 
-    fakeObjPath = CMNewObjectPath (_broker, "root#cimv2",
+    fakeObjPath = CMNewObjectPath (_broker, "root/cimv2",
         "TestCMPI_Instance", &rc);
     PROV_LOG ("++++  CMNewObjectPath : (%s)", strCMPIStatus (rc));
     rc = CMAddKey (fakeObjPath, "ElementName",

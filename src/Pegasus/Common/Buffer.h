@@ -84,7 +84,15 @@ public:
 
     void append(char x);
 
+    void append_unchecked(char x);
+
     void append(const char* data, Uint32 size);
+
+    void append_unchecked(const char* data, Uint32 size);
+
+    void append(char c1, char c2);
+
+    void append(char c1, char c2, char c3);
 
     void append(char c1, char c2, char c3, char c4);
 
@@ -189,6 +197,11 @@ inline void Buffer::append(char x)
     _rep->data[_rep->size++] = x;
 }
 
+inline void Buffer::append_unchecked(char x)
+{
+    _rep->data[_rep->size++] = x;
+}
+
 inline void Buffer::append(const char* data, Uint32 size)
 {
     Uint32 cap = _rep->size + size;
@@ -196,6 +209,12 @@ inline void Buffer::append(const char* data, Uint32 size)
     if (cap > _rep->cap)
         _reserve_aux(cap);
 
+    memcpy(_rep->data + _rep->size, data, size);
+    _rep->size += size;
+}
+
+inline void Buffer::append_unchecked(const char* data, Uint32 size)
+{
     memcpy(_rep->data + _rep->size, data, size);
     _rep->size += size;
 }
@@ -209,6 +228,33 @@ inline void Buffer::clear()
 inline void Buffer::remove(Uint32 pos)
 {
     remove(pos, 1);
+}
+
+inline void Buffer::append(char c1, char c2)
+{
+    Uint32 cap = _rep->size + 2;
+
+    if (cap > _rep->cap)
+        _reserve_aux(cap);
+
+    char* p = _rep->data + _rep->size;
+    p[0] = c1;
+    p[1] = c2;
+    _rep->size += 2;
+}
+
+inline void Buffer::append(char c1, char c2, char c3)
+{
+    Uint32 cap = _rep->size + 3;
+
+    if (cap > _rep->cap)
+        _reserve_aux(cap);
+
+    char* p = _rep->data + _rep->size;
+    p[0] = c1;
+    p[1] = c2;
+    p[2] = c3;
+    _rep->size += 3;
 }
 
 inline void Buffer::append(char c1, char c2, char c3, char c4)

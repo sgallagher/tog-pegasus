@@ -134,8 +134,7 @@ void Test1()
         CIMEnumerateInstanceNamesResponseMessage response(
             String::EMPTY,
             CIMException(),
-            QueueIdStack(),
-            Array<CIMObjectPath>());
+            QueueIdStack());
 
         EnumerateInstanceNamesResponseHandler handler(
             &request, &response, dummyCallback);

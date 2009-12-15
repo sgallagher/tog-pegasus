@@ -43,21 +43,21 @@ struct CMPI_ObjEnumeration : CMPIEnumeration
 {
     CMPI_Object *next,*prev;
     int max,cursor;
-    CMPI_ObjEnumeration(Array<CIMObject>* ia);
+    CMPI_ObjEnumeration(Array<SCMOInstance>* ia);
 };
 
 struct CMPI_InstEnumeration : CMPIEnumeration
 {
     CMPI_Object *next,*prev;
     int max,cursor;
-    CMPI_InstEnumeration(Array<CIMInstance>* ia);
+    CMPI_InstEnumeration(Array<SCMOInstance>* ia);
 };
 
 struct CMPI_OpEnumeration : CMPIEnumeration
 {
     CMPI_Object *next,*prev;
     int max,cursor;
-    CMPI_OpEnumeration(Array<CIMObjectPath>* opa);
+    CMPI_OpEnumeration(Array<SCMOInstance>* opa);
 };
 
 PEGASUS_NAMESPACE_END

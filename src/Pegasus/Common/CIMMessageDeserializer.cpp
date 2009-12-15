@@ -332,6 +332,9 @@ CIMRequestMessage* CIMMessageDeserializer::_deserializeCIMRequestMessage(
                 _deserializeCIMIndicationServiceDisabledRequestMessage
                     (parser);
             break;
+        case PROVAGT_GET_SCMOCLASS_REQUEST_MESSAGE:
+            message = _deserializeProvAgtGetScmoClassRequestMessage(parser);
+            break;
         default:
             // Unexpected message type
             PEGASUS_ASSERT(0);
@@ -505,6 +508,10 @@ CIMResponseMessage* CIMMessageDeserializer::_deserializeCIMResponseMessage(
             message =
                 _deserializeCIMIndicationServiceDisabledResponseMessage
                     (parser);
+            break;
+        case PROVAGT_GET_SCMOCLASS_RESPONSE_MESSAGE:
+            message = _deserializeProvAgtGetScmoClassResponseMessage
+                (parser);
             break;
 
         default:
@@ -1937,6 +1944,33 @@ CIMMessageDeserializer::_deserializeCIMIndicationServiceDisabledRequestMessage(
     CIMIndicationServiceDisabledRequestMessage* message =
         new CIMIndicationServiceDisabledRequestMessage(
             String(),         // messageId
+            String::EMPTY,         // messageId
+            QueueIdStack());       // queueIds
+
+    return message;
+}
+
+//
+// _deserializeProvAgtGetScmoClassRequestMessage
+//
+ProvAgtGetScmoClassRequestMessage*
+CIMMessageDeserializer::_deserializeProvAgtGetScmoClassRequestMessage(
+    XmlParser& parser)
+{
+    CIMNamespaceName nameSpace;
+    CIMName className;
+
+
+    _deserializeCIMNamespaceName(parser,nameSpace);
+
+    _deserializeCIMName(parser, className);
+
+
+    ProvAgtGetScmoClassRequestMessage* message =
+        new ProvAgtGetScmoClassRequestMessage(
+            String::EMPTY,         // messageId
+            nameSpace,
+            className,
             QueueIdStack());       // queueIds
 
     return message;
@@ -1971,7 +2005,7 @@ CIMMessageDeserializer::_deserializeCIMGetInstanceResponseMessage(
             CIMException(),        // cimException
             QueueIdStack());       // queueIds
 
-    message->setCimInstance(cimInstance);
+    message->getResponseData().setInstance(cimInstance);
 
     return message;
 }
@@ -2053,7 +2087,7 @@ CIMMessageDeserializer::_deserializeCIMEnumerateInstancesResponseMessage(
             String::EMPTY,         // messageId
             CIMException(),        // cimException
             QueueIdStack());        // queueIds
-    message->setNamedInstances(cimNamedInstances);
+    message->getResponseData().setInstances(cimNamedInstances);
 
     return message;
 }
@@ -2081,8 +2115,8 @@ CIMMessageDeserializer::_deserializeCIMEnumerateInstanceNamesResponseMessage(
         new CIMEnumerateInstanceNamesResponseMessage(
             String::EMPTY,         // messageId
             CIMException(),        // cimException
-            QueueIdStack(),        // queueIds
-            instanceNames);
+            QueueIdStack());        // queueIds
+    message->getResponseData().setInstanceNames(instanceNames);
 
     return message;
 }
@@ -2110,8 +2144,8 @@ CIMMessageDeserializer::_deserializeCIMExecQueryResponseMessage(
         new CIMExecQueryResponseMessage(
             String::EMPTY,         // messageId
             CIMException(),        // cimException
-            QueueIdStack(),        // queueIds
-            cimObjects);
+            QueueIdStack());        // queueIds
+    message->getResponseData().setObjects(cimObjects);
 
     return message;
 }
@@ -2139,8 +2173,8 @@ CIMMessageDeserializer::_deserializeCIMAssociatorsResponseMessage(
         new CIMAssociatorsResponseMessage(
             String::EMPTY,         // messageId
             CIMException(),        // cimException
-            QueueIdStack(),        // queueIds
-            cimObjects);
+            QueueIdStack());        // queueIds
+    message->getResponseData().setObjects(cimObjects);
 
     return message;
 }
@@ -2168,8 +2202,8 @@ CIMMessageDeserializer::_deserializeCIMAssociatorNamesResponseMessage(
         new CIMAssociatorNamesResponseMessage(
             String::EMPTY,         // messageId
             CIMException(),        // cimException
-            QueueIdStack(),        // queueIds
-            objectNames);
+            QueueIdStack());        // queueIds
+    message->getResponseData().setInstanceNames(objectNames);
 
     return message;
 }
@@ -2197,8 +2231,8 @@ CIMMessageDeserializer::_deserializeCIMReferencesResponseMessage(
         new CIMReferencesResponseMessage(
             String::EMPTY,         // messageId
             CIMException(),        // cimException
-            QueueIdStack(),        // queueIds
-            cimObjects);
+            QueueIdStack());        // queueIds
+    message->getResponseData().setObjects(cimObjects);
 
     return message;
 }
@@ -2226,8 +2260,8 @@ CIMMessageDeserializer::_deserializeCIMReferenceNamesResponseMessage(
         new CIMReferenceNamesResponseMessage(
             String::EMPTY,         // messageId
             CIMException(),        // cimException
-            QueueIdStack(),        // queueIds
-            objectNames);
+            QueueIdStack());        // queueIds
+    message->getResponseData().setInstanceNames(objectNames);
 
     return message;
 }
@@ -2540,6 +2574,41 @@ CIMMessageDeserializer::_deserializeCIMIndicationServiceDisabledResponseMessage(
             QueueIdStack());       // queueIds
 
     return message;
+}
+
+//
+// _deserializeProvAgtGetScmoClassResponseMessage
+//
+ProvAgtGetScmoClassResponseMessage*
+CIMMessageDeserializer::_deserializeProvAgtGetScmoClassResponseMessage(
+    XmlParser& parser)
+{
+    CIMClass cimClass;
+    ProvAgtGetScmoClassResponseMessage* message;
+    CIMNamespaceName nameSpace;
+
+   if (XmlReader::getClassElement(parser, cimClass))
+   {
+       _deserializeCIMNamespaceName(parser,nameSpace);
+
+       message = new ProvAgtGetScmoClassResponseMessage(
+           String(),         // messageId
+           CIMException(),        // cimException
+           QueueIdStack(),        // queueIds
+           SCMOClass(
+               cimClass,
+               (const char*)nameSpace.getString().getCString()));   
+    } else
+    {
+        message = new ProvAgtGetScmoClassResponseMessage(
+            String(),         // messageId
+            CIMException(),        // cimException
+            QueueIdStack(),        // queueIds
+            SCMOClass("",""));     // empty SCMOClass
+    }
+
+
+   return message;
 }
 
 PEGASUS_NAMESPACE_END

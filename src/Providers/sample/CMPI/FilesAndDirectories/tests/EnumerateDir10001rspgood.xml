@@ -6,11 +6,6 @@
 <IRETURNVALUE>
 <VALUE.NAMEDINSTANCE>
 <INSTANCENAME CLASSNAME="CWS_Directory">
-<KEYBINDING NAME="CreationClassName">
-<KEYVALUE VALUETYPE="string">
-CWS_Directory
-</KEYVALUE>
-</KEYBINDING>
 <KEYBINDING NAME="CSCreationClassName">
 <KEYVALUE VALUETYPE="string">
 CIM_UnitaryComputerSystem
@@ -31,6 +26,11 @@ CIM_FileSystem
 /Simulated/CMPI/tests/
 </KEYVALUE>
 </KEYBINDING>
+<KEYBINDING NAME="CreationClassName">
+<KEYVALUE VALUETYPE="string">
+CWS_Directory
+</KEYVALUE>
+</KEYBINDING>
 <KEYBINDING NAME="Name">
 <KEYVALUE VALUETYPE="string">
 /Simulated/CMPI/tests/Providers
@@ -38,37 +38,37 @@ CIM_FileSystem
 </KEYBINDING>
 </INSTANCENAME>
 <INSTANCE CLASSNAME="CWS_Directory">
-<PROPERTY NAME="InstanceID" TYPE="string">
+<PROPERTY NAME="InstanceID" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="Caption" TYPE="string">
+<PROPERTY NAME="Caption" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="Description" TYPE="string">
+<PROPERTY NAME="Description" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="ElementName" TYPE="string">
+<PROPERTY NAME="ElementName" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="InstallDate" TYPE="datetime">
+<PROPERTY NAME="InstallDate" PROPAGATED="true" TYPE="datetime">
 </PROPERTY>
-<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16">
+<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" PROPAGATED="true">
 </PROPERTY.ARRAY>
-<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string">
+<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" PROPAGATED="true">
 </PROPERTY.ARRAY>
-<PROPERTY NAME="Status" TYPE="string">
+<PROPERTY NAME="Status" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="HealthState" TYPE="uint16">
+<PROPERTY NAME="HealthState" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY NAME="CommunicationStatus" TYPE="uint16">
+<PROPERTY NAME="CommunicationStatus" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY NAME="DetailedStatus" TYPE="uint16">
+<PROPERTY NAME="DetailedStatus" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY NAME="OperatingStatus" TYPE="uint16">
+<PROPERTY NAME="OperatingStatus" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY NAME="PrimaryStatus" TYPE="uint16">
+<PROPERTY NAME="PrimaryStatus" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY NAME="CompressionMethod" TYPE="string">
+<PROPERTY NAME="CompressionMethod" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="EncryptionMethod" TYPE="string">
+<PROPERTY NAME="EncryptionMethod" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="InUseCount" TYPE="uint64">
+<PROPERTY NAME="InUseCount" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
 <PROPERTY NAME="CSCreationClassName" TYPE="string">
 <VALUE>
@@ -130,11 +130,6 @@ TRUE
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
 <INSTANCENAME CLASSNAME="CWS_Directory">
-<KEYBINDING NAME="CreationClassName">
-<KEYVALUE VALUETYPE="string">
-CWS_Directory
-</KEYVALUE>
-</KEYBINDING>
 <KEYBINDING NAME="CSCreationClassName">
 <KEYVALUE VALUETYPE="string">
 CIM_UnitaryComputerSystem
@@ -155,6 +150,11 @@ CIM_FileSystem
 /Simulated/CMPI/tests/
 </KEYVALUE>
 </KEYBINDING>
+<KEYBINDING NAME="CreationClassName">
+<KEYVALUE VALUETYPE="string">
+CWS_Directory
+</KEYVALUE>
+</KEYBINDING>
 <KEYBINDING NAME="Name">
 <KEYVALUE VALUETYPE="string">
 /Simulated/CMPI/tests/Providers/mof
@@ -162,37 +162,37 @@ CIM_FileSystem
 </KEYBINDING>
 </INSTANCENAME>
 <INSTANCE CLASSNAME="CWS_Directory">
-<PROPERTY NAME="InstanceID" TYPE="string">
+<PROPERTY NAME="InstanceID" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="Caption" TYPE="string">
+<PROPERTY NAME="Caption" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="Description" TYPE="string">
+<PROPERTY NAME="Description" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="ElementName" TYPE="string">
+<PROPERTY NAME="ElementName" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="InstallDate" TYPE="datetime">
+<PROPERTY NAME="InstallDate" PROPAGATED="true" TYPE="datetime">
 </PROPERTY>
-<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16">
+<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" PROPAGATED="true">
 </PROPERTY.ARRAY>
-<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string">
+<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" PROPAGATED="true">
 </PROPERTY.ARRAY>
-<PROPERTY NAME="Status" TYPE="string">
+<PROPERTY NAME="Status" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="HealthState" TYPE="uint16">
+<PROPERTY NAME="HealthState" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY NAME="CommunicationStatus" TYPE="uint16">
+<PROPERTY NAME="CommunicationStatus" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY NAME="DetailedStatus" TYPE="uint16">
+<PROPERTY NAME="DetailedStatus" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY NAME="OperatingStatus" TYPE="uint16">
+<PROPERTY NAME="OperatingStatus" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY NAME="PrimaryStatus" TYPE="uint16">
+<PROPERTY NAME="PrimaryStatus" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY NAME="CompressionMethod" TYPE="string">
+<PROPERTY NAME="CompressionMethod" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="EncryptionMethod" TYPE="string">
+<PROPERTY NAME="EncryptionMethod" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="InUseCount" TYPE="uint64">
+<PROPERTY NAME="InUseCount" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
 <PROPERTY NAME="CSCreationClassName" TYPE="string">
 <VALUE>
@@ -254,11 +254,6 @@ TRUE
 </VALUE.NAMEDINSTANCE>
 <VALUE.NAMEDINSTANCE>
 <INSTANCENAME CLASSNAME="CWS_Directory">
-<KEYBINDING NAME="CreationClassName">
-<KEYVALUE VALUETYPE="string">
-CWS_Directory
-</KEYVALUE>
-</KEYBINDING>
 <KEYBINDING NAME="CSCreationClassName">
 <KEYVALUE VALUETYPE="string">
 CIM_UnitaryComputerSystem
@@ -277,6 +272,11 @@ CIM_FileSystem
 <KEYBINDING NAME="FSName">
 <KEYVALUE VALUETYPE="string">
 /Simulated/CMPI/tests/
+</KEYVALUE>
+</KEYBINDING>
+<KEYBINDING NAME="CreationClassName">
+<KEYVALUE VALUETYPE="string">
+CWS_Directory
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="Name">
@@ -286,37 +286,37 @@ CIM_FileSystem
 </KEYBINDING>
 </INSTANCENAME>
 <INSTANCE CLASSNAME="CWS_Directory">
-<PROPERTY NAME="InstanceID" TYPE="string">
+<PROPERTY NAME="InstanceID" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="Caption" TYPE="string">
+<PROPERTY NAME="Caption" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="Description" TYPE="string">
+<PROPERTY NAME="Description" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="ElementName" TYPE="string">
+<PROPERTY NAME="ElementName" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="InstallDate" TYPE="datetime">
+<PROPERTY NAME="InstallDate" PROPAGATED="true" TYPE="datetime">
 </PROPERTY>
-<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16">
+<PROPERTY.ARRAY NAME="OperationalStatus" TYPE="uint16" PROPAGATED="true">
 </PROPERTY.ARRAY>
-<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string">
+<PROPERTY.ARRAY NAME="StatusDescriptions" TYPE="string" PROPAGATED="true">
 </PROPERTY.ARRAY>
-<PROPERTY NAME="Status" TYPE="string">
+<PROPERTY NAME="Status" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="HealthState" TYPE="uint16">
+<PROPERTY NAME="HealthState" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY NAME="CommunicationStatus" TYPE="uint16">
+<PROPERTY NAME="CommunicationStatus" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY NAME="DetailedStatus" TYPE="uint16">
+<PROPERTY NAME="DetailedStatus" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY NAME="OperatingStatus" TYPE="uint16">
+<PROPERTY NAME="OperatingStatus" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY NAME="PrimaryStatus" TYPE="uint16">
+<PROPERTY NAME="PrimaryStatus" PROPAGATED="true" TYPE="uint16">
 </PROPERTY>
-<PROPERTY NAME="CompressionMethod" TYPE="string">
+<PROPERTY NAME="CompressionMethod" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="EncryptionMethod" TYPE="string">
+<PROPERTY NAME="EncryptionMethod" PROPAGATED="true" TYPE="string">
 </PROPERTY>
-<PROPERTY NAME="InUseCount" TYPE="uint64">
+<PROPERTY NAME="InUseCount" PROPAGATED="true" TYPE="uint64">
 </PROPERTY>
 <PROPERTY NAME="CSCreationClassName" TYPE="string">
 <VALUE>

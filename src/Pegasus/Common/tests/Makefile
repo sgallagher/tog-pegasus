@@ -76,6 +76,7 @@ DIRS = \
     Reference \
     Resolve \
     Scope \
+    SCMO \
     SpinLock \
     Stack \
     StrToInstName \

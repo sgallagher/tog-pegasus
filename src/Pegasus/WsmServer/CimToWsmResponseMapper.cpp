@@ -252,7 +252,7 @@ WxfGetResponse* CimToWsmResponseMapper::_mapToWxfGetResponse(
 
     convertCimToWsmInstance(
         wsmRequest->epr.resourceUri,
-        response->getResponseData().getCimInstance(),
+        response->getResponseData().getInstance(),
         wsmInstance,
         wsmRequest->epr.getNamespace());
 
@@ -318,7 +318,7 @@ WsenEnumerateResponse*
     Array<WsmInstance> instances;
     Array<WsmEndpointReference> EPRs;
     Array<CIMInstance>& namedInstances =
-        response->getResponseData().getNamedInstances();
+        response->getResponseData().getInstances();
 
     if (wsmRequest->selectStatement)
     {
@@ -400,7 +400,7 @@ WsenEnumerateResponse*
     Array<WsmInstance> instances;
     Array<WsmEndpointReference> EPRs;
     Array<CIMInstance>& namedInstances =
-        response->getResponseData().getNamedInstances();
+        response->getResponseData().getInstances();
     for (Uint32 i = 0; i < namedInstances.size(); i++)
     {
         WsmInstance wsmInstance;
@@ -437,12 +437,14 @@ CimToWsmResponseMapper::_mapToWsenEnumerateResponseEPR(
     CIMEnumerateInstanceNamesResponseMessage* response)
 {
     Array<WsmEndpointReference> EPRs;
-    for (Uint32 i = 0; i < response->instanceNames.size(); i++)
+    Array<CIMObjectPath>& instanceNames =
+        response->getResponseData().getInstanceNames();
+    for (Uint32 i = 0; i < instanceNames.size(); i++)
     {
         WsmEndpointReference epr;
         convertObjPathToEPR(
             wsmRequest->epr.resourceUri,
-            response->instanceNames[i],
+            instanceNames[i],
             epr,
             wsmRequest->epr.getNamespace());
         EPRs.append(epr);

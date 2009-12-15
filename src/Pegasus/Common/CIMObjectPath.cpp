@@ -37,6 +37,7 @@
 #include "CIMName.h"
 #include "CIMValue.h"
 #include "XmlReader.h"
+#include <Pegasus/Common/StringConversion.h>
 #include "ArrayInternal.h"
 #include "HostLocator.h"
 #include "System.h"
@@ -324,9 +325,9 @@ Boolean operator==(const CIMKeyBinding& x, const CIMKeyBinding& y)
         {
             Uint64 xValue;
             Uint64 yValue;
-            if (XmlReader::stringToUnsignedInteger(
+            if (StringConversion::stringToUnsignedInteger(
                     x.getValue().getCString(), xValue) &&
-                XmlReader::stringToUnsignedInteger(
+                StringConversion::stringToUnsignedInteger(
                     y.getValue().getCString(), yValue))
             {
                 return (xValue == yValue);
@@ -336,9 +337,9 @@ Boolean operator==(const CIMKeyBinding& x, const CIMKeyBinding& y)
         {
             Sint64 xValue;
             Sint64 yValue;
-            if (XmlReader::stringToSignedInteger(
+            if (StringConversion::stringToSignedInteger(
                     x.getValue().getCString(), xValue) &&
-                XmlReader::stringToSignedInteger(
+                StringConversion::stringToSignedInteger(
                     y.getValue().getCString(), yValue))
             {
                 return (xValue == yValue);
@@ -713,13 +714,13 @@ void _parseKeyBindingPairs(
             if (*p == '-')
             {
                 Sint64 x;
-                if (!XmlReader::stringToSignedInteger(p, x))
+                if (!StringConversion::stringToSignedInteger(p, x))
                     throw MalformedObjectNameException(objectName);
             }
             else
             {
                 Uint64 x;
-                if (!XmlReader::stringToUnsignedInteger(p, x))
+                if (!StringConversion::stringToUnsignedInteger(p, x))
                     throw MalformedObjectNameException(objectName);
             }
 
@@ -994,7 +995,7 @@ String CIMObjectPath::_toStringCanonical() const
             Uint64 uValue;
             Sint64 sValue;
             // First try converting to unsigned integer
-            if (XmlReader::stringToUnsignedInteger(
+            if (StringConversion::stringToUnsignedInteger(
                     ref._rep->_keyBindings[i]._rep->_value.getCString(),
                         uValue))
             {
@@ -1003,7 +1004,7 @@ String CIMObjectPath::_toStringCanonical() const
                 ref._rep->_keyBindings[i]._rep->_value = String(buffer);
             }
             // Next try converting to signed integer
-            else if (XmlReader::stringToSignedInteger(
+            else if (StringConversion::stringToSignedInteger(
                          ref._rep->_keyBindings[i]._rep->_value.getCString(),
                              sValue))
             {

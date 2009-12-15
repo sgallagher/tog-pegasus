@@ -61,19 +61,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-static StrLit _XmlWriterTypeStrings[] =
-{
-    STRLIT("TYPE=\"boolean\""),   STRLIT("TYPE=\"uint8\""),
-    STRLIT("TYPE=\"sint8\""),     STRLIT("TYPE=\"uint16\""),
-    STRLIT("TYPE=\"sint16\""),    STRLIT("TYPE=\"uint32\""),
-    STRLIT("TYPE=\"sint32\""),    STRLIT("TYPE=\"uint64\""),
-    STRLIT("TYPE=\"sint64\""),    STRLIT("TYPE=\"real32\""),
-    STRLIT("TYPE=\"real64\""),    STRLIT("TYPE=\"char16\""),
-    STRLIT("TYPE=\"string\""),    STRLIT("TYPE=\"datetime\""),
-    STRLIT("TYPE=\"reference\""), STRLIT("TYPE=\"object\""),
-    STRLIT("TYPE=\"instance\"")
-};
-
 //------------------------------------------------------------------------------
 //
 // appendLocalNameSpacePathElement()
@@ -1097,7 +1084,7 @@ void XmlWriter::appendPropertyElement(
         else
         {
             out.append(' ');
-            out << _XmlWriterTypeStrings[rep->getValue().getType()];
+            out << xmlWriterTypeStrings(rep->getValue().getType());
         }
 
         if (rep->getArraySize())
@@ -1241,7 +1228,7 @@ void XmlWriter::appendPropertyElement(
         else
         {
             out.append(' ');
-            out << _XmlWriterTypeStrings[rep->getValue().getType()];
+            out << xmlWriterTypeStrings(rep->getValue().getType());
         }
 
         out << STRLIT(">\n");
@@ -1288,7 +1275,7 @@ void XmlWriter::appendMethodElement(
     out << STRLIT("<METHOD NAME=\"") << rep->getName();
     out << STRLIT("\" ");
 
-    out << _XmlWriterTypeStrings[rep->getType()];
+    out << xmlWriterTypeStrings(rep->getType());
 
     if (!rep->getClassOrigin().isNull())
     {
@@ -1390,7 +1377,7 @@ void XmlWriter::appendParameterElement(
         {
             out << STRLIT("<PARAMETER.ARRAY"
                           " NAME=\"") << rep->getName();
-            out << STRLIT("\" ") << _XmlWriterTypeStrings[rep->getType()];
+            out << STRLIT("\" ") << xmlWriterTypeStrings(rep->getType());
 
             if (rep->getArraySize())
             {
@@ -1431,7 +1418,7 @@ void XmlWriter::appendParameterElement(
     {
         out << STRLIT("<PARAMETER"
                       " NAME=\"") << rep->getName();
-        out << STRLIT("\" ") << _XmlWriterTypeStrings[rep->getType()];
+        out << STRLIT("\" ") << xmlWriterTypeStrings(rep->getType());
 
         out << STRLIT(">\n");
 
@@ -1516,7 +1503,7 @@ void XmlWriter::appendQualifierElement(
     const CIMQualifierRep* rep = qualifier._rep;
 
     out << STRLIT("<QUALIFIER NAME=\"") << rep->getName();
-    out << STRLIT("\" ") << _XmlWriterTypeStrings[rep->getValue().getType()];
+    out << STRLIT("\" ") << xmlWriterTypeStrings(rep->getValue().getType());
 
     if (rep->getPropagated())
     {
@@ -1563,7 +1550,7 @@ void XmlWriter::appendQualifierDeclElement(
     const CIMQualifierDeclRep* rep = qualifierDecl._rep;
 
     out << STRLIT("<QUALIFIER.DECLARATION NAME=\"") << rep->getName();
-    out << STRLIT("\" ") << _XmlWriterTypeStrings[rep->getValue().getType()];
+    out << STRLIT("\" ") << xmlWriterTypeStrings(rep->getValue().getType());
 
     if (rep->getValue().isArray())
     {
@@ -2247,7 +2234,7 @@ void XmlWriter::appendParamTypeAndEmbeddedObjAttrib(
     }
     else
     {
-        out << STRLIT(" PARAM") << _XmlWriterTypeStrings[type];
+        out << STRLIT(" PARAM") << xmlWriterTypeStrings(type);
     }
 }
 

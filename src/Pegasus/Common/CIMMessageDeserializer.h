@@ -255,6 +255,10 @@ private:
         _deserializeCIMIndicationServiceDisabledRequestMessage
             (XmlParser& parser);
 
+    PEGASUS_HIDDEN_LINKAGE
+    static ProvAgtGetScmoClassRequestMessage*
+        _deserializeProvAgtGetScmoClassRequestMessage(XmlParser& parser);
+
     //
     //
     // CIM Response Messages
@@ -379,6 +383,11 @@ private:
     static CIMIndicationServiceDisabledResponseMessage*
         _deserializeCIMIndicationServiceDisabledResponseMessage
             (XmlParser& parser);
+
+    PEGASUS_HIDDEN_LINKAGE
+    static ProvAgtGetScmoClassResponseMessage*
+        _deserializeProvAgtGetScmoClassResponseMessage(XmlParser& parser);
+
 };
 
 PEGASUS_NAMESPACE_END

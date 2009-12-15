@@ -49,6 +49,7 @@
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/CIMParamValue.h>
+#include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/ContentLanguageList.h>
@@ -501,6 +502,122 @@ private:
     XmlWriter();
 };
 
+//==============================================================================
+//
+// _toString() routines:
+//
+//==============================================================================
+
+inline void _toString(Buffer& out, Boolean x)
+{
+    XmlWriter::append(out, x);
+}
+
+inline void _toString(Buffer& out, Uint8 x)
+{
+    XmlWriter::append(out, Uint32(x));
+}
+
+inline void _toString(Buffer& out, Sint8 x)
+{
+    XmlWriter::append(out, Sint32(x));
+}
+
+inline void _toString(Buffer& out, Uint16 x)
+{
+    XmlWriter::append(out, Uint32(x));
+}
+
+inline void _toString(Buffer& out, Sint16 x)
+{
+    XmlWriter::append(out, Sint32(x));
+}
+
+inline void _toString(Buffer& out, Uint32 x)
+{
+    XmlWriter::append(out, x);
+}
+
+inline void _toString(Buffer& out, Sint32 x)
+{
+    XmlWriter::append(out, x);
+}
+
+inline void _toString(Buffer& out, Uint64 x)
+{
+    XmlWriter::append(out, x);
+}
+
+inline void _toString(Buffer& out, Sint64 x)
+{
+    XmlWriter::append(out, x);
+}
+
+inline void _toString(Buffer& out, Real32 x)
+{
+    XmlWriter::append(out, Real64(x));
+}
+
+inline void _toString(Buffer& out, Real64 x)
+{
+    XmlWriter::append(out, x);
+}
+
+inline void _toString(Buffer& out, Char16 x)
+{
+    // We need to convert the Char16 to UTF8 then append the UTF8
+    // character into the array.
+    // NOTE: The UTF8 character could be several bytes long.
+    // WARNING: This function will put in replacement character for
+    // all characters that have surogate pairs.
+
+    char str[6];
+    memset(str,0x00,sizeof(str));
+    char* charIN = (char *)&x;
+
+    const Uint16 *strsrc = (Uint16 *)charIN;
+    Uint16 *endsrc = (Uint16 *)&charIN[1];
+
+    Uint8 *strtgt = (Uint8 *)str;
+    Uint8 *endtgt = (Uint8 *)&str[5];
+
+    UTF16toUTF8(&strsrc, endsrc, &strtgt, endtgt);
+    out.append(str, UTF_8_COUNT_TRAIL_BYTES(str[0]) +1);
+}
+
+inline void _toString(Buffer& out, const String& x)
+{
+    out << x;
+}
+
+inline void _toString(Buffer& out, const CIMDateTime& x)
+{
+    out << x.toString();
+}
+
+inline void _toString(Buffer& out, const CIMObjectPath& x)
+{
+    out << x.toString();
+}
+
+inline void _toString(Buffer& out, const CIMObject& x)
+{
+    out << x.toString();
+}
+inline void _toString(Buffer& out, const CIMInstance& x)
+{
+    out << CIMObject(x).toString();
+}
+
+template<class T>
+void _toString(Buffer& out, const T* p, Uint32 size)
+{
+    while (size--)
+    {
+        _toString(out, *p++);
+        out.append(' ');
+    }
+}
 
 PEGASUS_NAMESPACE_END
 

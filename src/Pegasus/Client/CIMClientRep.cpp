@@ -461,7 +461,7 @@ CIMClass CIMClientRep::getClass(
     return response->cimClass;
 }
 
-CIMInstance CIMClientRep::getInstance(
+CIMResponseData CIMClientRep::getInstance(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& instanceName,
     Boolean localOnly,
@@ -487,40 +487,8 @@ CIMInstance CIMClientRep::getInstance(
 
     AutoPtr<CIMGetInstanceResponseMessage> destroyer(response);
 
-    return response->getResponseData().getCimInstance();
+    return response->getResponseData();
 }
-
-#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
-Array<Uint8> CIMClientRep::getBinaryInstance(
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& instanceName,
-    Boolean localOnly,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
-{
-    AutoPtr<CIMRequestMessage> request(new CIMGetInstanceRequestMessage(
-        String::EMPTY,
-        nameSpace,
-        instanceName,
-        includeQualifiers,
-        includeClassOrigin,
-        propertyList,
-        QueueIdStack()));
-    dynamic_cast<CIMGetInstanceRequestMessage*>(request.get())->localOnly =
-        localOnly;
-
-    Message* message = _doRequest(request, CIM_GET_INSTANCE_RESPONSE_MESSAGE);
-
-    CIMGetInstanceResponseMessage* response =
-        (CIMGetInstanceResponseMessage*)message;
-
-    AutoPtr<CIMGetInstanceResponseMessage> destroyer(response);
-
-    return response->getResponseData().getBinaryCimInstance();
-}
-#endif // PEGASUS_ENABLE_PROTOCOL_BINARY
-
 
 void CIMClientRep::deleteClass(
     const CIMNamespaceName& nameSpace,
@@ -698,7 +666,7 @@ Array<CIMName> CIMClientRep::enumerateClassNames(
     return classNameArray;
 }
 
-Array<CIMInstance> CIMClientRep::enumerateInstances(
+CIMResponseData CIMClientRep::enumerateInstances(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
     Boolean deepInheritance,
@@ -727,45 +695,10 @@ Array<CIMInstance> CIMClientRep::enumerateInstances(
 
     AutoPtr<CIMEnumerateInstancesResponseMessage> destroyer(response);
 
-    return response->getResponseData().getNamedInstances();
+    return response->getResponseData();
 }
 
-#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
-Array<Uint8> CIMClientRep::enumerateBinaryInstances(
-    const CIMNamespaceName& nameSpace,
-    const CIMName& className,
-    Boolean deepInheritance,
-    Boolean localOnly,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
-{
-    AutoPtr<CIMRequestMessage> request(new CIMEnumerateInstancesRequestMessage(
-        String::EMPTY,
-        nameSpace,
-        className,
-        deepInheritance,
-        includeQualifiers,
-        includeClassOrigin,
-        propertyList,
-        QueueIdStack()));
-    dynamic_cast<CIMEnumerateInstancesRequestMessage*>(
-        request.get())->localOnly = localOnly;
-
-    Message* message =
-        _doRequest(request, CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE);
-
-    CIMEnumerateInstancesResponseMessage* response =
-        (CIMEnumerateInstancesResponseMessage*)message;
-
-    AutoPtr<CIMEnumerateInstancesResponseMessage> destroyer(response);
-
-
-    return response->getResponseData().getBinaryCimInstances();
-}
-#endif // PEGASUS_ENABLE_PROTOCOL_BINARY
-
-Array<CIMObjectPath> CIMClientRep::enumerateInstanceNames(
+CIMResponseData CIMClientRep::enumerateInstanceNames(
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
@@ -784,10 +717,10 @@ Array<CIMObjectPath> CIMClientRep::enumerateInstanceNames(
 
     AutoPtr<CIMEnumerateInstanceNamesResponseMessage> destroyer(response);
 
-    return response->instanceNames;
+    return response->getResponseData();
 }
 
-Array<CIMObject> CIMClientRep::execQuery(
+CIMResponseData CIMClientRep::execQuery(
     const CIMNamespaceName& nameSpace,
     const String& queryLanguage,
     const String& query)
@@ -806,34 +739,10 @@ Array<CIMObject> CIMClientRep::execQuery(
 
     AutoPtr<CIMExecQueryResponseMessage> destroyer(response);
 
-    return response->getResponseData().getCIMObjects();
+    return response->getResponseData();
 }
 
-#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
-Array<Uint8> CIMClientRep::execQueryBinary(
-    const CIMNamespaceName& nameSpace,
-    const String& queryLanguage,
-    const String& query)
-{
-    AutoPtr<CIMRequestMessage> request(new CIMExecQueryRequestMessage(
-        String::EMPTY,
-        nameSpace,
-        queryLanguage,
-        query,
-        QueueIdStack()));
-
-    Message* message = _doRequest(request, CIM_EXEC_QUERY_RESPONSE_MESSAGE);
-
-    CIMExecQueryResponseMessage* response =
-        (CIMExecQueryResponseMessage*)message;
-
-    AutoPtr<CIMExecQueryResponseMessage> destroyer(response);
-
-    return response->getResponseData().getBinaryCimObjects();
-}
-#endif
-
-Array<CIMObject> CIMClientRep::associators(
+CIMResponseData CIMClientRep::associators(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& assocClass,
@@ -864,46 +773,10 @@ Array<CIMObject> CIMClientRep::associators(
 
     AutoPtr<CIMAssociatorsResponseMessage> destroyer(response);
 
-    return response->getResponseData().getCIMObjects();
+    return response->getResponseData();
 }
 
-#if defined(PEGASUS_ENABLE_PROTOCOL_BINARY)
-Array<Uint8> CIMClientRep::associatorsBinary(
-    const CIMNamespaceName& nameSpace,
-    const CIMObjectPath& objectName,
-    const CIMName& assocClass,
-    const CIMName& resultClass,
-    const String& role,
-    const String& resultRole,
-    Boolean includeQualifiers,
-    Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList)
-{
-    AutoPtr<CIMRequestMessage> request(new CIMAssociatorsRequestMessage(
-        String::EMPTY,
-        nameSpace,
-        objectName,
-        assocClass,
-        resultClass,
-        role,
-        resultRole,
-        includeQualifiers,
-        includeClassOrigin,
-        propertyList,
-        QueueIdStack()));
-
-    Message* message = _doRequest(request, CIM_ASSOCIATORS_RESPONSE_MESSAGE);
-
-    CIMAssociatorsResponseMessage* response =
-        (CIMAssociatorsResponseMessage*)message;
-
-    AutoPtr<CIMAssociatorsResponseMessage> destroyer(response);
-
-    return response->getResponseData().getBinaryCimObjects();
-}
-#endif
-
-Array<CIMObjectPath> CIMClientRep::associatorNames(
+CIMResponseData CIMClientRep::associatorNames(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& assocClass,
@@ -929,10 +802,10 @@ Array<CIMObjectPath> CIMClientRep::associatorNames(
 
     AutoPtr<CIMAssociatorNamesResponseMessage> destroyer(response);
 
-    return response->objectNames;
+    return response->getResponseData();
 }
 
-Array<CIMObject> CIMClientRep::references(
+CIMResponseData CIMClientRep::references(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& resultClass,
@@ -959,10 +832,10 @@ Array<CIMObject> CIMClientRep::references(
 
     AutoPtr<CIMReferencesResponseMessage> destroyer(response);
 
-    return response->cimObjects;
+    return response->getResponseData();
 }
 
-Array<CIMObjectPath> CIMClientRep::referenceNames(
+CIMResponseData CIMClientRep::referenceNames(
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& objectName,
     const CIMName& resultClass,
@@ -984,7 +857,7 @@ Array<CIMObjectPath> CIMClientRep::referenceNames(
 
     AutoPtr<CIMReferenceNamesResponseMessage> destroyer(response);
 
-    return response->objectNames;
+    return response->getResponseData();
 }
 
 CIMValue CIMClientRep::getProperty(

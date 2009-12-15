@@ -34,13 +34,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** This class defines the internal representation of the CIMDateTime class.
+/** This struct defines the internal representation of the CIMDateTime class.
     The CIMDateTimeRep is a private memeber of CIMDateTime class.
 */
-class CIMDateTimeRep
+struct CIMDateTimeRep
 {
-public:
-
     // Number of microseconds elapsed since January 1, 1 BCE.
     Uint64 usec;
 

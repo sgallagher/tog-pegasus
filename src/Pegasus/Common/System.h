@@ -394,10 +394,20 @@ public:
     static Boolean truncateFile(const char* path, size_t newSize);
 
     /** Compare two strings but ignore any case differences.
-        This method is provided only because some platforms lack a strcasecmp
-        function in the standard library.
+        This method is provided only because some platforms lack a fast enough
+        strcasecmp function in the standard library.
     */
     static Sint32 strcasecmp(const char* s1, const char* s2);
+
+    /** Compare two strings for equality but ignore any case differences.
+        This method should only be used if length of both strings is
+        known already. If not, please use System::strcasecmp()
+    */
+    static bool strncasecmp(
+        const char* s1,
+        size_t s1_l,
+        const char* s2,
+        size_t s2_l);
 
     /** Return just the file or directory name from the path into basename.
         This method returns a file or directory name at the end of a path.

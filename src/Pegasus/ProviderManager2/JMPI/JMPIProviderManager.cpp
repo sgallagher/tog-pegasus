@@ -6085,7 +6085,8 @@ Message * JMPIProviderManager::handleReferencesRequest(
 
                     JMPIjvm::checkException(env);
 
-                    handler.deliver(*ciRet);
+                    CIMObject coRet(*ciRet);
+                    handler.deliver(coRet);
                 }
             }
             handler.complete();
@@ -6238,7 +6239,8 @@ Message * JMPIProviderManager::handleReferencesRequest(
                     iop.setNameSpace(op.getNameSpace());
                     ciRet->setPath(iop);
 
-                    handler.deliver(*ciRet);
+                    CIMObject coRet(*ciRet);
+                    handler.deliver(coRet);
                 }
             }
             handler.complete();
@@ -6377,7 +6379,8 @@ Message * JMPIProviderManager::handleReferencesRequest(
                     iop.setNameSpace(op.getNameSpace());
                     ciRet->setPath(iop);
 
-                    handler.deliver(*ciRet);
+                    CIMObject coRet(*ciRet);
+                    handler.deliver(coRet);
                 }
             }
             handler.complete();
@@ -6535,7 +6538,8 @@ Message * JMPIProviderManager::handleReferencesRequest(
                     iop.setNameSpace(op.getNameSpace());
                     ciRet->setPath(iop);
 
-                    handler.deliver(*ciRet);
+                    CIMObject coRet(*ciRet);
+                    handler.deliver(coRet);
                 }
             }
             handler.complete();

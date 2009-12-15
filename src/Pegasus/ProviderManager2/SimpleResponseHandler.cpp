@@ -126,6 +126,10 @@ SimpleInstanceResponseHandler::SimpleInstanceResponseHandler()
 {
 }
 
+SimpleInstanceResponseHandler::~SimpleInstanceResponseHandler()
+{
+}
+
 void SimpleInstanceResponseHandler::processing()
 {
     SimpleResponseHandler::processing();
@@ -138,12 +142,13 @@ void SimpleInstanceResponseHandler::complete()
 
 Uint32 SimpleInstanceResponseHandler::size() const
 {
-    return _objects.size();
+    return _objects.size()+_scmoObjects.size();
 }
 
 void SimpleInstanceResponseHandler::clear()
 {
     _objects.clear();
+    _scmoObjects.clear();
 }
 
 void SimpleInstanceResponseHandler::deliver(const CIMInstance& instance)
@@ -154,6 +159,19 @@ void SimpleInstanceResponseHandler::deliver(const CIMInstance& instance)
         "SimpleInstanceResponseHandler::deliver()");
 
     _objects.append(instance);
+
+    send(false);
+}
+
+void SimpleInstanceResponseHandler::deliver(const SCMOInstance& instance)
+{
+    PEG_TRACE_CSTRING(
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL4,
+        "SimpleInstanceResponseHandler::deliver(SCMOInstance)");
+
+    //fprintf(stderr, "SimpleInstanceResponseHandler::deliver\n");
+    _scmoObjects.append(instance);
 
     send(false);
 }
@@ -172,11 +190,20 @@ const Array<CIMInstance> SimpleInstanceResponseHandler::getObjects() const
     return _objects;
 }
 
+const Array<SCMOInstance> SimpleInstanceResponseHandler::getSCMOObjects() const
+{
+    return _scmoObjects;
+}
+
 //
 // SimpleObjectPathResponseHandler
 //
 
 SimpleObjectPathResponseHandler::SimpleObjectPathResponseHandler()
+{
+}
+
+SimpleObjectPathResponseHandler::~SimpleObjectPathResponseHandler()
 {
 }
 
@@ -192,12 +219,13 @@ void SimpleObjectPathResponseHandler::complete()
 
 Uint32 SimpleObjectPathResponseHandler::size() const
 {
-    return _objects.size();
+    return _objects.size() + _scmoObjects.size();
 }
 
 void SimpleObjectPathResponseHandler::clear()
 {
     _objects.clear();
+    _scmoObjects.clear();
 }
 
 void SimpleObjectPathResponseHandler::deliver(const CIMObjectPath& objectPath)
@@ -208,6 +236,18 @@ void SimpleObjectPathResponseHandler::deliver(const CIMObjectPath& objectPath)
         "SimpleObjectPathResponseHandler::deliver()");
 
     _objects.append(objectPath);
+
+    send(false);
+}
+
+void SimpleObjectPathResponseHandler::deliver(const SCMOInstance& objectPath)
+{
+    PEG_TRACE_CSTRING(
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL4,
+        "SimpleObjectPathResponseHandler::deliver()");
+
+    _scmoObjects.append(objectPath);
 
     send(false);
 }
@@ -225,6 +265,12 @@ void SimpleObjectPathResponseHandler::deliver(
 const Array<CIMObjectPath> SimpleObjectPathResponseHandler::getObjects() const
 {
     return _objects;
+}
+
+const Array<SCMOInstance>
+SimpleObjectPathResponseHandler::getSCMOObjects() const
+{
+    return _scmoObjects;
 }
 
 //
@@ -398,12 +444,13 @@ void SimpleObjectResponseHandler::complete()
 
 Uint32 SimpleObjectResponseHandler::size() const
 {
-    return _objects.size();
+    return _objects.size()+_scmoObjects.size();
 }
 
 void SimpleObjectResponseHandler::clear()
 {
     _objects.clear();
+    _scmoObjects.clear();
 }
 
 void SimpleObjectResponseHandler::deliver(const CIMObject& object)
@@ -415,6 +462,29 @@ void SimpleObjectResponseHandler::deliver(const CIMObject& object)
 
     _objects.append(object);
 
+    send(false);
+}
+
+void SimpleObjectResponseHandler::deliver(const CIMInstance& instance)
+{
+    PEG_TRACE_CSTRING(
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL4,
+        "SimpleObjectResponseHandler::deliver()");
+
+    _objects.append(instance);
+
+    send(false);
+}
+
+void SimpleObjectResponseHandler::deliver(const SCMOInstance& object)
+{
+    PEG_TRACE_CSTRING(
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL4,
+        "SimpleObjectResponseHandler::deliver()");
+
+    _scmoObjects.append(object);
     send(false);
 }
 
@@ -430,6 +500,11 @@ void SimpleObjectResponseHandler::deliver(const Array<CIMObject>& objects)
 const Array<CIMObject> SimpleObjectResponseHandler::getObjects() const
 {
     return _objects;
+}
+
+const Array<SCMOInstance> SimpleObjectResponseHandler::getSCMOObjects() const
+{
+    return _scmoObjects;
 }
 
 //
@@ -452,12 +527,13 @@ void SimpleInstance2ObjectResponseHandler::complete()
 
 Uint32 SimpleInstance2ObjectResponseHandler::size() const
 {
-    return _objects.size();
+    return _objects.size() + _scmoObjects.size();
 }
 
 void SimpleInstance2ObjectResponseHandler::clear()
 {
     _objects.clear();
+    _scmoObjects.clear();
 }
 
 void SimpleInstance2ObjectResponseHandler::deliver(const CIMInstance& object)
@@ -468,6 +544,19 @@ void SimpleInstance2ObjectResponseHandler::deliver(const CIMInstance& object)
         "SimpleInstance2ObjectResponseHandler::deliver()");
 
     _objects.append(CIMObject(object));
+
+    // async delivers not yet supported
+    //send(false);
+}
+
+void SimpleInstance2ObjectResponseHandler::deliver(const SCMOInstance& object)
+{
+    PEG_TRACE_CSTRING(
+        TRC_PROVIDERMANAGER,
+        Tracer::LEVEL4,
+        "SimpleInstance2ObjectResponseHandler::deliver(SCMO)");
+
+    _scmoObjects.append(object);
 
     // async delivers not yet supported
     //send(false);
@@ -486,6 +575,12 @@ void SimpleInstance2ObjectResponseHandler::deliver(
 const Array<CIMObject> SimpleInstance2ObjectResponseHandler::getObjects() const
 {
     return _objects;
+}
+
+const Array<SCMOInstance>
+SimpleInstance2ObjectResponseHandler::getSCMOObjects() const
+{
+    return _scmoObjects;
 }
 
 //

@@ -1029,6 +1029,8 @@ private:
     friend class CIMQualifierDeclRep;
     friend class BinaryStreamer;
     friend class XmlWriter;
+    friend class SCMOClass;
+    friend class SCMOInstance;
 };
 
 /**

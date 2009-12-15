@@ -33,10 +33,11 @@
 #define Pegasus_CommonUTF_h
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Mutex.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+class String;
 
 #define FIRST_HIGH_SURROGATE  (Uint32)0xD800
 #define LAST_HIGH_SURROGATE   (Uint32)0xDBFF

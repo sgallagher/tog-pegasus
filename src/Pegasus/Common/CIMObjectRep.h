@@ -52,6 +52,11 @@ PEGASUS_NAMESPACE_BEGIN
 
     This class contains what is common to CIMClass and CIMInstance.
 */
+
+typedef OrderedSet<CIMProperty,
+                   CIMPropertyRep,
+                   PEGASUS_PROPERTY_ORDEREDSET_HASHSIZE> PropertySet;
+
 class CIMObjectRep
 {
 public:
@@ -164,9 +169,6 @@ protected:
 
     CIMObjectPath _reference;
     CIMQualifierList _qualifiers;
-    typedef OrderedSet<CIMProperty,
-                       CIMPropertyRep,
-                       PEGASUS_PROPERTY_ORDEREDSET_HASHSIZE> PropertySet;
     PropertySet _properties;
 
 private:
@@ -181,6 +183,8 @@ private:
     friend class CIMObject;
     friend class BinaryStreamer;
     friend class CIMBuffer;
+    friend class SCMOInstance;
+    friend class SCMOClass;
 };
 
 PEGASUS_NAMESPACE_END

@@ -352,6 +352,10 @@ CIMRequestMessage* CIMBinMsgDeserializer::_getRequestMessage(
             case CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE:
                 msg = _getIndicationServiceDisabledRequestMessage(in);
                 break;
+            case PROVAGT_GET_SCMOCLASS_REQUEST_MESSAGE:
+                msg = _getProvAgtGetScmoClassRequestMessage(in);            
+                break;
+
 
             default:
                 PEGASUS_ASSERT(0);
@@ -467,6 +471,9 @@ CIMResponseMessage* CIMBinMsgDeserializer::_getResponseMessage(
             break;
         case CIM_INDICATION_SERVICE_DISABLED_RESPONSE_MESSAGE:
             msg = _getIndicationServiceDisabledResponseMessage(in);
+            break;
+        case PROVAGT_GET_SCMOCLASS_RESPONSE_MESSAGE:
+            msg = _getProvAgtGetScmoClassResponseMessage(in);            
             break;
 
         default:
@@ -1570,6 +1577,26 @@ CIMBinMsgDeserializer::_getSubscriptionInitCompleteRequestMessage(
         QueueIdStack());
 }
 
+ProvAgtGetScmoClassRequestMessage*
+CIMBinMsgDeserializer::_getProvAgtGetScmoClassRequestMessage(
+    CIMBuffer& in)
+{
+    CIMName className;
+    CIMNamespaceName nsName;
+
+    if (!in.getNamespaceName(nsName))
+        return false;
+
+    if (!in.getName(className))
+        return false;
+
+    return new ProvAgtGetScmoClassRequestMessage(
+        String::EMPTY,
+        nsName,
+        className,
+        QueueIdStack());
+}
+
 CIMGetInstanceResponseMessage*
 CIMBinMsgDeserializer::_getGetInstanceResponseMessage(
     CIMBuffer& in,
@@ -1580,11 +1607,11 @@ CIMBinMsgDeserializer::_getGetInstanceResponseMessage(
         CIMException(),
         QueueIdStack());
 
-    CIMInstanceResponseData& responseData = msg->getResponseData();
+    CIMResponseData& responseData = msg->getResponseData();
 
     if (binaryResponse)
     {
-        if (!responseData.setBinaryCimInstance(in))
+        if (!responseData.setBinary(in))
         {
             delete(msg);
             return 0;
@@ -1592,7 +1619,7 @@ CIMBinMsgDeserializer::_getGetInstanceResponseMessage(
     }
     else
     {
-        if (!responseData.setXmlCimInstance(in))
+        if (!responseData.setXml(in))
         {
             delete(msg);
             return 0;
@@ -1648,11 +1675,11 @@ CIMBinMsgDeserializer::_getEnumerateInstancesResponseMessage(
     msg = new CIMEnumerateInstancesResponseMessage(String::EMPTY,
         CIMException(), QueueIdStack());
 
-    CIMInstancesResponseData& responseData = msg->getResponseData();
+    CIMResponseData& responseData = msg->getResponseData();
 
     if (binaryResponse)
     {
-        if (!responseData.setBinaryCimInstances(in))
+        if (!responseData.setBinary(in))
         {
             delete(msg);
             return 0;
@@ -1662,7 +1689,7 @@ CIMBinMsgDeserializer::_getEnumerateInstancesResponseMessage(
     }
     else
     {
-        if (!responseData.setXmlCimInstances(in))
+        if (!responseData.setXml(in))
         {
             delete(msg);
             return 0;
@@ -1676,17 +1703,21 @@ CIMEnumerateInstanceNamesResponseMessage*
 CIMBinMsgDeserializer::_getEnumerateInstanceNamesResponseMessage(
     CIMBuffer& in)
 {
-    XmlEntry entry;
-    Array<CIMObjectPath> instanceNames;
+    CIMEnumerateInstanceNamesResponseMessage* msg;
 
-    if (!in.getObjectPathA(instanceNames))
-        return false;
+    msg = new CIMEnumerateInstanceNamesResponseMessage(String::EMPTY,
+                                                       CIMException(),
+                                                       QueueIdStack());
 
-    return new CIMEnumerateInstanceNamesResponseMessage(
-        String::EMPTY,
-        CIMException(),
-        QueueIdStack(),
-        instanceNames);
+    CIMResponseData& responseData = msg->getResponseData();
+
+    if (!responseData.setBinary(in))
+    {
+        delete(msg);
+        return 0;
+    }
+
+    return msg;
 }
 
 CIMExecQueryResponseMessage*
@@ -1699,11 +1730,11 @@ CIMBinMsgDeserializer::_getExecQueryResponseMessage(
     msg = new CIMExecQueryResponseMessage(String::EMPTY,
         CIMException(), QueueIdStack());
 
-    CIMObjectsResponseData& responseData = msg->getResponseData();
+    CIMResponseData& responseData = msg->getResponseData();
 
     if (binaryResponse)
     {
-        if (!responseData.setBinaryCimObjects(in))
+        if (!responseData.setBinary(in))
         {
             delete(msg);
             return 0;
@@ -1711,7 +1742,7 @@ CIMBinMsgDeserializer::_getExecQueryResponseMessage(
     }
     else
     {
-        if (!responseData.setXmlCimObjects(in))
+        if (!responseData.setXml(in))
         {
             delete(msg);
             return 0;
@@ -1731,11 +1762,11 @@ CIMBinMsgDeserializer::_getAssociatorsResponseMessage(
     msg = new CIMAssociatorsResponseMessage(String::EMPTY,
         CIMException(), QueueIdStack());
 
-    CIMObjectsResponseData& responseData = msg->getResponseData();
+    CIMResponseData& responseData = msg->getResponseData();
 
     if (binaryResponse)
     {
-        if (!responseData.setBinaryCimObjects(in))
+        if (!responseData.setBinary(in))
         {
             delete(msg);
             return 0;
@@ -1743,7 +1774,7 @@ CIMBinMsgDeserializer::_getAssociatorsResponseMessage(
     }
     else
     {
-        if (!responseData.setXmlCimObjects(in))
+        if (!responseData.setXml(in))
         {
             delete(msg);
             return 0;
@@ -1757,51 +1788,60 @@ CIMAssociatorNamesResponseMessage*
 CIMBinMsgDeserializer::_getAssociatorNamesResponseMessage(
     CIMBuffer& in)
 {
-    XmlEntry entry;
-    Array<CIMObjectPath> objectNames;
+    CIMAssociatorNamesResponseMessage* msg;
 
-    if (!in.getObjectPathA(objectNames))
-        return false;
+    msg = new CIMAssociatorNamesResponseMessage(String::EMPTY,
+        CIMException(), QueueIdStack());
 
-    return new CIMAssociatorNamesResponseMessage(
-        String::EMPTY,
-        CIMException(),
-        QueueIdStack(),
-        objectNames);
+    CIMResponseData& responseData = msg->getResponseData();
+
+    if (!responseData.setBinary(in))
+    {
+        delete(msg);
+        return 0;
+    }
+
+    return msg;
 }
 
 CIMReferencesResponseMessage*
 CIMBinMsgDeserializer::_getReferencesResponseMessage(
     CIMBuffer& in)
 {
-    XmlEntry entry;
-    Array<CIMObject> cimObjects;
+    CIMReferencesResponseMessage* msg;
 
-    if (!in.getObjectA(cimObjects))
-        return false;
+    msg = new CIMReferencesResponseMessage(String::EMPTY,
+        CIMException(), QueueIdStack());
 
-    return new CIMReferencesResponseMessage(
-        String::EMPTY,
-        CIMException(),
-        QueueIdStack(),
-        cimObjects);
+    CIMResponseData& responseData = msg->getResponseData();
+
+    if (!responseData.setBinary(in))
+    {
+        delete(msg);
+        return 0;
+    }
+
+    return msg;
 }
 
 CIMReferenceNamesResponseMessage*
 CIMBinMsgDeserializer::_getReferenceNamesResponseMessage(
     CIMBuffer& in)
 {
-    XmlEntry entry;
-    Array<CIMObjectPath> objectNames;
+    CIMReferenceNamesResponseMessage* msg;
 
-    if (!in.getObjectPathA(objectNames))
-        return false;
+    msg = new CIMReferenceNamesResponseMessage(String::EMPTY,
+        CIMException(), QueueIdStack());
 
-    return new CIMReferenceNamesResponseMessage(
-        String::EMPTY,
-        CIMException(),
-        QueueIdStack(),
-        objectNames);
+    CIMResponseData& responseData = msg->getResponseData();
+
+    if (!responseData.setBinary(in))
+    {
+        delete(msg);
+        return 0;
+    }
+
+    return msg;
 }
 
 CIMGetPropertyResponseMessage*
@@ -1914,7 +1954,6 @@ CIMBinMsgDeserializer::_getDisableModuleResponseMessage(
 {
     XmlEntry entry;
     CIMValue genericValue;
-    Uint16 genericUint16;
     Array<Uint16> operationalStatus;
 
     if (!in.getUint16A(operationalStatus))
@@ -1933,7 +1972,6 @@ CIMBinMsgDeserializer::_getEnableModuleResponseMessage(
 {
     XmlEntry entry;
     CIMValue genericValue;
-    Uint16 genericUint16;
     Array<Uint16> operationalStatus;
 
     if (!in.getUint16A(operationalStatus))
@@ -1994,6 +2032,23 @@ CIMBinMsgDeserializer::_getIndicationServiceDisabledResponseMessage(
         String(),
         CIMException(),
         QueueIdStack());
+}
+
+ProvAgtGetScmoClassResponseMessage*
+CIMBinMsgDeserializer::_getProvAgtGetScmoClassResponseMessage(
+    CIMBuffer& in)
+{
+    SCMOClass theClass("","");
+
+
+    if (!in.getSCMOClass(theClass))
+        return false;
+
+    return new ProvAgtGetScmoClassResponseMessage(
+        String::EMPTY,
+        CIMException(),
+        QueueIdStack(),
+        theClass);
 }
 
 PEGASUS_NAMESPACE_END

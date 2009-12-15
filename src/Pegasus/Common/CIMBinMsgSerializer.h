@@ -257,6 +257,11 @@ private:
         CIMIndicationServiceDisabledRequestMessage* msg);
 
     PEGASUS_HIDDEN_LINKAGE
+    static void _putProvAgtGetScmoClassRequestMessage(
+        CIMBuffer& out,
+        ProvAgtGetScmoClassRequestMessage* msg);
+
+    PEGASUS_HIDDEN_LINKAGE
     static void _putGetInstanceResponseMessage(
         CIMBuffer& out,
         CIMGetInstanceResponseMessage* msg);
@@ -385,6 +390,12 @@ private:
     static void _putIndicationServiceDisabledResponseMessage(
         CIMBuffer& out,
         CIMIndicationServiceDisabledResponseMessage* msg);
+
+    PEGASUS_HIDDEN_LINKAGE
+    static void _putProvAgtGetScmoClassResponseMessage(
+        CIMBuffer& out,
+        ProvAgtGetScmoClassResponseMessage* msg);
+
 };
 
 PEGASUS_NAMESPACE_END

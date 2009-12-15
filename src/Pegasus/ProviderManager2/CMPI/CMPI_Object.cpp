@@ -53,6 +53,20 @@ CMPI_Object::CMPI_Object(CIMInstance* ci)
     ftab = CMPI_Instance_Ftab;
 }
 
+CMPI_Object::CMPI_Object(SCMOInstance* si, SCMOInstanceObjectType type)
+{
+    CMPI_ThreadContext::addObject(this);
+    hdl = (void*)si;
+    if (type == ObjectTypeInstance)
+    {
+        ftab = CMPI_Instance_Ftab;
+    }
+    else
+    {
+        ftab = CMPI_ObjectPath_Ftab;
+    }
+}
+
 CMPI_Object::CMPI_Object(CIMObjectPath* cop)
 {
     CMPI_ThreadContext::addObject(this);
@@ -85,7 +99,20 @@ CMPI_Object::CMPI_Object(const String& str)
 CMPI_Object::CMPI_Object(const char *str)
 {
     CMPI_ThreadContext::addObject(this);
-    hdl = (void*)strdup(str);
+    hdl = str ? (void*)strdup(str) : (void*)strdup("");
+    ftab = CMPI_String_Ftab;
+}
+
+CMPI_Object::CMPI_Object(const char *str, Uint32 len)
+{
+    CMPI_ThreadContext::addObject(this);
+    char * newStr = (char*)malloc(len+1);
+    if (0!=str)
+    {
+        memcpy(newStr, str, len);
+    }
+    newStr[len]='\0';
+    hdl = newStr;
     ftab = CMPI_String_Ftab;
 }
 
@@ -145,20 +172,16 @@ CMPI_Object::CMPI_Object(CMPI_OpEnumeration *dta)
     ftab = CMPI_OpEnumeration_Ftab;
 }
 
-CMPI_Object::~CMPI_Object()
-{
-}
-
 void CMPI_Object::unlinkAndDelete()
 {
     CMPI_ThreadContext::remObject(this);
     delete this;
-}
+};
 
 void CMPI_Object::unlink()
 {
     CMPI_ThreadContext::remObject(this);
-}
+};
 
 PEGASUS_NAMESPACE_END
 

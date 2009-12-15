@@ -79,6 +79,8 @@ private:
     friend class CIMInstance;
     friend class CIMClassRep;
     friend class CIMBuffer;
+    friend class SCMOInstance;
+    friend class SCMOClass;
 };
 
 PEGASUS_NAMESPACE_END

@@ -42,6 +42,7 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/ReadWriteSem.h>
+#include <Pegasus/Common/SCMOClassCache.h>
 
 #include <Pegasus/Repository/XmlStreamer.h>
 #include <Pegasus/Repository/BinaryStreamer.h>
@@ -1102,6 +1103,10 @@ void CIMRepository::deleteClass(
 
 #endif /* PEGASUS_USE_CLASS_CACHE */
 
+    // Remove the class from the SCMOClassCache.
+    SCMOClassCache* pSCMOCache = SCMOClassCache::getInstance();
+    pSCMOCache->removeSCMOClass(nameSpace,className);
+
     //
     // Delete the class. The NameSpaceManager::deleteClass() method throws
     // an exception if the class has subclasses.
@@ -1333,6 +1338,10 @@ void CIMRepository::_modifyClass(
     _rep->_classCache.clear();
 
 #endif /* PEGASUS_USE_CLASS_CACHE */
+
+    SCMOClassCache* pSCMOCache = SCMOClassCache::getInstance();
+    pSCMOCache->clear();
+
 
     Boolean isAssociation = cimClass.isAssociation();
     Array<ClassAssociation> classAssocEntries;

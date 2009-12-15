@@ -275,6 +275,7 @@ private:
 
     friend class ProviderStatus;
     friend class CMPIProvider;
+    friend class CMPI_BrokerHdl;
 
     Boolean unload_ok();
 };

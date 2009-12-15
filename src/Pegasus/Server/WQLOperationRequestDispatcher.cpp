@@ -45,7 +45,7 @@ void WQLOperationRequestDispatcher::applyQueryToEnumeration(
         (CIMEnumerateInstancesResponseMessage*) msg;
     WQLSelectStatement* qs = ((WQLQueryExpressionRep*)query)->_stmt;
 
-    Array<CIMInstance>& a = enr->getResponseData().getNamedInstances();
+    Array<CIMInstance>& a = enr->getResponseData().getInstances();
 
     for (int i = a.size() - 1; i >= 0; i--)
     {
@@ -127,8 +127,8 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
             CIMClass cimClass;
 
             Boolean clsRead=false;
-            Array<CIMInstance>& a = 
-                fromResponse->getResponseData().getNamedInstances();
+            Array<CIMInstance>& a =
+                fromResponse->getResponseData().getInstances();
             for (Uint32 j = 0, m = a.size();
                  j < m; j++)
             {
@@ -150,7 +150,7 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
                 op.setHost(System::getHostName());
                 co.setPath(op);
                 if (manyResponses)
-                    toResponse->getResponseData().getCIMObjects().append(co);
+                    toResponse->getResponseData().appendObject(co);
             }
         }
         else
@@ -159,8 +159,8 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
                 (CIMExecQueryResponseMessage*) response;
             CIMClass cimClass;
             Boolean clsRead=false;
-            Array<CIMObject>& cimObjects = 
-                fromResponse->getResponseData().getCIMObjects();
+            Array<CIMObject>& cimObjects =
+                fromResponse->getResponseData().getObjects();
             for (Uint32 j = 0, m = cimObjects.size(); j < m; j++)
             {
                 CIMObject co=cimObjects[j];
@@ -182,7 +182,7 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
                 op.setHost(System::getHostName());
                 co.setPath(op);
                 if (manyResponses)
-                    toResponse->getResponseData().getCIMObjects().append(co);
+                    toResponse->getResponseData().appendObject(co);
             }
         }
 
@@ -377,7 +377,7 @@ void WQLOperationRequestDispatcher::handleQueryRequest(
             try
             {
                 // Enumerate instances only for this class
-                response->getResponseData().setNamedInstances(
+                response->getResponseData().setInstances(
                     _repository->enumerateInstancesForClass(
                         request->nameSpace,
                         providerInfo.className));

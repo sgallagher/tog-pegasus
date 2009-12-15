@@ -32,16 +32,19 @@
 #include "CMPI_Version.h"
 
 #include "CMPI_Object.h"
+#include "CMPI_ThreadContext.h"
 #include "CMPI_Broker.h"
 #include "CMPI_Ftabs.h"
 #include "CMPI_String.h"
 #include "CMPI_SelectExp.h"
 #include "CMPI_Array.h"
 #include "CMPIMsgHandleManager.h"
+#include "CMPISCMOUtilities.h"
 
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMNameCast.h>
 #include <Pegasus/Common/CIMPropertyList.h>
+#include <Pegasus/Common/SCMO.h>
 #if defined (CMPI_VER_85)
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/LanguageParser.h>
@@ -272,55 +275,66 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_BrokerEnc:mbEncNewInstance()");
-        if (!eCop)
+        if (!eCop || !eCop->hdl)
         {
             PEG_TRACE_CSTRING(
                 TRC_CMPIPROVIDERINTERFACE,
                 Tracer::LEVEL1,
-                "Received Invalid Parameter in CMPI_BrokerEnc:mbEncToString");
-            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
-            PEG_METHOD_EXIT();
-            return NULL;
-        }
-        CIMObjectPath* cop = (CIMObjectPath*)eCop->hdl;
-        if (!cop)
-        {
-            PEG_TRACE_CSTRING(
-                TRC_CMPIPROVIDERINTERFACE,
-                Tracer::LEVEL1,
-                "Received Invalid handle in CMPI_BrokerEnc:mbEncToString");
+                "Received inv. parameter in CMPI_BrokerEnc:mbEncNewInstance");
             CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
             PEG_METHOD_EXIT();
             return NULL;
         }
 
-        CIMClass *cls = mbGetClass(mb,*cop);
-        CIMInstance *ci = NULL;
+        // A CMPIObjectPath is already represented through a SCMOInstance.
+        SCMOInstance* scmoOp = (SCMOInstance*)eCop->hdl;
+        SCMOInstance* newScmoInst;
 
-        if (cls)
+        if (scmoOp->isCompromised())
         {
-            const CMPIContext *ctx = CMPI_ThreadContext::getContext();
-            CMPIFlags flgs=ctx->ft->getEntry(
-                ctx,CMPIInvocationFlags,rc).value.uint32;
-            CIMInstance newInst = cls->buildInstance(
-                Boolean(flgs & CMPI_FLAG_IncludeQualifiers),
-                false,
-                CIMPropertyList());
+            Uint32 nsL;
+            const char* ns = scmoOp->getNameSpace_l(nsL);
+            Uint32 cnL;
+            const char* cn = scmoOp->getClassName_l(cnL);
+            SCMOClass* scmoClass = mbGetSCMOClass(ns,nsL,cn,cnL);
+            if (0 == scmoClass)
+            {
+                CMSetStatus(rc, CMPI_RC_ERR_NOT_FOUND);
+                PEG_METHOD_EXIT();
+                return NULL;
+            }
+            else
+            {
+                // Create a new clean objectPath ...
+                SCMOInstance scmoNewOp(*scmoClass);
 
-            ci = new CIMInstance(newInst);
+                // ... copy the key properties from the dirty one ...
+                CMPIrc cmpirc = CMPISCMOUtilities::copySCMOKeyProperties(
+                    scmoOp,     // source
+                    &scmoNewOp); // target
+                if (cmpirc != CMPI_RC_OK)
+                {
+                    PEG_TRACE_CSTRING(
+                        TRC_CMPIPROVIDERINTERFACE,
+                        Tracer::LEVEL1,
+                        "Failed to copy key bindings");
+                    CMSetStatus(rc, CMPI_RC_ERR_FAILED);
+                    PEG_METHOD_EXIT();
+                    return NULL;
+                }
+
+                // ... and finally use the new clean ObjectPath
+                newScmoInst = new SCMOInstance(scmoNewOp);
+            }
         }
         else
         {
-            CMSetStatus(rc, CMPI_RC_ERR_NOT_FOUND);
-            PEG_METHOD_EXIT();
-            return NULL;
+            newScmoInst = new SCMOInstance(scmoOp->clone());
         }
+        CMPIInstance* neInst = reinterpret_cast<CMPIInstance*>(
+            new CMPI_Object(newScmoInst, CMPI_Object::ObjectTypeInstance));
 
-        ci->setPath(*cop);
-        CMPIInstance* neInst =
-            reinterpret_cast<CMPIInstance*>(new CMPI_Object(ci));
         CMSetStatus(rc, CMPI_RC_OK);
-   //   CMPIString *str=mbEncToString(mb,neInst,NULL);
         PEG_METHOD_EXIT();
         return neInst;
     }
@@ -334,33 +348,46 @@ extern "C"
         PEG_METHOD_ENTER(
             TRC_CMPIPROVIDERINTERFACE,
             "CMPI_BrokerEnc:mbEncNewObjectPath()");
-        Array<CIMKeyBinding> keyBindings;
-        String host;
-        CIMName className;
-        if (cls)
+
+        SCMOInstance* scmoInst;
+
+        SCMOClass* scmoClass =
+            mbGetSCMOClass(
+                ns,
+                ns ? strlen(ns) : 0,
+                cls,
+                cls ? strlen(cls) : 0);
+        if (0 == scmoClass)
         {
-            className=Name(cls);
+            // Though it is not desirable to let providers create objectPaths
+            // for non-existant classes, this has to be allowed for backwards
+            // compatibility with previous CMPI implementation :-(
+            // So we simply create a 'dirty' SCMOClass object here.
+            if (!ns)
+            {
+                ns="";
+            }
+            if (!cls)
+            {
+                cls="";
+            }
+            SCMOClass localDirtyClass(cls,ns);
+            scmoInst = new SCMOInstance(localDirtyClass);
+            scmoInst->markAsCompromised();
+
+            PEG_TRACE((
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Created invalid ObjectPath for non-existant class %s/%s",
+                ns,cls));
         }
         else
         {
-            className=Name("");
+            scmoInst = new SCMOInstance(*scmoClass);
         }
-        CIMNamespaceName nameSpace;
-        if (ns)
-        {
-            nameSpace =NameSpaceName(ns);
-        }
-        else
-        {
-            nameSpace=NameSpaceName("");
-        }
-        CIMObjectPath *cop = new CIMObjectPath(
-            host,
-            nameSpace,
-            className,
-            keyBindings);
+
         CMPIObjectPath *nePath = reinterpret_cast<CMPIObjectPath*>(
-            new CMPI_Object(cop));
+            new CMPI_Object(scmoInst, CMPI_Object::ObjectTypeObjectPath));
         CMSetStatus(rc, CMPI_RC_OK);
         PEG_METHOD_EXIT();
         return nePath;
@@ -418,7 +445,7 @@ extern "C"
         dta->value.uint32=count;
         for (unsigned int i=1; i<=count; i++)
         {
-            dta[i].type=type;
+            dta[i].type=(type&~CMPI_ARRAY);
             dta[i].state=CMPI_nullValue;
             dta[i].value.uint64=0;
         }
@@ -542,21 +569,33 @@ extern "C"
         if (obj->getFtab() == (void*)CMPI_Instance_Ftab ||
             obj->getFtab() == (void*)CMPI_InstanceOnStack_Ftab)
         {
-            CIMInstance *ci=(CIMInstance*)obj->getHdl();
-            str="Instance of "+ci->getClassName().getString()+" {\n";
-            for (int i=0,m=ci->getPropertyCount(); i<m; i++)
+            SCMOInstance *scmoInst=(SCMOInstance*)obj->getHdl();
+            CIMInstance ci;
+            SCMO_RC src=scmoInst->getCIMInstance(ci);
+            if (SCMO_OK==src)
             {
-                CIMConstProperty p = ci->getProperty(i);
-                str.append("  "+typeToString(p.getType())+
-                    " "+p.getName().getString()+
-                    " = "+p.getValue().toString()+";\n");
+                str="Instance of "+ci.getClassName().getString()+" {\n";
+                for (int i=0,m=ci.getPropertyCount(); i<m; i++)
+                {
+                    CIMConstProperty p = ci.getProperty(i);
+                    str.append("  "+typeToString(p.getType())+
+                        " "+p.getName().getString()+
+                        " = "+p.getValue().toString()+";\n");
+                }
+                str.append("};\n");
             }
-            str.append("};\n");
+            else
+            {
+                str.append("Failed to convert instance to string");
+            }
         }
         else if (obj->getFtab() == (void*)CMPI_ObjectPath_Ftab ||
             obj->getFtab() == (void*)CMPI_ObjectPathOnStack_Ftab)
         {
-            str = ((CIMObjectPath*)obj->getHdl())->toString();
+            SCMOInstance * scmoObj = (SCMOInstance*)obj->getHdl();
+            CIMObjectPath obj;
+            scmoObj->getCIMObjectPath(obj);
+            str = obj.toString();
         }
         else if (obj->getFtab()==(void*)CMPI_String_Ftab)
         {
@@ -624,39 +663,41 @@ extern "C"
             PEG_METHOD_EXIT();
             return 0;
         }
-        CIMObjectPath* cop = (CIMObjectPath*)eCp->hdl;
+        SCMOInstance* cop = (SCMOInstance*)eCp->hdl;
+        Uint32 nsL;
+        const char *ns = cop->getNameSpace_l(nsL);
+        Uint32 clsL;
+        const char *cls = cop->getClassName_l(clsL);
+        Uint32 typeL=strlen(type);
 
-        const CIMName tcn(type);
-
-        if (tcn == cop->getClassName())
+        if (System::strncasecmp(type, typeL, cls, clsL))
         {
             PEG_METHOD_EXIT();
             return 1;
         }
 
-        CIMClass *cc = mbGetClass(mb,*cop);
+        SCMOClass *cc = mbGetSCMOClass(ns, nsL, cls, clsL);
         if (cc == NULL)
         {
             PEG_METHOD_EXIT();
             return 0;
         }
-        CIMObjectPath  scp(*cop);
-        scp.setClassName(cc->getSuperClassName());
+        cls = cc->getSuperClassName_l(clsL);
 
-        for (; !scp.getClassName().isNull(); )
+        while(NULL!=cls)
         {
-            cc = mbGetClass(mb,scp);
+            cc = mbGetSCMOClass(ns, nsL, cls, clsL);
             if (cc == NULL)
             {
                 PEG_METHOD_EXIT();
                 return 0;
             }
-            if (cc->getClassName() == tcn)
+            if (System::strncasecmp(cls,clsL,type,typeL))
             {
                 PEG_METHOD_EXIT();
                 return 1;
             }
-            scp.setClassName(cc->getSuperClassName());
+            cls = cc->getSuperClassName_l(clsL);
         };
         PEG_METHOD_EXIT();
         return 0;
@@ -1104,7 +1145,7 @@ extern "C"
         {
             parms = handleMgr->releaseHandle(msgFileHandle);
         }
-        catch( IndexOutOfBoundsException& e )
+        catch( IndexOutOfBoundsException&)
         {
             PEG_METHOD_EXIT();
             CMReturn(CMPI_RC_ERR_INVALID_HANDLE);
@@ -1139,7 +1180,7 @@ extern "C"
         {
             parms = handleMgr->getDataForHandle(msgFileHandle);
         }
-        catch( IndexOutOfBoundsException& e )
+        catch( IndexOutOfBoundsException&)
         {
             if (rc)
             {
@@ -1414,7 +1455,7 @@ extern "C"
             }
 
             // Create the CIMOMHandle wrapper.
-            CIMOMHandle *cm_handle = CM_CIMOM (mb);
+            CIMOMHandle *cm_handle = (CIMOMHandle*)mb->hdl;
             CIMOMHandleQueryContext qcontext(
                 CIMNamespaceName(CMGetCharsPtr(data.value.string,NULL)),
                 *cm_handle);
@@ -1541,7 +1582,7 @@ extern "C"
             }
 
             // Create the CIMOMHandle wrapper.
-            CIMOMHandle *cm_handle = CM_CIMOM (mb);
+            CIMOMHandle *cm_handle = (CIMOMHandle*)mb->hdl;
             CIMOMHandleQueryContext qcontext(
                 CIMNamespaceName(CMGetCharsPtr(data.value.string, NULL)),
                 *cm_handle);
@@ -1698,7 +1739,7 @@ extern "C"
             PEG_METHOD_EXIT();
             return NULL;
         }
-        CIMObjectPath *op = (CIMObjectPath*)cop->hdl;
+        SCMOInstance *op = (SCMOInstance*)cop->hdl;
 
         if (!op)
         {
@@ -1711,17 +1752,26 @@ extern "C"
             PEG_METHOD_EXIT();
             return NULL;
         }
-        CIMClass *cls = mbGetClass(mb,*op);
-        Array<String> keys;
-        for (int i=0,m=cls->getPropertyCount(); i<m; i++)
+        Uint32 nsL;
+        const char* ns = op->getNamespace(nsL);
+        Uint32 cnL;
+        const char* cn = op->getClassName_L(cnL);
+        SCMOClass *cls = mbGetSCMOClass(ns,nsL,cn,cnL);
+        if (0==cls)
         {
-            CIMConstProperty p = cls->getProperty(i);
-            Uint32 k = p.findQualifier("key");
-            if (k != PEG_NOT_FOUND)
-            {
-                keys.append(p.getName().getString());
-            }
+            PEG_TRACE_CSTRING(
+                TRC_CMPIPROVIDERINTERFACE,
+                Tracer::LEVEL1,
+                "Invalid Parameter cop (class not found) in \
+                CMPI_BrokerEnc:mbEncGetKeyList");
+            CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+            PEG_METHOD_EXIT();
+            return NULL;
         }
+
+        //TODO: Eventually implement getKeyNamesAsString using native C-strings
+        Array<String> keys;
+        cls->getKeyNamesAsString(keys);
         CMPIArray *ar = mb->eft->newArray(mb, keys.size(), CMPI_string, NULL);
         for (Uint32 i=0,m=keys.size(); i<m; i++)
         {

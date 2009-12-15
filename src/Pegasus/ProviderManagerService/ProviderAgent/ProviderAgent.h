@@ -33,10 +33,12 @@
 #define Pegasus_ProviderAgent_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Semaphore.h>
 #include <Pegasus/Common/AnonymousPipe.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/ThreadPool.h>
 #include <Pegasus/Common/Signal.h>
+#include <Pegasus/Common/SCMOClassCache.h>
 #include <Pegasus/ProviderManagerService/BasicProviderManagerRouter.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -205,6 +207,24 @@ private:
         A thread pool used for asynchronous processing of provider operations.
      */
     ThreadPool _threadPool;
+
+
+    /**
+     * Call back for the SCMOClassCache.
+     */
+    static SCMOClass _scmoClassCache_GetClass(
+        const CIMNamespaceName& nameSpace,
+        const CIMName& className);
+
+    void _processGetSCMOClassResponse(
+        ProvAgtGetScmoClassResponseMessage* response);
+
+    /**
+     * Condition variable and transger pointer for the provider agend to
+     * the SCMOClassCache.
+     **/
+    static Semaphore  _scmoClassDelivered;
+    static SCMOClass* _transferSCMOClass;
 
     /**
        Indicates if the provider agent has been successful initialised already.

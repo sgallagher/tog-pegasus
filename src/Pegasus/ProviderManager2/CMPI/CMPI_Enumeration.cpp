@@ -49,7 +49,7 @@ extern "C"
             CMPI_InstEnumeration* ie = (CMPI_InstEnumeration*)eObj->hdl;
             if (ie)
             {
-                Array<CIMInstance>* enm = (Array<CIMInstance>*)ie->hdl;
+                Array<SCMOInstance>* enm = (Array<SCMOInstance>*)ie->hdl;
                 if (enm)
                 {
                     delete enm;
@@ -63,7 +63,7 @@ extern "C"
             CMPI_ObjEnumeration* ie = (CMPI_ObjEnumeration*)eObj->hdl;
             if (ie)
             {
-                Array<CIMObject>* enm = (Array<CIMObject>*)ie->hdl;
+                Array<SCMOInstance>* enm = (Array<SCMOInstance>*)ie->hdl;
                 if (enm)
                 {
                     delete enm;
@@ -77,7 +77,7 @@ extern "C"
             CMPI_OpEnumeration* ie = (CMPI_OpEnumeration*)eObj->hdl;
             if (ie)
             {
-                Array<CIMObjectPath>* enm = (Array<CIMObjectPath>*)ie->hdl;
+                Array<SCMOInstance>* enm = (Array<SCMOInstance>*)ie->hdl;
                 if (enm)
                 {
                     delete enm;
@@ -103,9 +103,9 @@ extern "C"
         {
             if ((void*)eEnum->ft == (void*)CMPI_InstEnumeration_Ftab)
             {
-                Array<CIMInstance>* enm = (Array<CIMInstance>*)eEnum->hdl;
+                Array<SCMOInstance>* enm = (Array<SCMOInstance>*)eEnum->hdl;
                 CMPI_Object *obj = new CMPI_Object(
-                    new CMPI_InstEnumeration(new Array<CIMInstance>(*enm)));
+                    new CMPI_InstEnumeration(new Array<SCMOInstance>(*enm)));
                 obj->unlink(); // remove from current thread context.
                 CMPIEnumeration* cmpiEnum =
                     reinterpret_cast<CMPIEnumeration*>(obj);
@@ -114,9 +114,9 @@ extern "C"
             }
             else if ((void*)eEnum->ft == (void*)CMPI_ObjEnumeration_Ftab)
             {
-                Array<CIMObject>* enm = (Array<CIMObject>*)eEnum->hdl;
+                Array<SCMOInstance>* enm = (Array<SCMOInstance>*)eEnum->hdl;
                 CMPI_Object *obj = new CMPI_Object(
-                    new CMPI_ObjEnumeration(new Array<CIMObject>(*enm)));
+                    new CMPI_ObjEnumeration(new Array<SCMOInstance>(*enm)));
                 obj->unlink(); // remove from current thread context.
                 CMPIEnumeration* cmpiEnum =
                     reinterpret_cast<CMPIEnumeration*>(obj);
@@ -125,9 +125,9 @@ extern "C"
             }
             else if ((void*)eEnum->ft == (void*)CMPI_OpEnumeration_Ftab)
             {
-                Array<CIMObjectPath>* enm = (Array<CIMObjectPath>*)eEnum->hdl;
+                Array<SCMOInstance>* enm = (Array<SCMOInstance>*)eEnum->hdl;
                 CMPI_Object *obj = new CMPI_Object(
-                    new CMPI_OpEnumeration(new Array<CIMObjectPath>(*enm)));
+                    new CMPI_OpEnumeration(new Array<SCMOInstance>(*enm)));
                 obj->unlink(); // remove from current thread context.
                 CMPIEnumeration* cmpiEnum =
                     reinterpret_cast<CMPIEnumeration*>(obj);
@@ -160,11 +160,13 @@ extern "C"
         {
             CMPI_ObjEnumeration* ie = (CMPI_ObjEnumeration*)eEnum;
             data.type = CMPI_instance;
-            Array<CIMInstance>* ia = (Array<CIMInstance>*)ie->hdl;
+            Array<SCMOInstance>* ia = (Array<SCMOInstance>*)ie->hdl;
             if (ie->cursor<ie->max)
             {
                 data.value.inst = reinterpret_cast<CMPIInstance*>
-                    (new CMPI_Object(new CIMInstance((*ia)[ie->cursor++])));
+                    (new CMPI_Object(
+                        new SCMOInstance((*ia)[ie->cursor++]),
+                        CMPI_Object::ObjectTypeInstance));
                 CMSetStatus(rc, CMPI_RC_OK);
             }
             else
@@ -176,11 +178,13 @@ extern "C"
         {
             CMPI_InstEnumeration* ie = (CMPI_InstEnumeration*)eEnum;
             data.type = CMPI_instance;
-            Array<CIMInstance>* ia = (Array<CIMInstance>*)ie->hdl;
+            Array<SCMOInstance>* ia = (Array<SCMOInstance>*)ie->hdl;
             if (ie->cursor<ie->max)
             {
                 data.value.inst = reinterpret_cast<CMPIInstance*>
-                    (new CMPI_Object(new CIMInstance((*ia)[ie->cursor++])));
+                    (new CMPI_Object(
+                        new SCMOInstance((*ia)[ie->cursor++]),
+                        CMPI_Object::ObjectTypeInstance));
                 CMSetStatus(rc, CMPI_RC_OK);
             }
             else
@@ -192,11 +196,13 @@ extern "C"
         {
             CMPI_OpEnumeration* oe = (CMPI_OpEnumeration*)eEnum;
             data.type = CMPI_ref;
-            Array<CIMObjectPath>* opa = (Array<CIMObjectPath>*)oe->hdl;
+            Array<SCMOInstance>* opa = (Array<SCMOInstance>*)oe->hdl;
             if (oe->cursor<oe->max)
             {
                 data.value.ref = reinterpret_cast<CMPIObjectPath*>
-                    (new CMPI_Object(new CIMObjectPath((*opa)[oe->cursor++])));
+                    (new CMPI_Object(
+                        new SCMOInstance((*opa)[oe->cursor++]),
+                        CMPI_Object::ObjectTypeObjectPath));
                 CMSetStatus(rc, CMPI_RC_OK);
             }
             else
@@ -287,36 +293,38 @@ extern "C"
         if ((void*)eEnum->ft == (void*)CMPI_ObjEnumeration_Ftab ||
             (void*)eEnum->ft == (void*)CMPI_InstEnumeration_Ftab)
         {
-            Array<CIMInstance>* ia;
+            Array<SCMOInstance>* ia;
             if ((void*)eEnum->ft == (void*)CMPI_ObjEnumeration_Ftab)
             {
                 CMPI_ObjEnumeration* ie = (CMPI_ObjEnumeration*)eEnum;
-                ia = (Array<CIMInstance>*)ie->hdl;
+                ia = (Array<SCMOInstance>*)ie->hdl;
             }
             else
             {
                 CMPI_InstEnumeration* ie = (CMPI_InstEnumeration*)eEnum;
-                ia = (Array<CIMInstance>*)ie->hdl;
+                ia = (Array<SCMOInstance>*)ie->hdl;
             }
             size = ia->size();
             nar = mbEncNewArray(NULL,size,CMPI_instance,NULL);
             for (Uint32 i=0; i<size; i++)
             {
-                CIMInstance &inst = (*ia)[i];
-                obj = new CMPI_Object(new CIMInstance(inst));
+                SCMOInstance &inst = (*ia)[i];
+                obj = new CMPI_Object(new SCMOInstance(inst),
+                                      CMPI_Object::ObjectTypeInstance);
                 arraySetElementAt(nar,i,(CMPIValue*)&obj,CMPI_instance);
             }
         }
         else
         {
             CMPI_OpEnumeration* oe = (CMPI_OpEnumeration*)eEnum;
-            Array<CIMObjectPath>* opa = (Array<CIMObjectPath>*)oe->hdl;
+            Array<SCMOInstance>* opa = (Array<SCMOInstance>*)oe->hdl;
             size = opa->size();
             nar = mbEncNewArray(NULL,size,CMPI_ref,NULL);
             for (Uint32 i=0; i<size; i++)
             {
-                CIMObjectPath &op = (*opa)[i];
-                obj = new CMPI_Object(new CIMObjectPath(op));
+                SCMOInstance &op = (*opa)[i];
+                obj = new CMPI_Object(new SCMOInstance(op),
+                                      CMPI_Object::ObjectTypeObjectPath);
                 arraySetElementAt(nar,i,(CMPIValue*)&obj,CMPI_ref);
             }
         }
@@ -359,7 +367,7 @@ CMPIEnumerationFT *CMPI_ObjEnumeration_Ftab = &objEnumeration_FT;
 CMPIEnumerationFT *CMPI_InstEnumeration_Ftab = &instEnumeration_FT;
 CMPIEnumerationFT *CMPI_OpEnumeration_Ftab = &opEnumeration_FT;
 
-CMPI_ObjEnumeration::CMPI_ObjEnumeration(Array<CIMObject>* oa)
+CMPI_ObjEnumeration::CMPI_ObjEnumeration(Array<SCMOInstance>* oa)
 {
     PEG_METHOD_ENTER(
         TRC_CMPIPROVIDERINTERFACE,
@@ -370,7 +378,7 @@ CMPI_ObjEnumeration::CMPI_ObjEnumeration(Array<CIMObject>* oa)
     ft = CMPI_ObjEnumeration_Ftab;
     PEG_METHOD_EXIT();
 }
-CMPI_InstEnumeration::CMPI_InstEnumeration(Array<CIMInstance>* ia)
+CMPI_InstEnumeration::CMPI_InstEnumeration(Array<SCMOInstance>* ia)
 {
     PEG_METHOD_ENTER(
         TRC_CMPIPROVIDERINTERFACE,
@@ -382,7 +390,7 @@ CMPI_InstEnumeration::CMPI_InstEnumeration(Array<CIMInstance>* ia)
     PEG_METHOD_EXIT();
 }
 
-CMPI_OpEnumeration::CMPI_OpEnumeration(Array<CIMObjectPath>* opa)
+CMPI_OpEnumeration::CMPI_OpEnumeration(Array<SCMOInstance>* opa)
 {
     PEG_METHOD_ENTER(
         TRC_CMPIPROVIDERINTERFACE,

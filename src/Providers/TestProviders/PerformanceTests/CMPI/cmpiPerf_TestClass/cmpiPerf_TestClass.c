@@ -35,7 +35,6 @@
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include "cmpiPerf_TestClass.h"
 
-
 /* ---------------------------------------------------------------------------*/
 /*                            Factory functions                               */
 /* ---------------------------------------------------------------------------*/
@@ -90,8 +89,12 @@ CMPIInstance * _makeInst_TestClass(
     CMPIArray       *array  = NULL;
     char     **keys      = NULL;
     int              keyCount  = 0;
-    opstatus.uint16 = 0; /* Unknown */
-    status.uint16 = 2;  /* Enabled */
+    CMPIDateTime* my_dt;
+
+    /* Unknown */
+    opstatus.uint16 = 0;
+    /* Enabled */
+    status.uint16 = 2;
 
 //
 // Initialize Name
@@ -157,6 +160,13 @@ CMPIInstance * _makeInst_TestClass(
 //
 // Properties of CIM_ManagedSystemElement
 //
+     my_dt = CMNewDateTimeFromChars(
+         _broker,
+         "20090102030405.000000+120",
+         rc);
+
+     CMSetProperty( ci, "InstallDate", (CMPIValue*)&(my_dt), CMPI_dateTime);
+
 // TBD: InstallDate
     array = CMNewArray(_broker,1,CMPI_uint16,rc);
     CMSetArrayElementAt(array,0,&opstatus,CMPI_uint16);
@@ -184,6 +194,7 @@ CMPIInstance * _makeInst_TestClass(
     CMSetProperty(ci,"theString7","Test Data Number Seven",CMPI_chars);
     CMSetProperty(ci,"theString8","Test Data Number Eight",CMPI_chars);
     CMSetProperty(ci,"theString9","Test Data Number Nine",CMPI_chars);
+
 
     exit:
     free(theName);

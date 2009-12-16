@@ -42,7 +42,7 @@ include $(ROOT)/mak/config.mak
 
 GROFFOPTIONS=man
 # old was man
-DOCUMENT=CLI
+DOCUMENT=cimcli
 SOURCE=$(DOCUMENT).nroff
 
 html:

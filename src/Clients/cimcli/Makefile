@@ -36,13 +36,21 @@ LIBRARIES = \
     peggeneral \
     pegcommon
 
-LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+ LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 PROGRAM = cimcli
 
-SOURCES = CIMCLICommand.cpp CIMCLIClient.cpp
+SOURCES = CIMCLICommand.cpp \
+	  CIMCLIClient.cpp  \
+	  ObjectBuilder.cpp \
+	  CIMCLIOutput.cpp \
+	  CIMCLIHelp.cpp \
+	  CIMCLIOptions.cpp \
+	  CIMCLICommon.cpp \
+	  CIMCLIOptionStruct.cpp \
+	  CIMCLIOperations.cpp
 
 include $(ROOT)/mak/program.mak
 

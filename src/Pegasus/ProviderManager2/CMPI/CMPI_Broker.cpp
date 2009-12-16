@@ -227,19 +227,16 @@ extern "C"
                 CM_ClassOrigin(flgs),
                 props);
 
+            // When running out of process the returned instances don't contain
+            // a namespace.
+            // Add the namespace from the input parameters where neccessary
+            resData.completeNamespace(SCMO_ObjectPath(cop));
+
             SCMOInstance& scmoOrgInst = resData.getSCMO()[0];
 
             SCMOInstance* scmoInst = new SCMOInstance(scmoOrgInst);
 
             // Rebuild the objectPath
-            if (0==scmoInst->getNameSpace())
-            {
-                scmoInst->setNameSpace(scmoObjPath->getNameSpace());
-            }
-            if (0==scmoInst->getClassName())
-            {
-                scmoInst->setClassName(scmoObjPath->getClassName());
-            }
             scmoInst->buildKeyBindingsFromProperties();
 
             CMPIInstance* cmpiInst = reinterpret_cast<CMPIInstance*>(
@@ -375,6 +372,10 @@ extern "C"
                 String(lang),
                 String(query));
 
+            // When running out of process the returned instances don't contain
+            // a namespace.
+            // Add the namespace from the input parameters where neccessary
+            resData.completeNamespace(SCMO_ObjectPath(cop));
 
             Array<SCMOInstance>* aObj =
                 new Array<SCMOInstance>(resData.getSCMO());

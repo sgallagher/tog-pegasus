@@ -262,7 +262,7 @@ void SCMOStreamer::_dumpTables()
     fprintf(stderr,"INSTANCES:\n");
     for (Uint32 x=0; x < _clsResolverTable.size(); x++)
     {
-        fprintf(stderr,"\t[%2d] I = %p - cls = %2d\n",
+        fprintf(stderr,"\t[%2d] I = %llx - cls = %2d\n",
                 x,
                 _clsResolverTable[x].scmbptr,
                 _clsResolverTable[x].index);
@@ -271,7 +271,7 @@ void SCMOStreamer::_dumpTables()
     fprintf(stderr,"INSTANCE REFERENCES:\n");
     for (Uint32 x=0; x < _instResolverTable.size(); x++)
     {
-        fprintf(stderr,"\t[%2d] R = %p - I = %2d\n",
+        fprintf(stderr,"\t[%2d] R = %llx - I = %2d\n",
                 x,
                 _instResolverTable[x].scmbptr,
                 _instResolverTable[x].index);

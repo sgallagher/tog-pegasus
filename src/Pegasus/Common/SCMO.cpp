@@ -612,9 +612,6 @@ SCMO_RC SCMOClass::_getProperyNodeIndex(Uint32& node, const char* name) const
 
     } while ( true );
 
-    // this should never be reached
-    return SCMO_NOT_FOUND;
-
 }
 
 void SCMOClass::_setClassProperties(PropertySet& theCIMProperties)

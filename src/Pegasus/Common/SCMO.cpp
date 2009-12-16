@@ -6726,13 +6726,13 @@ Uint32 _utf8ICUncasecmp(
  *            e.g. &cls.mem
  * @return The relaive index of the free memory slot.
  */
-
 Uint64 _getFreeSpace(
     SCMBDataPtr& ptr,
     Uint32 size,
     SCMBMgmt_Header** pmem)
 {
     Uint64 oldSize, start;
+    Uint64 alignedStart, reqAlignSize;
 
     if (size == 0)
     {
@@ -6743,10 +6743,18 @@ Uint64 _getFreeSpace(
 
     // The SCMBDataPtr has to be set before any reallocation.
     start = (*pmem)->startOfFreeSpace;
-    ptr.start = start;
-    ptr.size = size;
 
-    while ((*pmem)->freeBytes < size)
+    // Need to align the start of freespace to 8 byte
+    // boundaries to avoid alignment issues on some architectures
+    // Round up to nearest multiple of 8
+    alignedStart = (start + 7) & ~7;
+    // due to the alignment, a little more room is needed in the SCMB
+    reqAlignSize = (size + alignedStart - start);
+
+    ptr.start = alignedStart;
+    ptr.size = size;
+    // add 8 bytes of size for later alignment on the next pointer
+    while ((*pmem)->freeBytes < reqAlignSize)
     {
         // save old size of buffer
         oldSize = (*pmem)->totalSize;
@@ -6764,13 +6772,14 @@ Uint64 _getFreeSpace(
         (*pmem)->totalSize+=oldSize;
     }
 
-    (*pmem)->freeBytes -= size;
-    (*pmem)->startOfFreeSpace += size;
+    (*pmem)->freeBytes -= reqAlignSize;
+    (*pmem)->startOfFreeSpace = alignedStart + size;
 
-    // Init memory to 0.
-    memset(&((char*)(*pmem))[start],0,(size_t)size);
+    // Init memory from unaligned start up to the size required with alignment
+    // to zero.
+    memset(&((char*)(*pmem))[start],0,(size_t)reqAlignSize);
 
-    return start;
+    return alignedStart;
 }
 
 void _setString(

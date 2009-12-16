@@ -83,17 +83,11 @@ PEGASUS_USING_STD;
  */
 #define NULLSTR(x) ((x) == 0 ? "" : (x))
 
-#define NEWCIMSTR(ptr,base) \
-      ((ptr).size == 0 ?  \
-      (String()) :           \
-      (String(&(base)[(ptr).start],((ptr).size)-1)))
-
 PEGASUS_NAMESPACE_BEGIN
 
 #define PEGASUS_ARRAY_T SCMOInstance
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
-
 
 const StrLit SCMOClass::_qualifierNameStrLit[72] =
 {
@@ -177,6 +171,18 @@ const StrLit SCMOClass::_qualifierNameStrLit[72] =
 /*****************************************************************************
  * Internal inline functions.
  *****************************************************************************/
+
+inline String _newCimString(const SCMBDataPtr & ptr, const char * base)
+{
+    if (ptr.size > 0)
+    {
+        return String(&(base[ptr.start]),ptr.size-1);
+    }
+    else
+    {
+        return String();
+    }
+}
 
 inline void _deleteArrayExtReference(
     SCMBDataPtr& theArray,
@@ -342,12 +348,12 @@ const char* SCMOClass::getSuperClassName_l(Uint32 & length) const
 void  SCMOClass::getCIMClass(CIMClass& cimClass) const
 {
     CIMClass newCimClass(
-        CIMNameCast(NEWCIMSTR(cls.hdr->className,cls.base)),
-        CIMNameCast(NEWCIMSTR(cls.hdr->superClassName,cls.base)));
+        CIMNameCast(_newCimString(cls.hdr->className,cls.base)),
+        CIMNameCast(_newCimString(cls.hdr->superClassName,cls.base)));
 
     // set the name space
     newCimClass._rep->_reference._rep->_nameSpace=
-        CIMNamespaceNameCast(NEWCIMSTR(cls.hdr->nameSpace,cls.base));
+        CIMNamespaceNameCast(_newCimString(cls.hdr->nameSpace,cls.base));
 
     // Add class qualifier if exist
     if (0 != cls.hdr->numberOfQualifiers)
@@ -403,21 +409,23 @@ CIMProperty SCMOClass::_getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const
     if (0 != clsProp.theProperty.originClassName.start)
     {
         retCimProperty = CIMProperty(
-            CIMNameCast(NEWCIMSTR(clsProp.theProperty.name,cls.base)),
+            CIMNameCast(_newCimString(clsProp.theProperty.name,cls.base)),
             theCimValue,
             theCimValue.getArraySize(),
-            CIMNameCast(NEWCIMSTR(clsProp.theProperty.refClassName,cls.base)),
-            CIMNameCast(NEWCIMSTR(
-                clsProp.theProperty.originClassName,cls.base)),
+            CIMNameCast(
+                _newCimString(clsProp.theProperty.refClassName,cls.base)),
+            CIMNameCast(
+                _newCimString(clsProp.theProperty.originClassName,cls.base)),
             clsProp.theProperty.flags.propagated);
     }
     else
     {
          retCimProperty = CIMProperty(
-            CIMNameCast(NEWCIMSTR(clsProp.theProperty.name,cls.base)),
+            CIMNameCast(_newCimString(clsProp.theProperty.name,cls.base)),
             theCimValue,
             theCimValue.getArraySize(),
-            CIMNameCast(NEWCIMSTR(clsProp.theProperty.refClassName,cls.base)),
+            CIMNameCast(
+                _newCimString(clsProp.theProperty.refClassName,cls.base)),
             CIMName(),
             clsProp.theProperty.flags.propagated);
     }
@@ -459,7 +467,7 @@ void SCMOClass::_getCIMQualifierFromSCMBQualifier(
 
     if (scmbQualifier.name == QUALNAME_USERDEFINED)
     {
-        theCimQualiName = NEWCIMSTR(scmbQualifier.userDefName,base);
+        theCimQualiName = _newCimString(scmbQualifier.userDefName,base);
     }
     else
     {
@@ -485,7 +493,7 @@ void SCMOClass::getKeyNamesAsString(Array<String>& keyNames) const
     for (Uint32 i = 0, k = cls.hdr->keyBindingSet.number; i < k; i++)
     {
         // Append the key property name.
-        keyNames.append(NEWCIMSTR(nodeArray[i].name,cls.base));
+        keyNames.append(_newCimString(nodeArray[i].name,cls.base));
     }
 }
 
@@ -1634,7 +1642,7 @@ void SCMOInstance::getCIMObjectPath(CIMObjectPath& cimObj) const
                 inst.base);
             keys.append(
                 CIMKeyBinding(
-                    CIMNameCast(NEWCIMSTR(scmoClassArray[i].name,clsbase)),
+                    CIMNameCast(_newCimString(scmoClassArray[i].name,clsbase)),
                     theKeyBindingValue
                     ));
         }
@@ -1663,7 +1671,7 @@ void SCMOInstance::getCIMObjectPath(CIMObjectPath& cimObj) const
                 keys.append(
                     CIMKeyBinding(
                         CIMNameCast(
-                            NEWCIMSTR(theUserDefKBElement->name,inst.base)),
+                            _newCimString(theUserDefKBElement->name,inst.base)),
                     theKeyBindingValue));
             }
             theUserDefKBElement =
@@ -1672,14 +1680,14 @@ void SCMOInstance::getCIMObjectPath(CIMObjectPath& cimObj) const
         } // for all user def. key bindings.
     }
 
-    String host = NEWCIMSTR(inst.hdr->hostName,inst.base);
+    String host = _newCimString(inst.hdr->hostName,inst.base);
 
     // Use name space and class name of the instance
     CIMNamespaceName nameSpace =
-        CIMNamespaceNameCast(NEWCIMSTR(inst.hdr->instNameSpace,inst.base));
+        CIMNamespaceNameCast(_newCimString(inst.hdr->instNameSpace,inst.base));
 
     CIMName className =
-        CIMNameCast(NEWCIMSTR(inst.hdr->instClassName,inst.base));
+        CIMNameCast(_newCimString(inst.hdr->instClassName,inst.base));
 
     cimObj.set(host,nameSpace,className,keys);
 }
@@ -1718,20 +1726,23 @@ CIMProperty SCMOInstance::_getCIMPropertyAtNodeIndex(Uint32 nodeIdx) const
     if (inst.hdr->flags.includeClassOrigin)
     {
         retProperty = CIMProperty(
-            CIMNameCast(NEWCIMSTR(clsProp.theProperty.name,clsbase)),
+            CIMNameCast(_newCimString(clsProp.theProperty.name,clsbase)),
             theValue,
             theValue.getArraySize(),
-            CIMNameCast(NEWCIMSTR(clsProp.theProperty.refClassName,clsbase)),
-            CIMNameCast(NEWCIMSTR(clsProp.theProperty.originClassName,clsbase)),
+            CIMNameCast(
+                _newCimString(clsProp.theProperty.refClassName,clsbase)),
+            CIMNameCast(
+                _newCimString(clsProp.theProperty.originClassName,clsbase)),
             clsProp.theProperty.flags.propagated);
     }
     else
     {
          retProperty = CIMProperty(
-            CIMNameCast(NEWCIMSTR(clsProp.theProperty.name,clsbase)),
+            CIMNameCast(_newCimString(clsProp.theProperty.name,clsbase)),
             theValue,
             theValue.getArraySize(),
-            CIMNameCast(NEWCIMSTR(clsProp.theProperty.refClassName,clsbase)),
+            CIMNameCast(
+                _newCimString(clsProp.theProperty.refClassName,clsbase)),
             CIMName(),
             clsProp.theProperty.flags.propagated);
     }
@@ -2010,13 +2021,13 @@ void SCMOInstance::_getCIMValueFromSCMBUnion(
 
                 for (Uint32 i = 0, k = arraySize; i < k ; i++)
                 {
-                    x.append(NEWCIMSTR(pscmbArrayUn[i].stringValue,base));
+                    x.append(_newCimString(pscmbArrayUn[i].stringValue,base));
                 }
                 cimV.set(x);
             }
             else
             {
-                cimV.set(NEWCIMSTR(scmbUn.stringValue,base));
+                cimV.set(_newCimString(scmbUn.stringValue,base));
             }
             break;
         }

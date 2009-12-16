@@ -17,57 +17,57 @@ uuid:00000000-0000-0000-0005-000000000001
 <SOAP-ENV:Body>
 <wsen:PullResponse>
 <wsen:Items>
-<class:WsmDerived xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmDerived">
-<class:keyProperty>
+<p:WsmDerived xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmDerived">
+<p:keyProperty>
 key6
-</class:keyProperty>
-<class:prop1>
+</p:keyProperty>
+<p:prop1>
 prop1 value6
-</class:prop1>
-<class:prop2>
+</p:prop1>
+<p:prop2>
 prop2 value6
-</class:prop2>
-<class:prop3>
+</p:prop2>
+<p:prop3>
 prop3 value6
-</class:prop3>
-<class:prop4>
+</p:prop3>
+<p:prop4>
 prop4 value6
-</class:prop4>
-</class:WsmDerived>
-<class:WsmDerived xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmDerived">
-<class:keyProperty>
+</p:prop4>
+</p:WsmDerived>
+<p:WsmDerived xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmDerived">
+<p:keyProperty>
 key7
-</class:keyProperty>
-<class:prop1>
+</p:keyProperty>
+<p:prop1>
 prop1 value7
-</class:prop1>
-<class:prop2>
+</p:prop1>
+<p:prop2>
 prop2 value7
-</class:prop2>
-<class:prop3>
+</p:prop2>
+<p:prop3>
 prop3 value7
-</class:prop3>
-<class:prop4>
+</p:prop3>
+<p:prop4>
 prop4 value7
-</class:prop4>
-</class:WsmDerived>
-<class:WsmDerived xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmDerived">
-<class:keyProperty>
+</p:prop4>
+</p:WsmDerived>
+<p:WsmDerived xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmDerived">
+<p:keyProperty>
 key8
-</class:keyProperty>
-<class:prop1>
+</p:keyProperty>
+<p:prop1>
 prop1 value8
-</class:prop1>
-<class:prop2>
+</p:prop1>
+<p:prop2>
 prop2 value8
-</class:prop2>
-<class:prop3>
+</p:prop2>
+<p:prop3>
 prop3 value8
-</class:prop3>
-<class:prop4>
+</p:prop3>
+<p:prop4>
 prop4 value8
-</class:prop4>
-</class:WsmDerived>
+</p:prop4>
+</p:WsmDerived>
 </wsen:Items>
 <wsen:EndOfSequence />
 </wsen:PullResponse>

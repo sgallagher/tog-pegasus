@@ -21,17 +21,17 @@ uuid:00000000-0000-0000-0005-000000000001
 </wsen:EnumerationContext>
 <wsman:Items>
 <wsman:Item>
-<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<class:keyProperty>
+<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<p:keyProperty>
 key1
-</class:keyProperty>
-<class:prop1>
+</p:keyProperty>
+<p:prop1>
 prop1 value1
-</class:prop1>
-<class:prop2>
+</p:prop1>
+<p:prop2>
 prop2 value1
-</class:prop2>
-</class:WsmBase>
+</p:prop2>
+</p:WsmBase>
 <wsa:EndpointReference>
 <wsa:Address>
 http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous
@@ -52,17 +52,17 @@ key1
 </wsa:EndpointReference>
 </wsman:Item>
 <wsman:Item>
-<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<class:keyProperty>
+<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<p:keyProperty>
 key2
-</class:keyProperty>
-<class:prop1>
+</p:keyProperty>
+<p:prop1>
 prop1 value2
-</class:prop1>
-<class:prop2>
+</p:prop1>
+<p:prop2>
 prop2 value2
-</class:prop2>
-</class:WsmBase>
+</p:prop2>
+</p:WsmBase>
 <wsa:EndpointReference>
 <wsa:Address>
 http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous

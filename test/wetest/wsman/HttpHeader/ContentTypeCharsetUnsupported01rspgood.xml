@@ -1,6 +1,6 @@
 HTTP/1.1 500 Internal Server Error
 Content-Type: application/soap+xml;charset=UTF-8
-content-length: 0000001538
+content-length: 0000001507
 SOAPAction: http://schemas.dmtf.org/wbem/wsman/1/wsman/fault
 
 <?xml version="1.0" encoding="utf-8"?>
@@ -15,8 +15,6 @@ http://schemas.dmtf.org/wbem/wsman/1/wsman/fault
 <wsa:MessageID>
 uuid:00000000-0000-0000-0000-000000000000
 </wsa:MessageID>
-<wsa:RelatesTo>
-</wsa:RelatesTo>
 </SOAP-ENV:Header>
 <SOAP-ENV:Body>
 <SOAP-ENV:Fault>

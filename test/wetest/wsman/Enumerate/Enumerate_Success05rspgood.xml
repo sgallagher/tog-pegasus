@@ -18,94 +18,94 @@ uuid:00000000-0000-0000-0005-000000000001
 <wsen:EnumerateResponse>
 <wsen:EnumerationContext />
 <wsman:Items>
-<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<class:keyProperty>
+<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<p:keyProperty>
 key1
-</class:keyProperty>
-<class:prop1>
+</p:keyProperty>
+<p:prop1>
 prop1 value1
-</class:prop1>
-<class:prop2>
+</p:prop1>
+<p:prop2>
 prop2 value1
-</class:prop2>
-</class:WsmBase>
-<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<class:keyProperty>
+</p:prop2>
+</p:WsmBase>
+<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<p:keyProperty>
 key2
-</class:keyProperty>
-<class:prop1>
+</p:keyProperty>
+<p:prop1>
 prop1 value2
-</class:prop1>
-<class:prop2>
+</p:prop1>
+<p:prop2>
 prop2 value2
-</class:prop2>
-</class:WsmBase>
-<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<class:keyProperty>
+</p:prop2>
+</p:WsmBase>
+<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<p:keyProperty>
 key3
-</class:keyProperty>
-<class:prop1>
+</p:keyProperty>
+<p:prop1>
 prop1 value3
-</class:prop1>
-<class:prop2>
+</p:prop1>
+<p:prop2>
 prop2 value3
-</class:prop2>
-</class:WsmBase>
-<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<class:keyProperty>
+</p:prop2>
+</p:WsmBase>
+<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<p:keyProperty>
 key4
-</class:keyProperty>
-<class:prop1>
+</p:keyProperty>
+<p:prop1>
 prop1 value4
-</class:prop1>
-<class:prop2>
+</p:prop1>
+<p:prop2>
 prop2 value4
-</class:prop2>
-</class:WsmBase>
-<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<class:keyProperty>
+</p:prop2>
+</p:WsmBase>
+<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<p:keyProperty>
 key5
-</class:keyProperty>
-<class:prop1>
+</p:keyProperty>
+<p:prop1>
 prop1 value5
-</class:prop1>
-<class:prop2>
+</p:prop1>
+<p:prop2>
 prop2 value5
-</class:prop2>
-</class:WsmBase>
-<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<class:keyProperty>
+</p:prop2>
+</p:WsmBase>
+<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<p:keyProperty>
 key6
-</class:keyProperty>
-<class:prop1>
+</p:keyProperty>
+<p:prop1>
 prop1 value6
-</class:prop1>
-<class:prop2>
+</p:prop1>
+<p:prop2>
 prop2 value6
-</class:prop2>
-</class:WsmBase>
-<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<class:keyProperty>
+</p:prop2>
+</p:WsmBase>
+<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<p:keyProperty>
 key7
-</class:keyProperty>
-<class:prop1>
+</p:keyProperty>
+<p:prop1>
 prop1 value7
-</class:prop1>
-<class:prop2>
+</p:prop1>
+<p:prop2>
 prop2 value7
-</class:prop2>
-</class:WsmBase>
-<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<class:keyProperty>
+</p:prop2>
+</p:WsmBase>
+<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<p:keyProperty>
 key8
-</class:keyProperty>
-<class:prop1>
+</p:keyProperty>
+<p:prop1>
 prop1 value8
-</class:prop1>
-<class:prop2>
+</p:prop1>
+<p:prop2>
 prop2 value8
-</class:prop2>
-</class:WsmBase>
+</p:prop2>
+</p:WsmBase>
 </wsman:Items>
 <wsman:EndOfSequence />
 </wsen:EnumerateResponse>

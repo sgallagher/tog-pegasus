@@ -20,67 +20,67 @@ uuid:00000000-0000-0000-0005-000000000001
 7
 </wsen:EnumerationContext>
 <wsen:Items>
-<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<class:keyProperty>
+<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<p:keyProperty>
 key1
-</class:keyProperty>
-<class:prop1>
+</p:keyProperty>
+<p:prop1>
 prop1 value1
-</class:prop1>
-<class:prop2>
+</p:prop1>
+<p:prop2>
 prop2 value1
-</class:prop2>
-</class:WsmBase>
-<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<class:keyProperty>
+</p:prop2>
+</p:WsmBase>
+<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<p:keyProperty>
 key2
-</class:keyProperty>
-<class:prop1>
+</p:keyProperty>
+<p:prop1>
 prop1 value2
-</class:prop1>
-<class:prop2>
+</p:prop1>
+<p:prop2>
 prop2 value2
-</class:prop2>
-</class:WsmBase>
-<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<class:keyProperty>
+</p:prop2>
+</p:WsmBase>
+<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<p:keyProperty>
 key3
-</class:keyProperty>
-<class:prop1>
+</p:keyProperty>
+<p:prop1>
 prop1 value3
-</class:prop1>
-<class:prop2>
+</p:prop1>
+<p:prop2>
 prop2 value3
-</class:prop2>
-</class:WsmBase>
-<class:WsmBase xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
-<class:keyProperty>
+</p:prop2>
+</p:WsmBase>
+<p:WsmBase xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmBase">
+<p:keyProperty>
 key4
-</class:keyProperty>
-<class:prop1>
+</p:keyProperty>
+<p:prop1>
 prop1 value4
-</class:prop1>
-<class:prop2>
+</p:prop1>
+<p:prop2>
 prop2 value4
-</class:prop2>
-</class:WsmBase>
-<class:WsmDerived xmlns:class="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmDerived">
-<class:keyProperty>
+</p:prop2>
+</p:WsmBase>
+<p:WsmDerived xmlns:p="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/WsmDerived">
+<p:keyProperty>
 key5
-</class:keyProperty>
-<class:prop1>
+</p:keyProperty>
+<p:prop1>
 prop1 value5
-</class:prop1>
-<class:prop2>
+</p:prop1>
+<p:prop2>
 prop2 value5
-</class:prop2>
-<class:prop3>
+</p:prop2>
+<p:prop3>
 prop3 value5
-</class:prop3>
-<class:prop4>
+</p:prop3>
+<p:prop4>
 prop4 value5
-</class:prop4>
-</class:WsmDerived>
+</p:prop4>
+</p:WsmDerived>
 </wsen:Items>
 </wsen:PullResponse>
 </SOAP-ENV:Body>

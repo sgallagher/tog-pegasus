@@ -35,10 +35,14 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
+#include <Pegasus/Provider/CIMAssociationProvider.h>
 
 PEGASUS_USING_PEGASUS;
 
-class CLITestProvider : public CIMMethodProvider, public CIMInstanceProvider
+class CLITestProvider : 
+    public CIMMethodProvider,
+    public CIMInstanceProvider,
+    public CIMAssociationProvider
 {
 public:
     CLITestProvider();
@@ -96,12 +100,63 @@ public:
         const CIMObjectPath & ref,
         ResponseHandler & handler);
 
+    // CIMAssociationProvider interface
+    virtual void associators(
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& associationClass,
+        const CIMName& resultClass,
+        const String& role,
+        const String& resultRole,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        ObjectResponseHandler& handler);
+
+    virtual void associatorNames(
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& associationClass,
+        const CIMName& resultClass,
+        const String& role,
+        const String& resultRole,
+        ObjectPathResponseHandler& handler);
+
+    virtual void references(
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass,
+        const String& role,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList,
+        ObjectResponseHandler& handler);
+
+    virtual void referenceNames(
+        const OperationContext& context,
+        const CIMObjectPath& objectName,
+        const CIMName& resultClass,
+        const String& role,
+        ObjectPathResponseHandler& handler);
+
 protected:
     Array<CIMInstance> _instances;
 
 private:
-    CIMOMHandle _cimom;
+    void createInstances(const CIMNamespaceName& ns);
 
+    void initializeProvider(const CIMNamespaceName& ns);
+
+    Uint32 findInstance(const CIMObjectPath& path);
+
+    CIMClass _getClass(
+        const CIMName& className,
+        const CIMNamespaceName& ns);
+
+    CIMOMHandle _cimom;
+    Boolean _initialized;
+    // list of properties in the class
+    CIMPropertyList _propertyList;
 };
 
 #endif

@@ -53,7 +53,19 @@ instance of PG_ProviderCapabilities
     CapabilityID = "CLITestProviderCapability1";
     ClassName = "Test_CLITestProviderClass";
     Namespaces = { "test/TestProvider" };
-    ProviderType = { 2,5 };
+    ProviderType = { 2, 5 };
     SupportedProperties = NULL;
-    SupportedMethods = { "ReferenceParamTest" };
+    SupportedMethods = { "ReferenceParamTest" , "InOutParamTest" };
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "CLITestProviderModule";
+    ProviderName = "CLITestProvider";
+    CapabilityID = "CLITestProviderCapability2";
+    ClassName = "Test_CLITestProviderLinkClass";
+    Namespaces = { "test/TestProvider" };
+    ProviderType = { 2, 3 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
 };

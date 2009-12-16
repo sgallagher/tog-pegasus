@@ -207,6 +207,8 @@ poststarttests:
 	$(SHH)cimcli an "TST_PersonDynamic" -n "$(PROVIDERNS)" -rc TST_PersonDynamic --sum -count 1
 	$(SHH)cimcli an "TST_PersonDynamic" -n "$(PROVIDERNS)" -rc TST_Person --sum -count 2
 
+	@$(ECHO) +++++ All FamilyProvider tests Passed.
+
 general:
 
 clean:

@@ -959,14 +959,14 @@ en:table {
         "    Return nonzero if test fails. Default(29346)\n"}
 
         Clients.cimcli.CIMCLIClient.NI_COMMAND_HELP:string {
-        "ni    enumerateInstanceNames Enumerate instancenames of <instancename>\n"}
+        "ni    enumerateInstanceNames Enumerate instancenames of <classname>\n"}
 
         Clients.cimcli.CIMCLIClient.NI_COMMAND_EXAMPLE:string {
-        "cimcli ni -n test/TestProvider TEST_Person\n"
-        "    -- enumerateinstancenames of class\n"}
+        "cimcli ni -n test/TestProvider TST_Person\n"
+        "    -- Enumerate Instance Names of class TST_Person\n"}
 
         Clients.cimcli.CIMCLIClient.NI_COMMAND_OPTIONS:string {
-        "    -n, classname\n"}
+        "    -n\n"}
 
         Clients.cimcli.CIMCLIClient.OPTIONS_STRING:string {
         "Valid options for this command are :"}
@@ -983,44 +983,51 @@ en:table {
         "Examples :\n"}
 
         Clients.cimcli.CIMCLIClient.NIALL_COMMAND_HELP:string {
-        "niall enumallInstanceNames   Enumerate all instancenames in namespace.\n"}
+        "niall enumallInstanceNames   Enumerate all instancenames in <namespace>.\n"}
 
         Clients.cimcli.CIMCLIClient.EI_COMMAND_HELP:string {
         "ei    enumerateInstances     Enumerate instances of <classname>\n"}
 
         Clients.cimcli.CIMCLIClient.NC_COMMAND_HELP:string {
-        "nc    enumerateClassNames    Enumerate Class Names of [ <classname> ]\n"}
+        "nc    enumerateClassNames    Enumerate Class Names of [ <classname> ]. Classname optional\n"}
 
         Clients.cimcli.CIMCLIClient.EC_COMMAND_HELP:string {
-        "ec    enumerateClasses       Enumerate classes of [ <classname> ]\n"}
+        "ec    enumerateClasses       Enumerate classes of [ <classname> ]. ClassName optional.\n"}
 
         Clients.cimcli.CIMCLIClient.GC_COMMAND_HELP:string {
         "gc    getClass               Get class of <classname>\n" }
 
         Clients.cimcli.CIMCLIClient.GI_COMMAND_HELP:string {
-        "gi    getInstance            Get instance of <objectname> | <classname>\n"}
+        "gi    getInstance            Get instance of <objectname> |\n"
+	"                             <classname> *<keyname=value> |\n"
+	"                              <classname> (interactive mode)\n"}
+        Clients.cimcli.CIMCLIClient.TI_COMMAND_HELP:string {
+        "ti    testInstance           Test instance of <objectname> *<name=value> |\n"
+	"                             <classname> *<name=value> |\n"}
 
         Clients.cimcli.CIMCLIClient.CI_COMMAND_HELP:string {
-        "ci    createInstance         Create one Instance of <Class> *<name=param>\n"}
+        "ci    createInstance         Create Instance of <Class> *<name=value>\n"}
 
         Clients.cimcli.CIMCLIClient.DI_COMMAND_HELP:string {
-        "di    deleteInstance         Delete Instance of <objectname> or\n"
+        "di    deleteInstance         Delete Instance of <objectname>,\n"
+	"                             <classname> *<keyname=value>, or \n"
         "                             interactive of <className>\n"}
 
         Clients.cimcli.CIMCLIClient.CC_COMMAND_HELP:string {
         "cc    createClass            Not supported\n"}
 
         Clients.cimcli.CIMCLIClient.MI_COMMAND_HELP:string {
-        "mi    modifyInstance         Not supported\n"}
+        "mi    modifyInstance         Modify Instance of <objectname> *<name=value>\n"
+	"                             | <classname> *<name=value>\n"}
 
         Clients.cimcli.CIMCLIClient.DC_COMMAND_HELP:string {
         "dc    deleteClass            Delete Class of <classname>\n"}
 
         Clients.cimcli.CIMCLIClient.GP_COMMAND_HELP:string {
-        "gp    getProperty            TBD\n"}
+        "gp    getProperty            get single property of <object name>\n"}
 
         Clients.cimcli.CIMCLIClient.SP_COMMAND_HELP:string {
-        "sp    setProperty            TBD\n"}
+        "sp    setProperty            set a single property of <object-name>\n"}
 
         Clients.cimcli.CIMCLIClient.GQ_COMMAND_HELP:string {
         "gq    getQualifier           Get Qualifier of <qualifiername>\n"}
@@ -1112,33 +1119,63 @@ en:table {
         "    -n, -lo, -iq, -pl, includeClassOrigin\n"}
 
         Clients.cimcli.CIMCLIClient.CI_COMMAND_EXAMPLE:string {
-        "cimcli ci -n test/TestProvider TEST_Person Name=Michael\n"
-        "    -- Create Instance of  class \n"}
+        "cimcli ci -n test/TestProvider TST_Person Name=Michael SSN=333\n"
+        "    -- Create Instance of  class TST_Person with properties Name\n"
+	"       and SSN \n"}
 
         Clients.cimcli.CIMCLIClient.CI_COMMAND_OPTIONS:string {
         "    -n\n"}
 
+        Clients.cimcli.CIMCLIClient.TI_COMMAND_EXAMPLE:string {
+        "cimcli ti -n test/TestProvider TST_Person Name=Mike SSN=333\n"
+        "    -- Test Instance of  class for equality of Name and SSN\n"
+        "       properties. Returns error code if instance in server\n"
+        "       does not have same properties and values as the\n"
+        "       instance built from input\n"}
+
+        Clients.cimcli.CIMCLIClient.TI_COMMAND_OPTIONS:string {
+        "    -n, -lo, -iq, -pl, includeClassOrigin\n"}
+
         Clients.cimcli.CIMCLIClient.DI_COMMAND_EXAMPLE:string {
-        "cimcli di -n test/TestProvider TEST_Person\n"
-        "    -- Delete Instance of class interactively\n"}
+        "cimcli di -n test/TestProvider TST_Person\n"
+        "cimcli di -n test/TestProvider TST_Person\n"
+	"    -- Delete Instance of class TST_Person interactively\n"
+	"or\n"
+        " cimcli di -n test/TestProvider TST_Person name=Mike\n"
+	"    -- Delete Instance of class TEST_Persion with key property\n"
+	"       name equal Mike using instance builder format to\n"
+	"       define object path\n"
+	"or\n"
+        " cimcli di -n test/TestProvider TST_Person.name=\\\\\"Mike\\\\\"\n"
+	"    -- Delete Instance of class TST_Persion with object path\n"
+	"       TST_Person.name=\"Mike\" using object path input format\n"}
 
         Clients.cimcli.CIMCLIClient.DI_COMMAND_OPTIONS:string {
         "    -n\n"}
 
+        Clients.cimcli.CIMCLIClient.MI_COMMAND_EXAMPLE:string {
+        "cimcli mi -n test/TestProvider TST_Person Name=Mike SSN=444\n"
+        "    -- Modifies the Instance if it exists using rules of DMTF \n"
+        "       modifyInstance operation.\n"}
+
+        Clients.cimcli.CIMCLIClient.MI_COMMAND_OPTIONS:string {
+        "    -n -pl (defines properties to be modified)\n"}
+
         Clients.cimcli.CIMCLIClient.DC_COMMAND_EXAMPLE:string {
-        "cimcli dc -n test/TestProvider TEST_Person\n"
-        "    -- Deletes the Class when there are no instance and\n"
-        "        sub-class for this class\n"}
+        "cimcli dc -n test/TestProvider TST_Person\n"
+        "    -- Deletes the Class when there are no instanceS and\n"
+        "       sub-classS for this class\n"}
 
         Clients.cimcli.CIMCLIClient.DC_COMMAND_OPTIONS:string {
         "    -n\n"}
 
         Clients.cimcli.CIMCLIClient.GQ_COMMAND_EXAMPLE:string {
         "cimcli gq Association\n"
-        "    -- Get the qualifiers in mof output format\n"}
+        "    -- Get the qualifier named Association in mof output\n"
+        "       in the default namespace (normally root/cimv2)"}
 
         Clients.cimcli.CIMCLIClient.GQ_COMMAND_OPTIONS:string {
-        "    -n, qualifierName\n"}
+        "    -n\n"}
 
         Clients.cimcli.CIMCLIClient.EQ_COMMAND_EXAMPLE:string {
         "cimcli eq -n test/TestProvider\n"
@@ -1149,7 +1186,7 @@ en:table {
 
         Clients.cimcli.CIMCLIClient.DQ_COMMAND_EXAMPLE:string {
         "cimcli dq -n test/TestProvider ASSOCIATION\n"
-        "    -- Delete Qualifier Association in namespace\n"
+        "    -- Delete Qualifier named Association in namespace\n"
         "        test/TestProvider\n"}
 
         Clients.cimcli.CIMCLIClient.DQ_COMMAND_OPTIONS:string {
@@ -1157,7 +1194,7 @@ en:table {
 
         Clients.cimcli.CIMCLIClient.A_COMMAND_EXAMPLE:string {
         "cimcli a TST_Person.name=\\\"Mike\\\" -n test/TestProvider\n"
-        "    -ac TST_Lineager"
+        "    -ac TST_Lineage"
         "\n or\n"
         "cimcli a TST_Person -n test/TestProvider -ac TST_Lineage\n"}
 
@@ -1167,7 +1204,7 @@ en:table {
         Clients.cimcli.CIMCLIClient.AN_COMMAND_EXAMPLE:string {
         "cimcli an TST_Person.name=\\\"Mike\\\" -n test/TestProvider\n"
         "    -ac TST_Lineage"
-        "\n or\n"
+        "\nor\n"
         "cimcli an TST_Person -n test/TestProvider -ac TST_Lineage\n"}
 
         Clients.cimcli.CIMCLIClient.AN_COMMAND_OPTIONS:string {
@@ -1176,7 +1213,7 @@ en:table {
         Clients.cimcli.CIMCLIClient.R_COMMAND_EXAMPLE:string {
         "cimcli r TST_Person.name=\\\"Mike\\\" -n test/TestProvider\n"
         "    -rc TST_Lineage"
-        "\n or\n"
+        "\nor\n"
         "cimcli r TST_Person -n test/TestProvider -rc TST_Lineage\n"}
 
         Clients.cimcli.CIMCLIClient.R_COMMAND_OPTIONS:string {
@@ -1185,7 +1222,7 @@ en:table {
         Clients.cimcli.CIMCLIClient.RN_COMMAND_EXAMPLE:string {
         "cimcli rn TST_Person.name=\\\"Mike\\\" -n test/TestProvider\n"
         "    -rc TST_Lineage"
-        "\n or\n"
+        "\nor\n"
         "cimcli rn TST_Person -n test/TestProvider -rc TST_Lineage\n"}
 
         Clients.cimcli.CIMCLIClient.RN_COMMAND_OPTIONS:string {
@@ -1241,12 +1278,12 @@ en:table {
         "-s  ssl. Specifies to connect over HTTPS. Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.CLIENTCERT_OPTION_HELP:string {
-        "--cert  clientCert. Specifies a client certificate to present to the server.\n"
+        "--cert  clientCert. Specifies a client certificate file path to present to the server.\n"
         "    This is optional and only has an effect on connections\n"
         "    made over HTTPS using -s. Default()\n"}
 
         Clients.cimcli.CIMCLIClient.CLIENTKEY_OPTION_HELP:string {
-        "--key  clientKey. Specifies a client private key.\n"
+        "--key  clientKey. Specifies a client private keyfile path.\n"
         "    This is optional and only has an effect on connections\n"
         "    made over HTTPS using -s. Default()\n"}
 
@@ -1258,7 +1295,7 @@ en:table {
 
         Clients.cimcli.CIMCLIClient.DEEPINHERITANCE_OPTION_HELP:string{
         "-di  deepInheritance. If set deepInheritance parameter\n"
-        "    set true . Default(false)\n"}
+        "    set true. Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.LOCALONLY_OPTION_HELP:string {
         "-lo  localOnly. DEPRECATED. This was used to set LocalOnly.\n"
@@ -1282,10 +1319,10 @@ en:table {
         "    (without spaces). Use "" for empty. Default(###!###)\n"}
 
         Clients.cimcli.CIMCLIClient.ASSOCCLASS_OPTION_HELP:string {
-        "-ac  assocClass. Defines a assocClass string for Associator calls. Default()\n"}
+        "-ac  assocClass. Defines a assocation Class string for Associator calls. Default()\n"}
 
         Clients.cimcli.CIMCLIClient.ASSOCROLE_OPTION_HELP:string {
-        "-ar  assocRole. Defines a role string for Associatiors AssocRole\n"
+        "-ar  assocRole. Defines a role string for Associatiors. AssocRole\n"
         "    parameter. Default()\n"}
 
         Clients.cimcli.CIMCLIClient.ROLE_OPTION_HELP:string {
@@ -1311,14 +1348,14 @@ en:table {
         "-o  outputformats. Output in xml, mof, txt. Default(mof)\n"}
 
         Clients.cimcli.CIMCLIClient.XMLOUTPUT_OPTION_HELP:string {
-        "-x  xmlOutput. Output objects in xml instead of mof format . Default(false)\n"}
+        "-x  xmlOutput. Output objects in xml format . Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.VERSION_OPTION_HELP:string {
         "--version  version. Displays software Version. Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.VERBOSE_OPTION_HELP:string {
-        "-v  verbose. Verbose Display. Includes Detailed Param Input\n"
-        "    display . Default(false)\n"}
+        "-v  verbose. Verbose Display. Outputs detailed parameter input\n"
+        "    display and other request processing information . Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.SUMMARY_OPTION_HELP:string {
         "--sum  summary. Displays only summary count for enumerations,\n"
@@ -1337,8 +1374,8 @@ en:table {
         Clients.cimcli.CIMCLIClient.HELPCOMMANDS_OPTION_HELP:string {
         "-hc  help commands. Prints CIM Operation command list. Default(false)\n"}
 
-        Clients.cimcli.CIMCLIClient.CONNECTIONTIMEOUT_OPTION_HELP:
-        string {"--timeout  connecttimeout. Set the connection timeout in seconds. Default(0)\n"}
+        Clients.cimcli.CIMCLIClient.CONNECTIONTIMEOUT_OPTION_HELP:string {
+	"--timeout  connecttimeout. Set the connection timeout in seconds. Default(0)\n"}
 
         Clients.cimcli.CIMCLIClient.INTERACTIVE_OPTION_HELP:string {
         "-i  interactive. Interactively ask user to select instances.\n"
@@ -1349,7 +1386,7 @@ en:table {
         "    0 is off. Default(0)\n"}
 
         Clients.cimcli.CIMCLIClient.REPEAT_OPTION_HELP:string {
-        "--r  repeat. Number of times to repeat the function.\n"
+        "--r  repeat. Number of times to repeat the operation.\n"
         "    Zero means one time. Default(0)\n"}
 
         Clients.cimcli.CIMCLIClient.TIME_OPTION_HELP:string {

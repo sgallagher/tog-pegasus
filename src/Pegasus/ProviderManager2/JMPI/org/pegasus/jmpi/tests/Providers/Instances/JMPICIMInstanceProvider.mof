@@ -195,4 +195,8 @@ class JMPICIMInstance_TestPropertyTypes : JMPICIMInstance_TestElement
    [ Description ("a function which tells the provider to allow modifications")
    ]
    boolean enableModifications (boolean fState);
+
+   [ Description ("a function that resets the provider state")
+   ]
+   boolean resetProvider ();
 };

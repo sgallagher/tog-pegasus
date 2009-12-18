@@ -662,7 +662,7 @@ public class testCIMClass
          System.out.println ("testCIMClass: ccPropertyTypes.getMethodCount () = " + ccPropertyTypes.getMethodCount ());
       }
 
-      if (ccPropertyTypes.getMethodCount () != 2)
+      if (ccPropertyTypes.getMethodCount () != 3)
       {
          System.out.println ("FAILURE: testCIMClass: getMethodCount ()");
 

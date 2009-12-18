@@ -510,17 +510,6 @@ typedef Uint64        SCMBKeyPropertyMask[];
 // can iterate streight  from 0 to filterProperties.
 typedef Uint32      SCMBPropertyFilterIndexMap[];
 
-// This is the definition of a detached instance property.
-struct SCMBProperty_Main
-{
-    // The SCMB management header
-    SCMBMgmt_Header     header;
-    // The property name
-    SCMBDataPtr     name;
-    // The value of this property
-    SCMBValue       value;
-};
-
 // The static definition of the common SCMO memory functions
 inline const void* _resolveDataPtr(
     const SCMBDataPtr& ptr,

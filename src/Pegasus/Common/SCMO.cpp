@@ -5371,7 +5371,7 @@ Boolean SCMOInstance::_isPropertyInFilter(Uint32 i) const
  *****************************************************************************/
 SCMODump::SCMODump()
 {
-    _out = stdout;
+    _out = stderr;
     _fileOpen = false;
 
 #ifdef PEGASUS_OS_ZOS
@@ -5470,16 +5470,18 @@ Boolean SCMODump::compareFile(String master)
     return true;
 }
 
-void SCMODump::dumpSCMOInstance(SCMOInstance& testInst) const
+void SCMODump::dumpSCMOInstance(SCMOInstance& testInst, Boolean inclMemHdr)const
 {
     SCMBInstance_Main* insthdr = testInst.inst.hdr;
     char* instbase = testInst.inst.base;
 
     fprintf(_out,"\n\nDump of SCMOInstance\n");
-    // The magic number for SCMO class
-    fprintf(_out,"\nheader.magic=%08X",insthdr->header.magic);
-    // Total size of the instance memory block( # bytes )
-    fprintf(_out,"\nheader.totalSize=%llu",insthdr->header.totalSize);
+
+    if (inclMemHdr)
+    {
+        _dumpSCMBMgmt_Header(insthdr->header,instbase);
+    }
+
     // The reference counter for this c++ class
     fprintf(_out,"\nrefCount=%i",insthdr->refCount.get());
     fprintf(_out,"\ntheClass: %p",insthdr->theClass.ptr);
@@ -5750,16 +5752,57 @@ void SCMODump::dumpSCMOInstanceKeyBindings(
 
 }
 
-void SCMODump::dumpSCMOClass(SCMOClass& testCls) const
+void SCMODump::_dumpSCMBMgmt_Header(SCMBMgmt_Header& header,char* base) const
+{
+    fprintf(_out,"\nThe Management Header:");
+    // The magic number
+    fprintf(_out,"\n   magic=%08X",header.magic);
+    // Total size of the memory block( # bytes )
+    fprintf(_out,"\n   totalSize=%llu",header.totalSize);
+    // Free bytes in the block
+    fprintf(_out,"\n   freeBytes=%llu",header.freeBytes);
+    // Index to the start of the free space in this SCMB memory block.
+    fprintf(_out,"\n   startOfFreeSpace=%llu",header.startOfFreeSpace);
+    // Number of external references in this instance.
+    fprintf(_out,"\n   numberExtRef=%u",header.numberExtRef);
+    // Size of external reference index array;
+    fprintf(_out,"\n   sizeExtRefIndexArray=%u",header.sizeExtRefIndexArray);
+
+    if (header.numberExtRef > 0)
+    {
+        fprintf(_out,"\n   extRefIndexArray=[");
+        Uint64* extRefIndexArray =
+            (Uint64*)&(base[header.extRefIndexArray.start]);
+
+        for (Uint32 i = 0; i < header.numberExtRef;)
+        {
+            fprintf(_out,"%llu",extRefIndexArray[i]);
+            i++;
+            if (i != header.numberExtRef)
+            {
+                fprintf(_out,", ");
+            }
+        }
+        fprintf(_out,"\n");
+    }
+    else
+    {
+           fprintf(_out,"\n   extRefIndexArray=[NO INDEX]\n");
+    }
+}
+
+void SCMODump::dumpSCMOClass(SCMOClass& testCls, Boolean inclMemHdr) const
 {
     SCMBClass_Main* clshdr = testCls.cls.hdr;
     char* clsbase = testCls.cls.base;
 
     fprintf(_out,"\n\nDump of SCMOClass\n");
-    // The magic number for SCMO class
-    fprintf(_out,"\nheader.magic=%08X",clshdr->header.magic);
-    // Total size of the instance memory block( # bytes )
-    fprintf(_out,"\nheader.totalSize=%llu",clshdr->header.totalSize);
+
+    if (inclMemHdr)
+    {
+        _dumpSCMBMgmt_Header(clshdr->header,clsbase);
+    }
+
     // The reference counter for this c++ class
     fprintf(_out,"\nrefCount=%i",clshdr->refCount.get());
     fprintf(_out,"\n\nThe Flags:");

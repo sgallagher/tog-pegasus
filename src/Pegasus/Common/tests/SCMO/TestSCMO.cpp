@@ -85,6 +85,29 @@ SCMOClass _scmoClassCache_GetClass(
         (const char*)nameSpace.getString().getCString());
 }
 
+void structureSizes()
+{
+    cout << endl << "Sizes of structures:" << endl;
+    cout << "=====================" << endl << endl;
+    cout << "SCMBUnion           : " << sizeof(SCMBUnion) << endl;
+    cout << "SCMBDataPtr         : " << sizeof(SCMBDataPtr) << endl;
+    cout << "SCMBValue           : " << sizeof(SCMBValue) << endl;
+    cout << "SCMBKeyBindingValue : " << sizeof(SCMBKeyBindingValue) << endl;
+    cout << "SCMBUserKeyBindingElement : "
+         << sizeof(SCMBUserKeyBindingElement) << endl;
+    cout << "SCMBQualifier       : " << sizeof(SCMBQualifier) << endl;
+    cout << "SCMBMgmt_Header     : " << sizeof(SCMBMgmt_Header) << endl;
+    cout << "SCMBClassProperty   : " << sizeof(SCMBClassProperty) << endl;
+    cout << "SCMBClassPropertySet_Header : "
+         << sizeof(SCMBClassPropertySet_Header) << endl;
+    cout << "SCMBClassPropertyNode : " << sizeof(SCMBClassPropertyNode) << endl;
+    cout << "SCMBKeyBindingNode  : " << sizeof(SCMBKeyBindingNode) << endl;
+    cout << "SCMBKeyBindingSet_Header : "
+         << sizeof(SCMBKeyBindingSet_Header) << endl;
+    cout << "SCMBClass_Main      : " << sizeof(SCMBClass_Main) << endl;
+    cout << "SCMBInstance_Main   : " << sizeof(SCMBInstance_Main) << endl;
+}
+
 void CIMClassToSCMOClass()
 {
     CIMClass theCIMClass;
@@ -108,7 +131,8 @@ void CIMClassToSCMOClass()
     const char TestCSMOClassLog[]="TestSCMOClass.log";
     SCMODump dump(&(TestCSMOClassLog[0]));
 
-    dump.dumpSCMOClass(theSCMOClass);
+    // Do not dump the volatile data.
+    dump.dumpSCMOClass(theSCMOClass,false);
 
     String masterFile (getenv("PEGASUS_ROOT"));
     masterFile.append(MASTERCLASS);
@@ -1790,8 +1814,6 @@ void SCMOInstancePropertyFilterTest()
     PEGASUS_TEST_ASSERT(SCMO_TESTClass2_Inst.getPropertyCount()==3);
 
     VCOUT << endl << "Done." << endl;
-    // dump.dumpSCMOInstance(SCMO_TESTClass2_Inst);
-
 
 }
 
@@ -1855,6 +1877,11 @@ int main (int argc, char *argv[])
 
     try
     {
+
+        if (verbose)
+        {
+            structureSizes();
+        }
 
         CIMClassToSCMOClass();
 

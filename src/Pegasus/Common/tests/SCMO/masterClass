@@ -2,8 +2,6 @@
 
 Dump of SCMOClass
 
-header.magic=F00FABCD
-header.totalSize=32768
 refCount=1
 
 The Flags:

@@ -54,7 +54,7 @@ public:
     SCMODump(const char *filename);
     // Methods for SCMOClass only
     void hexDumpSCMOClass(SCMOClass& testCls) const;
-    void dumpSCMOClass(SCMOClass& testCls) const;
+    void dumpSCMOClass(SCMOClass& testCls,Boolean inclMemHdr = true) const;
     void dumpSCMOClassQualifiers(SCMOClass& testCls) const;
     void dumpKeyPropertyMask(SCMOClass& testCls) const;
     void dumpClassProperties(SCMOClass& testCls) const;
@@ -64,7 +64,9 @@ public:
     void dumpClassKeyBindingNodeArray(SCMOClass& testCls) const;
 
     // Methods for SCMOInstance only
-    void dumpSCMOInstance(SCMOInstance& testInst) const;
+    void dumpSCMOInstance(
+        SCMOInstance& testInst,
+        Boolean inclMemHdr = true) const;
     void dumpSCMOInstanceKeyBindings(
         SCMOInstance& testInst,
         Boolean verbose = false) const ;
@@ -124,11 +126,13 @@ private:
         const SCMBClassProperty& prop,
         char* clsbase) const;
 
-   void _hexDump(char* buffer,Uint64 length) const;
+    void _dumpSCMBMgmt_Header(SCMBMgmt_Header& header,char* base) const;
 
-   Boolean _fileOpen;
-   FILE *_out;
-   String _filename;
+    void _hexDump(char* buffer,Uint64 length) const;
+
+    Boolean _fileOpen;
+    FILE *_out;
+    String _filename;
 };
 
 PEGASUS_NAMESPACE_END

@@ -812,11 +812,13 @@ private:
         if ( 1 < inst.hdr->refCount.get() )
         {
             SCMBInstance_Main * oldRef = inst.hdr;
+            SCMBMgmt_Header* oldMgmt = inst.mem;
+
             _clone();
             if (oldRef->refCount.decAndTestIfZero())
             {
                 // All external references has to be destroyed.
-                _destroyExternalReferencesInternal((SCMBMgmt_Header*)oldRef);
+                _destroyExternalReferencesInternal(oldMgmt);
                 // The class has also be dereferenced.
                 delete oldRef->theClass.ptr;
                 free((void*)oldRef);

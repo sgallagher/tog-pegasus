@@ -2930,6 +2930,8 @@ BOOL  srv_reg(
     /* we don't know the length yet */
     _LSLP_SETXID(bptr, client->_xid);
     _LSLP_SETLAN(bptr, LSLP_EN_US, LSLP_EN_US_LEN);
+    /* Set FRESH flag, we don't support incremental registrations */
+    _LSLP_SETFLAGS(bptr, LSLP_FLAGS_FRESH);
     bptr += (len =  _LSLP_HDRLEN(bptr));
 
     /* construct a url-entry  */

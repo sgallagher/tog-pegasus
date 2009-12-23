@@ -927,8 +927,11 @@ int createInstance(Options& opts)
             opts.verboseTest);
 
     // create the instance with the defined properties
-    CIMInstance newInstance = ob.buildInstance(true, true,
-                                  CIMPropertyList());
+    CIMInstance newInstance = ob.buildInstance(
+        opts.includeQualifiers,
+        opts.includeClassOrigin,
+        CIMPropertyList());
+
     if (opts.verboseTest)
     {
         CIMCLIOutput::displayInstance(opts, newInstance);
@@ -991,8 +994,10 @@ int testInstance(Options& opts)
         CIMPropertyList(),
         opts.verboseTest);
 
-    CIMInstance testInstance = ob.buildInstance(true, true,
-                                  CIMPropertyList());
+    CIMInstance testInstance = ob.buildInstance(
+        opts.includeQualifiers,
+        opts.includeClassOrigin,
+        CIMPropertyList());
 
     // If the objectName keybindings are zero create the path from the
     // built instance unless the interactive bit is set. Then ask the
@@ -1120,8 +1125,10 @@ int modifyInstance(Options& opts)
         CIMPropertyList(),
         opts.verboseTest);
 
-    CIMInstance modifiedInstance = ob.buildInstance(true, true,
-                                  CIMPropertyList());
+    CIMInstance modifiedInstance = ob.buildInstance(
+        opts.includeQualifiers,
+        opts.includeClassOrigin,
+        CIMPropertyList());
 
     const CIMClass thisClass = ob.getTargetClass();
 

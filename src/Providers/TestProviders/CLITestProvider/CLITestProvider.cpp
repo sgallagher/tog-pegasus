@@ -855,84 +855,114 @@ Uint32 CLITestProvider::findInstance(const CIMObjectPath& path)
 
 void CLITestProvider::createInstances(const CIMNamespaceName& ns)
 {
-    AutoMutex autoMut(instanceArrayMutex);
 
+    CIMClass theClass = _getClass(
+        CIMName("Test_CLITestProviderClass"),
+        ns);
     // Create a single instance with all properties and with path
     // independent of namespace or hostname
 
-    CIMInstance instance("Test_CLITestProviderClass");
+    CIMInstance instance = theClass.buildInstance(
+        true, true, CIMPropertyList());
 
-    instance.addProperty(CIMProperty("Id", String("Mike")));
-    instance.addProperty(CIMProperty("Name", String("Bob")));
-    instance.addProperty(CIMProperty("scalBool", Boolean(true)));
-    instance.addProperty(CIMProperty("scalUint8", Uint8(220)));
-    instance.addProperty(CIMProperty("scalSint8", Sint8(124)));
-    instance.addProperty(CIMProperty("scalUint16", Uint16(100)));
-    instance.addProperty(CIMProperty("scalSint16", Sint16(100)));
-    instance.addProperty(CIMProperty("scalUint32", Uint32(100)));
-    instance.addProperty(CIMProperty("scalSint32", Sint32(100)));
-    instance.addProperty(CIMProperty("scalUint64", Uint64(100)));
-    instance.addProperty(CIMProperty("scalReal32", Real32(100)));
-    instance.addProperty(CIMProperty("scalReal64", Real64(100)));
-    instance.addProperty(CIMProperty("scalString", String("teststring")));
-    instance.addProperty(CIMProperty("scalDateTime",
-                               CIMDateTime("19991224120000.000000+360")));
+    instance.getProperty(instance.findProperty("Id")).setValue(
+        CIMValue(String("Mike")));
+    instance.getProperty(instance.findProperty("Name")).setValue(
+        CIMValue(String("Bob")));
+    instance.getProperty(instance.findProperty("scalBool")).setValue(
+        CIMValue(Boolean(true)));
+    instance.getProperty(instance.findProperty("scalUint8")).setValue(
+        CIMValue(Uint8(220)));
+    instance.getProperty(instance.findProperty("scalSint8")).setValue(
+        CIMValue(Sint8(124)));
+    instance.getProperty(instance.findProperty("scalUint16")).setValue(
+        CIMValue(Uint16(100)));
+    instance.getProperty(instance.findProperty("scalSint16")).setValue(
+        CIMValue(Sint16(100)));
+    instance.getProperty(instance.findProperty("scalUint32")).setValue(
+        CIMValue(Uint32(100)));
+    instance.getProperty(instance.findProperty("scalSint32")).setValue(
+        CIMValue(Sint32(100)));
+    instance.getProperty(instance.findProperty("scalUint64")).setValue(
+        CIMValue(Uint64(100)));
+    instance.getProperty(instance.findProperty("scalReal32")).setValue(
+        CIMValue(Real32(100)));
+    instance.getProperty(instance.findProperty("scalReal64")).setValue(
+        CIMValue(Real64(100)));
+    instance.getProperty(instance.findProperty("scalString")).setValue(
+        CIMValue(String("teststring")));
+    instance.getProperty(instance.findProperty("scalDateTime")).setValue(
+        CIMValue(CIMDateTime("19991224120000.000000+360")));
 
     // set Values into the corresponding array properties
     Array<Boolean> ab;
     ab.append(true); ab.append(false); ab.append(true);
-    instance.addProperty(CIMProperty("arrayBool", CIMValue(ab)));
+    instance.getProperty(instance.findProperty("arrayBool")).setValue(
+        CIMValue(ab));
 
     Array<Uint8> auint8;
     auint8.append(4); auint8.append(128); auint8.append(240);
-    instance.addProperty(CIMProperty("arrayUint8", CIMValue(auint8)));
+    instance.getProperty(instance.findProperty("arrayUint8")).setValue(
+        CIMValue(auint8));
 
     Array<Sint8> asint8;
     asint8.append(4); asint8.append(126); asint8.append(-126);
-    instance.addProperty(CIMProperty("arraySint8", CIMValue(asint8)));
+    instance.getProperty(instance.findProperty("arraySint8")).setValue(
+        CIMValue(asint8));
 
     Array<Uint16> auint16;
     auint16.append(4); auint16.append(128); auint16.append(240);
-    instance.addProperty(CIMProperty("arrayUint16", CIMValue(auint16)));
+    instance.getProperty(instance.findProperty("arrayUint16")).setValue(
+        CIMValue(CIMValue(auint16)));
 
     Array<Sint16> asint16;
     asint16.append(4); asint16.append(126); asint16.append(-126);
-    instance.addProperty(CIMProperty("arraySint16", CIMValue(asint16)));
+    instance.getProperty(instance.findProperty("arraySint16")).setValue(
+        CIMValue(asint16));
 
     Array<Uint32> auint32;
     auint32.append(4); auint32.append(128); auint32.append(240);
-    instance.addProperty(CIMProperty("arrayUint32", CIMValue(auint32)));
+    instance.getProperty(instance.findProperty("arrayUint32")).setValue(
+        CIMValue(auint32));
 
     Array<Sint32> asint32;
     asint32.append(4); asint32.append(126); asint32.append(-126);
-    instance.addProperty(CIMProperty("arraySint32", CIMValue(asint32)));
+    instance.getProperty(instance.findProperty("arraySint32")).setValue(
+        CIMValue(asint32));
 
     Array<Uint64> auint64;
     auint64.append(4); auint64.append(128); auint64.append(240);
-    instance.addProperty(CIMProperty("arrayUint64", CIMValue(auint64)));
+    instance.getProperty(instance.findProperty("arrayUint64")).setValue( 
+         CIMValue(auint64));
 
     Array<Real32> aReal32;
     aReal32.append(4); aReal32.append(128); aReal32.append(240);
-    instance.addProperty(CIMProperty("arrayReal32", CIMValue(aReal32)));
+    instance.getProperty(instance.findProperty("arrayReal32")).setValue( 
+        CIMValue(aReal32));
 
     Array<Real64> aReal64;
     aReal64.append(4); aReal64.append(128); aReal64.append(240);
-    instance.addProperty(CIMProperty("arrayReal64", CIMValue(aReal64)));
+    instance.getProperty(instance.findProperty("arrayReal64")).setValue( 
+        CIMValue(aReal64));
 
     Array<String> aString;
     aString.append("First"); aString.append("Second"); aString.append("Third");
-    instance.addProperty(CIMProperty("arrayString", CIMValue(aString)));
+    instance.getProperty(instance.findProperty("arrayString")).setValue( 
+        CIMValue(aString));
 
     Array<CIMDateTime> aCIMDateTime;
     aCIMDateTime.append(CIMDateTime("19991224120000.000000+360"));
     aCIMDateTime.append(CIMDateTime("19991224120000.000000+360"));
     aCIMDateTime.append(CIMDateTime("19991224120000.000000+360"));
-    instance.addProperty(CIMProperty("arrayCIMDateTime",
-                                      CIMValue(aCIMDateTime)));
+    instance.getProperty(instance.findProperty("arrayDateTime")).setValue( 
+        CIMValue(aCIMDateTime));
+    
+    instance.removeProperty(instance.findProperty("requestInputParameters"));
+
     CIMObjectPath p("Test_CLITestProviderClass.Id=\"Mike\"");
 
     instance.setPath(p);
-
+    
     _instances.append(instance);
 }
 
@@ -940,8 +970,12 @@ void CLITestProvider::initializeProvider(const CIMNamespaceName& ns)
 {
     if (!_initialized)
     {
-        createInstances(ns);
+        AutoMutex autoMut(instanceArrayMutex);
+        if (!_initialized)
+        {
+            createInstances(ns);
+            _initialized = true;
+        }
     }
-    _initialized = true;
 }
 

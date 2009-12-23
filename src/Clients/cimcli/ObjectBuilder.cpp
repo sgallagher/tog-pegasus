@@ -745,8 +745,12 @@ CIMInstance ObjectBuilder::buildInstance(
 
         myPropertyList.append(CIMName(_featureNameList[index]));
     }
+
     // Delete any properties not on the property list
-    newInstance.filter(false,false, CIMPropertyList(myPropertyList));
+    newInstance.filter(
+        includeQualifiers,
+        includeClassOrigin,
+        CIMPropertyList(myPropertyList));
 
     // Display the Instance if verbose
     if (_verbose)

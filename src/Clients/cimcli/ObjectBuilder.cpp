@@ -336,7 +336,7 @@ Boolean _buildArrayValue(
     CIMType type = val.getType();
     Uint32 arrayDimension = val.getArraySize();
 
-    csvStringParse strl(String(str), ',');
+    csvStringParse strl((String)String(str), ',');
 
     switch (type)
     {

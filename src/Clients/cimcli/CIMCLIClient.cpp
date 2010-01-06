@@ -806,7 +806,7 @@ CIMObjectPath _getObjectPath(Options& opts)
             if(!_selectInstance(opts, opts.getTargetObjectNameClassName(),
                                 thisPath))
             {
-                return(CIMObjectPath());
+                return((CIMObjectPath)CIMObjectPath());
             }
         }
     }

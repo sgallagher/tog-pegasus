@@ -181,7 +181,9 @@ Boolean Semaphore::time_wait(Uint32 milliseconds)
     struct timeval now = { 0, 0 };
     struct timespec waittime = { 0, 0 };
     gettimeofday(&now, NULL);
-    waittime.tv_sec = now.tv_sec;
+
+    waittime.tv_sec = now.tv_sec + (milliseconds / 1000);
+    milliseconds = milliseconds % 1000;
     waittime.tv_nsec = now.tv_usec + (milliseconds * 1000);     // microseconds
     waittime.tv_sec += (waittime.tv_nsec / 1000000);    // roll overflow into
     waittime.tv_nsec = (waittime.tv_nsec % 1000000);    // the "seconds" part

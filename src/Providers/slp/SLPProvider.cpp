@@ -1072,7 +1072,8 @@ Boolean SLPProvider::populateRegistrationData(
     const String& IPAddress,
     const CIMInstance& instance_ObjMgr,
     const CIMInstance& instance_ObjMgrComm,
-    const CIMClass& commMechClass)
+    const CIMClass& commMechClass,
+    const String &registeredProfiles)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "SLPProvider::populateRegistrationData()");
@@ -1116,34 +1117,25 @@ Boolean SLPProvider::populateRegistrationData(
 
     // get service-hi-name and description from the instance of the
     // objectmanager class
-    for (Uint32 j = 0 ; j < instance_ObjMgr.getPropertyCount() ; j++)
-    {
-        CIMConstProperty p1=instance_ObjMgr.getProperty(j);
-        CIMValue v1=p1.getValue();
-        CIMName propertyName = p1.getName();
+    String elementName = _getPropertyValueString(
+        instance_ObjMgr,
+        elementNamePropertyName);
 
-        // service-hi-name=string O
-        // # This string is used as a name of the CIM service for human
-        // # interfaces. This attribute MUST be the
-        // # CIM_ObjectManager.ElementName property value.
-        if (propertyName.equal(elementNamePropertyName))
-            populateTemplateField(
-                templateInstance,
-                serviceHiNameAttribute,
-                v1.toString(),
-                serviceHiNameProperty);
+    populateTemplateField(
+        templateInstance,
+        serviceHiNameAttribute,
+        elementName,
+        serviceHiNameProperty);
 
-        // service-hi-description=string O
-        // # This string is used as a description of the CIM service for
-        // # human interfaces.This attribute MUST be the
-        // # CIM_ObjectManager.Description property value.
-        else if (propertyName.equal(descriptionPropertyName))
-            populateTemplateField(
-                templateInstance,
-                serviceHiDescriptionAttribute,
-                v1.toString(),
-                serviceHiDescriptionProperty);
-    }
+    String description = _getPropertyValueString(
+        instance_ObjMgr,
+        descriptionPropertyName);
+
+    populateTemplateField(
+        templateInstance,
+        serviceHiDescriptionAttribute,
+        description,
+        serviceHiDescriptionProperty);
 
     //    templateTypeProperty);
     populateTemplateField(
@@ -1297,7 +1289,7 @@ Boolean SLPProvider::populateRegistrationData(
     // populate the RegisteredProfiles Supported attribute.
 
     populateTemplateField(templateInstance,
-        registeredProfilesSupportedAttribute, getRegisteredProfileList());
+        registeredProfilesSupportedAttribute, registeredProfiles);
 
     //Begin registering the service. Keep this debug.
     CDEBUG("Template:\n" << _currentSLPTemplateString);
@@ -1443,6 +1435,8 @@ Uint32  SLPProvider::populateSLPRegistrations()
                << e.getMessage());
     }
 
+    String registeredProfiles = getRegisteredProfileList();
+
     // get instances of CIM_ObjectManagerCommMechanism and subclasses directly
     Array<CIMInstance> instancesObjMgrComm = _cimomHandle.enumerateInstances(
         OperationContext(),
@@ -1470,7 +1464,8 @@ Uint32  SLPProvider::populateSLPRegistrations()
             IPAddress,
             instancesObjMgr[0],
             instancesObjMgrComm[i],
-            pg_CIMXMLClass))
+            pg_CIMXMLClass,
+            registeredProfiles))
         {
             itemsRegistered++;
         }

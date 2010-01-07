@@ -109,7 +109,8 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
             const String& IPAddress,
             const CIMInstance& instance_ObjMgr,
             const CIMInstance& instance_ObjMgrComm,
-            const CIMClass& commMechClass);
+            const CIMClass& commMechClass,
+            const String& registeredProfiles);
 
         Boolean issueSLPRegistrations();
         Uint32 populateSLPRegistrations();

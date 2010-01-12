@@ -373,6 +373,7 @@ if [ "$PEGASUS_TEST_ENABLE_DEBUG_TRACE" = "true" ]; then
             -e "SSL_accept() failed" \
             -e "Test_IndicationProviderClass" \
             -e "idle connection" \
+            -e "The repository throws the following exception: TestCMPI_Instance" \
             -e "^$" \
             $traceFile > $PEGASUS_HOME/trace/trace.out
 

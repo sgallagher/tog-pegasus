@@ -878,6 +878,8 @@ SCMOClass ProviderAgent::_scmoClassCache_GetClass(
     // Send the request for the SCMOClass to the server
     _providerAgent->_writeResponse(message);
 
+    delete message;
+
     // Wait for semaphore signaled by _readAndProcessRequest()
     if (!_scmoClassDelivered.time_wait(
             PEGASUS_DEFAULT_CLIENT_TIMEOUT_MILLISECONDS))

@@ -232,7 +232,10 @@ SCMOClass CIMServer::_scmoClassCache_GetClass(
     catch (Exception& e)
     {
         PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                   "Exception from the repositroy: %s",
+                   "The class '%s' in the name space '%s' was not found. "
+                       "The repository throws the following exception: %s",
+                   (const char*)className.getString().getCString(),
+                   (const char*)nameSpace.getString().getCString(),
                    (const char*)e.getMessage().getCString()));
         // Return a empty class.
         PEG_METHOD_EXIT();

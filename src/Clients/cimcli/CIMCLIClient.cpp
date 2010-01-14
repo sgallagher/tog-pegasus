@@ -150,7 +150,7 @@ Uint32 _selectStringItem(const Array<String>& selectList, const String& what)
         }
     }
 
-    return (rtn - 1);
+    return rtn-1;
 }
 
 /** Allow user to select one instance name. Do server
@@ -184,7 +184,7 @@ Boolean _selectInstance(Options& opts,
     // return false if nothing in list
     if (list.size() == 0)
     {
-        return(false);
+        return false;
     }
 
     // ask user to select a single entry
@@ -192,7 +192,7 @@ Boolean _selectInstance(Options& opts,
 
     instancePath = instanceNames[rtn];
 
-    return(true);
+    return true;
 }
 
 /** Use the interactive selection mechanism to get the instance if
@@ -218,11 +218,11 @@ Boolean _conditionalSelectInstance(Options& opts,
         // Ask the user to select an instance. returns instancePath
         // with selected path
 
-        return(_selectInstance(opts, opts.getTargetObjectNameClassName(),
-                    instancePath));
+        return _selectInstance(opts, opts.getTargetObjectNameClassName(),
+                    instancePath);
     }
 
-    return(true);
+    return true;
 }
 
 /*
@@ -651,7 +651,7 @@ int enumerateAllInstanceNames(Options& opts)
              << " which contains " << classNames.size() << " classes"
              << endl;
     }
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 
@@ -680,7 +680,7 @@ int enumerateInstanceNames(Options& opts)
 
     CIMCLIOutput::displayPaths(opts,instanceNames);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 
@@ -720,7 +720,7 @@ int enumerateInstances(Options& opts)
 
     CIMCLIOutput::displayInstances(opts, instances);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 
@@ -753,7 +753,7 @@ int executeQuery(Options& opts)
     String s = "instances of class";
     CIMCLIOutput::displayObjects(opts, objects, s);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 /* local function to get the object path for the target defined by input.
@@ -806,11 +806,11 @@ CIMObjectPath _getObjectPath(Options& opts)
             if(!_selectInstance(opts, opts.getTargetObjectNameClassName(),
                                 thisPath))
             {
-                return((CIMObjectPath)CIMObjectPath());
+                return CIMObjectPath();
             }
         }
     }
-    return(thisPath);
+    return thisPath;
 }
 
 
@@ -843,7 +843,7 @@ int deleteInstance(Options& opts)
 
     _stopCommandTimer(opts);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 
@@ -892,7 +892,7 @@ int getInstance(Options& opts)
 
     CIMCLIOutput::displayInstance(opts, cimInstance);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 /***************************** createInstance  ******************************/
@@ -948,7 +948,7 @@ int createInstance(Options& opts)
     String description = "Returned Path ";
     CIMCLIOutput::displayPath(opts, rtnPath, description);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 
@@ -1050,7 +1050,7 @@ int testInstance(Options& opts)
             cout << "Returned Instance =" << endl;
             CIMCLIOutput::displayInstance(opts, rtndInstance);
         }
-        return(CIMCLI_RTN_CODE_ERR_COMPARE_FAILED);
+        return CIMCLI_RTN_CODE_ERR_COMPARE_FAILED;
     }
     else
         cout << "test instance " << opts.targetObjectName.toString()
@@ -1058,7 +1058,7 @@ int testInstance(Options& opts)
 
     _stopCommandTimer(opts);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 
@@ -1159,7 +1159,7 @@ int modifyInstance(Options& opts)
 
     CIMCLIOutput::display(opts, "modified");
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 /***************************** enumerateClassNames  **************************/
@@ -1189,7 +1189,7 @@ int enumerateClassNames(Options& opts)
 
     CIMCLIOutput::displayClassNames(opts, classNames);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 /***************************** enumerateClasses  ******************************/
@@ -1225,7 +1225,7 @@ int enumerateClasses(Options& opts)
 
     CIMCLIOutput::displayClasses(opts, classes);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 /***************************** deleteClass  ******************************/
@@ -1249,7 +1249,7 @@ int deleteClass(Options& opts)
 
     _stopCommandTimer(opts);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 /***************************** getClass  ******************************/
@@ -1286,7 +1286,7 @@ int getClass(Options& opts)
 
     CIMCLIOutput::displayClass(opts, cimClass);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 /***************************** getProperty  ******************************/
@@ -1331,7 +1331,7 @@ int getProperty(Options& opts)
         cout << opts.propertyName << " = " << cimValue.toString() << endl;
     }
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 /***************************** setProperty  ******************************/
@@ -1365,7 +1365,7 @@ int setProperty(Options& opts)
 
     _stopCommandTimer(opts);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 /***************************** getQualifier  ******************************/
@@ -1396,7 +1396,7 @@ int getQualifier(Options& opts)
 
     CIMCLIOutput::displayQualDecl(opts, cimQualifierDecl);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 int setQualifier(Options& opts)
@@ -1415,7 +1415,7 @@ int setQualifier(Options& opts)
 
     _stopCommandTimer(opts);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 /***************************** deleteQualifier  ******************************/
@@ -1439,7 +1439,7 @@ int deleteQualifier(Options& opts)
 
     _stopCommandTimer(opts);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 /***************************** enumerateQualifiers  **************************/
@@ -1466,7 +1466,7 @@ int enumerateQualifiers(Options& opts)
 
     CIMCLIOutput::displayQualDecls(opts, qualifierDecls);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 
@@ -1498,7 +1498,7 @@ int referenceNames(Options& opts)
 
     if (!_conditionalSelectInstance(opts, thisObjectPath))
     {
-        return(CIMCLI_RTN_CODE_OK);
+        return CIMCLI_RTN_CODE_OK;
     }
 
     _startCommandTimer(opts);
@@ -1515,7 +1515,7 @@ int referenceNames(Options& opts)
     opts.className = thisObjectPath.getClassName();
     CIMCLIOutput::displayPaths(opts, referenceNames, s);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 
@@ -1559,7 +1559,7 @@ int references(Options& opts)
 
     if (!_conditionalSelectInstance(opts, thisObjectPath))
     {
-        return(CIMCLI_RTN_CODE_OK);
+        return CIMCLI_RTN_CODE_OK;
     }
 
     _startCommandTimer(opts);
@@ -1578,7 +1578,7 @@ int references(Options& opts)
     String s = "references";
     CIMCLIOutput::displayObjects(opts,objects,s);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 
@@ -1617,7 +1617,7 @@ int associatorNames(Options& opts)
 
     if(!_conditionalSelectInstance(opts, thisObjectPath))
     {
-        return(CIMCLI_RTN_CODE_OK);
+        return CIMCLI_RTN_CODE_OK;
     }
 
     _startCommandTimer(opts);
@@ -1636,7 +1636,7 @@ int associatorNames(Options& opts)
     opts.className = thisObjectPath.getClassName();
     CIMCLIOutput::displayPaths(opts, associatorNames, s);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 
@@ -1681,7 +1681,7 @@ int associators(Options& opts)
 
     if(!_conditionalSelectInstance(opts, thisObjectPath))
     {
-        return(CIMCLI_RTN_CODE_OK);
+        return CIMCLI_RTN_CODE_OK;
     }
 
     _startCommandTimer(opts);
@@ -1702,7 +1702,7 @@ int associators(Options& opts)
     String s = "associators";
     CIMCLIOutput::displayObjects(opts,objects,s);
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 
@@ -1778,7 +1778,7 @@ int associators(Options& opts)
         CIMCLIOutput::displayParamValues(opts, outParams);
      }
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
  }
 
 /************************ enumerateNamespace names **********************/
@@ -1818,7 +1818,7 @@ int enumerateNamespaceNames(Options& opts)
         }
     }
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
 
 
@@ -1885,16 +1885,8 @@ int setObjectManagerStatistics(Options& opts, Boolean newState,
             << " Rcvd: " << ((stateAfterMod)? "true" : "false") << endl;
     }
 
-    return(CIMCLI_RTN_CODE_OK);
+    return CIMCLI_RTN_CODE_OK;
 }
-
-// FUTURE
-//int showProfiles(Options& opts, const String& name)
-//{
-//    cout << "Not Supported" << endl;
-//
-//    return(CIMCLI_RTN_CODE_OK);
-//}
 
 PEGASUS_NAMESPACE_END
 // END_OF_FILE

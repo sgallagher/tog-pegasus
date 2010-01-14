@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -47,7 +47,7 @@ PEGASUS_NAMESPACE_BEGIN
 class csvStringParse;
 
 // Cleans an input array by removing the { } tokens that surround
-// the array.  Does nothing if they do not exist.  If there is 
+// the array.  Does nothing if they do not exist.  If there is
 // an unmatched set, an error is generated.
 // Allows the user to input array definitions surrounded by { }
 // as an option.
@@ -107,7 +107,7 @@ Uint32 _includesType(const String& name)
      csvStringParse x (inputstring, ",");
      while (x.more())
         rtnString = x.next();
-*/ 
+*/
 class csvStringParse
 {
 public:
@@ -134,7 +134,7 @@ public:
        return empty strings if you parse past the point where more()
        returns false.
        @return String
-    */ 
+    */
     String next()
     {
         String rtnValue;
@@ -278,7 +278,7 @@ static CIMValue _stringToScalarValue(const char* str, CIMType type)
 
         case CIMTYPE_UINT8:
             return CIMValue(Uint8(_strToUint(str, type)));
-    
+
         case CIMTYPE_SINT8:
             return CIMValue(Sint8(_strToSint(str, type)));
 
@@ -313,7 +313,7 @@ static CIMValue _stringToScalarValue(const char* str, CIMType type)
             return CIMValue(_getDateTime(str));
 
         default:
-            cerr << "Error: Parser Error. Data type " << cimTypeToString(type) 
+            cerr << "Error: Parser Error. Data type " << cimTypeToString(type)
                  << " not allowed" << endl;
             exit(CIMCLI_INPUT_ERR);
     }
@@ -335,8 +335,9 @@ Boolean _buildArrayValue(
 {
     CIMType type = val.getType();
     Uint32 arrayDimension = val.getArraySize();
+    String parseStr(str);
 
-    csvStringParse strl((String)String(str), ',');
+    csvStringParse strl(parseStr, ',');
 
     switch (type)
     {
@@ -352,7 +353,7 @@ Boolean _buildArrayValue(
             break;
         }
         case CIMTYPE_UINT8:
-        {   
+        {
             Array<Uint8> a;
             val.get(a);
             while(strl.more())
@@ -361,7 +362,7 @@ Boolean _buildArrayValue(
             break;
         }
         case CIMTYPE_SINT8:
-        {   
+        {
             Array<Sint8> a;
             val.get(a);
             while(strl.more())
@@ -370,7 +371,7 @@ Boolean _buildArrayValue(
             break;
         }
         case CIMTYPE_UINT16:
-        {   
+        {
             Array<Uint16> a;
             val.get(a);
             while(strl.more())
@@ -379,7 +380,7 @@ Boolean _buildArrayValue(
             break;
         }
         case CIMTYPE_SINT16:
-        {   
+        {
             Array<Sint16> a;
             val.get(a);
             while(strl.more())
@@ -388,7 +389,7 @@ Boolean _buildArrayValue(
             break;
         }
         case CIMTYPE_UINT32:
-        {   
+        {
             Array<Uint32> a;
             val.get(a);
             while(strl.more())
@@ -397,7 +398,7 @@ Boolean _buildArrayValue(
             break;
         }
         case CIMTYPE_SINT32:
-        {   
+        {
             Array<Sint32> a;
             val.get(a);
             while(strl.more())
@@ -406,7 +407,7 @@ Boolean _buildArrayValue(
             break;
         }
         case CIMTYPE_UINT64:
-        {   
+        {
             Array<Uint64> a;
             val.get(a);
             while(strl.more())
@@ -415,7 +416,7 @@ Boolean _buildArrayValue(
             break;
         }
         case CIMTYPE_SINT64:
-        {   
+        {
             Array<Sint64> a;
             val.get(a);
             while(strl.more())
@@ -424,7 +425,7 @@ Boolean _buildArrayValue(
             break;
         }
         case CIMTYPE_REAL32:
-        {   
+        {
             Array<Real32> a;
             val.get(a);
             while(strl.more())
@@ -433,7 +434,7 @@ Boolean _buildArrayValue(
             break;
         }
         case CIMTYPE_REAL64:
-        {   
+        {
             Array<Real64> a;
             val.get(a);
             while(strl.more())
@@ -442,7 +443,7 @@ Boolean _buildArrayValue(
             break;
         }
         case CIMTYPE_STRING:
-        {   
+        {
             Array<String> a;
             val.get(a);
             while(strl.more())
@@ -451,7 +452,7 @@ Boolean _buildArrayValue(
             break;
         }
         case CIMTYPE_DATETIME:
-        {   
+        {
             Array<CIMDateTime> a;
             val.get(a);
             while(strl.more())
@@ -460,7 +461,7 @@ Boolean _buildArrayValue(
             break;
         }
     default:
-        cout << "Error: Parse Error. Data type " << cimTypeToString(type) 
+        cout << "Error: Parse Error. Data type " << cimTypeToString(type)
         << " not allowed" << endl;
         exit(CIMCLI_INPUT_ERR);
     }
@@ -525,7 +526,7 @@ ObjectBuilder::ObjectBuilder(
 
     _verbose = verbose;
     _className = className;
-    
+
     _thisClass = client.getClass(nameSpace, className,
                         false,true,true,cimPropertyList);
 
@@ -556,7 +557,7 @@ ObjectBuilder::ObjectBuilder(
 
         if (_verbose)
         {
-            // This loop displays all the names and 
+            // This loop displays all the names and
             // property values of the instance
             for (Uint32 i=0; i < _featureNameList.size(); i++)
             {
@@ -678,15 +679,15 @@ CIMInstance ObjectBuilder::buildInstance(
         if ((propertyPos = _thisClass.findProperty(
             _featureNameList[index])) == PEG_NOT_FOUND)
         {
-            cerr << "Warning property Name " 
-                 << _featureNameList[index].getString() 
+            cerr << "Warning property Name "
+                 << _featureNameList[index].getString()
                  << " Input value " <<  _valueStringList[index]
                  << " not in class: " << _thisClass.getClassName().getString()
                  << " Skipping."
                  << endl;
             continue;
         }
-        
+
         // get value for this property from built instance
 
         CIMProperty ip = newInstance.getProperty(propertyPos);
@@ -704,7 +705,7 @@ CIMInstance ObjectBuilder::buildInstance(
             }
             else
             {
-                cerr << "Error: " << ip.getName().getString() 
+                cerr << "Error: " << ip.getName().getString()
                     << "! parameter terminator allowed only on String types "
                     << endl;
                 exit(CIMCLI_INPUT_ERR);
@@ -719,14 +720,14 @@ CIMInstance ObjectBuilder::buildInstance(
                     _valueStringList[index].getCString(), iv))
                 {
                     cerr << "Parse Error: parameter "
-                       << _featureNameList[index].getString() 
+                       << _featureNameList[index].getString()
                        << " "
                        << _valueStringList[index] << endl;
                     exit(CIMCLI_INPUT_ERR);
                 }
             }
             else  // scalar
-            {  
+            {
                 // Replace property value in new instance
                 iv = _stringToScalarValue(
                     _valueStringList[index].getCString(), ip.getType());
@@ -789,7 +790,7 @@ Array<CIMParamValue> ObjectBuilder::buildMethodParameters()
         if ((parameterPos = thisClassMethod.findParameter(
             CIMName(_featureNameList[index]))) == PEG_NOT_FOUND)
         {
-            cerr << "Error: parameter " << _featureNameList[index].getString() 
+            cerr << "Error: parameter " << _featureNameList[index].getString()
                 << " not valid method parameter in class "
                 << _className.getString()
                 << endl;

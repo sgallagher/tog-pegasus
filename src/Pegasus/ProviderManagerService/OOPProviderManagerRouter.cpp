@@ -1064,6 +1064,8 @@ void ProviderAgentContainer::_processGetSCMOClassRequest(
     CString ns = request->nameSpace.getString().getCString();
     CString cn = request->className.getString().getCString();
 
+    delete request;
+
     response->scmoClass = SCMOClassCache::getInstance()->getSCMOClass(
                               ns,strlen(ns),
                               cn,strlen(cn));

@@ -70,7 +70,7 @@ Semaphore::~Semaphore()
     && !defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
     pthread_mutex_lock(&_rep.mutex);
     int r = 0;
-    while (((r = pthread_cond_destroy(&_rep.cond)) == EBUSY) ||
+    while ((r = pthread_cond_destroy(&_rep.cond) == EBUSY) ||
            (r == -1 && errno == EBUSY))
     {
         pthread_mutex_unlock(&_rep.mutex);
@@ -126,6 +126,13 @@ void Semaphore::wait()
     // Acquire mutex to enter critical section.
     pthread_mutex_lock(&_rep.mutex);
 
+    // Push cleanup function onto cleanup stack
+    // The mutex will unlock if the thread is killed early
+#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) \
+    || defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
+    Threads::cleanup_push(&semaphore_cleanup, &_rep);
+#endif
+
     // Keep track of the number of waiters so that <sema_post> works correctly.
     _rep.waiters++;
 
@@ -147,7 +154,10 @@ void Semaphore::wait()
     // Since we push an unlock onto the cleanup stack
     // We will pop it off to release the mutex when leaving the critical
     // section.
-    
+#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) \
+    || defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
+    Threads::cleanup_pop(1);
+#endif
     // Release mutex to leave critical section.
     pthread_mutex_unlock(&_rep.mutex);
 }
@@ -157,6 +167,13 @@ Boolean Semaphore::time_wait(Uint32 milliseconds)
     // Acquire mutex to enter critical section.
     pthread_mutex_lock(&_rep.mutex);
     Boolean timedOut = false;
+
+#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) \
+    || defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
+    // Push cleanup function onto cleanup stack
+    // The mutex will unlock if the thread is killed early
+    Threads::cleanup_push(&semaphore_cleanup, &_rep);
+#endif
 
     // Keep track of the number of waiters so that <sema_post> works correctly.
     _rep.waiters++;
@@ -176,11 +193,8 @@ Boolean Semaphore::time_wait(Uint32 milliseconds)
     {
         int r = pthread_cond_timedwait(&_rep.cond, &_rep.mutex, &waittime);
 
-#ifdef PEGASUS_OS_ZOS
-        if (((r==-1 && errno==EAGAIN) || (r==ETIMEDOUT)) && _rep.count==0)
-#else
-        if (((r==-1 && errno==ETIMEDOUT) || (r==ETIMEDOUT)) && _rep.count==0)
-#endif
+        if (((r == -1 && errno == ETIMEDOUT) || (r == ETIMEDOUT)) &&
+            _rep.count == 0)
         {
             timedOut = true;
         }
@@ -194,6 +208,14 @@ Boolean Semaphore::time_wait(Uint32 milliseconds)
 
     // Decrement the waiters count.
     _rep.waiters--;
+
+#if defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) \
+    || defined(PEGASUS_PLATFORM_PASE_ISERIES_IBMCXX)
+    // Since we push an unlock onto the cleanup stack
+    // We will pop it off to release the mutex when leaving the critical
+    // section.
+    Threads::cleanup_pop(1);
+#endif
 
     // Release mutex to leave critical section.
     pthread_mutex_unlock(&_rep.mutex);
@@ -288,7 +310,8 @@ Boolean Semaphore::time_wait(Uint32 milliseconds)
 
     gettimeofday(&finish, NULL);
     finish.tv_sec += (milliseconds / 1000);
-    usec = finish.tv_usec + ((milliseconds % 1000) * 1000);
+    milliseconds %= 1000;
+    usec = finish.tv_usec + (milliseconds * 1000);
     finish.tv_sec += (usec / 1000000);
     finish.tv_usec = usec % 1000000;
 
@@ -318,10 +341,7 @@ Boolean Semaphore::time_wait(Uint32 milliseconds)
         {
             return false;
         }
-        // yield just marks the thread as eligible to be not scheduled by 
-        // hypervisor, sleep forces thread to actually take a break
-        // which what is called for here to avoid CPU spikes from close loop
-        Threads::sleep(milliseconds/100+1);
+        Threads::yield();
     }
 
     return true;
@@ -357,13 +377,6 @@ Semaphore::Semaphore(Uint32 initial)
     }
     _rep.owner = Threads::self();
     _rep.sem = CreateSemaphore(NULL, initial, PEGASUS_SEM_VALUE_MAX, NULL);
-    if (_rep.sem == NULL)
-    {
-        throw Exception(MessageLoaderParms(
-            "Common.InternalException.SEMAPHORE_INIT_FAILED",
-            "Semaphore initialization failed: $0",
-            PEGASUS_SYSTEM_ERRORMSG_NLS));
-    }
 }
 
 Semaphore::~Semaphore()

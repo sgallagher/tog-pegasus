@@ -378,6 +378,8 @@ inline Uint32 AtomicIntTemplate<AtomicType>::get() const
 PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
 {
+    // sync is required for SMP machines.
+    asm volatile("sync" : : :); 
     _rep.n = n;
 }
 
@@ -387,13 +389,15 @@ inline void AtomicIntTemplate<AtomicType>::inc()
     int t;
 
     asm volatile(
-        "1: lwarx %0,0,%2\n"
+        "lwsync\n"
+        "1: lwarx %0,0,%1\n"
         "addic %0,%0,1\n"
-        "stwcx. %0,0,%2\n"
-        "bne- 1b"
-        : "=&r" (t), "=m" (_rep.n)
-        : "r" (&_rep.n), "m" (_rep.n)
-        : "cc");
+        "stwcx. %0,0,%1\n"
+        "bne- 1b\n"
+        "isync"
+        : "=&r" (t)
+        : "r" (&_rep.n)
+        : "cc", "memory");
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
@@ -402,10 +406,12 @@ inline void AtomicIntTemplate<AtomicType>::dec()
     int c;
 
     asm volatile(
+        "lwsync\n"
         "1: lwarx %0,0,%1\n"
         "addic %0,%0,-1\n"
         "stwcx. %0,0,%1\n"
-        "bne- 1b"
+        "bne- 1b\n"
+        "isync"
         : "=&r" (c)
         : "r" (&_rep.n)
         : "cc", "memory");
@@ -417,10 +423,12 @@ inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
     int c;
 
     asm volatile(
+        "lwsync\n"
         "1: lwarx %0,0,%1\n"
         "addic %0,%0,-1\n"
         "stwcx. %0,0,%1\n"
-        "bne- 1b"
+        "bne- 1b\n"
+        "isync"
         : "=&r" (c)
         : "r" (&_rep.n)
         : "cc", "memory");

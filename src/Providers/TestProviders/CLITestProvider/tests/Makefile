@@ -53,8 +53,7 @@ MASTERHELPRESULTFILE = $(ROOT)/src/$(DIR)/helpresult.master
 endif
 NSRESULTFILE = $(ROOT)/src/$(DIR)/namespacetestresult
 MASTERNSRESULTFILE = $(ROOT)/src/$(DIR)/namespacetestresult.master
-ASSOCRESULTFILE = $(ROOT)/src/$(DIR)/assocresult
-MASTERASSOCRESULTFILE = $(ROOT)/src/$(DIR)/assocresult.master
+
 # sampleprovider\Load puts the sample MOF into a separate namespace.
 # The following variable defines this namespace.
 
@@ -82,14 +81,16 @@ messages:
 general:
 
 
-## test the getclass operation.  This serves both as a test of getclass
-## and a confirmation that we have not modified the class since the output
-## diff will fail if the class is modified
+### Test the getclass operation.  This serves both as a test of getclass
+### and a confirmation that we have not modified the class since the output
+### diff will fail if the class is modified
 getclass:
 	@$(ECHO) 0. +++++ Test For getClass
 	@$(ECHO) 0. +++++ Test For getClass  >> $(RESULTFILE)
-	cimcli gc -n "$(PROVIDERNS)"  Test_CLITestProviderClass >> $(RESULTFILE)
-	cimcli gc -n "$(PROVIDERNS)"  Test_CLITestProviderLinkClass \
+
+	@cimcli gc -n "$(PROVIDERNS)"  Test_CLITestProviderClass \
+	    >> $(RESULTFILE)
+	@cimcli gc -n "$(PROVIDERNS)"  Test_CLITestProviderLinkClass \
 	    >> $(RESULTFILE)
 	@$(ECHO) 0. +++++ Test getClass
 
@@ -97,10 +98,13 @@ getclass:
 testRefs:
 	@$(ECHO) 1. +++++ Test For Reference params
 	@$(ECHO) 1. +++++ Test For Reference params  >> $(RESULTFILE)
-	##@cimcli im Test_CLITestProviderClass  ReferenceParamTest -n "$(PROVIDERNS)" -ip a=[class.k1=v1,k2=v2,k3=v3]
+
+	##@cimcli im Test_CLITestProviderClass  ReferenceParamTest \
+	## -n "$(PROVIDERNS)" -ip a=[class.k1=v1,k2=v2,k3=v3]
 
 	##@$(ECHO) 2. +++++ Test String  params  which include square brackets
-	##@cimcli im Test_CLITestProviderClass  ReferenceParamTest -n "$(PROVIDERNS)" -ip a="\[string-param\]"
+	##@cimcli im Test_CLITestProviderClass  ReferenceParamTest \
+	##-n "$(PROVIDERNS)" -ip a="\[string-param\]"
 
 
 ### test get and set property operations
@@ -109,7 +113,8 @@ testPropertyOperations:
 	@$(ECHO) 2. +++++ Test Getproperty and setProperty >> $(RESULTFILE)
 
 #	@cimcli sp  -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" Name John
-	@cimcli gp  -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" Name >> $(RESULTFILE)
+	@cimcli gp  -n "$(PROVIDERNS)"  \
+	    Test_CLITestProviderClass.Id=\"Mike\" Name >> $(RESULTFILE)
 
 	## Test property values for the predefined instance
 	@cimcli ni -n "$(PROVIDERNS)" Test_CLITestProviderClass >> $(RESULTFILE)
@@ -122,81 +127,84 @@ testCreateInstanceOperation:
 	@$(ECHO) 3. +++++ Tests Instances create Instance >> $(RESULTFILE)
 
 	## Test Instance Creation with scalars
-	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass Id="ScalarTest" \
-	scalBool=true scalUint8=12 scalSint8=12 scalUint16=500 \
-	scalSint16=500 scalUint32=9999 scalSint32=9999 \
-	scalUint64=99999 scalUint64=99999 scalString="testString" \
-	>> $(RESULTFILE)
+	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="ScalarTest" \
+	    scalBool=true scalUint8=12 scalSint8=12 scalUint16=500 \
+	    scalSint16=500 scalUint32=9999 scalSint32=9999 \
+	    scalUint64=99999 scalUint64=99999 scalString="testString" \
+	    >> $(RESULTFILE)
 
 	## Test the creation. Will do error exit if this fails
-	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass Id="ScalarTest" \
-	scalBool=true scalUint8=12 scalSint8=12 scalUint16=500 \
-	scalSint16=500 scalUint32=9999 scalSint32=9999 \
-	scalUint64=99999 scalUint64=99999 scalString="testString" \
-	>> $(RESULTFILE)
+	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="ScalarTest" \
+	    scalBool=true scalUint8=12 scalSint8=12 scalUint16=500 \
+	    scalSint16=500 scalUint32=9999 scalSint32=9999 \
+	    scalUint64=99999 scalUint64=99999 scalString="testString" \
+	    >> $(RESULTFILE)
 
 	## Test Instance Creation with arrays
 	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass Id="arrayTest" \
-	arrayBool=true,true,true,false,true \
-	arrayUint8=12  arraySint8=-127,0,12,127 \
-	arrayUint32=99,0,31000,63000,4294967295 \
-	arraySint32=-32000,0,32000,-2147483648,2147483647 \
-	arrayUint64=99,0,31000,63000,18446744073709551615 \
-	arraySint64=-32000,0,32000,-9223372036854775808 \
-	scalString="testString" \
-	scalDateTime=19991224120000.000000+360 >> $(RESULTFILE)
+	    arrayBool=true,true,true,false,true \
+	    arrayUint8=12  arraySint8=-127,0,12,127 \
+	    arrayUint32=99,0,31000,63000,4294967295 \
+	    arraySint32=-32000,0,32000,-2147483648,2147483647 \
+	    arrayUint64=99,0,31000,63000,18446744073709551615 \
+	    arraySint64=-32000,0,32000,-9223372036854775808 \
+	    scalString="testString" \
+	    scalDateTime=19991224120000.000000+360 >> $(RESULTFILE)
 
 	## run testintance against the instance just created
 	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass Id="arrayTest" \
-	arrayBool=true,true,true,false,true \
-	arrayUint8=12  arraySint8=-127,0,12,127 \
-	arrayUint32=99,0,31000,63000,4294967295 \
-	arraySint32=-32000,0,32000,-2147483648,2147483647 \
-	arrayUint64=99,0,31000,63000,18446744073709551615 \
-	arraySint64=-32000,0,32000,-9223372036854775808 \
-	scalString="testString" \
-	scalDateTime=19991224120000.000000+360 >> $(RESULTFILE)
+	    arrayBool=true,true,true,false,true \
+	    arrayUint8=12  arraySint8=-127,0,12,127 \
+	    arrayUint32=99,0,31000,63000,4294967295 \
+	    arraySint32=-32000,0,32000,-2147483648,2147483647 \
+	    arrayUint64=99,0,31000,63000,18446744073709551615 \
+	    arraySint64=-32000,0,32000,-9223372036854775808 \
+	    scalString="testString" \
+	    scalDateTime=19991224120000.000000+360 >> $(RESULTFILE)
 
         ## Test enumerate of All the instances we created
 	@cimcli ni -n "$(PROVIDERNS)" Test_CLITestProviderClass >> $(RESULTFILE)
 	@cimcli ei -n "$(PROVIDERNS)" Test_CLITestProviderClass >> $(RESULTFILE)
 
-###
+### Test multiple forms of modifyInstance. Requires instance created in
+### test 3
 testModifyInstanceOperation:
 	@$(ECHO) 4. +++++ Test Instances modify Instance
 	@$(ECHO) 4. +++++ Test Instances modify Instance >> $(RESULTFILE)
 
 	@cimcli mi -n "$(PROVIDERNS)" Test_CLITestProviderClass \
-	Id="ScalarTest" \
-	scalBool=false scalUint8=14 scalSint8=-12 scalUint16=501 \
-	scalSint16=501 scalUint32=9998 scalSint32=9999 \
-	scalUint64=888 scalUint64=1 >> $(RESULTFILE)   
+	    Id="ScalarTest" \
+	    scalBool=false scalUint8=14 scalSint8=-12 scalUint16=501 \
+	    scalSint16=501 scalUint32=9998 scalSint32=9999 \
+	    scalUint64=888 scalUint64=1 >> $(RESULTFILE)   
 	     
 	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
-	Id="ScalarTest" \
-	scalBool=false scalUint8=14 scalSint8=-12 scalUint16=501 \
-	scalSint16=501 scalUint32=9998 scalSint32=9999 \
-	scalUint64=888 scalUint64=1 scalString=testString >> $(RESULTFILE)
+	    Id="ScalarTest" \
+	    scalBool=false scalUint8=14 scalSint8=-12 scalUint16=501 \
+	    scalSint16=501 scalUint32=9998 scalSint32=9999 \
+	    scalUint64=888 scalUint64=1 scalString=testString >> $(RESULTFILE)
 
 ##### NOTE: This test reflects a possible error in Pegasus today.  The
 #####       key property should not be required in the input.
 	@cimcli mi -n "$(PROVIDERNS)" \
-	Test_CLITestProviderClass.Id=\"ScalarTest\" \
-	Id=ScalarTest \
-	scalBool=true scalUint8=15 scalSint8=-13 scalUint16=502 \
-	scalSint16=502 scalUint32=9997 scalSint32=9998 \
-	scalUint64=888 scalUint64=1 >> $(RESULTFILE)
+	    Test_CLITestProviderClass.Id=\"ScalarTest\" \
+	    Id=ScalarTest \
+	    scalBool=true scalUint8=15 scalSint8=-13 scalUint16=502 \
+	    scalSint16=502 scalUint32=9997 scalSint32=9998 \
+	    scalUint64=888 scalUint64=1 >> $(RESULTFILE)
 
 	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
-	Id=ScalarTest \
-	scalBool=true scalUint8=15 scalSint8=-13 scalUint16=502 \
-	scalSint16=502 scalUint32=9997 scalSint32=9998 \
-	scalUint64=888 scalUint64=1 >> $(RESULTFILE)
+	    Id=ScalarTest \
+	    scalBool=true scalUint8=15 scalSint8=-13 scalUint16=502 \
+	    scalSint16=502 scalUint32=9997 scalSint32=9998 \
+	    scalUint64=888 scalUint64=1 >> $(RESULTFILE)
 
 	@$(ECHO) +++++ Test modify instance Passed.
 
 
-### test Delete instance. Assumes instances created with testCreateInstance
+### Test Delete instance. Assumes instances created with testCreateInstance
 testDeleteInstanceOperation:	
 	@$(ECHO) 5. +++++ Test delete instance
 	@$(ECHO) 5. +++++ Test delete instance >> $(RESULTFILE)
@@ -235,7 +243,7 @@ testDeleteInstanceOperation:
 
 	@$(ECHO) +++++ Test delete instance Passed.
 
-### test invoke method with a variety of parameter  data types
+### Test invoke method with a variety of parameter  data types
 testInvokeMethod:
 	@$(ECHO) 6. +++++ Test invokeMethod
 	@$(ECHO) 6. +++++ Test invokeMethod >> $(RESULTFILE)
@@ -243,21 +251,21 @@ testInvokeMethod:
 	## test using inOutParameter method that returns all
 	## input parameters as corresponding output parameters
 	@cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
-	        InOutParamTest \
-		scalBool=true \
-		arrayBool=true,false,true \
-		scalUint32=99 \
-		arrayUint32=99,0,31000,63000 \
-		scalSint32=-99 \
-		arraySint32=-32000,0,32000 \
-		scalString=ThisIsMyTest \
-		arrayString="one",two,"three","multiword string" \
-		scalDateTime=19991224120000.000000+360 \
-		arrayDateTime=19991224120000.000000+360,19991224120000.000000+360 \
-		>>$(RESULTFILE)
+	    InOutParamTest \
+	    scalBool=true \
+	    arrayBool=true,false,true \
+	    scalUint32=99 \
+	    arrayUint32=99,0,31000,63000 \
+	    scalSint32=-99 \
+	    arraySint32=-32000,0,32000 \
+	    scalString=ThisIsMyTest \
+	    arrayString="one",two,"three","multiword string" \
+	    scalDateTime=19991224120000.000000+360 \
+	    arrayDateTime=19991224120000.000000+360,19991224120000.000000+360 \
+	    >>$(RESULTFILE)
 	@$(ECHO) +++++ Test invoke method Passed.
 
-### test cimcli output with the table output format
+### Test cimcli output with the table output format
 testTableOutputFormat:
 	@$(ECHO) 7. +++++ Test table output format
 	@$(ECHO) 7. +++++ Test table output format >> $(RESULTFILE)
@@ -273,30 +281,30 @@ testTableOutputFormat:
 	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Thomas\"
 	@$(ECHO) +++++ Test table output format Passed.
 
-###
-###     For now we only test getQualifier.  Enumerate can have too many
-###     surprises and set not implemented.  
+### Test qualifer declaration get and enumerate.
 testQualifierDecls:
 	@$(ECHO) 8. +++++ Test QualifierDecl Operations
 	@$(ECHO) 8. +++++ Test QualifierDecl Operations >> $(RESULTFILE)
 
 	@cimcli gq -n "$(TESTCIMV2)" Association >>$(RESULTFILE)
+	## use sort to assure ordering of response objects
+	@cimcli eq -n "$(TESTCIMV2)" --sort >>$(RESULTFILE)
 	@$(ECHO) +++++ Test QualifierDecls Passed.
 
-###
-###     Test the class operations.  Note that we may have issues with the
-###     enumerates and ordering. Also we use the static namespace to 
-###     assure that the classes do not change
+### Test the class operations.  Note that we may have issues with the
+### enumerates and ordering. Also we use the static namespace to 
+### assure that the classes do not change
 testClassOperations:
 	@$(ECHO) 9. +++++ getClass Operation
 	@$(ECHO) 9. +++++ getClass Operation >> $(RESULTFILE)
 
 	@cimcli nc -n $(STATICNS) --sum -count 67 >>$(RESULTFILE)
-#	@cimcli nc -n $(STATICNS) >>$(RESULTFILE)
+	@cimcli nc -n $(STATICNS) --sort >>$(RESULTFILE)
 	@cimcli gc CIM_ManagedElement -n $(STATICNS) >>$(RESULTFILE)
 	@cimcli gc CIM_ManagedElement -n $(STATICNS) -o xml >>$(RESULTFILE)
 	@$(ECHO) +++++ Test ClassOperations Passed.
 
+### Test different options on propertylist parameter
 testPropertyListOption:
 	@$(ECHO) 10. +++++ testPropertyListOptions
 	@$(ECHO) 10. +++++ testPropertyListOptions >> $(RESULTFILE)
@@ -304,38 +312,38 @@ testPropertyListOption:
 	@cimcli gc CIM_ManagedElement -n $(STATICNS) -pl Caption \
 	    >>$(RESULTFILE)
 	@cimcli gc CIM_ManagedElement -n $(STATICNS) \
-	 -pl Caption,Description >>$(RESULTFILE)
+	    -pl Caption,Description >>$(RESULTFILE)
 	@cimcli gc CIM_ManagedElement -n $(STATICNS) \
 	 -pl Caption,Description,ElementName >>$(RESULTFILE)
 	@cimcli gc CIM_ManagedElement -n $(STATICNS) -pl "" >>$(RESULTFILE)
 
 	@cimcli ei -n "$(PROVIDERNS)" Test_CLITestProviderClass \
-	-pl scalBool,arrayUint64 >>$(RESULTFILE)
+	    -pl scalBool,arrayUint64 >>$(RESULTFILE)
 	@cimcli ei -n "$(PROVIDERNS)" Test_CLITestProviderClass \
-	-pl "" >>$(RESULTFILE)
+	    -pl "" >>$(RESULTFILE)
 
 	@cimcli gi -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
-	-pl scalBool,arrayUint64,scalString  >>$(RESULTFILE)
+	    -pl scalBool,arrayUint64,scalString  >>$(RESULTFILE)
 	@$(ECHO) +++++ Test testPropertyListOption Passed.
 
-# Test the different formats for input of getinstance operation
+### Test the different formats for input of getinstance operation
 testGetInstanceOperation:
 	@$(ECHO) 12. +++++ test getInstance Operation
 	@$(ECHO) 12. +++++ test getInstance Operation >> $(RESULTFILE)
 
 	@cimcli gi Test_CLITestProviderClass -n "$(PROVIDERNS)" Id=Mike \
-	  >>$(RESULTFILE)
+	    >>$(RESULTFILE)
 
 	@cimcli gi Test_CLITestProviderClass -n "$(PROVIDERNS)" Id=Mike \
-	  -pl Name,scalBool >>$(RESULTFILE)
+	    -pl Name,scalBool >>$(RESULTFILE)
 
 	@cimcli gi Test_CLITestProviderClass.Id=\"Mike\" -n "$(PROVIDERNS)" \
-	  -pl Name,scalBool >>$(RESULTFILE)
+	    -pl Name,scalBool >>$(RESULTFILE)
 	   
 	@$(ECHO) +++++ Test getInstance Passed.
 
-# Test the testInstance Operation
-# Tests for positive (No error responses).
+### Test the testInstance Operation
+### Tests for positive (No error responses).
 testTestInstanceOperation:
 	@$(ECHO) 13. +++++ test TestInstance Operations
 	@$(ECHO) 13. +++++ test TestInstance Operations >> $(RESULTFILE)
@@ -361,12 +369,11 @@ testTestInstanceOperation:
 
 	@$(ECHO) +++++ Test testInstance Passed.
 
-## test integer input and test with decimal, hex, octal and binary integers
+### Test integer input and test with decimal, hex, octal and binary integers
 testIntegerVariations:
 	## Test variations on integer values
 	@$(ECHO) 14. +++++ test Integer Variations
 	@$(ECHO) 14. +++++ test Integer Variations >> $(RESULTFILE)
-
 	
 	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass \
 	    Id=integerVariationTest \
@@ -423,59 +430,75 @@ testIntegerVariations:
 
 	@$(ECHO) +++++ Test integerVariations Passed.
 
-## test the reference and reference name operations
+### Test reference and reference name operations
 referencetests:
 	@$(ECHO) 15. +++++ referencetests
 	@$(ECHO) 15. +++++ referencetests >> $(RESULTFILE)
-	cimcli r Test_CLITestProviderClass -n "$(PROVIDERNS)" \
+
+	@cimcli r Test_CLITestProviderClass -n "$(PROVIDERNS)" \
+	    -count 1 \
 	    >> $(RESULTFILE)
+	@cimcli rn Test_CLITestProviderClass -n "$(PROVIDERNS)" -count 1 \
+	    --setRtnHostNames ChangedHostName \
+	    >> $(RESULTFILE)	
 
-	## The following are sent to special result file because they
-	## include system specific information (hostname)
-	cimcli rn Test_CLITestProviderClass -n "$(PROVIDERNS)" \
-	    >> $(ASSOCRESULTFILE)	
+        ## set the flag to use a fixed hostname
+	@cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
+	    setProviderParameters \
+	    substituteHostName=localhost >> $(RESULTFILE)
 
-	cimcli r -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
-	    >> $(ASSOCRESULTFILE)
-	cimcli r -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
-		-r parent  >> $(ASSOCRESULTFILE)
-	cimcli rn -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
-	    >> $(ASSOCRESULTFILE)
-## This test confirms that specific input parameters are correctly passed
-## to the provider since the test provider returns this information
-## in a specific property.
-	cimcli r -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
+	@cimcli r -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
+	    >> $(RESULTFILE)
+	@cimcli r -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
+	    -r parent  >> $(RESULTFILE)
+	@cimcli rn -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
+	    >> $(RESULTFILE)
+### This test confirms that specific input parameters are correctly passed
+### to the provider since the test provider returns this information
+### in a specific property.
+	@cimcli r -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
 	    -r child -rc Test_CLITestProviderLinkClass \
-	    -pl requestInputParameters >> $(ASSOCRESULTFILE)
+	    -pl requestInputParameters >> $(RESULTFILE)
+
+        ## Reset the flag to return a real hostname
+	@cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
+	    resetProviderParameters >> $(RESULTFILE)
 	@$(ECHO) +++++ Test referencetests Passed.
 
-## Test operation of the association and association name operations
+### Test operation of the association and association name operations
 associationtests:
 	@$(ECHO) 16. +++++ associationtests
 	@$(ECHO) 16. +++++ associationtests >> $(RESULTFILE)
-	cimcli a Test_CLITestProviderClass -n "$(PROVIDERNS)" \
+
+	@cimcli a Test_CLITestProviderClass -n "$(PROVIDERNS)" \
+	    -count 1 \
+	    >> $(RESULTFILE)
+	@cimcli an Test_CLITestProviderClass -n "$(PROVIDERNS)" -count 1 \
+	    --setRtnHostNames ChangedHostName \
 	    >> $(RESULTFILE)
 
-	## The following are sent to a special result file because
-	## they include system specific info (i.e hostname)
-	cimcli an Test_CLITestProviderClass -n "$(PROVIDERNS)" \
-	    >> $(ASSOCRESULTFILE)
-
-	cimcli a -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
-	    >> $(ASSOCRESULTFILE)
-	cimcli an -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
-	    >> $(ASSOCRESULTFILE)
-	cimcli a -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
-	    -pl "" >> $(ASSOCRESULTFILE) 
+        ## Set the flag to use a fixed hostname
+	@cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
+	    setProviderParameters \
+	    substituteHostName=localhost >> $(RESULTFILE)
+	@cimcli a -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
+	    -count 1 >> $(RESULTFILE)
+	@cimcli an -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
+	    >> $(RESULTFILE)
+	@cimcli a -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
+	    -pl "" >> $(RESULTFILE) 
 ###     This test returns property with the input parameters
-	cimcli a -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
+	@cimcli a -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
 	    -ac Test_CLITestProviderLinkClass -rc Test_CLITestProviderClass \
-	    -r child -rr parent -pl requestInputParameters \
-	    >> $(ASSOCRESULTFILE)
+	    -r child -rr parent -pl requestInputParameters -count 1 \
+	    >> $(RESULTFILE)
+	## Reset the flag to use the real Host Name
+	@cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
+	        resetProviderParameters >> $(RESULTFILE)
+
 	@$(ECHO) +++++ Test associationtests Passed.
 
-
-## test cimcli response to help option requests
+### Test cimcli response to help option requests
 helpoutputtests:
 	@$(ECHO) 17. +++++ test Help Output
 	@$(ECHO) 17. +++++ test Help Output >> $(HELPRESULTFILE)
@@ -487,30 +510,29 @@ helpoutputtests:
 
 	@$(ECHO) +++++ Test Help Output Passed.
 
-##
-##      Test the parameter options for property definitions that
-##      produce null or default property values
-##
+### Test the parameter options for property definitions that
+### produce null or default property values
 nullvaluetests:
 	@$(ECHO) 18. +++++ nullvaluetests
 	@$(ECHO) 18. +++++ nullvaluetests >> $(RESULTFILE)
+
 	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass \
-	Id="NullValueTest" \
-	scalBool= defaultBool= \
-	scalUint32= defaultUint32= \
-	scalString= defaultString=  >> $(RESULTFILE)
+	    Id="NullValueTest" \
+	    scalBool= defaultBool= \
+	    scalUint32= defaultUint32= \
+	    scalString= defaultString=  >> $(RESULTFILE)
 
 	@cimcli gi -n "$(PROVIDERNS)" Test_CLITestProviderClass \
-	Id="NullValueTest"  >> $(RESULTFILE)
-		
+	    Id="NullValueTest"  >> $(RESULTFILE)
+
 	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
-	Id="NullValueTest"
-	scalBool= defaultBool= \
-	scalUint32= defaultUint32= \
-	scalString= defaultString=  >> $(RESULTFILE)
+	    Id="NullValueTest"
+	    scalBool= defaultBool= \
+	    scalUint32= defaultUint32= \
+	    scalString= defaultString=  >> $(RESULTFILE)
 
 	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass \
-	Id="NullValueTest"  >> $(RESULTFILE)
+	    Id="NullValueTest"  >> $(RESULTFILE)
 
 	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass \
 	    Id=EmptyStringTest \
@@ -521,7 +543,7 @@ nullvaluetests:
 	    defaultString!  >> $(RESULTFILE)
 
 	@cimcli gi -n "$(PROVIDERNS)" Test_CLITestProviderClass \
-	Id="EmptyStringTest"  >> $(RESULTFILE)
+	    Id="EmptyStringTest"  >> $(RESULTFILE)
 
 	@cimcli ti -n "$(PROVIDERNS)" Test_CLITestProviderClass \
 	    Id=EmptyStringTest \
@@ -531,34 +553,76 @@ nullvaluetests:
 	    scalString= \
 	    defaultString!  >> $(RESULTFILE)
 
-	cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass \
-	Id="EmptyStringTest"  >> $(RESULTFILE)
+	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id="EmptyStringTest"  >> $(RESULTFILE)
 
 	@$(ECHO) +++++ Test nullvaluetests Passed.
-##
-##	test the ns operation.  Note that this test is subject to knowledge
-##	of the number of namespaces and their names in the target system
-##	We assume that this is generally a constant for the pegasus nightly
-##	test environment.
-##
+
+### Test the ns operation.  Note that this test is subject to knowledge
+### of the number of namespaces and their names in the target system
+### We assume that this is generally a constant for the pegasus nightly
+### test environment.
 namespacetests:
 	@$(ECHO) 19. +++++ namespacetests
 	@$(ECHO) 19. +++++ namespacetests >> $(NSRESULTFILE)
+
 	@cimcli ns >> $(NSRESULTFILE)
 	@cimcli ns --sum >> $(NSRESULTFILE)
-	@cimcli ns --sum -count 15
+	# output results but do not honor error return code.
+	## Should always return an error.
+	-@cimcli ns --sum -count 25 >> $(NSRESULTFILE) 2>&1
+	-@cimcli ns --sum -count 15 >> $(NSRESULTFILE) 2>&1
 
 	@$(ECHO) +++++ Test namespacetests Passed.
 
-## execute the set of targets defined below
+### Test the use of the -count option which compares number of objects 
+### returned against command line parameter. 
+objectcountertests:
+	@$(ECHO) 20. +++++ objectCounterTests
+	@$(ECHO) 20. +++++ objectCounterTests >> $(RESULTFILE)
+
+        ## Set the flag to use a fixed hostname
+	@cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
+	    setProviderParameters \
+	    substituteHostName=localhost >> $(RESULTFILE)
+	@cimcli ei -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    --sum -count 1 >>$(RESULTFILE)
+	@cimcli ni -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    --sum -count 1 >>$(RESULTFILE)
+	@cimcli ei -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    -count 1 >>$(RESULTFILE)
+	@cimcli ni -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    -count 1 >>$(RESULTFILE)
+
+	## The following tests all return errors (count wrong) and the 
+	## Failed message. Ignore the errors and only confirm the message in the
+	## result file.
+	-@cimcli ei -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    --sum -count 10 >>$(RESULTFILE) 2>&1
+	-@cimcli ni -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    --sum -count 10 >>$(RESULTFILE) 2>&1
+	-@cimcli a -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
+	    --sum -count 10 >>$(RESULTFILE) 2>&1
+	-@cimcli r -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
+	    --sum -count 10 >>$(RESULTFILE) 2>&1
+	-@cimcli an -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
+	    --sum -count 10 >>$(RESULTFILE)
+	-@cimcli rn -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
+	    --sum -count 10 >>$(RESULTFILE) 2>&1
+	@cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
+	        resetProviderParameters >> $(RESULTFILE)
+
+	@$(ECHO) +++++ Test objectcountertests Passed.
+
+### Execute the set of test targets defined below
 poststarttests:
-	## remove existing master files
+	## Remove existing master files
 	@$(RM) $(RESULTFILE)
 	@$(RM) $(TABLEFORMATFILE)
 	@$(RM) $(HELPRESULTFILE)
 	@$(RM) $(NSRESULTFILE)
 	
-	## execute the list of tests
+	## Execute the list of tests
 	$(MAKE) getclass
 	$(MAKE) testQualifierDecls
 	$(MAKE) testClassOperations
@@ -577,34 +641,36 @@ poststarttests:
 	$(MAKE) associationtests
 	$(MAKE) helpoutputtests
 	$(MAKE) nullvaluetests
-	$(MAKE) namespacetests
+	####$(MAKE) namespacetests
+	$(MAKE) objectcountertests
 
 	@$(ECHO) +++++ Compare Result files
-	@$(DIFF) $(MASTERRESULTFILE) $(RESULTFILE)
+	## diffsort used because there is at least one instance where
+	## the redirection of std and err outputs changes order.
+	####@$(DIFF) $(MASTERRESULTFILE) $(RESULTFILE)
+	@ $(call DIFFSORT,result,result.master)
 	@$(DIFF) $(MASTERTABLEFORMATFILE) $(TABLEFORMATFILE)
 	@$(DIFF) $(MASTERHELPRESULTFILE) $(HELPRESULTFILE)
 
-	## Following is separate because we cannot depend on the results
+	## Following are separate because we cannot depend on the results
 	## from these tests (ex. exact number of namespaces and
-	## hostnames are system/test specific
-	-@$(DIFF) $(MASTERNSRESULTFILE) $(NSRESULTFILE)
-	-@$(DIFF) $(MASTERASSOCRESULTFILE) $(ASSOCRESULTFILE)
+	## hostnames are system/test specific. Show the results but do
+	## not fail the test if the files do not match
+	####-@$(DIFF) $(MASTERNSRESULTFILE) $(NSRESULTFILE)
 
 	@$(ECHO) +++++ Remove Result files since test successful
 	@$(RM) $(RESULTFILE)
 	@$(RM) $(TABLEFORMATFILE)
 	@$(RM) $(HELPRESULTFILE)
 	@$(RM) $(NSRESULTFILE)
-	@$(RM) $(ASSOCRESULTFILE)
 
 	@$(ECHO) +++++ All cimcli tests Passed.
 
-##
-## Cleans up an created/modified/or deleted instances that may exist
-## in the server (i.e. the provider) and removes the result files.
-## Note that the normal path also removes result files so that the
-## only reason for this is to redo a failed test before the provider is
-## reinitialized (server restarted or provider reloaded)
+### Clean up an created/modified/or deleted instances that may exist
+### in the server (i.e. the provider) and remove the result files.
+### Note that the normal path also removes result files so that the
+### only reason for this is to redo a failed test before the provider is
+### reinitialized (server restarted or provider reloaded)
 clean:
 	## remove any existing instances
 	-@cimcli di -n "$(PROVIDERNS)" \
@@ -621,31 +687,48 @@ clean:
 	    Id="NullValueTest"
 	-@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass \
 	    Id="EmptyStringTest"
+	-@cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
+	        resetProviderParameters
 
-	## clean out the result files
+	## Remove the result files
 	@$(RM) $(RESULTFILE)
 	@$(RM) $(TABLEFORMATFILE)
 	@$(RM) $(HELPRESULTFILE)
 	@$(RM) $(NSRESULTFILE)
-	@$(RM) $(ASSOCRESULTFILE)
 
 ##################### Local targets useful for manual testing ############
+
+## enumerate instances of the test class
+ni:
+	cimcli ni -n "$(PROVIDERNS)" Test_CLITestProviderClass
+
+## Interactive get of instances of the test class
 giall:
-
 	cimcli gi -n "$(PROVIDERNS)" Test_CLITestProviderClass
 
-diall:
-
-	cimcli gi -n "$(PROVIDERNS)" Test_CLITestProviderClass
-
+## Interactive delete of the test class
 di:
 	cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass
 
+gi:
+	cimcli gi -n "$(PROVIDERNS)" Test_CLITestProviderClass -v
+
 ## Displays classes used in this test
-getclasslocal:
+gc:
 	cimcli gc -n "$(PROVIDERNS)"  Test_CLITestProviderClass
 	cimcli gc -n "$(PROVIDERNS)"  Test_CLITestProviderLinkClass
 
+im:
+	cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
+	        setProviderParameters \
+		substituteHostName=tempHostName
+
+rm:
+	cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
+	        resetProviderParameters
+
+a:
+	cimcli r Test_CLITestProviderClass.Id=\"Mike\" -n "$(PROVIDERNS)" --setRtnHostNames "blah" -v
 
 # END_OF_FILE
 

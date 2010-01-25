@@ -37,7 +37,7 @@ This provider is based on the Test_CLITestProviderClass class. This class
 includes all of the CIM Data types in both scalar and array form
 and provides the following operations:
 
-1. Initialize - Creates a single instance of the class with all of the 
+1. Initialize - Creates a single instance of the class with all of the
 properties initialized. this is placed in an array.
 
 2. EnumerateInstances - Returns all instances in the instances array
@@ -51,11 +51,18 @@ into the array
 5. ModifyInstance - Attempts to modify an instance of the target class if one
 is found in the instances array.
 
-6. DeleteInstance - Delete an instance of the test class if found in the 
+6. DeleteInstance - Delete an instance of the test class if found in the
 instances array.
 
 6. Invoke method: Includes several methods as follows:
-   TBD
+   InOutParamTest - Returns input parameters to the caller
+   setProviderParameters - Single method to allow setting parameters that
+   would be used to modify the provider capabilities for testing.
+   Parameters:
+      substituteHostName - String parameter that provides an alternate name
+      to be used as host name on all responses that include host name.
+   resetProviderParameters - resets all parameters set by the
+   setProviderParamters method.
 
 LIMITATIONS: The provider is intended to be used in a single namespace and so
 does not include the namespace in the instances placed in the array. Therefore
@@ -77,7 +84,6 @@ timeout of providers for unload, they will be discarded.
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
-
 
 String _toString(Boolean x)
 {
@@ -125,7 +131,7 @@ void _addParam(String& target, const String& name, const String& value)
     target.append(value);
 }/*
     Complete the host and namespace fields of an object path if there are
-    empty. 
+    empty.
 */
 void _completePath(const String& hostName,
                             const CIMNamespaceName& nameSpace,
@@ -133,10 +139,11 @@ void _completePath(const String& hostName,
 {
     if (objectPath.getHost().size() == 0)
         objectPath.setHost(hostName);
-    
+
     if (objectPath.getNameSpace().isNull())
         objectPath.setNameSpace(nameSpace);
 }
+
 // convert a fully qualified reference into a local reference
 // (class name and keys only).
 CIMObjectPath _localPath(const CIMObjectPath& inputPath)
@@ -147,6 +154,20 @@ CIMObjectPath _localPath(const CIMObjectPath& inputPath)
         inputPath.getClassName(),
         inputPath.getKeyBindings());
     return localPath;
+}
+// Gets a host name, either the real host name or a substitute for testing.
+// The substitute name  option allows CLI test program to get a dependable
+// host name for result comparisons.
+String CLITestProvider::_getHostName()
+{
+    if (!_useSubstituteHostName)
+    {
+        return System::getHostName();
+    }
+    else
+    {
+        return _substituteHostName;
+    }
 }
 
 // Serializes access to the instances array during the CIM requests
@@ -254,10 +275,65 @@ void CLITestProvider::invokeMethod(
         {
             if (inParameters.size() > 0)
             {
-                //simply returns all parameters
+                //Returns all input parameters
                 handler.deliverParamValue(inParameters);
             }
         handler.deliver(Uint32(0));
+        }
+
+        // This simply returns all parameters and
+        // sets return value set to zero. This should provide a complete
+        // test of all input and output parameter types for cimcli
+        else if(methodName.equal("setProviderParameters"))
+        {
+            Uint32 rtnCode = 0;
+            if (inParameters.size() > 0)
+            {
+                for(Uint32 i = 0; i < inParameters.size(); ++i)
+                {
+                    String paramName = inParameters[i].getParameterName();
+                    CIMValue paramVal = inParameters[i].getValue();
+
+                    if (paramName == "substituteHostName")
+                    {
+                        if (paramVal.getType() == CIMTYPE_STRING)
+                        {
+                            String sTmp = _substituteHostName;
+                            // set the capability from the input parameter
+                            paramVal.get(_substituteHostName);
+                            _useSubstituteHostName = true;
+
+                            // return the parameter with the original value
+                            CIMParamValue outParam = inParameters[i].clone();
+                            CIMValue v = outParam.getValue();
+
+                            v.set(sTmp);
+                            outParam.setValue(v);
+
+                            handler.deliverParamValue(outParam);
+                        }
+                        else
+                        {
+                            // return error. Incorrect type on parameter
+                            rtnCode = 1;
+                        }
+                    }
+                    // NOTE: Add new parameters here with else if
+
+                    // Not a valid parameter. Return error
+                    else
+                    {
+                        rtnCode = 1;
+                    }
+                }
+            }
+            handler.deliver(rtnCode);
+        }
+        else if(methodName.equal("resetProviderParameters"))
+        {
+            _useSubstituteHostName = false;
+            _substituteHostName = String();
+            handler.deliver(0);
         }
     }
     handler.complete();
@@ -298,7 +374,7 @@ void CLITestProvider::getInstance(
         }
         catch(CIMException& e)
         {
-            cerr << "CIMCLITestProvider: Exception Occured on deliver : " 
+            cerr << "CIMCLITestProvider: Exception Occured on deliver : "
                 << e.getMessage() << endl;
             throw CIMException(e);
         }
@@ -348,7 +424,7 @@ void CLITestProvider::enumerateInstances(
             }
             catch(CIMException& e)
             {
-                cerr << "CIMCLITestProvider:Exception Occured : " 
+                cerr << "CIMCLITestProvider:Exception Occured : "
                     << e.getMessage() << endl;
                 throw CIMException(e);
             }
@@ -380,7 +456,7 @@ void CLITestProvider::enumerateInstanceNames(
             }
             catch(CIMException& e)
             {
-                cerr << "CIMCLITestProvider:Exception Occured : " 
+                cerr << "CIMCLITestProvider:Exception Occured : "
                     << e.getMessage() << endl;
                 throw CIMException(e);
             }
@@ -450,14 +526,14 @@ void CLITestProvider::modifyInstance(
                     else
                     {
                         throw CIMException(CIM_ERR_INVALID_PARAMETER,
-                              "Property Not in class " + 
+                              "Property Not in class " +
                               r2.getName().getString());
                     }
                 }
             }  // end try block
             catch(CIMException& e)
             {
-                throw CIMException(CIM_ERR_FAILED, 
+                throw CIMException(CIM_ERR_FAILED,
                                    " Updating Property " + e.getMessage());
             }
         }  // for loop processing properties
@@ -558,7 +634,7 @@ void CLITestProvider::deleteInstance(
 
 /*
     Processing of associator/Reference Operation Requests
- 
+
     NOTE: This code is not based on any clear definition of the
     relationship between objects but simply returning information
     on instances that exist in the repository. Thus typically it returns
@@ -568,7 +644,7 @@ void CLITestProvider::deleteInstance(
     association is that every instance is associated with itself. Note that
     this removes any meaning from the role and assoc/result class parameters
     but we test the validity of these by returning a property in the
-    returned isntances containing all of these values so that the client
+    returned instances containing all of these values so that the client
     can test to determine if the provider received what was input.
 */
 void CLITestProvider::associators(
@@ -587,7 +663,7 @@ void CLITestProvider::associators(
 
     // Get the namespace and host names to create the CIMObjectPath
     CIMNamespaceName nameSpace = objectName.getNameSpace();
-    String host = System::getHostName();
+    String host = _getHostName();
 
     handler.processing();
     // complete processing the request
@@ -611,14 +687,19 @@ void CLITestProvider::associators(
         {
             CIMInstance temp = _instances[index].clone();
             temp.addProperty(CIMProperty("requestInputParameters", text));
-            temp.setPath(objectName);
+            CIMObjectPath rtnObjectName = objectName;
+            if (_useSubstituteHostName)
+            {
+                rtnObjectName.setHost(_getHostName());
+            }
+            temp.setPath(rtnObjectName);
             temp.filter(includeQualifiers,
                         includeClassOrigin, propertyList);
             handler.deliver(temp);
         }
         catch(CIMException& e)
         {
-            cerr << "CIMCLITestProvider:Exception Occured : " 
+            cerr << "CIMCLITestProvider:Exception Occured : "
                 << e.getMessage() << endl;
             throw CIMException(e);
         }
@@ -638,7 +719,7 @@ void CLITestProvider::associatorNames(
     initializeProvider(objectName.getNameSpace());
     // Get the namespace and host names to create the CIMObjectPath
     CIMNamespaceName nameSpace = objectName.getNameSpace();
-    String host = System::getHostName();
+    String host = _getHostName();
 
     handler.processing();
     // complete processing the request
@@ -651,11 +732,16 @@ void CLITestProvider::associatorNames(
     {
         try
         {
-            handler.deliver(objectName);
+            CIMObjectPath rtnObjectName = objectName;
+            if (_useSubstituteHostName)
+            {
+                rtnObjectName.setHost(_getHostName());
+            }
+            handler.deliver(rtnObjectName);
         }
         catch(CIMException& e)
         {
-            cerr << "CIMCLITestProvider:Exception Occured : " 
+            cerr << "CIMCLITestProvider:Exception Occured : "
                 << e.getMessage() << endl;
             throw CIMException(e);
         }
@@ -676,7 +762,7 @@ void CLITestProvider::references(
     initializeProvider(objectName.getNameSpace());
     // Get the namespace and host names to create the CIMObjectPath
     CIMNamespaceName nameSpace = objectName.getNameSpace();
-    String host = System::getHostName();
+    String host = _getHostName();
 
     handler.processing();
 
@@ -690,50 +776,55 @@ void CLITestProvider::references(
     {
         Array<CIMName> refClassArray;
         refClassArray.append(CIMName("Test_CLITestProviderLinkClass"));
-    
+
         // Create a single instance of the Test_CLITestProviderLinkClass
         // This creates a single fixed instance simply to allow the
         // cimcli client to test results.  It also places the input parameters
         // into the text result so that the client can confirm that the
         // input parameters were passed to the provider.
-    
+
         CIMInstance assocInstance("Test_CLITestProviderLinkClass");
-        
+
+        CIMObjectPath rtnObjectName = objectName;
+        if (_useSubstituteHostName)
+        {
+            rtnObjectName.setHost(_getHostName());
+        }
+
         assocInstance.addProperty(CIMProperty(CIMName("parent"),
-            objectName,
+            rtnObjectName,
             0,
             CIMName("Test_CLITestProviderClass")));
-    
+
         assocInstance.addProperty(CIMProperty(CIMName("child"),
-            objectName,
+            rtnObjectName,
             0,
             CIMName("Test_CLITestProviderClass")));
-   
 
         // Put input parameters into the requestInputParameters property so
-        // they can be tested on by the client.
+        // they can be confirmed by the client.
         String text;
         _addParam(text, "role", role);
         _addParam(text, "resultClass", resultClass.getString());
         _addParam(text, "includeQualifiers", _toString(includeQualifiers));
         _addParam(text, "includeClassOrigin", _toString(includeClassOrigin));
         _addParam(text, "propertyList", _toString(propertyList));
-    
+
         assocInstance.addProperty(CIMProperty("requestInputParameters",
                                               text));
         // Create path for assoc instance.
         CIMClass assocClass = _getClass(CIMName(
             "Test_CLITestProviderLinkClass"),
             nameSpace);
-    
+
         CIMObjectPath objectPath =
             assocInstance.buildPath(assocClass);
-    
+
         _completePath(host, nameSpace, objectPath);
-    
+
         assocInstance.setPath(objectPath);
 
-        // complete processing the request    
+        // complete processing the request
         assocInstance.filter(includeQualifiers,
                     includeClassOrigin, propertyList);
 
@@ -755,7 +846,8 @@ void CLITestProvider::referenceNames(
     CIMNamespaceName nameSpace = objectName.getNameSpace();
     initializeProvider(nameSpace);
     // Get the namespace and host names to create the CIMObjectPath
-    String host = System::getHostName();
+
+    String host = _getHostName();
 
     // If the objectName exists in the local list, build the instance
     // of the association and then build the path for this instance.
@@ -767,29 +859,35 @@ void CLITestProvider::referenceNames(
     {
         Array<CIMName> refClassArray;
         refClassArray.append(CIMName("Test_CLITestProviderLinkClass"));
-    
+
         CIMInstance assocInstance("Test_CLITestProviderLinkClass");
-        
+
+        CIMObjectPath rtnObjectName = objectName;
+        if (_useSubstituteHostName)
+        {
+            rtnObjectName.setHost(_getHostName());
+        }
+
         assocInstance.addProperty(CIMProperty(CIMName("parent"),
-            objectName,
+            rtnObjectName,
             0,
             CIMName("Test_CLITestProviderClass")));
-    
+
         assocInstance.addProperty(CIMProperty(CIMName("child"),
-            objectName,
+            rtnObjectName,
             0,
             CIMName("Test_CLITestProviderClass")));
-    
+
         CIMClass assocClass = _getClass(
             CIMName("Test_CLITestProviderLinkClass"),
             nameSpace);
- 
-        // build path for this instance   
+
+        // build path for this instance
         CIMObjectPath objectPath =
             assocInstance.buildPath(assocClass);
-    
+
         _completePath(host, nameSpace, objectPath);
-    
+
         handler.deliver(objectPath);
     }
     // complete processing the request
@@ -932,37 +1030,37 @@ void CLITestProvider::createInstances(const CIMNamespaceName& ns)
 
     Array<Uint64> auint64;
     auint64.append(4); auint64.append(128); auint64.append(240);
-    instance.getProperty(instance.findProperty("arrayUint64")).setValue( 
+    instance.getProperty(instance.findProperty("arrayUint64")).setValue(
          CIMValue(auint64));
 
     Array<Real32> aReal32;
     aReal32.append(4); aReal32.append(128); aReal32.append(240);
-    instance.getProperty(instance.findProperty("arrayReal32")).setValue( 
+    instance.getProperty(instance.findProperty("arrayReal32")).setValue(
         CIMValue(aReal32));
 
     Array<Real64> aReal64;
     aReal64.append(4); aReal64.append(128); aReal64.append(240);
-    instance.getProperty(instance.findProperty("arrayReal64")).setValue( 
+    instance.getProperty(instance.findProperty("arrayReal64")).setValue(
         CIMValue(aReal64));
 
     Array<String> aString;
     aString.append("First"); aString.append("Second"); aString.append("Third");
-    instance.getProperty(instance.findProperty("arrayString")).setValue( 
+    instance.getProperty(instance.findProperty("arrayString")).setValue(
         CIMValue(aString));
 
     Array<CIMDateTime> aCIMDateTime;
     aCIMDateTime.append(CIMDateTime("19991224120000.000000+360"));
     aCIMDateTime.append(CIMDateTime("19991224120000.000000+360"));
     aCIMDateTime.append(CIMDateTime("19991224120000.000000+360"));
-    instance.getProperty(instance.findProperty("arrayDateTime")).setValue( 
+    instance.getProperty(instance.findProperty("arrayDateTime")).setValue(
         CIMValue(aCIMDateTime));
-    
+
     instance.removeProperty(instance.findProperty("requestInputParameters"));
 
     CIMObjectPath p("Test_CLITestProviderClass.Id=\"Mike\"");
 
     instance.setPath(p);
-    
+
     _instances.append(instance);
 }
 
@@ -975,6 +1073,7 @@ void CLITestProvider::initializeProvider(const CIMNamespaceName& ns)
         {
             createInstances(ns);
             _initialized = true;
+            _useSubstituteHostName = false;
         }
     }
 }

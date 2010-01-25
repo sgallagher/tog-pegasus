@@ -42,6 +42,8 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+static Boolean verbose = false;
+
 void test01()
 {
      OptionManager omobj;
@@ -206,6 +208,7 @@ void test01()
         Boolean ret_val = false;
         Uint32 value1 = 32;
         Uint32 &value = value1;
+
         ret_val = omobj.lookupIntegerValue("name", value);
         PEGASUS_TEST_ASSERT(ret_val == false);
     }
@@ -219,6 +222,7 @@ void test01()
         Boolean ret_val = false;
         String value1;
         String &value = value1;
+
         ret_val = omobj.valueEquals("name", value);
         PEGASUS_TEST_ASSERT(ret_val == false);
     }
@@ -236,12 +240,128 @@ void test01()
     }
 }
 
+// test building options and getting configuration file and command line
+void test02(int argc, char** argv)
+{
+    OptionManager om;
+
+    // Define a set of options
+    static OptionRowWithMsg optionsTable[] =
+    {
+        {"debug", "false", false, Option::BOOLEAN, 0, 0, "d",
+        "key1",
+        "msg 1"},
+
+        {"delay", "0", false, Option::WHOLE_NUMBER, 0, 0, "delay",
+        "key2",
+        "msg 2"},
+
+        {"Password", "", false, Option::STRING, 0, 0, "p",
+        "key3",
+        "msg 3" },
+
+        {"Name", "", true, Option::STRING, 0, 0, "n",
+        "key4",
+        "msg 4" },
+
+        {"optional", "blah", false, Option::STRING, 0, 0, "o",
+        "key6",
+        "msg 6" },
+
+        {"optional2", "999", false, Option::INTEGER, 0, 0, "o2",
+        "key7",
+        "msg 7" },
+
+        {"configfile1", "blah", false, Option::STRING, 0, 0, "cf1",
+        "key6",
+        "msg 6" },
+
+        {"configfile2", "999", false, Option::INTEGER, 0, 0, "cf2",
+        "key7",
+        "msg 7" }
+    };
+    const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
+
+    // Register all of the options in the table above
+    om.registerOptions(optionsTable, NUM_OPTIONS);
+
+    if (verbose)
+    {
+        cout << "argc = " << argc << endl;
+        for (int i = 0; i < argc; i++)
+        {
+            cout << "argv[" << i << "] = " << argv[i] << endl;
+        }
+    }
+
+    // Merge options from the config file if it exists
+    String configFile = "test.conf";
+
+    om.mergeFile(configFile);
+
+    // Merge options from the command line
+    om.mergeCommandLine(argc, (char**&)argv);
+
+    // One parameter is required, the "Name" parameter so this should
+    // not exception out.
+    om.checkRequiredOptions();
+
+    PEGASUS_TEST_ASSERT(om.isTrue("debug"));    
+    {
+        const Option* op = om.lookupOption("debug");
+        PEGASUS_ASSERT(op != 0);
+        PEGASUS_ASSERT(op->isResolved());
+    }
+
+    PEGASUS_TEST_ASSERT(om.valueEquals("delay", "3"));    
+    {
+        const Option* op = om.lookupOption("delay");
+        PEGASUS_ASSERT(op != 0);
+        PEGASUS_ASSERT(op->isResolved());
+    }
+
+    String passwordValue;
+    om.lookupValue("Password", passwordValue);
+    PEGASUS_TEST_ASSERT(passwordValue == "mypassword");    
+    PEGASUS_TEST_ASSERT(om.valueEquals("Password", "mypassword"));    
+    {
+        const Option* op = om.lookupOption("Password");
+        PEGASUS_ASSERT(op != 0);
+        PEGASUS_ASSERT(op->isResolved());
+    }
+
+    // confirmed parameter that are not input are
+    // marked not used and returns default value
+    PEGASUS_TEST_ASSERT(om.valueEquals("optional", "blah"));
+    {
+        const Option* op = om.lookupOption("optional");
+        PEGASUS_ASSERT(op != 0);
+        PEGASUS_ASSERT(!op->isResolved());
+    }
+    
+    {
+        const Option* op = om.lookupOption("optional2");
+        PEGASUS_ASSERT(op != 0);
+        PEGASUS_ASSERT(!op->isResolved());
+    }
+    PEGASUS_TEST_ASSERT(om.valueEquals("optional2", "999"));
+    
+    {
+        const Option* op = om.lookupOption("configfile1");
+        PEGASUS_ASSERT(op != 0);
+        PEGASUS_ASSERT(op->isResolved());
+    }
+    PEGASUS_TEST_ASSERT(om.valueEquals("configfile1", "noblah"));   
+}
 
 int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
+
     try
     {
        test01();
+       test02(argc, argv);
     }
     catch (Exception& e)
     {

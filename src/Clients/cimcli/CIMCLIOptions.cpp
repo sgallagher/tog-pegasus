@@ -67,7 +67,7 @@ PEGASUS_NAMESPACE_BEGIN
 /*
     This function builds the complete options table from the entries defined
     below.  It then merges in the options from any config file and from any
-    command line parameters. Thus, the command line parameters will override
+    command line parameters. The command line parameters will override
     any config file parameters.
 */
 void BuildOptionsTable(
@@ -156,16 +156,16 @@ void BuildOptionsTable(
         "When set, sets LocalOnly = false on\n"
             "    operations"},
 
-        // TODO - Deprecated so we should drop this one completely
-        {"includeQualifiers", "true", false, Option::BOOLEAN, 0, 0, "iq",
+        {"includeQualifiers", "false", false, Option::BOOLEAN, 0, 0, "iq",
         "Clients.cimcli.CIMCLIClient.INCLUDEQUALIFIERS_OPTION_HELP",
         "DEPRECATED. Sets includeQualifiers = True.\n"
-            "    However, default=true"},
+            "    Useful for instance operations where default is false"},
 
         {"notIncludeQualifiers", "false", false, Option::BOOLEAN, 0, 0, "niq",
         "Clients.cimcli.CIMCLIClient.NOTINCLUDEQUALIFIERS_OPTION_HELP",
         "Sets includeQualifiers = false\n"
-            "    on operations"},
+            "    on operations. Useful for class operations where \n"
+            "    the default is true."},
 
         // Uses a magic string as shown below to indicate never used.
         {"propertyList", "###!###", false, Option::STRING, 0, 0, "pl",
@@ -257,6 +257,13 @@ void BuildOptionsTable(
         "Interactively ask user to select instances.\n"
             "    Used with associator and reference operations"},
 
+        {"setRtnHostNames", "", false, Option::STRING, 0, 0,
+             "-setRtnHostNames",
+            "Clients.cimcli.CIMCLIClient.SETRTNHOSTNAMES_OPTION_HELP",
+            "Set namespace component of reference and path outputs parameter.\n"
+            "    Used to allow comparison of paths and instances without"
+            " involving the variable of host namespaces."},
+
         {"trace", "0", false, Option::WHOLE_NUMBER, 0, 0, "trace",
         "Clients.cimcli.CIMCLIClient.TRACE_OPTION_HELP",
         "Set Pegasus Common Components Trace. Sets the Trace level.\n"
@@ -269,13 +276,18 @@ void BuildOptionsTable(
 
         {"time", "false", false, Option::BOOLEAN, 0, 0, "-t",
         "Clients.cimcli.CIMCLIClient.TIME_OPTION_HELP",
-        "Measure time for the operation and present results"}
+        "Measure time for the operation and present results"},
 
+        {"sort", "false", false, Option::BOOLEAN, 0, 0, "-sort",
+        "Clients.cimcli.CIMCLIClient.SORT_OPTION_HELP",
+        "Sort the returned entities for multi-entity responses"}
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 
+    // Register all of the options in the table above
     om.registerOptions(optionsTable, NUM_OPTIONS);
 
+    // Merge any options from the config file if it exists
     String configFile = "cimcli.conf";
 
     if (FileSystem::exists(configFile))
@@ -283,20 +295,90 @@ void BuildOptionsTable(
         om.mergeFile(configFile);
     }
 
+    // Merge options from the command line
     om.mergeCommandLine(argc, argv);
 
     om.checkRequiredOptions();
-
 }
 
-void lookupStringOption(Options& opts,
-                  OptionManager& om,
-                  const char* optionName,
-                  String& optsTarget,
-                  const String& defaultValue)
+/*
+    Execute lookup on option.  This used because the OptionTable functions
+    generally return error when the option is not found.  In cimcli this is
+    really a developer error (i.e option not in the table) so we isolate it
+    from the general lookup functionality. This function exits if the
+    lookup fails, that means that there is a discrepency between the table
+    of options and the names in the lookup functions. Fix the table.
+    The error exit in this function should NEVER happen in a released
+    version of cimcli.
+*/
+static const Option* _lookupOption(OptionManager& om, const char* optionName)
 {
+    const Option* op = om.lookupOption(optionName);
+
+    // if option does not exist in table, terminate.  All options must exist
+    // in the table. This is a programming error between the input
+    // parsing code and the table defining options.
+    if (op == 0)
+    {
+               cerr << "Parse Error in " << optionName
+                   << " Name not valid cimcli option. Fix options table"
+                    << endl;
+               exit(CIMCLI_INPUT_ERR);
+    }
+    return op;
+}
+
+// Get the value of the option if it was resolved.  Note that
+// resolved means that it was input on either the command line or
+// a configuration file.
+// @param opts - reference to the options structure
+// @param om -reference to the OptionManger where the data is saved.
+// @param optionName - Name of the option for which we want the value
+// @param resolvedStateVariable Boolean that is set true if the option has
+//     been resolved (i.e. provided by either the config file or command line)
+// @param optsTarget String containing the value of the parameter if it
+//    was resolved.
+// @return Boolean indicating whether the parameter was found in the table
+
+
+Boolean lookupStringResolvedOption(Options& opts,
+    OptionManager& om,
+    const char* optionName,
+    Boolean& resolvedStateVariable,
+    String& optsTarget)
+{
+    // test for existing option
+    const Option* op = _lookupOption(om, optionName);
+
+    if (op->isResolved())
+    {
+        resolvedStateVariable = true;
+        optsTarget = op->getValue();
+
+        if (opts.verboseTest && opts.debug)
+        {
+            cout << optionName << " = " << optsTarget << endl;
+        }
+    }
+    else
+    {
+        resolvedStateVariable = false;
+    }
+    return resolvedStateVariable;
+}
+
+
+void lookupStringOption(Options& opts,
+    OptionManager& om,
+    const char* optionName,
+    String& optsTarget,
+    const String& defaultValue)
+{
+    // Test for existing option
+    const Option* op = _lookupOption(om, optionName);
+
     optsTarget = defaultValue;
-    if(om.lookupValue(optionName, optsTarget))
+    if (om.lookupValue(optionName, optsTarget))
     {
         if (opts.verboseTest && opts.debug)
             cout << optionName << " = " << optsTarget << endl;
@@ -305,28 +387,36 @@ void lookupStringOption(Options& opts,
 
 // Set the correct empty string into the variable.
 void lookupStringOptionEMPTY(Options& opts,
-                  OptionManager& om,
-                  const char* optionName,
-                  String& optsTarget)
+    OptionManager& om,
+    const char* optionName,
+    String& optsTarget)
 {
+    // Test for Existing Option
+    const Option* op = _lookupOption(om, optionName);
+
     String temp;
-    if(om.lookupValue(optionName, temp))
+    if (om.lookupValue(optionName, temp))
     {
         optsTarget = (temp.size() == 0)? String::EMPTY : temp;
 
         if (opts.verboseTest && opts.debug)
+        {
             cout << optionName << " = " << optsTarget << endl;
+        }
     }
 }
 
 void lookupCIMNameOption(Options& opts,
-                   OptionManager& om,
-                   const char* optionName,
-                   CIMName& optsTarget,
-                   const CIMName& defaultValue)
+    OptionManager& om,
+    const char* optionName,
+    CIMName& optsTarget,
+    const CIMName& defaultValue)
 {
+    // Test for existing option
+    const Option* op = _lookupOption(om, optionName);
+
     String temp;
-    if(om.lookupValue(optionName, temp))
+    if (om.lookupValue(optionName, temp))
     {
        if (temp != "")
        {
@@ -347,7 +437,9 @@ void lookupCIMNameOption(Options& opts,
            optsTarget = defaultValue;
 
        if (opts.verboseTest && opts.debug && temp != "")
+       {
            cout << optionName << " = " << optsTarget.getString() << endl;
+       }
     }
 }
 
@@ -356,12 +448,15 @@ void lookupCIMNameOption(Options& opts,
 // Return from the option manager is the defined default which is itself
 // an integer.
 void lookupUint32Option(Options& opts,
-                   OptionManager& om,
-                   const char* optionName,
-                   Uint32& optsTarget,
-                   Uint32 defaultValue,
-                   const char* units = "")
+    OptionManager& om,
+    const char* optionName,
+    Uint32& optsTarget,
+    Uint32 defaultValue,
+    const char* units = "")
 {
+    // Test for existing option
+    const Option* op = _lookupOption(om, optionName);
+
     optsTarget = 0;
     if (!om.lookupIntegerValue(optionName, optsTarget))
     {
@@ -370,9 +465,37 @@ void lookupUint32Option(Options& opts,
 
     if (opts.verboseTest && opts.debug && optsTarget != 0)
     {
-        cout << optionName << " = " << optsTarget << units
+        cout << optionName << " = "
+            << optsTarget << units
             << endl;
     }
+}
+
+// Lookup value only if the option was resolved. Ignores default values.
+Boolean lookupUint32ResolvedOption(Options& opts,
+    OptionManager& om,
+    const char* optionName,
+    Boolean& resolvedStateVariable,
+    Uint32& optsTarget,
+    Uint32 defaultValue,
+    const char* units = "")
+{
+    // Test for existing Option
+    const Option* op = _lookupOption(om, optionName);
+
+    optsTarget = 0;
+    if (op->isResolved())
+    {
+        resolvedStateVariable = true;
+        const String value = op->getValue();
+        Uint64 u64 = strToUint(value.getCString(), CIMTYPE_UINT32);
+        optsTarget = (Uint32)u64;
+    }
+    else
+    {
+        resolvedStateVariable = false;
+    }
+    return resolvedStateVariable;
 }
 
 void lookupBooleanOption(Options& opts,
@@ -380,9 +503,14 @@ void lookupBooleanOption(Options& opts,
                    const char* optionName,
                    Boolean& optsTarget)
 {
+    // Test for existing option
+    const Option* op = _lookupOption(om, optionName);
+
     optsTarget = om.isTrue(optionName);
     if (optsTarget  && opts.verboseTest && opts.debug)
+    {
         cout << optionName << " = " << _toString(optsTarget) << endl;
+    }
 }
 
 void lookupBooleanOptionNegate(Options& opts,
@@ -390,10 +518,14 @@ void lookupBooleanOptionNegate(Options& opts,
                    const char* optionName,
                    Boolean& optsTarget)
 {
+    // Test for existing option
+    const Option* op = _lookupOption(om, optionName);
+
     optsTarget = !om.isTrue(optionName);
     if (optsTarget  && opts.verboseTest && opts.debug)
+    {
         cout << optionName << " = " << _toString(optsTarget) << endl;
-    cout << optionName << " temp = " << _toString(optsTarget) << endl;
+    }
 }
 
 int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
@@ -405,7 +537,9 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     Boolean debug = (om.valueEquals("debug", "true")) ? true :false;
 
     if (verboseTest)
+    {
         opts.verboseTest = verboseTest;
+    }
 
     if (debug)
     {
@@ -415,14 +549,16 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     if (om.isTrue("full help"))
     {
         showFullHelpMsg(argv[0], om, lineLength);
-        exit(0);
+        exit(CIMCLI_RTN_CODE_OK);
     }
 
     // show usage for a single operation and exit
     if (om.isTrue("help"))
     {
         if (!showOperationUsage(argv[1], om, lineLength))
-            exit(1);
+        {
+            exit(CIMCLI_INPUT_ERR);
+        }
 
         showUsage();
         exit(CIMCLI_RTN_CODE_OK);
@@ -489,13 +625,22 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 
     lookupUint32Option(opts, om, "delay", opts.delay, 0, "seconds");
 
-
     // Set the interactive request flag based on input
-
     lookupBooleanOption(opts, om,"interactive", opts.interactive);
+
+    // Set the sort request flag based on input
+    lookupBooleanOption(opts, om,"sort", opts.sort);
 
     // set the deepInheritance flag based on input
     lookupBooleanOption(opts, om,"deepInheritance", opts.deepInheritance);
+
+    // only use this one if there was an input from the command line
+    // or config file. sets the Boolean setRtnHostNames based on whether
+    // there was an option input (i.e. resolved).
+    lookupStringResolvedOption(opts, om,
+                                   "setRtnHostNames",
+                                   opts.setRtnHostNames,
+                                   opts.rtnHostSubstituteName);
 
     // process localOnly and notlocalOnly parameters
     opts.localOnly = om.isTrue("localOnly");
@@ -510,31 +655,33 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
         cout << "localOnly= " << _toString(opts.localOnly) << endl;;
     }
 
-    // Process notincludeQualifiers
+    // Process includeQualifiers and notIncludeQualifiers
+    // These are particular in that there are two parameters each
+    // of which may be useful. Also, the CIM/XML default is different
+    // for class operations and instance operations.  In class operations
+    // the default is true while, in instance operations, the default
+    // is false and further, the whole use of the parameter is deprecated for
+    // instance operations.
+    // For each of these parameters we want to specifically confirm if
+    // the command line input parameter is supplied. Thus, for class operations
+    // the user would use the niq to tell the environment to not include
+    // qualifiers whereas for instance operations the user would use iq
+    // to specifically request qualifiers with instances.
 
-    lookupBooleanOption(opts, om,"notIncludeQualifiers",
-                        opts.includeQualifiers );
+    lookupBooleanOption(opts, om, "includeQualifiers",
+                                opts.includeQualifiersRequested);
 
-    opts.includeQualifiers = om.isTrue("includeQualifiers");
+    lookupBooleanOption(opts, om, "notIncludeQualifiers",
+                               opts.notIncludeQualifiersRequested);
 
-    if (om.isTrue("notIncludeQualifiers"))
-    {
-        opts.includeQualifiers = false;
-    }
-
-    if (verboseTest && debug && om.isTrue("notIncludeQualifiers"))
-    {
-        cout << "includeQualifiers = " << _toString(opts.includeQualifiers)
-            << endl;
-    }
-
-
-    lookupBooleanOption(opts, om,"includeClassOrigin",
-                        opts.includeClassOrigin );
+    // Temporary hide for bug 8677 because not in table.
+    // Bug 8690 fixes when installed
+    //lookupBooleanOption(opts, om,"includeClassOrigin",
+    //                    opts.includeClassOrigin );
 
     lookupBooleanOption(opts, om,"time", opts.time);
 
-    if(!om.lookupIntegerValue("trace", opts.trace))
+    if (!om.lookupIntegerValue("trace", opts.trace))
     {
             opts.trace = 0;
     }
@@ -558,7 +705,7 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
                 traceLevel = Tracer::LEVEL4;
                 break;
             default:
-                cout << "Illegal value for Trace. Max = 4" << endl;
+                cerr << "Illegal value for Trace. Max = 4" << endl;
         }
         opts.trace = traceLevel;
     }
@@ -581,12 +728,16 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 
      opts.isXmlOutput = om.isTrue("xmlOutput");
      if (opts.isXmlOutput  && debug && verboseTest)
+     {
          cout << "xmlOutput set" << endl;
+     }
 
-    if(om.lookupValue("outputformats", opts.outputFormat))
+    if (om.lookupValue("outputformats", opts.outputFormat))
      {
         if (debug && verboseTest)
+        {
             cout << "Output Format = " << opts.outputFormat << endl;
+        }
      }
 
     // Get the output format parameter and save it
@@ -596,7 +747,9 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     for( ; cnt < NUM_OUTPUTS; cnt++ )
     {
         if (opts.outputFormat == OutputTable[cnt].OutputName)
-                break;
+        {
+            break;
+        }
     }
     // Note that this makes no notice if a not found
     if (cnt != NUM_OUTPUTS)
@@ -605,15 +758,11 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
         opts.outputType = OutputTable[cnt].OutputType;
     }
 
-
     lookupUint32Option(opts, om, "repeat", opts.repeat, 0, "times");
 
-    lookupUint32Option(opts, om, "count", opts.count, 0, "Comparison Count");
-
-    if (opts.count != 29436)
-    {
-        opts.executeCountTest = true;
-    }
+    lookupUint32ResolvedOption(opts, om, "count", opts.executeCountTest,
+                               opts.expectedCount,
+                               0, "Comparison Count");
 
     /*  Property List parameter.
         Separate an input stream into an array of Strings
@@ -624,7 +773,7 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     */
     {
         String properties;
-        if(om.lookupValue("propertyList", properties))
+        if (om.lookupValue("propertyList", properties))
         {
             // om default.  No property list input
             if (properties == "###!###")
@@ -634,7 +783,7 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
             // propertylist input empty.
             // Account for inputter error where they try to input string
             // representing two quotes
-            else if(properties.size() == 0 || properties == "\"\"")
+            else if (properties.size() == 0 || properties == "\"\"")
             {
                 Array<CIMName> pList;
                 opts.propertyList = pList;

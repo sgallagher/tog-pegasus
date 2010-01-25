@@ -219,7 +219,7 @@ Boolean _conditionalSelectInstance(Options& opts,
         // with selected path
 
         return _selectInstance(opts, opts.getTargetObjectNameClassName(),
-                    instancePath);
+                               instancePath);
     }
 
     return true;
@@ -281,7 +281,7 @@ Boolean _compareInstances(CIMInstance& inst1,
         if (inst1.getPropertyCount() != inst2.getPropertyCount())
         {
             returnValue = false;
-            if(verbose)
+            if (verbose)
             {
                 for (Uint32 i = 0 ; i < inst2.getPropertyCount() ; i++)
                 {
@@ -538,6 +538,39 @@ Array<CIMNamespaceName> _getNameSpaceNames(Options& opts)
     return rtns;
 }
 
+/*
+    Determine whether cimcli sets includequalifiers true or false for
+    operation based on default (i.e. what is default for this operation)
+    and the includeQualifiersRequest, notIncludeQualifiersRequest
+    parameters.
+    Result put into incudeQualifiers and returned as String for
+    display.  This required because some operations have default true
+    and other false.
+    */
+String _resolveIncludeQualifiers(Options& opts, Boolean defaultValue)
+{
+    // Assure niq and iq not both supplied. They are incompatible
+    if (opts.includeQualifiersRequested && opts.notIncludeQualifiersRequested)
+    {
+        cerr << "Error: -niq and -iq parameters cannot be used together"
+             << endl;
+        exit(CIMCLI_INPUT_ERR);
+    }
+    // if default is true (ex class operations), we test for -niq received
+    // depend only on the -niq input.
+    if (defaultValue)
+    {
+        opts.includeQualifiers = opts.notIncludeQualifiersRequested ?
+                                    false : true;
+    }
+    else
+    {
+        opts.includeQualifiers = opts.includeQualifiersRequested ?
+                                    true : false;
+    }
+    return _toString(opts.includeQualifiers);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 //                                                                         //
 //     The following code section defines the action functions             //
@@ -635,7 +668,7 @@ int enumerateAllInstanceNames(Options& opts)
                 cerr << "Warning: Error in niall for enumerateInstanceNames "
                     << " Namespace = " << opts.nameSpace
                     << " Class = " << classNames[iClass].getString()
-                     << e.getMessage() << ". Continuing." << endl;
+                     << ".  " << e.getMessage() << ". Continuing." << endl;
                 continue;
             }
 
@@ -689,6 +722,7 @@ int enumerateInstanceNames(Options& opts)
     This action function executes the enumerateInstances
     client operation. Inputs are the parameters for the CIMCLient call
 */
+
 int enumerateInstances(Options& opts)
 {
     if (opts.verboseTest)
@@ -698,7 +732,8 @@ int enumerateInstances(Options& opts)
             << ", Class = " << opts.className.getString()
             << ", deepInheritance = " << _toString(opts.deepInheritance)
             << ", localOnly = " << _toString(opts.localOnly)
-            << ", includeQualifiers = " << _toString(opts.includeQualifiers)
+            << ", includeQualifiers = " <<
+                            _resolveIncludeQualifiers(opts,false)
             << ", includeClassOrigin = " << _toString(opts.includeClassOrigin)
             << ", PropertyList = " << _toString(opts.propertyList)
             << endl;
@@ -803,7 +838,7 @@ CIMObjectPath _getObjectPath(Options& opts)
         else  // no extra parameters.
         {
             // get the instance from a console request
-            if(!_selectInstance(opts, opts.getTargetObjectNameClassName(),
+            if (!_selectInstance(opts, opts.getTargetObjectNameClassName(),
                                 thisPath))
             {
                 return CIMObjectPath();
@@ -868,7 +903,8 @@ int getInstance(Options& opts)
             << "Namespace = " << opts.nameSpace
             << ", InstanceName/class = " << opts.getTargetObjectNameStr()
             << ", localOnly = " << _toString(opts.localOnly)
-            << ", includeQualifiers = " << _toString(opts.includeQualifiers)
+            << ", includeQualifiers = " <<
+                        _resolveIncludeQualifiers(opts, false)
             << ", includeClassOrigin = " << _toString(opts.includeClassOrigin)
             << ", PropertyList = " << _toString(opts.propertyList)
             << endl;
@@ -977,7 +1013,8 @@ int testInstance(Options& opts)
         cout << "testInstance "
             << "Namespace = " << opts.nameSpace
             << ", InstanceName/ClassName = " << opts.getTargetObjectNameStr()
-            << ", includeQualifiers = " << _toString(opts.includeQualifiers)
+            << ", includeQualifiers = " <<
+                            _resolveIncludeQualifiers(opts,false)
             << ", includeClassOrigin = " << _toString(opts.includeClassOrigin)
             << ", PropertyList = " << _toString(opts.propertyList)
             << endl;
@@ -1036,9 +1073,9 @@ int testInstance(Options& opts)
                                         opts.propertyList);
 
     // Compare created and returned instances
-    if(!_compareInstances(testInstance, rtndInstance, true, opts))
+    if (!_compareInstances(testInstance, rtndInstance, true, opts))
     {
-        cout << "Error:Test Instance differs from Server returned Instance."
+        cerr << "Error:Test Instance differs from Server returned Instance."
             << "Rtn Code " << CIMCLI_RTN_CODE_ERR_COMPARE_FAILED << endl;
 
         //FUTURE: Create a cleaner display that simply shows the
@@ -1207,7 +1244,8 @@ int enumerateClasses(Options& opts)
             << ", Class= " << opts.className.getString()
             << ", deepInheritance= " << _toString(opts.deepInheritance)
             << ", localOnly= " << _toString(opts.localOnly)
-            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
+            << ", includeQualifiers= " <<
+                            _resolveIncludeQualifiers(opts, true)
             << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
             << endl;
     }
@@ -1267,7 +1305,8 @@ int getClass(Options& opts)
             << ", Class= " << opts.className.getString()
             << ", deepInheritance= " << _toString(opts.deepInheritance)
             << ", localOnly= " << _toString(opts.localOnly)
-            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
+            << ", includeQualifiers= " <<
+                            _resolveIncludeQualifiers(opts, true)
             << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
             << ", PropertyList= " << _toString(opts.propertyList)
             << endl;
@@ -1548,7 +1587,8 @@ int references(Options& opts)
             << ", ObjectName = " << opts.getTargetObjectNameStr()
             << ", resultClass= " << opts.resultClass.getString()
             << ", role= " << opts.role
-            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
+            << ", includeQualifiers= " <<
+                            _resolveIncludeQualifiers(opts, false)
             << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
             << ", CIMPropertyList= " << _toString(opts.propertyList)
             << endl;
@@ -1615,7 +1655,7 @@ int associatorNames(Options& opts)
     // do conditional select of instance if params properly set.
     CIMObjectPath thisObjectPath(opts.getTargetObjectName());
 
-    if(!_conditionalSelectInstance(opts, thisObjectPath))
+    if (!_conditionalSelectInstance(opts, thisObjectPath))
     {
         return CIMCLI_RTN_CODE_OK;
     }
@@ -1670,7 +1710,8 @@ int associators(Options& opts)
             << ", resultClass= " << opts.resultClass.getString()
             << ", role= " << opts.role
             << ", resultRole= " << opts.resultRole
-            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
+            << ", includeQualifiers= " <<
+                            _resolveIncludeQualifiers(opts, false)
             << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
             << ", propertyList= " << _toString(opts.propertyList)
             << endl;
@@ -1679,7 +1720,7 @@ int associators(Options& opts)
     // do conditional select of instance if params properly set.
     CIMObjectPath thisObjectPath(opts.getTargetObjectName());
 
-    if(!_conditionalSelectInstance(opts, thisObjectPath))
+    if (!_conditionalSelectInstance(opts, thisObjectPath))
     {
         return CIMCLI_RTN_CODE_OK;
     }
@@ -1805,18 +1846,7 @@ int enumerateNamespaceNames(Options& opts)
 
     _stopCommandTimer(opts);
 
-    if (opts.summary)
-    {
-        cout << ns.size() << " namespaces " << " returned."
-            << endl;
-    }
-    else
-    {
-        for( Uint32 cnt = 0 ; cnt < ns.size(); cnt++ )
-        {
-            cout << ns[cnt].getString() << endl;;
-        }
-    }
+    CIMCLIOutput::displayNamespaceNames(opts, ns);
 
     return CIMCLI_RTN_CODE_OK;
 }

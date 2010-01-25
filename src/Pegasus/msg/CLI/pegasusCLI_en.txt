@@ -1089,7 +1089,7 @@ en:table {
         "cimcli ei PG_ComputerSystem   -- Enumerate Instances of class\n"}
 
         Clients.cimcli.CIMCLIClient.EI_COMMAND_OPTIONS:string {
-        "    -n, -di, -lo, -iq, -pl, classname, includeClassOrigin\n"}
+        "    -n, -di, -nlo, -iq, -pl, classname, includeClassOrigin\n"}
 
         Clients.cimcli.CIMCLIClient.NC_COMMAND_EXAMPLE:string {
         "cimcli nc -- Enumerate class names from root/cimv2.\n"}
@@ -1102,21 +1102,21 @@ en:table {
         "    -- Enumerate classes from namespace root/cimv2.\n"}
 
         Clients.cimcli.CIMCLIClient.EC_COMMAND_OPTIONS:string {
-        "    -n, -di, -lo, -iq, includeClassOrigin\n"}
+        "    -n, -di, -nlo, -niq, includeClassOrigin\n"}
 
         Clients.cimcli.CIMCLIClient.GC_COMMAND_EXAMPLE:string {
         "cimcli gc CIM_door -u guest -p guest\n"
         "    -- Get class user = guest and password = guest.\n"}
 
         Clients.cimcli.CIMCLIClient.GC_COMMAND_OPTIONS:string {
-        "    -n, -lo, -iq, -pl, className, includeClassOrigin\n"}
+        "    -n, -nlo, -niq, -pl, className, includeClassOrigin\n"}
 
         Clients.cimcli.CIMCLIClient.GI_COMMAND_EXAMPLE:string {
         "cimcli gi -n test/TestProvider TEST_Person\n"
         "    -- Get Instance of class\n"}
 
         Clients.cimcli.CIMCLIClient.GI_COMMAND_OPTIONS:string {
-        "    -n, -lo, -iq, -pl, includeClassOrigin\n"}
+        "    -n, -nlo, -iq, -pl, includeClassOrigin\n"}
 
         Clients.cimcli.CIMCLIClient.CI_COMMAND_EXAMPLE:string {
         "cimcli ci -n test/TestProvider TST_Person Name=Michael SSN=333\n"
@@ -1134,7 +1134,7 @@ en:table {
         "       instance built from input\n"}
 
         Clients.cimcli.CIMCLIClient.TI_COMMAND_OPTIONS:string {
-        "    -n, -lo, -iq, -pl, includeClassOrigin\n"}
+        "    -n, -nlo, -iq, -pl, includeClassOrigin\n"}
 
         Clients.cimcli.CIMCLIClient.DI_COMMAND_EXAMPLE:string {
         "cimcli di -n test/TestProvider TST_Person\n"
@@ -1308,11 +1308,12 @@ en:table {
 
         Clients.cimcli.CIMCLIClient.INCLUDEQUALIFIERS_OPTION_HELP:
         string {"-iq  includeQualifiers. Deprecated. Sets includeQualifiers = True.\n"
-        "    However, default=true. Default(true)\n"}
+        "        Useful for instance operations where default is false. Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.NOTINCLUDEQUALIFIERS_OPTION_HELP:
         string {"-niq  notIncludeQualifiers. Sets includeQualifiers = false\n"
-        "    on operations. Default(false)\n"}
+        "    on operations.  Useful for class operations where \n"
+	"    the default is true. Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.PROPERTYLIST_OPTION_HELP:string {
         "-pl  propertyList. Defines a propertyNameList. Format is p1,p2,p3\n"
@@ -1381,6 +1382,11 @@ en:table {
         "-i  interactive. Interactively ask user to select instances.\n"
         "    Used with associator and reference operations. Default(false)\n"}
 
+        Clients.cimcli.CIMCLIClient.SETRTNHOSTNAMES_OPTION_HELP:string {
+        "-setRtnHostNames  setRtnHostNames. Set namespace component of reference and path outputs parameter.\n"
+        "    Used to allow comparison of paths and instances without"
+	" involving the variable of host namespaces. Default(false)\n"}
+
         Clients.cimcli.CIMCLIClient.TRACE_OPTION_HELP:string {
         "-trace  trace. Set Pegasus Common Components Trace. Sets the Trace level.\n"
         "    0 is off. Default(0)\n"}
@@ -1391,6 +1397,9 @@ en:table {
 
         Clients.cimcli.CIMCLIClient.TIME_OPTION_HELP:string {
         "--t  time. Measure time for the operation and present results. Default(false)\n"}
+
+        Clients.cimcli.CIMCLIClient.SORT_OPTION_HELP:string {
+        "--sort sort . Sort the returned entities for multi-entity results. Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.OPTIONS_HEADER:string {
         "The options for this command are:\n"}

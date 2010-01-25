@@ -58,7 +58,7 @@ void _cleanArray(String& x)
         x.remove(0,1);
         x.remove(x.size(),1);
     }
-    else if(x[0] == '{' || x[x.size()] == '}')
+    else if (x[0] == '{' || x[x.size()] == '}')
     {
         cerr << "Error: Parse Error: Array " << x << endl;
         exit(CIMCLI_INPUT_ERR);
@@ -188,7 +188,8 @@ public:
             }
             _idx++;
         }   // end while
-        return (rtnValue);
+
+        return rtnValue;
     }
 
 private:
@@ -198,67 +199,6 @@ private:
     Uint32 _end;
     String _inputString;
 };
-
-Sint64 _strToSint(const char* str, CIMType type)
-{
-    Sint64 s64;
-    Boolean success =
-        (StringConversion::stringToSint64(
-             str, StringConversion::decimalStringToUint64, s64) ||
-         StringConversion::stringToSint64(
-             str, StringConversion::hexStringToUint64, s64) ||
-         StringConversion::stringToSint64(
-             str, StringConversion::octalStringToUint64, s64) ||
-         StringConversion::stringToSint64(
-             str, StringConversion::binaryStringToUint64, s64)) &&
-        StringConversion::checkSintBounds(s64, type);
-    if (!success)
-    {
-        printf("Parse Error: Value conversion error. %s. type %s\n",
-               str, cimTypeToString(type));
-    }
-
-    return s64;
-}
-
-Uint64 _strToUint(const char* str, CIMType type)
-{
-    Uint64 u64;
-    Boolean success =
-        (StringConversion::decimalStringToUint64(str, u64) ||
-         StringConversion::hexStringToUint64(str, u64) ||
-         StringConversion::octalStringToUint64(str, u64) ||
-         StringConversion::binaryStringToUint64(str, u64)) &&
-         StringConversion::checkUintBounds(u64, type);
-
-    if (!success)
-    {
-        fprintf(stderr,"Parse Error: Value conversion error. %s. type %s\n",
-               str, cimTypeToString(type));
-        exit(CIMCLI_INPUT_ERR);
-    }
-
-    return u64;
-}
-
-/* Convert a single string provided as input into a CIM variable
-   and place it in a CIMValue.
-   @param str char* representing string to be parsed.
-   @param type CIMType expected.
-   @return CIMValue with the new value.
-*/
-Real64 _strToReal(const char * str, CIMType type)
-{
-    Real64 r64;
-
-    if (!StringConversion::stringToReal64(str, r64))
-    {
-        fprintf(stderr, "Parse Error: Value conversion error. %s. type %s\n",
-               str, cimTypeToString(type));
-        exit(CIMCLI_INPUT_ERR);
-    }
-    return r64;
-}
 
 /* Convert a single string provided as input into a CIM variable
    and place it in a CIMValue.
@@ -277,34 +217,34 @@ static CIMValue _stringToScalarValue(const char* str, CIMType type)
             return CIMValue(_StringToBoolean(str));
 
         case CIMTYPE_UINT8:
-            return CIMValue(Uint8(_strToUint(str, type)));
+            return CIMValue(Uint8(strToUint(str, type)));
 
         case CIMTYPE_SINT8:
-            return CIMValue(Sint8(_strToSint(str, type)));
+            return CIMValue(Sint8(strToSint(str, type)));
 
         case CIMTYPE_UINT16:
-            return CIMValue(Uint16(_strToUint(str, type)));
+            return CIMValue(Uint16(strToUint(str, type)));
 
         case CIMTYPE_SINT16:
-            return CIMValue(Sint16(_strToSint(str, type)));
+            return CIMValue(Sint16(strToSint(str, type)));
 
         case CIMTYPE_UINT32:
-            return CIMValue(Uint32(_strToUint(str, type)));
+            return CIMValue(Uint32(strToUint(str, type)));
 
         case CIMTYPE_SINT32:
-            return CIMValue(Sint32(_strToSint(str, type)));
+            return CIMValue(Sint32(strToSint(str, type)));
 
         case CIMTYPE_UINT64:
-            return CIMValue(Uint64(_strToUint(str, type)));
+            return CIMValue(Uint64(strToUint(str, type)));
 
         case CIMTYPE_SINT64:
-            return CIMValue(Sint64(_strToSint(str, type)));
+            return CIMValue(Sint64(strToSint(str, type)));
 
         case CIMTYPE_REAL32:
-            return CIMValue(Real32(_strToReal(str, type)));
+            return CIMValue(Real32(strToReal(str, type)));
 
         case CIMTYPE_REAL64:
-            return CIMValue(Real64(_strToReal(str, type)));
+            return CIMValue(Real64(strToReal(str, type)));
 
         case CIMTYPE_STRING:
             return CIMValue(String(str));
@@ -357,7 +297,9 @@ Boolean _buildArrayValue(
             Array<Uint8> a;
             val.get(a);
             while(strl.more())
-                a.append(_strToUint(strl.next().getCString(), type));
+            {
+                a.append(strToUint(strl.next().getCString(), type));
+            }
             val.set(a);
             break;
         }
@@ -366,7 +308,9 @@ Boolean _buildArrayValue(
             Array<Sint8> a;
             val.get(a);
             while(strl.more())
-                a.append(_strToSint(strl.next().getCString(), type));
+            {
+                a.append(strToSint(strl.next().getCString(), type));
+            }
             val.set(a);
             break;
         }
@@ -375,7 +319,9 @@ Boolean _buildArrayValue(
             Array<Uint16> a;
             val.get(a);
             while(strl.more())
-                a.append(_strToUint(strl.next().getCString(), type));
+            {
+                a.append(strToUint(strl.next().getCString(), type));
+            }
             val.set(a);
             break;
         }
@@ -384,7 +330,9 @@ Boolean _buildArrayValue(
             Array<Sint16> a;
             val.get(a);
             while(strl.more())
-                a.append(_strToSint(strl.next().getCString(), type));
+            {
+                a.append(strToSint(strl.next().getCString(), type));
+            }
             val.set(a);
             break;
         }
@@ -393,7 +341,9 @@ Boolean _buildArrayValue(
             Array<Uint32> a;
             val.get(a);
             while(strl.more())
-                a.append(_strToUint(strl.next().getCString(), type));
+            {
+                a.append(strToUint(strl.next().getCString(), type));
+            }
             val.set(a);
             break;
         }
@@ -402,7 +352,9 @@ Boolean _buildArrayValue(
             Array<Sint32> a;
             val.get(a);
             while(strl.more())
-                a.append(_strToSint(strl.next().getCString(), type));
+            {
+                a.append(strToSint(strl.next().getCString(), type));
+            }
             val.set(a);
             break;
         }
@@ -411,7 +363,9 @@ Boolean _buildArrayValue(
             Array<Uint64> a;
             val.get(a);
             while(strl.more())
-                a.append(_strToUint(strl.next().getCString(), type));
+            {
+                a.append(strToUint(strl.next().getCString(), type));
+            }
             val.set(a);
             break;
         }
@@ -420,7 +374,9 @@ Boolean _buildArrayValue(
             Array<Sint64> a;
             val.get(a);
             while(strl.more())
-                a.append(_strToSint(strl.next().getCString(), type));
+            {
+                a.append(strToSint(strl.next().getCString(), type));
+            }
             val.set(a);
             break;
         }
@@ -429,7 +385,9 @@ Boolean _buildArrayValue(
             Array<Real32> a;
             val.get(a);
             while(strl.more())
-                a.append(_strToUint(strl.next().getCString(), type));
+            {
+                a.append(strToUint(strl.next().getCString(), type));
+            }
             val.set(a);
             break;
         }
@@ -438,7 +396,9 @@ Boolean _buildArrayValue(
             Array<Real64> a;
             val.get(a);
             while(strl.more())
-                a.append(_strToSint(strl.next().getCString(), type));
+            {
+                a.append(strToSint(strl.next().getCString(), type));
+            }
             val.set(a);
             break;
         }
@@ -447,7 +407,9 @@ Boolean _buildArrayValue(
             Array<String> a;
             val.get(a);
             while(strl.more())
+            {
                 a.append(strl.next());
+            }
             val.set(a);
             break;
         }
@@ -456,7 +418,9 @@ Boolean _buildArrayValue(
             Array<CIMDateTime> a;
             val.get(a);
             while(strl.more())
+            {
                 a.append(_getDateTime(strl.next()));
+            }
             val.set(a);
             break;
         }
@@ -735,11 +699,11 @@ CIMInstance ObjectBuilder::buildInstance(
             ip.setValue(iv);
         }
 
-        else if(_parseType[index] == NO_VALUE)
+        else if (_parseType[index] == NO_VALUE)
         {
             // do nothing
         }
-        else if(_parseType[index] == ILLEGAL)
+        else if (_parseType[index] == ILLEGAL)
         {
             // do nothing
         }

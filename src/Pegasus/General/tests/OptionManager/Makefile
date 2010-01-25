@@ -40,6 +40,6 @@ SOURCES = TestOptionManager.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	$(PROGRAM)
+	$(PROGRAM) -d -delay 3 -p mypassword -n nametext
 
 poststarttests:

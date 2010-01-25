@@ -327,6 +327,10 @@ int main(int argc, char** argv)
 
         String testHome = ".";
         om.setMessagePath("pegasus/pegasusCLI");
+
+        // Build the options table based on the options defined in the
+        // function, a configuration file if it exists, and the command
+        // line input of options.
         BuildOptionsTable(om, argc, argv, testHome);
 
         // Parse and validate input Options based on the options table

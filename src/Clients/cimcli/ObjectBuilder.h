@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -40,7 +40,7 @@
 
 /*
     Class and functions to build instances and parameters from
-    token pairs (key=value) strings input.  
+    token pairs (key=value) strings input.
     The constructor sets up the token pairs and separates out
     keys and values (and optionally types defined by the keys.
     It also gets any metadata (i.e. Classes)
@@ -60,7 +60,7 @@ public:
     /** create the arrays for the defined input
     @param inputs Name/value pairs representing the input
     properties
-    @param class the CIMClass for which we are creating something 
+    @param class the CIMClass for which we are creating something
     */
     ObjectBuilder(const Array<String>& inputPairs,
         CIMClient& client,
@@ -93,7 +93,7 @@ public:
     // Build the CIMObjectPath from the information provided with
     // the constructor
     CIMObjectPath buildCIMObjectPath();
- 
+
 private:
 
     // Enumeration of the valuePair parsing return types
@@ -121,4 +121,4 @@ private:
 };
 
 PEGASUS_NAMESPACE_END
-#endif 
+#endif

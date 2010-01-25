@@ -32,9 +32,11 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/StringConversion.h>
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Tracer.h>
 #include "CIMCLICommon.h"
+#include "CIMCLIClient.h"
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -184,6 +186,61 @@ CIMPropertyList _buildPropertyList(const CIMInstance& inst)
     pl.set(tmp);
 
     return(pl);
+}
+
+Sint64 strToSint(const char* str, CIMType type)
+{
+    Sint64 s64;
+    Boolean success =
+        (StringConversion::stringToSint64(
+             str, StringConversion::decimalStringToUint64, s64) ||
+         StringConversion::stringToSint64(
+             str, StringConversion::hexStringToUint64, s64) ||
+         StringConversion::stringToSint64(
+             str, StringConversion::octalStringToUint64, s64) ||
+         StringConversion::stringToSint64(
+             str, StringConversion::binaryStringToUint64, s64)) &&
+        StringConversion::checkSintBounds(s64, type);
+    if (!success)
+    {
+        printf("Parse Error: Value conversion error. %s. type %s\n",
+               str, cimTypeToString(type));
+    }
+
+    return s64;
+}
+
+Uint64 strToUint(const char* str, CIMType type)
+{
+    Uint64 u64;
+    Boolean success =
+        (StringConversion::decimalStringToUint64(str, u64) ||
+         StringConversion::hexStringToUint64(str, u64) ||
+         StringConversion::octalStringToUint64(str, u64) ||
+         StringConversion::binaryStringToUint64(str, u64)) &&
+         StringConversion::checkUintBounds(u64, type);
+
+    if (!success)
+    {
+        fprintf(stderr,"Parse Error: Value conversion error. %s. type %s\n",
+               str, cimTypeToString(type));
+        exit(CIMCLI_INPUT_ERR);
+    }
+
+    return u64;
+}
+
+Real64 strToReal(const char * str, CIMType type)
+{
+    Real64 r64;
+
+    if (!StringConversion::stringToReal64(str, r64))
+    {
+        fprintf(stderr, "Parse Error: Value conversion error. %s. type %s\n",
+               str, cimTypeToString(type));
+        exit(CIMCLI_INPUT_ERR);
+    }
+    return r64;
 }
 
 PEGASUS_NAMESPACE_END

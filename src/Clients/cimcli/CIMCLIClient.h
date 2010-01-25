@@ -68,6 +68,7 @@ static const char MSG_PATH [] = "pegasus/pegasusCLI";
 #define CIMCLI_CONNECTION_FAILED 54
 
 #define CIMCLI_RTN_CODE_ERR_COMPARE_FAILED 60
+#define CIMCLI_RTN_COUNT_TEST_FAILED 61
 
 /////////////////////////////////////////////////////////////////////////////
 // ************* cimcli operations ******************************************

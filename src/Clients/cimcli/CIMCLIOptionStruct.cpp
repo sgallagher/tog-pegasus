@@ -66,13 +66,15 @@ PEGASUS_NAMESPACE_BEGIN
 **
 ******************************************************************************/
 
-// Constructor - Instantiate the variables of the structure
+// Constructor - Instantiate the variables of the Option structure
 OptionStruct::OptionStruct():
     isXmlOutput(false),
 
     deepInheritance(false),
     localOnly(true),
-    includeQualifiers(true),
+    includeQualifiersRequested(false),
+    notIncludeQualifiersRequested(false),
+    includeQualifiers(false),
     includeClassOrigin(false),
 
     verboseTest(false),
@@ -80,12 +82,16 @@ OptionStruct::OptionStruct():
     delay(0),
     trace(0),
     debug(false),
+    sort(false),
 
-    count(29436),
+    expectedCount(0),
     executeCountTest(false),
     repeat(0),
     time(false),
-    termCondition(0)
+    termCondition(0),
+    connectionTimeout(0),
+    interactive(false),
+    setRtnHostNames(false)
 {
         // Initialize the option structure values
         location =  String();
@@ -111,6 +117,7 @@ OptionStruct::OptionStruct():
         propertyName = String();
         methodName = CIMName("unknown");
         queryLanguage = "WQL";
+        rtnHostSubstituteName = String();
 }
 
 /*

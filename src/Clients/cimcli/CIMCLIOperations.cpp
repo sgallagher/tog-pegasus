@@ -168,11 +168,6 @@ OPERATION_TABLE_ENTRY OperationTable[] =
     {ID_ShowOptions,             "show command options",2 ,  "?",
     "Clients.cimcli.CIMCLIClient.?_COMMAND_HELP",
     "Show List of Commands"}
-// FUTURE
-//  ,
-//  {ID_Profile,             "show profiles",2 ,  "?",
-//  "Clients.cimcli.CIMCLIClient.?_PROFILE_HELP",
-//  "Show List of Commands"}
 };
 
 const Uint32 NUM_OPERATIONS =
@@ -204,7 +199,7 @@ OperationExampleEntry OperationExamples[] = {
     {"Clients.cimcli.CIMCLIClient.EI_COMMAND_EXAMPLE",
     "cimcli ei PG_ComputerSystem   -- Enumerate Instances of class\n",
     "Clients.cimcli.CIMCLIClient.EI_COMMAND_OPTIONS",
-    "    -n, -di, -lo, -iq, -pl\n"},
+    "    -n, -di, -nlo, -iq, -pl\n"},
 
     {"Clients.cimcli.CIMCLIClient.NC_COMMAND_EXAMPLE",
     "cimcli nc -- Enumerate class names from root/cimv2.\n",
@@ -215,19 +210,19 @@ OperationExampleEntry OperationExamples[] = {
     "cimcli ec -n root/cimv2\n"
         "    -- Enumerate classes from namespace root/cimv2.\n",
     "Clients.cimcli.CIMCLIClient.EC_COMMAND_OPTIONS",
-    "    -n, -di, -lo, -iq\n"},
+    "    -n, -di, -nlo, -niq\n"},
 
     {"Clients.cimcli.CIMCLIClient.GC_COMMAND_EXAMPLE",
     "cimcli gc CIM_door -u guest -p guest\n"
         "    -- Get class user = guest and password = guest.\n",
     "Clients.cimcli.CIMCLIClient.GC_COMMAND_OPTIONS",
-    "    -n, -lo, -iq, -pl\n"},
+    "    -n, -nlo, -niq, -pl\n"},
 
     {"Clients.cimcli.CIMCLIClient.GI_COMMAND_EXAMPLE",
     "cimcli gi -n test/TestProvider TST_Person\n"
         "    -- Get Instance of class\n",
     "Clients.cimcli.CIMCLIClient.GI_COMMAND_OPTIONS",
-    "    -n, -lo, -iq, -pl\n"},
+    "    -n, -nlo, -iq, -pl\n"},
 
     {"Clients.cimcli.CIMCLIClient.CI_COMMAND_EXAMPLE",
     "cimcli ci -n test/TestProvider TST_Person Name=Mike SSN=333\n"
@@ -243,7 +238,7 @@ OperationExampleEntry OperationExamples[] = {
         "       does not have same properties and values as the\n"
         "       instance built from input\n",
     "Clients.cimcli.CIMCLIClient.TI_COMMAND_OPTIONS",
-    "    -n -pl\n"},
+    "    -n -nlo -iq -pl\n"},
 
     {"Clients.cimcli.CIMCLIClient.DI_COMMAND_EXAMPLE",
     "cimcli di -n test/TestProvider TST_Person\n"

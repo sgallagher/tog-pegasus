@@ -47,6 +47,292 @@ PEGASUS_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 //
+// Class, Instance, Object, QualifierDecl Array Sorts
+//
+//------------------------------------------------------------------------------
+
+static inline int _compareCIMNames(const CIMName& c1, const CIMName& c2)
+{
+    return String::compareNoCase(
+        c1.getString(),
+        c2.getString());
+}
+
+// Function to compare two object paths.   Returns a negative integer if p1 is
+// lexographically less than p2, 0 if p1 and p2 are equal,
+// and a positive integer otherwise.
+
+// Compare values compares the value elements of two CIMObject Paths based
+// on their types. Strings are compared directly, integers compared as
+// integers, references are compared as CIMObjectPaths.
+
+// Compare a single KeyBinding.  Compares names as CIMName and values based
+// on type.
+static int _compareObjectPaths(const CIMObjectPath& p1,
+                               const CIMObjectPath& p2);
+
+static int _compareKeyBinding(const CIMKeyBinding& kb1,
+                              const CIMKeyBinding& kb2)
+{
+    int rtn;
+    if ((rtn = _compareCIMNames(kb1.getName(), kb2.getName())) != 0)
+    {
+        return rtn;
+    }
+    switch (kb1.getType())
+    {
+        case CIMKeyBinding::REFERENCE:
+            // Convert to paths and recurse through compare.
+            try
+            {
+                CIMObjectPath p1(kb1.getValue());
+                CIMObjectPath p2(kb2.getValue());
+                return _compareObjectPaths(p1,p2);
+            }
+            catch (Exception&)
+            {
+                // ignore if parsing fails
+                cerr << "Reference Path parsing failed" << endl;
+                return 0;
+            }
+            break;
+
+        case CIMKeyBinding::BOOLEAN:
+            // Compare as no case strings
+            return String::compareNoCase(kb1.getValue(), kb1.getValue());
+            break;
+
+        case CIMKeyBinding::NUMERIC:
+            // convert to numeric values and compare
+            Uint64 uValue1;
+            Sint64 sValue1;
+            if (StringConversion::stringToUnsignedInteger(
+                    kb1.getValue().getCString(),
+                        uValue1))
+            {
+                Uint64 uValue2;
+                if (StringConversion::stringToUnsignedInteger(
+                        kb2.getValue().getCString(),
+                            uValue2))
+                {
+                    return(uValue2 - uValue1);
+                }
+                else
+                {
+                    // ignore error where we cannot convert both
+                    return 0;
+                }
+            }
+            // Next try converting to signed integer
+            else if (StringConversion::stringToSignedInteger(
+                         kb1.getValue().getCString(),
+                             sValue1))
+            {
+                Sint64 sValue2;
+                if (StringConversion::stringToSignedInteger(
+                         kb2.getValue().getCString(),
+                             sValue1))
+                {
+                    return (sValue2 - sValue1);
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            break;
+        default:
+            // no conversion required.  Compare as Strings.
+            return String::compare(kb1.getValue(), kb1.getValue());
+            break;
+    }
+}
+
+static inline int _comparekeybindings(const void* p1, const void* p2)
+{
+    const CIMKeyBinding* kb1 = (const CIMKeyBinding*)p1;
+    const CIMKeyBinding* kb2 = (const CIMKeyBinding*)p2;
+
+    return String::compareNoCase(
+        kb1->getName().getString(),
+        kb2->getName().getString());
+}
+
+/*
+    Compare two object paths. Compares by running compare on all of
+    the component parts, host name, namespace name, class name, and the
+    value component of each of the keybindings.
+    NOTE: This assumes that the keybindings are previously sorted which is
+    the case today for the Pegasus CIMObjectPath constructor.
+    @return int negative if considered lt, 0 if eaual and positive if
+    the compares result and of the components og p2 gt p1.
+*/
+static int _compareObjectPaths(const CIMObjectPath& p1, const CIMObjectPath& p2)
+{
+    int rtn;
+    if ((rtn = String::compareNoCase(p1.getHost(),
+                                     p2.getHost())) != 0)
+    {
+        return rtn;
+    }
+    if ((rtn = String::compareNoCase(p1.getNameSpace().getString(),
+                                     p2.getNameSpace().getString())) != 0)
+    {
+        return rtn;
+    }
+    if ((rtn = _compareCIMNames(p1.getClassName(),
+                                p2.getClassName())) != 0)
+    {
+        return rtn;
+    }
+
+    Array<CIMKeyBinding> kb1 = p1.getKeyBindings();
+    Array<CIMKeyBinding> kb2 = p2.getKeyBindings();
+
+    for (Uint32 i = 0 ; i < kb1.size() ; i++)
+    {
+        int rtn1;
+
+        if ((rtn1 = _compareKeyBinding(kb1[i], kb2[i])) != 0)
+        {
+            return rtn1;
+        }
+    }
+    // success, return successful
+    return 0;
+}
+// Sort an array of object paths
+static inline int _compareObjectPaths(const void* p1, const void* p2)
+{
+    const CIMObjectPath* pa = (const CIMObjectPath*)p1;
+    const CIMObjectPath* pb = (const CIMObjectPath*)p2;
+    return _compareObjectPaths(*pa , *pb);
+}
+static void _Sort(Array<CIMObjectPath>& x)
+{
+    CIMObjectPath* data = (CIMObjectPath*)x.getData();
+    Uint32 size = x.size();
+
+    if (size > 1)
+    {
+        qsort((void*)data, size, sizeof(CIMObjectPath), _compareObjectPaths);
+    }
+}
+
+// Sort an array of classes using the class names as the comparator
+static inline int _compareClasses(const void* p1, const void* p2)
+{
+    const CIMClass* c1 = (const CIMClass*)p1;
+    const CIMClass* c2 = (const CIMClass*)p2;
+    return String::compareNoCase(
+        c1->getClassName().getString(),
+        c2->getClassName().getString());
+}
+static void _Sort(Array<CIMClass>& x)
+{
+    CIMClass* data = (CIMClass*)x.getData();
+    Uint32 size = x.size();
+
+    if (size > 1)
+    {
+        qsort((void*)data, size, sizeof(CIMClass), _compareClasses);
+    }
+}
+
+// Sort an Array of instances using the paths as the compare data.
+static int _compareInstances(const void* p1, const void* p2)
+{
+    const CIMInstance* c1 = (const CIMInstance*)p1;
+    const CIMInstance* c2 = (const CIMInstance*)p2;
+
+    return _compareObjectPaths(c1->getPath() , c2->getPath());
+}
+static void _Sort(Array<CIMInstance>& x)
+{
+    CIMInstance* data = (CIMInstance*)x.getData();
+    Uint32 size = x.size();
+
+    if (size > 1)
+    {
+        qsort((void*)data, size, sizeof(CIMInstance), _compareInstances);
+    }
+}
+
+// Sort array of CIMObjects.  If the object is a class, compare the
+// class names.  If it is an instance, compare the paths.
+static int _compareObjects(const void* p1, const void* p2)
+{
+    const CIMObject* o1 = (const CIMObject*)p1;
+    const CIMObject* o2 = (const CIMObject*)p2;
+    if (o1->isClass())
+    {
+        return String::compareNoCase(
+            o1->getClassName().getString(),
+            o2->getClassName().getString());
+    }
+    else if (o1->isInstance())
+    {
+        return _compareObjectPaths(o1->getPath() , o2->getPath());
+    }
+    else
+    {
+        cout << "ERROR object not class or instance" << endl;
+        return 0;
+    }
+}
+static void _Sort(Array<CIMObject>& x)
+{
+    CIMObject* data = (CIMObject*)x.getData();
+    Uint32 size = x.size();
+
+    if (size > 1)
+    {
+        qsort((void*)data, size, sizeof(CIMInstance), _compareObjects);
+    }
+}
+
+// Sort array of qualifier decls based on the name
+static int _compareQualDecls(const void* p1, const void* p2)
+{
+    const CIMQualifierDecl* qd1 = (const CIMQualifierDecl*)p1;
+    const CIMQualifierDecl* qd2 = (const CIMQualifierDecl*)p2;
+    return String::compareNoCase(
+        qd1->getName().getString(),
+        qd2->getName().getString());
+}
+static void _Sort(Array<CIMQualifierDecl>& x)
+{
+    CIMQualifierDecl* data = (CIMQualifierDecl*)x.getData();
+    Uint32 size = x.size();
+
+    if (size > 1)
+    {
+        qsort((void*)data, size, sizeof(CIMQualifierDecl), _compareQualDecls);
+    }
+}
+
+// Sort array of qualifier decls based on the name
+static int _compareParamValues(const void* p1, const void* p2)
+{
+    const CIMParamValue* pv1 = (const CIMParamValue*)p1;
+    const CIMParamValue* pv2 = (const CIMParamValue*)p2;
+    return String::compareNoCase(
+        pv1->getParameterName(),
+        pv2->getParameterName());
+}
+static void _Sort(Array<CIMParamValue>& x)
+{
+    CIMParamValue* data = (CIMParamValue*)x.getData();
+    Uint32 size = x.size();
+
+    if (size > 1)
+    {
+        qsort((void*)data, size, sizeof(CIMQualifierDecl), _compareParamValues);
+    }
+}
+
+//------------------------------------------------------------------------------
+//
 // mofFormat
 //
 //------------------------------------------------------------------------------
@@ -160,7 +446,7 @@ void mofFormat(PEGASUS_STD(ostream)& os,
 ***************************************************************/
 
 // output CIMProperty
-void _print(const CIMProperty& property,
+static void _print(const CIMProperty& property,
     const OutputType format)
 {
     if (format == OUTPUT_XML)
@@ -179,7 +465,7 @@ void _print(const CIMProperty& property,
 
 // output CIMValue in accord with output format definition
 //NOTE: DUPLICATES OUTPUT FORMATT FUNCTION
-void _print(const CIMValue& v,
+static void _print(const CIMValue& v,
     const OutputType format)
 {
     if (format == OUTPUT_XML)
@@ -211,7 +497,7 @@ typedef Array <String> ColumnEntry;
 /* Output a single table String entry filling to ColSize or adding an
    eol if last specified
 */
-void _printTableEntry(const String& entryStr,
+static void _printTableEntry(const String& entryStr,
     const Uint32 colSize,
     Boolean last,
     PEGASUS_STD(ostream)& outPrintWriter)
@@ -236,7 +522,7 @@ void _printTableEntry(const String& entryStr,
    the parameters for the column width for each column and the array
    of column entries (outputTable).
 */
-void _printTables(const Array<Uint32>& maxColumnWidth,
+static void _printTables(const Array<Uint32>& maxColumnWidth,
     const Array<ColumnEntry>& outputTable,
     PEGASUS_STD(ostream)& outPrintWriter)
 {
@@ -256,7 +542,7 @@ void _printTables(const Array<Uint32>& maxColumnWidth,
 /* Format the output stream to be a table with column for each property
    and row for the properties in each instance.
 */
-void tableDisplay(PEGASUS_STD(ostream)& outPrintWriter,
+static void tableDisplay(PEGASUS_STD(ostream)& outPrintWriter,
     const Array<CIMInstance>& instances)
 {
     Array<ColumnEntry> outputTable;
@@ -288,7 +574,7 @@ void tableDisplay(PEGASUS_STD(ostream)& outPrintWriter,
     // string representation of the value.  This can create REALLY
     // REALLY wide columns for Strings and for Array properties.
     //
-    // TODO: Add code to create multiline colums for things like array
+    // FUTURE: Add code to create multiline colums for things like array
     // entries or possibly long strings.
 
     for (Uint32 i = 0; i < propertyNameArray.size(); i++)
@@ -328,18 +614,63 @@ void tableDisplay(PEGASUS_STD(ostream)& outPrintWriter,
     _printTables(maxColumnWidth, outputTable, outPrintWriter);
 }
 
-void _outputFormatInstance(const OutputType format,
-    const CIMInstance& instance)
+/*****************************************************************************
+*
+*    local Format and output functions called by the public interface
+*    functions.  These functions each output a single object of the
+*    defined basic type (path, instance, object, class, parameter, etc.)
+*
+******************************************************************************/
+/*
+    Output the path.  This includes setting the host component
+    to a value determined by the cimcli input paramter --setrthhostname
+    if that parameter was in the command line.
+*/
+static void _outputPath(Options& opts, const CIMObjectPath& path,
+                 const String description = "")
+{
+    CIMObjectPath tmpPath = path;
+
+    // if boolean set and there is a host name, replace it with
+    // the substitute name.
+    if (opts.setRtnHostNames && (tmpPath.getHost().size() != 0))
+    {
+        // Show the change made to host name if verbose output mode.
+        if (opts.verboseTest)
+        {
+            cout << "Modify Host name from "
+                 <<  path.getHost()
+                 << " to "
+                 << opts.rtnHostSubstituteName
+                 << endl;
+        }
+        tmpPath.setHost(opts.rtnHostSubstituteName);
+    }
+
+    if (description.size() != 0)
+    {
+        cout << description;
+    }
+    cout << tmpPath.toString() << endl;
+}
+
+/*
+    Output for xml and mof formats for instance.  Note that the
+    table form has its own functions driven directly from the
+    displayInstances because it handles the entire array of instances.
+*/
+static void _outputFormatInstance(Options& opts,
+    CIMInstance& instance)
 {
     // display the path element
-    cout << "path= " << instance.getPath().toString() << endl;
+    _outputPath(opts, instance.getPath(), "path= ");
 
     // Display the instance based on the format type.
-    if (format == OUTPUT_XML)
+    if (opts.outputType == OUTPUT_XML)
     {
         XmlWriter::printInstanceElement(instance, cout);
     }
-    else if (format == OUTPUT_MOF)
+    else if (opts.outputType == OUTPUT_MOF)
     {
         CIMInstance temp = instance.clone();
         // Reset the propagated flag to assure that these entities
@@ -355,14 +686,15 @@ void _outputFormatInstance(const OutputType format,
         mofFormat(cout, x.getData(), 4);
     }
 }
-void _outputFormatParamValue(const OutputType format,
+
+static void _outputFormatParamValue(Options& opts,
     const CIMParamValue& pv)
 {
-    if (format == OUTPUT_XML)
+    if (opts.outputType == OUTPUT_XML)
     {
         XmlWriter::printParamValueElement(pv, cout);
     }
-    else if (format == OUTPUT_MOF)
+    else if (opts.outputType == OUTPUT_MOF)
     {
         if (!pv.isUninitialized())
         {
@@ -383,12 +715,15 @@ void _outputFormatParamValue(const OutputType format,
         cerr << "Error, Format Definition Error" << endl;
 }
 
-void _outputFormatClass(const OutputType format,
+static void _outputFormatClass(Options& opts,
     const CIMClass& myClass)
 {
-    if (format == OUTPUT_XML)
+    if (opts.outputType == OUTPUT_XML)
+    {
         XmlWriter::printClassElement(myClass, cout);
-    else if (format == OUTPUT_MOF)
+    }
+
+    else if (opts.outputType == OUTPUT_MOF)
     {
         // Reset the propagated flag to assure that these entities
         // are all shown in the MOF output.
@@ -412,19 +747,19 @@ void _outputFormatClass(const OutputType format,
         cerr << "Error, Format Definition Error" << endl;
 }
 
-void _outputFormatObject(const OutputType format,
-    const CIMObject& myObject)
+static void _outputFormatObject(Options& opts,
+    CIMObject& myObject)
 {
 
     if (myObject.isClass())
     {
         CIMClass c(myObject);
-        _outputFormatClass(format, c);
+        _outputFormatClass(opts, c);
     }
     else if (myObject.isInstance())
     {
         CIMInstance i(myObject);
-        _outputFormatInstance(format, i);
+        _outputFormatInstance(opts, i);
     }
     else
     {
@@ -432,12 +767,14 @@ void _outputFormatObject(const OutputType format,
     }
 }
 
-void _outputFormatQualifierDecl(const OutputType format,
+static void _outputFormatQualifierDecl(const Options& opts,
     const CIMQualifierDecl& myQualifierDecl)
 {
-    if (format == OUTPUT_XML)
+    if (opts.outputType == OUTPUT_XML)
+    {
         XmlWriter::printQualifierDeclElement(myQualifierDecl, cout);
-    else if (format == OUTPUT_MOF)
+    }
+    else if (opts.outputType == OUTPUT_MOF)
     {
         Buffer x;
         MofWriter::appendQualifierDeclElement(x, myQualifierDecl);
@@ -449,14 +786,15 @@ void _outputFormatQualifierDecl(const OutputType format,
     }
 }
 
-void _outputFormatCIMValue(const OutputType format,
+// KS_TODO This not used today
+static void _outputFormatCIMValue(Options& opts,
     const CIMValue& myValue)
 {
-    if (format == OUTPUT_XML)
+    if (opts.outputType == OUTPUT_XML)
     {
         XmlWriter::printValueElement(myValue, cout);
     }
-    else if (format == OUTPUT_MOF)
+    else if (opts.outputType == OUTPUT_MOF)
     {
         Buffer x;
         MofWriter::appendValueElement(x, myValue);
@@ -469,14 +807,13 @@ void _outputFormatCIMValue(const OutputType format,
 }
 
 
-// displaySummary for results of an operation. Display only if count
-// ne zero.
-// TODO: Separate the test from the count mechanism so that we can
-// get a test and full display at the same time.
-void _displayOperationSummary(Uint32 count,
+// displaySummary for results of an operation. Display only if count != 0
+
+static void _displayOperationSummary(
+    const Options& opts,
+    Uint32 count,
     const String& description,
-    const String item,
-    Options& opts)
+    const String item)
 {
     if (count != 0)
     {
@@ -495,64 +832,57 @@ void _displayOperationSummary(Uint32 count,
     }
 }
 
-void _testReturnCount(Options& opts,
-    Uint32 count,
-    const String& description,
-    const String& item)
+/*
+    Function to test return count of objects against --count cimcli
+    input parameter. If the count test fails, message output and
+    termCondition set to count failed status.
+    This should be called by all display functions outputting
+    multiple entities.
+*/
+void CIMCLIOutput::testReturnCount(Options& opts,
+    Uint32 rcvdCount,
+    const String& description)
 {
-
-    if ((opts.count) != 29346 && (opts.count != count))
+    if (opts.executeCountTest && (opts.expectedCount != rcvdCount))
     {
-        cerr << "Failed count test. Expected= " << opts.count
-             << " Actual rcvd= " << count << endl;
-        opts.termCondition = 1;
+        cerr << "Failed "
+             << description
+             << " count test. Expected= " << opts.expectedCount
+             << " Received= " << rcvdCount << endl;
+
+        opts.termCondition = CIMCLI_RTN_COUNT_TEST_FAILED;
+
+        // Exit failed immediatly if the count test fails
+        exit(opts.termCondition);
     }
 }
-/*
-    The following are the public interfaces for the displays
-*/
+
+/******************************************************************************
+**
+**    The following are the public interfaces for the CIM entity displays
+**    Includes displays for CIMInstances, CIMObjects, CIMClasses,
+**    CIMObjectPaths, ParameterValues, QualifierDecls, etc.  For most
+**    types this includes both the display of a single object and
+**    of arrays of that object type.
+**    Generally the Array displays allow:
+**    1.  Testing against the Options for the --count input parameter
+**    2.  Sorting of the array based on the sort option.
+**    3.  Display of either summary information or the complete objects
+**
+******************************************************************************/
 
 void CIMCLIOutput::displayOperationSummary(Options& opts,
     Uint32 count,
     const String& description,
     const String& item)
 {
-    _displayOperationSummary(count, description, item, opts);
-    _testReturnCount(opts,
-                     count,
-                     description,
-                     item);
-}
+    _displayOperationSummary(opts, count, description, item);
 
-void CIMCLIOutput::displayInstances(Options& opts,
-const Array<CIMInstance>& instances)
-{
-    if (opts.summary)
-    {
-        String s = "instances of class";
-        _displayOperationSummary(instances.size(), s,
-                                 opts.className.getString(),opts);
-    }
-    else
-    {
-        if (instances.size() > 0 && opts.outputType == OUTPUT_TABLE)
-        {
-            tableDisplay(cout, instances);
-            return;
-        }
-
-        // Output the returned instances
-        for (Uint32 i = 0; i < instances.size(); i++)
-        {
-            CIMInstance instance = instances[i];
-            // Check Output Format to print results
-            _outputFormatInstance(opts.outputType, instance);
-        }
-    }
+    testReturnCount(opts, count, description);
 }
 
 void CIMCLIOutput::displayInstance(Options& opts,
-    const CIMInstance& instance)
+    CIMInstance& instance)
 {
     if (opts.summary)
     {
@@ -571,13 +901,46 @@ void CIMCLIOutput::displayInstance(Options& opts,
         }
         else
         {
-            _outputFormatInstance(opts.outputType, instance);
+            _outputFormatInstance(opts, instance);
         }
     }
 }
 
+void CIMCLIOutput::displayInstances(Options& opts,
+    Array<CIMInstance>& instances)
+{
+    String description = "instances of class";
+    if (opts.summary)
+    {
+        _displayOperationSummary(opts, instances.size(), description,
+                                 opts.className.getString());
+    }
+    else
+    {
+        if (opts.sort)
+        {
+            _Sort(instances);
+        }
+        if (instances.size() > 0 && opts.outputType == OUTPUT_TABLE)
+        {
+            tableDisplay(cout, instances);
+            return;
+        }
+
+        // Output the returned instances
+        for (Uint32 i = 0; i < instances.size(); i++)
+        {
+            CIMInstance instance = instances[i];
+            // Check Output Format to print results
+            _outputFormatInstance(opts, instance);
+        }
+    }
+    testReturnCount(opts, instances.size(), description);
+}
+
+
 void CIMCLIOutput::displayPath(Options& opts,
-    const CIMObjectPath& path,
+    CIMObjectPath& path,
     const String& description)
 {
     if (opts.summary)
@@ -593,33 +956,44 @@ void CIMCLIOutput::displayPath(Options& opts,
         {
             cout << description << " ";
         }
-        cout << path.toString() << endl;;
+        _outputPath(opts,path);
     }
 }
 
 void CIMCLIOutput::displayPaths(Options& opts,
-    const Array<CIMObjectPath>& paths,
+    Array<CIMObjectPath>& paths,
     const String& description)
 {
-    // TODO: Don't show anything if size = 0 and have the caller
+    // KS-TODO: Don't show anything if size = 0 and have the caller
     // setup the class somewhere external.
     if (opts.summary)
     {
-        _displayOperationSummary(paths.size(), description,
-                               opts.className.getString(), opts);
+        _displayOperationSummary(opts, paths.size(), description,
+                               opts.className.getString());
     }
     else
     {
+        if (opts.sort)
+        {
+            // Commented code is timer since this could be a long sort
+            //Stopwatch x;
+            //x.start();
+            _Sort(paths);
+            //x.stop();
+            //cout << "SORT TIME = " << x.getElapsed()
+            //     << " for " << paths.size() << " paths." << endl;
+        }
         if (description.size() != 0 && paths.size() != 0)
         {
             cout << paths.size() << " " << description << endl;
         }
-        //Output the list one per line for the moment.
+        //Output the list of paths.
         for (Uint32 i = 0; i < paths.size(); i++)
         {
-            cout << paths[i].toString() << endl;
+            _outputPath(opts,paths[i]);
         }
     }
+    testReturnCount(opts, paths.size(), description);
 }
 
 void CIMCLIOutput::displayClass(Options& opts,
@@ -634,27 +1008,111 @@ void CIMCLIOutput::displayClass(Options& opts,
     }
     else
     {
-        _outputFormatClass(opts.outputType, cimClass);
+        _outputFormatClass(opts, cimClass);
     }
 }
 
-void CIMCLIOutput::displayClassNames(Options& opts,
-    const Array<CIMName>& classNames)
+void CIMCLIOutput::displayClasses(Options& opts,
+    Array<CIMClass>& classes)
 {
+    String description = "classes";
     if (opts.summary)
     {
-      String s = "class names";
-        _displayOperationSummary(classNames.size(), s,
-             opts.className.getString(), opts);
+        _displayOperationSummary(opts, classes.size(), description,
+                                 opts.className.getString());
     }
     else
     {
-        //Output the list one per line for the moment.
-        for (Uint32 i = 0; i < classNames.size(); i++)
+        // Output the returned classes
+        if (opts.sort)
         {
-            cout << classNames[i].getString() << endl;
+            _Sort(classes);
+        }
+        for (Uint32 i = 0; i < classes.size(); i++)
+        {
+            CIMClass myClass = classes[i];
+            _outputFormatClass(opts, myClass);
         }
     }
+    testReturnCount(opts, classes.size(), description);
+}
+void CIMCLIOutput::displayClassName(const Options& opts,
+    const CIMName& className)
+{
+    cout << className.getString() << endl;
+}
+
+void CIMCLIOutput::displayClassNames(Options& opts,
+    Array<CIMName>& classNames)
+{
+    String description = "class names";
+    if (opts.summary)
+    {
+        _displayOperationSummary(opts, classNames.size(), description,
+             opts.className.getString());
+    }
+    else
+    {
+        if (opts.sort)
+        {
+            BubbleSort(classNames);
+        }
+        //Output the list one per line.
+        for (Uint32 i = 0; i < classNames.size(); i++)
+        {
+            displayClassName(opts, classNames[i]);
+            //cout << classNames[i].getString() << endl;
+        }
+    }
+    testReturnCount(opts, classNames.size(), description);
+}
+
+
+void CIMCLIOutput::displayObjects(Options& opts,
+    Array<CIMObject>& objects,
+    const String& description)
+{
+    if (opts.summary)
+    {
+      String s = "instances of class";
+        _displayOperationSummary(opts, objects.size(), description,
+                                  opts.className.getString());
+    }
+    else
+    {
+        // Output the returned instances
+        for (Uint32 i = 0; i < objects.size(); i++)
+        {
+            _outputFormatObject(opts, objects[i]);
+        }
+    }
+    testReturnCount(opts, objects.size(), description);
+}
+
+void CIMCLIOutput::displayNamespaceNames(Options& opts,
+    Array<CIMNamespaceName>& ns,
+    const String& description)
+{
+    if (opts.summary)
+    {
+        cout << ns.size() << " namespaces " << " returned."
+            << endl;
+    }
+    else
+    {
+        if (description.size() != 0)
+        {
+            cout << description;
+        }
+
+        for( Uint32 cnt = 0 ; cnt < ns.size(); cnt++ )
+        {
+            cout << ns[cnt].getString() << endl;;
+        }
+    }
+
+    // Test for number returned. Only applys if -count option set
+    CIMCLIOutput::testReturnCount(opts, ns.size(), "Namespaces");
 }
 
 void CIMCLIOutput::displayProperty(Options& opts,
@@ -667,27 +1125,6 @@ void CIMCLIOutput::displayValue(Options& opts,
     const CIMValue& value)
 {
     _print(value, opts.outputType);
-}
-
-void CIMCLIOutput::displayObjects(Options& opts,
-    const Array<CIMObject>& objects,
-    const String& description)
-{
-    if (opts.summary)
-    {
-      String s = "instances of class";
-        _displayOperationSummary(objects.size(), description,
-                                  opts.className.getString(),opts);
-    }
-    else
-    {
-        // Output the returned instances
-        for (Uint32 i = 0; i < objects.size(); i++)
-        {
-            _outputFormatObject(opts.outputType, objects[i]);
-        }
-
-    }
 }
 
 void CIMCLIOutput::display(Options& opts,
@@ -713,44 +1150,27 @@ void CIMCLIOutput::display(Options& opts,
 }
 
 void CIMCLIOutput::displayParamValues(Options& opts,
-    const Array<CIMParamValue>& params)
+    Array<CIMParamValue>& params)
 {
+    if (opts.sort)
+    {
+        _Sort(params);
+    }
     for (Uint32 i = 0; i < params.size() ; i++)
     {
-        _outputFormatParamValue(opts.outputType, params[i]);
+        _outputFormatParamValue(opts, params[i]);
     }
 }
 
-void CIMCLIOutput::displayClasses(Options& opts,
-    const Array<CIMClass>& classes)
-{
-    if (opts.summary)
-    {
-        String s = "classes";
-        _displayOperationSummary(classes.size(), s,
-                                 opts.className.getString(), opts);
-    }
-    else
-    {
-        // Output the returned instances
-        for (Uint32 i = 0; i < classes.size(); i++)
-        {
-            CIMClass myClass = classes[i];
-            _outputFormatClass(opts.outputType, myClass);
-        }
-    }
-}
-
-
-void CIMCLIOutput::displayQualDecl(Options& opts,
+void CIMCLIOutput::displayQualDecl(const Options& opts,
     const CIMQualifierDecl& qualifierDecl)
 {
-    _outputFormatQualifierDecl(opts.outputType, qualifierDecl);
+    _outputFormatQualifierDecl(opts, qualifierDecl);
 }
 
 
 void CIMCLIOutput::displayQualDecls(Options& opts,
-    const Array<CIMQualifierDecl> qualifierDecls)
+    Array<CIMQualifierDecl>& qualifierDecls)
 {
     if (opts.summary)
     {
@@ -758,13 +1178,20 @@ void CIMCLIOutput::displayQualDecls(Options& opts,
     }
     else
     {
+        if (opts.sort)
+        {
+            _Sort(qualifierDecls);
+        }
         // Output the returned instances
         for (Uint32 i = 0; i < qualifierDecls.size(); i++)
         {
             CIMQualifierDecl myQualifierDecl = qualifierDecls[i];
-            _outputFormatQualifierDecl(opts.outputType, myQualifierDecl);
+            _outputFormatQualifierDecl(opts, myQualifierDecl);
         }
     }
+    testReturnCount(opts,
+                     qualifierDecls.size(),
+                     "Qualifier Decls");
 }
 
 

@@ -102,7 +102,7 @@ struct  OptionStruct
     // true if is class only (no keyBindings)
     Boolean targetObjectNameClassOnly();
     //
-    // Variables used by cimcli operations
+    // Variables used by cimcli operations functions
     //
     CIMClient client;           // CIMClient object for communciation
     String location;            // Host parameter
@@ -138,7 +138,9 @@ struct  OptionStruct
     // CIM operation parameter input parameters
     Boolean deepInheritance;
     Boolean localOnly;
-    Boolean includeQualifiers;
+    Boolean includeQualifiersRequested;       // -iq parameter supplied
+    Boolean notIncludeQualifiersRequested;    // -niq parameter supplied
+    Boolean includeQualifiers;                // parameter used for call
     Boolean includeClassOrigin;
     CIMValue newValue;
 
@@ -160,18 +162,21 @@ struct  OptionStruct
     CIMName methodName;
     Array<CIMParamValue> inParams;
 
-    // General parameters that modify results
+    // General parameters that modify output
     Boolean verboseTest;        // Verbose output during processing
     Boolean summary;            // Do summary information
     Uint32 delay;               // Delay between connect and command
     Uint32 trace;               // Trace cimcli
     Boolean debug;              // Execute cimcli in debug mode
+    Boolean sort;               // Sort output of multi-object responses
 
-    Uint32 count;               // Number of expected items if
+    Uint32 expectedCount;       // Number of expected items if
                                 // count test is to be executed.
     Boolean executeCountTest;   // Execute the count test if true
-                                // Separate because ANY value can exist
-                                // for the count itself.
+                                // Separate  from expectedCount
+                                // because ANY value can exist
+                                // for the count itself including zero.
+
     Uint32 repeat;              // execute the operation repeat times
     Boolean time;               // report time for operation
 
@@ -179,7 +184,11 @@ struct  OptionStruct
 
     Uint32 connectionTimeout;    // Connection timeout in seconds
     Array<String> valueParams;   // additional param list. depends on command.
-    Boolean interactive;
+    Boolean interactive;         // use interactive mode.
+    Boolean setRtnHostNames;    // Define whether we modify host names on
+                                      // returned paths and references
+    String rtnHostSubstituteName;   // Host name to set if we
+                                 // do modify
 
     // Internal work variables
     Stopwatch elapsedTime;

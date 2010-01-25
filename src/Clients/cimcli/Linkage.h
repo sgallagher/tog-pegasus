@@ -27,20 +27,22 @@
 //
 //////////////////////////////////////////////////////////////////////////
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By:
-//        Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
-//        Aruran, IBM (ashanmug@in.ibm.com) for Bug#4228
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 
-#ifndef PEGASUS_CLI_LINKAGE
-#   ifdef PEGASUS_CLI_INTERNAL
-#       define PEGASUS_CLI_LINKAGE PEGASUS_EXPORT
-#   else
-#       define PEGASUS_CLI_LINKAGE PEGASUS_IMPORT
-#   endif
-#endif
+// Modify linkage controller to disable linkage Macro.  All linkage is not
+// at the object code level, not shared libraries. Leaving the actual
+// macro in the functions clarifies what functions we want to be
+// callable between files.  However, in windows, using the actual
+// mechanism causes lots of warnings.
+//
+//#ifndef PEGASUS_CLI_LINKAGE
+//#   ifdef PEGASUS_CLI_INTERNAL
+//#       define PEGASUS_CLI_LINKAGE PEGASUS_EXPORT
+//#   else
+//#       define PEGASUS_CLI_LINKAGE PEGASUS_IMPORT
+//#   endif
+//#endif
+
+#define PEGASUS_CLI_LINKAGE

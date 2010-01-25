@@ -28,9 +28,10 @@ This command executes single CIM Operations.
  -nlo  notLocalOnly. When set, sets LocalOnly = false on
     operations. Default(false)
  -iq  includeQualifiers. DEPRECATED. Sets includeQualifiers = True.
-    However, default=true. Default(true)
+    Useful for instance operations where default is false. Default(false)
  -niq  notIncludeQualifiers. Sets includeQualifiers = false
-    on operations. Default(false)
+    on operations. Useful for class operations where 
+    the default is true.. Default(false)
  -pl  propertyList. Defines a propertyNameList. Format is p1,p2,p3
     (without spaces). Use "" for empty. Default(###!###)
  -ac  assocClass. Defines a assocation Class string for Associator calls. Default()
@@ -60,11 +61,14 @@ This command executes single CIM Operations.
  --timeout  connecttimeout. Set the connection timeout in seconds.. Default(0)
  -i  interactive. Interactively ask user to select instances.
     Used with associator and reference operations. Default(false)
+ --setRtnHostNames  setRtnHostNames. Set namespace component of reference and path outputs parameter.
+    Used to allow comparison of paths and instances without involving the variable of host namespaces.. Default()
  -trace  trace. Set Pegasus Common Components Trace. Sets the Trace level.
     0 is off. Default(0)
  --r  repeat. Number of times to repeat the operation.
     Zero means one time. Default(0)
  --t  time. Measure time for the operation and present results. Default(false)
+ --sort  sort. Sort the returned entities for multi-entity responses. Default(false)
 
 Options vary by command consistent with CIM Operations
 
@@ -323,9 +327,10 @@ This command executes single CIM Operations.
  -nlo  notLocalOnly. When set, sets LocalOnly = false on
     operations. Default(false)
  -iq  includeQualifiers. DEPRECATED. Sets includeQualifiers = True.
-    However, default=true. Default(true)
+    Useful for instance operations where default is false. Default(false)
  -niq  notIncludeQualifiers. Sets includeQualifiers = false
-    on operations. Default(false)
+    on operations. Useful for class operations where 
+    the default is true.. Default(false)
  -pl  propertyList. Defines a propertyNameList. Format is p1,p2,p3
     (without spaces). Use "" for empty. Default(###!###)
  -ac  assocClass. Defines a assocation Class string for Associator calls. Default()
@@ -355,11 +360,14 @@ This command executes single CIM Operations.
  --timeout  connecttimeout. Set the connection timeout in seconds.. Default(0)
  -i  interactive. Interactively ask user to select instances.
     Used with associator and reference operations. Default(false)
+ --setRtnHostNames  setRtnHostNames. Set namespace component of reference and path outputs parameter.
+    Used to allow comparison of paths and instances without involving the variable of host namespaces.. Default()
  -trace  trace. Set Pegasus Common Components Trace. Sets the Trace level.
     0 is off. Default(0)
  --r  repeat. Number of times to repeat the operation.
     Zero means one time. Default(0)
  --t  time. Measure time for the operation and present results. Default(false)
+ --sort  sort. Sort the returned entities for multi-entity responses. Default(false)
 
 Options vary by command consistent with CIM Operations
 

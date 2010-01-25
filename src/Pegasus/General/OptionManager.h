@@ -75,7 +75,11 @@ typedef Option* OptionPtr;
     </ul>
 
     This class provides methods for merging options from both of these
-    sources into a single collection. The following example shows how to
+    sources into a single collection. The priority of options between the
+    configuration file and the command line is determined by the order in
+    which the using program processes the configuration file and command
+    line.
+    The following example shows how to
     merge options from a command line into the option manager.
 
     <pre>
@@ -96,6 +100,16 @@ typedef Option* OptionPtr;
 
     Similarly, the OptionManager::mergeFile() method allows options to be
     merged from a file.
+ 
+    Generally options in a configuration file are of the form:
+ 
+        name="value"
+ 
+    The value component MUST BE quoted as shown above. Blank lines and
+    comment lines are allowed in the configuration file. Lines in the
+    configuration file where the first non-whitespace character is # are
+    considered comments and bypassed.   The name="value" component
+    may be proceeded by whitespace.
 
     Before options are merged into the option manager, information on each
     option must be registered with the option manager so that the following
@@ -147,8 +161,11 @@ typedef Option* OptionPtr;
 
     Boolean Options can easily be tested as follows:
     <pre>
-
+        Boolean debug = om.isTrue("debug");
     </pre>
+ 
+    Similarily Integer values can be automatically converted with the
+    function lookupIntegerValue.
 
     <h4>Command Line Options</h4>
 
@@ -206,10 +223,17 @@ typedef Option* OptionPtr;
 
         <LI> (INTEGER) Numeric parameters - (ex -port 5988). These are
         parameters where a numeric variable follows the parameter defintion.
+        Note that the option manager does not tests for maximum value.
 
-        <LI>(WHOLE_NUMBER) Numeric parameters  ATTN: Finish.
+        <LI>(WHOLE_NUMBER) Numeric parameters - These are
+        parameters where a numeric variable follows the parameter defintion.
+        The value of these numeric parameters where the integer value
+        must be ge 0
 
-        <LI> (NATURAL_NUMBER Numieric parameters - (ex ). ATTN: finish
+        <LI> (NATURAL_NUMBER Numeric parameters -  These are
+        parameters where a numeric variable follows the parameter defintion.
+        The value of these numeric parameters where the integer value must be
+        gt 0
 
         <LI>(STRING) String Parameters - (ex. -file abd.log) These are
         parameters that are represented by strings following the option

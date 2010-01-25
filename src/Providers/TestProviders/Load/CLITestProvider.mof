@@ -26,15 +26,21 @@
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //////////////////////////////////////////////////////////////////////////
-[Version ("2.5.0")]
+[Version ("2.5.0"), Description(
+    "Class to test input and output of all property types that can "
+    "be handled by cimcli.") ]
 class Test_CLITestProviderClass
 {
     [key]
     String Id;
+
     String Name;
+
+    [Description ("Return name value pair defining input parameters "
+    "for the operation received by the provider such as propertylist.")]
     String requestInputParameters;
 
-   // scalar property tests
+   // scalar properties
    Boolean scalBool;
    Uint8   scalUint8;
    Sint8   scalSint8;
@@ -65,7 +71,7 @@ class Test_CLITestProviderClass
    String  defaultString = "test\"embedded\"quote";
    Datetime defaultDateTime;
 
-   // Array Property tests
+   // Array Properties
    Boolean arrayBool[];
    Uint8   arrayUint8[];
    Sint8   arraySint8[];
@@ -84,7 +90,9 @@ class Test_CLITestProviderClass
         [in] uint32 InParam1,
         [out] uint32 OutParam2);
 
-   // Test input and output of all parameter types
+   [ Description("Method to test input and output of all "
+        "parameter types. Provider is expected to return "
+	"all parameters input.") ]
    uint32 InOutParamTest(
         [in, out] Boolean scalBool,
 	[in, out] Uint8   scalUint8,
@@ -111,7 +119,8 @@ class Test_CLITestProviderClass
 	[in, out] String  arrayString[],
 	[in, out] Datetime arrayDateTime[],
 	[in, out] Uint32 returnValue
-	);  
+	);
+	  
    // Test input and output of all parameter types
    uint32 FullParamTest(
         [in] Boolean inScalBool,
@@ -140,9 +149,20 @@ class Test_CLITestProviderClass
 	[out] String  outScalString,
 	[out] Datetime outScalDateTime
 	);
+
+   [ Description("Method to set parameters to modify provider behavior") ]
+   uint32 setProviderParameters(
+        [in, out] String substituteHostName
+	);
+
+   [ Description("Method to reset all parameters provider behavior "
+       " parameters") ]
+   uint32 resetProviderParameters();
 };
+
 [Association, Version("1.0.0"), Description("Defines the "
-"relationship between parents and children. Test Ref/Assoc functions in cimli") ]
+    "relationship between parents and children. "
+    "Test Ref/Assoc functions in cimli") ]
 class Test_CLITestProviderLinkClass
 {
     [key] Test_CLITestProviderClass ref parent;

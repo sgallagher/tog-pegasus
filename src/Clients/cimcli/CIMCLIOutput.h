@@ -33,7 +33,10 @@
 
     Defines the display functions used by cimcli.  The are largely CIM entities
     and arrays of CIMEntities.  The output formats are controlled by
-    data in the Options structure provider
+    data in the Options structure provider.
+
+    The goal is that all output from the action operation in cimcli be
+    routed through the methods in this display class.
 
 *******************************************************************************/
 #ifndef _CLI_OUTPUT_H
@@ -53,66 +56,218 @@ class CIMCLIOutput
 {
 public:
 
-    // Display an instance or an array of instances
+     /**
+     * Display a single CIMInstance with output format determined by
+     * parameters in opts.
+     * @param opts Options structure with parameters for output
+     *   display
+     * @param path CIMInstance to be displayed.
+     */
     static void PEGASUS_CLI_LINKAGE displayInstance(Options& opts,
-        const CIMInstance& instance);
+        CIMInstance& instance);
+    /**
+     * Display an array of CIMInstances with output format dependent
+     * on the parameters in opts.
+     * @param opts Options structure with parameters for output
+     * display
+     * @param paths Array<CIMInstances> array containing the
+     * CIMObjectOaths to be displayed. This array may be modified by
+     * the output functions, specifically to sort the array if the
+     * sort command line option is specified.
+     */
     static void PEGASUS_CLI_LINKAGE displayInstances(Options& opts,
-        const Array<CIMInstance>& instances);
+        Array<CIMInstance>& instances);
 
-    // Display either a single Class or array of classes.
+
+    /**
+     * Display a single CIMClass with output format determined
+     * by parameters in opts.
+     * @param opts Options structure with parameters for output
+     *   display
+     * @param path CIMClass to be displayed.
+     */
     static void PEGASUS_CLI_LINKAGE displayClass(Options& opts,
         const CIMClass& cimClass);
+    /**
+     * Display an array of CIMClasses with output format
+     * dependent on the parameters in opts.
+     * @param opts Options structure with parameters for output
+     * display
+     * @param paths Array<CIMClass> array containing the
+     * CIMObjectOaths to be displayed. This array may be modified by
+     * the output functions, specifically to sort the array if the
+     * sort command line option is specified.
+     */
     static void PEGASUS_CLI_LINKAGE displayClasses(Options& opts,
-        const Array<CIMClass>& classes);
+        Array<CIMClass>& classes);
 
-    // Display either an array of objects with optional description
-    // text
-    static void PEGASUS_CLI_LINKAGE displayObjects(Options& opts,
-        const Array<CIMObject>& objects,
-        const String& description);
-
-    // Display a single path or an array of paths. There is an optional
-    // parameter allowing adding a description that will be displayed
-    // if paths exist.
+    /**
+     * Display a single CIMObjectPath with output format determined
+     * by parameters in opts.
+     * @param opts Options structure with parameters for output
+     *   display
+     * @param path CIMObjectPath to be displayed.
+     * @param description String (optional) which may be displayed
+     * with the output. If the String is empty, nothing will be
+     * displayed.
+     */
     static void PEGASUS_CLI_LINKAGE displayPath(Options& opts,
-        const CIMObjectPath& path,
+        CIMObjectPath& path,
         const String& description = String());
+
+    /**
+     * Display an array of CIMOCIMObjectPaths with output format
+     * dependent on the parameters in opts.
+     * @param opts Options structure with parameters for output
+     * display
+     * @param paths Array<CIMObjectPath> array containing the
+     * CIMObjectOaths to be displayed. This array may be modified by
+     * the output functions, specifically to sort the array if the
+     * sort command line option is specified.
+     */
     static void PEGASUS_CLI_LINKAGE displayPaths(Options& opts,
-        const Array<CIMObjectPath>& paths,
+        Array<CIMObjectPath>& paths,
         const String& description = String());
+
+
+    /**
+     * Display an array of CIMObjects with output format dependent
+     * on the parameters in opts.
+     * @param opts Options structure with parameters for output
+     * display
+     * @param objects Array<CIMObject> array contaning the
+     * CIMObjects to be displayed. This array may be modified by the
+     * output functions, specifically to sort the array if the sort
+     * command line option is specified.
+     */
+    static void PEGASUS_CLI_LINKAGE displayObjects(Options& opts,
+        Array<CIMObject>& objects,
+        const String& description);
 
     // display a single property
     static void PEGASUS_CLI_LINKAGE displayProperty(Options& opts,
         const CIMProperty& property);
 
-    // Display a classname or array of classnames
-    static void PEGASUS_CLI_LINKAGE displayClassName(Options& opts,
+    /**
+     * Display a single class Name in a format determined by the
+     * opts structure
+     * @param opts Options structure with parameters for output
+     * display
+     * @param className CIMName of className to be displayed
+     */
+    static void PEGASUS_CLI_LINKAGE displayClassName(const Options& opts,
         const CIMName& className);
+    /**
+     * Display an array of classnames with format determined from
+     * the opts structure.
+     * @param opts Options structure with parameters for output
+     * display
+     * @param classNames Array<CIMName of class names.  The array
+     * may be modified by the display function.  It will be sorted
+     * if the sort command line option is set.
+     */
     static void PEGASUS_CLI_LINKAGE displayClassNames(Options& opts,
-        const Array<CIMName>& classNames);
+        Array<CIMName>& classNames);
 
+    /**
+     * Display an array of CIMNamespaceName with output format
+     * determined by the opts structure
+     * @param opts Options structure with parameters for output
+     * display
+     * @param ns Array<CIMNamespaceName> array with the namespace
+     * names.  Note that the array may be modified by the display
+     * function.  It may be sorted if the sort command line option
+     * is set.
+     */
+    static void displayNamespaceNames(Options& opts,
+        Array<CIMNamespaceName>& ns,
+        const String& description = String());
+
+    /**
+     * Display a single CIMValue
+     * @param opts Options structure with parameters for output
+     * display
+     * @param value CIMValue to display
+     */
     static void PEGASUS_CLI_LINKAGE displayValue(Options& opts,
         const CIMValue& value);
 
-    // display a single value
+    /**
+     * Display an array of CIMParamValues with format defined by the
+     * opts parameter
+     * @param opts Options structure with parameters for output
+     * display
+     * @param parmvalues Array<CIMParamValue> with the parameter
+     * values to be displayed.  Note that the array may be modified
+     * by the display function. In particular it may be sorted.
+     */
     static void PEGASUS_CLI_LINKAGE displayParamValues(Options& opts,
-        const Array<CIMParamValue>& parms);
+        Array<CIMParamValue>& parmValuess);
 
     static void PEGASUS_CLI_LINKAGE displayOperationSummary(Options& opts,
         Uint32 count,
         const String& description,
         const String& item);
 
+    /**
+     * Display a String with parameters defined by the opts
+     * structure.
+     * @param opts Options structure with parameters for output
+     * display
+     * @param s String to display
+     */
     static void PEGASUS_CLI_LINKAGE display(Options& opts, const String& s);
 
+    /**
+     * Display a char * with parameters defined by the opts
+     * structure.
+     * @param opts Options structure with parameters for output
+     * display
+     * @param s char * to display
+     */
     static void PEGASUS_CLI_LINKAGE display(Options& opts, const char* s);
 
-    // Display a Qualifier Declaration or Array of Qualifier Declarations
-    static void PEGASUS_CLI_LINKAGE displayQualDecl(Options& opts,
+    /** Display a Qualifier Declaration or Array of Qualifier with
+     *  output formatting determined from the opts parameter
+     *
+     * @param opts Options structure with parameters for output
+     * display
+     * @param qualifierDecl QualifierDecl to be displayed.
+     */
+    static void PEGASUS_CLI_LINKAGE displayQualDecl(const Options& opts,
         const CIMQualifierDecl& qualifierDecl);
+
+    /**
+     * Display an array of qualifier decls.
+     * @param opts Options structure reference
+     * @param qualifierDecls Array<CIMQualifierDecl> Array of
+     * qualifer declaractions to be displayed.  This array will be
+     * modified by the function if the sort command line option is
+     * set since the array itself is sorted.
+     */
     static void PEGASUS_CLI_LINKAGE displayQualDecls(Options& opts,
-        const Array<CIMQualifierDecl>
-        qualifierDecls);
+        Array<CIMQualifierDecl>& qualifierDecls);
+
+    /**
+     * Test count of returned objects against input -count option parameter
+     * and if not equal set error exit code and output message. While this
+     * is done within the Output functions for standard object displays
+     * other action functions may need it. This function executes
+     * the compare test if opt.executeCountTest  is true. It
+     * compares the rcvdCount value to opts.expectedCount.
+     * @param opts Options structure with parameters for output
+     * display
+     * @param rcvdCount Uint32 count to compare to value in opt
+     * @param description String that will be displayed with message
+     * if the test fails
+     * NOTE: Today this function exits cimcli with a specific error
+     * code if the test fails.  It returns only if the rcvdCount
+     * equals the expected count in the opts structure (defined in
+     * the opts.expectedCount and executeCountTest is true.
+     */
+    static void testReturnCount(Options& opts,
+        Uint32 rcvdCount,
+        const String& description);
 
 private:
 

@@ -39,7 +39,7 @@
 
 PEGASUS_USING_PEGASUS;
 
-class CLITestProvider : 
+class CLITestProvider :
     public CIMMethodProvider,
     public CIMInstanceProvider,
     public CIMAssociationProvider
@@ -143,6 +143,9 @@ protected:
     Array<CIMInstance> _instances;
 
 private:
+
+    String _getHostName();
+
     void createInstances(const CIMNamespaceName& ns);
 
     void initializeProvider(const CIMNamespaceName& ns);
@@ -155,6 +158,11 @@ private:
 
     CIMOMHandle _cimom;
     Boolean _initialized;
+    // Tells provider whether to use real or substitute name.
+    // Substiture name would be defined by the subsituteHostName Parameter
+    // in th set invoke method.
+    Boolean _useSubstituteHostName;
+    String _substituteHostName;
     // list of properties in the class
     CIMPropertyList _propertyList;
 };

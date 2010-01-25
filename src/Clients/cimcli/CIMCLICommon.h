@@ -65,6 +65,20 @@ Array<String>  PEGASUS_CLI_LINKAGE _tokenize(
 */
 CIMPropertyList PEGASUS_CLI_LINKAGE _buildPropertyList(const CIMInstance& inst);
 
+/*
+    Common functions for conversion of char* strings to CIMTypes defined
+    by the type variable.  Note that all of these functions execute an exit
+    if the conversion fails with the exit code set to CIMCLI_INPUT_ERR.
+    They are intended for parsing of input from command line, config files,
+    etc. All allow input in binary, octal or decimal formats.
+*/
+Sint64 PEGASUS_CLI_LINKAGE strToSint(const char* str, CIMType type);
+
+Uint64 PEGASUS_CLI_LINKAGE strToUint(const char* str, CIMType type);
+
+Real64 PEGASUS_CLI_LINKAGE strToReal(const char * str, CIMType type);
+
+
 PEGASUS_NAMESPACE_END
 
 #endif  /* _CLI_COMMON_H */

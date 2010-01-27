@@ -995,8 +995,8 @@ Uint32 CIMConfigCommand::execute(
             //
             // Open default config files and load current config properties
             //
-            _configFileHandler =
-                new ConfigFileHandler(currentFile, plannedFile, true);
+            _configFileHandler.reset(
+                new ConfigFileHandler(currentFile, plannedFile, true));;
         }
         catch (const NoSuchFile&)
         {

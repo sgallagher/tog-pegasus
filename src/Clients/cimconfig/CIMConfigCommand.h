@@ -142,7 +142,7 @@ private:
     /**
         Configuration File handler
     */
-    ConfigFileHandler* _configFileHandler;
+    AutoPtr<ConfigFileHandler> _configFileHandler;
 
     /**
     The CIM Client reference

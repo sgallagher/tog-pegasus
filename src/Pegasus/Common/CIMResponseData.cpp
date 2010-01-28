@@ -563,7 +563,7 @@ void CIMResponseData::completeHostNameAndNamespace(
 void CIMResponseData::encodeXmlResponse(Buffer& out)
 {
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
-        "CIMResponseData::encodeXmlResponse(encoding=%X,content=%X)\n",
+        "CIMResponseData::encodeXmlResponse(encoding=%X,content=%X)",
         _encoding,
         _dataType));
 
@@ -761,7 +761,7 @@ void CIMResponseData::encodeXmlResponse(Buffer& out)
 void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
 {
     PEG_TRACE((TRC_XML, Tracer::LEVEL3,
-        "CIMResponseData::encodeInternalXmlResponse(encoding=%X,content=%X)\n",
+        "CIMResponseData::encodeInternalXmlResponse(encoding=%X,content=%X)",
         _encoding,
         _dataType));
 
@@ -884,8 +884,8 @@ void CIMResponseData::encodeInternalXmlResponse(CIMBuffer& out)
 
 void CIMResponseData::_resolveToCIM()
 {
-    PEG_TRACE((TRC_XML, Tracer::LEVEL2,
-        "CIMResponseData::_resolveToCIM(encoding=%X,content=%X)\n",
+    PEG_TRACE((TRC_XML, Tracer::LEVEL3,
+        "CIMResponseData::_resolveToCIM(encoding=%X,content=%X)",
         _encoding,
         _dataType));
 
@@ -907,8 +907,8 @@ void CIMResponseData::_resolveToCIM()
 
 void CIMResponseData::_resolveToSCMO()
 {
-    PEG_TRACE((TRC_XML, Tracer::LEVEL2,
-        "CIMResponseData::_resolveToSCMO(encoding=%X,content=%X)\n",
+    PEG_TRACE((TRC_XML, Tracer::LEVEL3,
+        "CIMResponseData::_resolveToSCMO(encoding=%X,content=%X)",
         _encoding,
         _dataType));
 

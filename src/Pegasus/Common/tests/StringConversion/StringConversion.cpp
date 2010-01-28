@@ -31,6 +31,7 @@
 #include <Pegasus/Common/StringConversion.h>
 #include <cstring>
 #include <iostream>
+#include <math.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -513,6 +514,82 @@ void testStringToReal64()
         !StringConversion::stringToReal64("1.1e+123456789", r64));
 }
 
+void testReal32ToString()
+{
+    Real32 r32;
+    Real64 r64r;
+    char buffer[128];
+    Uint32 size;
+    {
+        r32 = 1.5;
+        const char* result = Real32ToString(buffer, r32, size);
+        PEGASUS_TEST_ASSERT(strlen(result) == size);
+        PEGASUS_TEST_ASSERT(StringConversion::stringToReal64(result, r64r));
+        PEGASUS_TEST_ASSERT(fabs(r32 - r64r) < r32/1000);
+    }
+
+    {
+        r32 = 0;
+        const char* result = Real32ToString(buffer, r32, size);
+        PEGASUS_TEST_ASSERT(strlen(result) == size);
+        PEGASUS_TEST_ASSERT(StringConversion::stringToReal64(result, r64r));
+        PEGASUS_TEST_ASSERT(fabs(r32 - r64r) < .0001);
+    }
+
+    {
+        r32 = 10.0E-0001;
+        const char* result = Real32ToString(buffer, r32, size);
+        PEGASUS_TEST_ASSERT(strlen(result) == size);
+        PEGASUS_TEST_ASSERT(StringConversion::stringToReal64(result, r64r));
+        PEGASUS_TEST_ASSERT(fabs(r32 - r64r) < r32/1000);
+    }
+    {
+        r32 = 10.0E+5;
+        const char* result = Real32ToString(buffer, r32, size);
+        PEGASUS_TEST_ASSERT(strlen(result) == size);
+        PEGASUS_TEST_ASSERT(StringConversion::stringToReal64(result, r64r));
+        PEGASUS_TEST_ASSERT(fabs(r32 - r64r) < r32/1000);
+    }
+}
+
+void testReal64ToString()
+{
+    Real64 r64;
+    Real64 r64r;
+    char buffer[128];
+    Uint32 size;
+    {
+        r64 = 1.5;
+        const char* result = Real64ToString(buffer, r64, size);
+        PEGASUS_TEST_ASSERT(strlen(result) == size);
+        PEGASUS_TEST_ASSERT(StringConversion::stringToReal64(result, r64r));
+        PEGASUS_TEST_ASSERT(fabs(r64 - r64r) < r64/1000);
+    }
+
+    {
+        r64 = 0;
+        const char* result = Real64ToString(buffer, r64, size);
+        PEGASUS_TEST_ASSERT(strlen(result) == size);
+        PEGASUS_TEST_ASSERT(StringConversion::stringToReal64(result, r64r));
+        PEGASUS_TEST_ASSERT(fabs(r64 - r64r) < .0001);
+    }
+
+    {
+        r64 = 10.0E-0001;
+        const char* result = Real64ToString(buffer, r64, size);
+        PEGASUS_TEST_ASSERT(strlen(result) == size);
+        PEGASUS_TEST_ASSERT(StringConversion::stringToReal64(result, r64r));
+        PEGASUS_TEST_ASSERT(fabs(r64 - r64r) < r64/1000);
+    }
+    {
+        r64 = 10.0E+5;
+        const char* result = Real64ToString(buffer, r64, size);
+        PEGASUS_TEST_ASSERT(strlen(result) == size);
+        PEGASUS_TEST_ASSERT(StringConversion::stringToReal64(result, r64r));
+        PEGASUS_TEST_ASSERT(fabs(r64 - r64r) < r64/1000);
+    }
+}
+
 int main(int argc, char** argv)
 {
     testIntegerToStringConversions();
@@ -524,6 +601,8 @@ int main(int argc, char** argv)
     testStringToSint64();
     testCheckSintBounds();
     testStringToReal64();
+    testReal32ToString();
+    testReal64ToString();
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

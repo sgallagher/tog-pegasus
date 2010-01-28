@@ -226,7 +226,7 @@ struct Converter
 // On windows sprintf outputs 3 digit precision exponent prepending
 // zeros. Make it 2 digit precision if first digit is zero in the exponent.
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-void _normalizeRealValueString(char* str)
+void _normalizeRealValueString(char* str, Uint32& size)
 {
     // skip initial sign value...
     if (*str == '-' || *str == '+')
@@ -242,6 +242,7 @@ void _normalizeRealValueString(char* str)
         *str = *(str+1);
         *(str+1) = *(str+2);
         *(str+2) = 0;
+        size--;
     }
 }
 #endif
@@ -294,7 +295,7 @@ const char* Real32ToString(char buffer[128], Real32 x, Uint32& size)
     // (4 byte IEEE floating point)
     size = sprintf(buffer, "%.7e", x);
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-    _normalizeRealValueString(buffer);
+    _normalizeRealValueString(buffer, size);
 #endif
     return buffer;
 }
@@ -306,7 +307,7 @@ const char* Real64ToString(char buffer[128], Real64 x, Uint32& size)
     // by the CIM 2.2 spec (8 byte IEEE floating point)
     size = sprintf(buffer, "%.16e", x);
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-    _normalizeRealValueString(buffer);
+    _normalizeRealValueString(buffer, size);
 #endif
     return buffer;
 }

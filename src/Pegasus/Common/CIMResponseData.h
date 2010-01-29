@@ -71,6 +71,21 @@ public:
         _encoding(0),_dataType(content)
     {};
 
+    CIMResponseData(const CIMResponseData & x):
+        _encoding(x._encoding),
+        _dataType(x._dataType),
+        _referencesData(x._referencesData),
+        _instanceData(x._instanceData),
+        _hostsData(x._hostsData),
+        _nameSpacesData(x._nameSpacesData),
+        _binaryData(x._binaryData),
+        _defaultNamespace(x._defaultNamespace),
+        _defaultHostname(x._defaultHostname),
+        _instanceNames(x._instanceNames),
+        _instances(x._instances),
+        _objects(x._objects),
+        _scmoInstances(x._scmoInstances)
+    {};
 
     ~CIMResponseData()
     {

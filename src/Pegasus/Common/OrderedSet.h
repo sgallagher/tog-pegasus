@@ -168,7 +168,7 @@ inline OrderedSet<T, R, N>::~OrderedSet()
     // avoids creation of an empty buffer getting build
     if (_size > 0)
     {
-        Node* data = (Node*) _array.getData();
+        Node* data = (Node*) _array.getContentPtr();
 
         for (Uint32 i = 0; i < _size; i++)
         {
@@ -188,7 +188,7 @@ inline void OrderedSet<T, R, N>::clear()
         memset((*_table), 0, sizeof(Node*) * N);
     if (_size > 0)
     {
-        Node* data = (Node*) _array.getData();
+        Node* data = (Node*) _array.getContentPtr();
 
         for (Uint32 i = 0; i < _size; i++)
         {
@@ -270,7 +270,7 @@ inline void OrderedSet<T, R, N>::append(const T& x)
 
     // Now add to hash table
     {
-        Node* data = (Node*) _array.getData();
+        Node* data = (Node*) _array.getContentPtr();
         (*_table)[code] = &data[_size];
     }
 
@@ -292,7 +292,7 @@ inline void OrderedSet<T, R, N>::remove(Uint32 index)
 
     // Remove node from array (dynamic, ordered list)
     {
-        Node* node = (Node*) _array.getData() + index;
+        Node* node = (Node*) _array.getContentPtr() + index;
         node->rep->decreaseOwnerCount();
         node->rep->Dec();
         _array.remove(index * Uint32(sizeof(Node)), Uint32(sizeof(Node)));
@@ -351,7 +351,7 @@ inline T& OrderedSet<T, R, N>::operator[](Uint32 index)
     if (index >= _size)
         throw IndexOutOfBoundsException();
 
-    const Node* node = (const Node*) _array.getData() + index;
+    const Node* node = (const Node*) _array.getContentPtr() + index;
     return *const_cast<T*>(reinterpret_cast<const T*>(node));
 }
 
@@ -368,7 +368,7 @@ void OrderedSet<T, R, N>::_reorganize()
        current state of the dynamic, ordered list
     */
     memset((*_table), 0, sizeof(Node*) * N);
-    Node* data = (Node*) _array.getData();
+    Node* data = (Node*) _array.getContentPtr();
 
     for (Uint32 i = 0; i < _size; i++)
     {

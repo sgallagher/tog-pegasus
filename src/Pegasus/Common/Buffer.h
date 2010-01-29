@@ -72,6 +72,13 @@ public:
      */
     const char* getData() const;
 
+    /**
+        Returns a pointer to the character buffer with the Buffer contents.
+        This function does NOT append a null character.
+        Resulting data should NOT be used with C string processing functions.
+    */
+    char* getContentPtr();
+
     char get(Uint32 i) const;
 
     void set(Uint32 i, char x);
@@ -154,6 +161,11 @@ inline const char* Buffer::getData() const
 
     _rep->data[_rep->size] = '\0';
 
+    return _rep->data;
+}
+
+inline char* Buffer::getContentPtr()
+{
     return _rep->data;
 }
 

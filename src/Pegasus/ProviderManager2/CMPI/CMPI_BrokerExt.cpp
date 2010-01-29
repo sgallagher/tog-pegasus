@@ -159,25 +159,15 @@ extern "C"
         broker->provider->addThreadToWatch(t);
         data.release();
 
-        ThreadStatus rtn = PEGASUS_THREAD_OK;
-        while ((rtn = t->run()) != PEGASUS_THREAD_OK)
+        if (t->run() != PEGASUS_THREAD_OK)
         {
-            if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-            {
-                Threads::yield();
-            }
-            else
-            {
-                PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1, \
-                    "Could not allocate provider thread (%p) for %s provider.",
-                    t, (const char *)broker->name.getCString()));
-                broker->provider->removeThreadFromWatch(t);
-                delete t;
-                t = 0;
-                break;
-            }
+            PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL1, \
+                "Could not allocate provider thread (%p) for %s provider.",
+                t, (const char *)broker->name.getCString()));
+            broker->provider->removeThreadFromWatch(t);
+            t = NULL;
         }
-        if (rtn == PEGASUS_THREAD_OK)
+        else 
         {
             PEG_TRACE((TRC_PROVIDERMANAGER, Tracer::LEVEL3,
                 "Started provider thread (%p) for %s.",

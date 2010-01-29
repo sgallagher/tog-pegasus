@@ -2316,7 +2316,7 @@ void SCMOInstance::setHostName(const char* hostName)
 void SCMOInstance::setHostName_l(const char* hostName, Uint32 len)
 {
     // Copy on Write is only necessary if a realloc() becomes necessary
-    if (inst.mem->freeBytes < len)
+    if (inst.mem->freeBytes < ((len+8) & ~7))
     {
         _copyOnWrite();
     }
@@ -2411,7 +2411,7 @@ void SCMOInstance::setNameSpace(const char* nameSpace)
 void SCMOInstance::setNameSpace_l(const char* nameSpace, Uint32 len)
 {
     // Copy on Write is only necessary if a realloc() becomes necessary
-    if (inst.mem->freeBytes < len)
+    if (inst.mem->freeBytes < ((len+8) & ~7))
     {
         _copyOnWrite();
     }
@@ -6831,6 +6831,8 @@ Uint64 _getFreeSpace(
     // Init memory from unaligned start up to the size required with alignment
     // to zero.
     memset(&((char*)(*pmem))[start],0,(size_t)reqAlignSize);
+    PEGASUS_DEBUG_ASSERT(
+        ((*pmem)->freeBytes+(*pmem)->startOfFreeSpace) == (*pmem)->totalSize);
 
     return alignedStart;
 }

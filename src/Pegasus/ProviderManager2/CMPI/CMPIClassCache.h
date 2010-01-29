@@ -127,8 +127,6 @@ public:
     CMPIClassCache()
     {
         _clsCacheSCMO = new ClassCacheSCMO();
-        _hintClass = NULL;
-        _hint = NULL;
     };
 
     // clean-up cache data
@@ -150,13 +148,6 @@ private:
     ClassCacheSCMO * _clsCacheSCMO;
     // auto-initialisation due to being on the stack
     ReadWriteSem _rwsemClassCache;
-
-    //Optimization for continuos lookups of the same class
-    //Simply store away the last lookup result
-    void _setHint(ClassCacheEntry& hint, SCMOClass* hintClass);
-    SCMOClass* _hintClass;
-    ClassCacheEntry* _hint;
-
 };
 
 PEGASUS_NAMESPACE_END

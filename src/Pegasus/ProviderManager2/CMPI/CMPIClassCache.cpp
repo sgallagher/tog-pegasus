@@ -49,15 +49,8 @@ CMPIClassCache::~CMPIClassCache()
         delete i2.value();
     }
     delete _clsCacheSCMO;
-    delete _hint;
 }
 
-void CMPIClassCache::_setHint(ClassCacheEntry& hint, SCMOClass* hintClass)
-{
-    delete _hint;
-    _hint = new ClassCacheEntry(hint);
-    _hintClass = hintClass;
-}
 
 SCMOClass* CMPIClassCache::getSCMOClass(
     const CMPI_Broker *mb,
@@ -74,31 +67,18 @@ SCMOClass* CMPIClassCache::getSCMOClass(
     ClassCacheEntry key(nsName,nsNameLen,className,classNameLen);
     {
         ReadLock readLock(_rwsemClassCache);
-
-        // We first check if the last lookup was for the same class
-        // so we could directly use the saved hint.
-        if (_hint && ClassCacheEntry::equal(*_hint, key))
-        {
-            return _hintClass;
-        }
-
         if (_clsCacheSCMO->lookup(key,scmoClass))
         {
-            _setHint(key, scmoClass);
             return scmoClass;
         }
     }
-
     try
     {
         WriteLock writeLock(_rwsemClassCache);
-
         if (_clsCacheSCMO->lookup(key,scmoClass))
         {
-            _setHint(key, scmoClass);
             return scmoClass;
         }
-
         SCMOClassCache* scmoCache = SCMOClassCache::getInstance();
 
         SCMOClass tmp = scmoCache->getSCMOClass(
@@ -112,7 +92,6 @@ SCMOClass* CMPIClassCache::getSCMOClass(
 
         SCMOClass* scmoClass = new SCMOClass(tmp);
         _clsCacheSCMO->insert(key,scmoClass);
-        _setHint(key, scmoClass);
         return scmoClass;
     }
     catch (const CIMException &e)
@@ -132,7 +111,6 @@ SCMOClass* CMPIClassCache::getSCMOClass(
         PEG_TRACE((TRC_CMPIPROVIDERINTERFACE,Tracer::LEVEL1,
             "Unknown Exception in CMPIClassCache::getClass()"));
     }
-
     return 0;
 }
 

@@ -132,6 +132,10 @@ namespace std
 }
 #endif /* _MSC_VER < 1300 */
 
+#if _MSC_VER > 1400
+#define PEGASUS_HAVE_WINDOWS_IPV6ONLY
+#endif
+
 #define PEGASUS_HAVE_WINDOWS_THREADS
 
 /* use OpenPegasus semaphore based read/write locking mechanism */

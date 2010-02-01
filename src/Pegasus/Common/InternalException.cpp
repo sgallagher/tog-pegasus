@@ -176,6 +176,12 @@ const char UnauthorizedAccess::KEY[] =
 
 const char InternalSystemError::MSG[] = "Unable to authenticate user";
 
+const char SocketWriteError::MSG[] =  "Could not write response to client. "
+                                      "Client may have timed out. "
+                                      "Socket write failed with error: $0";
+const char SocketWriteError::KEY[] =
+    "Common.InternalException.SOCKET_WRITE_ERROR";
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // TraceableCIMException
@@ -927,6 +933,24 @@ InternalSystemError::InternalSystemError()
 }
 
 InternalSystemError::~InternalSystemError()
+{
+}
+
+//==============================================================================
+//
+// SocketWriteError
+//
+//==============================================================================
+
+SocketWriteError::SocketWriteError(const String& error)
+    : Exception(MessageLoaderParms(
+          SocketWriteError::KEY,
+          SocketWriteError::MSG,
+          error))
+{
+}
+
+SocketWriteError::~SocketWriteError()
 {
 }
 

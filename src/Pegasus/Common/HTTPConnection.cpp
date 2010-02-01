@@ -164,11 +164,14 @@ static void _throwEventFailure(
 #define _socketWriteError()                                                   \
     do                                                                        \
     {                                                                         \
+        String failureText = PEGASUS_SYSTEM_NETWORK_ERRORMSG;                 \
+                                                                              \
         PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,                        \
-            "Socket write failed with error %d; could not write response "    \
-                "to client.  (Client may have timed out.)",                   \
-            getSocketError()));                                               \
-        throw Exception("socket write error");                                \
+            "Could not write response to client. Client may have timed out. " \
+            "Socket write failed with error: %s ",                            \
+            (const char*)failureText.getCString()));                          \
+                                                                              \
+        throw SocketWriteError(failureText);                                  \
     }                                                                         \
     while (0)
 
@@ -215,10 +218,10 @@ Uint32 HTTPConnection::getIdleConnectionTimeout()
 }
 
 /*
-    Note: This method is called in client code for reconnecting with the Server 
-    and can also be used in the server code to check the connection status  and 
-    take appropriate actions.it checks whether the connection is alive by 
-    attempting to read 1 byte from the socket.This method MUST not be used when 
+    Note: This method is called in client code for reconnecting with the Server
+    and can also be used in the server code to check the connection status  and
+    take appropriate actions.it checks whether the connection is alive by
+    attempting to read 1 byte from the socket.This method MUST not be used when
     incoming data is expected from the connection.
 
     Returns TRUE when there is no data and peer has closed the connection
@@ -232,7 +235,7 @@ Boolean HTTPConnection::needsReconnect()
     char buffer;
 
     int n =  _socket->read(&buffer, sizeof(buffer));
-    
+
     return n >= 0;
 }
 
@@ -338,7 +341,7 @@ void HTTPConnection::handleInternalServerError(
     message.setIndex(respMsgIndex);
     message.setComplete(isComplete);
     AutoMutex connectionLock(_connection_mut);
-    _handleWriteEvent(message); 
+    _handleWriteEvent(message);
     PEG_METHOD_EXIT();
 }
 
@@ -493,7 +496,7 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
             }
 
             // If there is an internal error on this connection, just return
-            // from here if the current message is not the last message becasue
+            // from here if the current message is not the last message because
             // this connection will be closed once all messages are received.
             if (_internalError)
             {
@@ -1044,6 +1047,12 @@ Boolean HTTPConnection::_handleWriteEvent(HTTPMessage& httpMessage)
 
     } // try
 
+    catch (SocketWriteError &e)
+    {
+        // On the server side, the socket write error is suppressed
+        // and not handled as an internal error.
+        httpStatusString = e.getMessage();
+    }
     catch (Exception &e)
     {
         httpStatusString = e.getMessage();

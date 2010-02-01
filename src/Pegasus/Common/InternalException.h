@@ -435,6 +435,16 @@ public:
     virtual ~InternalSystemError();
 };
 
+class PEGASUS_COMMON_LINKAGE SocketWriteError : public Exception
+{
+public:
+
+    static const char MSG[];
+    static const char KEY[];
+
+    SocketWriteError(const String& error);
+    virtual ~SocketWriteError();
+};
 
 /** The CIMException defines the CIM exceptions that are formally defined in
     the CIM Operations over HTTP specification.  TraceableCIMException allows

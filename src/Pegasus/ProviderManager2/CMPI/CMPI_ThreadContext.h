@@ -39,7 +39,6 @@
 #endif
 
 #include <Pegasus/Common/TSDKey.h>
-#include <Pegasus/Common/Once.h>
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include "CMPI_Object.h"
@@ -55,18 +54,22 @@ PEGASUS_NAMESPACE_BEGIN
                     { if (i->n) i->n->p=i->p; else l=i->p; \
                       if (i->p) i->p->n=i->n; else f=i->n;}
 
+class CMPI_ThreadContextKey
+{
+public:
+    CMPI_ThreadContextKey()
+    {
+        TSDKey::create(&contextKey);
+    };
+    ~CMPI_ThreadContextKey()
+    {
+        TSDKey::destroy(contextKey);
+    };
+    TSDKeyType contextKey;
+};
+
 class CMPI_ThreadContext
 {
-    /**
-       static pthread_key_t contextKey;
-    */
-    static TSDKeyType contextKey;
-    static Once contextKeyOnce;
-    static void context_key_alloc();
-    /**
-       static pthread_key_t getContextKey();
-    */
-    static TSDKeyType getContextKey();
     CMPI_ThreadContext* prev;
     const CMPIBroker *broker;
     const CMPIContext *context;
@@ -86,6 +89,8 @@ public:
    */
     CMPI_ThreadContext(const CMPIBroker*,const CMPIContext*);
     ~CMPI_ThreadContext();
+
+    static CMPI_ThreadContextKey globalThreadContextKey;
 };
 
 PEGASUS_NAMESPACE_END
@@ -94,17 +99,6 @@ PEGASUS_NAMESPACE_END
 // as they do very little real work, but are called many times
 
 PEGASUS_NAMESPACE_BEGIN
-
-inline void CMPI_ThreadContext::context_key_alloc()
-{
-    TSDKey::create(&contextKey);
-}
-
-inline TSDKeyType CMPI_ThreadContext::getContextKey()
-{
-    once(&contextKeyOnce, context_key_alloc);
-    return contextKey;
-}
 
 inline void CMPI_ThreadContext::add(CMPI_Object *o)
 {
@@ -140,8 +134,8 @@ inline void CMPI_ThreadContext::remObject(CMPI_Object* o)
 
 inline CMPI_ThreadContext* CMPI_ThreadContext::getThreadContext()
 {
-    TSDKeyType k=getContextKey();
-    return(CMPI_ThreadContext*)TSDKey::get_thread_specific(k);
+    return (CMPI_ThreadContext*)
+        TSDKey::get_thread_specific(globalThreadContextKey.contextKey);
 }
 
 inline const CMPIBroker* CMPI_ThreadContext::getBroker()

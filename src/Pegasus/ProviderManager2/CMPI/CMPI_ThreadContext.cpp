@@ -41,8 +41,12 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-TSDKeyType CMPI_ThreadContext::contextKey;
-Once CMPI_ThreadContext::contextKeyOnce = PEGASUS_ONCE_INITIALIZER;
+// this static gets initialized on load of CMPIProviderManager library
+// in the constructor of CMPI_ThreadContextKey the key for the thread-specific
+// storage used by CMPI is created
+// This was done to ensure that the key gets created exactly once, saving the
+// need to check for it on later access.
+CMPI_ThreadContextKey CMPI_ThreadContext::globalThreadContextKey;
 
 CMPI_ThreadContext::CMPI_ThreadContext(
 const CMPIBroker *mb,
@@ -51,9 +55,9 @@ const CMPIContext *ctx )
     CIMfirst=CIMlast=NULL;
     broker=mb;
     context=ctx;
-    TSDKeyType k=getContextKey();
-    prev=(CMPI_ThreadContext*)TSDKey::get_thread_specific(k);
-    TSDKey::set_thread_specific(k,this);
+    prev=(CMPI_ThreadContext*)
+        TSDKey::get_thread_specific(globalThreadContextKey.contextKey);
+    TSDKey::set_thread_specific(globalThreadContextKey.contextKey,this);
     return;
 }
 
@@ -65,9 +69,7 @@ CMPI_ThreadContext::~CMPI_ThreadContext()
         (reinterpret_cast<CMPIInstance*>(cur))->ft->release(
         reinterpret_cast<CMPIInstance*>(cur));
     }
-
-    TSDKeyType k=getContextKey();
-    TSDKey::set_thread_specific(k,prev);
+    TSDKey::set_thread_specific(globalThreadContextKey.contextKey,prev);
 }
 
 PEGASUS_NAMESPACE_END

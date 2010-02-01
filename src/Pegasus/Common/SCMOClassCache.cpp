@@ -106,7 +106,7 @@ inline Boolean SCMOClassCache::_lockEntry(Uint32 index)
         {
             // The cache is going to be destroyed.
             // The caller will never get the lock.
-            return false;
+            break;
         }
 
         // If the lock counter not 1,an other caller is reading the entry.

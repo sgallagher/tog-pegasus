@@ -1089,7 +1089,8 @@ en:table {
         "cimcli ei PG_ComputerSystem   -- Enumerate Instances of class\n"}
 
         Clients.cimcli.CIMCLIClient.EI_COMMAND_OPTIONS:string {
-        "    -n, -di, -nlo, -iq, -pl, classname, includeClassOrigin\n"}
+        "    -n, -di, -lo, -iq, -pl, classname, -ic\n"}
+
 
         Clients.cimcli.CIMCLIClient.NC_COMMAND_EXAMPLE:string {
         "cimcli nc -- Enumerate class names from root/cimv2.\n"}
@@ -1102,21 +1103,23 @@ en:table {
         "    -- Enumerate classes from namespace root/cimv2.\n"}
 
         Clients.cimcli.CIMCLIClient.EC_COMMAND_OPTIONS:string {
-        "    -n, -di, -nlo, -niq, includeClassOrigin\n"}
+        "    -n, -di, -lo, -inq, -ic\n"}
+
 
         Clients.cimcli.CIMCLIClient.GC_COMMAND_EXAMPLE:string {
         "cimcli gc CIM_door -u guest -p guest\n"
         "    -- Get class user = guest and password = guest.\n"}
 
         Clients.cimcli.CIMCLIClient.GC_COMMAND_OPTIONS:string {
-        "    -n, -nlo, -niq, -pl, className, includeClassOrigin\n"}
+        "    -n, -lo, -inq, -pl, className, -ic\n"}
+
 
         Clients.cimcli.CIMCLIClient.GI_COMMAND_EXAMPLE:string {
         "cimcli gi -n test/TestProvider TEST_Person\n"
         "    -- Get Instance of class\n"}
 
         Clients.cimcli.CIMCLIClient.GI_COMMAND_OPTIONS:string {
-        "    -n, -nlo, -iq, -pl, includeClassOrigin\n"}
+        "    -n, -lo, -iq, -pl, -ic\n"}
 
         Clients.cimcli.CIMCLIClient.CI_COMMAND_EXAMPLE:string {
         "cimcli ci -n test/TestProvider TST_Person Name=Michael SSN=333\n"
@@ -1134,7 +1137,7 @@ en:table {
         "       instance built from input\n"}
 
         Clients.cimcli.CIMCLIClient.TI_COMMAND_OPTIONS:string {
-        "    -n, -nlo, -iq, -pl, includeClassOrigin\n"}
+        "    -n, -lo, -iq, -pl, -ic\n"}
 
         Clients.cimcli.CIMCLIClient.DI_COMMAND_EXAMPLE:string {
         "cimcli di -n test/TestProvider TST_Person\n"
@@ -1199,7 +1202,7 @@ en:table {
         "cimcli a TST_Person -n test/TestProvider -ac TST_Lineage\n"}
 
         Clients.cimcli.CIMCLIClient.A_COMMAND_OPTIONS:string {
-        "    -n, -ac, -rc, -r, -rr, -iq, -pl, includeClassOrigin, -i\n"}
+        "    -n, -ac, -rc, -r, -rr, -iq, -pl, -ic, -i\n"}
 
         Clients.cimcli.CIMCLIClient.AN_COMMAND_EXAMPLE:string {
         "cimcli an TST_Person.name=\\\"Mike\\\" -n test/TestProvider\n"
@@ -1217,7 +1220,7 @@ en:table {
         "cimcli r TST_Person -n test/TestProvider -rc TST_Lineage\n"}
 
         Clients.cimcli.CIMCLIClient.R_COMMAND_OPTIONS:string {
-        "    -n, -rc, -r, -iq, -pl, includeClassOrigin, -i\n"}
+        "    -n, -rc, -r, -iq, -pl, -ic, -i\n"}
 
         Clients.cimcli.CIMCLIClient.RN_COMMAND_EXAMPLE:string {
         "cimcli rn TST_Person.name=\\\"Mike\\\" -n test/TestProvider\n"
@@ -1292,6 +1295,10 @@ en:table {
 
         Clients.cimcli.CIMCLIClient.NAMESPACE_OPTION_HELP:string {
         "-n  namespace. Specifies namespace to use for operation. Default(root/cimv2)\n"}
+
+        Clients.cimcli.CIMCLIClient.INCLUDECLASSORIGIN_OPTION_HELP:string{
+        "-ic  includeClassOrigin. If set includeClassOrigin parameter\n"
+        "    set true on operations that honor this parameter. Default(false)\n"}
 
         Clients.cimcli.CIMCLIClient.DEEPINHERITANCE_OPTION_HELP:string{
         "-di  deepInheritance. If set deepInheritance parameter\n"

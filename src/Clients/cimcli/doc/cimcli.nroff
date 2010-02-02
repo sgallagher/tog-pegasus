@@ -112,7 +112,10 @@ uses the input path directly without getting the class from the server.
 
 .TP
 .B [options...] 
-Options are identified on the command line with the - or -- notation.
+Options are identified on the command line with the - or -- notation. They
+are identified in a cimcli config file with the form <name>=value where name
+is a long name for the option.  Each cimcli option has both a short name
+for command line use and a long name for configuration file use.
 There are several types of options:
 
 .TP 8
@@ -142,7 +145,8 @@ list of all options, and -hc to get a list of all commands).  When these
 options are requested, no operation is executed.  
 .TP
 .B [value-parameters]
-Some of the operations allow or require extra parameters. these are
+Some of the operations allow or require extra parameters, for example
+to supply property value definitions for create and modify instance. These are
 typically keywords or keyword/value pairs and are defined as part of
 the particular operation that use them.
 
@@ -169,7 +173,7 @@ the parameter.
 There is a set of options which are general to all of the CIM
 Operations and most of the compound operations and which provide
 parameters for the initiation or execution of the operations (ie. identify
-the target server and set connection security parameters.. 
+the target server and set connection security parameters.
 These include:
 .TP
 .B \-n [namespace]
@@ -205,7 +209,7 @@ this option is set but neither the --cert or --key options are included,
 the SSLContext for the connect call is submitted with the Cert and key 
 marked NULL.  
 
-NOTE: Since SSL is considerd a compilable option with cimcli, these
+NOTE: Since SSL is a compile cimcli compile option, the following
 options may not even exist in a Pegasus environment that was compiled
 with the SSL capabilities disabled.
 
@@ -233,13 +237,13 @@ command completion. If this option is set, the time for the operation
 is recorded upon completion of the operation.  In addition, the client
 infrastructure is queried to determine if the operation execution
 times optionally measured in the infrastructure and at the server are
-available. If they are, they are displayed also.  This would allow the
+available. If so, they are displayed also.  This would allow the
 user to see a) time spent in the server, b) round trip time for the
 operation, c) application round trip time for the operation. Note that
 when combined with the repeat option, the output includes maximum,
 minimum, and average times for the operation.  There are a specific
 operations in cimcli to turn control statistics generation (See son
-and soff operations)
+and soff operations) at least for the Pegasus cimserver.
 
 .TP
 .B \--sort
@@ -534,9 +538,10 @@ for include_qualifiers to false.
 Boolean that defines whether properties from superclasses
 are included in the response. the -nlo option turns this parameter off
 
-.B \-cl 
-Boolean parameter sets the operation parameter classOrigin in the
-operation request. The CIMServer is expected to return classOrigin
+.B \-ic
+Boolean parameter sets the operation parameter includeClassOrigin in the
+operation request. the CIMServer is expected to return classOrigin
+
 information as part of the response.
 
 .B \-pl [propertyList]
@@ -568,6 +573,7 @@ not localOnly
 	cimcli nc CIM_door
 	    Issue getClass CIM Operation for the class CIM_Door.
 .fi
+
 .TP
 .B ni     EnumerateInstanceNames
 Execute the enumerateInstanceNames CIM Operation. The syntax for this
@@ -1169,6 +1175,13 @@ See -nlo. Default(true).
 When set, sets LocalOnly = false on the CIM operation . Default(false).
 
 .TP 
+.B \-ic
+Sets includeClassOrigin = true for operation that support this parameter
+(i.e. get and enumerate classes and instances, associators, and references
+operations).  Note that the class origin information is only output for
+the -o xml output operation since class origin is not part of the MOF
+format.
+.TP 
 .B \-niq
 Sets includeQualifiers = false on operations. Default(false).
 
@@ -1225,7 +1238,8 @@ default Pegasus client timeout which for Pegasus is normally to about
 .TP
 .B \-trace [trace_level]
 Set Pegasus Common Components Trace.  Sets the Trace level.  0 is off.  
-Default(0).  The trace level can be set to 0 - 4.
+Default(0).  The trace level can be set to 0 - 5. Note that since mose
+trace definitions have been removed from cimcli, this is of little value.
 
 .TP
 .B \--v

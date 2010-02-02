@@ -199,7 +199,8 @@ OperationExampleEntry OperationExamples[] = {
     {"Clients.cimcli.CIMCLIClient.EI_COMMAND_EXAMPLE",
     "cimcli ei PG_ComputerSystem   -- Enumerate Instances of class\n",
     "Clients.cimcli.CIMCLIClient.EI_COMMAND_OPTIONS",
-    "    -n, -di, -nlo, -iq, -pl\n"},
+    "    -n, -di, -lo, -iq, -pl -ic\n"},
+
 
     {"Clients.cimcli.CIMCLIClient.NC_COMMAND_EXAMPLE",
     "cimcli nc -- Enumerate class names from root/cimv2.\n",
@@ -210,19 +211,22 @@ OperationExampleEntry OperationExamples[] = {
     "cimcli ec -n root/cimv2\n"
         "    -- Enumerate classes from namespace root/cimv2.\n",
     "Clients.cimcli.CIMCLIClient.EC_COMMAND_OPTIONS",
-    "    -n, -di, -nlo, -niq\n"},
+    "    -n, -di, -lo, -niq -ic\n"},
+
 
     {"Clients.cimcli.CIMCLIClient.GC_COMMAND_EXAMPLE",
     "cimcli gc CIM_door -u guest -p guest\n"
         "    -- Get class user = guest and password = guest.\n",
     "Clients.cimcli.CIMCLIClient.GC_COMMAND_OPTIONS",
-    "    -n, -nlo, -niq, -pl\n"},
+    "    -n, -lo, -niq, -pl -ic\n"},
+
 
     {"Clients.cimcli.CIMCLIClient.GI_COMMAND_EXAMPLE",
     "cimcli gi -n test/TestProvider TST_Person\n"
         "    -- Get Instance of class\n",
     "Clients.cimcli.CIMCLIClient.GI_COMMAND_OPTIONS",
-    "    -n, -nlo, -iq, -pl\n"},
+    "    -n, -lo, -iq, -pl -ic\n"},
+
 
     {"Clients.cimcli.CIMCLIClient.CI_COMMAND_EXAMPLE",
     "cimcli ci -n test/TestProvider TST_Person Name=Mike SSN=333\n"
@@ -337,7 +341,7 @@ OperationExampleEntry OperationExamples[] = {
         "       classes  associated with class TST_person and with\n"
         "       association class TST_Lineage\n",
     "Clients.cimcli.CIMCLIClient.A_COMMAND_OPTIONS",
-    "    -n, -ac, -rc, -r, -rr, -iq, -pl, includeClassOrigin, -i\n"},
+    "    -n, -ac, -rc, -r, -rr, -iq, -pl, -ic, -i\n"},
 
     {"Clients.cimcli.CIMCLIClient.AN_COMMAND_EXAMPLE",
     "cimcli an TST_Person.name=\\\\\"Mike\\\\\" -n test/TestProvider "
@@ -363,7 +367,7 @@ OperationExampleEntry OperationExamples[] = {
         "    -- get reference classes for TST_Lineage association class and\n"
         "       subclasses in namespace test/TestProvider\n",
     "Clients.cimcli.CIMCLIClient.R_COMMAND_OPTIONS",
-    "    -n, -rc, -r, -iq, -pl, -i\n"},
+    "    -n, -rc, -r, -iq, -pl, -i -ic\n"},
 
     {"Clients.cimcli.CIMCLIClient.RN_COMMAND_EXAMPLE",
     "cimcli rn TST_Person.name=\\\\\"Mike\\\\\" -n test/TestProvider "

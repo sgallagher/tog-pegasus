@@ -139,6 +139,11 @@ void BuildOptionsTable(
         "Clients.cimcli.CIMCLIClient.NAMESPACE_OPTION_HELP",
         "Specifies namespace to use for operation" },
 
+        {"includeClassOrigin", "false", false, Option::BOOLEAN, 0, 0, "ic",
+        "Clients.cimcli.CIMCLIClient.INCLUDECLASSORIGIN_OPTION_HELP",
+        "If set includeClassOrigin  parameter\n"
+            "    set true on requests that honor this parameter"},
+
         {"deepInheritance", "false", false, Option::BOOLEAN, 0, 0, "di",
         "Clients.cimcli.CIMCLIClient.DEEPINHERITANCE_OPTION_HELP",
         "If set deepInheritance parameter\n"
@@ -669,15 +674,14 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
     // to specifically request qualifiers with instances.
 
     lookupBooleanOption(opts, om, "includeQualifiers",
-                                opts.includeQualifiersRequested);
+        opts.includeQualifiersRequested);
 
     lookupBooleanOption(opts, om, "notIncludeQualifiers",
-                               opts.notIncludeQualifiersRequested);
+        opts.notIncludeQualifiersRequested);
 
-    // Temporary hide for bug 8677 because not in table.
-    // Bug 8690 fixes when installed
-    //lookupBooleanOption(opts, om,"includeClassOrigin",
-    //                    opts.includeClassOrigin );
+
+    lookupBooleanOption(opts, om,"includeClassOrigin",
+        opts.includeClassOrigin );
 
     lookupBooleanOption(opts, om,"time", opts.time);
 

@@ -539,9 +539,11 @@ OPERATIONS
 	      are included in the response. the -nlo option turns this parame
 	      ter off
 
-	      -cl  Boolean  parameter sets the operation parameter classOrigin
-	      in the operation request. The CIMServer is  expected  to	return
-	      classOrigin information as part of the response.
+	      -ic  Boolean parameter sets the operation parameter includeClas
+	      sOrigin in the operation request. the CIMServer is  expected  to
+	      return classOrigin
+
+	      information as part of the response.
 
 	      -pl [propertyList] Optional property list for the operation.
 
@@ -568,6 +570,7 @@ OPERATIONS
 	      Examples:
 		   cimcli nc CIM_door
 		       Issue getClass CIM Operation for the class CIM_Door.
+
 
        ni EnumerateInstanceNames
 	      Execute the enumerateInstanceNames CIM Operation. The syntax for
@@ -1137,6 +1140,12 @@ OPTIONS LIST
        -nlo   When set,  sets  LocalOnly  =  false  on	the  CIM  operation  .
 	      Default(false).
 
+
+       -ic    Sets  includeClassOrigin	= true for operation that support this
+	      parameter (i.e. get and enumerate classes and instances, associ
+	      ators,  and  references operations).  Note that the class origin
+	      information is only output for the -o xml output operation since
+	      class origin is not part of the MOF format.
 
        -niq   Sets includeQualifiers = false on operations. Default(false).
 

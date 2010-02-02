@@ -33,7 +33,8 @@
 Test Provider for cimcli. This provider is intended to be used as a
 test driver only for cimcli.
 
-This provider is based on the Test_CLITestProviderClass class. This class
+This provider is based on the Test_CLITestProviderClass class and the
+Test_CLITestProviderLinkClass. The Test_CLITestProviderClass class
 includes all of the CIM Data types in both scalar and array form
 and provides the following operations:
 
@@ -64,6 +65,10 @@ instances array.
    resetProviderParameters - resets all parameters set by the
    setProviderParamters method.
 
+The Test_CLITestProviderLinkClassProvides a means to test the reference and
+associator operations.  Note that the instances do not really represent
+understandable associations, simply syntatically correct associations.
+
 LIMITATIONS: The provider is intended to be used in a single namespace and so
 does not include the namespace in the instances placed in the array. Therefore
 if it is enabled for multiple namespaces, a user from some other namespace could
@@ -72,8 +77,8 @@ remove, get, or enumerate an instance created in another namespace.
 It is intended to run a set of tests fairly rapidly so does not hold itself in
 memory.  Therefore, if instances are put into the array after the normal Pegasus
 timeout of providers for unload, they will be discarded.
-
 */
+
 #include "CLITestProvider.h"
 #include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Tracer.h>
@@ -319,8 +324,7 @@ void CLITestProvider::invokeMethod(
                         }
                     }
                     // NOTE: Add new parameters here with else if
-
-                    // Not a valid parameter. Return error
+                    // not a valid parameter. Return error
                     else
                     {
                         rtnCode = 1;
@@ -368,7 +372,22 @@ void CLITestProvider::getInstance(
         try
         {
             CIMInstance temp = _instances[index].clone();
-            temp.addProperty(CIMProperty("requestInputParameters", text));
+            // Required because not assured all instances will have this
+            // property
+            if (temp.findProperty("requestInputParameters") == PEG_NOT_FOUND)
+            {
+                CIMClass tmpClass = _getClass(CIMName(
+                    "Test_CLITestProviderClass"),
+                    instanceReference.getNameSpace());
+
+                Uint32 pos = tmpClass.findProperty("requestInputParameters");
+
+                temp.addProperty(tmpClass.getProperty(pos));
+            }
+
+            temp.getProperty(temp.findProperty("requestInputParameters"))
+                .setValue(text);
+
             temp.filter(includeQualifiers,includeClassOrigin, propertyList);
             handler.deliver(temp);
         }
@@ -417,7 +436,23 @@ void CLITestProvider::enumerateInstances(
             try
             {
                 CIMInstance temp = _instances[i].clone();
-                temp.addProperty(CIMProperty("requestInputParameters", text));
+                if (temp.findProperty(
+                    "requestInputParameters") == PEG_NOT_FOUND)
+                {
+                    CIMClass tmpClass = _getClass(CIMName(
+                        "Test_CLITestProviderClass"),
+                        ref.getNameSpace());
+
+                    Uint32 pos = tmpClass.findProperty(
+                        "requestInputParameters");
+
+                    temp.addProperty(tmpClass.getProperty(pos));
+                }
+
+                temp.getProperty(
+                    temp.findProperty("requestInputParameters"))
+                    .setValue(text);
+
                 temp.filter(includeQualifiers,includeClassOrigin,
                             propertyList);
                 handler.deliver(temp);
@@ -686,7 +721,18 @@ void CLITestProvider::associators(
         try
         {
             CIMInstance temp = _instances[index].clone();
-            temp.addProperty(CIMProperty("requestInputParameters", text));
+            if (temp.findProperty("requestInputParameters") == PEG_NOT_FOUND)
+            {
+                CIMClass tmpClass = _getClass(CIMName(
+                    "Test_CLITestProviderClass"),
+                    nameSpace);
+                Uint32 pos = tmpClass.findProperty("requestInputParameters");
+                temp.addProperty(tmpClass.getProperty(pos));
+            }
+
+            temp.getProperty(temp.findProperty("requestInputParameters"))
+                .setValue(text);
+
             CIMObjectPath rtnObjectName = objectName;
             if (_useSubstituteHostName)
             {
@@ -722,7 +768,6 @@ void CLITestProvider::associatorNames(
     String host = _getHostName();
 
     handler.processing();
-    // complete processing the request
 
     // Return an instance of the associated class for every instance
     // currently in the local list. Simple since we just return the
@@ -782,8 +827,17 @@ void CLITestProvider::references(
         // cimcli client to test results.  It also places the input parameters
         // into the text result so that the client can confirm that the
         // input parameters were passed to the provider.
+        // Create path for assoc instance.
 
-        CIMInstance assocInstance("Test_CLITestProviderLinkClass");
+        CIMClass assocClass = _getClass(CIMName(
+            "Test_CLITestProviderLinkClass"),
+            nameSpace);
+
+        // Create a single instance with all properties and with path
+        // independent of namespace or hostname
+
+        CIMInstance assocInstance = assocClass.buildInstance(
+            true, true, CIMPropertyList());
 
         CIMObjectPath rtnObjectName = objectName;
         if (_useSubstituteHostName)
@@ -791,15 +845,13 @@ void CLITestProvider::references(
             rtnObjectName.setHost(_getHostName());
         }
 
-        assocInstance.addProperty(CIMProperty(CIMName("parent"),
-            rtnObjectName,
-            0,
-            CIMName("Test_CLITestProviderClass")));
+        assocInstance.getProperty(
+            assocInstance.findProperty("parent"))
+            .setValue(rtnObjectName);
 
-        assocInstance.addProperty(CIMProperty(CIMName("child"),
-            rtnObjectName,
-            0,
-            CIMName("Test_CLITestProviderClass")));
+        assocInstance.getProperty(
+            assocInstance.findProperty("child"))
+            .setValue(rtnObjectName);
 
         // Put input parameters into the requestInputParameters property so
         // they can be confirmed by the client.
@@ -810,12 +862,9 @@ void CLITestProvider::references(
         _addParam(text, "includeClassOrigin", _toString(includeClassOrigin));
         _addParam(text, "propertyList", _toString(propertyList));
 
-        assocInstance.addProperty(CIMProperty("requestInputParameters",
-                                              text));
-        // Create path for assoc instance.
-        CIMClass assocClass = _getClass(CIMName(
-            "Test_CLITestProviderLinkClass"),
-            nameSpace);
+        assocInstance.getProperty(
+            assocInstance.findProperty("requestInputParameters"))
+            .setValue(text);
 
         CIMObjectPath objectPath =
             assocInstance.buildPath(assocClass);
@@ -1054,8 +1103,6 @@ void CLITestProvider::createInstances(const CIMNamespaceName& ns)
     aCIMDateTime.append(CIMDateTime("19991224120000.000000+360"));
     instance.getProperty(instance.findProperty("arrayDateTime")).setValue(
         CIMValue(aCIMDateTime));
-
-    instance.removeProperty(instance.findProperty("requestInputParameters"));
 
     CIMObjectPath p("Test_CLITestProviderClass.Id=\"Mike\"");
 

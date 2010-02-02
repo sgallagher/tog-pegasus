@@ -547,7 +547,7 @@ Array<CIMNamespaceName> _getNameSpaceNames(Options& opts)
     display.  This required because some operations have default true
     and other false.
     */
-String _resolveIncludeQualifiers(Options& opts, Boolean defaultValue)
+void _resolveIncludeQualifiers(Options& opts, Boolean defaultValue)
 {
     // Assure niq and iq not both supplied. They are incompatible
     if (opts.includeQualifiersRequested && opts.notIncludeQualifiersRequested)
@@ -568,7 +568,7 @@ String _resolveIncludeQualifiers(Options& opts, Boolean defaultValue)
         opts.includeQualifiers = opts.includeQualifiersRequested ?
                                     true : false;
     }
-    return _toString(opts.includeQualifiers);
+    return;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -679,7 +679,7 @@ int enumerateAllInstanceNames(Options& opts)
             CIMCLIOutput::displayPaths(opts, instanceNames, s);
         }
 
-        cout << "total Instances in " << opts.nameSpace
+        cout << "Total Instances in " << opts.nameSpace
              << " = " << totalInstances
              << " which contains " << classNames.size() << " classes"
              << endl;
@@ -725,6 +725,9 @@ int enumerateInstanceNames(Options& opts)
 
 int enumerateInstances(Options& opts)
 {
+    // Resolve the IncludeQualifiers -iq vs -niq qualifiers default is true.
+    _resolveIncludeQualifiers(opts, false);
+
     if (opts.verboseTest)
     {
         cout << "EnumerateInstances "
@@ -732,8 +735,7 @@ int enumerateInstances(Options& opts)
             << ", Class = " << opts.className.getString()
             << ", deepInheritance = " << _toString(opts.deepInheritance)
             << ", localOnly = " << _toString(opts.localOnly)
-            << ", includeQualifiers = " <<
-                            _resolveIncludeQualifiers(opts,false)
+            << ", includeQualifiers = " << _toString(opts.includeQualifiers)
             << ", includeClassOrigin = " << _toString(opts.includeClassOrigin)
             << ", PropertyList = " << _toString(opts.propertyList)
             << endl;
@@ -897,14 +899,15 @@ int deleteInstance(Options& opts)
 */
 int getInstance(Options& opts)
 {
+    // Resolve the IncludeQualifiers -iq vs -niq qualifiers default is true.
+    _resolveIncludeQualifiers(opts, false);
     if (opts.verboseTest)
     {
         cout << "getInstance "
             << "Namespace = " << opts.nameSpace
             << ", InstanceName/class = " << opts.getTargetObjectNameStr()
             << ", localOnly = " << _toString(opts.localOnly)
-            << ", includeQualifiers = " <<
-                        _resolveIncludeQualifiers(opts, false)
+            << ", includeQualifiers = " << _toString(opts.includeQualifiers)
             << ", includeClassOrigin = " << _toString(opts.includeClassOrigin)
             << ", PropertyList = " << _toString(opts.propertyList)
             << endl;
@@ -1008,13 +1011,15 @@ int createInstance(Options& opts)
 */
 int testInstance(Options& opts)
 {
+    // Resolve the IncludeQualifiers -iq vs -niq qualifiers default is true.
+    _resolveIncludeQualifiers(opts, false);
+
     if (opts.verboseTest)
     {
         cout << "testInstance "
             << "Namespace = " << opts.nameSpace
             << ", InstanceName/ClassName = " << opts.getTargetObjectNameStr()
-            << ", includeQualifiers = " <<
-                            _resolveIncludeQualifiers(opts,false)
+            << ", includeQualifiers = " << _toString(opts.includeQualifiers)
             << ", includeClassOrigin = " << _toString(opts.includeClassOrigin)
             << ", PropertyList = " << _toString(opts.propertyList)
             << endl;
@@ -1237,6 +1242,8 @@ int enumerateClassNames(Options& opts)
 */
 int enumerateClasses(Options& opts)
 {
+    // Resolve the IncludeQualifiers -iq vs -niq qualifiers default is true.
+    _resolveIncludeQualifiers(opts, true);
     if (opts.verboseTest)
     {
         cout << "EnumerateClasses "
@@ -1244,8 +1251,7 @@ int enumerateClasses(Options& opts)
             << ", Class= " << opts.className.getString()
             << ", deepInheritance= " << _toString(opts.deepInheritance)
             << ", localOnly= " << _toString(opts.localOnly)
-            << ", includeQualifiers= " <<
-                            _resolveIncludeQualifiers(opts, true)
+            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
             << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
             << endl;
     }
@@ -1298,6 +1304,9 @@ int deleteClass(Options& opts)
 */
 int getClass(Options& opts)
 {
+    // Resolve the IncludeQualifiers -iq vs -niq qualifiers default is true.
+    _resolveIncludeQualifiers(opts, true);
+
     if (opts.verboseTest)
     {
         cout << "getClass "
@@ -1305,8 +1314,7 @@ int getClass(Options& opts)
             << ", Class= " << opts.className.getString()
             << ", deepInheritance= " << _toString(opts.deepInheritance)
             << ", localOnly= " << _toString(opts.localOnly)
-            << ", includeQualifiers= " <<
-                            _resolveIncludeQualifiers(opts, true)
+            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
             << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
             << ", PropertyList= " << _toString(opts.propertyList)
             << endl;
@@ -1580,6 +1588,8 @@ int referenceNames(Options& opts)
 */
 int references(Options& opts)
 {
+    // Resolve the IncludeQualifiers -iq vs -niq qualifiers default is true.
+    _resolveIncludeQualifiers(opts, false);
     if (opts.verboseTest)
     {
         cout << "References "
@@ -1587,8 +1597,7 @@ int references(Options& opts)
             << ", ObjectName = " << opts.getTargetObjectNameStr()
             << ", resultClass= " << opts.resultClass.getString()
             << ", role= " << opts.role
-            << ", includeQualifiers= " <<
-                            _resolveIncludeQualifiers(opts, false)
+            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
             << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
             << ", CIMPropertyList= " << _toString(opts.propertyList)
             << endl;
@@ -1701,6 +1710,9 @@ int associatorNames(Options& opts)
  */
 int associators(Options& opts)
 {
+    // Resolve the IncludeQualifiers -iq vs -niq qualifiers default is true.
+    _resolveIncludeQualifiers(opts, false);
+
     if (opts.verboseTest)
     {
         cout << "Associators "
@@ -1710,8 +1722,7 @@ int associators(Options& opts)
             << ", resultClass= " << opts.resultClass.getString()
             << ", role= " << opts.role
             << ", resultRole= " << opts.resultRole
-            << ", includeQualifiers= " <<
-                            _resolveIncludeQualifiers(opts, false)
+            << ", includeQualifiers= " << _toString(opts.includeQualifiers)
             << ", includeClassOrigin= " << _toString(opts.includeClassOrigin)
             << ", propertyList= " << _toString(opts.propertyList)
             << endl;

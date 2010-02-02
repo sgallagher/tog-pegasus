@@ -92,6 +92,13 @@ getclass:
 	    >> $(RESULTFILE)
 	@cimcli gc -n "$(PROVIDERNS)"  Test_CLITestProviderLinkClass \
 	    >> $(RESULTFILE)
+	@cimcli gc -n "$(PROVIDERNS)"  Test_CLITestProviderLinkClass -niq \
+	    >> $(RESULTFILE)
+	## output as xml and repeat with the -ic option set
+	cimcli gc -n "$(PROVIDERNS)"  Test_CLITestProviderLinkClass -o xml \
+	    >> $(RESULTFILE)
+	cimcli gc -n "$(PROVIDERNS)"  Test_CLITestProviderLinkClass -o xml \
+	    -ic >> $(RESULTFILE)
 	@$(ECHO) 0. +++++ Test getClass
 
 ### Test reference parameters
@@ -243,7 +250,7 @@ testDeleteInstanceOperation:
 
 	@$(ECHO) +++++ Test delete instance Passed.
 
-### Test invoke method with a variety of parameter  data types
+### Test invoke method with a variety of parameter data types
 testInvokeMethod:
 	@$(ECHO) 6. +++++ Test invokeMethod
 	@$(ECHO) 6. +++++ Test invokeMethod >> $(RESULTFILE)
@@ -274,8 +281,13 @@ testTableOutputFormat:
 	    Id=Norman Name=Susan
 	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass \
 	    Id=Thomas Name=Peter
-	cimcli ei -n "$(PROVIDERNS)" \
-	    -o table Test_CLITestProviderClass >> $(TABLEFORMATFILE)
+	@cimcli ei -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    -o table \
+	    >> $(TABLEFORMATFILE)
+	@cimcli ei -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    -o table \
+	    -pl Id,Name,scaleBool,scalUint8,arrayBool \
+	    >> $(TABLEFORMATFILE)
 
 	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Norman\"
 	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Thomas\"
@@ -606,13 +618,36 @@ objectcountertests:
 	-@cimcli r -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
 	    --sum -count 10 >>$(RESULTFILE) 2>&1
 	-@cimcli an -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
-	    --sum -count 10 >>$(RESULTFILE)
+	    --sum -count 10 >>$(RESULTFILE) 2>&1
 	-@cimcli rn -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Mike\" \
 	    --sum -count 10 >>$(RESULTFILE) 2>&1
 	@cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
 	        resetProviderParameters >> $(RESULTFILE)
 
 	@$(ECHO) +++++ Test objectcountertests Passed.
+
+## Test Enumerate Classes and Enumerate ClassNames
+enumerateClasses:
+	@$(ECHO) 21. +++++ Test For enumerateClasses
+	@$(ECHO) 21. +++++ Test For enumerateClasses  >> $(RESULTFILE)
+
+        ## test enumerate classes with our known class to assure
+	## defined output
+	@cimcli ec -n "$(PROVIDERNS)"  Test_CLITestProviderClass \
+	    >> $(RESULTFILE)
+	@cimcli ec -n "$(PROVIDERNS)"  Test_CLITestProviderLinkClass \
+	    >> $(RESULTFILE)
+	@cimcli ec -n "$(PROVIDERNS)"  Test_CLITestProviderLinkClass -niq \
+	    >> $(RESULTFILE)
+	## output as xml and repeat with the -ic option set
+	cimcli ec -n "$(PROVIDERNS)"  Test_CLITestProviderLinkClass -o xml \
+	    >> $(RESULTFILE)
+	cimcli ec -n "$(PROVIDERNS)"  Test_CLITestProviderLinkClass -o xml \
+	    -ic >> $(RESULTFILE)
+
+	@cimcli nc -n "$(STATICNS)"  >> $(RESULTFILE)
+
+	@$(ECHO) 21. +++++ Test enumerateClasses
 
 ### Execute the set of test targets defined below
 poststarttests:
@@ -641,8 +676,10 @@ poststarttests:
 	$(MAKE) associationtests
 	$(MAKE) helpoutputtests
 	$(MAKE) nullvaluetests
+	## see Bug 8690
 	####$(MAKE) namespacetests
 	$(MAKE) objectcountertests
+	$(MAKE) enumerateClasses
 
 	@$(ECHO) +++++ Compare Result files
 	## diffsort used because there is at least one instance where
@@ -691,10 +728,10 @@ clean:
 	        resetProviderParameters
 
 	## Remove the result files
-	@$(RM) $(RESULTFILE)
-	@$(RM) $(TABLEFORMATFILE)
-	@$(RM) $(HELPRESULTFILE)
-	@$(RM) $(NSRESULTFILE)
+	-@$(RM) $(RESULTFILE)
+	-@$(RM) $(TABLEFORMATFILE)
+	-@$(RM) $(HELPRESULTFILE)
+	-@$(RM) $(NSRESULTFILE)
 
 ##################### Local targets useful for manual testing ############
 
@@ -726,9 +763,6 @@ im:
 rm:
 	cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
 	        resetProviderParameters
-
-a:
-	cimcli r Test_CLITestProviderClass.Id=\"Mike\" -n "$(PROVIDERNS)" --setRtnHostNames "blah" -v
 
 # END_OF_FILE
 

@@ -619,10 +619,11 @@ for include_qualifiers to false.
 Boolean that defines whether properties from superclasses
 are included in the response. the -nlo option turns this parameter off
 <P>
-<B>-cl </B>
+<B>-ic</B>
 
-Boolean parameter sets the operation parameter classOrigin in the
-operation request. The CIMServer is expected to return classOrigin
+Boolean parameter sets the operation parameter includeClassOrigin in the
+operation request. the CIMServer is expected to return classOrigin
+<P>
 information as part of the response.
 <P>
 <B>-pl [propertyList]</B>
@@ -661,6 +662,7 @@ not localOnly
             Issue getClass CIM Operation for the class CIM_Door.
 </PRE>
 
+<P>
 <DT><B>ni     EnumerateInstanceNames</B>
 
 <DD>
@@ -1362,6 +1364,14 @@ See -nlo. Default(true).
 <DD>
 When set, sets LocalOnly = false on the CIM operation . Default(false).
 <P>
+<DT><B>-ic</B>
+
+<DD>
+Sets includeClassOrigin = true for operation that support this parameter
+(i.e. get and enumerate classes and instances, associators, and references
+operations).  Note that the class origin information is only output for
+the -o xml output operation since class origin is not part of the MOF
+format.
 <DT><B>-niq</B>
 
 <DD>
@@ -1625,6 +1635,6 @@ Karl Schopmeyer <A HREF="mailto:k.schopmeyer@opengroup.org">k.schopmeyer@opengro
 This document was created by
 <A HREF="/cgi-bin/man/man2html">man2html</A>,
 using the manual pages.<BR>
-Time: 13:50:26 GMT, January 25, 2010
+Time: 14:15:33 GMT, January 25, 2010
 </BODY>
 </HTML>

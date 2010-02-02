@@ -27,6 +27,8 @@ This command executes single CIM Operations.
     made over HTTPS using -s. Default()
  -u  User. Defines User Name for authentication. Default()
  -n  namespace. Specifies namespace to use for operation. Default(root/cimv2)
+ -ic  includeClassOrigin. If set includeClassOrigin  parameter
+    set true on requests that honor this parameter. Default(false)
  -di  deepInheritance. If set deepInheritance parameter
     set true. Default(false)
  -lo  localOnly. DEPRECATED. This was used to set LocalOnly.
@@ -333,6 +335,8 @@ This command executes single CIM Operations.
     made over HTTPS using -s. Default()
  -u  User. Defines User Name for authentication. Default()
  -n  namespace. Specifies namespace to use for operation. Default(root/cimv2)
+ -ic  includeClassOrigin. If set includeClassOrigin  parameter
+    set true on requests that honor this parameter. Default(false)
  -di  deepInheritance. If set deepInheritance parameter
     set true. Default(false)
  -lo  localOnly. DEPRECATED. This was used to set LocalOnly.

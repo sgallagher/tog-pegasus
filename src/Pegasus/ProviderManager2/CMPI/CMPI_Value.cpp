@@ -117,7 +117,7 @@ PEGASUS_NAMESPACE_BEGIN
 */
 SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
 {
-    SCMBUnion scmoData;
+    SCMBUnion scmoData= { { { 0 }, 0 } };
 
     PEGASUS_ASSERT(!(type&CMPI_ARRAY));
 
@@ -155,7 +155,6 @@ SCMBUnion value2SCMOValue(const CMPIValue* data,const CMPIType type)
         }
         case CMPI_string:
         {
-            scmoData.extString.pchar = 0;
             if (data->string)
             {
                 scmoData.extString.pchar = (char*)data->string->hdl;

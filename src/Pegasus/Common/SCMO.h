@@ -182,6 +182,7 @@ union SCMBUnion
     {
         union
         {
+            Uint64   u64;
             Boolean  bin;
             Uint8    u8;
             Sint8    s8;
@@ -189,7 +190,6 @@ union SCMBUnion
             Sint16   s16;
             Uint32   u32;
             Sint32   s32;
-            Uint64   u64;
             Sint64   s64;
             Real32   r32;
             Real64   r64;

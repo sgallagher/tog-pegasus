@@ -2442,26 +2442,21 @@ const char* SCMOInstance::getNameSpace_l(Uint32 & length) const
 
 void SCMOInstance::buildKeyBindingsFromProperties()
 {
+    Uint32 propNode;
+    // The theClassKeyPropList pointer will always be valid,
+    // even after a realloc() caused by copyOnWrite()
+    // as this is an absolute pointer to the class which does not change
     Uint32* theClassKeyPropList =
         (Uint32*) &((inst.hdr->theClass.ptr->cls.base)
                     [(inst.hdr->theClass.ptr->cls.hdr->keyIndexList.start)]);
 
-    SCMBKeyBindingValue* theKeyBindValueArray;
-    SCMBValue* theInstPropNodeArray;
-
-    Uint32 propNode;
+    SCMBKeyBindingValue* theKeyBindValueArray =
+        (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
+    SCMBValue* theInstPropNodeArray=
+        (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
 
     for (Uint32 i = 0, k = inst.hdr->numberKeyBindings; i < k; i++)
     {
-        // the instance pointers has to be reinitialized each time,
-        // because in _setKeyBindingFromSCMBUnion()
-        // a reallocation can take place.
-        theKeyBindValueArray =
-           (SCMBKeyBindingValue*)&(inst.base[inst.hdr->keyBindingArray.start]);
-
-        theInstPropNodeArray =
-            (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
-
         // If the keybinding is not set.
         if (!theKeyBindValueArray[i].isSet)
         {
@@ -2473,12 +2468,29 @@ void SCMOInstance::buildKeyBindingsFromProperties()
                 !theInstPropNodeArray[propNode].flags.isNull)
             {
                 _copyOnWrite();
+                // the instance pointers have to be recalculated as copyOnWrite
+                // might change the absolute address of these pointers
+                theInstPropNodeArray =
+                    (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
+                theKeyBindValueArray =
+                    (SCMBKeyBindingValue*)
+                        &(inst.base[inst.hdr->keyBindingArray.start]);
 
                 _setKeyBindingFromSCMBUnion(
                     theInstPropNodeArray[propNode].valueType,
                     theInstPropNodeArray[propNode].value,
                     inst.base,
                     theKeyBindValueArray[i]);
+
+                // the instance pointers have to be reinitialized each time,
+                // because a reallocation can take place
+                // in _setKeyBindingFromSCMBUnion()
+                theKeyBindValueArray =
+                    (SCMBKeyBindingValue*)
+                        &(inst.base[inst.hdr->keyBindingArray.start]);
+                theInstPropNodeArray =
+                    (SCMBValue*)&inst.base[inst.hdr->propertyArray.start];
+
             }
         }
     }

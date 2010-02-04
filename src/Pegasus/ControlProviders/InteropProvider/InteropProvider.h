@@ -222,13 +222,15 @@ private:
 
     Array<CIMInstance> enumCIMXMLCommunicationMechanismInstances();
 
-    Array<CIMInstance> enumHostedAccessPointInstances();
+    Array<CIMInstance> enumHostedAccessPointInstances(
+        const OperationContext &opContext);
 
     CIMInstance getObjectManagerInstance();
 
-    CIMInstance getComputerSystemInstance();
+    CIMInstance getComputerSystemInstance(const OperationContext &opContext);
 
-    CIMInstance getHostedObjectManagerInstance();
+    CIMInstance getHostedObjectManagerInstance(
+        const OperationContext &opContext);
 
     Array<CIMInstance> enumNamespaceInstances();
 
@@ -290,7 +292,8 @@ private:
     Array<CIMInstance> enumSubProfileRequiresProfileInstances();
     Array<CIMInstance> enumSoftwareIdentityInstances();
     Array<CIMInstance> enumElementSoftwareIdentityInstances();
-    Array<CIMInstance> enumInstalledSoftwareIdentityInstances();
+    Array<CIMInstance> enumInstalledSoftwareIdentityInstances(
+        const OperationContext &opContext);
     Array<CIMInstance> enumDefaultSoftwareIdentityInstances();
 
     CIMInstance getSoftwareIdentityInstance(

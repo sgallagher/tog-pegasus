@@ -453,22 +453,22 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
         }
         case PG_INSTALLEDSOFTWAREIDENTITY:
         {
-            instances = enumInstalledSoftwareIdentityInstances();
+            instances = enumInstalledSoftwareIdentityInstances(context);
             break;
         }
         case PG_COMPUTERSYSTEM:
         {
-            instances.append(getComputerSystemInstance());
+            instances.append(getComputerSystemInstance(context));
             break;
         }
         case PG_HOSTEDOBJECTMANAGER:
         {
-            instances.append(getHostedObjectManagerInstance());
+            instances.append(getHostedObjectManagerInstance(context));
             break;
         }
         case PG_HOSTEDACCESSPOINT:
         {
-            instances = enumHostedAccessPointInstances();
+            instances = enumHostedAccessPointInstances(context);
             break;
         }
         //We don't support enumerate CIM_Namespace instances. PG_Namespace is

@@ -584,16 +584,15 @@ void InteropProvider::modifyObjectManagerInstance(
 // Get an instance of the PG_ComputerSystem class produced by the
 // ComputerSystem provider in the root/cimv2 namespace.
 //
-// @param includeQualifiers Boolean
-// @param includeClassOrigin Boolean
-// @param propertylist CIMPropertyList
+// @param opContext Operation context.
 //
 // @return CIMInstance of PG_ComputerSystem class.
 //
 // @exception ObjectNotFound exception if a ComputerSystem instance cannot
 //     be retrieved.
 //
-CIMInstance InteropProvider::getComputerSystemInstance()
+CIMInstance InteropProvider::getComputerSystemInstance(
+    const OperationContext &opContext)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::getComputerSystemInstance");
@@ -601,7 +600,7 @@ CIMInstance InteropProvider::getComputerSystemInstance()
     CIMInstance instance;
     AutoMutex mut(interopMut);
     Array<CIMInstance> tmpInstances = cimomHandle.enumerateInstances(
-        OperationContext(),
+        opContext,
         PEGASUS_NAMESPACENAME_CIMV2,
         PEGASUS_CLASSNAME_PG_COMPUTERSYSTEM, true, false, false, false,
         CIMPropertyList());
@@ -631,7 +630,8 @@ CIMInstance InteropProvider::getComputerSystemInstance()
 // Returns an instance of the HostedObjectManager association linking the
 // ObjectManager and ComputerSystem instances managed by this provider.
 //
-CIMInstance InteropProvider::getHostedObjectManagerInstance()
+CIMInstance InteropProvider::getHostedObjectManagerInstance(
+    const OperationContext &opContext)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::getHostedObjectManagerInstance");
@@ -640,7 +640,7 @@ CIMInstance InteropProvider::getHostedObjectManagerInstance()
     CIMInstance instance;
     bool found = false;
 
-    CIMObjectPath csPath = getComputerSystemInstance().getPath();
+    CIMObjectPath csPath = getComputerSystemInstance(opContext).getPath();
     CIMObjectPath omPath = getObjectManagerInstance().getPath();
     String csPathString = csPath.toString();
     String omPathString = omPath.toString();
@@ -668,13 +668,14 @@ CIMInstance InteropProvider::getHostedObjectManagerInstance()
 // instances for this CIMOM. One will be produced for every instance of
 // CIMXMLCommunicatiomMechanism managed by this provider.
 //
-Array<CIMInstance> InteropProvider::enumHostedAccessPointInstances()
+Array<CIMInstance> InteropProvider::enumHostedAccessPointInstances(
+    const OperationContext &opContext)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::enumHostedAccessPointInstance");
     Array<CIMInstance> instances;
 
-    CIMObjectPath csPath = getComputerSystemInstance().getPath();
+    CIMObjectPath csPath = getComputerSystemInstance(opContext).getPath();
     Array<CIMInstance> commMechs = enumCIMXMLCommunicationMechanismInstances();
     CIMClass hapClass = repository->getClass(PEGASUS_NAMESPACENAME_INTEROP,
         PEGASUS_CLASSNAME_PG_HOSTEDACCESSPOINT, false, true, false);
@@ -796,7 +797,7 @@ Array<CIMInstance> InteropProvider::enumHostedIndicationServiceInstances(
     const OperationContext &opContext)
 {
     Array<CIMInstance> instances;
-    CIMInstance cInst = getComputerSystemInstance();
+    CIMInstance cInst = getComputerSystemInstance(opContext);
 
     // Get CIM_IndicationService instance
     Array<CIMObjectPath> servicePaths = cimomHandle.enumerateInstanceNames(

@@ -707,13 +707,14 @@ Array<CIMInstance> InteropProvider::enumElementSoftwareIdentityInstances()
 //
 // Enumerates instances of the InstalledSoftwareIdentity association class.
 //
-Array<CIMInstance> InteropProvider::enumInstalledSoftwareIdentityInstances()
+Array<CIMInstance> InteropProvider::enumInstalledSoftwareIdentityInstances(
+    const OperationContext &opContext)
 {
     // All of the software identity instances are associated to the
     // ComputerSystem on which the object manager resides. Simply loop through
     // all the instances and build the association.
     Array<CIMInstance> instances;
-    CIMObjectPath csPath = getComputerSystemInstance().getPath();
+    CIMObjectPath csPath = getComputerSystemInstance(opContext).getPath();
     Array<CIMInstance> softwareInstances = enumSoftwareIdentityInstances();
     CIMClass installedSoftwareClass;
     CIMInstance skeletonInst =  buildInstanceSkeleton(

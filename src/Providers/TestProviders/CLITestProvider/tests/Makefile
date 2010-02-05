@@ -626,10 +626,43 @@ objectcountertests:
 
 	@$(ECHO) +++++ Test objectcountertests Passed.
 
+##
+##	Confirm the sort of instances and instance Paths responses
+##
+SortInstancesTest:
+	@$(ECHO) 21. +++++ SortInstancesTest
+	@$(ECHO) 21. +++++ SortInstancesTest >> $(RESULTFILE)
+	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id=Zed Name=Futz
+	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id=Norman Name=Susan
+	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id=Thomas Name=Peter
+	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id=Fred Name=Jones
+	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id=Judy Name=blah
+	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass \
+	    Id=Andy Name=Blue
+	@cimcli ni -n "$(PROVIDERNS)" Test_CLITestProviderClass --sort \
+		>>$(RESULTFILE)
+	@cimcli ei -n "$(PROVIDERNS)" Test_CLITestProviderClass --sort \
+	        -pl Id,Name \
+		>>$(RESULTFILE)
+
+	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Zed\"
+	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Norman\"
+	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Thomas\"
+	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Fred\"
+	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Judy\"
+	@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Andy\"
+
+	@$(ECHO) +++++ Test SortInstancesTest Passed.
+
 ## Test Enumerate Classes and Enumerate ClassNames
 enumerateClasses:
-	@$(ECHO) 21. +++++ Test For enumerateClasses
-	@$(ECHO) 21. +++++ Test For enumerateClasses  >> $(RESULTFILE)
+	@$(ECHO) 22. +++++ Test For enumerateClasses
+	@$(ECHO) 22. +++++ Test For enumerateClasses  >> $(RESULTFILE)
 
         ## test enumerate classes with our known class to assure
 	## defined output
@@ -647,7 +680,7 @@ enumerateClasses:
 
 	@cimcli nc -n "$(STATICNS)"  >> $(RESULTFILE)
 
-	@$(ECHO) 21. +++++ Test enumerateClasses
+	@$(ECHO) 22. +++++ Test enumerateClasses
 
 ### Execute the set of test targets defined below
 poststarttests:
@@ -679,6 +712,7 @@ poststarttests:
 	## see Bug 8690
 	####$(MAKE) namespacetests
 	$(MAKE) objectcountertests
+	$(MAKE) SortInstancesTest
 	$(MAKE) enumerateClasses
 
 	@$(ECHO) +++++ Compare Result files
@@ -710,12 +744,14 @@ poststarttests:
 ### reinitialized (server restarted or provider reloaded)
 clean:
 	## remove any existing instances
+	-@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Zed\"
+	-@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Norman\"
+	-@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Thomas\"
+	-@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Fred\"
+	-@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Judy\"
+	-@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass.Id=\"Andy\"
 	-@cimcli di -n "$(PROVIDERNS)" \
-	    Test_CLITestProviderClass.Id=\"Norman\"
-	-@cimcli di -n "$(PROVIDERNS)" \
-	    Test_CLITestProviderClass.Id=\"Thomas\"
-	-@cimcli di -n "$(PROVIDERNS)" \
-	    Test_CLITestProviderClass.Id=\"ScalarTest\"
+		Test_CLITestProviderClass.Id=\"ScalarTest\"
 	-@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass Id=arrayTest
 	-@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass Id=stringTest
 	-@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass \
@@ -725,8 +761,8 @@ clean:
 	-@cimcli di -n "$(PROVIDERNS)" Test_CLITestProviderClass \
 	    Id="EmptyStringTest"
 	-@cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
-	        resetProviderParameters
-
+		resetProviderParameters
+	
 	## Remove the result files
 	-@$(RM) $(RESULTFILE)
 	-@$(RM) $(TABLEFORMATFILE)
@@ -763,6 +799,10 @@ im:
 rm:
 	cimcli im Test_CLITestProviderClass -n "$(PROVIDERNS)" \
 	        resetProviderParameters
+
+a:
+	cimcli r Test_CLITestProviderClass.Id=\"Mike\" -n "$(PROVIDERNS)" \
+	 --setRtnHostNames "blah" -v
 
 # END_OF_FILE
 

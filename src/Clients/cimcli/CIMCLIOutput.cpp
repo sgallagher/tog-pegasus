@@ -75,87 +75,79 @@ static int _compareKeyBinding(const CIMKeyBinding& kb1,
                               const CIMKeyBinding& kb2)
 {
     int rtn;
-    if ((rtn = _compareCIMNames(kb1.getName(), kb2.getName())) != 0)
-    {
-        return rtn;
-    }
-    switch (kb1.getType())
-    {
-        case CIMKeyBinding::REFERENCE:
-            // Convert to paths and recurse through compare.
-            try
-            {
-                CIMObjectPath p1(kb1.getValue());
-                CIMObjectPath p2(kb2.getValue());
-                return _compareObjectPaths(p1,p2);
-            }
-            catch (Exception&)
-            {
-                // ignore if parsing fails
-                cerr << "Reference Path parsing failed" << endl;
-                return 0;
-            }
-            break;
 
-        case CIMKeyBinding::BOOLEAN:
-            // Compare as no case strings
-            return String::compareNoCase(kb1.getValue(), kb1.getValue());
-            break;
-
-        case CIMKeyBinding::NUMERIC:
-            // convert to numeric values and compare
-            Uint64 uValue1;
-            Sint64 sValue1;
-            if (StringConversion::stringToUnsignedInteger(
-                    kb1.getValue().getCString(),
-                        uValue1))
-            {
-                Uint64 uValue2;
+    if ((rtn = _compareCIMNames(kb1.getName(), kb2.getName())) == 0)
+    {
+        switch (kb1.getType())
+        {
+            case CIMKeyBinding::REFERENCE:
+                // Convert to paths and recurse through compare.
+                try
+                {
+                    CIMObjectPath p1(kb1.getValue());
+                    CIMObjectPath p2(kb2.getValue());
+                    rtn = _compareObjectPaths(p1,p2);
+                }
+                catch (Exception&)
+                {
+                    // ignore if parsing fails
+                    cerr << "Reference Path parsing failed" << endl;
+                    rtn = 0;
+                }
+                break;
+    
+            case CIMKeyBinding::BOOLEAN:
+                // Compare as no case strings
+                rtn = String::compareNoCase(kb1.getValue(), kb1.getValue());
+                break;
+    
+            case CIMKeyBinding::NUMERIC:
+                // convert to numeric values and compare
+                Uint64 uValue1;
+                Sint64 sValue1;
                 if (StringConversion::stringToUnsignedInteger(
+                    kb1.getValue().getCString(),
+                    uValue1))
+                {
+                    Uint64 uValue2;
+                    if (StringConversion::stringToUnsignedInteger(
                         kb2.getValue().getCString(),
-                            uValue2))
-                {
-                    return(uValue2 - uValue1);
+                        uValue2))
+                    {
+                        rtn = (uValue2 - uValue1);
+                    }
+                    else
+                    {
+                        // ignore error where we cannot convert both
+                        rtn = 0;
+                    }
                 }
-                else
+                // Next try converting to signed integer
+                else if (StringConversion::stringToSignedInteger(
+                    kb1.getValue().getCString(),
+                    sValue1))
                 {
-                    // ignore error where we cannot convert both
-                    return 0;
+                    Sint64 sValue2;
+                    if (StringConversion::stringToSignedInteger(
+                        kb2.getValue().getCString(),
+                        sValue2))
+                    {
+                        rtn = (sValue2 - sValue1);
+                    }
+                    else
+                    {
+                        rtn = 0;
+                    }
                 }
-            }
-            // Next try converting to signed integer
-            else if (StringConversion::stringToSignedInteger(
-                         kb1.getValue().getCString(),
-                             sValue1))
-            {
-                Sint64 sValue2;
-                if (StringConversion::stringToSignedInteger(
-                         kb2.getValue().getCString(),
-                             sValue1))
-                {
-                    return (sValue2 - sValue1);
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-            break;
-        default:
-            // no conversion required.  Compare as Strings.
-            return String::compare(kb1.getValue(), kb1.getValue());
-            break;
+                break;
+            default:
+                // no conversion required.  Compare as Strings.
+                rtn = String::compare(kb1.getValue(), kb2.getValue());
+                break;
+        }
     }
-}
 
-static inline int _comparekeybindings(const void* p1, const void* p2)
-{
-    const CIMKeyBinding* kb1 = (const CIMKeyBinding*)p1;
-    const CIMKeyBinding* kb2 = (const CIMKeyBinding*)p2;
-
-    return String::compareNoCase(
-        kb1->getName().getString(),
-        kb2->getName().getString());
+    return rtn;
 }
 
 /*

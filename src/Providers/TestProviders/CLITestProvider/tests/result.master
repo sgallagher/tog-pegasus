@@ -1210,7 +1210,71 @@ Failed associator names count test. Expected= 10 Received= 1
 1 referenceNames Test_CLITestProviderClass returned.
 Failed referenceNames count test. Expected= 10 Received= 1
 Return Value= 0
-21. +++++ Test For enumerateClasses
+21. +++++ SortInstancesTest
+Test_CLITestProviderClass.Id="Andy"
+Test_CLITestProviderClass.Id="Fred"
+Test_CLITestProviderClass.Id="Judy"
+Test_CLITestProviderClass.Id="Mike"
+Test_CLITestProviderClass.Id="Norman"
+Test_CLITestProviderClass.Id="Thomas"
+Test_CLITestProviderClass.Id="Zed"
+path= Test_CLITestProviderClass.Id="Andy"
+
+//Instance of Test_CLITestProviderClass
+instance of Test_CLITestProviderClass
+{
+Id = "Andy";
+Name = "Blue";
+};
+path= Test_CLITestProviderClass.Id="Fred"
+
+//Instance of Test_CLITestProviderClass
+instance of Test_CLITestProviderClass
+{
+Id = "Fred";
+Name = "Jones";
+};
+path= Test_CLITestProviderClass.Id="Judy"
+
+//Instance of Test_CLITestProviderClass
+instance of Test_CLITestProviderClass
+{
+Id = "Judy";
+Name = "blah";
+};
+path= Test_CLITestProviderClass.Id="Mike"
+
+//Instance of Test_CLITestProviderClass
+instance of Test_CLITestProviderClass
+{
+Id = "Mike";
+Name = "Bob";
+};
+path= Test_CLITestProviderClass.Id="Norman"
+
+//Instance of Test_CLITestProviderClass
+instance of Test_CLITestProviderClass
+{
+Id = "Norman";
+Name = "Susan";
+};
+path= Test_CLITestProviderClass.Id="Thomas"
+
+//Instance of Test_CLITestProviderClass
+instance of Test_CLITestProviderClass
+{
+Id = "Thomas";
+Name = "Peter";
+};
+path= Test_CLITestProviderClass.Id="Zed"
+
+//Instance of Test_CLITestProviderClass
+instance of Test_CLITestProviderClass
+{
+Id = "Zed";
+Name = "Futz";
+};
+22. +++++ Test For enumerateClasses
 CIM_ReplaceableProductFRU
 CIM_ElementCapabilities
 WET_RelatedStatistics

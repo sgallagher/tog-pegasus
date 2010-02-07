@@ -918,6 +918,9 @@ requestInputParameters = "propertyList=NULL; includeQualifiers=false; "
     "includeClassOrigin=false";
 };
 test instance Test_CLITestProviderClass.Id="integerVariationTest" OK
+test instance Test_CLITestProviderClass.Id="integerVariationTest" OK
+test instance Test_CLITestProviderClass.Id="integerVariationTest" OK
+test instance Test_CLITestProviderClass.Id="integerVariationTest" OK
 15. +++++ referencetests
 
 //    Class Test_CLITestProviderLinkClass
@@ -1119,6 +1122,7 @@ defaultString = "test\"embedded\"quote";
 requestInputParameters = "propertyList=NULL; includeQualifiers=false; "
     "includeClassOrigin=false";
 };
+test instance Test_CLITestProviderClass.Id="NullValueTest" OK
 Returned Path  Test_CLITestProviderClass.Id="EmptyStringTest"
 path= Test_CLITestProviderClass
 
@@ -1275,70 +1279,70 @@ Id = "Zed";
 Name = "Futz";
 };
 22. +++++ Test For enumerateClasses
-CIM_ReplaceableProductFRU
-CIM_ElementCapabilities
-WET_RelatedStatistics
-CIM_ElementProfile
-WET_SettingContext
-CIM_Error
-CIM_ProductFRU
-CIM_Statistics
-WET_ElementSetting
-WET_ProductSupport
-CIM_CollectionSetting
-CIM_CollectionConfiguration
-CIM_ProductParentChild
-WET_ProductParentChild
-CIM_ServiceAffectsElement
-CIM_FRUIncludesProduct
-CIM_OwningCollectionElement
-CIM_SystemSettingContext
-CIM_ElementLocation
-WET_FRUIncludesProduct
-CIM_ServiceAvailableToElement
-CIM_CompatibleProduct
-WET_CollectionConfiguration
-WET_CollectionSetting
-CIM_InstalledSoftwareIdentity
-WET_CollectedCollections
-CIM_CollectedCollections
-CIM_ElementConfiguration
-WET_ElementConfiguration
-WET_CompatibleProduct
-CIM_ElementSettingData
-CIM_SAPAvailableForElement
-CIM_Dependency
-WET_ManagedElement
-CIM_RelatedStatistics
 CIM_ActsAsSpare
-CIM_SettingContext
-CIM_FRUPhysicalElements
-WET_FRUPhysicalElements
-CIM_ElementStatisticalData
-WET_Component
-CIM_ElementSetting
-WET_LogicalIdentity
+CIM_CollectedCollections
+CIM_CollectionConfiguration
+CIM_CollectionSetting
+CIM_CompatibleProduct
+CIM_Component
+CIM_ConfigurationComponent
+CIM_Dependency
 CIM_DependencyContext
-WET_Dependency
-CIM_ProductSupport
-CIM_RelatedStatisticalData
-CIM_Synchronized
-WET_Synchronized
-CIM_ParameterValueSources
-CIM_ParametersForMethod
-WET_DependencyContext
-CIM_ProductPhysicalElements
-WET_ProductFRU
-WET_Statistics
-WET_ProductPhysicalElements
-CIM_ProductProductDependency
-WET_ConfigurationComponent
-CIM_SettingsDefineState
-PG_TestElement
-WET_ProductProductDependency
+CIM_ElementCapabilities
+CIM_ElementConfiguration
+CIM_ElementLocation
+CIM_ElementProfile
+CIM_ElementSetting
+CIM_ElementSettingData
+CIM_ElementStatisticalData
+CIM_Error
+CIM_FRUIncludesProduct
+CIM_FRUPhysicalElements
+CIM_InstalledSoftwareIdentity
 CIM_LogicalIdentity
 CIM_ManagedElement
-CIM_ConfigurationComponent
-WET_MemberOfCollection
-CIM_Component
 CIM_MemberOfCollection
+CIM_OwningCollectionElement
+CIM_ParameterValueSources
+CIM_ParametersForMethod
+CIM_ProductFRU
+CIM_ProductParentChild
+CIM_ProductPhysicalElements
+CIM_ProductProductDependency
+CIM_ProductSupport
+CIM_RelatedStatisticalData
+CIM_RelatedStatistics
+CIM_ReplaceableProductFRU
+CIM_SAPAvailableForElement
+CIM_ServiceAffectsElement
+CIM_ServiceAvailableToElement
+CIM_SettingContext
+CIM_SettingsDefineState
+CIM_Statistics
+CIM_Synchronized
+CIM_SystemSettingContext
+PG_TestElement
+WET_CollectedCollections
+WET_CollectionConfiguration
+WET_CollectionSetting
+WET_CompatibleProduct
+WET_Component
+WET_ConfigurationComponent
+WET_Dependency
+WET_DependencyContext
+WET_ElementConfiguration
+WET_ElementSetting
+WET_FRUIncludesProduct
+WET_FRUPhysicalElements
+WET_LogicalIdentity
+WET_ManagedElement
+WET_MemberOfCollection
+WET_ProductFRU
+WET_ProductParentChild
+WET_ProductPhysicalElements
+WET_ProductProductDependency
+WET_ProductSupport
+WET_RelatedStatistics
+WET_SettingContext
+WET_Statistics
+WET_Synchronized

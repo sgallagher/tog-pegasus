@@ -228,7 +228,7 @@ void BuildOptionsTable(
 
         {"verbose", "false", false, Option::BOOLEAN, 0, 0, "v",
         "Clients.cimcli.CIMCLIClient.VERBOSE_OPTION_HELP",
-        "Verbose Display. Outputs etailed parameter input\n"
+        "Verbose Display. Outputs detailed parameter input\n"
             "    display and other request processing information"},
 
         {"summary", "false", false, Option::BOOLEAN, 0, 0, "-sum",

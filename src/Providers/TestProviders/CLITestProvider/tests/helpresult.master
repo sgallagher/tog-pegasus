@@ -51,7 +51,7 @@ This command executes single CIM Operations.
  -o  outputformats. Output in xml, mof, txt, table. Default(mof)
  -x  xmlOutput. Output objects in xml format. Default(false)
  --version  version. Displays software Version. Default(false)
- -v  verbose. Verbose Display. Outputs etailed parameter input
+ -v  verbose. Verbose Display. Outputs detailed parameter input
     display and other request processing information. Default(false)
  --sum  summary. Displays only summary count for enumerations,
     associators, etc.. Default(false)
@@ -352,7 +352,7 @@ This command executes single CIM Operations.
  -o  outputformats. Output in xml, mof, txt, table. Default(mof)
  -x  xmlOutput. Output objects in xml format. Default(false)
  --version  version. Displays software Version. Default(false)
- -v  verbose. Verbose Display. Outputs etailed parameter input
+ -v  verbose. Verbose Display. Outputs detailed parameter input
     display and other request processing information. Default(false)
  --sum  summary. Displays only summary count for enumerations,
     associators, etc.. Default(false)

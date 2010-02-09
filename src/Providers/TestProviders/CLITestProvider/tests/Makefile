@@ -274,7 +274,7 @@ testInvokeMethod:
 ### Test cimcli output with the table output format
 testTableOutputFormat:
 	@$(ECHO) 7. +++++ Test table output format
-	@$(ECHO) 7. +++++ Test table output format >> $(RESULTFILE)
+	@$(ECHO) 7. +++++ Test table output format >> $(TABLEFORMATFILE)
 
 	@cimcli ci -n "$(PROVIDERNS)" Test_CLITestProviderClass \
 	    Id=Norman Name=Susan

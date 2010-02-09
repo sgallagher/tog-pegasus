@@ -719,7 +719,6 @@ Returned Path  Test_CLITestProviderClass.Id="ScalarTest"
 test instance Test_CLITestProviderClass.Id="ScalarTest" OK
 6. +++++ Test invokeMethod
 Return Value= 0
-7. +++++ Test table output format
 10. +++++ testPropertyListOptions
 
 //    Class CIM_ManagedElement

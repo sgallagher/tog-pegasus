@@ -101,6 +101,7 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h> // for Logger
+#include <Pegasus/Common/System.h>
 
 #define CDEBUG(X)
 //#define CDEBUG(X) PEGASUS_STD(cout)<<"SLPProvider "<< X << PEGASUS_STD(endl)
@@ -609,7 +610,7 @@ void SLPProvider::deregisterSLP()
     the registered profiles from the correct classes when those
     classes begin to exist in the environment.
 */
-String SLPProvider::getRegisteredProfileList()
+String SLPProvider::getRegisteredProfileList(const OperationContext & context)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "SLPProvider::getRegisteredProfileList()");
@@ -647,7 +648,7 @@ String SLPProvider::getRegisteredProfileList()
     {
         // include the qualifiers, required for ValueMap mapping
         RO_Class = _cimomHandle.getClass(
-            OperationContext(),
+            context,
             PEGASUS_NAMESPACENAME_INTEROP,
             CLASSNAME,
             localOnly,
@@ -673,7 +674,7 @@ String SLPProvider::getRegisteredProfileList()
         // Enumerate Instances.
         //
         cimInstances = _cimomHandle.enumerateInstances(
-            OperationContext(),
+            context,
             PEGASUS_NAMESPACENAME_INTEROP,
             CLASSNAME,
             deepInheritance,
@@ -764,7 +765,7 @@ try
         {
             // Check if this profile is sub-profile.
             Array<CIMObject> profiles = _cimomHandle.associators(
-                OperationContext(),
+                context,
                 PEGASUS_NAMESPACENAME_INTEROP,
                 objectPath,
                 referencedProfileClassName,
@@ -781,7 +782,7 @@ try
             }
 
             subProfiles = _cimomHandle.associators(
-                OperationContext(),
+                context,
                 PEGASUS_NAMESPACENAME_INTEROP,
                 objectPath,
                 referencedProfileClassName,
@@ -797,7 +798,7 @@ try
             // check for SNIA or Other profiles
             // Check if this profile is sub-profile.
             Array<CIMObject> profiles = _cimomHandle.associators(
-                OperationContext(),
+                context,
                 PEGASUS_NAMESPACENAME_INTEROP,
                 objectPath,
                 subProfileRequiresProfileClassName,
@@ -814,7 +815,7 @@ try
             }
 
             subProfiles = _cimomHandle.associators(
-                OperationContext(),
+                context,
                 PEGASUS_NAMESPACENAME_INTEROP,
                 objectPath,
                 subProfileRequiresProfileClassName,
@@ -878,7 +879,8 @@ try
 */
 String SLPProvider::getNameSpaceInfo(
     const CIMNamespaceName& nameSpace,
-    String& classInfo)
+    String& classInfo,
+    const OperationContext & context)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "SLPProvider::getNameSpaceInfo()");
@@ -890,7 +892,7 @@ String SLPProvider::getNameSpaceInfo(
         // ATTN: KS In the future get only the fields we want based on property
         //       list.
         CIMNamespaceInstances = _cimomHandle.enumerateInstances(
-            OperationContext(),
+            context,
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PGNAMESPACE,
             true, true, true, true,
@@ -1073,7 +1075,8 @@ Boolean SLPProvider::populateRegistrationData(
     const CIMInstance& instance_ObjMgr,
     const CIMInstance& instance_ObjMgrComm,
     const CIMClass& commMechClass,
-    const String &registeredProfiles)
+    const String &registeredProfiles,
+    const OperationContext & context )
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "SLPProvider::populateRegistrationData()");
@@ -1265,7 +1268,8 @@ Boolean SLPProvider::populateRegistrationData(
     String classInfoList;
     String nameSpaceList = getNameSpaceInfo(
                                PEGASUS_NAMESPACENAME_INTEROP,
-                               classInfoList);
+                               classInfoList,
+                               context);
 
     populateTemplateField(
         templateInstance,
@@ -1404,7 +1408,7 @@ Boolean SLPProvider::populateRegistrationData(
     a registration for each communication adapter represented by a communication
     object.
 */
-Uint32  SLPProvider::populateSLPRegistrations()
+Uint32 SLPProvider::populateSLPRegistrations(const OperationContext & context)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "SLPProvider::populateSLPREgistrations()");
@@ -1414,7 +1418,7 @@ Uint32  SLPProvider::populateSLPRegistrations()
     // get the PG communication mechanism class.  Used as part of the populate
     // An exception here is caught in the facade.
     CIMClass pg_CIMXMLClass = _cimomHandle.getClass(
-        OperationContext(),
+        context,
         PEGASUS_NAMESPACENAME_INTEROP,
         PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM,
         false, true, true, CIMPropertyList());
@@ -1424,7 +1428,7 @@ Uint32  SLPProvider::populateSLPRegistrations()
     try
     {
         instancesObjMgr = _cimomHandle.enumerateInstances(
-            OperationContext(),
+            context,
             PEGASUS_NAMESPACENAME_INTEROP,
             PEGASUS_CLASSNAME_PG_OBJECTMANAGER,
             false, false, false,false, CIMPropertyList());
@@ -1435,11 +1439,11 @@ Uint32  SLPProvider::populateSLPRegistrations()
                << e.getMessage());
     }
 
-    String registeredProfiles = getRegisteredProfileList();
+    String registeredProfiles = getRegisteredProfileList(context);
 
     // get instances of CIM_ObjectManagerCommMechanism and subclasses directly
     Array<CIMInstance> instancesObjMgrComm = _cimomHandle.enumerateInstances(
-        OperationContext(),
+        context,
         PEGASUS_NAMESPACENAME_INTEROP,
         PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM,
         true, false, true,true, CIMPropertyList());
@@ -1465,7 +1469,8 @@ Uint32  SLPProvider::populateSLPRegistrations()
             instancesObjMgr[0],
             instancesObjMgrComm[i],
             pg_CIMXMLClass,
-            registeredProfiles))
+            registeredProfiles,
+            context))
         {
             itemsRegistered++;
         }
@@ -1480,13 +1485,13 @@ Uint32  SLPProvider::populateSLPRegistrations()
     return: Boolean.  Indicates if there was an error in the registration.
 */
 
-Boolean SLPProvider::issueSLPRegistrations()
+Boolean SLPProvider::issueSLPRegistrations(const OperationContext & context)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "SLPProvider::issueSLPREgistrations()");
 
     // populate all SLP registrations.
-    Uint32 itemsRegistered = populateSLPRegistrations();
+    Uint32 itemsRegistered = populateSLPRegistrations(context);
     // Start the Service Agent.  Note that the actual registrations are part of
     // the populatetemplate function so that the various templates
     // are already created.
@@ -1559,7 +1564,9 @@ SLPProvider::SLPProvider()
 
 void SLPProvider::updateProfileRegistration()
 {
-    _this->populateSLPRegistrations();
+    OperationContext context;
+    context.insert(IdentityContainer(System::getEffectiveUserName()));
+    _this->populateSLPRegistrations(context);
 }
 
 SLPProvider::~SLPProvider()
@@ -1737,7 +1744,7 @@ void SLPProvider::invokeMethod(
         {
             if (initFlag == false)
             {
-                if (issueSLPRegistrations())
+                if (issueSLPRegistrations(context))
                 {
                 // PEP 267 ifdef is added to allow reregistrations.
                 // issueRegistration sets initFlag to true.

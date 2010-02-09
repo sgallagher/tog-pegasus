@@ -110,13 +110,15 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
             const CIMInstance& instance_ObjMgr,
             const CIMInstance& instance_ObjMgrComm,
             const CIMClass& commMechClass,
-            const String& registeredProfiles);
+            const String& registeredProfiles,
+            const OperationContext & context);
 
-        Boolean issueSLPRegistrations();
-        Uint32 populateSLPRegistrations();
+        Boolean issueSLPRegistrations(const OperationContext & context);
+        Uint32 populateSLPRegistrations(const OperationContext & context);
         String getNameSpaceInfo(
                    const CIMNamespaceName& nameSpace,
-                   String& classInfo );
+                   String& classInfo,
+                   const OperationContext & context );
 
         void populateTemplateField(CIMInstance& instance,
             const String& attributeFieldName,
@@ -128,7 +130,7 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
             const Array<String>& value,
             const String& instancePropertyName);
 
-        String getRegisteredProfileList();
+        String getRegisteredProfileList(const OperationContext & context);
    private:
 
        // Save instances of registration class

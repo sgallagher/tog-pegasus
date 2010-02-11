@@ -30,13 +30,12 @@ ROOT = ../../../../..
 
 DIR = Providers/TestProviders/CMPI/TestUtilLib
 
-
 include $(ROOT)/mak/config.mak
 
 ifeq ($(OS),VMS)
 LOCAL_DEFINES = -DPEGASUS_ROOT="""$(PEGASUS_ROOT)"""
 else
-LOCAL_DEFINES = -DPEGASUS_ROOT=\"$(PEGASUS_ROOT)\"
+LOCAL_DEFINES = -DPEGASUS_ROOT=\"$(ROOT)\"
 endif
 
 LOCAL_DEFINES += -DPEGASUS_CMPI_TESTPRV_UTILLIB_INTERNAL

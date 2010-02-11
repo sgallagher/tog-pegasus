@@ -2539,6 +2539,13 @@ Message * CMPIProviderManager::handleDisableModuleRequest(
                             providerName,
                             moduleName);
                     ph.GetProvider ().resetSubscriptions ();
+
+                    // Remove from IndProvRecord table
+                    IndProvRecord *rec = 0;
+                    WriteLock lock(rwSemProvTab);
+                    indProvTab.lookup(ph.GetProvider().getName(), rec);
+                    delete rec;
+                    indProvTab.remove(ph.GetProvider().getName());
                 }
                 catch (const Exception &e)
                 {

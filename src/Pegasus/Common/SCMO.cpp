@@ -2213,9 +2213,7 @@ void SCMOInstance::_getCIMValueFromSCMBValue(
 
 void SCMOInstance::_setCIMObjectPath(const CIMObjectPath& cimObj)
 {
-    CIMObjectPathRep* objRep = cimObj._rep;
-
-    CString className = objRep->_className.getString().getCString();
+    CString className = cimObj.getClassName().getString().getCString();
 
     // Is the instance from the same class ?
     if (!(_equalNoCaseUTF8Strings(
@@ -2225,25 +2223,25 @@ void SCMOInstance::_setCIMObjectPath(const CIMObjectPath& cimObj)
              strlen(className))))
     {
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_CLASS,
-           objRep->_className.getString());
+           cimObj.getClassName().getString());
     }
 
     //set host name
-    _setString(objRep->_host,inst.hdr->hostName,&inst.mem );
+    _setString(cimObj.getHost(),inst.hdr->hostName,&inst.mem );
 
-    for (Uint32 i = 0, k = objRep->_keyBindings.size(); i < k; i++)
+    const Array<CIMKeyBinding> & keys=cimObj.getKeyBindings();
+    for (Uint32 i = 0, k = keys.size(); i < k; i++)
     {
-        String key = objRep->_keyBindings[i].getValue();
+        String key = keys[i].getValue();
         _setKeyBindingFromString(
-            (const char*)
-                objRep->_keyBindings[i].getName().getString().getCString(),
+            (const char*) keys[i].getName().getString().getCString(),
             _CIMTypeFromKeyBindingType(
                 (const char*)key.getCString(),
-                objRep->_keyBindings[i].getType()),
+                keys[i].getType()),
             key);
     }
-
 }
+
 void SCMOInstance::_setCIMValueAtNodeIndex(
     Uint32 node,
     CIMValueRep* valRep,

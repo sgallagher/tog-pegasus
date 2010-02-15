@@ -27,10 +27,20 @@
 #//
 #//////////////////////////////////////////////////////////////////////////
 
-# Test cimcli using the cimcli test Provider
+# Test cimcli using the cimcli test Provider and other information in the
+# server.
 
 ROOT = ../../../../..
 DIR = Providers/TestProviders/CLITestProvider/tests
+
+SRC_DIR = $(ROOT)/src/$(DIR)
+
+ifdef PEGASUS_TMP
+    TMP_DIR = $(subst \,/,$(PEGASUS_TMP))
+else
+    TMP_DIR = $(SRC_DIR)
+endif
+
 
 QUOTE=\"
 
@@ -41,18 +51,21 @@ endif
 include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/configschema.mak
 
-RESULTFILE = $(ROOT)/src/$(DIR)/result
-MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
-TABLEFORMATFILE = $(ROOT)/src/$(DIR)/tableformat
-MASTERTABLEFORMATFILE = $(ROOT)/src/$(DIR)/tableformat.master
-HELPRESULTFILE = $(ROOT)/src/$(DIR)/helpresult
+RESULTFILE = $(TMP_DIR)/result
+MASTERRESULTFILE = $(SRC_DIR)/result.master
+
+TABLEFORMATFILE = $(TMP_DIR)/tableformat
+MASTERTABLEFORMATFILE = $(SRC_DIR)/tableformat.master
+
+HELPRESULTFILE = $(TMP_DIR)/helpresult
 ifdef PEGASUS_HAS_SSL
-MASTERHELPRESULTFILE = $(ROOT)/src/$(DIR)/helpresult.master.ssl
+MASTERHELPRESULTFILE = $(SRC_DIR)/helpresult.master.ssl
 else
-MASTERHELPRESULTFILE = $(ROOT)/src/$(DIR)/helpresult.master
+MASTERHELPRESULTFILE = $(SRC_DIR)/helpresult.master
 endif
-NSRESULTFILE = $(ROOT)/src/$(DIR)/namespacetestresult
-MASTERNSRESULTFILE = $(ROOT)/src/$(DIR)/namespacetestresult.master
+
+NSRESULTFILE = $(TMP_DIR)/namespacetestresult
+MASTERNSRESULTFILE = $(SRC_DIR)/namespacetestresult.master
 
 # sampleprovider\Load puts the sample MOF into a separate namespace.
 # The following variable defines this namespace.
@@ -673,9 +686,9 @@ enumerateClasses:
 	@cimcli ec -n "$(PROVIDERNS)"  Test_CLITestProviderLinkClass -niq \
 	    --sort >> $(RESULTFILE)
 ##      output as xml and repeat with the -ic option set
-	cimcli ec -n "$(PROVIDERNS)"  Test_CLITestProviderLinkClass -o xml \
+	@cimcli ec -n "$(PROVIDERNS)"  Test_CLITestProviderLinkClass -o xml \
 	    --sort >> $(RESULTFILE)
-	cimcli ec -n "$(PROVIDERNS)"  Test_CLITestProviderLinkClass -o xml \
+	@cimcli ec -n "$(PROVIDERNS)"  Test_CLITestProviderLinkClass -o xml \
 	    --sort -ic >> $(RESULTFILE)
 
 	@cimcli nc -n "$(STATICNS)"  --sort >> $(RESULTFILE)
@@ -719,14 +732,12 @@ poststarttests:
 ##      diffsort used because there is at least one instance where
 ##      the redirection of std and err outputs changes order.
 ####    @$(DIFF) $(MASTERRESULTFILE) $(RESULTFILE)
-	@ $(call DIFFSORT,result,result.master)
+	@ $(call DIFFSORT,$(RESULTFILE),$(MASTERRESULTFILE))
 	@$(DIFF) $(MASTERTABLEFORMATFILE) $(TABLEFORMATFILE)
 	@$(DIFF) $(MASTERHELPRESULTFILE) $(HELPRESULTFILE)
 
-##      Following are separate because we cannot depend on the results
-##      from these tests (ex. exact number of namespaces and
-##      hostnames are system/test specific. Show the results but do
-##      not fail the test if the files do not match
+##      Following comment out because we cannot depend on the
+##      total number of namespaces. See bug 8690
 ####    -@$(DIFF) $(MASTERNSRESULTFILE) $(NSRESULTFILE)
 
 	@$(ECHO) +++++ Remove Result files since test successful

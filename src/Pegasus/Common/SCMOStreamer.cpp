@@ -180,11 +180,7 @@ Uint32 SCMOStreamer::_appendToInstResolverTable(
     const SCMOInstance& inst,
     Uint32 idx)
 {
-    SCMOResolutionTable tableEntry;
-
-    tableEntry.scmbptr = (Uint64)(void*)&inst;
-    tableEntry.index = idx;
-
+    SCMOResolutionTable tableEntry = { (Uint64)(void*)&inst, idx};
     _instResolverTable.append(tableEntry);
 
     // The number of elements in the array minus 1 is the index position
@@ -206,11 +202,7 @@ Uint32 SCMOStreamer::_appendToClassResolverTable(const SCMOInstance& inst)
 
 
     // Now build a new entry for the class resolution table
-    SCMOResolutionTable tableEntry;
-
-    tableEntry.scmbptr = (Uint64)(void*)inst.inst.hdr;
-    tableEntry.index = clsIdx;
-
+    SCMOResolutionTable tableEntry = {(Uint64)(void*)inst.inst.hdr, clsIdx};
     _clsResolverTable.append(tableEntry);
 
     // The number of elements in the array minus 1 is the index position
@@ -262,7 +254,7 @@ void SCMOStreamer::_dumpTables()
     fprintf(stderr,"INSTANCES:\n");
     for (Uint32 x=0; x < _clsResolverTable.size(); x++)
     {
-        fprintf(stderr,"\t[%2d] I = %llx - cls = %2d\n",
+        fprintf(stderr,"\t[%2d] I = %llx - cls = %2lld\n",
                 x,
                 _clsResolverTable[x].scmbptr,
                 _clsResolverTable[x].index);
@@ -271,7 +263,7 @@ void SCMOStreamer::_dumpTables()
     fprintf(stderr,"INSTANCE REFERENCES:\n");
     for (Uint32 x=0; x < _instResolverTable.size(); x++)
     {
-        fprintf(stderr,"\t[%2d] R = %llx - I = %2d\n",
+        fprintf(stderr,"\t[%2d] R = %llx - I = %2lld\n",
                 x,
                 _instResolverTable[x].scmbptr,
                 _instResolverTable[x].index);

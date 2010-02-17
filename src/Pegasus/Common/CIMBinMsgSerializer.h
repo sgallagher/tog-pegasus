@@ -152,11 +152,6 @@ private:
         CIMEnumerateInstancesRequestMessage* msg);
 
     PEGASUS_HIDDEN_LINKAGE
-    static void _putEnumerateInstanceNamesRequestMessage(
-        CIMBuffer& out,
-        CIMEnumerateInstanceNamesRequestMessage* msg);
-
-    PEGASUS_HIDDEN_LINKAGE
     static void _putExecQueryRequestMessage(
         CIMBuffer& out,
         CIMExecQueryRequestMessage* msg);
@@ -232,11 +227,6 @@ private:
         CIMEnableModuleRequestMessage* msg);
 
     PEGASUS_HIDDEN_LINKAGE
-    static void _putStopAllProvidersRequestMessage(
-        CIMBuffer& out,
-        CIMStopAllProvidersRequestMessage* msg);
-
-    PEGASUS_HIDDEN_LINKAGE
     static void _putInitializeProviderAgentRequestMessage(
         CIMBuffer& out,
         CIMInitializeProviderAgentRequestMessage* msg);
@@ -245,16 +235,6 @@ private:
     static void _putNotifyConfigChangeRequestMessage(
         CIMBuffer& out,
         CIMNotifyConfigChangeRequestMessage* msg);
-
-    PEGASUS_HIDDEN_LINKAGE
-    static void _putSubscriptionInitCompleteRequestMessage(
-        CIMBuffer& out,
-        CIMSubscriptionInitCompleteRequestMessage* msg);
-
-    PEGASUS_HIDDEN_LINKAGE
-    static void _putIndicationServiceDisabledRequestMessage(
-        CIMBuffer& out,
-        CIMIndicationServiceDisabledRequestMessage* msg);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _putProvAgtGetScmoClassRequestMessage(
@@ -267,19 +247,9 @@ private:
         CIMGetInstanceResponseMessage* msg);
 
     PEGASUS_HIDDEN_LINKAGE
-    static void _putDeleteInstanceResponseMessage(
-        CIMBuffer& out,
-        CIMDeleteInstanceResponseMessage* msg);
-
-    PEGASUS_HIDDEN_LINKAGE
     static void _putCreateInstanceResponseMessage(
         CIMBuffer& out,
         CIMCreateInstanceResponseMessage* msg);
-
-    PEGASUS_HIDDEN_LINKAGE
-    static void _putModifyInstanceResponseMessage(
-        CIMBuffer& out,
-        CIMModifyInstanceResponseMessage* msg);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _putEnumerateInstancesResponseMessage(
@@ -322,39 +292,9 @@ private:
         CIMGetPropertyResponseMessage* msg);
 
     PEGASUS_HIDDEN_LINKAGE
-    static void _putSetPropertyResponseMessage(
-        CIMBuffer& out,
-        CIMSetPropertyResponseMessage* msg);
-
-    PEGASUS_HIDDEN_LINKAGE
     static void _putInvokeMethodResponseMessage(
         CIMBuffer& out,
         CIMInvokeMethodResponseMessage* msg);
-
-    PEGASUS_HIDDEN_LINKAGE
-    static void _putCreateSubscriptionResponseMessage(
-        CIMBuffer& out,
-        CIMCreateSubscriptionResponseMessage* msg);
-
-    PEGASUS_HIDDEN_LINKAGE
-    static void _putModifySubscriptionResponseMessage(
-        CIMBuffer& out,
-        CIMModifySubscriptionResponseMessage* msg);
-
-    PEGASUS_HIDDEN_LINKAGE
-    static void _putDeleteSubscriptionResponseMessage(
-        CIMBuffer& out,
-        CIMDeleteSubscriptionResponseMessage* msg);
-
-    PEGASUS_HIDDEN_LINKAGE
-    static void _putExportIndicationResponseMessage(
-        CIMBuffer& out,
-        CIMExportIndicationResponseMessage* msg);
-
-    PEGASUS_HIDDEN_LINKAGE
-    static void _putProcessIndicationResponseMessage(
-        CIMBuffer& out,
-        CIMProcessIndicationResponseMessage* msg);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _putDisableModuleResponseMessage(
@@ -365,31 +305,6 @@ private:
     static void _putEnableModuleResponseMessage(
         CIMBuffer& out,
         CIMEnableModuleResponseMessage* msg);
-
-    PEGASUS_HIDDEN_LINKAGE
-    static void _putStopAllProvidersResponseMessage(
-        CIMBuffer& out,
-        CIMStopAllProvidersResponseMessage* msg);
-
-    PEGASUS_HIDDEN_LINKAGE
-    static void _putInitializeProviderAgentResponseMessage(
-        CIMBuffer& out,
-        CIMInitializeProviderAgentResponseMessage* msg);
-
-    PEGASUS_HIDDEN_LINKAGE
-    static void _putNotifyConfigChangeResponseMessage(
-        CIMBuffer& out,
-        CIMNotifyConfigChangeResponseMessage* msg);
-
-    PEGASUS_HIDDEN_LINKAGE
-    static void _putSubscriptionInitCompleteResponseMessage(
-        CIMBuffer& out,
-        CIMSubscriptionInitCompleteResponseMessage* msg);
-
-    PEGASUS_HIDDEN_LINKAGE
-    static void _putIndicationServiceDisabledResponseMessage(
-        CIMBuffer& out,
-        CIMIndicationServiceDisabledResponseMessage* msg);
 
     PEGASUS_HIDDEN_LINKAGE
     static void _putProvAgtGetScmoClassResponseMessage(

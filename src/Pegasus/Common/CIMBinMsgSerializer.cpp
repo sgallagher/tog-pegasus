@@ -151,8 +151,7 @@ void CIMBinMsgSerializer::_putRequestMessage(
                     out, (CIMEnumerateInstancesRequestMessage*)msg);
                 break;
             case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-                _putEnumerateInstanceNamesRequestMessage(
-                    out, (CIMEnumerateInstanceNamesRequestMessage*)msg);
+                // not implemented
                 break;
             case CIM_EXEC_QUERY_REQUEST_MESSAGE:
                 _putExecQueryRequestMessage(
@@ -253,8 +252,7 @@ void CIMBinMsgSerializer::_putRequestMessage(
                 out, (CIMEnableModuleRequestMessage*)msg);
             break;
         case CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE:
-            _putStopAllProvidersRequestMessage(
-                out, (CIMStopAllProvidersRequestMessage*)msg);
+            // not implemented
             break;
         case CIM_INITIALIZE_PROVIDER_AGENT_REQUEST_MESSAGE:
             _putInitializeProviderAgentRequestMessage(
@@ -267,13 +265,11 @@ void CIMBinMsgSerializer::_putRequestMessage(
             break;
 
         case CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE:
-            _putSubscriptionInitCompleteRequestMessage(
-                out, (CIMSubscriptionInitCompleteRequestMessage*)msg);
+            // not implemented
             break;
 
         case CIM_INDICATION_SERVICE_DISABLED_REQUEST_MESSAGE:
-            _putIndicationServiceDisabledRequestMessage(
-                out, (CIMIndicationServiceDisabledRequestMessage*)msg);
+            // not implemented
             break;
         case PROVAGT_GET_SCMOCLASS_REQUEST_MESSAGE:
             _putProvAgtGetScmoClassRequestMessage(
@@ -309,16 +305,14 @@ void CIMBinMsgSerializer::_putResponseMessage(
                 out, (CIMGetInstanceResponseMessage*)cimMessage);
             break;
         case CIM_DELETE_INSTANCE_RESPONSE_MESSAGE:
-            _putDeleteInstanceResponseMessage(
-                out, (CIMDeleteInstanceResponseMessage*)cimMessage);
+            // not implemented
             break;
         case CIM_CREATE_INSTANCE_RESPONSE_MESSAGE:
             _putCreateInstanceResponseMessage(
                 out, (CIMCreateInstanceResponseMessage*)cimMessage);
             break;
         case CIM_MODIFY_INSTANCE_RESPONSE_MESSAGE:
-            _putModifyInstanceResponseMessage(
-                out, (CIMModifyInstanceResponseMessage*)cimMessage);
+            // not implemented
             break;
         case CIM_ENUMERATE_INSTANCES_RESPONSE_MESSAGE:
             _putEnumerateInstancesResponseMessage(
@@ -337,8 +331,7 @@ void CIMBinMsgSerializer::_putResponseMessage(
                 out, (CIMGetPropertyResponseMessage*)cimMessage);
             break;
         case CIM_SET_PROPERTY_RESPONSE_MESSAGE:
-            _putSetPropertyResponseMessage(
-                out, (CIMSetPropertyResponseMessage*)cimMessage);
+            // not implemented
             break;
         case CIM_ASSOCIATORS_RESPONSE_MESSAGE:
             _putAssociatorsResponseMessage(
@@ -361,24 +354,19 @@ void CIMBinMsgSerializer::_putResponseMessage(
                 out, (CIMInvokeMethodResponseMessage*)cimMessage);
             break;
         case CIM_CREATE_SUBSCRIPTION_RESPONSE_MESSAGE:
-            _putCreateSubscriptionResponseMessage(
-                out, (CIMCreateSubscriptionResponseMessage*)cimMessage);
+            // not implemented
             break;
         case CIM_MODIFY_SUBSCRIPTION_RESPONSE_MESSAGE:
-            _putModifySubscriptionResponseMessage(
-                out, (CIMModifySubscriptionResponseMessage*)cimMessage);
+            // not implemented
             break;
         case CIM_DELETE_SUBSCRIPTION_RESPONSE_MESSAGE:
-            _putDeleteSubscriptionResponseMessage(
-                out, (CIMDeleteSubscriptionResponseMessage*)cimMessage);
+            // not implemented
             break;
         case CIM_EXPORT_INDICATION_RESPONSE_MESSAGE:
-            _putExportIndicationResponseMessage(
-                out, (CIMExportIndicationResponseMessage*)cimMessage);
+            // not implemented
             break;
         case CIM_PROCESS_INDICATION_RESPONSE_MESSAGE:
-            _putProcessIndicationResponseMessage(
-                out, (CIMProcessIndicationResponseMessage*)cimMessage);
+            // not implemented
             break;
         case CIM_DISABLE_MODULE_RESPONSE_MESSAGE:
             _putDisableModuleResponseMessage(
@@ -389,28 +377,19 @@ void CIMBinMsgSerializer::_putResponseMessage(
                 out, (CIMEnableModuleResponseMessage*)cimMessage);
             break;
         case CIM_STOP_ALL_PROVIDERS_RESPONSE_MESSAGE:
-            _putStopAllProvidersResponseMessage(
-                out, (CIMStopAllProvidersResponseMessage*)cimMessage);
+            // not implemented
             break;
         case CIM_INITIALIZE_PROVIDER_AGENT_RESPONSE_MESSAGE:
-            _putInitializeProviderAgentResponseMessage(
-                out, (CIMInitializeProviderAgentResponseMessage*)cimMessage);
+            // not implemented
             break;
         case CIM_NOTIFY_CONFIG_CHANGE_RESPONSE_MESSAGE:
-            _putNotifyConfigChangeResponseMessage(
-                out, (CIMNotifyConfigChangeResponseMessage*)cimMessage);
+            // not implemented
             break;
         case CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE:
-            _putSubscriptionInitCompleteResponseMessage(
-                out,
-                (CIMSubscriptionInitCompleteResponseMessage *)
-                cimMessage);
+            // not implemented
             break;
         case CIM_INDICATION_SERVICE_DISABLED_RESPONSE_MESSAGE:
-            _putIndicationServiceDisabledResponseMessage(
-                out,
-                (CIMIndicationServiceDisabledResponseMessage *)
-                cimMessage);
+            // not implemented
             break;
         case PROVAGT_GET_SCMOCLASS_RESPONSE_MESSAGE:
             _putProvAgtGetScmoClassResponseMessage(
@@ -759,12 +738,6 @@ void CIMBinMsgSerializer::_putEnumerateInstancesRequestMessage(
     _putPropertyList(out, msg->propertyList);
 }
 
-void CIMBinMsgSerializer::_putEnumerateInstanceNamesRequestMessage(
-    CIMBuffer& out,
-    CIMEnumerateInstanceNamesRequestMessage* msg)
-{
-}
-
 void CIMBinMsgSerializer::_putExecQueryRequestMessage(
     CIMBuffer& out,
     CIMExecQueryRequestMessage* msg)
@@ -917,12 +890,6 @@ void CIMBinMsgSerializer::_putEnableModuleRequestMessage(
     _putInstance(out, msg->providerModule);
 }
 
-void CIMBinMsgSerializer::_putStopAllProvidersRequestMessage(
-    CIMBuffer& out,
-    CIMStopAllProvidersRequestMessage* msg)
-{
-}
-
 void CIMBinMsgSerializer::_putInitializeProviderAgentRequestMessage(
     CIMBuffer& out,
     CIMInitializeProviderAgentRequestMessage* msg)
@@ -947,18 +914,6 @@ void CIMBinMsgSerializer::_putNotifyConfigChangeRequestMessage(
     out.putString(msg->propertyName);
     out.putString(msg->newPropertyValue);
     out.putBoolean(msg->currentValueModified);
-}
-
-void CIMBinMsgSerializer::_putSubscriptionInitCompleteRequestMessage(
-    CIMBuffer& out,
-    CIMSubscriptionInitCompleteRequestMessage* msg)
-{
-}
-
-void CIMBinMsgSerializer::_putIndicationServiceDisabledRequestMessage(
-    CIMBuffer& out,
-    CIMIndicationServiceDisabledRequestMessage* msg)
-{
 }
 
 void CIMBinMsgSerializer::_putProvAgtGetScmoClassRequestMessage(
@@ -987,23 +942,11 @@ void CIMBinMsgSerializer::_putGetInstanceResponseMessage(
     }
 }
 
-void CIMBinMsgSerializer::_putDeleteInstanceResponseMessage(
-    CIMBuffer& out,
-    CIMDeleteInstanceResponseMessage* msg)
-{
-}
-
 void CIMBinMsgSerializer::_putCreateInstanceResponseMessage(
     CIMBuffer& out,
     CIMCreateInstanceResponseMessage* msg)
 {
     _putObjectPath(out, msg->instanceName);
-}
-
-void CIMBinMsgSerializer::_putModifyInstanceResponseMessage(
-    CIMBuffer& out,
-    CIMModifyInstanceResponseMessage* msg)
-{
 }
 
 void CIMBinMsgSerializer::_putEnumerateInstancesResponseMessage(
@@ -1105,12 +1048,6 @@ void CIMBinMsgSerializer::_putGetPropertyResponseMessage(
         msg->value, true));
 }
 
-void CIMBinMsgSerializer::_putSetPropertyResponseMessage(
-    CIMBuffer& out,
-    CIMSetPropertyResponseMessage* msg)
-{
-}
-
 void CIMBinMsgSerializer::_putInvokeMethodResponseMessage(
     CIMBuffer& out,
     CIMInvokeMethodResponseMessage* msg)
@@ -1119,36 +1056,6 @@ void CIMBinMsgSerializer::_putInvokeMethodResponseMessage(
         CIMParamValue(String("ignore"), msg->retValue, true));
     out.putParamValueA(msg->outParameters);
     _putName(out, msg->methodName);
-}
-
-void CIMBinMsgSerializer::_putCreateSubscriptionResponseMessage(
-    CIMBuffer& out,
-    CIMCreateSubscriptionResponseMessage* msg)
-{
-}
-
-void CIMBinMsgSerializer::_putModifySubscriptionResponseMessage(
-    CIMBuffer& out,
-    CIMModifySubscriptionResponseMessage* msg)
-{
-}
-
-void CIMBinMsgSerializer::_putDeleteSubscriptionResponseMessage(
-    CIMBuffer& out,
-    CIMDeleteSubscriptionResponseMessage* msg)
-{
-}
-
-void CIMBinMsgSerializer::_putExportIndicationResponseMessage(
-    CIMBuffer& out,
-    CIMExportIndicationResponseMessage* msg)
-{
-}
-
-void CIMBinMsgSerializer::_putProcessIndicationResponseMessage(
-    CIMBuffer& out,
-    CIMProcessIndicationResponseMessage* msg)
-{
 }
 
 void CIMBinMsgSerializer::_putDisableModuleResponseMessage(
@@ -1163,36 +1070,6 @@ void CIMBinMsgSerializer::_putEnableModuleResponseMessage(
     CIMEnableModuleResponseMessage* msg)
 {
     out.putUint16A(msg->operationalStatus);
-}
-
-void CIMBinMsgSerializer::_putStopAllProvidersResponseMessage(
-    CIMBuffer& out,
-    CIMStopAllProvidersResponseMessage* msg)
-{
-}
-
-void CIMBinMsgSerializer::_putInitializeProviderAgentResponseMessage(
-    CIMBuffer& out,
-    CIMInitializeProviderAgentResponseMessage* msg)
-{
-}
-
-void CIMBinMsgSerializer::_putNotifyConfigChangeResponseMessage(
-    CIMBuffer& out,
-    CIMNotifyConfigChangeResponseMessage* msg)
-{
-}
-
-void CIMBinMsgSerializer::_putSubscriptionInitCompleteResponseMessage(
-    CIMBuffer& out,
-    CIMSubscriptionInitCompleteResponseMessage* msg)
-{
-}
-
-void CIMBinMsgSerializer::_putIndicationServiceDisabledResponseMessage(
-    CIMBuffer& out,
-    CIMIndicationServiceDisabledResponseMessage* msg)
-{
 }
 
 void CIMBinMsgSerializer::_putProvAgtGetScmoClassResponseMessage(

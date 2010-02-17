@@ -168,6 +168,29 @@ const StrLit SCMOClass::_qualifierNameStrLit[72] =
 #define _NUM_QUALIFIER_NAMES \
            (sizeof(_qualifierNameStrLit)/sizeof(_qualifierNameStrLit[0]))
 
+
+/*****************************************************************************
+ * The static declaration of the common SCMO memory functions.
+ *****************************************************************************/
+
+static Uint64 _getFreeSpace(
+    SCMBDataPtr& ptr,
+    Uint32 size,
+    SCMBMgmt_Header** pmem);
+
+static void _setString(
+    const String& theString,
+    SCMBDataPtr& ptr,
+    SCMBMgmt_Header** pmem);
+
+static void _setBinary(
+    const void* theBuffer,
+    Uint32 bufferSize,
+    SCMBDataPtr& ptr,
+    SCMBMgmt_Header** pmem);
+
+
+
 /*****************************************************************************
  * Internal inline functions.
  *****************************************************************************/
@@ -1591,9 +1614,6 @@ SCMO_RC SCMOInstance::getCIMInstance(CIMInstance& cimInstance) const
          {
              for(Uint32 i = 0, k = inst.hdr->numberProperties; i<k; i++)
              {
-                 SCMBValue* theInstPropArray =
-                     (SCMBValue*)&(inst.base[inst.hdr->propertyArray.start]);
-
                  // Set all properties in the CIMInstance gegarding they
                  // are part of the SCMOInstance or the SCMOClass.
                  CIMProperty theProperty=_getCIMPropertyAtNodeIndex(i);
@@ -5529,7 +5549,6 @@ void SCMODump::dumpSCMOInstance(SCMOInstance& testInst, Boolean inclMemHdr)const
 void SCMODump::dumpSCMOInstancePropertyFilter(SCMOInstance& testInst) const
 {
     SCMBInstance_Main* insthdr = testInst.inst.hdr;
-    char* instbase = testInst.inst.base;
 
     if (!insthdr->flags.isFiltered)
     {
@@ -5916,7 +5935,6 @@ void SCMODump::dumpKeyIndexList(SCMOClass& testCls) const
 void SCMODump::dumpKeyBindingSet(SCMOClass& testCls) const
 {
     SCMBClass_Main* clshdr = testCls.cls.hdr;
-    char* clsbase = testCls.cls.base;
 
     fprintf(_out,"\n\nKey Binding Set:");
     fprintf(_out,"\n=================\n");
@@ -5970,7 +5988,6 @@ void SCMODump::dumpClassKeyBindingNodeArray(SCMOClass& testCls) const
 void SCMODump::dumpClassProperties(SCMOClass& testCls) const
 {
     SCMBClass_Main* clshdr = testCls.cls.hdr;
-    char* clsbase = testCls.cls.base;
 
     fprintf(_out,"\n\nClass Properties:");
     fprintf(_out,"\n=================\n");

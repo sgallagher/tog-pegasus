@@ -638,7 +638,7 @@ void MessageLoader::setPegasusMsgHomeRelative(const String& argv0)
                 if (env != NULL)
                     path.assign(env);
                 String pathDelim = FileSystem::getPathDelimiter();
-                Uint32 size = path.size();
+                
                 while (path.size() > 0)
                 {
                     try

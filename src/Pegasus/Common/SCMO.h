@@ -544,23 +544,6 @@ inline Uint32 _generateSCMOStringTag(
     return _generateStringTag(_getCharString(ptr,base),ptr.size-1);
 }
 
-// The static declaration of the common SCMO memory functions
-static Uint64 _getFreeSpace(
-    SCMBDataPtr& ptr,
-    Uint32 size,
-    SCMBMgmt_Header** pmem);
-
-static void _setString(
-    const String& theString,
-    SCMBDataPtr& ptr,
-    SCMBMgmt_Header** pmem);
-
-static void _setBinary(
-    const void* theBuffer,
-    Uint32 bufferSize,
-    SCMBDataPtr& ptr,
-    SCMBMgmt_Header** pmem);
-
 PEGASUS_COMMON_LINKAGE extern void _destroyExternalReferencesInternal(
     SCMBMgmt_Header* memHdr);
 

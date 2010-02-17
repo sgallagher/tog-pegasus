@@ -157,37 +157,21 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
         {
             CIMExecQueryResponseMessage* fromResponse =
                 (CIMExecQueryResponseMessage*) response;
-            CIMClass cimClass;
-            Boolean clsRead=false;
-            Array<CIMObject>& cimObjects =
-                fromResponse->getResponseData().getObjects();
-            for (Uint32 j = 0, m = cimObjects.size(); j < m; j++)
-            {
-                CIMObject co=cimObjects[j];
-                CIMObjectPath op=co.getPath();
-                const Array<CIMKeyBinding>& kbs=op.getKeyBindings();
-                if (kbs.size()==0)
-                {     // no path set why ?
-                    if (clsRead==false)
-                    {
-                        cimClass = _repository->getClass(
-                            poA->_nameSpace,op.getClassName(),
-                            false,true,false, CIMPropertyList());
-                        clsRead=true;
-                    }
-                    op = CIMInstance(cimObjects[j]).buildPath(
-                        cimClass);
-                }
-                op.setNameSpace(poA->_nameSpace);
-                op.setHost(System::getHostName());
-                co.setPath(op);
-                if (manyResponses)
-                    toResponse->getResponseData().appendObject(co);
-            }
-        }
 
+            CIMResponseData & from = fromResponse->getResponseData();
+            from.completeHostNameAndNamespace(
+                System::getHostName(),
+                poA->_nameSpace);
+
+            if (manyResponses)
+            {
+                toResponse->getResponseData().appendResponseData(from);
+            }            
+        }
         if (manyResponses)
+        {
             poA->deleteResponse(i);
+        }
 
         if (i == 0)
             break;

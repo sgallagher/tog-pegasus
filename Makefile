@@ -306,8 +306,5 @@ endif
 	@ $(MAKE) --directory=$(PEGASUS_ROOT)/src/Clients/cimsub/tests/testscript \
             -f Makefile repositoryServer
 
-config:
-	@ $(ROOT)/SetConfig_EnvVar
-
 rootbundle:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/cnv2rootbundle -f Makefile

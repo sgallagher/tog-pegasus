@@ -94,8 +94,8 @@ void BuildOptionsTable(
         {"count", "29346", false, Option::WHOLE_NUMBER, 0, 0, "count",
         "Clients.cimcli.CIMCLIClient.COUNT_OPTION_HELP",
         "Expected count of objects returned if summary set.\n"
-            "    Tests this count and display difference.\n"
-            "    Return nonzero if test fails"},
+            "    Tests this count and displays difference.\n"
+            "    Return nonzero status code if test fails"},
 
         {"debug", "false", false, Option::BOOLEAN, 0, 0, "d",
         "Clients.cimcli.CIMCLIClient.DEBUG_OPTION_HELP",
@@ -201,11 +201,14 @@ void BuildOptionsTable(
         "Defines a role string for associators operation resultRole\n"
             "    parameter"},
 
+        // This options has been deprecated and its functionality removed
+        // Keeping it simply as means to explain the issue to users in case
+        // they try to use it.
         {"inputParameters", "", false, Option::STRING, 0, 0, "ip",
         "Clients.cimcli.CIMCLIClient.INPUTPARAMETERS_OPTION_HELP",
-        "Defines an invokeMethod input parameter list.\n"
-            "    Format is p1=v1 p2=v2 .. pn=vn\n"
-            "    (parameters are seperated by spaces)"},
+        "This option deprecated and removed. Replaced by use of\n"
+            "    the same name/value pair syntax as properties in create\n"
+            "    and modify instance."},
 
         {"filter", "", false, Option::STRING, 0, 0, "f",
         "Clients.cimcli.CIMCLIClient.FILTER_OPTION_HELP",
@@ -372,17 +375,20 @@ Boolean lookupStringResolvedOption(Options& opts,
     return resolvedStateVariable;
 }
 
-
+/*
+    Lookup string option and insert into target property
+    Uses the table defined default directly if nothing input from
+    either command line or config file.
+*/
 void lookupStringOption(Options& opts,
     OptionManager& om,
     const char* optionName,
-    String& optsTarget,
-    const String& defaultValue)
+    String& optsTarget)
 {
-    // Test for existing option
+    // Test for existing option. If nothing found, this
+    // function exits cimcli with error status
     const Option* op = _lookupOption(om, optionName);
 
-    optsTarget = defaultValue;
     if (om.lookupValue(optionName, optsTarget))
     {
         if (opts.verboseTest && opts.debug)
@@ -390,7 +396,8 @@ void lookupStringOption(Options& opts,
     }
 }
 
-// Set the correct empty string into the variable.
+// Looks up a String option by name.  If the returned value is empty
+// insures that it is value by setting to String::EMPTY
 void lookupStringOptionEMPTY(Options& opts,
     OptionManager& om,
     const char* optionName,
@@ -590,13 +597,13 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
         exit(CIMCLI_RTN_CODE_OK);
     }
 
-    lookupStringOption(opts, om, "namespace", opts.nameSpace, "root/cimv2");
+    lookupStringOption(opts, om, "namespace", opts.nameSpace);
 
     lookupStringOptionEMPTY(opts, om, "role", opts.role);
 
     lookupStringOptionEMPTY(opts, om, "resultRole", opts.resultRole);
 
-    lookupStringOption(opts, om, "location", opts.location, String::EMPTY);
+    lookupStringOption(opts, om, "location", opts.location);
 
 #ifdef PEGASUS_HAS_SSL
     // Determine whether to connect over HTTPS
@@ -646,6 +653,25 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
                                    "setRtnHostNames",
                                    opts.setRtnHostNames,
                                    opts.rtnHostSubstituteName);
+
+    // Test for existence of input parameter option.  If found, put out
+    // warning and exit with syntax error message.  This parameter was
+    // deprecated and removed in favor of direct input of name/value pairs
+    // as separate input entities in CIM Version 2.10
+    Boolean inputParametersResolved = false;
+    String inputParameters;
+    lookupStringResolvedOption(opts, om,
+                                   "inputParameters",
+                                   inputParametersResolved,
+                                   inputParameters);
+    if (inputParametersResolved)
+    {
+        cerr << "The -ip option has been deprecated and removed.\n"
+              "    parameters can be directly input as name/value pairs\n"
+              "    in the same manner properties are input to the\n"
+              "    createInstance and other operations\n" << endl;
+        exit(CIMCLI_INPUT_ERR);
+    }
 
     // process localOnly and notlocalOnly parameters
     opts.localOnly = om.isTrue("localOnly");

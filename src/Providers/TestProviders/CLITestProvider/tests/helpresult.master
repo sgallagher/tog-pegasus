@@ -11,8 +11,8 @@ The options for this command are:
 This command executes single CIM Operations.
 
  -count  count. Expected count of objects returned if summary set.
-    Tests this count and display difference.
-    Return nonzero if test fails. Default(29346)
+    Tests this count and displays difference.
+    Return nonzero status code if test fails. Default(29346)
  -d  debug. More detailed debug messages. Default(false)
  -delay  delay. Delay between connection and request. Default(0)
  -p  Password. Defines password for authentication. Default()
@@ -44,9 +44,9 @@ This command executes single CIM Operations.
     Associatiors. Default()
  -rr  resultRole. Defines a role string for associators operation resultRole
     parameter. Default()
- -ip  inputParameters. Defines an invokeMethod input parameter list.
-    Format is p1=v1 p2=v2 .. pn=vn
-    (parameters are seperated by spaces). Default()
+ -ip  inputParameters. This option deprecated and removed. Replaced by use of
+    the same name/value pair syntax as properties in create
+    and modify instance.. Default()
  -f  filter. Defines a filter to use for query. Single String input. Default()
  -o  outputformats. Output in xml, mof, txt, table. Default(mof)
  -x  xmlOutput. Output objects in xml format. Default(false)
@@ -312,8 +312,8 @@ The options for this command are:
 This command executes single CIM Operations.
 
  -count  count. Expected count of objects returned if summary set.
-    Tests this count and display difference.
-    Return nonzero if test fails. Default(29346)
+    Tests this count and displays difference.
+    Return nonzero status code if test fails. Default(29346)
  -d  debug. More detailed debug messages. Default(false)
  -delay  delay. Delay between connection and request. Default(0)
  -p  Password. Defines password for authentication. Default()
@@ -345,9 +345,9 @@ This command executes single CIM Operations.
     Associatiors. Default()
  -rr  resultRole. Defines a role string for associators operation resultRole
     parameter. Default()
- -ip  inputParameters. Defines an invokeMethod input parameter list.
-    Format is p1=v1 p2=v2 .. pn=vn
-    (parameters are seperated by spaces). Default()
+ -ip  inputParameters. This option deprecated and removed. Replaced by use of
+    the same name/value pair syntax as properties in create
+    and modify instance.. Default()
  -f  filter. Defines a filter to use for query. Single String input. Default()
  -o  outputformats. Output in xml, mof, txt, table. Default(mof)
  -x  xmlOutput. Output objects in xml format. Default(false)

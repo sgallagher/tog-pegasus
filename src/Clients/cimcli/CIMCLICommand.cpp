@@ -807,22 +807,19 @@ int main(int argc, char** argv)
                         cerr << "Usage: InvokeMethod requires that object and"
                             " method names be specified.\n"
                             "Input parameters are optional and can be"
-                            " specified with the -ip option or as"
-                            " additional parameters to this call. "
+                            " specified as additional parameters to"
+                            " this call. "
                             "Enter each input parameter as name=value"
                             " (no spaces around equal sign)."
                             << endl;
                         exit(CIMCLI_INPUT_ERR);
                     }
-                    //cout << "Input args 2 " << argv[2]
-                    //      << " 3 " << argv[3] << endl;
 
                     if (!_getObjectNameInput(argc, argv, opts, true))
                     {
                         exit(CIMCLI_INPUT_ERR);
                     }
-                    //opts.objectName = argv[2];
-                    //opts.inputObjectName = argv[2];
+
                     opts.methodName = CIMName(argv[3]);
                     // remove the method name argument
                     opts.valueParams.remove(0);

@@ -95,12 +95,12 @@ static int _compareKeyBinding(const CIMKeyBinding& kb1,
                     rtn = 0;
                 }
                 break;
-    
+
             case CIMKeyBinding::BOOLEAN:
                 // Compare as no case strings
                 rtn = String::compareNoCase(kb1.getValue(), kb1.getValue());
                 break;
-    
+
             case CIMKeyBinding::NUMERIC:
                 // convert to numeric values and compare
                 Uint64 uValue1;

@@ -41,7 +41,8 @@ depend:
 general:
 
 poststarttests: 
-	@cimcli im CMPISample_MethodProviderClass SayHello -n root/SampleProvider -ip Name=\"John\"
+	@cimcli im CMPISample_MethodProviderClass SayHello \
+	    -n root/SampleProvider Name=\"John\"
 	
 
 install:

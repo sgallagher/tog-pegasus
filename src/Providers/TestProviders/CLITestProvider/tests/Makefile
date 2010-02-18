@@ -118,13 +118,8 @@ getclass:
 testRefs:
 	@$(ECHO) 1. +++++ Test For Reference params
 	@$(ECHO) 1. +++++ Test For Reference params  >> $(RESULTFILE)
+##      Test removed.
 
-##@cimcli im Test_CLITestProviderClass  ReferenceParamTest \
-## -n "$(PROVIDERNS)" -ip a=[class.k1=v1,k2=v2,k3=v3]
-
-##@$(ECHO) 2. +++++ Test String  params  which include square brackets
-##@cimcli im Test_CLITestProviderClass  ReferenceParamTest \
-##-n "$(PROVIDERNS)" -ip a="\[string-param\]"
 
 ### test get and set property operations
 testPropertyOperations:

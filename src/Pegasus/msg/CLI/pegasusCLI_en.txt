@@ -955,8 +955,8 @@ en:table {
 
         Clients.cimcli.CIMCLIClient.COUNT_OPTION_HELP:string {
         "-count count. Expected count of objects returned if summary set.\n"
-        "    Tests this count and display difference.\n"
-        "    Return nonzero if test fails. Default(29346)\n"}
+        "    Tests this count and displays difference.\n"
+        "    Return nonzero status code if test fails. Default(29346)\n"}
 
         Clients.cimcli.CIMCLIClient.NI_COMMAND_HELP:string {
         "ni    enumerateInstanceNames Enumerate instancenames of <classname>\n"}
@@ -1345,9 +1345,10 @@ en:table {
         "    parameter. Default()\n"}
 
         Clients.cimcli.CIMCLIClient.INPUTPARAMETERS_OPTION_HELP:
-        string {"-ip  inputParameters. Defines an invokeMethod input parameter list.\n"
-        "    Format is p1=v1 p2=v2 .. pn=vn\n"
-        "    (parameters are seperated by spaces) . Default()\n"}
+        string {"-ip  inputParameters. Deprecated and Removed. Replaced by use of\n"
+	"    use of the same name/value pair syntax as properties in create\n"
+	"    and modify instance.\n"
+	}
 
         Clients.cimcli.CIMCLIClient.FILTER_OPTION_HELP:string {
         "-f  filter. Defines a filter to use for query. Single String input. Default()\n"}

@@ -690,6 +690,19 @@ enumerateClasses:
 
 	@$(ECHO) 22. +++++ Test enumerateClasses
 
+## Test executeQuery Operation. This test should 
+## return a single instance.  We just test the response count to avoid
+## the issue of variable information in the result file
+testExecQuery:
+	@$(ECHO) 23. +++++ Test For execQuery
+	@$(ECHO) 23. +++++ Test For execQuery  >> $(RESULTFILE)
+ifdef PEGASUS_ENABLE_EXECQUERY
+	@cimcli xq "Select scaleBool from Test_CLITestProviderClass" \
+	  -n "$(PROVIDERNS)" -count 1
+endif
+
+	@$(ECHO) 23. +++++ Test enumerateClasses
+
 ### Execute the set of test targets defined below
 poststarttests:
 ##      Remove existing master files
@@ -722,6 +735,7 @@ poststarttests:
 	$(MAKE) objectcountertests
 	$(MAKE) SortInstancesTest
 	$(MAKE) enumerateClasses
+	$(MAKE) testExecQuery
 
 	@$(ECHO) +++++ Compare Result files
 ##      diffsort used because there is at least one instance where

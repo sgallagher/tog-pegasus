@@ -766,7 +766,7 @@ int enumerateInstances(Options& opts)
     Execute the client ExecQuery function. The parameters are:
     namespace, queryLanguage, and the query string
 */
-int executeQuery(Options& opts)
+int execQuery(Options& opts)
 {
     if (opts.verboseTest)
     {

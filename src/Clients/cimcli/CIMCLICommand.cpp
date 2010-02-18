@@ -837,12 +837,23 @@ int main(int argc, char** argv)
                     break;
 
                 case ID_ExecQuery:
+                    if (argc <= 2 && opts.query.size() == 0)
+                    {
+                        cerr << "ERROR: ExecQuery requires a query"
+                                "filter definition\n"
+                                "   - supplied directly as a parameter\n"
+                                "   - OR supplied with the -f option\n"
+                                "   The filterLanguage may be supplied\n"
+                                "   - as the second argument\n"
+                                "   - OR as the -ql option\n"
+                              << endl;
+                    }
                     opts.query = argv[2];
                     if (argc==4)
                     {
                         opts.queryLanguage = argv[3];
                     }
-                    opts.termCondition = executeQuery(opts);
+                    opts.termCondition = execQuery(opts);
                     break;
 
                 case ID_StatisticsOn:

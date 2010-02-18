@@ -151,7 +151,7 @@ OPERATION_TABLE_ENTRY OperationTable[] =
 
     {ID_ExecQuery,               "execQuery",     2 ,       "xq",
     "Clients.cimcli.CIMCLIClient.XQ_COMMAND_HELP",
-    " Execute Query <query-expresssion> [<query-language>]"},
+    " ExecQuery <query-expresssion> [<query-language>]"},
 
     {ID_EnumerateNamespaces,     "enumerateNamespaces",2 ,  "ns",
     "Clients.cimcli.CIMCLIClient.NS_COMMAND_HELP",

@@ -1353,6 +1353,9 @@ en:table {
         Clients.cimcli.CIMCLIClient.FILTER_OPTION_HELP:string {
         "-f  filter. Defines a filter to use for query. Single String input. Default()\n"}
 
+        Clients.cimcli.CIMCLIClient.QUERYLANGUAGE_OPTION_HELP:string {
+        "-ql  queryLanguage. Defines a Query Language to be used with a query filter. Default(WQL)\n"}
+
         Clients.cimcli.CIMCLIClient.OUTPUTFORMATS_OPTION_HELP:string {
         "-o  outputformats. Output in xml, mof, txt. Default(mof)\n"}
 

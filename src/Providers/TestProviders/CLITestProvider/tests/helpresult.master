@@ -48,6 +48,8 @@ This command executes single CIM Operations.
     the same name/value pair syntax as properties in create
     and modify instance.. Default()
  -f  filter. Defines a filter to use for query. Single String input. Default()
+ -ql  queryLanguage. Defines a Query Language to be used with a query filter.
+. Default(WQL)
  -o  outputformats. Output in xml, mof, txt, table. Default(mof)
  -x  xmlOutput. Output objects in xml format. Default(false)
  --version  version. Displays software Version. Default(false)
@@ -116,7 +118,7 @@ rn    referenceNames        Enumerate Reference Names <classname> |
                             <instancename>
 im    invokeMethod          Invoke Method for <object> <method>
                             {<inputParams>}
-xq    execQuery              Execute Query <query-expresssion>
+xq    execQuery              ExecQuery <query-expresssion>
                             [<query-language>]
 ns    enumerateNamespaces   Enumerate all namespaces on the server.
 son   Turn On Statistics    Turn on CIM Server Statistics Gathering
@@ -301,7 +303,7 @@ rn    referenceNames        Enumerate Reference Names <classname> |
                             <instancename>
 im    invokeMethod          Invoke Method for <object> <method>
                             {<inputParams>}
-xq    execQuery              Execute Query <query-expresssion>
+xq    execQuery              ExecQuery <query-expresssion>
                             [<query-language>]
 ns    enumerateNamespaces   Enumerate all namespaces on the server.
 son   Turn On Statistics    Turn on CIM Server Statistics Gathering
@@ -349,6 +351,8 @@ This command executes single CIM Operations.
     the same name/value pair syntax as properties in create
     and modify instance.. Default()
  -f  filter. Defines a filter to use for query. Single String input. Default()
+ -ql  queryLanguage. Defines a Query Language to be used with a query filter.
+. Default(WQL)
  -o  outputformats. Output in xml, mof, txt, table. Default(mof)
  -x  xmlOutput. Output objects in xml format. Default(false)
  --version  version. Displays software Version. Default(false)

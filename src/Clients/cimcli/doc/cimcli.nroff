@@ -438,7 +438,7 @@ created instance in the following format:
 The detailed form for value input is defined as follows:
 
 .B 1.
-Scalar property values - The tring form of the property similar
+Scalar property values - The string form of the property similar
 to MOF input of constant values is used to input scalar values.
 The scalarvalue input includes all CIM Types. Numeric values may
 be input in hex, octal, decimal or binary in the same form as

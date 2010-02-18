@@ -125,7 +125,7 @@ int PEGASUS_CLI_LINKAGE associatorNames(Options& opts);
 
 int PEGASUS_CLI_LINKAGE invokeMethod(Options& opts);
 
-int PEGASUS_CLI_LINKAGE executeQuery(Options& opts);
+int PEGASUS_CLI_LINKAGE execQuery(Options& opts);
 
 int PEGASUS_CLI_LINKAGE enumerateNamespaceNames(Options& opts);
 

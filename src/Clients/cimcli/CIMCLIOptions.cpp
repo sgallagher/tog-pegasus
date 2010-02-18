@@ -214,6 +214,10 @@ void BuildOptionsTable(
         "Clients.cimcli.CIMCLIClient.FILTER_OPTION_HELP",
         "Defines a filter to use for query. Single String input"},
 
+        {"queryLanguage", "WQL", false, Option::STRING, 0, 0, "ql",
+        "Clients.cimcli.CIMCLIClient.QUERYLANGUAGE_OPTION_HELP",
+        "Defines a Query Language to be used with a query filter.\n"},
+
         // KS change the output formats to use the enum options function
         // Deprecate this function.
         {"outputformats", "mof", false, Option::STRING, 0,NUM_OUTPUTFORMATS,
@@ -653,6 +657,10 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
                                    "setRtnHostNames",
                                    opts.setRtnHostNames,
                                    opts.rtnHostSubstituteName);
+
+    lookupStringOption(opts, om, "filter", opts.query);
+
+    lookupStringOption(opts, om, "queryLanguage", opts.queryLanguage);
 
     // Test for existence of input parameter option.  If found, put out
     // warning and exit with syntax error message.  This parameter was

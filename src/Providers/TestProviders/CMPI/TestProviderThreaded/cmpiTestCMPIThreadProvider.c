@@ -75,6 +75,7 @@ static int exitNow = 0;
 static int threads = 0;
 
 static CMPI_MUTEX_TYPE threadCntMutex;
+static CMPI_THREAD_TYPE exitThr;
 
 /* ---------------------------------------------------------------------------*/
 /*                              Threads                                       */
@@ -97,6 +98,12 @@ bad_thread (void *args)
 
 }
 #endif
+
+static CMPI_THREAD_RETURN CMPI_THREAD_CDECL testExitThread (void *args)
+{
+  _broker->xft->exitThread(0);
+  return (CMPI_THREAD_RETURN) 0;
+}
 
 static CMPI_THREAD_RETURN CMPI_THREAD_CDECL
 good_thread (void *args)
@@ -156,6 +163,7 @@ initThreads ()
 #endif
   _broker->xft->newThread (empty_thread, NULL, 0);
 
+  exitThr = _broker->xft->newThread(testExitThread, NULL, 0);
 }
 
 void
@@ -187,6 +195,12 @@ deleteThreads ()
   // Make sure to de-allocate the mutexes and conditions.
   _broker->xft->destroyMutex (_mutex);
   _broker->xft->destroyCondition (_cond);
+
+  // join the exitThread
+  if (exitThr)
+  {
+      _broker->xft->joinThread(exitThr, 0);
+  }
 }
 
 CMPIStatus

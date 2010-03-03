@@ -103,6 +103,7 @@ static ThreadReturnType PEGASUS_THREAD_CDECL start_driver(void *parm)
     Thread* my_thread = (Thread*)parm;
     thrd_data *pp = (thrd_data*)my_thread->get_parm();
     thrd_data data=*pp;
+    Thread::setCurrent(my_thread);
 
     delete pp;
     rc = (ThreadReturnType)(data.pgm)(data.parm);

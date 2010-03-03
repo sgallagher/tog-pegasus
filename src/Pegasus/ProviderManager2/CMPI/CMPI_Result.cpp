@@ -369,6 +369,13 @@ extern "C"
             }
             SCMOInstance& inst=*(SCMOInstance*)(eInst->hdl);
             CMPI_Result *xRes=(CMPI_Result*)eRes;
+            appendInvocationFlags(inst);
+
+            // Ensure that the instance includes a valid ObjectPath with
+            // all key properties set, for which the according property
+            // has been set on the instance.
+            inst.buildKeyBindingsFromProperties();
+
             res->deliver(inst);
         }
         catch (const CIMException &e)

@@ -314,6 +314,8 @@ protected:
 
     virtual Boolean isAsync() const;
 
+    CIMClass _cimClass;
+
 };
 
 class PEGASUS_PPM_LINKAGE AssociatorsResponseHandler :

@@ -36,6 +36,7 @@
 #include <Pegasus/Common/SharedPtr.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Config/ConfigManager.h>
+#include <Pegasus/Common/SCMOClassCache.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -806,6 +807,37 @@ void ExecQueryResponseHandler::transfer()
     Array<SCMOInstance> scmoObjs= getSCMOObjects();
     if (cimObjs.size() != 0)
     {
+        // complete keybindings based on set property values
+        CIMOperationRequestMessage * reqMsg =
+            (CIMOperationRequestMessage*) _request;
+
+        Boolean clsRead=false;
+        for (Uint32 j = 0, m = cimObjs.size(); j < m; j++)
+        {
+            CIMObject & co=cimObjs[j];
+            CIMObjectPath op=co.getPath();
+            const Array<CIMKeyBinding>& kbs=op.getKeyBindings();
+            if (kbs.size()==0)
+            {     // no path set why ?
+                if (clsRead==false || _cimClass.isUninitialized())
+                {
+                    SCMOClassCache * classCache = SCMOClassCache::getInstance();
+                    CString nsName = reqMsg->nameSpace.getString().getCString();
+                    CString clName = reqMsg->className.getString().getCString();
+                    SCMOClass theClass = classCache->getSCMOClass(
+                        nsName,
+                        strlen(nsName),
+                        clName,
+                        strlen(clName));
+                    theClass.getCIMClass(_cimClass);
+                    clsRead=true;
+                }
+                op = CIMInstance(co).buildPath(_cimClass);
+            }
+            op.setNameSpace(reqMsg->nameSpace);
+            op.setHost(System::getHostName());
+            co.setPath(op);
+        }
         msg.getResponseData().setObjects(cimObjs);
     }
     if (scmoObjs.size() != 0)

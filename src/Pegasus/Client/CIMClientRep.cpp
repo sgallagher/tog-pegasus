@@ -1025,7 +1025,7 @@ Message* CIMClientRep::_doRequest(
     }
 
     // Check if the connection has to be re-established
-    if (_httpConnection->needsReconnect())
+    if ( _connected && _httpConnection->needsReconnect() )
     {
         _disconnect();
         _doReconnect = true;

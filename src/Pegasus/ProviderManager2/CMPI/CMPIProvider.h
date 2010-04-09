@@ -292,11 +292,6 @@ public:
     Boolean testSubscriptions ();
 
     /**
-        Resets the count of current subscriptions for the indication provider.
-     */
-    void resetSubscriptions ();
-
-    /**
         Sets the provider instance for the provider.
 
         Note: the provider instance is set only for an indication provider, and

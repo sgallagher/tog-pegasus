@@ -865,6 +865,10 @@ Array<String> System::getInterfaceAddrs()
     for( addrs = array; addrs != NULL; addrs = addrs->ifa_next)
     {
         ipFound = false;
+        if (addrs->ifa_addr == NULL)
+        {
+           continue;
+        }
         switch(addrs->ifa_addr->sa_family)
         {
             case AF_INET :

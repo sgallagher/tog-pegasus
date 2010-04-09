@@ -363,7 +363,7 @@ static int _slp_get_local_interface(struct slp_if_addr **list, int af)
             }
             for( addrs = array; addrs != NULL; addrs = addrs->ifa_next)
             {
-                if(addrs->ifa_addr->sa_family == AF_INET6)
+                if(addrs->ifa_addr && (addrs->ifa_addr->sa_family == AF_INET6))
                 {
                     interfaces++;
                 }
@@ -374,7 +374,7 @@ static int _slp_get_local_interface(struct slp_if_addr **list, int af)
             ifp = *list;
             for( addrs = array; addrs != NULL; addrs = addrs->ifa_next)
             {
-                if(addrs->ifa_addr->sa_family == AF_INET6)
+                if(addrs->ifa_addr && (addrs->ifa_addr->sa_family == AF_INET6))
                 {
                     ifp->af = AF_INET6;
                     ifp->ip6_addr =

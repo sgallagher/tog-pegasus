@@ -138,7 +138,7 @@ public:
     static ThreadReturnType PEGASUS_THREAD_CDECL service_listener(void *);
 
     void start_listener();
-    void unregister();
+    void unregister(Boolean stopListener = true);
 
     void set_registration_callback(void (*ptr)());
 

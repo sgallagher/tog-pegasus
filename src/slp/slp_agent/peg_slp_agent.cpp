@@ -450,14 +450,14 @@ void slp_service_agent::update_reg_count()
 }
 #endif
 
-void slp_service_agent::unregister()
+void slp_service_agent::unregister(Boolean stopListener)
 {
     if (_initialized.get() == 0 )
     {
         throw UninitializedObjectException();
     }
 
-    if (_should_listen.get())
+    if (stopListener && _should_listen.get())
     {
         _should_listen = 0;
 #ifdef PEGASUS_SLP_REG_TIMEOUT
@@ -483,7 +483,7 @@ void slp_service_agent::unregister()
                 &callbackErr);
             SLPClose(slp_handle);
         }
-#elif PEGASUS_SLP_REG_TIMEOUT
+#else
         // Unregister with external SLP SA.
         sa_reg_params *p;
 
@@ -666,6 +666,7 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
             // semaphore is signalled means we have to update registrations.
             else if (agent->_should_listen.get())
             {
+                agent->unregister(false);
                 agent->update_registrations();
             }
         }
@@ -677,6 +678,7 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
         _LSLP_SLEEP(1);
         if (agent->_update_reg_count.get() && agent->_should_listen.get())
         {
+            agent->unregister(false);
             agent->update_registrations();
             agent->_update_reg_count--;
         }

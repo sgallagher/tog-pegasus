@@ -60,6 +60,10 @@ PEGASUS_NAMESPACE_BEGIN
 
 Boolean System::bindVerbose = false;
 
+MutexType System::_mutexForGetHostName = PEGASUS_MUTEX_INITIALIZER;
+
+MutexType System::_mutexForGetFQHN = PEGASUS_MUTEX_INITIALIZER;
+
 Boolean System::copyFile(const char* fromPath, const char* toPath)
 {
     ifstream is(fromPath PEGASUS_IOS_BINARY);
@@ -244,14 +248,13 @@ char *System::extract_file_path(const char *fullpath, char *dirname)
 String System::getHostName()
 {
     static String _hostname;
-    static MutexType _mutex = PEGASUS_MUTEX_INITIALIZER;
 
     // Use double-checked locking pattern to avoid overhead of
     // mutex on subsequent calls.
 
     if (0 == _hostname.size())
     {
-        mutex_lock(&_mutex);
+        mutex_lock(&_mutexForGetHostName);
 
         if (0 == _hostname.size())
         {
@@ -263,7 +266,7 @@ String System::getHostName()
             _hostname.assign(hostname);
         }
 
-        mutex_unlock(&_mutex);
+        mutex_unlock(&_mutexForGetHostName);
     }
 
     return _hostname;
@@ -335,14 +338,12 @@ static String _getFullyQualifiedHostName()
 String System::getFullyQualifiedHostName()
 {
     static String _hostname;
-    static MutexType _mutex = PEGASUS_MUTEX_INITIALIZER;
-
     // Use double-checked locking pattern to avoid overhead of
     // mutex on subsequent calls.
 
     if (0 == _hostname.size())
     {
-        mutex_lock(&_mutex);
+        mutex_lock(&_mutexForGetFQHN);
 
         if (0 == _hostname.size())
         {
@@ -352,12 +353,12 @@ String System::getFullyQualifiedHostName()
             }
             catch (...)
             {
-                mutex_unlock(&_mutex);
+                mutex_unlock(&_mutexForGetFQHN);
                 throw;
             }
         }
 
-        mutex_unlock(&_mutex);
+        mutex_unlock(&_mutexForGetFQHN);
     }
 
     return _hostname;

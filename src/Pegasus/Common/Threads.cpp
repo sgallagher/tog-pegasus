@@ -48,6 +48,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+namespace 
+{
+    //mutex used for synchronising threads calling _get_stack_multiplier
+    MutexType _multiplier_mutex = PEGASUS_MUTEX_INITIALIZER;
+}
+
 void Threads::sleep(int msec)
 {
 #if defined(PEGASUS_HAVE_NANOSLEEP)
@@ -110,7 +116,6 @@ static inline int _get_stack_multiplier()
 #if defined(PEGASUS_OS_VMS)
 
     static int _multiplier = 0;
-    static MutexType _multiplier_mutex = PEGASUS_MUTEX_INITIALIZER;
 
     //
     // This code uses a, 'hidden' (non-documented), VMS only, logical

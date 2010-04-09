@@ -482,6 +482,12 @@ public:
     // System ID constants for Logger::put and Logger::trace
     static const String CIMLISTENER;
 
+    // mutex used for synchronising threads calling getHostName.
+    static MutexType _mutexForGetHostName;
+
+    // mutex used for synchronising threads calling getFullyQualifiedHostName
+    static MutexType _mutexForGetFQHN;
+
 };
 
 /**
